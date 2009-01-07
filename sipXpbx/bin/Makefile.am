@@ -79,6 +79,7 @@ EXTRA_DIST = \
 	analyze_483s \
 	ipcclean.pl \
 	sipx-activate-ntp.in \
+	javacertsetup.sh.in \
 	sipx-strip-db-secrets.pl.in \
 	sipx_setup_common.py.in \
 	$(PythonScripts) \
@@ -96,6 +97,7 @@ install-exec-hook : \
 	$(foreach sipxScript,$(SipxLibexecScripts),$(DESTDIR)@SIPX_LIBEXECDIR@/$(sipxScript)) \
 	$(foreach sipxScript,$(SipxLibexecPythonScripts),$(DESTDIR)@SIPX_LIBEXECDIR@/$(sipxScript)) \
 	$(DESTDIR)@SIPX_LIBEXECDIR@/setup.d/010_sipx-activate-ntp \
+	$(DESTDIR)@SIPX_LIBEXECDIR@/setup.d/javacertsetup.sh \
 	remove-obsolete-bins
 
 .PHONY: remove-obsolete-bins
@@ -147,6 +149,12 @@ $(DESTDIR)@DAILYDIR@/sipx-chkspace: sipx-chkspace.in
 $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d/010_sipx-activate-ntp: $(DESTDIR)@SIPX_LIBEXECDIR@/sipx-activate-ntp $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d
 	cd $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d \
 	&& ln -sf ../sipx-activate-ntp 010_sipx-activate-ntp
+
+$(DESTDIR)@SIPX_LIBEXECDIR@/setup.d/javacertsetup.sh: javacertsetup.sh.in
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $(srcdir)/javacertsetup.sh.in > javacertsetup.sh
+	$(INSTALL) -D -m 755 javacertsetup.sh $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d/javacertsetup.sh
+
 
 $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d:
 	$(INSTALL) -d $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d

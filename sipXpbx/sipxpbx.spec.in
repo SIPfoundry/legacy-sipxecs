@@ -136,6 +136,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %attr(755,root,root) %{_libexecdir}/sipXecs/sipx-activate-ntp
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/010_sipx-activate-ntp
+%attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/javacertsetup.sh
 
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxpbx
 %attr(755,root,root) %{_sysconfdir}/cron.daily/sipx-chkspace
