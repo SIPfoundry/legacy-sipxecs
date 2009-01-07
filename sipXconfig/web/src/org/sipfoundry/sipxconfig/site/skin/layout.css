@@ -460,6 +460,7 @@ div.reports
 	border-color: #C0C0C0;
 	border-width: 1px 1px 1px 1px;
 	background-color: #F0F0F0;
+	width: 260px;
 }
 
 p.reportLabel {
