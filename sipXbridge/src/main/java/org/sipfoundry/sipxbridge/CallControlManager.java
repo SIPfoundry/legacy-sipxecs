@@ -272,7 +272,8 @@ class CallControlManager implements SymmitronResetHandler {
 
 				}
 			} else if (operation == RtpSessionOperation.REMOVE_HOLD
-					|| operation == RtpSessionOperation.CODEC_RENEGOTIATION) {
+					|| operation == RtpSessionOperation.CODEC_RENEGOTIATION
+					|| operation == RtpSessionOperation.PORT_REMAP) {
 				/*
 				 * Remove hold and codec renegotiation require forwarding of
 				 * re-INVITE.
