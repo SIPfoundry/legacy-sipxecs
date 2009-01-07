@@ -95,10 +95,8 @@ const UtlContainableType AsynchMediaRelayMsg::TYPE = "AsynchMediaRelayMsg";
 #define MAX_FAILED_CONNECTION_RECOVERY_ATTEMPTS                (1)
 #define GENERIC_TIMER_IN_SECS                                  (30)
 #define GENERIC_TIMER_TICKS_BEFORE_PING                        (1)
-#define GENERIC_TIMER_TICKS_BEFORE_BRIDGE_STAT_QUERY           (1)
 #define GENERIC_TIMER_TICKS_BEFORE_SYMMITRON_RECONNECT_ATTEMPT (1)
-//TODO: bobjoly uncomment this
-//#define GENERIC_TIMER_TICKS_BEFORE_BRIDGE_STAT_QUERY           (10)
+#define GENERIC_TIMER_TICKS_BEFORE_BRIDGE_STAT_QUERY           (10)
 #define DEFAULT_RTP_KEEP_ALIVE_IN_MILLISECS                    (20000)
 // CONSTANTS
 // TYPEDEFS
