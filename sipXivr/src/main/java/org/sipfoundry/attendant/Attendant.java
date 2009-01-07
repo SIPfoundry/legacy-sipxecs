@@ -202,6 +202,10 @@ public class Attendant {
         if (m_aaId == null) {
             Date now = Calendar.getInstance().getTime();
             if (m_schedule != null) {
+                LOG.info(String.format("Attendant determined from schedule %s", m_schedule.getId()));
+                // load the organizationprefs.xml file every time
+                // (as it may change without warning
+                m_schedule.loadPrefs(m_ivrConfig.getOrganizationPrefs());
             	id = m_schedule.getAttendant(now);
             } else {
                 LOG.error(String.format("Cannot find schedule %s in autoattendants.xml.", 
@@ -210,7 +214,7 @@ public class Attendant {
             if (id == null) {
                 LOG.error("Cannot determine which attendant to use from schedule.") ;
             } else {
-                LOG.info(String.format("Attendant %s determined from schedule %s", id, m_schedule.getId()));
+                LOG.info(String.format("Attendant %s selected", id));
             }
         } else {
             id = m_aaId;
@@ -246,7 +250,7 @@ public class Attendant {
             return null;
         }
 
-        LOG.info("Starting attendant " + m_config.getName() + " in locale " + m_locale);
+        LOG.info("Starting attendant id " + id +" (" + m_config.getName() + ") in locale " + m_locale);
 
         String digits;
         int invalidCount = 0;

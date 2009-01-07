@@ -242,20 +242,27 @@ public class Schedule {
         try {
             File organizationFile = new File(filename);
             if (organizationFile.exists()) {
+                LOG.info("Loading prefs file " + filename);
                 DocumentBuilder builder = DocumentBuilderFactory.newInstance()
                         .newDocumentBuilder();
                 Document schedule = builder.parse(organizationFile);
+                
                 Node next = schedule.getFirstChild();
-                while (next != null) {
-                    if (next.getNodeType() == Node.ELEMENT_NODE) {
-                        String name = next.getNodeName();
-                        if (name.contentEquals("specialoperation")) {
-                            m_specialOperation = Boolean.parseBoolean(next.getTextContent().trim());
-                        } else if (name.contentEquals("autoattendant")) {
-                            m_specialAutoAttendantId = next.getTextContent().trim();
+                if (next != null) {
+                    next = next.getFirstChild() ;
+                    while (next != null) {
+                        if (next.getNodeType() == Node.ELEMENT_NODE) {
+                            String name = next.getNodeName();
+                            if (name.contentEquals("specialoperation")) {
+                                m_specialOperation = Boolean.parseBoolean(next.getTextContent().trim());
+                                LOG.debug(String.format("m_specialOperation is %s", Boolean.toString(m_specialOperation))); 
+                            } else if (name.contentEquals("autoattendant")) {
+                                m_specialAutoAttendantId = next.getTextContent().trim();
+                                LOG.debug(String.format("m_specialOAutoAttendantId is %s", m_specialAutoAttendantId)); 
+                            }
                         }
+                        next = next.getNextSibling();
                     }
-                    next = next.getNextSibling();
                 }
             } else {
                 LOG.info(String.format("File %s does not exist.  Using defaults.", filename));
