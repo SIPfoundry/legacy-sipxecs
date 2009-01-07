@@ -14,6 +14,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.DatagramChannel;
 import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.log4j.Logger;
 
@@ -25,7 +26,10 @@ import org.apache.log4j.Logger;
  */
 final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitterEndpointInterface {
 
-    private long lastPacketSentTime;
+    /*
+     * Initialized to currentTime to prevent timer from kicking in too early.
+     */
+    private AtomicLong lastPacketSentTime = new AtomicLong(System.currentTimeMillis());
 
     private ByteBuffer keepAliveBuffer = null;
 
@@ -73,7 +77,7 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
             if (datagramChannel == null)
                 return;
             long now = System.currentTimeMillis();
-            if (now - lastPacketSentTime < maxSilence) {
+            if (now - lastPacketSentTime.get() < maxSilence) {
 
                 return;
             }
@@ -90,7 +94,7 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
                 if (keepaliveMethod.equals(KeepaliveMethod.USE_EMPTY_PACKET)) {
                     if (datagramChannel != null && getSocketAddress() != null
                             && datagramChannel.isOpen() && getSocketAddress() != null) {
-                        lastPacketSentTime = now;
+                        lastPacketSentTime.set(now);
                         datagramChannel.send(emptyBuffer, getSocketAddress());
                     }
 
@@ -100,7 +104,7 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
                     if (keepAliveBuffer != null && datagramChannel != null
                             && getSocketAddress() != null && datagramChannel.isOpen()) {
                         logger.debug("Sending keepalive");
-                        lastPacketSentTime = now;
+                        lastPacketSentTime.set(now);
                         datagramChannel.send((ByteBuffer) keepAliveBuffer, getSocketAddress());
 
                     }
@@ -185,10 +189,16 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
     public void send(ByteBuffer byteBuffer) throws IOException {
 
         if (this.getSocketAddress() == null) {
-            logger.debug("Cannot send -- remote address is null!");
+            if ( logger.isTraceEnabled() ) {
+                logger.trace("Cannot send -- remote address is null!");
+            }
             return;
         }
-        this.lastPacketSentTime = System.currentTimeMillis();
+        
+        /*
+         * Record the time when packet is sent out.
+         */
+        this.lastPacketSentTime.set(System.currentTimeMillis());
 
         /*
          * Check if the packet is self-routed. If so route it back.
