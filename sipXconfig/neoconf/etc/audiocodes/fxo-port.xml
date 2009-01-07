@@ -4,6 +4,7 @@
     "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
 <model>
   <group name='Port'>
+    <label>Analog Line</label>
     <setting name="AutomaticDialing">
       <label>Automatic Dialing</label>
       <profileName>$$</profileName>
@@ -12,7 +13,7 @@
       </type>
       <value>1</value>
       <description>
-        If enabled calls received on this port will be automatically send to Extension specified below.
+        If enabled calls received on this PSTN line will be automatically sent to the destination (extension or user) specified below.
       </description>
     </setting>
     <setting name="Extension">
@@ -22,7 +23,7 @@
         <string required="yes"/>
       </type>
       <value>operator</value>
-      <description>Auto attendant, ACD line or DID extension.</description>
+      <description>Specify the destination for incoming calls on this PSTN line, such as an auto-attendant, a hunt group, an ACD queue, or any internal extension, user or alias.</description>
     </setting>
   </group>
 </model>

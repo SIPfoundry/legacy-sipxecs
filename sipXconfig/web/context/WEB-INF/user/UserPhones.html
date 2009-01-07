@@ -22,10 +22,12 @@
         <ul class="component-links">
           <li>
             <span jwcid="@phone/ModelSelector" userId="ognl:userId"/>
+          </li>
+          <li>
             <span jwcid="addPhones@DirectLink" listener="listener:addExistingPhones">
               <span key="link.addPhones">Add Phones</span>
             </span>
-          </li>    
+          </li>
         </ul>   
         <table jwcid="@phone/PhoneTable" selections="bean:selections" source="ognl:phones"/>
         <ul jwcid="@phone/PhoneTableActions" 
