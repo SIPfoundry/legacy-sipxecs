@@ -462,7 +462,7 @@ div.reports
 	background-color: #F0F0F0;
 }
 
-p.downloadReport {
+p.reportLabel {
 	background: none #D7D7D9;
 	border: solid #C0C0C0 1px;
 	display: block;

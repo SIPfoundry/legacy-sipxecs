@@ -19,11 +19,7 @@ public interface JasperReportContext {
 
     String getTmpDirectory();
 
-    void compileDesignReport(String designReportPath, String jasperReportPath);
-
     JasperPrint getJasperPrint(String jasperPath, Map parameters, List< ? > dataSource);
-
-    JasperPrint getJasperPrint(String jasperPath, Map parameters, String type);
 
     void generateHtmlReport(JasperPrint jasperPrint, String htmlFile);
 

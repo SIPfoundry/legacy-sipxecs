@@ -4,70 +4,23 @@
   <span jwcid="@cdr/CdrDates"
     startTime="ognl:startTime"
     endTime="ognl:endTime" />
-  <table>
-    <tr>
-      <td>
-		<span jwcid="cdrTable@common/ReportComponent"
-		  linkName="message:report.cdrTable"
-		  reportName="cdr-table-report"
-		  reportData="ognl:cdrTableData"
-		  reportParameters="ognl:cdrTableParameters" />
-      </td>
-      <td>
-		<span jwcid="cdrExtensions@common/ReportComponent"
-		  linkName="message:report.cdrExtension"
-		  reportName="cdr-extension-report"
-		  reportData="ognl:cdrExtensionData"
-		  reportParameters="ognl:cdrExtensionParameters" />
-	  </td>
-    </tr>
-    <tr>
-      <td>
-		<span jwcid="cdrActiveCallers@common/ReportComponent" showHtmlLink="false"
-		  linkName="message:report.cdrActiveCallers"
-		  reportName="cdr-active-callers-graph"
-		  reportData="ognl:cdrActiveCallersData"
-		  reportParameters="ognl:cdrActiveCallersParameters" />
-      </td>
-      <td>
-		<span jwcid="cdrActiveReceivers@common/ReportComponent" showHtmlLink="false"
-		  linkName="message:report.cdrActiveReceivers"
-		  reportName="cdr-active-receivers-graph"
-		  reportData="ognl:cdrActiveReceiversData"
-		  reportParameters="ognl:cdrActiveReceiversParameters" />
-      </td>
-	</tr>
-    <tr>
-      <td>
-		<span jwcid="cdrMinutesOutgoingExtension@common/ReportComponent" showHtmlLink="false"
-		  linkName="message:report.cdrMinutesOutgoingExtension"
-		  reportName="cdr-minutes-outgoing-graph"
-		  reportData="ognl:cdrMinutesOutgoingExtensionData"
-		  reportParameters="ognl:cdrMinutesOutgoingExtensionParameters" />
-      </td>
-      <td>
-		<span jwcid="cdrTerminationCalls@common/ReportComponent" showHtmlLink="false"
-		  linkName="message:report.cdrTerminationCalls"
-		  reportName="cdr-termination-calls-pie"
-		  reportData="ognl:cdrTerminationCallsData"
-		  reportParameters="ognl:cdrTerminationCallsParameters" />
-      </td>
-	</tr>
-    <tr>
-      <td>
-		<span jwcid="cdrQueryReport@common/ReportComponent"
-		  linkName="message:report.cdrQueryReport"
-		  reportName="cdr-query-report"
-		  type="literal:sipxcdr"
-		  reportParameters="ognl:cdrQueryReportParameters" />
-      </td>
-      <td>
-		<span jwcid="configQueryReport@common/ReportComponent"
-		  linkName="message:report.configQueryReport"
-		  reportName="config-query-report"
-		  type="literal:sipxconfig"
-		  reportParameters="ognl:configQueryReportParameters" />
-      </td>
-	</tr>
-  </table>
+  <form jwcid="reports@Form" listener="listener:formSubmit">
+    <fieldset>
+      <table>
+	    <tr jwcid="reportType@common/FieldPanel" field="component:reportBean" label="message:label.reportName">
+          <span jwcid="reportBean@PropertySelection"
+            model="ognl:decorateModel(reportModel)"
+            value="ognl:reportBean"
+            onchange="javascript:this.form.submit();" />
+	    </tr>
+      </table>
+    </fieldset>
+    <div jwcid="@If" condition="ognl:reportBean != null">
+      <span jwcid="report@common/ReportComponent"
+        reportLabel="ognl:reportLabel"
+        reportName="ognl:reportName"
+        reportData="ognl:reportData"
+        reportParameters="ognl:reportParameters" />
+    </div>
+  </form>
 </div>

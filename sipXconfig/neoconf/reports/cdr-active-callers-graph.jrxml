@@ -7,7 +7,7 @@
 	<reportFont name="Arial_Bold" isDefault="false" fontName="Arial" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica-Bold" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
 	<reportFont name="Arial_Italic" isDefault="false" fontName="Arial" size="12" isBold="false" isItalic="true" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica-Oblique" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
 
-	<parameter name="activeCallersGraphTitle" class="java.lang.String"/>
+	<parameter name="title" class="java.lang.String"/>
 	<parameter name="callersChart" isForPrompting="false" class="java.awt.Image"/>
 	<field name="key" class="java.lang.String"/>
 	<field name="count" class="java.lang.Integer"/>
@@ -23,7 +23,7 @@
 				<textElement textAlignment="Center">
 					<font reportFont="Arial_Normal" size="22"/>
 				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA[$P{activeCallersGraphTitle}]]></textFieldExpression>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{title}]]></textFieldExpression>
 			</textField>
 			<image scaleImage="Clip" vAlign="Middle" hAlign="Center" isUsingCache="false" evaluationTime="Now">
 				<reportElement x="0" y="44" width="515" height="220" mode="Opaque"/>

@@ -9,7 +9,7 @@
 	<reportFont name="Arial_Italic" isDefault="false" fontName="Arial" size="12" isBold="false" isItalic="true" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica-Oblique" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
 	<style name="Arial_Bold" isDefault="false" fontName="Arial" fontSize="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica-Bold" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
 
-	<parameter name="extensionReportTitle" class="java.lang.String"/>
+	<parameter name="title" class="java.lang.String"/>
 
 	<field name="caller" class="java.lang.String"/>
 	<field name="callee" class="java.lang.String"/>
@@ -61,7 +61,7 @@
 				<textElement textAlignment="Center">
 					<font reportFont="Arial_Normal" size="22"/>
 				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA[$P{extensionReportTitle}]]></textFieldExpression>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{title}]]></textFieldExpression>
 			</textField>
 		</band>
 	</title>

@@ -16,6 +16,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperPrint;
 
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
@@ -47,7 +49,7 @@ public class JasperReportContextImplTestIntegration extends IntegrationTestCase 
     }
 
     public void testCompileDesignReport() throws Exception {
-        m_jasperReportContext.compileDesignReport(m_uncompiledReport, COMPILED_REPORT);
+        compileDesignReport(m_uncompiledReport, COMPILED_REPORT);
         File jasperReport = new File(COMPILED_REPORT);
         assertTrue(jasperReport.exists());
     }
@@ -83,6 +85,14 @@ public class JasperReportContextImplTestIntegration extends IntegrationTestCase 
         m_jasperReportContext.generateXlsReport(jasperPrint, XLS_REPORT);
         File xlsReport = new File(XLS_REPORT);
         assertTrue(xlsReport.exists());
+    }
+
+    private void compileDesignReport(String designReportPath, String jasperReportPath) {
+        try {
+            JasperCompileManager.compileReportToFile(designReportPath, jasperReportPath);
+        } catch (JRException jrEx) {
+            fail("Error compiling jasper-report-test design file ");
+        }
     }
 
     private JasperPrint getJasperPrint() {
