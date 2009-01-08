@@ -659,6 +659,17 @@ void WaitingFor200OkforInvite::SuccessfulResponse( DialogTracker& impl, SipMessa
    {
       if( seqMethod.compareTo( SIP_INVITE_METHOD ) == 0 )
       {
+         // normally we would not be expecting this 200 OK response to carry
+         // an SDP however we have encountered in the field some endpoints
+         // that repeat the SDP answer they already sent in a previous
+         // reliable provisional response (see XECS-2079 for the details).
+         // Given that, if an SDP answer is found, we will reprocess it
+         // to make sure it gets the same transformations that the initial
+         // one got as per XECS-2089.
+         if( response.hasSdpBody() )
+         {
+            impl.ProcessMediaAnswer( response, INITIAL_OFFER_ANSWER );
+         }
          ChangeState( impl, impl.pWaitingForAckForInvite );
       }
       else
