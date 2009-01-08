@@ -50,7 +50,9 @@ class DataShuffler implements Runnable {
                 for (Sym session : bridge.sessions) {
                     try {
                         if (session.getReceiver() != null
+                                && bridge.getState() == BridgeState.RUNNING
                                 && session.getReceiver().getDatagramChannel().isOpen()) {
+                            
                             session.getReceiver().getDatagramChannel().configureBlocking(false);
                             session.getReceiver().getDatagramChannel().register(selector,
                                     SelectionKey.OP_READ);

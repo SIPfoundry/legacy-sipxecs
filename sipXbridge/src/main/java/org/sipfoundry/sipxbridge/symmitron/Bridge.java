@@ -57,7 +57,11 @@ final class Bridge implements BridgeInterface {
     // Private methods.
     // ///////////////////////////////////////////////////////////////////////////////////
     void setState(BridgeState newState) {
+        BridgeState oldState = this.state;
         this.state = newState;
+        if (oldState != newState) {
+            DataShuffler.initializeSelectors();
+        }
 
     }
 
@@ -107,7 +111,7 @@ final class Bridge implements BridgeInterface {
             started = true;
 
         this.setState(BridgeState.RUNNING);
-
+       
     }
 
     /*
@@ -128,7 +132,7 @@ final class Bridge implements BridgeInterface {
         }
 
         this.setState(BridgeState.TERMINATED);
-
+       
     }
 
     /*
@@ -141,7 +145,9 @@ final class Bridge implements BridgeInterface {
         if (this.getState() == BridgeState.PAUSED)
             return;
         else if (this.getState() == BridgeState.RUNNING) {
+          
             this.setState(BridgeState.PAUSED);
+         
 
         } else {
             throw new IllegalStateException("Cannot pause bridge in " + this.getState());
@@ -159,8 +165,9 @@ final class Bridge implements BridgeInterface {
         if (this.getState() == BridgeState.RUNNING)
             return;
         else if (this.getState() == BridgeState.PAUSED) {
+         
             this.setState(BridgeState.RUNNING);
-
+          
         } else {
             throw new IllegalStateException(" Cannot resume bridge in " + this.getState());
         }
