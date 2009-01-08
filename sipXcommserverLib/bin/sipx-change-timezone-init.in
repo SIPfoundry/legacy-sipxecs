@@ -10,10 +10,16 @@ then
     is_file_owned_by_username @SIPX_LIBEXECDIR@/sipx-sudo-timezone "root"
     if [ $? -ne 0 ]
     then
-        chown root @SIPX_LIBEXECDIR@/sipx-sudo-timezone
+        chown root:@SIPXPBXGROUP@ @SIPX_LIBEXECDIR@/sipx-sudo-timezone
+    fi
+
+    is_file_grouped_by_username @SIPX_LIBEXECDIR@/sipx-sudo-timezone @SIPXPBXGROUP@
+    if [ $? -ne 0 ]
+    then
+        chown root:@SIPXPBXGROUP@ @SIPX_LIBEXECDIR@/sipx-sudo-timezone
     fi
     if test ! -x @SIPX_LIBEXECDIR@/sipx-sudo-timezone -o ! -u @SIPX_LIBEXECDIR@/sipx-sudo-timezone
     then
-        chmod 4755 @SIPX_LIBEXECDIR@/sipx-sudo-timezone
+        chmod 4750 @SIPX_LIBEXECDIR@/sipx-sudo-timezone
     fi
 fi
