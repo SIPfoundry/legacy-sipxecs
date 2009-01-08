@@ -14,7 +14,6 @@ import org.sipfoundry.sipxconfig.login.LoginContext;
 
 public class PasswordEncoderImpl implements PasswordEncoder {
     private LoginContext m_loginContext;
-
     public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
         // dummy admin user is enabled only when running tests
         if (AuthenticationDaoImpl.isDummyAdminUserEnabled()) {
@@ -32,9 +31,8 @@ public class PasswordEncoderImpl implements PasswordEncoder {
             UserDetailsImpl userDetails = (UserDetailsImpl) salt;
             encodedPassword =
                 m_loginContext.getEncodedPassword(userDetails.getCanonicalUserName(), rawPass);
-        } else if (klass.equals(LocationDetailsImpl.class)) {
-            LocationDetailsImpl locationDetails = (LocationDetailsImpl) salt;
-            encodedPassword = locationDetails.getPassword();
+        } else if (klass.equals(LocationDetailsImpl.class)) {            
+            encodedPassword = rawPass;
         }
         return encodedPassword;
     }

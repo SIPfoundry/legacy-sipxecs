@@ -48,6 +48,7 @@ public class InitialConfigService implements IEngineService {
                 "literal:tar/x-gzip"));
         InputStream stream = m_initialConfig.getArchiveStream(location);
         IOUtils.copy(stream, responseOutputStream);
+        m_initialConfig.deleteInitialConfigDirectory();
 
     }
 

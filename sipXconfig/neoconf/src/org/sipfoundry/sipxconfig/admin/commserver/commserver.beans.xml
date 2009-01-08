@@ -230,8 +230,6 @@
     class="org.sipfoundry.sipxconfig.admin.commserver.InitialConfig">
     <property name="tmpDirectory" value="${sysdir.tmp}"/>
     <property name="binDirectory" value="${sysdir.libexec}"/>
-    <property name="domainManager" ref="domainManager"/>
-    <property name="locationConfiguration" ref="domainConfiguration"/>
   </bean>
 
 </beans>

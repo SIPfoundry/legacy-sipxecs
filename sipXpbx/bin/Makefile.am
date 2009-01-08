@@ -29,6 +29,7 @@ bin_SCRIPTS = \
 
 SipxLibexecScripts = \
 	sipx-activate-ntp \
+	initial-config \
 	sipx-strip-db-secrets.pl
 
 SipxLibexecPythonScripts = \
