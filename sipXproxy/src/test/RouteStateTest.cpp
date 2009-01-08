@@ -43,8 +43,7 @@ class RouteStateTest : public CppUnit::TestCase
    CPPUNIT_TEST(testNewDialogState);
    CPPUNIT_TEST(testAppendedState);
    CPPUNIT_TEST(testAddCopy);
-   CPPUNIT_TEST(testAuthorizedDialogsWithoutIdentity);
-   CPPUNIT_TEST(testAuthorizedDialogsWithIdentity);
+   CPPUNIT_TEST(testAuthorizedDialog);
 
    CPPUNIT_TEST_SUITE_END();
 
@@ -722,7 +721,7 @@ public:
          CPPUNIT_ASSERT(expectedMessage.compareTo( msgBytes ) == 0 );
       }
    
-   void testAuthorizedDialogsWithoutIdentity()
+   void testAuthorizedDialog()
       {
          UtlSList removedHeaders;
          const char* mutableMessage =
@@ -740,41 +739,10 @@ public:
          UtlString myRouteName("myhost.example.com");
          RouteState mutableRouteState(mutableSipMessage, removedHeaders, myRouteName); 
          
-         UtlString authenticatedIdentity = "dummy";
-         CPPUNIT_ASSERT( !mutableRouteState.isDialogAuthorized( authenticatedIdentity ) );
-         ASSERT_STR_EQUAL( "", authenticatedIdentity.data() );
-         mutableRouteState.markDialogAsAuthorized( "" );
-         CPPUNIT_ASSERT( mutableRouteState.isDialogAuthorized( authenticatedIdentity ) );
-         ASSERT_STR_EQUAL( "", authenticatedIdentity.data() );
-      }
-   
-   void testAuthorizedDialogsWithIdentity()
-      {
-         UtlSList removedHeaders;
-         const char* mutableMessage =
-            "INVITE sip:user@somewhere.com SIP/2.0\r\n"
-            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
-            "To: sip:user@somewhere.com\r\n"
-            "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
-            "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
-            "Cseq: 1 INVITE\r\n"
-            "Max-Forwards: 20\r\n"
-            "Contact: caller@127.0.0.1\r\n"
-            "Content-Length: 0\r\n"
-            "\r\n";
-         SipMessage mutableSipMessage(mutableMessage, strlen(mutableMessage));
-         UtlString myRouteName("myhost.example.com");
-         RouteState mutableRouteState(mutableSipMessage, removedHeaders, myRouteName); 
-         
-         UtlString authenticatedIdentity = "dummy";
-         CPPUNIT_ASSERT( !mutableRouteState.isDialogAuthorized( authenticatedIdentity ) );
-         ASSERT_STR_EQUAL( "", authenticatedIdentity.data() );
-         mutableRouteState.markDialogAsAuthorized( "authId" );
-         CPPUNIT_ASSERT( mutableRouteState.isDialogAuthorized( authenticatedIdentity ) );
-         ASSERT_STR_EQUAL( "authId", authenticatedIdentity.data() );
-      }
-   
-
+         CPPUNIT_ASSERT( !mutableRouteState.isDialogAuthorized() );
+         mutableRouteState.markDialogAsAuthorized();
+         CPPUNIT_ASSERT( mutableRouteState.isDialogAuthorized() );
+      }   
 };
    
 CPPUNIT_TEST_SUITE_REGISTRATION(RouteStateTest);

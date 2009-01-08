@@ -132,18 +132,10 @@ class RouteState
    /// Adds an encoded parameter to a mutable RouteState indicating that the dialog is authorized.
    /// Authorizating entities can test for the presence of such a parameter using the
    /// RouteState::isDialogAuthorized() method when processing requests.
-   ///
-   /// @parm authenticatedIdentity: specifies the authenticated identity that was used to 
-   ///                              authorize the dialog.  If the identity is unknown, an
-   ///                              empty string must be supplied.
-   void markDialogAsAuthorized( const UtlString& authenticatedIdentity );
+   void markDialogAsAuthorized( void );
    
    /// used to discover whether or not the dialog has already been authorized.
-   ///
-   /// @parm authenticatedIdentity: will receive the authenticated identity that was used to 
-   ///                              authorize the dialog.  If the identity is unknown, an
-   ///                              empty string will be returned.
-   bool isDialogAuthorized( UtlString& authenticatedIdentity ); 
+   bool isDialogAuthorized( void ); 
   
    /**<
     * Some AuthPlugin classes need to make different changes

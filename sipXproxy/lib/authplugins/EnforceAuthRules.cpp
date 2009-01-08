@@ -245,7 +245,6 @@ EnforceAuthRules::authorizeAndModify(const UtlString& id,    /**< The authentica
    {
       // another plug-in already provided an authoritative result for this request so
       // don't waste time figuring it out.
-      result = priorResult;
       OsSysLog::add(FAC_AUTH, PRI_DEBUG, "EnforceAuthRules[%s]::authorizeAndModify "
                     "prior authorization result %s for call %s - rules skipped",
                     mInstanceName.data(), AuthResultStr(priorResult), callId.data()

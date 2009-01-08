@@ -293,19 +293,20 @@ bool RouteState::directionIsCallerToCalled(const char* instanceName)
 }
 
 // encodes 'auth' parameter to indicate that dialog has been authorized 
-void RouteState::markDialogAsAuthorized( const UtlString& authenticatedIdentity )
+void RouteState::markDialogAsAuthorized( void )
 {
    if (isMutable())
    {
-      setParameter( "", AUTHORIZED_DIALOG_PARAM, authenticatedIdentity );              
+      UtlString unused;
+      setParameter( "", AUTHORIZED_DIALOG_PARAM, unused );              
    } 
 }
 
 // tests for the presence of the 'auth' parameter which indicates that dialog has been authorized
-bool RouteState::isDialogAuthorized( UtlString& authenticatedIdentity )
+bool RouteState::isDialogAuthorized( void )
 {
-   authenticatedIdentity.remove( 0 );
-   return getParameter( "", AUTHORIZED_DIALOG_PARAM, authenticatedIdentity );
+   UtlString unused;
+   return getParameter( "", AUTHORIZED_DIALOG_PARAM, unused );
 }
 
 /// Encode and sign the state as a single SIP token

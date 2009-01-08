@@ -995,7 +995,7 @@ public:
       UtlSList noRemovedRoutes;
       UtlString routeName("example.com"), rsParam;
       RouteState routeState( testMsg, noRemovedRoutes, routeName );
-      CPPUNIT_ASSERT( routeState.isDialogAuthorized( rsParam ) ); 
+      CPPUNIT_ASSERT( routeState.isDialogAuthorized() ); 
       CPPUNIT_ASSERT( rsParam.isNull() );    
    }
    
@@ -1047,10 +1047,9 @@ public:
 
       // look into RouteState
       UtlSList noRemovedRoutes;
-      UtlString routeName("example.com"), rsParam;
+      UtlString routeName("example.com");
       RouteState routeState( testMsg, noRemovedRoutes, routeName );
-      CPPUNIT_ASSERT( routeState.isDialogAuthorized( rsParam ) ); 
-      ASSERT_STR_EQUAL( "caller@example.org", rsParam.data() );  
+      CPPUNIT_ASSERT( routeState.isDialogAuthorized() ); 
    }
    
    void testProxyMessageWithRouteStateWithAuthentication_DialogForming()
@@ -1095,7 +1094,7 @@ public:
       UtlSList noRemovedRoutes;
       UtlString routeName("example.com"), rsParam;
       RouteState routeState( testMsg, noRemovedRoutes, routeName );
-      CPPUNIT_ASSERT( routeState.isDialogAuthorized( rsParam ) ); 
+      CPPUNIT_ASSERT( routeState.isDialogAuthorized() ); 
       ASSERT_STR_EQUAL( "", rsParam.data() );  
    }
    
@@ -1122,7 +1121,7 @@ public:
       mpDummyAuthPlugin->mbDenyNextRequest = false;
       CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
       CPPUNIT_ASSERT_EQUAL( AuthPlugin::ALLOW, mpDummyAuthPlugin->mLastAuthResult );
-      ASSERT_STR_EQUAL( "caller@example.org", mpDummyAuthPlugin->mLastAuthenticatedId.data() );
+      ASSERT_STR_EQUAL( "", mpDummyAuthPlugin->mLastAuthenticatedId.data() );
       
       // check that route has been popped.
       UtlString route;

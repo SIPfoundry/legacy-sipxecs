@@ -276,7 +276,7 @@ public:
          const bool bSpiralingRequest = false;
          AuthPlugin::AuthResult priorResult = AuthPlugin::ALLOW;
 
-         CPPUNIT_ASSERT(AuthPlugin::ALLOW
+         CPPUNIT_ASSERT(AuthPlugin::CONTINUE
                         == enforcer->authorizeAndModify(identity,
                                                         requestUri,
                                                         routeState,
@@ -294,7 +294,7 @@ public:
          CPPUNIT_ASSERT(!testMsg.getRecordRouteField(0, &recordRoute));
 
          // now simulate a spiral with the same message
-         CPPUNIT_ASSERT(AuthPlugin::ALLOW
+         CPPUNIT_ASSERT(AuthPlugin::CONTINUE
                         == enforcer->authorizeAndModify(identity,
                                                         requestUri,
                                                         routeState,
@@ -348,7 +348,7 @@ public:
          const bool bSpiralingRequest = false;
          AuthPlugin::AuthResult priorResult = AuthPlugin::ALLOW; // SipRouter passes this for responses
 
-         CPPUNIT_ASSERT(AuthPlugin::ALLOW
+         CPPUNIT_ASSERT(AuthPlugin::CONTINUE
                         == enforcer->authorizeAndModify(identity,
                                                         requestUri,
                                                         routeState,
