@@ -23,6 +23,7 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> implements LocationsManager {
 
     private static final String LOCATION_PROP_NAME = "fqdn";
+    private static final String LOCATION_PROP_PRIMARY = "primary";
 
     private DaoEventPublisher m_daoEventPublisher;
     
@@ -47,7 +48,7 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
         return loadLocationByUniqueProperty(LOCATION_PROP_NAME, fqdn);
     }
 
-    private Location loadLocationByUniqueProperty(String propName, String propValue) {
+    private Location loadLocationByUniqueProperty(String propName, Object propValue) {
         final Criterion expression = Restrictions.eq(propName, propValue);
 
         HibernateCallback callback = new HibernateCallback() {
@@ -72,10 +73,6 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
     }
 
     public Location getPrimaryLocation() {
-        Location[] allLocations = getLocations();
-        if (allLocations.length > 0) {
-            return getLocations()[0];
-        }
-        return null;
+        return loadLocationByUniqueProperty(LOCATION_PROP_PRIMARY, true);
     }
 }

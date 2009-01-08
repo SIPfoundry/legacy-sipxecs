@@ -33,15 +33,19 @@ public class LocationsMigrationTriggerTestIntegration extends IntegrationTestCas
 
         m_out.setConfigDirectory(getConfigDirectory());
         m_out.setTopologyFilename(TOPOLOGY_TEST_XML);
+        m_out.setHostname("localhost");
         m_out.onInitTask("migrate_locations");
 
         Location[] locationsAfterMigration = m_locationsManager.getLocations();
         assertEquals(2, locationsAfterMigration.length);
         assertEquals("https://localhost:8092/RPC2", locationsAfterMigration[0].getProcessMonitorUrl());
         assertEquals("localhost", locationsAfterMigration[0].getFqdn());
+        //Localhost should be primary location
+        assertTrue(locationsAfterMigration[0].isPrimary());
         assertEquals("https://192.168.0.27:8092/RPC2", locationsAfterMigration[1].getProcessMonitorUrl());
         assertEquals("192.168.0.27", locationsAfterMigration[1].getFqdn());
-
+        //all other hosts should be secondary
+        assertFalse(locationsAfterMigration[1].isPrimary());
         assertFalse(testTopologyFile.exists());
     }
 
@@ -57,8 +61,12 @@ public class LocationsMigrationTriggerTestIntegration extends IntegrationTestCas
         assertEquals(2, locationsAfterMigration.length);
         assertEquals("https://localhost:8092/RPC2", locationsAfterMigration[0].getProcessMonitorUrl());
         assertEquals("localhost", locationsAfterMigration[0].getFqdn());
+        //Localhost should be primary location
+        assertTrue(locationsAfterMigration[0].isPrimary());
         assertEquals("https://remotehost.example.org:8092/RPC2", locationsAfterMigration[1].getProcessMonitorUrl());
         assertEquals("remotehost.example.org", locationsAfterMigration[1].getFqdn());
+        //all other hosts should be secondary
+        assertFalse(locationsAfterMigration[1].isPrimary());        
     }
 
     public void testOnInitTaskWithMissingTopologyFile() throws Exception {
@@ -76,6 +84,8 @@ public class LocationsMigrationTriggerTestIntegration extends IntegrationTestCas
         Location[] locationsAfterMigration = m_locationsManager.getLocations();
         assertEquals(1, locationsAfterMigration.length);
         assertEquals("https://my.full.hostname:8092/RPC2", locationsAfterMigration[0].getProcessMonitorUrl());
+        //one location - primary
+        assertTrue(locationsAfterMigration[0].isPrimary());
     }
 
     public void setLocationsMigrationTrigger(LocationsMigrationTrigger locationMigrationTrigger) {

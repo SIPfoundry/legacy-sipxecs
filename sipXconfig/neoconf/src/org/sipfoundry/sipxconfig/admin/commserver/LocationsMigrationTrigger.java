@@ -42,16 +42,32 @@ public class LocationsMigrationTrigger extends InitTaskListener {
 
         LOG.info("Migrating location data from topology.xml to sipXconfig database");
         Location[] locations = loadLocationsFromFile();
-        for (Location location : locations) {
-            m_locationsManager.storeLocation(location);
-        }
-
-        if (locations.length == 0) {
+        //if there is no location matching the sipxconfig hostname - the first found is made primary
+        //(this situation should never happen - 
+        //the location where sipxconfig is installed (primary) should always be written in topology.xml)        
+        if (locations.length > 0) {
+            Location firstLocation = locations[0];
+            firstLocation.setPrimary(true);
+            //always one and only one location should be designated as primary
+            boolean savePrimary = false;
+            for (Location location : locations) {
+                if (location.getFqdn().equals(m_hostname) && !savePrimary) {
+                    firstLocation.setPrimary(false);
+                    location.setPrimary(true);
+                    savePrimary = true;
+                }                
+            }
+            //save locations in DB
+            for (Location location : locations) {
+                m_locationsManager.storeLocation(location);
+            }
+        } else {
             LOG.info("No locations migrated from topology.xml - Creating localhost location.");
             Location localhostLocation = new Location();
             localhostLocation.setName("Config Server, Media Server and Comm Server");
             localhostLocation.setAddress(m_localIpAddress);
             localhostLocation.setFqdn(m_hostname);
+            localhostLocation.setPrimary(true);
             m_locationsManager.storeLocation(localhostLocation);
         }
 
@@ -88,7 +104,7 @@ public class LocationsMigrationTrigger extends InitTaskListener {
         } catch (FileNotFoundException e) {
             // When running in a test environment, the topology file will not be found
             // set to empty array so that we do not have to parse again
-            LOG.warn("Could not find the file " + m_topologyFilename, e);
+            LOG.warn("Could not find the file " + m_topologyFilename);
             return new Location[0];
         } catch (IOException e) {
             LOG.warn("Error accessing file " + m_topologyFilename, e);

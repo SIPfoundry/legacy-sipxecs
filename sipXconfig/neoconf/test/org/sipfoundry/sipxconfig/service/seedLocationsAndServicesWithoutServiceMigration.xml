@@ -4,15 +4,18 @@
     <column>location_id</column>
     <column>name</column>
     <column>fqdn</column>
+    <column>primary_location</column>
     <row>
       <value>101</value>
       <value>Primary</value>
       <value>primary.example.org</value>
+      <value>true</value>
     </row>
     <row>
       <value>102</value>
       <value>Secondary</value>
       <value>secondary.example.org</value>
+      <value>false</value>
     </row>
   </table>
   <table name="sipx_service">

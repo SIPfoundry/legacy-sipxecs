@@ -284,6 +284,7 @@ public abstract class TestPage extends BasePage {
         remoteLocation.setName(TEST_LOCATION_NAME);
         remoteLocation.setFqdn(TEST_LOCATION_FQDN);
         remoteLocation.setAddress("192.168.155.100");
+        remoteLocation.setPrimary(true);
         getLocationsManager().storeLocation(remoteLocation);
     }
 

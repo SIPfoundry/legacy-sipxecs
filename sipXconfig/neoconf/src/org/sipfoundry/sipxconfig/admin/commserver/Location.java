@@ -15,6 +15,7 @@ import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
@@ -25,11 +26,13 @@ public class Location extends BeanWithId {
     // security role
     public static final String ROLE_LOCATION = "ROLE_LOCATION";
     private static final int PROCESS_MONITOR_PORT = 8092;
+    private static final int LOCATION_PASSWORD_LEN = 8;
 
     private String m_name;
     private String m_address;
     private String m_fqdn;
-    private String m_password;
+    private String m_password = RandomStringUtils.randomAlphanumeric(LOCATION_PASSWORD_LEN);
+    private boolean m_primary;
 
     private Collection<LocationSpecificService> m_services;
     private DaoEventPublisher m_daoEventPublisher;
@@ -155,7 +158,7 @@ public class Location extends BeanWithId {
         for (LocationSpecificService lss : m_services) {
             if (serviceName.equals(lss.getSipxService().getBeanId())) {
                 return;
-            }        
+            }
         }
         service.setLocation(this);
         m_services.add(service);
@@ -192,4 +195,13 @@ public class Location extends BeanWithId {
             return hostname;
         }
     }
+
+    public boolean isPrimary() {
+        return m_primary;
+    }
+
+    public void setPrimary(boolean primary) {
+        m_primary = primary;
+    }
+
 }

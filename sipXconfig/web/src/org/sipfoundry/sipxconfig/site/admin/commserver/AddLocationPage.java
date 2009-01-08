@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.site.admin.commserver;
 
-import org.apache.commons.lang.RandomStringUtils;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
@@ -22,8 +21,6 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class AddLocationPage extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "admin/commserver/AddLocationPage";
-
-    private static final int LOCATION_PASSWORD_LEN = 8;
 
     @InjectObject(value = "spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
@@ -38,7 +35,6 @@ public abstract class AddLocationPage extends PageWithCallback implements PageBe
     public void pageBeginRender(PageEvent event) {
         if (getLocationBean() == null) {
             Location location = new Location();
-            location.setPassword(RandomStringUtils.randomAlphanumeric(LOCATION_PASSWORD_LEN));
             setLocationBean(location);
         }
     }
