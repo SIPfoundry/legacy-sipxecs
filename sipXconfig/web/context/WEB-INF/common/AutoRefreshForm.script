@@ -5,17 +5,23 @@
 <script>
   <input-symbol key="refreshButton" required="yes"/>
   <input-symbol key="interval" required="yes"/>
+  <input-symbol key="checkbox" required="yes" />
   
   <let key="initRefresh" unique="yes">initRefresh</let>
   <let key="timeoutId" unique="yes">timeoutId</let>
   
   <body>
     <unique>
+<![CDATA[    
+var refreshEnabled = true;
+    
 function ${initRefresh}(buttonName, interval) {
   dojo.debug("Registering auto refresh: " + interval);
   var click = function() {
-    dojo.debug("Clicking: " + buttonName);
-    dojo.byId(buttonName).click();     
+    if (dojo.byId("${checkbox}").checked && refreshEnabled) {  
+        dojo.debug("Clicking: " + buttonName);
+        dojo.byId(buttonName).click();     
+    }
   }
   
   if (window.${timeoutId}) {
@@ -29,6 +35,7 @@ function ${initRefresh}(buttonName, interval) {
   window.${timeoutId} = window.setInterval(click, interval * 1000);
   dojo.debug('setting timeout ' + window.${timeoutId});
 }
+]]>
     </unique>
   </body>
   <initialization>

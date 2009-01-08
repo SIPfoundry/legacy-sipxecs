@@ -37,6 +37,10 @@
      */
     function showTestTooltip() {
         if (pendingTooltipEvent) {
+        
+            // Suspend autorefresh while this tooltip is displayed.
+            refreshEnabled = false;
+        
             var baseId = getBaseId(pendingTooltipEvent.target.id);
             var testDescriptionContainer = dojo.byId(baseId + DESCRIPTION_ELEMENT_ID);
             var testNameContainer = dojo.byId(baseId + NAME_ELEMENT_ID);
@@ -77,6 +81,9 @@
                 ).play();
             }
         }
+        
+        // Now we can re-enable autorefresh.
+        refreshEnabled = true;
     }
 
     /**
