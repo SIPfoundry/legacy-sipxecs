@@ -40,7 +40,7 @@ Section "Preflight (required)"
   ; Put file there
   File "@build.dir@/dist/Preflight.exe"
   File "@build.dir@/dist/preflight.jar"
-  File /r "@build.dir@/dist/harmony"
+  File /r "@build.dir@/dist/jre6"
   
   ; Write the installation path into the registry
   WriteRegStr HKLM SOFTWARE\Pingtel_Preflight "Install_Dir" "$INSTDIR"
@@ -77,7 +77,7 @@ SectionEnd
 ;;  ; Remove files and uninstaller
 ;;  Delete   "$INSTDIR\Preflight.exe"
 ;;  Delete   "$INSTDIR\preflight.jar"
-;;  RMDir /r "$INSTDIR\jre"
+;;  RMDir /r "$INSTDIR\jre6"
 ;;  Delete   "$INSTDIR\uninstall.exe"
 ;;
 ;;  ; Remove shortcuts, if any

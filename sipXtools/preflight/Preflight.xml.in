@@ -8,6 +8,6 @@
   <customProcName>true</customProcName>
   <icon>@src.dir@/icons/preflight.ico</icon>
   <jre>
-    <path>harmony/bin</path>
+    <path>jre6</path>
   </jre>
 </launch4jConfig>
