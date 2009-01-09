@@ -69,10 +69,11 @@ SessionContext::SessionContext( const SipMessage& sipRequest,
 
    // Create the string that will be used to mark packets as handled by this system.  This
    // string must be unique for this system and is set to the system's private:public IP pair
-   mSystemIdentificationString = mpNatTraversalRules->getProxyTransportInfo().getAddress();
+   // NOTE: a leading 'X' character is added to work around the Polycom f/w problem detailed in XTRN-383.
+   mSystemIdentificationString = "X";
+   mSystemIdentificationString.append( mpNatTraversalRules->getProxyTransportInfo().getAddress() );
    mSystemIdentificationString.append( "-" );
    mSystemIdentificationString.append( mpNatTraversalRules->getPublicTransportInfo().getAddress() );
-      
    OsSysLog::add(FAC_NAT, PRI_DEBUG, "+SessionContext tracker %p created; Handle=%s+",
                                        this,
                                        mHandle.data() );
