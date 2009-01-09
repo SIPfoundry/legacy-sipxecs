@@ -21,7 +21,7 @@ sipx.data.dir=@SIPX_DATADIR@
 debuglevel=lines
 
 # U T I L
-preflight.dir=@SIPX_JAVADIR@/sipXtools
+preflight.dir=@SIPX_JAVADIR@/preflight
 sipxcommons.dir=@SIPX_JAVADIR@/sipXcommons
 sipxcommons.jar=${sipxcommons.dir}/sipxcommons.jar
 jainsip.jar=${sipxcommons.dir}/jain-sip-sdp.jar

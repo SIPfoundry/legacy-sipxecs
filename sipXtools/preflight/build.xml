@@ -123,14 +123,14 @@
   <target name="windows-install">
     <!-- Windows Installer -->
     <mkdir dir="${dest.dir}${sipx.data.dir}/preflight"/>
-    <copy file="${build.dir}/dist/preflight_installer.exe" todir="${dest.dir}${sipx.data.dir}/preflight"/>
-    <chmod file="${dest.dir}${sipx.data.dir}/preflight/preflight_installer.exe" perm="ugo+x" />
+    <copy file="${build.dir}/dist/preflight_installer.exe" todir="${dest.dir}${preflight.dir}"/>
+    <chmod file="${dest.dir}${preflight.dir}/preflight_installer.exe" perm="ugo+x" />
   </target>
 
   <target name="uninstall">
     <delete file="${dest.dir}${bin.dir}/preflight"/>
     <delete file="${dest.dir}${preflight.dir}/preflight.jar"/>
-    <delete file="${dest.dir}${sipx.data.dir}/preflight/preflight_installer.exe"/>
+    <delete file="${dest.dir}${preflight.dir}/preflight_installer.exe"/>
   </target>
 
   <target name="test-for-prebuilt-windows-launcher">
