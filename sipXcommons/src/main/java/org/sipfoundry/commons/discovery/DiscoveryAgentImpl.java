@@ -50,10 +50,6 @@ public class DiscoveryAgentImpl extends ActiveObject implements DiscoveryAgent {
      */
     @Synchronous
     public void processPingResponse() {
-        // discoveryService.addDiscovered(targetAddress, "");
-        // ActiveObjectGroup activeObjectGroup = getActiveObjectGroup();
-        // activeObjectGroup.deleteInstance(this);
-        
     	if (discoveryService.isSIPVendor(targetAddress)) {
             try {
                 ClientTransaction clientTransaction;

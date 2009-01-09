@@ -77,14 +77,15 @@ public class ExecutorPool {
 	public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
 		long nanos = unit.toNanos(timeout);
 		try {
+			lock.lock();
 			for (;;) {
-				lock.lock();
 				if (runState == TERMINATED)
 					return true;
 				if (nanos <= 0)
 					return false;
 				lock.unlock();
 				nanos = termination.awaitNanos(nanos);
+				lock.lock();
 			}
 		} finally {
 			lock.unlock();
