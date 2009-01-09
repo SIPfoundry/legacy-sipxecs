@@ -58,6 +58,7 @@ public class SipxMediaService extends SipxService {
     public void setVoicemailHttpPort(int httpPort) {
         m_httpPort = httpPort;
     }
+
     public int getVoicemailHttpsPort() {
         return m_httpsPort;
     }
@@ -72,10 +73,9 @@ public class SipxMediaService extends SipxService {
 
     private String getMediaServerAddress() {
         Location primaryLocation = m_locationsManager.getPrimaryLocation();
-        if (primaryLocation != null) {
-            return primaryLocation.getAddress();
-        } else {
+        if (primaryLocation == null) {
             return "localhost";
         }
+        return primaryLocation.getAddress();
     }
 }

@@ -24,7 +24,6 @@ import org.custommonkey.xmlunit.XMLUnit;
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.AuxSbc;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.DefaultSbc;

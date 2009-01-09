@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.security;
@@ -24,16 +24,16 @@ public class AuthenticationDaoImpl implements UserDetailsService {
     // granted authorities
     static final GrantedAuthority AUTH_USER = new GrantedAuthorityImpl(User.ROLE_USER);
     static final GrantedAuthority AUTH_ADMIN = new GrantedAuthorityImpl(User.ROLE_ADMIN);
-    static final GrantedAuthority[] AUTH_USER_ARRAY = new GrantedAuthority[] {AUTH_USER};    
+    static final GrantedAuthority[] AUTH_USER_ARRAY = new GrantedAuthority[] {AUTH_USER};
     static final GrantedAuthority[] AUTH_USER_AND_ADMIN_ARRAY =
         new GrantedAuthority[] {AUTH_USER, AUTH_ADMIN};
     static final GrantedAuthority AUTH_LOCATION = new GrantedAuthorityImpl(Location.ROLE_LOCATION);
     static final GrantedAuthority [] AUTH_LOCATION_ARRAY = new GrantedAuthority[] {AUTH_LOCATION};
-    
+
     /** Whether dummy admin user is enabled. For use only by unit tests! */
     private static boolean s_dummyAdminUserEnabled;
     private static final String DUMMY_ADMIN_USER_NAME = "dummyAdminUserNameForTestingOnly";
-    
+
     private CoreContext m_coreContext;
     private LocationsManager m_locationsManager;
 
@@ -41,7 +41,7 @@ public class AuthenticationDaoImpl implements UserDetailsService {
         if (isDummyAdminUserEnabled() && userNameOrAlias.equals(DUMMY_ADMIN_USER_NAME)) {
             return loadDummyAdminUser();
         }
-        
+
         User user = m_coreContext.loadUserByUserNameOrAlias(userNameOrAlias);
         Location location = null;
         if (user == null) {
@@ -50,7 +50,7 @@ public class AuthenticationDaoImpl implements UserDetailsService {
                 throw new UsernameNotFoundException(userNameOrAlias);
             }
         }
-        
+
         // All users are granted ROLE_USER.  Only admins get ROLE_ADMIN.
         UserDetails details = null;
         if (user != null) {
@@ -60,9 +60,9 @@ public class AuthenticationDaoImpl implements UserDetailsService {
             details = new UserDetailsImpl(user, userNameOrAlias, authorities);
         } else if (location != null) {
             GrantedAuthority[] authorities = AUTH_LOCATION_ARRAY;
-            details = new LocationDetailsImpl(location, userNameOrAlias, authorities);
+            details = new LocationDetailsImpl(location, authorities);
         }
-        
+
         return details;
     }
 
@@ -83,15 +83,15 @@ public class AuthenticationDaoImpl implements UserDetailsService {
     public static void setDummyAdminUserEnabled(boolean dummyAdminUserEnabled) {
         s_dummyAdminUserEnabled = dummyAdminUserEnabled;
     }
-    
+
     private UserDetails loadDummyAdminUser() {
         User testUser = new User();
         testUser.setUserName(DUMMY_ADMIN_USER_NAME);
         testUser.setPintoken("");
-        
+
         // give the dummy admin user full privileges
         UserDetailsImpl details = new UserDetailsImpl(testUser, DUMMY_ADMIN_USER_NAME, AUTH_USER_AND_ADMIN_ARRAY);
-        
-        return details;        
+
+        return details;
     }
 }

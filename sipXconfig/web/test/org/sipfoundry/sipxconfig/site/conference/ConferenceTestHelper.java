@@ -1,32 +1,30 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.conference;
 
-import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
-import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContextImpl;
+import net.sourceforge.jwebunit.junit.WebTester;
+
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 import org.sipfoundry.sipxconfig.site.TestPage;
-
-import net.sourceforge.jwebunit.junit.WebTester;
 
 /**
  * Helper class for tests that require bridges or conferences to be created.
  */
 public class ConferenceTestHelper {
 
-    private WebTester m_tester;
-    
+    private final WebTester m_tester;
+
     public ConferenceTestHelper(WebTester tester) {
         m_tester = tester;
     }
-    
+
     public void createBridge() {
         SiteTestHelper.home(m_tester);
         m_tester.clickLink("createTestBridge");

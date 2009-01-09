@@ -15,14 +15,12 @@ import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
 public class TestServiceImpl implements TestService {    
     private ForwardingContext m_forwardingContext;
     private CallGroupContext m_callGroupContext;
-    private ConferenceBridgeContext m_conferenceBridgeContext;
     private CoreContext m_coreContext;
     private ParkOrbitContext m_parkOrbitContext;
     private PhoneContext m_phoneContext; 
@@ -34,10 +32,6 @@ public class TestServiceImpl implements TestService {
     
     public void setCallGroupContext(CallGroupContext callGroupContext) {
         m_callGroupContext = callGroupContext;
-    }
-
-    public void setConferenceBridgeContext(ConferenceBridgeContext conferenceBridgeContext) {
-        m_conferenceBridgeContext = conferenceBridgeContext;
     }
 
     public void setCoreContext(CoreContext coreContext) {

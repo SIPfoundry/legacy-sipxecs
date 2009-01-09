@@ -4,7 +4,6 @@
 
   <bean name="conferenceBridge" class="org.sipfoundry.sipxconfig.conference.Bridge" scope="prototype"
     parent="beanWithSettings">
-    <property name="systemDefaults" ref="phoneDefaults" />
     <property name="audioDirectory" value="${sysdir.doc}/stdprompts" />
     <!-- default value - overridden in sipxconfig.properties -->
   </bean>

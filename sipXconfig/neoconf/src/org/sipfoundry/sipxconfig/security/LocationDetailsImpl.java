@@ -14,9 +14,9 @@ import org.acegisecurity.userdetails.UserDetails;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 
 public class LocationDetailsImpl implements UserDetails {
-    private String m_hostFqdn;
-    private String m_password;
-    private GrantedAuthority[] m_authorities;
+    private final String m_hostFqdn;
+    private final String m_password;
+    private final GrantedAuthority[] m_authorities;
 
     /**
      * LocationDetails constructor
@@ -25,7 +25,7 @@ public class LocationDetailsImpl implements UserDetails {
      * userNameOrAlias that is the location fqdn, and the
      * authorities granted to this location.
      */
-    public LocationDetailsImpl(Location location, String userNameOrAlias, GrantedAuthority[] authorities) {
+    public LocationDetailsImpl(Location location, GrantedAuthority[] authorities) {
         m_hostFqdn = location.getFqdn();
         m_password = location.getPassword();
         m_authorities = authorities;

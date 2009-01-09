@@ -12,7 +12,6 @@ package org.sipfoundry.sipxconfig.conference;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.acd.BeanWithSettingsTestCase;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 
@@ -63,9 +62,6 @@ public class BridgeTest extends BeanWithSettingsTestCase {
         bridge.setService(service);
         
         bridge.setModelFilesContext(TestHelper.getModelFilesContext());
-        DeviceDefaults dd = new DeviceDefaults() ;
-        dd.setDomainManager(TestHelper.getTestDomainManager("example.com")) ;
-        bridge.setSystemDefaults(dd);
         assertTrue(bridge.getConferences().isEmpty());
         
         // Test the defaults

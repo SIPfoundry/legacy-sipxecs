@@ -14,7 +14,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
@@ -47,8 +46,6 @@ public class Bridge extends BeanWithSettings {
     private boolean m_enabled;
 
     private Set m_conferences = new HashSet();
-
-    private DeviceDefaults m_systemDefaults;
 
     private String m_audioDirectory;
     
@@ -114,10 +111,6 @@ public class Bridge extends BeanWithSettings {
         m_conferences = conferences;
     }
 
-    public void setSystemDefaults(DeviceDefaults systemDefaults) {
-        m_systemDefaults = systemDefaults;
-    }
-
     public void setAudioDirectory(String audioDirectory) {
         m_audioDirectory = audioDirectory;
     }
@@ -141,6 +134,7 @@ public class Bridge extends BeanWithSettings {
     }
 
     private class AudioDirectorySetter extends AbstractSettingVisitor {
+        @Override
         public void visitSetting(Setting setting) {
             SettingType type = setting.getType();
             if (type instanceof FileSetting) {

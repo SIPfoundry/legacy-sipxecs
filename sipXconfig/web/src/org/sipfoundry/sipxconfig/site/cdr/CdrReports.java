@@ -27,7 +27,6 @@ import org.apache.commons.collections.Bag;
 import org.apache.commons.collections.bag.HashBag;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.tapestry.BaseComponent;
-import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
@@ -179,7 +178,7 @@ public abstract class CdrReports extends BaseComponent implements PageBeginRende
         }
     }
 
-    public void formSubmit(IRequestCycle cycle) {
+    public void formSubmit() {
         // Process form submission
         if (getReportBean() != null) {
             String reportName = getReportBean().getReportName();

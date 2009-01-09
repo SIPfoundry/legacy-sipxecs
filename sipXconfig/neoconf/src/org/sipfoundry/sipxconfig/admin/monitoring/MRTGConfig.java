@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.monitoring;
@@ -68,12 +68,13 @@ public class MRTGConfig {
     private String m_logFormat = DEFAULT_LOG_FORMAT;
     private String m_pathAdd = DEFAULT_PATH_ADD;
     private List<MRTGTarget> m_targets = new ArrayList<MRTGTarget>();
-    private List<String> m_hosts = new ArrayList<String>();
+    private final List<String> m_hosts = new ArrayList<String>();
     private List<String> m_mibs = new ArrayList<String>();
 
     /**
      * @deprecated - only used from spring configuration
      */
+    @Deprecated
     public MRTGConfig() {
     }
 
@@ -379,6 +380,7 @@ public class MRTGConfig {
         }
     }
 
+    @Override
     public String toString() {
         StringBuilder buf = new StringBuilder();
         dumpHeader(buf);

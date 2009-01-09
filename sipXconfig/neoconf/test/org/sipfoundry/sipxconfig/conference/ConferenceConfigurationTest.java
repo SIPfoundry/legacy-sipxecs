@@ -20,7 +20,6 @@ import org.custommonkey.xmlunit.XMLUnit;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 
@@ -39,9 +38,6 @@ public class ConferenceConfigurationTest extends XMLTestCase {
 
         bridge = new Bridge();
         bridge.setModelFilesContext(TestHelper.getModelFilesContext());
-        DeviceDefaults dd = new DeviceDefaults();
-        dd.setDomainManager(TestHelper.getTestDomainManager("example.com")) ;
-        bridge.setSystemDefaults(dd);
         bridge.getSettings();
         bridge.setSettingValue(Bridge.CALL_CONTROL_MUTE, "1");
         bridge.setSettingValue(Bridge.CALL_CONTROL_DEAF_MUTE, "2");
