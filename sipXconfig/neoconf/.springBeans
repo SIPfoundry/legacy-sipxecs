@@ -53,6 +53,7 @@
 		<config>src/org/sipfoundry/sipxconfig/admin/certificates.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/admin/alarm/alarm.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/jasperreports/reporting.beans.xml</config>
+		<config>src/org/sipfoundry/sipxconfig/service/bundle.beans.xml</config>
 	</configs>
 	<configSets>
 		<configSet>
@@ -106,6 +107,7 @@
 				<config>src/org/sipfoundry/sipxconfig/admin/certificates.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/admin/alarm/alarm.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/jasperreports/reporting.beans.xml</config>
+				<config>src/org/sipfoundry/sipxconfig/service/bundle.beans.xml</config>
 			</configs>
 		</configSet>
 	</configSets>

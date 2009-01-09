@@ -175,4 +175,21 @@ public abstract class SipxService extends BeanWithSettings implements Model {
         SipxService proc = (SipxService) other;
         return new EqualsBuilder().append(getBeanId(), proc.getBeanId()).isEquals();
     }
+
+    /**
+     * Checks if service should be automatically started/enabled.
+     *
+     * Service is auto-enabled if any of the bundled to which it belongs is auto-enabled
+     */
+    public boolean isAutoEnabled() {
+        if (m_bundles == null) {
+            return false;
+        }
+        for (SipxServiceBundle bundle : m_bundles) {
+            if (bundle.isAutoEnable()) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

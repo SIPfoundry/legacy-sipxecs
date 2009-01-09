@@ -85,36 +85,6 @@
     </property>
   </bean>
 
-
-  <bean id="managementBundle" class="org.sipfoundry.sipxconfig.service.SipxServiceBundle">
-    <constructor-arg value="management" />
-  </bean>
-
-  <bean id="sipRouterBundle" class="org.sipfoundry.sipxconfig.service.SipxServiceBundle">
-    <constructor-arg value="sipRouter" />
-  </bean>
-
-  <bean id="voicemailBundle" class="org.sipfoundry.sipxconfig.service.SipxServiceBundle">
-    <constructor-arg value="voicemail" />
-  </bean>
-
-  <bean id="callDistributionBundle" class="org.sipfoundry.sipxconfig.service.SipxServiceBundle">
-    <constructor-arg value="callDistribution" />
-  </bean>
-
-  <bean id="sipTrunkBundle" class="org.sipfoundry.sipxconfig.service.SipxServiceBundle">
-    <constructor-arg value="sipTrunk" />
-  </bean>
-
-  <bean id="callCenterBundle" class="org.sipfoundry.sipxconfig.service.SipxServiceBundle">
-    <constructor-arg value="callCenter" />
-  </bean>
-
-  <bean id="conferenceBundle" class="org.sipfoundry.sipxconfig.service.SipxServiceBundle">
-    <constructor-arg value="conference" />
-  </bean>
-
-
   <bean id="sipxService" class="org.sipfoundry.sipxconfig.service.SipxService" abstract="true">
     <property name="modelFilesContext" ref="modelFilesContext" />
     <property name="domainManager" ref="domainManager" />

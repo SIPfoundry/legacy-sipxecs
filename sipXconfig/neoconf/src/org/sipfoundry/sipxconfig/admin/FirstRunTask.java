@@ -7,7 +7,6 @@
  */
 package org.sipfoundry.sipxconfig.admin;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -27,7 +26,6 @@ import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.beans.factory.annotation.Required;
@@ -73,22 +71,14 @@ public class FirstRunTask implements ApplicationListener {
     private void enableServicesOnPrimaryServer() {
         Location primaryLocation = m_locationsManager.getPrimaryLocation();
 
-        // This check should not return null at runtime. It is here to account for
+        // HACK: This check should not return null at runtime. It is here to account for
         // UI tests that run FirstRunTask without having previously initialized the locations
         // table in the database
         if (primaryLocation == null) {
             return;
         }
-        Collection<SipxService> processesToEnable = new ArrayList<SipxService>();
-        Collection<LocationSpecificService> servicesForPrimaryLocation = primaryLocation.getServices();
-        for (LocationSpecificService locationSpecificService : servicesForPrimaryLocation) {
-            if (locationSpecificService.getEnableOnNextUpgrade()) {
-                SipxService sipxService = locationSpecificService.getSipxService();
-                processesToEnable.add(sipxService);
-                locationSpecificService.setEnableOnNextUpgrade(false);
-            }
-        }
 
+        Collection<SipxService> processesToEnable = primaryLocation.getToBeEnabledServices();
         m_locationsManager.storeLocation(primaryLocation);
 
         if (processesToEnable.size() > 0) {

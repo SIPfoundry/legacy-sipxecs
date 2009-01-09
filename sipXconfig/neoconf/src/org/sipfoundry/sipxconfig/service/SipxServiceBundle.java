@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.service;
 
 public class SipxServiceBundle {
     private final String m_name;
+    private boolean m_autoEnable;
 
     public SipxServiceBundle(String name) {
         m_name = name;
@@ -29,5 +30,13 @@ public class SipxServiceBundle {
     @Override
     public boolean equals(Object obj) {
         return m_name.equals(obj);
+    }
+
+    public void setAutoEnable(boolean autoEnable) {
+        m_autoEnable = autoEnable;
+    }
+
+    public boolean isAutoEnable() {
+        return m_autoEnable;
     }
 }

@@ -22,6 +22,8 @@ import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.springframework.beans.factory.annotation.Required;
 
+import static org.apache.commons.lang.StringUtils.substringBefore;
+
 public class Location extends BeanWithId {
     // security role
     public static final String ROLE_LOCATION = "ROLE_LOCATION";
@@ -132,12 +134,12 @@ public class Location extends BeanWithId {
                 if (beanId.equals(service.getBeanId())) {
                     serviceForBeanId = next;
                 }
-            }         
+            }
         }
-        
+
         return serviceForBeanId;
     }
-    
+
     public void removeService(LocationSpecificService service) {
         if (m_daoEventPublisher != null) {
             m_daoEventPublisher.publishDelete(service);
@@ -187,13 +189,27 @@ public class Location extends BeanWithId {
      * Get the hostname portion of the fully qualified domain name
      */
     public String getHostname() {
-        String fqdn = getFqdn();
-        if (fqdn.indexOf('.') < 0) {
-            return fqdn;
-        } else {
-            String hostname = fqdn.substring(0, fqdn.indexOf('.'));
-            return hostname;
+        return substringBefore(m_fqdn, ".");
+    }
+
+    /**
+     * Collect services that are marked for restart after upgrade. Reset 'enableOnNextUpgrade'
+     * status for all returned services.
+     *
+     * Location needs to be saved after calling this method.
+     */
+    public Collection<SipxService> getToBeEnabledServices() {
+        Collection<SipxService> toBeEnabled = new ArrayList<SipxService>();
+        for (LocationSpecificService locationSpecificService : getServices()) {
+            if (!locationSpecificService.getEnableOnNextUpgrade()) {
+                continue;
+            }
+            SipxService sipxService = locationSpecificService.getSipxService();
+            toBeEnabled.add(sipxService);
+            locationSpecificService.setEnableOnNextUpgrade(false);
         }
+
+        return toBeEnabled;
     }
 
     public boolean isPrimary() {

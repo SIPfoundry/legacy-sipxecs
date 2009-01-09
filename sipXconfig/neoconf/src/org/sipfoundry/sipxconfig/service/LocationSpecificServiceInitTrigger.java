@@ -34,22 +34,23 @@ public class LocationSpecificServiceInitTrigger extends InitTaskListener {
             return;
         }
 
-        if (primaryServer.getServices() != null
-                && primaryServer.getServices().size() > 0) {
-            // Config agent is not needed on primary server, but was added due to database
-            // upgrade patch
-            primaryServer.removeServiceByBeanId(SipxConfigAgentService.BEAN_ID);
-            for (LocationSpecificService service : primaryServer.getServices()) {
-                service.setEnableOnNextUpgrade(true);
+        Collection<LocationSpecificService> services = primaryServer.getServices();
+        if (services != null && !services.isEmpty()) {
+            // there are already some services - mark the ones that need to be started
+            for (LocationSpecificService lss : services) {
+                if (lss.getSipxService().isAutoEnabled()) {
+                    lss.setEnableOnNextUpgrade(true);
+                }
             }
         } else {
+            // no services on primary location - add all that are auto-enabled
             Collection<SipxService> allServiceDefinitions = m_sipxServiceManager.getServiceDefinitions();
             for (SipxService sipxService : allServiceDefinitions) {
-                if (!sipxService.getBeanId().equals(SipxConfigAgentService.BEAN_ID)) {
-                    LocationSpecificService newService = new LocationSpecificService();
-                    newService.setSipxService(sipxService);
-                    newService.setEnableOnNextUpgrade(true);
-                    primaryServer.addService(newService);
+                if (sipxService.isAutoEnabled()) {
+                    LocationSpecificService lss = new LocationSpecificService();
+                    lss.setSipxService(sipxService);
+                    lss.setEnableOnNextUpgrade(true);
+                    primaryServer.addService(lss);
                 }
             }
         }

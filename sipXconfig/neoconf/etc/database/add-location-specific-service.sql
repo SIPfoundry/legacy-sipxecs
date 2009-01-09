@@ -13,9 +13,13 @@ create table location_specific_service(
 
 create sequence location_specific_service_seq;
 
+-- copy services from old table
 insert into location_specific_service(
   location_specific_service_id, location_id, sipx_service_id)
   select nextval('location_specific_service_seq'),
     location_id,sipx_service_id from location_sipx_service;
+
+-- remove table that is no longer used
+drop table location_sipx_service cascade;
 
 insert into initialization_task (name) values('init-location-specific-service');
