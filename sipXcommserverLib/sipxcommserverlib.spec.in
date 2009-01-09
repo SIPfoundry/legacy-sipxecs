@@ -31,6 +31,9 @@ Requires: %{name}-doc
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
 
+Obsoletes: /etc/odbcinst.ini
+Obsoletes: /etc/unixODBC/odbcinst.ini
+
 # should match sipXlib.m4:SIPX_VARDIR/upgrade
 %define upgrade_archive_dir %{_localstatedir}/sipxdata/upgrade
 %define this_archive %{name}-%{version}-%{release}.tgz
@@ -156,23 +159,26 @@ fi
 
 # The odbcinst.ini file is incorrect on 64-bit architecture systems. The drivers referenced inside of the configuration
 # supplied with the original RPM are the 32-bit ones.
-SIXTY_FOUR="`uname -p | sed -e 's/^.*\(64\).*$/\1/'`"
-if ! test -z "$SIXTY_FOUR"
+printf "Adjusting odbcinst.ini for SipX use\n"
+if test -f /etc/odbcinst.ini
 then
-	printf "Adjusting odbcinst.ini for a 64-bit architecture\n"
-	if test -f /etc/odbcinst.ini
-	then
-		FILE="/etc/odbcinst.ini"
-	elif test -f /etc/unixODBC/odbcinst.ini
-	then
-		FILE="/etc/unixODBC/odbcinst.ini"
-	else
-		printf "WARNING: odbcinst.ini file does not exist."
-		exit 1
-	fi
-	sed -i.original -e 's/^\([ \t]*Driver[ \t]*=[ \t]*\/usr\/\)lib\/\(.*\)$/\1lib64\/\2/' \
-		-e 's/^\([ \t]*Setup[ \t]*=[ \t]*\/usr\/\)lib\/\(.*\)$/\1lib64\/\2/' "$FILE"
+	FILE="/etc/odbcinst.ini"
+elif test -f /etc/unixODBC/odbcinst.ini
+then
+	FILE="/etc/unixODBC/odbcinst.ini"
 fi
+if test -s "$FILE"
+then
+	mv "$FILE" "$FILE.pre-sipx"
+fi
+SIXTY_FOUR="`uname -p | sed -e 's/^.*\(64\).*$/\1/'`"
+cat <<-EOF > "$FILE"
+	[PostgreSQL]
+	Description     = ODBC for PostgreSQL
+	Driver          = /usr/lib$SIXTY_FOUR/libodbcpsql.so
+	Setup           = /usr/lib$SIXTY_FOUR/libodbcpsqlS.so
+	FileUsage       = 1
+EOF
 
 %files
 %defattr(644,root,root,755)
