@@ -31,6 +31,7 @@ import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
 public class LgNortelPhone extends Phone {
     private static final String VOIP_EXTENSION = "VOIP/extension";
+    private static final String VOIP_DISPLAYNAME = "VOIP/displayname";
     private static final String VOIP_NAME = "VOIP/name";
     private static final String VOIP_TYPE = "VOIP/type";
 
@@ -111,7 +112,8 @@ public class LgNortelPhone extends Phone {
                         Line line = new Line();
                         line.setPhone(phone);
                         phone.initializeLine(line);
-                        line.setSettingValue(VOIP_NAME, button.getLabel());
+                        line.setSettingValue(VOIP_DISPLAYNAME, button.getLabel());
+                        line.setSettingValue(VOIP_NAME, button.getNumber());
                         line.setSettingValue(VOIP_EXTENSION, button.getNumber());
                         line.setSettingValue(VOIP_TYPE, "dss");
                         phone.addLine(line);
