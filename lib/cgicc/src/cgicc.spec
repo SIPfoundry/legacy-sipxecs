@@ -6,8 +6,8 @@ License:   LGPL
 Group:     Internet/WWW/Servers
 URL:       http://www.cgicc.org/
 Source0:   %{name}-%{version}.tar.gz
-Patch:     cgicc.patch
-Patch:     cgicc-3.2.3_64bit.patch
+Patch0:     cgicc.patch
+Patch1:     cgicc-3.2.3_64bit.patch
 Requires:  libstdc++
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
@@ -33,7 +33,8 @@ Header files and documentation for the CGICC C++ class library.
 
 %prep
 %setup -q
-%patch
+%patch0
+%patch1
 
 %build
 %configure
