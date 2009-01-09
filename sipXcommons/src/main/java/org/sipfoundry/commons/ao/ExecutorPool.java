@@ -76,14 +76,14 @@ public class ExecutorPool {
 
 	public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
 		long nanos = unit.toNanos(timeout);
-		final ReentrantLock lock = this.lock;
-		lock.lock();
 		try {
 			for (;;) {
+				lock.lock();
 				if (runState == TERMINATED)
 					return true;
 				if (nanos <= 0)
 					return false;
+				lock.unlock();
 				nanos = termination.awaitNanos(nanos);
 			}
 		} finally {
@@ -131,9 +131,8 @@ public class ExecutorPool {
 			reject(task);
 			return;
 		}
-		final ReentrantLock lock = this.lock;
-		lock.lock();
 		try {
+			lock.lock();
 			if (idleExecutorCount.get() > 0) {
 				// Allocate task to an idle executor thread by placing on
 				// what should be an empty task queue for which the idle
@@ -177,9 +176,8 @@ public class ExecutorPool {
 	 *            the Executor
 	 */
 	void executorDone(Executor executor) {
-		final ReentrantLock lock = this.lock;
-		lock.lock();
 		try {
+			lock.lock();
 			idleExecutorCount.decrementAndGet();
 			executorPool.remove(executor);
 			
@@ -201,10 +199,10 @@ public class ExecutorPool {
 					if (task != null) {
 						// Allocate a new executor thread and assign to the task.
 						Executor replacementExecutor = new Executor(task);
-				String threadName = poolName;
-				if (maxExecutors > 1) {
-					threadName = threadName + "(" + threadNumber.getAndIncrement() + ")";
-				}
+						String threadName = poolName;
+						if (maxExecutors > 1) {
+							threadName = threadName + "(" + threadNumber.getAndIncrement() + ")";
+						}
 						Thread thread = new Thread(threadGroup, replacementExecutor, threadName, 0);
 						thread.setDaemon(false);
 						thread.setPriority(executorThreadPriority);
@@ -235,13 +233,14 @@ public class ExecutorPool {
 
 	private Runnable nextTask() throws InterruptedException {
 		Runnable task;
-		final ReentrantLock lock = this.lock;
-		lock.lock();
 		try {
+			lock.lock();
 			if ((task = taskQueue.peek()) == null) {
 				idleExecutorCount.incrementAndGet();
 			} else {
+				lock.unlock();
 				task = taskQueue.take();
+				lock.lock();
 			}
 		} finally {
 			lock.unlock();

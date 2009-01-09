@@ -39,7 +39,7 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
     private final JournalService journalService;
     private LinkedList<Device> devices;
 
-    private final int discoveryBlockSize = 32;
+    private final int discoveryBlockSize = 64;
 
     private class UAVendor {
         public final String name;
@@ -57,12 +57,14 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
             new UAVendor("LG-Nortel", "00:1A:7E"), new UAVendor("Linksys", "00:0E:08"), new UAVendor("MITEL", "08:00:0F"),
             new UAVendor("Pingtel Xpressa", "00:D0:1E"), new UAVendor("Polycom", "00:04:F2"), new UAVendor("SNOM", "00:04:13"), };
 
+    public static Random rand = new Random();
+    
     public DiscoveryService(String localHostAddress, int localHostPort) {
         this(localHostAddress, localHostPort, null);
     }
 
     public DiscoveryService(String localHostAddress, int localHostPort, JournalService journalService) {
-        super("PreflightDiscovery", Thread.NORM_PRIORITY, 10, 60);
+        super("PreflightDiscovery", Thread.NORM_PRIORITY, 64, 3000);
 
         this.localHostAddress = localHostAddress;
         this.journalService = journalService;
@@ -225,6 +227,25 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
         return request;
     }
 
+    public synchronized boolean isSIPVendor(String networkAddress) {
+        String hardwareAddress = ArpTable.lookup(networkAddress);
+        if (hardwareAddress != null) {
+            String vendor = null;
+            for (int x = 0; x < UAVendorList.length; x++) {
+                if (hardwareAddress.startsWith(UAVendorList[x].oui)) {
+                    vendor = UAVendorList[x].name;
+                }
+            }
+            if (vendor != null) {
+            	return true;
+            } else {
+            	return false;
+            }
+        } else {
+        	return false;
+        }
+    }
+    
     public synchronized void addDiscovered(String networkAddress, String userAgentInfo) {
         String hardwareAddress = ArpTable.lookup(networkAddress);
         if (hardwareAddress != null) {
@@ -326,7 +347,7 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
                             System.err.println(percentageCompleted);
                         }
                     }
-                    Thread.sleep(100);
+                    Thread.sleep(10);
                 }
             } catch (InterruptedException e) {
             }

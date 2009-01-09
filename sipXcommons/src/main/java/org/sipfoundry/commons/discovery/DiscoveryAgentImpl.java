@@ -35,8 +35,7 @@ public class DiscoveryAgentImpl extends ActiveObject implements DiscoveryAgent {
 
     @Startup
     public void discover() {
-        pinger = new Pinger(1234, targetAddress, 2000);
-        
+        pinger = new Pinger(DiscoveryService.rand.nextInt(1234), targetAddress, 500);
         if (pinger.ping()) {
             processPingResponse();
         } else {
@@ -51,20 +50,31 @@ public class DiscoveryAgentImpl extends ActiveObject implements DiscoveryAgent {
      */
     @Synchronous
     public void processPingResponse() {
-        try {
-            ClientTransaction clientTransaction;
+        // discoveryService.addDiscovered(targetAddress, "");
+        // ActiveObjectGroup activeObjectGroup = getActiveObjectGroup();
+        // activeObjectGroup.deleteInstance(this);
+        
+    	if (discoveryService.isSIPVendor(targetAddress)) {
+            try {
+                ClientTransaction clientTransaction;
 
-            Request request = discoveryService.createOptionsRequest(targetAddress, 5060);
-            // Create the client transaction.
-            clientTransaction = sipProvider.getNewClientTransaction(request);
-            clientTransaction.setApplicationData(this);
-            // Send the request out.
-            clientTransaction.sendRequest();
-        } catch (TransactionUnavailableException e) {
-            e.printStackTrace();
-        } catch (SipException e) {
-            e.printStackTrace();
-        }
+                Request request = discoveryService.createOptionsRequest(targetAddress, 5060);
+                // Create the client transaction.
+                clientTransaction = sipProvider.getNewClientTransaction(request);
+                clientTransaction.setApplicationData(this);
+                // Send the request out.
+                clientTransaction.sendRequest();
+            } catch (TransactionUnavailableException e) {
+                e.printStackTrace();
+            } catch (SipException e) {
+                e.printStackTrace();
+            }
+    	} else {
+            if (!terminated) {
+        	    ActiveObjectGroup activeObjectGroup = getActiveObjectGroup();
+        	    activeObjectGroup.deleteInstance(this);
+            }
+    	}
     }
 
     /*
@@ -88,9 +98,11 @@ public class DiscoveryAgentImpl extends ActiveObject implements DiscoveryAgent {
             }
         }
         
-        discoveryService.addDiscovered(targetAddress, userAgentInfo);
-        ActiveObjectGroup activeObjectGroup = getActiveObjectGroup();
-        activeObjectGroup.deleteInstance(this);
+        if (!terminated) {
+            discoveryService.addDiscovered(targetAddress, userAgentInfo);
+            ActiveObjectGroup activeObjectGroup = getActiveObjectGroup();
+            activeObjectGroup.deleteInstance(this);
+        }
     }
 
     /*
@@ -101,7 +113,6 @@ public class DiscoveryAgentImpl extends ActiveObject implements DiscoveryAgent {
     @Synchronous
     public void processPingTimeout() {
         if (!terminated) {
-            discoveryService.addDiscovered(targetAddress, "");
         	ActiveObjectGroup activeObjectGroup = getActiveObjectGroup();
         	activeObjectGroup.deleteInstance(this);
         }
@@ -115,7 +126,6 @@ public class DiscoveryAgentImpl extends ActiveObject implements DiscoveryAgent {
     @Synchronous
     public void processSIPTimeout(TimeoutEvent timeoutEvent) {
         if (!terminated) {
-            discoveryService.addDiscovered(targetAddress, "");
         	ActiveObjectGroup activeObjectGroup = getActiveObjectGroup();
         	activeObjectGroup.deleteInstance(this);
         }
