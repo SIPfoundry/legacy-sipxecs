@@ -44,9 +44,8 @@
         <fileset file="${log4j.jar}" />
       </lib>
       <binlib>
-        <fileset file="${ArpTable.dll}" />
+        <fileset file="${arptable.dll}" />
         <fileset file="${rocksaw.dll}" />
-        <fileset file="${rocksaw.lib}" />
       </binlib>
       <fileset dir="${src.dir}">
         <include name="icons/**"/>
