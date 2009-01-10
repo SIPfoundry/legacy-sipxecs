@@ -67,7 +67,7 @@ public class MessageOption extends DHCPOption {
         super.setLength(length);
         byte[] stringBuffer = new byte[length];
         dataStream.readFully(stringBuffer, 0, length);
-        message = new String(stringBuffer, 0, length, "ISO-8859-1");
+        message = new String(stringBuffer, 0, length, "ISO-8859-1").trim();
     }
 
 }

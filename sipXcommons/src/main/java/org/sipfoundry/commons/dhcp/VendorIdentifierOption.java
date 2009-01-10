@@ -67,7 +67,7 @@ public class VendorIdentifierOption extends DHCPOption {
         super.setLength(length);
         byte[] stringBuffer = new byte[length];
         dataStream.readFully(stringBuffer, 0, length);
-        vendorIdentifier = new String(stringBuffer, 0, length, "ISO-8859-1");
+        vendorIdentifier = new String(stringBuffer, 0, length, "ISO-8859-1").trim();
     }
 
 }

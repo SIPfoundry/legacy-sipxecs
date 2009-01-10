@@ -67,7 +67,7 @@ public class BootFileOption extends DHCPOption {
         super.setLength(length);
         byte[] stringBuffer = new byte[length];
         dataStream.readFully(stringBuffer, 0, length);
-        bootFile = new String(stringBuffer, 0, length, "ISO-8859-1");
+        bootFile = new String(stringBuffer, 0, length, "ISO-8859-1").trim();
     }
 
 }
