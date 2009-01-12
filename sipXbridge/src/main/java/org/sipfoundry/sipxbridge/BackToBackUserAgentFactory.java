@@ -107,6 +107,7 @@ public class BackToBackUserAgentFactory {
 				DialogContext.attach(b2bua, dialog, serverTransaction,
 						request);
 				DialogContext.get(dialog).setItspInfo(accountInfo);
+				DialogContext.get(dialog).setBackToBackUserAgent(b2bua);
 				this.backToBackUserAgentTable.put(callId, b2bua);
 			}
 
