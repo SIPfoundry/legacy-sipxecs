@@ -36,7 +36,17 @@ public class LocationsMigrationTrigger extends InitTaskListener {
     @Override
     public void onInitTask(String task) {
         // only do migration if there aren't already locations stored in database
-        if (m_locationsManager.getLocations().length > 0) {
+        Location[] existingLocations = m_locationsManager.getLocations();
+        if (existingLocations.length > 0) {
+            //check if there is one and only one location primary
+            if (!checkPrimary(existingLocations)) {
+                changeToPrimary(existingLocations);
+                for (Location location : existingLocations) {
+                    if (location.isPrimary()) {
+                        m_locationsManager.storeLocation(location);
+                    }
+                }            
+            }
             return;
         }
 
@@ -46,17 +56,7 @@ public class LocationsMigrationTrigger extends InitTaskListener {
         //(this situation should never happen - 
         //the location where sipxconfig is installed (primary) should always be written in topology.xml)        
         if (locations.length > 0) {
-            Location firstLocation = locations[0];
-            firstLocation.setPrimary(true);
-            //always one and only one location should be designated as primary
-            boolean savePrimary = false;
-            for (Location location : locations) {
-                if (location.getFqdn().equals(m_hostname) && !savePrimary) {
-                    firstLocation.setPrimary(false);
-                    location.setPrimary(true);
-                    savePrimary = true;
-                }                
-            }
+            changeToPrimary(locations);
             //save locations in DB
             for (Location location : locations) {
                 m_locationsManager.storeLocation(location);
@@ -70,11 +70,48 @@ public class LocationsMigrationTrigger extends InitTaskListener {
             localhostLocation.setPrimary(true);
             m_locationsManager.storeLocation(localhostLocation);
         }
-
+        
         LOG.info("Deleting topology.xml after data migration");
         getTopologyFile().delete();
     }
-
+    
+    /**
+     * iterate through locations list to make sure that there is one and only one location primary
+     * (the one that matches the hostname or the first in the list)
+     * @param locations
+     * @return
+     */
+    private void changeToPrimary(Location[] locations) {
+        if (locations == null || locations.length == 0) {
+            return;
+        }
+        Location firstLocation = locations[0];
+        firstLocation.setPrimary(true);
+        //always one and only one location should be designated as primary
+        boolean savePrimary = false;
+        for (Location location : locations) {
+            if (location.getFqdn().equals(m_hostname) && !savePrimary) {
+                firstLocation.setPrimary(false);
+                location.setPrimary(true);
+                savePrimary = true;
+            }                
+        }
+    }
+    
+    /**
+     * checks for primary location
+     * @param locations
+     * @return 
+     */
+    private boolean checkPrimary(Location[] locations) {
+        for (Location location : locations) {
+            if (location.isPrimary()) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
     }
