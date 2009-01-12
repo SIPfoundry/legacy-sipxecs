@@ -243,8 +243,8 @@
       <value>1</value>
     </setting>
     <setting name="TrunkGroup_X_FirstPhoneNumber" advanced="yes" unless="fxs">
-      <profileName>$ignore$</profileName>
       <label>First Default Caller ID</label>
+      <profileName>$ignore$</profileName>
       <type>
         <string/>
       </type>
