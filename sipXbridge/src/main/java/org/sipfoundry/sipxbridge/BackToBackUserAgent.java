@@ -1248,7 +1248,7 @@ public class BackToBackUserAgent {
             for (String headerName : new String[] {
                 ReplyToHeader.NAME, CallInfoHeader.NAME, SubjectHeader.NAME , OrganizationHeader.NAME , InReplyToHeader.NAME }  ) {
                 Header header = incomingRequest.getHeader(headerName);
-                if ( !itspAccountInfo.stripPrivateHeaders()) {
+                if ( header!= null && !itspAccountInfo.stripPrivateHeaders() ) {
                     outgoingRequest.addHeader(header);
                 }
             }
