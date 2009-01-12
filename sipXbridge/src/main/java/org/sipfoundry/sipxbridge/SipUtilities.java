@@ -201,15 +201,15 @@ class SipUtilities {
                 ch.removeParameter("expires");
                 return ch;
 
-            } else  if ( provider == Gateway.getLanProvider()) {
+            } else if (provider == Gateway.getLanProvider()) {
                 /*
                  * Creating contact header for LAN bound request.
                  */
                 return SipUtilities.createContactHeader(Gateway.SIPXBRIDGE_USER, provider);
             } else {
                 /*
-                 * Creating contact header for WAN bound request.
-                 * Nothing is known about this ITSP. We just use global addressing.
+                 * Creating contact header for WAN bound request. Nothing is known about this
+                 * ITSP. We just use global addressing.
                  */
 
                 ContactHeader contactHeader = ProtocolObjects.headerFactory.createContactHeader();
@@ -515,6 +515,11 @@ class SipUtilities {
                 fromHeader.setTag(new Long(Math.abs(new java.util.Random().nextLong()))
                         .toString());
 
+                if (itspAccount.stripPrivateHeaders()) {
+                    /* Remove the display name */
+                    fromHeader.getAddress().setDisplayName(null);
+                }
+
             }
 
             /*
@@ -585,7 +590,9 @@ class SipUtilities {
             RouteHeader routeHeader = ProtocolObjects.headerFactory
                     .createRouteHeader(routeAddress);
             request.addHeader(routeHeader);
-            request.setHeader(createUserAgentHeader());
+            if (!itspAccount.stripPrivateHeaders()) {
+                request.setHeader(createUserAgentHeader());
+            }
             return request;
 
         } catch (Exception ex) {

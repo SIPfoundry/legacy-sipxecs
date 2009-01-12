@@ -123,11 +123,9 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
 
     
     /*
-     * Number of concurrent calls.
+     * Whether or not privacy is enabled.
      */
-
-    private int maxCalls = -1;
-
+    private boolean stripPrivateHeaders;
  
 
     private boolean crLfTimerTaskStarted;
@@ -466,30 +464,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
         return rtpKeepaliveMethod;
     }
 
-    
-
-    /**
-     * @param maxCalls the maxCalls to set
-     */
-    public void setMaxCalls(String maxCalls) {
-        try {
-            this.maxCalls = Integer.parseInt(maxCalls);
-        } catch (NumberFormatException ex) {
-            logger.error("Illegal Argument " + maxCalls);
-
-        }
-    }
-
-    /**
-     * @return the maxCalls
-     */
-    public int getMaxCalls() {
-        return maxCalls;
-    }
-
-   
-   
-    
+  
 
     /**
      * @return the outboundRegistrarRoute
@@ -556,8 +531,10 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
             return this.callerId;
         } else if (this.isRegisterOnInitialization()) {
             return this.getUserName() + "@" + this.getProxyDomain();
-        } else {
+        }  else if (this.isGlobalAddressingUsed() ) {
             return this.getUserName() + "@" + Gateway.getGlobalAddress();
+        } else {
+            return this.getUserName() + "@" + Gateway.getLocalAddress();
         }
 
     }
@@ -578,5 +555,21 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
             throw new SipXbridgeException("Bad caller alias", ex);
         }
     }
+
+    /**
+     * @param stripPrivateHeaders the stripPrivateHeaders to set
+     */
+    public void setStripPrivateHeaders(boolean stripPrivateHeaders) {
+        this.stripPrivateHeaders = stripPrivateHeaders;
+    }
+
+    /**
+     * @return the stripPrivateHeaders
+     */
+    public boolean stripPrivateHeaders() {
+        return stripPrivateHeaders;
+    }
+
+   
 
 }

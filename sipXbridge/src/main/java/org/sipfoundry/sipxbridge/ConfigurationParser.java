@@ -160,7 +160,16 @@ public class ConfigurationParser {
                 "setRegisterOnInitialization", 0, new Class[] {
                     Boolean.class
                 });
-
+       
+        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "strip-private-headers"),
+                "setStripPrivateHeaders", 0, new Class[] {
+                    Boolean.class
+                });
+        
+        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "asserted-identity"),
+                "setCallerId", 0);
+        
+        
     }
 
     /**

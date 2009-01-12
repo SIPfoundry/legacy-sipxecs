@@ -41,14 +41,19 @@ import javax.sip.address.Address;
 import javax.sip.address.SipURI;
 import javax.sip.header.CSeqHeader;
 import javax.sip.header.CallIdHeader;
+import javax.sip.header.CallInfoHeader;
 import javax.sip.header.ContactHeader;
 import javax.sip.header.ContentTypeHeader;
 import javax.sip.header.FromHeader;
 import javax.sip.header.Header;
+import javax.sip.header.InReplyToHeader;
 import javax.sip.header.MaxForwardsHeader;
+import javax.sip.header.OrganizationHeader;
 import javax.sip.header.ReasonHeader;
 import javax.sip.header.ReferToHeader;
+import javax.sip.header.ReplyToHeader;
 import javax.sip.header.RouteHeader;
+import javax.sip.header.SubjectHeader;
 import javax.sip.header.SupportedHeader;
 import javax.sip.header.ToHeader;
 import javax.sip.header.ViaHeader;
@@ -1234,6 +1239,19 @@ public class BackToBackUserAgent {
             Request outgoingRequest = SipUtilities.createInviteRequest(
                     (SipURI) incomingRequestUri.clone(), itspProvider, itspAccountInfo,
                     fromHeader, this.creatingCallId + "." + this.counter++);
+            
+            /*
+             * Attach headers selectively to the outbound request.
+             * If privacy is requested, we suppress forwarding certain
+             * headers that can reveal information about the caller.
+             */
+            for (String headerName : new String[] {
+                ReplyToHeader.NAME, CallInfoHeader.NAME, SubjectHeader.NAME , OrganizationHeader.NAME , InReplyToHeader.NAME }  ) {
+                Header header = incomingRequest.getHeader(headerName);
+                if ( !itspAccountInfo.stripPrivateHeaders()) {
+                    outgoingRequest.addHeader(header);
+                }
+            }
             SipUtilities.addWanAllowHeaders(outgoingRequest);
             ClientTransaction ct = itspProvider.getNewClientTransaction(outgoingRequest);
             Dialog outboundDialog = ct.getDialog();
