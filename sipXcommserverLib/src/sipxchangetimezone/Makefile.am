@@ -1,4 +1,4 @@
-AM_CFLAGS = -DLN_BINARY=\"@LN_BINARY@\"
+AM_CFLAGS = -DCP_BINARY=\"@CP_BINARY@\" -DMV_BINARY=\"@MV_BINARY@\"
 
 libexec_sipxecsdir = @SIPX_LIBEXECDIR@
 libexec_sipxecs_PROGRAMS = sipx-sudo-timezone

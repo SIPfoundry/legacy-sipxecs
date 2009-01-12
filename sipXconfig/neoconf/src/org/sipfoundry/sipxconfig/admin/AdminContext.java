@@ -12,7 +12,6 @@ package org.sipfoundry.sipxconfig.admin;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Date;
 
 public interface AdminContext {
     final String CONTEXT_BEAN_NAME = "adminContext";
@@ -41,7 +40,7 @@ public interface AdminContext {
      */
     boolean inUpgradePhase();
 
-    void setSystemDate(Date date);
+    void setSystemDate(String dateStr);
 
     public void setSystemTimezone(String timezone);
 

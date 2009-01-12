@@ -10,9 +10,11 @@
 package org.sipfoundry.sipxconfig.site.admin;
 
 
+import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import com.davekoelle.AlphanumComparator;
 
@@ -59,9 +61,9 @@ public abstract class TimeSettingsPage extends BasePage implements PageBeginRend
 
     public void pageBeginRender(PageEvent event_) {
         setNewDate(new Date());
+        Timezone timezone = new Timezone();
 
         // Init. the timezone dropdown menu.
-        Timezone timezone = new Timezone();
         List<String> timezoneList = timezone.getAllTimezones();
 
         // Sort list alphanumerically.
@@ -74,16 +76,19 @@ public abstract class TimeSettingsPage extends BasePage implements PageBeginRend
         // Note: getAllTimezones will have added the current timezone to
         // the dropdown list, if it wasn't in it.
         setTimezoneType(timezone.getTimezone());
+        TimeZone.setDefault(TimeZone.getTimeZone(convertDisplayNameToRealName(timezone.getTimezone())));
     }
 
     public void setDate() {
-        getAdminContext().setSystemDate(getNewDate());
+        Date newDate = getNewDate();
+        SimpleDateFormat changeDateFormat = new SimpleDateFormat("MMddHHmmyyyy");
+        changeDateFormat.setTimeZone(TimeZone.getTimeZone(convertDisplayNameToRealName(getTimezoneType())));
+        String newDateStr = changeDateFormat.format(newDate);
+        getAdminContext().setSystemDate(newDateStr);
     }
 
     public void setSysTimezone() {
-        String displayName = getTimezoneType();
-        String realName = convertDisplayNameToRealName(displayName);
-        getAdminContext().setSystemTimezone(realName);
+        getAdminContext().setSystemTimezone(convertDisplayNameToRealName(getTimezoneType()));
     }
 
 }

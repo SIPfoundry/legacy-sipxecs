@@ -14,9 +14,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Writer;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,8 +38,6 @@ public abstract class AdminContextImpl extends HibernateDaoSupport implements Ad
         BeanFactoryAware {
     private static final String DATE_BINARY = "sipx-sudo-date";
     private static final String TIMEZONE_BINARY = "sipx-sudo-timezone";
-
-    private static final SimpleDateFormat CHANGE_DATE_FORMAT = new SimpleDateFormat("MMddHHmmyyyy");
 
     private static final Log LOG = LogFactory.getLog(AdminContextImpl.class);
 
@@ -153,11 +150,11 @@ public abstract class AdminContextImpl extends HibernateDaoSupport implements Ad
         return !m_beanFactory.containsBean("tapestry");
     }
 
-    public void setSystemDate(Date date) {
+    public void setSystemDate(String dateStr) {
         String errorMsg = "Error when changing date";
         ProcessBuilder pb = new ProcessBuilder(getLibExecDirectory() + File.separator + DATE_BINARY);
 
-        pb.command().add(CHANGE_DATE_FORMAT.format(date));
+        pb.command().add(dateStr);
         try {
             LOG.debug(pb.command());
             Process process = pb.start();
@@ -198,6 +195,8 @@ public abstract class AdminContextImpl extends HibernateDaoSupport implements Ad
                 errorMsg = String.format("Error when changing time zone. Exit code: %d", code);
                 LOG.error(errorMsg);
             }
+            TimeZone tz = TimeZone.getTimeZone(timezone);
+            TimeZone.setDefault(tz);
         } catch (IOException e) {
             LOG.error(errorMsg, e);
         } catch (InterruptedException e) {
