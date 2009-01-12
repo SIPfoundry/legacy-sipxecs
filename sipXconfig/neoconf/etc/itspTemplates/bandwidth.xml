@@ -39,7 +39,7 @@
     </setting>
     <setting name="outbound-proxy" advanced="yes">
       <label>ITSP server address</label>
-      <value>216.82.225.202</value>
+      <value />
       <description>
         If the ITSP specifies a server address or name or an outbound proxy, enter it here. If nothing is specified, the
         route to the ITSP's server (outbound proxy) is determined by DNS lookup on the ITSP domain.
@@ -128,7 +128,7 @@
           </option>
         </enum>
       </type>
-      <value>USE-EMPTY-PACKET</value>
+      <value>NONE</value>
       <description>Defines the mechanism to use for media (RTP) keepalive.</description>
     </setting>
   </group>
