@@ -12,8 +12,10 @@
 #macro(emit_parameter_table $s)
 #foreach ($row in [1..$s.size])
 #set ($settingIndex = $velocityCount - 1)
+#if($s.ProfileName && $s.ProfileName != '$ignore$')
 $s.profileName=#foreach ($name in $s.settingNames)#if($velocityCount > 1),#end$s.getSetting($settingIndex, $name).Value#end
 
+#end
 #end
 #end
 ;**************
@@ -24,6 +26,7 @@ $s.profileName=#foreach ($name in $s.settingNames)#if($velocityCount > 1),#end$s
 ;------------------------------
 
 #foreach ($s in $flatSettings)
+#if($s.ProfileName != '$ignore$')
 #if($parameterTables.contains(${s.ProfileName}))
 #emit_parameter_table($s)
 #elseif($s.Leaf)
@@ -35,10 +38,11 @@ ${s.ProfileName}=$!{s.Value}
 [${s.ProfileName}]
 #end
 #end
+#end
 
 #if(${gateway.Model.Definitions.contains("fxo")})
 [Trunks]
-TRUNKGROUP_1=1-${gateway.ports.size()},201,0
+TRUNKGROUP_1=1-${gateway.ports.size()},${firstDefaultCLID},0
 PSTNPREFIX=*,1,*,*,0
 TRUNKGROUPSETTINGS=1,1,255,$ignore
 #foreach ($port in $gateway.ports)
@@ -54,12 +58,12 @@ TARGETOFCHANNEL${port_id}=${extension},${enable}
 #foreach ($port in $gateway.ports)
 #set($port_id = $velocityCount - 1)
 #set($trunk_id = $velocityCount)
-#set($number = ($port_id*100) + 1000)
+#set($firstDefaultCLID = $port.getSettingValue('Trunk/TrunkGroup_X_FirstPhoneNumber'))
 #set($prefix = $port.getSettingValue('Trunk/Prefix'))
 #set($minChannel = $port.getSettingValue('Trunk/MinChannel'))
 #set($maxChannel = $port.getSettingValue('Trunk/MaxChannel'))
 #set($csm = $port.getSettingValue('Trunk/ChannelSelectMode'))
-TRUNKGROUP_$trunk_id=${port_id}-${port_id}/${minChannel}-${maxChannel},$number,0
+TRUNKGROUP_$trunk_id=${port_id}-${port_id}/${minChannel}-${maxChannel},${firstDefaultCLID},0
 TRUNKGROUPSETTINGS=${trunk_id},${csm},255,$ignore
 PSTNPREFIX=${prefix},${trunk_id},*,*,0
 #end
@@ -85,6 +89,7 @@ TRUNKGROUP=${trunk_id}-${trunk_id},${username}
 #set($port_id = $velocityCount - 1)
 ; Parameters for trunk: $port_id
 #foreach ($s in $portSettings)
+#if($s.ProfileName != '$ignore$')
 #if($s.Leaf)
 #if(${s.Value})
 ${s.ProfileName}_$port_id=$!{s.Value}
@@ -92,6 +97,7 @@ ${s.ProfileName}_$port_id=$!{s.Value}
 #else
 
 [${s.ProfileName}_$port_id]
+#end
 #end
 #end
 

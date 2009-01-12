@@ -183,6 +183,17 @@
       </type>
       <value>1</value>
     </setting>
+    <setting name="TrunkGroup_X_FirstPhoneNumber" advanced="yes" unless="fxs">
+      <profileName>$ignore$</profileName>
+      <label>First Default Caller ID</label>
+      <type>
+        <string/>
+      </type>
+      <value>Unknown</value>
+      <description>
+      Displayed for incoming calls when no Caller ID information is available. The gateway will add a port identification suffix.
+      </description>
+    </setting>
   </group>
   <group name='ISDN'>
     <setting name="TerminationSide">
@@ -272,5 +283,4 @@
     <setting name="ProgressIndicator2ISDN" advanced="yes"></setting>
     <setting name="ISDNRxOverlap" advanced="yes"></setting>
   </group>
-
 </model>

@@ -22,6 +22,8 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 
 class AudioCodesContext extends ProfileContext {
 
+    private static final String FIRST_DEFAULTCLID = "applications-advanced-fxo/TrunkGroup_1_FirstPhoneNumber";
+
     public AudioCodesContext(Device device, String profileTemplate) {
         super(device, getGatewayTemplate(device, profileTemplate));
     }
@@ -49,6 +51,7 @@ class AudioCodesContext extends ProfileContext {
             context.put("portFlatSettings", portFlatSettings);
         }
         context.put("allowedIPs", getAllowedIPs());
+        context.put("firstDefaultCLID", getFirstDefaultCLID());
 
         return context;
     }
@@ -77,4 +80,14 @@ class AudioCodesContext extends ProfileContext {
         }
         return null;
     }
+
+    private String getFirstDefaultCLID() {
+        BeanWithSettings gateway = getDevice();
+        Setting setting = gateway.getSettings().getSetting(FIRST_DEFAULTCLID);
+        if (setting != null) {
+            return setting.getValue();
+        }
+        return null;
+    }
+
 }
