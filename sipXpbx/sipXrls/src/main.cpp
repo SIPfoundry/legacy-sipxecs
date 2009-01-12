@@ -71,6 +71,7 @@
 #define RLS_DEFAULT_REFRESH_INTERVAL  (24 * 60 * 60) // Default subscription refresh interval.
 #define RLS_DEFAULT_RESUBSCRIBE_INTERVAL (60 * 60) // Default subscription resubscribe interval.
 #define RLS_DEFAULT_MIN_RESUBSCRIBE_INTERVAL (40 * 60) // Default minimum subscription resubscribe interval.
+#define RLS_PUBLISH_DELAY             100        // Delay time (in milliseconds) before publishing RLMI.
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -520,7 +521,8 @@ int main(int argc, char* argv[])
                              tcpPort, udpPort, tcpPort, bindIp,
                              &resourceListFile,
                              refreshInterval, resubscribeInterval, minResubscribeInterval,
-                             250, 20, 20, 20, 20);
+                             RLS_PUBLISH_DELAY,
+                             20, 20, 20, 20);
 
       // Loop forever until signaled to shut down
       while (!gShutdownFlag)

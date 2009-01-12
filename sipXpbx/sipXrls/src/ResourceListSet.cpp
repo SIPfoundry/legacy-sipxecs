@@ -60,6 +60,7 @@ ResourceListSet::ResourceListSet(ResourceListServer* resourceListServer) :
    mPublishingTimer(getResourceListServer()->getResourceListTask().
                     getMessageQueue(),
                     (void*)ResourceListSet::PUBLISH_TIMEOUT),
+   mPublishOnTimeout(FALSE),
    mVersion(0)
 {
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
@@ -73,6 +74,23 @@ ResourceListSet::~ResourceListSet()
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::~ this = %p",
                  this);
+}
+
+// Flag to indicate publish on timeout
+UtlBoolean ResourceListSet::publishOnTimeout()
+{
+   return mPublishOnTimeout;
+}
+
+// Set the gap timeout.
+void ResourceListSet::setGapTimeout()
+{
+   // RFC 4235 specifies a maximum of one RLMI notification per second.
+   // After publishing create a 1 second delay before publishing again.
+   mPublishingTimer.oneshotAfter(OsTime(1,0));
+
+   // Don't publish on the gap timeout.
+   mPublishOnTimeout = FALSE;
 }
 
 // Delete all ResourceList's and stop the publishing timer.
@@ -574,10 +592,40 @@ void ResourceListSet::schedulePublishing()
    // it will be started when publishing is resumed.
    if (!publishingSuspended())
    {
-      // Start the timer if it is not already started.
+      OsTime pubDelay = getResourceListServer()->getPublishingDelay();
+
+      // Check if waiting for the gap timeout (rather than the publishing timeout)
+      if (mPublishOnTimeout == FALSE)
+      {
+         OsTimer::OsTimerState tmrState;
+         OsTimer::Time tmrExpiresAt;
+         UtlBoolean tmrPeriodic;
+         OsTimer::Interval tmrPeriod;
+         mPublishingTimer.getFullState(tmrState, tmrExpiresAt, tmrPeriodic, tmrPeriod);
+
+         // Check if the timer is currently running.
+         if (tmrState == OsTimer::STARTED)
+         {
+            // Calculate the amount of time before the gap timer expires (in seconds and microseconds).
+            OsTimer::Time timeDelta = tmrExpiresAt - OsTimer::now();
+            OsTime pubGap(timeDelta/1000000, timeDelta%1000000);
+
+            // If the remaining gap timeout is less than the pubDelay 
+            // then we need to wait for pubDelay before publishing.
+            if (pubGap < pubDelay)
+            {
+               // Cancel the current gap timeout so that oneshotAfter can restart the timer. 
+               mPublishingTimer.stop();
+            }
+         }
+      }
+
+      // Start the timer with the publishing timeout if the timer is not already started.
       // If it is already started, OsTimer::oneshotAfter() does nothing.
-      mPublishingTimer.oneshotAfter(getResourceListServer()->
-                                    getPublishingDelay());
+      mPublishingTimer.oneshotAfter(pubDelay);
+
+      // Publish once the publishing timer expires.
+      mPublishOnTimeout = TRUE;
    }
 }
 

@@ -76,6 +76,12 @@ class ResourceListSet : public UtlContainableAtomic
 
    virtual ~ResourceListSet();
 
+   //! Flag to indicate publish on timeout.
+   UtlBoolean publishOnTimeout();
+
+   //! Set the gap timeout.
+   void setGapTimeout();
+
    /** Delete all ResourceList's and stop the publishing timer, so it
     *  is safe to destroy the other permanent components of ResourceListServer.
     */
@@ -455,6 +461,9 @@ class ResourceListSet : public UtlContainableAtomic
 
    //! Timer to schedule the next publishing.
    OsTimer mPublishingTimer;
+
+   //! Flag to indicate that we're about to publish something.
+   UtlBoolean mPublishOnTimeout;
 
    //! version number for consolidated RLMI
    mutable int mVersion;

@@ -96,7 +96,14 @@ UtlBoolean ResourceListTask::handleMessage(OsMsg& rMsg)
          OsSysLog::add(FAC_RLS, PRI_DEBUG,
                        "ResourceListTask::handleMessage PUBLISH_TIMEOUT");
 
-         getResourceListServer()->getResourceListSet().publish();
+         // Don't publish if this is a gap timeout with no new RLMI content.
+         if (getResourceListServer()->getResourceListSet().publishOnTimeout())
+         {
+            getResourceListServer()->getResourceListSet().publish();
+
+            // Allow a longer gap timer before the next timer we publish.
+            getResourceListServer()->getResourceListSet().setGapTimeout();
+         }
 
          handled = TRUE;
          break;
