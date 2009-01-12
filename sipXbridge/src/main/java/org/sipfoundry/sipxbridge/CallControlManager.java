@@ -18,7 +18,6 @@ import gov.nist.javax.sip.stack.SIPServerTransaction;
 import java.text.ParseException;
 import java.util.HashSet;
 import java.util.Locale;
-import java.util.Random;
 import java.util.TimerTask;
 
 import javax.sdp.SessionDescription;
@@ -879,9 +878,7 @@ class CallControlManager implements SymmitronResetHandler {
 	private void processCancel(RequestEvent requestEvent) {
 
 		Dialog dialog = requestEvent.getDialog();
-		BackToBackUserAgent btobua = DialogContext
-				.getBackToBackUserAgent(requestEvent.getDialog());
-
+		
 		try {
 			Response cancelOk = SipUtilities.createResponse(requestEvent
 					.getServerTransaction(), Response.OK);
