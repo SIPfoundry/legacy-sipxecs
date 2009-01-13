@@ -22,6 +22,8 @@ SIPX_PROXY_HOSTPORT : $!{location.address}:${proxyService.sipPort}
 SIPX_PROXY_HOOK_LIBRARY.200_xfer : @sipxpbx.lib.dir@/authplugins/libTransferControl.so
 
 SIPX_PROXY_HOOK_LIBRARY.205_subscriptionauth : @sipxpbx.lib.dir@/authplugins/libSubscriptionAuth.so
+SIPX_PROXY.205_subscriptionauth.PACKAGES_REQUIRING_AUTHENTICATION : dialog
+SIPX_PROXY.205_subscriptionauth.TARGETS_EXEMPTED_FROM_AUTHENTICATION : ^~~rl~
 
 SIPX_PROXY_HOOK_LIBRARY.210_msftxchghack : @sipxpbx.lib.dir@/authplugins/libMSFT_ExchangeTransferHack.so
 SIPX_PROXY.210_msftxchghack.USERAGENT : ^RTCC/

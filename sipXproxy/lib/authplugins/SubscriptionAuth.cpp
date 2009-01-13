@@ -15,11 +15,13 @@
 #include "net/NameValueTokenizer.h"
 #include "SipRouter.h"
 #include "SubscriptionAuth.h"
+#include "utl/UtlRegex.h"
 
 // DEFINES
 // CONSTANTS
 // CONSTANTS
 const char* SubscriptionAuth::EventsRequiringAuthenticationKey = "PACKAGES_REQUIRING_AUTHENTICATION";
+const char* SubscriptionAuth::TargetsExemptedFromAuthenticationKey = "TARGETS_EXEMPTED_FROM_AUTHENTICATION";
 
 // TYPEDEFS
 // FORWARD DECLARATIONS
@@ -43,6 +45,7 @@ SubscriptionAuth::SubscriptionAuth(const UtlString& pluginName ///< the name for
 SubscriptionAuth::~SubscriptionAuth()
 {
    mEventPackagesRequiringAuthentication.destroyAll();
+   mTargetsExemptedFromAuthentication.destroyAll();
 }
 
 void
@@ -69,7 +72,10 @@ SubscriptionAuth::readConfig( OsConfigDb& configDb /**< a subhash of the individ
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SubscriptionAuth[%s]::readConfig",
                  mInstanceName.data()
                  );
-   
+
+   mEventPackagesRequiringAuthentication.destroyAll();
+   mTargetsExemptedFromAuthentication.destroyAll();
+
    UtlString eventPackagesRequiringAuthentication;
    if (configDb.get(EventsRequiringAuthenticationKey, 
                     eventPackagesRequiringAuthentication) && 
@@ -100,6 +106,44 @@ SubscriptionAuth::readConfig( OsConfigDb& configDb /**< a subhash of the individ
                     ,mInstanceName.data(), EventsRequiringAuthenticationKey
                     );
    }
+
+   UtlString targetsExemptedFromAuthentication;
+   if (configDb.get(TargetsExemptedFromAuthenticationKey, 
+                    targetsExemptedFromAuthentication) &&
+       !targetsExemptedFromAuthentication.isNull())
+   {
+      OsSysLog::add( FAC_SIP, PRI_INFO
+                    ,"SubscriptionAuth[%s]::readConfig "
+                    "  %s = '%s'"
+                    ,mInstanceName.data(), TargetsExemptedFromAuthenticationKey
+                    ,targetsExemptedFromAuthentication.data()
+                    );
+      
+      int targetIndex = 0;
+      UtlString targetName;
+      while(NameValueTokenizer::getSubField(targetsExemptedFromAuthentication.data(), 
+                                            targetIndex,
+                                            ", \t", &targetName))
+      {
+         RegEx* targetRegEx;
+         targetIndex++;
+         try
+         {
+            targetRegEx = new RegEx(targetName.data());
+            mTargetsExemptedFromAuthentication.insert(targetRegEx);
+         }
+         catch(const char* compileError)
+         {
+            OsSysLog::add(FAC_SIP, PRI_ERR
+                          ,"SubscriptionAuth[%s]::readConfig Invalid recognizer expression '%s' for '%s': %s"
+                          ,mInstanceName.data()
+                          ,targetName.data()
+                          ,TargetsExemptedFromAuthenticationKey
+                          ,compileError
+                          );
+         }
+      }
+   }
 }
 
 AuthPlugin::AuthResult
@@ -122,12 +166,15 @@ SubscriptionAuth::authorizeAndModify(const UtlString& id,    /**< The authentica
 {
    AuthResult result = CONTINUE;
    UtlString eventField;
+   UtlString targetUser;
+   requestUri.getUserId(targetUser);
 
    if (CONTINUE == priorResult &&
        id.isNull() &&
        method.compareTo(SIP_SUBSCRIBE_METHOD) == 0 &&
        request.getEventField(eventField) &&
-       mEventPackagesRequiringAuthentication.contains( &eventField ) )
+       mEventPackagesRequiringAuthentication.contains( &eventField ) &&
+       !isTargetExemptedFromAuthentication(targetUser))
    {
       // we do not have an authenticated ID for the request - challenge it.
       // get the call-id to use in logging
@@ -139,7 +186,27 @@ SubscriptionAuth::authorizeAndModify(const UtlString& id,    /**< The authentica
                     mInstanceName.data(), eventField.data(), callId.data()
                     );
       result = DENY;
-      reason = "Authentication Required to Subscribe to dialog event package " + eventField;
+      reason = "Authentication Required to Subscribe to " + eventField;
    }
    return result;
+}
+
+UtlBoolean
+SubscriptionAuth::isTargetExemptedFromAuthentication(const UtlString& targetUser) const
+{
+   UtlBoolean targetExempted = FALSE;
+   UtlSListIterator nextTargetRegEx(mTargetsExemptedFromAuthentication);
+
+   RegEx* targetRegEx;
+   
+   while((targetRegEx = dynamic_cast<RegEx*>(nextTargetRegEx())))
+   {
+      if(targetRegEx->Search(targetUser.data()))
+      {
+         targetExempted = TRUE;
+         break;
+      }
+   }
+
+   return targetExempted;
 }

@@ -30,6 +30,10 @@ class SubscriptionAuthTest : public CppUnit::TestCase
    CPPUNIT_TEST(dialogSubscribe_ConfigSaysDoChallenge_SingleEntry);
    CPPUNIT_TEST(dialogSubscribe_ConfigSaysDoChallenge_MultipleEntries);
    CPPUNIT_TEST(dialogSubscribe_ConfigSaysDontChallenge);
+   CPPUNIT_TEST(dialogSubscribe_ExemptedTargetsSayDontChallenge_SingleEntry);
+   CPPUNIT_TEST(dialogSubscribe_ExemptedTargetsSayChallenge_SingleEntry);
+   CPPUNIT_TEST(dialogSubscribe_ExemptedTargetsSayDontChallenge_MultipleEntries);
+   CPPUNIT_TEST(dialogSubscribe_ExemptedTargetsSayChallenge_MultipleEntries);
    CPPUNIT_TEST(dialogSubscribe_AlreadyAllowedNotChallenged);
    CPPUNIT_TEST(dialogSubscribe_AlreadyDeniedNotChallenged);
    CPPUNIT_TEST(authenticatedDialogSubscribe);
@@ -507,7 +511,7 @@ public:
       configDb.set("PACKAGES_REQUIRING_AUTHENTICATION", "dialog");
       createAndReadySubscriptionAuthForTest( configDb );             
       
-      UtlString identity = "caller"; // no authenticated identity
+      UtlString identity = "caller"; // authenticated identity
       Url requestUri("sip:someone@example.edu");
 
       const char* message =
@@ -554,6 +558,244 @@ public:
       ASSERT_STR_EQUAL(message, forwardedMsg.data());
    }
 
+   void dialogSubscribe_ExemptedTargetsSayDontChallenge_SingleEntry()
+   {
+      OsConfigDb configDb;
+      configDb.set("PACKAGES_REQUIRING_AUTHENTICATION", "dialog");
+      configDb.set("TARGETS_EXEMPTED_FROM_AUTHENTICATION", "^~~.o");
+      createAndReadySubscriptionAuthForTest( configDb );             
+      
+      UtlString identity = ""; // no authenticated identity
+      Url requestUri("sip:~~robert@example.edu");
+
+      const char* message =
+         "SUBSCRIBE sip:~~robert@example.edu SIP/2.0\r\n"
+         "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+         "To: sip:someone@example.edu\r\n"
+         "From: Caller <sip:caller@example.edu>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+         "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "Cseq: 1 SUBSCRIBE\r\n"
+         "Event: dialog\r\n"
+         "Max-Forwards: 20\r\n"
+         "Contact: caller@127.0.0.1\r\n"
+         "Content-Length: 0\r\n"
+         "\r\n";
+      SipMessage testMsg(message, strlen(message));
+
+      UtlSList noRemovedRoutes;
+      UtlString myRouteName("myhost.example.com");
+      RouteState routeState( testMsg, noRemovedRoutes, myRouteName );
+
+      const char unmodifiedRejectReason[] = "unmodified";
+      UtlString rejectReason(unmodifiedRejectReason);
+
+      UtlString method("SUBSCRIBE");
+      bool bSpiralingRequest = false;
+      AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
+
+      CPPUNIT_ASSERT(AuthPlugin::CONTINUE
+                     == dlgevntauth->authorizeAndModify(identity,
+                                                        requestUri,
+                                                        routeState,
+                                                        method,
+                                                        priorResult,
+                                                        testMsg,
+                                                        bSpiralingRequest,
+                                                        rejectReason
+                                                        ));
+      ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
+
+      // verify that the message has not been modified
+      UtlString forwardedMsg;
+      ssize_t length;
+      testMsg.getBytes(&forwardedMsg,&length);
+      ASSERT_STR_EQUAL(message, forwardedMsg.data());
+   }
+
+   void dialogSubscribe_ExemptedTargetsSayChallenge_SingleEntry()
+   {
+      OsConfigDb configDb;
+      configDb.set("PACKAGES_REQUIRING_AUTHENTICATION", "dialog");
+      configDb.set("TARGETS_EXEMPTED_FROM_AUTHENTICATION", "^~~.o");
+      createAndReadySubscriptionAuthForTest( configDb );             
+      
+      UtlString identity = ""; // no authenticated identity
+      Url requestUri("sip:~~rabert@example.edu");
+
+      const char* message =
+         "SUBSCRIBE sip:~~robert@example.edu SIP/2.0\r\n"
+         "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+         "To: sip:someone@example.edu\r\n"
+         "From: Caller <sip:caller@example.edu>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+         "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "Cseq: 1 SUBSCRIBE\r\n"
+         "Event: dialog\r\n"
+         "Max-Forwards: 20\r\n"
+         "Contact: caller@127.0.0.1\r\n"
+         "Content-Length: 0\r\n"
+         "\r\n";
+      SipMessage testMsg(message, strlen(message));
+
+      UtlSList noRemovedRoutes;
+      UtlString myRouteName("myhost.example.com");
+      RouteState routeState( testMsg, noRemovedRoutes, myRouteName );
+
+      const char unmodifiedRejectReason[] = "unmodified";
+      UtlString rejectReason(unmodifiedRejectReason);
+
+      UtlString method("SUBSCRIBE");
+      bool bSpiralingRequest = false;
+      AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
+
+      CPPUNIT_ASSERT(AuthPlugin::DENY
+                     == dlgevntauth->authorizeAndModify(identity,
+                                                        requestUri,
+                                                        routeState,
+                                                        method,
+                                                        priorResult,
+                                                        testMsg,
+                                                        bSpiralingRequest,
+                                                        rejectReason
+                                                        ));
+      // Make sure we set a reason why we are challenging this request
+      CPPUNIT_ASSERT(0 != rejectReason.compareTo(unmodifiedRejectReason));
+   }
+   
+   void dialogSubscribe_ExemptedTargetsSayDontChallenge_MultipleEntries()
+   {
+      OsConfigDb configDb;
+      configDb.set("PACKAGES_REQUIRING_AUTHENTICATION", "dialog");
+      configDb.set("TARGETS_EXEMPTED_FROM_AUTHENTICATION", "^~~.o ab..e");
+      createAndReadySubscriptionAuthForTest( configDb );             
+      
+      UtlString identity = ""; // no authenticated identity
+      Url requestUri("sip:~~robert@example.edu");
+
+      const char* message =
+         "SUBSCRIBE sip:~~robert@example.edu SIP/2.0\r\n"
+         "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+         "To: sip:someone@example.edu\r\n"
+         "From: Caller <sip:caller@example.edu>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+         "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "Cseq: 1 SUBSCRIBE\r\n"
+         "Event: dialog\r\n"
+         "Max-Forwards: 20\r\n"
+         "Contact: caller@127.0.0.1\r\n"
+         "Content-Length: 0\r\n"
+         "\r\n";
+      SipMessage testMsg(message, strlen(message));
+
+      UtlSList noRemovedRoutes;
+      UtlString myRouteName("myhost.example.com");
+      RouteState routeState( testMsg, noRemovedRoutes, myRouteName );
+
+      const char unmodifiedRejectReason[] = "unmodified";
+      UtlString rejectReason(unmodifiedRejectReason);
+
+      UtlString method("SUBSCRIBE");
+      bool bSpiralingRequest = false;
+      AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
+
+      CPPUNIT_ASSERT(AuthPlugin::CONTINUE
+                     == dlgevntauth->authorizeAndModify(identity,
+                                                        requestUri,
+                                                        routeState,
+                                                        method,
+                                                        priorResult,
+                                                        testMsg,
+                                                        bSpiralingRequest,
+                                                        rejectReason
+                                                        ));
+      ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
+
+      // verify that the message has not been modified
+      UtlString forwardedMsg;
+      ssize_t length;
+      testMsg.getBytes(&forwardedMsg,&length);
+      ASSERT_STR_EQUAL(message, forwardedMsg.data());
+
+      Url requestUri2("sip:123abcde123@example.edu");
+      CPPUNIT_ASSERT(AuthPlugin::CONTINUE
+                     == dlgevntauth->authorizeAndModify(identity,
+                                                        requestUri2,
+                                                        routeState,
+                                                        method,
+                                                        priorResult,
+                                                        testMsg,
+                                                        bSpiralingRequest,
+                                                        rejectReason
+                                                        ));
+      ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
+
+      // verify that the message has not been modified
+      testMsg.getBytes(&forwardedMsg,&length);
+      ASSERT_STR_EQUAL(message, forwardedMsg.data());
+   
+   }
+
+   void dialogSubscribe_ExemptedTargetsSayChallenge_MultipleEntries()
+   {
+      OsConfigDb configDb;
+      configDb.set("PACKAGES_REQUIRING_AUTHENTICATION", "dialog");
+      configDb.set("TARGETS_EXEMPTED_FROM_AUTHENTICATION", "^~~.o ab..e");
+      createAndReadySubscriptionAuthForTest( configDb );             
+      
+      UtlString identity = ""; // no authenticated identity
+      Url requestUri("sip:~~rabert@example.edu");
+
+      const char* message =
+         "SUBSCRIBE sip:~~rabert@example.edu SIP/2.0\r\n"
+         "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+         "To: sip:someone@example.edu\r\n"
+         "From: Caller <sip:caller@example.edu>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+         "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "Cseq: 1 SUBSCRIBE\r\n"
+         "Event: dialog\r\n"
+         "Max-Forwards: 20\r\n"
+         "Contact: caller@127.0.0.1\r\n"
+         "Content-Length: 0\r\n"
+         "\r\n";
+      SipMessage testMsg(message, strlen(message));
+
+      UtlSList noRemovedRoutes;
+      UtlString myRouteName("myhost.example.com");
+      RouteState routeState( testMsg, noRemovedRoutes, myRouteName );
+
+      const char unmodifiedRejectReason[] = "unmodified";
+      UtlString rejectReason(unmodifiedRejectReason);
+
+      UtlString method("SUBSCRIBE");
+      bool bSpiralingRequest = false;
+      AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
+
+      CPPUNIT_ASSERT(AuthPlugin::DENY
+                     == dlgevntauth->authorizeAndModify(identity,
+                                                        requestUri,
+                                                        routeState,
+                                                        method,
+                                                        priorResult,
+                                                        testMsg,
+                                                        bSpiralingRequest,
+                                                        rejectReason
+                                                        ));
+      // Make sure we set a reason why we are challenging this request
+      CPPUNIT_ASSERT(0 != rejectReason.compareTo(unmodifiedRejectReason));
+
+      Url requestUri2("sip:123abcdf123@example.edu");
+      CPPUNIT_ASSERT(AuthPlugin::DENY
+                     == dlgevntauth->authorizeAndModify(identity,
+                                                        requestUri2,
+                                                        routeState,
+                                                        method,
+                                                        priorResult,
+                                                        testMsg,
+                                                        bSpiralingRequest,
+                                                        rejectReason
+                                                        ));
+      // Make sure we set a reason why we are challenging this request
+      CPPUNIT_ASSERT(0 != rejectReason.compareTo(unmodifiedRejectReason));
+   }
+  
 private:
    ForwardRules  mForwardingRules;
 };
