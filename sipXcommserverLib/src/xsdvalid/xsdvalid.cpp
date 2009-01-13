@@ -151,11 +151,7 @@ static void usage()
 {
     XERCES_STD_QUALIFIER cout <<
        "\nUsage:\n"
-       "    xsdvalid [<options>] <XML file> "
-#      ifdef LISTMODE
-       "| -l <List file>"
-#      endif       
-       "\n"
+       "    xsdvalid [<options>] <XML file> | -l <list file>\n"
        "\n"
        "Validates an XML instance document against its schema as determined\n"
        "by examining the attributes in the document.\n"
@@ -170,13 +166,11 @@ static void usage()
        "                Specifies a file containing namespace/schema-location\n"
        "                pairs.  (One pair per line, separated by whitespace.\n"
        "                Comments start with '#'.)\n"
-#      ifdef LISTMODE
-       "    -l          Indicate the input file is a List File that has a list of xml files.\n"
-       "                Default to off (Input file is an XML file).\n"
-#      endif
+       "    -l          The input file is a list file, containing a list of names of XML files.\n"
+       "                Default is argument is the name of an XML file.\n"
        "    -?          Show this help.\n"
        "\n"
-       "    Returns zero if the file is valid, non-zero if not.\n"
+       "    Returns zero if the file (or all files in the list file) is valid, non-zero if not.\n"
        "\n"
          << XERCES_STD_QUALIFIER endl;
 }
