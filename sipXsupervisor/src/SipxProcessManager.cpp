@@ -110,9 +110,12 @@ void SipxProcessManager::getProcessStateAll(UtlHashMap& processStates //< key->n
    UtlHashBagIterator processes(mProcesses);
    while ((process = dynamic_cast<SipxProcess*>(processes())))
    {
-      processStates.insertKeyAndValue(new UtlString(process->data()),
+      if ( 0 != process->compareTo(SUPERVISOR_PROCESS_NAME) )
+      {
+         processStates.insertKeyAndValue(new UtlString(process->data()),
                                       new UtlString(process->GetCurrentState()->name())
                                       );
+      }
    }
 }
 

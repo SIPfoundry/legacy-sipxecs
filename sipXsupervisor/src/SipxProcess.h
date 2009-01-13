@@ -155,6 +155,11 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
    /// Read a process definition and return a process if definition is valid.
    static SipxProcess* createFromDefinition(const OsPath& definitionFile);
 
+   /// Read a special reduced process definition and return a process if definition is valid.
+   static SipxProcess* createSupervisorProcess(const OsPath& definitionFile,
+                                               TiXmlDocument& processDefinitionDoc);
+
+
 ///@}
 // ================================================================
 /** @name           State Manipulation
@@ -177,13 +182,13 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
    bool isCompletelyStopped();
 
    /// Set the persistent desired state of the SipxProcess to Running, and start the process.
-   void enable();
+   bool enable();
 
    /// Set the persistent desired state of the SipxProcess to Disabled, and stop the process.
-   void disable();
+   bool disable();
 
    /// Stop and restart the process without changing the persistent desired state
-   void restart();
+   bool restart();
 
    /// Shutting down sipXsupervisor, so shut down the service.
    void shutdown();
@@ -210,6 +215,7 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
    /// Custom comparison method that allows SipxProcess retrieved in Utl containers
    /// using UtlStrings or any UtlString-derived object.
    virtual int compareTo(UtlContainable const *other) const;
+   virtual int compareTo(const char* other) const;
    
   private:
      /// start the FSM up in its own task
@@ -470,11 +476,15 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
    UtlSList         mStatusMessages;   ///< list of messages relevant to current state
    int              mNumStdoutMsgs;    ///< number of messages received since last restart
    int              mNumStderrMsgs;    ///< number of messages received since last restart
+   bool             mbSupervisor;      /**< true if this is the special supervisor process,
+                                        *   which isn't managed but can have resources
+                                        */
    
    /// constructor
    SipxProcess(const UtlString& name,
                const UtlString& version,
-               const OsPath&    definitionPath
+               const OsPath&    definitionPath,
+               bool             bSupervisor=false  ///< supervisor has a special reduced def
                );
 
    // @cond INCLUDENOCOPY

@@ -210,36 +210,34 @@ bool ProcMgmtRpcMethod::executeSetUserRequestState(const HttpRequestContext& req
 
                   while ( (pAlias = dynamic_cast<UtlString*> (aliasListIterator())) )
                   {
-                     bool result = true;
+                     bool result = false;
                      SipxProcess* process = processMgr->findProcess(*pAlias);
                      if ( process )
                      {
                         switch (request_state)
                         {
                         case USER_PROCESS_START:
-                           process->enable();
+                           result = process->enable();
                            break;
                            
                         case USER_PROCESS_STOP:
-                           process->disable();
+                           result = process->disable();
                            break;
                            
                         case USER_PROCESS_RESTART:
-                           process->restart();
+                           result = process->restart();
                            break;
 
                         default:
                            OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT,
                                          "ProcMgmtRpcMethod::executeSetUserRequestState"
                                          "invalid request_state %u", request_state);
-                           result = false;
                         }
                      }
                      else
                      {
                         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
                                       "could not find process %s", pAlias->data());
-                        result = false;
                      }
                      tmp_alias = new UtlString(*pAlias);
                      process_results.insertKeyAndValue(tmp_alias, new UtlBool(result));

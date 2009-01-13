@@ -359,11 +359,10 @@ bool SwAdminRpcExec::execute(const HttpRequestContext& requestContext,
                       UtlSList outputPaths;
                       outputPaths.insert(&mStdOutPath);
                       outputPaths.insert(&mStdErrPath);
-                      
-                      // Add the file resources to SipXProxy Process because Supervisor doesn't have a process object yet.
-                      
-                      FileResource::logFileResource( mStdOutPath, SipxProcessManager::getInstance()->findProcess("SIPXProxy"));
-                      FileResource::logFileResource( mStdErrPath, SipxProcessManager::getInstance()->findProcess("SIPXProxy"));
+
+                      // Add the file resources to Supervisor Process so they can be retrieved
+                      FileResource::logFileResource( mStdOutPath, SipxProcessManager::getInstance()->findProcess(SUPERVISOR_PROCESS_NAME));
+                      FileResource::logFileResource( mStdErrPath, SipxProcessManager::getInstance()->findProcess(SUPERVISOR_PROCESS_NAME));
                       response.setResponse(&outputPaths);
                       status = XmlRpcMethod::OK;
                       result = true;

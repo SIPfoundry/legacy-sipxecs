@@ -94,7 +94,8 @@ Undefined*               SipxProcess::pUndefined = 0;
 /// constructor
 SipxProcess::SipxProcess(const UtlString& name,
                          const UtlString& version,
-                         const OsPath& definitionFile) :
+                         const OsPath& definitionFile,
+                         bool  bSupervisor) :
    UtlString(name),
    OsServerTask("SipxProcess-%d"),
    mLock(OsMutex::Q_FIFO),
@@ -112,7 +113,8 @@ SipxProcess::SipxProcess(const UtlString& name,
    mLastFailure(OsDateTime::getSecsSinceEpoch()),
    mNumRetryIntervals(sizeof(retry_interval) / sizeof(retry_interval[0])),
    mNumStdoutMsgs(0),
-   mNumStderrMsgs(0)
+   mNumStderrMsgs(0),
+   mbSupervisor(bSupervisor)
 {
    // Init state pointers
    initializeStatePointers();
@@ -256,6 +258,12 @@ SipxProcess* SipxProcess::createFromDefinition(const OsPath& definitionFile)
                              );
             }
    
+            if ( definitionValid && (0 == name.compareTo(SUPERVISOR_PROCESS_NAME)) )
+            {
+               // this is the special definition for the Supervisor itself.
+               return createSupervisorProcess(definitionFile, processDefinitionDoc);
+            }
+
             // Get the 'version' element
             if ( definitionValid )
             {
@@ -709,6 +717,121 @@ SipxProcess* SipxProcess::createFromDefinition(const OsPath& definitionFile)
    return process;
 }
 
+/// Read a special reduced process definition and return a process if definition is valid.
+SipxProcess* SipxProcess::createSupervisorProcess(const OsPath& definitionFile,
+                                                  TiXmlDocument& processDefinitionDoc)
+{
+   SipxProcess* process = NULL;
+   UtlString errorMsg;
+
+   // definition is well formed xml, at least
+   TiXmlElement* processDefElem;
+   if ((processDefElem = processDefinitionDoc.RootElement()))
+   {
+      const char* rootElementName = processDefElem->Value();
+      const char* definitionNamespace = processDefElem->Attribute("xmlns");
+      if (rootElementName && definitionNamespace && 0 == strcmp(rootElementName,
+            SipXecsProcessRootElement) && 0 == strcmp(definitionNamespace,
+            SipXecsProcessNamespace) )
+      {
+         bool definitionValid = true;
+         TiXmlElement* versionElement= NULL;
+         UtlString version;
+         TiXmlElement* resourcesElement= NULL;
+
+         // We've already read and checked 'name', and we are ignoring 'commands'
+
+         // Get the 'version' element
+         if (definitionValid)
+         {
+            if ( (versionElement = processDefElem->FirstChildElement("version")) )
+            {
+               if ( !textContent(version, versionElement) || version.isNull() )
+               {
+                  definitionValid = false;
+                  XmlErrorMsg(processDefinitionDoc, errorMsg);
+                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::createFromDefinition "
+                     "'version' element content is invalid %s", errorMsg.data() );
+               }
+            }
+            else
+            {
+               definitionValid = false;
+               XmlErrorMsg(processDefinitionDoc, errorMsg);
+               OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::createFromDefinition "
+                  "required 'version' element is missing %s", errorMsg.data() );
+            }
+         }
+
+         // Get the 'resources' element
+         if (definitionValid)
+         {
+            if ( !(resourcesElement = processDefElem->FirstChildElement("resources")) )
+            {
+               definitionValid = false;
+               XmlErrorMsg(processDefinitionDoc, errorMsg);
+               OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::createFromDefinition "
+                  "required 'resources' element is missing %s", errorMsg.data() );
+            }
+         }
+
+         /* All the required top level elements have been found, so create
+          * the SipxProcess object and invoke the parsers for the components. */
+         if (definitionValid)
+         {
+            if ((process = new SipxProcess(SUPERVISOR_PROCESS_NAME, version, definitionFile, true /*supervisor*/)))
+            {
+               // Parse the 'resources' elements
+               if (resourcesElement)
+               {
+                  TiXmlElement* resourceElement;
+                  for (resourceElement = resourcesElement->FirstChildElement();
+                       definitionValid && resourceElement;
+                       resourceElement = resourceElement->NextSiblingElement() )
+                  {
+                     /*
+                      * We do not validate the element name here, because
+                      * we don't know all valid resource element types.  That
+                      * is done in the factory we call to parse the element.
+                      *
+                      * If this resource is required for starting or stopping,
+                      * then the requireResourceToStart and/or checkResourceBeforeStop
+                      * methods on the new process is called to add the new
+                      * resource to the appropriate list.
+                      */
+                     definitionValid = SipxResource::parse(processDefinitionDoc, resourceElement,
+                           process);
+                  }
+               }
+            }
+
+            if (definitionValid)
+            {
+               SipxProcessManager::getInstance()->save(process);
+            }
+
+         }
+      }
+      else
+      {
+         XmlErrorMsg(processDefinitionDoc, errorMsg);
+         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::createFromDefinition "
+            "invalid root element '%s' in namespace '%s'\n"
+            "should be '%s' in namespace '%s' %s", rootElementName, definitionNamespace,
+               SipXecsProcessRootElement, SipXecsProcessNamespace, errorMsg.data() );
+      }
+
+   }
+   else
+   {
+      XmlErrorMsg(processDefinitionDoc, errorMsg);
+      OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::createFromDefinition "
+         "root element not found in '%s': %s", definitionFile.data(), errorMsg.data() );
+   }
+
+
+   return process;
+}
 /// Return the SipxProcessResource for this SipxProcess.
 SipxProcessResource* SipxProcess::resource()
 {
@@ -822,22 +945,40 @@ void SipxProcess::startStateMachine()
    postMessage( message );
 }
 
-void SipxProcess::enable()
+bool SipxProcess::enable()
 {
+   if ( mbSupervisor )
+   {
+      // sorry, no can do
+      return false;
+   }
    SipxProcessMsg message(SipxProcessMsg::ENABLE );
    postMessage( message );
+   return true;
 }
 
-void SipxProcess::disable()
+bool SipxProcess::disable()
 {
+   if ( mbSupervisor )
+   {
+      // sorry, no can do
+      return false;
+   }
    SipxProcessMsg message(SipxProcessMsg::DISABLE );
    postMessage( message );
+   return true;
 }
 
-void SipxProcess::restart()
+bool SipxProcess::restart()
 {
+   if ( mbSupervisor )
+   {
+      // sorry, no can do
+      return false;
+   }
    SipxProcessMsg message(SipxProcessMsg::RESTART );
    postMessage( message );
+   return true;
 }
 
 void SipxProcess::shutdown()
@@ -1463,6 +1604,11 @@ int SipxProcess::compareTo(UtlContainable const *other) const
 
    return compareFlag;
    
+}
+
+int SipxProcess::compareTo(const char* other) const
+{
+    return UtlString::compareTo( other );
 }
 
 /// Save status message so it can be queried later

@@ -13,7 +13,10 @@
 #include "os/OsFS.h"
 #include "utl/UtlHashBag.h"
 #include "utl/UtlHashMap.h"
+
 // DEFINES
+#define SUPERVISOR_PROCESS_NAME "sipxsupervisor"
+
 // CONSTANTS
 // TYPEDEFS
 // FORWARD DECLARATIONS

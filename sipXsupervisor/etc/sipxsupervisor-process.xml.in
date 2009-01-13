@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<sipXecs-process xmlns='http://www.sipfoundry.org/sipX/schema/xml/sipXecs-process-01-00'>
+  <name>sipxsupervisor</name>
+  <version>3.11.9</version>
+  <commands>
+    <configtest>
+      <execute>@SIPX_BINDIR@/sipxsupervisor.sh</execute>
+      <parameter>--configtest</parameter>
+    </configtest>
+    <start>
+      <execute>dummy_placeholder_never_executed</execute>
+    </start>
+    <stop>
+      <execute>@SIPX_BINDIR@/sipxsupervisor.sh</execute>
+      <parameter>--stop</parameter>
+    </stop>
+  </commands>
+  <status></status>
+  <resources>
+    <osconfig>@SIPX_CONFDIR@/domain-config</osconfig>
+    <osconfig>@SIPX_CONFDIR@/supervisor-config</osconfig>
+    <file>@SIPX_CONFDIR@/alarm-config.xml</file>
+    <file>@SIPX_CONFDIR@/alarms/sipXalarms-config.xml</file>
+  </resources>
+</sipXecs-process>
