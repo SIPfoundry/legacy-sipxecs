@@ -1599,7 +1599,7 @@
         </type>
         <value />
       </setting>
-      <setting name="allowTransferOnProceeding" hidden="yes">
+      <setting name="allowTransferOnProceeding" advanced="yes">
         <type>
           <boolean />
         </type>
