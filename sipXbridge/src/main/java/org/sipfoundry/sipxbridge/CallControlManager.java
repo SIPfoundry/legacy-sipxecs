@@ -1085,6 +1085,8 @@ class CallControlManager implements SymmitronResetHandler {
 		Response response = responseEvent.getResponse();
 
 		BackToBackUserAgent b2bua = dialogContext.getBackToBackUserAgent();
+		
+		
 
 		/*
 		 * Store away our incoming response - get ready for ACKL

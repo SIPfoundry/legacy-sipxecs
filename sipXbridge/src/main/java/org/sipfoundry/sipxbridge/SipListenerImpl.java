@@ -173,6 +173,7 @@ public class SipListenerImpl implements SipListener {
 
         String method = cseqHeader.getMethod();
         String callId = SipUtilities.getCallId(response);
+       
 
         try {
 
@@ -183,9 +184,22 @@ public class SipListenerImpl implements SipListener {
                  */
 
                 logger.debug("Discarding response - no client tx state found");
-                /*
-                 * TODO -- what if the DIALOG exists but the transaction does not.
-                 */
+                /* if the tx does not exist but the dialog does exist then this is a forked response */
+                
+                Dialog dialog = responseEvent.getDialog();
+                SipProvider provider = (SipProvider) responseEvent.getSource();
+                if (dialog != null &&  dialog.getApplicationData() == null ) {
+                    /*
+                     * Kill off the dialog.
+                     */
+                    if ( response.getStatusCode() == Response.OK && method.equals(Request.INVITE )) {
+                        Request ackRequest = dialog.createAck(cseqHeader.getSeqNumber());
+                        dialog.sendAck(ackRequest);
+                        Request byeRequest = dialog.createRequest(Request.BYE);
+                        ClientTransaction byeClientTransaction = provider.getNewClientTransaction(byeRequest);
+                        dialog.sendRequest(byeClientTransaction);
+                    }
+                }
                 return;
             }
             // Processing an OK for a NOTIFY -- do nothing.
