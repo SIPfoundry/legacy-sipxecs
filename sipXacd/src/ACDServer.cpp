@@ -943,10 +943,12 @@ ProvisioningAttrList* ACDServer::Set(ProvisioningAttrList& rRequestAttributes)
       targetURL.setPath("RPC2");
 
       // Make the XMLRPC request to restart this process.
+      UtlSList aliases;
       UtlString alias(ACD_SERVER_ALIAS);
+      aliases.append(&alias);
       XmlRpcRequest requestRestart(targetURL, "ProcMgmtRpc.restart");
       requestRestart.addParam(&mDomain);
-      requestRestart.addParam(&alias);
+      requestRestart.addParam(&aliases);
       UtlBool bBlock(false);
       requestRestart.addParam(&bBlock); // No, don't block for the state change.
       XmlRpcResponse response;
@@ -969,7 +971,7 @@ ProvisioningAttrList* ACDServer::Set(ProvisioningAttrList& rRequestAttributes)
          }
          else
          {
-            UtlBool* pResult = dynamic_cast<UtlBool*>(pValue);
+            UtlHashMap* pResult = dynamic_cast<UtlHashMap*>(pValue);
             if (!pResult)
             {
                OsSysLog::add(LOG_FACILITY, PRI_CRIT,
@@ -978,7 +980,7 @@ ProvisioningAttrList* ACDServer::Set(ProvisioningAttrList& rRequestAttributes)
             }
             else
             {
-               if (!pResult->getValue())
+               if (!pResult->findValue(&alias))
                {
                   OsSysLog::add(LOG_FACILITY, PRI_ERR, "ProcMgmtRpc.restart could not restart the process.");
                }
