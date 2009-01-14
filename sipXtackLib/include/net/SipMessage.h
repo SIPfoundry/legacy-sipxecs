@@ -11,7 +11,7 @@
 #define _SipMessage_h_
 
 // SYSTEM INCLUDES
-//#include <...>
+#include <limits.h>
 
 // APPLICATION INCLUDES
 #include <utl/UtlHashBag.h>
