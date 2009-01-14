@@ -465,7 +465,7 @@ void SipSession::toString(UtlString& output) const
 
 /* ============================ INQUIRY =================================== */
 
-UtlBoolean SipSession::isMessageFromInitiator(SipMessage& message)
+UtlBoolean SipSession::isMessageFromInitiator(const SipMessage& message) const
 {
     Url messageFromUrl;
     Url messageToUrl;
@@ -474,16 +474,16 @@ UtlBoolean SipSession::isMessageFromInitiator(SipMessage& message)
     message.getToUrl(messageToUrl);
     message.getCallIdField(&messageCallId);
 
-    return(((message.isResponse() &&
-            SipMessage::isSameSession(mRemoteUrl, messageFromUrl) &&
-           SipMessage::isSameSession(mLocalUrl, messageToUrl)) ||
-           (!message.isResponse() &&
-            SipMessage::isSameSession(mRemoteUrl, messageToUrl) &&
-           SipMessage::isSameSession(mLocalUrl, messageFromUrl)))&&
-           messageCallId.compareTo(*this) == 0);
+    return
+       messageCallId.compareTo(*this) == 0 &&
+       (message.isResponse() ?
+        (SipMessage::isSameSession(mRemoteUrl, messageFromUrl) &&
+         SipMessage::isSameSession(mLocalUrl, messageToUrl, TRUE)) :
+        (SipMessage::isSameSession(mRemoteUrl, messageToUrl, TRUE) &&
+         SipMessage::isSameSession(mLocalUrl, messageFromUrl)));
 }
 
-UtlBoolean SipSession::isMessageFromDestination(SipMessage& message)
+UtlBoolean SipSession::isMessageFromDestination(const SipMessage& message) const
 {
     Url messageFromUrl;
     Url messageToUrl;
@@ -492,16 +492,16 @@ UtlBoolean SipSession::isMessageFromDestination(SipMessage& message)
     message.getToUrl(messageToUrl);
     message.getCallIdField(&messageCallId);
 
-    return(((!message.isResponse() &&
-            SipMessage::isSameSession(mRemoteUrl, messageFromUrl) &&
-           SipMessage::isSameSession(mLocalUrl, messageToUrl)) ||
-           (message.isResponse() &&
-            SipMessage::isSameSession(mRemoteUrl, messageToUrl) &&
-           SipMessage::isSameSession(mLocalUrl, messageFromUrl)))&&
-           messageCallId.compareTo(*this) == 0);
+    return
+       messageCallId.compareTo(*this) == 0 &&
+       (message.isResponse() ?
+        (SipMessage::isSameSession(mRemoteUrl, messageToUrl, TRUE) &&
+         SipMessage::isSameSession(mLocalUrl, messageFromUrl)) :
+        (SipMessage::isSameSession(mRemoteUrl, messageFromUrl) &&
+         SipMessage::isSameSession(mLocalUrl, messageToUrl, TRUE)));
 }
 
-UtlBoolean SipSession::isSameSession(SipMessage& message)
+UtlBoolean SipSession::isSameSession(const SipMessage& message) const
 {
     return(isMessageFromInitiator(message) ||
            isMessageFromDestination(message));

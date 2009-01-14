@@ -110,11 +110,15 @@ public:
 
 /* ============================ INQUIRY =================================== */
 
-   UtlBoolean isSameSession(SipMessage& message);
+   UtlBoolean isSameSession(const SipMessage& message) const;
 
-   UtlBoolean isMessageFromInitiator(SipMessage& message);
+   // Returns TRUE if the message is a part of this dialog/session AND was 
+   // sent by the local UA
+   UtlBoolean isMessageFromInitiator(const SipMessage& message) const;
 
-   UtlBoolean isMessageFromDestination(SipMessage& message);
+   // Returns TRUE if the message is a part of this dialog/session AND was
+   // sent by the remote UA
+   UtlBoolean isMessageFromDestination(const SipMessage& message) const;
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

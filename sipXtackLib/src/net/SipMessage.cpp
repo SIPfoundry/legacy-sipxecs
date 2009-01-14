@@ -4558,175 +4558,99 @@ UtlBoolean SipMessage::isSameMessage(const SipMessage* message,
 UtlBoolean SipMessage::isSameSession(const SipMessage* message) const
 {
    UtlBoolean isSame = FALSE;
-    UtlBoolean isSameFrom = FALSE;
-   UtlString thisTo, thatTo;
-   UtlString thisFrom, thatFrom;
-   UtlString thisCallId, thatCallId;
+   UtlString localCallId;
+   UtlString otherCallId;
 
-   // Messages from the same session have the same To, From and CallId
+   // Messages from the same session have the same To-tags, From-tags and CallId
    if(message)
    {
-      getCallIdField(&thisCallId);
-      message->getCallIdField(&thatCallId);
-      if(thisCallId.compareTo(thatCallId) == 0)
+      getCallIdField(&localCallId);
+      message->getCallIdField(&otherCallId);
+      if(0 == localCallId.compareTo(otherCallId))
       {
-         getFromField(&thisFrom);
-         message->getFromField(&thatFrom);
-         if(thisFrom.compareTo(thatFrom) == 0)
-         {
-                isSameFrom = TRUE;
+         Url otherFromUrl;
+         Url localFromUrl;
+         Url otherToUrl;
+         Url localToUrl;
 
-            }
-            else
-            {
-                UtlString thisAddress;
-            UtlString thatAddress;
-            int thisPort;
-            int thatPort;
-            UtlString thisProtocol;
-            UtlString thatProtocol;
-            UtlString thisUser;
-            UtlString thatUser;
-            UtlString thisUserLabel;
-            UtlString thatUserLabel;
-            UtlString thisTag;
-            UtlString thatTag;
-            getFromAddress(&thisAddress, &thisPort, &thisProtocol,
-               &thisUser, &thisUserLabel, &thisTag);
-            message->getFromAddress(&thatAddress, &thatPort, &thatProtocol,
-               &thatUser, &thatUserLabel, &thatTag);
+         message->getFromUrl(otherFromUrl);
+         getFromUrl(localFromUrl);
+         message->getToUrl(otherToUrl);
+         getToUrl(localToUrl);
 
-            if (thisAddress.compareTo(thatAddress) == 0 &&
-                (thisPort == thatPort ||
-                 (thisPort == PORT_NONE && thatPort == SIP_PORT) ||
-                 (thisPort == SIP_PORT && thatPort == PORT_NONE)) &&
-                thisProtocol.compareTo(thatProtocol) == 0 &&
-                thisUser.compareTo(thatUser) == 0 &&
-                (thisTag.compareTo(thatTag, UtlString::ignoreCase) == 0 ||
-                 (thisTag.isNull() && !isResponse()) ||
-                 (thatTag.isNull() && !message->isResponse())))
-            {
-               isSameFrom = TRUE;
-            }
-                else
-                {
-#ifdef TEST_PRINT
-                    osPrintf("ERROR: From field did not match: \nAddr: (%s!=%s)\nPort: %d!=%d\nUser: (%s!=%s)\nTag:  (%s!=%s)\n",
-                        thisAddress.data(), thatAddress.data(),
-                        thisPort, thatPort,
-                        thisUser.data(), thatUser.data(),
-                        thisTag.data(), thatTag.data());
-#endif
-                }
-            }
-
-         getToField(&thisTo);
-         message->getToField(&thatTo);
-         if(isSameFrom && thisTo.compareTo(thatTo ) == 0)
+         if (isSameSession(localFromUrl, otherFromUrl, FALSE) &&
+             isSameSession(localToUrl, otherToUrl, TRUE))
          {
             isSame = TRUE;
-         }
-         // Check for tag
-         else if(isSameFrom)
-         {
-            UtlString thisAddress;
-            UtlString thatAddress;
-            int thisPort;
-            int thatPort;
-            UtlString thisProtocol;
-            UtlString thatProtocol;
-            UtlString thisUser;
-            UtlString thatUser;
-            UtlString thisUserLabel;
-            UtlString thatUserLabel;
-            UtlString thisTag;
-            UtlString thatTag;
-            getToAddress(&thisAddress, &thisPort, &thisProtocol,
-               &thisUser, &thisUserLabel, &thisTag);
-            message->getToAddress(&thatAddress, &thatPort, &thatProtocol,
-               &thatUser, &thatUserLabel, &thatTag);
-
-            // Everything must match with the exception that the
-            // request may not have the tag set.
-            if (thisAddress.compareTo(thatAddress) == 0 &&
-                (thisPort == thatPort ||
-                 (thisPort == PORT_NONE && thatPort == SIP_PORT) ||
-                 (thisPort == SIP_PORT && thatPort == PORT_NONE)) &&
-                thisProtocol.compareTo(thatProtocol) == 0 &&
-                thisUser.compareTo(thatUser) == 0 &&
-                (thisTag.compareTo(thatTag , UtlString::ignoreCase) == 0 ||
-                 (thisTag.isNull() && !isResponse()) ||
-                 (thatTag.isNull() && !message->isResponse())))
-            {
-               isSame = TRUE;
-            }
-                else
-                {
-#ifdef TEST_PRINT
-                    osPrintf("ERROR: To field did not match:\n: (%s!=%s)\nPort: %d!=%d\nUser: (%s!=%s)\nTag:  (%s!=%s)\n",
-                        thisAddress.data(), thatAddress.data(),
-                        thisPort, thatPort,
-                        thisUser.data(), thatUser.data(),
-                        thisTag.data(), thatTag.data());
-#endif
-                }
          }
       }
    }
    return(isSame);
 }
 
-UtlBoolean SipMessage::isSameSession(Url& oldUrl, Url& newUrl)
+UtlBoolean SipMessage::isSameSession(const Url& firstUrl,
+                                     const Url& secondUrl,
+                                     UtlBoolean comparingToUrl)
 {
    UtlBoolean isSame = FALSE;
 
+   UtlString firstTag;
+   UtlString secondTag;
 
-    UtlString thisAddress;
-   UtlString thatAddress;
-   int thisPort;
-   int thatPort;
-   UtlString thisProtocol;
-   UtlString thatProtocol;
-   UtlString thisUser;
-   UtlString thatUser;
-   UtlString thisTag;
-   UtlString thatTag;
-    oldUrl.getHostAddress(thisAddress);
-    newUrl.getHostAddress(thatAddress);
-    thisPort = oldUrl.getHostPort();
-    thatPort = newUrl.getHostPort();
-    oldUrl.getUserId(thisUser);
-    newUrl.getUserId(thatUser);
-    oldUrl.getUrlParameter("transport", thisProtocol);
-    newUrl.getUrlParameter("transport", thatProtocol);
-    oldUrl.getFieldParameter("tag", thisTag);
-    newUrl.getFieldParameter("tag", thatTag);
+   firstUrl.getFieldParameter("tag", firstTag);
+   secondUrl.getFieldParameter("tag", secondTag);
 
-   if(thisAddress.compareTo(thatAddress) == 0 &&
-   (thisPort == thatPort ||
-      (thisPort == 0 && thatPort == SIP_PORT) ||
-         (thisPort == SIP_PORT && thatPort == 0)) &&
-   thisProtocol.compareTo(thatProtocol) == 0 &&
-   thisUser.compareTo(thatUser) == 0 &&
-   (thisTag.compareTo(thatTag , UtlString::ignoreCase) == 0 || thisTag.isNull()))
-         // Allow the old tag to be NULL
-            // We do not allow only the new tag to be NULL as
-            // this will cause some false matches.  Both may be NULL.*/
+   if(comparingToUrl)
    {
-      isSame = TRUE;
+      if (firstTag.isNull() ||
+          secondTag.isNull() ||
+          0 == firstTag.compareTo(secondTag))
+      {
+         isSame = TRUE;
+      }
    }
-    else
-    {
-#ifdef TEST_PRINT
-        osPrintf("SipMessage::isSameSession Url did not match: \nAddr: (%s!=%s)\nPort: %d!=%d\nUser: (%s!=%s)\nTag:  (%s!=%s)\n",
-            thisAddress.data(), thatAddress.data(),
-            thisPort, thatPort,
-            thisUser.data(), thatUser.data(),
-            thisTag.data(), thatTag.data());
-#endif
-    }
+   else
+   {
+      if(firstTag.isNull() && secondTag.isNull())
+      {
+         // If the tags are null default back to RFC 2543 comparison
+         // This will maintain some backwards compatibility with RFC 2543
 
-   return(isSame);
+         UtlString firstAddress;
+         UtlString secondAddress;
+         UtlString firstProtocol;
+         UtlString secondProtocol;
+         UtlString firstUser;
+         UtlString secondUser;
+         int firstPort;
+         int secondPort;
+
+         firstUrl.getHostAddress(firstAddress);
+         secondUrl.getHostAddress(secondAddress);
+         firstPort = firstUrl.getHostPort();
+         secondPort = secondUrl.getHostPort();
+         firstUrl.getUserId(firstUser);
+         secondUrl.getUserId(secondUser);
+         firstUrl.getUrlParameter("transport", firstProtocol);
+         secondUrl.getUrlParameter("transport", secondProtocol);
+
+         if (firstAddress.compareTo(secondAddress) == 0 &&
+               (firstPort == secondPort ||
+                (firstPort == PORT_NONE && secondPort == SIP_PORT) ||
+                (firstPort == SIP_PORT && secondPort == PORT_NONE)) &&
+             firstProtocol.compareTo(secondProtocol) == 0 &&
+             firstUser.compareTo(secondUser) == 0)
+         {
+            isSame = TRUE;
+         }
+      }
+      else if (0 == firstTag.compareTo(secondTag))
+      {
+         isSame = TRUE;
+      }
+   }
+
+   return (isSame);
 }
 
 UtlBoolean SipMessage::isResponseTo(const SipMessage* request) const

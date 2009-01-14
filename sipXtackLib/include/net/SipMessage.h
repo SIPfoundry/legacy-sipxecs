@@ -1264,8 +1264,27 @@ public:
      */
     UtlBoolean isServerTransaction(UtlBoolean isOutgoing) const;
 
+    //! Returns TRUE if *message is part of the same dialog as *this.
+    //! Function uses RFC 3261 rules for matching dialogs. If no 
+    //! to/from tags are found, the function will compare the entire 
+    //! To/From fields (backwards compatibility with RFC 2543).
+    //! NOTE:
+    //! The function compares the To fields of the two messages,
+    //! and the From fields of the two messages.  If *message would
+    //! have these fields swapped relative to *this, the caller is
+    //! responsible for swapping the To/From fields first.
     UtlBoolean isSameSession(const SipMessage* message) const;
-    static UtlBoolean isSameSession(Url& previousUrl, Url& newUrl);
+
+    //! Returns TRUE if the URI tags match. If we are comparing 
+    //! URIs from To fields (comparingToUrl == TRUE), then the
+    //! function takes into account that dialog-forming messages have
+    //! no To-tags, so a URI with no tag matches any URI.
+    //! If comparingToUrl == FALSE and no tags are present in both URIs
+    //! then the function will compare the entire URIs (RFC 2543).
+    static UtlBoolean isSameSession(const Url& firstUrl, 
+                                    const Url& secondUrl,
+                                    UtlBoolean comparingToUrl = FALSE);
+
     UtlBoolean isResponseTo(const SipMessage* message) const;
     UtlBoolean isAckFor(const SipMessage* inviteResponse) const;
     

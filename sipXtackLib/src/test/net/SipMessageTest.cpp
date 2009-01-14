@@ -66,6 +66,7 @@ class SipMessageTest : public CppUnit::TestCase
       CPPUNIT_TEST(testSetFieldSubfield_Mixed);
       CPPUNIT_TEST(testSetViaTag);
       CPPUNIT_TEST(testRecordRouteEchoing);
+      CPPUNIT_TEST(testDialogMatching);
       CPPUNIT_TEST_SUITE_END();
 
       public:
@@ -2817,6 +2818,89 @@ class SipMessageTest : public CppUnit::TestCase
       UtlString localContact("<sip:bob@bobnet.bob>");
       response2.setResponseData(&sipRequest, 400, text.data(), localContact.data(), FALSE );
       CPPUNIT_ASSERT( !response2.getRecordRouteField(0, &recordRouteField ) );
+   }
+
+   void testDialogMatching()
+   {
+      const char* message1 =
+         "OPTIONS sip:user@somewhere.com SIP/2.0\r\n"
+         "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+         "To: sip:user@somewhere.com; tag=30543asdkfkasjdklfjkledd3295b\r\n"
+         "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+         "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "Cseq: 1 OPTIONS\r\n"
+         "Record-Route: <sip:myhost.example.com;lr>\r\n"
+         "Max-Forwards: 20\r\n"
+         "Contact: caller@127.0.0.1\r\n"
+         "Record-Route: <sip:myhost4.example.com;lr>\r\n"
+         "Content-Length: 0\r\n"
+         "\r\n";
+      SipMessage sipRequestOne(message1, strlen(message1));
+
+      const char* message2 =
+         "INVITE sip:user@somewhere.com SIP/2.0\r\n"
+         "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+         "To: sip:nouser@nowhere.ca; tag=30543asdkfkasjdklfjkledd3295b\r\n"
+         "From: Anon <sip:nobody@nowhere.ca>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+         "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "Cseq: 13 INVITE\r\n"
+         "Record-Route: <sip:myhost.example.com;lr>\r\n"
+         "Max-Forwards: 20\r\n"
+         "Contact: nobody@example.com\r\n"
+         "Record-Route: <sip:myhost4.example.com;lr>\r\n"
+         "Content-Length: 0\r\n"
+         "\r\n";
+      SipMessage sipRequestTwo(message2, strlen(message2));
+
+      SipMessage sipRequestThree(sipRequestTwo);
+      sipRequestThree.setRawToField("sip:user@somewhere.com; tag=30543asdkfkasjdklfjkledd3295b");
+      sipRequestThree.setRawFromField("Caller <sip:caller@example.org>; tag=30543f3483e1cb");
+
+      SipMessage sipRequestFour(sipRequestTwo);
+      sipRequestFour.setRawToField("sip:user@somewhere.com");
+      sipRequestFour.setRawFromField("Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b");
+
+      SipMessage sipRequestFive(sipRequestTwo);
+      sipRequestFive.setRawToField("sip:user@somewhere.com");
+      sipRequestFive.setRawFromField("Caller <sip:caller@example.org>");
+
+      SipMessage sipRequestSix(sipRequestTwo);
+      sipRequestSix.setRawToField("Callee <sip:user@somewhere.com>; tag=30543f3483e1cb11ecb40866edd3295b");
+      sipRequestSix.setRawFromField("Caller <sip:caller@example.org>");
+
+      SipMessage sipRequestSeven(sipRequestTwo);
+      sipRequestSeven.setCallIdField("123412341234");
+
+      SipMessage sipRequestEight(sipRequestTwo);
+      sipRequestEight.setRawToField("Callee <sip:user@somewhere.com>; tag=30543f3483e1cb11ecb40866edd3295b");
+      sipRequestEight.setRawFromField("Caller <sip:caller@ext.example.org>");
+
+      // Test two in-dialog requests from the same dialog, with 
+      // differing from and to fields
+      CPPUNIT_ASSERT_MESSAGE("Failed matching in-dialog requests from the same dialog, "
+                             "with differing from and to fields",
+                             sipRequestOne.isSameSession(&sipRequestTwo));
+
+      // Test two in-dialog requests from different dialogs
+      CPPUNIT_ASSERT_MESSAGE("Failed not matching in-dialog requests from different dialogs",
+                             !sipRequestOne.isSameSession(&sipRequestThree));
+
+      // Test an in-dialog and dialog-forming request from the 
+      // same dialog
+      CPPUNIT_ASSERT_MESSAGE("Failed matching an in-dialog request and a dialog-forming request from the "
+                             "same dialog", sipRequestOne.isSameSession(&sipRequestFour));
+
+      // Test backward compatibility with RFC 2543 - matching dialogs
+      CPPUNIT_ASSERT_MESSAGE("Failed backward compatibility with RFC 2543 - matching dialogs",
+                             sipRequestFive.isSameSession(&sipRequestSix));
+
+      // Test matching two requests with different call-ids
+      CPPUNIT_ASSERT_MESSAGE("Failed not matching two requests with different call-ids",
+                             !sipRequestOne.isSameSession(&sipRequestSeven));
+
+      // Test backward compatibility with RFC 2543 - different dialogs
+      CPPUNIT_ASSERT_MESSAGE("Failed backward compatibility with RFC 2543 - different dialogs",
+                             !sipRequestFive.isSameSession(&sipRequestEight));
    }
 };
 

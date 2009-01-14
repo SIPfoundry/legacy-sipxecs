@@ -321,6 +321,7 @@ public:
 
     /// Get the URL host port
     int getHostPort() const;
+    ///< port == PORT_NONE specifies that no port number is present.
 
     /// Set the URL host port
     void setHostPort(int port);
