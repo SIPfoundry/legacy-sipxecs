@@ -42,6 +42,8 @@
 #include "os/OsDateTime.h"
 #include "tao/TaoProviderAdaptor.h"
 
+//#define TEST_PRINT 1
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -351,8 +353,10 @@ UtlBoolean CpPeerCall::handleTransfer(OsMsg* pEventMessage)
         UtlString transferTargetAddress;
         ((CpMultiStringMessage*)pEventMessage)->getString2Data(transferTargetAddress);
 #ifdef TEST_PRINT
-        osPrintf("%s-CpPeerCall::CP_BLIND_TRANSFER targetCallId: %s targetAddress: %s metaEventId: %d\n",
-            mName.data(), targetCallId.data(), transferTargetAddress.data());
+        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                      "CpPeerCall::handleTransfer "
+                      "CP_BLIND_TRANSFER targetCallId: %s targetAddress: %s metaEventId: %d\n",
+                      targetCallId.data(), transferTargetAddress.data(), metaEventId);
 #endif
 
 
@@ -394,8 +398,10 @@ UtlBoolean CpPeerCall::handleTransfer(OsMsg* pEventMessage)
                                           targetCallId);
                 /** SIPXTAPI: TBD **/
 #ifdef TEST_PRINT
-                   osPrintf("%s-CpPeerCall::CP_BLIND_TRANSFER posting CONNECTION_FAILED to call: %s\n",
-                       mName.data(), targetCallId.data());
+                   OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                                 "CpPeerCall::handleTransfer "
+                                 "CP_BLIND_TRANSFER posting CONNECTION_FAILED to call: %s\n",
+                                 targetCallId.data());
 #endif
                }
                else
@@ -407,8 +413,10 @@ UtlBoolean CpPeerCall::handleTransfer(OsMsg* pEventMessage)
                    connection->getCallId(&originalCallId);
                    connection->getRemoteAddress(&connectionAddress);
 #ifdef TEST_PRINT
-                   osPrintf("%s-2 party transfer on connection: %s original call: %s target call: %s\n", 
-                       mName.data(), connectionAddress.data(), originalCallId.data(), targetCallId.data());
+                   OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                                 "CpPeerCall::handleTransfer "
+                                 "2 party transfer on connection: %s original call: %s target call: %s\n", 
+                                 connectionAddress.data(), originalCallId.data(), targetCallId.data());
 #endif
                    CpMultiStringMessage transferConnect(CallManager::CP_TRANSFER_CONNECTION,
                        targetCallId.data(), 
@@ -472,9 +480,12 @@ UtlBoolean CpPeerCall::handleTransferConnection(OsMsg* pEventMessage)
     ((CpMultiStringMessage*)pEventMessage)->getString3Data(originalCallId);
     ((CpMultiStringMessage*)pEventMessage)->getString4Data(connectionAddress);
 #ifdef TEST_PRINT
-    osPrintf("%s-CpPeerCall::CP_TRANSFER_CONNECTION target address: %s original call: %s target connection address: %s callType: %d originalCallId: %s\n",
-        mName.data(), transferTargetAddress.data(), originalCallId.data(), connectionAddress.data(), 
-        getCallType(), originalCallId.data());
+    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                  "CpPeerCall::handleTransferConnection "
+                  "target address: %s original call: %s "
+                  "target connection address: %s callType: %d originalCallId: %s\n",
+                  transferTargetAddress.data(), originalCallId.data(), 
+                  connectionAddress.data(), getCallType(), originalCallId.data());
 #endif
     // If it is legal for this call to be a transfer target
     if(getCallType() == CP_NORMAL_CALL ||
@@ -501,7 +512,9 @@ UtlBoolean CpPeerCall::handleTransferConnection(OsMsg* pEventMessage)
         if(! connection)
         {
 #ifdef TEST_PRINT
-            osPrintf("%s-CpPeerCall::CP_TRANSFER_CONNECTION creating ghost connection\n", mName.data());
+            OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                          "CpPeerCall::handleTransferConnection "
+                          "creating ghost connection\n");
 #endif
             UtlString thisCallId;
             getCallId(thisCallId);
@@ -518,7 +531,9 @@ UtlBoolean CpPeerCall::handleTransferConnection(OsMsg* pEventMessage)
         {
 #ifdef TEST_PRINT
             // I think this is bad
-            osPrintf("%s-CpPeerCall::CP_TRANSFER_CONNECTION connection already exists\n", mName.data());
+            OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                          "CpPeerCall::handleTransferConnection "
+                          "connection already exists\n");
 #endif
         }
     }
@@ -552,15 +567,24 @@ UtlBoolean CpPeerCall::handleTransfereeConnection(OsMsg* pEventMessage)
     ((CpMultiStringMessage*)pEventMessage)->getString4Data(originalCallId);
     ((CpMultiStringMessage*)pEventMessage)->getString5Data(originalConnectionAddress);
 #ifdef TEST_PRINT
-    osPrintf("%s-CpPeerCall::CP_TRANSFEREE_CONNECTION referTo: %s referredBy: \"%s\" originalCallId: %s originalConnectionAddress: %s\n",
-        mName.data(), referTo.data(), referredBy.data(), originalCallId.data(), 
-        originalConnectionAddress.data());
+    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                  "CpPeerCall::handleTransfereeConnection "
+                  "referTo: %s referredBy: \"%s\" "
+                  "originalCallId: %s originalConnectionAddress: %s "
+                  "callType: %d\n",
+                  referTo.data(), referredBy.data(), 
+                  originalCallId.data(), originalConnectionAddress.data(),
+                  getCallType());
 #endif
-    if(getCallType() == CP_NORMAL_CALL ||
-        (getCallType() == CP_TRANSFEREE_TARGET_CALL &&
-        currentOriginalCallId.compareTo(originalCallId) == 0))
+    if(getCallType() == CP_NORMAL_CALL 
+       // TBD? I can't find where call type in next line is ever set
+       || (getCallType() == CP_TRANSFEREE_TARGET_CALL 
+           && currentOriginalCallId.compareTo(originalCallId) == 0))
     {
-        if(getCallType() == CP_NORMAL_CALL) setOriginalCallId(originalCallId);
+        if(getCallType() == CP_NORMAL_CALL) 
+        {
+            setOriginalCallId(originalCallId);
+        }
         // Do not need to lock as connection is never touched
         // and addConnection does its own locking
         //OsReadLock lock(mConnectionMutex);
@@ -575,7 +599,9 @@ UtlBoolean CpPeerCall::handleTransfereeConnection(OsMsg* pEventMessage)
             // Create a new connection on this call to connect to the
             // transfer target.
 #ifdef TEST_PRINT
-            osPrintf("%s-CpPeerCall:CP_TRANSFEREE_CONNECTION creating connection via addParty\n", mName.data());
+            OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                          "CpPeerCall::handleTransfereeConnection "
+                          "creating connection via addParty\n");
 #endif
             addParty(referTo, referredBy, originalConnectionAddress, NULL, 0, 0, originalCallId);
             // Note: The connection is added to the call in addParty
@@ -584,7 +610,9 @@ UtlBoolean CpPeerCall::handleTransfereeConnection(OsMsg* pEventMessage)
         // I do not think this is good
         else
         {
-            osPrintf("%s-CpPeerCall::CP_TRANSFEREE_CONNECTION connection already exists\n", mName.data());
+            OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                          "CpPeerCall::handleTransfereeConnection "
+                          "connection already exists\n");
         }
 #endif
 
@@ -592,8 +620,10 @@ UtlBoolean CpPeerCall::handleTransfereeConnection(OsMsg* pEventMessage)
 #ifdef TEST_PRINT
     else
     {
-        osPrintf("%s-CpPeerCall::CP_TRANSFEREE_CONNECTION callType: %d \n",
-            mName.data(), getCallType());
+        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                      "CpPeerCall::handleTransfereeConnection "
+                      "callType: %d \n",
+                      getCallType());
     }
 #endif
 
@@ -649,7 +679,7 @@ UtlBoolean CpPeerCall::handleSipMessage(OsMsg* pEventMessage)
                 name.data());
 #endif
         }
-    }
+    }  // end NULL connection, create new 
 
 #ifdef TEST_PRINT
     osPrintf("%s CpPeerCall::handleSipMessage - connection %d msgType %d msgSubType %d\n", 
@@ -726,7 +756,7 @@ UtlBoolean CpPeerCall::handleDropConnection(OsMsg* pEventMessage)
 
         if(connection)
         {
-            // do not fire the taip event if it is a ghost connection
+            // do not fire the tapi event if it is a ghost connection
             CpGhostConnection* pGhost = NULL;
             pGhost = dynamic_cast<CpGhostConnection*>(connection);
             if (!pGhost)
@@ -1399,8 +1429,7 @@ UtlBoolean CpPeerCall::handleRemoveToneListener(OsMsg* pEventMessage)
 // message
 UtlBoolean CpPeerCall::handleTransferConnectionStatus(OsMsg* pEventMessage)
 {
-    // This message is sent to the target call on the
-    // transfer controller
+    // This message is sent to the target call on the transfer controller
 
     UtlString connectionAddress;
     ((CpMultiStringMessage*)pEventMessage)->getString2Data(connectionAddress);
@@ -1410,8 +1439,10 @@ UtlBoolean CpPeerCall::handleTransferConnectionStatus(OsMsg* pEventMessage)
 #ifdef TEST_PRINT
     UtlString connState;
     Connection::getStateString(connectionState, &connState);
-    osPrintf("%s-CpPeerCall::CP_TRANSFER_CONNECTION_STATUS connectionAddress: %s state: %s cause: %d\n",
-        mName.data(), connectionAddress.data(), connState.data(), cause);
+    OsSysLog::add(FAC_CP, PRI_ERR, 
+                  "CpPeerCall::handleTransferConnectionStatus "
+                  "CP_TRANSFER_CONNECTION_STATUS connectionAddress: %s state: %s cause: %d\n",
+                  connectionAddress.data(), connState.data(), cause);
 #endif
     {
         // Find the connection and give it the status
@@ -1419,7 +1450,9 @@ UtlBoolean CpPeerCall::handleTransferConnectionStatus(OsMsg* pEventMessage)
         Connection* connection = findHandlingConnection(connectionAddress);
         if(connection)
         {
-            OsSysLog::add(FAC_CP, PRI_DEBUG, "transferControllerStatus");
+            OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                          "CpPeerCall::handleTransferConnectionStatus "
+                          "transferControllerStatus");
             connection->transferControllerStatus(connectionState, cause);
         }
 #ifdef TEST_PRINT
@@ -1427,8 +1460,10 @@ UtlBoolean CpPeerCall::handleTransferConnectionStatus(OsMsg* pEventMessage)
         {
             UtlString defaultCallId;
             getCallId(defaultCallId);
-            osPrintf("%s-CpPeerCall::CP_TRANSFER_CONNECTION_STATUS FAILED to find connection %s in call: %s\n",
-                mName.data(), connectionAddress.data(), defaultCallId.data());
+            OsSysLog::add(FAC_CP, PRI_ERR, 
+                          "CpPeerCall::handleTransferConnectionStatus "
+                          "CP_TRANSFER_CONNECTION_STATUS FAILED to find connection %s in call: %s\n",
+                          connectionAddress.data(), defaultCallId.data());
         }
 #endif
     }
@@ -2628,8 +2663,9 @@ void CpPeerCall::handleSetOutboundLine(OsMsg* pEventMessage)
     mLocalAddress = mLocalTerminalId;
 #ifdef TEST_PRINT
     OsSysLog::add(FAC_CP, PRI_DEBUG,
-                  "CpPeerCall::handleSetOutboundLine %p setting mLocalAddress to '%s'",
-                  this, mLocalAddress.data());
+                  "CpPeerCall::handleSetOutboundLine "
+                  "setting mLocalAddress to '%s'",
+                  mLocalAddress.data());
 #endif
 }  
 
@@ -2719,7 +2755,7 @@ Connection* CpPeerCall::addParty(const char* transferTargetAddress,
     // for SIP, MGCP, etc.
 #ifdef TEST_PRINT
     OsSysLog::add(FAC_CP, PRI_DEBUG,
-                  "CpPeerCall::addParty %p mLocalAddress is '%s'",
+                  "CpPeerCall::addParty mLocalAddress is '%s'",
                   mLocalAddress.data());
 #endif
     connection = new SipConnection(mLocalAddress,
@@ -2812,8 +2848,10 @@ void CpPeerCall::inFocus(int talking)
         remoteIsCallee = connection->isRemoteCallee();
         connection->getRemoteAddress(&remoteAddress);
 #ifdef TEST_PRINT
-        osPrintf("%s-Call %s out of focus\n", 
-            mName.data(), connectionCallId.data());
+        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                      "CpPeerCall::inFocus "
+                      "%s-Call %s out of focus\n", 
+                      mName.data(), connectionCallId.data());
 #endif
     }
 
@@ -2975,7 +3013,7 @@ void CpPeerCall::onHook()
             connection->hangUp();
             //connection->setMediaInterface(NULL) ;
             
-            // do not fire the taip event if it is a ghost connection
+            // do not fire the tapi event if it is a ghost connection
             CpGhostConnection* pGhost = NULL;
             pGhost = dynamic_cast<CpGhostConnection*>(connection);
             if (!pGhost)
@@ -3031,8 +3069,10 @@ void CpPeerCall::dropIfDead()
     getCallId(thisCallId);
 
 #ifdef TEST_PRINT
-    osPrintf("%s-CpPeerCall::dropIfDead callId: %s mDropping: %d\n", 
-        mName.data(), thisCallId.data(), mDropping);
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
+                  "CpPeerCall::dropIfDead "
+                  "callId: %s mDropping: %d\n", 
+                  thisCallId.data(), mDropping);
 #endif
 
     int localConnectionState;    
@@ -3043,8 +3083,10 @@ void CpPeerCall::dropIfDead()
         if (mbRequestedDrop)
         {
 #ifdef TEST_PRINT
-            osPrintf("%s-WARNING: dropIfDead called multiple times for call %10p\n", 
-                mName.data(), this) ;
+            OsSysLog::add(FAC_CP, PRI_DEBUG,
+                          "CpPeerCall::dropIfDead "
+                          "called multiple times for call %10p\n", 
+                          this) ;
 #endif
             return ;
         }
@@ -3059,8 +3101,10 @@ void CpPeerCall::dropIfDead()
         // Signal the manager to Shutdown the task
         // Do this at the very last opportunity
 #ifdef TEST_PRINT
-        osPrintf("%s-CpPeerCall::dropIfDead callId: %s Posting call exit: %X\r\n", 
-            mName.data(), thisCallId.data(), (void*) this);
+        OsSysLog::add(FAC_CP, PRI_DEBUG,
+                      "CpPeerCall::dropIfDead "
+                      "callId: %s Posting call exit: %X\r\n", 
+                      thisCallId.data(), (void*) this);
 #endif
         {
             OsReadLock lock(mConnectionMutex);
@@ -3072,7 +3116,7 @@ void CpPeerCall::dropIfDead()
                     Connection* connection = NULL;
                     while ((connection = (Connection*) iterator()))
                     {              
-                        // do not fire the taip event if it is a ghost connection
+                        // do not fire the tapi event if it is a ghost connection
                         CpGhostConnection* pGhost = NULL;
                         pGhost = dynamic_cast<CpGhostConnection*>(connection);
                         if (!pGhost)
@@ -3086,7 +3130,9 @@ void CpPeerCall::dropIfDead()
                     {
                         CpIntMessage ExitMsg(CallManager::CP_CALL_EXITED, (intptr_t)this) ;
                         mpManager->postMessage(ExitMsg) ;
-                        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::dropIfDead %s Posting call exit: %p",
+                        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                                      "CpPeerCall::dropIfDead "
+                                      "%s Posting call exit: %p",
                                       thisCallId.data(), this);
                     }
                     else
@@ -3098,9 +3144,13 @@ void CpPeerCall::dropIfDead()
                         timer->oneshotAfter(timerTime);
                         UtlString thisCallId;
                         getCallId(thisCallId);
-                        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::dropIfDead Wait for %d secs to signal the exit for call %s ...",
+                        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                                      "CpPeerCall::dropIfDead "
+                                      "Wait for %d secs to signal the exit for call %s ...",
                                      mpManager->getDelayInDeleteCall(), thisCallId.data());
-                        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::dropIfDead creating CpIntMessage %p timer %p",
+                        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                                      "CpPeerCall::dropIfDead "
+                                      "creating CpIntMessage %p timer %p",
                                      pExitMsg, timer);
                     }
                     
@@ -3178,7 +3228,7 @@ void CpPeerCall::dropDeadConnections()
                                            connCallId);                                           
                                            
 
-                    // do not fire the taip event if it is a ghost connection
+                    // do not fire the tapi event if it is a ghost connection
                     CpGhostConnection* pGhost = NULL;
                     pGhost = dynamic_cast<CpGhostConnection*>(connection);
                     if (!pGhost)
@@ -3225,7 +3275,7 @@ void CpPeerCall::dropDeadConnections()
                     CpGhostConnection* pGhost = NULL;
                     pGhost = dynamic_cast<CpGhostConnection*>(connection);
 
-                    // do not fire the taip event if it is a ghost connection
+                    // do not fire the tapi event if it is a ghost connection
                     if (!pGhost)
                     {
                         connection->fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL) ;    
@@ -3258,7 +3308,8 @@ void CpPeerCall::dropDeadConnections()
 void CpPeerCall::offHook(const void* pDisplay)
 {
 #ifdef TEST_PRINT
-    osPrintf("%s-CpPeerCall::offHook\n", mName.data());
+    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                  "CpPeerCall::offHook\n");
 #endif
     OsReadLock lock(mConnectionMutex);
     Connection* connection = NULL;
@@ -3404,7 +3455,7 @@ UtlBoolean CpPeerCall::getTermConnectionState(const char* address,
     return rc;
 }
 
-void CpPeerCall::printCall()
+void CpPeerCall::printCall(int showHistory)
 {
     Connection* connection = NULL;
     OsReadLock lock(mConnectionMutex);
@@ -3415,7 +3466,7 @@ void CpPeerCall::printCall()
     int connectionIndex = 0;
     int cause = 0;
 
-    CpCall::printCall();
+    CpCall::printCall(showHistory);
 
     while ((connection = (Connection*) iterator()))
     {
@@ -3423,7 +3474,9 @@ void CpPeerCall::printCall()
         Connection::getStateString(connection->getState(cause), 
             &connectionState);
         connection->getCallId(&connectionCallId);
-        osPrintf("%s-\tconnection[%d]: %s callId: %s\n\t\tstate: %s cause: %d\n",
+        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                      "CpPeerCall::printCall"
+                      "%s-\tconnection[%d]: %s callId: %s\n\t\tstate: %s cause: %d\n",
             mName.data(), connectionIndex, connectionAddress.data(),
             connectionCallId.data(), connectionState.data(), cause);
         connectionIndex++;

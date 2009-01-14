@@ -159,6 +159,7 @@ OsStatus ParkedCallObject::playAudio()
    OsStatus result = OS_SUCCESS;
 
    OsSysLog::add(FAC_PARK, PRI_DEBUG,
+                 "ParkedCallObject::playAudio "
                  "CallId %s is requesting to play the audio file",
                  mOriginalCallId.data());
 
@@ -171,6 +172,7 @@ OsStatus ParkedCallObject::playAudio()
    if (mpPlayer == NULL)
    {
       OsSysLog::add(FAC_PARK, PRI_ERR,
+                    "ParkedCallObject::playAudio "
                     "CallId %s: Failed to create player",
                     mOriginalCallId.data());
       return OS_FAILED;
@@ -312,7 +314,8 @@ void ParkedCallObject::markTransfer(const OsTime &timeOut)
    // Start the timer to detect failed transfer attempts.
    mTransferTimer.oneshotAfter(timeOut);
    OsSysLog::add(FAC_PARK, PRI_DEBUG,
-                 "ParkedCallObject::markTransfer transfer timer started "
+                 "ParkedCallObject::markTransfer "
+                 "transfer timer started "
                  "callId = '%s', time = %d.%06d",
                  mOriginalCallId.data(), (int) timeOut.seconds(),
                  (int) timeOut.usecs());

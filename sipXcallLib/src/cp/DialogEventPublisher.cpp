@@ -626,7 +626,9 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
 
          case PtEvent::CONNECTION_ESTABLISHED:
          {
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage CONNECTION_ESTABLISHED");
+            OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                          "DialogEventPublisher::handleMessage "
+                          "CONNECTION_ESTABLISHED");
             
             // Set default as an incoming call
             bool incomingCall = TRUE;
@@ -635,7 +637,8 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
              OS_SUCCESS)
             {
                OsSysLog::add(FAC_ACD, PRI_ERR,
-                             "DialogEventPublisher::handleMessage - CONNECTION_ESTABLISHED - Failed call to getSipDialog(%s, %s)",
+                             "DialogEventPublisher::handleMessage "
+                             "- CONNECTION_ESTABLISHED - Failed call to getSipDialog(%s, %s)",
                              callId.data(), address.data());
                // Give up, since we can't get any information about this call.
                break;

@@ -20,6 +20,8 @@
 #include <os/OsQueuedEvent.h>
 #include <os/OsEventMsg.h>
 #include "os/OsSysLog.h"
+#include <os/OsDateTime.h>
+#include <os/OsTimer.h>
 #include <cp/CpCall.h>
 #include <mi/CpMediaInterface.h>
 #include <cp/CpMultiStringMessage.h>
@@ -29,6 +31,8 @@
 #include "ptapi/PtTerminalConnection.h"
 #include "tao/TaoProviderAdaptor.h"
 #include "tao/TaoListenerEventMessage.h"
+
+//#define TEST_PRINT 1
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -236,7 +240,10 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
     CpMultiStringMessage* multiStringMessage = (CpMultiStringMessage*)&eventMessage;
 
     UtlBoolean processedMessage = TRUE;
-    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpCall::handleMessage message type: %d subtype %d\n", msgType, msgSubType);
+    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                  "CpCall::handleMessage "
+                  "message type: %d subtype %d\n", 
+                  msgType, msgSubType);
 
     switch(msgType)
     {
@@ -771,7 +778,10 @@ void CpCall::localHold()
 void CpCall::hangUp(UtlString callId, int metaEventId)
 {
 #ifdef TEST_PRINT
-    osPrintf("CpCall::hangUp\n");
+    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                  "CpCall::hangUp "
+                  "enter mLCstate %d mLTCstate %d ",
+                  mLocalConnectionState, mLocalTermConnectionState);
 #endif
     mDropping = TRUE;
     mLocalConnectionState = PtEvent::CONNECTION_DISCONNECTED;
@@ -860,23 +870,34 @@ int CpCall::getCallState()
     return(mCallState);
 }
 
-void CpCall::printCall()
+void CpCall::printCall(int showHistory)
 {
     UtlString callId;
     getCallId(callId);
-    osPrintf("call[%d] id: %s state: %d%s\n", mCallIndex,
-        callId.data(), getCallState(), mDropping ? ", Dropping" : "");
+    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                  "CpCall::printCall "
+                  "Call[%d] id: %s state: %d%s\n", mCallIndex,
+                  callId.data(), getCallState(), 
+                  mDropping ? ", Dropping" : "");
 
-    osPrintf("Call message history:\n");
-    for(int historyIndex = 0; historyIndex < CP_CALL_HISTORY_LENGTH; historyIndex++)
+    if (showHistory)
     {
-        if(mMessageEventCount - historyIndex >= 0)
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpCall::printCall "
+                                         "Call message history:\n");
+        for(int historyIndex = 0; historyIndex < CP_CALL_HISTORY_LENGTH; historyIndex++)
         {
-            osPrintf("%d) %s\n", mMessageEventCount - historyIndex,
-                (mCallHistory[(mMessageEventCount - historyIndex) % CP_CALL_HISTORY_LENGTH]).data());
+            if(mMessageEventCount - historyIndex >= 0)
+            {
+                OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                              "CpCall::printCall "
+                              "%d) %s\n", 
+                              mMessageEventCount - historyIndex,
+                    (mCallHistory[(mMessageEventCount - historyIndex) % CP_CALL_HISTORY_LENGTH]).data());
+            }
         }
     }
-    osPrintf("=====================\n");
+    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpCall::printCall "
+                                     "Call message history done");
 }
 
 void CpCall::getCallId(UtlString& callId)
@@ -950,6 +971,12 @@ int CpCall::getLocalConnectionState(int state)
 
     }
 
+#ifdef TEST_PRINT
+    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                  "CpCall::getLocalConnectionState: "
+                  "state- new %d old %d ",
+                  newState, state);
+#endif
     return newState;
 }
 
@@ -1123,13 +1150,22 @@ void CpCall::setMetaEvent(int metaEventId, int metaEventType,
                           int numCalls, const char* metaEventCallIds[])
 {
     if (mMetaEventId != 0 || mMetaEventType != PtEvent::META_EVENT_NONE)
+    {
+        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                      "CpCall::setMetaEvent "
+                      "stopping event %d type %x",
+                      mMetaEventId, mMetaEventType);
         stopMetaEvent();
+    }
 
     mMetaEventId = metaEventId;
     mMetaEventType = metaEventType;
 
     if(mpMetaEventCallIds)
     {
+        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                      "CpCall::setMetaEvent "
+                      "deleting event call id(s)");
         delete[] mpMetaEventCallIds;
         mpMetaEventCallIds = NULL;
     }
@@ -1141,9 +1177,22 @@ void CpCall::setMetaEvent(int metaEventId, int metaEventType,
         for(int i = 0; i < numCalls; i++)
         {
             if (metaEventCallIds)
+            {
+                OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                              "CpCall::setMetaEvent "
+                              "callids[%d] gets '%s'",
+                              i, metaEventCallIds[i]);
+
                 mpMetaEventCallIds[i] = metaEventCallIds[i];
+            }
             else
-                mpMetaEventCallIds[i] = mCallId.data();
+            {
+                OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                              "CpCall::setMetaEvent "
+                              "callids[%d] gets '%s'",
+                              i, mCallId.data());
+                    mpMetaEventCallIds[i] = mCallId.data();
+            }
         }
     }
 }
@@ -1154,6 +1203,10 @@ void CpCall::startMetaEvent(int metaEventId,
                             const char* metaEventCallIds[],
                             int remoteIsCallee)
 {
+    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                  "CpCall::startMetaEvent "
+                  "m-event %d m-eventType 0x%x ",
+                  metaEventId, metaEventType);
     setMetaEvent(metaEventId, metaEventType, numCalls, metaEventCallIds);
     postMetaEvent(METAEVENT_START, remoteIsCallee);
 }
@@ -1169,6 +1222,10 @@ void CpCall::getMetaEvent(int& metaEventId, int& metaEventType,
 
 void CpCall::stopMetaEvent(int remoteIsCallee)
 {
+    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                  "CpCall::stopMetaEvent "
+                  "m-event %d m-eventType %d ",
+                  mMetaEventId, mMetaEventType);
     postMetaEvent(METAEVENT_END, remoteIsCallee);
 
     // Clear the event info
@@ -1308,6 +1365,11 @@ void CpCall::postMetaEvent(int state, int remoteIsCallee)
 {
     if (mMetaEventType != PtEvent::META_EVENT_NONE && mListenerCnt > 0)
     {
+        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                      "CpCall::postMetaEvent "
+                      "enter m-state %d m-event 0x%x ",
+                      state, mMetaEventType);
+
         int eventId = PtEvent::META_UNKNOWN;
 
         switch (mMetaEventType)
@@ -1383,6 +1445,11 @@ void CpCall::postMetaEvent(int state, int remoteIsCallee)
         {
             postTaoListenerMessage(0, "", eventId, CALL_STATE, PtEvent::CAUSE_UNKNOWN);
         }
+
+        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                      "CpCall::postMetaEvent "
+                      "leave eventId%d",
+                      eventId);
     }
 
 }
@@ -1701,4 +1768,21 @@ int CpCall::getCallTrackingListCount()
 
     return numCalls;
 }
+
+// xecs-1698 hack
+unsigned long CpCall::getElapsedTime(void)
+{
+   unsigned long idleSeconds;
+   OsTime     nowSeconds;
+   OsDateTime nowTime;
+
+   OsDateTime::getCurTime(nowTime);
+   nowTime.cvtToTimeSinceEpoch(nowSeconds);
+
+   idleSeconds = nowSeconds.seconds() - mCallTimeStart.seconds();
+
+   return idleSeconds;
+}
+
+
 

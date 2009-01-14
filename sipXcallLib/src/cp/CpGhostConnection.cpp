@@ -23,6 +23,8 @@
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
 
+//#define TEST_PRINT
+
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
@@ -91,6 +93,10 @@ UtlBoolean CpGhostConnection::originalCallTransfer(UtlString& transferTargetAddr
 UtlBoolean CpGhostConnection::targetCallBlindTransfer(const char* transferTargetAddress,
                                                            const char* transferControllerAddress)
 {
+#ifdef TEST_PRINT
+    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                  "CpGhostConnection::targetCallBlindTransfer ");
+#endif
     mRemoteAddress = transferTargetAddress;
     setState(CONNECTION_DIALING, CONNECTION_REMOTE, CONNECTION_CAUSE_TRANSFER);
     setState(CONNECTION_ESTABLISHED, CONNECTION_LOCAL, CONNECTION_CAUSE_TRANSFER);

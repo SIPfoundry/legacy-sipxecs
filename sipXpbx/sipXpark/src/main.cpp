@@ -407,7 +407,9 @@ int main(int argc, char* argv[])
 
     int MaxSessions;
     if (configDb.get(CONFIG_SETTING_MAX_SESSIONS, MaxSessions) != OS_SUCCESS)
+    {
         MaxSessions = DEFAULT_MAX_SESSIONS;
+    }
 
     UtlBoolean OneButtonBLF;
     if (configDb.getBoolean(CONFIG_SETTING_ONE_BUTTON_BLF, OneButtonBLF) != OS_SUCCESS)
@@ -478,7 +480,7 @@ int main(int argc, char* argv[])
                          }
 
                          lineMgr->setDefaultOutboundLine(identity);
-                      }
+                      }     // end addLine
                       else
                       {
                          OsSysLog::add(LOG_FACILITY, PRI_ERR,
@@ -494,7 +496,7 @@ int main(int argc, char* argv[])
                                     "  escape and timeout from park may not work."
                                     );
                    }
-                }
+                }   // end new SipLine
                 else
                 {
                    OsSysLog::add(LOG_FACILITY, PRI_ERR,
@@ -502,7 +504,7 @@ int main(int argc, char* argv[])
                                  "  escape and timeout from park may not work."
                                  );
                 }
-             }
+             }  // end getCredential
              else
              {
                 OsSysLog::add(LOG_FACILITY, PRI_ERR,
@@ -513,7 +515,7 @@ int main(int argc, char* argv[])
              }
 
              credentialDb->releaseInstance();
-          }
+          }   // end credentialDB
           else
           {
              OsSysLog::add(LOG_FACILITY, PRI_ERR,
@@ -521,7 +523,7 @@ int main(int argc, char* argv[])
                            "; transfer functions will not work"
                            );
           }
-       }
+       }    // end have domain and realm
        else
        {
           OsSysLog::add(LOG_FACILITY, PRI_ERR,
@@ -532,7 +534,7 @@ int main(int argc, char* argv[])
                         SipXecsService::DomainDbKey::SIP_REALM, realm.data()
                         );
        }
-    }
+    }       // end found domain config
     else
     {
        OsSysLog::add(LOG_FACILITY, PRI_ERR,
@@ -677,9 +679,28 @@ int main(int argc, char* argv[])
     callManager.start();
    
     // Loop forever until signaled to shut down
+
+    int numTwoSecIntervals = 0;
+    int CleanLoopWaitTimeSecs = 10; 
+
     while (!gShutdownFlag)
     {
        OsTask::delay(2000);
+
+       if (2*numTwoSecIntervals >= CleanLoopWaitTimeSecs)
+       {
+           numTwoSecIntervals = 0;
+           if (OsSysLog::willLog(FAC_PARK, PRI_DEBUG))
+           {
+               callManager.printCalls() ;
+               listener.dumpCallsAndTransfers();
+           }
+       }
+       else
+       {
+           numTwoSecIntervals += 1;
+       }
+
     }
 
     // Flush the log file

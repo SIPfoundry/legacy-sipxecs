@@ -108,7 +108,7 @@ public:
 
     /* ============================ ACCESSORS ================================= */
 
-    virtual void printCall();
+    virtual void printCall(int showHistory = 1);
 
     virtual void getLocalAddress(char* address, int len);
 

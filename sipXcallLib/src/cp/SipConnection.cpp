@@ -38,6 +38,8 @@
 #include <net/TapiMgr.h>
 #include <net/SipLineMgr.h>
 
+//#define TEST_PRINT 1
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -224,7 +226,7 @@ UtlBoolean SipConnection::requestShouldCreateConnection(const SipMessage* sipMsg
     UtlString tag;
     sipMsg->getToAddress(&address, &port, &protocol, &user, &userLabel, &tag);
 
-    // Dangling or delated ACK
+    // Dangling or deleted ACK
     if(method.compareTo(SIP_ACK_METHOD) == 0)
     {
         // Ignore it and do not create a connection
@@ -344,6 +346,7 @@ UtlBoolean SipConnection::requestShouldCreateConnection(const SipMessage* sipMsg
     return createConnection;
 }
 
+// returns TRUE for new INVITE (some conditions) or REFER requests
 UtlBoolean SipConnection::shouldCreateConnection(SipUserAgent& sipUa,
                                                  OsMsg& eventMessage,
                                                  SdpCodecFactory* codecFactory)
@@ -701,7 +704,7 @@ UtlBoolean SipConnection::dial(const char* dialString,
             cause = CONNECTION_CAUSE_TRANSFER;
         }
 
-        // Set the header fields for REFER-style transfer INVITE
+        // Set the header fields for REFER style transfer INVITE
         /*else*/ if(callController && originalCallConnection)
         {
             mOriginalCallConnectionAddress = originalCallConnection;
@@ -813,7 +816,7 @@ UtlBoolean SipConnection::sendInfo(UtlString contentType, UtlString sContent)
 UtlBoolean SipConnection::answer(const void* pDisplay)
 {
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_SIP, PRI_WARNING,
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
         "Entering SipConnection::answer inviteMsg=%p", inviteMsg);
 #endif
 
@@ -1016,7 +1019,7 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
     }
 
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_SIP, PRI_WARNING,
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
         "Leaving SipConnection::answer inviteMsg=0x%08x ", (int)inviteMsg);
 #endif
 
@@ -1695,7 +1698,8 @@ UtlBoolean SipConnection::transfereeStatus(int callState, int returnCode)
             if(mpCall)
             {
                OsSysLog::add(FAC_CP, PRI_DEBUG,
-                    "SipConnection::transfereeStatus META_CALL_TRANSFERRING end");
+                             "SipConnection::transfereeStatus "
+                             "META_CALL_TRANSFERRING end");
                mpCall->getMetaEvent(metaEventId, metaEventType, numCalls,
                   &metaEventCallIds);
                if(metaEventId > 0 && metaEventType == PtEvent::META_CALL_TRANSFERRING)
@@ -3135,8 +3139,10 @@ void SipConnection::processReferRequest(const SipMessage* request)
         //SipMessage::parseParameterFromUri(referTo.data(), "Call-ID",
         //    &targetCallId);
 #ifdef TEST_PRINT
-        osPrintf("SipConnection::processReferRequest REFER refer-to: %s callid: %s\n",
-            referTo.data(), targetCallId.data());
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                      "SipConnection::processReferRequest "
+                      "REFER refer-to: %s callid: %s\n",
+                      referTo.data(), targetCallId.data());
 #endif
 
         // Set up the meta event data
@@ -3160,7 +3166,9 @@ void SipConnection::processReferRequest(const SipMessage* request)
         mpCall->setCallType(CpCall::CP_TRANSFEREE_ORIGINAL_CALL);
         
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
-        "Leaving SipConnection::processReferRequest, refer-to: %s callid: %s\n",referTo.data(), targetCallId.data());
+                      "Leaving SipConnection::processReferRequest, "
+                      "refer-to: %s callid: %s\n",
+                      referTo.data(), targetCallId.data());
 
          // Mark the begining of a transfer meta event in this call
         mpCall->startMetaEvent(metaEventId,
@@ -3181,11 +3189,16 @@ void SipConnection::processReferRequest(const SipMessage* request)
         // connection and send the INVITE
         UtlString remoteAddress;
         getRemoteAddress(&remoteAddress);
-        CpMultiStringMessage transfereeConnect(CallManager::CP_TRANSFEREE_CONNECTION,
-            targetCallId.data(), referTo.data(), referredBy.data(), thisCallId.data(),
+        CpMultiStringMessage transfereeConnect(
+            CallManager::CP_TRANSFEREE_CONNECTION,
+            targetCallId.data(), 
+            referTo.data(), referredBy.data(), 
+            thisCallId.data(),
             remoteAddress.data());
 #ifdef TEST_PRINT
-        osPrintf("SipConnection::processRequest posting CP_TRANSFEREE_CONNECTION\n");
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                      "SipConnection::processReferRequest "
+                      "from ESTAB posting CP_TRANSFEREE_CONNECTION\n");
 #endif
         mpCallManager->postMessage(transfereeConnect);
 
@@ -3213,9 +3226,18 @@ void SipConnection::processReferRequest(const SipMessage* request)
         mToUrl.toString(fromField);
 
         // Post a message to add a connection to this call
-        CpMultiStringMessage transfereeConnect(CallManager::CP_TRANSFEREE_CONNECTION,
-            callId.data(), referTo.data(),
-            referredBy.data(), callId.data(), fromField.data());
+        CpMultiStringMessage transfereeConnect(
+            CallManager::CP_TRANSFEREE_CONNECTION,
+            callId.data(), 
+            referTo.data(),
+            referredBy.data(), 
+            callId.data(), 
+            fromField.data());
+#ifdef TEST_PRINT
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                      "SipConnection::processReferRequest "
+                      "from IDLE posting CP_TRANSFEREE_CONNECTION\n");
+#endif
         mpCallManager->postMessage(transfereeConnect);
 
         // Assume focus, probably not the right thing
@@ -3619,8 +3641,10 @@ void SipConnection::processAckRequest(const SipMessage* request)
 void SipConnection::processByeRequest(const SipMessage* request)
 {
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_SIP, PRI_WARNING,
-        "Entering SipConnection::processByeRequest inviteMsg=0x%08x ", (int)inviteMsg);
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "Entering SipConnection::processByeRequest "
+                  "inviteMsg=0x%08x ", 
+                  (int)inviteMsg);
 #endif
     int requestSequenceNum = 0;
     UtlString requestSeqMethod;
@@ -3747,8 +3771,10 @@ void SipConnection::processByeRequest(const SipMessage* request)
         }
     }
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_SIP, PRI_WARNING,
-        "Leaving SipConnection::processByeRequest inviteMsg=0x%08x ", (int)inviteMsg);
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "Leaving SipConnection::processByeRequest "
+                  "inviteMsg=0x%08x ", 
+                  (int)inviteMsg);
 #endif
 } // End of processByeRequest
 
@@ -4019,8 +4045,8 @@ UtlBoolean SipConnection::processResponse(const SipMessage* response,
                 (strcmp(sequenceMethod.data(), SIP_BYE_METHOD) == 0))
             {
                 OsSysLog::add(FAC_CP, PRI_DEBUG,
-                    "SipConnection::processResponse: Response %d "
-                    "received for BYE", responseCode);
+                    "SipConnection::processResponse: "
+                    "Response %d received for BYE", responseCode);
                 setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE);
                 fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL) ;
 
@@ -4623,8 +4649,7 @@ void SipConnection::processInviteResponse(const SipMessage* response)
                 mHoldCompleteAction = CpCallManager::CP_UNSPECIFIED;
                 break;
             }
-
-        }
+        }   // end TERMCONNECTION_HOLDING
         else if (mFarEndHoldState == TERMCONNECTION_TALKING)
         {
             setTerminalConnectionState(PtTerminalConnection::TALKING, 1);
@@ -4747,7 +4772,7 @@ void SipConnection::processInviteResponse(const SipMessage* response)
                 mpMediaInterface->stopRtpReceive(mConnectionId);
                 fireSipXEvent(CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_STOP);
             }
-        }
+        }   // end media setup path
 
         // Original INVITE response with no SDP
         // cannot setup call

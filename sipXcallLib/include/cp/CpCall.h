@@ -185,7 +185,7 @@ public:
 
     int getCallState();
 
-    virtual void printCall();
+    virtual void printCall(int showHistory = 1);
 
     // This should go away
     void enableDtmf();
@@ -216,6 +216,9 @@ public:
     void getOriginalCallId(UtlString& targetCallId) const;
 
     int getLocalConnectionState(int state);
+
+    unsigned long getElapsedTime(void);     // xecs-1698 hack
+
 
     /* ============================ INQUIRY =================================== */
 
@@ -318,6 +321,8 @@ private:
 
     // utility function used to check if ev exists in mDtmfEvents.
     int dtmfEventExists(int ev);
+
+    OsTime  mCallTimeStart;   // xecs-1698 hack
 
 };
 

@@ -42,7 +42,10 @@
 // CONSTANTS
 // STRUCTS
 // TYPEDEFS
-//#define TAOMSG_DEBUG
+
+//#define TAOMSG_DEBUG 1
+//#define USE_HTTPMSG 1
+
 // FORWARD DECLARATIONS
 
 //:This class is for carrying information in Tao subsystems, typically as carrier

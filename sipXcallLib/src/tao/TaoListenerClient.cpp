@@ -27,6 +27,9 @@
 #include "ptapi/PtTerminalComponentEvent.h"
 #include "ptapi/PtConnectionEvent.h"
 
+//#define TEST_PRINT 1
+
+
 #ifdef WV_DEBUG
 #ifdef _VXWORKS
 #include <vxworks.h>

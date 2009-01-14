@@ -338,7 +338,7 @@ public:
     //:provides the next csequence number for a given call session (leg) if it exists.
     // Note: this does not protect against transaction
 
-    void printCalls();
+    void printCalls(int showHistory = 1);
 
     void setOutGoingCallType(int callType);
 

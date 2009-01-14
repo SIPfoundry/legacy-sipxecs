@@ -426,7 +426,7 @@ private:
     UtlString connectionCallerId;
 	OsMutex  callIdMutex;
     OsTime   mDeleteAfter ;    // Instructs the call to delete this connection
-                              // after this time period (time since boot)
+                               // after this time period (time since boot)
     SIPX_CALLSTATE_EVENT m_eLastMajor ; 
     SIPX_CALLSTATE_CAUSE m_eLastMinor ; 
     SIPX_CALLSTATE_EVENT m_eLastAudioMajor;

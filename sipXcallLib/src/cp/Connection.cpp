@@ -35,6 +35,8 @@
 #include <ptapi/PtConnection.h>
 #include <net/TapiMgr.h>
 
+//#define TEST_PRINT 1
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -67,9 +69,12 @@ Connection::Connection(CpCallManager* callMgr,
 
     if (call) {
        call->getCallId(callId);
-       OsSysLog::add(FAC_CP, PRI_DEBUG, "Connection constructed: %s\n", callId.data());
+       OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                     "Connection::Connection- %s\n", 
+                     callId.data());
     } else
-       OsSysLog::add(FAC_CP, PRI_DEBUG, "Connection constructed: call is Null\n");
+       OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                     "Connection::Connection- call is Null\n");
 #endif
 
     mOfferingDelay = offeringDelayMilliSeconds;
@@ -118,9 +123,12 @@ Connection::Connection(CpCallManager* callMgr,
 
 #ifdef TEST_PRINT    
     if (!callId.isNull())
-       OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving Connection constructed: %s\n", callId.data());
+       OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                     "Connection::Connection -leaving: %s\n", 
+                     callId.data());
     else
-       OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving Connection constructed: call is Null\n");
+       OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                     "Connection::Connection -leaving: call is Null\n");
 #endif
 }
 
@@ -140,9 +148,12 @@ Connection::~Connection()
     UtlString callId;
     if (mpCall) {
        mpCall->getCallId(callId);
-       OsSysLog::add(FAC_CP, PRI_DEBUG, "Connection destructed: %s\n", callId.data());
+       OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                     "Connection destructed: %s\n", 
+                     callId.data());
     } else
-       OsSysLog::add(FAC_CP, PRI_DEBUG, "Connection destructed: call is Null\n");
+       OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                     "Connection destructed: call is Null\n");
 #endif
 
    if ( mpListenerCnt )
@@ -275,7 +286,13 @@ void Connection::setState(int newState, int isLocal, int newCause, int termState
    }
 
    OsSysLog::add(FAC_CP, PRI_DEBUG,
-                 "Call %s %s state isLocal %d\nchange\nfrom %s to\n\t %s\ncause=%d\npost change to upper layer %d",
+                 "Connection::setState "
+                 "Call %s %s state isLocal %d\n"
+                 "change\n"
+                 "from %s to\n"
+                 "\t %s\n"
+                 "cause=%d\n"
+                 "post change to upper layer %d",
             strCallName.data(),
             callId.data(),
             isLocal,
@@ -643,6 +660,15 @@ void Connection::postTaoListenerMessage(int state, int newCause, int isLocal)
     UtlString causeStr;
     causeStr.remove(0);
 
+#ifdef TEST_PRINT
+    OsSysLog::add(FAC_CP, PRI_DEBUG, "Connection::postTaoListenerMessage: "
+                  "Enter- %s state %d cause %d "
+                  "eventid-  %d termeventid %d",
+                  (isLocal?"LOCAL":"REMOTE"), 
+                  state, newCause,
+                  eventId, termEventId);
+#endif
+
     switch(state)
     {
     case CONNECTION_IDLE:
@@ -670,7 +696,7 @@ void Connection::postTaoListenerMessage(int state, int newCause, int isLocal)
 
     case CONNECTION_ALERTING:
         eventId = PtEvent::CONNECTION_ALERTING;
-                termEventId = PtEvent::TERMINAL_CONNECTION_RINGING;
+        termEventId = PtEvent::TERMINAL_CONNECTION_RINGING;
         break;
 
     case CONNECTION_ESTABLISHED:
@@ -752,13 +778,13 @@ void Connection::postTaoListenerMessage(int state, int newCause, int isLocal)
         causeStr.append("CAUSE_CALL_CANCELLED");
         break ;
 
-        case CONNECTION_CAUSE_TRANSFER:
-                cause = PtEvent::CAUSE_TRANSFER;
+    case CONNECTION_CAUSE_TRANSFER:
+        cause = PtEvent::CAUSE_TRANSFER;
         causeStr.append("CAUSE_TRANSFER");
-                break;
+        break;
     
     default:
-     case CONNECTION_CAUSE_NORMAL:
+    case CONNECTION_CAUSE_NORMAL:
         cause = PtEvent::CAUSE_NORMAL;
         causeStr.append("CAUSE_NORMAL");
         break;
@@ -801,7 +827,7 @@ void Connection::postTaoListenerMessage(int state, int newCause, int isLocal)
 
         if (mRemoteIsCallee)
         {
-                        remoteAddress.insert(0, "foreign-terminal-");
+            remoteAddress.insert(0, "foreign-terminal-");
             callId += TAOMESSAGE_DELIMITER + remoteAddress;    // arg[5], remote terminal name
         }
         else
@@ -884,6 +910,14 @@ void Connection::postTaoListenerMessage(int state, int newCause, int isLocal)
         eventIdStr.remove(0);
         remoteAddress.remove(0);
     }
+#ifdef TEST_PRINT
+    OsSysLog::add(FAC_CP, PRI_DEBUG, "Connection::postTaoListenerMessage: "
+                  "Leave- %s state %d cause %d "
+                  "eventid-  %d termeventid %d",
+                  (isLocal?"LOCAL":"REMOTE"), 
+                  state, newCause,
+                  eventId, termEventId);
+#endif
 
     causeStr.remove(0);
 }
@@ -952,6 +986,13 @@ void Connection::setRingingTimer(int seconds)
 UtlBoolean Connection::isStateTransitionAllowed(int newState, int oldState)
 {
     UtlBoolean isAllowed = TRUE;
+
+#ifdef TEST_PRINT
+    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                  "Connection::isStateTransitionAllowed: "
+                  "state- new %d old %d ",
+                  newState, oldState);
+#endif
 
     switch (oldState)
     {
