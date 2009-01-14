@@ -1,5 +1,5 @@
 <div>
-    <h3><span key="title">Conference for </span><span jwcid="@Insert" value="ognl:user.displayName" /></h3>
+	<h3><span jwcid="@Insert" value="ognl:messages.format('title',user.displayName)"/></h3>
     <fieldset jwcid="@conference/ConferencesPanel" 
               conferences="ognl:conferenceBridgeContext.findConferencesByOwner(user)" 
               showOwner="false" enableDelete="ognl:userSession.isAdmin()" enableAdd="ognl:userSession.isAdmin()"
