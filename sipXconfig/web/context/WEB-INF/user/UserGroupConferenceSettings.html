@@ -6,10 +6,10 @@
             for="conferences:enable" label="message:label.enabled">
             <input id="conferences:enable" jwcid="enableConferences@Checkbox" value="ognl:conferenceEnabled" />
         </tr>
-        <tr jwcid="@common/FieldPanel" field="component:conferenceOffset"
-            for="conferences:offset" label="message:label.offset"
-            description="message:description.offset">
-            <input id="conferences:offset" jwcid="conferenceOffset@TextField" value="ognl:conferenceOffset" />
+        <tr jwcid="@common/FieldPanel" field="component:conferencePrefix"
+            for="conferences:prefix" label="message:label.prefix"
+            description="message:description.prefix">
+            <input id="conferences:prefix" jwcid="conferencePrefix@TextField" value="ognl:conferencePrefix" />
         </tr>                 
         <tr jwcid="@conference/BridgeSelector" bridge="ognl:bridge" />
         

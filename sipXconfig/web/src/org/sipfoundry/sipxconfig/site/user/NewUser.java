@@ -109,9 +109,8 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
                 + "bridgeId"));
         Integer bridgeId = Integer.parseInt(bridgeIdValue.getValue());
 
-        SettingValue conferenceOffsetValue = conferenceGroup.getSettingValue(new SettingImpl(CONFERENCE_SETTING_PATH
-                + "offset"));
-        Integer conferenceOffset = Integer.parseInt(conferenceOffsetValue.getValue());
+        SettingValue conferencePrefixValue = conferenceGroup.getSettingValue(new SettingImpl(CONFERENCE_SETTING_PATH
+                + "prefix"));
 
         ConferenceBridgeContext bridgeContext = getConferenceBridgeContext();
 
@@ -125,9 +124,9 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
         }
 
         if (bridge != null) {
-            // TODO handle the case of a non-numeric user extension
-            Integer extension = Integer.parseInt(user.getExtension(true));
-            Integer conferenceExtension = extension + conferenceOffset;
+            String extension = user.getExtension(true);
+            String extensionOrName = extension == null ? user.getUserName() : extension;
+            String conferenceExtension = conferencePrefixValue + extensionOrName;
 
             Conference userConference = bridgeContext.newConference();
             userConference.setExtension(conferenceExtension.toString());

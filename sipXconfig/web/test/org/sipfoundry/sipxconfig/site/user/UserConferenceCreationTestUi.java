@@ -37,7 +37,7 @@ public class UserConferenceCreationTestUi extends WebTestCase {
         clickLinkWithText("seedGroup0");         
         clickLink("link:conferences");               
         checkCheckbox("conferences:enable");
-        setTextField("conferences:offset", "1000");
+        setTextField("conferences:prefix", "1000");
         selectOption("bridgeSelect", TestPage.TEST_LOCATION_FQDN);
         submit("submit:ok");
 
@@ -59,7 +59,7 @@ public class UserConferenceCreationTestUi extends WebTestCase {
         assertEquals(3, conferenceTable.getRowCount()); // the header, the pager and the one conference
         assertEquals("300-conference", SiteTestHelper.getCellAsText(conferenceTable, 2, 1)); // conference name
         assertEquals("300", SiteTestHelper.getCellAsText(conferenceTable, 2, 2)); // owner username
-        assertEquals("1300", SiteTestHelper.getCellAsText(conferenceTable, 2, 4)); // offset + extension
+        assertEquals("1000300", SiteTestHelper.getCellAsText(conferenceTable, 2, 4)); // prefix + extension
     }
     
 }

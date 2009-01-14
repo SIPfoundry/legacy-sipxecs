@@ -36,7 +36,7 @@ public abstract class UserGroupConferenceSettings extends BaseComponent {
 
     private static final String SETTING_PATH_CONFERENCE_ENABLED = "conference/enabled";
     private static final String SETTING_PATH_CONFERENCE_BRIDGE_ID = "conference/bridgeId";
-    private static final String SETTING_PATH_CONFERENCE_OFFSET = "conference/offset";
+    private static final String SETTING_PATH_CONFERENCE_PREFIX = "conference/prefix";
     
     private static final Log LOG = LogFactory.getLog(UserGroupConferenceSettings.class);
     
@@ -90,12 +90,12 @@ public abstract class UserGroupConferenceSettings extends BaseComponent {
         getSettings().getSetting(SETTING_PATH_CONFERENCE_ENABLED).setTypedValue(enabled.toString());
     }
 
-    public Integer getConferenceOffset() {
-        return (Integer) getSettings().getSetting(SETTING_PATH_CONFERENCE_OFFSET).getTypedValue();
+    public String getConferencePrefix() {
+        return getSettings().getSetting(SETTING_PATH_CONFERENCE_PREFIX).getValue();
     }
     
-    public void setConferenceOffset(Integer offset) {
-        getSettings().getSetting(SETTING_PATH_CONFERENCE_OFFSET).setTypedValue(offset);
+    public void setConferencePrefix(String prefix) {
+        getSettings().getSetting(SETTING_PATH_CONFERENCE_PREFIX).setValue(prefix);
     }
     
     public boolean validateConferenceSettings() {
@@ -103,8 +103,8 @@ public abstract class UserGroupConferenceSettings extends BaseComponent {
         boolean valid = true;
         if (isConferenceEnabled()) {
             // Require that an offset and bridge are selected
-            if (getConferenceOffset() == null) {
-                validator.record(new ValidatorException(getMessages().getMessage("message.offsetRequired")));
+            if (getConferencePrefix() == null) {
+                validator.record(new ValidatorException(getMessages().getMessage("message.prefixRequired")));
                 valid = false;
             } else if (getBridge() == null) {
                 validator.record(new ValidatorException(getMessages().getMessage("message.bridgeRequired")));

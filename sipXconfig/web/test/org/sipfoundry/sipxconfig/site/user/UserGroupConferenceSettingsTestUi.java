@@ -49,7 +49,7 @@ public class UserGroupConferenceSettingsTestUi extends WebTestCase {
 
         // Enable conference creation and select the previously created bridge.
         checkCheckbox("conferences:enable");
-        setTextField("conferences:offset", "1000");
+        setTextField("conferences:prefix", "prefix");
         selectOption("bridgeSelect", TestPage.TEST_LOCATION_FQDN);
         submit("submit:ok");
 
@@ -70,8 +70,8 @@ public class UserGroupConferenceSettingsTestUi extends WebTestCase {
     }
 
     /**
-     * Tests to make sure the conference creation UI requires a bridge and offset
-     * to be selected when conference creation is enabled, and does not require a bridge and offset
+     * Tests to make sure the conference creation UI requires a bridge and prefix
+     * to be selected when conference creation is enabled, and does not require a bridge and prefix
      * when creation is disabled.
      */
     public void testValidation() {
@@ -82,26 +82,26 @@ public class UserGroupConferenceSettingsTestUi extends WebTestCase {
         clickLink("link:conferences");
         checkCheckbox("conferences:enable");
         selectOptionByValue("bridgeSelect", "");
-        setTextField("conferences:offset", "");
+        setTextField("conferences:prefix", "");
         submit("submit:apply");
         SiteTestHelper.assertUserError(tester);
 
-        setTextField("conferences:offset", "1000");
+        setTextField("conferences:prefix", "prefix");
         selectOptionByValue("bridgeSelect", "");
         submit("submit:apply");
         SiteTestHelper.assertUserError(tester);
 
-        setTextField("conferences:offset", "");
+        setTextField("conferences:prefix", "");
         selectOption("bridgeSelect", TestPage.TEST_LOCATION_FQDN);
         submit("submit:apply");
         SiteTestHelper.assertUserError(tester);
         
         selectOption("bridgeSelect", TestPage.TEST_LOCATION_FQDN);
-        setTextField("conferences:offset", "1000");
+        setTextField("conferences:prefix", "prefix");
         submit("submit:apply");
         SiteTestHelper.assertNoUserError(tester);
 
-        setTextField("conferences:offset", "");
+        setTextField("conferences:prefix", "");
         selectOptionByValue("bridgeSelect", "");
         uncheckCheckbox("conferences:enable");
         submit("submit:apply");

@@ -108,8 +108,7 @@
      </type>
      <value>false</value>
     </setting>
-    <setting name="offset">
-      <type><integer /></type>
+    <setting name="prefix">
     </setting>
     <setting name="bridgeId">
       <type><integer /></type>
