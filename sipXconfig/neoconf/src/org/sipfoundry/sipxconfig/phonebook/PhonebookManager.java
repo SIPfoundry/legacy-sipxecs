@@ -49,5 +49,7 @@ public interface PhonebookManager extends DataObjectSource<Phonebook> {
 
     public void reset();
 
+    public void checkPhonebookCsvFileFormat(String filename);
+
     public void exportPhonebook(Collection<PhonebookEntry> entries, OutputStream out) throws IOException;
 }

@@ -9,8 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.phonebook;
 
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,6 +32,7 @@ import org.sipfoundry.sipxconfig.bulk.csv.CsvParserImpl;
 import org.sipfoundry.sipxconfig.bulk.vcard.VcardParserImpl;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.CsvFileFormatError;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.PhoneEntryComparator;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.StringArrayPhonebookEntry;
@@ -301,5 +305,93 @@ public class PhonebookManagerTest extends TestCase {
 
         user.setAliasesString("501");
         assertEquals("501", entry.getNumber());
+    }
+
+    public void testCheckPhonebookCsvFileFormat() {
+        PhonebookManagerImpl context = new PhonebookManagerImpl();
+
+        //
+        // First test that exception is generated for a file not found.
+        //
+        try {
+            context.checkPhonebookCsvFileFormat("filenotthere");
+            fail("Should fail");
+        } catch (UserException e) {
+            // ok
+            assertTrue(true);
+        }
+
+        //
+        // Test for file present, but empty.
+        //
+        context.setExternalUsersDirectory(TestHelper.getTestDirectory());
+        context.setCsvParser(new CsvParserImpl());
+        context.setCvsEncoding("UTF-8");
+        File csvFile = new File(TestHelper.getTestDirectory(), "csvPhonebook.csv");
+        try {
+            csvFile.createNewFile();
+        } catch (IOException e) {
+            fail("Should fail");
+        }
+
+        try {
+            context.checkPhonebookCsvFileFormat("csvPhonebook.csv");
+            fail("Should fail");
+        } catch (UserException e) {
+            // ok
+            assertTrue(true);
+            assertEquals("CSV file is empty.", e.getMessage());
+        }
+
+        //
+        // Test for file present, having too few columns.
+        //
+        String filenameString = TestHelper.getTestDirectory() + "//" + "csvPhonebook1.csv";
+        try {
+            BufferedWriter out = new BufferedWriter(new FileWriter(filenameString));
+            out.write("# Comments");
+            out.newLine();
+            out.write("John, Smith");
+            out.newLine();
+            out.write("Jack, Smith");
+            out.newLine();
+            out.close();
+        } catch (IOException e) {
+            fail("Should fail");
+        }
+
+        try {
+            context.checkPhonebookCsvFileFormat("csvPhonebook1.csv");
+            fail("Should fail");
+        } catch (UserException e) {
+            // ok
+            assertTrue(true);
+            assertEquals("CSV File format error: Too few columns. required columns are: First name, Last name, Number", e.getMessage());
+        }
+
+        //
+        // Test for file present, having correct number of columns.
+        //
+        String filenameString1 = TestHelper.getTestDirectory() + "//" + "csvPhonebook2.csv";
+        try {
+            BufferedWriter out = new BufferedWriter(new FileWriter(filenameString1));
+            out.write("# Comments");
+            out.newLine();
+            out.write("John, Smith, 2003");
+            out.newLine();
+            out.write("Jack, Smith, 2004");
+            out.newLine();
+            out.close();
+        } catch (IOException e) {
+            fail("Should fail");
+        }
+
+        try {
+            context.checkPhonebookCsvFileFormat("csvPhonebook2.csv");
+            assertTrue(true);
+        } catch (UserException e) {
+            fail("Should fail");
+        }
+
     }
 }

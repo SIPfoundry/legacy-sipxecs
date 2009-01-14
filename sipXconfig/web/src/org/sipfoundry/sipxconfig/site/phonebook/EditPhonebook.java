@@ -16,9 +16,12 @@ import java.util.Set;
 
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.valid.ValidationConstraint;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phonebook.Phonebook;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
@@ -52,11 +55,22 @@ public abstract class EditPhonebook extends PageWithCallback implements PageBegi
     public abstract Integer getPhonebookId();
 
     public void savePhonebook() {
+        SipxValidationDelegate validator = (SipxValidationDelegate) TapestryUtils.getValidator(this);
+
         if (!TapestryUtils.isValid(this)) {
             return;
         }
 
         Phonebook phonebook = getPhonebook();
+
+        String assetFilename = phonebook.getMembersCsvFilename();
+        try {
+            getPhonebookManager().checkPhonebookCsvFileFormat(assetFilename);
+        } catch (UserException e) {
+            validator.record(e.getMessage(), ValidationConstraint.REQUIRED);
+            phonebook.setMembersCsvFilename(null);
+            return;
+        }
 
         String groupsString = getMemberGroupsString();
         if (groupsString != null) {

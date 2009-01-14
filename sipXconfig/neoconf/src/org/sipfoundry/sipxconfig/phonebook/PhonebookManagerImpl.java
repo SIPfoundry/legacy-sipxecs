@@ -11,11 +11,13 @@ package org.sipfoundry.sipxconfig.phonebook;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -209,6 +211,32 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         parser.parse(fileReader, new CsvPhonebookEntryMaker(entries));
     }
 
+
+    public void checkPhonebookCsvFileFormat(String filename) {
+        Map<String, PhonebookEntry> entries = new TreeMap();
+        if (filename == null) {
+            return;
+        }
+        File f = new File(m_externalUsersDirectory, filename);
+        if (f.length() == 0) {
+            throw new UserException("CSV file is empty.");
+        }
+
+        Reader fileReader;
+        try {
+            fileReader = new InputStreamReader(new FileInputStream(f), m_csvEncoding);
+        } catch (UnsupportedEncodingException e) {
+            throw new UserException(e.getMessage());
+        } catch (FileNotFoundException e) {
+            throw new UserException(e.getMessage());
+        }
+        try {
+            m_csvParser.parse(fileReader, new CsvPhonebookEntryMaker(entries));
+        } catch (CsvFileFormatError e) {
+            throw new UserException(e.getMessage());
+        }
+    }
+
     /**
      * Search the specified phonebooks for all entries that match the given query string. Both the
      * first and last name of each entry are searched using a prefix search (R, Rob, and Robert
@@ -368,7 +396,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
 
     static class CsvFileFormatError extends UserException {
         public CsvFileFormatError() {
-            super("Too few columns. required columns First name, Last name, Number");
+            super("CSV File format error: Too few columns. required columns are: First name, Last name, Number");
         }
     }
 
