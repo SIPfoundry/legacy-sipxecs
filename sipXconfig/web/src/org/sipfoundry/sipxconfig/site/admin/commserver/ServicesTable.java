@@ -42,6 +42,7 @@ import org.sipfoundry.sipxconfig.service.SipxAcdService;
 import org.sipfoundry.sipxconfig.service.SipxCallResolverService;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxIvrService;
+import org.sipfoundry.sipxconfig.service.SipxPageService;
 import org.sipfoundry.sipxconfig.service.SipxParkService;
 import org.sipfoundry.sipxconfig.service.SipxPresenceService;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
@@ -77,7 +78,7 @@ public abstract class ServicesTable extends BaseComponent {
         SERVICE_MAP.put(SipxCallResolverService.BEAN_ID, EditCallResolverService.PAGE);
         SERVICE_MAP.put(SipxRlsService.BEAN_ID, EditResourceListService.PAGE);
         SERVICE_MAP.put(SipxStatusService.BEAN_ID, EditStatusService.PAGE);
-        SERVICE_MAP.put(SipxParkService.BEAN_ID, EditPageService.PAGE);
+        SERVICE_MAP.put(SipxPageService.BEAN_ID, EditPageService.PAGE);
         SERVICE_MAP.put(SipxFreeswitchService.BEAN_ID, EditFreeswitchService.PAGE);
         SERVICE_MAP.put(SipxAcdService.BEAN_ID, AcdServerPage.PAGE);
         SERVICE_MAP.put(SipxIvrService.BEAN_ID, EditIvrService.PAGE);
