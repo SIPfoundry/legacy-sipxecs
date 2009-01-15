@@ -39,7 +39,7 @@
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>
-    <setting name="freeswitch.eventSocketPort" advanced="yes">
+    <setting name="freeswitch.eventSocketPort" advanced="yes" hidden="yes">
       <type>
         <integer />
       </type>
