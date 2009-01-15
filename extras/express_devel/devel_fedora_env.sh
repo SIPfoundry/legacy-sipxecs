@@ -148,20 +148,40 @@ if [ ! -f /etc/yum.repos.d/sipxecs-unstable-fc.repo ]
 then
    wget_retry http://sipxecs.sipfoundry.org/temp/sipXecs/sipxecs-unstable-fc.repo /etc/yum.repos.d
 fi
+   # The Fedora 10 experiment.
+   uname -a | cut -d" " -f3 | grep fc10 > /dev/null
+   if [ 0 == $? ]; then
+      # This is a Fedora 10 system.  We don't have a sipXecs repo for 10, but
+      # the 8 RPMs work well, at least for now.
+      sed -i -e "s/\$releasever/8/g" /etc/yum.repos.d/sipxecs-unstable-fc.repo
+   fi
 
 #* Tell yum to accept unsigned packages. 
 accept_unsigned_yum_packages /etc/yum.conf 
 accept_unsigned_yum_packages /etc/yum.repos.d/sipxecs-unstable-fc.repo
 
 #* Install the required packages.
-YUM_PACKAGES="gcc gcc-c++ autoconf automake libtool subversion rpm-build httpd httpd-devel openssl-devel jpackage-utils pcre-devel expat-devel unixODBC-devel jakarta-commons-beanutils jakarta-commons-collections jakarta-commons-net ant log4j junit ant-commons-logging ant-trax ant-nodeps postgresql-server zlib-devel postgresql-devel cppunit cppunit-devel redhat-rpm-config alsa-lib-devel curl curl-devel gnutls-devel lzo-devel mysql-devel ncurses-devel python-devel termcap ruby ruby-devel ruby-postgres rubygems rubygem-rake ruby-dbi bind cgicc-devel java-1.6.0-sun-devel w3c-libwww-devel xerces-c-devel git tftp-server doxygen rpm-build zip which unzip createrepo ant-junit mod_ssl libXp libpng-devel libart_lgpl-devel freetype freetype-devel rpmdevtools alsa-lib-devel curl-devel gnutls-devel lzo-devel gdb gdbm-devel mysql-devel ncurses-devel python-devel termcap nsis vsftpd sipx-jasperreports-deps"
+YUM_PACKAGES="gcc gcc-c++ autoconf automake libtool subversion rpm-build httpd httpd-devel openssl-devel jpackage-utils pcre-devel expat-devel unixODBC-devel jakarta-commons-beanutils jakarta-commons-collections jakarta-commons-net ant log4j junit ant-commons-logging ant-trax ant-nodeps postgresql-server zlib-devel postgresql-devel cppunit cppunit-devel redhat-rpm-config alsa-lib-devel curl gnutls-devel lzo-devel mysql-devel ncurses-devel python-devel ruby ruby-devel ruby-postgres rubygems rubygem-rake ruby-dbi bind cgicc-devel java-1.6.0-sun-devel w3c-libwww-devel xerces-c-devel git tftp-server doxygen rpm-build zip which unzip createrepo ant-junit mod_ssl libXp libpng-devel libart_lgpl-devel freetype freetype-devel rpmdevtools alsa-lib-devel gnutls-devel lzo-devel gdb gdbm-devel mysql-devel ncurses-devel python-devel nsis vsftpd sipx-jasperreports-deps rpmdevtools"
+   # The Fedora 10 experiment.
+   uname -a | cut -d" " -f3 | grep fc10 > /dev/null
+   if [ 0 == $? ]; then
+      # This is a Fedora 10 system.
+      YUM_PACKAGES="$YUM_PACKAGES libcurl-devel scons"
+   else
+      # Assume Fedora 8.
+      YUM_PACKAGES="$YUM_PACKAGES curl-devel termcap"
+   fi
 for package in $YUM_PACKAGES;
 do
    yum_install_and_check $package
 done
 
-#* RPMs you can't get via yum.
-RPM_PACKAGES="ftp://mirror.switch.ch/pool/1/mirror/epel/5/i386/scons-0.98.1-1.el5.noarch.rpm"
+#* RPMs you can't get via yum.  But you can with Fedora 10!
+RPM_PACKAGES=""
+uname -a | cut -d" " -f3 | grep fc10 > /dev/null
+if [ 0 != $? ]; then
+   RPM_PACKAGES="$RPM_PACKAGES ftp://mirror.switch.ch/pool/1/mirror/epel/5/i386/scons-0.98.1-1.el5.noarch.rpm"
+fi
 for package in $RPM_PACKAGES;
 do
    rpm_file_install_and_check $package
