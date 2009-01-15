@@ -63,44 +63,51 @@ public class ShellDiscoveryRunner {
         }
 
         results = dhcp.validate(10, networkResources, journalService, bindAddress);
-        if (results == NONE) {
-            String networkAddress = null;
-            String networkMask = null;
-            InetAddress hostAddress = null;
-
+        if (results != NONE) {
+            // Unable to determine the network mask via DHCP.
             try {
-                // Get local IP Address
-                hostAddress = InetAddress.getLocalHost();
-                localHostAddress = hostAddress.getHostAddress();
+                // Default to a Class C subnet.
+                journalService.println("\nUnable to determine network mask via DHCP, defaulting to Class C.\n");
+                networkResources.subnetMask = InetAddress.getByName("255.255.255.0");
             } catch (UnknownHostException e1) {
                 // Ignore.
             }
+        }
 
-            // Calculate the network address.
-            byte[] rawMaskAddress;
-            byte[] rawHostAddress;
-            byte[] rawNetworkAddress = new byte[4];
-            rawMaskAddress = networkResources.subnetMask.getAddress();
-            rawHostAddress = hostAddress.getAddress();
-            for (int i = 3; i >= 0; i--) {
-                rawNetworkAddress[i] = (byte) (rawHostAddress[i] & rawMaskAddress[i]);
-            }
-            try {
-                networkAddress = InetAddress.getByAddress(rawNetworkAddress).getHostAddress();
-                networkMask = InetAddress.getByAddress(rawMaskAddress).getHostAddress();
-            } catch (UnknownHostException e) {
-                // Ignore.
-            }
+        String networkAddress = null;
+        String networkMask = null;
+        InetAddress hostAddress = null;
 
-            LinkedList<Device> devices = ds.discover(networkAddress, networkMask, false);
+        try {
+            // Get local IP Address
+            hostAddress = InetAddress.getLocalHost();
+            localHostAddress = hostAddress.getHostAddress();
+        } catch (UnknownHostException e1) {
+            // Ignore.
+        }
 
-            if (devices.size() == 0) {
-                journalService.println("No devices discovered.");
-            } else {
-                journalService.println("Discovery completed.");
-            }
+        // Calculate the network address.
+        byte[] rawMaskAddress;
+        byte[] rawHostAddress;
+        byte[] rawNetworkAddress = new byte[4];
+        rawMaskAddress = networkResources.subnetMask.getAddress();
+        rawHostAddress = hostAddress.getAddress();
+        for (int i = 3; i >= 0; i--) {
+            rawNetworkAddress[i] = (byte) (rawHostAddress[i] & rawMaskAddress[i]);
+        }
+        try {
+            networkAddress = InetAddress.getByAddress(rawNetworkAddress).getHostAddress();
+            networkMask = InetAddress.getByAddress(rawMaskAddress).getHostAddress();
+        } catch (UnknownHostException e) {
+            // Ignore.
+        }
+
+        LinkedList<Device> devices = ds.discover(networkAddress, networkMask, false);
+
+        if (devices.size() == 0) {
+            journalService.println("No devices discovered.");
         } else {
-            journalService.println("Discovery failed due to DHCP error.");
+            journalService.println("Discovery completed.");
         }
 
         active = false;

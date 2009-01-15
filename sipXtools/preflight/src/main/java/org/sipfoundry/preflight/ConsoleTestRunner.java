@@ -169,79 +169,25 @@ public class ConsoleTestRunner {
                 System.exit(-1);
             }
 
-            // Always run the DHCP test first, regardless of what other tests are called for.
-            DHCP dhcp = new DHCP();
-            results = dhcp.validate(10, networkResources, journalService, bindAddress);
-            if (results != NONE) {
-                System.err.println(results.toString());
-                System.exit(results.toInt());
-            }
-
-            if (line.hasOption("dns-test")) {
-                networkResources.sipDomainName = line.getOptionValue("dns-test");
-                DNS dns = new DNS();
-                results = dns.validate(10, networkResources, journalService, bindAddress);
-                if (results != NONE) {
-                    System.err.println(results.toString());
-                    System.exit(results.toInt());
-                }
-            }
-
-            if (line.hasOption("ntp-test")) {
-                NTP ntp = new NTP();
-                String ntpServer = line.getOptionValue("ntp-test");
-                if (ntpServer != null) {
-                    networkResources.ntpServers = new LinkedList<InetAddress>();
-                    try {
-                        networkResources.ntpServers.add(InetAddress.getByName(ntpServer));
-                    } catch (UnknownHostException e) {
-                        journalService.println("Invalid NTP server specified on command line.");
-                        networkResources.ntpServers = null;
-                    }
-                }
-                results = ntp.validate(10, networkResources, journalService, bindAddress);
-                if (results != NONE) {
-                    System.err.println(results.toString());
-                    System.exit(results.toInt());
-                }
-            }
-
-            if (line.hasOption("tftp-test")) {
-                networkResources.configServer = line.getOptionValue("tftp-test");
-                TFTP tftp = new TFTP();
-                results = tftp.validate(10, networkResources, journalService, bindAddress);
-                if (results != NONE) {
-                    System.err.println(results.toString());
-                    System.exit(results.toInt());
-                }
-            }
-
-            if (line.hasOption("ftp-test")) {
-                networkResources.configServer = line.getOptionValue("ftp-test");
-                FTP ftp = new FTP();
-                results = ftp.validate(10, networkResources, journalService, bindAddress);
-                if (results != NONE) {
-                    System.err.println(results.toString());
-                    System.exit(results.toInt());
-                }
-            }
-
-            if (line.hasOption("http-test")) {
-                networkResources.configServer = line.getOptionValue("http-test");
-                HTTP http = new HTTP();
-                results = http.validate(10, networkResources, journalService, bindAddress);
-                if (results != NONE) {
-                    System.err.println(results.toString());
-                    System.exit(results.toInt());
-                }
-            }
-
             if (line.hasOption("discover")) {
+                DHCP dhcp = new DHCP();
                 String networkAddress = null;
                 String networkMask = null;
                 InetAddress hostAddress = null;
                 InetAddress inetAddress;
                 String localHostAddress = "0.0.0.0";
+
+                results = dhcp.validate(10, networkResources, journalService, bindAddress);
+                if (results != NONE) {
+                    // Unable to determine the network mask via DHCP.
+                    try {
+                        // Default to a Class C subnet.
+                        journalService.println("\nUnable to determine network mask via DHCP, defaulting to Class C.\n");
+                        networkResources.subnetMask = InetAddress.getByName("255.255.255.0");
+                    } catch (UnknownHostException e1) {
+                        // Ignore.
+                    }
+                }
 
                 try {
                     // Get local IP Address
@@ -308,6 +254,73 @@ public class ConsoleTestRunner {
                 }
 
                 System.exit(0);
+            }
+
+            // Always run the DHCP test first, regardless of what other tests are called for.
+            DHCP dhcp = new DHCP();
+            results = dhcp.validate(10, networkResources, journalService, bindAddress);
+            if (results != NONE) {
+                System.err.println(results.toString());
+                System.exit(results.toInt());
+            }
+
+            if (line.hasOption("dns-test")) {
+                networkResources.sipDomainName = line.getOptionValue("dns-test");
+                DNS dns = new DNS();
+                results = dns.validate(10, networkResources, journalService, bindAddress);
+                if (results != NONE) {
+                    System.err.println(results.toString());
+                    System.exit(results.toInt());
+                }
+            }
+
+            if (line.hasOption("ntp-test")) {
+                NTP ntp = new NTP();
+                String ntpServer = line.getOptionValue("ntp-test");
+                if (ntpServer != null) {
+                    networkResources.ntpServers = new LinkedList<InetAddress>();
+                    try {
+                        networkResources.ntpServers.add(InetAddress.getByName(ntpServer));
+                    } catch (UnknownHostException e) {
+                        journalService.println("Invalid NTP server specified on command line.");
+                        networkResources.ntpServers = null;
+                    }
+                }
+                results = ntp.validate(10, networkResources, journalService, bindAddress);
+                if (results != NONE) {
+                    System.err.println(results.toString());
+                    System.exit(results.toInt());
+                }
+            }
+
+            if (line.hasOption("tftp-test")) {
+                networkResources.configServer = line.getOptionValue("tftp-test");
+                TFTP tftp = new TFTP();
+                results = tftp.validate(10, networkResources, journalService, bindAddress);
+                if (results != NONE) {
+                    System.err.println(results.toString());
+                    System.exit(results.toInt());
+                }
+            }
+
+            if (line.hasOption("ftp-test")) {
+                networkResources.configServer = line.getOptionValue("ftp-test");
+                FTP ftp = new FTP();
+                results = ftp.validate(10, networkResources, journalService, bindAddress);
+                if (results != NONE) {
+                    System.err.println(results.toString());
+                    System.exit(results.toInt());
+                }
+            }
+
+            if (line.hasOption("http-test")) {
+                networkResources.configServer = line.getOptionValue("http-test");
+                HTTP http = new HTTP();
+                results = http.validate(10, networkResources, journalService, bindAddress);
+                if (results != NONE) {
+                    System.err.println(results.toString());
+                    System.exit(results.toInt());
+                }
             }
         } catch (ParseException exp) {
             System.out.println(exp.getMessage());

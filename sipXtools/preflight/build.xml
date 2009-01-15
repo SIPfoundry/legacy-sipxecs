@@ -46,6 +46,7 @@
       <binlib>
         <fileset file="${arptable.dll}" />
         <fileset file="${rocksaw.dll}" />
+        <fileset file="${rocksaw.lib}" />
       </binlib>
       <fileset dir="${src.dir}">
         <include name="icons/**"/>
