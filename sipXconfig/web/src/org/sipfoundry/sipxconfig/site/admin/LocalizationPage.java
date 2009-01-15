@@ -115,7 +115,7 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
         setRegionList(model);
     }
 
-    public IPage setRegion(IRequestCycle cycle) {
+    public IPage changeRegion(IRequestCycle cycle) {
         String region = getRegion();
         if (ModelWithDefaults.DEFAULT.equals(region)) {
             return getPage();
