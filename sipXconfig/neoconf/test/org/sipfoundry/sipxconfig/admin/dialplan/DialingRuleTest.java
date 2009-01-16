@@ -133,21 +133,23 @@ public class DialingRuleTest extends TestCase {
         montreal.setUniqueId();
         montreal.setAddress("montreal.example.org");
         montreal.setSite(montrealSite);
+        montreal.setShared(false);
 
         Gateway montreal2 = new Gateway();
         montreal2.setUniqueId();
         montreal2.setAddress("montreal2.example.org");
         montreal2.setSite(montrealSite);
+        montreal2.setShared(false);
 
         Gateway lisbon = new Gateway();
         lisbon.setUniqueId();
         lisbon.setAddress("lisbon.example.org");
         lisbon.setSite(lisbonSite);
-        lisbon.setShared(true);
 
         Gateway shared = new Gateway();
         shared.setUniqueId();
         shared.setAddress("example.org");
+        shared.setShared(false);
 
         CustomDialingRule rule = new CustomDialingRule();
         rule.addGateway(shared);

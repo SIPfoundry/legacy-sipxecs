@@ -49,7 +49,7 @@ public class Gateway extends Device implements NamedObject {
 
     private SbcDevice m_sbcDevice;
 
-    private boolean m_shared;
+    private boolean m_shared = true; // default enabled
 
     private Group m_site;
 

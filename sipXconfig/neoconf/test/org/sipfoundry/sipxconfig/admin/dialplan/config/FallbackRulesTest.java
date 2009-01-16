@@ -191,18 +191,19 @@ public class FallbackRulesTest extends XMLTestCase {
         montreal.setUniqueId();
         montreal.setAddress("montreal.example.org");
         montreal.setSite(montrealSite);
+        montreal.setShared(false);
 
         Gateway lisbon = new Gateway();
         lisbon.setUniqueId();
         lisbon.setAddress("lisbon.example.org");
         lisbon.setSite(lisbonSite);
-        lisbon.setShared(true);
         lisbon.setPrefix("9");
 
         Gateway shared = new Gateway();
         shared.setUniqueId();
         shared.setAddress("example.org");
         shared.setPrefix("8");
+        shared.setShared(false);
 
         CustomDialingRule rule = new CustomDialingRule();
         rule.setName("my test name");
