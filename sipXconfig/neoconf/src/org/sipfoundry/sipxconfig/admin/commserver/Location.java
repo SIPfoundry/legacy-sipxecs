@@ -23,6 +23,8 @@ import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxService;
+import org.sipfoundry.sipxconfig.service.SipxServiceBundle;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.beans.factory.annotation.Required;
 
 import static org.apache.commons.lang.StringUtils.substringBefore;
@@ -263,5 +265,29 @@ public class Location extends BeanWithId {
             }
         };
         return CollectionUtils.collect(services, retrieveService, new ArrayList());
+    }
+
+    /**
+     * If list of installed bundles is empty add all auto-enabled bundles to the list.
+     *
+     * @return true is bundles have been initialized and location needs to be saved
+     */
+    public boolean initBundles(SipxServiceManager sipxServiceManager) {
+        if (!m_primary) {
+            // only init primary for now
+            return false;
+        }
+        if (m_installedBundles != null && !m_installedBundles.isEmpty()) {
+            // already have bundles...
+            return false;
+        }
+        m_installedBundles = new ArrayList<String>();
+        Collection<SipxServiceBundle> bundles = sipxServiceManager.getBundleDefinitions();
+        for (SipxServiceBundle bundle : bundles) {
+            if (bundle.isAutoEnable()) {
+                m_installedBundles.add(bundle.getModelId());
+            }
+        }
+        return true;
     }
 }

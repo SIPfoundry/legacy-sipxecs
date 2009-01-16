@@ -16,7 +16,6 @@ import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivatedEvent;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.common.AlarmContext;
@@ -53,36 +52,28 @@ public class FirstRunTask implements ApplicationListener {
         LOG.info("Executing first run tasks...");
         m_domainManager.initialize();
         m_domainManager.replicateDomainConfig();
-        m_dialPlanContext.activateDialPlan(false); // restartSBCDevices == false
         m_coreContext.initializeSpecialUsers();
+        enforceRoles();
 
+        m_dialPlanContext.activateDialPlan(false); // restartSBCDevices == false
         m_alarmContext.replicateAlarmServer();
 
         List<SipxService> restartable = m_sipxServiceManager.getRestartable();
         m_processContext.restartOnEvent(restartable, DialPlanActivatedEvent.class);
 
-        enableServicesOnPrimaryServer();
         generateAllProfiles();
     }
 
     /**
-     * Enables any services marked as "enable_on_next_upgrade" on the primary server.
+     * Make sure that the proper set of services is running for each server.
      */
-    private void enableServicesOnPrimaryServer() {
-        Location primaryLocation = m_locationsManager.getPrimaryLocation();
-
-        // HACK: This check should not return null at runtime. It is here to account for
-        // UI tests that run FirstRunTask without having previously initialized the locations
-        // table in the database
-        if (primaryLocation == null) {
-            return;
-        }
-
-        Collection<SipxService> processesToEnable = primaryLocation.getToBeEnabledServices();
-        m_locationsManager.storeLocation(primaryLocation);
-
-        if (processesToEnable.size() > 0) {
-            m_processContext.manageServices(primaryLocation, processesToEnable, Command.START);
+    private void enforceRoles() {
+        Location[] locations = m_locationsManager.getLocations();
+        for (Location location : locations) {
+            if (location.initBundles(m_sipxServiceManager)) {
+                m_locationsManager.storeLocation(location);
+            }
+            m_processContext.enforceRole(location);
         }
     }
 
