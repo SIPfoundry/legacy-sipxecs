@@ -33,6 +33,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
@@ -84,20 +85,23 @@ public abstract class ServicesTable extends BaseComponent {
         SERVICE_MAP.put(SipxIvrService.BEAN_ID, EditIvrService.PAGE);
     }
 
-    @InjectObject(value = "service:tapestry.ognl.ExpressionEvaluator")
+    @InjectObject("service:tapestry.ognl.ExpressionEvaluator")
     public abstract ExpressionEvaluator getExpressionEvaluator();
 
-    @InjectObject(value = "spring:sipxProcessContext")
+    @InjectObject("spring:sipxProcessContext")
     public abstract SipxProcessContext getSipxProcessContext();
 
-    @InjectObject(value = "spring:locationsManager")
+    @InjectObject("spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
 
-    @InjectObject(value = "spring:sipxServiceManager")
+    @InjectObject("spring:sipxServiceManager")
     public abstract SipxServiceManager getSipxServiceManager();
 
-    @InjectObject(value = "spring:acdContext")
+    @InjectObject("spring:acdContext")
     public abstract AcdContext getAcdContext();
+
+    @InjectObject("spring:coreContext")
+    public abstract CoreContext getCoreContext();
 
     @Bean
     public abstract SelectMap getSelections();

@@ -24,21 +24,18 @@
       </span>
     </span>
   </table>
-<ul class="component-submit">
-  <li><input jwcid="removeServicesButton@Submit" type="submit"
-    id="services:remove" action="listener:removeService"
-    value="message:button.remove" /></li>
-  <li><input jwcid="startButton@Submit" type="submit"
-    id="services:start" action="listener:start"
-    value="message:button.start" /></li>
-  <li><input jwcid="stopButton@Submit" type="submit"
-    id="services:stop" action="listener:stop"
-    value="message:button.stop" /></li>
-  <li><input jwcid="restartButton@Submit" type="submit"
-    id="services:restart" action="listener:restart"
-    value="message:button.restart" /></li>
-  <li><input jwcid="refreshButton@Submit" type="submit"
-    id="services:refresh" action="listener:refresh"
-    value="message:button.refresh" /></li>
-</ul>
+  <ul class="component-submit">
+    <li jwcid="@If" condition="ognl:coreContext.debug">
+      <input jwcid="startButton@Submit" id="services:start" action="listener:start" value="message:button.start" />
+    </li>
+    <li jwcid="@If" condition="ognl:coreContext.debug">
+      <input jwcid="stopButton@Submit" id="services:stop" action="listener:stop" value="message:button.stop" />
+    </li>
+    <li>
+      <input jwcid="restartButton@Submit" id="services:restart" action="listener:restart" value="message:button.restart" />
+    </li>
+    <li>
+      <input jwcid="refreshButton@Submit" type="submit" id="services:refresh" action="listener:refresh" value="message:button.refresh" />
+    </li>
+  </ul>
 </fieldset>
