@@ -119,9 +119,9 @@ public abstract class ServicesTable extends BaseComponent {
 
     public abstract void setServiceLocation(Location location);
 
-    public abstract void setServiceStatus(Object[] serviceStatus);
+    public abstract void setServiceStatusCached(Object[] serviceStatus);
 
-    public abstract Object[] getServiceStatus();
+    public abstract Object[] getServiceStatusCached();
 
     @Asset("/images/cog.png")
     public abstract IAsset getServiceIcon();
@@ -183,15 +183,13 @@ public abstract class ServicesTable extends BaseComponent {
         return getMessage(getMessages(), key, serviceBeanId);
     }
 
-    @Override
-    protected void prepareForRender(IRequestCycle cycle) {
-        super.prepareForRender(cycle);
-
-        Object[] serviceStatus = getServiceStatus();
+    public Object[] getServiceStatus() {
+        Object[] serviceStatus = getServiceStatusCached();
         if (serviceStatus == null) {
             serviceStatus = retrieveServiceStatus(getServiceLocation());
-            setServiceStatus(serviceStatus);
+            setServiceStatusCached(serviceStatus);
         }
+        return serviceStatus;
     }
 
     public Object[] retrieveServiceStatus(Location location) {
@@ -237,7 +235,7 @@ public abstract class ServicesTable extends BaseComponent {
      * Registered as form listener - forces service status update every time form is submitted
      */
     public void refresh() {
-        setServiceStatus(null);
+        setServiceStatusCached(null);
     }
 
     public void removeService() {
