@@ -131,7 +131,11 @@ function accept_unsigned_yum_packages {
 }
 
 #* Disable SELinux (could be done from a GUI install, but just to be sure....)
-sed -i -e "s/SELINUX=enabled/SELINUX=disabled/g" /etc/selinux/config
+if [ ! -e /etc/selinux/config_ORIG ] 
+then
+  cp /etc/selinux/config /etc/selinux/config_ORIG
+fi
+echo SELINUX=disabled > /etc/selinux/config
 
 #* Disable the Firewall (could be done from a GUI install, but just to be sure....)
 service iptables stop
