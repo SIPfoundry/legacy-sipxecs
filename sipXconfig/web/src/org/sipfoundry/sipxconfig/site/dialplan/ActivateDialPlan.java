@@ -19,6 +19,7 @@ import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
 import org.sipfoundry.sipxconfig.service.SipxService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.site.admin.commserver.RestartReminderPanel;
 
 /**
@@ -26,8 +27,7 @@ import org.sipfoundry.sipxconfig.site.admin.commserver.RestartReminderPanel;
  */
 public abstract class ActivateDialPlan extends PageWithCallback {
     public static final String[] OPTIONS = {
-        "mappingrules.xml", "fallbackrules.xml", "authrules.xml", "forwardingrules.xml",
-        "nattraversalrules.xml"
+        "mappingrules.xml", "fallbackrules.xml", "authrules.xml", "forwardingrules.xml", "nattraversalrules.xml"
     };
 
     public static final String PAGE = "dialplan/ActivateDialPlan";
@@ -36,11 +36,8 @@ public abstract class ActivateDialPlan extends PageWithCallback {
 
     public abstract DialPlanContext getDialPlanContext();
 
-    @InjectObject("spring:sipxRegistrarService")
-    public abstract SipxRegistrarService getSipxRegistrarService();
-
-    @InjectObject("spring:sipxProxyService")
-    public abstract SipxProxyService getSipxProxyService();
+    @InjectObject("spring:sipxServiceManager")
+    public abstract SipxServiceManager getSipxServiceManager();
 
     public String getXml() {
         ConfigGenerator generator = getDialPlanContext().getGenerator();
@@ -55,7 +52,8 @@ public abstract class ActivateDialPlan extends PageWithCallback {
 
     public SipxService[] getAffectedProcesses() {
         SipxService[] names = new SipxService[] {
-            getSipxProxyService(), getSipxRegistrarService()
+            getSipxServiceManager().getServiceByBeanId(SipxProxyService.BEAN_ID),
+            getSipxServiceManager().getServiceByBeanId(SipxRegistrarService.BEAN_ID)
         };
         return names;
     }
