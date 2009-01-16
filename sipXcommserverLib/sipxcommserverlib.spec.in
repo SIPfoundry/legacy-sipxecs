@@ -143,17 +143,6 @@ mv %{upgrade_archive_dir}/%{this_archive} %{current_archive}
 
 pkg-upgrade --previous %{previous_archive} --current %{current_archive}
 
-# On an HA Slave system the pkg-upgrade of config.defs will fail, since it will have been modified 
-# by the install wizard.  Could also happen on other systems where config.defs was modified.  This 
-# will simply make sure config.defs have the new watchdog XMLRPC server port item, without which 
-# the new watchdog will not start.  
-grep WATCHDOG_SERVER_XMLRPC_PORT %{_sysconfdir}/sipxpbx/config.defs > /dev/null
-if [ $? != "0" ]; then
-  echo "" >> %{_sysconfdir}/sipxpbx/config.defs
-  echo "WATCHDOG_SERVER_XMLRPC_PORT=8092" >> %{_sysconfdir}/sipxpbx/config.defs
-  echo "" >> %{_sysconfdir}/sipxpbx/config.defs
-fi
-
 %files
 %defattr(644,root,root,755)
 %doc CONTRIBUTORS README NEWS TODO ChangeLog %name.configlog

@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.service;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
@@ -23,12 +24,14 @@ public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
 
     public void testWrite() throws Exception {
         SipxRegistrarService registrarService = new SipxRegistrarService();
+        registrarService.setBeanId(SipxRegistrarService.BEAN_ID);
         registrarService.setModelDir("sipxregistrar");
         registrarService.setModelName("sipxregistrar.xml");
         registrarService.setModelFilesContext(TestHelper.getModelFilesContext());
         initCommonAttributes(registrarService);
 
         SipxProxyService proxyService = new SipxProxyService();
+        proxyService.setBeanId(SipxProxyService.BEAN_ID);
         proxyService.setSipPort("5060");
 
         Domain domain = new Domain();
@@ -63,16 +66,15 @@ public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
             "myenumdomain.org", null, "*66", "Y"
         });
 
-        registrarService.setOrbitServerSipSrvOrHostport("orbit.example.org");
         registrarService.setProxyServerSipHostport("proxy.example.org");
         registrarService.setSipPort("5070");
         registrarService.setRegistrarEventSipPort("5075");
 
-        SipxServiceManager sipxServiceManager = createMock(SipxServiceManager.class);
-        sipxServiceManager.getServiceByBeanId(SipxRegistrarService.BEAN_ID);
-        expectLastCall().andReturn(registrarService).atLeastOnce();
-        sipxServiceManager.getServiceByBeanId(SipxProxyService.BEAN_ID);
-        expectLastCall().andReturn(proxyService).atLeastOnce();
+        SipxParkService parkService = new SipxParkService();
+        parkService.setBeanId(SipxParkService.BEAN_ID);
+        parkService.setSipPort("9909");
+
+        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(registrarService, proxyService, parkService);
         replay(domainManager, sipxServiceManager);
 
         SipxRegistrarConfiguration out = new SipxRegistrarConfiguration();

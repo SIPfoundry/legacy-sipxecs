@@ -18,7 +18,6 @@ public class SipxRegistrarService extends SipxService {
     public static final String BEAN_ID = "sipxRegistrarService";
 
     private String m_registrarEventSipPort;
-    private String m_orbitServerSipSrvOrHostport;
     private String m_proxyServerSipHostport;
     private SipxServiceManager m_sipxServiceManager;
 
@@ -28,14 +27,6 @@ public class SipxRegistrarService extends SipxService {
 
     public void setRegistrarEventSipPort(String eventSipPort) {
         m_registrarEventSipPort = eventSipPort;
-    }
-
-    public String getOrbitServerSipSrvOrHostport() {
-        return m_orbitServerSipSrvOrHostport;
-    }
-
-    public void setOrbitServerSipSrvOrHostport(String serverSipSrvOrHostport) {
-        m_orbitServerSipSrvOrHostport = serverSipSrvOrHostport;
     }
 
     public String getProxyServerSipHostport() {

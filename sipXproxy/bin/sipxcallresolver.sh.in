@@ -246,7 +246,7 @@ configCheck() {
       Status=1
    fi
  
-   if ! cat @SIPX_CONFDIR@/config.defs | grep CALLRESOLVER_CALL_STATE_DB | grep ENABLE >/dev/null ; then
+   if ! cat @SIPX_CONFDIR@/sipXproxy-config | grep SIPX_PROXY_CALL_STATE_DB | grep ENABLE >/dev/null ; then
       cat <<ERROR
 
   Warning: proxy is not configured to log call state events to a database:

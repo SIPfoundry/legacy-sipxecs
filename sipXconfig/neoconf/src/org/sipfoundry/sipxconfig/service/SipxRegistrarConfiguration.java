@@ -17,10 +17,10 @@ public class SipxRegistrarConfiguration extends SipxServiceConfiguration {
     protected VelocityContext setupContext(Location location) {
         VelocityContext context = super.setupContext(location);
         SipxService registrarService = getService(SipxRegistrarService.BEAN_ID);
-        SipxService proxyService = getService(SipxProxyService.BEAN_ID);
         context.put("settings", registrarService.getSettings());
         context.put("registrarService", registrarService);
-        context.put("proxyService", proxyService);
+        context.put("proxyService", getService(SipxProxyService.BEAN_ID));
+        context.put("parkService", getService(SipxParkService.BEAN_ID));
 
         return context;
     }

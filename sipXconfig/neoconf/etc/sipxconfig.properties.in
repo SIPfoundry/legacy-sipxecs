@@ -4,10 +4,9 @@
 #                can have a better chance to migrate this file properly
 sipxProxyService.sipPort=5060
 sipxProxyService.secureSipPort=5061
-sipxProxyService.callResolverCallStateDb=${CALLRESOLVER_CALL_STATE_DB}
+sipxProxyService.callResolverCallStateDb=ENABLE
 sipxRegistrarService.sipPort=5070
 sipxRegistrarService.registrarEventSipPort=5075
-sipxRegistrarService.orbitServerSipSrvOrHostport=${ORBIT_SERVER_SIP_SRV_OR_HOSTPORT}
 sipxRegistrarService.proxyServerSipHostport=${PROXY_SERVER_SIP_HOSTPORT}
 sipxMediaService.sipPort=5100
 sipxMediaService.voicemailHttpPort=8090
@@ -101,7 +100,7 @@ sysdir.libexec=@sipxpbx.libexec.dir@
 
 acdContextImpl.audioServerUrl=http://${CONFIG_SERVER_ADDR}/phone/acd/audio
 # ACD server defaults - can be changed in UI
-acdServer.port=${ACD_SERVER_PROVISIONING_PORT}
+acdServer.port=8110
 acdServer.agentPort=8120
 acdQueue.audioDirectory=@sipxconfig.phone.dir@/acd/audio
 presenceServer.enabled=true
