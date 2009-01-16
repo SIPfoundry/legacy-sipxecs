@@ -87,10 +87,10 @@
       <type>
         <enum>
           <option>
-            <value>OFF</value>
+            <value>INFO</value>
           </option>
           <option>
-            <value>INFO</value>
+            <value>NOTICE</value>
           </option>
           <option>
             <value>WARN</value>
