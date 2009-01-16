@@ -31,7 +31,7 @@ public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
     private ModelFilesContext m_modelFilesContext;
     private LocationsManager m_locationsManager;
     private SipxServiceBundle m_managementBundle;
-    private SipxServiceBundle m_sipRouterBundle;
+    private SipxServiceBundle m_primarySipRouterBundle;
 
     public void testGetServiceByBeanId() {
         SipxService service = m_out.getServiceByBeanId(SipxProxyService.BEAN_ID);
@@ -114,8 +114,8 @@ public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
         m_managementBundle.setModelId("managementBundle");
     }
 
-    public void setSipRouterBundle(SipxServiceBundle sipRouterBundle) {
-        m_sipRouterBundle = sipRouterBundle;
-        m_sipRouterBundle.setModelId("sipRouterBundle");
+    public void setPrimarySipRouterBundle(SipxServiceBundle primarySipRouterBundle) {
+        m_primarySipRouterBundle = primarySipRouterBundle;
+        m_primarySipRouterBundle.setModelId("primarySipRouterBundle");
     }
 }

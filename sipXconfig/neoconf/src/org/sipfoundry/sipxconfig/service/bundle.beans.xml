@@ -15,9 +15,13 @@
     <property name="autoEnable" value="true" />
   </bean>
 
-  <bean id="sipRouterBundle" parent="abstractBundle">
-    <constructor-arg value="sipRouter" />
+  <bean id="primarySipRouterBundle" parent="abstractBundle">
+    <constructor-arg value="primarySipRouter" />
     <property name="autoEnable" value="true" />
+  </bean>
+
+  <bean id="redundantSipRouterBundle" parent="abstractBundle">
+    <constructor-arg value="redundantSipRouter" />
   </bean>
 
   <bean id="voicemailBundle" parent="abstractBundle">
@@ -25,13 +29,8 @@
     <property name="autoEnable" value="true" />
   </bean>
 
-  <bean id="callDistributionBundle" parent="abstractBundle">
-    <constructor-arg value="callDistribution" />
-    <property name="autoEnable" value="true" />
-  </bean>
-
-  <bean id="sipTrunkBundle" parent="abstractBundle">
-    <constructor-arg value="sipTrunk" />
+  <bean id="borderControllerBundle" parent="abstractBundle">
+    <constructor-arg value="borderController" />
   </bean>
 
   <bean id="callCenterBundle" parent="abstractBundle">
