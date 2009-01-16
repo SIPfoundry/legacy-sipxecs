@@ -39,6 +39,14 @@
   <component id="credentialsCheck" type="Checkbox">
     <binding name="value" value="snapshot.credentials"/>
   </component>
+  <component id="cdrPanel" type="common/FieldPanel">
+    <binding name="field" value="components.cdrCheck"/>
+    <binding name="label" value="message:label.cdr"/>
+    <binding name="description" value="message:description.cdr"/>
+  </component>
+  <component id="cdrCheck" type="Checkbox">
+    <binding name="value" value="snapshot.cdr"/>
+  </component>
   <component id="actions" type="common/FormActions">
     <binding name="listener" value="listener:createSnapshot"/>
     <binding name="successMessage" value="message:msg.success"/>

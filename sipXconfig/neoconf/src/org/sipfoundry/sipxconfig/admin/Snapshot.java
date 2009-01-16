@@ -29,6 +29,8 @@ public class Snapshot {
 
     private boolean m_credentials;
 
+    private boolean m_cdr;
+
     private boolean m_www = true;
 
     private boolean m_filterTime;
@@ -78,6 +80,10 @@ public class Snapshot {
             cmds.add("--credentials");
         }
 
+        if (m_cdr) {
+            cmds.add("--cdr");
+        }
+
         if (!m_www) {
             cmds.add("--no-www");
         }
@@ -98,6 +104,14 @@ public class Snapshot {
 
     public void setCredentials(boolean credentials) {
         m_credentials = credentials;
+    }
+
+    public boolean isCdr() {
+        return m_cdr;
+    }
+
+    public void setCdr(boolean cdr) {
+        m_cdr = cdr;
     }
 
     public boolean isLogs() {

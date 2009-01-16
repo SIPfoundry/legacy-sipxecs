@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin;
@@ -43,9 +43,10 @@ public class SnapshotTest extends TestCase {
                 cmdLine);
 
         snapshot.setLogs(false);
+        snapshot.setCdr(true);
         cmdLine = StringUtils.join(snapshot.getCmdLine("xyz", startDate, endDate), ' ');
         assertEquals("xyz" + File.separator
-                + "sipx-snapshot --logs none --credentials --no-www sipx-configuration.tar.gz",
+                + "sipx-snapshot --logs none --credentials --cdr --no-www sipx-configuration.tar.gz",
                 cmdLine);
     }
 }

@@ -34,6 +34,7 @@ public class SnapshotPageTestUi extends WebTestCase {
         assertCheckboxSelected("snapshot:www");
         assertCheckboxSelected("snapshot:logs");
         assertCheckboxNotSelected("snapshot:credentials");
+        assertCheckboxNotSelected("snapshot:cdr");
         assertCheckboxNotSelected("snapshot:filterTime");
         assertElementPresent("datetime:date");
         assertElementPresent("datetime:time");
