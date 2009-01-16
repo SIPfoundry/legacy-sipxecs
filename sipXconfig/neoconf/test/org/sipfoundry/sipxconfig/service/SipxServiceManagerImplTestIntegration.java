@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.service;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
@@ -29,6 +30,8 @@ public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
     private SipxServiceManagerImpl m_out;
     private ModelFilesContext m_modelFilesContext;
     private LocationsManager m_locationsManager;
+    private SipxServiceBundle m_managementBundle;
+    private SipxServiceBundle m_sipRouterBundle;
 
     public void testGetServiceByBeanId() {
         SipxService service = m_out.getServiceByBeanId(SipxProxyService.BEAN_ID);
@@ -50,6 +53,24 @@ public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
         Location primary = m_locationsManager.getPrimaryLocation();
         assertTrue(m_out.isServiceInstalled(primary.getId(), SipxProxyService.BEAN_ID));
         assertFalse(m_out.isServiceInstalled(primary.getId(), SipxStatusService.BEAN_ID));
+    }
+
+    public void testGetBundlesForLocation() throws Exception {
+        loadDataSetXml("service/clear-service.xml");
+        loadDataSet("service/location.db.xml");
+
+        Location location = m_locationsManager.getLocation(1001);
+        List<SipxServiceBundle> bundles = m_out.getBundlesForLocation(location);
+        assertTrue(bundles.isEmpty());
+
+        m_out.setBundlesForLocation(location, Arrays.asList(m_managementBundle));
+        assertFalse(m_out.isServiceInstalled(location.getId(), SipxProxyService.BEAN_ID));
+        assertTrue(m_out.isServiceInstalled(location.getId(), SipxCallResolverService.BEAN_ID));
+
+        bundles = m_out.getBundlesForLocation(location);
+        assertEquals(1, bundles.size());
+        SipxServiceBundle locationBundle = bundles.get(0);
+        assertEquals(m_managementBundle, locationBundle);
     }
 
     public void testStoreService() {
@@ -86,5 +107,15 @@ public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
 
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
+    }
+
+    public void setManagementBundle(SipxServiceBundle managementBundle) {
+        m_managementBundle = managementBundle;
+        m_managementBundle.setModelId("managementBundle");
+    }
+
+    public void setSipRouterBundle(SipxServiceBundle sipRouterBundle) {
+        m_sipRouterBundle = sipRouterBundle;
+        m_sipRouterBundle.setModelId("sipRouterBundle");
     }
 }

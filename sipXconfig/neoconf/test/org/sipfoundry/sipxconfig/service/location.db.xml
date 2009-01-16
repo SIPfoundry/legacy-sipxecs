@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+<dataset>
+  <location location_id="1001" fqdn="primary.exampl.com" ip_address="10.1.1.1" name="Primary" />
+  <location location_id="1002" fqdn="remote.exampl.com" ip_address="10.1.1.1" name="Secondary" />
+</dataset>

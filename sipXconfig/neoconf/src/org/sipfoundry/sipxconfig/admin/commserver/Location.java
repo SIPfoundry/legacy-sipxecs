@@ -12,9 +12,12 @@ package org.sipfoundry.sipxconfig.admin.commserver;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang.RandomStringUtils;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
@@ -35,6 +38,7 @@ public class Location extends BeanWithId {
     private String m_fqdn;
     private String m_password = RandomStringUtils.randomAlphanumeric(LOCATION_PASSWORD_LEN);
     private boolean m_primary;
+    private List<String> m_installedBundles;
 
     private Collection<LocationSpecificService> m_services;
     private DaoEventPublisher m_daoEventPublisher;
@@ -61,6 +65,17 @@ public class Location extends BeanWithId {
 
     public void setFqdn(String fqdn) {
         m_fqdn = fqdn;
+    }
+
+    /**
+     * @return beanIDs of installed bundles
+     */
+    public List<String> getInstalledBundles() {
+        return m_installedBundles;
+    }
+
+    public void setInstalledBundles(List<String> installedBundles) {
+        m_installedBundles = installedBundles;
     }
 
     @Required
@@ -177,6 +192,20 @@ public class Location extends BeanWithId {
         }
     }
 
+    public void removeServices(Collection<SipxService> services) {
+        Collection<LocationSpecificService> lsServices = getServices();
+        if (lsServices == null) {
+            return;
+        }
+        for (Iterator<LocationSpecificService> iterator = lsServices.iterator(); iterator.hasNext();) {
+            LocationSpecificService locationSpecificService = iterator.next();
+            SipxService service = locationSpecificService.getSipxService();
+            if (services.contains(service)) {
+                iterator.remove();
+            }
+        }
+    }
+
     public String getPassword() {
         return m_password;
     }
@@ -220,4 +249,19 @@ public class Location extends BeanWithId {
         m_primary = primary;
     }
 
+    /**
+     * Retrieves the list of services installed at this location.
+     *
+     * For each LocationSpecificService it retrieves the underlying SipxService.
+     */
+    public Collection<SipxService> getSipxServices() {
+        Collection<LocationSpecificService> services = getServices();
+        Transformer retrieveService = new Transformer() {
+            public Object transform(Object item) {
+                LocationSpecificService lss = (LocationSpecificService) item;
+                return lss.getSipxService();
+            }
+        };
+        return CollectionUtils.collect(services, retrieveService, new ArrayList());
+    }
 }

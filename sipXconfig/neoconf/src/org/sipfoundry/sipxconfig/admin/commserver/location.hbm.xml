@@ -15,8 +15,12 @@
     <property name="password" />
     <property name="primary" column="primary_location" />
     <bag name="services" cascade="all,delete-orphan" inverse="true">
-      <key column="location_id" not-null="true"/>
-      <one-to-many class="org.sipfoundry.sipxconfig.service.LocationSpecificService"/>
+      <key column="location_id" not-null="true" />
+      <one-to-many class="org.sipfoundry.sipxconfig.service.LocationSpecificService" />
+    </bag>
+    <bag name="installedBundles" table="location_bundle">
+      <key column="location_id" not-null="true" foreign-key="location_bundle_fk" />
+      <element type="string" column="bundle_bean" not-null="true" />
     </bag>
   </class>
 </hibernate-mapping>

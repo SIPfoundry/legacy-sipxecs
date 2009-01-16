@@ -13,6 +13,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+
 public interface SipxServiceManager {
     static final String CONTEXT_BEAN_NAME = "sipxServiceManager";
 
@@ -21,6 +23,10 @@ public interface SipxServiceManager {
     SipxService getServiceByBeanId(String beanId);
 
     Collection<SipxService> getServiceDefinitions();
+
+    SipxServiceBundle getBundleByName(String name);
+
+    Collection<SipxServiceBundle> getBundleDefinitions();
 
     void storeService(SipxService service);
 
@@ -46,4 +52,20 @@ public interface SipxServiceManager {
      *         otherwise
      */
     boolean isServiceInstalled(String serviceBeanId);
+
+    /**
+     * Retrieves the list of bundles installed on a specific location.
+     *
+     * @param locationBean
+     * @return list of installed bundles
+     */
+    List<SipxServiceBundle> getBundlesForLocation(Location location);
+
+    /**
+     * Updates location services based on the bundles definitions.
+     *
+     * @param location affected location
+     * @param bundles list of bundles that should be installed on this location
+     */
+    public void setBundlesForLocation(Location location, List<SipxServiceBundle> bundles);
 }

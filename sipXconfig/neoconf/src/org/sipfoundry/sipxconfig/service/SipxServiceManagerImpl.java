@@ -16,7 +16,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Factory;
+import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections.Transformer;
 import org.apache.commons.collections.map.LazyMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -52,7 +55,9 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
 
     private ApiProvider<ProcessManagerApi> m_processManagerApiProvider;
 
-    private ModelSource<SipxService> m_modelSource;
+    private ModelSource<SipxService> m_serviceModelSource;
+
+    private ModelSource<SipxServiceBundle> m_bundleModelSource;
 
     private String m_host;
 
@@ -177,8 +182,13 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
     }
 
     @Required
-    public void setModelSource(ModelSource<SipxService> modelSource) {
-        m_modelSource = modelSource;
+    public void setServiceModelSource(ModelSource<SipxService> serviceModelSource) {
+        m_serviceModelSource = serviceModelSource;
+    }
+
+    @Required
+    public void setBundleModelSource(ModelSource<SipxServiceBundle> bundleModelSource) {
+        m_bundleModelSource = bundleModelSource;
     }
 
     @Required
@@ -228,12 +238,73 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
      */
     public Collection<SipxService> getServiceDefinitions() {
         Map<String, SipxService> beanIdsToServices = new HashMap<String, SipxService>();
-        for (SipxService sipxService : m_modelSource.getModels()) {
+        for (SipxService sipxService : m_serviceModelSource.getModels()) {
             beanIdsToServices.put(sipxService.getBeanId(), sipxService);
         }
         for (SipxService sipxService : getServicesFromDb()) {
             beanIdsToServices.put(sipxService.getBeanId(), sipxService);
         }
         return beanIdsToServices.values();
+    }
+
+    /**
+     * Create collection of the services that belong to the specific subset of bundles
+     */
+    public Collection<SipxService> getServiceDefinitions(final Collection<SipxServiceBundle> bundles) {
+        Collection<SipxService> services = getServiceDefinitions();
+        Predicate inBundle = new Predicate() {
+            public boolean evaluate(Object item) {
+                SipxService service = (SipxService) item;
+                Set<SipxServiceBundle> serviceBundles = service.getBundles();
+                return !CollectionUtils.intersection(serviceBundles, bundles).isEmpty();
+            }
+        };
+        CollectionUtils.filter(services, inBundle);
+        return services;
+    }
+
+    public Collection<SipxServiceBundle> getBundleDefinitions() {
+        return m_bundleModelSource.getModels();
+    }
+
+    public SipxServiceBundle getBundleByName(String name) {
+        Collection<SipxServiceBundle> bundles = m_bundleModelSource.getModels();
+        for (SipxServiceBundle bundle : bundles) {
+            if (name.equals(bundle.getName())) {
+                return bundle;
+            }
+        }
+        return null;
+    }
+
+    public List<SipxServiceBundle> getBundlesForLocation(Location location) {
+        Transformer transformer = new Transformer() {
+            public Object transform(Object modelId) {
+                return m_bundleModelSource.getModel((String) modelId);
+            }
+        };
+        List<String> installedBundles = location.getInstalledBundles();
+        return (List<SipxServiceBundle>) CollectionUtils.collect(installedBundles, transformer, new ArrayList());
+    }
+
+    public void setBundlesForLocation(Location location, List<SipxServiceBundle> bundles) {
+        Collection<SipxService> oldServices = location.getSipxServices();
+        Collection<SipxService> newServices = getServiceDefinitions(bundles);
+
+        Collection<SipxService> stopServices = CollectionUtils.subtract(oldServices, newServices);
+        Collection<SipxService> startServices = CollectionUtils.subtract(newServices, oldServices);
+
+        location.removeServices(stopServices);
+        location.addServices(startServices);
+
+        Transformer extractModelId = new Transformer() {
+            public Object transform(Object item) {
+                SipxServiceBundle bundle = (SipxServiceBundle) item;
+                return bundle.getModelId();
+            }
+
+        };
+        List<String> bundleIds = (List<String>) CollectionUtils.collect(bundles, extractModelId, new ArrayList());
+        location.setInstalledBundles(bundleIds);
     }
 }

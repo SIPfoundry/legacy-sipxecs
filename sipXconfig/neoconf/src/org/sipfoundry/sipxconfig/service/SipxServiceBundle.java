@@ -9,10 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import org.sipfoundry.sipxconfig.device.Model;
 
-public class SipxServiceBundle {
+
+public class SipxServiceBundle implements Model {
     private final String m_name;
     private boolean m_autoEnable;
+    private String m_modelId;
 
     public SipxServiceBundle(String name) {
         m_name = name;
@@ -29,7 +32,14 @@ public class SipxServiceBundle {
 
     @Override
     public boolean equals(Object obj) {
-        return m_name.equals(obj);
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        SipxServiceBundle bundle = (SipxServiceBundle) obj;
+        return m_name.equals(bundle.m_name);
     }
 
     public void setAutoEnable(boolean autoEnable) {
@@ -38,5 +48,13 @@ public class SipxServiceBundle {
 
     public boolean isAutoEnable() {
         return m_autoEnable;
+    }
+
+    public void setModelId(String modelId) {
+        m_modelId = modelId;
+    }
+
+    public String getModelId() {
+        return m_modelId;
     }
 }
