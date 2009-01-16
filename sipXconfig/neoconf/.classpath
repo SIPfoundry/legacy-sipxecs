@@ -16,7 +16,7 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/dom4j-1.6.1.jar" sourcepath="LIB_SRC/dom4j/1.6.1/src.zip"/>
 	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/spring-2.0.4.jar" sourcepath="/LIB_SRC/spring/2.0.4/src.zip"/>
 	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/hibernate-3.2.6.jar" sourcepath="/LIB_SRC/hibernate/3.2.3/src.zip"/>
-	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/commons-collections-3.2.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/commons-collections-3.2.jar" sourcepath="/LIB_SRC/commons-collections/3.2/src.zip"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-digester-1.8.jar" sourcepath="/LIB_SRC/commons-digester/src.zip"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-logging-1.1.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-pool-1.4.jar"/>
