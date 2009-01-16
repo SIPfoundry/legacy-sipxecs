@@ -1,5 +1,11 @@
 // Class to write from TinyXML structures to UtlStrings.
 
+#ifndef _TiXmlUtlStringWriter_h_
+#define _TiXmlUtlStringWriter_h_
+
+#include "utl/UtlString.h"
+#include "xmlparser/tinystr.h"
+
 class TiXmlUtlStringWriter : public TiXmlOutStream
 {
   public:
@@ -41,3 +47,5 @@ class TiXmlUtlStringWriter : public TiXmlOutStream
 
    UtlString* mString;
 };
+
+#endif    // _TiXmlUtlStringWriter_h_
