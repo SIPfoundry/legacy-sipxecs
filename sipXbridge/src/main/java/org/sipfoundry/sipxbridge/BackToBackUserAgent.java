@@ -56,6 +56,7 @@ import javax.sip.header.RouteHeader;
 import javax.sip.header.SubjectHeader;
 import javax.sip.header.SupportedHeader;
 import javax.sip.header.ToHeader;
+import javax.sip.header.UserAgentHeader;
 import javax.sip.header.ViaHeader;
 import javax.sip.header.WarningHeader;
 import javax.sip.message.Request;
@@ -531,6 +532,8 @@ public class BackToBackUserAgent {
                 newRequest.addHeader(header);
             }
         }
+        UserAgentHeader uah = SipUtilities.createUserAgentHeader();
+        newRequest.setHeader(uah);
 
         /*
          * Remove any header parameters - we have already dealt with them above.
@@ -659,6 +662,7 @@ public class BackToBackUserAgent {
              * Create a new client transaction. First attach any queried session description.
              */
             if (sessionDescription != null) {
+                SipUtilities.setDuplexity(sessionDescription, "sendrecv");
                 SipUtilities.setSessionDescription(inviteRequest, sessionDescription);
             }
             ClientTransaction ct = Gateway.getLanProvider()
