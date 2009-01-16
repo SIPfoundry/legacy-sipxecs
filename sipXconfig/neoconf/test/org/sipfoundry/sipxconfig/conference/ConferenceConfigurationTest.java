@@ -9,19 +9,19 @@
  */
 package org.sipfoundry.sipxconfig.conference;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.File;
 
+import org.apache.commons.io.FileUtils;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class ConferenceConfigurationTest extends XMLTestCase {
 
@@ -31,10 +31,7 @@ public class ConferenceConfigurationTest extends XMLTestCase {
     }
 
     public void testGenerate() throws Exception {
-        List conferences;
         Bridge bridge;
-
-        conferences = new ArrayList(2);
 
         bridge = new Bridge();
         bridge.setModelFilesContext(TestHelper.getModelFilesContext());
@@ -57,34 +54,55 @@ public class ConferenceConfigurationTest extends XMLTestCase {
         conf.initialize();
         conf.getSettings();
         conf.setExtension("123");
-        conf.setSettingValue(Conference.MAX_LEGS, "0") ;
+        conf.setSettingValue(Conference.MAX_LEGS, "0");
+        conf.setUniqueId();
         bridge.addConference(conf);
 
         conf = new Conference();
         conf.setModelFilesContext(TestHelper.getModelFilesContext());
         conf.initialize();
         conf.setExtension("234");
-        conf.setSettingValue(Conference.MAX_LEGS, "4") ;
+        conf.setSettingValue(Conference.MAX_LEGS, "4");
+        conf.setUniqueId();
         bridge.addConference(conf);
-        conferences.add(conf);
-
 
         Domain domain = new Domain("example.com");
-        
         IMocksControl control = EasyMock.createControl();
         DomainManager domainManager = control.createMock(DomainManager.class);
         domainManager.getDomain();
         EasyMock.expectLastCall().andReturn(domain);
         EasyMock.replay(domainManager);
 
+        ConferenceBridgeContext confContext = EasyMock.createMock(ConferenceBridgeContext.class);
+        confContext.getBridgeByServer("test.example.com");
+        EasyMock.expectLastCall().andReturn(bridge).anyTimes();
+        EasyMock.replay(confContext);
+
+        Location location = new Location();
+        location.setFqdn("test.example.com");
+
         ConferenceConfiguration config = new ConferenceConfiguration();
         config.setDomainManager(domainManager);
-        
-        config.generate(bridge, conferences);
-        String generatedXml = config.getFileContent();
+        config.setConferenceBridgeContext(confContext);
+
+        String generatedXml = config.getFileContent(location);
         System.err.println(generatedXml);
-        InputStream referenceXml = ConferenceConfigurationTest.class
-                .getResourceAsStream("conference_config.test.xml");
-        assertXMLEqual(new InputStreamReader(referenceXml), new StringReader(generatedXml));
+        /*
+         * We use two files for reversed order of the "profile" elements of the xml because the
+         * HashSet containing the conferences doesn't guarantee some specific order
+         */
+        String referenceXml = FileUtils.readFileToString(new File(TestUtil
+                .getTestSourceDirectory(ConferenceConfigurationTest.class), "conference_config.test.xml"));
+        String alternativeReferenceXml = FileUtils
+                .readFileToString(new File(TestUtil.getTestSourceDirectory(ConferenceConfigurationTest.class),
+                        "conference_config_alternative.test.xml"));
+        /*
+         * We trim all the \t \n and spaces from the xml strings in order for the comparison not
+         * to be ruined by different formatting
+         */
+        generatedXml = generatedXml.replace(" ", "").replace("\t", "").replace("\n", "");
+        referenceXml = referenceXml.replace(" ", "").replace("\t", "").replace("\n", "");
+        alternativeReferenceXml = alternativeReferenceXml.replace(" ", "").replace("\t", "").replace("\n", "");
+        assertTrue(generatedXml.equals(referenceXml) || generatedXml.equals(alternativeReferenceXml));
     }
 }

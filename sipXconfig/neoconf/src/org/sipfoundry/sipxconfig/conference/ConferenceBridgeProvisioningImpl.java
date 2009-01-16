@@ -77,7 +77,6 @@ public abstract class ConferenceBridgeProvisioningImpl extends HibernateDaoSuppo
 
     void generateConfigurationData(Bridge bridge, List conferences) {
         ConferenceConfiguration configuration = createConferenceConfiguration();
-        configuration.generate(bridge, conferences);
         m_sipxReplicationContext.replicate(configuration);
     }
 

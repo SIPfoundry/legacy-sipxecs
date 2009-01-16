@@ -57,6 +57,7 @@
     <property name="name" value="conference.conf.xml" />
     <property name="directory" value="${sysdir.etc}/freeswitch/conf/autoload_configs" />    
     <property name="domainManager" ref="domainManager" />
+    <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
   </bean>
 
   <bean id="eagerConferenceBridgeProvisioning" class="org.springframework.aop.framework.ProxyFactoryBean"

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
@@ -22,17 +22,11 @@ import org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 
-/**
- * ConfigFile
- */
 public abstract class XmlFile extends AbstractConfigurationFile implements ConfigurationFile {
     protected static final DocumentFactory FACTORY = DocumentFactory.getInstance();
 
     public abstract Document getDocument();
 
-    /* (non-Javadoc)
-     * @see org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigurationFile#write(java.io.Writer)
-     */
     public void write(Writer writer, Location location) throws IOException {
         localizeDocument(location);
         Document document = getDocument();
@@ -41,10 +35,9 @@ public abstract class XmlFile extends AbstractConfigurationFile implements Confi
         xmlWriter.write(document);
     }
 
-
     /**
-     * Override this method to use location-specific data as last step to generate the
-     * Document object that will be written by the write method
+     * Override this method to use location-specific data as last step to generate the Document
+     * object that will be written by the write method
      */
     protected void localizeDocument(Location location) {
         // default implementation does nothing
@@ -62,14 +55,24 @@ public abstract class XmlFile extends AbstractConfigurationFile implements Confi
 
     /**
      * Retrieves configuration file content as string
-     * 
+     *
      * Use only for preview, use write function to dump it to the file.
-     * 
+     *
      */
     public String getFileContent() {
+        return getFileContent(null);
+    }
+
+    /**
+     * Retrieves configuration file content as string depending on the location
+     *
+     * Use only for preview, use write function to dump it to the file.
+     *
+     */
+    public String getFileContent(Location location) {
         try {
             StringWriter writer = new StringWriter();
-            write(writer, null);
+            write(writer, location);
             writer.close();
             return writer.toString();
         } catch (IOException e) {
@@ -78,5 +81,4 @@ public abstract class XmlFile extends AbstractConfigurationFile implements Confi
             return "";
         }
     }
-
 }
