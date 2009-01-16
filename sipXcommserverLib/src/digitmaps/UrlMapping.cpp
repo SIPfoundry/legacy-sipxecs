@@ -13,6 +13,10 @@
 
 
 // APPLICATION INCLUDES
+#ifdef REPLACE_TEST
+#include <xmlparser/TiXmlUtlStringWriter.h>
+#endif // REPLACE_TEST
+
 #include <os/OsSysLog.h>
 
 #include <utl/UtlString.h>
@@ -566,6 +570,20 @@ UrlMapping::doTransform(const Url& requestUri,
                         ResultSet& rContacts,
                         const TiXmlNode* permMatchNode) const 
 {
+#  ifdef REPLACE_TEST
+   {
+      UtlString out;
+      TiXmlUtlStringWriter w(&out);
+      w << *permMatchNode;
+
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, "UrlMapping::doTransform "
+                    "requestUri = '%s', vdigits = '%s', permMatchNode = '%s'",
+                    requestUri.toString().data(),
+                    vdigits.data(),
+                    out.data());
+   }                 
+#  endif // REPLACE_TEST
+
    OsStatus returnStatus = OS_FAILED;  // will remain so unless at least one transform is valid
 
    // create the mapping for all the magic replacement tokens
