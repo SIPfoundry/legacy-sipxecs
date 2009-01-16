@@ -38,6 +38,7 @@ import static org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status.Fa
 import static org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status.Running;
 import static org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status.Starting;
 import static org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status.Undefined;
+import static org.sipfoundry.sipxconfig.test.TestUtil.getMockSipxServiceManager;
 
 public class SipxProcessContextImplTest extends TestCase {
     private SipxProcessContextImpl m_processContextImpl;
@@ -84,27 +85,23 @@ public class SipxProcessContextImplTest extends TestCase {
         result.put("SIPXProxy", "Failed");
         result.put("ACDServer", "Undefined");
 
-        SipxServiceManager serviceManager = createMock(SipxServiceManager.class);
-        serviceManager.getServiceByName("SIPRegistrar");
         SipxRegistrarService registrar = new SipxRegistrarService();
         registrar.setModelId(SipxRegistrarService.BEAN_ID);
-        expectLastCall().andReturn(registrar);
-        serviceManager.getServiceByName("MediaServer");
+        registrar.setProcessName("SIPRegistrar");
         SipxRegistrarService media = new SipxRegistrarService();
         media.setModelId(SipxMediaService.BEAN_ID);
-        expectLastCall().andReturn(media);
-        serviceManager.getServiceByName("PresenceServer");
+        media.setProcessName("MediaServer");
         SipxPresenceService presence = new SipxPresenceService();
         presence.setBeanId(SipxPresenceService.BEAN_ID);
-        expectLastCall().andReturn(presence);
-        serviceManager.getServiceByName("SIPXProxy");
+        presence.setProcessName("PresenceServer");
         SipxProxyService proxy = new SipxProxyService();
         proxy.setBeanId(SipxProxyService.BEAN_ID);
-        expectLastCall().andReturn(proxy);
-        serviceManager.getServiceByName("ACDServer");
+        proxy.setProcessName("SIPXProxy");
         SipxAcdService acd = new SipxAcdService();
         acd.setBeanId(SipxAcdService.BEAN_ID);
-        expectLastCall().andReturn(acd);
+        acd.setProcessName("ACDServer");
+
+        SipxServiceManager serviceManager = getMockSipxServiceManager(registrar, media, presence, proxy, acd);
 
         ProcessManagerApi api = createMock(ProcessManagerApi.class);
         api.getStateAll("localhost");
@@ -145,27 +142,23 @@ public class SipxProcessContextImplTest extends TestCase {
         result.put("SIPXProxy", "Failed");
         result.put("ACDServer", "Unknown");
 
-        SipxServiceManager serviceManager = createMock(SipxServiceManager.class);
-        serviceManager.getServiceByName("SIPRegistrar");
         SipxRegistrarService registrar = new SipxRegistrarService();
         registrar.setModelId(SipxRegistrarService.BEAN_ID);
-        expectLastCall().andReturn(registrar);
-        serviceManager.getServiceByName("MediaServer");
+        registrar.setProcessName("SIPRegistrar");
         SipxRegistrarService media = new SipxRegistrarService();
         media.setModelId(SipxMediaService.BEAN_ID);
-        expectLastCall().andReturn(media);
-        serviceManager.getServiceByName("PresenceServer");
+        media.setProcessName("MediaServer");
         SipxPresenceService presence = new SipxPresenceService();
         presence.setBeanId(SipxPresenceService.BEAN_ID);
-        expectLastCall().andReturn(presence);
-        serviceManager.getServiceByName("SIPXProxy");
+        presence.setProcessName("PresenceServer");
         SipxProxyService proxy = new SipxProxyService();
         proxy.setBeanId(SipxProxyService.BEAN_ID);
-        expectLastCall().andReturn(proxy);
-        serviceManager.getServiceByName("ACDServer");
+        proxy.setProcessName("SIPXProxy");
         SipxAcdService acd = new SipxAcdService();
         acd.setBeanId(SipxAcdService.BEAN_ID);
-        expectLastCall().andReturn(acd);
+        acd.setProcessName("ACDServer");
+
+        SipxServiceManager serviceManager = getMockSipxServiceManager(registrar, media, presence, proxy, acd);
 
         ProcessManagerApi api = createMock(ProcessManagerApi.class);
         api.getStateAll("localhost");
@@ -231,6 +224,59 @@ public class SipxProcessContextImplTest extends TestCase {
 
         m_processContextImpl.manageServices(Arrays.asList(PROCESSES), Command.STOP);
         verify(provider, api);
+    }
+
+    public void testEnforceRole() {
+        Map<String, String> result = new LinkedHashMap<String, String>();
+        result.put("SIPRegistrar", "Running");
+        result.put("SIPXProxy", "Running");
+        result.put("PresenceServer", "Disabled");
+        result.put("ACDServer", "Undefined");
+
+        SipxRegistrarService registrar = new SipxRegistrarService();
+        registrar.setModelId(SipxRegistrarService.BEAN_ID);
+        registrar.setProcessName("SIPRegistrar");
+        SipxRegistrarService media = new SipxRegistrarService();
+        media.setModelId(SipxMediaService.BEAN_ID);
+        media.setProcessName("MediaServer");
+        SipxPresenceService presence = new SipxPresenceService();
+        presence.setBeanId(SipxPresenceService.BEAN_ID);
+        presence.setProcessName("PresenceServer");
+        SipxProxyService proxy = new SipxProxyService();
+        proxy.setBeanId(SipxProxyService.BEAN_ID);
+        proxy.setProcessName("SIPXProxy");
+        SipxAcdService acd = new SipxAcdService();
+        acd.setBeanId(SipxAcdService.BEAN_ID);
+        acd.setProcessName("ACDServer");
+
+        SipxServiceManager serviceManager = getMockSipxServiceManager(registrar, media, presence, proxy, acd);
+
+
+        ProcessManagerApi api = createMock(ProcessManagerApi.class);
+        api.getStateAll("localhost");
+        expectLastCall().andReturn(result);
+
+        api.stop(host(), asArray("SIPRegistrar"), block());
+        expectLastCall().andReturn(null);
+
+        api.start(host(), asArray("ACDServer"), block());
+        expectLastCall().andReturn(null);
+
+        Location location = m_locationsManager.getLocations()[0];
+
+        ApiProvider provider = createMock(ApiProvider.class);
+        provider.getApi(location.getProcessMonitorUrl());
+        expectLastCall().andReturn(api).atLeastOnce();
+
+        replay(provider, api, serviceManager);
+
+        m_processContextImpl.setProcessManagerApiProvider(provider);
+        m_processContextImpl.setSipxServiceManager(serviceManager);
+
+        location.setServiceDefinitions(Arrays.asList(acd, proxy));
+        m_processContextImpl.enforceRole(location);
+
+        verify(provider, api, serviceManager);
     }
 
     static <T> T[] asArray(T... items) {

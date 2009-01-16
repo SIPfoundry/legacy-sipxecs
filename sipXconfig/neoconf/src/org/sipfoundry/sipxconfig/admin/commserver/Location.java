@@ -121,7 +121,7 @@ public class Location extends BeanWithId {
      *
      * @param services
      */
-    public void setServiceDefinitions(Collection<SipxService> services) {
+    public void setServiceDefinitions(Collection< ? extends SipxService> services) {
         m_services = new ArrayList<LocationSpecificService>();
         for (SipxService sipxService : services) {
             LocationSpecificService newService = new LocationSpecificService();
@@ -186,13 +186,13 @@ public class Location extends BeanWithId {
         addService(lss);
     }
 
-    public void addServices(Collection<SipxService> services) {
+    public void addServices(Collection< ? extends SipxService> services) {
         for (SipxService sipxService : services) {
             addService(sipxService);
         }
     }
 
-    public void removeServices(Collection<SipxService> services) {
+    public void removeServices(Collection< ? extends SipxService> services) {
         Collection<LocationSpecificService> lsServices = getServices();
         if (lsServices == null) {
             return;

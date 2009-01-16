@@ -41,6 +41,16 @@ public interface SipxProcessContext {
     public void manageServices(Collection< ? extends SipxService> services, Command command);
 
     /**
+     * Modifies list of services running an a specified location to reflect the bundles selection.
+     *
+     * If the list of processes running on the server correctly reflects the selected bundle none
+     * of them will be started (or stopped).
+     *
+     * @param location server on which to start/stop services
+     */
+    public void enforceRole(Location location);
+
+    /**
      * Delayed version of manageServices strictly for restarting services. Restart commands is not
      * send until the event of the specific class is received.
      *

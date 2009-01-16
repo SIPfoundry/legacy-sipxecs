@@ -20,6 +20,7 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -29,6 +30,9 @@ public abstract class EditLocationPage extends PageWithCallback implements PageB
 
     @InjectObject("spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
+
+    @InjectObject("spring:sipxProcessContext")
+    public abstract SipxProcessContext getSipxProcessContext();
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
@@ -61,7 +65,9 @@ public abstract class EditLocationPage extends PageWithCallback implements PageB
 
     public void saveLocation() {
         if (TapestryUtils.isValid(this)) {
-            getLocationsManager().storeLocation(getLocationBean());
+            Location location = getLocationBean();
+            getLocationsManager().storeLocation(location);
+            getSipxProcessContext().enforceRole(location);
         }
     }
 }

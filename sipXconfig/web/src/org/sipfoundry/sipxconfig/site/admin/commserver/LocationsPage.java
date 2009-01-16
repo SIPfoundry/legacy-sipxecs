@@ -22,6 +22,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
@@ -29,16 +30,19 @@ import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 public abstract class LocationsPage extends BasePage implements PageBeginRenderListener {
     public static final String PAGE = "admin/commserver/LocationsPage";
 
-    @InjectObject(value = "spring:sipxServiceManager")
+    @InjectObject("spring:sipxServiceManager")
     public abstract SipxServiceManager getSipxServiceManager();
 
-    @InjectObject(value = "spring:locationsManager")
+    @InjectObject("spring:sipxProcessContext")
+    public abstract SipxProcessContext getSipxProcessContext();
+
+    @InjectObject("spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
 
-    @InjectPage(value = EditLocationPage.PAGE)
+    @InjectPage(EditLocationPage.PAGE)
     public abstract EditLocationPage getEditLocationPage();
 
-    @InjectPage(value = AddLocationPage.PAGE)
+    @InjectPage(AddLocationPage.PAGE)
     public abstract AddLocationPage getAddLocationPage();
 
     @Bean
@@ -91,6 +95,7 @@ public abstract class LocationsPage extends BasePage implements PageBeginRenderL
         Collection<Integer> selectedLocations = getSelections().getAllSelected();
         for (Integer id : selectedLocations) {
             Location locationToActivate = getLocationsManager().getLocation(id);
+            getSipxProcessContext().enforceRole(locationToActivate);
             // FIXME: this is wrong - we should only replicate a service to a specific location
             // calling this code will replicate all the services to all locations
             for (LocationSpecificService service : locationToActivate.getServices()) {

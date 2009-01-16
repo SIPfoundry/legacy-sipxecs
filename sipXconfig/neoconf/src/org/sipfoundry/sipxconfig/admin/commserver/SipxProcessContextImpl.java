@@ -31,6 +31,8 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
+import static org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status.Running;
+
 public class SipxProcessContextImpl implements SipxProcessContext, ApplicationListener {
 
     private static final Log LOG = LogFactory.getLog(SipxProcessContextImpl.class);
@@ -130,6 +132,9 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
     }
 
     public void manageServices(Location location, Collection< ? extends SipxService> processes, Command command) {
+        if (processes.isEmpty()) {
+            return;
+        }
         try {
             String[] processNames = new String[processes.size()];
             int i = 0;
@@ -200,5 +205,29 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
             }
             return services;
         }
+    }
+
+    public void enforceRole(Location location) {
+        Collection<SipxService> sipxServices = location.getSipxServices();
+        Map<String, SipxService> beanIdToService = new HashMap();
+        for (SipxService sipxService : sipxServices) {
+            beanIdToService.put(sipxService.getBeanId(), sipxService);
+        }
+        ServiceStatus[] statuses = getStatus(location, false);
+        Collection<SipxService> toBeStarted = new ArrayList<SipxService>();
+        Collection<SipxService> toBeStopped = new ArrayList<SipxService>();
+        for (ServiceStatus status : statuses) {
+            String serviceBeanId = status.getServiceBeanId();
+            boolean shouldBeRunning = beanIdToService.containsKey(serviceBeanId);
+            boolean isRunningNow = status.getStatus() == Running;
+            if (shouldBeRunning && !isRunningNow) {
+                toBeStarted.add(m_sipxServiceManager.getServiceByBeanId(serviceBeanId));
+            }
+            if (isRunningNow && !shouldBeRunning) {
+                toBeStopped.add(m_sipxServiceManager.getServiceByBeanId(serviceBeanId));
+            }
+        }
+        manageServices(location, toBeStopped, Command.STOP);
+        manageServices(location, toBeStarted, Command.START);
     }
 }

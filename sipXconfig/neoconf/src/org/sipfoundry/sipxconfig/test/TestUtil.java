@@ -221,10 +221,8 @@ public final class TestUtil {
         sysProps.setProperty("sip.proxyPort", "5060");
         sysProps.setProperty("sip.hostName", "host.sipfoundry.org");
 
-
         File vmDir = createDirectory(mailstoreDir, "Could not create voicemail store");
         createDirectory(tmpDir, "Could not create tmp directory");
-
 
         sysProps.setProperty("mailboxManagerImpl.mailstoreDirectory", vmDir.getAbsolutePath());
     }
@@ -233,8 +231,7 @@ public final class TestUtil {
         File dir = new File(directoryName);
         if (!dir.exists()) {
             if (!dir.mkdirs()) {
-                throw new RuntimeException(errorMessage
-                        + dir.getAbsolutePath());
+                throw new RuntimeException(errorMessage + dir.getAbsolutePath());
             }
         }
         return dir;
@@ -265,22 +262,31 @@ public final class TestUtil {
     }
 
     /**
-     * Creates a mock SipxServiceManager using EasyMock.  It is up to the user of this
-     * mock to call EasyMock.replay.  This allows the user to add more functionality to the mock.
-     * By default the service manager will do lookups for all of the provides SipxService objects
+     * Creates a mock SipxServiceManager using EasyMock.
+     *
+     * It is up to the user of this mock to call EasyMock.replay. This allows the user to add more
+     * functionality to the mock. By default the service manager will do lookups for all of the
+     * provides SipxService objects by beanId. If processName is set up, look ups by process names
+     * will work as well.
+     *
      */
     public static SipxServiceManager getMockSipxServiceManager(SipxService... sipxServices) {
         SipxServiceManager sipxServiceManager = EasyMock.createMock(SipxServiceManager.class);
         for (SipxService sipxService : sipxServices) {
             sipxServiceManager.getServiceByBeanId(sipxService.getBeanId());
             EasyMock.expectLastCall().andReturn(sipxService).anyTimes();
+            String processName = sipxService.getProcessName();
+            if (processName != null) {
+                sipxServiceManager.getServiceByName(processName);
+                EasyMock.expectLastCall().andReturn(sipxService).anyTimes();
+            }
         }
 
         return sipxServiceManager;
     }
 
     /**
-     * Creates a mock domain manager using EasyMock.  Up to the caller to call replay on the mock.
+     * Creates a mock domain manager using EasyMock. Up to the caller to call replay on the mock.
      */
     public static DomainManager getMockDomainManager() {
         DomainManager domainManager = EasyMock.createMock(DomainManager.class);
