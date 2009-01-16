@@ -31,9 +31,9 @@ public class LoginHistoryPageTestUi extends WebTestCase {
     public void testLoginHistoryPage() throws Exception {
         SiteTestHelper.assertNoException(getTester());
         assertFormElementPresent("type");
-        assertElementPresent("datetime:date");
+        assertElementPresent("datetimeDate");
         assertElementPresent("datetime:time");
-        assertElementPresent("datetime:date_0");
+        assertElementPresent("datetimeDate_0");
         assertElementPresent("datetime:time_0");
         assertFormElementPresent("user");
         assertFormElementPresent("remoteip");

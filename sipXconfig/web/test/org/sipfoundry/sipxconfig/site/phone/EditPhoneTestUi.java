@@ -57,7 +57,7 @@ public class EditPhoneTestUi extends WebTestCase {
 
         // check for confirm screen
         assertCheckboxSelected("restart:checkbox");
-        assertFormElementPresent("datetime:date");
+        assertFormElementPresent("datetimeDate");
         assertFormElementPresent("datetime:time");
         clickButton("generate:ok");
 
