@@ -3,14 +3,19 @@
 #macro(emit_setting $s)
 #if($s.ProfileName != '$ignore$')
 #if(${s.Value})
+#if(!($s.ProfileName == 'asserted-identity' && $hideAssertedIdentity == 'true'))
     <${s.ProfileName}>$!{s.Value}</${s.ProfileName}>
-#end    
+#end
+#end
 #end
 #end
 ## emit setting line for every setting in the group
 #macro(emit_group $g)
   <${g.ProfileName}>
 #foreach ($s in $g.Values)
+#if($s.ProfileName == 'default-asserted-identity')
+  #set($hideAssertedIdentity = ${s.Value})
+#end
 #emit_setting($s)
 #end
   </${g.ProfileName}>

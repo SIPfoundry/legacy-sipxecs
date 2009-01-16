@@ -35,6 +35,7 @@ import static org.junit.Assert.assertNotNull;
 
 public class BridgeSbcTest {
     private BridgeSbc m_sbc;
+    private SipTrunk m_sipTrunk;
     private MemoryProfileLocation m_location;
 
     public static junit.framework.Test suite() {
@@ -64,19 +65,19 @@ public class BridgeSbcTest {
         m_sbc.setSettingValue("bridge-configuration/route-inbound-calls-to-extension", "operator");
         m_sbc.setSettingValue("bridge-configuration/log-directory", "/var/log/sipxpbx/");
 
-        SipTrunk sipTrunk = new SipTrunk();
-        sipTrunk.setDefaults(deviceDefaults);
-        sipTrunk.setModelFilesContext(modelFilesContext);
-        sipTrunk.setSbcDevice(m_sbc);
-        sipTrunk.setAddress("itsp.example.com");
-        sipTrunk.setAddressPort(5061);
-        sipTrunk.setAddressTransport(AddressTransport.UDP);
-        sipTrunk.setSettingValue("itsp-account/user-name", "juser");
-        sipTrunk.setSettingValue("itsp-account/password", "1234");
+        m_sipTrunk = new SipTrunk();
+        m_sipTrunk.setDefaults(deviceDefaults);
+        m_sipTrunk.setModelFilesContext(modelFilesContext);
+        m_sipTrunk.setSbcDevice(m_sbc);
+        m_sipTrunk.setAddress("itsp.example.com");
+        m_sipTrunk.setAddressPort(5061);
+        m_sipTrunk.setAddressTransport(AddressTransport.UDP);
+        m_sipTrunk.setSettingValue("itsp-account/user-name", "juser");
+        m_sipTrunk.setSettingValue("itsp-account/password", "1234");
 
         GatewayContext gatewayContext = createMock(GatewayContext.class);
         gatewayContext.getGatewayByType(SipTrunk.class);
-        expectLastCall().andReturn(Arrays.asList(sipTrunk));
+        expectLastCall().andReturn(Arrays.asList(m_sipTrunk));
         replay(gatewayContext);
 
         m_sbc.setGatewayContext(gatewayContext);
@@ -84,6 +85,9 @@ public class BridgeSbcTest {
 
     @Test
     public void testGenerateConfig() throws Exception {
+        // Use default asserted identity
+        m_sipTrunk.setSettingValue("itsp-account/default-asserted-identity", "true");
+
         Profile[] profileTypes = m_sbc.getProfileTypes();
         assertEquals(1, profileTypes.length);
 
@@ -92,6 +96,25 @@ public class BridgeSbcTest {
 
         String actual = m_location.toString();
         InputStream expectedConfig = getClass().getResourceAsStream("sipxbridge.xml");
+        assertNotNull(expectedConfig);
+        String expected = IOUtils.toString(expectedConfig);
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testOverrideDefaultAssertedIdentity() throws Exception {
+        // Override the default asserted identity
+        m_sipTrunk.setSettingValue("itsp-account/default-asserted-identity", "false");
+        m_sipTrunk.setSettingValue("itsp-account/asserted-identity", "juser@itsp.example.com");
+
+        Profile[] profileTypes = m_sbc.getProfileTypes();
+        assertEquals(1, profileTypes.length);
+
+        Profile profile = profileTypes[0];
+        profile.generate(m_sbc, m_location);
+
+        String actual = m_location.toString();
+        InputStream expectedConfig = getClass().getResourceAsStream("sipxbridge.test.xml");
         assertNotNull(expectedConfig);
         String expected = IOUtils.toString(expectedConfig);
         assertEquals(expected, actual);

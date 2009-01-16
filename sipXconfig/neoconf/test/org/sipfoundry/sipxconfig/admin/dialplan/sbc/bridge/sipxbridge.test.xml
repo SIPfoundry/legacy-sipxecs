@@ -28,7 +28,8 @@
     <outbound-transport>UDP</outbound-transport>
     <use-global-addressing>true</use-global-addressing>
     <strip-private-headers>false</strip-private-headers>
-    <default-asserted-identity>true</default-asserted-identity>
+    <default-asserted-identity>false</default-asserted-identity>
+    <asserted-identity>juser@itsp.example.com</asserted-identity>
     <register-on-initialization>true</register-on-initialization>
     <registration-interval>600</registration-interval>
     <sip-keepalive-method>CR-LF</sip-keepalive-method>
