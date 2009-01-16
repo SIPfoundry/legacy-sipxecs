@@ -354,7 +354,7 @@
       <type refid="on-off" />
       <value>off</value>
     </setting>
-    <setting name="refer_brackets" advanced="yes">
+    <setting name="refer_brackets" hidden="yes">
       <type refid="on-off" />
       <value>on</value>
     </setting>
