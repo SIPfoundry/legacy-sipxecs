@@ -78,6 +78,11 @@ SipxRpc::~SipxRpc()
 {
    // the mpXmlRpcDispatch pointer is owned by sipXsupervisor main
    mAllowedPeers.destroyAll();
+
+   if ( mpXmlRpcDispatch != NULL )
+   {
+      mpXmlRpcDispatch->removeAllMethods();
+   }
 }
 
 /* ============================ ACCESSORS ================================= */

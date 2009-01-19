@@ -119,6 +119,9 @@ public:
    /// Remove a method from the RPC dispatch by name
    void removeMethod(const char* methodName);
 
+   /// Remove all method from the RPC dispatch
+   void removeAllMethods();
+
    /// Return the HTTP server that services RPC requests
    HttpServer* getHttpServer();
    

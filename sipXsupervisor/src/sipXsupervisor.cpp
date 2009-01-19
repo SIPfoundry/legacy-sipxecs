@@ -31,10 +31,6 @@
 
 #define DEBUG
 
-//The worker who manages xmlrpc requests
-SipxRpc *pSipxRpcImpl;
-int fdin[2];                     /// stdin pipe between supervisor and supervisor-in-waiting
-
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -54,6 +50,8 @@ int supervisorMain(bool bOriginalSupervisor);
 UtlBoolean gbDone = FALSE;
 UtlBoolean gbShutdown = FALSE;
 pid_t gSupervisorPid;
+SipxRpc *pSipxRpcImpl;           // The worker who manages xmlrpc requests
+int fdin[2];                     // stdin pipe between supervisor and supervisor-in-waiting
 
 
 void cleanup()
@@ -517,8 +515,8 @@ int supervisorMain(bool bOriginalSupervisor)
     OsSSLServerSocket serverSocket(50, managementPortNumber /*@TODO managementIpBindAddress */);
     HttpServer        httpServer(&serverSocket); // set up but don't start https server
     XmlRpcDispatch    xmlRpcDispatcher(&httpServer); // attach xml-rpc service to https
-    SipxRpc           syncRpc(&xmlRpcDispatcher, allowedPeers); // register xml-rpc methods
-    HttpFileAccess    fileAccessService(&httpServer,&syncRpc); // attach file xfer to https
+    pSipxRpcImpl = new SipxRpc(&xmlRpcDispatcher, allowedPeers); // register xml-rpc methods
+    HttpFileAccess    fileAccessService(&httpServer, pSipxRpcImpl); // attach file xfer to https
 
     if (serverSocket.isOk())
     {

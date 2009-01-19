@@ -308,6 +308,14 @@ void XmlRpcDispatch::removeMethod(const char* methodName)
 }
 
 
+void XmlRpcDispatch::removeAllMethods()
+{
+   mLock.acquire();
+   mMethods.removeAll();
+   mLock.release();
+}
+
+
 /// Return the HTTP server that services RPC requests
 HttpServer* XmlRpcDispatch::getHttpServer()
 {
