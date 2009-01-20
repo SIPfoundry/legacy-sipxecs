@@ -49,7 +49,6 @@ int supervisorMain(bool bOriginalSupervisor);
 // GLOBALS
 UtlBoolean gbDone = FALSE;
 UtlBoolean gbShutdown = FALSE;
-pid_t gSupervisorPid;
 SipxRpc *pSipxRpcImpl;           // The worker who manages xmlrpc requests
 int fdin[2];                     // stdin pipe between supervisor and supervisor-in-waiting
 
@@ -179,6 +178,27 @@ public:
    }
 };
 
+void writePidToFile()
+{
+   UtlString pidFileName = SipXecsService::Path(SipXecsService::RunDirType, SUPERVISOR_PID_FILE);
+   char pidString[1024];
+   sprintf(pidString, "%ld\n", (long)getpid());
+   OsFile pidFile(pidFileName);
+   if ( OS_SUCCESS == pidFile.open(OsFile::CREATE) )
+   {
+      size_t bytesWritten;
+      if ( OS_SUCCESS != pidFile.write(pidString, strlen(pidString), bytesWritten) )
+      {
+         osPrintf("sipXsupervisor: could not write pidFile %s\n", pidFileName.data());
+      }
+      pidFile.close();
+   }
+   else
+   {
+      osPrintf("sipXsupervisor: could not open pidFile %s\n", pidFileName.data());
+   }
+}
+
 /// Fork another copy of the supervisor which will do nothing unless/until the parent dies,
 /// in which case it will take over by calling main again
 void forkSupervisorInWaiting()
@@ -226,6 +246,9 @@ void forkSupervisorInWaiting()
                   }
 
                   // now the supervisor-in-waiting ascends to the throne
+                  // Write this process's pid into the supervisor pidfile (it is a child or grandchild)
+                  writePidToFile();
+
                   OsTask::delay(20000);
                   supervisorMain(false);
                   break;
@@ -279,6 +302,9 @@ int main(int argc, char* argv[])
         }
     }
 
+    // Write this process's pid into the supervisor pidfile
+    writePidToFile();
+
     return supervisorMain(true);
 }
 
@@ -286,26 +312,6 @@ int supervisorMain(bool bOriginalSupervisor)
 {
     // Create forked process which will do nothing unless parent dies.  Parent continues with initialization.
     forkSupervisorInWaiting();
-
-    // Write this process's pid into the supervisor pidfile (it might be a child or grandchild)
-    gSupervisorPid = getpid();
-    UtlString pidFileName = SipXecsService::Path(SipXecsService::RunDirType, SUPERVISOR_PID_FILE);
-    char pidString[1024];
-    sprintf(pidString, "%ld\n", (long)gSupervisorPid);
-    OsFile pidFile(pidFileName);
-    if ( OS_SUCCESS == pidFile.open(OsFile::CREATE) )
-    {
-       size_t bytesWritten;
-       if ( OS_SUCCESS != pidFile.write(pidString, strlen(pidString), bytesWritten) )
-       {
-          osPrintf("sipXsupervisor: could not write pidFile %s\n", pidFileName.data());
-       }
-       pidFile.close();
-    }
-    else
-    {
-       osPrintf("sipXsupervisor: could not open pidFile %s\n", pidFileName.data());
-    }
 
     // Drop privileges down to the specified user & group
     const char * sipxpbxuser = SipXecsService::User();
@@ -416,7 +422,7 @@ int supervisorMain(bool bOriginalSupervisor)
        OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
              "sipXsupervisor failed to init AlarmServer");
     }
-    
+
     // Open the two configuration files
     OsConfigDb domainConfiguration;
     OsPath domainConfigPath = SipXecsService::domainConfigPath();
