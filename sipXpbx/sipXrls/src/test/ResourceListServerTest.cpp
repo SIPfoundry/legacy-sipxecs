@@ -365,7 +365,6 @@ public:
                   0 == route.compareTo(myRoute))
                {
                   ret = true;
-                  break;
                }
             }
          }
