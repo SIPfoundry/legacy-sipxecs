@@ -82,12 +82,12 @@ postgresService() {
 configOdbcDrivers() {
     # Generate a global odbcinst.ini file.
     odbcinst -v -i -d -r <<EOF
-        # Included in the unixODBC package
-        [PostgreSQL]
-        Description = ODBC for PostgreSQL
-        Driver = ${LibDir}/libodbcpsql.so
-        Setup = ${LibDir}/libodbcpsqlS.so
-        FileUsage = 1
+# Included in the unixODBC package
+[PostgreSQL]
+Description = ODBC for PostgreSQL
+Driver = ${LibDir}/libodbcpsql.so
+Setup = ${LibDir}/libodbcpsqlS.so
+FileUsage = 1
 EOF
 }
 
