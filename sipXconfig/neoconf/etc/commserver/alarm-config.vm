@@ -13,7 +13,7 @@
       </log>
       <email enabled="${email}">
          <!-- Alarm notification emails will be sent from this address. -->
-         <email-notification-addr>postmaster@${hostName}</email-notification-addr>
+         <email-notification-addr>${fromEmailAddress}</email-notification-addr>
          <!-- Alarm notification emails will be sent to each contact in this list. -->
 #foreach ($address in ${contacts.addresses})
          <contact>${address}</contact>

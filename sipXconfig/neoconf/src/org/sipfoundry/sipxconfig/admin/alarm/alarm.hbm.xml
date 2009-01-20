@@ -10,6 +10,7 @@
       </generator>
     </id>
     <property name="emailNotificationEnabled" />
+    <property name="fromEmailAddress" />
     <component name="contacts" class="AlarmServerContacts">
       <list name="addresses" table="alarm_contacts">
         <key column="alarm_server_id" foreign-key="fk_alarm_server_contacts" />

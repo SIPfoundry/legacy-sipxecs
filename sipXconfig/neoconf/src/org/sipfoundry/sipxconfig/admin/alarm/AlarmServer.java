@@ -16,6 +16,8 @@ public class AlarmServer extends BeanWithId {
 
     private AlarmServerContacts m_contacts = new AlarmServerContacts();
 
+    private String m_fromEmailAddress;
+
     public boolean isEmailNotificationEnabled() {
         return m_emailNotificationEnabled;
     }
@@ -31,4 +33,13 @@ public class AlarmServer extends BeanWithId {
     public void setContacts(AlarmServerContacts contacts) {
         m_contacts = contacts;
     }
+
+    public void setFromEmailAddress(String fromEmailAddress) {
+        m_fromEmailAddress = fromEmailAddress;
+    }
+
+    public String getFromEmailAddress() {
+        return m_fromEmailAddress;
+    }
+
 }

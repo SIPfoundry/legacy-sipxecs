@@ -282,6 +282,7 @@
     <antcall target="remove-user-based-dialing"/>
     <antcall target="caller-alias-add-sip-uri"/>
     <antcall target="alarm-server"/>
+    <antcall target="add-alarm-from-email"/>
     <antcall target="location-fqdn"/>
     <antcall target="add-freeswitch-service"/>
     <antcall target="add-sipx-relay-service"/>
@@ -739,6 +740,10 @@
 
   <target name="alarm-server" unless="alarm-server">
 	<db-patch patch="alarm-server"/>
+  </target>
+
+  <target name="add-alarm-from-email" unless="add-alarm-from-email">
+	<db-patch patch="add-alarm-from-email"/>
   </target>
 
   <target name="location-fqdn" unless="location-fqdn">
