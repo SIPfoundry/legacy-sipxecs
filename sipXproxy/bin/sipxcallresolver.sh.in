@@ -78,6 +78,19 @@ postgresService() {
     fi
 }
 
+# This function configures the Postgresql ODBC drivers.
+configOdbcDrivers() {
+    # Generate a global odbcinst.ini file.
+    odbcinst -v -i -d -r <<EOF
+        # Included in the unixODBC package
+        [PostgreSQL]
+        Description = ODBC for PostgreSQL
+        Driver = ${LibDir}/libodbcpsql.so
+        Setup = ${LibDir}/libodbcpsqlS.so
+        FileUsage = 1
+EOF
+}
+
 # How to add a database patch:
 #
 # Add a file containing SQL statements in the sipXproxy/etc/database directory.
@@ -356,6 +369,7 @@ fixFileAccess()
 # but can be called manually and is harmless if called multiple times.
 onSetup() {
     assertRoot
+    configOdbcDrivers
     removeOldCronEntry
     fixFileAccess ${DbPatchLog}
     fixFileAccess ${CallResolverLog}
