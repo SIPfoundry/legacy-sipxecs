@@ -208,8 +208,6 @@ public class PreflightShell {
 
         if (System.getProperty("os.name").toLowerCase().contains("windows")) {
             String path = System.getProperty("ArpTable.dll.path", "");
-            // Use this alternate search path when running within Eclipse.
-        	//   String path = "lib/";
             System.loadLibrary(path + "ArpTable");
             PreflightShell userInterface = new PreflightShell();
         	userInterface.go(args);

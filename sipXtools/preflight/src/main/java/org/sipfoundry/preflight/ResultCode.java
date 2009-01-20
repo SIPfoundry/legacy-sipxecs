@@ -45,7 +45,7 @@ public enum ResultCode {
     FTP_ADDRESS_MALFORMED(155, "FTP Server address is malformed.", UUT), //
     FTP_TARGET_UNRESOLVED(156, "FTP server address could not be resolved.", UUT), //
     FTP_TARGET_UNREACHABLE(157, "FTP server is unreachable.", UUT), //
-    FTP_CLIENT_FAILURE(158, "FTP client encountered unrecoverable error.", TOOL), //
+    FTP_CLIENT_FAILURE(158, "FTP client unable to connect to server.", UUT), //
     FTP_GET_FAILED(159, "FTP get of test file failed.", UUT), //
     FTP_CONTENTS_FAILED(160, "FTP test file did not verify.", UUT), //
     HTTP_URL_MALFORMED(161, "HTTP URL is malformed.", UUT), //

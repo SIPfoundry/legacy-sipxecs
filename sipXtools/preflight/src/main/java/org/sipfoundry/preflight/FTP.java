@@ -14,6 +14,7 @@ import org.xbill.DNS.*;
 
 import org.sipfoundry.commons.dhcp.NetworkResources;
 import org.sipfoundry.commons.util.JournalService;
+import org.sipfoundry.commons.util.IPAddressUtil;
 
 import static org.sipfoundry.preflight.ResultCode.*;
 
@@ -24,54 +25,59 @@ import static org.sipfoundry.preflight.ResultCode.*;
  * @author Mardy Marshall
  */
 public class FTP {
-	private static final int bindPort = 0;
+    private static final int bindPort = 0;
     private static final String ftpUser = "PlcmSpIp";
     private static final String ftpPassword = "PlcmSpIp";
 
-    public ResultCode validate(int timeout, NetworkResources networkResources, JournalService journalService, InetAddress bindAddress) {
+    public ResultCode validate(int timeout, NetworkResources networkResources, JournalService journalService,
+            InetAddress bindAddress) {
         ResultCode results = NONE;
         InetAddress ftpServerAddress = null;
         String testFile = new String("00D01EFFFFFE");
-        String[] verificationStrings = {
-                "LIP-68XX configuration information",
-                "[VOIP]",
-                "outbound_proxy_server",
-                "[PROVISION]",
-                "decrypt_key"
-        };
+        String[] verificationStrings = { "LIP-68XX configuration information", "[VOIP]", "outbound_proxy_server", "[PROVISION]",
+                "decrypt_key" };
 
         if (networkResources.configServer == null) {
-            journalService.println("No FTP server provided, skipping test.");
+            journalService.println("No FTP server provided, skipping test.\n");
             return CONFIG_SERVER_MISSING;
         }
 
         journalService.println("Starting FTP server test.");
 
-        // Try to retrieve A RECORD for FTP server, checking each DNS server.
-        SimpleResolver resolver = null;
-        try {
-            resolver = new SimpleResolver();
-            resolver.setLocalAddress(bindAddress);
-            resolver.setTimeout(timeout);
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-
-        for (InetAddress dnsServer : networkResources.domainNameServers) {
-            journalService.println("Looking up FTP server address via DNS server: " + dnsServer.getCanonicalHostName());
-            String targetMessage = new String("  FTP server address \"" + networkResources.configServer + "\"");
-            resolver.setAddress(dnsServer);
-            Lookup aLookup = null;
+        if (IPAddressUtil.isLiteralIPAddress(networkResources.configServer)) {
             try {
-                aLookup = new Lookup(networkResources.configServer, Type.A);
-            } catch (TextParseException e) {
-                journalService.println("  is malformed.\n");
-                journalService.println(targetMessage);
-                return FTP_ADDRESS_MALFORMED;
+                ftpServerAddress = InetAddress.getByName(networkResources.configServer);
+            } catch (UnknownHostException e) {
+                // Should never get here.
+                e.printStackTrace();
             }
-            aLookup.setResolver(resolver);
-            Record[] aRecords = aLookup.run();
-            switch (aLookup.getResult()) {
+            journalService.println("Using FTP server literal address: " + networkResources.configServer);
+        } else {
+            // Try to retrieve A RECORD for FTP server, checking each DNS server.
+            SimpleResolver resolver = null;
+            try {
+                resolver = new SimpleResolver();
+                resolver.setLocalAddress(bindAddress);
+                resolver.setTimeout(timeout);
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            }
+
+            for (InetAddress dnsServer : networkResources.domainNameServers) {
+                journalService.println("Looking up FTP server address via DNS server: " + dnsServer.getCanonicalHostName());
+                String targetMessage = new String("  FTP server address \"" + networkResources.configServer + "\"");
+                resolver.setAddress(dnsServer);
+                Lookup aLookup = null;
+                try {
+                    aLookup = new Lookup(networkResources.configServer, Type.A);
+                } catch (TextParseException e) {
+                    journalService.println("  is malformed.\n");
+                    journalService.println(targetMessage);
+                    return FTP_ADDRESS_MALFORMED;
+                }
+                aLookup.setResolver(resolver);
+                Record[] aRecords = aLookup.run();
+                switch (aLookup.getResult()) {
                 case Lookup.SUCCESSFUL:
                     if (aRecords != null) {
                         InetAddress targetAddress = ((ARecord) aRecords[0]).getAddress();
@@ -113,11 +119,12 @@ public class FTP {
                     journalService.println(targetMessage);
                     results = FTP_TARGET_UNRESOLVED;
                     break;
+                }
             }
         }
 
         if ((ftpServerAddress == null) || (results == MULTIPLE_CONFIG_TARGETS)) {
-            journalService.println("Cannot recover from previous errors, aborting FTP test.");
+            journalService.println("Cannot recover from previous errors, aborting FTP test.\n");
             return results;
         }
 
@@ -136,7 +143,7 @@ public class FTP {
             reply = ftp.getReplyCode();
             if (!FTPReply.isPositiveCompletion(reply)) {
                 ftp.disconnect();
-                journalService.println("FTP client failure: " + reply);
+                journalService.println("FTP client failure: " + reply + "\n");
                 return FTP_CLIENT_FAILURE;
             }
         } catch (IOException e) {
@@ -147,14 +154,14 @@ public class FTP {
                     // Ignore.
                 }
             }
-            journalService.println("FTP client failure: " + e.getMessage());
+            journalService.println("FTP client failure: " + e.getMessage() + "\n");
             return FTP_CLIENT_FAILURE;
         }
 
         try {
             if (!ftp.login(ftpUser, ftpPassword)) {
                 ftp.logout();
-                journalService.println("FTP client unable to log in.");
+                journalService.println("FTP client unable to log in.\n");
                 return FTP_GET_FAILED;
             }
 
@@ -169,12 +176,12 @@ public class FTP {
             int reply = ftp.getReplyCode();
             if (!FTPReply.isPositiveCompletion(reply)) {
                 ftp.disconnect();
-                journalService.println("FTP get failure: " + reply);
+                journalService.println("FTP get failure: " + reply + "\n");
                 return FTP_GET_FAILED;
             }
 
             ftp.logout();
-            
+
             String testFileContents = output.toString();
             boolean verified = true;
             for (String verificationString : verificationStrings) {
@@ -190,10 +197,10 @@ public class FTP {
                 results = FTP_CONTENTS_FAILED;
             }
         } catch (FTPConnectionClosedException e) {
-            journalService.println("FTP server closed connection prematurely.");
+            journalService.println("FTP server closed connection prematurely.\n");
             return FTP_GET_FAILED;
         } catch (IOException e) {
-            journalService.println("FTP client failure. " + e.getMessage());
+            journalService.println("FTP client failure. " + e.getMessage() + "\n");
             return FTP_CLIENT_FAILURE;
         } finally {
             if (ftp.isConnected()) {

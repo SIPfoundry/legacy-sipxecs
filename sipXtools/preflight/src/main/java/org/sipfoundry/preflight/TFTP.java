@@ -13,6 +13,7 @@ import org.xbill.DNS.*;
 
 import org.sipfoundry.commons.dhcp.NetworkResources;
 import org.sipfoundry.commons.util.JournalService;
+import org.sipfoundry.commons.util.IPAddressUtil;
 
 import static org.sipfoundry.preflight.ResultCode.*;
 
@@ -23,55 +24,60 @@ import static org.sipfoundry.preflight.ResultCode.*;
  * @author Mardy Marshall
  */
 public class TFTP {
-	private static final int bindPort = 0;
-	
-    public ResultCode validate(int timeout, NetworkResources networkResources, JournalService journalService, InetAddress bindAddress) {
+    private static final int bindPort = 0;
+
+    public ResultCode validate(int timeout, NetworkResources networkResources, JournalService journalService,
+            InetAddress bindAddress) {
         ResultCode results = NONE;
         InetAddress tftpServerAddress = null;
         String testFile = new String("00D01EFFFFFE");
-        String[] verificationStrings = {
-                "LIP-68XX configuration information",
-                "[VOIP]",
-                "outbound_proxy_server",
-                "[PROVISION]",
-                "decrypt_key"
-        };
+        String[] verificationStrings = { "LIP-68XX configuration information", "[VOIP]", "outbound_proxy_server", "[PROVISION]",
+                "decrypt_key" };
 
         if (networkResources.configServer == null) {
-            journalService.println("No TFTP server provided, skipping test.");
+            journalService.println("No TFTP server provided, skipping test.\n");
             return CONFIG_SERVER_MISSING;
         }
-        
+
         journalService.println("Starting TFTP server test.");
-            
+
         TFTPClient tftp = new TFTPClient();
 
         tftp.setDefaultTimeout(timeout * 1000);
 
-        // Try to retrieve A RECORD for TFTP server, checking each DNS server.
-        SimpleResolver resolver = null;
-        try {
-            resolver = new SimpleResolver();
-            resolver.setTimeout(timeout);
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-
-        for (InetAddress dnsServer : networkResources.domainNameServers) {
-            journalService.println("Looking up TFTP server address via DNS server: " + dnsServer.getCanonicalHostName());
-            String targetMessage = new String("  TFTP server address \"" + networkResources.configServer + "\"");
-            resolver.setAddress(dnsServer);
-            Lookup aLookup = null;
+        if (IPAddressUtil.isLiteralIPAddress(networkResources.configServer)) {
             try {
-                aLookup = new Lookup(networkResources.configServer, Type.A);
-            } catch (TextParseException e) {
-                journalService.println("  is malformed.\n");
-                journalService.println(targetMessage);
-                return TFTP_ADDRESS_MALFORMED;
+                tftpServerAddress = InetAddress.getByName(networkResources.configServer);
+            } catch (UnknownHostException e) {
+                // Should never get here.
+                e.printStackTrace();
             }
-            aLookup.setResolver(resolver);
-            Record[] aRecords = aLookup.run();
-            switch (aLookup.getResult()) {
+            journalService.println("Using TFTP server literal address: " + networkResources.configServer);
+        } else {
+            // Try to retrieve A RECORD for TFTP server, checking each DNS server.
+            SimpleResolver resolver = null;
+            try {
+                resolver = new SimpleResolver();
+                resolver.setTimeout(timeout);
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            }
+
+            for (InetAddress dnsServer : networkResources.domainNameServers) {
+                journalService.println("Looking up TFTP server address via DNS server: " + dnsServer.getCanonicalHostName());
+                String targetMessage = new String("  TFTP server address \"" + networkResources.configServer + "\"");
+                resolver.setAddress(dnsServer);
+                Lookup aLookup = null;
+                try {
+                    aLookup = new Lookup(networkResources.configServer, Type.A);
+                } catch (TextParseException e) {
+                    journalService.println("  is malformed.\n");
+                    journalService.println(targetMessage);
+                    return TFTP_ADDRESS_MALFORMED;
+                }
+                aLookup.setResolver(resolver);
+                Record[] aRecords = aLookup.run();
+                switch (aLookup.getResult()) {
                 case Lookup.SUCCESSFUL:
                     if (aRecords != null) {
                         InetAddress targetAddress = ((ARecord) aRecords[0]).getAddress();
@@ -112,11 +118,12 @@ public class TFTP {
                     journalService.println(targetMessage);
                     results = TFTP_TARGET_UNRESOLVED;
                     break;
+                }
             }
         }
-        
+
         if ((tftpServerAddress == null) || (results == MULTIPLE_CONFIG_TARGETS)) {
-            journalService.println("Cannot recover from previous errors, aborting TFTP test.");
+            journalService.println("Cannot recover from previous errors, aborting TFTP test.\n");
             return results;
         }
 
@@ -125,7 +132,7 @@ public class TFTP {
         try {
             tftp.open();
         } catch (SocketException e) {
-            journalService.println("TFTP client failure. " + e.getMessage());
+            journalService.println("TFTP client failure. " + e.getMessage() + "\n");
             return TFTP_CLIENT_FAILURE;
         }
 
