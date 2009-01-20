@@ -128,16 +128,6 @@ Summary: Configures/enables MRTG monitoring for %{name}
 %description mrtg
 * installs and configures sipXconfig integration for MRTG
 
-%package conference
-Requires: sipxconfig
-Requires: sipxcommserverlib
-Requires: sipx-freeswitch
-Group: Productivity/Telephony/SIP/Servers
-Vendor: SIPfoundry
-Summary: Provides conference bridge server for %{name}
-
-%description conference
-* installs and configures freeswitch conference bridge into sipXecs
 
 %package agent
 Requires: sipxcommserverlib
@@ -187,7 +177,7 @@ run on the same machine it's default setup it to point to localhost.
 
 %build
 
-%configure --enable-rpmbuild --enable-reports --enable-agent --enable-conference --enable-mrtg @CONFIGURE_OPTIONS@
+%configure --enable-rpmbuild --enable-reports --enable-agent --enable-mrtg @CONFIGURE_OPTIONS@
 cp config.log %name.configlog
 make
 
@@ -454,15 +444,6 @@ sipx-snmp-init > /dev/null
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/sipxdata/mrtg
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/sipxdata/mrtg/thresh
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipXmrtg-process.xml
-
-%files conference
-%defattr(644,@SIPXPBXUSER@,@SIPXPBXUSER@,755)
-%attr(644,root,root) %{_datadir}/sipxecs/process.d/freeswitch-process.xml
-%attr(755,root,root) %{_bindir}/freeswitch.sh
-%attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/freeswitch_setup.sh
-
-%post conference
-freeswitch.sh --configtest
 
 %preun mrtg
 if [ "$1" = "0" ] ; then

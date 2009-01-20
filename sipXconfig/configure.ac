@@ -47,10 +47,6 @@ CHECK_GEM([0.8.11])
 CHECK_RAKE([0.7])
 # CHECK_RPM_DEBUG
 
-AC_ARG_ENABLE(conference,
-  AC_HELP_STRING([--enable-conference], [Build optional FreeSwitch conferencing server]),
-  enable_conference=yes,)
-AM_CONDITIONAL(CONFERENCE, test x$enable_conference = xyes)
 
 AC_ARG_ENABLE(reports,
   AC_HELP_STRING([--enable-reports], [Build optional call distribution reporting cron]),
@@ -108,8 +104,6 @@ AC_CONFIG_FILES([
     report/etc/Makefile
     report/bin/Makefile
     report/src/Makefile
-    conference/Makefile
-    conference/bin/Makefile
     mrtg/Makefile
     mrtg/bin/Makefile
     mrtg/etc/Makefile

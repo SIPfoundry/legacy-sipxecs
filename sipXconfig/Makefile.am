@@ -22,8 +22,7 @@ RPMS = \
 	$(DEST_RPM)/@PACKAGE@-tftp-$(SIPX_VERSION).@RPM_TARGET_ARCH@.rpm \
 	$(DEST_RPM)/@PACKAGE@-ftp-$(SIPX_VERSION).@RPM_TARGET_ARCH@.rpm \
 	$(DEST_RPM)/@PACKAGE@-agent-$(SIPX_VERSION).@RPM_TARGET_ARCH@.rpm \
-	$(DEST_RPM)/@PACKAGE@-report-$(SIPX_VERSION).@RPM_TARGET_ARCH@.rpm \
-        $(DEST_RPM)/@PACKAGE@-conference-$(SIPX_VERSION).@RPM_TARGET_ARCH@.rpm
+	$(DEST_RPM)/@PACKAGE@-report-$(SIPX_VERSION).@RPM_TARGET_ARCH@.rpm 
 
 if REPORTS
 REPORTS_OPT = report
@@ -31,10 +30,6 @@ endif
 
 if AGENT
 AGENT_OPT = agent
-endif
-
-if CONFERENCE
-CONFERENCE_OPT = conference
 endif
 
 if MRTG
@@ -50,7 +45,6 @@ SUBDIRS = \
 	plugins \
 	$(REPORTS_OPT)\
 	$(AGENT_OPT)\
-	$(CONFERENCE_OPT) \
 	$(MRTG_OPT)
 
 install-exec-hook :
@@ -82,7 +76,6 @@ EXTRA_DIST = \
     meta \
     agent \
     report \
-    conference \
     mrtg \
     lib
 

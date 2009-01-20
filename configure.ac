@@ -30,6 +30,7 @@ AC_ARG_ENABLE(server,
 
 if test x$server = xyes
 then
+  AC_CONFIG_SUBDIRS(sipXfreeSwitch)
   AC_CONFIG_SUBDIRS(sipXsupervisor)
   AC_CONFIG_SUBDIRS(sipXbridge)
   AC_CONFIG_SUBDIRS(sipXcommserverLib)
