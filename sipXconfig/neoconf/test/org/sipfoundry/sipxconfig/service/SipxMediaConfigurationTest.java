@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.service;
 
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.setting.Setting;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
@@ -24,6 +25,8 @@ public class SipxMediaConfigurationTest extends SipxServiceTestBase {
         mediaService.setSettings(TestHelper.loadSettings("sipxvxml/mediaserver.xml"));
         initCommonAttributes(mediaService);
         mediaService.setVoicemailHttpPort(8090);
+        Setting logSetting = mediaService.getSettings().getSetting("mediaserver-config/SIPX_MEDIA_SERVER_LOG_LEVEL");
+        logSetting.setValue("CRIT");
 
         SipxServiceManager sipxServiceManager = createMock(SipxServiceManager.class);
         sipxServiceManager.getServiceByBeanId(SipxMediaService.BEAN_ID);

@@ -11,7 +11,7 @@ mediaserver.bindip                      VXIString       192.168.1.2
 
 client.log.dir                          VXIString       $(VXILOG)
 client.log.filename                     VXIString       $(VXILOG)/vxmlengine.log
-mediaserver.log.level                   VXIString       NOTICE
+mediaserver.log.level                   VXIString       CRIT
 
 client.log.logToStdout                  VXIInteger      0
 

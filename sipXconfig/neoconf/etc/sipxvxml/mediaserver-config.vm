@@ -65,7 +65,7 @@ mediaserver.bindip                      VXIString       ${location.address}
 ### Logging
 client.log.dir                          VXIString       $(VXILOG)
 client.log.filename                     VXIString       $(VXILOG)/vxmlengine.log
-mediaserver.log.level                   VXIString       NOTICE
+mediaserver.log.level                   VXIString       $!settings.getSetting('SIPX_MEDIA_SERVER_LOG_LEVEL').Value
 
 ## The default is to log to standard out as well as to a file (set to 1)
 ## set to 0 to disable logging to standard out

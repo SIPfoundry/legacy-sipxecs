@@ -36,5 +36,11 @@
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>
+    <setting name="VOICEMAIL_AGE_LIMIT">
+      <type>
+        <integer />
+      </type>
+      <value>7</value>
+    </setting>
   </group>
 </model>

@@ -14,7 +14,7 @@
             DEBUG, INFO, NOTICE, WARNING, ERR, CRIT, ALERT, EMERG
             Tip: When trying to debug a problem, setting the level to DEBUG will be most helpful.
         -->
-        <voicemail-cgi-log-level>NOTICE</voicemail-cgi-log-level>
+        <voicemail-cgi-log-level>$!settings.getSetting('SIPX_MEDIA_SERVER_LOG_LEVEL').Value</voicemail-cgi-log-level>
 
         <!-- Default voicemail message subject -->
         <default-message-subject>Voicemail Message</default-message-subject>

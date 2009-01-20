@@ -307,6 +307,7 @@
     <property name="configurations">
       <list>
         <ref bean="sipxMediaConfiguration" />
+        <ref bean="voicemailXml" />
         <ref bean="voicemailConfiguration" />
       </list>
     </property>
@@ -324,10 +325,16 @@
     <property name="name" value="mediaserver-config" />
   </bean>
 
-  <bean id="voicemailConfiguration" class="org.sipfoundry.sipxconfig.service.VoicemailConfiguration" scope="prototype"
+  <bean id="voicemailXml" class="org.sipfoundry.sipxconfig.service.VoicemailXml" scope="prototype"
     parent="serviceConfigurationFile">
     <property name="template" value="sipxvxml/voicemail.xml.vm" />
     <property name="name" value="voicemail.xml" />
+  </bean>
+  
+  <bean id="voicemailConfiguration" class="org.sipfoundry.sipxconfig.service.VoicemailConfiguration" scope="prototype"
+    parent="serviceConfigurationFile">
+    <property name="template" value="sipxvxml/voicemail-config.vm" />
+    <property name="name" value="voicemail-config" />
   </bean>
 
   <bean id="sipxPageService" class="org.sipfoundry.sipxconfig.service.SipxPageService" scope="prototype" parent="sipxService">
