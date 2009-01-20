@@ -39,6 +39,8 @@ The assigned facility codes are:
       ~~id~media -> the media server
       ~~id~sipXrls -> the RLS
       ~~id~bridge -> sipXbridge
+      ~~id~registrar -> sipXregistry (for use by redirectors that need to
+			send SUBSCRIBEs)
 
 *** mh => The music-on-hold source.
 

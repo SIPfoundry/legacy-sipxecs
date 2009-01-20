@@ -15,7 +15,7 @@ public class SpecialUser extends BeanWithId {
 
     public enum SpecialUserType {
         PARK_SERVER("~~id~park"), MEDIA_SERVER("~~id~media"), ACD_SERVER("~~id~acd"), 
-        CONFIG_SERVER("~~id~config"), RLS_SERVER("~~id~sipXrls");
+        CONFIG_SERVER("~~id~config"), RLS_SERVER("~~id~sipXrls"), REGISTRAR_SERVER("~~id~registrar");
 
         private String m_userName;
 

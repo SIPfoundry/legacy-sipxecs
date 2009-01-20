@@ -59,7 +59,7 @@ public class PermissionsTest extends TestCase {
         permissions.setCallGroupContext(callGroupContext);
 
         List<Map<String,String>> items = permissions.generate();
-        assertEquals(25, items.size());
+        assertEquals(30, items.size());
         // 5 permissions per special user
         
         assertEquals("sip:~~id~park@host.company.com",  items.get(0).get("identity"));
@@ -71,7 +71,9 @@ public class PermissionsTest extends TestCase {
         assertEquals("sip:~~id~config@host.company.com", items.get(15).get("identity"));
         assertEquals("sip:~~id~config@host.company.com", items.get(19).get("identity"));
         assertEquals("sip:~~id~sipXrls@host.company.com", items.get(20).get("identity"));
-        assertEquals("sip:~~id~sipXrls@host.company.com", items.get(24).get("identity")); 
+        assertEquals("sip:~~id~sipXrls@host.company.com", items.get(24).get("identity"));
+        assertEquals("sip:~~id~registrar@host.company.com", items.get(25).get("identity"));
+        assertEquals("sip:~~id~registrar@host.company.com", items.get(29).get("identity"));
         verify(coreContext, callGroupContext);
     }
 
@@ -111,8 +113,8 @@ public class PermissionsTest extends TestCase {
 
         List<Map<String,String>> items = permissions.generate();
 
-        // 5 permissions per special user - 5 special users == 25
-        int start = 25;
+        // 5 permissions per special user - 6 special users == 30
+        int start = 30;
         
         assertEquals(start + 10, items.size());
         

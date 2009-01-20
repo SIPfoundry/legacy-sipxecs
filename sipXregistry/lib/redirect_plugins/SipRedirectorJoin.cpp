@@ -21,9 +21,11 @@
 #include "net/NetMd5Codec.h"
 #include "net/Url.h"
 #include "net/CallId.h"
+#include "net/SipDialogEvent.h"
+#include "net/SipLine.h"
+#include "net/SipLineMgr.h"
 #include "registry/SipRedirectServer.h"
 #include "net/SipMessage.h"
-#include "net/SipDialogEvent.h"
 
 // DEFINES
 
@@ -61,12 +63,6 @@ const UtlContainableType SipRedirectorPrivateStorageJoin::TYPE =
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-// Function to get a boolean configuration setting based on the Y/N value of
-// a configuration parameter.
-static UtlBoolean getYNconfig(OsConfigDb& configDb,
-                              const char* parameterName,
-                              UtlBoolean defaultValue);
-
 // Static factory function.
 extern "C" RedirectPlugin* getRedirectPlugin(const UtlString& instanceName)
 {
@@ -101,7 +97,7 @@ void SipRedirectorJoin::readConfig(OsConfigDb& configDb)
    // Defaults are set to match the previous behavior of the code.
    
    // One-second subscriptions.
-   mOneSecondSubscription = getYNconfig(configDb, CONFIG_SETTING_1_SEC, TRUE);
+   mOneSecondSubscription = configDb.getBoolean(CONFIG_SETTING_1_SEC, TRUE);
    OsSysLog::add(FAC_SIP, PRI_INFO,
                  "%s::readConfig mOneSecondSubscription = %d",
                  mLogName.data(), mOneSecondSubscription);
@@ -133,7 +129,7 @@ void SipRedirectorJoin::readConfig(OsConfigDb& configDb)
    }
 
    // Get the wait time for NOTIFYs in response to our SUBSCRIBEs.
-   // Set the default value, to be overridden if the user specifies a valud
+   // Set the default value, to be overridden if the user specifies a valid
    // value.
    mWaitSecs = DEFAULT_WAIT_TIME_SECS;
    mWaitUSecs = DEFAULT_WAIT_TIME_USECS;
@@ -199,8 +195,16 @@ SipRedirectorJoin::initialize(OsConfigDb& configDb,
       UtlString bindIp;
       if (configDb.get(CONFIG_SETTING_BIND_IP, bindIp) != OS_SUCCESS ||
             !OsSocket::isIp4Address(bindIp))
+      {
          bindIp = "0.0.0.0";
-      
+      }
+
+      // Authentication Realm Name
+      UtlString realm;
+      configDb.get("SIP_REGISTRAR_AUTHENTICATE_REALM", realm);
+      // Get SipLineMgr containing the credentials for REGISTRAR_ID_TOKEN.
+      SipLineMgr* lineMgr = addCredentials(mDomain, realm);
+
       // Create a SIP user agent to generate SUBSCRIBEs and receive NOTIFYs,
       // and save a pointer to it.
       // Having a separate user agent ensures that the NOTIFYs are not
@@ -225,7 +229,7 @@ SipRedirectorJoin::initialize(OsConfigDb& configDb,
          NULL, // natPingUrl
          0, // natPingFrequency
          "PING", // natPingMethod
-         NULL, // lineMgr
+         lineMgr, // lineMgr
          SIP_DEFAULT_RTT, // sipFirstResendTimeout
          TRUE, // defaultToUaTransactions
          -1, // readBufferSize
@@ -944,44 +948,100 @@ const UtlString& SipRedirectorJoin::name( void ) const
    return mLogName;
 }
 
-// Function to get a boolean configuration setting based on the Y/N value of
-// a configuration parameter.
-static UtlBoolean getYNconfig(OsConfigDb& configDb,
-                              const char* parameterName,
-                              UtlBoolean defaultValue)
-{
-   // Start with the default value.
-   UtlBoolean value = defaultValue;
-   UtlString temp;
-   // If we can get the parameter from the configDb, and if its value is
-   // not null...
-   if (configDb.get(parameterName, temp) == OS_SUCCESS &&
-       !temp.isNull())
-   {
-      // Examine the first character.
-      switch (temp(0))
-      {
-      case 'y':
-      case 'Y':
-      case 'T':
-      case 't':
-      case '1':
-         // If the value starts with Y or 1, set the result to TRUE.
-         value = TRUE;
-         break;
-      case 'n':
-      case 'N':
-      case 'F':
-      case 'f':
-      case '0':
-         // If the value starts with N or 0, set the result to FALSE.
-         value = FALSE;
-         break;
-      default:
-         // Ignore all other values.
-         break;
-      } 
-   }
-   return value;
-}
 
+// Get and add the credentials for sipXregistrar
+SipLineMgr* 
+SipRedirectorJoin::addCredentials (UtlString domain, UtlString realm)
+{
+   SipLine* line = NULL;
+   SipLineMgr* lineMgr = NULL;
+   UtlString user;
+
+   CredentialDB* credentialDb;
+   if ((credentialDb = CredentialDB::getInstance()))
+   {
+      Url identity;
+
+      identity.setUserId(REGISTRAR_ID_TOKEN);
+      identity.setHostAddress(domain);
+      UtlString ha1_authenticator;
+      UtlString authtype;
+      bool bSuccess = false;
+      
+      if (credentialDb->getCredential(identity, realm, user, ha1_authenticator, authtype))
+      {
+         if ((line = new SipLine( identity // user entered url
+                                 ,identity // identity url
+                                 ,user     // user
+                                 ,TRUE     // visible
+                                 ,SipLine::LINE_STATE_PROVISIONED
+                                 ,TRUE     // auto enable
+                                 ,FALSE    // use call handling
+                                 )))
+         {
+            if ((lineMgr = new SipLineMgr()))
+            {
+               if (lineMgr->addLine(*line))
+               {
+                  if (lineMgr->addCredentialForLine( identity, realm, user, ha1_authenticator
+                                                    ,HTTP_DIGEST_AUTHENTICATION
+                                                    )
+                      )
+                  {
+                     lineMgr->setDefaultOutboundLine(identity);
+                     bSuccess = true;
+
+                     OsSysLog::add(FAC_SIP, PRI_INFO,
+                                   "Added identity '%s': user='%s' realm='%s'"
+                                   ,identity.toString().data(), user.data(), realm.data()
+                                   );
+                  }
+                  else
+                  {
+                     OsSysLog::add(FAC_SIP, PRI_ERR,
+                                   "Error adding identity '%s': user='%s' realm='%s'\n"
+                                   "Call Join feature will not work!",
+                                   identity.toString().data(), user.data(), realm.data()
+                                   );
+                  }
+               }
+               else
+               {
+                  OsSysLog::add(FAC_SIP, PRI_ERR, "addLine failed. Call Join feature will not work!" );
+               }
+            }
+            else
+            {
+               OsSysLog::add(FAC_SIP, PRI_ERR,
+                             "Constructing SipLineMgr failed. Call Join feature will not work!" );
+            }
+         }
+         else
+         {
+            OsSysLog::add(FAC_SIP, PRI_ERR,
+                          "Constructing SipLine failed. Call Join feature will not work!" );
+         }
+      }
+      else
+      {
+         OsSysLog::add(FAC_SIP, PRI_ERR,
+                       "No credential found for '%s' in realm '%s'\n"
+                       "Call Join feature will not work!"
+                       ,identity.toString().data(), domain.data(), realm.data()
+                       );
+      }
+      
+      if( !bSuccess )
+      {
+         delete line;
+         line = NULL;
+         
+         delete lineMgr;
+         lineMgr = NULL;         
+      }
+   }
+
+   credentialDb->releaseInstance();
+
+   return lineMgr;
+}

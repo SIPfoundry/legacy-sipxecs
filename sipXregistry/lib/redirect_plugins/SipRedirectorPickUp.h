@@ -176,6 +176,8 @@ class SipRedirectorPickUp : public RedirectPlugin
       SipRedirectorPrivateStorage*& privateStorage,
       const char* subscribeUser,
       State stateFilter);
+   
+   SipLineMgr* addCredentials(UtlString domain, UtlString realm);
 };
 
 /**

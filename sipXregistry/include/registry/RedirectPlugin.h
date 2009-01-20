@@ -23,6 +23,8 @@
 #include "utl/UtlContainableAtomic.h"
 
 // DEFINES
+#define REGISTRAR_ID_TOKEN "~~id~registrar"
+
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
