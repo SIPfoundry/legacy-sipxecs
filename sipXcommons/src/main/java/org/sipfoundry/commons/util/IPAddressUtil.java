@@ -5,6 +5,7 @@
  */
 package org.sipfoundry.commons.util;
 
+
 /**
  * @author Mardy Marshall
  *
@@ -20,13 +21,18 @@ public class IPAddressUtil {
 	 *           True if literal IPv4 address, False otherwise.
 	 */
 	public static boolean isLiteralIPAddress(String address) {
-		String[] octets= address.split(".", -1);
+		String[] octets= address.split("\\.", -1);
 		if (octets.length != 4) {
 			return false;
 		}
 		
 		for (int i = 0; i < 4; i++) {
-			int octetValue = Integer.parseInt(octets[i]);
+			int octetValue = -1;
+			try {
+				octetValue = Integer.parseInt(octets[i]);
+			} catch (NumberFormatException e) {
+				return false;
+			}
 			if (octetValue < 0 || octetValue > 0xff) {
 				return false;
 			}
@@ -35,4 +41,5 @@ public class IPAddressUtil {
 		// All checks passed.
 		return true;
 	}
+	
 }
