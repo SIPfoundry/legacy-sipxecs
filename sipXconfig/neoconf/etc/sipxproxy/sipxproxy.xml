@@ -48,5 +48,18 @@
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>
+    <setting name="SIPX_PROXY_DIALOG_SUBSCRIBE_AUTHENTICATION" advanced="yes">
+      <type>
+        <boolean>
+          <true>
+            <value>dialog</value>
+          </true>
+          <false>
+            <value />
+          </false>
+        </boolean>
+      </type>
+      <value>dialog</value>
+    </setting>
   </group>
 </model>

@@ -36,6 +36,7 @@ public class SipxProxyConfigurationTest extends SipxServiceTestBase {
         proxySettings.getSetting("SIPX_PROXY_DEFAULT_EXPIRES").setValue("35");
         proxySettings.getSetting("SIPX_PROXY_DEFAULT_SERIAL_EXPIRES").setValue("170");
         proxySettings.getSetting("SIPX_PROXY_LOG_LEVEL").setValue("CRIT");
+        proxySettings.getSetting("SIPX_PROXY_DIALOG_SUBSCRIBE_AUTHENTICATION").setValue("dialog");
 
         proxyService.setSecureSipPort("5061");
 
