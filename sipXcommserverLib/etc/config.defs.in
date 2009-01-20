@@ -57,9 +57,6 @@ CONFIG_SERVER_AGENT_ADDR=${MY_IP_ADDR}
 #Removed this from sipXconfig, still needs to be removed from sipxconfig-agent.in
 CONFIG_SERVER_AGENT_PORT=8120
 
-# by the voicemail_clean.sh script when it is run.
-VOICEMAIL_AGE_LIMIT=7
-
 SIPX_CONFDIR=@SIPX_CONFDIR@
 
 #needs to be removed in sipXacd/bin/sipxacd.sh.in

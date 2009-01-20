@@ -5,15 +5,10 @@
 # way before it was deleted last time, only the last delete date will 
 # be used in determining the age of this message.
  
-# Use the config settings from the $CONFIG_DEFS file
-CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
-[ ! -f "${CONFIG_DEFS}" -o -z "${CONFIG_DEFS}" ] && die "Could not find file: ${CONFIG_DEFS}"
- 
-# Source $CONFIG_DEFS to set $SIPXCHANGE_DOMAIN_NAME for use below.
-source $CONFIG_DEFS
- 
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+
 MAILSTORE_DIR=@SIPX_VXMLDATADIR@/mailstore
-DAYS=${VOICEMAIL_AGE_LIMIT}
+DAYS=`sipx_config_value @SIPX_CONFDIR@/voicemail-config VOICEMAIL_AGE_LIMIT`
 
 # Override the DAYS variable with optional command line argument
 if [ "$1" == "--days" ]; then
@@ -23,32 +18,42 @@ if [ "$1" == "--days" ]; then
     fi
   fi
 fi
- 
+
+CleanList=`mktemp -t voicemail_clean.XXXXXX`
+trap "rm $TMP* 2>/dev/null" 0
+
 if [ -d ${MAILSTORE_DIR} ]
 then 
     for deleted_dir in `find ${MAILSTORE_DIR} -type d -name deleted -maxdepth 2`
     do
-        if cd "${deleted_dir}"
+        if cd "${deleted_dir}" > /dev/null 2>&1
         then
             # Find all voice messages that are more than $DAYS old.  Base the test
             # on the last modified date for the voice message "envelope" file.        
-            count=0
+            cat /dev/null > ${CleanList}
             for name_prefix in `find . -mtime +${DAYS} -name "*-*.xml" | cut -d - -f 1`
             do
                 # Remove all files with a .sta, .wav or .xml extension that have the
                 # same filename prefix as the old voice message envelope.
-                rm -f ${name_prefix}-*.{sta,wav,xml}
-                let count++
+                for expired in ${name_prefix}-*.{sta,wav,xml} 
+                do
+                  test -f $expired && echo $expired >> ${CleanList}
+                done
             done
         
-            if [ $count -gt 0 ]
+            if [ -s ${CleanList} ]
             then
                 # Now that we've deleted messages, the summary.xml file is no longer
                 # accurate.  Delete it so that it gets recreated next time it is accessed.
-                rm -f summary.xml
+                test -f summary.xml && echo summary.xml >> ${CleanList}
+                rm -f `cat ${CleanList}`
             fi
         else
             echo "failed to cd to '${deleted_dir}'" 1>&2
         fi
     done
+ 
+else
+    echo "Mailstore '${MAILSTORE_DIR}' not found" 1>&2
+    exit 1
 fi
