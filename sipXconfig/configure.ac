@@ -117,6 +117,7 @@ AC_CONFIG_FILES([
     plugins/linksys/Makefile
     plugins/mitel/Makefile
     plugins/nortel/Makefile
+    plugins/nortel12x0/Makefile
     plugins/counterpath/Makefile
     plugins/cmcprov/Makefile
     plugins/polycom/Makefile

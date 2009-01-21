@@ -295,6 +295,8 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/nattraversal/*
 %dir %{sipxpbxconf}/nortel
 %config(noreplace) %{sipxpbxconf}/nortel/*
+%dir %{sipxpbxconf}/nortel12x0
+%config(noreplace) %{sipxpbxconf}/nortel12x0/*
 %dir %{sipxpbxconf}/nt1535
 %config(noreplace) %{sipxpbxconf}/nt1535/*
 %config(noreplace) %{sipxpbxconf}/sipxbridge/*

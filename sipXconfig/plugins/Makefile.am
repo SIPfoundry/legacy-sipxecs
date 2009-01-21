@@ -8,6 +8,7 @@ SUBDIRS = \
 	linksys \
 	mitel \
         nortel \
+        nortel12x0 \
         counterpath \
         cmcprov \
         polycom

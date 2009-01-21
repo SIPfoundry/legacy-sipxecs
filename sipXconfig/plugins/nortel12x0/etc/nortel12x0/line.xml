@@ -1,0 +1,225 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+ "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd" [
+ <!ENTITY types SYSTEM "types.xml">
+ ]>
+<model>
+ &types;
+ <group name="registrationAndProxy">
+   <label>Registration</label>
+
+   <setting name="authname">
+     <label>User ID</label>
+     <type>
+       <string />
+     </type>
+     <value></value>
+     <description>User ID to use for authentication &lt;br/&gt; ( &lt; authname &gt; ) &lt;br/&gt;</description>
+   </setting>
+
+   <setting name="authPassword">
+     <label>Password</label>
+     <type>
+       <string password="yes" />
+     </type>
+     <value></value>
+     <description>Password to use for authentication &lt;br/&gt; ( &lt; authPassword &gt; ) &lt;br/&gt;</description>
+   </setting>
+
+   <setting name="authId">
+     <label>Auth ID</label>
+     <type>
+       <string />
+     </type>
+     <value></value>
+     <description>
+       Auth ID for authentication if it differs from User ID 
+       &lt;br/&gt; ( &lt; authId &gt; ) &lt;br/&gt;
+     </description>
+   </setting>
+
+   <setting name="displayname">
+     <label>Display Name</label>
+     <type>
+       <string maxLen="22" />
+     </type>
+     <value />
+     <description>
+       Name to be used as Caller ID in SIP signaling &lt;br/&gt; ( &lt; displayname &gt; ) &lt;br/&gt; &lt;br/&gt;
+       &lt;br/&gt;
+     </description>
+   </setting>
+
+   <setting name="registrarAuto">
+     <label>Auto Find Registrar?</label>
+     <type refid="on-off" />
+     <value>FALSE</value>
+     <description>
+       If checked, the SIP registrar will be discovered automatically in the network.
+	In such case the registrar address (defined below) if configured will be ignored
+       &lt;br/&gt; ( &lt; registrar &gt; ) &lt;br/&gt;
+     </description>
+   </setting>
+
+   <setting name="registrarAddress">
+     <label>Registrar Address</label>
+     <type>
+       <ipaddr />
+     </type>
+     <value></value>
+     <description>
+       Domain name or IP address of SIP registrar &lt;br/&gt; ( &lt; registrarAddress &gt; ) &lt;br/&gt;
+     </description>
+   </setting>
+
+
+   <setting name="registrarToAddress" advanced="yes">
+     <label>Register to-address</label>
+     <type>
+       <ipaddr />
+     </type>
+     <value></value>
+     <description>
+       The field contains the address of record whose registration is to be created or updated &lt;br/&gt; &lt;
+       registrarToAddress &gt; &lt;br/&gt;
+     </description>
+   </setting>
+
+   <setting name="registrarFromAddress" advanced="yes">
+     <label>Register from-address</label>
+     <type>
+       <ipaddr />
+     </type>
+     <value></value>
+     <description>
+       The field is same as the Register to-address field except the third party registration on your behalf
+       &lt;br/&gt; &lt; registrarFromAddress &gt; &lt;br/&gt;
+     </description>
+   </setting>
+
+   <setting name="registrarUsedomainName" advanced="yes">
+     <label>Use Domain Name</label>
+     <type refid="on-off" />
+     <value>FALSE</value>
+     <description>
+       If checked, the local domain name obtained from DHCP or manual configuration, is used as the domain for
+       to-address and from-address &lt;br/&gt; ( &lt; registrarUsedomainName &gt; ) &lt;br/&gt;
+     </description>
+   </setting>
+
+   <setting name="registertimer">
+     <label>Expires (sec)</label>
+     <type>
+       <integer min="0" />
+     </type>
+     <value>3600</value>
+     <description>
+       The field specifies the registration duration as reported to the registrar in units of seconds &lt;br/&gt;( &lt;
+       registertimer &gt; ) &lt;br/&gt; &lt;br/&gt; &lt;br/&gt;
+     </description>
+   </setting>
+
+   <setting name="mwiSubscribe">
+     <label>MWI Subscribe?</label>
+     <type refid="on-off" />
+     <value>TRUE</value>
+     <description>
+       If checked, the phone will send MWI (Message Waiting Indicator) subscription for MWI Req URI specified below
+       &lt;br/&gt; ( &lt; mwiSubscribe &gt; ) &lt;br/&gt;
+     </description>
+   </setting>
+
+   <setting name="mwiReqUri">
+     <label>MWI Req URI</label>
+     <type>
+       <string />
+     </type>
+     <value></value>
+     <description>
+       MWI subscription Request URI &lt;br/&gt; ( &lt; mwiReqUri &gt; ) &lt;br/&gt; &lt;br/&gt; &lt;br/&gt;
+     </description>
+   </setting>
+
+   <setting name="voiceMailServerAddress">
+     <label>Voicemail Access Number</label>
+     <type>
+       <ipaddr />
+     </type>
+     <value></value>
+     <description>
+       Number/URI to access the mailbox account &lt;br/&gt; ( &lt; voiceMailServerAddress &gt; ) &lt;br/&gt;
+     </description>
+   </setting>
+
+ </group>
+
+ <group name="callForward">
+
+   <label>Call Forward</label>
+
+   <setting name="forwardModeOption">
+     <label>Call Forward</label>
+     <type>
+       <enum>
+         <option>
+           <value>forwardonBusy</value>
+         </option>
+         <option>
+           <value>forwardonNoAnswer</value>
+         </option>
+         <option>
+           <value>forwardonBusyOrNoAnswer</value>
+         </option>
+         <option>
+           <value>forwardAll</value>
+         </option>
+         <option>
+           <value>none</value>
+         </option>
+       </enum>
+     </type>
+     <value>none</value>
+     <description>
+       If forwardonBusy is selected, all the calls will be forwarded to Call Forward Address when the phone is busy. If
+       forwardonNoAnswer is selected, all the calls will be forwarded to Call Forward Address if they are not answered
+       within the time specified in CFNA timer. If forwardonBusyOrNoAnswer is selected, all the calls will be forwarded
+       to Call Forward Address when the phone is busy or does not answer the calls within the time specified in CFNA
+       timer. Select none to disable call forwarding &lt;br/&gt; ( &lt; callForwardMode &gt; ) &lt;br/&gt;
+     </description>
+   </setting>
+
+   <setting name="callForwardAddress">
+     <label>Call Forward Address</label>
+     <type>
+       <ipaddr />
+     </type>
+     <value></value>
+     <description>
+       Destination number or URI to forward the calls &lt;br/&gt; ( &lt; callForwardAddress &gt; ) &lt;br/&gt;
+     </description>
+   </setting>
+
+   <setting name="callForwardTimer">
+     <label>CFNA Timer</label>
+     <type>
+       <enum>
+         <option>
+           <value>20</value>
+         </option>
+         <option>
+           <value>40</value>
+         </option>
+         <option>
+           <value>60</value>
+         </option>
+       </enum>
+     </type>
+     <value>20</value>
+     <description>
+       Call forward on no answer timer in seconds &lt;br/&gt; ( &lt; callForwardTimer &gt; ) &lt;br/&gt; &lt;br/&gt;
+       &lt;br/&gt;
+     </description>
+   </setting>
+ </group>
+
+</model>
