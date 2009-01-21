@@ -52,27 +52,16 @@
     <setting name="itsp-transport" hidden="yes">
       <!--  set automatically from SipTrunk.getAddressTransport -->
     </setting>
-    <setting name="itsp-registrar-address" advanced="yes">
-      <label>Inbound ITSP server address</label>
-      <description>
-        If the ITSP specifies an inbound proxy or server that is different from the ITSP server address or outbound
-        proxy above, enter it here. Otherwise this setting is assumed to be identical to the ITSP server or outbound
-        proxy.
-      </description>
-    </setting>
-    <setting name="itsp-registrar-listening-port" advanced="yes">
-      <label>Inbound ITSP server port</label>
-      <description>
-        The inbound proxy port. If not specified, it defaults to the outbound proxy port.
-      </description>
-    </setting>
     <setting name="use-global-addressing" advanced="yes">
       <label>Use public address for call setup</label>
       <type refid="switch" />
       <value>true</value>
       <description>
-        If checked (default), use the sipXbridge public address for SIP signaling and media (SDP). Otherwise, the local (LAN)
-        address will be used. Using the local address assumes that the ITSP provides NAT traversal functionality.
+	If checked (default), use the sipXbridge public address for
+	SIP signaling and SipXRelay public address for SDP (media
+	description).  Otherwise, the local (LAN) address will be used.
+	Using the local address assumes that the ITSP provides NAT
+	traversal compensation.
       </description>
     </setting>
     <setting name="strip-private-headers" advanced="yes">
@@ -80,8 +69,10 @@
       <type refid="switch"></type>
       <value>false</value>
       <description>
-        When sipxbridge sees "strip-private-headers", it will strip sensitive headers such as Subject, Call-Info, Organization,
-        User-Agent, Reply-To and In-Reply-To. Display Name will be stripped where ever it appears.
+	When this flag is set sipxbridge will strip information can
+	potentially identify the calling party. Subject, Call-Info,
+	Organization, User-Agent, Reply-To, In-Reply-To and From header
+	Display Name will be stripped.
       </description>
     </setting>
     <setting name="default-asserted-identity" advanced="yes">
@@ -89,6 +80,8 @@
       <type refid="switch"></type>
       <value>true</value>
       <description>
+	The asserted identity header may be used by the ITSP to determine the originating
+	party for call setup requests.
         If checked (default), use the default asserted identity.
         Otherwise, you must enter a username@domain to override the default.
       </description>
@@ -105,10 +98,18 @@
       <value>true</value>
       <description>Defines whether or not to register with the given ITSP on initialization.</description>
     </setting>
-    <setting name="outbound-registrar" advanced="yes">
-      <label>Registrar address</label>
+    <setting name="itsp-registrar-address" advanced="yes">
+      <label>ITSP Registrar Address</label>
       <description>
-        Registrar address (if different from ITSP server address). Determines where to send REGISTER request.
+        If the ITSP specifies a registrar different from the ITSP server address 
+        above, enter it here. Otherwise this setting is assumed to be identical to 
+        the ITSP server address.
+      </description>
+    </setting>
+    <setting name="itsp-registrar-listening-port" advanced="yes">
+      <label>ITSP Registrar Listen Port</label>
+      <description>
+        The port where REGISTER requests are sent. Defaults to ITSP Server Port if nothing specified.
       </description>
     </setting>
     <setting name="registration-interval" advanced="yes">
@@ -135,7 +136,7 @@
       </type>
       <value>CR-LF</value>
       <description>
-        Defines the mechanism to use for SIP keepalive. If nothing is specified, CR-LF (empty SIP message) is used.
+        Defines the message to use for SIP keepalive. If nothing is specified, CR-LF (empty SIP message) is used.
       </description>
     </setting>
     <setting name="rtp-keepalive-method" advanced="yes">
@@ -154,10 +155,14 @@
             <label>Replay last sent packet</label>
             <value>REPLAY-LAST-SENT-PACKET</value>
           </option>
+          <option>
+            <label>Use dummy RTP payload</label>
+            <value>USE-DUMMY-RTP-PAYLOAD</value>
+          </option>
         </enum>
       </type>
       <value>NONE</value>
-      <description>Defines the mechanism to use for media (RTP) keepalive.</description>
+      <description>Defines the payload to use for media (RTP) keepalive. </description>
     </setting>
   </group>
 </model>

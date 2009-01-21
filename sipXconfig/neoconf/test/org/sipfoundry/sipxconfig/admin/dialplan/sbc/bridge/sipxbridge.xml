@@ -26,12 +26,12 @@
     <itsp-proxy-address>itsp.example.com</itsp-proxy-address>
     <itsp-proxy-listening-port>5061</itsp-proxy-listening-port>
     <itsp-transport>UDP</itsp-transport>
-    <itsp-registrar-address>10.1.1.1</itsp-registrar-address>
-    <itsp-registrar-listening-port>5071</itsp-registrar-listening-port>
     <use-global-addressing>true</use-global-addressing>
     <strip-private-headers>false</strip-private-headers>
     <default-asserted-identity>true</default-asserted-identity>
     <register-on-initialization>true</register-on-initialization>
+    <itsp-registrar-address>10.1.1.1</itsp-registrar-address>
+    <itsp-registrar-listening-port>5071</itsp-registrar-listening-port>
     <registration-interval>600</registration-interval>
     <sip-keepalive-method>CR-LF</sip-keepalive-method>
     <rtp-keepalive-method>NONE</rtp-keepalive-method>
