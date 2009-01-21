@@ -315,7 +315,29 @@
 				</xs:annotation>
 			</xs:element>
 
-			<xs:element name="outbound-proxy" type="xs:string"
+
+			<xs:element name="itsp-proxy-domain" type="xs:string"
+				maxOccurs="1" minOccurs="1">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The domain for the SIP Register Request defaults
+						to the proxy domain.  This is a required parameter.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<!-- was "outbound-proxy-port"  -->
+			<xs:element name="itsp-proxy-listening-port" type="xs:integer"
+				maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The outbound proxy port. If not specified, the default 5060 is used.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<!-- was "outbound-proxy"  -->
+			<xs:element name="itsp-proxy-address" type="xs:string"
 				maxOccurs="1" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
@@ -326,16 +348,8 @@
 				</xs:annotation>
 			</xs:element>
 
-			<xs:element name="outbound-proxy-port" type="xs:integer"
-				maxOccurs="1" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation xml:lang="en">
-						The outbound proxy port. If not specified, the default 5060 is used.
-					</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-
-			<xs:element name="outbound-transport" type="xs:string"
+			<!-- was "outbound-transport"  -->
+			<xs:element name="itsp-transport" type="xs:string"
 				default="udp" maxOccurs="1" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
@@ -344,7 +358,8 @@
 				</xs:annotation>
 			</xs:element>
 			
-			<xs:element name="inbound-proxy" type="xs:string"
+			<!-- was "inbound-proxy"  -->
+			<xs:element name="itsp-registrar-address" type="xs:string"
 				maxOccurs="1" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
@@ -356,7 +371,8 @@
 				</xs:annotation>
 			</xs:element>
 
-			<xs:element name="inbound-proxy-port" type="xs:integer"
+			<!-- was "inbound-proxy-port"  -->
+			<xs:element name="itsp-registrar-listening-port" type="xs:integer"
 				maxOccurs="1" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
@@ -366,35 +382,6 @@
 				</xs:annotation>
 			</xs:element>
 
-			<xs:element name="outbound-proxy-transport" type="xs:string"
-				default="udp" maxOccurs="1" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation xml:lang="en">
-						The inbound proxy transport. If nothing specified, the same
-						transport as the outbound proxy is used.
-					</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-
-			<xs:element name="proxy-domain" type="xs:string"
-				maxOccurs="1" minOccurs="1">
-				<xs:annotation>
-					<xs:documentation xml:lang="en">
-						The domain for the SIP Register Request defaults
-						to the proxy domain.  This is a required parameter.
-					</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-
-			<xs:element name="authentication-realm" type="xs:string"
-				maxOccurs="1" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation xml:lang="en">
-						The Digest authentication realm.
-						This is the realm present in the authentication challenge.
-					</xs:documentation>
-				</xs:annotation>
-			</xs:element>
 
 			<xs:element name="user-name" type="xs:string" maxOccurs="1"
 				minOccurs="0">
