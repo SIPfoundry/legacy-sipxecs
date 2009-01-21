@@ -316,6 +316,7 @@
 			</xs:element>
 
 
+			<!-- was proxy-domain -->
 			<xs:element name="itsp-proxy-domain" type="xs:string"
 				maxOccurs="1" minOccurs="1">
 				<xs:annotation>
@@ -363,10 +364,9 @@
 				maxOccurs="1" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
-						The inbound proxy is where inbound signaling comes from. sipxbridge
-						will Register with the inbound proxy if registration is required.
-						If nothing is specified, then inbound proxy is assumed to be 
-						the same as outbound proxy.
+						SipxBridge will Register with the itsp-registrar-address if registration is required.
+						If nothing is specified, then itsp-registrar-address is assumed to be 
+						the same as itsp proxy address.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
@@ -376,15 +376,15 @@
 				maxOccurs="1" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
-						The inbound proxy port. If not specified, the same port as the
-						outbound proxy is used.
+                                                The port where the ITSP registar is listening for inbound signaling.
+						If not specified, the same port as the itsp-proxy-listening-port is used.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 
 
 			<xs:element name="user-name" type="xs:string" maxOccurs="1"
-				minOccurs="0">
+				minOccurs="1">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
 						The authentication user name attached to the account.

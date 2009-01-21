@@ -118,39 +118,76 @@ public class ConfigurationParser {
         digester.addObjectCreate(ITSP_CONFIG, ItspAccountInfo.class);
         digester.addSetNext(ITSP_CONFIG, "addItspAccount");
 
-        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "outbound-proxy"),
+        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "itsp-proxy-address"),
                 "setOutboundProxy", 0);
 
-        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "inbound-proxy"),
+        /*
+         * Place where sipxbridge sends REGISTER requests.
+         */
+        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "itsp-registrar-address"),
                 "setInboundProxy", 0);
 
-        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "outbound-proxy-port"),
+        /*
+         * Place where sipxbridge sends INVITE
+         */
+        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "itsp-proxy-listening-port"),
                 "setOutboundProxyPort", 0, new Class[] {
                     Integer.class
                 });
-        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "inbound-proxy-port"),
+        
+        /*
+         * Port where sipxbridge sends REGISTER
+         */
+        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "itsp-registrar-listening-port"),
                 "setInboundProxyPort", 0, new Class[] {
                     Integer.class
                 });
+        
+        /*
+         * REGISTER interval.
+         */
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "registration-interval"),
                 "setRegistrationInterval", 0, new Class[] {
                     Integer.class
                 });
-        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "outbound-transport"),
+        /*
+         * Transport the ITSP wants to see ( default to UDP )
+         */
+        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "itsp-transport"),
                 "setOutboundTransport", 0);
-        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "proxy-domain"),
+        
+        /*
+         * ITSP proxy domain.
+         */
+        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "itsp-proxy-domain"),
                 "setProxyDomain", 0);
 
+        /*
+         * Authentication user name
+         */
         digester
                 .addCallMethod(String.format("%s/%s", ITSP_CONFIG, "user-name"), "setUserName", 0);
+        
+        /*
+         * Authentication password.
+         */
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "password"), "setPassword", 0);
 
+        /*
+         * Keep alive for RTP.
+         */
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "rtp-keepalive-method"),
                 "setRtpKeepaliveMethod", 0);
 
+        /*
+         * SIP Keep alive method.
+         */
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "sip-keepalive-method"),
                 "setSipKeepaliveMethod", 0);
 
+        /*
+         * Public addressing used on call setup signaling.
+         */
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "use-global-addressing"),
                 "setGlobalAddressingUsed", 0, new Class[] {
                     Boolean.class
