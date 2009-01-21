@@ -318,7 +318,7 @@
       <value>0</value>
     </setting>
     <setting name="UseDisplayNameAsSourceNumber" advanced="yes">
-      <label> Use Display Name as Source Number</label>
+      <label>Use Display Name as Source Number</label>
       <type>
         <boolean />
       </type>
