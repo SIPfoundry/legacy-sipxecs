@@ -245,7 +245,7 @@
       <label>Auth Resync-Reboot</label>
       <profileName>SIP_Settings</profileName>
       <type refid="yes-no" />
-      <value>yes</value>
+      <value>no</value>
     </setting>
     <setting name="SIP_Proxy-Require" advanced="yes">
       <label>SIP Proxy-Require</label>
@@ -355,7 +355,7 @@
       <label>Message Waiting</label>
       <profileName>Call_Feature_Settings</profileName>
       <type refid="yes-no" />
-      <value>yes</value>
+      <value>no</value>
     </setting>
     <setting name="Default_Ring">
       <label>Default Ring</label>
@@ -683,4 +683,3 @@
     </setting>
   </group>
 </model>
-

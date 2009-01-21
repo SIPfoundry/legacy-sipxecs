@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.phone.linksys;
@@ -25,6 +25,7 @@ public class LinksysPhoneTest extends TestCase {
 
     private Linksys m_phone;
 
+    @Override
     protected void setUp() {
         LinksysModel model = new LinksysModel("linksysPhone");
         model.setMaxLineCount(3);
@@ -60,7 +61,7 @@ public class LinksysPhoneTest extends TestCase {
     }
 
     public void testGetProfileFilename() {
-        m_phone.setSerialNumber("112233445566");
-        assertEquals("spa112233445566.cfg", m_phone.getProfileFilename());
+        m_phone.setSerialNumber("1a2b33445566");
+        assertEquals("spa1A2B33445566.cfg", m_phone.getProfileFilename());
     }
 }
