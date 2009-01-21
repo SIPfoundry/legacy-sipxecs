@@ -12,31 +12,38 @@ package org.sipfoundry.sipxconfig.site.admin;
 import java.io.File;
 import java.util.Date;
 
+import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.Snapshot;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.cdr.CdrHistory;
 
 public abstract class SnapshotPage extends BasePage implements PageBeginRenderListener {
     private static final String CLIENT = "client";
 
-    @Persist(value = CLIENT)
+    @Persist(CLIENT)
     public abstract Date getStartDate();
 
     public abstract void setStartDate(Date date);
 
-    @Persist(value = CLIENT)
+    @Persist(CLIENT)
     public abstract Date getEndDate();
 
     public abstract void setEndDate(Date date);
 
     public abstract void setSnapshotFile(File file);
 
+    @InjectObject("spring:snapshot")
     public abstract Snapshot getSnapshot();
+
+    @Bean
+    public abstract SipxValidationDelegate getValidator();
 
     public void pageBeginRender(PageEvent event_) {
         if (!TapestryUtils.isValid(this)) {

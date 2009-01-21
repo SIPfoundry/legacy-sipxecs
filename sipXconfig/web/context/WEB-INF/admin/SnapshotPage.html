@@ -1,48 +1,82 @@
 <div jwcid="@common/Border">
   <h2><span key="title">Snapshot</span></h2>
-  <span jwcid="errors"/>
-  <div jwcid="@common/QuickHelp" value="message:quick.help"></div>
-  <p jwcid="ifResultsPresent">
+  <span jwcid="@common/ErrorMsg"/>
+  <div jwcid="@common/QuickHelp" value="message:quick.help"/>
+  <p jwcid="ifResultsPresent@If" condition="ognl:snapshotFile != null">
     <ul> 
       <li> 
-        <span jwcid="snapshotLink"><span jwcid="linkText"/></span> 
+        <a jwcid="snapshotLink@common/DownloadLink"
+          fileName="ognl:snapshotFile.name"
+          dirName="ognl:snapshotFile.parentFile.path"
+          contentType="tar/x-gzip">
+          <span jwcid="linkText@Insert" value="ognl:snapshotFile.name"/>
+        </a>
       </li> 
     </ul>
   </p>
-  <form jwcid="form">
+  <form jwcid="form@Form" delegate="bean:validator">
     <fieldset>
       <table>
         <tbody>
-          <span jwcid="logsPanel" for="snapshot:logs">
-            <span jwcid="logsCheck" id="snapshot:logs"/>
-          </span>
-	  <span jwcid="@common/FieldPanel" field="component:filterTime"
-		  for="snapshot:filterTime"
-		  label="message:label.filterTime"
-		  description="message:description.filterTime">
-		<span jwcid="filterTime@Checkbox"
+          <tr>
+            <td colspan="2">
+              <h3><span key="label.configuration_heading">Configuration</span></h3>
+            </td>
+          </tr>
+          <tr jwcid="wwwPanel@common/FieldPanel" for="snapshot:www"
+            field="component:wwwCheck"
+            label="message:label.www"
+            description="message:description.www">
+            <span jwcid="wwwCheck@Checkbox" id="snapshot:www" value="ognl:snapshot.www"/>
+          </tr>
+          <tr jwcid="credentialsPanel@common/FieldPanel" for="snapshot:credentials"
+            field="component:credentialsCheck"
+            label="message:label.credentials"
+            description="message:description.credentials">
+            <span jwcid="credentialsCheck@Checkbox" id="snapshot:credentials" value="ognl:snapshot.credentials"/>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <h3><span key="label.logs_heading">Logs</span></h3>
+            </td>
+          </tr>
+          <tr jwcid="logsPanel@common/FieldPanel" for="snapshot:logs"
+            field="component:logsCheck"
+            label="message:label.logs"
+            description="message:description.logs">
+            <span jwcid="logsCheck@Checkbox" id="snapshot:logs" value="ognl:snapshot.logs"/>
+          </tr>
+          <tr jwcid="@common/FieldPanel" field="component:filterTime"
+            for="snapshot:filterTime"
+            label="message:label.filterTime"
+            description="message:description.filterTime">
+              <span jwcid="filterTime@Checkbox"
                 id="snapshot:filterTime"
-		value="ognl:snapshot.filterTime"
-		displayName="message:label.filterTime" />
-          </span>
-	  <span jwcid="startDate@common/DateTimeEditor"
-		datetime="ognl:startDate"
-		    label="message:label.startDate" />
-          <span jwcid="endDate@common/DateTimeEditor"
-		    datetime="ognl:endDate"
-			label="message:label.endDate" />
-          <span jwcid="wwwPanel" for="snapshot:www">
-            <span jwcid="wwwCheck" id="snapshot:www"/>
-          </span>
-          <span jwcid="credentialsPanel" for="snapshot:credentials">
-            <span jwcid="credentialsCheck" id="snapshot:credentials"/>
-          </span>
-          <span jwcid="cdrPanel" for="snapshot:cdr">
-            <span jwcid="cdrCheck" id="snapshot:cdr"/>
-          </span>
+                value="ognl:snapshot.filterTime"
+                displayName="message:label.filterTime" />
+          </tr>
+          <tr jwcid="startDate@common/DateTimeEditor"
+            datetime="ognl:startDate"
+            label="message:label.startDate" />
+          <tr jwcid="endDate@common/DateTimeEditor"
+            datetime="ognl:endDate"
+            label="message:label.endDate" />
+          <tr>
+            <td colspan="2">
+              <h3><span key="label.cdr_heading">Call Detail Records</span></h3>
+            </td>
+          </tr>
+          <tr jwcid="cdrPanel@common/FieldPanel" for="snapshot:cdr"
+            field="component:cdrCheck"
+            label="message:label.cdr"
+            description="message:description.cdr">
+            <span jwcid="cdrCheck@Checkbox" id="snapshot:cdr" value="ognl:snapshot.cdr"/>
+          </tr>
         </tbody>
       </table>
     </fieldset>
-    <span jwcid="actions"/>
+    <span jwcid="actions@common/FormActions"
+      listener="listener:createSnapshot"
+      successMessage="message:msg.success"/>
   </form>
 </div>
