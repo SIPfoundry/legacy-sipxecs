@@ -1,5 +1,9 @@
 # this is used by sipxbuild to compute a correct build order
 
+.PHONY: sipXfreeSwitch
+sipXfreeSwitch :
+	@echo sipXfreeSwitch
+
 .PHONY: doc
 doc : sipXcommserverLib
 	@echo doc
@@ -35,6 +39,7 @@ sipXcallLib : sipXmediaAdapterLib
 .PHONY: sipXcommserverLib
 sipXcommserverLib : sipXtackLib
 	@echo sipXcommserverLib
+
 
 .PHONY: sipXcommons
 sipXcommons :
