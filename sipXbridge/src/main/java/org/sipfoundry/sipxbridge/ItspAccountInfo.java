@@ -136,6 +136,8 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
 
     private Address callerAlias;
 
+    private boolean useDefaultAssertedIdentity;
+
     /**
      * This task runs periodically depending upon the timeout of the lookup specified.
      * 
@@ -527,7 +529,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
     }
 
     public String getCallerId() {
-        if (this.callerId != null) {
+        if (this.callerId != null && !useDefaultAssertedIdentity) {
             return this.callerId;
         } else if (this.isRegisterOnInitialization()) {
             return this.getUserName() + "@" + this.getProxyDomain();
@@ -568,6 +570,11 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
      */
     public boolean stripPrivateHeaders() {
         return stripPrivateHeaders;
+    }
+    
+   
+    public void useDefaultAssertedIdentity( boolean flag ) {
+        this.useDefaultAssertedIdentity = flag;
     }
 
    

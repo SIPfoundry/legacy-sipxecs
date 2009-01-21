@@ -65,17 +65,17 @@ public class BridgeSbcTest {
         m_sbc.setSettingValue("bridge-configuration/route-inbound-calls-to-extension", "operator");
         m_sbc.setSettingValue("bridge-configuration/log-directory", "/var/log/sipxpbx/");
 
-        SipTrunk sipTrunk = new SipTrunk();
-        sipTrunk.setDefaults(deviceDefaults);
-        sipTrunk.setModelFilesContext(modelFilesContext);
-        sipTrunk.setSbcDevice(m_sbc);
-        sipTrunk.setAddress("itsp.example.com");
-        sipTrunk.setAddressPort(5061);
-        sipTrunk.setAddressTransport(AddressTransport.UDP);
-        sipTrunk.setSettingValue("itsp-account/user-name", "juser");
-        sipTrunk.setSettingValue("itsp-account/password", "1234");
-        sipTrunk.setSettingValue("itsp-account/itsp-registrar-address", "10.1.1.1");
-        sipTrunk.setSettingValue("itsp-account/itsp-registrar-listening-port", "5071");
+        m_sipTrunk = new SipTrunk();
+        m_sipTrunk.setDefaults(deviceDefaults);
+        m_sipTrunk.setModelFilesContext(modelFilesContext);
+        m_sipTrunk.setSbcDevice(m_sbc);
+        m_sipTrunk.setAddress("itsp.example.com");
+        m_sipTrunk.setAddressPort(5061);
+        m_sipTrunk.setAddressTransport(AddressTransport.UDP);
+        m_sipTrunk.setSettingValue("itsp-account/user-name", "juser");
+        m_sipTrunk.setSettingValue("itsp-account/password", "1234");
+        m_sipTrunk.setSettingValue("itsp-account/itsp-registrar-address", "10.1.1.1");
+        m_sipTrunk.setSettingValue("itsp-account/itsp-registrar-listening-port", "5071");
 
         GatewayContext gatewayContext = createMock(GatewayContext.class);
         gatewayContext.getGatewayByType(SipTrunk.class);
