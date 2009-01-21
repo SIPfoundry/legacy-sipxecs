@@ -102,6 +102,9 @@
     </setting>
     <setting name="itsp-registrar-listening-port" advanced="yes">
       <label>ITSP Registrar Listening Port</label>
+      <type>
+        <integer />
+      </type>
       <description>
 	 The port where REGISTER requests are sent. Defaults to ITSP Server Port if nothing specified.
       </description>

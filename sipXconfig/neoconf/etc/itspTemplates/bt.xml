@@ -93,6 +93,23 @@
       <value>true</value>
       <description>Defines whether or not to register with the given ITSP on initialization.</description>
     </setting>
+    <setting name="itsp-registrar-address" advanced="yes">
+      <label>ITSP Registrar Address</label>
+      <description>
+	 If the ITSP specifies a registrar different from the ITSP server address
+        above, enter it here. Otherwise this setting is assumed to be identical to
+        the ITSP server address proxy.
+      </description>
+    </setting>
+    <setting name="itsp-registrar-listening-port" advanced="yes">
+      <label>ITSP Registrar Listening Port</label>
+      <type>
+        <integer />
+      </type>
+      <description>
+	 The port where REGISTER requests are sent. Defaults to ITSP Server Port if nothing specified.
+      </description>
+    </setting>
     <setting name="registration-interval" advanced="yes">
       <label>Registration interval</label>
       <type>
