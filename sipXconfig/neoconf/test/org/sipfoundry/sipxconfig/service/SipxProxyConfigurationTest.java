@@ -40,8 +40,6 @@ public class SipxProxyConfigurationTest extends SipxServiceTestBase {
 
         proxyService.setSecureSipPort("5061");
 
-        proxyService.setCallResolverCallStateDb("CALL_RESOLVER_DB");
-
         SipxServiceManager sipxServiceManager = EasyMock.createMock(SipxServiceManager.class);
         sipxServiceManager.getServiceByBeanId(SipxCallResolverService.BEAN_ID);
         EasyMock.expectLastCall().andReturn(callResolverService).atLeastOnce();

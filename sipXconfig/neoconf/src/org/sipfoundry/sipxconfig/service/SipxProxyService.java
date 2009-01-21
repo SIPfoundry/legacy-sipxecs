@@ -22,12 +22,4 @@ public class SipxProxyService extends SipxService {
     public void setSecureSipPort(String secureSipPort) {
         this.m_secureSipPort = secureSipPort;
     }
-
-    public String getCallResolverCallStateDb() {
-        return m_callResolverCallStateDb;
-    }
-
-    public void setCallResolverCallStateDb(String callResolverCallStateDb) {
-        this.m_callResolverCallStateDb = callResolverCallStateDb;
-    }
 }

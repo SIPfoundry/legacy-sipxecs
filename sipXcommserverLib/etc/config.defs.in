@@ -30,11 +30,6 @@ MY_FULL_HOSTNAME=`hostname -f`
 MY_HOSTNAME=`hostname -s`
 MY_IP_ADDR=`@bindir@/get_def_addr`
 
-##### In High Availability configurations, the names of the primary
-##### and secondary servers.  Otherwise empty.
-MASTER_HOSTNAME=
-DISTRIBUTED_HOSTNAME=
-
 ##### Service addresses and ports #####
 # For service addresses, use IP addresses (recommended) or host names
 PROXY_SERVER_ADDR=${MY_IP_ADDR}
@@ -42,22 +37,13 @@ PROXY_SERVER_SIP_PORT=5060
 PROXY_SERVER_SIP_SRV_OR_HOSTPORT=${SIPXCHANGE_DOMAIN_NAME}
 PROXY_SERVER_SIP_HOSTPORT=${PROXY_SERVER_ADDR}:${PROXY_SERVER_SIP_PORT}
 
-REGISTRAR_SERVER_ADDR=${MY_IP_ADDR}
-
-REGISTRAR_SERVER_SIP_SRV_OR_HOSTPORT=${REGISTRAR_SERVER_ADDR}:5070
-REGISTRAR_REG_EVENT_SIP_SRV_OR_HOSTPORT=${REGISTRAR_SERVER_ADDR}:5075
-
-CALLRESOLVER_CALL_STATE_DB=ENABLE
-
 CONFIG_SERVER_ADDR=${MY_IP_ADDR}
 CONFIG_SERVER_HOST=${MY_FULL_HOSTNAME}
 
-CONFIG_SERVER_AGENT_ADDR=${MY_IP_ADDR}
+SIPX_CONFDIR=@SIPX_CONFDIR@
 
 #Removed this from sipXconfig, still needs to be removed from sipxconfig-agent.in
 CONFIG_SERVER_AGENT_PORT=8120
-
-SIPX_CONFDIR=@SIPX_CONFDIR@
 
 #needs to be removed in sipXacd/bin/sipxacd.sh.in
 ACD_SERVER_PROVISIONING_PORT=8110

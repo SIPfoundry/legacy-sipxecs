@@ -4,10 +4,8 @@
 #                can have a better chance to migrate this file properly
 sipxProxyService.sipPort=5060
 sipxProxyService.secureSipPort=5061
-sipxProxyService.callResolverCallStateDb=ENABLE
 sipxRegistrarService.sipPort=5070
 sipxRegistrarService.registrarEventSipPort=5075
-sipxRegistrarService.proxyServerSipHostport=${PROXY_SERVER_SIP_HOSTPORT}
 sipxMediaService.sipPort=5100
 sipxMediaService.voicemailHttpPort=8090
 sipxMediaService.voicemailHttpsPort=8091
