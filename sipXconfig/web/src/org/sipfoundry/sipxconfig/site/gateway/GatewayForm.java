@@ -148,7 +148,7 @@ public abstract class GatewayForm extends BaseComponent implements PageBeginRend
             Setting templateSettings = getModelFilesContext().loadModelFile(template.getItspTemplate(),
                     template.getTemplateLocation());
 
-            gateway.setAddress(templateSettings.getSetting("itsp-account/proxy-domain").getValue());
+            gateway.setAddress(templateSettings.getSetting("itsp-account/itsp-proxy-domain").getValue());
         }
 
         cycle.getResponseBuilder().updateComponent("gateway:address");

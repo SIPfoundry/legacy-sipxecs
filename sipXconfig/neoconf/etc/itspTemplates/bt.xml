@@ -15,7 +15,7 @@
   <group name="itsp-account">
     <label>ITSP Account</label>
     <description>The information that is specific to a given ITSP account.</description>
-    <setting name="proxy-domain">
+    <setting name="itsp-proxy-domain">
       <label>ITSP server domain name</label>
       <description>
         The domain name of the ITSP. This domain name is used to look up via DNS SRV the address of the SIP server the
@@ -37,7 +37,7 @@
       </type>
       <description>The password for the account.</description>
     </setting>
-    <setting name="outbound-proxy" advanced="yes">
+    <setting name="itsp-proxy-address" advanced="yes">
       <label>ITSP server address</label>
       <value>81.144.230.5</value>
       <description>
@@ -45,16 +45,16 @@
         route to the ITSP's server (outbound proxy) is determined by DNS lookup on the ITSP domain.
       </description>
     </setting>
-    <setting name="outbound-proxy-port" hidden="yes">
+    <setting name="itsp-proxy-listening-port" hidden="yes">
       <!--  set automatically from SipTrunk.getAddressPort -->
       <type>
         <integer />
       </type>
     </setting>
-    <setting name="outbound-transport" hidden="yes">
+    <setting name="itsp-transport" hidden="yes">
       <!--  set automatically from SipTrunk.getAddressTransport -->
     </setting>
-    <setting name="inbound-proxy" advanced="yes">
+    <setting name="itsp-registrar-address" advanced="yes">
       <label>Inbound ITSP server address</label>
       <description>
         If the ITSP specifies an inbound proxy or server that is different from the ITSP server address or outbound

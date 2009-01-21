@@ -50,10 +50,10 @@ public class SipTrunkTest extends TestCase {
         sipTrunk.initialize();
         
         sipTrunk.setAddressTransport(AddressTransport.NONE);
-        assertEquals("UDP", sipTrunk.getSettingValue("itsp-account/outbound-transport"));
+        assertEquals("UDP", sipTrunk.getSettingValue("itsp-account/itsp-transport"));
         sipTrunk.setAddressTransport(AddressTransport.TCP);
-        assertEquals("TCP", sipTrunk.getSettingValue("itsp-account/outbound-transport"));
+        assertEquals("TCP", sipTrunk.getSettingValue("itsp-account/itsp-transport"));
         sipTrunk.setAddressTransport(AddressTransport.UDP);
-        assertEquals("UDP", sipTrunk.getSettingValue("itsp-account/outbound-transport"));
+        assertEquals("UDP", sipTrunk.getSettingValue("itsp-account/itsp-transport"));
     }
 }

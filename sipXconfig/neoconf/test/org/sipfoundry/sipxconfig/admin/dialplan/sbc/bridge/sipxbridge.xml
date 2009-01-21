@@ -20,12 +20,14 @@
   </bridge-configuration>
 
   <itsp-account>
-    <proxy-domain>itsp.example.com</proxy-domain>
+    <itsp-proxy-domain>itsp.example.com</itsp-proxy-domain>
     <user-name>juser</user-name>
     <password>1234</password>
-    <outbound-proxy>itsp.example.com</outbound-proxy>
-    <outbound-proxy-port>5061</outbound-proxy-port>
-    <outbound-transport>UDP</outbound-transport>
+    <itsp-proxy-address>itsp.example.com</itsp-proxy-address>
+    <itsp-proxy-listening-port>5061</itsp-proxy-listening-port>
+    <itsp-transport>UDP</itsp-transport>
+    <itsp-registrar-address>10.1.1.1</itsp-registrar-address>
+    <itsp-registrar-listening-port>5071</itsp-registrar-listening-port>
     <use-global-addressing>true</use-global-addressing>
     <strip-private-headers>false</strip-private-headers>
     <default-asserted-identity>true</default-asserted-identity>

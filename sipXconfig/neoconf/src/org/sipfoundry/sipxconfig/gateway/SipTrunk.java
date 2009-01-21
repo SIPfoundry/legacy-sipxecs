@@ -76,8 +76,8 @@ public class SipTrunk extends Gateway {
             m_trunk = trunk;
         }
 
-        @SettingEntry(path = "itsp-account/outbound-transport")
-        public String getOutboundTransport() {
+        @SettingEntry(path = "itsp-account/itsp-transport")
+        public String getItspTransport() {
             AddressTransport transport = m_trunk.getAddressTransport();
             if (transport.equals(NONE)) {
                 // force default to be UDP - NONE is not supported
@@ -86,13 +86,13 @@ public class SipTrunk extends Gateway {
             return transport.getName().toUpperCase();
         }
 
-        @SettingEntry(paths = { "itsp-account/outbound-proxy", "itsp-account/proxy-domain" })
-        public String getOutboundProxy() {
+        @SettingEntry(paths = { "itsp-account/itsp-proxy-address", "itsp-account/itsp-proxy-domain" })
+        public String getItspProxy() {
             return m_trunk.getAddress();
         }
 
-        @SettingEntry(path = "itsp-account/outbound-proxy-port")
-        public int getOutboundProxyPort() {
+        @SettingEntry(path = "itsp-account/itsp-proxy-listening-port")
+        public int getItspProxyListeningPort() {
             return m_trunk.getAddressPort();
         }
     }
