@@ -48,7 +48,7 @@ function install_sipfoundry_rpm {
    # Out with the old.
    rm -rf $1-*.rpm
    rpm -q $1 > /dev/null
-   if [ $? = 0 ]
+   if [ $? == 0 ]
    then
       sudo rpm --erase --nodeps $1
    fi
@@ -84,7 +84,7 @@ fi
 popd
 
 pushd $BUILD
-$FULL_CODE_PATH/configure --srcdir=$FULL_CODE_PATH --cache-file=`pwd`/ac-cache-file SIPXPBXUSER=`whoami` --prefix=$FULL_INSTALL_PATH --enable-reports --enable-agent --enable-cdr --enable-conference &> configure_output.txt
+$FULL_CODE_PATH/configure --srcdir=$FULL_CODE_PATH --cache-file=`pwd`/ac-cache-file SIPXPBXUSER=`whoami` JAVAC_DEBUG=on --prefix=$FULL_INSTALL_PATH --enable-reports --enable-agent --enable-cdr --enable-conference &> configure_output.txt
 if [ $? != 0 ]
 then
    echo "Error: configure failed, see configure_output.txt."
