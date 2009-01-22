@@ -102,9 +102,7 @@ public class CallControlUtilities {
 			/*
 			 * Possibly filter the outbound SDP ( if user sets up to do so ).
 			 */
-			SessionDescription sdpOffer = SipUtilities.cleanSessionDescription(
-					SipUtilities.getSessionDescription(response), Gateway
-							.getCodecName());
+			SessionDescription sdpOffer = SipUtilities.getSessionDescription(response);
 
 			Request sdpOfferInvite = dialog.createRequest(Request.INVITE);
 
@@ -171,10 +169,7 @@ public class CallControlUtilities {
 		
 		if (response.getContentLength().getContentLength() != 0) {
 
-			SessionDescription answerSessionDescription = SipUtilities
-					.cleanSessionDescription(SipUtilities
-							.getSessionDescription(response), Gateway
-							.getCodecName());
+			SessionDescription answerSessionDescription = SipUtilities.getSessionDescription(response); 
 			/*
 			 * Get the codecs in the answer.
 			 */

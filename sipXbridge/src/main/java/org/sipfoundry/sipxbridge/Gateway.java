@@ -883,17 +883,7 @@ public class Gateway {
 				+ "/sipxbridge.log";
 	}
 
-	/**
-	 * Get the default codec name. Returns null if Re-Invite is supported.
-	 * 
-	 */
-	static String getCodecName() {
-		if (Gateway.isReInviteSupported())
-			return null;
-		else
-			return Gateway.getAccountManager().getBridgeConfiguration()
-					.getCodecName();
-	}
+	
 
 	/**
 	 * Get the call limit ( number of concurrent calls)

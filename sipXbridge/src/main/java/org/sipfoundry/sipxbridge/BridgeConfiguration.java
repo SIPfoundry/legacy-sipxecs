@@ -39,7 +39,6 @@ public class BridgeConfiguration {
     private int mediaKeepalive = 100; // milisec for media keepalive.
     private String logFileDirectory = "/var/log/sipxpbx/";
     private int globalAddressRediscoveryPeriod = 30;
-    private String codecName = "PCMU";
     private boolean reInviteSupported = true;
     private int maxCalls = -1;
     private String autoAttendantName = null;
@@ -311,14 +310,7 @@ public class BridgeConfiguration {
         return logFileDirectory;
     }
 
-    public void setCodecName(String codecName) {
-        this.codecName = codecName;
-    }
-
-    public String getCodecName() {
-        return this.codecName;
-    }
-
+   
     /**
      * @param maxCalls the maxCalls to set
      */

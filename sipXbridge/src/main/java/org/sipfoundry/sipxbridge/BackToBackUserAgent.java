@@ -933,23 +933,7 @@ public class BackToBackUserAgent {
              */
             SessionDescription sessionDescription = SipUtilities.getSessionDescription(request);
 
-            /*
-             * Are we restricting codecs?
-             */
-            if (Gateway.getCodecName() != null) {
-                SessionDescription newSd = SipUtilities.cleanSessionDescription(
-                        sessionDescription, Gateway.getCodecName());
-
-                if (newSd == null) {
-                    Response response = ProtocolObjects.messageFactory.createResponse(
-                            Response.NOT_ACCEPTABLE_HERE, request);
-                    response.setReasonPhrase("Only " + Gateway.getCodecName() + " supported ");
-                    serverTransaction.sendResponse(response);
-                    return;
-
-                }
-                logger.debug("Clean session description = " + sessionDescription);
-            }
+            
             RtpSession incomingSession = this.createRtpSession(inboundDialog);
 
             incomingSession.getReceiver()
@@ -1292,12 +1276,10 @@ public class BackToBackUserAgent {
                 wanRtpSession.getReceiver().setSessionDescription(outboundSessionDescription);
             }
 
-            String codecName = Gateway.getCodecName();
+          
+            
 
-            SessionDescription newSd = SipUtilities.cleanSessionDescription(
-                    outboundSessionDescription, codecName);
-
-            if (newSd == null) {
+            if (outboundSessionDescription == null) {
                 Response response = ProtocolObjects.messageFactory.createResponse(
                         Response.NOT_ACCEPTABLE_HERE, incomingRequest);
                 serverTransaction.sendResponse(response);
