@@ -356,6 +356,9 @@ public class MappingRulesTest extends XMLTestCase {
 
         assertXpathExists("/mappings/hostMatch[1]/hostPattern", domDoc);
         assertXpathExists("/mappings/hostMatch[1]/userMatch/userPattern", domDoc);
+        
+        assertXpathEvaluatesTo("gander", "/mappings/hostMatch[1]/hostPattern", domDoc);
+        assertXpathNotExists("/mappings/hostMatch[1]/hostPattern[2]", domDoc);
 
         control.verify();
     }

@@ -14,6 +14,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -62,7 +63,7 @@ public class MappingRules extends RulesXmlFile {
         QName mappingsName = FACTORY.createQName("mappings", m_namespace);
         m_mappings = m_doc.addElement(mappingsName);
         addExternalRules(m_mappings);
-        m_hostMatch = addHostPatterns(getHostStrings());
+        m_hostMatch = addHostPatterns(getHostStrings(), getDomainManager().getDomain().getName());
     }
 
     Element getFirstHostMatch() {
@@ -85,7 +86,7 @@ public class MappingRules extends RulesXmlFile {
         String[] hostPatterns = rule.getHostPatterns();
         Element hostMatch;
         if (hostPatterns.length > 0) {
-            hostMatch = addHostPatterns(hostPatterns);
+            hostMatch = addHostPatterns(hostPatterns, null);
             m_mappings.add(hostMatch);
         } else {
             hostMatch = getFirstHostMatch();
@@ -123,11 +124,13 @@ public class MappingRules extends RulesXmlFile {
         }
     }
 
-    protected Element addHostPatterns(String[] hostPatterns) {
+    protected Element addHostPatterns(String[] hostPatterns, String domainName) {
         Element hostMatch = FACTORY.createElement("hostMatch", m_namespace);
 
-        Element domainElement = hostMatch.addElement(HOST_PATTERN);
-        domainElement.setText(getDomainManager().getDomain().getName());
+        if (StringUtils.isNotEmpty(domainName)) {
+            Element domainElement = hostMatch.addElement(HOST_PATTERN);
+            domainElement.setText(getDomainManager().getDomain().getName());
+        }
 
         for (String hostPattern : hostPatterns) {
             Element pattern = hostMatch.addElement(HOST_PATTERN);
