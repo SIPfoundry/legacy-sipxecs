@@ -115,6 +115,16 @@
     </property>
   </bean>
 
+   <bean name="validSipUserIdOrAor" class="org.apache.tapestry.form.validator.Pattern">
+    <property name="pattern">
+      <value>([&SIP_USER_CHARS;]|&SIP_USER_ESCAPED;)+|([&SIP_USER_CHARS;]|&SIP_USER_ESCAPED;)+@\w[-._\w]*\w\.\w{2,6}</value>
+    </property>
+    <property name="message">
+      <value>Please enter a valid User ID or SIP URI. Spaces and some special characters are not allowed in User ID. 
+        example: 321, joedoe, joedoe@example.com</value>
+    </property>
+  </bean>
+
   <bean name="validMappingRuleSipUserId" class="org.apache.tapestry.form.validator.Pattern">
     <property name="pattern">
       <value>([&SIP_USER_CHARS;&SIP_USER_REGEX;]|&SIP_USER_ESCAPED;)+</value>
