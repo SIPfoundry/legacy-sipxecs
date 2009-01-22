@@ -189,9 +189,14 @@ class DialogContext {
                         MinSE minSe = new MinSE();
                         minSe.setExpires(Gateway.getSessionExpires());
                         request.setHeader(minSe);
-                        SubjectHeader sh = ProtocolObjects.headerFactory
+                        if ( getItspInfo() != null && ! getItspInfo().stripPrivateHeaders() ) {
+                            SubjectHeader sh = ProtocolObjects.headerFactory
                                 .createSubjectHeader("SipxBridge Session Timer");
-                        request.setHeader(sh);
+                            request.setHeader(sh);
+                        } else {
+                            SipUtilities.stripPrivateHeaders(request);
+                            
+                        }
 
                         if (getItspInfo() == null || getItspInfo().isGlobalAddressingUsed()) {
                             SipUtilities.setGlobalAddresses(request);

@@ -186,6 +186,28 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
         return earlyMediaStarted;
     }
 
+    /**
+     * The transmitter send method. Implements the following algorithm:
+     * 
+     * <pre>
+     * SymTransmitterEndpoint::send(byteBuffer) :
+     *    record last packet sent time
+     *    if we have a remote address recorded for this transmitter and packet is
+     *       potentially self routed then :
+     *          channel = getSelfRoutedDatagramChannel(remoteAddress)
+     *          if channel != null :
+     *              bridge = getBridge(channel)
+     *              DataShuffler.send(bridge,channel,remoteAddress)
+     *          else:
+     *              this.datagramChannel.send(byteBuffer,remoteAddress)
+     *    else if we have a remote address recorded for this transmitter:
+     *         this.datagramChannel.send(byeBuffer,remoteAddress)
+     *         
+     *</pre>
+     * 
+     * @param byteBuffer
+     * @throws IOException
+     */
     public void send(ByteBuffer byteBuffer) throws IOException {
 
         if (this.getSocketAddress() == null) {

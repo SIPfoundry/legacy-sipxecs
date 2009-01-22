@@ -46,9 +46,13 @@ import javax.sip.header.ContactHeader;
 import javax.sip.header.ContentTypeHeader;
 import javax.sip.header.ExpiresHeader;
 import javax.sip.header.FromHeader;
+import javax.sip.header.InReplyToHeader;
 import javax.sip.header.MaxForwardsHeader;
+import javax.sip.header.OrganizationHeader;
 import javax.sip.header.ReferToHeader;
+import javax.sip.header.ReplyToHeader;
 import javax.sip.header.RouteHeader;
+import javax.sip.header.SubjectHeader;
 import javax.sip.header.SupportedHeader;
 import javax.sip.header.ToHeader;
 import javax.sip.header.UserAgentHeader;
@@ -1279,6 +1283,23 @@ class SipUtilities {
                         .setHeader(ProtocolObjects.headerFactory
                                 .createSupportedHeader("replaces"));
             }
+        } catch (Exception ex) {
+            String s = "Unexpected exception";
+            logger.fatal(s, ex);
+            throw new SipXbridgeException(s, ex);
+        }
+
+    }
+
+    public static void stripPrivateHeaders(Request request) {
+        // TODO Auto-generated method stub
+        try {
+            request.removeHeader(SubjectHeader.NAME);
+            request.removeHeader(OrganizationHeader.NAME);
+            request.removeHeader(ReplyToHeader.NAME);
+            request.removeHeader(InReplyToHeader.NAME);
+            Address fromAddress = ((FromHeader) request.getHeader(FromHeader.NAME)).getAddress();
+            fromAddress.setDisplayName(null);
         } catch (Exception ex) {
             String s = "Unexpected exception";
             logger.fatal(s, ex);

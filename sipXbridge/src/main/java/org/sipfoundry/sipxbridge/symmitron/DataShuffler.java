@@ -72,6 +72,25 @@ class DataShuffler implements Runnable {
 
     }
 
+    /**
+     * Send method to send a packet received from a datagram channel to all the
+     * active legs of a bridge.
+     * 
+     * <pre>
+     * send(bridge,datagramChannel, addressWherePacketCameFrom) :
+     *    for each sym in bridge do :
+     *       if sym.receiver.datagramChannel == datagramChannel && sym.isAutoLearn
+     *           sym.receiver.farEnd = addressWherePacketCameFrom
+     *       else if sym.transmitter.state == RUNNING :
+     *          sym.transmitter.send(byteBuffer)
+     * </pre>
+     * 
+     * @param bridge -- the bridge to forward through.
+     * @param datagramChannel -- datagramChannel on which packet was received.
+     * @param remoteAddress -- remote address to send to.
+     * @throws UnknownHostException -- if there was a problem with the specified
+     *    remote address.
+     */
     public static void send(Bridge bridge, DatagramChannel datagramChannel,
             InetSocketAddress remoteAddress) throws UnknownHostException {
         try {
@@ -152,6 +171,19 @@ class DataShuffler implements Runnable {
 
     }
 
+    /**
+     * Sit in a loop running the following algorthim till exit:
+     * 
+     * <pre>
+     * Let Si be a Sym belonging to Bridge B where an inbound packet P is received
+     * Increment received packet count for B.
+     * Record time for the received packet.
+     * Record inboundAddress from where the packet was received
+     * send(B,chan,inboundAddress)
+     *            
+     * </pre>
+     *             
+     */
     public void run() {
 
         // Wait for an event one of the registered channels
@@ -237,6 +269,23 @@ class DataShuffler implements Runnable {
         }
 
     }
+    
+    /**
+     * 
+     * Implements the following search algorithm to retrieve a datagram channel
+     * that is associated with the far end:
+     * <pre>
+     * getSelfRoutedDatagramChannel(farEnd)
+     * For each selectable key do:
+     *   let ipAddress be the local ip address
+     *   let p be the local port
+     *   let d be the datagramChannel associated with the key
+     *   If  farEnd.ipAddress == ipAddress  && port == localPort return d
+     * return null
+     * </pre>
+     * @param farEnd
+     * @return
+     */
 
     public static DatagramChannel getSelfRoutedDatagramChannel (InetSocketAddress farEnd) {
         // Iterate over the set of keys for which events are

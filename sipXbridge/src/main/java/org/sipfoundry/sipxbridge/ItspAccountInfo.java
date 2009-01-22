@@ -529,7 +529,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
     }
 
     public String getCallerId() {
-        if (this.callerId != null && !useDefaultAssertedIdentity) {
+        if (this.callerId != null && ! useDefaultAssertedIdentity ) {
             return this.callerId;
         } else if (this.isRegisterOnInitialization()) {
             return this.getUserName() + "@" + this.getProxyDomain();
@@ -572,11 +572,24 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
         return stripPrivateHeaders;
     }
     
-   
-    public void useDefaultAssertedIdentity( boolean flag ) {
+    
+    /**
+     * set the flag to use default asserted identity.
+     * 
+     * @param flag
+     */
+    public void setUseDefaultAssertedIdentity(boolean flag) {
         this.useDefaultAssertedIdentity = flag;
     }
 
-   
+    /**
+     * Remove a failure counter.
+     * 
+     * @param callId
+     */
+    public void removeFailureCounter(String callId) {
+       this.failureCountTable.remove(callId);     
+    }
+
 
 }

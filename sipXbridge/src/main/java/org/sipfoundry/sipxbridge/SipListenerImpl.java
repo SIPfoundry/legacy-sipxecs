@@ -41,6 +41,153 @@ public class SipListenerImpl implements SipListener {
     /**
      * Handle a Dialog Terminated event. Cleans up all the resources associated with a Dialog.
      */
+
+    private static void handleAuthenticationChallenge(ResponseEvent responseEvent)
+            throws Exception {
+
+        SipProvider provider = (SipProvider) responseEvent.getSource();
+
+        Dialog dialog = responseEvent.getDialog();
+        /*
+         * challenge from LAN side. Cannot handle this.
+         */
+        if (provider == Gateway.getLanProvider()) {
+            /*
+             * If we do not handle LAN originated challenges, tear down the call.
+             */
+            if (Gateway.getBridgeConfiguration().getSipxbridgePassword() == null) {
+                ServerTransaction stx = ((TransactionContext) responseEvent
+                        .getClientTransaction().getApplicationData()).getServerTransaction();
+                if (stx != null) {
+                    Response errorResponse = SipUtilities.createResponse(stx, Response.DECLINE);
+                    stx.sendResponse(errorResponse);
+
+                }
+                if (dialog != null && DialogContext.get(dialog).getBackToBackUserAgent() != null) {
+                    DialogContext.get(dialog).getBackToBackUserAgent().tearDown(
+                            Gateway.SIPXBRIDGE_USER, ReasonCode.AUTHENTICATION_FAILURE,
+                            "Unexpected challenge from LAN.");
+                }
+                return;
+            }
+        }
+
+        Response response = responseEvent.getResponse();
+        CSeqHeader cseqHeader = (CSeqHeader) response.getHeader(CSeqHeader.NAME);
+        /*
+         * Note that we need to store a pointer in the TransactionContext because REGISTER does
+         * not have a dialog.
+         */
+        ItspAccountInfo accountInfo = ((TransactionContext) responseEvent.getClientTransaction()
+                .getApplicationData()).getItspAccountInfo();
+
+        String method = cseqHeader.getMethod();
+        String callId = SipUtilities.getCallId(response);
+
+        /*
+         * This happens when we tried handling the challenge earlier.
+         */
+
+        if (accountInfo != null && accountInfo.incrementFailureCount(callId) > 1) {
+
+            /*
+             * Got a 4xx response. Increment the failure count for the account and mark it as
+             * AUTHENTICATION_FAILED
+             */
+            accountInfo.setState(AccountState.AUTHENTICATION_FAILED);
+            if (logger.isDebugEnabled()) {
+                logger.debug("SipListenerImpl: could not authenticate with server. method = "
+                        + method);
+
+            }
+            accountInfo.removeFailureCounter(callId);
+            if (responseEvent.getDialog() != null) {
+                BackToBackUserAgent b2bua = DialogContext.getBackToBackUserAgent(responseEvent
+                        .getDialog());
+                logger.debug("Cannot authenticate request -- tearing down call");
+                if (b2bua != null) {
+                    b2bua.tearDown(Gateway.SIPXBRIDGE_USER, ReasonCode.AUTHENTICATION_FAILURE,
+                            "Could not authenticate request");
+                }
+            }
+            return;
+
+        }
+
+        /*
+         * Re-issue the request with the authentication information tacked on to it.
+         */
+
+        ClientTransaction newClientTransaction = Gateway.getAuthenticationHelper()
+                .handleChallenge(response, responseEvent.getClientTransaction(), provider,
+                        method.equals(Request.REGISTER) ? 0 : -1);
+
+        TransactionContext tad = (TransactionContext) responseEvent.getClientTransaction()
+                .getApplicationData();
+        tad.setClientTransaction(newClientTransaction);
+
+        if (dialog == null) {
+            /*
+             * Out of dialog challenge ( REGISTER ).
+             */
+            newClientTransaction.sendRequest();
+        } else {
+            if (logger.isDebugEnabled()) {
+                logger.debug("SipListenerImpl : dialog = " + dialog);
+            }
+
+            BackToBackUserAgent b2bua = DialogContext.getBackToBackUserAgent(responseEvent
+                    .getDialog());
+            if (b2bua != null) {
+                b2bua.removeDialog(dialog);
+                b2bua.addDialog(newClientTransaction.getDialog());
+                DialogContext dialogApplicationData = (DialogContext) dialog.getApplicationData();
+
+                DialogContext newDialogApplicationData = DialogContext.attach(b2bua,
+                        newClientTransaction.getDialog(), newClientTransaction,
+                        newClientTransaction.getRequest());
+                newDialogApplicationData.peerDialog = dialogApplicationData.peerDialog;
+                newClientTransaction.getDialog().setApplicationData(newDialogApplicationData);
+                /*
+                 * Hook the application data pointer of the previous guy in the chain at us.
+                 */
+                DialogContext peerDialogApplicationData = (DialogContext) dialogApplicationData.peerDialog
+                        .getApplicationData();
+                peerDialogApplicationData.peerDialog = newClientTransaction.getDialog();
+                newDialogApplicationData.setRtpSession(dialogApplicationData.getRtpSession());
+
+                if (logger.isDebugEnabled()) {
+                    logger.debug("SipListenerImpl: New Dialog = "
+                            + newClientTransaction.getDialog());
+                }
+
+            }
+
+            if (dialog.getState() == DialogState.CONFIRMED) {
+                /*
+                 * In-DIALOG challenge. Re-INVITE was challenged.
+                 */
+                ToHeader toHeader = (ToHeader) newClientTransaction.getRequest().getHeader(
+                        ToHeader.NAME);
+                if (toHeader.getTag() != null) {
+                    /*
+                     * This check should not be necessary.
+                     */
+                    dialog.sendRequest(newClientTransaction);
+                }
+
+            } else {
+                newClientTransaction.sendRequest();
+            }
+        }
+
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.sip.SipListener#processDialogTerminated(javax.sip.DialogTerminatedEvent)
+     */
     public void processDialogTerminated(DialogTerminatedEvent dte) {
 
         logger.debug("DialogTerminatedEvent " + dte.getDialog());
@@ -132,10 +279,9 @@ public class SipListenerImpl implements SipListener {
 
         if (method.equals(Request.INVITE) || method.equals(Request.ACK)
                 || method.equals(Request.CANCEL) || method.equals(Request.BYE)
-                || method.equals(Request.OPTIONS) || method.equals(Request.REFER))
+                || method.equals(Request.OPTIONS) || method.equals(Request.REFER)) {
             Gateway.getCallControlManager().processRequest(requestEvent);
-
-        else {
+        } else {
             try {
                 Response response = ProtocolObjects.messageFactory.createResponse(
                         Response.METHOD_NOT_ALLOWED, request);
@@ -172,8 +318,6 @@ public class SipListenerImpl implements SipListener {
         CSeqHeader cseqHeader = (CSeqHeader) response.getHeader(CSeqHeader.NAME);
 
         String method = cseqHeader.getMethod();
-        String callId = SipUtilities.getCallId(response);
-       
 
         try {
 
@@ -184,148 +328,58 @@ public class SipListenerImpl implements SipListener {
                  */
 
                 logger.debug("Discarding response - no client tx state found");
-                /* if the tx does not exist but the dialog does exist then this is a forked response */
-                
+                /*
+                 * if the tx does not exist but the dialog does exist then this is a forked
+                 * response
+                 */
+
                 Dialog dialog = responseEvent.getDialog();
                 SipProvider provider = (SipProvider) responseEvent.getSource();
-                if (dialog != null &&  dialog.getApplicationData() == null ) {
+                if (dialog != null && dialog.getApplicationData() == null) {
                     /*
                      * Kill off the dialog.
                      */
-                    if ( response.getStatusCode() == Response.OK && method.equals(Request.INVITE )) {
+                    if (response.getStatusCode() == Response.OK && method.equals(Request.INVITE)) {
                         Request ackRequest = dialog.createAck(cseqHeader.getSeqNumber());
                         dialog.sendAck(ackRequest);
                         Request byeRequest = dialog.createRequest(Request.BYE);
-                        ClientTransaction byeClientTransaction = provider.getNewClientTransaction(byeRequest);
+                        ClientTransaction byeClientTransaction = provider
+                                .getNewClientTransaction(byeRequest);
                         dialog.sendRequest(byeClientTransaction);
                     }
                 }
                 return;
             }
-            // Processing an OK for a NOTIFY -- do nothing.
+
             if (responseEvent.getClientTransaction().getApplicationData() == null) {
                 logger.debug("Discarding response -- no transaction context information");
                 return;
             }
 
-            logger.debug("processResponse : operator "
-                    + TransactionContext.get(responseEvent.getClientTransaction()).getOperation());
+            logger
+                    .debug("processResponse : operator "
+                            + TransactionContext.get(responseEvent.getClientTransaction())
+                                    .getOperation());
+
+            /*
+             * Handle proxy challenge.
+             */
+            if (response.getStatusCode() == Response.PROXY_AUTHENTICATION_REQUIRED
+                    || response.getStatusCode() == Response.UNAUTHORIZED) {
+                handleAuthenticationChallenge(responseEvent);
+                return;
+            }
 
             ItspAccountInfo accountInfo = ((TransactionContext) responseEvent
                     .getClientTransaction().getApplicationData()).getItspAccountInfo();
 
-            if ((response.getStatusCode() == Response.PROXY_AUTHENTICATION_REQUIRED
-                    || response.getStatusCode() == Response.UNAUTHORIZED || (response
-                    .getStatusCode() > 200 && method.equals(Request.REGISTER)))
-                    && accountInfo != null && accountInfo.incrementFailureCount(callId) > 1) {
+            String callId = SipUtilities.getCallId(response);
 
-                /*
-                 * Got a 4xx response. Increment the failure count for the account and mark it as
-                 * AUTHENTICATION_FAILED
-                 */
-                accountInfo.setState(AccountState.AUTHENTICATION_FAILED);
-                if (logger.isDebugEnabled()) {
-                    logger.debug("SipListenerImpl: could not authenticate with server. "
-                            + "Here is the response " + response);
-
-                }
-
-                if (method.equals(Request.REGISTER)) {
-                    return;
-                }
-            }
-
-            if (response.getStatusCode() == Response.PROXY_AUTHENTICATION_REQUIRED
-                    || response.getStatusCode() == Response.UNAUTHORIZED) {
-
-                SipProvider provider = (SipProvider) responseEvent.getSource();
-
-                Dialog dialog = responseEvent.getDialog();
-                if (logger.isDebugEnabled()) {
-                    logger.debug("SipListenerImpl : dialog = " + dialog);
-                }
-                BackToBackUserAgent b2bua = DialogContext.getBackToBackUserAgent(responseEvent
-                        .getDialog());
-                if (b2bua != null) {
-                    b2bua.removeDialog(dialog);
-                }
-
-                
-                /*
-                 * challenge from LAN side. 
-                 */
-                if (provider == Gateway.getLanProvider()) {
-                    /*
-                     * If we do not handle LAN originated challenges, tear down the 
-                     * call.
-                     */
-                    if (Gateway.getBridgeConfiguration().getSipxbridgePassword() == null) {
-                        ServerTransaction stx = ((TransactionContext) responseEvent
-                                .getClientTransaction().getApplicationData())
-                                .getServerTransaction();
-                        if (stx != null) {
-                            Response errorResponse = SipUtilities.createResponse(stx,
-                                    Response.DECLINE);
-                            stx.sendResponse(errorResponse);
-
-                        }
-                        if (DialogContext.get(responseEvent.getDialog()).getBackToBackUserAgent() != null) {
-                            DialogContext.get(responseEvent.getDialog()).getBackToBackUserAgent()
-                                    .tearDown(Gateway.SIPXBRIDGE_USER,
-                                            ReasonCode.ACCOUNT_NOT_FOUND,
-                                            "Unexpected challenge from LAN.");
-                        }
-                        return;
-                    }
-                }
-
-                ClientTransaction newClientTransaction = Gateway.getAuthenticationHelper()
-                        .handleChallenge(response, responseEvent.getClientTransaction(),
-                                provider, method.equals(Request.REGISTER) ? 0 : -1);
-
-                // Handle authentication responses locally.
-
-                TransactionContext tad = (TransactionContext) responseEvent
-                        .getClientTransaction().getApplicationData();
-                tad.setClientTransaction(newClientTransaction);
-
-                if (b2bua != null) {
-                    b2bua.addDialog(newClientTransaction.getDialog());
-                    DialogContext dialogApplicationData = (DialogContext) dialog
-                            .getApplicationData();
-
-                    DialogContext newDialogApplicationData = DialogContext.attach(b2bua,
-                            newClientTransaction.getDialog(), newClientTransaction,
-                            newClientTransaction.getRequest());
-                    newDialogApplicationData.peerDialog = dialogApplicationData.peerDialog;
-                    newClientTransaction.getDialog().setApplicationData(newDialogApplicationData);
-                    /*
-                     * Hook the application data pointer of the previous guy in the chain at us.
-                     */
-                    DialogContext peerDialogApplicationData = (DialogContext) dialogApplicationData.peerDialog
-                            .getApplicationData();
-                    peerDialogApplicationData.peerDialog = newClientTransaction.getDialog();
-                    newDialogApplicationData.setRtpSession(dialogApplicationData.getRtpSession());
-
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("SipListenerImpl: New Dialog = "
-                                + newClientTransaction.getDialog());
-                    }
-
-                }
-
-                if (dialog != null && dialog.getState() == DialogState.CONFIRMED) {
-                    ToHeader toHeader = (ToHeader) newClientTransaction.getRequest().getHeader(
-                            ToHeader.NAME);
-                    if (toHeader.getTag() != null) {
-                        dialog.sendRequest(newClientTransaction);
-                    }
-
-                } else {
-                    newClientTransaction.sendRequest();
-                }
-
-                return;
+            /*
+             * Garbage collect the failure counter if it exists.
+             */
+            if (accountInfo != null && response.getStatusCode() / 200 == 1) {
+                accountInfo.removeFailureCounter(callId);
             }
 
             if (method.equals(Request.REGISTER)) {

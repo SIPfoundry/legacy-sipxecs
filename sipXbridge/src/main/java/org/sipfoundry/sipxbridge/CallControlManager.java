@@ -2001,9 +2001,7 @@ class CallControlManager implements SymmitronResetHandler {
 				 * side on hold. Note tha this case MOH will not play.
 				 */
 				SendInviteToMohServerContinuationData continuation = (SendInviteToMohServerContinuationData) transactionContext.getContinuationData();
-				// DialogApplicationData.get(continuation.getDialog()).mohCodecNegotiationFailed
-				// =
-				// true;
+				
 
 				/*
 				 * Send an ACK back to the WAN side and replay the same Session

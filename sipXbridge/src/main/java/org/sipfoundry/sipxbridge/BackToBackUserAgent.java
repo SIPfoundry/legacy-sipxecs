@@ -434,8 +434,9 @@ public class BackToBackUserAgent {
 
         for (Dialog d : dialogTable) {
             DialogContext dat = DialogContext.get(d);
-            if (!dat.isOriginatedBySipxbridge)
-                count++;
+            if (!dat.isOriginatedBySipxbridge) {
+                count++; 
+            }
         }
 
         if (count == 0) {
@@ -455,6 +456,7 @@ public class BackToBackUserAgent {
             this.sendByeToMohServer();
             Gateway.getBackToBackUserAgentFactory().removeBackToBackUserAgent(this);
         }
+        
     }
 
    
