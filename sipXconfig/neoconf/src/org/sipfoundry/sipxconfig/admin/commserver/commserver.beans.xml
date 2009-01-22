@@ -126,7 +126,6 @@
     <property name="alarmServerConfiguration" ref="alarmServerConfiguration" />
     <property name="alarmsConfiguration" ref="alarmsConfiguration" />
     <property name="sipxUser" value="${sysdir.user}" />
-    <property name="hostName" value="${sip.hostName}" />
     <property name="logDirectory" value="${sysdir.log}" />
     <property name="configDirectory" value="${sysdir.etc}" />
   </bean>

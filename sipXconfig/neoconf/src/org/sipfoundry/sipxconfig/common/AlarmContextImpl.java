@@ -51,7 +51,6 @@ public class AlarmContextImpl extends SipxHibernateDaoSupport implements AlarmCo
     private AlarmServerConfiguration m_alarmServerConfiguration;
     private AlarmConfiguration m_alarmsConfiguration;
     private String m_sipxUser;
-    private String m_hostName;
     private String m_logDirectory;
     private String m_configDirectory;
     private String m_alarmsStringsDirectory;
@@ -87,14 +86,6 @@ public class AlarmContextImpl extends SipxHibernateDaoSupport implements AlarmCo
 
     public void setSipxUser(String sipxUser) {
         m_sipxUser = sipxUser;
-    }
-
-    public String getHostName() {
-        return m_hostName;
-    }
-
-    public void setHostName(String hostName) {
-        m_hostName = hostName;
     }
 
     public void setLogDirectory(String logDirectory) {
@@ -191,7 +182,7 @@ public class AlarmContextImpl extends SipxHibernateDaoSupport implements AlarmCo
 
     public void replicateAlarmServer() {
         AlarmServer alarmServer = getAlarmServer();
-        m_alarmServerConfiguration.generate(alarmServer, getLogDirectory(), getHostName());
+        m_alarmServerConfiguration.generate(alarmServer, getLogDirectory(), m_host);
         m_replicationContext.replicate(m_alarmServerConfiguration);
     }
 
