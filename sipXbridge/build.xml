@@ -30,6 +30,7 @@
 	<property name="lib" location="${src.dir}/lib" />
 	<property name="tools" location="${src.dir}/tools" />
 	<property name="junit.reports" value="${src.dir}/junit" />
+	<property name='j2se_api' value='http://java.sun.com/j2se/1.5/docs/api' />
 
 <!-- The libraries -->
 	<path id="base.path">
@@ -139,8 +140,28 @@
     	<copy todir="${dest.dir}${sipxbridge.dir}">
 		<fileset file="${stun4j}" />
     	</copy>
-  </target>
+    </target>
 
+    <target name = "javadoc" >
+		<javadoc packagenames="org.sipfoundry.sipxbridge.symmitron,org.sipfoundry.sipxbridge.xmlrpc" sourcepath="./src/main/java" destdir="design/javadoc" use="true" splitindex="true" windowtitle="SipXbridge and SipXRelay external Interface" doctitle="SipXbridge: The Sipx ITSP Bridge" public="true" author="true" version="true" defaultexcludes="yes" additionalparam="-breakiterator">
+			<link href="${j2se_api}" />
+			<header>
+				<![CDATA[
+					<b> SipXbridge and SipXrelay API </b>
+				]]>
+			</header>
+		        <bottom>
+			<![CDATA[ <font size="-1">
+			<a href="www.sipfoundry.org">  </a>
+			<br>
+				<br>
+				Copyright(c) Nortel Networks. Released under the GNU LGPL license. 
+				<br>
+				</font>
+			]]>
+		        </bottom>
+		</javadoc>
+	</target>
 <!-- unit tests  -->
 
 <target name="mkreportdir">
