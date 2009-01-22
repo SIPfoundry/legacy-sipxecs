@@ -31,7 +31,7 @@ public class VoicemailXmlTest extends SipxServiceTestBase {
         statusService.setModelId(SipxStatusService.BEAN_ID);
         statusService.setHttpsPort(9910);
 
-        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(mediaService, statusService);
+        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(false, mediaService, statusService);
         replay(sipxServiceManager);
 
         VoicemailXml out = new VoicemailXml();

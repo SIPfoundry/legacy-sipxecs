@@ -10,7 +10,7 @@
     <rediscovery-time>60</rediscovery-time>
     <publicport>1234</publicport>
     <publicaddress>1.2.3.4</publicaddress>
-    <proxyhostport>11.126.12.15:5060</proxyhostport>
+    <proxyhostport>192.168.1.1:5060</proxyhostport>
     <relayaggressiveness>Aggressive</relayaggressiveness>
     <concurrentrelays>50</concurrentrelays>
     <mediarelayexternaladdress>11.12.13.14</mediarelayexternaladdress>

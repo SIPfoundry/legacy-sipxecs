@@ -74,8 +74,7 @@ public class SipXMediaServerTest extends TestCase {
         mediaService.setLocationsManager(locationsManager);
         mediaService.setVoicemailHttpsPort(443);
 
-        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(mediaService);
-        EasyMock.replay(sipxServiceManager);
+        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(true, mediaService);
         mediaServer.setSipxServiceManager(sipxServiceManager);
     }
 }

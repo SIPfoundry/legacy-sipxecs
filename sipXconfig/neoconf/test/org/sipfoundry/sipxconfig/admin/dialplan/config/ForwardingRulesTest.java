@@ -54,6 +54,7 @@ public class ForwardingRulesTest extends XMLTestCase {
         XMLUnit.setIgnoreWhitespace(true);
 
         DomainManager domainManager = TestUtil.getMockDomainManager();
+        EasyMock.replay(domainManager);
 
         SipxProxyService proxyService = new SipxProxyService();
         proxyService.setModelId(SipxProxyService.BEAN_ID);
@@ -72,8 +73,7 @@ public class ForwardingRulesTest extends XMLTestCase {
         registrarService.setRegistrarEventSipPort("9906");
         registrarService.setSipPort("9907");
 
-        m_sipxServiceManager = TestUtil.getMockSipxServiceManager(proxyService, registrarService, statusService);
-        EasyMock.replay(domainManager, m_sipxServiceManager);
+        m_sipxServiceManager = TestUtil.getMockSipxServiceManager(true, proxyService, registrarService, statusService);
     }
 
     public void testGenerate() throws Exception {

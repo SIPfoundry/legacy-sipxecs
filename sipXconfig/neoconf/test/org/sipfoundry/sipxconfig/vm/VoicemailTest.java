@@ -42,8 +42,7 @@ public class VoicemailTest extends TestCase {
         m_mailboxManager = new MailboxManagerImpl();
         SipxMediaService mediaService = new SipxMediaService();
         mediaService.setBeanId(SipxMediaService.BEAN_ID);
-        SipxServiceManager serviceManager = TestUtil.getMockSipxServiceManager(mediaService);
-        EasyMock.replay(serviceManager);
+        SipxServiceManager serviceManager = TestUtil.getMockSipxServiceManager(true, mediaService);
         m_mailboxManager.setSipxServiceManager(serviceManager);
         
         LocationsManager locationsManager = EasyMock.createMock(LocationsManager.class);

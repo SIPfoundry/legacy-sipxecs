@@ -54,6 +54,7 @@ public class ConfigGeneratorTest extends XMLTestCase {
         m_domainManager = EasyMock.createMock(DomainManager.class);
         m_domainManager.getDomain();
         EasyMock.expectLastCall().andReturn(new Domain("example.org")).anyTimes();
+        EasyMock.replay(m_domainManager);
 
         SipxProxyService proxyService = new SipxProxyService();
         proxyService.setModelId(SipxProxyService.BEAN_ID);
@@ -72,8 +73,7 @@ public class ConfigGeneratorTest extends XMLTestCase {
         registrarService.setRegistrarEventSipPort("9906");
         registrarService.setSipPort("9907");
 
-        m_sipxServiceManager = TestUtil.getMockSipxServiceManager(proxyService, registrarService, statusService);
-        EasyMock.replay(m_domainManager, m_sipxServiceManager);
+        m_sipxServiceManager = TestUtil.getMockSipxServiceManager(true, proxyService, registrarService, statusService);
     }
 
     public void testGetFileContent() throws Exception {

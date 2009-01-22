@@ -85,8 +85,7 @@ public class MappingRulesTest extends XMLTestCase {
         };
         pageService.setModelId(SipxPageService.BEAN_ID);
 
-        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(parkService, rlsService, pageService);
-        EasyMock.replay(sipxServiceManager);
+        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(true, parkService, rlsService, pageService);
         m_out.setSipxServiceManager(sipxServiceManager);
     }
 

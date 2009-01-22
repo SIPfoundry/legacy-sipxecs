@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.nattraversal;
 
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
@@ -26,8 +27,7 @@ public class NatTraversal extends BeanWithGroups {
     private boolean m_behindnat;
     private String m_logDirectory;
     private SbcDeviceManager m_sbcDeviceManager;
-    private String m_proxyAddress;
-    private String m_proxyServerSipHostport;
+    private LocationsManager m_locationsManager;
 
     public NatTraversal() {
         super();
@@ -41,11 +41,15 @@ public class NatTraversal extends BeanWithGroups {
 
     @Override
     public void initialize() {
-        addDefaultBeanSettingHandler(new Defaults(this));
+        addDefaultBeanSettingHandler(new Defaults(this, m_locationsManager));
     }
 
     public void setSbcDeviceManager(SbcDeviceManager sbcDeviceManager) {
         m_sbcDeviceManager = sbcDeviceManager;
+    }
+    
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
     }
 
     public SbcDeviceManager getSbcDeviceManager() {
@@ -70,9 +74,11 @@ public class NatTraversal extends BeanWithGroups {
 
     public static class Defaults {
         private NatTraversal m_natTraversal;
+        private LocationsManager m_locationsManager;
 
-        Defaults(NatTraversal natTraversal) {
+        Defaults(NatTraversal natTraversal, LocationsManager locationsManager) {
             m_natTraversal = natTraversal;
+            m_locationsManager = locationsManager;
         }
 
         @SettingEntry(path = "nattraversal-symmitron/port-range")
@@ -84,20 +90,22 @@ public class NatTraversal extends BeanWithGroups {
 
         @SettingEntry(path = "nattraversal-bridge/mediarelayexternaladdress")
         public String getSymmitronLocalAddress() {
+          //FIXME There are several issues here.  Is primary server address the correct one to use?
             //Don't make sbc bridge a member in NatTraversal because you may end up having two bridge
             //references in the hibernate session when sbc bridge makes port range validation for instance
             BridgeSbc bridge = m_natTraversal.getSbcDeviceManager().getBridgeSbc();
             return bridge != null ? bridge.getSettingValue("bridge-configuration/external-address")
-                    : m_natTraversal.getProxyAddress();
+                    : m_locationsManager.getPrimaryLocation().getAddress();
         }
 
         @SettingEntry(path = "nattraversal-bridge/mediarelaynativeaddress")
         public String getSymmitronExternalAddress() {
+            //FIXME There are several issues here.  Is primary server address the correct one to use?
             //Don't make sbc bridge a member in NatTraversal because you may end up having two bridge
             //references in the hibernate session when sbc bridge makes port range validation for instance
             BridgeSbc bridge = m_natTraversal.getSbcDeviceManager().getBridgeSbc();
             return bridge != null ? bridge.getSettingValue("bridge-configuration/local-address")
-                    : m_natTraversal.getProxyAddress();
+                    : m_locationsManager.getPrimaryLocation().getAddress();
         }
 
         @SettingEntry(path = "nattraversal-symmitron/log-directory")
@@ -114,22 +122,4 @@ public class NatTraversal extends BeanWithGroups {
     public String getLogDirectory() {
         return m_logDirectory;
     }
-    public String getProxyAddress() {
-        return m_proxyAddress;
-    }
-
-    public void setProxyAddress(String proxyAddress) {
-        m_proxyAddress = proxyAddress;
-    }
-
-    public String getProxyServerSipHostport() {
-        return m_proxyServerSipHostport;
-    }
-
-    public void setProxyServerSipHostport(String proxyServerSipHostport) {
-        m_proxyServerSipHostport = proxyServerSipHostport;
-    }
-
-
-
 }

@@ -1,16 +1,23 @@
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
+import static org.easymock.EasyMock.createNiceMock;
+import static org.easymock.EasyMock.expectLastCall;
+
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.DefaultSbc;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.Sbc;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
@@ -20,9 +27,9 @@ import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcRoutes;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
 import org.sipfoundry.sipxconfig.nattraversal.NatTraversal;
 import org.sipfoundry.sipxconfig.nattraversal.NatTraversalManager;
-
-import static org.easymock.EasyMock.createNiceMock;
-import static org.easymock.EasyMock.expectLastCall;
+import org.sipfoundry.sipxconfig.service.SipxProxyService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class NatTraversalRulesTest extends XMLTestCase {
     private SbcManager m_sbcManager;
@@ -30,6 +37,8 @@ public class NatTraversalRulesTest extends XMLTestCase {
     private SbcDeviceManager m_sbcDeviceManager;
     private NatTraversal m_natTraversal;
     private BridgeSbc m_bridgeSbc;
+    private LocationsManager m_locationsManager;
+    private SipxServiceManager m_sipxServiceManager;
 
     @Override
     protected void setUp() throws Exception {
@@ -44,20 +53,29 @@ public class NatTraversalRulesTest extends XMLTestCase {
         expectLastCall().andReturn(sbc);
 
         m_natTraversal = new NatTraversal();
+        
+        m_locationsManager = EasyMock.createMock(LocationsManager.class);
+        m_locationsManager.getPrimaryLocation();
+        EasyMock.expectLastCall().andReturn(TestUtil.createDefaultLocation()).anyTimes();
+        EasyMock.replay(m_locationsManager);
+        m_natTraversal.setLocationsManager(m_locationsManager);
+        
         m_natTraversal.setModelFilesContext(TestHelper.getModelFilesContext());
         m_natTraversal.setEnabled(true);
         m_natTraversal.getSettings().getSetting("nattraversal-info/relayaggressiveness").setValue("Aggressive");
         m_natTraversal.getSettings().getSetting("nattraversal-info/concurrentrelays").setValue("2");
         m_natTraversal.getSettings().getSetting("nattraversal-info/rediscovery-time").setValue("26");
-        m_natTraversal.setProxyAddress("11.126.12.15");
-        m_natTraversal.setProxyServerSipHostport("11.126.12.15:5060");
         m_natTraversal.setLogDirectory("/usr/local/sipx/var/log/sipxpbx");
         m_natTraversal.getSettings().getSetting("nattraversal-info/publicport").setValue("1234");
 
         m_natTraversalManager = createNiceMock(NatTraversalManager.class);
         m_natTraversalManager.getNatTraversal();
         expectLastCall().andReturn(m_natTraversal);
-
+        
+        SipxProxyService sipxProxyService = new SipxProxyService();
+        sipxProxyService.setBeanId(SipxProxyService.BEAN_ID);
+        sipxProxyService.setSipPort("5060");
+        m_sipxServiceManager = TestUtil.getMockSipxServiceManager(true, sipxProxyService);
     }
 
     public void testGenerateNoBehindNat() throws Exception {
@@ -72,12 +90,8 @@ public class NatTraversalRulesTest extends XMLTestCase {
         m_natTraversal.setSbcDeviceManager(m_sbcDeviceManager);
         EasyMock.replay(m_sbcManager, m_sbcDeviceManager, m_natTraversalManager);
 
-        NatTraversalRules rules = generate(m_sbcManager, m_natTraversalManager);
-
-        String generatedXml = rules.getFileContent();
-
-        InputStream referenceXmlStream = NatTraversalRulesTest.class.getResourceAsStream("nattraversalrules.test.no-behind-nat.xml");
-        assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(generatedXml));
+        NatTraversalRules rules = generate(m_natTraversalManager);
+        assertCorrectFileGeneration(rules, "nattraversalrules.test.no-behind-nat.xml");
     }
 
     public void testGenerateNoPublicAddress() throws Exception {
@@ -92,15 +106,10 @@ public class NatTraversalRulesTest extends XMLTestCase {
         m_natTraversal.setSbcDeviceManager(m_sbcDeviceManager);
         EasyMock.replay(m_sbcManager, m_sbcDeviceManager, m_natTraversalManager);
 
-        NatTraversalRules rules = generate(m_sbcManager, m_natTraversalManager);
-
-        String generatedXml = rules.getFileContent();
-
-        InputStream referenceXmlStream = NatTraversalRulesTest.class
-                .getResourceAsStream("nattraversalrules.test.no-public-address.xml");
-
-        assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(generatedXml));
+        NatTraversalRules rules = generate(m_natTraversalManager);
+        assertCorrectFileGeneration(rules, "nattraversalrules.test.no-public-address.xml");
     }
+
     /**
      * Tests default values generation when there is a SBC bridge created
      * @throws Exception
@@ -112,8 +121,6 @@ public class NatTraversalRulesTest extends XMLTestCase {
         natTraversal.getSettings().getSetting("nattraversal-info/relayaggressiveness").setValue("Aggressive");
         natTraversal.setBehindnat(true);
         natTraversal.getSettings().getSetting("nattraversal-info/publicaddress").setValue("1.2.3.4");
-        natTraversal.setProxyAddress("11.126.12.15");
-        natTraversal.setProxyServerSipHostport("11.126.12.15:5060");
         natTraversal.setLogDirectory("/usr/local/sipx/var/log/sipxpbx");
         natTraversal.getSettings().getSetting("nattraversal-info/publicport").setValue("1234");
         m_sbcDeviceManager = createNiceMock(SbcDeviceManager.class);
@@ -132,13 +139,8 @@ public class NatTraversalRulesTest extends XMLTestCase {
 
         EasyMock.replay(m_sbcManager, m_sbcDeviceManager, natTraversalManager);
 
-        NatTraversalRules rules = generate(m_sbcManager, natTraversalManager);
-
-        String generatedXml = rules.getFileContent();
-
-        InputStream referenceXmlStream = NatTraversalRulesTest.class
-                .getResourceAsStream("nattraversalrules.test.sbc-bridge.xml");
-        assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(generatedXml));
+        NatTraversalRules rules = generate(natTraversalManager);
+        assertCorrectFileGeneration(rules, "nattraversalrules.test.sbc-bridge.xml");
     }
 
     public void testGenerateNoStunServer() throws Exception {
@@ -152,23 +154,37 @@ public class NatTraversalRulesTest extends XMLTestCase {
         m_natTraversal.setSbcDeviceManager(m_sbcDeviceManager);
         EasyMock.replay(m_sbcManager, m_sbcDeviceManager, m_natTraversalManager);
 
-        NatTraversalRules rules = generate(m_sbcManager, m_natTraversalManager);
-
-        String generatedXml = rules.getFileContent();
-
-        InputStream referenceXmlStream = NatTraversalRulesTest.class
-                .getResourceAsStream("nattraversalrules.test.no-stun.xml");
-
-        assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(generatedXml));
+        NatTraversalRules rules = generate(m_natTraversalManager);
+        assertCorrectFileGeneration(rules, "nattraversalrules.test.no-stun.xml");
     }
 
-    private static NatTraversalRules generate(SbcManager sbcManager, NatTraversalManager natTraversalManager) {
+    private NatTraversalRules generate(NatTraversalManager natTraversalManager) {
         NatTraversalRules rules = new NatTraversalRules();
         rules.setVelocityEngine(TestHelper.getVelocityEngine());
         rules.setTemplate("nattraversal/nattraversalrules.vm");
-        rules.setSbcManager(sbcManager);
+        rules.setSbcManager(m_sbcManager);
+        rules.setSipxServiceManager(m_sipxServiceManager);
         rules.setNatTraversalManager(natTraversalManager);
         return rules;
+    }
+    
+    private void assertCorrectFileGeneration(NatTraversalRules natTraveralRules,
+            String expectedFileName) throws Exception {
+        natTraveralRules.setVelocityEngine(TestHelper.getVelocityEngine());
+
+        StringWriter actualConfigWriter = new StringWriter();
+        natTraveralRules.write(actualConfigWriter, m_locationsManager.getPrimaryLocation());
+
+        InputStream resourceAsStream = natTraveralRules.getClass().getResourceAsStream(expectedFileName);
+        assertNotNull(resourceAsStream);
+
+        Reader referenceConfigReader = new InputStreamReader(resourceAsStream);
+        String referenceConfig = IOUtils.toString(referenceConfigReader);
+
+        Reader actualConfigReader = new StringReader(actualConfigWriter.toString());
+        String actualConfig = IOUtils.toString(actualConfigReader);
+
+        assertEquals(referenceConfig, actualConfig);
     }
 
     private static Sbc configureSbc(Sbc sbc, SbcDevice sbcDevice, List<String> domains, List<String> subnets) {

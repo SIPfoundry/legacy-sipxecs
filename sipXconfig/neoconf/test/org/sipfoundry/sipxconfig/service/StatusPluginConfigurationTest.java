@@ -25,7 +25,7 @@ public class StatusPluginConfigurationTest extends SipxServiceTestBase {
         mediaService.setVoicemailHttpsPort(9905);
         mediaService.setBeanId(SipxMediaService.BEAN_ID);
 
-        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(statusService,
+        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(false, statusService,
                 mediaService);
         replay(sipxServiceManager);
 

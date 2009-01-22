@@ -186,6 +186,7 @@
     <property name="sbcManager" ref="sbcManager" />
     <property name="natTraversalManager" ref="natTraversalManager" />
     <property name="template" value="nattraversal/nattraversalrules.vm" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
 
   <bean id="dialingRuleCollector" class="org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleCollector" />

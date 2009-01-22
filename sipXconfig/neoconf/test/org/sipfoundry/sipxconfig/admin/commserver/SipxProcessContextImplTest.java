@@ -101,7 +101,7 @@ public class SipxProcessContextImplTest extends TestCase {
         acd.setBeanId(SipxAcdService.BEAN_ID);
         acd.setProcessName("ACDServer");
 
-        SipxServiceManager serviceManager = getMockSipxServiceManager(registrar, media, presence, proxy, acd);
+        SipxServiceManager serviceManager = getMockSipxServiceManager(false, registrar, media, presence, proxy, acd);
 
         ProcessManagerApi api = createMock(ProcessManagerApi.class);
         api.getStateAll("localhost");
@@ -158,7 +158,7 @@ public class SipxProcessContextImplTest extends TestCase {
         acd.setBeanId(SipxAcdService.BEAN_ID);
         acd.setProcessName("ACDServer");
 
-        SipxServiceManager serviceManager = getMockSipxServiceManager(registrar, media, presence, proxy, acd);
+        SipxServiceManager serviceManager = getMockSipxServiceManager(false, registrar, media, presence, proxy, acd);
 
         ProcessManagerApi api = createMock(ProcessManagerApi.class);
         api.getStateAll("localhost");
@@ -249,8 +249,7 @@ public class SipxProcessContextImplTest extends TestCase {
         acd.setBeanId(SipxAcdService.BEAN_ID);
         acd.setProcessName("ACDServer");
 
-        SipxServiceManager serviceManager = getMockSipxServiceManager(registrar, media, presence, proxy, acd);
-
+        SipxServiceManager serviceManager = getMockSipxServiceManager(true, registrar, media, presence, proxy, acd);
 
         ProcessManagerApi api = createMock(ProcessManagerApi.class);
         api.getStateAll("localhost");
@@ -268,7 +267,7 @@ public class SipxProcessContextImplTest extends TestCase {
         provider.getApi(location.getProcessMonitorUrl());
         expectLastCall().andReturn(api).atLeastOnce();
 
-        replay(provider, api, serviceManager);
+        replay(provider, api);
 
         m_processContextImpl.setProcessManagerApiProvider(provider);
         m_processContextImpl.setSipxServiceManager(serviceManager);

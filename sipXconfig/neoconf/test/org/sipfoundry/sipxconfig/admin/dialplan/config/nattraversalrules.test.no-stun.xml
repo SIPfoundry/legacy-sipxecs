@@ -10,11 +10,11 @@
     <rediscovery-time>26</rediscovery-time>
     <publicport>1234</publicport>
     <publicaddress>1.2.3.4</publicaddress>
-    <proxyhostport>11.126.12.15:5060</proxyhostport>
+    <proxyhostport>192.168.1.1:5060</proxyhostport>
     <relayaggressiveness>Aggressive</relayaggressiveness>
     <concurrentrelays>2</concurrentrelays>
-    <mediarelayexternaladdress>11.126.12.15</mediarelayexternaladdress>
-    <mediarelaynativeaddress>11.126.12.15</mediarelaynativeaddress>
+    <mediarelayexternaladdress>192.168.1.1</mediarelayexternaladdress>
+    <mediarelaynativeaddress>192.168.1.1</mediarelaynativeaddress>
     <mediarelayxml-rpc-port>9090</mediarelayxml-rpc-port>
     <port-range>30000:30500</port-range>
     <log-level>INFO</log-level>

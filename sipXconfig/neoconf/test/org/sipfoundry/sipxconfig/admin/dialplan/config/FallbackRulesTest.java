@@ -84,9 +84,8 @@ public class FallbackRulesTest extends XMLTestCase {
         };
         pageService.setModelId(SipxPageService.BEAN_ID);
 
-        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(parkService, rlsService,
+        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(true, parkService, rlsService,
                 pageService);
-        EasyMock.replay(sipxServiceManager);
         m_out.setSipxServiceManager(sipxServiceManager);
     }
 

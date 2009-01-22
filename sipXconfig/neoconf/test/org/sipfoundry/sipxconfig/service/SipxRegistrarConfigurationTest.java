@@ -73,7 +73,7 @@ public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
         parkService.setBeanId(SipxParkService.BEAN_ID);
         parkService.setSipPort("9909");
 
-        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(registrarService, proxyService, parkService);
+        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(false, registrarService, proxyService, parkService);
         replay(domainManager, sipxServiceManager);
 
         SipxRegistrarConfiguration out = new SipxRegistrarConfiguration();

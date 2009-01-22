@@ -24,8 +24,7 @@ public class VoicemailConfigurationTest extends SipxServiceTestBase {
         Setting voicemailAgingSetting = mediaService.getSettings().getSetting("mediaserver-config/VOICEMAIL_AGE_LIMIT");
         voicemailAgingSetting.setValue("10");
         
-        SipxServiceManager serviceManager = TestUtil.getMockSipxServiceManager(mediaService);
-        EasyMock.replay(serviceManager);
+        SipxServiceManager serviceManager = TestUtil.getMockSipxServiceManager(true, mediaService);
         
         VoicemailConfiguration out = new VoicemailConfiguration();
         out.setSipxServiceManager(serviceManager);

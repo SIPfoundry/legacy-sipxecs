@@ -71,7 +71,6 @@ public abstract class TemplateConfigurationFile extends AbstractConfigurationFil
 
     public final String getFileContent() {
         try {
-
             StringWriter out = new StringWriter();
             write(out, null);
             return out.toString();

@@ -95,8 +95,7 @@ public class DialPlanContextImplTest extends TestCase {
         registrarService.setRegistrarEventSipPort("9906");
         registrarService.setSipPort("9907");
 
-        SipxServiceManager sipxServiceManager =TestUtil.getMockSipxServiceManager(proxyService, registrarService, statusService);
-        EasyMock.replay(sipxServiceManager);
+        SipxServiceManager sipxServiceManager =TestUtil.getMockSipxServiceManager(true, proxyService, registrarService, statusService);
         forwardingRules.setSipxServiceManager(sipxServiceManager);
 
         return cg;

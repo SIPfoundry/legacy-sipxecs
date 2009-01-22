@@ -16,10 +16,13 @@ import org.sipfoundry.sipxconfig.admin.dialplan.sbc.DefaultSbc;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
 import org.sipfoundry.sipxconfig.nattraversal.NatTraversal;
 import org.sipfoundry.sipxconfig.nattraversal.NatTraversalManager;
+import org.sipfoundry.sipxconfig.service.SipxProxyService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
 public class NatTraversalRules extends TemplateConfigurationFile {
     private SbcManager m_sbcManager;
     private NatTraversalManager m_natTraversalManager;
+    private SipxServiceManager m_sipxServiceManager;
 
     public void setSbcManager(SbcManager sbcManager) {
         m_sbcManager = sbcManager;
@@ -27,6 +30,10 @@ public class NatTraversalRules extends TemplateConfigurationFile {
 
     public void setNatTraversalManager(NatTraversalManager natTraversalManager) {
         m_natTraversalManager = natTraversalManager;
+    }
+
+    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
+        m_sipxServiceManager = sipxServiceManager;
     }
 
     @Override
@@ -38,6 +45,10 @@ public class NatTraversalRules extends TemplateConfigurationFile {
         context.put("nattraversal", natTraversal);
         context.put("state", natTraversal.isEnabled() ? "enabled" : "disabled");
         context.put("behindnat", natTraversal.isBehindnat());
+        context.put("location", location);
+        SipxProxyService proxyService = (SipxProxyService) m_sipxServiceManager
+                .getServiceByBeanId(SipxProxyService.BEAN_ID);
+        context.put("proxyService", proxyService);
 
         return context;
     }

@@ -44,10 +44,8 @@ public class DeviceDefaults {
 
     private DomainManager m_domainManager;
 
-    /** see config.defs PROXY_SERVER_ADDR */
     private String m_proxyServerAddr;
 
-    /** see config.defs PROXY_SERVER_SIP_PORT */
     private String m_proxyServerSipPort;
 
     private DeviceTimeZone m_timeZone = new DeviceTimeZone();

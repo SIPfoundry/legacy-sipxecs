@@ -150,12 +150,12 @@ public class MailboxManagerTest extends TestCase {
         LocationsManager locationsManager = EasyMock.createMock(LocationsManager.class);
         locationsManager.getPrimaryLocation();
         EasyMock.expectLastCall().andReturn(TestUtil.createDefaultLocation());
+        EasyMock.replay(locationsManager);
 
         SipxMediaService mediaService = new SipxMediaService();
         mediaService.setBeanId(SipxMediaService.BEAN_ID);
         mediaService.setVoicemailHttpsPort(9905);
-        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(mediaService);
-        EasyMock.replay(locationsManager, sipxServiceManager);
+        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(true, mediaService);
 
         MailboxManagerImpl out = new MailboxManagerImpl();
         out.setLocationsManager(locationsManager);

@@ -23,6 +23,7 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class SipxServiceTestBase extends TestCase {
     protected void initCommonAttributes(SipxService service) {
@@ -42,11 +43,7 @@ public class SipxServiceTestBase extends TestCase {
     }
 
     protected Location createDefaultLocation() {
-        Location location = new Location();
-        location.setName("localLocation");
-        location.setFqdn("sipx.example.org");
-        location.setAddress("192.168.1.1");
-        return location;
+        return TestUtil.createDefaultLocation();
     }
 
     protected Domain createDefaultDomain() {
