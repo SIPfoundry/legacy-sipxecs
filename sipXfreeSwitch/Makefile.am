@@ -1,7 +1,7 @@
 include $(top_srcdir)/config/project.am
 
-RPMS = \
-	$(RPM) \
+RPMS =  \
+	$(RPM)  \
 	$(DEST_RPM)/@PACKAGE@-$(SIPX_VERSION).@RPM_TARGET_ARCH@.rpm
 
 SIPX_PROCESS_DEFS = \
