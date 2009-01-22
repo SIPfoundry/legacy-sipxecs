@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang.RandomStringUtils;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
@@ -27,6 +27,8 @@ import org.sipfoundry.sipxconfig.service.SipxServiceBundle;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.beans.factory.annotation.Required;
 
+import static org.apache.commons.collections.CollectionUtils.collect;
+import static org.apache.commons.collections.CollectionUtils.select;
 import static org.apache.commons.lang.StringUtils.substringBefore;
 
 public class Location extends BeanWithId {
@@ -264,7 +266,7 @@ public class Location extends BeanWithId {
                 return lss.getSipxService();
             }
         };
-        return CollectionUtils.collect(services, retrieveService, new ArrayList());
+        return collect(services, retrieveService, new ArrayList());
     }
 
     /**
@@ -289,5 +291,23 @@ public class Location extends BeanWithId {
             }
         }
         return true;
+    }
+
+    /**
+     * Filters the list of bundles removing the ones that cannot be installed on this location.
+     *
+     * @param all bundles
+     * @return bundles that can be installed (it may include bundles that are already installed)
+     */
+    public Collection<SipxServiceBundle> getInstallableBundles(Collection<SipxServiceBundle> all) {
+        Predicate isInstallable = new Predicate() {
+            public boolean evaluate(Object item) {
+                SipxServiceBundle bundle = (SipxServiceBundle) item;
+                return bundle.canRunOn(Location.this);
+            }
+        };
+        List<SipxServiceBundle> filtered = new ArrayList<SipxServiceBundle>();
+        select(all, isInstallable, filtered);
+        return filtered;
     }
 }

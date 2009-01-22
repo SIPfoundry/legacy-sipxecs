@@ -55,7 +55,8 @@ public abstract class LocationPanel extends BaseComponent {
     }
 
     public IPropertySelectionModel getBundlesModel() {
-        Collection<SipxServiceBundle> bundles = getSipxServiceManager().getBundleDefinitions();
+        Collection<SipxServiceBundle> allBundles = getSipxServiceManager().getBundleDefinitions();
+        Collection<SipxServiceBundle> bundles = getLocationBean().getInstallableBundles(allBundles);
 
         ObjectSelectionModel nakedModel = new ObjectSelectionModel();
         nakedModel.setCollection(bundles);

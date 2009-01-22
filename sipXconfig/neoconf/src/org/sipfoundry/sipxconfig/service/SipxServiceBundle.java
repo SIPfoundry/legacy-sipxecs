@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.device.Model;
 
 
@@ -16,6 +17,8 @@ public class SipxServiceBundle implements Model {
     private final String m_name;
     private boolean m_autoEnable;
     private String m_modelId;
+    private boolean m_onlyPrimary;
+    private boolean m_onlyRemote;
 
     public SipxServiceBundle(String name) {
         m_name = name;
@@ -56,5 +59,20 @@ public class SipxServiceBundle implements Model {
 
     public String getModelId() {
         return m_modelId;
+    }
+
+    public void setOnlyPrimary(boolean onlyPrimary) {
+        m_onlyPrimary = onlyPrimary;
+    }
+
+    public void setOnlyRemote(boolean onlyRemote) {
+        m_onlyRemote = onlyRemote;
+    }
+
+    public boolean canRunOn(Location location) {
+        if (location.isPrimary()) {
+            return !m_onlyRemote;
+        }
+        return !m_onlyPrimary;
     }
 }

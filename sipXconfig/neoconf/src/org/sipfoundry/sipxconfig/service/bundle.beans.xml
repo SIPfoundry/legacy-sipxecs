@@ -13,15 +13,18 @@
   <bean id="managementBundle" parent="abstractBundle">
     <constructor-arg value="management" />
     <property name="autoEnable" value="true" />
+    <property name="onlyPrimary" value="true" />
   </bean>
 
   <bean id="primarySipRouterBundle" parent="abstractBundle">
     <constructor-arg value="primarySipRouter" />
     <property name="autoEnable" value="true" />
+    <property name="onlyPrimary" value="true" />
   </bean>
 
   <bean id="redundantSipRouterBundle" parent="abstractBundle">
     <constructor-arg value="redundantSipRouter" />
+    <property name="onlyRemote" value="true" />
   </bean>
 
   <bean id="voicemailBundle" parent="abstractBundle">

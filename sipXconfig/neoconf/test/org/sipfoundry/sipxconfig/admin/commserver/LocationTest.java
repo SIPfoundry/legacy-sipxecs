@@ -1,7 +1,6 @@
 package org.sipfoundry.sipxconfig.admin.commserver;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 
 import junit.framework.TestCase;
@@ -11,6 +10,9 @@ import org.sipfoundry.sipxconfig.service.SipxParkService;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
 import org.sipfoundry.sipxconfig.service.SipxService;
+import org.sipfoundry.sipxconfig.service.SipxServiceBundle;
+
+import static java.util.Arrays.*;
 
 public class LocationTest extends TestCase {
     public void testGetProcessMonitorUrl() {
@@ -126,10 +128,10 @@ public class LocationTest extends TestCase {
         parkService.setModelId(SipxParkService.BEAN_ID);
 
         // should be possible to remove services on a new location
-        out.removeServices(Arrays.asList(proxyService));
+        out.removeServices(asList(proxyService));
 
-        out.setServiceDefinitions(Arrays.asList(proxyService, registrarService, parkService));
-        out.removeServices(Arrays.asList(proxyService, parkService));
+        out.setServiceDefinitions(asList(proxyService, registrarService, parkService));
+        out.removeServices(asList(proxyService, parkService));
 
         Collection<LocationSpecificService> servicesFromOut = out.getServices();
         assertNotNull(servicesFromOut);
@@ -146,7 +148,7 @@ public class LocationTest extends TestCase {
         SipxService registrarService = new SipxRegistrarService();
         registrarService.setModelId(SipxRegistrarService.BEAN_ID);
 
-        out.setServiceDefinitions(Arrays.asList(proxyService, registrarService));
+        out.setServiceDefinitions(asList(proxyService, registrarService));
         assertEquals(2, out.getServices().size());
 
         Collection<SipxService> sipxServices = out.getSipxServices();
@@ -198,5 +200,31 @@ public class LocationTest extends TestCase {
         assertSame(proxyService, out.getService("sipxProxyService").getSipxService());
         assertSame(registrarService, out.getService("sipxRegistrarService").getSipxService());
         assertNull(out.getService("invalidBeanId"));
+    }
+
+    public void testGetInstallableBundles() {
+        SipxServiceBundle unrestricted = new SipxServiceBundle("unrestricted");
+        SipxServiceBundle primaryOnly = new SipxServiceBundle("primaryOnly");
+        primaryOnly.setOnlyPrimary(true);
+        SipxServiceBundle remoteOnly = new SipxServiceBundle("remoteOnly");
+        remoteOnly.setOnlyRemote(true);
+
+        Location location = new Location();
+        assertTrue(location.getInstallableBundles(null).isEmpty());
+
+        Collection<SipxServiceBundle> remoteInstallable = location.getInstallableBundles(asList(unrestricted,
+                primaryOnly, remoteOnly));
+        assertEquals(2, remoteInstallable.size());
+        assertFalse(remoteInstallable.contains(primaryOnly));
+        assertTrue(remoteInstallable.contains(unrestricted));
+        assertTrue(remoteInstallable.contains(remoteOnly));
+
+        location.setPrimary(true);
+        Collection<SipxServiceBundle> primaryInstallable = location.getInstallableBundles(asList(unrestricted,
+                primaryOnly, remoteOnly));
+        assertEquals(2, primaryInstallable.size());
+        assertFalse(primaryInstallable.contains(remoteOnly));
+        assertTrue(primaryInstallable.contains(unrestricted));
+        assertTrue(primaryInstallable.contains(primaryOnly));
     }
 }
