@@ -663,6 +663,8 @@ UtlBoolean SipRefreshManager::handleMessage(OsMsg &eventMessage)
                     OsSysLog::add(FAC_SIP, PRI_ERR,
                         "SipRefreshManager::handleMessage timer fired in unexpected state %d",
                         state->mRequestState);
+                    // Dump the state into the log.
+                    state->dumpState();
 
                     if(state->mRequestState == REFRESH_REQUEST_PENDING)
                     {
