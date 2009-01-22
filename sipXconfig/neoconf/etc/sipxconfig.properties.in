@@ -15,11 +15,11 @@ sipxRlsService.rlsPort=5140
 sipxStatusService.httpsPort=8101
 sipxPageService.audioDir=@sipxpage.audio.dir@
 
-sip.proxyHost=${PROXY_SERVER_ADDR}
-sip.proxyPort=${PROXY_SERVER_SIP_PORT}
-sip.hostName=${MY_FULL_HOSTNAME}
-sip.hostIpAddress=${MY_IP_ADDR}
-sip.port=5180
+sipImpl.proxyHost=${PROXY_SERVER_ADDR}
+sipImpl.proxyPort=${PROXY_SERVER_SIP_PORT}
+sipImpl.hostName=${MY_FULL_HOSTNAME}
+sipImpl.hostIpAddress=${MY_IP_ADDR}
+sipImpl.port=5180
 
 sfLogLayout.hostName=${MY_FULL_HOSTNAME}
 

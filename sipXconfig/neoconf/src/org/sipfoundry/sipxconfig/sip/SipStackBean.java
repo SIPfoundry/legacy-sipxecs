@@ -66,13 +66,12 @@ import org.apache.log4j.Appender;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.springframework.beans.factory.BeanInitializationException;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Spring adapter for JAIN SIP factories
  */
-public class SipStackBean implements InitializingBean {
+public class SipStackBean {
 
     private static final Log LOG = LogFactory.getLog(SipStackBean.class);
 
@@ -118,7 +117,11 @@ public class SipStackBean implements InitializingBean {
 
     private final Timer m_timer = new Timer();
 
-    public void afterPropertiesSet() {
+    /**
+     * Initialized stack: binds to a port. It should be called before any other operation on the
+     * stack.
+     */
+    public void init() {
         SipFactory factory = SipFactory.getInstance();
         factory.setPathName("gov.nist");
         if (m_properties == null) {
@@ -264,9 +267,8 @@ public class SipStackBean implements InitializingBean {
         return m_headerFactory.createViaHeader(host, port, transport, null);
     }
 
-    final Request createRequest(String requestType, String userName, String fromDisplayName,
-            String fromAddrSpec, String addrSpec)
-        throws ParseException {
+    final Request createRequest(String requestType, String userName, String fromDisplayName, String fromAddrSpec,
+            String addrSpec) throws ParseException {
         SipURI fromUri;
         if (fromAddrSpec == null) {
             fromUri = createOurSipUri(userName);

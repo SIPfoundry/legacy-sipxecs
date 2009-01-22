@@ -16,4 +16,8 @@ ftpBackupPlan.backupDirectory : adminContextImpl.ftpBackupDirectory
 - : sipxService.hostname
 - : sipxService.fullHostname
 - : sipxCallResolverService.ipAddress
-
+sipImpl.proxyHost : sip.proxyHost
+sipImpl.proxyPort : sip.proxyPort
+sipImpl.hostName : sip.hostName
+sipImpl.hostIpAddress : sip.hostIpAddress
+sipImpl.port : sip.port

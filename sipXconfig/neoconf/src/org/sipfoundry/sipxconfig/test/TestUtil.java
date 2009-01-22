@@ -55,7 +55,7 @@ public final class TestUtil {
 
     /**
      * If you want to use a date in a unit test that eventually
-     * 
+     *
      * @param usDate typical US date representation
      * @return local date
      */
@@ -107,7 +107,7 @@ public final class TestUtil {
     /**
      * Use ClassLoader.getSystemResource() when you can gets you a stream and can work from jars,
      * but when you need a filename use this. Example:
-     * 
+     *
      * <pre>
      *               # Test file in same directory as JUnit test source file
      *               String testFile = TestUtil.getTestSourceDirectory(getClass()) + &quot;/test-file&quot;;
@@ -223,9 +223,9 @@ public final class TestUtil {
         sysProps.setProperty("jasperReportContextImpl.reportsDirectory", etcDirectory
                 + "/reports");
 
-        sysProps.setProperty("sip.proxyHost", "localhost");
-        sysProps.setProperty("sip.proxyPort", "5060");
-        sysProps.setProperty("sip.hostName", "host.sipfoundry.org");
+        sysProps.setProperty("sipImpl.proxyHost", "localhost");
+        sysProps.setProperty("sipImpl.proxyPort", "5060");
+        sysProps.setProperty("sipImpl.hostName", "host.sipfoundry.org");
 
         File vmDir = createDirectory(mailstoreDir, "Could not create voicemail store");
         createDirectory(tmpDir, "Could not create tmp directory");
@@ -269,12 +269,12 @@ public final class TestUtil {
 
     /**
      * Creates a mock SipxServiceManager using EasyMock.
-     * 
+     *
      * If replay is set to false, it is up to the user of this mock to call EasyMock.replay. This
      * allows the user to add more functionality to the mock. By default the service manager will
      * do lookups for all of the provides SipxService objects by beanId. If processName is set up,
      * look ups by process names will work as well.
-     * 
+     *
      */
     public static SipxServiceManager getMockSipxServiceManager(boolean replay,
             SipxService... sipxServices) {
@@ -292,7 +292,7 @@ public final class TestUtil {
         if (replay) {
             EasyMock.replay(sipxServiceManager);
         }
-        
+
         return sipxServiceManager;
     }
 
