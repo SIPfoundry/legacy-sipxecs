@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.admin.commserver;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.sipfoundry.sipxconfig.service.SipxService;
 
@@ -28,6 +29,12 @@ public interface SipxProcessContext {
      */
     public ServiceStatus[] getStatus(Location location, boolean onlyActiveServices);
 
+    
+    /**
+     * Return a list of status messages for a given service on a given server.
+     */
+    public List<String> getStatusMessages(Location location, SipxService service);
+    
     /**
      * Apply the specified command to the named services. This method handles only commands that
      * don't need output, which excludes the "status" command.

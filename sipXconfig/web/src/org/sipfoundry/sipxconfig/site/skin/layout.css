@@ -651,3 +651,11 @@ html, body {
     padding-left: 20px;
     background: transparent url('/sipxconfig/images/go.png') left no-repeat;
 }
+
+.backLink {
+    padding-left: 20px;
+    background: transparent url('/sipxconfig/images/back.png') left no-repeat;
+
+#servicesTable .statusColumnValue {
+    width: 70%;
+}

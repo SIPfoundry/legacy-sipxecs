@@ -117,6 +117,8 @@ public abstract class ServicesTable extends BaseComponent {
 
     public abstract ServiceStatus getCurrentRow();
 
+    public abstract int getCurrentRowId();
+    
     @Parameter(required = true)
     public abstract Location getServiceLocation();
 
@@ -128,58 +130,7 @@ public abstract class ServicesTable extends BaseComponent {
 
     @Asset("/images/cog.png")
     public abstract IAsset getServiceIcon();
-
-    @Asset("/images/error.png")
-    public abstract IAsset getErrorIcon();
-
-    @Asset("/images/unknown.png")
-    public abstract IAsset getUnknownIcon();
-
-    @Asset("/images/running.png")
-    public abstract IAsset getRunningIcon();
-
-    @Asset("/images/disabled.png")
-    public abstract IAsset getDisabledIcon();
-
-    @Asset("/images/loading.gif")
-    public abstract IAsset getLoadingIcon();
-
-    public IAsset getStatusIcon(ServiceStatus status) {
-        switch (status.getStatus()) {
-        case ConfigurationMismatch:
-        case ResourceRequired:
-        case ConfigurationTestFailed:
-        case Failed:
-            return getErrorIcon();
-        case Running:
-            return getRunningIcon();
-        case Testing:
-        case Starting:
-        case Stopping:
-        case ShuttingDown:
-            return getLoadingIcon();
-        case Disabled:
-        case ShutDown:
-            return getDisabledIcon();
-        default:
-            return getUnknownIcon();
-        }
-    }
-
-    public String getLabelClass(ServiceStatus status) {
-        switch (status.getStatus()) {
-        case Disabled:
-            return "service-disabled";
-        case ConfigurationTestFailed:
-        case Failed:
-        case ResourceRequired:
-        case ConfigurationMismatch:
-            return "service-error";
-        default:
-            return "";
-        }
-    }
-
+    
     public String getServiceLabel() {
         String serviceBeanId = getCurrentRow().getServiceBeanId();
         String key = "label." + serviceBeanId;

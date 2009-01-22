@@ -83,6 +83,15 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
         }
     }
 
+    public List<String> getStatusMessages(Location location, SipxService service) {
+        try {
+            ProcessManagerApi api = m_processManagerApiProvider.getApi(location.getProcessMonitorUrl());
+            return api.getStatusMessages(m_host, service.getProcessName());
+        } catch (XmlRpcRemoteException e) {
+            throw new UserException(e.getCause());
+        }
+    }
+    
     /**
      * Loop through the key-value pairs and construct the ServiceStatus.
      */

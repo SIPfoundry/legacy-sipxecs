@@ -13,6 +13,7 @@
   <parameter name="initialSortColumn" required="no" />
   <parameter name="initialSortOrder" required="no" default-value="true" />
   <parameter name="row" required="no"/>
+  <parameter name="index" required="no"/>
   <parameter name="rowInfo" required="no" default-value="bean:defaultRowInfo" />
   <parameter name="rowClass" required="no" default-value="bean:rowClass" />
   <parameter name="selections" required="no" />
@@ -43,6 +44,7 @@
   <component id="tableColumns" type="contrib:TableColumns" />
   <component id="tableRows" type="contrib:TableRows">
     <inherited-binding name="row" parameter-name="row" />
+    <inherited-binding name="index" parameter-name="index" />
     <inherited-binding name="volatile" parameter-name="volatile" />
     <binding name="class" value="rowClass.next" />
     <inherited-binding name="converter" parameter-name="converter" />
