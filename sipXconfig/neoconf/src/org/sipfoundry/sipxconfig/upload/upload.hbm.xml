@@ -26,5 +26,9 @@
   <query name="deployedUploadBySpecification">
     <![CDATA[from Upload u where u.deployed = 't' and u.specificationId = :spec]]>
   </query>
+
+  <query name="uploadName">
+    <![CDATA[from Upload u where u.name = :name]]>
+  </query>
   
 </hibernate-mapping>

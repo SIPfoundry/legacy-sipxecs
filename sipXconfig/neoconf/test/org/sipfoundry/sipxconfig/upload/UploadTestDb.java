@@ -113,6 +113,22 @@ public class UploadTestDb extends SipxDatabaseTestCase {
         m_manager.deploy(upload);
         assertTrue(upload.isDeployed());
     }
+
+    public void testRestrictDuplicateUploadName() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsertFlat("upload/GetUploadSeed.db.xml");
+        Upload upload = m_manager.newUpload(UploadTest.UNMANAGED);
+        // set upload name to be same as the existing upload defined in GetUploadSeed.db.xml
+        upload.setName("harriot");
+
+        try {
+            m_manager.saveUpload(upload);
+            fail();
+        } catch (UserException expected) {
+            assertTrue(upload.isNew());
+        }
+    }
+
     
     public void testLoadSubclass() throws Exception {
         TestHelper.cleanInsertFlat("upload/ZipUploadSeed.db.xml");

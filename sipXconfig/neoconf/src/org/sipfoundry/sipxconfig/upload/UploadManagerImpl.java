@@ -37,7 +37,13 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport<Upload> implement
     }
 
     public void saveUpload(Upload upload) {
-        saveBeanWithSettings(upload);
+        String uploadName = upload.getName();
+        if (upload.isNew() && isUploadNameUsed(uploadName)) {
+            throw new UserException("The upload name, "
+                + uploadName + ", already exists. Please choose a different one.");
+        } else {
+            saveBeanWithSettings(upload);
+        }
     }
 
     public void deleteUpload(Upload upload) {
@@ -60,6 +66,9 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport<Upload> implement
         return (getActiveUpload(spec).size() > 0);
     }
 
+    public boolean isUploadNameUsed(String name) {
+        return (getUploadName(name).size() > 0);
+    }
     public void setSpecificationSource(ModelSource<UploadSpecification> specificationSource) {
         m_specificationSource = specificationSource;
     }
@@ -73,6 +82,13 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport<Upload> implement
                 "deployedUploadBySpecification", "spec", spec.getSpecificationId());
         return existing;
     }
+
+    private List<Upload> getUploadName(String name) {
+        List<Upload> existing = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                "uploadName", "name", name);
+        return existing;
+    }
+
 
     public Upload newUpload(UploadSpecification specification) {
         Upload upload = (Upload) m_beanFactory.getBean(specification.getBeanId());
