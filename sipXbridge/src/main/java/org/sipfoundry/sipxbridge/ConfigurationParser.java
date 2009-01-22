@@ -211,10 +211,7 @@ public class ConfigurationParser {
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "asserted-identity"),
                 "setCallerId", 0);
         
-        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "default-asserted-identity"),
-                "useDefaultAssertedIdentity",  0, new Class[] {
-            Boolean.class
-        });
+       
         
     }
 
