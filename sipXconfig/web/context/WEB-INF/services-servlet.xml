@@ -44,8 +44,6 @@
     <property name="coreContext" ref="coreContext" />
   </bean>
 
-  <bean id="conferenceBridgeBuilder" class="org.sipfoundry.sipxconfig.api.ConferenceBridgeBuilder" />
-
   <bean id="parkOrbitBuilder" class="org.sipfoundry.sipxconfig.api.SimpleBeanBuilder" />
 
   <bean id="permissionBuilder" class="org.sipfoundry.sipxconfig.api.PermissionBuilder" />
