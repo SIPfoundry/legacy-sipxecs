@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
 <!--
-  - XML Schema for sipX mappingrules or fallbackrules rule set
+  - XML Schema for sipX mappingrules rule set
   -->
 <schema
     xmlns:dmp='http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00'
@@ -9,7 +9,7 @@
     >
   <annotation>
     <documentation>
-      Rules for mapping SIP addresses
+      Rules for mapping SIP addresses in mappingrules.xml
     </documentation>
     <documentation source='http://scm.sipfoundry.org/rep/sipXregistry/main/doc/Redirection.txt'/>
   </annotation>

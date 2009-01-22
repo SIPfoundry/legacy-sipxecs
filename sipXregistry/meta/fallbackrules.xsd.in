@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
 <!--
-  - XML Schema for sipX mappingrules or fallbackrules rule set
+  - XML Schema for sipX fallbackrules rule set
   -->
 <schema
     xmlns:dmp='http://www.sipfoundry.org/sipX/schema/xml/fallback-00-00'
