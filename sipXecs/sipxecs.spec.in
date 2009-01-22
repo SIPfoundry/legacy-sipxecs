@@ -28,7 +28,7 @@ Requires: sipxconfig-tftp
 Requires: sipxconfig-report
 Requires: sipxconfig-agent
 Requires: sipxconfig-mrtg
-Requires: sipxconfig-conference
+Requires: sipxfreeswitch
 Requires: sipxbridge
 Requires: sipx-freeswitch
 Requires: sipx-freeswitch-codec-passthru-g723_1
