@@ -171,6 +171,8 @@ public:
 
    SIPX_LINE getAcdAgentLineHandle() { return mhAcdAgentLineHandle; };
 
+   ACDLine*  getAcdAgentLineReference() { return mpAcdLineReference; };
+
 /* ============================ INQUIRY =================================== */
 
    bool routePendingAnswer(void) { return mRoutePendingAnswer; }
