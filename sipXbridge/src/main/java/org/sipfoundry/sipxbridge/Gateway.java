@@ -917,16 +917,7 @@ public class Gateway {
 
 	}
 
-	/**
-	 * Whether or not delayed offer answer model is supported on Re-INVITE
-	 * 
-	 * @return true if supported.
-	 */
-	static boolean isReInviteSupported() {
-
-		return accountManager.getBridgeConfiguration().isReInviteSupported();
-	}
-
+	
 	static int getSessionExpires() {
 		return SESSION_EXPIRES;
 	}
