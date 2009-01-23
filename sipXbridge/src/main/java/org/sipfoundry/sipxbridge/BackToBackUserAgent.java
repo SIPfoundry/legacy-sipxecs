@@ -499,10 +499,11 @@ public class BackToBackUserAgent {
          */
 
         ReferToHeader referToHeader = (ReferToHeader) referRequest.getHeader(ReferToHeader.NAME);
-        SipURI uri = (SipURI) referToHeader.getAddress().getURI();
+        SipURI uri = (SipURI) referToHeader.getAddress().getURI().clone();
 
         /* Does the refer to header contain a Replaces? ( attended transfer ) */
         String replacesParam = uri.getHeader(ReplacesHeader.NAME);
+        logger.debug("replacesParam = " + replacesParam);
 
         ReplacesHeader replacesHeader = null;
 
@@ -511,15 +512,14 @@ public class BackToBackUserAgent {
             String decodedReplaces = URLDecoder.decode(replacesParam, "UTF-8");
             replacesHeader = (ReplacesHeader) ProtocolObjects.headerFactory.createHeader(
                     ReplacesHeader.NAME, decodedReplaces);
+            newRequest.addHeader(replacesHeader);
         }
 
-        uri.removeParameter("Replaces");
+        uri.removeParameter(ReplacesHeader.NAME);
 
         uri.removePort();
 
-        if (replacesHeader != null) {
-            newRequest.addHeader(replacesHeader);
-        }
+        
 
         for (Iterator it = uri.getHeaderNames(); it.hasNext();) {
             String headerName = (String) it.next();
@@ -580,6 +580,8 @@ public class BackToBackUserAgent {
         SipUtilities.setDuplexity(sd, "sendrecv");
         newRequest.setContent(sd, cth);
 
+        logger.debug("newRequest = " + newRequest);
+        
         return newRequest;
 
     }
@@ -604,6 +606,7 @@ public class BackToBackUserAgent {
     void referInviteToSipxProxy(Request inviteRequest, RequestEvent referRequestEvent,
             SessionDescription sessionDescription) {
         logger.debug("referInviteToSipxProxy: " + this);
+        logger.debug("referInviteToSipxProxy: " + inviteRequest);
 
         try {
 
