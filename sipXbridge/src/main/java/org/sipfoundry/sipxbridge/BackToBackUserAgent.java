@@ -580,7 +580,6 @@ public class BackToBackUserAgent {
         SipUtilities.setDuplexity(sd, "sendrecv");
         newRequest.setContent(sd, cth);
 
-        logger.debug("newRequest = " + newRequest);
         
         return newRequest;
 
@@ -605,8 +604,8 @@ public class BackToBackUserAgent {
      */
     void referInviteToSipxProxy(Request inviteRequest, RequestEvent referRequestEvent,
             SessionDescription sessionDescription) {
-        logger.debug("referInviteToSipxProxy: " + this);
-        logger.debug("referInviteToSipxProxy: " + inviteRequest);
+        logger.debug("referInviteToSipxProxy: ");
+       
 
         try {
 
