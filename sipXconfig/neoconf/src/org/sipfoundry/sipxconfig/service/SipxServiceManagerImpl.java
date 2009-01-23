@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Factory;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.Transformer;
@@ -39,6 +38,12 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
+
+import static org.apache.commons.collections.CollectionUtils.collect;
+import static org.apache.commons.collections.CollectionUtils.filter;
+import static org.apache.commons.collections.CollectionUtils.getCardinalityMap;
+import static org.apache.commons.collections.CollectionUtils.intersection;
+import static org.apache.commons.collections.CollectionUtils.subtract;
 
 public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService> implements SipxServiceManager,
         ApplicationContextAware, ApplicationListener {
@@ -256,10 +261,10 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
             public boolean evaluate(Object item) {
                 SipxService service = (SipxService) item;
                 Set<SipxServiceBundle> serviceBundles = service.getBundles();
-                return !CollectionUtils.intersection(serviceBundles, bundles).isEmpty();
+                return !intersection(serviceBundles, bundles).isEmpty();
             }
         };
-        CollectionUtils.filter(services, inBundle);
+        filter(services, inBundle);
         return services;
     }
 
@@ -284,15 +289,16 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
             }
         };
         List<String> installedBundles = location.getInstalledBundles();
-        return (List<SipxServiceBundle>) CollectionUtils.collect(installedBundles, transformer, new ArrayList());
+        return (List<SipxServiceBundle>) collect(installedBundles, transformer, new ArrayList());
     }
 
     public void setBundlesForLocation(Location location, List<SipxServiceBundle> bundles) {
+        verifyBundleCardinality(location, bundles);
         Collection<SipxService> oldServices = location.getSipxServices();
         Collection<SipxService> newServices = getServiceDefinitions(bundles);
 
-        Collection<SipxService> stopServices = CollectionUtils.subtract(oldServices, newServices);
-        Collection<SipxService> startServices = CollectionUtils.subtract(newServices, oldServices);
+        Collection<SipxService> stopServices = subtract(oldServices, newServices);
+        Collection<SipxService> startServices = subtract(newServices, oldServices);
 
         location.removeServices(stopServices);
         location.addServices(startServices);
@@ -304,7 +310,36 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
             }
 
         };
-        List<String> bundleIds = (List<String>) CollectionUtils.collect(bundles, extractModelId, new ArrayList());
+        List<String> bundleIds = (List<String>) collect(bundles, extractModelId, new ArrayList());
         location.setInstalledBundles(bundleIds);
+    }
+
+    /**
+     * Checks if new bundle selection will honor maximum and minimum bundle counts.
+     *
+     * @param location server for which selection of bundles is changed
+     * @param bundles proposed list of newly selected bundles for this location
+     */
+    void verifyBundleCardinality(Location location, List<SipxServiceBundle> bundles) {
+        Location[] locations = m_locationsManager.getLocations();
+        List<String> allInstalled = new ArrayList<String>();
+        for (Location l : locations) {
+            if (!l.equals(location)) {
+                List<String> installed = l.getInstalledBundles();
+                allInstalled.addAll(installed);
+            }
+        }
+        for (SipxServiceBundle bundle : bundles) {
+            allInstalled.add(bundle.getModelId());
+        }
+        Map<String, Integer> cardinality = getCardinalityMap(allInstalled);
+        Collection<SipxServiceBundle> allBundles = m_bundleModelSource.getModels();
+        for (SipxServiceBundle bundle : allBundles) {
+            Integer newCount = cardinality.get(bundle.getModelId());
+            if (newCount == null) {
+                newCount = 0;
+            }
+            bundle.verifyCount(newCount);
+        }
     }
 }

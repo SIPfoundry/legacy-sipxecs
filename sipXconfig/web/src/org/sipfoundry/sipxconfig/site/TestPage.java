@@ -92,9 +92,9 @@ public abstract class TestPage extends BasePage {
     public static final String EMPTY_STRING = "";
     public static final int SERIAL_NUM_LEN = 12;
 
-    public static final String TEST_LOCATION_FQDN = "host.example.org"; 
+    public static final String TEST_LOCATION_FQDN = "host.example.org";
     public static final String TEST_LOCATION_NAME = "Remote Location";
-    
+
     // Data for the primary test user
     // Make sure the username matches SiteTestHelper.java
     public static final String TEST_USER_USERNAME = "testuser";
@@ -167,7 +167,7 @@ public abstract class TestPage extends BasePage {
 
     @InjectObject(value = "spring:sipxServiceManager")
     public abstract SipxServiceManager getSipxServiceManager();
-    
+
     @InjectObject(value = "spring:sbcManager")
     public abstract SbcManager getSbcManager();
 
@@ -247,15 +247,15 @@ public abstract class TestPage extends BasePage {
     public void resetConferenceBridgeContext() {
         getConferenceBridgeContext().clear();
     }
-    
+
     public void createTestBridge() {
         seedLocationsManager();
         resetConferenceBridgeContext();
-        
+
         Location location = getLocationsManager().getPrimaryLocation();
-        SipxFreeswitchService sipxService = 
+        SipxFreeswitchService sipxService =
             (SipxFreeswitchService) getSipxServiceManager().getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
-        
+
         // Check if we already have a FreeSWITCH service here
         LocationSpecificService service = location.getService(SipxFreeswitchService.BEAN_ID);
         if (service == null) {
@@ -263,7 +263,7 @@ public abstract class TestPage extends BasePage {
             location.addService(service);
             getLocationsManager().storeLocation(location);
         }
-        
+
         // Check if the test bridge already exists
         Bridge bridge = getConferenceBridgeContext().getBridgeByServer(location.getFqdn());
         if (bridge == null) {
@@ -285,6 +285,7 @@ public abstract class TestPage extends BasePage {
         remoteLocation.setFqdn(TEST_LOCATION_FQDN);
         remoteLocation.setAddress("192.168.155.100");
         remoteLocation.setPrimary(true);
+        remoteLocation.initBundles(getSipxServiceManager());
         getLocationsManager().storeLocation(remoteLocation);
     }
 
@@ -303,7 +304,7 @@ public abstract class TestPage extends BasePage {
     }
 
     private void deleteLocations() {
-        resetAcdContext();        
+        resetAcdContext();
         Location[] existingLocations = getLocationsManager().getLocations();
         for (Location location : existingLocations) {
             getLocationsManager().deleteLocation(location);

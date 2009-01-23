@@ -63,14 +63,14 @@ public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
         List<SipxServiceBundle> bundles = m_out.getBundlesForLocation(location);
         assertTrue(bundles.isEmpty());
 
-        m_out.setBundlesForLocation(location, Arrays.asList(m_managementBundle));
-        assertFalse(m_out.isServiceInstalled(location.getId(), SipxProxyService.BEAN_ID));
+        m_out.setBundlesForLocation(location, Arrays.asList(m_managementBundle, m_primarySipRouterBundle));
+        assertFalse(m_out.isServiceInstalled(location.getId(), SipxAcdService.BEAN_ID));
         assertTrue(m_out.isServiceInstalled(location.getId(), SipxCallResolverService.BEAN_ID));
 
         bundles = m_out.getBundlesForLocation(location);
-        assertEquals(1, bundles.size());
-        SipxServiceBundle locationBundle = bundles.get(0);
-        assertEquals(m_managementBundle, locationBundle);
+        assertEquals(2, bundles.size());
+        assertTrue(bundles.contains(m_managementBundle));
+        assertTrue(bundles.contains(m_primarySipRouterBundle));
     }
 
     public void testStoreService() {

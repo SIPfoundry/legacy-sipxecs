@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.service;
 
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.Model;
 
 
@@ -19,6 +20,8 @@ public class SipxServiceBundle implements Model {
     private String m_modelId;
     private boolean m_onlyPrimary;
     private boolean m_onlyRemote;
+    private int m_min;
+    private int m_max;
 
     public SipxServiceBundle(String name) {
         m_name = name;
@@ -74,5 +77,38 @@ public class SipxServiceBundle implements Model {
             return !m_onlyRemote;
         }
         return !m_onlyPrimary;
+    }
+
+    public void setMin(int min) {
+        m_min = min;
+    }
+
+    public void setMax(int max) {
+        m_max = max;
+    }
+
+    /**
+     * Throws exception if new count
+     * @param newCount
+     */
+    public void verifyCount(int newCount) {
+        if (newCount < m_min) {
+            throw new TooFewBundles(this, m_min);
+        }
+        if (newCount > m_max && m_max > 0) {
+            throw new TooManyBundles(this, m_max);
+        }
+    }
+
+    static class TooManyBundles extends UserException {
+        public TooManyBundles(SipxServiceBundle bundle, int max) {
+            super(false, "msg.tooManyBundles", bundle.getName(), max);
+        }
+    }
+
+    static class TooFewBundles extends UserException {
+        public TooFewBundles(SipxServiceBundle bundle, int min) {
+            super(false, "msg.tooFewBundles", bundle.getName(), min);
+        }
     }
 }
