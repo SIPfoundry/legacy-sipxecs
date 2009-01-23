@@ -29,18 +29,12 @@ done
 
 . @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
 
-CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
-
 case ${Action} in
    RUN)
      echo $$ > @SIPX_RUNDIR@/sipxacd.pid
-     if [ -f "$CONFIG_DEFS" ]
-     then
-         source $CONFIG_DEFS
-         exec @bindir@/sipxacd -P ${ACD_SERVER_PROVISIONING_PORT} -W ${WATCHDOG_SERVER_XMLRPC_PORT} $Args
-     else
-         exec @bindir@/sipxacd $Args
-     fi
+     SUPERVISOR_PORT=`sipx_config_value @SIPX_CONFDIR@/domain-config SUPERVISOR_PORT`
+     # Need to replace hardcoded port 8110 with acd provisioning port from config file
+     exec @bindir@/sipxacd -P 8110 -W $SUPERVISOR_PORT $Args
      ;;
 
    STOP)

@@ -43,10 +43,6 @@ SIPX_CONFDIR=@SIPX_CONFDIR@
 #Removed this from sipXconfig, still needs to be removed from sipxconfig-agent.in
 CONFIG_SERVER_AGENT_PORT=8120
 
-#needs to be removed in sipXacd/bin/sipxacd.sh.in
-ACD_SERVER_PROVISIONING_PORT=8110
-WATCHDOG_SERVER_XMLRPC_PORT=8092
-
 #needs to be removed in sipXportLib/bin/sipx-upgrade.in
 ORBIT_SERVER_ADDR=${MY_IP_ADDR}
 ORBIT_SERVER_SIP_SRV_OR_HOSTPORT=${ORBIT_SERVER_ADDR}:5120
