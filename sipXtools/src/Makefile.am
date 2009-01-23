@@ -29,6 +29,7 @@ dist_bin_SCRIPTS = \
 	sipx-stats \
 	sipx-alias2dot \
 	sipx-trace \
+	sipx-dialog-count \
 	sipx-log-cut \
 	sipxcar \
 	sipdb-dump \
