@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.upload;
@@ -20,8 +20,7 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 
-public class UploadManagerImpl extends SipxHibernateDaoSupport<Upload> implements
-        BeanFactoryAware, UploadManager {
+public class UploadManagerImpl extends SipxHibernateDaoSupport<Upload> implements BeanFactoryAware, UploadManager {
     private ListableBeanFactory m_beanFactory;
     private ModelSource<UploadSpecification> m_specificationSource;
 
@@ -39,11 +38,9 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport<Upload> implement
     public void saveUpload(Upload upload) {
         String uploadName = upload.getName();
         if (upload.isNew() && isUploadNameUsed(uploadName)) {
-            throw new UserException("The upload name, "
-                + uploadName + ", already exists. Please choose a different one.");
-        } else {
-            saveBeanWithSettings(upload);
+            throw new UserException(false, "error.duplicatedUploadName", uploadName);
         }
+        saveBeanWithSettings(upload);
     }
 
     public void deleteUpload(Upload upload) {
@@ -69,6 +66,7 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport<Upload> implement
     public boolean isUploadNameUsed(String name) {
         return (getUploadName(name).size() > 0);
     }
+
     public void setSpecificationSource(ModelSource<UploadSpecification> specificationSource) {
         m_specificationSource = specificationSource;
     }
@@ -84,11 +82,9 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport<Upload> implement
     }
 
     private List<Upload> getUploadName(String name) {
-        List<Upload> existing = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                "uploadName", "name", name);
+        List<Upload> existing = getHibernateTemplate().findByNamedQueryAndNamedParam("uploadName", "name", name);
         return existing;
     }
-
 
     public Upload newUpload(UploadSpecification specification) {
         Upload upload = (Upload) m_beanFactory.getBean(specification.getBeanId());
@@ -132,13 +128,11 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport<Upload> implement
 
         // FIXME: localize
         AlreadyDeployedException(String name, String label) {
-            super("You must undeploy \"{0}\" before you can deploy these files. " + ERROR, name,
-                    label);
+            super("You must undeploy \"{0}\" before you can deploy these files. " + ERROR, name, label);
         }
 
         AlreadyDeployedException(int size, String label) {
-            super("There are already {0} files sets of type \"{1}\" deployed. " + ERROR, size,
-                    label);
+            super("There are already {0} files sets of type \"{1}\" deployed. " + ERROR, size, label);
         }
 
     }
