@@ -13,7 +13,6 @@ public class SipxProxyService extends SipxService {
     public static final String BEAN_ID = "sipxProxyService";
 
     private String m_secureSipPort;
-    private String m_callResolverCallStateDb;
 
     public String getSecureSipPort() {
         return m_secureSipPort;
