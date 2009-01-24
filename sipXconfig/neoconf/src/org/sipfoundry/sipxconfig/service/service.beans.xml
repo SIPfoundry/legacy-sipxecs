@@ -363,7 +363,7 @@
       </set>
     </property>
   </bean>
-
+  
   <bean id="sipxAcdService" class="org.sipfoundry.sipxconfig.service.SipxAcdService" scope="prototype" parent="sipxService">
     <property name="processName" value="ACDServer" />
     <property name="bundles">
@@ -376,11 +376,24 @@
   <bean id="sipxConfigAgentService" class="org.sipfoundry.sipxconfig.service.SipxConfigAgentService" scope="prototype"
     parent="sipxService">
     <property name="processName" value="ConfigAgent" />
+    <property name="modelName" value="configagent.xml" />
+    <property name="modelDir" value="sipxconfigagent" />
+    <property name="configurations">
+      <list>
+        <ref bean="configAgentConfiguration" />
+      </list>
+    </property>
     <property name="bundles">
       <set>
         <ref bean="callCenterBundle" />
       </set>
     </property>
+  </bean>
+  
+  <bean id="configAgentConfiguration" class="org.sipfoundry.sipxconfig.service.ConfigAgentConfiguration" scope="prototype"
+    parent="serviceConfigurationFile">
+    <property name="template" value="sipxconfigagent/config-agent.properties.vm" />
+    <property name="name" value="config-agent.properties" />
   </bean>
 
   <bean id="sipxBridgeService" class="org.sipfoundry.sipxconfig.service.SipxBridgeService" scope="prototype"

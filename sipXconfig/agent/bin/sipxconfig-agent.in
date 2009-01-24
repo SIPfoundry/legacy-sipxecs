@@ -9,15 +9,8 @@ require 'tempfile'
 require 'optparse'
 require 'ostruct'
 
-def load_config_defs
-  x = Tempfile.new('sipxconfig-agent')
-  `@SIPX_BINDIR@/config-defs > #{x.path}`
-
-  # assumes output from config-defs is directly consumable as 
-  # valid ruby file
-  load (x.path)
-
-  x.delete
+def load_config_properties
+  load ('@SIPX_CONFDIR@/config-agent.properties')
 end
 
 def parse(args)
@@ -31,7 +24,7 @@ def parse(args)
 
     opts.on_tail("-c", "--configtest", "Run tests on configuration") do 
       if ! defined? CONFIG_SERVER_AGENT_PORT
-        raise "Missing items 'CONFIG_SERVER_AGENT_PORT' in config.defs" 
+        raise "Missing items 'CONFIG_SERVER_AGENT_PORT' in config-agent.properties" 
       end
       exit
     end
@@ -40,7 +33,7 @@ def parse(args)
   options
 end
 
-load_config_defs
+load_config_properties
 parse(ARGV)
 
 require 'rubygems'
