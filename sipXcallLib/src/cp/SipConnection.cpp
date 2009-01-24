@@ -1225,7 +1225,7 @@ UtlBoolean SipConnection::hold()
     if(mpMediaInterface != NULL && 
             inviteMsg && getState() == CONNECTION_ESTABLISHED &&
             reinviteState == ACCEPT_INVITE &&
-            mTerminalConnState!=PtTerminalConnection::HELD)
+            mTerminalConnState != PtTerminalConnection::HELD)
     {
         UtlString rtpAddress;
         int receiveRtpPort;
@@ -2296,7 +2296,10 @@ void SipConnection::processInviteRequest(const SipMessage* request)
 {
 #ifdef TEST_PRINT
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
-        "Entering SipConnection::processInviteRequest inviteMsg=0x%08x ", (int)inviteMsg);
+        "Entering "
+        "SipConnection::processInviteRequest "
+        "inviteMsg=0x%08x ", 
+                  (int)inviteMsg);
 #endif
 
     UtlString sipMethod;
@@ -2349,10 +2352,13 @@ void SipConnection::processInviteRequest(const SipMessage* request)
     UtlString replaceCallId;
     UtlString replaceToTag;
     UtlString replaceFromTag;
-    hasReplaceHeader = request->getReplacesData(replaceCallId, replaceToTag,
-        replaceFromTag);
+    hasReplaceHeader = request->getReplacesData(replaceCallId, 
+                                                replaceToTag,
+                                                replaceFromTag);
 #ifdef TEST_PRINT
-    osPrintf("SipConnection::processInviteRequest - \n\thasReplaceHeader %d \n\treplaceCallId %s \n\treplaceToTag %s\n\treplaceFromTag %s\n",
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+        "SipConnection::processInviteRequest "
+        "hasReplaceHeader %d replaceCallId %s replaceToTag %s replaceFromTag %s",
         hasReplaceHeader,
         replaceCallId.data(),
         replaceToTag.data(),
@@ -2362,11 +2368,11 @@ void SipConnection::processInviteRequest(const SipMessage* request)
     {
         // Ugly assumption that this is a CpPeerCall
         doesReplaceCallLegExist =
-            ((CpPeerCall*)mpCall)->getConnectionState(
-            replaceCallId.data(), replaceToTag.data(),
-            replaceFromTag.data(),
-            replaceCallLegState,
-            TRUE);
+            ((CpPeerCall*)mpCall)->getConnectionState(replaceCallId.data(), 
+                                                      replaceToTag.data(),
+                                                      replaceFromTag.data(),
+                                                      replaceCallLegState,
+                                                      TRUE);
     }
 
     // If this is previous to the last invite
@@ -2382,25 +2388,21 @@ void SipConnection::processInviteRequest(const SipMessage* request)
     }
 
     // if this is the same invite
-    else if(inviteMsg &&
-        !inviteFromThisSide &&
-        requestSequenceNum == lastRemoteSequenceNumber)
+    else if(inviteMsg 
+            && !inviteFromThisSide 
+            && requestSequenceNum == lastRemoteSequenceNumber)
     {
         UtlString viaField;
         inviteMsg->getViaField(&viaField, 0);
         UtlString oldInviteBranchId;
-        SipMessage::getViaTag(viaField.data(),
-            "branch",
-            oldInviteBranchId);
+        SipMessage::getViaTag(viaField.data(), "branch", oldInviteBranchId);
         request->getViaField(&viaField, 0);
         UtlString newInviteBranchId;
-        SipMessage::getViaTag(viaField.data(),
-            "branch",
-            newInviteBranchId);
+        SipMessage::getViaTag(viaField.data(), "branch", newInviteBranchId);
 
         // from a different branch
-        if(!oldInviteBranchId.isNull() &&
-            oldInviteBranchId.compareTo(newInviteBranchId) != 0)
+        if(!oldInviteBranchId.isNull() 
+           && oldInviteBranchId.compareTo(newInviteBranchId) != 0)
         {
             SipMessage sipResponse;
             sipResponse.setLoopDetectedData(request);
@@ -2414,7 +2416,8 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         {
             // no-op, ignore duplicate INVITE
             OsSysLog::add(FAC_SIP, PRI_WARNING,
-                "SipConnection::processInviteRequest received duplicate request");
+                          "SipConnection::processInviteRequest "
+                          "received duplicate request");
         }
     }
     else if (hasReplaceHeader && !doesReplaceCallLegExist)
@@ -2437,19 +2440,18 @@ void SipConnection::processInviteRequest(const SipMessage* request)
 #endif
     }
     // Proceed to offering state
-    else if((getState() == CONNECTION_IDLE && // New call
-        mConnectionId > -1 && // Media resources available
-        (mLineAvailableBehavior == RING || // really not busy
-        mLineAvailableBehavior == RING_SILENT || // pretend to ring
-        mLineAvailableBehavior == FORWARD_ON_NO_ANSWER ||
-        mLineAvailableBehavior == FORWARD_UNCONDITIONAL ||
-        mLineBusyBehavior == FAKE_RING))|| // pretend not busy
-        // I do not remember what the follow case is for:
-        (getState() == CONNECTION_OFFERING && // not call to self
-        mRemoteIsCallee && !request->isSameMessage(inviteMsg)))
+    else if((getState() == CONNECTION_IDLE  // New call
+             && mConnectionId > -1          // Media resources available
+             && (   mLineAvailableBehavior == RING          // really not busy
+                 || mLineAvailableBehavior == RING_SILENT   // pretend to ring
+                 || mLineAvailableBehavior == FORWARD_ON_NO_ANSWER 
+                 || mLineAvailableBehavior == FORWARD_UNCONDITIONAL 
+                 || mLineBusyBehavior == FAKE_RING))        // pretend not busy
+            // I do not remember what the follow case is for:
+            || (getState() == CONNECTION_OFFERING           // not call to self
+                && mRemoteIsCallee && !request->isSameMessage(inviteMsg)))
     {
         lastRemoteSequenceNumber = requestSequenceNum;
-
 
         //set the allows field
         if(mAllowedRemote.isNull())
@@ -2472,7 +2474,10 @@ void SipConnection::processInviteRequest(const SipMessage* request)
 
         UtlString requestString;         
         inviteMsg->getRequestUri(&requestString);
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "SipConnection::processInviteRequest - inviteMsg request URI '%s'", requestString.data());
+        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                      "SipConnection::processInviteRequest - "
+                      "inviteMsg request URI '%s'", 
+                      requestString.data());
         
         inviteFromThisSide = FALSE;
         setCallerId();
@@ -2485,7 +2490,10 @@ void SipConnection::processInviteRequest(const SipMessage* request)
            Url parsedUri(uri, TRUE);
            // Store into mLocalContact, which is in name-addr format.
            parsedUri.toString(mLocalContact);
-           OsSysLog::add(FAC_CP, PRI_DEBUG, "SipConnection::processInviteRequest - parsedURI to string '%s'", mLocalContact.data());           
+           OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                         "SipConnection::processInviteRequest - "
+                         "parsedURI to string '%s'", 
+                         mLocalContact.data());           
         }
 
         int cause = CONNECTION_CAUSE_NORMAL;
@@ -2495,12 +2503,11 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         // Assume the replaces call leg does not exist if the call left
         // state state is not established.  The latest RFC states that
         // one cannot use replaces for an early dialog
-        if (doesReplaceCallLegExist &&
-            (replaceCallLegState != CONNECTION_ESTABLISHED))
+        if (doesReplaceCallLegExist 
+            && (replaceCallLegState != CONNECTION_ESTABLISHED))
         {
             doesReplaceCallLegExist = FALSE ;
         }
-
 
         // Allow transfer if the call leg exists and the call leg is
         // established.  Transferring a call while in early dialog is
@@ -2515,15 +2522,19 @@ void SipConnection::processInviteRequest(const SipMessage* request)
             metaEventCallIds[0] = callId.data();        // target call Id
             metaEventCallIds[1] = replaceCallId.data(); // original call Id
             mpCall->startMetaEvent(metaEventId,
-                PtEvent::META_CALL_TRANSFERRING,
-                2, metaEventCallIds);
+                                   PtEvent::META_CALL_TRANSFERRING,
+                                   2, metaEventCallIds);
             mpCall->setCallType(CpCall::CP_TRANSFER_TARGET_TARGET_CALL);
 
             fireSipXEvent(CALLSTATE_NEWCALL, CALLSTATE_NEW_CALL_TRANSFERRED, (void*) replaceCallId.data()) ;
 
 #ifdef TEST_PRINT
-            osPrintf("SipConnection::processInviteRequest replaceCallId: %s, toTag: %s, fromTag: %s\n", replaceCallId.data(),
-                replaceToTag.data(), replaceFromTag.data());
+            OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                          "SipConnection::processInviteRequest - "
+                          "replaceCallId: %s, toTag: %s, fromTag: %s", 
+                          replaceCallId.data(),
+                          replaceToTag.data(), 
+                          replaceFromTag.data());
 #endif
         }
         else
@@ -2542,10 +2553,8 @@ void SipConnection::processInviteRequest(const SipMessage* request)
             }
 
             mpCall->startMetaEvent( mpCallManager->getNewMetaEventId(),
-                PtEvent::META_CALL_STARTING,
-                0,
-                0,
-                mRemoteIsCallee);
+                                    PtEvent::META_CALL_STARTING,
+                                    0, 0, mRemoteIsCallee);
 
             if (!mRemoteIsCallee)   // inbound call
             {
@@ -2555,7 +2564,6 @@ void SipConnection::processInviteRequest(const SipMessage* request)
                 fireSipXEvent(CALLSTATE_NEWCALL, CALLSTATE_NEW_CALL_NORMAL) ;
             }
         }
-
 
         // If this is not part of a call leg replaces operation
         // we normally go to offering so that the application
@@ -2604,7 +2612,8 @@ void SipConnection::processInviteRequest(const SipMessage* request)
             // the same instance of mpCall -- if callId is not
             // updated, the call will be linked to the dying leg.
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipConnection::processInviteRequest inviteMsg=%p",
+                          "SipConnection::processInviteRequest "
+                          "inviteMsg=%p",
                           inviteMsg);
 
             mpCall->setCallId(callId.data());
@@ -2613,7 +2622,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
 
             // Bob 11/16/01: The following setState was added to close a race between
             // the answer (above) and hangup (below).  The application layer is notified
-            // of state changed on on the replies to these messages.  These can lead to
+            // of state changed on the replies to these messages.  These can lead to
             // dropped transfer if the BYE reponse is received before INVITE response.
             setState(CONNECTION_ESTABLISHED, CONNECTION_REMOTE, CONNECTION_CAUSE_TRANSFER);
             if (mTerminalConnState == PtTerminalConnection::HELD)
@@ -2624,12 +2633,11 @@ void SipConnection::processInviteRequest(const SipMessage* request)
             {
                 fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE);
             }
-            
 
             // Drop the leg to be replaced
             ((CpPeerCall*)mpCall)->hangUp(replaceCallId.data(),
-                replaceToTag.data(),
-                replaceFromTag.data());
+                                          replaceToTag.data(),
+                                          replaceFromTag.data());
         }
         else if(mOfferingDelay == IMMEDIATE)
         {
@@ -3161,7 +3169,8 @@ void SipConnection::processReferRequest(const SipMessage* request)
         // The new call by default assumes focus.
         // Mark the new call as part of this transfer meta event
         mpCallManager->createCall(&targetCallId, metaEventId,
-            PtEvent::META_CALL_TRANSFERRING, 2, metaEventCallIds);
+                                  PtEvent::META_CALL_TRANSFERRING, 
+                                  2, metaEventCallIds);
         mpCall->setTargetCallId(targetCallId.data());
         mpCall->setCallType(CpCall::CP_TRANSFEREE_ORIGINAL_CALL);
         
@@ -3172,8 +3181,8 @@ void SipConnection::processReferRequest(const SipMessage* request)
 
          // Mark the begining of a transfer meta event in this call
         mpCall->startMetaEvent(metaEventId,
-           PtEvent::META_CALL_TRANSFERRING,
-           2, metaEventCallIds);
+                               PtEvent::META_CALL_TRANSFERRING,
+                               2, metaEventCallIds);
 
         // Set the OutboundLine (From Field) to match the original
         // call, so it looks like this new call comes from the same
@@ -3183,18 +3192,17 @@ void SipConnection::processReferRequest(const SipMessage* request)
         requestToUrl.removeHeaderParameters();
         requestToUrl.removeFieldParameters();
         mpCallManager->setOutboundLineForCall(targetCallId, 
-           requestToUrl.toString()) ;
+                                              requestToUrl.toString()) ;
 
         // Send a message to the target call to create the
         // connection and send the INVITE
         UtlString remoteAddress;
         getRemoteAddress(&remoteAddress);
-        CpMultiStringMessage transfereeConnect(
-            CallManager::CP_TRANSFEREE_CONNECTION,
-            targetCallId.data(), 
-            referTo.data(), referredBy.data(), 
-            thisCallId.data(),
-            remoteAddress.data());
+        CpMultiStringMessage transfereeConnect(CallManager::CP_TRANSFEREE_CONNECTION,
+                                               targetCallId.data(), 
+                                               referTo.data(), referredBy.data(), 
+                                               thisCallId.data(),
+                                               remoteAddress.data());
 #ifdef TEST_PRINT
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
                       "SipConnection::processReferRequest "
@@ -3206,12 +3214,11 @@ void SipConnection::processReferRequest(const SipMessage* request)
         // provide the resulting outcome
         SipMessage sipResponse;
         sipResponse.setResponseData(request, SIP_ACCEPTED_CODE,
-            SIP_ACCEPTED_TEXT, mLocalContact);
+                                    SIP_ACCEPTED_TEXT, mLocalContact);
         mIsAcceptSent = send(sipResponse);
 
         // Save a copy for the NOTIFY
         mReferMessage = new SipMessage(*request);
-
     }
 
     else if(connectionState == CONNECTION_IDLE)
@@ -3495,8 +3502,10 @@ void SipConnection::processAckRequest(const SipMessage* request)
 
     // If this ACK belongs to the last INVITE and
     // we are accepting the INVITE
-    if(mpMediaInterface != NULL && getState() == CONNECTION_ESTABLISHED &&
-        (lastRemoteSequenceNumber == requestSequenceNum || mIsAcceptSent))
+    if(mpMediaInterface != NULL 
+       && getState() == CONNECTION_ESTABLISHED 
+       && (lastRemoteSequenceNumber == requestSequenceNum 
+           || mIsAcceptSent))
     {
         UtlString rtpAddress;
         int receiveRtpPort;
@@ -4619,7 +4628,9 @@ void SipConnection::processInviteResponse(const SipMessage* response)
 
             if (mTerminalConnState == PtTerminalConnection::HELD)
             {
-                OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipConnection::processInviteResponse, CONNECTED_INACTIVE response for HOLD");
+                OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                              "SipConnection::processInviteResponse, "
+                              "CONNECTED_INACTIVE response for HOLD");
                 fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_INACTIVE);
             }
             else

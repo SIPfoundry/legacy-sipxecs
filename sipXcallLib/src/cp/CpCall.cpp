@@ -1448,7 +1448,7 @@ void CpCall::postMetaEvent(int state, int remoteIsCallee)
 
         OsSysLog::add(FAC_CP, PRI_DEBUG, 
                       "CpCall::postMetaEvent "
-                      "leave eventId%d",
+                      "leave eventId %d",
                       eventId);
     }
 

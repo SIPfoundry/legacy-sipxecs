@@ -298,8 +298,9 @@ void ParkedCallObject::startBlindTransfer()
    else
    {
       OsSysLog::add(FAC_PARK, PRI_DEBUG,
-                    "ParkedCallObject::startBlindTransfer transfer already in "
-                    "progress callId = '%s', parker = '%s'",
+                    "ParkedCallObject::startBlindTransfer "
+                    "transfer already in progress "
+                    "callId = '%s', parker = '%s'",
                     mOriginalCallId.data(), mParker.data());
    }
 }
@@ -358,7 +359,8 @@ void ParkedCallObject::sendKeepAlive(const char * mohUserPart)
 void ParkedCallObject::keypress(int keycode)
 {
    OsSysLog::add(FAC_PARK, PRI_DEBUG,
-                 "ParkedCallObject::keypress callId = '%s', parker = '%s', keycode = %d",
+                 "ParkedCallObject::keypress "
+                 "callId = '%s', parker = '%s', keycode = %d",
                  mOriginalCallId.data(), mParker.data(), keycode);
    // Must test if the keypress is to cause a transfer.
    if (mKeycode != OrbitData::NO_KEYCODE &&

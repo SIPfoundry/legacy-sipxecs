@@ -731,7 +731,7 @@ void SipTransaction::prepareRequestForSend(SipMessage& request,
         SipMessage::parseAddressFromUri(routeUri.data(),
                                         &routeHost, &routePort, &routeProtocol);
 
-        // All of this URL maipulation should be done via
+        // All of this URL manipulation should be done via
         // the Url (routeUrlParser) object.  However to
         // be safe, we are only using it to get the maddr.
         // If the maddr is present use it as the address
@@ -3870,17 +3870,31 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
             mpRequest &&
             mRequestMethod.compareTo(SIP_INVITE_METHOD) == 0)
         {
-            SipMessage cancel;
+            if (mpCancel)
+            {
+                // mpCancel is populated when doFirstSend calls addResponse
+                // means that Cancel was already sent
+                // could be put in previous 'if', is here to allow debug message
+                OsSysLog::add(FAC_SIP, PRI_WARNING,
+                              "SipTransaction::handleIncoming "
+                              "got first provisional response but already sent cancel");
+            }
+            else
+            {
 
-            cancel.setCancelData(mpRequest);
-#ifdef TEST_PRINT
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipTransaction::handleIncoming sending cancel after receiving first provisional response");
-#endif
-            handleOutgoing(cancel,
-                           userAgent,
-                           transactionList,
-                           MESSAGE_CANCEL);
+                SipMessage cancel;
+    
+                cancel.setCancelData(mpRequest);
+    #ifdef TEST_PRINT
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                              "SipTransaction::handleIncoming "
+                              "sending cancel after receiving first provisional response");
+    #endif
+                handleOutgoing(cancel,
+                               userAgent,
+                               transactionList,
+                               MESSAGE_CANCEL);
+            }
         }     // end send delayed cancel now that we got provo response
 
         // Incoming CANCEL, respond and cancel children

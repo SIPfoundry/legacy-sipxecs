@@ -3041,9 +3041,8 @@ void CpPeerCall::hangUp(const char* callId,
 }
 
 
-// Get the connection for the connection identified by the designated callId,
-// toTag, and fromTag.  If the connection cannot be found a UtlBoolean value of
-// false is returned.
+// Get the connection state for the connection identified by the designated callId,
+// toTag, and fromTag.  Returns TRUE if the connection is found, else returns FALSE.
 UtlBoolean CpPeerCall::getConnectionState(const char* callId, 
                                           const char* toTag,
                                           const char* fromTag,

@@ -336,7 +336,8 @@ void CallManager::setOutboundLine(const char* lineUrl)
     mOutboundLine = lineUrl ? lineUrl : "";
 #ifdef TEST_PRINT
     OsSysLog::add(FAC_CP, PRI_DEBUG,
-                  "CallManager::setOutboundLine %p setting mOutboundLine to '%s'",
+                  "CallManager::setOutboundLine "
+                  "%p setting mOutboundLine to '%s'",
                   this, mOutboundLine.data());
 #endif
 }
@@ -1250,7 +1251,9 @@ void CallManager::createCall(UtlString* callId,
     {
        CallId::getNewCallId(*callId);
     }
-    OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::createCall new Id: %s\n", callId->data());
+    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                  "CallManager::createCall "
+                  "new Id: %s\n", callId->data());
     CpMultiStringMessage callMessage(CP_CREATE_CALL,
         callId->data(),
         numCalls >= 1 ? callIds[0] : NULL,
@@ -1591,15 +1594,21 @@ PtStatus CallManager::transfer_blind(const char* callId, const char* transferToU
     if(returnCode == PT_SUCCESS)
     {
         if(targetConnectionAddress)
+        {
             *targetConnectionAddress = transferToUrl;
+        }
         UtlString targetCallId;
         CallId::getNewCallId(targetCallId);
         if(targetConnectionCallId)
+        {
             *targetConnectionCallId = targetCallId;
+        }
 
 #ifdef TEST_PRINT
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::transfer type: %d transferUrl: \"%s\"\n",
-            mTransferType, transferTargetUrl.data());
+        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                      "CallManager::transfer "
+                      "type: %d transferUrl: \"%s\"\n",
+                      mTransferType, transferTargetUrl.data());
 #endif
 
         // CP_BLIND_TRANSFER (i.e. two call blind transfer)

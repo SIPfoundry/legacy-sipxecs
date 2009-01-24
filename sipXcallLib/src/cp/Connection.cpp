@@ -245,7 +245,8 @@ void Connection::setState(int newState, int isLocal, int newCause, int termState
       {
          if (newState == currentState)
          {
-            OsSysLog::add(FAC_CP, PRI_DEBUG, "Connection::setState: "
+            OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                          "Connection::setState: "
                           "Questionable connection state change - isLocal %d, for call "
                           "'%s' with callid '%s' from %s to %s, cause %d",
                           isLocal, strCallName.data(), callId.data(),
@@ -253,7 +254,8 @@ void Connection::setState(int newState, int isLocal, int newCause, int termState
          }
          else
          {
-            OsSysLog::add(FAC_CP, PRI_ERR, "Connection::setState: "
+            OsSysLog::add(FAC_CP, PRI_ERR, 
+                          "Connection::setState: "
                           "Invalid connection state change - isLocal %d, for call "
                           "'%s' with callid '%s' from %s to %s, cause %d",
                           isLocal, strCallName.data(), callId.data(),

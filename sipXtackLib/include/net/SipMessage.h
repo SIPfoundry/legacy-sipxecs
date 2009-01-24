@@ -550,7 +550,7 @@ public:
                         const char* localContact);
 
     void setNotifyData(const SipMessage *subscribeRequest,
-                       int lastLocalSequenceNumber,
+                       int localCSequenceNumber,
                        const char* route,
                        const char* stateField = NULL,
                        const char* eventField = NULL,
