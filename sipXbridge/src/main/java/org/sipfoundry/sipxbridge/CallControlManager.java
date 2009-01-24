@@ -744,18 +744,20 @@ class CallControlManager implements SymmitronResetHandler {
 			DialogContext peerDialogContext = (DialogContext) peerDialog
 					.getApplicationData();
 
-			logger.debug("peerDialogContext = " + peerDialogContext
-					+ " peerDialog State = " + peerDialog.getState() + " "
-					+ peerDialogContext != null ? "peerDialogLastResponse "
-					+ peerDialogContext.lastResponse
-					+ " peerDialogPendingAction "
-					+ peerDialogContext.getPendingAction() : "");
+			if (logger.isDebugEnabled()) {
+				logger.debug("peerDialog = " + peerDialog);
+				logger.debug("peerDialogContext " + peerDialogContext);
+				if (peerDialogContext.getLastResponse() == null) {
+					logger.debug("lastResponse "
+							+ peerDialogContext.getLastResponse());
+				}
+			}
 
 			if (peerDialogContext != null
 					&& peerDialog.getState() == DialogState.CONFIRMED
-					&& peerDialogContext.lastResponse != null
-					&& peerDialogContext.lastResponse.getStatusCode() == Response.OK
-					&& ((CSeqHeader) peerDialogContext.lastResponse
+					&& peerDialogContext.getLastResponse() != null
+					&& peerDialogContext.getLastResponse().getStatusCode() == Response.OK
+					&& ((CSeqHeader) peerDialogContext.getLastResponse()
 							.getHeader(CSeqHeader.NAME)).getMethod().equals(
 							Request.INVITE)) {
 				logger.debug("createAck: " + peerDialog);
@@ -774,7 +776,8 @@ class CallControlManager implements SymmitronResetHandler {
 						 * answer, we re-write it and forward it.
 						 */
 						ack = peerDialog.createAck(SipUtilities
-								.getSeqNumber(peerDialogContext.lastResponse));
+								.getSeqNumber(peerDialogContext
+										.getLastResponse()));
 
 						ContentTypeHeader cth = ProtocolObjects.headerFactory
 								.createContentTypeHeader("application", "sdp");
@@ -831,7 +834,8 @@ class CallControlManager implements SymmitronResetHandler {
 						 * forwarding action.
 						 */
 						ack = peerDialog.createAck(SipUtilities
-								.getSeqNumber(peerDialogContext.lastResponse));
+								.getSeqNumber(peerDialogContext
+										.getLastResponse()));
 					}
 				}
 
@@ -842,7 +846,7 @@ class CallControlManager implements SymmitronResetHandler {
 				/*
 				 * Setting this to null here handles the case of Re-invitations.
 				 */
-				peerDialogContext.lastResponse = null;
+				peerDialogContext.setLastResponse(null);
 
 				/*
 				 * Set the pending flag to false.
@@ -1077,16 +1081,23 @@ class CallControlManager implements SymmitronResetHandler {
 
 		BackToBackUserAgent b2bua = dialogContext.getBackToBackUserAgent();
 
+
+		if (logger.isDebugEnabled()) {
+			logger.debug("dialogContext = " + dialogContext);
+			logger.debug("dialogPeer = " + DialogContext.getPeerDialog(dialog));
+			logger.debug("dialog  = " + dialog);
+		}
 		/*
 		 * Store away our incoming response - get ready for ACKL
 		 */
-		dialogContext.lastResponse = response;
+		dialogContext.setLastResponse(response);
 
 		/*
 		 * Now send the respose to the server side of the transaction.
 		 */
 		ServerTransaction serverTransaction = transactionContext
 				.getServerTransaction();
+
 		Response newResponse = ProtocolObjects.messageFactory.createResponse(
 				response.getStatusCode(), serverTransaction.getRequest());
 		SupportedHeader sh = ProtocolObjects.headerFactory
@@ -1193,6 +1204,20 @@ class CallControlManager implements SymmitronResetHandler {
 			newResponse.setContent(body, cth);
 		}
 
+		/*
+		 * If the inbound dialog is not our peer, by sending an ACK right away.
+		 * If he sends a BYE do not forward it. Set a Flag indicating BYE 
+		 * should not be forwarded.
+		 */
+		if (DialogContext.getPeerDialog(serverTransaction.getDialog()) != dialog) {
+			if (response.getStatusCode() == 200) {
+				Request ackRequest = dialog.createAck(SipUtilities
+						.getSeqNumber(response));
+				DialogContext.get(dialog).forwardByeToPeer = false;
+				DialogContext.get(dialog).setLastResponse(null);
+				dialog.sendAck(ackRequest);
+			}
+		}
 		serverTransaction.sendResponse(newResponse);
 	}
 
@@ -1210,7 +1235,7 @@ class CallControlManager implements SymmitronResetHandler {
 		ClientTransaction ctx = responseEvent.getClientTransaction();
 		TransactionContext transactionContext = TransactionContext.get(ctx);
 		Response response = responseEvent.getResponse();
-		dialogContext.lastResponse = response;
+		dialogContext.setLastResponse(response);
 		ServerTransaction st = transactionContext.getServerTransaction();
 
 		Response newResponse = SipUtilities.createResponse(st, Response.OK);
@@ -1266,7 +1291,7 @@ class CallControlManager implements SymmitronResetHandler {
 		TransactionContext tad = TransactionContext.get(ctx);
 		Response response = responseEvent.getResponse();
 
-		dialogContext.lastResponse = response;
+		dialogContext.setLastResponse(response);
 		ServerTransaction serverTransaction = tad.getServerTransaction();
 		Dialog replacedDialog = tad.getReplacedDialog();
 		Request request = serverTransaction.getRequest();
@@ -1348,7 +1373,7 @@ class CallControlManager implements SymmitronResetHandler {
 		/*
 		 * Store away our incoming response - get ready for ACKL
 		 */
-		dialogContext.lastResponse = response;
+		dialogContext.setLastResponse(response);
 		dialogContext.setBackToBackUserAgent(b2bua);
 
 		dialog.setApplicationData(dialogContext);
@@ -1588,6 +1613,11 @@ class CallControlManager implements SymmitronResetHandler {
 		TransactionContext tad = TransactionContext.get(ctx);
 		Response response = responseEvent.getResponse();
 
+		/*
+		 * Do not record the last response here in the dialogContext as we are
+		 * going to ack the dialog right away.
+		 */
+
 		BackToBackUserAgent b2bua = DialogContext
 				.getBackToBackUserAgent(dialog);
 
@@ -1608,6 +1638,7 @@ class CallControlManager implements SymmitronResetHandler {
 		if (response.getRawContent() != null
 				&& cth.getContentType().equalsIgnoreCase("application")
 				&& cth.getContentSubType().equalsIgnoreCase("sdp")) {
+
 			/*
 			 * The incoming media session.
 			 */
@@ -1644,6 +1675,7 @@ class CallControlManager implements SymmitronResetHandler {
 				 * Check if we need to forward that response and do so if
 				 * needed. see issue 1718
 				 */
+
 				if (tad.getServerTransaction() != null
 						&& tad.getServerTransaction().getState() != TransactionState.TERMINATED) {
 
@@ -1657,6 +1689,7 @@ class CallControlManager implements SymmitronResetHandler {
 									.getSipProvider(), peerDat.getItspInfo());
 					forwardedResponse.setHeader(contact);
 					tad.getServerTransaction().sendResponse(forwardedResponse);
+
 				} else {
 					logger
 							.debug("not forwarding response peerDat.transaction  = "
@@ -1718,13 +1751,6 @@ class CallControlManager implements SymmitronResetHandler {
 			Request ackRequest = dialog.createAck(((CSeqHeader) response
 					.getHeader(CSeqHeader.NAME)).getSeqNumber());
 			dialog.sendAck(ackRequest);
-
-		}
-		/*
-		 * If there is a Music on hold dialog -- tear it down
-		 */
-
-		if (response.getStatusCode() == Response.OK) {
 			b2bua.sendByeToMohServer();
 		}
 
@@ -1817,7 +1843,7 @@ class CallControlManager implements SymmitronResetHandler {
 
 		}
 
-		dialogContext.lastResponse = response;
+		dialogContext.setLastResponse(response);
 
 		logger.debug("continuationOperation = " + continuationOperation);
 
@@ -1876,7 +1902,7 @@ class CallControlManager implements SymmitronResetHandler {
 					 * Session description as before. This completes the
 					 * handshake so the Dialog will not time out.
 					 */
-					DialogContext.get(dialog).lastResponse = null;
+					DialogContext.get(dialog).setLastResponse(null);
 					/*
 					 * We already ACKED him so we dont owe him an SDP Answer in
 					 * the ACK
@@ -1895,7 +1921,7 @@ class CallControlManager implements SymmitronResetHandler {
 
 					dialog.sendAck(ack);
 				} else {
-					DialogContext.get(dialog).lastResponse = response;
+					DialogContext.get(dialog).setLastResponse(response);
 					DialogContext
 							.get(continuation.getDialog())
 							.setPendingAction(
@@ -1975,7 +2001,7 @@ class CallControlManager implements SymmitronResetHandler {
 				 * just replay the old respose (Example: this case happens for
 				 * AT&T HIPCS ).
 				 */
-				DialogContext.get(dialog).lastResponse = response;
+				DialogContext.get(dialog).setLastResponse(response);
 
 				SessionDescription ackSd = dialogContext.getRtpSession()
 						.getReceiver().getSessionDescription();

@@ -87,7 +87,7 @@ public class CallControlUtilities {
 		if (logger.isDebugEnabled()) {
 			logger.debug("sendSdpOffer : peerDialog = " + dialog
 					+ " peerDialogApplicationData = " + dialogContext
-					+ "\nlastResponse = " + dialogContext.lastResponse);
+					+ "\nlastResponse = " + dialogContext.getLastResponse());
 		}
 
 	
@@ -162,7 +162,7 @@ public class CallControlUtilities {
 		if (logger.isDebugEnabled()) {
 			logger.debug("sendSdpAnswerInAck : dialog = " + dialog
 					+ " peerDialogApplicationData = " + dialogContext
-					+ "\nlastResponse = " + dialogContext.lastResponse);
+					+ "\nlastResponse = " + dialogContext.getLastResponse());
 		}
 
 		dialogContext.setPendingAction(PendingDialogAction.NONE);
@@ -253,11 +253,11 @@ public class CallControlUtilities {
 				SipUtilities.setDuplexity(ackSd, "sendrecv");
 			}
 			Request ackRequest = dialog.createAck(SipUtilities
-					.getSeqNumber(dialogContext.lastResponse));
+					.getSeqNumber(dialogContext.getLastResponse()));
 			/*
 			 * Consume the last response.
 			 */
-			dialogContext.lastResponse = null;
+			dialogContext.setLastResponse(null);
 
 			/*
 			 * Answer is no longer pending.

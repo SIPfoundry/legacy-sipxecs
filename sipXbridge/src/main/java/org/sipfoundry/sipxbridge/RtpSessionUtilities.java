@@ -233,7 +233,7 @@ public class RtpSessionUtilities {
 			logger.debug("reAssignSessionParameters: dialog = " + dialog
 					+ " peerDialog = "
 					+ peerDialog + " peerDialog.lastResponse = \n"
-					+ DialogContext.get(peerDialog).lastResponse);
+					+ DialogContext.get(peerDialog).getLastResponse());
 		}
 		
 		logger.debug("rtpSession.getTransmitter().sessionDescription = " + rtpSession.getTransmitter().getSessionDescription());

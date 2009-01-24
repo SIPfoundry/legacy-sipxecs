@@ -11,6 +11,7 @@ import gov.nist.javax.sip.DialogExt;
 import gov.nist.javax.sip.header.HeaderFactoryExt;
 import gov.nist.javax.sip.header.extensions.MinSE;
 import gov.nist.javax.sip.header.extensions.SessionExpiresHeader;
+import gov.nist.javax.sip.message.SIPResponse;
 
 import java.util.ListIterator;
 import java.util.TimerTask;
@@ -70,7 +71,7 @@ class DialogContext {
     /*
      * The last response seen by the dialog.
      */
-    Response lastResponse;
+    private Response lastResponse;
 
     /*
      * The B2BUA associated with the dialog. The BackToBackUserAgent structure tracks call state.
@@ -390,12 +391,12 @@ class DialogContext {
      * @throws Exception
      */
     void sendAck(SessionDescription sessionDescription ) throws Exception {
-        if ( this.lastResponse == null ) {
+        if ( this.getLastResponse() == null ) {
             Gateway.logInternalError("Method was called with lastResponse null");
             
         }
-        Request ackRequest = dialog.createAck(SipUtilities.getSeqNumber(this.lastResponse));
-        this.lastResponse = null;
+        Request ackRequest = dialog.createAck(SipUtilities.getSeqNumber(this.getLastResponse()));
+        this.setLastResponse(null);
         this.recordLastAckTime();
         SipUtilities.setSessionDescription(ackRequest, sessionDescription);
         /*
@@ -429,11 +430,11 @@ class DialogContext {
             return false;
 
         } else {
-            if (this.lastResponse == null) {
+            if (this.getLastResponse() == null) {
                 return false;
             }
 
-            ListIterator li = lastResponse.getHeaders(AllowHeader.NAME);
+            ListIterator li = getLastResponse().getHeaders(AllowHeader.NAME);
 
             while (li != null && li.hasNext()) {
                 AllowHeader ah = (AllowHeader) li.next();
@@ -552,5 +553,20 @@ class DialogContext {
     public static DialogContext getPeerDialogContext(Dialog dialog) {
         return DialogContext.get(DialogContext.getPeerDialog(dialog));
     }
+
+	void setLastResponse(Response lastResponse) {
+		logger.debug("DialogContext.setLastResponse " );
+		if ( lastResponse == null ) {
+			logger.debug("lastResponse = " + null);
+		} else {
+			logger.debug("lastResponse = " + ((SIPResponse)lastResponse).getFirstLine());
+		}
+	
+		this.lastResponse = lastResponse;
+	}
+
+	Response getLastResponse() {
+		return lastResponse;
+	}
 
 }

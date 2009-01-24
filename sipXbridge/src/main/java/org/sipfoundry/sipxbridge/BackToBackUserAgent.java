@@ -404,7 +404,7 @@ public class BackToBackUserAgent {
 
 				DialogContext referingDialogPeerApplicationData = DialogContext
 						.get(referingDialogPeer);
-				Response lastResponse = referingDialogPeerApplicationData.lastResponse;
+				Response lastResponse = referingDialogPeerApplicationData.getLastResponse();
 				DialogContext replacedDialogPeerDialogApplicationData = DialogContext
 						.get(replacedDialogPeerDialog);
 				Request reInvite = replacedDialogPeerDialog
