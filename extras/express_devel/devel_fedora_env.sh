@@ -8,11 +8,37 @@
 
 # See http://sipx-wiki.calivia.com/index.php/Express_Development_Environment_Setup for instructions.
 
+if [ "`whoami`" != root ]
+then
+  echo "You must be root in order to run this script."
+  exit 1
+fi
+
+REBOOT_FLAG="--reboot"
+if [ $# -gt 2 ]
+then
+  echo "Usage: ${0} [${REBOOT_FLAG}] <Username>"
+  exit 2
+fi
+
 DEVEL_USER=sipx
 DEFAULT_PASSWORD=PingMe
 
-if [ $# == 1 ]; then
-   DEVEL_USER=$1
+function parse_argument {
+   if [ $1 == $REBOOT_FLAG ] 
+   then
+      AutoReboot="yup"
+   else
+      DEVEL_USER=$1
+   fi
+}
+if [ $# -gt 0 ]
+then
+  parse_argument $1 
+fi
+if [ $# -gt 1 ]
+then
+  parse_argument $2
 fi
 
 function wget_retry {
@@ -35,7 +61,7 @@ function wget_retry {
             if [ $? != 0 ]
             then
                echo "    FAILED!" 
-               exit 2
+               exit 3
             fi               
          fi               
       fi      
@@ -60,13 +86,13 @@ function rpm_file_install_and_check {
       if [ $? != 0 ]
       then
          echo "    FAILED to install - $BASENAME!" 
-         exit 3
+         exit 4
       fi
       rpm -q $BASENAME > /dev/null
       if [ $? = 1 ]
       then
          echo "    no error, but then FAILED to find installed - $BASENAME!" 
-         exit 3
+         exit 4
       fi
    fi
 }
@@ -92,7 +118,7 @@ function yum_install_and_check {
             if [ $? != 0 ]
             then
                echo "    FAILED to install - $1!" 
-               exit 4
+               exit 5
             fi
          fi         
       fi
@@ -117,7 +143,7 @@ function gem_install_and_check {
             if [ $? != 0 ]
             then
                echo "    FAILED to install - $1!" 
-               exit 5
+               exit 6
             fi
          fi         
       fi
@@ -137,8 +163,8 @@ fi
 echo SELINUX=disabled > /etc/selinux/config
 
 #* Disable the Firewall (could be done from a GUI install, but just to be sure....)
-service iptables stop
-chkconfig iptables off
+/sbin/service iptables stop
+/sbin/chkconfig iptables off
 
 #* General update.
 yum -y update
@@ -202,15 +228,27 @@ do
    gem_install_and_check $package
 done
 
-#* Add the development user, although it may already be done.
-useradd $DEVEL_USER
-if [ 9 != $? ]; then # Only change the password if the user didn't already exist.
+#* See if the development user already exists.
+id $DEVEL_USER 2> /dev/null
+if [ $? != 0 ]
+then
+   # No, so create it and change the password.
+   /usr/sbin/useradd $DEVEL_USER
    echo $DEFAULT_PASSWORD | passwd $DEVEL_USER --stdin
 fi
 
-#* Give the development user password-less sudo privileges.
+#* Give the wheel group password-less sudo privileges.
 sed -i -e "s/# %wheel[\t]ALL=(ALL)[\t]NOPASSWD/%wheel\tALL=(ALL)\tNOPASSWD/g" /etc/sudoers 
-usermod -a -G wheel $DEVEL_USER
+
+#* Add the development user to the wheel group.
+ETC_GROUP_FILE="/etc/group"
+WHEEL_GROUP_ORIG=`grep wheel $ETC_GROUP_FILE`
+TMP=`echo $WHEEL_GROUP_ORIG | grep $DEVEL_USER | cut -d: -f4`
+MISSING=`ruby -e 'ARGV[0].split(",").each {|x| if x == ARGV[1] then exit end}; puts "missing"' $TMP $DEVEL_USER`
+if [ $MISSING ]
+then
+   sed -i -e "s/$WHEEL_GROUP_ORIG/$WHEEL_GROUP_ORIG,$DEVEL_USER/g" $ETC_GROUP_FILE
+fi
 
 # Enable TFTP.  Don't bother chaging the /tftpboot, it will later be replaced with a symbolic link
 # by the $DEVEL_USER.
@@ -218,16 +256,16 @@ sed -i -e "s/[\t]disable[\t][\t][\t]= yes/\tdisable\t\t\t= no/g" /etc/xinetd.d/t
 /sbin/service xinetd restart
 
 # Enable FTP with a Polycom user, also using the /tftpboot directory.
-adduser -d /tftpboot -G $DEVEL_USER -s /sbin/nologin -M PlcmSpIp
+/usr/sbin/useradd -d /tftpboot -G $DEVEL_USER -s /sbin/nologin -M PlcmSpIp
 echo -e "PlcmSpIp" | sudo passwd --stdin PlcmSpIp
 echo "dirlist_enable=NO" >> /etc/vsftpd/vsftpd.conf
-chkconfig vsftpd on
-service vsftpd restart
+/sbin/chkconfig vsftpd on
+/sbin/service vsftpd restart
 
 # Enable postgresql.
-service postgresql initdb
-chkconfig postgresql on
-service postgresql start
+/sbin/service postgresql initdb
+/sbin/chkconfig postgresql on
+/sbin/service postgresql start
 
 # Get rid of the svn certificate prompt for $DEVEL_USER, which may be useful.
 sudo su - $DEVEL_USER -c "echo p | svn co https://sipxecs.sipfoundry.org/rep/sipXecs/main/sipXcallLib/include/tapi/ /tmp/del_me"
@@ -236,8 +274,15 @@ rm -rf /tmp/del_me
 # Reboot.
 echo -e '\a' ; sleep 1 ; echo -e '\a' ; sleep 1 ; echo -e '\a'
 echo ""
-echo -n "Script complete, rebooting now"
-ruby -e '(1..10).each {print "."; $stdout.flush; sleep(1) }'
-echo ""
-reboot
+echo -n "Script complete, "
+if [ $AutoReboot ]
+then
+   echo -n "rebooting now"
+   ruby -e '(1..10).each {print "."; $stdout.flush; sleep(1) }'
+   echo ""
+   reboot
+else
+   echo "please reboot now."
+   echo ""
+fi
 
