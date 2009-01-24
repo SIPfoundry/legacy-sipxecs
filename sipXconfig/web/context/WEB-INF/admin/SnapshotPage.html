@@ -72,6 +72,17 @@
             description="message:description.cdr">
             <span jwcid="cdrCheck@Checkbox" id="snapshot:cdr" value="ognl:snapshot.cdr"/>
           </tr>
+          <tr>
+            <td colspan="2">
+              <h3><span key="label.profiles_heading">Phone and Gateway Profiles</span></h3>
+            </td>
+          </tr>
+          <tr jwcid="profilesPanel@common/FieldPanel" for="snapshot:profiles"
+            field="component:profilesCheck"
+            label="message:label.profiles"
+            description="message:description.profiles">
+            <span jwcid="profilesCheck@Checkbox" id="snapshot:profiles" value="ognl:snapshot.profiles"/>
+          </tr>
         </tbody>
       </table>
     </fieldset>

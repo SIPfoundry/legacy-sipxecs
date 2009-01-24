@@ -44,9 +44,10 @@ public class SnapshotTest extends TestCase {
 
         snapshot.setLogs(false);
         snapshot.setCdr(true);
+        snapshot.setProfiles(true);
         cmdLine = StringUtils.join(snapshot.getCmdLine("xyz", startDate, endDate), ' ');
         assertEquals("xyz" + File.separator
-                + "sipx-snapshot --logs none --credentials --cdr --no-www sipx-configuration.tar.gz",
+                + "sipx-snapshot --logs none --credentials --cdr --profiles --no-www sipx-configuration.tar.gz",
                 cmdLine);
     }
 }
