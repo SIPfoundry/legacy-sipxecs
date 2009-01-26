@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IAsset;
+import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.ComponentClass;
@@ -60,6 +61,12 @@ public abstract class AutoRefreshForm extends BaseComponent implements PageBegin
     public void refresh() {
     }
 
+    @EventListener(targets = "interval", events = "onSave")
+    public void updateRefreshIntervalOnClient(IRequestCycle cycle) {
+        // This will trigger a JavaScript call to update the timer on the client.
+        cycle.getResponseBuilder().addStatusMessage(null, "refreshInterval", Integer.toString(getCurrentInterval()));
+    }
+    
     public void pageBeginRender(PageEvent event) {
         if (0 == getCurrentInterval()) {
             setCurrentInterval(getInterval());

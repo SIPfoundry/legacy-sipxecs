@@ -15,6 +15,11 @@
 <![CDATA[    
 var refreshEnabled = true;
     
+function updateRefresh(value) {
+    dojo.debug("Updating auto refresh interval: " + value.message);
+    ${initRefresh}("refresh", value.message);
+}    
+    
 function ${initRefresh}(buttonName, interval) {
   dojo.debug("Registering auto refresh: " + interval);
   var click = function() {
@@ -40,5 +45,8 @@ function ${initRefresh}(buttonName, interval) {
   </body>
   <initialization>
 ${initRefresh}("refresh", ${interval});
+
+// This is notified when the value of the current interval changes.
+dojo.event.topic.subscribe("refreshInterval", updateRefresh);
   </initialization>
 </script>
