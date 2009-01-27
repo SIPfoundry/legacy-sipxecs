@@ -25,7 +25,7 @@ SIP_REDIRECT.100-PICKUP.GLOBAL_CALL_PICKUP_CODE :
 SIP_REDIRECT.100-PICKUP.DIRECTED_CALL_PICKUP_CODE : $!callPickupSettings.getSetting('SIP_REDIRECT.100-PICKUP.DIRECTED_CALL_PICKUP_CODE').Value
 SIP_REDIRECT.100-PICKUP.CALL_RETRIEVE_CODE : $!callPickupSettings.getSetting('SIP_REDIRECT.100-PICKUP.CALL_RETRIEVE_CODE').Value
 SIP_REDIRECT.100-PICKUP.CALL_PICKUP_WAIT : $!callPickupSettings.getSetting('SIP_REDIRECT.100-PICKUP.CALL_PICKUP_WAIT').Value
-SIP_REDIRECT.100-PICKUP.PARK_SERVER : ${registrarService.domainName};transport=tcp?Route=sip:${location.address}:${parkService.sipPort}
+SIP_REDIRECT.100-PICKUP.PARK_SERVER : ${registrarService.domainName};transport=tcp?Route=sip:${location.address}:${parkService.parkServerSipPort}
 SIP_REDIRECT.100-PICKUP.ORBIT_FILENAME : @sipxpbx.conf.dir@/orbits.xml
 SIP_REDIRECT_HOOK_LIBRARY.110-REG : @sipxpbx.lib.dir@/libRedirectorRegDB.so
 SIP_REDIRECT_AUTHORITY_LEVEL.110-REG : 40
