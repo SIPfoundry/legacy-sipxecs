@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.common;
@@ -36,6 +36,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     private CoreContext m_core;
     private SettingDao m_settingDao;
 
+    @Override
     protected void setUp() throws Exception {
         ApplicationContext app = TestHelper.getApplicationContext();
         m_core = (CoreContext) app.getBean(CoreContext.CONTEXT_BEAN_NAME);
@@ -219,8 +220,8 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
 
         // Delete two users
         List usersToDelete = new ArrayList();
-        usersToDelete.add(new Integer(1001));
-        usersToDelete.add(new Integer(1002));
+        usersToDelete.add(1001);
+        usersToDelete.add(1002);
         m_core.deleteUsers(usersToDelete);
 
         // We should have reduced the user count by two
@@ -297,8 +298,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
 
         User admin = m_core.loadUserByUserName(User.SUPERADMIN);
         Group adminGroup = admin.getGroups().iterator().next();
-        IDataSet expectedDs = TestHelper
-                .loadDataSetFlat("common/CreateAdminAndInitialUserExpected.db.xml");
+        IDataSet expectedDs = TestHelper.loadDataSetFlat("common/CreateAdminAndInitialUserExpected.db.xml");
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
         expectedRds.addReplacementObject("[user_id]", admin.getId());
         expectedRds.addReplacementObject("[group_id]", adminGroup.getId());
@@ -309,10 +309,8 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         IDataSet actualDs = TestHelper.getConnection().createDataSet();
 
         Assertion.assertEquals(expectedRds.getTable("users"), actualDs.getTable("users"));
-        Assertion.assertEquals(expectedRds.getTable("group_storage"), actualDs
-                .getTable("group_storage"));
-        Assertion.assertEquals(expectedRds.getTable("setting_value"), actualDs
-                .getTable("setting_value"));
+        Assertion.assertEquals(expectedRds.getTable("group_storage"), actualDs.getTable("group_storage"));
+        Assertion.assertEquals(expectedRds.getTable("setting_value"), actualDs.getTable("setting_value"));
 
         // make sure that it works even if superadmin has its rights revoked
         admin.setPermission(PermissionName.SUPERADMIN, false);
@@ -331,15 +329,15 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
 
     public void testCountUsersInGroup() throws Exception {
         TestHelper.insertFlat("common/UserSearchSeed.xml");
-        assertEquals(2, m_core.getUsersInGroupCount(new Integer(1001)));
-        assertEquals(3, m_core.getUsersInGroupCount(new Integer(1002)));
+        assertEquals(2, m_core.getUsersInGroupCount(1001));
+        assertEquals(3, m_core.getUsersInGroupCount(1002));
     }
 
     public void testCountUsersInGroupWithSearch() throws Exception {
         TestHelper.insertFlat("common/SampleUsersSeed.xml");
-        assertEquals(1, m_core.getUsersInGroupWithSearchCount(new Integer(1001), "pha"));
-        assertEquals(1, m_core.getUsersInGroupWithSearchCount(new Integer(1002), "add"));
-        assertEquals(2, m_core.getUsersInGroupWithSearchCount(new Integer(1003), "l"));
+        assertEquals(1, m_core.getUsersInGroupWithSearchCount(1001, "pha"));
+        assertEquals(1, m_core.getUsersInGroupWithSearchCount(1002, "add"));
+        assertEquals(2, m_core.getUsersInGroupWithSearchCount(1003, "l"));
     }
 
     public void testLoadUserPage() throws Exception {
@@ -373,8 +371,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
 
     public void testLoadUserPageWithGroup() throws Exception {
         TestHelper.insertFlat("common/SampleUsersSeed.xml");
-        Collection page = m_core
-                .loadUsersByPage(null, new Integer(1001), 0, 10, "userName", true);
+        Collection page = m_core.loadUsersByPage(null, 1001, 0, 10, "userName", true);
         assertEquals(1, page.size());
         User u = (User) page.iterator().next();
         assertEquals("alpha", u.getUserName());
@@ -403,8 +400,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
 
     public void testLoadUserPageWithUserSearchAndGroup() throws Exception {
         TestHelper.insertFlat("common/SampleUsersSeed.xml");
-        Collection page = m_core
-                .loadUsersByPage("og", new Integer(1003), 0, 10, "userName", true);
+        Collection page = m_core.loadUsersByPage("og", 1003, 0, 10, "userName", true);
         assertEquals(1, page.size());
         User u = (User) page.iterator().next();
         assertEquals("gogo", u.getUserName());
@@ -494,8 +490,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         // User with extension "3" and voicemail permission;
         m_core.checkForValidExtensions(Arrays.asList("3"), PermissionName.VOICEMAIL);
         try {
-            m_core.checkForValidExtensions(Arrays.asList("2", "3", "10"),
-                    PermissionName.VOICEMAIL);
+            m_core.checkForValidExtensions(Arrays.asList("2", "3", "10"), PermissionName.VOICEMAIL);
             fail();
         } catch (UserException e) {
             assertTrue(e.getMessage().contains("2"));
