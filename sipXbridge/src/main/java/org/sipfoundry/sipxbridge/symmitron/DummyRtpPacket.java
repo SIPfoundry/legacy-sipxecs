@@ -17,6 +17,7 @@ import java.util.Random;
  */
 
 class DummyRtpPacket {
+    private static int seqCounter;
     /*********************************************************************************************
      * Constants
      ********************************************************************************************/
@@ -74,7 +75,7 @@ class DummyRtpPacket {
     /** The length of the payload. */
     private int payloadLength = 0;
 
-    private static long myssrc = Math.abs(new Random().nextInt());
+    private static long myssrc = Math.abs(new Random().nextLong());
 
     /*********************************************************************************************
      * Constructor
@@ -97,10 +98,8 @@ class DummyRtpPacket {
      * @return The data of this RTP packet as a byte array.
      */
     private ByteBuffer getData() {
-       
-        ByteBuffer byteBuffer = ByteBuffer.allocate(12 + payloadLength);
 
-       
+        ByteBuffer byteBuffer = ByteBuffer.allocate(12 + payloadLength);
 
         /* Since V..SN are 32 bits, create a (int) byte array for V..SN. */
         long V_SN = 0;
@@ -118,7 +117,7 @@ class DummyRtpPacket {
         if (payloadLength != 0) {
             // This only applies if somebody has tinkered with the payload.
             // offset = 12 from start of packet.
-           byteBuffer.put(payload);
+            byteBuffer.put(payload);
         }
         // Reset pointer to start of buffer.
         byteBuffer.rewind();
@@ -145,15 +144,18 @@ class DummyRtpPacket {
     }
 
     public static ByteBuffer createDummyRtpPacket() {
-        if (byteBuffer == null) {
-            DummyRtpPacket rtpPacket = new DummyRtpPacket();
-            rtpPacket.payloadType = 20;
-            byte[] payload = new byte[128];
-            rtpPacket.setPayload(payload, payload.length);
-            rtpPacket.sequenceNumber = 12345;
-            rtpPacket.SSRC = myssrc;
-            byteBuffer = rtpPacket.getData();
+
+        DummyRtpPacket rtpPacket = new DummyRtpPacket();
+        rtpPacket.payloadType = 0;
+        byte[] payload = new byte[128];
+        for (int i = 0; i < payload.length; i++) {
+            payload[i] = (byte) 0xff;
         }
+        rtpPacket.setPayload(payload, payload.length);
+        rtpPacket.sequenceNumber = 12345 + seqCounter++;
+        rtpPacket.SSRC = new Random().nextLong();
+        byteBuffer = rtpPacket.getData();
+
         return byteBuffer;
 
     }

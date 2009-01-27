@@ -14,6 +14,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.DatagramChannel;
 import java.util.TimerTask;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.log4j.Logger;
@@ -26,10 +27,7 @@ import org.apache.log4j.Logger;
  */
 final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitterEndpointInterface {
 
-    /*
-     * Initialized to currentTime to prevent timer from kicking in too early.
-     */
-    private AtomicLong lastPacketSentTime = new AtomicLong(System.currentTimeMillis());
+    private AtomicLong lastPacketSentTime = new AtomicLong(0);
 
     private ByteBuffer keepAliveBuffer = null;
 
@@ -37,7 +35,7 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
 
     private AutoDiscoveryFlag remoteAddressAutoDiscovered = AutoDiscoveryFlag.NO_AUTO_DISCOVERY;
 
-    private KeepaliveMethod keepaliveMethod = KeepaliveMethod.USE_EMPTY_PACKET;
+    private KeepaliveMethod keepaliveMethod = KeepaliveMethod.NONE;
 
     private KeepaliveTimerTask keepaliveTimerTask;
 
@@ -58,6 +56,8 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
 
     private InetSocketAddress farEnd;
 
+    private Semaphore sem = new Semaphore(1);
+
     /**
      * The keepalive timer task.
      * 
@@ -74,38 +74,52 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
 
         public void run() {
 
-            if (datagramChannel == null)
-                return;
-            long now = System.currentTimeMillis();
-            if (now - lastPacketSentTime.get() < maxSilence) {
-
+            if (datagramChannel == null) {
                 return;
             }
+
             Bridge bridge = ConcurrentSet.getBridge(datagramChannel);
-            if (bridge == null || bridge.getState() == BridgeState.INITIAL
-                    || bridge.getState() == BridgeState.TERMINATED) {
+            if (bridge == null || bridge.getState() == BridgeState.TERMINATED || bridge.getState() == BridgeState.INITIAL) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Bridge is not in running state " + bridge.getState());
                 }
                 return;
             }
+            
+            /*
+             * Wait till we have a remote socket address and transmit
+             * as soon as we see it.
+             */
+
+            if (getSocketAddress() == null) {
+                while (getSocketAddress() == null) {
+                    try {
+                        Thread.sleep(20);
+                    } catch (Exception ex) {
+                    }
+                }
+                
+            }
+
+            long now = System.currentTimeMillis();
+
+            if (now - bridge.getLastPacketTime() < maxSilence) {
+                return;
+            }
+
             try {
 
                 if (keepaliveMethod.equals(KeepaliveMethod.USE_EMPTY_PACKET)) {
                     if (datagramChannel != null && getSocketAddress() != null
                             && datagramChannel.isOpen() && getSocketAddress() != null) {
-                        lastPacketSentTime.set(now);
-                        datagramChannel.send(emptyBuffer, getSocketAddress());
+                        send(emptyBuffer);
                     }
-
                 } else if (keepaliveMethod.equals(KeepaliveMethod.REPLAY_LAST_SENT_PACKET)
                         || keepaliveMethod.equals(KeepaliveMethod.USE_DUMMY_RTP_PAYLOAD)) {
-
                     if (keepAliveBuffer != null && datagramChannel != null
                             && getSocketAddress() != null && datagramChannel.isOpen()) {
-                        logger.debug("Sending keepalive");
-                        lastPacketSentTime.set(now);
-                        datagramChannel.send((ByteBuffer) keepAliveBuffer, getSocketAddress());
+                        logger.trace("Sending keepalive");
+                        send((ByteBuffer) keepAliveBuffer);
 
                     }
                 }
@@ -116,7 +130,7 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
                 logger.warn("Exitting early media thread due to closed channel", ex);
             } catch (Exception ex) {
                 logger.error("Unexpected exception in sending early media ", ex);
-                if ( bridge != null ) {
+                if (bridge != null) {
                     bridge.stop();
                 }
             }
@@ -157,7 +171,7 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
                 return false;
             }
         } catch (Exception ex) {
-            logger.error("Unexpected exception",ex);
+            logger.error("Unexpected exception", ex);
             throw new SymmitronException("Unexpected exception ", ex);
         }
 
@@ -203,7 +217,7 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
      *    else if we have a remote address recorded for this transmitter:
      *         this.datagramChannel.send(byeBuffer,remoteAddress)
      *         
-     *</pre>
+     * </pre>
      * 
      * @param byteBuffer
      * @throws IOException
@@ -211,54 +225,76 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
     public void send(ByteBuffer byteBuffer) throws IOException {
 
         if (this.getSocketAddress() == null) {
-            if ( logger.isTraceEnabled() ) {
+            if (logger.isTraceEnabled()) {
                 logger.trace("Cannot send -- remote address is null!");
             }
             return;
         }
-        
+
         /*
          * Record the time when packet is sent out.
          */
         this.lastPacketSentTime.set(System.currentTimeMillis());
 
+        boolean semAquired = false;
         /*
-         * Check if the packet is self-routed. If so route it back.
+         * Need the critical section here if keepalive is enabled because datagram channels are not thread safe.
          */
-        if (checkForSelfRouting && this.farEnd != null && isPacketSelfRouted(this.farEnd)) {
-            if (logger.isTraceEnabled()) {
-                logger.trace("SymTransmitterEndpoint:remoteAddress = " + this.farEnd);
+        try {
+            if (this.keepaliveTimerTask != null) {
+                sem.acquire();
+                semAquired = true;
             }
-
-            DatagramChannel channel = DataShuffler.getSelfRoutedDatagramChannel(this.farEnd);
-
-            if (channel != null) {
-                if (logger.isTraceEnabled()) {
-                    logger.trace("SymTransmitterEndpoint:selfRoutedDatagramChannel = " + channel);
-                }
-                Bridge bridge = ConcurrentSet.getBridge(channel);
-                if (logger.isTraceEnabled()) {
-                    logger.trace("SymTransmitterEndpoint:selfRoutedBridge = " + bridge);
-                }
-                if (bridge != null) {
-
-                    DataShuffler.send(bridge, channel, this.farEnd);
-                    return;
-
-                }
-            }
-        }
-
-        if (this.datagramChannel != null) {
-            int bytesSent = this.datagramChannel.send(byteBuffer, this.getSocketAddress());
-            if (logger.isTraceEnabled()) {
-                logger.trace("SymTransmitterEndpoint:actually sending to "
-                        + this.getSocketAddress() + " sent " + bytesSent + " bytes ");
-            }
+        } catch (InterruptedException ex) {
 
         }
-        if (keepaliveMethod.equals(KeepaliveMethod.REPLAY_LAST_SENT_PACKET)) {
-            this.keepAliveBuffer = byteBuffer;
+        
+        try {
+
+            /*
+             * Check if the packet is self-routed. If so route it back.
+             */
+            if (checkForSelfRouting && this.farEnd != null && isPacketSelfRouted(this.farEnd)) {
+                if (logger.isTraceEnabled()) {
+                    logger.trace("SymTransmitterEndpoint:remoteAddress = " + this.farEnd);
+                }
+
+                DatagramChannel channel = DataShuffler.getSelfRoutedDatagramChannel(this.farEnd);
+
+                if (channel != null) {
+                    if (logger.isTraceEnabled()) {
+                        logger.trace("SymTransmitterEndpoint:selfRoutedDatagramChannel = "
+                                + channel);
+                    }
+                    Bridge bridge = ConcurrentSet.getBridge(channel);
+                    if (logger.isTraceEnabled()) {
+                        logger.trace("SymTransmitterEndpoint:selfRoutedBridge = " + bridge);
+                    }
+                    if (bridge != null) {
+
+                        DataShuffler.send(bridge, channel, this.farEnd);
+                        return;
+
+                    }
+                }
+            }
+
+            if (this.datagramChannel != null) {
+                int bytesSent = this.datagramChannel.send(byteBuffer, this.getSocketAddress());
+                if (logger.isTraceEnabled()) {
+                    logger.trace("SymTransmitterEndpoint:actually sending to "
+                            + this.getSocketAddress() + " sent " + bytesSent + " bytes ");
+                }
+
+            }
+            if (keepaliveMethod.equals(KeepaliveMethod.REPLAY_LAST_SENT_PACKET)) {
+                this.keepAliveBuffer = byteBuffer;
+            }
+
+        } finally {
+            if ( semAquired) {
+                sem.release();
+            }
         }
     }
 

@@ -8,6 +8,7 @@ package org.sipfoundry.sipxbridge.symmitron;
 
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.log4j.Logger;
 
@@ -41,7 +42,7 @@ final class Bridge implements BridgeInterface {
 
     private long creationTime = System.currentTimeMillis();
 
-    long lastPacketTime;
+    private AtomicLong lastPacketTime = new AtomicLong(0);
 
     private Parity parity;
 
@@ -243,7 +244,7 @@ final class Bridge implements BridgeInterface {
     }
 
     public long getLastPacketTime() {
-        return this.lastPacketTime;
+        return this.lastPacketTime.get();
     }
 
     public long getCreationTime() {
@@ -267,6 +268,13 @@ final class Bridge implements BridgeInterface {
         }
         retval.append(" ]");
         return retval.toString();
+    }
+
+    /**
+     * @param lastPacketTime the lastPacketTime to set
+     */
+    void setLastPacketTime(long lastPacketTime) {
+        this.lastPacketTime.set(lastPacketTime);
     }
 
 }

@@ -100,7 +100,11 @@ final class Sym implements SymInterface, Serializable {
 
         this.transmitter = hisEndpoint;
         hisEndpoint.setSym(this);
-        this.transmitter.datagramChannel = this.receiver.datagramChannel;
+        if ( this.receiver != null ) {
+            this.transmitter.datagramChannel = this.receiver.datagramChannel;
+        } else {
+            throw new IllegalStateException ("Attempt to set transmitter but Receiver not set.");
+        }
 
     }
 

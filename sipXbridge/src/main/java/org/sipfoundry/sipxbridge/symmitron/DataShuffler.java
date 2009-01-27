@@ -112,7 +112,7 @@ class DataShuffler implements Runnable {
                     sym.lastPacketTime = System.currentTimeMillis();
                     sym.packetsReceived++;
 
-                    bridge.lastPacketTime = sym.lastPacketTime;
+                    bridge.setLastPacketTime(sym.lastPacketTime);
 
                     /*
                      * Set the remote port of the transmitter side of the connection. This allows
