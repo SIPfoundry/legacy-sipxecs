@@ -3873,8 +3873,9 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
             if (mpCancel)
             {
                 // mpCancel is populated when doFirstSend calls addResponse
-                // means that Cancel was already sent
-                // could be put in previous 'if', is here to allow debug message
+                // mpCancel != 0 means that a CANCEL was already sent.
+                // This test could be put in the previous 'if', but it
+                // is separate to allow this debug message.
                 OsSysLog::add(FAC_SIP, PRI_WARNING,
                               "SipTransaction::handleIncoming "
                               "got first provisional response but already sent cancel");
