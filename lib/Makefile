@@ -22,6 +22,7 @@ ARCH = $(shell uname -p)
 AC_TARGETS = \
 	cppunit \
 	cgicc \
+	java-sun \
 	ruby-dbi \
 	rubygems \
 	ruby-postgres \
