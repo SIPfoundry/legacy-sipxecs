@@ -58,12 +58,16 @@ ContactSet::ContactSet(ResourceCached* resource,
 
    // Start the subscription.
    UtlBoolean ret;
+   UtlString mUriNameAddr = "<" + mUri + ">";
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "SubscriptionSet:: mUri = '%s', mUriNameAddr = '%s'",
+                 mUri.data(), mUriNameAddr.data());
    ret = getResourceListServer()->getSubscribeClient().
       addSubscription(mUri.data(),
                       REG_EVENT_TYPE,
                       REG_EVENT_CONTENT_TYPE,
                       getResourceListServer()->getClientFromURI(),
-                      mUri.data(),
+                      mUriNameAddr.data(),
                       getResourceListServer()->getClientContactURI(),
                       getResourceListServer()->getResubscribeInterval(),
                       getResourceListSet(),
