@@ -36,7 +36,9 @@ BuildRequires: gnutls-devel
 BuildRequires: ncurses-devel
 BuildRequires: openssl-devel
 BuildRequires: perl
+%if 0%{?fedora_version} >= 8
 BuildRequires: perl-devel
+%endif
 BuildRequires: pkgconfig
 #BuildRequires: termcap
 BuildRequires: unixODBC-devel
