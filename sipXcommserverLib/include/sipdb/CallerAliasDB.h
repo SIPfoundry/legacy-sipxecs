@@ -92,7 +92,7 @@ class CallerAliasDB
    static OsMutex sLockMutex;
 
    // The persistent filename for loading/saving
-   static const UtlString DatabaseName;
+   UtlString mDatabaseName;
 
    // Implicitly called when constructed - reads data from persistent store.
    OsStatus load();

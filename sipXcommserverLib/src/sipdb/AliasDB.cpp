@@ -43,6 +43,7 @@ const UtlString AliasDB::sXmlNamespace("http://www.sipfoundry.org/sipX/schema/xm
 
 AliasDB::AliasDB( const UtlString& name )
 : mDatabaseName( name )
+, mTableLoaded ( false )
 {
     // Access the shared table databse
     SIPDBManager* pSIPDBManager = SIPDBManager::getInstance();

@@ -46,6 +46,8 @@ const UtlString CallerAliasDB::sXmlNamespace("http://www.sipfoundry.org/sipX/sch
 /* ============================ CREATORS ================================== */
 
 CallerAliasDB::CallerAliasDB( const UtlString& name )
+: mDatabaseName( name )
+, mTableLoaded ( false )
 { 
    // Access the shared table databse
    SIPDBManager* pSIPDBManager = SIPDBManager::getInstance();

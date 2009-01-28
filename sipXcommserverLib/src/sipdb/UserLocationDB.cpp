@@ -44,6 +44,7 @@ const UtlString UserLocationDB::sXmlNamespace("http://www.sipfoundry.org/sipX/sc
 
 UserLocationDB::UserLocationDB( const UtlString& name )
 : mDatabaseName( name )
+, mTableLoaded ( false )
 {
     // Access the shared table databse
     SIPDBManager* pSIPDBManager = SIPDBManager::getInstance();

@@ -58,6 +58,7 @@ const UtlString CredentialDB::sXmlNamespace("http://www.sipfoundry.org/sipX/sche
 
 CredentialDB::CredentialDB ( const UtlString& name )
 : mDatabaseName( name )
+, mTableLoaded ( false )
 {
     // Access the shared table database
     SIPDBManager* pSIPDBManager = SIPDBManager::getInstance();
