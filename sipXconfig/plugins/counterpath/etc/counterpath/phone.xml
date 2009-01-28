@@ -680,9 +680,9 @@ A lower number has a higher priority (therefore 1.0 is the highest priority).</d
       <label>Enable CIF</label>
       <type refid="true-false" />
       <value>false</value>
-      <description>Set to true to enable CIF resolution, which has a larger frame than QCIF
-If setting is true and the the application computer has a high bandwidth network conection, then the application will choose CIF resolution.
-If this setting is true and the compuer has a low bandwidth connection, then the application will probably choose QCIF.</description>
+      <description>Set to true to enable CIF resolution, which has a larger frame than QCIF.
+If setting is true and the application computer has a high bandwidth network connection, then the application will choose CIF resolution.
+If this setting is true and the computer has a low bandwidth connection, then the application will probably choose QCIF.</description>
     </setting>
     <setting name='system:network:honor_first_codec'>
       <label>Honor first codec</label>
