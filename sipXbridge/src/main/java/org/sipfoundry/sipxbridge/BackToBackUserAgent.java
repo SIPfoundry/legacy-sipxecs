@@ -157,7 +157,7 @@ public class BackToBackUserAgent {
         this.symmitronServerHandle = symmitronClient.getServerHandle();
         rtpBridge = new RtpBridge(request, bridge);
         dialogTable.add(dialog);
-        if (!itspAccountInfo.stripPrivateHeaders()) {
+        if (itspAccountInfo == null || !itspAccountInfo.stripPrivateHeaders()) {
             /*
              * If privacy is not desired we use the incoming callid and generate
              * new call ids off that one. This makes life a bit easier when
