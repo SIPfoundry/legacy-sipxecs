@@ -39,6 +39,7 @@ package org.sipfoundry.sipxbridge;
  *   <li> NONE -- No OP 
  *   <li> CANCEL_REPLACED_INVITE -- CANCEL INVITE when error is encountered during call 
  *           xfer. </li>
+ *   <li> SEND_PRACK -- send a PRACK. </li>
  *  </ul>
  * 
  * @author M. Ranganathan
@@ -65,7 +66,8 @@ public enum Operation {
     SEND_BYE_TO_REPLACED_DIALOG,
     FORWARD_SDP_SOLICITIATION, 
     NONE, 
-    CANCEL_REPLACED_INVITE;
+    CANCEL_REPLACED_INVITE, 
+    SEND_PRACK;
 
 }
 

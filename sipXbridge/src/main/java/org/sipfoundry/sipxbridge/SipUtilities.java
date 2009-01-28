@@ -51,6 +51,7 @@ import javax.sip.header.MaxForwardsHeader;
 import javax.sip.header.OrganizationHeader;
 import javax.sip.header.ReferToHeader;
 import javax.sip.header.ReplyToHeader;
+import javax.sip.header.RequireHeader;
 import javax.sip.header.RouteHeader;
 import javax.sip.header.SubjectHeader;
 import javax.sip.header.SupportedHeader;
@@ -1138,6 +1139,11 @@ class SipUtilities {
                 AllowHeader allow = ProtocolObjects.headerFactory.createAllowHeader(method);
                 message.addHeader(allow);
             }
+            if (message instanceof Request) {
+                SupportedHeader supportedHeader = ProtocolObjects.headerFactory
+                        .createSupportedHeader("replaces");
+                message.setHeader(supportedHeader);
+            }
         } catch (Exception ex) {
             logger.error("Unexpected exception", ex);
             throw new SipXbridgeException(ex);
@@ -1150,10 +1156,16 @@ class SipUtilities {
         message.removeHeader(AllowHeader.NAME); // Remove existing Allow
         try {
             for (String method : new String[] {
-                Request.INVITE, Request.BYE, Request.ACK, Request.CANCEL, Request.OPTIONS
+                Request.INVITE, Request.BYE, Request.ACK, Request.CANCEL, Request.OPTIONS,
+                Request.PRACK
             }) {
                 AllowHeader allow = ProtocolObjects.headerFactory.createAllowHeader(method);
                 message.addHeader(allow);
+            }
+            if (message instanceof Request) {
+                SupportedHeader supportedHeader = ProtocolObjects.headerFactory
+                        .createSupportedHeader("100rel");
+                message.setHeader(supportedHeader);
             }
         } catch (Exception ex) {
             logger.error("Unexpected exception", ex);

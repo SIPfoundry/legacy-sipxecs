@@ -279,7 +279,8 @@ public class SipListenerImpl implements SipListener {
 
         if (method.equals(Request.INVITE) || method.equals(Request.ACK)
                 || method.equals(Request.CANCEL) || method.equals(Request.BYE)
-                || method.equals(Request.OPTIONS) || method.equals(Request.REFER)) {
+                || method.equals(Request.OPTIONS) || method.equals(Request.REFER) 
+                || method.equals(Request.PRACK)) {
             Gateway.getCallControlManager().processRequest(requestEvent);
         } else {
             try {

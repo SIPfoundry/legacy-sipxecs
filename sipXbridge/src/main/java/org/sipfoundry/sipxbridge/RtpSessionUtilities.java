@@ -108,6 +108,7 @@ public class RtpSessionUtilities {
 		 * Sending request to ITSP - make the addressing global if required.
 		 */
 		if (peerProvider != Gateway.getLanProvider()) {
+		    SipUtilities.addWanAllowHeaders(newInvite);
 			/*
 			 * Make sure that global addressing is set.
 			 */
@@ -125,6 +126,8 @@ public class RtpSessionUtilities {
 				}
 			}
 
+		} else {
+		    SipUtilities.addLanAllowHeaders(newInvite);
 		}
 
 		newInvite.removeHeader(PAssertedIdentityHeader.NAME);
