@@ -1,5 +1,5 @@
-VERSION = 1.0.1
-RELEASE = 10597
+VERSION = 1.0.2
+RELEASE = 11537
 
 SRC_DIR = $(srcdir)/src
 SRC_TARBALL = $(SRC_DIR)/freeswitch-$(VERSION).tar.gz
@@ -9,12 +9,15 @@ SRC_SPEC_FILE=freeswitch.spec
 RPM = $(DEST_RPM)/sipx-freeswitch-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm
 SRPM = $(DEST_RPM)/sipx-freeswitch-$(VERSION)-$(RELEASE).src.rpm
 DEVEL_RPM = $(DEST_RPM)/sipx-freeswitch-devel-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm
+DEBUG_RPM = $(DEST_RPM)/sipx-freeswitch-debuginfo-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm
 AMR_RPM = $(DEST_RPM)/sipx-freeswitch-codec-passthru-amr-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm
 G723_RPM = $(DEST_RPM)/sipx-freeswitch-codec-passthru-g723_1-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm
 G729_RPM = $(DEST_RPM)/sipx-freeswitch-codec-passthru-g729-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm
+SCRIPT_RPMS = $(DEST_RPM)/sipx-freeswitch-lua-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm $(DEST_RPM)/sipx-freeswitch-perl-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm $(DEST_RPM)/sipx-freeswitch-spidermonkey-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm
+LANG_RPM = $(DEST_RPM)/sipx-freeswitch-lang-en-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm
 
 
-RPMS = $(RPM) $(DEVEL_RPM) $(AMR_RPM) $(G723_RPM) $(G729_RPM)
+RPMS = $(RPM) $(DEVEL_RPM) $(DEBUG_RPM) $(SCRIPT_RPMS) $(AMR_RPM) $(G723_RPM) $(G729_RPM) $(LANG_RPM)
 
 all : PRINT_HEADER $(RPMS) PRINT_FOOTER
 

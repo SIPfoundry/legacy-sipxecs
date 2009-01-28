@@ -6,8 +6,8 @@ Name:         sipx-freeswitch
 Summary:      FreeSWITCH open source telephony platform (sipX integration)
 License:      MPL
 Group:        Productivity/Telephony/Servers
-Version:      1.0.1
-Release:      10597
+Version:      1.0.2
+Release:      11537
 URL:          http://www.freeswitch.org/
 Packager:     SIPFoundry <sipx-dev@sipfoundry.org> (original by Michal Bielicki)
 Vendor:       http://www.sipfoundry.org (original by http://www.voiceworks.pl/)
@@ -36,8 +36,9 @@ BuildRequires: gnutls-devel
 BuildRequires: ncurses-devel
 BuildRequires: openssl-devel
 BuildRequires: perl
+BuildRequires: perl-devel
 BuildRequires: pkgconfig
-BuildRequires: termcap
+#BuildRequires: termcap
 BuildRequires: unixODBC-devel
 BuildRequires: gdbm-devel
 %if 0%{?suse_version} > 100
@@ -163,12 +164,12 @@ export QA_RPATHS=$[ 0x0001|0x0002 ]
 PASSTHRU_CODEC_MODULES="codecs/mod_g729 codecs/mod_g723_1 codecs/mod_amr"
 SPIDERMONKEY_MODULES="languages/mod_spidermonkey languages/mod_spidermonkey_curl languages/mod_spidermonkey_core_db languages/mod_spidermonkey_odbc languages/mod_spidermonkey_socket languages/mod_spidermonkey_teletone"
 APPLICATIONS_MODULES="applications/mod_commands applications/mod_conference applications/mod_dptools applications/mod_enum applications/mod_esf applications/mod_expr applications/mod_fifo applications/mod_limit applications/mod_rss applications/mod_voicemail applications/mod_fsv"
-ASR_TTS_MODULES="asr_tts/mod_openmrcp"
+ASR_TTS_MODULES=""
 CODECS_MODULES="codecs/mod_ilbc codecs/mod_h26x codecs/mod_voipcodecs codecs/mod_speex"
 DIALPLANS_MODULES="dialplans/mod_dialplan_asterisk dialplans/mod_dialplan_directory dialplans/mod_dialplan_xml"
 DIRECTORIES_MODULES=
 DOTNET_MODULES=
-ENDPOINTS_MODULES="endpoints/mod_dingaling endpoints/mod_iax endpoints/mod_portaudio endpoints/mod_sofia endpoints/mod_woomera ../../libs/openzap/mod_openzap"
+ENDPOINTS_MODULES="endpoints/mod_dingaling endpoints/mod_iax endpoints/mod_portaudio endpoints/mod_sofia ../../libs/openzap/mod_openzap endpoints/mod_loopback"
 EVENT_HANDLERS_MODULES="event_handlers/mod_event_multicast event_handlers/mod_event_socket event_handlers/mod_cdr_csv"
 FORMATS_MODULES="formats/mod_local_stream formats/mod_native_file formats/mod_sndfile formats/mod_tone_stream"
 LANGUAGES_MODULES="languages/mod_perl languages/mod_lua"
@@ -298,7 +299,6 @@ rm -rf $RPM_BUILD_ROOT%{prefix}/conf/lang/fr
 %dir %{prefix}/conf/directory
 %dir %{prefix}/conf/directory/default
 %dir %{prefix}/conf/lang
-%dir %{prefix}/conf/mrcp_profiles
 %dir %{prefix}/conf/sip_profiles
 %dir %{prefix}/conf/dialplan/default
 %dir %{prefix}/conf/dialplan/public
@@ -313,49 +313,12 @@ rm -rf $RPM_BUILD_ROOT%{prefix}/conf/lang/fr
 %config(noreplace) %{prefix}/conf/*.ttml
 %config(noreplace) %{prefix}/conf/*.xml
 %config(noreplace) %{prefix}/conf/*.conf
-%config(noreplace) %{prefix}/conf/autoload_configs/acl.conf.xml
-%config(noreplace) %{prefix}/conf/autoload_configs/alsa.conf.xml
-%config(noreplace) %{prefix}/conf/autoload_configs/conference.conf.xml
-%config(noreplace) %{prefix}/conf/autoload_configs/console.conf.xml
-%config(noreplace) %{prefix}/conf/autoload_configs/dialplan_directory.conf.xml
-%config(noreplace) %{prefix}/conf/autoload_configs/dingaling.conf.xml 
-%config(noreplace) %{prefix}/conf/autoload_configs/enum.conf.xml
-%config(noreplace) %{prefix}/conf/autoload_configs/event_multicast.conf.xml
-%config(noreplace) %{prefix}/conf/autoload_configs/event_socket.conf.xml
-%config(noreplace) %{prefix}/conf/autoload_configs/cdr_csv.conf.xml
-%config(noreplace) %{prefix}/conf/autoload_configs/fax.conf.xml
-%config(noreplace) %{prefix}/conf/autoload_configs/fifo.conf.xml
-%config(noreplace) %{prefix}/conf/autoload_configs/iax.conf.xml
-%config(noreplace) %{prefix}/conf/autoload_configs/ivr.conf.xml
-%config(noreplace) %{prefix}/conf/autoload_configs/java.conf.xml
-%config(noreplace) %{prefix}/conf/autoload_configs/limit.conf.xml
-%config(noreplace) %{prefix}/conf/autoload_configs/local_stream.conf.xml
-%config(noreplace) %{prefix}/conf/autoload_configs/logfile.conf.xml
-%config(noreplace) %{prefix}/conf/autoload_configs/modules.conf.xml
-%config(noreplace) %{prefix}/conf/autoload_configs/openmrcp.conf.xml
-%config(noreplace) %{prefix}/conf/autoload_configs/openzap.conf.xml
-%config(noreplace) %{prefix}/conf/autoload_configs/pocketsphinx.conf.xml
-%config(noreplace) %{prefix}/conf/autoload_configs/portaudio.conf.xml
-%config(noreplace) %{prefix}/conf/autoload_configs/post_load_modules.conf.xml
-%config(noreplace) %{prefix}/conf/autoload_configs/python.conf.xml
-%config(noreplace) %{prefix}/conf/autoload_configs/rss.conf.xml
-%config(noreplace) %{prefix}/conf/autoload_configs/shout.conf.xml
-%config(noreplace) %{prefix}/conf/autoload_configs/sofia.conf.xml
-%config(noreplace) %{prefix}/conf/autoload_configs/switch.conf.xml
-%config(noreplace) %{prefix}/conf/autoload_configs/syslog.conf.xml
-%config(noreplace) %{prefix}/conf/autoload_configs/timezones.conf.xml
-%config(noreplace) %{prefix}/conf/autoload_configs/voicemail.conf.xml
-%config(noreplace) %{prefix}/conf/autoload_configs/woomera.conf.xml
-%config(noreplace) %{prefix}/conf/autoload_configs/xml_cdr.conf.xml
-%config(noreplace) %{prefix}/conf/autoload_configs/xml_curl.conf.xml
-%config(noreplace) %{prefix}/conf/autoload_configs/xml_rpc.conf.xml
-%config(noreplace) %{prefix}/conf/autoload_configs/zeroconf.conf.xml
+%config(noreplace) %{prefix}/conf/autoload_configs/*
 %config(noreplace) %{prefix}/conf/dialplan/*.xml
 %config(noreplace) %{prefix}/conf/dialplan/default/*.xml
 %config(noreplace) %{prefix}/conf/dialplan/public/*.xml
 %config(noreplace) %{prefix}/conf/directory/*.xml
 %config(noreplace) %{prefix}/conf/directory/default/*
-%config(noreplace) %{prefix}/conf/mrcp_profiles/*.xml
 %config(noreplace) %{prefix}/conf/sip_profiles/*.xml
 %config(noreplace) %{prefix}/conf/sip_profiles/internal/*.xml
 %config(noreplace) %{prefix}/conf/sip_profiles/external/*.xml
@@ -386,7 +349,6 @@ rm -rf $RPM_BUILD_ROOT%{prefix}/conf/lang/fr
 %{prefix}/mod/mod_limit.so*
 %{prefix}/mod/mod_rss.so*
 %{prefix}/mod/mod_voicemail.so*
-%{prefix}/mod/mod_openmrcp.so*
 %{prefix}/mod/mod_ilbc.so* 
 %{prefix}/mod/mod_h26x.so*
 %{prefix}/mod/mod_voipcodecs.so* 
@@ -398,8 +360,8 @@ rm -rf $RPM_BUILD_ROOT%{prefix}/conf/lang/fr
 %{prefix}/mod/mod_iax.so* 
 %{prefix}/mod/mod_portaudio.so* 
 %{prefix}/mod/mod_sofia.so* 
-%{prefix}/mod/mod_woomera.so* 
 %{prefix}/mod/mod_openzap.so* 
+%{prefix}/mod/mod_loopback.so* 
 %{prefix}/mod/mod_cdr_csv.so*
 %{prefix}/mod/mod_event_multicast.so* 
 %{prefix}/mod/mod_event_socket.so* 
