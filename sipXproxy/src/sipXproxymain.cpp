@@ -91,6 +91,7 @@ static const char* CALL_STATE_DATABASE_USER =
    POSTGRESQL_USER;
 static const char* CALL_STATE_DATABASE_DRIVER =
    "{PostgreSQL}";
+static const char* PROXY_CONFIG_PREFIX = "SIPX_PROXY";
 
 #define PRINT_ROUTE_RULE(APPEND_STRING, FROM_HOST, TO_HOST) \
     APPEND_STRING.append("\t<route mappingType=\"local\">\n\t\t<routeFrom>"); \
@@ -149,7 +150,7 @@ void initSysLog(OsConfigDb* pConfig)
    UtlString fileTarget;             // Path to store log file.
    UtlBoolean bSpecifiedDirError ;   // Set if the specified log dir does not
                                     // exist
-   struct tagPriorityLookupTable
+/*   struct tagPriorityLookupTable
    {
       const char*      pIdentity;
       OsSysLogPriority ePriority;
@@ -165,7 +166,7 @@ void initSysLog(OsConfigDb* pConfig)
       { "CRIT",    PRI_CRIT},
       { "ALERT",   PRI_ALERT},
       { "EMERG",   PRI_EMERG},
-   };
+   }; */
    OsSysLog::initialize(0, "SipXProxy");
 
 
@@ -217,6 +218,8 @@ void initSysLog(OsConfigDb* pConfig)
    //
    // Get/Apply Log Level
    //
+   SipXecsService::setLogPriority( CONFIG_SETTINGS_FILE, PROXY_CONFIG_PREFIX );
+/*
    if ((pConfig->get(CONFIG_SETTING_LOG_LEVEL, logLevel) != OS_SUCCESS) ||
          logLevel.isNull())
    {
@@ -236,7 +239,7 @@ void initSysLog(OsConfigDb* pConfig)
          break;
       }
    }
-   OsSysLog::setLoggingPriority(priority);
+   OsSysLog::setLoggingPriority(priority); */
    OsSysLog::setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
 
    //

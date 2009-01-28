@@ -56,6 +56,10 @@ const char* versionMismatchTag = "version.mismatch";
 
 const size_t MAX_STATUS_MSGS = 100;  /// maximum number of status msgs to save
 
+const char* SUPERVISOR_CONFIG_SETTINGS_FILE = "sipxsupervisor-config";
+const char* SUPERVISOR_CONFIG_PREFIX = "SUPERVISOR";    // prefix for config file entries
+
+
 // TYPEDEFS
 struct SipxProcessFsmStateStruct
 {
@@ -1198,8 +1202,16 @@ void SipxProcess::configurationChange(const SipxResource& changedResource)
    OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess[%s]::configurationChange(%s)",
                  data(), changedResourceDescription.data());
    
-   OsLock mutex(mLock);
-   mpCurrentState->evConfigurationChanged(*this);
+   if ( mbSupervisor )
+   {
+      // tell Supervisor to reload its config files
+      SipXecsService::setLogPriority(SUPERVISOR_CONFIG_SETTINGS_FILE, SUPERVISOR_CONFIG_PREFIX );
+   }
+   else
+   {
+      OsLock mutex(mLock);
+      mpCurrentState->evConfigurationChanged(*this);
+   }
 }
    
 /// Notify the SipxProcess that some configuration change has occurred.

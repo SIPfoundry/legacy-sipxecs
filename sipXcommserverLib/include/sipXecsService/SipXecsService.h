@@ -13,6 +13,7 @@
 #include "utl/UtlString.h"
 #include "os/OsFS.h"
 #include "os/OsConfigDb.h"
+#include "os/OsSysLog.h"
 
 // DEFINES
 // TYPEDEFS
@@ -73,6 +74,9 @@ class SipXecsService
    /// Default process group name for a sipXecs service
    static const char* Group();
    
+   /// Read the log level from the specified config file, and set it for the current process
+   static void setLogPriority( const char* configSettingsFile, const char* servicePrefix );
+
   protected:
 
    /// constructor

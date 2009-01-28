@@ -38,7 +38,9 @@
 const char* CONFIG_SETTINGS_FILE = "sipxsupervisor-config";
 const char* SUPERVISOR_PID_FILE = "sipxsupervisor.pid";
 const int   DEFAULT_SUPERVISOR_PORT = 8092;
+const char* SUPERVISOR_PREFIX = "SUPERVISOR";    // prefix for config file entries
 const char* SUPERVISOR_HOST = "SUPERVISOR_HOST";
+const char* SUPERVISOR_LOG_LEVEL = "SUPERVISOR_LOG_LEVEL";
 const char* EXIT_KEYWORD = "exit";
 
 // STRUCTS
@@ -417,12 +419,6 @@ int supervisorMain(bool bOriginalSupervisor)
     enableConsoleOutput(false);
     fflush(NULL); // Flush all output so children don't get a buffer of output
 
-    if (!cAlarmServer::getInstance()->init())
-    {
-       OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
-             "sipXsupervisor failed to init AlarmServer");
-    }
-
     // Open the two configuration files
     OsConfigDb domainConfiguration;
     OsPath domainConfigPath = SipXecsService::domainConfigPath();
@@ -515,6 +511,14 @@ int supervisorMain(bool bOriginalSupervisor)
     {
        OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,
                      "No configuration peers configured.");
+    }
+
+    SipXecsService::setLogPriority(CONFIG_SETTINGS_FILE, SUPERVISOR_PREFIX );
+
+    if (!cAlarmServer::getInstance()->init())
+    {
+       OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
+             "sipXsupervisor failed to init AlarmServer");
     }
 
     // Initialize management interfaces on the TLS socket

@@ -202,7 +202,69 @@ const char* SipXecsService::Group()
    return DefaultGroup;
 }
 
+
+void SipXecsService::setLogPriority( const char* configSettingsFile, const char* servicePrefix )
+{
+   struct tagPriorityLookupTable
+   {
+      const char*      pIdentity;
+      OsSysLogPriority ePriority;
+   };
+
+   struct tagPriorityLookupTable lkupTable[] =
+   {
+      { "DEBUG",   PRI_DEBUG},
+      { "INFO",    PRI_INFO},
+      { "NOTICE",  PRI_NOTICE},
+      { "WARNING", PRI_WARNING},
+      { "ERR",     PRI_ERR},
+      { "CRIT",    PRI_CRIT},
+      { "ALERT",   PRI_ALERT},
+      { "EMERG",   PRI_EMERG},
+   };
+
+   OsConfigDb configuration;
+   UtlString logLevel;
+   UtlString logLevelTag(servicePrefix);
+   logLevelTag.append("_LOG_LEVEL");
+
+   OsPath configPath = SipXecsService::Path(SipXecsService::ConfigurationDirType,
+                                                      configSettingsFile);
+   if (OS_SUCCESS == configuration.loadFromFile(configPath.data()))
+   {
+      configuration.get(logLevelTag, logLevel);
+   }
+   else
+   {
+      OsSysLog::add(FAC_SUPERVISOR,PRI_WARNING,
+                    "Failed to open config settings file at '%s'",
+                    configPath.data()
+                    );
+   }
    
+   if ( logLevel.isNull() )
+   {
+      logLevel = "NOTICE";
+   }
+   logLevel.toUpper();
+   OsSysLogPriority priority = PRI_NOTICE;
+   int iEntries = sizeof(lkupTable)/sizeof(struct tagPriorityLookupTable);
+   for (int i=0; i<iEntries; i++)
+   {
+      if (logLevel == lkupTable[i].pIdentity)
+      {
+         priority = lkupTable[i].ePriority;
+         OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "%s : %s",
+                       logLevelTag.data(), lkupTable[i].pIdentity) ;
+         break;
+      }
+   }
+
+   OsSysLog::setLoggingPriority(priority);
+
+}
+
+
 /// destructor
 SipXecsService::~SipXecsService()
 {
