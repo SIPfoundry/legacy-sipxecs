@@ -22,6 +22,7 @@ Logs=current
 LogStart=
 LogStop=
 IncludeCallRecords="FALSE"
+IncludeProfiles="FALSE"
 
 DefaultTarFile="sipx-configuration-`hostname -f`.tar.gz"
 
@@ -155,6 +156,10 @@ do
             shift
             ;;
 
+        --profiles)
+            IncludeProfiles="TRUE"
+            ;;
+
         --cdr)
             IncludeCallRecords="TRUE"
             ;;
@@ -235,6 +240,7 @@ Usage:
 
     sipx-snapshot [ --include-secrets | -c  | --credentials ]
                   [ -nw | --no-www ]
+                  [ --profiles ]
                   [ --cdr ]
                   [ -l  | --logs {current|all|nnn|none} ]
                   [ --log-start <date-time> [ --log-stop <date-time> ]]
@@ -293,6 +299,10 @@ Usage:
     The --no-logs switch causes the sipX and Apache logs to be omitted
     from the snapshot; the default is to include them.  (deprecated but
     left in for backward compatibility - use '--logs none').
+
+    The --profiles switch includes generated Phone and Gateway profile files,
+    based on those that match a predefined filter.  Any passwords or other 
+    confidential information in these files will be included in the snapshot. 
 
     The --cdr switch includes the data from call detail records; this is
     useful for debugging problems with the CDR system itself.
@@ -676,6 +686,42 @@ then
   then
       # Record the call state event and detail record database contents
       pg_dump -d SIPXCDR -U @POSTGRESQL_USER@ --attribute-inserts > ${CallDetailDb} 2> /dev/null
+  fi
+
+  # Include the Phone and Gateway profile files, if specified.
+  if [ "${IncludeProfiles}" = "TRUE" ]
+  then
+    # First gather all files that match simply a MAC address with no extension, and add
+    # back the path.  (The main LG-Nortel 68xx Profile file has this format.)
+    PROFILES_PATH="@SIPX_VARDIR@/configserver/phone/profile/tftproot"
+    ProfileFiles=""
+    maconly=`ls ${PROFILES_PATH} | grep -E "^[0-9a-fA-F]{12}$" 2> /dev/null`
+    for x in ${maconly}
+    do
+      ProfileFiles="${ProfileFiles} ${PROFILES_PATH}/${x}"
+    done
+
+    # Loop through all the profile file extensions to be picked up.  
+    ProfileExtensions="cfg xml csv ini"
+    for Extension in ${ProfileExtensions}
+    do
+      # Gather all the file paths.
+      x=`ls ${PROFILES_PATH}/*.${Extension} 2> /dev/null`
+      if [ $? == 0 ]
+      then
+         ProfileFiles="${ProfileFiles} $x"
+      fi
+    done
+
+    # Loop through all the collected file paths.
+    for File in ${ProfileFiles}
+    do
+      # Include only if it is a regular file.
+      if [ -f ${File} ]
+      then
+        echo "${File}" >> $Work.copy-files
+      fi
+    done
   fi
 
   # Copy all the files and directories that should be copied.
