@@ -1,13 +1,13 @@
 Summary:   GNU cgicc is a C++ class library for writing CGI applications
 Name:      cgicc
-Version:   3.2.3
-Release:   3
+Version:   @VERSION@
+Release:   @RELEASE@
 License:   LGPL
 Group:     Internet/WWW/Servers
 URL:       http://www.cgicc.org/
 Source0:   %{name}-%{version}.tar.gz
 Patch0:     cgicc.patch
-Patch1:     cgicc-3.2.3_64bit.patch
+Patch1:     cgicc-@VERSION@_64bit.patch
 Requires:  libstdc++
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
@@ -66,9 +66,11 @@ rm -f %{_libdir}/libcgicc.so
 
 %files devel
 %defattr(644,root,root,755) 
-%doc /usr/doc/cgicc-3.2.3
+%doc /usr/doc/cgicc-@VERSION@
 /usr/include/cgicc
 
 %changelog
+* Tue Jan 27 2009 Scott Lawrence - cgicc-3.2.3-4
+- Fix libtool usage, make version/release dynamic
 * Tue May 13 2008 Carolyn Beeton - cgicc-3.2.3-3
 - Port 64bit fix from cgicc 3.2.4

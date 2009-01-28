@@ -16,6 +16,7 @@ CHECK_NSIS
 # CHECK_RPM_DEBUG
 
 AC_CONFIG_SRCDIR([src/sipxcar])
+AC_PROG_LIBTOOL
 
 # Checks for programs.
 AC_PATH_PROG([BASH], [bash])

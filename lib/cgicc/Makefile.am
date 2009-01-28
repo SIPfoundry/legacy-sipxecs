@@ -1,5 +1,5 @@
 VERSION = 3.2.3
-RELEASE = 3
+RELEASE = 4
 
 SRC_DIR = $(srcdir)/src
 SRC_TARBALL = cgicc-$(VERSION).tar.gz
@@ -12,17 +12,20 @@ PATCH_64 = cgicc-3.2.3_64bit.patch
 PATCH_FILE = cgicc.patch
 SPEC_FILE  = cgicc.spec
 
-all : PRINT_HEADER $(SRPM) $(RPMS) PRINT_FOOTER
+all : PRINT_HEADER $(SPEC_FILE) $(SRPM) $(RPMS) PRINT_FOOTER
+
+$(SPEC_FILE): $(SRC_DIR)/$(SPEC_FILE).in
+	$(SED) -e 's,@VERSION\@,$(VERSION),g' -e 's,@RELEASE\@,$(RELEASE),g' $< > $@
 
 $(RPM_SOURCES_DIR)/% : %
 	cp $< $@
 
 .PHONY: build-rpms
-build-rpms: 
+build-rpms: $(SPEC_FILE)
 	cp $(SRC_DIR)/$(SRC_TARBALL) @RPMBUILD_TOPDIR@/SOURCES
 	cp $(SRC_DIR)/$(PATCH_FILE) @RPMBUILD_TOPDIR@/SOURCES
 	cp $(SRC_DIR)/$(PATCH_64) @RPMBUILD_TOPDIR@/SOURCES
-	cp $(SRC_DIR)/$(SPEC_FILE) @RPMBUILD_TOPDIR@/SPECS
+	cp $(SPEC_FILE) @RPMBUILD_TOPDIR@/SPECS
 	rpmbuild -ba --target @RPM_TARGET_ARCH@-none-linux @RPMBUILD_TOPDIR@/SPECS/$(SPEC_FILE)
 
 $(SRPM): build-rpms

@@ -61,7 +61,7 @@ AC_DEFUN([SFAC_INIT_FLAGS],
 # sipX-specific options that affect everything and so should be visible at the top level
 AC_DEFUN([SFAC_SIPX_GLOBAL_OPTS],
 [
-    SFAC_SIPX_INSTALL_PREFIX
+    AC_REQUIRE([SFAC_SIPX_INSTALL_PREFIX])
 
     AC_SUBST(SIPX_INCDIR, [${includedir}])
     AC_SUBST(SIPX_LIBDIR, [${libdir}])
@@ -239,8 +239,74 @@ AC_DEFUN([SFAC_LIB_PORT],
     AC_REQUIRE([SFAC_INIT_FLAGS])
     AC_REQUIRE([CHECK_PCRE])
     AC_REQUIRE([CHECK_SSL])
-    AC_SUBST(SIPXPORT_LIBS, [-lsipXport])
-    AC_SUBST(SIPXUNIT_LIBS, [-lsipXunit])
+
+    SFAC_ARG_WITH_INCLUDE([os/OsDefs.h],
+            [sipxportinc],
+            [ --with-sipxportinc=<dir> portability include path ],
+            [sipXportLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_WARN('assuming it will be in '$prefix/include')
+        foundpath=$prefix/include
+    fi
+    SIPXPORTINC=$foundpath
+    AC_SUBST(SIPXPORTINC)
+
+    CFLAGS="-I$SIPXPORTINC $PCRE_CFLAGS $CFLAGS"
+    CXXFLAGS="-I$SIPXPORTINC $PCRE_CXXFLAGS $CXXFLAGS"
+
+    foundpath=""
+
+    SFAC_ARG_WITH_INCLUDE([sipxunit/TestUtilities.h],
+            [sipxportinc],
+            [ --with-sipxportinc=<dir> portability include path ],
+            [sipXportLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_WARN('sipxunit/TestUtilities.h' not found; assuming it will be in '$prefix/include')
+        foundpath=$prefix/include
+    fi
+    SIPXUNITINC=$foundpath
+    AC_SUBST(SIPXUNITINC)
+
+    CFLAGS="-I$SIPXUNITINC $CFLAGS"
+    CXXFLAGS="-I$SIPXUNITINC $CXXFLAGS"
+
+    foundpath=""
+
+    SFAC_ARG_WITH_LIB([libsipXport.la],
+            [sipxportlib],
+            [ --with-sipxportlib=<dir> portability library path ],
+            [sipXportLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_WARN(assuming it will be in '$prefix/lib')
+        foundpath=$prefix/lib
+    fi
+    AC_SUBST(SIPXPORT_LIBS, "$foundpath/libsipXport.la")
+ 
+    foundpath=""
+
+    SFAC_ARG_WITH_LIB([libsipXunit.la],
+            [sipxportlib],
+            [ --with-sipxportlib=<dir> portability library path ],
+            [sipXportLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+        # sipXunit unitesting support
+    else
+        AC_MSG_WARN(assuming it will be in '$prefix/lib')
+        foundpath=$prefix/lib
+    fi
+    AC_SUBST(SIPXUNIT_LIBS,    "$foundpath/libsipXunit.la")
+
 ]) # SFAC_LIB_PORT
 
 
@@ -255,7 +321,42 @@ AC_DEFUN([SFAC_LIB_PORT],
 AC_DEFUN([SFAC_LIB_STACK],
 [
     AC_REQUIRE([SFAC_LIB_PORT])
-    AC_SUBST([SIPXTACK_LIBS], [-lsipXtack])
+
+    SFAC_ARG_WITH_INCLUDE([net/SipUserAgent.h],
+            [sipxtackinc],
+            [ --with-sipxtackinc=<dir> sip stack include path ],
+            [sipXtackLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_WARN(assuming it will be in '$prefix/include')
+        foundpath=$prefix/include
+    fi
+    SIPXTACKINC=$foundpath
+    AC_SUBST(SIPXTACKINC)
+
+    if test "$SIPXTACKINC" != "$SIPXPORTINC"
+    then
+        CFLAGS="-I$SIPXTACKINC $CFLAGS"
+        CXXFLAGS="-I$SIPXTACKINC $CXXFLAGS"
+    fi
+
+    SFAC_ARG_WITH_LIB([libsipXtack.la],
+            [sipxtacklib],
+            [ --with-sipxtacklib=<dir> sip stack library path ],
+            [sipXtackLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_WARN(assuming it will be in '$prefix/lib')
+        foundpath=$prefix/lib
+    fi 
+
+    SIPXTACKLIB=$foundpath
+
+    AC_SUBST(SIPXTACK_LIBS,["$SIPXTACKLIB/libsipXtack.la"])
 ]) # SFAC_LIB_STACK
 
 
@@ -270,7 +371,41 @@ AC_DEFUN([SFAC_LIB_STACK],
 AC_DEFUN([SFAC_LIB_MEDIA],
 [
     AC_REQUIRE([SFAC_LIB_STACK])
-    AC_SUBST([SIPXMEDIA_LIBS], [-lsipXmedia])
+
+    SFAC_ARG_WITH_INCLUDE([mp/MpMediaTask.h],
+            [sipxmediainc],
+            [ --with-sipxmediainc=<dir> media library include path ],
+            [sipXmediaLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_WARN(assuming it will be in '$prefix/include')
+        foundpath=$prefix/include
+    fi
+    SIPXMEDIAINC=$foundpath
+    AC_SUBST(SIPXMEDIAINC)
+
+    if test "$SIPXMEDIAINC" != "$SIPXTACKINC"
+    then
+        CFLAGS="-I$SIPXMEDIAINC $CFLAGS"
+        CXXFLAGS="-I$SIPXMEDIAINC $CXXFLAGS"
+    fi
+    
+    SFAC_ARG_WITH_LIB([libsipXmedia.la],
+            [sipxmedialib],
+            [ --with-sipxmedialib=<dir> media library path ],
+            [sipXmediaLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_WARN(assuming it will be in '$prefix/lib')
+        foundpath=$prefix/lib
+    fi
+    SIPXMEDIALIB=$foundpath
+
+    AC_SUBST(SIPXMEDIA_LIBS, ["$SIPXMEDIALIB/libsipXmedia.la"])
 ]) # SFAC_LIB_MEDIA
 
 
@@ -285,8 +420,43 @@ AC_DEFUN([SFAC_LIB_MEDIA],
 AC_DEFUN([SFAC_LIB_MEDIAADAPTER],
 [
     AC_REQUIRE([SFAC_LIB_MEDIA])
-    AC_SUBST([SIPXMEDIAADAPTER_LIBS], [-lsipXmediaProcessing])
+
+    SFAC_ARG_WITH_INCLUDE([mi/CpMediaInterface.h],
+            [sipxmediainterfaceinc],
+            [ --with-sipxmediainterfaceinc=<dir> media interface library include path ],
+            [sipXmediaAdapterLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_WARN(assuming it will be in '$prefix/include')
+        foundpath=$prefix/include
+    fi
+    SIPXMEDIAINTERFACEINC=$foundpath
+    AC_SUBST(SIPXMEDIAINTERFACEINC)
+
+    if test "$SIPXMEDIAINTERFACEINC" != "$SIPXMEDIAINC"
+    then
+        CFLAGS="-I$SIPXMEDIAINTERFACEINC $CFLAGS"
+        CXXFLAGS="-I$SIPXMEDIAINTERFACEINC $CXXFLAGS"
+    fi
+    
+    SFAC_ARG_WITH_LIB([libsipXmediaProcessing.la],
+            [sipxmediaprocessinglib],
+            [ --with-sipxmediaprocessinglib=<dir> media library path ],
+            [sipXmediaAdapterLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_WARN(assuming it will be in '$prefix/lib')
+        foundpath=$prefix/lib
+    fi
+    SIPXMEDIAADAPTERLIB=$foundpath
+
+    AC_SUBST(SIPXMEDIAADAPTER_LIBS, ["$SIPXMEDIAADAPTERLIB/libsipXmediaProcessing.la"])
 ]) # SFAC_LIB_MEDIAADAPTER
+
 
 ## Optionally compile in the GIPS library in the media subsystem
 # (sipXmediaLib project) and executables that link it in
@@ -441,8 +611,42 @@ AC_DEFUN([CHECK_GIPSCE],
 # CXXFLAGS, LDFLAGS, and LIBS.
 AC_DEFUN([SFAC_LIB_CALL],
 [
-    AC_REQUIRE([SFAC_LIB_MEDIA])
-    AC_SUBST([SIPXCALL_LIBS], [-lsipXcall])
+    AC_REQUIRE([SFAC_LIB_MEDIAADAPTER])
+
+    SFAC_ARG_WITH_INCLUDE([cp/CallManager.h],
+            [sipxcallinc],
+            [ --with-sipxcallinc=<dir> call processing library include path ],
+            [sipXcallLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_WARN(assuming it will be in '$prefix/include')
+        foundpath=$prefix/include
+    fi
+    SIPXCALLINC=$foundpath
+    AC_SUBST(SIPXCALLINC)
+
+    if test "$SIPXCALLINC" != "$SIPXPORTINC"
+    then
+        CFLAGS="-I$SIPXCALLINC $CFLAGS"
+        CXXFLAGS="-I$SIPXCALLINC $CXXFLAGS"
+    fi
+
+    SFAC_ARG_WITH_LIB([libsipXcall.la],
+            [sipxcalllib],
+            [ --with-sipxcalllib=<dir> call processing library path ],
+            [sipXcallLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_WARN(assuming it will be in '$prefix/lib')
+        foundpath=$prefix/lib
+    fi
+    SIPXCALLLIB=$foundpath
+
+    AC_SUBST(SIPXCALL_LIBS,   ["$SIPXCALLLIB/libsipXcall.la"])
 ]) # SFAC_LIB_CALL
 
 
@@ -458,99 +662,109 @@ AC_DEFUN([SFAC_LIB_CALL],
 AC_DEFUN([SFAC_LIB_COMMSERVER],
 [
     AC_REQUIRE([SFAC_LIB_STACK])
-    AC_SUBST([SIPXCOMMSERVER_LIBS], [-lsipXcommserver])
-    AC_SUBST(SIPXCOMMSERVERTEST_LIBS,   [-lsipXcommserverTest])
+
+    SFAC_ARG_WITH_INCLUDE([sipdb/SIPDBManager.h],
+            [sipxcommserverinc],
+            [ --with-sipxcommserverinc=<dir> call processing library include path ],
+            [sipXcommserverLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_WARN(assuming it will be in '$prefix/include')
+        foundpath=$prefix/include
+    fi
+    SIPXCOMMSERVERINC=$foundpath
+    if test "$SIPXCOMMSERVERINC" != "$SIPXPORTINC"
+    then
+        CFLAGS="-I$SIPXCOMMSERVERINC $CFLAGS"
+        CXXFLAGS="-I$SIPXCOMMSERVERINC $CXXFLAGS"
+    fi
+    AC_SUBST(SIPXCOMMSERVERINC)
+
+    SFAC_ARG_WITH_LIB([libsipXcommserver.la],
+            [sipxcommserverlib],
+            [ --with-sipxcommserverlib=<dir> call processing library path ],
+            [sipXcommserverLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_WARN(assuming it will be in '$prefix/lib')
+        foundpath=$prefix/lib
+    fi
+    SIPXCOMMSERVERLIB=$foundpath
+
+    AC_SUBST(SIPXCOMMSERVER_LIBS,   ["$SIPXCOMMSERVERLIB/libsipXcommserver.la"])
+    # just assume that the test lib is there too
+    AC_SUBST(SIPXCOMMSERVERTEST_LIBS,   ["$SIPXCOMMSERVERLIB/libsipXcommserverTest.la"])
 ]) # SFAC_LIB_COMMSERVER
 
 
-## resiprocate
-# CHECK_RESIPROCATE attempts to find the resiprocate project tree
-# 
-# If not found, the configure is aborted.  Otherwise, variables are defined for:
-# RESIPROCATE_PATH     - the top of the resiprocate tree
-# RESIPROCATE_CFLAGS   
-# RESIPROCATE_CXXFLAGS
-# RESIPROCATE_LIBS
-# RESIPROCATE_LDFLAGS
-AC_DEFUN([CHECK_RESIPROCATE],
+##  Generic find of an include
+#   Fed from AC_DEFUN([SFAC_INCLUDE_{module name here}],
+#
+# $1 - sample include file
+# $2 - variable name (for overridding with --with-$2
+# $3 - help text
+# $4 - directory name (assumed parallel with this script)
+AC_DEFUN([SFAC_ARG_WITH_INCLUDE],
 [
-    AC_REQUIRE([SFAC_INIT_FLAGS])
-    
-    AC_ARG_WITH([resiprocate],
-        [--with-resiprocate specifies the path to the top of a resiprocate project tree],
-        [resiprocate_path=$withval],
-        [resiprocate_path="$prefix /usr /usr/local"]
-    )
+    SFAC_SRCDIR_EXPAND()
 
-    AC_ARG_WITH([resipobj],
-        [--with-resipobj specifies the object directory name to use from resiprocate],
-        [useresipobj=true; resipobj=$resiprocate_path/$withval],
-        [useresipobj=false]
+    AC_MSG_CHECKING(for [$4] includes)
+    AC_ARG_WITH( [$2],
+        [ [$3] ],
+        [ include_path=$withval ],
+        [ include_path="$includedir $prefix/include /usr/include /usr/local/include" ]
     )
-
-    AC_MSG_CHECKING([for resiprocate includes])
-    foundpath=NO
-    for dir in $resiprocate_path ; do
-        if test -f "$dir/include/resip/stack/SipStack.hxx"
-        then
-            foundpath=$dir/include;
-            break;
-        elif test -f "$dir/resip/stack/SipStack.hxx"
+    foundpath=""
+    for dir in $include_path ; do
+        if test -f "$dir/[$1]";
         then
             foundpath=$dir;
             break;
         fi;
     done
-    if test x_$foundpath = x_NO
-    then
-       AC_MSG_ERROR([not found; searched '$resiprocate_path' for 'include/resip/stack/SipStack.hxx' or 'resip/stack/SipStack.hxx'])
-    else
-       AC_MSG_RESULT($foundpath)
-
-       RESIPROCATE_PATH=$foundpath
-
-       RESIPROCATE_CFLAGS="-I$RESIPROCATE_PATH"
-       RESIPROCATE_CXXFLAGS="-I$RESIPROCATE_PATH"
-
-       if test x$useresipobj = xtrue
-       then
-           RESIPROCATE_LDFLAGS=" -L$RESIPROCATE_PATH/resip/dum/$resipobj"
-           RESIPROCATE_LDFLAGS=" $RESIPROCATE_LDFLAGS -L$RESIPROCATE_PATH/resip/stack/$resipobj"
-           RESIPROCATE_LDFLAGS=" $RESIPROCATE_LDFLAGS -L$RESIPROCATE_PATH/rutil/$resipobj"
-           RESIPROCATE_LDFLAGS=" $RESIPROCATE_LDFLAGS -L$RESIPROCATE_PATH/contrib/ares"
-       else
-           AC_MSG_CHECKING([for resiprocate libraries])
-           foundpath=NO
-           for dir in $resiprocate_path ; do
-               if test -f "$dir/lib/libsipXresiprocateLib.la";
-               then
-                   foundpath=$dir/lib;
-                   break;
-               elif test -f "$dir/libsipXresiprocateLib.la";
-               then
-                   foundpath=$dir;
-                   break;
-               fi;
-           done
-           if test x_$foundpath = x_NO
-           then
-              AC_MSG_ERROR([not found; searched '$resiprocate_path' for 'lib/libsipXresiprocateLib.la' or 'libsipXresiprocateLib.la'])
-           else
-              AC_MSG_RESULT($foundpath)
-              RESIPROCATE_LIBDIR=$foundpath
-              RESIPROCATE_LDFLAGS=" -L$foundpath"
-           fi
-       fi
-
-       RESIPROCATE_LIBS="${RESIPROCATE_LIBDIR}/libsipXresiprocateLib.la -ldum -lresip -lrutil -lares"
-
-       AC_SUBST(RESIPROCATE_PATH)
-       AC_SUBST(RESIPROCATE_CFLAGS)
-       AC_SUBST(RESIPROCATE_CXXFLAGS)
-       AC_SUBST(RESIPROCATE_LIBS)
-       AC_SUBST(RESIPROCATE_LDFLAGS)
+    if test x_$foundpath = x_; then
+       AC_MSG_WARN("'$1' not found)
+       AC_MSG_WARN("    searched $include_path")
     fi
-]) # CHECK_RESIPROCATE
+        
+
+]) # SFAC_ARG_WITH_INCLUDE
+
+
+##  Generic find of a library
+#   Fed from AC_DEFUN([SFAC_LIB_{module name here}],
+#
+# $1 - sample lib file
+# $2 - variable name (for overridding with --with-$2
+# $3 - help text
+# $4 - directory name (assumed parallel with this script)
+AC_DEFUN([SFAC_ARG_WITH_LIB],
+[
+    SFAC_SRCDIR_EXPAND()
+
+    AC_MSG_CHECKING(for [$4] libraries)
+    AC_ARG_WITH( [$2],
+        [ [$3] ],
+        [ lib_path=$withval ],
+        [ lib_path="$libdir $prefix/lib /usr/lib /usr/local/lib"]
+    )
+    foundpath=""
+    for dir in $lib_path ; do
+        if test -f "$dir/[$1]";
+        then
+            foundpath=$dir;
+            break;
+        fi;
+    done
+    if test x_$foundpath = x_; then
+       AC_MSG_WARN("'$1' not found)
+       AC_MSG_WARN("    searched $lib_path")
+    fi
+]) # SFAC_ARG_WITH_LIB
 
 
 AC_DEFUN([SFAC_SRCDIR_EXPAND], 

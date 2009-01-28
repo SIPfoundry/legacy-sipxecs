@@ -9,7 +9,6 @@ mediaserver_cgi_LDADD = \
    ../mailboxmgr/libmailboxmgr.la \
    ../sipxcgi/libsipxcgi.la \
 	@GIPS_NEQ_OBJS@
-   
 
 mediaserver_cgi_CXXFLAGS = \
 	-I$(top_srcdir)/include/ \
