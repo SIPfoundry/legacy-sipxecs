@@ -288,6 +288,7 @@ UtlBoolean SipSubscribeClient::addSubscription(
 UtlBoolean SipSubscribeClient::endSubscription(const char* dialogHandle)
 {
     UtlBoolean foundSubscription = FALSE;
+    UtlBoolean foundRefreshSubscription = FALSE;
     UtlString matchDialog(dialogHandle);
     lock();
     SubscribeClientState* clientState = removeState(matchDialog);
@@ -305,29 +306,32 @@ UtlBoolean SipSubscribeClient::endSubscription(const char* dialogHandle)
 
             // Indicate that the subscription was terminated
             (clientState->mpStateCallback)(SUBSCRIPTION_TERMINATED,
-                                     isEarlyDialog ? dialogHandle : NULL,
-                                     isEarlyDialog ? NULL : dialogHandle,
-                                     clientState->mpApplicationData,
-                                     -1, // no response code
-                                     NULL, // no response text
-                                     0, // expires now
-                                     NULL); // no response
+                                           isEarlyDialog ? dialogHandle : NULL,
+                                           isEarlyDialog ? NULL : dialogHandle,
+                                           clientState->mpApplicationData,
+                                           -1, // no response code
+                                           NULL, // no response text
+                                           0, // expires now
+                                           NULL); // no response
         }
         delete clientState;
+
+        // Stop the refresh and unsubscribe
+        foundRefreshSubscription = mpRefreshMgr->stopRefresh(dialogHandle);
     }
 
-    // Did not find a dialog to match
+    // Did not find a matching dialog.
     else
     {
-        // dialogHandle may be a handle to an early dialog.
-        // See if we can find the dialog matching an early dialog handle.
+        // dialogHandle (= matchDialog) may be a handle to an early dialog.
+        // See if we can find a confirmed dialog matching the early dialog handle.
         // It is possible that there is more than one dialog that matches
         // this early dialog handle; if so, end all of them.
-        UtlString earlyDialogHandle;
-        while (mpDialogMgr->getEarlyDialogHandleFor(matchDialog, earlyDialogHandle))
+        UtlString establishedDialogHandle;
+        while (mpDialogMgr->getEstablishedDialogHandleFor(matchDialog, establishedDialogHandle))
         {
             lock();
-            clientState = removeState(earlyDialogHandle);
+            clientState = removeState(establishedDialogHandle);
             unlock();
 
             if (clientState)
@@ -340,21 +344,24 @@ UtlBoolean SipSubscribeClient::endSubscription(const char* dialogHandle)
                 {
                     // Indicate that the subscription was terminated
                     (clientState->mpStateCallback)(SUBSCRIPTION_TERMINATED,
-                                             earlyDialogHandle,
-                                             dialogHandle,
-                                             clientState->mpApplicationData,
-                                             -1, // no response code
-                                             NULL, // no response text
-                                             0, // expires now
-                                             NULL); // no response
+                                                   establishedDialogHandle,
+                                                   dialogHandle,
+                                                   clientState->mpApplicationData,
+                                                   -1, // no response code
+                                                   NULL, // no response text
+                                                   0, // expires now
+                                                   NULL); // no response
                 }
                 delete clientState;
+
+                // Stop the refresh and unsubscribe
+                foundRefreshSubscription |= mpRefreshMgr->stopRefresh(dialogHandle);
+                // mpRefreshMgr->stopRefresh has deleted the dialog
+                // from mpDialogMgr, so the enclosing while loop will
+                // eventually terminate.
             }
         }
     }
-
-    // Stop the refresh and unsubscribe
-    UtlBoolean foundRefreshSubscription = mpRefreshMgr->stopRefresh(dialogHandle);
 
     return (foundSubscription || foundRefreshSubscription);
 }
@@ -415,6 +422,7 @@ void SipSubscribeClient::endAllSubscriptions()
             NULL); // no response
       }
 
+      // Save the UtlString value of dialogKey.
       UtlString dialogKeyAsString(*dialogKey);
 
       delete clientState;
