@@ -44,6 +44,7 @@ const UtlString PermissionDB::sXmlNamespace("http://www.sipfoundry.org/sipX/sche
 
 PermissionDB::PermissionDB( const UtlString& name )
 : mDatabaseName( name )
+, mTableLoaded ( false )
 {
     // Access the shared table databse
     SIPDBManager* pSIPDBManager = SIPDBManager::getInstance();
