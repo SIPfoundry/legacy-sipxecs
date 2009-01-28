@@ -26,6 +26,9 @@ IncludeProfiles="FALSE"
 
 DefaultTarFile="sipx-configuration-`hostname -f`.tar.gz"
 
+PROFILES_PATH="@SIPX_VARDIR@/configserver/phone/profile/tftproot"
+ProfileExtensions="cfg xml csv ini"
+
 # Define functions.
 
 # Make a file name absolute.
@@ -693,37 +696,22 @@ then
   then
     # First gather all files that match simply a MAC address with no extension, and add
     # back the path.  (The main LG-Nortel 68xx Profile file has this format.)
-    PROFILES_PATH="@SIPX_VARDIR@/configserver/phone/profile/tftproot"
     ProfileFiles=""
-    maconly=`ls ${PROFILES_PATH} | grep -E "^[0-9a-fA-F]{12}$" 2> /dev/null`
-    for x in ${maconly}
+    for macfile in `ls ${PROFILES_PATH} | grep -E "^[0-9a-fA-F]{12}$" 2> /dev/null`
     do
-      ProfileFiles="${ProfileFiles} ${PROFILES_PATH}/${x}"
+        echo "${PROFILES_PATH}/${macfile}" >> $Work.copy-files
     done
 
     # Loop through all the profile file extensions to be picked up.  
-    ProfileExtensions="cfg xml csv ini"
     for Extension in ${ProfileExtensions}
     do
-      # Gather all the file paths.
-      x=`ls ${PROFILES_PATH}/*.${Extension} 2> /dev/null`
-      if [ $? == 0 ]
-      then
-         ProfileFiles="${ProfileFiles} $x"
-      fi
-    done
-
-    # Loop through all the collected file paths.
-    for File in ${ProfileFiles}
-    do
-      # Include only if it is a regular file.
-      if [ -f ${File} ]
-      then
-        echo "${File}" >> $Work.copy-files
-      fi
+        for configfile in `ls ${PROFILES_PATH}/*.${Extension} 2> /dev/null`
+        do
+            echo "${configfile}" >> $Work.copy-files
+        done
     done
   fi
-
+ 
   # Copy all the files and directories that should be copied.
   for file in `sort -u $Work.copy-files`
   do
