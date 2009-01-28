@@ -308,14 +308,14 @@ Set to false to let the application discover the listening port.</description>
 Set to false if the STUN server can be discovered via the domain address
 Set to false if you do not provide a STUN server for your users.</description>
       </setting>
-      <setting name="sip_port_range_enable">
+      <setting name="port_range_enable">
         <label>Port range enable</label>
         <type refid="true-false"/>
         <value>false</value>
         <description>Set to true to force the application to use transport ports within a specific range (as specified by Port range min and Port range max).
 Set to false to enable the application to use transport ports in the full standard range of 1025 to 65535.</description>
       </setting>
-      <setting name="sip_port_range_min">
+      <setting name="port_range_min">
         <label>Port range min</label>
         <type>
           <integer />
@@ -323,7 +323,7 @@ Set to false to enable the application to use transport ports in the full standa
         <value></value>
         <description>If Port range enable is true, enter the port value of the lower port in the range.</description>
       </setting>
-      <setting name="sip_port_range_max">
+      <setting name="port_range_max">
         <label>Port range max</label>
         <type>
           <integer />
