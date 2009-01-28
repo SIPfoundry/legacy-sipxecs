@@ -75,6 +75,7 @@ const UtlString SubscriptionDB::sXmlNamespace("http://www.sipfoundry.org/sipX/sc
 
 SubscriptionDB::SubscriptionDB( const UtlString& name )
 : mDatabaseName( name )
+, mTableLoaded ( false )
 {
     // Access the shared table databse
     SIPDBManager* pSIPDBManager = SIPDBManager::getInstance();
@@ -1176,39 +1177,22 @@ void SubscriptionDB::updateToTag(
             // Get the tag on the URI in the "from" column.
             Url from_uri(cursor->fromUri, FALSE);
             r = from_uri.getFieldParameter("tag", seen_tag);
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "SubscriptionDB::updateFromAndTo cursor->from = '%s', seen_tag = '%s'",
-                          cursor->fromUri, seen_tag.data());
+            OsSysLog::add(FAC_DB, PRI_DEBUG, "SubscriptionDB::updateFromAndTo cursor->fromUri = '%s', cursor->toUri = '%s', seen_tag = '%s'",
+                          cursor->fromUri, cursor->toUri, seen_tag.data());
 
             // If it matches...
             if (r && seen_tag.compareTo(fromtag) == 0)
             {
                // Update the row by adding the to-tag (if it doesn't have one).
-               const char* p = cursor->toUri;
-               if (strstr(p, ";tag=") == NULL)
+               Url toUri(cursor->toUri, FALSE); // parse as name-addr
+               UtlString dummy;
+               if (!toUri.getFieldParameter("tag", dummy))
                {
-                  char buffer[100];
-                  // Check if the last character is ">", which means it is 
-                  // already in name-addr format.
-                  if (p[strlen(p) - 1] == '>')
-                  {
-                     strcpy(buffer, p);
-                  }
-                  else
-                  {
-                     // Use <...> (which is optional in this situation),
-                     // as the remote end will almost certainly do so,
-                     // and we need to predict the To value it will use.
-                     // (Such is the penality of not storing the tags
-                     // separately.)
-                     strcpy(buffer, "<");
-                     strcpy(buffer + 1, p);
-                     strcat(buffer, ">");
-                  }
-                  strcat(buffer, ";tag=");
-                  strcat(buffer, totag);
-
-                  // Update the row.
-                  cursor->toUri = buffer;
+                  toUri.setFieldParameter("tag", totag);
+                  toUri.toString(dummy); // un-parse as name-addr
+                  OsSysLog::add(FAC_DB, PRI_DEBUG, "SubscriptionDB::updateFromAndTo cursor->toUri = '%s'",
+                                dummy.data());
+                  cursor->toUri = dummy.data();
                   cursor.update();
                }
             }
