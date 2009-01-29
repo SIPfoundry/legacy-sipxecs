@@ -10,7 +10,6 @@
 package org.sipfoundry.sipxconfig.conference;
 
 import java.io.Serializable;
-import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -45,10 +44,9 @@ public abstract class ConferenceBridgeProvisioningImpl extends HibernateDaoSuppo
     public void deploy(Serializable bridgeId) {
         m_sipxServiceManager.replicateServiceConfig(m_freeswitchService);
 
-        Bridge bridge = (Bridge) getHibernateTemplate().load(Bridge.class, bridgeId);
-        List conferences = getHibernateTemplate().loadAll(Conference.class);
-        generateConfigurationData(bridge, conferences);
+        generateConfigurationData();
 
+        Bridge bridge = (Bridge) getHibernateTemplate().load(Bridge.class, bridgeId);
         ApplicationEvent event = new ConferenceConfigReplicatedEvent(this, bridge.getServiceUri());
         m_sipxReplicationContext.publishEvent(event);
         m_sipxReplicationContext.generate(DataSet.ALIAS);
@@ -75,7 +73,7 @@ public abstract class ConferenceBridgeProvisioningImpl extends HibernateDaoSuppo
         }
     }
 
-    void generateConfigurationData(Bridge bridge, List conferences) {
+    void generateConfigurationData() {
         ConferenceConfiguration configuration = createConferenceConfiguration();
         m_sipxReplicationContext.replicate(configuration);
     }
@@ -94,7 +92,7 @@ public abstract class ConferenceBridgeProvisioningImpl extends HibernateDaoSuppo
     public void setFreeswitchApiProvider(ApiProvider<FreeswitchApi> freeswitchApiProvider) {
         m_freeswitchApiProvider = freeswitchApiProvider;
     }
-    
+
     public static class BostonBridgeFilter implements SettingFilter {
         private static final String PREFIX = "fs-conf";
 

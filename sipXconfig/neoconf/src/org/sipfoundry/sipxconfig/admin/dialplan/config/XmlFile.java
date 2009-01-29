@@ -38,6 +38,8 @@ public abstract class XmlFile extends AbstractConfigurationFile implements Confi
     /**
      * Override this method to use location-specific data as last step to generate the Document
      * object that will be written by the write method
+     *
+     * @param location server for which we generate this document
      */
     protected void localizeDocument(Location location) {
         // default implementation does nothing

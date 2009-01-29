@@ -30,11 +30,11 @@ public class ConferenceBridgeProvisioningtImplTestIntegration extends Integratio
     private ModelFilesContext m_modelFilesContext;
 
     private DomainManager m_domainManager;
-    
+
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
     }
-    
+
     public void setConferenceBridgeContext(ConferenceBridgeContext context) {
         m_context = context;
     }
@@ -69,7 +69,7 @@ public class ConferenceBridgeProvisioningtImplTestIntegration extends Integratio
             c.setModelFilesContext(m_modelFilesContext);
         }
 
-        impl.generateConfigurationData(bridge, conferences);
+        impl.generateConfigurationData();
 
         verify(replication);
     }

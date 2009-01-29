@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 
@@ -32,20 +32,20 @@ public abstract class ServiceStatusDisplay extends BaseComponent {
 
     @Parameter(defaultValue = "ognl:70")
     public abstract int getMaxLength();
-    
+
     @Parameter(required = true)
     public abstract void setStatus(ServiceStatus status);
     public abstract ServiceStatus getStatus();
-    
+
     @Parameter(required = true)
     public abstract int getRowId();
-    
+
     @Parameter(required = true)
     public abstract Location getServiceLocation();
-    
+
     @Asset("context:/WEB-INF/admin/commserver/ServiceStatusDisplay.script")
     public abstract IAsset getScript();
-    
+
     @Asset("/images/error.png")
     public abstract IAsset getErrorIcon();
 
@@ -63,22 +63,22 @@ public abstract class ServiceStatusDisplay extends BaseComponent {
 
     @InjectObject("spring:sipxProcessContext")
     public abstract SipxProcessContext getSipxProcessContext();
-    
+
     @InjectObject("spring:sipxServiceManager")
     public abstract SipxServiceManager getSipxServiceManager();
-    
+
     @InjectObject("spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
-    
+
     @InjectPage(ViewStatusMessages.PAGE)
     public abstract ViewStatusMessages getViewStatusMessagesPage();
-    
+
     public abstract String getStatusMessage();
     public abstract void setStatusMessage(String statusMessage);
-    
+
     public abstract boolean getShowAllLink();
     public abstract void setShowAllLink(boolean showAllLink);
-    
+
     public IAsset getStatusIcon(ServiceStatus status) {
         switch (status.getStatus()) {
         case ConfigurationMismatch:
@@ -100,7 +100,7 @@ public abstract class ServiceStatusDisplay extends BaseComponent {
             return getUnknownIcon();
         }
     }
-    
+
     public String getLabelClass(ServiceStatus status) {
         switch (status.getStatus()) {
         case Disabled:
@@ -113,29 +113,25 @@ public abstract class ServiceStatusDisplay extends BaseComponent {
         default:
             return "";
         }
-    }    
-    
+    }
+
     public Block getLinkBlock() {
         String blockName = getStatusMessage() == null ? "loadLink" : "toggleLink";
         return (Block) getComponent(blockName);
     }
-    
+
     public String getDetailStyle() {
-        if (getStatusMessage() == null) {
-            return "display: none;";
-        } else {
-            return "display: block;";
-        }
+        return (getStatusMessage() == null) ? "display: none;" : "display: block;";
     }
-    
+
     public boolean shouldTruncate() {
         return getStatusMessage().length() > getMaxLength();
     }
-    
+
     public String getTruncatedStatusMessage() {
         return getStatusMessage().substring(0, getMaxLength());
     }
-    
+
     public IPage seeAllMessages(Integer locationId, String serviceBeanId) {
         ViewStatusMessages page = getViewStatusMessagesPage();
         page.setLocationId(locationId);
@@ -143,12 +139,12 @@ public abstract class ServiceStatusDisplay extends BaseComponent {
         page.setReturnPage(getPage());
         return page;
     }
-    
-    public void fetchDetails(Integer locationId, String serviceBeanId) {        
+
+    public void fetchDetails(Integer locationId, String serviceBeanId) {
         SipxService service = getSipxServiceManager().getServiceByBeanId(serviceBeanId);
         Location location = getLocationsManager().getLocation(locationId);
         List<String> allMessages = getSipxProcessContext().getStatusMessages(location, service);
-        
+
         if (!allMessages.isEmpty()) {
             ServiceStatusMessage message = new ServiceStatusMessage(allMessages.get(0));
             setStatusMessage(
