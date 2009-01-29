@@ -30,7 +30,8 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-#define SIP_UDP_RESEND_TIMES 7          // Maximum number of times to send/resend messages via UDP
+#define SIP_UDP_RESEND_TIMES 4          // Maximum number of times to send/resend messages via UDP
+#define SIP_TCP_RESEND_TIMES 4          // Maximum number of times to send/resend messages via TCP
 #define MIN_Q_DELTA_SQUARE 0.0000000001 // Smallest Q difference is 0.00001
 #define UDP_LARGE_MSG_LIMIT  1200       // spec says 1300, but we may have to add another via
 
@@ -1036,7 +1037,7 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
 
         sendProtocol = OsSocket::UDP;
         // Set resend timer based on user agent UDP resend time.
-        resendInterval = userAgent.getFirstResendTimeout();
+        resendInterval = userAgent.getUnreliableTransportTimeout();
     }
 
     // Set the transport information
@@ -1127,7 +1128,7 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "SipTransaction::doFirstSend Scheduling UDP %s timeout in %d msec",
                           method.data(),
-                          userAgent.getFirstResendTimeout());
+                          userAgent.getUnreliableTransportTimeout());
 #           endif
 
             if(transactionMessageCopy) transactionMessageCopy->setTransaction(this);
@@ -1396,7 +1397,7 @@ void SipTransaction::handleResendEvent(const SipMessage& outgoingMessage,
                 resendMessage = mpRequest;
             }
             UtlBoolean sentOk = doResend(*resendMessage,
-                                        userAgent, nextTimeout);
+                                         userAgent, nextTimeout);
             // doResend() sets nextTimeout.
 
             if(sentOk && nextTimeout > 0)
@@ -3424,139 +3425,59 @@ UtlBoolean SipTransaction::doResend(SipMessage& resendMessage,
     resendMessage.getSendAddress(&sendAddress, &sendPort);
     UtlBoolean sentOk = FALSE;
 
-    // TCP only gets one try
+    // TCP/TLS gets SIP_TCP_RESEND_TIMES tries
     // UDP gets SIP_UDP_RESEND_TIMES tries
 
-    if(protocol == OsSocket::UDP)
+    if (protocol == OsSocket::UDP)
     {
-        if(numTries < SIP_UDP_RESEND_TIMES)
+        if (numTries < SIP_UDP_RESEND_TIMES)
         {
             // Try UDP again
-            if(userAgent.sendUdp(&resendMessage, sendAddress.data(), sendPort))
+            if (userAgent.sendUdp(&resendMessage, sendAddress.data(), sendPort))
             {
                 // Do this after the send so that the log message is correct
                 resendMessage.incrementTimesSent();
 
                 // Schedule the timeout for the next resend.
-                if(lastTimeout < userAgent.getFirstResendTimeout())
+                nextTimeout = lastTimeout * 2;
+                if (nextTimeout > userAgent.getMaxResendTimeout())
                 {
-                    nextTimeout = userAgent.getFirstResendTimeout();
-                }
-                else if(lastTimeout < userAgent.getLastResendTimeout())
-                {
-                    nextTimeout = lastTimeout * 2;
-                }
-                else
-                {
-                    nextTimeout = userAgent.getLastResendTimeout();
+                    nextTimeout = userAgent.getMaxResendTimeout();
                 }
                 resendMessage.setResendInterval(nextTimeout);
 
                 sentOk = TRUE;
             }
         }
-    }
-    else if(   protocol == OsSocket::TCP
+    } // UDP
+    else if (   protocol == OsSocket::TCP
 #ifdef SIP_TLS
             || protocol == OsSocket::SSL_SOCKET
 #endif
            )
     {
-       if(numTries >= 1)
-       {
-            // we are done send back a transport error
+        if (numTries < SIP_TCP_RESEND_TIMES)
+        {
+            // Try TCP again
+            if (userAgent.sendTcp(&resendMessage, sendAddress.data(), sendPort))
+            {
+                // Do this after the send so that the log message is correct
+                resendMessage.incrementTimesSent();
 
-            // Dispatch is called from above this method
-
-            // Dispatch needs it own copy of the message
-            //SipMessage* dispatchMessage = new SipMessage(resendMessage);
-
-            // The TCP send failed, pass back an error
-            //userAgent.dispatch(dispatchMessage,
-            //                   SipMessageEvent::TRANSPORT_ERROR);
-       }
-       else
-       {
-           // Try TCP once
-           UtlBoolean sendOk;
-           if(protocol == OsSocket::TCP)
-           {
-              sendOk = userAgent.sendTcp(&resendMessage,
-                                         sendAddress.data(),
-                                         sendPort);
-           }
-#ifdef SIP_TLS
-           else if(protocol == OsSocket::SSL_SOCKET)
-           {
-              sendOk = userAgent.sendTls(&resendMessage,
-                                         sendAddress.data(),
-                                         sendPort);
-           }
-#endif
-           else
-           {
-              sendOk = FALSE;
-           }
-
-           if(sendOk)
-           {
-               // Schedule a timeout
-               nextTimeout = userAgent.getReliableTransportTimeout();
-
-               resendMessage.incrementTimesSent();
-               resendMessage.setResendInterval(nextTimeout);
-               resendMessage.setSendProtocol(protocol);
-
-#ifdef TEST_PRINT
-                if(resendMessage.getSipTransaction() == NULL)
+                // Schedule the timeout for the next resend.
+                nextTimeout = lastTimeout * 2;
+                if (nextTimeout > userAgent.getMaxResendTimeout())
                 {
-                    UtlString msgString;
-                    ssize_t msgLen;
-                    resendMessage.getBytes(&msgString, &msgLen);
-                    OsSysLog::add(FAC_SIP, PRI_WARNING,
-                                  "SipTransaction::doResend reschedule of request resend with NULL transaction, message = '%s'",
-                                  msgString.data());
+                    nextTimeout = userAgent.getMaxResendTimeout();
                 }
-#endif
+                resendMessage.setResendInterval(nextTimeout);
 
-               // Schedule a timeout for requests which do not
-               // receive a response
-               SipMessageEvent* resendEvent =
-                    new SipMessageEvent(new SipMessage(resendMessage),
-                                    SipMessageEvent::TRANSACTION_RESEND);
+                sentOk = TRUE;
+            }
+        }
+    } // TCP/TLS
 
-               OsMsgQ* incomingQ = userAgent.getMessageQueue();
-               OsTimer* timer = new OsTimer(incomingQ, resendEvent);
-               mTimers.append(timer);
-#ifdef TEST_PRINT
-               OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                             "SipTransaction::doResend added timer %p to timer list.",
-                             timer);
-#endif
-
-               // Convert from mSeconds to uSeconds
-               OsTime lapseTime(0, nextTimeout * 1000);
-               timer->oneshotAfter(lapseTime);
-
-               sentOk = TRUE;
-           }
-           else
-           {
-               // Send failed send back the transport error
-
-               // Dispatch is done from above this method
-
-               // Dispatch needs it own copy of the message
-               // SipMessage* dispatchMessage = new SipMessage(resendMessage);
-
-                // The TCP send failed, pass back an error
-                //userAgent.dispatch(dispatchMessage,
-                //                   SipMessageEvent::TRANSPORT_ERROR);
-           }
-       }
-    } // TCP
-
-    return(sentOk);
+    return sentOk;
 } // end doResend
 
 UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
@@ -3622,8 +3543,31 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
                 // Otherwise resend the provisional response
                 response = mpLastFinalResponse ?
                     mpLastFinalResponse : mpLastProvisionalResponse;
-            }
 
+                // If there is no response, then construct a 100 response
+                // to quench resends.  (This is a deviation from RFC 3261,
+                // which prescribes that 100's should only be sent for INVITE
+                // requests, but if we are seeing resends of another request,
+                // for efficiency we need to quench resends.)
+                if (!response)
+                {
+                   // Create a 100 Trying and send it.
+                   SipMessage trying;
+                   trying.setTryingResponseData(&incomingMessage);
+                   // We cannot set 'response' to 'trying', as 'trying' does
+                   // not have its transport parameters set.  So we have to
+                   // pass it to handleOutgoing().
+                   handleOutgoing(trying,
+                                  userAgent,
+                                  transactionList,
+                                  MESSAGE_PROVISIONAL);
+
+#                  ifdef TEST_PRINT
+                   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                 "SipTransaction::handleIncoming sending trying response for resent non-INVITE request");
+#                  endif
+                }
+            }
 
 #ifdef TEST_PRINT
             OsSysLog::add(FAC_SIP, PRI_DEBUG,

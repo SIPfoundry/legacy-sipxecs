@@ -27,9 +27,9 @@
 #include <net/SipOutputProcessor.h>
 
 // DEFINES
-#define SIP_DEFAULT_RTT     500 // Default T1 value (RFC 3261), in msec.
+#define SIP_DEFAULT_RTT     100 // Default T1 value (RFC 3261), in msec.
                                 // Intended to be estimate of RTT of network.
-#define SIP_MINIMUM_RTT     100 // Minimum T1 value allowed, in msec.
+#define SIP_MINIMUM_RTT     10  // Minimum T1 value allowed, in msec.
 #define SIP_MAX_PORT_RANGE  10  // If a port is in use and the sip user agent 
                                 // is created with bUseNextAvailablePort set to
                                 // true, this is the number of sequential ports
@@ -714,11 +714,11 @@ protected:
     // Get mReliableTransportTimeoutMs, the time from first send via TCP to first resend (msec).
     int getReliableTransportTimeout();
 
-    // Get mFirstResendTimeoutMs, the time from first send via UDP to first resend (msec).
-    int getFirstResendTimeout();
+    // Get mUnreliableTransportTimeoutMs, the time from first send via UDP to first resend (msec).
+    int getUnreliableTransportTimeout();
 
-    // ***
-    int getLastResendTimeout();
+    // Get mMaxResendTimeoutMs, the maximum that will be used for a timeout interval.
+    int getMaxResendTimeout();
 
     UtlBoolean shouldAuthenticate(SipMessage* message) const;
 
@@ -771,8 +771,11 @@ private:
     // Time allowed before first resend of a message, in msec.
     // T1 in RFC 3261.
     // The time from first send via UDP to first resend (msec).
-    int mFirstResendTimeoutMs;
-    int mLastResendTimeoutMs;
+    int mUnreliableTransportTimeoutMs;
+    // The upper limit for timeout intervals.
+    // (Timeout intervals double each time, but are limited to
+    // mMaxResendTimeoutMs.)
+    int mMaxResendTimeoutMs;
     // The time from first send via TCP (or other reliable transport) to first resend (msec).
     int mReliableTransportTimeoutMs;
     int mTransactionStateTimeoutMs;

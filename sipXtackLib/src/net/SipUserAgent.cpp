@@ -120,7 +120,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
                            int natPingFrequency,
                            const char* natPingMethod,
                            SipLineMgr* lineMgr,
-                           int sipFirstResendTimeout,
+                           int sipUnreliableTransportTimeout,
                            UtlBoolean defaultToUaTransactions,
                            int readBufferSize,
                            int queueSize,
@@ -363,28 +363,34 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
     UtlString hostIpAddress(sipIpAddress.data());
 
     // Set up timers.
-    // First, calculate mFirstResendTimeoutMs based on the sipFirstResendTimeout
-    // by applying appropriate limitations.
-    if ( sipFirstResendTimeout <= 0)
+    // First, calculate mUnreliableTransportTimeoutMs based on the
+    // sipUnreliableTransportTimeout by applying appropriate limitations.
+    // (Default is thus 100 msec.)
+    if (sipUnreliableTransportTimeout <= 0)
     {
-        mFirstResendTimeoutMs = SIP_DEFAULT_RTT;
+        mUnreliableTransportTimeoutMs = SIP_DEFAULT_RTT;
     }
-    else if ( sipFirstResendTimeout > 0  && sipFirstResendTimeout < 100)
+    else if (sipUnreliableTransportTimeout > 0 &&
+             sipUnreliableTransportTimeout < SIP_MINIMUM_RTT)
     {
-        mFirstResendTimeoutMs = SIP_MINIMUM_RTT;
+        mUnreliableTransportTimeoutMs = SIP_MINIMUM_RTT;
     }
     else
     {
-        mFirstResendTimeoutMs = sipFirstResendTimeout;
+        mUnreliableTransportTimeoutMs = sipUnreliableTransportTimeout;
     }
-    // The other timers are scaled based on mFirstResendTimeoutMs.
-    mLastResendTimeoutMs = 8 * mFirstResendTimeoutMs;
-    // Initial timeout for TCP is 2 times the UDP initial timeout.
-    mReliableTransportTimeoutMs = 2 * mLastResendTimeoutMs;
-    mTransactionStateTimeoutMs = 10 * mLastResendTimeoutMs;
 
+    // The other timers are scaled based on mUnreliableTransportTimeoutMs.
+    // (Default is 800 msec.)
+    mMaxResendTimeoutMs = 8 * mUnreliableTransportTimeoutMs;
+    // Initial timeout for TCP is same as the UDP initial timeout.
+    // (Default is 100 msec.)
+    mReliableTransportTimeoutMs = mUnreliableTransportTimeoutMs;
+
+    // (Default is 8000 msec.)
+    mTransactionStateTimeoutMs = 10 * mMaxResendTimeoutMs;
     // How long before we expire transactions by default
-    mDefaultExpiresSeconds = 180; // mTransactionStateTimeoutMs / 1000;
+    mDefaultExpiresSeconds = 180;
     mDefaultSerialExpiresSeconds = 20;
 
     // Construct the default Contact header value.
@@ -3337,14 +3343,14 @@ int SipUserAgent::getReliableTransportTimeout()
     return(mReliableTransportTimeoutMs);
 }
 
-int SipUserAgent::getFirstResendTimeout()
+int SipUserAgent::getUnreliableTransportTimeout()
 {
-    return(mFirstResendTimeoutMs);
+    return(mUnreliableTransportTimeoutMs);
 }
 
-int SipUserAgent::getLastResendTimeout()
+int SipUserAgent::getMaxResendTimeout()
 {
-    return(mLastResendTimeoutMs);
+    return(mMaxResendTimeoutMs);
 }
 
 int SipUserAgent::getDefaultExpiresSeconds() const
