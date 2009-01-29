@@ -1,6 +1,7 @@
 %define _prefix   /usr/local/freeswitch
 %define prefix    %{_prefix}
 %define fs_user   root
+%define debug_package %{nil}
 
 Name:         sipx-freeswitch
 Summary:      FreeSWITCH open source telephony platform (sipX integration)
