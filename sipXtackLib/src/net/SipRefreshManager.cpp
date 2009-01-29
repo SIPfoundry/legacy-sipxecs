@@ -495,23 +495,41 @@ void RefreshDialogState::dumpState()
    UtlString msg_text;
    ssize_t msg_length;
    mpLastRequest->getBytes(&msg_text, &msg_length);
-   OsTimer::OsTimerState state;
-   OsTimer::Time expiresAt;
-   UtlBoolean periodic;
-   OsTimer::Interval period;
-   mpRefreshTimer->getFullState(state, expiresAt, periodic, period);
+
+   char refreshTimerText[100];
+   if (mpRefreshTimer)
+   {
+      OsTimer::OsTimerState state;
+      OsTimer::Time expiresAt;
+      UtlBoolean periodic;
+      OsTimer::Interval period;
+
+      mpRefreshTimer->getFullState(state, expiresAt, periodic, period);
+
+      sprintf(refreshTimerText,
+              "%p %s/%+d/%s/%d",
+              mpRefreshTimer,
+              state == OsTimer::STARTED ? "STARTED" : "STOPPED",
+              (int) ((expiresAt - OsTimer::now()) / 1000000),
+              periodic ? "periodic" : "one-shot",
+              (int) period);
+   }
+   else
+   {
+      sprintf(refreshTimerText,
+              "%p",
+              mpRefreshTimer);
+   }
 
    OsSysLog::add(FAC_RLS, PRI_INFO,
-                 "\t      RefreshDialogState %p request-URI = '%s', Event = '%s', mExpirationPeriodSeconds = %d, mPendingStartTime = %+d, mExpiration = %+d, mRequestState = '%s', mFailedResponseCode = %d, mFailedResponseText = '%s', mpRefreshTimer = %s/%+d/%s/%d, mpLastRequest = '%s'",
+                 "\t      RefreshDialogState %p request-URI = '%s', Event = '%s', mExpirationPeriodSeconds = %d, mPendingStartTime = %+d, mExpiration = %+d, mRequestState = '%s', mFailedResponseCode = %d, mFailedResponseText = '%s', mpRefreshTimer = %s, mpLastRequest = '%s'",
                  this, requestURI.data(), eventField.data(),
                  mExpirationPeriodSeconds, (int) (mPendingStartTime - now),
                  (int) (mExpiration - now),
                  refreshRequestStateText(mRequestState), mFailedResponseCode,
                  mFailedResponseText.data(),
-                 state == OsTimer::STARTED ? "STARTED" : "STOPPED",
-                 (int) ((expiresAt - OsTimer::now()) / 1000000),
-                 periodic ? "periodic" : "one-shot",
-                 (int) period, msg_text.data());
+                 refreshTimerText,
+                 msg_text.data());
 }
 
 // Convert RefreshRequestState to a printable string.
