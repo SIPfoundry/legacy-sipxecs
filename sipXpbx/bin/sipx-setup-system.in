@@ -528,7 +528,7 @@ UTC=true\n' % TimeZone
     progress(80, "Set system clock")
     show_progress()
 
-    log_printout("Time before set: %s" % time.strftime("%Y-%m-%d %H:%M:%S +000", time.gmtime()))
+    timeBeforeSet=time.strftime("%Y-%m-%d %H:%M:%S +000", time.gmtime())
 
     timeSet=False
 
@@ -686,6 +686,7 @@ driftfile /var/lib/ntp/drift\n\
         log_printout("   ntp server peer tests failed")
 
     if timeSet :
+        log_printout("Time before set: %s" % timeBeforeSet )
         log_printout("Time after set: %s" % time.strftime("%Y-%m-%d %H:%M:%S +000", time.gmtime()))
     else:
         # Set time manually
@@ -871,11 +872,11 @@ Hours are 00-23.\
 
         dateCmd="date --set='%s-%s-%s %s:%s'" % (year.current(),month.current(),day.current(),hour.current(),minute.current())
         if runningAsRoot() :
-            log_printout("Setting date/time: "+dateCmd)
+            log_printout("Setting manual date/time: "+dateCmd)
             cmdoutput=commands.getoutput(dateCmd)
             log_printout(cmdoutput)
         else:
-            log_printout("(simulated) Setting date/time: "+dateCmd)
+            log_printout("(simulated) Setting manual date/time: "+dateCmd)
             
         screen_end()
 
