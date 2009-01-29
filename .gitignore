@@ -20,8 +20,8 @@ sipXconfig/top.build.dir
 spy.log
 velocity.log
 bin.eclipse
-lib/cgicc/build
+# exclude files created when building 3rd party deps
+lib/*/build
+lib/cache-file
 lib/dist
-lib/java-sun/build
-lib/ruby-dbi/build
 sipXtackLib/src/test/net/SipXauthIdentityTest.cpp
