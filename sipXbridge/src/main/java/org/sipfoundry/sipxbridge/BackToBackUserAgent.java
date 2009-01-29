@@ -21,7 +21,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Random;
 import java.util.Set;
 
@@ -54,7 +53,6 @@ import javax.sip.header.ReferToHeader;
 import javax.sip.header.ReplyToHeader;
 import javax.sip.header.RouteHeader;
 import javax.sip.header.SubjectHeader;
-import javax.sip.header.SupportedHeader;
 import javax.sip.header.ToHeader;
 import javax.sip.header.UserAgentHeader;
 import javax.sip.header.ViaHeader;
@@ -267,7 +265,6 @@ public class BackToBackUserAgent {
     void handleSpriralInviteWithReplaces(RequestEvent requestEvent, Dialog replacedDialog,
             ServerTransaction serverTransaction, String toDomain) throws SipException {
         /* The inbound INVITE */
-        Request incomingRequest = serverTransaction.getRequest();
         SipProvider provider = (SipProvider) requestEvent.getSource();
         try {
             Dialog replacedDialogPeerDialog = ((DialogContext) replacedDialog
@@ -1151,7 +1148,7 @@ public class BackToBackUserAgent {
      * 
      * @throws SipException
      */
-    @SuppressWarnings("unchecked")
+   
     void sendInviteToItsp(RequestEvent requestEvent, ServerTransaction serverTransaction,
             String toDomain) throws SipException {
 

@@ -42,7 +42,6 @@ import javax.sip.header.EventHeader;
 import javax.sip.header.ReasonHeader;
 import javax.sip.header.RequireHeader;
 import javax.sip.header.SubscriptionStateHeader;
-import javax.sip.header.SupportedHeader;
 import javax.sip.header.ToHeader;
 import javax.sip.header.UserAgentHeader;
 import javax.sip.header.WarningHeader;
@@ -687,7 +686,6 @@ class CallControlManager implements SymmitronResetHandler {
             /*
              * send 200 OK for PRACK
              */
-            Request prack = requestEvent.getRequest();
             Response prackOk = SipUtilities.createResponse(serverTransactionId, Response.OK);
 
             Dialog dialog = requestEvent.getDialog();
@@ -1022,7 +1020,7 @@ class CallControlManager implements SymmitronResetHandler {
                 Request referRequest = tad.getReferRequest();
                 if (referDialog != null && referDialog.getState() == DialogState.CONFIRMED
                         && SipUtilities.isOriginatorSipXbridge(response)) {
-                    this.doNotifyReferDialog(referRequest, referDialog, response);
+                    this.notifyReferDialog(referRequest, referDialog, response);
                     
                 }
                 /*
@@ -1034,8 +1032,12 @@ class CallControlManager implements SymmitronResetHandler {
             }
         }
     }
+    
+    /*
+     * This is a polycomm specific hack. Polycomm sometimes sends 500 if NOTIFY sent too early.
+     */
 
-    private void doNotifyReferDialog(Request referRequest, Dialog referDialog, Response response) throws SipException {
+    private void delayNotifyReferDialog(Request referRequest, Dialog referDialog, Response response) throws SipException {
        
         if ( response.getStatusCode() == Response.OK) {
             Gateway.getTimer().schedule(new NotifyReferDialogTimerTask(referRequest,referDialog,response), 2000);
@@ -1249,7 +1251,6 @@ class CallControlManager implements SymmitronResetHandler {
         dialogContext.setLastResponse(response);
         ServerTransaction serverTransaction = tad.getServerTransaction();
         Dialog replacedDialog = tad.getReplacedDialog();
-        Request request = serverTransaction.getRequest();
         SipProvider peerProvider = ((TransactionExt) serverTransaction).getSipProvider();
         ContactHeader contactHeader = SipUtilities.createContactHeader(Gateway.SIPXBRIDGE_USER,
                 peerProvider);
@@ -1478,7 +1479,7 @@ class CallControlManager implements SymmitronResetHandler {
 
         if (referDialog.getState() == DialogState.CONFIRMED
                 && SipUtilities.isOriginatorSipXbridge(response)) {         
-                this.doNotifyReferDialog(referRequest, referDialog, response);
+                this.notifyReferDialog(referRequest, referDialog, response);
         }
 
         /*
@@ -1628,7 +1629,7 @@ class CallControlManager implements SymmitronResetHandler {
         if (referDialog.getState() == DialogState.CONFIRMED
                 && SipUtilities.isOriginatorSipXbridge(response)) {
                  
-                this.doNotifyReferDialog(referRequest, referDialog, response);
+                this.notifyReferDialog(referRequest, referDialog, response);
             
         }
 
@@ -2092,7 +2093,7 @@ class CallControlManager implements SymmitronResetHandler {
                     if (referDialog.getState() == DialogState.CONFIRMED
                             && SipUtilities.isOriginatorSipXbridge(response)) {
                                                
-                            this.doNotifyReferDialog(referRequest, referDialog, response);
+                            this.notifyReferDialog(referRequest, referDialog, response);
                         
                     }
                 }
