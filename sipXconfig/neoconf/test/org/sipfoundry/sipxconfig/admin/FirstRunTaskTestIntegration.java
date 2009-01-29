@@ -120,6 +120,8 @@ public class FirstRunTaskTestIntegration extends IntegrationTestCase {
         Location primaryLocation = m_locationsManager.getPrimaryLocation();
         Collection<LocationSpecificService> servicesForPrimaryLocation = primaryLocation.getServices();
         assertFalse(servicesForPrimaryLocation.isEmpty());
+        //auto-enabled bundles are set for primary location
+        assertEquals(3, primaryLocation.getInstalledBundles().size());
         setDirty(m_firstRun);
     }
 }

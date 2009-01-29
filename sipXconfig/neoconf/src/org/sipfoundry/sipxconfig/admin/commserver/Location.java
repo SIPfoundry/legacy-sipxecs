@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang.RandomStringUtils;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
@@ -300,14 +299,12 @@ public class Location extends BeanWithId {
      * @return bundles that can be installed (it may include bundles that are already installed)
      */
     public Collection<SipxServiceBundle> getInstallableBundles(Collection<SipxServiceBundle> all) {
-        Predicate isInstallable = new Predicate() {
-            public boolean evaluate(Object item) {
-                SipxServiceBundle bundle = (SipxServiceBundle) item;
-                return bundle.canRunOn(Location.this);
-            }
-        };
         List<SipxServiceBundle> filtered = new ArrayList<SipxServiceBundle>();
-        select(all, isInstallable, filtered);
+        select(all, new SipxServiceBundle.CanRunOn(this), filtered);
         return filtered;
+    }
+
+    public boolean isBundleInstalled(String bundleId) {
+        return m_installedBundles == null ? false : m_installedBundles.contains(bundleId);
     }
 }

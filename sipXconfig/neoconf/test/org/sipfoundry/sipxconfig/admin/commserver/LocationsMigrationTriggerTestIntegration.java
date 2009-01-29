@@ -50,7 +50,7 @@ public class LocationsMigrationTriggerTestIntegration extends IntegrationTestCas
     }
 
     public void testOnInitTaskExistingLocationsInDatabase() throws Exception {
-        loadDataSetXml("admin/commserver/seedLocations.xml");
+        loadDataSetXml("admin/commserver/seedLocationsAndServices2.xml");
         Location[] locationsBeforeMigration = m_locationsManager.getLocations();
         assertEquals(2, locationsBeforeMigration.length);
 
@@ -63,10 +63,11 @@ public class LocationsMigrationTriggerTestIntegration extends IntegrationTestCas
         assertEquals("localhost", locationsAfterMigration[0].getFqdn());
         //Localhost should be primary location
         assertTrue(locationsAfterMigration[0].isPrimary());
+
         assertEquals("https://remotehost.example.org:8092/RPC2", locationsAfterMigration[1].getProcessMonitorUrl());
         assertEquals("remotehost.example.org", locationsAfterMigration[1].getFqdn());
         //all other hosts should be secondary
-        assertFalse(locationsAfterMigration[1].isPrimary());        
+        assertFalse(locationsAfterMigration[1].isPrimary());
     }
 
     public void testOnInitTaskWithMissingTopologyFile() throws Exception {
@@ -118,4 +119,5 @@ public class LocationsMigrationTriggerTestIntegration extends IntegrationTestCas
 
         return testTopologyFile;
     }
+
 }

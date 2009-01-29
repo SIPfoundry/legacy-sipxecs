@@ -40,11 +40,13 @@ import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxAcdService;
 import org.sipfoundry.sipxconfig.service.SipxService;
+import org.sipfoundry.sipxconfig.service.SipxServiceBundle;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
@@ -69,6 +71,8 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
     private LocationsManager m_locationsManager;
 
     private SipxServiceManager m_sipxServiceManager;
+
+    private SipxServiceBundle m_callCenterBundle;
 
     private class NameInUseException extends UserException {
         private static final String ERROR = "The name \"{1}\" is already in use. "
@@ -356,6 +360,19 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         }
     }
 
+    private void onLocationSave(Location location) {
+        getHibernateTemplate().update(location);
+        AcdServer server = getAcdServerForLocationId(location.getId());
+        boolean isCallCenterInstalled = location.isBundleInstalled(m_callCenterBundle.getModelId());
+        if (server == null && isCallCenterInstalled) {
+            server = newServer();
+            server.setLocation(location);
+            getHibernateTemplate().save(server);
+        } else if (server != null && !isCallCenterInstalled) {
+            getHibernateTemplate().delete(server);
+        }
+    }
+
     public void onDelete(Object entity) {
         if (entity instanceof User) {
             onUserDelete((User) entity);
@@ -366,8 +383,10 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         }
     }
 
-    public void onSave(Object entity_) {
-        // not interested in save events
+    public void onSave(Object entity) {
+        if (entity instanceof Location) {
+            onLocationSave((Location) entity);
+        }
     }
 
     public String getAudioServerUrl() {
@@ -562,4 +581,10 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
 
         return (AcdServer) DataAccessUtils.singleResult(servers);
     }
+
+    @Required
+    public void setCallCenterBundle(SipxServiceBundle callCenterBundle) {
+        m_callCenterBundle = callCenterBundle;
+    }
+
 }

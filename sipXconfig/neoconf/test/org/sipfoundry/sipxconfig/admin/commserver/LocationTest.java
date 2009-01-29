@@ -227,4 +227,15 @@ public class LocationTest extends TestCase {
         assertTrue(primaryInstallable.contains(unrestricted));
         assertTrue(primaryInstallable.contains(primaryOnly));
     }
+
+    public void testIsBundleInstalled() {
+        Location location = new Location();
+        assertFalse(location.isBundleInstalled(null));
+        assertFalse(location.isBundleInstalled("b1"));
+
+        location.setInstalledBundles(asList("b1", "b2"));
+        assertFalse(location.isBundleInstalled(null));
+        assertTrue(location.isBundleInstalled("b1"));
+        assertFalse(location.isBundleInstalled("b3"));
+    }
 }

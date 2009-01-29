@@ -35,18 +35,9 @@ public class LocationsMigrationTrigger extends InitTaskListener {
 
     @Override
     public void onInitTask(String task) {
-        // only do migration if there aren't already locations stored in database
         Location[] existingLocations = m_locationsManager.getLocations();
         if (existingLocations.length > 0) {
-            // check if there is one and only one location primary
-            if (!checkPrimary(existingLocations)) {
-                changeToPrimary(existingLocations);
-                for (Location location : existingLocations) {
-                    if (location.isPrimary()) {
-                        m_locationsManager.storeLocation(location);
-                    }
-                }
-            }
+            // only do migration if there aren't already locations stored in database
             return;
         }
 
@@ -54,14 +45,14 @@ public class LocationsMigrationTrigger extends InitTaskListener {
         Location[] locations = loadLocationsFromFile();
         // if there is no location matching the sipxconfig hostname - the first found is made
         // primary
-        // (this situation should never happen -
-        // the location where sipxconfig is installed (primary) should always be written in
-        // topology.xml)
+        // (this situation should never happen - the location where sipxconfig is installed
+        // (primary) should always be written in topology.xml)
         if (locations.length > 0) {
             changeToPrimary(locations);
             // save locations in DB
             for (Location location : locations) {
-                m_locationsManager.storeLocation(location);
+                // save locations in DB without publishing events
+                m_locationsManager.saveMigratedLocation(location);
             }
         } else {
             LOG.info("No locations migrated from topology.xml - Creating localhost location.");
@@ -70,7 +61,8 @@ public class LocationsMigrationTrigger extends InitTaskListener {
             localhostLocation.setAddress(m_localIpAddress);
             localhostLocation.setFqdn(m_hostname);
             localhostLocation.setPrimary(true);
-            m_locationsManager.storeLocation(localhostLocation);
+            // save locations in DB without publishing events
+            m_locationsManager.saveMigratedLocation(localhostLocation);
         }
 
         LOG.info("Deleting topology.xml after data migration");
@@ -96,18 +88,6 @@ public class LocationsMigrationTrigger extends InitTaskListener {
                 savePrimary = true;
             }
         }
-    }
-
-    /**
-     * Checks for primary location
-     */
-    private boolean checkPrimary(Location[] locations) {
-        for (Location location : locations) {
-            if (location.isPrimary()) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public void setLocationsManager(LocationsManager locationsManager) {

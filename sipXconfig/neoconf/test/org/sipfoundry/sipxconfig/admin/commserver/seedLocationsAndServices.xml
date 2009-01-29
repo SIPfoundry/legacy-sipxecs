@@ -23,15 +23,15 @@
     <column>bean_id</column>
     <row>
       <value>11</value>
-      <value>sipxProxyService</value>
+      <value>sipxStatusService</value>
     </row>
     <row>
       <value>12</value>
-      <value>sipxParkService</value>
+      <value>sipxFreeswitchService</value>
     </row>
     <row>
       <value>13</value>
-      <value>sipxRegistrarService</value>
+      <value>sipxBridgeService</value>
     </row>
   </table>
   <table name="location_specific_service">

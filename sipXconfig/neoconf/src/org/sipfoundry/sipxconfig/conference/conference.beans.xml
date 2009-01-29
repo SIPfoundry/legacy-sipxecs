@@ -34,6 +34,7 @@
     <property name="provisioning">
       <ref local="conferenceBridgeProvisioning" />
     </property>
+    <property name="conferenceBundle" ref="conferenceBundle"/>
   </bean>
 
   <bean id="conferenceBridgeContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

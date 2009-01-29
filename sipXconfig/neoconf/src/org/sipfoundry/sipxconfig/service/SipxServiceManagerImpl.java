@@ -247,6 +247,12 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
             beanIdsToServices.put(sipxService.getBeanId(), sipxService);
         }
         for (SipxService sipxService : getServicesFromDb()) {
+            if (sipxService.getBundles() == null) {
+                // HACK: during tests bundles are not initialized properly
+                // copy them from already loaded services...
+                SipxService template = beanIdsToServices.get(sipxService.getBeanId());
+                sipxService.setBundles(template.getBundles());
+            }
             beanIdsToServices.put(sipxService.getBeanId(), sipxService);
         }
         return beanIdsToServices.values();
@@ -293,7 +299,12 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
     }
 
     public void setBundlesForLocation(Location location, List<SipxServiceBundle> bundles) {
+        if (bundles == null || bundles.size() == 0) {
+            return;
+        }
+        filter(bundles, new SipxServiceBundle.CanRunOn(location));
         verifyBundleCardinality(location, bundles);
+
         Collection<SipxService> oldServices = location.getSipxServices();
         Collection<SipxService> newServices = getServiceDefinitions(bundles);
 
@@ -303,6 +314,16 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
         location.removeServices(stopServices);
         location.addServices(startServices);
 
+        location.setInstalledBundles(transformBundlesToIds(bundles));
+    }
+
+    /**
+     * Transforms the given list of bundles into a corresponding list of bundles Ids
+     *
+     * @param bundles affected bundles
+     * @return corresponding bundles ids
+     */
+    private List<String> transformBundlesToIds(List<SipxServiceBundle> bundles) {
         Transformer extractModelId = new Transformer() {
             public Object transform(Object item) {
                 SipxServiceBundle bundle = (SipxServiceBundle) item;
@@ -310,8 +331,7 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
             }
 
         };
-        List<String> bundleIds = (List<String>) collect(bundles, extractModelId, new ArrayList());
-        location.setInstalledBundles(bundleIds);
+        return (List<String>) collect(bundles, extractModelId, new ArrayList());
     }
 
     /**

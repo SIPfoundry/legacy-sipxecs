@@ -26,11 +26,11 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
     private static final String LOCATION_PROP_PRIMARY = "primary";
 
     private DaoEventPublisher m_daoEventPublisher;
-    
+
     public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
         m_daoEventPublisher = daoEventPublisher;
-    }    
-    
+    }
+
     /** Return the replication URLs, retrieving them on demand */
     public Location[] getLocations() {
         List<Location> locationList = getHibernateTemplate().loadAll(Location.class);
@@ -42,7 +42,6 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
     public Location getLocation(int id) {
         return (Location) getHibernateTemplate().load(Location.class, id);
     }
-
 
     public Location getLocationByFqdn(String fqdn) {
         return loadLocationByUniqueProperty(LOCATION_PROP_NAME, fqdn);
@@ -63,8 +62,18 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
         return location;
     }
 
-    public void storeLocation(Location location) {
+    public void saveMigratedLocation(Location location) {
         getHibernateTemplate().saveOrUpdate(location);
+    }
+
+    public void storeLocation(Location location) {
+        if (location.isNew()) {
+            getHibernateTemplate().save(location);
+            m_daoEventPublisher.publishSave(location);
+        } else {
+            m_daoEventPublisher.publishSave(location);
+            getHibernateTemplate().update(location);
+        }
     }
 
     public void deleteLocation(Location location) {

@@ -9,10 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import org.apache.commons.collections.Predicate;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.Model;
-
 
 public class SipxServiceBundle implements Model {
     private final String m_name;
@@ -89,6 +89,7 @@ public class SipxServiceBundle implements Model {
 
     /**
      * Throws exception if new count
+     *
      * @param newCount
      */
     public void verifyCount(int newCount) {
@@ -109,6 +110,19 @@ public class SipxServiceBundle implements Model {
     static class TooFewBundles extends UserException {
         public TooFewBundles(SipxServiceBundle bundle, int min) {
             super(false, "msg.tooFewBundles", bundle.getName(), min);
+        }
+    }
+
+    public static class CanRunOn implements Predicate {
+        private final Location m_location;
+
+        public CanRunOn(Location location) {
+            m_location = location;
+        }
+
+        public boolean evaluate(Object item) {
+            SipxServiceBundle bundle = (SipxServiceBundle) item;
+            return bundle.canRunOn(m_location);
         }
     }
 }

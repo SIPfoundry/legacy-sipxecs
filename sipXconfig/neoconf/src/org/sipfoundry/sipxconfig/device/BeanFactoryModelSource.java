@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.device;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -35,8 +36,13 @@ public class BeanFactoryModelSource<T extends Model> implements ModelSource, Bea
         }
     }
 
+    /**
+     * Returns collection of retrieved models. Please note that returned collection is not
+     * modifiable.
+     *
+     */
     public Collection<T> getModels() {
-        return loadModels().values();
+        return Collections.unmodifiableCollection(loadModels().values());
     }
 
     public void setBeanFactory(BeanFactory beanFactory) {

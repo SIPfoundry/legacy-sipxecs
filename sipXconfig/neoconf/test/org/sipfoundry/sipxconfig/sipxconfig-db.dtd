@@ -426,6 +426,7 @@
     name CDATA #REQUIRED
     fqdn CDATA #REQUIRED
     ip_address CDATA #IMPLIED
+    primary_location CDATA #IMPLIED
 >
 
 <!ELEMENT location_sipx_service EMPTY>

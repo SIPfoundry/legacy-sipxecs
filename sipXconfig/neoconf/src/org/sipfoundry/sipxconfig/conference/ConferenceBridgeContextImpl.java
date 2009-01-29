@@ -37,8 +37,10 @@ import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxService;
+import org.sipfoundry.sipxconfig.service.SipxServiceBundle;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -57,6 +59,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
     private ConferenceBridgeProvisioning m_provisioning;
     private CoreContext m_coreContext;
     private DomainManager m_domainManager;
+    private SipxServiceBundle m_conferenceBundle;
 
     public List getBridges() {
         return getHibernateTemplate().loadAll(Bridge.class);
@@ -311,5 +314,28 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         return (Bridge) DataAccessUtils.singleResult(servers);
     }
     
-    public void onSave(Object entity) { }
+    private void onLocationSave(Location location) {
+        Bridge bridge = getBridgeByServer(location.getFqdn());
+        boolean isConferenceInstalled = location.isBundleInstalled(m_conferenceBundle.getModelId());
+        if (bridge == null && isConferenceInstalled) {
+            bridge = newBridge();
+            bridge.setService(location.getService(SipxFreeswitchService.BEAN_ID));
+            getHibernateTemplate().save(bridge);
+        } else if (bridge != null && !isConferenceInstalled) {
+            getHibernateTemplate().delete(bridge);
+        }
+    }
+
+    public void onSave(Object entity) {
+        if (entity instanceof Location) {
+            onLocationSave((Location) entity);
+        }
+    }
+
+    @Required
+    public void setConferenceBundle(SipxServiceBundle conferenceBundle) {
+        m_conferenceBundle = conferenceBundle;
+    }
+
+
 }
