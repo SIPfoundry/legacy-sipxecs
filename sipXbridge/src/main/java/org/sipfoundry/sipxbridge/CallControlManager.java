@@ -44,6 +44,7 @@ import javax.sip.header.RequireHeader;
 import javax.sip.header.SubscriptionStateHeader;
 import javax.sip.header.SupportedHeader;
 import javax.sip.header.ToHeader;
+import javax.sip.header.UserAgentHeader;
 import javax.sip.header.WarningHeader;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
@@ -389,9 +390,9 @@ class CallControlManager implements SymmitronResetHandler {
                  * here.
                  */
                 if (btobua == null) {
-                    Response response = ProtocolObjects.messageFactory.createResponse(
-                            Response.NOT_FOUND, request);
-                    response.setReasonPhrase("Could not find account record for ITSP");
+                    Response response = SipUtilities.createResponse(serverTransaction,
+                            Response.NOT_FOUND);
+                    response.setReasonPhrase("No record of ITSP. Check configuration.");
                     serverTransaction.sendResponse(response);
                     return;
                 }
@@ -415,8 +416,8 @@ class CallControlManager implements SymmitronResetHandler {
                     return;
                 }
                 if (account.getState() == AccountState.INVALID) {
-                    Response response = ProtocolObjects.messageFactory.createResponse(
-                            Response.BAD_GATEWAY, request);
+                    Response response = SipUtilities.createResponse(serverTransaction,
+                            Response.BAD_GATEWAY);
                     response.setReasonPhrase("Account state is INVALID. Check config.");
                     serverTransaction.sendResponse(response);
                     return;
@@ -516,10 +517,12 @@ class CallControlManager implements SymmitronResetHandler {
             try {
                 Response response = ProtocolObjects.messageFactory.createResponse(
                         Response.SERVER_INTERNAL_ERROR, request);
+                UserAgentHeader uah = SipUtilities.createUserAgentHeader();
                 if (logger.isDebugEnabled()) {
                     response.setReasonPhrase(ex.getStackTrace()[0].getFileName() + ":"
                             + ex.getStackTrace()[0].getLineNumber());
                 }
+                response.setHeader(uah);
 
                 if (st != null) {
                     st.sendResponse(response);
@@ -1453,7 +1456,7 @@ class CallControlManager implements SymmitronResetHandler {
         }
 
         /*
-         * We directly send ACK.
+         * We directly send ACK. 
          */
         if (response.getStatusCode() == Response.OK) {
 
@@ -1463,7 +1466,7 @@ class CallControlManager implements SymmitronResetHandler {
                     .getHeader(CSeqHeader.NAME)).getSeqNumber());
             dialog.sendAck(ackRequest);
 
-        }
+        } 
         /*
          * If there is a Music on hold dialog -- tear it down
          */
@@ -1494,6 +1497,8 @@ class CallControlManager implements SymmitronResetHandler {
          */
 
         BackToBackUserAgent b2bua = DialogContext.getBackToBackUserAgent(dialog);
+        
+        
 
         /*
          * This is the case of Refer redirection. In this case, we have already established a call
@@ -1514,6 +1519,7 @@ class CallControlManager implements SymmitronResetHandler {
             /*
              * The incoming media session.
              */
+            
 
             SessionDescription sessionDescription = SipUtilities.getSessionDescription(response);
 
@@ -1606,10 +1612,11 @@ class CallControlManager implements SymmitronResetHandler {
         if (response.getStatusCode() == Response.OK) {
 
             b2bua.addDialog(dialog);
-            // Thread.sleep(100);
+           
             Request ackRequest = dialog.createAck(((CSeqHeader) response
                     .getHeader(CSeqHeader.NAME)).getSeqNumber());
             dialog.sendAck(ackRequest);
+            
             b2bua.sendByeToMohServer();
         }
 
@@ -2234,6 +2241,7 @@ class CallControlManager implements SymmitronResetHandler {
             long cseqValue = cseq.getSeqNumber();
             eventHeader.setEventId(Integer.toString((int) cseqValue));
             notifyRequest.addHeader(eventHeader);
+           
             String subscriptionState = "active";
             if (response.getStatusCode() >= 200) {
                 /*
@@ -2253,6 +2261,8 @@ class CallControlManager implements SymmitronResetHandler {
             notifyRequest.setContent(content, contentTypeHeader);
             SipUtilities.addLanAllowHeaders(notifyRequest);
             SipProvider referProvider = ((SIPDialog) referDialog).getSipProvider();
+            UserAgentHeader uah = SipUtilities.createUserAgentHeader();
+            notifyRequest.setHeader(uah);
             ClientTransaction ctx = referProvider.getNewClientTransaction(notifyRequest);
             referDialog.sendRequest(ctx);
         } catch (ParseException ex) {
