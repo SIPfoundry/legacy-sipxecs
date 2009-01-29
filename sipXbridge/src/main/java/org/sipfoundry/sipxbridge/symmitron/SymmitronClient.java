@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Semaphore;
 
 import org.apache.log4j.Logger;
 import org.apache.xmlrpc.XmlRpcException;
@@ -32,7 +33,8 @@ public class SymmitronClient {
 			.getLogger("org.sipfoundry.sipxbridge");
 
 	private String clientHandle;
-	private XmlRpcClient client;
+	
+	private SynchronizedXmlRpcClient client;
 
 	private String serverHandle;
 
@@ -54,6 +56,34 @@ public class SymmitronClient {
 			return false;
 		}
 
+	}
+	
+	class SynchronizedXmlRpcClient {
+	    private XmlRpcClient xmlRpcClient;
+	    Semaphore semaphore;
+
+        SynchronizedXmlRpcClient(XmlRpcClient xmlRpcClient) {
+	        this.xmlRpcClient = xmlRpcClient;
+	        this.semaphore = new Semaphore(1);
+	    }
+        
+        public Object execute(String method, Object[] args) throws XmlRpcException {
+            boolean acquired = false;
+            try {
+                semaphore.acquire();
+                acquired = true;
+                return this.xmlRpcClient.execute(method,args);
+            } catch (XmlRpcException ex) {
+                throw ex;
+            } catch (InterruptedException ex) {
+                throw new XmlRpcException("Interrupted!");
+            } finally {
+                if (acquired) {
+                    semaphore.release();
+                }
+            }
+            
+        }
 	}
 
 	class ResetHandlerTimerTask extends TimerTask {
@@ -115,13 +145,14 @@ public class SymmitronClient {
 			}
 
 			this.resetHandler = resetHandler;
-			this.client = new XmlRpcClient();
+			XmlRpcClient xmlRpcClient = new XmlRpcClient();
 
 			// client.setTransportFactory(new
 			// XmlRpcCommonsTransportFactory(client));
-			client.setConfig(config);
-			client.setMaxThreads(32);
+			xmlRpcClient.setConfig(config);
+			xmlRpcClient.setMaxThreads(32);
 			clientHandle = "sipxbridge:" + Math.abs(new Random().nextLong());
+			client = new SynchronizedXmlRpcClient(xmlRpcClient);
 			this.signIn();
 			logger.debug("signedIn : " + protocol + "://" + serverAddress + ":"
 					+ port);

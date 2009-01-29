@@ -519,13 +519,11 @@ class SipUtilities {
 
                 fromHeader.setTag(new Long(Math.abs(new java.util.Random().nextLong()))
                         .toString());
-
-                if (itspAccount.stripPrivateHeaders()) {
-                    /* Remove the display name */
-                    fromHeader.getAddress().setDisplayName(null);
-                }
-
+                privacyHeader = ((HeaderFactoryExt) ProtocolObjects.headerFactory).createPrivacyHeader("id");             
             }
+            
+            
+           
 
             /*
              * Remove stuff from the inbound request that can have an effect on the routing of the
@@ -581,6 +579,14 @@ class SipUtilities {
              */
             if (privacyHeader != null) {
                 request.setHeader(privacyHeader);
+            }
+            
+            /*
+             * Strip any identifying information if needed.
+             */
+            if (itspAccount.stripPrivateHeaders()) {
+                /* Remove the display name */
+                SipUtilities.stripPrivateHeaders(request);
             }
 
             Gateway.getAuthenticationHelper().setAuthenticationHeaders(request);
@@ -1343,6 +1349,20 @@ class SipUtilities {
             throw new SipXbridgeException(s, ex);
         }
 
+    }
+
+    static boolean isOriginatorSipXbridge(Message incomingMessage) {
+        // TODO Auto-generated method stub
+        ListIterator headerIterator = incomingMessage.getHeaders(ViaHeader.NAME);
+        boolean spiral = false;
+        while (headerIterator.hasNext()) {
+            ViaHeader via = (ViaHeader) headerIterator.next();
+            String originator = via.getParameter(BackToBackUserAgent.ORIGINATOR);
+            if (originator != null && originator.equals(Gateway.SIPXBRIDGE_USER)) {
+                spiral = true;
+            }
+        }
+        return spiral;
     }
 
 }

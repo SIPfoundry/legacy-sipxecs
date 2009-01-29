@@ -83,7 +83,7 @@ public class BackToBackUserAgent {
     /*
      * Constants that we stick into the VIA header to detect spirals.
      */
-    private static final String ORIGINATOR = "originator";
+    static final String ORIGINATOR = "originator";
 
     private RtpBridge rtpBridge;
 
@@ -1179,16 +1179,10 @@ public class BackToBackUserAgent {
             }
         }
 
-        boolean spiral = false;
+        boolean spiral = SipUtilities.isOriginatorSipXbridge(incomingRequest);
 
-        ListIterator headerIterator = incomingRequest.getHeaders(ViaHeader.NAME);
-        while (headerIterator.hasNext()) {
-            ViaHeader via = (ViaHeader) headerIterator.next();
-            String originator = via.getParameter(ORIGINATOR);
-            if (originator != null && originator.equals(Gateway.SIPXBRIDGE_USER)) {
-                spiral = true;
-            }
-        }
+      
+       
 
         ReplacesHeader replacesHeader = (ReplacesHeader) incomingRequest
                 .getHeader(ReplacesHeader.NAME);

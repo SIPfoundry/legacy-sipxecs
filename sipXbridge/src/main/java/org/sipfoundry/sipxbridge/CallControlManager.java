@@ -994,7 +994,7 @@ class CallControlManager implements SymmitronResetHandler {
             } else {
                 Dialog referDialog = tad.getReferingDialog();
                 Request referRequest = tad.getReferRequest();
-                if (referDialog != null && referDialog.getState() == DialogState.CONFIRMED) {
+                if (referDialog != null && referDialog.getState() == DialogState.CONFIRMED && SipUtilities.isOriginatorSipXbridge(response)) {
                     this.notifyReferDialog(referRequest, referDialog, response);
                 }
                 /*
@@ -1436,7 +1436,7 @@ class CallControlManager implements SymmitronResetHandler {
          * call. We have already redirected the RTP media to the redirected party at this point.
          */
 
-        if (referDialog.getState() == DialogState.CONFIRMED) {
+        if (referDialog.getState() == DialogState.CONFIRMED && SipUtilities.isOriginatorSipXbridge(response)) {
             this.notifyReferDialog(referRequest, referDialog, response);
         }
 
@@ -1587,7 +1587,7 @@ class CallControlManager implements SymmitronResetHandler {
          * call. We have already redirected the RTP media to the redirected party at this point.
          */
 
-        if (referDialog.getState() == DialogState.CONFIRMED) {
+        if (referDialog.getState() == DialogState.CONFIRMED && SipUtilities.isOriginatorSipXbridge(response)) {
             this.notifyReferDialog(referRequest, referDialog, response);
         }
 
@@ -2048,7 +2048,7 @@ class CallControlManager implements SymmitronResetHandler {
                         || tad.getOperation() == Operation.SPIRAL_BLIND_TRANSFER_INVITE_TO_ITSP) {
                     Dialog referDialog = tad.getReferingDialog();
                     Request referRequest = tad.getReferRequest();
-                    if (referDialog.getState() == DialogState.CONFIRMED) {
+                    if (referDialog.getState() == DialogState.CONFIRMED && SipUtilities.isOriginatorSipXbridge(response)) {
                         this.notifyReferDialog(referRequest, referDialog, response);
                     }
                 }

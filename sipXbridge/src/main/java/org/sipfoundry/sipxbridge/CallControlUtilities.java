@@ -162,7 +162,7 @@ public class CallControlUtilities {
 		if (logger.isDebugEnabled()) {
 			logger.debug("sendSdpAnswerInAck : dialog = " + dialog
 					+ " peerDialogApplicationData = " + dialogContext
-					+ "\nlastResponse = " + dialogContext.getLastResponse());
+					+ "\nlastResponse = " + dialogContext.getLastResponse() );
 		}
 
 		dialogContext.setPendingAction(PendingDialogAction.NONE);
@@ -180,6 +180,9 @@ public class CallControlUtilities {
 			 * Get the transmitter session description for the peer. This is
 			 * either our old answer or our old offer.
 			 */
+			logger.debug("peerTransmitter = " +  DialogContext
+                    .getPeerTransmitter(dialog));
+			
 			SessionDescription transmitterSd = DialogContext
 					.getPeerTransmitter(dialog).getTransmitter()
 					.getSessionDescription();
