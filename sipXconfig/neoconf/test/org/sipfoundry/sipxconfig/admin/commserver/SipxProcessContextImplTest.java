@@ -58,10 +58,10 @@ public class SipxProcessContextImplTest extends TestCase {
         Location location = new Location();
         SipxService registrarService = new SipxRegistrarService();
         registrarService.setProcessName("SIPRegistrar");
-        registrarService.setModelId(SipxRegistrarService.BEAN_ID);
+        registrarService.setBeanName(SipxRegistrarService.BEAN_ID);
         SipxService proxyService = new SipxProxyService();
         proxyService.setProcessName("SIPXProxy");
-        proxyService.setModelId(SipxProxyService.BEAN_ID);
+        proxyService.setBeanName(SipxProxyService.BEAN_ID);
         location.setServiceDefinitions(Arrays.asList(registrarService, proxyService));
         m_locationsManager.getLocations();
         EasyMock.expectLastCall().andReturn(new Location[] {
@@ -86,19 +86,19 @@ public class SipxProcessContextImplTest extends TestCase {
         result.put("ACDServer", "Undefined");
 
         SipxRegistrarService registrar = new SipxRegistrarService();
-        registrar.setModelId(SipxRegistrarService.BEAN_ID);
+        registrar.setBeanName(SipxRegistrarService.BEAN_ID);
         registrar.setProcessName("SIPRegistrar");
         SipxRegistrarService media = new SipxRegistrarService();
-        media.setModelId(SipxMediaService.BEAN_ID);
+        media.setBeanName(SipxMediaService.BEAN_ID);
         media.setProcessName("MediaServer");
         SipxPresenceService presence = new SipxPresenceService();
-        presence.setBeanId(SipxPresenceService.BEAN_ID);
+        presence.setBeanName(SipxPresenceService.BEAN_ID);
         presence.setProcessName("PresenceServer");
         SipxProxyService proxy = new SipxProxyService();
-        proxy.setBeanId(SipxProxyService.BEAN_ID);
+        proxy.setBeanName(SipxProxyService.BEAN_ID);
         proxy.setProcessName("SIPXProxy");
         SipxAcdService acd = new SipxAcdService();
-        acd.setBeanId(SipxAcdService.BEAN_ID);
+        acd.setBeanName(SipxAcdService.BEAN_ID);
         acd.setProcessName("ACDServer");
 
         SipxServiceManager serviceManager = getMockSipxServiceManager(false, registrar, media, presence, proxy, acd);
@@ -143,19 +143,19 @@ public class SipxProcessContextImplTest extends TestCase {
         result.put("ACDServer", "Unknown");
 
         SipxRegistrarService registrar = new SipxRegistrarService();
-        registrar.setModelId(SipxRegistrarService.BEAN_ID);
+        registrar.setBeanName(SipxRegistrarService.BEAN_ID);
         registrar.setProcessName("SIPRegistrar");
         SipxRegistrarService media = new SipxRegistrarService();
-        media.setModelId(SipxMediaService.BEAN_ID);
+        media.setBeanName(SipxMediaService.BEAN_ID);
         media.setProcessName("MediaServer");
         SipxPresenceService presence = new SipxPresenceService();
-        presence.setBeanId(SipxPresenceService.BEAN_ID);
+        presence.setBeanName(SipxPresenceService.BEAN_ID);
         presence.setProcessName("PresenceServer");
         SipxProxyService proxy = new SipxProxyService();
-        proxy.setBeanId(SipxProxyService.BEAN_ID);
+        proxy.setBeanName(SipxProxyService.BEAN_ID);
         proxy.setProcessName("SIPXProxy");
         SipxAcdService acd = new SipxAcdService();
-        acd.setBeanId(SipxAcdService.BEAN_ID);
+        acd.setBeanName(SipxAcdService.BEAN_ID);
         acd.setProcessName("ACDServer");
 
         SipxServiceManager serviceManager = getMockSipxServiceManager(false, registrar, media, presence, proxy, acd);
@@ -234,19 +234,19 @@ public class SipxProcessContextImplTest extends TestCase {
         result.put("ACDServer", "Undefined");
 
         SipxRegistrarService registrar = new SipxRegistrarService();
-        registrar.setModelId(SipxRegistrarService.BEAN_ID);
+        registrar.setBeanName(SipxRegistrarService.BEAN_ID);
         registrar.setProcessName("SIPRegistrar");
         SipxRegistrarService media = new SipxRegistrarService();
-        media.setModelId(SipxMediaService.BEAN_ID);
+        media.setBeanName(SipxMediaService.BEAN_ID);
         media.setProcessName("MediaServer");
         SipxPresenceService presence = new SipxPresenceService();
-        presence.setBeanId(SipxPresenceService.BEAN_ID);
+        presence.setBeanName(SipxPresenceService.BEAN_ID);
         presence.setProcessName("PresenceServer");
         SipxProxyService proxy = new SipxProxyService();
-        proxy.setBeanId(SipxProxyService.BEAN_ID);
+        proxy.setBeanName(SipxProxyService.BEAN_ID);
         proxy.setProcessName("SIPXProxy");
         SipxAcdService acd = new SipxAcdService();
-        acd.setBeanId(SipxAcdService.BEAN_ID);
+        acd.setBeanName(SipxAcdService.BEAN_ID);
         acd.setProcessName("ACDServer");
 
         SipxServiceManager serviceManager = getMockSipxServiceManager(true, registrar, media, presence, proxy, acd);

@@ -56,7 +56,6 @@ public class BeanFactoryModelSource<T extends Model> implements ModelSource, Bea
         m_modelCache = new TreeMap<String, T>();
         for (String beanName : beanNames) {
             T bean = (T) m_beanFactory.getBean(beanName);
-            bean.setModelId(beanName);
             m_modelCache.put(beanName, bean);
         }
         return m_modelCache;

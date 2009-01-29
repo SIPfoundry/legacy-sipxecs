@@ -56,8 +56,8 @@ public class SipxServiceBundle implements Model {
         return m_autoEnable;
     }
 
-    public void setModelId(String modelId) {
-        m_modelId = modelId;
+    public void setBeanName(String name) {
+        m_modelId = name;
     }
 
     public String getModelId() {

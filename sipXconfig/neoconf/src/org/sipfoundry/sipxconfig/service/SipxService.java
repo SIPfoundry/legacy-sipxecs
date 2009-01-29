@@ -52,11 +52,8 @@ public abstract class SipxService extends BeanWithSettings implements Model {
         m_beanId = beanId;
     }
 
-    /**
-     * When SipxService is loaded by model source it's bean ID is written here.
-     */
-    public void setModelId(String modelId) {
-        setBeanId(modelId);
+    public void setBeanName(String name) {
+        setBeanId(name);
     }
 
     public String getModelName() {

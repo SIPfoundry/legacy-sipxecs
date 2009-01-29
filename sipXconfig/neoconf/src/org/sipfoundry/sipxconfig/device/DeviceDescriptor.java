@@ -87,6 +87,10 @@ public abstract class DeviceDescriptor implements Model {
         m_modelId = modelId;
     }
 
+    public void setBeanName(String name) {
+        setModelId(name);
+    }
+
     /**
      * Spring bean name, NOTE: You cannot reuse java class to multiple spring beans. One
      * class/bean but a spring bean can handle multiple models

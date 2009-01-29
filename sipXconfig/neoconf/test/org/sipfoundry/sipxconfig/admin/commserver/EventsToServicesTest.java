@@ -75,7 +75,7 @@ public class EventsToServicesTest extends TestCase {
 
     static class DummyService extends SipxService {
         public DummyService(String beanId) {
-            setBeanId(beanId);
+            setBeanName(beanId);
         }
     }
 }

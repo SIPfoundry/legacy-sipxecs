@@ -12,7 +12,7 @@ import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceBundle;
 
-import static java.util.Arrays.*;
+import static java.util.Arrays.asList;
 
 public class LocationTest extends TestCase {
     public void testGetProcessMonitorUrl() {
@@ -42,10 +42,10 @@ public class LocationTest extends TestCase {
         Location out = new Location();
         Collection<SipxService> sipxServices = new ArrayList<SipxService>();
         SipxService proxyService = new SipxProxyService();
-        proxyService.setModelId(SipxProxyService.BEAN_ID);
+        proxyService.setBeanName(SipxProxyService.BEAN_ID);
         sipxServices.add(proxyService);
         SipxService registrarService = new SipxRegistrarService();
-        registrarService.setModelId(SipxRegistrarService.BEAN_ID);
+        registrarService.setBeanName(SipxRegistrarService.BEAN_ID);
         sipxServices.add(registrarService);
 
         out.setServiceDefinitions(sipxServices);
@@ -79,16 +79,16 @@ public class LocationTest extends TestCase {
         Location out = new Location();
         Collection<SipxService> sipxServices = new ArrayList<SipxService>();
         SipxService proxyService = new SipxProxyService();
-        proxyService.setModelId(SipxProxyService.BEAN_ID);
+        proxyService.setBeanName(SipxProxyService.BEAN_ID);
         sipxServices.add(proxyService);
         SipxService registrarService = new SipxRegistrarService();
-        registrarService.setModelId(SipxRegistrarService.BEAN_ID);
+        registrarService.setBeanName(SipxRegistrarService.BEAN_ID);
         sipxServices.add(registrarService);
 
         out.setServiceDefinitions(sipxServices);
 
         SipxService parkService = new SipxParkService();
-        parkService.setBeanId(SipxParkService.BEAN_ID);
+        parkService.setBeanName(SipxParkService.BEAN_ID);
         out.addService(parkService);
 
         Collection<LocationSpecificService> servicesFromOut = out.getServices();
@@ -101,9 +101,9 @@ public class LocationTest extends TestCase {
         Collection<SipxService> sipxServices = new ArrayList<SipxService>();
         SipxService proxyService = new SipxProxyService();
         sipxServices.add(proxyService);
-        proxyService.setModelId(SipxProxyService.BEAN_ID);
+        proxyService.setBeanName(SipxProxyService.BEAN_ID);
         SipxService registrarService = new SipxRegistrarService();
-        registrarService.setModelId(SipxRegistrarService.BEAN_ID);
+        registrarService.setBeanName(SipxRegistrarService.BEAN_ID);
         sipxServices.add(registrarService);
 
         out.setServiceDefinitions(sipxServices);
@@ -121,11 +121,11 @@ public class LocationTest extends TestCase {
         Location out = new Location();
 
         SipxService proxyService = new SipxProxyService();
-        proxyService.setModelId(SipxProxyService.BEAN_ID);
+        proxyService.setBeanName(SipxProxyService.BEAN_ID);
         SipxService registrarService = new SipxRegistrarService();
-        registrarService.setModelId(SipxRegistrarService.BEAN_ID);
+        registrarService.setBeanName(SipxRegistrarService.BEAN_ID);
         SipxService parkService = new SipxParkService();
-        parkService.setModelId(SipxParkService.BEAN_ID);
+        parkService.setBeanName(SipxParkService.BEAN_ID);
 
         // should be possible to remove services on a new location
         out.removeServices(asList(proxyService));
@@ -144,9 +144,9 @@ public class LocationTest extends TestCase {
         assertTrue(out.getSipxServices().isEmpty());
 
         SipxService proxyService = new SipxProxyService();
-        proxyService.setModelId(SipxProxyService.BEAN_ID);
+        proxyService.setBeanName(SipxProxyService.BEAN_ID);
         SipxService registrarService = new SipxRegistrarService();
-        registrarService.setModelId(SipxRegistrarService.BEAN_ID);
+        registrarService.setBeanName(SipxRegistrarService.BEAN_ID);
 
         out.setServiceDefinitions(asList(proxyService, registrarService));
         assertEquals(2, out.getServices().size());
@@ -168,10 +168,10 @@ public class LocationTest extends TestCase {
         Location out = new Location();
         Collection<SipxService> sipxServices = new ArrayList<SipxService>();
         SipxService proxyService = new SipxProxyService();
-        proxyService.setBeanId("sipxProxyService");
+        proxyService.setBeanName("sipxProxyService");
         sipxServices.add(proxyService);
         SipxService registrarService = new SipxRegistrarService();
-        registrarService.setBeanId("sipxRegistrarService");
+        registrarService.setBeanName("sipxRegistrarService");
         sipxServices.add(registrarService);
 
         out.setServiceDefinitions(sipxServices);
@@ -189,10 +189,10 @@ public class LocationTest extends TestCase {
         Location out = new Location();
         Collection<SipxService> sipxServices = new ArrayList<SipxService>();
         SipxService proxyService = new SipxProxyService();
-        proxyService.setBeanId("sipxProxyService");
+        proxyService.setBeanName("sipxProxyService");
         sipxServices.add(proxyService);
         SipxService registrarService = new SipxRegistrarService();
-        registrarService.setBeanId("sipxRegistrarService");
+        registrarService.setBeanName("sipxRegistrarService");
         sipxServices.add(registrarService);
 
         out.setServiceDefinitions(sipxServices);

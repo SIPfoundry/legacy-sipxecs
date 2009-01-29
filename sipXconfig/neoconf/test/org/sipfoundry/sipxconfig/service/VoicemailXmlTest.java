@@ -19,7 +19,7 @@ import org.sipfoundry.sipxconfig.test.TestUtil;
 public class VoicemailXmlTest extends SipxServiceTestBase {
     public void testWrite() throws Exception {
         SipxMediaService mediaService = new SipxMediaService();
-        mediaService.setModelId(SipxMediaService.BEAN_ID);
+        mediaService.setBeanName(SipxMediaService.BEAN_ID);
         mediaService.setSettings(TestHelper.loadSettings("sipxvxml/mediaserver.xml"));
         initCommonAttributes(mediaService);
         mediaService.setVoicemailHttpPort(9905);
@@ -27,11 +27,12 @@ public class VoicemailXmlTest extends SipxServiceTestBase {
         Setting logSetting = mediaService.getSettings().getSetting("mediaserver-config/SIPX_MEDIA_SERVER_LOG_LEVEL");
         logSetting.setValue("CRIT");
 
-        SipxStatusService statusService= new SipxStatusService();
-        statusService.setModelId(SipxStatusService.BEAN_ID);
+        SipxStatusService statusService = new SipxStatusService();
+        statusService.setBeanName(SipxStatusService.BEAN_ID);
         statusService.setHttpsPort(9910);
 
-        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(false, mediaService, statusService);
+        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(false, mediaService,
+                statusService);
         replay(sipxServiceManager);
 
         VoicemailXml out = new VoicemailXml();

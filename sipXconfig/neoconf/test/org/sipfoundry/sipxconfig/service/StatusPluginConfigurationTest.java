@@ -19,11 +19,11 @@ public class StatusPluginConfigurationTest extends SipxServiceTestBase {
     public void testWrite() throws Exception {
         SipxStatusService statusService = new SipxStatusService();
         initCommonAttributes(statusService);
-        statusService.setBeanId(SipxStatusService.BEAN_ID);
+        statusService.setBeanName(SipxStatusService.BEAN_ID);
 
         SipxMediaService mediaService = new SipxMediaService();
         mediaService.setVoicemailHttpsPort(9905);
-        mediaService.setBeanId(SipxMediaService.BEAN_ID);
+        mediaService.setBeanName(SipxMediaService.BEAN_ID);
 
         SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(false, statusService,
                 mediaService);

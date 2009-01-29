@@ -70,7 +70,7 @@ public class SipXMediaServerTest extends TestCase {
         EasyMock.replay(locationsManager);
 
         SipxMediaService mediaService = new SipxMediaService();
-        mediaService.setBeanId(SipxMediaService.BEAN_ID);
+        mediaService.setBeanName(SipxMediaService.BEAN_ID);
         mediaService.setLocationsManager(locationsManager);
         mediaService.setVoicemailHttpsPort(443);
 

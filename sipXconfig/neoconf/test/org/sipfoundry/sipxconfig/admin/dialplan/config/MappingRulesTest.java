@@ -70,11 +70,11 @@ public class MappingRulesTest extends XMLTestCase {
         m_out.setDomainManager(m_domainManager);
 
         SipxParkService parkService = new SipxParkService();
-        parkService.setModelId(SipxParkService.BEAN_ID);
+        parkService.setBeanName(SipxParkService.BEAN_ID);
         parkService.setParkServerSipPort("9905");
 
         SipxRlsService rlsService = new SipxRlsService();
-        rlsService.setModelId(SipxRlsService.BEAN_ID);
+        rlsService.setBeanName(SipxRlsService.BEAN_ID);
         rlsService.setRlsPort("9906");
 
         SipxPageService pageService = new SipxPageService() {
@@ -83,7 +83,7 @@ public class MappingRulesTest extends XMLTestCase {
                 return "9910";
             }
         };
-        pageService.setModelId(SipxPageService.BEAN_ID);
+        pageService.setBeanName(SipxPageService.BEAN_ID);
 
         SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(true, parkService, rlsService, pageService);
         m_out.setSipxServiceManager(sipxServiceManager);
@@ -356,7 +356,7 @@ public class MappingRulesTest extends XMLTestCase {
 
         assertXpathExists("/mappings/hostMatch[1]/hostPattern", domDoc);
         assertXpathExists("/mappings/hostMatch[1]/userMatch/userPattern", domDoc);
-        
+
         assertXpathEvaluatesTo("gander", "/mappings/hostMatch[1]/hostPattern", domDoc);
         assertXpathNotExists("/mappings/hostMatch[1]/hostPattern[2]", domDoc);
 

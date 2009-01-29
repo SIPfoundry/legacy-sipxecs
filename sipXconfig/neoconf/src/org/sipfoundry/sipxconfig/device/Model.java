@@ -9,11 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.device;
 
-public interface Model {
-    /**
-     * Called to set modelId to spring bean ID when loading model form bean factory
-     *
-     * @param modelId - bean ID representing this model
-     */
-    void setModelId(String modelId);
+import org.springframework.beans.factory.BeanNameAware;
+
+/**
+ * Marker interface - needs to be implemented by objects used by ModelSorce
+ *
+ * Implementing BeanNameAware ensures that models have access to their bean IDs
+ */
+public interface Model extends BeanNameAware {
 }

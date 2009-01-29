@@ -23,14 +23,14 @@ public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
 
     public void testWrite() throws Exception {
         SipxRegistrarService registrarService = new SipxRegistrarService();
-        registrarService.setBeanId(SipxRegistrarService.BEAN_ID);
+        registrarService.setBeanName(SipxRegistrarService.BEAN_ID);
         registrarService.setModelDir("sipxregistrar");
         registrarService.setModelName("sipxregistrar.xml");
         registrarService.setModelFilesContext(TestHelper.getModelFilesContext());
         initCommonAttributes(registrarService);
 
         SipxProxyService proxyService = new SipxProxyService();
-        proxyService.setBeanId(SipxProxyService.BEAN_ID);
+        proxyService.setBeanName(SipxProxyService.BEAN_ID);
         proxyService.setSipPort("5060");
 
         Domain domain = new Domain();
@@ -70,7 +70,7 @@ public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
         registrarService.setRegistrarEventSipPort("5075");
 
         SipxParkService parkService = new SipxParkService();
-        parkService.setBeanId(SipxParkService.BEAN_ID);
+        parkService.setBeanName(SipxParkService.BEAN_ID);
         parkService.setParkServerSipPort("9909");
 
         SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(false, registrarService, proxyService, parkService);

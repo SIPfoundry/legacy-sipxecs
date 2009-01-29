@@ -111,11 +111,9 @@ public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
 
     public void setManagementBundle(SipxServiceBundle managementBundle) {
         m_managementBundle = managementBundle;
-        m_managementBundle.setModelId("managementBundle");
     }
 
     public void setPrimarySipRouterBundle(SipxServiceBundle primarySipRouterBundle) {
         m_primarySipRouterBundle = primarySipRouterBundle;
-        m_primarySipRouterBundle.setModelId("primarySipRouterBundle");
     }
 }

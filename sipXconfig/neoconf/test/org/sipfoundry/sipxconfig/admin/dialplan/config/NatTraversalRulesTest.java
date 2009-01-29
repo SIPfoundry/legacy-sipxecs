@@ -53,13 +53,13 @@ public class NatTraversalRulesTest extends XMLTestCase {
         expectLastCall().andReturn(sbc);
 
         m_natTraversal = new NatTraversal();
-        
+
         m_locationsManager = EasyMock.createMock(LocationsManager.class);
         m_locationsManager.getPrimaryLocation();
         EasyMock.expectLastCall().andReturn(TestUtil.createDefaultLocation()).anyTimes();
         EasyMock.replay(m_locationsManager);
         m_natTraversal.setLocationsManager(m_locationsManager);
-        
+
         m_natTraversal.setModelFilesContext(TestHelper.getModelFilesContext());
         m_natTraversal.setEnabled(true);
         m_natTraversal.getSettings().getSetting("nattraversal-info/relayaggressiveness").setValue("Aggressive");
@@ -71,9 +71,9 @@ public class NatTraversalRulesTest extends XMLTestCase {
         m_natTraversalManager = createNiceMock(NatTraversalManager.class);
         m_natTraversalManager.getNatTraversal();
         expectLastCall().andReturn(m_natTraversal);
-        
+
         SipxProxyService sipxProxyService = new SipxProxyService();
-        sipxProxyService.setBeanId(SipxProxyService.BEAN_ID);
+        sipxProxyService.setBeanName(SipxProxyService.BEAN_ID);
         sipxProxyService.setSipPort("5060");
         m_sipxServiceManager = TestUtil.getMockSipxServiceManager(true, sipxProxyService);
     }
@@ -167,7 +167,7 @@ public class NatTraversalRulesTest extends XMLTestCase {
         rules.setNatTraversalManager(natTraversalManager);
         return rules;
     }
-    
+
     private void assertCorrectFileGeneration(NatTraversalRules natTraveralRules,
             String expectedFileName) throws Exception {
         natTraveralRules.setVelocityEngine(TestHelper.getVelocityEngine());

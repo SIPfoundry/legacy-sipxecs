@@ -69,12 +69,12 @@ public class FallbackRulesTest extends XMLTestCase {
         m_out.setDomainManager(domainManager);
 
         SipxParkService parkService = new SipxParkService();
-        parkService.setModelId(SipxParkService.BEAN_ID);
+        parkService.setBeanName(SipxParkService.BEAN_ID);
         parkService.setParkServerSipPort("9905");
 
         SipxRlsService rlsService = new SipxRlsService();
         rlsService.setRlsPort("9906");
-        rlsService.setModelId(SipxRlsService.BEAN_ID);
+        rlsService.setBeanName(SipxRlsService.BEAN_ID);
 
         SipxPageService pageService = new SipxPageService() {
             @Override
@@ -82,7 +82,7 @@ public class FallbackRulesTest extends XMLTestCase {
                 return "9910";
             }
         };
-        pageService.setModelId(SipxPageService.BEAN_ID);
+        pageService.setBeanName(SipxPageService.BEAN_ID);
 
         SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(true, parkService, rlsService,
                 pageService);

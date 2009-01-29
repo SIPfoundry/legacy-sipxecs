@@ -100,7 +100,7 @@ public class SipxServiceManagerImplTest extends TestCase {
         public BundleModelSource(SipxServiceBundle... bundles) {
             for (SipxServiceBundle bundle : bundles) {
                 String modelId = bundle.getName();
-                bundle.setModelId(modelId);
+                bundle.setBeanName(modelId);
                 m_map.put(modelId, bundle);
             }
         }

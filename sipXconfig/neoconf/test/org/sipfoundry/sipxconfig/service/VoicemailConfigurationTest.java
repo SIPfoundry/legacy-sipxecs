@@ -16,7 +16,7 @@ import org.sipfoundry.sipxconfig.test.TestUtil;
 public class VoicemailConfigurationTest extends SipxServiceTestBase {
     public void testWrite() throws Exception {
         SipxMediaService mediaService = new SipxMediaService();
-        mediaService.setBeanId(SipxMediaService.BEAN_ID);
+        mediaService.setBeanName(SipxMediaService.BEAN_ID);
         mediaService.setModelDir("sipxvxml");
         mediaService.setModelName("mediaserver.xml");
         mediaService.setModelFilesContext(TestHelper.getModelFilesContext());

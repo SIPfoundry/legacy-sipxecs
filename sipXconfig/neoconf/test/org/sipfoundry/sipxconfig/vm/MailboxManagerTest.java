@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.vm;
@@ -30,6 +30,7 @@ public class MailboxManagerTest extends TestCase {
     public static final File READONLY_MAILSTORE = new File(TestUtil
             .getTestSourceDirectory(MailboxManagerTest.class));
 
+    @Override
     protected void setUp() {
         m_mgr = new MailboxManagerImpl();
         String thisDir = TestUtil.getTestSourceDirectory(getClass());
@@ -153,7 +154,7 @@ public class MailboxManagerTest extends TestCase {
         EasyMock.replay(locationsManager);
 
         SipxMediaService mediaService = new SipxMediaService();
-        mediaService.setBeanId(SipxMediaService.BEAN_ID);
+        mediaService.setBeanName(SipxMediaService.BEAN_ID);
         mediaService.setVoicemailHttpsPort(9905);
         SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(true, mediaService);
 
