@@ -25,11 +25,21 @@ RUNLEVEL       = 3                              # Always use this runlevel
 SSL_GENDIR     = '@SIPX_VARDIR@/certdb'         # Directory where certificates are generated
 SSL_CRTDIR     = '@SIPX_CONFDIR@/ssl'           # Directory where certificates are installed
 
-CONFIGDEFSFile = '@SIPX_CONFDIR@/config.defs'
 DOMAIN_CONFIG  = '@SIPX_CONFDIR@/domain-config'
+MASTER_NETIF   = '@SIPX_CONFDIR@/sipxconfig-netif'
+
+IFCONFIGDIR    = '/etc/sysconfig/network-scripts'  # Directory of all interface configurations
+ETHNAME        = 'eth0'                            # Supported Ethernet interface
+IFCFGFILE      = '%s/ifcfg-%s' % (IFCONFIGDIR, ETHNAME)
 
 global isFirstSystem
 isFirstSystem='True'
+
+global IpAddress
+IpAddress=''
+
+global NetMask
+NetMask=''
 
 global reDomain
 reDomain=re.compile('^[a-z0-9][a-z0-9-]*\.(([a-z0-9][a-z0-9-]*)(\.([a-z0-9][a-z0-9-]*))*)')
@@ -538,9 +548,130 @@ configured to start by default.\
 ")
         log_printout('autostart not configured - not root')
 
+def get_netif () :
+     """
+     Reads an existing interface configuration file
+     /etc/sysconfig/network-scripts/ifcfg-eth0 
+     looking for IPADDR and NETMASK
+     """
+     global IpAddress
+     global NetMask
+
+     show_progress()
+     # Read the configuration file for the ethernet interface
+     try:
+         ifcfgContents   = file (IFCFGFILE).read().strip()
+     except:
+         ifcfgContents   = ""
+
+     netInfoFound=False
+     reIPADDR = re.compile ('^IPADDR=(\S*)', re.M)
+     found    = reIPADDR.search (ifcfgContents)
+     if found:
+         IpAddress=found.group(1)
+
+         reIPMASK    = re.compile ('^NETMASK=(\S*)', re.M)
+         found    = reIPMASK.search (ifcfgContents)
+         if found:
+             NetMask=found.group(1)
+             netInfoFound=True
+             log_printout("Read network info from %s" % IFCFGFILE)
+         else:
+             log_printout("Could not find NETMASK in %s" % IFCFGFILE)
+     else:
+         log_printout("Could not find IPADDR in %s" % IFCFGFILE)
+             
+     return netInfoFound
+
+def screen_ask_netif ():
+   global IpAddress
+   global NetMask
+
+   netExplanation="\
+Failed to read configuration for\n\
+   %s\n\
+Enter network interface settings for this system:\n\
+" % IFCFGFILE
+
+   valuesOk=False
+   while not valuesOk :
+       sg = snack.Grid(3, 3)
+       l0 = snack.Label(" ")
+
+       l2 = snack.Label("Ip:         ")
+       e2 = snack.Entry(32, IpAddress)
+       sg.setField(l2, 0, 0)
+       sg.setField(e2, 1, 0)
+
+       l3 = snack.Label("Netmask:    ")
+       e3 = snack.Entry(32, NetMask)
+       sg.setField(l3, 0, 1)
+       sg.setField(e3, 1, 1)
+
+       okButton = snack.Button("   OK   ")
+       sg.setField(okButton, 0, 2, (1,1,1,1))
+
+       sg.place(1,1)
+
+       f = screen_setup("Enter network settings", netExplanation, sg)
+       f.run()
+
+       IpAddress=e2.value()
+       NetMask=e3.value()
+
+       screen_end()
+
+       # Assume all entries OK, now check for errors
+       valuesOk=True
+
+       #--- validation
+       if len(NetMask.split('.')) < 4:
+           valuesOk=False
+           screen_err('"%s" is not a valid Netmask' % NetMask)
+
+       elif not (NetMask.split('.')[0] == '255' and NetMask.split('.')[1] == '255') :
+           valuesOk=False
+           screen_err('"%s" is not a valid Netmask.' % NetMask)
+       else :
+           for i in range(4):
+               if not NetMask.split('.')[i] in ('255', '0', '128', '192', '224', '240', '248', '252', '254'):
+                   valuesOk=False
+                   screen_err('"%s" is not a valid Netmask' % NetMask)
+
+       if IpAddress.count('.') < 3:
+           # We expect at least 3 dots in an IP addr
+           valuesOk=False
+           screen_err('"%s" is not a valid IP addr' % IpAddress)
+       else:
+           addrLst = IpAddress.split('.')
+           maskLst = NetMask.split('.')
+           netwAddr  = '.'.join([str(int(addrLst[i]) & int(maskLst[i]))  for i in range(4)])
+           broadAddr = '.'.join([str(int(addrLst[i]) | (255 - int(maskLst[i]))) for i in range(4)])
+           if IpAddress == netwAddr or IpAddress == broadAddr :
+               valuesOk=False
+               screen_err('\
+"%s, %s" is not a valid IP address / Netmask combination' % (IpAddress, NetMask))
+
+def write_master_netif() :
+    global IpAddress
+    global NetMask
+
+    masterNetIf="\
+IpAddress=%s\n\
+NetMask=%s\n\
+" % ( IpAddress, NetMask )
+    
+    log_printout("Writing %s" % MASTER_NETIF)
+    log_printout(masterNetIf)
+
+    file(MASTER_NETIF, 'w').write(masterNetIf)
+    setRights(MASTER_NETIF)
+
 def do_sipx_setup() :
     global HostName
     global DomainName
+    global IpAddress
+    global NetMask
 
     show_progress()
 
@@ -561,6 +692,13 @@ def do_sipx_setup() :
             screen_hostname_error()
 
     if isFirstSystem == 'True' :
+        
+        progress(15,"Get Network Parameters")
+        if not get_netif():
+            screen_ask_netif()
+
+        write_master_netif()
+        
         progress(20, "Get SIP Domain Name")
         screen_ask_sip()
 

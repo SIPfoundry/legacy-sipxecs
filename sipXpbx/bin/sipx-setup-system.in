@@ -371,18 +371,23 @@ def set_netif () :
      # Construct broadcast address
      broadAddr = '.'.join([str(int(addrLst[i]) | (255 - int(maskLst[i]))) for i in range(4)])
 
+     bootProto = "none"
+     
      reONBOOT    = re.compile ('^ONBOOT=(\S*)', re.M)   
      reIPADDR    = re.compile ('^IPADDR=(\S*)', re.M)
      reIPMASK    = re.compile ('^NETMASK=(\S*)', re.M)
      reBROAD     = re.compile ('^BROADCAST=(\S*)', re.M)
      reNETWORK   = re.compile ('^NETWORK=(\S*)', re.M)
+     reBOOTPROTO = re.compile ('^BOOTPROTO=(\S*)', re.M)
 
      for reStr, key, val in [
          (reONBOOT,  'ONBOOT',    'YES'),
          (reIPADDR,  'IPADDR',    IpAddress),
          (reIPMASK,  'NETMASK',   NetMask),
          (reBROAD,   'BROADCAST', broadAddr),
-         (reNETWORK, 'NETWORK',   netwAddr)]:
+         (reNETWORK, 'NETWORK',   netwAddr),
+         (reBOOTPROTO, 'BOOTPROTO',   bootProto)
+         ]:
          if reStr.search (ifcfgContents):
              ifcfgContents = reStr.sub ('%s=%s' % (key, val), ifcfgContents)    # replace parameter ...
          else:
