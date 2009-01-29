@@ -47,7 +47,6 @@ ${PACKAGE}-config: $(top_srcdir)/config/sipX-config.in $(top_builddir)/BUILDSTAM
 
 SCRIPT_TEMPLATES = \
 	sipx-snapshot.in \
-	initial-config.in \
 	sipx-test-dnsIp.in \
 	sipx-test-ssl.in \
 	sipx-test-selinux.in \
