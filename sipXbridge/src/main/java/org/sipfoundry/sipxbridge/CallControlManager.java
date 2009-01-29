@@ -276,11 +276,8 @@ class CallControlManager implements SymmitronResetHandler {
                  */
                 SessionDescription newDescription = rtpSession.getReceiver()
                         .getSessionDescription();
-                Response response = ProtocolObjects.messageFactory.createResponse(Response.OK,
-                        request);
-                SupportedHeader sh = ProtocolObjects.headerFactory
-                        .createSupportedHeader("replaces");
-                response.setHeader(sh);
+                Response response = SipUtilities.createResponse(serverTransaction, Response.OK);
+
                 if (newDescription != null) {
                     response.setContent(newDescription, ProtocolObjects.headerFactory
                             .createContentTypeHeader("application", "sdp"));
@@ -292,12 +289,8 @@ class CallControlManager implements SymmitronResetHandler {
                         .createContactHeader(userName, provider);
                 response.setHeader(contactHeader);
 
-                if (serverTransaction != null) {
-                    serverTransaction.sendResponse(response);
-                } else {
-                    provider.sendResponse(response);
+                serverTransaction.sendResponse(response);
 
-                }
             }
 
         }
@@ -366,8 +359,8 @@ class CallControlManager implements SymmitronResetHandler {
                 Dialog replacesDialog = ((SipStackExt) ProtocolObjects.sipStack)
                         .getReplacesDialog(replacesHeader);
                 if (replacesDialog == null) {
-                    Response response = ProtocolObjects.messageFactory.createResponse(
-                            Response.SERVER_INTERNAL_ERROR, request);
+                    Response response = SipUtilities.createResponse(serverTransaction,
+                            Response.SERVER_INTERNAL_ERROR);
                     response.setReasonPhrase("Dialog Not Found");
                     serverTransaction.sendResponse(response);
                     return;
@@ -480,23 +473,8 @@ class CallControlManager implements SymmitronResetHandler {
 
             }
 
-            Response response = ProtocolObjects.messageFactory.createResponse(Response.OK,
-                    request);
-
-            ContactHeader contactHeader = null;
-            if (provider == Gateway.getLanProvider()) {
-                SipUtilities.addLanAllowHeaders(response);
-                contactHeader = SipUtilities.createContactHeader(null, provider);
-
-                SupportedHeader sh = ProtocolObjects.headerFactory
-                        .createSupportedHeader("replaces");
-                response.setHeader(sh);
-            } else {
-
-                SipUtilities.addWanAllowHeaders(response);
-                contactHeader = SipUtilities.createContactHeader(null, provider);
-            }
-
+            Response response = SipUtilities.createResponse(st,Response.OK);
+            ContactHeader contactHeader = SipUtilities.createContactHeader(null, provider);
             AcceptHeader acceptHeader = ProtocolObjects.headerFactory.createAcceptHeader(
                     "application", "sdp");
             response.setHeader(contactHeader);
@@ -593,7 +571,7 @@ class CallControlManager implements SymmitronResetHandler {
                  * restriction.
                  */
                 Response response = SipUtilities.createResponse(stx, Response.NOT_ACCEPTABLE);
-                response.setReasonPhrase("Can only handle REFER from LAN");
+                response.setReasonPhrase("Can only handle REFER from Pbx");
                 stx.sendResponse(response);
                 return;
             }
@@ -673,26 +651,26 @@ class CallControlManager implements SymmitronResetHandler {
      */
     private void processPrack(RequestEvent requestEvent) {
         try {
-            SipProvider provider = (SipProvider)requestEvent.getSource();
+            SipProvider provider = (SipProvider) requestEvent.getSource();
             logger.debug("processPRACK");
-            
+
             ServerTransaction serverTransactionId = requestEvent.getServerTransaction();
             /*
              * send 200 OK for PRACK
              */
             Request prack = requestEvent.getRequest();
-            Response prackOk = ProtocolObjects.messageFactory.createResponse(Response.OK, prack);
-          
+            Response prackOk = SipUtilities.createResponse(serverTransactionId,Response.OK);
+
             Dialog dialog = requestEvent.getDialog();
             DialogContext dialogContext = DialogContext.get(dialog);
 
             ItspAccountInfo itspAccount = dialogContext.getItspInfo();
-             
+
             ContactHeader contactHeader = SipUtilities.createContactHeader(provider, itspAccount);
             prackOk.setHeader(contactHeader);
-            
+
             serverTransactionId.sendResponse(prackOk);
-           
+
         } catch (Exception ex) {
             logger.error("problem sending OK to PRACK", ex);
         }
@@ -1053,9 +1031,6 @@ class CallControlManager implements SymmitronResetHandler {
 
         Response newResponse = ProtocolObjects.messageFactory.createResponse(response
                 .getStatusCode(), serverTransaction.getRequest());
-        SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
-
-        newResponse.setHeader(sh);
 
         ToHeader toHeader = (ToHeader) transactionContext.getServerTransaction().getRequest()
                 .getHeader(ToHeader.NAME);
@@ -1238,8 +1213,7 @@ class CallControlManager implements SymmitronResetHandler {
         ContactHeader contactHeader = SipUtilities.createContactHeader(Gateway.SIPXBRIDGE_USER,
                 peerProvider);
 
-        Response serverResponse = ProtocolObjects.messageFactory.createResponse(response
-                .getStatusCode(), request);
+        Response serverResponse = SipUtilities.createResponse(serverTransaction, response.getStatusCode());
         serverResponse.setHeader(contactHeader);
         if (response.getContentLength().getContentLength() != 0) {
             SessionDescription sdes = SipUtilities.getSessionDescription(response);
@@ -1315,11 +1289,9 @@ class CallControlManager implements SymmitronResetHandler {
          * side acks.
          */
         if (serverTransaction != null) {
-            Response newResponse = ProtocolObjects.messageFactory.createResponse(response
-                    .getStatusCode(), serverTransaction.getRequest());
-            SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
+            Response newResponse = SipUtilities.createResponse(serverTransaction, response
+                    .getStatusCode());
 
-            newResponse.setHeader(sh);
             ContactHeader contactHeader = SipUtilities.createContactHeader(
                     Gateway.SIPXBRIDGE_USER, tad.getServerTransactionProvider());
             newResponse.setHeader(contactHeader);
@@ -1572,10 +1544,8 @@ class CallControlManager implements SymmitronResetHandler {
 
                 if (tad.getServerTransaction() != null
                         && tad.getServerTransaction().getState() != TransactionState.TERMINATED) {
-
-                    Request request = tad.getServerTransaction().getRequest();
-                    Response forwardedResponse = ProtocolObjects.messageFactory.createResponse(
-                            response.getStatusCode(), request);
+                    Response forwardedResponse = SipUtilities.createResponse(tad
+                            .getServerTransaction(), response.getStatusCode());
                     SipUtilities.setSessionDescription(forwardedResponse, sessionDescription);
                     ContactHeader contact = SipUtilities.createContactHeader(
                             ((TransactionExt) tad.getServerTransaction()).getSipProvider(),
@@ -1905,9 +1875,6 @@ class CallControlManager implements SymmitronResetHandler {
                  */
                 wanRtpSession.getTransmitter().setOnHold(true);
 
-                SupportedHeader sh = ProtocolObjects.headerFactory
-                        .createSupportedHeader("replaces");
-                newResponse.setHeader(sh);
                 SessionDescription newDescription = lanRtpSession.getReceiver()
                         .getSessionDescription();
                 if (newDescription != null) {
@@ -2101,21 +2068,22 @@ class CallControlManager implements SymmitronResetHandler {
                 RequireHeader requireHeader = (RequireHeader) response
                         .getHeader(RequireHeader.NAME);
                 /*
-                 * He wants a PRACK so let him have a PRACK. 
+                 * He wants a PRACK so let him have a PRACK.
                  */
                 if (response.getStatusCode() / 100 == 1 && requireHeader != null
                         && requireHeader.getOptionTag().equalsIgnoreCase("100rel")) {
                     Request prackRequest = dialog.createPrack(response);
                     SipUtilities.addWanAllowHeaders(prackRequest);
-                   
+
                     SipProvider provider = (SipProvider) responseEvent.getSource();
-                    ContactHeader cth = SipUtilities.createContactHeader(provider, dialogContext.getItspInfo());
+                    ContactHeader cth = SipUtilities.createContactHeader(provider, dialogContext
+                            .getItspInfo());
                     prackRequest.setHeader(cth);
                     ClientTransaction ct = provider.getNewClientTransaction(prackRequest);
                     /*
                      * No server transaction -- this is one sided.
                      */
-                    TransactionContext.attach(ct,Operation.SEND_PRACK);
+                    TransactionContext.attach(ct, Operation.SEND_PRACK);
                     dialog.sendRequest(ct);
                 }
 

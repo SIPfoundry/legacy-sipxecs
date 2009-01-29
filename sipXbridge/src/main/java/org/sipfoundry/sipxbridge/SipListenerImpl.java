@@ -66,7 +66,7 @@ public class SipListenerImpl implements SipListener {
                 if (dialog != null && DialogContext.get(dialog).getBackToBackUserAgent() != null) {
                     DialogContext.get(dialog).getBackToBackUserAgent().tearDown(
                             Gateway.SIPXBRIDGE_USER, ReasonCode.AUTHENTICATION_FAILURE,
-                            "Unexpected challenge from LAN.");
+                            "Unexpected challenge from Pbx.");
                 }
                 return;
             }

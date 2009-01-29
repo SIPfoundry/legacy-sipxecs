@@ -738,7 +738,7 @@ class SipUtilities {
         }
     }
 
-    public static void restictToSpecifiedCodecs(SessionDescription sessionDescription,
+     static void restictToSpecifiedCodecs(SessionDescription sessionDescription,
             HashSet<Integer> codecs) {
         try {
             Vector mediaDescriptions = sessionDescription.getMediaDescriptions(true);
@@ -889,13 +889,20 @@ class SipUtilities {
         return callId;
     }
 
-    public static Response createResponse(SipProvider provider, Request request, int statusCode)
+    private static Response createResponse(SipProvider provider, Request request, int statusCode)
             throws ParseException {
         Response response = ProtocolObjects.messageFactory.createResponse(statusCode, request);
-        SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
         ContactHeader contactHeader = createContactHeader(Gateway.SIPXBRIDGE_USER, provider);
         response.addHeader(contactHeader);
-        response.addHeader(sh);
+
+        if (provider == Gateway.getLanProvider()) {
+            SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
+            response.setHeader(sh);
+            response.addHeader(ProtocolObjects.headerFactory.createSupportedHeader("100rel"));
+        } else {
+            SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
+            response.setHeader(sh);
+        }
         return response;
     }
 
@@ -904,7 +911,19 @@ class SipUtilities {
             Request request = transaction.getRequest();
 
             SipProvider provider = ((TransactionExt) transaction).getSipProvider();
-            return createResponse(provider, request, statusCode);
+            Response response = createResponse(provider, request, statusCode);
+            Dialog dialog = transaction.getDialog();
+            /* Privacy enabled ? if so, remove private headers while sending response. */
+            if (dialog.getApplicationData() != null
+                    && DialogContext.get(dialog).getItspInfo() != null
+                    && DialogContext.get(dialog).getItspInfo().stripPrivateHeaders()
+                    && provider != Gateway.getLanProvider()) {
+                SipUtilities.stripPrivateHeaders(response);
+            } else {
+                /* Otherwise, set a user agent header */
+                response.setHeader(createUserAgentHeader());
+            }
+            return response;
 
         } catch (ParseException ex) {
             logger.fatal("Unexpected parse exception", ex);
@@ -1022,29 +1041,29 @@ class SipUtilities {
         }
     }
 
-    public static String getFromAddress(Message message) {
+     static String getFromAddress(Message message) {
         FromHeader fromHeader = (FromHeader) message.getHeader(FromHeader.NAME);
         return fromHeader.getAddress().toString();
     }
 
-    public static String getToAddress(Message message) {
+     static String getToAddress(Message message) {
         ToHeader toHeader = (ToHeader) message.getHeader(ToHeader.NAME);
         return toHeader.getAddress().toString();
     }
 
-    public static boolean isSdpOfferSolicitation(Request request) {
+     static boolean isSdpOfferSolicitation(Request request) {
         return request.getMethod().equals(Request.INVITE)
                 && request.getContentLength().getContentLength() == 0;
 
     }
 
-    public static String getToUser(Message message) {
+     static String getToUser(Message message) {
         return ((SipURI) ((ToHeader) message.getHeader(ToHeader.NAME)).getAddress().getURI())
                 .getUser();
 
     }
 
-    public static HashSet<Integer> getCommonCodec(SessionDescription sd1, SessionDescription sd2) {
+     static HashSet<Integer> getCommonCodec(SessionDescription sd1, SessionDescription sd2) {
 
         Set<Integer> codecSet1 = getMediaFormats(sd1);
         Set<Integer> codecSet2 = getMediaFormats(sd2);
@@ -1061,7 +1080,7 @@ class SipUtilities {
 
     }
 
-    public static void setSessionDescription(Message message,
+     static void setSessionDescription(Message message,
             SessionDescription sessionDescription) {
         try {
             ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader(
@@ -1081,7 +1100,7 @@ class SipUtilities {
      * @param codecSet
      * @return
      */
-    public static boolean isCodecSupported(SessionDescription sd, HashSet<Integer> codecSet) {
+     static boolean isCodecSupported(SessionDescription sd, HashSet<Integer> codecSet) {
 
         HashSet<Integer> codecs = SipUtilities.getCodecNumbers(sd);
         for (int codecNumber : codecSet) {
@@ -1091,7 +1110,7 @@ class SipUtilities {
         return false;
     }
 
-    public static boolean isPrackAllowed(Message message) {
+     static boolean isPrackAllowed(Message message) {
         ListIterator li = message.getHeaders(AllowHeader.NAME);
 
         while (li != null && li.hasNext()) {
@@ -1103,7 +1122,7 @@ class SipUtilities {
         return false;
     }
 
-    public static WarningHeader createWarningHeader(String agent, int code, String text) {
+    static WarningHeader createWarningHeader(String agent, int code, String text) {
         try {
             return ProtocolObjects.headerFactory.createWarningHeader(agent, code, text);
         } catch (Exception ex) {
@@ -1113,7 +1132,7 @@ class SipUtilities {
         }
     }
 
-    public static String getSessionDescriptionMediaType(SessionDescription sessionDescription) {
+    static String getSessionDescriptionMediaType(SessionDescription sessionDescription) {
         // TODO Auto-generated method stub
         try {
             MediaDescription mediaDescription = (MediaDescription) sessionDescription
@@ -1134,7 +1153,7 @@ class SipUtilities {
         try {
             for (String method : new String[] {
                 Request.INVITE, Request.BYE, Request.ACK, Request.CANCEL, Request.REFER,
-                Request.OPTIONS
+                Request.OPTIONS, Request.PRACK
             }) {
                 AllowHeader allow = ProtocolObjects.headerFactory.createAllowHeader(method);
                 message.addHeader(allow);
@@ -1143,6 +1162,8 @@ class SipUtilities {
                 SupportedHeader supportedHeader = ProtocolObjects.headerFactory
                         .createSupportedHeader("replaces");
                 message.setHeader(supportedHeader);
+                supportedHeader = ProtocolObjects.headerFactory.createSupportedHeader("100rel");
+                message.addHeader(supportedHeader);
             }
         } catch (Exception ex) {
             logger.error("Unexpected exception", ex);
@@ -1173,7 +1194,7 @@ class SipUtilities {
         }
     }
 
-    public static boolean isCodecDifferent(SessionDescription sd1, SessionDescription sd2) {
+     static boolean isCodecDifferent(SessionDescription sd1, SessionDescription sd2) {
 
         try {
             MediaDescription md1 = getMediaDescription(sd1);
@@ -1189,7 +1210,7 @@ class SipUtilities {
         }
     }
 
-    public static boolean isReplacesHeaderPresent(Request referRequest) {
+     static boolean isReplacesHeaderPresent(Request referRequest) {
         ReferToHeader referToHeader = (ReferToHeader) referRequest.getHeader(ReferToHeader.NAME);
 
         if (referToHeader == null) {
@@ -1208,7 +1229,7 @@ class SipUtilities {
         return replacesParam != null;
     }
 
-    public static SipURI createInboundRequestUri(ItspAccountInfo itspInfo) {
+     static SipURI createInboundRequestUri(ItspAccountInfo itspInfo) {
 
         try {
             String address;
@@ -1232,7 +1253,7 @@ class SipUtilities {
         }
     }
 
-    public static SipURI createInboundReferredByUri(ItspAccountInfo itspInfo) {
+     static SipURI createInboundReferredByUri(ItspAccountInfo itspInfo) {
         try {
             String address;
 
@@ -1247,7 +1268,7 @@ class SipUtilities {
         }
     }
 
-    public static SessionDescription cloneSessionDescription(SessionDescription sd) {
+     static SessionDescription cloneSessionDescription(SessionDescription sd) {
         try {
             return SdpFactory.getInstance().createSessionDescription(sd.toString());
         } catch (Exception ex) {
@@ -1256,7 +1277,7 @@ class SipUtilities {
         }
     }
 
-    public static long getSessionDescriptionVersion(SessionDescription sessionDescription) {
+     static long getSessionDescriptionVersion(SessionDescription sessionDescription) {
         try {
             long version = sessionDescription.getOrigin().getSessionVersion();
             return version;
@@ -1266,7 +1287,7 @@ class SipUtilities {
         }
     }
 
-    public static void addAllowHeaders(Message message, SipProvider inboundProvider) {
+     static void addAllowHeaders(Message message, SipProvider inboundProvider) {
         if (inboundProvider == Gateway.getLanProvider()) {
             addLanAllowHeaders(message);
         } else {
@@ -1274,7 +1295,7 @@ class SipUtilities {
         }
     }
 
-    public static void fixupOutboundRequest(Dialog dialog, Request request) {
+     static void fixupOutboundRequest(Dialog dialog, Request request) {
 
         SipProvider provider = ((DialogExt) dialog).getSipProvider();
         try {
@@ -1303,15 +1324,19 @@ class SipUtilities {
 
     }
 
-    public static void stripPrivateHeaders(Request request) {
+     static void stripPrivateHeaders(Message message) {
         // TODO Auto-generated method stub
         try {
-            request.removeHeader(SubjectHeader.NAME);
-            request.removeHeader(OrganizationHeader.NAME);
-            request.removeHeader(ReplyToHeader.NAME);
-            request.removeHeader(InReplyToHeader.NAME);
-            Address fromAddress = ((FromHeader) request.getHeader(FromHeader.NAME)).getAddress();
-            fromAddress.setDisplayName(null);
+            message.removeHeader(SubjectHeader.NAME);
+            message.removeHeader(OrganizationHeader.NAME);
+            message.removeHeader(ReplyToHeader.NAME);
+            message.removeHeader(InReplyToHeader.NAME);
+            message.removeHeader(UserAgentHeader.NAME);
+            if (message instanceof Request) {
+                Address fromAddress = ((FromHeader) message.getHeader(FromHeader.NAME))
+                        .getAddress();
+                fromAddress.setDisplayName(null);
+            }
         } catch (Exception ex) {
             String s = "Unexpected exception";
             logger.fatal(s, ex);

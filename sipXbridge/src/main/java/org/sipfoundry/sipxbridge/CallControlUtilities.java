@@ -53,9 +53,9 @@ public class CallControlUtilities {
 
 	static void sendBadRequestError(ServerTransaction st, Exception ex) {
 		try {
-			Request request = st.getRequest();
-			Response response = ProtocolObjects.messageFactory.createResponse(
-					Response.BAD_REQUEST, request);
+			
+			Response response = SipUtilities.createResponse(st,
+					Response.BAD_REQUEST);
 			if (CallControlManager.logger.isDebugEnabled()) {
 				String message = "Exception occured at " + ex.getMessage()
 						+ " at " + ex.getStackTrace()[0].getFileName() + ":"

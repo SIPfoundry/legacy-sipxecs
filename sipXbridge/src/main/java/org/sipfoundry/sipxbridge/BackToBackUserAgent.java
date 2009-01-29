@@ -159,9 +159,8 @@ public class BackToBackUserAgent {
         dialogTable.add(dialog);
         if (itspAccountInfo == null || !itspAccountInfo.stripPrivateHeaders()) {
             /*
-             * If privacy is not desired we use the incoming callid and generate
-             * new call ids off that one. This makes life a bit easier when
-             * extracting traces.
+             * If privacy is not desired we use the incoming callid and generate new call ids off
+             * that one. This makes life a bit easier when extracting traces.
              */
             this.creatingCallId = ((CallIdHeader) request.getHeader(CallIdHeader.NAME))
                     .getCallId();
@@ -281,18 +280,15 @@ public class BackToBackUserAgent {
             }
 
             if (replacedDialogPeerDialog.getState() == DialogState.TERMINATED) {
-                Response response = ProtocolObjects.messageFactory.createResponse(
-                        Response.BUSY_HERE, incomingRequest);
-                SupportedHeader sh = ProtocolObjects.headerFactory
-                        .createSupportedHeader("replaces");
-                response.setHeader(sh);
+                Response response = SipUtilities.createResponse(serverTransaction,
+                        Response.BUSY_HERE);
                 serverTransaction.sendResponse(response);
                 return;
             }
 
             if (this.referingDialogPeer.getState() == DialogState.TERMINATED) {
-                Response response = ProtocolObjects.messageFactory.createResponse(
-                        Response.BUSY_HERE, incomingRequest);
+                Response response = SipUtilities.createResponse(serverTransaction,
+                        Response.BUSY_HERE);
                 serverTransaction.sendResponse(response);
                 return;
             }
@@ -372,10 +368,7 @@ public class BackToBackUserAgent {
 
             }
 
-            Response response = ProtocolObjects.messageFactory.createResponse(Response.OK,
-                    incomingRequest);
-            SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
-            response.setHeader(sh);
+            Response response = SipUtilities.createResponse(serverTransaction, Response.OK);
 
             ContactHeader contactHeader = SipUtilities.createContactHeader(
                     Gateway.SIPXBRIDGE_USER, provider);
@@ -564,9 +557,6 @@ public class BackToBackUserAgent {
 
         SipUtilities.addLanAllowHeaders(newRequest);
 
-        SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
-        newRequest.setHeader(sh);
-
         ContactHeader contactHeader = SipUtilities.createContactHeader(null, Gateway
                 .getLanProvider());
         newRequest.setHeader(contactHeader);
@@ -627,8 +617,13 @@ public class BackToBackUserAgent {
                 /*
                  * Out of dialog refer.
                  */
-                Response response = SipUtilities.createResponse((SipProvider) referRequestEvent
-                        .getSource(), referRequest, Response.NOT_ACCEPTABLE);
+                Response response;
+                if (stx != null) {
+                    response = SipUtilities.createResponse(stx, Response.NOT_ACCEPTABLE);
+                } else {
+                    response = ProtocolObjects.messageFactory.createResponse(
+                            Response.NOT_ACCEPTABLE, referRequest);
+                }
                 WarningHeader warning = ProtocolObjects.headerFactory.createWarningHeader(
                         Gateway.SIPXBRIDGE_USER, WarningCode.OUT_OF_DIALOG_REFER,
                         "Out of dialog REFER");
@@ -640,6 +635,7 @@ public class BackToBackUserAgent {
                 } else {
                     ((SipProvider) referRequestEvent.getSource()).sendResponse(response);
                 }
+
                 return;
             }
 
@@ -987,7 +983,6 @@ public class BackToBackUserAgent {
                     .toString(), cth);
 
             SipUtilities.addLanAllowHeaders(newRequest);
-            newRequest.setHeader(ProtocolObjects.headerFactory.createSupportedHeader("replaces"));
 
             TransactionContext tad = new TransactionContext(ct,
                     Operation.SEND_INVITE_TO_SIPX_PROXY);
@@ -1175,8 +1170,8 @@ public class BackToBackUserAgent {
 
         if (Gateway.getCallLimit() != -1 && Gateway.getCallCount() >= Gateway.getCallLimit()) {
             try {
-                serverTransaction.sendResponse(ProtocolObjects.messageFactory.createResponse(
-                        Response.BUSY_HERE, incomingRequest));
+                serverTransaction.sendResponse(SipUtilities.createResponse(serverTransaction,
+                        Response.BUSY_HERE));
             } catch (Exception e) {
                 String s = "Unepxected exception ";
                 logger.fatal(s, e);
@@ -1210,8 +1205,8 @@ public class BackToBackUserAgent {
 
                 if (replacedDialog == null) {
 
-                    Response response = ProtocolObjects.messageFactory.createResponse(
-                            Response.NOT_FOUND, incomingRequest);
+                    Response response = SipUtilities.createResponse(serverTransaction,
+                            Response.NOT_FOUND);
                     response.setReasonPhrase("Replaced Dialog not found");
                     serverTransaction.sendResponse(response);
                     return;
@@ -1284,8 +1279,8 @@ public class BackToBackUserAgent {
             }
 
             if (outboundSessionDescription == null) {
-                Response response = ProtocolObjects.messageFactory.createResponse(
-                        Response.NOT_ACCEPTABLE_HERE, incomingRequest);
+                Response response = SipUtilities.createResponse(serverTransaction,
+                        Response.NOT_ACCEPTABLE_HERE);
                 serverTransaction.sendResponse(response);
                 return;
             }
@@ -1352,8 +1347,8 @@ public class BackToBackUserAgent {
 
                 RtpSession rtpSession = DialogContext.getRtpSession(this.referingDialog);
                 if (rtpSession == null) {
-                    Response errorResponse = ProtocolObjects.messageFactory.createResponse(
-                            Response.SESSION_NOT_ACCEPTABLE, incomingRequest);
+                    Response errorResponse = SipUtilities.createResponse(serverTransaction,
+                            Response.SESSION_NOT_ACCEPTABLE);
                     errorResponse.setReasonPhrase("Could not RtpSession for refering dialog");
                     serverTransaction.sendResponse(errorResponse);
                     if (this.rtpBridge.getState() == BridgeState.PAUSED) {
@@ -1403,8 +1398,8 @@ public class BackToBackUserAgent {
 
         } catch (SdpParseException ex) {
             try {
-                serverTransaction.sendResponse(ProtocolObjects.messageFactory.createResponse(
-                        Response.BAD_REQUEST, incomingRequest));
+                serverTransaction.sendResponse(SipUtilities.createResponse(serverTransaction,
+                        Response.BAD_REQUEST));
             } catch (Exception e) {
                 String s = "Unepxected exception ";
                 logger.fatal(s, e);
@@ -1422,8 +1417,8 @@ public class BackToBackUserAgent {
         } catch (Exception ex) {
             logger.error("Error occurred during processing of request ", ex);
             try {
-                Response response = ProtocolObjects.messageFactory.createResponse(
-                        Response.SERVER_INTERNAL_ERROR, incomingRequest);
+                Response response = SipUtilities.createResponse(serverTransaction,
+                        Response.SERVER_INTERNAL_ERROR);
                 response.setReasonPhrase("Unexpected Exception occured at "
                         + ex.getStackTrace()[1].getFileName() + ":"
                         + ex.getStackTrace()[1].getLineNumber());
@@ -1515,8 +1510,8 @@ public class BackToBackUserAgent {
                     codecs = SipUtilities.getCommonCodec(sdes, newOffer);
 
                     if (codecs.size() == 0) {
-                        Response errorResponse = ProtocolObjects.messageFactory.createResponse(
-                                Response.NOT_ACCEPTABLE_HERE, request);
+                        Response errorResponse = SipUtilities.createResponse(serverTransaction,
+                                Response.NOT_ACCEPTABLE_HERE);
                         serverTransaction.sendResponse(errorResponse);
                         return;
 
@@ -1533,8 +1528,7 @@ public class BackToBackUserAgent {
                 /*
                  * Generate an OK response to be sent after BYE OK comes in from transfer agent.
                  */
-                Response okResponse = ProtocolObjects.messageFactory.createResponse(Response.OK,
-                        request);
+                Response okResponse = SipUtilities.createResponse(serverTransaction, Response.OK);
 
                 ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader(
                         "application", "sdp");
@@ -1593,8 +1587,7 @@ public class BackToBackUserAgent {
                 SipUtilities.cleanSessionDescription(newOffer, selectedCodec);
 
                 ServerTransaction peerSt = ((ServerTransaction) peerDat.transaction);
-                Response peerOk = ProtocolObjects.messageFactory.createResponse(Response.OK,
-                        peerSt.getRequest());
+                Response peerOk = SipUtilities.createResponse(peerSt,Response.OK);
                 peerOk.setHeader(contact);
                 peerOk.setContent(newOffer.toString(), cth);
                 peerSt.sendResponse(peerOk);
@@ -1652,18 +1645,11 @@ public class BackToBackUserAgent {
                 logger.debug("BackToBackUserAgent: peerDialog state = " + peer.getState());
             }
             try {
-                Response ok = ProtocolObjects.messageFactory.createResponse(Response.OK, st
-                        .getRequest());
-                SupportedHeader sh = ProtocolObjects.headerFactory
-                        .createSupportedHeader("replaces");
-                ok.setHeader(sh);
+                Response ok = SipUtilities.createResponse(st, Response.OK);
                 st.sendResponse(ok);
 
             } catch (InvalidArgumentException ex) {
                 logger.error("Unexpected exception", ex);
-            } catch (ParseException ex) {
-                logger.error("Unexpecte exception", ex);
-
             }
         }
 
