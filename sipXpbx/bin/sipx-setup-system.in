@@ -527,6 +527,11 @@ UTC=true\n' % TimeZone
 
     log_printout(" link %s -> %s\n" % (ZONEINFO, ZONEDIR+'/'+TimeZone))
 
+    # override the timezone in the environment of this process
+    os.environ['TZ'] = TimeZone
+    # ensure that the shared C libs are using the new timezone
+    time.tzset()
+
     #--- Create /etc/ntp.conf
 
     # must be after the timezone

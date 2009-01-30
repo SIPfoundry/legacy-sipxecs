@@ -459,6 +459,7 @@ def generate_ssl_cert () :
     curDir = os.getcwd ()
     os.chdir (SSL_GENDIR)
 
+    log_printout("generating ssl certs at %s" % time.strftime("%Y-%m-%d %H:%M:%S +000", time.gmtime()))
     genSsl      = '@SIPX_BINDIR@/ssl-cert/gen-ssl-keys.sh -d'
 
     show_starting()
