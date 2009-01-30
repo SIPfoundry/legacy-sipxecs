@@ -388,12 +388,13 @@ case ${Logs} in
     cut)
         cutDir=`mktemp -d @SIPX_LOGDIR@/cut.XXXXXX`
         trap "rm -rf ${cutDir} 2>/dev/null" 0
-        cat /dev/null > ${cutDir}/extract.log
+        echo "Attempting to cut logs from '${LogStart}' to '${LogStop}'" > ${cutDir}/extract.log
         echo ${cutDir}/extract.log >> $Work.copy-files
         for log in @SIPX_LOGDIR@/*log
         do
-          if hasTimestamps ${log}
+          if hasTimestamps "${log}"
           then
+              echo "cutting '${log}'" >> ${cutDir}/extract.log
               echo ${cutDir}/`basename ${log}` >> $Work.copy-files
               if test -z "${LogStop}"
               then
@@ -406,6 +407,8 @@ case ${Logs} in
                       2>> ${cutDir}/extract.log
               fi
           else
+              echo "No timestamps found in '${log}'; including full log" \
+                  >> ${cutDir}/extract.log
               echo $log >> $Work.copy-files
           fi    
         done
