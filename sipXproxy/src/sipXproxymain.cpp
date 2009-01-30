@@ -145,30 +145,12 @@ closeIMDBConnections ()
 // Initialize the OsSysLog
 void initSysLog(OsConfigDb* pConfig)
 {
-   UtlString logLevel;               // Controls Log Verbosity
    UtlString consoleLogging;         // Enable console logging by default?
    UtlString fileTarget;             // Path to store log file.
    UtlBoolean bSpecifiedDirError ;   // Set if the specified log dir does not
                                     // exist
-/*   struct tagPriorityLookupTable
-   {
-      const char*      pIdentity;
-      OsSysLogPriority ePriority;
-   };
 
-   struct tagPriorityLookupTable lkupTable[] =
-   {
-      { "DEBUG",   PRI_DEBUG},
-      { "INFO",    PRI_INFO},
-      { "NOTICE",  PRI_NOTICE},
-      { "WARNING", PRI_WARNING},
-      { "ERR",     PRI_ERR},
-      { "CRIT",    PRI_CRIT},
-      { "ALERT",   PRI_ALERT},
-      { "EMERG",   PRI_EMERG},
-   }; */
    OsSysLog::initialize(0, "SipXProxy");
-
 
    //
    // Get/Apply Log Filename
@@ -219,27 +201,6 @@ void initSysLog(OsConfigDb* pConfig)
    // Get/Apply Log Level
    //
    SipXecsService::setLogPriority( CONFIG_SETTINGS_FILE, PROXY_CONFIG_PREFIX );
-/*
-   if ((pConfig->get(CONFIG_SETTING_LOG_LEVEL, logLevel) != OS_SUCCESS) ||
-         logLevel.isNull())
-   {
-      logLevel = "ERR";
-   }
-   logLevel.toUpper();
-   OsSysLogPriority priority = PRI_ERR;
-   int iEntries = sizeof(lkupTable)/sizeof(struct tagPriorityLookupTable);
-   for (int i=0; i<iEntries; i++)
-   {
-      if (logLevel == lkupTable[i].pIdentity)
-      {
-         priority = lkupTable[i].ePriority;
-         osPrintf("%s : %s\n", CONFIG_SETTING_LOG_LEVEL, lkupTable[i].pIdentity) ;
-         OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s",
-                       CONFIG_SETTING_LOG_LEVEL, lkupTable[i].pIdentity) ;
-         break;
-      }
-   }
-   OsSysLog::setLoggingPriority(priority); */
    OsSysLog::setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
 
    //
