@@ -23,10 +23,10 @@ import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
-import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class EditLocationPage extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "admin/commserver/EditLocationPage";
+    private static final String CONFIG_TAB = "configureLocation";
 
     @InjectObject("spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
@@ -37,37 +37,40 @@ public abstract class EditLocationPage extends PageWithCallback implements PageB
     @Bean
     public abstract SipxValidationDelegate getValidator();
 
-    @Persist
+    @Persist("client")
     public abstract Integer getLocationId();
 
     public abstract void setLocationId(Integer locationId);
 
-    public abstract void setLocationBean(Location location);
-
     public abstract Location getLocationBean();
 
-    public abstract Collection<String> getAvailableTabNames();
-
-    public abstract void setAvailableTabNames(Collection<String> tabNames);
+    public abstract void setLocationBean(Location location);
 
     @Persist
     @InitialValue("literal:listServices")
     public abstract String getTab();
 
-    public void pageBeginRender(PageEvent event) {
-        if (getLocationId() != null) {
-            Location location = getLocationsManager().getLocation(getLocationId());
-            setLocationBean(location);
-        }
+    public abstract void setTab(String tab);
 
-        setAvailableTabNames(Arrays.asList("configureLocation", "listServices"));
+    public Collection<String> getAvailableTabNames() {
+        return Arrays.asList(CONFIG_TAB, "listServices");
     }
 
-    public void saveLocation() {
-        if (TapestryUtils.isValid(this)) {
-            Location location = getLocationBean();
-            getLocationsManager().storeLocation(location);
-            getSipxProcessContext().enforceRole(location);
+    public void pageBeginRender(PageEvent event) {
+        Location location = getLocationBean();
+        if (location != null) {
+            // make sure we have correct bean ID persisted
+            if (!location.isNew()) {
+                setLocationId(location.getId());
+            }
+            return;
         }
+        if (getLocationId() != null) {
+            location = getLocationsManager().getLocation(getLocationId());
+        } else {
+            location = new Location();
+            setTab(CONFIG_TAB);
+        }
+        setLocationBean(location);
     }
 }

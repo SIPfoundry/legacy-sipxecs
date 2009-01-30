@@ -1,12 +1,17 @@
 <div jwcid="@common/Border" useDojo="ognl:true">
   <h2 id="locations:page">
-    <span key="title">Edit Location</span>
+    <span key="title">Server</span>
   </h2>
-  <span jwcid="@common/TabNavigation" tabNames="ognl:availableTabNames" selectedTab="ognl:tab"/>
+
+  <span jwcid="@common/TabNavigation"
+	tabNames="ognl:availableTabNames"
+	selectedTab="ognl:tab"
+	renderCondition="ognl:!locationBean.isNew()"/>
+
   <div id="settings-content">  
     <span jwcid="@common/ErrorMsg"/>
     <span jwcid="@common/QuickHelp" value="message:quick.help"/>
-    <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
+    <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')"/>
   </div>
   <div jwcid="configureLocationTab@Block">
     <form jwcid="@Form" delegate="bean:validator">
@@ -16,4 +21,5 @@
   <div jwcid="listServicesTab@Block">
     <span jwcid="servicesTable@admin/commserver/ServicesTable" serviceLocation="ognl:locationBean"/>
   </div>
+
 </div>

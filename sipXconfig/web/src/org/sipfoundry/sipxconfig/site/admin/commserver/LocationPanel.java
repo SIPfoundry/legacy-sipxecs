@@ -36,8 +36,6 @@ public abstract class LocationPanel extends BaseComponent {
     @Parameter(required = true)
     public abstract Location getLocationBean();
 
-    public abstract void setLocationBean(Location location);
-
     public abstract List<SipxServiceBundle> getBundles();
 
     public abstract void setBundles(List<SipxServiceBundle> bundles);
