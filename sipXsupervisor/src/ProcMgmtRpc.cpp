@@ -605,9 +605,12 @@ bool ProcMgmtRpcRunConfigtest::execute(const HttpRequestContext& requestContext,
                }
                else
                {
-                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "could not find process %s",
-                        pAlias->data());
-                  handleMissingExecuteParam(name(), PARAM_NAME_ALIAS, response, status);
+                  UtlString msg("could not find process '");
+                  msg.append(*pAlias);
+                  msg.append("'");
+                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "%s", msg.data());
+                  status = XmlRpcMethod::FAILED;
+                  response.setFault(ProcMgmtRpcMethod::InvalidParameter, msg);
                }
             }
          }
@@ -693,9 +696,12 @@ bool ProcMgmtRpcGetConfigtestMessages::execute(const HttpRequestContext& request
                }
                else
                {
-                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "could not find process %s",
-                        pAlias->data());
-                  handleMissingExecuteParam(name(), PARAM_NAME_ALIAS, response, status);
+                  UtlString msg("could not find process '");
+                  msg.append(*pAlias);
+                  msg.append("'");
+                  OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "%s", msg.data());
+                  response.setFault(ProcMgmtRpcMethod::InvalidParameter, msg);
+                  status = XmlRpcMethod::FAILED;
                }
             }
          }
@@ -786,7 +792,12 @@ bool ProcMgmtRpcGetConfigVersion::execute(const HttpRequestContext& requestConte
                 else
                 {
                    // Invalid service name.
-                   handleMissingExecuteParam(name(), PARAM_NAME_SERVICE, response, status);
+                   UtlString msg("could not find process '");
+                   msg.append(*pserviceName);
+                   msg.append("'");
+                   OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "%s", msg.data());
+                   response.setFault(ProcMgmtRpcMethod::InvalidParameter, msg);
+                   status = XmlRpcMethod::FAILED;
                 }
             }
          }
@@ -888,7 +899,12 @@ bool ProcMgmtRpcSetConfigVersion::execute(const HttpRequestContext& requestConte
                    else
                    {
                       // Invalid service name.
-                      handleMissingExecuteParam(name(), PARAM_NAME_SERVICE, response, status);
+                      UtlString msg("could not find process '");
+                      msg.append(*pserviceName);
+                      msg.append("'");
+                      OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "%s", msg.data());
+                      response.setFault(ProcMgmtRpcMethod::InvalidParameter, msg);
+                      status = XmlRpcMethod::FAILED;
                    }
                }
             }
