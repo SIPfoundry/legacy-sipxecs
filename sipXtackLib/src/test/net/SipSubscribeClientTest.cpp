@@ -496,8 +496,8 @@ public:
          OsTask::delay(1000);   // 1 second to establish dialog and first NOTIFY to arrive
          
          // can depend on the ordering of the first NOTIFY and the 202 response to SUBSCRIBE
-         CPPUNIT_ASSERT(   (smNumClientSubResponsesReceived = substateRxed + 1)
-                        || (smNumClientSubResponsesReceived = substateRxed + 2)
+         CPPUNIT_ASSERT(   (smNumClientSubResponsesReceived == substateRxed + 1)
+                        || (smNumClientSubResponsesReceived == substateRxed + 2)
                         );
          CPPUNIT_ASSERT_EQUAL(notifiesRxed + 1, smNumClientNotifiesReceived);
       }
