@@ -142,6 +142,23 @@ you do not want the application to be involved in handling voicemail.</descripti
       <value>3600</value>
       <description>If Presence mode is With presence agent or Peer-to-peer, enter the refresh time for presence: the  interval at which the subscription must be refreshed  (in seconds). This setting is the "expires=" in the SUBSCRIBE message.</description>
     </setting>
+    <setting name="workgroup_show_on_start">
+      <label>Start Workgroup when client starts</label>
+      <type>
+        <enum>
+          <option>
+            <label>Disabled</label>
+            <value>0</value>
+          </option>
+          <option>
+            <label>Enabled</label>
+            <value>1</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+      <description>Specify if the workgroup should be started when the client starts</description>
+    </setting>
   </group>
 
   <group name="resources">
