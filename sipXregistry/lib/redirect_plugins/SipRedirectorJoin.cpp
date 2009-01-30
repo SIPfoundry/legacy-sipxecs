@@ -226,9 +226,6 @@ SipRedirectorJoin::initialize(OsConfigDb& configDb,
          NULL, // authenticateDb
          NULL, // authorizeUserIds
          NULL, // authorizePasswords
-         NULL, // natPingUrl
-         0, // natPingFrequency
-         "PING", // natPingMethod
          lineMgr, // lineMgr
          SIP_DEFAULT_RTT, // sipFirstResendTimeout
          TRUE, // defaultToUaTransactions

@@ -36,9 +36,6 @@ SipUserAgent *CpTestSupport::newSipUserAgent()
                 NULL, // auth DB
                 NULL, // auth user IDs
                 NULL, // auth passwords
-                NULL, // nat ping URL
-                0, // nat ping frequency
-                "PING", // nat ping method
                 NULL, // line mgr
                 SIP_DEFAULT_RTT, // first resend timeout
                 TRUE, // default to UA transaction

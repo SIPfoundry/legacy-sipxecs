@@ -50,9 +50,6 @@ TestRegistrar::TestRegistrar()
                 NULL,                       // authenticateDb
                 NULL,                       // authorizeUserIds
                 NULL,                       // authorizePasswords
-                NULL,                       // natPingUrl
-                0,                          // natPingFrequency
-                "PING",                     // natPingMethod
                 NULL,                       // lineMgr
                 SIP_DEFAULT_RTT,            // sipFirstResendTimeout
                 TRUE,                       // defaultToUaTransactions

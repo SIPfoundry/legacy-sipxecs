@@ -46,18 +46,12 @@
 // Constructor
 SipUdpServer::SipUdpServer(int port,
                            SipUserAgent* userAgent,
-                           const char* natPingUrl,
-                           int natPingFrequencySeconds,
-                           const char* natPingMethod,
                            int udpReadBufferSize,
                            UtlBoolean bUseNextAvailablePort,
                            const char* szBoundIp) :
    SipProtocolServerBase(userAgent,
                          SIP_TRANSPORT_UDP,
                          "SipUdpServer-%d"),
-   mNatPingUrl(natPingUrl),
-   mNatPingFrequencySeconds(natPingFrequencySeconds),
-   mNatPingMethod(natPingMethod && *natPingMethod ? natPingMethod : "PING"),
    mStunRefreshSecs(28), 
    mStunOptions(0)
 {
@@ -198,144 +192,17 @@ void SipUdpServer::createServerSocket(const char* szBindAddr,
 
 int SipUdpServer::run(void* runArg)
 {
-    mPingCseq = 1;
-    // Timer to trigger keepalive messages.
-    OsTimer pingTimer(getMessageQueue(), 0);
-
-    if (mSipUserAgent)
-    {
-        mSipUserAgent->getContactUri(&mPingContact);
-
-        // Add a tag to the contact and build the From field
-        mPingFrom = mPingContact;
-        {
-           UtlString tag;
-           CallId::getNewTag("", tag);
-
-           mPingFrom.append(";tag=");
-           mPingFrom.append(tag);
-        }
-
-        UtlString rawAddress;
-        Url pingUrl(mNatPingUrl);
-
-        // Create a cannonized version of the ping URL in case
-        // it does not specify "sip:", etc.
-        UtlString mPingCanonizedUrl = pingUrl.toString();
-
-        // Get the address and port in the ping URL so that
-        // we can look up the DNS stuff if needed
-        mPingPort = pingUrl.getHostPort();
-        pingUrl.getHostAddress(rawAddress);
-
-        // Resolve the raw address from a DNS SRV, A record
-        // to an IP address
-        server_t* dnsSrvRecords =
-            SipSrvLookup::servers(rawAddress.data(),
-                                  "sip",
-                                  OsSocket::UDP,
-                                  mPingPort);
-
-        // Do a DNS SRV or A record lookup
-        // If we started with an IP address, we will still get an IP
-        // address in the result
-        if(dnsSrvRecords[0].isValidServerT())
-        {
-            // Get the highest priority address and port from the
-            // list with randomization of those according to the
-            // weights.
-            // Note: we are not doing any failover here as that is
-            // a little tricky with the NAT stuff.  We cannot change
-            // addresses with every transaction as we may get different
-            // ports and addresses every time we send a ping.  For now
-            // we do one DNS SRV lookup at the begining of time and
-            // stick to that result.
-            dnsSrvRecords[0].getIpAddressFromServerT(mPingAddress);
-            mPingPort = dnsSrvRecords[0].getPortFromServerT();
-
-            // If the ping URL or DNS SRV did not specify a port
-            // bind it to the default port.
-            if (!portIsValid(mPingPort))
-            {
-               mPingPort = SIP_PORT;
-            }
-        }
-
-        // Did not get a valid response from the DNS lookup
-        else
-        {
-            // Configured with a bad DNS name that did not resolve.
-            // Or the DNS server did not respond.
-            if(!rawAddress.isNull())
-            {
-                OsSysLog::add(FAC_SIP, PRI_INFO,
-                    "SipUdpServer::run DNS lookup failed for ping host '%s' derived from URI '%s'",
-                    rawAddress.data(), mNatPingUrl.data());
-            }
-            // Else no ping address, this means we are not supposed to
-            // do a ping
-        }
-        // Free the list of server addresses.
-        delete[] dnsSrvRecords;
-
-        // Get the address to be used in the callId scoping
-        int dummyPort;
-        
-        if (mSipUserAgent)
-        {
-            mSipUserAgent->getViaInfo(OsSocket::UDP, mPingCallId, dummyPort);
-        }
-
-        // Make up a call Id
-        long epochTime = OsDateTime::getSecsSinceEpoch();
-        int randNum = rand();
-        char callIdPrefix[80];
-        sprintf(callIdPrefix, "%ld%d-ping@", epochTime, randNum);
-        mPingCallId.insert(0,callIdPrefix);
-
-        // If keepalives are configured, start the timer to trigger them.
-        if (mNatPingFrequencySeconds > 0 &&
-            !mNatPingUrl.isNull() &&
-            !mNatPingMethod.isNull() &&
-            !mPingAddress.isNull())
-        {
-           OsTime period(mNatPingFrequencySeconds, 0);
-           pingTimer.periodicEvery(OsTime::NO_WAIT, period);
-        }
-    }
-
-    // Now that we have done the special set-up work, execute messages
-    // like a normal OsServerTask.
+    // No set-up work, execute messages like a normal OsServerTask.
     OsServerTask::run(runArg);
 
-    // Turn off the timer.
-    pingTimer.stop();
-
-    return(mNatPingFrequencySeconds);
+    return(0);
 }
 
 // Handles an incoming message (from the message queue).
 UtlBoolean SipUdpServer::handleMessage(OsMsg& eventMessage)
 {
-   UtlBoolean messageProcessed = FALSE;
-
-   int msgType = eventMessage.getMsgType();
-   int msgSubType = eventMessage.getMsgSubType();
-
-   if(msgType == OsMsg::OS_EVENT &&
-             msgSubType == OsEventMsg::NOTIFY)
-   {
-      // The timer has signaled it is time to send keepalives.
-      sendKeepalives();
-      messageProcessed = TRUE;
-   }
-   else
-   {
-      // Continue with the generic processing.
-      SipProtocolServerBase::handleMessage(eventMessage);
-   }
-
-   return (messageProcessed);
+   // Continue with the generic processing.
+   return SipProtocolServerBase::handleMessage(eventMessage);
 }
 
 void SipUdpServer::enableStun(const char* szStunServer,
@@ -580,44 +447,6 @@ OsSocket* SipUdpServer::buildClientSocket(int hostPort,
       existingSocketReused = false;
    }
    return pSocket;
-}
-
-// Send the keepalives.
-void SipUdpServer::sendKeepalives()
-{
-   // Send a no-op SIP message to the
-   // server to keep a port open through a NAT
-   // based firewall
-   SipMessage pingMessage;
-   pingMessage.setRequestData(mNatPingMethod, mPingCanonizedUrl.data(),
-                              mPingFrom.data(), mNatPingUrl.data(),
-                              mPingCallId, mPingCseq, mPingContact.data());
-
-   // Get the UDP via info from the SipUserAgent
-   UtlString viaAddress;
-   int viaPort;
-            
-   if (mSipUserAgent)
-   {
-      mSipUserAgent->getViaInfo(OsSocket::UDP, viaAddress, viaPort);
-   }
-   pingMessage.addVia(viaAddress.data(), viaPort, SIP_TRANSPORT_UDP);
-
-   // Mark the via so the receiver knows we support and want the
-   // received port to be set
-   pingMessage.setTopViaTag("", "rport");
-#           ifdef TEST_PRINT            
-   osPrintf("Sending ping to %s %d, From: %s\n",
-            mPingAddress.data(), mPingPort, mPingContact.data());
-#           endif
-            
-   // Send from the same UDP port that we receive from
-   if (mSipUserAgent)
-   {
-      mSipUserAgent->sendSymmetricUdp(pingMessage, mPingAddress.data(), mPingPort);
-   }
-
-   mPingCseq++;
 }
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

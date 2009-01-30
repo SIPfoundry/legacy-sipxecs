@@ -189,9 +189,6 @@ int main(int argc, char* argv[])
                                             ,NULL         // default authenticateDb
                                             ,NULL         // default authorizeUserIds
                                             ,NULL         // default authorizePasswords
-                                            ,NULL         // default natPingUrl
-                                            ,0            // default natPingFrequency
-                                            ,"PING"       // natPingMethod
                                             ,lineMgr
       );
    sipUA->allowMethod(SIP_REGISTER_METHOD);

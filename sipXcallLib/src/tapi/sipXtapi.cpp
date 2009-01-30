@@ -347,9 +347,6 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST* phInst,
                 NULL,                       // authenticateDb
                 NULL,                       // authorizeUserIds
                 NULL,                       // authorizePasswords
-                NULL,                       // natPingUrl
-                0,                          // natPingFrequency
-                "PING",                     // natPingMethod
                 pInst->pLineManager,        // lineMgr
                 SIP_DEFAULT_RTT,            // sipFirstResendTimeout
                 TRUE,                       // defaultToUaTransactions

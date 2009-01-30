@@ -116,9 +116,6 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
                            OsConfigDb* authenticateDb,
                            OsConfigDb* authorizeUserIds,
                            OsConfigDb* authorizePasswords,
-                           const char* natPingUrl,
-                           int natPingFrequency,
-                           const char* natPingMethod,
                            SipLineMgr* lineMgr,
                            int sipUnreliableTransportTimeout,
                            UtlBoolean defaultToUaTransactions,
@@ -192,7 +189,6 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
     if (mUdpPort != PORT_NONE)
     {
         mSipUdpServer = new SipUdpServer(mUdpPort, this,
-                                         natPingUrl, natPingFrequency, natPingMethod,
                                          readBufferSize,
                                          bUseNextAvailablePort,
                                          defaultAddress);
@@ -450,21 +446,6 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
     // Initialize the transaction id seed
     BranchId::setSecret(mContactURI); // XECS-226 should be a configuration value
 
-    mPingLock = FALSE;
-    if(natPingUrl && *natPingUrl && natPingFrequency > 0)
-    {
-        mPingLock = TRUE;
-        assert(mSipUdpServer);
-        mSipUdpServer->start();
-        mNatPingUrl = natPingUrl;
-        mNatPingPeriod = natPingFrequency;
-        mNatPingMethod = natPingMethod ? natPingMethod : "";
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                      "SipUserAgent[%s]::_ UDP Server started URL: %s frequency: %d method: %s",
-                      getName().data(),
-                      natPingUrl, natPingFrequency, natPingMethod ? natPingMethod : "");
-    }
-
     // Allow the default SIP methods
     allowMethod(SIP_INVITE_METHOD);
     allowMethod(SIP_ACK_METHOD);
@@ -497,7 +478,6 @@ SipUserAgent::SipUserAgent(const SipUserAgent& rSipUserAgent) :
 // Destructor
 SipUserAgent::~SipUserAgent()
 {
-    mPingLock = TRUE;
     mpTimer->stop();
     delete mpTimer;
     mpTimer = NULL;
@@ -774,15 +754,6 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
    if (isResponse)
    {
       responseCode = message.getResponseStatusCode();
-   }
-
-   // If we are trying to do a NAT ping for the first time
-   // hold off on all message sends until we have had time for
-   // the first ping response.
-   if(mPingLock)
-   {
-      OsTask::delay(5000);
-      mPingLock = FALSE;
    }
 
    // ===========================================
@@ -1663,38 +1634,6 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
             OsSysLog::add(FAC_SIP, PRI_WARNING,"SipUserAgent::dispatch "
                           "received response without transaction");
 
-            UtlString callId;
-            message->getCallIdField(&callId);
-            // Check the call-id to see if this is the ping
-            // response
-            if(callId.index("-ping@") > 0)
-            {
-               UtlString natAddress;
-               int dummyPort;
-               UtlString dummyProtocol;
-               int natPort;
-               UtlBoolean receivedSet;
-               UtlBoolean maddrSet;
-               UtlBoolean receivedPortSet;
-               message->getTopVia(&natAddress, &dummyPort, &dummyProtocol,
-                                  &natPort, &receivedSet, &maddrSet, &receivedPortSet);
-               if(receivedPortSet)
-               {
-                  Url newContact;
-                  newContact.setHostAddress(natAddress.data());
-                  newContact.setHostPort(natPort);
-                  newContact.toString(mContactURI);
-
-                  // Set the address and port for the via as
-                  // well
-                  sipIpAddress = natAddress;
-                  mSipPort = natPort;
-                  OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                "SipUserAgent[%s]::dispatch set new contact: %s",
-                                getName().data(), mContactURI.data());
-               }
-               mPingLock = FALSE;
-            }
          }      // end no transaction found for response message
 
          // New transaction for incoming request
@@ -3697,27 +3636,6 @@ void SipUserAgent::whichExtensionsNotAllowed(const SipMessage* message,
 UtlBoolean SipUserAgent::isMessageLoggingEnabled()
 {
     return(mMessageLogEnabled);
-}
-
-UtlBoolean SipUserAgent::isReady()
-{
-    return(isStarted() && !mPingLock);
-}
-
-UtlBoolean SipUserAgent::waitUntilReady()
-{
-    // Lazy hack, should be a semaphore or event
-        int count = 0;
-    while(!isReady())
-    {
-        delay(500);
-                count++;
-                if ( count > 10)
-                {
-                        mPingLock = FALSE;
-                }
-    }
-        return(TRUE);
 }
 
 UtlBoolean SipUserAgent::isForkingEnabled()

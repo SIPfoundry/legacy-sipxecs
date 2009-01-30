@@ -41,9 +41,6 @@ public:
 
    SipUdpServer(int sipPort,
                 SipUserAgent* userAgent,
-                const char* natPingUrl = "",
-                int natPingFrequency = 0,
-                const char* natPingMethod = "PING",
                 int udpReadBufferSize = -1,
                 UtlBoolean bUseNextAvailablePort = FALSE,
                 const char* szBoundIp = NULL);
@@ -96,9 +93,6 @@ protected:
     // Caller must hold mClientLock.
     void printStatus();
 
-    UtlString mNatPingUrl;
-    int mNatPingFrequencySeconds;
-    UtlString mNatPingMethod;
     UtlString mStunServer;
     int mStunRefreshSecs;
     int mStunOptions;
@@ -122,15 +116,6 @@ protected:
 
     // Send the keepalives.
     void sendKeepalives();
-
-    // Stored information for composing ping messages.
-    UtlString mPingCanonizedUrl;
-    UtlString mPingFrom;
-    UtlString mPingCallId;
-    int mPingCseq;
-    UtlString mPingContact;
-    UtlString mPingAddress;
-    int mPingPort;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

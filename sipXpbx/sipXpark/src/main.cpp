@@ -576,9 +576,6 @@ int main(int argc, char* argv[])
                                                NULL, // authenticateDb
                                                NULL, // authorizeUserIds (deprecated)
                                                NULL, // authorizePasswords (deprecated)
-                                               NULL, // natPingUrl (unused)
-                                               0,    // natPingFrequency
-                                               NULL, // natPingMethod
                                                lineMgr
                                                );
     userAgent->setUserAgentHeaderProperty("sipXecs/park");

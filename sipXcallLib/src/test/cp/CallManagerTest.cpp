@@ -203,9 +203,6 @@ public:
                                                     ,NULL     // default authenticateDb
                                                     ,NULL     // default authorizeUserIds
                                                     ,NULL     // default authorizePasswords
-                                                    ,NULL     // default natPingUrl
-                                                    ,0        // default natPingFrequency
-                                                    ,"PING"   // natPingMethod
                                                     ,NULL //lineMgr
                                                    );
 
@@ -281,9 +278,6 @@ public:
                                                     ,NULL     // default authenticateDb
                                                     ,NULL     // default authorizeUserIds
                                                     ,NULL     // default authorizePasswords
-                                                    ,NULL     // default natPingUrl
-                                                    ,0        // default natPingFrequency
-                                                    ,"PING"   // natPingMethod
                                                     ,lineMgr
                                                    );
 
@@ -366,9 +360,6 @@ public:
                                                     ,NULL     // default authenticateDb
                                                     ,NULL     // default authorizeUserIds
                                                     ,NULL     // default authorizePasswords
-                                                    ,NULL     // default natPingUrl
-                                                    ,0        // default natPingFrequency
-                                                    ,"PING"   // natPingMethod
                                                     ,lineMgr
                                                    );
 

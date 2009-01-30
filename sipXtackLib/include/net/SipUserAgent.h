@@ -207,9 +207,6 @@ public:
      *        application (as a result of locally generated 401 challenges
      * \param authorizeUserIds - depricated by the SipLineMgr
      * \param authorizePasswords - depricated by the SipLineMgr
-     * \param natPingUrl - unsupported
-     * \param natPingFrequency - unsupported
-     * \param natPingMethod - unsupported
      * \param lineMgr - SipLineMgr object which is container for user
      *        definitions and their credentials.  This is used to
      *        authenticate incoming requests to the UA application.
@@ -257,9 +254,6 @@ public:
                 OsConfigDb* authenticateDb = NULL,
                 OsConfigDb* authorizeUserIds = NULL,
                 OsConfigDb* authorizePasswords = NULL,
-                const char* natPingUrl = NULL,
-                int natPingFrequency = 0,
-                const char* natPingMethod = "PING",
                 SipLineMgr* lineMgr = NULL,
                 int sipFirstResendTimeout = SIP_DEFAULT_RTT,
                 UtlBoolean defaultToUaTransactions = TRUE,
@@ -601,12 +595,6 @@ public:
 
     virtual UtlBoolean isMessageLoggingEnabled();
 
-    virtual UtlBoolean isReady();
-    //: Return boolean if the UA is started and initialized
-
-    virtual UtlBoolean waitUntilReady();
-    //: Block and wait until the UA is started and initialized
-
     UtlBoolean isMethodAllowed(const char* method);
 
     UtlBoolean isExtensionAllowed(const char* extension) const;
@@ -803,10 +791,6 @@ private:
     SipLineMgr* mpLineMgr;
     int mMaxMessageLogSize;
     UtlString mMessageLog;
-    UtlString mNatPingUrl;
-    UtlString mNatPingMethod;
-    int mNatPingPeriod;
-    UtlBoolean mPingLock;
     /** TRUE when this SipUserAgent is functioning as a UA,
      *  FALSE when it is functioning as a proxy.
      */

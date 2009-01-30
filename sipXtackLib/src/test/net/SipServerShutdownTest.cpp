@@ -49,9 +49,6 @@ public:
                          ,NULL     // default authenticateDb
                          ,NULL     // default authorizeUserIds
                          ,NULL     // default authorizePasswords
-                         ,NULL     // default natPingUrl
-                         ,0        // default natPingFrequency
-                         ,"PING"   // natPingMethod
          );
 
       for (int i=0; i<SIP_SHUTDOWN_ITERATIONS; ++i)
