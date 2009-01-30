@@ -220,6 +220,16 @@
     <property name="name" value="callresolver-config" />
   </bean>
 
+  <bean id="sipxCallResolverAgentService" class="org.sipfoundry.sipxconfig.service.SipxCallResolverAgentService"
+    parent="sipxService" scope="prototype">
+    <property name="processName" value="CallResolver-Agent" />
+    <property name="bundles">
+      <set>
+        <ref bean="redundantSipRouterBundle" />
+      </set>
+    </property>
+  </bean>
+
   <bean id="sipxIvrService" class="org.sipfoundry.sipxconfig.service.SipxIvrService" parent="sipxService" scope="prototype">
     <property name="processName" value="sipXivr" />
     <property name="modelName" value="sipxivr.xml" />
@@ -330,7 +340,7 @@
     <property name="template" value="sipxvxml/voicemail.xml.vm" />
     <property name="name" value="voicemail.xml" />
   </bean>
-  
+
   <bean id="voicemailConfiguration" class="org.sipfoundry.sipxconfig.service.VoicemailConfiguration" scope="prototype"
     parent="serviceConfigurationFile">
     <property name="template" value="sipxvxml/voicemail-config.vm" />
@@ -363,7 +373,7 @@
       </set>
     </property>
   </bean>
-  
+
   <bean id="sipxAcdService" class="org.sipfoundry.sipxconfig.service.SipxAcdService" scope="prototype" parent="sipxService">
     <property name="processName" value="ACDServer" />
     <property name="bundles">
@@ -389,7 +399,7 @@
       </set>
     </property>
   </bean>
-  
+
   <bean id="configAgentConfiguration" class="org.sipfoundry.sipxconfig.service.ConfigAgentConfiguration" scope="prototype"
     parent="serviceConfigurationFile">
     <property name="template" value="sipxconfigagent/config-agent.properties.vm" />
