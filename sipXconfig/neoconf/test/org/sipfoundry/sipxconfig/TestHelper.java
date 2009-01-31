@@ -35,7 +35,9 @@ import org.dbunit.operation.DatabaseOperation;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.device.Device;
+import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
+import org.sipfoundry.sipxconfig.device.TimeZoneManager;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
@@ -99,6 +101,15 @@ public final class TestHelper {
         domainManagerControl.andReturn(exampleDomain).anyTimes();
         domainManagerControl.replay();
         return domainManager;
+    }
+
+    public static TimeZoneManager getTimeZoneManager(DeviceTimeZone tz) {
+        IMocksControl timeZoneManagerControl = EasyMock.createControl();
+        TimeZoneManager tzm = timeZoneManagerControl.createMock(TimeZoneManager.class);
+        tzm.getDeviceTimeZone();
+        timeZoneManagerControl.andReturn(tz).anyTimes();
+        timeZoneManagerControl.replay();
+        return tzm;
     }
 
     public static ModelFilesContext getModelFilesContext() {

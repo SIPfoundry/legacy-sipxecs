@@ -48,7 +48,7 @@ public class DeviceDefaults {
 
     private String m_proxyServerSipPort;
 
-    private DeviceTimeZone m_timeZone = new DeviceTimeZone();
+    private TimeZoneManager m_timeZoneManager;
 
     private ServiceManager m_serviceManager;
 
@@ -59,7 +59,6 @@ public class DeviceDefaults {
     private SipxServiceManager m_sipxServiceManager;
 
     private String m_mohUser;
-
 
     public void setDefaultNtpService(String defaultNtpService) {
         m_defaultNtpService = defaultNtpService;
@@ -216,12 +215,12 @@ public class DeviceDefaults {
         m_fullyQualifiedDomainName = fullyQualifiedDomainName;
     }
 
-    public DeviceTimeZone getTimeZone() {
-        return m_timeZone;
+    public void setTimeZoneManager(TimeZoneManager tzm) {
+        m_timeZoneManager = tzm;
     }
 
-    public void setDeviceTimeZone(DeviceTimeZone zone) {
-        m_timeZone = zone;
+    public DeviceTimeZone getTimeZone() {
+        return m_timeZoneManager.getDeviceTimeZone();
     }
 
     public void setDomainManager(DomainManager domainManager) {

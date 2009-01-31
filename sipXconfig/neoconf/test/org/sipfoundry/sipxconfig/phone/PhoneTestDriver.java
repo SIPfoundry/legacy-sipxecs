@@ -123,7 +123,7 @@ public class PhoneTestDriver {
             }
         };
         TimeZone tz = TimeZone.getTimeZone("Etc/GMT+5");
-        defaults.setDeviceTimeZone(new DeviceTimeZone(tz)); // no DST for consistent
+        defaults.setTimeZoneManager(TestHelper.getTimeZoneManager(new DeviceTimeZone(tz))); // no DST for consistent
         // results
         defaults.setDomainManager(TestHelper.getTestDomainManager("sipfoundry.org"));
         defaults.setFullyQualifiedDomainName("pbx.sipfoundry.org");

@@ -27,6 +27,8 @@ public class TimeZoneManagerImplTestIntegration extends IntegrationTestCase {
         m_timeZoneManager.saveDefault();
         DeviceTimeZone dtz = m_timeZoneManager.getDeviceTimeZone();
 
+        assertEquals(true, dtz.getUseDaylight());
+
         assertEquals(60, dtz.getDstSavings());
         assertEquals(120, dtz.getOffset());
 
@@ -62,6 +64,37 @@ public class TimeZoneManagerImplTestIntegration extends IntegrationTestCase {
         assertEquals(120, dtz.getStopTime());
 
         cleanUp();
+    }
+
+    public void testSaveTimeZone() throws Exception {
+        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Helsinki"));
+        m_timeZoneManager.saveDefault();
+        DeviceTimeZone dtz = m_timeZoneManager.getDeviceTimeZone();
+
+        dtz.setUseDaylight(false);
+        dtz.setDstSavings(120);
+        dtz.setOffset(60);
+        dtz.setStartMonth(Calendar.FEBRUARY);
+        dtz.setStartWeek(1);
+        dtz.setStartDayOfWeek(Calendar.MONDAY);
+        dtz.setStartTime(240);
+
+        m_timeZoneManager.setDeviceTimeZone(dtz);
+
+        dtz = m_timeZoneManager.getDeviceTimeZone();
+
+        assertEquals(120, dtz.getDstSavings());
+        assertEquals(60, dtz.getOffset());
+
+        assertEquals(Calendar.FEBRUARY, dtz.getStartMonth());
+        assertEquals(1, dtz.getStartWeek());
+        assertEquals(Calendar.MONDAY, dtz.getStartDayOfWeek());
+        assertEquals(240, dtz.getStartTime());
+
+        assertEquals(Calendar.OCTOBER, dtz.getStopMonth());
+        assertEquals(DeviceTimeZone.DST_LASTWEEK, dtz.getStopWeek());
+        assertEquals(Calendar.SUNDAY, dtz.getStopDayOfWeek());
+        assertEquals(240, dtz.getStopTime());
     }
 
     public void cleanUp() {
