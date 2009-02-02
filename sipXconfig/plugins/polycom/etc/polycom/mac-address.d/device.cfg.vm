@@ -1,0 +1,8 @@
+<?xml version="1.0" standalone="yes"?>
+<!-- Syslog Configuration File -->
+<device device.set="1"
+#set ($group = $cfg.EndpointSettings.getSetting('log').getSetting('device.syslog'))
+#foreach ($setting in $cfg.getSettings($group))
+    device.syslog.${setting.ProfileName}="$!{setting.Value}"
+#end
+/>
