@@ -79,6 +79,22 @@ public abstract class RulesXmlFile extends XmlFile {
         }
     }
 
+    protected void addRuleName(Element userMatch, IDialingRule rule) {
+        String nameText = rule.getName();
+        if (!StringUtils.isBlank(nameText)) {
+            Element name = userMatch.addElement("name");
+            name.setText(nameText);
+        }
+    }
+
+    protected void addRuleType(Element userMatch, IDialingRule rule) {
+        String typeText = rule.getRuleType();
+        if (!StringUtils.isBlank(typeText)) {
+            Element ruleType = userMatch.addElement("ruleType");
+            ruleType.setText(typeText);
+        }
+    }
+
     protected void addRuleNameComment(Element hostMatch, IDialingRule rule) {
         String nameText = rule.getName();
         if (!StringUtils.isBlank(nameText)) {

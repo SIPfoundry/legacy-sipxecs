@@ -84,8 +84,9 @@ public class AuthRules extends RulesXmlFile {
             m_gateways.add(gateway);
             String host = gateway.getGatewayAddress();
             Element hostMatch = mappings.addElement(HOST_MATCH);
-            addRuleNameComment(hostMatch, rule);
+            addRuleName(hostMatch, rule);
             addRuleDescription(hostMatch, rule);
+            addRuleType(hostMatch, rule);
             Element hostPattern = hostMatch.addElement(HOST_PATTERN);
             hostPattern.setText(host);
             addPermissions(rule, hostMatch, permissions, gateway);
@@ -93,7 +94,7 @@ public class AuthRules extends RulesXmlFile {
         // if we have no gateways we still need to generate entries for "source" permission rules
         if (gateways.isEmpty() && !rule.isTargetPermission() && !permissions.isEmpty()) {
             Element hostMatch = mappings.addElement(HOST_MATCH);
-            addRuleNameComment(hostMatch, rule);
+            addRuleName(hostMatch, rule);
             addRuleDescription(hostMatch, rule);
 
             Element domainElement = hostMatch.addElement(HOST_PATTERN);

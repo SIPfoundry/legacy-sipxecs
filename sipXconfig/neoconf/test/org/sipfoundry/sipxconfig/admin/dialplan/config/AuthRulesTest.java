@@ -73,8 +73,12 @@ public class AuthRulesTest {
 
         IMocksControl control = EasyMock.createControl();
         IDialingRule rule = control.createMock(IDialingRule.class);
+        rule.getName();
+        control.andReturn("test rule");
         rule.getDescription();
         control.andReturn("test rule description");
+        rule.getRuleType();
+        control.andReturn(null);
         rule.getTransformedPatterns(gateway);
         control.andReturn(new String[] {
             "555", "666", "777"
@@ -85,8 +89,6 @@ public class AuthRulesTest {
         }));
         rule.getGateways();
         control.andReturn(gateways);
-        rule.getName();
-        control.andReturn("testrule");
         control.replay();
 
         MockAuthRules authRules = new MockAuthRules();
@@ -97,6 +99,7 @@ public class AuthRulesTest {
         Document document = authRules.getDocument();
         String domDoc = XmlUnitHelper.asString(document);
 
+        XMLAssert.assertXpathEvaluatesTo("test rule", "/mappings/hostMatch/name", domDoc);
         XMLAssert.assertXpathEvaluatesTo("test rule description", "/mappings/hostMatch/description", domDoc);
         XMLAssert.assertXpathEvaluatesTo(gateway.getGatewayAddress(), "/mappings/hostMatch/hostPattern",
                 domDoc);
@@ -132,6 +135,8 @@ public class AuthRulesTest {
         rule.getName();
         control.andReturn("testrule").times(gateways.length);
         rule.getDescription();
+        control.andReturn(null).times(gateways.length);
+        rule.getRuleType();
         control.andReturn(null).times(gateways.length);
         for (int i = 0; i < gateways.length; i++) {
             rule.getTransformedPatterns(gateways[i]);
@@ -199,6 +204,8 @@ public class AuthRulesTest {
         control.andReturn("testrule").times(gateways.length);
         rule.getDescription();
         control.andReturn(null).times(gateways.length);
+        rule.getRuleType();
+        control.andReturn(null).times(gateways.length);
         for (int i = 0; i < gateways.length; i++) {
             rule.getTransformedPatterns(gateways[i]);
             control.andReturn(new String[] {
@@ -227,6 +234,63 @@ public class AuthRulesTest {
             XMLAssert.assertXpathEvaluatesTo("555", hostMatch + "userMatch/userPattern", domDoc);
             XMLAssert.assertXpathEvaluatesTo("666", hostMatch + "userMatch/userPattern[2]", domDoc);
             XMLAssert.assertXpathEvaluatesTo("777", hostMatch + "userMatch/userPattern[3]", domDoc);
+            XMLAssert.assertXpathEvaluatesTo("", hostMatch + "/userMatch/permissionMatch", domDoc);
+        }
+
+        // check if generate no access has been called properly
+        Assert.assertEquals(GATEWAYS_LEN, authRules.uniqueGateways);
+
+        control.verify();
+    }
+
+    @Test
+    public void testGenerateEmergencyRule() throws Exception {
+        Gateway[] gateways = new Gateway[GATEWAYS_LEN];
+        for (int i = 0; i < gateways.length; i++) {
+            gateways[i] = new Gateway();
+            gateways[i].setUniqueId();
+            gateways[i].setAddress("10.1.2." + i);
+        }
+
+        IMocksControl control = EasyMock.createControl();
+        IDialingRule rule = control.createMock(IDialingRule.class);
+        rule.getName();
+        control.andReturn("test emerg rule").times(gateways.length);
+        rule.getDescription();
+        control.andReturn("test emerg rule description").times(gateways.length);
+        rule.getRuleType();
+        control.andReturn("Emergency").times(gateways.length);
+        for (int i = 0; i < gateways.length; i++) {
+            rule.getTransformedPatterns(gateways[i]);
+            control.andReturn(new String[] {
+                "911", "9911", "sos"
+            });
+        }
+        rule.getPermissionNames();
+        control.andReturn(Arrays.asList(new String[] {}));
+        rule.getGateways();
+        control.andReturn(Arrays.asList(gateways));
+        control.replay();
+
+        MockAuthRules authRules = new MockAuthRules();
+        authRules.begin();
+        authRules.generate(rule);
+        authRules.end();
+
+        Document document = authRules.getDocument();
+        String domDoc = XmlUnitHelper.asString(document);
+
+        String hostMatchFormat = "/mappings/hostMatch[%d]/";
+        for (int i = 0; i < gateways.length; i++) {
+            String hostMatch = String.format(hostMatchFormat, i + 1);
+            XMLAssert.assertXpathEvaluatesTo(gateways[i].getGatewayAddress(), hostMatch + "hostPattern",
+                    domDoc);
+            XMLAssert.assertXpathEvaluatesTo("test emerg rule", "/mappings/hostMatch/name", domDoc);
+            XMLAssert.assertXpathEvaluatesTo("test emerg rule description", "/mappings/hostMatch/description", domDoc);
+            XMLAssert.assertXpathEvaluatesTo("Emergency", "/mappings/hostMatch/ruleType", domDoc);
+            XMLAssert.assertXpathEvaluatesTo("911", hostMatch + "userMatch/userPattern", domDoc);
+            XMLAssert.assertXpathEvaluatesTo("9911", hostMatch + "userMatch/userPattern[2]", domDoc);
+            XMLAssert.assertXpathEvaluatesTo("sos", hostMatch + "userMatch/userPattern[3]", domDoc);
             XMLAssert.assertXpathEvaluatesTo("", hostMatch + "/userMatch/permissionMatch", domDoc);
         }
 

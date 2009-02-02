@@ -84,6 +84,10 @@ public abstract class DialingRule extends BeanWithId implements DataCollectionIt
         m_name = name;
     }
 
+    public String getRuleType() {
+        return null;
+    }
+
     public List<Gateway> getGateways() {
         return m_gateways;
     }

@@ -72,6 +72,11 @@ public class EmergencyRule extends DialingRule {
         return DialingRuleType.EMERGENCY;
     }
 
+    @Override
+    public String getRuleType() {
+        return "Emergency";
+    }
+
     /**
      * External rule - added to mappingrules.xml
      */

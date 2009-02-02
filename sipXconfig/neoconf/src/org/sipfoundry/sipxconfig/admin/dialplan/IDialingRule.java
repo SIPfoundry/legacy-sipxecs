@@ -43,6 +43,12 @@ public interface IDialingRule {
 
     public abstract Integer getId();
 
+    /**
+     * Returns the xml tag to be used for this rule type in authrules.xml.
+     * Unless over-written for a specific rule type, returns empty string and is not added to authrules.xml.
+     */
+    public abstract String getRuleType();
+
     public abstract boolean isInternal();
 
     /**
