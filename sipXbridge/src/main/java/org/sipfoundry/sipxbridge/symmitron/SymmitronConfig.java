@@ -22,6 +22,7 @@ public class SymmitronConfig {
     private String stunServerAddress = "stun01.sipphone.com";
     private int rediscoveryTime = 60;
     private boolean useHttps = true;
+    private boolean behindNat = true;
 
     public SymmitronConfig() {
 
@@ -145,8 +146,17 @@ public class SymmitronConfig {
         }
     }
 
+    /**
+     * @return the public address of the relay.
+     */
     public String getPublicAddress() {
-        return this.publicAddress;
+        if ( this.publicAddress != null) {
+            return this.publicAddress;
+        } else if ( !this.behindNat) {
+            return this.getLocalAddress();
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -197,6 +207,20 @@ public class SymmitronConfig {
     
     public boolean getUseHttps() {
         return this.useHttps;
+    }
+
+    /**
+     * @param behindNat the behindNat to set
+     */
+    public void setBehindNat(boolean behindNat) {
+        this.behindNat = behindNat;
+    }
+
+    /**
+     * @return the behindNat
+     */
+    public boolean isBehindNat() {
+        return behindNat;
     }
 
 }

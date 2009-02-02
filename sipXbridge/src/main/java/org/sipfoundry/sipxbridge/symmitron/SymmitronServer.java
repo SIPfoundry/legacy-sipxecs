@@ -113,7 +113,7 @@ public class SymmitronServer implements Symmitron {
 
             String stunServerAddress = symmitronConfig.getStunServerAddress();
 
-            if (stunServerAddress != null) {
+            if (stunServerAddress != null && symmitronConfig.isUseStun()) {
 
                 // Todo -- deal with the situation when this port may be taken.
                 // The port may be taken by sipxbridge.
@@ -1023,9 +1023,15 @@ public class SymmitronServer implements Symmitron {
                     }
 
                     if (config.getPublicAddress() == null
-                            && config.getStunServerAddress() == null) {
+                            && config.getStunServerAddress() == null && config.isBehindNat() ) {
                         System.err
                                 .println("Must specify either public address or stun server address");
+                        System.exit(-1);
+                    }
+                    
+                    if ( config.getStunServerAddress() == null && config.isUseStun() ) {
+                        System.err
+                            .println("Must specify STUN server address if address discovery is desired.");
                         System.exit(-1);
                     }
 
@@ -1034,6 +1040,9 @@ public class SymmitronServer implements Symmitron {
                         InetAddress.getByName(config.getPublicAddress());
                     }
 
+                    /*
+                     * Test if host names can be resolved.
+                     */
                     if (config.getStunServerAddress() != null) {
                         addressToTest = config.getStunServerAddress();
                         InetAddress.getByName(config.getStunServerAddress());

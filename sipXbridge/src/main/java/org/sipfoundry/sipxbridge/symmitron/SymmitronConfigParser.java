@@ -60,6 +60,12 @@ public class SymmitronConfigParser {
                 "useSTUN"), "setUseStun", 0, new Class[] {
                     Boolean.class
                 });
+        
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, 
+        "behindnat"), "setBehindNat", 0, new Class[] {
+            Boolean.class
+        });
+        
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "rediscovery-time"),
                 "setRediscoveryTime", 0, new Class[] {
                     Integer.class
