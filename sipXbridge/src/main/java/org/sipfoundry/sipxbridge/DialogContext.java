@@ -314,6 +314,10 @@ class DialogContext {
 
         return dat;
     }
+    
+    public Transaction getTransaction() {
+        return transaction;
+    }
 
     static DialogContext get(Dialog dialog) {
         return (DialogContext) dialog.getApplicationData();

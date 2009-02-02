@@ -1770,6 +1770,7 @@ class CallControlManager implements SymmitronResetHandler {
                         .getContinuationData();
 
                 if (!Gateway.getBridgeConfiguration().isMusicOnHoldSupportEnabled()
+                        || b2bua.isMohDisabled()
                         || !SipUtilities.isCodecSupported(responseSessionDescription, Gateway
                                 .getParkServerCodecs())
                         || (b2bua.getMusicOnHoldDialog() != null && b2bua.getMusicOnHoldDialog()
@@ -1874,6 +1875,7 @@ class CallControlManager implements SymmitronResetHandler {
              */
             if (!SipUtilities.isCodecSupported(responseSessionDescription, Gateway
                     .getParkServerCodecs())
+                    || b2bua.isMohDisabled()
                     || (b2bua.getMusicOnHoldDialog() != null && b2bua.getMusicOnHoldDialog()
                             .getState() != DialogState.TERMINATED)) {
                 /*

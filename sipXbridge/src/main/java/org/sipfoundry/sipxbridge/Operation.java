@@ -67,7 +67,9 @@ public enum Operation {
     FORWARD_SDP_SOLICITIATION, 
     NONE, 
     CANCEL_REPLACED_INVITE, 
-    SEND_PRACK;
+    SEND_PRACK, 
+    CANCEL_MOH_INVITE, 
+    CANCEL_INVITE;
 
 }
 
