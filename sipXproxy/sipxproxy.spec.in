@@ -141,6 +141,10 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/authplugins/libSubscriptionAuth.a
 %attr(755,root,root) %{_libdir}/authplugins/libSubscriptionAuth.so*
 
+%attr(755,root,root) %{_libdir}/authplugins/libEmergencyNotify.la
+%attr(755,root,root) %{_libdir}/authplugins/libEmergencyNotify.a
+%attr(755,root,root) %{_libdir}/authplugins/libEmergencyNotify.so*
+
 # The configuration directory needs to be writeable because
 # config files are generated from templates via config.defs
 %dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx
@@ -187,7 +191,12 @@ pkg-upgrade --previous %{previous_archive} --current %{current_archive}
 
 %post cdr
 
-gem install --no-rdoc --local %{sipxpbxvarlib}/sipxcallresolver-*.gem >/dev/null 2>&1
+%define gem_dir %(ruby -rrbconfig -e 'puts File::join(Config::CONFIG["libdir"],"/ruby/gems")')
+%define rb_ver %(ruby -rrbconfig -e 'puts Config::CONFIG["ruby_version"]')
+%define gem_home %{gem_dir}/%{rb_ver}
+
+gem install --no-rdoc --local --install-dir %{gem_home} %{sipxpbxvarlib}/sipxcallresolver-*.gem >/dev/null 2>&1
+
 if [ -f %{_sysconfdir}/cron.daily/callresolver_run ]; then
   rm -f %{_sysconfdir}/cron.daily/callresolver_run
 fi
