@@ -52,7 +52,7 @@ UtlListIterator::~UtlListIterator()
    UtlContainer::acquireIteratorConnectionLock();
    OsLock take(mContainerRefLock);
 
-   UtlList* myList = dynamic_cast<UtlList*>(mpMyContainer);
+   UtlList* myList = static_cast<UtlList*>(mpMyContainer);
    if (myList != NULL)
    {
       OsLock take(myList->mContainerLock);
@@ -79,7 +79,7 @@ UtlContainable* UtlListIterator::operator()()
 
    UtlContainer::acquireIteratorConnectionLock();
    OsLock take(mContainerRefLock);
-   UtlList* myList = dynamic_cast<UtlList*>(mpMyContainer);
+   UtlList* myList = static_cast<UtlList*>(mpMyContainer);
 
    if (myList)
    {
@@ -116,7 +116,7 @@ void UtlListIterator::reset()
 {
    UtlContainer::acquireIteratorConnectionLock();
    OsLock take(mContainerRefLock);
-   UtlList* myList = dynamic_cast<UtlList*>(mpMyContainer);
+   UtlList* myList = static_cast<UtlList*>(mpMyContainer);
    if (myList)
    {
       OsLock container(myList->mContainerLock);
@@ -137,7 +137,7 @@ UtlContainable* UtlListIterator::toLast()
    
    UtlContainer::acquireIteratorConnectionLock();
    OsLock take(mContainerRefLock);
-   UtlList* myList = dynamic_cast<UtlList*>(mpMyContainer);
+   UtlList* myList = static_cast<UtlList*>(mpMyContainer);
    if (myList)
    {
       OsLock container(myList->mContainerLock);
@@ -165,7 +165,7 @@ UtlContainable* UtlListIterator::item() const
    UtlContainer::acquireIteratorConnectionLock();
    OsLock take(mContainerRefLock);
 
-   UtlList* myList = dynamic_cast<UtlList*>(mpMyContainer);
+   UtlList* myList = static_cast<UtlList*>(mpMyContainer);
    if (myList)
    {
       OsLock container(myList->mContainerLock);
@@ -194,7 +194,7 @@ UtlBoolean UtlListIterator::atLast() const
    UtlContainer::acquireIteratorConnectionLock();
 
    OsLock take(mContainerRefLock);
-   UtlList* myList = dynamic_cast<UtlList*>(mpMyContainer);
+   UtlList* myList = static_cast<UtlList*>(mpMyContainer);
    if (myList)
    {
       OsLock container(myList->mContainerLock);
