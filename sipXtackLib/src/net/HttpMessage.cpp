@@ -141,15 +141,8 @@ HttpMessage::HttpMessage(const HttpMessage& rHttpMessage)
     mpResponseListenerQueue = rHttpMessage.mpResponseListenerQueue;
     mResponseListenerData = rHttpMessage.mResponseListenerData;
 
-    NameValuePair* headerField;
-    NameValuePair* copiedHeader = NULL;
-    UtlDListIterator iterator((UtlDList&)rHttpMessage.mNameValues);
-    while((headerField = (NameValuePair*) iterator()))
-    {
-        copiedHeader = new NameValuePair(*headerField);
-        mNameValues.append(copiedHeader);
-    }
-
+    rHttpMessage.mNameValues.copyTo<NameValuePair>( mNameValues );
+    
 #ifdef HTTP_TIMELOG
     mTimeLog = rHttpMessage.mTimeLog;
 #endif
@@ -2090,26 +2083,15 @@ int HttpMessage::getCountHeaderFields(const char* name) const
 
 NameValuePair* HttpMessage::getHeaderField(int index, const char* name) const
 {
-   		UtlDListIterator iterator((UtlDList&)mNameValues);
-        //NameValuePair* headerFieldName = NULL;
+   	  UtlDListIterator iterator((UtlDList&)mNameValues);
         NameValuePair* headerField = NULL;
         int fieldIndex = 0;
 
-        //iterator.reset();
-
-        //if(name)
-        //{
-                //UtlString upperCaseName(name);
-                //upperCaseName.toUpper();
-    //UtlString headerFieldName(name ? name : "");
-    //headerFieldName.toUpper();
-        //}
-
-    //int nameLength = 0;
-    //if(name)
-    //{
-    //    nameLength = strlen(name);
-    //}
+        UtlString headerFieldName(name ? name : "");
+        if(name)
+        {
+           headerFieldName.toUpper();
+        }
 
         // For each name value:
         while(fieldIndex <= index)
@@ -2117,22 +2099,13 @@ NameValuePair* HttpMessage::getHeaderField(int index, const char* name) const
                 // Go to the next header field
                 if(name)
                 {
-                   // Too slow and too much overhead (i.e. needs UtlContainable string
-                   // to be constructed and destroyed)
-                   // headerField = (NameValuePair*) iterator.findNext(&headerFieldName);
 
-                   // Find a header with a matching name
-                   do
-                   {
-                      headerField = (NameValuePair*) iterator();
-                   }
-                   while(headerField &&
-                         strcasecmp(name, headerField->data()) != 0);
+                   headerField = (NameValuePair*) iterator.findNext(&headerFieldName);
                 }
 
                 else
                 {
-                        headerField = (NameValuePair*) iterator();
+                   headerField = (NameValuePair*) iterator();
                 }
 
 
@@ -2142,13 +2115,6 @@ NameValuePair* HttpMessage::getHeaderField(int index, const char* name) const
                 }
                 fieldIndex++;
         }
-
-
-        //if(headerFieldName)
-        //{
-        //      delete headerFieldName;
-        //      headerFieldName = NULL;
-        //}
         return(headerField);
 }
 
