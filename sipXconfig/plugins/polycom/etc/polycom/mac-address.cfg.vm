@@ -3,13 +3,13 @@
 <!-- Revision: 1.12  Date: 2003/06/17 15:26:10  -->
 <APPLICATION APP_FILE_PATH="${cfg.SipBinaryFilename}"
     #if(${cfg.LicenseFilename})
-       CONFIG_FILES="${cfg.LicenseFilename}, ${cfg.SipFilename}, ${cfg.PhoneFilename}, polycom_phone1.cfg, polycom_sip.cfg"
+       CONFIG_FILES="${cfg.LicenseFilename}, ${cfg.SipFilename}, ${cfg.PhoneFilename}, ${cfg.DeviceFilename}, polycom_phone1.cfg, polycom_sip.cfg"
     #else
-       CONFIG_FILES="${cfg.SipFilename}, ${cfg.PhoneFilename}, polycom_phone1.cfg, polycom_sip.cfg"
+       CONFIG_FILES="${cfg.SipFilename}, ${cfg.PhoneFilename}, ${cfg.DeviceFilename}, polycom_phone1.cfg, polycom_sip.cfg"
     #end
 
     MISC_FILES="" LOG_FILE_DIRECTORY="">
 
-  <APPLICATION_SPIP300 APP_FILE_PATH_SPIP300="sip_212.ld" CONFIG_FILES_SPIP300="${cfg.SipFilename}, ${cfg.PhoneFilename}"/>
-  <APPLICATION_SPIP500 APP_FILE_PATH_SPIP500="sip_212.ld" CONFIG_FILES_SPIP500="${cfg.SipFilename}, ${cfg.PhoneFilename}"/>
+  <APPLICATION_SPIP300 APP_FILE_PATH_SPIP300="sip_212.ld" CONFIG_FILES_SPIP300="${cfg.SipFilename}, ${cfg.PhoneFilename}, ${cfg.DeviceFilename}"/>
+  <APPLICATION_SPIP500 APP_FILE_PATH_SPIP500="sip_212.ld" CONFIG_FILES_SPIP500="${cfg.SipFilename}, ${cfg.PhoneFilename}, ${cfg.DeviceFilename}"/>
 </APPLICATION>

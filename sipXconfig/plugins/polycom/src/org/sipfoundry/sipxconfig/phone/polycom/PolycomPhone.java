@@ -102,6 +102,9 @@ public class PolycomPhone extends Phone {
         PhoneConfiguration phone = new PhoneConfiguration(this);
         getProfileGenerator().generate(location, phone, format, app.getPhoneFilename());
 
+        DeviceConfiguration device = new DeviceConfiguration(this);
+        getProfileGenerator().generate(location, device, format, app.getDeviceFilename());
+
         PhonebookManager phonebookManager = getPhonebookManager();
         if (phonebookManager.getPhonebookManagementEnabled()) {
             Collection<PhonebookEntry> entries = getPhoneContext().getPhonebookEntries(this);

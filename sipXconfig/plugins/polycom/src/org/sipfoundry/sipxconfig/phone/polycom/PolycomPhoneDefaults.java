@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.phone.polycom;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
+import org.sipfoundry.sipxconfig.service.UnmanagedService;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
@@ -137,6 +138,11 @@ public class PolycomPhoneDefaults {
     @SettingEntry(path = "call/directedCallPickupString")
     public String getDirectedCallPickupString() {
         return m_defaults.getDirectedCallPickupCode();
+    }
+
+    @SettingEntry(path = "log/device.syslog/serverName")
+    public String getSyslogServer() {
+        return m_defaults.getServer(0, UnmanagedService.SYSLOG);
     }
 
 }

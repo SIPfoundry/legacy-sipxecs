@@ -50,6 +50,9 @@ public class ApplicationConfiguration extends ProfileContext {
         return m_serialNumber + "-directory.xml";
     }
 
+    public String getDeviceFilename() {
+        return m_serialNumber + "-sipx-device.cfg";
+    }
     /**
      * This is to check if 000000000000-license.cfg is available.
      */

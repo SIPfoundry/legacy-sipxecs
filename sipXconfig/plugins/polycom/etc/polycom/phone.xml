@@ -1044,7 +1044,7 @@
     </setting>
   </group>
   <group name="log">
-    <group name="level.change" advanced="yes">
+    <group name="level.change" >
       <setting name="so">
         <type>
           <enum labelKeyPrefix="log_level.label">
@@ -1099,8 +1099,116 @@
       <setting name="usb" copy-of="so" />
       <setting name="srtp" copy-of="so" />
     </group>
-    <group name="render">
-      <setting name="level">
+    <group name="device.syslog" advanced="yes">
+      <setting name="serverName.set" hidden="yes"> 
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="serverName">
+            <type>
+          <!-- dotted-decimal IP address or host name -->
+        </type>
+        <value />
+      </setting>
+      <setting name="transport.set" hidden="yes">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="transport">
+        <type>
+          <enum>
+            <option>
+              <label>None</label>
+              <value>0</value>
+            </option>
+            <option>
+              <label>UDP</label>
+              <value>1</value>
+            </option>
+            <option>
+              <label>TCP</label>
+              <value>2</value>
+            </option>
+            <option>
+              <label>TLS</label>
+              <value>3</value>
+            </option>
+          </enum>
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="facility.set" hidden="yes">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
+          <setting name="facility">
+        <type>
+          <integer min="0" max="23" />
+        </type>
+        <value>16</value>
+      </setting>
+      <setting name="renderLevel.set" hidden="yes">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="renderLevel"> 
+        <type>
+          <enum labelKeyPrefix="render_level.label">
+            <option>
+              <value>0</value>
+            </option>
+            <option>
+              <value>1</value>
+            </option>
+            <option>
+              <value>2</value>
+            </option>
+            <option>
+              <value>3</value>
+            </option>
+            <option>
+              <value>4</value>
+            </option>
+            <option>
+              <value>5</value>
+            </option>
+            <option>
+              <value>6</value>
+            </option>
+          </enum>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="prependMac.set" hidden="yes">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="prependMac">
+        <type>
+          <enum>
+            <option>
+              <value>0</value>
+            </option>
+            <option>
+              <value>1</value>
+            </option>
+          </enum>
+        </type>
+        <value>1</value>
+      </setting>
+    </group>
+    <group name="render" advanced="yes">
+      <setting name="level"> 
         <type>
           <enum labelKeyPrefix="log_level.label">
             <option>
