@@ -114,8 +114,17 @@ public:
 
 /* ============================ INQUIRY =================================== */
 
-   virtual UtlBoolean isInfinite(void) const;
-     //:Return TRUE if the time interval is infinite
+   // Return TRUE if the time interval is infinite
+   // Method inlined as it is called about 40000 times per call.
+   inline UtlBoolean isInfinite(void) const
+   {
+      if (this == &OS_INFINITY ||
+          (seconds() == OS_INFINITY.seconds() &&
+           usecs()   == OS_INFINITY.usecs()))
+         return TRUE;
+      else
+         return FALSE;
+   }
 
    virtual UtlBoolean isNoWait(void) const;
      //:Return TRUE if the time interval is zero (no wait)

@@ -21,7 +21,6 @@
 
 #include <pthread.h>
 #include <errno.h>
-#include <assert.h>
 #include <time.h>
 #include <sys/time.h>
 #include <stdio.h>
@@ -45,32 +44,6 @@ int pt_sem_init(pt_sem_t *sem, unsigned int max, unsigned int count)
     sem->count=count;
     sem->max=max;
     return pthread_mutex_init(&sem->mutex,NULL) | pthread_cond_init(&sem->cond,NULL);
-}
-
-int pt_sem_wait(pt_sem_t *sem)
-{
-    int retval = 0 ;
-    pthread_mutex_lock(&sem->mutex);
-    // wait for sem->count to be not zero, or error
-    while(retval == 0 && !sem->count)
-    {
-        retval = pthread_cond_wait(&sem->cond,&sem->mutex);
-    }
-    switch ( retval )
-    {
-    case 0: // retval is 0 and sem->count is not, the sem is ours
-        sem->count--;
-        break ;
-
-    default: // all error cases
-        assert(0) ; // something is amiss, drop core
-        /*NOTREACHED */
-        errno = retval ;
-        retval = -1 ;
-    }
-           
-    pthread_mutex_unlock(&sem->mutex);
-    return retval;
 }
 
 int pt_sem_timedwait(pt_sem_t *sem,const struct timespec *timeout)
@@ -137,21 +110,6 @@ int pt_sem_trywait(pt_sem_t *sem)
         return 0;
     }
     errno=EAGAIN;
-    pthread_mutex_unlock(&sem->mutex);
-    return -1;
-}
-
-int pt_sem_post(pt_sem_t *sem)
-{
-    pthread_mutex_lock(&sem->mutex);
-    if(sem->count<sem->max)
-    {
-        sem->count++;
-        pthread_cond_broadcast(&sem->cond);
-        pthread_mutex_unlock(&sem->mutex);
-        return 0;
-    }
-    errno=ERANGE;
     pthread_mutex_unlock(&sem->mutex);
     return -1;
 }

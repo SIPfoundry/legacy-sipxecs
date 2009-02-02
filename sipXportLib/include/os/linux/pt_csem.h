@@ -18,6 +18,7 @@
 #define _PT_CSEM_H
 
 #include <pthread.h>
+#include <assert.h>
 
 #ifdef  __cplusplus
 extern "C" {
@@ -32,13 +33,50 @@ typedef struct pt_sem {
 
 int pt_sem_init(pt_sem_t *sem, unsigned int max, unsigned int count);
 
-int pt_sem_wait(pt_sem_t *sem);
+inline int pt_sem_wait(pt_sem_t *sem)
+{
+    int retval = 0 ;
+    pthread_mutex_lock(&sem->mutex);
+    // wait for sem->count to be not zero, or error
+    while(retval == 0 && !sem->count)
+    {
+        retval = pthread_cond_wait(&sem->cond,&sem->mutex);
+    }
+    switch ( retval )
+    {
+    case 0: // retval is 0 and sem->count is not, the sem is ours
+        sem->count--;
+        break ;
+
+    default: // all error cases
+        assert(0) ; // something is amiss, drop core
+        /*NOTREACHED */
+        errno = retval ;
+        retval = -1 ;
+    }
+           
+    pthread_mutex_unlock(&sem->mutex);
+    return retval;
+}
 
 int pt_sem_timedwait(pt_sem_t *sem,const struct timespec *timeout);
 
 int pt_sem_trywait(pt_sem_t *sem);
 
-int pt_sem_post(pt_sem_t *sem);
+inline int pt_sem_post(pt_sem_t *sem)
+{
+    pthread_mutex_lock(&sem->mutex);
+    if(sem->count<sem->max)
+    {
+        sem->count++;
+        pthread_cond_broadcast(&sem->cond);
+        pthread_mutex_unlock(&sem->mutex);
+        return 0;
+    }
+    errno=ERANGE;
+    pthread_mutex_unlock(&sem->mutex);
+    return -1;
+}
 
 int pt_sem_getvalue(pt_sem_t *sem);
 

@@ -209,16 +209,6 @@ int OsTime::cvtToMsecs(void) const
 
 /* ============================ INQUIRY =================================== */
 
-// Return TRUE if the time interval is infinite
-UtlBoolean OsTime::isInfinite(void) const
-{
-   if (this == &OS_INFINITY ||
-       (seconds() == OS_INFINITY.seconds() &&
-        usecs()   == OS_INFINITY.usecs()))
-      return TRUE;
-   else
-      return FALSE;
-}
 
 // Return TRUE if the time interval is zero (no wait)
 UtlBoolean OsTime::isNoWait(void) const
