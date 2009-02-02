@@ -114,15 +114,7 @@ SdpBody::SdpBody(const SdpBody& rSdpBody) :
    if(rSdpBody.sdpFields)
    {
       sdpFields = new UtlSList();
-
-      NameValuePair* headerField;
-      NameValuePair* copiedHeader = NULL;
-      UtlSListIterator iterator((UtlSList&)(*(rSdpBody.sdpFields)));
-      while((headerField = (NameValuePair*) iterator()))
-      {
-         copiedHeader = new NameValuePair(*headerField);
-         sdpFields->append(copiedHeader);
-      }
+      rSdpBody.sdpFields->copyTo<NameValuePair>( *sdpFields );
    }
    else
    {
