@@ -16,6 +16,7 @@
 // APPLICATION INCLUDES
 #include "utl/UtlDefs.h"
 #include "utl/UtlList.h"
+#include "os/OsLock.h"
 
 // DEFINES
 // MACROS
@@ -93,7 +94,47 @@ public:
      * by calling delete.
      */ 
     virtual UtlBoolean destroy(const UtlContainable *);    
+    
+    /**
+     * Creates a copy of all the elements contained in this list and appends them 
+     * into the list passed as a parameter.  The templated type supplied when
+     * calling the method must match the type of object that is contained
+     * in this list.  In order to work, the templated type must provide
+     * a copy-constructor otherwise a compile-time error will be generated.
+     *
+     * Note: When copying objects from the source list to the destination list, a 
+     * new object instance is allocated and its value initialized to the object
+     * being copied such that the source and destination lists do not share pointers.
+     * 
+     * Example:
+     *   UtlSList sourceList; //some list that will contain pointers to NameValuePair objects
+     *   fillSListWithNameValuePairs( sourceList );
+     *   UtlSList backupOfSourceList; // some list that will become a copy of sourceList
+     *   sourceList.copyTo<NameValuePair>( backupOfSourceList );
+     */ 
+    template<typename T> UtlBoolean copyTo( UtlSList& listToCopyInto ) const
+    {
+       UtlLink* listNode;
+       listToCopyInto.destroyAll();
+       
+       OsLock take1(mContainerLock);
+       OsLock take2(listToCopyInto.mContainerLock);
+       
+       LIST_SANITY_CHECK;
+       for (listNode = head(); listNode; listNode = listNode->next())
+       {
+          UtlContainable* visitNode = (UtlContainable*) listNode->data;
+          T* visitNodeAsType = dynamic_cast<T*>( visitNode );
+          if( visitNodeAsType )
+          {
+             UtlContainable* newNode = new T( *visitNodeAsType );
+             UtlLink::listBefore(&listToCopyInto, NULL, newNode);
+          }
+       }
+       LIST_SANITY_CHECK;
 
+       return TRUE;
+    }
 
 /* ============================ ACCESSORS ================================= */
 

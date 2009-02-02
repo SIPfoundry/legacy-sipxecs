@@ -14,7 +14,6 @@
 #include "utl/UtlContainable.h"
 #include "utl/UtlSListIterator.h"
 #include "utl/UtlSList.h"
-#include "os/OsLock.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -43,7 +42,7 @@ UtlSList::UtlSList()
 UtlContainable* UtlSList::append(UtlContainable* obj) 
 {
    OsLock take(mContainerLock);
-   
+
     if(obj != NULL)
     {
        LIST_SANITY_CHECK;
