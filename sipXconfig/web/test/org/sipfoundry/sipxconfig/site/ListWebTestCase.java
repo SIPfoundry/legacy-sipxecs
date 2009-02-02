@@ -28,7 +28,7 @@ public abstract class ListWebTestCase extends WebTestCase {
 
     /**
      * id of the link on the home page that needs to be pressed before every test to reset the
-     * environent
+     * environment
      */
     private final String m_resetLink;
 
@@ -37,6 +37,7 @@ public abstract class ListWebTestCase extends WebTestCase {
 
     private final String m_pageLink;
 
+    private String m_formName;
     private boolean m_hasDuplicate = true;
     private boolean m_hasMove = false;
     private boolean m_exactCheck = true;
@@ -159,6 +160,11 @@ public abstract class ListWebTestCase extends WebTestCase {
                 expected.appendRow(new Row(getExpectedTableRow(values)));
             }
         }
+               
+        if (m_formName != null) {
+            tester.setWorkingForm(m_formName);
+        }
+        
         // remove 2nd and 4th
         for (int i = 0; i < toBeRemoved.length; i++) {
             SiteTestHelper.selectRow(tester, toBeRemoved[i], true);
@@ -192,6 +198,9 @@ public abstract class ListWebTestCase extends WebTestCase {
     protected void clickAddLink() throws Exception {
         String addLinkId = buildId("add");
         if (m_addLinkSubmit) {
+            if (!StringUtils.isEmpty(m_formName)) {
+                tester.setWorkingForm(m_formName);
+            }
             SiteTestHelper.clickSubmitLink(tester, addLinkId);
         } else {
             clickLink(addLinkId);
@@ -249,5 +258,12 @@ public abstract class ListWebTestCase extends WebTestCase {
 	public void setPager(boolean pager) {
 		this.m_pager = pager;
 	}
-
+	
+	public String getFormName() {
+	    return m_formName;
+	}
+	
+	public void setFormName(String formName) {
+	    m_formName = formName;
+	}
 }

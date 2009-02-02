@@ -1,6 +1,7 @@
 <div>
 	<h3><span jwcid="@Insert" value="ognl:messages.format('title',user.displayName)"/></h3>
-    <fieldset jwcid="@conference/ConferencesPanel" 
+	
+    <fieldset jwcid="conferencesPanel@conference/ConferencesPanel" 
               conferences="ognl:conferenceBridgeContext.findConferencesByOwner(user)" 
               showOwner="false" enableDelete="ognl:userSession.isAdmin()" enableAdd="ognl:userSession.isAdmin()"
               addListener="listener:addConference" 

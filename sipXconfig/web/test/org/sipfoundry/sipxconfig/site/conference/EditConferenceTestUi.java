@@ -39,6 +39,7 @@ public class EditConferenceTestUi extends WebTestCase {
         clickLink("ListBridges");
         clickLinkWithText(TestPage.TEST_LOCATION_FQDN);
         clickLink("link:conferences");
+        tester.setWorkingForm("refreshForm");
         SiteTestHelper.clickSubmitLink(tester, "conference:add");
         checkCheckbox("item:enabled");
         setTextField("item:name", "OwnerTestConf");
@@ -69,6 +70,7 @@ public class EditConferenceTestUi extends WebTestCase {
         clickLink("ManageUsers");
         clickLinkWithText("testuser");
         clickLink("userConferencesLink");
+        tester.setWorkingForm("refreshForm");
         SiteTestHelper.clickSubmitLink(tester, "conference:add");
         assertElementPresent("bridgeSelect");
         assertTextPresent("testuser");
@@ -84,6 +86,7 @@ public class EditConferenceTestUi extends WebTestCase {
         clickLink("ListBridges");
         clickLinkWithText(TestPage.TEST_LOCATION_FQDN);
         clickLink("link:conferences");
+        tester.setWorkingForm("refreshForm");
         SiteTestHelper.clickSubmitLink(tester, "conference:add");
         assertElementNotPresent("bridgeSelect");
         assertTextPresent("(none)");
@@ -94,6 +97,7 @@ public class EditConferenceTestUi extends WebTestCase {
         clickLink("ListBridges");
         clickLinkWithText(TestPage.TEST_LOCATION_FQDN);
         clickLink("link:conferences");
+        tester.setWorkingForm("refreshForm");
         SiteTestHelper.clickSubmitLink(tester, "conference:add");
         
         // Test empty fields
@@ -139,6 +143,7 @@ public class EditConferenceTestUi extends WebTestCase {
        clickLink("ManageUsers");
        clickLinkWithText("testuser");
        clickLink("userConferencesLink");
+       tester.setWorkingForm("refreshForm");
        SiteTestHelper.clickSubmitLink(tester, "conference:add");
        setTextField("item:name", "test101");
        setTextField("item:extension", "1101");

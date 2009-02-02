@@ -423,8 +423,8 @@ public class SiteTestHelper {
         return row.getCellCount();
     }
 
-    public static void clickSubmitLink(WebTester tester, String linkName) {
-        tester.setTextField(FormConstants.SUBMIT_NAME_PARAMETER, linkName);
+    public static void clickSubmitLink(WebTester tester, String linkName) {       
+        tester.setTextField(FormConstants.SUBMIT_NAME_PARAMETER, linkName);        
         tester.submitForm();
     }
 

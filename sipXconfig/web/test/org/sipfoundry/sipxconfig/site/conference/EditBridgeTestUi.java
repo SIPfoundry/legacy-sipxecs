@@ -30,6 +30,7 @@ public class EditBridgeTestUi extends ListWebTestCase {
         setHasDuplicate(false);
         setExactCheck(false);
         setAddLinkSubmit(true);
+        setFormName("refreshForm");
     }
 
     public void testTabNames() {
@@ -40,6 +41,7 @@ public class EditBridgeTestUi extends ListWebTestCase {
         assertLinkPresent("link:conferences");
     }
     
+    @Override
     public void setUp() {
         m_conferenceHelper = new ConferenceTestHelper(tester);
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
@@ -50,7 +52,6 @@ public class EditBridgeTestUi extends ListWebTestCase {
         clickLink("ListBridges");
         clickLinkWithText(TestPage.TEST_LOCATION_FQDN);
         clickLink("link:conferences");
-       
         SiteTestHelper.assertNoUserError(tester);
     }
 

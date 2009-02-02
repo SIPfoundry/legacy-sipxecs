@@ -88,7 +88,7 @@ public abstract class ConferencesPanel extends TablePanel {
     
     @Parameter
     public abstract boolean isChanged();
-
+    
     public abstract Collection getRowsToDelete();
 
     public abstract Conference getCurrentRow();
@@ -154,6 +154,13 @@ public abstract class ConferencesPanel extends TablePanel {
         }
     }
 
+    public void deleteConferences() {
+        Collection rowsToDelete = getRowsToDelete();
+        if (rowsToDelete != null) {
+            removeRows(rowsToDelete);
+        }
+    }
+    
     public abstract class Action implements Closure {
         private String m_msgSuccess;
 

@@ -20,6 +20,7 @@ import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.Persist;
+import org.apache.tapestry.components.Block;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
@@ -29,6 +30,8 @@ import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 
 public abstract class EditBridge extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "conference/EditBridge";
+    
+    public static final String TAB_CONFERENCES = "conferences";
     
     public abstract Serializable getBridgeId();   
     
@@ -47,7 +50,8 @@ public abstract class EditBridge extends PageWithCallback implements PageBeginRe
     @Persist
     @InitialValue("literal:config")
     public abstract void setTab(String tab);
-
+    public abstract String getTab();
+    
     @Asset("/images/breadcrumb_separator.png")
     public abstract IAsset getBreadcrumbSeparator();    
     
@@ -92,7 +96,7 @@ public abstract class EditBridge extends PageWithCallback implements PageBeginRe
         List<String> tabNames = new ArrayList<String>();
         tabNames.add(EditConference.TAB_CONFIG);
         if (!getBridge().isNew()) {
-            tabNames.add("conferences");
+            tabNames.add(TAB_CONFERENCES);
         }
 
         return tabNames;
@@ -106,7 +110,7 @@ public abstract class EditBridge extends PageWithCallback implements PageBeginRe
         return activateEditConferencePage(id, EditConference.TAB_PARTICIPANTS);
     }
 
-    private IPage activateEditConferencePage(Integer id, String tab) {
+    private IPage activateEditConferencePage(Integer id, String tab) {        
         EditConference editConference = getEditConferencePage();
         editConference.setBridgeId(getBridgeId());
         editConference.setTestBridge(getBridge());
@@ -116,5 +120,13 @@ public abstract class EditBridge extends PageWithCallback implements PageBeginRe
         }
         editConference.setReturnPage(PAGE);
         return editConference;
+    }
+    
+    public Block getActionBlockForTab() {
+        if (getTab().equals(TAB_CONFERENCES)) {
+            return (Block) getComponent("conferencesPanel").getComponent("conferenceActions");
+        } else {
+            return (Block) getComponent("formActionsBlock");
+        }
     }
 }

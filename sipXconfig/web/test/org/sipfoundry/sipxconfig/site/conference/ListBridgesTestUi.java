@@ -35,6 +35,7 @@ public class ListBridgesTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
         assertFormPresent();
         assertEquals(1, SiteTestHelper.getRowCount(tester, "bridge:list"));
+        assertElementPresentByXPath("//input[@type = 'submit' and @id='refresh']");
     }
        
     public void testAdd() {

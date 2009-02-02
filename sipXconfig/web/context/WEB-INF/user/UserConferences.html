@@ -1,6 +1,7 @@
 <div jwcid="@common/Border">
   <span jwcid="@user/UserNavigation" bean="ognl:user"/>
-  <form jwcid="@Form">
-    <div jwcid="@conference/UserConferencesPanel" user="ognl:user" />
+  <form jwcid="@common/AutoRefreshForm" 
+        actionBlock="ognl:components['userConferencesPanel'].components['conferencesPanel'].components['conferenceActions']">
+    <div jwcid="userConferencesPanel@conference/UserConferencesPanel" user="ognl:user" />
   </form>
 </div>

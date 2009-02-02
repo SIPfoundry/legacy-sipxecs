@@ -52,7 +52,8 @@
                 activateListener="ognl:selectActiveListener"/>
         </span>
 	</table>
-    <ul class="component-submit">
+	
+	<div jwcid="conferenceActions@Block">
         <li>
             <input jwcid="lockButton@Submit" id="conference:lock"
                 value="message:button.lock"
@@ -63,14 +64,12 @@
                 value="message:button.unlock"
                 action="listener:unlockConferences" />        
         </li>
-        <span jwcid="@If" condition="ognl:enableDelete">
-            <li>
-                <input jwcid="delete@Submit" id="conference:delete"
-                    selected="ognl:rowsToDelete"
-                    tag="ognl:selections.allSelected"
-                    value="message:button.delete"
-                />
-            </li>
-        </span>
-    </ul>
+        <li jwcid="@If" condition="ognl:enableDelete">
+			<input jwcid="delete@Submit" id="conference:delete"
+			    selected="ognl:rowsToDelete"
+			    tag="ognl:selections.allSelected"
+			    action="listener:deleteConferences"
+			    value="message:button.delete" />
+        </li>        
+    </div>
 </fieldset>

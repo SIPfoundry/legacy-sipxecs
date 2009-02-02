@@ -30,12 +30,16 @@ import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 
 @ComponentClass
 public abstract class AutoRefreshForm extends BaseComponent implements PageBeginRenderListener {
+    
     /**
      * Additional actions to be displayed on the left side of refresh button
      */
     @Parameter
     public abstract Block getActionBlock();
 
+    @Parameter(defaultValue = "ognl:true")
+    public abstract boolean getShowRefresh();
+    
     @Parameter(defaultValue = "ognl:{}")
     public abstract List<String> getUpdateComponents();
     

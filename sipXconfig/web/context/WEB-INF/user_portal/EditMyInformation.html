@@ -5,7 +5,7 @@
   <span jwcid="@common/TabNavigation" tabNames="ognl:availableTabNames" selectedTab="ognl:tab"/>
   <div id="settings-content">  
     <span jwcid="@common/ErrorMsg"/>
-    <form jwcid="@Form" delegate="bean:validator">
+    <form jwcid="@common/AutoRefreshForm" delegate="bean:validator" showRefresh="ognl:tab == 'conferences'">
       <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
     </form>
   </div>
