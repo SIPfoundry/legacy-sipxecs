@@ -212,8 +212,8 @@ public:
 
     void setTargetCallId(const char* targetCallId);
     void getTargetCallId(UtlString& targetCallId) const;
-    void setOriginalCallId(const char* targetCallId);
-    void getOriginalCallId(UtlString& targetCallId) const;
+    void setIdOfOrigCall(const char* idOfOriginalCall);
+    void getIdOfOrigCall(UtlString& idOfOriginalCall) const;
 
     int getLocalConnectionState(int state);
 
@@ -260,6 +260,7 @@ protected:
 
     CpCallManager* mpManager;
     UtlString mCallId;
+    //: the original call-id of THIS call
     UtlBoolean mCallInFocus;
     UtlBoolean mRemoteDtmf;
     UtlBoolean mDtmfEnabled;
@@ -306,7 +307,17 @@ private:
     //: function used to remove call names from the tracking list
 
     int mCallType;
-    UtlString mOriginalCallId;
+    //: initially set to CP_NORMAL_CALL
+    //: can be set to 
+    //:     - CP_TRANSFER_CONTROLLER_ORIGINAL_CALL for blind(16) or consult(17) transfer
+    //:     - CP_TRANSFER_CONTROLLER_TARGET_CALL for transfer connection(18)
+    //:     - CP_TRANSFER_TARGET_TARGET_CALL for incoming invite with replaces,replaced-by, referred-by
+    //:     - CP_TRANSFEREE_ORIGINAL_CALL for incoming REFER or BYE with 'also' header
+ 
+    UtlString mIdOfOrigCall;
+    //: transfer use only, contains call-id of the original call
+    //: this is NOT the original call-id of THIS call
+ 
     UtlString mTargetCallId;
 
     CpCall& operator=(const CpCall& rhs);

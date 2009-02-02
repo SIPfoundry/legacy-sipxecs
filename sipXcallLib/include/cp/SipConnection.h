@@ -229,7 +229,7 @@ private:
 
     SipUserAgent* sipUserAgent;
     UtlString mFromTag;
-    SipMessage* inviteMsg;
+    SipMessage* mInviteMsg;
     UtlBoolean      mbCancelling;
     UtlBoolean mWaitingForKeepAliveResponse;
     SdpBody* mPrevSdp;

@@ -1630,7 +1630,8 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
     UtlBoolean shouldDispatch = childSaysShouldDispatch;
 
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                  "SipTransaction::handleChildIncoming %p relationship %s parent %p",
+                  "SipTransaction::handleChildIncoming "
+                  "%p relationship %s parent %p",
                   this, relationshipString(relationship), mpParentTransaction
                   );
 
@@ -1658,7 +1659,8 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
                                             delayedDispatchedMessage);
 #           ifdef TEST_PRINT
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipTransaction::handleChildIncoming %p parent says %d",
+                          "SipTransaction::handleChildIncoming "
+                          "%p parent says %d",
                           this, shouldDispatch);
 #           endif
         }
@@ -3778,12 +3780,14 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
         {
             if(mpLastProvisionalResponse)
             {
-               OsSysLog::add(FAC_SIP, PRI_WARNING, "SipTransaction::handleIncoming"
+               OsSysLog::add(FAC_SIP, PRI_WARNING, 
+                             "SipTransaction::handleIncoming"
                              " new request with an existing provisional response");
             }
             else if(mpLastFinalResponse)
             {
-                OsSysLog::add(FAC_SIP, PRI_WARNING, "SipTransaction::handleIncoming"
+                OsSysLog::add(FAC_SIP, PRI_WARNING, 
+                              "SipTransaction::handleIncoming"
                               " new request with an existing final response");
             }
             // INVITE transactions we can send trying to stop the resends
@@ -3808,11 +3812,11 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
         // but we could not send the CANCEL until we
         // got a provisional response, we can now send
         // the CANCEL (we only send CANCEL for INVITEs).
-        if(relationship == MESSAGE_PROVISIONAL &&
-            !mIsServerTransaction &&
-            mIsCanceled &&
-            mpRequest &&
-            mRequestMethod.compareTo(SIP_INVITE_METHOD) == 0)
+        if(relationship == MESSAGE_PROVISIONAL 
+           && ! mIsServerTransaction 
+           && mIsCanceled 
+           && mpRequest 
+           && mRequestMethod.compareTo(SIP_INVITE_METHOD) == 0)
         {
             if (mpCancel)
             {
@@ -4056,14 +4060,15 @@ void SipTransaction::cancel(SipUserAgent& userAgent,
         {
             if(mpCancel)
             {
-                OsSysLog::add(FAC_SIP, PRI_ERR, "SipTransaction::cancel"
+                OsSysLog::add(FAC_SIP, PRI_ERR, 
+                              "SipTransaction::cancel"
                               " cancel request already exists");
             }
             // Do not send CANCELs for non-INVITE transactions
             // (all the other state stuff should be done)
-            else if(mTransactionState == TRANSACTION_PROCEEDING &&
-                    mIsDnsSrvChild &&
-                    mRequestMethod.compareTo(SIP_INVITE_METHOD) == 0)
+            else if(mTransactionState == TRANSACTION_PROCEEDING 
+                    && mIsDnsSrvChild 
+                    && mRequestMethod.compareTo(SIP_INVITE_METHOD) == 0)
             {
                 // We can only send a CANCEL if we have heard
                 // back a provisional response.  If we have a
@@ -4072,7 +4077,8 @@ void SipTransaction::cancel(SipUserAgent& userAgent,
                 cancel.setCancelData(mpRequest);
 #ifdef TEST_PRINT
                 OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                              "SipTransaction::cancel sending CANCEL");
+                              "SipTransaction::cancel "
+                              "sending CANCEL");
 #endif
                 handleOutgoing(cancel,
                                userAgent,
@@ -4091,13 +4097,17 @@ void SipTransaction::cancel(SipUserAgent& userAgent,
         // has been created and sent)
         else if(mTransactionState != TRANSACTION_LOCALLY_INIITATED)
         {
-            OsSysLog::add(FAC_SIP, PRI_ERR, "SipTransaction::cancel no request");
+            OsSysLog::add(FAC_SIP, PRI_ERR, 
+                          "SipTransaction::cancel "
+                          "no request");
         }
 
     }
     else
     {
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::cancel already canceled");
+        OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                      "SipTransaction::cancel "
+                      "already canceled");
     }
 }
 

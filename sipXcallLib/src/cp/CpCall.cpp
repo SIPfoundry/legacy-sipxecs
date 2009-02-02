@@ -198,7 +198,7 @@ CpCall::~CpCall()
     name.remove(0);
 #endif
     mCallId.remove(0);
-    mOriginalCallId.remove(0);
+    mIdOfOrigCall.remove(0);
     mTargetCallId.remove(0);
 }
 
@@ -601,7 +601,6 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
             processedMessage = handleCallMessage(eventMessage);
             break;
         }
-
         break;
 
     case OsMsg::OS_EVENT:
@@ -746,8 +745,6 @@ void CpCall::inFocus(int talking)
     {
         mpMediaInterface->giveFocus();
     }
-
-
 }
 
 void CpCall::outOfFocus()
@@ -1259,14 +1256,14 @@ void CpCall::getTargetCallId(UtlString& targetCallId) const
     targetCallId = mTargetCallId;
 }
 
-void CpCall::setOriginalCallId(const char* originalCallId)
+void CpCall::setIdOfOrigCall(const char* idOfOriginalCall)
 {
-    if(originalCallId && * originalCallId) mOriginalCallId = originalCallId;
+    if(idOfOriginalCall && * idOfOriginalCall) mIdOfOrigCall = idOfOriginalCall;
 }
 
-void CpCall::getOriginalCallId(UtlString& originalCallId) const
+void CpCall::getIdOfOrigCall(UtlString& idOfOriginalCall) const
 {
-    originalCallId = mOriginalCallId;
+    idOfOriginalCall = mIdOfOrigCall;
 }
 /* ============================ INQUIRY =================================== */
 UtlBoolean CpCall::isQueued()

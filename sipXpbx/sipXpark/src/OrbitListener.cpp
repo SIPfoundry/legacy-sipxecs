@@ -230,9 +230,9 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                                  "OrbitListener::handleMessage - %d "
                                  "callId: '%s', address: '%s' found in transfer list", 
                                  taoEventId, callIdTao.data(), addressTao.data());
-                    UtlString* originalCallIdTxfr =
+                    UtlString* idOfOriglCallTxfr =
                       dynamic_cast <UtlString*> (mTransferCalls.findValue(&callIdTao));
-                   if (originalCallIdTxfr)
+                   if (idOfOriglCallTxfr)
                    {
                       // If we have a ParkedCallObject for the originalCallId, 
                       // remove it from the hashmap and re-insert it with the new callId
@@ -241,26 +241,26 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                                     "OrbitListener::handleMessage - %d "
                                     "transfer pair - callId: '%s', address: '%s', originalCallId: '%s'",
                                     taoEventId, callIdTao.data(), addressTao.data(),
-                                    originalCallIdTxfr->data());
+                                    idOfOriglCallTxfr->data());
 
                       // See if the originalCallId is one of our calls.
                       ParkedCallObject* pCall =
-                         dynamic_cast <ParkedCallObject *> (mCalls.findValue(originalCallIdTxfr));
+                         dynamic_cast <ParkedCallObject *> (mCalls.findValue(idOfOriglCallTxfr));
                       if (pCall == NULL)
                       {
                          OsSysLog::add(FAC_PARK, PRI_DEBUG,
                                        "OrbitListener::handleMessage - %d "
                                        "Original callId '%s' not found in the parked call list",
-                                       taoEventId, originalCallIdTxfr->data());
+                                       taoEventId, idOfOriglCallTxfr->data());
                       }
                       else
                       {
                          OsSysLog::add(FAC_PARK, PRI_DEBUG, 
                                        "OrbitListener::handleMessage - %d "
-                                       "found call object %p for '%s'", 
+                                       "found parked call object %p for '%s'", 
                                        taoEventId, pCall, callIdTao.data());
 
-                         mCalls.remove(originalCallIdTxfr);
+                         mCalls.remove(idOfOriglCallTxfr);
                          mCalls.insertKeyAndValue(new UtlString(callIdTao),pCall);
                          pCall->setOriginalCallId(callIdTao); 
                       }
@@ -272,13 +272,16 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                 // of a second leg of a transfer. 
 
                 // Test if this is a call retrieval operation
-                if (!isCallRetrievalInvite(callIdTao.data(), addressTao.data()))
-                {
-                   OsSysLog::add(FAC_PARK, PRI_DEBUG, 
-                                 "OrbitListener::handleMessage - %d "
-                                 "not call retrieval call '%s'",
-                                 taoEventId, callIdTao.data());
+                bool bIsRetrieve = !isCallRetrievalInvite(callIdTao.data(), addressTao.data());
+                OsSysLog::add(FAC_PARK, PRI_DEBUG, 
+                              "OrbitListener::handleMessage - %d "
+                              "is %scall retrieval call '%s'",
+                              taoEventId,
+                              (bIsRetrieve ? "" : "not "),
+                              callIdTao.data());
 
+                if (bIsRetrieve)
+                {
                   ParkedCallObject* pThisCall = 
                       dynamic_cast <ParkedCallObject *> (mCalls.findValue(&callIdTao));
                   if (pThisCall != NULL)
@@ -289,10 +292,6 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                 }
                 else
                 {
-                   OsSysLog::add(FAC_PARK, PRI_DEBUG, 
-                                 "OrbitListener::handleMessage - %d "
-                                 "call retrieval call '%s'",
-                                 taoEventId, callIdTao.data());
                    // Do the work for a call-retrieval call.
                    setUpRetrievalCall(callIdTao, addressTao);
                 }
@@ -446,7 +445,6 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                           taoEventId, callIdTao.data());
             mpCallManager->drop(callIdTao);
          }
-
          break;
 
 
@@ -485,10 +483,12 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                    UtlString transferCallIdTao = argTao[TAO_TRANSFER_ENDED_TRANSFER_CALLID];
                    OsSysLog::add(FAC_PARK, PRI_DEBUG,
                                  "OrbitListener::handleMessage - %d "
-                                 "transfer - Transfer ended: callId '%s', transfer callid: '%s'",
+                                 "transfer - Transfer ended: callId '%s', "
+                                 "transfer callid: '%s'",
                                  taoEventId, callIdTao.data(), transferCallIdTao.data());
-                   if (!callIdTao.isEqual(&transferCallIdTao) &&
-                       mTransferCalls.find(&transferCallIdTao))
+
+                   if ( !callIdTao.isEqual(&transferCallIdTao) 
+                       && mTransferCalls.find(&transferCallIdTao))
                    {
                       OsSysLog::add(FAC_PARK, PRI_DEBUG,
                                     "OrbitListener::handleMessage - %d "
@@ -549,7 +549,8 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                keycode &= 0x7FFF;
                OsSysLog::add(FAC_PARK, PRI_DEBUG,
                              "OrbitListener::handleMessage "
-                             "DTMF keyup keycode %" PRIdPTR "d, ParkedCallObject = %p",
+                             "DTMF keyup "
+                             "keycode %" PRIdPTR "d, ParkedCallObject = %p",
                              keycode, pParkedCallObject);
 
                // Call the ParkedCallObject to process the keycode, which may
@@ -561,7 +562,8 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                keycode &= 0x7FFF;
                OsSysLog::add(FAC_PARK, PRI_DEBUG,
                              "OrbitListener::handleMessage "
-                             "DTMF keydown (ignored) keycode %" PRIdPTR "d",
+                             "DTMF keydown (ignored) "
+                             "keycode %" PRIdPTR "d",
                              keycode);
                // Ignore it.
             }
@@ -570,8 +572,8 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
 
          case ParkedCallObject::PARKER_TIMEOUT:
             OsSysLog::add(FAC_PARK, PRI_DEBUG,
-                          "OrbitListener::handleMessage PARKER_TIMEOUT "
-                          "ParkedCallObject = %p",
+                          "OrbitListener::handleMessage "
+                          "PARKER_TIMEOUT ParkedCallObject = %p",
                           pParkedCallObject);
 
             // Call the ParkedCallObject to start the transfer.

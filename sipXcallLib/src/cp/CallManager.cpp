@@ -663,11 +663,23 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                         //                                        0,
                         //                                        0);
                     }
-                }
+                } // end new call path
 
                 // Pass on the message if there is a call to process
                 if(handlingCall)
                 {
+#ifdef TEST_PRINT
+                    UtlString callIdPr, origCIDpr, targCIDpr;
+
+                    handlingCall->getCallId(callIdPr);
+                    handlingCall->getIdOfOrigCall(origCIDpr);
+                    handlingCall->getTargetCallId(targCIDpr);
+
+                    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                                  "CallManager::handleMessage "
+                                  "to CpCall for id='%s' orig='%s' targ='%s'",
+                                  callIdPr.data(), origCIDpr.data(), targCIDpr.data());
+#endif
                     handlingCall->postMessage(eventMessage);
                     messageProcessed = TRUE;
                 }
@@ -736,11 +748,11 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
 
                 OsSysLog::add(FAC_CP, PRI_DEBUG, 
                               "CallManager::handleMessage "
-                              "Call YIELD FOCUS message received: %p\r\n", 
+                              "Call YIELD FOCUS message received: %p", 
                               (void*)call);
                 OsSysLog::add(FAC_CP, PRI_DEBUG, 
                               "CallManager::handleMessage "
-                              "infocusCall: %p\r\n", 
+                              "infocusCall: %p", 
                               infocusCall);
                 {
                     OsWriteLock lock(mCallListMutex);
@@ -809,7 +821,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                 metaEventCallIds[2] = metaCallId2.data();
                 metaEventCallIds[3] = metaCallId3.data();
                 doCreateCall(callId.data(), metaEventId, metaEventType,
-                    numCalls, metaEventCallIds, assumeFocusIfNoInfocusCall);
+                             numCalls, metaEventCallIds, assumeFocusIfNoInfocusCall);
 
                 messageProcessed = TRUE;
                 break;
@@ -1006,7 +1018,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                     // to see that the CallId was valid in the past.
                     OsSysLog::add(FAC_CP, PRI_DEBUG, 
                                   "CallManager::handleMessage "
-                                  "Cannot find CallId: %s to post message: %d\n",
+                                  "Cannot find CallId: %s to post message: %d",
                                   callId.data(), msgSubType);
                     if( msgSubType == CP_GET_NUM_CONNECTIONS ||
                         msgSubType == CP_GET_CONNECTIONS ||
@@ -1043,7 +1055,9 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                         {
                             OsSysLog::add(FAC_CP, PRI_ERR, 
                                           "CallManager::handleMessage "
-                                          "Received a message subtype %d request on invalid callId '%s'; signaled event in message\n",
+                                          "Received a message subtype %d "
+                                          "request on invalid callId '%s'; "
+                                          "signaled event in message\n",
                                 msgSubType, callId.data());
 
                             // Test if already signaled here and
@@ -1119,8 +1133,10 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
 #ifdef TEST_PRINT
                 int eventMessageType = timerMsg->getMsgType();
                 int eventMessageSubType = timerMsg->getMsgSubType();
-                OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::handleMessage deleting timer for message type: %d %d\n",
-                    eventMessageType, eventMessageSubType);
+                OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                              "CallManager::handleMessage "
+                              "deleting timer for message type: %d %d",
+                              eventMessageType, eventMessageSubType);
 #endif
                 timer->stop();
                 delete timer;
@@ -3254,8 +3270,8 @@ CpCall* CallManager::findHandlingCall(const char* callId)
         UtlVoidPtr* callCollectable;
         CpCall* call;
         callCollectable = (UtlVoidPtr*)iterator();
-        while(callCollectable &&
-            !handlingCall)
+        while(callCollectable 
+              && !handlingCall)
         {
             call = (CpCall*)callCollectable->getValue();
             if(call && call->hasCallId(callId))
@@ -3429,7 +3445,7 @@ void CallManager::printCalls(int showHistory)
             UtlString callId, origCID, targCID;
 
             call->getCallId(callId);
-            call->getOriginalCallId(origCID);
+            call->getIdOfOrigCall(origCID);
             call->getTargetCallId(targCID);
 
             OsSysLog::add(FAC_CP, PRI_DEBUG, 
@@ -3901,7 +3917,7 @@ void CallManager::doCreateCall(const char* callId,
             if(metaEventId > 0)
             {
                 call->setMetaEvent(metaEventId, metaEventType,
-                    numMetaEventCalls, metaEventCallIds);
+                                   numMetaEventCalls, metaEventCallIds);
             }
             else
             {

@@ -134,245 +134,261 @@ void CpCallManager::getEventSubTypeString(EventSubTypes type,
 {
     switch(type)
     {
-      case CP_UNSPECIFIED:
-        typeString = "CP_UNSPECIFIED";
-        break;
+    case CP_UNSPECIFIED:
+      typeString = "CP_UNSPECIFIED";
+      break;
 
-      case CP_SIP_MESSAGE:
-        typeString = "CP_SIP_MESSAGE";
-        break;
+    case CP_GET_INVITE:
+      typeString = "CP_GET_INVITE";
+      break;
 
-      case CP_CALL_EXITED:
-        typeString = "CP_CALL_EXITED";
-        break;
+    case CP_ADD_TONE_LISTENER:
+      typeString = "CP_ADD_TONE_LISTENER";
+      break;
 
-      case CP_DIAL_STRING:
-        typeString = "CP_DIAL_STRING";
-        break;
+    case CP_REMOVE_TONE_LISTENER:
+      typeString = "CP_REMOVE_TONE_LISTENER";
+      break;
 
-      case CP_FOCUS_CALL:
-        typeString = "CP_FOCUS_CALL";
-        break;
+    case CP_DISABLE_DTMF_EVENT:
+      typeString = "CP_DISABLE_DTMF_EVENT";
+      break;
 
-      case CP_HOLD_CALL:
-        typeString = "CP_HOLD_CALL";
-        break;
+    case CP_SIP_MESSAGE:
+      typeString = "CP_SIP_MESSAGE";
+      break;
 
-      case CP_OFF_HOLD_CALL:
-        typeString = "CP_OFF_HOLD_CALL";
-        break;
+    case CP_CALL_EXITED:
+      typeString = "CP_CALL_EXITED";
+      break;
 
-      case CP_DEQUEUED_CALL:
-        typeString = "CP_DEQUEUED_CALL";
-        break;
+    case CP_DIAL_STRING:
+      typeString = "CP_DIAL_STRING";
+      break;
 
-      case CP_MGCP_MESSAGE:
-        typeString = "CP_MGCP_MESSAGE";
-        break;
+    case CP_FOCUS_CALL:
+      typeString = "CP_FOCUS_CALL";
+      break;
 
-      case CP_MGCP_CAPS_MESSAGE:
-        typeString = "CP_MGCP_CAPS_MESSAGE";
-        break;
+    case CP_HOLD_CALL:
+      typeString = "CP_HOLD_CALL";
+      break;
 
-      case CP_YIELD_FOCUS:
-        typeString = "CP_YIELD_FOCUS";
-        break;
+    case CP_OFF_HOLD_CALL:
+      typeString = "CP_OFF_HOLD_CALL";
+      break;
 
-      case CP_GET_FOCUS:
-        typeString = "CP_GET_FOCUS";
-        break;
+    case CP_DEQUEUED_CALL:
+      typeString = "CP_DEQUEUED_CALL";
+      break;
 
-      case CP_CREATE_CALL:
-        typeString = "CP_CREATE_CALL";
-        break;
+    case CP_MGCP_MESSAGE:
+      typeString = "CP_MGCP_MESSAGE";
+      break;
 
-      case CP_GET_CALLS:
-        typeString = "CP_GET_CALLS";
-        break;
+    case CP_MGCP_CAPS_MESSAGE:
+      typeString = "CP_MGCP_CAPS_MESSAGE";
+      break;
 
-      case CP_CONNECT:
-        typeString = "CP_CONNECT";
-        break;
+    case CP_YIELD_FOCUS:
+      typeString = "CP_YIELD_FOCUS";
+      break;
 
-      case CP_SINGLE_CALL_TRANSFER:
-        typeString = "CP_SINGLE_CALL_TRANSFER";
-        break;
+    case CP_GET_FOCUS:
+      typeString = "CP_GET_FOCUS";
+      break;
 
-      case CP_BLIND_TRANSFER:
-        typeString = "CP_BLIND_TRANSFER";
-        break;
+    case CP_CREATE_CALL:
+      typeString = "CP_CREATE_CALL";
+      break;
 
-      case CP_CONSULT_TRANSFER:
-        typeString = "CP_CONSULT_TRANSFER";
-        break;
+    case CP_GET_CALLS:
+      typeString = "CP_GET_CALLS";
+      break;
 
-      case CP_CONSULT_TRANSFER_ADDRESS:
-        typeString = "CP_CONSULT_TRANSFER_ADDRESS";
-        break;
+    case CP_CONNECT:
+      typeString = "CP_CONNECT";
+      break;
 
-      case CP_TRANSFER_CONNECTION:
-        typeString = "CP_TRANSFER_CONNECTION";
-        break;
+    case CP_SINGLE_CALL_TRANSFER:
+      typeString = "CP_SINGLE_CALL_TRANSFER";
+      break;
 
-      case CP_TRANSFER_CONNECTION_STATUS:
-        typeString = "CP_TRANSFER_CONNECTION_STATUS";
-        break;
+    case CP_BLIND_TRANSFER:
+      typeString = "CP_BLIND_TRANSFER";
+      break;
 
-      case CP_TRANSFEREE_CONNECTION:
-        typeString = "CP_TRANSFEREE_CONNECTION";
-        break;
+    case CP_CONSULT_TRANSFER:
+      typeString = "CP_CONSULT_TRANSFER";
+      break;
 
-      case CP_TRANSFEREE_CONNECTION_STATUS:
-        typeString = "CP_TRANSFEREE_CONNECTION_STATUS";
-        break;
+    case CP_CONSULT_TRANSFER_ADDRESS:
+      typeString = "CP_CONSULT_TRANSFER_ADDRESS";
+      break;
 
-      case CP_DROP:
-        typeString = "CP_DROP";
-        break;
+    case CP_TRANSFER_CONNECTION:
+      typeString = "CP_TRANSFER_CONNECTION";
+      break;
 
-      case CP_DROP_CONNECTION:
-        typeString = "CP_DROP_CONNECTION";
-        break;
+    case CP_TRANSFER_CONNECTION_STATUS:
+      typeString = "CP_TRANSFER_CONNECTION_STATUS";
+      break;
 
-      case CP_FORCE_DROP_CONNECTION:
-        typeString = "CP_FORCE_DROP_CONNECTION";
-        break;
+    case CP_TRANSFEREE_CONNECTION:
+      typeString = "CP_TRANSFEREE_CONNECTION";
+      break;
 
-      case CP_ANSWER_CONNECTION:
-        typeString = "CP_ANSWER_CONNECTION";
-        break;
+    case CP_TRANSFEREE_CONNECTION_STATUS:
+      typeString = "CP_TRANSFEREE_CONNECTION_STATUS";
+      break;
 
-      case CP_ACCEPT_CONNECTION:
-        typeString = "CP_ACCEPT_CONNECTION";
-        break;
+    case CP_DROP:
+      typeString = "CP_DROP";
+      break;
 
-      case CP_REJECT_CONNECTION:
-        typeString = "CP_REJECT_CONNECTION";
-        break;
+    case CP_DROP_CONNECTION:
+      typeString = "CP_DROP_CONNECTION";
+      break;
 
-      case CP_REDIRECT_CONNECTION:
-        typeString = "CP_REDIRECT_CONNECTION";
-        break;
+    case CP_FORCE_DROP_CONNECTION:
+      typeString = "CP_FORCE_DROP_CONNECTION";
+      break;
 
-      case CP_GET_NUM_CONNECTIONS:
-        typeString = "CP_GET_NUM_CONNECTIONS";
-        break;
+    case CP_ANSWER_CONNECTION:
+      typeString = "CP_ANSWER_CONNECTION";
+      break;
 
-      case CP_GET_CONNECTIONS:
-        typeString = "CP_GET_CONNECTIONS";
-        break;
+    case CP_ACCEPT_CONNECTION:
+      typeString = "CP_ACCEPT_CONNECTION";
+      break;
 
-      case CP_GET_CALLED_ADDRESSES:
-        typeString = "CP_GET_CALLED_ADDRESSES";
-        break;
- 
-      case CP_GET_CALLING_ADDRESSES:
-        typeString = "CP_GET_CALLING_ADDRESSES";
-        break;
+    case CP_REJECT_CONNECTION:
+      typeString = "CP_REJECT_CONNECTION";
+      break;
 
-      case CP_START_TONE_TERM_CONNECTION:
-        typeString = "CP_START_TONE_TERM_CONNECTION";
-        break;
+    case CP_REDIRECT_CONNECTION:
+      typeString = "CP_REDIRECT_CONNECTION";
+      break;
 
-      case CP_STOP_TONE_TERM_CONNECTION:
-        typeString = "CP_STOP_TONE_TERM_CONNECTION";
-        break;
+    case CP_GET_NUM_CONNECTIONS:
+      typeString = "CP_GET_NUM_CONNECTIONS";
+      break;
 
-      case CP_PLAY_AUDIO_TERM_CONNECTION:
-        typeString = "CP_PLAY_AUDIO_TERM_CONNECTION";
-        break;
+    case CP_GET_CONNECTIONS:
+      typeString = "CP_GET_CONNECTIONS";
+      break;
 
-      case CP_STOP_AUDIO_TERM_CONNECTION:
-        typeString = "CP_STOP_AUDIO_TERM_CONNECTION";
-        break;
+    case CP_GET_CALLED_ADDRESSES:
+      typeString = "CP_GET_CALLED_ADDRESSES";
+      break;
 
-      case CP_CREATE_PLAYER:
-        typeString = "CP_CREATE_PLAYER";
-        break;
+    case CP_GET_CALLING_ADDRESSES:
+      typeString = "CP_GET_CALLING_ADDRESSES";
+      break;
 
-      case CP_DESTROY_PLAYER:
-        typeString = "CP_DESTROY_PLAYER";
-        break;
+    case CP_START_TONE_TERM_CONNECTION:
+      typeString = "CP_START_TONE_TERM_CONNECTION";
+      break;
 
-      case CP_CREATE_PLAYLIST_PLAYER:
-        typeString = "CP_CREATE_PLAYLIST_PLAYER";
-        break;
+    case CP_STOP_TONE_TERM_CONNECTION:
+      typeString = "CP_STOP_TONE_TERM_CONNECTION";
+      break;
 
-      case CP_DESTROY_PLAYLIST_PLAYER:
-        typeString = "CP_DESTROY_PLAYLIST_PLAYER";
-        break;
+    case CP_PLAY_AUDIO_TERM_CONNECTION:
+      typeString = "CP_PLAY_AUDIO_TERM_CONNECTION";
+      break;
 
-      case CP_GET_NUM_TERM_CONNECTIONS:
-        typeString = "CP_GET_NUM_TERM_CONNECTIONS";
-        break;
+    case CP_STOP_AUDIO_TERM_CONNECTION:
+      typeString = "CP_STOP_AUDIO_TERM_CONNECTION";
+      break;
 
-      case CP_GET_TERM_CONNECTIONS:
-        typeString = "CP_GET_TERM_CONNECTIONS";
-        break;
+    case CP_CREATE_PLAYER:
+      typeString = "CP_CREATE_PLAYER";
+      break;
 
-      case CP_IS_LOCAL_TERM_CONNECTION:
-        typeString = "CP_IS_LOCAL_TERM_CONNECTION";
-        break;
+    case CP_DESTROY_PLAYER:
+      typeString = "CP_DESTROY_PLAYER";
+      break;
 
-      case CP_HOLD_TERM_CONNECTION:
-        typeString = "CP_HOLD_TERM_CONNECTION";
-        break;
+    case CP_CREATE_PLAYLIST_PLAYER:
+      typeString = "CP_CREATE_PLAYLIST_PLAYER";
+      break;
 
-      case CP_UNHOLD_TERM_CONNECTION:
-        typeString = "CP_UNHOLD_TERM_CONNECTION";
-        break;
+    case CP_DESTROY_PLAYLIST_PLAYER:
+      typeString = "CP_DESTROY_PLAYLIST_PLAYER";
+      break;
 
-      case CP_UNHOLD_LOCAL_TERM_CONNECTION:
-        typeString = "CP_UNHOLD_LOCAL_TERM_CONNECTION";
-        break;
+    case CP_GET_NUM_TERM_CONNECTIONS:
+      typeString = "CP_GET_NUM_TERM_CONNECTIONS";
+      break;
 
-      case CP_HOLD_LOCAL_TERM_CONNECTION:
-        typeString = "CP_HOLD_LOCAL_TERM_CONNECTION";
-        break;
- 
-      case CP_OFFERING_EXPIRED:
-        typeString = "CP_OFFERING_EXPIRED";
-        break;
+    case CP_GET_TERM_CONNECTIONS:
+      typeString = "CP_GET_TERM_CONNECTIONS";
+      break;
 
-      case CP_RINGING_EXPIRED:
-        typeString = "CP_RINGING_EXPIRED";
-        break;
+    case CP_IS_LOCAL_TERM_CONNECTION:
+      typeString = "CP_IS_LOCAL_TERM_CONNECTION";
+      break;
 
-      case CP_GET_CALLSTATE:
-        typeString = "CP_GET_CALLSTATE";
-        break;
+    case CP_HOLD_TERM_CONNECTION:
+      typeString = "CP_HOLD_TERM_CONNECTION";
+      break;
 
-      case CP_GET_CONNECTIONSTATE:
-        typeString = "CP_GET_CONNECTIONSTATE";
-        break;
+    case CP_UNHOLD_TERM_CONNECTION:
+      typeString = "CP_UNHOLD_TERM_CONNECTION";
+      break;
 
-      case CP_GET_TERMINALCONNECTIONSTATE:
-        typeString = "CP_GET_TERMINALCONNECTIONSTATE";
-        break;
+    case CP_UNHOLD_LOCAL_TERM_CONNECTION:
+      typeString = "CP_UNHOLD_LOCAL_TERM_CONNECTION";
+      break;
 
-      case CP_GET_SESSION:
-        typeString = "CP_GET_SESSION";
-        break;
+    case CP_HOLD_LOCAL_TERM_CONNECTION:
+      typeString = "CP_HOLD_LOCAL_TERM_CONNECTION";
+      break;
 
-     case CP_HOLD_ALL_TERM_CONNECTIONS:
-        typeString = "CP_HOLD_ALL_TERM_CONNECTIONS";
-        break;
+    case CP_OFFERING_EXPIRED:
+      typeString = "CP_OFFERING_EXPIRED";
+      break;
 
-     case CP_UNHOLD_ALL_TERM_CONNECTIONS:
-        typeString = "CP_HOLD_ALL_TERM_CONNECTIONS";
-        break ;
+    case CP_RINGING_EXPIRED:
+      typeString = "CP_RINGING_EXPIRED";
+      break;
 
-      case CP_CANCEL_TIMER:
-        typeString = "CP_CANCEL_TIMER";
-        break;
- 
-      case CP_GET_NEXT_CSEQ:
-        typeString = "CP_GET_NEXT_CSEQ";
-        break;
+    case CP_GET_CALLSTATE:
+      typeString = "CP_GET_CALLSTATE";
+      break;
 
-      default:
-        typeString = "?";
-        break;
+    case CP_GET_CONNECTIONSTATE:
+      typeString = "CP_GET_CONNECTIONSTATE";
+      break;
+
+    case CP_GET_TERMINALCONNECTIONSTATE:
+      typeString = "CP_GET_TERMINALCONNECTIONSTATE";
+      break;
+
+    case CP_GET_SESSION:
+      typeString = "CP_GET_SESSION";
+      break;
+
+   case CP_HOLD_ALL_TERM_CONNECTIONS:
+      typeString = "CP_HOLD_ALL_TERM_CONNECTIONS";
+      break;
+
+   case CP_UNHOLD_ALL_TERM_CONNECTIONS:
+      typeString = "CP_HOLD_ALL_TERM_CONNECTIONS";
+      break ;
+
+    case CP_CANCEL_TIMER:
+      typeString = "CP_CANCEL_TIMER";
+      break;
+
+    case CP_GET_NEXT_CSEQ:
+      typeString = "CP_GET_NEXT_CSEQ";
+      break;
+
+    default:
+      typeString = "?";
+      break;
     }
 }
 

@@ -808,7 +808,15 @@ void Connection::postTaoListenerMessage(int state, int newCause, int isLocal)
         // unavailable
         getCallId(&callId);                          // arg[0], callId
         if (callId.isNull())
+        {
             mpCall->getCallId(callId);
+#ifdef TEST_PRINT
+            OsSysLog::add(FAC_CP, PRI_DEBUG, "Connection::postTaoListenerMessage: "
+                          "Connection call id not found, "
+                          "Using CpCall Id = %s ",
+                          callId.data());
+#endif
+        }
 
         callId += TAOMESSAGE_DELIMITER + mLocalAddress;        // arg[1], localAddress
 
@@ -816,9 +824,13 @@ void Connection::postTaoListenerMessage(int state, int newCause, int isLocal)
         getRemoteAddress(&remoteAddress, TRUE);
 
         if (remoteAddress.isNull())                            // arg[2], remote address
+        {
             callId += TAOMESSAGE_DELIMITER + (UtlString)"UNKNOWN";    // not available yet
+        }
         else
+        {
             callId += TAOMESSAGE_DELIMITER + remoteAddress;
+        }
 
         char buff[128];
         sprintf(buff, "%d", (int)mRemoteIsCallee);
@@ -838,10 +850,14 @@ void Connection::postTaoListenerMessage(int state, int newCause, int isLocal)
             callId += TAOMESSAGE_DELIMITER + UtlString(buff);    // arg[5], local terminal name
         }
 
-        if (isLocal)
+        if (isLocal)                                        // TAO_OFFER_PARAM_LOCAL_CONNECTION
+        {
             callId += TAOMESSAGE_DELIMITER + "1";            // arg[6], isLocal
+        }
         else
+        {
             callId += TAOMESSAGE_DELIMITER + "0";            // isLocal
+        }
 
         sprintf(buff, "%d", mResponseCode);
         callId += TAOMESSAGE_DELIMITER + UtlString(buff);    // arg[7], SIP response code

@@ -363,9 +363,9 @@ void ParkedCallObject::keypress(int keycode)
                  "callId = '%s', parker = '%s', keycode = %d",
                  mOriginalCallId.data(), mParker.data(), keycode);
    // Must test if the keypress is to cause a transfer.
-   if (mKeycode != OrbitData::NO_KEYCODE &&
-       keycode == mKeycode &&
-       !mParker.isNull())
+   if (mKeycode != OrbitData::NO_KEYCODE 
+       && keycode == mKeycode 
+       && !mParker.isNull())
    {
       // Call startBlindTransfer, which will check if a transfer is
       // already in progress, and if not, start a blind transfer.

@@ -448,7 +448,7 @@ private:
     int mNumDialPlanDigits;
     int mHoldType;
     SdpCodecFactory* mpCodecFactory;
-    int mTransferType;
+    int mTransferType;                  // while this does get set, I can't find any code that uses it to decide anything (ke)
     UtlString mLocale;
     int mMessageEventCount;
     int mnTotalIncomingCalls;
