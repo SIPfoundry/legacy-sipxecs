@@ -49,15 +49,9 @@ NameValuePair::NameValuePair(const char* name, const char* value) :
 
 // Copy constructor
 NameValuePair::NameValuePair(const NameValuePair& rNameValuePair) :
-UtlString(rNameValuePair)
+UtlString(rNameValuePair),
+valueString( NULL )
 {
-    // Slow copy does implicit const./dest of UtlString
-    //((UtlString) *this) = rNameValuePair;
-
-    // Use parent copy constructor
-    this->UtlString::operator=(rNameValuePair);
-
-    valueString = NULL;
     setValue(rNameValuePair.valueString);
 }
 
@@ -113,7 +107,7 @@ void NameValuePair::setValue(const char* newValue)
                 if (!valueString)
                         valueString = new char[len + 1];
 
-                strcpy(valueString, newValue);
+                memcpy(valueString, newValue, len + 1 );
         }
         else if(valueString)
         {
