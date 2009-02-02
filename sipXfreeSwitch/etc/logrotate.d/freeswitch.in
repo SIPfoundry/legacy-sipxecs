@@ -1,0 +1,18 @@
+@SIPX_LOGDIR@/freeswitch.log {
+    # Use delay-compressed logfiles
+    compress
+    delaycompress
+
+    # Keep 14 days of logs
+    daily
+    rotate 14
+
+    # It's OK if the files aren't there
+    missingok
+
+    notifempty
+    postrotate
+        # Tell freeswitch to reopen the log file
+        @FREESWITCH_PREFIX@/bin/fs_cli -x "fsctl send_sighup" >/dev/null 2>&1
+    endscript
+}

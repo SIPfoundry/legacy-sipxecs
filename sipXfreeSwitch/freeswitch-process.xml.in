@@ -25,6 +25,7 @@
     <file>@SIPX_CONFDIR@/freeswitch/conf/freeswitch.xml</file>
     <file>@SIPX_CONFDIR@/freeswitch/conf/autoload_configs/xml_rpc.conf.xml</file>
     <file>@SIPX_CONFDIR@/freeswitch/conf/autoload_configs/modules.conf.xml</file>
+    <file>@SIPX_CONFDIR@/freeswitch/conf/autoload_configs/logfile.conf.xml</file>
     <file>@SIPX_CONFDIR@/freeswitch/conf/dialplan/sipX_context.xml</file>
     <file>@SIPX_CONFDIR@/freeswitch/conf/sip_profiles/sipX_profile.xml</file>
   </resources>

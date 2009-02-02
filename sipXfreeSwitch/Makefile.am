@@ -9,7 +9,8 @@ SIPX_PROCESS_DEFS = \
 
 
 SUBDIRS = \
-	bin 
+	bin \
+        etc
 
 DISTCLEANFILES = freeswitch-process.xml
 
