@@ -12,14 +12,23 @@
 
 #include <sipxunit/TestUtilities.h>
 #include <os/OsTimerTask.h>
+#include <os/OsTimer.h>
+#include <os/OsTime.h>
 
-class OsTimerTaskTest : public CppUnit::TestCase
+class OsTimerTaskTest : public CppUnit::TestCase, public OsNotification
 {
     CPPUNIT_TEST_SUITE(OsTimerTaskTest);
-    CPPUNIT_TEST(testTimerTask);
+    CPPUNIT_TEST(testTimerTask);    
+    CPPUNIT_TEST(testStopAndDeleteRaceCondition);
     CPPUNIT_TEST_SUITE_END();
 
 public:
+    virtual OsStatus signal(intptr_t eventData)
+    {
+       printf("%p signaled\r\n", (void *)eventData );
+       return OS_SUCCESS;
+    }
+   
     void testTimerTask()
     {
         OsTimerTask* pTimerTask;
@@ -36,6 +45,25 @@ public:
         OsTask::delay(500);    // wait 1/2 second
 
         pTimerTask->destroyTimerTask();
+    }
+    
+    void testStopAndDeleteRaceCondition()
+    {
+       // no explicit check is done.  If the race condition
+       // exists, a segfault will ensue (XECS-2139)
+       OsTimerTask* pTimerTask;
+       OsTimer*     pTestTimer;
+       OsTime       offset( 100000 );
+
+       pTimerTask = OsTimerTask::getTimerTask();
+       for( ssize_t index = 0; index < 2500; index ++ )
+       {
+          pTestTimer = new OsTimer( *this );
+          pTestTimer->oneshotAfter( offset );
+          usleep( rand() % 10000 );
+          pTestTimer->stop(FALSE);
+          delete pTestTimer;
+       }
     }
 };
 

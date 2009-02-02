@@ -263,7 +263,7 @@ class OsTimer : public UtlContainableAtomic
    //< state as seen by application methods
    unsigned int    mTaskState; //< state as seen by the timer task
    UtlBoolean      mDeleting;  //< TRUE if timer is being deleted
-
+   UtlBoolean      mProcessingInProgress;  //< TRUE if OsTimerTask is currently processing a message related to this timer
    OsNotification* mpNotifier; //< used to signal timer expiration event
    UtlBoolean      mbManagedNotifier;
    /**< TRUE if OsTimer destructor

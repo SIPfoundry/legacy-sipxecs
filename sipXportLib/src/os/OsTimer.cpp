@@ -106,14 +106,10 @@ OsTimer::~OsTimer()
          sendMessage = TRUE;
          mApplicationState++;
       }
-      // Check if there are outstanding messages that have to be waited for,
-      // or if the timer is currently firing.
-      if (mOutstandingMessages > 0 || mFiring) {
-         sendMessage = TRUE;
-      }
-      // If we have to send a message, make note of it.
-      if (sendMessage) {
+      if( mOutstandingMessages > 0 || mProcessingInProgress || mFiring )
+      {
          mOutstandingMessages++;
+         sendMessage = TRUE;
       }
    }
 

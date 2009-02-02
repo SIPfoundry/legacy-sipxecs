@@ -297,7 +297,11 @@ UtlBoolean OsTimerTask::handleMessage(OsMsg& rMsg)
       OsLock lock(timer->mBSem);
 
       // mDeleting may be true, if the destructor has started running.
-
+      
+      // set flag to indicate that the timer is currently
+      // being used to process a message.  This flag inhibits
+      // asynchronous destruction of the timer (XECS-2139)
+      timer->mProcessingInProgress = TRUE;
       // Decrement the outstanding message count.
       timer->mOutstandingMessages--;
 
@@ -364,17 +368,22 @@ UtlBoolean OsTimerTask::handleMessage(OsMsg& rMsg)
       // Set mDeleting to FALSE to the destructor won't fail.
       timer->mDeleting = FALSE;
 #endif
-
+      timer->mProcessingInProgress = FALSE;
+       
       // Use ordinary destructor to delete the timer.
       // Because of the state of the timer, it will not send a message to
       // the timer task.
       delete timer;
+      timer = 0;
       break;
    default:
       // :TODO: ? all cases handled?
       break;
    }
-
+   if( timer )
+   {
+      timer->mProcessingInProgress = FALSE;
+   }
    return TRUE;
 }
 
