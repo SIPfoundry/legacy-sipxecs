@@ -65,10 +65,12 @@ MappingRulesUrlMapping::getContactList(const Url& requestUri,
    OsStatus contactsSet = OS_FAILED; 
    UtlString variableDigits;
    const TiXmlNode* pMatchingUserMatchContainerNode = 0;
+   const TiXmlNode* pMatchingHostMatchContainerNode = 0;
    
    if( getUserMatchContainerMatchingRequestURI(requestUri,
                                                variableDigits,                                                     
-                                               pMatchingUserMatchContainerNode ) == OS_SUCCESS )
+                                               pMatchingUserMatchContainerNode,
+                                               pMatchingHostMatchContainerNode ) == OS_SUCCESS )
    {
       contactsSet = parsePermMatchContainer( requestUri, 
                                              variableDigits, 

@@ -5,7 +5,7 @@
 
 /// Get the top-level text content of an XML element.
 void textContentShallow(UtlString& string, ///< replaced with TEXT content of node.
-                        TiXmlNode *node);
+                        const TiXmlNode *node);
 ///< This skips over and ignores any non-text nodes.
 //   'node' may be NULL, in which case 'string' is set to empty.
 

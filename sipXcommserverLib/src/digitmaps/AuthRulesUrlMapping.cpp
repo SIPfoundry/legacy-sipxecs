@@ -62,10 +62,12 @@ AuthRulesUrlMapping::getPermissionRequired(const Url& requestUri,
    OsStatus permissionsSet = OS_FAILED; 
    UtlString variableDigits;
    const TiXmlNode* pMatchingUserMatchContainerNode = 0;
+   const TiXmlNode* pMatchingHostMatchContainerNode = 0;
    
    if( getUserMatchContainerMatchingRequestURI(requestUri,
                                                variableDigits,                                                     
-                                               pMatchingUserMatchContainerNode ) == OS_SUCCESS )
+                                               pMatchingUserMatchContainerNode,
+                                               pMatchingHostMatchContainerNode) == OS_SUCCESS )
    {
       permissionsSet = parsePermMatchContainer( requestUri, 
                                                 variableDigits, 

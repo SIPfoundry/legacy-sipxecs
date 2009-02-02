@@ -3,6 +3,8 @@
 TESTS = \
 	calleraliastest \
 	enforcerulestest \
+	emergencyrulestest \
+	enforcerulestest \
 	msftxferhacktest \
 	nattraversalagenttests \
 	nattraversaltests \
@@ -12,6 +14,7 @@ TESTS = \
 check_PROGRAMS = \
 	calleraliastest \
 	enforcerulestest \
+	emergencyrulestest \
 	msftxferhacktest \
 	nattraversalagenttests \
 	nattraversaltests \
@@ -41,6 +44,16 @@ enforcerulestest_SOURCES = \
 	EnforceAuthRulesTest.cpp
 
 enforcerulestest_LDADD = \
+	$(COMMON_LIBS)
+
+emergencyrulestest_CXXFLAGS = \
+	$(COMMON_CXX_FLAGS)
+
+emergencyrulestest_SOURCES = \
+	$(top_srcdir)/lib/authplugins/EmergencyNotify.cpp \
+	EmergencyNotificationTest.cpp
+
+emergencyrulestest_LDADD = \
 	$(COMMON_LIBS)
 
 calleraliastest_CXXFLAGS = \

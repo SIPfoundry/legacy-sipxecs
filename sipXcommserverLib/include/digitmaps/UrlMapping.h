@@ -118,7 +118,9 @@ protected:
     // user and domain patterns of the supplied request-URI 
     OsStatus getUserMatchContainerMatchingRequestURI(const Url& requestUri,
                                                      UtlString& variableDigits,                                                     
-                                                     const TiXmlNode*& prMatchingUserMatchContainerNode
+                                                     const TiXmlNode*& prMatchingUserMatchContainerNode,
+                                                     const TiXmlNode*& prMatchingHostMatchContainerNode,
+                                                     const char* ruleType = NULL  ///< e.g. Emergency to match only emerg rules
                                                      ) const;
 
     OsStatus doTransform(const Url& requestUri,

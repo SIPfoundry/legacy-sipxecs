@@ -327,7 +327,7 @@
       </documentation>
     </annotation>
   </element>
-  
+
   <element name='description' type='string'>
     <annotation>
       <documentation>

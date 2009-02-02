@@ -69,6 +69,12 @@
          <description>Memory usage on {0} has recovered back to {2}%.  The threshold is {1}%.</description>
          <resolution>No action is required.</resolution>
       </alarm>
+      <alarm id="EMERG_NUMBER_DIALED">
+         <shorttitle>Emergency number dialed</shorttitle>
+         <description>Emergency dial rule '{0} ({1})' was invoked by '{2}&lt;{3}&gt;' contact {4}</description>
+         <resolution>A user has dialed a number which is configured as an Emergency number.
+                     The user name and contact address of the phone is given.</resolution>
+      </alarm>
 
       <!-- Add new alarms above this line.
           Notes:

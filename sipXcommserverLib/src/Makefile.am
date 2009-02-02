@@ -58,6 +58,7 @@ libsipXcommserver_la_SOURCES = \
     digitmaps/UrlMapping.cpp \
     digitmaps/FallbackRulesUrlMapping.cpp \
     digitmaps/AuthRulesUrlMapping.cpp \
+    digitmaps/EmergencyRulesUrlMapping.cpp \
     digitmaps/MappingRulesUrlMapping.cpp \
     digitmaps/Patterns.cpp \
     filereader/OrbitFileReader.cpp \

@@ -39,6 +39,7 @@ nobase_include_HEADERS =  \
     digitmaps/UrlMapping.h \
     digitmaps/FallbackRulesUrlMapping.h \
     digitmaps/AuthRulesUrlMapping.h \
+    digitmaps/EmergencyRulesUrlMapping.h \
     digitmaps/MappingRulesUrlMapping.h \
     digitmaps/Patterns.h \
     fastdb/array.h \

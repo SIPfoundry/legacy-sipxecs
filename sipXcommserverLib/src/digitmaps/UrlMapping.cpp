@@ -368,7 +368,10 @@ UrlMapping::loadMappings(const UtlString& configFileName,
 OsStatus
 UrlMapping::getUserMatchContainerMatchingRequestURI(const Url&  requestUri,
                                                     UtlString&  variableDigits,
-                                                    const TiXmlNode*& prMatchingUserMatchContainerNode ) const
+                                                    const TiXmlNode*& prMatchingUserMatchContainerNode,
+                                                    const TiXmlNode*& prMatchingHostMatchContainerNode,
+                                                    const char* ruleType
+                                                    ) const
 {
     prMatchingUserMatchContainerNode = 0;
     variableDigits.remove(0);
@@ -412,6 +415,22 @@ UrlMapping::getUserMatchContainerMatchingRequestURI(const Url&  requestUri,
           if(tagValue.compareTo(XML_TAG_HOSTMATCH) == 0 )
           {
              //found hostmatch tag
+
+             //if ruleType is constrained, check for match
+             if ( ruleType != NULL )
+             {
+                const TiXmlNode*  typeNode = pHostMatchNode->FirstChild("ruleType");
+                if (!typeNode)
+                {
+                   continue;
+                }
+                UtlString currentRuleType = typeNode->FirstChild()->Value();
+                if ( currentRuleType != ruleType )
+                {
+                   continue;
+                }
+             }
+
              //check for host Match patterns in it
              TiXmlNode* pHostPatternNode = NULL;
 
@@ -489,6 +508,7 @@ UrlMapping::getUserMatchContainerMatchingRequestURI(const Url&  requestUri,
 
                          if (hostMatchFound)
                          {
+                            prMatchingHostMatchContainerNode = pHostMatchNode;
                             userMatchFound = getUserMatchContainer(requestUri,
                                                                    pHostMatchNode,
                                                                    variableDigits,

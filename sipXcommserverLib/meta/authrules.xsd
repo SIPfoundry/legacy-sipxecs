@@ -38,7 +38,9 @@
     </annotation>
     <complexType>
       <sequence>
+        <element ref='dmp:name' minOccurs='0' maxOccurs='1'/>
         <element ref='dmp:description' minOccurs='0' />
+        <element ref='dmp:ruleType'   minOccurs='0' maxOccurs='1'/>
         <element ref='dmp:hostPattern' minOccurs='0' maxOccurs='unbounded'/>
         <element ref='dmp:userMatch'   minOccurs='0' maxOccurs='unbounded'/>
       </sequence>
@@ -151,10 +153,37 @@
     </annotation>
   </element>
 
+  <element name='name' type='string'>
+    <annotation>
+      <documentation>
+        Used to specify the rule in the user interface.
+      </documentation>
+    </annotation>
+  </element>
+
   <element name='description' type='string'>
     <annotation>
       <documentation>
         Used to describe the rule in the user interface.
+      </documentation>
+    </annotation>
+  </element>
+
+  <simpleType name='validRuleTypes'>
+    <annotation>
+      <documentation>
+        The list of valid dialing rule types.  Optional, but if given must be one of the following.
+      </documentation>
+    </annotation>
+    <restriction base='normalizedString'>
+       <enumeration value='Emergency'/>
+    </restriction>
+  </simpleType>
+
+  <element name='ruleType' type='dmp:validRuleTypes'>
+    <annotation>
+      <documentation>
+        Type of rule.
       </documentation>
     </annotation>
   </element>

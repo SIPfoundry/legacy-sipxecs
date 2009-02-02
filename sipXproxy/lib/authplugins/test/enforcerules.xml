@@ -2,6 +2,8 @@
 <mappings xmlns='http://www.sipfoundry.org/sipX/schema/xml/urlauth-00-00'>
 
   <hostMatch>
+    <name>Emergency</name>
+    <ruleType>Emergency</ruleType>
     <hostPattern>emergency-gw</hostPattern>
     <userMatch>
       <userPattern>911</userPattern>

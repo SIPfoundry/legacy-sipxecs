@@ -6,7 +6,7 @@
 #include "xmlparser/ExtractContent.h"
 
 void textContentShallow(UtlString& string,
-                        TiXmlNode *node)
+                        const TiXmlNode *node)
 {
    // Clear the string.
    string.remove(0);
@@ -16,7 +16,7 @@ void textContentShallow(UtlString& string,
       return;
 
    // Iterate through all the children.
-   for (TiXmlNode* child = node->FirstChild(); child;
+   for (const TiXmlNode* child = node->FirstChild(); child;
         child = child->NextSibling())
    {
       // Examine the text nodes.

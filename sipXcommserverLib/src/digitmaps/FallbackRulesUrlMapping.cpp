@@ -62,10 +62,12 @@ FallbackRulesUrlMapping::getContactList(const Url& requestUri,
    bool bLocationMatchFound = false;
    UtlString variableDigits;
    const TiXmlNode* pMatchingUserMatchContainerNode = 0;
+   const TiXmlNode* pMatchingHostMatchContainerNode = 0;
    
    if( getUserMatchContainerMatchingRequestURI(requestUri,
                                                variableDigits,                                                     
-                                               pMatchingUserMatchContainerNode ) == OS_SUCCESS )
+                                               pMatchingUserMatchContainerNode,
+                                               pMatchingHostMatchContainerNode ) == OS_SUCCESS )
    {
       // Try to locate a callerLocationMatch section that matches the supplied location.
       const TiXmlElement* pMappingElement = pMatchingUserMatchContainerNode->ToElement();
