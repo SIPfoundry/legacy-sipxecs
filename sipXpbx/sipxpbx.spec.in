@@ -37,7 +37,7 @@ Requires: httpd >= 2.0
 Requires: smtpdaemon
 %endif
 %if %{_vendor} == suse
-Requires: postfix
+Requires: sendmail
 %endif
 
 Prefix:    %_prefix
