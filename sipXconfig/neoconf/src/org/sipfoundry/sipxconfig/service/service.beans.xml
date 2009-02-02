@@ -428,6 +428,7 @@
         <ref bean="sofiaConfiguration" />
         <ref bean="xmlRpcConfiguration" />
         <ref bean="modulesConfiguration" />
+        <ref bean="logfileConfiguration" />
       </list>
     </property>
     <property name="bundles">
@@ -474,6 +475,13 @@
     scope="prototype">
     <property name="name" value="modules.conf.xml" />
     <property name="template" value="freeswitch/modules.conf.xml.vm" />
+    <property name="directory" value="${sysdir.etc}/freeswitch/conf/autoload_configs" />
+  </bean>
+
+  <bean id="logfileConfiguration" parent="serviceConfigurationFile" class="org.sipfoundry.sipxconfig.service.freeswitch.LogfileConfiguration"
+    scope="prototype">
+    <property name="name" value="logfile.conf.xml" />
+    <property name="template" value="freeswitch/logfile.conf.xml.vm" />
     <property name="directory" value="${sysdir.etc}/freeswitch/conf/autoload_configs" />
   </bean>
 
