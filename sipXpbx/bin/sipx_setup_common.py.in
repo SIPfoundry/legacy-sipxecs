@@ -222,6 +222,12 @@ def setRights(path, owner='@SIPXPBXUSER@', group='@SIPXPBXGROUP@', access="u=rw,
     cmdoutput=commands.getoutput(chmodCmd)
     log_printout(cmdoutput)
     
+def setOwnerRecursive(path, owner='@SIPXPBXUSER@', group='@SIPXPBXGROUP@') :
+
+    chownCmd="chown -R -v %s:%s %s" % (owner,group,path)
+    log_printout("  Recursively setting ownership of '%s' using:\n  %s" % (path, chownCmd))
+    cmdoutput=commands.getoutput(chownCmd)
+    log_printout(cmdoutput)
 
 def screen_ask_first ():
 
@@ -464,6 +470,7 @@ def generate_ssl_cert () :
 
     show_starting()
     cmdoutput=commands.getoutput (genSsl)
+    setOwnerRecursive(SSL_GENDIR)
     show_next()
     log_printout (cmdoutput)
     
