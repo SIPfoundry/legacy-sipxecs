@@ -27,5 +27,6 @@
     <imdb>credential</imdb>
     <imdb>permission</imdb>
     <imdb>caller-alias</imdb>
+    <process>SipXrelay</process>
   </resources>
 </sipXecs-process>

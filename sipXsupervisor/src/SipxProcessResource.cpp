@@ -59,7 +59,11 @@ bool SipxProcessResource::parse(const TiXmlDocument& processDefinitionDoc, ///< 
             processResource = new SipxProcessResource(processName);
          }
          // do not register this resource as used by itself
-
+         if( processResource->compareTo( currentProcess ) != 0 )
+         {
+            processResource->usedBy( currentProcess );
+         }
+         
          for ( const TiXmlAttribute* attribute = resourceElement->FirstAttribute();
                resourceIsValid && attribute;
                attribute = attribute->Next()

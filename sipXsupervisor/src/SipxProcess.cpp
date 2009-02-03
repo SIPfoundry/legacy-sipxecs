@@ -1603,6 +1603,18 @@ void SipxProcess::clearStatusMessages()
    mNumStderrMsgs = 0;
 }
 
+/// Notify the process resource that it has been modified so that it can
+/// in turn notify the processes that have a start-up dependency on this.
+void SipxProcess::notifyProcessRunning()
+{
+   OsLock mutex(mLock);
+   
+   if( mSelfResource )
+   {
+      mSelfResource->modified();
+   }
+}
+
 /// Custom comparison method that allows SipxProcess retrieved in Utl containers
 /// using UtlStrings or any UtlString-derived object.
 int SipxProcess::compareTo(UtlContainable const *other) const

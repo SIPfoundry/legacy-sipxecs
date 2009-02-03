@@ -211,6 +211,9 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
    
    /// Clear any status messages accumulated so far and reset log counters
    void clearStatusMessages();
+   
+   /// Notify all the processes that have a dependency on this one that it is now running
+   void notifyProcessRunning();
 
    /// Custom comparison method that allows SipxProcess retrieved in Utl containers
    /// using UtlStrings or any UtlString-derived object.

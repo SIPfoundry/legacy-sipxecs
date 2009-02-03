@@ -377,6 +377,7 @@ void Failed::DoExitAction( SipxProcess& impl ) const
 void Running::DoEntryAction( SipxProcess& impl ) const
 {
    impl.clearStatusMessages();
+   impl.notifyProcessRunning();
 }
 
 void Running::evStopProcess( SipxProcess& impl ) const
