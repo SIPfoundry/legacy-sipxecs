@@ -21,6 +21,7 @@ import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
@@ -53,6 +54,9 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
 
     @InjectObject(value = "spring:sbcDeviceManager")
     public abstract SbcDeviceManager getSbcDeviceManager();
+
+    @InjectObject("spring:dialPlanActivationManager")
+    public abstract DialPlanActivationManager getDialPlanActivationManager();
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
@@ -199,7 +203,7 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
         }
         // only for updating gateway
         if (this.getGatewayModel() == null) {
-            getDialPlanContext().replicateDialPlan(true); // restartSBCDevices == true
+            getDialPlanActivationManager().replicateDialPlan(true); // restartSBCDevices == true
         }
     }
 

@@ -18,7 +18,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivatedEvent;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.common.AlarmContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.domain.Domain;
@@ -89,14 +89,14 @@ public class FirstRunTaskTestIntegration extends IntegrationTestCase {
         m_firstRun.setDomainManager(domainManager);
         AdminContext adminContext = createNiceMock(AdminContext.class);
         m_firstRun.setAdminContext(adminContext);
-        DialPlanContext dialPlanContext = createNiceMock(DialPlanContext.class);
-        m_firstRun.setDialPlanContext(dialPlanContext);
+        DialPlanActivationManager dpam = createNiceMock(DialPlanActivationManager.class);
+        m_firstRun.setDialPlanActivationManager(dpam);
         CoreContext coreContext = createNiceMock(CoreContext.class);
         m_firstRun.setCoreContext(coreContext);
         AlarmContext alarmContext = createNiceMock(AlarmContext.class);
         m_firstRun.setAlarmContext(alarmContext);
 
-        replay(domainManager, adminContext, dialPlanContext, coreContext, alarmContext);
+        replay(domainManager, adminContext, dpam, coreContext, alarmContext);
 
         loadDataSetXml("admin/commserver/seedLocationsAndServices.xml");
         m_firstRun.setLocationsManager(m_locationsManager);

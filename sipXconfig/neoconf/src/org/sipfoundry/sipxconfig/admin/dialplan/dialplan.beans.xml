@@ -13,8 +13,7 @@
     <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
 
-  <bean id="exchangeUmMediaServer" class="org.sipfoundry.sipxconfig.admin.dialplan.ExchangeMediaServer"
-    scope="prototype">
+  <bean id="exchangeUmMediaServer" class="org.sipfoundry.sipxconfig.admin.dialplan.ExchangeMediaServer" scope="prototype">
     <property name="label" value="Exchange Voicemail Server" />
     <property name="localizationContext" ref="localizationContext" />
   </bean>
@@ -57,8 +56,7 @@
     <property name="enabled" value="false" />
   </bean>
 
-  <bean id="defaultLongDistanceRule" class="org.sipfoundry.sipxconfig.admin.dialplan.LongDistanceRule"
-    abstract="true">
+  <bean id="defaultLongDistanceRule" class="org.sipfoundry.sipxconfig.admin.dialplan.LongDistanceRule" abstract="true">
     <property name="permissionManager" ref="permissionManager" />
     <property name="name" value="Long Distance" />
     <property name="description" value="Long distance dialing plan" />
@@ -135,54 +133,62 @@
     <property name="settingDao" ref="settingDao" />
     <property name="sipxReplicationContext" ref="sipxReplicationContext" />
     <property name="defaultDialPlanId" value="na.dialPlan" />
-    <property name="sbcDeviceManager" ref="sbcDeviceManager" />
-    <property name="sbcProfileManager" ref="sbcProfileManager" />
-	<property name="sipxServiceManager" ref="sipxServiceManager" />
-	<property name="sipxProcessContext" ref="sipxProcessContext" />
-    <lookup-method name="getGatewayProfileManager" bean="gatewayProfileManager" />
     <lookup-method name="getGatewayContext" bean="gatewayContext" />
     <lookup-method name="createSpecialAutoAttendantMode" bean="specialAutoAttendantMode" />
   </bean>
 
   <bean id="dialPlanContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces">
-      <value>org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext</value>
+      <value>org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext
+      </value>
     </property>
     <property name="target">
       <ref local="dialPlanContextImpl" />
     </property>
   </bean>
 
-  <bean id="mappingRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.MappingRules"
-    parent="defaultConfigurationFile">
+  <bean id="eagerDialPlanActivationManager" class="org.sipfoundry.sipxconfig.admin.dialplan.EagerDialPlanActivationManager">
+    <property name="sbcDeviceManager" ref="sbcDeviceManager" />
+    <property name="sbcProfileManager" ref="sbcProfileManager" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="sipxProcessContext" ref="sipxProcessContext" />
+    <property name="dialPlanContext" ref="dialPlanContext" />
+    <lookup-method name="getGatewayProfileManager" bean="gatewayProfileManager" />
+    <lookup-method name="getGatewayContext" bean="gatewayContext" />
+    <!-- using eager replication bean here -->
+    <property name="sipxReplicationContext" ref="sipxReplicationContextDao" />
+  </bean>
+
+  <bean id="dialPlanActivationManager" class="org.sipfoundry.sipxconfig.admin.dialplan.LazyDialPlanActivationManager"
+    init-method="init">
+    <property name="target" ref="eagerDialPlanActivationManager" />
+  </bean>
+
+  <bean id="mappingRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.MappingRules" parent="defaultConfigurationFile">
     <property name="name" value="mappingrules.xml" />
     <property name="domainManager" ref="domainManager" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
 
-  <bean id="fallbackRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.FallbackRules"
-    parent="defaultConfigurationFile">
+  <bean id="fallbackRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.FallbackRules" parent="defaultConfigurationFile">
     <property name="name" value="fallbackrules.xml" />
     <property name="domainManager" ref="domainManager" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
 
-  <bean id="authRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.AuthRules"
-    parent="defaultConfigurationFile">
+  <bean id="authRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.AuthRules" parent="defaultConfigurationFile">
     <property name="name" value="authrules.xml" />
     <property name="domainManager" ref="domainManager" />
   </bean>
 
-  <bean id="forwardingRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.ForwardingRules"
-    parent="defaultConfigurationFile">
+  <bean id="forwardingRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.ForwardingRules" parent="defaultConfigurationFile">
     <property name="name" value="forwardingrules.xml" />
     <property name="velocityEngine" ref="velocityEngine" />
     <property name="sbcManager" ref="sbcManager" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
 
-  <bean id="natTraversalRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.NatTraversalRules"
-    parent="defaultConfigurationFile">
+  <bean id="natTraversalRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.NatTraversalRules" parent="defaultConfigurationFile">
     <property name="name" value="nattraversalrules.xml" />
     <property name="velocityEngine" ref="velocityEngine" />
     <property name="sbcManager" ref="sbcManager" />
@@ -236,18 +242,17 @@
     <property name="prompt" value="afterhours.wav" />
   </bean>
 
-  <bean id="attendantMigrationContextImpl"
-    class="org.sipfoundry.sipxconfig.admin.dialplan.AttendantMigrationContextImpl">
+  <bean id="attendantMigrationContextImpl" class="org.sipfoundry.sipxconfig.admin.dialplan.AttendantMigrationContextImpl">
     <property name="dialPlanContext">
       <ref local="dialPlanContext" />
     </property>
     <property name="sessionFactory" ref="sessionFactory" />
   </bean>
 
-  <bean id="attendantMigrationContext" class="org.springframework.aop.framework.ProxyFactoryBean"
-    parent="abstractDao">
+  <bean id="attendantMigrationContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces">
-      <value>org.sipfoundry.sipxconfig.admin.dialplan.AttendantMigrationContext</value>
+      <value>org.sipfoundry.sipxconfig.admin.dialplan.AttendantMigrationContext
+      </value>
     </property>
     <property name="target">
       <ref local="attendantMigrationContextImpl" />
@@ -278,8 +283,7 @@
     <property name="domainManager" ref="domainManager" />
   </bean>
 
-  <bean id="attendantSaveDefaultGroup"
-    class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.OnAutoAttendantGroupSave">
+  <bean id="attendantSaveDefaultGroup" class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.OnAutoAttendantGroupSave">
     <property name="dialPlanContext" ref="dialPlanContext" />
     <property name="autoAttendantsConfig" ref="autoAttendantsConfig" />
   </bean>

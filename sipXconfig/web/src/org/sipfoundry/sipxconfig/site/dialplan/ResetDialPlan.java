@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.site.dialplan;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.InjectObject;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
@@ -25,6 +26,9 @@ public abstract class ResetDialPlan extends PageWithCallback {
     @InjectObject(value = "spring:localizationContext")
     public abstract LocalizationContext getLocalizationContext();
 
+    @InjectObject("spring:dialPlanActivationManager")
+    public abstract DialPlanActivationManager getDialPlanActivationManager();
+
     public void cancel(IRequestCycle cycle) {
         getCallback().performCallback(cycle);
     }
@@ -33,6 +37,6 @@ public abstract class ResetDialPlan extends PageWithCallback {
         String id = getLocalizationContext().getCurrentRegionId();
         getDialPlanContext().resetToFactoryDefault(id + ".dialPlan");
         getCallback().performCallback(cycle);
-        getDialPlanContext().replicateDialPlan(true); // restartSBCDevices == true
+        getDialPlanActivationManager().replicateDialPlan(true); // restartSBCDevices == true
     }
 }

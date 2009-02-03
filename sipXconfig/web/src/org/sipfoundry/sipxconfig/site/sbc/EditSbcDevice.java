@@ -18,7 +18,7 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDescriptor;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
@@ -37,8 +37,8 @@ public abstract class EditSbcDevice extends PageWithCallback implements PageBegi
     @InjectObject(value = "spring:sbcDeviceManager")
     public abstract SbcDeviceManager getSbcDeviceManager();
 
-    @InjectObject("spring:dialPlanContext")
-    public abstract DialPlanContext getDialPlanContext();
+    @InjectObject("spring:dialPlanActivationManager")
+    public abstract DialPlanActivationManager getDialPlanActivationManager();
 
     @Persist
     public abstract String getReturnPageName();
@@ -156,7 +156,7 @@ public abstract class EditSbcDevice extends PageWithCallback implements PageBegi
 
         // only for updating sbc
         if (this.getSbcDescriptor() == null) {
-            getDialPlanContext().replicateDialPlan(true); // restartSBCDevices == true
+            getDialPlanActivationManager().replicateDialPlan(true); // restartSBCDevices == true
         }
     }
 

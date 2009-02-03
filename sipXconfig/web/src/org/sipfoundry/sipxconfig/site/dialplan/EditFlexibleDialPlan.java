@@ -19,6 +19,7 @@ import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleType;
@@ -39,6 +40,9 @@ public abstract class EditFlexibleDialPlan extends BasePage {
 
     @InjectObject(value = "spring:forwardingContext")
     public abstract ForwardingContext getForwardingContext();
+
+    @InjectObject("spring:dialPlanActivationManager")
+    public abstract DialPlanActivationManager getDialPlanActivationManager();
 
     @Persist
     @InitialValue(value = "literal:dialingRules")
@@ -73,7 +77,7 @@ public abstract class EditFlexibleDialPlan extends BasePage {
         move(getRowsToMoveDown(), 1);
         delete();
         duplicate();
-        getDialPlanContext().replicateDialPlan(true); // restartSBCDevices == true
+        getDialPlanActivationManager().replicateDialPlan(true); // restartSBCDevices == true
     }
 
     /**

@@ -69,7 +69,6 @@ public class EditGatewayTest extends TestCase {
         dialPlanContext.getRule(rule.getId());
         dialPlanContextControl.andReturn(rule);
         dialPlanContext.storeRule(rule);
-        dialPlanContext.replicateDialPlan(true);
 
         dialPlanContextControl.replay();
         contextControl.replay();
@@ -80,7 +79,7 @@ public class EditGatewayTest extends TestCase {
         m_editGatewayPage.setGatewayId(g.getId());
         m_editGatewayPage.setRuleId(rule.getId());
         m_editGatewayPage.pageBeginRender(null);
-
+        m_editGatewayPage.setGatewayModel(new GatewayModel("xxx", "xxx"));
         m_editGatewayPage.saveGateway();
 
         dialPlanContextControl.verify();

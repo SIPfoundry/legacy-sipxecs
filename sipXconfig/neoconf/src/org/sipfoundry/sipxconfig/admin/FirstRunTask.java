@@ -17,7 +17,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivatedEvent;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.common.AlarmContext;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -37,7 +37,7 @@ public class FirstRunTask implements ApplicationListener {
     private CoreContext m_coreContext;
     private AdminContext m_adminContext;
     private DomainManager m_domainManager;
-    private DialPlanContext m_dialPlanContext;
+    private DialPlanActivationManager m_dialPlanActivationManager;
     private SipxProcessContext m_processContext;
     private SipxServiceManager m_sipxServiceManager;
     private String m_taskName;
@@ -55,7 +55,7 @@ public class FirstRunTask implements ApplicationListener {
         m_coreContext.initializeSpecialUsers();
         enforceRoles();
 
-        m_dialPlanContext.activateDialPlan(false); // restartSBCDevices == false
+        m_dialPlanActivationManager.replicateDialPlan(false);
         m_alarmContext.replicateAlarmServer();
 
         List<SipxService> restartable = m_sipxServiceManager.getRestartable();
@@ -130,9 +130,8 @@ public class FirstRunTask implements ApplicationListener {
         m_domainManager = domainManager;
     }
 
-    @Required
-    public void setDialPlanContext(DialPlanContext dialPlanContext) {
-        m_dialPlanContext = dialPlanContext;
+    public void setDialPlanActivationManager(DialPlanActivationManager dialPlanActivationManager) {
+        m_dialPlanActivationManager = dialPlanActivationManager;
     }
 
     @Required

@@ -12,50 +12,38 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 import java.util.Collection;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-/**
- * DialPlanContext
- */
 public interface DialPlanContext extends DataObjectSource, AliasOwner {
 
-    public static final String CONTEXT_BEAN_NAME = "dialPlanContext";
+    String CONTEXT_BEAN_NAME = "dialPlanContext";
 
-    public abstract void clear();
+    void clear();
 
-    public abstract ConfigGenerator generateDialPlan();
+    void storeAutoAttendant(AutoAttendant attendant);
 
-    public abstract void activateDialPlan(boolean restartSbcDevices);
+    void deleteAutoAttendant(AutoAttendant attendant);
 
-    public abstract void replicateDialPlan(boolean restartSbcDevices);
+    AutoAttendant getOperator();
 
-    public abstract ConfigGenerator getGenerator();
+    AutoAttendant getAutoAttendant(Integer id);
 
-    public abstract void storeAutoAttendant(AutoAttendant attendant);
+    List<AutoAttendant> getAutoAttendants();
 
-    public abstract void deleteAutoAttendant(AutoAttendant attendant);
+    void deleteAutoAttendantsByIds(Collection<Integer> attendantsIds);
 
-    public abstract AutoAttendant getOperator();
+    void specialAutoAttendantMode(boolean enabled, AutoAttendant attendant);
 
-    public abstract AutoAttendant getAutoAttendant(Integer id);
+    void removeGateways(Collection<Integer> gatewaysIds);
 
-    public abstract List<AutoAttendant> getAutoAttendants();
+    void storeRule(DialingRule rule);
 
-    public abstract void deleteAutoAttendantsByIds(Collection<Integer> attendantsIds);
+    void addRule(int position, DialingRule rule);
 
-    public abstract void specialAutoAttendantMode(boolean enabled, AutoAttendant attendant);
-
-    public abstract void removeGateways(Collection<Integer> gatewaysIds);
-
-    public void storeRule(DialingRule rule);
-
-    public void addRule(int position, DialingRule rule);
-
-    public List<DialingRule> getRules();
+    List<DialingRule> getRules();
 
     /**
      * Gets all of the dialing rules using a particular gateway.
@@ -63,7 +51,7 @@ public interface DialPlanContext extends DataObjectSource, AliasOwner {
      * @param gatewayId The ID of the gateway.
      * @return A List of the DialingRules for that gateway.
      */
-    public List<DialingRule> getRulesForGateway(Integer gatewayId);
+    List<DialingRule> getRulesForGateway(Integer gatewayId);
 
     /**
      * Gets all of the dialing rules that can be added to a particular gateway.
@@ -71,37 +59,37 @@ public interface DialPlanContext extends DataObjectSource, AliasOwner {
      * @param gatewayId The ID of the gateway
      * @return A List of the DialingRules that can be added to the gateway
      */
-    public List<DialingRule> getAvailableRules(Integer gatewayId);
+    List<DialingRule> getAvailableRules(Integer gatewayId);
 
-    public DialingRule getRule(Integer id);
+    DialingRule getRule(Integer id);
 
-    public void deleteRules(Collection<Integer> selectedRows);
+    void deleteRules(Collection<Integer> selectedRows);
 
-    public void duplicateRules(Collection<Integer> selectedRows);
+    void duplicateRules(Collection<Integer> selectedRows);
 
-    public void moveRules(Collection<Integer> selectedRows, int step);
+    void moveRules(Collection<Integer> selectedRows, int step);
 
-    public List<DialingRule> getGenerationRules();
+    List<DialingRule> getGenerationRules();
 
-    public List<AttendantRule> getAttendantRules();
+    List<AttendantRule> getAttendantRules();
 
-    public DialPlan resetToFactoryDefault();
+    DialPlan resetToFactoryDefault();
 
-    public DialPlan resetToFactoryDefault(String dialPlanBeanName);
+    DialPlan resetToFactoryDefault(String dialPlanBeanName);
 
-    public String[] getDialPlanBeans();
+    String[] getDialPlanBeans();
 
-    public String getDefaultDialPlanId();
+    String getDefaultDialPlanId();
 
-    public boolean isDialPlanEmpty();
+    boolean isDialPlanEmpty();
 
-    public String getVoiceMail();
+    String getVoiceMail();
 
-    public EmergencyInfo getLikelyEmergencyInfo();
+    EmergencyInfo getLikelyEmergencyInfo();
 
-    public Group getDefaultAutoAttendantGroup();
+    Group getDefaultAutoAttendantGroup();
 
-    public AutoAttendant newAutoAttendantWithDefaultGroup();
+    AutoAttendant newAutoAttendantWithDefaultGroup();
 
-    public Setting getAttendantSettingModel();
+    Setting getAttendantSettingModel();
 }

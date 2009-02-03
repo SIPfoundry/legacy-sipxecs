@@ -18,7 +18,7 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -40,8 +40,8 @@ public abstract class ManageDomain extends PageWithCallback implements PageBegin
     @InitialValue (value = "ognl:domainManager.domain")
     public abstract Domain getDomain();
 
-    @InjectObject("spring:dialPlanContext")
-    public abstract DialPlanContext getDialPlanContext();
+    @InjectObject("spring:dialPlanActivationManager")
+    public abstract DialPlanActivationManager getDialPlanActivationManager();
 
     public abstract int getIndex();
 
@@ -86,6 +86,6 @@ public abstract class ManageDomain extends PageWithCallback implements PageBegin
         d.getAliases().addAll(getAliases());
         getDomainManager().saveDomain(d);
 
-        getDialPlanContext().replicateDialPlan(true); // restartSBCDevices == true
+        getDialPlanActivationManager().replicateDialPlan(true); // restartSBCDevices == true
     }
 }

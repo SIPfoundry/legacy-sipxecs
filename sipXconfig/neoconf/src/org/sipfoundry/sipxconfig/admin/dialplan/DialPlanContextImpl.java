@@ -10,7 +10,6 @@
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -19,11 +18,8 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.SpecialAutoAttendantMode;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
@@ -31,13 +27,8 @@ import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.InitializationTask;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
-import org.sipfoundry.sipxconfig.service.SipxProxyService;
-import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
-import org.sipfoundry.sipxconfig.service.SipxService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
@@ -66,25 +57,14 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
 
     private ListableBeanFactory m_beanFactory;
 
-    private SipxReplicationContext m_sipxReplicationContext;
-
     private SettingDao m_settingDao;
 
     private String m_defaultDialPlanId;
 
-    private SbcDeviceManager m_sbcDeviceManager;
-
-    private ProfileManager m_sbcProfileManager;
-
-    private SipxServiceManager m_sipxServiceManager;
-
-    private SipxProcessContext m_sipxProcessContext;
+    private SipxReplicationContext m_sipxReplicationContext;
 
     /* delayed injection - working around circular reference */
     public abstract GatewayContext getGatewayContext();
-
-    /* delayed injection - working around circular reference */
-    public abstract ProfileManager getGatewayProfileManager();
 
     public abstract SpecialAutoAttendantMode createSpecialAutoAttendantMode();
 
@@ -364,56 +344,12 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
     }
 
     /**
-     * This is for testing only. TODO: need to find a better way of cleaning database between
-     * tests
+     * This is for testing only.
      */
     public void clear() {
         List attendants = getHibernateTemplate().loadAll(AutoAttendant.class);
         getHibernateTemplate().deleteAll(attendants);
         resetToFactoryDefault();
-    }
-
-    public ConfigGenerator generateDialPlan() {
-        ConfigGenerator generator = createConfigGenerator();
-        generator.generate(this);
-        return generator;
-    }
-
-    private ConfigGenerator createConfigGenerator() {
-        ConfigGenerator generator = (ConfigGenerator) m_beanFactory.getBean(ConfigGenerator.BEAN_NAME,
-                ConfigGenerator.class);
-        return generator;
-    }
-
-    public void activateDialPlan(boolean restartSbcDevices) {
-        ConfigGenerator generator = getGenerator();
-        generator.activate(m_sipxReplicationContext);
-
-        //push gateway/sbc devices generation when activating dial plan
-        Collection<Integer> gatewayIds = getGatewayContext().getAllGatewayIds();
-        getGatewayProfileManager().generateProfiles(gatewayIds, true, null);
-        Collection<Integer> sbcIds = m_sbcDeviceManager.getAllSbcDeviceIds();
-        m_sbcProfileManager.generateProfiles(sbcIds, restartSbcDevices, null);
-
-        // notify the world we are done with activating dial plan
-        m_sipxReplicationContext.publishEvent(new DialPlanActivatedEvent(this));
-    }
-
-    public void replicateDialPlan(boolean restartSbcDevices) {
-        activateDialPlan(true); // restartSBCDevices == true
-        SipxService[] services = new SipxService[] {
-            m_sipxServiceManager.getServiceByBeanId(SipxProxyService.BEAN_ID),
-            m_sipxServiceManager.getServiceByBeanId(SipxRegistrarService.BEAN_ID)
-        };
-        m_sipxProcessContext.restartOnEvent(Arrays.asList(services), DialPlanActivatedEvent.class);
-    }
-
-    public ConfigGenerator getGenerator() {
-        return generateDialPlan();
-    }
-
-    public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
-        m_sipxReplicationContext = sipxReplicationContext;
     }
 
     public void setAliasManager(AliasManager aliasManager) {
@@ -607,27 +543,14 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         return aa.getSettings();
     }
 
-    public void setSbcDeviceManager(SbcDeviceManager sbcDeviceManager) {
-        m_sbcDeviceManager = sbcDeviceManager;
-    }
-
-    public void setSbcProfileManager(ProfileManager sbcProfileManager) {
-        m_sbcProfileManager = sbcProfileManager;
-    }
-
-    @Required
-    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
-        m_sipxServiceManager = sipxServiceManager;
-    }
-
-    @Required
-    public void setSipxProcessContext(SipxProcessContext sipxProcessContext) {
-        m_sipxProcessContext = sipxProcessContext;
-    }
-
     public AutoAttendant createSystemAttendant(String systemId) {
         AutoAttendant aa = (AutoAttendant) m_beanFactory.getBean(systemId + "Prototype");
         aa.resetToFactoryDefault();
         return aa;
+    }
+
+    @Required
+    public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
+        m_sipxReplicationContext = sipxReplicationContext;
     }
 }

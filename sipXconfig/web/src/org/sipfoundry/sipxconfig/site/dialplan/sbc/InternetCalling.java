@@ -16,7 +16,7 @@ import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.Sbc;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
@@ -30,8 +30,8 @@ public abstract class InternetCalling extends BasePage implements PageBeginRende
     @InjectObject(value = "spring:sbcManager")
     public abstract SbcManager getSbcManager();
 
-    @InjectObject("spring:dialPlanContext")
-    public abstract DialPlanContext getDialPlanContext();
+    @InjectObject("spring:dialPlanActivationManager")
+    public abstract DialPlanActivationManager getDialPlanActivationManager();
 
     public abstract Sbc getSbc();
 
@@ -70,7 +70,7 @@ public abstract class InternetCalling extends BasePage implements PageBeginRende
 
         saveValid();
 
-        getDialPlanContext().replicateDialPlan(true); // restartSBCDevices == true
+        getDialPlanActivationManager().replicateDialPlan(true); // restartSBCDevices == true
         TapestryUtils.recordSuccess(this, getMessages().getMessage("msg.actionSuccess"));
     }
 

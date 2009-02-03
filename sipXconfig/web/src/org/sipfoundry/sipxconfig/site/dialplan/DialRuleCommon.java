@@ -13,10 +13,12 @@ import java.util.Collection;
 
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IComponent;
+import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.form.IFormComponent;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -29,6 +31,9 @@ public abstract class DialRuleCommon extends BaseComponent {
     public abstract DialPlanContext getDialPlanContext();
 
     public abstract GatewayContext getGatewayContext();
+
+    @InjectObject("spring:dialPlanActivationManager")
+    public abstract DialPlanActivationManager getDialPlanActivationManager();
 
     public abstract void setRuleId(Integer ruleId);
 
@@ -78,7 +83,7 @@ public abstract class DialRuleCommon extends BaseComponent {
             getGatewayContext().addGatewaysToRule(id, gatewaysToAdd);
             setRule(null);
         } else {
-            getDialPlanContext().replicateDialPlan(true); // restartSBCDevices == true
+            getDialPlanActivationManager().replicateDialPlan(true); // restartSBCDevices == true
         }
         setRuleId(id);
     }
