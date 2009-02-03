@@ -37,7 +37,7 @@ public abstract class EditLocationPage extends PageWithCallback implements PageB
     @Bean
     public abstract SipxValidationDelegate getValidator();
 
-    @Persist("client")
+    @Persist
     public abstract Integer getLocationId();
 
     public abstract void setLocationId(Integer locationId);
