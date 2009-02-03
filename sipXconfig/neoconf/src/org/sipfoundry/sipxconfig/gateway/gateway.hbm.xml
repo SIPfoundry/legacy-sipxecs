@@ -71,6 +71,10 @@
     <![CDATA[select g.id from Gateway g where g.serialNumber = :value]]>
   </query>
 
+  <query name="gatewaysForUserGroup">
+    <![CDATA[from Gateway g where g.site = :userGroup]]>
+  </query>
+
   <sql-query name="sipTrunks">
     <return-scalar type="int" column="id" />
     <return-scalar type="string" column="address" />

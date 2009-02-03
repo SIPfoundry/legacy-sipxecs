@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+<dataset>
+  <users user_name="user1" user_id="111" pintoken="123" />
+  <value_storage value_storage_id="115" />
+  <group_storage group_id="115" name="group1" resource="user" weight="8" />
+  <user_group group_id="115" user_id="111" />
+
+  <gateway gateway_id="1003" bean_id="gwGeneric" model_id="genericGatewayStandard" name="unmanagedGtw"
+    anonymous="false" ignore_user_info="false" transform_user_extension="false" keep_digits="0" address_port="0"
+    address_transport="none" enable_caller_id="false" shared="false" site_id="115" />
+</dataset>

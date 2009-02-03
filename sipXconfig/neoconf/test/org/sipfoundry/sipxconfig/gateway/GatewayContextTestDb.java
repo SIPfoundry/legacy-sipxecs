@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.gateway;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -23,6 +24,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.ModelSource;
+import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.context.ApplicationContext;
 
 public class GatewayContextTestDb extends SipxDatabaseTestCase {
@@ -41,20 +43,20 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
 
     private SbcDeviceManager m_sbcDeviceManager;
 
+    private SettingDao m_dao;
+
     @Override
     protected void setUp() throws Exception {
         m_appContext = TestHelper.getApplicationContext();
         m_context = (GatewayContext) m_appContext.getBean(GatewayContext.CONTEXT_BEAN_NAME);
-        m_dialPlanContext = (DialPlanContext) m_appContext
-                .getBean(DialPlanContext.CONTEXT_BEAN_NAME);
-        m_modelSource = (ModelSource<GatewayModel>) m_appContext
-                .getBean("nakedGatewayModelSource");
+        m_dialPlanContext = (DialPlanContext) m_appContext.getBean(DialPlanContext.CONTEXT_BEAN_NAME);
+        m_modelSource = (ModelSource<GatewayModel>) m_appContext.getBean("nakedGatewayModelSource");
         m_genericModel = m_modelSource.getModel("genericGatewayStandard");
         m_genericSipTrunk = m_modelSource.getModel("sipTrunkStandard");
         TestHelper.cleanInsert("ClearDb.xml");
         m_dialPlanContext.resetToFactoryDefault();
-        m_sbcDeviceManager = (SbcDeviceManager) m_appContext
-                .getBean(SbcDeviceManager.CONTEXT_BEAN_NAME);
+        m_sbcDeviceManager = (SbcDeviceManager) m_appContext.getBean(SbcDeviceManager.CONTEXT_BEAN_NAME);
+        m_dao = (SettingDao) m_appContext.getBean(SettingDao.CONTEXT_NAME);
     }
 
     public void testAddGateway() {
@@ -277,5 +279,22 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
         sipTrunk = (SipTrunk) m_context.getGateway(1002);
         assertNotNull(sipTrunk);
         assertNull(sipTrunk.getSbcDevice());
+    }
+
+    public void testDeleteAssociateSpecificLocation() throws Exception {
+        TestHelper.insertFlat("gateway/gateway_location.xml");
+
+        Gateway g = m_context.getGateway(1003);
+        assertNotNull(g);
+        assertNotNull(g.getSite());
+        assertEquals("group1", g.getSite().getName());
+
+        Collection<Integer> selectedForDelete = new ArrayList<Integer>();
+        selectedForDelete.add(g.getSite().getId());
+        m_dao.deleteGroups(selectedForDelete);
+
+        g = m_context.getGateway(1003);
+        assertNotNull(g);
+        assertNull(g.getSite());
     }
 }
