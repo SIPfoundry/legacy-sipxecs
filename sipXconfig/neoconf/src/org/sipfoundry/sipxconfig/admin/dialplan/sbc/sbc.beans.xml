@@ -5,6 +5,7 @@
   <bean id="sbcManagerImpl" class="org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="domainManager" ref="domainManager" />
+    <property name="dialPlanActivationManager" ref="dialPlanActivationManager" />
   </bean>
 
   <bean id="sbcManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
@@ -31,6 +32,7 @@
   <bean id="sbcDeviceManagerImpl" class="org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="daoEventPublisher" ref="daoEventPublisher" />
+    <lookup-method name="getDialPlanActivationManager" bean="dialPlanActivationManager" />
   </bean>
 
   <bean id="sbcDeviceManagerSbcDeviceDelete" factory-bean="sbcDeviceManagerImpl"
@@ -105,9 +107,6 @@
   </bean>
 
   <bean id="sbcMigrationContextImpl" class="org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcMigrationContextImpl">
-    <property name="sbcManager">
-      <ref local="sbcManager" />
-    </property>
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="sbcDeviceManager" ref="sbcDeviceManager" />
     <property name="sbcModelSource" ref="nakedSbcModelSource" />

@@ -135,6 +135,7 @@
     <property name="defaultDialPlanId" value="na.dialPlan" />
     <lookup-method name="getGatewayContext" bean="gatewayContext" />
     <lookup-method name="createSpecialAutoAttendantMode" bean="specialAutoAttendantMode" />
+    <lookup-method name="getDialPlanActivationManager" bean="dialPlanActivationManager" />
   </bean>
 
   <bean id="dialPlanContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

@@ -19,6 +19,7 @@
   <bean id="pagingContextImpl" class="org.sipfoundry.sipxconfig.paging.PagingContextImpl">
     <lookup-method name="createPagingServer" bean="pagingServer" />
     <property name="sessionFactory" ref="sessionFactory" />
+    <property name="dialPlanActivationManager" ref="dialPlanActivationManager" />
   </bean>
 
   <bean id="pagingProvisioningContextImpl" class="org.sipfoundry.sipxconfig.paging.PagingProvisioningContextImpl">

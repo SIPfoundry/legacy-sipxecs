@@ -8,6 +8,7 @@
     <property name="sessionFactory">
       <ref bean="sessionFactory" />
     </property>
+    <property name="dialPlanActivationManager" ref="dialPlanActivationManager" />
   </bean>
 
   <bean id="intercomManagerGroupDelete" factory-bean="intercomManagerImpl"

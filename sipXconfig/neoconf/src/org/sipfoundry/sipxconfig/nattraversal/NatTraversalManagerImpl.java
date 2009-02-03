@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.nattraversal;
 
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.beans.factory.BeanFactory;
@@ -26,9 +27,12 @@ public class NatTraversalManagerImpl extends SipxHibernateDaoSupport<NatTraversa
 
     private BeanFactory m_beanFactory;
 
+    private DialPlanActivationManager m_dialPlanActivationManager;
+
     public void store(NatTraversal natTraversal) {
         checkForRTPPortRangeOverlap(natTraversal);
         saveBeanWithSettings(natTraversal);
+        m_dialPlanActivationManager.replicateDialPlan(true);
     }
 
     public NatTraversal getNatTraversal() {
@@ -50,7 +54,7 @@ public class NatTraversalManagerImpl extends SipxHibernateDaoSupport<NatTraversa
         // risk having 2 or more in database
         if (natTraversal == null) {
             natTraversal = (NatTraversal) m_beanFactory.getBean("natTraversal");
-            store(natTraversal);
+            getHibernateTemplate().save(natTraversal);
             // make sure that hibernate session is synchronized with database data
             getHibernateTemplate().flush();
         }
@@ -66,5 +70,9 @@ public class NatTraversalManagerImpl extends SipxHibernateDaoSupport<NatTraversa
 
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = beanFactory;
+    }
+
+    public void setDialPlanActivationManager(DialPlanActivationManager dialPlanActivationManager) {
+        m_dialPlanActivationManager = dialPlanActivationManager;
     }
 }

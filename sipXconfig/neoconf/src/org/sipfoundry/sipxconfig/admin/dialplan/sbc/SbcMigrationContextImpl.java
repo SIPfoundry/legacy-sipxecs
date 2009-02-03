@@ -28,8 +28,6 @@ public class SbcMigrationContextImpl extends SipxHibernateDaoSupport implements
 
     private static final String SQL = "alter table sbc drop column address";
 
-    private SbcManager m_sbcManager;
-
     private SbcDeviceManager m_sbcDeviceManager;
 
     private BeanFactoryModelSource<SbcDescriptor> m_sbcModelSource;
@@ -51,7 +49,7 @@ public class SbcMigrationContextImpl extends SipxHibernateDaoSupport implements
                 Integer sbcDeviceId = createAssociateSbcDevice(address);
                 Sbc sbc = getSbc(sbcId);
                 sbc.setSbcDevice(m_sbcDeviceManager.getSbcDevice(sbcDeviceId));
-                m_sbcManager.saveSbc(sbc);
+                getHibernateTemplate().save(sbc);
                 getHibernateTemplate().flush();
             } catch (UserException e) {
                 LOG.warn("cannot migrate sbcs", e);
@@ -85,10 +83,6 @@ public class SbcMigrationContextImpl extends SipxHibernateDaoSupport implements
         } catch (SQLException e) {
             LOG.warn("cleaning schema", e);
         }
-    }
-
-    public void setSbcManager(SbcManager sbcManager) {
-        m_sbcManager = sbcManager;
     }
 
     public void setSbcDeviceManager(SbcDeviceManager sbcDeviceManager) {

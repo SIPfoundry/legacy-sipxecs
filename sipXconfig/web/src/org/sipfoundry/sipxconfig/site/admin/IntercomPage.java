@@ -13,11 +13,9 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.RandomStringUtils;
-import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.admin.intercom.Intercom;
 import org.sipfoundry.sipxconfig.admin.intercom.IntercomManager;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -29,9 +27,6 @@ public abstract class IntercomPage extends BasePage implements PageBeginRenderLi
 
     public static final String PAGE = "admin/Intercom";
     private static final int CODE_LEN = 8;
-
-    @InjectObject("spring:dialPlanActivationManager")
-    public abstract DialPlanActivationManager getDialPlanActivationManager();
 
     public abstract Intercom getIntercom();
 
@@ -96,6 +91,5 @@ public abstract class IntercomPage extends BasePage implements PageBeginRenderLi
         }
 
         getIntercomManager().saveIntercom(intercom);
-        getDialPlanActivationManager().replicateDialPlan(true); // restartSBCDevices == true
     }
 }

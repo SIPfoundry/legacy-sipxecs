@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.PagingRule;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
@@ -31,6 +32,8 @@ public abstract class PagingContextImpl extends SipxHibernateDaoSupport implemen
     private static final String PARAM_PAGING_GROUP_NUMBER = "pageGroupNumber";
 
     private static final String PARAM_PAGING_GROUP_ID = "pagingGroupId";
+
+    private DialPlanActivationManager m_dialPlanActivationManager;
 
     protected abstract PagingServer createPagingServer();
 
@@ -58,6 +61,7 @@ public abstract class PagingContextImpl extends SipxHibernateDaoSupport implemen
 
     public void setPagingPrefix(String prefix) {
         getPagingServer().setPrefix(prefix);
+        m_dialPlanActivationManager.replicateDialPlan(true);
     }
 
     public String getSipTraceLevel() {
@@ -130,6 +134,10 @@ public abstract class PagingContextImpl extends SipxHibernateDaoSupport implemen
 
     public UserDeleteListener createUserDeleteListener() {
         return new OnUserDelete();
+    }
+
+    public void setDialPlanActivationManager(DialPlanActivationManager dialPlanActivationManager) {
+        m_dialPlanActivationManager = dialPlanActivationManager;
     }
 
     private class OnUserDelete extends UserDeleteListener {

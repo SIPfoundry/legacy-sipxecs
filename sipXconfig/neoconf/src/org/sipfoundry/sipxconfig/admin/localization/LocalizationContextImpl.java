@@ -24,6 +24,7 @@ import org.apache.commons.io.filefilter.PrefixFileFilter;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -49,6 +50,7 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements
     private String m_defaultLanguage;
     private DialPlanContext m_dialPlanContext;
     private DomainManager m_domainManager;
+    private DialPlanActivationManager m_dialPlanActivationManager;
 
     public void setRegionDir(String regionDir) {
         m_regionDir = regionDir;
@@ -83,6 +85,10 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements
 
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
+    }
+
+    public void setDialPlanActivationManager(DialPlanActivationManager dialPlanActivationManager) {
+        m_dialPlanActivationManager = dialPlanActivationManager;
     }
 
     public String getCurrentRegionId() {
@@ -192,6 +198,7 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements
         localization.setLanguage(language);
         getHibernateTemplate().saveOrUpdate(localization);
         m_domainManager.replicateDomainConfig();
+        m_dialPlanActivationManager.replicateDialPlan(true);
 
         return 1;
     }

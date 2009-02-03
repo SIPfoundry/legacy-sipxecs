@@ -15,8 +15,6 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.nattraversal.NatTraversal;
 import org.sipfoundry.sipxconfig.nattraversal.NatTraversalManager;
@@ -30,12 +28,6 @@ public abstract class NatTraversalPanel extends BaseComponent implements PageBeg
 
     @InjectObject(value = "spring:natTraversalManager")
     public abstract NatTraversalManager getNatTraversalManager();
-
-    @InjectObject(value = "spring:sbcDeviceManager")
-    public abstract SbcDeviceManager getSbcDeviceManager();
-
-    @InjectObject("spring:dialPlanActivationManager")
-    public abstract DialPlanActivationManager getDialPlanActivationManager();
 
     public void pageBeginRender(PageEvent event_) {
         NatTraversal natTraversal = getNatTraversal();
@@ -51,7 +43,6 @@ public abstract class NatTraversalPanel extends BaseComponent implements PageBeg
         }
 
         getNatTraversalManager().store(getNatTraversal());
-        getDialPlanActivationManager().replicateDialPlan(true); // restartSBCDevices == true
         TapestryUtils.recordSuccess(this, getMessages().getMessage("msg.actionSuccess"));
     }
 }

@@ -68,6 +68,8 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
 
     public abstract SpecialAutoAttendantMode createSpecialAutoAttendantMode();
 
+    public abstract DialPlanActivationManager getDialPlanActivationManager();
+
     /**
      * Loads dial plan, creates a new one if none exist
      *
@@ -113,6 +115,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         } else {
             getHibernateTemplate().saveOrUpdate(rule);
         }
+        getDialPlanActivationManager().replicateDialPlan(true);
     }
 
     /**
@@ -204,6 +207,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         DialPlan dialPlan = getDialPlan();
         dialPlan.removeRules(selectedRows);
         getHibernateTemplate().saveOrUpdate(dialPlan);
+        getDialPlanActivationManager().replicateDialPlan(true);
     }
 
     public void duplicateRules(Collection<Integer> selectedRows) {
@@ -218,6 +222,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         }
         DataCollectionUtil.updatePositions(rules);
         getHibernateTemplate().saveOrUpdate(dialPlan);
+        getDialPlanActivationManager().replicateDialPlan(true);
     }
 
     public List<DialingRule> getGenerationRules() {
@@ -272,6 +277,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         DialPlan dialPlan = getDialPlan();
         dialPlan.moveRules(selectedRows, step);
         getHibernateTemplate().saveOrUpdate(dialPlan);
+        getDialPlanActivationManager().replicateDialPlan(true);
     }
 
     public void storeAutoAttendant(AutoAttendant aa) {

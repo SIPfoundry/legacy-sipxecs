@@ -18,6 +18,7 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
@@ -58,6 +59,8 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
 
     private SipxReplicationContext m_replicationContext;
 
+    private DialPlanActivationManager m_dialPlanActivationManager;
+
     public GatewayContextImpl() {
         super();
     }
@@ -86,9 +89,14 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
                 new DuplicateNameException(gateway.getName()));
         DaoUtils.checkDuplicates(hibernate, Gateway.class, gateway, "serialNumber",
                 new DuplicateSerialNumberException(gateway.getSerialNumber()));
-
+        // Find if we are about to save a new gateway
+        boolean isNew = gateway.isNew();
         // Store the updated gateway
         hibernate.saveOrUpdate(gateway);
+        // Replicate occurs only for update gateway
+        if (!isNew) {
+            m_dialPlanActivationManager.replicateDialPlan(true);
+        }
 
         m_replicationContext.generate(DataSet.CALLER_ALIAS);
     }
@@ -112,6 +120,7 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         for (Integer id : selectedRows) {
             deleteGateway(id);
         }
+        m_dialPlanActivationManager.replicateDialPlan(true);
     }
 
     public void deleteVolatileGateways() {
@@ -193,6 +202,10 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
 
     public void setReplicationContext(SipxReplicationContext replicationContext) {
         m_replicationContext = replicationContext;
+    }
+
+    public void setDialPlanActivationManager(DialPlanActivationManager dialPlanActivationManager) {
+        m_dialPlanActivationManager = dialPlanActivationManager;
     }
 
     public void removePortsFromGateway(Integer gatewayId, Collection<Integer> portIds) {

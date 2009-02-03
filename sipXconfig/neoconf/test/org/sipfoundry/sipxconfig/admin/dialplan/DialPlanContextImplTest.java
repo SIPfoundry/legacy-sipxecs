@@ -19,6 +19,7 @@ import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
+import static org.easymock.EasyMock.createNiceMock;
 import static org.easymock.classextension.EasyMock.createMock;
 import static org.easymock.classextension.EasyMock.replay;
 import static org.easymock.classextension.EasyMock.verify;
@@ -137,6 +138,12 @@ public class DialPlanContextImplTest extends TestCase {
         @Override
         public SpecialAutoAttendantMode createSpecialAutoAttendantMode() {
             return null;
+        }
+
+        @Override
+        public DialPlanActivationManager getDialPlanActivationManager() {
+            DialPlanActivationManager dpam = createNiceMock(DialPlanActivationManager.class);
+            return dpam;
         }
     }
 }

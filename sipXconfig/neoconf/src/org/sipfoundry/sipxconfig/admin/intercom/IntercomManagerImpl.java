@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.IntercomRule;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
@@ -32,6 +33,8 @@ public class IntercomManagerImpl extends SipxHibernateDaoSupport implements Inte
     public static final String CONTEXT_BEAN_NAME = "intercomManagerImpl";
 
     private BeanFactory m_beanFactory;
+
+    private DialPlanActivationManager m_dialPlanActivationManager;
 
     public Intercom newIntercom() {
         return (Intercom) m_beanFactory.getBean(Intercom.class.getName());
@@ -56,6 +59,7 @@ public class IntercomManagerImpl extends SipxHibernateDaoSupport implements Inte
 
     public void saveIntercom(Intercom intercom) {
         getHibernateTemplate().saveOrUpdate(intercom);
+        m_dialPlanActivationManager.replicateDialPlan(true);
     }
 
     public List<Intercom> loadIntercoms() {
@@ -100,6 +104,10 @@ public class IntercomManagerImpl extends SipxHibernateDaoSupport implements Inte
 
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = beanFactory;
+    }
+
+    public void setDialPlanActivationManager(DialPlanActivationManager dialPlanActivationManager) {
+        m_dialPlanActivationManager = dialPlanActivationManager;
     }
 
     private class OnGroupDelete extends EntityDeleteListener<Group> {

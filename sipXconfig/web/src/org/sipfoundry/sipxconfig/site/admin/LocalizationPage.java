@@ -25,7 +25,6 @@ import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.request.IUploadFile;
 import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
@@ -45,9 +44,6 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
 
     @InjectObject("spring:localizationContext")
     public abstract LocalizationContext getLocalizationContext();
-
-    @InjectObject("spring:dialPlanActivationManager")
-    public abstract DialPlanActivationManager getDialPlanActivationManager();
 
     @InjectObject("spring:sipxProcessContext")
     public abstract SipxProcessContext getProcessContext();
@@ -135,7 +131,6 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
         int exitCode = getLocalizationContext().updateLanguage(language);
 
         if (exitCode > 0) {
-            getDialPlanActivationManager().replicateDialPlan(true);
             List<SipxService> processList = Arrays.asList(getSipxMediaService(), getSipxProxyService(),
                     getSipxRegistrarService());
             getProcessContext().restartOnEvent(processList, DomainConfigReplicatedEvent.class);

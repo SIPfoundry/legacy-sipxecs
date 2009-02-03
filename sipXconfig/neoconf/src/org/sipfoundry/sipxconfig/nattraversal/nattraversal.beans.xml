@@ -11,6 +11,7 @@
 
   <bean id="natTraversalManagerImpl" class="org.sipfoundry.sipxconfig.nattraversal.NatTraversalManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
+    <property name="dialPlanActivationManager" ref="dialPlanActivationManager" />
   </bean>
 
   <bean id="natTraversalManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

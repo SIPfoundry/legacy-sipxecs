@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
@@ -26,7 +27,7 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
-public class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDevice> implements
+public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDevice> implements
         SbcDeviceManager, BeanFactoryAware {
 
     private static final String SBC_ID = "sbcId";
@@ -38,6 +39,8 @@ public class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDevice> imp
     private DaoEventPublisher m_daoEventPublisher;
 
     private String m_localIpAddress;
+
+    public abstract DialPlanActivationManager getDialPlanActivationManager();
 
     public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
         m_daoEventPublisher = daoEventPublisher;
@@ -62,6 +65,7 @@ public class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDevice> imp
             m_daoEventPublisher.publishDelete(sbcDevice);
         }
         removeAll(SbcDevice.class, ids);
+        getDialPlanActivationManager().replicateDialPlan(true);
     }
 
     public SbcDeviceDeleteListener createSbcDeviceDeleteListener() {
@@ -134,7 +138,8 @@ public class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDevice> imp
     }
 
     public void storeSbcDevice(SbcDevice sbc) {
-        if (sbc.isNew()) {
+        boolean isNew = sbc.isNew();
+        if (isNew) {
             checkForNewSbcDeviceCreation(sbc.getModel());
             checkForDuplicateNames(sbc);
         } else {
@@ -144,6 +149,11 @@ public class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDevice> imp
             }
         }
         saveBeanWithSettings(sbc);
+
+        // Replicate occurs only when updating sbc device
+        if (!isNew) {
+            getDialPlanActivationManager().replicateDialPlan(true);
+        }
     }
 
     private void checkForDuplicateNames(SbcDevice sbc) {

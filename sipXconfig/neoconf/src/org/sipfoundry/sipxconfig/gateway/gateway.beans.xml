@@ -46,6 +46,7 @@
     <property name="dialPlanContext" ref="dialPlanContext" />
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="replicationContext" ref="sipxReplicationContext" />
+    <property name="dialPlanActivationManager" ref="dialPlanActivationManager" />
   </bean>
 
   <bean id="gatewayContextSbcDeviceDelete" factory-bean="gatewayContextImpl"

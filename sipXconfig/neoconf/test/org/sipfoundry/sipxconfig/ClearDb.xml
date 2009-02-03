@@ -58,7 +58,9 @@
 
   <table name="sbc_device"/>
   <table name="sbc"/>
-    
+  <table name="sbc_route_domain"/>
+  <table name="sbc_route_subnet"/>
+
   <table name="gateway"/>  
   <table name="fxo_port"/>  
   <table name="extension_pool"/>

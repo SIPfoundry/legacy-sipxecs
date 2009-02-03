@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
@@ -28,13 +29,15 @@ public class SbcManagerImpl extends HibernateDaoSupport implements SbcManager, B
 
     private BeanFactory m_beanFactory;
 
+    private DialPlanActivationManager m_dialPlanActivationManager;
+
     public DefaultSbc loadDefaultSbc() {
         List sbcs = getHibernateTemplate().loadAll(DefaultSbc.class);
         DefaultSbc sbc = (DefaultSbc) DataAccessUtils.singleResult(sbcs);
         if (sbc == null) {
             sbc = new DefaultSbc();
             sbc.setRoutes(createDefaultSbcRoutes());
-            saveSbc(sbc);
+            getHibernateTemplate().save(sbc);
             //Need to flush - since there can be only one Default SBC in the database.
             //Otherwise, the hibernate session may not be aware of the fact that a default SBC is
             //already saved, so  you may end up having two default SBCs in the database.
@@ -49,6 +52,7 @@ public class SbcManagerImpl extends HibernateDaoSupport implements SbcManager, B
 
     public void saveSbc(Sbc sbc) {
         getHibernateTemplate().saveOrUpdate(sbc);
+        m_dialPlanActivationManager.replicateDialPlan(true);
     }
 
     public AuxSbc loadSbc(Integer sbcId) {
@@ -74,6 +78,10 @@ public class SbcManagerImpl extends HibernateDaoSupport implements SbcManager, B
 
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = beanFactory;
+    }
+
+    public void setDialPlanActivationManager(DialPlanActivationManager dialPlanActivationManager) {
+        m_dialPlanActivationManager = dialPlanActivationManager;
     }
 
     protected SbcRoutes createDefaultSbcRoutes() {

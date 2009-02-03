@@ -153,11 +153,6 @@ public abstract class EditSbcDevice extends PageWithCallback implements PageBegi
             setSbcDeviceId(sbcDevice.getId());
             setSbcDevice(null);
         }
-
-        // only for updating sbc
-        if (this.getSbcDescriptor() == null) {
-            getDialPlanActivationManager().replicateDialPlan(true); // restartSBCDevices == true
-        }
     }
 
     public static EditSbcDevice getEditPage(IRequestCycle cycle, Integer sbcId, IPage returnPage) {

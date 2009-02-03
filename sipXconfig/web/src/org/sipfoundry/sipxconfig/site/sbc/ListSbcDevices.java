@@ -19,7 +19,6 @@ import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDescriptor;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
@@ -50,9 +49,6 @@ public abstract class ListSbcDevices extends BasePage {
 
     @InjectObject(value = "spring:sbcModelSource")
     public abstract ModelSource<SbcDescriptor> getSbcDeviceModelSource();
-
-    @InjectObject("spring:dialPlanActivationManager")
-    public abstract DialPlanActivationManager getDialPlanActivationManager();
 
     @Bean
     public abstract SelectMap getSelections();
@@ -100,7 +96,6 @@ public abstract class ListSbcDevices extends BasePage {
         Collection<Integer> ids = getSelections().getAllSelected();
         if (!ids.isEmpty()) {
             getSbcDeviceManager().deleteSbcDevices(ids);
-            getDialPlanActivationManager().replicateDialPlan(true); // restartSBCDevices == true
         }
     }
 
