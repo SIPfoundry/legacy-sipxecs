@@ -31,6 +31,8 @@ public interface DialPlanContext extends DataObjectSource, AliasOwner {
 
     public abstract void activateDialPlan(boolean restartSbcDevices);
 
+    public abstract void replicateDialPlan(boolean restartSbcDevices);
+
     public abstract ConfigGenerator getGenerator();
 
     public abstract void storeAutoAttendant(AutoAttendant attendant);

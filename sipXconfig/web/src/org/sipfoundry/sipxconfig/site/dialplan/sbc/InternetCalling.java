@@ -9,8 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.site.dialplan.sbc;
 
-import org.apache.tapestry.IPage;
-import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
@@ -18,19 +16,22 @@ import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.Sbc;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.site.dialplan.ActivateDialPlan;
 
 public abstract class InternetCalling extends BasePage implements PageBeginRenderListener {
     public static final String PAGE = "dialplan/sbc/InternetCalling";
 
     @InjectObject(value = "spring:sbcManager")
     public abstract SbcManager getSbcManager();
+
+    @InjectObject("spring:dialPlanContext")
+    public abstract DialPlanContext getDialPlanContext();
 
     public abstract Sbc getSbc();
 
@@ -62,16 +63,15 @@ public abstract class InternetCalling extends BasePage implements PageBeginRende
         }
     }
 
-    public IPage activateInternetCalling(IRequestCycle cycle) {
+    public void activateInternetCalling() {
         if (!TapestryUtils.isValid(this)) {
-            return null;
+            return;
         }
 
         saveValid();
 
-        ActivateDialPlan dialPlans = (ActivateDialPlan) cycle.getPage(ActivateDialPlan.PAGE);
-        dialPlans.setReturnPage(this);
-        return dialPlans;
+        getDialPlanContext().replicateDialPlan(true); // restartSBCDevices == true
+        TapestryUtils.recordSuccess(this, getMessages().getMessage("msg.actionSuccess"));
     }
 
     private void saveValid() {

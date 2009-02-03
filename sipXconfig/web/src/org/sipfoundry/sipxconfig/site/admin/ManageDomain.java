@@ -13,19 +13,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.tapestry.IPage;
-import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
-import org.sipfoundry.sipxconfig.site.dialplan.ActivateDialPlan;
 
 /**
  * Edit single domain and it's aliases
@@ -41,6 +39,9 @@ public abstract class ManageDomain extends PageWithCallback implements PageBegin
 
     @InitialValue (value = "ognl:domainManager.domain")
     public abstract Domain getDomain();
+
+    @InjectObject("spring:dialPlanContext")
+    public abstract DialPlanContext getDialPlanContext();
 
     public abstract int getIndex();
 
@@ -76,18 +77,15 @@ public abstract class ManageDomain extends PageWithCallback implements PageBegin
         return getAliases().get(getIndex());
     }
 
-    public IPage commit(IRequestCycle cycle) {
+    public void commit() {
         if (!TapestryUtils.isValid(getPage())) {
-            return null;
+            return;
         }
         Domain d = getDomain();
-
         d.getAliases().clear();
         d.getAliases().addAll(getAliases());
         getDomainManager().saveDomain(d);
 
-        ActivateDialPlan dialPlans = (ActivateDialPlan) cycle.getPage(ActivateDialPlan.PAGE);
-        dialPlans.setReturnPage(PAGE);
-        return dialPlans;
+        getDialPlanContext().replicateDialPlan(true); // restartSBCDevices == true
     }
 }

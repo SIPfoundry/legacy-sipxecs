@@ -104,9 +104,6 @@
   <component id="populateUsers" type="DirectLink">
     <binding name="listener" value="listener:populateUsers"/>
   </component>
-  <component id="RestartReminder" type="DirectLink">
-    <binding name="listener" value="listener:goToRestartReminderPage"/>
-  </component>
   <component id="throwException" type="DirectLink">
     <binding name="listener" value="listener:throwException"/>
   </component>

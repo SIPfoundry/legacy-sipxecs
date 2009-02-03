@@ -33,5 +33,6 @@ public abstract class ResetDialPlan extends PageWithCallback {
         String id = getLocalizationContext().getCurrentRegionId();
         getDialPlanContext().resetToFactoryDefault(id + ".dialPlan");
         getCallback().performCallback(cycle);
+        getDialPlanContext().replicateDialPlan(true); // restartSBCDevices == true
     }
 }

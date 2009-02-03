@@ -19,6 +19,7 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.components.GatewayTable;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -46,6 +47,9 @@ public abstract class ListGateways extends BasePage {
 
     @InjectObject(value = "spring:gatewayModelSource")
     public abstract ModelSource getModelSource();
+
+    @InjectObject("spring:dialPlanContext")
+    public abstract DialPlanContext getDialPlanContext();
 
     public abstract GatewayModel getGatewayModel();
 
@@ -80,6 +84,7 @@ public abstract class ListGateways extends BasePage {
         Collection<Integer> ids = getGatewayTable().getSelections().getAllSelected();
         if (!ids.isEmpty()) {
             getGatewayContext().deleteGateways(ids);
+            getDialPlanContext().replicateDialPlan(true); // restartSBCDevices == true
         }
     }
 

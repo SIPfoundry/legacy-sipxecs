@@ -197,6 +197,10 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
             setGatewayId(gateway.getId());
             setGateway(null);
         }
+        // only for updating gateway
+        if (this.getGatewayModel() == null) {
+            getDialPlanContext().replicateDialPlan(true); // restartSBCDevices == true
+        }
     }
 
     public IPage addPort() {

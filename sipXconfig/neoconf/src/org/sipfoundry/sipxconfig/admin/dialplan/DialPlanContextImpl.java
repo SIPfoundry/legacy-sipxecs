@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -18,6 +19,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.SpecialAutoAttendantMode;
@@ -32,12 +34,17 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
+import org.sipfoundry.sipxconfig.service.SipxProxyService;
+import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
+import org.sipfoundry.sipxconfig.service.SipxService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.dao.support.DataAccessUtils;
@@ -68,6 +75,10 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
     private SbcDeviceManager m_sbcDeviceManager;
 
     private ProfileManager m_sbcProfileManager;
+
+    private SipxServiceManager m_sipxServiceManager;
+
+    private SipxProcessContext m_sipxProcessContext;
 
     /* delayed injection - working around circular reference */
     public abstract GatewayContext getGatewayContext();
@@ -388,6 +399,15 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         m_sipxReplicationContext.publishEvent(new DialPlanActivatedEvent(this));
     }
 
+    public void replicateDialPlan(boolean restartSbcDevices) {
+        activateDialPlan(true); // restartSBCDevices == true
+        SipxService[] services = new SipxService[] {
+            m_sipxServiceManager.getServiceByBeanId(SipxProxyService.BEAN_ID),
+            m_sipxServiceManager.getServiceByBeanId(SipxRegistrarService.BEAN_ID)
+        };
+        m_sipxProcessContext.restartOnEvent(Arrays.asList(services), DialPlanActivatedEvent.class);
+    }
+
     public ConfigGenerator getGenerator() {
         return generateDialPlan();
     }
@@ -593,6 +613,16 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
 
     public void setSbcProfileManager(ProfileManager sbcProfileManager) {
         m_sbcProfileManager = sbcProfileManager;
+    }
+
+    @Required
+    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
+        m_sipxServiceManager = sipxServiceManager;
+    }
+
+    @Required
+    public void setSipxProcessContext(SipxProcessContext sipxProcessContext) {
+        m_sipxProcessContext = sipxProcessContext;
     }
 
     public AutoAttendant createSystemAttendant(String systemId) {

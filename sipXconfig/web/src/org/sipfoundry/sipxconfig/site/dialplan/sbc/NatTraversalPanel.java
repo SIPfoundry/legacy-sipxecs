@@ -10,18 +10,16 @@
 package org.sipfoundry.sipxconfig.site.dialplan.sbc;
 
 import org.apache.tapestry.BaseComponent;
-import org.apache.tapestry.IPage;
-import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.nattraversal.NatTraversal;
 import org.sipfoundry.sipxconfig.nattraversal.NatTraversalManager;
-import org.sipfoundry.sipxconfig.site.dialplan.ActivateDialPlan;
 
 @ComponentClass
 public abstract class NatTraversalPanel extends BaseComponent implements PageBeginRenderListener {
@@ -36,6 +34,9 @@ public abstract class NatTraversalPanel extends BaseComponent implements PageBeg
     @InjectObject(value = "spring:sbcDeviceManager")
     public abstract SbcDeviceManager getSbcDeviceManager();
 
+    @InjectObject("spring:dialPlanContext")
+    public abstract DialPlanContext getDialPlanContext();
+
     public void pageBeginRender(PageEvent event_) {
         NatTraversal natTraversal = getNatTraversal();
         if (natTraversal == null) {
@@ -44,15 +45,13 @@ public abstract class NatTraversalPanel extends BaseComponent implements PageBeg
         }
     }
 
-    public IPage activateNatTraversal(IRequestCycle cycle) {
+    public void activateNatTraversal() {
         if (!TapestryUtils.isValid(this)) {
-            return null;
+            return;
         }
 
         getNatTraversalManager().store(getNatTraversal());
-
-        ActivateDialPlan dialPlans = (ActivateDialPlan) cycle.getPage(ActivateDialPlan.PAGE);
-        dialPlans.setReturnPage(InternetCalling.PAGE);
-        return dialPlans;
+        getDialPlanContext().replicateDialPlan(true); // restartSBCDevices == true
+        TapestryUtils.recordSuccess(this, getMessages().getMessage("msg.actionSuccess"));
     }
 }

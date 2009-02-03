@@ -77,6 +77,8 @@ public abstract class DialRuleCommon extends BaseComponent {
         if (gatewaysToAdd != null) {
             getGatewayContext().addGatewaysToRule(id, gatewaysToAdd);
             setRule(null);
+        } else {
+            getDialPlanContext().replicateDialPlan(true); // restartSBCDevices == true
         }
         setRuleId(id);
     }

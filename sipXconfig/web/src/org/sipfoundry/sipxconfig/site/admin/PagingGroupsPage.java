@@ -24,6 +24,7 @@ import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.StringPropertySelectionModel;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.ValidatorException;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -45,6 +46,9 @@ public abstract class PagingGroupsPage extends BasePage implements PageBeginRend
 
     @InjectObject(value = "spring:pagingProvisioningContext")
     public abstract PagingProvisioningContext getPagingProvisioningContext();
+
+    @InjectObject("spring:dialPlanContext")
+    public abstract DialPlanContext getDialPlanContext();
 
     @Bean
     public abstract SelectMap getSelections();
@@ -110,6 +114,7 @@ public abstract class PagingGroupsPage extends BasePage implements PageBeginRend
         if (groups.size() > 0) {
             getPagingContext().setPagingPrefix(prefix);
             getPagingContext().setSipTraceLevel(getTraceLevel());
+            getDialPlanContext().replicateDialPlan(true); // restartSBCDevices == true
         }
     }
 

@@ -73,6 +73,7 @@ public abstract class EditFlexibleDialPlan extends BasePage {
         move(getRowsToMoveDown(), 1);
         delete();
         duplicate();
+        getDialPlanContext().replicateDialPlan(true); // restartSBCDevices == true
     }
 
     /**
@@ -87,14 +88,6 @@ public abstract class EditFlexibleDialPlan extends BasePage {
         }
         DialPlanContext manager = getDialPlanContext();
         manager.moveRules(rows, step);
-    }
-
-    public IPage activate(IRequestCycle cycle) {
-        DialPlanContext manager = getDialPlanContext();
-        manager.generateDialPlan();
-        ActivateDialPlan activate = (ActivateDialPlan) cycle.getPage(ActivateDialPlan.PAGE);
-        activate.setReturnPage(PAGE);
-        return activate;
     }
 
     public IPage revert(IRequestCycle cycle) {

@@ -73,7 +73,6 @@ public class NatTraversalTestUi extends WebTestCase {
         setTextField("setting:publicport","2544");
         clickButton("natTraversal:apply");
         SiteTestHelper.assertNoUserError(tester);
-        clickButton("cancel");
         tester.assertTextFieldEquals("setting:concurrentrelays", "20");
         //relay setting:
         tester.assertTextFieldEquals("setting:mediarelayexternaladdress","11.12.13.15");

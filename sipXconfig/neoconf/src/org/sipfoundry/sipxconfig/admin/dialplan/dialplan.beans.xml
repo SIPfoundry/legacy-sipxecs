@@ -137,6 +137,8 @@
     <property name="defaultDialPlanId" value="na.dialPlan" />
     <property name="sbcDeviceManager" ref="sbcDeviceManager" />
     <property name="sbcProfileManager" ref="sbcProfileManager" />
+	<property name="sipxServiceManager" ref="sipxServiceManager" />
+	<property name="sipxProcessContext" ref="sipxProcessContext" />
     <lookup-method name="getGatewayProfileManager" bean="gatewayProfileManager" />
     <lookup-method name="getGatewayContext" bean="gatewayContext" />
     <lookup-method name="createSpecialAutoAttendantMode" bean="specialAutoAttendantMode" />

@@ -69,7 +69,6 @@ import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.admin.WaitingPage;
 import org.sipfoundry.sipxconfig.site.admin.commserver.ReplicationData;
-import org.sipfoundry.sipxconfig.site.admin.commserver.RestartReminder;
 import org.sipfoundry.sipxconfig.site.gateway.EditGateway;
 import org.sipfoundry.sipxconfig.site.phone.ManagePhones;
 import org.sipfoundry.sipxconfig.site.phone.NewPhone;
@@ -340,12 +339,6 @@ public abstract class TestPage extends BasePage {
     public IPage newGroup(IRequestCycle cycle, String resource) {
         EditGroup page = (EditGroup) cycle.getPage(EditGroup.PAGE);
         page.newGroup(resource, PAGE);
-        return page;
-    }
-
-    public IPage goToRestartReminderPage(IRequestCycle cycle) {
-        RestartReminder page = (RestartReminder) cycle.getPage(RestartReminder.PAGE);
-        page.setNextPage(PAGE);
         return page;
     }
 

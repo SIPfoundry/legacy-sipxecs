@@ -34,9 +34,8 @@ public class ManageDomainTestUi extends WebTestCase {
         String newDomain = "abc898342.ooo.com";
         setTextField("domain:name", newDomain);
         clickButton("form:apply");
-        assertButtonPresent("activate");
-        // get NPE if i activate
-        clickButton("cancel");
         assertTextFieldEquals("domain:name", newDomain);
+        SiteTestHelper.assertNoException(tester);
+        SiteTestHelper.assertNoUserError(tester);
     }
 }
