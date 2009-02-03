@@ -120,7 +120,16 @@ void sig_routine(int sig)
 #endif /* DEBUG */
        OsSysLog::add(FAC_SUPERVISOR,PRI_ALERT,"Execution ABORTED!");
        break;
-       
+
+    case SIGHUP:
+    {
+#ifdef DEBUG
+       osPrintf("Received SIGHUP; ignoring\n");
+#endif /* DEBUG */
+       OsSysLog::add(FAC_SUPERVISOR,PRI_ALERT,"Received SIGHUP; ignoring");
+       return;
+    }
+
     case SIGTERM:
     {
 #ifdef DEBUG
