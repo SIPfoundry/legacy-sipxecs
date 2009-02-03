@@ -2,7 +2,6 @@
 
 remove_self () {
     local myname=`basename $0`
-    echo "${myname} setup successful - disabling future invocations"
     rm -f $0
 }
 
