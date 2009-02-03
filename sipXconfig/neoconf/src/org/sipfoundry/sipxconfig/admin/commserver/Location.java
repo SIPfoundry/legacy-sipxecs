@@ -307,4 +307,16 @@ public class Location extends BeanWithId {
     public boolean isBundleInstalled(String bundleId) {
         return m_installedBundles == null ? false : m_installedBundles.contains(bundleId);
     }
+
+    /**
+     * Reinitialize the list of services based on selected bundles.
+     *
+     * The bundle <-> service mapping might change as a result of installing new services or
+     * upgrading the system. Calling this method will reset the services list based on already
+     * selected bundles.
+     */
+    public void resetBundles(SipxServiceManager sipxServiceManager) {
+        List<SipxServiceBundle> bundles = sipxServiceManager.getBundlesForLocation(this);
+        sipxServiceManager.setBundlesForLocation(this, bundles);
+    }
 }

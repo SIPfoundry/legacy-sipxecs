@@ -26,7 +26,8 @@ public class LocationTest extends TestCase {
 
     @SuppressWarnings("deprecation")
     public void testParseAddress() {
-        // it tests setUrl - which is deprecated, because it's only used when migrating from topology.xml
+        // it tests setUrl - which is deprecated, because it's only used when migrating from
+        // topology.xml
         Location out = new Location();
         out.setUrl("https://localhost:8091/cgi-bin/replication/replication.cgi");
         assertEquals("localhost", out.getFqdn());
@@ -59,7 +60,7 @@ public class LocationTest extends TestCase {
         Location out = new Location();
         Collection<LocationSpecificService> services = new ArrayList<LocationSpecificService>();
         SipxService proxyService = new SipxProxyService();
-        LocationSpecificService proxyLss= new LocationSpecificService();
+        LocationSpecificService proxyLss = new LocationSpecificService();
         proxyLss.setSipxService(proxyService);
         services.add(proxyLss);
         SipxService registrarService = new SipxRegistrarService();
@@ -73,7 +74,6 @@ public class LocationTest extends TestCase {
         assertNotNull(servicesFromOut);
         assertEquals(2, servicesFromOut.size());
     }
-
 
     public void testAddService() {
         Location out = new Location();

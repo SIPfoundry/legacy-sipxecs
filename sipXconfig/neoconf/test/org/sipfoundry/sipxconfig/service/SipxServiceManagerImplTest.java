@@ -19,6 +19,7 @@ import junit.framework.TestCase;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.device.Model;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.service.SipxServiceBundle.TooFewBundles;
 import org.sipfoundry.sipxconfig.service.SipxServiceBundle.TooManyBundles;
@@ -94,27 +95,97 @@ public class SipxServiceManagerImplTest extends TestCase {
         verify(lm);
     }
 
-    private static class BundleModelSource implements ModelSource<SipxServiceBundle> {
-        Map<String, SipxServiceBundle> m_map = new HashMap<String, SipxServiceBundle>();
+    public void testLocationResetBundles() {
+        Location l1 = new Location();
+        l1.setUniqueId();
+        l1.setInstalledBundles(asList("b"));
 
-        public BundleModelSource(SipxServiceBundle... bundles) {
-            for (SipxServiceBundle bundle : bundles) {
-                String modelId = bundle.getName();
+        SipxServiceBundle b = new SipxServiceBundle("b");
+
+        SipxService service1 = new SipxAcdService();
+        service1.setProcessName("acd");
+        service1.setBundles(Collections.<SipxServiceBundle> emptySet());
+
+        SipxServiceManagerImpl sm = new SipxServiceManagerImpl() {
+            @Override
+            Collection<SipxService> getServicesFromDb() {
+                return Collections.emptyList();
+            }
+        };
+
+        BundleModelSource bms = new BundleModelSource(b);
+        sm.setBundleModelSource(bms);
+        ServiceModelSource sms = new ServiceModelSource(service1);
+        sm.setServiceModelSource(sms);
+
+        LocationsManager lm = createMock(LocationsManager.class);
+        lm.getLocations();
+        expectLastCall().andReturn(new Location[] {
+            l1
+        }).anyTimes();
+        replay(lm);
+        sm.setLocationsManager(lm);
+
+        l1.resetBundles(sm);
+        Collection<SipxService> sipxServices = l1.getSipxServices();
+        assertTrue("should be empty - no services in the bundle", sipxServices.isEmpty());
+
+        // add service to the bundle and reset the bundles
+        service1.setBundles(Collections.singleton(b));
+        l1.resetBundles(sm);
+
+        sipxServices = l1.getSipxServices();
+        assertFalse(sipxServices.isEmpty());
+        assertSame(service1, sipxServices.iterator().next());
+
+        verify(lm);
+    }
+
+    abstract static class SimpleModelSource<T extends Model> implements ModelSource<T> {
+        Map<String, T> m_map = new HashMap<String, T>();
+
+        public SimpleModelSource(T... bundles) {
+            for (T bundle : bundles) {
+                String modelId = getModelId(bundle);
                 bundle.setBeanName(modelId);
                 m_map.put(modelId, bundle);
             }
         }
 
-        public SipxServiceBundle getModel(String modelId) {
-            SipxServiceBundle bundle = m_map.get(modelId);
+        public T getModel(String modelId) {
+            T bundle = m_map.get(modelId);
             if (bundle == null) {
                 fail("Do not know this modelId: [" + modelId + "]");
             }
             return bundle;
         }
 
-        public Collection<SipxServiceBundle> getModels() {
+        public Collection<T> getModels() {
             return m_map.values();
+        }
+
+        protected abstract String getModelId(T model);
+    }
+
+    private static class BundleModelSource extends SimpleModelSource<SipxServiceBundle> {
+        public BundleModelSource(SipxServiceBundle... bundles) {
+            super(bundles);
+        }
+
+        @Override
+        protected String getModelId(SipxServiceBundle model) {
+            return model.getName();
+        }
+    }
+
+    private static class ServiceModelSource extends SimpleModelSource<SipxService> {
+        public ServiceModelSource(SipxService... services) {
+            super(services);
+        }
+
+        @Override
+        protected String getModelId(SipxService model) {
+            return model.getProcessName();
         }
     }
 }
