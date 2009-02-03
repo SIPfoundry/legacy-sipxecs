@@ -137,7 +137,7 @@ class CallControlManager implements SymmitronResetHandler {
         @Override
         public void run() {
             try {
-                if ( referDialog.getState() != DialogState.TERMINATED ) {
+                if (referDialog.getState() != DialogState.TERMINATED) {
                     notifyReferDialog(referRequest, referDialog, response);
                 }
             } catch (Exception ex) {
@@ -1021,7 +1021,7 @@ class CallControlManager implements SymmitronResetHandler {
                 if (referDialog != null && referDialog.getState() == DialogState.CONFIRMED
                         && SipUtilities.isOriginatorSipXbridge(response)) {
                     this.notifyReferDialog(referRequest, referDialog, response);
-                    
+
                 }
                 /*
                  * Tear down the call.
@@ -1032,19 +1032,21 @@ class CallControlManager implements SymmitronResetHandler {
             }
         }
     }
-    
+
     /*
      * This is a polycomm specific hack. Polycomm sometimes sends 500 if NOTIFY sent too early.
      */
 
-    private void delayNotifyReferDialog(Request referRequest, Dialog referDialog, Response response) throws SipException {
-       
-        if ( response.getStatusCode() == Response.OK) {
-            Gateway.getTimer().schedule(new NotifyReferDialogTimerTask(referRequest,referDialog,response), 2000);
+    private void delayNotifyReferDialog(Request referRequest, Dialog referDialog,
+            Response response) throws SipException {
+
+        if (response.getStatusCode() == Response.OK) {
+            Gateway.getTimer().schedule(
+                    new NotifyReferDialogTimerTask(referRequest, referDialog, response), 2000);
         } else {
             this.notifyReferDialog(referRequest, referDialog, response);
         }
-        
+
     }
 
     private void inviteToItspOrProxyResponse(ResponseEvent responseEvent) throws Exception {
@@ -1282,7 +1284,6 @@ class CallControlManager implements SymmitronResetHandler {
             Gateway.getTimer().schedule(new TearDownReplacedDialogTimerTask(replacedDialog),
                     30 * 1000);
         }
-        
 
         /*
          * accept the dialog that replaces this dialog.
@@ -1332,15 +1333,15 @@ class CallControlManager implements SymmitronResetHandler {
          * If we have a server transaction associated with the response, we ack when the other
          * side acks.
          */
-        if (serverTransaction != null) {
+        if (serverTransaction != null
+                && serverTransaction.getState() != TransactionState.TERMINATED) {
             Response newResponse = SipUtilities.createResponse(serverTransaction, response
                     .getStatusCode());
-
             ContactHeader contactHeader = SipUtilities.createContactHeader(
                     Gateway.SIPXBRIDGE_USER, tad.getServerTransactionProvider());
             newResponse.setHeader(contactHeader);
-            Dialog peerDialog = DialogContext.getPeerDialog(dialog);
-            SipProvider peerProvider = ((DialogExt) peerDialog).getSipProvider();
+            Dialog peerDialog = serverTransaction.getDialog();
+            SipProvider peerProvider = ((TransactionExt) serverTransaction).getSipProvider();
             if (response.getContentLength().getContentLength() != 0) {
 
                 RtpSession originalRtpSession = DialogContext.getRtpSession(dialog);
@@ -1355,19 +1356,28 @@ class CallControlManager implements SymmitronResetHandler {
                 ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader(
                         "application", "sdp");
                 RtpSession rtpSession = DialogContext.getRtpSession(peerDialog);
+
+                if (peerProvider == Gateway.getLanProvider()) {
+                    rtpSession.getReceiver().setUseGlobalAddressing(false);
+                } else if (DialogContext.get(peerDialog).getItspInfo() == null
+                        || DialogContext.get(peerDialog).getItspInfo().isGlobalAddressingUsed()) {
+                    rtpSession.getReceiver().setUseGlobalAddressing(true);
+                    SipUtilities.setGlobalAddress(newResponse);
+                } else {
+                    rtpSession.getReceiver().setUseGlobalAddressing(false);
+                }
+
                 rtpSession.getReceiver().setSessionDescription(receiverSd);
                 newResponse.setContent(receiverSd.toString(), cth);
-
-            }
-            if (peerProvider != Gateway.getLanProvider()) {
-                DialogContext peerDat = DialogContext.get(peerDialog);
-                if (peerDat.getItspInfo() == null
-                        || peerDat.getItspInfo().isGlobalAddressingUsed()) {
+                serverTransaction.sendResponse(newResponse);
+            } else  {
+                /* No SDP returned in the response */
+                if (DialogContext.get(peerDialog).getItspInfo() == null
+                        || DialogContext.get(peerDialog).getItspInfo().isGlobalAddressingUsed()) {
                     SipUtilities.setGlobalAddress(newResponse);
                 }
+                serverTransaction.sendResponse(newResponse);
             }
-
-            serverTransaction.sendResponse(newResponse);
         } else {
             Request ack = dialog.createAck(SipUtilities.getSeqNumber(response));
             dialog.sendAck(ack);
@@ -1478,8 +1488,8 @@ class CallControlManager implements SymmitronResetHandler {
          */
 
         if (referDialog.getState() == DialogState.CONFIRMED
-                && SipUtilities.isOriginatorSipXbridge(response)) {         
-                this.notifyReferDialog(referRequest, referDialog, response);
+                && SipUtilities.isOriginatorSipXbridge(response)) {
+            this.notifyReferDialog(referRequest, referDialog, response);
         }
 
         /*
@@ -1628,9 +1638,9 @@ class CallControlManager implements SymmitronResetHandler {
 
         if (referDialog.getState() == DialogState.CONFIRMED
                 && SipUtilities.isOriginatorSipXbridge(response)) {
-                 
-                this.notifyReferDialog(referRequest, referDialog, response);
-            
+
+            this.notifyReferDialog(referRequest, referDialog, response);
+
         }
 
         /*
@@ -2094,9 +2104,9 @@ class CallControlManager implements SymmitronResetHandler {
                     Request referRequest = tad.getReferRequest();
                     if (referDialog.getState() == DialogState.CONFIRMED
                             && SipUtilities.isOriginatorSipXbridge(response)) {
-                                               
-                            this.notifyReferDialog(referRequest, referDialog, response);
-                        
+
+                        this.notifyReferDialog(referRequest, referDialog, response);
+
                     }
                 }
 
@@ -2288,7 +2298,7 @@ class CallControlManager implements SymmitronResetHandler {
             long cseqValue = cseq.getSeqNumber();
             eventHeader.setEventId(Integer.toString((int) cseqValue));
             notifyRequest.addHeader(eventHeader);
-            
+
             String subscriptionState = "active";
             if (response.getStatusCode() >= 200) {
                 /*
@@ -2298,7 +2308,7 @@ class CallControlManager implements SymmitronResetHandler {
             }
             SubscriptionStateHeader subscriptionStateHeader = ProtocolObjects.headerFactory
                     .createSubscriptionStateHeader(subscriptionState);
-            if ( subscriptionState.equals("terminated")) {
+            if (subscriptionState.equals("terminated")) {
                 subscriptionStateHeader.setReasonCode("deactivated");
             }
             notifyRequest.addHeader(subscriptionStateHeader);
@@ -2313,9 +2323,7 @@ class CallControlManager implements SymmitronResetHandler {
             UserAgentHeader uah = SipUtilities.createUserAgentHeader();
             notifyRequest.setHeader(uah);
             ClientTransaction ctx = referProvider.getNewClientTransaction(notifyRequest);
-            
-        
-             
+
             referDialog.sendRequest(ctx);
         } catch (ParseException ex) {
             logger.error("Unexpected parse exception ", ex);

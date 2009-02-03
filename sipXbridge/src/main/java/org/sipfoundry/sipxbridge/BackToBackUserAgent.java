@@ -1102,7 +1102,7 @@ public class BackToBackUserAgent {
             DialogContext.attach(this, ct.getDialog(), ct, ct.getRequest());
 
             this.musicOnHoldDialog = ct.getDialog();
-           
+
             retval = ct;
 
         } catch (InvalidArgumentException ex) {
@@ -1125,22 +1125,24 @@ public class BackToBackUserAgent {
      */
     void sendByeToMohServer() {
         try {
-            
-            if (this.musicOnHoldDialog != null &&            
-                    this.musicOnHoldDialog.getState() != DialogState.TERMINATED) {
+
+            if (this.musicOnHoldDialog != null
+                    && this.musicOnHoldDialog.getState() != DialogState.TERMINATED) {
                 DialogContext dialogCtx = DialogContext.get(this.musicOnHoldDialog);
                 SipProvider lanProvider = Gateway.getLanProvider();
-                if ( dialogCtx.getTransaction().getState() != TransactionState.TERMINATED ) {
-                    ClientTransaction ctx = (ClientTransaction)dialogCtx.getTransaction();
-                    ClientTransaction cancelTx = lanProvider.getNewClientTransaction(ctx.createCancel());
-                    TransactionContext txContext = TransactionContext.attach(cancelTx,Operation.CANCEL_MOH_INVITE);
+                if (dialogCtx.getTransaction().getState() != TransactionState.TERMINATED) {
+                    ClientTransaction ctx = (ClientTransaction) dialogCtx.getTransaction();
+                    ClientTransaction cancelTx = lanProvider.getNewClientTransaction(ctx
+                            .createCancel());
+                    TransactionContext txContext = TransactionContext.attach(cancelTx,
+                            Operation.CANCEL_MOH_INVITE);
                     cancelTx.sendRequest();
                 }
-                
-                if ( this.musicOnHoldDialog.getState() != null  ) {
+
+                if (this.musicOnHoldDialog.getState() != null) {
                     logger.debug("sendByeToMohServer");
                     Request byeRequest = musicOnHoldDialog.createRequest(Request.BYE);
-               
+
                     ClientTransaction ctx = lanProvider.getNewClientTransaction(byeRequest);
                     TransactionContext.attach(ctx, Operation.SEND_BYE_TO_MOH_SERVER);
                     musicOnHoldDialog.sendRequest(ctx);
@@ -1162,7 +1164,7 @@ public class BackToBackUserAgent {
      * 
      * @throws SipException
      */
-   
+
     void sendInviteToItsp(RequestEvent requestEvent, ServerTransaction serverTransaction,
             String toDomain) throws SipException {
 
@@ -1191,10 +1193,6 @@ public class BackToBackUserAgent {
         }
 
         boolean spiral = SipUtilities.isOriginatorSipXbridge(incomingRequest);
-
-        
-      
-       
 
         ReplacesHeader replacesHeader = (ReplacesHeader) incomingRequest
                 .getHeader(ReplacesHeader.NAME);
@@ -1229,8 +1227,9 @@ public class BackToBackUserAgent {
             }
 
             SipURI incomingRequestUri = (SipURI) incomingRequest.getRequestURI();
-            
-            this.mohDisabled = incomingRequestUri.getParameter("sipxbridge-moh") != null && incomingRequestUri.getParameter("sipxbridge-moh").equals("false");
+
+            this.mohDisabled = incomingRequestUri.getParameter("sipxbridge-moh") != null
+                    && incomingRequestUri.getParameter("sipxbridge-moh").equals("false");
 
             FromHeader fromHeader = (FromHeader) incomingRequest.getHeader(FromHeader.NAME)
                     .clone();
@@ -1595,7 +1594,7 @@ public class BackToBackUserAgent {
                 SipUtilities.cleanSessionDescription(newOffer, selectedCodec);
 
                 ServerTransaction peerSt = ((ServerTransaction) peerDat.transaction);
-                Response peerOk = SipUtilities.createResponse(peerSt,Response.OK);
+                Response peerOk = SipUtilities.createResponse(peerSt, Response.OK);
                 peerOk.setHeader(contact);
                 peerOk.setContent(newOffer.toString(), cth);
                 peerSt.sendResponse(peerOk);
@@ -1727,22 +1726,27 @@ public class BackToBackUserAgent {
         for (Dialog dialog : this.dialogTable) {
             if (dialog.getState() != DialogState.TERMINATED) {
                 DialogContext dialogCtx = DialogContext.get(dialog);
-                SipProvider lanProvider = ((DialogExt)dialog).getSipProvider();
-                if ( dialogCtx.getTransaction().getState() != TransactionState.TERMINATED ) {
-                    ClientTransaction ctx = (ClientTransaction)dialogCtx.getTransaction();
-                    ClientTransaction cancelTx = lanProvider.getNewClientTransaction(ctx.createCancel());
-                    TransactionContext.attach(cancelTx,Operation.CANCEL_INVITE);
-                    cancelTx.sendRequest();
+                SipProvider lanProvider = ((DialogExt) dialog).getSipProvider();
+                if (dialogCtx.getTransaction() != null
+                        && dialogCtx.getTransaction().getState() != TransactionState.TERMINATED
+                        && dialogCtx.getTransaction() instanceof ClientTransaction) {
+                    ClientTransaction ctx = (ClientTransaction) dialogCtx.getTransaction();
+                    if (ctx.getState() == TransactionState.PROCEEDING)  {
+                        ClientTransaction cancelTx = lanProvider.getNewClientTransaction(ctx
+                            .createCancel());
+                        TransactionContext.attach(cancelTx, Operation.CANCEL_INVITE);
+                        cancelTx.sendRequest();
+                    }
                 }
-                
-                if ( dialog.getState() != null ) {
-                Request byeRequest = dialog.createRequest(Request.BYE);
-                if (reason != null) {
-                    byeRequest.addHeader(reason);
-                }
-                SipProvider provider = ((DialogExt) dialog).getSipProvider();
-                ClientTransaction ct = provider.getNewClientTransaction(byeRequest);
-                dialog.sendRequest(ct);
+
+                if (dialog.getState() != null) {
+                    Request byeRequest = dialog.createRequest(Request.BYE);
+                    if (reason != null) {
+                        byeRequest.addHeader(reason);
+                    }
+                    SipProvider provider = ((DialogExt) dialog).getSipProvider();
+                    ClientTransaction ct = provider.getNewClientTransaction(byeRequest);
+                    dialog.sendRequest(ct);
                 }
             }
         }

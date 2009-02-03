@@ -28,258 +28,233 @@ import org.apache.log4j.Logger;
  */
 public class CallControlUtilities {
 
-	private static Logger logger = Logger.getLogger(CallControlUtilities.class);
+    private static Logger logger = Logger.getLogger(CallControlUtilities.class);
 
-	static void sendInternalError(ServerTransaction st, Exception ex) {
-		try {
-			Request request = st.getRequest();
-			Response response = ProtocolObjects.messageFactory.createResponse(
-					Response.SERVER_INTERNAL_ERROR, request);
-			if (CallControlManager.logger.isDebugEnabled()) {
-				String message = "Exception occured at " + ex.getMessage()
-						+ " at " + ex.getStackTrace()[0].getFileName() + ":"
-						+ ex.getStackTrace()[0].getLineNumber();
+    static void sendInternalError(ServerTransaction st, Exception ex) {
+        try {
+            Request request = st.getRequest();
+            Response response = ProtocolObjects.messageFactory.createResponse(
+                    Response.SERVER_INTERNAL_ERROR, request);
+            if (CallControlManager.logger.isDebugEnabled()) {
+                String message = "Exception occured at " + ex.getMessage() + " at "
+                        + ex.getStackTrace()[0].getFileName() + ":"
+                        + ex.getStackTrace()[0].getLineNumber();
 
-				response.setReasonPhrase(message);
-			} else {
-				response.setReasonPhrase(ex.getCause().getMessage());
-			}
-			st.sendResponse(response);
+                response.setReasonPhrase(message);
+            } else {
+                response.setReasonPhrase(ex.getCause().getMessage());
+            }
+            st.sendResponse(response);
 
-		} catch (Exception e) {
-			throw new SipXbridgeException("Check gateway configuration", e);
-		}
-	}
+        } catch (Exception e) {
+            throw new SipXbridgeException("Check gateway configuration", e);
+        }
+    }
 
-	static void sendBadRequestError(ServerTransaction st, Exception ex) {
-		try {
-			
-			Response response = SipUtilities.createResponse(st,
-					Response.BAD_REQUEST);
-			if (CallControlManager.logger.isDebugEnabled()) {
-				String message = "Exception occured at " + ex.getMessage()
-						+ " at " + ex.getStackTrace()[0].getFileName() + ":"
-						+ ex.getStackTrace()[0].getLineNumber();
+    static void sendBadRequestError(ServerTransaction st, Exception ex) {
+        try {
 
-				response.setReasonPhrase(message);
-			}
-			st.sendResponse(response);
+            Response response = SipUtilities.createResponse(st, Response.BAD_REQUEST);
+            if (CallControlManager.logger.isDebugEnabled()) {
+                String message = "Exception occured at " + ex.getMessage() + " at "
+                        + ex.getStackTrace()[0].getFileName() + ":"
+                        + ex.getStackTrace()[0].getLineNumber();
 
-		} catch (Exception e) {
-			throw new SipXbridgeException("Check gateway configuration", e);
-		}
-	}
+                response.setReasonPhrase(message);
+            }
+            st.sendResponse(response);
 
-	/**
-	 * Sends an in-dialog SDP Offer to the peer of this dialog.
-	 * 
-	 * @param response
-	 * @param dialog
-	 * @throws Exception
-	 */
-	static void sendSdpReOffer(Response response, Dialog dialog)
-			throws Exception {
-		//DialogApplicationData dialogContext = (DialogApplicationData) dialog
-		//		.getApplicationData();
-		BackToBackUserAgent b2bua = DialogContext.getBackToBackUserAgent(dialog);
-		DialogContext dialogContext = (DialogContext) dialog
-				.getApplicationData();
-		if (logger.isDebugEnabled()) {
-			logger.debug("sendSdpOffer : peerDialog = " + dialog
-					+ " peerDialogApplicationData = " + dialogContext
-					+ "\nlastResponse = " + dialogContext.getLastResponse());
-		}
+        } catch (Exception e) {
+            throw new SipXbridgeException("Check gateway configuration", e);
+        }
+    }
 
-	
-		b2bua.sendByeToMohServer();
+    /**
+     * Sends an in-dialog SDP Offer to the peer of this dialog.
+     * 
+     * @param response
+     * @param dialog
+     * @throws Exception
+     */
+    static void sendSdpReOffer(Response response, Dialog dialog) throws Exception {
+        // DialogApplicationData dialogContext = (DialogApplicationData) dialog
+        // .getApplicationData();
+        BackToBackUserAgent b2bua = DialogContext.getBackToBackUserAgent(dialog);
+        DialogContext dialogContext = (DialogContext) dialog.getApplicationData();
+        if (logger.isDebugEnabled()) {
+            logger.debug("sendSdpOffer : peerDialog = " + dialog
+                    + " peerDialogApplicationData = " + dialogContext + "\nlastResponse = "
+                    + dialogContext.getLastResponse());
+        }
 
-		/*
-		 * Create a new INVITE to send to the other side. The sdp is extracted
-		 * from the response and fixed up.
-		 */
+        b2bua.sendByeToMohServer();
 
-		if (response.getContentLength().getContentLength() != 0) {
-			/*
-			 * Possibly filter the outbound SDP ( if user sets up to do so ).
-			 */
-			SessionDescription sdpOffer = SipUtilities.getSessionDescription(response);
+        /*
+         * Create a new INVITE to send to the other side. The sdp is extracted from the response
+         * and fixed up.
+         */
 
-			Request sdpOfferInvite = dialog.createRequest(Request.INVITE);
+        if (response.getContentLength().getContentLength() != 0) {
+            /*
+             * Possibly filter the outbound SDP ( if user sets up to do so ).
+             */
+            SessionDescription sdpOffer = SipUtilities.getSessionDescription(response);
 
-			/*
-			 * Got a Response to our SDP query. Shuffle to the other end.
-			 */
+            Request sdpOfferInvite = dialog.createRequest(Request.INVITE);
 
-			DialogContext.getRtpSession(dialog).getTransmitter()
-					.setOnHold(false);
+            /*
+             * Got a Response to our SDP query. Shuffle to the other end.
+             */
 
-			/*
-			 * Set and fix up the sdp offer to send to the opposite side.
-			 */
-			DialogContext.getRtpSession(dialog).getReceiver()
-					.setSessionDescription(sdpOffer);
+            DialogContext.getRtpSession(dialog).getTransmitter().setOnHold(false);
 
-			SipUtilities.incrementSessionVersion(sdpOffer);
+            /*
+             * Set and fix up the sdp offer to send to the opposite side.
+             */
+            DialogContext.getRtpSession(dialog).getReceiver().setSessionDescription(sdpOffer);
 
-			SipUtilities.fixupOutboundRequest(dialog, sdpOfferInvite);
+            SipUtilities.incrementSessionVersion(sdpOffer);
 
-			sdpOfferInvite.setContent(sdpOffer.toString(),
-					ProtocolObjects.headerFactory.createContentTypeHeader(
-							"application", "sdp"));
+            SipUtilities.fixupOutboundRequest(dialog, sdpOfferInvite);
 
-			ClientTransaction ctx = ((DialogExt) dialog).getSipProvider()
-					.getNewClientTransaction(sdpOfferInvite);
+            sdpOfferInvite.setContent(sdpOffer.toString(), ProtocolObjects.headerFactory
+                    .createContentTypeHeader("application", "sdp"));
 
-			TransactionContext.attach(ctx, Operation.SEND_SDP_RE_OFFER);
+            ClientTransaction ctx = ((DialogExt) dialog).getSipProvider()
+                    .getNewClientTransaction(sdpOfferInvite);
 
-			dialog.sendRequest(ctx);
+            TransactionContext.attach(ctx, Operation.SEND_SDP_RE_OFFER);
 
-		} else {
-			dialogContext.getBackToBackUserAgent().tearDown(
-					ProtocolObjects.headerFactory.createReasonHeader(
-							Gateway.SIPXBRIDGE_USER, ReasonCode.PROTOCOL_ERROR,
-							"No SDP in response"));
-		}
+            dialog.sendRequest(ctx);
 
-	}
+        } else {
+            dialogContext.getBackToBackUserAgent().tearDown(
+                    ProtocolObjects.headerFactory.createReasonHeader(Gateway.SIPXBRIDGE_USER,
+                            ReasonCode.PROTOCOL_ERROR, "No SDP in response"));
+        }
 
-	/**
-	 * Sends an SDP answer to the peer of this dialog.
-	 * 
-	 * @param response
-	 *            - response from which we are going to extract the SDP answer
-	 * @param dialog
-	 *            -- dialog for the interaction
-	 * 
-	 * @throws Exception
-	 *             - if there was a problem extacting sdp or sending ACK
-	 */
-	static void sendSdpAnswerInAck(Response response, Dialog dialog)
-			throws Exception {
+    }
 
-		DialogContext dialogContext = (DialogContext) dialog
-				.getApplicationData();
-		if (logger.isDebugEnabled()) {
-			logger.debug("sendSdpAnswerInAck : dialog = " + dialog
-					+ " peerDialogApplicationData = " + dialogContext
-					+ "\nlastResponse = " + dialogContext.getLastResponse() );
-		}
+    /**
+     * Sends an SDP answer to the peer of this dialog.
+     * 
+     * @param response - response from which we are going to extract the SDP answer
+     * @param dialog -- dialog for the interaction
+     * 
+     * @throws Exception - if there was a problem extacting sdp or sending ACK
+     */
+    static void sendSdpAnswerInAck(Response response, Dialog dialog) throws Exception {
 
-		dialogContext.setPendingAction(PendingDialogAction.NONE);
-		
-		if (response.getContentLength().getContentLength() != 0) {
+        DialogContext dialogContext = (DialogContext) dialog.getApplicationData();
+        if (logger.isDebugEnabled()) {
+            logger.debug("sendSdpAnswerInAck : dialog = " + dialog
+                    + " peerDialogApplicationData = " + dialogContext + "\nlastResponse = "
+                    + dialogContext.getLastResponse());
+        }
 
-			SessionDescription answerSessionDescription = SipUtilities.getSessionDescription(response); 
-			/*
-			 * Get the codecs in the answer.
-			 */
-			HashSet<Integer> answerCodecs = SipUtilities
-					.getCodecNumbers(answerSessionDescription);
+        dialogContext.setPendingAction(PendingDialogAction.NONE);
 
-			/*
-			 * Get the transmitter session description for the peer. This is
-			 * either our old answer or our old offer.
-			 */
-			logger.debug("peerTransmitter = " +  DialogContext
-                    .getPeerTransmitter(dialog));
-			
-			SessionDescription transmitterSd = DialogContext
-					.getPeerTransmitter(dialog).getTransmitter()
-					.getSessionDescription();
-			/*
-			 * Extract the codec numbers previously offered.
-			 */
-			HashSet<Integer> transmitterCodecs = SipUtilities
-					.getCodecNumbers(transmitterSd);
+        if (response.getContentLength().getContentLength() != 0) {
 
-			/*
-			 * The session description to send back in the ACK.
-			 */
-			SessionDescription ackSd = null;
-			/*
-			 * Could not find a codec match. We do not want to drop the call in
-			 * this case, so just fake it and send the original answer back.
-			 */
+            SessionDescription answerSessionDescription = SipUtilities
+                    .getSessionDescription(response);
+            /*
+             * Get the codecs in the answer.
+             */
+            HashSet<Integer> answerCodecs = SipUtilities
+                    .getCodecNumbers(answerSessionDescription);
 
-			if (answerCodecs.size() == 0) {
+            /*
+             * Get the transmitter session description for the peer. This is either our old answer
+             * or our old offer.
+             */
+            logger.debug("peerTransmitter = " + DialogContext.getPeerTransmitter(dialog));
 
-				/*
-				 * We did a SDP query. So we need to put an SDP Answer in the
-				 * response. Retrieve the previously offered session
-				 * description.
-				 */
+            /*
+             * The session description to send back in the ACK.
+             */
+            SessionDescription ackSd = null;
+            /*
+             * Could not find a codec match. We do not want to drop the call in this case, so just
+             * fake it and send the original answer back.
+             */
 
-				ackSd = DialogContext.getRtpSession(dialog)
-						.getReceiver().getSessionDescription();
+            if (answerCodecs.size() == 0) {
+                SessionDescription transmitterSd = DialogContext.getPeerTransmitter(dialog)
+                        .getTransmitter().getSessionDescription();
+                /*
+                 * Extract the codec numbers previously offered.
+                 */
+                HashSet<Integer> transmitterCodecs = SipUtilities.getCodecNumbers(transmitterSd);
 
-				/*
-				 * Only pick the codecs that the other side will support.
-				 */
-				SipUtilities.restictToSpecifiedCodecs(ackSd, transmitterCodecs);
+                /*
+                 * We did a SDP query. So we need to put an SDP Answer in the response. Retrieve
+                 * the previously offered session description.
+                 */
 
-				DialogContext.getRtpSession(dialog).getTransmitter()
-						.setOnHold(false);
+                ackSd = DialogContext.getRtpSession(dialog).getReceiver().getSessionDescription();
 
-			} else {
-				/*
-				 * Got a Response to our SDP offer solicitation. Shuffle to the
-				 * other end. Note that we have to carefully replay a paired
-				 * down session description from the original offer --
-				 * intersecting it with the original offer.
-				 */
+                /*
+                 * Only pick the codecs that the other side will support.
+                 */
+                SipUtilities.restictToSpecifiedCodecs(ackSd, transmitterCodecs);
 
-				ackSd = answerSessionDescription;
+                DialogContext.getRtpSession(dialog).getTransmitter().setOnHold(false);
 
-				/*
-				 * Fix up the ports.
-				 */
+            } else {
+                /*
+                 * Got a Response to our SDP offer solicitation. Shuffle to the other end. Note
+                 * that we have to carefully replay a paired down session description from the
+                 * original offer -- intersecting it with the original offer.
+                 */
 
-				DialogContext.getRtpSession(dialog).getReceiver()
-						.setSessionDescription(ackSd);
+                ackSd = answerSessionDescription;
 
-				DialogContext.getRtpSession(dialog).getTransmitter()
-						.setOnHold(false);
+                /*
+                 * Fix up the ports.
+                 */
 
-				SipUtilities.incrementSessionVersion(ackSd);
+                DialogContext.getRtpSession(dialog).getReceiver().setSessionDescription(ackSd);
 
-			}
+                DialogContext.getRtpSession(dialog).getTransmitter().setOnHold(false);
 
-			/*
-			 * HACK ALERT -- some ITSPs look at sendonly and start playing their
-			 * own MOH. This hack is to get around that nasty behavior.
-			 */
-			if (SipUtilities
-					.getSessionDescriptionMediaAttributeDuplexity(ackSd) != null
-					&& SipUtilities
-							.getSessionDescriptionMediaAttributeDuplexity(ackSd)
-							.equals("sendonly")) {
-				SipUtilities.setDuplexity(ackSd, "sendrecv");
-			}
-			Request ackRequest = dialog.createAck(SipUtilities
-					.getSeqNumber(dialogContext.getLastResponse()));
-			/*
-			 * Consume the last response.
-			 */
-			dialogContext.setLastResponse(null);
+                SipUtilities.incrementSessionVersion(ackSd);
 
-			/*
-			 * Answer is no longer pending.
-			 */
-			dialogContext.setPendingAction(PendingDialogAction.NONE);
+            }
 
-			/*
-			 * Send the SDP answer in an ACK.
-			 */
+            /*
+             * HACK ALERT -- some ITSPs look at sendonly and start playing their own MOH. This
+             * hack is to get around that nasty behavior.
+             */
+            if (SipUtilities.getSessionDescriptionMediaAttributeDuplexity(ackSd) != null
+                    && SipUtilities.getSessionDescriptionMediaAttributeDuplexity(ackSd).equals(
+                            "sendonly")) {
+                SipUtilities.setDuplexity(ackSd, "sendrecv");
+            }
+            Request ackRequest = dialog.createAck(SipUtilities.getSeqNumber(dialogContext
+                    .getLastResponse()));
+            /*
+             * Consume the last response.
+             */
+            dialogContext.setLastResponse(null);
 
-			ackRequest.setContent(ackSd.toString(),
-					ProtocolObjects.headerFactory.createContentTypeHeader(
-							"application", "sdp"));
-			dialog.sendAck(ackRequest);
+            /*
+             * Answer is no longer pending.
+             */
+            dialogContext.setPendingAction(PendingDialogAction.NONE);
 
-		} else {
-			logger.error("ERROR  0 contentLength ");
-		}
+            /*
+             * Send the SDP answer in an ACK.
+             */
 
-	}
+            ackRequest.setContent(ackSd.toString(), ProtocolObjects.headerFactory
+                    .createContentTypeHeader("application", "sdp"));
+            dialog.sendAck(ackRequest);
+
+        } else {
+            logger.error("ERROR  0 contentLength ");
+        }
+
+    }
 
 }
