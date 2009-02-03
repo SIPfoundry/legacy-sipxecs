@@ -1,9 +1,67 @@
 #!/bin/bash
+#################################################################
+# Generate the initial configuration for a distributed system 
+# as a compressed tar file.
+#################################################################
 
 INITIAL_CONFIG_BASE="@SIPX_TMPDIR@/initial-config"
 
+Action=GENERATE
+ExitStatus=1
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        ##
+        ## handle the 'end of options' marker
+        ##
+        --)
+            ;;
+
+        ##
+        ## handle an unknown switch
+        ##
+        -h|--help|--usage|-?|-*)
+            Action=USAGE
+            ExitStatus=0
+            break
+            ;;
+
+        -*)
+            Action=USAGE
+            break
+            ;;
+
+        *)
+            if [ -z "${newHostname}" ]
+            then
+                newHostname=${1}
+            else
+                echo "Too many arguments supplied: $@" 1>&2
+                Action=USAGE
+                break
+            fi
+            ;;
+    esac           
+
+    shift # always consume 1
+done
+
+if [ "${Action}" = "USAGE" ]
+then
+    cat <<USAGE
+
+Usage:
+    
+    initial-config <new-host-fqdn>
+
+    Generates a configuration file for the new host
+
+USAGE
+    exit $ExitStatus
+fi
+
 myHostname=`hostname -f`
-newHostname=$1
 INITIAL_CONFIG="${INITIAL_CONFIG_BASE}/${newHostname}"
 
 if test -d "${INITIAL_CONFIG}"; then
