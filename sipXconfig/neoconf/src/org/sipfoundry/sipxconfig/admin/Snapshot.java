@@ -101,7 +101,7 @@ public class Snapshot {
     private String formatDate(Date date) {
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         calendar.setTime(date);
-        return String.format("'%1$tF %1$tT'", calendar);
+        return String.format("%1$tF %1$tT", calendar);
     }
 
     public boolean isCredentials() {
