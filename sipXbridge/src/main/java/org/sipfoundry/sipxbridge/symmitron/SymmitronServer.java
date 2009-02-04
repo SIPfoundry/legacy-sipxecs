@@ -998,10 +998,10 @@ public class SymmitronServer implements Symmitron {
             String configurationFile = configDir + "/nattraversalrules.xml";
             String command = System.getProperty("sipxrelay.command", "start");
             
-            String addressToTest = null;
+          
 
             if (command.equals("configtest")) {
-                try {
+                
 
                     if (!new File(configurationFile).exists()) {
                         System.exit(-1);
@@ -1035,34 +1035,23 @@ public class SymmitronServer implements Symmitron {
                         System.exit(-1);
                     }
 
-                    if (config.getPublicAddress() != null) {
-                        addressToTest = config.getPublicAddress();
+                   
+                    if (config.getPublicAddress() != null) {                    
                         InetAddress.getByName(config.getPublicAddress());
                     }
 
                     /*
                      * Test if host names can be resolved.
                      */
-                    if (config.getStunServerAddress() != null) {
-                        addressToTest = config.getStunServerAddress();
+                    if (config.getStunServerAddress() != null) {             
                         InetAddress.getByName(config.getStunServerAddress());
-                    }
-
-                    addressToTest = config.getLocalAddress();
+                    }      
 
                     InetAddress.getByName(config.getLocalAddress());
 
                     System.exit(0);
 
-                } catch (UnknownHostException ex) {
-                    System.err.println("Host name error -- could not resolve " + addressToTest);
-                    System.exit(-1);
-                } catch (Exception ex) {
-                    logger.fatal(
-                            "Exception occured while checking configuration" + " -- exiting", ex);
-                    ex.printStackTrace();
-                    System.exit(-1);
-                }
+               
             } else if (command.equals("start")) {
                 // Wait for the configuration file to become available.
                 while (!new File(configurationFile).exists()) {
@@ -1145,9 +1134,9 @@ public class SymmitronServer implements Symmitron {
                 System.err.println("unknown start option " + command);
             }
 
-        } catch (Throwable th) {
-            logger.fatal("Exitting main! ", th);
-            logger.fatal("Cause = " + th.getCause());
+        } catch (Throwable th) { 
+            System.err.println("Exitting main: Cause :  " +  th.getMessage());
+            th.printStackTrace(System.err);
             System.exit(-1);
         }
     }
