@@ -121,6 +121,11 @@ RefreshDialogState::RefreshDialogState(const RefreshDialogState& rRefreshDialogS
 
 RefreshDialogState::~RefreshDialogState()
 {
+    if (mpLastRequest)
+    {
+       delete mpLastRequest;
+       mpLastRequest = NULL;
+    }
 }
 
 //Assignment operator NOT ALLOWED
