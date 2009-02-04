@@ -100,7 +100,6 @@ public class SymmitronServer implements Symmitron {
 
     private static final int STUN_PORT = 3478;
 
-   
     // /////////////////////////////////////////////////////////////
 
     /**
@@ -237,82 +236,90 @@ public class SymmitronServer implements Symmitron {
     public static void startWebServer() throws Exception {
 
         if (!isWebServerRunning) {
-
+            Logger log = Logger.getLogger("org.mortbay");
+            log.setLevel(Level.OFF);
             isWebServerRunning = true;
             webServer = new HttpServer();
-  
-             InetAddrPort inetAddrPort = new InetAddrPort(symmitronConfig.getLocalAddress(),symmitronConfig.getXmlRpcPort() );
+
+            InetAddrPort inetAddrPort = new InetAddrPort(symmitronConfig.getLocalAddress(),
+                    symmitronConfig.getXmlRpcPort());
             inetAddrPort.setInetAddress(InetAddress.getByName(symmitronConfig.getLocalAddress()));
-           
-            if (symmitronConfig.getUseHttps()) { 
-            	logger.info("Starting  secure xml rpc server on inetAddr:port " + symmitronConfig.getLocalAddress() + ":" +  symmitronConfig.getXmlRpcPort());
-                  
+
+            if (symmitronConfig.getUseHttps()) {
+                logger.info("Starting  secure xml rpc server on inetAddr:port "
+                        + symmitronConfig.getLocalAddress() + ":"
+                        + symmitronConfig.getXmlRpcPort());
+
                 SslListener sslListener = new SslListener(inetAddrPort);
-                inetAddrPort.setInetAddress(InetAddress.getByName(symmitronConfig.getLocalAddress()));
-                
+                inetAddrPort.setInetAddress(InetAddress.getByName(symmitronConfig
+                        .getLocalAddress()));
+
                 String keystore = System.getProperties().getProperty("javax.net.ssl.keyStore");
                 logger.info("keystore = " + keystore);
                 sslListener.setKeystore(keystore);
-                String keystoreType = System.getProperty("javax.net.ssl.trustStoreType");  
-                logger.info("keyStoreType = "  + keystoreType); 
+                String keystoreType = System.getProperty("javax.net.ssl.trustStoreType");
+                logger.info("keyStoreType = " + keystoreType);
                 sslListener.setKeystoreType(keystoreType);
-                
-                String algorithm =  System.getProperties().getProperty(
-                        "jetty.x509.algorithm") ;
+
+                String algorithm = System.getProperties().getProperty("jetty.x509.algorithm");
                 logger.info("algorithm = " + algorithm);
-                sslListener.setAlgorithm(algorithm);  
+                sslListener.setAlgorithm(algorithm);
                 String password = System.getProperties().getProperty("jetty.ssl.password");
                 sslListener.setPassword(password);
-                
+
                 String keypassword = System.getProperties().getProperty("jetty.ssl.keypassword");
-                
+
                 sslListener.setKeyPassword(keypassword);
-                  
+
                 sslListener.setMaxThreads(32);
                 sslListener.setMinThreads(4);
                 sslListener.setLingerTimeSecs(30000);
-              
-                ((ThreadedServer)sslListener).open();
-                
-                String[] cypherSuites = ((SSLServerSocket)sslListener.getServerSocket()).getSupportedCipherSuites();
-                
-                for ( String suite: cypherSuites) {
-                	logger.info("Cypher Suites enabled : " + suite);
+
+                ((ThreadedServer) sslListener).open();
+
+                String[] cypherSuites = ((SSLServerSocket) sslListener.getServerSocket())
+                        .getSupportedCipherSuites();
+
+                for (String suite : cypherSuites) {
+                    logger.info("Cypher Suites enabled : " + suite);
                 }
-              
-                ((SSLServerSocket)sslListener.getServerSocket()).setEnabledCipherSuites(cypherSuites);
-                
-                String[] protocols = ((SSLServerSocket)sslListener.getServerSocket()).getSupportedProtocols();
-                
-                for ( String protocol: protocols ) {
-                	logger.info("Supported protocol = " + protocol);
+
+                ((SSLServerSocket) sslListener.getServerSocket())
+                        .setEnabledCipherSuites(cypherSuites);
+
+                String[] protocols = ((SSLServerSocket) sslListener.getServerSocket())
+                        .getSupportedProtocols();
+
+                for (String protocol : protocols) {
+                    logger.info("Supported protocol = " + protocol);
                 }
-                
-                ((SSLServerSocket)sslListener.getServerSocket()).setEnabledProtocols(protocols);
-                
-                webServer.setListeners(new HttpListener[] { sslListener });
-                
-                for ( HttpListener listener : webServer.getListeners() ) {
+
+                ((SSLServerSocket) sslListener.getServerSocket()).setEnabledProtocols(protocols);
+
+                webServer.setListeners(new HttpListener[] {
+                    sslListener
+                });
+
+                for (HttpListener listener : webServer.getListeners()) {
                     logger.debug("Listener = " + listener);
-                    
+
                     listener.start();
                 }
-                
+
             } else {
-            	logger.info("Starting unsecure xml rpc server on inetAddr:port " + symmitronConfig.getLocalAddress() + ":" +  symmitronConfig.getXmlRpcPort());
-                
+                logger.info("Starting unsecure xml rpc server on inetAddr:port "
+                        + symmitronConfig.getLocalAddress() + ":"
+                        + symmitronConfig.getXmlRpcPort());
+
                 SocketListener socketListener = new SocketListener(inetAddrPort);
                 socketListener.setMaxThreads(32);
                 socketListener.setMinThreads(4);
                 socketListener.setLingerTimeSecs(30000);
                 webServer.addListener(socketListener);
             }
-           
 
-        
-            
             HttpContext httpContext = new HttpContext();
-           
+
             httpContext.setContextPath("/");
             ServletHandler servletHandler = new ServletHandler();
             servletHandler.addServlet("symmitron", "/*", SymmitronServlet.class.getName());
@@ -373,8 +380,8 @@ public class SymmitronServer implements Symmitron {
      * 
      * @return the port range supported by the bridge.
      */
-   
-	public Map getRtpPortRange() {
+
+    public Map getRtpPortRange() {
 
         PortRange portRange = new PortRange(symmitronConfig.getPortRangeLowerBound(),
                 symmitronConfig.getPortRangeUpperBound());
@@ -395,7 +402,7 @@ public class SymmitronServer implements Symmitron {
     public void checkForControllerReboot(String controllerHandle) {
         String[] handleParts = controllerHandle.split(":");
         if (handleParts.length != 2) {
-           throw new IllegalArgumentException("Illegal handle format");
+            throw new IllegalArgumentException("Illegal handle format");
         }
         String componentName = handleParts[0];
 
@@ -444,7 +451,8 @@ public class SymmitronServer implements Symmitron {
         try {
             checkForControllerReboot(controllerHandle);
             Map<String, Object> retval = createSuccessMap();
-            logger.debug(controllerHandle + " getPublicAddress : " + symmitronConfig.getPublicAddress());
+            logger.debug(controllerHandle + " getPublicAddress : "
+                    + symmitronConfig.getPublicAddress());
 
             retval.put(PUBLIC_ADDRESS, symmitronConfig.getPublicAddress());
 
@@ -580,7 +588,7 @@ public class SymmitronServer implements Symmitron {
 
     public Map<String, Object> startBridge(String controllerHandle, String bridgeId) {
         try {
-            logger.debug("startBridge: " +controllerHandle + " bridgeId = "+ bridgeId);
+            logger.debug("startBridge: " + controllerHandle + " bridgeId = " + bridgeId);
             this.checkForControllerReboot(controllerHandle);
 
             Bridge rtpBridge = bridgeMap.get(bridgeId);
@@ -597,7 +605,7 @@ public class SymmitronServer implements Symmitron {
 
     public Map<String, Object> pauseSym(String controllerHandle, String sessionId) {
         try {
-            logger.debug("pauseSym: " + controllerHandle + " symId = " + sessionId );
+            logger.debug("pauseSym: " + controllerHandle + " symId = " + sessionId);
             this.checkForControllerReboot(controllerHandle);
             Sym rtpSession = sessionMap.get(sessionId);
             if (rtpSession == null) {
@@ -624,8 +632,9 @@ public class SymmitronServer implements Symmitron {
      */
     public Map<String, Object> removeSym(String controllerHandle, String bridgeId, String symId) {
         try {
-            logger.debug( "removeSym: " + controllerHandle + " bridgeId = "+ bridgeId + " symId = "  + symId);
-            
+            logger.debug("removeSym: " + controllerHandle + " bridgeId = " + bridgeId
+                    + " symId = " + symId);
+
             this.checkForControllerReboot(controllerHandle);
             Bridge rtpBridge = bridgeMap.get(bridgeId);
             if (rtpBridge == null) {
@@ -658,7 +667,8 @@ public class SymmitronServer implements Symmitron {
         try {
             this.checkForControllerReboot(controllerHandle);
             Bridge bridge = bridgeMap.get(bridgeId);
-            logger.debug( "addSym: " + controllerHandle + " bridgeId = " +  bridgeId + " symId = " + symId);
+            logger.debug("addSym: " + controllerHandle + " bridgeId = " + bridgeId + " symId = "
+                    + symId);
             if (bridge == null) {
                 return this.createErrorMap(SESSION_NOT_FOUND, "Specified Bridge was not found "
                         + bridgeId);
@@ -687,7 +697,7 @@ public class SymmitronServer implements Symmitron {
     public Map<String, Object> createBridge(String controllerHandle) {
         try {
             this.checkForControllerReboot(controllerHandle);
-            logger.debug("createBridge: " + controllerHandle );
+            logger.debug("createBridge: " + controllerHandle);
 
             Bridge bridge = new Bridge();
             bridgeMap.put(bridge.getId(), bridge);
@@ -713,7 +723,7 @@ public class SymmitronServer implements Symmitron {
 
     public Map<String, Object> pauseBridge(String controllerHandle, String bridgeId) {
         try {
-            logger.debug ( " pauseBridge: " + controllerHandle + " " + bridgeId);
+            logger.debug(" pauseBridge: " + controllerHandle + " " + bridgeId);
             this.checkForControllerReboot(controllerHandle);
             Bridge bridge = bridgeMap.get(bridgeId);
             if (bridge == null) {
@@ -767,7 +777,7 @@ public class SymmitronServer implements Symmitron {
 
     public Map<String, Object> getSymStatistics(String controllerHandle, String symId) {
         try {
-            logger.debug("getSymStatistics : " + controllerHandle + " symId = " + symId );
+            logger.debug("getSymStatistics : " + controllerHandle + " symId = " + symId);
             Sym sym = sessionMap.get(symId);
             if (sym == null) {
                 return this.createErrorMap(SESSION_NOT_FOUND, "Specified sym was not found "
@@ -922,7 +932,7 @@ public class SymmitronServer implements Symmitron {
 
     public Map<String, Object> destroyBridge(String controllerHandle, String bridgeId) {
         try {
-            logger.debug("destroyBridge: " + controllerHandle + " bridgeId " +  bridgeId);
+            logger.debug("destroyBridge: " + controllerHandle + " bridgeId " + bridgeId);
             this.checkForControllerReboot(controllerHandle);
             Bridge bridge = bridgeMap.get(bridgeId);
             if (bridge != null) {
@@ -997,61 +1007,56 @@ public class SymmitronServer implements Symmitron {
             String configDir = System.getProperty("conf.dir", "/etc/sipxpbx");
             String configurationFile = configDir + "/nattraversalrules.xml";
             String command = System.getProperty("sipxrelay.command", "start");
-            
-          
 
             if (command.equals("configtest")) {
-                
 
-                    if (!new File(configurationFile).exists()) {
-                        System.exit(-1);
-                    }
-                    SymmitronConfig config = new SymmitronConfigParser().parse("file:"
-                            + configurationFile);
-                    SymmitronServer.setSymmitronConfig(config);
-                    
-                    if (config.getLogFileDirectory() == null) {
-                        String installRoot = configDir.substring(0, configDir
-                                .indexOf("/etc/sipxpbx"));
-                        config.setLogFileDirectory(installRoot + "/var/log/sipxpbx");
-                    }
-                    config.setLogFileName("sipxrelay.log");
+                if (!new File(configurationFile).exists()) {
+                    System.exit(-1);
+                }
+                SymmitronConfig config = new SymmitronConfigParser().parse("file:"
+                        + configurationFile);
+                SymmitronServer.setSymmitronConfig(config);
 
-                    if (config.getLocalAddress() == null) {
-                        System.err.println("Local address not specified");
-                        System.exit(-1);
-                    }
+                if (config.getLogFileDirectory() == null) {
+                    String installRoot = configDir
+                            .substring(0, configDir.indexOf("/etc/sipxpbx"));
+                    config.setLogFileDirectory(installRoot + "/var/log/sipxpbx");
+                }
+                config.setLogFileName("sipxrelay.log");
 
-                    if (config.getPublicAddress() == null
-                            && config.getStunServerAddress() == null && config.isBehindNat() ) {
-                        System.err
-                                .println("Must specify either public address or stun server address");
-                        System.exit(-1);
-                    }
-                    
-                    if ( config.getStunServerAddress() == null && config.isUseStun() ) {
-                        System.err
+                if (config.getLocalAddress() == null) {
+                    System.err.println("Local address not specified");
+                    System.exit(-1);
+                }
+
+                if (config.getPublicAddress() == null && config.getStunServerAddress() == null
+                        && config.isBehindNat()) {
+                    System.err
+                            .println("Must specify either public address or stun server address");
+                    System.exit(-1);
+                }
+
+                if (config.getStunServerAddress() == null && config.isUseStun()) {
+                    System.err
                             .println("Must specify STUN server address if address discovery is desired.");
-                        System.exit(-1);
-                    }
+                    System.exit(-1);
+                }
 
-                   
-                    if (config.getPublicAddress() != null) {                    
-                        InetAddress.getByName(config.getPublicAddress());
-                    }
+                if (config.getPublicAddress() != null) {
+                    InetAddress.getByName(config.getPublicAddress());
+                }
 
-                    /*
-                     * Test if host names can be resolved.
-                     */
-                    if (config.getStunServerAddress() != null) {             
-                        InetAddress.getByName(config.getStunServerAddress());
-                    }      
+                /*
+                 * Test if host names can be resolved.
+                 */
+                if (config.getStunServerAddress() != null) {
+                    InetAddress.getByName(config.getStunServerAddress());
+                }
 
-                    InetAddress.getByName(config.getLocalAddress());
+                InetAddress.getByName(config.getLocalAddress());
 
-                    System.exit(0);
+                System.exit(0);
 
-               
             } else if (command.equals("start")) {
                 // Wait for the configuration file to become available.
                 while (!new File(configurationFile).exists()) {
@@ -1074,17 +1079,17 @@ public class SymmitronServer implements Symmitron {
                  * Allow override if a log4j properties file exists.
                  */
                 if (new File(log4jProps).exists()) {
-					/*
-					 * Override the file configuration setting.
-					 */
-					Properties props = new Properties();
-					props.load(new FileInputStream(log4jProps));
-					String level = props
-							.getProperty("log4j.category.org.sipfoundry.sipxbridge.sipxrelay");
-					if (level != null) {
-						config.setLogLevel(level);
-					}
-				}
+                    /*
+                     * Override the file configuration setting.
+                     */
+                    Properties props = new Properties();
+                    props.load(new FileInputStream(log4jProps));
+                    String level = props
+                            .getProperty("log4j.category.org.sipfoundry.sipxbridge.sipxrelay");
+                    if (level != null) {
+                        config.setLogLevel(level);
+                    }
+                }
                 SymmitronServer.setSymmitronConfig(config);
 
                 logger.info("Checking port range " + config.getPortRangeLowerBound() + ":"
@@ -1134,8 +1139,8 @@ public class SymmitronServer implements Symmitron {
                 System.err.println("unknown start option " + command);
             }
 
-        } catch (Throwable th) { 
-            System.err.println("Exitting main: Cause :  " +  th.getMessage());
+        } catch (Throwable th) {
+            System.err.println("Exitting main: Cause :  " + th.getMessage());
             th.printStackTrace(System.err);
             System.exit(-1);
         }
