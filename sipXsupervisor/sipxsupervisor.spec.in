@@ -36,7 +36,7 @@ BuildRoot: %{_tmppath}/%name-%version-root
 %define this_archive %{name}-%{version}-%{release}.tgz
 
 %description
-The sipXecs project is a comprehansive small/medium scale Enterprise SIP PBX.
+The sipXecs project is a comprehensive small/medium scale Enterprise SIP PBX.
 
 This component manages sipXecs processes and acts as the configuration agent
 for a remote management application.

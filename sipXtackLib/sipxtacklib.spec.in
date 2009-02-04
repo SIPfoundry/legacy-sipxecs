@@ -17,12 +17,12 @@ Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
 
 %description
-This project provides an RFC 3261, 3263 complient SIP stack. This
+This project provides an RFC 3261, 3263 compliant SIP stack. This
 stack is built upon a modest foot print HTTP stack. Both the SIP and
 HTTP stack are intended to be usable in embedded systems. However they
-are fully functional (i.e. there where no compromises made to in
-functionality to achieve the ability to embed the stacks.). The
-primary interface to the SIP stack it through the SipUserAgent
+are fully functional (i.e. there were no compromises made in
+functionality to achieve the ability to embed the stacks). The
+primary interface to the SIP stack is through the SipUserAgent
 class. This project depends upon the sipXportLib OS abstraction layer.
 
 %if %{_vendor} == suse
@@ -47,7 +47,7 @@ functionality to achieve the ability to embed the stacks.). The
 primary interface to the SIP stack it through the SipUserAgent
 class. This project depends upon the sipXportLib OS abstraction layer.
 
-This package contains the neccessary header files and static libraries
+This package contains the necessary header files and static libraries
 helpful to build projects from the sipX library
 
 %prep

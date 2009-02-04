@@ -19,7 +19,7 @@ BuildRoot: %{_tmppath}/%name-%version-root
 
 %description
 The call processing subsystem provides the core to all sipX end points
-or user agents (e.g. sipXphone and sipXvxml. The sipXcallLib library
+or user agents (e.g. sipXphone and sipXvxml). The sipXcallLib library
 contains technologies related to call processing:
 
 * cp - An abstracted Call Processing model
@@ -47,7 +47,7 @@ Summary: Header files for %name
 
 %description devel
 The call processing subsystem provides the core to all sipX end points
-or user agents (e.g. sipXphone and sipXvxml. The sipXcallLib library
+or user agents (e.g. sipXphone and sipXvxml). The sipXcallLib library
 contains technologies related to call processing:
 
 * cp - An abstracted Call Processing model

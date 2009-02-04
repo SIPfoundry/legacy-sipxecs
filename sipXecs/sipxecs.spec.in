@@ -7,7 +7,7 @@ Release: %{buildno}
 
 Summary: sipXecs Enterprise Communications Server 
 License: L-GPL
-Group: Telcommunications
+Group: Telecommunications
 Vendor: SIPfoundry
 Packager: SIPfoundry <sipx-dev@sipfoundry.org>
 Url: http://www.sipfoundry.org

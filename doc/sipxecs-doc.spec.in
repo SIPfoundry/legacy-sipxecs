@@ -8,7 +8,7 @@ BuildArch: noarch
 
 Summary: sipXecs Enterprise Communications Server Documentation
 License: L-GPL
-Group: Telcommunications
+Group: Telecommunications
 Vendor: SIPfoundry
 Packager: SIPfoundry <sipx-dev@sipfoundry.org>
 Url: http://www.sipfoundry.org

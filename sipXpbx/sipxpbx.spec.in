@@ -48,7 +48,7 @@ BuildRoot: %{_tmppath}/%name-%version-root
 %define this_archive %{name}-%{version}-%{release}.tgz
 
 %description
-The sipXpbx project is a comprehansive small/medium scale Enterprise SIP PBX. It combines:
+The sipXpbx project is a comprehensive small/medium scale Enterprise SIP PBX. It combines:
 
  * Call routing sipXproxy
  * sipXregistry registry/redirect server,
