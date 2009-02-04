@@ -126,6 +126,12 @@ RefreshDialogState::~RefreshDialogState()
        delete mpLastRequest;
        mpLastRequest = NULL;
     }
+
+    if (mpRefreshTimer)
+    {
+       delete mpRefreshTimer;
+       mpRefreshTimer = NULL;
+    }
 }
 
 //Assignment operator NOT ALLOWED
@@ -619,7 +625,6 @@ UtlBoolean SipRefreshManager::handleMessage(OsMsg &eventMessage)
             {
                 // Clean up the timer and notifier
                 deleteTimerAndEvent(state->mpRefreshTimer);
-                state->mpRefreshTimer = NULL;
 
                 // Create and set a new timer for the failed time out period
                 setRefreshTimer(*state, 
@@ -634,7 +639,6 @@ UtlBoolean SipRefreshManager::handleMessage(OsMsg &eventMessage)
             {
                 // Clean up the timer and notifier
                 deleteTimerAndEvent(state->mpRefreshTimer);
-                state->mpRefreshTimer = NULL;
 
                 // Legitimate states to reSUBSCRIBE or reREGISTER
                 if(state->mRequestState == REFRESH_REQUEST_FAILED || 
@@ -1285,11 +1289,12 @@ void SipRefreshManager::stopTimerForFailureReschedule(OsTimer* resendTimer)
     }
 }
 
-void SipRefreshManager::deleteTimerAndEvent(OsTimer* timer)
+void SipRefreshManager::deleteTimerAndEvent(OsTimer*& timer)
 {
     if (timer)
     {
         delete timer;
+        timer = NULL;
     }
 }
 

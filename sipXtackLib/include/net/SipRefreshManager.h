@@ -211,7 +211,7 @@ private:
     void stopTimerForFailureReschedule(OsTimer* timer);
 
     //! Delete the given timer and its associated notiifer
-    static void deleteTimerAndEvent(OsTimer* timer);
+    static void deleteTimerAndEvent(OsTimer*& timer);
 
     //! set the given state and attached request so that it can be resent
     void setForResend(RefreshDialogState& state, 
