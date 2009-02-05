@@ -69,6 +69,8 @@ class UtlHashBag : public UtlContainer
    /**
     * Remove the designated object by reference
     * (as opposed to searching for an equality match).  
+    * Note that *object must be an allocated UtlContainable, as removeReference
+    * evaluates its hash.
     *
     * @return the object if successful, otherwise null
     */

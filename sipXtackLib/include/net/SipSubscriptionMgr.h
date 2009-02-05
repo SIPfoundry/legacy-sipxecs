@@ -90,7 +90,8 @@ public:
     //! Insert subscription dialog info without checking for the existence of the dialog
     /*! This method blindly inserts dialog information and should only be called from
      *  from the SipPersistentSubscriptionMgr.  It is intended to insert subscription
-     *  information into memory from the IMDB.
+     *  information into memory from the IMDB.  (Thus, e.g., it does not randomize
+     *  subscription times.)
      */ 
     virtual UtlBoolean insertDialogInfo(/// the incoming SUBSCRIBE request
                                         const SipMessage& subscribeRequest,

@@ -89,7 +89,10 @@ public:
 
 
     /**
-     * Remove the designated key and its associated value.
+     * Remove the designated object by reference
+     * (as opposed to searching for an equality match).  
+     * Note that *object must be an allocated UtlContainable, as removeReference
+     * evaluates its hash.
      *
      * @return the key or NULL if not found
      */
