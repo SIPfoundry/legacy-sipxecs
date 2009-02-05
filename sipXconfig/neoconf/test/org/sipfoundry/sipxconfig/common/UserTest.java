@@ -37,6 +37,19 @@ public class UserTest extends TestCase {
         assertEquals("First Last", u.getDisplayName());
     }
 
+    public void testGetLabel() {
+        User u = new User();
+        assertEquals("", u.getLabel());
+
+        u.setUserName("bob");
+        assertNull(u.getDisplayName());
+        assertEquals("bob", u.getLabel());
+        u.setFirstName("First");
+        assertEquals("First", u.getLabel());
+        u.setLastName("Last");
+        assertEquals("First Last", u.getLabel());
+    }
+
     public void testGetUri() {
         User user = new User();
         user.setUserName("username");
@@ -261,5 +274,4 @@ public class UserTest extends TestCase {
         String safePin = StringUtils.defaultString(pin);
         return Md5Encoder.digestPassword(username, "realm.sipfoundry.org", safePin);
     }
-
 }

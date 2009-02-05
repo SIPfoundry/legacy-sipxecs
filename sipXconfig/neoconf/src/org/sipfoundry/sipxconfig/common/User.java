@@ -14,15 +14,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
@@ -30,6 +27,13 @@ import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
+
+import static org.apache.commons.lang.StringUtils.EMPTY;
+import static org.apache.commons.lang.StringUtils.defaultString;
+import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang.StringUtils.join;
+import static org.apache.commons.lang.StringUtils.split;
+import static org.apache.commons.lang.StringUtils.trimToNull;
 
 /**
  * Can be user that logs in, can be superadmin, can be user for phone line
@@ -75,7 +79,7 @@ public class User extends BeanWithGroups implements NamedObject {
      * user. To keep the PIN secure, we don't store it.
      */
     public String getPintoken() {
-        return (String) ObjectUtils.defaultIfNull(m_pintoken, StringUtils.EMPTY);
+        return defaultString(m_pintoken, EMPTY);
     }
 
     /**
@@ -95,7 +99,7 @@ public class User extends BeanWithGroups implements NamedObject {
      * @param realm security realm
      */
     public void setPin(String pin, String realm) {
-        String pin2 = (String) ObjectUtils.defaultIfNull(pin, StringUtils.EMPTY); // handle null
+        String pin2 = defaultString(pin, EMPTY); // handle null
         // pin
         setPintoken(Md5Encoder.digestPassword(m_userName, realm, pin2));
     }
@@ -113,7 +117,7 @@ public class User extends BeanWithGroups implements NamedObject {
     }
 
     public String getSipPasswordHash(String realm) {
-        String password = (String) ObjectUtils.defaultIfNull(m_sipPassword, StringUtils.EMPTY);
+        String password = defaultString(m_sipPassword, EMPTY);
         return Md5Encoder.digestPassword(m_userName, realm, password);
     }
 
@@ -130,19 +134,29 @@ public class User extends BeanWithGroups implements NamedObject {
     }
 
     public String getUserName() {
-        return (String) ObjectUtils.defaultIfNull(m_userName, StringUtils.EMPTY);
+        return defaultString(m_userName, EMPTY);
     }
 
     public void setUserName(String userName) {
         m_userName = userName;
     }
 
+    /**
+     * Builds displayName based on the first and last names.
+     *
+     * Should be only used to retrieve displayName part of SIP URI: it will return null if both
+     * last names and first name are empty. Use getLabel as safer alternative.
+     */
     public String getDisplayName() {
         Object[] names = {
             m_firstName, m_lastName
         };
-        String s = StringUtils.join(names, ' ');
-        return StringUtils.trimToNull(s);
+        String s = join(names, ' ');
+        return trimToNull(s);
+    }
+
+    public String getLabel() {
+        return defaultString(getDisplayName(), getUserName());
     }
 
     public Set<String> getAliases() {
@@ -232,14 +246,14 @@ public class User extends BeanWithGroups implements NamedObject {
     public String getAliasesString() {
         List<String> aliases = new ArrayList<String>(getAliases());
         Collections.sort(aliases);
-        return StringUtils.join(aliases.iterator(), " ");
+        return join(aliases.iterator(), " ");
     }
 
     /** Set the aliases from a space-delimited string */
     public void setAliasesString(String aliasesString) {
         getAliases().clear();
         if (aliasesString != null) {
-            String[] aliases = StringUtils.split(aliasesString);
+            String[] aliases = split(aliasesString);
             addAliases(aliases);
         }
     }
@@ -271,9 +285,8 @@ public class User extends BeanWithGroups implements NamedObject {
     public List getAliasMappings(String domainName) {
         final String contact = getUri(domainName);
         List mappings = new ArrayList(getAliases().size());
-        for (Iterator iter = getAliases().iterator(); iter.hasNext();) {
-            String alias = (String) iter.next();
-            if (StringUtils.isBlank(alias)) {
+        for (String alias : getAliases()) {
+            if (isBlank(alias)) {
                 throw new RuntimeException("Found an empty alias for user " + m_userName);
             }
             final String identity = AliasMapping.createUri(alias, domainName);
