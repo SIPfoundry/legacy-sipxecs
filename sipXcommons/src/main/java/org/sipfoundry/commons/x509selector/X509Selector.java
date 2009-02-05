@@ -34,17 +34,20 @@ public class X509Selector {
     }
 
     String getAvailableAlgorithm(String[] algs) {
+        String retval = null;
         for (int i = 0; i < algs.length; i++) {
             try {
                 KeyManagerFactory.getInstance(algs[i]);
-                return algs[i];
+                retval =  algs[i];
+                break;
             } catch (NoSuchAlgorithmException e) {
-                PrintStream err = System.err;
-                err.println("Checking for algorithm " + algs[i] + "...not found");
+               
             }
         }
-
-        return null;
+        if ( retval == null ) {
+            System.err.println("Could not find avaliable algorithm " + algs );
+        }
+        return retval;
     }
 
 }
