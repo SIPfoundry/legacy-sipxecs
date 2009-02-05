@@ -171,6 +171,7 @@ class Cdr
   CALL_REQUESTED_TERM   = 'R'
   CALL_IN_PROGRESS_TERM = 'I'
   CALL_COMPLETED_TERM   = 'C'
+  CALL_UNKNOWN_COMPLETED_TERM = 'U'
   CALL_FAILED_TERM      = 'F'
   
   SIP_UNAUTHORIZED_CODE = 401
@@ -215,11 +216,11 @@ class Cdr
   
 # Return true if the CDR is complete, false otherwise.
   def complete?
-    @termination == CALL_COMPLETED_TERM || @termination == CALL_FAILED_TERM
+    @termination == CALL_COMPLETED_TERM || @termination == CALL_FAILED_TERM || @termination == CALL_UNKNOWN_COMPLETED_TERM
   end
   
   def terminated?
-    @termination == CALL_COMPLETED_TERM
+    @termination == CALL_COMPLETED_TERM || CALL_UNKNOWN_COMPLETED_TERM
   end
   
   # Return a text description of the termination status for this CDR.
@@ -257,7 +258,7 @@ class Cdr
     leg = @legs.best_leg
     @to_tag ||= 1;
     apply_leg(leg) if leg
-    @termination = CALL_COMPLETED_TERM
+    @termination = CALL_UNKNOWN_COMPLETED_TERM
   end
   
   # called if we suspect a failed termination event has been lost
@@ -331,5 +332,6 @@ class Cdr
     CALL_REQUESTED_TERM   => 'requested',
     CALL_IN_PROGRESS_TERM => 'in progress',
     CALL_COMPLETED_TERM   => 'completed',
+    CALL_UNKNOWN_COMPLETED_TERM   => 'unknown',
     CALL_FAILED_TERM      => 'failed'}  
 end

@@ -15,7 +15,7 @@ import org.sipfoundry.sipxconfig.common.SipUri;
 
 public class Cdr {
     enum Termination {
-        UNKNOWN, REQUESTED, IN_PROGRESS, COMPLETED, FAILED;
+        UNKNOWN, REQUESTED, IN_PROGRESS, COMPLETED, FAILED, TRANSFER;
 
         public static Termination fromString(String t) {
             switch (t.charAt(0)) {
@@ -27,6 +27,10 @@ public class Cdr {
                 return FAILED;
             case 'I':
                 return IN_PROGRESS;
+            case 'U':
+                return UNKNOWN;
+            case 'T':
+                return TRANSFER;
             default:
                 return UNKNOWN;
             }
