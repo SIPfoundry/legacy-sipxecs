@@ -32,9 +32,7 @@
 #emit_setting($STUNRefreshInterval)
 #set($publicPort = $nattraversal.Settings.getSetting("nattraversal-info/publicport"))
 #emit_setting($publicPort)
-#if(${behindnat})
 #emit_setting($publicaddress)
-#end
     <proxyhostport>${location.address}:${proxyService.sipPort}</proxyhostport>
 #set($relayaggressiveness = $nattraversal.Settings.getSetting("nattraversal-info/relayaggressiveness"))
 #emit_setting($relayaggressiveness)
