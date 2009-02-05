@@ -18,6 +18,7 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.apache.commons.lang.time.DateUtils;
+import org.postgresql.util.PGInterval;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 import org.springframework.context.ApplicationContext;
@@ -45,7 +46,7 @@ public class AcdHistoricalStatsTestDb extends TestCase {
         Map<String, Object> record;
         Iterator<Map<String, Object>> i = stats.iterator();
         record = i.next();
-        // seed file is in UTC and so it shoudl equal this date which is 5 hours from GMT
+        // seed file is in UTC and so it should equal this date which is 5 hours from GMT
         Date expectedSigninTime = TestUtil.localizeDateTime("12/19/06 8:40:50 AM EST");
         Timestamp actualSigninTime = (Timestamp) record.get("sign_in_time");
         assertTrue(DateUtils.isSameInstant(expectedSigninTime, actualSigninTime));
@@ -65,5 +66,18 @@ public class AcdHistoricalStatsTestDb extends TestCase {
             m_history.getReportFields(report);
             m_history.getReport(report, new Date(0), new Date());
         }
+    }
+    
+    public void testAgentActivityReport() {
+        List<Map<String, Object>> stats = m_history.getReport("agentActivityReport", new Date(0), new Date());        
+        Map<String, Object> record;
+        Iterator<Map<String, Object>> i = stats.iterator();
+        record = i.next();
+        // Seed file has 3 complete calls for this uri, totaling 4:36
+        assertEquals("sip:374@pingtel.com", record.get("agent_uri"));
+        assertEquals(3L, record.get("num_calls"));
+        PGInterval expectedDuration = new PGInterval(0,0,0,0,4,36);
+        PGInterval actualDuration = (PGInterval)record.get("handle_duration");
+        assertEquals(expectedDuration, actualDuration);
     }
 }

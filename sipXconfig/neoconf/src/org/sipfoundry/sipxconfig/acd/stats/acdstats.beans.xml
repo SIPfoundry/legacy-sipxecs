@@ -32,7 +32,7 @@
      sign_in_time, 
      sign_out_time 
     from acd_agent_stat 
-    where sign_in_time > ? and sign_out_time < ?
+    where sign_in_time >= ? and sign_out_time < ?
       ]]></value>
     </property>
   </bean>
@@ -44,7 +44,7 @@
      sum(sign_out_time - sign_in_time) as time_signed_in,
      max(sign_out_time - sign_in_time) as max_time_signed_in
     from acd_agent_stat
-    where sign_in_time > ? and sign_out_time < ?
+    where sign_in_time >= ? and sign_out_time < ?
     group by agent_uri      
       ]]></value>
     </property>
@@ -53,17 +53,18 @@
   <bean id="agentActivityReport" class="org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalReport">
     <property name="query">
       <value><![CDATA[
-    select a.agent_uri, 
+    select c.agent_uri, 
      count(*) as num_calls,
      sum(c.terminate_time - c.pick_up_time) as handle_duration,        
      avg(c.terminate_time - c.pick_up_time) as avg_handle_duration,
      max(c.terminate_time - c.pick_up_time) as max_handle_duration,
      min(c.terminate_time - c.pick_up_time) as min_handle_duration       
-    from acd_agent_stat as a, acd_call_stat as c
+    from acd_call_stat as c
     where 
-     a.agent_uri = c.agent_uri and c.state = 'terminate' and
-     c.terminate_time > ? and c.pick_up_time < ? 
-    group by a.agent_uri
+     c.agent_uri in (select distinct agent_uri from acd_agent_stat) and
+     c.state = 'terminate' and
+     c.terminate_time >= ? and c.pick_up_time < ? 
+    group by c.agent_uri
       ]]></value>
     </property>
   </bean>
@@ -77,7 +78,7 @@
       count(*) - count(pick_up_time) as num_calls_abandoned
      from acd_call_stat
      where
-      terminate_time > ? and enter_time < ? 
+      terminate_time >= ? and enter_time < ? 
      group by queue_uri
       ]]></value>
     </property>
@@ -92,7 +93,7 @@
       max(pick_up_time - enter_time) as max_wait_time
      from acd_call_stat
      where state = 'terminate' and
-      terminate_time > ? and pick_up_time < ? 
+      terminate_time >= ? and pick_up_time < ? 
      group by queue_uri       
       ]]></value>
     </property>
@@ -107,7 +108,7 @@
       max(terminate_time - enter_time) as max_wait_time
      from acd_call_stat
      where state = 'unanswered' and
-      terminate_time > ? and enter_time < ? 
+      terminate_time >= ? and enter_time < ? 
      group by queue_uri       
       ]]></value>
     </property>
@@ -122,7 +123,7 @@
       from_uri
      from acd_call_stat 
      where state = 'unanswered' and
-      terminate_time > ? and enter_time < ? 
+      terminate_time >= ? and enter_time < ? 
       ]]></value>
     </property>
   </bean>
@@ -138,7 +139,7 @@
       from_uri
      from acd_call_stat 
      where state = 'terminate' and
-      terminate_time > ? and pick_up_time < ? 
+      terminate_time >= ? and pick_up_time < ? 
       ]]></value>
     </property>
   </bean>
