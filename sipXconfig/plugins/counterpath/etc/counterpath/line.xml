@@ -302,7 +302,7 @@ UAS refreshes. The user agent server sends.</description>
       <setting name="ice_enabled">
         <label>Enable ICE</label>
         <type refid="true-false"/>
-        <value>true</value>
+        <value>false</value>
         <description>Set to true to enable Interactive Conectivity Establishment (ICE) procedure for establishing calls.</description>
       </setting>
       <setting name="outbound_proxy">
