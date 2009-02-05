@@ -156,7 +156,7 @@ you do not want the application to be involved in handling voicemail.</descripti
           </option>
         </enum>
       </type>
-      <value>0</value>
+      <value>1</value>
       <description>Specify if the workgroup should be started when the client starts</description>
     </setting>
   </group>
