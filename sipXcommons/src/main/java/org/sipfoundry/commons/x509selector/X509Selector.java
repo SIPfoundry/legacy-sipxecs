@@ -45,7 +45,7 @@ public class X509Selector {
             }
         }
         if ( retval == null ) {
-            System.err.println("Could not find avaliable algorithm " + algs );
+            System.err.println("Could not find avaliable X.509 algorithm." );
         }
         return retval;
     }
