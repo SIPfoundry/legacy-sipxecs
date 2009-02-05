@@ -498,14 +498,16 @@ void RefreshDialogState::dumpState()
    // indented 6
 
    UtlString requestURI;
-   mpLastRequest->getRequestUri(&requestURI);
    UtlString eventField;
-   mpLastRequest->getEventField(&eventField);
-
    long now = OsDateTime::getSecsSinceEpoch();
    UtlString msg_text;
-   ssize_t msg_length;
-   mpLastRequest->getBytes(&msg_text, &msg_length);
+   ssize_t msg_length = 0;
+   if (mpLastRequest)
+   {
+      mpLastRequest->getRequestUri(&requestURI);
+      mpLastRequest->getEventField(&eventField);
+      mpLastRequest->getBytes(&msg_text, &msg_length);
+   }
 
    char refreshTimerText[100];
    if (mpRefreshTimer)
@@ -584,13 +586,10 @@ void SipRefreshManager::stopAllRefreshes()
     {
         // Unsubscribe or unregister
         stopRefresh(*dialogKey);
-
-        // Remove the refresh state from the list
-        mRefreshes.removeReference(dialogKey);
-        
+        // Note that stopRefresh removes *dialogKey from mRefreshes and
+        // deletes it, so we do not have to do so here.
     }
     unlock();
-
 }
 
 UtlBoolean SipRefreshManager::handleMessage(OsMsg &eventMessage)
