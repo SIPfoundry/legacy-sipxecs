@@ -186,7 +186,7 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
         mMinExpiration = tmp;
         
         OsSysLog::add(FAC_SIP, PRI_WARNING,
-            "Swapping values as mMinExpiration => %d is greater than mMaxExpiration => %d",
+            "Swapping values as mMinExpiration (%d) is greater than mMaxExpiration (%d)",
             mMinExpiration, mMaxExpiration);
     }
     
@@ -199,7 +199,7 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
         mDefaultExpiration = tmp;
         
         OsSysLog::add(FAC_SIP, PRI_WARNING,
-            "Swapping values as mDefaultExpiration => %d is greater than mMaxExpiration => %d",
+            "Swapping values as mDefaultExpiration (%d) is greater than mMaxExpiration (%d)",
             mDefaultExpiration, mMaxExpiration);
     }
     
@@ -242,7 +242,11 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
         expiration = (  (rand() % (expiration - mMinExpiration))
                        + mMinExpiration);
     }
-    // Cases where the expiration is less than the min value is handled below.
+    // If requested expiration == mMinExpiration, leave it unchanged.
+    // Cases where the expiration is less than mMinExpiration are handled below.
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipSubscriptionMgr::updateDialogInfo calculated expiration = %d",
+                  expiration);
 
     // If this is an early dialog we need to make it an established dialog.
     if(SipDialog::isEarlyDialog(dialogHandle))
@@ -359,7 +363,7 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
     else
     {
         // Acceptable expiration, create a subscription and dialog
-        if(expiration > mMinExpiration ||
+        if(expiration >= mMinExpiration ||
            expiration == 0)
         {
             // Update the dialog state
@@ -586,7 +590,7 @@ UtlBoolean SipSubscriptionMgr::insertDialogInfo(const SipMessage& subscribeReque
         }
 
         // Acceptable expiration, create a subscription and dialog
-        if(expiration > mMinExpiration ||
+        if(expiration >= mMinExpiration ||
            expiration == 0)
         {
             // Update the dialog state
