@@ -39,6 +39,36 @@ public class SipxServiceBundleTest extends TestCase {
         assertTrue(remoteOnly.canRunOn(remote));
     }
 
+    public void testAutoEnableOn() {
+        Location primary = new Location();
+        primary.setPrimary(true);
+        Location remote = new Location();
+
+        SipxServiceBundle unrestricted = new SipxServiceBundle("unrestricted");
+        SipxServiceBundle primaryOnly = new SipxServiceBundle("primaryOnly");
+        primaryOnly.setOnlyPrimary(true);
+        SipxServiceBundle remoteOnly = new SipxServiceBundle("remoteOnly");
+        remoteOnly.setOnlyRemote(true);
+
+        assertFalse(unrestricted.autoEnableOn(primary));
+        assertFalse(unrestricted.autoEnableOn(remote));
+        unrestricted.setAutoEnable(true);
+        assertTrue(unrestricted.autoEnableOn(primary));
+        assertFalse(unrestricted.autoEnableOn(remote));
+
+        assertFalse(primaryOnly.autoEnableOn(primary));
+        assertFalse(primaryOnly.autoEnableOn(remote));
+        primaryOnly.setAutoEnable(true);
+        assertTrue(primaryOnly.autoEnableOn(primary));
+        assertFalse(primaryOnly.autoEnableOn(remote));
+
+        assertFalse(remoteOnly.autoEnableOn(primary));
+        assertFalse(remoteOnly.autoEnableOn(remote));
+        remoteOnly.setAutoEnable(true);
+        assertFalse(remoteOnly.autoEnableOn(primary));
+        assertTrue(remoteOnly.autoEnableOn(remote));
+    }
+
     public void testVerifyCount() {
         SipxServiceBundle bundle = new SipxServiceBundle("");
         try {

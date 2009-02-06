@@ -28,6 +28,7 @@
 
   <bean id="redundantSipRouterBundle" parent="abstractBundle">
     <constructor-arg value="redundantSipRouter" />
+    <property name="autoEnable" value="true" />
     <property name="onlyRemote" value="true" />
     <property name="max" value="1" />
   </bean>

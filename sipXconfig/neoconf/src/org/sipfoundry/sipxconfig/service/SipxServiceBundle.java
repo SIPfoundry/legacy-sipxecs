@@ -79,6 +79,23 @@ public class SipxServiceBundle implements Model {
         return !m_onlyPrimary;
     }
 
+    /**
+     * Decides if bundles should be enabled automatically on a location
+     *
+     * On primary location all auto-enabled bundles are OK as long as the can run on primary. On
+     * remote locations bundles has to be restricted to remoteOnly if we want to autoEnable it.
+     * For example we do not want v-mail automatically enabled on remote location.
+     *
+     * @param location server on which we want to run a bundle
+     * @return true is the bundle should be automatically enabled
+     */
+    public boolean autoEnableOn(Location location) {
+        if (!isAutoEnable()) {
+            return false;
+        }
+        return location.isPrimary() ? !m_onlyRemote : m_onlyRemote;
+    }
+
     public void setMin(int min) {
         m_min = min;
     }

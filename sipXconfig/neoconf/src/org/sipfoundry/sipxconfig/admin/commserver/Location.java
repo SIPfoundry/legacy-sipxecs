@@ -274,10 +274,6 @@ public class Location extends BeanWithId {
      * @return true is bundles have been initialized and location needs to be saved
      */
     public boolean initBundles(SipxServiceManager sipxServiceManager) {
-        if (!m_primary) {
-            // only init primary for now
-            return false;
-        }
         if (m_installedBundles != null && !m_installedBundles.isEmpty()) {
             // already have bundles...
             return false;
@@ -285,7 +281,7 @@ public class Location extends BeanWithId {
         m_installedBundles = new ArrayList<String>();
         Collection<SipxServiceBundle> bundles = sipxServiceManager.getBundleDefinitions();
         for (SipxServiceBundle bundle : bundles) {
-            if (bundle.isAutoEnable()) {
+            if (bundle.autoEnableOn(this)) {
                 m_installedBundles.add(bundle.getModelId());
             }
         }

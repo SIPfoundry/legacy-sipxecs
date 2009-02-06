@@ -20,9 +20,9 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
 public abstract class EditLocationPage extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "admin/commserver/EditLocationPage";
@@ -31,8 +31,8 @@ public abstract class EditLocationPage extends PageWithCallback implements PageB
     @InjectObject("spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
 
-    @InjectObject("spring:sipxProcessContext")
-    public abstract SipxProcessContext getSipxProcessContext();
+    @InjectObject("spring:sipxServiceManager")
+    public abstract SipxServiceManager getSipxServiceManager();
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
@@ -69,6 +69,7 @@ public abstract class EditLocationPage extends PageWithCallback implements PageB
             location = getLocationsManager().getLocation(getLocationId());
         } else {
             location = new Location();
+            location.initBundles(getSipxServiceManager());
             setTab(CONFIG_TAB);
         }
         setLocationBean(location);
