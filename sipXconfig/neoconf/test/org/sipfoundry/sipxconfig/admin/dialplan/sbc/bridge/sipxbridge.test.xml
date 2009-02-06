@@ -22,6 +22,7 @@
   <itsp-account>
     <itsp-proxy-domain>itsp.example.com</itsp-proxy-domain>
     <user-name>juser</user-name>
+    <is-user-phone>false</is-user-phone>
     <password>1234</password>
     <itsp-proxy-address>itsp.example.com</itsp-proxy-address>
     <itsp-proxy-listening-port>5061</itsp-proxy-listening-port>

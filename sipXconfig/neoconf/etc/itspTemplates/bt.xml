@@ -30,6 +30,14 @@
       </type>
       <description>The authentication user name attached to the account.</description>
     </setting>
+    <setting name="is-user-phone" hidden="yes">
+      <label>User name is a phone #</label>
+      <type>
+        <boolean />
+      </type>
+      <description>If true, the user name corresponds to a phone number.</description>
+      <value>true</value>
+    </setting>
     <setting name="password">
       <label>Password</label>
       <type>

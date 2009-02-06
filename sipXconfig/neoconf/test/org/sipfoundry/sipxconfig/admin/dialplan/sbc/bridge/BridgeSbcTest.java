@@ -89,6 +89,7 @@ public class BridgeSbcTest {
     public void testGenerateConfig() throws Exception {
         // Use default asserted identity
         m_sipTrunk.setSettingValue("itsp-account/default-asserted-identity", "true");
+        m_sipTrunk.setSettingValue("itsp-account/is-user-phone", "true");
 
         Profile[] profileTypes = m_sbc.getProfileTypes();
         assertEquals(1, profileTypes.length);
@@ -108,6 +109,7 @@ public class BridgeSbcTest {
         // Override the default asserted identity
         m_sipTrunk.setSettingValue("itsp-account/default-asserted-identity", "false");
         m_sipTrunk.setSettingValue("itsp-account/asserted-identity", "juser@itsp.example.com");
+        m_sipTrunk.setSettingValue("itsp-account/is-user-phone", "false");
 
         Profile[] profileTypes = m_sbc.getProfileTypes();
         assertEquals(1, profileTypes.length);
