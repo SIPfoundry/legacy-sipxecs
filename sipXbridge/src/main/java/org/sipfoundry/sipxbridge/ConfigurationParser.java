@@ -213,7 +213,9 @@ public class ConfigurationParser {
         
         
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "is-user-phone"),
-                "setUserPhone", 0);
+                "setUserPhone", 0, new Class[] {
+            Boolean.class
+        });
         
        
         

@@ -154,7 +154,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
     /*
      * Determines whether the User name is a phone number.
      */
-    private boolean isUserPhone;
+    private boolean isUserPhone =  true;
 
 
     
