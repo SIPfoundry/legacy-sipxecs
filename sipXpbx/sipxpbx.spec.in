@@ -204,10 +204,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/doc/sipxecs/%name
 
 %pre
-sipx-upgrade -p sipxpbx -c
 
 %post
-sipx-upgrade -p sipxpbx -u --bdir %{_bindir}  --ddir %{_datadir} --cdir %{_sysconfdir} --sdir %{_localstatedir}
 rm -f %{_bindir}/backup-mailstore.sh
 rm -f %{_bindir}/restore-configs.sh 
 rm -f %{_bindir}/restore-mailstore.sh

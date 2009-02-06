@@ -127,11 +127,7 @@ if ! id -u @SIPXPBXUSER@ > /dev/null 2>&1 ; then
        @SIPXPBXUSER@ > /dev/null 2>&1
 fi
 
-# record the old version
-sipx-upgrade -p sipxcommserverlib -c
-
 %post
-sipx-upgrade -p sipxcommserverlib -u --bdir %{_bindir}  --ddir %{_datadir} --cdir %{_sysconfdir} --sdir %{_localstatedir}  --ldir %{_libexecdir}
 rm -rf %{_sysconfdir}/sipxpbx/process.d
 
 %define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
