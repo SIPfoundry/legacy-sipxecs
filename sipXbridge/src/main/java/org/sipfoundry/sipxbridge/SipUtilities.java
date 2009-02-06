@@ -574,14 +574,23 @@ class SipUtilities {
 			}
 
 			/*
-			 * Remove stuff from the inbound request that can have an effect on
+			 * Remove stuff from the request that can have an effect on
 			 * the routing of the request and add stuff that we want to add.
 			 */
 
 			/*
-			 * Some ITSPs are upset by seeing a user=phoneparameter on the URI.
+			 * If the target is a phone number we set user=phone. Otherwise
+			 * we remove it.
 			 */
-			requestUri.removeParameter("user");
+			if ( itspAccount.isUserPhone()) {
+			    /*
+			     * If call routed to phone then the RURI MUST have 
+			     * user=phone set ( sipconnect requirement ).
+			     */
+			    requestUri.setParameter("user", "phone");
+			} else {
+			    requestUri.removeParameter("user");
+			}
 
 			if (itspAccount.getOutboundTransport() != null) {
 				requestUri
@@ -599,6 +608,10 @@ class SipUtilities {
 
 			SipURI toUri = ProtocolObjects.addressFactory.createSipURI(toUser,
 					toDomain);
+			
+			if ( itspAccount.isUserPhone()) {
+                toUri.setParameter("user", "phone");
+            } 
 
 			ToHeader toHeader = ProtocolObjects.headerFactory.createToHeader(
 					ProtocolObjects.addressFactory.createAddress(toUri), null);

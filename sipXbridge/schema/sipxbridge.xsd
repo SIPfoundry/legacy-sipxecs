@@ -197,34 +197,6 @@
 				</xs:simpleType>
 			</xs:element>
 
-			<xs:element name="is-reinvite-supported" type="xs:boolean" maxOccurs="1" minOccurs="0"
-				default="true">
-				<xs:annotation>
-					<xs:documentation xml:lang="en">
-						Whether or not re-invite is supported. If supported, then
-					        Dynamic media renegotiation is used to determine codec
-						during call transfer.
-					</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="allowed-codec-name" maxOccurs="1" minOccurs="0"
-				default="PCMU">
-				<xs:annotation>
-					<xs:documentation xml:lang="en">
-						The codec for the Sdp Offer that is allowable if re-invitation
-						is not supported. All INVITES are restricted
-						to the specified codec if this is the case.
-					</xs:documentation>
-				</xs:annotation>
-				<xs:simpleType>
-					<xs:restriction base="xs:string">
-						<xs:enumeration value="PCMU" />
-						<xs:enumeration value="PCMA" />
-						<xs:enumeration value="G729" />
-						<xs:enumeration value="G723" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:element>
 
 			<xs:element name="stun-server-address" type="xs:string"
 				maxOccurs="1" minOccurs="0" >
@@ -388,6 +360,16 @@
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
 						The authentication user name attached to the account.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="is-user-phone"
+				type="xs:boolean" default="true" maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Whether or not the supplied user-name is a phone number. If set to true
+						then the Request URI and To header will include the user=phone parameter.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>

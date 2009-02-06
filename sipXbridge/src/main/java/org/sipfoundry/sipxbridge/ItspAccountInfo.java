@@ -32,6 +32,7 @@ import org.xbill.DNS.Type;
 public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserCredentials {
     private static Logger logger = Logger.getLogger(ItspAccountInfo.class);
 
+      
     /**
      * The outbound proxy for the account.
      */
@@ -128,16 +129,39 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
     private boolean stripPrivateHeaders;
  
 
+    /*
+     * Set true if CRLF ( keepalive timer ) is started.
+     */
     private boolean crLfTimerTaskStarted;
 
-    protected RegistrationTimerTask registrationTimerTask;
+   
+    /*
+     * The asserted Identity override.
+     */
 
     private String callerId;
 
+    /*
+     * Computed from the asserted Identity ( so we dont keep re-computing this)
+     */
     private Address callerAlias;
 
+    /*
+     * If set to true use the default asserted Identity.
+     */
     private boolean useDefaultAssertedIdentity;
+    
+    /*
+     * Determines whether the User name is a phone number.
+     */
+    private boolean isUserPhone;
 
+
+    
+    protected RegistrationTimerTask registrationTimerTask;
+    
+    
+    
     /**
      * This task runs periodically depending upon the timeout of the lookup specified.
      * 
@@ -589,6 +613,20 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
      */
     public void removeFailureCounter(String callId) {
        this.failureCountTable.remove(callId);     
+    }
+
+    /**
+     * @param param to set.
+     */
+    public void setUserPhone(boolean isUserPhone) {
+        this.isUserPhone = isUserPhone;
+    }
+
+    /**
+     * @return the isUserPhone
+     */
+    public boolean isUserPhone() {
+        return isUserPhone;
     }
 
 
