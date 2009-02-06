@@ -25,8 +25,6 @@ import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.services.ExpressionEvaluator;
-import org.apache.tapestry.valid.IValidationDelegate;
-import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.acd.AcdServer;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
@@ -68,7 +66,6 @@ import org.sipfoundry.sipxconfig.site.service.EditStatusService;
 
 import static org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status.Undefined;
 import static org.sipfoundry.sipxconfig.components.TapestryUtils.getMessage;
-import static org.sipfoundry.sipxconfig.components.TapestryUtils.getValidator;
 
 public abstract class ServicesTable extends BaseComponent {
 
@@ -118,7 +115,7 @@ public abstract class ServicesTable extends BaseComponent {
     public abstract ServiceStatus getCurrentRow();
 
     public abstract int getCurrentRowId();
-    
+
     @Parameter(required = true)
     public abstract Location getServiceLocation();
 
@@ -130,7 +127,7 @@ public abstract class ServicesTable extends BaseComponent {
 
     @Asset("/images/cog.png")
     public abstract IAsset getServiceIcon();
-    
+
     public String getServiceLabel() {
         String serviceBeanId = getCurrentRow().getServiceBeanId();
         String key = "label." + serviceBeanId;
@@ -152,11 +149,10 @@ public abstract class ServicesTable extends BaseComponent {
         }
         try {
             return getSipxProcessContext().getStatus(location, true);
-
         } catch (UserException e) {
-            IValidationDelegate validator = getValidator(this);
-            validator.record(new ValidatorException(e.getMessage()));
-
+            // Hide user exception -
+            // Services status is Undefined when we cannot get real status from server
+            // This is due to XML-RPC call failure
             Collection<ServiceStatus> serviceStatusList = new ArrayList<ServiceStatus>();
             for (LocationSpecificService lss : location.getServices()) {
                 SipxService service = lss.getSipxService();
@@ -222,19 +218,15 @@ public abstract class ServicesTable extends BaseComponent {
         if (serviceBeanIds == null) {
             return;
         }
-        try {
-            SipxServiceManager sipxServiceManager = getSipxServiceManager();
-            List<SipxService> services = new ArrayList<SipxService>(serviceBeanIds.size());
-            for (String beanId : serviceBeanIds) {
-                SipxService service = sipxServiceManager.getServiceByBeanId(beanId);
-                if (service != null) {
-                    services.add(service);
-                }
+
+        SipxServiceManager sipxServiceManager = getSipxServiceManager();
+        List<SipxService> services = new ArrayList<SipxService>(serviceBeanIds.size());
+        for (String beanId : serviceBeanIds) {
+            SipxService service = sipxServiceManager.getServiceByBeanId(beanId);
+            if (service != null) {
+                services.add(service);
             }
-            getSipxProcessContext().manageServices(getServiceLocation(), services, operation);
-        } catch (UserException e) {
-            IValidationDelegate validator = getValidator(this);
-            validator.record(new ValidatorException(e.getMessage()));
         }
+        getSipxProcessContext().manageServices(getServiceLocation(), services, operation);
     }
 }

@@ -79,7 +79,7 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
             Map<String, String> result = api.getStateAll(m_host);
             return extractStatus(result, location, onlyActiveServices);
         } catch (XmlRpcRemoteException e) {
-            throw new UserException(e.getCause());
+            throw new UserException(false, "xml.rpc.error.state", location.getFqdn());
         }
     }
 
@@ -88,7 +88,7 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
             ProcessManagerApi api = m_processManagerApiProvider.getApi(location.getProcessMonitorUrl());
             return api.getStatusMessages(m_host, service.getProcessName());
         } catch (XmlRpcRemoteException e) {
-            throw new UserException(e.getCause());
+            throw new UserException(false, "xml.rpc.error.status.messages", location.getFqdn());
         }
     }
     
@@ -166,7 +166,7 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
                 break;
             }
         } catch (XmlRpcRemoteException e) {
-            throw new UserException(e);
+            throw new UserException(false, "xml.rpc.error.operation", location.getFqdn());
         }
     }
 
