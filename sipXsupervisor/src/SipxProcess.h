@@ -175,23 +175,23 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
     */
 
    /// Return whether or not the service for this process is Running.
-   bool isRunning();
+   virtual bool isRunning();
  
    /// Return whether or not the service for this process is completely stopped
    /// (i.e. neither the Start nor the Stop command is running)
    bool isCompletelyStopped();
 
    /// Set the persistent desired state of the SipxProcess to Running, and start the process.
-   bool enable();
+   virtual bool enable();
 
    /// Set the persistent desired state of the SipxProcess to Disabled, and stop the process.
-   bool disable();
+   virtual bool disable();
 
    /// Stop and restart the process without changing the persistent desired state
-   bool restart();
+   virtual bool restart();
 
    /// Shutting down sipXsupervisor, so shut down the service.
-   void shutdown();
+   virtual void shutdown();
    ///< This does not affect the persistent state of the service.
 
    /// Called from the task which is running the FSM, when it has shut down
@@ -247,19 +247,19 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
   public:
 
    /// Notify the SipxProcess that some configuration change has occurred.
-   void configurationChange(const SipxResource& changedResource);
+   virtual void configurationChange(const SipxResource& changedResource);
 
    /// Notify the SipxProcess that some configuration change has occurred.
-   void configurationVersionChange();
+   virtual void configurationVersionChange();
 
    /// Notify the SipxProcess that a command has completed starting.
-   void evCommandStarted(const SipxProcessCmd* command);
+   virtual void evCommandStarted(const SipxProcessCmd* command);
    
    /// Notify the SipxProcess that a command has stopped.
-   void evCommandStopped(const SipxProcessCmd* command, int rc);
+   virtual void evCommandStopped(const SipxProcessCmd* command, int rc);
 
    /// Notify the SipxProcess that a command has received output.
-   void evCommandOutput(const SipxProcessCmd* command, 
+   virtual void evCommandOutput(const SipxProcessCmd* command,
                         OsSysLogPriority pri,
                         UtlString message);
 
@@ -272,8 +272,8 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
    // Trigger SipxProcessCmd to execute commands (in its own task)
    void startConfigTest();
    void killConfigTest();
-   void startProcess();
-   void stopProcess();
+   virtual void startProcess();
+   virtual void stopProcess();
    void processFailed();
    void startRetryTimer();
    void cancelRetryTimer();
@@ -479,15 +479,11 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
    UtlSList         mStatusMessages;   ///< list of messages relevant to current state
    int              mNumStdoutMsgs;    ///< number of messages received since last restart
    int              mNumStderrMsgs;    ///< number of messages received since last restart
-   bool             mbSupervisor;      /**< true if this is the special supervisor process,
-                                        *   which isn't managed but can have resources
-                                        */
    
    /// constructor
    SipxProcess(const UtlString& name,
                const UtlString& version,
-               const OsPath&    definitionPath,
-               bool             bSupervisor=false  ///< supervisor has a special reduced def
+               const OsPath&    definitionPath
                );
 
    // @cond INCLUDENOCOPY
@@ -499,6 +495,7 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
    // @endcond     
 
    friend class SipxProcessFsm;     // the FSM has no data
+   friend class SipxSupervisorProcess;
    friend class SipxProcessDefinitionParserTest;
    friend class SipxProcessStateTest;
    friend class SipxProcessVersionTest;

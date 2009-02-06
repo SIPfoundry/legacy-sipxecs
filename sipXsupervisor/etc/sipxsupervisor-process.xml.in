@@ -2,6 +2,7 @@
 <sipXecs-process xmlns='http://www.sipfoundry.org/sipX/schema/xml/sipXecs-process-01-00'>
   <name>sipxsupervisor</name>
   <version>@VERSION@</version>
+  <!-- the commands block is currently ignored for the supervisor process -->
   <commands>
     <configtest>
       <execute>@SIPX_BINDIR@/sipxsupervisor.sh</execute>

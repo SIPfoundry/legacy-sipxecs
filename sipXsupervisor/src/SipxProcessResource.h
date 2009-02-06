@@ -102,6 +102,7 @@ class SipxProcessResource : public SipxResource
 
   protected:
    friend class SipxProcess;
+   friend class SipxSupervisorProcess;
    
    /// constructor
    SipxProcessResource(const char* uniqueId);

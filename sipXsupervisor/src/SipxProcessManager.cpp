@@ -13,6 +13,7 @@
 #include "xmlparser/tinyxml.h"
 
 #include "SipxProcess.h"
+#include "SipxSupervisorProcess.h"
 #include "SipxProcessManager.h"
 
 // DEFINES
