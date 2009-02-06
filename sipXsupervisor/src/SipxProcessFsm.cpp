@@ -162,7 +162,7 @@ void Disabled::evStopProcess( SipxProcess& impl ) const
 
 void Disabled::evProcessStopped( SipxProcess& impl ) const
 {
-   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s: process stopped in state %s, ignored", 
+   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s': process stopped in state %s, ignored",
                  impl.name(), impl.GetCurrentState()->name());
 }
 
@@ -234,14 +234,14 @@ void Testing::evConfigTestPassed( SipxProcess& impl ) const
 
 void Testing::evConfigTestFailed( SipxProcess& impl ) const
 {
-   OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,"'%s: configuration test failed", impl.name());
+   OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,"'%s': configuration test failed", impl.name());
 
    ChangeState( impl, impl.pConfigTestFailed );
 }
 
 void Testing::evRestartProcess( SipxProcess& impl ) const
 {
-   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s: aborting configtest in order to restart",
+   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s': aborting configtest in order to restart",
                  impl.name());
    ChangeState( impl, impl.pStoppingConfigtestToRestart );
    impl.killConfigTest();
@@ -259,7 +259,7 @@ void StoppingConfigtestToRestart::evConfigTestFailed( SipxProcess& impl ) const
 
 void StoppingConfigtestToRestart::evRestartProcess( SipxProcess& impl ) const
 {
-   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s: already aborting configtest in order to restart",
+   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s': already aborting configtest in order to restart",
                  impl.name());
 }
 
@@ -323,7 +323,7 @@ void Stopping::evProcessStopped( SipxProcess& impl ) const
    }
    else
    {
-      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s: process stopped, now wait for stop script", impl.name());
+      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s': process stopped, now wait for stop script", impl.name());
    }
 }
 
@@ -343,7 +343,7 @@ void Stopping::evStopCompleted( SipxProcess& impl ) const
    }
    else
    {
-      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s: stop completed, now wait for process stopped", impl.name());
+      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s': stop completed, now wait for process stopped", impl.name());
    }
 }
 
@@ -378,6 +378,12 @@ void Running::DoEntryAction( SipxProcess& impl ) const
 {
    impl.clearStatusMessages();
    impl.notifyProcessRunning();
+}
+
+void Running::evConfigurationChanged( SipxProcess& impl ) const
+{
+   OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE,"'%s': configuration changed in state %s, ignored",
+                 impl.name(), impl.GetCurrentState()->name());
 }
 
 void Running::evStopProcess( SipxProcess& impl ) const
@@ -424,7 +430,7 @@ void ShuttingDown::evProcessStopped( SipxProcess& impl ) const
    }
    else
    {
-      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s: process stopped, now wait for stop script", impl.name());
+      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s': process stopped, now wait for stop script", impl.name());
    }
 }
 
@@ -437,7 +443,7 @@ void ShuttingDown::evStopCompleted( SipxProcess& impl ) const
    }
    else
    {
-      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s: stop completed, now wait for process stopped", impl.name());
+      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s': stop completed, now wait for process stopped", impl.name());
    }
 }
 
@@ -449,7 +455,7 @@ void ShutDown::DoEntryAction( SipxProcess& impl ) const
 
 void ShutDown::evStopCompleted( SipxProcess& impl ) const
 {
-   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s: evStopCompleted in state %s, ignored", 
+   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s': evStopCompleted in state %s, ignored",
                  impl.name(), impl.GetCurrentState()->name());
 }
 
