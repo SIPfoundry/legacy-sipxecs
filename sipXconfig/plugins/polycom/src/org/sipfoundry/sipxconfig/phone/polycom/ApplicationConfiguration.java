@@ -12,21 +12,18 @@ package org.sipfoundry.sipxconfig.phone.polycom;
 import java.io.File;
 
 import org.sipfoundry.sipxconfig.device.ProfileContext;
-import org.sipfoundry.sipxconfig.phone.Phone;
 
 /**
  * Velocity model for generating [MAC ADDRESS].cfg, pointer to all other config files. See page 11
  * of Administration guide for more information
  */
-public class ApplicationConfiguration extends ProfileContext {
+public class ApplicationConfiguration extends ProfileContext<PolycomPhone> {
     public static final String LICENSE_FILE_NAME = "000000000000-license.cfg";
 
-    private String m_serialNumber;
-    private String m_profileDir;
+    private final String m_profileDir;
 
-    public ApplicationConfiguration(Phone phone) {
+    public ApplicationConfiguration(PolycomPhone phone) {
         super(phone, "polycom/mac-address.cfg.vm");
-        m_serialNumber = phone.getSerialNumber();
         m_profileDir = phone.getProfileDir();
     }
 
@@ -35,24 +32,25 @@ public class ApplicationConfiguration extends ProfileContext {
     }
 
     public String getAppFilename() {
-        return m_serialNumber + ".cfg";
+        return getDevice().getAppFilename();
     }
 
     public String getSipFilename() {
-        return m_serialNumber + "-sipx-sip.cfg";
+        return getDevice().getSipFilename();
     }
 
     public String getPhoneFilename() {
-        return m_serialNumber + "-sipx-phone.cfg";
+        return getDevice().getPhoneFilename();
     }
 
     public String getDirectoryFilename() {
-        return m_serialNumber + "-directory.xml";
+        return getDevice().getDirectoryFilename();
     }
 
     public String getDeviceFilename() {
-        return m_serialNumber + "-sipx-device.cfg";
+        return getDevice().getDeviceFilename();
     }
+
     /**
      * This is to check if 000000000000-license.cfg is available.
      */

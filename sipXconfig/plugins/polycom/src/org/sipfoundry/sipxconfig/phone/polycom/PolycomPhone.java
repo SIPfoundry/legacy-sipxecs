@@ -14,19 +14,25 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
 
+import static java.lang.String.format;
+
+import org.apache.commons.lang.ArrayUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
+import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
+import org.sipfoundry.sipxconfig.device.Profile;
+import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.device.ProfileFilter;
 import org.sipfoundry.sipxconfig.device.ProfileLocation;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
-import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.setting.DelegatingSettingModel.InsertValueFilter;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.XmlEscapeValueFilter;
@@ -36,6 +42,7 @@ import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
  * Support for Polycom 300, 400, and 500 series phones and model 3000 conference phone
  */
 public class PolycomPhone extends Phone {
+    public static final String MIME_TYPE_PLAIN = "text/plain";
     public static final String BEAN_ID = "polycom";
     public static final String CALL = "call";
     public static final String EMERGENCY = "dialplan/digitmap/routing.1/emergency.1.value";
@@ -72,7 +79,8 @@ public class PolycomPhone extends Phone {
     @Override
     public void initialize() {
         SpeedDial speedDial = getPhoneContext().getSpeedDial(this);
-        PolycomPhoneDefaults phoneDefaults = new PolycomPhoneDefaults(getPhoneContext().getPhoneDefaults(), speedDial);
+        PolycomPhoneDefaults phoneDefaults = new PolycomPhoneDefaults(getPhoneContext().getPhoneDefaults(),
+                speedDial);
         addDefaultBeanSettingHandler(phoneDefaults);
 
         PolycomIntercomDefaults intercomDefaults = new PolycomIntercomDefaults(this);
@@ -85,33 +93,28 @@ public class PolycomPhone extends Phone {
         line.addDefaultBeanSettingHandler(lineDefaults);
     }
 
+    @Override
     protected ProfileFilter getProfileFilter() {
         return new FormatFilter();
     }
 
     @Override
-    public void generateFiles(ProfileLocation location) {
-        ProfileFilter format = getProfileFilter();
+    public Profile[] getProfileTypes() {
+        Profile[] profileTypes = new Profile[] {
+            new ApplicationProfile(getAppFilename()), new SipProfile(getSipFilename()),
+            new PhoneProfile(getPhoneFilename()), new DeviceProfile(getDeviceFilename())
+        };
 
-        ApplicationConfiguration app = new ApplicationConfiguration(this);
-        getProfileGenerator().generate(location, app, format, app.getAppFilename());
-
-        SipConfiguration sip = new SipConfiguration(this);
-        getProfileGenerator().generate(location, sip, format, app.getSipFilename());
-
-        PhoneConfiguration phone = new PhoneConfiguration(this);
-        getProfileGenerator().generate(location, phone, format, app.getPhoneFilename());
-
-        DeviceConfiguration device = new DeviceConfiguration(this);
-        getProfileGenerator().generate(location, device, format, app.getDeviceFilename());
-
-        PhonebookManager phonebookManager = getPhonebookManager();
-        if (phonebookManager.getPhonebookManagementEnabled()) {
-            Collection<PhonebookEntry> entries = getPhoneContext().getPhonebookEntries(this);
-            SpeedDial speedDial = getPhoneContext().getSpeedDial(this);
-            DirectoryConfiguration dir = new DirectoryConfiguration(entries, speedDial);
-            getProfileGenerator().generate(location, dir, format, app.getDirectoryFilename());
+        if (getPhonebookManager().getPhonebookManagementEnabled()) {
+            profileTypes = (Profile[]) ArrayUtils.add(profileTypes, new DirectoryProfile(getDirectoryFilename()));
         }
+
+        return profileTypes;
+    }
+
+    @Override
+    public String getProfileFilename() {
+        return getSerialNumber();
     }
 
     @Override
@@ -127,11 +130,10 @@ public class PolycomPhone extends Phone {
 
     @Override
     public void removeProfiles(ProfileLocation location) {
-        ApplicationConfiguration app = new ApplicationConfiguration(this);
-        location.removeProfile(app.getAppFilename());
-        location.removeProfile(app.getSipFilename());
-        location.removeProfile(app.getPhoneFilename());
-        location.removeProfile(app.getDirectoryFilename());
+        location.removeProfile(getAppFilename());
+        location.removeProfile(getSipFilename());
+        location.removeProfile(getPhoneFilename());
+        location.removeProfile(getDirectoryFilename());
     }
 
     /**
@@ -158,7 +160,7 @@ public class PolycomPhone extends Phone {
         line.setSettingValue(DISPLAY_NAME_PATH, externalLine.getDisplayName());
         line.setSettingValue(USER_ID_PATH, externalLine.getUserId());
         line.setSettingValue(PASSWORD_PATH, externalLine.getPassword());
-        
+
         String voiceMail = externalLine.getVoiceMail();
         if (voiceMail != null) {
             line.setSettingValue(CALL_BACK_PATH, voiceMail);
@@ -184,7 +186,116 @@ public class PolycomPhone extends Phone {
         return lineInfo;
     }
 
+    @Override
     public void restart() {
         sendCheckSyncToFirstLine();
+    }
+
+    public String getAppFilename() {
+        return format("%s.cfg", getProfileFilename());
+    }
+
+    public String getSipFilename() {
+        return format("%s-sipx-sip.cfg", getProfileFilename());
+    }
+
+    public String getPhoneFilename() {
+        return format("%s-sipx-phone.cfg", getProfileFilename());
+    }
+
+    public String getDirectoryFilename() {
+        return format("%s-directory.xml", getProfileFilename());
+    }
+
+    public String getDeviceFilename() {
+        return format("%s-sipx-device.cfg", getProfileFilename());
+    }
+
+    static class ApplicationProfile extends Profile {
+        public ApplicationProfile(String name) {
+            super(name, MIME_TYPE_PLAIN);
+        }
+
+        @Override
+        protected ProfileFilter createFilter(Device device) {
+            return null;
+        }
+
+        @Override
+        protected ProfileContext createContext(Device device) {
+            PolycomPhone phone = (PolycomPhone) device;
+            return new ApplicationConfiguration(phone);
+        }
+    }
+
+    static class PhoneProfile extends Profile {
+        public PhoneProfile(String name) {
+            super(name, MIME_TYPE_PLAIN);
+        }
+
+        @Override
+        protected ProfileFilter createFilter(Device device) {
+            return null;
+        }
+
+        @Override
+        protected ProfileContext createContext(Device device) {
+            PolycomPhone phone = (PolycomPhone) device;
+            return new PhoneConfiguration(phone);
+        }
+    }
+
+    static class SipProfile extends Profile {
+        public SipProfile(String name) {
+            super(name, MIME_TYPE_PLAIN);
+        }
+
+        @Override
+        protected ProfileFilter createFilter(Device device) {
+            return null;
+        }
+
+        @Override
+        protected ProfileContext createContext(Device device) {
+            PolycomPhone phone = (PolycomPhone) device;
+            return new SipConfiguration(phone);
+        }
+    }
+
+    static class DeviceProfile extends Profile {
+        public DeviceProfile(String name) {
+            super(name, MIME_TYPE_PLAIN);
+        }
+
+        @Override
+        protected ProfileFilter createFilter(Device device) {
+            return null;
+        }
+
+        @Override
+        protected ProfileContext createContext(Device device) {
+            PolycomPhone phone = (PolycomPhone) device;
+            return new DeviceConfiguration(phone);
+        }
+    }
+
+    static class DirectoryProfile extends Profile {
+        public DirectoryProfile(String name) {
+            super(name, MIME_TYPE_PLAIN);
+        }
+
+        @Override
+        protected ProfileFilter createFilter(Device device) {
+            return null;
+        }
+
+        @Override
+        protected ProfileContext createContext(Device device) {
+            Phone phone = (Phone) device;
+            PhoneContext phoneContext = phone.getPhoneContext();
+            Collection<PhonebookEntry> entries = phoneContext.getPhonebookEntries(phone);
+            SpeedDial speedDial = phoneContext.getSpeedDial(phone);
+            return new DirectoryConfiguration(entries, speedDial);
+        }
     }
 }

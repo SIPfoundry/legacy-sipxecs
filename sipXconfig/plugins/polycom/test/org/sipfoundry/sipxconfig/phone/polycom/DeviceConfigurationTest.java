@@ -10,8 +10,6 @@
 package org.sipfoundry.sipxconfig.phone.polycom;
 
 import java.io.InputStream;
-import java.util.HashSet;
-import java.util.Set;
 
 import junit.framework.TestCase;
 
@@ -27,8 +25,6 @@ public class DeviceConfigurationTest extends TestCase {
 
     private PolycomPhone phone;
 
-    private PhoneTestDriver tester;
-
     private ProfileGenerator m_pg;
 
     private MemoryProfileLocation m_location;
@@ -40,7 +36,7 @@ public class DeviceConfigurationTest extends TestCase {
         model.setModelId("polycom600");
         phone = new PolycomPhone();
         phone.setModel(model);
-        tester = PhoneTestDriver.supplyTestData(phone);
+        PhoneTestDriver.supplyTestData(phone);
 
         m_location = new MemoryProfileLocation();
         VelocityProfileGenerator pg = new VelocityProfileGenerator();
