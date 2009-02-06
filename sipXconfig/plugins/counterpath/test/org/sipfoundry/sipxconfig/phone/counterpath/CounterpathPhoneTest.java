@@ -13,6 +13,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
@@ -31,6 +32,7 @@ public class CounterpathPhoneTest extends TestCase {
         counterpathModel.setModelId("counterpathCMCEnterprise");
         CounterpathPhone phone = new CounterpathPhone();
         phone.setModel(counterpathModel);
+        phone.setDefaults(new DeviceDefaults());
         PhoneTestDriver.supplyTestData(phone,true,true);
 
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);

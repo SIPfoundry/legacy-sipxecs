@@ -25,6 +25,7 @@ public class CounterpathPhone extends Phone {
     private static final String REG_PASSWORD = "registration/password";
     private static final String REG_DOMAIN = "registration/domain";
     private static final String SUBSCRIPTION_AOR = "network/sip_signaling/proxies:proxy0:workgroup_subscription_aor";
+    private static final String VOICEMAIL_URL = "voicemail/voicemail_url";
 
     public CounterpathPhone() {
     }
@@ -129,6 +130,11 @@ public class CounterpathPhone extends Phone {
         public String getDomain() {
             DeviceDefaults defaults = m_line.getPhoneContext().getPhoneDefaults();
             return defaults.getDomainName();
+        }
+
+        @SettingEntry(path = VOICEMAIL_URL)
+        public String getVoicemailURL() {
+            return m_line.getPhone().getDefaults().getVoiceMail();
         }
     }
 }
