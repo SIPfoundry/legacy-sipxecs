@@ -520,14 +520,12 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
         return inboundProxy != null ? inboundProxyPort : this.getOutboundProxyPort();
     }
 
-    public void setInboundProxyPort(String portString) {
-        try {
-            int port = Integer.parseInt(portString);
-            this.inboundProxyPort = port;
-        } catch (NumberFormatException ex) {
-            logger.error("Invalid number format " + portString);
-        }
-
+    public void setInboundProxyPort(int  port) {
+       if ( port < 0 ) {
+           throw new IllegalArgumentException("Bad inbound proxy port " + port);
+       } else if ( port > 0 ) {
+           this.inboundProxyPort = port;
+       }
     }
 
     /**
