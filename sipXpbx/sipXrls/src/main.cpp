@@ -486,6 +486,7 @@ int main(int argc, char* argv[])
                              refreshInterval, resubscribeInterval, minResubscribeInterval,
                              RLS_PUBLISH_DELAY,
                              20, 20, 20, 20);
+      rls.start();
 
       // Loop forever until signaled to shut down
       while (!gShutdownFlag)

@@ -99,6 +99,9 @@ class ResourceListServer : public UtlContainableAtomic
 
    virtual ~ResourceListServer();
 
+   //! Start the call processing components.
+   void start();
+
    //! Shut down the call processing components.
    void shutdown();
 

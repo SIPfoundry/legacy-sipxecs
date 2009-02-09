@@ -123,15 +123,15 @@ ResourceListServer::ResourceListServer(const UtlString& domainName,
    mResourceListFileReader(UtlString(""), &mResourceListSet)
 {
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
-                 "ResourceListServer::_ this = %p, mDomainName = '%s', mEventType = '%s', mContentType = '%s', mRefreshInterval = %d, mResubscribeInterval = %d",
-                 this, mDomainName.data(),
-                 mEventType.data(), mContentType.data(),
-                 mRefreshInterval, mResubscribeInterval);
+                 "ResourceListServer::_ this = %p, mDomainName = '%s', mEventType = '%s', mContentType = '%s', "
+                 "mRefreshInterval = %d, mResubscribeInterval = %d",
+                 this, mDomainName.data(), mEventType.data(), mContentType.data(), mRefreshInterval,
+                 mResubscribeInterval);
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
-                 "ResourceListServer::_ this = %p, mPublishingDelay = %d, mMaxRegSubscInResource = %d, mMaxContInRegSubsc = %d, mMaxResInstInCont = %d, mMaxDialogsInResInst = %d",
-                 this,
-                 publishingDelay, mMaxRegSubscInResource, mMaxContInRegSubsc,
-                 mMaxResInstInCont, mMaxDialogsInResInst);
+                 "ResourceListServer::_ this = %p, mPublishingDelay = %d, mMaxRegSubscInResource = %d, "
+                 "mMaxContInRegSubsc = %d, mMaxResInstInCont = %d, mMaxDialogsInResInst = %d",
+                 this, publishingDelay, mMaxRegSubscInResource, mMaxContInRegSubsc, mMaxResInstInCont,
+                 mMaxDialogsInResInst);
 
    // Initialize the call processing objects.
 
@@ -147,8 +147,7 @@ ResourceListServer::ResourceListServer(const UtlString& domainName,
       char buffer[100];
 
       // Construct the server's host-part.
-      sprintf(buffer, "%s:%d", localAddress.data(),
-              portIsValid(udpPort) ? udpPort : tcpPort);
+      sprintf(buffer, "%s:%d", localAddress.data(), portIsValid(udpPort) ? udpPort : tcpPort);
       mServerLocalHostPart = buffer;
 
       // Construct the client's From URI.
@@ -157,7 +156,7 @@ ResourceListServer::ResourceListServer(const UtlString& domainName,
 
       // Obtain the client's Contact URI.
       mClientUserAgent.getContactURI(mClientContactURI);
-}
+   }
 
    // Initialize the SipUserAgent's.
    // Set the user-agent strings.
@@ -166,40 +165,9 @@ ResourceListServer::ResourceListServer(const UtlString& domainName,
 
    // Require the "eventlist" extension in the Resource List clients.
    mServerUserAgent.requireExtension(SIP_EVENTLIST_EXTENSION);
-
-   // Start them.
-   mServerUserAgent.start();
-   mClientUserAgent.start();
-
-   // Set up the SIP Subscribe Client
-   mRefreshMgr.start();
-   mSubscribeClient.start();  
-
-   // Start the ResourceListTask.
-   mResourceListTask.start();
-
+   
    // Start the ResourceListFileReader by giving it the file name.
    mResourceListFileReader.setFileName(resourceListFile);
-
-   // Start the SIP Subscribe Server after the ResourceListFileReader is
-   // done loading the configuration.  This ensures that early subscribers
-   // do not get NOTIFYs with incomplete information.
-   mSubscribeServer.enableEventType(mEventType);
-   mSubscribeServer.start();
-
-   // Install a listener for MESSAGE requests into the server which queues
-   // them for consideration by mResourceListTask.  The task will be triggered
-   // to perform various debugging tasks.
-   mServerUserAgent.addMessageObserver(*(mResourceListTask.getMessageQueue()),
-                                       SIP_MESSAGE_METHOD,
-                                       TRUE, // yes requests
-                                       FALSE, // no responses
-                                       TRUE, // incoming,
-                                       FALSE // outgoing
-      );
-
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
-                 "ResourceListServer::_ Initialization done.");
 }
 
 // Destructor
@@ -213,6 +181,39 @@ ResourceListServer::~ResourceListServer()
 }
 
 /* ============================ MANIPULATORS ============================== */
+
+// Start the server.
+void ResourceListServer::start()
+{
+   // Start them.
+   mServerUserAgent.start();
+   mClientUserAgent.start();
+
+   // Set up the SIP Subscribe Client
+   mRefreshMgr.start();
+   mSubscribeClient.start();
+
+   // Start the ResourceListTask.
+   mResourceListTask.start();
+
+   // Start the SIP Subscribe Server after the ResourceListFileReader is
+   // done loading the configuration.  This ensures that early subscribers
+   // do not get NOTIFYs with incomplete information.
+   mSubscribeServer.enableEventType(mEventType);
+   mSubscribeServer.start();
+
+   // Install a listener for MESSAGE requests into the server which queues
+   // them for consideration by mResourceListTask.  The task will be triggered
+   // to perform various debugging tasks.
+   mServerUserAgent.addMessageObserver(*(mResourceListTask.getMessageQueue()),
+         SIP_MESSAGE_METHOD, TRUE, // yes requests
+         FALSE, // no responses
+         TRUE, // incoming,
+         FALSE // outgoing
+   );
+
+   OsSysLog::add(FAC_RLS, PRI_DEBUG, "ResourceListServer::_ Initialization done.");
+}
 
 // Shut down the server.
 void ResourceListServer::shutdown()

@@ -98,6 +98,14 @@ public:
       sipDbContext.inputFile( credentialDbName + ".xml" );
       UtlString tempResourceListFile = UtlString(TEST_DATA_DIR) + "/" + resourceListFile;
 
+      pSipUserAgent = new SipUserAgent( 45141, 45141, 45142
+                                       ,"127.0.0.1"  // default publicAddress
+                                       ,NULL         // default defaultUser
+                                       ,"127.0.0.1" );  // default defaultSipAddress
+
+      // Stop SipUserAgent from rejecting all SUBSCRIBEs
+      pSipUserAgent->allowMethod(SIP_SUBSCRIBE_METHOD, true);
+
       pResourceServerUnderTest = new ResourceListServer(
                                        domianName, // domain 
                                        "rlstest.test", // realm
@@ -138,11 +146,10 @@ public:
          proxyAddress.append(':');
          proxyAddress.appendNumber(pPort);
       }
-      pSipUserAgent = new SipUserAgent( 45141, 45141, 45142
-                                       ,"127.0.0.1"  // default publicAddress
-                                       ,NULL         // default defaultUser
-                                       ,"127.0.0.1"  // default defaultSipAddress
-                                       ,proxyAddress ); // Proxy address
+
+      pSipUserAgent->setProxyServers(proxyAddress.data());
+
+      pResourceServerUnderTest->start();
    }
    
    // The freeAllTestFixtures() is automatically called after every test case so 
@@ -292,12 +299,9 @@ public:
                                   "sip:127.0.0.1:45141",
                                   FALSE);
 
-      // Stop SipUserAgent from rejecting all SUBSCRIBEs
-      pSipUserAgent->allowMethod(SIP_SUBSCRIBE_METHOD, true);
-
       // receive the reg-info subscribe 
       SipMessage request;
-      while(getNextMessageFromRlsClientUnderTest( request, 3 ) )
+      while(getNextMessageFromRlsClientUnderTest( request, 5 ) )
       {
          UtlString method;
          request.getRequestMethod(&method);
