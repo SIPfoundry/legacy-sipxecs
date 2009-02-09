@@ -9,24 +9,33 @@
  */
 package org.sipfoundry.sipxconfig.domain;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.localization.Localization;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.springframework.dao.support.DataAccessUtils;
 
-public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implements DomainManager {
+public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implements
+        DomainManager {
+    private static final String DOMAIN_CONFIG_ERROR = "Unable to load initial domain-config file.";
 
-    private String m_authorizationRealm;
+    private static final Log LOG = LogFactory.getLog(DomainManagerImpl.class);
+
     private String m_alarmServerUrl;
-    private String m_initialDomain;
-    private String m_initialAlias;
     private String m_configServerHost;
+    private String m_domainConfigFilename;
 
     protected abstract DomainConfiguration createDomainConfiguration();
 
@@ -63,7 +72,7 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
             throw new DomainNotInitializedException();
         }
         DomainConfiguration domainConfiguration = createDomainConfiguration();
-        domainConfiguration.generate(existingDomain, m_authorizationRealm, m_configServerHost,
+        domainConfiguration.generate(existingDomain, m_configServerHost,
                 getExistingLocalization().getLanguage(), m_alarmServerUrl);
         getReplicationContext().replicate(domainConfiguration);
         getReplicationContext().publishEvent(new DomainConfigReplicatedEvent(this));
@@ -92,34 +101,41 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
     }
 
     /**
-     * Initialize the firs and single domain supported by sipX at the moment. If domain does not
-     * exist a new domain will be created and initialized with a 'm_initialDomain' name. If domain
-     * does exist we make sure it has secret initialed - new secret is created if the secret is
-     * empty.
-     *
-     * It is save to call this function many times. Only the first call should result in actually
-     * saving and replicating the domain
+     * Initialize the first and single domain supported by sipX at the moment. When this method is
+     * called, a new domain is created and it is populated with the data from the domain-config
+     * file which is written by sipx-setup during system installation. If there is an error
+     * accessing this file, sipxconfig will not operate correctly.
+     * 
+     * If this is called multiple times, the data in the domain table in the database will be
+     * overwritten by what is currently contained in the domain-config file
      */
-    public void initialize() {
-        Domain domain = getExistingDomain();
-        if (domain == null) {
-            domain = new Domain();
-            domain.setName(m_initialDomain);
-            if (StringUtils.isNotBlank(m_initialAlias)) {
-                domain.addAlias(m_initialAlias);
-            }
-        }
-        if (domain.initSecret()) {
+    public void initializeDomain() {
+        try {
+            Properties domainConfig = new Properties();
+            File domainConfigFile = new File(m_domainConfigFilename);
+            LOG.info("Attempting to load initial domain-config from "
+                    + domainConfigFile.getParentFile().getPath() + "):");
+            InputStream domainConfigInputStream = new FileInputStream(domainConfigFile);
+            domainConfig.load(domainConfigInputStream);
+            Domain domain = new Domain();
+            parseDomainConfig(domain, domainConfig);
+            domain.initSecret();
             saveDomain(domain);
+        } catch (FileNotFoundException fnfe) {
+            LOG.fatal(DOMAIN_CONFIG_ERROR, fnfe);
+        } catch (IOException ioe) {
+            LOG.fatal(DOMAIN_CONFIG_ERROR, ioe);
         }
+    }
+
+    private void parseDomainConfig(Domain domain, Properties domainConfig) {
+        domain.setSipRealm(domainConfig.getProperty("SIP_REALM"));
+        domain.setName(domainConfig.getProperty("SIP_DOMAIN_NAME"));
+        domain.setSharedSecret(domainConfig.getProperty("SHARED_SECRET"));
     }
 
     public String getAuthorizationRealm() {
-        return m_authorizationRealm;
-    }
-
-    public void setAuthorizationRealm(String authorizationRealm) {
-        m_authorizationRealm = authorizationRealm;
+        return getDomain().getSipRealm();
     }
 
     public String getAlarmServerUrl() {
@@ -130,15 +146,11 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
         m_alarmServerUrl = alarmServerUrl;
     }
 
-    public void setInitialDomain(String initialDomain) {
-        m_initialDomain = initialDomain;
-    }
-
-    public void setInitialAlias(String initialAlias) {
-        m_initialAlias = initialAlias;
-    }
-
     public void setConfigServerHost(String configServerHost) {
         m_configServerHost = configServerHost;
+    }
+
+    public void setDomainConfigFilename(String domainConfigFilename) {
+        m_domainConfigFilename = domainConfigFilename;
     }
 }

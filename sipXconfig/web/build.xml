@@ -329,6 +329,8 @@
     description="run junit tests for web interface">
     <junit fork="yes" forkmode="perBatch" haltonfailure="no" printsummary="on" maxmemory="1024m"
       failureproperty="junit.failed">
+      <!-- Uncomment this line to enable debugging of ui unit tests -->
+      <!-- <jvmarg line="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=4241"/> -->
       <classpath refid="test.path"/>
       <formatter type="plain"/>
       <formatter type="xml"/>

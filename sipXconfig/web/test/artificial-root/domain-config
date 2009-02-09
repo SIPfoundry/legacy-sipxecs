@@ -1,0 +1,6 @@
+SIP_DOMAIN_NAME : sipfoundry.org
+SIP_REALM : realm
+ALARM_SERVER_URL : https://localhost:8092
+SUPERVISOR_PORT : 8092
+CONFIG_HOSTS : localhost
+

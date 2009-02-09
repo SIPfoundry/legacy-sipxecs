@@ -15,6 +15,7 @@
       <element type="string" column="alias"/>
     </set>   
     <property name="sharedSecret"/> 
+    <property name="sipRealm"/>
   </class>
   
   <query name="domain">

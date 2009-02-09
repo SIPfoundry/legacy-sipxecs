@@ -198,10 +198,8 @@ public final class TestUtil {
         sysProps.setProperty("ftpBackupPlan.backupDirectory", outputDirectory + "/ftpBackup");
         sysProps.setProperty("ftpRestore.downloadDirectory", outputDirectory
                 + "/downloadFtpBackup");
-        sysProps.setProperty("domainManagerImpl.authorizationRealm", realm);
         sysProps.setProperty("domainManagerImpl.alarmServerUrl", "https://" + domainName
                 + ":8092");
-        sysProps.setProperty("domainManagerImpl.initialAlias", "alias.example.org");
         sysProps.setProperty("orbitsGenerator.audioDirectory", outputDirectory
                 + "/parkserver/music");
         sysProps.setProperty("replicationTrigger.replicateOnStartup", Boolean.toString(false));

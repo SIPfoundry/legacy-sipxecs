@@ -27,14 +27,12 @@ import static org.easymock.EasyMock.replay;
 
 public class DomainConfigurationTest extends TestCase {
     private String m_language;
-    private String m_realm;
     private String m_alarmServerUrl;
     private DomainConfiguration m_out;
 
     @Override
     public void setUp() throws Exception {
         m_language = "en";
-        m_realm = "realm.example.com";
         m_alarmServerUrl = "https://domain.example.com:8092";
 
         Location location = new Location();
@@ -58,11 +56,12 @@ public class DomainConfigurationTest extends TestCase {
     public void testWriteWithAliases() throws Exception {
         Domain m_domain = new Domain();
         m_domain.setName("domain.example.com");
+        m_domain.setSipRealm("realm.example.com");
         m_domain.addAlias("alias.example.com");
         m_domain.setSharedSecret("mySecret");
 
         StringWriter actualConfigWriter = new StringWriter();
-        m_out.generate(m_domain, m_realm, "master.example.com", m_language, m_alarmServerUrl);
+        m_out.generate(m_domain, "master.example.com", m_language, m_alarmServerUrl);
         m_out.write(actualConfigWriter, null);
 
         Reader actualConfigReader = new StringReader(actualConfigWriter.toString());
@@ -78,10 +77,11 @@ public class DomainConfigurationTest extends TestCase {
     public void testWriteNoAliases() throws Exception {
         Domain m_domain = new Domain();
         m_domain.setName("domain.example.com");
+        m_domain.setSipRealm("realm.example.com");
         m_domain.setSharedSecret("mySecret");
 
         StringWriter actualConfigWriter = new StringWriter();
-        m_out.generate(m_domain, m_realm, "master.example.com", m_language, m_alarmServerUrl);
+        m_out.generate(m_domain, "master.example.com", m_language, m_alarmServerUrl);
         m_out.write(actualConfigWriter, null);
 
         Reader actualConfigReader = new StringReader(actualConfigWriter.toString());

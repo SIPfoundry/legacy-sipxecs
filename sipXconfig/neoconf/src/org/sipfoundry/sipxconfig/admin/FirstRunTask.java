@@ -50,7 +50,7 @@ public class FirstRunTask implements ApplicationListener {
 
     public void runTask() {
         LOG.info("Executing first run tasks...");
-        m_domainManager.initialize();
+        m_domainManager.initializeDomain();
         m_domainManager.replicateDomainConfig();
         m_coreContext.initializeSpecialUsers();
         enforceRoles();

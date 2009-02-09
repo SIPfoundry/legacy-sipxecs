@@ -9,22 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.admin;
 
-import java.util.Collection;
-import java.util.Set;
-
-import org.apache.commons.codec.binary.Base64;
-import org.sipfoundry.sipxconfig.IntegrationTestCase;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivatedEvent;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
-import org.sipfoundry.sipxconfig.common.AlarmContext;
-import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.domain.Domain;
-import org.sipfoundry.sipxconfig.domain.DomainManager;
-import org.sipfoundry.sipxconfig.service.LocationSpecificService;
-
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.createNiceMock;
 import static org.easymock.EasyMock.eq;
@@ -33,7 +17,19 @@ import static org.easymock.EasyMock.isA;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 
-// FIXME: it only test domain manager initialization for now
+import java.util.Collection;
+
+import org.sipfoundry.sipxconfig.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivatedEvent;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
+import org.sipfoundry.sipxconfig.common.AlarmContext;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.service.LocationSpecificService;
+
 public class FirstRunTaskTestIntegration extends IntegrationTestCase {
     private DomainManager m_domainManager;
     private LocationsManager m_locationsManager;
@@ -49,39 +45,6 @@ public class FirstRunTaskTestIntegration extends IntegrationTestCase {
 
     public void setFirstRun(FirstRunTask firstRun) {
         m_firstRun = firstRun;
-    }
-
-    public void testOnInitTaskInitializeDomain() throws Exception {
-        loadDataSetXml("domain/NoDomainSeed.xml");
-        // InitializationTask initTask = new InitializationTask("first-run");
-        // m_firstRunTask.onApplicationEvent(initTask);
-        m_domainManager.initialize();
-
-        assertEquals("example.org", m_domainManager.getDomain().getName());
-        Set<String> aliases = m_domainManager.getDomain().getAliases();
-        assertEquals(1, aliases.size());
-        assertTrue(aliases.contains("alias.example.org"));
-    }
-
-    public void testOnInitTaskInitializeDomainSecret() throws Exception {
-        loadDataSet("domain/missing-domain-secret.db.xml");
-        // InitializationTask initTask = new InitializationTask("first-run");
-        // m_firstRunTask.onApplicationEvent(initTask);
-        m_domainManager.initialize();
-
-        Domain domain = m_domainManager.getDomain();
-        assertEquals("example.org", domain.getName());
-        assertEquals(new Integer(2000), domain.getId());
-
-        String sharedSecret = domain.getSharedSecret();
-        byte[] secretBytes = new Base64().decode(sharedSecret.getBytes());
-        assertEquals(18, secretBytes.length);
-
-        // test that on a subsequent call, after domain is originally saved, we
-        // we don't regenerate the secret
-        // m_firstRunTask.onApplicationEvent(initTask);
-        m_domainManager.initialize();
-        assertEquals(sharedSecret, m_domainManager.getDomain().getSharedSecret());
     }
 
     public void testEnableFirstRunServices() throws Exception {

@@ -13,10 +13,9 @@
 
   <bean id="domainManagerImpl" class="org.sipfoundry.sipxconfig.domain.DomainManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
-
-    <!-- initialize for tests only: the real value gets set by sipxconfig.properties.in -->
-    <property name="initialDomain" value="example.org" />
-
+    <property name="domainConfigFilename">
+      <value>${sysdir.etc}/domain-config</value>
+    </property>
     <!--
       - CIRCULAR REFERENCE WARNING: 
       -  sipxServer->coreContext->domainMgr->sipXserver->...

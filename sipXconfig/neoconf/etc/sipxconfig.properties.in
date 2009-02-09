@@ -34,9 +34,7 @@ phoneDefaults.authorizationRealm=${SIPXCHANGE_REALM}
 phoneDefaults.fullyQualifiedDomainName=${MY_FULL_HOSTNAME}
 # imdb/sipdb location for https access
 registrationContext.hostname=${MY_FULL_HOSTNAME}
-domainManagerImpl.authorizationRealm=${SIPXCHANGE_REALM}
 domainManagerImpl.alarmServerUrl=https://${MY_FULL_HOSTNAME}:8092
-domainManagerImpl.initialDomain=${SIPXCHANGE_DOMAIN_NAME}
 domainManagerImpl.configServerHost=${MY_FULL_HOSTNAME}
 localBackupPlan.backupDirectory=@sipxpbx.backup.dir@
 ftpBackupPlan.backupDirectory=@sipxpbx.download.dir@

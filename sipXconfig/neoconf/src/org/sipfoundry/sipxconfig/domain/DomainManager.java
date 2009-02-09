@@ -22,13 +22,15 @@ public interface DomainManager extends DialingRuleProvider {
 
     String getAlarmServerUrl();
     
-    void initialize();
+    void initializeDomain();
 
     void saveDomain(Domain domain);
 
     void replicateDomainConfig();
+    
+    void setDomainConfigFilename(String domainConfigFilename);
 
-    public Localization getExistingLocalization();
+    Localization getExistingLocalization();
 
     static class DomainNotInitializedException extends RuntimeException {
         DomainNotInitializedException() {

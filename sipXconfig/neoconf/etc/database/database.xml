@@ -296,6 +296,7 @@
   	<antcall target="location-add-primary" />  	
   	<antcall target="conference-bridge-service" />
     <antcall target="location-bundle" />
+  	<antcall target="domain-add-realm" />
     <!-- temporary patches -->
     <antcall target="clean-sipx-service-values"/>
     <antcall target="backup-ftp-fix-empty-type-2" />
@@ -793,6 +794,10 @@
 
   <target name="location-bundle" unless="location-bundle">
     <db-patch patch="location-bundle" />
+  </target>
+
+  <target name="domain-add-realm" unless="domain-add-realm">
+    <db-patch patch="domain-add-realm" />
   </target>
 
   <!--

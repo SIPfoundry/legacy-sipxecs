@@ -23,6 +23,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.components.SelectMap;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
@@ -37,6 +38,9 @@ public abstract class LocationsPage extends BasePage implements PageBeginRenderL
 
     @InjectObject("spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
+    
+    @InjectObject("spring:domainManager")
+    public abstract DomainManager getDomainManager();
 
     @InjectPage(EditLocationPage.PAGE)
     public abstract EditLocationPage getEditLocationPage();

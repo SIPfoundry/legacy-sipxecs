@@ -1,7 +1,7 @@
-SIP_DOMAIN_NAME : ${domain.Name}
+SIP_DOMAIN_NAME : ${domain.name}
 SIP_DOMAIN_ALIASES : ${domainAliases}
-SIP_REALM : ${realm}
-SHARED_SECRET : ${domain.SharedSecret}
+SIP_REALM : ${domain.sipRealm}
+SHARED_SECRET : ${domain.sharedSecret}
 DEFAULT_LANGUAGE : $language
 ALARM_SERVER_URL : https://${domain.Name}:8092
 SUPERVISOR_PORT : 8092

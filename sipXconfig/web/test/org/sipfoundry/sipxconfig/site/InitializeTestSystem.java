@@ -24,7 +24,7 @@ public class InitializeTestSystem implements ApplicationListener {
 
     public void onApplicationEvent(ApplicationEvent event) {
         m_replicationManagerImpl.setEnabled(false);
-        m_domainManager.initialize();
+        m_domainManager.initializeDomain();
 
     }
 

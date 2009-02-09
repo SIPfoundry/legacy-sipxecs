@@ -21,7 +21,6 @@ import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 public class DomainConfiguration extends TemplateConfigurationFile {
 
     private Domain m_domain;
-    private String m_realm;
     private String m_language;
     private String m_alarmServerUrl;
     private String m_configServerHost;
@@ -31,9 +30,8 @@ public class DomainConfiguration extends TemplateConfigurationFile {
         m_locationsManager = locationsManager;
     }
 
-    public void generate(Domain domain, String realm, String configServerHost, String language, String alarmServerUrl) {
+    public void generate(Domain domain, String configServerHost, String language, String alarmServerUrl) {
         m_domain = domain;
-        m_realm = realm;
         m_language = language;
         m_alarmServerUrl = alarmServerUrl;
         m_configServerHost = configServerHost;
@@ -44,7 +42,6 @@ public class DomainConfiguration extends TemplateConfigurationFile {
         VelocityContext context = super.setupContext(location);
         context.put("domain", m_domain);
         context.put("domainAliases", getDomainAliases(m_domain));
-        context.put("realm", m_realm);
         context.put("language", m_language);
         context.put("alarmServerUrl", m_alarmServerUrl);
         context.put("configServerHost", m_configServerHost);

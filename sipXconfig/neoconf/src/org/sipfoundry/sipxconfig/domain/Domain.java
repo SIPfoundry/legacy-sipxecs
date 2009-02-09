@@ -27,6 +27,8 @@ public class Domain extends BeanWithId implements Cloneable {
     private Set<String> m_aliases;
     private String m_sharedSecret;
 
+    private String m_sipRealm;
+
     public Domain() {
     }
 
@@ -44,6 +46,14 @@ public class Domain extends BeanWithId implements Cloneable {
 
     public void setName(String name) {
         m_name = name;
+    }
+    
+    public String getSipRealm() {
+        return m_sipRealm;
+    }
+    
+    public void setSipRealm(String sipRealm) {
+        m_sipRealm = sipRealm;
     }
 
     public boolean hasAliases() {
@@ -88,7 +98,7 @@ public class Domain extends BeanWithId implements Cloneable {
      * 
      * @return true if new secret has been initialized, false if secret was already there
      */
-    public boolean initSecret() {
+    protected boolean initSecret() {
         if (StringUtils.isNotBlank(m_sharedSecret)) {
             return false;
         }
