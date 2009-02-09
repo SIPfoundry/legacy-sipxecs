@@ -480,6 +480,8 @@ hostname --fqdn         >> ${SystemConfig}
 echo ""                 >> ${SystemConfig}
 echo -n "Date:      "   >> ${SystemConfig}
 date -u                 >> ${SystemConfig}
+echo -n "           "   >> ${SystemConfig}
+date                    >> ${SystemConfig}
 echo ""                 >> ${SystemConfig}
 echo -n "SysVersion: "  >> ${SystemConfig}
 uname -a                >> ${SystemConfig}
