@@ -428,16 +428,7 @@ int supervisorMain(bool bOriginalSupervisor)
     enableConsoleOutput(false);
     fflush(NULL); // Flush all output so children don't get a buffer of output
 
-    // Open the two configuration files
-    OsConfigDb domainConfiguration;
-    OsPath domainConfigPath = SipXecsService::domainConfigPath();
-    if (OS_SUCCESS != domainConfiguration.loadFromFile(domainConfigPath.data()))
-    {
-       OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,
-                     "Failed to open domain configuration '%s'",
-                     domainConfigPath.data()
-                     );
-    }
+    // Open the supervisor configuration file
     OsConfigDb supervisorConfiguration;
     OsPath supervisorConfigPath = SipXecsService::Path(SipXecsService::ConfigurationDirType,
                                                        CONFIG_SETTINGS_FILE);
@@ -449,6 +440,19 @@ int supervisorMain(bool bOriginalSupervisor)
                      );
     }
 
+    // Set logging based on the supervisor configuration - TODO change default to "NOTICE" ?
+    SipXecsService::setLogPriority(supervisorConfiguration, SUPERVISOR_PREFIX, PRI_INFO );
+
+    // Open the domain configuration file
+    OsConfigDb domainConfiguration;
+    OsPath domainConfigPath = SipXecsService::domainConfigPath();
+    if (OS_SUCCESS != domainConfiguration.loadFromFile(domainConfigPath.data()))
+    {
+       OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,
+                     "Failed to open domain configuration '%s'",
+                     domainConfigPath.data()
+                     );
+    }
     // @TODO const char* managementIpBindAddress;
     int managementPortNumber;
     managementPortNumber = domainConfiguration.getPort(SipXecsService::DomainDbKey::SUPERVISOR_PORT);
@@ -521,8 +525,6 @@ int supervisorMain(bool bOriginalSupervisor)
        OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,
                      "No configuration peers configured.");
     }
-
-    SipXecsService::setLogPriority(CONFIG_SETTINGS_FILE, SUPERVISOR_PREFIX );
 
     if (!cAlarmServer::getInstance()->init())
     {
