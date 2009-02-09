@@ -1708,12 +1708,12 @@
     </setting>
     <setting name='DNSPriServerIP'>
       <label>Primary DNS Server</label>
-      <value></value>
+      <value>0.0.0.0</value>
       <description>Primary DNS server</description>
     </setting>
     <setting name='DNSSecServerIP'>
       <label>Secondary DNS Server</label>
-      <value></value>
+      <value>0.0.0.0</value>
       <description>Secondary DNS server</description>
     </setting>
     <setting name='NTPServerIP'>
