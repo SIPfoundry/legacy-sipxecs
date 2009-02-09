@@ -156,13 +156,7 @@ Vendor: SIPfoundry
 Summary: Aggregates data from sipxconfig-agent into a database for reporting tools
 
 Requires: rubygems
-%if %{_vendor} == redhat
 Requires: ruby-postgres
-%endif
-%if %{_vendor} == suse
-Requires: rubygem-ruby-postgres
-%endif
-
 Requires: ruby-dbi
 
 %description report
