@@ -44,12 +44,8 @@ Requires: ruby-dbi
 Requires: rubygems
 %if %{_vendor} == redhat
 Requires: ruby-libs
-Requires: ruby-postgres >= 0.7.1
 %endif
-
-%if %{_vendor} == suse
-Requires: rubygem-ruby-postgres >= 0.7.1
-%endif
+Requires: ruby-postgres
 
 Requires: sipxcommserverlib >= %version
 Group:    Productivity/Telephony/SIP/Servers
