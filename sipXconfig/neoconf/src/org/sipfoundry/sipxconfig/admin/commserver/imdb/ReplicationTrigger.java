@@ -94,6 +94,7 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
             Group group = (Group) entity;
             if ("user".equals(group.getResource())) {
                 m_replicationContext.generate(DataSet.PERMISSION);
+                m_replicationContext.generate(DataSet.USER_LOCATION);
             }
         } else if (User.class.equals(c)) {
             m_replicationContext.generateAll();

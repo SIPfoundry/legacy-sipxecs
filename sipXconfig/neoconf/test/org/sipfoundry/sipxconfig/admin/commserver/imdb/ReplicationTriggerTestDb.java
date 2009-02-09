@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
@@ -36,6 +36,7 @@ public class ReplicationTriggerTestDb extends SipxDatabaseTestCase {
     private SpeedDialManager m_speedDialManager;
     private SpeedDialManager m_oldSpeedDialManager;
 
+    @Override
     protected void setUp() throws Exception {
         ApplicationContext app = TestHelper.getApplicationContext();
         m_trigger = (ReplicationTrigger) app.getBean("replicationTrigger");
@@ -57,6 +58,7 @@ public class ReplicationTriggerTestDb extends SipxDatabaseTestCase {
         m_dao = (SettingDao) app.getBean("settingDao");
     }
 
+    @Override
     protected void tearDown() {
         m_trigger.setReplicationContext(m_oldReplicationContext);
         m_trigger.setParkOrbitContext(m_oldParkOrbitContext);
@@ -73,6 +75,7 @@ public class ReplicationTriggerTestDb extends SipxDatabaseTestCase {
      */
     private void expectOneCallToGenerate() {
         m_replicationContext.generate(DataSet.PERMISSION);
+        m_replicationContext.generate(DataSet.USER_LOCATION);
         m_replicationContextCtrl.replay();
         m_parkOrbitsContextCtrl.replay();
         m_speedDialManagerControl.replay();
