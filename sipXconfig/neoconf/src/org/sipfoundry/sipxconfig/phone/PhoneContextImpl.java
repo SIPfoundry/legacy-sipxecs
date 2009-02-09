@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.phone;
@@ -23,6 +23,7 @@ import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
+import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.ProfileLocation;
 import org.sipfoundry.sipxconfig.phonebook.Phonebook;
@@ -34,6 +35,7 @@ import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDialManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -63,29 +65,41 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     private PhonebookManager m_phonebookManager;
 
     private SpeedDialManager m_speedDialManager;
-    
+
+    private DaoEventPublisher m_daoEventPublisher;
+
     public PhonebookManager getPhonebookManager() {
         return m_phonebookManager;
     }
 
+    @Required
     public void setPhonebookManager(PhonebookManager phonebookManager) {
         m_phonebookManager = phonebookManager;
     }
 
+    @Required
     public void setSettingDao(SettingDao settingDao) {
         m_settingDao = settingDao;
     }
 
+    @Required
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
 
+    @Required
     public void setIntercomManager(IntercomManager intercomManager) {
         m_intercomManager = intercomManager;
     }
 
+    @Required
     public void setSpeedDialManager(SpeedDialManager speedDialManager) {
         m_speedDialManager = speedDialManager;
+    }
+
+    @Required
+    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
+        m_daoEventPublisher = daoEventPublisher;
     }
 
     /**
@@ -284,11 +298,11 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     }
 
     public void addToGroup(Integer groupId, Collection<Integer> ids) {
-        DaoUtils.addToGroup(getHibernateTemplate(), groupId, Phone.class, ids);
+        DaoUtils.addToGroup(getHibernateTemplate(), m_daoEventPublisher, groupId, Phone.class, ids);
     }
 
     public void removeFromGroup(Integer groupId, Collection<Integer> ids) {
-        DaoUtils.removeFromGroup(getHibernateTemplate(), groupId, Phone.class, ids);
+        DaoUtils.removeFromGroup(getHibernateTemplate(), m_daoEventPublisher, groupId, Phone.class, ids);
     }
 
     public void addUsersToPhone(Integer phoneId, Collection<Integer> ids) {

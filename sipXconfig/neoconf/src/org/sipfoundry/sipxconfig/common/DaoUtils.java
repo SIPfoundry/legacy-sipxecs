@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.common;
@@ -25,6 +25,7 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.sipfoundry.sipxconfig.common.BeanWithId.IdToBean;
+import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -45,7 +46,7 @@ public final class DaoUtils {
      * query returns the ID strings of all objects for which the specified property has the
      * specified value. If exception is non-null, then throw the exception instead of returning
      * true.
-     * 
+     *
      * @param hibernate spring hibernate template
      * @param beanClass klass of the entity bean, it's usually one of the base classes of the obj
      *        and not obj.getClass()
@@ -53,9 +54,8 @@ public final class DaoUtils {
      * @param propName name of the property to be checked
      * @param exception exception to throw if query returns other object than passed in the query
      */
-    public static boolean checkDuplicates(HibernateTemplate hibernate,
-            Class< ? extends BeanWithId> beanClass, BeanWithId bean, String propName,
-            UserException exception) {
+    public static boolean checkDuplicates(HibernateTemplate hibernate, Class< ? extends BeanWithId> beanClass,
+            BeanWithId bean, String propName, UserException exception) {
         Object propValue = getProperty_(bean, propName);
         if (propValue == null) {
             return false;
@@ -76,15 +76,15 @@ public final class DaoUtils {
     /**
      * Return true if query returns objects other than obj. Used to check for duplicates. If
      * exception is non-null, then throw the exception instead of returning true.
-     * 
+     *
      * @param hibernate spring hibernate template
      * @param obj object to be checked
      * @param queryName name of the query to be executed (define in *.hbm.xml file)
      * @param value parameter for the query
      * @param exception exception to throw if query returns other object than passed in the query
      */
-    public static boolean checkDuplicatesByNamedQuery(HibernateTemplate hibernate,
-            BeanWithId obj, String queryName, Object value, UserException exception) {
+    public static boolean checkDuplicatesByNamedQuery(HibernateTemplate hibernate, BeanWithId obj, String queryName,
+            Object value, UserException exception) {
         if (value == null) {
             return false;
         }
@@ -96,7 +96,7 @@ public final class DaoUtils {
     /**
      * Return true if list contains objects other than obj. Used to check for duplicates. If
      * exception is non-null, then throw the exception instead of returning true.
-     * 
+     *
      * @param obj object to be checked
      * @param objs results for query
      * @param exception exception to throw if query returns other object than passed in the query
@@ -126,10 +126,10 @@ public final class DaoUtils {
      * Catch database corruption errors where more than one record exists. In general fields
      * should have unique indexes set up to protect against this. This method is created as a safe
      * check only, there have been not been any experiences of corrupt data to date.
-     * 
+     *
      * @param c
      * @param query
-     * 
+     *
      * @return first item from the collection
      * @throws IllegalStateException if more than one item in collection.
      */
@@ -165,14 +165,13 @@ public final class DaoUtils {
 
     /**
      * Returns the collection of loaded hibernate beans
-     * 
+     *
      * @param hibernate hibernate template
      * @param klass klass of the objects to be loaded
      * @param ids collection of object ids
      * @return newly created collection of objects loaded by hibernate
      */
-    public static Collection loadBeanByIds(HibernateTemplate hibernate, Class klass,
-            Collection ids) {
+    public static Collection loadBeanByIds(HibernateTemplate hibernate, Class klass, Collection ids) {
         IdToBean idToBean = new IdToBean(hibernate, klass);
         return CollectionUtils.collect(ids, idToBean);
     }
@@ -180,8 +179,7 @@ public final class DaoUtils {
     /**
      * Returns array of beans loaded thru DataObjectSource
      */
-    public static  <T> T[] loadBeansArrayByIds(DataObjectSource source, Class<T> beanClass,
-            Collection ids) {
+    public static <T> T[] loadBeansArrayByIds(DataObjectSource source, Class<T> beanClass, Collection ids) {
         T[] beans = (T[]) Array.newInstance(beanClass, ids.size());
         Iterator idsIterator = ids.iterator();
         for (int i = 0; idsIterator.hasNext(); i++) {
@@ -195,28 +193,31 @@ public final class DaoUtils {
     /**
      * Performs operation on all the bean in the list. List of the bean is passed as list of ids,
      * beans are loaded by hibernate before operation starts.
-     * 
+     *
      * After operation is performed all the beans are saved.
      */
-    public static void doForAllBeanIds(HibernateTemplate hibernate, Transformer beanTransformer,
-            Class klass, Collection ids) {
+    public static void doForAllBeanIds(HibernateTemplate hibernate, DaoEventPublisher eventPublisher,
+            Transformer beanTransformer, Class klass, Collection ids) {
         IdToBean idToBean = new IdToBean(hibernate, klass);
         Transformer transformer = ChainedTransformer.getInstance(idToBean, beanTransformer);
         Collection beans = CollectionUtils.collect(ids, transformer);
+        for (Object item : beans) {
+            eventPublisher.publishSave(item);
+        }
         hibernate.saveOrUpdateAll(beans);
     }
 
-    public static void addToGroup(HibernateTemplate hibernate, Integer groupId, Class klass,
-            Collection ids) {
+    public static void addToGroup(HibernateTemplate hibernate, DaoEventPublisher eventPublisher, Integer groupId,
+            Class klass, Collection ids) {
         Group group = (Group) hibernate.load(Group.class, groupId);
         Transformer addTag = new BeanWithGroups.AddTag(group);
-        doForAllBeanIds(hibernate, addTag, klass, ids);
+        doForAllBeanIds(hibernate, eventPublisher, addTag, klass, ids);
     }
 
-    public static void removeFromGroup(HibernateTemplate hibernate, Integer groupId, Class klass,
-            Collection ids) {
+    public static void removeFromGroup(HibernateTemplate hibernate, DaoEventPublisher eventPublisher,
+            Integer groupId, Class klass, Collection ids) {
         Group group = (Group) hibernate.load(Group.class, groupId);
         Transformer addTag = new BeanWithGroups.RemoveTag(group);
-        doForAllBeanIds(hibernate, addTag, klass, ids);
+        doForAllBeanIds(hibernate, eventPublisher, addTag, klass, ids);
     }
 }

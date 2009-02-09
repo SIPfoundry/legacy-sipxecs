@@ -32,6 +32,7 @@
     <property name="intercomManager" ref="intercomManager" />
     <property name="phonebookManager" ref="phonebookManager" />
     <property name="speedDialManager" ref="speedDialManager" />
+    <property name="daoEventPublisher" ref="daoEventPublisher"/>
   </bean>
 
   <bean id="phoneContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

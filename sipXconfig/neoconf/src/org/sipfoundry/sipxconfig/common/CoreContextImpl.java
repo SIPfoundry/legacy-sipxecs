@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.common;
@@ -36,7 +36,7 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 
 public abstract class CoreContextImpl extends SipxHibernateDaoSupport implements CoreContext,
         DaoEventListener {
-    
+
     public static final String CONTEXT_BEAN_NAME = "coreContextImpl";
     private static final int SIP_PASSWORD_LEN = 8;
     private static final String USERNAME_PROP_NAME = "userName";
@@ -121,7 +121,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport implements
 
     /**
      * Check that the system has been restricted to a certain number of users
-     * 
+     *
      * @param maxUserCount -1 or represent infinite number
      */
     void checkMaxUsers(User user, int maxUserCount) {
@@ -225,7 +225,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport implements
      * aliases are stored as a Set.) If there is a collision, then return the bad name (username
      * or alias). Otherwise return null. If there are multiple collisions, then it's arbitrary
      * which name is returned.
-     * 
+     *
      * @param user user to test
      * @return name that collides
      */
@@ -360,7 +360,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport implements
 
     /**
      * Create a superadmin user with the specified pin.
-     * 
+     *
      * Map an empty pin to an empty pintoken as a special hack allowing the empty pin to be used
      * when an insecure, easy to remember pin is needed. Previously we used 'password' rather than
      * the empty string, relying on another hack that allowed the password and pintoken to be the
@@ -384,10 +384,10 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport implements
         if (admin == null) {
             admin = new User();
             admin.setUserName(User.SUPERADMIN);
-            
+
             // currently superadmin cannot invite to a conference without a valid sip password
             admin.setSipPassword(RandomStringUtils.randomAlphanumeric(SIP_PASSWORD_LEN));
-            
+
             if (StringUtils.isEmpty(pin)) {
                 admin.setPintoken("");
             } else {
@@ -492,12 +492,12 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport implements
         return bids;
     }
 
-    public void addToGroup(Integer groupId, Collection ids) {
-        DaoUtils.addToGroup(getHibernateTemplate(), groupId, User.class, ids);
+    public void addToGroup(Integer groupId, Collection<Integer> ids) {
+        DaoUtils.addToGroup(getHibernateTemplate(), m_daoEventPublisher, groupId, User.class, ids);
     }
 
-    public void removeFromGroup(Integer groupId, Collection ids) {
-        DaoUtils.removeFromGroup(getHibernateTemplate(), groupId, User.class, ids);
+    public void removeFromGroup(Integer groupId, Collection<Integer> ids) {
+        DaoUtils.removeFromGroup(getHibernateTemplate(), m_daoEventPublisher, groupId, User.class, ids);
     }
 
     public List<User> getGroupSupervisors(Group group) {
@@ -519,7 +519,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport implements
     /**
      * Given a collection of extensions, looks for invalid user or user without a specified
      * permission. Throw a exception if an invalid extension found.
-     * 
+     *
      * @param list of user aliases
      * @param permission permission to check
      * @throws ExtensionException if at least one of the aliases does not represent a valid user
