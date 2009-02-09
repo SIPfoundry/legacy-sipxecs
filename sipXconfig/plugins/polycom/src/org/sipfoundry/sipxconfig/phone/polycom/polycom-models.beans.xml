@@ -76,7 +76,7 @@
   </bean>
   <bean id="polycom650" parent="polycomModel">
     <property name="label" value="Polycom SoundPoint IP 650/670" />
-    <property name="maxLineCount" value="12" />
+    <property name="maxLineCount" value="34" />
 	<property name="supportedFeatures">
 	  <set>
 		<value>disableCallList</value>

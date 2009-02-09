@@ -10,12 +10,18 @@
 package org.sipfoundry.sipxconfig.phone.polycom;
 
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.HashSet;
 import java.util.Set;
 
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
+import org.custommonkey.xmlunit.Diff;
+import org.custommonkey.xmlunit.XMLTestCase;
+import org.custommonkey.xmlunit.XMLUnit;
+import org.junit.Assert;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
@@ -23,7 +29,7 @@ import org.sipfoundry.sipxconfig.device.ProfileGenerator;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 
-public class SipConfigurationTest extends TestCase {
+public class SipConfigurationTest extends XMLTestCase {
 
     private PolycomPhone phone;
 
@@ -62,7 +68,10 @@ public class SipConfigurationTest extends TestCase {
 
         InputStream expected = getClass().getResourceAsStream("expected-sip.cfg.xml");
 
-        assertEquals(IOUtils.toString(expected), m_location.toString());
+        Reader expectedXml = new InputStreamReader(expected);
+
+        Diff phoneDiff = new Diff(expectedXml, m_location.getReader());
+        assertXMLEqual(phoneDiff, true);
         expected.close();
     }
 

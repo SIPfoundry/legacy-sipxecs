@@ -7,8 +7,8 @@
 ###################################################
 
 # Usage: polycom_ini_diff.rb SubtractFile [DiffFile]
-# Using the "DiffFile" output from the polycom_ini_diff.rb tool, this script isolates the
-# "D=>" differences, and filters out the parameters identified in the SubtractFile.  The
+# Using the "DiffFile" output from the polycom_ini_diff.rb tool, this script isolates all
+# deltas (D, 1, & 2), and filters out the parameters identified in the SubtractFile.  The
 # SubtractFile is expected to contain individual lines that begine with each parameter ID
 # to be filtered out.  Any text "," and after is discarded, so this file can be a CSV where 
 # column 1 contains the parameter ID.  If DiffFile in not specified as a command-line 
@@ -29,22 +29,28 @@ else
    diff_input = STDIN
 end
 
-# Collect the "D=>" differences from DiffFile.  
+# Collect (from DiffFile) all the deltas.  (D, 1, and 2.)
 different_lines=[]
 diff_input.readlines.each do |line|
-   index = line.index("D#{ITEM_DELIM}")
-   if 0 == index
+   line=line.lstrip
+   index = line.index("#")
+   if nil != line && 0 != index
       different_lines.push(line)
    end
 end 
 before_count = different_lines.length
 
-# Collect the parameters to remove from SubtractFile.
+# Collect (from SubtractFile) the parameters to remove.
 subtract_parameters=[]
 subtract_input.readlines.each do |line|
+   line=line.lstrip
    index = line.index("#")
-   if nil == index || 0 != index
-      parameter = line.split(",")[0].chomp
+   if nil != line && 0 != index
+      if nil == line.index(",")
+         parameter=line.strip 
+      else
+         parameter = line.split(",")[0].chomp
+      end
       if nil != parameter && 0 != parameter.length
          subtract_parameters.push(parameter)
       end
@@ -55,7 +61,8 @@ end
 subtract_count = 0
 subtract_parameters.each do |subtract_line|
    (0..different_lines.length-1).each do |i|
-      if nil != different_lines[i] && different_lines[i].split(" ")[1] == subtract_line
+      dl = different_lines[i] 
+      if nil != dl && /#{subtract_line}/.match(dl.split(" ")[1]) 
          different_lines[i] = nil
          subtract_count = subtract_count + 1
       end

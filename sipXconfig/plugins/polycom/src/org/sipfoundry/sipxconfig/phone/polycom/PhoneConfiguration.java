@@ -23,6 +23,8 @@ import org.sipfoundry.sipxconfig.phone.Line;
  */
 public class PhoneConfiguration extends ProfileContext {
     private static final String PHONE_TEMPLATE = PolycomPhone.TEMPLATE_DIR + "/phone.cfg.vm";
+
+    // The number of blank lines in polycom_phone1.cfg.
     private static final int TEMPLATE_DEFAULT_LINE_COUNT = 6;
 
     public PhoneConfiguration(Device device) {
@@ -38,16 +40,18 @@ public class PhoneConfiguration extends ProfileContext {
 
     public Collection getLines() {
         PolycomPhone phone = (PolycomPhone) getDevice();
-        int lineCount = Math.min(phone.getModel().getMaxLineCount(), TEMPLATE_DEFAULT_LINE_COUNT);
+        List<Line> lines = phone.getLines();
+
+        int lineCount = Math.max(lines.size(), TEMPLATE_DEFAULT_LINE_COUNT);
         ArrayList linesSettings = new ArrayList(lineCount);
 
-        List<Line> lines = phone.getLines();
         for (Line line : lines) {
             linesSettings.add(line.getSettings());
         }
 
-        // copy in blank lines of all unused lines because we do not use manufacturer template
-        // files
+        // If the device has less than TEMPLATE_DEFAULT_LINE_COUNT lines, then 
+        // add enough blanks lines (with appropriate sipXecs settings) to 
+        // override the blank lines in polycom_phone1.cfg.
         for (int i = lines.size(); i < lineCount; i++) {
             Line line = phone.createLine();
             line.setPhone(phone);

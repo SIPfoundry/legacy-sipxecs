@@ -10,8 +10,11 @@
 package org.sipfoundry.sipxconfig.phone.polycom;
 
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 
 import org.apache.commons.io.IOUtils;
+import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.sipfoundry.sipxconfig.TestHelper;
@@ -58,7 +61,11 @@ public class PhoneConfigurationTest extends XMLTestCase {
         m_pg.generate(m_location, cfg, null, "profile");
 
         InputStream expectedPhoneStream = getClass().getResourceAsStream("expected-phone.cfg.xml");
-        assertEquals(IOUtils.toString(expectedPhoneStream), m_location.toString());
+
+        Reader expectedXml = new InputStreamReader(expectedPhoneStream);
+
+        Diff phoneDiff = new Diff(expectedXml, m_location.getReader());
+        assertXMLEqual(phoneDiff, true);
         expectedPhoneStream.close();
     }
 }

@@ -16,10 +16,6 @@ import org.sipfoundry.sipxconfig.service.UnmanagedService;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
-// XCF-668 Removed setting outbound proxy defaults
-// So by default, polycom phones will attempt to send sip traffic to server
-// it's registered with. Setting an outbound proxy to domain would be redundant
-// therefore unnec. and could potentially cause issues.
 public class PolycomPhoneDefaults {
     private final DeviceDefaults m_defaults;
     private final SpeedDial m_speedDial;
@@ -34,13 +30,8 @@ public class PolycomPhoneDefaults {
     }
 
     @SettingEntry(path = "tcpIpApp.sntp/gmtOffset")
-    public long getGmtOffset() {
+    public long getTimeZoneGmtOffset() {
         return getZone().getOffsetInSeconds();
-    }
-
-    @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.enable")
-    public boolean isDstEnabled() {
-        return getZone().getDstSavings() != 0;
     }
 
     @SettingEntry(path = "tcpIpApp.sntp/address")
@@ -48,65 +39,79 @@ public class PolycomPhoneDefaults {
         return m_defaults.getNtpServer();
     }
 
-    @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.start.dayOfWeek.lastInMonth")
-    public boolean isStartLastInMonth() {
-        if (!isDstEnabled()) {
-            return false;
-        }
-        if (getZone().getStartWeek() == DeviceTimeZone.DST_LASTWEEK) {
-            return true;
-        }
 
-        return false;
-    }
+    // The attributes that control Daylight Savings Time (DST) are explained here:
+    //    http://sipx-wiki.calivia.com/index.php/
+    //       Polycom_SoundPointIP_Configuration_File_Notes#sip_-_tcpIpApp.sntp.daylightSavings 
 
-    @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.stop.dayOfWeek.lastInMonth")
-    public boolean isStopDayOfWeekLastInMonth() {
-        if (!isDstEnabled()) {
-            return false;
-        }
-        if (getZone().getStopWeek() == DeviceTimeZone.DST_LASTWEEK) {
-            return true;
-        }
-
-        return false;
-    }
-
-    @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.start.dayOfWeek")
-    public int getStartDayOfWeek() {
-        return isDstEnabled() ? dayOfWeek(getZone().getStartDayOfWeek()) : 0;
-    }
-
-    static int dayOfWeek(int dayOfWeek) {
-        // Polycom uses the same mapping as Java.  (1=Sun, 2=Mon,..., 7=Sat)
-        return dayOfWeek;
-    }
-
-    @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.start.month")
-    public int getStartMonth() {
-        return isDstEnabled() ? getZone().getStartMonth() : 0;
+    @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.enable")
+    public boolean isDstEnabled() {
+        return getZone().getUseDaylight();
     }
 
     @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.start.time")
-    public int getStartTime() {
-        return isDstEnabled() ? getZone().getStartMonth() / 3600 : 0;
-    }
-
-    @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.stop.dayOfWeek")
-    public int getStopDayOfWeek() {
-        return isDstEnabled() ? dayOfWeek(getZone().getStopDayOfWeek()) : 0;
-    }
-
-    @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.stop.month")
-    public int getStopMonth() {
-        return isDstEnabled() ? getZone().getStopMonth() : 0;
+    public int getDstStartTime() {
+        return getZone().getStartTime() / DeviceTimeZone.MINUTES_PER_HOUR; 
     }
 
     @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.stop.time")
-    public int getStopTime() {
-        return isDstEnabled() ? getZone().getStopTime() / 3600 : 0;
+    public int getDstStopTime() {
+        return getZone().getStopTime() / DeviceTimeZone.MINUTES_PER_HOUR;
     }
 
+    public int getNthOccurencePolycomFromWeekIndex(int weekIndex) {
+        // Assume fixedDayEnable=0, since DeviceTimeZone can't express anything else.
+        return (Math.max(0, weekIndex - 1) * 7) + 1; // Results in: 1, 8, 15, or 22
+    }
+
+    @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.start.date")
+    public int getDstStartDate() {
+        return getNthOccurencePolycomFromWeekIndex(getZone().getStartWeek());
+    }
+
+    @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.stop.date")
+    public int getDstStopDate() {
+        return getNthOccurencePolycomFromWeekIndex(getZone().getStopWeek());
+    }
+
+    @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.start.dayOfWeek.lastInMonth")
+    public boolean isDstStartDayOfWeekLastInMonth() {
+        return getZone().getStartWeek() == DeviceTimeZone.DST_LASTWEEK;
+    }
+
+    @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.stop.dayOfWeek.lastInMonth")
+    public boolean isDstStopDayOfWeekLastInMonth() {
+        return getZone().getStopWeek() == DeviceTimeZone.DST_LASTWEEK;
+    }
+
+    @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.start.dayOfWeek")
+    public int getDstStartDayOfWeek() {
+        // Polycom Day of Week mapping is the same as Java.
+        return getZone().getStartDayOfWeek();
+    }
+
+    @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.stop.dayOfWeek")
+    public int getDstStopDayOfWeek() {
+        // Polycom Day of Week mapping is the same as Java.
+        return getZone().getStopDayOfWeek();
+    }
+
+    public int getMonthIndexPolycomFromJava(int indexJava) {
+        // Polycom Month mapping starts at 1, but Java starts at 0.
+        return indexJava + 1;
+    }
+
+    @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.start.month")
+    public int getDstStartMonth() {
+        return getMonthIndexPolycomFromJava(getZone().getStartMonth());
+    }
+
+    @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.stop.month")
+    public int getDstStopMonth() {
+        return getMonthIndexPolycomFromJava(getZone().getStopMonth());
+    }
+
+    
     @SettingEntry(paths = { "voIpProt.SIP/protocol/musicOnHold.uri", "voIpProt/reg/musicOnHold.uri" })
     public String getMohUrl() {
         String mohUri = m_defaults.getMusicOnHoldUri(m_defaults.getDomainName());

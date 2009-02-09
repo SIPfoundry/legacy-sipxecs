@@ -19,7 +19,7 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingUtil;
 
 /**
- * Responsible for generating ipmid.cfg
+ * Responsible for generating [MAC]-cfg.
  */
 public class SipConfiguration extends ProfileContext {
     private static final String SIP_TEMPLATE = PolycomPhone.TEMPLATE_DIR + "/sip.cfg.vm";

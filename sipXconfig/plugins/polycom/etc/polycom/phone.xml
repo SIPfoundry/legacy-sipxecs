@@ -440,17 +440,11 @@
           </type>
           <value>100</value>
         </setting>
-        <setting name="frequency" advanced="yes">
+        <setting name="48ksps.payloadType" advanced="yes">
           <type>
             <integer required="yes" />
           </type>
-          <value>16000</value>
-        </setting>
-        <setting name="payloadType" advanced="yes">
-          <type>
-            <integer required="yes" />
-          </type>
-          <value>117</value>
+          <value>119</value>
         </setting>
       </group>
     </group>
@@ -673,7 +667,7 @@
       <type>
         <integer min="-43200" max="43200" />
       </type>
-      <value>-18000</value>
+      <value />
     </setting>
     <setting name="gmtOffset.overrideDHCP">
       <type>
@@ -685,65 +679,65 @@
       <type>
         <boolean />
       </type>
-      <value>1</value>
+      <value />
     </setting>
-    <setting name="daylightSavings.fixedDayEnable">
+    <setting name="daylightSavings.fixedDayEnable" advanced="yes">
       <type>
         <boolean />
       </type>
       <value>0</value>
     </setting>
-    <setting name="daylightSavings.start.month">
+    <setting name="daylightSavings.start.month" advanced="yes">
       <type refid="monthOfYear" />
-      <value>4</value>
+      <value />
     </setting>
-    <setting name="daylightSavings.start.date">
+    <setting name="daylightSavings.start.date" advanced="yes">
       <type>
         <integer min="0" max="31" />
       </type>
-      <value>0</value>
+      <value />
     </setting>
-    <setting name="daylightSavings.start.time">
+    <setting name="daylightSavings.start.time" advanced="yes">
       <type>
         <integer min="0" max="23" />
       </type>
-      <value>2</value>
+      <value />
     </setting>
-    <setting name="daylightSavings.start.dayOfWeek">
+    <setting name="daylightSavings.start.dayOfWeek" advanced="yes">
       <type refid="dayOfWeek" />
-      <value>1</value>
+      <value />
     </setting>
-    <setting name="daylightSavings.start.dayOfWeek.lastInMonth">
+    <setting name="daylightSavings.start.dayOfWeek.lastInMonth" advanced="yes">
       <type>
         <boolean />
       </type>
-      <value>0</value>
+      <value />
     </setting>
-    <setting name="daylightSavings.stop.month">
+    <setting name="daylightSavings.stop.month" advanced="yes">
       <type refid="monthOfYear" />
-      <value>10</value>
+      <value />
     </setting>
-    <setting name="daylightSavings.stop.date">
+    <setting name="daylightSavings.stop.date" advanced="yes">
       <type>
         <integer min="0" max="31" />
       </type>
-      <value>0</value>
+      <value />
     </setting>
-    <setting name="daylightSavings.stop.time">
+    <setting name="daylightSavings.stop.time" advanced="yes">
       <type>
         <integer min="0" max="23" />
       </type>
-      <value>2</value>
+      <value />
     </setting>
-    <setting name="daylightSavings.stop.dayOfWeek">
+    <setting name="daylightSavings.stop.dayOfWeek" advanced="yes">
       <type refid="dayOfWeek" />
-      <value>1</value>
+      <value />
     </setting>
-    <setting name="daylightSavings.stop.dayOfWeek.lastInMonth">
+    <setting name="daylightSavings.stop.dayOfWeek.lastInMonth" advanced="yes">
       <type>
         <boolean />
       </type>
-      <value>1</value>
+      <value />
     </setting>
   </group>
   <group name="tcpIpApp.port.rtp">
@@ -876,7 +870,7 @@
       </type>
       <value>24</value>
     </setting>
-    <setting name="dialtoneTimeout">
+    <setting name="dialtoneTimeOut">
       <type>
         <integer min="0" max="65536" />
       </type>
@@ -905,10 +899,6 @@
       <profileName>localConferenceCallHold</profileName>
       <type><boolean /></type>
       <value>0</value>
-    </setting>
-    <setting name="disableAutoResumeCentralConference">
-        <type><boolean /></type>
-        <value>0</value>
     </setting>
     <setting name="directedCallPickupString">
       <type>
@@ -1616,8 +1606,6 @@
      </setting>
    </group>
   <group name="voIpProt">
-    <!-- server.1 and server.3 not defined, these are adaquately
-      handled at line level -->
     <group name="SIP.outboundProxy">
       <setting name="address">
         <type>
@@ -1633,7 +1621,7 @@
       </setting>
       <setting name="transport">
         <type refid="transport" />
-        <value>DNSnaptr</value>
+        <value>UDPonly</value>
       </setting>
     </group>
   </group>
