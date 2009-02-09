@@ -42,7 +42,7 @@ OsSysLogPriority OsSysLog::sLoggingPriority = PRI_ERR ;
 UtlBoolean OsSysLog::bPrioritiesInitialized = FALSE ;
 
 // A static array of priority names uses for displaying log entries
-const char* OsSysLog::sPriorityNames[] =
+const char* OsSysLog::sPriorityNames[SYSLOG_NUM_PRIORITIES] =
 {
    "DEBUG",
    "INFO",
@@ -53,6 +53,32 @@ const char* OsSysLog::sPriorityNames[] =
    "ALERT",
    "EMERG",
 };
+
+const char* OsSysLog::priorityName(OsSysLogPriority priority)
+{
+   static const char* InvalidName = "InvalidSyslogPriority";
+   
+   return (  ( priority >= PRI_DEBUG && priority < SYSLOG_NUM_PRIORITIES )
+           ? sPriorityNames[priority]
+           : InvalidName
+           );
+}
+
+bool OsSysLog::priority(const char* priorityName, OsSysLogPriority& priority)
+{
+   bool found;
+   int entry;
+   for ( found = false, entry = PRI_DEBUG; !found && entry < SYSLOG_NUM_PRIORITIES; entry++)
+   {
+      if (strcasecmp(sPriorityNames[entry], priorityName) == 0)
+      {
+         priority = static_cast<OsSysLogPriority>(entry);
+         found=true;
+      }
+   }
+   return found;
+}
+
 
 // LOCAL FUNCTIONS
 static void mysprintf(UtlString& results, const char* format, ...) ;
@@ -391,41 +417,18 @@ OsSysLog::initSysLog(const OsSysLogFacility facility,
   initialize(0, processID) ;  
   setOutputFile(0, logname) ;  
 
-   UtlString logLevel(loglevel); 
-                                    
-   struct tagPrioriotyLookupTable
+   OsSysLogPriority newPriority;
+   if ( ! priority(loglevel, newPriority) )
    {
-      const char*      pIdentity;
-      OsSysLogPriority ePriority;
-   };
-
-   struct tagPrioriotyLookupTable lkupTable[] =
-   {
-      { "DEBUG",   PRI_DEBUG},
-      { "INFO",    PRI_INFO},
-      { "NOTICE",  PRI_NOTICE},
-      { "WARNING", PRI_WARNING},
-      { "ERR",     PRI_ERR},
-      { "CRIT",    PRI_CRIT},
-      { "ALERT",   PRI_ALERT},
-      { "EMERG",   PRI_EMERG},
-   };
-
-   logLevel.toUpper();
-   OsSysLogPriority priority = PRI_ERR;
-   int iEntries = sizeof(lkupTable)/sizeof(struct tagPrioriotyLookupTable);
-   for (int i=0; i<iEntries; i++)
-   {
-      if (logLevel == lkupTable[i].pIdentity)
-      {
-         priority = lkupTable[i].ePriority;
-         osPrintf("Setting %s syslog level : %s\n", sFacilityNames[facility], lkupTable[i].pIdentity) ;
-         setLoggingPriority(priority);
-         add(facility, PRI_NOTICE, "Setting %s syslog level : %s", sFacilityNames[facility], lkupTable[i].pIdentity) ;
-         break;
-      }
+      osPrintf("Invalid %s syslog level : %s\n using \"%s\"",
+               sFacilityNames[facility], loglevel, priorityName(PRI_NOTICE)) ;
+      newPriority = PRI_NOTICE;
    }
+   setLoggingPriority(newPriority);
 
+   osPrintf("Set %s syslog level : %s\n", sFacilityNames[facility], priorityName(newPriority)) ;
+   add(facility, PRI_NOTICE, "Set %s syslog level : %s",
+       sFacilityNames[facility], priorityName(newPriority)) ;
 }
 
 /* ============================ ACCESSORS ================================= */

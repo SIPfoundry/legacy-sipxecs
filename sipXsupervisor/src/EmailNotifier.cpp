@@ -87,7 +87,7 @@ OsStatus EmailNotifier::handleAlarm(const OsTime alarmTime,
    body.append(tempStr);
    body.append("\n");
    
-   UtlString sevStr = OsSysLog::sPriorityNames[alarmData->getSeverity()];
+   UtlString sevStr = OsSysLog::priorityName(alarmData->getSeverity());
    assembleMsg(mEmailStrSeverity, sevStr, tempStr);
    body.append(tempStr);
    body.append("\n");

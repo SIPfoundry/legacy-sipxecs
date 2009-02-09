@@ -78,7 +78,7 @@ OsStatus LogNotifier::handleAlarm(
              strTime.data(),
              ++mEventCount,
              OsSysLog::sFacilityNames[FAC_ALARM], 
-             OsSysLog::sPriorityNames[alarmData->getSeverity()],
+             OsSysLog::priorityName(alarmData->getSeverity()),
              callingHost.data(),
              alarmData->getComponent().data(),
              alarmData->getCode().data(),

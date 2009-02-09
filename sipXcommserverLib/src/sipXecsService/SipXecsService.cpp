@@ -16,6 +16,8 @@
 // CONSTANTS
 const char* DomainConfigurationName = "domain-config";
 
+const char* LogLevelSuffix = "_LOG_LEVEL";
+
 const char* SipXecsService::DefaultConfigurationDir = SIPX_CONFDIR;
 const char* SipXecsService::DefaultLocalStateDir    = SIPX_VARDIR;
 const char* SipXecsService::DefaultLogDir           = SIPX_LOGDIR;
@@ -66,7 +68,7 @@ SipXecsService::SipXecsService(const char* serviceName)
    OsPath logFilePath = Path(LogDirType, logFileName);
    OsSysLog::setOutputFile(0, logFilePath.data()) ;
    OsSysLog::enableConsoleOutput(false);
-   OsSysLog::add(FAC_SIP, PRI_NOTICE, "%s >>>>>>>>>>>>>>>> STARTED",
+   OsSysLog::add(FAC_KERNEL, PRI_NOTICE, "%s >>>>>>>>>>>>>>>> STARTED",
                  mServiceName.data()
                  );
 
@@ -203,67 +205,76 @@ const char* SipXecsService::Group()
 }
 
 
-void SipXecsService::setLogPriority( const char* configSettingsFile, const char* servicePrefix )
+void SipXecsService::setLogPriority(const char* configSettingsFile, // path to configuration file
+                                    const char* servicePrefix, /* the string "_LOG_LEVEL" is
+                                                                * appended to this prefix to find
+                                                                * the config directive that sets
+                                                                * the level */
+                                    OsSysLogPriority defaultLevel /* used if no directive
+                                                                   * is found, or the value
+                                                                   * found is not a valid
+                                                                   * level name */
+                                    )
 {
-   struct tagPriorityLookupTable
-   {
-      const char*      pIdentity;
-      OsSysLogPriority ePriority;
-   };
-
-   struct tagPriorityLookupTable lkupTable[] =
-   {
-      { "DEBUG",   PRI_DEBUG},
-      { "INFO",    PRI_INFO},
-      { "NOTICE",  PRI_NOTICE},
-      { "WARNING", PRI_WARNING},
-      { "ERR",     PRI_ERR},
-      { "CRIT",    PRI_CRIT},
-      { "ALERT",   PRI_ALERT},
-      { "EMERG",   PRI_EMERG},
-   };
-
    OsConfigDb configuration;
-   UtlString logLevel;
-   UtlString logLevelTag(servicePrefix);
-   logLevelTag.append("_LOG_LEVEL");
-
+   
    OsPath configPath = SipXecsService::Path(SipXecsService::ConfigurationDirType,
-                                                      configSettingsFile);
+                                            configSettingsFile);
+
    if (OS_SUCCESS == configuration.loadFromFile(configPath.data()))
    {
-      configuration.get(logLevelTag, logLevel);
+      setLogPriority(configuration, servicePrefix, defaultLevel);
    }
    else
    {
-      OsSysLog::add(FAC_SUPERVISOR,PRI_WARNING,
-                    "Failed to open config settings file at '%s'",
-                    configPath.data()
+      OsSysLog::add(FAC_KERNEL, PRI_WARNING,
+                    "SipXecsService::setLogPriority: Failed to open config file at '%s'\n"
+                    "  setting %s%s to %s",
+                    configPath.data(),
+                    servicePrefix, LogLevelSuffix, OsSysLog::priorityName(defaultLevel)
                     );
+
+      OsSysLog::setLoggingPriority(defaultLevel);
    }
-   
+}
+
+void SipXecsService::setLogPriority(const OsConfigDb& configSettings, // configuration data
+                                    const char* servicePrefix, /* the string "_LOG_LEVEL" is 
+                                                                * appended to this prefix to
+                                                                * find the config directive that
+                                                                * sets the level */
+                                    OsSysLogPriority defaultLevel // default default is "NOTICE"
+                                    )
+{
+   UtlString logLevel;
+   UtlString logLevelTag(servicePrefix);
+   logLevelTag.append(LogLevelSuffix);
+
+   configSettings.get(logLevelTag, logLevel);
+
+   OsSysLogPriority priority;
    if ( logLevel.isNull() )
    {
-      logLevel = "NOTICE";
+      OsSysLog::add(FAC_KERNEL,PRI_WARNING,
+                    "SipXecsService::setLogPriority: %s not found, using '%s'",
+                    logLevelTag.data(), OsSysLog::priorityName(defaultLevel)
+                    );
+
+      priority = defaultLevel;
    }
-   logLevel.toUpper();
-   OsSysLogPriority priority = PRI_NOTICE;
-   int iEntries = sizeof(lkupTable)/sizeof(struct tagPriorityLookupTable);
-   for (int i=0; i<iEntries; i++)
+   else if ( ! OsSysLog::priority(logLevel.data(), priority))
    {
-      if (logLevel == lkupTable[i].pIdentity)
-      {
-         priority = lkupTable[i].ePriority;
-         OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "%s : %s",
-                       logLevelTag.data(), lkupTable[i].pIdentity) ;
-         break;
-      }
+      OsSysLog::add(FAC_KERNEL,PRI_ERR,
+                    "SipXecsService::setLogPriority: %s value '%s' is invalid, using '%s'",
+                    logLevelTag.data(), logLevel.data(), OsSysLog::priorityName(defaultLevel)
+                    );
+
+      priority = defaultLevel;
+
    }
 
    OsSysLog::setLoggingPriority(priority);
-
 }
-
 
 /// destructor
 SipXecsService::~SipXecsService()

@@ -22,8 +22,6 @@
 #include "os/OsTime.h"
 
 // DEFINES
-#define SYSLOG_NUM_PRIORITIES    8  // Number of OsSysLogPriority entries
-
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -32,65 +30,54 @@
 // ENUMS
 
 // TYPEDEFS
+
+/// The priority of log messages ordered from least to most severe
 typedef enum tagOsSysLogPriority
 {
-   PRI_DEBUG,     // debug-level message
-   PRI_INFO,      // informational message
-   PRI_NOTICE,    // normal, but significant, condition
-   PRI_WARNING,   // warning conditions
-   PRI_ERR,       // error conditions
-   PRI_CRIT,      // critical conditions
-   PRI_ALERT,     // action must be taken immediately
-   PRI_EMERG      // system is unusable
+   PRI_DEBUG,     /**< Developer message needed only when debugging code.
+                   *   May include recording of such things as entry and exit from methods
+                   *   or internal branch tracking.
+                   *   Should never be required by end users.
+                   */
+   PRI_INFO,      /**< Informational message used to trace system inputs and actions.
+                   *   Significant actions in the execution of some activity; for example, the
+                   *   receipt of a message or an important decision in its disposition.
+                   *   This level should be sufficient for an administrator or support person
+                   *   to determine what occured in the system when debugging a configuration
+                   *   or interoperability problem in the field.
+                   */
+   PRI_NOTICE,    /**< Normal but significant events.
+                   *   Events that are expected but provide important context, such as service
+                   *   restarts and reloading configuration files.
+                   *   This is the default logging level, and generally logging should
+                   *   always include at least these messages.
+                   */
+   PRI_WARNING,   /**< Conditions that imply that some failure is possible but not certain.
+                   *   Generally, external inputs that are not as expected and possibly
+                   *   invalid.  Especially useful in low level routines that are going to
+                   *   return an error that may be recoverable by the caller.
+                   */
+   PRI_ERR,       /**< An unexpected condition likely to cause an end-user visibile failure.
+                   *   This level should be used whenever an error response is being sent
+                   *   outside the system to provide a record of the internal data that
+                   *   are important to understanding it.  
+                   */
+   PRI_CRIT,      /**< Endangers service operation beyond the current operation.
+                   *   MUST be logged prior to any 'assert', or when exiting for any abnormal
+                   *   reason.
+                   */
+   PRI_ALERT,     /**< Fault to be communicated to operations.
+                   *   Should be replaced by usage of the new Alarm subsystem.
+                   */
+   PRI_EMERG,     /**< System is unusable.
+                   */
 
-   // NOTE: If adding/removing priorities, please adjust static name
-   // initializer in OsSysLog.cpp and the SYSLOG_NUM_PRIORITIES define above.
+   // NOTE: If adding/removing priorities, you MUST also adjust static name
+   // initializer in OsSysLog.cpp
 
-   // NOTE: The levels are listed in priority order, so they can be
-   // compared with "<", etc.
+   SYSLOG_NUM_PRIORITIES ///< MUST BE LAST 
 
 } OsSysLogPriority;
-  //:The priority of log messages ordered from lowest priority to
-  //:highest.
-  //
-  //!enumcode: LOG_DEBUG - Debug-level message.  Debug level messages should
-  //           be understandable by third party reviewers, however, are
-  //           not informative/significant enought to be be an INFO.  These
-  //           messages tend to be high volume and disruptive to those who did
-  //           not author the message.
-  //           Example: Session reinvite received from party XXXX
-  //!enumcode: LOG_INFO - Informational message.  Informational messages
-  //           clearly inform the reviewer of routine and non-special event
-  //           within the system.  Generally, these events tend to only affect
-  //           the closed system and not external systems/parties.  The volume
-  //           of INFO messages is also smaller than DEBUG messages.
-  //           Example: Using codec XXXX for call YYYY
-  //!enumcode: LOG_NOTICE - Normal, but significant, condition.  Notices are
-  //           expected events, however, are significant enough to warrant
-  //           a closer review from administrator.  These events may also
-  //           involve an external system.
-  //           Example: Replicating data to server XXXX
-  //           Example: New User 'XXXX' added to database YYYY
-  //!enumcode: LOG_WARNING - Warning conditions.  Warnings tend to be minor
-  //           expected errors that are easily recoverable.  A warning does
-  //           not result in any loss of functionality or data.
-  //           Example: Received older form of XXXX
-  //!enumcode: LOG_ERR - Error conditions.  Error should be used whenever an
-  //           expected error is observed and some minor amount of
-  //           functionality is lost.
-  //           Example: Unknown/Invalid command received.
-  //!enumcode: LOG_CRIT - Critical conditions.  Critial errors are errors
-  //           where some major amount of functionality/data is lost, however,
-  //           the system as a whole will continue to function.
-  //           Example: Unable to commit record XXX to disk, index is invalid.
-  //!enumcode: LOG_ALERT - Action must be taken immediately.  ALERTs are
-  //           errors or events which require immediate action before the
-  //           situation grows worse.  There is most likely functionality
-  //           and/or data loss, however, the entire system may also fail.
-  //           Example: Unable to create a new file; file system full.
-  //!enumcode: LOG_EMERG - System is unusable.  The worst possible error
-  //           where the system will ultimately fail.
-  //           Example: Memory corrupted; closing down.
 
 // Signature for a callback function that takes three parameters: priority,
 // source Id of the generating module, and the message itself.
@@ -178,8 +165,12 @@ class OsSysLog
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-   static const char* sPriorityNames[] ;
-     //:List of Priority Names orders in the same order as OsSysLogPriority.
+   /// translate an OsSysLogPriority enum to a string constant
+   static const char* priorityName(OsSysLogPriority priority);
+   
+   /// translate a string constant to an OsSysLogPriority enum
+   static bool priority(const char* priorityName, OsSysLogPriority& priority);
+   ///< @returns true iff the priorityName is a valid value (case insensitive)
 
    static const char* sFacilityNames[] ;
      //:List of Facility Names orders in the same order as OsSysLogFacility.
@@ -434,6 +425,9 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+   static const char* sPriorityNames[] ;
+   //:List of Priority Names orders in the same order as OsSysLogPriority.
+
    static OsSysLogTask* spOsSysLogTask;
 
    static unsigned long sEventCount;

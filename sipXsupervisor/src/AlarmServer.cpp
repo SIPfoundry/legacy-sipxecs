@@ -93,28 +93,18 @@ void cAlarmServer::cleanup()
 
 OsSysLogPriority sevToSyslogPri(const char* sev)
 {
-   OsSysLogPriority logging_level= PRI_WARNING;
+   OsSysLogPriority logging_level;
 
-   if (sev)
+   if (! OsSysLog::priority(sev, logging_level))
    {
-      if (strcmp(sev,"debug") == 0)
-          logging_level = PRI_DEBUG;
-      else if (strcmp(sev,"info") == 0)
-          logging_level = PRI_INFO;
-      else if (strcmp(sev,"notice") == 0)
-          logging_level = PRI_NOTICE;
-      else if (strcmp(sev,"warning") == 0)
-          logging_level = PRI_WARNING;
-      else if (strcmp(sev,"error") == 0)
-          logging_level = PRI_ERR;
-      else if (strcmp(sev,"crit") == 0)
-          logging_level = PRI_CRIT;
-      else if (strcmp(sev,"alert") == 0)
-          logging_level = PRI_ALERT;
-      else if (strcmp(sev,"emerg") == 0)
-          logging_level = PRI_EMERG;
+      // allow full spelling of "error" - the only difference from OsSysLog
+      if ( strcasecmp("error", sev) == 0)
+      {
+         logging_level = PRI_ERR;
+      }
       else
       {
+         logging_level = PRI_WARNING;
          OsSysLog::add(FAC_ALARM, PRI_ERR,
                        "Incomprehensible logging level string '%s'!",
                        sev);
@@ -550,7 +540,7 @@ bool cAlarmServer::loadAlarms()
       OsSysLog::add(FAC_ALARM, PRI_DEBUG, 
             "alarm[%d]: %s %s: %s, Log:%d, Email:%d", 
             count, alarmKey->data(), alarm->getCode().data(),
-            OsSysLog::sPriorityNames[alarm->getSeverity()], 
+            OsSysLog::priorityName(alarm->getSeverity()),
             alarm->actions[cAlarmData::eActionLog], alarm->actions[cAlarmData::eActionEmail]);
       OsSysLog::add(FAC_ALARM, PRI_DEBUG, 
             "           Title:%s", alarm->getShortTitle().data());

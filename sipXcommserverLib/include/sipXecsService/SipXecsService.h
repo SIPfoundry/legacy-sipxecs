@@ -74,11 +74,34 @@ class SipXecsService
    /// Default process group name for a sipXecs service
    static const char* Group();
    
-   /// Read the log level from the specified config file, and set it for the current process
-   static void setLogPriority( const char* configSettingsFile, const char* servicePrefix );
+   /// Read the log level from the specified config file and set it for the current process
+   static void setLogPriority(const char* configSettingsFile, ///< path to configuration file
+                              const char* servicePrefix, /**< the string "_LOG_LEVEL" is appended
+                                                          *   to this prefix to find the config
+                                                          *   directive that sets the level */
+                              OsSysLogPriority defaultLevel = PRI_NOTICE /**< used if no directive
+                                                                          * is found, or the value
+                                                                          * found is not a valid
+                                                                          * level name */
+                              );
+
+   /// Read the log level from a preloaded OsConfigDb and set it for the current process
+   static void setLogPriority(const OsConfigDb& configSettings, ///< configuration data
+                              const char* servicePrefix, /**< the string "_LOG_LEVEL" is appended
+                                                          *   to this prefix to find the config
+                                                          *   directive that sets the level */
+                              OsSysLogPriority defaultLevel = PRI_NOTICE /**< used if no directive
+                                                                          * is found, or the value
+                                                                          * found is not a valid
+                                                                          * level name */
+                              );
 
   protected:
 
+   /// Translate a log level name string to the enum value
+   static bool decodeLogLevel(UtlString& logLevel, OsSysLogPriority& priority);
+   ///< @returns true iff a valid translation was found.
+   
    /// constructor
    SipXecsService(const char* serviceName);
 

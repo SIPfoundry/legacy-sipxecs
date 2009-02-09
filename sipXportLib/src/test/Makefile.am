@@ -63,6 +63,7 @@ testsuite_SOURCES = \
     os/OsMutexTest.cpp \
     os/OsSemTest.cpp \
     os/OsSocketTest.cpp \
+    os/OsSysLogTest.cpp \
     os/OsConfigDbTest.cpp \
     os/OsFileIteratorTest.cpp \
     os/OsFileSystemTest.cpp \
