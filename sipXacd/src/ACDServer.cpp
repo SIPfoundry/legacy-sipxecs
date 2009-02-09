@@ -376,37 +376,14 @@ void ACDServer::initSysLog(const char* pApplication, UtlString& rLogDirectory, U
 
 void ACDServer::setSysLogLevel(UtlString& rLogLevel)
 {
-   struct tagPrioriotyLookupTable {
-      const char*      pIdentity;
-      OsSysLogPriority ePriority;
-   };
-
-   struct tagPrioriotyLookupTable lkupTable[] = {
-      { "DEBUG",   PRI_DEBUG},
-      { "INFO",    PRI_INFO},
-      { "NOTICE",  PRI_NOTICE},
-      { "WARNING", PRI_WARNING},
-      { "ERR",     PRI_ERR},
-      { "CRIT",    PRI_CRIT},
-      { "ALERT",   PRI_ALERT},
-      { "EMERG",   PRI_EMERG}
-   };
-
-   //
-   // Get/Apply Log Level
-   //
-   rLogLevel.toUpper();
-   OsSysLogPriority priority = PRI_ERR;
-   int iEntries = sizeof(lkupTable) / sizeof(struct tagPrioriotyLookupTable);
-   for (int i = 0; i < iEntries; i++) {
-      if (rLogLevel == lkupTable[i].pIdentity) {
-         priority = lkupTable[i].ePriority;
-         osPrintf("<%s> : %s\n", LOG_LEVEL_TAG, lkupTable[i].pIdentity);
-         OsSysLog::add(LOG_FACILITY, PRI_INFO, "<%s> : %s", LOG_LEVEL_TAG, lkupTable[i].pIdentity);
-         break;
-      }
+   OsSysLogPriority newPriority;
+   if (! OsSysLog::priority(rLogLevel.data(), newPriority))
+   {
+      newPriority = PRI_NOTICE;
+      OsSysLog::add(FAC_ACD, PRI_ERR, "ACDServer::setSysLogLevel invalid log level %s",
+                    rLogLevel.data());
    }
-   OsSysLog::setLoggingPriority(priority);
+   OsSysLog::setLoggingPriority(newPriority);
    OsSysLog::setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
 }
 

@@ -27,7 +27,7 @@
 #define CONFIG_ETC_DIR          SIPX_CONFDIR
 #define CONFIG_SETTINGS_FILE  "status-config"
 // Configuration names pulled from config-file
-#define CONFIG_SETTING_LOG_LEVEL      "SIP_STATUS_LOG_LEVEL"
+#define CONFIG_SETTING_PREFIX         "SIP_STATUS"
 #define CONFIG_SETTING_LOG_CONSOLE    "SIP_STATUS_LOG_CONSOLE"
 #define CONFIG_SETTING_LOG_DIR        "SIP_STATUS_LOG_DIR"
 

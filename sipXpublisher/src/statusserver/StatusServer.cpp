@@ -272,30 +272,10 @@ StatusServer::startStatusServer (
                       "Found config file: %s", configFileName);
     } else
     {
-        sConfigDb.set("SIP_STATUS_AUTHENTICATE_ALGORITHM", "");
-        sConfigDb.set("SIP_STATUS_AUTHENTICATE_QOP", "");
-        sConfigDb.set("SIP_STATUS_AUTHENTICATE_REALM", "");
-        // sConfigDb.set("SIP_STATUS_AUTHENTICATE_SCHEME", "");
-        sConfigDb.set("SIP_STATUS_DOMAIN_NAME", "");
-        // sConfigDb.set("SIP_STATUS_HTTP_AUTH_DB.", "");
-        sConfigDb.set("SIP_STATUS_HTTP_PORT", "");
-        sConfigDb.set("SIP_STATUS_HTTP_VALID_IPS", "");
-        sConfigDb.set("SIP_STATUS_HTTPS_PORT", "");
-        sConfigDb.set("SIP_STATUS_MAX_EXPIRES", "");
-        sConfigDb.set("SIP_STATUS_MIN_EXPIRES", "");
-        sConfigDb.set("SIP_STATUS_TCP_PORT", "5110");
-        sConfigDb.set("SIP_STATUS_UDP_PORT", "5110");
-        sConfigDb.set("SIP_STATUS_TLS_PORT", "5111");
-        sConfigDb.set("SIP_STATUS_BIND_IP", "0.0.0.0");
-        sConfigDb.set(CONFIG_SETTING_LOG_CONSOLE, "");
-        sConfigDb.set(CONFIG_SETTING_LOG_DIR, "");
-        sConfigDb.set(CONFIG_SETTING_LOG_LEVEL, "");
-    
-        if ( sConfigDb.storeToFile(configFileName) != OS_SUCCESS )
-        {
-            OsSysLog::add(FAC_SIP, PRI_INFO,
-                          "Could not write config file: %s", configFileName);
-        }
+       OsSysLog::add(FAC_SIP, PRI_CRIT,
+                     "Could not read config file: %s", configFileName);
+       fprintf(stderr, "Could not read config file: %s", configFileName);
+       exit(1);
     }
 
     OsSysLog::add(LOG_FACILITY, PRI_INFO, "Starting - version: %s %s\n", SIPX_VERSION, SIPX_BUILD);

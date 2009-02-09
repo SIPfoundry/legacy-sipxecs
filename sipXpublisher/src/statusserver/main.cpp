@@ -27,6 +27,8 @@
 #include "os/OsTask.h"
 
 #include "net/NameValueTokenizer.h"
+#include "sipXecsService/SipXecsService.h"
+
 #include "sipdb/SIPDBManager.h"
 #include "statusserver/StatusServer.h"
 
@@ -119,23 +121,7 @@ void initSysLog(OsConfigDb* pConfig)
    UtlString fileTarget;             // Path to store log file.
    UtlBoolean bSpecifiedDirError ;   // Set if the specified log dir does not
                                     // exist
-   struct tagPrioriotyLookupTable
-   {
-      const char*      pIdentity;
-      OsSysLogPriority ePriority;
-   };
 
-   struct tagPrioriotyLookupTable lkupTable[] =
-   {
-      { "DEBUG",   PRI_DEBUG},
-      { "INFO",    PRI_INFO},
-      { "NOTICE",  PRI_NOTICE},
-      { "WARNING", PRI_WARNING},
-      { "ERR",     PRI_ERR},
-      { "CRIT",    PRI_CRIT},
-      { "ALERT",   PRI_ALERT},
-      { "EMERG",   PRI_EMERG},
-   };
    OsSysLog::initialize(0, "SipStatus");
 
    //
@@ -186,24 +172,7 @@ void initSysLog(OsConfigDb* pConfig)
    //
    // Get/Apply Log Level
    //
-   if ((pConfig->get(CONFIG_SETTING_LOG_LEVEL, logLevel) != OS_SUCCESS) ||
-         logLevel.isNull())
-   {
-      logLevel = "ERR";
-   }
-   logLevel.toUpper();
-   OsSysLogPriority priority = PRI_ERR;
-   int iEntries = sizeof(lkupTable)/sizeof(struct tagPrioriotyLookupTable);
-   for (int i=0; i<iEntries; i++)
-   {
-      if (logLevel == lkupTable[i].pIdentity)
-      {
-         priority = lkupTable[i].ePriority;
-         OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_LEVEL, lkupTable[i].pIdentity) ;
-         break;
-      }
-   }
-   OsSysLog::setLoggingPriority(priority);
+   SipXecsService::setLogPriority(*pConfig, CONFIG_SETTING_PREFIX);
    OsSysLog::setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
 
    //

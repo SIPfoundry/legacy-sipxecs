@@ -58,10 +58,10 @@
 #define CONFIG_LOG_FILE               "sipxpark.log"
 #define CONFIG_LOG_DIR                SIPX_LOGDIR
 
+#define CONFIG_SETTING_PREFIX         "SIP_PARK"
 #define CONFIG_SETTING_AUTH_ID        "SIP_PARK_AUTHENTICATE_ID"
 #define CONFIG_SETTING_AUTH_HA1       "SIP_PARK_AUTHENTICATE_HA1"
 #define CONFIG_SETTING_LOG_DIR        "SIP_PARK_LOG_DIR"
-#define CONFIG_SETTING_LOG_LEVEL      "SIP_PARK_LOG_LEVEL"
 #define CONFIG_SETTING_LOG_CONSOLE    "SIP_PARK_LOG_CONSOLE"
 #define CONFIG_SETTING_UDP_PORT       "SIP_PARK_UDP_PORT"
 #define CONFIG_SETTING_TCP_PORT       "SIP_PARK_TCP_PORT"
@@ -168,23 +168,6 @@ void initSysLog(OsConfigDb* pConfig)
    UtlString fileTarget;             // Path to store log file.
    UtlBoolean bSpecifiedDirError ;   // Set if the specified log dir does not
                                     // exist
-   struct tagPrioriotyLookupTable
-   {
-      const char*      pIdentity;
-      OsSysLogPriority ePriority;
-   };
-
-   struct tagPrioriotyLookupTable lkupTable[] =
-   {
-      { "DEBUG",   PRI_DEBUG},
-      { "INFO",    PRI_INFO},
-      { "NOTICE",  PRI_NOTICE},
-      { "WARNING", PRI_WARNING},
-      { "ERR",     PRI_ERR},
-      { "CRIT",    PRI_CRIT},
-      { "ALERT",   PRI_ALERT},
-      { "EMERG",   PRI_EMERG},
-   };
 
    OsSysLog::initialize(0, "sipxpark");
    OsSysLog::add(FAC_SIP, PRI_INFO, ">>>>>>>>>>>>>>>> Starting - version %s build %s",
@@ -242,26 +225,7 @@ void initSysLog(OsConfigDb* pConfig)
    //
    // Get/Apply Log Level
    //
-   if ((pConfig->get(CONFIG_SETTING_LOG_LEVEL, logLevel) != OS_SUCCESS) ||
-         logLevel.isNull())
-   {
-      logLevel = "ERR";
-   }
-   logLevel.toUpper();
-   OsSysLogPriority priority = PRI_ERR;
-   int iEntries = sizeof(lkupTable) / sizeof(struct tagPrioriotyLookupTable);
-   for (int i = 0; i < iEntries; i++)
-   {
-      if (logLevel == lkupTable[i].pIdentity)
-      {
-         priority = lkupTable[i].ePriority;
-         osPrintf("%s : %s\n", CONFIG_SETTING_LOG_LEVEL, lkupTable[i].pIdentity);
-         OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s",
-                       CONFIG_SETTING_LOG_LEVEL, lkupTable[i].pIdentity);
-         break;
-      }
-   }
-   OsSysLog::setLoggingPriority(priority);
+   SipXecsService::setLogPriority(*pConfig, CONFIG_SETTING_PREFIX, PRI_ERR);
    OsSysLog::setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
 
    //
