@@ -58,7 +58,6 @@ nobase_include_HEADERS =  \
     net/SipDialogMgr.h \
     net/SipDialogMonitor.h \
     net/SipDialogEvent.h \
-    net/SipConfigServerAgent.h \
     net/SipLineCredentials.h \
     net/SipLineEvent.h \
     net/SipLine.h \
