@@ -33,7 +33,7 @@ ETHNAME        = 'eth0'                            # Supported Ethernet interfac
 IFCFGFILE      = '%s/ifcfg-%s' % (IFCONFIGDIR, ETHNAME)
 
 global isFirstSystem
-isFirstSystem='True'
+isFirstSystem=True
 
 global IpAddress
 IpAddress=''
@@ -252,11 +252,11 @@ Is this the first @SIPXECS_NAME@ server for this domain ? \n\
     if choice == firstButton :
         #--- Configure and enable HA System
         log_printout ( '\n    First System selected\n' )
-        isFirstSystem = 'True'
+        isFirstSystem = True
 
     else :
         log_printout ( '\n    Nth System selected\n' )
-        isFirstSystem = 'False'
+        isFirstSystem = False
 
 def screen_hostname_error () :
     global HostName
@@ -280,13 +280,27 @@ class ConfigURLOpener(urllib.FancyURLopener):
     def prompt_user_passwd(self, host, realm):
         return self.__user, self.__passwd
 
+def screen_confirm_master_config ():
+    confirmationMessage="\
+To add an additional system, you must first Add this new server\n\
+in the Servers configuration page of your first (master) system.\n\
+\n\
+When you have added this system using that screen,\n\
+note the Setup Password value assigned to this system.\n\
+You will need that Setup Password before you can proceed on\n\
+the next screen\n\
+"
+    screen_msg(confirmationMessage, "System Added In Configuration")
+
 def screen_fetch_config ():
 
     masterSystemName=''
     gotConfig=False
     while not gotConfig :
         MasterSystemMessage ="\
-The Master system is running the configuration service.\n\
+Enter the full hostname of your Master system,\n\
+and the Setup Password assigned to this new system\n\
+to fetch the configuration for this system.\
 "
         sg = snack.Grid(2, 3)
 
@@ -699,7 +713,7 @@ def do_sipx_setup() :
         else :
             screen_hostname_error()
 
-    if isFirstSystem == 'True' :
+    if isFirstSystem:
         
         progress(15,"Get Network Parameters")
         if not get_netif():
@@ -724,6 +738,10 @@ def do_sipx_setup() :
         enable_sipXconfig()
 
     else :
+        # this is an additional system
+        progress(20, "Preparation Check")
+        screen_confirm_master_config()
+
         progress(30, "Retrieve @SIPXECS_NAME@ Configuration")
         screen_fetch_config()
         
