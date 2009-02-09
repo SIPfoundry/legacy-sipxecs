@@ -335,7 +335,7 @@ Identifying information for the server:
 
 EOF
 
-    askfor serverName        "Full DNS name for the server" ${ServerName:-${DefaultServer}} NOSTORE
+    askfor serverName        "Full DNS name for the server" "${ServerName:-${DefaultServer}}" NOSTORE
     while test $"{caName}" = "${serverName}"
     do
         echo "" 1>&2

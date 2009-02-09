@@ -293,7 +293,8 @@ the next screen\n\
     screen_msg(confirmationMessage, "System Added In Configuration")
 
 def screen_fetch_config ():
-
+    global HostName
+    
     masterSystemName=''
     gotConfig=False
     while not gotConfig :
@@ -438,6 +439,7 @@ of the '@' in your SIP addresses, like this:\n\
    
 def set_fixed_cert_params () :
 
+    global HostName
     global DomainName
     global SipDomain
     
@@ -473,14 +475,15 @@ serverEmail="root@%s"\n\
     os.chdir (curDir)
 
 def generate_ssl_cert () :
-
+    global HostName
+    
     show_progress()
 
     curDir = os.getcwd ()
     os.chdir (SSL_GENDIR)
 
     log_printout("generating ssl certs at %s" % time.strftime("%Y-%m-%d %H:%M:%S +000", time.gmtime()))
-    genSsl      = '@SIPX_BINDIR@/ssl-cert/gen-ssl-keys.sh -d'
+    genSsl      = "@SIPX_BINDIR@/ssl-cert/gen-ssl-keys.sh -d -s '%s'" % HostName
 
     show_starting()
     cmdoutput=commands.getoutput (genSsl)
@@ -509,7 +512,7 @@ def setup_domain_config () :
     # Configure the SIP Domain and Realm
     # The SIP Domain setting is used to generate the proper certificate and 
     # we need to configure SIPXCHANGE_DOMAIN_NAME setting in /etc/config.defs
-
+    global HostName
     global SipDomain
 
     show_progress()
