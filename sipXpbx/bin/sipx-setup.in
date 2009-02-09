@@ -62,6 +62,14 @@ Any existing configuration will be overwritten if you continue.\
        log_printout("initial screen exit")
        cleanExit()
 
+def refresh_sipxconfig_db () :
+    
+    progress(95, 'Refreshing configuration database' )
+    show_progress()
+
+    cmdoutput=commands.getoutput('@SIPX_BINDIR@/sipxconfig.sh --first-run')
+    log_printout(cmdoutput)
+
 #======================================================================
 # MAIN SCRIPT BODY STARTS HERE
 #======================================================================
@@ -79,6 +87,8 @@ try:
     screen_sipx_startup()
 
     do_sipx_setup()
+
+    refresh_sipxconfig_db()
 
     progress(100, 'Ready')
     setup_completed()

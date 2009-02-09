@@ -405,6 +405,12 @@ def set_network ():
     In addition this procedure in the SET mode puts a host name
     into /etc/hosts and a domain name into the /etc/resolv.conf file.
     """
+    global HostName
+    global IpAddress
+    global Gateway
+    global DomainName
+    global DnsServers
+
     show_progress()
 
     # Create file: /etc/sysconfig/network
@@ -937,6 +943,9 @@ def removeInitScript () :
 def update_preLogonMessage () :
      # Update the message that displays on the console login screen
 
+     global HostName
+     global IpAddress
+     
      logonMessage = '\
 \n\
 Welcome to your new VoIP system\n\

@@ -494,12 +494,13 @@ def generate_ssl_cert () :
     os.chdir (curDir)
 
 def install_ssl_cert () :
-
+    global HostName
+    
     show_progress()
     curDir = os.getcwd ()
 
     os.chdir (SSL_GENDIR)
-    instSsl     = '@SIPX_BINDIR@/ssl-cert/install-cert.sh %s' % HostName
+    instSsl     = "@SIPX_BINDIR@/ssl-cert/install-cert.sh '%s'" % HostName
 
     # Install the new SSL certificate
     show_starting()
@@ -752,7 +753,8 @@ def do_sipx_setup() :
     configure_autostart_service()
 
 def setup_completed () :
-
+    global HostName
+    
     completedMessage ="\
 All bootstrap parameters have been configured. \n\
 \n\
