@@ -48,9 +48,12 @@ public class ScheduledRestartManagerImpl implements RestartManager {
     public void restart(Collection<Integer> deviceIds, Date scheduleTime) {
         long delay = calculateDelay(scheduleTime);
         for (Integer id : deviceIds) {
-            RestartTask task = new RestartTask(id);
-            m_executorService.schedule(task, delay, TimeUnit.MILLISECONDS);
-            delay += m_throttleInterval;
+            Device device = m_deviceSource.loadDevice(id);
+            if (device.getModel().isRestartSupported()) {
+                RestartTask task = new RestartTask(id);
+                m_executorService.schedule(task, delay, TimeUnit.MILLISECONDS);
+                delay += m_throttleInterval;
+            }
         }
     }
 
@@ -62,9 +65,12 @@ public class ScheduledRestartManagerImpl implements RestartManager {
     }
 
     public void restart(Integer deviceId, Date scheduleTime) {
-        RestartTask task = new RestartTask(deviceId);
-        long delay = calculateDelay(scheduleTime);
-        m_executorService.schedule(task, delay, TimeUnit.MILLISECONDS);
+        Device device = m_deviceSource.loadDevice(deviceId);
+        if (device.getModel().isRestartSupported()) {
+            RestartTask task = new RestartTask(deviceId);
+            long delay = calculateDelay(scheduleTime);
+            m_executorService.schedule(task, delay, TimeUnit.MILLISECONDS);
+        }
     }
 
     @Required

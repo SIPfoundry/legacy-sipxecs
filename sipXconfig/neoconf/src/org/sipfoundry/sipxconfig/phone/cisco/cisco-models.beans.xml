@@ -5,6 +5,7 @@
   <bean id="ciscoModel" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoModel" parent="abstractPhoneModel"
     abstract="true">
 	<property name="vendor" value="Cisco"/>
+	<property name="restartSupported" value="true" />
   </bean>
 
   <bean id="ciscoIpModel" abstract="true" parent="ciscoModel">

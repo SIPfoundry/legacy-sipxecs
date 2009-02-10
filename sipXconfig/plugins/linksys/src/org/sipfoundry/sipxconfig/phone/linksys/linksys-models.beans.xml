@@ -4,6 +4,7 @@
 <beans>
   <bean id="LinksysModel" class="org.sipfoundry.sipxconfig.phone.linksys.LinksysModel" parent="abstractPhoneModel"
     abstract="true">
+    <property name="restartSupported" value="true" />
   </bean>
 
   <bean id="linksysPhoneStandard" abstract="true" parent="LinksysModel">

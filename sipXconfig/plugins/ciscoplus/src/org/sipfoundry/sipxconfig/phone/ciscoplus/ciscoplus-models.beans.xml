@@ -5,6 +5,7 @@
   <bean id="CiscoplusModel" class="org.sipfoundry.sipxconfig.phone.ciscoplus.CiscoplusModel" parent="abstractPhoneModel"
     abstract="true">
 	<property name="vendor" value="Ciscoplus"/>
+	<property name="restartSupported" value="true" />
   </bean>
 
   <bean id="ciscoplusPhoneStandard" abstract="true" parent="CiscoplusModel">

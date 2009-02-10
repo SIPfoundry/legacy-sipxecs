@@ -7,6 +7,7 @@
     <property name="label" value="Nortel IP Phone 1535" />
     <property name="maxLineCount" value="1" />
     <property name="vendor" value="LG-Nortel" />
+    <property name="restartSupported" value="true" />
   </bean>
 
    <!-- models -->

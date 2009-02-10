@@ -9,6 +9,7 @@
     <property name="profileTemplate" value="lg-nortel/mac.cfg.vm" />
     <property name="vendor" value="LG-Nortel"/>
     <property name="emergencyConfigurable" value="true"/>
+    <property name="restartSupported" value="true" />
   </bean>
 
   <!-- models -->

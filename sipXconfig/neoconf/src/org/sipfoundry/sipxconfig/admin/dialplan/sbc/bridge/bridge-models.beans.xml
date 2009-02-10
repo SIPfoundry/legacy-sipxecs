@@ -13,6 +13,7 @@
     <property name="label" value="Internal SBC" />
     <property name="modelDir" value="sipXbridge" />
     <property name="serialNumberPattern" value="" />
+    <property name="restartSupported" value="true" />
     <property name="maxAllowed" value="1" />
     <property name="defaultProfileLocation" ref="sipXbridgeProfileLocation" />
     <property name="defaultPort" value="5090" />

@@ -7,6 +7,7 @@
     <property name="defaultProfileLocation" ref="httpProfileLocation" />
     <property name="profileTemplate" value="snom/snom.vm" />
 	<property name="vendor" value="SNOM"/>
+	<property name="restartSupported" value="true" />
   </bean>
 
   <bean id="snom300" parent="snomModel">

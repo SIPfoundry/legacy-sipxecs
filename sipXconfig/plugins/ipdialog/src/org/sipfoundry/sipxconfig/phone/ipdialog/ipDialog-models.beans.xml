@@ -8,6 +8,7 @@
     <property name="maxLineCount" value="2" />
     <property name="profileTemplate" value="ipDialog/ipDialog.vm" />
     <property name="vendor" value="ipDialog" />
+    <property name="restartSupported" value="true" />
   </bean>
 
   <bean id="ipDialog" class="org.sipfoundry.sipxconfig.phone.ipdialog.IpDialogPhone" singleton="false"

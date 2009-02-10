@@ -6,6 +6,7 @@
     <property name="beanId" value="aastra" />
     <property name="profileTemplate" value="aastra/aastra.cfg.vm" />
     <property name="vendor" value="Aastra"/>
+    <property name="restartSupported" value="true" />
     <property name="staticProfileFilenames">
       <list>
         <value>aastra.cfg</value>

@@ -30,6 +30,8 @@ public abstract class DeviceDescriptor implements Model {
 
     private String m_vendor;
 
+    private boolean m_restartSupported;
+
     private Set<String> m_supportedFeatures = new HashSet<String>();
 
     /**
@@ -250,4 +252,13 @@ public abstract class DeviceDescriptor implements Model {
             }
         }
     }
+
+    public void setRestartSupported(boolean restartSupported) {
+        m_restartSupported = restartSupported;
+    }
+
+    public boolean isRestartSupported() {
+        return m_restartSupported;
+    }
+
 }
