@@ -51,6 +51,7 @@ import javax.sip.header.OrganizationHeader;
 import javax.sip.header.ReasonHeader;
 import javax.sip.header.ReferToHeader;
 import javax.sip.header.ReplyToHeader;
+import javax.sip.header.RequireHeader;
 import javax.sip.header.RouteHeader;
 import javax.sip.header.SubjectHeader;
 import javax.sip.header.ToHeader;
@@ -496,7 +497,8 @@ public class BackToBackUserAgent {
 
         /* Requesting new dialog -- remove the route header */
         newRequest.removeHeader(RouteHeader.NAME);
-
+        
+       
         /*
          * Get the Refer-To header and convert it into an INVITE to send to the REFER target.
          */
@@ -520,7 +522,7 @@ public class BackToBackUserAgent {
 
         uri.removeParameter(ReplacesHeader.NAME);
 
-        uri.removePort();
+        
 
         for (Iterator it = uri.getHeaderNames(); it.hasNext();) {
             String headerName = (String) it.next();
@@ -1134,7 +1136,7 @@ public class BackToBackUserAgent {
                     ClientTransaction ctx = (ClientTransaction) dialogCtx.getTransaction();
                     ClientTransaction cancelTx = lanProvider.getNewClientTransaction(ctx
                             .createCancel());
-                    TransactionContext txContext = TransactionContext.attach(cancelTx,
+                    TransactionContext.attach(cancelTx,
                             Operation.CANCEL_MOH_INVITE);
                     cancelTx.sendRequest();
                 }

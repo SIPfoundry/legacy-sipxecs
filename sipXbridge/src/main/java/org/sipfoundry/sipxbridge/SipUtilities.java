@@ -277,7 +277,9 @@ class SipUtilities {
 			SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(user,
 					ipAddress);
 			sipUri.setPort(port);
-			sipUri.setTransportParam(transport);
+			if (transport.equals("tls")) {
+				sipUri.setTransportParam(transport);
+			}
 			Address address = ProtocolObjects.addressFactory
 					.createAddress(sipUri);
 			ContactHeader ch = ProtocolObjects.headerFactory
@@ -574,22 +576,22 @@ class SipUtilities {
 			}
 
 			/*
-			 * Remove stuff from the request that can have an effect on
-			 * the routing of the request and add stuff that we want to add.
+			 * Remove stuff from the request that can have an effect on the
+			 * routing of the request and add stuff that we want to add.
 			 */
 
 			/*
-			 * If the target is a phone number we set user=phone. Otherwise
-			 * we remove it.
+			 * If the target is a phone number we set user=phone. Otherwise we
+			 * remove it.
 			 */
-			if ( itspAccount.isUserPhone()) {
-			    /*
-			     * If call routed to phone then the RURI MUST have 
-			     * user=phone set ( sipconnect requirement ).
-			     */
-			    requestUri.setParameter("user", "phone");
+			if (itspAccount.isUserPhone()) {
+				/*
+				 * If call routed to phone then the RURI MUST have user=phone
+				 * set ( sipconnect requirement ).
+				 */
+				requestUri.setParameter("user", "phone");
 			} else {
-			    requestUri.removeParameter("user");
+				requestUri.removeParameter("user");
 			}
 
 			if (itspAccount.getOutboundTransport() != null) {
@@ -608,10 +610,10 @@ class SipUtilities {
 
 			SipURI toUri = ProtocolObjects.addressFactory.createSipURI(toUser,
 					toDomain);
-			
-			if ( itspAccount.isUserPhone()) {
-                toUri.setParameter("user", "phone");
-            } 
+
+			if (itspAccount.isUserPhone()) {
+				toUri.setParameter("user", "phone");
+			}
 
 			ToHeader toHeader = ProtocolObjects.headerFactory.createToHeader(
 					ProtocolObjects.addressFactory.createAddress(toUri), null);
