@@ -1,27 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
-<beans>
-  
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
   <!--
     -  Wouldn't be that hard to create a finder that finds beans by using some
     - convention so you wouldn't have to define this bean so many times.
-    -->
-  <bean id="springFinder" class="org.restlet.ext.spring.SpringFinder" abstract="true"/>
-    
+  -->
+  <bean id="springFinder" class="org.restlet.ext.spring.SpringFinder" abstract="true" />
+
   <bean id="restManager" class="org.sipfoundry.sipxconfig.rest.RestManager">
     <property name="resourceMappings">
       <map>
         <entry key="/phonebook/{name}">
           <bean parent="springFinder">
-            <lookup-method bean="phonebookResource" name="createResource"/>
+            <lookup-method bean="phonebookResource" name="createResource" />
+          </bean>
+        </entry>
+        <entry key="/call/{to}">
+          <bean parent="springFinder">
+            <lookup-method bean="callResource" name="createResource" />
           </bean>
         </entry>
       </map>
-    </property>  
+    </property>
   </bean>
-  
+
   <bean id="phonebookResource" class="org.sipfoundry.sipxconfig.site.phonebook.PhonebookResource" scope="prototype">
-    <property name="phonebookManager" ref="phonebookManager"/>
+    <property name="phonebookManager" ref="phonebookManager" />
   </bean>
-  
+
+  <bean id="callResource" class="org.sipfoundry.sipxconfig.site.phonebook.CallResource" scope="prototype">
+    <property name="sipService" ref="sip" />
+    <property name="domainManager" ref="domainManager" />
+    <property name="coreContext" ref="coreContext" />
+  </bean>
+
 </beans>

@@ -164,6 +164,7 @@
     </property>
     <property name="objectDefinitionSource">
       <value> CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+        /rest/call/.*=ROLE_USER
         /(services|rest)/.*=ROLE_ADMIN
         /initial-config/.*=ROLE_LOCATION</value>
     </property>
