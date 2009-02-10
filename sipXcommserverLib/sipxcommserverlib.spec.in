@@ -128,7 +128,6 @@ if ! id -u @SIPXPBXUSER@ > /dev/null 2>&1 ; then
 fi
 
 %post
-rm -rf %{_sysconfdir}/sipxpbx/process.d
 
 %define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
 %define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz

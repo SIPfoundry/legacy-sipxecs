@@ -47,6 +47,7 @@ const char* EXIT_KEYWORD = "exit";
 // TYPEDEFS
 // FORWARD DECLARATIONS
 int supervisorMain(bool bOriginalSupervisor);
+void upgradeFrom3_0();
 
 // GLOBALS
 UtlBoolean gbDone = FALSE;
@@ -554,6 +555,10 @@ int supervisorMain(bool bOriginalSupervisor)
        SipXecsService::Path(SipXecsService::DataDirType, "process.d");
     SipxProcessManager* processManager = SipxProcessManager::getInstance();
     processManager->instantiateProcesses(processDefinitionDirectory);
+
+    // 3.0 had different process def files.  The only important thing in them is the
+    // state of the services.  Transfer this state to the new process def files.
+    upgradeFrom3_0();
 
     doWaitLoop();
 

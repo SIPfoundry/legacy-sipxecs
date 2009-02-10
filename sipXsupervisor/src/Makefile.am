@@ -43,7 +43,8 @@ libsipXsupervisor_la_SOURCES =  \
 	FileResource.cpp \
 	FileResourceManager.cpp \
 	HttpFileAccess.cpp \
-   SipxRpc.cpp
+   SipxRpc.cpp \
+   UpgradeFrom3.cpp
 
 noinst_HEADERS = \
 	ProcMgmtRpc.h \
