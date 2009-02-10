@@ -13,7 +13,7 @@ Source: %name-%version.tar.gz
 
 Requires: rpm
 %if %{_vendor} == suse
-Requires: xerces-c >= 2.6.0
+Requires: Xerces-c >= 2.6.0
 %endif
 %if %{_vendor} == redhat
 Requires: xerces-c >= 2.6.0
