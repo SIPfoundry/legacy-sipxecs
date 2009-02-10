@@ -40,13 +40,13 @@ $(AC_TARGETS) :
 	$(MAKE) $@.bld
 
 # required on all platforms
-CUSTOM_PACKAGES = cgicc xerces-c ruby-postgres ruby-dbi freeswitch nsis sipx-jasperreports-deps
+CUSTOM_PACKAGES = cgicc ruby-postgres ruby-dbi freeswitch nsis sipx-jasperreports-deps
 
 .PHONY: fc8
 fc8 : $(CUSTOM_PACKAGES) cppunit xerces-c rubygems rrdtool
 
 .PHONY: rhel5 centos5
-rhel5 centos5 : $(CUSTOM_PACKAGES) w3c-libwww rubygems cppunit rrdtool
+rhel5 centos5 : $(CUSTOM_PACKAGES) cppunit xerces-c w3c-libwww rubygems rrdtool
 
 .PHONY: suse11.1
-suse11.1 : $(CUSTOM_PACKAGES) stunnel w3c-libwww cppunit
+suse11.1 : $(CUSTOM_PACKAGES) stunnel w3c-libwww
