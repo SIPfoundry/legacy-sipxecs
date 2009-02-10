@@ -5,7 +5,6 @@ import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
-
 public class LocationsPageTestUi extends WebTestCase {
 
     public static Test suite() throws Exception {
@@ -47,5 +46,26 @@ public class LocationsPageTestUi extends WebTestCase {
         clickButton("locations:delete");
         SiteTestHelper.assertNoUserError(tester);
         assertTextNotPresent("host.example.org");
+    }
+
+    public void testSendProfiles() {
+        SiteTestHelper.assertNoException(tester);
+        SiteTestHelper.assertNoUserError(tester);
+        clickLink("locations:add");
+        setTextField("location:description", "wrong location");
+        setTextField("location:address", "1.1.1.1");
+        setTextField("location:fqdn", "test.wrong.org");
+        setTextField("location:password", "123");
+        clickButton("form:ok");
+
+        SiteTestHelper.assertNoException(tester);
+        SiteTestHelper.assertNoUserError(tester);
+        setWorkingForm("Form");
+        SiteTestHelper.selectRow(tester, 0, true);
+        clickButton("locations:sendProfiles");
+
+        // while https://test.wrong.org:8092/RPC2 is not available, will be throw a user exception
+        SiteTestHelper.assertNoException(tester);
+        SiteTestHelper.assertUserError(tester);
     }
 }
