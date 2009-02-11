@@ -22,7 +22,7 @@ Usage:
     sipx-dns <sip-domain> <callserver-name>[/<ipaddr>]...
              [ { -o | --other } <system-name>[/<ipaddr>] ] ...
              [ { -z | --zone } [ { -s | --serial } <serial-suffix> ] ]
-             [ --provide-dns ]
+             [ { -p | --provide-dns } ]
 
       Output DNS records in BIND format for @SIPXECS_NAME@ services.  
       The records are printed on the standard output.
@@ -32,16 +32,17 @@ Usage:
 
   To validate existing (live) DNS configuration:
 
-    sipx-dns --validate [ { -v | --verbose } ]
+    sipx-dns { -t | --test }
              <sip-domain> <callserver-name>[/<ipaddr>]...
              [ { -o | --other } <system-name>[/<ipaddr>] ] ...
-             [ --provide-dns ]
+             [ { -p | --provide-dns } ]
+             [ { -v | --verbose } ]
 
       Checks that the DNS contains all the records required by the 
       configuration described by the remaining arguments.
 
       Error messages are printed for any missing records, including
-      the records as they should be configured (in BIND format).
+      the records as they should be configured.
 
       The exit status is zero if all required records are found, 
       non-zero if not.
@@ -61,19 +62,29 @@ Usage:
         This is the name of a @SIPXECS_NAME@ server in your domain that
         is running the Call Router (sipXproxy) service.
 
-    --other system-name/ipaddr
+    --other | -o system-name/ipaddr
 
         Specifies a name/address pair that is not a callserver.
 
-    --provide-dns  
+    --provide-dns | -p 
 
         Indicates that the DNS service is to be hosted on the callserver
         systems. 
 
+    --version | -V
+
+        Prints the version of this utility and immediately exits.
+
+    --help | -h | -?
+
+        Prints this usage information.
+
   FULL ZONE
 
     The --zone option causes a zone header to be output.  This output is 
-    suitable as a complete zone file for 'bind'.  To make this useful, you MUST:
+    suitable as a complete zone file for 'bind'.  
+
+    You MUST:
 
     - Provide either 'callserver' or 'other' system arguments for ALL systems
       in the domain.
@@ -145,15 +156,20 @@ do
             Feedback=VERBOSE
             ;;
 
-        --validate)
-            Action=VALIDATE
+        -V|--version)
+            echo "@SIPX_VERSION@"
+            exit 0
+            ;;
+
+        -t|--test)
+            Action=TEST
             ;;
 
         -z|--zone)
             Action=FULL_ZONE
             ;;
 
-        --provide-dns)
+        -p|--provide-dns)
             ProvideDNS=INTERNAL
             ;;
 
@@ -238,7 +254,7 @@ do
     *)
         case ${Action} in
 
-        VALIDATE)
+        TEST)
             cat <<EOF 1>&2
   When validating DNS, all systems must specify an ip address
     Address needed for '${thishost}'.
@@ -278,7 +294,6 @@ generate_zone_header () {
                        1800            ; retry, seconds
                        1800            ; expire, seconds
                        1800 )          ; minimum TTL, seconds
-
 EOF
 }
 
@@ -288,6 +303,10 @@ generate_ns_records () {
         if [ "${Type[${host}]}" = "CALLSERVER" ]
         then
             cat <<EOF
+
+; NS record for ${SipDomain}
+;    server: ${Host[${host}]}
+;
 ${SipDomain}.            IN     NS     ${Host[${host}]}.
 EOF
         fi
@@ -300,6 +319,9 @@ generate_a_records() {
       if [ -n "${Addr[${host}]}" ]
       then
           cat <<EOF
+
+; A record for ${Host[${host}]}
+;   
 ${Host[${host}]}.	IN	A	${Addr[${host}]}
 EOF
       fi
@@ -307,10 +329,22 @@ EOF
 }
 
 generate_naptr_records () {
-    cat <<EOF
+
+cat <<EOF
+
+; NAPTR record for SIP TCP ${SipDomain}
+;     priority: 2  weight: 0
+;     protocol: "SIP+D2T"  regex: ""  uri: _sip._tcp.${SipDomain}
+;
 ${SipDomain}.		IN	NAPTR	2 0 "s" "SIP+D2T" "" _sip._tcp.${SipDomain}.
+
+; NAPTR record for SIP UDP ${SipDomain}
+;     priority: 2  weight: 0
+;     protocol: "SIP+D2U"  regex: ""  uri: _sip._udp.${SipDomain}
+;
 ${SipDomain}.		IN	NAPTR	2 0 "s" "SIP+D2U" "" _sip._udp.${SipDomain}.
 EOF
+
 }
 
 generate_domain_srv_records () {
@@ -321,7 +355,15 @@ generate_domain_srv_records () {
         then
             server=${Host[${host}]}
             cat <<EOF
+
+; SRV record for domain SIP TCP ${SipDomain} 
+;     priority: 1  weight: 0  port: 5060  server: ${server}
+;
 _sip._tcp.${SipDomain}.	IN	SRV	1 0 5060 ${server}.
+
+; SRV record for domain SIP UDP ${SipDomain} 
+;     priority: 1  weight: 0  port: 5060  server: ${server}
+;
 _sip._udp.${SipDomain}.	IN	SRV	1 0 5060 ${server}.
 EOF
         fi
@@ -336,6 +378,10 @@ generate_service_srv_records () {
         then
             server=${Host[${host}]}
             cat <<EOF
+
+; SRV record for service SIP TCP rr.${server}
+;     priority: 1  weight: 0  port: 5070  server: ${server}
+;
 _sip._tcp.rr.${server}.	IN	SRV	1   0 5070 ${server}.
 EOF
             for backuphost in `seq 0 ${HostMax}`
@@ -346,6 +392,10 @@ EOF
                     if [ "${server}" != "${backup}" ] 
                     then
                         cat <<EOF
+
+; SRV record for service failover SIP TCP rr.${backup}
+;     priority: 2  weight: 100  port: 5070  server: ${backup}
+;
 _sip._tcp.rr.${server}.	IN	SRV	2 100 5070 ${backup}.
 EOF
                     fi
@@ -360,10 +410,10 @@ generate_bind_records () {
     if [ "${ProvideDNS}" = "INTERNAL" ]
     then
         cat <<EOF
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; DNS Servers for '${SipDomain}'
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 EOF
 
         generate_ns_records
@@ -374,12 +424,11 @@ EOF
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Call Routing for SIP domain '${SipDomain}'
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 EOF
     generate_naptr_records
-    echo ""
+
     generate_domain_srv_records
-    echo ""
+
     generate_service_srv_records
 
     cat <<EOF
@@ -387,7 +436,6 @@ EOF
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; IP Addresses
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 EOF
 
     generate_a_records
@@ -404,6 +452,10 @@ normName () {
     echo ${1} | sed 's/\.$//'
 }
 
+strip_space_and_comments () {
+    perl -ne 's/;.*//; m/^\s*$/ || print'
+}
+
 validate_ns_records () {
     local fullname
     local name
@@ -417,6 +469,7 @@ validate_ns_records () {
 
     verbose && echo -e "\nChecking 'NS' (domain->nameserver) Records:"
     generate_ns_records \
+    | strip_space_and_comments \
     | while read fullname intag rectype target extrajunk ; do
         name=`normName ${fullname}`
 
@@ -433,7 +486,13 @@ validate_ns_records () {
             verbose && echo "   Found:    ${name} -> ${target} "
         else
             verbose && echo "   Failed:   ${name} -> ${target} "
-            echo -e "${fullname}\t${intag}\t${rectype}\t${fulltarget}" >> ${ErrorOut}.missing
+            perl -pe 's/\\t/\t/g' >> ${ErrorOut}.missing <<EOF
+
+; NS record for ${name}
+;    server: ${target}
+;
+${fullname}\t${intag}\t${rectype}\t${fulltarget}
+EOF
         fi
     done
 }
@@ -451,6 +510,7 @@ validate_a_records () {
 
     verbose && echo -e "\nChecking 'A' (name->ip) Records:"
     generate_a_records \
+    | strip_space_and_comments \
     | while read fullname intag rectype target extrajunk ; do
         name=`normName ${fullname}`
         # look for a direct A record that points to the target address
@@ -484,7 +544,12 @@ validate_a_records () {
                 verbose && echo "   Found:    ${name} -> ${cname} -> ${target} "
             else
                 verbose && echo "   Failed:   ${name} -> ${target} "
-                echo -e "${fullname}\t${intag}\t${rectype}\t${target}" >> ${ErrorOut}.missing
+                perl -pe 's/\\t/\t/g' >> ${ErrorOut}.missing <<EOF
+
+; A record for ${name}
+; 
+${fullname}\t${intag}\t${rectype}\t${target}
+EOF
             fi
         fi
     done
@@ -508,6 +573,7 @@ validate_domain_naptr_records () {
 
     verbose && echo -e "\nChecking domain 'NAPTR' (domain->protocol) Records:"
     generate_naptr_records \
+    | strip_space_and_comments \
     | while read fullname intag rectype priority weight naptrtype protocode regex fulltarget extrajunk ; do
         name=`normName ${fullname}`
         target=` \
@@ -533,13 +599,20 @@ validate_domain_naptr_records () {
             verbose && echo "   Found:    ${name} -> ${target} "
         else
             verbose && echo "   Failed:   ${name} -> ${target} "
-            echo -e "${fullname}\t${intag}\t${rectype}\t${priority}\t${weight}\t${naptrtype}\t${protocode}\t${regex}\t${fulltarget}" >> ${ErrorOut}.missing
+            perl -pe 's/\\t/\t/g' >> ${ErrorOut}.missing <<EOF
+
+; NAPTR record for ${name}
+;     priority: ${priority}  weight: ${weight}  
+;     protocol: ${protocode}  regex:  ${regex}  uri: ${fulltarget}
+;
+${fullname}\t${intag}\t${rectype}\t${priority}\t${weight}\t${naptrtype}\t${protocode}\t${regex}\t${fulltarget}
+EOF
         fi
 
     done
 }
 
-isCallServer () {
+isCallServer () { # name - returns true/false
     local name=$1
     local host
 
@@ -574,6 +647,7 @@ validate_domain_srv_records () {
 
     verbose && echo -e "\nChecking domain 'SRV' (domain->server) Records:"
     generate_domain_srv_records \
+    | strip_space_and_comments \
     | while read protoname intag rectype priority weight port fulltarget extrajunk ; \
     do
         name=` \
@@ -602,7 +676,14 @@ validate_domain_srv_records () {
             verbose && echo "   Found:    ${name} -> ${target} "
         else
             verbose && echo "   Failed:   ${name} -> ${target} "
-            echo -e "${protoname}\t${intag}\t${rectype}\t${priority}\t${weight}\t${port}\t${fulltarget}" >> ${ErrorOut}.missing
+            perl -pe 's/\\t/\t/g' >> ${ErrorOut}.missing <<EOF
+
+; SRV record for domain ${name}
+;     priority: ${priority}  weight: ${weight}  port: ${port}  server: ${fulltarget}
+;
+${protoname}\t${intag}\t${rectype}\t${priority}\t${weight}\t${port}\t${fulltarget}
+EOF
+
         fi
     done
 
@@ -630,7 +711,11 @@ validate_domain_srv_records () {
             fi
             if [ ${resolves} = NO ]
             then
-                echo "; ! _sip._${proto}.${SipDomain} -> ${name}" >> ${ErrorOut}.errors
+                perl -pe 's/\\t/\t/g' >> ${ErrorOut}.errors <<EOF
+
+; ! Incorrect SIP ${proto} record found:
+; ! _sip._${proto}.${SipDomain} -> ${name}
+EOF
                 ExitStatus=1
             fi
         done
@@ -653,6 +738,7 @@ validate_service_srv_records () {
 
     verbose && echo -e "\nChecking service 'SRV' (service->server) Records:"
     generate_service_srv_records \
+    | strip_space_and_comments \
     | while read protoname intag rectype priority weight port fulltarget extrajunk ; \
     do
         name=` \
@@ -680,7 +766,13 @@ validate_service_srv_records () {
             verbose && echo "   Found:    ${name} -> ${target} "
         else
             verbose && echo "   Failed:   ${name} -> ${target} "
-            echo -e "${protoname}\t${intag}\t${rectype}\t${priority}\t${weight}\t${port}\t${fulltarget}" >> ${ErrorOut}.missing
+            perl -pe 's/\\t/\t/g' >> ${ErrorOut}.missing <<EOF
+
+; SRV record for service ${name}
+;     priority: ${priority}  weight: ${weight}  port: ${port}  server: ${fulltarget}
+;
+${protoname}\t${intag}\t${rectype}\t${priority}\t${weight}\t${port}\t${fulltarget}
+EOF
         fi
     done
 }
@@ -709,16 +801,25 @@ validate_bind_records () {
     if [ -s ${ErrorOut}.errors ]
     then
         verbose && echo ""
-        echo "; ! Errors - Incorrect SRV records:"
+        cat <<EOF
+
+; !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+; ! Errors - Incorrect SRV records:
+; !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+EOF
         cat ${ErrorOut}.errors
-        echo ""
         ExitStatus=1
     fi
 
     if [ -s ${ErrorOut}.missing ]
     then
         verbose && echo ""
-        echo '; ! Missing DNS records:' 
+        cat <<EOF
+
+; !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+; ! Missing DNS records:
+; !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+EOF
         cat ${ErrorOut}.missing
         ExitStatus=1
     fi
@@ -735,7 +836,7 @@ case ${Action} in
        generate_bind_records
        ;;
 
-    VALIDATE)
+    TEST)
        validate_bind_records
        ;;
 
