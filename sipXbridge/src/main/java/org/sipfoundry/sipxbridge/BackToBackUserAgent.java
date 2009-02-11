@@ -497,8 +497,7 @@ public class BackToBackUserAgent {
 
         /* Requesting new dialog -- remove the route header */
         newRequest.removeHeader(RouteHeader.NAME);
-        
-       
+
         /*
          * Get the Refer-To header and convert it into an INVITE to send to the REFER target.
          */
@@ -521,8 +520,6 @@ public class BackToBackUserAgent {
         }
 
         uri.removeParameter(ReplacesHeader.NAME);
-
-        
 
         for (Iterator it = uri.getHeaderNames(); it.hasNext();) {
             String headerName = (String) it.next();
@@ -1136,8 +1133,7 @@ public class BackToBackUserAgent {
                     ClientTransaction ctx = (ClientTransaction) dialogCtx.getTransaction();
                     ClientTransaction cancelTx = lanProvider.getNewClientTransaction(ctx
                             .createCancel());
-                    TransactionContext.attach(cancelTx,
-                            Operation.CANCEL_MOH_INVITE);
+                    TransactionContext.attach(cancelTx, Operation.CANCEL_MOH_INVITE);
                     cancelTx.sendRequest();
                 }
 
@@ -1733,15 +1729,18 @@ public class BackToBackUserAgent {
                         && dialogCtx.getTransaction().getState() != TransactionState.TERMINATED
                         && dialogCtx.getTransaction() instanceof ClientTransaction) {
                     ClientTransaction ctx = (ClientTransaction) dialogCtx.getTransaction();
-                    if (ctx.getState() == TransactionState.PROCEEDING)  {
+                    if (ctx.getState() == TransactionState.PROCEEDING) {
                         ClientTransaction cancelTx = lanProvider.getNewClientTransaction(ctx
-                            .createCancel());
+                                .createCancel());
                         TransactionContext.attach(cancelTx, Operation.CANCEL_INVITE);
                         cancelTx.sendRequest();
                     }
                 }
 
-                if (dialog.getState() != null) {
+                /*
+                 * Cannot send BYE to a Dialog in EARLY state.
+                 */
+                if (dialog.getState() != null && dialog.getState() != DialogState.EARLY) {
                     Request byeRequest = dialog.createRequest(Request.BYE);
                     if (reason != null) {
                         byeRequest.addHeader(reason);
@@ -1749,12 +1748,23 @@ public class BackToBackUserAgent {
                     SipProvider provider = ((DialogExt) dialog).getSipProvider();
                     ClientTransaction ct = provider.getNewClientTransaction(byeRequest);
                     dialog.sendRequest(ct);
+                } else {
+                    /* kill the dialog if in early state or not established */
+                    dialog.delete();
                 }
+
             }
         }
-        if (this.musicOnHoldDialog != null
-                && this.musicOnHoldDialog.getState() != DialogState.TERMINATED) {
-            this.sendByeToMohServer();
+
+        /* Clean up the MOH dialog */
+        if (this.musicOnHoldDialog != null) {
+            if (this.musicOnHoldDialog.getState() != DialogState.TERMINATED
+                    && this.musicOnHoldDialog.getState() != DialogState.EARLY) {
+                this.sendByeToMohServer();
+            } else if (this.musicOnHoldDialog.getState() == null
+                    || this.musicOnHoldDialog.getState() == DialogState.EARLY) {
+                this.musicOnHoldDialog.delete();
+            }
         }
 
     }
