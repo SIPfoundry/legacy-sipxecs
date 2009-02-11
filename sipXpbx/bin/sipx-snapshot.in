@@ -375,6 +375,7 @@ cat > $Work.copy-files <<EOF
 @SIPX_VARDIR@/process-cfgver
 @SIPX_DATADIR@/process.d
 /var/log/yum.log
+/var/log/messages
 /etc/yum.conf
 /etc/yum
 /etc/yum.repos.d
