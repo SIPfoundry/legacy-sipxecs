@@ -102,6 +102,15 @@ dns_cname () { # ( DOMAIN )
   | sed 's/\.$//'
   }
 
+dns_ns () { # ( DOMAIN )
+  # returns the NS resolution for DOMAIN
+  target=`echo $1 | tr A-Z a-z`
+  dig  -t ns +noidentify +nocmd +nocomments +noquestion +nostats +noauthority ${target} \
+  | tr A-Z a-z \
+  | awk "\$1 == \"${target}.\" { print \$NF }" \
+  | sed 's/\.$//'
+  }
+
 dns_a () { # ( DOMAIN )
   # returns the A record resolution for DOMAIN
   target=`echo $1 | tr A-Z a-z`
