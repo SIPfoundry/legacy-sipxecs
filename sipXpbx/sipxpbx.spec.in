@@ -36,6 +36,14 @@ Requires: httpd >= 2.0
 %if %{_vendor} == redhat
 Requires: smtpdaemon
 %endif
+%if %{_vendor} == suse
+Requires: sendmail
+%endif
+
+# Required for inclusion of Python's Snack module
+%if %{_vendor} == suse
+Requires: newt python-newt
+%endif
 
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
