@@ -25,7 +25,7 @@ Requires: sipxpbx >= @VERSION@
 Requires: smtpdaemon
 %endif
 %if %{_vendor} == suse
-Requires: postfix
+Requires: sendmail
 %endif
 
 Prefix:    %_prefix
