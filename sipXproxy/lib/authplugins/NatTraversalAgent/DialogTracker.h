@@ -209,6 +209,11 @@ public:
     */
    bool patchSdp( SdpBody* pSdpBody, int mediaIndex, int rtpPort, tMediaRelayHandle relayHandle, const UtlString& mediaRelayAddressToUse );
    
+   /**
+    *   Removes all the elements that may impair NAT traversal from the message.
+    */
+   static void removeUnwantedElements( SipMessage& request );
+   
    static const UtlContainableType TYPE;    /** < Class type used for runtime checking */
 
    // ///////////////////////////////////////////////////////// //

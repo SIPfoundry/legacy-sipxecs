@@ -29,6 +29,7 @@ class DialogTrackerTest : public CppUnit::TestCase, public SessionContextInterfa
       CPPUNIT_TEST( requestHandledMarkerManipTest );            
       CPPUNIT_TEST( RequestRetransmissionDescriptorTest );            
       CPPUNIT_TEST( ResponseRetransmissionDescriptorTest );            
+      CPPUNIT_TEST( RemoveUnwantedElementsTest );            
       CPPUNIT_TEST_SUITE_END();
 
    public:
@@ -499,6 +500,76 @@ class DialogTrackerTest : public CppUnit::TestCase, public SessionContextInterfa
          UtlString savedSdpBodyText;
          pSavedBody->getBytes( &savedSdpBodyText, &size );
          ASSERT_STR_EQUAL( savedSdpBodyText.data(), referenceSdpBodyText.data() );
+      }
+      
+      void RemoveUnwantedElementsTest()
+      {
+
+         UtlString originalContactString, modifiedContactString;
+
+         const char* message1 =
+            "INVITE sip:601@192.168.1.11:5060;x-sipX-pubcontact=47.135.162.145%3A29544 SIP/2.0\r\n"
+            "From: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=94bc25b8-c0a80165-13c4-3e635-37aa1989-3e635\r\n"
+            "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
+            "Call-Id: 94bb2520-c0a80165-13c4-3e635-3ccd2971-3e635@rjolyscs2.ca.nortel.com\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Max-Forwards: 19\r\n"
+            "Contact: <sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956>;dummy=no\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+         SipMessage sipMessage1(message1, strlen(message1) );
+         sipMessage1.getContactEntry(0, &originalContactString);
+         DialogTracker::removeUnwantedElements( sipMessage1 );
+         sipMessage1.getContactEntry(0, &modifiedContactString);
+         ASSERT_STR_EQUAL( originalContactString.data(), modifiedContactString.data() );
+
+         const char* message2 =
+            "INVITE sip:601@192.168.1.11:5060;x-sipX-pubcontact=47.135.162.145%3A29544 SIP/2.0\r\n"
+            "From: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=94bc25b8-c0a80165-13c4-3e635-37aa1989-3e635\r\n"
+            "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
+            "Call-Id: 94bb2520-c0a80165-13c4-3e635-3ccd2971-3e635@rjolyscs2.ca.nortel.com\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Max-Forwards: 19\r\n"
+            "Contact: <sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956>;+sip.rendering=\"wantedvalue\";test\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+         SipMessage sipMessage2(message2, strlen(message2) );
+         sipMessage2.getContactEntry(0, &originalContactString);
+         DialogTracker::removeUnwantedElements( sipMessage2 );
+         sipMessage2.getContactEntry(0, &modifiedContactString);
+         ASSERT_STR_EQUAL( originalContactString.data(), modifiedContactString.data() );
+
+         const char* message3 =
+            "INVITE sip:601@192.168.1.11:5060;x-sipX-pubcontact=47.135.162.145%3A29544 SIP/2.0\r\n"
+            "From: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=94bc25b8-c0a80165-13c4-3e635-37aa1989-3e635\r\n"
+            "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
+            "Call-Id: 94bb2520-c0a80165-13c4-3e635-3ccd2971-3e635@rjolyscs2.ca.nortel.com\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Max-Forwards: 19\r\n"
+            "Contact: <sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956>;+sip.rendering=\"no\";test\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+         SipMessage sipMessage3(message3, strlen(message3) );
+         sipMessage3.getContactEntry(0, &originalContactString);
+         DialogTracker::removeUnwantedElements( sipMessage3 );
+         sipMessage3.getContactEntry(0, &modifiedContactString);
+         ASSERT_STR_EQUAL( "<sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956>;test", modifiedContactString.data() );
+
+         const char* message4 =
+            "INVITE sip:601@192.168.1.11:5060;x-sipX-pubcontact=47.135.162.145%3A29544 SIP/2.0\r\n"
+            "From: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=94bc25b8-c0a80165-13c4-3e635-37aa1989-3e635\r\n"
+            "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
+            "Call-Id: 94bb2520-c0a80165-13c4-3e635-3ccd2971-3e635@rjolyscs2.ca.nortel.com\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Max-Forwards: 19\r\n"
+            "Contact: <sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956>;dummy;+sip.rendering=\"unknown\";test\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+         SipMessage sipMessage4(message4, strlen(message4) );
+         sipMessage4.getContactEntry(0, &originalContactString);
+         DialogTracker::removeUnwantedElements( sipMessage4 );
+         sipMessage4.getContactEntry(0, &modifiedContactString);
+         ASSERT_STR_EQUAL( "<sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956>;dummy;test", modifiedContactString.data() );
       }
    };
 

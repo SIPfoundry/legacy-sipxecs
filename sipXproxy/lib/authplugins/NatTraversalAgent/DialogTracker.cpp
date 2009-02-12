@@ -133,6 +133,9 @@ bool DialogTracker::handleRequest( SipMessage& message, const char* address, int
    UtlString method;
    message.getRequestMethod(&method);
 
+   // remove all the elements in the message that may impair NAT traversal
+   removeUnwantedElements( message );
+
    OsSysLog::add(FAC_NAT, PRI_DEBUG, "DialogTracker[%s]::handleRequest: received request: %s; Caller->Callee?: %d",
                                      mHandle.data(), method.data(), bFromCallerToCallee );
    
@@ -172,6 +175,9 @@ bool DialogTracker::handleRequest( SipMessage& message, const char* address, int
 void DialogTracker::handleResponse( SipMessage& message, const char* address, int port )
 {
    int responseCode = message.getResponseStatusCode();
+
+   // remove all the elements in the message that may impair NAT traversal
+   removeUnwantedElements( message );
 
    OsSysLog::add(FAC_NAT, PRI_DEBUG, "DialogTracker[%s]::handleResponse: received response: %d",
                                      mHandle.data(), responseCode );
@@ -477,6 +483,36 @@ bool DialogTracker::patchSdp( SdpBody* pSdpBody, int mediaIndex, int rtpPort, tM
       bPatchedSuccessfully = true;
    }
    return bPatchedSuccessfully;
+}
+
+void DialogTracker::removeUnwantedElements( SipMessage& request )
+{
+   // if the Contact header contains a +sip.rendering field parameter with a 
+   // "no" or "unknown" value then this routine will take it out as it can 
+   // lead to unidirectional media streams being setup and those cause 
+   // speech path issues with NATs - see XECS-2090 for details.
+   UtlString contact;
+   for (int contactNumber = 0;
+        request.getContactEntry(contactNumber, &contact);
+        contactNumber++ )
+   {
+      Url contactUri( contact );
+      UtlString sipRenderingValue;
+      if( contactUri.getFieldParameter( "+sip.rendering", sipRenderingValue, 0 ) )
+      {
+         if( sipRenderingValue.compareTo("\"no\"", UtlString::ignoreCase )      == 0 ||
+             sipRenderingValue.compareTo("no", UtlString::ignoreCase )          == 0 ||
+             sipRenderingValue.compareTo("\"unknown\"", UtlString::ignoreCase ) == 0 ||
+             sipRenderingValue.compareTo("unknown", UtlString::ignoreCase )     == 0 )
+         {
+            UtlString modifiedContact;
+            contactUri.removeFieldParameter( "+sip.rendering" );
+            contactUri.toString( modifiedContact );
+            request.setContactField( modifiedContact, contactNumber );      
+         }
+      }
+   }
+   // ... add code to remove other unwanted elements here ...
 }
 
 tMediaRelayHandle DialogTracker::getOurMediaRelayHandleEncodedInSdp( const SdpBody* pSdpBody, int mediaIndex ) const
