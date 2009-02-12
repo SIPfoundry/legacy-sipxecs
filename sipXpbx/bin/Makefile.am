@@ -24,7 +24,6 @@ bin_SCRIPTS = \
 	 sipx-test-tmp \
 	 sipx-test-apache \
 	 sipx-test-hostname \
-	 sipx-test-master \
 	 sipx-test-maxfds
 
 SipxLibexecScripts = \
@@ -55,7 +54,6 @@ SCRIPT_TEMPLATES = \
 	sipx-test-localhostShared.in \
 	sipx-test-apache.in \
 	sipx-test-hostname.in \
-	sipx-test-master.in \
 	sipx-backup.in \
 	sipx-restore.in \
 	sipx-sendmail-configure.in \

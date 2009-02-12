@@ -129,7 +129,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/sipx-test-selinux
 %attr(755,root,root) %{_bindir}/sipx-test-rpmnew
 %attr(755,root,root) %{_bindir}/sipx-test-maxfds
-%attr(755,root,root) %{_bindir}/sipx-test-master
 %attr(755,root,root) %{_bindir}/sipx-test-localhostShared
 %attr(755,root,root) %{_bindir}/sipx-test-localhostConfigured
 %attr(755,root,root) %{_bindir}/sipx-test-hostname
