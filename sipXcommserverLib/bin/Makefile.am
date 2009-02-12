@@ -24,7 +24,7 @@ dist_bin_SCRIPTS = \
 setupbindir = @SIPX_LIBEXECDIR@/setup.d
 
 setupbin_SCRIPTS = \
-        sipx-change-date-init \
+        sipx-time-manager-init \
         sipx-change-timezone-init \
         sipxpackage-init \
         sipxswadmin-init

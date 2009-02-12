@@ -1,18 +1,29 @@
 <div jwcid="@common/Border" useDojo="true">
   <h2><span key="title">Time Settings</span></h2>
-  <span jwcid="@common/QuickHelp" value="message:timeSettings.quickHelp" />
-  <span jwcid="errors@common/ErrorMsg"/>
-  <form jwcid="changeTime@Form" delegate="bean:validator">
-    <span jwcid="newDate@common/DateTimeEditor" datetime="ognl:newDate" label="message:timeSettings.newDate"/>
-    <span jwcid="submit@Submit" value="message:button.apply" listener="listener:setDate" />
-    <span jwcid="@common/Confirm" component="component:submit" prompt="message:confirm.change"/>
-    <br/><br/><br/>
-    <span jwcid="@common/FieldPanel"
-      field="component:type"
-        label="message:timeSettings.newTimezone">
-        <span jwcid="type@PropertySelection" model="ognl:timezoneTypeModel" value="ognl:timezoneType"/>
-    </span>
-    <span jwcid="submitTimezone@Submit" value="message:button.apply" listener="listener:setSysTimezone" />
-    <br/><br/><br/>
-  </form>
+  <span jwcid="@common/TabNavigation" tabNames="ognl:{'timeAndDate','timeZone'}" selectedTab="ognl:tab"/>
+  <div id="settings-content">
+    <span jwcid="@common/ErrorMsg"/>
+    <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
+  </div>
+  <span jwcid="timeAndDateTab@Block">
+    <form jwcid="changeTime@Form" delegate="bean:validator">
+      <span jwcid="@common/FieldPanel" for="timeSettingType" field="component:timeSettingType"
+		      label="message:label.timeSettingType">
+         <span jwcid="timeSettingType@PropertySelection" id="timeSettingType" model="ognl:timeSettingTypeModel"
+             value="ognl:timeSettingType" onchange="javascript:this.form.submit();"/>
+      </span>
+    </form>
+    <fieldset jwcid="@If" condition="ognl:manualSetting">
+      <span jwcid="@admin/time/EditManualTimeSettings"
+            timeManager="ognl:timeManager"/>
+    </fieldset>
+    <fieldset jwcid="@Else">
+      <span jwcid="@admin/time/EditNtpSettings"
+          timeManager="ognl:timeManager"/>
+    </fieldset>
+  </span>
+  <span jwcid="timeZoneTab@Block">
+    <span jwcid="@admin/time/EditTimeZoneSettings"
+          timeManager="ognl:timeManager" />
+  </span>
 </div>

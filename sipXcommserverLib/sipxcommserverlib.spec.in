@@ -163,8 +163,8 @@ pkg-upgrade --previous %{previous_archive} --current %{current_archive}
 %attr(4750,root,@SIPXPBXGROUP@) %{_libexecdir}/sipXecs/sipxpackage
 %attr(4750,root,@SIPXPBXGROUP@) %{_libexecdir}/sipXecs/sipxswadmin
 %attr(4750,root,@SIPXPBXGROUP@) %{_libexecdir}/sipXecs/sipx-sudo-timezone
-%attr(4750,root,@SIPXPBXGROUP@) %{_libexecdir}/sipXecs/sipx-sudo-date
-%attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipx-change-date-init
+%attr(4750,root,@SIPXPBXGROUP@) %{_libexecdir}/sipXecs/sipx-sudo-time-manager
+%attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipx-time-manager-init
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipx-change-timezone-init
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxpackage-init
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxswadmin-init

@@ -13,7 +13,8 @@ setupbin_IN = $(foreach file,$(setupbin_SCRIPTS),$(file).in)
 
 editscripts_IN = \
 	sipx-mrtg-init \
-	sipx-snmp-init
+	sipx-snmp-init \
+	sipx-time-manager
 
 
 ruby_scripts = \
@@ -58,4 +59,5 @@ $(foreach file,$(editscripts_IN),$(DESTDIR)$(bindir)/$(file)) : $(DESTDIR)$(bind
 $(foreach file,$(editscripts_IN),$(file)) : % : %.in
 	@echo "Localize $< -> $@"
 	$(LocalizeSipXconfig) \
-	-e 's,@MRTG_BINARY\@,@MRTG_BINARY@,g' $< > $@
+	-e 's,@MRTG_BINARY\@,@MRTG_BINARY@,g' \
+	-e 's,@DATE_BINARY\@,@DATE_BINARY@,g' $< > $@

@@ -9,16 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.admin;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.Writer;
 import java.util.List;
-import java.util.TimeZone;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.ftp.FtpConfiguration;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.DSTChangeEvent;
@@ -36,11 +31,6 @@ import static org.springframework.dao.support.DataAccessUtils.singleResult;
  */
 public abstract class AdminContextImpl extends HibernateDaoSupport implements AdminContext, ApplicationListener,
         BeanFactoryAware {
-    private static final String DATE_BINARY = "sipx-sudo-date";
-    private static final String TIMEZONE_BINARY = "sipx-sudo-timezone";
-
-    private static final Log LOG = LogFactory.getLog(AdminContextImpl.class);
-
     private String m_binDirectory;
 
     private String m_libExecDirectory;
@@ -149,59 +139,4 @@ public abstract class AdminContextImpl extends HibernateDaoSupport implements Ad
         // for now we are assuming that "tapestry" bean is not available during upgrade run
         return !m_beanFactory.containsBean("tapestry");
     }
-
-    public void setSystemDate(String dateStr) {
-        String errorMsg = "Error when changing date";
-        ProcessBuilder pb = new ProcessBuilder(getLibExecDirectory() + File.separator + DATE_BINARY);
-
-        pb.command().add(dateStr);
-        try {
-            LOG.debug(pb.command());
-            Process process = pb.start();
-            BufferedReader scriptErrorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-            String errorLine = scriptErrorReader.readLine();
-            while (errorLine != null) {
-                LOG.warn("sipx-sudo-date: " + errorLine);
-                errorLine = scriptErrorReader.readLine();
-            }
-            int code = process.waitFor();
-            if (code != 0) {
-                errorMsg = String.format("Error when changing date. Exit code: %d", code);
-                LOG.error(errorMsg);
-            }
-        } catch (IOException e) {
-            LOG.error(errorMsg, e);
-        } catch (InterruptedException e) {
-            LOG.error(errorMsg, e);
-        }
-    }
-
-    public void setSystemTimezone(String timezone) {
-
-        String errorMsg = "Error when changing time zone";
-        ProcessBuilder pb = new ProcessBuilder(getLibExecDirectory() + File.separator + TIMEZONE_BINARY);
-        pb.command().add(timezone);
-        try {
-            LOG.debug(pb.command());
-            Process process = pb.start();
-            BufferedReader scriptErrorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-            String errorLine = scriptErrorReader.readLine();
-            while (errorLine != null) {
-                LOG.warn("sipx-sudo-timezone: " + errorLine);
-                errorLine = scriptErrorReader.readLine();
-            }
-            int code = process.waitFor();
-            if (code != 0) {
-                errorMsg = String.format("Error when changing time zone. Exit code: %d", code);
-                LOG.error(errorMsg);
-            }
-            TimeZone tz = TimeZone.getTimeZone(timezone);
-            TimeZone.setDefault(tz);
-        } catch (IOException e) {
-            LOG.error(errorMsg, e);
-        } catch (InterruptedException e) {
-            LOG.error(errorMsg, e);
-        }
-    }
-
 }

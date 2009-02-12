@@ -1,7 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 include $(top_srcdir)/config/subdir.am
 
-SUBDIRS = fastdb sipdb . xsdvalid test sipxrestorebinary sipxpackage sipxswadmin sipxchangedate sipxchangetimezone
+SUBDIRS = fastdb sipdb . xsdvalid test sipxrestorebinary sipxpackage sipxswadmin sipxtimemanager sipxchangetimezone
 
 INCLUDES = -I$(top_srcdir)/include
 

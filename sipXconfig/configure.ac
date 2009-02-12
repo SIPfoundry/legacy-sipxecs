@@ -24,6 +24,7 @@ SFAC_INIT_FLAGS
 # openssl shell script for r/w certs
 AC_PATH_PROG([OPENSSL],[openssl])
 AC_PATH_PROG([BASH],[bash])
+AC_PATH_PROG([DATE_BINARY],[date],"/bin/date")
 
 AC_SUBST(SIPX_DOWNLOADDIR, [${localstatedir}/sipxdata/ftpBackup])
 

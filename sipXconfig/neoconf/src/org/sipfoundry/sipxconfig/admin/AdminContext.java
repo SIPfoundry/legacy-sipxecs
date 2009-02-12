@@ -40,8 +40,4 @@ public interface AdminContext {
      */
     boolean inUpgradePhase();
 
-    void setSystemDate(String dateStr);
-
-    public void setSystemTimezone(String timezone);
-
 }
