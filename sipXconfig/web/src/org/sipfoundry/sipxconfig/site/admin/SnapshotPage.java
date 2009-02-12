@@ -12,7 +12,9 @@ package org.sipfoundry.sipxconfig.site.admin;
 import java.io.File;
 import java.util.Date;
 
+import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.EventListener;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
@@ -78,5 +80,14 @@ public abstract class SnapshotPage extends BasePage implements PageBeginRenderLi
 
         File file = getSnapshot().perform(getStartDate(), getEndDate());
         setSnapshotFile(file);
+    }
+
+    @EventListener(targets = "profilesCheck", events = "onclick")
+    public void adjustCredentials(IRequestCycle cycle) {
+        Snapshot snapshot = getSnapshot();
+        if (snapshot.isProfiles()) {
+            snapshot.setCredentials(true);
+        }
+        cycle.getResponseBuilder().updateComponent("snapshotForm");
     }
 }

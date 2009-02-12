@@ -35,7 +35,7 @@ public class Snapshot {
 
     private boolean m_www = true;
 
-    private boolean m_filterTime;
+    private boolean m_filterTime = true;
 
     private String m_binDirectory;
 

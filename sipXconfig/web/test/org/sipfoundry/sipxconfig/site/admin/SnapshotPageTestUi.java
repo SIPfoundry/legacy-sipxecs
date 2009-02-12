@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.admin;
@@ -19,6 +19,7 @@ public class SnapshotPageTestUi extends WebTestCase {
         return SiteTestHelper.webTestSuite(SnapshotPageTestUi.class);
     }
 
+    @Override
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
@@ -31,12 +32,11 @@ public class SnapshotPageTestUi extends WebTestCase {
      */
     public void testDisplay() {
         SiteTestHelper.assertNoException(getTester());
-        assertCheckboxSelected("snapshot:www");
         assertCheckboxSelected("snapshot:logs");
         assertCheckboxNotSelected("snapshot:credentials");
         assertCheckboxNotSelected("snapshot:cdr");
         assertCheckboxNotSelected("snapshot:profiles");
-        assertCheckboxNotSelected("snapshot:filterTime");
+        assertCheckboxSelected("snapshot:filterTime");
         assertElementPresent("datetimeDate");
         assertElementPresent("datetime:time");
         assertElementPresent("datetimeDate_0");

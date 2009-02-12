@@ -22,6 +22,7 @@ public class SnapshotTest extends TestCase {
         Date startDate = new Date(1215779686450l);// Fri Jul 11 12:34:46 UTC 2008
         Date endDate = new Date(1215779810971l); // Fri Jul 11 12:36:50 UTC 2008
 
+        snapshot.setFilterTime(false);
         String cmdLine = join(snapshot.getCmdLine("", startDate, endDate), '|');
         assertEquals("/sipx-snapshot|--logs|current|sipx-configuration.tar.gz", cmdLine);
 
