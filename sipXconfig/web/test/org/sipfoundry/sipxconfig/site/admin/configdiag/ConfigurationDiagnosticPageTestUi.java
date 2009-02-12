@@ -31,7 +31,7 @@ public class ConfigurationDiagnosticPageTestUi extends WebTestCase {
 
         // expect header row plus 2 rows per test
         // this assert needs to be changed as tests are added or removed
-        int testCounter = 16;
+        int testCounter = 15;
         assertEquals(2 * testCounter + 1, diagCount);
 
     }
