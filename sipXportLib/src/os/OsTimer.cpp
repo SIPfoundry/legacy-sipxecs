@@ -47,6 +47,7 @@ OsTimer::OsTimer(OsMsgQ* pQueue, void* userData) :
    mTaskState(0),
    // Always initialize mDeleting, as we may print its value.
    mDeleting(FALSE),
+   mProcessingInProgress(FALSE),
    mpNotifier(new OsQueuedEvent(*pQueue, userData)),
    mbManagedNotifier(TRUE),
    mOutstandingMessages(0),
@@ -68,6 +69,7 @@ OsTimer::OsTimer(OsNotification& rNotifier) :
    mTaskState(0),
    // Always initialize mDeleting, as we may print its value.
    mDeleting(FALSE),
+   mProcessingInProgress(FALSE),
    mpNotifier(&rNotifier),
    mbManagedNotifier(FALSE),
    mOutstandingMessages(0),
@@ -108,8 +110,13 @@ OsTimer::~OsTimer()
       }
       if( mOutstandingMessages > 0 || mProcessingInProgress || mFiring )
       {
-         mOutstandingMessages++;
          sendMessage = TRUE;
+      }
+      
+      // If we have to send a message, make note of it.       
+      if (sendMessage) 
+      {      
+         mOutstandingMessages++;
       }
    }
 

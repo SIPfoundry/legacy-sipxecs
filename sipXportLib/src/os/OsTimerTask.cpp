@@ -344,10 +344,12 @@ UtlBoolean OsTimerTask::handleMessage(OsMsg& rMsg)
    {
    case OsTimerMsg::UPDATE:
       // No further processing is needed.
+      timer->mProcessingInProgress = FALSE;
       break;
 
    case OsTimerMsg::UPDATE_SYNC:
       // If it is an UPDATE_SYNC message, signal the event.
+      timer->mProcessingInProgress = FALSE;
       message.getEventP()->signal(0);
       break;
 
@@ -378,11 +380,8 @@ UtlBoolean OsTimerTask::handleMessage(OsMsg& rMsg)
       break;
    default:
       // :TODO: ? all cases handled?
-      break;
-   }
-   if( timer )
-   {
       timer->mProcessingInProgress = FALSE;
+      break;
    }
    return TRUE;
 }
