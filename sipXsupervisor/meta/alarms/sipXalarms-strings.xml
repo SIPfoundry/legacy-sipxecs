@@ -60,13 +60,13 @@
          <resolution>No action is required.</resolution>
       </alarm>
       <alarm id="THRESH_MEM_EXCEEDED">
-         <shorttitle>Memory usage threshold exceeded</shorttitle>
-         <description>The threshold for memory usage on {0} has been exceeded.  The threshold is {1}%.  The current value is {2}%.</description>
+         <shorttitle>Free memory threshold exceeded</shorttitle>
+         <description>The threshold for free memory on {0} has been exceeded.  The threshold is {1}%.  The current value is {2}%.</description>
          <resolution>If condition persists, check for runaway or orphaned processes.  Consider restarting the system.</resolution>
       </alarm>
       <alarm id="THRESH_MEM_OK">
-         <shorttitle>Memory usage threshold recovered</shorttitle>
-         <description>Memory usage on {0} has recovered back to {2}%.  The threshold is {1}%.</description>
+         <shorttitle>Free memory threshold recovered</shorttitle>
+         <description>Free memory on {0} has recovered back to {2}%.  The threshold is {1}%.</description>
          <resolution>No action is required.</resolution>
       </alarm>
       <alarm id="EMERG_NUMBER_DIALED">
