@@ -6,13 +6,13 @@
 
 Status=0
 if [ "@SELINUX_GETENFORCE@" != "NOT_SUPPORTED" ];    then
-    Status=`@SELINUX_GETENFORCE@ 2> /dev/null`
-    case $Status in
+    selinuxStatus=`@SELINUX_GETENFORCE@ 2> /dev/null`
+    case $selinuxStatus in
         Permissive|Disabled)
             ;;
         *)
     cat <<EOF
-      selinux status is '${Status}'
+      selinux status is '${selinuxStatus}'
       It must be 'Permissive' or 'Disabled' for sipxpbx;
       this may cause apache to fail.
       Edit /etc/selinux/config and restart your system.
@@ -21,4 +21,4 @@ EOF
       ;;
     esac
 fi
-return $Status
+exit $Status
