@@ -69,21 +69,20 @@ PtCall::PtCall(const PtCall& rPtCall)
 
 PtCall::PtCall(TaoClientTask *pClient, const char* callId)
 {
-        mpClient   = pClient;
+    mpClient   = pClient;
 
-        mCallId.remove(0);
-        if (callId)
-                mCallId = callId;
+    mCallId.remove(0);
+    if (callId)
+            mCallId = callId;
 
-        initialize();
+    initialize();
 
-        if (mpClient && !(mpClient->isStarted()))
-        {
-                mpClient->start();
-        }
+    if (mpClient && !(mpClient->isStarted()))
+    {
+            mpClient->start();
+    }
     mState = ACTIVE;
-        mpConfController = 0;
-
+    mpConfController = 0;
 }
 
 PtCall::~PtCall()

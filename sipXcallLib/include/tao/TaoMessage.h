@@ -49,7 +49,7 @@
 // FORWARD DECLARATIONS
 
 //:This class is for carrying information in Tao subsystems, typically as carrier
-// of information between server and client transports.  It maybe subclassed for
+// of information between server and client transports.  It may be subclassed for
 // different message types.
 class TaoMessage : public OsMsg
 {
@@ -310,7 +310,7 @@ public:
         void setArgCnt(int cnt);
 
         void setArgList(UtlString& argList);
-   void setArgList(const char* szArgList);
+        void setArgList(const char* szArgList);
 
         void setObjHandle(TaoObjHandle handle);
 
@@ -368,7 +368,7 @@ private:
         unsigned int mMsgID;                    // the identifier of this msg
         unsigned int mArgCnt;      // the number of arguments in the msg
         UtlString        mArgList;              // argument list
-   UtlBoolean    mbDirty;      // Is the message dirty (needs to be reserialized)
+        UtlBoolean    mbDirty;      // Is the message dirty (needs to be reserialized)
 
         unsigned char mCmd;
 #ifdef USE_HTTPMSG

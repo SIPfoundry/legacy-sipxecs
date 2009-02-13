@@ -566,14 +566,14 @@ UtlBoolean CpPeerCall::handleTransfereeConnection(OsMsg* pEventMessage)
 
     UtlString referTo;
     UtlString referredBy;
-    UtlString originalCallId;
-    UtlString currentOriginalCallId;
-    getIdOfOrigCall(currentOriginalCallId);
-    UtlString originalConnectionAddress;
+    UtlString idOfReferringCall;
+    UtlString currentIdOfOrigCall;
+    getIdOfOrigCall(currentIdOfOrigCall);
+    UtlString connectionAddressToAdd;
     ((CpMultiStringMessage*)pEventMessage)->getString2Data(referTo);
     ((CpMultiStringMessage*)pEventMessage)->getString3Data(referredBy);
-    ((CpMultiStringMessage*)pEventMessage)->getString4Data(originalCallId);
-    ((CpMultiStringMessage*)pEventMessage)->getString5Data(originalConnectionAddress);
+    ((CpMultiStringMessage*)pEventMessage)->getString4Data(idOfReferringCall);
+    ((CpMultiStringMessage*)pEventMessage)->getString5Data(connectionAddressToAdd);
 #ifdef TEST_PRINT
     OsSysLog::add(FAC_CP, PRI_DEBUG, 
                   "CpPeerCall::handleTransfereeConnection "
@@ -581,17 +581,17 @@ UtlBoolean CpPeerCall::handleTransfereeConnection(OsMsg* pEventMessage)
                   "originalCallId: %s originalConnectionAddress: %s "
                   "callType: %d\n",
                   referTo.data(), referredBy.data(), 
-                  originalCallId.data(), originalConnectionAddress.data(),
+                  idOfReferringCall.data(), connectionAddressToAdd.data(),
                   getCallType());
 #endif
     if(getCallType() == CP_NORMAL_CALL 
        // TBD? I can't find where call type in next line is ever set
        || (getCallType() == CP_TRANSFEREE_TARGET_CALL 
-           && currentOriginalCallId.compareTo(originalCallId) == 0))
+           && currentIdOfOrigCall.compareTo(idOfReferringCall) == 0))
     {
         if(getCallType() == CP_NORMAL_CALL) 
         {
-            setIdOfOrigCall(originalCallId);
+            setIdOfOrigCall(idOfReferringCall);
         }
         // Do not need to lock as connection is never touched
         // and addConnection does its own locking
@@ -611,7 +611,7 @@ UtlBoolean CpPeerCall::handleTransfereeConnection(OsMsg* pEventMessage)
                           "CpPeerCall::handleTransfereeConnection "
                           "creating connection via addParty\n");
 #endif
-            addParty(referTo, referredBy, originalConnectionAddress, NULL, 0, 0, originalCallId);
+            addParty(referTo, referredBy, connectionAddressToAdd, NULL, 0, 0, idOfReferringCall);
             // Note: The connection is added to the call in addParty
         }
 #ifdef TEST_PRINT
@@ -1462,7 +1462,7 @@ UtlBoolean CpPeerCall::handleTransferConnectionStatus(OsMsg* pEventMessage)
 #ifdef TEST_PRINT
     UtlString connState;
     Connection::getStateString(connectionState, &connState);
-    OsSysLog::add(FAC_CP, PRI_ERR, 
+    OsSysLog::add(FAC_CP, PRI_DEBUG, 
                   "CpPeerCall::handleTransferConnectionStatus "
                   "CP_TRANSFER_CONNECTION_STATUS connectionAddress: %s state: %s cause: %d\n",
                   connectionAddress.data(), connState.data(), cause);
@@ -1523,7 +1523,9 @@ UtlBoolean CpPeerCall::handleTransfereeConnectionStatus(OsMsg* pEventMessage)
         OsReadLock lock(mConnectionMutex);
         Connection* connection = findHandlingConnection(connectionAddress);
         if(connection)
+        {
             connection->transfereeStatus(connectionState, responseCode);
+        }
 #ifdef TEST_PRINT
         else
         {
@@ -2873,8 +2875,8 @@ void CpPeerCall::inFocus(int talking)
 #ifdef TEST_PRINT
         OsSysLog::add(FAC_CP, PRI_DEBUG, 
                       "CpPeerCall::inFocus "
-                      "%s-Call %s out of focus\n", 
-                      mName.data(), connectionCallId.data());
+                      "connection call-id= %s out of focus?", 
+                      connectionCallId.data());
 #endif
     }
 
@@ -2893,6 +2895,12 @@ void CpPeerCall::inFocus(int talking)
         {
             setCallState(responseCode, responseText, PtCall::ACTIVE, PtEvent::CAUSE_NEW_CALL);
         }
+#ifdef TEST_PRINT
+        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                      "CpPeerCall::inFocus "
+                      "post %d (%s) INITIATED", 
+                      responseCode, responseText.data());
+#endif
         postTaoListenerMessage(responseCode, 
                                responseText, 
                                PtEvent::CONNECTION_INITIATED, 
@@ -2903,6 +2911,12 @@ void CpPeerCall::inFocus(int talking)
 
         if (mLocalTermConnectionState == PtTerminalConnection::IDLE)
         {
+#ifdef TEST_PRINT
+        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                      "CpPeerCall::inFocus "
+                      "post %d (%s) CONNECTION_CREATED", 
+                      responseCode, responseText.data());
+#endif
             postTaoListenerMessage(responseCode, 
                                    responseText, 
                                    PtEvent::TERMINAL_CONNECTION_CREATED, 
@@ -2918,7 +2932,9 @@ void CpPeerCall::inFocus(int talking)
             getMetaEvent(metaEventId, metaEventType, numCalls, 
                 &metaEventCallIds);
             if(metaEventType != PtEvent::META_CALL_TRANSFERRING)
+            {
                 stopMetaEvent();
+            }
         }
     }
     else 
@@ -2934,6 +2950,12 @@ void CpPeerCall::inFocus(int talking)
                 connection->getResponseText(responseText);
                 UtlString connCallId;
                 connection->getCallId(&connCallId);                
+#ifdef TEST_PRINT
+                OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                              "CpPeerCall::inFocus "
+                              "post %s TALKING/UNHOLD", 
+                              remoteAddress.data());
+#endif
                 postTaoListenerMessage(connection->getResponseCode(), 
                                        responseText, PtEvent::TERMINAL_CONNECTION_TALKING, 
                                        TERMINAL_CONNECTION_STATE, 
@@ -2956,7 +2978,6 @@ void CpPeerCall::inFocus(int talking)
             connection->fireSipXEvent(CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE) ;
         }
     }
-
     CpCall::inFocus();
 }
 
@@ -3569,8 +3590,8 @@ CpCall::handleWillingness CpPeerCall::willHandleMessage(const OsMsg& eventMessag
 {
     CpCall::handleWillingness takeTheMessage = CP_WILL_NOT_HANDLE;
 
-    if(eventMessage.getMsgType() == OsMsg::PHONE_APP &&
-        eventMessage.getMsgSubType() == CallManager::CP_SIP_MESSAGE)
+    if(eventMessage.getMsgType() == OsMsg::PHONE_APP 
+       && eventMessage.getMsgSubType() == CallManager::CP_SIP_MESSAGE)
     {
         const SipMessage* sipMsg = ((SipMessageEvent&)eventMessage).getMessage();
 
@@ -3587,8 +3608,12 @@ CpCall::handleWillingness CpPeerCall::willHandleMessage(const OsMsg& eventMessag
             // Otherwise, if a invite comes in, and does not have a to field,
             // the we SHOULD handle it.
 
-            if (mDropping && seqMethod == "INVITE" && strToField.length())
+            if (mDropping 
+                && seqMethod == "INVITE" 
+                && strToField.length())
+            {
                 ; 
+            }
             else
             {
                 UtlString callId;
@@ -3606,8 +3631,8 @@ CpCall::handleWillingness CpPeerCall::willHandleMessage(const OsMsg& eventMessag
                 }
 
                 // Check if this is an INVITE with a Replaces header
-                if(takeTheMessage == CP_WILL_NOT_HANDLE && 
-                    !sipMsg->isResponse())
+                if(takeTheMessage == CP_WILL_NOT_HANDLE 
+                   && !sipMsg->isResponse())
                 {
                     UtlString method;
                     sipMsg->getRequestMethod(&method);

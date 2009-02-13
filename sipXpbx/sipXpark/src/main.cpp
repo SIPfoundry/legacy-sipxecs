@@ -653,7 +653,7 @@ int main(int argc, char* argv[])
            numTwoSecIntervals = 0;
            if (OsSysLog::willLog(FAC_PARK, PRI_DEBUG))
            {
-               callManager.printCalls() ;
+               callManager.printCalls(0) ;
                listener.dumpCallsAndTransfers();
            }
        }

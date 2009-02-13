@@ -125,8 +125,9 @@ mDtmfQMutex(OsMutex::Q_FIFO)
 
     UtlString name = getName();
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG, "%s Call constructed: %s\n", name.data(), mCallId.data());
-    osPrintf("%s constructed: %s\n", name.data(), mCallId.data());
+    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                  "%s Call constructed: %s", 
+                  name.data(), mCallId.data());
 #endif
 }
 
@@ -209,18 +210,26 @@ void CpCall::setDropState(UtlBoolean state)
     mDropping = state;
 }
 
-void CpCall::setCallState(int responseCode, UtlString responseText, int state, int casue)
+void CpCall::setCallState(int responseCode, UtlString responseText, int state, int cause)
 {
+#ifdef TEST_PRINT
+    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                  "CpCall::setCallState "
+                  "mState %d, newState %d, event %d, cause %d", 
+                  mCallState, state,
+                  (state == PtCall::INVALID ? PtEvent::CALL_INVALID : PtEvent::CALL_ACTIVE),
+                  cause);
+#endif
     if (state != mCallState)
     {
         switch(state)
         {
         case PtCall::INVALID:
-            postTaoListenerMessage(responseCode, responseText, PtEvent::CALL_INVALID, CALL_STATE, casue);
+            postTaoListenerMessage(responseCode, responseText, PtEvent::CALL_INVALID, CALL_STATE, cause);
             break;
 
         case PtCall::ACTIVE:
-            postTaoListenerMessage(responseCode, responseText, PtEvent::CALL_ACTIVE, CALL_STATE, casue);
+            postTaoListenerMessage(responseCode, responseText, PtEvent::CALL_ACTIVE, CALL_STATE, cause);
             break;
 
         default:
@@ -1468,9 +1477,13 @@ void CpCall::postTaoListenerMessage(int responseCode,
     }
 
     if (type == CONNECTION_STATE)
+    {
         mLocalConnectionState = eventId;
+    }
     else if (type == TERMINAL_CONNECTION_STATE)
+    {
         mLocalTermConnectionState = tcStateFromEventId(eventId);
+    }
 
     if (mListenerCnt > 0 && eventId != PtEvent::EVENT_INVALID)
     {
@@ -1478,9 +1491,13 @@ void CpCall::postTaoListenerMessage(int responseCode,
         UtlString arg;
         UtlString callId;
         if (targetCallId == OsUtil::NULL_OS_STRING)
+        {
             getCallId(callId);
+        }
         else
+        {
             callId.append(targetCallId.data());
+        }
 
         getLocalAddress(buf, 127);
         arg = callId;                                                                   // arg[0]
@@ -1499,9 +1516,13 @@ void CpCall::postTaoListenerMessage(int responseCode,
 
         arg.append(TAOMESSAGE_DELIMITER);                               // arg[3]
         if (remoteIsCallee)                             // remoteiscallee?
+        {
             arg.append("1");
+        }
         else
+        {
             arg.append("0");
+        }
 
         sprintf(buf, "%d", cause);
         arg.append(TAOMESSAGE_DELIMITER);
@@ -1517,10 +1538,14 @@ void CpCall::postTaoListenerMessage(int responseCode,
         //              }
 
         arg.append(TAOMESSAGE_DELIMITER);                               // arg[6]
-        if (isRemote)                                           // isLocal
+        if (isRemote)                                           
+        {
             arg.append("0");
-        else
+        }
+        else                        // isLocal
+        {
             arg.append("1");
+        }
 
         sprintf(buf, "%d", responseCode);                               // arg[7]
         arg += TAOMESSAGE_DELIMITER + UtlString(buf);   // SIP response code
@@ -1545,22 +1570,21 @@ void CpCall::postTaoListenerMessage(int responseCode,
                     arg.append(mpMetaEventCallIds[i]);
                 }
             }
-
             argCnt += (mNumMetaEventCalls + 2);
         }
 
         TaoMessage msg(TaoMessage::EVENT,
-            0,
-            0,
-            eventId,
-            0,
-            argCnt,
-            arg);
+                       0, 0, 
+                       eventId, 
+                       0, 
+                       argCnt, arg);
 
         for (int i = 0; i < mListenerCnt; i++)
         {
             if (mpListeners[i] && mpListeners[i]->mpListenerPtr)
+            {
                 ((OsServerTask*) (mpListeners[i]->mpListenerPtr))->postMessage((OsMsg&)msg);
+            }
         }
 
         UtlString eventLog;

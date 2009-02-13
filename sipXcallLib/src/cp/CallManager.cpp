@@ -3362,10 +3362,8 @@ CpCall* CallManager::findHandlingCall(const OsMsg& eventMessage)
                 }
             }
             callCollectable = (UtlVoidPtr*)iterator();
-        }
-
+        }   // done searching all calls for best handler
     }
-
     return(handlingCall);
 }
 

@@ -230,9 +230,9 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                                  "OrbitListener::handleMessage - %d "
                                  "callId: '%s', address: '%s' found in transfer list", 
                                  taoEventId, callIdTao.data(), addressTao.data());
-                    UtlString* idOfOriglCallTxfr =
+                    UtlString* idOfOrigCallTxfr =
                       dynamic_cast <UtlString*> (mTransferCalls.findValue(&callIdTao));
-                   if (idOfOriglCallTxfr)
+                   if (idOfOrigCallTxfr)
                    {
                       // If we have a ParkedCallObject for the originalCallId, 
                       // remove it from the hashmap and re-insert it with the new callId
@@ -241,17 +241,17 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                                     "OrbitListener::handleMessage - %d "
                                     "transfer pair - callId: '%s', address: '%s', originalCallId: '%s'",
                                     taoEventId, callIdTao.data(), addressTao.data(),
-                                    idOfOriglCallTxfr->data());
+                                    idOfOrigCallTxfr->data());
 
                       // See if the originalCallId is one of our calls.
                       ParkedCallObject* pCall =
-                         dynamic_cast <ParkedCallObject *> (mCalls.findValue(idOfOriglCallTxfr));
+                         dynamic_cast <ParkedCallObject *> (mCalls.findValue(idOfOrigCallTxfr));
                       if (pCall == NULL)
                       {
                          OsSysLog::add(FAC_PARK, PRI_DEBUG,
                                        "OrbitListener::handleMessage - %d "
                                        "Original callId '%s' not found in the parked call list",
-                                       taoEventId, idOfOriglCallTxfr->data());
+                                       taoEventId, idOfOrigCallTxfr->data());
                       }
                       else
                       {
@@ -260,7 +260,13 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                                        "found parked call object %p for '%s'", 
                                        taoEventId, pCall, callIdTao.data());
 
-                         mCalls.remove(idOfOriglCallTxfr);
+                         OsSysLog::add(FAC_PARK, PRI_DEBUG, 
+                                       "OrbitListener::handleMessage - %d "
+                                       "replacing parked call(%p) object key "
+                                       "was %s changes to '%s'", 
+                                       taoEventId, pCall, idOfOrigCallTxfr->data(), callIdTao.data());
+
+                         mCalls.remove(idOfOrigCallTxfr);
                          mCalls.insertKeyAndValue(new UtlString(callIdTao),pCall);
                          pCall->setOriginalCallId(callIdTao); 
                       }
@@ -817,7 +823,8 @@ ParkedCallObject* OrbitListener::getOldestCallInOrbit(const UtlString& orbit,
          // so far, that it is not a retrieval call, and that it's not being transferred
          // back to its parker.
          pCall->getTimeParked(parked);
-         OsSysLog::add(FAC_PARK, PRI_DEBUG, "OrbitListener::getOldestCallInOrbit "
+         OsSysLog::add(FAC_PARK, PRI_DEBUG, 
+                       "OrbitListener::getOldestCallInOrbit "
                        "Entry for callId '%s', orbit '%s', time %ld.%06ld, "
                        "isPickupCall %d, transferInProgress %d",
                        pKey->data(), pCall->getOrbit(), parked.seconds(), parked.usecs(),
@@ -848,13 +855,15 @@ ParkedCallObject* OrbitListener::getOldestCallInOrbit(const UtlString& orbit,
                oldestAddress = pCall->getCurrentAddress();
                pReturn = pCall;
                   
-               OsSysLog::add(FAC_PARK, PRI_DEBUG, "OrbitListener::getOldestCallInOrbit "
+               OsSysLog::add(FAC_PARK, PRI_DEBUG, 
+                             "OrbitListener::getOldestCallInOrbit "
                              "Valid callId '%s', address '%s'",
                              oldestKey.data(), oldestAddress.data());
             }
             else
             {
-               OsSysLog::add(FAC_PARK, PRI_ERR, "OrbitListener::getOldestCallInOrbit "
+               OsSysLog::add(FAC_PARK, PRI_ERR, 
+                             "OrbitListener::getOldestCallInOrbit "
                              "Unknown callId '%s', remove from list",
                              pKey->data());
                mCalls.destroy(pKey);
@@ -863,12 +872,14 @@ ParkedCallObject* OrbitListener::getOldestCallInOrbit(const UtlString& orbit,
       }
       else
       {
-         OsSysLog::add(FAC_PARK, PRI_DEBUG, "OrbitListener::getOldestCallInOrbit "
+         OsSysLog::add(FAC_PARK, PRI_DEBUG, 
+                       "OrbitListener::getOldestCallInOrbit "
                        "No call object found for callId '%s'", 
                        pKey->data());                    
       }
    }
-   OsSysLog::add(FAC_PARK, PRI_DEBUG, "OrbitListener::getOldestCallInOrbit "
+   OsSysLog::add(FAC_PARK, PRI_DEBUG, 
+                 "OrbitListener::getOldestCallInOrbit "
                  "Returning pCall %p, callId '%s', address '%s'",
                  pReturn, oldestKey.data(), oldestAddress.data());   
    callId = oldestKey;

@@ -1705,11 +1705,13 @@ UtlBoolean SipConnection::transfereeStatus(int callState, int returnCode)
                mpCall->getMetaEvent(metaEventId, metaEventType, numCalls,
                   &metaEventCallIds);
                if(metaEventId > 0 && metaEventType == PtEvent::META_CALL_TRANSFERRING)
+               {
                   mpCall->stopMetaEvent();
-             } 
+               }
+            } 
         }
 
-        // Should be BYE Also type transfer
+        // Should be BYE 'Also' type transfer
         else
         {
             SipMessage transferResponse;
@@ -3208,12 +3210,7 @@ void SipConnection::processReferRequest(const SipMessage* request)
         mpCall->setTargetCallId(targetCallId.data());
         mpCall->setCallType(CpCall::CP_TRANSFEREE_ORIGINAL_CALL);
         
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                      "Leaving SipConnection::processReferRequest, "
-                      "refer-to: %s callid: %s\n",
-                      referTo.data(), targetCallId.data());
-
-         // Mark the begining of a transfer meta event in this call
+        // Mark the begining of a transfer meta event in this call
         mpCall->startMetaEvent(metaEventId,
                                PtEvent::META_CALL_TRANSFERRING,
                                2, metaEventCallIds);
@@ -5536,7 +5533,7 @@ UtlBoolean SipConnection::getRemoteAddress(UtlString* remoteAddress) const
 UtlBoolean SipConnection::getRemoteAddress(UtlString* remoteAddress,
                                            UtlBoolean leaveFieldParmetersIn) const
 {
-    // leaveFieldParmetersIn gives the flexability of getting the
+    // leaveFieldParmetersIn gives the flexibility of getting the
     // tag when the connection is still an early dialog
 
     int remoteState = getState();
