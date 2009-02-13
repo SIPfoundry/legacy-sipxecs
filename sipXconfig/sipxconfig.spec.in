@@ -211,6 +211,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/ssl-cert/create-ssl-keystore.sh
 %attr(755,root,root) %{_bindir}/ssl-cert/create-ssl-truststore.sh
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxconfig-process.xml
+%attr(755,@SIPXPBXUSER@, @SIPXPBXGROUP@) %{_bindir}/sipx-time-manager
 
 # itspTemplates
 %{_sysconfdir}/sipxpbx/itspTemplates/bandtel.xml
