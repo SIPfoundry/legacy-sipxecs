@@ -3293,6 +3293,9 @@ void SipConnection::processReferRequest(const SipMessage* request)
         setState(CONNECTION_UNKNOWN, CONNECTION_REMOTE);
         /** SIPXTAPI: TBD **/
     }
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "Leaving "
+                  "SipConnection::processReferRequest ");
 } // end of processReferRequest
 
 void SipConnection::processNotifyRequest(const SipMessage* request)

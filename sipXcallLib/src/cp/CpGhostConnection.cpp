@@ -121,10 +121,13 @@ UtlBoolean CpGhostConnection::transferControllerStatus(int connectionState, int 
     setState(connectionState, CONNECTION_REMOTE, cause);
     /** SIPXTAPI: TBD **/
 
-    // If the transfer suceeded, imediately go to UNKNOWN as
-    // we will not receive notification of further state changes
+    // If the transfer suceeded, go to DISCONNECTED to clean out all objects 
+    // related to th pseudo(ghost) call.  Go immediately to UNKNOWN as we 
+    // will NOT receive further state change notifications
     if(connectionState == CONNECTION_ESTABLISHED)
     {
+        setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE, CONNECTION_CAUSE_TRANSFER);
+        
         setState(CONNECTION_UNKNOWN, CONNECTION_REMOTE, CONNECTION_CAUSE_TRANSFER);
         /** SIPXTAPI: TBD **/
     }
