@@ -110,7 +110,8 @@ class TransactionApplicationData {
                         String fromAddrSpec = inviteMessage.getFromAddrSpec();
                         Request referRequest = dialog.createRequest(Request.REFER);
                         referRequest.removeHeader(AllowHeader.NAME);
-                        ReferToHeader referTo = m_helper.createReferToHeader(fromAddrSpec);
+                        String referTarget = inviteMessage.getReferTarget();
+                        ReferToHeader referTo = m_helper.createReferToHeader(referTarget);
                         referRequest.setHeader(referTo);
                         ReferredByHeader referredBy = m_helper.createReferredByHeader(inviteMessage.getToAddrSpec());
                         referRequest.setHeader(referredBy);

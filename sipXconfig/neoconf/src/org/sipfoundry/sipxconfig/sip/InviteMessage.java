@@ -43,29 +43,29 @@ public class InviteMessage extends JainSipMessage {
 
     private final UserCredentials m_userCredentials;
 
-    /**
-     * @param toAddressSpec the target for the 3pcc.
-     */
-    public InviteMessage(SipStackBean helper, UserCredentials userCredentials, String fromAddressSpec,
-            String toAddressSpec, Operator operator) {
-        this(helper, userCredentials, null, fromAddressSpec, toAddressSpec, operator);
-    }
+    private String m_referTarget;
+    
+    private boolean m_forwardingAllowed;
+
+    
 
     public InviteMessage(SipStackBean helper, UserCredentials userCredentials, String fromDisplayName, 
-            String fromAddressSpec, String toAddressSpec, Operator operator) {
+            String fromAddressSpec, String toAddressSpec, String referTarget, 
+            Operator operator) {
         super(helper);
         m_toAddrSpec = toAddressSpec;
         m_fromDisplayName = fromDisplayName;
         m_fromAddrSpec = fromAddressSpec;
+        m_referTarget = referTarget;
         m_operator = operator;
-        m_userCredentials = userCredentials;        
+        m_userCredentials = userCredentials;
     }
     
     @Override
     public ClientTransaction createAndSend() {
         try {
             Request request = createRequest(Request.INVITE, m_userCredentials.getUserName(), m_fromDisplayName, 
-                    m_fromAddrSpec, m_toAddrSpec);
+                    m_fromAddrSpec, m_toAddrSpec, m_forwardingAllowed);
             AllowHeader allowHeader = getHelper().createAllowHeader(METHODS);
             request.addHeader(allowHeader);
             String sdpBody = getHelper().formatWithIpAddress(SDP_BODY_FORMAT);
@@ -94,6 +94,18 @@ public class InviteMessage extends JainSipMessage {
 
     public String getFromAddrSpec() {
         return m_fromAddrSpec;
+    }
+
+    public String getReferTarget() {
+        return m_referTarget;
+    }
+
+    public void setforwardingAllowed(boolean forwardingAllowed) {
+        m_forwardingAllowed = forwardingAllowed;
+    }
+    
+    public boolean isforwardingAllowed() {
+        return m_forwardingAllowed;
     }
 
 }

@@ -268,7 +268,7 @@ public class SipStackBean {
     }
 
     final Request createRequest(String requestType, String userName, String fromDisplayName, String fromAddrSpec,
-            String addrSpec) throws ParseException {
+            String addrSpec, boolean forwardingAllowed) throws ParseException {
         SipURI fromUri;
         if (fromAddrSpec == null) {
             fromUri = createOurSipUri(userName);
@@ -279,9 +279,16 @@ public class SipStackBean {
             FromHeader fromHeader = createFromHeader(fromDisplayName, fromUri);
             ToHeader toHeader = createToHeader(addrSpec);
             SipURI requestURI = (SipURI) m_addressFactory.createURI(addrSpec);
-            // limit forwarding
+            // limit forwarding so will not route to voicemail.
             requestURI.setParameter("sipx-noroute", "Voicemail");
-            requestURI.setParameter("sipx-userforward", "false");
+            // This is disabled for click to dial but enabled for conference.
+            if (!forwardingAllowed) {
+                requestURI.setParameter("sipx-userforward", "false");
+            }
+            // Dont play MOH if configured on bridge. This is relevant for INVITE to conference.
+            // MOH will still play fine on the click to dial case if so configured. This is only for 
+            // Preventing MOH playing when we transfer to conference bridge.
+            requestURI.setParameter("sipxbridge-moh", "false"); 
             MaxForwardsHeader maxForwards = m_headerFactory.createMaxForwardsHeader(m_maxForwards);
             ViaHeader viaHeader = createViaHeader();
             ContactHeader contactHeader = createContactHeader();

@@ -34,10 +34,10 @@ public abstract class JainSipMessage extends AbstractMessage {
     }
 
     protected Request createRequest(String requestType, String userName, String fromDisplayName,
-            String fromAddrSpec, String toAddrSpec) {
+            String fromAddrSpec, String toAddrSpec, boolean forwardingAllowed) {
         try {
             Request request = m_helper.createRequest(requestType, userName, fromDisplayName, 
-                    fromAddrSpec, toAddrSpec);
+                    fromAddrSpec, toAddrSpec, forwardingAllowed);
             m_helper.addContent(request, m_contentType, m_payload);
             return request;
 

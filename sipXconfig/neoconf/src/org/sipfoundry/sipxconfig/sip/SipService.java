@@ -22,5 +22,6 @@ public interface SipService {
     public void sendNotify(String addrSpec, String eventType, String contentType, byte[] payload);
 
     public void sendRefer(User user, String sourceAddrSpec, String destinationAddSpec);
-    public void sendRefer(User user, String sourceAddrSpec, String displayName, String destinationAddrSpec);
+    public void sendRefer(User user, String sourceAddrSpec, String displayName, String destinationAddrSpec, 
+            String referTarget, boolean inviteForwardingAllowed);
 }

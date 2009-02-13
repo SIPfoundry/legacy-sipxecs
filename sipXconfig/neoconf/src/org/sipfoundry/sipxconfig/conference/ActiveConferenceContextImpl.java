@@ -33,7 +33,7 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
     private FreeswitchApiResultParser m_freeswitchApiParser = new FreeswitchApiResultParserImpl();
     private DomainManager m_domainManager;
     private SipService m_sipService;
-    
+
     @Required
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
@@ -53,7 +53,7 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
     public void setSipService(SipService sipService) {
         m_sipService = sipService;
     }
-    
+
     public int getActiveConferenceCount(Bridge bridge) {
         LOG.debug("Requesting count of active conferences from bridge " + bridge.getName());
         FreeswitchApi api = m_freeswitchApiProvider.getApi(bridge.getServiceUri());
@@ -148,9 +148,23 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
     public void inviteParticipant(User user, Conference conference, String inviteNumber) {
         String domain = m_domainManager.getDomain().getName();
         String sourceAddressSpec = SipUri.fix(inviteNumber, domain);
-        
-        m_sipService.sendRefer(user, sourceAddressSpec, conference.getName(), 
-                m_conferenceBridgeContext.getAddressSpec(conference)); 
+
+        if (conference.hasOwner()) {
+            m_sipService.sendRefer(conference.getOwner(), // Who are we (credentials) 
+                  sourceAddressSpec,                      // Who we are inviting 
+                  conference.getName(),                   // From this name
+                                                          // From this address
+                  m_conferenceBridgeContext.getAddressSpec(conference),
+                  // Use the above, not this one: conference.getUri(), as the
+                  // former will be extension@proxy, the latter will be
+                  // confname@domain:freeswitchport.  We want the former
+                  // so calls back to it will go via the proxy, not directly
+                  // to the conference which may not be externally addressable
+                  m_conferenceBridgeContext.getAddressSpec(conference), true);
+        } else {
+            LOG.warn("conference does not have owner -- cannot INVITE participant");
+            // TODO -- throw exception!
+        }
     }
 
     private boolean conferenceAction(Conference conference, String... commands) {
