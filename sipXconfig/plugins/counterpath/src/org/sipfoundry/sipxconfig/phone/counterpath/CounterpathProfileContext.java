@@ -11,7 +11,6 @@ package org.sipfoundry.sipxconfig.phone.counterpath;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,11 +25,12 @@ public class CounterpathProfileContext extends ProfileContext<Phone> {
         super(device, profileTemplate);
     }
 
+    @Override
     public Map<String, Object> getContext() {
-        Map<String, Object> context = (HashMap<String, Object>) super.getContext();
+        Map<String, Object> context = super.getContext();
         LeafSettings leafs = new LeafSettings();
         List<Collection> lineLeafSettings = new ArrayList<Collection>();
-        Phone phone = (Phone) getDevice();
+        Phone phone = getDevice();
         List<Line> lines = phone.getLines();
         phone.getSettings().acceptVisitor(leafs);
         context.put("phone_leaf_settings", leafs.getLeafs());
@@ -45,12 +45,13 @@ public class CounterpathProfileContext extends ProfileContext<Phone> {
 
     private class LeafSettings extends AbstractSettingVisitor {
 
-        private Collection<Setting> m_leaf = new ArrayList<Setting>();
+        private final Collection<Setting> m_leaf = new ArrayList<Setting>();
 
         public Collection<Setting> getLeafs() {
             return m_leaf;
         }
 
+        @Override
         public void visitSetting(Setting setting) {
             if (setting.isLeaf()) {
                 m_leaf.add(setting);

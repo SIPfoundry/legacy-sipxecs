@@ -12,8 +12,6 @@ package org.sipfoundry.sipxconfig.phone.counterpath;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 
 public class CounterpathPhoneModel extends PhoneModel {
-    private String m_codeServerUrl;
-    
     public CounterpathPhoneModel() {
         super();
     }

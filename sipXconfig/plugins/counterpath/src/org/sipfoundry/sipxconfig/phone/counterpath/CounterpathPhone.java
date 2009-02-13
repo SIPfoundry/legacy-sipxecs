@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.phone.counterpath;
 
+import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
@@ -71,7 +72,7 @@ public class CounterpathPhone extends Phone {
     }
 
     public class CounterpathPhoneDefaults {
-        private Phone m_phone;
+        private final Phone m_phone;
 
         public CounterpathPhoneDefaults(Phone phone) {
             m_phone = phone;
@@ -80,17 +81,16 @@ public class CounterpathPhone extends Phone {
         @SettingEntry(path = SUBSCRIPTION_AOR)
         public String getWorkgroupSubscriptionAor() {
             SpeedDial speedDial = getPhoneContext().getSpeedDial(m_phone);
-            if (speedDial != null) {
-                return "sip:" + speedDial.getResourceListId(true) + "@"
-                        + getPhoneContext().getPhoneDefaults().getDomainName();
-            } else {
+            if (speedDial == null) {
                 return null;
             }
-        }       
+            String domain = getPhoneContext().getPhoneDefaults().getDomainName();
+            return SipUri.format(speedDial.getResourceListId(true), domain, false);
+        }
     }
 
     public static class CounterpathLineDefaults {
-        private Line m_line;
+        private final Line m_line;
 
         public CounterpathLineDefaults(Line line) {
             m_line = line;
