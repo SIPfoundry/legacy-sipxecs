@@ -53,10 +53,15 @@
 # This is generally only useful with one input file, in which case the
 # output frameId is the same as the input frameId.
 #
+# --slack=seconds
+# Change the max time allowed between log lines for them to be merged into
+# one output frame.  Argument may have decimals.  Default value is 0.75.
+#
 # (*) These values are actually patterns, not strings.  You can use any of
 # the Perl regular expression matching features.  Beware that you not only
 # have to quote the usual regexp special characters, but also '/', '$', and
-# especially '@'.
+# especially '@'.  Generally, spaces in arguments do not work even if they
+# are quoted.
 
 # Amount of clock skew and transit time allowed.
 $time_slack = 0.75;
@@ -106,7 +111,7 @@ while ($ARGV[0] =~ m/^-/) {
 	$o = $1;
 	die "Invalid --offset option '$o'.\n"
 	    unless ($f, $a, $b) = ($o =~ m/^(.*?):(.*)->(.*)$/);
-	print STDERR "\$f = $f \$a = $a \$b = $b\n";
+	print STDERR "\$f = $f \$a = $a \$b = $b\n" if $debug;
 	die "Invalid --offset time '$a'.\n"
 	    unless $a =~ m%^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d+)?Z?$%;
 	die "Invalid --offset time '$b'.\n"
@@ -114,6 +119,8 @@ while ($ARGV[0] =~ m/^-/) {
 	$clock_offset{$f} = &numeric_time($b) - &numeric_time($a);
     } elsif ($option eq '--filter') {
 	$filter = 1;
+    } elsif ($option =~ m/--slack=([\d.]+)/) {
+	$time_slack = $1 + 0;
     } else {
 	die "Unparsable option: '$option'\n";
     }
