@@ -134,7 +134,7 @@ public class CounterpathPhone extends Phone {
 
         @SettingEntry(path = VOICEMAIL_URL)
         public String getVoicemailURL() {
-            return m_line.getPhone().getDefaults().getVoiceMail();
+            return m_line.getPhoneContext().getPhoneDefaults().getVoiceMail();
         }
     }
 }
