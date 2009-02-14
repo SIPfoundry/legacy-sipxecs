@@ -78,7 +78,7 @@ def refresh_sipxconfig_db () :
 
 log_init()
 
-log_printout("sipx-setup @SIPX_VERSION@")
+log_printout("Start @SIPX_VERSION@")
 
 screen_init()
 
@@ -97,14 +97,14 @@ try:
 except:
     excType, excData, excTrace = sys.exc_info()
     if   excType == KeyboardInterrupt:
-        log_printout ( '\n\n*** User Interrupt Detected ***\n\n' )
+        log_printout('*** User Interrupt Detected ***' )
     elif excType == SystemExit:
-        log_printout ( '\n%s\n' % str (excData) )
+        log_printout('%s' % str (excData) )
     else:
         errStack = traceback.extract_tb(excTrace)[-1]
-        errMsg   = '\nUNEXPECTED EXCEPTION CAPTURED:\n\n'
+        errMsg   = 'UNEXPECTED EXCEPTION CAPTURED:\n\n'
         errMsg  += '%s: %s ' % (str(excType), str(excData))
-        errMsg  += '(exception occured in file: %s, line: %s)\n' % (errStack[0], errStack[1])
+        errMsg  += '(exception occured in file: %s, line: %s)' % (errStack[0], errStack[1])
         log_printout ( errMsg )
     cleanExit()
 

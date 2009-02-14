@@ -1,11 +1,8 @@
 #! /usr/bin/env python
-
 #----------------------------------------------------------------------
-#
 # Copyright (C) 2008 Nortel Networks
 #
 # This is a common library for setup scripting
-#
 #----------------------------------------------------------------------
 
 import os, commands, sys, re, time, traceback, glob, signal, snack, urllib, tarfile
@@ -66,15 +63,33 @@ def runningAsRoot() :
 
 def log_init ():
     global fout
+    global setupScriptName
+
+    setupScriptName=sys.argv[0]
+    if setupScriptName.find("/") > -1 :
+        setupScriptName = os.path.basename(setupScriptName)
     fout=open(SIPX_SETUP_LOG,"w")
 
 def log_printout (outString):
     global fout
-    fout.write(outString + "\n")
+    global HostName
+    global setupScriptName
+    
+    exactTime=time.time()
+    roundTime=time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime(exactTime)) # drops fractional seconds
+    fracSecs=int( ( exactTime - int(exactTime) ) * 100000 )
+    
+    escapedString=outString.rstrip("\n")
+    escapedString=escapedString.replace("\\","\\\\")
+    escapedString=escapedString.replace("\"","\\\"")
+    escapedString=escapedString.replace("\n","\\n")
+
+    fout.write("\"%s.%06dZ\":0:SETUP:INFO:%s:setup:0:%s:setup:\"%s\"\n"
+               % ( roundTime, fracSecs, HostName, setupScriptName, escapedString ))
     fout.flush()
 
 def log_result (setting, value) :
-    log_printout( '\t%-30s : %s' % ( setting, value ))
+    log_printout('\t%-30s : %s' % ( setting, value ))
 
 def log_close ():
     global fout
@@ -194,7 +209,7 @@ def progress(percent,msg):
     global stepmsg
     global screen
 
-    log_printout("\n--- %d %s\n" % (percent, msg))
+    log_printout("--- %d %s" % (percent, msg))
     progressvalue=percent
     stepmsg.setText(msg)
 
@@ -213,19 +228,19 @@ def show_next() :
 def setRights(path, owner='@SIPXPBXUSER@', group='@SIPXPBXGROUP@', access="u=rw,g=rw,o=") :
 
     chownCmd="chown -v %s:%s %s" % (owner,group,path)
-    log_printout("  Setting ownership of '%s' using:\n  %s" % (path, chownCmd))
+    log_printout("Setting ownership of '%s' using:\n  %s" % (path, chownCmd))
     cmdoutput=commands.getoutput(chownCmd)
     log_printout(cmdoutput)
 
     chmodCmd="chmod -v %s %s" % (access,path)
-    log_printout("  Setting access to '%s' using:\n  %s" % (path, chmodCmd))
+    log_printout("Setting access to '%s' using:\n  %s" % (path, chmodCmd))
     cmdoutput=commands.getoutput(chmodCmd)
     log_printout(cmdoutput)
     
 def setOwnerRecursive(path, owner='@SIPXPBXUSER@', group='@SIPXPBXGROUP@') :
 
     chownCmd="chown -R -v %s:%s %s" % (owner,group,path)
-    log_printout("  Recursively setting ownership of '%s' using:\n  %s" % (path, chownCmd))
+    log_printout("Recursively setting ownership of '%s' using:\n  %s" % (path, chownCmd))
     cmdoutput=commands.getoutput(chownCmd)
     log_printout(cmdoutput)
 
@@ -251,11 +266,11 @@ Is this the first @SIPXECS_NAME@ server for this domain ? \n\
 
     if choice == firstButton :
         #--- Configure and enable HA System
-        log_printout ( '\n    First System selected\n' )
+        log_printout('First System selected\n' )
         isFirstSystem = True
 
     else :
-        log_printout ( '\n    Nth System selected\n' )
+        log_printout('Nth System selected\n' )
         isFirstSystem = False
 
 def screen_hostname_error () :
@@ -443,12 +458,12 @@ def set_fixed_cert_params () :
     global DomainName
     global SipDomain
     
-    log_printout("\n--- Setting Certificate Parameters\n")
+    log_printout("--- Setting Certificate Parameters")
 
     curDir = os.getcwd ()
     if not os.path.isdir (SSL_GENDIR) :
         os.makedirs(SSL_GENDIR)
-        log_printout ("  created directory '%s'" % SSL_GENDIR)
+        log_printout("created directory '%s'" % SSL_GENDIR)
         setRights(SSL_GENDIR,'@SIPXPBXUSER@','@SIPXPBXGROUP@','u=rwx,g=rwx,o=')
 
     os.chdir (SSL_GENDIR)
@@ -517,7 +532,7 @@ def setup_domain_config () :
     global SipDomain
 
     show_progress()
-    log_printout ( '\n--- domain-config ---\n' )
+    log_printout('--- domain-config ---' )
 
     minimalDomainConfig = "\
 SIP_DOMAIN_NAME : %s\n\
@@ -549,7 +564,7 @@ def enable_sipXconfig () :
     if not os.path.isdir (SupervisorStateDir) :
         os.makedirs(SupervisorStateDir)
         setRights(SupervisorStateDir,'@SIPXPBXUSER@','@SIPXPBXGROUP@','u=rwx,g=rwx,o=')
-        log_printout("  created directory '%s'" % SupervisorStateDir)
+        log_printout("created directory '%s'" % SupervisorStateDir)
 
     SupervisorStateFile=SupervisorStateDir+'/'+ConfigServerServiceName
     file(SupervisorStateFile, 'w').write('Enabled')
@@ -708,12 +723,12 @@ def do_sipx_setup() :
     if HostName == '' :
         screen_hostname_error()
     else :
-        log_printout ( "\n   Host Name '%s'" % HostName )
+        log_printout("Host Name '%s'" % HostName )
         
         nameMatch = reDomain.search(HostName) 
         if nameMatch != None :
             DomainName = nameMatch.group(1)
-            log_printout ( "\n   Domain Name '%s'" % DomainName )
+            log_printout("Domain Name '%s'" % DomainName )
         else :
             screen_hostname_error()
 
@@ -787,7 +802,7 @@ your @SIPXECS_NAME@ services.\
     screen_end()
 
     if choice == startButton :
-        log_printout ( '\n--- Starting @SIPXECS_NAME@ ---\n' )
+        log_printout('--- Starting @SIPXECS_NAME@ ---' )
         if runningAsRoot() :
            execNext('service', ['sipxpbx', 'start'])
            # execNext does not return
@@ -798,12 +813,12 @@ your @SIPXECS_NAME@ services.\
     else :
         if choice == rebootButton :
             #--- Rebooting the host
-            log_printout ( '\n--- Rebooting the host ---\n' )
+            log_printout('--- Rebooting the host ---' )
             execNext('shutdown', ['-r', 'now'])
             # execNext does not return
             
         else :
-            log_printout ( '\n--- Exit to shell ---\n' )
+            log_printout('--- Exit to shell ---' )
 
     cleanExit()
 
