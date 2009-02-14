@@ -664,7 +664,7 @@ driftfile /var/lib/ntp/drift\n\
 # Synchronize with selected time servers\n\
 '
     for nsvr in NtpServers :
-        ntpConf  += 'server %s\n' % nsvr
+        ntpConf  += 'server %s iburst dynamic\n' % nsvr
 
     log_printout(ntpConf)
 
