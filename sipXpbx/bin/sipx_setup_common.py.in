@@ -629,9 +629,11 @@ def screen_ask_netif ():
    global NetMask
 
    netExplanation="\
-Failed to read configuration for\n\
+Unable to obtain the network address and mask data\n\
+from the configuration file:\n\
    %s\n\
-Enter network interface settings for this system:\n\
+Enter the network interface settings for the interface\n\
+to be used by @SIPXECS_NAME@ services:\n\
 " % IFCFGFILE
 
    valuesOk=False
