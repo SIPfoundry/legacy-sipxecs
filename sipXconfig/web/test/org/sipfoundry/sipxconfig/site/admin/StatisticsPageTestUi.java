@@ -28,14 +28,10 @@ public class StatisticsPageTestUi extends WebTestCase {
     }
 
     public void testStatisticsPage() throws Exception {
-        // add targets to monitor for host.example.org
-        assertLinkPresent("link.configureHosts");
-        clickLink("link.configureHosts");
-        assertElementPresent("hosts:list");
-        assertLinkPresentWithText("host.example.org");
-        clickLink("editRowLink");
+        assertLinkPresent("link.configureTargets");
+        clickLink("link.configureTargets");
         setWorkingForm("targets");
-        
+
         // select targets
         SiteTestHelper.selectRow(tester, 1, true);
         SiteTestHelper.selectRow(tester, 2, true);
@@ -49,8 +45,8 @@ public class StatisticsPageTestUi extends WebTestCase {
 
         clickLink("menu.statistics");
         SiteTestHelper.selectOption(tester, "PropertySelection", "host.example.org");
+
         assertLinkPresent("link.configureTargets");
-        assertLinkPresent("link.configureHosts");
         assertLinkPresent("report0");// summary report
         assertLinkPresent("report1");
         assertLinkPresent("report2");

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.admin;
@@ -23,11 +23,14 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.StringPropertySelectionModel;
 import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.monitoring.MRTGTarget;
 import org.sipfoundry.sipxconfig.admin.monitoring.MonitoringBean;
 import org.sipfoundry.sipxconfig.admin.monitoring.MonitoringContext;
 import org.sipfoundry.sipxconfig.admin.monitoring.MonitoringUtil;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
+import org.sipfoundry.sipxconfig.site.admin.commserver.EditLocationPage;
+import org.sipfoundry.sipxconfig.site.admin.commserver.LocationsPage;
 
 public abstract class StatisticsPage extends BasePage implements PageBeginRenderListener {
     public static final String PAGE = "admin/StatisticsPage";
@@ -44,14 +47,17 @@ public abstract class StatisticsPage extends BasePage implements PageBeginRender
 
     private static final String LABEL = "label.";
 
-    @InjectObject(value = "spring:monitoringContext")
+    @InjectObject("spring:monitoringContext")
     public abstract MonitoringContext getMonitoringContext();
 
-    @InjectPage(value = MonitoringConfigurationPage.PAGE)
-    public abstract MonitoringConfigurationPage getConfigurationPage();
+    @InjectObject("spring:locationsManager")
+    public abstract LocationsManager getLocationsManager();
 
-    @InjectPage(value = MonitoringTargetsConfigurationPage.PAGE)
-    public abstract MonitoringTargetsConfigurationPage getTargetsConfigurationPage();
+    @InjectPage(LocationsPage.PAGE)
+    public abstract LocationsPage getLocationsPage();
+
+    @InjectPage(EditLocationPage.PAGE)
+    public abstract EditLocationPage getEditLocationPage();
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
@@ -89,21 +95,17 @@ public abstract class StatisticsPage extends BasePage implements PageBeginRender
         setHost(host);
     }
 
-    public IPage configureTargets(String host) {
-        MonitoringTargetsConfigurationPage page = getTargetsConfigurationPage();
-        page.editTargets(host, PAGE);
-        return page;
-    }
-
-    public IPage configureHosts() {
-        MonitoringConfigurationPage page = getConfigurationPage();
+    public IPage configureTargets() {
+        EditLocationPage page = getEditLocationPage();
+        page.setLocationId(getLocationsManager().getLocationByFqdn(getHost()).getId());
+        page.setTab(EditLocationPage.MONITOR_TAB);
         page.setReturnPage(this);
         return page;
     }
 
     public void pageBeginRender(PageEvent event) {
         if (getHostModel() == null) {
-            List<String> hosts = getMonitoringContext().getHosts();
+            List<String> hosts = getMonitoringContext().getAvailableHosts();
             Collections.sort(hosts);
             StringPropertySelectionModel model = new StringPropertySelectionModel(hosts
                     .toArray(new String[hosts.size()]));
@@ -190,10 +192,14 @@ public abstract class StatisticsPage extends BasePage implements PageBeginRender
     }
 
     public boolean isSummaryReport() {
-        return (getReportName().equals(SUMMARY_REPORT));
+        return getReportName().equals(SUMMARY_REPORT);
     }
 
     public boolean isEvenIndex() {
         return (getIndex() % 2 == 0);
+    }
+
+    public boolean isHostHasTargetsForMonitoring() {
+        return getMonitoringContext().getHosts().contains(getHost());
     }
 }

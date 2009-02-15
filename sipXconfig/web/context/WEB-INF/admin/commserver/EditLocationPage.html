@@ -21,5 +21,10 @@
   <div jwcid="listServicesTab@Block">
     <span jwcid="servicesTable@admin/commserver/ServicesTable" serviceLocation="ognl:locationBean"/>
   </div>
-
+  <div jwcid="monitorTargetTab@Block">
+	<span jwcid="@admin/MonitoringTargetsConfigurationPanel"
+      locationBean="ognl:locationBean"
+      validator="bean:validator"
+      callback="ognl:callback"/>
+  </div>
 </div>

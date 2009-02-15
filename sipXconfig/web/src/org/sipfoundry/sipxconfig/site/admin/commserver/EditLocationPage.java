@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.site.admin.commserver;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -20,12 +21,14 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.admin.monitoring.MonitoringContext;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
 public abstract class EditLocationPage extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "admin/commserver/EditLocationPage";
+    public static final String MONITOR_TAB = "monitorTarget";
     private static final String CONFIG_TAB = "configureLocation";
 
     @InjectObject("spring:locationsManager")
@@ -33,6 +36,9 @@ public abstract class EditLocationPage extends PageWithCallback implements PageB
 
     @InjectObject("spring:sipxServiceManager")
     public abstract SipxServiceManager getSipxServiceManager();
+
+    @InjectObject(value = "spring:monitoringContext")
+    public abstract MonitoringContext getMonitoringContext();
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
@@ -53,7 +59,12 @@ public abstract class EditLocationPage extends PageWithCallback implements PageB
     public abstract void setTab(String tab);
 
     public Collection<String> getAvailableTabNames() {
-        return Arrays.asList(CONFIG_TAB, "listServices");
+        Collection<String> tabNames = new ArrayList<String>();
+        tabNames.addAll(Arrays.asList(CONFIG_TAB, "listServices"));
+        if (getMonitoringContext().isEnabled()) {
+            tabNames.add(MONITOR_TAB);
+        }
+        return tabNames;
     }
 
     public void pageBeginRender(PageEvent event) {

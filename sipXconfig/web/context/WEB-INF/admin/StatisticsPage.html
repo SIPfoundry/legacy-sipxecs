@@ -3,37 +3,40 @@
     <span key="title">Statistics</span>
   </h2>
   <span jwcid="@common/ErrorMsg"/>
-  <span jwcid="@If" condition="ognl:(hostModel.optionCount > 0)">
-    <form jwcid="@Form">
-      <fieldset>
-        <label><span key="label.hosts">Hosts</span></label>
-        <span jwcid="@PropertySelection"
-          model="ognl:hostModel"
-          value="ognl:host"
-          onchange="literal:javascript:this.form.submit();" />
-      </fieldset>
-    </form>
-    <br/>
-    <div jwcid="@common/LeftNavigation">
-      <span jwcid="@common/TabControl">
-        <span jwcid="@For" source="ognl:reports" value="ognl:availableReportsIndexItem" index="ognl:reportIndex">
-          <span jwcid="@common/Tab" isActive="ognl:availableReportsIndexItem.equals(reportName)">
-            <a href="#" jwcid="@DirectLink" listener="listener:showReport"
-                parameters="ognl:{availableReportsIndexItem, host}" id="ognl:'report' + reportIndex">
-              <span jwcid="@Insert" value="ognl:messages.getMessage(availableReportsIndexItem)"/>
-            </a>
-          </span>
+  <form jwcid="@Form">
+    <fieldset>
+      <label><span key="label.hosts">Hosts</span></label>
+      <span jwcid="@PropertySelection"
+        model="ognl:hostModel"
+        value="ognl:host"
+        onchange="literal:javascript:this.form.submit();" />
+    </fieldset>
+  </form>
+  <br/>
+  <div jwcid="@common/LeftNavigation" renderCondition="ognl:hostHasTargetsForMonitoring">
+    <span jwcid="@common/TabControl">
+      <span jwcid="@For" source="ognl:reports" value="ognl:availableReportsIndexItem" index="ognl:reportIndex">
+        <span jwcid="@common/Tab" isActive="ognl:availableReportsIndexItem.equals(reportName)">
+          <a href="#" jwcid="@DirectLink" listener="listener:showReport"
+              parameters="ognl:{availableReportsIndexItem, host}" id="ognl:'report' + reportIndex">
+            <span jwcid="@Insert" value="ognl:messages.getMessage(availableReportsIndexItem)"/>
+          </a>
         </span>
       </span>
-    </div>
+    </span>
+  </div>
+  <div class="help"><b><span key="label.quickLinks">Quick Links</span></b>
+    <ul>
+      <li>
+        <a jwcid="@DirectLink" id="link.configureTargets" listener="listener:configureTargets">
+          <span jwcid="@Insert" value="ognl:messages.format('link.configureTargets', host)">Configuration</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+  <span jwcid="@common/QuickHelp" value="message:statistics.help"/>
+  <span jwcid="@If" condition="ognl:hostHasTargetsForMonitoring">
     <div id="settings-content">
-      <div class="help"><b><span key="label.quickLinks">Quick Links</span></b>
-        <ul>
-          <li><a jwcid="@DirectLink" id="link.configureTargets" listener="listener:configureTargets" parameters="ognl:{host}"><span jwcid="@Insert" value="ognl:messages.format('link.configureTargets', host)">Configuration</span></a></li>
-          <li><a jwcid="@DirectLink" id="link.configureHosts" listener="listener:configureHosts"><span key="link.configureHosts">Configuration</span></a></li>
-        </ul>
-      </div>
-      <span jwcid="@common/QuickHelp" value="message:statistics.help"/>
       <h3><span jwcid="@Insert" value="ognl:messages.getMessage(reportName)" /></h3>
       <span jwcid="@If" condition="ognl:summaryReport">
         <table>
@@ -79,13 +82,6 @@
     </div>
   </span>
   <span jwcid="@Else">
-    <span key="statisticsDisabled" class="user-error" raw="true"/>
-    <div id="settings-content">
-      <div class="help"><b><span key="label.quickLinks">Quick Links</span></b>
-        <ul>
-          <li><a jwcid="@DirectLink" id="link.configureHosts" listener="listener:configureHosts"><span key="link.configureHosts">Configuration</span></a></li>
-        </ul>
-      </div>
-    </div>
+    <span key="targetsDisabled" class="user-error" raw="true"/>
   </span>
 </div>
