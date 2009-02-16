@@ -308,7 +308,7 @@ public class Attendant {
                     invalidCount = 0;
                     continue;
                 } else if (next.equals(NextAction.nextAttendant)) {
-                    nextAttendant = item.getDialpad();
+                    nextAttendant = item.getParameter();
                     break;
                 } else if (next.equals(NextAction.exit)) {
                     break;
@@ -410,7 +410,14 @@ public class Attendant {
         
         case transfer_out: 
             // Transfer to the specified extension
-            dest = extensionToUrl(item.getExtension()) ;
+            String extensionOrOther = item.getExtension();
+            if (extensionOrOther.contains("@")) {
+                // If it's got an @, assume its a SIP url (or close enough)
+                dest = extensionOrOther ;
+            } else {
+                // Assume it's an extension, and tack on "sip:" and @ourdomain
+                dest = extensionToUrl(extensionOrOther) ;
+            }
             LOG.info("Transfer Out.  Transfer to " + dest);
             xfer = new Transfer(m_fses, dest);
             xfer.go();
@@ -677,7 +684,7 @@ public class Attendant {
             String dest = m_config.getTransferURL();
             if (!dest.toLowerCase().contains("sip:")) {
                 LOG.error("transferUrl should be a sip: URL.  Assuming extension");
-                dest = "sip:" + dest + "@"+ m_ivrConfig.getSipxchangeDomainName();
+                dest = extensionToUrl(dest) ;
             }
 
             LOG.info("Transfer on falure to " + dest);
