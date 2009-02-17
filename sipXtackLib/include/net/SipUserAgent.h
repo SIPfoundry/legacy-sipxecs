@@ -314,6 +314,7 @@ public:
      *        messages originating from locally.
      * \param eventName - want to observe SUBSCRIBE or NOTIFY requests
      *        having the given event type
+     *        eventName is ignored when matching responses.
      * \param pSession - want to observe SIP message with the
      *        specified session (call-id, to url, from url)
      * \param observerData - data to be attached to SIP messages queued

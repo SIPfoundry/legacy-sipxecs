@@ -619,20 +619,22 @@ void SipUserAgent::addMessageObserver(OsMsgQ& messageQueue,
                                       SipSession* pSession,
                                       void* observerData)
 {
-    SipObserverCriteria* observer = new SipObserverCriteria(observerData,
-        &messageQueue,
-        sipMethod, wantRequests, wantResponses, wantIncoming,
-        wantOutGoing, eventName, pSession);
+   SipObserverCriteria* observer =
+      new SipObserverCriteria(observerData,
+                              &messageQueue,
+                              sipMethod, wantRequests,
+                              wantResponses, wantIncoming,
+                              wantOutGoing, eventName, pSession);
 
-        {
-            // Add the observer and its filter criteria to the list lock scope
-        OsWriteLock lock(mObserverMutex);
-        mMessageObservers.insert(observer);
+   {
+      // Add the observer and its filter criteria to the list lock scope
+      OsWriteLock lock(mObserverMutex);
+      mMessageObservers.insert(observer);
 
-        // Allow the specified method
-        if(sipMethod && *sipMethod && wantRequests)
-            allowMethod(sipMethod);
-    }
+      // Allow the specified method
+      if(sipMethod && *sipMethod && wantRequests)
+         allowMethod(sipMethod);
+   }
 }
 
 
