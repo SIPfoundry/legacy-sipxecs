@@ -168,6 +168,7 @@ private:
    TransportData  mPublicTransport;
    TransportData  mProxyTransport;
    UtlString      mMediaRelayPublicAddress;
+   bool           mbMediaRelayPublicAddressProvidedInConfig;
    UtlString      mMediaRelayNativeAddress;
    int            mMediaRelayXmlRpcPort;
    int            mMaxMediaRelaySessions;

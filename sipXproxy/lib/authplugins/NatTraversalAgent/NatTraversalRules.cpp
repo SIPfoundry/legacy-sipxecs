@@ -31,6 +31,7 @@ NatTraversalRules::NatTraversalRules()
      mbNatTraveralEnabled  ( false ),
      mbSystemBehindNat     ( false ),
      mbAggressiveModeSet   ( true ),
+     mbMediaRelayPublicAddressProvidedInConfig( false ),
      mMaxMediaRelaySessions( DEFAULT_MAX_MEDIA_RELAY_SESSIONS ),
      mbDiscoverPublicIpAddressViaStun( false ),
      mStunRefreshIntervalInSecs( 300 ),
@@ -198,10 +199,12 @@ void NatTraversalRules::initializeNatTraversalInfo( void )
          // get the 'mediarelaypublicaddress' node
          if( ( pChildNode = pNode->FirstChild( XML_TAG_MR_PUBLIC_ADDRESS ) ) && pChildNode->FirstChild() )
          {
+            mbMediaRelayPublicAddressProvidedInConfig = true;
             mMediaRelayPublicAddress = pChildNode->FirstChild()->Value();
          }
          else
          {
+            mbMediaRelayPublicAddressProvidedInConfig = false;
             mMediaRelayPublicAddress = mPublicTransport.getAddress();
             OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s', using public IP address of '%s'", XML_TAG_MR_PUBLIC_ADDRESS, mPublicTransport.getAddress().data() );
          }
@@ -371,9 +374,9 @@ void NatTraversalRules::initializeNatTraversalInfo( void )
             mPublicTransport.setAddress( hostIpAddress );
             OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - failed to contact STUN server %s - using host IP %s as public", mStunServer.data(), mPublicTransport.getAddress().data() );
             
-            if( mMediaRelayPublicAddress.isNull() )
+            if( !mbMediaRelayPublicAddressProvidedInConfig )
             {
-               // the admin did not explictly configure an IP address for the media relay, assume
+               // the admin did not explictly configure a public IP address for the media relay, assume
                // that is was to be discovered via STUN as well.
                mMediaRelayPublicAddress = hostIpAddress;
             }
@@ -395,9 +398,9 @@ void NatTraversalRules::announceStunResolvedPublicIpAddress( const UtlString& di
    {
       mPublicTransport.setAddress( discoveredPublicIpAddress );
       
-      if( mMediaRelayPublicAddress.isNull() )
+      if( !mbMediaRelayPublicAddressProvidedInConfig )
       {
-         // the admin did not explictly configure an IP address for the media relay, assume
+         // the admin did not explictly configure a public IP address for the media relay, assume
          // that is was to be discovered via STUN as well.
          mMediaRelayPublicAddress = discoveredPublicIpAddress;
       }
