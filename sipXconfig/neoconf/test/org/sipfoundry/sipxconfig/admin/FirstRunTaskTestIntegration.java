@@ -29,6 +29,7 @@ import org.sipfoundry.sipxconfig.common.AlarmContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
+import org.springframework.test.annotation.DirtiesContext;
 
 public class FirstRunTaskTestIntegration extends IntegrationTestCase {
     private DomainManager m_domainManager;
@@ -47,6 +48,7 @@ public class FirstRunTaskTestIntegration extends IntegrationTestCase {
         m_firstRun = firstRun;
     }
 
+    @DirtiesContext
     public void testEnableFirstRunServices() throws Exception {
         DomainManager domainManager = createNiceMock(DomainManager.class);
         m_firstRun.setDomainManager(domainManager);
@@ -85,6 +87,5 @@ public class FirstRunTaskTestIntegration extends IntegrationTestCase {
         assertFalse(servicesForPrimaryLocation.isEmpty());
         //auto-enabled bundles are set for primary location
         assertEquals(3, primaryLocation.getInstalledBundles().size());
-        setDirty(m_firstRun);
     }
 }

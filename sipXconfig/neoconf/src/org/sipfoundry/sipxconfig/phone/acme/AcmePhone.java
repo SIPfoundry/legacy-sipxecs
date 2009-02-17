@@ -1,16 +1,17 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.phone.acme;
 
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -20,6 +21,10 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
  * Example phone.
  */
 public class AcmePhone extends Phone {
+    public static final String VENDOR = "acmePhone";
+    public static final DeviceVersion VERSION1 = new DeviceVersion(VENDOR, "1");
+    public static final DeviceVersion VERSION2 = new DeviceVersion(VENDOR, "2");
+
     private static final String USER_ID_SETTING = "credential/userId";
     private static final String DISPLAY_NAME_SETTING = "credential/displayName";
     private static final String PASSWORD_SETTING = "credential/password";
@@ -40,7 +45,7 @@ public class AcmePhone extends Phone {
     }
 
     public static class AcmeLineDefaults {
-        private Line m_line;
+        private final Line m_line;
 
         AcmeLineDefaults(Line line) {
             m_line = line;
