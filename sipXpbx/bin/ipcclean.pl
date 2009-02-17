@@ -24,7 +24,7 @@ use IPC::Semaphore ;
 $verbose = 0 ;
 $remove = 0 ;
 $delete = 0 ;
-$project = 48 ; # ASCII '0' (imdb uses '0' for all it's projects)
+$project = 48 ; # ASCII '0' (imdb uses '0' for all its projects)
 
 GetOptions("verbose" => \$verbose, 
            "remove" => \$remove, 
