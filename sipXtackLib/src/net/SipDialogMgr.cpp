@@ -397,6 +397,24 @@ UtlBoolean SipDialogMgr::isLastLocalTransaction(const SipMessage& message,
                                    TRUE, // if established, match early dialog
                                    TRUE); // if early, match established dialog
 
+    if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+    {
+       UtlString m, d;
+       ssize_t l;
+       if (dialog)
+       {
+          dialog->toString(d);
+       }
+       else
+       {
+          d = "[NULL]";
+       }
+       message.getBytes(&m, &l, FALSE);
+       OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                     "SipDialogMgr::isLastLocalTransaction SipRefreshManager:: message = '%s', dialog = '%s'",
+                     m.data(), d.data());
+    }
+
     if(dialog && 
        dialog->isTransactionLocallyInitiated(callId, fromTag, toTag) &&
        dialog->isSameLocalCseq(message))

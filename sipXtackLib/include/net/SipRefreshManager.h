@@ -45,10 +45,12 @@ public:
 
     enum RefreshRequestState
     {
-        REFRESH_REQUEST_UNKNOWN,
-        REFRESH_REQUEST_PENDING,
-        REFRESH_REQUEST_FAILED,
-        REFRESH_REQUEST_SUCCEEDED
+       REFRESH_REQUEST_UNKNOWN,  // not yet initialized
+       REFRESH_REQUEST_PENDING,  // a SUBSCRIBE has been sent but has not
+                                 // received a final response
+       REFRESH_REQUEST_FAILED,   // last SUBSCRIBE received a non-remediable
+                                 // failure response
+       REFRESH_REQUEST_SUCCEEDED // last SUBSCRIBE received a success response
     };
 
     /*! Typedef defining the signature of the callback used to inform
@@ -233,8 +235,10 @@ private:
     // maintained, indexed by the dialog handle of the dialog or
     // pseudo-dialog that is maintaining it.
     UtlHashBag mRefreshes;
-    UtlHashBag mEventTypes; // SIP event types that we want SUBSCRIBE responses for
+    // TRUE if we have registered a message observer for REGISTER responses.
     UtlBoolean mReceivingRegisterResponses;
+    // TRUE if we have registered a message observer for SUBSCRIBE responses.
+    UtlBoolean mReceivingSubscribeResponses;
     int mDefaultExpiration;
 };
 
