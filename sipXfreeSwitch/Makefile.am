@@ -18,7 +18,7 @@ EXTRA_DIST = \
 	README \
 	CONTRIBUTORS \
 	LICENSE	\
-  	config/sipX-config.in \
+	config/sipX-config.in \
 	config/sipX-buildstamp.cpp.in \
 	config/sipX-buildstamp.h.in \
 	config/svn-version \
@@ -30,7 +30,7 @@ EXTRA_DIST = \
 	freeswitch_setup.sh	\
 	bin/freeswitch.sh.in \
 	freeswitch.sh	
-	
+
 sipxfreeswitch.spec : sipxfreeswitch.spec.in
 	@echo "Localize $< -> $@"
 	@$(LocalizeSipXconfig) $< > $@
