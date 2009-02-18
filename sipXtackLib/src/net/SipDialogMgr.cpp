@@ -127,7 +127,6 @@ UtlBoolean SipDialogMgr::updateDialog(const SipMessage& message,
 #endif
     }
 
-
     unlock();
 
     return(dialog != NULL);

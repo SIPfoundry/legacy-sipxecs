@@ -3826,7 +3826,7 @@ UtlBoolean SipMessage::buildRouteField(UtlString* routeFld) const
     UtlString contactUri;
    UtlString routeField;
 
-    // If request build from recordRoute verbatum
+    // If request, build from recordRoute verbatum
     if(!isResponse())
     {
 #ifdef TEST_PRINT
@@ -3834,6 +3834,7 @@ UtlBoolean SipMessage::buildRouteField(UtlString* routeFld) const
 #endif
         //recordRouteFound = getRecordRouteField(routeField);
         int recordRouteIndex = 0;
+        routeField.remove(0);
         UtlString recordRouteUri;
         while(getRecordRouteUri(recordRouteIndex, &recordRouteUri))
         {
@@ -3851,7 +3852,7 @@ UtlBoolean SipMessage::buildRouteField(UtlString* routeFld) const
         if(recordRouteIndex) recordRouteFound = TRUE;
     }
 
-    // If response build from recordeRoute in reverse order
+    // If response, build from recordeRoute in reverse order
     else
     {
 #ifdef TEST_PRINT
