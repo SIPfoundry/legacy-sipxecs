@@ -31,6 +31,7 @@ public class LoginServlet extends ProvisioningServlet {
     public static final String INVALID_CREDIDENTIALS = "Your credentials are not recognized";
     private static final Log LOG = LogFactory.getLog(LoginServlet.class);
 
+    @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws javax.servlet.ServletException,
             java.io.IOException {
         PrintWriter out = resp.getWriter();

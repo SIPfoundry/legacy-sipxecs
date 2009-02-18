@@ -157,13 +157,21 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
 
     public void replicateServiceConfig(SipxService service) {
         List<SipxServiceConfiguration> configurations = service.getConfigurations();
-        if (configurations.size() < 1) {
-            LOG.warn("Unable to replicate service: " + service.getBeanId() + ". No configuration objects defined.");
-            return;
-        }
         for (SipxServiceConfiguration configuration : configurations) {
             m_replicationContext.replicate(configuration);
         }
+    }
+
+    public void replicateServiceConfig(Location location, SipxService service) {
+        List<SipxServiceConfiguration> configurations = service.getConfigurations();
+        for (SipxServiceConfiguration configuration : configurations) {
+            m_replicationContext.replicate(location, configuration);
+        }
+    }
+
+    public void startService(Location location, SipxService service) {
+        replicateServiceConfig(location, service);
+
     }
 
     @Required

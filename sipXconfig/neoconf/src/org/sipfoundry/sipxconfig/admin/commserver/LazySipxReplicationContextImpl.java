@@ -1,20 +1,18 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,9 +29,9 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
      */
     private static final int DEFAULT_SLEEP_INTERVAL = 7000;
 
-    private Set m_tasks = new HashSet();
+    private final List<ReplicationTask> m_tasks = new ArrayList<ReplicationTask>();
 
-    private List m_events = new ArrayList();
+    private final List m_events = new ArrayList();
 
     private SipxReplicationContext m_target;
 
@@ -50,17 +48,25 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
     }
 
     public synchronized void generate(DataSet dataSet) {
-        m_tasks.add(dataSet);
+        m_tasks.add(new DataSetTask(dataSet));
         notifyWorker();
     }
 
     public synchronized void generateAll() {
-        m_tasks.addAll(DataSet.getEnumList());
+        List<DataSet> dataSets = DataSet.getEnumList();
+        for (DataSet dataSet : dataSets) {
+            m_tasks.add(new DataSetTask(dataSet));
+        }
         notifyWorker();
     }
 
-    public synchronized void replicate(ConfigurationFile configurationFile) {
-        m_tasks.add(configurationFile);
+    public synchronized void replicate(ConfigurationFile conf) {
+        m_tasks.add(new ConfTask(conf));
+        notifyWorker();
+    }
+
+    public void replicate(Location location, ConfigurationFile conf) {
+        m_tasks.add(new ConfTask(location, conf));
         notifyWorker();
     }
 
@@ -98,13 +104,26 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
         m_events.clear();
     }
 
-    private synchronized Set getTasks() {
+    private synchronized List<ReplicationTask> getTasks() {
         if (m_tasks.isEmpty()) {
-            return Collections.EMPTY_SET;
+            return Collections.emptyList();
         }
-        Set oldTasks = m_tasks;
-        m_tasks = new HashSet();
-        return oldTasks;
+        List<ReplicationTask> tasks = new ArrayList<ReplicationTask>(m_tasks.size());
+        for (ReplicationTask task : m_tasks) {
+            addOrUpdateTask(tasks, task);
+        }
+        m_tasks.clear();
+        return tasks;
+    }
+
+    private void addOrUpdateTask(List<ReplicationTask> tasks, ReplicationTask task) {
+        for (ReplicationTask t : tasks) {
+            if (t.update(task)) {
+                // no need to add anything - existing task updated
+                return;
+            }
+        }
+        tasks.add(task);
     }
 
     public void setTarget(SipxReplicationContext target) {
@@ -123,26 +142,92 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
             super("Replication worker thread", m_sleepInterval);
         }
 
+        @Override
         protected void waitForWork() throws InterruptedException {
             LazySipxReplicationContextImpl.this.waitForWork();
         }
 
+        @Override
         protected boolean work() {
-            Set tasks = getTasks();
-            for (Iterator i = tasks.iterator(); i.hasNext();) {
-                Object next = i.next();
-                if (next instanceof DataSet) {
-                    DataSet ds = (DataSet) next;
-                    m_target.generate(ds);
-                }
-                if (next instanceof ConfigurationFile) {
-                    ConfigurationFile file = (ConfigurationFile) next;
-                    m_target.replicate(file);
-                }
+            for (ReplicationTask task : getTasks()) {
+                task.replicate(m_target);
             }
             // before we start waiting publish all the events that are in the queue
             publishQueuedEvents();
             return true;
+        }
+    }
+
+    abstract static class ReplicationTask {
+        public abstract void replicate(SipxReplicationContext replicationContext);
+
+        public abstract boolean update(ReplicationTask task);
+    }
+
+    static class DataSetTask extends ReplicationTask {
+        private final DataSet m_ds;
+
+        DataSetTask(DataSet ds) {
+            m_ds = ds;
+        }
+
+        @Override
+        public void replicate(SipxReplicationContext replicationContext) {
+            replicationContext.generate(m_ds);
+        }
+
+        @Override
+        public boolean update(ReplicationTask task) {
+            if (task instanceof DataSetTask) {
+                DataSetTask dst = (DataSetTask) task;
+                return m_ds.equals(dst.m_ds);
+            }
+            return false;
+        }
+    }
+
+    static class ConfTask extends ReplicationTask {
+        /**
+         * list of locations to replicate configuration on null means all locations here...
+         */
+        private List<Location> m_locations;
+        private final ConfigurationFile m_conf;
+
+        public ConfTask(ConfigurationFile conf) {
+            m_conf = conf;
+        }
+
+        public ConfTask(Location location, ConfigurationFile conf) {
+            m_conf = conf;
+            m_locations = new ArrayList<Location>();
+            m_locations.add(location);
+        }
+
+        @Override
+        public void replicate(SipxReplicationContext replicationContext) {
+            if (m_locations == null) {
+                replicationContext.replicate(m_conf);
+            } else {
+                for (Location location : m_locations) {
+                    replicationContext.replicate(location, m_conf);
+                }
+            }
+        }
+
+        @Override
+        public boolean update(ReplicationTask task) {
+            if (task instanceof ConfTask) {
+                ConfTask ct = (ConfTask) task;
+                if (m_conf.equals(ct.m_conf)) {
+                    if (m_locations != null && ct.m_locations != null) {
+                        m_locations.addAll(ct.m_locations);
+                    } else {
+                        m_locations = null;
+                    }
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

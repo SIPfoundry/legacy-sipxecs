@@ -36,7 +36,7 @@ public class SipxReplicationContextImpl implements ApplicationEventPublisherAwar
     private static final Log LOG = LogFactory.getLog(SipxReplicationContextImpl.class);
 
     private BeanFactory m_beanFactory;
-    private ApplicationEventPublisher m_appliationEventPublisher;
+    private ApplicationEventPublisher m_applicationEventPublisher;
     private ReplicationManager m_replicationManager;
     private JobContext m_jobContext;
     private LocationsManager m_locationsManager;
@@ -44,23 +44,15 @@ public class SipxReplicationContextImpl implements ApplicationEventPublisherAwar
     private ConfigurationFile m_validUsersConfig;
 
     public void generate(DataSet dataSet) {
-        Serializable jobId = m_jobContext.schedule("Data replication: " + dataSet.getName());
-        boolean success = false;
-        try {
-            m_jobContext.start(jobId);
-            LOG.info("Replicating: " + dataSet.getName());
-            String beanName = dataSet.getBeanName();
-            DataSetGenerator generator = (DataSetGenerator) m_beanFactory.getBean(beanName, DataSetGenerator.class);
-            success = m_replicationManager.replicateData(m_locationsManager.getLocations(), generator);
-        } finally {
-            if (success) {
-                m_jobContext.success(jobId);
-            } else {
-                LOG.error("Replication failure: " + dataSet.getName());
-                // there is not really a good info here - advise user to consult log?
-                m_jobContext.failure(jobId, null, null);
+        String beanName = dataSet.getBeanName();
+        final DataSetGenerator generator = (DataSetGenerator) m_beanFactory
+                .getBean(beanName, DataSetGenerator.class);
+        ReplicateWork work = new ReplicateWork() {
+            public boolean replicate() {
+                return m_replicationManager.replicateData(m_locationsManager.getLocations(), generator);
             }
-        }
+        };
+        doWithJob("Data replication: " + dataSet.getName(), work);
         // replication valid users when aliases are replicated
         if (DataSet.ALIAS.equals(dataSet)) {
             replicate(m_validUsersConfig);
@@ -75,19 +67,15 @@ public class SipxReplicationContextImpl implements ApplicationEventPublisherAwar
     }
 
     public void replicate(ConfigurationFile file) {
-        Serializable jobId = m_jobContext.schedule("File replication: " + file.getName());
-        boolean success = false;
-        try {
-            m_jobContext.start(jobId);
-            success = m_replicationManager.replicateFile(m_locationsManager.getLocations(), file);
-        } finally {
-            if (success) {
-                m_jobContext.success(jobId);
-            } else {
-                // there is not really a good info here - advise user to consult log?
-                m_jobContext.failure(jobId, null, null);
-            }
-        }
+        Location[] locations = m_locationsManager.getLocations();
+        replicateWorker(locations, file);
+    }
+
+    public void replicate(Location location, ConfigurationFile file) {
+        Location[] locations = new Location[] {
+            location
+        };
+        replicateWorker(locations, file);
     }
 
     public String getXml(DataSet dataSet) {
@@ -101,6 +89,38 @@ public class SipxReplicationContextImpl implements ApplicationEventPublisherAwar
         } catch (IOException e) {
             return "";
         }
+    }
+
+    private void replicateWorker(final Location[] locations, final ConfigurationFile file) {
+        ReplicateWork work = new ReplicateWork() {
+            public boolean replicate() {
+                return m_replicationManager.replicateFile(locations, file);
+            }
+
+        };
+        doWithJob("File replication: " + file.getName(), work);
+    }
+
+    private void doWithJob(String jobName, ReplicateWork work) {
+        Serializable jobId = m_jobContext.schedule(jobName);
+        boolean success = false;
+        try {
+            LOG.info("Start replication: " + jobName);
+            m_jobContext.start(jobId);
+            success = work.replicate();
+        } finally {
+            if (success) {
+                m_jobContext.success(jobId);
+            } else {
+                LOG.warn("Replication failed: " + jobName);
+                // there is not really a good info here - advise user to consult log?
+                m_jobContext.failure(jobId, null, null);
+            }
+        }
+    }
+
+    interface ReplicateWork {
+        boolean replicate();
     }
 
     public void setBeanFactory(BeanFactory beanFactory) {
@@ -122,15 +142,17 @@ public class SipxReplicationContextImpl implements ApplicationEventPublisherAwar
         m_locationsManager = locationsManager;
     }
 
+    @Required
     public void setValidUsersConfig(ConfigurationFile validUsersConfig) {
         m_validUsersConfig = validUsersConfig;
     }
 
+    @Required
     public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
-        m_appliationEventPublisher = applicationEventPublisher;
+        m_applicationEventPublisher = applicationEventPublisher;
     }
 
     public void publishEvent(ApplicationEvent event) {
-        m_appliationEventPublisher.publishEvent(event);
+        m_applicationEventPublisher.publishEvent(event);
     }
 }

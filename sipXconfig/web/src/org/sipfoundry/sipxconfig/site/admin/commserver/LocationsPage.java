@@ -100,10 +100,8 @@ public abstract class LocationsPage extends BasePage implements PageBeginRenderL
         for (Integer id : selectedLocations) {
             Location locationToActivate = getLocationsManager().getLocation(id);
             getSipxProcessContext().enforceRole(locationToActivate);
-            // FIXME: this is wrong - we should only replicate a service to a specific location
-            // calling this code will replicate all the services to all locations
             for (LocationSpecificService service : locationToActivate.getServices()) {
-                getSipxServiceManager().replicateServiceConfig(service.getSipxService());
+                getSipxServiceManager().replicateServiceConfig(locationToActivate, service.getSipxService());
             }
         }
     }
