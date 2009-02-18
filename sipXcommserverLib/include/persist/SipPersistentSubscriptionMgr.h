@@ -129,9 +129,7 @@ public:
                                        const UtlString& eventTypeKey,
                                        UtlString& subscribeDialogHandle,
                                        UtlBoolean& isNew,
-                                       UtlBoolean& isExpired,
-                                       SipMessage& subscribeResponse);
-   
+                                       UtlBoolean& isExpired);
 
    //! Set the subscription dialog information and cseq for the next NOTIFY request
    //  Also, update the database to show the to/from URIs as they appear in NOTIFYs.

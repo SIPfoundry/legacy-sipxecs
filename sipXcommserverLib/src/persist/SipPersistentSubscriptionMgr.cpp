@@ -173,7 +173,6 @@ SipPersistentSubscriptionMgr::SipPersistentSubscriptionMgr(
          // Variables to hold the output of insertDialogInfo.
          UtlString subscribeDialogHandle;
          UtlBoolean isNew, isSubscriptionExpired;
-         SipMessage subscribeResponse;
          UtlBoolean ret =
             SipSubscriptionMgr::insertDialogInfo(subscribeRequest,
                                                  // *urip is the request-URI of
@@ -182,8 +181,7 @@ SipPersistentSubscriptionMgr::SipPersistentSubscriptionMgr(
                                                  *eventtypep,
                                                  subscribeDialogHandle,
                                                  isNew,
-                                                 isSubscriptionExpired,
-                                                 subscribeResponse);
+                                                 isSubscriptionExpired);
          if (!ret)
          {
             OsSysLog::add(FAC_SIP, PRI_ERR,
@@ -342,13 +340,11 @@ UtlBoolean SipPersistentSubscriptionMgr::insertDialogInfo(
    const UtlString& eventTypeKey,
    UtlString& subscribeDialogHandle,
    UtlBoolean& isNew,
-   UtlBoolean& isSubscriptionExpired,
-   SipMessage& subscribeResponse)
+   UtlBoolean& isSubscriptionExpired)
 {
    // This method is defined on the SipSubscriptionMgr to populate state from
-   // the IMDB -- it should never be called on the 
-   // SipPersistentSubscriptionMgr.   
-   assert(FALSE) ;
+   // the IMDB -- it should never be called on the SipPersistentSubscriptionMgr.
+   assert(FALSE);
 }
 
 // Set the subscription dialog information and cseq for the next NOTIFY request
