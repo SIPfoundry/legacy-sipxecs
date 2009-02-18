@@ -45,6 +45,9 @@ CUSTOM_PACKAGES = cgicc ruby-postgres ruby-dbi freeswitch nsis sipx-jasperreport
 .PHONY: fc8
 fc8 : $(CUSTOM_PACKAGES) cppunit xerces-c rubygems rrdtool
 
+.PHONY: f10
+f10 : $(CUSTOM_PACKAGES) 
+
 .PHONY: rhel5 centos5
 rhel5 centos5 : $(CUSTOM_PACKAGES) cppunit xerces-c w3c-libwww rubygems rrdtool
 
