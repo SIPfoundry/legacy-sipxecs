@@ -1167,19 +1167,10 @@ RefreshDialogState* SipRefreshManager::getAnyDialog(const UtlString& messageDial
 
 UtlBoolean SipRefreshManager::stateExists(RefreshDialogState* statePtr)
 {
-    // Assume we already have the lock
+    // Our caller holds the lock.
 
-    // Does not seem to be a method to test if the reference
-    // exists.  If this end up being a performance problem
-    // should probably add a method to UtlHashBag
     RefreshDialogState* state =
-       (RefreshDialogState*)
-       mRefreshes.removeReference(statePtr);
-
-    if(state)
-    {
-        mRefreshes.insert(state);
-    }
+       (RefreshDialogState*) mRefreshes.findReference(statePtr);
 
     return(state != NULL);
 }
