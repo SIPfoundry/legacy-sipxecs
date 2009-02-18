@@ -5,7 +5,15 @@
 ##  Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
 ##  Contributors retain copyright to elements licensed under a Contributor Agreement.
 ##  Licensed to the User under the LGPL license.
+
+################################################################
+## This script is used to copy certificate and key files from
+## the WorkDir where they are created by the gen-ssl-keys.sh
+## script to the appropriate configuration directories.
 ##
+## See the comments at the top of gen-ssl-keys.sh for the list 
+## of files in the WorkDir.
+################################################################
 
 CurrentWorkDir=`pwd`
 WorkDir=${CurrentWorkDir}
@@ -216,6 +224,8 @@ then
 
         # regenerate the hash symlinks for the certificate store
         @bindir@/ssl-cert/ca_rehash "${InstallPrefix}${InstallDir}/ssl/authorities"
+
+        # TBD: copy the .jts (java truststore) into "${InstallPrefix}${InstallDir}/ssl/authorities"
     fi
 
     if [ -r "${Basename}.crt" -a -r "${Basename}.key" ]
@@ -249,6 +259,8 @@ then
 
         certsInstalled+=1
     fi
+
+    # TBD: add copying the .jks file to "${InstallPrefix}${InstallDir}/ssl/ssl${installQualifier}.jks"
 
     if [ ${certOk} -eq 0 -a ${certsInstalled} -gt 0 ]
     then
