@@ -14,8 +14,8 @@
   <bean id="adminContextImpl" class="org.sipfoundry.sipxconfig.admin.AdminContextImpl" autowire="byType">
     <property name="binDirectory" value="${sysdir.bin}" />
     <property name="libExecDirectory" value="${sysdir.libexec}" />
-    <lookup-method name="createLocalBackupPlan" bean="localBackupPlan"/>
-    <lookup-method name="createFtpBackupPlan" bean="ftpBackupPlan"/>
+    <lookup-method name="createLocalBackupPlan" bean="localBackupPlan" />
+    <lookup-method name="createFtpBackupPlan" bean="ftpBackupPlan" />
   </bean>
 
   <bean id="snapshot" class="org.sipfoundry.sipxconfig.admin.Snapshot">
@@ -73,6 +73,8 @@
     <property name="taskName" value="first-run" />
     <property name="locationsManager" ref="locationsManager" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="parkOrbitContext" ref="parkOrbitContext" />
+    <property name="speedDialManager" ref="speedDialManager" />
   </bean>
 
   <bean id="exportCsv" class="org.sipfoundry.sipxconfig.admin.ExportCsv">
@@ -91,7 +93,7 @@
 
   <bean id="packageUpdateManager" class="org.springframework.aop.framework.ProxyFactoryBean">
     <property name="target">
-        <ref local="packageUpdateManagerImpl" />
+      <ref local="packageUpdateManagerImpl" />
     </property>
   </bean>
 

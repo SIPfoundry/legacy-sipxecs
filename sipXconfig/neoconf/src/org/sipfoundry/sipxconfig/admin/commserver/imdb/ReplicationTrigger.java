@@ -9,19 +9,14 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import java.util.Collection;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
-import org.sipfoundry.sipxconfig.service.SipxService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.Group;
-import org.sipfoundry.sipxconfig.speeddial.SpeedDialManager;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
@@ -30,28 +25,11 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
 
     private SipxReplicationContext m_replicationContext;
 
-    private ParkOrbitContext m_parkOrbitContext;
-
-    private SpeedDialManager m_speedDialManager;
-
-    private SipxServiceManager m_sipxServiceManager;
-
     private boolean m_replicateOnStartup = true;
 
+    @Required
     public void setReplicationContext(SipxReplicationContext replicationContext) {
         m_replicationContext = replicationContext;
-    }
-
-    public void setParkOrbitContext(ParkOrbitContext parkOrbitContext) {
-        m_parkOrbitContext = parkOrbitContext;
-    }
-
-    public void setSpeedDialManager(SpeedDialManager speedDialManager) {
-        m_speedDialManager = speedDialManager;
-    }
-
-    public void setSipxServiceManager(SipxServiceManager serviceManager) {
-        m_sipxServiceManager = serviceManager;
     }
 
     public boolean isReplicateOnStartup() {
@@ -78,13 +56,6 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
         if (event instanceof ApplicationInitializedEvent && isReplicateOnStartup()) {
             LOG.info("Replicating all data sets after application has initialized");
             m_replicationContext.generateAll();
-            m_parkOrbitContext.activateParkOrbits();
-            m_speedDialManager.activateResourceList();
-
-            Collection<SipxService> allSipxServices = m_sipxServiceManager.getServiceDefinitions();
-            for (SipxService sipxService : allSipxServices) {
-                m_sipxServiceManager.replicateServiceConfig(sipxService);
-            }
         }
     }
 
@@ -99,18 +70,5 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
         } else if (User.class.equals(c)) {
             m_replicationContext.generateAll();
         }
-    }
-
-    // testing only
-    SipxReplicationContext getReplicationContext() {
-        return m_replicationContext;
-    }
-
-    ParkOrbitContext getParkOrbitContext() {
-        return m_parkOrbitContext;
-    }
-
-    SpeedDialManager getSpeedDialManager() {
-        return m_speedDialManager;
     }
 }
