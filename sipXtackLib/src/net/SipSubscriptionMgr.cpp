@@ -447,8 +447,7 @@ UtlBoolean SipSubscriptionMgr::insertDialogInfo(const SipMessage& subscribeReque
                                                 const UtlString& eventTypeKey,
                                                 UtlString& subscribeDialogHandle,
                                                 UtlBoolean& isNew,
-                                                UtlBoolean& isSubscriptionExpired,
-                                                SipMessage& subscribeResponse)
+                                                UtlBoolean& isSubscriptionExpired)
 {
     isNew = FALSE;
     UtlBoolean subscriptionSucceeded = FALSE;
@@ -531,11 +530,6 @@ UtlBoolean SipSubscriptionMgr::insertDialogInfo(const SipMessage& subscribeReque
             stateKey->append(eventTypeKey);
             stateKey->mpState = state;
 
-            subscribeResponse.setResponseData(subscribeCopy, 
-                                              SIP_ACCEPTED_CODE,
-                                              SIP_ACCEPTED_TEXT, 
-                                              NULL);
-            subscribeResponse.setExpiresField(expiration);
             subscribeCopy->getDialogHandle(subscribeDialogHandle);
 
             lock();
@@ -565,11 +559,6 @@ UtlBoolean SipSubscriptionMgr::insertDialogInfo(const SipMessage& subscribeReque
         // Expiration too small
         else
         {
-            // Set expiration too small error
-            subscribeResponse.setResponseData(&subscribeRequest, 
-                                                SIP_TOO_BRIEF_CODE,
-                                                SIP_SUB_TOO_BRIEF_TEXT);
-            subscribeResponse.setMinExpiresField(mMinExpiration);
             isSubscriptionExpired = TRUE;
         }
     }
@@ -624,11 +613,6 @@ UtlBoolean SipSubscriptionMgr::insertDialogInfo(const SipMessage& subscribeReque
                 url.includeAngleBrackets();
                 contact = url.toString();
 
-                subscribeResponse.setResponseData(&subscribeRequest, 
-                                                SIP_ACCEPTED_CODE,
-                                                SIP_ACCEPTED_TEXT, 
-                                                contact);
-                subscribeResponse.setExpiresField(expiration);
                 subscriptionSucceeded = TRUE;
                 isSubscriptionExpired = FALSE;
                 subscribeDialogHandle = dialogHandle;
@@ -687,11 +671,6 @@ UtlBoolean SipSubscriptionMgr::insertDialogInfo(const SipMessage& subscribeReque
                 url.includeAngleBrackets();
                 contact = url.toString();
 
-                subscribeResponse.setResponseData(&subscribeRequest, 
-                                                  SIP_ACCEPTED_CODE,
-                                                  SIP_ACCEPTED_TEXT, 
-                                                  contact);
-                subscribeResponse.setExpiresField(expiration);
                 subscriptionSucceeded = TRUE;
                 // Unsubscribe
                 if(expiration == 0)
@@ -710,11 +689,6 @@ UtlBoolean SipSubscriptionMgr::insertDialogInfo(const SipMessage& subscribeReque
         // Expiration too small
         else
         {
-            // Set expiration too small error
-            subscribeResponse.setResponseData(&subscribeRequest, 
-                                                SIP_TOO_BRIEF_CODE,
-                                                SIP_SUB_TOO_BRIEF_TEXT);
-            subscribeResponse.setMinExpiresField(mMinExpiration);
             isSubscriptionExpired = isExpired(dialogHandle);
         }
     }

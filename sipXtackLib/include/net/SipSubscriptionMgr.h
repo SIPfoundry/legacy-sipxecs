@@ -104,13 +104,8 @@ public:
                                         /// TRUE if the subscription is new (out)
                                         UtlBoolean& isNew,
                                         /// TRUE if the subscription is not ongoing (out)
-                                        UtlBoolean& isExpired,
-                                        /** response for the SUBSCRIBE (out)
-                                         *  Any errors will be logged into
-                                         *  subscribeResponse.
-                                         */
-                                        SipMessage& subscribeResponse);
-    
+                                        UtlBoolean& isExpired
+       );
 
     //! Set the subscription dialog information and cseq for the next NOTIFY request
     virtual UtlBoolean getNotifyDialogInfo(const UtlString& subscribeDialogHandle,
