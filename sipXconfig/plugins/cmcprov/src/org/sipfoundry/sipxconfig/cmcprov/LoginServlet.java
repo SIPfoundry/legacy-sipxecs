@@ -25,18 +25,14 @@ import org.sipfoundry.sipxconfig.device.Profile;
 import org.sipfoundry.sipxconfig.phone.Phone;
 
 public class LoginServlet extends ProvisioningServlet {
-    public static final String UPDATE_SERVLET = "/update";
-    // private static final String EQUAL_SIGN = "=";
-    public static final String USERNAME = "username";
-    public static final String PASSWORD = "password";
     public static final String PARAMETER_ENCODING = "UTF-8";
     public static final String USERNAME_PASSWORD_CANNOT_BE_MISSING_ERROR = "Username and password cannot be missing";
     public static final String USERNAME_PASSWORD_ARE_INVALID_ERROR = "Either username or password are invalid";
     public static final String INVALID_CREDIDENTIALS = "Your credentials are not recognized";
     private static final Log LOG = LogFactory.getLog(LoginServlet.class);
 
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-        throws javax.servlet.ServletException, java.io.IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws javax.servlet.ServletException,
+            java.io.IOException {
         PrintWriter out = resp.getWriter();
         try {
             User user = authenticateRequest(req);
@@ -91,8 +87,7 @@ public class LoginServlet extends ProvisioningServlet {
         return user;
     }
 
-    protected Map<String, String> getParameterMapFromBody(HttpServletRequest req)
-        throws java.io.IOException {
+    protected Map<String, String> getParameterMapFromBody(HttpServletRequest req) throws java.io.IOException {
         Hashtable<String, String> parameters = new Hashtable<String, String>();
         BufferedReader br = req.getReader();
         String line = br.readLine();

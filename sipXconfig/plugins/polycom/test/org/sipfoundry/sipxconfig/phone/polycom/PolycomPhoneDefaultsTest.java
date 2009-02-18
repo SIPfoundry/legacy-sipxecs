@@ -11,16 +11,13 @@ package org.sipfoundry.sipxconfig.phone.polycom;
 
 import java.lang.reflect.Method;
 import java.util.TimeZone;
-  
-import junit.framework.TestCase;
-  
-import org.easymock.MockControl;
-import org.easymock.classextension.MockClassControl;
 
+import junit.framework.TestCase;
+
+import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
 import org.sipfoundry.sipxconfig.device.TimeZoneManager;
-import org.sipfoundry.sipxconfig.phone.polycom.PolycomPhoneDefaults;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
 public class PolycomPhoneDefaultsTest extends TestCase {
@@ -38,30 +35,27 @@ public class PolycomPhoneDefaultsTest extends TestCase {
         m_deviceTimeZone = deviceTimeZone;
 
         // Mock TimeZoneManager::getDeviceTimeZone() to return our fresh new DeviceTimeZone.
-        MockControl tzmControl = MockClassControl.createNiceControl(TimeZoneManager.class);
-        TimeZoneManager tzm = (TimeZoneManager)tzmControl.getMock();
-        tzmControl.expectAndReturn(tzm.getDeviceTimeZone(), m_deviceTimeZone, MockControl.ONE_OR_MORE);
-        tzmControl.replay();
+        TimeZoneManager tzm = EasyMock.createNiceMock(TimeZoneManager.class);
+        EasyMock.expect(tzm.getDeviceTimeZone()).andReturn(m_deviceTimeZone).atLeastOnce();
+        EasyMock.replay(tzm);
 
         // Create a fresh new PolycomPhoneDefaults that will use our fresh new DeviceTimeZone.
         DeviceDefaults deviceDefaults = new DeviceDefaults();
         deviceDefaults.setTimeZoneManager(tzm);
         m_polycomPhoneDefaults = new PolycomPhoneDefaults(deviceDefaults, new SpeedDial());
     }
-    
-    // Negative numeric start/stop DST values would be in poor taste, even if they should 
+
+    // Negative numeric start/stop DST values would be in poor taste, even if they should
     // be ignored.
     public void assertNoStartStopNegativeValues() {
-        Method methods[] = m_polycomPhoneDefaults.getClass().getMethods(); 
-        for(Method method : methods) {
-            System.out.println("name: " + method.getName());   
-            if(0 == method.getName().indexOf("getDst") &&
-               Integer.TYPE == method.getReturnType()) {
+        Method methods[] = m_polycomPhoneDefaults.getClass().getMethods();
+        for (Method method : methods) {
+            System.out.println("name: " + method.getName());
+            if (0 == method.getName().indexOf("getDst") && Integer.TYPE == method.getReturnType()) {
                 try {
-                    Object ret_value = method.invoke(m_polycomPhoneDefaults, (Object[])null);
-                    assertTrue("Negative return value: " + method.getName(), 0 <= (Integer)ret_value);
-                }
-                catch(Exception e) {
+                    Object ret_value = method.invoke(m_polycomPhoneDefaults, (Object[]) null);
+                    assertTrue("Negative return value: " + method.getName(), 0 <= (Integer) ret_value);
+                } catch (Exception e) {
                     fail(e.getMessage());
                 }
             }
@@ -70,7 +64,7 @@ public class PolycomPhoneDefaultsTest extends TestCase {
 
     public void testNoStartStopNegativeValues() {
         setUpWithDeviceTimeZone(new DeviceTimeZone());
-        
+
         // Even though these are being ignored, make sure they aren't negative.
         assertNoStartStopNegativeValues();
     }
@@ -109,7 +103,7 @@ public class PolycomPhoneDefaultsTest extends TestCase {
 
         // DST is not observed.
         assertEquals(false, m_polycomPhoneDefaults.isDstEnabled());
-        
+
         // Even though these are being ignored, make sure they aren't negative.
         assertNoStartStopNegativeValues();
     }
@@ -126,19 +120,20 @@ public class PolycomPhoneDefaultsTest extends TestCase {
 
         // Start: 1am on the last Sunday in March
         assertEquals(2, m_polycomPhoneDefaults.getDstStartTime()); // 01:00 GMT == 02:00 LST
-        assertEquals(true, m_polycomPhoneDefaults.isDstStartDayOfWeekLastInMonth()); // last occurance
+        assertEquals(true, m_polycomPhoneDefaults.isDstStartDayOfWeekLastInMonth()); // last
+                                                                                     // occurance
         assertEquals(1, m_polycomPhoneDefaults.getDstStartDayOfWeek(), 1); // Sunday
         assertEquals(3, m_polycomPhoneDefaults.getDstStartMonth(), 3); // March
 
         // Stop: 1am on the last Sunday in October
         assertEquals(3, m_polycomPhoneDefaults.getDstStopTime()); // 01:00 GMT == 03:00 LDT
-        assertEquals(true, m_polycomPhoneDefaults.isDstStopDayOfWeekLastInMonth()); // last occurance
+        assertEquals(true, m_polycomPhoneDefaults.isDstStopDayOfWeekLastInMonth()); // last
+                                                                                    // occurance
         assertEquals(1, m_polycomPhoneDefaults.getDstStopDayOfWeek()); // Sunday
         assertEquals(10, m_polycomPhoneDefaults.getDstStopMonth()); // October
-        
+
         // Even though start/stop date are being ignored, make sure they aren't negative.
         testNoStartStopNegativeValues();
     }
-
 
 }

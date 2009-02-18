@@ -128,9 +128,6 @@ public class Timezone {
         String returnStr = EMPTY_STRING;
         try {
             BufferedReader in = new BufferedReader(getReaderForClockFile());
-            if (in == null) {
-                return returnStr;
-            }
             boolean found = false;
             String str;
             while ((str = in.readLine()) != null) {

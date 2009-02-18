@@ -14,7 +14,6 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.sipfoundry.sipxconfig.device.Device;
-import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.Profile;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.device.ProfileFilter;
@@ -44,7 +43,7 @@ public class AastraPhone extends Phone {
     public void initialize() {
         AastraPhoneDefaults phoneDefaults = new AastraPhoneDefaults(getPhoneContext().getPhoneDefaults());
         addDefaultBeanSettingHandler(phoneDefaults);
-        AastraPhonebookDefaults phonebookDefaults = new AastraPhonebookDefaults(getPhoneContext().getPhoneDefaults());
+        AastraPhonebookDefaults phonebookDefaults = new AastraPhonebookDefaults();
         addDefaultBeanSettingHandler(phonebookDefaults);
     }
 
@@ -181,13 +180,7 @@ public class AastraPhone extends Phone {
         return MessageFormat.format(m_phonebookFilename, getSerialNumber().toUpperCase());
     }
 
-    public class AastraPhonebookDefaults {
-        private DeviceDefaults m_defaults;
-
-        AastraPhonebookDefaults(DeviceDefaults defaults) {
-            m_defaults = defaults;
-        }
-
+    public class AastraPhonebookDefaults { 
         @SettingEntry(path = "preferences/dir/directory1")
         public String getFirstDirectoryName() {
             return getPhonebookFilename();
