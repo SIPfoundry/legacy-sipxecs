@@ -24,20 +24,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.commserver.ProcessManagerApi;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
-import org.sipfoundry.sipxconfig.common.ReplicationsFinishedEvent;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
-import org.sipfoundry.sipxconfig.common.VersionInfo;
 import org.sipfoundry.sipxconfig.device.ModelSource;
-import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
-import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
 
 import static org.apache.commons.collections.CollectionUtils.collect;
 import static org.apache.commons.collections.CollectionUtils.filter;
@@ -46,7 +39,7 @@ import static org.apache.commons.collections.CollectionUtils.intersection;
 import static org.apache.commons.collections.CollectionUtils.subtract;
 
 public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService> implements SipxServiceManager,
-        ApplicationContextAware, ApplicationListener {
+        ApplicationContextAware {
 
     private static final String QUERY_BY_BEAN_ID = "service-by-bean-id";
 
@@ -58,13 +51,9 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
 
     private LocationsManager m_locationsManager;
 
-    private ApiProvider<ProcessManagerApi> m_processManagerApiProvider;
-
     private ModelSource<SipxService> m_serviceModelSource;
 
     private ModelSource<SipxServiceBundle> m_bundleModelSource;
-
-    private String m_host;
 
     public SipxService getServiceByBeanId(String beanId) {
         String query = QUERY_BY_BEAN_ID;
@@ -197,42 +186,8 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
     }
 
     @Required
-    public void setHost(String host) {
-        m_host = host;
-    }
-
-    @Required
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
-    }
-
-    @Required
-    public void setProcessManagerApiProvider(ApiProvider<ProcessManagerApi> processManagerApiProvider) {
-        m_processManagerApiProvider = processManagerApiProvider;
-    }
-
-    public void setConfigurationVersion(SipxService service) {
-        Location[] locations = m_locationsManager.getLocations();
-        for (int i = 0; i < locations.length; i++) {
-            Location location = locations[i];
-            ProcessManagerApi api = m_processManagerApiProvider.getApi(location.getProcessMonitorUrl());
-            VersionInfo versionInfo = new VersionInfo();
-            String version = versionInfo.getVersion();
-            try {
-                api.setConfigVersion(m_host, service.getProcessName(), version);
-            } catch (XmlRpcRemoteException e) {
-                LOG.error(e);
-            }
-        }
-    }
-
-    public void onApplicationEvent(ApplicationEvent event) {
-        if (event instanceof ReplicationsFinishedEvent) {
-            Collection<SipxService> services = getServicesFromDb();
-            for (SipxService service : services) {
-                setConfigurationVersion(service);
-            }
-        }
     }
 
     /**

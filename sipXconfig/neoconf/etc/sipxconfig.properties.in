@@ -99,7 +99,6 @@ acdQueue.audioDirectory=@sipxconfig.phone.dir@/acd/audio
 presenceServer.enabled=true
 mailboxManagerImpl.mailstoreDirectory=@sipxvxml.data.dir@/mailstore
 sipxProcessContext.host=${MY_FULL_HOSTNAME}
-sipxServiceManagerImpl.host=${MY_FULL_HOSTNAME}
 alarmContextImpl.host=${MY_FULL_HOSTNAME}
 alarmApi.serviceUrl=https://${MY_FULL_HOSTNAME}:8092/RPC2
 sbcDeviceManagerImpl.localIpAddress=${MY_IP_ADDR}

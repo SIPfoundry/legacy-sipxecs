@@ -21,3 +21,4 @@ sipImpl.proxyPort : sip.proxyPort
 sipImpl.hostName : sip.hostName
 sipImpl.hostIpAddress : sip.hostIpAddress
 sipImpl.port : sip.port
+- : sipxServiceManagerImpl.host
