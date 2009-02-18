@@ -468,7 +468,7 @@ bool SessionContext::setMediaRelayDirectionMode(  const UtlString& handleOfReque
                                                   MediaDirectionality mediaRelayDirectionMode, 
                                                   EndpointRole endpointRole )
 {
-   // Media Relay API is referenced from the caller.  if the requesting enpoint is the callee, we
+   // Media Relay API is referenced from the caller. If the requesting enpoint is the callee, we
    // need to turn the RECV_ONLY and SEND_ONLY into SEND_ONLY and RECV_ONLY, respectively.
    if( endpointRole == CALLEE )
    {

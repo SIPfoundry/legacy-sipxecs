@@ -588,7 +588,6 @@ void DialogTracker::ProcessMediaOffer( SipMessage& message, OfferAnswerPattern o
       // establish role of the endpoint that generated the offer we are currently processing.
       EndpointRole thisEndpointRole = EstablishEndpointRole( getTransactionDirectionality(),
                                                              message.isResponse() );
-      EndpointRole otherEndndpointRole = ( thisEndpointRole == CALLER ? CALLEE : CALLER );
       
       size_t index;
       for( index = 0; index < numMediaDescriptorsInSdp; index++ )
@@ -692,10 +691,6 @@ void DialogTracker::ProcessMediaOffer( SipMessage& message, OfferAnswerPattern o
             {
                MediaDirectionality mediaRelayDirectionMode = SEND_RECV;
 
-               UtlString mediaRelayAddressToUse;
-               bool sdpAnswererInSameSubnetAsMediaRelay;
-               sdpAnswererInSameSubnetAsMediaRelay = getMediaRelayAddressToUseInSdp( mediaRelayAddressToUse, thisEndpointRole );               
-
                if( pMediaDescriptor->getDirectionality() == SEND_ONLY )
                {
                   // Offer is trying to establish a 'sendonly' stream which means that the media will
@@ -708,13 +703,10 @@ void DialogTracker::ProcessMediaOffer( SipMessage& message, OfferAnswerPattern o
                   // 'recvonly' (unless the stream is inactive) to keep the offerer happy.  Furthermore, instruct
                   // the media relay to shunt the packets from the answerer-to-offerer direction so not to subject
                   // the offerer to an unexpected incoming media packet flow.
-                  if( !sdpAnswererInSameSubnetAsMediaRelay )
-                  {
-                     pSdpBody->removeMediaAttribute( index, "sendonly" );
-                     pSdpBody->insertMediaAttribute( index, "sendrecv" );
-                     mediaRelayDirectionMode = SEND_ONLY; 
-                     pMediaDescriptor->setDirectionalityOverride( SEND_RECV );
-                  }
+                  pSdpBody->removeMediaAttribute( index, "sendonly" );
+                  pSdpBody->insertMediaAttribute( index, "sendrecv" );
+                  mediaRelayDirectionMode = SEND_ONLY; 
+                  pMediaDescriptor->setDirectionalityOverride( SEND_RECV );
                }
                else if( pMediaDescriptor->getDirectionality() == RECV_ONLY )
                {
@@ -722,17 +714,10 @@ void DialogTracker::ProcessMediaOffer( SipMessage& message, OfferAnswerPattern o
                   // only flow from the answerer to the offerer.  The mirror image of the logic used 
                   // to handle pMediaDescriptor->getDirectionality() == SEND_ONLY is applied here.
                   // Refer to comment block above for more information.
-                  bool sdpOffererInSameSubnetAsMediaRelay;
-                  UtlString dummyString;
-                  sdpOffererInSameSubnetAsMediaRelay = getMediaRelayAddressToUseInSdp( dummyString, otherEndndpointRole );                                 
-                  
-                  if( !sdpOffererInSameSubnetAsMediaRelay )
-                  {
-                     pSdpBody->removeMediaAttribute( index, "recvonly" );
-                     pSdpBody->insertMediaAttribute( index, "sendrecv" );
-                     mediaRelayDirectionMode = RECV_ONLY; 
-                     pMediaDescriptor->setDirectionalityOverride( SEND_RECV );
-                  }
+                  pSdpBody->removeMediaAttribute( index, "recvonly" );
+                  pSdpBody->insertMediaAttribute( index, "sendrecv" );
+                  mediaRelayDirectionMode = RECV_ONLY; 
+                  pMediaDescriptor->setDirectionalityOverride( SEND_RECV );
                }
 
                if( bSdpHasAlreadyBeenPatchedByUs == false )
@@ -752,6 +737,9 @@ void DialogTracker::ProcessMediaOffer( SipMessage& message, OfferAnswerPattern o
                   linkFarEndMediaRelayPortToRequester( tentativeRelayHandle, pMediaDescriptor, thisEndpointRole );
                }
 
+               UtlString mediaRelayAddressToUse;
+               getMediaRelayAddressToUseInSdp( mediaRelayAddressToUse, thisEndpointRole );               
+               
                setMediaRelayDirectionMode( tentativeRelayHandle, mediaRelayDirectionMode, thisEndpointRole );
                patchSdp( pSdpBody, index, ourRelayRtpPort, tentativeRelayHandle, mediaRelayAddressToUse );
    
@@ -855,23 +843,25 @@ void DialogTracker::ProcessMediaAnswer( SipMessage& message, OfferAnswerPattern 
                   // to go any further in our processing of this answer media description.
                   if( tentativeMediaRelayHandle != INVALID_MEDIA_RELAY_HANDLE )
                   {
-                     // check if we are tempered with the directionality of the call...
+                     // adjust directionality of the call to allow for NAT traversal...
+                     UtlString directionalityToUseInThisSdpString("inactive");
+                     UtlString currentDirectionalityString("inactive");
+                     MediaDirectionality directionalityFromOfferSdp;
+                     MediaDirectionality directionalityFromAnswerSdp;
+                     directionalityFromOfferSdp = pMediaDescriptor->getDirectionality();
+                     directionalityFromAnswerSdp = 
+                              MediaDescriptor::sdpDirectionalityAttributeToMediaDirectionalityValue( *pSdpBody, index );
+
+                     // check if we have tempered with the directionality of the call...
                      if( pMediaDescriptor->getDirectionalityOverride() != NOT_A_DIRECTION )
                      {
                         pMediaDescriptor->setDirectionalityOverride( NOT_A_DIRECTION ); 
                         // the offer processing changed the directionality of the call
                         // to make is suitable for NAT traversal.  Restore the original
                         // directionality before passing on the SDP answer to the offerer
-                        MediaDirectionality directionalityFromOfferSdp;
-                        MediaDirectionality directionalityFromAnswerSdp;
-                        directionalityFromOfferSdp = pMediaDescriptor->getDirectionality();
-                        directionalityFromAnswerSdp = 
-                                 MediaDescriptor::sdpDirectionalityAttributeToMediaDirectionalityValue( *pSdpBody, index );
                         
                         // establish the directionality that should be present in the offer based
                         // on the answer and offer values.
-                        UtlString directionalityToUseInThisSdpString("inactive");
-                        UtlString currentDirectionalityString;
                         
                         switch( directionalityFromAnswerSdp )
                         {
@@ -909,12 +899,40 @@ void DialogTracker::ProcessMediaAnswer( SipMessage& message, OfferAnswerPattern 
                            currentDirectionalityString = "inactive";
                            break;
                         }
-   
-                        if( directionalityToUseInThisSdpString != currentDirectionalityString )
+                     }
+                     else
+                     {
+                        // we have not tempered with the directionality of the call yet however we may still need to
+                        // do some directionality adjustments to handle cases where the SDP offer had 'sendrecv'
+                        // but the SDP answer has either 'sendonly' or 'recvonly'.  Such scenarios generate
+                        // unidirectional media streams which are not good for NAT traversal - instead we need
+                        // both ends to send media traffic so that firewall holes get punched.  To work around 
+                        // such cases, change the directionality of the SDP answer to 'sendrecv' and instruct
+                        // the media relay to shunt the unwanted direction.
+                        if( directionalityFromOfferSdp == SEND_RECV )
                         {
-                           pSdpBody->removeMediaAttribute( index, currentDirectionalityString );
-                           pSdpBody->insertMediaAttribute( index, directionalityToUseInThisSdpString );
+                           switch( directionalityFromAnswerSdp )
+                           {
+                           case SEND_ONLY:
+                              currentDirectionalityString = "sendonly";
+                              directionalityToUseInThisSdpString = "sendrecv";
+                              setMediaRelayDirectionMode( tentativeMediaRelayHandle, SEND_ONLY, endpointRole );
+                              break;
+                           case RECV_ONLY:
+                              currentDirectionalityString = "recvonly";
+                              directionalityToUseInThisSdpString = "sendrecv";
+                              setMediaRelayDirectionMode( tentativeMediaRelayHandle, RECV_ONLY, endpointRole );
+                              break;
+                           default:
+                              // do nothing
+                              break;
+                           }
                         }
+                     }
+                     if( directionalityToUseInThisSdpString != currentDirectionalityString )
+                     {
+                        pSdpBody->removeMediaAttribute( index, currentDirectionalityString );
+                        pSdpBody->insertMediaAttribute( index, directionalityToUseInThisSdpString );
                      }
                      
                      int rtpPort = pOwningSessionContext->getRtpRelayPortForMediaRelaySession( tentativeMediaRelayHandle, endpointRole ); 
