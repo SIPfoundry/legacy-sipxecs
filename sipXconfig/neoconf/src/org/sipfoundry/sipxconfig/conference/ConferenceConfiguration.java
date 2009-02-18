@@ -27,15 +27,19 @@ public class ConferenceConfiguration extends XmlFile {
     private static final String CALLER_CONTROLS = "caller-controls";
     private static final String SIPX_CALLER_CONTROLS = "sipx-default";
 
-    private static final String DEFAULT_AUDIO_LOCKED = "conf/conf-locked.wav";
+    private static final String AUDIO_BYEBYE = "conf/ByeBye.wav";
+    private static final String AUDIO_LOCKINGCONF = "conf/lockingConference.wav";
+    
+    private static final String DEFAULT_AUDIO_LOCKED = AUDIO_LOCKINGCONF;
     private static final String DEFAULT_AUDIO_BEEP = "beep.wav";
-    private static final String DEFAULT_AUDIO_MUTED = "conf/conf-muted.wav";
-    private static final String DEFAULT_AUDIO_UNMUTED = "conf/conf-unmuted.wav";
-    private static final String DEFAULT_AUDIO_ALONE = "conf/conf-alone.wav";
-    private static final String DEFAULT_AUDIO_KICKED = "conf/conf-kicked.wav";
-    private static final String DEFAULT_AUDIO_ISLOCKED = "conf/conf-islocked.wav";
-    private static final String DEFAULT_AUDIO_ENTER_PIN = "conf/conf-pin.wav";
-    private static final String DEFAULT_AUDIO_BAD_PIN = "conf/conf-bad-pin.wav";
+    private static final String DEFAULT_AUDIO_MUTED = "conf/mutingYourself.wav";
+    private static final String DEFAULT_AUDIO_UNMUTED = "conf/unMutingYourself.wav";
+    private static final String DEFAULT_AUDIO_ALONE = "conf/rollcallYouAreTheOnly.wav";
+    private static final String DEFAULT_AUDIO_KICKED = AUDIO_BYEBYE;
+    private static final String DEFAULT_AUDIO_ISLOCKED = AUDIO_LOCKINGCONF;
+    private static final String DEFAULT_AUDIO_ENTER_PIN = "conf/confid.wav";
+    private static final String DEFAULT_AUDIO_BAD_PIN = "conf/authfailed.wav";
+    private static final String DEFAULT_AUDIO_ENTER = "conf/JoinTone.wav";
 
     private Bridge m_bridge;
 
@@ -162,7 +166,7 @@ public class ConferenceConfiguration extends XmlFile {
             addParam(profile, "unmuted-sound", DEFAULT_AUDIO_UNMUTED);
             addParam(profile, "alone-sound", DEFAULT_AUDIO_ALONE);
             addParam(profile, "moh-sound", "$${hold_music}");
-            addParam(profile, "enter-sound", DEFAULT_AUDIO_BEEP);
+            addParam(profile, "enter-sound", DEFAULT_AUDIO_ENTER);
             addParam(profile, "exit-sound", DEFAULT_AUDIO_BEEP);
             addParam(profile, "kicked-sound", DEFAULT_AUDIO_KICKED);
             addParam(profile, "locked-sound", DEFAULT_AUDIO_LOCKED);

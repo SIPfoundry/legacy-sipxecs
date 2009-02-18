@@ -445,8 +445,10 @@
         <ref bean="xmlRpcConfiguration" />
         <ref bean="modulesConfiguration" />
         <ref bean="logfileConfiguration" />
+        <ref bean="localStreamConfiguration" />
       </list>
     </property>
+    <property name="docDir" value="${sysdir.doc}" />
     <property name="bundles">
       <set>
         <ref bean="primarySipRouterBundle" />
@@ -498,6 +500,13 @@
     scope="prototype">
     <property name="name" value="logfile.conf.xml" />
     <property name="template" value="freeswitch/logfile.conf.xml.vm" />
+    <property name="directory" value="${sysdir.etc}/freeswitch/conf/autoload_configs" />
+  </bean>
+
+  <bean id="localStreamConfiguration" parent="serviceConfigurationFile" class="org.sipfoundry.sipxconfig.service.freeswitch.LocalStreamConfiguration"
+    scope="prototype">
+    <property name="name" value="local_stream.conf.xml" />
+    <property name="template" value="freeswitch/local_stream.conf.xml.vm" />
     <property name="directory" value="${sysdir.etc}/freeswitch/conf/autoload_configs" />
   </bean>
 

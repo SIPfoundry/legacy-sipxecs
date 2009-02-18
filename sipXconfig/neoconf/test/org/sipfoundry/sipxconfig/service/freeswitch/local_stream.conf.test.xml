@@ -1,0 +1,10 @@
+<configuration name="local_stream.conf" description="stream files from local dir">
+  <directory name="moh/8000" path="/usr/share/www/doc/stdprompts/music/8000">
+    <param name="rate" value="8000"/>
+    <param name="shuffle" value="true"/>
+    <param name="channels" value="1"/>
+    <param name="interval" value="20"/>
+    <param name="timer-name" value="soft"/>
+  </directory>
+
+</configuration>

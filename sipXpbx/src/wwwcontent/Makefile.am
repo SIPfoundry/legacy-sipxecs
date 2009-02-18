@@ -521,16 +521,18 @@ wwwcontent = \
 	stdprompts/you_have.wav \
 	stdprompts/your_active_greeting_is.wav \
 	stdprompts/z.wav \
-        stdprompts/conf/conf-alone.wav \
-        stdprompts/conf/conf-bad-pin.wav \
-        stdprompts/conf/conf-goodby.wav \
-        stdprompts/conf/conf-is-locked.wav \
-        stdprompts/conf/conf-kicked.wav \
-        stdprompts/conf/conf-locked.wav \
-        stdprompts/conf/conf-muted.wav \
-        stdprompts/conf/conf-pin.wav \
-        stdprompts/conf/conf-unmuted.wav \
-        stdprompts/conf/conf-welcome.wav \
+        stdprompts/conf/authfailed.wav \
+        stdprompts/conf/ByeBye.wav \
+        stdprompts/conf/confid.wav \
+        stdprompts/conf/JoinTone.wav \
+        stdprompts/conf/lockingConference.wav \
+        stdprompts/conf/mutingYourself.wav \
+        stdprompts/conf/rollcallYouAreTheOnly.wav \
+        stdprompts/conf/unMutingYourself.wav \
+        stdprompts/music/8000/danza-espanola-op-37-h-142-xii-arabesca.wav \
+        stdprompts/music/8000/partita-no-3-in-e-major-bwv-1006-1-preludio.wav \
+        stdprompts/music/8000/ponce-preludio-in-e-major.wav \
+        stdprompts/music/8000/suite-espanola-op-47-leyenda.wav \
 	vm_vxml/activategreeting.vxml \
 	vm_vxml/changepin.vxml \
 	vm_vxml/error_handler.vxml \

@@ -9,6 +9,19 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import org.springframework.beans.factory.annotation.Required;
+
 public class SipxFreeswitchService extends SipxService {
     public static final String BEAN_ID = "sipxFreeswitchService";
+
+    private String m_docDir;
+    
+    @Required
+    public void setDocDir(String docDir) {
+        m_docDir = docDir;
+    }
+    
+    public String getDocDir() {
+        return m_docDir;
+    }
 }
