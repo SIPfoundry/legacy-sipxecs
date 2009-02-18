@@ -167,8 +167,32 @@ SipPersistentSubscriptionMgr::SipPersistentSubscriptionMgr(
                                            acceptp->data(),
                                            eventidp->data(),
                                            contactp->data(),
-                                           routep->data(),
+                                           NULL,
                                            expires - now);
+         // Install the saved Route as a set of Record-Route headers in the
+         // SUBSCRIBE, so that insertDialogInfo will find and record the route.
+         Url route_url;
+         UtlString route_url_string;
+         UtlString route_string(*routep);
+         UtlString remainder_string;
+         int route_index;
+         for (route_index = 0;
+              !route_string.isNull() &&
+                 route_url.fromString(route_string, Url::NameAddr, &remainder_string);
+              route_string = remainder_string, route_index++)
+         {
+            route_url.toString(route_url_string);
+            subscribeRequest.setRecordRouteField(route_url_string.data(), route_index);
+         }
+         if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+         {
+            UtlString m, d;
+            ssize_t l;
+            subscribeRequest.getBytes(&m, &l, FALSE);
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipPersistentSubscriptionMgr:: subscribeRequest = '%s'",
+                          m.data());
+         }
 
          // Variables to hold the output of insertDialogInfo.
          UtlString subscribeDialogHandle;
