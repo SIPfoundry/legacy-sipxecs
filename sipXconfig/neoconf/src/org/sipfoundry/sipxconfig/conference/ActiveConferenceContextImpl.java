@@ -10,7 +10,9 @@
 package org.sipfoundry.sipxconfig.conference;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -33,7 +35,9 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
     private FreeswitchApiResultParser m_freeswitchApiParser = new FreeswitchApiResultParserImpl();
     private DomainManager m_domainManager;
     private SipService m_sipService;
-
+    
+    private Map<String, ActiveConference> m_activeConferences = new HashMap<String, ActiveConference>();
+    
     @Required
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
@@ -92,6 +96,17 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
         LOG.debug(String.format("Bridge \"%s\" reports the following active conferences: %s",
                 bridge.getName(), conferences));
         return conferences;
+    }
+    
+    public Map<Conference, ActiveConference> getActiveConferencesMap(Bridge bridge) {
+        Map<Conference, ActiveConference> activeConferencesMap = new HashMap<Conference, ActiveConference>();
+        
+        List<ActiveConference> activeConferences = getActiveConferences(bridge);
+        for (ActiveConference activeConference : activeConferences) {
+            activeConferencesMap.put(activeConference.getConference(), activeConference);
+        }
+        
+        return activeConferencesMap;
     }
 
     public List<ActiveConferenceMember> getConferenceMembers(Conference conference) {
@@ -207,5 +222,31 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
             // try { Thread.sleep(1000); }
             // catch (InterruptedException ie) { LOG.debug("Interrupted"); }
         }
+    }
+
+    public boolean isConferenceLocked(Conference conference) {
+        ActiveConference activeConference = null;
+        try {
+            activeConference = getActiveConference(conference);
+        } catch (FreeswitchApiConnectException face) {
+            LOG.warn("Couldn't connect to FreeSWITCH to get conference locked status", face);
+        }
+        
+        return (activeConference != null) ? activeConference.isLocked() : false;
+    }
+
+    public ActiveConference getActiveConference(Conference conference) {
+        String conferenceName = conference.getName();
+        ActiveConference activeConference = null;
+        Bridge bridge = conference.getBridge();
+        List<ActiveConference> activeConferences = getActiveConferences(bridge);
+        for (ActiveConference c : activeConferences) {
+            if (c.getName().equals(conferenceName)) {
+                activeConference = c;
+                break;
+            }
+        }
+        
+        return activeConference;
     }
 }

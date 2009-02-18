@@ -89,7 +89,7 @@ public class EditBridgeTestUi extends ListWebTestCase {
         clickLink("ListBridges");
         clickLinkWithText(TestPage.TEST_LOCATION_FQDN);
         clickLink("link:conferences");
-
+        
         // all conferences
         SiteTestHelper.selectOption(tester, "group:filter", "- all -");
         int tableCount = SiteTestHelper.getRowCount(tester, "conference:list");

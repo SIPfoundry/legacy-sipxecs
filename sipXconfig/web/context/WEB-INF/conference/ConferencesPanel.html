@@ -28,6 +28,9 @@
         usePager="ognl:true"
         selections="ognl:selections">
 		<span jwcid="nameColumnValue@Block">
+		    <span jwcid="@If" renderTag="false" condition="ognl:isConferenceLocked(currentRow)">
+		          <img jwcid="@Image" image="asset:lockedIcon" align="absmiddle" />
+		    </span>
 			<a jwcid="@DirectLink" listener="ognl:selectListener" parameters="ognl:currentRow.id">
                 <span jwcid="@Insert" value="ognl:currentRow.name"/>
             </a>

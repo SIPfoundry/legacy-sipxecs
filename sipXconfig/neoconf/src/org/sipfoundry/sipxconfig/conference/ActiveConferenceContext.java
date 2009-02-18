@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.conference;
 
 import java.util.List;
+import java.util.Map;
 
 import org.sipfoundry.sipxconfig.common.User;
 
@@ -23,8 +24,14 @@ public interface ActiveConferenceContext {
      */
     public int getActiveConferenceCount(Bridge bridge);
 
+    public ActiveConference getActiveConference(Conference conference);
+    
+    public boolean isConferenceLocked(Conference conference);
+    
     public List<ActiveConference> getActiveConferences(Bridge bridge);
 
+    public Map<Conference, ActiveConference> getActiveConferencesMap(Bridge bridge);
+    
     public List<ActiveConferenceMember> getConferenceMembers(Conference conference);
 
     public boolean lockConference(Conference conference);

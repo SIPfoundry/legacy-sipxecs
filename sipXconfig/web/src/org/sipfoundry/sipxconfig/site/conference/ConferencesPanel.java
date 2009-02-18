@@ -12,26 +12,36 @@ package org.sipfoundry.sipxconfig.site.conference;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.collections.Closure;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tapestry.IActionListener;
+import org.apache.tapestry.IAsset;
+import org.apache.tapestry.IMarkupWriter;
+import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.engine.RequestCycle;
+import org.apache.tapestry.valid.IValidationDelegate;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SelectMap;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TablePanel;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.conference.ActiveConference;
 import org.sipfoundry.sipxconfig.conference.ActiveConferenceContext;
 import org.sipfoundry.sipxconfig.conference.Bridge;
 import org.sipfoundry.sipxconfig.conference.BridgeConferenceIdentity;
 import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
+import org.sipfoundry.sipxconfig.conference.FreeswitchApiConnectException;
 import org.sipfoundry.sipxconfig.conference.FreeswitchApiException;
 import org.sipfoundry.sipxconfig.search.SearchManager;
 
@@ -89,6 +99,12 @@ public abstract class ConferencesPanel extends TablePanel {
     @Parameter
     public abstract boolean isChanged();
     
+    @Asset("/images/lock.png")
+    public abstract IAsset getLockedIcon();
+
+    public abstract Map<Conference, ActiveConference> getActiveConferenceMap();
+    public abstract void setActiveConferenceMap(Map<Conference, ActiveConference> activeConferenceMap);
+    
     public abstract Collection getRowsToDelete();
 
     public abstract Conference getCurrentRow();
@@ -105,6 +121,24 @@ public abstract class ConferencesPanel extends TablePanel {
     @InjectObject(value = "spring:identity")
     public abstract BridgeConferenceIdentity getIdentity();
 
+    private void loadActiveConferenceMap() {
+        try {
+            if (getBridge() != null) {
+                setActiveConferenceMap(getActiveConferenceContext().getActiveConferencesMap(getBridge()));
+            }
+        } catch (FreeswitchApiConnectException face) {
+            LOG.error("Couldn't connect to FreeSWITCH to get active conferences!", face);
+        }
+    }
+    
+    protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
+        super.renderComponent(writer, cycle);
+        
+        if (getActiveConferenceMap() == null) {
+            loadActiveConferenceMap();        
+        }
+    }
+    
     public Object getFilteredConferences() {
         if (!getRenderFilter() && getConferences() != null) {
             return getConferences();
@@ -122,6 +156,14 @@ public abstract class ConferencesPanel extends TablePanel {
         return conferenceTableModel;
     }
 
+    void recordFailure(UserException ue) {
+        IValidationDelegate validator = TapestryUtils.getValidator(this);
+        if (validator instanceof SipxValidationDelegate) {
+            SipxValidationDelegate v = (SipxValidationDelegate) validator;
+            v.record(ue, getMessages());
+        }
+    }    
+    
     protected void removeRows(Collection selectedRows) {
         getConferenceBridgeContext().removeConferences(selectedRows);
     }
@@ -154,6 +196,26 @@ public abstract class ConferencesPanel extends TablePanel {
         }
     }
 
+    public boolean isConferenceLocked(Conference conference) {
+        try {
+            if (getActiveConferenceMap() == null) {
+                if (getBridge() != null) {
+                    setActiveConferenceMap(getActiveConferenceContext().getActiveConferencesMap(getBridge()));
+                } else {
+                    setActiveConferenceMap(
+                            getActiveConferenceContext().getActiveConferencesMap(conference.getBridge()));
+                }
+                
+            }
+            
+            ActiveConference activeConference = getActiveConferenceMap().get(conference);
+            return (activeConference == null) ? false : activeConference.isLocked();
+        } catch (FreeswitchApiConnectException face) {
+            LOG.error("Couldn't connect to FreeSWITCH to get conference lock status", face);
+            return false;
+        }
+    }
+    
     public void deleteConferences() {
         Collection rowsToDelete = getRowsToDelete();
         if (rowsToDelete != null) {
@@ -189,7 +251,12 @@ public abstract class ConferencesPanel extends TablePanel {
     public void lockConferences() {
         Closure lock = new Action("msg.success.lock") {
             public void execute(Conference conference) {
-                getActiveConferenceContext().lockConference(conference);
+                if (getActiveConferenceContext().getActiveConference(conference) != null) {
+                    getActiveConferenceContext().lockConference(conference);
+                    loadActiveConferenceMap();
+                } else {
+                    recordFailure(new UserException(false, "error.lockEmpty", conference.getName()));
+                }
             }
 
         };
@@ -199,7 +266,12 @@ public abstract class ConferencesPanel extends TablePanel {
     public void unlockConferences() {
         Closure lock = new Action("msg.success.unlock") {
             public void execute(Conference conference) {
-                getActiveConferenceContext().unlockConference(conference);
+                if (getActiveConferenceContext().getActiveConference(conference) != null) {
+                    getActiveConferenceContext().unlockConference(conference);
+                    loadActiveConferenceMap();
+                } else {
+                    recordFailure(new UserException(false, "error.unlockEmpty", conference.getName()));
+                }
             }
 
         };

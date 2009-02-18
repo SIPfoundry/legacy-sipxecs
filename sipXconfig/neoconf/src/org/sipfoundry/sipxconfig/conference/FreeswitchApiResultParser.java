@@ -32,6 +32,14 @@ public interface FreeswitchApiResultParser {
     public int getActiveConferenceCount(String resultString);
 
     /**
+     * Parses a result string and determines if the conference is locked.
+     * 
+     * @param resultString the string returned from the FreeSWITCH API call
+     * @return whether or not the conference is locked.
+     */
+    public boolean isConferenceLocked(String resultString);
+    
+    /**
      * Parses a result string and creates a list of ActiveConference
      * objects representing each conference.
      *

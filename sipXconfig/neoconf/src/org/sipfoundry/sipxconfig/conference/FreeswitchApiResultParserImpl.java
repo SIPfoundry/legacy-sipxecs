@@ -34,6 +34,10 @@ public class FreeswitchApiResultParserImpl implements FreeswitchApiResultParser 
     private static final Pattern CONFERENCE_NAME_PATTERN = Pattern
             .compile("Conference ([\\w ]+) \\((\\d+) members?( locked)?\\)");
 
+    private static final int CONFERENCE_NAME_PATTERN_GROUP_INDEX = 1;
+    private static final int CONFERENCE_MEMBERS_PATTERN_GROUP_INDEX = 2;
+    private static final int CONFERENCE_LOCKED_PATTERN_GROUP_INDEX = 3;
+    
     // the misspelling is intentional - typo in freeswitch API
     private static final Pattern INVALID_MEMBER_PATTERN = Pattern.compile("Non-Exist[ae]nt ID [\\d]+\\n");
 
@@ -92,6 +96,23 @@ public class FreeswitchApiResultParserImpl implements FreeswitchApiResultParser 
     }
 
     /**
+     * Parses a result string and determines if the conference is locked.
+     * 
+     * @param resultString the string returned from the FreeSWITCH API call
+     * @return whether or not the conference is locked.
+     */    
+    public boolean isConferenceLocked(String resultString) {
+        Matcher matcher = CONFERENCE_NAME_PATTERN.matcher(resultString);
+        boolean isLocked = false;
+        
+        if (matcher.find()) {
+            isLocked = (matcher.group(CONFERENCE_LOCKED_PATTERN_GROUP_INDEX) != null);
+        }
+        
+        return isLocked;
+    }    
+    
+    /**
      * Parses a result string and creates a list of ActiveConference objects representing each
      * conference.
      *
@@ -109,9 +130,9 @@ public class FreeswitchApiResultParserImpl implements FreeswitchApiResultParser 
 
         Matcher matcher = CONFERENCE_NAME_PATTERN.matcher(resultString);
         while (matcher.find()) {
-            String conferenceName = matcher.group(1);
-            int members = Integer.parseInt(matcher.group(2));
-            boolean locked = (matcher.group(3) != null);
+            String conferenceName = matcher.group(CONFERENCE_NAME_PATTERN_GROUP_INDEX);
+            int members = Integer.parseInt(matcher.group(CONFERENCE_MEMBERS_PATTERN_GROUP_INDEX));
+            boolean locked = (matcher.group(CONFERENCE_LOCKED_PATTERN_GROUP_INDEX) != null);
             activeConferences.add(new ActiveConference(conferenceName, members, locked));
         }
 
@@ -166,4 +187,5 @@ public class FreeswitchApiResultParserImpl implements FreeswitchApiResultParser 
         member.setEnergyLevel(scan.nextInt());
         return member;
     }
+
 }
