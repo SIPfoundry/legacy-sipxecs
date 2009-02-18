@@ -26,6 +26,7 @@
     <property name="processContext" ref="sipxProcessContext" />
     <property name="replicationContext" ref="sipxReplicationContext" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="serviceConfigurator" ref="serviceConfigurator" />
     <property name="sipxPageService" ref="sipxPageService" />
   </bean>
 

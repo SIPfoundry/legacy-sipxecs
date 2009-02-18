@@ -16,14 +16,7 @@ import java.util.List;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
-
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.same;
-import static org.easymock.EasyMock.verify;
 
 public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
 
@@ -85,16 +78,8 @@ public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
 
         service.setConfigurations(Arrays.asList(sipxStatusConfiguration, statusPluginConfiguration));
 
-        SipxReplicationContext replicationContext = createMock(SipxReplicationContext.class);
-        m_out.setSipxReplicationContext(replicationContext);
-        replicationContext.replicate(same(sipxStatusConfiguration));
-        expectLastCall();
-        replicationContext.replicate(same(statusPluginConfiguration));
-        expectLastCall();
-        replay(replicationContext);
-
         m_out.storeService(service);
-        verify(replicationContext);
+        assertNotNull(m_out.getServiceByBeanId(SipxStatusService.BEAN_ID));
     }
 
     public void setSipxServiceManagerImpl(SipxServiceManagerImpl sipxServiceManagerImpl) {

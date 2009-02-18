@@ -91,7 +91,7 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
             throw new UserException(false, "xml.rpc.error.status.messages", location.getFqdn());
         }
     }
-    
+
     /**
      * Loop through the key-value pairs and construct the ServiceStatus.
      */
@@ -170,6 +170,29 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
         }
     }
 
+    public LocationStatus getLocationStatus(Location location) {
+        Collection<SipxService> sipxServices = location.getSipxServices();
+        Map<String, SipxService> beanIdToService = new HashMap();
+        for (SipxService sipxService : sipxServices) {
+            beanIdToService.put(sipxService.getBeanId(), sipxService);
+        }
+        ServiceStatus[] statuses = getStatus(location, false);
+        Collection<SipxService> toBeStarted = new ArrayList<SipxService>();
+        Collection<SipxService> toBeStopped = new ArrayList<SipxService>();
+        for (ServiceStatus status : statuses) {
+            String serviceBeanId = status.getServiceBeanId();
+            boolean shouldBeRunning = beanIdToService.containsKey(serviceBeanId);
+            boolean isRunningNow = status.getStatus() == Running;
+            if (shouldBeRunning && !isRunningNow) {
+                toBeStarted.add(m_sipxServiceManager.getServiceByBeanId(serviceBeanId));
+            }
+            if (isRunningNow && !shouldBeRunning) {
+                toBeStopped.add(m_sipxServiceManager.getServiceByBeanId(serviceBeanId));
+            }
+        }
+        return new LocationStatus(toBeStarted, toBeStopped);
+    }
+
     public void restartOnEvent(Collection services, Class eventClass) {
         m_eventsToServices.addServices(services, eventClass);
     }
@@ -214,29 +237,5 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
             }
             return services;
         }
-    }
-
-    public void enforceRole(Location location) {
-        Collection<SipxService> sipxServices = location.getSipxServices();
-        Map<String, SipxService> beanIdToService = new HashMap();
-        for (SipxService sipxService : sipxServices) {
-            beanIdToService.put(sipxService.getBeanId(), sipxService);
-        }
-        ServiceStatus[] statuses = getStatus(location, false);
-        Collection<SipxService> toBeStarted = new ArrayList<SipxService>();
-        Collection<SipxService> toBeStopped = new ArrayList<SipxService>();
-        for (ServiceStatus status : statuses) {
-            String serviceBeanId = status.getServiceBeanId();
-            boolean shouldBeRunning = beanIdToService.containsKey(serviceBeanId);
-            boolean isRunningNow = status.getStatus() == Running;
-            if (shouldBeRunning && !isRunningNow) {
-                toBeStarted.add(m_sipxServiceManager.getServiceByBeanId(serviceBeanId));
-            }
-            if (isRunningNow && !shouldBeRunning) {
-                toBeStopped.add(m_sipxServiceManager.getServiceByBeanId(serviceBeanId));
-            }
-        }
-        manageServices(location, toBeStopped, Command.STOP);
-        manageServices(location, toBeStarted, Command.START);
     }
 }

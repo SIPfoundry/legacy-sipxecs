@@ -29,12 +29,11 @@ public interface SipxProcessContext {
      */
     public ServiceStatus[] getStatus(Location location, boolean onlyActiveServices);
 
-    
     /**
      * Return a list of status messages for a given service on a given server.
      */
     public List<String> getStatusMessages(Location location, SipxService service);
-    
+
     /**
      * Apply the specified command to the named services. This method handles only commands that
      * don't need output, which excludes the "status" command.
@@ -48,14 +47,10 @@ public interface SipxProcessContext {
     public void manageServices(Collection< ? extends SipxService> services, Command command);
 
     /**
-     * Modifies list of services running an a specified location to reflect the bundles selection.
-     *
-     * If the list of processes running on the server correctly reflects the selected bundle none
-     * of them will be started (or stopped).
-     *
-     * @param location server on which to start/stop services
+     * Retrieve the list of the services that should be started and stopped on the location to
+     * make it to conform to bundle list.
      */
-    public void enforceRole(Location location);
+    public LocationStatus getLocationStatus(Location location);
 
     /**
      * Delayed version of manageServices strictly for restarting services. Restart commands is not

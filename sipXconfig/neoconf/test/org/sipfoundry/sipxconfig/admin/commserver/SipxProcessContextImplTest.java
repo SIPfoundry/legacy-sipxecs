@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.admin.commserver;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -255,12 +256,6 @@ public class SipxProcessContextImplTest extends TestCase {
         api.getStateAll("localhost");
         expectLastCall().andReturn(result);
 
-        api.stop(host(), asArray("SIPRegistrar"), block());
-        expectLastCall().andReturn(null);
-
-        api.start(host(), asArray("ACDServer"), block());
-        expectLastCall().andReturn(null);
-
         Location location = m_locationsManager.getLocations()[0];
 
         ApiProvider provider = createMock(ApiProvider.class);
@@ -273,7 +268,14 @@ public class SipxProcessContextImplTest extends TestCase {
         m_processContextImpl.setSipxServiceManager(serviceManager);
 
         location.setServiceDefinitions(Arrays.asList(acd, proxy));
-        m_processContextImpl.enforceRole(location);
+        LocationStatus locationStatus = m_processContextImpl.getLocationStatus(location);
+        Collection<SipxService> toBeStarted = locationStatus.getToBeStarted();
+        assertEquals(1, toBeStarted.size());
+        assertEquals(acd, toBeStarted.iterator().next());
+
+        Collection<SipxService> toBeStopped = locationStatus.getToBeStopped();
+        assertEquals(1, toBeStopped.size());
+        assertEquals(registrar, toBeStopped.iterator().next());
 
         verify(provider, api, serviceManager);
     }

@@ -70,7 +70,7 @@
         <property name="jobContext" ref="jobContext" />
         <property name="sessionFactory" ref="sessionFactory" />
         <property name="freeswitchApiProvider" ref="freeswitchApiProvider" />
-        <property name="sipxServiceManager" ref="sipxServiceManager" />
+        <property name="serviceConfigurator" ref="serviceConfigurator" />    
         <property name="freeswitchService" ref="sipxFreeswitchService" />
         <lookup-method name="createConferenceConfiguration" bean="conferenceConfiguration" />
       </bean>

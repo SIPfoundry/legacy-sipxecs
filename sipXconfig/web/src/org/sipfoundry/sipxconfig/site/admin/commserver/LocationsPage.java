@@ -21,21 +21,17 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 
 public abstract class LocationsPage extends BasePage implements PageBeginRenderListener {
     public static final String PAGE = "admin/commserver/LocationsPage";
 
-    @InjectObject("spring:sipxServiceManager")
-    public abstract SipxServiceManager getSipxServiceManager();
-
-    @InjectObject("spring:sipxProcessContext")
-    public abstract SipxProcessContext getSipxProcessContext();
+    @InjectObject("spring:serviceConfigurator")
+    public abstract ServiceConfigurator getServiceConfigurator();
 
     @InjectObject("spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
@@ -99,10 +95,10 @@ public abstract class LocationsPage extends BasePage implements PageBeginRenderL
         Collection<Integer> selectedLocations = getSelections().getAllSelected();
         for (Integer id : selectedLocations) {
             Location locationToActivate = getLocationsManager().getLocation(id);
-            getSipxProcessContext().enforceRole(locationToActivate);
             for (LocationSpecificService service : locationToActivate.getServices()) {
-                getSipxServiceManager().replicateServiceConfig(locationToActivate, service.getSipxService());
+                getServiceConfigurator().replicateServiceConfig(locationToActivate, service.getSipxService());
             }
+            getServiceConfigurator().enforceRole(locationToActivate);
         }
     }
 }

@@ -30,10 +30,6 @@ public interface SipxServiceManager {
 
     void storeService(SipxService service);
 
-    void replicateServiceConfig(SipxService service);
-
-    void replicateServiceConfig(Location locationToActivate, SipxService sipxService);
-
     Map<SipxServiceBundle, List<SipxService>> getBundles();
 
     List<SipxService> getRestartable();
@@ -70,15 +66,4 @@ public interface SipxServiceManager {
      * @param bundles list of bundles that should be installed on this location
      */
     public void setBundlesForLocation(Location location, List<SipxServiceBundle> bundles);
-
-    /**
-     * Starts service on a specific location.
-     *
-     * Before service can be started we need to generate its configuration sets configuration
-     * stamp and finally start it.
-     *
-     * @param location server on which service should be started
-     * @param service service to be started
-     */
-    public void startService(Location location, SipxService service);
 }

@@ -24,7 +24,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.device.ModelSource;
@@ -44,8 +43,6 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
     private static final String QUERY_BY_BEAN_ID = "service-by-bean-id";
 
     private static final Log LOG = LogFactory.getLog(SipxServiceManagerImpl.class);
-
-    private SipxReplicationContext m_replicationContext;
 
     private ApplicationContext m_applicationContext;
 
@@ -152,50 +149,6 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
 
     public void storeService(SipxService service) {
         saveBeanWithSettings(service);
-        replicateServiceConfig(service);
-    }
-
-    public void replicateServiceConfig(SipxService service) {
-        List<SipxServiceConfiguration> configurations = service.getConfigurations();
-        for (SipxServiceConfiguration configuration : configurations) {
-            m_replicationContext.replicate(configuration);
-        }
-    }
-
-    public void replicateServiceConfig(Location location, SipxService service) {
-        List<SipxServiceConfiguration> configurations = service.getConfigurations();
-        for (SipxServiceConfiguration configuration : configurations) {
-            m_replicationContext.replicate(location, configuration);
-        }
-    }
-
-    public void startService(Location location, SipxService service) {
-        replicateServiceConfig(location, service);
-
-    }
-
-    @Required
-    public void setSipxReplicationContext(SipxReplicationContext replicationContext) {
-        m_replicationContext = replicationContext;
-    }
-
-    public void setApplicationContext(ApplicationContext applicationContext) {
-        m_applicationContext = applicationContext;
-    }
-
-    @Required
-    public void setServiceModelSource(ModelSource<SipxService> serviceModelSource) {
-        m_serviceModelSource = serviceModelSource;
-    }
-
-    @Required
-    public void setBundleModelSource(ModelSource<SipxServiceBundle> bundleModelSource) {
-        m_bundleModelSource = bundleModelSource;
-    }
-
-    @Required
-    public void setLocationsManager(LocationsManager locationsManager) {
-        m_locationsManager = locationsManager;
     }
 
     /**
@@ -324,5 +277,24 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
             }
             bundle.verifyCount(newCount);
         }
+    }
+
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        m_applicationContext = applicationContext;
+    }
+
+    @Required
+    public void setServiceModelSource(ModelSource<SipxService> serviceModelSource) {
+        m_serviceModelSource = serviceModelSource;
+    }
+
+    @Required
+    public void setBundleModelSource(ModelSource<SipxServiceBundle> bundleModelSource) {
+        m_bundleModelSource = bundleModelSource;
+    }
+
+    @Required
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
     }
 }

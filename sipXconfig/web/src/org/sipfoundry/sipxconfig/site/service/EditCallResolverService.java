@@ -19,10 +19,11 @@ public abstract class EditCallResolverService extends EditSipxService {
      * Override apply method to manually replicate proxy service config that depends on
      * CALLRESOLVER_CALL_STATE_DB setting from call resolver service
      */
+    @Override
     public void apply() {
         super.apply();
         SipxService proxyService = getSipxServiceManager().getServiceByBeanId(SipxProxyService.BEAN_ID);
-        getSipxServiceManager().replicateServiceConfig(proxyService);
+        getServiceConfigurator().replicateServiceConfig(proxyService);
     }
 
     @Override

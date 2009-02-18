@@ -11,9 +11,7 @@ package org.sipfoundry.sipxconfig.admin;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.createNiceMock;
-import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.isA;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 
@@ -22,23 +20,17 @@ import java.util.Collection;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivatedEvent;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.common.AlarmContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
+import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.springframework.test.annotation.DirtiesContext;
 
 public class FirstRunTaskTestIntegration extends IntegrationTestCase {
-    private DomainManager m_domainManager;
     private LocationsManager m_locationsManager;
     private FirstRunTask m_firstRun;
-
-    public void setDomainManager(DomainManager domainManager) {
-        m_domainManager = domainManager;
-    }
 
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
@@ -66,21 +58,20 @@ public class FirstRunTaskTestIntegration extends IntegrationTestCase {
         loadDataSetXml("admin/commserver/seedLocationsAndServices.xml");
         m_firstRun.setLocationsManager(m_locationsManager);
 
-        SipxProcessContext processContext = createMock(SipxProcessContext.class);
+        ServiceConfigurator serviceConfigurator = createMock(ServiceConfigurator.class);
         Location[] locations = m_locationsManager.getLocations();
         for (Location location : locations) {
-            processContext.enforceRole(location);
+            serviceConfigurator.enforceRole(location);
             expectLastCall();
         }
-        processContext.restartOnEvent(isA(Collection.class), eq(DialPlanActivatedEvent.class));
         expectLastCall();
 
-        replay(processContext);
+        replay(serviceConfigurator);
 
-        m_firstRun.setProcessContext(processContext);
+        m_firstRun.setServiceConfigurator(serviceConfigurator);
         m_firstRun.runTask();
 
-        verify(processContext);
+        verify(serviceConfigurator);
 
         Location primaryLocation = m_locationsManager.getPrimaryLocation();
         Collection<LocationSpecificService> servicesForPrimaryLocation = primaryLocation.getServices();

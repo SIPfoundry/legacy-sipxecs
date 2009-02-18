@@ -13,6 +13,7 @@ import java.util.Arrays;
 
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxPageService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.beans.factory.annotation.Required;
@@ -23,6 +24,8 @@ public class PagingProvisioningContextImpl implements PagingProvisioningContext 
 
     private SipxServiceManager m_sipxServiceManager;
 
+    private ServiceConfigurator m_serviceConfigurator;
+
     private SipxProcessContext m_processContext;
 
     private SipxPageService m_sipxPageService;
@@ -30,7 +33,7 @@ public class PagingProvisioningContextImpl implements PagingProvisioningContext 
     private void replicatePagingConfig() {
         SipxPageService pageService = (SipxPageService) m_sipxServiceManager
                 .getServiceByBeanId(SipxPageService.BEAN_ID);
-        m_sipxServiceManager.replicateServiceConfig(pageService);
+        m_serviceConfigurator.replicateServiceConfig(pageService);
         m_replicationContext.publishEvent(new PagingServerActivatedEvent(pageService));
     }
 
@@ -55,6 +58,11 @@ public class PagingProvisioningContextImpl implements PagingProvisioningContext 
     @Required
     public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
         m_sipxServiceManager = sipxServiceManager;
+    }
+
+    @Required
+    public void setServiceConfigurator(ServiceConfigurator serviceConfigurator) {
+        m_serviceConfigurator = serviceConfigurator;
     }
 
     @Required

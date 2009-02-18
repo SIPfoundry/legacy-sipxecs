@@ -64,8 +64,7 @@ public class LocationsPageTestUi extends WebTestCase {
         SiteTestHelper.selectRow(tester, 0, true);
         clickButton("locations:sendProfiles");
 
-        // while https://test.wrong.org:8092/RPC2 is not available, will be throw a user exception
+        // does not throw exceptions any more since replication happens in the background
         SiteTestHelper.assertNoException(tester);
-        SiteTestHelper.assertUserError(tester);
     }
 }

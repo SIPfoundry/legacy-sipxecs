@@ -62,19 +62,33 @@
     <property name="processManagerApiProvider" ref="processManagerApiProvider" />
   </bean>
 
+
+  <bean id="serviceConfiguratorImpl" class="org.sipfoundry.sipxconfig.service.ServiceConfiguratorImpl">
+    <!-- eager version of sipx replication injected here -->
+    <property name="sipxReplicationContext" ref="sipxReplicationContextDao" />
+    <property name="configVersionManager" ref="configVersionManager" />
+    <property name="sipxProcessContext" ref="sipxProcessContext" />
+  </bean>
+
+  <bean id="serviceConfigurator" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.service.ServiceConfigurator" />
+    <property name="target" ref="serviceConfiguratorImpl" />
+    <property name="interceptorNames">
+      <list>
+        <value>backgroundTaskInterceptor</value>
+      </list>
+    </property>
+  </bean>
+
   <bean id="sipxServiceManagerImpl" class="org.sipfoundry.sipxconfig.service.SipxServiceManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
-    <property name="sipxReplicationContext" ref="sipxReplicationContext" />
     <property name="locationsManager" ref="locationsManager" />
     <property name="serviceModelSource" ref="sipxServiceModelSource" />
     <property name="bundleModelSource" ref="sipxBundleModelSource" />
   </bean>
 
   <bean id="sipxServiceManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
-    <property name="proxyInterfaces">
-      <value>org.sipfoundry.sipxconfig.service.SipxServiceManager
-      </value>
-    </property>
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.service.SipxServiceManager" />
     <property name="target" ref="sipxServiceManagerImpl" />
   </bean>
 

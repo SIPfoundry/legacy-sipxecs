@@ -64,7 +64,6 @@
     <property name="adminContext" ref="adminContext" />
     <property name="domainManager" ref="domainManager" />
     <property name="dialPlanActivationManager" ref="dialPlanActivationManager" />
-    <property name="processContext" ref="sipxProcessContext" />
     <property name="alarmContext" ref="alarmContext" />
     <property name="gatewayContext" ref="gatewayContext" />
     <property name="phoneContext" ref="phoneContext" />
@@ -73,6 +72,7 @@
     <property name="taskName" value="first-run" />
     <property name="locationsManager" ref="locationsManager" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="serviceConfigurator" ref="serviceConfigurator" />    
     <property name="parkOrbitContext" ref="parkOrbitContext" />
     <property name="speedDialManager" ref="speedDialManager" />
   </bean>

@@ -8,15 +8,12 @@
 package org.sipfoundry.sipxconfig.admin;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivatedEvent;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.common.AlarmContext;
@@ -26,7 +23,7 @@ import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.service.SipxService;
+import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDialManager;
 import org.springframework.beans.factory.annotation.Required;
@@ -40,8 +37,8 @@ public class FirstRunTask implements ApplicationListener {
     private AdminContext m_adminContext;
     private DomainManager m_domainManager;
     private DialPlanActivationManager m_dialPlanActivationManager;
-    private SipxProcessContext m_processContext;
     private SipxServiceManager m_sipxServiceManager;
+    private ServiceConfigurator m_serviceConfigurator;
     private String m_taskName;
     private AlarmContext m_alarmContext;
     private GatewayContext m_gatewayContext;
@@ -57,27 +54,15 @@ public class FirstRunTask implements ApplicationListener {
         m_domainManager.initializeDomain();
         m_domainManager.replicateDomainConfig();
         m_coreContext.initializeSpecialUsers();
-        enforceRoles();
 
+        // this is moved from replication trigger will need something better here...
+        m_parkOrbitContext.activateParkOrbits();
+        m_speedDialManager.activateResourceList();
         m_dialPlanActivationManager.replicateDialPlan(false);
         m_alarmContext.replicateAlarmServer();
 
-        List<SipxService> restartable = m_sipxServiceManager.getRestartable();
-        m_processContext.restartOnEvent(restartable, DialPlanActivatedEvent.class);
-
+        enforceRoles();
         generateAllProfiles();
-        // this is moved from replication trigger will need something better here...
-        replicateAllServices();
-    }
-
-    private void replicateAllServices() {
-        m_parkOrbitContext.activateParkOrbits();
-        m_speedDialManager.activateResourceList();
-
-        Collection<SipxService> allSipxServices = m_sipxServiceManager.getServiceDefinitions();
-        for (SipxService sipxService : allSipxServices) {
-            m_sipxServiceManager.replicateServiceConfig(sipxService);
-        }
     }
 
     /**
@@ -89,7 +74,7 @@ public class FirstRunTask implements ApplicationListener {
             location.initBundles(m_sipxServiceManager);
             location.resetBundles(m_sipxServiceManager);
             m_locationsManager.storeLocation(location);
-            m_processContext.enforceRole(location);
+            m_serviceConfigurator.enforceRole(location);
         }
     }
 
@@ -151,11 +136,6 @@ public class FirstRunTask implements ApplicationListener {
     }
 
     @Required
-    public void setProcessContext(SipxProcessContext processContext) {
-        m_processContext = processContext;
-    }
-
-    @Required
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
@@ -203,5 +183,10 @@ public class FirstRunTask implements ApplicationListener {
     @Required
     public void setSpeedDialManager(SpeedDialManager speedDialManager) {
         m_speedDialManager = speedDialManager;
+    }
+
+    @Required
+    public void setServiceConfigurator(ServiceConfigurator serviceConfigurator) {
+        m_serviceConfigurator = serviceConfigurator;
     }
 }
