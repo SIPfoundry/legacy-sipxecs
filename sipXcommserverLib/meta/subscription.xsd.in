@@ -206,7 +206,9 @@
     <annotation>
       <documentation>
         Comma-separated list of name-addrs from the Record-Route headers
-	of the original SUBSCRIBE request.
+	of the original SUBSCRIBE request, in the order they appear in the
+	Record-Route headers, which is the same as the order in the Route
+	headers we will supply in the NOTIFY requests.
 	(This type should have a proper grammar, but given that
 	sip_types:name_addr doesn't have a grammar yet, we can't do that.)
       </documentation>
