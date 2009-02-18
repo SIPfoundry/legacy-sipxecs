@@ -29,17 +29,20 @@ h3
 
 h4
 {
-	font:bold 100%;
+	font-weight:bold;
+	font-size:100%;
 }
 
 h5
 {
-	font:italic 100%;
+	font-style:italic;
+	font-size:100%;
 }
 
 h6
 {
-	font:small-caps 100%;
+	font-variant:small-caps;
+	font-size:100%;
 }
 
 dt
@@ -66,7 +69,7 @@ ul
 
 legend
 {
-	font:bold 80%;
+	font-weight:bold;
 	font-size:120%;
 }
 
@@ -139,7 +142,7 @@ fieldset#loginForm legend {
 
 #lastmodified
 {
-	align:right;
+	text-align:right;
 	font-style:italic;
 }
 
@@ -294,9 +297,11 @@ p.message
 	font-style:italic;
 }
 
-.settingDescription
+.settingDescription,
+table.component .settingDescription
 {
-	font-style:80%;
+	font-size:80%;
+	white-space:normal;
 }
 
 li
@@ -371,6 +376,12 @@ table.component tfoot tr td
 	border-style:solid;
 	padding:3px;
 }
+
+table.component .descriptionColumnValue
+{
+	white-space:normal;
+}
+
 
 ul.component-selection
 {
@@ -655,6 +666,7 @@ html, body {
 .backLink {
     padding-left: 20px;
     background: transparent url('/sipxconfig/images/back.png') left no-repeat;
+}
 
 #servicesTable .statusColumnValue {
     width: 70%;
