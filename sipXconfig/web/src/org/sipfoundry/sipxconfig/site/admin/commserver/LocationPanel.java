@@ -23,12 +23,19 @@ import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.components.LocalizedOptionModelDecorator;
 import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxServiceBundle;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
 public abstract class LocationPanel extends BaseComponent {
-    @InjectObject(value = "spring:locationsManager")
+    @InjectObject("spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
+
+    @InjectObject("spring:sipxServiceManager")
+    public abstract SipxServiceManager getSipxServiceManager();
+
+    @InjectObject("spring:serviceConfigurator")
+    public abstract ServiceConfigurator getServiceConfigurator();
 
     @Parameter
     public abstract ICallback getCallback();
@@ -39,9 +46,6 @@ public abstract class LocationPanel extends BaseComponent {
     public abstract List<SipxServiceBundle> getBundles();
 
     public abstract void setBundles(List<SipxServiceBundle> bundles);
-
-    @InjectObject("spring:sipxServiceManager")
-    public abstract SipxServiceManager getSipxServiceManager();
 
     @Override
     protected void prepareForRender(IRequestCycle cycle) {
@@ -75,6 +79,7 @@ public abstract class LocationPanel extends BaseComponent {
         Location location = getLocationBean();
         List<SipxServiceBundle> bundles = getBundles();
         getSipxServiceManager().setBundlesForLocation(location, bundles);
+        getServiceConfigurator().enforceRole(location);
 
         getLocationsManager().storeLocation(location);
     }
