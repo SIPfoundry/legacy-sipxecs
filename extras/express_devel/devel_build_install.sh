@@ -31,7 +31,7 @@ sudo rm -rf $INSTALL $BUILD
 mkdir $INSTALL
 mkdir $BUILD
 
-# Easy scripts to start, stop, and get status.
+# Easy scripts to start, stop, restart, and get status.
 echo sudo `pwd`/$INSTALL/etc/init.d/sipxpbx start > /tmp/sstart
 sudo mv /tmp/sstart /usr/bin/
 sudo chmod a+rx /usr/bin/sstart
@@ -41,6 +41,10 @@ sudo chmod a+rx /usr/bin/sstop
 echo sudo `pwd`/$INSTALL/etc/init.d/sipxpbx status > /tmp/sstatus
 sudo mv /tmp/sstatus /usr/bin/
 sudo chmod a+rx /usr/bin/sstatus
+echo sudo `pwd`/$INSTALL/etc/init.d/sipxpbx stop > /tmp/srestart
+echo sudo `pwd`/$INSTALL/etc/init.d/sipxpbx start >> /tmp/srestart
+sudo mv /tmp/srestart /usr/bin/
+sudo chmod a+rx /usr/bin/srestart
 
 # Install FreeSWITCH.
 SIPFOUNDRY_RPM_BASE_URL=http://sipxecs.sipfoundry.org/temp/sipXecs/main/FC/8/i386/RPM
@@ -119,20 +123,23 @@ sudo $INSTALL/bin/freeswitch.sh --configtest &> freeswitch_configtest.log
 # sipx-setup
 sudo $INSTALL/bin/sipx-setup
 
-# Show whether or not the services got started by the above.  (It is an option...)
+# Restart sipXecs twice (I've seen this fix "Resource Required" states for services.)
 sudo /sbin/service sipxpbx status  
 if [ $? != 0 ]
 then
    echo ""
-   echo "Starting sipXecs...."
-   sstart
+   echo "Restarting sipXecs twice...."
+   srestart
+   sleep 30
+   srestart
    sstatus
 fi
 
 echo ""
-echo "TO START: sstart"
-echo "TO STOP : sstop"
-echo "TO GET STATUS : sstatus"
+echo "TO START     : sstart"
+echo "TO STOP      : sstop"
+echo "TO RESTART   : srestart"
+echo "TO GET STATUS: sstatus"
 echo ""
 echo "ENV:"
 cat env
