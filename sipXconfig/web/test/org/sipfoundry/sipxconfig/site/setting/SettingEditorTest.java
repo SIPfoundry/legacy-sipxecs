@@ -1,17 +1,15 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.setting;
 
 import java.util.List;
-
-import junit.framework.TestCase;
 
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.validator.Max;
@@ -26,19 +24,31 @@ import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.type.EnumSetting;
 import org.sipfoundry.sipxconfig.setting.type.IntegerSetting;
+import org.sipfoundry.sipxconfig.setting.type.RealSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
 import org.sipfoundry.sipxconfig.setting.type.StringSetting;
+
+import junit.framework.TestCase;
 
 public class SettingEditorTest extends TestCase {
 
     private SettingEditor m_editor;
 
+    @Override
     protected void setUp() throws Exception {
         m_editor = (SettingEditor) new Creator().newInstance(SettingEditor.class);
     }
 
     public void testValidatorForInteger() {
         IntegerSetting type = new IntegerSetting();
+        List validators = SettingEditor.validatorListForType(type, true);
+        assertEquals(2, validators.size());
+        assertTrue(validators.get(0) instanceof Min);
+        assertTrue(validators.get(1) instanceof Max);
+    }
+
+    public void testValidatorForReal() {
+        RealSetting type = new RealSetting();
         List validators = SettingEditor.validatorListForType(type, true);
         assertEquals(2, validators.size());
         assertTrue(validators.get(0) instanceof Min);
@@ -53,7 +63,7 @@ public class SettingEditorTest extends TestCase {
         assertEquals(2, validators.size());
         assertTrue(validators.get(0) instanceof Required);
         assertTrue(validators.get(1) instanceof MaxLength);
-        
+
         type.setMinLen(3);
         validators = SettingEditor.validatorListForType(type, true);
         assertTrue(validators.get(2) instanceof MinLength);
