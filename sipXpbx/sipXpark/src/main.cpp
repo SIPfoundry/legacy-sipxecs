@@ -653,6 +653,10 @@ int main(int argc, char* argv[])
            numTwoSecIntervals = 0;
            if (OsSysLog::willLog(FAC_PARK, PRI_DEBUG))
            {
+               OsSysLog::add(LOG_FACILITY, PRI_DEBUG,
+                             "park main "
+                             "logging call status"
+                             );
                callManager.printCalls(0) ;
                listener.dumpCallsAndTransfers();
            }

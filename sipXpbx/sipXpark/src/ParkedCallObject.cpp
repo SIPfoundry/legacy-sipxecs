@@ -282,7 +282,8 @@ void ParkedCallObject::startBlindTransfer()
    if (!mTransferInProgress)
    {
       OsSysLog::add(FAC_PARK, PRI_DEBUG,
-                    "ParkedCallObject::startBlindTransfer starting transfer "
+                    "ParkedCallObject::startBlindTransfer "
+                    "starting transfer "
                     "callId = '%s', parker = '%s'",
                     mOriginalCallId.data(), mParker.data());
       // Start the timer to detect if the blind transfer fails.

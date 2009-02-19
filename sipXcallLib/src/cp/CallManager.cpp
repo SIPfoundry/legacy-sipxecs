@@ -698,6 +698,11 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                               "Call EXITING message received: %p infofocus: %p - number of current calls (%d)\r\n", 
                         (void*)call, (void*) infocusCall, getCallStackSize());
 
+#ifdef TEST_PRINT
+                OsSysLog::add(FAC_CP, PRI_DEBUG,
+                              "CallManager::handleMessage "
+                              "stopMetaEvent 3");
+#endif
                 call->stopMetaEvent();
 
                 mCallListMutex.acquireWrite();
@@ -2250,7 +2255,7 @@ OsStatus CallManager::getSession(const char* callId,
         session.getCallId(tCallId);
         OsSysLog::add(FAC_CP, PRI_DEBUG,
                       "CallManager::getSession "
-                      "deleting copied session: %p and session callId = %s",
+                      "deleting 'new'ed' session: %p (callId = %s)",
                       sessionPtr,tCallId.data());
 
         delete sessionPtr;
@@ -3955,7 +3960,10 @@ void CallManager::doConnect(const char* callId,
     if(!call)
     {
         // This is generally bad.  The call should exist.
-        OsSysLog::add(FAC_CP, PRI_ERR, "doConnect cannot find CallId: %s\n", callId);
+        OsSysLog::add(FAC_CP, PRI_ERR, 
+                      "CallManager::doConnect "
+                      "cannot find CallId: %s\n", 
+                      callId);
     }
     else
     {
@@ -3963,6 +3971,11 @@ void CallManager::doConnect(const char* callId,
         CpMultiStringMessage dialStringMessage(CP_DIAL_STRING, addressUrl, desiredConnectionCallId, NULL, NULL, NULL, contactId, (intptr_t)pDisplay) ;
         call->postMessage(dialStringMessage);
         call->setLocalConnectionState(PtEvent::CONNECTION_ESTABLISHED);
+#ifdef TEST_PRINT
+        OsSysLog::add(FAC_CP, PRI_DEBUG,
+                      "CallManager::doConnect "
+                      "stopMetaEvent 4");
+#endif
         call->stopMetaEvent();
     }
 }

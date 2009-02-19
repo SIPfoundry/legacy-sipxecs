@@ -1161,6 +1161,11 @@ void CpCall::setMetaEvent(int metaEventId, int metaEventType,
                       "CpCall::setMetaEvent "
                       "stopping event %d type %x",
                       mMetaEventId, mMetaEventType);
+#ifdef TEST_PRINT
+        OsSysLog::add(FAC_CP, PRI_DEBUG,
+                      "CpCall::setMetaEvent "
+                      "stopMetaEvent 5");
+#endif
         stopMetaEvent();
     }
 
@@ -1197,7 +1202,7 @@ void CpCall::setMetaEvent(int metaEventId, int metaEventType,
                               "CpCall::setMetaEvent "
                               "callids[%d] gets '%s'",
                               i, mCallId.data());
-                    mpMetaEventCallIds[i] = mCallId.data();
+                mpMetaEventCallIds[i] = mCallId.data();
             }
         }
     }
@@ -1228,10 +1233,12 @@ void CpCall::getMetaEvent(int& metaEventId, int& metaEventType,
 
 void CpCall::stopMetaEvent(int remoteIsCallee)
 {
+#ifdef TEST_PRINT
     OsSysLog::add(FAC_CP, PRI_DEBUG, 
                   "CpCall::stopMetaEvent "
-                  "m-event %d m-eventType %d ",
+                  "m-event %d m-eventType %x ",
                   mMetaEventId, mMetaEventType);
+#endif
     postMetaEvent(METAEVENT_END, remoteIsCallee);
 
     // Clear the event info
@@ -1247,6 +1254,12 @@ void CpCall::stopMetaEvent(int remoteIsCallee)
 
 void CpCall::setCallType(int callType)
 {
+#ifdef TEST_PRINT
+    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                  "CpCall::setCallType "
+                  "change mCallType: %d to callType: %d\n", 
+                  mCallType, callType);
+#endif
     mCallType = callType;
 }
 
@@ -1369,7 +1382,8 @@ OsStatus CpCall::addListener(OsServerTask* pListener,
 
 void CpCall::postMetaEvent(int state, int remoteIsCallee)
 {
-    if (mMetaEventType != PtEvent::META_EVENT_NONE && mListenerCnt > 0)
+    if (mMetaEventType != PtEvent::META_EVENT_NONE 
+        && mListenerCnt > 0)
     {
         OsSysLog::add(FAC_CP, PRI_DEBUG, 
                       "CpCall::postMetaEvent "

@@ -1358,9 +1358,9 @@ UtlBoolean SipConnection::sendKeepAlive(UtlBoolean useOptionsForKeepalive)
         SipMessage sipOptionsMessage;
 
         lastLocalSequenceNumber++;
-      
-        sipOptionsMessage.setOptionsData(mInviteMsg, mRemoteContactUri.data(), inviteFromThisSide, 
-            lastLocalSequenceNumber, mRouteField.data(), mLocalContact.data());
+        sipOptionsMessage.setOptionsData(mInviteMsg, mRemoteContactUri.data(), 
+                                         inviteFromThisSide, lastLocalSequenceNumber, 
+                                         mRouteField.data(), mLocalContact.data());
 
         sipOptionsMessage.setHeaderValue(SIP_ACCEPT_FIELD, SDP_CONTENT_TYPE);
         mWaitingForKeepAliveResponse=TRUE;
@@ -1635,11 +1635,11 @@ UtlBoolean SipConnection::transfereeStatus(int callState, int returnCode)
             HttpBody* body = NULL;
             lastLocalSequenceNumber++;
             referNotify.setNotifyData(mReferMessage,
-                lastLocalSequenceNumber,
-                mRouteField,
-                NULL,
-                event,
-                "id");
+                                      lastLocalSequenceNumber,
+                                      mRouteField,
+                                      NULL,
+                                      event,
+                                      "id");
             if(callState == CONNECTION_ESTABLISHED)
             {
                 //transferResponse.setReferOkData(mReferMessage);
@@ -1702,10 +1702,16 @@ UtlBoolean SipConnection::transfereeStatus(int callState, int returnCode)
                OsSysLog::add(FAC_CP, PRI_DEBUG,
                              "SipConnection::transfereeStatus "
                              "META_CALL_TRANSFERRING end");
-               mpCall->getMetaEvent(metaEventId, metaEventType, numCalls,
-                  &metaEventCallIds);
-               if(metaEventId > 0 && metaEventType == PtEvent::META_CALL_TRANSFERRING)
+               mpCall->getMetaEvent(metaEventId, metaEventType, 
+                                    numCalls, &metaEventCallIds);
+               if(   metaEventId > 0 
+                  && metaEventType == PtEvent::META_CALL_TRANSFERRING)
                {
+#ifdef TEST_PRINT
+                   OsSysLog::add(FAC_CP, PRI_DEBUG,
+                                 "SipConnection::transfereeStatus "
+                                 "stopMetaEvent 1");
+#endif 
                   mpCall->stopMetaEvent();
                }
             } 
@@ -2383,6 +2389,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
     // Replaces is independent of REFER so
     // do not assume there must be a Refer-To or Refer-By
     UtlBoolean hasReplaceHeader = FALSE;
+    // in use, "doesReplaceCallLegExist == TRUE" also means that a Replaces hdr was found
     UtlBoolean doesReplaceCallLegExist = FALSE;
     int       replaceCallLegState = -1 ;
     UtlString replaceCallId;
@@ -2485,7 +2492,8 @@ void SipConnection::processInviteRequest(const SipMessage* request)
                  || mLineBusyBehavior == FAKE_RING))        // pretend not busy
             // I do not remember what the follow case is for:
             || (getState() == CONNECTION_OFFERING           // not call to self
-                && mRemoteIsCallee && !request->isSameMessage(mInviteMsg)))
+                && mRemoteIsCallee 
+                && !request->isSameMessage(mInviteMsg)))
     {
         lastRemoteSequenceNumber = requestSequenceNum;
 
@@ -2548,6 +2556,10 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         // Allow transfer if the call leg exists and the call leg is
         // established.  Transferring a call while in early dialog is
         // illegal.
+        // At this point, a TRUE value means
+        //  - have replaces header
+        //  - found a valid call leg to match replaces id
+        //  - the call leg to be replaced is "ESTABLISHED", so ok to do transfer
         if (doesReplaceCallLegExist)
         {
             cause = CONNECTION_CAUSE_TRANSFER;
@@ -2638,7 +2650,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
 #ifdef TEST_PRINT
         osPrintf("Offering delay: %d\n", mOfferingDelay);
 #endif
-        // If we are replacing a call let answer the call
+        // If we are replacing a call let's answer the call
         // immediately do not go to offering first.
         if (doesReplaceCallLegExist)
         {
@@ -2697,10 +2709,11 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         }
     }
     // Re-INVITE allowed
-    else if(mpMediaInterface != NULL && mInviteMsg && 
-            requestSequenceNum > lastRemoteSequenceNumber &&
-            getState() == CONNECTION_ESTABLISHED &&
-            reinviteState == ACCEPT_INVITE)
+    else if(   mpMediaInterface != NULL 
+            && mInviteMsg 
+            && requestSequenceNum > lastRemoteSequenceNumber 
+            &&getState() == CONNECTION_ESTABLISHED 
+            &&reinviteState == ACCEPT_INVITE)
     {
         // Keep track of the last sequence number;
         lastRemoteSequenceNumber = requestSequenceNum;
@@ -3119,7 +3132,10 @@ void SipConnection::processInviteRequest(const SipMessage* request)
 
 #ifdef TEST_PRINT
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
-        "Leaving SipConnection::processInviteRequest mInviteMsg=0x%08x ", (int)mInviteMsg);
+        "Leaving "
+        "SipConnection::processInviteRequest "
+        "mInviteMsg=0x%08x ", 
+        (int)mInviteMsg);
 #endif
 } // End of processInviteRequest
 
@@ -3527,6 +3543,12 @@ void SipConnection::processNotifyRequest(const SipMessage* request)
 
 void SipConnection::processAckRequest(const SipMessage* request)
 {
+#ifdef TEST_
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
+                  "SipConnection::processAckRequest "
+                  "entering");
+#endif
+
     //UtlBoolean receiveCodecSet;
     //UtlBoolean sendCodecSet;
     int requestSequenceNum = 0;
@@ -3655,6 +3677,12 @@ void SipConnection::processAckRequest(const SipMessage* request)
             CpCall::CP_TRANSFER_TARGET_TARGET_CALL)
         {
             mpCall->setCallType(CpCall::CP_NORMAL_CALL);
+#ifdef TEST_PRINT
+             OsSysLog::add(FAC_CP, PRI_DEBUG,
+                          "SipConnection::processAckRequest "
+                          "stopMetaEvent 10");
+#endif 
+           mpCall->stopMetaEvent();
         }
     }
 
@@ -4111,7 +4139,13 @@ UtlBoolean SipConnection::processResponse(const SipMessage* response,
                     if(metaEventId > 0 
                        && metaEventType == PtEvent::META_CALL_TRANSFERRING)
                     {
-                        mpCall->stopMetaEvent();
+#ifdef TEST_PRINT
+                         OsSysLog::add(FAC_CP, PRI_DEBUG,
+                                      "SipConnection::processResponse: "
+                                      "stopMetaEvent 2 eventType= %x",
+                                      metaEventType);
+#endif 
+                       mpCall->stopMetaEvent();
                     }
                 }
             }

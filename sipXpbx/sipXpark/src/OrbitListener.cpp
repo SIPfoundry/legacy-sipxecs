@@ -128,7 +128,7 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
             {
                OsSysLog::add(FAC_PARK, PRI_DEBUG,
                              "OrbitListener::handleMessage - %d "
-                             "callId: '%s', address: '%s' found in transfer list", 
+                             "callId: '%s', address: '%s' found in mTransferCalls", 
                              taoEventId, callIdTao.data(), addressTao.data());
             }
 
@@ -228,7 +228,7 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                    // found call-id in transfer hashmap, get origi call-id value (if any)
                    OsSysLog::add(FAC_PARK, PRI_DEBUG,
                                  "OrbitListener::handleMessage - %d "
-                                 "callId: '%s', address: '%s' found in transfer list", 
+                                 "callId: '%s', address: '%s' found in mTransferCalls", 
                                  taoEventId, callIdTao.data(), addressTao.data());
                     UtlString* idOfOrigCallTxfr =
                       dynamic_cast <UtlString*> (mTransferCalls.findValue(&callIdTao));
@@ -339,8 +339,8 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                 {
                    OsSysLog::add(FAC_PARK, PRI_DEBUG,
                                  "OrbitListener::handleMessage - %d "
-                                 "No callId '%s' found in the parked call list",
-                                 taoEventId, callIdTao.data());
+                                 "callId '%s' not found in the parked call list"
+                                 , taoEventId, callIdTao.data());
                 }
                 else if (addressTao.compareTo(pDroppedCall->getCurrentAddress()) == 0)
                 {
@@ -429,6 +429,10 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
             // Delete the transfer call (if it is one).
             // This deletes *originalCallId, so do it after we are
             // done with originalCallId.
+            OsSysLog::add(FAC_PARK, PRI_DEBUG,
+                          "OrbitListener::handleMessage - %d "
+                          "callId: '%s', address: '%s' removed from mTransferCalls", 
+                          taoEventId, callIdTao.data(), addressTao.data());
             mTransferCalls.destroy(&callIdTao);
 
             // If this is a real call, remove it from our list.
@@ -464,7 +468,8 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                    UtlString originalCallIdTao = argTao[TAO_TRANSFER_ENDED_ORIGINAL_CALLID];
                    OsSysLog::add(FAC_PARK, PRI_DEBUG,
                                  "OrbitListener::handleMessage - %d "
-                                 "transfer - started: callId '%s', original callid: '%s'",
+                                 "transfer - started: "
+                                 "add callId '%s' to mTransferCalls, original callid: '%s'",
                                  taoEventId, transferCallIdTao.data(), originalCallIdTao.data());
                    // Record it.
                    mTransferCalls.insertKeyAndValue(new UtlString(transferCallIdTao),

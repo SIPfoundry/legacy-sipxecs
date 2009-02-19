@@ -334,9 +334,11 @@ UtlBoolean CpPeerCall::handleTransfer(OsMsg* pEventMessage)
         startMetaEvent(metaEventId, PtEvent::META_CALL_TRANSFERRING, 2, metaCallIds);
 
         // Create the target call
-        mpManager->createCall(&targetCallId, metaEventId,
+        mpManager->createCall(&targetCallId, 
+                              metaEventId,
                               PtEvent::META_CALL_TRANSFERRING, 
-                              2, metaCallIds, FALSE);
+                              2, metaCallIds, 
+                              FALSE);
         // Do  not assume focus if there is no infocus call
         // as this is not a real call.  It is a place holder for call
         // state on the remote call
@@ -737,6 +739,11 @@ UtlBoolean CpPeerCall::handleSipMessage(OsMsg* pEventMessage)
         if (   previousConnectionState == Connection::CONNECTION_IDLE 
             && currentConnectionState  == Connection::CONNECTION_OFFERING)
         {
+#ifdef TEST_PRINT
+            OsSysLog::add(FAC_CP, PRI_DEBUG,
+                          "CpPeerCall::handleSipMessage "
+                          "stopMetaEvent 6");
+#endif
             stopMetaEvent(connection->isRemoteCallee());
         }
 
@@ -1492,6 +1499,11 @@ UtlBoolean CpPeerCall::handleTransferConnectionStatus(OsMsg* pEventMessage)
     }
 
     // Stop the meta event
+#ifdef TEST_PRINT
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
+                  "CpPeerCall::handleTransferConnectionStatus "
+                  "stopMetaEvent 7");
+#endif
     stopMetaEvent();
 
     // Check if call is dead and drop it if it is
@@ -1538,6 +1550,11 @@ UtlBoolean CpPeerCall::handleTransfereeConnectionStatus(OsMsg* pEventMessage)
     }
 
     // Stop the meta event
+#ifdef TEST_PRINT
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
+                  "CpPeerCall::handleTransfereeConnectionStatus "
+                  "stopMetaEvent 8");
+#endif
     stopMetaEvent();
 
     // Check if call is dead and drop it if it is
@@ -1618,14 +1635,18 @@ UtlBoolean CpPeerCall::handleGetSession(OsMsg* pEventMessage)
 {
     UtlString address;
     UtlString callId;
+    bool foundMatch = FALSE;
+
     ((CpMultiStringMessage*)pEventMessage)->getString1Data(callId);
     ((CpMultiStringMessage*)pEventMessage)->getString2Data(address);
     SipSession* sessionPtr;
     OsProtectedEvent* getFieldEvent = (OsProtectedEvent*) 
-        ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
+                 ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
     getFieldEvent->getIntData((intptr_t&)sessionPtr);
 
-    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleGetSession session: %p for callId %s address %s",
+    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                  "CpPeerCall::handleGetSession "
+                  "session: %p for callId %s address %s",
                   sessionPtr, callId.data(), address.data());
 
     // Check whether the tag is set in addresses or not. If so, do not need to use callId
@@ -1666,13 +1687,23 @@ UtlBoolean CpPeerCall::handleGetSession(OsMsg* pEventMessage)
         {
             SipSession session;
             connection->getSession(session);
-            OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleGetSession copying session: %p",
+            OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                          "CpPeerCall::handleGetSession "
+                          "copying session: %p",
                           sessionPtr);
 
             *sessionPtr = SipSession(session);
+            foundMatch = TRUE;
             // Signal the caller that we are done.
             break;
         }
+    }
+
+    if (foundMatch == FALSE)
+    {
+        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                      "CpPeerCall::handleGetSession "
+                      "no matching session found");
     }
 
     // If the event has already been signalled, clean up
@@ -2929,10 +2960,15 @@ void CpPeerCall::inFocus(int talking)
             int metaEventType = PtEvent::META_EVENT_NONE;
             int numCalls = 0;
             const UtlString* metaEventCallIds = NULL;
-            getMetaEvent(metaEventId, metaEventType, numCalls, 
-                &metaEventCallIds);
+            getMetaEvent(metaEventId, metaEventType, 
+                         numCalls, &metaEventCallIds);
             if(metaEventType != PtEvent::META_CALL_TRANSFERRING)
             {
+#ifdef TEST_PRINT
+                OsSysLog::add(FAC_CP, PRI_DEBUG,
+                              "CpPeerCall::inFocus "
+                              "stopMetaEvent 9");
+#endif
                 stopMetaEvent();
             }
         }
