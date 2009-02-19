@@ -7,6 +7,10 @@ then
     SIPX_BUILD_LABEL=${USER}
 fi
 
+if [ -d $topdir ]; then
+   pushd $topdir > /dev/null 2>&1
+fi
+
 if test -d ${topdir}/.svn
 then
     svnversion ${topdir} \
@@ -39,3 +43,8 @@ else
         echo 0.unknown
     fi
 fi
+
+if [ -d $topdir ]; then
+   popd > /dev/null 2>&1
+fi
+
