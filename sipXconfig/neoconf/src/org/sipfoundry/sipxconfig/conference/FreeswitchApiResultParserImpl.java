@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.setting.type.SipUriSetting;
 
 /**
  * Parses the string returned from a FreeSWITCH XML-RPC call.
@@ -32,7 +33,7 @@ public class FreeswitchApiResultParserImpl implements FreeswitchApiResultParser 
     private static final Pattern CONFERENCE_NOT_FOUND_PATTERN = Pattern.compile("Conference (.+) not found\\n");
 
     private static final Pattern CONFERENCE_NAME_PATTERN = Pattern
-            .compile("Conference ([\\w ]+) \\((\\d+) members?( locked)?\\)");
+            .compile("Conference ([" + SipUriSetting.USER_NAME +"]+) \\((\\d+) members?( locked)?\\)");
 
     private static final int CONFERENCE_NAME_PATTERN_GROUP_INDEX = 1;
     private static final int CONFERENCE_MEMBERS_PATTERN_GROUP_INDEX = 2;

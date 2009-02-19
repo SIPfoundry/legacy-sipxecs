@@ -68,20 +68,22 @@ public class FreeswitchApiResultParserTest {
                 + "2;sofia/eng.bluesocket.com/201@192.168.100.233;f69d2b1f-4841-40a4-8e0f-847d1aeef2f0;201;201;hear|speak;0;0;300\n"
                 + "1;sofia/eng.bluesocket.com/200@192.168.100.233;a5b6cdbe-7cbf-48a7-a52d-98b871eb2491;Joe Attardi;200;hear|speak|floor;0;0;300\n"
                 + "Conference myconf1 (1 member locked)\n"
-                + "1;sofia/eng.bluesocket.com/200@192.168.100.233;a5b6cdbe-7cbf-48a7-a52d-98b871eb2491;Joe Attardi;200;hear|speak|floor;0;0;300\n";
+                + "1;sofia/eng.bluesocket.com/200@192.168.100.233;a5b6cdbe-7cbf-48a7-a52d-98b871eb2491;Joe Attardi;200;hear|speak|floor;0;0;300\n"
+                + "Conference user200-conf (1 member)\n"
+                + "5;sofia/eng.bluesocket.com/202@192.168.100.233;c6c34057-3844-43de-abbd-816fc64e1926;cardassia;202;hear|speak|floor;0;0;300\n";
 
         activeConferences = m_parser.getActiveConferences(resultString);
 
-        Assert.assertEquals(3, activeConferences.size());
+        Assert.assertEquals(4, activeConferences.size());
 
         String[] expectedConferenceNames = {
-            "myconf3", "myconf2", "myconf1"
+            "myconf3", "myconf2", "myconf1", "user200-conf"
         };
         int[] expectedMembers = {
-            1, 2, 1
+            1, 2, 1, 1
         };
         boolean[] expectedLocked = {
-            false, false, true
+            false, false, true, false
         };
         for (int n = 0; n < activeConferences.size(); n++) {
             ActiveConference conference = activeConferences.get(n);

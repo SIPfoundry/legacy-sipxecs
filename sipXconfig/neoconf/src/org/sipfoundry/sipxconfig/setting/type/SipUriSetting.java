@@ -20,7 +20,7 @@ public class SipUriSetting extends StringSetting {
     private static final String SIP_USER_CHARS = "[a-zA-Z0-9" + SIP_USER_UNRESERVED + "]";
     private static final String SIP_USER_ESCAPED = "%[0-9a-fA-F]{2}";
 
-    private static final String USER_NAME = "(" + SIP_USER_CHARS + "|" + SIP_USER_ESCAPED + ")+";
+    public static final String USER_NAME = "(" + SIP_USER_CHARS + "|" + SIP_USER_ESCAPED + ")+";
 
     private static final String OPTIONAL_DOMAIN = "(@(\\w[-._\\w]*\\w\\.\\w{2,6})+)?";
 
