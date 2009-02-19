@@ -38,14 +38,18 @@ SIPX_USER=@SIPXPBXUSER@
 FS_LOGDIR=@SIPX_LOGDIR@
 FS_DBDIR=@SIPX_VARDIR@/tmp/freeswitch
 FS_CONFDIR=@SIPX_CONFDIR@/freeswitch/conf
-FS_EXEC="@FREESWITCH_PREFIX@/bin/freeswitch -conf $FS_CONFDIR -db $FS_DBDIR -log $FS_LOGDIR"
+FS_EXEC="@FREESWITCH_PREFIX@/bin/freeswitch \
+   -conf $FS_CONFDIR \
+   -db $FS_DBDIR \
+   -log $FS_LOGDIR \
+   -htdocs $FS_CONFDIR/htdocs"
 
 SIPXDIRS="$FS_DBDIR $FS_CONFDIR"
 
 case ${Action} in
    RUN)
      ulimit -s 244  # Keep stack size small for maximum number of threads
-     exec $FS_EXEC -nc -nf $Args
+     exec $FS_EXEC -nc -nf -nosql $Args
      exit 0
      ;;
 
@@ -55,7 +59,7 @@ case ${Action} in
      ;;
 
    CONFIGTEST)
-     WRONGPERM=`find $SIPXDIRS -not -user $SIPX_USER -or -not -group $SIPX_USER | wc -l`
+     WRONGPERM=`find $SIPXDIRS -not -user $SIPX_USER -or -not -group $SIPX_USER 2>&1 | wc -l`
      if [ $WRONGPERM -gt 0 ] 
      then
         if [ $iam = root ]

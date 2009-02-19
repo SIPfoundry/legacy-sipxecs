@@ -30,9 +30,14 @@ then
        mkdir $SIPX_FS_CONFDIR
        mkdir $SIPX_FS_CONFDIR/autoload_configs/
        mkdir $SIPX_FS_CONFDIR/dialplan/
+       mkdir $SIPX_FS_CONFDIR/lang/
+       mkdir $SIPX_FS_CONFDIR/jingle_profiles/
        mkdir $SIPX_FS_CONFDIR/sip_profiles/
+       mkdir $SIPX_FS_CONFDIR/htdocs/
        cp -p $FS_CONFDIR/vars.xml $SIPX_FS_CONFDIR
-       cp -p $FS_CONFDIR/autoload_configs/* $SIPX_FS_CONFDIR/autoload_configs
+       cp -pR $FS_CONFDIR/autoload_configs/* $SIPX_FS_CONFDIR/autoload_configs
+       cp -pR $FS_CONFDIR/jingle_profiles/* $SIPX_FS_CONFDIR/jingle_profiles
+       cp -pR $FS_CONFDIR/lang/* $SIPX_FS_CONFDIR/lang
 
        # Correct ownership and permissions so sipXconfig can write
        chown -R @SIPXPBXUSER@ $SIPX_FS_CONFDIR
