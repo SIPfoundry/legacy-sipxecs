@@ -15,6 +15,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.common.AlarmContext;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
@@ -38,6 +39,7 @@ public class FirstRunTask implements ApplicationListener {
     private AdminContext m_adminContext;
     private DomainManager m_domainManager;
     private DialPlanActivationManager m_dialPlanActivationManager;
+    private DialPlanContext m_dialPlanContext;
     private SipxServiceManager m_sipxServiceManager;
     private ServiceConfigurator m_serviceConfigurator;
     private String m_taskName;
@@ -57,8 +59,10 @@ public class FirstRunTask implements ApplicationListener {
         m_domainManager.replicateDomainConfig();
         m_coreContext.initializeSpecialUsers();
 
-        // create paging server - needs to exist before we start replication
+        // create paging server and default dial plan
+        // both need to exist before we start replication
         m_pagingContext.getPagingServer();
+        m_dialPlanContext.getVoiceMail();
 
         // this is moved from replication trigger will need something better here...
         m_parkOrbitContext.activateParkOrbits();
@@ -198,5 +202,10 @@ public class FirstRunTask implements ApplicationListener {
     @Required
     public void setPagingContext(PagingContext pagingContext) {
         m_pagingContext = pagingContext;
+    }
+
+    @Required
+    public void setDialPlanContext(DialPlanContext dialPlanContext) {
+        m_dialPlanContext = dialPlanContext;
     }
 }

@@ -64,6 +64,7 @@
     <property name="adminContext" ref="adminContext" />
     <property name="domainManager" ref="domainManager" />
     <property name="dialPlanActivationManager" ref="dialPlanActivationManager" />
+    <property name="dialPlanContext" ref="dialPlanContext" />
     <property name="alarmContext" ref="alarmContext" />
     <property name="gatewayContext" ref="gatewayContext" />
     <property name="phoneContext" ref="phoneContext" />
