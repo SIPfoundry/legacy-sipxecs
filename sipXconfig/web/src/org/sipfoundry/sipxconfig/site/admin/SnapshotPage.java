@@ -10,13 +10,13 @@
 package org.sipfoundry.sipxconfig.site.admin;
 
 import java.io.File;
+import java.util.Calendar;
 import java.util.Date;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.EventListener;
 import org.apache.tapestry.annotations.InjectObject;
-import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
@@ -24,17 +24,12 @@ import org.sipfoundry.sipxconfig.admin.Snapshot;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.site.cdr.CdrHistory;
 
 public abstract class SnapshotPage extends BasePage implements PageBeginRenderListener {
-    private static final String CLIENT = "client";
-
-    @Persist(CLIENT)
     public abstract Date getStartDate();
 
     public abstract void setStartDate(Date date);
 
-    @Persist(CLIENT)
     public abstract Date getEndDate();
 
     public abstract void setEndDate(Date date);
@@ -52,13 +47,16 @@ public abstract class SnapshotPage extends BasePage implements PageBeginRenderLi
             return;
         }
 
+        Calendar now = Calendar.getInstance();
         if (getEndDate() == null) {
-            setEndDate(CdrHistory.getDefaultEndTime());
+            // End date: When the page is rendered.
+            setEndDate(now.getTime());
         }
 
         if (getStartDate() == null) {
-            Date startTime = CdrHistory.getDefaultStartTime(getEndDate());
-            setStartDate(startTime);
+            // Start date: 3 hours before the End date.
+            now.add(Calendar.HOUR, -3);
+            setStartDate(now.getTime());
         }
     }
 
