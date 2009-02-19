@@ -174,7 +174,7 @@ public abstract class ConferencesPanel extends TablePanel {
         if (getShowOwner()) {
             columns.append("!owner,");
         }
-        columns.append("enabled,extension,description,active");
+        columns.append("enabled,extension,description,!active");
         
         return columns.toString();
     }
