@@ -28,7 +28,6 @@ phoneDefaults.proxyServerAddr=${PROXY_SERVER_ADDR}
 phoneDefaults.proxyServerSipPort=${PROXY_SERVER_SIP_PORT}
 # END: do not use
 locationsMigrationTrigger.hostname=${MY_FULL_HOSTNAME}
-locationsMigrationTrigger.localIpAddress=${MY_IP_ADDR}
 phoneDefaults.tftpServer=${CONFIG_SERVER_ADDR}
 phoneDefaults.authorizationRealm=${SIPXCHANGE_REALM}
 phoneDefaults.fullyQualifiedDomainName=${MY_FULL_HOSTNAME}
@@ -99,6 +98,7 @@ acdQueue.audioDirectory=@sipxconfig.phone.dir@/acd/audio
 presenceServer.enabled=true
 mailboxManagerImpl.mailstoreDirectory=@sipxvxml.data.dir@/mailstore
 sipxProcessContext.host=${MY_FULL_HOSTNAME}
+sipxServiceManagerImpl.host=${MY_FULL_HOSTNAME}
 alarmContextImpl.host=${MY_FULL_HOSTNAME}
 alarmApi.serviceUrl=https://${MY_FULL_HOSTNAME}:8092/RPC2
 sbcDeviceManagerImpl.localIpAddress=${MY_IP_ADDR}

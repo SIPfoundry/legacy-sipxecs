@@ -14,7 +14,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 
 public class LocationsMigrationTriggerTestIntegration extends IntegrationTestCase {
@@ -24,29 +26,49 @@ public class LocationsMigrationTriggerTestIntegration extends IntegrationTestCas
     private LocationsMigrationTrigger m_out;
     private LocationsManager m_locationsManager;
 
-    public void testOnInitTaskWithNoLocationsInDatabase() throws Exception {
+    @Override
+    protected void onSetUpInTransaction() throws Exception {
+        super.onSetUpInTransaction();
+        
+        m_out = new LocationsMigrationTrigger();
+        m_out.setConfigDirectory(getConfigDirectory());
+        m_out.setLocationsManager(m_locationsManager);
+        m_out.setTopologyFilename("topology.xml");
+        m_out.setNetworkPropertiesFilename("sipxconfig-netif");
+        m_out.setTaskNames(Arrays.asList(new String[] {"migrate_locations"}));
+    }
+
+    public void testOnInitTaskUpgrade() throws Exception {
         loadDataSetXml("admin/commserver/clearLocations.xml");
         Location[] locationsBeforeMigration = m_locationsManager.getLocations();
         assertEquals(0, locationsBeforeMigration.length);
 
         File testTopologyFile = createTopologyFile();
 
-        m_out.setConfigDirectory(getConfigDirectory());
         m_out.setTopologyFilename(TOPOLOGY_TEST_XML);
-        m_out.setHostname("localhost");
         m_out.onInitTask("migrate_locations");
 
         Location[] locationsAfterMigration = m_locationsManager.getLocations();
         assertEquals(2, locationsAfterMigration.length);
-        assertEquals("https://localhost:8092/RPC2", locationsAfterMigration[0].getProcessMonitorUrl());
-        assertEquals("localhost", locationsAfterMigration[0].getFqdn());
-        //Localhost should be primary location
-        assertTrue(locationsAfterMigration[0].isPrimary());
-        assertEquals("https://192.168.0.27:8092/RPC2", locationsAfterMigration[1].getProcessMonitorUrl());
-        assertEquals("192.168.0.27", locationsAfterMigration[1].getFqdn());
-        //all other hosts should be secondary
-        assertFalse(locationsAfterMigration[1].isPrimary());
-        assertFalse(testTopologyFile.exists());
+        boolean foundPrimary = false;
+        boolean foundSecondary = false;
+        for (Location location : locationsAfterMigration) {
+            if (location.isPrimary()) {
+                assertEquals("https://localhost:8092/RPC2", location.getProcessMonitorUrl());
+                assertEquals("localhost", location.getFqdn());
+                assertFalse(StringUtils.isEmpty(location.getAddress()));
+                assertTrue(location.getAddress().matches("([\\d]{1,3}\\.){3}[\\d]{1,3}"));
+                foundPrimary = true;
+            } else {
+                assertEquals("https://192.168.0.27:8092/RPC2", location.getProcessMonitorUrl());
+                assertEquals("192.168.0.27", location.getFqdn());
+                foundSecondary = true;
+            }
+        }
+        
+        assertTrue("Primary location not found.", foundPrimary);
+        assertTrue("Secondary location not found.", foundSecondary);
+        assertFalse("Topology file not deleted.", testTopologyFile.exists());
     }
 
     public void testOnInitTaskExistingLocationsInDatabase() throws Exception {
@@ -54,7 +76,6 @@ public class LocationsMigrationTriggerTestIntegration extends IntegrationTestCas
         Location[] locationsBeforeMigration = m_locationsManager.getLocations();
         assertEquals(2, locationsBeforeMigration.length);
 
-        m_out.setConfigDirectory(getConfigDirectory());
         m_out.onInitTask("migrate_locations");
 
         Location[] locationsAfterMigration = m_locationsManager.getLocations();
@@ -70,29 +91,21 @@ public class LocationsMigrationTriggerTestIntegration extends IntegrationTestCas
         assertFalse(locationsAfterMigration[1].isPrimary());
     }
 
-    public void testOnInitTaskWithMissingTopologyFile() throws Exception {
+    public void testOnInitTaskNewInstallation() throws Exception {
         loadDataSetXml("admin/commserver/clearLocations.xml");
         Location[] locationsBeforeMigration = m_locationsManager.getLocations();
         assertEquals(0, locationsBeforeMigration.length);
 
-        // skip step of creating topology file
-
-        m_out.setConfigDirectory(getConfigDirectory());
-        m_out.setLocalIpAddress("192.168.1.2");
-        m_out.setHostname("my.full.hostname");
+        m_out.setNetworkPropertiesFilename("sipxconfig-netif-test");
+        m_out.setDomainConfigurationFilename("domain-config-test");
         m_out.onInitTask("migrate_locations");
 
-        Location[] locationsAfterMigration = m_locationsManager.getLocations();
-        assertEquals(1, locationsAfterMigration.length);
-        assertEquals("https://my.full.hostname:8092/RPC2", locationsAfterMigration[0].getProcessMonitorUrl());
-        //one location - primary
-        assertTrue(locationsAfterMigration[0].isPrimary());
+        Location primaryLocation = m_locationsManager.getPrimaryLocation();
+        assertNotNull(primaryLocation);
+        assertEquals("https://sipx.example.org:8092/RPC2", primaryLocation.getProcessMonitorUrl());
+        assertEquals("192.168.87.11", primaryLocation.getAddress());
     }
-
-    public void setLocationsMigrationTrigger(LocationsMigrationTrigger locationMigrationTrigger) {
-        m_out = locationMigrationTrigger;
-    }
-
+    
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
     }

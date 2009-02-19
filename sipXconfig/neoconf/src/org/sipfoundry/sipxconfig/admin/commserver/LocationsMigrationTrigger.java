@@ -14,11 +14,15 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Properties;
 
 import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.SetNestedPropertiesRule;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.InitTaskListener;
@@ -29,9 +33,11 @@ public class LocationsMigrationTrigger extends InitTaskListener {
 
     private LocationsManager m_locationsManager;
     private String m_hostname;
-    private String m_localIpAddress;
     private String m_topologyFilename;
     private String m_configDirectory;
+    private String m_networkPropertiesFilename;
+
+    private String m_domainConfigurationFilename;
 
     @Override
     public void onInitTask(String task) {
@@ -45,8 +51,6 @@ public class LocationsMigrationTrigger extends InitTaskListener {
         Location[] locations = loadLocationsFromFile();
         // if there is no location matching the sipxconfig hostname - the first found is made
         // primary
-        // (this situation should never happen - the location where sipxconfig is installed
-        // (primary) should always be written in topology.xml)
         if (locations.length > 0) {
             changeToPrimary(locations);
             // save locations in DB
@@ -56,14 +60,16 @@ public class LocationsMigrationTrigger extends InitTaskListener {
             }
         } else {
             LOG.info("No locations migrated from topology.xml - Creating localhost location.");
-            Location localhostLocation = new Location();
-            localhostLocation.setName("Config Server, Media Server and Comm Server");
-            localhostLocation.setAddress(m_localIpAddress);
-            localhostLocation.setFqdn(m_hostname);
-            localhostLocation.setPrimary(true);
+            Location primaryLocation = new Location();
+            primaryLocation.setName("Primary server");
+            primaryLocation.setPrimary(true);
+            primaryLocation.setFqdn(getFqdnForPrimaryLocation());
             // save locations in DB without publishing events
-            m_locationsManager.saveMigratedLocation(localhostLocation);
+            m_locationsManager.saveMigratedLocation(primaryLocation);
         }
+        
+        LOG.info("Determining IP address for pirmary server");
+        parseNetworkInfoForPrimary();
 
         LOG.info("Deleting topology.xml after data migration");
         getTopologyFile().delete();
@@ -77,6 +83,7 @@ public class LocationsMigrationTrigger extends InitTaskListener {
         if (locations == null || locations.length == 0) {
             return;
         }
+        
         Location firstLocation = locations[0];
         firstLocation.setPrimary(true);
         // always one and only one location should be designated as primary
@@ -86,6 +93,48 @@ public class LocationsMigrationTrigger extends InitTaskListener {
                 firstLocation.setPrimary(false);
                 location.setPrimary(true);
                 savePrimary = true;
+            }
+        }
+    }
+    
+    private String getFqdnForPrimaryLocation() {
+        File domainConfigFile = new File(m_configDirectory, m_domainConfigurationFilename);
+        try {
+            Properties domainConfig = new Properties();
+            InputStream domainConfigInputStream = new FileInputStream(domainConfigFile);
+            domainConfig.load(domainConfigInputStream);
+            return domainConfig.getProperty("CONFIG_HOSTS");
+        } catch (FileNotFoundException fnfe) {
+            LOG.warn("Unable to find domain configuration file " + domainConfigFile.getPath(), fnfe);
+        } catch (IOException ioe) {
+            LOG.warn("Unable to load domain configuration file " + domainConfigFile.getPath(), ioe);
+        }
+        
+        return null;
+    }
+    
+    private void parseNetworkInfoForPrimary() {
+        File networkPropertiesFile = new File(m_configDirectory, m_networkPropertiesFilename);
+        Location primaryLocation = m_locationsManager.getPrimaryLocation();
+        try {
+            Properties networkProperties = new Properties();
+            InputStream inputStream = new FileInputStream(networkPropertiesFile);
+            networkProperties.load(inputStream);
+            primaryLocation.setAddress(networkProperties.getProperty("IpAddress"));
+            m_locationsManager.saveMigratedLocation(primaryLocation);
+        } catch (FileNotFoundException fnfe) {
+            LOG.warn("Unable to find network properties file " + networkPropertiesFile.getPath(), fnfe);
+        } catch (IOException ioe) {
+            LOG.warn("Unable to load network properties file " + networkPropertiesFile.getPath(), ioe);
+        }
+        
+        if (StringUtils.isEmpty(primaryLocation.getAddress())) {
+            try {
+                InetAddress primaryAddress = InetAddress.getByName(primaryLocation.getFqdn());
+                primaryLocation.setAddress(primaryAddress.getHostAddress());
+                m_locationsManager.saveMigratedLocation(primaryLocation);
+            } catch (UnknownHostException uhe) {
+                LOG.warn("Unable to resolve address for " + primaryLocation.getFqdn());
             }
         }
     }
@@ -102,12 +151,16 @@ public class LocationsMigrationTrigger extends InitTaskListener {
         m_hostname = hostname;
     }
 
-    public void setLocalIpAddress(String localIpAddress) {
-        m_localIpAddress = localIpAddress;
-    }
-
     public void setTopologyFilename(String topologyFilename) {
         m_topologyFilename = topologyFilename;
+    }
+    
+    public void setNetworkPropertiesFilename(String networkPropertiesFilename) {
+        m_networkPropertiesFilename = networkPropertiesFilename;
+    }
+    
+    public void setDomainConfigurationFilename(String domainConfigurationFilename) {
+        m_domainConfigurationFilename = domainConfigurationFilename;
     }
 
     private Location[] loadLocationsFromFile() {
@@ -158,7 +211,8 @@ public class LocationsMigrationTrigger extends InitTaskListener {
                 "url"
             };
             addSetProperties(PATTERN);
-            SetNestedPropertiesRule rule = new SetNestedPropertiesRule(elementNames, propertyNames);
+            SetNestedPropertiesRule rule = new SetNestedPropertiesRule(elementNames,
+                    propertyNames);
             // ignore all properties that we are not interested in
             rule.setAllowUnknownChildElements(true);
             addRule(PATTERN, rule);
