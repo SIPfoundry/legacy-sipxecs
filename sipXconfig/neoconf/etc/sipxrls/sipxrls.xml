@@ -32,7 +32,6 @@
 	  </enum>
 	</type>
     <group name="rls-config">
-        <label>sipXrls</label>
 	    <setting name="SIP_RLS_LOG_LEVEL">
 	      <type refid="loglevel" />
 	      <value>NOTICE</value>

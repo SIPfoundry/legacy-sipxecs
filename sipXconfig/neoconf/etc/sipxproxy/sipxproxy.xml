@@ -31,7 +31,6 @@
     </enum>
   </type>
   <group name="proxy-configuration">
-    <label>sipXproxy</label>
     <setting name="SIPX_PROXY_DEFAULT_SERIAL_EXPIRES">
       <type>
         <integer />

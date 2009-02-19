@@ -1,4 +1,7 @@
 <div jwcid="@common/Border">
+  <h2>
+    <span jwcid="@Insert" value="ognl:title" />
+  </h2>
   <form jwcid="form@Form" delegate="bean:validator">
     <fieldset jwcid="@setting/SettingsFieldset"
         settings="ognl:sipxService.settings"

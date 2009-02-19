@@ -19,6 +19,8 @@ import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
+import static org.sipfoundry.sipxconfig.components.TapestryUtils.getMessage;
+
 public abstract class EditSipxService extends PageWithCallback implements PageBeginRenderListener {
 
     @InjectObject("spring:sipxServiceManager")
@@ -42,6 +44,11 @@ public abstract class EditSipxService extends PageWithCallback implements PageBe
                     getBeanId());
             setSipxService(sipxService);
         }
+    }
+
+    public String getTitle() {
+        String serviceBeanId = getSipxService().getBeanId();
+        return getMessage(getMessages(), "label." + serviceBeanId, serviceBeanId);
     }
 
     public void apply() {
