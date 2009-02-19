@@ -127,16 +127,33 @@ if i1 != i2:
 
 #--- Get required start/end timestamps formatted in seconds
 
-if not argLst.has_key('-e'): argLst['-e'] = actEndTimeStr
+if not argLst.has_key('-e'):
+    argLst['-e'] = actEndTimeStr
 try:
     startTime = date2sec(argLst['-s'])
+except:
+    sys.exit ("\n\t*** Invalid start timestamp '%s' in the command line ***\n" %
+              argLst['-s'])
+try:
     endTime   = date2sec(argLst['-e'])
 except:
-    sys.exit ("\n\t*** Invalid timestamp in the command line ***\n")
+    sys.exit ("\n\t*** Invalid end timestamp '%s' in the command line ***\n" %
+              argLst['-e'])
 print >> sys.stderr, "Search start time: %s" % argLst['-s']
 print >> sys.stderr, "Search stop  time: %s" % argLst['-e']
-if startTime < actStartTime or endTime > actEndTime:
-    sys.exit ("\n\t*** Either start or end timestamp is beyond the actual time boundaries in the log file ***\n")
+# Check that start and end times are in the correct order
+if startTime > endTime:
+    sys.exit ("\n\t*** Specified start time is after specified end time ***\n")
+# Check that the start and end times overlap those in the file
+if startTime > actEndTime or endTime < actStartTime:
+    sys.exit ("\n\t*** Specified start/end times do not overlap the times in the input file ***\n")
+# If the specified time bounds are outside of those in the file, narrow them to the file
+if startTime < actStartTime:
+    print >> sys.stderr, 'Start timestamp is before the actual start time in the log file'
+    startTime = actStartTime
+if endTime > actEndTime:
+    print >> sys.stderr, 'End timestamp is after the actual end time in the log file'
+    endTime = actEndTime
 
 #--- Calculate a scale factor
 

@@ -23,6 +23,7 @@ LogStart=
 LogStop=
 IncludeCallRecords="FALSE"
 IncludeProfiles="FALSE"
+Arguments=
 
 DefaultTarFile="sipx-configuration-`hostname -f`.tar.gz"
 
@@ -53,6 +54,7 @@ function make_absolute () {
 
 # Process arguments.
 
+Arguments="$*"
 while [ $# -ne 0 ]
 do
     case ${1} in
@@ -387,24 +389,29 @@ case ${Logs} in
         :
         ;;
     cut)
+        # The extract files we create in ${cutDir} will be copied into
+        # the working tree.  In later processing, the files will be moved into
+        # ${Work}/@SIPX_LOGDIR@ itslef, and ${Work}/${cutDir} will be deleted.
         cutDir=`mktemp -d @SIPX_LOGDIR@/cut.XXXXXX`
         trap "rm -rf ${cutDir} 2>/dev/null" 0
         echo "Attempting to cut logs from '${LogStart}' to '${LogStop}'" > ${cutDir}/extract.log
-        echo ${cutDir}/extract.log >> $Work.copy-files
+        # Place extract.log at the top level of the tar file.
+        CommentFiles="${CommentFiles} ${cutDir}/extract.log"
         for log in @SIPX_LOGDIR@/*log
         do
           if hasTimestamps "${log}"
           then
+              outFile="${cutDir}/`basename ${log}`"
               echo "cutting '${log}'" >> ${cutDir}/extract.log
-              echo ${cutDir}/`basename ${log}` >> $Work.copy-files
+              echo ${outFile} >> $Work.copy-files
               if test -z "${LogStop}"
               then
                   @SIPX_BINDIR@/sipx-log-cut -i "${log}" -s "${LogStart}" -t \
-                      > ${cutDir}/`basename ${log}` \
+                      > ${outFile} \
                       2>> ${cutDir}/extract.log
               else
                   @SIPX_BINDIR@/sipx-log-cut -i "${log}" -s "${LogStart}" -e "${LogStop}" -t \
-                      > ${cutDir}/`basename ${log}` \
+                      > ${outFile} \
                       2>> ${cutDir}/extract.log
               fi
           else
@@ -474,7 +481,10 @@ done
 
 cat /dev/null            > ${SystemConfig}
 echo -n "Snapshot:  "   >> ${SystemConfig}
-echo "$0 @SIPX_VERSION@">> ${SystemConfig}
+echo "$0 $Arguments"    >> ${SystemConfig}
+echo ""                 >> ${SystemConfig}
+echo -n "Version:   "   >> ${SystemConfig}
+echo "@SIPX_VERSION@"   >> ${SystemConfig}
 echo ""                 >> ${SystemConfig}
 echo -n "Host:      "   >> ${SystemConfig}
 hostname --fqdn         >> ${SystemConfig}
