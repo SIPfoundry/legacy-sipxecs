@@ -7,8 +7,8 @@ Name:         sipx-freeswitch
 Summary:      FreeSWITCH open source telephony platform (sipX integration)
 License:      MPL
 Group:        Productivity/Telephony/Servers
-Version:      1.0.2
-Release:      11537
+Version:      1.0.3
+Release:      1
 URL:          http://www.freeswitch.org/
 Packager:     SIPFoundry <sipx-dev@sipfoundry.org> (original by Michal Bielicki)
 Vendor:       http://www.sipfoundry.org (original by http://www.voiceworks.pl/)
@@ -202,7 +202,7 @@ fi
                 --prefix=%{prefix} \
 		--bindir=%{prefix}/bin \
 		--libdir=%{prefix}/lib \
-                --sysconfdir=%{_sysconfdir} \
+                --sysconfdir=%{prefix}/conf \
                 --infodir=%{_infodir} \
                 --mandir=%{_mandir} \
 		--enable-core-libedit-support \
@@ -337,7 +337,6 @@ rm -rf $RPM_BUILD_ROOT%{prefix}/conf/lang/fr
 %endif
 %attr(0755,%{fs_user},daemon) %{prefix}/bin/*
 %{prefix}/lib/libfreeswitch*.so*
-%{prefix}/lib/libfreeswitch*.so*
 %{prefix}/lib/libopenzap.so*
 %{prefix}/mod/mod_console.so*
 %{prefix}/mod/mod_logfile.so*
@@ -376,12 +375,13 @@ rm -rf $RPM_BUILD_ROOT%{prefix}/conf/lang/fr
 %{prefix}/mod/mod_xml_cdr.so* 
 %{prefix}/mod/mod_fsv.so
 %{prefix}/mod/mod_tone_stream.so
-%{prefix}/mod/ozmod_analog.so
-%{prefix}/mod/ozmod_analog_em.so
-%{prefix}/mod/ozmod_wanpipe.so
-%{prefix}/mod/ozmod_isdn.so
-%{prefix}/mod/ozmod_ss7_boost.so
-%{prefix}/mod/ozmod_zt.so
+%{prefix}/mod/ozmod_analog.so*
+%{prefix}/mod/ozmod_analog_em.so*
+%{prefix}/mod/ozmod_isdn.so*
+%{prefix}/mod/ozmod_skel.so*
+%{prefix}/mod/ozmod_ss7_boost.so*
+%{prefix}/mod/ozmod_wanpipe.so*
+%{prefix}/mod/ozmod_zt.so*
 
 %files codec-passthru-amr
 %defattr(0644, %{fs_user},daemon, 0755)
@@ -440,6 +440,8 @@ rm -rf $RPM_BUILD_ROOT%{prefix}/conf/lang/fr
 %{prefix}/mod/mod_say_en.so*
 
 %changelog
+* Thu Feb 19 2009 - woof@nortel.com
+- Updated for FreeSWITCH 1.0.3
 * Thu Dec 04 2008 - woof@nortel.com
 - reworked for sipX installations.
 * Thu May 22 2008 - michal.bielicki@voiceworks.pl
