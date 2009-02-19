@@ -22,6 +22,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
+import org.sipfoundry.sipxconfig.paging.PagingContext;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
@@ -48,12 +49,16 @@ public class FirstRunTask implements ApplicationListener {
     private LocationsManager m_locationsManager;
     private ParkOrbitContext m_parkOrbitContext;
     private SpeedDialManager m_speedDialManager;
+    private PagingContext m_pagingContext;
 
     public void runTask() {
         LOG.info("Executing first run tasks...");
         m_domainManager.initializeDomain();
         m_domainManager.replicateDomainConfig();
         m_coreContext.initializeSpecialUsers();
+
+        // create paging server - needs to exist before we start replication
+        m_pagingContext.getPagingServer();
 
         // this is moved from replication trigger will need something better here...
         m_parkOrbitContext.activateParkOrbits();
@@ -188,5 +193,10 @@ public class FirstRunTask implements ApplicationListener {
     @Required
     public void setServiceConfigurator(ServiceConfigurator serviceConfigurator) {
         m_serviceConfigurator = serviceConfigurator;
+    }
+
+    @Required
+    public void setPagingContext(PagingContext pagingContext) {
+        m_pagingContext = pagingContext;
     }
 }

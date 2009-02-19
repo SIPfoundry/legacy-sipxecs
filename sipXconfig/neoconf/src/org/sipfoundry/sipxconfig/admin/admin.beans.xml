@@ -75,6 +75,7 @@
     <property name="serviceConfigurator" ref="serviceConfigurator" />    
     <property name="parkOrbitContext" ref="parkOrbitContext" />
     <property name="speedDialManager" ref="speedDialManager" />
+    <property name="pagingContext" ref="pagingContext" />
   </bean>
 
   <bean id="exportCsv" class="org.sipfoundry.sipxconfig.admin.ExportCsv">
