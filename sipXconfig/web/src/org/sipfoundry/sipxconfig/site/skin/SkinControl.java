@@ -49,6 +49,7 @@ public class SkinControl implements BeanFactoryAware {
     public SkinControl() {
         String pkg = getClass().getPackage().getName().replace('.', '/');
         // default skin resources
+        m_assets.put("favicon.ico", pkg + "/favicon.ico");
         m_assets.put("go.png", pkg + "/go.png");
         m_assets.put("search.png", pkg + "/search.png");
         m_assets.put("logo.png", pkg + "/sipxconfig-logo.png");

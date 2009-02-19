@@ -4,6 +4,7 @@
     title="message:product.name"
     renderBaseTag="ognl:tapestry.renderBaseTag"
     delegate="ognl:shellDelegate">
+  <link jwcid="@Relation" type="image/x-icon" rel="shortcut icon" href="/sipxconfig/skin/favicon.ico" />
   <body jwcid="@Body">
     <div jwcid="@If" condition="ognl:userSession.navigationVisible" renderTag="false">
       <span jwcid="@Script" scriptAsset="asset:borderDateScript"/>

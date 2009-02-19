@@ -156,6 +156,7 @@
         <include name="**/*.wsdl"/>
         <include name="**/*.properties"/>
         <include name="**/*.js"/>
+        <include name="**/*.ico"/>
       </classes>
       <lib dir="${dist.dir}">
 		  <include name="server-bindings.jar"/>
