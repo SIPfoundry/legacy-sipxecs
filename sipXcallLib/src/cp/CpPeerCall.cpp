@@ -2962,7 +2962,8 @@ void CpPeerCall::inFocus(int talking)
             const UtlString* metaEventCallIds = NULL;
             getMetaEvent(metaEventId, metaEventType, 
                          numCalls, &metaEventCallIds);
-            if(metaEventType != PtEvent::META_CALL_TRANSFERRING)
+            if(metaEventType != PtEvent::META_CALL_TRANSFERRING
+               && metaEventType != PtEvent::META_CALL_REPLACING)
             {
 #ifdef TEST_PRINT
                 OsSysLog::add(FAC_CP, PRI_DEBUG,

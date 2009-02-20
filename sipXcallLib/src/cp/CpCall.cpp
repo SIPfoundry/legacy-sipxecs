@@ -1450,6 +1450,13 @@ void CpCall::postMetaEvent(int state, int remoteIsCallee)
                 eventId = PtEvent::SINGLECALL_META_SNAPSHOT_ENDED;
             break;
 
+        case PtEvent::META_CALL_REPLACING:
+            if (state == METAEVENT_START)
+                eventId = PtEvent::MULTICALL_META_REPLACE_STARTED;
+            else if (state == METAEVENT_END)
+                eventId = PtEvent::MULTICALL_META_REPLACE_ENDED;
+            break;
+
         default:
         case PtEvent::META_UNKNOWN:
             osPrintf("CpCall::postMetaEvent - UNKNOWN_EVENT 0x%3x\n", mMetaEventId);

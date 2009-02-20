@@ -254,6 +254,10 @@ PtStatus PtEvent::getMetaEvent(PtBoolean& rMetaEventExists, PtMetaEvent*& pEvent
                         eventId = SINGLECALL_META_SNAPSHOT_STARTED;
                         break;
 
+        case META_CALL_REPLACING:
+            eventId = MULTICALL_META_REPLACE_STARTED;
+            break;
+
                 default:
                 case META_UNKNOWN:
                 case META_EVENT_NONE:

@@ -459,6 +459,7 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
 
 
          case PtEvent::MULTICALL_META_TRANSFER_STARTED:
+         case PtEvent::MULTICALL_META_REPLACE_STARTED:
          {
                 // A transfer operation is starting.  Record the call-Id
                 // of the transfer pseudo-call.
@@ -523,6 +524,60 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                 }
          }
          break;
+
+         case PtEvent::MULTICALL_META_REPLACE_ENDED:
+         {
+                // Only one MULTICALL_META_REPLACE_ENDED will occur, since
+                // only one CpCall exists to hold the metaEvent.  
+                // The metaEvent is stopped(and removed) at the first of:
+                // 1- ACK recieved for the new call (INVITE with REPLACES)
+                // 2- 200 OK recieved for BYE to replaced dialog
+                // 
+                // Either case sets transfer call id the new dialog's value.
+                // All transfer state and info must be cleared here.
+                // No call needs to be dropped, the replaced dialog is 
+                // terminated from SipConnection::processInviteRequest
+                // and the CpCall continues to exist, with a new dialog.
+                if (localConnectionTao)
+                {
+                   UtlString transferCallIdTao = argTao[TAO_TRANSFER_ENDED_TRANSFER_CALLID];
+                   OsSysLog::add(FAC_PARK, PRI_DEBUG,
+                                 "OrbitListener::handleMessage - %d "
+                                 "transfer - Transfer ended: callId '%s', "
+                                 "transfer callid: '%s'",
+                                 taoEventId, callIdTao.data(), transferCallIdTao.data());
+    
+                   if ( mTransferCalls.find(&transferCallIdTao))
+                   {
+                      OsSysLog::add(FAC_PARK, PRI_DEBUG,
+                                    "OrbitListener::handleMessage - %d "
+                                    "transfer - Remove from mTransferCalls '%s'", 
+                                    taoEventId, transferCallIdTao.data());
+                      // Remove this call ID from the list of transfer pseudo-calls we
+                      // are monitoring.
+                      mTransferCalls.destroy(&transferCallIdTao);
+                           // start hy
+                      ParkedCallObject* pCall =
+                          dynamic_cast <ParkedCallObject *> (mCalls.findValue(&callIdTao));
+    
+                      if(pCall)
+                      {
+                         // Transfer is complete; clearTransfer flag.
+                         pCall->clearTransfer();
+                         //mpCallManager->drop(transferCallIdTao);
+                      }
+                      // end hy
+                   }
+                   else
+                   {
+                       OsSysLog::add(FAC_PARK, PRI_DEBUG,
+                                     "OrbitListener::handleMessage - %d "
+                                     "transfer - '%s' not found in mTransferCalls ", 
+                                     taoEventId, transferCallIdTao.data());
+                   }
+                }
+          }
+          break;
       } // end tao event switch
    } else if (rMsg.getMsgType() == OsMsg::OS_EVENT &&
               rMsg.getMsgSubType() == OsEventMsg::NOTIFY)

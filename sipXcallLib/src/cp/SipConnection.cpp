@@ -2570,7 +2570,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
             metaEventCallIds[0] = callId.data();        // target call Id
             metaEventCallIds[1] = replaceCallId.data(); // original call Id
             mpCall->startMetaEvent(metaEventId,
-                                   PtEvent::META_CALL_TRANSFERRING,
+                                   PtEvent::META_CALL_REPLACING,
                                    2, metaEventCallIds);
             mpCall->setCallType(CpCall::CP_TRANSFER_TARGET_TARGET_CALL);
 
@@ -4137,7 +4137,8 @@ UtlBoolean SipConnection::processResponse(const SipMessage* response,
                     mpCall->getMetaEvent(metaEventId, metaEventType, 
                                          numCalls, &metaEventCallIds);
                     if(metaEventId > 0 
-                       && metaEventType == PtEvent::META_CALL_TRANSFERRING)
+                       && (metaEventType == PtEvent::META_CALL_TRANSFERRING
+                           || metaEventType == PtEvent::META_CALL_REPLACING))
                     {
 #ifdef TEST_PRINT
                          OsSysLog::add(FAC_CP, PRI_DEBUG,

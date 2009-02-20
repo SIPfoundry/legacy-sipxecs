@@ -241,7 +241,9 @@ void Connection::setState(int newState, int isLocal, int newCause, int termState
    if (!isStateTransitionAllowed(newState, currentState))
    {
       // Under some conditions, "invalid" state changes are allowed.
-      if (!(!isLocal && metaEventId > 0 && metaEventType == PtEvent::META_CALL_TRANSFERRING))
+      if (!(!isLocal && metaEventId > 0 
+            && (metaEventType == PtEvent::META_CALL_TRANSFERRING
+                || metaEventType == PtEvent::META_CALL_REPLACING)))
       {
          if (newState == currentState)
          {
@@ -275,8 +277,10 @@ void Connection::setState(int newState, int isLocal, int newCause, int termState
    {
       if (isLocal && newState == CONNECTION_DISCONNECTED)
       {
-         if ((mpCall->canDisconnectConnection(this) || newCause == CONNECTION_CAUSE_CANCELLED) &&
-             metaEventType != PtEvent::META_CALL_TRANSFERRING)
+         if ((   mpCall->canDisconnectConnection(this) 
+              || newCause == CONNECTION_CAUSE_CANCELLED) 
+             && metaEventType != PtEvent::META_CALL_TRANSFERRING
+             && metaEventType != PtEvent::META_CALL_REPLACING)
          {
             bPostStateChange = TRUE;
          }

@@ -183,7 +183,8 @@ UtlBoolean IvrCallListener::handleMessage(OsMsg& rMsg)
       } 
       else if((taoEventId == PtEvent::TERMINAL_CONNECTION_TALKING) 
               && localConnection 
-              && metaCode != PtEvent::META_CALL_TRANSFERRING)
+              && metaCode != PtEvent::META_CALL_TRANSFERRING
+              && metaCode != PtEvent::META_CALL_REPLACING)
       {
 #ifdef TEST_PRINT /* [ */
          OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, 
