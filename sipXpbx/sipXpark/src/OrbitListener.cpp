@@ -519,7 +519,15 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                          // Transfer is complete; clearTransfer flag.
                          pCall->clearTransfer();
                       }
-                      // end hy
+                      else
+                      {
+                          OsSysLog::add(FAC_PARK, PRI_DEBUG,
+                                        "OrbitListener::handleMessage - %d "
+                                        "Dropping callId '%s' on event MULTICALL_META_TRANSFER_ENDED"
+                                        "without matching ParkedCallObject",
+                                        taoEventId, callIdTao.data());
+                          mpCallManager->drop(callIdTao);
+                      }
                    }
                 }
          }
