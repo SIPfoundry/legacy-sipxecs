@@ -87,7 +87,8 @@ ParkedCallObject::~ParkedCallObject()
    // Terminate the audio player, if any.
    if (mpPlayer)
    {
-      mpCallManager->destroyPlayer(MpPlayer::STREAM_PLAYER, mOriginalCallId,
+      mpCallManager->destroyPlayer(MpPlayer::STREAM_PLAYER, 
+                                   mCurrentCallId,
                                    mpPlayer);
    }
    // Stop the escape timer and stop listening for DTMF.
@@ -116,12 +117,6 @@ const char* ParkedCallObject::getCurrentAddress()
 const char* ParkedCallObject::getOriginalCallId()
 {
    return mOriginalCallId.data();
-}
-
-
-void ParkedCallObject::setOriginalCallId(const UtlString& callId)
-{
-   mOriginalCallId = callId;
 }
 
 void ParkedCallObject::setCurrentCallId(const UtlString& callId)
@@ -161,10 +156,11 @@ OsStatus ParkedCallObject::playAudio()
    OsSysLog::add(FAC_PARK, PRI_DEBUG,
                  "ParkedCallObject::playAudio "
                  "CallId %s is requesting to play the audio file",
-                 mOriginalCallId.data());
+                 mCurrentCallId.data());
 
    // Create an audio player and queue up the audio to be played.
-   mpCallManager->createPlayer(MpPlayer::STREAM_PLAYER, mOriginalCallId,
+   mpCallManager->createPlayer(MpPlayer::STREAM_PLAYER, 
+                               mCurrentCallId,
                                mFile.data(),
                                STREAM_SOUND_REMOTE | STREAM_FORMAT_WAV,
                                &mpPlayer) ;
@@ -174,7 +170,7 @@ OsStatus ParkedCallObject::playAudio()
       OsSysLog::add(FAC_PARK, PRI_ERR,
                     "ParkedCallObject::playAudio "
                     "CallId %s: Failed to create player",
-                    mOriginalCallId.data());
+                    mCurrentCallId.data());
       return OS_FAILED;
    }
 
@@ -184,7 +180,7 @@ OsStatus ParkedCallObject::playAudio()
    {
       OsSysLog::add(FAC_PARK, PRI_ERR,
                     "ParkedCallObject::playAudio - CallId %s: Failed to realize player",
-                    mOriginalCallId.data());
+                    mCurrentCallId.data());
       return OS_FAILED;
    }
 
@@ -192,7 +188,7 @@ OsStatus ParkedCallObject::playAudio()
    {
       OsSysLog::add(FAC_PARK, PRI_ERR,
                     "ParkedCallObject::playAudio - CallId %s: Failed to prefetch player",
-                    mOriginalCallId.data());
+                    mCurrentCallId.data());
       return OS_FAILED;
    }
 
@@ -200,7 +196,7 @@ OsStatus ParkedCallObject::playAudio()
    {
       OsSysLog::add(FAC_PARK, PRI_ERR,
                     "ParkedCallObject::playAudio - CallId %s: Failed to play",
-                    mOriginalCallId.data());
+                    mCurrentCallId.data());
       return OS_FAILED;
    }
    OsSysLog::add(FAC_PARK, PRI_DEBUG, "ParkedCallObject::playAudio - Successful");
@@ -223,7 +219,7 @@ void ParkedCallObject::startEscapeTimer(UtlString& parker,
    OsSysLog::add(FAC_PARK, PRI_DEBUG,
                  "ParkedCallObject::startEscapeTimer callId = '%s', "
                  "parker = '%s', timeout = %d, keycode = %d",
-                 mOriginalCallId.data(), parker.data(), timeout, keycode);
+                 mCurrentCallId.data(), parker.data(), timeout, keycode);
 
    // First, check that there is a parker URI.  If not, none of these
    // mechanisms can function.
@@ -252,7 +248,7 @@ void ParkedCallObject::startEscapeTimer(UtlString& parker,
       // Register the DTMF listener.
       // The "interdigit timeout" time of 1 is just a guess.
       // Enable keyup events, as those are the ones we will act on.
-      mpCallManager->enableDtmfEvent(mOriginalCallId.data(), 1,
+      mpCallManager->enableDtmfEvent(mCurrentCallId.data(), 1,
                                      &mDtmfEvent, false);
    }
 }
@@ -263,13 +259,13 @@ void ParkedCallObject::stopEscapeTimer()
 {
    OsSysLog::add(FAC_PARK, PRI_DEBUG,
                  "ParkedCallObject::stopEscapeTimer callId = '%s'",
-                 mOriginalCallId.data());
+                 mCurrentCallId.data());
    mTimeoutTimer.stop();
    if (mKeycode != OrbitData::NO_KEYCODE)
    {
       // We can't use removeDtmfEvent() here, because it would try to 
       // free mDtmfEvent.
-      mpCallManager->disableDtmfEvent(mOriginalCallId.data(),
+      mpCallManager->disableDtmfEvent(mCurrentCallId.data(),
                                       &mDtmfEvent);
       mKeycode = OrbitData::NO_KEYCODE;
    }
@@ -285,7 +281,7 @@ void ParkedCallObject::startBlindTransfer()
                     "ParkedCallObject::startBlindTransfer "
                     "starting transfer "
                     "callId = '%s', parker = '%s'",
-                    mOriginalCallId.data(), mParker.data());
+                    mCurrentCallId.data(), mParker.data());
       // Start the timer to detect if the blind transfer fails.
       markTransfer(mBlindXferWait);
       // Put the parked caller on hold while we attempt the transfer.
@@ -293,7 +289,9 @@ void ParkedCallObject::startBlindTransfer()
       // We work around the bug in Polycom 2.0.0 by only transferring on
       // key-up events, so the key is never down when we send the phone
       // a re-INVITE.
-      mpCallManager->transfer_blind(mOriginalCallId, mParker, NULL, NULL,
+      mpCallManager->transfer_blind(mCurrentCallId, 
+                                    mParker, 
+                                    NULL, NULL,
                                     TRUE);
    }
    else
@@ -302,7 +300,7 @@ void ParkedCallObject::startBlindTransfer()
                     "ParkedCallObject::startBlindTransfer "
                     "transfer already in progress "
                     "callId = '%s', parker = '%s'",
-                    mOriginalCallId.data(), mParker.data());
+                    mCurrentCallId.data(), mParker.data());
    }
 }
 
@@ -319,7 +317,7 @@ void ParkedCallObject::markTransfer(const OsTime &timeOut)
                  "ParkedCallObject::markTransfer "
                  "transfer timer started "
                  "callId = '%s', time = %d.%06d",
-                 mOriginalCallId.data(), (int) timeOut.seconds(),
+                 mCurrentCallId.data(), (int) timeOut.seconds(),
                  (int) timeOut.usecs());
 }
 
@@ -336,7 +334,7 @@ void ParkedCallObject::clearTransfer()
    OsSysLog::add(FAC_PARK, PRI_DEBUG,
                  "ParkedCallObject::clearTransfer transfer cleared "
                  "callId = '%s'",
-                 mOriginalCallId.data());
+                 mCurrentCallId.data());
 }
 
 // Send a keep alive signal back to the caller.
@@ -362,7 +360,7 @@ void ParkedCallObject::keypress(int keycode)
    OsSysLog::add(FAC_PARK, PRI_DEBUG,
                  "ParkedCallObject::keypress "
                  "callId = '%s', parker = '%s', keycode = %d",
-                 mOriginalCallId.data(), mParker.data(), keycode);
+                 mCurrentCallId.data(), mParker.data(), keycode);
    // Must test if the keypress is to cause a transfer.
    if (mKeycode != OrbitData::NO_KEYCODE 
        && keycode == mKeycode 

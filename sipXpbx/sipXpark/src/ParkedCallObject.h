@@ -80,7 +80,6 @@ public:
    const char* getCurrentAddress();
    
    const char* getOriginalCallId();
-   void setOriginalCallId(const UtlString& callId);
    void setCurrentCallId(const UtlString& callId);
    const char* getCurrentCallId();
    

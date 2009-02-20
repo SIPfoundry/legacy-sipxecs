@@ -268,7 +268,7 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
 
                          mCalls.remove(idOfOrigCallTxfr);
                          mCalls.insertKeyAndValue(new UtlString(callIdTao),pCall);
-                         pCall->setOriginalCallId(callIdTao); 
+                         pCall->setCurrentCallId(callIdTao); 
                       }
                    }    // end found original call-id as value in mTransferCalls hashmap
                 }   // end found call-id in mTransferCalls hashmap
