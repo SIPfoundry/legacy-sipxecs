@@ -14,6 +14,11 @@ require 'utils/terminator'
 # Obtains CSEs from and puts them into CSE queue
 class CseReader < Dao
 
+  # Limit the maximum number of CSEs that get processed at once to avoid
+  # system lockup. This value was selected by measuring and maximizing 
+  # overall throughput of the CSE records.
+  MAX_CSES = 1500
+
   def initialize(database_url, purge_age, polling_interval, log = nil)
     super(database_url, purge_age, 'call_state_events', log)
     @last_read_id = nil
@@ -50,9 +55,13 @@ class CseReader < Dao
           first_time = @last_read_time unless first_id
           log.debug("Read CSEs from ID:#{first_id} Time:#{first_time}")
           read_cses(dbh, cse_queue, first_id, first_time, nil)
-          log.debug("Going to sleep.")
-          break if @stop.wait
-          log.debug("Waking up.")
+
+          # If we read less than MAX_CSES then we're done reading for now.
+          if ((first_id.to_i + MAX_CSES) > @last_read_id.to_i)
+             log.debug("Going to sleep.")
+             break if @stop.wait
+             log.debug("Waking up.")
+          end
         end
       end
     end
@@ -136,6 +145,7 @@ class CseReader < Dao
       sql = "SELECT #{select_str} FROM call_state_events"
       sql = append_where_clause(sql, start_id, start_time, end_time)
       sql += " ORDER BY event_time"
+      sql += " LIMIT #{MAX_CSES}"
     end
 
     def delete_sql(start_time, end_time)
