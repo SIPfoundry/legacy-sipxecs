@@ -804,6 +804,9 @@ then
   echo "(Configuration information is in '${SystemConfig}')"
 
 else
+  # Remove the trap that would delete the work directory that we are about to
+  # tell the user about.
+  trap - 0
   echo "Configuration saved in '${Work}'"
 fi
 
