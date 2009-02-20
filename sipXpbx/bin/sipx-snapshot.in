@@ -481,7 +481,9 @@ done
 
 cat /dev/null            > ${SystemConfig}
 echo -n "Snapshot:  "   >> ${SystemConfig}
-echo "$0 $Arguments"    >> ${SystemConfig}
+echo "$0"               >> ${SystemConfig}
+echo -n "Arguments: "   >> ${SystemConfig}
+echo "$Arguments    "   >> ${SystemConfig}
 echo ""                 >> ${SystemConfig}
 echo -n "Version:   "   >> ${SystemConfig}
 echo "@SIPX_VERSION@"   >> ${SystemConfig}
