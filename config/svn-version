@@ -7,8 +7,9 @@ then
     SIPX_BUILD_LABEL=${USER}
 fi
 
-if [ -d $topdir ]; then
-   pushd $topdir > /dev/null 2>&1
+if [ -n "$topdir" -a -d "$topdir" ]
+then
+    pushd $topdir > /dev/null 2>&1
 fi
 
 if test -d ${topdir}/.svn
@@ -44,7 +45,8 @@ else
     fi
 fi
 
-if [ -d $topdir ]; then
-   popd > /dev/null 2>&1
+if [ -n "$topdir" -a -d "$topdir" ]
+then
+    popd > /dev/null 2>&1
 fi
 
