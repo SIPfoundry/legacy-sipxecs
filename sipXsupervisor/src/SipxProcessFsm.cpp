@@ -96,8 +96,8 @@ void SipxProcessFsm::evStopCompleted( SipxProcess& impl ) const
 
 void SipxProcessFsm::evConfigurationChanged( SipxProcess& impl ) const
 {
-   OsSysLog::add(FAC_SUPERVISOR,PRI_WARNING,"'%s': Received unexpected event evConfigurationChanged while in state '%s'",
-         impl.name(), impl.GetCurrentState()->name() );   
+   OsSysLog::add(FAC_SUPERVISOR,PRI_INFO,"'%s': Received event evConfigurationChanged while in state '%s', ignored",
+         impl.name(), impl.GetCurrentState()->name() );
 }
 
 void SipxProcessFsm::evResourceCreated( SipxProcess& impl ) const
@@ -162,7 +162,7 @@ void Disabled::evStopProcess( SipxProcess& impl ) const
 
 void Disabled::evProcessStopped( SipxProcess& impl ) const
 {
-   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s': process stopped in state %s, ignored",
+   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s': process stopped in state '%s', ignored",
                  impl.name(), impl.GetCurrentState()->name());
 }
 
@@ -382,7 +382,7 @@ void Running::DoEntryAction( SipxProcess& impl ) const
 
 void Running::evConfigurationChanged( SipxProcess& impl ) const
 {
-   OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE,"'%s': configuration changed in state %s, ignored",
+   OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE,"'%s': configuration changed in state '%s', ignored",
                  impl.name(), impl.GetCurrentState()->name());
 }
 
@@ -455,7 +455,7 @@ void ShutDown::DoEntryAction( SipxProcess& impl ) const
 
 void ShutDown::evStopCompleted( SipxProcess& impl ) const
 {
-   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s': evStopCompleted in state %s, ignored",
+   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s': evStopCompleted in state '%s', ignored",
                  impl.name(), impl.GetCurrentState()->name());
 }
 
