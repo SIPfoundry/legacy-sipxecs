@@ -118,15 +118,21 @@ public class SipxServiceBundle implements Model {
         }
     }
 
-    static class TooManyBundles extends UserException {
-        public TooManyBundles(SipxServiceBundle bundle, int max) {
-            super("&msg.tooManyBundles", bundle.getName(), max);
+    static class BundleException extends UserException {
+        public BundleException(String msg, SipxServiceBundle bundle, int count) {
+            super(msg, "&bundle." + bundle.getName(), count);
         }
     }
 
-    static class TooFewBundles extends UserException {
+    static class TooManyBundles extends BundleException {
+        public TooManyBundles(SipxServiceBundle bundle, int max) {
+            super("&msg.tooManyBundles", bundle, max);
+        }
+    }
+
+    static class TooFewBundles extends BundleException {
         public TooFewBundles(SipxServiceBundle bundle, int min) {
-            super("&msg.tooFewBundles", bundle.getName(), min);
+            super("&msg.tooFewBundles", bundle, min);
         }
     }
 
