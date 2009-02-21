@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.components;
@@ -44,11 +44,19 @@ public class SipxValidationDelegateTest extends TestCase {
     }
 
     public void testRecordWithMessage() {
-        UserException exception = new UserException(false, "error");
+        UserException exception = new UserException("&error");
 
         SipxValidationDelegate delegate = new SipxValidationDelegate();
         delegate.record(exception, new DummyMessages());
         assertEquals("Error message", delegate.getFirstError().toString());
+    }
+
+    public void testRecordWithMessageAndParams() {
+        UserException exception = new UserException("&machine", "&raven", "10.1.3.4", 2);
+
+        SipxValidationDelegate delegate = new SipxValidationDelegate();
+        delegate.record(exception, new DummyMessages());
+        assertEquals("Nazwa: kruk, IP: 10.1.3.4, Numer: 2", delegate.getFirstError().toString());
     }
 
     public void testRecordWithMissingMessage() {
@@ -69,13 +77,21 @@ public class SipxValidationDelegateTest extends TestCase {
     }
 
     private class DummyMessages extends AbstractMessages {
+        @Override
         protected Locale getLocale() {
             return Locale.US;
         }
 
+        @Override
         protected String findMessage(String key) {
             if (key.equals("error")) {
                 return "Error message";
+            }
+            if (key.equals("machine")) {
+                return "Nazwa: {0}, IP: {1}, Numer: {2}";
+            }
+            if (key.equals("raven")) {
+                return "kruk";
             }
             return null;
         }

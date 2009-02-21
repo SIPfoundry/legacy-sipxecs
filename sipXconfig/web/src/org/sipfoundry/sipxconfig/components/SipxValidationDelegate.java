@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.components;
@@ -28,8 +28,8 @@ public class SipxValidationDelegate extends ValidationDelegate {
      */
     private static final String ERROR_CLASS = "user-error";
 
-    private String m_suffix;
-    private boolean m_decorateLabels;
+    private final String m_suffix;
+    private final boolean m_decorateLabels;
     private String m_success;
 
     public SipxValidationDelegate() {
@@ -41,18 +41,21 @@ public class SipxValidationDelegate extends ValidationDelegate {
         m_suffix = suffix;
     }
 
+    @Override
     public void writeLabelPrefix(IFormComponent component, IMarkupWriter writer, IRequestCycle cycle) {
         if (m_decorateLabels) {
             super.writeLabelPrefix(component, writer, cycle);
         }
     }
 
+    @Override
     public void writeLabelSuffix(IFormComponent component, IMarkupWriter writer, IRequestCycle cycle) {
         if (m_decorateLabels) {
             super.writeLabelSuffix(component, writer, cycle);
         }
     }
 
+    @Override
     public void writeSuffix(IMarkupWriter writer, IRequestCycle cycle_, IFormComponent component_,
             IValidator validator_) {
         if (isInError()) {
@@ -64,11 +67,13 @@ public class SipxValidationDelegate extends ValidationDelegate {
         }
     }
 
+    @Override
     public void clear() {
         super.clear();
         m_success = null;
     }
 
+    @Override
     public void clearErrors() {
         super.clearErrors();
         m_success = null;
@@ -94,17 +99,50 @@ public class SipxValidationDelegate extends ValidationDelegate {
 
     /**
      * Prepares message to be recorded as validation exception
-     * 
+     *
+     * It will also check for localization for parameters. If a localization will be found for a
+     * parameter it will be translated otherwise not.
+     *
      * @param e user exception
      * @param messages optional reference to message store
      * @return user visible message
      */
     private String getFormattedMsg(UserException e, Messages messages) {
-        String key = e.getKey();
-        if (key != null && messages != null) {
-            String msg = messages.getMessage(key);
-            return e.format(msg);
+        if (messages == null) {
+            // no localized resources available
+            return e.getMessage();
         }
-        return e.getMessage();
+        String msg = e.getRawMessage();
+        if (msg == null) {
+            return e.getMessage();
+        }
+        String localizedMsg = localize(messages, msg);
+        Object[] localizedParams = localizeParams(messages, e.getRawParams());
+        return e.format(localizedMsg, localizedParams);
+    }
+
+    private static Object[] localizeParams(Messages messages, Object[] params) {
+        if (params == null) {
+            return null;
+        }
+        Object[] localizedParams = new Object[params.length];
+        for (int i = 0; i < params.length; i++) {
+            localizedParams[i] = localize(messages, params[i]);
+        }
+        return localizedParams;
+    }
+
+    private static <T> T localize(Messages messages, T item) {
+        if (!(item instanceof String)) {
+            // can only localize Strings
+            return item;
+        }
+        String str = (String) item;
+        if (!str.startsWith("&")) {
+            // not meant to be localized
+            return item;
+        }
+        String key = str.substring(1);
+        return (T) messages.getMessage(key);
     }
 }
