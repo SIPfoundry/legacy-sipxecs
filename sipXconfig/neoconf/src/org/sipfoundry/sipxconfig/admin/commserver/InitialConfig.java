@@ -29,8 +29,8 @@ public class InitialConfig {
     private String m_binDirectory;
 
     /**
-     * Set the directory where the initial-config script is located.  Note
-     * that despite the name, this may not acutally be the "bin" dir
+     * Set the directory where the initial-config script is located. Note that despite the name,
+     * this may not acutally be the "bin" dir
      */
     @Required
     public void setBinDirectory(String binDirectory) {
@@ -51,15 +51,15 @@ public class InitialConfig {
     }
 
     public InputStream getArchiveStream(String location) throws IOException {
-        //create the archive
+        // create the archive
         createArchive(location);
-        //get input stream
-        InputStream stream = new FileInputStream(new File(m_tmpDirectory + INITIAL_CONFIG + "/"
-                + location + ".tar.gz"));
+        // get input stream
+        InputStream stream = new FileInputStream(new File(m_tmpDirectory + INITIAL_CONFIG + "/" + location
+                + ".tar.gz"));
         return stream;
     }
-    
-    public void deleteInitialConfigDirectory() { 
+
+    public void deleteInitialConfigDirectory() {
         try {
             FileUtils.deleteDirectory(new File(m_tmpDirectory + INITIAL_CONFIG));
         } catch (IOException ex) {
@@ -78,13 +78,12 @@ public class InitialConfig {
             proc.waitFor();
 
             if (proc.exitValue() != 0) {
-                throw new UserException(false, "Script finished with exit code "
-                        + proc.exitValue());
+                throw new UserException("Script finished with exit code: " + proc.exitValue());
             }
         } catch (IOException e) {
-            throw new UserException(false, e.getMessage());
+            throw new UserException(e);
         } catch (InterruptedException e) {
-            throw new UserException(false, e.getMessage());
+            throw new UserException(e);
         }
     }
 }

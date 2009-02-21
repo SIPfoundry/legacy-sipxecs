@@ -158,13 +158,13 @@ public abstract class BackupPage extends BasePage implements PageBeginRenderList
 
     private static class EmptySelectionException extends UserException {
         public EmptySelectionException() {
-            super(false, "message.emptySelection");
+            super("&message.emptySelection");
         }
     }
 
     private static class FailedBackupException extends UserException {
         public FailedBackupException() {
-            super(false, "message.backupFailed");
+            super("&message.backupFailed");
         }
     }
 }

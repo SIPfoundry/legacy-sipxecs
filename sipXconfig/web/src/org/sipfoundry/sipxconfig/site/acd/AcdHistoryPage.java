@@ -93,7 +93,7 @@ public abstract class AcdHistoryPage extends BasePage implements PageBeginRender
         }
 
         if (getStartTime().after(getEndTime())) {
-            getValidator().record(new UserException(false, "message.invalidDates"), getMessages());
+            getValidator().record(new UserException("&message.invalidDates"), getMessages());
         }
     }
 

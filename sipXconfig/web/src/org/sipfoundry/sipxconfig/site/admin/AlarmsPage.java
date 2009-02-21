@@ -80,12 +80,12 @@ public abstract class AlarmsPage extends BasePage implements PageBeginRenderList
     public void activate() {
         AlarmServer alarmServer = getAlarmServer();
         if (alarmServer.isEmailNotificationEnabled() && alarmServer.getContacts().isEmpty()) {
-            getValidator().record(new UserException(false, "error.requiredEmail"), getMessages());
+            getValidator().record(new UserException("&error.requiredEmail"), getMessages());
             return;
         }
         if (alarmServer.getContacts().size() > 5) {
             getValidator()
-                    .record(new UserException(false, "error.maxNumberEmail"), getMessages());
+                    .record(new UserException("&error.maxNumberEmail"), getMessages());
             return;
         }
 

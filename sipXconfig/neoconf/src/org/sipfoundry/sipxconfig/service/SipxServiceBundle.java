@@ -120,13 +120,13 @@ public class SipxServiceBundle implements Model {
 
     static class TooManyBundles extends UserException {
         public TooManyBundles(SipxServiceBundle bundle, int max) {
-            super(false, "msg.tooManyBundles", bundle.getName(), max);
+            super("&msg.tooManyBundles", bundle.getName(), max);
         }
     }
 
     static class TooFewBundles extends UserException {
         public TooFewBundles(SipxServiceBundle bundle, int min) {
-            super(false, "msg.tooFewBundles", bundle.getName(), min);
+            super("&msg.tooFewBundles", bundle.getName(), min);
         }
     }
 

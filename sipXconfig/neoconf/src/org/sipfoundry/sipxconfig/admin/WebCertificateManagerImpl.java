@@ -32,10 +32,9 @@ public class WebCertificateManagerImpl implements WebCertificateManager {
 
     private static final String PROPERTIES_FILE = "webCert.properties";
     private static final String DOUBLE_QUOTES = "\"";
-    private static final String READ_ERROR = "msg.readError";
-    private static final String WRITE_ERROR = "msg.writeError";
-    private static final String SCRIPT_ERROR = "msg.scriptGenError";
-    private static final String COPY_ERROR = "msg.copyError";
+    private static final String READ_ERROR = "&msg.readError";
+    private static final String WRITE_ERROR = "&msg.writeError";
+    private static final String SCRIPT_ERROR = "&msg.scriptGenError";
 
     private String m_binDirectory;
 
@@ -78,7 +77,7 @@ public class WebCertificateManagerImpl implements WebCertificateManager {
         } catch (FileNotFoundException e) {
             return null;
         } catch (IOException e) {
-            throw new UserException(false, READ_ERROR, propertiesFile.getPath());
+            throw new UserException(READ_ERROR, propertiesFile.getPath());
         }
     }
 
@@ -95,7 +94,7 @@ public class WebCertificateManagerImpl implements WebCertificateManager {
             FileOutputStream propertiesStream = new FileOutputStream(propertiesFile);
             properties.store(propertiesStream, null);
         } catch (IOException e) {
-            throw new UserException(false, WRITE_ERROR, propertiesFile.getPath());
+            throw new UserException(WRITE_ERROR, propertiesFile.getPath());
         }
     }
 
@@ -106,7 +105,7 @@ public class WebCertificateManagerImpl implements WebCertificateManager {
         } catch (FileNotFoundException e) {
             return null;
         } catch (IOException e) {
-            throw new UserException(false, READ_ERROR, csrFile.getPath());
+            throw new UserException(READ_ERROR, csrFile.getPath());
         }
     }
 
@@ -121,12 +120,12 @@ public class WebCertificateManagerImpl implements WebCertificateManager {
             LOG.debug("Executing: " + StringUtils.join(cmdLine, " "));
             proc.waitFor();
             if (proc.exitValue() != 0) {
-                throw new UserException(false, SCRIPT_ERROR, "Script finished with exit code " + proc.exitValue());
+                throw new UserException(SCRIPT_ERROR, "Script finished with exit code " + proc.exitValue());
             }
         } catch (IOException e) {
-            throw new UserException(false, SCRIPT_ERROR, e.getMessage());
+            throw new UserException(SCRIPT_ERROR, e.getMessage());
         } catch (InterruptedException e) {
-            throw new UserException(false, SCRIPT_ERROR, e.getMessage());
+            throw new UserException(SCRIPT_ERROR, e.getMessage());
         }
     }
 
@@ -139,7 +138,7 @@ public class WebCertificateManagerImpl implements WebCertificateManager {
         try {
             FileUtils.writeStringToFile(crtFile, crt);
         } catch (IOException e) {
-            throw new UserException(false, WRITE_ERROR, crtFile.getPath());
+            throw new UserException(WRITE_ERROR, crtFile.getPath());
         }
     }
 
@@ -161,7 +160,7 @@ public class WebCertificateManagerImpl implements WebCertificateManager {
             FileUtils.copyFile(sourceCertificate, destinationCertificate);
             FileUtils.copyFile(sourceKey, destinationKey);
         } catch (Exception e) {
-            throw new UserException(false, COPY_ERROR);
+            throw new UserException("&msg.copyError");
         }
     }
 

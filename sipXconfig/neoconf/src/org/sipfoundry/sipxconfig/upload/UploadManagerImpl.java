@@ -38,7 +38,7 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport<Upload> implement
     public void saveUpload(Upload upload) {
         String uploadName = upload.getName();
         if (upload.isNew() && isUploadNameUsed(uploadName)) {
-            throw new UserException(false, "error.duplicatedUploadName", uploadName);
+            throw new UserException("&error.duplicatedUploadName", uploadName);
         }
         saveBeanWithSettings(upload);
     }

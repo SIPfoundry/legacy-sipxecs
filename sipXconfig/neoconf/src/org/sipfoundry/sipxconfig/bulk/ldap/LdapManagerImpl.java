@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
@@ -54,9 +54,9 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
             String subschemaSubentry = results.get(attrNames[1]);
             attrMap.setSubschemaSubentry(subschemaSubentry);
         } catch (NamingException e) {
-            verifyException("readData.failed", e);
+            verifyException("&readData.failed", e);
         } catch (DataAccessException e) {
-            verifyException("connection.failed", e);
+            verifyException("&connection.failed", e);
         }
     }
 
@@ -70,8 +70,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         if (fullMessage.indexOf(';') > 0) {
             parsedMessage = fullMessage.substring(0, fullMessage.indexOf(';'));
         }
-        UserException ex = new UserException(false, message, parsedMessage);
-        throw ex;
+        throw new UserException(message, parsedMessage);
     }
 
     public Schema getSchema(String subschemaSubentry) {
@@ -98,7 +97,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
     }
 
     private static class SchemaMapper implements AttributesMapper {
-        private Schema m_schema;
+        private final Schema m_schema;
         private boolean m_initialized;
 
         SchemaMapper() {
@@ -128,11 +127,11 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
     /**
      * Connects to LDAP to retrieve the namingContexts attribute from root. Good way to verify if
      * LDAP is accessible. Command line anologue is:
-     * 
+     *
      * ldapsearch -x -b '' -s base '(objectclass=*)' namingContexts
-     * 
+     *
      * @param attrNames TODO
-     * 
+     *
      * @return namingContext value - can be used as the search base for user if nothing more
      *         specific is provided
      * @throws NamingException
@@ -155,7 +154,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
     }
 
     static class AttributesToValues implements AttributesMapper {
-        private String[] m_attrNames;
+        private final String[] m_attrNames;
 
         public AttributesToValues(String... attrNames) {
             m_attrNames = attrNames;

@@ -31,7 +31,7 @@ public class FtpContextImpl implements FtpContext {
     private static final Log LOG = LogFactory.getLog(FtpContextImpl.class);
 
     private static final String UP = "..";
-    private static final String INTERNAL_FTP_ERROR = "message.ftpServerError";
+    private static final String INTERNAL_FTP_ERROR = "&message.ftpServerError";
 
     private FTPClient m_client;
 
@@ -52,17 +52,17 @@ public class FtpContextImpl implements FtpContext {
             // success.
             if (!FTPReply.isPositiveCompletion(reply)) {
                 closeConnection();
-                throw new UserException(false, "message.refusedConnection");
+                throw new UserException("&message.refusedConnection");
             }
             if (!m_client.login(m_userId, m_password)) {
                 closeConnection();
-                throw new UserException(false, "message.userPass");
+                throw new UserException("&message.userPass");
             }
             m_client.setFileType(FTP.BINARY_FILE_TYPE);
             m_client.enterLocalPassiveMode();
         } catch (IOException e) {
             LOG.error(e);
-            throw new UserException(false, "message.notConnect");
+            throw new UserException("&message.notConnect");
         }
     }
 
@@ -71,7 +71,7 @@ public class FtpContextImpl implements FtpContext {
             m_client.makeDirectory(directoryName);
         } catch (IOException e) {
             LOG.error(e);
-            throw new UserException(false, INTERNAL_FTP_ERROR);
+            throw new UserException(INTERNAL_FTP_ERROR);
         }
     }
 
@@ -86,7 +86,7 @@ public class FtpContextImpl implements FtpContext {
             }
         } catch (IOException e) {
             LOG.error(e);
-            throw new UserException(false, INTERNAL_FTP_ERROR);
+            throw new UserException(INTERNAL_FTP_ERROR);
         }
         return names.toArray(new String[names.size()]);
     }
@@ -127,7 +127,7 @@ public class FtpContextImpl implements FtpContext {
             }
         } catch (IOException e) {
             LOG.error(e);
-            throw new UserException(false, INTERNAL_FTP_ERROR);
+            throw new UserException(INTERNAL_FTP_ERROR);
         }
     }
 
@@ -136,7 +136,7 @@ public class FtpContextImpl implements FtpContext {
             m_client.changeWorkingDirectory(directory);
         } catch (IOException e) {
             LOG.error(e);
-            throw new UserException(false, INTERNAL_FTP_ERROR);
+            throw new UserException(INTERNAL_FTP_ERROR);
         }
     }
 
@@ -153,7 +153,7 @@ public class FtpContextImpl implements FtpContext {
             return filesToSearch.toArray(new FTPFile[0]);
         } catch (IOException e) {
             LOG.error(e);
-            throw new UserException(false, INTERNAL_FTP_ERROR);
+            throw new UserException(INTERNAL_FTP_ERROR);
         }
     }
 
@@ -177,7 +177,7 @@ public class FtpContextImpl implements FtpContext {
 
         } catch (IOException e) {
             LOG.error(e);
-            throw new UserException(false, INTERNAL_FTP_ERROR);
+            throw new UserException(INTERNAL_FTP_ERROR);
         }
     }
 
@@ -203,7 +203,7 @@ public class FtpContextImpl implements FtpContext {
 
         } catch (IOException e) {
             LOG.error(e);
-            throw new UserException(false, INTERNAL_FTP_ERROR);
+            throw new UserException(INTERNAL_FTP_ERROR);
         }
     }
 
@@ -216,7 +216,7 @@ public class FtpContextImpl implements FtpContext {
             m_client.disconnect();
         } catch (IOException e) {
             LOG.error(e);
-            throw new UserException(false, INTERNAL_FTP_ERROR);
+            throw new UserException(INTERNAL_FTP_ERROR);
         } finally {
             m_client = null;
         }

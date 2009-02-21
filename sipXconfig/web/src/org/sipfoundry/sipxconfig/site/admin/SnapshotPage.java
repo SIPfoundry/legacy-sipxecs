@@ -68,12 +68,12 @@ public abstract class SnapshotPage extends BasePage implements PageBeginRenderLi
 
         if (!getSnapshot().isLogs() && getSnapshot().isFilterTime()) {
             // 'Time filter' may only be specified with 'Log files'
-            throw new UserException(false, "message.invalidSelection");
+            throw new UserException("&message.invalidSelection");
         }
 
         if (getStartDate().compareTo(getEndDate()) > 0) {
             // 'Start date' should not be higher that 'End date'
-            throw new UserException(false, "message.invalidDates");
+            throw new UserException("&message.invalidDates");
         }
 
         File file = getSnapshot().perform(getStartDate(), getEndDate());

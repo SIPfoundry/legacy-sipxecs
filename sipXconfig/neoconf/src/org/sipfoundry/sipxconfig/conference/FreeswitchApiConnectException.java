@@ -11,6 +11,6 @@ package org.sipfoundry.sipxconfig.conference;
 
 public class FreeswitchApiConnectException extends FreeswitchApiException {
     public FreeswitchApiConnectException(Bridge bridge, Throwable cause) {
-        super("error.connect", bridge.getHost(), cause.getMessage());
+        super("&error.connect", bridge.getHost(), cause.getMessage());
     }
 }

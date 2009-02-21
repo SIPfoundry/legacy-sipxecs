@@ -31,7 +31,7 @@ public class TimeManagerImpl implements TimeManager {
     private static final String TIMEZONE_BINARY = "sipx-sudo-timezone";
     private static final String SPACE = " ";
     private static final String NEW_LINE = "\n";
-    private static final String SCRIPT_ERROR_MESSAGE_KEY = "message.scriptError";
+    private static final String SCRIPT_ERROR_MESSAGE_KEY = "&message.scriptError";
 
 //    private static final SimpleDateFormat CHANGE_DATE_FORMAT = new SimpleDateFormat(
 //            "MMddHHmmyyyy");
@@ -39,9 +39,9 @@ public class TimeManagerImpl implements TimeManager {
     private static final Log LOG = LogFactory.getLog(TimeManagerImpl.class);
 
     private String m_libExecDirectory;
-    
+
     private String m_binDirectory;
-    
+
     private String m_ntpConfigFile;
 
     public String getLibExecDirectory() {
@@ -111,7 +111,7 @@ public class TimeManagerImpl implements TimeManager {
             handleCommandErrors(output);
             int code = output.getReturnCode();
             if (code != 0) {
-                throw new UserException(false, SCRIPT_ERROR_MESSAGE_KEY, code);
+                throw new UserException(SCRIPT_ERROR_MESSAGE_KEY, code);
             }
         } catch (IOException e) {
             LOG.error(errorMsg, e);
@@ -149,20 +149,20 @@ public class TimeManagerImpl implements TimeManager {
         }
         return "";
     }
-    
+
     public void setNtpConfiguration(String configuration) {
         try {
             BufferedWriter configFileWriter = new BufferedWriter(new FileWriter(getNtpConfigFile()));
             configFileWriter.write(configuration);
             configFileWriter.flush();
             configFileWriter.close();
-            
+
             CommandOutput output = executeCommand(getLibExecDirectory() + File.separator
                     + SIPX_SUDO_TIME, "--set-configuration", m_ntpConfigFile);
             handleCommandErrors(output);
             int code = output.getReturnCode();
             if (code != 0) {
-                throw new UserException(false, SCRIPT_ERROR_MESSAGE_KEY, code);
+                throw new UserException(SCRIPT_ERROR_MESSAGE_KEY, code);
             }
         } catch (IOException e) {
             LOG.error(e);
@@ -205,7 +205,7 @@ public class TimeManagerImpl implements TimeManager {
             handleCommandErrors(output);
             int code = output.getReturnCode();
             if (code != 0) {
-                throw new UserException(false, SCRIPT_ERROR_MESSAGE_KEY, code);
+                throw new UserException(SCRIPT_ERROR_MESSAGE_KEY, code);
             }
         } catch (IOException e) {
             LOG.error(e);
@@ -213,7 +213,7 @@ public class TimeManagerImpl implements TimeManager {
             LOG.error(e);
         }
     }
-    
+
     public void setSystemTimezone(String timezone) {
         String errorMsg = "Error when changing time zone";
         ProcessBuilder pb = new ProcessBuilder(getLibExecDirectory() + File.separator + TIMEZONE_BINARY);
@@ -240,34 +240,34 @@ public class TimeManagerImpl implements TimeManager {
             LOG.error(errorMsg, e);
         }
     }
-    
+
     private void handleCommandErrors(CommandOutput output) {
         if (!output.getErrorOutput().equals(StringUtils.EMPTY)) {
             // if we have errors, log them
             LOG.warn(output.getErrorOutput());
         }
     }
-    
+
     private class CommandOutput {
-        private int m_returnCode;
-        private String m_standardOutput;
-        private String m_errorOutput;
-        
+        private final int m_returnCode;
+        private final String m_standardOutput;
+        private final String m_errorOutput;
+
         public CommandOutput(int returnCode, String standardOutput,
                 String errorOutput) {
             m_returnCode = returnCode;
             m_standardOutput = standardOutput;
             m_errorOutput = errorOutput;
         }
-        
+
         public int getReturnCode() {
             return m_returnCode;
         }
-        
+
         public String getStandardOutput() {
             return m_standardOutput;
         }
-        
+
         public String getErrorOutput() {
             return m_errorOutput;
         }

@@ -148,7 +148,7 @@ public abstract class ManageCertificates extends BasePage implements PageBeginRe
         SipxValidationDelegate validator = (SipxValidationDelegate) TapestryUtils.getValidator(this);
 
         if (uploadFile == null && certificate == null) {
-            validator.record(new UserException(false, "msg.selectOneSource"), getMessages());
+            validator.record(new UserException("&msg.selectOneSource"), getMessages());
             return;
         }
 

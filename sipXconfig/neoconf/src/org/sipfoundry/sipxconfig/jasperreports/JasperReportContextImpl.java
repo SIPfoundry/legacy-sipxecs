@@ -37,7 +37,7 @@ public class JasperReportContextImpl extends HibernateDaoSupport implements Jasp
 
     private static final String ERROR_GENERATING = "Error generating report from jasper report ";
 
-    private static final String EXCEPTION_FILLING = "error.fillingDesignReport";
+    private static final String EXCEPTION_FILLING = "&error.fillingDesignReport";
 
     private String m_reportsDirectory;
 
@@ -51,7 +51,7 @@ public class JasperReportContextImpl extends HibernateDaoSupport implements Jasp
         } catch (JRException jrEx) {
             jasperPrint = new JasperPrint();
             LOG.error(ERROR_FILLING + jasperPath, jrEx);
-            throw new UserException(false, EXCEPTION_FILLING);
+            throw new UserException(EXCEPTION_FILLING);
         }
 
         return jasperPrint;

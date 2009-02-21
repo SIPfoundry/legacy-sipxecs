@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.conference;
@@ -63,6 +63,7 @@ public abstract class ConferencesPanel extends TablePanel {
     @InjectObject("spring:activeConferenceContext")
     public abstract ActiveConferenceContext getActiveConferenceContext();
 
+    @Override
     @InjectObject("spring:coreContext")
     public abstract CoreContext getCoreContext();
 
@@ -86,7 +87,7 @@ public abstract class ConferencesPanel extends TablePanel {
 
     @Parameter(defaultValue = "ognl:true")
     public abstract boolean getEnableAdd();
-    
+
     @Parameter(defaultValue = "ognl:true")
     public abstract boolean getShowOwner();
 
@@ -95,16 +96,17 @@ public abstract class ConferencesPanel extends TablePanel {
 
     @Parameter(defaultValue = "ognl:true")
     public abstract boolean getEnableDelete();
-    
+
     @Parameter
     public abstract boolean isChanged();
-    
+
     @Asset("/images/lock.png")
     public abstract IAsset getLockedIcon();
 
     public abstract Map<Conference, ActiveConference> getActiveConferenceMap();
     public abstract void setActiveConferenceMap(Map<Conference, ActiveConference> activeConferenceMap);
-    
+
+    @Override
     public abstract Collection getRowsToDelete();
 
     public abstract Conference getCurrentRow();
@@ -130,15 +132,16 @@ public abstract class ConferencesPanel extends TablePanel {
             LOG.error("Couldn't connect to FreeSWITCH to get active conferences!", face);
         }
     }
-    
+
+    @Override
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
         super.renderComponent(writer, cycle);
-        
+
         if (getActiveConferenceMap() == null) {
-            loadActiveConferenceMap();        
+            loadActiveConferenceMap();
         }
     }
-    
+
     public Object getFilteredConferences() {
         if (!getRenderFilter() && getConferences() != null) {
             return getConferences();
@@ -162,12 +165,13 @@ public abstract class ConferencesPanel extends TablePanel {
             SipxValidationDelegate v = (SipxValidationDelegate) validator;
             v.record(ue, getMessages());
         }
-    }    
-    
+    }
+
+    @Override
     protected void removeRows(Collection selectedRows) {
         getConferenceBridgeContext().removeConferences(selectedRows);
     }
-    
+
     public String getTableColumns() {
         // "* name,!owner,enabled,extension,description,active"
         StringBuilder columns = new StringBuilder("* name,");
@@ -175,7 +179,7 @@ public abstract class ConferencesPanel extends TablePanel {
             columns.append("!owner,");
         }
         columns.append("enabled,extension,description,!active");
-        
+
         return columns.toString();
     }
 
@@ -205,9 +209,9 @@ public abstract class ConferencesPanel extends TablePanel {
                     setActiveConferenceMap(
                             getActiveConferenceContext().getActiveConferencesMap(conference.getBridge()));
                 }
-                
+
             }
-            
+
             ActiveConference activeConference = getActiveConferenceMap().get(conference);
             return (activeConference == null) ? false : activeConference.isLocked();
         } catch (FreeswitchApiConnectException face) {
@@ -215,16 +219,16 @@ public abstract class ConferencesPanel extends TablePanel {
             return false;
         }
     }
-    
+
     public void deleteConferences() {
         Collection rowsToDelete = getRowsToDelete();
         if (rowsToDelete != null) {
             removeRows(rowsToDelete);
         }
     }
-    
+
     public abstract class Action implements Closure {
-        private String m_msgSuccess;
+        private final String m_msgSuccess;
 
         public Action(String msgSuccess) {
             m_msgSuccess = getMessages().getMessage(msgSuccess);
@@ -250,27 +254,28 @@ public abstract class ConferencesPanel extends TablePanel {
 
     public void lockConferences() {
         Closure lock = new Action("msg.success.lock") {
+            @Override
             public void execute(Conference conference) {
                 if (getActiveConferenceContext().getActiveConference(conference) != null) {
                     getActiveConferenceContext().lockConference(conference);
                     loadActiveConferenceMap();
                 } else {
-                    recordFailure(new UserException(false, "error.lockEmpty", conference.getName()));
+                    recordFailure(new UserException("&error.lockEmpty", conference.getName()));
                 }
             }
-
         };
         forAllConferences(lock);
     }
 
     public void unlockConferences() {
         Closure lock = new Action("msg.success.unlock") {
+            @Override
             public void execute(Conference conference) {
                 if (getActiveConferenceContext().getActiveConference(conference) != null) {
                     getActiveConferenceContext().unlockConference(conference);
                     loadActiveConferenceMap();
                 } else {
-                    recordFailure(new UserException(false, "error.unlockEmpty", conference.getName()));
+                    recordFailure(new UserException("&error.unlockEmpty", conference.getName()));
                 }
             }
 

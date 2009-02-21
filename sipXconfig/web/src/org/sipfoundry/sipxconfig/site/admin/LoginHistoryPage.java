@@ -76,7 +76,7 @@ public abstract class LoginHistoryPage extends UserBasePage implements PageBegin
         }
 
         if (getStartDate().after(getEndDate())) {
-            getValidator().record(new UserException(false, "log.invalidDates"), getMessages());
+            getValidator().record(new UserException("&log.invalidDates"), getMessages());
             return;
         }
 

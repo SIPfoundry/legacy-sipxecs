@@ -1,6 +1,6 @@
 /*
- * 
- * 
+ *
+ *
  * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
@@ -39,10 +39,6 @@ public class Restore implements Serializable, WaitingListener {
 
     private static final String RESTORE_LOG = "sipx-restore.log";
 
-    private static final String LOG_READ_EX = "log.read.ex";
-
-    private static final String LOG_FOUND_EX = "log.found.ex";
-
     private String m_binDirectory;
     private String m_logDirectory;
 
@@ -77,11 +73,11 @@ public class Restore implements Serializable, WaitingListener {
             Process process = Runtime.getRuntime().exec(cmdLine);
             int code = process.waitFor();
             if (code == INCOMPATIBLE_VERSIONS && verify) {
-                throw new UserException(false, "message.wrongVersion");
+                throw new UserException("&message.wrongVersion");
             }
         } catch (IOException e) {
             LOG.error(String.format(ERROR, StringUtils.join(cmdLine, SPACE)));
-            throw new UserException(false, "message.noScriptFound");
+            throw new UserException("&message.noScriptFound");
         } catch (InterruptedException e) {
             LOG.warn(String.format(ERROR, StringUtils.join(cmdLine, SPACE)));
         }
@@ -125,9 +121,9 @@ public class Restore implements Serializable, WaitingListener {
             File log = new File(getLogDirectory(), RESTORE_LOG);
             return IOUtils.toString(new FileReader(log));
         } catch (FileNotFoundException ex) {
-            throw new UserException(false, LOG_FOUND_EX);
+            throw new UserException("&log.found.ex");
         } catch (IOException ex) {
-            throw new UserException(false, LOG_READ_EX);
+            throw new UserException("&log.read.ex");
         }
     }
 

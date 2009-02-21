@@ -57,21 +57,6 @@ public class UserException extends RuntimeException {
         m_params = params;
     }
 
-    /**
-     * It's better to just prefix your keys with &
-     *
-     * @param localized - true if message is already localized, false if it's just a key
-     */
-    @Deprecated
-    public UserException(boolean localized, String message, Object... params) {
-        if (!localized) {
-            m_message = '&' + message;
-        } else {
-            m_message = message;
-        }
-        m_params = params;
-    }
-
     @Override
     public String getMessage() {
         if (m_message != null) {

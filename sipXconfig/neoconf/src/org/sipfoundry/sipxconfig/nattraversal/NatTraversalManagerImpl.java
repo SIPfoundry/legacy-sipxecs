@@ -64,7 +64,7 @@ public class NatTraversalManagerImpl extends SipxHibernateDaoSupport<NatTraversa
         int rangeStartNat = Integer.parseInt(natTraversal.getSettingValue(NatTraversal.RTP_PORT_START));
         int rangeEndNat = Integer.parseInt(natTraversal.getSettingValue(NatTraversal.RTP_PORT_END));
         if (rangeStartNat > rangeEndNat) {
-            throw new UserException(false, "error.startEndRtp");
+            throw new UserException("&error.startEndRtp");
         }
     }
 
