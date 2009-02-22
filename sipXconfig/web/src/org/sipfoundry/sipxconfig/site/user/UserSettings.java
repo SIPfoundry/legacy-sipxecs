@@ -18,8 +18,8 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.components.LocalizationUtils;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
-import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public abstract class UserSettings extends BasePage implements PageBeginRenderListener {
@@ -80,13 +80,13 @@ public abstract class UserSettings extends BasePage implements PageBeginRenderLi
 
     public String getParentSettingLabel() {
         Setting setting = getParentSetting();
-        return TapestryUtils.getModelMessage(this, setting.getMessageSource(), setting
+        return LocalizationUtils.getModelMessage(this, setting.getMessageSource(), setting
                 .getLabelKey(), StringUtils.EMPTY);
     }
 
     public String getParentSettingDescription() {
         Setting setting = getParentSetting();
-        return TapestryUtils.getModelMessage(this, setting.getMessageSource(), setting
+        return LocalizationUtils.getModelMessage(this, setting.getMessageSource(), setting
                 .getDescriptionKey(), StringUtils.EMPTY);
     }
 }

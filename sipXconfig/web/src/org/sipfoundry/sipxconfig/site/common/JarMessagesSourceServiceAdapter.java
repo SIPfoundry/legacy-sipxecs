@@ -15,7 +15,7 @@ import org.apache.hivemind.Messages;
 import org.apache.hivemind.impl.AbstractMessages;
 import org.apache.tapestry.IComponent;
 import org.apache.tapestry.services.ComponentMessagesSource;
-import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.components.LocalizationUtils;
 
 public class JarMessagesSourceServiceAdapter implements ComponentMessagesSource {
 
@@ -52,7 +52,7 @@ public class JarMessagesSourceServiceAdapter implements ComponentMessagesSource 
         }
 
         protected String findMessage(String key) {
-            String message = TapestryUtils.getMessage(m_localeMessages, key, null);
+            String message = LocalizationUtils.getMessage(m_localeMessages, key, null);
             if (message == null) {
                 message = m_fallbackMessages.getMessage(key);
             }

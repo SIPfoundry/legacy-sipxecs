@@ -19,7 +19,7 @@ import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
-import static org.sipfoundry.sipxconfig.components.TapestryUtils.getMessage;
+import static org.sipfoundry.sipxconfig.components.LocalizationUtils.getMessage;
 
 public abstract class EditSipxService extends PageWithCallback implements PageBeginRenderListener {
 
@@ -40,8 +40,7 @@ public abstract class EditSipxService extends PageWithCallback implements PageBe
 
     public void pageBeginRender(PageEvent event) {
         if (getSipxService() == null) {
-            SipxService sipxService = getSipxServiceManager().getServiceByBeanId(
-                    getBeanId());
+            SipxService sipxService = getSipxServiceManager().getServiceByBeanId(getBeanId());
             setSipxService(sipxService);
         }
     }

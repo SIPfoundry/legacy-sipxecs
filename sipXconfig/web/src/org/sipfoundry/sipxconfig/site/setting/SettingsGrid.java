@@ -14,7 +14,7 @@ import java.util.Iterator;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.Parameter;
-import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.components.LocalizationUtils;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingArray;
 import org.springframework.context.MessageSource;
@@ -46,11 +46,11 @@ public abstract class SettingsGrid extends BaseComponent {
     public String getCurrentColumnLabel() {
         String column = getCurrentColumn();
         Setting setting = getSetting().getSetting(0, column);
-        return TapestryUtils.getSettingLabel(this, setting);
+        return LocalizationUtils.getSettingLabel(this, setting);
     }
 
     public String getDescription() {
-        return TapestryUtils.getSettingDescription(this, getSetting());
+        return LocalizationUtils.getSettingDescription(this, getSetting());
     }
 
     public Iterator<Integer> getIndices() {

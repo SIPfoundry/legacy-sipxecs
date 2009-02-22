@@ -21,9 +21,9 @@ import org.apache.tapestry.services.ExpressionEvaluator;
 import org.sipfoundry.sipxconfig.job.Job;
 import org.sipfoundry.sipxconfig.job.JobContext;
 
+import static org.sipfoundry.sipxconfig.components.LocalizationUtils.localizeException;
+import static org.sipfoundry.sipxconfig.components.LocalizationUtils.localizeString;
 import static org.sipfoundry.sipxconfig.components.TapestryUtils.createDateColumn;
-import static org.sipfoundry.sipxconfig.components.TapestryUtils.localizeException;
-import static org.sipfoundry.sipxconfig.components.TapestryUtils.localizeString;
 
 /**
  * Displays current staus of background jobs

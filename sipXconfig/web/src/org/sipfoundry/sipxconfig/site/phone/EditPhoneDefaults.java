@@ -19,7 +19,7 @@ import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
-import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.components.LocalizationUtils;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -199,15 +199,15 @@ public abstract class EditPhoneDefaults extends BasePage implements PageBeginRen
     }
 
     public String getEditFormSettingLabel() {
-        return TapestryUtils.getSettingLabel(this, getEditFormSetting());
+        return LocalizationUtils.getSettingLabel(this, getEditFormSetting());
     }
 
     public String getEditFormSettingDescription() {
-        return TapestryUtils.getSettingDescription(this, getEditFormSetting());
+        return LocalizationUtils.getSettingDescription(this, getEditFormSetting());
     }
 
     public String getCurrentNavigationSettingLabel() {
-        return TapestryUtils.getSettingLabel(this, getCurrentNavigationSetting());
+        return LocalizationUtils.getSettingLabel(this, getCurrentNavigationSetting());
     }
 
     public Setting getLineActiveSetting() {

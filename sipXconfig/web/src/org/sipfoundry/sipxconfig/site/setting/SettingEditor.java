@@ -29,9 +29,9 @@ import org.apache.tapestry.form.validator.MinLength;
 import org.apache.tapestry.form.validator.Pattern;
 import org.apache.tapestry.form.validator.Required;
 import org.apache.tapestry.form.validator.Validator;
+import org.sipfoundry.sipxconfig.components.LocalizationUtils;
 import org.sipfoundry.sipxconfig.components.NamedValuesSelectionModel;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
-import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
 import org.sipfoundry.sipxconfig.setting.type.EnumSetting;
@@ -240,19 +240,19 @@ public abstract class SettingEditor extends BaseComponent {
             }
 
         } else if (type instanceof BooleanSetting) {
-            return TapestryUtils.getMessage(getMessages(), defaultValueLabel, defaultValueLabel);
+            return LocalizationUtils.getMessage(getMessages(), defaultValueLabel, defaultValueLabel);
         }
         return defaultValueLabel;
     }
 
     public String getDescription() {
         Setting setting = getSetting();
-        return TapestryUtils.getSettingDescription(this, setting);
+        return LocalizationUtils.getSettingDescription(this, setting);
     }
 
     public String getLabel() {
         Setting setting = getSetting();
-        return TapestryUtils.getSettingLabel(this, setting);
+        return LocalizationUtils.getSettingLabel(this, setting);
     }
 
     static IPropertySelectionModel enumModelForType(EnumSetting enumType) {

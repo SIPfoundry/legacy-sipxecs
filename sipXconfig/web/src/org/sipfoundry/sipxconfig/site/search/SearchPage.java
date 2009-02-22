@@ -20,6 +20,7 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.components.LocalizationUtils;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.search.BeanAdaptor;
 import org.sipfoundry.sipxconfig.search.SearchManager;
@@ -89,7 +90,7 @@ public abstract class SearchPage extends BasePage implements IExternalPage,
         Messages messages = getMessages();
         BeanAdaptor.Identity item = getResultItem();
         for (Class k = item.getBeanClass(); k != Object.class; k = k.getSuperclass()) {
-            String typeName = TapestryUtils.getMessage(messages, k.getName(), null);
+            String typeName = LocalizationUtils.getMessage(messages, k.getName(), null);
             if (typeName != null) {
                 return typeName;
             }

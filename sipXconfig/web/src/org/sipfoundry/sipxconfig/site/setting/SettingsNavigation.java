@@ -16,7 +16,7 @@ import java.util.List;
 import org.apache.tapestry.IActionListener;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Parameter;
-import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.components.LocalizationUtils;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.common.BeanNavigation;
 import org.springframework.context.MessageSource;
@@ -71,7 +71,7 @@ public abstract class SettingsNavigation extends BeanNavigation {
 
     public String getCurrentSettingLabel() {
         Setting setting = getCurrentSetting();
-        return TapestryUtils.getSettingLabel(this, setting);
+        return LocalizationUtils.getSettingLabel(this, setting);
     }
 
     public boolean isSettingsTabActive() {

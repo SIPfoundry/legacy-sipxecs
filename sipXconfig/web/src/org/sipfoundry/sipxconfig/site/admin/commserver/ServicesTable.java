@@ -65,7 +65,7 @@ import org.sipfoundry.sipxconfig.site.service.EditResourceListService;
 import org.sipfoundry.sipxconfig.site.service.EditStatusService;
 
 import static org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status.Undefined;
-import static org.sipfoundry.sipxconfig.components.TapestryUtils.getMessage;
+import static org.sipfoundry.sipxconfig.components.LocalizationUtils.getMessage;
 
 public abstract class ServicesTable extends BaseComponent {
 

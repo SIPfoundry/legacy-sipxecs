@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.components;
@@ -13,12 +13,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
-
 import junit.framework.TestCase;
 
-import org.apache.hivemind.Messages;
-import org.apache.hivemind.impl.AbstractMessages;
 import org.apache.tapestry.form.IFormComponent;
 import org.apache.tapestry.form.ValidationMessages;
 import org.apache.tapestry.form.validator.Validator;
@@ -33,6 +29,7 @@ public class TapestryUtilsTest extends TestCase {
 
     Collection m_autoComplete;
 
+    @Override
     protected void setUp() {
         AutoCompleteItems[] itemsData = new AutoCompleteItems[] {
             new AutoCompleteItems("robin"), new AutoCompleteItems("bluejay"), new AutoCompleteItems("hawk"),
@@ -79,27 +76,6 @@ public class TapestryUtilsTest extends TestCase {
             fail();
         } catch (IllegalArgumentException expected) {
             assertTrue(true);
-        }
-    }
-
-    public void testGetMessages() throws Exception {
-        Messages messages = new DummyMessages();
-
-        assertEquals("cde", TapestryUtils.getMessage(messages, "abc", "cde"));
-        assertNull("cde", TapestryUtils.getMessage(messages, "xyz", null));
-        assertEquals("dummy label", TapestryUtils.getMessage(messages, "dummy", null));
-    }
-
-    private class DummyMessages extends AbstractMessages {
-        protected Locale getLocale() {
-            return Locale.US;
-        }
-
-        protected String findMessage(String key) {
-            if (key.equals("dummy")) {
-                return "dummy label";
-            }
-            return null;
         }
     }
 

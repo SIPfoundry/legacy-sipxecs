@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.components;
@@ -26,8 +26,7 @@ public class LocalizedOptionModelDecorator implements IPropertySelectionModel {
     public LocalizedOptionModelDecorator() {
     }
 
-    public LocalizedOptionModelDecorator(IPropertySelectionModel model, Messages messages,
-            String prefix) {
+    public LocalizedOptionModelDecorator(IPropertySelectionModel model, Messages messages, String prefix) {
         setModel(model);
         setMessages(messages);
         setResourcePrefix(prefix);
@@ -47,8 +46,7 @@ public class LocalizedOptionModelDecorator implements IPropertySelectionModel {
             return rawLabel;
         }
 
-        String label = TapestryUtils.localize(m_messages, m_prefix, rawLabel);
-
+        String label = LocalizationUtils.localize(m_messages, m_prefix, rawLabel);
         return label;
     }
 

@@ -17,7 +17,7 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.annotations.Persist;
-import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.components.LocalizationUtils;
 import org.sipfoundry.sipxconfig.setting.AbstractSetting;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingArray;
@@ -152,11 +152,11 @@ public abstract class SettingsFieldset extends BaseComponent {
 
     public String getDescription() {
         Setting setting = getCurrentSetting();
-        return TapestryUtils.getSettingDescription(this, setting);
+        return LocalizationUtils.getSettingDescription(this, setting);
     }
 
     public String getLabel() {
         Setting setting = getCurrentSetting();
-        return TapestryUtils.getSettingLabel(this, setting);
+        return LocalizationUtils.getSettingLabel(this, setting);
     }
 }

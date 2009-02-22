@@ -112,6 +112,6 @@ public class SipxValidationDelegate extends ValidationDelegate {
             // no localized resources available
             return e.getMessage();
         }
-        return TapestryUtils.localizeException(messages, e);
+        return LocalizationUtils.localizeException(messages, e);
     }
 }

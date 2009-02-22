@@ -23,8 +23,8 @@ import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatusMessage;
 import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatusMessageHolder;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.components.LocalizationUtils;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
-import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
@@ -68,7 +68,7 @@ public abstract class ViewStatusMessages extends PageWithCallback implements Pag
     public String getServiceLabel() {
         String serviceBeanId = getServiceBeanId();
         String key = "label." + serviceBeanId;
-        return TapestryUtils.getMessage(getMessages(), key, serviceBeanId);
+        return LocalizationUtils.getMessage(getMessages(), key, serviceBeanId);
     }    
     
     public void pageBeginRender(PageEvent event) {
