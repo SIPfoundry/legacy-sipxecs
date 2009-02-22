@@ -112,37 +112,6 @@ public class SipxValidationDelegate extends ValidationDelegate {
             // no localized resources available
             return e.getMessage();
         }
-        String msg = e.getRawMessage();
-        if (msg == null) {
-            return e.getMessage();
-        }
-        String localizedMsg = localize(messages, msg);
-        Object[] localizedParams = localizeParams(messages, e.getRawParams());
-        return e.format(localizedMsg, localizedParams);
-    }
-
-    private static Object[] localizeParams(Messages messages, Object[] params) {
-        if (params == null) {
-            return null;
-        }
-        Object[] localizedParams = new Object[params.length];
-        for (int i = 0; i < params.length; i++) {
-            localizedParams[i] = localize(messages, params[i]);
-        }
-        return localizedParams;
-    }
-
-    private static <T> T localize(Messages messages, T item) {
-        if (!(item instanceof String)) {
-            // can only localize Strings
-            return item;
-        }
-        String str = (String) item;
-        if (!str.startsWith("&")) {
-            // not meant to be localized
-            return item;
-        }
-        String key = str.substring(1);
-        return (T) messages.getMessage(key);
+        return TapestryUtils.localizeException(messages, e);
     }
 }

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.components;
@@ -40,6 +40,7 @@ import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
 import org.apache.tapestry.web.WebResponse;
 import org.sipfoundry.sipxconfig.common.NamedObject;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.DeviceDescriptor;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.springframework.context.MessageSource;
@@ -67,7 +68,7 @@ public final class TapestryUtils {
      * Tapestry4 does not provide a way of detecting if message has been provided. This method is
      * trying to guess if message has been retrieved or if Tapestry is trying to help by providing
      * a formatted key as a message.
-     * 
+     *
      * @param defaultValue value that should be used if key is not found
      * @return found message or default value if key not found
      */
@@ -82,9 +83,9 @@ public final class TapestryUtils {
     /**
      * Utility method to provide more descriptive unchecked exceptions for unmarshalling object
      * from Tapestry service Parameters.
-     * 
+     *
      * Please note that in most cases it is better to use listeners parameters directly.
-     * 
+     *
      * @throws IllegalArgumentException if parameter is not there is wrong class type
      */
     public static final Object assertParameter(Class expectedClass, Object[] params, int index) {
@@ -95,9 +96,8 @@ public final class TapestryUtils {
         if (params[index] != null) {
             Class actualClass = params[index].getClass();
             if (!expectedClass.isAssignableFrom(actualClass)) {
-                throw new IllegalArgumentException("Object of class type "
-                        + expectedClass.getName() + " was expected at position " + index
-                        + " but class type was " + actualClass.getName());
+                throw new IllegalArgumentException("Object of class type " + expectedClass.getName()
+                        + " was expected at position " + index + " but class type was " + actualClass.getName());
             }
         }
 
@@ -107,7 +107,7 @@ public final class TapestryUtils {
     /**
      * Specialized version of assertParameter. Extracts beanId (Integer) from the first (index 0)
      * parameter of the cycle service
-     * 
+     *
      * @param cycle current request cycle
      * @return bean id - exception is thrown if no id found
      */
@@ -117,13 +117,12 @@ public final class TapestryUtils {
 
     /**
      * Helper method to display standard "nice" stale link message
-     * 
+     *
      * @param page page on which stale link is discovered
      * @param validatorName name of the validator delegate bean used to record validation errors
      */
     public static void staleLinkDetected(AbstractPage page, String validatorName) {
-        IValidationDelegate validator = (IValidationDelegate) page.getBeans().getBean(
-                validatorName);
+        IValidationDelegate validator = (IValidationDelegate) page.getBeans().getBean(validatorName);
         validator.setFormComponent(null);
         validator.record(new ValidatorException("The page is out of date. Please refresh."));
         throw new PageRedirectException(page);
@@ -132,7 +131,7 @@ public final class TapestryUtils {
     /**
      * Helper method to display standard "nice" stale link message. Use only if standard
      * "validator" name has been used.
-     * 
+     *
      * @param page page on which stale link is discovered
      */
     public static void staleLinkDetected(AbstractPage page) {
@@ -142,11 +141,11 @@ public final class TapestryUtils {
     /**
      * Check if there are any validation errors on the page. Use only if standard "validator" name
      * has been used.
-     * 
+     *
      * Please note: this will only work properly if called after all components had a chance to
      * append register validation errors. Do not use in submit listeners other than form submit
      * listener.
-     * 
+     *
      * @param page
      * @return true if no errors found
      */
@@ -176,22 +175,21 @@ public final class TapestryUtils {
 
     /**
      * Checks is cycle is rewinding and form we are in is rewinding.
-     * 
+     *
      * Not sure why we need to check the cycle but this is what all standard tapestry components
      * are doing. Call this is renderComponent that needs to participate in form rewinding.
-     * 
+     *
      */
     public static boolean isRewinding(IRequestCycle cycle, IComponent component) {
-        return cycle.isRewinding()
-                && org.apache.tapestry.TapestryUtils.getForm(cycle, component).isRewinding();
+        return cycle.isRewinding() && org.apache.tapestry.TapestryUtils.getForm(cycle, component).isRewinding();
     }
 
     /**
      * Retrieves the validator for the current page. Use only if standard "validator" name has
      * been used.
-     * 
+     *
      * Use to record errors not related to any specific component.
-     * 
+     *
      * @param page
      * @return validation delegate component
      */
@@ -237,22 +235,22 @@ public final class TapestryUtils {
 
     /**
      * Retrieves localizad version of the key.
-     * 
+     *
      * It uses Spring MessageSource and not Hivemind Messages class that are typical in Tapestry.
      * We are loading resource bundles in neoconf project when parsing the models and I did not
      * want introduce dependency on Tapestry there. (We of course already have Spring dependency
      * in neoconf.) Tapestry localization is slightly more flexible becuase it can handle
      * properties file in various encoding inluding UTF-8. However we stick to Java default
      * encoding for the moment, using default Java classes should be OK.
-     * 
+     *
      * @param current component - used to retireve page locale
      * @param message source - if null defaultMessage is returned
      * @param key message key
      * @param defaultMessage return id localized version is not found
      * @return localized message for the key
      */
-    public static String getModelMessage(IComponent component, MessageSource modelMessages,
-            String key, String defaultMessage) {
+    public static String getModelMessage(IComponent component, MessageSource modelMessages, String key,
+            String defaultMessage) {
         if (modelMessages != null) {
             Locale locale = component.getPage().getLocale();
             return modelMessages.getMessage(key, null, defaultMessage, locale);
@@ -262,19 +260,18 @@ public final class TapestryUtils {
 
     @SuppressWarnings(DEPRECATION)
     public static String getSettingLabel(IComponent component, Setting setting) {
-        return getModelMessage(component, setting.getMessageSource(), setting.getLabelKey(),
-                setting.getLabel());
+        return getModelMessage(component, setting.getMessageSource(), setting.getLabelKey(), setting.getLabel());
     }
 
     @SuppressWarnings(DEPRECATION)
     public static String getSettingDescription(IComponent component, Setting setting) {
-        return getModelMessage(component, setting.getMessageSource(),
-                setting.getDescriptionKey(), setting.getDescription());
+        return getModelMessage(component, setting.getMessageSource(), setting.getDescriptionKey(), setting
+                .getDescription());
     }
 
     /**
      * Creates column model that can be used to display dates
-     * 
+     *
      * @param columnName used as internal column name, user visible name (through getMessage), and
      *        OGNL expression to calculate the date
      * @param messages used to retrieve column title
@@ -283,8 +280,8 @@ public final class TapestryUtils {
     public static ITableColumn createDateColumn(String columnName, Messages messages,
             ExpressionEvaluator expressionEvaluator, Locale locale) {
         String columnTitle = messages.getMessage(columnName);
-        IAdvancedTableColumn column = new ExpressionTableColumn(columnName, columnTitle,
-                columnName, true, expressionEvaluator);
+        IAdvancedTableColumn column = new ExpressionTableColumn(columnName, columnTitle, columnName, true,
+                expressionEvaluator);
         column.setValueRendererSource(new DateTableRendererSource(getDateFormat(locale)));
         return column;
     }
@@ -295,7 +292,7 @@ public final class TapestryUtils {
 
     /**
      * For auto completetion of space delimited fields. Collection is represented named
-     * 
+     *
      * @param namedItems collection of objects that implement NamedItem
      * @param currentValue what user have entered so far including
      * @return collection of Strings of possible auto completed items
@@ -337,15 +334,14 @@ public final class TapestryUtils {
         return candidates;
     }
 
-    public static PrintWriter getCsvExportWriter(WebResponse response, String filename)
-        throws IOException {
+    public static PrintWriter getCsvExportWriter(WebResponse response, String filename) throws IOException {
         prepareResponse(response, filename);
         ContentType csvType = new ContentType("text/comma-separated-values");
         return response.getPrintWriter(csvType);
     }
 
-    public static OutputStream getResponseOutputStream(WebResponse response, String filename,
-            String contentType) throws IOException {
+    public static OutputStream getResponseOutputStream(WebResponse response, String filename, String contentType)
+        throws IOException {
         prepareResponse(response, filename);
         ContentType ct = new ContentType(contentType);
         return response.getOutputStream(ct);
@@ -355,8 +351,7 @@ public final class TapestryUtils {
         response.setHeader("Expires", "0");
         response.setHeader("Cache-Control", "must-revalidate, post-check=0, pre-check=0");
         response.setHeader("Pragma", "public");
-        response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"",
-                filename));
+        response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
     }
 
     public static String joinBySpace(String[] array) {
@@ -382,5 +377,52 @@ public final class TapestryUtils {
         pattern.setPattern(model.getSerialNumberPattern());
         vs[1] = pattern;
         return Arrays.asList(vs);
+    }
+
+    /**
+     * Localizes String that start with '&'. Does not localize other strings. Does not localize
+     * things that are not strings.
+     */
+    public static <T> T localizeString(Messages messages, T item) {
+        if (!(item instanceof String)) {
+            // can only localize Strings
+            return item;
+        }
+        String str = (String) item;
+        if (!str.startsWith("&")) {
+            // not meant to be localized
+            return item;
+        }
+        String key = str.substring(1);
+        return (T) messages.getMessage(key);
+    }
+
+    /**
+     * Attempts to localize UserException by localizing message and all string parameters if they
+     * have '&' prefix.
+     */
+    public static String localizeException(Messages messages, Throwable t) {
+        if (!(t instanceof UserException)) {
+            return t.getLocalizedMessage();
+        }
+        UserException e = (UserException) t;
+        String msg = e.getRawMessage();
+        if (msg == null) {
+            return e.getMessage();
+        }
+        String localizedMsg = localizeString(messages, msg);
+        Object[] localizedParams = localizeParams(messages, e.getRawParams());
+        return e.format(localizedMsg, localizedParams);
+    }
+
+    private static Object[] localizeParams(Messages messages, Object[] params) {
+        if (params == null) {
+            return null;
+        }
+        Object[] localizedParams = new Object[params.length];
+        for (int i = 0; i < params.length; i++) {
+            localizedParams[i] = localizeString(messages, params[i]);
+        }
+        return localizedParams;
     }
 }

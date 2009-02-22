@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.phone;
@@ -57,6 +57,7 @@ public abstract class Phone extends Device {
         setBeanId(model.getBeanId());
     }
 
+    @Override
     public PhoneModel getModel() {
         if (m_model != null) {
             return m_model;
@@ -79,6 +80,7 @@ public abstract class Phone extends Device {
         return m_sip;
     }
 
+    @Override
     protected Setting loadSettings() {
         PhoneModel model = getModel();
         return getModelFilesContext().loadDynamicModelFile(model.getSettingsFile(), model.getModelDir(),
@@ -130,13 +132,15 @@ public abstract class Phone extends Device {
 
     protected void sendCheckSyncToFirstLine() {
         if (getLines().size() == 0) {
-            throw new RestartException("Restart command is sent to first line and "
-                    + "first phone line is not valid");
+            throw new RestartException("&phone.line.not.valid");
         }
 
         Line line = getLine(0);
-
-        m_sip.sendCheckSync(line.getAddrSpec());
+        try {
+            m_sip.sendCheckSync(line.getAddrSpec());
+        } catch (RuntimeException ex) {
+            throw new RestartException("&phone.sip.exception");
+        }
     }
 
     public String getDescription() {
@@ -204,7 +208,7 @@ public abstract class Phone extends Device {
 
     /**
      * Find a phone user. By convention phone user is a user associated with the phone first line.
-     * 
+     *
      */
     public User getPrimaryUser() {
         List<Line> lines = getLines();

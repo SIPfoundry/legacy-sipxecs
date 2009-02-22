@@ -12,7 +12,6 @@ package org.sipfoundry.sipxconfig.sip;
 import org.sipfoundry.sipxconfig.common.User;
 
 
-
 /**
  * Sip utility service functions complete w/server current configuration
  */

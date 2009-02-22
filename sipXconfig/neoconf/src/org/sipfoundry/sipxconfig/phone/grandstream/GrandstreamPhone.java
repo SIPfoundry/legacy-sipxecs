@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.phone.grandstream;
@@ -117,23 +117,26 @@ public class GrandstreamPhone extends Phone {
     /**
      * Generate files in text format. Won't be usable by phone, but you can use grandstreams
      * config tool to convert manually. This is mostly for debugging
-     * 
+     *
      * @param isTextFormatEnabled true to save as text, default is false
      */
     public void setTextFormatEnabled(boolean isTextFormatEnabled) {
         m_isTextFormatEnabled = isTextFormatEnabled;
     }
 
+    @Override
     public String getModelLabel() {
         return getModel().getLabel();
     }
 
+    @Override
     public String getProfileFilename() {
         String phoneFilename = getSerialNumber();
         return "cfg" + phoneFilename.toLowerCase();
     }
-    
-    
+
+
+    @Override
     public Profile[] getProfileTypes() {
         String profileFilename = getProfileFilename();
         Profile profile = new Profile(profileFilename, APPLICATION_OCTET_STREAM);
@@ -149,7 +152,7 @@ public class GrandstreamPhone extends Phone {
     }
 
     public static class GrandstreamDefaults {
-        private DeviceDefaults m_defaults;
+        private final DeviceDefaults m_defaults;
 
         GrandstreamDefaults(DeviceDefaults defaults) {
             m_defaults = defaults;
@@ -173,8 +176,8 @@ public class GrandstreamPhone extends Phone {
     }
 
     public static class GrandstreamLineDefaults {
-        private GrandstreamPhone m_phone;
-        private Line m_line;
+        private final GrandstreamPhone m_phone;
+        private final Line m_line;
 
         GrandstreamLineDefaults(GrandstreamPhone phone, Line line) {
             m_phone = phone;
@@ -253,26 +256,32 @@ public class GrandstreamPhone extends Phone {
         return linesSettings;
     }
 
+    @Override
     protected ProfileContext createContext() {
         return new GrandstreamProfileContext(this, m_isTextFormatEnabled);
     }
 
+    @Override
     public void restart() {
         if (getLines().size() == 0) {
-            throw new RestartException("Restart command is sent to first line and "
-                    + "first phone line is not valid");
+            throw new RestartException("&phone.line.not.valid");
         }
 
         Line line = getLines().get(0);
         LineInfo info = line.getLineInfo();
         String password = info.getPassword();
-        byte[] resetPayload = new ResetPacket(password, getSerialNumber()).getResetMessage();
-        
-        getSipService().sendNotify(line.getAddrSpec(), "sys-control", APPLICATION_OCTET_STREAM, resetPayload);
+        try {
+            byte[] resetPayload = new ResetPacket(password, getSerialNumber()).getResetMessage();
+            getSipService().sendNotify(line.getAddrSpec(), "sys-control", APPLICATION_OCTET_STREAM, resetPayload);
+        } catch (IllegalArgumentException iae) {
+            throw new RestartException("&phone.reset.packet");
+        } catch (RuntimeException re) {
+            throw new RestartException("&phone.sip.exception");
+        }
     }
 
     static class GrandstreamSettingExpressionEvaluator implements SettingExpressionEvaluator {
-        private String m_model;
+        private final String m_model;
 
         public GrandstreamSettingExpressionEvaluator(String model) {
             m_model = model;

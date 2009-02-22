@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.job;
@@ -29,7 +29,7 @@ public class Job extends BeanWithId implements Serializable {
 
     private JobStatus m_status = JobStatus.SCHEDULED;
 
-    private String m_name;
+    private final String m_name;
 
     private String m_errorMsg = StringUtils.EMPTY;
 
@@ -96,6 +96,7 @@ public class Job extends BeanWithId implements Serializable {
     }
 
     public String getErrorMsg() {
+
         if (!m_status.equals(JobStatus.FAILED) && !m_status.equals(JobStatus.WARNING)) {
             return org.apache.commons.lang.StringUtils.EMPTY;
         }
@@ -108,5 +109,17 @@ public class Job extends BeanWithId implements Serializable {
             error.append(m_exception.getLocalizedMessage());
         }
         return error.toString();
+    }
+
+    public boolean hasErrorMsg() {
+        return m_status == JobStatus.FAILED || m_status == JobStatus.WARNING;
+    }
+
+    public String getRawErrorMsg() {
+        return m_errorMsg;
+    }
+
+    public Throwable getException() {
+        return m_exception;
     }
 }

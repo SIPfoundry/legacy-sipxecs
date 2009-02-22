@@ -1,25 +1,29 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.bean.EvenOdd;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.services.ExpressionEvaluator;
-import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.job.Job;
 import org.sipfoundry.sipxconfig.job.JobContext;
+
+import static org.sipfoundry.sipxconfig.components.TapestryUtils.createDateColumn;
+import static org.sipfoundry.sipxconfig.components.TapestryUtils.localizeException;
+import static org.sipfoundry.sipxconfig.components.TapestryUtils.localizeString;
 
 /**
  * Displays current staus of background jobs
@@ -62,12 +66,30 @@ public abstract class JobStatusPage extends BasePage {
     }
 
     public ITableColumn getStartColumn() {
-        return TapestryUtils.createDateColumn("start", getMessages(), getExpressionEvaluator(),
-                getPage().getLocale());
+        return createDateColumn("start", getMessages(), getExpressionEvaluator(), getPage().getLocale());
     }
 
     public ITableColumn getStopColumn() {
-        return TapestryUtils.createDateColumn("stop", getMessages(), getExpressionEvaluator(),
-                getPage().getLocale());
+        return createDateColumn("stop", getMessages(), getExpressionEvaluator(), getPage().getLocale());
+    }
+
+    public String getJobErrorMsg() {
+        Job job = getJob();
+        if (!job.hasErrorMsg()) {
+            return StringUtils.EMPTY;
+        }
+        StringBuilder error = new StringBuilder();
+
+        String errorMsg = job.getRawErrorMsg();
+        if (errorMsg != null) {
+            error.append(localizeString(getMessages(), job.getRawErrorMsg()));
+        }
+        Throwable exception = job.getException();
+        if (exception != null) {
+            error.append('\n');
+            error.append(localizeException(getMessages(), exception));
+        }
+
+        return error.toString();
     }
 }
