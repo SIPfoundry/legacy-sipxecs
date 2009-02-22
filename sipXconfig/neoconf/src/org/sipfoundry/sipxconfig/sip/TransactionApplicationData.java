@@ -51,7 +51,7 @@ class TransactionApplicationData {
     private final SipStackBean m_helper;
 
     private int m_counter;
-    
+
     private UserCredentials m_userCredentials;
 
     public TransactionApplicationData(Operator operator, SipStackBean stackBean, JainSipMessage message) {
@@ -79,7 +79,7 @@ class TransactionApplicationData {
             LOG.debug("method = " + method);
             LOG.debug("Operator = " + m_operator);
             if (response.getStatusCode() == Response.PROXY_AUTHENTICATION_REQUIRED) {
-                if (m_counter == 1) {               
+                if (m_counter == 1) {
                     m_helper.tearDownDialog(dialog);
                     return;
                 }
@@ -91,7 +91,7 @@ class TransactionApplicationData {
                         dialog.sendRequest(ctx);
                     } else  {
                         ctx.sendRequest();
-                    } 
+                    }
                 }
             } else if (m_operator == Operator.SEND_NOTIFY) {
                 // We ignore 1xx responses. 2xx and above are put into the queue.
@@ -107,7 +107,6 @@ class TransactionApplicationData {
                         InviteMessage inviteMessage = (InviteMessage) m_message;
 
                         // Create a REFER pointing back at the caller.
-                        String fromAddrSpec = inviteMessage.getFromAddrSpec();
                         Request referRequest = dialog.createRequest(Request.REFER);
                         referRequest.removeHeader(AllowHeader.NAME);
                         String referTarget = inviteMessage.getReferTarget();
@@ -158,11 +157,11 @@ class TransactionApplicationData {
             m_helper.tearDownDialog(dialog);
         }
     }
-    
+
     public UserCredentials getUserCredentials() {
         return m_userCredentials;
     }
-    
+
     public void setUserCredentials(UserCredentials userCredentials) {
         m_userCredentials = userCredentials;
     }

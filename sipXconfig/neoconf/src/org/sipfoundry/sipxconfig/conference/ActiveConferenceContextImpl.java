@@ -32,12 +32,10 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
 
     private ApiProvider<FreeswitchApi> m_freeswitchApiProvider;
     private ConferenceBridgeContext m_conferenceBridgeContext;
-    private FreeswitchApiResultParser m_freeswitchApiParser = new FreeswitchApiResultParserImpl();
+    private final FreeswitchApiResultParser m_freeswitchApiParser = new FreeswitchApiResultParserImpl();
     private DomainManager m_domainManager;
     private SipService m_sipService;
-    
-    private Map<String, ActiveConference> m_activeConferences = new HashMap<String, ActiveConference>();
-    
+
     @Required
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
@@ -97,15 +95,15 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
                 bridge.getName(), conferences));
         return conferences;
     }
-    
+
     public Map<Conference, ActiveConference> getActiveConferencesMap(Bridge bridge) {
         Map<Conference, ActiveConference> activeConferencesMap = new HashMap<Conference, ActiveConference>();
-        
+
         List<ActiveConference> activeConferences = getActiveConferences(bridge);
         for (ActiveConference activeConference : activeConferences) {
             activeConferencesMap.put(activeConference.getConference(), activeConference);
         }
-        
+
         return activeConferencesMap;
     }
 
@@ -165,8 +163,8 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
         String sourceAddressSpec = SipUri.fix(inviteNumber, domain);
 
         if (conference.hasOwner()) {
-            m_sipService.sendRefer(conference.getOwner(), // Who are we (credentials) 
-                  sourceAddressSpec,                      // Who we are inviting 
+            m_sipService.sendRefer(conference.getOwner(), // Who are we (credentials)
+                  sourceAddressSpec,                      // Who we are inviting
                   conference.getName(),                   // From this name
                                                           // From this address
                   m_conferenceBridgeContext.getAddressSpec(conference),
@@ -231,7 +229,7 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
         } catch (FreeswitchApiConnectException face) {
             LOG.warn("Couldn't connect to FreeSWITCH to get conference locked status", face);
         }
-        
+
         return (activeConference != null) ? activeConference.isLocked() : false;
     }
 
@@ -246,7 +244,7 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
                 break;
             }
         }
-        
+
         return activeConference;
     }
 }
