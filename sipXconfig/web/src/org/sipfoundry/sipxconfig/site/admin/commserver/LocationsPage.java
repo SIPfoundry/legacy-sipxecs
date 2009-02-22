@@ -95,6 +95,9 @@ public abstract class LocationsPage extends BasePage implements PageBeginRenderL
         Collection<Integer> selectedLocations = getSelections().getAllSelected();
         for (Integer id : selectedLocations) {
             Location locationToActivate = getLocationsManager().getLocation(id);
+            if (!locationToActivate.isRegistered()) {
+                continue;
+            }
             for (LocationSpecificService service : locationToActivate.getServices()) {
                 getServiceConfigurator().replicateServiceConfig(locationToActivate, service.getSipxService());
             }

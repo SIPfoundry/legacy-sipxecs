@@ -39,8 +39,10 @@ public class MonitoringContextImplTest extends TestCase {
         m_locationsManager = EasyMock.createNiceMock(LocationsManager.class);
         Location firstLocation = new Location();
         firstLocation.setFqdn("h1.sipfoundry.org");
+        firstLocation.setRegistered(true);
         Location secondLocation = new Location();
         secondLocation.setFqdn("h2.sipfoundry.org");
+        secondLocation.setRegistered(true);
         m_locationsManager.getLocations();
         EasyMock.expectLastCall().andReturn(new Location[] {firstLocation, secondLocation}).anyTimes();
         EasyMock.replay(m_locationsManager);

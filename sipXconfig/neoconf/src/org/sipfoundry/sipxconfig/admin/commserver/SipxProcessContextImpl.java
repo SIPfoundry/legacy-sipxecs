@@ -144,6 +144,9 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
         if (processes.isEmpty()) {
             return;
         }
+        if (!location.isRegistered()) {
+            return;
+        }
         try {
             String[] processNames = new String[processes.size()];
             int i = 0;

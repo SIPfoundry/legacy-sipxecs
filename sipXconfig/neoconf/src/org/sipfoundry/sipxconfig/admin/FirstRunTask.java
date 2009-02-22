@@ -80,6 +80,9 @@ public class FirstRunTask implements ApplicationListener {
     private void enforceRoles() {
         Location[] locations = m_locationsManager.getLocations();
         for (Location location : locations) {
+            if (!location.isRegistered()) {
+                continue;
+            }
             location.initBundles(m_sipxServiceManager);
             location.resetBundles(m_sipxServiceManager);
             m_locationsManager.storeLocation(location);

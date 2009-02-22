@@ -55,6 +55,7 @@ public class LocationsMigrationTrigger extends InitTaskListener {
             changeToPrimary(locations);
             // save locations in DB
             for (Location location : locations) {
+                location.setRegistered(true);
                 // save locations in DB without publishing events
                 m_locationsManager.saveMigratedLocation(location);
             }
@@ -63,11 +64,12 @@ public class LocationsMigrationTrigger extends InitTaskListener {
             Location primaryLocation = new Location();
             primaryLocation.setName("Primary server");
             primaryLocation.setPrimary(true);
+            primaryLocation.setRegistered(true);
             primaryLocation.setFqdn(getFqdnForPrimaryLocation());
             // save locations in DB without publishing events
             m_locationsManager.saveMigratedLocation(primaryLocation);
         }
-        
+
         LOG.info("Determining IP address for pirmary server");
         parseNetworkInfoForPrimary();
 
@@ -83,7 +85,7 @@ public class LocationsMigrationTrigger extends InitTaskListener {
         if (locations == null || locations.length == 0) {
             return;
         }
-        
+
         Location firstLocation = locations[0];
         firstLocation.setPrimary(true);
         // always one and only one location should be designated as primary
@@ -96,7 +98,7 @@ public class LocationsMigrationTrigger extends InitTaskListener {
             }
         }
     }
-    
+
     private String getFqdnForPrimaryLocation() {
         File domainConfigFile = new File(m_configDirectory, m_domainConfigurationFilename);
         try {
@@ -109,10 +111,10 @@ public class LocationsMigrationTrigger extends InitTaskListener {
         } catch (IOException ioe) {
             LOG.warn("Unable to load domain configuration file " + domainConfigFile.getPath(), ioe);
         }
-        
+
         return null;
     }
-    
+
     private void parseNetworkInfoForPrimary() {
         File networkPropertiesFile = new File(m_configDirectory, m_networkPropertiesFilename);
         Location primaryLocation = m_locationsManager.getPrimaryLocation();
@@ -127,7 +129,7 @@ public class LocationsMigrationTrigger extends InitTaskListener {
         } catch (IOException ioe) {
             LOG.warn("Unable to load network properties file " + networkPropertiesFile.getPath(), ioe);
         }
-        
+
         if (StringUtils.isEmpty(primaryLocation.getAddress())) {
             try {
                 InetAddress primaryAddress = InetAddress.getByName(primaryLocation.getFqdn());
@@ -154,11 +156,11 @@ public class LocationsMigrationTrigger extends InitTaskListener {
     public void setTopologyFilename(String topologyFilename) {
         m_topologyFilename = topologyFilename;
     }
-    
+
     public void setNetworkPropertiesFilename(String networkPropertiesFilename) {
         m_networkPropertiesFilename = networkPropertiesFilename;
     }
-    
+
     public void setDomainConfigurationFilename(String domainConfigurationFilename) {
         m_domainConfigurationFilename = domainConfigurationFilename;
     }

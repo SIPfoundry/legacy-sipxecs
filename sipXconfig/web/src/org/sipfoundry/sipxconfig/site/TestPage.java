@@ -285,6 +285,7 @@ public abstract class TestPage extends BasePage {
         remoteLocation.setAddress("192.168.155.100");
         remoteLocation.setPrimary(true);
         remoteLocation.initBundles(getSipxServiceManager());
+        remoteLocation.setRegistered(true);
         getLocationsManager().storeLocation(remoteLocation);
     }
 

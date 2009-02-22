@@ -14,6 +14,7 @@
     <property name="fqdn" />
     <property name="password" />
     <property name="primary" column="primary_location" />
+    <property name="registered" />
     <bag name="services" cascade="all,delete-orphan" inverse="true">
       <key column="location_id" not-null="true" />
       <one-to-many class="org.sipfoundry.sipxconfig.service.LocationSpecificService" />

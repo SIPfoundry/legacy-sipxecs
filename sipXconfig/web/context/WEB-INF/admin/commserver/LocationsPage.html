@@ -14,7 +14,7 @@
     </ul>
     <table jwcid="@common/Table" id="locations:list"
       source="ognl:locations"
-      columns="* name, address, description:name"
+      columns="* name, address, description:name, registered"
       row="ognl:currentRow"
       selections="bean:selections">
       <span jwcid="nameColumnValue@Block">
@@ -22,6 +22,9 @@
             listener="listener:editLocation" parameters="ognl:currentRow.id">
           <span jwcid="@Insert" value="ognl:currentRow.fqdn"/>
         </span>
+      </span>
+      <span jwcid="registeredColumnValue@Block">
+        <span jwcid="@common/EnabledColumn" value="ognl:currentRow.registered" keyPrefix="label.status"/>
       </span>
     </table>
     <ul class="component-submit">

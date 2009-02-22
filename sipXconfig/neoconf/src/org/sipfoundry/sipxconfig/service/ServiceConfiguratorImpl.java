@@ -46,6 +46,9 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
      * replication succeeds.
      */
     public void replicateServiceConfig(Location location, SipxService service) {
+        if (!location.isRegistered()) {
+            return;
+        }
         List<SipxServiceConfiguration> configurations = service.getConfigurations();
         for (SipxServiceConfiguration configuration : configurations) {
             m_replicationContext.replicate(location, configuration);
@@ -59,6 +62,9 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
      * starts the services.
      */
     public void enforceRole(Location location) {
+        if (!location.isRegistered()) {
+            return;
+        }
         LocationStatus locationStatus = m_sipxProcessContext.getLocationStatus(location);
         m_sipxProcessContext.manageServices(location, locationStatus.getToBeStopped(), STOP);
         for (SipxService service : locationStatus.getToBeStarted()) {

@@ -23,6 +23,12 @@ public class LocationsPageTestUi extends WebTestCase {
     public void testDisplay() {
         SiteTestHelper.assertNoUserError(tester);
         assertTextPresent("host.example.org");
+        assertEquals("Registered", SiteTestHelper.getCellAsText(getTable("locations:list"), 1, 4));
+        clickLink("editLocationLink");
+        assertLinkPresent("link:configureLocation");
+        assertLinkPresent("link:listServices");
+        assertLinkPresent("link:monitorTarget");
+        SiteTestHelper.assertNoUserError(tester);
     }
 
     public void testAddLocation() {
@@ -37,6 +43,12 @@ public class LocationsPageTestUi extends WebTestCase {
 
         SiteTestHelper.assertNoUserError(tester);
         assertTextPresent("another.example.org");
+        assertEquals("Uninitialized", SiteTestHelper.getCellAsText(getTable("locations:list"), 2, 4));
+        clickLink("editLocationLink_0");
+        assertLinkNotPresent("link:configureLocation");
+        assertLinkNotPresent("link:listServices");
+        assertLinkNotPresent("link:monitorTarget");
+        SiteTestHelper.assertNoUserError(tester);
     }
 
     public void testDeleteLocation() {

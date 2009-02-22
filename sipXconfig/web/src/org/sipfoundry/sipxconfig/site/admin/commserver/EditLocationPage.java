@@ -52,6 +52,10 @@ public abstract class EditLocationPage extends PageWithCallback implements PageB
 
     public abstract void setLocationBean(Location location);
 
+    public abstract boolean isRegistered();
+
+    public abstract void setRegistered(boolean registered);
+
     @Persist
     @InitialValue("literal:listServices")
     public abstract String getTab();
@@ -78,6 +82,10 @@ public abstract class EditLocationPage extends PageWithCallback implements PageB
         }
         if (getLocationId() != null) {
             location = getLocationsManager().getLocation(getLocationId());
+            setRegistered(location.isRegistered());
+            if (!location.isRegistered()) {
+                setTab(CONFIG_TAB);
+            }
         } else {
             location = new Location();
             location.initBundles(getSipxServiceManager());

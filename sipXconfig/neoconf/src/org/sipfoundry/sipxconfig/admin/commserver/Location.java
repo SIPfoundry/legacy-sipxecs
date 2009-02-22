@@ -41,6 +41,7 @@ public class Location extends BeanWithId {
     private String m_fqdn;
     private String m_password = RandomStringUtils.randomAlphanumeric(LOCATION_PASSWORD_LEN);
     private boolean m_primary;
+    private boolean m_registered;
     private List<String> m_installedBundles;
 
     private Collection<LocationSpecificService> m_services;
@@ -250,6 +251,14 @@ public class Location extends BeanWithId {
 
     public void setPrimary(boolean primary) {
         m_primary = primary;
+    }
+
+    public boolean isRegistered() {
+        return m_registered;
+    }
+
+    public void setRegistered(boolean registered) {
+        m_registered = registered;
     }
 
     /**

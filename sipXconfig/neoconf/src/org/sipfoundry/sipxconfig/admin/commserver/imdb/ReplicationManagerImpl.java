@@ -62,6 +62,9 @@ public class ReplicationManagerImpl implements ReplicationManager {
         boolean success = true;
         DataSet type = generator.getType();
         for (int i = 0; i < locations.length; i++) {
+            if (!locations[i].isRegistered()) {
+                continue;
+            }
             try {
                 List<Map<String, String>> records = generator.generate();
 
@@ -98,6 +101,9 @@ public class ReplicationManagerImpl implements ReplicationManager {
         }
         boolean success = false;
         for (int i = 0; i < locations.length; i++) {
+            if (!locations[i].isRegistered()) {
+                continue;
+            }
             if (!file.isReplicable(locations[i])) {
                 LOG.info("File " + file.getName() + " cannot be replicated on location: " + locations[i].getFqdn());
                 success = true;

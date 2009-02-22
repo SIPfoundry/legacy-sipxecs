@@ -57,6 +57,9 @@ public class ReplicationManagerImplTest extends TestCase {
 
         ConfigurationFile file = new InMemoryConfiguration("/etc/sipxecs", "domain-config", content);
 
+        for (int i = 0; i < LOCATIONS.length; i++) {
+            LOCATIONS[i].setRegistered(true);
+        }
         replicationManager.replicateFile(LOCATIONS, file);
 
         verify(fileApi);

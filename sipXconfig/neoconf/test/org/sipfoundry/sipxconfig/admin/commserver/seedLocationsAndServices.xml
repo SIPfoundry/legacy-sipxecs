@@ -5,10 +5,12 @@
     <column>name</column>
     <column>fqdn</column>
     <column>primary_location</column>
+    <column>registered</column>
     <row>
       <value>101</value>
       <value>Primary</value>
       <value>localhost</value>
+      <value>true</value>
       <value>true</value>
     </row>
     <row>
@@ -16,6 +18,7 @@
       <value>Secondary</value>
       <value>remotehost.example.org</value>
       <value>false</value>
+      <value>true</value>
     </row>
   </table>
   <table name="sipx_service">

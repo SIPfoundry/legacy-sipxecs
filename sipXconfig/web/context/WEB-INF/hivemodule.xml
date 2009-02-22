@@ -85,6 +85,7 @@
       <construct class="components.InitialConfigService">
         <set-object property="response" value="service:tapestry.globals.WebResponse" />
         <set-object property="initialConfig" value="spring:initialConfig" />
+        <set-object property="locationsManager" value="spring:locationsManager" />
       </construct>
     </invoke-factory>
   </service-point>

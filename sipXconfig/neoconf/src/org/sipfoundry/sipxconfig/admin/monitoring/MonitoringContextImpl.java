@@ -89,8 +89,10 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
         List<String> hosts = new ArrayList<String>();
         Location[] locations = m_locationsManager.getLocations();
         for (Location location : locations) {
-            String host = location.getFqdn();
-            hosts.add(host);
+            if (location.isRegistered()) {
+                String host = location.getFqdn();
+                hosts.add(host);
+            }
         }
         if (hosts.size() == 0) {
             hosts.add("localhost");
