@@ -1,6 +1,8 @@
 <span jwcid="$content$">
 	<table jwcid="userTable" id="user:list">
-        <span jwcid="userNameColumnValue">                    
+        <span jwcid="userNameColumnValue">          
+            <img jwcid="@Image" image="ognl:getUserIcon(currentUser)" align="absmiddle" 
+                 title="ognl:getUserIconTitle(currentUser)" />          
             <span jwcid="userNameAsLinkConditional">
                 <a href="#" jwcid="userNameLink"><span jwcid="userName"/></a>
             </span>

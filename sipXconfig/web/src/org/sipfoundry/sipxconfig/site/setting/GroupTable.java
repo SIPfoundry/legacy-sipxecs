@@ -13,6 +13,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.IAsset;
+import org.apache.tapestry.annotations.Asset;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -20,6 +22,9 @@ import org.sipfoundry.sipxconfig.setting.SettingDao;
 
 public abstract class GroupTable extends BaseComponent {
 
+    @Asset("/images/group.png")
+    public abstract IAsset getGroupIcon();
+    
     public abstract SettingDao getSettingContext();
 
     public abstract List getGroups();
