@@ -34,10 +34,11 @@ then
        mkdir $SIPX_FS_CONFDIR/jingle_profiles/
        mkdir $SIPX_FS_CONFDIR/sip_profiles/
        mkdir $SIPX_FS_CONFDIR/htdocs/
-       cp -p $FS_CONFDIR/vars.xml $SIPX_FS_CONFDIR
-       cp -pR $FS_CONFDIR/autoload_configs/* $SIPX_FS_CONFDIR/autoload_configs
-       cp -pR $FS_CONFDIR/jingle_profiles/* $SIPX_FS_CONFDIR/jingle_profiles
-       cp -pR $FS_CONFDIR/lang/* $SIPX_FS_CONFDIR/lang
+
+       cp -p $FS_CONFDIR/vars.xml $SIPX_FS_CONFDIR 2> /dev/null
+       cp -pR $FS_CONFDIR/autoload_configs/* $SIPX_FS_CONFDIR/autoload_configs 2> /dev/null
+       cp -pR $FS_CONFDIR/jingle_profiles/* $SIPX_FS_CONFDIR/jingle_profiles 2> /dev/null
+       cp -pR $FS_CONFDIR/lang/* $SIPX_FS_CONFDIR/lang 2> /dev/null
 
        # Correct ownership and permissions so sipXconfig can write
        chown -R @SIPXPBXUSER@ $SIPX_FS_CONFDIR
