@@ -15,8 +15,6 @@ import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
-import org.springframework.test.annotation.DirtiesContext;
-
 import static org.easymock.EasyMock.createStrictMock;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
@@ -24,6 +22,7 @@ import static org.easymock.EasyMock.verify;
 public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
 
     private ReplicationTrigger m_trigger;
+    private SipxReplicationContext m_originalSipxReplicationContext;
     private SettingDao m_dao;
 
     public void setReplicationTrigger(ReplicationTrigger trigger) {
@@ -34,10 +33,19 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
         m_dao = dao;
     }
 
+    public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
+        m_originalSipxReplicationContext = sipxReplicationContext;
+    }
+
+    @Override
+    protected void onTearDownAfterTransaction() throws Exception {
+        // restore trigger state...
+        m_trigger.setReplicationContext(m_originalSipxReplicationContext);
+    }
+
     /**
      * Test that saving a user group in db actually triggers a replication
      */
-    @DirtiesContext
     public void testNewUserGroup() throws Exception {
         SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
         replicationContext.generate(DataSet.PERMISSION);
@@ -53,7 +61,6 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
         verify(replicationContext);
     }
 
-    @DirtiesContext
     public void testUpdateUserGroup() throws Exception {
         loadDataSet("admin/commserver/imdb/UserGroupSeed.db.xml");
 
@@ -72,7 +79,6 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
     /**
      * Test that replication happens at app startup if the replicateOnStartup property is set
      */
-    @DirtiesContext
     public void testReplicateOnStartup() throws Exception {
         SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
         replicationContext.generateAll();
@@ -89,7 +95,6 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
      * Test that replication doesn't happen at app startup if the replicateOnStartup property is
      * off
      */
-    @DirtiesContext
     public void testNoReplicateOnStartup() throws Exception {
         SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
         replay(replicationContext);
