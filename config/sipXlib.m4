@@ -248,7 +248,7 @@ AC_DEFUN([SFAC_LIB_PORT],
     if test x_$foundpath != x_; then
         AC_MSG_RESULT($foundpath)
     else
-        AC_MSG_WARN('assuming it will be in '$prefix/include')
+        AC_MSG_WARN([    assuming it will be in '$prefix/include'])
         foundpath=$prefix/include
     fi
     SIPXPORTINC=$foundpath
@@ -267,7 +267,7 @@ AC_DEFUN([SFAC_LIB_PORT],
     if test x_$foundpath != x_; then
         AC_MSG_RESULT($foundpath)
     else
-        AC_MSG_WARN('sipxunit/TestUtilities.h' not found; assuming it will be in '$prefix/include')
+        AC_MSG_WARN([    assuming it will be in '$prefix/include'])
         foundpath=$prefix/include
     fi
     SIPXUNITINC=$foundpath
@@ -286,7 +286,7 @@ AC_DEFUN([SFAC_LIB_PORT],
     if test x_$foundpath != x_; then
         AC_MSG_RESULT($foundpath)
     else
-        AC_MSG_WARN(assuming it will be in '$prefix/lib')
+        AC_MSG_WARN([    assuming it will be in '$prefix/lib'])
         foundpath=$prefix/lib
     fi
     AC_SUBST(SIPXPORT_LIBS, "$foundpath/libsipXport.la")
@@ -302,7 +302,7 @@ AC_DEFUN([SFAC_LIB_PORT],
         AC_MSG_RESULT($foundpath)
         # sipXunit unitesting support
     else
-        AC_MSG_WARN(assuming it will be in '$prefix/lib')
+        AC_MSG_WARN([    assuming it will be in '$prefix/lib'])
         foundpath=$prefix/lib
     fi
     AC_SUBST(SIPXUNIT_LIBS,    "$foundpath/libsipXunit.la")
@@ -330,7 +330,7 @@ AC_DEFUN([SFAC_LIB_STACK],
     if test x_$foundpath != x_; then
         AC_MSG_RESULT($foundpath)
     else
-        AC_MSG_WARN(assuming it will be in '$prefix/include')
+        AC_MSG_WARN([    assuming it will be in '$prefix/include'])
         foundpath=$prefix/include
     fi
     SIPXTACKINC=$foundpath
@@ -350,7 +350,7 @@ AC_DEFUN([SFAC_LIB_STACK],
     if test x_$foundpath != x_; then
         AC_MSG_RESULT($foundpath)
     else
-        AC_MSG_WARN(assuming it will be in '$prefix/lib')
+        AC_MSG_WARN([    assuming it will be in '$prefix/lib'])
         foundpath=$prefix/lib
     fi 
 
@@ -380,7 +380,7 @@ AC_DEFUN([SFAC_LIB_MEDIA],
     if test x_$foundpath != x_; then
         AC_MSG_RESULT($foundpath)
     else
-        AC_MSG_WARN(assuming it will be in '$prefix/include')
+        AC_MSG_WARN([    assuming it will be in '$prefix/include'])
         foundpath=$prefix/include
     fi
     SIPXMEDIAINC=$foundpath
@@ -400,7 +400,7 @@ AC_DEFUN([SFAC_LIB_MEDIA],
     if test x_$foundpath != x_; then
         AC_MSG_RESULT($foundpath)
     else
-        AC_MSG_WARN(assuming it will be in '$prefix/lib')
+        AC_MSG_WARN([    assuming it will be in '$prefix/lib'])
         foundpath=$prefix/lib
     fi
     SIPXMEDIALIB=$foundpath
@@ -429,7 +429,7 @@ AC_DEFUN([SFAC_LIB_MEDIAADAPTER],
     if test x_$foundpath != x_; then
         AC_MSG_RESULT($foundpath)
     else
-        AC_MSG_WARN(assuming it will be in '$prefix/include')
+        AC_MSG_WARN([    assuming it will be in '$prefix/include'])
         foundpath=$prefix/include
     fi
     SIPXMEDIAINTERFACEINC=$foundpath
@@ -449,7 +449,7 @@ AC_DEFUN([SFAC_LIB_MEDIAADAPTER],
     if test x_$foundpath != x_; then
         AC_MSG_RESULT($foundpath)
     else
-        AC_MSG_WARN(assuming it will be in '$prefix/lib')
+        AC_MSG_WARN([    assuming it will be in '$prefix/lib'])
         foundpath=$prefix/lib
     fi
     SIPXMEDIAADAPTERLIB=$foundpath
@@ -621,7 +621,7 @@ AC_DEFUN([SFAC_LIB_CALL],
     if test x_$foundpath != x_; then
         AC_MSG_RESULT($foundpath)
     else
-        AC_MSG_WARN(assuming it will be in '$prefix/include')
+        AC_MSG_WARN([    assuming it will be in '$prefix/include'])
         foundpath=$prefix/include
     fi
     SIPXCALLINC=$foundpath
@@ -641,7 +641,7 @@ AC_DEFUN([SFAC_LIB_CALL],
     if test x_$foundpath != x_; then
         AC_MSG_RESULT($foundpath)
     else
-        AC_MSG_WARN(assuming it will be in '$prefix/lib')
+        AC_MSG_WARN([    assuming it will be in '$prefix/lib'])
         foundpath=$prefix/lib
     fi
     SIPXCALLLIB=$foundpath
@@ -671,7 +671,7 @@ AC_DEFUN([SFAC_LIB_COMMSERVER],
     if test x_$foundpath != x_; then
         AC_MSG_RESULT($foundpath)
     else
-        AC_MSG_WARN(assuming it will be in '$prefix/include')
+        AC_MSG_WARN([    assuming it will be in '$prefix/include'])
         foundpath=$prefix/include
     fi
     SIPXCOMMSERVERINC=$foundpath
@@ -690,7 +690,7 @@ AC_DEFUN([SFAC_LIB_COMMSERVER],
     if test x_$foundpath != x_; then
         AC_MSG_RESULT($foundpath)
     else
-        AC_MSG_WARN(assuming it will be in '$prefix/lib')
+        AC_MSG_WARN([    assuming it will be in '$prefix/lib'])
         foundpath=$prefix/lib
     fi
     SIPXCOMMSERVERLIB=$foundpath
@@ -727,8 +727,8 @@ AC_DEFUN([SFAC_ARG_WITH_INCLUDE],
         fi;
     done
     if test x_$foundpath = x_; then
-       AC_MSG_WARN("'$1' not found)
-       AC_MSG_WARN("    searched $include_path")
+       AC_MSG_WARN('$1' not found)
+       AC_MSG_WARN([    searched $include_path])
     fi
         
 
@@ -761,8 +761,8 @@ AC_DEFUN([SFAC_ARG_WITH_LIB],
         fi;
     done
     if test x_$foundpath = x_; then
-       AC_MSG_WARN("'$1' not found)
-       AC_MSG_WARN("    searched $lib_path")
+       AC_MSG_WARN('$1' not found)
+       AC_MSG_WARN([    searched $lib_path])
     fi
 ]) # SFAC_ARG_WITH_LIB
 
