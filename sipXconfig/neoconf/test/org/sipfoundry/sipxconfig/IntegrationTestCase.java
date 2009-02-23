@@ -57,7 +57,9 @@ public abstract class IntegrationTestCase extends AbstractAnnotationAwareTransac
     @Override
     protected void onTearDownInTransaction() throws Exception {
         super.onTearDownInTransaction();
-        resetContext();
+        if (m_modifiedContextObjectMap != null) {
+            resetContext();
+        }
     }
 
     @Override
