@@ -50,11 +50,11 @@ rm -rf $RPM_BUILD_ROOT
 # to the library from short names.
 %post
 /sbin/ldconfig
-ln -s -f %{_libdir}/libcgicc.so.5.0.1 %{_libdir}/libcgicc.so 
+/bin/ln -s -f %{_libdir}/libcgicc.so.5.0.1 %{_libdir}/libcgicc.so 
 
 %postun
 /sbin/ldconfig
-rm -f %{_libdir}/libcgicc.so
+/bin/rm -f %{_libdir}/libcgicc.so
 
 %files
 %attr(755,root,root) /usr/bin/cgicc-config
