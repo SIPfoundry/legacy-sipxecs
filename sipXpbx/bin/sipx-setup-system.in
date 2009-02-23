@@ -585,7 +585,7 @@ UTC=true\n' % TimeZone
             show_progress()
             
         if not ntpServerReachable :
-            errorMsg  = 'Unable to verify reachability of NTP any servers:\n   '
+            errorMsg  = 'Unable to verify reachability of any NTP servers:\n   '
             errorMsg += '\n   '.join(NtpServers)
             errorMsg += '\n\
 It is important that the system time is controlled\n\
