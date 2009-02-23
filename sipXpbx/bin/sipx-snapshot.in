@@ -695,6 +695,15 @@ do
   $command >> ${SystemConfig} 2>&1
 done
 
+# Get a good directory listing of the system
+# Variable assignments for the command cannot be put in a variable that is
+# substituted into the command line.
+command='ls -lR @SIPX_BINDIR@ @SIPX_CONFDIR@ @SIPX_DATADIR@ @SIPX_DBDIR@ @SIPX_LIBEXECDIR@ @SIPX_LOGDIR@ @SIPX_RUNDIR@ @SIPX_VARDIR@ @bindir@ @wwwdir@'
+DirListing=${Work}/ls-lR
+echo ======== TZ=UTC $command  > ${DirListing}
+echo                          >> ${DirListing}
+TZ=UTC $command               >> ${DirListing}
+
 # Collect sipX configuration information
 echo "" >> ${SystemConfig}
 
