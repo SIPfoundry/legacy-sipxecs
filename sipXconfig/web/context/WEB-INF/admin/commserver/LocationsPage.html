@@ -18,6 +18,7 @@
       row="ognl:currentRow"
       selections="bean:selections">
       <span jwcid="nameColumnValue@Block">
+        <img jwcid="@Image" image="asset:serverIcon" align="absmiddle" />
         <span jwcid="editLocationLink@DirectLink"
             listener="listener:editLocation" parameters="ognl:currentRow.id">
           <span jwcid="@Insert" value="ognl:currentRow.fqdn"/>

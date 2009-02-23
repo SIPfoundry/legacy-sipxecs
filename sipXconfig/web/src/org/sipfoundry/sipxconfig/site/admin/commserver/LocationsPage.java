@@ -12,7 +12,9 @@ package org.sipfoundry.sipxconfig.site.admin.commserver;
 import java.util.Arrays;
 import java.util.Collection;
 
+import org.apache.tapestry.IAsset;
 import org.apache.tapestry.IPage;
+import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
@@ -48,6 +50,9 @@ public abstract class LocationsPage extends BasePage implements PageBeginRenderL
     @Bean
     public abstract SelectMap getSelections();
 
+    @Asset("/images/server.png")
+    public abstract IAsset getServerIcon();
+    
     public abstract Location getCurrentRow();
 
     public abstract Collection<Location> getLocations();
