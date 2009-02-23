@@ -9,9 +9,15 @@
  */
 package org.sipfoundry.sipxconfig;
 
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.DatabaseConnection;
 import org.dbunit.database.IDatabaseConnection;
@@ -19,14 +25,19 @@ import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.dbunit.operation.DatabaseOperation;
 import org.hibernate.SessionFactory;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManagerImplTestIntegration;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.test.annotation.AbstractAnnotationAwareTransactionalTests;
 
 public abstract class IntegrationTestCase extends AbstractAnnotationAwareTransactionalTests {
+    private static final Log LOG = LogFactory.getLog(LocationsManagerImplTestIntegration.class);
+
     private SessionFactory m_sessionFactory;
 
     private HibernateTemplate m_hibernateTemplate;
+
+    protected Map<Object, Map<String, Object>> m_modifiedContextObjectMap;
 
     static {
         // triggers creating sipxconfig.properties in classpath so spring app context
@@ -36,6 +47,17 @@ public abstract class IntegrationTestCase extends AbstractAnnotationAwareTransac
 
     public IntegrationTestCase() {
         setAutowireMode(AUTOWIRE_BY_NAME);
+    }
+    
+    @Override
+    protected void onSetUpInTransaction() throws Exception {
+        super.onSetUpInTransaction();
+        m_modifiedContextObjectMap = new HashMap<Object, Map<String,Object>>();
+    }
+    @Override
+    protected void onTearDownInTransaction() throws Exception {
+        super.onTearDownInTransaction();
+        resetContext();
     }
 
     @Override
@@ -111,5 +133,54 @@ public abstract class IntegrationTestCase extends AbstractAnnotationAwareTransac
         m_sessionFactory = sessionFactory;
         m_hibernateTemplate = new HibernateTemplate();
         m_hibernateTemplate.setSessionFactory(m_sessionFactory);
+    }
+
+    /**
+     * Modifies a concrete object from the spring context.  Any modifications will be be 
+     * rolled back in the tearDown
+     * @param target The context object to modify
+     * @param propertyName The property of the the target to modify
+     * @param originalValue The original value, used to roll back in the tearDown
+     * @param valueForTest The value to be set in the target for this test
+     */
+    protected void modifyContext(Object target, String propertyName, Object originalValue, Object valueForTest) {
+        if (! m_modifiedContextObjectMap.containsKey(target)) {
+            m_modifiedContextObjectMap.put(target, new HashMap<String, Object>());
+        }
+        
+        Map<String, Object> originalContextObjectValueMap = m_modifiedContextObjectMap.get(target);
+        originalContextObjectValueMap.put(propertyName, originalValue);
+        
+        try {
+            BeanUtils.setProperty(target, propertyName, valueForTest);
+        } catch (IllegalAccessException e) {
+            LOG.error("Unable to set property " + propertyName + " on target " + target, e);
+        } catch (InvocationTargetException e) {
+            LOG.error("Unable to set property " + propertyName + " on target " + target, e);
+        }
+    }
+
+    /**
+     * Roll back any changes made to context objects via the modifyContext method
+     */
+    private void resetContext() {
+        for (Object target : m_modifiedContextObjectMap.keySet()) {
+            Map<String, Object> originalValueMap = m_modifiedContextObjectMap.get(target);
+            for (String propertyName : originalValueMap.keySet()) {
+                Object originalValue = originalValueMap.get(propertyName);
+                try {
+                    BeanUtils.setProperty(target, propertyName, originalValue);
+                    originalValueMap.remove(propertyName);
+                } catch (IllegalAccessException e) {
+                    LOG.error("Unable to set property " + propertyName + " on target " + target, e);
+                } catch (InvocationTargetException e) {
+                    LOG.error("Unable to set property " + propertyName + " on target " + target, e);
+                }
+            }
+            
+            m_modifiedContextObjectMap.remove(target);
+        }
+        
+        assertTrue(m_modifiedContextObjectMap.isEmpty());
     }
 }
