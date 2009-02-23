@@ -688,7 +688,7 @@ driftfile /var/lib/ntp/drift\n\
         progress(86, ntpSetMsg)
         show_starting()
         if runningAsRoot() :
-            ntpSetCmd='/usr/sbin/ntpd -q -g'
+            ntpSetCmd='/usr/sbin/ntpdate ' + ' '.join(NtpServers)
             log_printout("Attempting to set date/time with: '%s'" % ntpSetCmd)
             cmdresult=commands.getstatusoutput(ntpSetCmd)
             if cmdresult[0] == 0 :
