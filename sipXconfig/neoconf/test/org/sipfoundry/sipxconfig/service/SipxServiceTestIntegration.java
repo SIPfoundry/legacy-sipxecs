@@ -9,16 +9,16 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
-import org.sipfoundry.sipxconfig.IntegrationTestCase;
-
 import java.util.List;
+
+import org.sipfoundry.sipxconfig.IntegrationTestCase;
 
 public class SipxServiceTestIntegration extends IntegrationTestCase {
 
     private SipxStatusService m_statusService;
 
     public void testGetConfigurations() {
-        List<SipxServiceConfiguration> configurations = m_statusService.getConfigurations();
+        List configurations = m_statusService.getConfigurations();
         assertEquals(2, configurations.size());
     }
 

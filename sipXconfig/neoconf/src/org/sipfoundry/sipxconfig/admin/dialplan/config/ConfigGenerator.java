@@ -19,7 +19,6 @@ import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleProvider;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
-import org.sipfoundry.sipxconfig.admin.dialplan.attendant.AutoAttendantsConfig;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
@@ -33,7 +32,6 @@ public class ConfigGenerator {
     private FallbackRules m_fallbackRules;
     private ForwardingRules m_forwardingRules;
     private NatTraversalRules m_natTraversalRules;
-    private AutoAttendantsConfig m_autoAttendantConfig;
 
     private DialingRuleProvider m_dialingRuleProvider;
 
@@ -67,18 +65,11 @@ public class ConfigGenerator {
         m_dialingRuleProvider = dialingRuleProvider;
     }
 
-    @Required
-    public void setAutoAttendantConfig(AutoAttendantsConfig autoAttendantConfig) {
-        m_autoAttendantConfig = autoAttendantConfig;
-    }
-
     private List< ? extends ConfigurationFile> getRulesFiles() {
-        return Arrays.asList(m_mappingRules, m_authRules, m_fallbackRules, m_forwardingRules, m_natTraversalRules,
-                m_autoAttendantConfig);
+        return Arrays.asList(m_mappingRules, m_authRules, m_fallbackRules, m_forwardingRules, m_natTraversalRules);
     }
 
     public void generate(DialPlanContext plan) {
-        m_autoAttendantConfig.generate(plan);
         generateXmlFromDialingRules(plan);
     }
 

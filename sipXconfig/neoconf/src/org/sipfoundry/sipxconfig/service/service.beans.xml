@@ -253,6 +253,7 @@
     <property name="configurations">
       <list>
         <ref bean="sipxIvrConfiguration" />
+        <ref bean="autoAttendantsConfig" />
       </list>
     </property>
     <property name="mailstoreDir" value="${sysdir.mailstore}" />

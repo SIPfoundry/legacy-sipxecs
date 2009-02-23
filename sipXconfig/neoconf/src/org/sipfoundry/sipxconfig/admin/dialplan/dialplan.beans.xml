@@ -154,10 +154,12 @@
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="sipxProcessContext" ref="sipxProcessContext" />
     <property name="dialPlanContext" ref="dialPlanContext" />
+    <property name="sipxIvrService" ref="sipxIvrService" />
     <lookup-method name="getGatewayProfileManager" bean="gatewayProfileManager" />
     <lookup-method name="getGatewayContext" bean="gatewayContext" />
-    <!-- using eager replication bean here -->
+    <!-- using eager replication and serviceConfiguration -->
     <property name="sipxReplicationContext" ref="sipxReplicationContextDao" />
+    <property name="serviceConfigurator" ref="serviceConfiguratorImpl" />
   </bean>
 
   <bean id="dialPlanActivationManager" class="org.sipfoundry.sipxconfig.admin.dialplan.LazyDialPlanActivationManager"
@@ -220,9 +222,6 @@
     <property name="dialingRuleProvider">
       <ref local="dialingRuleCollector" />
     </property>
-    <property name="autoAttendantConfig">
-      <ref local="autoAttendantsConfig" />
-    </property>
   </bean>
 
   <!-- A T T E N D A N T -->
@@ -282,11 +281,13 @@
     parent="defaultConfigurationFile">
     <property name="name" value="autoattendants.xml" />
     <property name="domainManager" ref="domainManager" />
+    <property name="dialPlanContext" ref="dialPlanContext" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
 
   <bean id="attendantSaveDefaultGroup" class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.OnAutoAttendantGroupSave">
-    <property name="dialPlanContext" ref="dialPlanContext" />
-    <property name="autoAttendantsConfig" ref="autoAttendantsConfig" />
+    <property name="serviceConfigurator" ref="serviceConfigurator" />
+    <property name="sipxIvrService" ref="sipxIvrService" />
   </bean>
 </beans>
 

@@ -19,7 +19,6 @@ import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleProvider;
-import org.sipfoundry.sipxconfig.admin.dialplan.attendant.AutoAttendantsConfig;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
 import org.sipfoundry.sipxconfig.domain.Domain;
@@ -114,9 +113,6 @@ public class ConfigGeneratorTest extends XMLTestCase {
         forwardingRules.setSbcManager(sbcManager);
         forwardingRules.setSipxServiceManager(m_sipxServiceManager);
         generator.setForwardingRules(forwardingRules);
-
-        AutoAttendantsConfig autoAttendantsConfig = new AutoAttendantsConfig();
-        generator.setAutoAttendantConfig(autoAttendantsConfig );
 
         generator.generate(dialPlanContext);
 

@@ -15,6 +15,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.device.Model;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
@@ -27,7 +28,7 @@ public abstract class SipxService extends BeanWithSettings implements Model {
     private String m_beanId;
     private String m_modelName;
     private String m_modelDir;
-    private List<SipxServiceConfiguration> m_configurations;
+    private List< ? extends ConfigurationFile> m_configurations;
     private String m_sipPort;
     private String m_logDir;
     private String m_confDir;
@@ -83,11 +84,11 @@ public abstract class SipxService extends BeanWithSettings implements Model {
         return m_restartable;
     }
 
-    public void setConfigurations(List<SipxServiceConfiguration> configurations) {
+    public void setConfigurations(List< ? extends ConfigurationFile> configurations) {
         m_configurations = configurations;
     }
 
-    public List<SipxServiceConfiguration> getConfigurations() {
+    public List< ? extends ConfigurationFile> getConfigurations() {
         if (m_configurations == null) {
             return Collections.EMPTY_LIST;
         }

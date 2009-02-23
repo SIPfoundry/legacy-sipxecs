@@ -17,6 +17,7 @@ import java.util.Map;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.QName;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenu;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuAction;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuItem;
@@ -28,18 +29,22 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 import org.sipfoundry.sipxconfig.common.DialPad;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.service.SipxIvrService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.springframework.beans.factory.annotation.Required;
 
 public class AutoAttendantsConfig extends XmlFile {
-
     // please note: US locale always...
     private static final SimpleDateFormat HOLIDAY_FORMAT = new SimpleDateFormat("dd-MMM-yyyy", Locale.US);
     private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/autoattendants-00-00";
     private static final String ID = "id";
+
     private DialPlanContext m_dialPlanContext;
 
     private DomainManager m_domainManager;
+
+    private SipxServiceManager m_sipxServiceManager;
 
     @Override
     public Document getDocument() {
@@ -175,12 +180,23 @@ public class AutoAttendantsConfig extends XmlFile {
         }
     }
 
-    public void generate(DialPlanContext dialPlanContext) {
-        m_dialPlanContext = dialPlanContext;
+    @Override
+    public boolean isReplicable(Location location) {
+        return m_sipxServiceManager.isServiceInstalled(location.getId(), SipxIvrService.BEAN_ID);
     }
 
     @Required
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
+    }
+
+    @Required
+    public void setDialPlanContext(DialPlanContext dialPlanContext) {
+        m_dialPlanContext = dialPlanContext;
+    }
+
+    @Required
+    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
+        m_sipxServiceManager = sipxServiceManager;
     }
 }

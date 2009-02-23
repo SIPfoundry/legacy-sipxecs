@@ -13,6 +13,7 @@ import java.util.List;
 
 import static java.util.Collections.singleton;
 
+import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationStatus;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
@@ -35,8 +36,8 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
     }
 
     public void replicateServiceConfig(SipxService service) {
-        List<SipxServiceConfiguration> configurations = service.getConfigurations();
-        for (SipxServiceConfiguration configuration : configurations) {
+        List< ? extends ConfigurationFile> configurations = service.getConfigurations();
+        for (ConfigurationFile configuration : configurations) {
             m_replicationContext.replicate(configuration);
         }
     }
@@ -49,8 +50,8 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
         if (!location.isRegistered()) {
             return;
         }
-        List<SipxServiceConfiguration> configurations = service.getConfigurations();
-        for (SipxServiceConfiguration configuration : configurations) {
+        List< ? extends ConfigurationFile> configurations = service.getConfigurations();
+        for (ConfigurationFile configuration : configurations) {
             m_replicationContext.replicate(location, configuration);
         }
         m_configVersionManager.setConfigVersion(service, location);

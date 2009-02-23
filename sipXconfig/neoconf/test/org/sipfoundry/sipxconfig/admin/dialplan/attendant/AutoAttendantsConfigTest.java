@@ -59,7 +59,7 @@ public class AutoAttendantsConfigTest extends XMLTestCase {
 
         AutoAttendantsConfig autoAttendantsConfig = new AutoAttendantsConfig();
         autoAttendantsConfig.setDomainManager(m_domainManager);
-        autoAttendantsConfig.generate(dialPlanContext);
+        autoAttendantsConfig.setDialPlanContext(dialPlanContext);
 
         String generatedXml = autoAttendantsConfig.getFileContent();
         InputStream referenceXml = getClass().getResourceAsStream("empty-autoattendants.test.xml");
@@ -104,7 +104,7 @@ public class AutoAttendantsConfigTest extends XMLTestCase {
 
         AutoAttendantsConfig autoAttendantsConfig = new AutoAttendantsConfig();
         autoAttendantsConfig.setDomainManager(m_domainManager);
-        autoAttendantsConfig.generate(dialPlanContext);
+        autoAttendantsConfig.setDialPlanContext(dialPlanContext);
 
         String generatedXml = autoAttendantsConfig.getFileContent();
         InputStream referenceXml = getClass().getResourceAsStream("autoattendants.test.xml");
@@ -147,7 +147,7 @@ public class AutoAttendantsConfigTest extends XMLTestCase {
 
         AutoAttendantsConfig autoAttendantsConfig = new AutoAttendantsConfig();
         autoAttendantsConfig.setDomainManager(m_domainManager);
-        autoAttendantsConfig.generate(dialPlanContext);
+        autoAttendantsConfig.setDialPlanContext(dialPlanContext);
 
         String generatedXml = autoAttendantsConfig.getFileContent();
         InputStream referenceXml = getClass().getResourceAsStream("schedules-autoattendants.test.xml");

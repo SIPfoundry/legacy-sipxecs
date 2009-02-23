@@ -10,7 +10,6 @@
 package org.sipfoundry.sipxconfig.service;
 
 import org.sipfoundry.sipxconfig.admin.TemplateConfigurationFile;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.springframework.beans.factory.annotation.Required;
 
 public abstract class SipxServiceConfiguration extends TemplateConfigurationFile {
@@ -28,7 +27,4 @@ public abstract class SipxServiceConfiguration extends TemplateConfigurationFile
     public SipxServiceManager getSipxServiceManager() {
         return m_sipxServiceManager;
     }
-
-    @Override
-    public abstract boolean isReplicable(Location location);
 }

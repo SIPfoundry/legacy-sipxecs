@@ -18,6 +18,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
+import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
 import org.sipfoundry.sipxconfig.service.SipxService;
@@ -41,6 +42,10 @@ public abstract class EagerDialPlanActivationManager implements BeanFactoryAware
 
     private DialPlanContext m_dialPlanContext;
 
+    private SipxService m_sipxIvrService;
+
+    private ServiceConfigurator m_serviceConfigurator;
+
     /* delayed injection - working around circular reference */
     public abstract GatewayContext getGatewayContext();
 
@@ -50,7 +55,8 @@ public abstract class EagerDialPlanActivationManager implements BeanFactoryAware
     public void replicateDialPlan(boolean restartSbcDevices) {
         ConfigGenerator generator = generateDialPlan();
         generator.activate(m_sipxReplicationContext);
-        pushAffectedprofiles(restartSbcDevices);
+        m_serviceConfigurator.replicateServiceConfig(m_sipxIvrService);
+        pushAffectedProfiles(restartSbcDevices);
         notifyOnDialPlanGeneration();
     }
 
@@ -83,7 +89,7 @@ public abstract class EagerDialPlanActivationManager implements BeanFactoryAware
      *
      * @param restartSbcDevices if false it does not try to restart affected devices
      */
-    private void pushAffectedprofiles(boolean restartSbcDevices) {
+    private void pushAffectedProfiles(boolean restartSbcDevices) {
         Collection<Integer> gatewayIds = getGatewayContext().getAllGatewayIds();
         getGatewayProfileManager().generateProfiles(gatewayIds, true, null);
         Collection<Integer> sbcIds = m_sbcDeviceManager.getAllSbcDeviceIds();
@@ -118,6 +124,16 @@ public abstract class EagerDialPlanActivationManager implements BeanFactoryAware
     @Required
     public void setDialPlanContext(DialPlanContext dialPlanContext) {
         m_dialPlanContext = dialPlanContext;
+    }
+
+    @Required
+    public void setSipxIvrService(SipxService sipxIvrService) {
+        m_sipxIvrService = sipxIvrService;
+    }
+
+    @Required
+    public void setServiceConfigurator(ServiceConfigurator serviceConfigurator) {
+        m_serviceConfigurator = serviceConfigurator;
     }
 
     public void setBeanFactory(BeanFactory beanFactory) {

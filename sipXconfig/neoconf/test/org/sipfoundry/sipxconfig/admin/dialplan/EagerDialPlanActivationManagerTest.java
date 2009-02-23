@@ -13,7 +13,6 @@ import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.admin.dialplan.attendant.AutoAttendantsConfig;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.AuthRules;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.FallbackRules;
@@ -56,8 +55,6 @@ public class EagerDialPlanActivationManagerTest extends TestCase {
         FallbackRules fallbackRules = new FallbackRules();
         fallbackRules.setDomainManager(domainManager);
         cg.setFallbackRules(fallbackRules);
-
-        cg.setAutoAttendantConfig(new AutoAttendantsConfig());
 
         ForwardingRules forwardingRules = new ForwardingRules();
         cg.setForwardingRules(forwardingRules);

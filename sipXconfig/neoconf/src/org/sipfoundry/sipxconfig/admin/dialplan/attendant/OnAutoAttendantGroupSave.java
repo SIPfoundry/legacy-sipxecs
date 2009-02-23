@@ -7,8 +7,9 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.attendant;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.common.event.EntitySaveListener;
+import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
+import org.sipfoundry.sipxconfig.service.SipxIvrService;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -19,9 +20,9 @@ import static org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContextImpl.ATTEN
  * changes.
  */
 class OnAutoAttendantGroupSave extends EntitySaveListener<Group> {
-    private DialPlanContext m_dialPlanContext;
+    private ServiceConfigurator m_serviceConfigurator;
 
-    private AutoAttendantsConfig m_autoAttendantsConfig;
+    private SipxIvrService m_sipxIvrService;
 
     public OnAutoAttendantGroupSave() {
         super(Group.class);
@@ -37,16 +38,16 @@ class OnAutoAttendantGroupSave extends EntitySaveListener<Group> {
             // ignore newly saved group
             return;
         }
-        m_autoAttendantsConfig.generate(m_dialPlanContext);
+        m_serviceConfigurator.replicateServiceConfig(m_sipxIvrService);
     }
 
     @Required
-    public void setDialPlanContext(DialPlanContext dialPlanContext) {
-        m_dialPlanContext = dialPlanContext;
+    public void setServiceConfigurator(ServiceConfigurator serviceConfigurator) {
+        m_serviceConfigurator = serviceConfigurator;
     }
 
     @Required
-    public void setAutoAttendantsConfig(AutoAttendantsConfig autoAttendantsConfig) {
-        m_autoAttendantsConfig = autoAttendantsConfig;
+    public void setSipxIvrService(SipxIvrService sipxIvrService) {
+        m_sipxIvrService = sipxIvrService;
     }
 }
