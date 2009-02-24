@@ -5,7 +5,9 @@
   <h1>
     <span key="title.manageVoicemail"/> -
     <span jwcid="@Insert" value="ognl:folderLabel"/> </h1>
-  <span jwcid="@common/TabNavigation" tabNames="ognl:folderIds" selectedTab="ognl:folderId"/>
+  
+  <span jwcid="@common/TabNavigation" elementId="voicemailFolders" tabNames="ognl:folderIds" selectedTab="ognl:folderId"/>
+  
   <div id="settings-content">
     <span jwcid="@common/ErrorMsg"/>
     <form jwcid="@Form" id="voicemail:form" delegate="bean:validator">
@@ -13,6 +15,7 @@
         columns="* !subject,!from,!timestamp,!duration,!play" converter="ognl:converter" row="ognl:voicemail"
         usePager="ognl:true" rowInfo="ognl:rowInfo" rowClass="ognl:rowClass">
         <span jwcid="subjectColumnValue@Block">
+          <img jwcid="@Image" image="ognl:voicemailIcon" align="absmiddle" />
           <a jwcid="@DirectLink" listener="listener:edit" parameters="ognl:voicemailSource.getVoicemailId(voicemail)">
             <span jwcid="@Insert" value="ognl:voicemail.subject"/>
           </a>

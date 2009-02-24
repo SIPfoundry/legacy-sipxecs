@@ -1,5 +1,6 @@
 <span jwcid="$content$">
   <div jwcid="@common/LeftNavigation" renderCondition="ognl:renderCondition">
+    <span jwcid="@Any" id="ognl:elementId">
     <span jwcid="@common/TabControl">
       <span jwcid="@For" source="ognl:tabNames" value="ognl:currentTab">
         <span jwcid="@common/Tab" isActive="ognl:currentTab.equals(selectedTab)">
@@ -17,6 +18,7 @@
           </span>
         </span>
       </span>
+    </span>
     </span>
   </div>
 </span>

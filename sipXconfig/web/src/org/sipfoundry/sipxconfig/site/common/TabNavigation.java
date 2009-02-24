@@ -21,6 +21,9 @@ public abstract class TabNavigation extends BaseComponent {
     
     public abstract String getCurrentTab();
     
+    @Parameter(required = false, defaultValue="literal:tabNavigation")
+    public abstract String getElementId();
+    
     @Parameter(required = true)
     public abstract Collection getTabNames();
     

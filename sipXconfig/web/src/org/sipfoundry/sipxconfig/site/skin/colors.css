@@ -63,6 +63,22 @@ li.tab .active a:visited
 	text-decoration: none;
 }
 
+#voicemailFolders li.tab a:link,
+#voicemailFolders li.tab a:hover,
+#voicemailFolders li.tab a:visited
+{
+    background:url('/sipxconfig/images/folder.png') left no-repeat;	
+}
+
+#voicemailFolders li.tab .active a:link,
+#voicemailFolders li.tab .active a:hover,
+#voicemailFolders li.tab .active a:visited
+{
+    background:url('/sipxconfig/images/folder.png') left no-repeat;	
+}
+
+
+
 #banner
 {
 	color: #fff;

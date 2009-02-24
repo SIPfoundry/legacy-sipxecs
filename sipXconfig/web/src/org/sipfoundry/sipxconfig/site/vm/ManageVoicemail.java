@@ -55,9 +55,15 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
         
     private static final Log LOG = LogFactory.getLog(ManageVoicemail.class);
 
-    @Asset("/images/voicemail-play.png")
-    public abstract IAsset getPlayVoicemailAsset();
-
+    @Asset("/images/play.png")
+    public abstract IAsset getPlayVoicemailAsset();   
+    
+    @Asset("/images/email.png")
+    public abstract IAsset getNewVoicemailIcon();
+    
+    @Asset("/images/email_open.png")
+    public abstract IAsset getHeardVoicemailIcon();
+    
     @InjectObject(value = "spring:mailboxManager")
     public abstract MailboxManager getMailboxManager();
     
@@ -95,6 +101,11 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
     
     public boolean getHasVoicemailPermission() {
         return getUser().hasPermission(PermissionName.VOICEMAIL);
+    }
+    
+    public IAsset getVoicemailIcon() {
+        Voicemail voicemail = getVoicemail();
+        return voicemail.isHeard() ? getHeardVoicemailIcon() : getNewVoicemailIcon();
     }
     
     public Object getRowClass() {
