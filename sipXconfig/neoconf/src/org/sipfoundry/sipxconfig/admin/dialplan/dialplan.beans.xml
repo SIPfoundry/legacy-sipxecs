@@ -133,9 +133,11 @@
     <property name="settingDao" ref="settingDao" />
     <property name="sipxReplicationContext" ref="sipxReplicationContext" />
     <property name="defaultDialPlanId" value="na.dialPlan" />
+    <property name="serviceConfigurator" ref="serviceConfigurator" />
     <lookup-method name="getGatewayContext" bean="gatewayContext" />
     <lookup-method name="createSpecialAutoAttendantMode" bean="specialAutoAttendantMode" />
     <lookup-method name="getDialPlanActivationManager" bean="dialPlanActivationManager" />
+    <lookup-method name="getSipxIvrService" bean="sipxIvrService" />
   </bean>
 
   <bean id="dialPlanContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

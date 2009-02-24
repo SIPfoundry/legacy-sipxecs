@@ -29,6 +29,8 @@ import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
+import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
+import org.sipfoundry.sipxconfig.service.SipxIvrService;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
@@ -63,12 +65,16 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
 
     private SipxReplicationContext m_sipxReplicationContext;
 
+    private ServiceConfigurator m_serviceConfigurator;
+
     /* delayed injection - working around circular reference */
     public abstract GatewayContext getGatewayContext();
 
     public abstract SpecialAutoAttendantMode createSpecialAutoAttendantMode();
 
     public abstract DialPlanActivationManager getDialPlanActivationManager();
+
+    public abstract SipxIvrService getSipxIvrService();
 
     /**
      * Loads dial plan, creates a new one if none exist
@@ -288,6 +294,8 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         }
         clearUnsavedValueStorage(aa.getValueStorage());
         getHibernateTemplate().saveOrUpdate(aa);
+
+        m_serviceConfigurator.replicateServiceConfig(getSipxIvrService());
     }
 
     public AutoAttendant getOperator() {
@@ -314,6 +322,9 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         for (Integer id : attendantIds) {
             AutoAttendant aa = getAutoAttendant(id);
             deleteAutoAttendant(aa);
+        }
+        if (!attendantIds.isEmpty()) {
+            m_serviceConfigurator.replicateServiceConfig(getSipxIvrService());
         }
     }
 
@@ -558,5 +569,10 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
     @Required
     public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
         m_sipxReplicationContext = sipxReplicationContext;
+    }
+
+    @Required
+    public void setServiceConfigurator(ServiceConfigurator serviceConfigurator) {
+        m_serviceConfigurator = serviceConfigurator;
     }
 }

@@ -17,6 +17,7 @@ import junit.framework.TestCase;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.SpecialAutoAttendantMode;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
+import org.sipfoundry.sipxconfig.service.SipxIvrService;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import static org.easymock.EasyMock.createNiceMock;
@@ -144,6 +145,11 @@ public class DialPlanContextImplTest extends TestCase {
         public DialPlanActivationManager getDialPlanActivationManager() {
             DialPlanActivationManager dpam = createNiceMock(DialPlanActivationManager.class);
             return dpam;
+        }
+
+        @Override
+        public SipxIvrService getSipxIvrService() {
+            return null;
         }
     }
 }
