@@ -7,28 +7,26 @@
   </div>
   <div id=login-content">      
 	  <div id="login-sidebar">
-	  	<div id="login-ad"/>
+	  	<div id="login-ad"></div>
 	  </div>
-	  <div id="login-form">
-	  <span jwcid="@common/ErrorMsg"></span>
-	  <p id="login-description"><span jwcid="@Insert" raw="true" value="message:login.description"/></p>
-	    <form jwcid="form">
-	        <fieldset id="loginForm">
-	        <legend><span key="loginHeader">Login</span></legend>
-	      <p><span key="login.prompt">Please login</span></p>
-	      <table width="400" border="0">
-	        <tr jwcid="panelUserName" for="j_username">
-	          <input jwcid="userName" id="j_username" type="text"/>
-	        </tr>        
-	      <tr jwcid="panelPassword" for="j_password">
-	          <input jwcid="loginPassword" type="password" id="j_password"/>
-	      </tr>
-	      </table>
-	      </fieldset>
-	        <ul class="form-actions">
-	          <li><input jwcid="@Any" type="submit" value="message:button.submit" id="login:submit"/></li>
-	        </ul>  
-	    </form>
+	  <div id="login-errors">
+	      <span jwcid="@common/ErrorMsg"></span>
+	  </div>
+	  <div id="login-form">	  
+	      <div id="login-title"><span key="login.title">Welcome to sipXecs</span></div>
+	      <form jwcid="form">
+	          <fieldset id="loginForm">
+	          <span key="login.prompt">Please login</span><br/><br/>
+		          <label class="settingLabel" for="j_username">User ID:</label><br/>
+		          <input jwcid="userName" id="j_username" type="text"/><br/>
+		          <label class="settingLabel" for="j_password">PIN:</label><br/>
+		          <input jwcid="loginPassword" type="password" id="j_password"/>
+	          </fieldset>
+		      <ul class="form-actions">
+		          <li><input jwcid="@Any" type="submit" value="message:button.submit" id="login:submit"
+		                     onclick="this.disabled = true;"/></li>
+		      </ul>  
+	      </form>
 	  </div>
 	</div>
 </body>
