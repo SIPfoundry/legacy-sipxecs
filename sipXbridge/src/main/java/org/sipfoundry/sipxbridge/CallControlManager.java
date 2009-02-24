@@ -542,13 +542,11 @@ class CallControlManager implements SymmitronResetHandler {
             try {
                 Response response = ProtocolObjects.messageFactory.createResponse(
                         Response.SERVER_INTERNAL_ERROR, request);
-                UserAgentHeader uah = SipUtilities.createUserAgentHeader();
                 if (logger.isDebugEnabled()) {
                     response.setReasonPhrase(ex.getStackTrace()[0].getFileName() + ":"
                             + ex.getStackTrace()[0].getLineNumber());
                 }
-                response.setHeader(uah);
-
+               
                 if (st != null) {
                     st.sendResponse(response);
                 } else {
@@ -998,7 +996,9 @@ class CallControlManager implements SymmitronResetHandler {
                 }
             }
 
-            if (tad.getOperation() == Operation.CANCEL_REPLACED_INVITE) {
+            if (tad.getOperation() == Operation.CANCEL_REPLACED_INVITE || 
+                    tad.getOperation() == Operation.CANCEL_MOH_INVITE || 
+                    response.getStatusCode() == Response.REQUEST_TERMINATED) {
                 logger.debug("ingoring 4xx response " + tad.getOperation());
             } else if (tad.getOperation() != Operation.REFER_INVITE_TO_SIPX_PROXY) {
                 if (serverTransaction != null) {
@@ -2320,8 +2320,6 @@ class CallControlManager implements SymmitronResetHandler {
             notifyRequest.setContent(content, contentTypeHeader);
             SipUtilities.addLanAllowHeaders(notifyRequest);
             SipProvider referProvider = ((SIPDialog) referDialog).getSipProvider();
-            UserAgentHeader uah = SipUtilities.createUserAgentHeader();
-            notifyRequest.setHeader(uah);
             ClientTransaction ctx = referProvider.getNewClientTransaction(notifyRequest);
 
             referDialog.sendRequest(ctx);

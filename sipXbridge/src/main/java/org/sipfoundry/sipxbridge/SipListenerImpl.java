@@ -286,11 +286,9 @@ public class SipListenerImpl implements SipListener {
             try {
                 Response response = ProtocolObjects.messageFactory.createResponse(
                         Response.METHOD_NOT_ALLOWED, request);
-                response.setHeader(SipUtilities.createUserAgentHeader());
                 ServerTransaction st = requestEvent.getServerTransaction();
                 if (st == null) {
                     st = provider.getNewServerTransaction(request);
-
                 }
                 st.sendResponse(response);
             } catch (TransactionAlreadyExistsException ex) {

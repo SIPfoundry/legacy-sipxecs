@@ -7,6 +7,7 @@
 package org.sipfoundry.sipxbridge;
 
 import gov.nist.javax.sip.SipStackImpl;
+import gov.nist.javax.sip.header.ViaList;
 import gov.nist.javax.sip.message.MessageFactoryImpl;
 
 import java.util.Properties;
@@ -16,6 +17,7 @@ import javax.sip.SipFactory;
 import javax.sip.SipStack;
 import javax.sip.address.AddressFactory;
 import javax.sip.header.HeaderFactory;
+import javax.sip.header.ServerHeader;
 import javax.sip.header.UserAgentHeader;
 import javax.sip.message.MessageFactory;
 
@@ -45,7 +47,9 @@ public class ProtocolObjects {
             messageFactory = sipFactory.createMessageFactory();
 
             UserAgentHeader userAgentHeader = SipUtilities.createUserAgentHeader();
-            ((MessageFactoryImpl) messageFactory).setCommonUserAgentHeader(userAgentHeader);
+            ((MessageFactoryImpl) messageFactory).setDefaultUserAgentHeader(userAgentHeader);
+            ServerHeader serverHeader = SipUtilities.createServerHeader();
+            ((MessageFactoryImpl) messageFactory).setDefaultServerHeader(serverHeader);
             addressFactory = sipFactory.createAddressFactory();
             Properties stackProperties = new Properties();
             stackProperties.setProperty("javax.sip.STACK_NAME", "org.sipfoundry.sipXBridge");
@@ -67,25 +71,20 @@ public class ProtocolObjects {
                  */
                 stackProperties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", Level.DEBUG
                         .toString());
-
             }
-
-            /*
-             * Up to 16 active threads processing UDP messages.
-             */
             stackProperties.setProperty("gov.nist.javax.sip.THREAD_POOL_SIZE", "1");
             stackProperties.setProperty("gov.nist.javax.sip.REENTRANT_LISTENER", "true");
             stackProperties.setProperty("gov.nist.javax.sip.LOG_MESSAGE_CONTENT", "true");
             stackProperties.setProperty("gov.nist.javax.sip.LOG_FACTORY",
                     SipFoundryLogRecordFactory.class.getName());
-
             stackProperties.setProperty("javax.sip.ROUTER_PATH",
-                    org.sipfoundry.commons.siprouter.ProxyRouter.class.getName());
-
+                    org.sipfoundry.commons.siprouter.ProxyRouter.class.getName());          
+            /*
+             * Break up the via encoding.
+             */
+            ViaList.setPrettyEncode(true);
             sipStack = ProtocolObjects.sipFactory.createSipStack(stackProperties);
-
             ((SipStackImpl) sipStack).addLogAppender(Gateway.logAppender);
-
         } catch (Exception ex) {
             ex.printStackTrace();
             logger.error("Error loading factories ", ex);

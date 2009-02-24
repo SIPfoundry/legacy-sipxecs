@@ -52,6 +52,7 @@ import javax.sip.header.OrganizationHeader;
 import javax.sip.header.ReferToHeader;
 import javax.sip.header.ReplyToHeader;
 import javax.sip.header.RouteHeader;
+import javax.sip.header.ServerHeader;
 import javax.sip.header.SubjectHeader;
 import javax.sip.header.SupportedHeader;
 import javax.sip.header.ToHeader;
@@ -74,9 +75,12 @@ class SipUtilities {
 
 	private static Logger logger = Logger.getLogger(SipUtilities.class);
 	private static UserAgentHeader userAgent;
+	private static ServerHeader serverHeader;
 
 	/**
-	 * Create a UA header
+	 * Create the UA header.
+	 * 
+	 * @return
 	 */
 	static UserAgentHeader createUserAgentHeader() {
 		if (userAgent != null) {
@@ -100,6 +104,28 @@ class SipUtilities {
 			}
 		}
 	}
+	
+	static ServerHeader createServerHeader() {
+	        if (serverHeader != null) {
+	            return serverHeader;
+	        } else {
+	            try {
+	                Properties configProperties = new Properties();
+
+	                configProperties.load(SipUtilities.class.getClassLoader()
+	                        .getResourceAsStream("config.properties"));
+	                serverHeader = (ServerHeader) ProtocolObjects.headerFactory
+	                        .createHeader(ServerHeader.NAME, String.format(
+	                                "sipXecs/%s sipXecs/sipxbridge (Linux)",
+	                                configProperties.get("version")));
+
+	                return serverHeader;
+	            } catch (Exception ex) {
+	                logger.error("Unexpected exception", ex);
+	                throw new SipXbridgeException("Unexpected exception ", ex);
+	            }
+	        }
+	    }
 
 	static MediaDescription getMediaDescription(
 			SessionDescription sessionDescription) {
@@ -351,8 +377,7 @@ class SipUtilities {
 		Request request = ProtocolObjects.messageFactory.createRequest(
 				requestUri, Request.REGISTER, callid, cseqHeader, fromHeader,
 				toHeader, list, maxForwards);
-		request.addHeader(createUserAgentHeader());
-
+		
 		SipUtilities.addWanAllowHeaders(request);
 
 		if (itspAccount.getOutboundRegistrar() != null
@@ -453,8 +478,7 @@ class SipUtilities {
 			Request request = ProtocolObjects.messageFactory.createRequest(
 					requestUri, Request.OPTIONS, callid, cseqHeader,
 					fromHeader, toHeader, list, maxForwards);
-			request.addHeader(createUserAgentHeader());
-
+			
 			return request;
 		} catch (Exception ex) {
 			throw new SipXbridgeException("Error creating OPTIONS request", ex);
@@ -672,8 +696,8 @@ class SipUtilities {
 			RouteHeader routeHeader = ProtocolObjects.headerFactory
 					.createRouteHeader(routeAddress);
 			request.addHeader(routeHeader);
-			if (!itspAccount.stripPrivateHeaders()) {
-				request.setHeader(createUserAgentHeader());
+			if (itspAccount.stripPrivateHeaders()) {
+			    SipUtilities.stripPrivateHeaders(request);
 			}
 			return request;
 
@@ -1037,10 +1061,7 @@ class SipUtilities {
 							.stripPrivateHeaders()
 					&& provider != Gateway.getLanProvider()) {
 				SipUtilities.stripPrivateHeaders(response);
-			} else {
-				/* Otherwise, set a user agent header */
-				response.setHeader(createUserAgentHeader());
-			}
+			} 
 			return response;
 
 		} catch (ParseException ex) {
@@ -1499,5 +1520,7 @@ class SipUtilities {
 		}
 		return spiral;
 	}
+
+   
 
 }

@@ -534,9 +534,7 @@ public class BackToBackUserAgent {
                 newRequest.addHeader(header);
             }
         }
-        UserAgentHeader uah = SipUtilities.createUserAgentHeader();
-        newRequest.setHeader(uah);
-
+       
         /*
          * Remove any header parameters - we have already dealt with them above.
          */
