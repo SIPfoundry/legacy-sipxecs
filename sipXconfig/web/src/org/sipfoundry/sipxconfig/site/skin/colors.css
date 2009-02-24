@@ -104,8 +104,7 @@ li.tab .active a:visited
 #navigation
 {
 	background: url(/sipxconfig/skin/nav-background.png) top left repeat-x #595959;
-	border-top-color: #84A9B5;
-	border-bottom-color: #000000;
+	border-color: #000000;
 }
 
 #navigation li
