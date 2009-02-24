@@ -67,6 +67,15 @@ private:
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+
+// Initial expiration parameters.
+#define INITIAL_MIN_EXPIRATION 32
+#define INITIAL_MAX_EXPIRATION 86400
+#define INITIAL_DEFAULT_EXPIRATION 3600
+// Limit expiration parameters.
+#define LIMIT_MIN_EXPIRATION 32
+#define LIMIT_MAX_EXPIRATION 86400
+
 // STATIC VARIABLE INITIALIZATIONS
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -125,9 +134,9 @@ SipSubscriptionMgr::SipSubscriptionMgr()
 : mSubscriptionMgrMutex(OsMutex::Q_FIFO)
 {
     mEstablishedDialogCount = 0;
-    mMinExpiration = 32;
-    mDefaultExpiration = 3600;
-    mMaxExpiration = 86400;
+    mMinExpiration = INITIAL_MIN_EXPIRATION;
+    mDefaultExpiration = INITIAL_DEFAULT_EXPIRATION;
+    mMaxExpiration = INITIAL_MAX_EXPIRATION;
 }
 
 
@@ -1007,11 +1016,60 @@ void SipSubscriptionMgr::updateVersion(SipMessage& notifyRequest,
    // Does nothing.
 }
 
+// Set the minimum, default, and maximum subscription times that will be granted.
+UtlBoolean SipSubscriptionMgr::setSubscriptionTimes(int minExpiration,
+                                                    int defaultExpiration,
+                                                    int maxExpiration)
+{
+   UtlBoolean ret = FALSE;
+
+   // Check that the arguments are properly ordered.
+   if (!(minExpiration <= defaultExpiration &&
+         defaultExpiration <= maxExpiration))
+   {
+        OsSysLog::add(FAC_SIP, PRI_WARNING,
+                      "Arguments to SipSubscriptionMgr::setSubscriptionTimes not in order: minExpiration = %d, defaultExpiration = %d, maxExpiration = %d",
+                      minExpiration, defaultExpiration, maxExpiration);
+   }
+   // Check that the arguments are inside the allowed bounds.
+   else if (!(LIMIT_MIN_EXPIRATION <= minExpiration &&
+              maxExpiration <= LIMIT_MAX_EXPIRATION))
+   {
+        OsSysLog::add(FAC_SIP, PRI_WARNING,
+                      "Arguments to SipSubscriptionMgr::setSubscriptionTimes not within allowed range: minExpiration = %d, maxExpiration = %d, allowed range = [%d, %d]",
+                      minExpiration, maxExpiration,
+                      LIMIT_MIN_EXPIRATION, LIMIT_MAX_EXPIRATION);
+   }
+   // Acceptable arguments.
+   else
+   {      
+      mMinExpiration = minExpiration;
+      mDefaultExpiration = defaultExpiration;
+      mMaxExpiration = maxExpiration;
+      ret = TRUE;
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipSubscriptionMgr::setSubscriptionTimes set mMinExpiration = %d, mDefaultExpiration = %d, mMaxExpiration = %d",
+                    mMinExpiration, mDefaultExpiration, mMaxExpiration);
+   }    
+
+   return ret;
+}
+
 /* ============================ ACCESSORS ================================= */
 
 SipDialogMgr* SipSubscriptionMgr::getDialogMgr()
 {
     return &mDialogMgr;
+}
+
+// Get the minimum, default, and maximum subscription times that will be granted.
+void SipSubscriptionMgr::getSubscriptionTimes(int& minExpiration,
+                                              int& defaultExpiration,
+                                              int& maxExpiration)
+{
+   minExpiration = mMinExpiration;
+   defaultExpiration = mDefaultExpiration;
+   maxExpiration = mMaxExpiration;
 }
 
 /* ============================ INQUIRY =================================== */

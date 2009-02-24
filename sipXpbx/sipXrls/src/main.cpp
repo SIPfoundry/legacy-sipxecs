@@ -62,6 +62,9 @@
 #define CONFIG_SETTING_REFRESH_INTERVAL "SIP_RLS_REFRESH_INTERVAL"
 #define CONFIG_SETTING_RESUBSCRIBE_INTERVAL "SIP_RLS_RESUBSCRIBE_INTERVAL"
 #define CONFIG_SETTING_MIN_RESUBSCRIBE_INTERVAL "SIP_RLS_MIN_RESUBSCRIBE_INTERVAL"
+#define CONFIG_SETTING_SERVER_MIN_EXPIRATION "SIP_RLS_SERVER_MIN_EXPIRATION"
+#define CONFIG_SETTING_SERVER_DEFAULT_EXPIRATION "SIP_RLS_SERVER_DEFAULT_EXPIRATION"
+#define CONFIG_SETTING_SERVER_MAX_EXPIRATION "SIP_RLS_SERVER_MAX_EXPIRATION"
 
 #define LOG_FACILITY                  FAC_RLS
 
@@ -73,6 +76,9 @@
 #define RLS_DEFAULT_RESUBSCRIBE_INTERVAL (60 * 60) // Default subscription resubscribe interval.
 #define RLS_DEFAULT_MIN_RESUBSCRIBE_INTERVAL (40 * 60) // Default minimum subscription resubscribe interval.
 #define RLS_PUBLISH_DELAY             100        // Delay time (in milliseconds) before publishing RLMI.
+#define RLS_DEFAULT_SERVER_MIN_EXPIRATION 32     // Default minimum expiration to be given by subscribe server
+#define RLS_DEFAULT_SERVER_DEFAULT_EXPIRATION 3600 // Default default expiration to be given by subscribe server
+#define RLS_DEFAULT_SERVER_MAX_EXPIRATION 86400   // Default maximum expiration to be given by subscribe server
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -299,7 +305,7 @@ SipLineMgr* addCredentials (UtlString domain, UtlString realm)
       {
          OsSysLog::add(LOG_FACILITY, PRI_CRIT,
                        "No credential found for '%s' in realm '%s'"
-                       ,identity.toString().data(), domain.data(), realm.data()
+                       ,identity.toString().data(), realm.data()
                        );
       }
       
@@ -455,6 +461,24 @@ int main(int argc, char* argv[])
        minResubscribeInterval = RLS_DEFAULT_MIN_RESUBSCRIBE_INTERVAL;
    }
 
+   int serverMinExpiration;
+   if (configDb.get(CONFIG_SETTING_SERVER_MIN_EXPIRATION, serverMinExpiration) != OS_SUCCESS)
+   {
+       serverMinExpiration = RLS_DEFAULT_SERVER_MIN_EXPIRATION;
+   }
+
+   int serverDefaultExpiration;
+   if (configDb.get(CONFIG_SETTING_SERVER_DEFAULT_EXPIRATION, serverDefaultExpiration) != OS_SUCCESS)
+   {
+       serverDefaultExpiration = RLS_DEFAULT_SERVER_DEFAULT_EXPIRATION;
+   }
+
+   int serverMaxExpiration;
+   if (configDb.get(CONFIG_SETTING_SERVER_MAX_EXPIRATION, serverMaxExpiration) != OS_SUCCESS)
+   {
+       serverMaxExpiration = RLS_DEFAULT_SERVER_MAX_EXPIRATION;
+   }
+
    // Wait to allow our targets time to come up.
    // (Wait is determined by CONFIG_SETTING_STARTUP_WAIT, default 2 minutes.)
    OsSysLog::add(LOG_FACILITY, PRI_INFO,
@@ -485,7 +509,10 @@ int main(int argc, char* argv[])
                              &resourceListFile,
                              refreshInterval, resubscribeInterval, minResubscribeInterval,
                              RLS_PUBLISH_DELAY,
-                             20, 20, 20, 20);
+                             20, 20, 20, 20,
+                             serverMinExpiration,
+                             serverDefaultExpiration,
+                             serverMaxExpiration);
       rls.start();
 
       // Loop forever until signaled to shut down

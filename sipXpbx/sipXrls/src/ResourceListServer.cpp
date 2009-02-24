@@ -52,8 +52,11 @@ ResourceListServer::ResourceListServer(const UtlString& domainName,
                                        int maxContInRegSubsc,
                                        int maxResInstInCont,
                                        int maxDialogsInResInst,
+                                       int serverMinExpiration,
+                                       int serverDefaultExpiration,
+                                       int serverMaxExpiration,
                                        const UtlString&  subscriptionDbName,
-                                       const UtlString&  credentialDbName ) : 
+                                       const UtlString&  credentialDbName) :
    mDomainName(domainName),
    mEventType(eventType),
    mContentType(contentType),
@@ -168,6 +171,18 @@ ResourceListServer::ResourceListServer(const UtlString& domainName,
    
    // Start the ResourceListFileReader by giving it the file name.
    mResourceListFileReader.setFileName(resourceListFile);
+
+   // Set the subscribe server grant times.
+   if (!mSubscriptionMgr.setSubscriptionTimes(serverMinExpiration,
+                                              serverDefaultExpiration,
+                                              serverMaxExpiration))
+   {
+      OsSysLog::add(FAC_RLS, PRI_ERR,
+                    "ResourceListServer given unacceptable server subscription times: min = %d, default = %d, max = %d.  Using the default subscription times.",
+                    serverMinExpiration,
+                    serverDefaultExpiration,
+                    serverMaxExpiration);
+   }
 }
 
 // Destructor

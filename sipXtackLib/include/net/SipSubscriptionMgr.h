@@ -153,6 +153,16 @@ public:
    virtual void updateVersion(SipMessage& notifyRequest,
                               int version);
 
+    //! Set the minimum, default, and maximum subscription times that will be granted.
+    UtlBoolean setSubscriptionTimes(int minExpiration,
+                                    int mdefaultExpiration,
+                                    int maxExpiration);
+    /**< Sets the minimum, default, and maximum subscription times
+     *   that will be granted by this SipSubscribeServer.
+     *   Returns TRUE if the arguments are acceptable, returns FALSE
+     *   (and makes no change) if the times are not acceptable.
+     */
+
 /* ============================ ACCESSORS ================================= */
 
 
@@ -163,6 +173,11 @@ public:
      *  knowing when the dialog manager will go way.
      */
     SipDialogMgr* getDialogMgr();
+
+    //! Get the minimum, default, and maximum subscription times that will be granted.
+    void getSubscriptionTimes(int& minExpiration,
+                              int& defaultExpiration,
+                              int& maxExpiration);
 
 /* ============================ INQUIRY =================================== */
 

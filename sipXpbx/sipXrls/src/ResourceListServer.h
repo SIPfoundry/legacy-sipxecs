@@ -75,11 +75,11 @@ class ResourceListServer : public UtlContainableAtomic
                       const UtlString& bindIp,
                       /// The file describing the resource lists.
                       UtlString* resourceListFile,
-                      /// The refresh interval.
+                      /// Refresh interval for reinitializing connection to resource URIs, in seconds.
                       int refreshInterval,
-                      /// The resubscribe interval.
+                      /// The maximum resubscribe interval to request when making subscriptions.
                       int resubscribeInterval,
-                      /// The minimum value for resubcribe interval
+                      /// The minimum resubscribe interval.
                       int minResubscribeInterval,
                       /// Publishing delay, in msec.
                       int publishingDelay,
@@ -91,6 +91,12 @@ class ResourceListServer : public UtlContainableAtomic
                       int maxResInstInCont,
                       /// The maximum number of dialogs per resource instance.
                       int maxDialogsInResInst,
+                      /// Minimum expiration to grant incoming SUBSCRIBEs.
+                      int serverMinExpiration,
+                      /// Default expiration to grant incoming SUBSCRIBEs.
+                      int serverDefaultExpiration,
+                      /// Maximum expiration to grant incoming SUBSCRIBEs.
+                      int serverMaxExpiration,
                       /// Name of the subscription DB to use (for testing purposes)
                       const UtlString&  subscriptionDbName = "subscription",
                       /// Name of the credentials DB to use (for testing purposes)
@@ -226,9 +232,9 @@ class ResourceListServer : public UtlContainableAtomic
    UtlString mClientFromURI;
    //! Contact URI for mClientSipUserAgent.
    UtlString mClientContactURI;
-   //! Refresh interval for reinitializing connection to resource URIs, in seconds..
+   //! Refresh interval for reinitializing connection to resource URIs, in seconds.
    int mRefreshInterval;
-   //! Resubscription interval for subscriptions, in seconds.
+   //! Max resubscription interval to request whem making subscriptions, in seconds.
    int mResubscribeInterval;
    //! Minimum resubscription interval for subscriptions, in seconds.
    int mMinResubscribeInterval;
@@ -408,7 +414,8 @@ inline int ResourceListServer::getRefreshInterval() const
    return mRefreshInterval;
 }
 
-// Get the resubscribe interval.
+// Get a resubscribe interval to request when making a subscription.
+// Spread between mMinResubscribeInterval and mResubscribeInterval.
 inline int ResourceListServer::getResubscribeInterval() const
 {
    return ( ( rand() % (mResubscribeInterval - mMinResubscribeInterval) ) + mMinResubscribeInterval);

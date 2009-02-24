@@ -125,6 +125,7 @@ public:
                                        20,   // The maximum number of contacts per reg subscription.
                                        20,   // The maximum number of resource instances per contact
                                        20,    // The maximum number of dialogs per resource instance
+                                       32, 3600, 86400, // Subscribe server expiration parameters
                                        subscriptionDbName,
                                        credentialDbName );
 
