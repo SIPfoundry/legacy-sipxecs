@@ -64,8 +64,9 @@
 
 
   <bean id="serviceConfiguratorImpl" class="org.sipfoundry.sipxconfig.service.ServiceConfiguratorImpl">
-    <!-- eager version of sipx replication injected here -->
+    <!-- eager versions of sipx replication and dial plan activation manager injected here -->
     <property name="sipxReplicationContext" ref="sipxReplicationContextDao" />
+    <property name="dialPlanActivationManager" ref="eagerDialPlanActivationManager"/>
     <property name="configVersionManager" ref="configVersionManager" />
     <property name="sipxProcessContext" ref="sipxProcessContext" />
   </bean>

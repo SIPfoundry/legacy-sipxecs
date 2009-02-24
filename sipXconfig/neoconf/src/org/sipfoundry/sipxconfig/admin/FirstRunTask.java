@@ -14,7 +14,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.common.AlarmContext;
@@ -38,7 +37,6 @@ public class FirstRunTask implements ApplicationListener {
     private CoreContext m_coreContext;
     private AdminContext m_adminContext;
     private DomainManager m_domainManager;
-    private DialPlanActivationManager m_dialPlanActivationManager;
     private DialPlanContext m_dialPlanContext;
     private SipxServiceManager m_sipxServiceManager;
     private ServiceConfigurator m_serviceConfigurator;
@@ -67,8 +65,9 @@ public class FirstRunTask implements ApplicationListener {
         // this is moved from replication trigger will need something better here...
         m_parkOrbitContext.activateParkOrbits();
         m_speedDialManager.activateResourceList();
-        m_dialPlanActivationManager.replicateDialPlan(false);
         m_alarmContext.replicateAlarmServer();
+
+        m_serviceConfigurator.replicateDialPlans();
 
         enforceRoles();
         generateAllProfiles();
@@ -141,10 +140,6 @@ public class FirstRunTask implements ApplicationListener {
     @Required
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
-    }
-
-    public void setDialPlanActivationManager(DialPlanActivationManager dialPlanActivationManager) {
-        m_dialPlanActivationManager = dialPlanActivationManager;
     }
 
     @Required

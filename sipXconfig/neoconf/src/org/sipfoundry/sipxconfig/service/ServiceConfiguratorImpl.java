@@ -18,6 +18,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationStatus;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.springframework.beans.factory.annotation.Required;
 
 import static org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command.START;
@@ -29,6 +30,8 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
     private SipxProcessContext m_sipxProcessContext;
 
     private ConfigVersionManager m_configVersionManager;
+
+    private DialPlanActivationManager m_dialPlanActivationManager;
 
     public void startService(Location location, SipxService service) {
         replicateServiceConfig(location, service);
@@ -74,6 +77,10 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
         m_sipxProcessContext.manageServices(location, locationStatus.getToBeStarted(), START);
     }
 
+    public void replicateDialPlans() {
+        m_dialPlanActivationManager.replicateDialPlan(false);
+    }
+
     @Required
     public void setSipxReplicationContext(SipxReplicationContext replicationContext) {
         m_replicationContext = replicationContext;
@@ -87,5 +94,10 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
     @Required
     public void setConfigVersionManager(ConfigVersionManager configVersionManager) {
         m_configVersionManager = configVersionManager;
+    }
+
+    @Required
+    public void setDialPlanActivationManager(DialPlanActivationManager dialPlanActivationManager) {
+        m_dialPlanActivationManager = dialPlanActivationManager;
     }
 }

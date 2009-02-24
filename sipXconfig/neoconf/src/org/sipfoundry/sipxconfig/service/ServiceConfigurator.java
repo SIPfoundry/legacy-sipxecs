@@ -37,4 +37,14 @@ public interface ServiceConfigurator {
      * @param location server on which to start/stop services
      */
     public void enforceRole(Location location);
+
+    /**
+     * Replicates dial plans eagerly.
+     *
+     * This is a temporary hack: at some point all files that comprise dial plan should be
+     * declared as configuration files that belong to their owners and get replciated before
+     * respective services are started.
+     */
+    @Deprecated
+    public void replicateDialPlans();
 }
