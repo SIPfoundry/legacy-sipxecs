@@ -11,13 +11,18 @@ package org.sipfoundry.sipxconfig.site.phonebook;
 
 import java.util.Collection;
 
+import org.apache.tapestry.IAsset;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 
 public abstract class ManagePhonebooks extends BasePage {
+    
+    @Asset("/images/phonebook.png")
+    public abstract IAsset getPhonebookIcon();
     
     public abstract SelectMap getSelections();
     

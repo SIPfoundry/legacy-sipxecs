@@ -1,5 +1,11 @@
 <span jwcid="$content$">
 	<fieldset>
-		<table jwcid="userTable" id="user:list"/>
+		<table jwcid="userTable" id="user:list">
+		  <span jwcid="userNameColumnValue@Block">
+              <img jwcid="@Image" image="ognl:getUserIcon(currentUser)" align="absmiddle" 
+                   title="ognl:getUserIconTitle(currentUser)" />  
+		      <span jwcid="@Insert" value="ognl:currentUser.userName" />
+		  </span>
+		</table>
 	</fieldset>        
 </span>
