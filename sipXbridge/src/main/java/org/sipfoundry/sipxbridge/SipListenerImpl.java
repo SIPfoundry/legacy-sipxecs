@@ -461,9 +461,8 @@ public class SipListenerImpl implements SipListener {
                 && dialog.getState() == DialogState.CONFIRMED
                 && ((ToHeader) request.getHeader(ToHeader.NAME)).getParameter("tag") == null) {
             TransactionContext txContext = TransactionContext.get(transaction);
-            if (txContext != null && txContext.getOperation() == Operation.SEND_INVITE_TO_ITSP
-                    || txContext.getOperation() == Operation.SEND_INVITE_TO_ITSP) {
-
+            if (txContext != null && (txContext.getOperation() == Operation.SEND_INVITE_TO_ITSP
+                    || txContext.getOperation() == Operation.SEND_INVITE_TO_ITSP)) {
                 Gateway.incrementCallCount();
             }
         }

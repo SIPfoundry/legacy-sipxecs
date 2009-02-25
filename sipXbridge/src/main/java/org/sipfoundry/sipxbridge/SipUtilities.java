@@ -104,28 +104,28 @@ class SipUtilities {
 			}
 		}
 	}
-	
+
 	static ServerHeader createServerHeader() {
-	        if (serverHeader != null) {
-	            return serverHeader;
-	        } else {
-	            try {
-	                Properties configProperties = new Properties();
+		if (serverHeader != null) {
+			return serverHeader;
+		} else {
+			try {
+				Properties configProperties = new Properties();
 
-	                configProperties.load(SipUtilities.class.getClassLoader()
-	                        .getResourceAsStream("config.properties"));
-	                serverHeader = (ServerHeader) ProtocolObjects.headerFactory
-	                        .createHeader(ServerHeader.NAME, String.format(
-	                                "sipXecs/%s sipXecs/sipxbridge (Linux)",
-	                                configProperties.get("version")));
+				configProperties.load(SipUtilities.class.getClassLoader()
+						.getResourceAsStream("config.properties"));
+				serverHeader = (ServerHeader) ProtocolObjects.headerFactory
+						.createHeader(ServerHeader.NAME, String.format(
+								"sipXecs/%s sipXecs/sipxbridge (Linux)",
+								configProperties.get("version")));
 
-	                return serverHeader;
-	            } catch (Exception ex) {
-	                logger.error("Unexpected exception", ex);
-	                throw new SipXbridgeException("Unexpected exception ", ex);
-	            }
-	        }
-	    }
+				return serverHeader;
+			} catch (Exception ex) {
+				logger.error("Unexpected exception", ex);
+				throw new SipXbridgeException("Unexpected exception ", ex);
+			}
+		}
+	}
 
 	static MediaDescription getMediaDescription(
 			SessionDescription sessionDescription) {
@@ -377,7 +377,7 @@ class SipUtilities {
 		Request request = ProtocolObjects.messageFactory.createRequest(
 				requestUri, Request.REGISTER, callid, cseqHeader, fromHeader,
 				toHeader, list, maxForwards);
-		
+
 		SipUtilities.addWanAllowHeaders(request);
 
 		if (itspAccount.getOutboundRegistrar() != null
@@ -478,7 +478,7 @@ class SipUtilities {
 			Request request = ProtocolObjects.messageFactory.createRequest(
 					requestUri, Request.OPTIONS, callid, cseqHeader,
 					fromHeader, toHeader, list, maxForwards);
-			
+
 			return request;
 		} catch (Exception ex) {
 			throw new SipXbridgeException("Error creating OPTIONS request", ex);
@@ -697,7 +697,7 @@ class SipUtilities {
 					.createRouteHeader(routeAddress);
 			request.addHeader(routeHeader);
 			if (itspAccount.stripPrivateHeaders()) {
-			    SipUtilities.stripPrivateHeaders(request);
+				SipUtilities.stripPrivateHeaders(request);
 			}
 			return request;
 
@@ -780,73 +780,69 @@ class SipUtilities {
 	}
 
 	/**
-	 * Cleans the Session description to include only the specified codec.This
-	 * processing can be applied on the outbound INVITE to make sure that call
-	 * transfers will work in the absence of re-invites. It removes all the SRTP
-	 * related fields as well.
+	 * Cleans the Session description to include only the specified codec set.
+	 * It removes all the SRTP related fields as well.
 	 * 
 	 * @param sessionDescription
-	 * @param codec
+	 *            -- the session description to clean ( modify )
+	 * @param codecs
+	 *            -- the codec set to restrict to.
 	 * @return
 	 */
 	static SessionDescription cleanSessionDescription(
-			SessionDescription sessionDescription, String codec) {
+			SessionDescription sessionDescription, HashSet<Integer> codecs) {
 		try {
 
-			if (codec == null) {
+			if (codecs.isEmpty()) {
 				return sessionDescription;
 			}
-			/*
-			 * No codec specified -- return the incoming session description.
-			 */
 
 			Vector mediaDescriptions = sessionDescription
 					.getMediaDescriptions(true);
 
-			int keeper = codec == null ? -1 : RtpPayloadTypes
-					.getPayloadType(codec);
-
+			
 			for (Iterator it = mediaDescriptions.iterator(); it.hasNext();) {
 
 				MediaDescription mediaDescription = (MediaDescription) it
 						.next();
 				Vector formats = mediaDescription.getMedia().getMediaFormats(
 						true);
-				if (keeper != -1) {
-					for (Iterator it1 = formats.iterator(); it1.hasNext();) {
-						Object format = it1.next();
-						int fmt = new Integer(format.toString());
-						if (fmt != keeper && RtpPayloadTypes.isPayload(fmt)) {
-							it1.remove();
-						}
 
-					}
+				
+				/*
+				 * We are generating a response. Select only one codec for the response.
+				 */
+				for (Iterator it1 = formats.iterator(); it1.hasNext();) {
+					Object format = it1.next();
+					Integer fmt = new Integer(format.toString());
+					if (!codecs.contains(fmt)) {
+						it1.remove();
+					} 
 				}
-				Vector attributes = mediaDescription.getAttributes(true);
-
+				
+				Vector attributes = sessionDescription.getAttributes(true);
 				for (Iterator it1 = attributes.iterator(); it1.hasNext();) {
 					Attribute attr = (Attribute) it1.next();
 					if (logger.isDebugEnabled()) {
 						logger.debug("attrName = " + attr.getName());
 					}
-					if (attr.getName().equalsIgnoreCase("rtpmap")
-							&& codec != null) {
+				
+					if (attr.getName().equalsIgnoreCase("rtpmap")) {
 						String attribute = attr.getValue();
 						String[] attrs = attribute.split(" ");
-						String[] pt = attrs[1].split("/");
-						if (logger.isDebugEnabled())
-							logger.debug("pt == " + pt[0]);
-						if (RtpPayloadTypes.isPayload(pt[0])
-								&& !pt[0].equalsIgnoreCase(codec)) {
+						int rtpMapCodec  = Integer.parseInt(attrs[0]);
+						if (!codecs.contains(rtpMapCodec) ){
 							it1.remove();
 						}
 					} else if (attr.getName().equalsIgnoreCase("crypto")) {
 						it1.remove();
+						logger.debug("Not adding crypto");
 					} else if (attr.getName().equalsIgnoreCase("encryption")) {
 						it1.remove();
+						logger.debug("Not adding encryption");
 					}
 				}
-
+				
 			}
 
 			return sessionDescription;
@@ -1061,7 +1057,7 @@ class SipUtilities {
 							.stripPrivateHeaders()
 					&& provider != Gateway.getLanProvider()) {
 				SipUtilities.stripPrivateHeaders(response);
-			} 
+			}
 			return response;
 
 		} catch (ParseException ex) {
@@ -1520,7 +1516,5 @@ class SipUtilities {
 		}
 		return spiral;
 	}
-
-   
 
 }
