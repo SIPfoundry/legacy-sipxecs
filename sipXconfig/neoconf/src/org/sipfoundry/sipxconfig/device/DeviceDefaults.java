@@ -12,6 +12,9 @@ package org.sipfoundry.sipxconfig.device;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyInfo;
 import org.sipfoundry.sipxconfig.admin.dialplan.InternalRule;
@@ -29,16 +32,13 @@ import org.springframework.beans.factory.annotation.Required;
  * Sets up phone and line objects with system defaults.
  */
 public class DeviceDefaults {
+    private static final Log LOG = LogFactory.getLog(DeviceDefaults.class);
 
     private static final String DEFAULT_SIP_PORT = "5060";
 
     private String m_tftpServer;
 
     private String m_profileRootUrl;
-
-    private String m_fullyQualifiedDomainName;
-
-    private String m_authorizationRealm;
 
     private DialPlanContext m_dialPlanContext;
 
@@ -57,6 +57,8 @@ public class DeviceDefaults {
     private String m_logDirectory;
 
     private SipxServiceManager m_sipxServiceManager;
+    
+    private LocationsManager m_locationsManager;
 
     private String m_mohUser;
 
@@ -165,11 +167,14 @@ public class DeviceDefaults {
     }
 
     public String getAuthorizationRealm() {
-        return m_authorizationRealm;
-    }
-
-    public void setAuthorizationRealm(String authorizationRealm) {
-        m_authorizationRealm = authorizationRealm;
+        String authorizationRealm = null;
+        try {
+            authorizationRealm = m_domainManager.getDomain().getSipRealm();
+        } catch (DomainManager.DomainNotInitializedException e) {
+            LOG.warn("Unable to get authorization realm; domain not initiazlized", e);
+        }
+        
+        return authorizationRealm;
     }
 
     public String getVoiceMail() {
@@ -206,13 +211,13 @@ public class DeviceDefaults {
     static boolean defaultSipPort(String port) {
         return StringUtils.isBlank(port) || DEFAULT_SIP_PORT.equals(port);
     }
-
-    public String getFullyQualifiedDomainName() {
-        return m_fullyQualifiedDomainName;
+    
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
     }
 
-    public void setFullyQualifiedDomainName(String fullyQualifiedDomainName) {
-        m_fullyQualifiedDomainName = fullyQualifiedDomainName;
+    public String getFullyQualifiedDomainName() {
+        return m_locationsManager.getPrimaryLocation().getFqdn();
     }
 
     public void setTimeZoneManager(TimeZoneManager tzm) {

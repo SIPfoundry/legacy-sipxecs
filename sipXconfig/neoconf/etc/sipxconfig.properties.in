@@ -17,20 +17,16 @@ sipxPageService.audioDir=@sipxpage.audio.dir@
 
 sipImpl.proxyHost=${PROXY_SERVER_ADDR}
 sipImpl.proxyPort=${PROXY_SERVER_SIP_PORT}
-sipImpl.hostName=${MY_FULL_HOSTNAME}
-sipImpl.hostIpAddress=${MY_IP_ADDR}
 sipImpl.port=5180
-
-sfLogLayout.hostName=${MY_FULL_HOSTNAME}
 
 # BEGIN: do not use
 phoneDefaults.proxyServerAddr=${PROXY_SERVER_ADDR}
 phoneDefaults.proxyServerSipPort=${PROXY_SERVER_SIP_PORT}
 # END: do not use
+
+# This use of MY_FULL_HOSTNAME needs to remain as part of the upgrade to 4.0
 locationsMigrationTrigger.hostname=${MY_FULL_HOSTNAME}
 phoneDefaults.tftpServer=${CONFIG_SERVER_ADDR}
-phoneDefaults.authorizationRealm=${SIPXCHANGE_REALM}
-phoneDefaults.fullyQualifiedDomainName=${MY_FULL_HOSTNAME}
 # imdb/sipdb location for https access
 registrationContext.hostname=${MY_FULL_HOSTNAME}
 domainManagerImpl.alarmServerUrl=https://${MY_FULL_HOSTNAME}:8092

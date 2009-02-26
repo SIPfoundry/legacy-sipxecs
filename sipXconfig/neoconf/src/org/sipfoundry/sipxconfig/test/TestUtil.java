@@ -35,6 +35,8 @@ import org.sipfoundry.sipxconfig.service.SipxServiceManager;
  */
 public final class TestUtil {
 
+    private static final String EXAMPLE_ORG = "example.org";
+
     private static final String EOL = System.getProperty("line.separator");
 
     private static final String FORWARD_SLASH = "/";
@@ -188,8 +190,6 @@ public final class TestUtil {
         sysProps.setProperty("sysdir.libexec", outputDirectory);
 
         sysProps.setProperty("phoneDefaults.tftpServer", "tftp.sipfoundry.org");
-        sysProps.setProperty("phoneDefaults.authorizationRealm", realm);
-        sysProps.setProperty("phoneDefaults.fullyQualifiedDomainName", "pbx." + domainName);
         sysProps.setProperty("dataSource.jdbcUrl", "jdbc:postgresql://localhost/SIPXCONFIG_TEST");
         sysProps.setProperty("acdHistoryDataSource.jdbcUrl",
                 "jdbc:postgresql://localhost/SIPXACD_HISTORY_TEST");
@@ -223,7 +223,6 @@ public final class TestUtil {
 
         sysProps.setProperty("sipImpl.proxyHost", "localhost");
         sysProps.setProperty("sipImpl.proxyPort", "5060");
-        sysProps.setProperty("sipImpl.hostName", "host.sipfoundry.org");
 
         File vmDir = createDirectory(mailstoreDir, "Could not create voicemail store");
         createDirectory(tmpDir, "Could not create tmp directory");
@@ -298,9 +297,13 @@ public final class TestUtil {
      * Creates a mock domain manager using EasyMock. Up to the caller to call replay on the mock.
      */
     public static DomainManager getMockDomainManager() {
+        Domain domain = new Domain();
+        domain.setName(EXAMPLE_ORG);
+        domain.setSipRealm(EXAMPLE_ORG);
+        
         DomainManager domainManager = EasyMock.createMock(DomainManager.class);
         domainManager.getDomain();
-        EasyMock.expectLastCall().andReturn(new Domain("example.org")).anyTimes();
+        EasyMock.expectLastCall().andReturn(domain).anyTimes();
         return domainManager;
     }
 

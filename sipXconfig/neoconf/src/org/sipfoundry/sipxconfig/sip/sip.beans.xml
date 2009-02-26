@@ -5,7 +5,7 @@
 
   <bean id="sfLogLayout" class="org.sipfoundry.sipxconfig.sip.log4j.SipFoundryLayout">
     <property name="facility" value="JAVA" />
-    <property name="hostName" value="localhost" />
+    <property name="locationsManager" ref="locationsManager" />
   </bean>
 
   <bean id="sfLogAppender" class="org.sipfoundry.sipxconfig.sip.log4j.SipFoundryAppender">
@@ -18,12 +18,11 @@
   </bean>
 
   <bean id="sipImpl" class="org.sipfoundry.sipxconfig.sip.SipServiceImpl">
-    <property name="hostName" value="localhost" />
-    <property name="hostIpAddress" value="127.0.0.1" />
     <property name="transport" value="udp" />
     <property name="port" value="5180" />
     <property name="logAppender" ref="sfLogAppender" />
     <property name="domainManager" ref="domainManager" />
+    <property name="locationsManager" ref="locationsManager" />
     <property name="properties">
       <value>
         javax.sip.STACK_NAME=sipXconfig

@@ -63,6 +63,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Appender;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.springframework.beans.factory.BeanInitializationException;
@@ -80,10 +81,6 @@ public class SipStackBean {
     private static final String SDP = "sdp";
 
     private int m_port;
-
-    private String m_hostName;
-
-    private String m_hostIpAddress;
 
     private String m_transport = "udp";
 
@@ -114,6 +111,8 @@ public class SipStackBean {
     private CoreContext m_coreContext;
 
     private AuthenticationHelper m_authenticationHelper;
+    
+    private LocationsManager m_locationsManager;
 
     private final Timer m_timer = new Timer();
 
@@ -136,7 +135,7 @@ public class SipStackBean {
             m_headerFactory = factory.createHeaderFactory();
             m_messageFactory = factory.createMessageFactory();
 
-            m_listeningPoint = stack.createListeningPoint(m_hostIpAddress, m_port, m_transport);
+            m_listeningPoint = stack.createListeningPoint(getHostIpAddress(), m_port, m_transport);
             m_sipProvider = stack.createSipProvider(m_listeningPoint);
 
             m_sipListener = new SipListenerImpl(this);
@@ -197,16 +196,6 @@ public class SipStackBean {
         m_coreContext = coreContext;
     }
 
-    @Required
-    public void setHostName(String hostName) {
-        m_hostName = hostName;
-    }
-
-    @Required
-    public void setHostIpAddress(String hostIpAddress) {
-        m_hostIpAddress = hostIpAddress;
-    }
-
     public void setTransport(String transport) {
         m_transport = transport;
     }
@@ -228,13 +217,22 @@ public class SipStackBean {
     final CoreContext getCoreContext() {
         return m_coreContext;
     }
+    
+    @Required
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
+    }
 
     final String getHostName() {
-        return m_hostName;
+        return m_locationsManager.getPrimaryLocation().getFqdn();
+    }
+    
+    final String getHostIpAddress() {
+        return m_locationsManager.getPrimaryLocation().getAddress();
     }
 
     private SipURI createOurSipUri(String userName) throws ParseException {
-        return m_addressFactory.createSipURI(userName, m_hostName);
+        return m_addressFactory.createSipURI(userName, getHostName());
     }
 
     private FromHeader createFromHeader(String fromDisplayName, SipURI fromAddress) throws ParseException {

@@ -19,11 +19,14 @@ import java.util.TimeZone;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyInfo;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.service.ServiceDescriptor;
 import org.sipfoundry.sipxconfig.service.ServiceManager;
@@ -35,6 +38,7 @@ import org.sipfoundry.sipxconfig.setting.ModelFilesContextImpl;
 import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 import org.sipfoundry.sipxconfig.sip.SipService;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class PhoneTestDriver {
 
@@ -122,15 +126,29 @@ public class PhoneTestDriver {
                 return "*78";
             }
         };
+        
+        Location defaultLocation = new Location();
+        defaultLocation.setFqdn("pbx.sipfoundry.org");
+        LocationsManager locationsManager = EasyMock.createMock(LocationsManager.class);
+        locationsManager.getPrimaryLocation();
+        EasyMock.expectLastCall().andReturn(defaultLocation).anyTimes();
+        EasyMock.replay(locationsManager);
+        defaults.setLocationsManager(locationsManager);
+        
         TimeZone tz = TimeZone.getTimeZone("Etc/GMT+5");
         defaults.setTimeZoneManager(TestHelper.getTimeZoneManager(new DeviceTimeZone(tz))); // no DST for consistent
         // results
         defaults.setDomainManager(TestHelper.getTestDomainManager("sipfoundry.org"));
-        defaults.setFullyQualifiedDomainName("pbx.sipfoundry.org");
         defaults.setTftpServer("tftp.sipfoundry.org");
         defaults.setProxyServerAddr("10.1.2.3");
         defaults.setProxyServerSipPort("5555");
-        defaults.setAuthorizationRealm("realm.sipfoundry.org");
+        
+        DomainManager domainManager = TestUtil.getMockDomainManager();
+        EasyMock.replay(domainManager);
+        domainManager.getDomain().setSipRealm("realm.sipfoundry.org");
+        domainManager.getDomain().setName("sipfoundry.org");
+        defaults.setDomainManager(domainManager);
+
         defaults.setMohUser("~~mh~");
         defaults.setLogDirectory("/var/log/sipxpbx");
 

@@ -16,6 +16,7 @@ import org.apache.log4j.Layout;
 import org.apache.log4j.Level;
 import org.apache.log4j.Priority;
 import org.apache.log4j.spi.LoggingEvent;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 
 /**
  * A log4j Layout class that matches the SipFoundry C++ OsSyslog format (within reason)
@@ -30,15 +31,14 @@ public class SipFoundryLayout extends Layout {
 
     private SimpleDateFormat m_dateFormat;
 
-    private String m_hostName;
-
     private String m_facility;
+    
+    private LocationsManager m_locationsManager;
 
     public SipFoundryLayout() {
         super();
         m_dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'000Z'");
         m_dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        m_hostName = System.getProperty("org.sipfoundry.sipxconfig.HOSTNAME", "localhost");
         m_facility = "JAVA"; // Can be set from the property log4j.appender.xxx.layout.facility
     }
 
@@ -161,7 +161,7 @@ public class SipFoundryLayout extends Layout {
                     s_lineNumber, // line number
                     localFacility, // Facility
                     mapLevel2SipFoundry(arg0.getLevel()), // msg priority (DEBUG, WARN, etc.)
-                    m_hostName, // Name of this machine
+                    getHostname(), // Name of this machine
                     arg0.getThreadName(), // Thread that called log
                     "00000000", // Thread Id (not useful in Java)
                     loggerName, // Name of the logger
@@ -188,7 +188,11 @@ public class SipFoundryLayout extends Layout {
         return m_facility;
     }
 
-    public void setHostName(String hostName) {
-        m_hostName = hostName;
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
+    }
+    
+    private String getHostname() {
+        return m_locationsManager.getPrimaryLocation().getFqdn();
     }
 }

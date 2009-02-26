@@ -9,6 +9,7 @@
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="logDirectory" value="${sysdir.log}"></property>
     <property name="timeZoneManager" ref="timeZoneManager" />
+    <property name="locationsManager" ref="locationsManager" />
     <!-- default music-on-hold user -->
     <property name="mohUser" value="~~mh~" />
   </bean>

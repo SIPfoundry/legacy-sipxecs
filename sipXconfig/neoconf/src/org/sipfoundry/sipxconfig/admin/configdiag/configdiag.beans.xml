@@ -14,21 +14,7 @@
     <property name="binDirectory">
       <value>${sysdir.bin}</value>
     </property>
-    <property name="argumentResolverMap">
-      <map>
-        <entry>
-          <key>
-            <value>domain</value>
-          </key>
-          <value>${phoneDefaults.authorizationRealm}</value>
-        </entry>
-        <entry>
-          <key>
-            <value>hostname</value>
-          </key>
-          <value>${phoneDefaults.fullyQualifiedDomainName}</value>
-        </entry>
-      </map>
-    </property>
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="domainManager" ref="domainManager" />
   </bean>
 </beans>
