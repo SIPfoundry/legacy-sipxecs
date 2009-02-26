@@ -117,10 +117,11 @@ li.tab
   border-bottom: 1px solid #FFFFFF;
 }
 
-#login-errors {
+#login-errors .user-error {
     position: absolute;
     background: url('/sipxconfig/images/error.png') top left no-repeat; 
     padding-left: 20px;
+    height: 1.5em;
     width: 500px;
     margin-top: 50px;
     margin-left: 590px;
