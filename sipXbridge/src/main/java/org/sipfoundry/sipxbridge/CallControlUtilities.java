@@ -13,6 +13,7 @@ package org.sipfoundry.sipxbridge;
 import gov.nist.javax.sip.DialogExt;
 
 import java.util.HashSet;
+import java.util.Set;
 
 import javax.sdp.SessionDescription;
 import javax.sip.ClientTransaction;
@@ -161,8 +162,7 @@ public class CallControlUtilities {
             /*
              * Get the codecs in the answer.
              */
-            HashSet<Integer> answerCodecs = SipUtilities
-                    .getCodecNumbers(answerSessionDescription);
+            Set<Integer> answerCodecs = SipUtilities.getMediaFormats(answerSessionDescription);
 
             /*
              * Get the transmitter session description for the peer. This is either our old answer
@@ -185,7 +185,7 @@ public class CallControlUtilities {
                 /*
                  * Extract the codec numbers previously offered.
                  */
-                HashSet<Integer> transmitterCodecs = SipUtilities.getCodecNumbers(transmitterSd);
+                Set<Integer> transmitterCodecs = SipUtilities.getMediaFormats(transmitterSd);
 
                 /*
                  * We did a SDP query. So we need to put an SDP Answer in the response. Retrieve
@@ -197,7 +197,7 @@ public class CallControlUtilities {
                 /*
                  * Only pick the codecs that the other side will support.
                  */
-                SipUtilities.restictToSpecifiedCodecs(ackSd, transmitterCodecs);
+                SipUtilities.cleanSessionDescription(ackSd, transmitterCodecs);
 
                 DialogContext.getRtpSession(dialog).getTransmitter().setOnHold(false);
 

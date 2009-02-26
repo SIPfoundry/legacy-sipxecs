@@ -720,6 +720,12 @@ class SipUtilities {
 
 	}
 
+	/**
+	 * Extract and return the media formats from the session description.
+	 * 
+	 * @param sessionDescription -- the SessionDescription to examine.
+	 * @return a Set of media formats. Each element is a codec number.
+	 */
 	static Set<Integer> getMediaFormats(SessionDescription sessionDescription) {
 		try {
 			Vector mediaDescriptions = sessionDescription
@@ -745,39 +751,7 @@ class SipUtilities {
 		}
 	}
 
-	/**
-	 * Get the set of codecs supported by given sd.
-	 */
-	static HashSet<Integer> getCodecNumbers(
-			SessionDescription sessionDescription) {
-
-		try {
-			Vector mediaDescriptions = sessionDescription
-					.getMediaDescriptions(true);
-			HashSet<Integer> retval = new HashSet<Integer>();
-
-			for (Iterator it = mediaDescriptions.iterator(); it.hasNext();) {
-
-				MediaDescription mediaDescription = (MediaDescription) it
-						.next();
-				Vector formats = mediaDescription.getMedia().getMediaFormats(
-						true);
-				for (Iterator it1 = formats.iterator(); it1.hasNext();) {
-					Object format = it1.next();
-					int fmt = new Integer(format.toString());
-					if (RtpPayloadTypes.isPayload(fmt)) {
-						retval.add(fmt);
-					}
-				}
-			}
-			return retval;
-		} catch (Exception ex) {
-			logger.fatal("Unexpected exception!", ex);
-			throw new SipXbridgeException("Unexpected exception cleaning SDP",
-					ex);
-		}
-
-	}
+	
 
 	/**
 	 * Cleans the Session description to include only the specified codec set.
@@ -790,13 +764,14 @@ class SipUtilities {
 	 * @return
 	 */
 	static SessionDescription cleanSessionDescription(
-			SessionDescription sessionDescription, HashSet<Integer> codecs) {
+			SessionDescription sessionDescription, Set<Integer> codecs) {
 		try {
 
 			if (codecs.isEmpty()) {
 				return sessionDescription;
 			}
 
+			logger.debug("Codecs = " + codecs);
 			Vector mediaDescriptions = sessionDescription
 					.getMediaDescriptions(true);
 
@@ -815,12 +790,12 @@ class SipUtilities {
 				for (Iterator it1 = formats.iterator(); it1.hasNext();) {
 					Object format = it1.next();
 					Integer fmt = new Integer(format.toString());
-					if (!codecs.contains(fmt)) {
+					if (!codecs.contains(fmt) ) {
 						it1.remove();
 					} 
 				}
 				
-				Vector attributes = sessionDescription.getAttributes(true);
+				Vector attributes = mediaDescription.getAttributes(true);
 				for (Iterator it1 = attributes.iterator(); it1.hasNext();) {
 					Attribute attr = (Attribute) it1.next();
 					if (logger.isDebugEnabled()) {
@@ -831,7 +806,7 @@ class SipUtilities {
 						String attribute = attr.getValue();
 						String[] attrs = attribute.split(" ");
 						int rtpMapCodec  = Integer.parseInt(attrs[0]);
-						if (!codecs.contains(rtpMapCodec) ){
+						if (!codecs.contains(rtpMapCodec)){
 							it1.remove();
 						}
 					} else if (attr.getName().equalsIgnoreCase("crypto")) {
@@ -854,62 +829,7 @@ class SipUtilities {
 		}
 	}
 
-	static void restictToSpecifiedCodecs(SessionDescription sessionDescription,
-			HashSet<Integer> codecs) {
-		try {
-			Vector mediaDescriptions = sessionDescription
-					.getMediaDescriptions(true);
-
-			for (Iterator it = mediaDescriptions.iterator(); it.hasNext();) {
-
-				MediaDescription mediaDescription = (MediaDescription) it
-						.next();
-				Vector formats = mediaDescription.getMedia().getMediaFormats(
-						true);
-
-				for (Iterator it1 = formats.iterator(); it1.hasNext();) {
-					Object format = it1.next();
-					int fmt = new Integer(format.toString());
-					if (!codecs.contains(fmt) && RtpPayloadTypes.isPayload(fmt))
-						it1.remove();
-
-				}
-
-				Vector attributes = mediaDescription.getAttributes(true);
-
-				for (Iterator it1 = attributes.iterator(); it1.hasNext();) {
-					Attribute attr = (Attribute) it1.next();
-					if (logger.isDebugEnabled()) {
-						logger.debug("attrName = " + attr.getName());
-					}
-					if (attr.getName().equalsIgnoreCase("rtpmap")) {
-						String attribute = attr.getValue();
-						String[] attrs = attribute.split(" ");
-						String[] pt = attrs[1].split("/");
-						if (logger.isDebugEnabled()) {
-							logger.debug("pt == " + pt[0]);
-						}
-
-						if (RtpPayloadTypes.isPayload(pt[0])
-								&& !codecs.contains(RtpPayloadTypes
-										.getPayloadType(pt[0]))) {
-							it1.remove();
-						}
-					} else if (attr.getName().equalsIgnoreCase("crypto")) {
-						it1.remove();
-					} else if (attr.getName().equalsIgnoreCase("encryption")) {
-						it1.remove();
-					}
-				}
-
-			}
-		} catch (Exception ex) {
-			logger.fatal("Unexpected exception!", ex);
-			throw new SipXbridgeException("Unexpected exception cleaning SDP",
-					ex);
-		}
-
-	}
+	
 
 	static String getSessionDescriptionMediaIpAddress(
 			SessionDescription sessionDescription) {
@@ -1244,10 +1164,9 @@ class SipUtilities {
 	 * @param codecSet
 	 * @return
 	 */
-	static boolean isCodecSupported(SessionDescription sd,
-			HashSet<Integer> codecSet) {
+	static boolean isCodecSupported(SessionDescription sd, Set<Integer> codecSet) {
 
-		HashSet<Integer> codecs = SipUtilities.getCodecNumbers(sd);
+		Set<Integer> codecs = SipUtilities.getMediaFormats(sd);
 		for (int codecNumber : codecSet) {
 			if (codecs.contains(codecNumber))
 				return true;

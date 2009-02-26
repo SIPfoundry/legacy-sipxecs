@@ -18,6 +18,7 @@ import gov.nist.javax.sip.stack.SIPServerTransaction;
 import java.text.ParseException;
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 import java.util.TimerTask;
 
 import javax.sdp.SessionDescription;
@@ -1790,7 +1791,7 @@ class CallControlManager implements SymmitronResetHandler {
 
                     SessionDescription sessionDescription = SipUtilities
                             .getSessionDescription(response);
-                    HashSet<Integer> codecs = SipUtilities.getCodecNumbers(sessionDescription);
+                    Set<Integer> codecs = SipUtilities.getMediaFormats(sessionDescription);
 
                     logger.debug("Codecs " + codecs);
 
@@ -1799,7 +1800,7 @@ class CallControlManager implements SymmitronResetHandler {
                     /*
                      * Restrict the answer to the set of codecs in the offer.
                      */
-                    SipUtilities.restictToSpecifiedCodecs(ackSd, codecs);
+                    SipUtilities.cleanSessionDescription(ackSd, codecs);
 
                     SipUtilities.setSessionDescription(ack, ackSd);
 
@@ -1901,9 +1902,8 @@ class CallControlManager implements SymmitronResetHandler {
                  * Limit the Answer to the codec set found in the offer. Note that the OFFER is in
                  * the INBOUND OK.
                  */
-                HashSet<Integer> codecs = SipUtilities
-                        .getCodecNumbers(responseSessionDescription);
-                SipUtilities.restictToSpecifiedCodecs(ackSd, codecs);
+                Set<Integer> codecs = SipUtilities.getMediaFormats(responseSessionDescription);
+                SipUtilities.cleanSessionDescription(ackSd, codecs);
 
                 /*
                  * Now reply back to the original Transaction and put the WAN side on hold. Note

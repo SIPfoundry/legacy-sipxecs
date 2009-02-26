@@ -988,8 +988,7 @@ public class Gateway {
 	 * @return
 	 */
 	static HashSet<Integer> getParkServerCodecs() {
-
-		return parkServerCodecs;
+	   	return parkServerCodecs;
 	}
 
 	/**
