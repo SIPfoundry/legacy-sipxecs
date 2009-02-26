@@ -354,7 +354,7 @@ void NatTraversalRules::initializeNatTraversalInfo( void )
       // Now that we have extracted the configuration information, let's check if we 
       // need to discover our public IP address using STUN.  If so and the NAT traversal 
       // feature is enabled, launch a task that will do so.
-      if( mbNatTraveralEnabled && mbDiscoverPublicIpAddressViaStun )
+      if( mbNatTraveralEnabled && mbDiscoverPublicIpAddressViaStun && !mStunServer.isNull() )
       {
          // we need to discover our public IP address using STUN.
          // Instantiate a new StunClient and ask for the public IP address.
