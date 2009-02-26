@@ -184,6 +184,36 @@ public class SymmitronServer implements Symmitron {
             sessionResourceMap.put(controllerId, syms);
         }
     }
+    
+    private static InetAddress findIpAddress (String localAddress) throws UnknownHostException {
+        
+        String[] addressParts = localAddress.split(".");
+        boolean isIpAddress = true;
+        byte[] addressBytes = new byte[addressParts.length];
+        int i = 0;
+        for (String addressPart : addressParts  ) {
+            try {
+                addressBytes[i++] = (byte) Integer.parseInt(addressPart);         
+            } catch (NumberFormatException ex) {
+                isIpAddress = false;
+                break;
+            }
+        }
+        
+        InetAddress retval;
+        /*
+         * User specified a host name -- see if we can resolve it.
+         */
+        if (!isIpAddress) {
+             retval = InetAddress.getByName(localAddress);
+        } else {
+            /*
+             * User specified an address directly -- see if we can resolve that.
+             */
+            retval = InetAddress.getByAddress(addressBytes);
+        }    
+        return retval;
+    }
 
     /**
      * Get the port range manager.
@@ -1043,29 +1073,36 @@ public class SymmitronServer implements Symmitron {
                 }
 
                 if (config.getPublicAddress() != null) {
-                    InetAddress.getByName(config.getPublicAddress());
+                    findIpAddress(config.getPublicAddress());
                 }
 
                 /*
-                 * Test if host names can be resolved.
+                 * Test if stun server name can be resolved.
                  */
-                if (config.getStunServerAddress() != null) {
-                    InetAddress.getByName(config.getStunServerAddress());
+                if (config.getStunServerAddress() != null && config.isUseStun()) {                   
+                    findIpAddress(config.getStunServerAddress());
                 }
-
-                InetAddress.getByName(config.getLocalAddress());
-
+                /*
+                 * Test if local address can be resolved.
+                 */
+                if ( config.getLocalAddress() != null ) {
+                   findIpAddress(config.getLocalAddress());             
+                } else {
+                    System.err.println("Missing local address. Cannot start sipxrelay");
+                    System.exit(-1);
+                }
                 System.exit(0);
 
             } else if (command.equals("start")) {
-                // Wait for the configuration file to become available.
-                while (!new File(configurationFile).exists()) {
-                    Thread.sleep(5 * 1000);
+                if (!new File(configurationFile).exists()) {
+                    System.err.println("Configuration file " + configurationFile + " missing.");
+                    System.exit(-1);
                 }
+                
                 SymmitronConfig config = new SymmitronConfigParser().parse("file:"
                         + configurationFile);
 
-                InetAddress localAddr = InetAddress.getByName(config.getLocalAddress());
+                InetAddress localAddr = findIpAddress(config.getLocalAddress());
 
                 if (config.getLogFileDirectory() == null) {
                     String installRoot = configDir
@@ -1105,7 +1142,7 @@ public class SymmitronServer implements Symmitron {
                 }
                 logger.info("Port range checked ");
 
-                if (config.getPublicAddress() == null && config.getStunServerAddress() != null) {
+                if (config.getPublicAddress() == null && config.getStunServerAddress() != null && config.isUseStun()) {
                     /*
                      * Try an address discovery. If it did not work, then exit. This deals with
                      * accidental mis-configurations of the STUN server address.
