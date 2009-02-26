@@ -164,6 +164,7 @@
     scope="prototype" parent="serviceConfigurationFile">
     <property name="template" value="sipxregistrar/registrar-config.vm" />
     <property name="name" value="registrar-config" />
+    <property name="locationsManager" ref="locationsManager" />
   </bean>
 
   <bean id="sipxParkService" class="org.sipfoundry.sipxconfig.service.SipxParkService" parent="sipxService"

@@ -14,7 +14,10 @@ import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 
+import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.test.TestUtil;
@@ -73,10 +76,32 @@ public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
         parkService.setBeanName(SipxParkService.BEAN_ID);
         parkService.setParkServerSipPort("9909");
 
-        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(false, registrarService, proxyService, parkService);
+        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(false,
+                registrarService, proxyService, parkService);
         replay(domainManager, sipxServiceManager);
 
         SipxRegistrarConfiguration out = new SipxRegistrarConfiguration();
+        
+        Location primaryLocation = TestUtil.createDefaultLocation();
+        Location otherRegistrarLocation = new Location();
+        otherRegistrarLocation.setName("Other registrar");
+        otherRegistrarLocation.setFqdn("other-registrar.example.org");
+        otherRegistrarLocation.addService(new LocationSpecificService(registrarService));
+        Location otherMediaServerLocation = new Location();
+        otherMediaServerLocation.setName("Other media server");
+        otherMediaServerLocation.setFqdn("other-media-server.example.org");
+        otherMediaServerLocation.addService(new LocationSpecificService(new SipxMediaService()));
+
+        LocationsManager locationsManager = EasyMock.createMock(LocationsManager.class);
+        locationsManager.getPrimaryLocation();
+        EasyMock.expectLastCall().andReturn(primaryLocation).anyTimes();
+        locationsManager.getLocations();
+        EasyMock.expectLastCall().andReturn(new Location[] {
+            primaryLocation, otherRegistrarLocation, otherMediaServerLocation
+        }).anyTimes();
+        EasyMock.replay(locationsManager);
+        out.setLocationsManager(locationsManager);
+        
         out.setSipxServiceManager(sipxServiceManager);
         out.setTemplate("sipxregistrar/registrar-config.vm");
 

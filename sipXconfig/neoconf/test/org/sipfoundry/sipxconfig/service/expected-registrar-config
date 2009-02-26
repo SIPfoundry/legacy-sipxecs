@@ -61,4 +61,4 @@ SIP_REDIRECT.999-AUTHROUTER.SIPX_PROXY : 192.168.1.1:5060;transport=tcp
 # See HaSetup.pdf for how to use the following
 SIP_REGISTRAR_XMLRPC_PORT : 5077
 SIP_REGISTRAR_NAME : sipx.example.org
-SIP_REGISTRAR_SYNC_WITH : 
+SIP_REGISTRAR_SYNC_WITH : other-registrar.example.org 
