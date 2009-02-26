@@ -18,7 +18,7 @@ public class SymmitronConfigParser {
     /*
      * <?xml version="1.0" encoding="UTF-8"?> <nattraversal
      * xmlns="http://www.sipfoundry.org/sipX/schema/xml/nattraversalrules-00-00"> <info>
-     * <state>enabled</state> <behindnat>true</behindnat> <useSTUN>false</useSTUN>
+     * <state>enabled</state> <behindnat>true</behindnat> 
      * <publicaddress>68.33.195.46</publicaddress>
      * <proxyhostport>${MY_IP_ADDR}:${PROXY_SERVER_SIP_PORT}</proxyhostport>
      * <relayaggressiveness>Aggressive</relayaggressiveness> <concurrentrelays>50</concurrentrelays>
@@ -56,10 +56,7 @@ public class SymmitronConfigParser {
                 "setXmlRpcPort", 0, new Class[] {
                     Integer.class
                 });
-        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, 
-                "useSTUN"), "setUseStun", 0, new Class[] {
-                    Boolean.class
-                });
+       
         
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, 
         "behindnat"), "setBehindNat", 0, new Class[] {

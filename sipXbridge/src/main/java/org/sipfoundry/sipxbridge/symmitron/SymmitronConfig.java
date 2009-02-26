@@ -18,8 +18,7 @@ public class SymmitronConfig {
     private String logFileDirectory = null;
     private String logLevel = "DEBUG";
     private String publicAddress;
-    private boolean useStun;
-    private String stunServerAddress = "stun01.sipphone.com";
+    private String stunServerAddress;
     private int rediscoveryTime = 60;
     private boolean useHttps = true;
     private boolean behindNat = true;
@@ -159,19 +158,6 @@ public class SymmitronConfig {
         }
     }
 
-    /**
-     * @param useStun the useStun to set
-     */
-    public void setUseStun(boolean useStun) {
-        this.useStun = useStun;
-    }
-
-    /**
-     * @return the useStun
-     */
-    public boolean isUseStun() {
-        return useStun;
-    }
 
     /**
      * @param stunServerAddress the stunServerAddress to set

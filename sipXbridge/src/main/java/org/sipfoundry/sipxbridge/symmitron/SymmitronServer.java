@@ -112,7 +112,7 @@ public class SymmitronServer implements Symmitron {
 
             String stunServerAddress = symmitronConfig.getStunServerAddress();
 
-            if (stunServerAddress != null && symmitronConfig.isUseStun()) {
+            if (stunServerAddress != null) {
 
                 // Todo -- deal with the situation when this port may be taken.
                 // The port may be taken by sipxbridge.
@@ -1066,12 +1066,7 @@ public class SymmitronServer implements Symmitron {
                     System.exit(-1);
                 }
 
-                if (config.getStunServerAddress() == null && config.isUseStun()) {
-                    System.err
-                            .println("Must specify STUN server address if address discovery is desired.");
-                    System.exit(-1);
-                }
-
+               
                 if (config.getPublicAddress() != null) {
                     findIpAddress(config.getPublicAddress());
                 }
@@ -1079,7 +1074,7 @@ public class SymmitronServer implements Symmitron {
                 /*
                  * Test if stun server name can be resolved.
                  */
-                if (config.getStunServerAddress() != null && config.isUseStun()) {                   
+                if (config.getStunServerAddress() != null ) {                   
                     findIpAddress(config.getStunServerAddress());
                 }
                 /*
@@ -1142,7 +1137,7 @@ public class SymmitronServer implements Symmitron {
                 }
                 logger.info("Port range checked ");
 
-                if (config.getPublicAddress() == null && config.getStunServerAddress() != null && config.isUseStun()) {
+                if (config.getPublicAddress() == null && config.getStunServerAddress() != null ) {
                     /*
                      * Try an address discovery. If it did not work, then exit. This deals with
                      * accidental mis-configurations of the STUN server address.
