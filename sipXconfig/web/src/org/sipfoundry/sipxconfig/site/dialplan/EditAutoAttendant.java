@@ -18,7 +18,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuAction;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendantManager;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -27,8 +27,8 @@ public abstract class EditAutoAttendant extends PageWithCallback implements Page
 
     public static final String PAGE = "dialplan/EditAutoAttendant";
 
-    @InjectObject(value = "spring:dialPlanContext")
-    public abstract DialPlanContext getDialPlanContext();
+    @InjectObject(value = "spring:autoAttendantManager")
+    public abstract AutoAttendantManager getAutoAttendantManager();
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
@@ -49,7 +49,7 @@ public abstract class EditAutoAttendant extends PageWithCallback implements Page
     public void commit() {
         IValidationDelegate validator = TapestryUtils.getValidator(this);
         if (!validator.getHasErrors()) {
-            getDialPlanContext().storeAutoAttendant(getAttendant());
+            getAutoAttendantManager().storeAutoAttendant(getAttendant());
         }
     }
 
@@ -58,7 +58,7 @@ public abstract class EditAutoAttendant extends PageWithCallback implements Page
         if (aa != null) {
             return;
         }
-        aa = getDialPlanContext().newAutoAttendantWithDefaultGroup();
+        aa = getAutoAttendantManager().newAutoAttendantWithDefaultGroup();
         aa.resetToFactoryDefault();
         setAttendant(aa);
     }

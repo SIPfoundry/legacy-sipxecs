@@ -12,12 +12,11 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 import java.util.Arrays;
 import java.util.Collections;
 
-import junit.framework.TestCase;
-
-import org.sipfoundry.sipxconfig.admin.dialplan.config.SpecialAutoAttendantMode;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.springframework.orm.hibernate3.HibernateTemplate;
+
+import junit.framework.TestCase;
 
 import static org.easymock.EasyMock.createNiceMock;
 import static org.easymock.classextension.EasyMock.createMock;
@@ -76,7 +75,6 @@ public class DialPlanContextImplTest extends TestCase {
         plan.setRules(Arrays.asList(rules));
         assertNull(manager.getLikelyEmergencyInfo());
 
-
         // disabled rule
         emergency.setEnabled(false);
         assertNull(manager.getLikelyEmergencyInfo());
@@ -132,11 +130,6 @@ public class DialPlanContextImplTest extends TestCase {
 
         @Override
         public GatewayContext getGatewayContext() {
-            return null;
-        }
-
-        @Override
-        public SpecialAutoAttendantMode createSpecialAutoAttendantMode() {
             return null;
         }
 

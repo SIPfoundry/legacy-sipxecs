@@ -24,12 +24,12 @@ import org.springframework.context.ApplicationContext;
 
 public class AutoAttendantTestDb extends SipxDatabaseTestCase {
 
-    private DialPlanContext m_context;
+    private AutoAttendantManager m_context;
 
     @Override
     protected void setUp() throws Exception {
         ApplicationContext appContext = TestHelper.getApplicationContext();
-        m_context = (DialPlanContext) appContext.getBean(DialPlanContext.CONTEXT_BEAN_NAME);
+        m_context = (AutoAttendantManager) appContext.getBean("autoAttendantManager");
         TestHelper.cleanInsert("ClearDb.xml");
     }
 
@@ -62,8 +62,7 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
         Assertion.assertEquals(expected, actual);
 
         // attendant menu items
-        ITable actualItems = TestHelper.getConnection().createDataSet().getTable(
-                "attendant_menu_item");
+        ITable actualItems = TestHelper.getConnection().createDataSet().getTable("attendant_menu_item");
         ITable expectedItems = expectedRds.getTable("attendant_menu_item");
         Assertion.assertEquals(expectedItems, actualItems);
     }
@@ -105,8 +104,7 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
         TestHelper.cleanInsertFlat("admin/dialplan/seedAttendant.xml");
         AutoAttendant aa = m_context.getAutoAttendant(new Integer(1000));
         m_context.deleteAutoAttendant(aa);
-        ITable actualItems = TestHelper.getConnection().createDataSet().getTable(
-                "attendant_menu_item");
+        ITable actualItems = TestHelper.getConnection().createDataSet().getTable("attendant_menu_item");
         assertEquals(0, actualItems.getRowCount());
     }
 
@@ -150,5 +148,11 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
             gotNameInUseException = true;
         }
         assertTrue(gotNameInUseException);
+    }
+
+    public void testGetAutoAttendantSettings() throws Exception {
+        TestHelper.cleanInsert("admin/dialplan/seedDialPlanWithAttendant.xml");
+        AutoAttendant autoAttendant = m_context.getAutoAttendant(new Integer(2000));
+        assertNotNull(autoAttendant.getSettings());
     }
 }

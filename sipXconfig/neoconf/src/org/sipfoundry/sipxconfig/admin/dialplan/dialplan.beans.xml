@@ -128,21 +128,14 @@
     - D I A L P L A N  C O N T E X T
   -->
   <bean id="dialPlanContextImpl" class="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContextImpl">
-    <property name="aliasManager" ref="aliasManager" />
     <property name="sessionFactory" ref="sessionFactory" />
-    <property name="settingDao" ref="settingDao" />
-    <property name="sipxReplicationContext" ref="sipxReplicationContext" />
-    <property name="defaultDialPlanId" value="na.dialPlan" />
+    <property name="aliasManager" ref="aliasManager" />
     <lookup-method name="getGatewayContext" bean="gatewayContext" />
-    <lookup-method name="createSpecialAutoAttendantMode" bean="specialAutoAttendantMode" />
     <lookup-method name="getDialPlanActivationManager" bean="dialPlanActivationManager" />
   </bean>
 
   <bean id="dialPlanContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
-    <property name="proxyInterfaces">
-      <value>org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext
-      </value>
-    </property>
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext" />
     <property name="target">
       <ref local="dialPlanContextImpl" />
     </property>
@@ -154,12 +147,11 @@
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="sipxProcessContext" ref="sipxProcessContext" />
     <property name="dialPlanContext" ref="dialPlanContext" />
-    <property name="sipxIvrService" ref="sipxIvrService" />
+    <property name="serviceConfigurator" ref="serviceConfigurator" />
     <lookup-method name="getGatewayProfileManager" bean="gatewayProfileManager" />
     <lookup-method name="getGatewayContext" bean="gatewayContext" />
     <!-- using eager replication and serviceConfiguration -->
     <property name="sipxReplicationContext" ref="sipxReplicationContextDao" />
-    <property name="serviceConfigurator" ref="serviceConfiguratorImpl" />
   </bean>
 
   <bean id="dialPlanActivationManager" class="org.sipfoundry.sipxconfig.admin.dialplan.LazyDialPlanActivationManager"
@@ -242,31 +234,62 @@
     <property name="prompt" value="afterhours.wav" />
   </bean>
 
+  <bean id="autoAttendantManagerImpl" class="org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendantManagerImpl">
+    <property name="sessionFactory" ref="sessionFactory" />
+    <property name="aliasManager" ref="aliasManager" />
+    <property name="serviceConfigurator" ref="serviceConfigurator" />
+    <property name="settingDao" ref="settingDao" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="sipxReplicationContext" ref="sipxReplicationContext" />
+    <lookup-method name="createSpecialAutoAttendantMode" bean="specialAutoAttendantMode" />
+  </bean>
+
+  <bean id="autoAttendantManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendantManager" />
+    <property name="target" ref="autoAttendantManagerImpl" />
+  </bean>
+
   <bean id="attendantMigrationContextImpl" class="org.sipfoundry.sipxconfig.admin.dialplan.AttendantMigrationContextImpl">
-    <property name="dialPlanContext">
-      <ref local="dialPlanContext" />
-    </property>
+    <property name="dialPlanContext" ref="dialPlanContext" />
+    <property name="autoAttendantManager" ref="autoAttendantManager" />
     <property name="sessionFactory" ref="sessionFactory" />
   </bean>
 
   <bean id="attendantMigrationContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
-    <property name="proxyInterfaces">
-      <value>org.sipfoundry.sipxconfig.admin.dialplan.AttendantMigrationContext
-      </value>
-    </property>
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.admin.dialplan.AttendantMigrationContext" />
     <property name="target">
       <ref local="attendantMigrationContextImpl" />
     </property>
   </bean>
 
   <bean id="attendantMigrationTrigger" class="org.sipfoundry.sipxconfig.admin.dialplan.AttendantMigrationTrigger">
-    <property name="attendantMigrationContext">
-      <ref local="attendantMigrationContext" />
-    </property>
+    <property name="attendantMigrationContext" ref="attendantMigrationContext" />
     <property name="taskNames">
       <list>
         <value>dial_plan_migrate_attendant_rules</value>
         <value>attendant_defaults</value>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="createAttendantTask" class="org.sipfoundry.sipxconfig.admin.dialplan.CreateAttendantTask">
+    <property name="autoAttendantManager" ref="autoAttendantManager" />
+    <property name="dialPlanContext" ref="dialPlanContext" />
+    <property name="taskNames">
+      <list>
+        <value>operator</value>
+        <value>afterhour</value>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="resetDialPlanTask" class="org.sipfoundry.sipxconfig.admin.dialplan.ResetDialPlanTask">
+    <property name="autoAttendantManager" ref="autoAttendantManager" />
+    <property name="dialPlanContext" ref="dialPlanContext" />
+    <property name="defaultDialPlanId" value="na.dialPlan" />
+    <property name="taskNames">
+      <list>
+        <value>dial-plans</value>
       </list>
     </property>
   </bean>
@@ -282,6 +305,7 @@
     <property name="name" value="autoattendants.xml" />
     <property name="domainManager" ref="domainManager" />
     <property name="dialPlanContext" ref="dialPlanContext" />
+    <property name="autoAttendantManager" ref="autoAttendantManager" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
 
@@ -290,4 +314,3 @@
     <property name="sipxIvrService" ref="sipxIvrService" />
   </bean>
 </beans>
-

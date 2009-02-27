@@ -13,7 +13,7 @@ import org.sipfoundry.sipxconfig.service.SipxIvrService;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.beans.factory.annotation.Required;
 
-import static org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContextImpl.ATTENDANT_GROUP_ID;
+import static org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendantManager.ATTENDANT_GROUP_ID;
 
 /**
  * OnAutoAttendantGroupSave regenerates all auto-attendants whenever group that stores defaults

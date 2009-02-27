@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
@@ -23,9 +23,9 @@ import org.sipfoundry.sipxconfig.admin.dialplan.attendant.ScheduledAttendant;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.setting.Group;
+import org.springframework.beans.factory.annotation.Required;
 
-public class AttendantMigrationContextImpl extends SipxHibernateDaoSupport implements
-        AttendantMigrationContext {
+public class AttendantMigrationContextImpl extends SipxHibernateDaoSupport implements AttendantMigrationContext {
     public static final Log LOG = LogFactory.getLog(AttendantMigrationContextImpl.class);
 
     private static final String[] SQL = {
@@ -35,15 +35,21 @@ public class AttendantMigrationContextImpl extends SipxHibernateDaoSupport imple
     };
 
     private static final String RULE_NAME_PREFIX = "Attendant_";
+    private AutoAttendantManager m_autoAttendantManager;
     private DialPlanContext m_dialPlanContext;
 
+    @Required
+    public void setAutoAttendantManager(AutoAttendantManager autoAttendantManager) {
+        m_autoAttendantManager = autoAttendantManager;
+    }
+
+    @Required
     public void setDialPlanContext(DialPlanContext dialPlanContext) {
         m_dialPlanContext = dialPlanContext;
     }
 
     public void migrateAttendantRules() {
-        List data = getHibernateTemplate()
-                .findByNamedQuery("attendantsReferencesByInternalRules");
+        List data = getHibernateTemplate().findByNamedQuery("attendantsReferencesByInternalRules");
         for (Iterator i = data.iterator(); i.hasNext();) {
             Object[] row = (Object[]) i.next();
             Integer attendantId = (Integer) row[0];
@@ -62,21 +68,19 @@ public class AttendantMigrationContextImpl extends SipxHibernateDaoSupport imple
         }
         cleanSchema();
     }
-    
+
     public void setAttendantDefaults() {
-        Group defaultGroup = m_dialPlanContext.getDefaultAutoAttendantGroup();
-        Iterator i = m_dialPlanContext.getAutoAttendants().iterator();
-        while (i.hasNext()) {
-            AutoAttendant aa = (AutoAttendant) i.next();
+        Group defaultGroup = m_autoAttendantManager.getDefaultAutoAttendantGroup();
+        for (AutoAttendant aa : m_autoAttendantManager.getAutoAttendants()) {
             if (aa.getGroups().size() == 0) {
                 aa.addGroup(defaultGroup);
-                m_dialPlanContext.storeAutoAttendant(aa);
+                m_autoAttendantManager.storeAutoAttendant(aa);
             }
         }
     }
 
     private void migrateAttendant(Integer attendantId, String aliases, String extension) {
-        AutoAttendant autoAttendant = m_dialPlanContext.getAutoAttendant(attendantId);
+        AutoAttendant autoAttendant = m_autoAttendantManager.getAutoAttendant(attendantId);
         AttendantRule rule = new AttendantRule();
         rule.setName(RULE_NAME_PREFIX + autoAttendant.getName());
         rule.setEnabled(true);
@@ -94,8 +98,7 @@ public class AttendantMigrationContextImpl extends SipxHibernateDaoSupport imple
 
     private void cleanSchema() {
         try {
-            Session currentSession = getHibernateTemplate().getSessionFactory()
-                    .getCurrentSession();
+            Session currentSession = getHibernateTemplate().getSessionFactory().getCurrentSession();
             Connection connection = currentSession.connection();
             Statement statement = connection.createStatement();
             for (int i = 0; i < SQL.length; i++) {

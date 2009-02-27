@@ -13,7 +13,7 @@
     <property name="thirdPartyDir" value="${sysdir.thirdparty}"/>
     <property name="defaultRegion" value="region_na" />
     <property name="defaultLanguage" value="en" />
-    <property name="dialPlanContext" ref="dialPlanContext" />
+    <property name="resetDialPlanTask" ref="resetDialPlanTask" />
     <property name="domainManager" ref="domainManager" />
     <property name="dialPlanActivationManager" ref="dialPlanActivationManager" />
   </bean>

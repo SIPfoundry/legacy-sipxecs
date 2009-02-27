@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.dialplan;
@@ -26,7 +26,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenu;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuAction;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuItem;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendantManager;
 import org.sipfoundry.sipxconfig.common.DialPad;
 import org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel;
 import org.sipfoundry.sipxconfig.components.LocalizedOptionModelDecorator;
@@ -38,8 +38,8 @@ public abstract class AttendantMenuPanel extends BaseComponent {
 
     private static final String ACTION_PREFIX = "menuItemAction.";
 
-    @InjectObject(value = "spring:dialPlanContext")
-    public abstract DialPlanContext getDialPlanContext();
+    @InjectObject(value = "spring:autoAttendantManager")
+    public abstract AutoAttendantManager getAutoAttendantManager();
 
     @InjectObject(value = "spring:tapestry")
     public abstract TapestryContext getTapestry();
@@ -57,7 +57,7 @@ public abstract class AttendantMenuPanel extends BaseComponent {
     public abstract String getMaxKey();
 
     /**
-     * If true - the only possible action offerred will be forward to extension
+     * If true - the only possible action offered will be forward to extension
      */
     @Parameter(defaultValue = "ognl:false")
     public abstract boolean getExtensionOnly();
@@ -87,7 +87,7 @@ public abstract class AttendantMenuPanel extends BaseComponent {
     }
 
     public IPropertySelectionModel getAutoAttendants() {
-        List<AutoAttendant> autoAttendants = getDialPlanContext().getAutoAttendants();
+        List<AutoAttendant> autoAttendants = getAutoAttendantManager().getAutoAttendants();
         IPropertySelectionModel attendantSelectionModel = new AttendantSelectionModel(
                 autoAttendants);
         return getTapestry().instructUserToSelect(attendantSelectionModel, getMessages());
@@ -150,6 +150,7 @@ public abstract class AttendantMenuPanel extends BaseComponent {
         getMenu().removeMenuItems(selected);
     }
 
+    @Override
     protected void prepareForRender(IRequestCycle cycle) {
         super.prepareForRender(cycle);
 
@@ -167,9 +168,9 @@ public abstract class AttendantMenuPanel extends BaseComponent {
      */
     public static class AttendantMenuItemMapAdapter {
 
-        private Map<DialPad, AttendantMenuItem> m_menuItems;
+        private final Map<DialPad, AttendantMenuItem> m_menuItems;
 
-        private DialPad[] m_dialPadKeys;
+        private final DialPad[] m_dialPadKeys;
 
         private DialPad m_currentDialPadKey;
 

@@ -63,7 +63,7 @@
     <property name="coreContext" ref="coreContext" />
     <property name="adminContext" ref="adminContext" />
     <property name="domainManager" ref="domainManager" />
-    <property name="dialPlanContext" ref="dialPlanContext" />
+    <property name="resetDialPlanTask" ref="resetDialPlanTask" />
     <property name="alarmContext" ref="alarmContext" />
     <property name="gatewayContext" ref="gatewayContext" />
     <property name="phoneContext" ref="phoneContext" />
@@ -72,7 +72,7 @@
     <property name="taskName" value="first-run" />
     <property name="locationsManager" ref="locationsManager" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
-    <property name="serviceConfigurator" ref="serviceConfigurator" />    
+    <property name="serviceConfigurator" ref="serviceConfigurator" />
     <property name="parkOrbitContext" ref="parkOrbitContext" />
     <property name="speedDialManager" ref="speedDialManager" />
     <property name="pagingContext" ref="pagingContext" />

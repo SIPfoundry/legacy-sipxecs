@@ -13,7 +13,7 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendantManager;
 import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
@@ -26,7 +26,7 @@ public abstract class ConfirmUpdateRegion extends PageWithCallback {
     public abstract SipxValidationDelegate getValidator();
     
     @InjectObject(value = "spring:dialPlanContext")
-    public abstract DialPlanContext getDialPlanContext();
+    public abstract AutoAttendantManager getDialPlanContext();
 
     @InjectObject(value = "spring:localizationContext")
     public abstract LocalizationContext getLocalizationContext();

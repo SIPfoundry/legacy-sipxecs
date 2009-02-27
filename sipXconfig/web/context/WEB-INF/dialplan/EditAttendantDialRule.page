@@ -11,7 +11,7 @@
     - B E A N S
   -->
   <bean name="autoAttendants" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
-    <set name="collection" value="dialPlanContext.autoAttendants" />
+    <set name="collection" value="autoAttendantManager.autoAttendants" />
     <set name="labelExpression" value="literal:name" />
   </bean>
   <!--

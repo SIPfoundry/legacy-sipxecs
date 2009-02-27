@@ -14,28 +14,12 @@ import java.util.List;
 
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
-import org.sipfoundry.sipxconfig.setting.Group;
-import org.sipfoundry.sipxconfig.setting.Setting;
 
 public interface DialPlanContext extends DataObjectSource, AliasOwner {
 
     String CONTEXT_BEAN_NAME = "dialPlanContext";
 
-    void clear();
-
-    void storeAutoAttendant(AutoAttendant attendant);
-
-    void deleteAutoAttendant(AutoAttendant attendant);
-
-    AutoAttendant getOperator();
-
-    AutoAttendant getAutoAttendant(Integer id);
-
-    List<AutoAttendant> getAutoAttendants();
-
-    void deleteAutoAttendantsByIds(Collection<Integer> attendantsIds);
-
-    void specialAutoAttendantMode(boolean enabled, AutoAttendant attendant);
+    boolean isInitialized();
 
     void removeGateways(Collection<Integer> gatewaysIds);
 
@@ -73,13 +57,9 @@ public interface DialPlanContext extends DataObjectSource, AliasOwner {
 
     List<AttendantRule> getAttendantRules();
 
-    DialPlan resetToFactoryDefault();
-
-    DialPlan resetToFactoryDefault(String dialPlanBeanName);
+    DialPlan resetToFactoryDefault(String dialPlanBeanName, AutoAttendant operator);
 
     String[] getDialPlanBeans();
-
-    String getDefaultDialPlanId();
 
     boolean isDialPlanEmpty();
 
@@ -87,9 +67,5 @@ public interface DialPlanContext extends DataObjectSource, AliasOwner {
 
     EmergencyInfo getLikelyEmergencyInfo();
 
-    Group getDefaultAutoAttendantGroup();
-
-    AutoAttendant newAutoAttendantWithDefaultGroup();
-
-    Setting getAttendantSettingModel();
+    void setOperator(AutoAttendant attendant);
 }

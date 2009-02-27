@@ -20,6 +20,7 @@ import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.InternationalRule;
+import org.sipfoundry.sipxconfig.admin.dialplan.ResetDialPlanTask;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.Device;
@@ -45,6 +46,8 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
 
     private SettingDao m_dao;
 
+    private ResetDialPlanTask m_resetDialPlanTask;
+
     @Override
     protected void setUp() throws Exception {
         m_appContext = TestHelper.getApplicationContext();
@@ -53,8 +56,9 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
         m_modelSource = (ModelSource<GatewayModel>) m_appContext.getBean("nakedGatewayModelSource");
         m_genericModel = m_modelSource.getModel("genericGatewayStandard");
         m_genericSipTrunk = m_modelSource.getModel("sipTrunkStandard");
+        m_resetDialPlanTask = (ResetDialPlanTask) m_appContext.getBean("resetDialPlanTask");
         TestHelper.cleanInsert("ClearDb.xml");
-        m_dialPlanContext.resetToFactoryDefault();
+        m_resetDialPlanTask.reset(true);
         m_sbcDeviceManager = (SbcDeviceManager) m_appContext.getBean(SbcDeviceManager.CONTEXT_BEAN_NAME);
         m_dao = (SettingDao) m_appContext.getBean(SettingDao.CONTEXT_NAME);
     }

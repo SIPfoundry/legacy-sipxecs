@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.dialplan;
@@ -13,13 +13,15 @@ import org.apache.commons.lang.enums.Enum;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendantManager;
 import org.sipfoundry.sipxconfig.components.LocalizedOptionModelDecorator;
 
 public abstract class SpecialAttendantPanel extends BaseComponent {
-    public abstract DialPlanContext getDialPlanContext();
+    @InjectObject("spring:autoAttendantManager")
+    public abstract AutoAttendantManager getAutoAttendantManager();
 
     public abstract AutoAttendant getAutoAttendant();
 
@@ -29,7 +31,7 @@ public abstract class SpecialAttendantPanel extends BaseComponent {
 
     public void onApply() {
         boolean enable = Mode.SPECIAL.equals(getMode());
-        getDialPlanContext().specialAutoAttendantMode(enable, getAutoAttendant());
+        getAutoAttendantManager().specialAutoAttendantMode(enable, getAutoAttendant());
     }
 
     public IPropertySelectionModel getModeModel() {
@@ -40,6 +42,7 @@ public abstract class SpecialAttendantPanel extends BaseComponent {
         return model;
     }
 
+    @Override
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
         // use standard mode by default
         if (getMode() == null) {

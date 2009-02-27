@@ -23,6 +23,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuAction;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuItem;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
+import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendantManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime.WorkingHours;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
@@ -40,6 +41,8 @@ public class AutoAttendantsConfig extends XmlFile {
     private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/autoattendants-00-00";
     private static final String ID = "id";
 
+    private AutoAttendantManager m_autoAttendantManager;
+
     private DialPlanContext m_dialPlanContext;
 
     private DomainManager m_domainManager;
@@ -51,7 +54,7 @@ public class AutoAttendantsConfig extends XmlFile {
         Document document = FACTORY.createDocument();
         QName autoAttendantsName = FACTORY.createQName("autoattendants", NAMESPACE);
         Element aasEl = document.addElement(autoAttendantsName);
-        List<AutoAttendant> autoAttendants = m_dialPlanContext.getAutoAttendants();
+        List<AutoAttendant> autoAttendants = m_autoAttendantManager.getAutoAttendants();
         for (AutoAttendant autoAttendant : autoAttendants) {
             generateAttendants(aasEl, autoAttendant);
         }
@@ -188,6 +191,11 @@ public class AutoAttendantsConfig extends XmlFile {
     @Required
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
+    }
+
+    @Required
+    public void setAutoAttendantManager(AutoAttendantManager autoAttendantManager) {
+        m_autoAttendantManager = autoAttendantManager;
     }
 
     @Required

@@ -20,6 +20,7 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendantManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleType;
@@ -43,19 +44,22 @@ public abstract class EditDialRule extends BasePage implements PageBeginRenderLi
     public static final String EMERGENCY = "dialplan/EditEmergencyDialRule";
     public static final String INTERNATIONAL = "dialplan/EditInternationalDialRule";
 
-    @InjectObject(value = "spring:dialPlanContext")
+    @InjectObject("spring:dialPlanContext")
     public abstract DialPlanContext getDialPlanContext();
 
-    @InjectObject(value = "spring:forwardingContext")
+    @InjectObject("spring:autoAttendantManager")
+    public abstract AutoAttendantManager getAutoAttendantManager();
+
+    @InjectObject("spring:forwardingContext")
     public abstract ForwardingContext getForwardingContext();
 
-    @InjectObject(value = "spring:permissionManager")
+    @InjectObject("spring:permissionManager")
     public abstract PermissionManager getPermissionManager();
 
-    @InjectObject(value = "spring:mediaServerFactory")
+    @InjectObject("spring:mediaServerFactory")
     public abstract MediaServerFactory getMediaServerFactory();
 
-    @InjectObject(value = "spring:emergencyConfigurableModelSource")
+    @InjectObject("spring:emergencyConfigurableModelSource")
     public abstract ModelSource<PhoneModel> getEmergencyConfigurableModelSource();
 
     @Persist

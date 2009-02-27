@@ -16,10 +16,12 @@
       </a>
     </li>        
   </ul>        
-  <form jwcid="attendantListForm@Form" delegate" value="bean:validator">
+  <form jwcid="attendantListForm@Form" delegate="bean:validator">
     <table jwcid="tableView@common/Table" id="list:attendant"
-      columns="literal:* name,description" source="ognl:dialPlanContext.autoAttendants"
-      row="ognl:currentRow" selections="ognl:selections">
+      columns="literal:* name,description"
+      source="ognl:autoAttendantManager.autoAttendants"
+      row="ognl:currentRow"
+      selections="bean:selections">
       <span jwcid="nameColumnValue@Block">
         <span jwcid="editRowLink@DirectLink" listener="listener:edit"
           parameters="ognl:currentRow.id">

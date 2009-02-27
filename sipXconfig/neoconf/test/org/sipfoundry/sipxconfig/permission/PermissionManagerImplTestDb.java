@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.permission;
@@ -19,6 +19,7 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.CustomDialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
+import org.sipfoundry.sipxconfig.admin.dialplan.ResetDialPlanTask;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.springframework.context.ApplicationContext;
@@ -27,11 +28,14 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
 
     private PermissionManager m_manager;
     private DialPlanContext m_context;
+    private ResetDialPlanTask m_resetDialPlanTask;
 
+    @Override
     protected void setUp() throws Exception {
         ApplicationContext app = TestHelper.getApplicationContext();
         m_manager = (PermissionManager) app.getBean(PermissionManager.CONTEXT_BEAN_NAME);
         m_context = (DialPlanContext) app.getBean(DialPlanContext.CONTEXT_BEAN_NAME);
+        m_resetDialPlanTask = (ResetDialPlanTask) app.getBean("resetDialPlanTask");
         TestHelper.cleanInsert("ClearDb.xml");
     }
 
@@ -157,6 +161,7 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testRulesWithCustomPermission() throws Exception {
+        m_resetDialPlanTask.reset(true);
 
         Permission permission = new Permission();
         permission.setType(Permission.Type.CALL);

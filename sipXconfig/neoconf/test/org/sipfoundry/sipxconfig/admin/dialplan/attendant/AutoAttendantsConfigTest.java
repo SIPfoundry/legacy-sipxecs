@@ -22,6 +22,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenu;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuAction;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
+import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendantManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.common.DialPad;
 import org.sipfoundry.sipxconfig.domain.Domain;
@@ -52,21 +53,24 @@ public class AutoAttendantsConfigTest extends XMLTestCase {
         DialPlanContext dialPlanContext = createMock(DialPlanContext.class);
         dialPlanContext.getAttendantRules();
         expectLastCall().andReturn(Collections.emptyList());
-        dialPlanContext.getAutoAttendants();
+
+        AutoAttendantManager aam = createMock(AutoAttendantManager.class);
+        aam.getAutoAttendants();
         expectLastCall().andReturn(Collections.emptyList());
 
-        replay(dialPlanContext);
+        replay(dialPlanContext, aam);
 
         AutoAttendantsConfig autoAttendantsConfig = new AutoAttendantsConfig();
         autoAttendantsConfig.setDomainManager(m_domainManager);
         autoAttendantsConfig.setDialPlanContext(dialPlanContext);
+        autoAttendantsConfig.setAutoAttendantManager(aam);
 
         String generatedXml = autoAttendantsConfig.getFileContent();
         InputStream referenceXml = getClass().getResourceAsStream("empty-autoattendants.test.xml");
 
         assertXMLEqual(new InputStreamReader(referenceXml), new StringReader(generatedXml));
 
-        verify(dialPlanContext);
+        verify(dialPlanContext, aam);
     }
 
     public void testGenerateAutoAttendants() throws Exception {
@@ -94,23 +98,26 @@ public class AutoAttendantsConfigTest extends XMLTestCase {
         aa.setSettingValue("onfail/transfer-extension", "999");
         aa.setSettingValue("onfail/transfer-prompt", "test.wav");
 
-        DialPlanContext dialPlanContext = createMock(DialPlanContext.class);
-        dialPlanContext.getAutoAttendants();
+        AutoAttendantManager aam = createMock(AutoAttendantManager.class);
+        aam.getAutoAttendants();
         expectLastCall().andReturn(Arrays.asList(operator, aa));
+
+        DialPlanContext dialPlanContext = createMock(DialPlanContext.class);
         dialPlanContext.getAttendantRules();
         expectLastCall().andReturn(Collections.emptyList());
 
-        replay(dialPlanContext);
+        replay(dialPlanContext, aam);
 
         AutoAttendantsConfig autoAttendantsConfig = new AutoAttendantsConfig();
         autoAttendantsConfig.setDomainManager(m_domainManager);
         autoAttendantsConfig.setDialPlanContext(dialPlanContext);
+        autoAttendantsConfig.setAutoAttendantManager(aam);
 
         String generatedXml = autoAttendantsConfig.getFileContent();
         InputStream referenceXml = getClass().getResourceAsStream("autoattendants.test.xml");
         assertXMLEqual(new InputStreamReader(referenceXml), new StringReader(generatedXml));
 
-        verify(dialPlanContext);
+        verify(dialPlanContext, aam);
     }
 
     public void testGenerateSchedules() throws Exception {
@@ -137,16 +144,19 @@ public class AutoAttendantsConfigTest extends XMLTestCase {
         workingTime.setAttendant(operator);
         attendantRule.setWorkingTimeAttendant(workingTime);
 
-        DialPlanContext dialPlanContext = createMock(DialPlanContext.class);
-        dialPlanContext.getAutoAttendants();
+        AutoAttendantManager aam = createMock(AutoAttendantManager.class);
+        aam.getAutoAttendants();
         expectLastCall().andReturn(Arrays.asList(operator));
+
+        DialPlanContext dialPlanContext = createMock(DialPlanContext.class);
         dialPlanContext.getAttendantRules();
         expectLastCall().andReturn(Arrays.asList(attendantRule));
 
-        replay(dialPlanContext);
+        replay(dialPlanContext, aam);
 
         AutoAttendantsConfig autoAttendantsConfig = new AutoAttendantsConfig();
         autoAttendantsConfig.setDomainManager(m_domainManager);
+        autoAttendantsConfig.setAutoAttendantManager(aam);
         autoAttendantsConfig.setDialPlanContext(dialPlanContext);
 
         String generatedXml = autoAttendantsConfig.getFileContent();
@@ -154,6 +164,6 @@ public class AutoAttendantsConfigTest extends XMLTestCase {
 
         assertXMLEqual(new InputStreamReader(referenceXml), new StringReader(generatedXml));
 
-        verify(dialPlanContext);
+        verify(dialPlanContext, aam);
     }
 }

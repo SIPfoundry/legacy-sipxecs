@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.localization;
@@ -25,15 +25,15 @@ import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.ResetDialPlanTask;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.support.DataAccessUtils;
 
-public class LocalizationContextImpl extends SipxHibernateDaoSupport implements
-        LocalizationContext {
+public class LocalizationContextImpl extends SipxHibernateDaoSupport implements LocalizationContext {
 
     private static final Log LOG = LogFactory.getLog(LocalizationContextImpl.class);
 
@@ -48,7 +48,7 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements
     private String m_thirdPartyDir;
     private String m_defaultRegion;
     private String m_defaultLanguage;
-    private DialPlanContext m_dialPlanContext;
+    private ResetDialPlanTask m_resetDialPlanTask;
     private DomainManager m_domainManager;
     private DialPlanActivationManager m_dialPlanActivationManager;
 
@@ -79,14 +79,17 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements
         getLocalization();
     }
 
-    public void setDialPlanContext(DialPlanContext dialPlanContext) {
-        m_dialPlanContext = dialPlanContext;
+    @Required
+    public void setResetDialPlanTask(ResetDialPlanTask resetDialPlanTask) {
+        m_resetDialPlanTask = resetDialPlanTask;
     }
 
+    @Required
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
     }
 
+    @Required
     public void setDialPlanActivationManager(DialPlanActivationManager dialPlanActivationManager) {
         m_dialPlanActivationManager = dialPlanActivationManager;
     }
@@ -151,7 +154,7 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements
 
     /**
      * Set new current region
-     * 
+     *
      * @return positive value is success, negative if failure, 0 if there was no change
      */
     public int updateRegion(String region) {
@@ -169,7 +172,7 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements
         }
         try {
             String dialPlanBeanId = regionId + DIALPLAN;
-            m_dialPlanContext.resetToFactoryDefault(dialPlanBeanId);
+            m_resetDialPlanTask.reset(dialPlanBeanId);
             getHibernateTemplate().saveOrUpdate(localization);
         } catch (NoSuchBeanDefinitionException e) {
             LOG.error("Trying to set unsupported region: " + region);
@@ -181,7 +184,7 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements
 
     /**
      * Set new current language
-     * 
+     *
      * @return positive value is success, negative if failure, 0 if there was no change
      */
     public int updateLanguage(String languageDirectory) {
@@ -231,18 +234,17 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements
         UserException installFailureException = new UserException("message.installError");
         try {
             String[] cmd = new String[] {
-                m_binDir + File.separator + "sipxlocalization", fileToApply.getPath(),
-                m_promptsDir, m_regionDir, m_thirdPartyDir
+                m_binDir + File.separator + "sipxlocalization", fileToApply.getPath(), m_promptsDir, m_regionDir,
+                m_thirdPartyDir
             };
             Process p = Runtime.getRuntime().exec(cmd);
-            BufferedReader scriptErrorReader = new BufferedReader(new InputStreamReader(p
-                    .getErrorStream()));
+            BufferedReader scriptErrorReader = new BufferedReader(new InputStreamReader(p.getErrorStream()));
             String errorLine = scriptErrorReader.readLine();
             while (errorLine != null) {
                 LOG.warn("sipxlocalization: " + errorLine);
                 errorLine = scriptErrorReader.readLine();
             }
-            
+
             p.waitFor();
             if (p.exitValue() != 0) {
                 throw installFailureException;

@@ -34,7 +34,9 @@ import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendantManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.ResetDialPlanTask;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDescriptor;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
@@ -117,10 +119,10 @@ public abstract class TestPage extends BasePage {
 
     public abstract GatewayContext getGatewayContext();
 
-    @InjectObject(value = "spring:nakedGatewayModelSource")
+    @InjectObject("spring:nakedGatewayModelSource")
     public abstract ModelSource<GatewayModel> getGatewayModels();
 
-    @InjectObject(value = "spring:permissionManager")
+    @InjectObject("spring:permissionManager")
     public abstract PermissionManager getPermissionManager();
 
     public abstract PhoneContext getPhoneContext();
@@ -161,38 +163,43 @@ public abstract class TestPage extends BasePage {
 
     public abstract MailboxManager getMailboxManager();
 
-    @InjectObject(value = "spring:serviceManager")
+    @InjectObject("spring:serviceManager")
     public abstract ServiceManager getServiceManager();
 
-    @InjectObject(value = "spring:sipxServiceManager")
+    @InjectObject("spring:sipxServiceManager")
     public abstract SipxServiceManager getSipxServiceManager();
 
-    @InjectObject(value = "spring:sbcManager")
+    @InjectObject("spring:sbcManager")
     public abstract SbcManager getSbcManager();
 
-    @InjectObject(value = "spring:sbcDeviceManager")
+    @InjectObject("spring:sbcDeviceManager")
     public abstract SbcDeviceManager getSbcDeviceManager();
 
-    @InjectObject(value = "spring:sipXbridgeSbcModel")
+    @InjectObject("spring:sipXbridgeSbcModel")
     public abstract SbcDescriptor getSbcDescriptor();
 
-    @InjectObject(value = "spring:speedDialManager")
+    @InjectObject("spring:speedDialManager")
     public abstract SpeedDialManager getSpeedDialManager();
 
-    @InjectObject(value = "spring:pagingContext")
+    @InjectObject("spring:pagingContext")
     public abstract PagingContext getPagingContext();
 
-    @InjectObject(value = "spring:locationsManager")
+    @InjectObject("spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
 
-    @InjectObject(value = "spring:natTraversalManager")
+    @InjectObject("spring:natTraversalManager")
     public abstract NatTraversalManager getNatTraversalManager();
 
-    @InjectObject(value = "spring:timeZoneManager")
+    @InjectObject("spring:timeZoneManager")
     public abstract TimeZoneManager getTimeZoneManager();
 
+    @InjectObject("spring:autoAttendantManager")
+    public abstract AutoAttendantManager getAutoAttendantManager();
 
-    @InjectPage(value = WaitingPage.PAGE)
+    @InjectObject("spring:resetDialPlanTask")
+    public abstract ResetDialPlanTask getResetDialPlanTask();
+
+    @InjectPage(WaitingPage.PAGE)
     public abstract WaitingPage getWaitingPage();
 
     public void resetServiceManager() {
@@ -215,8 +222,9 @@ public abstract class TestPage extends BasePage {
     }
 
     public void resetDialPlans() {
-        getDialPlanContext().clear();
+        getResetDialPlanTask().reset(true);
         getGatewayContext().clear();
+        getAutoAttendantManager().clear();
     }
 
     public void resetInternetCalling() {
@@ -252,8 +260,8 @@ public abstract class TestPage extends BasePage {
         resetConferenceBridgeContext();
 
         Location location = getLocationsManager().getPrimaryLocation();
-        SipxFreeswitchService sipxService =
-            (SipxFreeswitchService) getSipxServiceManager().getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
+        SipxFreeswitchService sipxService = (SipxFreeswitchService) getSipxServiceManager().getServiceByBeanId(
+                SipxFreeswitchService.BEAN_ID);
 
         // Check if we already have a FreeSWITCH service here
         LocationSpecificService service = location.getService(SipxFreeswitchService.BEAN_ID);
@@ -444,7 +452,7 @@ public abstract class TestPage extends BasePage {
     }
 
     public IPage seedFxoGateway() {
-        getDialPlanContext().clear();
+        getResetDialPlanTask().reset(true);
         GatewayContext gatewayService = getGatewayContext();
         gatewayService.clear();
         GatewayModel fxoModel = getGatewayModels().getModel("audiocodesTP260");
@@ -509,7 +517,7 @@ public abstract class TestPage extends BasePage {
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Helsinki"));
 
         getTimeZoneManager().saveDefault();
-        //clean-up
+        // clean-up
         TimeZone.setDefault(tz);
     }
 
@@ -578,7 +586,8 @@ public abstract class TestPage extends BasePage {
         try {
             FileUtils.cleanDirectory(existing);
         } catch (IOException e) {
-            throw new RuntimeException("Could not clean existing sample voicemail store " + existing.getAbsolutePath());
+            throw new RuntimeException("Could not clean existing sample voicemail store "
+                    + existing.getAbsolutePath());
         }
 
         Class manageVmTestUiClass;

@@ -51,18 +51,22 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
     private DialPlanContext m_context;
     private GatewayContext m_gatewayContext;
     private ForwardingContext m_fwdContext;
+    private AutoAttendantManager m_autoAttendantManager;
+    private ResetDialPlanTask m_resetDialPlanTask;
 
     @Override
     protected void setUp() throws Exception {
         ApplicationContext appContext = TestHelper.getApplicationContext();
         m_gatewayContext = (GatewayContext) appContext.getBean(GatewayContext.CONTEXT_BEAN_NAME);
         m_context = (DialPlanContext) appContext.getBean(DialPlanContext.CONTEXT_BEAN_NAME);
-        m_fwdContext = (ForwardingContext) appContext
-                .getBean(ForwardingContext.CONTEXT_BEAN_NAME);
+        m_fwdContext = (ForwardingContext) appContext.getBean(ForwardingContext.CONTEXT_BEAN_NAME);
+        m_autoAttendantManager = (AutoAttendantManager) appContext.getBean("autoAttendantManager");
+        m_resetDialPlanTask = (ResetDialPlanTask) appContext.getBean("resetDialPlanTask");
         TestHelper.cleanInsert("ClearDb.xml");
     }
 
     public void testAddDeleteRule() {
+        m_resetDialPlanTask.reset(true);
         // TODO - replace with IDialingRule mocks
 
         DialingRule r1 = new CustomDialingRule();
@@ -93,8 +97,8 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
 
         m_context.storeRule(r1);
         assertEquals(1 + DEFAULT_DIAL_PLAN_SIZE, m_context.getRules().size());
-        assertEquals("R1 Schedule", ((CustomDialingRule) m_context.load(DialingRule.class, r1
-                .getId())).getSchedule().getName());
+        assertEquals("R1 Schedule", ((CustomDialingRule) m_context.load(DialingRule.class, r1.getId()))
+                .getSchedule().getName());
         m_context.storeRule(r2);
         assertEquals(2 + DEFAULT_DIAL_PLAN_SIZE, m_context.getRules().size());
 
@@ -111,6 +115,8 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
     }
 
     public void testAddRuleDuplicateName() {
+        m_resetDialPlanTask.reset(true);
+
         DialingRule r1 = new CustomDialingRule();
         r1.setName("a1");
         DialingRule r2 = new CustomDialingRule();
@@ -128,12 +134,13 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
 
     public void testMultipleReset() throws Exception {
         // strange errors if resetting more than once
-        m_context.resetToFactoryDefault();
-        m_context.resetToFactoryDefault();
+        m_resetDialPlanTask.reset(true);
+        m_resetDialPlanTask.reset(false);
+        m_resetDialPlanTask.reset(true);
     }
 
     public void testDefaultRuleTypes() throws Exception {
-        m_context.resetToFactoryDefault();
+        m_resetDialPlanTask.reset(true);
 
         IncludeTableFilter filter = new IncludeTableFilter();
         filter.includeTable("*dialing_rule");
@@ -152,6 +159,8 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
     }
 
     public void testDuplicateRules() throws Exception {
+        m_resetDialPlanTask.reset(true);
+
         DialingRule r1 = new CustomDialingRule();
         r1.setName("a1");
         m_context.storeRule(r1);
@@ -167,7 +176,7 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
     }
 
     public void testDuplicateDefaultRules() throws Exception {
-        m_context.resetToFactoryDefault();
+        m_resetDialPlanTask.reset(true);
 
         List rules = m_context.getRules();
 
@@ -186,7 +195,6 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
 
     public void testIsAliasInUse() throws Exception {
         TestHelper.cleanInsert("admin/dialplan/seedDialPlanWithAttendant.xml");
-        assertTrue(m_context.isAliasInUse("test attendant in use")); // auto attendant name
         assertTrue(m_context.isAliasInUse("100")); // voicemail extension
         assertFalse(m_context.isAliasInUse("200")); // a random extension that should not be in
         // use
@@ -201,8 +209,6 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
 
     public void testGetBeanIdsOfObjectsWithAlias() throws Exception {
         TestHelper.cleanInsert("admin/dialplan/seedDialPlanWithAttendant.xml");
-        // auto attendant name
-        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("test attendant in use").size() == 1);
         // voicemail extension
         assertTrue(m_context.getBeanIdsOfObjectsWithAlias("100").size() == 1);
         // a random extension that should not be in use
@@ -219,15 +225,26 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
         assertTrue(m_context.getBeanIdsOfObjectsWithAlias("0").size() == 1); // auto
     }
 
-    public void testGetAutoAttendantSettings() throws Exception {
-        TestHelper.cleanInsert("admin/dialplan/seedDialPlanWithAttendant.xml");
-        AutoAttendant autoAttendant = m_context.getAutoAttendant(new Integer(2000));
-        assertNotNull(autoAttendant.getSettings());
+    public void testLoadAttendantRule() throws Exception {
+        TestHelper.cleanInsertFlat("admin/dialplan/attendant_rule.db.xml");
+
+        DialingRule rule = m_context.getRule(new Integer(2002));
+        assertTrue(rule instanceof AttendantRule);
+        AttendantRule ar = (AttendantRule) rule;
+        assertTrue(ar.getAfterHoursAttendant().isEnabled());
+        assertFalse(ar.getWorkingTimeAttendant().isEnabled());
+        assertTrue(ar.getHolidayAttendant().isEnabled());
+
+        assertEquals(2, ar.getHolidayAttendant().getDates().size());
+
+        assertEquals("19:25", ar.getWorkingTimeAttendant().getWorkingHours()[4].getStopTime());
     }
 
     public void testStoreAttendantRule() throws Exception {
         TestHelper.cleanInsert("admin/dialplan/seedDialPlanWithAttendant.xml");
-        AutoAttendant autoAttendant = m_context.getAutoAttendant(new Integer(2000));
+        AutoAttendant autoAttendant = m_autoAttendantManager.getAutoAttendant(new Integer(2000));
+
+        m_resetDialPlanTask.reset(true);
 
         ScheduledAttendant sa = new ScheduledAttendant();
         sa.setAttendant(autoAttendant);
@@ -263,21 +280,6 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
         assertEquals(3, getConnection().getRowCount("holiday_dates"));
     }
 
-    public void testLoadAttendantRule() throws Exception {
-        TestHelper.cleanInsertFlat("admin/dialplan/attendant_rule.db.xml");
-
-        DialingRule rule = m_context.getRule(new Integer(2002));
-        assertTrue(rule instanceof AttendantRule);
-        AttendantRule ar = (AttendantRule) rule;
-        assertTrue(ar.getAfterHoursAttendant().isEnabled());
-        assertFalse(ar.getWorkingTimeAttendant().isEnabled());
-        assertTrue(ar.getHolidayAttendant().isEnabled());
-
-        assertEquals(2, ar.getHolidayAttendant().getDates().size());
-
-        assertEquals("19:25", ar.getWorkingTimeAttendant().getWorkingHours()[4].getStopTime());
-    }
-
     public void testSaveExtensionThatIsDuplicateAlias() throws Exception {
         TestHelper.cleanInsertFlat("admin/dialplan/attendant_rule.db.xml");
         AttendantRule ar = new AttendantRule();
@@ -308,8 +310,8 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
     }
 
     /**
-     * Tests the getRulesForGateway() method to ensure it only returns rules
-     * that are being used with the specified gateway.
+     * Tests the getRulesForGateway() method to ensure it only returns rules that are being used
+     * with the specified gateway.
      */
     public void getRulesForGateway() throws Exception {
         TestHelper.cleanInsertFlat("admin/dialplan/dialPlanGatewayAssociations.db.xml");
@@ -330,8 +332,8 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
     }
 
     /**
-     * Tests the getAvailableRules() method to ensure it only returns rules
-     * that are NOT being used with the specified gateway.
+     * Tests the getAvailableRules() method to ensure it only returns rules that are NOT being
+     * used with the specified gateway.
      */
     public void testGetAvailableRules() throws Exception {
         TestHelper.cleanInsertFlat("admin/dialplan/dialPlanGatewayAssociations.db.xml");
@@ -348,9 +350,12 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
         DialingRule localRule = m_context.getRule(7);
         DialingRule longDistanceRule = m_context.getRule(8);
 
-        DialingRule[] nonGatewayAwareRules = { attendantRule, internalRule };
-        DialingRule[] gatewayAwareRules = { rule2, emergencyRule, internationalRule,
-                localRule, longDistanceRule };
+        DialingRule[] nonGatewayAwareRules = {
+            attendantRule, internalRule
+        };
+        DialingRule[] gatewayAwareRules = {
+            rule2, emergencyRule, internationalRule, localRule, longDistanceRule
+        };
 
         List<DialingRule> availableRules = m_context.getAvailableRules(gateway.getId());
         assertEquals(gatewayAwareRules.length, availableRules.size());
@@ -368,9 +373,6 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
 
     public void testGet() {
         String[] dialPlanBeans = m_context.getDialPlanBeans();
-        for (String name : dialPlanBeans) {
-            System.err.println(name);
-        }
         assertTrue(dialPlanBeans.length > 1);
         assertTrue(ArrayUtils.contains(dialPlanBeans, "na.dialPlan"));
     }
