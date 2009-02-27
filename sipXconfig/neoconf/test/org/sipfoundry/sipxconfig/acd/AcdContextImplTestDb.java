@@ -179,6 +179,7 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
 
     public void testStoreLine() throws Exception {
         TestHelper.insertFlat("acd/lines.db.xml");
+        TestHelper.insertFlat("acd/lines_and_conferences.db.xml");
 
         AcdServer acdServer = m_context.loadServer(new Integer(1001));
 
@@ -197,6 +198,15 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         try {
             m_context.store(line);
             fail("Should fail");
+        } catch (UserException e) {
+            // ok
+        }
+
+        line.setName("l5");
+        line.setExtension("7777");
+        try {
+            m_context.store(line);
+            fail("Should fail. Extension used by a conference");
         } catch (UserException e) {
             // ok
         }

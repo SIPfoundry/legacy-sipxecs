@@ -29,7 +29,6 @@ import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipUri;
-import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
@@ -90,12 +89,11 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
             throw new UserException("A conference must have an extension");
         }
 
-        final String conferenceTypeName = CONFERENCE;
         if (!m_aliasManager.canObjectUseAlias(conference, name)) {
-            throw new NameInUseException(conferenceTypeName, name);
+            throw new NameInUseException(CONFERENCE, name);
         }
         if (!m_aliasManager.canObjectUseAlias(conference, extension)) {
-            throw new ExtensionInUseException(conferenceTypeName, extension);
+            throw new ExtensionInUseException(CONFERENCE, extension);
         }
     }
 
@@ -104,8 +102,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
     }
 
     public Conference newConference() {
-        Conference conference = (Conference) m_beanFactory.getBean(Conference.BEAN_NAME,
-                Conference.class);
+        Conference conference = (Conference) m_beanFactory.getBean(Conference.BEAN_NAME, Conference.class);
         conference.generateAccessCodes();
         return conference;
     }
@@ -136,14 +133,14 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         return (Bridge) getHibernateTemplate().load(Bridge.class, id);
     }
 
-
     public Bridge getBridgeByServer(String hostname) {
-          // TODO JPA This is temporarily commented out until I can figure out why loading the object in this way
-          // does not load dependent objects like the service and location...
-//        List<Bridge> bridges = getHibernateTemplate().findByNamedQueryAndNamedParam(
-//                "bridgeByHost", VALUE, hostname);
-//        return (Bridge) DataAccessUtils.singleResult(bridges2);
-        
+        // TODO JPA This is temporarily commented out until I can figure out why loading the
+        // object in this way
+        // does not load dependent objects like the service and location...
+        // List<Bridge> bridges = getHibernateTemplate().findByNamedQueryAndNamedParam(
+        // "bridgeByHost", VALUE, hostname);
+        // return (Bridge) DataAccessUtils.singleResult(bridges2);
+
         Bridge bridgeForServer = null;
         List<Bridge> bridges = getHibernateTemplate().loadAll(Bridge.class);
         for (Bridge b : bridges) {
@@ -152,7 +149,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
                 break;
             }
         }
-        
+
         return bridgeForServer;
     }
 
@@ -161,8 +158,8 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
     }
 
     public Conference findConferenceByName(String name) {
-        List<Conference> conferences = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                CONFERENCE_BY_NAME, VALUE, name);
+        List<Conference> conferences = getHibernateTemplate().findByNamedQueryAndNamedParam(CONFERENCE_BY_NAME,
+                VALUE, name);
         return (Conference) DataAccessUtils.singleResult(conferences);
     }
 
@@ -174,10 +171,6 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
     // trivial get/set
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = beanFactory;
-    }
-
-    public void setAliasManager(AliasManager aliasManager) {
-        m_aliasManager = aliasManager;
     }
 
     public void setProvisioning(ConferenceBridgeProvisioning provisioning) {
@@ -193,14 +186,13 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
     }
 
     public boolean isAliasInUse(String alias) {
-        List confIds = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                CONFERENCE_IDS_WITH_ALIAS, VALUE, alias);
-        return SipxCollectionUtils.safeSize(confIds) > 0;
+        List confIds = getHibernateTemplate().findByNamedQueryAndNamedParam(CONFERENCE_IDS_WITH_ALIAS, VALUE, alias);
+        return !confIds.isEmpty();
     }
 
     public Collection getBeanIdsOfObjectsWithAlias(String alias) {
-        Collection ids = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                CONFERENCE_IDS_WITH_ALIAS, VALUE, alias);
+        Collection ids = getHibernateTemplate().findByNamedQueryAndNamedParam(CONFERENCE_IDS_WITH_ALIAS, VALUE,
+                alias);
         Collection bids = BeanId.createBeanIdCollection(ids, Conference.class);
         return bids;
     }
@@ -216,24 +208,22 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
     }
 
     public List<Conference> findConferencesByOwner(User owner) {
-        List<Conference> conferences = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                "conferencesByOwner", OWNER, owner);
+        List<Conference> conferences = getHibernateTemplate().findByNamedQueryAndNamedParam("conferencesByOwner",
+                OWNER, owner);
         return conferences;
     }
 
-    private Criteria filterConferencesCriteria(final Integer bridgeId, final Integer  ownerGroupId, Session session) {
+    private Criteria filterConferencesCriteria(final Integer bridgeId, final Integer ownerGroupId, Session session) {
         Criteria criteria = session.createCriteria(Conference.class);
-        criteria.createCriteria("bridge", "b").
-            add(Restrictions.eq("b.id", bridgeId));
+        criteria.createCriteria("bridge", "b").add(Restrictions.eq("b.id", bridgeId));
         if (ownerGroupId != null) {
-            criteria.createCriteria(OWNER, "o").
-                createCriteria("groups" , "g").
-                    add(Restrictions.eq("g.id", ownerGroupId));
+            criteria.createCriteria(OWNER, "o").createCriteria("groups", "g").add(
+                    Restrictions.eq("g.id", ownerGroupId));
         }
         return criteria;
     }
 
-    public List<Conference> filterConferences(final Integer bridgeId, final Integer  ownerGroupId) {
+    public List<Conference> filterConferences(final Integer bridgeId, final Integer ownerGroupId) {
         HibernateCallback callback = new HibernateCallback() {
             public Object doInHibernate(Session session) {
                 Criteria criteria = filterConferencesCriteria(bridgeId, ownerGroupId, session);
@@ -243,7 +233,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         return getHibernateTemplate().executeFind(callback);
     }
 
-    public int countFilterConferences(final Integer bridgeId, final Integer  ownerGroupId) {
+    public int countFilterConferences(final Integer bridgeId, final Integer ownerGroupId) {
         HibernateCallback callback = new HibernateCallback() {
             public Object doInHibernate(Session session) {
                 Criteria criteria = filterConferencesCriteria(bridgeId, ownerGroupId, session);
@@ -257,8 +247,8 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         return count.intValue();
     }
 
-    public List<Conference> filterConferencesByPage(final Integer bridgeId, final Integer  ownerGroupId,
-        final int firstRow, final int pageSize, final String[] orderBy, final boolean orderAscending) {
+    public List<Conference> filterConferencesByPage(final Integer bridgeId, final Integer ownerGroupId,
+            final int firstRow, final int pageSize, final String[] orderBy, final boolean orderAscending) {
 
         HibernateCallback callback = new HibernateCallback() {
             public Object doInHibernate(Session session) {
@@ -288,16 +278,16 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
                 getHibernateTemplate().delete(bridge);
             }
         }
-    }    
-        
+    }
+
     private void onLocationDelete(Location location) {
         getHibernateTemplate().update(location);
         Bridge bridge = getBridgeForLocationId(location.getId());
         if (bridge != null) {
             getHibernateTemplate().delete(bridge);
         }
-    }    
-    
+    }
+
     public void onDelete(Object entity) {
         if (entity instanceof LocationSpecificService) {
             onLocationSpecificServiceDelete((LocationSpecificService) entity);
@@ -308,12 +298,12 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
 
     public Bridge getBridgeForLocationId(Integer locationId) {
         HibernateTemplate hibernate = getHibernateTemplate();
-        List<Bridge> servers = hibernate.findByNamedQueryAndNamedParam(
-                "bridgeForLocationId", "locationId", locationId);
+        List<Bridge> servers = hibernate.findByNamedQueryAndNamedParam("bridgeForLocationId", "locationId",
+                locationId);
 
         return (Bridge) DataAccessUtils.singleResult(servers);
     }
-    
+
     private void onLocationSave(Location location) {
         Bridge bridge = getBridgeByServer(location.getFqdn());
         boolean isConferenceInstalled = location.isBundleInstalled(m_conferenceBundle.getModelId());
@@ -337,5 +327,8 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         m_conferenceBundle = conferenceBundle;
     }
 
-
+    @Required
+    public void setAliasManager(AliasManager aliasManager) {
+        m_aliasManager = aliasManager;
+    }
 }

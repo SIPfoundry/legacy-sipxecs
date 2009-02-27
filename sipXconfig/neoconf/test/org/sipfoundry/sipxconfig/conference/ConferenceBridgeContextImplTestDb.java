@@ -193,6 +193,7 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
     public void testValidate() throws Exception {
         TestHelper.getConnection();
         TestHelper.insertFlat("conference/participants.db.xml");
+        TestHelper.insertFlat("conference/conferences_and_lines.db.xml");
 
         // create a conference with a duplicate extension, should fail to validate
         Conference conf = new Conference();
@@ -201,6 +202,15 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
         try {
             m_context.validate(conf);
             fail("conference has duplicate extension but was validated anyway");
+        } catch (UserException e) {
+            // expected
+        }
+
+        conf.setName("SomeConference");
+        conf.setExtension("7777");
+        try {
+            m_context.validate(conf);
+            fail("extension used by an acd line");
         } catch (UserException e) {
             // expected
         }

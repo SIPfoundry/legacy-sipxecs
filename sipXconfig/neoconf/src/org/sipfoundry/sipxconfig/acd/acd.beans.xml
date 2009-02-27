@@ -36,6 +36,7 @@
     <property name="locationsManager" ref="locationsManager"/>
 	<property name="sipxServiceManager" ref="sipxServiceManager"/>    
 	<property name="callCenterBundle" ref="callCenterBundle"/>
+	<property name="aliasManager" ref="aliasManager"/>
   </bean>
 
   <bean id="acdContext" class="org.springframework.aop.framework.ProxyFactoryBean"

@@ -27,16 +27,20 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.classic.Session;
+import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
+import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.alias.AliasManager;
+import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
+import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxAcdService;
 import org.sipfoundry.sipxconfig.service.SipxService;
@@ -62,6 +66,14 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
 
     private static final String SQL = "alter table acd_server drop column host";
 
+    private static final String ACD_LINE_IDS_WITH_ALIAS = "acdLineIdsWithAlias";
+
+    private static final String VALUE = "value";
+
+    private static final String LINE = "line";
+
+    private AliasManager m_aliasManager;
+
     private BeanFactory m_beanFactory;
 
     private String m_audioServerUrl;
@@ -73,24 +85,6 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
     private SipxServiceManager m_sipxServiceManager;
 
     private SipxServiceBundle m_callCenterBundle;
-
-    private class NameInUseException extends UserException {
-        private static final String ERROR = "The name \"{1}\" is already in use. "
-                + "Please choose another name for this {0}.";
-
-        public NameInUseException(String objectType, String name) {
-            super(ERROR, objectType, name);
-        }
-    }
-
-    private class ExtensionInUseException extends UserException {
-        private static final String ERROR = "The extension \"{0}\" is already in use. "
-                + "Please choose another extension for this line.";
-
-        public ExtensionInUseException(String name) {
-            super(ERROR, name);
-        }
-    }
 
     private AcdServer getAcdServer(Integer id) {
         return (AcdServer) getHibernateTemplate().load(AcdServer.class, id);
@@ -111,10 +105,19 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
     public void store(AcdComponent acdComponent) {
         if (acdComponent instanceof AcdLine) {
             AcdLine line = (AcdLine) acdComponent;
+            String name = line.getName();
+            String extension = line.getExtension();
             DaoUtils.checkDuplicates(getHibernateTemplate(), AcdLine.class, line, NAME_PROPERTY,
-                    new NameInUseException("line", line.getName()));
+                    new NameInUseException(LINE, line.getName()));
             DaoUtils.checkDuplicates(getHibernateTemplate(), AcdLine.class, line, "extension",
-                    new ExtensionInUseException(line.getExtension()));
+                    new ExtensionInUseException(LINE, line.getExtension()));
+
+            if (!m_aliasManager.canObjectUseAlias(line, name)) {
+                throw new NameInUseException(LINE, name);
+            }
+            if (!m_aliasManager.canObjectUseAlias(line, extension)) {
+                throw new ExtensionInUseException(LINE, extension);
+            }
         }
         if (acdComponent instanceof AcdQueue) {
             AcdQueue queue = (AcdQueue) acdComponent;
@@ -587,4 +590,19 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         m_callCenterBundle = callCenterBundle;
     }
 
+    public boolean isAliasInUse(String alias) {
+        List confIds = getHibernateTemplate().findByNamedQueryAndNamedParam(ACD_LINE_IDS_WITH_ALIAS, VALUE, alias);
+        return !confIds.isEmpty();
+    }
+
+    public Collection getBeanIdsOfObjectsWithAlias(String alias) {
+        Collection ids = getHibernateTemplate().findByNamedQueryAndNamedParam(ACD_LINE_IDS_WITH_ALIAS, VALUE, alias);
+        Collection bids = BeanId.createBeanIdCollection(ids, Conference.class);
+        return bids;
+    }
+
+    @Required
+    public void setAliasManager(AliasManager aliasManager) {
+        m_aliasManager = aliasManager;
+    }
 }

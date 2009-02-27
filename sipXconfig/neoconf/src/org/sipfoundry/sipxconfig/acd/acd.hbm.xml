@@ -124,4 +124,8 @@
   <query name="acdServerForLocationId">
     <![CDATA[from AcdServer acdServer where acdServer.location.id = :locationId]]>
   </query>
+
+  <query name="acdLineIdsWithAlias">
+    <![CDATA[select line.id from AcdLine line where line.name = :value or line.extension = :value]]>
+  </query>
 </hibernate-mapping>

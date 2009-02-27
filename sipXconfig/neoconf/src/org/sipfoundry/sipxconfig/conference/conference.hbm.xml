@@ -63,5 +63,4 @@
   <query name="bridgeByHost">
     <![CDATA[from Bridge bridge where bridge.service.location.fqdn = :value]]>
   </query>
-  
 </hibernate-mapping>
