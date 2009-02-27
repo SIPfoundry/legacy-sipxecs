@@ -54,7 +54,7 @@
     />
 #set ($callWaitingRing = $cfg.EndpointSettings.getSetting('call/callWaiting.ring'))
     <callWaiting
-      call.callWaiting.ring="$!{callWaitingRing.value}"/>
+      call.callWaiting.ring="$!{callWaitingRing.value}"
     />
   </call>
   <divert

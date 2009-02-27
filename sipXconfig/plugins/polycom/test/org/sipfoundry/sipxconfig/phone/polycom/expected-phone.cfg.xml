@@ -303,7 +303,7 @@
       call.serverMissedCall.6.enabled="0"
     />
     <callWaiting
-      call.callWaiting.ring="beep"/>
+      call.callWaiting.ring="beep"
     />
   </call>
   <divert
