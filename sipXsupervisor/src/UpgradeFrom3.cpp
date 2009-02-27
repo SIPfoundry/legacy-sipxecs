@@ -35,7 +35,7 @@ void upgradeFrom3_0()
 {
    // 3.0 had process definition files in /etc/sipxpbx/process.d
    UtlString oldProcessDefinitionDirectory =
-      SipXecsService::Path(SipXecsService::ConfigurationDirType, "process.d");
+      SipXecsService::Path(SipXecsService::ConfigurationDirType, "process-old.d");
 
    OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"upgradeFrom3_0: searching '%s'",
                  oldProcessDefinitionDirectory.data()

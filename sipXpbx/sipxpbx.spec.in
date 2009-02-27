@@ -224,6 +224,13 @@ if [ -f %{current_archive} ]; then
 fi
 mv %{upgrade_archive_dir}/%{this_archive} %{current_archive}
 
+%define old_processdefdir %{_sysconfdir}/sipxpbx/process.d
+%define upg_processdefdir %{_sysconfdir}/sipxpbx/process-old.d
+if [ -d %{old_processdefdir} ]; then
+   mv %{old_processdefdir} %{upg_processdefdir}
+   chmod -R 0777 %{upg_processdefdir}
+fi
+
 pkg-upgrade --previous %{previous_archive} --current %{current_archive}
 
 # Arrange for sipX to be started every time the system starts up.
