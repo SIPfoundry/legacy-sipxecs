@@ -25,7 +25,8 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
 
     private SipxReplicationContext m_replicationContext;
 
-    private boolean m_replicateOnStartup = true;
+    /** no replication at start-up by default */
+    private boolean m_replicateOnStartup;
 
     @Required
     public void setReplicationContext(SipxReplicationContext replicationContext) {

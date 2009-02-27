@@ -67,8 +67,6 @@ public class FirstRunTask implements ApplicationListener {
         m_speedDialManager.activateResourceList();
         m_alarmContext.replicateAlarmServer();
 
-        m_serviceConfigurator.replicateDialPlans();
-
         enforceRoles();
         generateAllProfiles();
     }
@@ -78,6 +76,7 @@ public class FirstRunTask implements ApplicationListener {
      */
     private void enforceRoles() {
         Location[] locations = m_locationsManager.getLocations();
+        m_serviceConfigurator.initLocations();
         for (Location location : locations) {
             if (!location.isRegistered()) {
                 continue;

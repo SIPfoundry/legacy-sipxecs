@@ -87,7 +87,7 @@ public class FirstRunTaskTestIntegration extends IntegrationTestCase {
         m_firstRun.setLocationsManager(m_locationsManager);
 
         ServiceConfigurator serviceConfigurator = createMock(ServiceConfigurator.class);
-        serviceConfigurator.replicateDialPlans();
+        serviceConfigurator.initLocations();
         Location[] locations = m_locationsManager.getLocations();
         for (Location location : locations) {
             serviceConfigurator.enforceRole(location);

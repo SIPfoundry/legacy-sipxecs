@@ -39,12 +39,8 @@ public interface ServiceConfigurator {
     public void enforceRole(Location location);
 
     /**
-     * Replicates dial plans eagerly.
-     *
-     * This is a temporary hack: at some point all files that comprise dial plan should be
-     * declared as configuration files that belong to their owners and get replciated before
-     * respective services are started.
+     * Replicates IMDB data sets and files that are not declared as a service dependency but needs
+     * to be present before sipXconfig attempts to restart the services.
      */
-    @Deprecated
-    public void replicateDialPlans();
+    public void initLocations();
 }

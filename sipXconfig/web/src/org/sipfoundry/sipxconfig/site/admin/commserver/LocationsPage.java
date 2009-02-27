@@ -98,9 +98,9 @@ public abstract class LocationsPage extends BasePage implements PageBeginRenderL
 
     public void generateProfiles() {
         Collection<Integer> selectedLocations = getSelections().getAllSelected();
-        // HACK: dial plan replication should be the part of the normal role enforcing
         if (!selectedLocations.isEmpty()) {
-            getServiceConfigurator().replicateDialPlans();
+            // HACK: push dataSets and files that are not the part of normal service replication
+            getServiceConfigurator().initLocations();
         }
         for (Integer id : selectedLocations) {
             Location locationToActivate = getLocationsManager().getLocation(id);
