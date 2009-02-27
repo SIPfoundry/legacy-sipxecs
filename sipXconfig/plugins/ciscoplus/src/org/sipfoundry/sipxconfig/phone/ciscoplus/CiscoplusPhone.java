@@ -43,7 +43,7 @@ public class CiscoplusPhone extends Ciscoplus {
 
     @Override
     public String getProfileFilename() {
-        return "SEP" + getSerialNumber() + ".cnf.xml";
+        return "SEP" + getSerialNumber().toUpperCase() + ".cnf.xml";
     }
 
     public int getMaxLineCount() {

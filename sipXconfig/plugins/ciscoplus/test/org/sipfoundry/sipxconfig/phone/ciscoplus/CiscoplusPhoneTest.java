@@ -14,12 +14,14 @@ import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
+import org.sipfoundry.sipxconfig.device.Profile;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 
 public class CiscoplusPhoneTest extends TestCase {
 
     private CiscoplusPhone m_phone;
 
+    @Override
     protected void setUp() {
         CiscoplusModel model = new CiscoplusModel("ciscoplus");
         model.setMaxLineCount(3);
@@ -32,6 +34,13 @@ public class CiscoplusPhoneTest extends TestCase {
 
     public void testGetSettings() {
         assertNotNull(m_phone.getSettings());
+    }
+
+    public void testGetFileName() {
+        m_phone.setSerialNumber("0011aaBB4050");
+        Profile[] profileTypes = m_phone.getProfileTypes();
+        assertEquals(1, profileTypes.length);
+        assertEquals("SEP0011AABB4050.cnf.xml", profileTypes[0].getName());
     }
 
     public void testGenerate7960Profiles() throws Exception {
