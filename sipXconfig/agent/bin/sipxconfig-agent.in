@@ -17,7 +17,7 @@ def parse(args)
   options = OpenStruct.new
 
   opts = OptionParser.new do |opts|
-    opts.banner = "Usage: sipxconfig-agent [conftest]"
+    opts.banner = "Usage: sipxconfig-agent [--conftest | --stop]"
 
     opts.separator ""
     opts.separator "Specific options:"
@@ -28,6 +28,38 @@ def parse(args)
       end
       exit
     end
+
+    opts.on_tail("-s", "--stop", "Stop the ConfigAgent") do
+      print "Stopping @SIPX_RUNDIR@/sipxconfig-agent.pid "
+      if File.exist?('@SIPX_RUNDIR@/sipxconfig-agent.pid')
+         pid=File.read('@SIPX_RUNDIR@/sipxconfig-agent.pid').to_i
+         if pid
+            begin
+               Process.kill("TERM", pid)
+               20.times do
+                  print "."
+                  $stdout.flush
+                  sleep 1
+                  Process.kill(0, pid)
+               end
+            # ESRCH means "No such process": success
+            rescue Errno::ESRCH
+               puts " Success"
+               File.delete('@SIPX_RUNDIR@/sipxconfig-agent.pid')
+            # other errors could indicate permissions, etc
+            rescue
+               puts " Failed, error #{$!}"
+            # reached end of loop
+            else
+               puts " Failed to stop"
+            end
+         end
+      else
+         puts "Success (Not started)"
+      end
+      exit
+    end
+
   end
   opts.parse!(args)
   options
