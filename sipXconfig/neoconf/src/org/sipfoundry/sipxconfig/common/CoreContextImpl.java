@@ -116,6 +116,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport implements
         }
 
         getHibernateTemplate().saveOrUpdate(user);
+
         return newUserName;
     }
 

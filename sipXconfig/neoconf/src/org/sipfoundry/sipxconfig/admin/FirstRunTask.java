@@ -26,7 +26,6 @@ import org.sipfoundry.sipxconfig.paging.PagingContext;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
-import org.sipfoundry.sipxconfig.speeddial.SpeedDialManager;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -48,7 +47,6 @@ public class FirstRunTask implements ApplicationListener {
     private ProfileManager m_phoneProfileManager;
     private LocationsManager m_locationsManager;
     private ParkOrbitContext m_parkOrbitContext;
-    private SpeedDialManager m_speedDialManager;
     private PagingContext m_pagingContext;
 
     public void runTask() {
@@ -64,7 +62,6 @@ public class FirstRunTask implements ApplicationListener {
 
         // this is moved from replication trigger will need something better here...
         m_parkOrbitContext.activateParkOrbits();
-        m_speedDialManager.activateResourceList();
         m_alarmContext.replicateAlarmServer();
 
         enforceRoles();
@@ -184,11 +181,6 @@ public class FirstRunTask implements ApplicationListener {
     @Required
     public void setParkOrbitContext(ParkOrbitContext parkOrbitContext) {
         m_parkOrbitContext = parkOrbitContext;
-    }
-
-    @Required
-    public void setSpeedDialManager(SpeedDialManager speedDialManager) {
-        m_speedDialManager = speedDialManager;
     }
 
     @Required

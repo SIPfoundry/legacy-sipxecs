@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.speeddial;
@@ -17,24 +17,22 @@ import org.dom4j.Element;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.springframework.beans.factory.annotation.Required;
 
 public class ResourceLists extends XmlFile {
     private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/resource-lists-00-01";
 
-    private Document m_document;
-
     private CoreContext m_coreContext;
 
-    public Document getDocument() {
-        return m_document;
-    }
+    private SpeedDialManager m_speedDialManager;
 
-    public void generate(SpeedDialManager speedDialManager) {
-        m_document = FACTORY.createDocument();
-        Element lists = m_document.addElement("lists", NAMESPACE);
+    @Override
+    public Document getDocument() {
+        Document document = FACTORY.createDocument();
+        Element lists = document.addElement("lists", NAMESPACE);
         List<User> users = m_coreContext.loadUsers();
         for (User user : users) {
-            SpeedDial speedDial = speedDialManager.getSpeedDialForUserId(user.getId(), false);
+            SpeedDial speedDial = m_speedDialManager.getSpeedDialForUserId(user.getId(), false);
             // ignore disabled orbits
             if (speedDial == null) {
                 continue;
@@ -51,6 +49,7 @@ public class ResourceLists extends XmlFile {
                 createResourceForUser(list, button, m_coreContext.getDomainName());
             }
         }
+        return document;
     }
 
     Element createResourceForUser(Element list, Button button, String domainName) {
@@ -58,9 +57,7 @@ public class ResourceLists extends XmlFile {
         // Append "sipx-noroute=Voicemail" and "sipx-userforward=false"
         // URI parameters to the target URI to control how the proxy forwards
         // SUBSCRIBEs to the resource URI.
-        resource.addAttribute("uri",
-                              button.getUri(domainName)
-                              + ";sipx-noroute=VoiceMail;sipx-userforward=false");
+        resource.addAttribute("uri", button.getUri(domainName) + ";sipx-noroute=VoiceMail;sipx-userforward=false");
         addNameElement(resource, StringUtils.defaultIfEmpty(button.getLabel(), button.getNumber()));
         return resource;
     }
@@ -77,7 +74,13 @@ public class ResourceLists extends XmlFile {
         return list;
     }
 
+    @Required
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
+    }
+
+    @Required
+    public void setSpeedDialManager(SpeedDialManager speedDialManager) {
+        m_speedDialManager = speedDialManager;
     }
 }

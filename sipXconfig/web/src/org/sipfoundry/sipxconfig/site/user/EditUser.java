@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.user;
@@ -31,7 +31,7 @@ public abstract class EditUser extends PageWithCallback implements PageBeginRend
 
     @InjectObject(value = "spring:speedDialManager")
     public abstract SpeedDialManager getSpeedDialManager();
-    
+
     @InjectObject(value = "spring:coreContext")
     public abstract CoreContext getCoreContext();
 
@@ -40,7 +40,7 @@ public abstract class EditUser extends PageWithCallback implements PageBeginRend
 
     @InjectObject(value = "spring:mailboxManager")
     public abstract MailboxManager getMailboxManager();
-    
+
     @Persist
     public abstract Integer getUserId();
 
@@ -70,9 +70,11 @@ public abstract class EditUser extends PageWithCallback implements PageBeginRend
             Mailbox mailbox = mmgr.getMailbox(user.getUserName());
             mmgr.saveMailboxPreferences(mailbox, getMailboxPreferences());
         }
-        
-        // update resource lists in case username hs changed
-        getSpeedDialManager().activateResourceList();
+
+        if (newUsername) {
+            // FIXME: this should be done automatically by speed dial manager
+            getSpeedDialManager().activateResourceList();
+        }
     }
 
     public void pageBeginRender(PageEvent event_) {

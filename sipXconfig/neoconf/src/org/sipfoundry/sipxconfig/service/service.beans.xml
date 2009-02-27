@@ -313,6 +313,7 @@
     <property name="configurations">
       <list>
         <ref bean="sipxRlsConfiguration" />
+        <ref bean="resourceListGenerator" />
       </list>
     </property>
     <property name="bundles">

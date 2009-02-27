@@ -7,6 +7,7 @@
     parent="defaultConfigurationFile">
     <property name="name" value="resource-lists.xml"/>
     <property name="coreContext" ref="coreContext" />
+    <property name="speedDialManager" ref="speedDialManager" />
   </bean>
 
   <bean id="speedDialManager" class="org.springframework.aop.framework.ProxyFactoryBean"
@@ -22,10 +23,8 @@
   <bean id="speedDialManagerImpl" class="org.sipfoundry.sipxconfig.speeddial.SpeedDialManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="coreContext" ref="coreContext" />
-    <property name="replicationContext" ref="sipxReplicationContext" />
-    <property name="resourceLists">
-      <ref local="resourceListGenerator" />
-    </property>
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="serviceConfigurator" ref="serviceConfigurator" />
   </bean>
 
   <bean id="speedDialManagerUserDelete" factory-bean="speedDialManagerImpl"

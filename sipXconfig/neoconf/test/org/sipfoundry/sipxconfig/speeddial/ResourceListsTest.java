@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.speeddial;
@@ -50,13 +50,14 @@ public class ResourceListsTest extends XMLTestCase {
             "delta", "100", "true"
         }
     };
-    
+
     private List<User> m_users;
 
     private SpeedDial m_sd1;
     private SpeedDial m_sd2;
     private SpeedDial m_sd3;
 
+    @Override
     protected void setUp() throws Exception {
         m_users = new ArrayList<User>();
         for (int i = 0; i < 4; i++) {
@@ -69,7 +70,7 @@ public class ResourceListsTest extends XMLTestCase {
 
         m_sd2 = createSpeedDial(BUTTONS_2);
         m_sd2.setUser(m_users.get(2));
-        
+
         m_sd3 = createSpeedDial(BUTTONS_3);
         m_sd3.setUser(m_users.get(3));
     }
@@ -95,7 +96,7 @@ public class ResourceListsTest extends XMLTestCase {
         coreContext.loadUsers();
         coreContextControl.andReturn(m_users);
         coreContext.getDomainName();
-        coreContextControl.andReturn("example.org").anyTimes();        
+        coreContextControl.andReturn("example.org").anyTimes();
         coreContextControl.replay();
 
         IMocksControl sdmControl = EasyMock.createControl();
@@ -112,8 +113,8 @@ public class ResourceListsTest extends XMLTestCase {
 
         ResourceLists rl = new ResourceLists();
         rl.setCoreContext(coreContext);
+        rl.setSpeedDialManager(sdm);
 
-        rl.generate(sdm);
         String generatedXml = rl.getFileContent();
 
         InputStream referenceXml = getClass().getResourceAsStream("resource-lists.test.xml");
@@ -133,20 +134,19 @@ public class ResourceListsTest extends XMLTestCase {
         ResourceLists rl = new ResourceLists();
         rl.setCoreContext(coreContext);
 
-        rl.generate(null);
         String fileContent = rl.getFileContent();
         assertXMLEqual(
                 "<lists xmlns=\"http://www.sipfoundry.org/sipX/schema/xml/resource-lists-00-01\"/>",
                 fileContent);
         coreContextControl.verify();
     }
-    
+
     public void testEmptyLabel() {
         IMocksControl elementControl = EasyMock.createControl();
         Element list = elementControl.createMock(Element.class);
         Element item = elementControl.createMock(Element.class);
         Element name = elementControl.createMock(Element.class);
-        list.addElement("resource");        
+        list.addElement("resource");
         elementControl.andReturn(item);
         item.addAttribute("uri", "sip:123@example.org;sipx-noroute=VoiceMail;sipx-userforward=false");
         elementControl.andReturn(item);
@@ -158,7 +158,7 @@ public class ResourceListsTest extends XMLTestCase {
         Button button = new Button(null, "123");
         ResourceLists rl = new ResourceLists();
         rl.createResourceForUser(list, button, "example.org");
-        
+
         elementControl.verify();
     }
 
@@ -171,6 +171,7 @@ public class ResourceListsTest extends XMLTestCase {
             m_id = id;
         }
 
+        @Override
         public Integer getId() {
             return m_id;
         }

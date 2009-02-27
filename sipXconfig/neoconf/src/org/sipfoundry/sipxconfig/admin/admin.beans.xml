@@ -74,7 +74,6 @@
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="serviceConfigurator" ref="serviceConfigurator" />
     <property name="parkOrbitContext" ref="parkOrbitContext" />
-    <property name="speedDialManager" ref="speedDialManager" />
     <property name="pagingContext" ref="pagingContext" />
   </bean>
 
