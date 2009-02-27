@@ -36,7 +36,7 @@
         <boolean />
       </type>
       <description>If true, the user name corresponds to a phone number.</description>
-      <value>true</value>
+      <value>false</value>
     </setting>
     <setting name="password">
       <label>Password</label>
