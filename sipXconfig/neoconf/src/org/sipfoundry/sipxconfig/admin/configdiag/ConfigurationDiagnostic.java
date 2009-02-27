@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.configdiag;
@@ -57,8 +57,7 @@ public class ConfigurationDiagnostic implements Callable<Integer> {
         }
     }
 
-    public void loadFromXml(InputStream xmlStream, ExternalCommandContext ecc)
-        throws IOException, SAXException {
+    public void loadFromXml(InputStream xmlStream, ExternalCommandContext ecc) throws IOException, SAXException {
         Digester digester = new TestDescriptorDigester(this);
         digester.parse(xmlStream);
         // set the context here... would be cleaner to set it in the digester code above
@@ -123,6 +122,10 @@ public class ConfigurationDiagnostic implements Callable<Integer> {
 
     public Date getEndTime() {
         return m_endTime;
+    }
+
+    public String getFullDescription() {
+        return m_longDescription != null ? m_longDescription : m_description;
     }
 
     public Integer call() throws Exception {

@@ -19,13 +19,13 @@
   </td>
 </tr>
 
-<div jwcid="@If" condition="ognl:test.longDescription != null" renderTag="false">
+<div jwcid="@If" condition="ognl:test.fullDescription != null" renderTag="false">
 	<div jwcid="@Any" id="ognl:'test' + rowId + 'Description'" class="testDescription hidden">
 	    <div class="tooltipTitle">
 	        <span jwcid="@Insert" value="ognl:test.label" />
 	    </div>
 	    <div class="tooltipBody">
-	        <span jwcid="@Insert" value="ognl:test.longDescription" />
+	        <span jwcid="@Insert" value="ognl:test.fullDescription" />
 	    </div>
 	</div>
 </div>

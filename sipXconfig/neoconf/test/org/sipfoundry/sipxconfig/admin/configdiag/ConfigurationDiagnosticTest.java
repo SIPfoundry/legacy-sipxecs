@@ -10,6 +10,7 @@ public class ConfigurationDiagnosticTest extends TestCase {
 
     private ConfigurationDiagnostic m_out;
 
+    @Override
     public void setUp() {
         m_out = new ConfigurationDiagnostic();
     }
@@ -33,6 +34,7 @@ public class ConfigurationDiagnosticTest extends TestCase {
 
         // override command from descriptor file to use test stub
         m_out.setCommand(new ExternalCommand() {
+            @Override
             public int execute() {
                 return 0;
             }
@@ -47,6 +49,7 @@ public class ConfigurationDiagnosticTest extends TestCase {
 
         // override command from descriptor file to use test stub
         m_out.setCommand(new ExternalCommand() {
+            @Override
             public int execute() {
                 return -1;
             }
@@ -56,9 +59,19 @@ public class ConfigurationDiagnosticTest extends TestCase {
         assertEquals(ConfigurationDiagnosticResult.Status.Error, m_out.getResult().getStatus());
     }
 
-    private void loadXmlForTest(ConfigurationDiagnostic diagnostic, String descriptorFileName)
-            throws Exception {
+    private void loadXmlForTest(ConfigurationDiagnostic diagnostic, String descriptorFileName) throws Exception {
         InputStream testDefInputStream = getClass().getResourceAsStream(descriptorFileName);
         diagnostic.loadFromXml(testDefInputStream, null);
+    }
+
+    public void testGetFullDescription() {
+        ConfigurationDiagnostic cd = new ConfigurationDiagnostic();
+        assertNull(cd.getFullDescription());
+        cd.setDescription("short");
+        assertEquals("short", cd.getFullDescription());
+        cd.setLongDescription("long");
+        assertEquals("long", cd.getFullDescription());
+        cd.setDescription(null);
+        assertEquals("long", cd.getFullDescription());
     }
 }
