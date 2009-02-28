@@ -186,8 +186,7 @@ public class SymmitronServer implements Symmitron {
     }
     
     private static InetAddress findIpAddress (String localAddress) throws UnknownHostException {
-        
-        String[] addressParts = localAddress.split(".");
+        String[] addressParts = localAddress.split("\\.");
         boolean isIpAddress = true;
         byte[] addressBytes = new byte[addressParts.length];
         int i = 0;
