@@ -36,4 +36,13 @@
     <property name="prefix" value="*76" />
     <property name="timeout" value="5000" />
   </bean>
+
+  <bean id="phonesWithIntercom" class="org.sipfoundry.sipxconfig.device.FilteredModelSource">
+    <property name="modelSource" ref="phoneModelSource" />
+    <property name="filter">
+      <bean class="org.sipfoundry.sipxconfig.device.FeatureFilter">
+        <constructor-arg value="intercom" />
+      </bean>
+    </property>
+  </bean>
 </beans>

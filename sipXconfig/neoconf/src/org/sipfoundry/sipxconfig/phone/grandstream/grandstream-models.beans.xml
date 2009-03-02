@@ -20,10 +20,20 @@
   <bean id="gsPhoneGxp2020" parent="gsModel">
     <property name="label" value="Grandstream GXP2020" />
     <property name="maxLineCount" value="6" />
+    <property name="supportedFeatures">
+      <set>
+        <value>intercom</value>
+      </set>
+    </property>
   </bean>
   <bean id="gsPhoneGxp2010" parent="gsModel">
     <property name="label" value="Grandstream GXP2010" />
     <property name="maxLineCount" value="4" />
+    <property name="supportedFeatures">
+      <set>
+        <value>intercom</value>
+      </set>
+    </property>
   </bean>
   <bean id="gsPhoneGxp2000" parent="gsModel">
     <property name="label" value="Grandstream GXP2000" />

@@ -8,6 +8,7 @@
   <inject property="tapestry" object="spring:tapestry" />
   <inject property="intercomManager" object="spring:intercomManager" />
   <inject property="phoneContext" object="spring:phoneContext" />
+  <inject property="phoneModelSource" object="spring:phoneModelSource" />
   <inject property="settingDao" object="spring:settingDao" />
 
   <property name="intercom" />

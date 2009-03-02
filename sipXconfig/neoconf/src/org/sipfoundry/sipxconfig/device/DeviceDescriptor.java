@@ -139,6 +139,10 @@ public abstract class DeviceDescriptor implements Model {
         m_supportedFeatures = supportedFeatures;
     }
 
+    public boolean isSupported(String feature) {
+        return m_supportedFeatures.contains(feature);
+    }
+
     /**
      * This function is called to transform serial number entered by the user to the format that
      * is accepted by sipXconfig. It is called before the serial number is verified against

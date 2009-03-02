@@ -13,16 +13,30 @@
   <bean id="snom300" parent="snomModel">
     <property name="label" value="Snom 300" />
     <property name="maxLineCount" value="4" />
+    <property name="supportedFeatures">
+      <set>
+        <value>intercom</value>
+      </set>
+    </property>
   </bean>
   <bean id="snom320" parent="snomModel">
     <property name="label" value="Snom 320" />
     <property name="maxLineCount" value="12" />
+    <property name="supportedFeatures">
+      <set>
+        <value>intercom</value>
+      </set>
+    </property>
   </bean>
   <bean id="snom360" parent="snomModel">
     <property name="label" value="Snom 360" />
     <property name="maxLineCount" value="12" />
+    <property name="supportedFeatures">
+      <set>
+        <value>intercom</value>
+      </set>
+    </property>
   </bean>
-
   <bean id="snom" class="org.sipfoundry.sipxconfig.phone.snom.SnomPhone" singleton="false" parent="abstractPhone">
   </bean>
 </beans>

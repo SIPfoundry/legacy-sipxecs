@@ -9,6 +9,11 @@
     <property name="profileTemplate" value="ipDialog/ipDialog.vm" />
     <property name="vendor" value="ipDialog" />
     <property name="restartSupported" value="true" />
+    <property name="supportedFeatures">
+      <set>
+       <value>intercom</value>
+      </set>
+    </property>
   </bean>
 
   <bean id="ipDialog" class="org.sipfoundry.sipxconfig.phone.ipdialog.IpDialogPhone" singleton="false"
