@@ -43,13 +43,16 @@ public class RRDToolGraphUpdater {
 
     private static final String AREA_IN = "AREA:in#";
     private static final String DEF_IN = "DEF:in=";
-    private static final String DEF_OUT = "DEF:out=";
+    private static final String DEF_LINE2 = "DEF:line2=";
     private static final String DS0_AVERAGE = ":ds0:AVERAGE";
     private static final String DS1_AVERAGE = ":ds1:AVERAGE";
-    private static final String LINE2_OUT = "LINE2:out#";
+    private static final String LINE2 = "LINE2:line2#";
     private static final String PRINT_AVERAGE = "PRINT:in:AVERAGE:\"Average ";
+    private static final String PRINT_AVERAGE_LINE2 = "PRINT:line2:AVERAGE:\"Average ";
     private static final String PRINT_MAX = "PRINT:in:MAX:\"Max ";
+    private static final String PRINT_MAX_LINE2 = "PRINT:line2:MAX:\"Max ";
     private static final String PRINT_LAST = "PRINT:in:LAST:\"Current ";
+    private static final String PRINT_LAST_LINE2 = "PRINT:line2:LAST:\"Current ";
     private static final String LF = "=%.1lf\"";
 
     private static final String FILE_SEPARATOR = "file.separator";
@@ -220,12 +223,12 @@ public class RRDToolGraphUpdater {
                 commandVector.add(PRINT_LAST + target.getLegendI() + LF);
             }
             if (StringUtils.isNotEmpty(target.getLegend2())) {
-                commandVector.add(DEF_OUT + dataFileName + DS1_AVERAGE);
-                commandVector.add(LINE2_OUT + LINE_COLOR + MonitoringUtil.COLON
+                commandVector.add(DEF_LINE2 + dataFileName + DS1_AVERAGE);
+                commandVector.add(LINE2 + LINE_COLOR + MonitoringUtil.COLON
                         + target.getLegend2());
-                commandVector.add(PRINT_AVERAGE + target.getLegendO() + LF);
-                commandVector.add(PRINT_MAX + target.getLegendO() + LF);
-                commandVector.add(PRINT_LAST + target.getLegendO() + LF);
+                commandVector.add(PRINT_AVERAGE_LINE2 + target.getLegendO() + LF);
+                commandVector.add(PRINT_MAX_LINE2 + target.getLegendO() + LF);
+                commandVector.add(PRINT_LAST_LINE2 + target.getLegendO() + LF);
             }
         } else {
             commandVector.add(DASH + W_LETTER);
@@ -238,8 +241,8 @@ public class RRDToolGraphUpdater {
                         + target.getLegendI());
             }
             if (StringUtils.isNotEmpty(target.getLegendO())) {
-                commandVector.add(DEF_OUT + dataFileName + DS1_AVERAGE);
-                commandVector.add(LINE2_OUT + LINE_COLOR + MonitoringUtil.COLON
+                commandVector.add(DEF_LINE2 + dataFileName + DS1_AVERAGE);
+                commandVector.add(LINE2 + LINE_COLOR + MonitoringUtil.COLON
                         + target.getLegendO());
             }
         }
