@@ -17,9 +17,11 @@ import java.util.List;
 
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.admin.parkorbit.BackgroundMusic;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit;
+import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class OrbitsTest extends XMLTestCase {
@@ -35,6 +37,7 @@ public class OrbitsTest extends XMLTestCase {
         }
     };
 
+    @Override
     protected void setUp() throws Exception {
         XMLUnit.setIgnoreWhitespace(true);
 
@@ -64,9 +67,18 @@ public class OrbitsTest extends XMLTestCase {
     }
 
     public void testGenerate() throws Exception {
+        IMocksControl parkOrbitContextControl = EasyMock.createControl();
+        ParkOrbitContext parkOrbitContext = parkOrbitContextControl.createMock(ParkOrbitContext.class);
+        parkOrbitContext.getDefaultMusicOnHold();
+        parkOrbitContextControl.andReturn("default.wav");
+        parkOrbitContext.getParkOrbits();
+        parkOrbitContextControl.andReturn(m_parkOrbits);
+        parkOrbitContextControl.replay();
+
+
         Orbits orbits = new Orbits();
         orbits.setAudioDirectory("/var/sipxdata/parkserver/music");
-        orbits.generate(new BackgroundMusic(), m_parkOrbits);
+        orbits.setParkOrbitContext(parkOrbitContext);
         String generatedXml = orbits.getFileContent();
         // orbits file on windows includes "c:/" etc
         generatedXml = generatedXml.replaceAll(TestUtil.currentDrive(), "");

@@ -73,7 +73,6 @@
     <property name="locationsManager" ref="locationsManager" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="serviceConfigurator" ref="serviceConfigurator" />
-    <property name="parkOrbitContext" ref="parkOrbitContext" />
     <property name="pagingContext" ref="pagingContext" />
   </bean>
 

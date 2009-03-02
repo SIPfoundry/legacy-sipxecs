@@ -15,7 +15,6 @@ import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.ResetDialPlanTask;
-import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.common.AlarmContext;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -46,7 +45,6 @@ public class FirstRunTask implements ApplicationListener {
     private ProfileManager m_gatewayProfileManager;
     private ProfileManager m_phoneProfileManager;
     private LocationsManager m_locationsManager;
-    private ParkOrbitContext m_parkOrbitContext;
     private PagingContext m_pagingContext;
 
     public void runTask() {
@@ -61,7 +59,6 @@ public class FirstRunTask implements ApplicationListener {
         m_resetDialPlanTask.reset(false);
 
         // this is moved from replication trigger will need something better here...
-        m_parkOrbitContext.activateParkOrbits();
         m_alarmContext.replicateAlarmServer();
 
         enforceRoles();
@@ -176,11 +173,6 @@ public class FirstRunTask implements ApplicationListener {
     @Required
     public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
         m_sipxServiceManager = sipxServiceManager;
-    }
-
-    @Required
-    public void setParkOrbitContext(ParkOrbitContext parkOrbitContext) {
-        m_parkOrbitContext = parkOrbitContext;
     }
 
     @Required

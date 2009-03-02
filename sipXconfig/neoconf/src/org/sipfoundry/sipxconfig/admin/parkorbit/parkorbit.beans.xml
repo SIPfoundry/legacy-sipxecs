@@ -6,6 +6,7 @@
   <bean id="orbitsGenerator" class="org.sipfoundry.sipxconfig.admin.dialplan.config.Orbits"
     parent="defaultConfigurationFile">
     <property name="name" value="orbits.xml"/>
+    <property name="parkOrbitContext" ref="parkOrbitContext" />
   </bean>
 
   <bean id="org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit"
@@ -17,9 +18,8 @@
     <property name="replicationContext" ref="sipxReplicationContext" />
     <property name="aliasManager" ref="aliasManager" />
     <property name="settingDao" ref="settingDao" />
-    <property name="orbitsGenerator">
-      <ref local="orbitsGenerator" />
-    </property>
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="serviceConfigurator" ref="serviceConfigurator" />
   </bean>
 
   <bean id="parkOrbitContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

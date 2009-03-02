@@ -175,6 +175,7 @@
     <property name="configurations">
       <list>
         <ref bean="sipxParkConfiguration" />
+        <ref bean="orbitsGenerator" />
       </list>
     </property>
     <property name="bundles">
