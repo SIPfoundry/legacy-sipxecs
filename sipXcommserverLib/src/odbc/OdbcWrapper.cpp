@@ -303,7 +303,7 @@ bool odbcGetColumnStringData(const OdbcHandle handle,
    
    if (handle)
    {
-      SQLINTEGER indicator;
+      SQLLEN indicator;
       SQLRETURN sqlRet = SQLGetData(handle->mStatementHandle,
                                     (SQLUSMALLINT)columnIndex,
                                     SQL_C_CHAR,
