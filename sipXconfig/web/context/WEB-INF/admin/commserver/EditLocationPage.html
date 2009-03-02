@@ -10,7 +10,6 @@
 
   <div id="settings-content">  
     <span jwcid="@common/ErrorMsg"/>
-    <span jwcid="@common/QuickHelp" value="message:quick.help"/>
     <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')"/>
   </div>
   <div jwcid="configureLocationTab@Block">
@@ -19,6 +18,7 @@
     </form>
   </div>
   <div jwcid="listServicesTab@Block">
+    <span jwcid="@common/QuickHelp" value="message:quick.help"/>
     <span jwcid="servicesTable@admin/commserver/ServicesTable" serviceLocation="ognl:locationBean"/>
   </div>
   <div jwcid="monitorTargetTab@Block">
