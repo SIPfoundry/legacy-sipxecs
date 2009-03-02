@@ -47,6 +47,10 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
         return loadLocationByUniqueProperty(LOCATION_PROP_NAME, fqdn);
     }
 
+    public Location getLocationByAddress(String address) {
+        return loadLocationByUniqueProperty("address", address);
+    }
+
     private Location loadLocationByUniqueProperty(String propName, Object propValue) {
         final Criterion expression = Restrictions.eq(propName, propValue);
 

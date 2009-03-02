@@ -24,6 +24,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
+import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
 
@@ -39,6 +40,9 @@ public abstract class EditSbcDevice extends PageWithCallback implements PageBegi
 
     @InjectObject("spring:dialPlanActivationManager")
     public abstract DialPlanActivationManager getDialPlanActivationManager();
+
+    @InjectObject(value = "spring:sbcProfileManager")
+    public abstract ProfileManager getProfileManager();
 
     @Persist
     public abstract String getReturnPageName();
@@ -152,6 +156,10 @@ public abstract class EditSbcDevice extends PageWithCallback implements PageBegi
         if (getSbcDeviceId() == null) {
             setSbcDeviceId(sbcDevice.getId());
             setSbcDevice(null);
+        }
+
+        if (sbcDevice.getModel().isInternalSbc()) {
+            getProfileManager().generateProfile(sbcDevice.getId(), false, null);
         }
     }
 

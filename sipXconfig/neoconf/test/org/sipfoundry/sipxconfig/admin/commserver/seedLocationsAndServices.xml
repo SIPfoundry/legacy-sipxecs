@@ -3,18 +3,21 @@
   <table name="location">
     <column>location_id</column>
     <column>name</column>
+    <column>ip_address</column>
     <column>fqdn</column>
     <column>primary_location</column>
     <column>registered</column>
     <row>
       <value>101</value>
       <value>Primary</value>
+      <value>10.1.1.1</value>
       <value>localhost</value>
       <value>true</value>
       <value>true</value>
     </row>
     <row>
       <value>102</value>
+      <value>10.1.1.2</value>
       <value>Secondary</value>
       <value>remotehost.example.org</value>
       <value>false</value>

@@ -46,7 +46,7 @@ public class ProfileManagerImpl implements ProfileManager {
         Serializable jobId = m_jobContext.schedule(jobName);
         try {
             m_jobContext.start(jobId);
-            ProfileLocation location = d.getModel().getDefaultProfileLocation();
+            ProfileLocation location = d.getProfileLocation();
             d.generateProfiles(location);
             m_jobContext.success(jobId);
         } catch (RuntimeException e) {

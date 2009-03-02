@@ -41,7 +41,6 @@
 
   <bean id="borderControllerBundle" parent="abstractBundle">
     <constructor-arg value="borderController" />
-    <property name="max" value="1" />
   </bean>
 
   <bean id="callCenterBundle" parent="abstractBundle">

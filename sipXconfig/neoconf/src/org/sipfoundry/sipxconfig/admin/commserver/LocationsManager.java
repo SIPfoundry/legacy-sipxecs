@@ -18,6 +18,8 @@ public interface LocationsManager {
 
     Location getLocationByFqdn(String fqdn);
 
+    Location getLocationByAddress(String address);
+
     Location getPrimaryLocation();
 
     /**

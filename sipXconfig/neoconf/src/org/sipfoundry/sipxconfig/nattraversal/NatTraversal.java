@@ -20,8 +20,9 @@ public class NatTraversal extends BeanWithGroups {
 
     public static final String RTP_PORT_START = "nattraversal-symmitron/port-range-start";
     public static final String RTP_PORT_END = "nattraversal-symmitron/port-range-end";
-
     public static final String BEAN_NAME = "natTraversal";
+    private static final String EMPTY_STRING = "";
+
     private String m_settingsFile;
     private boolean m_enabled;
     private boolean m_behindnat;
@@ -93,7 +94,7 @@ public class NatTraversal extends BeanWithGroups {
           //FIXME There are several issues here.  Is primary server address the correct one to use?
             //Don't make sbc bridge a member in NatTraversal because you may end up having two bridge
             //references in the hibernate session when sbc bridge makes port range validation for instance
-            BridgeSbc bridge = m_natTraversal.getSbcDeviceManager().getBridgeSbc();
+            BridgeSbc bridge = m_natTraversal.getSbcDeviceManager().getBridgeSbc(EMPTY_STRING);
             return bridge != null ? bridge.getSettingValue("bridge-configuration/external-address")
                     : m_locationsManager.getPrimaryLocation().getAddress();
         }
@@ -103,7 +104,7 @@ public class NatTraversal extends BeanWithGroups {
             //FIXME There are several issues here.  Is primary server address the correct one to use?
             //Don't make sbc bridge a member in NatTraversal because you may end up having two bridge
             //references in the hibernate session when sbc bridge makes port range validation for instance
-            BridgeSbc bridge = m_natTraversal.getSbcDeviceManager().getBridgeSbc();
+            BridgeSbc bridge = m_natTraversal.getSbcDeviceManager().getBridgeSbc(EMPTY_STRING);
             return bridge != null ? bridge.getSettingValue("bridge-configuration/local-address")
                     : m_locationsManager.getPrimaryLocation().getAddress();
         }

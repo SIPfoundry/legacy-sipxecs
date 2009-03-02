@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.device;
@@ -56,7 +56,7 @@ public abstract class Device extends BeanWithGroups {
     /**
      * Gets list of files to be copies and used profileGenerator to copy them over to provisioning
      * location
-     * 
+     *
      * @param location profile location
      */
     protected void copyFiles(ProfileLocation location) {
@@ -71,7 +71,7 @@ public abstract class Device extends BeanWithGroups {
     /**
      * Default implementation gets the list of profile types and calls generate for each of those
      * types
-     * 
+     *
      * @param location profile location
      */
     public void generateFiles(ProfileLocation location) {
@@ -101,10 +101,10 @@ public abstract class Device extends BeanWithGroups {
 
     /**
      * Return the list of profile types for this device is generating.
-     * 
+     *
      * The intention is to use this method to check if there are any profiles that can be
      * previewed. It's OK to return null or just a subset of profiles here.
-     * 
+     *
      * @return list
      */
     public Profile[] getProfileTypes() {
@@ -122,7 +122,7 @@ public abstract class Device extends BeanWithGroups {
     /**
      * If SimepleDefinitionEvaluator is not what you need override this function to provide your
      * own expression evaluator to be used when loading settings model.
-     * 
+     *
      * @return reusable copy of expression evaluator
      */
     protected SettingExpressionEvaluator getSettingsEvaluator() {
@@ -214,5 +214,9 @@ public abstract class Device extends BeanWithGroups {
             jn.append(getModel().getLabel());
         }
         return jn.toString();
+    }
+
+    public ProfileLocation getProfileLocation() {
+        return getModel().getDefaultProfileLocation();
     }
 }

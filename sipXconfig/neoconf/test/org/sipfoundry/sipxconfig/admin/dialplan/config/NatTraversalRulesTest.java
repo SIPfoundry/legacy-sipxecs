@@ -84,7 +84,7 @@ public class NatTraversalRulesTest extends XMLTestCase {
 
         m_bridgeSbc = null;
         m_sbcDeviceManager = createNiceMock(SbcDeviceManager.class);
-        m_sbcDeviceManager.getBridgeSbc();
+        m_sbcDeviceManager.getBridgeSbc("10.1.2.3");
         expectLastCall().andReturn(m_bridgeSbc);
 
         m_natTraversal.setSbcDeviceManager(m_sbcDeviceManager);
@@ -100,7 +100,7 @@ public class NatTraversalRulesTest extends XMLTestCase {
 
         m_bridgeSbc = null;
         m_sbcDeviceManager = createNiceMock(SbcDeviceManager.class);
-        m_sbcDeviceManager.getBridgeSbc();
+        m_sbcDeviceManager.getBridgeSbc("10.1.2.3");
         expectLastCall().andReturn(m_bridgeSbc);
 
         m_natTraversal.setSbcDeviceManager(m_sbcDeviceManager);
@@ -128,7 +128,7 @@ public class NatTraversalRulesTest extends XMLTestCase {
         m_bridgeSbc.setModelFilesContext(TestHelper.getModelFilesContext());
         m_bridgeSbc.getSettings().getSetting("bridge-configuration/external-address").setValue("11.12.13.14");
         m_bridgeSbc.getSettings().getSetting("bridge-configuration/local-address").setValue("21.22.23.24");
-        m_sbcDeviceManager.getBridgeSbc();
+        m_sbcDeviceManager.getBridgeSbc("");
         expectLastCall().andReturn(m_bridgeSbc);
         expectLastCall().times(4);
 
@@ -148,7 +148,7 @@ public class NatTraversalRulesTest extends XMLTestCase {
         m_natTraversal.getSettings().getSetting("nattraversal-info/publicaddress").setValue("1.2.3.4");
         m_sbcDeviceManager = createNiceMock(SbcDeviceManager.class);
         m_bridgeSbc = null;
-        m_sbcDeviceManager.getBridgeSbc();
+        m_sbcDeviceManager.getBridgeSbc("10.1.2.3");
         expectLastCall().andReturn(m_bridgeSbc);
 
         m_natTraversal.setSbcDeviceManager(m_sbcDeviceManager);

@@ -55,13 +55,13 @@ public class ProfileManagerImplTest extends TestCase {
         Device phone = createStrictMock(Device.class);
         phone.getNiceName();
         expectLastCall().andReturn("110000000000");
-        phone.getModel();
-        expectLastCall().andReturn(model);
+        phone.getProfileLocation();
+        expectLastCall().andReturn(location);
         phone.generateProfiles(same(location));
         phone.getNiceName();
         expectLastCall().andReturn("120000000000");
-        phone.getModel();
-        expectLastCall().andReturn(model);
+        phone.getProfileLocation();
+        expectLastCall().andReturn(location);
         phone.generateProfiles(same(location));
 
         DeviceSource source = createMock(DeviceSource.class);
@@ -102,8 +102,8 @@ public class ProfileManagerImplTest extends TestCase {
         Device phone = createStrictMock(Device.class);
         phone.getNiceName();
         expectLastCall().andReturn("110000000000");
-        phone.getModel();
-        expectLastCall().andReturn(model);
+        phone.getProfileLocation();
+        expectLastCall().andReturn(location);
         phone.generateProfiles(same(location));
 
         DeviceSource source = createMock(DeviceSource.class);
@@ -142,8 +142,8 @@ public class ProfileManagerImplTest extends TestCase {
         Device phone = createMock(Device.class);
         phone.getNiceName();
         expectLastCall().andReturn("110000000000");
-        phone.getModel();
-        expectLastCall().andReturn(model);
+        phone.getProfileLocation();
+        expectLastCall().andReturn(location);
         phone.generateProfiles(same(location));
 
         DeviceSource source = createMock(DeviceSource.class);

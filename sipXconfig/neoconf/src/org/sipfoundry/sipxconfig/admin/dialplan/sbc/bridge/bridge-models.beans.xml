@@ -2,28 +2,26 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
-  <bean id="sipXbridgeProfileLocation" class="org.sipfoundry.sipxconfig.device.ReplicatedProfileLocation">
-    <property name="replicationContext" ref="sipxReplicationContextDao" />
-    <property name="name" value="sipxbridge.xml" />
-    <property name="directory" value="${sysdir.etc}" />
-  </bean>
-
   <bean id="sipXbridgeSbcModel" parent="abstractSbcModel">
     <property name="beanId" value="sbcSipXbridge" />
     <property name="label" value="Internal SBC" />
     <property name="modelDir" value="sipXbridge" />
     <property name="serialNumberPattern" value="" />
     <property name="restartSupported" value="true" />
-    <property name="maxAllowed" value="1" />
-    <property name="defaultProfileLocation" ref="sipXbridgeProfileLocation" />
     <property name="defaultPort" value="5090" />
-	<property name="internetCallingSupported" value="false" />
+    <property name="internetCallingSupported" value="false" />
+    <property name="internalSbc" value="true" />
   </bean>
 
   <bean id="sbcSipXbridge" class="org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc" scope="prototype"
     parent="sbcGeneric">
+    <property name="profileName" value="sipxbridge.xml" />
+    <property name="profileDirectory" value="${sysdir.etc}" />
     <property name="gatewayContext" ref="gatewayContext" />
     <property name="processContext" ref="sipxProcessContext" />
+    <!-- eager replication here: profile generation is already in the background -->
+    <property name="sipxReplicationContext" ref="sipxReplicationContextDao" />
     <property name="sipxBridgeService" ref="sipxBridgeService" />
+    <property name="locationsManager" ref="locationsManager" />
   </bean>
 </beans>

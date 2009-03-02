@@ -67,13 +67,13 @@ public class SbcDeviceManagerImplTestIntegration extends IntegrationTestCase {
 
     public void testGetSbcBridge() {
         loadDataSet("admin/dialplan/sbc/sbc-device.db.xml");
-        BridgeSbc bridgeSbc = m_sdm.getBridgeSbc();
+        BridgeSbc bridgeSbc = m_sdm.getBridgeSbc("10.1.2.6");
         assertEquals("SbcBridge", bridgeSbc.getName());
         assertEquals("10.1.2.6", bridgeSbc.getAddress());
         assertEquals("301122334455", bridgeSbc.getSerialNumber());
         assertEquals("bridgeDesc", bridgeSbc.getDescription());
         m_sdm.deleteSbcDevice(1003);
-        bridgeSbc = m_sdm.getBridgeSbc();
+        bridgeSbc = m_sdm.getBridgeSbc("10.1.2.6");
         assertTrue(bridgeSbc==null);
     }
 

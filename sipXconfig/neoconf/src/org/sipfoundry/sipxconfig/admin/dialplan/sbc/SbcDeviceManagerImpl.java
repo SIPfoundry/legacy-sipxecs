@@ -11,24 +11,28 @@ package org.sipfoundry.sipxconfig.admin.dialplan.sbc;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
-import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.common.event.SbcDeviceDeleteListener;
+import org.sipfoundry.sipxconfig.service.SipxServiceBundle;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
 public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDevice> implements
-        SbcDeviceManager, BeanFactoryAware {
+        SbcDeviceManager, BeanFactoryAware, DaoEventListener {
 
     private static final String SBC_ID = "sbcId";
 
@@ -40,11 +44,25 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
 
     private String m_localIpAddress;
 
-    public abstract DialPlanActivationManager getDialPlanActivationManager();
+    private SipxServiceBundle m_borderControllerBundle;
+
+    private SbcDescriptor m_sipXbridgeSbcModel;
+
+    @Required
+    public void setBorderControllerBundle(SipxServiceBundle borderControllerBundle) {
+        m_borderControllerBundle = borderControllerBundle;
+    }
+
+    @Required
+    public void setSipXbridgeSbcModel(SbcDescriptor sipXbridgeSbcModel) {
+        m_sipXbridgeSbcModel = sipXbridgeSbcModel;
+    }
 
     public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
         m_daoEventPublisher = daoEventPublisher;
     }
+
+    public abstract DialPlanActivationManager getDialPlanActivationManager();
 
     public void clear() {
         Collection<SbcDevice> sbcs = getSbcDevices();
@@ -80,9 +98,16 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
         return load(SbcDevice.class, id);
     }
 
-    public BridgeSbc getBridgeSbc() {
-        SbcDevice sbcDevice = DaoUtils.requireOneOrZero(getSbcDeviceByType(BridgeSbc.class), "sbc bridge");
-        return (BridgeSbc) sbcDevice;
+    public BridgeSbc getBridgeSbc(String address) {
+        List<BridgeSbc> sbcDevices = getSbcDeviceByType(BridgeSbc.class);
+        for (Iterator<BridgeSbc> iterator = sbcDevices.iterator(); iterator.hasNext();) {
+            BridgeSbc sbcDevice = iterator.next();
+            if (null != address
+                    && (address.equals("") || address.equals(sbcDevice.getAddress()))) {
+                return sbcDevice;
+            }
+        }
+        return null;
     }
 
     private <T> List<T> getSbcDeviceByType(final Class<T> type) {
@@ -132,7 +157,6 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
         String beanId = descriptor.getBeanId();
         SbcDevice newSbc = (SbcDevice) m_beanFactory.getBean(beanId, SbcDevice.class);
         newSbc.setModel(descriptor);
-        newSbc.setAddress(m_localIpAddress);
         newSbc.setPort(descriptor.getDefaultPort());
         return newSbc;
     }
@@ -214,5 +238,30 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
 
     public String getLocalIpAddress() {
         return m_localIpAddress;
+    }
+
+    public void onDelete(Object entity) {
+        if (entity instanceof Location) {
+            Location location = (Location) entity;
+            if (null != getBridgeSbc(location.getAddress())) {
+                deleteSbcDevice(getBridgeSbc(location.getAddress()).getId());
+            }
+        }
+    }
+
+    public void onSave(Object entity) {
+        if (entity instanceof Location) {
+            Location location = (Location) entity;
+            if (location.isBundleInstalled(m_borderControllerBundle.getModelId())
+                    && null == getBridgeSbc(location.getAddress())) {
+                SbcDevice sipXbridgeSbc = newSbcDevice(m_sipXbridgeSbcModel);
+                sipXbridgeSbc.setAddress(location.getAddress());
+                sipXbridgeSbc.setName("sipXbridge-" + location.getId().toString());
+                sipXbridgeSbc.setDescription("Internal SBC on " + location.getFqdn());
+                storeSbcDevice(sipXbridgeSbc);
+            } else if (null != getBridgeSbc(location.getAddress())) {
+                deleteSbcDevice(getBridgeSbc(location.getAddress()).getId());
+            }
+        }
     }
 }

@@ -37,6 +37,22 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         assertEquals("https://remotehost.example.org:8092/RPC2", locations[1].getProcessMonitorUrl());
     }
 
+    public void testGetLocationByFqdn() throws Exception {
+        loadDataSetXml("admin/commserver/clearLocations.xml");
+        loadDataSetXml("admin/commserver/seedLocationsAndServices.xml");
+
+        Location l = m_out.getLocationByFqdn("remotehost.example.org");
+        assertEquals(new Integer(102), l.getId());
+    }
+
+    public void testGetLocationByAddress() throws Exception {
+        loadDataSetXml("admin/commserver/clearLocations.xml");
+        loadDataSetXml("admin/commserver/seedLocationsAndServices.xml");
+
+        Location l = m_out.getLocationByAddress("10.1.1.1");
+        assertEquals(new Integer(101), l.getId());
+    }
+
     public void testFindById() throws Exception {
         loadDataSetXml("admin/commserver/seedLocationsAndServices.xml");
         Location[] locations = m_out.getLocations();

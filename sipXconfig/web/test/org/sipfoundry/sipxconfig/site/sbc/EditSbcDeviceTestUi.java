@@ -48,24 +48,12 @@ public class EditSbcDeviceTestUi extends WebTestCase {
         //local address automatically configured
         SiteTestHelper.selectOption(tester, "PropertySelection", "Unmanaged SBC");
         setTextField("sbcDevice:name", "sbc2");
-        assertTextFieldEquals("sbcDevice:address", SiteTestHelper.getSbcDeviceLocalIp());
+        assertTextFieldEquals("sbcDevice:address", "");
+        setTextField("sbcDevice:address", "10.0.0.1");
         clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);
         sbcsTable = getTable("list:sbc");
         assertEquals(3, sbcsTable.getRowCount());
-
-        //add bridge
-        SiteTestHelper.selectOption(tester, "PropertySelection", "Internal SBC");
-        setTextField("sbcDevice:name", "bridge");
-        assertTextFieldEquals("sbcDevice:address", SiteTestHelper.getSbcDeviceLocalIp());
-        clickButton("form:ok");
-        SiteTestHelper.assertNoUserError(tester);
-        sbcsTable = getTable("list:sbc");
-        assertEquals(4, sbcsTable.getRowCount());
-
-        //creation of maximum one bridge is allowed
-        SiteTestHelper.selectOption(tester, "PropertySelection", "Internal SBC");
-        SiteTestHelper.assertUserError(getTester());
 
         //delete one sbc
         setWorkingForm("Form");
@@ -73,7 +61,7 @@ public class EditSbcDeviceTestUi extends WebTestCase {
         clickButton("list:sbc:delete");
         SiteTestHelper.assertNoUserError(tester);
         sbcsTable = getTable("list:sbc");
-        assertEquals(3, sbcsTable.getRowCount());
+        assertEquals(2, sbcsTable.getRowCount());
 
         //delete all sbcs
         deleteAllSbcs();
@@ -107,14 +95,5 @@ public class EditSbcDeviceTestUi extends WebTestCase {
         clickButton("form:ok");
 
         SiteTestHelper.assertUserError(tester);
-    }
-
-    public void testNoProfilePreviewOnNewSbc() throws Exception {
-        SiteTestHelper.assertNoUserError(tester);
-
-        SiteTestHelper.selectOption(tester, "PropertySelection", "Internal SBC");
-
-        SiteTestHelper.assertNoUserError(tester);
-        assertTextNotPresent("sipxbridge.xml");
     }
 }

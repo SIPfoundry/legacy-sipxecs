@@ -33,7 +33,7 @@ public interface SbcDeviceManager {
 
     Collection<Integer> getAllSbcDeviceIds();
 
-    public BridgeSbc getBridgeSbc();
+    public BridgeSbc getBridgeSbc(String address);
 
     public void checkForNewSbcDeviceCreation(SbcDescriptor descriptor);
 

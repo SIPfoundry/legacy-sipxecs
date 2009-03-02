@@ -18,6 +18,7 @@ public class SbcDescriptor extends DeviceDescriptor {
     private int m_maxAllowed = -1;
     private int m_defaultPort = 5060;
     private boolean m_internetCallingSupported = true;
+    private boolean m_internalSbc;
 
     public int getMaxAllowed() {
         return m_maxAllowed;
@@ -41,5 +42,13 @@ public class SbcDescriptor extends DeviceDescriptor {
 
     public void setInternetCallingSupported(boolean internetCallingSupported) {
         m_internetCallingSupported = internetCallingSupported;
+    }
+
+    public boolean isInternalSbc() {
+        return m_internalSbc;
+    }
+
+    public void setInternalSbc(boolean internalSbc) {
+        m_internalSbc = internalSbc;
     }
 }
