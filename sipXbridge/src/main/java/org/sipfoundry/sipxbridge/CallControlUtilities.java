@@ -12,7 +12,6 @@ package org.sipfoundry.sipxbridge;
 
 import gov.nist.javax.sip.DialogExt;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.sdp.SessionDescription;
@@ -78,8 +77,6 @@ public class CallControlUtilities {
      * @throws Exception
      */
     static void sendSdpReOffer(Response response, Dialog dialog) throws Exception {
-        // DialogApplicationData dialogContext = (DialogApplicationData) dialog
-        // .getApplicationData();
         BackToBackUserAgent b2bua = DialogContext.getBackToBackUserAgent(dialog);
         DialogContext dialogContext = (DialogContext) dialog.getApplicationData();
         if (logger.isDebugEnabled()) {
@@ -97,7 +94,7 @@ public class CallControlUtilities {
 
         if (response.getContentLength().getContentLength() != 0) {
             /*
-             * Possibly filter the outbound SDP ( if user sets up to do so ).
+             * Get the session description from the response.
              */
             SessionDescription sdpOffer = SipUtilities.getSessionDescription(response);
 
@@ -202,11 +199,7 @@ public class CallControlUtilities {
                 DialogContext.getRtpSession(dialog).getTransmitter().setOnHold(false);
 
             } else {
-                /*
-                 * Got a Response to our SDP offer solicitation. Shuffle to the other end. Note
-                 * that we have to carefully replay a paired down session description from the
-                 * original offer -- intersecting it with the original offer.
-                 */
+                
 
                 ackSd = answerSessionDescription;
 

@@ -10,7 +10,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.Properties;
 
+import javax.sip.header.ServerHeader;
+import javax.sip.header.UserAgentHeader;
+
 import org.cafesip.sipunit.SipTestCase;
+import org.sipfoundry.sipxbridge.symmitron.SymmitronServer;
 import org.sipfoundry.sipxbridge.xmlrpc.SipXbridgeXmlRpcClient;
 
 public abstract class AbstractSipSignalingTest extends SipTestCase {
@@ -20,43 +24,55 @@ public abstract class AbstractSipSignalingTest extends SipTestCase {
 	private static int baseMediaPort;
 	protected ItspAccountInfo accountInfo;
 	protected AccountManagerImpl accountManager;
-	protected String sipxProxyAddress;
-	protected SipXbridgeXmlRpcClient client;
+	protected static String sipxProxyAddress;
+	
+	static {
+		try {
+			
+			Properties properties = new Properties();
+			properties.load(new FileInputStream(new File(
+					"testdata/selftest.properties")));
+			String accountDir = properties
+			.getProperty("org.sipfoundry.gateway.mockItspAccount");
+			System.out.println("accountdir = " + accountDir);
+			System.setProperty("conf.dir", accountDir);
+			sipxProxyAddress = properties
+			.getProperty("org.sipfoundry.gateway.mockSipxProxyAddress");
+			System.setProperty("conf.dir", accountDir);
+			baseMediaPort = Integer.parseInt(properties
+					.getProperty("org.sipfoundry.gateway.mediaBasePort"));
+
+			SymmitronServer.start(); /* Starting the symmitron only once for these tests */
+			System.out.println("SymmitronServer -- started.");
+		} catch ( Exception ex) {
+			ex.printStackTrace();
+			throw new RuntimeException(ex);
+		}	
+	}
 
 	@Override
 	public void setUp() throws Exception {
-		Properties properties = new Properties();
-		properties.load(new FileInputStream(new File(
-				"testdata/selftest.properties")));
-		String accountName = properties
-				.getProperty("org.sipfoundry.gateway.mockItspAccount");
-		System.out.println("config file name " + accountName);
-		Gateway.setConfigurationFileName(accountName);
+	
+		
 		Gateway.parseConfigurationFile();
-
-		SipXbridgeXmlRpcServerImpl.startXmlRpcServer();
-		Gateway.start();
-		System.out.println("Web server started");
-		this.client = new SipXbridgeXmlRpcClient(Gateway.getAccountManager()
-				.getBridgeConfiguration().getExternalAddress(), Gateway
-				.getAccountManager().getBridgeConfiguration().getXmlRpcPort(),
-				Gateway.getBridgeConfiguration().isSecure());
-
 		accountManager = Gateway.getAccountManager();
-		accountInfo = accountManager.getDefaultAccount();
-		sipxProxyAddress = properties
-				.getProperty("org.sipfoundry.gateway.mockSipxProxyAddress");
+		accountInfo = accountManager.getDefaultAccount();	
 		localAddr = Gateway.getAccountManager().getBridgeConfiguration()
 				.getLocalAddress();
 		localPort = Gateway.getAccountManager().getBridgeConfiguration()
 				.getLocalPort();
-		baseMediaPort = Integer.parseInt(properties
-				.getProperty("org.sipfoundry.gateway.mediaBasePort"));
+		Gateway.parseNattraversalrules();
+		Gateway.initializeLogging();		
+		
+		
+		
 	}
 
 	@Override
 	public void tearDown() throws Exception {
 		Gateway.stop();
+		SymmitronServer.stop();
+	
 	}
 
 	public int getMediaPort() {

@@ -82,7 +82,7 @@ public class SimpleCallSetupTest extends AbstractSipSignalingTest {
                         .toString(), "application", "sdp", null, null);
                 sipCall.waitForAck(3000);
 
-               
+                sipCall.listenForDisconnect();
                 sipCall.waitForDisconnect(3000);
                 sipCall.respondToDisconnect();
                 
@@ -97,8 +97,6 @@ public class SimpleCallSetupTest extends AbstractSipSignalingTest {
     }
  
     public void testRegistration() throws Exception {
-
-        Thread.sleep(5000);
         for (ItspAccountInfo itspAccount : Gateway.getAccountManager()
                 .getItspAccounts()) {
             if (itspAccount.getState() != AccountState.AUTHENTICATED) {
@@ -107,37 +105,10 @@ public class SimpleCallSetupTest extends AbstractSipSignalingTest {
         }
     }
     
-    
-    public void testDialBadNumber() {
-        try {
-            String to = "sip:3015551212@" + accountInfo.getProxyDomain();
-            int myPort = getMediaPort();
-            String sdpBody = String.format(sdpBodyFormat, Gateway
-                    .getLocalAddress(), Gateway.getLocalAddress(), myPort);
 
-            System.out.println("sdp = " + sdpBody);
-            
-            SipPhone phone = sipStack.createSipPhone(localAddr, "udp",
-                    localPort, "sip:mranga@pingtel.com");
-            this.caller.add(phone);
-            SipCall sipCall = phone.makeCall(to, Response.NOT_FOUND, 1000, null,
-                    sdpBody, "application", "sdp", null, null);
-            super.assertNotNull("Should create a sip call", sipCall);
-            sipCall.disconnect();
-            sipCall.dispose();
-            Thread.sleep(8000);
-            
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            fail("Unexpected exception occured");
-         
-        }
-
-    }
-    public void testSendInviteFromSipxProxy() {
-        try {
-            this.mockItsp.createPhones(1,0,0,true);
+    public void testOutboundCallCalledPartySendsBye() throws Exception {
+   	 try {
+            this.mockItsp.createPhones(1,0,0,false);
             String user = "1112223330";
             String to = "sip:" + user + "@" + accountInfo.getProxyDomain();
             int myPort = getMediaPort();
@@ -156,23 +127,85 @@ public class SimpleCallSetupTest extends AbstractSipSignalingTest {
             boolean res = sipCall.sendInviteOkAck();
             assertTrue ("Successful ack sent " + sipCall.getErrorMessage() , res);
             assertNotNull("Null sipCall ", sipCall);
-            sipCall.disconnect();
-            assertTrue ("Successful bye sent " + sipCall.getErrorMessage() , res);
+            
+            sipCall.listenForDisconnect();
+            
+            sipCall.waitForDisconnect(3000);
+           
+            sipCall.respondToDisconnect();
             // Wait for the dialog terminated events to occur.
             Thread.sleep(8000);
             sipCall.dispose();
           
-            
-
         } catch (Exception ex) {
             ex.printStackTrace();
             fail("Unexpected exception occured");
 
         }
+   }
+  public void testDialBadItsp() {
+        try {
+            String to = "sip:3015551212@" + accountInfo.getProxyDomain();
+            int myPort = getMediaPort();
+            String sdpBody = String.format(sdpBodyFormat, Gateway
+                    .getLocalAddress(), Gateway.getLocalAddress(), myPort);    
+            SipPhone phone = sipStack.createSipPhone(localAddr, "udp",
+                    localPort, "sip:mranga@pingtel.com");
+            this.caller.add(phone);
+            
+            SipCall sipCall = phone.makeCall(to, Response.NOT_FOUND, 1000, null,
+                    sdpBody, "application", "sdp", null, null);
+            super.assertNotNull("Should create a sip call", sipCall);
+            //sipCall.disconnect();
+            sipCall.dispose();
+            Thread.sleep(8000);
+            
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            fail("Unexpected exception occured");
+         
+        }
 
     }
+  
+  
+  public void testSendInviteFromSipxProxy() {
+      try {
+          this.mockItsp.createPhones(1,0,0,true);
+          String user = "1112223330";
+          String to = "sip:" + user + "@" + accountInfo.getProxyDomain();
+          int myPort = getMediaPort();
+          String sdpBody = String.format(sdpBodyFormat, Gateway
+                  .getLocalAddress(), Gateway.getLocalAddress(), myPort);
 
-   
+          System.out.println("sdp = " + sdpBody);
+          
+          SipPhone phone = sipStack.createSipPhone(localAddr, "udp",
+                  localPort, "sip:mranga@pingtel.com");
+          this.caller.add(phone);
+          SipCall sipCall = phone.makeCall(to, Response.OK, 2000, null,
+                  sdpBody, "application", "sdp", null, null);
+          super.assertLastOperationSuccess("Expect an OK" + sipCall.format(),
+                  sipCall);
+          boolean res = sipCall.sendInviteOkAck();
+          assertTrue ("Successful ack sent " + sipCall.getErrorMessage() , res);
+          assertNotNull("Null sipCall ", sipCall);
+          sipCall.disconnect();
+          assertTrue ("Successful bye sent " + sipCall.getErrorMessage() , res);
+          // Wait for the dialog terminated events to occur.
+          Thread.sleep(8000);
+          sipCall.dispose();
+        
+          
+
+      } catch (Exception ex) {
+          ex.printStackTrace();
+          fail("Unexpected exception occured");
+
+      }
+
+  }
     public void testMultiInviteFromSipxProxy() {
         try {
             this.mockItsp.createPhones(3,0,0,true);
@@ -223,60 +256,12 @@ public class SimpleCallSetupTest extends AbstractSipSignalingTest {
         
     }
     
-    /**
-     * Tests that the bridge will return an error if there are too many simultaneous 
-     * calls in progress.
-     * TODO
-     * @throws Exception
-     */
-    public void testCallLimitOnBridge() throws Exception {
-        try {
-            this.mockItsp.createPhones(3,0,1000,false);
-            for (int i = 0; i < 3; i++) {
-                String user = "111222333" + i;
-                String to = "sip:" + user + "@" + accountInfo.getProxyDomain();
-                String sdpBody = String.format(sdpBodyFormat, Gateway
-                        .getLocalAddress(), Gateway.getLocalAddress(),
-                        getMediaPort());
-                
-                SipPhone phone = sipStack.createSipPhone(localAddr, "udp",
-                        localPort, "sip:mranga@pingtel.com");
-                this.caller.add(phone);
-                SipCall sipCall = phone.makeCall(to, Response.OK, 2000, null,
-                        sdpBody, "application", "sdp", null, null);
-              
-                super.assertLastOperationSuccess("Expect an OK" + sipCall.format(),
-                        sipCall);
-                boolean res = sipCall.sendInviteOkAck();
-                assertTrue ("Successful ack sent " + sipCall.getErrorMessage() , res);
-                assertNotNull("Null sipCall ", sipCall);
-                
-                assertNotNull("Null sipCall ", sipCall);
-                super.assertLastOperationSuccess("Expect an OK"
-                        + sipCall.format(), sipCall);
-                
-                sipCall.waitForDisconnect(1000);
-                sipCall.respondToDisconnect();
-                assertTrue ("Successful bye sent " + sipCall.getErrorMessage() , res);
-               
-             
-            }
-            // Wait for the dialog terminated events to occur.
-            Thread.sleep(8000);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            fail("Unexpected exception occured " + ex.getMessage());
-        }
-        
-        
-    }
     
-    public void testOutboundCallCalledPartySendsBye() throws Exception {
-        
-    }
+   
 
     @Override
     public void tearDown() throws Exception {
+    	System.out.println("TearDown!");
         mockItsp.stop();
         sipStack.dispose();
         SipXbridgeXmlRpcServerImpl.stopXmlRpcServer();
@@ -296,14 +281,17 @@ public class SimpleCallSetupTest extends AbstractSipSignalingTest {
         properties.setProperty("javax.sip.STACK_NAME", "sipx-phone-emulator");
         properties.setProperty("javax.sip.IP_ADDRESS", "127.0.0.1");
         sipStack = new SipStack("udp", sipxProxyPort,properties);
-        sipStack.setTraceEnabled(true);
+        SipStack.setTraceEnabled(true);
 
         System.out.println("localAddr = " + localAddr);
        
         this.mockItsp = new MockItsp(this);
 
         this.mockItsp.init(1000);
-       
+        /* Must start the mock itsp first */
+        Gateway.start();
+		Thread.sleep(1000);
+		System.out.println("sipxbridge started");
 
     }
 

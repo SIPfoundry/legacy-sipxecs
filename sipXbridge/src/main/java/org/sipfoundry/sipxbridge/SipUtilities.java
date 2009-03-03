@@ -14,6 +14,7 @@ import gov.nist.javax.sip.header.extensions.ReplacesHeader;
 import gov.nist.javax.sip.header.ims.PAssertedIdentityHeader;
 import gov.nist.javax.sip.header.ims.PrivacyHeader;
 
+import java.io.InputStream;
 import java.text.ParseException;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -74,8 +75,9 @@ import org.apache.log4j.Logger;
 class SipUtilities {
 
 	private static Logger logger = Logger.getLogger(SipUtilities.class);
-	private static UserAgentHeader userAgent;
-	private static ServerHeader serverHeader;
+	static UserAgentHeader userAgent;
+	static ServerHeader serverHeader;
+	private static final String CONFIG_PROPERTIES = "config.properties";
 
 	/**
 	 * Create the UA header.
@@ -87,42 +89,68 @@ class SipUtilities {
 			return userAgent;
 		} else {
 			try {
-				Properties configProperties = new Properties();
+				InputStream cfg = SipUtilities.class.getClassLoader()
+						.getResourceAsStream(CONFIG_PROPERTIES);
+				if (cfg != null) {
+					Properties configProperties = new Properties();
 
-				configProperties.load(SipUtilities.class.getClassLoader()
-						.getResourceAsStream("config.properties"));
-				userAgent = (UserAgentHeader) ProtocolObjects.headerFactory
-						.createHeader(UserAgentHeader.NAME, String.format(
-								"sipXecs/%s sipXecs/sipxbridge (Linux)",
-								configProperties.get("version")));
+					configProperties.load(cfg);
+					userAgent = (UserAgentHeader) ProtocolObjects.headerFactory
+							.createHeader(UserAgentHeader.NAME, String.format(
+									"sipXecs/%s sipXecs/sipxbridge (Linux)",
+									configProperties.get("version")));
+					cfg.close();
+					return userAgent;
+				} else {
+					userAgent = (UserAgentHeader) ProtocolObjects.headerFactory
+							.createHeader(UserAgentHeader.NAME, String.format(
+									"sipXecs/%s sipXecs/sipxbridge (Linux)",
+									"xxxx.yyyy"));
+					logger.warn("Creating Default User Agent Header");
+					return userAgent;
 
-				return userAgent;
-			} catch (Exception ex) {
+				}
+			} catch (Exception e) {
+				throw new SipXbridgeException(
+						"unexpected exception creating UserAgent header", e);
 
-				logger.error("Unexpected exception", ex);
-				throw new SipXbridgeException("Unexpected exception ", ex);
 			}
 		}
 	}
 
+	/**
+	 * Possibly create and return the default Server header.
+	 * 
+	 * @return
+	 */
 	static ServerHeader createServerHeader() {
 		if (serverHeader != null) {
 			return serverHeader;
 		} else {
 			try {
-				Properties configProperties = new Properties();
+				InputStream cfg = SipUtilities.class.getClassLoader()
+						.getResourceAsStream(CONFIG_PROPERTIES);
+				if (cfg != null) {
+					Properties configProperties = new Properties();
+					configProperties.load(cfg);
+					serverHeader = (ServerHeader) ProtocolObjects.headerFactory
+							.createHeader(ServerHeader.NAME, String.format(
+									"sipXecs/%s sipXecs/sipxbridge (Linux)",
+									configProperties.get("version")));
+					cfg.close();
+					return serverHeader;
+				} else {
+					serverHeader = (ServerHeader) ProtocolObjects.headerFactory
+							.createHeader(ServerHeader.NAME, String.format(
+									"sipXecs/%s sipXecs/sipxbridge (Linux)",
+									"xxxx.yyyy"));
+					logger.warn("Creating Default Server Header");
+					return serverHeader;
+				}
+			} catch (Exception e) {
+				throw new SipXbridgeException(
+						"unexpected exception creating UserAgent header", e);
 
-				configProperties.load(SipUtilities.class.getClassLoader()
-						.getResourceAsStream("config.properties"));
-				serverHeader = (ServerHeader) ProtocolObjects.headerFactory
-						.createHeader(ServerHeader.NAME, String.format(
-								"sipXecs/%s sipXecs/sipxbridge (Linux)",
-								configProperties.get("version")));
-
-				return serverHeader;
-			} catch (Exception ex) {
-				logger.error("Unexpected exception", ex);
-				throw new SipXbridgeException("Unexpected exception ", ex);
 			}
 		}
 	}
@@ -690,6 +718,9 @@ class SipUtilities {
 			String outboundProxy = itspAccount.getOutboundProxy();
 			SipURI routeUri = ProtocolObjects.addressFactory.createSipURI(null,
 					outboundProxy);
+			if ( itspAccount.getOutboundProxyPort() != 0 ) {
+				routeUri.setPort(itspAccount.getOutboundProxyPort());
+			}
 			routeUri.setLrParam();
 			Address routeAddress = ProtocolObjects.addressFactory
 					.createAddress(routeUri);
@@ -723,7 +754,8 @@ class SipUtilities {
 	/**
 	 * Extract and return the media formats from the session description.
 	 * 
-	 * @param sessionDescription -- the SessionDescription to examine.
+	 * @param sessionDescription
+	 *            -- the SessionDescription to examine.
 	 * @return a Set of media formats. Each element is a codec number.
 	 */
 	static Set<Integer> getMediaFormats(SessionDescription sessionDescription) {
@@ -751,8 +783,6 @@ class SipUtilities {
 		}
 	}
 
-	
-
 	/**
 	 * Cleans the Session description to include only the specified codec set.
 	 * It removes all the SRTP related fields as well.
@@ -775,7 +805,6 @@ class SipUtilities {
 			Vector mediaDescriptions = sessionDescription
 					.getMediaDescriptions(true);
 
-			
 			for (Iterator it = mediaDescriptions.iterator(); it.hasNext();) {
 
 				MediaDescription mediaDescription = (MediaDescription) it
@@ -783,30 +812,30 @@ class SipUtilities {
 				Vector formats = mediaDescription.getMedia().getMediaFormats(
 						true);
 
-				
 				/*
-				 * We are generating a response. Select only one codec for the response.
+				 * We are generating a response. Select only one codec for the
+				 * response.
 				 */
 				for (Iterator it1 = formats.iterator(); it1.hasNext();) {
 					Object format = it1.next();
 					Integer fmt = new Integer(format.toString());
-					if (!codecs.contains(fmt) ) {
+					if (!codecs.contains(fmt)) {
 						it1.remove();
-					} 
+					}
 				}
-				
+
 				Vector attributes = mediaDescription.getAttributes(true);
 				for (Iterator it1 = attributes.iterator(); it1.hasNext();) {
 					Attribute attr = (Attribute) it1.next();
 					if (logger.isDebugEnabled()) {
 						logger.debug("attrName = " + attr.getName());
 					}
-				
+
 					if (attr.getName().equalsIgnoreCase("rtpmap")) {
 						String attribute = attr.getValue();
 						String[] attrs = attribute.split(" ");
-						int rtpMapCodec  = Integer.parseInt(attrs[0]);
-						if (!codecs.contains(rtpMapCodec)){
+						int rtpMapCodec = Integer.parseInt(attrs[0]);
+						if (!codecs.contains(rtpMapCodec)) {
 							it1.remove();
 						}
 					} else if (attr.getName().equalsIgnoreCase("crypto")) {
@@ -817,7 +846,7 @@ class SipUtilities {
 						logger.debug("Not adding encryption");
 					}
 				}
-				
+
 			}
 
 			return sessionDescription;
@@ -828,8 +857,6 @@ class SipUtilities {
 					ex);
 		}
 	}
-
-	
 
 	static String getSessionDescriptionMediaIpAddress(
 			SessionDescription sessionDescription) {

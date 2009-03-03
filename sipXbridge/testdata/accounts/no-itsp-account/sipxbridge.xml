@@ -1,21 +1,19 @@
 <?xml version="1.0" ?>
 <sipxbridge-config xmlns="http://www.sipfoundry.org/sipX/schema/xml/sipxbridge-00-00">
-
-  <!-- contains no ITSP information -->
-
   <bridge-configuration>
-    <external-address>sipxpbx.example.com</external-address>
+    <global-address>127.0.0.1</global-address>
+    <external-address>127.0.0.1</external-address>
     <external-port>5080</external-port>
-    <local-address>sipxpbx.example.com</local-address>
+    <local-address>127.0.0.1</local-address>
     <local-port>5090</local-port>
     <sipx-proxy-domain>example.com</sipx-proxy-domain>
     <sip-keepalive-seconds>20</sip-keepalive-seconds>
     <media-keepalive-seconds>1</media-keepalive-seconds>
     <music-on-hold-support-enabled>true</music-on-hold-support-enabled>
-    <rtp-port-range>25000:25500</rtp-port-range>
-    <log-level>ERROR</log-level>
+    <log-level>DEBUG</log-level>
     <log-directory>/tmp</log-directory>
     <xml-rpc-port>8088</xml-rpc-port>
+    <secure-xml-rpc>false</secure-xml-rpc>
   </bridge-configuration>
 
 </sipxbridge-config>

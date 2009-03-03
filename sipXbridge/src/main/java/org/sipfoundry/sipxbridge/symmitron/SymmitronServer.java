@@ -111,9 +111,9 @@ public class SymmitronServer implements Symmitron {
         try {
 
             String stunServerAddress = symmitronConfig.getStunServerAddress();
-
+            
             if (stunServerAddress != null) {
-
+            	logger.info("Start address discovery");
                 // Todo -- deal with the situation when this port may be taken.
                 // The port may be taken by sipxbridge.
                 StunAddress localStunAddress = new StunAddress(symmitronConfig.getLocalAddress(),
@@ -147,6 +147,8 @@ public class SymmitronServer implements Symmitron {
                 logger.debug("publicAddress = " + publicAddr);
                 symmitronConfig.setPublicAddress(publicAddr);
 
+            } else {
+            	logger.error("Stun server address not speicifed");
             }
         } catch (Exception ex) {
 
@@ -379,20 +381,11 @@ public class SymmitronServer implements Symmitron {
         return status;
     }
 
-    /**
-     * Start the bridge.
-     * 
-     */
-    public String start() {
-
-        status = "INITIALIZED";
-        return status;
-    }
-
+   
     /**
      * Stop the bridge
      */
-    public String stop() {
+    public static void stop() {
 
         for (Bridge bridge : ConcurrentSet.getBridges()) {
             bridge.stop();
@@ -401,7 +394,7 @@ public class SymmitronServer implements Symmitron {
         timer.purge();
 
         status = "STOPPED";
-        return status;
+       
     }
 
     /**
@@ -1023,149 +1016,164 @@ public class SymmitronServer implements Symmitron {
     /**
      * Test method - stop the xml rpc server.
      */
-    static void stopXmlRpcServer() {
+    public static void stopXmlRpcServer() {
         try {
             SymmitronServer.webServer.stop();
+            isWebServerRunning = false;
         } catch (InterruptedException e) {
             logger.error("request processing interrupt", e);
         }
     }
+    
+    public static void configtest() throws Exception {
+    	 String configDir = System.getProperty("conf.dir", "/etc/sipxpbx");
+         String configurationFile = configDir + "/nattraversalrules.xml";
+    	 if (!new File(configurationFile).exists()) {
+             System.exit(-1);
+         }
+         SymmitronConfig config = new SymmitronConfigParser().parse("file:"
+                 + configurationFile);
+         SymmitronServer.setSymmitronConfig(config);
+
+         if (config.getLogFileDirectory() == null) {
+             String installRoot = configDir
+                     .substring(0, configDir.indexOf("/etc/sipxpbx"));
+             config.setLogFileDirectory(installRoot + "/var/log/sipxpbx");
+         }
+         config.setLogFileName("sipxrelay.log");
+
+         if (config.getLocalAddress() == null) {
+             System.err.println("Local address not specified");
+             System.exit(-1);
+         }
+
+         if (config.getPublicAddress() == null && config.getStunServerAddress() == null
+                 && config.isBehindNat()) {
+             System.err
+                     .println("Must specify either public address or stun server address");
+             System.exit(-1);
+         }
+
+        
+         if (config.getPublicAddress() != null) {
+             findIpAddress(config.getPublicAddress());
+         }
+
+         /*
+          * Test if stun server name can be resolved.
+          */
+         if (config.getStunServerAddress() != null ) {                   
+             findIpAddress(config.getStunServerAddress());
+         }
+         /*
+          * Test if local address can be resolved.
+          */
+         if ( config.getLocalAddress() != null ) {
+            findIpAddress(config.getLocalAddress());             
+         } else {
+             System.err.println("Missing local address. Cannot start sipxrelay");
+             System.exit(-1);
+         }
+         System.exit(0);
+    }
+    
+    
+    public static void start() throws Exception {
+    	 String configDir = System.getProperty("conf.dir", "/etc/sipxpbx");
+         String configurationFile = configDir + "/nattraversalrules.xml";
+    	 if (!new File(configurationFile).exists()) {
+             System.err.println("Configuration file " + configurationFile + " missing.");
+             System.exit(-1);
+         }
+         
+         SymmitronConfig config = new SymmitronConfigParser().parse("file:"
+                 + configurationFile);
+
+         InetAddress localAddr = findIpAddress(config.getLocalAddress());
+
+         if (config.getLogFileDirectory() == null) {
+             String installRoot = configDir
+                     .substring(0, configDir.indexOf("/etc/sipxpbx"));
+             config.setLogFileDirectory(installRoot + "/var/log/sipxpbx");
+         }
+         config.setLogFileName("sipxrelay.log");
+
+         String log4jProps = configDir + "/log4j.properties";
+         /*
+          * Allow override if a log4j properties file exists.
+          */
+         if (new File(log4jProps).exists()) {
+             /*
+              * Override the file configuration setting.
+              */
+             Properties props = new Properties();
+             props.load(new FileInputStream(log4jProps));
+             String level = props
+                     .getProperty("log4j.category.org.sipfoundry.sipxbridge.sipxrelay");
+             if (level != null) {
+                 config.setLogLevel(level);
+             }
+         }
+         SymmitronServer.setSymmitronConfig(config);
+
+         logger.info("Checking port range " + config.getPortRangeLowerBound() + ":"
+                 + config.getPortRangeUpperBound());
+         for (int i = config.getPortRangeLowerBound(); i < config.getPortRangeUpperBound(); i++) {
+             try {
+                 DatagramSocket sock = new DatagramSocket(i, localAddr);
+                 sock.close();
+             } catch (Exception ex) {
+                 logger.error(String.format("Failed to bind to %s:%d", localAddr, i), ex);
+                 throw ex;
+             }
+         }
+         logger.info("Port range checked ");
+
+         if (config.getPublicAddress() == null && config.getStunServerAddress() != null ) {
+             /*
+              * Try an address discovery. If it did not work, then exit. This deals with
+              * accidental mis-configurations of the STUN server address.
+              */
+             discoverAddress();
+             timer.schedule(new TimerTask() {
+
+                 @Override
+                 public void run() {
+                     try {
+                         discoverAddress();
+                     } catch (Exception ex) {
+                         logger.error("Error discovering address - stun server down?");
+                     }
+
+                 }
+
+             }, config.getRediscoveryTime() * 1000, config.getRediscoveryTime() * 1000);
+         } else {
+        	 logger.info("Public address is " + config.getPublicAddress());
+         }
+
+         Runtime.getRuntime().addShutdownHook(new Thread() {
+             public void run() {
+
+                 logger.fatal("RECEIVED SHUTDOWN SIGNAL");
+
+             }
+         });
+
+         SymmitronServer.startWebServer();
+         status = "RUNNING";
+         
+    }
 
     public static void main(String[] args) throws Exception {
         try {
-            String configDir = System.getProperty("conf.dir", "/etc/sipxpbx");
-            String configurationFile = configDir + "/nattraversalrules.xml";
+         
             String command = System.getProperty("sipxrelay.command", "start");
 
             if (command.equals("configtest")) {
-
-                if (!new File(configurationFile).exists()) {
-                    System.exit(-1);
-                }
-                SymmitronConfig config = new SymmitronConfigParser().parse("file:"
-                        + configurationFile);
-                SymmitronServer.setSymmitronConfig(config);
-
-                if (config.getLogFileDirectory() == null) {
-                    String installRoot = configDir
-                            .substring(0, configDir.indexOf("/etc/sipxpbx"));
-                    config.setLogFileDirectory(installRoot + "/var/log/sipxpbx");
-                }
-                config.setLogFileName("sipxrelay.log");
-
-                if (config.getLocalAddress() == null) {
-                    System.err.println("Local address not specified");
-                    System.exit(-1);
-                }
-
-                if (config.getPublicAddress() == null && config.getStunServerAddress() == null
-                        && config.isBehindNat()) {
-                    System.err
-                            .println("Must specify either public address or stun server address");
-                    System.exit(-1);
-                }
-
-               
-                if (config.getPublicAddress() != null) {
-                    findIpAddress(config.getPublicAddress());
-                }
-
-                /*
-                 * Test if stun server name can be resolved.
-                 */
-                if (config.getStunServerAddress() != null ) {                   
-                    findIpAddress(config.getStunServerAddress());
-                }
-                /*
-                 * Test if local address can be resolved.
-                 */
-                if ( config.getLocalAddress() != null ) {
-                   findIpAddress(config.getLocalAddress());             
-                } else {
-                    System.err.println("Missing local address. Cannot start sipxrelay");
-                    System.exit(-1);
-                }
-                System.exit(0);
-
+               configtest();
             } else if (command.equals("start")) {
-                if (!new File(configurationFile).exists()) {
-                    System.err.println("Configuration file " + configurationFile + " missing.");
-                    System.exit(-1);
-                }
-                
-                SymmitronConfig config = new SymmitronConfigParser().parse("file:"
-                        + configurationFile);
-
-                InetAddress localAddr = findIpAddress(config.getLocalAddress());
-
-                if (config.getLogFileDirectory() == null) {
-                    String installRoot = configDir
-                            .substring(0, configDir.indexOf("/etc/sipxpbx"));
-                    config.setLogFileDirectory(installRoot + "/var/log/sipxpbx");
-                }
-                config.setLogFileName("sipxrelay.log");
-
-                String log4jProps = configDir + "/log4j.properties";
-                /*
-                 * Allow override if a log4j properties file exists.
-                 */
-                if (new File(log4jProps).exists()) {
-                    /*
-                     * Override the file configuration setting.
-                     */
-                    Properties props = new Properties();
-                    props.load(new FileInputStream(log4jProps));
-                    String level = props
-                            .getProperty("log4j.category.org.sipfoundry.sipxbridge.sipxrelay");
-                    if (level != null) {
-                        config.setLogLevel(level);
-                    }
-                }
-                SymmitronServer.setSymmitronConfig(config);
-
-                logger.info("Checking port range " + config.getPortRangeLowerBound() + ":"
-                        + config.getPortRangeUpperBound());
-                for (int i = config.getPortRangeLowerBound(); i < config.getPortRangeUpperBound(); i++) {
-                    try {
-                        DatagramSocket sock = new DatagramSocket(i, localAddr);
-                        sock.close();
-                    } catch (Exception ex) {
-                        logger.error(String.format("Failed to bind to %s:%d", localAddr, i), ex);
-                        throw ex;
-                    }
-                }
-                logger.info("Port range checked ");
-
-                if (config.getPublicAddress() == null && config.getStunServerAddress() != null ) {
-                    /*
-                     * Try an address discovery. If it did not work, then exit. This deals with
-                     * accidental mis-configurations of the STUN server address.
-                     */
-                    discoverAddress();
-                    timer.schedule(new TimerTask() {
-
-                        @Override
-                        public void run() {
-                            try {
-                                discoverAddress();
-                            } catch (Exception ex) {
-                                logger.error("Error discovering address - stun server down?");
-                            }
-
-                        }
-
-                    }, config.getRediscoveryTime() * 1000, config.getRediscoveryTime() * 1000);
-                }
-
-                Runtime.getRuntime().addShutdownHook(new Thread() {
-                    public void run() {
-
-                        logger.fatal("RECEIVED SHUTDOWN SIGNAL");
-
-                    }
-                });
-
-                SymmitronServer.startWebServer();
+               start();
             } else {
                 System.err.println("unknown start option " + command);
             }

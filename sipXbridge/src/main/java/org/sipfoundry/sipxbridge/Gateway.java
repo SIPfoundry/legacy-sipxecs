@@ -136,7 +136,6 @@ public class Gateway {
 	 */
 	private static Address gatewayFromAddress;
 
-	
 	/*
 	 * The Gateway state.
 	 */
@@ -187,8 +186,25 @@ public class Gateway {
 
 	private static SymmitronConfig symconfig;
 
+	// ///////////////////////////////////////////////////////////////////////
+	// Our park server only supports PCMU and PCMA
+	static {
+		parkServerCodecs.add(RtpPayloadTypes.getPayloadType("PCMU"));
+		parkServerCodecs.add(RtpPayloadTypes.getPayloadType("PCMA"));
+	}
+
+	// ///////////////////////////////////////////////////////////////////////
+
+	/**
+	 * Make sure nobody calls this constructor.
+	 */
 	private Gateway() {
 
+	}
+	
+	private static void setConfigurationPath() {
+		Gateway.configurationPath = System.getProperty("conf.dir",
+		"/etc/sipxpbx");
 	}
 
 	static void setConfigurationFileName(String configFileName) {
@@ -196,9 +212,31 @@ public class Gateway {
 	}
 
 	static void parseConfigurationFile() {
+		Gateway.setConfigurationPath();
+		Gateway.configurationFile = Gateway.configurationPath
+				+ "/sipxbridge.xml";
+
+		if (!new File(Gateway.configurationFile).exists()) {
+			System.err.println(String.format(
+					"Configuration %s file not found -- exitting",
+					Gateway.configurationFile));
+			System.exit(-1);
+		}
 		ConfigurationParser parser = new ConfigurationParser();
 		accountManager = parser.createAccountManager(configurationFile);
+	}
 
+	static void parseNattraversalrules() {
+		Gateway.setConfigurationPath();
+		if (!new File(Gateway.configurationPath + "/nattraversalrules.xml")
+				.exists()) {
+			System.err.println(String.format(
+					"Configuration %s file not found -- exitting",
+					Gateway.configurationPath + "/nattraversalrules.xml"));
+			System.exit(-1);
+		}
+		Gateway.symconfig = new SymmitronConfigParser()
+				.parse(Gateway.configurationPath + "/nattraversalrules.xml");
 	}
 
 	static SymmitronClient initializeSymmitron(String address) {
@@ -212,11 +250,11 @@ public class Gateway {
 			if (Gateway.getBridgeConfiguration().getSymmitronXmlRpcPort() != 0) {
 				symmitronPort = Gateway.getBridgeConfiguration()
 						.getSymmitronXmlRpcPort();
-			} else {	
+			} else {
 				symmitronPort = symconfig.getXmlRpcPort();
 				isSecure = symconfig.getUseHttps();
 			}
-			
+
 			symmitronClient = new SymmitronClient(address, symmitronPort,
 					isSecure, callControlManager);
 			symmitronClients.put(address, symmitronClient);
@@ -225,69 +263,88 @@ public class Gateway {
 		return symmitronClient;
 	}
 
-	
-	
-
 	/**
 	 * Initialize the loggers for the libraries used.
 	 * 
-	 * @throws IOException
+	 * @throws SipXbridgeExcception
+	 *             - if logging initialization failed.
 	 */
-	static void initializeLogging() throws IOException {
+	static void initializeLogging() throws SipXbridgeException {
+		try {
+			String log4jPropertiesFile = Gateway.configurationPath
+					+ "/log4j.properties";
 
-		BridgeConfiguration bridgeConfiguration = Gateway
-				.getBridgeConfiguration();
-		Level level = Level.OFF;
-		String logLevel = bridgeConfiguration.getLogLevel();
+			if (new File(log4jPropertiesFile).exists()) {
+				/*
+				 * Override the file configuration setting.
+				 */
+				Properties props = new Properties();
+				props.load(new FileInputStream(log4jPropertiesFile));
+				BridgeConfiguration configuration = Gateway.accountManager
+						.getBridgeConfiguration();
+				String level = props
+						.getProperty("log4j.category.org.sipfoundry.sipxbridge");
+				if (level != null) {
+					configuration.setLogLevel(level);
+				}
 
-		if (logLevel.equals("INFO"))
-			level = Level.INFO;
-		else if (logLevel.equals("DEBUG"))
-			level = Level.FINE;
-		else if (logLevel.equals("TRACE"))
-			level = Level.FINER;
-		else if (logLevel.equals("WARN"))
-			level = Level.WARNING;
+			}
+			BridgeConfiguration bridgeConfiguration = Gateway
+					.getBridgeConfiguration();
+			Level level = Level.OFF;
+			String logLevel = bridgeConfiguration.getLogLevel();
 
-		/*
-		 * BUGBUG For now turn off Logging on STUN4j. It writes to stdout.
-		 */
-		level = Level.OFF;
+			if (logLevel.equals("INFO"))
+				level = Level.INFO;
+			else if (logLevel.equals("DEBUG"))
+				level = Level.FINE;
+			else if (logLevel.equals("TRACE"))
+				level = Level.FINER;
+			else if (logLevel.equals("WARN"))
+				level = Level.WARNING;
 
-		java.util.logging.Logger log = java.util.logging.Logger
-				.getLogger("net.java.stun4j");
-		log.setLevel(level);
-		java.util.logging.FileHandler fileHandler = new java.util.logging.FileHandler(
-				Gateway.getLogFile());
+			/*
+			 * BUGBUG For now turn off Logging on STUN4j. It writes to stdout.
+			 */
+			level = Level.OFF;
 
-		/*
-		 * Remove all existing handlers.
-		 */
-		for (Handler handler : log.getHandlers()) {
-			log.removeHandler(handler);
+			java.util.logging.Logger log = java.util.logging.Logger
+					.getLogger("net.java.stun4j");
+			log.setLevel(level);
+			java.util.logging.FileHandler fileHandler = new java.util.logging.FileHandler(
+					Gateway.getLogFile());
+
+			/*
+			 * Remove all existing handlers.
+			 */
+			for (Handler handler : log.getHandlers()) {
+				log.removeHandler(handler);
+			}
+
+			/*
+			 * Add the file handler.
+			 */
+			log.addHandler(fileHandler);
+
+			Gateway.logAppender = new SipFoundryAppender(
+					new SipFoundryLayout(), Gateway.getLogFile());
+			Logger applicationLogger = Logger.getLogger(Gateway.class
+					.getPackage().getName());
+
+			/*
+			 * Set the log level.
+			 */
+			if (Gateway.getLogLevel().equals("TRACE")) {
+				applicationLogger.setLevel(org.apache.log4j.Level.DEBUG);
+			} else {
+				applicationLogger.setLevel(org.apache.log4j.Level
+						.toLevel(Gateway.getLogLevel()));
+			}
+
+			applicationLogger.addAppender(logAppender);
+		} catch (Exception ex) {
+			throw new SipXbridgeException("Error initializing logging", ex);
 		}
-
-		/*
-		 * Add the file handler.
-		 */
-		log.addHandler(fileHandler);
-
-		Gateway.logAppender = new SipFoundryAppender(new SipFoundryLayout(),
-				Gateway.getLogFile());
-		Logger applicationLogger = Logger.getLogger(Gateway.class.getPackage()
-				.getName());
-
-		/*
-		 * Set the log level.
-		 */
-		if (Gateway.getLogLevel().equals("TRACE")) {
-			applicationLogger.setLevel(org.apache.log4j.Level.DEBUG);
-		} else {
-			applicationLogger.setLevel(org.apache.log4j.Level.toLevel(Gateway
-					.getLogLevel()));
-		}
-
-		applicationLogger.addAppender(logAppender);
 
 	}
 
@@ -329,8 +386,7 @@ public class Gateway {
 
 			}
 		} catch (Exception ex) {
-			throw new SipXbridgeException(
-					"Error discovering  address", ex);
+			throw new SipXbridgeException("Error discovering  address", ex);
 		}
 	}
 
@@ -398,8 +454,8 @@ public class Gateway {
 			logger.debug("proxy address table = " + proxyAddressTable);
 		} catch (Exception ex) {
 			logger.error("Cannot do address lookup ", ex);
-			throw new SipXbridgeException(
-					"Could not do dns lookup for " + getSipxProxyDomain(), ex);
+			throw new SipXbridgeException("Could not do dns lookup for "
+					+ getSipxProxyDomain(), ex);
 		}
 	}
 
@@ -483,8 +539,7 @@ public class Gateway {
 		} catch (Throwable ex) {
 			ex.printStackTrace();
 			logger.error("Cannot initialize gateway", ex);
-			throw new SipXbridgeException(
-					"Cannot initialize gateway", ex);
+			throw new SipXbridgeException("Cannot initialize gateway", ex);
 		}
 
 	}
@@ -666,8 +721,9 @@ public class Gateway {
 						break;
 					}
 				}
-				if (allAuthenticated)
+				if (allAuthenticated) {
 					break;
+				}
 
 			}
 
@@ -735,7 +791,58 @@ public class Gateway {
 
 	}
 
+	/**
+	 * Configuration test. exit with status code 0 if success and -1 if fail.
+	 * 
+	 */
+	static void configtest() {
+		BridgeConfiguration configuration = Gateway.accountManager
+				.getBridgeConfiguration();
+
+		if (configuration.getGlobalAddress() == null
+				&& configuration.getStunServerAddress() == null) {
+			logger
+					.error("Configuration error -- no global address or stun server");
+			System.err
+					.println("sipxbridge.xml: Configuration error: no global address specified and no stun server specified.");
+			System.exit(-1);
+		}
+
+		if (Gateway.accountManager.getBridgeConfiguration()
+				.getExternalAddress().equals(
+						Gateway.accountManager.getBridgeConfiguration()
+								.getLocalAddress())
+				&& Gateway.accountManager.getBridgeConfiguration()
+						.getExternalPort() == Gateway.accountManager
+						.getBridgeConfiguration().getLocalPort()) {
+			logger
+					.error("Configuration error -- external address == internal address && external port == internal port");
+			System.err
+					.println("sipxbridge.xml: Configuration error: external address == internal address && external port == internal port");
+
+			System.exit(-1);
+		}
+
+		/*
+		 * Make sure we can initialize the keystores etc.
+		 */
+		if (symconfig.getUseHttps()) {
+			initHttpsClient();
+		}
+		System.exit(0);
+	}
+
+	/**
+	 * Start the gateway.
+	 * 
+	 * @throws SipXbridgeException
+	 *             -- if Gateway start failed.
+	 * 
+	 */
 	static void start() throws SipXbridgeException {
+		// Wait for the configuration file to become available.
+		Gateway.initializeLogging();
+
 		if (Gateway.getState() != GatewayState.STOPPED) {
 			return;
 		}
@@ -775,17 +882,29 @@ public class Gateway {
 		 * Register with ITSPs. Now we can take inbound calls
 		 */
 		registerWithItsp();
-		
+
+		SipXbridgeXmlRpcServerImpl.startXmlRpcServer();
+
+		/*
+		 * Initialize connection with sipxrelay.
+		 */
+		Gateway.symconfig = new SymmitronConfigParser()
+				.parse(Gateway.configurationPath + "/nattraversalrules.xml");
+
+		if (symconfig.getUseHttps()) {
+			Gateway.initHttpsClient();
+		}
 
 	}
 
 	/**
 	 * Stop the gateway. Release any port resources associated with ongoing
-	 * dialogs and tear down ongoing Music oh
+	 * dialogs and tear down ongoing Music on hold. This is called when stopping
+	 * the gateway but not exitting the Gateway process.
 	 */
 	static synchronized void stop() {
 		Gateway.state = GatewayState.STOPPING;
-		
+
 		logger.debug("Stopping Gateway");
 		// Purge the timer.
 		getTimer().purge();
@@ -793,27 +912,29 @@ public class Gateway {
 			/*
 			 * De-register from all ITSP accounts.
 			 */
-			for ( ItspAccountInfo itspAccount : Gateway.getAccountManager().getItspAccounts()) {
-				if ( itspAccount.isRegisterOnInitialization() ) {
+			for (ItspAccountInfo itspAccount : Gateway.getAccountManager()
+					.getItspAccounts()) {
+				if (itspAccount.isRegisterOnInitialization()) {
 					registrationManager.sendDeregister(itspAccount);
 				}
 			}
-			
+
 			/*
 			 * Tear down all ongoing calls.
 			 */
-			
-			for ( BackToBackUserAgent b2bua : backToBackUserAgentFactory.getBackToBackUserAgents()) {
-				b2bua.tearDown(Gateway.SIPXBRIDGE_USER, ReasonCode.BRIDGE_STOPPING, "Bridge Stopping");
+
+			for (BackToBackUserAgent b2bua : backToBackUserAgentFactory
+					.getBackToBackUserAgents()) {
+				b2bua.tearDown(Gateway.SIPXBRIDGE_USER,
+						ReasonCode.BRIDGE_STOPPING, "Bridge Stopping");
 			}
-			
+
 			Gateway.callCount = 0;
-			
-			for ( SymmitronClient client : Gateway.symmitronClients.values() ) {
+
+			for (SymmitronClient client : Gateway.symmitronClients.values()) {
 				client.signOut();
 			}
-			
-			
+
 		} catch (Exception ex) {
 			logger.error("Unexepcted exception occured while stopping bridge",
 					ex);
@@ -822,6 +943,34 @@ public class Gateway {
 		// Tear down the sip stack.
 		ProtocolObjects.stop();
 		Gateway.state = GatewayState.STOPPED;
+	}
+
+	/**
+	 * Exit the gateway. Caution! This is called to actually stop the process
+	 * and exit.
+	 */
+	private static void exit() {
+		/*
+		 * Stop bridge, release all resources and exit.
+		 */
+		Gateway.initializeLogging();
+		logger.debug("exit()");
+		/*
+		 * Initialize the HTTPS client.
+		 */
+		if (Gateway.getBridgeConfiguration().isSecure()) {
+			Gateway.initHttpsClient();
+		}
+
+		/*
+		 * Connect to the sipxbridge server and ask him to exit.
+		 */
+		SipXbridgeXmlRpcClient client = new SipXbridgeXmlRpcClient(Gateway
+				.getBridgeConfiguration().getExternalAddress(), Gateway
+				.getBridgeConfiguration().getXmlRpcPort(), Gateway
+				.getBridgeConfiguration().isSecure());
+		client.exit();
+		System.exit(0);
 	}
 
 	/**
@@ -866,9 +1015,7 @@ public class Gateway {
 	 * @return
 	 */
 	static GatewayState getState() {
-
 		return Gateway.state;
-
 	}
 
 	/**
@@ -882,8 +1029,6 @@ public class Gateway {
 				.getLogFileDirectory()
 				+ "/sipxbridge.log";
 	}
-
-	
 
 	/**
 	 * Get the call limit ( number of concurrent calls)
@@ -917,7 +1062,6 @@ public class Gateway {
 
 	}
 
-	
 	static int getSessionExpires() {
 		return SESSION_EXPIRES;
 	}
@@ -988,7 +1132,7 @@ public class Gateway {
 	 * @return
 	 */
 	static HashSet<Integer> getParkServerCodecs() {
-	   	return parkServerCodecs;
+		return parkServerCodecs;
 	}
 
 	/**
@@ -1018,6 +1162,7 @@ public class Gateway {
 			logger.fatal(errorString, new Exception());
 		}
 	}
+
 	/**
 	 * 
 	 * This method must be called before SSL connection is initialized.
@@ -1081,11 +1226,7 @@ public class Gateway {
 			throw new SipXbridgeException(ex);
 		}
 	}
-	
-	
-	
-	
-	
+
 	/**
 	 * The main method for the Bridge.
 	 * 
@@ -1093,140 +1234,29 @@ public class Gateway {
 	 */
 	public static void main(String[] args) throws Exception {
 		try {
-
-			/*
-			 * The codecs supported by our park server.
-			 */
-			parkServerCodecs.add(RtpPayloadTypes.getPayloadType("PCMU"));
-			parkServerCodecs.add(RtpPayloadTypes.getPayloadType("PCMA"));
-
+			String command = System.getProperty("sipxbridge.command", "start");
 			Gateway.isTlsSupportEnabled = System.getProperty(
 					"sipxbridge.enableTls", "false").equals("true");
-
-			Gateway.configurationPath = System.getProperty("conf.dir",
-					"/etc/sipxpbx");
-			Gateway.configurationFile = System.getProperty("conf.dir",
-					"/etc/sipxpbx")
-					+ "/sipxbridge.xml";
-			String command = System.getProperty("sipxbridge.command", "start");
-			String log4jPropertiesFile = Gateway.configurationPath
-					+ "/log4j.properties";
-
+			Gateway.parseConfigurationFile();
+			Gateway.parseNattraversalrules();
 			if (command.equals("start")) {
-				// Wait for the configuration file to become available.
-				while (!new File(Gateway.configurationFile).exists()) {
-					Thread.sleep(5 * 1000);
-				}
-				Gateway.parseConfigurationFile();
-				if (new File(log4jPropertiesFile).exists()) {
-					/*
-					 * Override the file configuration setting.
-					 */
-					Properties props = new Properties();
-					props.load(new FileInputStream(log4jPropertiesFile));
-					BridgeConfiguration configuration = Gateway.accountManager
-							.getBridgeConfiguration();
-					String level = props
-							.getProperty("log4j.category.org.sipfoundry.sipxbridge");
-					if (level != null) {
-						configuration.setLogLevel(level);
-					}
-
-				}
-
-				Gateway.initializeLogging();
-
 				Gateway.start();
-
-				SipXbridgeXmlRpcServerImpl.startXmlRpcServer();
-				
-				Gateway.symconfig = new SymmitronConfigParser().parse(Gateway.configurationPath+ "/nattraversalrules.xml");
-				
-				if ( symconfig.getUseHttps() ) {
-					Gateway.initHttpsClient();
-				}
-
 			} else if (command.equals("configtest")) {
-				try {
-					if (!new File(Gateway.configurationFile).exists()) {
-						System.err
-								.println("sipxbridge.xml does not exist - please check configuration.");
-						System.exit(-1);
-					}
-					Gateway.parseConfigurationFile();
-					BridgeConfiguration configuration = Gateway.accountManager
-							.getBridgeConfiguration();
-
-					if (configuration.getGlobalAddress() == null
-							&& configuration.getStunServerAddress() == null) {
-						logger
-								.error("Configuration error -- no global address or stun server");
-						System.err
-								.println("sipxbridge.xml: Configuration error: no global address specified and no stun server specified.");
-						System.exit(-1);
-					}
-
-					if (Gateway.accountManager.getBridgeConfiguration()
-							.getExternalAddress().equals(
-									Gateway.accountManager
-											.getBridgeConfiguration()
-											.getLocalAddress())
-							&& Gateway.accountManager.getBridgeConfiguration()
-									.getExternalPort() == Gateway.accountManager
-									.getBridgeConfiguration().getLocalPort()) {
-						logger
-								.error("Configuration error -- external address == internal address && external port == internal port");
-						System.err
-								.println("sipxbridge.xml: Configuration error: external address == internal address && external port == internal port");
-
-						System.exit(-1);
-					}
-					
-					Gateway.symconfig = new SymmitronConfigParser().parse(Gateway.configurationPath+ "/nattraversalrules.xml");
-					
-					/*
-					 * Make sure we can initialize the keystores etc.
-					 */
-					if ( symconfig.getUseHttps() ) {
-						initHttpsClient();
-					}
-					System.exit(0);
-				} catch (Exception ex) {
-					System.exit(-1);
-				}
-			} else if (command.equals("stop")){
-				
-				/*
-				 * Stop bridge, release all resources and exit.
-				 */
-				
-				Gateway.parseConfigurationFile();
-				Gateway.initializeLogging();
-				logger.debug("command " + command);
-				/*
-				 * Initialize the HTTPS client.
-				 */
-				if ( Gateway.getBridgeConfiguration().isSecure()) {
-					Gateway.initHttpsClient();
-				}
-				
-				/*
-				 * Connect to the sipxbridge server and ask him to exit.
-				 */
-				SipXbridgeXmlRpcClient client = new SipXbridgeXmlRpcClient(Gateway.getBridgeConfiguration().getExternalAddress(),
-						Gateway.getBridgeConfiguration().getXmlRpcPort(), Gateway.getBridgeConfiguration().isSecure());
-				client.exit();
-				System.exit(0);
-				
+				Gateway.configtest();
+			} else if (command.equals("stop")) {
+				Gateway.exit();
 			} else {
-				logger.error("Bad option ");
+				System.err.println("Bad option " + command);
+				System.exit(-1);
 			}
 
 		} catch (Throwable ex) {
-			ex.printStackTrace();
-			logger.fatal("Unexpected exception starting", ex);
+			System.err.println("SipXbridge : Exception caught while running");
+			if (logger != null) {
+				logger.fatal("SipXbridge : Fatal error caught ", ex);
+			}
+			ex.printStackTrace(System.err);
 			System.exit(-1);
-
 		}
 
 	}

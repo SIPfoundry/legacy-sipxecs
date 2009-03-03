@@ -222,7 +222,7 @@ public class SipListenerImpl implements SipListener {
     public void processRequest(RequestEvent requestEvent) {
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Gateway: got an invoming request " + requestEvent.getRequest());
+            logger.debug("Gateway: got an incoming request " + requestEvent.getRequest());
         }
         Request request = requestEvent.getRequest();
         String method = request.getMethod();

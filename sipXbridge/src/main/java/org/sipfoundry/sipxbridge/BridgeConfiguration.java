@@ -30,8 +30,6 @@ public class BridgeConfiguration {
     private String sipxProxyDomain;
     private String stunServerAddress = null;
     private String logLevel = "INFO";
-    private int rtpPortLowerBound = 25000;
-    private int rtpPortUpperBound = 25500;
     private String musicOnHoldName = "~~mh~";
     private boolean musicOnHoldEnabled = false;
     private int xmlRpcPort = 0;
@@ -196,24 +194,7 @@ public class BridgeConfiguration {
         this.logLevel = logLevel;
     }
 
-    /**
-     * @param portRange
-     */
-    public void setPortRange(String portRange) {
-        String[] ports = portRange.split(":");
-        if (ports.length != 2) {
-            throw new IllegalArgumentException("Must have format lower:upper bound");
-        }
-        String lowBound = ports[0];
-        String highBound = ports[1];
-        this.rtpPortLowerBound = new Integer(lowBound).intValue();
-        this.rtpPortUpperBound = new Integer(highBound).intValue();
-        if (this.rtpPortLowerBound >= this.rtpPortUpperBound || this.rtpPortLowerBound < 0
-                || this.rtpPortUpperBound < 0) {
-            throw new IllegalArgumentException(
-                    "Port range should be lower:upper bound integers and postivie");
-        }
-    }
+    
 
     /**
      * @return the logLevel
