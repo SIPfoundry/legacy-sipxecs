@@ -1,12 +1,12 @@
 <?xml version="1.0" ?>
 <sipxbridge-config xmlns="http://www.sipfoundry.org/sipX/schema/xml/sipxbridge-00-00">
 <bridge-configuration>
-	<external-address>192.168.5.240</external-address>
+	<external-address>192.168.5.75</external-address>
 	<external-port>5080</external-port>
-	<local-address>192.168.5.240</local-address>
+    	<sipx-proxy-domain>sipxtest.example.local</sipx-proxy-domain>
+	<local-address>192.168.5.75</local-address>
 	<local-port>5090</local-port>
-	<sipx-proxy-domain>example.com</sipx-proxy-domain>
-	<auto-attendant-name>operator</auto-attendant-name>
+        <route-inbound-calls-to-extension>501</route-inbound-calls-to-extension>
 	<music-on-hold-support-enabled>true</music-on-hold-support-enabled>
 	<log-level>DEBUG</log-level>
 	<xml-rpc-port>8088</xml-rpc-port>
@@ -15,15 +15,13 @@
 	
 
 <itsp-account>
+        <register-on-initialization>true</register-on-initialization>
 	<use-global-addressing>false</use-global-addressing>
-	<use-rport>false</use-rport>
-	<route-inbound-calls-to-auto-attendant>true</route-inbound-calls-to-auto-attendant>
-	<outbound-proxy>did.voip.les.net</outbound-proxy>
-	<proxy-domain>did.voip.les.net</proxy-domain>
-	<authentication-realm>did.voip.les.net</authentication-realm>
+	<itsp-proxy-domain>did.voip.les.net</itsp-proxy-domain>
 	<user-name>your-user-name-here</user-name>
 	<password>your-password-here</password>
-	<display-name>Some Display Name Here</display-name>
+    	<sip-keepalive-method>CR-LF</sip-keepalive-method>
+    	<rtp-keepalive-method>NONE</rtp-keepalive-method>
 </itsp-account>
 
 </sipxbridge-config>
