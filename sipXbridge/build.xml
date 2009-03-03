@@ -33,6 +33,27 @@
 	<property name='j2se_api' value='http://java.sun.com/j2se/1.5/docs/api' />
 
 <!-- The libraries -->
+	<path id="test.path">
+		<pathelement location="${classes}" />
+		<pathelement location="${sipxcommons}" />
+		<pathelement location="${log4j}" />
+		<pathelement location="${jainsip}" />
+		<pathelement location="${junit}" />
+		<pathelement location="${servlet-jar}" />
+		<pathelement location="${jetty-jar}" />
+		<pathelement location="${dnsjava}" />
+		<pathelement location="${stun4j}" />
+		<pathelement location="${commons-logging-api}" />
+		<pathelement location="${commons-logging}" />
+		<pathelement location="${commons-digester}" />
+		<pathelement location="${commons-collections}" />
+		<pathelement location="${commons-beanutils}" />
+		<pathelement location="${xml-rpc-common}" />
+		<pathelement location="${xml-rpc-server}" />
+		<pathelement location="${xml-rpc-client}" />
+		<pathelement location="${ws-commons-util}" />
+	</path>
+
 	<path id="base.path">
 		<pathelement location="${classes}" />
 		<pathelement location="${sipxcommons}" />
@@ -54,7 +75,6 @@
 		<pathelement location="${xml-rpc-client}" />
 		<pathelement location="${ws-commons-util}" />
 	</path>
-
  	<patternset id="test.classes">
   		<include name="**/symmitron/SymmitronTest.class"/>
 	</patternset>
@@ -94,7 +114,7 @@
 
 	<target name="compile"  description="compile the source">
 		<!-- Compile the java code from ${src} into ${classes} -->
-		<echo>base path ${base.path}</echo>
+		<echo>base path ${test.path}</echo>
 		<mkdir dir="${classes}" />
 		<javac srcdir="${src}" 
 			destdir="${classes}" 
