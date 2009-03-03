@@ -35,8 +35,11 @@ case ${Action} in
           @SIPX_BINDIR@/sipx-validate-xml $procspec
           Status=$(($Status+$?))
         done
-        @SIPX_BINDIR@/sipx-validate-xml @SIPX_CONFDIR@/alarm-config.xml
-        Status=$(($Status+$?))
+        if [ -f @SIPX_CONFDIR@/alarm-config.xml ]
+        then
+           @SIPX_BINDIR@/sipx-validate-xml @SIPX_CONFDIR@/alarm-config.xml
+           Status=$(($Status+$?))
+        fi
         for alarmspec in @SIPX_CONFDIR@/alarms/*.xml
         do
           @SIPX_BINDIR@/sipx-validate-xml $alarmspec
