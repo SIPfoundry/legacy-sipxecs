@@ -111,7 +111,7 @@
 
 <!-- Compile the soruce code -->
 
-	<target name="compile"  description="compile the source and tests ">
+	<target name="compile.test"  description="compile the source and tests ">
 		<!-- Compile the java code from ${src} into ${classes} -->
 		<echo>test path ${test.path}</echo>
 		<mkdir dir="${classes}" />

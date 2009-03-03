@@ -228,10 +228,10 @@
 
   <target name="realtest" depends="compile.test" unless="subdirs"
        description="run junit tests">
-    <copy todir="${build.dir}/testdata" >
+    <!-- copy todir="${build.dir}/testdata" >
 	<fileset dir="${src.dir}/testdata"/>
     </copy>
-    <!-- junit fork="yes" haltonfailure="yes" printsummary="on">
+    <junit fork="yes" haltonfailure="yes" printsummary="on">
       <classpath>
         <pathelement path="${classpath}"/>
         <pathelement location="${classes.dir}"/>
