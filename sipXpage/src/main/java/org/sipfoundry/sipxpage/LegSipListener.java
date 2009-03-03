@@ -53,7 +53,8 @@ import javax.sip.message.Message;
 import javax.sip.message.MessageFactory;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
-
+import gov.nist.javax.sip.message.SIPRequest;
+import gov.nist.javax.sip.address.SipUri;
 import org.apache.log4j.Logger;
 
 /**
@@ -475,7 +476,7 @@ public class LegSipListener implements SipListener
       {
          // A new call
 
-         LOG.info("LegSipListener::processInvite new Invite ") ;
+         LOG.info("LegSipListener::processInvite new Invite") ;
          
          // Create a new transaction
          serverTransactionId = sipProvider.getNewServerTransaction(request);
@@ -483,6 +484,16 @@ public class LegSipListener implements SipListener
          
          // Create the leg and mappings
          InboundLeg leg = new InboundLeg(this, inviteListener) ;
+         SIPRequest sipReq = (SIPRequest) request;
+         FromHeader fromHeader = (FromHeader)sipReq.getHeader(FromHeader.NAME);
+         if ( fromHeader != null)
+         {
+            if( fromHeader.getAddress().getURI() instanceof SipUri )
+            {
+               SipUri sipUri = (SipUri) fromHeader.getAddress().getURI();
+               leg.setAddress( sipUri.getUserAtHostPort() );
+            }
+         }
          serverTransactionId.setApplicationData(leg) ;
          dialogLegMap.put(dialog, leg) ;
          legDialogMap.put(leg, dialog) ;

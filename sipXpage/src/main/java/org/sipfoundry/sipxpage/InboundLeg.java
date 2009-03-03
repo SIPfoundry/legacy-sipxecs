@@ -1,8 +1,5 @@
 package sipxpage;
 
-import javax.sdp.SessionDescription;
-import javax.sip.address.SipURI;
-
 /**
  * Represents an incoming Leg of a call.
  * 
@@ -11,7 +8,7 @@ import javax.sip.address.SipURI;
  */
 public class InboundLeg extends Leg
 {
-   SipURI fromAddress ;                   // The SIP destination who invited us
+   String fromAddress; // Identity of Page initiator in "user@hostport" format 
    
    InboundLeg (LegSipListener legSipListener, LegListener otherListener)
    {
@@ -19,14 +16,13 @@ public class InboundLeg extends Leg
       myId = "from nowhere" ;
    }
 
-   public void createLeg(SipURI fromAddress, String displayName, SessionDescription sdp) throws Exception
+   public void setAddress(String fromAddress)
    {
-      this.fromAddress = fromAddress ;
-      myId = "from "+ fromAddress.toString() ;
+      this.fromAddress = fromAddress;
+      myId = "from " +	fromAddress;
    }
    
-   
-   public SipURI getAddress()
+   public String getAddress()
    {
       return fromAddress ;
    }

@@ -141,6 +141,11 @@ public class PageGroup implements LegListener
          rtpFork.start() ;
          try
          {
+            // Get the originator for the Page.
+            InboundLeg origLeg = (InboundLeg) inbound;
+            String pageOriginatorAddress;
+            pageOriginatorAddress = origLeg.getAddress();
+
             // Answer the inbound call.
             inbound.acceptCall(rtpPort) ;
             
@@ -151,15 +156,25 @@ public class PageGroup implements LegListener
                Timers.addTimer("maximum_duration", maximumDuration, this) ; // End this page after this many mS
             }
             Timers.addTimer("beep_start", 1000, this) ; // Start the beep after this much time
-            
+
             // Place a call to each destination
             for (String destination : destinations)
             {
-               Leg outbound = placeCall(inbound.getDisplayName(), destination, alertInfoKey) ;
-               if (outbound != null)
+               // Compare the originator with the destination.  Only place an outbound call
+               // if they aren't the same.  We don't make a call to the same destination that
+               // is initiating the page.
+               if (destination.compareToIgnoreCase(pageOriginatorAddress) != 0) 
                {
-                  // Keep track of them!
-                  outbounds.add(outbound) ;
+                  Leg outbound = placeCall(inbound.getDisplayName(), destination, alertInfoKey) ;
+                  if (outbound != null)
+                  {
+                     // Keep track of them!
+                     outbounds.add(outbound) ;
+                  }
+               }
+               else
+               {
+                   LOG.info(String.format("Skipping %s as it is the page originator.", pageOriginatorAddress));
                }
             }
             return true ;
