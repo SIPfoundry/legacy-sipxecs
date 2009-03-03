@@ -39,6 +39,7 @@
 		<pathelement location="${log4j}" />
 		<pathelement location="${jainsip}" />
 		<pathelement location="${junit}" />
+		<pathelement location="${sipunit}" />
 		<pathelement location="${servlet-jar}" />
 		<pathelement location="${jetty-jar}" />
 		<pathelement location="${dnsjava}" />
@@ -59,10 +60,8 @@
 		<pathelement location="${sipxcommons}" />
 		<pathelement location="${log4j}" />
 		<pathelement location="${jainsip}" />
-		<pathelement location="${junit}" />
 		<pathelement location="${servlet-jar}" />
 		<pathelement location="${jetty-jar}" />
-		<pathelement location="${sipunit}" />
 		<pathelement location="${dnsjava}" />
 		<pathelement location="${stun4j}" />
 		<pathelement location="${commons-logging-api}" />
@@ -112,22 +111,22 @@
 
 <!-- Compile the soruce code -->
 
-	<target name="compile"  description="compile the source">
+	<target name="compile"  description="compile the source and tests ">
 		<!-- Compile the java code from ${src} into ${classes} -->
-		<echo>base path ${test.path}</echo>
+		<echo>test path ${test.path}</echo>
 		<mkdir dir="${classes}" />
 		<javac srcdir="${src}" 
 			destdir="${classes}" 
 			debug="${javac.debug}"
 			optimize= "${javac.optimize}"
 			debuglevel = "${javac.debuglevel}"
-		 	classpathref="base.path" deprecation="off" />
+		 	classpathref="test.path" deprecation="off" />
 			<assertions>
 				<enable />
 			</assertions>
 	</target>
 
-	<target name="compile-exclude-tests"  description="compile the source">
+	<target name="compile-exclude-tests"  description="compile the source no tests">
 		<!-- Compile the java code from ${src} into ${classes} -->
 		<mkdir dir="${classes}" />
 		<javac srcdir="${src.dir}/src/main/java" 
@@ -194,7 +193,7 @@
 
 	<!-- Test for behavior when you try to access an invalid account -->
 	<junit fork="yes" showoutput="yes">
-		<classpath refid="base.path" />
+		<classpath refid="test.path" />
 		<!-- jvmarg value="-Dlog4j.configuration=log4j.properties" / -->
 		<jvmarg value="-Dbuild.dir=./" />
 		<formatter type="xml" />
