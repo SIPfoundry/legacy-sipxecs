@@ -221,8 +221,8 @@ void SipPublishContentMgr::publish(const char* resourceId,
         container->mEventVersion.append(new UtlInt(eventVersion[index]));
     }
 
-    // Don't call the observers if noNotify is set.
-    if (!noNotify)
+    // Don't call the observers if noNotify is set or if this is default content.
+    if (!noNotify && resourceIdProvided)
     {
        // Call the observer for the content change, if any.
        UtlString eventTypeString(eventType);
@@ -234,8 +234,7 @@ void SipPublishContentMgr::publish(const char* resourceId,
           (callbackContainer->mpCallback)(callbackContainer->mpApplicationData,
                                           resourceId,
                                           eventTypeKey,
-                                          eventTypeString,
-                                          !resourceIdProvided);
+                                          eventTypeString);
        }
     }
 
@@ -284,19 +283,8 @@ void SipPublishContentMgr::publishDefault(const char* eventTypeKey,
                                                      defaultConstructor);
     }
 
-    // Call the observer for the content change, if any.
-    UtlString eventTypeString(eventType);
-    PublishCallbackContainer* callbackContainer =
-       dynamic_cast <PublishCallbackContainer*>
-       (mEventContentCallbacks.find(&eventTypeString));
-    if(callbackContainer && callbackContainer->mpCallback)
-    {
-        (callbackContainer->mpCallback)(callbackContainer->mpApplicationData,
-                                        NULL,
-                                        eventTypeKey,
-                                        eventTypeString,
-                                        TRUE);
-    }
+    // Do not call the observer for the content change since this is default
+    // content.
 
     unlock();
 }
@@ -346,18 +334,21 @@ void SipPublishContentMgr::unpublish(const char* resourceId,
        mDefaultContentConstructors.destroy(&key);
     }
 
-    // Call the observer for the content change, if any.
-    UtlString eventTypeString(eventType);
-    PublishCallbackContainer* callbackContainer =
-       dynamic_cast <PublishCallbackContainer*>
-       (mEventContentCallbacks.find(&eventTypeString));
-    if(callbackContainer && callbackContainer->mpCallback)
+    // Call the observer for the content change, if any, unless this
+    // is default content.
+    if (resourceIdProvided)
     {
-        (callbackContainer->mpCallback)(callbackContainer->mpApplicationData,
-                                      resourceId,
-                                      eventTypeKey,
-                                      eventTypeString,
-                                      !resourceIdProvided);
+       UtlString eventTypeString(eventType);
+       PublishCallbackContainer* callbackContainer =
+          dynamic_cast <PublishCallbackContainer*>
+          (mEventContentCallbacks.find(&eventTypeString));
+       if(callbackContainer && callbackContainer->mpCallback)
+       {
+          (callbackContainer->mpCallback)(callbackContainer->mpApplicationData,
+                                          resourceId,
+                                          eventTypeKey,
+                                          eventTypeString);
+       }
     }
 
     unlock();

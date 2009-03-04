@@ -108,13 +108,12 @@ public:
      *  /param applicationData - provided with the callback function pointer
      *  when it was registered.
      *  The rest of the arguments in this callback have the same meaning as 
-     *  the getContent method.
+     *  the same arguments to the getContent method.
      */
     typedef void (*SipPublisherContentChangeCallback) (void* applicationData,
                                                        const char* resourceId,
                                                        const char* eventTypeKey,
-                                                       const char* eventType,
-                                                       UtlBoolean isDefaultContent);
+                                                       const char* eventType);
 
 /* ============================ CREATORS ================================== */
 

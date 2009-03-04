@@ -130,18 +130,19 @@ public:
     //! Callback invoked by SipPublishContentMgr when content changes
     /*! This is used to tell the SipSubscribeServer that a new notify
      *  needs to be sent as the event state content has changed.
+     *  (Note that changing the default content has no effect on existing
+     *  subscribers.  contentChangeCallback should not be called when the
+     *  default content changes.)
      */
     static void contentChangeCallback(void* applicationData,
                                       const char* resourceId,
                                       const char* eventTypeKey,
-                                      const char* eventType,
-                                      UtlBoolean isDefaultContent);
+                                      const char* eventType);
 
     //! Send a NOTIFY to all subscribers to resource and event state
     UtlBoolean notifySubscribers(const char* resourceId, 
                                  const char* eventTypeKey,
-                                 const char* eventType,
-                                 UtlBoolean isDefaultContent);
+                                 const char* eventType);
 
     //! Tell subscribe server to support given event type
     UtlBoolean enableEventType(const char* eventType,

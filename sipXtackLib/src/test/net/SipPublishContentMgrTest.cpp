@@ -24,19 +24,16 @@ static void* mAppData;
 static UtlString mResourceId;
 static UtlString mEventTypeKey;
 static UtlString mEventType;
-static UtlBoolean mIsDefaultContent;
 
 void static contentChangeCallback(void* applicationData,
                                  const char* resourceId,
                                  const char* eventTypeKey,
-                                 const char* eventType,
-                                 UtlBoolean isDefaultContent)
+                                 const char* eventType)
 {
    mAppData = applicationData;
    mResourceId = resourceId;
    mEventTypeKey = eventTypeKey;
    mEventType = eventType;
-   mIsDefaultContent = isDefaultContent;
 }
 
 /* The default content constructor used by the testDefaultConstructor test. */
@@ -570,7 +567,6 @@ public:
          ASSERT_STR_EQUAL_MESSAGE("incorrect resource Id", resourceId, mResourceId.data());
          ASSERT_STR_EQUAL_MESSAGE("incorrect event type key", eventType, mEventTypeKey.data());
          ASSERT_STR_EQUAL_MESSAGE("incorrect event type", eventType, mEventType.data());
-         CPPUNIT_ASSERT(FALSE==mIsDefaultContent);
 
          void* myAppData = NULL;
 

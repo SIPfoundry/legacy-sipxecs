@@ -149,25 +149,22 @@ SipSubscribeServer::operator=(const SipSubscribeServer& rhs)
 void SipSubscribeServer::contentChangeCallback(void* applicationData,
                                                const char* resourceId,
                                                const char* eventTypeKey,
-                                               const char* eventType,
-                                               UtlBoolean isDefaultContent)
+                                               const char* eventType)
 {
     SipSubscribeServer* subServer =
        (SipSubscribeServer*) applicationData;
     subServer->notifySubscribers(resourceId, 
                                  eventTypeKey,
-                                 eventType,
-                                 isDefaultContent);
+                                 eventType);
 }
 
 UtlBoolean SipSubscribeServer::notifySubscribers(const char* resourceId, 
                                                  const char* eventTypeKey,
-                                                 const char* eventType,
-                                                 UtlBoolean isDefaultContent)
+                                                 const char* eventType)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipSubscribeServer::notifySubscribers resourceId '%s', eventTypeKey '%s', eventType '%s', isDefaultContent %d",
-                 resourceId, eventTypeKey, eventType, isDefaultContent);
+                 "SipSubscribeServer::notifySubscribers resourceId '%s', eventTypeKey '%s', eventType '%s'",
+                 resourceId, eventTypeKey, eventType);
     UtlBoolean notifiedSubscribers = FALSE;
     UtlString eventName(eventType ? eventType : "");
 
