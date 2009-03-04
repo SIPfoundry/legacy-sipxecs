@@ -79,8 +79,10 @@ void OsTaskBase::requestShutdown(void)
    }
 
    OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                 "OsTaskBase::requestShutdown on task '%s', transition %s -> %s",
-                 mName.data(), TaskStateName(before), TaskStateName(after));
+                 "OsTaskBase::requestShutdown "
+                 "on task '%s', transition %s -> %s",
+                 mName.data(), 
+                 TaskStateName(before), TaskStateName(after));
 }
 
 // Set the userData for the task.

@@ -630,7 +630,10 @@ void CpCallManager::releaseCallIndex(int callIndex)
       UtlInt* callIndexColl = NULL;
       callIndexColl = (UtlInt*) mCallIndices.remove(&matchCallIndexColl);
 
-      if(callIndexColl) delete callIndexColl;
+      if(callIndexColl) 
+      {
+          delete callIndexColl;
+      }
       callIndexColl = NULL;
    }
 }

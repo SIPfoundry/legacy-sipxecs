@@ -193,11 +193,17 @@ CpPeerCall::~CpPeerCall()
     UtlString name = getName();
     if (!mCallId.isNull())
     {
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall-%s destructor: %s\n", name.data(), mCallId.data());       
+        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                      "CpPeerCall-%s destructor: "
+                      "%s\n", 
+                      name.data(), mCallId.data());       
     }
     else
     {
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall-%s destructor:: callId is Null\n", name.data());       
+        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                      "CpPeerCall-%s destructor:: "
+                      "callId is Null\n", 
+                      name.data());       
     }
 #endif
 
@@ -3235,7 +3241,6 @@ void CpPeerCall::dropIfDead()
                                       "creating CpIntMessage %p timer %p",
                                      pExitMsg, timer);
                     }
-                    
             }
             else
             {
@@ -3243,7 +3248,7 @@ void CpPeerCall::dropIfDead()
                 CpIntMessage ExitMsg(CallManager::CP_CALL_EXITED, (intptr_t)this) ;
                 mpManager->postMessage(ExitMsg) ;
             }
-        }
+        }      // end connection mutex lock brackets
     }
     else
     {

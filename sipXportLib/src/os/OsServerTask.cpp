@@ -79,7 +79,8 @@ UtlBoolean OsServerTask::handleMessage(OsMsg& rMsg)
       break;
    default:
       OsSysLog::add(FAC_KERNEL, PRI_CRIT,
-                    "OsServerTask::handleMessage: '%s' unhandled message type %d.%d",
+                    "OsServerTask::handleMessage: "
+                    "'%s' unhandled message type %d.%d",
                     mName.data(), rMsg.getMsgType(), rMsg.getMsgSubType());
       // Consider doing "assert(FALSE);" here, as this situation never seems
       // to happen in normal operation.

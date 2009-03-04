@@ -441,7 +441,7 @@ private:
     SipUserAgent* sipUserAgent;
     int mSipSessionReinviteTimer;
     CpCall* infocusCall;
-    UtlSList callStack;
+    UtlSList mCallStack;
     UtlString mDialString;
     int mOutGoingCallType;
     PtMGCP* mpMgcpStackTask;

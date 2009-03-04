@@ -366,10 +366,10 @@ OsStatus CallManager::addTaoListener(OsServerTask* pListener,
             rc = OS_SUCCESS;
         }
 
-        if (!callStack.isEmpty())
+        if (!mCallStack.isEmpty())
         {
             // Create an iterator to sequence through callStack.
-            UtlSListIterator iterator(callStack);
+            UtlSListIterator iterator(mCallStack);
             UtlVoidPtr* callCollectable;
             CpCall* call;
             callCollectable = (UtlVoidPtr*)iterator();
@@ -554,7 +554,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                                 OsSysLog::add(FAC_CP, PRI_INFO,
                                               "CallManager::handleMessage "
                                               "callStack: sending 486 to INVITE, entries = %d",
-                                              callStack.entries());
+                                              mCallStack.entries());
                                 if( (sipMsg->isResponse() == FALSE) &&
                                     (method.compareTo(SIP_ACK_METHOD,UtlString::ignoreCase) != 0) )
 
@@ -695,8 +695,11 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
 
                 OsSysLog::add(FAC_CP, PRI_DEBUG, 
                               "CallManager::handleMessage "
-                              "Call EXITING message received: %p infofocus: %p - number of current calls (%d)\r\n", 
-                        (void*)call, (void*) infocusCall, getCallStackSize());
+                              "Call EXITING message received: %p "
+                              "infofocus: %p - "
+                              "number of current calls (%d)\r\n", 
+                              (void*)call, (void*) infocusCall, 
+                              getCallStackSize());
 
 #ifdef TEST_PRINT
                 OsSysLog::add(FAC_CP, PRI_DEBUG,
@@ -857,7 +860,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                     // Get the callId for the calls in the stack
                     CpCall* call = NULL;
 
-                    UtlSListIterator iterator(callStack);
+                    UtlSListIterator iterator(mCallStack);
                     callCollectable = (UtlVoidPtr*) iterator();
                     while(callCollectable)
                     {
@@ -871,8 +874,8 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                         callCollectable = (UtlVoidPtr*) iterator();
                     }
 
-                    // Signal the caller that we are done.
-                    // If the event has already been signalled, clean up
+                    // Signal the caller that we are done.  If the event 
+                    // has already been signalled from the other side, clean up.
                     if(OS_ALREADY_SIGNALED == getCallsEvent->signal(numCalls))
                     {
                         // The other end must have timed out on the wait
@@ -1058,15 +1061,15 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                             ((CpMultiStringMessage&)eventMessage).getInt1Data();
                         if (eventWithoutCall)
                         {
-                            OsSysLog::add(FAC_CP, PRI_ERR, 
+                            OsSysLog::add(FAC_CP, PRI_WARNING, 
                                           "CallManager::handleMessage "
                                           "Received a message subtype %d "
                                           "request on invalid callId '%s'; "
                                           "signaled event in message\n",
                                 msgSubType, callId.data());
 
-                            // Test if already signaled here and
-                            // releasing the event if it is.
+                            // Signal the caller that we are done.  If the event 
+                            // has already been signalled from the other side, clean up.
                             if(OS_ALREADY_SIGNALED == eventWithoutCall->signal(0))
                             {
                                 OsProtectEventMgr* eventMgr =
@@ -1216,11 +1219,11 @@ void CallManager::requestShutdown()
     // Need to put a Mutex on the call stack
 
 
-    UtlSListIterator iterator(callStack);
+    UtlSListIterator iterator(mCallStack);
     CpCall* call = NULL;
     UtlVoidPtr* callCollectable;
 
-    while(! callStack.isEmpty() && ! iterator.atLast())
+    while(! mCallStack.isEmpty() && ! iterator.atLast())
     {
         callCollectable = (UtlVoidPtr*) iterator();
         if(callCollectable)
@@ -1339,7 +1342,8 @@ OsStatus CallManager::getCalls(int maxCalls, int& numCalls,
     {
         OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::getCalls TIMED OUT\n");
 
-        // If the event has already been signalled, clean up
+        // Signal the caller that we are done.  If the event 
+        // has already been signalled from the other side, clean up.
         if(OS_ALREADY_SIGNALED == callsSet->signal(0))
         {
             addressList->destroyAll();
@@ -1590,7 +1594,8 @@ PtStatus CallManager::split(const char* szSourceCallId,
     else
     {
         OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::split TIMED OUT\n");
-        // If the event has already been signalled, clean up
+        // Signal the caller that we are done.  If the event 
+        // has already been signalled from the other side, clean up.
         if(OS_ALREADY_SIGNALED == splitSuccess->signal(0))
         {
             eventMgr->release(splitSuccess);
@@ -2227,6 +2232,8 @@ OsStatus CallManager::getSession(const char* callId,
                  "CallManager::getSession "
                  "callId = '%s', address = '%s'",
                  callId, address);
+   // CallManager/CpPeerCall SipSession object will be copied
+   // to sessionPtr space.
     SipSession* sessionPtr = new SipSession;
 #ifdef TEST_PRINT
     OsSysLog::add(FAC_CP, PRI_DEBUG, 
@@ -3187,27 +3194,27 @@ void CallManager::pushCall(CpCall* call)
       call->getCallId(callId);
       OsSysLog::add(FAC_CP, PRI_DEBUG,
                   "CallManager::pushCall callStack: adding call %p, callId %s, entries = %ld",
-                   call, callId.data(), (long)callStack.entries());
+                   call, callId.data(), (long)mCallStack.entries());
    }
-   callStack.insertAt(0, new UtlVoidPtr(call));
+   mCallStack.insertAt(0, new UtlVoidPtr(call));
 #ifdef TEST_PRINT
     OsSysLog::add(FAC_CP, PRI_DEBUG,
                   "CallManager::pushCall callStack: adding call %p, entries = %d",
-                  call, callStack.entries());
+                  call, mCallStack.entries());
 #endif
 }
 
 CpCall* CallManager::popCall()
 {
     CpCall* call = NULL;
-    UtlVoidPtr* callCollectable = (UtlVoidPtr*) callStack.get();
+    UtlVoidPtr* callCollectable = (UtlVoidPtr*) mCallStack.get();
     if(callCollectable)
     {
         call = (CpCall*) callCollectable->getValue();
 #ifdef TEST_PRINT
         OsSysLog::add(FAC_CP, PRI_INFO,
                       "CallManager::popCall callStack: removing call %p, entries = %d",
-                      call, callStack.entries());
+                      call, mCallStack.entries());
 #endif
         delete callCollectable;
         callCollectable = NULL;
@@ -3222,17 +3229,17 @@ CpCall* CallManager::removeCall(CpCall* call)
       call->getCallId(callId);
       OsSysLog::add(FAC_CP, PRI_DEBUG,
                   "CallManager::removeCall callStack: removing call %p,callId %s, entries = %ld",
-                  call, callId.data(), (long)callStack.entries());
+                  call, callId.data(), (long)mCallStack.entries());
     }
     UtlVoidPtr matchCall(call);
-    UtlVoidPtr* callCollectable = (UtlVoidPtr*) callStack.remove(&matchCall);
+    UtlVoidPtr* callCollectable = (UtlVoidPtr*) mCallStack.remove(&matchCall);
     if(callCollectable)
     {
         call = (CpCall*) callCollectable->getValue();
 #ifdef TEST_PRINT
         OsSysLog::add(FAC_CP, PRI_DEBUG,
                       "CallManager::removeCall callStack: removing call %p, entries = %d",
-                      call, callStack.entries());
+                      call, mCallStack.entries());
 #endif
         delete callCollectable;
         callCollectable = NULL;
@@ -3247,7 +3254,7 @@ CpCall* CallManager::removeCall(CpCall* call)
 
 int CallManager::getCallStackSize()
 {
-    return(callStack.entries());
+    return(mCallStack.entries());
 }
 
 void CallManager::addHistoryEvent(const char* messageLogString)
@@ -3271,7 +3278,7 @@ CpCall* CallManager::findHandlingCall(const char* callId)
 
     if(!handlingCall)
     {
-        UtlSListIterator iterator(callStack);
+        UtlSListIterator iterator(mCallStack);
         UtlVoidPtr* callCollectable;
         CpCall* call;
         callCollectable = (UtlVoidPtr*)iterator();
@@ -3305,7 +3312,7 @@ CpCall* CallManager::findHandlingCall(int callIndex)
 
     if(!handlingCall)
     {
-        UtlSListIterator iterator(callStack);
+        UtlSListIterator iterator(mCallStack);
         UtlVoidPtr* callCollectable;
         CpCall* call;
         callCollectable = (UtlVoidPtr*)iterator();
@@ -3343,7 +3350,7 @@ CpCall* CallManager::findHandlingCall(const OsMsg& eventMessage)
 
     if(handlingWeight != CpCall::CP_DEFINITELY_WILL_HANDLE)
     {
-        UtlSListIterator iterator(callStack);
+        UtlSListIterator iterator(mCallStack);
         UtlVoidPtr* callCollectable;
         CpCall* call;
         callCollectable = (UtlVoidPtr*)iterator();
@@ -3375,7 +3382,7 @@ CpCall* CallManager::findHandlingCall(const OsMsg& eventMessage)
 CpCall* CallManager::findFirstQueuedCall()
 {
     CpCall* queuedCall = NULL;
-    UtlSListIterator iterator(callStack);
+    UtlSListIterator iterator(mCallStack);
     UtlVoidPtr* callCollectable;
     CpCall* call;
     callCollectable = (UtlVoidPtr*)iterator();
@@ -3436,7 +3443,7 @@ void CallManager::printCalls(int showHistory)
 
     int callIndex = 0;
 
-    UtlSListIterator iterator(callStack);
+    UtlSListIterator iterator(mCallStack);
     UtlVoidPtr* callCollectable;
     CpCall* call;
     callCollectable = (UtlVoidPtr*)iterator();
@@ -3453,8 +3460,8 @@ void CallManager::printCalls(int showHistory)
 
             OsSysLog::add(FAC_CP, PRI_DEBUG, 
                           "CallManager::printCalls "
-                          "callStack[%d] = %p id='%s' orig='%s' targ='%s' time=%uls "
-                          "%s - %sstarted - %s\n", 
+                          "callStack[%d] = %p id='%s' orig='%s' targ='%s' time=%lu "
+                          "%s - %sstarted - %s", 
                           callIndex, call, callId.data(), origCID.data(), 
                           targCID.data(), call->getElapsedTime(),
                           (call->isShuttingDown() ? "shutting down" : ""),

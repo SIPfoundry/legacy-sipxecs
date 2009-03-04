@@ -609,7 +609,7 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
         default:
             processedMessage = handleCallMessage(eventMessage);
             break;
-        }
+        }       // end PHONE_APP
         break;
 
     case OsMsg::OS_EVENT:
@@ -717,10 +717,16 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
 
             default:
                 processedMessage = FALSE;
-                osPrintf("Unknown TYPE %d of Call message subtype: %d\n", msgType, msgSubType);
+#ifdef TEST_PRINT
+    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                  "CpCall::handleMessage  "
+                  "Unknown event message "
+                  "TYPE: %d  subtype: %d\n", 
+                  msgType, msgSubType);
+#endif
                 break;
             }
-        }
+        }       // end OS_EVENT
         break ;
 
     case OsMsg::STREAMING_MSG:
@@ -732,7 +738,13 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
 
     default:
         processedMessage = FALSE;
-        osPrintf("Unknown TYPE %d of Call message subtype: %d\n", msgType, msgSubType);
+#ifdef TEST_PRINT
+    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                  "CpCall::handleMessage  "
+                  "Unprocessed message "
+                  "TYPE: %d  subtype: %d\n", 
+                  msgType, msgSubType);
+#endif
         break;
     }
 
