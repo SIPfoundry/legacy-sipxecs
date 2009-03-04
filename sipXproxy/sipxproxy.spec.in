@@ -117,6 +117,10 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/authplugins/libEnforceAuthRules.a
 %attr(755,root,root) %{_libdir}/authplugins/libEnforceAuthRules.so*
 
+%attr(755,root,root) %{_libdir}/authplugins/libRequestLinter.la
+%attr(755,root,root) %{_libdir}/authplugins/libRequestLinter.a
+%attr(755,root,root) %{_libdir}/authplugins/libRequestLinter.so*
+
 %attr(755,root,root) %{_libdir}/authplugins/libCallerAlias.la
 %attr(755,root,root) %{_libdir}/authplugins/libCallerAlias.a
 %attr(755,root,root) %{_libdir}/authplugins/libCallerAlias.so*

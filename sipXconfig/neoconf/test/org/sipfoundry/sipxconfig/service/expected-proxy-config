@@ -38,3 +38,5 @@ SIPX_PROXY_HOOK_LIBRARY.900_ntap : @sipxpbx.lib.dir@/authplugins/libNatTraversal
 
 SIPX_PROXY_HOOK_LIBRARY.990_emergnotif: @sipxpbx.lib.dir@/authplugins/libEmergencyNotify.so
 SIPX_PROXY.990_emergnotif.EMERGRULES  : @sipxpbx.conf.dir@/authrules.xml
+
+SIPX_PROXY_HOOK_LIBRARY.995_requestlinter: @sipxpbx.lib.dir@/authplugins/libRequestLinter.so

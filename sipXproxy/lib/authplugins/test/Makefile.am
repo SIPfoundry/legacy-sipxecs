@@ -4,6 +4,7 @@ TESTS = \
 	calleraliastest \
 	enforcerulestest \
 	emergencyrulestest \
+	requestlintertest \
 	enforcerulestest \
 	msftxferhacktest \
 	nattraversalagenttests \
@@ -15,6 +16,7 @@ check_PROGRAMS = \
 	calleraliastest \
 	enforcerulestest \
 	emergencyrulestest \
+	requestlintertest \
 	msftxferhacktest \
 	nattraversalagenttests \
 	nattraversaltests \
@@ -55,6 +57,16 @@ emergencyrulestest_SOURCES = \
 
 emergencyrulestest_LDADD = \
 	$(COMMON_LIBS)
+
+requestlintertest_CXXFLAGS = \
+    $(COMMON_CXX_FLAGS)
+
+requestlintertest_SOURCES = \
+    $(top_srcdir)/lib/authplugins/RequestLinter.cpp \
+    RequestLinterTest.cpp
+
+requestlintertest_LDADD = \
+    $(COMMON_LIBS)
 
 calleraliastest_CXXFLAGS = \
 	$(COMMON_CXX_FLAGS)

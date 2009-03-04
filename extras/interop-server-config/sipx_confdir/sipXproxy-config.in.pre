@@ -31,3 +31,5 @@ SIPX_PROXY_HOOK_LIBRARY.900_ntap : @SIPX_LIBDIR@/authplugins/libNatTraversalAgen
 
 SIPX_PROXY_HOOK_LIBRARY.990_emergnotif: @SIPX_LIBDIR@/authplugins/libEmergencyNotify.so
 SIPX_PROXY.990_emergnotif.EMERGRULES  : @SIPX_CONFDIR@/authrules.xml
+
+SIPX_PROXY_HOOK_LIBRARY.995_requestlinter: @SIPX_LIBDIR@/authplugins/libRequestLinter.so

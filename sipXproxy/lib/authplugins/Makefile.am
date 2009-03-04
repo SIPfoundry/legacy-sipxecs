@@ -25,6 +25,7 @@ nobase_lib_LTLIBRARIES = \
     authplugins/libTransferControl.la \
     authplugins/libEnforceAuthRules.la \
     authplugins/libEmergencyNotify.la \
+    authplugins/libRequestLinter.la \
 	 authplugins/libMSFT_ExchangeTransferHack.la \
 	 authplugins/libSubscriptionAuth.la
 
@@ -66,6 +67,20 @@ authplugins_libEmergencyNotify_la_LDFLAGS = \
     $(AUTHPLUGIN_COMMON_LD_FLAGS)
 
 authplugins_libEmergencyNotify_la_LIBADD = \
+    @SIPXCOMMSERVER_LIBS@
+
+
+authplugins_libRequestLinter_la_SOURCES = \
+    RequestLinter.h \
+    RequestLinter.cpp
+
+authplugins_libRequestLinter_la_CXXFLAGS = \
+    $(AUTHPLUGIN_COMMON_CXX_FLAGS)
+
+authplugins_libRequestLinter_la_LDFLAGS = \
+    $(AUTHPLUGIN_COMMON_LD_FLAGS)
+
+authplugins_libRequestLinter_la_LIBADD = \
     @SIPXCOMMSERVER_LIBS@
 
 
