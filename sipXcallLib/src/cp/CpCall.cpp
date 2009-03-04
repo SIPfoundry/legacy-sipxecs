@@ -70,6 +70,7 @@ mDtmfQMutex(OsMutex::Q_FIFO)
     mCallInFocus = FALSE;
     mRemoteDtmf = FALSE;
     mDtmfEnabled = FALSE;
+    mCallMgrPostedDrop = FALSE;
 
     mpManager = manager;
 
@@ -886,6 +887,18 @@ int CpCall::getCallIndex()
 int CpCall::getCallState()
 {
     return(mCallState);
+}
+
+// For CallManager use ONLY. 
+int CpCall::getDropState()
+{
+    return(mCallMgrPostedDrop);
+}
+
+// For CallManager use ONLY. 
+void CpCall::setDropState()
+{
+    mCallMgrPostedDrop = TRUE;
 }
 
 void CpCall::printCall(int showHistory)

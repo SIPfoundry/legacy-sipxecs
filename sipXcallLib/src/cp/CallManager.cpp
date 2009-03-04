@@ -686,7 +686,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
             }
             break;
 
-        case CP_CALL_EXITED:
+        case CP_CALL_EXITED:    // NOTE- Call thread may still be handling CP_DROP msg
             {
                 CpCall* call;
 				intptr_t callIntptr;
@@ -726,7 +726,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
 
                 if(call)
                 {
-                    delete call;                        
+                    delete call;   // NOTE - destructor changes Call object OS_TASK state                     
                 }
 
                 messageProcessed = TRUE;
@@ -1016,10 +1016,23 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
             // Forward the message to the call
             {
                 UtlString callId;
+                UtlBoolean tooLateToPost = FALSE; 
                 ((CpMultiStringMessage&)eventMessage).getString1Data(callId);
                 OsReadLock lock(mCallListMutex);
                 CpCall* call = findHandlingCall(callId);
-                if(!call)
+                if (call)
+                {   // eliminate race found in XECS-1859
+                    // CM should not post any further messages after CP_DROP
+                    tooLateToPost = call->getDropState();
+#ifdef TEST_PRINT
+                    OsSysLog::add(FAC_CP, PRI_DEBUG,
+                                  "CallManager::handleMessage "
+                                  "is %stoo late to post message %d to '%s'",
+                                  (tooLateToPost ? "" : "NOT"), 
+                                  msgSubType, callId.data());
+#endif
+                }
+                if(!call || tooLateToPost)
                 {
                     // The call might have been terminated by asynchronous events.
                     // But output a debugging message, so the programmer can check
@@ -1102,6 +1115,13 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                 }
                 else
                 {
+                    if (msgSubType == CP_DROP)
+                    {
+                        // allow CM to keep call in callStack but prevent CM 
+                        // from posting any further messages to this call
+                        // CP_CALL_EXITED will run clean-up code
+                        call->setDropState();
+                    }
                     OsStatus r = call->postMessage(eventMessage);
                     assert(r == OS_SUCCESS);
                 }

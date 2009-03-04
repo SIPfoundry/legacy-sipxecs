@@ -185,6 +185,9 @@ public:
 
     int getCallState();
 
+    int getDropState();    ///> For CallManager use ONLY. See mCallMgrPostedDrop/
+    void setDropState();   ///> For CallManager use ONLY. See mCallMgrPostedDrop/
+
     virtual void printCall(int showHistory = 1);
 
     // This should go away
@@ -334,6 +337,16 @@ private:
     int dtmfEventExists(int ev);
 
     OsTime  mCallTimeStart;   // xecs-1698 hack
+
+    bool mCallMgrPostedDrop;      
+    ///< the relationship between this object and the call manager
+    /// This flag is to eliminate a race for messages which are posted 
+    /// to CallManager after CP_DROP but before CP_CALL_EXITED.
+    /// CallManager should not send any such messages to the CpCall object.
+    /// Only constructor should set to FALSE.
+    /// Only CallManager should check or write to it outside the constructor.
+    /// CM can only set this to TRUE.  CM should set before posting CP_DROP.  
+    /// If TRUE, CM will not post any message to the Call object.
 
 };
 

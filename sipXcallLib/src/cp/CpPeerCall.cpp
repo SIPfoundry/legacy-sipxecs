@@ -2396,6 +2396,12 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
         break ;
 
     case CallManager::CP_GET_SESSION:
+#ifdef TEST_PRINT
+        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                      "CpPeerCall handleCallMessage: "
+                      "getsession mDropping %d",
+                      mDropping);
+#endif
         handleGetSession(&eventMessage);
         break ;
 
