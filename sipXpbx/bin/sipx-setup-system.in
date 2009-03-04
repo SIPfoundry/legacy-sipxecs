@@ -32,6 +32,9 @@ IFCFGFILE      = '%s/ifcfg-%s' % (IFCONFIGDIR, ETHNAME)
 RootInitFile   = '/root/.bashrc'
 
 DNSSYSCFGFILE  = '/etc/sysconfig/named'
+
+RUNLEVEL=3
+
 # -----------------------------------------------------------------------------
 # Global variables
 
@@ -156,6 +159,7 @@ Any existing configuration will be overwritten unless you Exit.\
 
 def screen_setup_admin ():
 
+   show_progress()
    adminExplanation = "\
 Choose a new password for the 'root' user.\n\
 This is the password for the root shell, not for the\n\
@@ -163,8 +167,8 @@ This is the password for the root shell, not for the\n\
 
    okButton = snack.Button("   OK   ")
 
-   valuesOk=0
-   while valuesOk == 0 :
+   valuesOk=False
+   while not valuesOk :
        sg = snack.Grid(2, 3)
 
        l1a = snack.Label("Admin Password:")
@@ -188,7 +192,7 @@ This is the password for the root shell, not for the\n\
            screen_err("Admin Password values do not match")
        else :
            adminPassword = e1a.value()
-           valuesOk=1
+           valuesOk=True
 
            progress(20, "Set Password")
            show_progress()
@@ -208,13 +212,12 @@ def screen_ask_net ():
    global IpAddress
    global NetMask
    global Gateway
-   global DnsServers
 
    netExplanation='Configure network settings for this system:\n'
 
-   valuesOk=0
-   while valuesOk == 0 :
-       sg = snack.Grid(3, 9)
+   valuesOk=False
+   while not valuesOk :
+       sg = snack.Grid(3, 5)
        l0 = snack.Label(" ")
 
        l1 = snack.Label("Hostname:   ")
@@ -237,24 +240,8 @@ def screen_ask_net ():
        sg.setField(l4, 0, 3)
        sg.setField(e4, 1, 3)
 
-       l5 = snack.Label("Nameserver 1 Address: ")
-       try:
-           e5 = snack.Entry(32, DnsServers[0])
-       except:
-           e5 = snack.Entry(32, '')
-       sg.setField(l5, 0, 4)
-       sg.setField(e5, 1, 4)
-
-       l6 = snack.Label("Nameserver 2 Address: ")
-       try:
-           e6 = snack.Entry(32, DnsServers[1])
-       except:
-           e6 = snack.Entry(32, '')
-       sg.setField(l6, 0, 5)
-       sg.setField(e6, 1, 5)
-
        okButton = snack.Button("   OK   ")
-       sg.setField(okButton, 0, 8, (1,1,1,1))
+       sg.setField(okButton, 0, 4, (1,1,1,1))
 
        sg.place(1,1)
 
@@ -266,38 +253,36 @@ def screen_ask_net ():
        NetMask=e3.value()
        Gateway=e4.value()
 
-       DnsServers = [ e5.value(), e6.value() ]
-
        screen_end()
 
        # Assume all entries OK, now check for errors
-       valuesOk=1
+       valuesOk=True
 
        #--- validation
        if HostName.count('.') < 2:
            # We expect at least 2 dots in the new fully qualified host name
-           valuesOk=0
+           valuesOk=False
            screen_err('"%s" is not a fully qualified host name' % HostName)
        else :
            # Domain name == whatever follows the first dot
            DomainName = '.'.join (HostName.split('.')[1:])
 
        if len(NetMask.split('.')) < 4:
-           valuesOk=0
+           valuesOk=False
            screen_err('"%s" is not a valid Netmask' % NetMask)
 
        elif not (NetMask.split('.')[0] == '255' and NetMask.split('.')[1] == '255') :
-           valuesOk=0
+           valuesOk=False
            screen_err('"%s" is not a valid Netmask.' % NetMask)
        else :
            for i in range(4):
                if not NetMask.split('.')[i] in ('255', '0', '128', '192', '224', '240', '248', '252', '254'):
-                   valuesOk=0
+                   valuesOk=False
                    screen_err('"%s" is not a valid Netmask' % NetMask)
 
        if IpAddress.count('.') < 3:
            # We expect at least 3 dots in an IP addr
-           valuesOk=0
+           valuesOk=False
            screen_err('"%s" is not a valid IP addr' % IpAddress)
        else:
            addrLst = IpAddress.split('.')
@@ -305,43 +290,118 @@ def screen_ask_net ():
            netwAddr  = '.'.join([str(int(addrLst[i]) & int(maskLst[i]))  for i in range(4)])
            broadAddr = '.'.join([str(int(addrLst[i]) | (255 - int(maskLst[i]))) for i in range(4)])
            if IpAddress == netwAddr or IpAddress == broadAddr :
-               valuesOk=0
+               valuesOk=False
                screen_err('\
 "%s, %s" is not a valid IP address / Netmask combination' % (IpAddress, NetMask))
 
        if Gateway.count('.') < 3:
            # We expect at least 3 dots in an IP addr
-           valuesOk=0
+           valuesOk=False
            screen_err('"%s" is not a valid Gateway addr' % Gateway)
        else:
            GWaddrLst = Gateway.split('.')
            GWnetwAddr  = '.'.join([str(int(GWaddrLst[i]) & int(maskLst[i]))  for i in range(4)])
            if GWnetwAddr != netwAddr or Gateway == netwAddr or Gateway == broadAddr :
-               valuesOk=0
+               valuesOk=False
                screen_err('\
 "%s" is not a valid Gateway address.\n\
 It is not in the addr range defined by \n\
 the Netmask / IP addr combination.' % Gateway)
 
-       if DnsServers[0].count('.') < 3:
-           # We expect at least 3 dots in an IP addr
-           valuesOk=0
-           screen_err('"%s" is not a valid DNS addr' % DnsServers[0])
-           DnsServers[0]=''
-
-       if DnsServers[1] != '' and DnsServers[1].count('.') < 3:
-           # We expect at least 3 dots in an IP addr
-           valuesOk=0
-           screen_err('"%s" is not a valid DNS addr' % DnsServers[1])
-           DnsServers[1]=''
 
    log_result("HostName", HostName)
    log_result("DomainName", DomainName)
    log_result("IpAddress", IpAddress)
    log_result("NetMask", NetMask)
    log_result("Gateway", Gateway)
-   log_result("DnsServers", DnsServers)
 
+def screen_ask_DNS ():
+   global HostName
+   global ProvideDNS
+   global DnsServers
+
+   show_progress()
+
+   serverMessage ='\
+Do you have a DNS server on another system\n\
+that you prefer to use?\
+'
+
+   layout = snack.Grid(1, 2)
+   yesButton = snack.Button("Yes - %s SHOULD NOT be my DNS server." % HostName)
+   noButton  = snack.Button("No  - %s SHOULD be my DNS server." % HostName)
+   layout.setField(yesButton, 0, 0, (1,1,1,1))
+   layout.setField(noButton, 0, 1, (1,1,1,1))
+
+   f = screen_setup("DNS Service", serverMessage, layout)
+   choice = f.run()
+
+   if choice == noButton :
+       ProvideDNS = True
+
+   screen_end()
+
+   if ProvideDNS :
+       dnsExplanation='\
+Configure upstream DNS servers to be used, if any.\n\
+  If you have an intranet DNS system,\n\
+  or use DNS from your IP service provider,\n\
+Enter those servers here.\n\
+Otherwise, leave these entries blank.\
+'
+   else:
+       dnsExplanation='\
+Enter the addresses of your DNS servers:\
+'      
+
+   valuesOk = False
+   while not valuesOk :
+
+       sg = snack.Grid(2, 3)
+
+       l1 = snack.Label("Nameserver 1 Address: ")
+       try:
+           e1 = snack.Entry(32, DnsServers[0])
+       except:
+           e1 = snack.Entry(32, '')
+       sg.setField(l1, 0, 0)
+       sg.setField(e1, 1, 0)
+
+       l2 = snack.Label("Nameserver 2 Address: ")
+       try:
+           e2 = snack.Entry(32, DnsServers[1])
+       except:
+           e2 = snack.Entry(32, '')
+       sg.setField(l2, 0, 1)
+       sg.setField(e2, 1, 1)
+
+       okButton = snack.Button("   OK   ")
+       sg.setField(okButton, 0, 2, (1,1,1,1))
+
+       f = screen_setup("DNS servers", dnsExplanation, sg)
+
+       f.run()
+
+       DnsServers = [ e1.value(), e2.value() ]
+
+       valuesOk=True
+
+       if DnsServers[0] != '' and DnsServers[0].count('.') < 3:
+           # We expect at least 3 dots in an IP addr
+           valuesOk=False
+           screen_err('"%s" is not a valid DNS addr' % DnsServers[0])
+           DnsServers[0]=''
+
+       if DnsServers[1] != '' and DnsServers[1].count('.') < 3:
+           # We expect at least 3 dots in an IP addr
+           valuesOk=False
+           screen_err('"%s" is not a valid DNS addr' % DnsServers[1])
+           DnsServers[1]=''
+
+       screen_end()
+       
+   log_result("DnsServers", DnsServers)
+   
 def set_netif () :
      """
      Updates the interface configuration file
@@ -403,13 +463,12 @@ def set_network ():
     """
     Sets a full host name in the /etc/sysconfig/network file.
     In addition this procedure in the SET mode puts a host name
-    into /etc/hosts and a domain name into the /etc/resolv.conf file.
+    into /etc/hosts
     """
     global HostName
     global IpAddress
     global Gateway
     global DomainName
-    global DnsServers
 
     show_progress()
 
@@ -437,19 +496,6 @@ GATEWAY=%s\n\
     if runningAsRoot() :
         file (file2, 'w').write(f2Cont)
 
-    # Add domain name in the file: /etc/resolv.conf
-    file3 = '/etc/resolv.conf'
-    f3Cont = 'search %s\n' % DomainName
-    f3Cont+='nameserver 127.0.0.1\n'
-    for ns in DnsServers :
-        if len(ns) > 0 :
-            f3Cont+='nameserver %s\n' % ns
-    log_printout("======= %s:" % file3)
-    log_printout(f3Cont)
-
-    if runningAsRoot() :
-        file (file3, 'w').write(f3Cont)
-
     # Set hostname
     SETHOSTNAMECMD = 'hostname %s' % HostName
 
@@ -458,6 +504,185 @@ GATEWAY=%s\n\
         log_printout(cmdoutput)
     else :
         log_printout('(simulated) %s' % SETHOSTNAMECMD)
+
+def set_DNS () :
+    global ProvideDNS
+    global DomainName
+    global HostName
+    global IpAddress
+    global DnsServers
+
+    # Create the resolv.conf file - this controls where software looks for DNS servers
+    resolvFile = '/etc/resolv.conf'
+    resolvContent = 'search %s\n' % DomainName
+
+    # look on the local server first
+    resolvContent+= 'nameserver 127.0.0.1\n'
+
+    # if we have other servers, configure them as fallbacks
+    if DnsServers[0] != '' :
+        resolvContent+= 'nameserver %s\n' % DnsServers[0]
+    if DnsServers[1] != '' :
+        resolvContent+= 'nameserver %s\n' % DnsServers[1]
+
+    log_printout("======= %s:" % resolvFile)
+    log_printout(resolvContent)
+
+    if runningAsRoot() :
+        file (resolvFile, 'w').write(resolvContent)
+
+    # Create the configuration of the local name server
+    #  a) non HA system:  A Master DNS server is configured on the sipX host
+    #  b) HA Master system: A Master DNS server is configured on the Master sipX host.
+    #     For redundancy to work it is required to have a Distributed DNS server on the
+    #     Distributed sipX host. If there is a DHCP server on the Master as well
+    #     then the DHCP server needs to serve both DNS server addresses to clients (e.g. phones)
+    #  c) HA Distributed system: A Distributed DNS server is configured. The script verifies
+    #     that if the DNS server address points to the Master sipX host, a Distributed DNS
+    #     server is required on the Distributed sipX host
+
+    show_progress()
+
+    dnsConfigFile='/etc/named.conf'
+
+    if ProvideDNS :
+        # Calculate subnet address based on the NetMask
+        addrLst = IpAddress.split('.')
+        maskLst = NetMask.split('.')
+
+        # Construct network address. NetMask has already been checked and is valid
+        SubnetLst  = [str(int(addrLst[i]) & int(maskLst[i]))  for i in range(4)]
+        Subnet  = '.'.join(SubnetLst)
+
+        # Construct reverse Subnet string for PTR zone file name
+        # Calculate length
+        if int(NetMask.split('.')[3]) != 0 :
+            ii = 4
+        elif int(NetMask.split('.')[2]) != 0 :
+            ii = 3
+        else :
+            ii = 2
+        # Invert string
+        arpaReverseLst = ['', '', '', '']
+        for i in range(ii) :
+            arpaReverseLst[i] = SubnetLst[ii - i -1]
+
+        if not NetmaskNrBits(NetMask) in (24, 16) :
+            # Add the netmask in the format /xx
+            arpaReverseLst[0] += '/'
+            arpaReverseLst[0] += str(NetmaskNrBits(NetMask))
+
+        reverseArpa = '.'.join (arpaReverseLst[:ii])
+
+        # Calculate PTR for host
+        if maskLst[2] == '255' :
+            myHostPTR = addrLst[3]
+        else :
+            myHostPTR = '.'.join([addrLst[3], addrLst[2] ])
+
+        # Configure the named service
+        namedConf = '\
+options {\n\
+        directory  "/var/named";\n\
+        dump-file "/var/named/data/cache_dump.db";\n\
+        statistics-file "/var/named/data/named_stats.txt";\n\
+'
+        if DnsServers[0] != '' or DnsServers[1] != '':
+            namedConf+= '\
+        forwarders {\n'
+            if DnsServers[0] != '':
+                namedConf+= '\
+                %s;\n' % DnsServers[0]
+            if DnsServers[1] != '':
+                namedConf+= '\
+                %s;\n' % DnsServers[1]
+            namedConf += '\
+        };\n'
+        namedConf += '\
+};\n\
+\n\
+zone "%s"  IN  {\n\
+     type master;\n\
+     file "%s.zone";\n\
+     allow-update { none; };\n\
+};\n\
+\n\
+' % ( DomainName, DomainName )
+
+#zone "%s.IN-ADDR.ARPA" {\n\
+#     type master;\n\
+#     file "%s.zone";\n\
+#};\n\
+#\n' % ( DomainName, DomainName, reverseArpa, Subnet )
+
+    else:
+        # Set up a caching-only name server.
+        # Create named.conf file entries
+        namedConf = '\
+// Default "Caching Only" name server configuration\n\
+//\n\
+\n\
+options {\n\
+        directory "/var/named";\n\
+        dump-file "/var/named/data/cache_dump.db";\n\
+        statistics-file "/var/named/data/named_stats.txt";\n\
+'
+        if DnsServers[0] != '' or DnsServers[1] != '':
+            namedConf+= '\
+        forwarders {\n'
+            if DnsServers[0] != '':
+                namedConf+= '\
+                %s;\n' % DnsServers[0]
+            if DnsServers[1] != '':
+                namedConf+= '\
+                %s;\n' % DnsServers[1]
+            namedConf += '\
+        };\n'
+
+        namedConf += '\
+        forward only;\n\
+};\n\
+'
+
+    if runningAsRoot() :
+        file ( dnsConfigFile, 'w').write( namedConf )
+
+    log_printout("======= %s:" % dnsConfigFile)
+    log_printout(namedConf)
+
+    if ProvideDNS:
+        # Zone files are only required for the Master DNS server.
+        # A Master DNS server is used for a non HA setup or on the HA Master host
+
+        zoneConfigFile='/var/named/%s.zone' % DomainName
+
+        # Create DNS entries using the sipx-dns script
+        sipxDNSCommand = 'sipx-dns --provide-dns --zone %s %s/%s' \
+                         % (DomainName, HostName, IpAddress)
+
+        zoneConfig = commands.getoutput(sipxDNSCommand)
+
+        log_printout("======= %s:" % zoneConfigFile)
+        log_printout(zoneConfig)
+
+        if runningAsRoot():
+            file ( dnsConfigFile, 'w').write( namedConf )
+            
+    # Change ownership of zone files
+    setOwnerRecursive('/var/named','named', 'named')
+
+    if runningAsRoot():
+        startNamedCmd = 'service named restart'
+        log_printout("Attempting to start DNS with: '%s'" % startNamedCmd)
+        cmdoutput=commands.getoutput(startNamedCmd)
+        log_printout(cmdoutput)
+
+        startNamedCmd = '/sbin/chkconfig --level %d named on' % RUNLEVEL
+        log_printout("Configuring autostart of DNS with: '%s'" % startNamedCmd)
+        cmdoutput=commands.getoutput(startNamedCmd)
+        log_printout(cmdoutput)
+    else:
+        log_printout("Named not configured or started because not running as root")
 
 def start_network () :
      show_progress()
@@ -672,7 +897,6 @@ driftfile /var/lib/ntp/drift\n\
         file ('/etc/ntp.conf', 'w').write ('%s\n' % ntpConf)
         
     #--- Turn on the ntpd service on runlevel 3
-    RUNLEVEL=3
     log_printout('Enable NTP Service in runlevel %d:' % RUNLEVEL)
     turnOnNtpd='/sbin/chkconfig --level %d ntpd on' % RUNLEVEL
     if runningAsRoot() :
@@ -1005,14 +1229,18 @@ try:
     progress(10, "Administrative Password")
     screen_setup_admin()
 
-    progress(30, "Collect Network Settings")
+    progress(20, "Collect Network Settings")
     screen_ask_net()
+
+    progress(30, "Collect DNS Settings")
+    screen_ask_DNS()
 
     progress(40, "Configure network interface")
     set_netif()
 
     progress(50, "Configure network services")
     set_network()
+    set_DNS()
 
     progress(60, "Start network")
     start_network()

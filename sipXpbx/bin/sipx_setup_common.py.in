@@ -32,6 +32,9 @@ IFCFGFILE      = '%s/ifcfg-%s' % (IFCONFIGDIR, ETHNAME)
 global isFirstSystem
 isFirstSystem=True
 
+global ProvideDNS
+ProvideDNS = False
+
 global IpAddress
 IpAddress=''
 
@@ -422,8 +425,8 @@ of the '@' in your SIP addresses, like this:\n\
      sip:user@%s\n\
 " % DomainName
 
-    valuesOk=0
-    while valuesOk == 0 :
+    valuesOk=False
+    while not valuesOk :
 
         inner = snack.Grid(2, 3)
 
@@ -446,7 +449,7 @@ of the '@' in your SIP addresses, like this:\n\
 
         # Test for valid SIP domain name
         if reDomain.search(SipDomain) :
-            valuesOk = 1
+            valuesOk = True
         else :
             screen_err("Your SIP Domain must be at least two DNS labels separated by dots.")
 
