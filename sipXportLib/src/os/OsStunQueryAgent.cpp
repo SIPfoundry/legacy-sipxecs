@@ -821,7 +821,6 @@ bool StunMessage::isStunMessage(char* ptr, UINT length)
  */
 int OsStunQueryAgent::randomInt ()
 {
-    assert( sizeof(int) == 4 ); /* Assure that we are on a 32 bit platform */
     static bool init=false;
     if ( !init ) /* For the first time, seeding is needed */
     {
@@ -849,7 +848,7 @@ asm("rdtsc" : "=A" (tick));
 #else
 #     error Need some way to seed the random number generator
 #endif
-        int seed = int(tick);
+        unsigned int seed = (unsigned int)tick;
 #ifdef WIN32
         srand(seed);
 #else
