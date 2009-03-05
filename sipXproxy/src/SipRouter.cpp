@@ -712,7 +712,7 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
       }     // end should be authorized
       else
       {
-         // In order to guantantee symmetric signaling, this proxy has to 
+         // In order to guarantee symmetric signaling, this proxy has to 
          // Record-Route all incoming requests.  The RouteState mechanism
          // utilized by the authorization process does add a Record-Route
          // to the requests it evaluates.  We get into this branch of the

@@ -4951,7 +4951,6 @@ void SipConnection::processInviteResponse(const SipMessage* response)
         matchingCodecs = NULL;
     }   // end 2xx
 
-
     // Redirect
     else if(responseCode >= SIP_MULTI_CHOICE_CODE &&
         responseCode < SIP_BAD_REQUEST_CODE &&
