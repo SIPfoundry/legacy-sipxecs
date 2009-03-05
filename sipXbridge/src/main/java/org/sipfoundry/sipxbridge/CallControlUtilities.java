@@ -98,32 +98,16 @@ public class CallControlUtilities {
              */
             SessionDescription sdpOffer = SipUtilities.getSessionDescription(response);
 
-            Request sdpOfferInvite = dialog.createRequest(Request.INVITE);
-
+           
             /*
              * Got a Response to our SDP query. Shuffle to the other end.
              */
 
             DialogContext.getRtpSession(dialog).getTransmitter().setOnHold(false);
+            
+            DialogContext.get(dialog).sendSdpReOffer(sdpOffer);
 
-            /*
-             * Set and fix up the sdp offer to send to the opposite side.
-             */
-            DialogContext.getRtpSession(dialog).getReceiver().setSessionDescription(sdpOffer);
-
-            SipUtilities.incrementSessionVersion(sdpOffer);
-
-            SipUtilities.fixupOutboundRequest(dialog, sdpOfferInvite);
-
-            sdpOfferInvite.setContent(sdpOffer.toString(), ProtocolObjects.headerFactory
-                    .createContentTypeHeader("application", "sdp"));
-
-            ClientTransaction ctx = ((DialogExt) dialog).getSipProvider()
-                    .getNewClientTransaction(sdpOfferInvite);
-
-            TransactionContext.attach(ctx, Operation.SEND_SDP_RE_OFFER);
-
-            dialog.sendRequest(ctx);
+          
 
         } else {
             dialogContext.getBackToBackUserAgent().tearDown(
@@ -242,7 +226,7 @@ public class CallControlUtilities {
 
             ackRequest.setContent(ackSd.toString(), ProtocolObjects.headerFactory
                     .createContentTypeHeader("application", "sdp"));
-            dialog.sendAck(ackRequest);
+            dialogContext.sendAck(ackRequest);
 
         } else {
             logger.error("ERROR  0 contentLength ");

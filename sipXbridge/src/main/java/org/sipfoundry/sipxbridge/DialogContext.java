@@ -15,14 +15,17 @@ import gov.nist.javax.sip.message.SIPResponse;
 
 import java.util.ListIterator;
 import java.util.TimerTask;
+import java.util.concurrent.Semaphore;
 
 import javax.sdp.SessionDescription;
 import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
 import javax.sip.DialogState;
 import javax.sip.ServerTransaction;
+import javax.sip.SipException;
 import javax.sip.SipProvider;
 import javax.sip.Transaction;
+import javax.sip.TransactionState;
 import javax.sip.header.AcceptHeader;
 import javax.sip.header.AllowHeader;
 import javax.sip.header.ContactHeader;
@@ -69,6 +72,16 @@ class DialogContext {
     Transaction transaction;
 
     /*
+     * The current re-invite transaction
+     */
+    ClientTransaction reInviteTransaction;
+
+    /*
+     * The last ACK.
+     */
+    Request lastAck;
+
+    /*
      * The last response seen by the dialog.
      */
     private Response lastResponse;
@@ -109,7 +122,6 @@ class DialogContext {
     // machine.
     // ///////////////////////////////////////////////////////////////
 
-    
     /*
      * Used by the session timer - to compute whether or not to send a session timer re-INVITE.
      */
@@ -130,6 +142,8 @@ class DialogContext {
      * The generated REFER request.
      */
     Request referRequest;
+
+    private boolean terminateOnConfirm;
 
     // /////////////////////////////////////////////////////////////////
     // Inner classes.
@@ -190,13 +204,13 @@ class DialogContext {
                         MinSE minSe = new MinSE();
                         minSe.setExpires(Gateway.getSessionExpires());
                         request.setHeader(minSe);
-                        if ( getItspInfo() != null && ! getItspInfo().stripPrivateHeaders() ) {
+                        if (getItspInfo() != null && !getItspInfo().stripPrivateHeaders()) {
                             SubjectHeader sh = ProtocolObjects.headerFactory
-                                .createSubjectHeader("SipxBridge Session Timer");
+                                    .createSubjectHeader("SipxBridge Session Timer");
                             request.setHeader(sh);
                         } else {
                             SipUtilities.stripPrivateHeaders(request);
-                            
+
                         }
 
                         if (getItspInfo() == null || getItspInfo().isGlobalAddressingUsed()) {
@@ -215,8 +229,7 @@ class DialogContext {
                             request);
                     TransactionContext.attach(ctx, Operation.SESSION_TIMER);
 
-                    dialog.sendRequest(ctx);
-
+                    new ReInviteSender(DialogContext.get(dialog), ctx).run();
                     DialogContext.this.sessionTimer = new SessionTimerTask(this.method);
 
                     int expiryTime = sessionExpires < Gateway.MIN_EXPIRES ? Gateway.MIN_EXPIRES
@@ -230,6 +243,48 @@ class DialogContext {
             } catch (Exception ex) {
                 logger.error("Unexpected exception sending Session Timer INVITE", ex);
                 this.cancel();
+
+            }
+        }
+    }
+
+    /**
+     * This task waits till a pending ack has been recorded and then sends out a re-INVITE. This
+     * is to prevent interleaving INVITEs ( which will result in a 493 from the ITSP ).
+     * 
+     */
+    public class ReInviteSender implements Runnable {
+        DialogContext dialogContext;
+        ClientTransaction ctx;
+
+        public ReInviteSender(DialogContext dialogContext, ClientTransaction ctx) {
+            this.dialogContext = dialogContext;
+            this.ctx = ctx;
+        }
+
+        public void run() {
+            try {
+                int i = 0;
+                while (dialogContext.dialog.getState() != DialogState.TERMINATED
+                        && dialogContext.isAckPending()) {
+                    if (i++ > 16) {
+                        // Could not send re-INVITE we should kill the dialog.
+                        logger.error("Could not send re-INVITE -- killing call");
+                        ctx.terminate();
+                        backToBackUserAgent.tearDown();
+                        return;
+                    } else {
+                        Thread.sleep(500);
+                    }
+                }
+                if (dialogContext.dialog.getState() != DialogState.TERMINATED) {
+                    dialogContext.dialog.sendRequest(ctx);
+                    dialogContext.reInviteTransaction = ctx;
+                }
+                logger.debug("re-INVITE successfully sent");
+            } catch (Exception ex) {
+                logger.error("Error sending INVITE", ex);
+            } finally {
 
             }
         }
@@ -250,24 +305,32 @@ class DialogContext {
         }
 
     }
-    
-    /**
-	 * Create a dialog to dialog association.
-	 * 
-	 * @param dialog1
-	 *            - first dialog.
-	 * @param dialog2
-	 *            - second dialog.
-	 * 
-	 */
-	static void pairDialogs(Dialog dialog1, Dialog dialog2) {
-		logger.debug("pairDialogs dialogs = " + dialog1 + " " + dialog2);
 
-		DialogContext dad1 = DialogContext.get(dialog1);
-		DialogContext dad2 = DialogContext.get(dialog2);
-		dad1.peerDialog = dialog2;
-		dad2.peerDialog = dialog1;
-	}
+    private boolean isAckPending() {
+        if (this.reInviteTransaction == null) {
+            return false;
+        } else {
+            return this.lastAck == null
+                    || SipUtilities.getSeqNumber(lastAck) < SipUtilities
+                            .getSeqNumber(this.reInviteTransaction.getRequest());
+        }
+    }
+
+    /**
+     * Create a dialog to dialog association.
+     * 
+     * @param dialog1 - first dialog.
+     * @param dialog2 - second dialog.
+     * 
+     */
+    static void pairDialogs(Dialog dialog1, Dialog dialog2) {
+        logger.debug("pairDialogs dialogs = " + dialog1 + " " + dialog2);
+
+        DialogContext dad1 = DialogContext.get(dialog1);
+        DialogContext dad2 = DialogContext.get(dialog2);
+        dad1.peerDialog = dialog2;
+        dad2.peerDialog = dialog1;
+    }
 
     static BackToBackUserAgent getBackToBackUserAgent(Dialog dialog) {
         if (dialog == null) {
@@ -308,13 +371,16 @@ class DialogContext {
         }
         DialogContext dat = new DialogContext(dialog);
         dat.transaction = transaction;
+        if (transaction instanceof ClientTransaction) {
+            dat.reInviteTransaction = (ClientTransaction) transaction;
+        }
         dat.request = request;
         dat.setBackToBackUserAgent(backToBackUserAgent);
         dialog.setApplicationData(dat);
 
         return dat;
     }
-    
+
     public Transaction getTransaction() {
         return transaction;
     }
@@ -388,16 +454,16 @@ class DialogContext {
         this.sessionExpires = expires;
 
     }
-    
+
     /**
      * Send ACK to the encapsulated dialog.
      * 
      * @throws Exception
      */
-    void sendAck(SessionDescription sessionDescription ) throws Exception {
-        if ( this.getLastResponse() == null ) {
+    void sendAck(SessionDescription sessionDescription) throws Exception {
+        if (this.getLastResponse() == null) {
             Gateway.logInternalError("Method was called with lastResponse null");
-            
+
         }
         Request ackRequest = dialog.createAck(SipUtilities.getSeqNumber(this.getLastResponse()));
         this.setLastResponse(null);
@@ -407,7 +473,7 @@ class DialogContext {
          * Compensate for the quirks of some ITSPs which will play MOH.
          */
         SipUtilities.setDuplexity(sessionDescription, "sendrecv");
-        dialog.sendAck(ackRequest);
+        this.sendAck(ackRequest);
     }
 
     /**
@@ -418,7 +484,7 @@ class DialogContext {
      * 
      */
     @SuppressWarnings("unchecked")
-	boolean isReferAllowed() {
+    boolean isReferAllowed() {
         if (this.transaction instanceof ServerTransaction) {
             if (this.request == null) {
                 return false;
@@ -449,8 +515,7 @@ class DialogContext {
             return false;
         }
     }
-    
-    
+
     /**
      * Send an INVITE with no SDP to the peer dialog. This solicits an SDP offer from the peer of
      * the given dialog.
@@ -461,40 +526,34 @@ class DialogContext {
      * @return true if the offer is sent successfully. false if there is already an offer in
      *         progress and hence we should not send an offer.
      */
-    boolean solicitSdpOfferFromPeerDialog(
-            ContinuationData continuationData) throws Exception {
+    boolean solicitSdpOfferFromPeerDialog(ContinuationData continuationData) throws Exception {
         try {
-          
+
             Dialog peerDialog = DialogContext.getPeerDialog(dialog);
             /*
              * There is already a re-negotiation in progress so return silently
              */
 
-            if (peerDialog != null && peerDialog.getState() != DialogState.TERMINATED ) {
+            if (peerDialog != null && peerDialog.getState() != DialogState.TERMINATED) {
                 logger.debug("queryDialogFromPeer -- sending query to " + peerDialog);
                 DialogContext peerDialogContext = DialogContext.get(peerDialog);
-                /* Are we pending a query already ? If so need to retry later. ITSPs do take well
+                /*
+                 * Are we pending a query already ? If so need to retry later. ITSPs do take well
                  * to nested media negotiation attempts.
                  */
-                if ( peerDialogContext.getPendingAction() == PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK) {
+                if (peerDialogContext.getPendingAction() == PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK) {
                     return false;
                 }
                 Request reInvite = peerDialog.createRequest(Request.INVITE);
                 reInvite.removeHeader(SupportedHeader.NAME);
                 SipUtilities.addWanAllowHeaders(reInvite);
                 SipProvider provider = ((DialogExt) peerDialog).getSipProvider();
-                ItspAccountInfo peerAccountInfo = DialogContext.getPeerDialogContext(dialog).getItspInfo();
-                ViaHeader viaHeader = SipUtilities.createViaHeader(provider, 
-                        peerAccountInfo);
+                ItspAccountInfo peerAccountInfo = DialogContext.getPeerDialogContext(dialog)
+                        .getItspInfo();
+                ViaHeader viaHeader = SipUtilities.createViaHeader(provider, peerAccountInfo);
                 reInvite.setHeader(viaHeader);
                 ContactHeader contactHeader = SipUtilities.createContactHeader(provider,
                         peerAccountInfo);
-                /*
-                 * Do not place a content type header in the content solicitation.
-                 * 
-                 * ContentTypeHeader cth = ProtocolObjects.headerFactory
-                 * .createContentTypeHeader("application", "sdp"); reInvite.setHeader(cth);
-                 */
 
                 reInvite.setHeader(contactHeader);
                 AcceptHeader acceptHeader = ProtocolObjects.headerFactory.createAcceptHeader(
@@ -514,9 +573,7 @@ class DialogContext {
                  * The information we need to continue the operation when the Response comes in.
                  */
                 tad.setContinuationData(continuationData);
-
-                peerDialog.sendRequest(ctx);
-               
+                new Thread(new ReInviteSender(DialogContext.get(peerDialog), ctx)).start();
 
             }
             return true;
@@ -533,15 +590,15 @@ class DialogContext {
     }
 
     void setPendingAction(PendingDialogAction pendingAction) {
-    	/*
-    	 * A dialog can have only a single outstanding action.
-    	 */
-        if ( this.pendingAction != PendingDialogAction.NONE 
-        	  && pendingAction != PendingDialogAction.NONE 
-        	  && this.pendingAction != pendingAction) {
-            	logger.error("Replacing pending action " + this.pendingAction + " with "
+        /*
+         * A dialog can have only a single outstanding action.
+         */
+        if (this.pendingAction != PendingDialogAction.NONE
+                && pendingAction != PendingDialogAction.NONE
+                && this.pendingAction != pendingAction) {
+            logger.error("Replacing pending action " + this.pendingAction + " with "
                     + pendingAction);
-            	throw new SipXbridgeException("Pending dialog action is " + this.pendingAction);
+            throw new SipXbridgeException("Pending dialog action is " + this.pendingAction);
         }
         this.pendingAction = pendingAction;
     }
@@ -558,19 +615,64 @@ class DialogContext {
         return DialogContext.get(DialogContext.getPeerDialog(dialog));
     }
 
-	void setLastResponse(Response lastResponse) {
-		logger.debug("DialogContext.setLastResponse " );
-		if ( lastResponse == null ) {
-			logger.debug("lastResponse = " + null);
-		} else {
-			logger.debug("lastResponse = " + ((SIPResponse)lastResponse).getFirstLine());
-		}
-	
-		this.lastResponse = lastResponse;
-	}
+    void setLastResponse(Response lastResponse) {
+        logger.debug("DialogContext.setLastResponse ");
+        if (lastResponse == null) {
+            logger.debug("lastResponse = " + null);
+        } else {
+            logger.debug("lastResponse = " + ((SIPResponse) lastResponse).getFirstLine());
+        }
 
-	Response getLastResponse() {
-		return lastResponse;
-	}
+        this.lastResponse = lastResponse;
+    }
+
+    Response getLastResponse() {
+        return lastResponse;
+    }
+
+    public void sendSdpReOffer(SessionDescription sdpOffer) throws Exception {
+
+        Request sdpOfferInvite = dialog.createRequest(Request.INVITE);
+
+        /*
+         * Set and fix up the sdp offer to send to the opposite side.
+         */
+
+        this.getRtpSession().getReceiver().setSessionDescription(sdpOffer);
+
+        SipUtilities.incrementSessionVersion(sdpOffer);
+
+        SipUtilities.fixupOutboundRequest(dialog, sdpOfferInvite);
+
+        sdpOfferInvite.setContent(sdpOffer.toString(), ProtocolObjects.headerFactory
+                .createContentTypeHeader("application", "sdp"));
+
+        ClientTransaction ctx = ((DialogExt) dialog).getSipProvider().getNewClientTransaction(
+                sdpOfferInvite);
+
+        TransactionContext.attach(ctx, Operation.SEND_SDP_RE_OFFER);
+
+        new Thread(new ReInviteSender(this, ctx)).start();
+
+    }
+
+    public void sendAck(Request ack) throws SipException {
+        this.recordLastAckTime();
+        this.lastAck = ack;
+        dialog.sendAck(ack);
+        if (terminateOnConfirm) {
+            Request byeRequest = dialog.createRequest(Request.BYE);
+
+            ClientTransaction ctx = ((DialogExt) dialog).getSipProvider()
+                    .getNewClientTransaction(byeRequest);
+            TransactionContext.attach(ctx, Operation.SEND_BYE_TO_MOH_SERVER);
+            dialog.sendRequest(ctx);
+        }
+    }
+
+    public void setTerminateOnConfirm() {
+        this.terminateOnConfirm = true;
+
+    }
 
 }

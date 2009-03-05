@@ -816,9 +816,9 @@ class CallControlManager implements SymmitronResetHandler {
                     }
                 }
 
-                DialogContext.get(peerDialog).recordLastAckTime();
+                DialogContext.get(peerDialog).sendAck(ack);
 
-                peerDialog.sendAck(ack);
+            
 
                 /*
                  * Setting this to null here handles the case of Re-invitations.
@@ -1178,7 +1178,7 @@ class CallControlManager implements SymmitronResetHandler {
                 Request ackRequest = dialog.createAck(SipUtilities.getSeqNumber(response));
                 DialogContext.get(dialog).forwardByeToPeer = false;
                 DialogContext.get(dialog).setLastResponse(null);
-                dialog.sendAck(ackRequest);
+                DialogContext.get(dialog).sendAck(ackRequest);
             }
         }
         serverTransaction.sendResponse(newResponse);
@@ -1381,7 +1381,7 @@ class CallControlManager implements SymmitronResetHandler {
             }
         } else {
             Request ack = dialog.createAck(SipUtilities.getSeqNumber(response));
-            dialog.sendAck(ack);
+            DialogContext.get(dialog).sendAck(ack);
         }
 
     }
@@ -1512,13 +1512,11 @@ class CallControlManager implements SymmitronResetHandler {
          * We directly send ACK.
          */
         if (response.getStatusCode() == Response.OK) {
-
             b2bua.addDialog(dialog);
             // Thread.sleep(100);
             Request ackRequest = dialog.createAck(((CSeqHeader) response
                     .getHeader(CSeqHeader.NAME)).getSeqNumber());
-            dialog.sendAck(ackRequest);
-
+            DialogContext.get(dialog).sendAck(ackRequest);
         }
         /*
          * If there is a Music on hold dialog -- tear it down
@@ -1668,8 +1666,7 @@ class CallControlManager implements SymmitronResetHandler {
 
             Request ackRequest = dialog.createAck(((CSeqHeader) response
                     .getHeader(CSeqHeader.NAME)).getSeqNumber());
-            dialog.sendAck(ackRequest);
-
+            DialogContext.get(dialog).sendAck(ackRequest);
             b2bua.sendByeToMohServer();
         }
 
@@ -1821,7 +1818,7 @@ class CallControlManager implements SymmitronResetHandler {
                     DialogContext.get(continuation.getDialog()).setPendingAction(
                             PendingDialogAction.PENDING_RE_INVITE_WITH_SDP_OFFER);
 
-                    dialog.sendAck(ack);
+                    DialogContext.get(dialog).sendAck(ack);
                 } else {
                     DialogContext.get(dialog).setLastResponse(response);
                     DialogContext.get(continuation.getDialog()).setPendingAction(
@@ -1874,7 +1871,7 @@ class CallControlManager implements SymmitronResetHandler {
                 long cseq = SipUtilities.getSeqNumber(response);
                 Request ack = dialog.createAck(cseq);
 
-                dialog.sendAck(ack);
+                DialogContext.get(dialog).sendAck(ack);
                 return;
 
             }
@@ -2041,8 +2038,7 @@ class CallControlManager implements SymmitronResetHandler {
                     if (response.getStatusCode() == 200) {
                         Request ack = dialog.createAck(((CSeqHeader) response
                                 .getHeader(CSeqHeader.NAME)).getSeqNumber());
-                        DialogContext.get(dialog).recordLastAckTime();
-                        dialog.sendAck(ack);
+                        DialogContext.get(dialog).sendAck(ack);
 
                     }
 
@@ -2066,9 +2062,7 @@ class CallControlManager implements SymmitronResetHandler {
                 logger.debug("Could not find client transaction -- must be stray response.");
                 if (response.getStatusCode() == 200 && dialog != null) {
                     Request ack = dialog.createAck(seqno);
-                    DialogContext.get(dialog).recordLastAckTime();
-                    dialog.sendAck(ack);
-
+                    DialogContext.get(dialog).sendAck(ack);
                 }
                 return;
             } else if (((TransactionContext) responseEvent.getClientTransaction()
@@ -2156,7 +2150,7 @@ class CallControlManager implements SymmitronResetHandler {
                         Request ack = dialog.createAck(((CSeqHeader) response
                                 .getHeader(CSeqHeader.NAME)).getSeqNumber());
                         dialogContext.recordLastAckTime();
-                        dialog.sendAck(ack);
+                        dialogContext.sendAck(ack);
 
                     }
                 } else if (tad.getOperation() == Operation.SEND_SDP_RE_OFFER) {
@@ -2172,7 +2166,7 @@ class CallControlManager implements SymmitronResetHandler {
                                 inboundSessionDescription, false);
                         rtpSession.getTransmitter().setOnHold(false);
                         Request ack = dialog.createAck(seqno);
-                        dialog.sendAck(ack);
+                        DialogContext.get(dialog).sendAck(ack);
                     }
                     return;
                 } else if (tad.getOperation() == Operation.FORWARD_SDP_SOLICITIATION) {
@@ -2192,13 +2186,15 @@ class CallControlManager implements SymmitronResetHandler {
                         Request ack = dialog.createAck(((CSeqHeader) response
                                 .getHeader(CSeqHeader.NAME)).getSeqNumber());
 
-                        dialog.sendAck(ack);
+                        DialogContext.get(dialog).sendAck(ack);
                         if (tad.getDialogPendingSdpAnswer() != null
                                 && DialogContext
                                         .getPendingAction(tad.getDialogPendingSdpAnswer()) == PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK) {
                             CallControlUtilities.sendSdpAnswerInAck(response, tad
                                     .getDialogPendingSdpAnswer());
                         }
+                        
+                       
 
                     }
                 } else if (tad.getOperation().equals(Operation.FORWARD_REINVITE)) {
@@ -2208,7 +2204,7 @@ class CallControlManager implements SymmitronResetHandler {
                         Request ack = dialog.createAck(((CSeqHeader) response
                                 .getHeader(CSeqHeader.NAME)).getSeqNumber());
 
-                        dialog.sendAck(ack);
+                        DialogContext.get(dialog).sendAck(ack);
 
                         if (tad.getDialogPendingSdpAnswer() != null
                                 && DialogContext
