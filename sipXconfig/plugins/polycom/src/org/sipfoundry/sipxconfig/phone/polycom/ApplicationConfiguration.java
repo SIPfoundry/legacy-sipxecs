@@ -10,6 +10,10 @@
 package org.sipfoundry.sipxconfig.phone.polycom;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
 
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 
@@ -50,14 +54,39 @@ public class ApplicationConfiguration extends ProfileContext<PolycomPhone> {
     public String getDeviceFilename() {
         return getDevice().getDeviceFilename();
     }
+   
+   /**
+    * This will list 000000000000-license.cfg and &lt;MAC&gt-license.cfg 
+    * in the &lt;MAC&gt.cfg if they exist.          
+    *
+    */
+    public String getLicenseFileNames() {
 
+        String licenseFiles = null;
+        List<String> licenseFileNames = new ArrayList<String>();
+        String universalLicenseFilename = getUniversalLicenseFilename();
+        if (universalLicenseFilename != null) {
+            licenseFileNames.add(universalLicenseFilename);
+        }
+        String myLicenseFileName = getMyLicenseFilename();
+        if (myLicenseFileName != null) {
+            licenseFileNames.add(myLicenseFileName);
+        }
+        if (!licenseFileNames.isEmpty()) {
+            licenseFiles =  StringUtils.join(licenseFileNames, ", ");
+        }
+        return licenseFiles;
+
+    }
     /**
-     * This is to check if 000000000000-license.cfg is available.
+     * This is to check if universal license file: 000000000000-license.cfg
+     * is available under tftproot.
+     *
      */
-    public String getLicenseFilename() {
+    private String getUniversalLicenseFilename() {
 
         String licenseFilename = null;
-        File licenseFile = new File(m_profileDir + "/" + LICENSE_FILE_NAME);
+        File licenseFile = new File(m_profileDir + File.separator + LICENSE_FILE_NAME);
 
         if (licenseFile.exists()) {
             licenseFilename = LICENSE_FILE_NAME;
@@ -65,4 +94,26 @@ public class ApplicationConfiguration extends ProfileContext<PolycomPhone> {
 
         return licenseFilename;
     }
+
+    /**
+     * This is to check if &lt;MAC&gt-license.cfg is available under tftproot.
+     *
+     */
+    private String getMyLicenseFilename() {
+
+        String licenseFilename = null;
+        File licenseFile = new File(m_profileDir + File.separator + getMyLicenseFileName());
+
+        if (licenseFile.exists()) {
+            licenseFilename = getMyLicenseFileName();
+        }
+
+        return licenseFilename;
+    }
+
+    private String getMyLicenseFileName() {
+        return getDevice().getProfileFilename() + "-license.cfg";
+    }
+
+
 }

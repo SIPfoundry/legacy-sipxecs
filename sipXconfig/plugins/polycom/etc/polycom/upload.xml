@@ -7,19 +7,21 @@
       <contentType>application/zip</contentType>
     </file>
   </type>
+  <type id="binary">
+    <file>
+      <contentType>application/binary</contentType>
+    </file>
+  </type>
   <group name="firmware">
-    <label>Application Archive</label>
-    <description>Polycom Support only distributes firmware upgrades to certified resellers.</description>
     <setting name="sip.zip">
-      <label>SIP Application (zip)</label>
       <type refid="zip"/>
-      <description>SIP Firmware. Example file name : SoundPoint IP SIP 2.0.2 rts2 B devel sig.zip</description>
     </setting>
     <setting name="bootrom">
       <label>Bootrom (zip)</label>
       <type refid="zip"/>
-      <description>Bootrom is updated less frequently and many time unnec. It also commonly not downgradable so
-        be aware before upgrading. Example file name : spip_ssip_bootrom_3_2_1_sig.zip</description>
+    </setting>
+    <setting name="licenses.zip">
+      <type refid="zip"/>
     </setting>
   </group>
 </model>

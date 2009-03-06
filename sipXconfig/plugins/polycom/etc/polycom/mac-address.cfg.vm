@@ -7,8 +7,8 @@
 
 -->
 <APPLICATION APP_FILE_PATH="${cfg.SipBinaryFilename}"
-    #if(${cfg.LicenseFilename})
-       CONFIG_FILES="${cfg.LicenseFilename}, ${cfg.SipFilename}, ${cfg.PhoneFilename}, ${cfg.DeviceFilename}, polycom_phone1.cfg, polycom_sip.cfg"
+    #if(${cfg.LicenseFileNames})
+       CONFIG_FILES="${cfg.LicenseFileNames}, ${cfg.SipFilename}, ${cfg.PhoneFilename}, ${cfg.DeviceFilename}, polycom_phone1.cfg, polycom_sip.cfg"
     #else
        CONFIG_FILES="${cfg.SipFilename}, ${cfg.PhoneFilename}, ${cfg.DeviceFilename}, polycom_phone1.cfg, polycom_sip.cfg"
     #end
