@@ -34,7 +34,7 @@ public class DataInitializer implements SystemTaskEntryPoint, ApplicationContext
 
         // unclear exactly why we'd need to ever call exit. If you find out why,
         // replace this comment w/reason
-        if (args.length >= 2 || !"noexit".equals(args[1])) {
+        if (args.length >= 2 && !"noexit".equals(args[1])) {
             System.exit(0);
         }
     }
