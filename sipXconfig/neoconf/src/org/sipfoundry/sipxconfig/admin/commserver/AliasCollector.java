@@ -60,12 +60,15 @@ public class AliasCollector implements AliasProvider, BeanFactoryAware {
             }
             Map beanMap = m_beanFactory.getBeansOfType(AliasProvider.class, false, true);
             m_aliasProviders = new ArrayList(beanMap.size());
-            // collect all proxies
-            for (Iterator i = beanMap.values().iterator(); i.hasNext();) {
-                AliasProvider provider = (AliasProvider) i.next();
-                // only include beans created through Factories - need hibernate support
-                if (provider instanceof Proxy) {
-                    m_aliasProviders.add(provider);
+            
+            if (m_includeProxies) {
+                // collect all proxies
+                for (Iterator i = beanMap.values().iterator(); i.hasNext();) {
+                    AliasProvider provider = (AliasProvider) i.next();
+                    // only include beans created through Factories - need hibernate support
+                    if (provider instanceof Proxy) {
+                        m_aliasProviders.add(provider);
+                    }
                 }
             }
             // collect additional beans
