@@ -13,11 +13,6 @@
 
 <alarm_server xmlns="http://www.sipfoundry.org/sipX/schema/xml/alarm-00-00">
    <definitions>
-      <alarm id="SERVTEST_FAILURE">
-         <shorttitle>sipx-servtest failed</shorttitle>
-         <description>sipx-servtest test {0} failed with msg '{1}'.</description>
-         <resolution></resolution>
-      </alarm>
       <alarm id="PROCESS_RESTARTED">
          <shorttitle>Restarting process</shorttitle>
          <description>Process {0} was found in a non-running state.  Attempting to restart the process.</description>

@@ -15,14 +15,6 @@
 
    <!-- Per-alarm definitions.  Only the actions are (or could be) configurable. -->
    <definitions>
-      <alarm id="SERVTEST_FAILURE">
-         <code>SPX00001</code>
-         <severity>warning</severity>
-         <component>sipxserv-test</component>
-         <action log="true"
-                 email="true"
-                 />
-      </alarm>
       <alarm id="PROCESS_RESTARTED">
          <code>SPX00002</code>
          <severity>warning</severity>
