@@ -39,8 +39,8 @@ bool XmlEscapeInternal(/// Destination to append escaped characters to.
  * as appropriate for use in XML attribute and element content.
  *
  * At present, this makes no accomodation for character set differences; input is assumed
- * to be 8 bits.  The following characters are encoded using the mandatory character
- * entities:
+ * to be 8 bit characters.  The following characters are encoded using
+ * the mandatory character entities:
  *   - < => &lt;
  *   - & => &amp;
  *   - > => &gt;

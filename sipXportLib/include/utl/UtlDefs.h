@@ -46,7 +46,7 @@ typedef int UtlBoolean ;
  *      Int64 xyz;
  *      printf("The value is %" FORMAT_INTLL "d", xyz);
  *  Note that the '%' before and the format specifier after must be provided.
- *  This must be a [pound]define, since this specifier isn't standardized.
+ *  This must be a preprocessor macro, since this specifier isn't standardized.
  */
 #if defined(_WIN32)
 #  define   FORMAT_INTLL   "I64"

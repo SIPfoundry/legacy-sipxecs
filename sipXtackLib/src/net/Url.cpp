@@ -73,7 +73,7 @@ const RegEx SipTokenSequenceOrQuoted("^(?:" SIP_TOKEN "(?:" LWS SIP_TOKEN ")*"
 //       Do Not Change This To Include The Quotes - that causes the regex
 //       processor to recurse, possibly very very deeply.  
 //       Instead, we add the quotes back in explicitly in later processing.
-// Does not include any leading or trailing whitespace
+// Does not include any leading or trailing whitespace.
 const RegEx DisplayName( SWS "(?:(" SIP_TOKEN "(?:" LWS SIP_TOKEN ")*)"
                               "|" DQUOTE "((?:[^" SLASH DQUOTE "]++"
                                            "|" SLASH "."
