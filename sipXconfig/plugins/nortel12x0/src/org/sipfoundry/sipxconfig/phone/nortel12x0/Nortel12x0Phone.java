@@ -46,6 +46,9 @@ public class Nortel12x0Phone extends Phone {
     public static final String PRESENCE_SERVER_SETTING = "phoneSettings/presenceServer";
     public static final String RLS_SETTING = "presence/sipRlsUri";
     public static final String TIME_SERVER_NAME = "timesettings/ntpIp";
+    public static final String ALTERNATE_TIME_SERVER_NAME = "timesettings/ntpIp2";
+    public static final String CALL_PICKUP_PREFIX = "callPickup/callPickupPrefix";
+    public static final String PAGING_PREFIX = "phoneSettings/groupPagingPrefix";
 
     private static final int PHONEBOOK_MAX = 200;
     private static final int SPEEDDIAL_MAX = 200;
@@ -59,6 +62,10 @@ public class Nortel12x0Phone extends Phone {
         SpeedDial speedDial = getPhoneContext().getSpeedDial(this);
         Nortel12x0PhoneDefaults defaults = new Nortel12x0PhoneDefaults(getPhoneContext().getPhoneDefaults(), speedDial);
         addDefaultBeanSettingHandler(defaults);
+
+        Nortel12x0IntercomDefaults intercomDefaults = new Nortel12x0IntercomDefaults(this);
+        addDefaultBeanSettingHandler(intercomDefaults);
+
     }
 
     @Override
@@ -132,6 +139,18 @@ public class Nortel12x0Phone extends Phone {
         public String getNtpServer() {
             return m_defaults.getNtpServer();
         }
+
+        @SettingEntry(path = ALTERNATE_TIME_SERVER_NAME)
+        public String getAlternateNtpServer() {
+            return m_defaults.getAlternateNtpServer();
+        }
+
+        @SettingEntry(path = CALL_PICKUP_PREFIX)
+        public String getDirectedCallPickupString() {
+            return m_defaults.getDirectedCallPickupCode();
+        }
+
+
     }
 
     public static class Nortel12x0LineDefaults {

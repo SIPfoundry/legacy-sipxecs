@@ -72,6 +72,7 @@
      </description>
    </setting>
 
+<!--
 
    <setting name="registrarToAddress" advanced="yes">
      <label>Register to-address</label>
@@ -96,9 +97,9 @@
        &lt;br/&gt; &lt; registrarFromAddress &gt; &lt;br/&gt;
      </description>
    </setting>
-
+-->
    <setting name="registrarUsedomainName" advanced="yes">
-     <label>Use Domain Name</label>
+     <label>Use Domain Name from Network Configuration</label>
      <type refid="on-off" />
      <value>FALSE</value>
      <description>

@@ -216,9 +216,9 @@
      </setting>
 
      <setting name="qosVlanId">
-       <label>VLAN-ID (0-4095)</label>
+       <label>VLAN-ID (0-4094)</label>
        <type>
-         <integer min="0" max="4095" />
+         <integer min="0" max="4094" />
        </type>
        <value>0</value>
        <description>
@@ -786,13 +786,13 @@
    </setting>
  
    <setting name="callRtrvPrefix">
-     <label>Call Retrieve Prefix</label>
+     <label>Call Unpark Prefix</label>
      <type>
        <string maxLen="22" />
      </type>
      <value></value>
      <description>
-       Prefix to the extension dialed to retrieve the parked calls &lt;br/&gt; ( &lt; callRtrvPrefix &gt; ) &lt;br/&gt;
+       Prefix to the extension dialed to unpark the parked calls &lt;br/&gt; ( &lt; callRtrvPrefix &gt; ) &lt;br/&gt;
        &lt;br/&gt; &lt;br/&gt;
      </description>
    </setting>
@@ -805,7 +805,7 @@
    <setting name="serverAssistCallPickup">
      <label>Server Assisted Call PickUp</label>
      <type refid="on-off" />
-     <value>FALSE</value>
+     <value>TRUE</value>
      <description>
        If checked, the phone uses Call PickUp Prefix to pick up a ringing extension &lt;br/&gt; ( &lt;
        serverAssistCallPickup &gt; ) &lt;br/&gt;
@@ -977,7 +977,7 @@
          </option>
        </enum>
      </type>
-     <value>PAId-Contact-To</value>
+     <value>PAId-To-Contact</value>
      <description>
        Caller Name Search Precedence in 200 OK of Invite &lt;br/&gt; ( &lt; okOfInvite &gt; ) &lt;br/&gt;
      </description>
@@ -1029,16 +1029,17 @@
          <option>
            <value>forwardAllThroughProxy</value>
          </option>
+<!--
          <option>
            <value>sendFirstInviteToProxy</value>
          </option>
+-->
        </enum>
      </type>
      <value>forwardAllThroughProxy</value>
      <description>
        If any of the Outbound Proxy Addresses is specified and forwardAllThroughProxy option is selected, all SIP 
-       messages except REGISTER are sent through proxy. If any of the Outbound Proxy Addresses is specified and 
-       sendFirstInviteToProxy option is selected, then the first INVITE is sent through proxy. If noneThroughProxy 
+       messages except REGISTER are sent through proxy. If noneThroughProxy 
        is selected only the dialed numbers and unresolved URIs go through the proxy 
        &lt;br/&gt; ( &lt; sipProxy &gt; ) &lt;br/&gt;
      </description>
@@ -1068,7 +1069,7 @@
      <type>
        <integer min="5000" max="65536" />
      </type>
-     <value></value>
+     <value>5012</value>
      <description>Starting RTP port &lt;br/&gt; ( &lt; rtpPort &gt; ) &lt;br/&gt;</description>
    </setting>
  
