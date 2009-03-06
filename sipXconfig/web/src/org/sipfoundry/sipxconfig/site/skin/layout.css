@@ -5,7 +5,7 @@ body
 	font-size:12px;
 	margin:0;
 	padding:0;
-	min-width:1100px;
+	min-width:850px;
 }
 
 h1
@@ -100,7 +100,7 @@ li.tab
 #login-sidebar {
   position: absolute;
   background: url('/sipxconfig/skin/loginBackgroundGradient.png') top right repeat-y #F2F2F2;
-  width: 563px;
+  width: 50%;
   min-height: 100%;
   height: 100%;
   // IE6 hack
@@ -111,7 +111,7 @@ li.tab
   position: absolute;
   background: url(/sipxconfig/skin/login.jpg) no-repeat left;
   margin-top: 91px;
-  width: 565px;
+  width: 95%;
   height: 250px;
   border-top: 1px solid #FFFFFF;
   border-bottom: 1px solid #FFFFFF;
@@ -124,7 +124,7 @@ li.tab
     height: 1.5em;
     width: 500px;
     margin-top: 50px;
-    margin-left: 590px;
+    margin-left: 52%;
 }
 
 #login-form {
@@ -133,7 +133,7 @@ li.tab
   width: 380px;
   height: 250px;
   margin-top: 92px;
-  margin-left: 590px;
+  margin-left: 52%;
   border: thin solid #355563;
   background: url('/sipxconfig/skin/loginFormBackground.png') top left repeat-x #EFF3F6;
 }
@@ -340,7 +340,7 @@ li
 
 ul.component-links
 {
-	width:50em;
+	width:75%;
 	list-style-type:none;
 	text-align:right;
 }
@@ -368,7 +368,7 @@ ul.component-submit li
 
 table.component
 {
-	width: 50em;
+	width: 80%;
 	border-collapse: collapse;
 	border-style: solid;
 	border-width: 1px;
@@ -405,7 +405,8 @@ table.component tfoot tr td
 	padding:3px;
 }
 
-table.component .descriptionColumnValue
+table.component .descriptionColumnValue,
+table.component .errorColumnValue
 {
 	white-space:normal;
 }
@@ -469,12 +470,12 @@ div.help
 
 div.help
 {
-    width:15em;
+    width:15%;
 }
 
 div.right-column
 {
-    width:25em;
+    width:25%;
 }
 
 div.help ul
@@ -698,4 +699,5 @@ html, body {
 
 #servicesTable .statusColumnValue {
     width: 70%;
+    white-space:normal;
 }
