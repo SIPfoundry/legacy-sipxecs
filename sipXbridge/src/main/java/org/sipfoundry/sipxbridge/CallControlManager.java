@@ -122,6 +122,8 @@ class CallControlManager implements SymmitronResetHandler {
         }
     }
 
+    
+
     class NotifyReferDialogTimerTask extends TimerTask {
 
         private Request referRequest;
@@ -547,7 +549,7 @@ class CallControlManager implements SymmitronResetHandler {
                     response.setReasonPhrase(ex.getStackTrace()[0].getFileName() + ":"
                             + ex.getStackTrace()[0].getLineNumber());
                 }
-               
+
                 if (st != null) {
                     st.sendResponse(response);
                 } else {
@@ -615,6 +617,19 @@ class CallControlManager implements SymmitronResetHandler {
                 response.setReasonPhrase("Received REFER on TERMINATED Dialog");
                 stx.sendResponse(response);
             }
+
+            Response response = ProtocolObjects.messageFactory.createResponse(Response.ACCEPTED,
+                    request);
+            response.setHeader(SipUtilities.createContactHeader(null, ((SipProvider) requestEvent
+                    .getSource())));
+            stx.sendResponse(response);
+            /*
+             * This flag controls whether or not we forward the BYE when the refer agent tears
+             * down his end of the dialog.
+             */
+            DialogContext.get(dialog).forwardByeToPeer = false;
+            DialogContext.get(dialog).referRequest = request;
+
             /*
              * Blind transfer handled by ITSP? If so then forward it if the bridge is configured
              * to do so. With out ITSP support, blind transfer can result in no RINGING and
@@ -818,8 +833,6 @@ class CallControlManager implements SymmitronResetHandler {
 
                 DialogContext.get(peerDialog).sendAck(ack);
 
-            
-
                 /*
                  * Setting this to null here handles the case of Re-invitations.
                  */
@@ -997,9 +1010,9 @@ class CallControlManager implements SymmitronResetHandler {
                 }
             }
 
-            if (tad.getOperation() == Operation.CANCEL_REPLACED_INVITE || 
-                    tad.getOperation() == Operation.CANCEL_MOH_INVITE || 
-                    response.getStatusCode() == Response.REQUEST_TERMINATED) {
+            if (tad.getOperation() == Operation.CANCEL_REPLACED_INVITE
+                    || tad.getOperation() == Operation.CANCEL_MOH_INVITE
+                    || response.getStatusCode() == Response.REQUEST_TERMINATED) {
                 logger.debug("ingoring 4xx response " + tad.getOperation());
             } else if (tad.getOperation() != Operation.REFER_INVITE_TO_SIPX_PROXY) {
                 if (serverTransaction != null) {
@@ -1371,7 +1384,7 @@ class CallControlManager implements SymmitronResetHandler {
                 rtpSession.getReceiver().setSessionDescription(receiverSd);
                 newResponse.setContent(receiverSd.toString(), cth);
                 serverTransaction.sendResponse(newResponse);
-            } else  {
+            } else {
                 /* No SDP returned in the response */
                 if (DialogContext.get(peerDialog).getItspInfo() == null
                         || DialogContext.get(peerDialog).getItspInfo().isGlobalAddressingUsed()) {
@@ -1821,26 +1834,17 @@ class CallControlManager implements SymmitronResetHandler {
                     DialogContext.get(dialog).sendAck(ack);
                 } else {
                     DialogContext.get(dialog).setLastResponse(response);
+                    
                     DialogContext.get(continuation.getDialog()).setPendingAction(
                             PendingDialogAction.PENDING_RE_INVITE_WITH_SDP_OFFER);
+                    DialogContext.getRtpSession(continuation.getDialog()).getReceiver()
+                    .setSessionDescription(responseSessionDescription);
                     /*
                      * We do owe him an SDP answer. Mark it as such so when we get an answer from
                      * Park server, we can pass it on.
                      */
-
-                    DialogContext.getRtpSession(continuation.getDialog()).getReceiver()
-                            .setSessionDescription(responseSessionDescription);
-                    ClientTransaction mohCtx = b2bua
-                            .createClientTxToMohServer(responseSessionDescription);
-                    /*
-                     * Note the dialog to ACK when we get an SDP answer in our transaction
-                     * context.
-                     */
-                    TransactionContext.get(mohCtx).setDialogPendingSdpAnswer(dialog);
-                    DialogContext.get(mohCtx.getDialog()).setPendingAction(
-                            PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK);
-                    DialogContext.get(mohCtx.getDialog()).peerDialog = dialog;
-                    mohCtx.sendRequest();
+                    
+                    DialogContext.get(dialog).sendMohInvite(responseSessionDescription);
 
                 }
 
@@ -1914,8 +1918,6 @@ class CallControlManager implements SymmitronResetHandler {
                  * before.
                  */
                 DialogContext.get(dialog).sendAck(ackSd);
-
-                DialogContext.get(dialog).setPendingAction(PendingDialogAction.NONE);
                 Request request = continuation.getServerTransaction().getRequest();
                 Response newResponse = ProtocolObjects.messageFactory.createResponse(Response.OK,
                         request);
@@ -2193,8 +2195,6 @@ class CallControlManager implements SymmitronResetHandler {
                             CallControlUtilities.sendSdpAnswerInAck(response, tad
                                     .getDialogPendingSdpAnswer());
                         }
-                        
-                       
 
                     }
                 } else if (tad.getOperation().equals(Operation.FORWARD_REINVITE)) {

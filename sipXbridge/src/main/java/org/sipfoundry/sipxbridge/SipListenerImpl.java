@@ -393,13 +393,14 @@ public class SipListenerImpl implements SipListener {
             }
 
         } catch (Exception ex) {
+            logger.error("Unexpected error processing response >>>> " + response, ex);
+            logger.error("cause = " + ex.getCause());
             Dialog dialog = responseEvent.getDialog();
             if (dialog != null) {
                 DialogContext.get(dialog).getBackToBackUserAgent().tearDown();
             }
 
-            logger.error("Unexpected error processing response >>>> " + response, ex);
-            logger.error("cause = " + ex.getCause());
+           
         }
 
     }

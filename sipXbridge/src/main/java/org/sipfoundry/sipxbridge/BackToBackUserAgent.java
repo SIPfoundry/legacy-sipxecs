@@ -23,7 +23,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-import java.util.TimerTask;
 
 import javax.sdp.SdpParseException;
 import javax.sdp.SessionDescription;
@@ -36,7 +35,6 @@ import javax.sip.RequestEvent;
 import javax.sip.ServerTransaction;
 import javax.sip.SipException;
 import javax.sip.SipProvider;
-import javax.sip.TransactionAlreadyExistsException;
 import javax.sip.TransactionState;
 import javax.sip.address.Address;
 import javax.sip.address.SipURI;
@@ -53,7 +51,6 @@ import javax.sip.header.OrganizationHeader;
 import javax.sip.header.ReasonHeader;
 import javax.sip.header.ReferToHeader;
 import javax.sip.header.ReplyToHeader;
-import javax.sip.header.RouteHeader;
 import javax.sip.header.SubjectHeader;
 import javax.sip.header.ToHeader;
 import javax.sip.header.ViaHeader;
@@ -489,93 +486,103 @@ public class BackToBackUserAgent {
     @SuppressWarnings("unchecked")
     Request createInviteFromReferRequest(RequestEvent requestEvent) throws SipException,
             ParseException, IOException {
-        Dialog dialog = requestEvent.getDialog();
-        ServerTransaction referServerTransaction = requestEvent.getServerTransaction();
-        Request referRequest = referServerTransaction.getRequest();
+        try {
+            Dialog dialog = requestEvent.getDialog();
+            ServerTransaction referServerTransaction = requestEvent.getServerTransaction();
+            Request referRequest = referServerTransaction.getRequest();
+            DialogContext dialogContext = DialogContext.get(dialog);
+            FromHeader fromHeader = (FromHeader) dialogContext.request.getHeader(FromHeader.NAME).clone();
+            fromHeader.removeParameter("tag");
+            ToHeader toHeader = (ToHeader) referRequest.getHeader(ToHeader.NAME).clone();
+            toHeader.removeParameter("tag");
+            /*
+             * Get the Refer-To header and convert it into an INVITE to send to the REFER target.
+             */
 
-        Request newRequest = dialog.createRequest(Request.INVITE);
+            ReferToHeader referToHeader = (ReferToHeader) referRequest
+                    .getHeader(ReferToHeader.NAME);
+            SipURI uri = (SipURI) referToHeader.getAddress().getURI().clone();
+            CSeqHeader cseq = ProtocolObjects.headerFactory.createCSeqHeader(1L, Request.INVITE);
+            ViaHeader viaHeader = SipUtilities.createViaHeader(Gateway.getLanProvider(), Gateway
+                    .getSipxProxyTransport());
+            List viaList = new LinkedList();
+            viaList.add(viaHeader);
+            MaxForwardsHeader maxForwards = ProtocolObjects.headerFactory
+                    .createMaxForwardsHeader(20);
+            CallIdHeader callId = ProtocolObjects.headerFactory
+            .createCallIdHeader(this.creatingCallId + "." + this.counter++);
+  
+            Request newRequest = ProtocolObjects.messageFactory.createRequest(uri,
+                    Request.INVITE, callId, cseq, fromHeader, toHeader, viaList, maxForwards);
 
-        /* Requesting new dialog -- remove the route header */
-        newRequest.removeHeader(RouteHeader.NAME);
+            /* Does the refer to header contain a Replaces? ( attended transfer ) */
+            String replacesParam = uri.getHeader(ReplacesHeader.NAME);
+            logger.debug("replacesParam = " + replacesParam);
 
-        /*
-         * Get the Refer-To header and convert it into an INVITE to send to the REFER target.
-         */
+            ReplacesHeader replacesHeader = null;
 
-        ReferToHeader referToHeader = (ReferToHeader) referRequest.getHeader(ReferToHeader.NAME);
-        SipURI uri = (SipURI) referToHeader.getAddress().getURI().clone();
+            if (replacesParam != null) {
 
-        /* Does the refer to header contain a Replaces? ( attended transfer ) */
-        String replacesParam = uri.getHeader(ReplacesHeader.NAME);
-        logger.debug("replacesParam = " + replacesParam);
-
-        ReplacesHeader replacesHeader = null;
-
-        if (replacesParam != null) {
-
-            String decodedReplaces = URLDecoder.decode(replacesParam, "UTF-8");
-            replacesHeader = (ReplacesHeader) ProtocolObjects.headerFactory.createHeader(
-                    ReplacesHeader.NAME, decodedReplaces);
-            newRequest.addHeader(replacesHeader);
-        }
-
-        uri.removeParameter(ReplacesHeader.NAME);
-
-        for (Iterator it = uri.getHeaderNames(); it.hasNext();) {
-            String headerName = (String) it.next();
-            String headerValue = uri.getHeader(headerName);
-            Header header = null;
-            if (headerValue != null) {
-                String decodedHeaderValue = URLDecoder.decode(headerValue, "UTF-8");
-                header = (Header) ProtocolObjects.headerFactory.createHeader(headerName,
-                        decodedHeaderValue);
+                String decodedReplaces = URLDecoder.decode(replacesParam, "UTF-8");
+                replacesHeader = (ReplacesHeader) ProtocolObjects.headerFactory.createHeader(
+                        ReplacesHeader.NAME, decodedReplaces);
+                newRequest.addHeader(replacesHeader);
             }
-            if (header != null) {
-                newRequest.addHeader(header);
+
+            uri.removeParameter(ReplacesHeader.NAME);
+
+            for (Iterator it = uri.getHeaderNames(); it.hasNext();) {
+                String headerName = (String) it.next();
+                String headerValue = uri.getHeader(headerName);
+                Header header = null;
+                if (headerValue != null) {
+                    String decodedHeaderValue = URLDecoder.decode(headerValue, "UTF-8");
+                    header = (Header) ProtocolObjects.headerFactory.createHeader(headerName,
+                            decodedHeaderValue);
+                }
+                if (header != null) {
+                    newRequest.addHeader(header);
+                }
             }
+
+            /*
+             * Remove any header parameters - we have already dealt with them above.
+             */
+            ((gov.nist.javax.sip.address.SipURIExt) uri).removeHeaders();
+
+           
+            if (referRequest.getHeader(ReferredByHeader.NAME) != null) {
+                newRequest.setHeader(referRequest.getHeader(ReferredByHeader.NAME));
+            }
+
+          
+            Gateway.getBackToBackUserAgentFactory().setBackToBackUserAgent(callId.getCallId(),
+                    this);
+
+            SipUtilities.addLanAllowHeaders(newRequest);
+
+            ContactHeader contactHeader = SipUtilities.createContactHeader(null, Gateway
+                    .getLanProvider());
+            newRequest.setHeader(contactHeader);
+            /*
+             * Create a new out of dialog request.
+             */
+            toHeader.getAddress().setURI(uri);
+
+            fromHeader.setTag(Integer.toString(Math.abs(new Random().nextInt())));
+            ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader(
+                    "application", "sdp");
+            newRequest.setHeader(fromHeader);
+
+            RtpSession lanRtpSession = this.createRtpSession(dialog);
+            SessionDescription sd = lanRtpSession.getReceiver().getSessionDescription();
+            SipUtilities.setDuplexity(sd, "sendrecv");
+            newRequest.setContent(sd, cth);
+
+            return newRequest;
+        } catch (InvalidArgumentException ex) {
+            throw new SipXbridgeException(ex);
         }
-
-        /*
-         * Remove any header parameters - we have already dealt with them above.
-         */
-        ((gov.nist.javax.sip.address.SipURIExt) uri).removeHeaders();
-
-        newRequest.setRequestURI(uri);
-
-        if (referRequest.getHeader(ReferredByHeader.NAME) != null) {
-            newRequest.setHeader(referRequest.getHeader(ReferredByHeader.NAME));
-        }
-
-        CallIdHeader callId = ProtocolObjects.headerFactory
-                .createCallIdHeader(this.creatingCallId + "." + this.counter++);
-        newRequest.setHeader(callId);
-        Gateway.getBackToBackUserAgentFactory().setBackToBackUserAgent(callId.getCallId(), this);
-
-        SipUtilities.addLanAllowHeaders(newRequest);
-
-        ContactHeader contactHeader = SipUtilities.createContactHeader(null, Gateway
-                .getLanProvider());
-        newRequest.setHeader(contactHeader);
-        /*
-         * Create a new out of dialog request.
-         */
-        ToHeader toHeader = (ToHeader) newRequest.getHeader(ToHeader.NAME).clone();
-        toHeader.removeParameter("tag");
-        toHeader.getAddress().setURI(uri);
-        newRequest.setHeader(toHeader);
-
-        FromHeader fromHeader = (FromHeader) newRequest.getHeader(FromHeader.NAME).clone();
-        fromHeader.setTag(Integer.toString(Math.abs(new Random().nextInt())));
-        ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader(
-                "application", "sdp");
-        newRequest.setHeader(fromHeader);
-
-        RtpSession lanRtpSession = this.createRtpSession(dialog);
-        SessionDescription sd = lanRtpSession.getReceiver().getSessionDescription();
-        SipUtilities.setDuplexity(sd, "sendrecv");
-        newRequest.setContent(sd, cth);
-
-        return newRequest;
 
     }
 
@@ -635,32 +642,8 @@ public class BackToBackUserAgent {
                 return;
             }
 
-            /*
-             * Send an ACCEPTED
-             */
 
-            if (stx.getState() != TransactionState.TERMINATED) {
-                Response response = ProtocolObjects.messageFactory.createResponse(
-                        Response.ACCEPTED, referRequest);
-                response.setHeader(SipUtilities.createContactHeader(null,
-                        ((SipProvider) referRequestEvent.getSource())));
-                stx.sendResponse(response);
-                /*
-                 * This flag controls whether or not we forward the BYE when the refer agent tears
-                 * down his end of the dialog.
-                 */
-                DialogContext.get(dialog).forwardByeToPeer = false;
-                DialogContext.get(dialog).referRequest = referRequest;
-
-            } else {
-                /*
-                 * This case should not occur. This can happen only if the transaction is timed
-                 * out or canceled or if the response arrived late.
-                 */
-                logger.warn("referInviteToSipxProxy on a terminated transaction");
-                return;
-            }
-
+            
             /*
              * Create a new client transaction. First attach any queried session description.
              */
@@ -1125,7 +1108,7 @@ public class BackToBackUserAgent {
             if (this.musicOnHoldDialog != null
                     && this.musicOnHoldDialog.getState() != DialogState.TERMINATED) {
                 DialogContext dialogCtx = DialogContext.get(this.musicOnHoldDialog);
-                
+
                 if (this.musicOnHoldDialog.getState() == DialogState.CONFIRMED) {
                     logger.debug("sendByeToMohServer");
                     Request byeRequest = musicOnHoldDialog.createRequest(Request.BYE);
@@ -1136,7 +1119,7 @@ public class BackToBackUserAgent {
                     musicOnHoldDialog.sendRequest(ctx);
                 } else {
                     DialogContext.get(this.musicOnHoldDialog).setTerminateOnConfirm();
-                    
+
                 }
             }
         } catch (SipException ex) {

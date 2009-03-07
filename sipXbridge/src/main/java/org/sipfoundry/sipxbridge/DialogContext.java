@@ -15,7 +15,7 @@ import gov.nist.javax.sip.message.SIPResponse;
 
 import java.util.ListIterator;
 import java.util.TimerTask;
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.sdp.SessionDescription;
 import javax.sip.ClientTransaction;
@@ -25,7 +25,6 @@ import javax.sip.ServerTransaction;
 import javax.sip.SipException;
 import javax.sip.SipProvider;
 import javax.sip.Transaction;
-import javax.sip.TransactionState;
 import javax.sip.header.AcceptHeader;
 import javax.sip.header.AllowHeader;
 import javax.sip.header.ContactHeader;
@@ -145,6 +144,10 @@ class DialogContext {
 
     private boolean terminateOnConfirm;
 
+    private AtomicBoolean waitingToSendReInvite = new AtomicBoolean(false);
+
+    private long lastResponseSeqNo;
+
     // /////////////////////////////////////////////////////////////////
     // Inner classes.
     // ////////////////////////////////////////////////////////////////
@@ -260,6 +263,7 @@ class DialogContext {
         public ReInviteSender(DialogContext dialogContext, ClientTransaction ctx) {
             this.dialogContext = dialogContext;
             this.ctx = ctx;
+            dialogContext.waitingToSendReInvite.set(true);
         }
 
         public void run() {
@@ -267,26 +271,91 @@ class DialogContext {
                 int i = 0;
                 while (dialogContext.dialog.getState() != DialogState.TERMINATED
                         && dialogContext.isAckPending()) {
-                    if (i++ > 16) {
-                        // Could not send re-INVITE we should kill the dialog.
+                    if (i++ > 80) {
+                        /*
+                         * Could not send re-INVITE we should kill the call.
+                         */
                         logger.error("Could not send re-INVITE -- killing call");
                         ctx.terminate();
                         backToBackUserAgent.tearDown();
                         return;
                     } else {
-                        Thread.sleep(500);
+                        logger.debug("Waiting for ACK");
+                        Thread.sleep(100);
                     }
                 }
+
+                /*
+                 * Wait for the ACK to actually get to the other side.
+                 */
+                Thread.sleep(100);
                 if (dialogContext.dialog.getState() != DialogState.TERMINATED) {
-                    dialogContext.dialog.sendRequest(ctx);
                     dialogContext.reInviteTransaction = ctx;
+                    dialogContext.dialog.sendRequest(ctx);
                 }
                 logger.debug("re-INVITE successfully sent");
             } catch (Exception ex) {
                 logger.error("Error sending INVITE", ex);
             } finally {
-
+                dialogContext.waitingToSendReInvite.set(false);
             }
+        }
+    }
+    
+    /**
+     * Delays sending the INVITE to the park server. If a RE-INVITE is sent to the ITSP in that
+     * interval, the INVITE to the park server is not sent. Instead, we ACK the 
+     * incoming INVITE so that the INVITE waiting for the ACK can proceed.
+     * 
+     */
+    class MohTimer extends TimerTask {
+       
+        SessionDescription responseSessionDescription;
+    
+
+        public MohTimer( SessionDescription responseSessionDescription) {
+          
+            this.responseSessionDescription = responseSessionDescription; 
+           
+
+        }
+
+        public void run() {
+            try {
+               
+                /*
+                 * Check the state of the peer dialog. If the phone has
+                 * answered, waitingToSendReInvite will be true. If so,
+                 * just return an ACK. This will allow the process to continue.
+                 */
+                if (waitingToSendReInvite.get()) {
+                	/*
+                	 * The ITSP is waiting for an ACK at this point -- so let him have
+                	 * the ACK but fool him by sending a filtered version of the SDP.
+                	 */
+                    SessionDescription sessionDescription = SipUtilities
+                            .getSessionDescription(getLastResponse());
+                    SipUtilities.cleanSessionDescription(sessionDescription, Gateway
+                            .getParkServerCodecs());
+                    getRtpSession().getReceiver().setSessionDescription(
+                            sessionDescription);
+                    sendAck(sessionDescription);             
+                } else {
+                	/*
+                	 * Our session description has already been fixed up at this point.
+                	 */
+                    ClientTransaction mohCtx = backToBackUserAgent
+                            .createClientTxToMohServer(responseSessionDescription);
+                    TransactionContext.get(mohCtx).setDialogPendingSdpAnswer(dialog);
+                    DialogContext.get(mohCtx.getDialog()).setPendingAction(
+                            PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK);
+                    DialogContext.get(mohCtx.getDialog()).peerDialog = dialog;   
+                    mohCtx.sendRequest();
+                }
+            } catch (Exception ex) {
+                logger.error("Error sending moh request", ex);
+            }
+
         }
     }
 
@@ -309,11 +378,9 @@ class DialogContext {
     private boolean isAckPending() {
         if (this.reInviteTransaction == null) {
             return false;
-        } else {
-            return this.lastAck == null
-                    || SipUtilities.getSeqNumber(lastAck) < SipUtilities
-                            .getSeqNumber(this.reInviteTransaction.getRequest());
-        }
+        } else
+            return this.lastAck == null || this.lastResponseSeqNo == 0
+                    || SipUtilities.getSeqNumber(lastAck) < this.lastResponseSeqNo;
     }
 
     /**
@@ -474,6 +541,7 @@ class DialogContext {
          */
         SipUtilities.setDuplexity(sessionDescription, "sendrecv");
         this.sendAck(ackRequest);
+        setPendingAction(PendingDialogAction.NONE);
     }
 
     /**
@@ -542,6 +610,8 @@ class DialogContext {
                  * to nested media negotiation attempts.
                  */
                 if (peerDialogContext.getPendingAction() == PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK) {
+                    logger.debug("peerDialogContext.pendingAction = "
+                            + peerDialogContext.getPendingAction());
                     return false;
                 }
                 Request reInvite = peerDialog.createRequest(Request.INVITE);
@@ -573,6 +643,9 @@ class DialogContext {
                  * The information we need to continue the operation when the Response comes in.
                  */
                 tad.setContinuationData(continuationData);
+                /*
+                 * Send the Re-INVITE when there is no glare condition.
+                 */
                 new Thread(new ReInviteSender(DialogContext.get(peerDialog), ctx)).start();
 
             }
@@ -624,6 +697,9 @@ class DialogContext {
         }
 
         this.lastResponse = lastResponse;
+        if (lastResponse != null) {
+            this.lastResponseSeqNo = SipUtilities.getSeqNumber(lastResponse);
+        }
     }
 
     Response getLastResponse() {
@@ -656,6 +732,12 @@ class DialogContext {
 
     }
 
+    /**
+     * Send an ACK and record it. If some thread is wating to send re-INVITE
+     * based upon that ACK it will get up and and run the re-INVITE.
+     * @param ack
+     * @throws SipException
+     */
     public void sendAck(Request ack) throws SipException {
         this.recordLastAckTime();
         this.lastAck = ack;
@@ -673,6 +755,15 @@ class DialogContext {
     public void setTerminateOnConfirm() {
         this.terminateOnConfirm = true;
 
+    }
+
+    
+    public void sendReInvite(ClientTransaction clientTransaction) {
+        new Thread(new ReInviteSender(this, clientTransaction)).start();
+    }
+
+    public void sendMohInvite(SessionDescription responseSessionDescription) {
+        Gateway.getTimer().schedule(new MohTimer(responseSessionDescription),500);
     }
 
 }

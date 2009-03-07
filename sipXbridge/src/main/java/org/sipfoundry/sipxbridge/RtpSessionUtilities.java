@@ -146,7 +146,7 @@ public class RtpSessionUtilities {
 
 		tad.setServerTransaction(serverTransaction);
 
-		peerDialog.sendRequest(ctx);
+		DialogContext.get(peerDialog).sendReInvite(ctx);
 	}
 
 	/**

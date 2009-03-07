@@ -12,7 +12,6 @@ import gov.nist.javax.sip.clientauthutils.AuthenticationHelper;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.security.KeyStore;
 import java.security.SecureRandom;
