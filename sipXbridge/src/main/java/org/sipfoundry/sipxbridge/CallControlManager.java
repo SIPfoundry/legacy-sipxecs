@@ -618,11 +618,7 @@ class CallControlManager implements SymmitronResetHandler {
                 stx.sendResponse(response);
             }
 
-            Response response = ProtocolObjects.messageFactory.createResponse(Response.ACCEPTED,
-                    request);
-            response.setHeader(SipUtilities.createContactHeader(null, ((SipProvider) requestEvent
-                    .getSource())));
-            stx.sendResponse(response);
+          
             /*
              * This flag controls whether or not we forward the BYE when the refer agent tears
              * down his end of the dialog.

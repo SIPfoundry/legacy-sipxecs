@@ -56,6 +56,9 @@ public class BridgeConfiguration {
     public void setExternalAddress(String externalAddress) {
         try {
             this.externalAddress = InetAddress.getByName(externalAddress).getHostAddress();
+            if ( this.localAddress == null ) {
+                this.setLocalAddress(externalAddress);
+            }
         } catch (Exception ex) {
             throw new IllegalArgumentException("invalid address : " + externalAddress);
         }

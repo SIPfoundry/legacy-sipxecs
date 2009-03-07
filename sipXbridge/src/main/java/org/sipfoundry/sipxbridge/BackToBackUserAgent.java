@@ -642,7 +642,7 @@ public class BackToBackUserAgent {
                 return;
             }
 
-
+           
             
             /*
              * Create a new client transaction. First attach any queried session description.
@@ -720,6 +720,15 @@ public class BackToBackUserAgent {
              * Send the request. Note that this is not an in-dialog request.
              */
             ct.sendRequest();
+           
+            /*
+             * We have the INVITE now so send an ACCEPTED to the REFER agent.
+             */
+            Response response = ProtocolObjects.messageFactory.createResponse(Response.ACCEPTED,
+                    referRequest);
+            response.setHeader(SipUtilities.createContactHeader(null, ((SipProvider) referRequestEvent
+                    .getSource())));
+            stx.sendResponse(response);
 
         } catch (ParseException ex) {
             logger.error("Unexpected parse exception", ex);

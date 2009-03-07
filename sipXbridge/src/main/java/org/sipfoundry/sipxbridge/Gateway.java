@@ -800,13 +800,21 @@ public class Gateway {
 
 		if (configuration.getGlobalAddress() == null
 				&& configuration.getStunServerAddress() == null) {
-			logger
-					.error("Configuration error -- no global address or stun server");
+			
 			System.err
 					.println("sipxbridge.xml: Configuration error: no global address specified and no stun server specified.");
 			System.exit(-1);
 		}
-
+		if ( Gateway.accountManager.getBridgeConfiguration().getExternalAddress() == null ) {
+		    System.err.println("Missing configuration parameter <external-address>");
+		    System.exit(-1);
+		}
+		
+		if ( Gateway.accountManager.getBridgeConfiguration().getLocalAddress() == null ) {
+            System.err.println("Missing configuration parameter <local-address>");
+            System.exit(-1);
+        }
+		
 		if (Gateway.accountManager.getBridgeConfiguration()
 				.getExternalAddress().equals(
 						Gateway.accountManager.getBridgeConfiguration()
@@ -814,8 +822,6 @@ public class Gateway {
 				&& Gateway.accountManager.getBridgeConfiguration()
 						.getExternalPort() == Gateway.accountManager
 						.getBridgeConfiguration().getLocalPort()) {
-			logger
-					.error("Configuration error -- external address == internal address && external port == internal port");
 			System.err
 					.println("sipxbridge.xml: Configuration error: external address == internal address && external port == internal port");
 
@@ -825,9 +831,9 @@ public class Gateway {
 		/*
 		 * Make sure we can initialize the keystores etc.
 		 */
-		if (symconfig.getUseHttps()) {
-			initHttpsClient();
-		}
+		// if (symconfig.getUseHttps()) {
+		// 	initHttpsClient();
+		// }
 		System.exit(0);
 	}
 
@@ -1214,10 +1220,7 @@ public class Gateway {
 			SSLSocket socket = ((SSLSocket) factory.createSocket());
 			String[] suites = socket.getEnabledCipherSuites();
 			socket.setEnabledCipherSuites(suites);
-			for (String suite : factory.getDefaultCipherSuites()) {
-				logger.debug("Supported Suite = " + suite);
-			}
-
+			
 			HttpsURLConnection.setDefaultSSLSocketFactory(factory);
 
 		} catch (Exception ex) {
