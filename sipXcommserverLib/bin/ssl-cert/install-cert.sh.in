@@ -28,6 +28,7 @@ Basename=""
 
 certOk=0
 certsInstalled=0
+installQualifier=""
 
 while [ $# -ne 0 ]
 do
@@ -39,6 +40,22 @@ do
         --remote-receive)
 	    Action=REMOTE_UNSUPPORTED
             ;;
+
+       -iq|--install-qualifier)
+          #
+          # Install qualifier
+          #
+         if [ $# -lt 2 ]
+         then
+             echo "Must specify <install-qualifier> with ${1}" 1>&2
+              Action=USAGE
+              break
+          else
+                installQualifier="-${2}"
+                shift # consume the switch ( for n values, consume n-1 )
+         fi
+         ;;
+
 
         -i|--install-prefix)
             ##
@@ -97,7 +114,7 @@ done
 
 if [ -z "${Basename}" ]
 then
-    Basename=`hostname --fqdn`
+    Basename="`hostname --fqdn`${installQualifier}"
 else
     # if they gave the full file name, strip the suffix off
     case "${Basename}" in
@@ -111,20 +128,17 @@ else
             Basename=`basename "${Basename}" .key`
             ;;
     esac
-
     case "${Basename}" in
         *-sip)
-            installQualifier="-sip"
-            ;;
+           installQualifier="-sip"
+           ;;
         *-web)
-            installQualifier="-web"
-            ;;
-        *)
-            installQualifier=""
-            ;;
-    esac
-
-
+           installQualifier="-web"
+           ;;
+         *)
+           installQualifier=""
+           ;;
+   esac
 fi
 
 if [ "${Action}" = "REMOTE_UNSUPPORTED" ]
@@ -147,9 +161,9 @@ fi
 if ! [ -f "${Basename}.crt" -a -f "${Basename}.key" ]
 then
     cat <<EOF 1>&2
-! Certificate and key not found for ${Basename}
-  ${Basename}.crt
-  ${Basename}.key
+! Certificate and key not found for ${WorkDir}/${Basename}
+  ${WorkDir}/${Basename}.crt
+  ${WorkDir}/${Basename}.key
 
 EOF
     Action=USAGE
@@ -161,6 +175,7 @@ then
 Usage:
    install-cert.sh [ {-wd|--workdir} <working-directory> ]
                    [ {-i|--install-prefix} <install-prefix> ]
+                   [ {-iq|--install-qualifier} <install-qualifier> ]
                    [ <server-name> ]
 
    The server-name specifies the base name of the .key and .crt files
@@ -175,6 +190,10 @@ Usage:
                      installation; used only by sipXconfig when building
                      initial configurations for distributed systems.
                      (This also disables the post-install validity check).
+
+   --install-qualifier Specifies the type of key. Can be web or sip 
+		     or blank (unpsecified). If blank, a the xml-rpc
+		     key ( used for https ) is the same as the web key.
 
    The certificate is examined to find the issuer name; if a CA certificate
    is found in the same directory with that name (with a '.crt' suffix),
@@ -197,7 +216,11 @@ fi
 
 echo "Checking the '${Basename}' certificate"
 
-if @bindir@/ssl-cert/check-cert.sh ${AuthoritySwitch} "${AuthorityTarget}" "$Basename.crt"
+#Note:
+#The CA for the web certificate is not available here because it is installed on the web browser.
+#SipxConfig does not install the CA for the web crt and hence we do not verify it.
+
+if  @bindir@/ssl-cert/check-cert.sh ${AuthoritySwitch} "${AuthorityTarget}" "$WorkDir/$Basename.crt" 
 then
 
     if [ ! -d "${InstallPrefix}${InstallDir}/ssl" ]
@@ -225,7 +248,6 @@ then
         # regenerate the hash symlinks for the certificate store
         @bindir@/ssl-cert/ca_rehash "${InstallPrefix}${InstallDir}/ssl/authorities"
 
-        # TBD: copy the .jts (java truststore) into "${InstallPrefix}${InstallDir}/ssl/authorities"
     fi
 
     if [ -r "${Basename}.crt" -a -r "${Basename}.key" ]
@@ -240,6 +262,30 @@ then
         chown ${sipXuser}     "${InstallPrefix}${InstallDir}/ssl/ssl${installQualifier}.key" || exit 1
         chmod 0600            "${InstallPrefix}${InstallDir}/ssl/ssl${installQualifier}.key" || exit 1
 
+        echo "Installing the '${Basename}' Java keystore"
+        cp -v "$Basename.keystore" "${InstallPrefix}${InstallDir}/ssl/ssl${installQualifier}.keystore" || exit 1
+        chown ${sipXuser}     "${InstallPrefix}${InstallDir}/ssl/ssl${installQualifier}.keystore" || exit 1
+        chmod 0600            "${InstallPrefix}${InstallDir}/ssl/ssl${installQualifier}.keystore" || exit 1
+
+	#The web key is initially the same as the ssl key.
+	if [ "${installQualifier}" = "" ] 
+	then
+		echo "Generating web cert automatically"
+                cp -v "$Basename.crt" "${InstallPrefix}${InstallDir}/ssl/ssl-web.crt" || exit 1
+                chown ${sipXuser}     "${InstallPrefix}${InstallDir}/ssl/ssl-web.crt" || exit 1
+                chmod 0600            "${InstallPrefix}${InstallDir}/ssl/ssl-web.crt" || exit 1
+
+                echo "Installing the '${Basename}' private key"
+                cp -v "$Basename.key" "${InstallPrefix}${InstallDir}/ssl/ssl-web.key" || exit 1
+                chown ${sipXuser}     "${InstallPrefix}${InstallDir}/ssl/ssl-web.key" || exit 1
+                chmod 0600            "${InstallPrefix}${InstallDir}/ssl/ssl-web.key" || exit 1
+
+                echo "Installing the '${Basename}' Java keystore"
+                cp -v "$Basename.keystore" "${InstallPrefix}${InstallDir}/ssl/ssl-web.keystore" || exit 1
+                chown ${sipXuser}     "${InstallPrefix}${InstallDir}/ssl/ssl-web.keystore" || exit 1
+                chmod 0600            "${InstallPrefix}${InstallDir}/ssl/ssl-web.keystore" || exit 1
+	fi
+
         certsInstalled+=1
 
         if [ -z "${InstallPrefix}" ]
@@ -250,17 +296,32 @@ then
         fi
     fi
 
-    if [ -r "${Basename}.p12" ]
+    if [ -r "${Basename}${installQualifier}.p12" ]
     then
         echo "Installing the '${Basename}' certificate (pkcs12 format)"
-        cp -v "$Basename.crt" "${InstallPrefix}${InstallDir}/ssl/ssl${installQualifier}.p12" || exit 1
+        cp -v "$Basename${installQualifier}.crt" "${InstallPrefix}${InstallDir}/ssl/ssl${installQualifier}.p12" || exit 1
         chown ${sipXuser}     "${InstallPrefix}${InstallDir}/ssl/ssl${installQualifier}.p12" || exit 1
         chmod 0600            "${InstallPrefix}${InstallDir}/ssl/ssl${installQualifier}.p12" || exit 1
 
         certsInstalled+=1
+
+	if [ "${installQualifier}" = "" ] 
+	then
+        	echo "Installing the '${Basename}' certificate (pkcs12 format)"
+        	cp -v "$Basename.crt" "${InstallPrefix}${InstallDir}/ssl/ssl-web.p12" || exit 1
+        	chown ${sipXuser}     "${InstallPrefix}${InstallDir}/ssl/ssl-web.p12" || exit 1
+        	chmod 0600            "${InstallPrefix}${InstallDir}/ssl/ssl-web.p12" || exit 1
+	fi
     fi
 
-    # TBD: add copying the .jks file to "${InstallPrefix}${InstallDir}/ssl/ssl${installQualifier}.jks"
+    #copying the .jks file to "${InstallPrefix}${InstallDir}/ssl/authorites.jks"
+    if [ -e "authorities.jks" ]
+    then
+        echo "Installing the authorities.jks file"
+        cp -v "authorities.jks" "${InstallPrefix}${InstallDir}/ssl/authorities.jks" || exit 1
+        chown ${sipXuser}     "${InstallPrefix}${InstallDir}/ssl/authorities.jks" || exit 1
+        chmod 0600            "${InstallPrefix}${InstallDir}/ssl/authorities.jks" || exit 1
+    fi
 
     if [ ${certOk} -eq 0 -a ${certsInstalled} -gt 0 ]
     then

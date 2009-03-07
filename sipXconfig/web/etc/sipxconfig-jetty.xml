@@ -9,7 +9,7 @@
     <Arg>
       <New class="org.mortbay.http.SslListener">
         <Set name="Port">8443</Set>     
-        <Set name="Keystore"><SystemProperty name="jetty.conf.dir"/>/ssl/.ssl.keystore</Set>
+        <Set name="Keystore"><SystemProperty name="jetty.conf.dir"/>/ssl/ssl-web.keystore</Set>
 	      <Set name="Password">changeit</Set>
 	      <Set name="KeyPassword">changeit</Set>
       	<Set name="PoolName">P1</Set>

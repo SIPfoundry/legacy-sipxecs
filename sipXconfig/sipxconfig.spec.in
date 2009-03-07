@@ -210,8 +210,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/sipxconfig-config
 %attr(755,root,root) %{_bindir}/sipx-upgrade-3.6-mailstore
 %attr(755,root,root) %{_bindir}/sipx-upgrade-3.6-mailstore-report
-%attr(755,root,root) %{_bindir}/ssl-cert/create-ssl-keystore.sh
-%attr(755,root,root) %{_bindir}/ssl-cert/create-ssl-truststore.sh
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxconfig-process.xml
 %attr(755,@SIPXPBXUSER@, @SIPXPBXGROUP@) %{_bindir}/sipx-time-manager
 

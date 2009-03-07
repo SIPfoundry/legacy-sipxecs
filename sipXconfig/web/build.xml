@@ -193,32 +193,6 @@
     </replace>
     <chmod file="${dest.dir}${bin.dir}/sipxconfig.sh" perm="ugo+x"/>
 
-    <mkdir dir="${dest.dir}${bin.dir}/ssl-cert"/>
-    <copy file="bin/create-ssl-truststore.sh.in" 
-      tofile="${dest.dir}${bin.dir}/ssl-cert/create-ssl-truststore.sh"/>
-    <replace file="${dest.dir}${bin.dir}/ssl-cert/create-ssl-truststore.sh" 
-      propertyfile="${top.build.dir}/build.properties">
-      <replacefilter token="@sipxpbx.user@" property="sipxpbx.user"/>
-      <replacefilter token="@openssl@" property="openssl"/>
-      <replacefilter token="@bin.dir@" property="bin.dir"/>
-      <replacefilter token="@bash@" property="bash"/>
-      <replacefilter token="@xargs.replace@" property="xargs.replace"/>
-    </replace>
-    <chmod file="${dest.dir}${bin.dir}/ssl-cert/create-ssl-truststore.sh" perm="ugo+x"/>
-
-    <copy file="bin/create-ssl-keystore.sh.in" 
-      tofile="${dest.dir}${bin.dir}/ssl-cert/create-ssl-keystore.sh"/>
-    <replace file="${dest.dir}${bin.dir}/ssl-cert/create-ssl-keystore.sh" 
-      propertyfile="${top.build.dir}/build.properties">
-      <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir"/>
-      <replacefilter token="@sipxpbx.user@" property="sipxpbx.user"/>
-      <replacefilter token="@sipxconfig.lib.dir@" property="sipxconfig.lib.dir"/>
-      <replacefilter token="@sipxcommons.lib.dir@" property="sipxcommons.lib.dir"/>
-      <replacefilter token="@openssl@" property="openssl"/>
-      <replacefilter token="@bin.dir@" property="bin.dir"/>
-      <replacefilter token="@bash@" property="bash"/>
-    </replace>
-    <chmod file="${dest.dir}${bin.dir}/ssl-cert/create-ssl-keystore.sh" perm="ugo+x"/>
 
     <!-- config -->
     <mkdir dir="${dest.dir}${sipxpbx.conf.dir}"/>

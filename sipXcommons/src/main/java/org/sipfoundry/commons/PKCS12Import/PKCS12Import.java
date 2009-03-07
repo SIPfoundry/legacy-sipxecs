@@ -4,7 +4,7 @@
 // ========================================================================
 
 
-package org.mortbay.util;
+package org.sipfoundry.commons.PKCS12Import;
 
 import java.io.File;
 import java.io.FileInputStream;

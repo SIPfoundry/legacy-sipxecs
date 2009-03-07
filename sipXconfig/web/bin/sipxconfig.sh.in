@@ -79,7 +79,7 @@ setTrustStoreOpts() {
     # List of authorities accepted system-wide
     if [ -d $AuthoritiesDir ]
     then
-      TrustStore=$SslDir/.authorities.jks
+      TrustStore=$SslDir/authorities.jks
       # password on command line is not security issue. catrust and directory has appropriate
       # permissions, password is required by keystores
       TrustStoreOpts="\
@@ -210,7 +210,7 @@ onWebUi() {
         -Djava.awt.headless=true"
 
     KeyStoreOpts="\
-      -Djavax.net.ssl.keyStore=$SslDir/.ssl.keystore \
+      -Djavax.net.ssl.keyStore=$SslDir/ssl.keystore \
       -Djavax.net.ssl.keyStorePassword=$StorePassword"
 
     Classpath=`classpath \

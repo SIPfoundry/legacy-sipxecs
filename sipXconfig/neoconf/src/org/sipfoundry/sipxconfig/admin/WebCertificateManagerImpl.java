@@ -35,6 +35,15 @@ public class WebCertificateManagerImpl implements WebCertificateManager {
     private static final String READ_ERROR = "&msg.readError";
     private static final String WRITE_ERROR = "&msg.writeError";
     private static final String SCRIPT_ERROR = "&msg.scriptGenError";
+    private static final String COPY_ERROR = "msg.copyError";
+    private static final String WORKDIR_FLAG = "--workdir";
+    private static final String BLANK = " ";
+    private static final String SCRIPT_EXCEPTION_MESSAGE = "Script finished with exit code ";
+    private static final String RUNNING = "Running";
+    private static final String DEFAULTS_FLAG = "--defaults";
+    private static final String PARAMETERS_FLAG = "--parameters";
+    private static final String GEN_SSL_KEYS_SH = "/ssl-cert/gen-ssl-keys.sh";
+    private static final String WEB_ONLY = "--web-only";
 
     private String m_binDirectory;
 
@@ -113,15 +122,15 @@ public class WebCertificateManagerImpl implements WebCertificateManager {
         try {
             Runtime runtime = Runtime.getRuntime();
             String[] cmdLine = new String[] {
-                m_binDirectory + "/ssl-cert/gen-ssl-keys.sh", "--csr", "--web-only", "--defaults", "--parameters",
-                PROPERTIES_FILE, "--workdir", m_certDirectory
+                m_binDirectory + GEN_SSL_KEYS_SH, "--csr", WEB_ONLY, DEFAULTS_FLAG, PARAMETERS_FLAG,
+                PROPERTIES_FILE, WORKDIR_FLAG, m_certDirectory
             };
             Process proc = runtime.exec(cmdLine);
-            LOG.debug("Executing: " + StringUtils.join(cmdLine, " "));
+            LOG.debug("Executing: " + StringUtils.join(cmdLine, BLANK));
             proc.waitFor();
             if (proc.exitValue() != 0) {
-                throw new UserException(SCRIPT_ERROR, "Script finished with exit code " + proc.exitValue());
-            }
+                throw new UserException(SCRIPT_ERROR, SCRIPT_EXCEPTION_MESSAGE + proc.exitValue());
+            }        
         } catch (IOException e) {
             throw new UserException(SCRIPT_ERROR, e.getMessage());
         } catch (InterruptedException e) {
@@ -154,11 +163,28 @@ public class WebCertificateManagerImpl implements WebCertificateManager {
         }
 
         try {
+            Runtime runtime = Runtime.getRuntime();
+            String[] cmdLine = new String[] {
+                m_binDirectory + GEN_SSL_KEYS_SH, WORKDIR_FLAG, m_certDirectory,
+                "--pkcs", WEB_ONLY, DEFAULTS_FLAG, PARAMETERS_FLAG,
+                PROPERTIES_FILE,
+            };
+            Process proc = runtime.exec(cmdLine);
+            LOG.debug(RUNNING + StringUtils.join(cmdLine, BLANK));
+            proc.waitFor();
+            if (proc.exitValue() != 0) {
+                throw new UserException(SCRIPT_ERROR, SCRIPT_EXCEPTION_MESSAGE + proc.exitValue());
+            }
             File destinationCertificate = new File(m_sslDirectory, "ssl-web.crt");
             File destinationKey = new File(m_sslDirectory, "ssl-web.key");
-
             FileUtils.copyFile(sourceCertificate, destinationCertificate);
-            FileUtils.copyFile(sourceKey, destinationKey);
+            FileUtils.copyFile(sourceKey, destinationKey);    
+            File sourceKeyStore = new File(m_certDirectory, getDomainName() + "-web.keystore");
+            File destinationKeyStore = new File(m_sslDirectory, "ssl-web.keystore");
+            FileUtils.copyFile(sourceKeyStore, destinationKeyStore); 
+            File sourcePkcsKeyStore = new File(m_certDirectory, getDomainName() + "-web.p12");
+            File destinationPkcsKeyStore = new File(m_sslDirectory, "ssl-web.p12");
+            FileUtils.copyFile(sourcePkcsKeyStore, destinationPkcsKeyStore); 
         } catch (Exception e) {
             throw new UserException("&msg.copyError");
         }
