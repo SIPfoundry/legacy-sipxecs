@@ -124,7 +124,7 @@ class DialogContext {
     /*
      * Used by the session timer - to compute whether or not to send a session timer re-INVITE.
      */
-    long lastAckSent;
+    long timeLastAckSent;
 
     /*
      * Session timer interval ( seconds ).
@@ -146,7 +146,7 @@ class DialogContext {
 
     private AtomicBoolean waitingToSendReInvite = new AtomicBoolean(false);
 
-    private long lastResponseSeqNo;
+  
 
     // /////////////////////////////////////////////////////////////////
     // Inner classes.
@@ -177,7 +177,7 @@ class DialogContext {
                         && DialogContext.get(dialog).peerDialog != null) {
                     if (method.equalsIgnoreCase(Request.INVITE)) {
 
-                        if (currentTimeMilis < lastAckSent - sessionExpires * 1000) {
+                        if (currentTimeMilis < timeLastAckSent - sessionExpires * 1000) {
                             return;
                         }
 
@@ -270,7 +270,7 @@ class DialogContext {
             try {
                 int i = 0;
                 while (dialogContext.dialog.getState() != DialogState.TERMINATED
-                        && dialogContext.isAckPending()) {
+                        && dialogContext.isWaitingForAck(ctx)) {
                     if (i++ > 80) {
                         /*
                          * Could not send re-INVITE we should kill the call.
@@ -287,8 +287,9 @@ class DialogContext {
 
                 /*
                  * Wait for the ACK to actually get to the other side.
+                 * Wait for any ACK retransmissions to finish. Then send out the request.
                  */
-                Thread.sleep(100);
+                Thread.sleep(500);
                 if (dialogContext.dialog.getState() != DialogState.TERMINATED) {
                     dialogContext.reInviteTransaction = ctx;
                     dialogContext.dialog.sendRequest(ctx);
@@ -375,12 +376,21 @@ class DialogContext {
 
     }
 
-    private boolean isAckPending() {
-        if (this.reInviteTransaction == null) {
-            return false;
-        } else
-            return this.lastAck == null || this.lastResponseSeqNo == 0
-                    || SipUtilities.getSeqNumber(lastAck) < this.lastResponseSeqNo;
+    /**
+     * Avoid interleaving of INVITE transactions for a given Dialog
+     *  (some ITSPs return unreliable error codes when transactions are interleaved).
+     */
+    private boolean isWaitingForAck(ClientTransaction ctx) {
+    	long seqno = SipUtilities.getSeqNumber(ctx.getRequest()); 
+    	if ( this.reInviteTransaction == null ) {
+    		return false ;
+    	} else if ( this.lastAck == null || seqno != SipUtilities.getSeqNumber(this.lastAck) + 1 )  {
+    		return true;
+    	} else {
+    		return false;
+    	}
+        
+    	
     }
 
     /**
@@ -471,7 +481,7 @@ class DialogContext {
     }
 
     void recordLastAckTime() {
-        this.lastAckSent = System.currentTimeMillis();
+        this.timeLastAckSent = System.currentTimeMillis();
     }
 
     /**
@@ -697,9 +707,7 @@ class DialogContext {
         }
 
         this.lastResponse = lastResponse;
-        if (lastResponse != null) {
-            this.lastResponseSeqNo = SipUtilities.getSeqNumber(lastResponse);
-        }
+        
     }
 
     Response getLastResponse() {
@@ -741,7 +749,8 @@ class DialogContext {
     public void sendAck(Request ack) throws SipException {
         this.recordLastAckTime();
         this.lastAck = ack;
-        dialog.sendAck(ack);
+        dialog.sendAck(ack);   
+        
         if (terminateOnConfirm) {
             Request byeRequest = dialog.createRequest(Request.BYE);
 
