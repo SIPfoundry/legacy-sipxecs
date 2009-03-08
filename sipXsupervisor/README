@@ -7,7 +7,7 @@ running this command as root:
 
 Non Redhat users
 
-  /usr/local/sipx/etc/init.d/sipxpbx start
+  /usr/local/sipx/etc/init.d/sipxecs start
 
 To investigate a process that may not be starting correctly:
 
@@ -17,9 +17,9 @@ and look in that directory for the log file for that process.
 
 To inspect what processes are running:
 
-  service sipxpbx status
+  service sipxecs status
     or
-  /usr/local/sipx/etc/init.d/sipxpbx status
+  /usr/local/sipx/etc/init.d/sipxecs status
 
 
 

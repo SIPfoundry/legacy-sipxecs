@@ -9,7 +9,13 @@
 # See http://sipx-wiki.calivia.com/index.php/Express_Development_Environment_Setup for instructions.
 
 # Clean up the old (which may not even exist...)
-sudo /sbin/service sipxpbx stop
+if test -x /etc/init.d/sipxpbx
+then
+    sudo /sbin/service sipxpbx stop
+elif test -x /etc/init.d/sipxecs
+then
+    sudo /sbin/service sipxecs stop
+fi
 sudo killall httpd
 
 # You can override the CODE directory, relative to the current directory.
@@ -32,17 +38,17 @@ mkdir $INSTALL
 mkdir $BUILD
 
 # Easy scripts to start, stop, restart, and get status.
-echo sudo `pwd`/$INSTALL/etc/init.d/sipxpbx start > /tmp/sstart
+echo sudo `pwd`/$INSTALL/etc/init.d/sipxecs start > /tmp/sstart
 sudo mv /tmp/sstart /usr/bin/
 sudo chmod a+rx /usr/bin/sstart
-echo sudo `pwd`/$INSTALL/etc/init.d/sipxpbx stop > /tmp/sstop
+echo sudo `pwd`/$INSTALL/etc/init.d/sipxecs stop > /tmp/sstop
 sudo mv /tmp/sstop /usr/bin/
 sudo chmod a+rx /usr/bin/sstop
-echo sudo `pwd`/$INSTALL/etc/init.d/sipxpbx status > /tmp/sstatus
+echo sudo `pwd`/$INSTALL/etc/init.d/sipxecs status > /tmp/sstatus
 sudo mv /tmp/sstatus /usr/bin/
 sudo chmod a+rx /usr/bin/sstatus
-echo sudo `pwd`/$INSTALL/etc/init.d/sipxpbx stop > /tmp/srestart
-echo sudo `pwd`/$INSTALL/etc/init.d/sipxpbx start >> /tmp/srestart
+echo sudo `pwd`/$INSTALL/etc/init.d/sipxecs stop > /tmp/srestart
+echo sudo `pwd`/$INSTALL/etc/init.d/sipxecs start >> /tmp/srestart
 sudo mv /tmp/srestart /usr/bin/
 sudo chmod a+rx /usr/bin/srestart
 
@@ -102,10 +108,10 @@ then
 fi
 popd
 
-# This is needed so often, we might as well make it easily available with "sudo /sbin/service sipxpbx xxx", 
+# This is needed so often, we might as well make it easily available with "sudo /sbin/service sipxecs xxx", 
 # and started automatically after reboot.  
-sudo rm -rf /etc/init.d/sipxpbx
-sudo ln -s $FULL_INSTALL_PATH/etc/init.d/sipxpbx /etc/init.d/sipxpbx
+sudo rm -rf /etc/init.d/sipxecs
+sudo ln -s $FULL_INSTALL_PATH/etc/init.d/sipxecs /etc/init.d/sipxecs
 
 # Adjust the TFTP /FTP directory.
 TFTP_PATH=$FULL_INSTALL_PATH/var/sipxdata/configserver/phone/profile/tftproot
@@ -124,7 +130,7 @@ sudo $INSTALL/bin/freeswitch.sh --configtest &> freeswitch_configtest.log
 sudo $INSTALL/bin/sipx-setup
 
 # Restart sipXecs twice (I've seen this fix "Resource Required" states for services.)
-sudo /sbin/service sipxpbx status  
+sudo /sbin/service sipxecs status  
 if [ $? != 0 ]
 then
    echo ""

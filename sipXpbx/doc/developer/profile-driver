@@ -14,7 +14,7 @@ HOST=$( hostname )
 # Clean up from previous runs.
 
 # Stop sipX if it is running.
-dir-local/etc/init.d/sipxpbx stop
+dir-local/etc/init.d/sipxecs stop
 # Remove the mediaserver.log
 rm -f dir-local/var/log/sipxpbx/mediaserver.log
 
@@ -24,7 +24,7 @@ for JOBS in 25 30
 do
 
     # Start sipX.
-    dir-local/etc/init.d/sipxpbx start
+    dir-local/etc/init.d/sipxecs start
 
     # Wait 2 minutes
     sleep 120
@@ -46,7 +46,7 @@ do
     kill %+
 
     # Stop sipX.
-    dir-local/etc/init.d/sipxpbx stop
+    dir-local/etc/init.d/sipxecs stop
 
     # Save the mediaserver.log.
     mv dir-local/var/log/sipxpbx/mediaserver.log{,.$JOBS}

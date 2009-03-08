@@ -142,7 +142,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libexecdir}/sipXecs/sipx-activate-ntp
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/010_sipx-activate-ntp
 
-%attr(755,root,root) %{_sysconfdir}/init.d/sipxpbx
+%attr(755,root,root) %{_sysconfdir}/init.d/sipxecs
 %attr(755,root,root) %{_sysconfdir}/cron.daily/sipx-chkspace
 %attr(755,root,root) %{_sysconfdir}/cron.daily/voicemail_clean
 %attr(755,root,root) %{_sysconfdir}/cron.daily/sipx-core-clean
@@ -249,11 +249,16 @@ sipx-sendmail-configure %{buildno}
 %preun
 # see http://fedoraproject.org/wiki/Packaging/ScriptletSnippets
 if [ $1 = 0 ]; then
-  /etc/init.d/sipxpbx stop &>/dev/null || :
+  if [ -x /etc/init.d/sipxpbx ]; then
+     initScript=sipxpbx
+  elif [ -x /etc/init.d/sipxecs ]; then
+     initScript=sipxecs
+  fi
+  /etc/init.d/${initScript} stop &>/dev/null || :
 
   if [ -x /sbin/chkconfig ]; then
     # RedHat / Fedora
-    chkconfig --del sipxpbx
+    chkconfig --del ${initScript}
   else
     # SuSE
     insserv -r sipxpbx

@@ -124,7 +124,7 @@ install-fix-apache-modules:
 # real-time scheduling.
 # sipXvxml is copied rather than just chmod'ed because it may now be
 # owned by root.
-START_FILE=@SIPX_CONFDIR@/../init.d/sipxpbx
+START_FILE=@SIPX_CONFDIR@/../init.d/sipxecs
 SIPXVXML=@SIPX_BINDIR@/sipXvxml
 install-sipXvxml-no-setuid:
 	mv $(SIPXVXML) $(SIPXVXML).tmp

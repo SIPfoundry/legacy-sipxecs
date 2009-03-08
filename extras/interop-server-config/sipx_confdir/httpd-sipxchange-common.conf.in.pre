@@ -5,7 +5,7 @@ Listen 8090
 # for CGI's and other such interesting information.
 # Core files will not appear unless "ulimit -c unlimited" (or whatever
 # is appropriate) is in effect, which is usually controlled by the
-# ulimit command in .../etc/init.d/sipxpbx.in.
+# ulimit command in .../etc/init.d/sipxecs.in.
 CoreDumpDirectory @SIPX_LOGDIR@
 
 # protect the sipxchange cgi-bin directory from unauthorized access

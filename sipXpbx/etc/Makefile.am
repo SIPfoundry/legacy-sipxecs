@@ -14,18 +14,18 @@ wwwconf_files = \
 EXTRA_DIST = \
 	$(pkgconf_DATA) \
 	$(foreach file,$(wwwconf_files),$(file).in) \
-	init.d/sipxpbx.in \
+	init.d/sipxecs.in \
 	logrotate.d/sipxchange.in
 
-install-exec-hook : $(DESTDIR)@SERVICEDIR@/sipxpbx
+install-exec-hook : $(DESTDIR)@SERVICEDIR@/sipxecs
 
-$(DESTDIR)@SERVICEDIR@/sipxpbx: $(DESTDIR)@SERVICEDIR@ init.d/sipxpbx
-	$(INSTALL) -D -m 755 init.d/sipxpbx $(DESTDIR)@SERVICEDIR@/sipxpbx
+$(DESTDIR)@SERVICEDIR@/sipxecs: $(DESTDIR)@SERVICEDIR@ init.d/sipxecs
+	$(INSTALL) -D -m 755 init.d/sipxecs $(DESTDIR)@SERVICEDIR@/sipxecs
 
-init.d/sipxpbx: init.d/sipxpbx.in
+init.d/sipxecs: init.d/sipxecs.in
 	test -d init.d || mkdir init.d
-	@echo "Localizing $(srcdir)/init.d/sipxpbx.in -> init.d/sipxpbx"
-	@$(LocalizeSipXconfig) $(srcdir)/init.d/sipxpbx.in > init.d/sipxpbx
+	@echo "Localizing $(srcdir)/init.d/sipxecs.in -> init.d/sipxecs"
+	@$(LocalizeSipXconfig) $(srcdir)/init.d/sipxecs.in > init.d/sipxecs
 
 $(DESTDIR)@SERVICEDIR@:
 	$(INSTALL) -d $(DESTDIR)@SERVICEDIR@
