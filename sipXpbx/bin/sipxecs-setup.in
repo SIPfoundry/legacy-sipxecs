@@ -32,7 +32,7 @@ import os, commands, sys, re, time, traceback, glob, signal, snack
 
 sys.path.insert(0,'@SIPX_LIBEXECDIR@')
 
-from sipx_setup_common import *
+from sipxecs_setup_common import *
 
 global HostName
 HostName = ''

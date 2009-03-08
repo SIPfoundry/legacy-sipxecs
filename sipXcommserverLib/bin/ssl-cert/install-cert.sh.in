@@ -147,7 +147,7 @@ then
   The --remote and --remote-receive options are obsolete.
 
   Installation of certificate data for a distributed system
-  is now integrated into the sipx-setup script, supported 
+  is now integrated into the sipxecs-setup script, supported 
   by certificate generation in sipXconfig.
 UNSUPPORTED_EOF
   exit 1

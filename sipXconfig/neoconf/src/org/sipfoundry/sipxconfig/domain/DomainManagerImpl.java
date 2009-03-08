@@ -103,7 +103,7 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
     /**
      * Initialize the first and single domain supported by sipX at the moment. When this method is
      * called, a new domain is created and it is populated with the data from the domain-config
-     * file which is written by sipx-setup during system installation. If there is an error
+     * file which is written by sipxecs-setup during system installation. If there is an error
      * accessing this file, sipxconfig will not operate correctly.
      * 
      * If this is called multiple times, the data in the domain table in the database will be

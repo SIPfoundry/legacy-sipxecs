@@ -283,7 +283,7 @@ def screen_hostname_error () :
 Your system hostname ('%s') is not set correctly.\n\
   It needs to be set to a fully qualified DNS name.\n\
 \n\
-Please correct your hostname and rerun sipx-setup." % HostName
+Please correct your hostname and rerun sipxecs-setup." % HostName
     
     abortMsgAndExit(errorExplanation)
 
@@ -410,7 +410,7 @@ failed with error\n\
 Bootstrap configuration is not complete.\n\
 \n\
 To finish bootstrap configuration, execute:\n\
-   sipx-setup\n\
+   sipxecs-setup\n\
 \n'
             abortMsgAndExit(NotDone)
 

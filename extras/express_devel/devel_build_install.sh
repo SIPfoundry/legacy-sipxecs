@@ -126,8 +126,8 @@ $INSTALL/bin/sipxconfig.sh --first-run &> sipxconfig_first-run.log
 # Fix FreeSWITCH
 sudo $INSTALL/bin/freeswitch.sh --configtest &> freeswitch_configtest.log
 
-# sipx-setup
-sudo $INSTALL/bin/sipx-setup
+# sipxecs-setup
+sudo $INSTALL/bin/sipxecs-setup
 
 # Restart sipXecs twice (I've seen this fix "Resource Required" states for services.)
 sudo /sbin/service sipxecs status  

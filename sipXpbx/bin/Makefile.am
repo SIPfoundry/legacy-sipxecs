@@ -2,8 +2,8 @@ include $(top_srcdir)/config/subdir.am
 
 bin_SCRIPTS = \
 	 ${PACKAGE}-config \
-	 sipx-setup \
-	 sipx-setup-system \
+	 sipxecs-setup \
+	 sipxecs-setup-system \
 	 analyze_483s \
 	 sipx-snapshot \
 	 sipx-backup \
@@ -32,7 +32,7 @@ SipxLibexecScripts = \
 	sipx-strip-db-secrets.pl
 
 SipxLibexecPythonScripts = \
-	 sipx_setup_common.py
+	 sipxecs_setup_common.py
 
 $(top_builddir)/BUILDSTAMP:
 	${MAKE} -C $(top_builddir) BUILDSTAMP
@@ -64,8 +64,8 @@ SCRIPT_TEMPLATES = \
 	sipx-test-maxfds.in
 
 PythonScripts = \
-	sipx-setup.in \
-	sipx-setup-system.in \
+	sipxecs-setup.in \
+	sipxecs-setup-system.in \
 	sipx-package.py.in \
 	sipx-swadmin.py.in
 

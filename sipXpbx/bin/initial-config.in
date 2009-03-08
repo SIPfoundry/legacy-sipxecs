@@ -89,5 +89,5 @@ perl -p \
     --workdir "@SIPX_VARDIR@/certdb" --install-prefix "${INITIAL_CONFIG}" "${newHostname}" \
     || exit 1
 
-# package the configuration for the sipx-setup-system script to unpack
+# package the configuration for the sipxecs-setup-system script to unpack
 tar -czf "${INITIAL_CONFIG_BASE}/${newHostname}.tar.gz" -C "${INITIAL_CONFIG}" .
