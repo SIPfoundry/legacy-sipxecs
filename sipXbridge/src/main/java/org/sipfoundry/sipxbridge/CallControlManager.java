@@ -16,7 +16,6 @@ import gov.nist.javax.sip.stack.SIPDialog;
 import gov.nist.javax.sip.stack.SIPServerTransaction;
 
 import java.text.ParseException;
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TimerTask;
@@ -44,7 +43,6 @@ import javax.sip.header.ReasonHeader;
 import javax.sip.header.RequireHeader;
 import javax.sip.header.SubscriptionStateHeader;
 import javax.sip.header.ToHeader;
-import javax.sip.header.UserAgentHeader;
 import javax.sip.header.WarningHeader;
 import javax.sip.message.Request;
 import javax.sip.message.Response;

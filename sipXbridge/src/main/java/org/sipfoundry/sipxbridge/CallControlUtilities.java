@@ -10,12 +10,9 @@
 
 package org.sipfoundry.sipxbridge;
 
-import gov.nist.javax.sip.DialogExt;
-
 import java.util.Set;
 
 import javax.sdp.SessionDescription;
-import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
 import javax.sip.ServerTransaction;
 import javax.sip.message.Request;

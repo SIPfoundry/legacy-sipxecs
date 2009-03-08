@@ -493,6 +493,8 @@ public class BackToBackUserAgent {
             DialogContext dialogContext = DialogContext.get(dialog);
             FromHeader fromHeader = (FromHeader) dialogContext.request.getHeader(FromHeader.NAME).clone();
             fromHeader.removeParameter("tag");
+           
+            
             ToHeader toHeader = (ToHeader) referRequest.getHeader(ToHeader.NAME).clone();
             toHeader.removeParameter("tag");
             /*
@@ -560,8 +562,9 @@ public class BackToBackUserAgent {
                     this);
 
             SipUtilities.addLanAllowHeaders(newRequest);
-
-            ContactHeader contactHeader = SipUtilities.createContactHeader(null, Gateway
+            
+            String fromUser  = ((SipURI)fromHeader.getAddress().getURI()).getUser();
+            ContactHeader contactHeader = SipUtilities.createContactHeader(fromUser, Gateway
                     .getLanProvider());
             newRequest.setHeader(contactHeader);
             /*

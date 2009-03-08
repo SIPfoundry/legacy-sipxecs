@@ -269,6 +269,7 @@ class DialogContext {
         public void run() {
             try {
                 int i = 0;
+               
                 while (dialogContext.dialog.getState() != DialogState.TERMINATED
                         && dialogContext.isWaitingForAck(ctx)) {
                     if (i++ > 80) {
@@ -289,7 +290,10 @@ class DialogContext {
                  * Wait for the ACK to actually get to the other side.
                  * Wait for any ACK retransmissions to finish. Then send out the request.
                  */
+                 
                 Thread.sleep(500);
+                 
+                
                 if (dialogContext.dialog.getState() != DialogState.TERMINATED) {
                     dialogContext.reInviteTransaction = ctx;
                     dialogContext.dialog.sendRequest(ctx);
