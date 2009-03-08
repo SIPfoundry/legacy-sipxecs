@@ -323,8 +323,7 @@ def screen_ask_DNS ():
    show_progress()
 
    serverMessage ='\
-Do you have a DNS server on another system\n\
-that you prefer to use?\
+Do you have a DNS server on another system?\
 '
 
    layout = snack.Grid(1, 2)
