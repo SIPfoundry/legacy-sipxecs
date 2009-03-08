@@ -14,29 +14,29 @@ Url: http://www.sipfoundry.org
 
 %define sipxconfiglib %{_datadir}/java/sipXecs/sipXconfig
 
-Requires: sipxsupervisor
-Requires: sipxproxy
-Requires: sipxregistry
-Requires: sipxconfig
-Requires: sipxpublisher
-Requires: sipxvxml
-Requires: sipxpage
-Requires: sipxacd
-Requires: sipxproxy-cdr
-Requires: sipxconfig-ftp
-Requires: sipxconfig-tftp
-Requires: sipxconfig-report
-Requires: sipxconfig-agent
-Requires: sipxconfig-mrtg
-Requires: sipxfreeswitch
-Requires: sipxbridge
-Requires: sipx-freeswitch
-Requires: sipx-freeswitch-codec-passthru-g723_1
-Requires: sipx-freeswitch-codec-passthru-g729
-Requires: sipx-freeswitch-codec-passthru-amr
-Requires: sipxtools
-Requires: sipxecs-doc
-Requires: sipxivr
+Requires: sipxsupervisor >= 3.11
+Requires: sipxproxy >= 3.11
+Requires: sipxregistry >= 3.11
+Requires: sipxconfig >= 3.11
+Requires: sipxpublisher >= 3.11
+Requires: sipxvxml >= 3.11
+Requires: sipxpage >= 3.11
+Requires: sipxacd >= 3.11
+Requires: sipxproxy-cdr >= 3.11
+Requires: sipxconfig-ftp >= 3.11
+Requires: sipxconfig-tftp >= 3.11
+Requires: sipxconfig-report >= 3.11
+Requires: sipxconfig-agent >= 3.11
+Requires: sipxconfig-mrtg >= 3.11
+Requires: sipxfreeswitch >= 3.11
+Requires: sipxbridge >= 3.11
+Requires: sipx-freeswitch >= 1.0 
+Requires: sipx-freeswitch-codec-passthru-g723_1 
+Requires: sipx-freeswitch-codec-passthru-g729 
+Requires: sipx-freeswitch-codec-passthru-amr 
+Requires: sipxtools >= 3.11
+Requires: sipxecs-doc >= 3.11
+Requires: sipxivr >= 3.11
 
 Source: %name-%version.tar.gz
 
