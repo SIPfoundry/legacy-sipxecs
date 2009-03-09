@@ -23,3 +23,7 @@ sipxcommons.dir=@SIPX_JAVADIR@/sipXcommons
 sipxcommons.jar=${sipxcommons.dir}/sipxcommons.jar
 junit.jar=${sipxcommons.dir}/junit.jar
 log4j.jar=${sipxcommons.dir}/log4j.jar
+dom4j.jar=${sipxcommons.dir}/dom4j.jar
+commons-io.jar=${sipxcommons.dir}/commons-io.jar
+jaxen.jar=${sipxcommons.dir}/jaxen.jar
+

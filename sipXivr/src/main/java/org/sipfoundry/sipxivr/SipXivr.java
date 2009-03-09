@@ -79,7 +79,7 @@ public class SipXivr implements Runnable {
                 // Run the Attendant.
                 Attendant app = new Attendant(s_config, m_fses, parameters);
                 app.run();
-            } else if (action.equals("deposit")) {
+            } else if (action.equals("deposit") || action.equals("retrieve")) {
             	// Run VoiceMail
             	VoiceMail app = new VoiceMail(s_config, m_fses, parameters);
             	app.run();

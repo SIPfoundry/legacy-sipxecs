@@ -1,7 +1,7 @@
 /*
  *
  *
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
@@ -9,15 +9,8 @@
 package org.sipfoundry.voicemail;
 
 import java.io.File;
-import java.util.Vector;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  * Holds the configuration data needed for VoiceMail.
@@ -96,12 +89,16 @@ public class Configuration {
      * @return
      */
     public static Configuration update(boolean load) {
+/*        
         if (s_current == null || s_configFile.lastModified() != s_lastModified) {
             s_current = new Configuration();
             if (load) {
                 s_current.loadXML();
             }
         }
+*/
+        if (s_current == null)
+            s_current = new Configuration();
         return s_current;
     }
 
