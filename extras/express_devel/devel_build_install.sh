@@ -22,6 +22,7 @@ sudo killall httpd
 INSTALL=INSTALL
 BUILD=BUILD
 CODE=main
+LINKS=links
 if [ $# -gt 0 ]
 then
    CODE=$1
@@ -33,7 +34,8 @@ fi
 echo INSTALL=`pwd`/$INSTALL > env
 echo BUILD=`pwd`/$BUILD >> env
 echo CODE=`pwd`/$CODE >> env
-sudo rm -rf $INSTALL $BUILD
+echo LINKS=`pwd`/$LINKS >> env
+sudo rm -rf $INSTALL $BUILD $LINKS
 mkdir $INSTALL
 mkdir $BUILD
 
@@ -113,6 +115,12 @@ popd
 sudo rm -rf /etc/init.d/sipxecs
 sudo ln -s $FULL_INSTALL_PATH/etc/init.d/sipxecs /etc/init.d/sipxecs
 
+# Cause the logs to be rotated.
+sudo rm -rf /etc/logrotate.d/sipxchange
+sudo ln -s $FULL_INSTALL_PATH/etc/logrotate.d/sipxchange /etc/logrotate.d/sipxchange
+sudo rm -rf /etc/logrotate.d/freeswitch
+sudo ln -s $FULL_INSTALL_PATH/etc/logrotate.d/freeswitch /etc/logrotate.d/freeswitch
+
 # Adjust the TFTP /FTP directory.
 TFTP_PATH=$FULL_INSTALL_PATH/var/sipxdata/configserver/phone/profile/tftproot
 ruby -e 'path=""; ARGV[0].split("/").each {|x| path+=x+"/"; `sudo chmod g+x #{path}`}' $TFTP_PATH
@@ -120,26 +128,35 @@ sudo rm -rf /tftpboot
 sudo ln -s $TFTP_PATH /tftpboot
 
 # Clear any database contents that might be left over from the last install.
-$INSTALL/bin/sipxconfig.sh --database drop create &> sipxconfig_drop_create.log
-$INSTALL/bin/sipxconfig.sh --first-run &> sipxconfig_first-run.log
+$FULL_INSTALL_PATH/bin/sipxconfig.sh --database drop create &> sipxconfig_drop_create.log
+$FULL_INSTALL_PATH/bin/sipxconfig.sh --first-run &> sipxconfig_first-run.log
 
 # Fix FreeSWITCH
-sudo $INSTALL/bin/freeswitch.sh --configtest &> freeswitch_configtest.log
+sudo $FULL_INSTALL_PATH/bin/freeswitch.sh --configtest &> freeswitch_configtest.log
+
+# Create some helpful links.
+mkdir $LINKS
+pushd $LINKS
+ln -s $FULL_INSTALL_PATH/var/log/sipxpbx log
+ln -s $FULL_INSTALL_PATH/var/sipxdata/configserver/phone/profile/tftproot tftproot
+ln -s $FULL_INSTALL_PATH/var/sipxdata/sipdb sipdb
+ln -s $FULL_INSTALL_PATH/etc/sipxpbx home
+ln -s $FULL_INSTALL_PATH/bin bin
+ln -s $FULL_INSTALL_PATH/share/sipxecs/process.d process.d
+popd
 
 # sipxecs-setup
-sudo $INSTALL/bin/sipxecs-setup
+sudo $FULL_INSTALL_PATH/bin/sipxecs-setup
 
-# Restart sipXecs twice (I've seen this fix "Resource Required" states for services.)
-sudo /sbin/service sipxecs status  
-if [ $? != 0 ]
-then
-   echo ""
-   echo "Restarting sipXecs twice...."
-   srestart
-   sleep 30
-   srestart
-   sstatus
-fi
+# Restart sipXecs twice.  This gets around the "httpd-sipxchange-common-ssl.conf: No 
+# such file or directory" error on first start, and I've also seen it fix the 
+# a "Resource Required" state for services.
+echo ""
+echo "Restarting sipXecs twice...."
+srestart
+sleep 10
+srestart
+sstatus
 
 echo ""
 echo "TO START     : sstart"
