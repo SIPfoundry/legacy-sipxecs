@@ -165,12 +165,15 @@
       <fileset file="${src.dir}/lib/commons-cli.jar"/>
       <fileset file="${src.dir}/lib/commons-collections.jar"/>
       <fileset file="${src.dir}/lib/commons-digester.jar"/>
+      <fileset file="${src.dir}/lib/commons-io.jar"/>
       <fileset file="${src.dir}/lib/commons-logging.jar"/>
       <fileset file="${src.dir}/lib/commons-logging-api.jar"/>
       <fileset file="${src.dir}/lib/commons-net.jar"/>
       <fileset file="${src.dir}/lib/cpptasks.jar"/>
+      <fileset file="${src.dir}/lib/dom4j.jar"/>
       <fileset file="${src.dir}/lib/dnsjava.jar"/>
       <fileset file="${src.dir}/lib/jain-sip-sdp.jar"/>
+      <fileset file="${src.dir}/lib/jaxen.jar"/>
       <fileset file="${src.dir}/lib/javax.servlet.jar"/>
       <fileset file="${src.dir}/lib/jdom-1.0.jar"/>
       <fileset file="${src.dir}/lib/jetty.jar"/>
