@@ -8,6 +8,7 @@
 <dndControl>FALSE</dndControl>
 <blinkLightOnIncomingCall>TRUE</blinkLightOnIncomingCall>
 <imBeepAlert>TRUE</imBeepAlert>
+<syslogServer>10.4.5.2</syslogServer>
 <enableSessionTimer>FALSE</enableSessionTimer>
 <sessionTimerInSec>30</sessionTimerInSec>
 <sessionRefresherFlag>FALSE</sessionRefresherFlag>

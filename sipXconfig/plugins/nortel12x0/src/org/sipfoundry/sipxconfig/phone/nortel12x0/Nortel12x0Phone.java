@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
+import org.sipfoundry.sipxconfig.service.UnmanagedService;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.sipfoundry.sipxconfig.speeddial.Button;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
@@ -49,6 +50,7 @@ public class Nortel12x0Phone extends Phone {
     public static final String ALTERNATE_TIME_SERVER_NAME = "timesettings/ntpIp2";
     public static final String CALL_PICKUP_PREFIX = "callPickup/callPickupPrefix";
     public static final String PAGING_PREFIX = "phoneSettings/groupPagingPrefix";
+    public static final String SYSLOG_SERVER = "phoneSettings/syslogServer";
 
     private static final int PHONEBOOK_MAX = 200;
     private static final int SPEEDDIAL_MAX = 200;
@@ -150,7 +152,10 @@ public class Nortel12x0Phone extends Phone {
             return m_defaults.getDirectedCallPickupCode();
         }
 
-
+        @SettingEntry(path = SYSLOG_SERVER)
+        public String getSyslogServer() {
+            return m_defaults.getServer(0, UnmanagedService.SYSLOG);
+        }
     }
 
     public static class Nortel12x0LineDefaults {
