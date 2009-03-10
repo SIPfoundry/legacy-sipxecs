@@ -236,10 +236,10 @@ pkg-upgrade --previous %{previous_archive} --current %{current_archive}
 # It starts in runlevels 3 and 5.
 if [ -x /sbin/chkconfig ]; then
   # RedHat / Fedora
-  chkconfig --add sipxpbx
+  chkconfig --add sipxecs
 else
   # SuSE
-  insserv sipxpbx
+  insserv sipxecs
 fi
 
 # Reconfigure sendmail (if that is the mail daemon chosen) to ensure
@@ -261,6 +261,6 @@ if [ $1 = 0 ]; then
     chkconfig --del ${initScript}
   else
     # SuSE
-    insserv -r sipxpbx
+    insserv -r sipxecs
   fi
 fi

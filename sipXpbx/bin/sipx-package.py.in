@@ -36,7 +36,7 @@ def check_version():
 def update():
     yumLog = open('@SIPX_LOGDIR@/sipx-package-update.log', 'w')
     yumLog.write("Stopping sipxecs services...\n\n")
-    os.spawnl(os.P_WAIT, "@BASH@", "-p", "@SERVICEDIR@/sipxpbx", "stop")
+    os.spawnl(os.P_WAIT, "@BASH@", "-p", "@SERVICEDIR@/sipxecs", "stop")
     yumLog.write("Downloading and installing updated packages...\n\n");
     yumProcess = Popen(["yum", "update", "-y"], stdout=PIPE)
     yumStdOut = yumProcess.stdout
@@ -47,7 +47,7 @@ def update():
 
     yumLog.write("Package update complete.\n")
     yumLog.write("Starting sipxecs services...\n")
-    os.spawnl(os.P_WAIT, "@BASH@", "-p", "@SERVICEDIR@/sipxpbx", "start")
+    os.spawnl(os.P_WAIT, "@BASH@", "-p", "@SERVICEDIR@/sipxecs", "start")
     yumLog.close()
     
 def usage():

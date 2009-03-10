@@ -176,7 +176,7 @@ fi
 
 # Stop all services.  After this point, the script MUST NOT exit without
 # starting all the services back up again.
-@BASH@ -p @SERVICEDIR@/sipxpbx stop
+@BASH@ -p @SERVICEDIR@/sipxecs stop
 
 # *** BEGIN Configuration ***
 PATH_DB_TAR=@SIPX_TMPDIR@/$DB_TAR
@@ -221,4 +221,4 @@ then
 fi # *** END Voicemail ***
 
 # Start all services.
-@BASH@ -p @SERVICEDIR@/sipxpbx start
+@BASH@ -p @SERVICEDIR@/sipxecs start

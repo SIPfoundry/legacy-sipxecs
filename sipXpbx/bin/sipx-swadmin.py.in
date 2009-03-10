@@ -96,7 +96,7 @@ def restart():
     fcntl.fcntl(sys.stdout.fileno(), fcntl.F_SETFL, flag | os.O_NDELAY)
 
     sys.stdout.flush()
-    os.system("@SERVICEDIR@/sipxpbx restart")
+    os.system("@SERVICEDIR@/sipxecs restart")
     sys.stderr.write('***END***\n')
     sys.stdout.write('***END***\n')
     sys.stdout.flush()

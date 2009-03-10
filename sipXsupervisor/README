@@ -3,7 +3,7 @@ See INSTALL for installation instructions
 Under Redhat, you can start the pbx and all it's necessary components by
 running this command as root:
 
-  service sipxpbx start
+  service sipxecs start
 
 Non Redhat users
 

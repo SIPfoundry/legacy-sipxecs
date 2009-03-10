@@ -581,13 +581,13 @@ def configure_autostart_service() :
         cmdoutput=commands.getoutput ('/sbin/chkconfig --level %d postgresql on' % RUNLEVEL)
         log_printout(cmdoutput)
 
-        log_printout('configure sipxpbx service autostart:\n')
-        cmdoutput=commands.getoutput ('/sbin/chkconfig --level %d sipxpbx on' % RUNLEVEL)
+        log_printout('configure sipxecs service autostart:\n')
+        cmdoutput=commands.getoutput ('/sbin/chkconfig --level %d sipxecs on' % RUNLEVEL)
         log_printout(cmdoutput)
     else :
         screen_msg("\
 Because you are not running as root,\n\
-the sipxpbx services have not been\n\
+the sipxecs services have not been\n\
 configured to start by default.\
 ")
         log_printout('autostart not configured - not root')
@@ -809,10 +809,10 @@ your @SIPXECS_NAME@ services.\
     if choice == startButton :
         log_printout('--- Starting @SIPXECS_NAME@ ---' )
         if runningAsRoot() :
-           execNext('service', ['sipxpbx', 'start'])
+           execNext('service', ['sipxecs', 'start'])
            # execNext does not return
         else :
-           execNext('sudo', ['@SERVICEDIR@/sipxpbx', 'start'])
+           execNext('sudo', ['@SERVICEDIR@/sipxecs', 'start'])
            # execNext does not return
 
     else :

@@ -3,7 +3,7 @@ See INSTALL for installation instructions
 Under Redhat, you can start the pbx and all it's necessary components by
 running this command as root:
 
-  service sipxpbx start
+  service sipxecs start
 
 Non Redhat users
 
@@ -17,7 +17,7 @@ and look in that directory for the log file for that process.
 
 To inspect what processes are running:
 
-  service sipxpbx status
+  service sipxecs status
     or
   /usr/local/sipx/etc/init.d/sipxecs status
 

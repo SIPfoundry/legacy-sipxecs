@@ -24,7 +24,7 @@
 #      Contacts master to get domain configuration
 #
 #   On any system:
-#      Set the sipxpbx service to start on reboot
+#      Set the sipxecs service to start on reboot
 #
 #----------------------------------------------------------------------
 
