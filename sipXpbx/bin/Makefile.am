@@ -76,7 +76,7 @@ EXTRA_DIST = \
 	${PACKAGE}-config \
 	analyze_483s \
 	ipcclean.pl \
-	sipx_setup_common.py.in \
+	sipxecs_setup_common.py.in \
 	$(foreach libexecScript, $(SipxLibexecScripts), $(libexecScript).in) \
 	$(PythonScripts) \
 	$(SCRIPT_TEMPLATES)
