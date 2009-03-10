@@ -21,7 +21,7 @@
 #include <net/NetMd5Codec.h>
 #include <net/CallId.h>
 
-// Private class to contain callback for eventTypeKey
+// Private class whose instances contain the state of a single subscription.
 class SubscriptionServerState : public UtlString
 {
 public:
@@ -33,7 +33,8 @@ public:
     UtlString mResourceId;
     UtlString mEventTypeKey;
     UtlString mAcceptHeaderValue;
-    long mExpirationDate; // epoch time
+    long mExpirationDate;       // expiration time
+    int mDialogVer;             // the next value to use in a 'version' attribute
     SipMessage* mpLastSubscribeRequest;
     OsTimer* mpExpirationTimer;
 
@@ -85,6 +86,7 @@ private:
 SubscriptionServerState::SubscriptionServerState()
 {
     mExpirationDate = -1;
+    mDialogVer = 0;
     mpLastSubscribeRequest = NULL;
     mpExpirationTimer = NULL;
 }
@@ -113,10 +115,11 @@ void SubscriptionServerState::dumpState()
    // indented 6
 
    OsSysLog::add(FAC_RLS, PRI_INFO,
-                 "\t      SubscriptionServerState %p UtlString = '%s', mResourceId = '%s', mEventTypeKey = '%s', mAcceptHeaderValue = '%s', mExpirationDate = %+d",
+                 "\t      SubscriptionServerState %p UtlString = '%s', mResourceId = '%s', mEventTypeKey = '%s', mAcceptHeaderValue = '%s', mExpirationDate = %+d, mDialogVer = %d",
                  this, data(), mResourceId.data(), mEventTypeKey.data(),
                  mAcceptHeaderValue.data(),
-                 (int) (mExpirationDate - OsDateTime::getSecsSinceEpoch()));
+                 (int) (mExpirationDate - OsDateTime::getSecsSinceEpoch()),
+                 mDialogVer);
 }
 
 SubscriptionServerStateIndex::SubscriptionServerStateIndex()
@@ -126,7 +129,7 @@ SubscriptionServerStateIndex::SubscriptionServerStateIndex()
 
 SubscriptionServerStateIndex::~SubscriptionServerStateIndex()
 {
-    // Do not delete mpState, it is freed else where
+    // Do not delete mpState, it is freed elsewhere
 }
 
 // Constructor
@@ -748,6 +751,8 @@ UtlBoolean SipSubscriptionMgr::getNotifyDialogInfo(const UtlString& subscribeDia
     return(notifyInfoSet);
 }
 
+// Construct a NOTIFY request for each subscription/dialog subscribed
+// to the given resourceId and eventTypeKey
 UtlBoolean SipSubscriptionMgr::createNotifiesDialogInfo(const char* resourceId,
                                                         const char* eventTypeKey,
                                                         int& numNotifiesCreated,
@@ -1014,6 +1019,55 @@ void SipSubscriptionMgr::updateVersion(SipMessage& notifyRequest,
                                        int version)
 {
    // Does nothing.
+}
+
+// Update the NOTIFY message content by calling the application's
+// substitution callback function.
+void SipSubscriptionMgr::updateNotifyVersion(SipContentVersionCallback setContentInfo,
+                                             SipMessage& notifyRequest)
+{
+   // Check if content version modification has been registered.
+   if (setContentInfo != NULL)
+   {
+      UtlString dialogHandle;
+      notifyRequest.getDialogHandleReverse(dialogHandle);
+
+      // Initialize version to 0 and found subscription state state to NULL.
+      int tempVer = 0;
+      SubscriptionServerState* state = NULL;
+
+      // Try to find the subscription state for the dialog, otherwise use
+      // the default values.
+      if (!dialogHandle.isNull())
+      {
+         state =
+            dynamic_cast <SubscriptionServerState*>
+            (mSubscriptionStatesByDialogHandle.find(&dialogHandle));
+
+         if (state != NULL)
+         {
+            OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipSubscriptionMgr::updateNotifyVersion dialogHandle = '%s', mDialogVer=%d",
+                          dialogHandle.data(), state->mDialogVer);
+
+            tempVer = state->mDialogVer;
+         }
+         else
+         {
+            OsSysLog::add(FAC_SIP, PRI_ERR, "SipSubscriptionMgr::updateNotifyVersion Unable to find dialog state for handle '%s'",
+                          dialogHandle.data());
+         }
+      }
+
+      // Call the application "string variable replacement" callback routine.
+      if ((*setContentInfo)(notifyRequest, tempVer))
+      {
+         if (state != NULL)
+         {
+            // If we sent the content version number then increment it now.
+            state->mDialogVer++;
+         }
+      }
+   }
 }
 
 // Set the minimum, default, and maximum subscription times that will be granted.

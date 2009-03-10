@@ -37,6 +37,12 @@ class SipMessage;
 
 // TYPEDEFS
 
+// Type of the callback from the SIP Subscribe Server to the application
+// to replace variable content placeholders in the NOTIFY request.
+typedef UtlBoolean (*SipContentVersionCallback)
+    (SipMessage& notifyRequest, 
+     int version);
+
 
 //! Top level class for accepting and processing SUBSCRIBE requests
 /*! This implements a generic RFC 3265 SUBSCRIBE server also
@@ -63,7 +69,8 @@ class SipMessage;
  *  which contains the event state content for the event type.  The
  *  SipSubscribeServer provides the content for specific resource 
  *  contained in the SipPublishContentMgr to subscribers.  The SipPublishContentMgr
- *  notifies the SipSubscribeServer (via callback) of content changes made 
+ *  notifies the SipSubscribeServer (via callback to
+ *  SipSubscribeServer::contentChangeCallback) of content changes made
  *  by the application.
  *
  *  \par
@@ -94,7 +101,8 @@ class SipMessage;
  *  for the event type, which are processed by the handleMessage method.
  *  Applications that publish event state use the SipPublishContentMgr
  *  to update resource specific or default event states.  The SipSubscribeServer
- *  is notified by the SipPublishContentMgr (via callback) that the
+ *  is notified by the SipPublishContentMgr (via callback to
+ *  SipSubscribeServer::contentChangeCallback) that the
  *  content has changed and sends a NOTIFY to those subscribed to the
  *  resourceId for the event type key.  The SipSubscribeServer uses
  *  timers to keep track of when event subscriptions expire.  When a timer
@@ -119,7 +127,6 @@ public:
                        SipSubscriptionMgr& defaultSubscriptionMgr,
                        SipSubscribeServerEventHandler& defaultPlugin);
 
-
     //! Destructor
     virtual
     ~SipSubscribeServer();
@@ -139,17 +146,36 @@ public:
                                       const char* eventTypeKey,
                                       const char* eventType);
 
-    //! Send a NOTIFY to all subscribers to resource and event state
+    //! Send a NOTIFY to all subscribers to the given resourceId and eventTypeKey.
     UtlBoolean notifySubscribers(const char* resourceId, 
                                  const char* eventTypeKey,
                                  const char* eventType);
 
-    //! Tell subscribe server to support given event type
+    /// Tell subscribe server to support a given event type
+    /** \param eventType - event type
+     *  The following 4 parameters default to the corresponding values
+     *  in the SipSubscribeServer constructor:
+     *  \param userAgent - SipUserAgent for message input/output
+     *  \param contentMgr - SipPublishContentMgr to hold published events
+     *  \param eventPlugin - SipSubscribeServerEventHandler to provide various
+     *         event-type-related services, especially determining from the
+     *         SUBSCRIBE what content should be provided
+     *  \param subscriptionMgr - SipSubscriptionMgr to manage the subscription
+     *         dialogs
+     *  \param dialogVersion - SipContentVersionCallback to provide postprocessing
+     *         of published content before it is sent in NOTIFYs
+     *  \param onlyFullState - if FALSE, NOTIFYs sent due to content changes
+     *         will contain 'partial' content (NOTIFYs sent due to SUBSCRIBEs
+     *         will contain 'full' content.)
+     *         if TRUE, only full-state content will be sent in NOTIFYs
+     */
     UtlBoolean enableEventType(const char* eventType,
                                SipUserAgent* userAgent = NULL,
                                SipPublishContentMgr* contentMgr = NULL,
                                SipSubscribeServerEventHandler* eventPlugin = NULL,
-                               SipSubscriptionMgr* subscriptionMgr = NULL);
+                               SipSubscriptionMgr* subscriptionMgr = NULL,
+                               SipContentVersionCallback dialogVersion = NULL,
+                               UtlBoolean onlyFullState = TRUE);
 
     //! Tell subscribe server to stop supporting given event type
     UtlBoolean disableEventType(const char* eventType,
@@ -161,7 +187,7 @@ public:
     //! Handler for SUBSCRIBE requests, NOTIFY responses and timers
     UtlBoolean handleMessage(OsMsg &eventMessage);
     
-    //! Sets the contact header for a sip message (request or response)
+    //! Sets the Contact header for a SIP message (request or response)
     void setContact(SipMessage* message);
 
 /* ============================ ACCESSORS ================================= */

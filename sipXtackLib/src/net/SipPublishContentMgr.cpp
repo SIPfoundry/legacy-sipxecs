@@ -134,6 +134,7 @@ SipPublishContentMgr::~SipPublishContentMgr()
 {
    // Delete the stored information.
    mContentEntries.destroyAll();
+   mPartialContentEntries.destroyAll();
    mDefaultContentEntries.destroyAll();
    mDefaultContentConstructors.destroyAll();
    mEventContentCallbacks.destroyAll();
@@ -157,7 +158,8 @@ void SipPublishContentMgr::publish(const char* resourceId,
                                    int numContentTypes,
                                    HttpBody* eventContent[],
                                    const int eventVersion[],
-                                   UtlBoolean noNotify)
+                                   UtlBoolean noNotify,
+                                   UtlBoolean fullState)
 {
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "SipPublishContentMgr::publish resourceId '%s', eventTypeKey '%s', eventType '%s', numContentTypes %d, noNotify %d",
@@ -180,11 +182,30 @@ void SipPublishContentMgr::publish(const char* resourceId,
 
     lock();
 
+    // Determine the type of storage we will be using
+    UtlHashBag* pContent;
+    if (resourceIdProvided)
+    {
+       if (fullState)
+       {
+          // Full dialog events
+          pContent = &mContentEntries;
+       }
+       else
+       {
+          // Partial dialog events
+          pContent = &mPartialContentEntries;
+       }
+    }
+    else
+    {
+       // Default dialog events
+       pContent = &mDefaultContentEntries;
+    }
+
     // Look up the key in the specific or default entries, as appropriate.
     PublishContentContainer* container =
-       dynamic_cast <PublishContentContainer*> ((resourceIdProvided ?
-                                                 mContentEntries :
-                                                 mDefaultContentEntries).find(&key));
+       dynamic_cast <PublishContentContainer*> (pContent->find(&key));
 
     // If not found, create a container.
     if(container == NULL)
@@ -192,17 +213,15 @@ void SipPublishContentMgr::publish(const char* resourceId,
         container = new PublishContentContainer();
         *((UtlString*) container) = key;
 	// Save the container in the appropriate hash.
-        (resourceIdProvided ?
-	 mContentEntries :
-	 mDefaultContentEntries).insert(container);
+        pContent->insert(container);
     }
 
     // The content for this event type already existed
     else
     {
         // Remove the old content
-	container->mEventContent.destroyAll();
-	container->mEventVersion.destroyAll();
+        container->mEventContent.destroyAll();
+        container->mEventVersion.destroyAll();
     }
 
     // Add the new content
@@ -313,24 +332,36 @@ void SipPublishContentMgr::unpublish(const char* resourceId,
     lock();
 
     // Look up the key in the specific or default entries, as appropriate.
-    PublishContentContainer* container =
-            dynamic_cast <PublishContentContainer*> ((resourceIdProvided ?
-                                                      mContentEntries :
-                                                      mDefaultContentEntries).find(&key));
-
-    // If a container was found, delete it and its contents.
-    if (container)
+    PublishContentContainer* container;
+    if (resourceIdProvided)
     {
-	container->mEventContent.destroyAll();
-	container->mEventVersion.destroyAll();
-        (resourceIdProvided ?
-         mContentEntries :
-         mDefaultContentEntries).destroy(container);
+       container = dynamic_cast <PublishContentContainer*>(mContentEntries.find(&key));
+       if (container)
+       {
+           container->mEventContent.destroyAll();
+           container->mEventVersion.destroyAll();
+           mContentEntries.destroy(container);
+       }
+
+       container = dynamic_cast <PublishContentContainer*>(mPartialContentEntries.find(&key));
+       if (container)
+       {
+           container->mEventContent.destroyAll();
+           container->mEventVersion.destroyAll();
+           mPartialContentEntries.destroy(container);
+       }
     }
-
-    // Remove any default constructor.
-    if (!resourceIdProvided)
+    else
     {
+       container = dynamic_cast <PublishContentContainer*>(mDefaultContentEntries.find(&key));
+       if (container)
+       {
+           container->mEventContent.destroyAll();
+           container->mEventVersion.destroyAll();
+           mDefaultContentEntries.destroy(container);
+       }
+
+       // Remove any default constructor.
        mDefaultContentConstructors.destroy(&key);
     }
 
@@ -462,7 +493,8 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
                                             const char* acceptHeaderValue,
                                             HttpBody*& content,
                                             int& version,
-                                            UtlBoolean& isDefaultContent)
+                                            UtlBoolean& isDefaultContent,
+                                            UtlBoolean fullState)
 {
     UtlBoolean foundContent = FALSE;
     UtlString key(resourceId);
@@ -478,9 +510,22 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
        buildContentTypesContainer(acceptHeaderValue, contentTypes);
 
     lock();
+
+    UtlHashBag* pContent;
+    if (fullState)
+    {
+       // Full content (this is the usual case)
+       pContent = &mContentEntries;
+    }
+    else
+    {
+       // Partial content (used for partial dialog events)
+       pContent = &mPartialContentEntries;
+    }
+
     // See if resource-specific content exists
     container = 
-        dynamic_cast <PublishContentContainer*> (mContentEntries.find(&key));
+        dynamic_cast <PublishContentContainer*> (pContent->find(&key));
 
     // There is no resource-specific content.  Check if the default
     // constructor exists.
@@ -503,7 +548,7 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
 
        // See if resource specific content exists now.
        container = 
-          dynamic_cast <PublishContentContainer*> (mContentEntries.find(&key));
+          dynamic_cast <PublishContentContainer*> (pContent->find(&key));
         
        // If content was found, still mark it as default content.
        if (container)

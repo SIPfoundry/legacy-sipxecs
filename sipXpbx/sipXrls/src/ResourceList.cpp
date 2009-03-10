@@ -70,20 +70,13 @@ ResourceList::ResourceList(ResourceListSet* resourceListSet,
    mResourceListUri = mResourceListName;
    mResourceListUriCons = mResourceListNameCons;
 
-   // Initialize mVersion by looking up the next allowed version
-   // that is recorded in any subscription for mResourceListUri.
-   mVersion =
-      getResourceListServer()->getSubscriptionMgr().
-      getNextAllowedVersion(mResourceListUri);
-
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
-                 "ResourceList::_ this = %p, mUserPart = '%s', mResourceListName = '%s', mResourceListUri = '%s', mUserPartCons = '%s', mResourceListNameCons = '%s', mResourceListUriCons = '%s', mVersion = %d",
+                 "ResourceList::_ this = %p, mUserPart = '%s', mResourceListName = '%s', mResourceListUri = '%s', mUserPartCons = '%s', mResourceListNameCons = '%s', mResourceListUriCons = '%s'",
                  this,
                  mUserPart.data(),
                  mResourceListName.data(), mResourceListUri.data(),
                  mUserPartCons.data(),
-                 mResourceListNameCons.data(), mResourceListUriCons.data(),
-                 mVersion);
+                 mResourceListNameCons.data(), mResourceListUriCons.data());
 
    // Publish the new list.
    setToBePublished();
@@ -96,7 +89,8 @@ ResourceList::~ResourceList()
                  "ResourceList::~ mUserPart = '%s'",
                  mUserPart.data());
 
-   mResources.destroyAll();
+   mResourcesList.destroyAll();
+   mChangesList.destroyAll();
    // Do not need to publish, as deletion of the resource instances
    // has triggered publishing.
 }
@@ -111,7 +105,7 @@ void ResourceList::refreshAllResources()
                  mUserPart.data());
 
    // Iterate through the resources.
-   UtlSListIterator resourcesItor(mResources);
+   UtlSListIterator resourcesItor(mResourcesList);
    ResourceReference* resource;
    while ((resource = dynamic_cast <ResourceReference*> (resourcesItor())))
    {
@@ -131,7 +125,8 @@ void ResourceList::deleteAllResources()
                  "ResourceList::deleteAllResources mUserPart = '%s'",
                  mUserPart.data());
 
-   mResources.destroyAll();
+   mResourcesList.destroyAll();
+   mChangesList.destroyAll();
 }
 
 // Create and add a resource to the resource list.
@@ -143,15 +138,25 @@ void ResourceList::addResource(const char* uri,
                  "ResourceList::addResource mUserPart = '%s', uri = '%s', nameXml = '%s', display_name = '%s'",
                  mUserPart.data(), uri, nameXml, display_name);
 
-   mResources.append(new ResourceReference(this, uri, nameXml, display_name));
+   mResourcesList.append(new ResourceReference(this, uri, nameXml, display_name));
 }
 
 // Declare that the contents have changed and need to be published.
-void ResourceList::setToBePublished()
+void ResourceList::setToBePublished(const UtlString* chgUri)
 {
-    OsSysLog::add(FAC_RLS, PRI_DEBUG,
-                  "ResourceList::setToBePublished mUserPart = '%s'",
-                  mUserPart.data());
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceList::setToBePublished chgUri = '%s', mUserPart = '%s'",
+                 chgUri ? chgUri->data() : "[null]",
+                 mUserPart.data());
+
+   // Add this resource URI to mChangesList (if it is not already).
+   if (chgUri != NULL && !chgUri->isNull())
+   {
+      if (!mChangesList.find(chgUri))
+      {
+         mChangesList.append(new UtlString(*chgUri));
+      }
+   }
 
    mChangesToPublish = TRUE;
 }
@@ -186,25 +191,14 @@ void ResourceList::publish()
    // Do the publishing if it's not suppressed.
    if (!publishingSuspended)
    {
-      // Generate the notice body.
-      HttpBody* body = generateBody(FALSE);
-      // Publish the notice.
-      getResourceListServer()->getEventPublisher().
-         publish(mResourceListUri.data(),
-                 getResourceListServer()->getEventType(),
-                 getResourceListServer()->getEventType(),
-                 1, &body, &mVersion);
-      // Increment the version number for events..
-      mVersion++;
+      // Generate and publish the RFC 4662 ("full") notice body.
+      genAndPublish(FALSE, mResourceListUri);
 
-      // Generate the consolidated notice body.
-      body = generateBody(TRUE);
-      // Publish the notice.
-      getResourceListServer()->getEventPublisher().
-         publish(mResourceListUriCons.data(),
-                 getResourceListServer()->getEventType(),
-                 getResourceListServer()->getEventType(),
-                 1, &body, &mVersion);
+      // Generate and publish the consolidated notice body.
+      genAndPublish(TRUE, mResourceListUriCons);
+
+      // Flush the list of partial updates.
+      mChangesList.destroyAll();
    }
 }
 
@@ -215,8 +209,34 @@ void ResourceList::publish()
 /* ============================ INQUIRY =================================== */
 
 //! Generate the HttpBody for the current state of the resource list.
-HttpBody* ResourceList::generateBody(UtlBoolean consolidated) const
+HttpBody* ResourceList::generateRlmiBody(UtlBoolean consolidated, 
+                                         UtlBoolean fullRlmi,
+                                         UtlSList& listToSend)
 {
+   if (OsSysLog::willLog(FAC_RLS, PRI_DEBUG))
+   {
+      UtlString l;
+
+      UtlSListIterator resourcesItor(listToSend);
+      ResourceReference* resource;
+      while ((resource = dynamic_cast <ResourceReference*> (resourcesItor())))
+      {
+         l.append(*resource->getUri());
+         l.append(",");
+      }
+      if (!l.isNull())
+      {
+         l.remove(l.length() - 1);
+      }
+       
+      OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                    "ResourceList::generateRlmiBody cons=%d URI='%s' full=%d listToSend='%s'",
+                    consolidated, 
+                    (consolidated ? mResourceListNameCons.data() : mResourceListName.data()), 
+                    fullRlmi,
+                    l.data());
+   }
+
    // Construct the multipart body.
    // We add the <...> here, as they are used in all the contexts where
    // rlmiBodyPartCid appears.
@@ -241,14 +261,23 @@ HttpBody* ResourceList::generateBody(UtlBoolean consolidated) const
    rlmi += "<list xmlns=\"" RLMI_XMLNS "\" uri=\"";
    XmlEscape(rlmi,
              consolidated ? mResourceListNameCons : mResourceListName);
-   rlmi += "\" version=\"";
-   rlmi.appendNumber(mVersion);
-   rlmi += "\" fullState=\"true\">\r\n";
+   // Placeholder for version from SIP stack.
+   rlmi += "\" version=\"&version;\" ";
+
+   // Generate either the full or the partial RLMI.
+   if (fullRlmi)
+   {
+      rlmi += "fullState=\"true\">\r\n";
+   }
+   else
+   {
+      rlmi += "fullState=\"false\">\r\n";
+   }
 
    // If we implemented names for resource lists, <name> elements would go here.
 
    // Iterate through the resources.
-   UtlSListIterator resourcesItor(mResources);
+   UtlSListIterator resourcesItor(listToSend);
    ResourceReference* resource;
    while ((resource = dynamic_cast <ResourceReference*> (resourcesItor())))
    {
@@ -282,13 +311,13 @@ void ResourceList::dumpState()
    OsSysLog::add(FAC_RLS, PRI_INFO,
                  "\t    ResourceList %p mUserPart='%s', mResourceListName = '%s', "
                  "mResourceListUri = '%s', mResourceListNameCons = '%s', "
-                 "mResourceListUriCons = '%s', mVersion = %d, mChangesToPublish = %d",
+                 "mResourceListUriCons = '%s', mChangesToPublish = %d",
                  this, mUserPart.data(), mResourceListName.data(),
                  mResourceListUri.data(), mResourceListNameCons.data(),
-                 mResourceListUriCons.data(), mVersion,
+                 mResourceListUriCons.data(),
                  mChangesToPublish);
 
-   UtlSListIterator i(mResources);
+   UtlSListIterator i(mResourcesList);
    ResourceReference* resource;
    while ((resource = dynamic_cast <ResourceReference*> (i())))
    {
@@ -307,6 +336,86 @@ UtlContainableType ResourceList::getContainableType() const
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
+
+// Generate the partial RLMI list.
+// Generate list of ResourceReference's corresponding to the URIs in mResourcesList.
+// Returns true if partialList is non-empty.
+UtlBoolean ResourceList::genPartialList(UtlSList& partialList)
+{
+   UtlSListIterator resourcesItor(mResourcesList);
+   ResourceReference* resource;
+   UtlBoolean any_found = FALSE;
+
+   // Check the resource list for changed items.
+   while ((resource = dynamic_cast <ResourceReference*> (resourcesItor())))
+   {
+      UtlSListIterator changesItor(mChangesList);
+      UtlString* changedRsrc;
+      UtlBoolean found = FALSE;
+
+      while ((changedRsrc = dynamic_cast <UtlString*> (changesItor())))
+      {
+         // Send a partial RLMI (only for resources that changed).
+         if (strcmp(resource->getUri()->data(), changedRsrc->data()) == 0)
+         {
+            found = TRUE;
+            any_found = TRUE;
+         }
+      }
+
+      if (found)
+      {
+         partialList.append(resource);
+      }
+   }
+
+   return any_found;
+}
+
+// Generate and publish the full and partial RLMI for the specified URI
+// (full/consolidated) of a resource list.
+// Both the Full and the Partial RLMI are sent to the SIP Subscribe Server.
+// The  Partial RLMI will then be sent out right away and the Full RLMI 
+// will be stored in the Subscribe Server to be sent on any initial
+// SUBSCRIBEs and re-SUBSCRIBEs.
+void ResourceList::genAndPublish(UtlBoolean consolidated, UtlString resourceListUri)
+{
+   const UtlBoolean RLMI_FULL = TRUE;
+   const UtlBoolean RLMI_PARTIAL = FALSE;
+   HttpBody* body;
+   UtlSList partialList;
+
+   // Generate and publish the fullState=TRUE notice body.
+   body = generateRlmiBody(consolidated, RLMI_FULL, mResourcesList);
+   getResourceListServer()->getEventPublisher(). 
+      publish(resourceListUri.data(), 
+              getResourceListServer()->getEventType(), 
+              getResourceListServer()->getEventType(), 
+              1, &body, &mVersion,
+              // Suppress generating notifications for this call of
+              // SipPublishContentMgr::publish, because the call below
+              // will generate notifications for the same subscribed-to
+              // URIs.
+              TRUE,             
+              RLMI_FULL);
+
+   // Generate and publish the fullState=FALSE notice body.
+   // If there are no URIs in mChangesList, then there have been no changes
+   // and publish() does not need to be called to trigger notifications.
+   if (genPartialList(partialList))
+   {
+      body = generateRlmiBody(consolidated, RLMI_PARTIAL, partialList);
+      getResourceListServer()->getEventPublisher(). 
+         publish(resourceListUri.data(), 
+                 getResourceListServer()->getEventType(), 
+                 getResourceListServer()->getEventType(), 
+                 1, &body, &mVersion,
+                 // This call to SipPublishContentMgr::publish triggers
+                 // notification.
+                 FALSE,
+                 RLMI_PARTIAL);
+   }
+}
 
 
 /* ============================ FUNCTIONS ================================= */

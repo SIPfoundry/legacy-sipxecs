@@ -70,7 +70,11 @@ class ResourceList : public UtlContainableAtomic
 
    //! Declare that the contents have changed and need to be published.
    //  Does not start the publishing timer.
-   void setToBePublished();
+   void setToBePublished(/** The URI of a contained resource that has been
+                          *  changed and should be published in any partial
+                          *  RLMI.
+                          */
+                         const UtlString* chgUri = NULL);
 
    //! Publish the contents if necessary and clear the publishing indicator.
    void publishIfNecessary();
@@ -102,11 +106,25 @@ class ResourceList : public UtlContainableAtomic
 
    //! Generate the HttpBody for the current state of the resource list.
    //  The caller owns the returned HttpBody.
-   HttpBody* generateBody(// True if resource instances are to be consolidated.
-                          UtlBoolean consolidated) const;
+   HttpBody* generateRlmiBody(// True if resource instances are to be consolidated.
+                              UtlBoolean consolidated, 
+                              // True if this is a 'full' update RLMI.
+                              UtlBoolean fullRlmi,
+                              // The list of ResourceReference's to include in the body.
+                              UtlSList& listToSend);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:
+
+   //! Generate the partial RLMI list.
+   // Generate list of ResourceReference's corresponding to the URIs in mResourcesList.
+   // Returns true if partialList is non-empty.
+   UtlBoolean genPartialList(UtlSList& partialList);
+
+   /**! Generate and publish the full and partial RLMI for the specified URI
+    *   (full/consolidated) of the resource list.
+    */
+   void genAndPublish(UtlBoolean consolidated, UtlString resourceListUri);
 
    //! The user-part for the resource list URI for "full" events.
    UtlString mUserPart;
@@ -132,11 +150,15 @@ class ResourceList : public UtlContainableAtomic
    ResourceListSet* mResourceListSet;
 
    //! List of contained ResourceReference's.
-   UtlSList mResources;
+   UtlSList mResourcesList;
 
-   /** True if there has been a change to the ResourceList's content
-    *  that has not yet been published.
+   /** List of strings that are the URIs of contained ResourceReference's
+    *  that have been set to be published but have not yet been published.
     */
+   UtlSList mChangesList;
+
+   //! True if there has been a change to the ResourceList's content
+   //  that has not yet been published.
    UtlBoolean mChangesToPublish;
 
    //! Disabled copy constructor

@@ -35,7 +35,7 @@ class SipPublishContentMgr;
 //! Class for specializing the handling of SIP Events in SipSubscribeServer
 /*! This class provides the default behavior for SIP event packages
  *  handled by SipSubscribeServer.  Event packages which wish to change
- *  or extend the default behavior should derived from this class and
+ *  or extend the default behavior should create a subclass of this class and
  *  override the behavior of methods implemented by this class.
  *
  * \par 
@@ -95,7 +95,9 @@ public:
     virtual UtlBoolean isAuthorized(const SipMessage& subscribeRequest,
                                     SipMessage& subscribeResponse);
 
-    //! Fill in the event specific content for the identified resource and eventTypeKey
+    /**! Fill in the event-specific content for the identified resource
+     *   and eventTypeKey into notifyRequest.
+     */
     /*! The default behavior is to attach the content yielded from 
      *  contentMgr->getContent.
      */
@@ -105,7 +107,8 @@ public:
                                         SipPublishContentMgr& contentMgr,
                                         const char* allowHeaderValue,
                                         SipMessage& notifyRequest,
-                                        int& version);
+                                        int& version,
+                                        UtlBoolean fullState);
 
 /* ============================ ACCESSORS ================================= */
 
@@ -123,7 +126,6 @@ private:
 
     //! Assignment operator NOT ALLOWED
     SipSubscribeServerEventHandler& operator=(const SipSubscribeServerEventHandler& rhs);
-
 
 };
 

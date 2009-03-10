@@ -32,9 +32,12 @@ public:
 
     // Parent UtlString contains the eventType
     SipSubscribeServerEventHandler* mpEventSpecificHandler;
+    // Values from the enableEventType call.
     SipUserAgent* mpEventSpecificUserAgent;
     SipPublishContentMgr* mpEventSpecificContentMgr;
     SipSubscriptionMgr* mpEventSpecificSubscriptionMgr;
+    SipContentVersionCallback mpEventSpecificContentVersionCallback;
+    UtlBoolean mEventSpecificFullState;
 
     //! Dump the object's internal state.
     void dumpState();
@@ -48,7 +51,9 @@ SubscribeServerEventData::SubscribeServerEventData() :
    mpEventSpecificHandler(NULL),
    mpEventSpecificUserAgent(NULL),
    mpEventSpecificContentMgr(NULL),
-   mpEventSpecificSubscriptionMgr(NULL)
+   mpEventSpecificSubscriptionMgr(NULL),
+   mpEventSpecificContentVersionCallback(NULL),
+   mEventSpecificFullState(TRUE)
 {
 }
 
@@ -158,6 +163,7 @@ void SipSubscribeServer::contentChangeCallback(void* applicationData,
                                  eventType);
 }
 
+// Send a NOTIFY to all subscribers to the given resourceId and eventTypeKey.
 UtlBoolean SipSubscribeServer::notifySubscribers(const char* resourceId, 
                                                  const char* eventTypeKey,
                                                  const char* eventType)
@@ -177,14 +183,11 @@ UtlBoolean SipSubscribeServer::notifySubscribers(const char* resourceId,
     // this content.
     if (eventData)
     {
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
-             "SipSubscribeServer::notifySubscribers received the request for sending out the notification for resourceId '%s', event type '%s'",
-              resourceId, eventType);
-              
         int numSubscriptions = 0;
         SipMessage** notifyArray = NULL;
         UtlString** acceptHeaderValuesArray = NULL;
 
+        // Construct a NOTIFY (without body) for each subscription.
         eventData->mpEventSpecificSubscriptionMgr->
            createNotifiesDialogInfo(resourceId,
                                     eventTypeKey,
@@ -197,7 +200,7 @@ UtlBoolean SipSubscribeServer::notifySubscribers(const char* resourceId,
               resourceId, numSubscriptions);
 
         // Set up and send a NOTIFY for each subscription interested in
-        // this resourcesId and eventTypeKey.
+        // this resourceId and eventTypeKey.
         for (int notifyIndex = 0; 
              notifyArray != NULL && 
                 notifyIndex < numSubscriptions && 
@@ -223,14 +226,24 @@ UtlBoolean SipSubscribeServer::notifySubscribers(const char* resourceId,
                                    *(eventData->mpEventSpecificContentMgr),
                                    *(acceptHeaderValuesArray[notifyIndex]),
                                    *notify,
-                                   version);
+                                   version, 
+                                   eventData->mEventSpecificFullState);
 
-               // Update the saved XML version number.
+               // Update the saved record of the NOTIFY CSeq and the
+               // XML version number.
                eventData->mpEventSpecificSubscriptionMgr->
                   updateVersion(*notify, version);
 
+               // Set up the NOTIFY To/From headers.
+               setContact(notify);
+
+               // Call the application callback to edit the NOTIFY
+               // content if that is required for this event type.
+               eventData->mpEventSpecificSubscriptionMgr->
+                  updateNotifyVersion(eventData->mpEventSpecificContentVersionCallback, 
+                                      *notify);
+
                // Send the NOTIFY request
-               setContact(notify) ;
                eventData->mpEventSpecificUserAgent->send(*notify);
             }
         }
@@ -258,7 +271,9 @@ UtlBoolean SipSubscribeServer::enableEventType(const char* eventTypeToken,
                                                SipUserAgent* userAgent,
                                                SipPublishContentMgr* contentMgr,
                                                SipSubscribeServerEventHandler* eventHandler,
-                                               SipSubscriptionMgr* subscriptionMgr)
+                                               SipSubscriptionMgr* subscriptionMgr,
+                                               SipContentVersionCallback contentVersionCallback,
+                                               UtlBoolean onlyFullState)
 {
     UtlBoolean addedEvent = FALSE;
     UtlString eventName(eventTypeToken ? eventTypeToken : "");
@@ -279,6 +294,8 @@ UtlBoolean SipSubscribeServer::enableEventType(const char* eventTypeToken,
            eventHandler ? eventHandler : mpDefaultEventHandler;
         eventData->mpEventSpecificSubscriptionMgr =
            subscriptionMgr ? subscriptionMgr : mpDefaultSubscriptionMgr;
+        eventData->mpEventSpecificContentVersionCallback = contentVersionCallback;
+        eventData->mEventSpecificFullState = onlyFullState;
         mEventDefinitions.insert(eventData);
 
         // Register an interest in SUBSCRIBE requests and NOTIFY responses
@@ -425,10 +442,9 @@ UtlBoolean SipSubscribeServer::handleMessage(OsMsg &eventMessage)
     return(TRUE);
 }
 
-
 void SipSubscribeServer::setContact(SipMessage* message)
 {
-    // Pull out the from userId and make sure that is used
+    // Pull out the From userId and make sure that is used
     // in the contact -- otherwise, re-subscribes may request
     // a different resource (e.g. ~~park~id instead of the
     // the park orbit).
@@ -634,22 +650,38 @@ UtlBoolean SipSubscribeServer::handleSubscribe(const SipMessage& subscribeReques
                     UtlString acceptHeaderValue;
                     int version;
                     subscribeRequest.getAcceptField(acceptHeaderValue);
+                    // Note that since this NOTIFY is due to a SUBSCRIBE,
+                    // it should contain 'full' content.  Hence,
+                    // the fullState parameter of getNotifyContent is TRUE,
+                    // and is not taken from
+                    // eventPackageInfo->mEventSpecificFullState.
                     if (handler->getNotifyContent(resourceId,
                                                   eventTypeKey, 
                                                   eventType, 
                                                   *(eventPackageInfo->mpEventSpecificContentMgr),
                                                   acceptHeaderValue,
                                                   notifyRequest,
-                                                  version))
+                                                  version,
+                                                  TRUE))
                     {
                        // Update the saved XML version number, if the content exists to
                        // give us a version number.
                        eventPackageInfo->mpEventSpecificSubscriptionMgr->
                           updateVersion(notifyRequest, version);
+
+                       setContact(&notifyRequest);
+
+                       // Update the NOTIFY content if required for this event type.
+                       eventPackageInfo->mpEventSpecificSubscriptionMgr->
+                          updateNotifyVersion(eventPackageInfo->mpEventSpecificContentVersionCallback, 
+                                              notifyRequest);
+                    }
+                    else
+                    {
+                       setContact(&notifyRequest);
                     }
 
                     // Send the notify request
-                    setContact(&notifyRequest);
                     eventPackageInfo->mpEventSpecificUserAgent->send(notifyRequest);
                  }
             }

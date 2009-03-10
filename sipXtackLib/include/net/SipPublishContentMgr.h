@@ -189,6 +189,12 @@ public:
      *  PUBLISH request (to be sent) or the SUBSCRIBE request (to be
      *  responded to), and the eventTypeKey is the SIP Event header
      *  field.
+     *  Given the resourceId and eventTypeKey, each particular content
+     *  is identified based on the content type of the content (which each
+     *  element of eventContent carries within itself) and the full/partial
+     *  status (which is given by fullState).
+     *  A call to publish() replaces all content types for the given
+     *  value of fullState.
      *  \param resourceId - a unique id for the resource, typically the
      *         identity or AOR for the event type content.  There is no
      *         semantics enforced.  This is an opaque string used as part
@@ -222,6 +228,9 @@ public:
      *  \param noNotify - if TRUE, do not generate any NOTIFYs for this content
      *         change.  This should only be used in generateDefaultContent
      *         methods.
+     *  \param fullState - if TRUE, this content is the full state for
+     *         the event.  If FALSE, it is "partial state", the incremental
+     *         changes since the previously published content.
      */
     virtual void publish(const char* resourceId,
                          const char* eventTypeKey,
@@ -229,11 +238,12 @@ public:
                          int numContentTypes,
                          HttpBody* eventContent[],
                          const int eventVersion[],
-                         UtlBoolean noNotify = FALSE);
+                         UtlBoolean noNotify = FALSE,
+                         UtlBoolean fullState = TRUE);
 
     /** Remove the content for the given resourceId and eventTypeKey
-     *  The content bodies are given back so that the application can
-     *  release or delete the bodies.
+     *  The content bodies are deleted.
+     *  Note that both the 'partial' and 'full' contents are deleted.
      *  \param resourceId - a unique id for the resource, typically the
      *         identity or AOR for the event type content.  There is no
      *         semantics enforced.  This is an opaque string used as part
@@ -308,6 +318,8 @@ public:
      *         and default content was provided for the given eventTypeKey,
      *         then isDefaultContent is set to TRUE and 'content' contains
      *         values from the eventTypeKey content default.
+     *  \param fullState - if TRUE, search for full-state content.
+     *         If FALSE, search for partial-state content.
      */
     virtual UtlBoolean getContent(const char* resourceId,
                                   const char* eventTypeKey,
@@ -315,14 +327,15 @@ public:
                                   const char* acceptHeaderValue,
                                   HttpBody*& content,
                                   int& version,
-                                  UtlBoolean& isDefaultContent);
+                                  UtlBoolean& isDefaultContent,
+                                  UtlBoolean fullState = TRUE);
 
     /** Set the callback which gets invoked whenever the content changes
-     *  Currently only one observer is allowed per eventTypeKey.  If
-     *  a subsequent observer is set for the same eventTypeKey, it replaces
-     *  the existing one.  The arguments of the callback function have
-     *  the same meaning as getContent.
-     *  Note: the callback is invoked when the default content changes as well.
+     *  Currently only one observer is allowed per eventTypeKey. Subsequent
+     *  calls to SetContentChangeObserver fail.
+     *  The arguments of the callback function have the same meaning as
+     *  the corresponding arguments of getContent.
+     *  Note: The callback is not invoked when the default content changes.
      *  When the default content for an eventTypeKey changes, the
      *  resourceId is NULL.  The application is responsible for knowing
      *  which resources do not have specific content (i.e. are observing
@@ -383,10 +396,12 @@ private:
 
     OsMutex mPublishMgrMutex;
 
-    // The following two hash-bags contain PublishContentContainer's
+    // The following three hash-bags contain PublishContentContainer's
     // which index as strings:
     // Index as strings "resourceId\001eventTypeKey".
     UtlHashBag mContentEntries; 
+    // Index as strings "resourceId\001eventTypeKey".
+    UtlHashBag mPartialContentEntries; 
     // Index as strings "\001eventTypeKey".
     UtlHashBag mDefaultContentEntries;
 

@@ -157,7 +157,8 @@ void ResourceCached::terminateSubscriptions()
 }
 
 // Declare that the contents have changed and need to be published.
-void ResourceCached::setToBePublished(UtlBoolean publishNow)
+void ResourceCached::setToBePublished(UtlBoolean publishNow,
+                                      const UtlString* chgUri)
 {
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
                  "ResourceCached::setToBePublished URI = '%s'",
@@ -169,7 +170,7 @@ void ResourceCached::setToBePublished(UtlBoolean publishNow)
    ResourceReference* reference;
    while ((reference = dynamic_cast <ResourceReference*> (itor())))
    {
-      reference->getResourceList()->setToBePublished();
+      reference->getResourceList()->setToBePublished(chgUri);
    }
 
    // If publishing is suppressed, do nothing further.

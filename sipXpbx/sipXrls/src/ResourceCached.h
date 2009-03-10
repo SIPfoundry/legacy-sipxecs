@@ -99,7 +99,12 @@ class ResourceCached : public UtlString
    //! Declare that the contents have changed and need to be published.
    //  Start the publishing timer, if publishing has not been suppressed.
    void setToBePublished(/// If true, publish now rather than starting the timer.
-                         UtlBoolean publishNow = FALSE);
+                         UtlBoolean publishNow = FALSE,
+                         /** The URI of the contained resource that has been
+                          *  changed and should be published in any partial
+                          *  RLMI.
+                          */
+                         const UtlString* chgUri = NULL);
 
    //! Add to the HttpBody the current state of the resource.
    void generateBody(/// the RLMI XML to be appended to

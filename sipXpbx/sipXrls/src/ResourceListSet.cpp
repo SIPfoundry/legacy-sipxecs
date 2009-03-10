@@ -425,6 +425,49 @@ void ResourceListSet::notifyEventCallbackSync(const UtlString* dialogHandle,
    }
 }
 
+// Static callback routine used to find and replace variable string values.
+// For example the NOTIFY message in the SIP stack contains "&version;" rather 
+// than an actual version number [like "22"].
+// The RLS provides the "context independent" part of the RLMI message, and
+// the SIP stack keeps knowledge of the version number sequence for each
+// subscription.  This callback combines these sources of information.
+// Note that this routine is running on the SIP stack thread so it
+// can't access any RLS variables, etc.
+UtlBoolean ResourceListSet::contentVersionCallback(SipMessage& notifyRequest,
+                                                   int version)
+{
+   // Search and replace the version number in the Notify.
+   UtlBoolean result = FALSE;
+
+   if (notifyRequest.getBody() != NULL)
+   {
+      UtlString msgBytes;
+      ssize_t msgLength;
+      // Extract the NOTIFY body as a UtlString.
+      notifyRequest.getBody()->getBytes(&msgBytes, &msgLength);
+
+      // Look for the placeholder for the version number, "&version;".
+      #define PLACEHOLDER "&version;"
+      ssize_t msgIndex = msgBytes.index(PLACEHOLDER);
+      if (msgIndex != UTL_NOT_FOUND)
+      {
+         char buffer[20];
+         sprintf(buffer, "%d", version);
+         msgBytes.replace(msgIndex, sizeof (PLACEHOLDER) - 1, buffer);
+
+         HttpBody* tempBody =
+            new HttpBody(msgBytes.data(), msgBytes.length(), RLMI_CONTENT_TYPE);
+
+         // Write the new message contents (this deletes the old body)
+         notifyRequest.setBody(tempBody);
+         result = TRUE;
+      }
+   }
+
+   return result;
+}
+
+
 /** Add a mapping for an early dialog handle to its handler for
  *  subscription events.
  */

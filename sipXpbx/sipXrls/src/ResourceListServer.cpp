@@ -214,7 +214,9 @@ void ResourceListServer::start()
    // Start the SIP Subscribe Server after the ResourceListFileReader is
    // done loading the configuration.  This ensures that early subscribers
    // do not get NOTIFYs with incomplete information.
-   mSubscribeServer.enableEventType(mEventType);
+   mSubscribeServer.enableEventType(mEventType, NULL, NULL, NULL, NULL, 
+                                    &ResourceListSet::contentVersionCallback,
+                                    FALSE);
    mSubscribeServer.start();
 
    // Install a listener for MESSAGE requests into the server which queues

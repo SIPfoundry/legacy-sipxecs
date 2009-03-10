@@ -537,8 +537,8 @@ void SipPersistentSubscriptionMgr::setNextNotifyCSeq(
    assert(FALSE);
 }
 
-// Update the IMDB with the NOTIFY cseq now in notifyRequest and the
-// specified version.
+// Update the IMDB with the NOTIFY CSeq now in notifyRequest and the
+// specified 'version'.
 void SipPersistentSubscriptionMgr::updateVersion(SipMessage& notifyRequest,
                                                  int version)
 {

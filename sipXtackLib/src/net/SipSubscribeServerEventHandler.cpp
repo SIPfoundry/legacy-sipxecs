@@ -123,7 +123,8 @@ UtlBoolean SipSubscribeServerEventHandler::getNotifyContent(const UtlString& res
                                                             SipPublishContentMgr& contentMgr,
                                                             const char* acceptHeaderValue,
                                                             SipMessage& notifyRequest,
-                                                            int& version)
+                                                            int& version,
+                                                            UtlBoolean fullState)
 {
     UtlBoolean gotBody = FALSE;
     // Default behavior is to just go get the content from
@@ -136,7 +137,8 @@ UtlBoolean SipSubscribeServerEventHandler::getNotifyContent(const UtlString& res
                                     acceptHeaderValue,
                                     messageBody,
                                     version,
-                                    isDefaultEventContent);
+                                    isDefaultEventContent,
+                                    fullState);
 
     // The body will be freed with the NOTIFY message.
     if(messageBody)

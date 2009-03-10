@@ -262,7 +262,7 @@ void ResourceInstance::notifyEventCallback(const UtlString* dialogHandle,
    }
 
    // Get the change published
-   getResourceCached()->setToBePublished();
+   getResourceCached()->setToBePublished(FALSE, getResourceCached()->getUri());
 }
 
 // Process a termination of the subscription of this ResourceInstance.

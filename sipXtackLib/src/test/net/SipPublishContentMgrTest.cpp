@@ -416,7 +416,8 @@ public:
                                                       publisher,
                                                       "text/xml",
                                                       notifyRequest,
-                                                      version));
+                                                      version,
+                                                      TRUE));
          const char* notifyBodyBytes = NULL;
          ssize_t notifyBodySize = 0;
          const HttpBody* notifyBody = notifyRequest.getBody();

@@ -21,6 +21,7 @@
 #include <utl/UtlHashBag.h>
 #include <net/SipDialogMgr.h>
 #include <net/SipSubscribeServerEventHandler.h>
+#include <net/SipSubscribeServer.h>
 
 // DEFINES
 // MACROS
@@ -147,11 +148,20 @@ public:
                                    int nextLocalCseq,
                                    int version);
 
-   /** Update the saved value of the NOTIFY CSeq (now in notifyRequest) and
-    *  the XML version (as specified).
+   /** Update the values that are saved in the IMDB of the NOTIFY CSeq
+    *  (now in notifyRequest) and XML version (as specified by 'version').
     */
    virtual void updateVersion(SipMessage& notifyRequest,
                               int version);
+
+   /// Perform substitutions in NOTIFY message content.
+   /*  This routine retrieves the current content version number for the dialog
+    *  of notifyRequest.  It then calls the application's substitution callback
+    *  function (setContentInfo), which replaces the version number in the dialog message.
+    *  On a successful replacement, it then increments the dialog version number.
+    */
+   virtual void updateNotifyVersion(SipContentVersionCallback setContentInfo,
+                                    SipMessage& notifyRequest);
 
     //! Set the minimum, default, and maximum subscription times that will be granted.
     UtlBoolean setSubscriptionTimes(int minExpiration,
