@@ -25,11 +25,10 @@ import org.apache.commons.digester.SetNestedPropertiesRule;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.common.InitTaskListener;
 import org.xml.sax.SAXException;
 
-public class LocationsMigrationTrigger extends InitTaskListener {
-    private static final Log LOG = LogFactory.getLog(LocationsMigrationTrigger.class);
+public class LocationInitializationHandler {
+    private static final Log LOG = LogFactory.getLog(LocationInitializationHandler.class);
 
     private LocationsManager m_locationsManager;
     private String m_hostname;
@@ -39,8 +38,7 @@ public class LocationsMigrationTrigger extends InitTaskListener {
 
     private String m_domainConfigurationFilename;
 
-    @Override
-    public void onInitTask(String task) {
+    public void initializeLocations() {
         Location[] existingLocations = m_locationsManager.getLocations();
         if (existingLocations.length > 0) {
             // only do migration if there aren't already locations stored in database
@@ -56,9 +54,6 @@ public class LocationsMigrationTrigger extends InitTaskListener {
             // save locations in DB
             for (Location location : locations) {
                 location.setRegistered(true);
-                if (location.isPrimary()) {
-                    location.setAddress(getAddressForPrimary(location.getFqdn()));
-                }
                 // save locations in DB without publishing events
                 m_locationsManager.saveMigratedLocation(location);
             }
@@ -68,12 +63,13 @@ public class LocationsMigrationTrigger extends InitTaskListener {
             primaryLocation.setName("Primary server");
             primaryLocation.setPrimary(true);
             primaryLocation.setRegistered(true);
-            String primaryLocationFqdn = getFqdnForPrimaryLocation();
-            primaryLocation.setFqdn(primaryLocationFqdn);
-            primaryLocation.setAddress(getAddressForPrimary(primaryLocationFqdn));
+            primaryLocation.setFqdn(getFqdnForPrimaryLocation());
             // save locations in DB without publishing events
             m_locationsManager.saveMigratedLocation(primaryLocation);
         }
+
+        LOG.info("Determining IP address for primary server");
+        parseNetworkInfoForPrimary();
 
         LOG.info("Deleting topology.xml after data migration");
         getTopologyFile().delete();
@@ -117,30 +113,30 @@ public class LocationsMigrationTrigger extends InitTaskListener {
         return null;
     }
 
-    private String getAddressForPrimary(String primaryLocationFqdn) {
+    private void parseNetworkInfoForPrimary() {
         File networkPropertiesFile = new File(m_configDirectory, m_networkPropertiesFilename);
-        String primaryLocationAddress = StringUtils.EMPTY;
+        Location primaryLocation = m_locationsManager.getPrimaryLocation();
         try {
             Properties networkProperties = new Properties();
             InputStream inputStream = new FileInputStream(networkPropertiesFile);
             networkProperties.load(inputStream);
-            primaryLocationAddress = networkProperties.getProperty("IpAddress");
+            primaryLocation.setAddress(networkProperties.getProperty("IpAddress"));
+            m_locationsManager.saveMigratedLocation(primaryLocation);
         } catch (FileNotFoundException fnfe) {
             LOG.warn("Unable to find network properties file " + networkPropertiesFile.getPath(), fnfe);
         } catch (IOException ioe) {
             LOG.warn("Unable to load network properties file " + networkPropertiesFile.getPath(), ioe);
         }
 
-        if (StringUtils.isEmpty(primaryLocationAddress)) {
+        if (StringUtils.isEmpty(primaryLocation.getAddress())) {
             try {
-                InetAddress primaryAddress = InetAddress.getByName(primaryLocationFqdn);
-                primaryLocationAddress = primaryAddress.getHostAddress();
+                InetAddress primaryAddress = InetAddress.getByName(primaryLocation.getFqdn());
+                primaryLocation.setAddress(primaryAddress.getHostAddress());
+                m_locationsManager.saveMigratedLocation(primaryLocation);
             } catch (UnknownHostException uhe) {
-                LOG.warn("Unable to resolve address for " + primaryLocationFqdn);
+                LOG.warn("Unable to resolve address for " + primaryLocation.getFqdn());
             }
         }
-        
-        return primaryLocationAddress;
     }
 
     public void setLocationsManager(LocationsManager locationsManager) {

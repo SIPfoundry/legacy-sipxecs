@@ -25,6 +25,7 @@ import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 
 import static org.easymock.EasyMock.aryEq;
@@ -56,7 +57,7 @@ public class SipxProcessContextImplTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         m_locationsManager = EasyMock.createNiceMock(LocationsManager.class);
-        Location location = new Location();
+        Location location = TestUtil.createDefaultLocation();
         SipxService registrarService = new SipxRegistrarService();
         registrarService.setProcessName("SIPRegistrar");
         registrarService.setBeanName(SipxRegistrarService.BEAN_ID);
@@ -69,12 +70,12 @@ public class SipxProcessContextImplTest extends TestCase {
         EasyMock.expectLastCall().andReturn(new Location[] {
             location
         }).anyTimes();
+        m_locationsManager.getPrimaryLocation();
+        EasyMock.expectLastCall().andReturn(location).anyTimes();
         EasyMock.replay(m_locationsManager);
 
         m_processContextImpl = new SipxProcessContextImpl();
         m_processContextImpl.setLocationsManager(m_locationsManager);
-
-        m_processContextImpl.setHost("localhost");
     }
 
     public void testGetStatus() {
@@ -106,7 +107,7 @@ public class SipxProcessContextImplTest extends TestCase {
         SipxServiceManager serviceManager = getMockSipxServiceManager(false, registrar, media, presence, proxy, acd);
 
         ProcessManagerApi api = createMock(ProcessManagerApi.class);
-        api.getStateAll("localhost");
+        api.getStateAll("sipx.example.org");
         expectLastCall().andReturn(result);
 
         ApiProvider provider = createMock(ApiProvider.class);
@@ -163,7 +164,7 @@ public class SipxProcessContextImplTest extends TestCase {
         SipxServiceManager serviceManager = getMockSipxServiceManager(false, registrar, media, presence, proxy, acd);
 
         ProcessManagerApi api = createMock(ProcessManagerApi.class);
-        api.getStateAll("localhost");
+        api.getStateAll("sipx.example.org");
         expectLastCall().andReturn(result);
 
         ApiProvider provider = createMock(ApiProvider.class);
@@ -254,7 +255,7 @@ public class SipxProcessContextImplTest extends TestCase {
         SipxServiceManager serviceManager = getMockSipxServiceManager(true, registrar, media, presence, proxy, acd);
 
         ProcessManagerApi api = createMock(ProcessManagerApi.class);
-        api.getStateAll("localhost");
+        api.getStateAll("sipx.example.org");
         expectLastCall().andReturn(result);
 
         Location location = m_locationsManager.getLocations()[0];
@@ -286,7 +287,7 @@ public class SipxProcessContextImplTest extends TestCase {
     }
 
     static String host() {
-        return eq("localhost");
+        return eq("sipx.example.org");
     }
 
     static boolean block() {

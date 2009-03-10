@@ -106,8 +106,6 @@
 
   <bean id="sipxProcessContext"
     class="org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContextImpl">
-    <!-- real value injected by sipxconfig.properties -->
-    <property name="host" value="localhost" />
     <property name="locationsManager" ref="locationsManager" />
     <property name="processManagerApiProvider" ref="processManagerApiProvider" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
@@ -121,7 +119,6 @@
   </bean>
 
   <bean id="alarmContextImpl" class="org.sipfoundry.sipxconfig.common.AlarmContextImpl">
-    <property name="host" value="localhost" />
     <property name="alarmApi" ref="alarmApi" />
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="replicationContext" ref="sipxReplicationContext" />
@@ -130,6 +127,7 @@
     <property name="sipxUser" value="${sysdir.user}" />
     <property name="logDirectory" value="${sysdir.log}" />
     <property name="configDirectory" value="${sysdir.etc}" />
+    <property name="locationsManager" ref="locationsManager" />
   </bean>
 
   <bean id="alarmContext" class="org.springframework.aop.framework.ProxyFactoryBean">

@@ -30,20 +30,19 @@ public class RegistrationContextImpl implements RegistrationContext {
 
     private ApiProvider<ImdbApi> m_imdbApiProvider;
 
-    private String m_hostname;
-
     /**
      * @see org.sipfoundry.sipxconfig.admin.commserver.RegistrationContext#getRegistrations()
      */
     public List<RegistrationItem> getRegistrations() {
         try {
-            Location[] location = m_locationsManager.getLocations();
-            if (location.length == 0) {
-                LOG.warn("No locations configured");
+            Location primaryLocation = m_locationsManager.getPrimaryLocation();
+            if (primaryLocation == null) {
+                LOG.warn("No primary location configured");
                 return Collections.<RegistrationItem> emptyList();
             }
-            ImdbApi imdb = m_imdbApiProvider.getApi(location[0].getProcessMonitorUrl());
-            List<Map<String, ? >> registrations = imdb.read(m_hostname, "registration");
+
+            ImdbApi imdb = m_imdbApiProvider.getApi(primaryLocation.getProcessMonitorUrl());
+            List<Map<String, ? >> registrations = imdb.read(primaryLocation.getFqdn(), "registration");
             return getRegistrations(registrations);
         } catch (XmlRpcRemoteException e) {
             // we are handling this separately - server returns FileNotFound even if everything is
@@ -86,9 +85,5 @@ public class RegistrationContextImpl implements RegistrationContext {
 
     public void setImdbApiProvider(ApiProvider<ImdbApi> imdbApiProvider) {
         m_imdbApiProvider = imdbApiProvider;
-    }
-
-    public void setHostname(String hostname) {
-        m_hostname = hostname;
     }
 }

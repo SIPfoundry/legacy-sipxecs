@@ -38,15 +38,9 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
     private static final Log LOG = LogFactory.getLog(SipxProcessContextImpl.class);
 
     private final EventsToServices<SipxService> m_eventsToServices = new EventsToServices<SipxService>();
-    private String m_host;
     private LocationsManager m_locationsManager;
     private ApiProvider<ProcessManagerApi> m_processManagerApiProvider;
     private SipxServiceManager m_sipxServiceManager;
-
-    @Required
-    public void setHost(String host) {
-        m_host = host;
-    }
 
     @Required
     public void setLocationsManager(LocationsManager locationsManager) {
@@ -76,7 +70,7 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
         try {
             // Break the result into the keys and values.
             ProcessManagerApi api = m_processManagerApiProvider.getApi(location.getProcessMonitorUrl());
-            Map<String, String> result = api.getStateAll(m_host);
+            Map<String, String> result = api.getStateAll(getHost());
             return extractStatus(result, location, onlyActiveServices);
         } catch (XmlRpcRemoteException e) {
             throw new UserException("&xml.rpc.error.state", location.getFqdn());
@@ -86,7 +80,7 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
     public List<String> getStatusMessages(Location location, SipxService service) {
         try {
             ProcessManagerApi api = m_processManagerApiProvider.getApi(location.getProcessMonitorUrl());
-            return api.getStatusMessages(m_host, service.getProcessName());
+            return api.getStatusMessages(getHost(), service.getProcessName());
         } catch (XmlRpcRemoteException e) {
             throw new UserException("&xml.rpc.error.status.messages", location.getFqdn());
         }
@@ -157,13 +151,13 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
             ProcessManagerApi api = m_processManagerApiProvider.getApi(location.getProcessMonitorUrl());
             switch (command) {
             case RESTART:
-                api.restart(m_host, processNames, true);
+                api.restart(getHost(), processNames, true);
                 break;
             case START:
-                api.start(m_host, processNames, true);
+                api.start(getHost(), processNames, true);
                 break;
             case STOP:
-                api.stop(m_host, processNames, true);
+                api.stop(getHost(), processNames, true);
                 break;
             default:
                 break;
@@ -240,5 +234,9 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
             }
             return services;
         }
+    }
+    
+    private String getHost() {
+        return m_locationsManager.getPrimaryLocation().getFqdn();
     }
 }

@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.site;
 
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsMigrationTrigger;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManagerImpl;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.springframework.context.ApplicationEvent;
@@ -21,9 +22,11 @@ import org.springframework.context.ApplicationListener;
 public class InitializeTestSystem implements ApplicationListener {
     private ReplicationManagerImpl m_replicationManagerImpl;
     private DomainManager m_domainManager;
+    private LocationsMigrationTrigger m_locationsMigrationTrigger;
 
     public void onApplicationEvent(ApplicationEvent event) {
         m_replicationManagerImpl.setEnabled(false);
+        m_locationsMigrationTrigger.onInitTask("migrate_locations");
         m_domainManager.initializeDomain();
 
     }
@@ -34,5 +37,9 @@ public class InitializeTestSystem implements ApplicationListener {
     
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
+    }
+    
+    public void setLocationsMigrationTrigger(LocationsMigrationTrigger locationsMigrationTrigger) {
+        m_locationsMigrationTrigger = locationsMigrationTrigger;
     }
 }

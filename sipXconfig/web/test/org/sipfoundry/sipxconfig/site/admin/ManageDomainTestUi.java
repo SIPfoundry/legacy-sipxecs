@@ -23,6 +23,7 @@ public class ManageDomainTestUi extends WebTestCase {
     protected void setUp() throws Exception {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
+        clickLink("seedLocationsManager");
         clickLink("link:domain");
     }
     

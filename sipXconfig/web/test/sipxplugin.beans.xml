@@ -9,5 +9,6 @@
   <bean id="initializeTestSystem" class="org.sipfoundry.sipxconfig.site.InitializeTestSystem">
     <property name="domainManager" ref="domainManager" />
     <property name="replicationManagerImpl" ref="replicationManagerImpl" />
+    <property name="locationsMigrationTrigger" ref="locationsMigrationTrigger" />
   </bean>
 </beans>

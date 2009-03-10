@@ -13,6 +13,7 @@
 
   <bean id="domainManagerImpl" class="org.sipfoundry.sipxconfig.domain.DomainManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
+    <property name="locationsManager" ref="locationsManager" />
     <property name="domainConfigFilename">
       <value>${sysdir.etc}/domain-config</value>
     </property>

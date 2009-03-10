@@ -12,12 +12,31 @@ package org.sipfoundry.sipxconfig.domain;
 import org.dbunit.Assertion;
 import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
+import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.domain.DomainManager.DomainNotInitializedException;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class DomainManagerImplTestIntegration extends IntegrationTestCase {
 
     private DomainManager m_out;
+    private DomainManagerImpl m_domainManagerImpl;
+    private LocationsManager m_originalLocationsManager;
+    
+    @Override
+    protected void onSetUpInTransaction() throws Exception {
+        super.onSetUpInTransaction();
+        
+        LocationsManager locationsManager = EasyMock.createMock(LocationsManager.class);
+        Location primaryLocation = TestUtil.createDefaultLocation();
+        locationsManager.getPrimaryLocation();
+        EasyMock.expectLastCall().andReturn(primaryLocation).anyTimes();
+        EasyMock.replay(locationsManager);
+        
+        modifyContext(m_domainManagerImpl, "locationsManager", m_originalLocationsManager, locationsManager);
+    }
 
     public void testGetEmptyDomain() throws Exception {
         try {
@@ -78,5 +97,13 @@ public class DomainManagerImplTestIntegration extends IntegrationTestCase {
 
     public void setDomainManager(DomainManager domainManager) {
         m_out = domainManager;
+    }
+    
+    public void setDomainManagerImpl(DomainManagerImpl domainManagerImpl) {
+        m_domainManagerImpl = domainManagerImpl;
+    }
+    
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_originalLocationsManager = locationsManager;
     }
 }

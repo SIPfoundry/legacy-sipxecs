@@ -32,6 +32,7 @@ import org.sipfoundry.sipxconfig.admin.WaitingListener;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsMigrationTrigger;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendantManager;
@@ -193,6 +194,9 @@ public abstract class TestPage extends BasePage {
     @InjectObject("spring:timeZoneManager")
     public abstract TimeZoneManager getTimeZoneManager();
 
+    @InjectObject(value = "spring:locationsMigrationTrigger")
+    public abstract LocationsMigrationTrigger getLocationsMigrationTrigger();
+
     @InjectObject("spring:autoAttendantManager")
     public abstract AutoAttendantManager getAutoAttendantManager();
 
@@ -260,8 +264,8 @@ public abstract class TestPage extends BasePage {
         resetConferenceBridgeContext();
 
         Location location = getLocationsManager().getPrimaryLocation();
-        SipxFreeswitchService sipxService = (SipxFreeswitchService) getSipxServiceManager().getServiceByBeanId(
-                SipxFreeswitchService.BEAN_ID);
+        SipxFreeswitchService sipxService = (SipxFreeswitchService) getSipxServiceManager()
+                .getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
 
         // Check if we already have a FreeSWITCH service here
         LocationSpecificService service = location.getService(SipxFreeswitchService.BEAN_ID);
@@ -387,7 +391,8 @@ public abstract class TestPage extends BasePage {
         user.setUserName(userName);
         user.setFirstName(firstName);
         user.setLastName(TEST_USER_LASTNAME);
-        user.setAliasesString(userName.equals(TEST_USER_USERNAME) ? TEST_USER_ALIASES : EMPTY_STRING);
+        user.setAliasesString(userName.equals(TEST_USER_USERNAME) ? TEST_USER_ALIASES
+                : EMPTY_STRING);
         user.setPin(TEST_USER_PIN, getCoreContext().getAuthorizationRealm());
         getCoreContext().saveUser(user);
         return user;
@@ -573,7 +578,8 @@ public abstract class TestPage extends BasePage {
         try {
             FileUtils.deleteDirectory(existing);
         } catch (IOException e) {
-            throw new RuntimeException("Could not delete mailstore " + existing.getAbsolutePath(), e);
+            throw new RuntimeException(
+                    "Could not delete mailstore " + existing.getAbsolutePath(), e);
         }
     }
 
@@ -592,16 +598,19 @@ public abstract class TestPage extends BasePage {
 
         Class manageVmTestUiClass;
         try {
-            manageVmTestUiClass = Class.forName("org.sipfoundry.sipxconfig.site.vm.ManageVoicemailTestUi");
+            manageVmTestUiClass = Class
+                    .forName("org.sipfoundry.sipxconfig.site.vm.ManageVoicemailTestUi");
         } catch (ClassNotFoundException e1) {
             throw new RuntimeException("Cannot access ui test directory via test class resource");
         }
-        File original = new File(TestUtil.getTestSourceDirectory(manageVmTestUiClass) + "/mailstore");
+        File original = new File(TestUtil.getTestSourceDirectory(manageVmTestUiClass)
+                + "/mailstore");
         try {
             FileUtils.copyDirectory(original, existing);
         } catch (IOException e) {
-            String msg = String.format("Could not reset sample voicemail store from original '%s' to '%s'", original
-                    .getAbsolutePath(), existing.getAbsolutePath());
+            String msg = String.format(
+                    "Could not reset sample voicemail store from original '%s' to '%s'", original
+                            .getAbsolutePath(), existing.getAbsolutePath());
             throw new RuntimeException(msg);
         }
     }

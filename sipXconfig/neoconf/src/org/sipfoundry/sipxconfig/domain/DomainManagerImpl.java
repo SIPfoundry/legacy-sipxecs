@@ -21,6 +21,7 @@ import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.localization.Localization;
@@ -33,9 +34,9 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
 
     private static final Log LOG = LogFactory.getLog(DomainManagerImpl.class);
 
-    private String m_alarmServerUrl;
-    private String m_configServerHost;
     private String m_domainConfigFilename;
+
+    private LocationsManager m_locationsManager;
 
     protected abstract DomainConfiguration createDomainConfiguration();
 
@@ -72,8 +73,8 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
             throw new DomainNotInitializedException();
         }
         DomainConfiguration domainConfiguration = createDomainConfiguration();
-        domainConfiguration.generate(existingDomain, m_configServerHost,
-                getExistingLocalization().getLanguage(), m_alarmServerUrl);
+        domainConfiguration.generate(existingDomain, getConfigServerHostname(),
+                getExistingLocalization().getLanguage(), getAlarmServerUrl());
         getReplicationContext().replicate(domainConfiguration);
         getReplicationContext().publishEvent(new DomainConfigReplicatedEvent(this));
     }
@@ -139,18 +140,18 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
     }
 
     public String getAlarmServerUrl() {
-        return m_alarmServerUrl;
-    }
-
-    public void setAlarmServerUrl(String alarmServerUrl) {
-        m_alarmServerUrl = alarmServerUrl;
-    }
-
-    public void setConfigServerHost(String configServerHost) {
-        m_configServerHost = configServerHost;
+        return "https://" + getConfigServerHostname() + ":8092";
     }
 
     public void setDomainConfigFilename(String domainConfigFilename) {
         m_domainConfigFilename = domainConfigFilename;
+    }
+    
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
+    }
+    
+    private String getConfigServerHostname() {
+        return m_locationsManager.getPrimaryLocation().getFqdn();
     }
 }
