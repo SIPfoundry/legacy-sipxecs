@@ -41,8 +41,10 @@ import org.sipfoundry.sipxconfig.admin.FtpRestore;
 import org.sipfoundry.sipxconfig.admin.LocalBackupPlan;
 import org.sipfoundry.sipxconfig.admin.Restore;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.components.LocalizationUtils;
 import org.sipfoundry.sipxconfig.components.NamedValuesSelectionModel;
 import org.sipfoundry.sipxconfig.components.SelectMap;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.common.AssetSelector;
 import org.sipfoundry.sipxconfig.site.common.IPageWithReset;
@@ -125,9 +127,9 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
             setBackups(backupPlan.getBackups());
         } catch (UserException ex) {
             setBackups(new ArrayList<Map<Type, BackupBean>>());
-            TapestryUtils.getValidator(this).record(
-                    new ValidatorException(getMessages().getMessage(ex.getMessage())));
-
+            SipxValidationDelegate validator = (SipxValidationDelegate) TapestryUtils
+                    .getValidator(this);
+            validator.record(ex, getMessages());
         }
     }
 
@@ -251,7 +253,7 @@ public abstract class RestorePage extends UserBasePage implements PageBeginRende
         try {
             return getRestore().getRestoreLogContent();
         } catch (UserException ex) {
-            return getMessages().getMessage(ex.getMessage());
+            return LocalizationUtils.localizeException(getMessages(), ex);
         }
     }
 }
