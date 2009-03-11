@@ -712,6 +712,12 @@ int GrammarManager::Recognize(const VXIMapHolder & properties,
     return GrammarManager::OutOfMemory;
   }
 
+  if (err == VXIrec_RESULT_DISCONNECT) {
+    // Here is the case that the call is being disconnected before the 
+    // recognition even starts
+    return GrammarManager::Disconnect;
+  }
+
   // (1.2) Anything other than success indicates that recognition failed
   // (badly).  The normal error conditions are returned through the recogntion
   // result structure.
@@ -942,6 +948,12 @@ int GrammarManager::Record(const VXIMapHolder & properties,
   if (err == VXIrec_RESULT_BAD_MIME_TYPE) {
     log.LogDiagnostic(0, L"GrammarManager::Record - Unsupported mime type.");
     return GrammarManager::BadMimeType;
+  }
+
+  if (err == VXIrec_RESULT_DISCONNECT) {
+    // Here is the case that the call is being disconnected before the 
+    // recording even starts
+    return GrammarManager::Disconnect;
   }
 
   if (err != VXIrec_RESULT_SUCCESS) {
