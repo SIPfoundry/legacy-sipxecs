@@ -111,15 +111,14 @@
     <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
 
-  <bean id="alarmApi" class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcProxyFactoryBean">
-    <property name="serviceUrl" value="https://localhost:8092/RPC2" />
+  <bean id="alarmApiProvider" class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">
     <property name="methodNamePrefix" value="Alarm." />
     <property name="secure" value="true" />
     <property name="serviceInterface" value="org.sipfoundry.sipxconfig.admin.commserver.AlarmApi" />
   </bean>
 
   <bean id="alarmContextImpl" class="org.sipfoundry.sipxconfig.common.AlarmContextImpl">
-    <property name="alarmApi" ref="alarmApi" />
+    <property name="alarmApiProvider" ref="alarmApiProvider" />
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="replicationContext" ref="sipxReplicationContext" />
     <property name="alarmServerConfiguration" ref="alarmServerConfiguration" />

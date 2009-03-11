@@ -29,6 +29,7 @@ import org.sipfoundry.sipxconfig.admin.alarm.AlarmServerContacts;
 import org.sipfoundry.sipxconfig.admin.commserver.AlarmApi;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEvent;
@@ -46,7 +47,7 @@ public class AlarmContextImpl extends SipxHibernateDaoSupport implements AlarmCo
     private static final Log LOG = LogFactory.getLog(AlarmContextImpl.class);
     private static final String DEFAULT_HOST = "@localhost";
     private static final String EMPTY = "";
-    private AlarmApi m_alarmApi;
+    private ApiProvider<AlarmApi> m_alarmApiProvider;
     private SipxReplicationContext m_replicationContext;
     private AlarmServerConfiguration m_alarmServerConfiguration;
     private AlarmConfiguration m_alarmsConfiguration;
@@ -62,10 +63,10 @@ public class AlarmContextImpl extends SipxHibernateDaoSupport implements AlarmCo
     }
 
     @Required
-    public void setAlarmApi(AlarmApi alarmApi) {
-        m_alarmApi = alarmApi;
+    public void setAlarmApiProvider(ApiProvider<AlarmApi> alarmApiProvider) {
+        m_alarmApiProvider = alarmApiProvider;
     }
-
+    
     @Required
     public void setReplicationContext(SipxReplicationContext replicationContext) {
         m_replicationContext = replicationContext;
@@ -115,7 +116,7 @@ public class AlarmContextImpl extends SipxHibernateDaoSupport implements AlarmCo
 
     public void raiseAlarm(String alarmId, String... alarmParams) {
         try {
-            m_alarmApi.raiseAlarm(getHost(), alarmId, alarmParams);
+            getAlarmApi().raiseAlarm(getHost(), alarmId, alarmParams);
         } catch (XmlRpcRemoteException e) {
             throw new UserException(e.getCause());
         }
@@ -123,7 +124,7 @@ public class AlarmContextImpl extends SipxHibernateDaoSupport implements AlarmCo
 
     public void reloadAlarms() {
         try {
-            m_alarmApi.reloadAlarms(getHost());
+            getAlarmApi().reloadAlarms(getHost());
         } catch (XmlRpcRemoteException e) {
             throw new UserException(e.getCause());
         }
@@ -264,5 +265,9 @@ public class AlarmContextImpl extends SipxHibernateDaoSupport implements AlarmCo
     
     private String getHost() {
         return m_locationsManager.getPrimaryLocation().getFqdn();
+    }
+    
+    private AlarmApi getAlarmApi() {
+        return m_alarmApiProvider.getApi(m_locationsManager.getPrimaryLocation().getProcessMonitorUrl());
     }
 }
