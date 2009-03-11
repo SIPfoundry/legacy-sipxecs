@@ -607,12 +607,11 @@ zone "%s"  IN  {\n\
 };\n\
 \n\
 ' % ( DomainName, DomainName )
-
-#zone "%s.IN-ADDR.ARPA" {\n\
-#     type master;\n\
-#     file "%s.zone";\n\
-#};\n\
-#\n' % ( DomainName, DomainName, reverseArpa, Subnet )
+    #zone "%s.IN-ADDR.ARPA" {\n\
+    #     type master;\n\
+    #     file "%s.zone";\n\
+    #};\n\
+    #\n' % ( DomainName, DomainName, reverseArpa, Subnet )
 
     else:
         # Set up a caching-only name server.
@@ -665,7 +664,7 @@ options {\n\
         log_printout(zoneConfig)
 
         if runningAsRoot():
-            file ( dnsConfigFile, 'w').write( namedConf )
+            file ( zoneConfigFile, 'w').write( zoneConfig )
             
     # Change ownership of zone files
     setOwnerRecursive('/var/named','named', 'named')
