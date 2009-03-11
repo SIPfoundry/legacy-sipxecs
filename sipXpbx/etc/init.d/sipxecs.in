@@ -250,6 +250,23 @@ finish_check() {
     echo ""
 }
 
+global_setup_check () {
+    local setup_status
+
+    if ! [ -e @SIPX_CONFDIR@/domain-config ]
+    then
+        cat <<EOF
+The basic configuration for the @SIPXECS_NAME@ services has
+not been established.
+
+   Please run 'sipxecs-setup' 
+
+EOF
+        setup_status=1
+    fi
+    return $setup_status
+}
+
 global_ssl_check () {
     local ssl_status
 
@@ -472,31 +489,6 @@ global_hostname_check () {
     return $?
 }
 
-global_master_check () {
-    local master_status
-    master_status=0
-    if [ "${CONFIG_SERVER_HOST}"x = ""x ]
-    then
-        echo "CONFIG_SERVER_HOST is not set in @SIPX_CONFDIR@/config.defs"
-        master_status=1
-    elif [ "${CONFIG_SERVER_ADDR}"x = ""x ]
-    then
-        echo "CONFIG_SERVER_ADDR is not set in @SIPX_CONFDIR@/config.defs"
-        master_status=1
-    else
-        local master_addr=`dns_a ${CONFIG_SERVER_HOST}`
-        if [ "${master_addr}" != "${CONFIG_SERVER_ADDR}" ]
-        then
-            echo "Mismatched Config Server configuration data:"
-            echo "   CONFIG_SERVER_HOST '${CONFIG_SERVER_HOST}' -> '${master_addr}'"
-            echo "   CONFIG_SERVER_ADDR '${CONFIG_SERVER_ADDR}'"
-            master_status=1
-        fi
-    fi
-    return ${master_status}
-}
-
-
 global_maxfds_check () {
     local fd_max
     fd_max=16384
@@ -594,6 +586,8 @@ do_setup() {
 ## High-level configtest function
 ## Verify that the prerequisites for running sipXecs are OK.
 do_check() {
+    local check_super="$1"
+
     ## Do the 'global' checks first, then call each shell script
     ## to let it do its own checks (using the configtest wrapper function)
 
@@ -608,6 +602,9 @@ do_check() {
     trap "rm $steperrfile 2>/dev/null" EXIT
 
     ## Check to see that SSL is configured.- THIS SHOULD BE FIRST
+    globaltest "setup" "MUST_PASS" "bootstrap setup"
+
+    ## Check to see that SSL is configured.
     globaltest "ssl" "MUST_PASS" "TLS/SSL configuration"
 
     globaltest "maxfds" "MAY_FAIL" "Per-process file descriptor limits"
@@ -630,16 +627,18 @@ do_check() {
     ## Check to see that hosts file does not have extra names on localhost address
     globaltest "localhost_shared" "MAY_FAIL" "localhost name is not shared"
 
-    ## Check to see that the different ways to configure the config server agree
-    globaltest "master" "MAY_FAIL" "configuration service hostname and address"
-
     ## Check that /tmp has the correct permissions.
     globaltest "tmp" "MAY_FAIL" "/tmp directory has correct permissions"
 
-    # Iterate through the processes and let each shell script do its own checks
-    start_check sipxsupervisor
-    configtest  sipxsupervisor
-    finish_check $? sipxsupervisor
+    # Checking the supervisor is not done before normal start, only on explicit configtest
+    # because it can fail in the cold start case when sipXconfig has not run yet.
+    if [ "${check_super}" = "CHECK_SUPERVISOR" ] 
+    then
+        # Iterate through the processes and let each shell script do its own checks
+        start_check sipxsupervisor
+        configtest  sipxsupervisor
+        finish_check $? sipxsupervisor
+    fi
 
     log_results
 
@@ -768,11 +767,13 @@ case "$1" in
                 echo " sipxsupervisor not found - running restart to clean locks."
                 do_stop
                 do_setup
+                do_check "NO_CHECK_SUPERVISOR"
                 do_start
                 ExitStatus=$?
             fi
         else
             do_setup
+            do_check "NO_CHECK_SUPERVISOR"
             do_start
             ExitStatus=$?
         fi
@@ -786,12 +787,13 @@ case "$1" in
         ;;
   configtest)
         do_setup
-        do_check
+        do_check "CHECK_SUPERVISOR"
         ExitStatus=$?
         ;;
   restart)
         do_stop
         do_setup
+        do_check "NO_CHECK_SUPERVISOR"
         do_start
         ExitStatus=$?
         ;;
