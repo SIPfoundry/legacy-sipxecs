@@ -893,13 +893,17 @@ void myvsprintf(UtlString& results, const char* format, va_list& args)
             /* we don't know what we need, so just double */
             size *= 2;  /* twice the old size */
         }
-   }
+    }
 
-   if (!messageConstructed)
-   {
-      char overflowMsg[100];
-      sprintf(overflowMsg, "LOG MESSAGE OVERFLOW AT %u BYTES", size);
-      results.append(overflowMsg);
-   }
+    if (messageConstructed)
+    {
+       results.strip(); // remove any trailing whitespace to eliminate extra newlines in logs
+    }
+    else
+    {
+       char overflowMsg[100];
+       sprintf(overflowMsg, "LOG MESSAGE OVERFLOW AT %u BYTES", size);
+       results.append(overflowMsg);
+    }
 }
 
