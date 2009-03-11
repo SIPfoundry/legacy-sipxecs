@@ -902,7 +902,7 @@ void myvsprintf(UtlString& results, const char* format, va_list& args)
     else
     {
        char overflowMsg[100];
-       sprintf(overflowMsg, "LOG MESSAGE OVERFLOW AT %u BYTES", size);
+       sprintf(overflowMsg, "LOG MESSAGE OVERFLOW AT %zu BYTES", size);
        results.append(overflowMsg);
     }
 }
