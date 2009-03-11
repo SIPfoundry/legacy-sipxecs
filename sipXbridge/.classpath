@@ -22,5 +22,6 @@
 	<classpathentry kind="var" path="SIPX-PROJECT-ROOT/BUILD1/sipXcommons/dist/sipxcommons.jar"/>
 	<classpathentry kind="var" path="SIPX-PROJECT-ROOT/sipXcommons/lib/jetty.jar"/>
 	<classpathentry kind="var" path="SIPX-PROJECT-ROOT/sipXcommons/lib/javax.servlet.jar"/>
+	<classpathentry kind="var" path="SIPX-PROJECT-ROOT"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

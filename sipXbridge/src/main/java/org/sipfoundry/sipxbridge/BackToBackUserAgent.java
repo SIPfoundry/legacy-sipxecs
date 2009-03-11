@@ -606,7 +606,7 @@ public class BackToBackUserAgent {
      *        the sipx proxy server.
      * 
      */
-    void referInviteToSipxProxy(Request inviteRequest, RequestEvent referRequestEvent,
+    void referInviteToSipxProxy(Request inviteRequest, Dialog dialogPendingSdpAnswer, RequestEvent referRequestEvent,
             SessionDescription sessionDescription) {
         logger.debug("referInviteToSipxProxy: ");
 
@@ -705,6 +705,8 @@ public class BackToBackUserAgent {
             tad.setReferingDialog(dialog);
 
             tad.setReferRequest(referRequest);
+            
+            tad.setDialogPendingSdpAnswer(dialogPendingSdpAnswer);
 
             /*
              * Stamp the via header with our stamp so that we know we Referred this request. we
@@ -1721,7 +1723,14 @@ public class BackToBackUserAgent {
      */
 
     void tearDown(ReasonHeader reason) throws Exception {
-        for (Dialog dialog : this.dialogTable) {
+    	/*
+    	 * Prevent a concurrent modification exception. 
+    	 * Copy all the dialogs into a temp set. 
+    	 */
+    	HashSet<Dialog> temp = new HashSet<Dialog>();
+    	temp.addAll(this.dialogTable);
+    	
+        for (Dialog dialog : temp) {
             if (dialog.getState() != DialogState.TERMINATED) {
                 DialogContext dialogCtx = DialogContext.get(dialog);
                 SipProvider lanProvider = ((DialogExt) dialog).getSipProvider();

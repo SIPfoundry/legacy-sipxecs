@@ -77,6 +77,9 @@ public class SymmitronConfigParser {
        
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "mediarelaynativeaddress"),
                 "setLocalAddress", 0);
+        /* BUGBUG Workaround */
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "mediarelayexternaladdress"),
+                "setLocalAddress", 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "log-level"), "setLogLevel",
                 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "log-directory"),

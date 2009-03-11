@@ -341,7 +341,8 @@ public class SipListenerImpl implements SipListener {
                      */
                     if (response.getStatusCode() == Response.OK && method.equals(Request.INVITE)) {
                         Request ackRequest = dialog.createAck(cseqHeader.getSeqNumber());
-                        DialogContext.get(dialog).sendAck(ackRequest);
+                        /* Cannot access the dialogContext here */
+                        dialog.sendAck(ackRequest);
                         Request byeRequest = dialog.createRequest(Request.BYE);
                         ClientTransaction byeClientTransaction = provider
                                 .getNewClientTransaction(byeRequest);

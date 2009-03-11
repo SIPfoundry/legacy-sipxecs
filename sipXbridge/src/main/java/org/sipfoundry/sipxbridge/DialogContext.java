@@ -13,6 +13,7 @@ import gov.nist.javax.sip.header.extensions.MinSE;
 import gov.nist.javax.sip.header.extensions.SessionExpiresHeader;
 import gov.nist.javax.sip.message.SIPResponse;
 
+import java.util.HashSet;
 import java.util.ListIterator;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -47,7 +48,8 @@ import org.apache.log4j.Logger;
 class DialogContext {
 
     private static Logger logger = Logger.getLogger(DialogContext.class);
-
+    
+   
     private PendingDialogAction pendingAction = PendingDialogAction.NONE;
 
     /*
@@ -278,7 +280,7 @@ class DialogContext {
                          */
                         logger.error("Could not send re-INVITE -- killing call");
                         ctx.terminate();
-                        backToBackUserAgent.tearDown();
+                        backToBackUserAgent.tearDown("sipxbridge",ReasonCode.TIMED_OUT_WAITING_TO_SEND_REINVITE,"Timed out waiting to re-INVITE");
                         return;
                     } else {
                         logger.debug("Waiting for ACK");
@@ -293,6 +295,7 @@ class DialogContext {
                  
                 Thread.sleep(500);
                  
+                logger.debug("Sending re-INVITE : Transaction operation = " + TransactionContext.get(ctx).getOperation());
                 
                 if (dialogContext.dialog.getState() != DialogState.TERMINATED) {
                     dialogContext.reInviteTransaction = ctx;
@@ -617,17 +620,10 @@ class DialogContext {
              */
 
             if (peerDialog != null && peerDialog.getState() != DialogState.TERMINATED) {
-                logger.debug("queryDialogFromPeer -- sending query to " + peerDialog);
-                DialogContext peerDialogContext = DialogContext.get(peerDialog);
-                /*
-                 * Are we pending a query already ? If so need to retry later. ITSPs do take well
-                 * to nested media negotiation attempts.
-                 */
-                if (peerDialogContext.getPendingAction() == PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK) {
-                    logger.debug("peerDialogContext.pendingAction = "
-                            + peerDialogContext.getPendingAction());
-                    return false;
-                }
+                logger.debug("queryDialogFromPeer -- sending query to " + peerDialog +
+                		" continuationOperation = " + continuationData.getOperation());
+               
+               
                 Request reInvite = peerDialog.createRequest(Request.INVITE);
                 reInvite.removeHeader(SupportedHeader.NAME);
                 SipUtilities.addWanAllowHeaders(reInvite);
@@ -657,8 +653,10 @@ class DialogContext {
                  * The information we need to continue the operation when the Response comes in.
                  */
                 tad.setContinuationData(continuationData);
+                
+                
                 /*
-                 * Send the Re-INVITE when there is no glare condition.
+                 * Send the Re-INVITE and try to avoid the Glare Race condition.
                  */
                 new Thread(new ReInviteSender(DialogContext.get(peerDialog), ctx)).start();
 
@@ -718,7 +716,7 @@ class DialogContext {
         return lastResponse;
     }
 
-    public void sendSdpReOffer(SessionDescription sdpOffer) throws Exception {
+    void sendSdpReOffer(SessionDescription sdpOffer) throws Exception {
 
         Request sdpOfferInvite = dialog.createRequest(Request.INVITE);
 
@@ -750,7 +748,7 @@ class DialogContext {
      * @param ack
      * @throws SipException
      */
-    public void sendAck(Request ack) throws SipException {
+    void sendAck(Request ack) throws SipException {
         this.recordLastAckTime();
         this.lastAck = ack;
         dialog.sendAck(ack);   
@@ -765,18 +763,20 @@ class DialogContext {
         }
     }
 
-    public void setTerminateOnConfirm() {
+     void setTerminateOnConfirm() {
         this.terminateOnConfirm = true;
 
     }
 
     
-    public void sendReInvite(ClientTransaction clientTransaction) {
+    void sendReInvite(ClientTransaction clientTransaction) {
         new Thread(new ReInviteSender(this, clientTransaction)).start();
     }
 
-    public void sendMohInvite(SessionDescription responseSessionDescription) {
+    void sendMohInvite(SessionDescription responseSessionDescription) {
         Gateway.getTimer().schedule(new MohTimer(responseSessionDescription),500);
     }
+    
+    
 
 }

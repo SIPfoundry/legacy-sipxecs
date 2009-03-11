@@ -102,6 +102,8 @@ class TransactionContext {
      * To tag for client/server pair.
      */
     private String toTag;
+
+	protected int counter;
 	
     static TransactionContext attach(Transaction transaction,
             Operation operation) {
