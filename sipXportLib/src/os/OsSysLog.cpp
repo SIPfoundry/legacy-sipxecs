@@ -849,22 +849,23 @@ void mysprintf(UtlString& results, const char* format, ...)
 // a version of vsprintf that stores results in a UtlString
 void myvsprintf(UtlString& results, const char* format, va_list& args)
 {    
-    /* Start by alocating 900 bytes.  The logs from a production
+    /* Start by allocating 900 bytes.  The logs from a production
      * system show that 90% of messages are shorter than 900 bytes.
      */
-    int n, size = 900;
-    char *p;
-
-    if ( size < (int) sizeof(format)) 
+    int n;
+    size_t size = 900;
+    size_t formatLength = strlen(format);
+    if ( size < formatLength ) 
     {
-       size = (int) sizeof(format) + 100;
+       size = formatLength + 100;
     }
-
     results.remove(0) ;
-    p = (char*) malloc(size) ;
-     
-    while (p != NULL)
+    bool messageConstructed=false;
+    while (   ! messageConstructed 
+           && results.capacity(size) <= size )
     {
+        size=results.capacity(); // get the actual space allocated; capacity(n) can round up
+
         /* Try to print in the allocated space. */
         {
            // When printing the arguments, we must use a fresh copy of
@@ -872,31 +873,33 @@ void myvsprintf(UtlString& results, const char* format, va_list& args)
            // modify it, and this vsnprintf is inside the while loop.
            va_list ap;
            va_copy (ap, args);
-           n = vsnprintf (p, size, format, ap);
+           n = vsnprintf ((char*)results.data(), size-1, format, ap);
            va_end(ap);
         }
 
         /* If that worked, return the string. */
-        if (n > -1 && n < size)
+        if (n > -1 && n < (int)size-1)
         {
-            break;
+           messageConstructed = true;
+           results.setLength(n);
         }
-        /* Else try again with more space. */
-        if (n > -1)    /* glibc 2.1 */
-            size = n+1; /* precisely what is needed */
-        else           /* glibc 2.0 */
+        else if (n > -1)
+        {
+           /* glibc 2.1 tells us how much we need */
+           size = n+2; /* precisely what is needed */
+        }
+        else
+        {
+            /* we don't know what we need, so just double */
             size *= 2;  /* twice the old size */
-
-        if ((p = (char*) realloc (p, size)) == NULL)
-        {
-            break;
         }
-    }
+   }
 
-    if (p != NULL)
-    {
-        results.append(p) ;
-        free(p) ;
-    }
+   if (!messageConstructed)
+   {
+      char overflowMsg[100];
+      sprintf(overflowMsg, "LOG MESSAGE OVERFLOW AT %u BYTES", size);
+      results.append(overflowMsg);
+   }
 }
 
