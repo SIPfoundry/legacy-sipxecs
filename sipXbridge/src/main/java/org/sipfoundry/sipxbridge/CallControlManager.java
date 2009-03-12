@@ -1562,6 +1562,8 @@ class CallControlManager implements SymmitronResetHandler {
 		DialogContext dialogContext = DialogContext.get(dialog);
 		ClientTransaction ctx = responseEvent.getClientTransaction();
 		TransactionContext tad = TransactionContext.get(ctx);
+		ClientTransaction mohCtx = TransactionContext.get(ctx)
+				.getMohClientTransaction();
 		Response response = responseEvent.getResponse();
 
 		BackToBackUserAgent b2bua = DialogContext
@@ -1673,9 +1675,8 @@ class CallControlManager implements SymmitronResetHandler {
 		}
 
 		/*
-		 * SDP was returned from the transfer target.
-		 * In this case we have to either re-offer or send an sdp answer to the 
-		 * other side in an ACK.
+		 * SDP was returned from the transfer target. In this case we have to
+		 * either re-offer or send an sdp answer to the other side in an ACK.
 		 */
 		if (response.getContentLength().getContentLength() != 0) {
 			if (tad.getDialogPendingSdpAnswer() != null
@@ -1699,6 +1700,20 @@ class CallControlManager implements SymmitronResetHandler {
 					}
 				}
 			}
+
+			if (mohCtx != null) {
+				/*
+				 * Already sent a response or a re-offer back. Alert the 
+				 * delayed MOH timer not to do anything.
+				 */
+
+				DialogContext mohDialogContext = DialogContext.get(mohCtx
+						.getDialog());
+				
+				mohDialogContext.setTerminateOnConfirm(); 
+				
+			}
+
 		}
 
 		/*
@@ -2036,6 +2051,8 @@ class CallControlManager implements SymmitronResetHandler {
 			DialogContext.getRtpSession(dialog).getTransmitter()
 					.setSessionDescription(clonedSessionDescription, true);
 
+			ClientTransaction mohCtx = null;
+
 			if (dialog.getState() != DialogState.TERMINATED) {
 				/*
 				 * If we do not support MOH or if the park server codecs are not
@@ -2109,9 +2126,11 @@ class CallControlManager implements SymmitronResetHandler {
 					 * We do owe him an SDP answer. Mark it as such so when we
 					 * get an answer from Park server, we can pass it on.
 					 */
+					mohCtx = DialogContext.get(dialog).getBackToBackUserAgent()
+							.createClientTxToMohServer(
+									responseSessionDescription);
 
-					DialogContext.get(dialog).sendMohInvite(
-							responseSessionDescription);
+					DialogContext.get(dialog).sendMohInvite(mohCtx);
 
 				}
 
@@ -2127,9 +2146,10 @@ class CallControlManager implements SymmitronResetHandler {
 								responseSessionDescription);
 
 				/*
-				 * process the REFER by generating an INVITE and sending it along.
+				 * process the REFER by generating an INVITE and sending it
+				 * along.
 				 */
-				b2bua.referInviteToSipxProxy(continuation.getRequest(),
+				b2bua.referInviteToSipxProxy(continuation.getRequest(), mohCtx,
 						dialog, continuation.getRequestEvent(),
 						responseSessionDescription);
 			}

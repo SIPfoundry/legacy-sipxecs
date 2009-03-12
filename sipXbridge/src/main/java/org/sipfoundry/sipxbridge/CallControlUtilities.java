@@ -78,6 +78,7 @@ public class CallControlUtilities {
         DialogContext dialogContext = (DialogContext) dialog.getApplicationData();
         if (logger.isDebugEnabled()) {
             logger.debug("sendSdpOffer : peerDialog = " + dialog
+            		+ " dialogState = " + dialog.getState() 
                     + " peerDialogApplicationData = " + dialogContext + "\nlastResponse = "
                     + dialogContext.getLastResponse());
         }

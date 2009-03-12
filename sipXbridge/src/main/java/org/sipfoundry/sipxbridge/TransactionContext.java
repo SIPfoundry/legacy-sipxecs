@@ -103,7 +103,16 @@ class TransactionContext {
      */
     private String toTag;
 
+    /*
+     * Counter for tracking # of times we have redispatched a new transaction for
+     * a spurious error response ( ITSP Hack ).
+     */
 	protected int counter;
+
+	/*
+	 * Client transaction pending for Music On Hold.
+	 */
+	private ClientTransaction mohClientTransaction;
 	
     static TransactionContext attach(Transaction transaction,
             Operation operation) {
@@ -339,6 +348,14 @@ class TransactionContext {
     ItspAccountInfo getItspAccountInfo() {
         return itspAccountInfo;
     }
+
+	public void setMohClientTransaction(ClientTransaction mohClientTransaction) {
+		this.mohClientTransaction = mohClientTransaction;
+	}
+
+	public ClientTransaction getMohClientTransaction() {
+		return mohClientTransaction;
+	}
 
     
 

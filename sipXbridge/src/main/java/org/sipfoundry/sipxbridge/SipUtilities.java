@@ -812,15 +812,12 @@ class SipUtilities {
 				Vector formats = mediaDescription.getMedia().getMediaFormats(
 						true);
 
-				/*
-				 * We are generating a response. Select only one codec for the
-				 * response.
-				 */
+				
 				for (Iterator it1 = formats.iterator(); it1.hasNext();) {
 					Object format = it1.next();
 					Integer fmt = new Integer(format.toString());
-					if (!codecs.contains(fmt)) {
-						it1.remove();
+					if (!codecs.contains(fmt)) {		
+							it1.remove();
 					}
 				}
 
@@ -835,8 +832,9 @@ class SipUtilities {
 						String attribute = attr.getValue();
 						String[] attrs = attribute.split(" ");
 						int rtpMapCodec = Integer.parseInt(attrs[0]);
+						
 						if (!codecs.contains(rtpMapCodec)) {
-							it1.remove();
+								it1.remove();
 						}
 					} else if (attr.getName().equalsIgnoreCase("crypto")) {
 						it1.remove();
