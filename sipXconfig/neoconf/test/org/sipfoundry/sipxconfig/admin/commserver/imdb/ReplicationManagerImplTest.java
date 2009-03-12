@@ -17,9 +17,12 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.apache.commons.codec.binary.Base64;
+import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.device.InMemoryConfiguration;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 
 import static org.easymock.EasyMock.aryEq;
@@ -34,15 +37,22 @@ public class ReplicationManagerImplTest extends TestCase {
     private static final Location[] LOCATIONS = new Location[] {
         new Location(), new Location()
     };
+    
+    private LocationsManager m_locationsManager;
+    private ReplicationManagerImpl m_out;
+    
+    public void setUp() {
+        m_locationsManager = TestUtil.getMockLocationsManager();
+        
+        m_out = new ReplicationManagerImpl();
+        m_out.setLocationsManager(m_locationsManager);
+    }
 
     public void testReplicateFile() throws Exception {
-        ReplicationManagerImpl replicationManager = new ReplicationManagerImpl();
-        replicationManager.setHostname("localhost");
-
         final FileApi fileApi = createMock(FileApi.class);
 
         String content = "1234";
-        fileApi.replace("localhost", "/etc/sipxecs/domain-config", 0644, encode(content));
+        fileApi.replace("sipx.example.org", "/etc/sipxecs/domain-config", 0644, encode(content));
         expectLastCall().andReturn(true).times(LOCATIONS.length);
 
         replay(fileApi);
@@ -53,14 +63,14 @@ public class ReplicationManagerImplTest extends TestCase {
             }
         };
 
-        replicationManager.setFileApiProvider(provider);
+        m_out.setFileApiProvider(provider);
 
         ConfigurationFile file = new InMemoryConfiguration("/etc/sipxecs", "domain-config", content);
 
         for (int i = 0; i < LOCATIONS.length; i++) {
             LOCATIONS[i].setRegistered(true);
         }
-        replicationManager.replicateFile(LOCATIONS, file);
+        m_out.replicateFile(LOCATIONS, file);
 
         verify(fileApi);
     }
@@ -71,12 +81,9 @@ public class ReplicationManagerImplTest extends TestCase {
             }
         };
 
-        ReplicationManagerImpl replicationManager = new ReplicationManagerImpl();
-        replicationManager.setHostname("localhost");
-
         final ImdbApi imdbApi = createMock(ImdbApi.class);
 
-        imdbApi.replace(eq("localhost"), eq(DataSet.ALIAS.getName()), aryEq(data));
+        imdbApi.replace(eq("sipx.example.org"), eq(DataSet.ALIAS.getName()), aryEq(data));
         expectLastCall().andReturn(true).times(LOCATIONS.length);
         replay(imdbApi);
 
@@ -86,7 +93,7 @@ public class ReplicationManagerImplTest extends TestCase {
             }
         };
 
-        replicationManager.setImdbApiProvider(provider);
+        m_out.setImdbApiProvider(provider);
 
         DataSetGenerator file = new DataSetGenerator() {
 
@@ -100,7 +107,7 @@ public class ReplicationManagerImplTest extends TestCase {
 
         };
 
-        replicationManager.replicateData(LOCATIONS, file);
+        m_out.replicateData(LOCATIONS, file);
 
         verify(imdbApi);
     }

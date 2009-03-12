@@ -10,11 +10,13 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 import java.util.Formatter;
 import java.util.Map;
 
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 
 public class FreeswitchMediaServer extends MediaServer {
     private int m_port;
-
+    private LocationsManager m_locationsManager;
+    
     public void setPort(int port) {
         m_port = port;
     }
@@ -37,6 +39,10 @@ public class FreeswitchMediaServer extends MediaServer {
     @Override
     public PermissionName getPermissionName() {
         return null;
+    }
+    
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
     }
 
     @Override
@@ -62,6 +68,11 @@ public class FreeswitchMediaServer extends MediaServer {
         throw new NotImplementedException();
     }
 
+    @Override
+    public String getHostname() {
+        return m_locationsManager.getPrimaryLocation().getFqdn(); 
+    }
+    
     @Override
     protected String getUriParameterStringForOperation(Operation operation, CallDigits userDigits,
             Map<String, String> additionalParams) {

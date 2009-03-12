@@ -333,7 +333,6 @@ public class SiteTestHelper {
         sysProps.setProperty("orbitsGenerator.audioDirectory", systemDirectory + "/parkserver/music");
         sysProps.setProperty("sipxPageService.audioDir", systemDirectory + "/sipxpage/music");
         sysProps.setProperty("acdQueue.audioDirectory", systemDirectory + "/acd/audio");
-        sysProps.setProperty("sbcDeviceManagerImpl.localIpAddress", "1.0.0.1");
         sysProps.setProperty("sysdir.vxml.prompts", TestUtil.getTestOutputDirectory("web") + "/artificial-system-root/prompts");
         TestUtil.saveSysDirProperties(sysProps, args[0]);
     }
@@ -342,10 +341,6 @@ public class SiteTestHelper {
 
     public static String getTftpDirectory() {
         return getSystemProperties().getProperty("localTftp.uploadDirectory");
-    }
-
-    public static String getSbcDeviceLocalIp() {
-        return getSystemProperties().getProperty("sbcDeviceManagerImpl.localIpAddress");
     }
 
     private static Properties getSystemProperties() {

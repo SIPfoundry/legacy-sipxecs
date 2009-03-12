@@ -24,6 +24,7 @@ import java.util.Properties;
 
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.SipxService;
@@ -314,5 +315,18 @@ public final class TestUtil {
         location.setFqdn("sipx.example.org");
         location.setAddress("192.168.1.1");
         return location;
+    }
+    
+    /**
+     * Creates a mock LocationsManager with the specified locations.  This
+     * LocationsManager only responds to requests for the primary service.
+     * 
+     */
+    public static LocationsManager getMockLocationsManager() {
+        LocationsManager locationsManager = EasyMock.createMock(LocationsManager.class);
+        locationsManager.getPrimaryLocation();
+        EasyMock.expectLastCall().andReturn(createDefaultLocation()).anyTimes();
+        EasyMock.replay(locationsManager);
+        return locationsManager;
     }
 }

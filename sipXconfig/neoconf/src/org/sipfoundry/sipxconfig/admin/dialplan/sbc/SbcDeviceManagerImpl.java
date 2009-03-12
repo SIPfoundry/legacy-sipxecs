@@ -42,8 +42,6 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
 
     private DaoEventPublisher m_daoEventPublisher;
 
-    private String m_localIpAddress;
-
     private SipxServiceBundle m_borderControllerBundle;
 
     private SbcDescriptor m_sipXbridgeSbcModel;
@@ -57,7 +55,7 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
     public void setSipXbridgeSbcModel(SbcDescriptor sipXbridgeSbcModel) {
         m_sipXbridgeSbcModel = sipXbridgeSbcModel;
     }
-
+    
     public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
         m_daoEventPublisher = daoEventPublisher;
     }
@@ -230,14 +228,6 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
                 }
             }
         }
-    }
-
-    public void setLocalIpAddress(String localIpAddress) {
-        m_localIpAddress = localIpAddress;
-    }
-
-    public String getLocalIpAddress() {
-        return m_localIpAddress;
     }
 
     public void onDelete(Object entity) {

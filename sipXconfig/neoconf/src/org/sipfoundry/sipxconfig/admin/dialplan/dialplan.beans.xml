@@ -23,7 +23,7 @@
     <property name="localizationContext" ref="localizationContext" />
     <!-- FIXME: freeswitch port and location should be computed by SipxFreeswitchService -->
     <property name="port" value="15060" />
-    <property name="hostname" value="localhost" />
+    <property name="locationsManager" ref="locationsManager" />
   </bean>
 
   <bean id="mediaServerFactory" class="org.sipfoundry.sipxconfig.admin.dialplan.MediaServerFactory" scope="singleton">

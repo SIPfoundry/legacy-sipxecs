@@ -17,6 +17,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
 import org.easymock.EasyMock;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.Holiday;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.ScheduledAttendant;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime;
@@ -138,9 +139,11 @@ public class AttendantRuleTest extends TestCase {
         AttendantRule rule = new AttendantRule();
         FreeswitchMediaServer mediaServer = new FreeswitchMediaServer();
         mediaServer.setLocalizationContext(lc);
-        mediaServer.setHostname("192.168.1.1");
         mediaServer.setPort(15060);
-
+        
+        LocationsManager locationsManager = TestUtil.getMockLocationsManager();
+        mediaServer.setLocationsManager(locationsManager);
+        
         rule.setMediaServer(mediaServer);
         rule.setName("abc");
         rule.setExtension("100");
