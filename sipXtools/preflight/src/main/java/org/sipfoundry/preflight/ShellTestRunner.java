@@ -216,8 +216,8 @@ public class ShellTestRunner {
         testTable[TFTP_TEST] = new Test("TFTP Server Test");
         testTable[FTP_TEST] = new Test("FTP Server Test");
         testTable[HTTP_TEST] = new Test("HTTP Server Test");
-        testTable[SIP1_TEST] = new Test("SIP Connectivity Test");
-        testTable[SIP2_TEST] = new Test("SIP Credentials Test");
+        // testTable[SIP1_TEST] = new Test("SIP Connectivity Test");
+        // testTable[SIP2_TEST] = new Test("SIP Credentials Test");
 
         // table.getColumn(0).pack();
         // table.getColumn(1).pack();
@@ -246,8 +246,8 @@ public class ShellTestRunner {
         testTable[TFTP_TEST].update(Test.IDLE);
         testTable[FTP_TEST].update(Test.IDLE);
         testTable[HTTP_TEST].update(Test.IDLE);
-        testTable[SIP1_TEST].update(Test.IDLE);
-        testTable[SIP2_TEST].update(Test.IDLE);
+        // testTable[SIP1_TEST].update(Test.IDLE);
+        // testTable[SIP2_TEST].update(Test.IDLE);
 
         DHCP dhcp = new DHCP();
         DNS dns = new DNS();
@@ -298,8 +298,8 @@ public class ShellTestRunner {
             testTable[HTTP_TEST].update(Test.SKIPPED, "DHCP prerequisite test failed.");
         }
 
-        testTable[SIP1_TEST].update(Test.SKIPPED);
-        testTable[SIP2_TEST].update(Test.SKIPPED);
+        // testTable[SIP1_TEST].update(Test.SKIPPED);
+        // testTable[SIP2_TEST].update(Test.SKIPPED);
 
         active = false;
     }
@@ -375,7 +375,7 @@ public class ShellTestRunner {
                                 case TOOL:
                                     test.setImage(0, snafuIcon);
                                     test.setForeground(2, magenta);
-                                    test.setText(2, "FUBAR");
+                                    test.setText(2, "ERROR");
                                     break;
                                 case WARNING:
                                     test.setImage(0, warningIcon);

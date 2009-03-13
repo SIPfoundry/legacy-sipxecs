@@ -62,7 +62,9 @@ public class ShellDiscoveryRunner {
             return;
         }
 
+        journalService.disable();
         results = dhcp.validate(10, networkResources, journalService, bindAddress);
+        journalService.enable();
         if (results != NONE) {
             // Unable to determine the network mask via DHCP.
             try {
