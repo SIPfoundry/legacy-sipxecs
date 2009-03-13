@@ -19,6 +19,7 @@ public class StatisticsPageTestUi extends WebTestCase {
         return SiteTestHelper.webTestSuite(StatisticsPageTestUi.class);
     }
 
+    @Override
     public void setUp() throws Exception {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
@@ -40,8 +41,7 @@ public class StatisticsPageTestUi extends WebTestCase {
         SiteTestHelper.selectRow(tester, 5, true);
         clickButton("form:ok");
 
-        // Check to make sure we get a user error for host not found.
-        SiteTestHelper.assertUserError(tester);
+        SiteTestHelper.assertNoException(tester);
 
         clickLink("menu.statistics");
         SiteTestHelper.selectOption(tester, "PropertySelection", "host.example.org");
@@ -67,7 +67,7 @@ public class StatisticsPageTestUi extends WebTestCase {
         SiteTestHelper.selectRow(tester, 1, false);
         SiteTestHelper.selectRow(tester, 2, false);
         clickButton("form:ok");
-        SiteTestHelper.assertUserError(tester);
+        SiteTestHelper.assertNoException(tester);
 
         clickLink("menu.statistics");
         SiteTestHelper.selectOption(tester, "PropertySelection", "host.example.org");
@@ -89,6 +89,6 @@ public class StatisticsPageTestUi extends WebTestCase {
         SiteTestHelper.selectRow(tester, 5, false);
         clickButton("form:ok");
 
-        SiteTestHelper.assertUserError(tester);
+        SiteTestHelper.assertNoException(tester);
     }
 }
