@@ -35,6 +35,7 @@ testsuite_CXXFLAGS = \
 	 -DSIPX_BINDIR=\"@SIPX_BINDIR@\" \
 	 -DSIPX_LIBEXECDIR=\"@SIPX_LIBEXECDIR@\" \
 	 -DSIPX_DBDIR=\"@SIPX_DBDIR@\" \
+	 -DSIPXECS_NAME=\"@SIPXECS_NAME@\" \
     $(db_CXXFLAGS)
 
 testsuite_LDADD = \

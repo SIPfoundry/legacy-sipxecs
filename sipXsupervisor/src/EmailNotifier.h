@@ -16,11 +16,7 @@
 #include "NotifierBase.h"
 
 // APPLICATION INCLUDES
-
 // DEFINES
-
-#define MAX_CONTACTS 50                    ///< max number of email contacts allowed
-
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

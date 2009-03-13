@@ -5,14 +5,14 @@
       <actions>
          <email>
             <email-subject>Alarme {0}</email-subject>
-            <email-intro>Message de sipXecs</email-intro>
+            <email-intro>Message de {0}</email-intro>
             <email-alarm>Alarme: {0}</email-alarm>
             <email-time>Reportée à: {0}</email-time>
             <email-host>Reportée à: {0}</email-host>
             <email-severity>Severité: {0}</email-severity>
             <email-description>Texte d'alarme: {0}</email-description>
             <email-resolution>Résolution suggestée: {0}</email-resolution>
-            <email-from>Service de notification des alarmes</email-from>
+            <email-from>Service de notification des alarmes de {0}</email-from>
          </email>
       </actions>
    </settings>

@@ -30,6 +30,7 @@ const char* SipXecsService::DefaultBinDir           = SIPX_BINDIR;
 const char* SipXecsService::DefaultLibExecDir       = SIPX_LIBEXECDIR;
 const char* SipXecsService::DefaultUser             = SIPXPBXUSER;
 const char* SipXecsService::DefaultGroup            = SIPXPBXGROUP;
+const char* SipXecsService::DefaultName             = SIPXECS_NAME;
 
 DirectoryType SipXecsService::ConfigurationDirType = "SIPX_CONFDIR";
 DirectoryType SipXecsService::LocalStateDirType    = "SIPX_VARDIR";
@@ -41,6 +42,7 @@ DirectoryType SipXecsService::VarDirType           = "SIPX_VARDIR";
 DirectoryType SipXecsService::DataDirType          = "SIPX_DATADIR";
 DirectoryType SipXecsService::BinDirType           = "SIPX_BINDIR";
 DirectoryType SipXecsService::LibExecDirType       = "SIPX_LIBEXECDIR";
+DirectoryType SipXecsService::NameType             = "SIPXECS_NAME";
 
 // lookup keys for the domain configuration
 const char* SipXecsService::DomainDbKey::SIP_DOMAIN_NAME = "SIP_DOMAIN_NAME";
@@ -204,6 +206,22 @@ const char* SipXecsService::Group()
    return DefaultGroup;
 }
 
+/// Name for the sipXecs system (can be overridden by environment or configure)
+const char* SipXecsService::Name()
+{
+   const char* name;
+   if ( (name = getenv(NameType)) )
+   {
+      OsSysLog::add(FAC_KERNEL, PRI_NOTICE,
+                    "SipXecsService::Name overridden by environment to '%s'",
+                    name);
+   }
+   else
+   {
+      name = DefaultName;
+   }
+   return name;
+}
 
 void SipXecsService::setLogPriority(const char* configSettingsFile, // path to configuration file
                                     const char* servicePrefix, /* the string "_LOG_LEVEL" is

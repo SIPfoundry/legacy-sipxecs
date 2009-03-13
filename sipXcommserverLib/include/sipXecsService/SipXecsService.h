@@ -39,6 +39,7 @@ class SipXecsService
    static DirectoryType DataDirType;
    static DirectoryType BinDirType;
    static DirectoryType LibExecDirType;
+   static DirectoryType NameType;
 
    /// Get a full path for a file in the specified directory type
    static OsPath Path(DirectoryType pathType, const char* fileName = NULL);
@@ -73,7 +74,10 @@ class SipXecsService
 
    /// Default process group name for a sipXecs service
    static const char* Group();
-   
+
+   /// Name for the sipXecs system (can be overridden by environment or configure)
+   static const char* Name();
+
    /// Read the log level from the specified config file and set it for the current process
    static void setLogPriority(const char* configSettingsFile, ///< path to configuration file
                               const char* servicePrefix, /**< the string "_LOG_LEVEL" is appended
@@ -124,6 +128,7 @@ class SipXecsService
    static const char* DefaultLibExecDir;
    static const char* DefaultUser;
    static const char* DefaultGroup;
+   static const char* DefaultName;
 
    UtlString  mServiceName;
 

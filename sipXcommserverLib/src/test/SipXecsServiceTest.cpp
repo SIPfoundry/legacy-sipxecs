@@ -26,6 +26,7 @@ class SipXecsServiceTest : public CppUnit::TestCase
    CPPUNIT_TEST(testBinPath);
    CPPUNIT_TEST(testLibExecPath);
    CPPUNIT_TEST(testDatabasePath);
+   CPPUNIT_TEST(testName);
 
    CPPUNIT_TEST_SUITE_END();
 
@@ -195,6 +196,14 @@ public:
          ASSERT_STR_EQUAL( "/override/data/test.db", testDatabasePath.data());
       }
 
+   void testName()
+   {
+      ASSERT_STR_EQUAL(SIPXECS_NAME, SipXecsService::Name());
+
+      setenv(SipXecsService::NameType, "newSipXecsName", true /* overwrite */);
+
+      ASSERT_STR_EQUAL("newSipXecsName", SipXecsService::Name());
+   }
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SipXecsServiceTest);

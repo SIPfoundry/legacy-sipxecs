@@ -15,6 +15,7 @@
 #include "AlarmUtils.h"
 #include "EmailNotifier.h"
 #include "EmailSendTask.h"
+#include "sipXecsService/SipXecsService.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -30,9 +31,9 @@ EmailNotifier::EmailNotifier() :
    mContacts(),
    mSmtpServer("localhost"),
    mReplyTo("postmaster@localhost"),
-   mEmailStrFrom("default Alarm Notification Service"),
+   mEmailStrFrom("default {0} Alarm Notification Service"),
    mEmailStrSubject("default Alarm {0}"),
-   mEmailStrIntro("default Message from sipXecs"),
+   mEmailStrIntro("default Message from {0}"),
    mEmailStrAlarm("default Alarm: {0}"),
    mEmailStrTime("default Reported at: {0}"),
    mEmailStrHost("default Reported on: {0}"),
@@ -147,6 +148,7 @@ OsStatus EmailNotifier::initStrings(TiXmlElement* emailElement)
 {   
    TiXmlElement* element = emailElement->FirstChildElement("email-intro");
    textContentShallow(mEmailStrIntro, element);
+   assembleMsg(mEmailStrIntro, SipXecsService::Name(), mEmailStrIntro);
 
    element = emailElement->FirstChildElement("email-subject");
    textContentShallow(mEmailStrSubject, element);
@@ -171,6 +173,7 @@ OsStatus EmailNotifier::initStrings(TiXmlElement* emailElement)
    
    element = emailElement->FirstChildElement("email-from");
    textContentShallow(mEmailStrFrom, element);
+   assembleMsg(mEmailStrFrom, SipXecsService::Name(), mEmailStrFrom);
    
    return OS_SUCCESS;
 }
