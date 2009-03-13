@@ -220,9 +220,6 @@ public final class TestUtil {
         sysProps.setProperty("jasperReportContextImpl.reportsDirectory", etcDirectory
                 + "/reports");
 
-        sysProps.setProperty("sipImpl.proxyHost", "localhost");
-        sysProps.setProperty("sipImpl.proxyPort", "5060");
-
         File vmDir = createDirectory(mailstoreDir, "Could not create voicemail store");
         createDirectory(tmpDir, "Could not create tmp directory");
 

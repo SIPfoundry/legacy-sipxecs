@@ -66,6 +66,9 @@ import org.apache.log4j.Appender;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipUri;
+import org.sipfoundry.sipxconfig.service.SipxProxyService;
+import org.sipfoundry.sipxconfig.service.SipxService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -80,15 +83,11 @@ public class SipStackBean {
 
     private static final String SDP = "sdp";
 
-    private int m_port;
-
     private String m_transport = "udp";
 
     private int m_maxForwards = 70;
-
-    private String m_proxyHost;
-
-    private int m_proxyPort = SipUri.DEFAULT_SIP_PORT;
+    
+    private int m_port;
 
     private Properties m_properties;
 
@@ -113,6 +112,8 @@ public class SipStackBean {
     private AuthenticationHelper m_authenticationHelper;
     
     private LocationsManager m_locationsManager;
+    
+    private SipxServiceManager m_sipxServiceManager;
 
     private final Timer m_timer = new Timer();
 
@@ -183,10 +184,6 @@ public class SipStackBean {
         return m_sipProvider;
     }
 
-    public void setPort(int port) {
-        m_port = port;
-    }
-
     public void setLogAppender(Appender logAppender) {
         m_logAppender = logAppender;
     }
@@ -204,14 +201,8 @@ public class SipStackBean {
         m_maxForwards = maxForwards;
     }
 
-    @Required
-    public void setProxyHost(String proxy) {
-        m_proxyHost = proxy;
-    }
-
-    @Required
-    public void setProxyPort(int port) {
-        m_proxyPort = port;
+    public void setPort(int port) {
+        m_port = port;
     }
 
     final CoreContext getCoreContext() {
@@ -221,6 +212,11 @@ public class SipStackBean {
     @Required
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
+    }
+    
+    @Required
+    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
+        m_sipxServiceManager = sipxServiceManager;
     }
 
     final String getHostName() {
@@ -296,9 +292,10 @@ public class SipStackBean {
             Request request = m_messageFactory.createRequest(requestURI, requestType, callIdHeader, cSeqHeader,
                     fromHeader, toHeader, Collections.singletonList(viaHeader), maxForwards);
 
-            // FIXME: we need to properly resolve address here
-            SipURI sipUri = m_addressFactory.createSipURI(null, m_proxyHost);
-            sipUri.setPort(m_proxyPort);
+            // FIXME: we need to properly resolve address here.  Primary host is not guaranteed to run proxy
+            String proxyHost = m_locationsManager.getPrimaryLocation().getFqdn();
+            SipURI sipUri = m_addressFactory.createSipURI(null, proxyHost);
+            sipUri.setPort(getProxyPort());
             sipUri.setLrParam();
             Address address = m_addressFactory.createAddress(sipUri);
 
@@ -418,5 +415,14 @@ public class SipStackBean {
     public void scheduleTerminate(Dialog dialog) {
         ReferTimerTask referTimerTask = new ReferTimerTask(dialog);
         m_timer.schedule(referTimerTask, 180000);
+    }
+    
+    private int getProxyPort() {
+        SipxService proxyService = (SipxProxyService) m_sipxServiceManager.getServiceByBeanId(SipxProxyService.BEAN_ID);
+        if (proxyService != null) {
+            return Integer.valueOf(proxyService.getSipPort());
+        } else {
+            return SipUri.DEFAULT_SIP_PORT;
+        }
     }
 }

@@ -15,8 +15,6 @@ sipxRlsService.rlsPort=5140
 sipxStatusService.httpsPort=8101
 sipxPageService.audioDir=@sipxpage.audio.dir@
 
-sipImpl.proxyHost=${PROXY_SERVER_ADDR}
-sipImpl.proxyPort=${PROXY_SERVER_SIP_PORT}
 sipImpl.port=5180
 
 # BEGIN: do not use
