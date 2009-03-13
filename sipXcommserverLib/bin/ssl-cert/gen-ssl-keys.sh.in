@@ -736,6 +736,12 @@ generatePKCSPackage()
     echo "______________________________________________________________________"
     echo ""
     echo "        Generating Java Trust Store                                   "
+    if test -e $TrustStore
+    then
+       $KeyTool -delete -noprompt -alias "${caName}" \
+                        -keystore "$TrustStore"  \
+                        -storepass "$Password" > /dev/null || exit 1
+    fi
     ${openssl} x509 -in    "${serverName}${restrictionName}.crt" |
     $KeyTool -import -noprompt -alias "${caName}" \
                         -keystore "$TrustStore"  \
