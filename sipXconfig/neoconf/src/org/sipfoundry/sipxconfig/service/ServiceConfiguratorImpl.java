@@ -43,6 +43,7 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
         for (ConfigurationFile configuration : configurations) {
             m_replicationContext.replicate(configuration);
         }
+        m_sipxProcessContext.markServicesForRestart(singleton(service));
     }
 
     /**

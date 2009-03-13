@@ -9,9 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.paging;
 
-import java.util.Arrays;
-
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxPageService;
@@ -26,10 +23,6 @@ public class PagingProvisioningContextImpl implements PagingProvisioningContext 
 
     private ServiceConfigurator m_serviceConfigurator;
 
-    private SipxProcessContext m_processContext;
-
-    private SipxPageService m_sipxPageService;
-
     private void replicatePagingConfig() {
         SipxPageService pageService = (SipxPageService) m_sipxServiceManager
                 .getServiceByBeanId(SipxPageService.BEAN_ID);
@@ -42,18 +35,11 @@ public class PagingProvisioningContextImpl implements PagingProvisioningContext 
      */
     public void deploy() {
         replicatePagingConfig();
-        //mark services for restart - a reminder will be shown to the user
-        m_processContext.markServicesForRestart(Arrays.asList(m_sipxPageService));
     }
 
     @Required
     public void setReplicationContext(SipxReplicationContext replicationContext) {
         m_replicationContext = replicationContext;
-    }
-
-    @Required
-    public void setProcessContext(SipxProcessContext processContext) {
-        m_processContext = processContext;
     }
 
     @Required
@@ -64,10 +50,5 @@ public class PagingProvisioningContextImpl implements PagingProvisioningContext 
     @Required
     public void setServiceConfigurator(ServiceConfigurator serviceConfigurator) {
         m_serviceConfigurator = serviceConfigurator;
-    }
-
-    @Required
-    public void setSipxPageService(SipxPageService sipxPageService) {
-        m_sipxPageService = sipxPageService;
     }
 }

@@ -23,11 +23,9 @@
   </bean>
 
   <bean id="pagingProvisioningContextImpl" class="org.sipfoundry.sipxconfig.paging.PagingProvisioningContextImpl">
-    <property name="processContext" ref="sipxProcessContext" />
     <property name="replicationContext" ref="sipxReplicationContext" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="serviceConfigurator" ref="serviceConfigurator" />
-    <property name="sipxPageService" ref="sipxPageService" />
   </bean>
 
   <alias alias="pagingProvisioningContext" name="pagingProvisioningContextImpl" />
