@@ -3,6 +3,7 @@ include $(top_srcdir)/config/subdir.am
 bin_SCRIPTS = \
 	 ${PACKAGE}-config \
 	 sipxecs-setup \
+	 sipxecs-upgrade \
 	 sipxecs-setup-system \
 	 analyze_483s \
 	 sipx-snapshot \
@@ -65,6 +66,7 @@ SCRIPT_TEMPLATES = \
 
 PythonScripts = \
 	sipxecs-setup.in \
+	sipxecs-upgrade.in \
 	sipxecs-setup-system.in \
 	sipx-package.py.in \
 	sipx-swadmin.py.in
