@@ -44,6 +44,16 @@ public interface SipxProcessContext {
      */
     public void manageServices(Location location, Collection< ? extends SipxService> services, Command command);
 
+    /**
+     * Restart service on all locations on which it is installed
+     *
+     * This is rarely (if ever) needed. In most cases you need to restart service on a specific
+     * location or just mark service for restart.
+     *
+     * @param services list of services that will receive the command
+     * @param command command to send
+     */
+    @Deprecated
     public void manageServices(Collection< ? extends SipxService> services, Command command);
 
     /**
@@ -60,4 +70,10 @@ public interface SipxProcessContext {
      * @param eventClass class of event that will trigger the command
      */
     public void restartOnEvent(Collection< ? extends SipxService> services, Class eventClass);
+
+    public void markServicesForRestart(Collection< ? extends SipxService> processes);
+
+    public boolean needsRestart();
+
+    public boolean needsRestart(Location location, SipxService service);
 }

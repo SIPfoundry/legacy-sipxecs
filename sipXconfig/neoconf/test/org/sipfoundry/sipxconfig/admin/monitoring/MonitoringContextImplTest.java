@@ -22,7 +22,6 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class MonitoringContextImplTest extends TestCase {
@@ -53,7 +52,7 @@ public class MonitoringContextImplTest extends TestCase {
         FileInputStream mrtgCfgStream = new FileInputStream(TestUtil.getTestSourceDirectory(getClass()) + "/" + "mrtg.cfg");
         TestHelper.copyStreamToDirectory(mrtgCfgStream, mrtgTempDir.getAbsolutePath(), "mrtg.cfg");
         m_mrtgConfig = new MRTGConfig(new File(mrtgTempDir, "mrtg.cfg").toString());
-        
+
         m_mrtgTemplateConfig = new MRTGConfig(TestUtil.getTestSourceDirectory(getClass()) + "/" + "mrtg-t.cfg");
         m_monitoringContextImpl.setMrtgConfig(m_mrtgConfig);
         m_monitoringContextImpl.setMrtgTemplateConfig(m_mrtgTemplateConfig);
@@ -144,7 +143,7 @@ public class MonitoringContextImplTest extends TestCase {
 
     public void testIntializeConfigFiles2() throws Exception {
         SipxProcessContext processContext = EasyMock.createMock(SipxProcessContext.class);
-        processContext.manageServices(EasyMock.isA(Collection.class), EasyMock.eq(Command.RESTART));
+        processContext.markServicesForRestart(EasyMock.isA(Collection.class));
         EasyMock.expectLastCall();
         EasyMock.replay(processContext);
 

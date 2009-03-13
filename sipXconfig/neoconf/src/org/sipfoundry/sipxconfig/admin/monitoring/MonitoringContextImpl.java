@@ -240,7 +240,7 @@ public class MonitoringContextImpl implements MonitoringContext, InitializingBea
     }
 
     private void restartMrtg() {
-        m_processContext.manageServices(Arrays.asList(m_mrtgService), SipxProcessContext.Command.RESTART);
+        m_processContext.markServicesForRestart(Arrays.asList(m_mrtgService));
     }
 
     /**

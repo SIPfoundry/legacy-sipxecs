@@ -143,10 +143,17 @@ public abstract class ServicesTable extends BaseComponent {
     @Asset("/images/cog.png")
     public abstract IAsset getServiceIcon();
 
+    @Asset("/images/service_restart.png")
+    public abstract IAsset getRestartIcon();
+
     public String getServiceLabel() {
         String serviceBeanId = getCurrentRow().getServiceBeanId();
         String key = "label." + serviceBeanId;
         return getMessage(getMessages(), key, serviceBeanId);
+    }
+
+    public boolean isNeedsRestart() {
+        return getCurrentRow().isNeedsRestart();
     }
 
     public Object[] getServiceStatus() {
@@ -173,7 +180,9 @@ public abstract class ServicesTable extends BaseComponent {
                 SipxService service = lss.getSipxService();
                 String serviceName = service.getProcessName();
                 if (serviceName != null) {
-                    serviceStatusList.add(new ServiceStatus(service.getBeanId(), Undefined));
+                    boolean needsRestart = getSipxProcessContext().needsRestart(location, service);
+                    ServiceStatus status = new ServiceStatus(service.getBeanId(), Undefined, needsRestart);
+                    serviceStatusList.add(status);
                 }
             }
             return serviceStatusList.toArray();
@@ -192,11 +201,11 @@ public abstract class ServicesTable extends BaseComponent {
                 ((AcdServerPage) page).setAcdServerId(acdServer.getId());
             }
         } else if (page instanceof EditSbcDevice) {
-            if (null != getSbcDeviceManager().getBridgeSbc(getLocationsManager().
-                    getLocation(locationId).getAddress())) {
+            if (null != getSbcDeviceManager().getBridgeSbc(
+                    getLocationsManager().getLocation(locationId).getAddress())) {
                 return EditSbcDevice.getEditPage(cycle, getSbcDeviceManager().getBridgeSbc(
-                        getLocationsManager().getLocation(locationId).getAddress()).getId(),
-                        getEditLocationPage().getPage());
+                        getLocationsManager().getLocation(locationId).getAddress()).getId(), getEditLocationPage()
+                        .getPage());
             } else {
                 return EditSbcDevice.getAddPage(cycle, getSbcDescriptor(), getEditLocationPage().getPage());
             }

@@ -42,7 +42,8 @@ public class PagingProvisioningContextImpl implements PagingProvisioningContext 
      */
     public void deploy() {
         replicatePagingConfig();
-        m_processContext.restartOnEvent(Arrays.asList(m_sipxPageService), PagingServerActivatedEvent.class);
+        //mark services for restart - a reminder will be shown to the user
+        m_processContext.markServicesForRestart(Arrays.asList(m_sipxPageService));
     }
 
     @Required

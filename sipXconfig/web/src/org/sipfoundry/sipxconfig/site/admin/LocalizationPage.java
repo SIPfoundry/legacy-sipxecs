@@ -29,7 +29,6 @@ import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.domain.DomainConfigReplicatedEvent;
 import org.sipfoundry.sipxconfig.service.SipxMediaService;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
@@ -133,7 +132,8 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
         if (exitCode > 0) {
             List<SipxService> processList = Arrays.asList(getSipxMediaService(), getSipxProxyService(),
                     getSipxRegistrarService());
-            getProcessContext().restartOnEvent(processList, DomainConfigReplicatedEvent.class);
+            //mark services for restart - a reminder will be shown to the user
+            getProcessContext().markServicesForRestart(processList);
             recordSuccess("message.label.languageChanged");
         } else if (exitCode < 0) {
             recordFailure("message.label.lanuageFailed");

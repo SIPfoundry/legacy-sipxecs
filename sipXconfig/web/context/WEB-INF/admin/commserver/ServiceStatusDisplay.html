@@ -6,7 +6,11 @@
 	
 	<span jwcid="viewStatusLabel@Insert" class="ognl:getLabelClass(status)"
 	      value="ognl:messages.getMessage('status.' + status.status)" />
-	
+    <span jwcid="@If" condition="ognl:status.needsRestart">
+      [<span jwcid="restart@Insert" class="service-error"
+        value="ognl:messages.getMessage('status.restart')" />]
+    </span>
+
 	<span jwcid="@If" condition="ognl:status.showDetails" renderTag="false">
 	   <span jwcid="@Any" id="ognl:'detailsSection-' + rowId">
 	       <span jwcid="@RenderBlock" block="ognl:linkBLock" />

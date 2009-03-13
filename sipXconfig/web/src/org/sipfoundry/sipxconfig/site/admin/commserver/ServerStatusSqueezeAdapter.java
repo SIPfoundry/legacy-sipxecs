@@ -11,7 +11,6 @@ package org.sipfoundry.sipxconfig.site.admin.commserver;
 
 import org.apache.tapestry.components.IPrimaryKeyConverter;
 import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus;
-import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status;
 
 public class ServerStatusSqueezeAdapter implements IPrimaryKeyConverter {
 
@@ -21,6 +20,6 @@ public class ServerStatusSqueezeAdapter implements IPrimaryKeyConverter {
     }
 
     public Object getValue(Object primaryKey) {
-        return new ServiceStatus((String) primaryKey, Status.Undefined);
+        return new ServiceStatus((String) primaryKey);
     }
 }

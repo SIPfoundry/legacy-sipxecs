@@ -2,3 +2,7 @@
   <span key="prompt.explain">One of the background jobs failed. For details click:</span>
   <a jwcid="@PageLink" page="admin/JobStatusPage"><span key="prompt.here">here</span></a>
 </div>
+<div jwcid="@If" condition="ognl:sipxProcessContext.needsRestart" class="user-warning">
+  <span key="prompt.services">At least one service needs Restart. For details click:</span>
+  <a jwcid="@PageLink" page="admin/commserver/LocationsPage"><span key="prompt.here">here</span></a>
+</div>

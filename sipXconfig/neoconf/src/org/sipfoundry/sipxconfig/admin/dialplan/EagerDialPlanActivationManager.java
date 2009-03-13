@@ -77,11 +77,10 @@ public abstract class EagerDialPlanActivationManager implements BeanFactoryAware
      */
     private void notifyOnDialPlanGeneration() {
         m_sipxReplicationContext.publishEvent(new DialPlanActivatedEvent(this));
-        SipxService[] services = new SipxService[] {
-            m_sipxServiceManager.getServiceByBeanId(SipxProxyService.BEAN_ID),
-            m_sipxServiceManager.getServiceByBeanId(SipxRegistrarService.BEAN_ID)
-        };
-        m_sipxProcessContext.restartOnEvent(Arrays.asList(services), DialPlanActivatedEvent.class);
+        SipxService proxy = m_sipxServiceManager.getServiceByBeanId(SipxProxyService.BEAN_ID);
+        SipxService registrar = m_sipxServiceManager.getServiceByBeanId(SipxRegistrarService.BEAN_ID);
+        // mark services for restart - a reminder will be shown to the user
+        m_sipxProcessContext.markServicesForRestart(Arrays.asList(proxy, registrar));
     }
 
     /**

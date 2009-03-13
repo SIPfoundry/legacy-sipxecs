@@ -1,0 +1,72 @@
+/*
+ *
+ *
+ * Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * Contributors retain copyright to elements licensed under a Contributor Agreement.
+ * Licensed to the User under the LGPL license.
+ *
+ *
+ */
+
+package org.sipfoundry.sipxconfig.admin.commserver;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import org.sipfoundry.sipxconfig.service.SipxService;
+
+public class RestartNeededState {
+    private final Map<String, Set<String>> m_cache = new HashMap<String, Set<String>>();
+
+    private Set<String> getServices(Location location) {
+        String fqdn = location.getFqdn();
+        Set<String> services = m_cache.get(fqdn);
+        if (services == null) {
+            services = new HashSet<String>();
+            m_cache.put(fqdn, services);
+        }
+        return services;
+    }
+
+    public void mark(Location location, SipxService service) {
+        Set<String> services = getServices(location);
+        services.add(service.getBeanId());
+    }
+
+    public void mark(Location location, Collection< ? extends SipxService> services) {
+        for (SipxService sipxService : services) {
+            mark(location, sipxService);
+        }
+    }
+
+    public void unmark(Location location, SipxService service) {
+        Set<String> services = getServices(location);
+        services.remove(service.getBeanId());
+    }
+
+    public void unmark(Location location, Collection< ? extends SipxService> services) {
+        for (SipxService sipxService : services) {
+            unmark(location, sipxService);
+        }
+    }
+
+    public boolean isMarked(Location location, SipxService service) {
+        Set<String> services = getServices(location);
+        return services.contains(service.getBeanId());
+    }
+
+    public boolean isEmpty() {
+        if (m_cache.isEmpty()) {
+            return true;
+        }
+        for (Set services : m_cache.values()) {
+            if (!services.isEmpty()) {
+                return false;
+            }
+        }
+        return true;
+    }
+}

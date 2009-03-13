@@ -13,7 +13,12 @@
               serviceLocation="ognl:serviceLocation" rowId="ognl:currentRowId">Running</span>
       </span>
       <span jwcid="serviceNameColumnValue@Block">
-        <img jwcid="@Image" image="asset:serviceIcon" align="absmiddle" />
+        <span jwcid="@If" condition="ognl:needsRestart">
+          <img jwcid="@Image" image="asset:restartIcon"/>
+        </span>
+        <span jwcid="@Else">
+		  <img jwcid="@Image" image="asset:serviceIcon" align="absmiddle" />
+        </span>
         <span jwcid="@If" condition="ognl:currentRowHasServiceLink">
           <a jwcid="@DirectLink" listener="listener:editService"
             parameters="ognl:{currentRow.serviceBeanId, serviceLocation.id}" >

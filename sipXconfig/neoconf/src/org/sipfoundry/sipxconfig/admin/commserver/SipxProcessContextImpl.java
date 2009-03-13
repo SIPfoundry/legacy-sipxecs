@@ -41,6 +41,7 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
     private LocationsManager m_locationsManager;
     private ApiProvider<ProcessManagerApi> m_processManagerApiProvider;
     private SipxServiceManager m_sipxServiceManager;
+    private final RestartNeededState m_servicesToRestart = new RestartNeededState();
 
     @Required
     public void setLocationsManager(LocationsManager locationsManager) {
@@ -55,6 +56,14 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
     @Required
     public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
         m_sipxServiceManager = sipxServiceManager;
+    }
+
+    public boolean needsRestart(Location location, SipxService service) {
+        return m_servicesToRestart.isMarked(location, service);
+    }
+
+    public boolean needsRestart() {
+        return !m_servicesToRestart.isEmpty();
     }
 
     /**
@@ -114,22 +123,31 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
                 continue;
             }
 
-            String status = entry.getValue();
-            ServiceStatus.Status st = ServiceStatus.Status.valueOf(status);
-            if (st == null) {
-                st = ServiceStatus.Status.Undefined;
-            }
-
-            serviceStatusList.add(new ServiceStatus(service.getBeanId(), st));
+            boolean needsRestart = needsRestart(location, service);
+            ServiceStatus status = new ServiceStatus(service.getBeanId(), entry.getValue(), needsRestart);
+            serviceStatusList.add(status);
         }
 
         return serviceStatusList.toArray(new ServiceStatus[serviceStatusList.size()]);
     }
 
+    /**
+     * Mark services for restart for all locations.
+     *
+     * Only services attached to a location are marked for restart
+     */
+    public void markServicesForRestart(Collection< ? extends SipxService> processes) {
+        for (Location location : m_locationsManager.getLocations()) {
+            for (SipxService service : processes) {
+                if (location.isServiceInstalled(service)) {
+                    m_servicesToRestart.mark(location, service);
+                }
+            }
+        }
+    }
+
     public void manageServices(Collection< ? extends SipxService> processes, Command command) {
-        Location[] locations = m_locationsManager.getLocations();
-        for (int i = 0; i < locations.length; i++) {
-            Location location = locations[i];
+        for (Location location : m_locationsManager.getLocations()) {
             manageServices(location, processes, command);
         }
     }
@@ -162,6 +180,8 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
             default:
                 break;
             }
+            // any command: start, stop, restart effectively clears need for restart..
+            m_servicesToRestart.unmark(location, processes);
         } catch (XmlRpcRemoteException e) {
             throw new UserException("&xml.rpc.error.operation", location.getFqdn());
         }
@@ -235,7 +255,7 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
             return services;
         }
     }
-    
+
     private String getHost() {
         return m_locationsManager.getPrimaryLocation().getFqdn();
     }

@@ -324,4 +324,8 @@ public class Location extends BeanWithId {
         List<SipxServiceBundle> bundles = sipxServiceManager.getBundlesForLocation(this);
         sipxServiceManager.setBundlesForLocation(this, bundles);
     }
+
+    public boolean isServiceInstalled(SipxService service) {
+        return getSipxServices().contains(service);
+    }
 }
