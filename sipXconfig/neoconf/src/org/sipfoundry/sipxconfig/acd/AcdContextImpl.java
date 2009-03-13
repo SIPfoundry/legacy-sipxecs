@@ -76,8 +76,6 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
 
     private BeanFactory m_beanFactory;
 
-    private String m_audioServerUrl;
-
     private boolean m_enabled = true;
 
     private LocationsManager m_locationsManager;
@@ -393,11 +391,8 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
     }
 
     public String getAudioServerUrl() {
-        return m_audioServerUrl;
-    }
-
-    public void setAudioServerUrl(String audioServerUrl) {
-        m_audioServerUrl = audioServerUrl;
+        String audioServerAddr = m_locationsManager.getPrimaryLocation().getAddress();
+        return "http://" + audioServerAddr + "/phone/acd/audio";
     }
 
     public void migrateOverflowQueues() {

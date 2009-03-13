@@ -36,8 +36,6 @@ public class DeviceDefaults {
 
     private static final String DEFAULT_SIP_PORT = "5060";
 
-    private String m_tftpServer;
-
     private String m_profileRootUrl;
 
     private DialPlanContext m_dialPlanContext;
@@ -103,7 +101,7 @@ public class DeviceDefaults {
      *
      * @param index 0-based index of the server (0 == Primary, 1 = Secondary, etc._
      * @param s service descriptor
-     * @return null if service is not defineds
+     * @return null if service is not defined
      */
     public String getServer(int index, ServiceDescriptor s) {
         List<ConfiguredService> servers = m_serviceManager.getEnabledServicesByType(s);
@@ -114,7 +112,7 @@ public class DeviceDefaults {
     }
 
     public String getTftpServer() {
-        return m_tftpServer;
+        return m_locationsManager.getPrimaryLocation().getAddress();
     }
 
     public void setProxyServerAddr(String proxyServerAddr) {
@@ -160,10 +158,6 @@ public class DeviceDefaults {
 
     public void setProfileRootUrl(String profileUrl) {
         m_profileRootUrl = profileUrl;
-    }
-
-    public void setTftpServer(String tftpServer) {
-        m_tftpServer = tftpServer;
     }
 
     public String getAuthorizationRealm() {

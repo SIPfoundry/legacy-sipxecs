@@ -25,7 +25,6 @@ phoneDefaults.proxyServerSipPort=${PROXY_SERVER_SIP_PORT}
 # This use of MY_FULL_HOSTNAME needs to remain as part of the upgrade to 4.0
 locationsMigrationTrigger.hostname=${MY_FULL_HOSTNAME}
 
-phoneDefaults.tftpServer=${CONFIG_SERVER_ADDR}
 # imdb/sipdb location for https access
 localBackupPlan.backupDirectory=@sipxpbx.backup.dir@
 ftpBackupPlan.backupDirectory=@sipxpbx.download.dir@
@@ -82,7 +81,6 @@ sysdir.vxml.prompts=@sipxvxml.data.dir@/prompts
 sysdir.vxml.scripts=@www.dir@/doc/aa_vxml
 sysdir.libexec=@sipxpbx.libexec.dir@
 
-acdContextImpl.audioServerUrl=http://${CONFIG_SERVER_ADDR}/phone/acd/audio
 # ACD server defaults - can be changed in UI
 acdServer.port=8110
 acdServer.agentPort=8120

@@ -129,6 +129,7 @@ public class PhoneTestDriver {
         
         Location defaultLocation = new Location();
         defaultLocation.setFqdn("pbx.sipfoundry.org");
+        defaultLocation.setAddress("192.168.1.1");
         LocationsManager locationsManager = EasyMock.createMock(LocationsManager.class);
         locationsManager.getPrimaryLocation();
         EasyMock.expectLastCall().andReturn(defaultLocation).anyTimes();
@@ -139,7 +140,6 @@ public class PhoneTestDriver {
         defaults.setTimeZoneManager(TestHelper.getTimeZoneManager(new DeviceTimeZone(tz))); // no DST for consistent
         // results
         defaults.setDomainManager(TestHelper.getTestDomainManager("sipfoundry.org"));
-        defaults.setTftpServer("tftp.sipfoundry.org");
         defaults.setProxyServerAddr("10.1.2.3");
         defaults.setProxyServerSipPort("5555");
         
