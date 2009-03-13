@@ -24,6 +24,8 @@
 #include <net/NetMd5Codec.h>
 #include <net/SipDialogEvent.h>
 #include <net/SipDialogMgr.h>
+#include <net/SipLine.h>
+#include <net/SipLineMgr.h>
 #include <net/SipMessage.h>
 #include <net/SipRefreshManager.h>
 #include <net/SipRegEvent.h>
@@ -96,10 +98,14 @@ void notifyEventCallback(const char* earlyDialogHandle,
 
 void usage(const char* szExecutable)
 {
-    fprintf(stderr, "\nUsage: %s [-p localPort] [-e expiration] target-URI [event-type [content-type]]\n"
+    fprintf(stderr,
+            "\nUsage: %s [-p localPort] [-e expiration]\n"
+            "          [-C realm user password]\n"
+            "          target-URI [event-type [content-type]]\n"
             "\n"
             "    localPort defaults to 0; select ephemeral port\n"
             "    expiration defaults to 300 (seconds)\n"            
+            "    -C provides authentication credentials\n"
             "    event-type defaults to '%s'\n"
             "    content-type defaults to '%s',\n"
             "        which supports dialog, dialog-list, reg, and presence events\n",
@@ -113,7 +119,10 @@ bool parseArgs(int argc,
                int*   pExpiration,
                char** ppTargetURI,
                char** ppEventType,
-               char** ppContentType)
+               char** ppContentType,
+               char** ppRealm,
+               char** ppUser,
+               char** ppPassword)
 {
     bool bRC = false;
 
@@ -132,6 +141,9 @@ bool parseArgs(int argc,
     *ppTargetURI = NULL;
     *ppEventType = NULL;
     *ppContentType = NULL;
+    *ppRealm = NULL;
+    *ppUser = NULL;
+    *ppPassword = NULL;
     
     for (int i=1; i<argc; i++)
     {
@@ -158,6 +170,25 @@ bool parseArgs(int argc,
                 fprintf(stderr, "missing expiration value after -e\n");
                 break ; // Error
             }
+        }
+        else if (strcmp(argv[i], "-C") == 0)
+        {
+            if ((i+3) < argc)
+            {
+               *ppRealm = strdup(argv[++i]);
+               *ppUser = strdup(argv[++i]);
+               *ppPassword = strdup(argv[++i]);
+            }
+            else
+            {
+               fprintf(stderr, "Insufficient number of values after -C\n");
+               break ; // Error
+            }
+        }
+        else if (argv[i][0] == '-')
+        {
+           fprintf(stderr, "Invalid option: %s\n", argv[i]);
+           break;
         }
         else
         {
@@ -202,6 +233,9 @@ int main(int argc, char* argv[])
     char* targetURI;
     char* eventType;
     char* contentType;
+    char* realm;
+    char* user;
+    char* password;
         
    // Initialize logging.
    OsSysLog::initialize(0, "test");
@@ -209,7 +243,9 @@ int main(int argc, char* argv[])
    OsSysLog::setLoggingPriority(PRI_DEBUG);
    OsSysLog::setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
    
-   if (!parseArgs(argc, argv, &port, &expiration, &targetURI, &eventType, &contentType))
+   if (!parseArgs(argc, argv, &port, &expiration,
+                  &targetURI, &eventType, &contentType,
+                  &realm, &user, &password))
    {
        usage(argv[0]);
        exit(1);
@@ -228,10 +264,68 @@ int main(int argc, char* argv[])
       myDomainName = "example.com";
    }
 
+   UtlString fromString = "sip:dialogwatch@" + myDomainName;
+   Url fromUri(fromString, TRUE);
+
    // Create the SIP Subscribe Client
 
+   SipLineMgr lineMgr;
+
+   // Add credentials if they were specified.
+   if (realm)
+   {
+      UtlString id;
+      id += "sip:";
+      id += user;
+      id += "@";
+      id += realm;
+      Url identity(id, TRUE);
+
+      SipLine line( fromUri  // user entered url
+                   ,identity // identity url
+                   ,user     // user
+                   ,TRUE     // visible
+                   ,SipLine::LINE_STATE_PROVISIONED
+                   ,TRUE     // auto enable
+                   ,FALSE    // use call handling
+         );
+
+      lineMgr.addLine(line);
+
+      UtlString cred_input;
+      UtlString cred_digest;
+
+      cred_input.append(user);
+      cred_input.append(":");
+      cred_input.append(realm);
+      cred_input.append(":");
+      cred_input.append(password);
+
+      NetMd5Codec::encode(cred_input.data(), cred_digest);
+
+      fprintf(stderr,
+              "Adding identity '%s': user='%s' realm='%s' password='%s' H(A1)='%s'\n",
+              identity.toString().data(), user, realm, password, cred_digest.data()
+         );
+
+      assert(lineMgr.addCredentialForLine(identity, realm, user, cred_digest,
+                                          HTTP_DIGEST_AUTHENTICATION));
+   }
+
    SipUserAgent* pSipUserAgent = 
-      new SipUserAgent(port, port, PORT_NONE);
+      new SipUserAgent(port, port, PORT_NONE,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       NULL,
+                       &lineMgr);
    // Add the 'eventlist' extension, so dialogwatch can subscribe to
    // event lists.
    pSipUserAgent->allowExtension("eventlist");
@@ -250,21 +344,23 @@ int main(int argc, char* argv[])
                                          refreshMgr);
    sipSubscribeClient.start();  
 
-   // Construct a name-addr from targetURI.
-   UtlString toUri = '<' + targetURI + '>';
-   UtlString fromUri = "dialogwatch@" + myDomainName;
+   // Construct a name-addr from targetURI, in case it contains parameters.
+   UtlString toUri;
+   toUri = "<";
+   toUri += targetURI;
+   toUri += ">";
    UtlString earlyDialogHandle;
             
    fprintf(stderr,
-           "resourceId '%s' fromUri '%s' toUri '%s' event '%s' content-type '%s' port=%d expiration=%d\n",
-           targetURI, fromUri.data(), toUri.data(), eventType, contentType, 
+           "resourceId '%s' fromString '%s' toUri '%s' event '%s' content-type '%s' port=%d expiration=%d\n",
+           targetURI, fromString.data(), toUri.data(), eventType, contentType, 
            port, expiration);
 
    UtlBoolean status =
       sipSubscribeClient.addSubscription(targetURI,
                                          eventType,
                                          contentType,
-                                         fromUri.data(),
+                                         fromString.data(),
                                          toUri.data(),
                                          NULL,
                                          expiration,
@@ -276,6 +372,7 @@ int main(int argc, char* argv[])
    if (!status)
    {
       fprintf(stderr, "Subscription attempt failed.\n");
+      exit(1);
    }
    else
    {

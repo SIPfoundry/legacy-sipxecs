@@ -9,7 +9,9 @@ use strict;
 
 # Check for URI to subscribe to.
 if ($#ARGV < 0) {
-    print STDERR "Usage: $0 URI\n";
+    print STDERR "Usage of dialogdisplay is the same as of dialogwatch:\n";
+    print STDERR "\n";
+    system("dialogwatch");
     exit 1;
 }
 my($URI) = $ARGV[0];
@@ -21,8 +23,8 @@ my($output_suffix) = '[end of body]';
 # Record the last subscription state update.
 my($last_subscription_state);
 
-# Set up dialogwatch.
-my($command) = "dialogwatch '$URI' 2>/dev/null";
+# Run dialogwatch, with the same arguments as dialogdisplay.
+my($command) = "dialogwatch '" . join("' '", @ARGV) . "' 2>/dev/null";
 open(DIALOGWATCH, $command . '|') ||
     die "Error starting dialogwatch with command '$command': $!\n";
 
