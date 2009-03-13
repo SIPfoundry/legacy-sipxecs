@@ -170,12 +170,12 @@ public class PhoneTestDriver {
         return defaults;
     }
 
-    public static void supplyVitalEmergencyData(Phone phone) {
+    public static void supplyVitalEmergencyData(Phone phone, String emergencyValue) {
         DeviceDefaults defaults = phone.getPhoneContext().getPhoneDefaults();
         IMocksControl dpControl = EasyMock.createNiceControl();
         DialPlanContext dpContext = dpControl.createMock(DialPlanContext.class);
         dpContext.getLikelyEmergencyInfo();
-        EmergencyInfo emergency = new EmergencyInfo("emergency.example.org", 8060, "sos") {
+        EmergencyInfo emergency = new EmergencyInfo("emergency.example.org", 8060, emergencyValue) {
         };
         dpControl.andReturn(emergency).anyTimes();
         dpContext.getVoiceMail();

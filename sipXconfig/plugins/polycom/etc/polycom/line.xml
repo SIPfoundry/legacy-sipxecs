@@ -387,8 +387,8 @@
         </setting>
         <setting name="emergency.1.value">
           <type>
-            <!-- Comma separated list of entries or single entry representing a or a combination of SIP
-              URL. -->
+            <!--Comma separated list of entries or single entry representing a SIP URL or a combination of
+              SIP URLs.-->
           </type>
           <value />
         </setting>

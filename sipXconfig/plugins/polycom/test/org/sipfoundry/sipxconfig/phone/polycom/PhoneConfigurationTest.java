@@ -55,7 +55,7 @@ public class PhoneConfigurationTest extends XMLTestCase {
         m_testDriver.getPrimaryLine().setSettingValue("reg/label", "Joe & Joe");
         phone.beforeProfileGeneration();
         PhoneConfiguration cfg = new PhoneConfiguration(phone);
-        PhoneTestDriver.supplyVitalEmergencyData(phone);
+        PhoneTestDriver.supplyVitalEmergencyData(phone, "sos,helpme");
 
         m_pg.generate(m_location, cfg, null, "profile");
 

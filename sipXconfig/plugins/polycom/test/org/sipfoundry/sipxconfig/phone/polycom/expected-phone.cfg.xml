@@ -453,16 +453,28 @@
       <emergency
         dialplan.1.routing.emergency.1.value="sos"
         dialplan.1.routing.emergency.1.server.1="1"
+        dialplan.1.routing.emergency.2.value="helpme"
+        dialplan.1.routing.emergency.2.server.1="1"
         dialplan.2.routing.emergency.1.value="sos"
         dialplan.2.routing.emergency.1.server.1="1"
+        dialplan.2.routing.emergency.2.value="helpme"
+        dialplan.2.routing.emergency.2.server.1="1"
         dialplan.3.routing.emergency.1.value="sos"
         dialplan.3.routing.emergency.1.server.1="1"
+        dialplan.3.routing.emergency.2.value="helpme"
+        dialplan.3.routing.emergency.2.server.1="1"
         dialplan.4.routing.emergency.1.value="sos"
         dialplan.4.routing.emergency.1.server.1="1"
+        dialplan.4.routing.emergency.2.value="helpme"
+        dialplan.4.routing.emergency.2.server.1="1"
         dialplan.5.routing.emergency.1.value="sos"
         dialplan.5.routing.emergency.1.server.1="1"
+        dialplan.5.routing.emergency.2.value="helpme"
+        dialplan.5.routing.emergency.2.server.1="1"
         dialplan.6.routing.emergency.1.value="sos"
         dialplan.6.routing.emergency.1.server.1="1"
+        dialplan.6.routing.emergency.2.value="helpme"
+        dialplan.6.routing.emergency.2.server.1="1"
       />
     </routing>
   </dialplan>

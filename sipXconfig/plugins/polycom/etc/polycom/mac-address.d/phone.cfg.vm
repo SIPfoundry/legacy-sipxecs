@@ -139,9 +139,11 @@
       <emergency
 #foreach ($line in $lines)
 #set ($i = $velocityCount)
-#set ($group = $line.getSetting('line-dialplan').getSetting('digitmap').getSetting("routing.1"))
-        dialplan.${i}.routing.emergency.1.value="$!{group.getSetting('emergency.1.value').Value}"
-        dialplan.${i}.routing.emergency.1.server.1="1"
+#foreach ($emergencyVal in $cfg.getLineEmergencySetting($line))
+#set ($j = $velocityCount)
+        dialplan.${i}.routing.emergency.${j}.value="$!{emergencyVal}"
+        dialplan.${i}.routing.emergency.${j}.server.1="1"
+#end
 #end
       />
     </routing>

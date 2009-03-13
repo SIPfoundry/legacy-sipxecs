@@ -14,9 +14,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.phone.Line;
+import org.sipfoundry.sipxconfig.setting.Setting;
 
 /**
  * Responsible for generating MAC_ADDRESS.d/phone.cfg
@@ -60,5 +62,13 @@ public class PhoneConfiguration extends ProfileContext {
         }
 
         return linesSettings;
+    }
+
+    public String[] getLineEmergencySetting(Setting lineset) {
+        String emergencyValue = lineset
+                                .getSetting("line-dialplan/digitmap/routing.1/emergency.1.value")
+                                .getValue();
+
+        return StringUtils.split(emergencyValue, ",");
     }
 }

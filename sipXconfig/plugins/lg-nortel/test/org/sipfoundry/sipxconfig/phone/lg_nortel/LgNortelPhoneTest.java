@@ -159,7 +159,7 @@ public class LgNortelPhoneTest extends TestCase {
         supplyTestData(phone);
 
         // test E911 forwarding
-        PhoneTestDriver.supplyVitalEmergencyData(phone);
+        PhoneTestDriver.supplyVitalEmergencyData(phone, "sos");
 
         phone.getProfileTypes()[0].generate(phone, location);
         InputStream expectedProfile = getClass().getResourceAsStream("mac_e911.cfg");
