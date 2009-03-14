@@ -15,6 +15,11 @@ import java.util.LinkedList;
  * @author Mardy Marshall
  */
 public class NetworkResources {
+	public class SIPServer {
+		InetAddress IPaddress;
+		String hostName;
+	}
+	
     public InetAddress siadr;
     public String sname;
     public String file;
@@ -26,6 +31,6 @@ public class NetworkResources {
     public LinkedList<InetAddress> domainNameServers;
     public LinkedList<InetAddress> ntpServers;
     public int timeOffset;
-    public LinkedList<InetAddress> sipXservers;
+    public LinkedList<SIPServer> sipServers;
 
 }

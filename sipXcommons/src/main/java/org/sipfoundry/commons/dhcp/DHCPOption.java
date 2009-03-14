@@ -42,6 +42,7 @@ public abstract class DHCPOption {
         BOOT_FILE(67),
         SMTP_SERVER(69),
         WWW_SERVER(72),
+        SIP_SERVER(120),
         OPTION_150(150),
         END_OF_OPTIONS(255),
         INVALID(-1);
@@ -125,6 +126,8 @@ public abstract class DHCPOption {
                     return SMTP_SERVER;
                 case 72:
                     return WWW_SERVER;
+                case 120:
+                    return SIP_SERVER;
                 case 150:
                     return OPTION_150;
                 case 255:
@@ -278,6 +281,11 @@ public abstract class DHCPOption {
                     wwwServerOption.unmarshal(dataStream);
                     optionsList.add(wwwServerOption);
                     break;
+                case SIP_SERVER:
+                    SIPServerOption sipServerOption = new SIPServerOption();
+                    sipServerOption.unmarshal(dataStream);
+                    optionsList.add(sipServerOption);
+                    break;
                 case OPTION_150:
                     Option150Option option150Option = new Option150Option();
                     option150Option.unmarshal(dataStream);
@@ -392,6 +400,10 @@ public abstract class DHCPOption {
                     WWWServerOption wwwServerOption = (WWWServerOption) option;
                     journalService.println("  WWW Server: " + wwwServerOption.toString());
                     break;
+                case SIP_SERVER:
+                    SIPServerOption sipServerOption = (SIPServerOption) option;
+                    journalService.println("  SIP Server: " + sipServerOption.toString());
+                    break;
                 case OPTION_150:
                     Option150Option option150Option = (Option150Option) option;
                     journalService.println("  Option 150 Server: " + option150Option.toString());
@@ -477,6 +489,10 @@ public abstract class DHCPOption {
                     break;
                 case WWW_SERVER:
                     // WWWServerOption wwwServerOption = (WWWServerOption)option;
+                    break;
+                case SIP_SERVER:
+                    SIPServerOption sipServerOption = (SIPServerOption) option;
+                    networkResources.sipServers = sipServerOption.getServerList();
                     break;
                 default:
             }
