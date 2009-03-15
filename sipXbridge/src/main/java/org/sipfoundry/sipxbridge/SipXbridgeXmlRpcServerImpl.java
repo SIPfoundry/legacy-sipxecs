@@ -11,6 +11,7 @@ import java.util.TimerTask;
 
 import javax.net.ssl.SSLServerSocket;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpListener;
@@ -36,7 +37,8 @@ public class SipXbridgeXmlRpcServerImpl implements SipXbridgeXmlRpcServer {
 	public static void startXmlRpcServer() throws SipXbridgeException {
 		try {
 			if (!isWebServerRunning) {
-
+				Logger.getLogger("org.mortbay").setLevel(Level.OFF);
+				Logger.getLogger("org.apache.xmlrpc").setLevel(Level.OFF);
 				isWebServerRunning = true;
 				webServer = new HttpServer();
 
@@ -129,8 +131,7 @@ public class SipXbridgeXmlRpcServerImpl implements SipXbridgeXmlRpcServer {
 
 			}
 		} catch (Exception ex) {
-			throw new SipXbridgeException(
-					"Exception starting web server", ex);
+			throw new SipXbridgeException("Exception starting web server", ex);
 		}
 
 	}
@@ -230,16 +231,21 @@ public class SipXbridgeXmlRpcServerImpl implements SipXbridgeXmlRpcServer {
 		HashMap<String, Object> retval = createSuccessMap();
 
 		try {
+
+			if (Gateway.getState() == GatewayState.INITIALIZED) {
+				Gateway.stop();
+			}
 			/*
 			 * Need a fresh timer here because the gateway timer is canceled.
 			 */
+
 			new Timer().schedule(new TimerTask() {
 				public void run() {
 					logger.debug("Exitting bridge!");
 					System.exit(0);
 				}
 			}, 1000);
-			Gateway.stop();
+
 		} catch (Exception ex) {
 			retval.put(STATUS_CODE, ERROR);
 			retval.put(ERROR_INFO, formatStackTrace(ex));

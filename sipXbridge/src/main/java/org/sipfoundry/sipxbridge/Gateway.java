@@ -853,6 +853,11 @@ public class Gateway {
 		}
 
 		Gateway.state = GatewayState.INITIALIZING;
+		
+		/*
+		 * Start the web server first so that you can restart reliably.
+		 */
+		SipXbridgeXmlRpcServerImpl.startXmlRpcServer();
 
 		/*
 		 * Initialize the JAIN-SIP listening points.
@@ -888,8 +893,7 @@ public class Gateway {
 		 */
 		registerWithItsp();
 
-		SipXbridgeXmlRpcServerImpl.startXmlRpcServer();
-
+	
 		/*
 		 * Initialize connection with sipxrelay.
 		 */
