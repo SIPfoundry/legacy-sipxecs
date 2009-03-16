@@ -530,6 +530,12 @@ def set_DNS () :
     if runningAsRoot() :
         file (resolvFile, 'w').write(resolvContent)
 
+    dhcpResolvFile = resolvFile + '.predhclient'
+    if os.path.exists(dhcpResolvFile):
+        log_printout("remove %s" % dhcpResolvFile)
+        if runningAsRoot():
+            os.remove(dhcpResolvFile)
+        
     # Create the configuration of the local name server
     #  a) non HA system:  A Master DNS server is configured on the sipX host
     #  b) HA Master system: A Master DNS server is configured on the Master sipX host.
