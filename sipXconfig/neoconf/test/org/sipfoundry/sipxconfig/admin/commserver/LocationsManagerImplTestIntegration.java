@@ -13,17 +13,22 @@ import static java.util.Arrays.*;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
+import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxService;
+import org.springframework.test.annotation.DirtiesContext;
 
 public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
     private LocationsManager m_out;
     private AcdContext m_acdContext;
     private ConferenceBridgeContext m_conferenceBridgeContext;
+    private LocationsManagerImpl m_locationsManagerImpl;
+    private DaoEventPublisher m_originalDaoEventPublisher;
 
     public void testGetLocations() throws Exception {
         loadDataSetXml("admin/commserver/clearLocations.xml");
@@ -82,6 +87,12 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         location.setName("test location");
         location.setAddress("192.168.1.2");
         location.setFqdn("localhost");
+        
+        DaoEventPublisher daoEventPublisher = EasyMock.createMock(DaoEventPublisher.class);
+        daoEventPublisher.publishSave(location);
+        EasyMock.expectLastCall();
+        EasyMock.replay(daoEventPublisher);
+        modifyContext(m_locationsManagerImpl, "daoEventPublisher", m_originalDaoEventPublisher, daoEventPublisher);
 
         m_out.storeLocation(location);
 
@@ -90,6 +101,8 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         assertEquals("test location", dbLocations[0].getName());
         assertEquals("192.168.1.2", dbLocations[0].getAddress());
         assertEquals("localhost", dbLocations[0].getFqdn());
+        
+        EasyMock.verify(daoEventPublisher);
     }
 
     public void testDelete() throws Exception {
@@ -98,20 +111,34 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         assertEquals(2, locationsBeforeDelete.length);
 
         Location locationToDelete = m_out.getLocation(101);
+        
+        DaoEventPublisher daoEventPublisher = EasyMock.createMock(DaoEventPublisher.class);
+        daoEventPublisher.publishDelete(locationToDelete);
+        EasyMock.expectLastCall();
+        EasyMock.replay(daoEventPublisher);
+        modifyContext(m_locationsManagerImpl, "daoEventPublisher", m_originalDaoEventPublisher, daoEventPublisher);
 
         m_out.deleteLocation(locationToDelete);
 
         Location[] locationsAfterDelete = m_out.getLocations();
         assertEquals(1, locationsAfterDelete.length);
         assertEquals("remotehost.example.org", locationsAfterDelete[0].getFqdn());
+        
+        EasyMock.verify(daoEventPublisher);
     }
 
     public void testDeleteWithServices() throws Exception {
         loadDataSetXml("admin/commserver/seedLocationsAndServices.xml");
         Location[] locationsBeforeDelete = m_out.getLocations();
         assertEquals(2, locationsBeforeDelete.length);
-
+        
         Location locationToDelete = m_out.getLocation(101);
+
+        DaoEventPublisher daoEventPublisher = EasyMock.createMock(DaoEventPublisher.class);
+        daoEventPublisher.publishDelete(locationToDelete);
+        EasyMock.expectLastCall();
+        EasyMock.replay(daoEventPublisher);
+        modifyContext(m_locationsManagerImpl, "daoEventPublisher", m_originalDaoEventPublisher, daoEventPublisher);
 
         m_out.deleteLocation(locationToDelete);
 
@@ -159,6 +186,18 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
 
     public void setLocationsManager(LocationsManager locationsManager) {
         m_out = locationsManager;
+    }
+    
+    /*
+     * Allows access to setters not exposed in interface.  Used for setting mock
+     * objects for testing purposes
+     */
+    public void setLocationsManagerImpl(LocationsManagerImpl locationsManagerImpl) {
+        m_locationsManagerImpl = locationsManagerImpl;
+    }
+    
+    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
+        m_originalDaoEventPublisher = daoEventPublisher;
     }
 
     public void setAcdContext(AcdContext acdContext) {

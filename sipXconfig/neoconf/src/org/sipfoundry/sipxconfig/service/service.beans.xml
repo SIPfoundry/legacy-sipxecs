@@ -62,7 +62,6 @@
     <property name="processManagerApiProvider" ref="processManagerApiProvider" />
   </bean>
 
-
   <bean id="serviceConfiguratorImpl" class="org.sipfoundry.sipxconfig.service.ServiceConfiguratorImpl">
     <!-- eager versions of sipx replication and dial plan activation manager injected here -->
     <property name="sipxReplicationContext" ref="sipxReplicationContextDao" />
@@ -87,7 +86,7 @@
     <property name="serviceModelSource" ref="sipxServiceModelSource" />
     <property name="bundleModelSource" ref="sipxBundleModelSource" />
   </bean>
-
+       
   <bean id="sipxServiceManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.service.SipxServiceManager" />
     <property name="target" ref="sipxServiceManagerImpl" />
@@ -113,6 +112,27 @@
   <bean id="serviceConfigurationFile" parent="defaultConfigurationFile" abstract="true">
     <property name="velocityEngine" ref="velocityEngine" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
+  </bean>
+  
+  <bean id="sipxSupervisorService" class="org.sipfoundry.sipxconfig.service.SipxSupervisorService" parent="sipxService"
+  	scope="prototype">
+  	<property name="processName" value="sipxsupervisor" />
+    <property name="configurations">
+      <list>
+        <ref bean="sipxSupervisorConfiguration" />
+      </list>
+    </property>
+  </bean>
+  
+  <bean id="sipxSupervisorConfiguration" class="org.sipfoundry.sipxconfig.service.SipxSupervisorConfiguration" scope="prototype"
+    parent="serviceConfigurationFile">
+    <property name="template" value="commserver/sipxsupervisor-config.vm" />
+    <property name="name" value="sipxsupervisor-config" />
+  </bean>  
+  
+  <bean id="sipxSupervisorDaoListener" class="org.sipfoundry.sipxconfig.service.SipxSupervisorDaoListener">
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="serviceConfigurator" ref="serviceConfigurator" />
   </bean>
 
   <bean id="sipxProxyService" class="org.sipfoundry.sipxconfig.service.SipxProxyService" parent="sipxService"
@@ -533,5 +553,6 @@
         <ref bean="managementBundle" />
       </set>
     </property>
-  </bean>
+  </bean>  
+     
 </beans>

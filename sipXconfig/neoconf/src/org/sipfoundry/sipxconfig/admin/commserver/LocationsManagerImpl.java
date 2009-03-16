@@ -77,7 +77,7 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
         } else {
             m_daoEventPublisher.publishSave(location);
             getHibernateTemplate().update(location);
-        }
+        }        
     }
 
     public void deleteLocation(Location location) {

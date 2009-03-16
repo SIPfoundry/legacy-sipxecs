@@ -41,7 +41,7 @@ public class InitialConfig {
     public void setTmpDirectory(String tmpDirectory) {
         m_tmpDirectory = tmpDirectory;
     }
-
+        
     public String getBinDirectory() {
         return m_binDirectory;
     }
@@ -69,6 +69,7 @@ public class InitialConfig {
 
     private void createArchive(String locationName) {
         try {
+            
             String[] cmdLine = new String[] {
                 m_binDirectory + INITIAL_CONFIG, locationName
             };
@@ -76,7 +77,7 @@ public class InitialConfig {
             java.lang.Process proc = pb.directory(new File(m_tmpDirectory)).start();
             LOG.debug("Executing: " + StringUtils.join(cmdLine, " "));
             proc.waitFor();
-
+            
             if (proc.exitValue() != 0) {
                 throw new UserException("Script finished with exit code: " + proc.exitValue());
             }

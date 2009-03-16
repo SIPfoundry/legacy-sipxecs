@@ -45,10 +45,14 @@ public class ValueStorage extends BeanWithId implements Storage {
         SettingValue settingValue = null;
         // null is legal value so test for key existance
         if (getDatabaseValues().containsKey(setting.getPath())) {            
-            String value = (String) getDatabaseValues().get(setting.getPath());
+            String value = getSettingValue(setting.getPath());
             settingValue = new SettingValueImpl(blankToNull(value));
         }
         return settingValue;
+    }
+    
+    public String getSettingValue(String path) {
+        return (String) getDatabaseValues().get(path);   
     }
 
     public void setSettingValue(String path, String value) {

@@ -28,6 +28,9 @@ import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
+import org.sipfoundry.sipxconfig.service.SipxService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.service.SipxSupervisorService;
 
 public abstract class LocationsPage extends BasePage implements PageBeginRenderListener {
     public static final String PAGE = "admin/commserver/LocationsPage";
@@ -37,6 +40,9 @@ public abstract class LocationsPage extends BasePage implements PageBeginRenderL
 
     @InjectObject("spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
+    
+    @InjectObject("spring:sipxServiceManager")
+    public abstract SipxServiceManager getSipxServiceManager();    
 
     @InjectObject("spring:domainManager")
     public abstract DomainManager getDomainManager();
@@ -110,6 +116,11 @@ public abstract class LocationsPage extends BasePage implements PageBeginRenderL
             for (LocationSpecificService service : locationToActivate.getServices()) {
                 getServiceConfigurator().replicateServiceConfig(locationToActivate, service.getSipxService());
             }
+            
+            //replicate sipxsupervisor service
+            SipxService supervisorService = getSipxServiceManager().getServiceByBeanId(SipxSupervisorService.BEAN_ID);
+            getServiceConfigurator().replicateServiceConfig(locationToActivate, supervisorService);
+            
             getServiceConfigurator().enforceRole(locationToActivate);
         }
     }

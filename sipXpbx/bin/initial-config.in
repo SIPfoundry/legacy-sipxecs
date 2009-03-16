@@ -73,8 +73,11 @@ mkdir -p "${INITIAL_CONFIG}@SIPX_CONFDIR@" || exit 1
 # copy the domain configuration
 cp -v "@SIPX_CONFDIR@/domain-config" "${INITIAL_CONFIG}@SIPX_CONFDIR@" || exit 1
 
+# copy the supervisor configuration (location specific)
+cp -v "@SIPX_CONFDIR@/sipxsupervisor-config" "${INITIAL_CONFIG}@SIPX_CONFDIR@" || exit 1
+
 # create a modified ntp.conf file 
-#    modify local clock configuration so it will be lower stratum than the master systems clock
+# modify local clock configuration so it will be lower stratum than the master systems clock
 test -d "${INITIAL_CONFIG}/etc" || mkdir -p "${INITIAL_CONFIG}/etc" || exit 1
 perl -p \
     -e 's/fudge\s+127.127.1.0\s+stratum\s+10/fudge  127.127.1.0 stratum 12/;' \

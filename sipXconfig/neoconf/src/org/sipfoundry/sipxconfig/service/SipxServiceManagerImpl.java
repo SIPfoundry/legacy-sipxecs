@@ -177,13 +177,14 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
     /**
      * Create collection of the services that belong to the specific subset of bundles
      */
-    public Collection<SipxService> getServiceDefinitions(final Collection<SipxServiceBundle> bundles) {
+    public Collection<SipxService> getServiceDefinitions(final Collection<SipxServiceBundle> bundles) {        
         Collection<SipxService> services = getServiceDefinitions();
         Predicate inBundle = new Predicate() {
             public boolean evaluate(Object item) {
                 SipxService service = (SipxService) item;
                 Set<SipxServiceBundle> serviceBundles = service.getBundles();
-                return !intersection(serviceBundles, bundles).isEmpty();
+                return (serviceBundles != null && serviceBundles.size() > 0) 
+                    && !intersection(serviceBundles, bundles).isEmpty();
             }
         };
         filter(services, inBundle);

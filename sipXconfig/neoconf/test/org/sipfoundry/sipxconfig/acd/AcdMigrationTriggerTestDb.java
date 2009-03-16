@@ -58,20 +58,20 @@ public class AcdMigrationTriggerTestDb extends SipxDatabaseTestCase {
     public void testMigrateAcdServers() throws Exception {
         TestHelper.insertFlat("acd/migrate_acd_servers.db.xml");
 
-        // test below rely on the fact that 13 is service ID of ACD service
+        // test below rely on the fact that 14 is service ID of ACD service
         assertEquals(1, getConnection().getRowCount("sipx_service",
-                "where bean_id='sipxAcdService' AND sipx_service_id=13"));
+                "where bean_id='sipxAcdService' AND sipx_service_id=14"));
 
         assertEquals(3, getConnection().getRowCount("acd_server"));
         assertEquals(1, getConnection().getRowCount("location"));
-        assertEquals(1, getConnection().getRowCount("location_specific_service", "where sipx_service_id=13"));
+        assertEquals(1, getConnection().getRowCount("location_specific_service", "where sipx_service_id=14"));
 
         InitializationTask task = new InitializationTask("acd_server_migrate_acd_service");
         m_applicationContext.publishEvent(task);
 
         assertEquals(3, getConnection().getRowCount("acd_server"));
         assertEquals(3, getConnection().getRowCount("location"));
-        assertEquals(3, getConnection().getRowCount("location_specific_service", "where sipx_service_id=13"));
+        assertEquals(3, getConnection().getRowCount("location_specific_service", "where sipx_service_id=14"));
 
         assertEquals(1, getConnection().getRowCount("acd_server", "where location_id=1001"));
 

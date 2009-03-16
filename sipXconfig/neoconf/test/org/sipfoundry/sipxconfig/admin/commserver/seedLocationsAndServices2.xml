@@ -22,61 +22,81 @@
     <column>sipx_service_id</column>
     <column>bean_id</column>
     <row>
+      <value>1</value>
+      <value>sipxProxyService</value>
+    </row>
+    <row>
+      <value>2</value>
+      <value>sipxRegistrarService</value>
+    </row>         
+    <row>
+      <value>3</value>
+      <value>sipxSupervisorService</value>
+    </row>         
+    <row>
+      <value>4</value>
+      <value>sipxParkService</value>
+    </row>         
+    <row>
+      <value>5</value>
+      <value>sipxPresenceService</value>
+    </row>         
+    <row>
+      <value>6</value>
+      <value>sipxIvrService</value>
+    </row>         
+    <row>
+      <value>7</value>
+      <value>sipxRlsService</value>
+    </row>         
+    <row>
+      <value>8</value>
+      <value>sipxMediaService</value>
+    </row>            
+    <row>
       <value>9</value>
-      <value>sipxBridgeService</value>
-    </row>
+      <value>sipxStatusService</value>
+    </row>         
     <row>
-      <value>12</value>
-      <value>sipxFreeswitchService</value>
-    </row>
-    <row>
-      <value>13</value>
-      <value>sipxConfigAgentService</value>
-    </row>
-    <row>
-      <value>14</value>
+      <value>10</value>
       <value>sipxCallResolverService</value>
     </row>
     <row>
-      <value>15</value>
+      <value>11</value>
+      <value>sipxPageService</value>
+    </row>         
+    <row>
+      <value>12</value>
       <value>sipxConfigService</value>
-    </row>
+    </row> 
+    <row>
+      <value>13</value>
+      <value>sipxConfigAgentService</value>
+    </row>        
+    <row>
+      <value>14</value>
+      <value>sipxAcdService</value>
+    </row>    
+    <row>
+      <value>15</value>
+      <value>sipxBridgeService</value>
+    </row>    
     <row>
       <value>16</value>
-      <value>sipxMrtgService</value>
-    </row>
+      <value>sipxFreeswitchService</value>
+    </row> 
     <row>
       <value>17</value>
       <value>sipxRelayService</value>
     </row>
     <row>
       <value>18</value>
-      <value>sipxPageService</value>
-    </row>
+      <value>sipxMrtgService</value>
+    </row>  
     <row>
       <value>19</value>
-      <value>sipxMediaService</value>
-    </row>
-    <row>
-      <value>20</value>
-      <value>sipxRlsService</value>
-    </row>
-    <row>
-      <value>21</value>
-      <value>sipxIvrService</value>
-    </row>
-    <row>
-      <value>22</value>
-      <value>sipxParkService</value>
-    </row>
-    <row>
-      <value>23</value>
-      <value>sipxRegistrarService</value>
-    </row>
-    <row>
-      <value>24</value>
-      <value>sipxProxyService</value>
-    </row>
+      <value>sipxCallResolverAgentService</value>
+    </row>                                                                         
   </table>
   <table name="location_specific_service">
     <column>location_specific_service_id</column>
@@ -86,7 +106,7 @@
     <row>
       <value>201</value>
       <value>101</value>
-      <value>12</value>
+      <value>16</value>
       <value>true</value>
     </row>
     <row>
@@ -98,19 +118,19 @@
     <row>
       <value>203</value>
       <value>101</value>
-      <value>14</value>
+      <value>10</value>
       <value>true</value>
     </row>
     <row>
       <value>204</value>
       <value>101</value>
-      <value>15</value>
+      <value>12</value>
       <value>true</value>
     </row>
     <row>
       <value>205</value>
       <value>101</value>
-      <value>16</value>
+      <value>11</value>
       <value>true</value>
     </row>
     <row>
@@ -122,49 +142,49 @@
     <row>
       <value>207</value>
       <value>101</value>
-      <value>18</value>
+      <value>11</value>
       <value>true</value>
     </row>
     <row>
       <value>208</value>
       <value>101</value>
-      <value>19</value>
+      <value>8</value>
       <value>true</value>
     </row>
     <row>
       <value>209</value>
       <value>101</value>
-      <value>20</value>
+      <value>7</value>
       <value>true</value>
     </row>
     <row>
       <value>210</value>
       <value>101</value>
-      <value>21</value>
+      <value>6</value>
       <value>true</value>
     </row>
     <row>
       <value>211</value>
       <value>101</value>
-      <value>22</value>
+      <value>4</value>
       <value>true</value>
     </row>
     <row>
       <value>212</value>
       <value>101</value>
-      <value>23</value>
+      <value>2</value>
       <value>true</value>
     </row>
     <row>
       <value>213</value>
       <value>101</value>
-      <value>24</value>
+      <value>1</value>
       <value>true</value>
     </row>
     <row>
       <value>214</value>
       <value>102</value>
-      <value>9</value>
+      <value>15</value>
       <value>false</value>
     </row>
   </table>
