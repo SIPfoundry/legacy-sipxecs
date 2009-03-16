@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd" [
  <!ENTITY types SYSTEM "types.xml">
  ]>
@@ -263,6 +263,15 @@
      </description>
    </setting>
 
+   <setting name="enableSyslog">
+     <label>Enable Syslog</label>
+     <type refid="on-off" />
+     <value>FALSE</value>
+     <description>
+       If checked, the phone sends the SIP message logs to Syslog Server &lt;br/&gt; ( &lt; imBeepAlert &gt; ) &lt;br/&gt;
+     </description>
+   </setting>
+
    <setting name="syslogServer">
      <label>Syslog Server</label>
      <type>
@@ -383,9 +392,9 @@
      </type>
      <value>application/dtmf-relay</value>
      <description>
-       If application/dtmf-relay is selected, the phone uses application/dtmf-relay as the value for Content-Type: header 
+       If application/dtmf-relay is selected, the phone uses application/dtmf-relay as the value for Content-Type: header
        in the SIP INFO method.
-       If application/vnd.nortelnetworks.digits is selected, the phone uses application/vnd.nortelnetworks.digits as the 
+       If application/vnd.nortelnetworks.digits is selected, the phone uses application/vnd.nortelnetworks.digits as the
        value for Content-Type: header in the SIP INFO method
        &lt;br/&gt; ( &lt; infoDTMFContentType &gt; ) &lt;br/&gt;
      </description>
@@ -438,7 +447,7 @@
      </type>
      <value>none</value>
      <description>
-       If SIP PING is selected then SIP PING scheme is used for NAT Traversal. If static is selected then the 
+       If SIP PING is selected then SIP PING scheme is used for NAT Traversal. If static is selected then the
        NAT address as defined below in NAT Address field is used. Select none to disable NAT Traversal
        &lt;br/&gt; ( &lt; natTraversal &gt; ) &lt;br/&gt;
      </description>
@@ -507,7 +516,7 @@
      </type>
      <description>Domain name or IP address of time server 2 &lt;br/&gt; ( &lt; ntpIp2 &gt; ) &lt;br/&gt;</description>
    </setting>
- 
+
    <setting name="timezone">
      <label>Time Zone</label>
      <type>
@@ -715,7 +724,7 @@
      <value>+00:00 GMT London</value>
      <description>( &lt; timezone &gt; ) &lt;br/&gt;</description>
    </setting>
- 
+
    <setting name="dstAutoAdjust">
      <label>Enable DST</label>
      <type refid="on-off" />
@@ -725,9 +734,9 @@
        &lt; dstAutoAdjust &gt; ) &lt;br/&gt;
      </description>
    </setting>
- 
+
  </group>
- 
+
 <!--  PRESENCE SETTINGS  -->
  <group name="presence">
    <label>Presence</label>
@@ -742,11 +751,11 @@
      </description>
    </setting>
  </group>
- 
+
 <!--  CALL PARK SETTINGS  -->
  <group name="callPark">
    <label>Call Park</label>
- 
+
    <setting name="callParkMethod">
      <label>Call Park Method</label>
      <type>
@@ -773,7 +782,7 @@
        the Incall DTMF call parking &lt;br/&gt; ( &lt; callParkMethod &gt; ) &lt;br/&gt;
      </description>
    </setting>
- 
+
    <setting name="callParkExtension">
      <label>One Touch Park Orbit</label>
      <type>
@@ -784,7 +793,7 @@
        One touch park orbit or incall DTMF string &lt;br/&gt; ( &lt; callParkExtention &gt; ) &lt;br/&gt;
      </description>
    </setting>
- 
+
    <setting name="callRtrvPrefix">
      <label>Call Unpark Prefix</label>
      <type>
@@ -797,10 +806,10 @@
      </description>
    </setting>
  </group>
- 
+
 <!--  CALL PICKUP SETTINGS  -->
  <group name="callPickup">
- 
+
    <label>Call Pickup</label>
    <setting name="serverAssistCallPickup">
      <label>Server Assisted Call PickUp</label>
@@ -811,7 +820,7 @@
        serverAssistCallPickup &gt; ) &lt;br/&gt;
      </description>
    </setting>
- 
+
    <setting name="callPickupPrefix">
      <label>Call PickUp Prefix</label>
      <type>
@@ -822,9 +831,9 @@
        Prefix used for Call Pickup &lt;br/&gt; ( &lt; callPickupPrefix &gt; ) &lt;br/&gt; &lt;br/&gt; &lt;br/&gt;
      </description>
    </setting>
- 
+
  </group>
- 
+
 <!--  INTERCOM SETTINGS  -->
  <group name="intercom">
    <label>Intercom</label>
@@ -850,7 +859,7 @@
        the Intercom Prefix Value for Intercom invocation &lt;br/&gt; ( &lt; intercom &gt; ) &lt;br/&gt;
      </description>
    </setting>
- 
+
    <setting name="intercomPrefixValue">
      <label>Intercom Prefix Value</label>
      <type>
@@ -861,7 +870,7 @@
        Prefix used for Intercom invocation &lt;br/&gt; ( &lt; intercomPrefixValue &gt; ) &lt;br/&gt;
      </description>
    </setting>
- 
+
    <setting name="alertInfoSecret">
      <label>Alert-Info Secret</label>
      <type>
@@ -874,7 +883,7 @@
        &lt;br/&gt; ( &lt; alertInfoSecret &gt; ) &lt;br/&gt;
      </description>
    </setting>
- 
+
    <setting name="sendrecvInOutgoingIntercom">
      <label>sendrecv attribute in outgoing intercom</label>
      <type refid="on-off" />
@@ -885,7 +894,19 @@
        &lt;br/&gt; &lt;br/&gt;
      </description>
    </setting>
- 
+
+
+     <setting name="sendrecvInIncomingIntercom">
+     <label>sendrecv attribute in incoming intercom</label>
+     <type refid="on-off" />
+     <value>FALSE</value>
+     <description>
+       If checked, sendrecv direction attribute will be sent in SDP answer of incoming intercom INVITE &lt;br/&gt; If
+       unchecked recvonly direction attribute is sent &lt;br/&gt; ( &lt; sendrecvInIncomingIntercom &gt; ) &lt;br/&gt;
+       &lt;br/&gt; &lt;br/&gt;
+     </description>
+   </setting>
+
    <setting name="intercomTimeout">
      <label>Intercom Timeout(sec)</label>
      <type>
@@ -897,13 +918,13 @@
        disabled if this value is set to 0 &lt;br/&gt; ( &lt; intercomTimeout &gt; ) &lt;br/&gt;
      </description>
    </setting>
- 
+
  </group>
- 
+
 <!--  SIP SETTINGS  -->
  <group name="sipSettings">
    <label>SIP Settings</label>
- 
+
    <setting name="sipPort">
      <label>SIP Port</label>
      <type>
@@ -914,7 +935,7 @@
        The port at which you wish the other party to contact you &lt;br/&gt; ( &lt; sipPort &gt; ) &lt;br/&gt;
      </description>
    </setting>
- 
+
    <setting name="offhookOnRefer">
      <label>Offhook on Third-Party Refer</label>
      <type refid="on-off" />
@@ -926,7 +947,7 @@
        offhookOnRefer &gt; ) &lt;br/&gt;
      </description>
    </setting>
- 
+
    <setting name="usePreloadedRoute">
      <label>Use Preloaded Route</label>
      <type refid="on-off" />
@@ -936,7 +957,7 @@
        all return paths &lt;br/&gt; ( &lt; usePreloadedRoute &gt; ) &lt;br/&gt;
      </description>
    </setting>
- 
+
    <setting name="callerIdBlocking">
      <label>Block Caller ID</label>
      <type refid="on-off" />
@@ -946,7 +967,7 @@
        &gt; ) &lt;br/&gt; &lt;br/&gt; &lt;br/&gt;
      </description>
    </setting>
- 
+
    <setting name="incomingInvite">
      <label>Incoming Invite</label>
      <type>
@@ -964,7 +985,7 @@
        Caller Name Search Precedence in Incoming Invite &lt;br/&gt; ( &lt; incomingInvite &gt; ) &lt;br/&gt;
      </description>
    </setting>
- 
+
    <setting name="okOfInvite">
      <label>200 OK of Invite</label>
      <type>
@@ -984,7 +1005,7 @@
    </setting>
 
 <!--  SIP PROXY SETTINGS  -->
- <group name="sipProxy">	
+ <group name="sipProxy">
    <label>Outbound SIP Proxy</label>
 
    <setting name="proxyAddress" advanced="yes">
@@ -1038,9 +1059,9 @@
      </type>
      <value>forwardAllThroughProxy</value>
      <description>
-       If any of the Outbound Proxy Addresses is specified and forwardAllThroughProxy option is selected, all SIP 
-       messages except REGISTER are sent through proxy. If noneThroughProxy 
-       is selected only the dialed numbers and unresolved URIs go through the proxy 
+       If any of the Outbound Proxy Addresses is specified and forwardAllThroughProxy option is selected, all SIP
+       messages except REGISTER are sent through proxy. If noneThroughProxy
+       is selected only the dialed numbers and unresolved URIs go through the proxy
        &lt;br/&gt; ( &lt; sipProxy &gt; ) &lt;br/&gt;
      </description>
    </setting>
@@ -1050,20 +1071,20 @@
      <type refid="on-off" />
      <value>TRUE</value>
      <description>
-       If checked and any of the Outbound Proxy Addresses is specified, SIP REGISTER messages are sent through the proxy 
+       If checked and any of the Outbound Proxy Addresses is specified, SIP REGISTER messages are sent through the proxy
        &lt;br/&gt; ( &lt; registerThroughProxy &gt; ) &lt;br/&gt; &lt;br/&gt; &lt;br/&gt;
      </description>
    </setting>
 
- </group>	
-
- 
  </group>
- 
+
+
+ </group>
+
 <!--  RTP SETTINGS  -->
  <group name="rtpSettings">
    <label>RTP Settings</label>
- 
+
    <setting name="rtpPort">
      <label>RTP Port</label>
      <type>
@@ -1072,7 +1093,7 @@
      <value>5012</value>
      <description>Starting RTP port &lt;br/&gt; ( &lt; rtpPort &gt; ) &lt;br/&gt;</description>
    </setting>
- 
+
    <setting name="transmitDtmf">
      <label>Transmit DTMF</label>
      <type>
@@ -1095,7 +1116,7 @@
        &lt;br/&gt; ( &lt; transmitDtmf &gt; ) &lt;br/&gt;
      </description>
    </setting>
- 
+
    <setting name="preferredCodec">
      <label>Preferred Codec</label>
      <type>
@@ -1116,24 +1137,24 @@
        Preference for audio codec that the phone uses in SDP offer &lt;br/&gt; ( &lt; preferredCodec &gt; ) &lt;br/&gt;
      </description>
    </setting>
- 
+
  </group>
- 
+
 <!--  TONE SETTINGS  -->
  <group name="toneSettings">
    <label>Tone Settings</label>
- 
+
    <setting name="enableRoutingTone">
      <label>Enable Routing Tone</label>
      <type refid="on-off" />
-     <value>TRUE</value>
+     <value>>FALSE</value>
      <description>
-       If checked, a routing tone is played for the brief interval between placing a call and when the remote 
+       If checked, a routing tone is played for the brief interval between placing a call and when the remote
        end starts ringing
        &lt;br/&gt; ( &lt; enableRoutingTone &gt; ) &lt;br/&gt;
      </description>
    </setting>
- 
+
    <setting name="toneSet">
      <label>Tone Set</label>
      <type>
@@ -1152,13 +1173,13 @@
      <value>US/Canada</value>
      <description>Country specific tones &lt;br/&gt; ( &lt; toneSet &gt; ) &lt;br/&gt;</description>
    </setting>
- 
+
  </group>
- 
+
 <!--  MISC SETTINGS  -->
  <group name="miscSettings">
    <label>Miscellaneous Settings</label>
- 
+
    <setting name="sipDialplan">
      <label>Dial Plan</label>
      <type>
@@ -1166,24 +1187,24 @@
      </type>
      <value></value>
      <description>
-       When dial plan is present, number dialed when placing a call will be compared against the configured dial plan 
-       and if a match is found, then the call will be initiated automatically without the need for pressing the DIAL key 
+       When dial plan is present, number dialed when placing a call will be compared against the configured dial plan
+       and if a match is found, then the call will be initiated automatically without the need for pressing the DIAL key
        &lt;br/&gt; ( &lt; sipDialplan &gt; ) &lt;br/&gt;
      </description>
    </setting>
- 
+
    <setting name="disableCall1_2key">
      <label>Disable FLASH Key During Calls</label>
      <type refid="on-off" />
      <value>FALSE</value>
      <description>
        Disabling FLASH key during calls allows other methods of getting a second dial tone. Selecting RFC 2833 as
-       transmit-DTMF method causes the telephone to simply transmit the RFC 2833 FLASH event instead of the phone 
+       transmit-DTMF method causes the telephone to simply transmit the RFC 2833 FLASH event instead of the phone
        handling the FLASH key natively
        &lt;br/&gt; ( &lt; disableCall1_2key &gt; ) &lt;br/&gt;
      </description>
    </setting>
- 
+
    <setting name="sipAutoDial">
      <label>Auto Dial</label>
      <type refid="on-off" />
@@ -1194,7 +1215,7 @@
        &lt;br/&gt; ( &lt; sipAutoDial &gt; ) &lt;br/&gt;
      </description>
    </setting>
- 
+
    <setting name="sipAutoDialUserid">
      <label>Auto Dial User ID</label>
      <type>
@@ -1205,7 +1226,7 @@
        User ID to be dialed automatically &lt;br/&gt; ( &lt; sipAutoDialUserid &gt; ) &lt;br/&gt;
      </description>
    </setting>
- 
+
    <setting name="disableCallWaiting">
      <label>Disable Call Waiting</label>
      <type refid="on-off" />
@@ -1215,7 +1236,7 @@
        already an active call on this line &lt;br/&gt; ( &lt; disableCallWaiting &gt; ) &lt;br/&gt;
      </description>
    </setting>
- 
+
    <setting name="disableStarCodes">
      <label>Disable Star Codes</label>
      <type refid="on-off" />
@@ -1226,7 +1247,7 @@
        &gt; ) &lt;br/&gt;
      </description>
    </setting>
- 
+
    <setting name="useOnlyUdpSrv">
      <label>Use only UDP SRV</label>
      <type refid="on-off" />
@@ -1236,7 +1257,7 @@
        &lt;br/&gt; ( &lt; useOnlyUdpSrv &gt; ) &lt;br/&gt;
      </description>
    </setting>
- 
+
  </group>
- 
+
 </model>

@@ -239,5 +239,11 @@ public class DeviceDefaults {
                 .getServiceByBeanId(SipxRegistrarService.BEAN_ID);
         return registrarService.getDirectedCallPickupCode();
     }
+    
+    public String getCallRetrieveCode() {
+        SipxRegistrarService registrarService = (SipxRegistrarService) m_sipxServiceManager
+                .getServiceByBeanId(SipxRegistrarService.BEAN_ID);
+        return registrarService.getCallRetrieveCode();
+    }
 
 }

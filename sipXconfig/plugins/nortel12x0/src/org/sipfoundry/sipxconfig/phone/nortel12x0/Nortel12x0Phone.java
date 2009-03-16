@@ -48,6 +48,7 @@ public class Nortel12x0Phone extends Phone {
     public static final String RLS_SETTING = "presence/sipRlsUri";
     public static final String TIME_SERVER_NAME = "timesettings/ntpIp";
     public static final String ALTERNATE_TIME_SERVER_NAME = "timesettings/ntpIp2";
+    public static final String CALL_RETRIEVE_PREFIX = "callPark/callRtrvPrefix";
     public static final String CALL_PICKUP_PREFIX = "callPickup/callPickupPrefix";
     public static final String PAGING_PREFIX = "phoneSettings/groupPagingPrefix";
     public static final String SYSLOG_SERVER = "phoneSettings/syslogServer";
@@ -145,6 +146,11 @@ public class Nortel12x0Phone extends Phone {
         @SettingEntry(path = ALTERNATE_TIME_SERVER_NAME)
         public String getAlternateNtpServer() {
             return m_defaults.getAlternateNtpServer();
+        }
+
+        @SettingEntry(path = CALL_RETRIEVE_PREFIX)
+        public String getCallRetrieveString() {
+            return m_defaults.getCallRetrieveCode();
         }
 
         @SettingEntry(path = CALL_PICKUP_PREFIX)

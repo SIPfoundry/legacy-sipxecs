@@ -8,6 +8,7 @@
 <dndControl>FALSE</dndControl>
 <blinkLightOnIncomingCall>TRUE</blinkLightOnIncomingCall>
 <imBeepAlert>TRUE</imBeepAlert>
+<enableSyslog>FALSE</enableSyslog>
 <syslogServer>10.4.5.2</syslogServer>
 <enableSessionTimer>FALSE</enableSessionTimer>
 <sessionTimerInSec>30</sessionTimerInSec>
@@ -20,6 +21,7 @@
 <onhookDefaultMode>handsfree</onhookDefaultMode>
 <natTraversal>none</natTraversal>
 <callParkMethod>none</callParkMethod>
+<callRtrvPrefix>*4</callRtrvPrefix>
 <serverAssistCallPickup>TRUE</serverAssistCallPickup>
 <callPickupPrefix>*78</callPickupPrefix>
 <sipPort>5060</sipPort>
@@ -33,7 +35,7 @@
 <rtpPort>5012</rtpPort>
 <transmitDtmf>rfc2833</transmitDtmf>
 <preferredCodec>g711ulaw</preferredCodec>
-<enableRoutingTone>TRUE</enableRoutingTone>
+<enableRoutingTone>FALSE</enableRoutingTone>
 <toneSet>US/Canada</toneSet>
 <disableCall1_2key>FALSE</disableCall1_2key>
 <sipAutoDial>FALSE</sipAutoDial>
@@ -49,6 +51,7 @@
 <intercom>
 <callInfoHeader>TRUE</callInfoHeader>
 <sendrecvInOutgoingIntercom>FALSE</sendrecvInOutgoingIntercom>
+<sendrecvInIncomingIntercom>FALSE</sendrecvInIncomingIntercom>
 <intercomTimeout>15</intercomTimeout>
 </intercom>
 <sipProxy>

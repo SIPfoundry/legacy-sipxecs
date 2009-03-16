@@ -126,6 +126,9 @@ public class PhoneTestDriver {
             public String getDirectedCallPickupCode() {
                 return "*78";
             }
+            public String getCallRetrieveCode() {
+                return "*4";
+            }
         };
         
         Location defaultLocation = new Location();

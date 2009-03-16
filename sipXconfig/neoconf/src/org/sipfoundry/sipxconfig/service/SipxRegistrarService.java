@@ -55,4 +55,9 @@ public class SipxRegistrarService extends SipxService {
     public String getDirectedCallPickupCode() {
         return getSettingValue("call-pick-up/SIP_REDIRECT.100-PICKUP.DIRECTED_CALL_PICKUP_CODE");
     }
+    
+    public String getCallRetrieveCode() {
+        return getSettingValue("call-pick-up/SIP_REDIRECT.100-PICKUP.CALL_RETRIEVE_CODE");
+    }
+
 }
