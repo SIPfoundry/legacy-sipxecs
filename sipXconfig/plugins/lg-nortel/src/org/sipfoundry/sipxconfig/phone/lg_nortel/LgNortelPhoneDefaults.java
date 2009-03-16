@@ -55,7 +55,7 @@ public class LgNortelPhoneDefaults {
         return getTimezoneFromRawOffsetSeconds(getZone().getOffsetInSeconds());
     }
 
-    @SettingEntry(path = "VOIP/outbound_proxy_server")
+    //@SettingEntry(path = "VOIP/outbound_proxy_server")
     public String getOutboundProxyServer() {
         return m_defaults.getDomainName();
     }
