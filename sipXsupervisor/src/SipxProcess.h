@@ -393,7 +393,7 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
 
    /// Save the persistent desired state from mDesiredState.
    void persistDesiredState();
-   ///< caller must be holding mLock.
+   ///< caller must be holding sLock.
 
    /// Read the persistent desired state into mDesiredState.
    void readPersistentState();
@@ -425,14 +425,15 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
 
    /// Read version stamp value of the configuration into mConfigVersion.
    void readConfigurationVersion();
-   ///< caller must be holding mLock.
+   ///< caller must be holding sLock.
 
 ///@}
 // ================================================================
 
   private:
 
-   OsMutex          mLock;          ///< must be held to access to other member variables.
+   /// one lock across all process objects to allow inter-process dependencies
+   static OsMutex   sLock;          ///< must be held to access other member variables.
 
    SipxProcessResource* mSelfResource;  ///< the SipxProcessResource for this SipxProcess.
 
