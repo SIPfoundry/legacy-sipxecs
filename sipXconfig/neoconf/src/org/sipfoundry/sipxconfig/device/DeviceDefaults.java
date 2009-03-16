@@ -23,6 +23,7 @@ import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.ConfiguredService;
 import org.sipfoundry.sipxconfig.service.ServiceDescriptor;
 import org.sipfoundry.sipxconfig.service.ServiceManager;
+import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.service.UnmanagedService;
@@ -42,10 +43,6 @@ public class DeviceDefaults {
 
     private DomainManager m_domainManager;
 
-    private String m_proxyServerAddr;
-
-    private String m_proxyServerSipPort;
-
     private TimeZoneManager m_timeZoneManager;
 
     private ServiceManager m_serviceManager;
@@ -55,7 +52,7 @@ public class DeviceDefaults {
     private String m_logDirectory;
 
     private SipxServiceManager m_sipxServiceManager;
-    
+
     private LocationsManager m_locationsManager;
 
     private String m_mohUser;
@@ -98,7 +95,7 @@ public class DeviceDefaults {
 
     /**
      * Find IP address (or FQDN) of the specific type of server.
-     *
+     * 
      * @param index 0-based index of the server (0 == Primary, 1 = Secondary, etc._
      * @param s service descriptor
      * @return null if service is not defined
@@ -115,20 +112,12 @@ public class DeviceDefaults {
         return m_locationsManager.getPrimaryLocation().getAddress();
     }
 
-    public void setProxyServerAddr(String proxyServerAddr) {
-        m_proxyServerAddr = proxyServerAddr;
-    }
-
     /**
      * Only use this function when IP address of the proxy is needed. In most cases you should be
      * able to use SIP domain name
      */
     public String getProxyServerAddr() {
-        return m_proxyServerAddr;
-    }
-
-    public void setProxyServerSipPort(String proxyServerSipPort) {
-        m_proxyServerSipPort = proxyServerSipPort;
+        return m_locationsManager.getPrimaryLocation().getAddress();
     }
 
     /**
@@ -136,12 +125,14 @@ public class DeviceDefaults {
      * able to use SIP domain name
      */
     public String getProxyServerSipPort() {
-        return m_proxyServerSipPort;
+        SipxProxyService sipxProxyService = (SipxProxyService) m_sipxServiceManager
+                .getServiceByBeanId(SipxProxyService.BEAN_ID);
+        return sipxProxyService.getSipPort();
     }
 
     /**
      * URL where phone profiles are delivered from apache web server.
-     *
+     * 
      * @return generated url if not set
      */
     public String getProfileRootUrl() {
@@ -167,7 +158,7 @@ public class DeviceDefaults {
         } catch (DomainManager.DomainNotInitializedException e) {
             LOG.warn("Unable to get authorization realm; domain not initiazlized", e);
         }
-        
+
         return authorizationRealm;
     }
 
@@ -205,7 +196,7 @@ public class DeviceDefaults {
     static boolean defaultSipPort(String port) {
         return StringUtils.isBlank(port) || DEFAULT_SIP_PORT.equals(port);
     }
-    
+
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
     }

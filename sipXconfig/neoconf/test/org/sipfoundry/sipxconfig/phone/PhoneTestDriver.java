@@ -30,6 +30,7 @@ import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.service.ServiceDescriptor;
 import org.sipfoundry.sipxconfig.service.ServiceManager;
+import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
@@ -140,8 +141,6 @@ public class PhoneTestDriver {
         defaults.setTimeZoneManager(TestHelper.getTimeZoneManager(new DeviceTimeZone(tz))); // no DST for consistent
         // results
         defaults.setDomainManager(TestHelper.getTestDomainManager("sipfoundry.org"));
-        defaults.setProxyServerAddr("10.1.2.3");
-        defaults.setProxyServerSipPort("5555");
         
         DomainManager domainManager = TestUtil.getMockDomainManager();
         EasyMock.replay(domainManager);
@@ -153,14 +152,19 @@ public class PhoneTestDriver {
         defaults.setLogDirectory("/var/log/sipxpbx");
 
         SipxService registrarService = new SipxRegistrarService();
+        registrarService.setBeanId(SipxRegistrarService.BEAN_ID);
         registrarService.setModelName("sipxregistrar.xml");
         registrarService.setModelDir("sipxregistrar");
         registrarService.setModelFilesContext(TestHelper.getModelFilesContext());
+        
+        SipxService proxyService = new SipxProxyService();
+        proxyService.setBeanId(SipxProxyService.BEAN_ID);
+        proxyService.setSipPort("5555");
+        proxyService.setModelName("sipxproxy.xml");
+        proxyService.setModelDir("sipxproxy");
+        proxyService.setModelFilesContext(TestHelper.getModelFilesContext());
 
-        SipxServiceManager sipxServiceManager = EasyMock.createNiceMock(SipxServiceManager.class);
-        sipxServiceManager.getServiceByBeanId(SipxRegistrarService.BEAN_ID);
-        EasyMock.expectLastCall().andReturn(registrarService);
-        EasyMock.replay(sipxServiceManager);
+        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(true, registrarService, proxyService);
         defaults.setSipxServiceManager(sipxServiceManager);
 
         ServiceManager serviceManager = EasyMock.createNiceMock(ServiceManager.class);
