@@ -1147,7 +1147,7 @@
    <setting name="enableRoutingTone">
      <label>Enable Routing Tone</label>
      <type refid="on-off" />
-     <value>>FALSE</value>
+     <value>FALSE</value>
      <description>
        If checked, a routing tone is played for the brief interval between placing a call and when the remote
        end starts ringing
