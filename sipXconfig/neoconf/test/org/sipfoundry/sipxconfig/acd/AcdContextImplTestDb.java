@@ -145,7 +145,7 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         location.setAddress("127.0.0.1");
         location.setName("localhost");
         m_locationsManager.storeLocation(location);
-        acdServer.setLocation(location);        
+        acdServer.setLocation(location);
 
         SipxPresenceService presenceService = org.easymock.classextension.EasyMock.createMock(SipxPresenceService.class);
         presenceService.getPresenceServerPort();
@@ -212,6 +212,9 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         }
 
         line.setExtension("112");
+        m_context.store(line);
+
+        // check if I can store the same line more than once
         m_context.store(line);
     }
 

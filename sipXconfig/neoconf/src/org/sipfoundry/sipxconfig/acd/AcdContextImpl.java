@@ -40,7 +40,6 @@ import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
-import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxAcdService;
 import org.sipfoundry.sipxconfig.service.SipxService;
@@ -592,7 +591,7 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
 
     public Collection getBeanIdsOfObjectsWithAlias(String alias) {
         Collection ids = getHibernateTemplate().findByNamedQueryAndNamedParam(ACD_LINE_IDS_WITH_ALIAS, VALUE, alias);
-        Collection bids = BeanId.createBeanIdCollection(ids, Conference.class);
+        Collection bids = BeanId.createBeanIdCollection(ids, AcdLine.class);
         return bids;
     }
 
