@@ -9,13 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import junit.framework.TestCase;
+
 import org.easymock.EasyMock;
-import org.junit.Test;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 
-public class SipxSupervisorDaoListenerTest {
+public class SipxSupervisorDaoListenerTest extends TestCase {
 
-    @Test
     public void testOnSaveLocation() {
         SipxSupervisorDaoListener out = new SipxSupervisorDaoListener();
         
@@ -38,7 +38,6 @@ public class SipxSupervisorDaoListenerTest {
         EasyMock.verify(sipxServiceManager, serviceConfigurator);
     }
     
-    @Test
     public void testOnSaveNonLocation() {
         // no action expected
         SipxSupervisorDaoListener out = new SipxSupervisorDaoListener();
