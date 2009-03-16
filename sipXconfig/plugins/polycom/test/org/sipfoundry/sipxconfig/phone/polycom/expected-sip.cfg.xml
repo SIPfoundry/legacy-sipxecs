@@ -108,7 +108,7 @@
     up.headsetMode="0"
     up.handsfreeMode="1"
     up.useDirectoryNames="0"
-    up.oneTouchVoiceMail="0"
+    up.oneTouchVoiceMail="1"
     up.welcomeSoundEnabled="1"
     up.welcomeSoundOnWarmBootEnabled="0"
     up.localClockEnabled="1"
