@@ -58,3 +58,6 @@ sipImpl.port : sip.port
 - : sbcDeviceManagerImpl.localIpAddress
 - : replicationManagerImpl.hostname
 - : freeswitchMediaServer.hostname
+- : phoneDefaults.proxyServerAddr
+- : phoneDefaults.proxyServerSipPort
+
