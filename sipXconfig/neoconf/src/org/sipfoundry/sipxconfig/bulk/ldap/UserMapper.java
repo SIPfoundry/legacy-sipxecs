@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
@@ -27,6 +27,7 @@ import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.bulk.UserPreview;
 import org.sipfoundry.sipxconfig.bulk.csv.Index;
@@ -40,19 +41,19 @@ public class UserMapper implements NameClassPairMapper {
     private LdapManager m_ldapManager;
     private AttrMap m_attrMap;
     private MailboxManager m_mailboxManager;
-    
+
     /**
      * @return UserPreview
      */
     public Object mapFromNameClassPair(NameClassPair nameClass) throws NamingException {
         SearchResult searchResult = (SearchResult) nameClass;
         Attributes attrs = searchResult.getAttributes();
-        User user = new User();        
-        List<String> groupNames = new ArrayList<String>(getGroupNames(searchResult));            
-        
+        User user = new User();
+        List<String> groupNames = new ArrayList<String>(getGroupNames(searchResult));
+
         setUserProperties(user, attrs);
         MailboxPreferences preferences = getMailboxPreferences(attrs);
-        
+
         UserPreview preview = new UserPreview(user, groupNames, preferences);
         return preview;
     }
@@ -61,7 +62,7 @@ public class UserMapper implements NameClassPairMapper {
      */
     void setUserProperties(User user, Attributes attrs) throws NamingException {
         // in most cases userName is already set - this code is here to support retrieving user
-        // previe
+        // preview
         String userName = user.getUserName();
         if (StringUtils.isBlank(userName)) {
             user.setUserName(getUserName(attrs));
@@ -75,13 +76,13 @@ public class UserMapper implements NameClassPairMapper {
             user.copyAliases(aliases);
         }
     }
-    
+
     public MailboxPreferences getMailboxPreferences(Attributes attrs) throws NamingException {
         String emailAddress = getValue(attrs, Index.EMAIL);
         if (!m_mailboxManager.isEnabled() || StringUtils.isBlank(emailAddress)) {
             return null;
         }
-        
+
         String userId = getValue(attrs, Index.USERNAME);
         Mailbox mailbox = m_mailboxManager.getMailbox(userId);
         MailboxPreferences mboxPrefs = m_mailboxManager.loadMailboxPreferences(mailbox);
@@ -105,7 +106,8 @@ public class UserMapper implements NameClassPairMapper {
 
         // group names found in distinguished name
         if (sr.isRelative()) {
-            String name = sr.getName();
+            // The name string returns an escaped name (e.g. O\\'Reilly) so we must unescape here
+            String name = StringEscapeUtils.unescapeJava(sr.getName());
             LdapName ldapName = new LdapName(name);
             List<Rdn> rdns = ldapName.getRdns();
             for (Rdn rdn : rdns) {
@@ -150,19 +152,19 @@ public class UserMapper implements NameClassPairMapper {
         }
         return getValues(attrs, attrName);
     }
-    
+
     private AttrMap getAttrMap() {
         if (m_attrMap != null) {
             return m_attrMap;
         }
-        
+
         m_attrMap = m_ldapManager.getAttrMap();
         return m_attrMap;
     }
 
     /**
      * Returns single value for an attribute, even if attribute has more values...
-     * 
+     *
      * @param attrs collection of attributes
      * @param attr attribute name
      */
@@ -181,7 +183,7 @@ public class UserMapper implements NameClassPairMapper {
     /**
      * Returns all string values for an attribute with a given name, ignores the values that are
      * not string values
-     * 
+     *
      * @param attrs collection of attributes
      * @param attr attribute name
      */
@@ -215,7 +217,7 @@ public class UserMapper implements NameClassPairMapper {
         String userName = getValue(attrs, attrName);
         return userName;
     }
-    
+
     /**
      * Not meant to be set from spring, but rather pulled from LdapManager after spring instantiated.
      */
@@ -226,7 +228,7 @@ public class UserMapper implements NameClassPairMapper {
     public void setMailboxManager(MailboxManager mailboxManager) {
         m_mailboxManager = mailboxManager;
     }
-    
+
     public void setLdapManager(LdapManager ldapManager) {
         m_ldapManager = ldapManager;
     }
