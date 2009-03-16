@@ -1362,6 +1362,7 @@ OSBREC_API VXIrecResult OSBrecCreateResource(VXIunsigned channelNum,
     pp->log = log;
     pp->channel = channelNum;
     pp->recData = tp;
+    pp->pExitGuard = NULL;
     pp->intf.GetVersion = OSBrecGetVersion;
     pp->intf.GetImplementationName = OSBrecGetImplementationName;
     pp->intf.BeginSession = OSBrecBeginSession;
