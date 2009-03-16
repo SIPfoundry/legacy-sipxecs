@@ -3,6 +3,86 @@ SIPfoundry Issue Tracker at:
 
         http://track.sipfoundry.org/browse?XCF
 
+
+Version 3.11.10
+
+** Bug
+    * [XCF-2559] - Improper label name allignment
+    * [XCF-2564] - Caller controls for only the recent updated conference Bridge is present under conference.conf.xml
+    * [XCF-2584] - End User UI: Operator field for Personal AA does not accept alphanumeric characters
+    * [XCF-2631] - Improperly formatted CSV phonebook keeps user from editing personal speediial.
+    * [XCF-2649] - Help text on the page of the SCS Voicemail Dial Plan rule is incorrect
+    * [XCF-2821] - After pressing "Send Profiles" button for Device/Phone the selected phones do not reboot
+    * [XCF-2970] - sql error related to first-run-task
+    * [XCF-2992] - Internal Exception error when same name Device File is attempted
+    * [XCF-3023] - BLF/Speed Dial presence for LG set does not work unless the Name is equivalent to Number
+    * [XCF-3081] - Intermittent:On Enduser login the ConfigUi display the "Configuration error.Please contact SCS administrator "error message.
+    * [XCF-3095] - Sending profile to a phone causes general exception error
+    * [XCF-3097] - Cannot change the Time Zone or Time as it reverts to Default Time & Time Zone
+    * [XCF-3098] - Internal exception when clicked on Apply region under Localization tab
+    * [XCF-3099] - Nortel Softphone SMC3456: Codec dvi4_wb is missing the default text.
+    * [XCF-3105] - Nortel Softphone 3456 : Typo mistake in Line -> Network page.
+    * [XCF-3122] - Hitting Apply button on "Date&Time" (without changing time displayed) adds on GMT offset when Timezone is not GMT
+    * [XCF-3126] - Internal Exception occurs while adding any role from 'Add new role' drop down menu on EDIT Server page.
+    * [XCF-3131] - duplicated roles listed in "Add Role" drop-down
+    * [XCF-3140] - "White space" is seen on the right side of Logo Module when logged in as End User.
+    * [XCF-3149] - Internal Exception occurs when clicked on Ok button on ACD Server -->Services page.
+    * [XCF-3155] - Configuration test tooltips broken
+    * [XCF-3157] - Unable to login to voicemail through the extension "101"
+    * [XCF-3160] - Setting the logging level to 'OFF' on NAT traversal screen leads to "SIPXProxy"=>"ConfigurationTestFailed"
+    * [XCF-3161] - Server added every time page is refreshed in System->Servers after adding a server
+    * [XCF-3162] - provide unambigous way of finding the primary location
+    * [XCF-3165] - Gateways should be shared by default
+    * [XCF-3167] - Auto-generating a conference bridge for a new user creates an exception if User ID is not numeric
+    * [XCF-3180] - sipXconfig does not restart registrar after sending new dialing rules
+    * [XCF-3187] - Missing organizationprefs.xml in the /var/sipxdata/mediaserver/data.
+    * [XCF-3201] - "GMT offset " when set from Device Time Zone tab does not get reflected on the LG phones TUI.
+    * [XCF-3202] - "GMT offset " when set from Device Time Zone tab does not get reflected on the Polycom Phones TUI.
+    * [XCF-3209] - Typo under Users Conferences between First name and the "Conferences for" title
+    * [XCF-3213] - Can't get to Park Server config page.
+    * [XCF-3214] - Voice mail expiration missing in 3.11.9
+    * [XCF-3215] - Port range fails to update on SMC provisioning phone
+    * [XCF-3217] - After adding a Domain Alias to the system all Calls to AA, Operator and all Gateway calls fail.
+    * [XCF-3229] - Call Park is not working
+    * [XCF-3230] - Deleting usergroup selected for location in the gateway gives an internal exception.
+    * [XCF-3232] - Typo error in SCS GUI of SMC's Codecs page.
+    * [XCF-3240] - Changing autorefresh interval has no effect until entire page is reloaded
+    * [XCF-3247] - user search is failing in Fedora 10
+    * [XCF-3263] - 3rd Party OEM Services not added to existing bundles
+    * [XCF-3264] - CFS Service not compiling
+    * [XCF-3265] - SipxCallResolver-Agent service not defined
+    * [XCF-3274] - Server page: Clicking on OK button in server page navigates to  'add server page'.
+
+** Improvement
+    * [XCF-1574] - make From addr of email notification be configurable from Config Server GUI
+    * [XCF-2355] - provide a GUI for setting time (including DST rules) and pushing it to phones
+    * [XCF-2576] - *force* the refer_brackets parameter to 'on' for Snom phones
+    * [XCF-2660] - Make Audiocodes "Phone Number" configurable in Plug & Play
+    * [XCF-2690] - Add a Refresh button and an auto Refresh tab for conference Bridges page and conferences page.
+    * [XCF-2823] - add an option to include the CDR database dump in snapshot
+    * [XCF-2973] - Create additional field for ITSP registrar port.
+    * [XCF-2998] - Services page should provide more details on error conditions
+    * [XCF-3026] - move adding new conference bridges to Servers page
+    * [XCF-3033] - Cleanup UI for jasper reports
+    * [XCF-3049] - Allow configuration of sipxivr log level
+    * [XCF-3074] - Add option to turn off authentication for dialog event subscriptions from sipXconfig web UI
+    * [XCF-3084] - Add automatic refresh to the System->Server->Services page.
+    * [XCF-3177] - Help text updates
+    * [XCF-3194] - activate dial plan automatically
+    * [XCF-3219] - Add option to Include Phone/Gateway profiles on Snapshot screen (sipx-snapshot)
+
+** New Feature
+    * [XCF-2615] - Distributed system checkin interface
+    * [XCF-2966] - [PATCH] Support for Nortel IP Phone 1200 Series
+    * [XCF-3027] - improved UI for adding/removing services to sipx servers
+    * [XCF-3183] - Combining existing modifications for sipxbridge ITSP configuration into a single issue ( that covers them )
+    * [XCF-3257] - Add support of syslog configuration for Polycom plugin
+
+** Task
+    * [XCF-3197] - remove --enable-conference option
+    * [XCF-3206] - initialize jain-sip stack lazily
+
+
 Version 3.11.9
 
 ** Bug
