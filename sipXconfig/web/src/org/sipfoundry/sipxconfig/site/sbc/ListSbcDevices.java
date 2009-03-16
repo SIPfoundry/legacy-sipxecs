@@ -95,10 +95,24 @@ public abstract class ListSbcDevices extends BasePage {
     }
 
     public void delete() {
-        Collection<Integer> ids = getSelections().getAllSelected();
-        if (!ids.isEmpty()) {
-            getSbcDeviceManager().deleteSbcDevices(ids);
+        Collection<Integer> ids = new ArrayList<Integer>(getSelections().getAllSelected());
+        if (ids.isEmpty()) {
+            return;
         }
+        boolean printErrorMessage = false;
+        // do not delete internal SBCs
+        for (Iterator<Integer> iterator = ids.iterator(); iterator.hasNext();) {
+            Integer id = iterator.next();
+            if (getSbcDeviceManager().getSbcDevice(id).getModel().isInternalSbc()) {
+                printErrorMessage = true;
+                iterator.remove();
+            }
+        }
+        if (printErrorMessage) {
+            IValidationDelegate validator = TapestryUtils.getValidator(getPage());
+            validator.record(new ValidatorException(getMessages().getMessage("msg.error.internalSbcDeletion")));
+        }
+        getSbcDeviceManager().deleteSbcDevices(ids);
     }
 
     public void propagate() {

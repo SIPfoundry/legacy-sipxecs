@@ -55,7 +55,7 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
     public void setSipXbridgeSbcModel(SbcDescriptor sipXbridgeSbcModel) {
         m_sipXbridgeSbcModel = sipXbridgeSbcModel;
     }
-    
+
     public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
         m_daoEventPublisher = daoEventPublisher;
     }
@@ -242,13 +242,14 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
     public void onSave(Object entity) {
         if (entity instanceof Location) {
             Location location = (Location) entity;
-            if (location.isBundleInstalled(m_borderControllerBundle.getModelId())
-                    && null == getBridgeSbc(location.getAddress())) {
-                SbcDevice sipXbridgeSbc = newSbcDevice(m_sipXbridgeSbcModel);
-                sipXbridgeSbc.setAddress(location.getAddress());
-                sipXbridgeSbc.setName("sipXbridge-" + location.getId().toString());
-                sipXbridgeSbc.setDescription("Internal SBC on " + location.getFqdn());
-                storeSbcDevice(sipXbridgeSbc);
+            if (location.isBundleInstalled(m_borderControllerBundle.getModelId())) {
+                if (null == getBridgeSbc(location.getAddress())) {
+                    SbcDevice sipXbridgeSbc = newSbcDevice(m_sipXbridgeSbcModel);
+                    sipXbridgeSbc.setAddress(location.getAddress());
+                    sipXbridgeSbc.setName("sipXbridge-" + location.getId().toString());
+                    sipXbridgeSbc.setDescription("Internal SBC on " + location.getFqdn());
+                    storeSbcDevice(sipXbridgeSbc);
+                }
             } else if (null != getBridgeSbc(location.getAddress())) {
                 deleteSbcDevice(getBridgeSbc(location.getAddress()).getId());
             }

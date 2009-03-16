@@ -26,6 +26,7 @@ import org.sipfoundry.sipxconfig.device.ReplicatedProfileLocation;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.gateway.SipTrunk;
 import org.sipfoundry.sipxconfig.service.SipxBridgeService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.springframework.beans.factory.annotation.Required;
@@ -38,7 +39,7 @@ public class BridgeSbc extends SbcDevice {
 
     private SipxReplicationContext m_sipxReplicationContext;
 
-    private SipxBridgeService m_sipxBridgeService;
+    private SipxServiceManager m_sipxServiceManager;
 
     private LocationsManager m_locationsManager;
 
@@ -61,8 +62,8 @@ public class BridgeSbc extends SbcDevice {
     }
 
     @Required
-    public void setSipxBridgeService(SipxBridgeService sipxBridgeService) {
-        m_sipxBridgeService = sipxBridgeService;
+    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
+        m_sipxServiceManager = sipxServiceManager;
     }
 
     @Required
@@ -121,6 +122,10 @@ public class BridgeSbc extends SbcDevice {
         return trunks;
     }
 
+    public Location getLocation() {
+        return m_locationsManager.getLocationByAddress(getAddress());
+    }
+
     public static class Context extends ProfileContext<BridgeSbc> {
         public Context(BridgeSbc device, String profileTemplate) {
             super(device, profileTemplate);
@@ -167,8 +172,9 @@ public class BridgeSbc extends SbcDevice {
 
     @Override
     public void restart() {
-        Location location = m_locationsManager.getLocationByAddress(getAddress());
-        m_processContext.manageServices(location, Collections.singleton(m_sipxBridgeService),
+        SipxBridgeService sipxBridgeService = (SipxBridgeService) m_sipxServiceManager.getServiceByBeanId(
+                SipxBridgeService.BEAN_ID);
+        m_processContext.manageServices(getLocation(), Collections.singleton(sipxBridgeService),
                 SipxProcessContext.Command.RESTART);
     }
 }

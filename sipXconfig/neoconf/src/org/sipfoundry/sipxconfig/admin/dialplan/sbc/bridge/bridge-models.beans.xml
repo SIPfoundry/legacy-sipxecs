@@ -21,7 +21,7 @@
     <property name="processContext" ref="sipxProcessContext" />
     <!-- eager replication here: profile generation is already in the background -->
     <property name="sipxReplicationContext" ref="sipxReplicationContextDao" />
-    <property name="sipxBridgeService" ref="sipxBridgeService" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="locationsManager" ref="locationsManager" />
   </bean>
 </beans>

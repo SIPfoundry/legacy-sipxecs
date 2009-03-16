@@ -157,10 +157,6 @@ public abstract class EditSbcDevice extends PageWithCallback implements PageBegi
             setSbcDeviceId(sbcDevice.getId());
             setSbcDevice(null);
         }
-
-        if (sbcDevice.getModel().isInternalSbc()) {
-            getProfileManager().generateProfile(sbcDevice.getId(), false, null);
-        }
     }
 
     public static EditSbcDevice getEditPage(IRequestCycle cycle, Integer sbcId, IPage returnPage) {
