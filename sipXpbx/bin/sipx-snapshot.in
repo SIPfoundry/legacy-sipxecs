@@ -355,6 +355,57 @@ function hasTimestamps () {
    test "${sawTime}" = "YES"
 }
 
+# If ${log} has timestamps then the 'sipx-log-cut' script will be called, and its exit
+# code will be used as the return value of this function.  (It will be 0, 1, or 2.  
+# See the 'sipx-log-cut' script's documentation for details.)
+# If ${log} is empty, then this function will return 0.
+# If ${log} is non-empty but does not have timestamps, then this function will return 1.
+function cutIfTimestamps() {
+   local log="$1"
+
+   outFile="${cutDir}/`basename "${log}"`"
+   if hasTimestamps "${log}"
+   then
+      # The file has timestamps, so cut it.
+      echo "cutting '${log}'" >> ${cutDir}/extract.log
+      echo "${outFile}" >> $Work.copy-files
+
+      # Only use this flag with a non-empty value.
+      if ! test -z "${LogStop}"
+      then
+         LogStopFlag="-e ${LogStop}"
+      fi
+
+      # Append new cut contents to the end of whatever contents is already in the cut file.
+      @SIPX_BINDIR@/sipx-log-cut -i "${log}" -s "${LogStart}" "${LogStopFlag}" -t \
+         >> "${outFile}" \
+         2>> ${cutDir}/extract.log
+      result=$?
+      return $result
+   else
+      # Why weren't any timestamps found in the file?
+      if [ ! -f "${log}" ]
+      then
+         # It isn't a regular file.
+         echo "Not a regular file: '${log}'; omitting" >> ${cutDir}/extract.log
+         return 1
+      elif [ ! -s "${log}" ]
+      then
+         # It's empty.  Keep cutting, since there might be a next file that isn't empty.
+         echo "Empty file: '${log}'; including" >> ${cutDir}/extract.log
+         touch "${outFile}"
+         echo "${outFile}" >> $Work.copy-files
+         return 0
+      else
+         # It has contents, but not recognizable timestamps.  Keep the whole file, 
+         # but don't continue cutting.
+         echo "No timestamps found in file: '${log}'; including full log" >> ${cutDir}/extract.log
+         echo $log >> $Work.copy-files
+         return 1
+      fi
+   fi
+}
+
 # Assemble the list of files to record.
 
 # These files and directories are always recorded.
@@ -394,31 +445,50 @@ case ${Logs} in
         # ${Work}/@SIPX_LOGDIR@ itslef, and ${Work}/${cutDir} will be deleted.
         cutDir=`mktemp -d @SIPX_LOGDIR@/cut.XXXXXX`
         trap "rm -rf ${cutDir} 2>/dev/null" 0
+        extractDir=`mktemp -t -d extract.XXXXXX`
+        trap "rm -rf ${extractDir} 2>/dev/null" 0
         echo "Attempting to cut logs from '${LogStart}' to '${LogStop}'" > ${cutDir}/extract.log
+
         # Place extract.log at the top level of the tar file.
         CommentFiles="${CommentFiles} ${cutDir}/extract.log"
-        for log in @SIPX_LOGDIR@/*log
+        for base_log in @SIPX_LOGDIR@/*log
         do
-          if hasTimestamps "${log}"
-          then
-              outFile="${cutDir}/`basename ${log}`"
-              echo "cutting '${log}'" >> ${cutDir}/extract.log
-              echo ${outFile} >> $Work.copy-files
-              if test -z "${LogStop}"
-              then
-                  @SIPX_BINDIR@/sipx-log-cut -i "${log}" -s "${LogStart}" -t \
-                      > ${outFile} \
-                      2>> ${cutDir}/extract.log
-              else
-                  @SIPX_BINDIR@/sipx-log-cut -i "${log}" -s "${LogStart}" -e "${LogStop}" -t \
-                      > ${outFile} \
-                      2>> ${cutDir}/extract.log
-              fi
-          else
-              echo "No timestamps found in '${log}'; including full log" \
-                  >> ${cutDir}/extract.log
-              echo $log >> $Work.copy-files
-          fi    
+            # Start cutting at the base log.
+            if cutIfTimestamps "${base_log}"
+            then
+                # Continue cutting into the rollover log files.  It is important to sort these numerically
+                # and not alphabetically.  (Otherwise entries from file.log.10.gz may appear before entries
+                # from file.log.2.gz.)
+                extractFile="${extractDir}/`basename "${base_log}"`"
+                base_log_length=`echo ${base_log}_ | wc -c`
+                SORTED_EXTENSIONS=`ls "${base_log}"* | cut -b${base_log_length}- | sort --general-numeric-sort`
+                for extension in ${SORTED_EXTENSIONS}
+                do
+                    # Copy the contents the rollover file into the extract file, unzipping if required.
+                    if [ `echo ${extension} | grep "[0-9]*[\".gz\"]$"` ]
+                    then
+                        # Unzip the rollover files contents.
+                        gzip --to-stdout -d "${base_log}.${extension}" > "${extractFile}"
+                    else
+                        # Use a soft link to the rollover file, since its contents isn't zipped.
+                        ln -s "${base_log}.${extension}" "${extractFile}"
+                    fi
+
+                    # Cut from the extract file.
+                    if ! cutIfTimestamps "${extractFile}"
+                    then
+                        # Stop searching because the ${LogStart} time was just passed, so we
+                        # aren't going to find any more entries that fit the time filter.
+                        break
+                    fi
+
+                    # Always delete the extract file, since it might actually be a link to the original
+                    # rollover file, which we don't want to overwrite on the next iteration.
+                    rm -rf "${extractFile}"
+                done
+
+
+            fi
         done
         ;;
     current)

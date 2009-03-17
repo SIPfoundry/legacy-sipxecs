@@ -16,6 +16,16 @@ Example:
         sipx-log-cut -i sipXproxy.log -s '2004-12-08 17:45:30' -e '2004-12-08 18:12:52'
         sipx-log-cut -s '17:45:30' -i sipXproxy.log -t
 
+Returns: 0 - Success in parsing the arguments and log file, and log entries may have 
+             been cut.  Also, the search end time is later than the last log entry in
+             the input file.  (i.e. The input file does not contain an entry older than
+             the specified time span.)
+         1 - General error.
+         2 - Success in parsing the arguments and log file, and log entries may have 
+             been cut.  But, the search end time is earlier than the last log entry in
+             the input file.  In other words there's no use looking in any older log
+             files, they won't contain any entries in the specified time span.
+
 Note:   use date along with time in timestamps if you have multiday input log file
         (otherwise you may get much bigger file than you expect)
 
@@ -115,7 +125,7 @@ if i: i2 = i
 else: i2 = endLine.find ('"', 1, 50)
 actEndTimeStr   = endLine[1:i2]
 
-print >> sys.stderr, 'Min timestamp detected in the file: %s\nMax timestamp detected in the file: %s\n' % (actStartTimeStr, actEndTimeStr)
+print >> sys.stderr, 'File start timestamp detected: %s\nFile stop timestamp detected: %s\n' % (actStartTimeStr, actEndTimeStr)
 
 try:
     actStartTime = date2sec(actStartTimeStr)
@@ -141,18 +151,32 @@ except:
               argLst['-e'])
 print >> sys.stderr, "Search start time: %s" % argLst['-s']
 print >> sys.stderr, "Search stop  time: %s" % argLst['-e']
+
 # Check that start and end times are in the correct order
 if startTime > endTime:
     sys.exit ("\n\t*** Specified start time is after specified end time ***\n")
-# Check that the start and end times overlap those in the file
-if startTime > actEndTime or endTime < actStartTime:
-    sys.exit ("\n\t*** Specified start/end times do not overlap the times in the input file ***\n")
-# If the specified time bounds are outside of those in the file, narrow them to the file
+
+# Check if all the file log entries are before the time span.
+if endTime < actStartTime:
+    print >> sys.stderr, '\n\tThe file log entries are all newer than the search start time.  (Keep looking back.)\n'
+    sys.exit (0)
+
+# Check if all the file log entries are after the time span.
+if startTime > actEndTime:
+    print >> sys.stderr, '\n\tThe file log entries are all older than the search start time.  (Stop looking back.)\n'
+    sys.exit (2)
+
+# Adjust the search start time if it is before the first log entry.
 if startTime < actStartTime:
-    print >> sys.stderr, 'Start timestamp is before the actual start time in the log file'
+    print >> sys.stderr, '\n\tAdjusted start (Min) time to: %s' % actStartTimeStr
     startTime = actStartTime
+    startTimeInThisLog=False
+else:
+    startTimeInThisLog=True
+
+# Adjust the search end time if it is after the last log entry.
 if endTime > actEndTime:
-    print >> sys.stderr, 'End timestamp is after the actual end time in the log file'
+    print >> sys.stderr, '\n\tAdjusted stop (Max) time to: %s' % actEndTimeStr
     endTime = actEndTime
 
 #--- Calculate a scale factor
@@ -235,3 +259,8 @@ while fi.tell() < endPos:
 fi.close()
 if outFile != 'stdout': fo.close()
 print >> sys.stderr, "\nDONE.\n"
+
+# If the start time is in this log
+if startTimeInThisLog:
+    print >> sys.stderr, '\n\tThe oldest log file entry is older than the search start time.  (Stop looking back.)\n'
+    sys.exit (2)
