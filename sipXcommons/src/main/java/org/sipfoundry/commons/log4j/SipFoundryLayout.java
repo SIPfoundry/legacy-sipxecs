@@ -113,12 +113,15 @@ public class SipFoundryLayout extends Layout {
      *            The message to escape
      * @return The escaped message
      */
-    String escapeCrlf(String msg) {
+    String escapeCrlfQuoteAndBackSlash(String msg) {
         if (msg == null) {
             return null;
         }
-
         int n = msg.length();
+     
+        StringBuffer sb = new StringBuffer(n + 2);
+        
+        
 
         // Ignore trailing CR LFs (why?)
         /*
@@ -127,13 +130,16 @@ public class SipFoundryLayout extends Layout {
          */
 
         // escape CR LFs
-        StringBuffer sb = new StringBuffer(n + 2);
         for (int i = 0; i < n; i++) {
             char c = msg.charAt(i);
             if (c == '\r') {
                 sb.append("\\r");
             } else if (c == '\n') {
                 sb.append("\\n");
+            } else if (c == '\"') {
+                sb.append("\\\"");
+            } else if (c == '\\') {
+            	sb.append("\\\\");
             } else {
                 sb.append(c);
             }
@@ -141,10 +147,12 @@ public class SipFoundryLayout extends Layout {
 
         return sb.toString();
     }
+    
+    
 
     @Override
     public String format(LoggingEvent arg0) {
-        String msg = escapeCrlf(arg0.getRenderedMessage());
+        String msg = escapeCrlfQuoteAndBackSlash(arg0.getRenderedMessage());
         if ( msg == null ) return "";
         String loggerNames[] = arg0.getLoggerName().split("[.]");
         String loggerName = loggerNames[loggerNames.length - 1];
@@ -167,7 +175,7 @@ public class SipFoundryLayout extends Layout {
             newMessage = msg.replaceFirst(SipFoundryLogRecordFactory.INCOMING,
                     "");
         }
-
+        
         // lineNumber is static across all loggers, so must be mutex protected.
         // time should also increase monotonically, so hold the lock
         synchronized (lineNumber) {

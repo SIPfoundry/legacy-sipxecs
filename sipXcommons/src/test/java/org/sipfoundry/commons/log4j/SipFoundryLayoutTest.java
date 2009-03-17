@@ -11,37 +11,40 @@ public class SipFoundryLayoutTest extends TestCase
       String msgA = "Woof!" ;
       String msgB ;
       
-      msgB = l.escapeCrlf(msgA) ;
+      msgB = l.escapeCrlfQuoteAndBackSlash(msgA) ;
       assertEquals(msgA, msgB) ;
       
-      msgB = l.escapeCrlf(msgA+"\n") ;
+      msgB = l.escapeCrlfQuoteAndBackSlash(msgA+"\n") ;
       assertEquals(msgA, msgB) ;
 
-      msgB = l.escapeCrlf(msgA+"\r") ;
+      msgB = l.escapeCrlfQuoteAndBackSlash(msgA+"\r") ;
       assertEquals(msgA, msgB) ;
 
-      msgB = l.escapeCrlf(msgA+"\r\n") ;
+      msgB = l.escapeCrlfQuoteAndBackSlash(msgA+"\r\n") ;
       assertEquals(msgA, msgB) ;
 
-      msgB = l.escapeCrlf("\n"+msgA) ;
+      msgB = l.escapeCrlfQuoteAndBackSlash("\n"+msgA) ;
       assertEquals("\\n"+msgA, msgB) ;
 
-      msgB = l.escapeCrlf("\r"+msgA) ;
+      msgB = l.escapeCrlfQuoteAndBackSlash("\r"+msgA) ;
       assertEquals("\\r"+msgA, msgB) ;
 
-      msgB = l.escapeCrlf("\r\n"+msgA) ;
+      msgB = l.escapeCrlfQuoteAndBackSlash("\r\n"+msgA) ;
       assertEquals("\\r\\n"+msgA, msgB) ;
 
-      msgB = l.escapeCrlf("") ;
+      msgB = l.escapeCrlfQuoteAndBackSlash("") ;
       assertEquals("", msgB) ;
 
-      msgB = l.escapeCrlf("\n") ;
+      msgB = l.escapeCrlfQuoteAndBackSlash("\n") ;
       assertEquals("\\n", msgB) ;
 
-      msgB = l.escapeCrlf("\r\n\n\n") ;
+      msgB = l.escapeCrlfQuoteAndBackSlash("\r\n\n\n") ;
       assertEquals("\\r", msgB) ;
       
-      msgB = l.escapeCrlf(null) ;
+      msgB = l.escapeCrlfQuoteAndBackSlash("\\");
+      assertEquals("\\\\",msgB);
+      
+      msgB = l.escapeCrlfQuoteAndBackSlash(null) ;
       assertNull(msgB) ;
    }
 
