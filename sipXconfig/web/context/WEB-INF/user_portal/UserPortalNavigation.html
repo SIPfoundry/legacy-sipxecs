@@ -20,12 +20,12 @@
       <span key="menu.userCdr">Call Detail Records</span>
     </a>
   </li>
-  <li jwcid="@If" condition="ognl: presenceServer.enabled">
+  <li jwcid="@If" condition="ognl:userSession.agent">
     <a href="#" jwcid="@PageLink" id="menu.managePresence" page="user_portal/ManagePresence">
       <span key="menu.managePresence">Presence</span>
     </a>
   </li>
-  <li jwcid="@If" condition="ognl: userSession.supervisor">
+  <li jwcid="@If" condition="ognl:userSession.supervisor">
     <a href="#" jwcid="@PageLink" id="menu.acdSupervisisorConsole" page="acd/AcdSupervisorConsole">
       <span key="menu.acdSupervisisorConsole">ACD Supervision</span>
     </a>

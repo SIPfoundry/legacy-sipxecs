@@ -30,6 +30,8 @@ public class UserSession {
     
     private boolean m_supervisor;
 
+    private boolean m_agent;
+
     /**
      * user that is currently logged in
      */
@@ -51,6 +53,10 @@ public class UserSession {
         return m_supervisor;
     }
 
+    public boolean isAgent() {
+        return m_agent;
+    }
+
     public Integer getUserId() {
         return m_userId;
     }
@@ -68,10 +74,11 @@ public class UserSession {
         return getUserId() != null;
     }
 
-    public void login(Integer userId, boolean admin, boolean supervisor) {
+    public void login(Integer userId, boolean admin, boolean supervisor, boolean agent) {
         m_userId = userId;
         m_admin = admin;
         m_supervisor = supervisor;
+        m_agent = agent;
     }
     
     public void logout() {

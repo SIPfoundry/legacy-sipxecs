@@ -20,12 +20,12 @@ public class VisitTest extends TestCase {
         UserSession userSession = new UserSession();
         assertNull(userSession.getUserId());
 
-        userSession.login(user.getId(), false, true);
+        userSession.login(user.getId(), false, true, true);
 
         assertSame(user.getId(), userSession.getUserId());
         assertFalse(userSession.isAdmin());
 
-        userSession.login(user.getId(), true, false);
+        userSession.login(user.getId(), true, false, true);
         assertSame(user.getId(), userSession.getUserId());
         assertTrue(userSession.isAdmin());
     }

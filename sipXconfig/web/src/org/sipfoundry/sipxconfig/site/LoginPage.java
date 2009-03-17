@@ -22,6 +22,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.services.RequestGlobals;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidationConstraint;
+import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
@@ -33,6 +34,8 @@ import org.sipfoundry.sipxconfig.site.user.FirstUser;
 public abstract class LoginPage extends PageWithCallback implements PageBeginRenderListener {
 
     public static final String PAGE = "LoginPage";
+
+    public abstract AcdContext getAcdContext();
 
     public abstract CoreContext getCoreContext();
 
@@ -95,7 +98,8 @@ public abstract class LoginPage extends PageWithCallback implements PageBeginRen
 
         UserSession userSession = getUserSession();
         boolean isAdmin = context.isAdmin(user);
-        userSession.login(user.getId(), isAdmin, user.isSupervisor());
+        boolean isAgent = getAcdContext().getUsersWithAgents().contains(user);
+        userSession.login(user.getId(), isAdmin, user.isSupervisor(), isAgent);
 
         // set session expire time interval
         HttpSession session = getRequestGlobals().getRequest().getSession();

@@ -372,7 +372,7 @@ public abstract class TestPage extends BasePage {
         if (userId == null) {
             login();
         } else {
-            userSession.login(userId, admin, supervisor);
+            userSession.login(userId, admin, supervisor, true);
         }
     }
 
@@ -423,7 +423,7 @@ public abstract class TestPage extends BasePage {
 
         // Log it in
         UserSession userSession = getUserSession();
-        userSession.login(user.getId(), false, true);
+        userSession.login(user.getId(), false, true, true);
     }
 
     public void loginTestUserWithAutoAttendantPermission() {
@@ -438,7 +438,7 @@ public abstract class TestPage extends BasePage {
             getCoreContext().saveUser(user);
         }
 
-        getUserSession().login(user.getId(), false, true);
+        getUserSession().login(user.getId(), false, true, true);
     }
 
     public void loginTestUserWithoutAutoAttendantPermission() {
@@ -453,7 +453,7 @@ public abstract class TestPage extends BasePage {
             getCoreContext().saveUser(user);
         }
 
-        getUserSession().login(user.getId(), false, true);
+        getUserSession().login(user.getId(), false, true, true);
     }
 
     public IPage seedFxoGateway() {
@@ -528,7 +528,7 @@ public abstract class TestPage extends BasePage {
 
     public void login() {
         User user = createTestUserIfMissing();
-        getUserSession().login(user.getId(), true, true);
+        getUserSession().login(user.getId(), true, true, true);
     }
 
     public void generateDataSet(String setName) {
@@ -569,7 +569,7 @@ public abstract class TestPage extends BasePage {
         User user = getCoreContext().loadUser(createTestUserIfMissing().getId());
         user.setPermission(PermissionName.VOICEMAIL, false);
         getCoreContext().saveUser(user);
-        getUserSession().login(user.getId(), true, true);
+        getUserSession().login(user.getId(), true, true, true);
     }
 
     public void disableVoicemail() {
