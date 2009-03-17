@@ -15,11 +15,6 @@ import java.util.LinkedList;
  * @author Mardy Marshall
  */
 public class NetworkResources {
-	public class SIPServer {
-		InetAddress IPaddress;
-		String hostName;
-	}
-	
     public InetAddress siadr;
     public String sname;
     public String file;

@@ -19,46 +19,70 @@ import java.util.LinkedList;
  * @author Mardy Marshall
  */
 public class SIPServerOption extends DHCPOption {
-    private LinkedList<NetworkResources.SIPServer> serverList = null;
+    private LinkedList<SIPServer> serverList = null;
 
     public SIPServerOption() {
         super.setCode(Code.SIP_SERVER);
+        super.setLength(1);
     }
 
-    public LinkedList<NetworkResources.SIPServer> getServerList() {
+    public LinkedList<SIPServer> getServerList() {
         return serverList;
     }
 
-    private void addServer(InetAddress server) {
+    public void addServer(InetAddress server) {
         if (serverList == null) {
-            serverList = new LinkedList<NetworkResources.SIPServer>();
+            serverList = new LinkedList<SIPServer>();
         }
+        SIPServer newServer = new SIPServer();
+        newServer.IPaddress = server;
+        newServer.hostName = null;
+        serverList.add(newServer);
+        super.setLength(super.getLength() + 4);
+    }
+
+    public void addServer(String server) {
+        if (serverList == null) {
+            serverList = new LinkedList<SIPServer>();
+        }
+        SIPServer newServer = new SIPServer();
+        newServer.hostName = server;
+        newServer.IPaddress = null;
+        serverList.add(newServer);
+        super.setLength(3);  // When option is using host name strings, this length value is bogus.
     }
 
     public String toString() {
         String servers = "";
-        for (NetworkResources.SIPServer server : serverList) {
+        for (SIPServer server : serverList) {
             if (servers.length() > 0) {
                 servers += ", ";
             }
-            servers += server.IPaddress.getHostAddress();
+            if (server.IPaddress != null) {
+            	servers += server.IPaddress.getHostAddress();
+            } else if (server.hostName != null) {
+            	servers += server.hostName;
+            }
         }
         return servers;
     }
 
-    public byte[] marshal() {
+    public byte[] marshal() throws IOException {
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         DataOutputStream dataStream = new DataOutputStream(byteStream);
 
         if (serverList != null) {
-            try {
-                dataStream.writeByte(super.getCode().toInt());
-                dataStream.writeByte(super.getLength());
-                for (NetworkResources.SIPServer server : serverList) {
-                    dataStream.write(server.IPaddress.getAddress(), 0, 4);
-                }
-            } catch (IOException e) {
-                System.err.println(e);
+            dataStream.writeByte(super.getCode().toInt());
+            if (serverList.getFirst().hostName != null) {
+            	;
+            } else if (serverList.getFirst().IPaddress != null) {
+            	dataStream.writeByte(super.getLength());
+            	dataStream.writeByte(1);  // Encoding type 1.
+            	for (SIPServer server : serverList) {
+                	dataStream.write(server.IPaddress.getAddress(), 0, 4);
+            	}
+            } else {
+            	throw new IOException();
             }
         }
 
@@ -67,21 +91,27 @@ public class SIPServerOption extends DHCPOption {
 
     public void unmarshal(DataInputStream dataStream) throws IOException {
         int length = dataStream.readByte() & 0xFF;
-        if (length < 4) {
+        if (length < 3) {
             throw new IOException();
         }
-        /*
         super.setLength(length);
-        serverList = new LinkedList<InetAddress>();
-        byte[] addressBuffer = new byte[4];
-        InetAddress server;
-        while (length > 3) {
-            dataStream.readFully(addressBuffer, 0, 4);
-            server = InetAddress.getByAddress(addressBuffer);
-            serverList.add(server);
-            length -= 4;
+        int encoding = dataStream.readByte() & 0xFF;
+        if (encoding == 0) {
+        	;
+        } else if (encoding == 1) {
+            serverList = new LinkedList<SIPServer>();
+        	byte[] addressBuffer = new byte[4];
+        	while (length > 3) {
+        		SIPServer newServer = new SIPServer();
+            	dataStream.readFully(addressBuffer, 0, 4);
+            	newServer.IPaddress = InetAddress.getByAddress(addressBuffer);
+        		newServer.hostName = null;
+        		serverList.add(newServer);
+            	length -= 4;
+        	}
+        } else {
+            throw new IOException();
         }
-        */
     }
 
 }

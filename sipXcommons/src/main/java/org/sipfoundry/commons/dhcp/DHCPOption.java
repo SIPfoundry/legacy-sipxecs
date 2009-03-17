@@ -157,7 +157,7 @@ public abstract class DHCPOption {
         this.length = length;
     }
 
-    public abstract byte[] marshal();
+    public abstract byte[] marshal() throws IOException;
 
     public static LinkedList<DHCPOption> unmarshalOptions(DataInputStream dataStream) throws IOException {
         Code unmarshalCode;
