@@ -285,12 +285,11 @@ public class BackToBackUserAgent {
 		SipProvider provider = (SipProvider) requestEvent.getSource();
 		try {
 			Dialog replacedDialogPeerDialog = ((DialogContext) replacedDialog
-					.getApplicationData()).peerDialog;
+					.getApplicationData()).getPeerDialog();
 			if (logger.isDebugEnabled()) {
-				logger
-						.debug("replacedDialogPeerDialog = "
-								+ ((DialogContext) replacedDialog
-										.getApplicationData()).peerDialog);
+				logger.debug("replacedDialogPeerDialog = "
+						+ ((DialogContext) replacedDialog.getApplicationData())
+								.getPeerDialog());
 				logger.debug("referingDialogPeerDialog = "
 						+ this.referingDialogPeer);
 
@@ -311,14 +310,16 @@ public class BackToBackUserAgent {
 			}
 
 			DialogContext.pairDialogs(((DialogContext) replacedDialog
-					.getApplicationData()).peerDialog, this.referingDialogPeer);
+					.getApplicationData()).getPeerDialog(),
+					this.referingDialogPeer);
 			/*
 			 * Tear down the Music On Hold Dialog if any.
 			 */
 			this.sendByeToMohServer();
 
 			/* The replaced dialog is about ready to die so he has no peer */
-			((DialogContext) replacedDialog.getApplicationData()).peerDialog = null;
+			((DialogContext) replacedDialog.getApplicationData())
+					.setPeerDialog(null);
 
 			if (logger.isDebugEnabled()) {
 				logger.debug("referingDialog = " + referingDialog);
@@ -675,7 +676,7 @@ public class BackToBackUserAgent {
 
 		try {
 
-			Dialog dialog = referRequestEvent.getDialog();
+			Dialog referRequestEventDialog = referRequestEvent.getDialog();
 			Request referRequest = referRequestEvent.getRequest();
 			ServerTransaction stx = referRequestEvent.getServerTransaction();
 
@@ -683,7 +684,8 @@ public class BackToBackUserAgent {
 			 * Transfer agent canceled the REFER before we had a chance to
 			 * process it.
 			 */
-			if (dialog == null || dialog.getState() == DialogState.TERMINATED) {
+			if (referRequestEventDialog == null
+					|| referRequestEventDialog.getState() == DialogState.TERMINATED) {
 				/*
 				 * Out of dialog refer.
 				 */
@@ -724,59 +726,55 @@ public class BackToBackUserAgent {
 			ClientTransaction ct = Gateway.getLanProvider()
 					.getNewClientTransaction(inviteRequest);
 
-			DialogContext newDialogApplicationData = DialogContext.attach(this,
-					ct.getDialog(), ct, ct.getRequest());
-			DialogContext dialogApplicationData = (DialogContext) dialog
+			DialogContext newDialogContext = DialogContext.attach(this, ct
+					.getDialog(), ct, ct.getRequest());
+			DialogContext referDialogContext = (DialogContext) referRequestEventDialog
 					.getApplicationData();
 
-			newDialogApplicationData.rtpSession = dialogApplicationData.rtpSession;
-			newDialogApplicationData.peerDialog = dialogApplicationData.peerDialog;
+			newDialogContext.rtpSession = referDialogContext.rtpSession;
+			newDialogContext.setPeerDialog(referDialogContext.getPeerDialog());
 
 			if (logger.isDebugEnabled()) {
 				logger.debug("referInviteToSipxProxy peerDialog = "
-						+ newDialogApplicationData.peerDialog);
+						+ newDialogContext.getPeerDialog());
 
 			}
 
-			this.referingDialogPeer = dialogApplicationData.peerDialog;
+			this.referingDialogPeer = referDialogContext.getPeerDialog();
 
 			DialogContext dat = (DialogContext) this.referingDialogPeer
 					.getApplicationData();
-			dat.peerDialog = ct.getDialog();
-
-			/*
-			 * We terminate the dialog. There is no peer.
-			 */
-			dialogApplicationData.peerDialog = null;
+			dat.setPeerDialog(ct.getDialog());
 
 			/*
 			 * Mark that we (sipxbridge) originated the dialog.
 			 */
-			newDialogApplicationData.isOriginatedBySipxbridge = true;
+			newDialogContext.isOriginatedBySipxbridge = true;
 
 			/*
 			 * Record the referDialog so that when responses for the Client
 			 * transaction come in we can NOTIFY the referrer.
 			 */
-			this.referingDialog = dialog;
+			this.referingDialog = referRequestEventDialog;
 
-			ct.getDialog().setApplicationData(newDialogApplicationData);
+			ct.getDialog().setApplicationData(newDialogContext);
 			/*
 			 * Mark that when we get the OK we want to re-INVITE the other side.
 			 */
-			DialogContext.get(ct.getDialog()).setPendingAction(
-					PendingDialogAction.PENDING_RE_INVITE_WITH_SDP_OFFER);
+			newDialogContext
+					.setPendingAction(PendingDialogAction.PENDING_RE_INVITE_WITH_SDP_OFFER);
+			newDialogContext.setPeerDialog(referDialogContext.getPeerDialog());
 
 			TransactionContext tad = TransactionContext.attach(ct,
 					Operation.REFER_INVITE_TO_SIPX_PROXY);
-			tad.setBackToBackUa(((DialogContext) dialog.getApplicationData())
-					.getBackToBackUserAgent());
-			tad.setReferingDialog(dialog);
+			tad.setBackToBackUa(((DialogContext) referRequestEventDialog
+					.getApplicationData()).getBackToBackUserAgent());
+			tad.setReferingDialog(referRequestEventDialog);
 
 			tad.setReferRequest(referRequest);
 
 			tad.setDialogPendingSdpAnswer(dialogPendingSdpAnswer);
-			
+
 			tad.setMohClientTransaction(mohClientTransaction);
 
 			/*
@@ -1624,7 +1622,8 @@ public class BackToBackUserAgent {
 				DialogContext replacedDialogApplicationData = DialogContext
 						.get(replacedDialog);
 
-				Dialog peerDialog = replacedDialogApplicationData.peerDialog;
+				Dialog peerDialog = replacedDialogApplicationData
+						.getPeerDialog();
 				DialogContext peerDat = DialogContext.get(peerDialog);
 
 				Request reInvite = peerDialog.createRequest(Request.INVITE);
@@ -1647,7 +1646,7 @@ public class BackToBackUserAgent {
 				tad.setReplacedDialog(replacedDialog);
 
 				// send the in-dialog re-invite to the other side.
-				peerDialog.sendRequest(ctx);
+				DialogContext.get(peerDialog).sendReInvite(ctx);
 			} else {
 				/*
 				 * The following condition happens during call pickup. The other
@@ -1755,7 +1754,8 @@ public class BackToBackUserAgent {
 				DialogContext replacedDialogApplicationData = DialogContext
 						.get(dialog);
 
-				Dialog peerDialog = replacedDialogApplicationData.peerDialog;
+				Dialog peerDialog = replacedDialogApplicationData
+						.getPeerDialog();
 				DialogContext peerDat = DialogContext.get(peerDialog);
 				RtpSession wanRtpSession = peerDat.getRtpSession();
 				SipProvider wanProvider = ((DialogExt) peerDialog)
@@ -1800,9 +1800,9 @@ public class BackToBackUserAgent {
 
 		DialogContext dialogContext = (DialogContext) dialog
 				.getApplicationData();
-		Dialog peer = dialogContext.peerDialog;
+		Dialog peer = dialogContext.getPeerDialog();
 
-		if (dialogContext.forwardByeToPeer && peer != null
+		if (dialogContext.isForwardByeToPeer() && peer != null
 				&& peer.getState() != DialogState.TERMINATED
 				&& peer.getState() != null) {
 			SipProvider provider = ((gov.nist.javax.sip.DialogExt) peer)
@@ -1958,13 +1958,12 @@ public class BackToBackUserAgent {
 			} else if (this.musicOnHoldDialog.getState() == null
 					|| this.musicOnHoldDialog.getState() == DialogState.EARLY) {
 				this.musicOnHoldDialog.delete();
-				if ( this.musicOnHoldInviteTransaction != null && 
-						this.musicOnHoldInviteTransaction.getState() != TransactionState.TERMINATED) {
+				if (this.musicOnHoldInviteTransaction != null
+						&& this.musicOnHoldInviteTransaction.getState() != TransactionState.TERMINATED) {
 					this.musicOnHoldInviteTransaction.terminate();
 				}
 			}
-			
-			
+
 		}
 
 	}

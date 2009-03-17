@@ -57,7 +57,7 @@ class DialogContext {
 	/*
 	 * The Peer Dialog of this Dialog.
 	 */
-	Dialog peerDialog;
+	private Dialog peerDialog;
 
 	/*
 	 * The request that originated the Dialog
@@ -137,14 +137,23 @@ class DialogContext {
 	 * Records whether or not an ACCEPTED has been sent for the REFER. This
 	 * dictates what we need to do when we see a BYE for this dialog.
 	 */
-	boolean forwardByeToPeer = true;
+	private boolean forwardByeToPeer = true;
 
 	/*
 	 * The generated REFER request.
 	 */
 	Request referRequest;
+	
+	/*
+	 * If this flag is set to true then the call dialog is torn down immediately after it is CONFIRMed.
+	 */
 
 	private boolean terminateOnConfirm;
+	
+	/*
+	 * A private flag that is used to prevent re-entrant re-INVITEs ( some ITSPs do not react
+	 * in accordance with the RFC when such a re-INVITE is seen ).
+	 */
 
 	private AtomicBoolean waitingToSendReInvite = new AtomicBoolean(false);
 
@@ -175,7 +184,7 @@ class DialogContext {
 				Request request;
 				long currentTimeMilis = System.currentTimeMillis();
 				if (dialog.getState() == DialogState.CONFIRMED
-						&& DialogContext.get(dialog).peerDialog != null) {
+						&& DialogContext.get(dialog).getPeerDialog() != null) {
 					if (method.equalsIgnoreCase(Request.INVITE)) {
 
 						if (currentTimeMilis < timeLastAckSent - sessionExpires
@@ -375,7 +384,7 @@ class DialogContext {
 								.setDialogPendingSdpAnswer(dialog);
 						DialogContext.get(mohCtx.getDialog()).setPendingAction(
 								PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK);
-						DialogContext.get(mohCtx.getDialog()).peerDialog = dialog;
+						DialogContext.get(mohCtx.getDialog()).setPeerDialog(dialog);
 						mohCtx.sendRequest();
 					} else {
 						mohCtx.terminate();
@@ -439,8 +448,8 @@ class DialogContext {
 
 		DialogContext dad1 = DialogContext.get(dialog1);
 		DialogContext dad2 = DialogContext.get(dialog2);
-		dad1.peerDialog = dialog2;
-		dad2.peerDialog = dialog1;
+		dad1.setPeerDialog(dialog2);
+		dad2.setPeerDialog(dialog1);
 	}
 
 	static BackToBackUserAgent getBackToBackUserAgent(Dialog dialog) {
@@ -847,6 +856,24 @@ class DialogContext {
 
 	void sendMohInvite(ClientTransaction mohClientTransaction) {
 		Gateway.getTimer().schedule(new MohTimer(mohClientTransaction), 500);
+	}
+
+	void setPeerDialog(Dialog peerDialog) {
+		logger.debug("DialogContext.setPeerDialog: " + peerDialog);
+		this.peerDialog = peerDialog;
+	}
+
+	Dialog getPeerDialog() {
+		return peerDialog;
+	}
+
+	void setForwardByeToPeer(boolean forwardByeToPeer) {
+		logger.debug("setForwardByeToPeer " + forwardByeToPeer);
+		this.forwardByeToPeer = forwardByeToPeer;
+	}
+
+	boolean isForwardByeToPeer() {
+		return forwardByeToPeer;
 	}
 
 }

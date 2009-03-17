@@ -70,15 +70,16 @@ public class CallControlUtilities {
      * Sends an in-dialog SDP Offer to the peer of this dialog.
      * 
      * @param response
-     * @param dialog
+     * @param reOfferDialog
      * @throws Exception
      */
-    static void sendSdpReOffer(Response response, Dialog dialog) throws Exception {
-        BackToBackUserAgent b2bua = DialogContext.getBackToBackUserAgent(dialog);
-        DialogContext dialogContext = (DialogContext) dialog.getApplicationData();
+    static void sendSdpReOffer(Response response, Dialog responseDialog, Dialog reOfferDialog) throws Exception {
+    	DialogContext.pairDialogs(responseDialog, reOfferDialog);
+        BackToBackUserAgent b2bua = DialogContext.getBackToBackUserAgent(reOfferDialog);
+        DialogContext dialogContext = (DialogContext) reOfferDialog.getApplicationData();
         if (logger.isDebugEnabled()) {
-            logger.debug("sendSdpOffer : peerDialog = " + dialog
-            		+ " dialogState = " + dialog.getState() 
+            logger.debug("sendSdpOffer : peerDialog = " + reOfferDialog
+            		+ " dialogState = " + reOfferDialog.getState() 
                     + " peerDialogApplicationData = " + dialogContext + "\nlastResponse = "
                     + dialogContext.getLastResponse());
         }
@@ -101,9 +102,9 @@ public class CallControlUtilities {
              * Got a Response to our SDP query. Shuffle to the other end.
              */
 
-            DialogContext.getRtpSession(dialog).getTransmitter().setOnHold(false);
+            DialogContext.getRtpSession(reOfferDialog).getTransmitter().setOnHold(false);
             
-            DialogContext.get(dialog).sendSdpReOffer(sdpOffer);
+            DialogContext.get(reOfferDialog).sendSdpReOffer(sdpOffer);
 
           
 

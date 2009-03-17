@@ -143,8 +143,22 @@ public class RtpSessionUtilities {
 				.getNewClientTransaction(newInvite);
 		TransactionContext tad = TransactionContext.attach(ctx,
 				Operation.FORWARD_REINVITE);
-
 		tad.setServerTransaction(serverTransaction);
+		
+		/*
+		 * Set up to forward BYE to peer dialog
+		 */
+		dat.setForwardByeToPeer(true);
+		
+		/*
+		 * Set the dialog pointer of peer back to us.
+		 */
+		DialogContext peerDialogContext = DialogContext.get(peerDialog);
+		peerDialogContext.setPeerDialog(dialog);
+
+		
+		
+		
 
 		DialogContext.get(peerDialog).sendReInvite(ctx);
 	}

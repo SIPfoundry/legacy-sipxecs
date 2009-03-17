@@ -146,14 +146,14 @@ public class SipListenerImpl implements SipListener {
                 DialogContext newDialogApplicationData = DialogContext.attach(b2bua,
                         newClientTransaction.getDialog(), newClientTransaction,
                         newClientTransaction.getRequest());
-                newDialogApplicationData.peerDialog = dialogApplicationData.peerDialog;
+                newDialogApplicationData.setPeerDialog(dialogApplicationData.getPeerDialog());
                 newClientTransaction.getDialog().setApplicationData(newDialogApplicationData);
                 /*
                  * Hook the application data pointer of the previous guy in the chain at us.
                  */
-                DialogContext peerDialogApplicationData = (DialogContext) dialogApplicationData.peerDialog
+                DialogContext peerDialogApplicationData = (DialogContext) dialogApplicationData.getPeerDialog()
                         .getApplicationData();
-                peerDialogApplicationData.peerDialog = newClientTransaction.getDialog();
+                peerDialogApplicationData.setPeerDialog(newClientTransaction.getDialog());
                 newDialogApplicationData.setRtpSession(dialogApplicationData.getRtpSession());
 
                 if (logger.isDebugEnabled()) {

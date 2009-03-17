@@ -115,7 +115,7 @@ class CallControlManager implements SymmitronResetHandler {
 				}
 				SipProvider provider = ((DialogExt) dialog).getSipProvider();
 				ClientTransaction newCtx = provider
-						.getNewClientTransaction(request);
+						.getNewClientTransaction(newRequest);
 				transactionContext.setClientTransaction(newCtx);
 				newCtx.setApplicationData(transactionContext);
 				dialogContext.sendReInvite(newCtx);
@@ -215,7 +215,7 @@ class CallControlManager implements SymmitronResetHandler {
 
 		DialogContext dat = (DialogContext) dialog.getApplicationData();
 
-		Dialog peerDialog = dat.peerDialog;
+		Dialog peerDialog = dat.getPeerDialog();
 
 		/*
 		 * The peer dialog may not be found if our re-INVITE did not succeed.
@@ -462,11 +462,11 @@ class CallControlManager implements SymmitronResetHandler {
 				DialogContext dat = DialogContext.get(replacesDialog);
 				DialogContext.attach(b2bua, dialog, serverTransaction, request);
 
-				Dialog peerDialog = dat.peerDialog;
+				Dialog peerDialog = dat.getPeerDialog();
 				logger.debug("replacesDialogState = "
 						+ replacesDialog.getState());
 				if (replacesDialog.getState() != DialogState.CONFIRMED) {
-					dat.peerDialog = null;
+					dat.setPeerDialog(null);
 				}
 
 				DialogContext.pairDialogs(dialog, peerDialog);
@@ -704,7 +704,7 @@ class CallControlManager implements SymmitronResetHandler {
 			 * This flag controls whether or not we forward the BYE when the
 			 * refer agent tears down his end of the dialog.
 			 */
-			DialogContext.get(dialog).forwardByeToPeer = false;
+			DialogContext.get(dialog).setForwardByeToPeer(false);
 			DialogContext.get(dialog).referRequest = request;
 
 			/*
@@ -817,7 +817,7 @@ class CallControlManager implements SymmitronResetHandler {
 			DialogContext dialogContext = (DialogContext) requestEvent
 					.getDialog().getApplicationData();
 
-			Dialog peerDialog = dialogContext.peerDialog;
+			Dialog peerDialog = dialogContext.getPeerDialog();
 
 			if (peerDialog == null) {
 				logger
@@ -1011,7 +1011,7 @@ class CallControlManager implements SymmitronResetHandler {
 				DialogContext dialogApplicationData = (DialogContext) dialog
 						.getApplicationData();
 
-				Dialog peerDialog = dialogApplicationData.peerDialog;
+				Dialog peerDialog = dialogApplicationData.getPeerDialog();
 				if (peerDialog != null) {
 					Request byeRequest = peerDialog.createRequest(Request.BYE);
 					SipProvider provider = SipUtilities.getPeerProvider(
@@ -1097,6 +1097,8 @@ class CallControlManager implements SymmitronResetHandler {
 			logger.warn("null client transaction");
 			return;
 		}
+		
+		b2bua.sendByeToMohServer();
 
 		logger.debug("Processing ERROR Response " + response.getStatusCode());
 
@@ -1152,12 +1154,15 @@ class CallControlManager implements SymmitronResetHandler {
 
 				}
 				/*
-				 * Tear down the call.
+				 * Tear down the call if the response status code requires for us to do so.
 				 */
-				b2bua.tearDown(ProtocolObjects.headerFactory
-						.createReasonHeader(Gateway.SIPXBRIDGE_USER,
-								ReasonCode.CALL_SETUP_ERROR,
-								"CallControlManager: Call setup error"));
+				if (response.getStatusCode() % 100 == 5
+						|| response.getStatusCode() == 6) {
+					b2bua.tearDown(ProtocolObjects.headerFactory
+							.createReasonHeader(Gateway.SIPXBRIDGE_USER,
+									ReasonCode.CALL_SETUP_ERROR,
+									"CallControlManager: Call setup error"));
+				}
 			}
 		}
 	}
@@ -1318,7 +1323,7 @@ class CallControlManager implements SymmitronResetHandler {
 			if (response.getStatusCode() == 200) {
 				Request ackRequest = dialog.createAck(SipUtilities
 						.getSeqNumber(response));
-				DialogContext.get(dialog).forwardByeToPeer = false;
+				DialogContext.get(dialog).setForwardByeToPeer(false);
 				DialogContext.get(dialog).setLastResponse(null);
 				DialogContext.get(dialog).sendAck(ackRequest);
 			}
@@ -1443,7 +1448,7 @@ class CallControlManager implements SymmitronResetHandler {
 		 */
 		DialogContext serverDat = DialogContext.get(serverTransaction
 				.getDialog());
-		serverDat.peerDialog = dialog;
+		serverDat.setPeerDialog(dialog);
 		serverTransaction.sendResponse(serverResponse);
 		serverDat.setRtpSession(DialogContext.get(replacedDialog)
 				.getRtpSession());
@@ -1451,7 +1456,7 @@ class CallControlManager implements SymmitronResetHandler {
 		if (replacedDialog.getState() != DialogState.TERMINATED) {
 			DialogContext replacedDat = DialogContext.get(replacedDialog);
 			replacedDat.setRtpSession(null);
-			replacedDat.peerDialog = null;
+			replacedDat.setPeerDialog(null);
 		}
 	}
 
@@ -1671,6 +1676,17 @@ class CallControlManager implements SymmitronResetHandler {
 
 		if (referDialog.getState() == DialogState.CONFIRMED
 				&& SipUtilities.isOriginatorSipXbridge(response)) {
+			/*
+			 * We terminate the dialog. There is no peer.
+			 * The REFER agent will send a BYE on notification.
+			 * We dont want to forward it.
+			 */
+			if (response.getStatusCode() == Response.OK) {
+				DialogContext.get(referDialog).setForwardByeToPeer(false);
+			} 
+			/*
+			 * Send A NOTIFY to the phone. He will tear down the call.
+			 */
 			this.notifyReferDialog(referRequest, referDialog, response);
 		}
 
@@ -1687,7 +1703,7 @@ class CallControlManager implements SymmitronResetHandler {
 				CallControlUtilities.sendSdpAnswerInAck(response, dialogToAck);
 			} else if (dialogContext.getPendingAction() == PendingDialogAction.PENDING_RE_INVITE_WITH_SDP_OFFER) {
 				dialogContext.setPendingAction(PendingDialogAction.NONE);
-				CallControlUtilities.sendSdpReOffer(response, peerDialog);
+				CallControlUtilities.sendSdpReOffer(response, dialog, peerDialog);
 			} else {
 				if (logger.isDebugEnabled()) {
 					logger.debug("tad.dialogPendingSdpAnswer = "
@@ -1703,15 +1719,15 @@ class CallControlManager implements SymmitronResetHandler {
 
 			if (mohCtx != null) {
 				/*
-				 * Already sent a response or a re-offer back. Alert the 
-				 * delayed MOH timer not to do anything.
+				 * Already sent a response or a re-offer back. Alert the delayed
+				 * MOH timer not to do anything.
 				 */
 
 				DialogContext mohDialogContext = DialogContext.get(mohCtx
 						.getDialog());
-				
-				mohDialogContext.setTerminateOnConfirm(); 
-				
+
+				mohDialogContext.setTerminateOnConfirm();
+
 			}
 
 		}
@@ -1877,7 +1893,7 @@ class CallControlManager implements SymmitronResetHandler {
 				CallControlUtilities.sendSdpAnswerInAck(response, dialogToAck);
 			} else if (dialogContext.getPendingAction() == PendingDialogAction.PENDING_RE_INVITE_WITH_SDP_OFFER) {
 				dialogContext.setPendingAction(PendingDialogAction.NONE);
-				CallControlUtilities.sendSdpReOffer(response, peerDialog);
+				CallControlUtilities.sendSdpReOffer(response, dialog, peerDialog);
 			}
 		}
 
@@ -1885,9 +1901,7 @@ class CallControlManager implements SymmitronResetHandler {
 		 * We directly send ACK.
 		 */
 		if (response.getStatusCode() == Response.OK) {
-
 			b2bua.addDialog(dialog);
-
 			Request ackRequest = dialog.createAck(((CSeqHeader) response
 					.getHeader(CSeqHeader.NAME)).getSeqNumber());
 			DialogContext.get(dialog).sendAck(ackRequest);
