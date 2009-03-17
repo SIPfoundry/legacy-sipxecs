@@ -14,6 +14,6 @@ import java.net.InetAddress;
  * @author Mardy Marshall
  */
 public class SIPServer {
-		InetAddress IPaddress;
-		String hostName;
+		public InetAddress IPaddress;
+		public String hostName;
 }

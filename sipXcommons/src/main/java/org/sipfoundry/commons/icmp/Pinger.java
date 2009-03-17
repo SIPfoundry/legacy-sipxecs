@@ -3,7 +3,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  */
-package org.sipfoundry.commons.discovery;
+package org.sipfoundry.commons.icmp;
 
 import static org.savarese.rocksaw.net.RawSocket.PF_INET;
 
@@ -33,7 +33,7 @@ public class Pinger {
     protected int sequence;
     protected int identifier;
 
-    Pinger(int id, String host, int timeout) {
+    public Pinger(int id, String host, int timeout) {
         sequence = 0;
         identifier = id;
         try {

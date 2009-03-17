@@ -5,6 +5,8 @@
  */
 package org.sipfoundry.commons.discovery;
 
+import org.sipfoundry.commons.icmp.Pinger;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;

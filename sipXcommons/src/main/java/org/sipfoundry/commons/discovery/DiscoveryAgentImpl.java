@@ -12,6 +12,7 @@ import javax.sip.header.*;
 import javax.sip.message.*;
 
 import org.sipfoundry.commons.ao.*;
+import org.sipfoundry.commons.icmp.Pinger;
 
 /**
  * [Enter descriptive text here]
