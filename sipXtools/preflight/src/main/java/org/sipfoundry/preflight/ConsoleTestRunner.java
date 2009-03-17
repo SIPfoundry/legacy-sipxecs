@@ -298,8 +298,11 @@ public class ConsoleTestRunner {
             }
 
             if (line.hasOption("tftp-test")) {
-                networkResources.configServer = line.getOptionValue("tftp-test");
                 TFTP tftp = new TFTP();
+                String configServer = line.getOptionValue("tftp-test");
+                if (configServer != null) {
+                	networkResources.configServer = configServer;
+                }
                 results = tftp.validate(10, networkResources, journalService, bindAddress);
                 if (results != NONE) {
                     System.err.println(results.toString());
@@ -308,8 +311,11 @@ public class ConsoleTestRunner {
             }
 
             if (line.hasOption("ftp-test")) {
-                networkResources.configServer = line.getOptionValue("ftp-test");
                 FTP ftp = new FTP();
+                String configServer = line.getOptionValue("ftp-test");
+                if (configServer != null) {
+                	networkResources.configServer = configServer;
+                }
                 results = ftp.validate(10, networkResources, journalService, bindAddress);
                 if (results != NONE) {
                     System.err.println(results.toString());
@@ -318,8 +324,11 @@ public class ConsoleTestRunner {
             }
 
             if (line.hasOption("http-test")) {
-                networkResources.configServer = line.getOptionValue("http-test");
                 HTTP http = new HTTP();
+                String configServer = line.getOptionValue("http-test");
+                if (configServer != null) {
+                	networkResources.configServer = configServer;
+                }
                 results = http.validate(10, networkResources, journalService, bindAddress);
                 if (results != NONE) {
                     System.err.println(results.toString());
