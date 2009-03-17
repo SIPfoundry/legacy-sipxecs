@@ -56,13 +56,13 @@ public class ConsoleTestRunner {
                 "server").create();
 
         Option tftpTest = OptionBuilder.withLongOpt("tftp-test").withDescription(
-                "Verify that the specified TFTP server is functioning properly.").withValueSeparator('=').hasArg().withArgName("server").create();
+                "Verify that the specified TFTP server is functioning properly.").withValueSeparator('=').hasOptionalArg().withArgName("server").create();
 
         Option ftpTest = OptionBuilder.withLongOpt("ftp-test").withDescription(
-                "Verify that the specified FTP server is functioning properly.").withValueSeparator('=').hasArg().withArgName("server").create();
+                "Verify that the specified FTP server is functioning properly.").withValueSeparator('=').hasOptionalArg().withArgName("server").create();
 
         Option httpTest = OptionBuilder.withLongOpt("http-test").withDescription(
-                "Verify that the specified HTTP server is functioning properly.").withValueSeparator('=').hasArg().withArgName("server").create();
+                "Verify that the specified HTTP server is functioning properly.").withValueSeparator('=').hasOptionalArg().withArgName("server").create();
 
         Option sipTest = OptionBuilder.withLongOpt("120-test").withDescription(
                 "Verify that DHCP server is properly issuing Option 120 addresses.").create();
