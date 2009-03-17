@@ -11,6 +11,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.LinkedList;
+import java.util.StringTokenizer;
 
 /**
  * [Enter descriptive text here]
@@ -33,6 +34,7 @@ public class SIPServerOption extends DHCPOption {
     public void addServer(InetAddress server) {
         if (serverList == null) {
             serverList = new LinkedList<SIPServer>();
+            super.setLength(1);
         }
         SIPServer newServer = new SIPServer();
         newServer.IPaddress = server;
@@ -74,7 +76,30 @@ public class SIPServerOption extends DHCPOption {
         if (serverList != null) {
             dataStream.writeByte(super.getCode().toInt());
             if (serverList.getFirst().hostName != null) {
-            	;
+            	// First parse all of the host names and build up a list of fields
+            	int length = 1;
+            	LinkedList<String> fields = new LinkedList<String>();
+            	for (SIPServer server : serverList) {
+            		StringTokenizer tokens = new StringTokenizer(server.hostName, ".");
+            		while (tokens.hasMoreTokens()) {
+            			String token = tokens.nextToken();
+            			fields.add(token);
+            			length += token.length() + 1;
+            		}
+            		fields.add("");
+            		length += 1;
+            	}
+            	super.setLength(length);
+            	
+            	// Now encode the list.
+            	dataStream.writeByte(length);
+            	dataStream.writeByte(0);  // Encoding type 0.
+            	for (String field : fields) {
+            		dataStream.write(field.length());
+            		if (field.length() > 0) {
+            			dataStream.write(field.getBytes("ISO-8859-1"));
+            		}
+            	}
             } else if (serverList.getFirst().IPaddress != null) {
             	dataStream.writeByte(super.getLength());
             	dataStream.writeByte(1);  // Encoding type 1.
@@ -96,8 +121,32 @@ public class SIPServerOption extends DHCPOption {
         }
         super.setLength(length);
         int encoding = dataStream.readByte() & 0xFF;
+        length -= 1;
         if (encoding == 0) {
-        	;
+            serverList = new LinkedList<SIPServer>();
+        	int fieldLength = 0;
+        	String field = null;
+        	String hostName = "";
+        	while (length > 0) {
+        		fieldLength = dataStream.readByte() & 0xFF;
+                length -= 1;
+        		if (fieldLength > 0) {
+        			if (hostName.length() > 0) {
+        				hostName = hostName.concat(".");
+        			}
+        			byte[] stringBuffer = new byte[fieldLength];
+                	dataStream.readFully(stringBuffer, 0, fieldLength);
+                	field = new String(stringBuffer, 0, fieldLength, "ISO-8859-1").trim();
+                	length -= fieldLength;
+        			hostName = hostName.concat(field);
+        		} else {
+        			SIPServer newServer = new SIPServer();
+            		newServer.IPaddress = null;
+        			newServer.hostName = hostName;
+        			serverList.add(newServer);
+        			hostName = "";
+        		}
+        	}
         } else if (encoding == 1) {
             serverList = new LinkedList<SIPServer>();
         	byte[] addressBuffer = new byte[4];
