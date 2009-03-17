@@ -56,9 +56,9 @@ class NatTraversalRules;
  *  class is created by NatTraveralAgent only when the NAT Traversal feature is enabled.
  *  The list of pinholes that it needs to maintain is built from three sources:
  *    1. Registration DB: NatMaintainer queries the registration DB looking for unexpired
- *       contacts that containing a ‘x-sipX-pubcontact’ URL parameter.
+ *       contacts that containing a ‘x-sipX-privcontact’ URL parameter.
  *    2. Subscription DB: NatMaintainer queries the subscription DB looking for unexpired
- *       contacts that containing a ‘x-sipX-pubcontact’ URL parameter.
+ *       contacts that containing a ‘x-sipX-privcontact’ URL parameter.
  *    3. External Pinhole List: NatMaintainer exposes methods to be invoked by components
  *       of the NAT Traversal feature to dynamically add and remove pinholes that need to
  *       be maintained.  Such methods are used by the CallTracker when REMOTE NATED

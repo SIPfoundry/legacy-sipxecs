@@ -53,7 +53,11 @@ class SipRouterTest : public CppUnit::TestCase
    CPPUNIT_TEST(testProxySpiralingRequest);
    CPPUNIT_TEST(testProxyEndOfSpiralRequest);
    CPPUNIT_TEST(testInDialogRequestSelf);
+   CPPUNIT_TEST(testInDialogRequestSelfGruu);
+   CPPUNIT_TEST(testInDialogRequestSelfByAlias);
+   CPPUNIT_TEST(testInDialogRequestSelfByAliasGruu);
    CPPUNIT_TEST(testInDialogRequestOther);
+   CPPUNIT_TEST(testInDialogRequestOtherGruu);
    CPPUNIT_TEST(testProxyChallengeLocal);
    CPPUNIT_TEST(testProxyChallengeDialogForming_Invite);   
    CPPUNIT_TEST(testProxyChallengeDialogForming_Notify);   
@@ -681,6 +685,88 @@ public:
       RouteState::setSecret("GuessThat!");
 
       const char* message =
+         "INVITE sip:user@example.com SIP/2.0\r\n"
+         "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+         "To: sip:user@external.example.com\r\n"
+         "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+         "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "Cseq: 1 INVITE\r\n"
+         "Route: <sip:10.10.10.1:5060;lr;sipXecs-rs=%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60%21607dcb78ef2addd25638653db3070349>\r\n"
+         "Max-Forwards: 20\r\n"
+         "Contact: caller@127.0.0.1\r\n"
+         "Content-Length: 0\r\n"
+         "\r\n";
+
+      SipMessage testMsg(message, strlen(message));
+      SipMessage testRsp;
+      
+      CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
+
+      UtlString requestUri;
+      testMsg.getRequestUri(&requestUri);
+      ASSERT_STR_EQUAL("sip:user@example.com", requestUri.data());
+
+      // verify that forwarding rules have not been evaluated as indicated by the absence
+      // of a Route header.
+      UtlString topRoute, tempString, urlParmName;
+      CPPUNIT_ASSERT( !testMsg.getRouteUri(0, &topRoute) );
+
+      // verify that no new Record-Route was added
+      UtlString recordRoute;
+      CPPUNIT_ASSERT( !testMsg.getRecordRouteUri(0, &recordRoute) );
+      
+      CPPUNIT_ASSERT( !testMsg.getHeaderValue( 0, SIP_SIPX_SPIRAL_HEADER ) );
+
+      int maxForwards;
+      CPPUNIT_ASSERT(testMsg.getMaxForwards(maxForwards) && maxForwards == 19);
+    }
+
+   void testInDialogRequestSelfGruu()
+    {
+      RouteState::setSecret("GuessThat!");
+
+      const char* message =
+         "INVITE sip:user@example.com;gr SIP/2.0\r\n"
+         "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+         "To: sip:user@external.example.net\r\n"
+         "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+         "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "Cseq: 1 INVITE\r\n"
+         "Route: <sip:10.10.10.1:5060;lr;sipXecs-rs=%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60%21607dcb78ef2addd25638653db3070349>\r\n"
+         "Max-Forwards: 20\r\n"
+         "Contact: caller@127.0.0.1\r\n"
+         "Content-Length: 0\r\n"
+         "\r\n";
+
+      SipMessage testMsg(message, strlen(message));
+      SipMessage testRsp;
+      
+      CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
+
+      UtlString requestUri;
+      testMsg.getRequestUri(&requestUri);
+      ASSERT_STR_EQUAL("sip:user@example.com;gr", requestUri.data());
+
+      // verify that forwarding rules have  been evaluated as indicated by the presence
+      // of a Route header.
+      UtlString topRoute, tempString, urlParmName;
+      CPPUNIT_ASSERT( testMsg.getRouteUri(0, &topRoute) );
+
+      // verify that no new Record-Route was added
+      UtlString recordRoute;
+      CPPUNIT_ASSERT( !testMsg.getRecordRouteUri(0, &recordRoute) );
+      
+      CPPUNIT_ASSERT( !testMsg.getHeaderValue( 0, SIP_SIPX_SPIRAL_HEADER ) );
+
+      int maxForwards;
+      CPPUNIT_ASSERT(testMsg.getMaxForwards(maxForwards) && maxForwards == 19);
+    }   
+   
+   void testInDialogRequestSelfByAlias()
+    {
+      RouteState::setSecret("GuessThat!");
+
+      const char* message =
          "INVITE sip:user@external.example.net SIP/2.0\r\n"
          "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
          "To: sip:user@external.example.net\r\n"
@@ -698,18 +784,14 @@ public:
       
       CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
 
-      // UtlString proxiedMsg;
-      // ssize_t msgLen;
-      // testMsg.getBytes(&proxiedMsg, &msgLen);
-      // printf("In:\n%s\nOut:\n%s\n", message, proxiedMsg.data());
-
       UtlString requestUri;
       testMsg.getRequestUri(&requestUri);
       ASSERT_STR_EQUAL("sip:user@external.example.net", requestUri.data());
 
-      // verify that route has NOT been popped off.
+      // verify that forwarding rules have not been evaluated as indicated by the absence
+      // of a Route header.
       UtlString topRoute, tempString, urlParmName;
-      CPPUNIT_ASSERT( testMsg.getRouteUri(0, &topRoute) );
+      CPPUNIT_ASSERT( !testMsg.getRouteUri(0, &topRoute) );
 
       // verify that no new Record-Route was added
       UtlString recordRoute;
@@ -721,7 +803,47 @@ public:
       CPPUNIT_ASSERT(testMsg.getMaxForwards(maxForwards) && maxForwards == 19);
     }
 
+   void testInDialogRequestSelfByAliasGruu()
+    {
+      RouteState::setSecret("GuessThat!");
 
+      const char* message =
+         "INVITE sip:user@external.example.net;gr SIP/2.0\r\n"
+         "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+         "To: sip:user@external.example.net\r\n"
+         "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+         "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "Cseq: 1 INVITE\r\n"
+         "Route: <sip:10.10.10.1:5060;lr;sipXecs-rs=%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60%21607dcb78ef2addd25638653db3070349>\r\n"
+         "Max-Forwards: 20\r\n"
+         "Contact: caller@127.0.0.1\r\n"
+         "Content-Length: 0\r\n"
+         "\r\n";
+
+      SipMessage testMsg(message, strlen(message));
+      SipMessage testRsp;
+      
+      CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
+
+      UtlString requestUri;
+      testMsg.getRequestUri(&requestUri);
+      ASSERT_STR_EQUAL("sip:user@external.example.net;gr", requestUri.data());
+
+      // verify that forwarding rules have not been evaluated as indicated by the absence
+      // of a Route header.
+      UtlString topRoute, tempString, urlParmName;
+      CPPUNIT_ASSERT( !testMsg.getRouteUri(0, &topRoute) );
+
+      // verify that no new Record-Route was added
+      UtlString recordRoute;
+      CPPUNIT_ASSERT( !testMsg.getRecordRouteUri(0, &recordRoute) );
+      
+      CPPUNIT_ASSERT( !testMsg.getHeaderValue( 0, SIP_SIPX_SPIRAL_HEADER ) );
+
+      int maxForwards;
+      CPPUNIT_ASSERT(testMsg.getMaxForwards(maxForwards) && maxForwards == 19);
+    }
+   
    void testInDialogRequestOther()
     {
       RouteState::setSecret("GuessThat!");
@@ -751,6 +873,50 @@ public:
       UtlString requestUri;
       testMsg.getRequestUri(&requestUri);
       ASSERT_STR_EQUAL("sip:user@external.Notexample.net", requestUri.data());
+
+      // verify that route has been popped off.
+      UtlString topRoute, tempString, urlParmName;
+      CPPUNIT_ASSERT( !testMsg.getRouteUri(0, &topRoute) );
+
+      // verify that no new Record-Route was added
+      UtlString recordRoute;
+      CPPUNIT_ASSERT( !testMsg.getRecordRouteUri(0, &recordRoute) );
+      
+      CPPUNIT_ASSERT( !testMsg.getHeaderValue( 0, SIP_SIPX_SPIRAL_HEADER ) );
+
+      int maxForwards;
+      CPPUNIT_ASSERT(testMsg.getMaxForwards(maxForwards) && maxForwards == 19);
+    }
+
+   void testInDialogRequestOtherGruu()
+    {
+      RouteState::setSecret("GuessThat!");
+
+      const char* message =
+         "INVITE sip:user@external.Notexample.net;gr SIP/2.0\r\n"
+         "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+         "To: sip:user@external.Notexample.net\r\n"
+         "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+         "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "Cseq: 1 INVITE\r\n"
+         "Route: <sip:10.10.10.1:5060;lr;sipXecs-rs=%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60%21607dcb78ef2addd25638653db3070349>\r\n"
+         "Max-Forwards: 20\r\n"
+         "Contact: caller@127.0.0.1\r\n"
+         "Content-Length: 0\r\n"
+         "\r\n";
+
+      SipMessage testMsg(message, strlen(message));
+      SipMessage testRsp;
+      
+      CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
+      // UtlString proxiedMsg;
+      // ssize_t msgLen;
+      // testMsg.getBytes(&proxiedMsg, &msgLen);
+      // printf("In:\n%s\nOut:\n%s\n", message, proxiedMsg.data());
+
+      UtlString requestUri;
+      testMsg.getRequestUri(&requestUri);
+      ASSERT_STR_EQUAL("sip:user@external.Notexample.net;gr", requestUri.data());
 
       // verify that route has been popped off.
       UtlString topRoute, tempString, urlParmName;

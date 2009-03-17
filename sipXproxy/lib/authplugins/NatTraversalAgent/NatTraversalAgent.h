@@ -119,6 +119,11 @@ class NatTraversalAgent : public AuthPlugin, SipOutputProcessor, OsNotification
    
    friend AuthPlugin* getAuthPlugin(const UtlString& name);
    friend class NatTraversalAgentTest;
+
+   // removes any modifications the NAT traversal feature has done to the Request-URI.
+   // This ensures that when the request is received by the target, it will bear
+   // the Request-URI it is expecting.
+   void UndoChangesToRequestUri( SipMessage& message );
    
    /// Constructor - private so that only the factory can call it.
    NatTraversalAgent(const UtlString& instanceName ///< the configured name for this plugin instance

@@ -96,7 +96,7 @@ int NatMaintainer::run( void* runArg )
    
             // timer has expired - refresh timeout 
             UtlSList resultList;
-            UtlString stringToMatch( SIPX_PUBLIC_CONTACT_URI_PARAM );
+            UtlString stringToMatch( SIPX_PRIVATE_CONTACT_URI_PARAM );
           
             // start by sending keep-alives to non-expired contacts for far-end NATed phones 
             // found in the subscription database
@@ -112,7 +112,7 @@ int NatMaintainer::run( void* runArg )
 
             // finally, send keep-alives to the endpoints that were inserted into our
             // external keep alive list by other components of the NAT traversal feature.
-            sendKeepAliveToExternalKeepAliveList();            
+            sendKeepAliveToExternalKeepAliveList();        
          }
       }
    }

@@ -350,6 +350,11 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
       
       if( !sipRequest.getHeaderValue( 0, SIP_SIPX_SPIRAL_HEADER ))
       {
+         // Apply NAT mapping info to all non-spiraling requests to make
+         // sure all in-dialog requests sent by the UAS for this request 
+         // will be sent to a routable contact.
+         addNatMappingInfoToContacts( sipRequest );            
+
          // Our custom spiraling header was NOT found indicating that the request
          // is not received as a result of spiraling. It could either be a 
          // dialog-forming request or an in-dialog request sent directly by the UAC
@@ -370,7 +375,6 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
             sipRequest.setHeaderValue( SIP_SIPX_SPIRAL_HEADER, "true", 0 );
             bRequestShouldBeAuthorized        = false;
             bForwardingRulesShouldBeEvaluated = true;
-            addNatMappingInfoToContacts( sipRequest );            
             // If the UA sending this request is located behind 
             // a NAT and the request is a REGISTER then add a
             // Path header to this proxy to make sure that all subsequent 
@@ -472,9 +476,11 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
                bRequestShouldBeAuthorized         = true;
                bForwardingRulesShouldBeEvaluated  = false;
             }
-            else if (isLocalDomain(normalizedRequestUri))
+            else if ( isLocalDomain(normalizedRequestUri, false) && normalizedRequestUri.isGRUU() )
             {
-               // final target is in our own domain, need to check forwarding rules
+               // final target is in our own domain and URI is GRUU.  We
+               // have to evaluate the forwarding rules so that request will
+               // be routed to the redirect server where the GRUU can be resolved.
                OsSysLog::add(FAC_SIP, PRI_DEBUG,
                              "SipRouter::proxyMessage domain is us");
                bRequestShouldBeAuthorized         = true;
@@ -775,14 +781,15 @@ void SipRouter::getDomain(UtlString& canonicalDomain) const
 }
 
 // @returns true iff the authority in url is a valid form of the domain name for this proxy.
-bool SipRouter::isLocalDomain(const Url& url ///< a url to be tested
-                           ) const
+bool SipRouter::isLocalDomain(const Url& url, ///< a url to be tested
+                              bool bIncludeDomainAliases ///< also test for domain alias matches
+                             ) const
 {
    UtlString urlDomain;
    url.getHostAddress(urlDomain);
 
    return (   (0 == mDomainName.compareTo(urlDomain, UtlString::ignoreCase))
-           || (mpSipUserAgent->isMyHostAlias(url))
+           || (bIncludeDomainAliases && mpSipUserAgent->isMyHostAlias(url) )
            );
 }
 
@@ -863,39 +870,47 @@ bool SipRouter::addNatMappingInfoToContacts( SipMessage& sipRequest ) const
    UtlBoolean bReceivedSet;
    UtlString  natUrlParameterName;
    UtlString  natUrlParameterValue;
+   UtlString  contactString;
+   sipRequest.getContactEntry(0, &contactString);
+   Url newContactUri( contactString );
    
    sipRequest.getTopVia( &privateAddress, &privatePort, &protocol, NULL, &bReceivedSet );
    if( bReceivedSet )
    {
-      UtlString publicAddress;
-      int publicPort;
+      // presence of the 'received' parameter indicates that the UA is behind a NAT.
+      // Transform the request's contact so that it carries its private and public IP 
+      // addresses:
+      // Before transformation:
+      //   Contact: caller@privIP:privPort;transport=xxx
+      // After transformation:
+      //   Contact: caller@pubIp:pubPort;transport=xxx;x-sipX-privcontact=privIP:privPort;transport=xxx
+
+      // construct the x-sipX-privcontact URL parameter
+      UtlString privateHostAddress;
+      newContactUri.getHostAddress( privateHostAddress );
+      natUrlParameterValue.append( privateHostAddress );
+      if( newContactUri.getHostPort() != PORT_NONE )
+      {
+         char portString[21];
+         sprintf( portString, "%d", newContactUri.getHostPort() );               
+         natUrlParameterValue.append( ":" );
+         natUrlParameterValue.append( portString );
+      }
+      UtlString transport;
+      if( newContactUri.getUrlParameter( "transport", transport, 0 ) )
+      {
+         natUrlParameterValue.append( ";transport=" );
+         natUrlParameterValue.append( transport );
+      }
+      natUrlParameterName  = SIPX_PRIVATE_CONTACT_URI_PARAM;
       
       // get the user's public IP address and port as received
-      // by the sipXtack
+      // by the sipXtack and use them as the contact's IP & port
+      UtlString publicAddress;
+      int publicPort;
       sipRequest.getSendAddress( &publicAddress, &publicPort );
-      
-      // Add public address:port info in custom Contact URL parameter
-      UtlString publicContactParamValue;
-      char portString[21];
-      sprintf( portString, "%d", publicPort );               
-      publicContactParamValue.append( publicAddress );
-      publicContactParamValue.append( ":" );
-      publicContactParamValue.append( portString );
-
-      // Get the contact's transport protocol and add it to
-      // custom Contact URL parameter
-      UtlString contact;
-      UtlString transport;
-      sipRequest.getContactEntry(0, &contact);
-      Url contactUri( contact );
-      if( contactUri.getUrlParameter( "transport", transport, 0 ) )
-      {
-         publicContactParamValue.append( ";transport=" );
-         publicContactParamValue.append( transport );
-      }
-
-      natUrlParameterName  = SIPX_PUBLIC_CONTACT_URI_PARAM;
-      natUrlParameterValue = publicContactParamValue;
+      newContactUri.setHostAddress( publicAddress );
+      newContactUri.setHostPort( publicPort );      
    }
    else
    {
@@ -903,18 +918,16 @@ bool SipRouter::addNatMappingInfoToContacts( SipMessage& sipRequest ) const
       natUrlParameterName  = SIPX_NO_NAT_URI_PARAM;
       natUrlParameterValue = "";         
    }
-
-   UtlString contact;
+   newContactUri.setUrlParameter( natUrlParameterName, natUrlParameterValue ); 
+   UtlString newContactAsString;
+   newContactUri.toString( newContactAsString );
+   
+   UtlString dummyContact;
    for (int contactNumber = 0;
-        sipRequest.getContactEntry(contactNumber, &contact);
+        sipRequest.getContactEntry(contactNumber, &dummyContact);
         contactNumber++ )
    {
-      Url contactUri(contact);
-      contactUri.setUrlParameter( natUrlParameterName, natUrlParameterValue );
-
-      UtlString modifiedContact;
-      contactUri.toString(modifiedContact);
-      sipRequest.setContactField(modifiedContact, contactNumber);
+      sipRequest.setContactField(newContactAsString, contactNumber);
    }
    return true;
 }

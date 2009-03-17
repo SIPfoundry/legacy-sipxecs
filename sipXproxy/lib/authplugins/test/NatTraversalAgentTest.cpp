@@ -28,6 +28,7 @@ class NatTraversalAgentTest : public CppUnit::TestCase
       CPPUNIT_TEST( handleLocalNATedToRemoteNATedCall );
       CPPUNIT_TEST( stalledMediaStreamDetectionTest_StreamNotStalled );
       CPPUNIT_TEST( stalledMediaStreamDetectionTest_StreamStalled );
+      CPPUNIT_TEST( UndoChangesToRequestUriTests );
       CPPUNIT_TEST_SUITE_END();
 
    public:
@@ -52,7 +53,7 @@ class NatTraversalAgentTest : public CppUnit::TestCase
       void handleRemoteNATedToRemoteNATedCall()
       {
          const char* message =
-            "INVITE sip:601@192.168.1.11:5060;x-sipX-pubcontact=47.135.162.145%3A29544 SIP/2.0\r\n"
+            "INVITE sip:601@47.135.162.145:29544;x-sipX-privcontact=192.168.1.11%3A5060 SIP/2.0\r\n"
             "Record-Route: <sip:192.168.0.2:5060;lr>\r\n"
             "From: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=94bc25b8-c0a80165-13c4-3e635-37aa1989-3e635\r\n"
             "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
@@ -61,7 +62,7 @@ class NatTraversalAgentTest : public CppUnit::TestCase
             "Max-Forwards: 19\r\n"
             "Supported: replaces\r\n"
             "User-Agent: LG-Nortel LIP 6804 v1.2.38sp SN/00405A187376\r\n"
-            "Contact: <sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956>\r\n"
+            "Contact: <sip:602@47.135.162.145:14956;x-sipX-privcontact=192.168.1.101%3A5060>\r\n"
             "Content-Type: application/sdp\r\n"
             "Content-Length: 297\r\n"
             "Date: Thu, 12 Jun 2008 19:14:29 GMT\r\n"
@@ -243,7 +244,7 @@ class NatTraversalAgentTest : public CppUnit::TestCase
       void handleLocalNATedToRemoteNATedCall()
       {
          const char* message =
-           "INVITE sip:601@192.168.1.11:5060;x-sipX-pubcontact=47.135.162.145%3A29544 SIP/2.0\r\n"
+           "INVITE sip:601@47.135.162.145:29544;x-sipX-privcontact=192.168.1.11%3A5060 SIP/2.0\r\n"
            "Record-Route: <sip:192.168.0.2:5060;lr>\r\n"
            "From: \"L3\"<sip:403@rjolyscs2.ca.nortel.com>;tag=94bb9480-c0a80065-13c4-50045-20c55bd3-50045\r\n"
            "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
@@ -438,7 +439,7 @@ class NatTraversalAgentTest : public CppUnit::TestCase
          RouteState::setSecret("fixed");
 
          const char* message =
-           "INVITE sip:601@192.168.1.11:5060;x-sipX-pubcontact=47.135.162.145%3A29544 SIP/2.0\r\n"
+           "INVITE sip:601@47.135.162.145:29544;x-sipX-privcontact=192.168.1.11%3A5060 SIP/2.0\r\n"
            "Record-Route: <sip:192.168.0.2:5060;lr>\r\n"
            "From: \"L3\"<sip:403@rjolyscs2.ca.nortel.com>;tag=94bb9480-c0a80065-13c4-50045-20c55bd3-50045\r\n"
            "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
@@ -525,7 +526,7 @@ class NatTraversalAgentTest : public CppUnit::TestCase
 
          // Mow simulalate the reception of the ACK
          const char* ack = 
-            "ACK sip:601@192.168.1.11:5060;x-sipX-pubcontact=47.135.162.145%3A29544 SIP/2.0\r\n"
+            "ACK sip:601@47.135.162.145:29544;x-sipX-privcontact=192.168.1.11%3A5060 SIP/2.0\r\n"
             "From: \"L3\"<sip:403@rjolyscs2.ca.nortel.com>;tag=94bb9480-c0a80065-13c4-50045-20c55bd3-50045\r\n"
             "To: <sip:601@rjolyscs2.ca.nortel.com>;tag=94bf81c0-c0a8010b-13c4-4fc07-650a9211-4fc07\r\n"
             "Call-Id: 94bb55a0-c0a80065-13c4-50045-61a3ad3-50045@rjolyscs2.ca.nortel.com\r\n"
@@ -578,7 +579,7 @@ class NatTraversalAgentTest : public CppUnit::TestCase
          RouteState::setSecret("fixed");
 
          const char* message =
-           "INVITE sip:601@192.168.1.11:5060;x-sipX-pubcontact=47.135.162.145%3A29544 SIP/2.0\r\n"
+           "INVITE sip:601@47.135.162.145:29544;x-sipX-privcontact=192.168.1.11%3A5060 SIP/2.0\r\n"
            "Record-Route: <sip:192.168.0.2:5060;lr>\r\n"
            "From: \"L3\"<sip:403@rjolyscs2.ca.nortel.com>;tag=94bb9480-c0a80065-13c4-50045-20c55bd3-50045\r\n"
            "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
@@ -665,7 +666,7 @@ class NatTraversalAgentTest : public CppUnit::TestCase
 
          // Mow simulalate the reception of the ACK
          const char* ack = 
-            "ACK sip:601@192.168.1.11:5060;x-sipX-pubcontact=47.135.162.145%3A29544 SIP/2.0\r\n"
+            "ACK sip:601@47.135.162.145:29544;x-sipX-privcontact=192.168.1.11%3A5060 SIP/2.0\r\n"
             "From: \"L3\"<sip:403@rjolyscs2.ca.nortel.com>;tag=94bb9480-c0a80065-13c4-50045-20c55bd3-50045\r\n"
             "To: <sip:601@rjolyscs2.ca.nortel.com>;tag=94bf81c0-c0a8010b-13c4-4fc07-650a9211-4fc07\r\n"
             "Call-Id: 94bb55a0-c0a80065-13c4-50045-61a3ad3-50045@rjolyscs2.ca.nortel.com\r\n"
@@ -708,6 +709,136 @@ class NatTraversalAgentTest : public CppUnit::TestCase
          sleep( MAX_TIMER_TICK_COUNTS_BEFORE_CALL_TRACKER_CLEAN_UP * CLEAN_UP_TIMER_IN_SECS * 2 /*safety margin*/ );
          pTracker = pNatTraversalAgent->getCallTrackerFromCallId( callId );   
          CPPUNIT_ASSERT( pTracker == 0 );
+      }
+      
+      void UndoChangesToRequestUriTests()
+      {
+         // with x-sipX-privcontact as only parameter
+         UtlString modifiedRuri;
+         const char* message1 =
+           "INVITE sip:601@47.135.162.145:29544;x-sipX-privcontact=192.168.1.11%3A5060 SIP/2.0\r\n"
+           "Record-Route: <sip:192.168.0.2:5060;lr>\r\n"
+           "From: \"L3\"<sip:403@rjolyscs2.ca.nortel.com>;tag=94bb9480-c0a80065-13c4-50045-20c55bd3-50045\r\n"
+           "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
+           "Call-Id: 94bb55a0-c0a80065-13c4-50045-61a3ad3-50045@rjolyscs2.ca.nortel.com\r\n"
+           "Cseq: 1 INVITE\r\n"
+           "Via: SIP/2.0/UDP 192.168.0.2;branch=z9hG4bK-sipXecs-8130adee90e0277761fec4ee1c194a56838f~9d6590763d78764b93a42e94dbd6b75a\r\n"
+           "Via: SIP/2.0/UDP 192.168.0.101:5060;branch=z9hG4bK-50045-13890e4e-4f17a229\r\n"
+           "Max-Forwards: 19\r\n"
+           "Supported: replaces\r\n"
+           "Contact: <sip:403@192.168.0.101:5060;x-sipX-nonat>\r\n"
+           "Content-Length: 0\r\n"
+           "\r\n";
+         SipMessage testMsg1(message1, strlen(message1));
+         
+         pNatTraversalAgent->UndoChangesToRequestUri( testMsg1 );
+         testMsg1.getRequestUri( &modifiedRuri );
+         ASSERT_STR_EQUAL( "sip:601@192.168.1.11:5060", modifiedRuri.data() );
+
+         // without x-sipX-privcontact 
+         const char* message2 =
+           "INVITE sip:601@47.135.162.145:29544 SIP/2.0\r\n"
+           "Record-Route: <sip:192.168.0.2:5060;lr>\r\n"
+           "From: \"L3\"<sip:403@rjolyscs2.ca.nortel.com>;tag=94bb9480-c0a80065-13c4-50045-20c55bd3-50045\r\n"
+           "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
+           "Call-Id: 94bb55a0-c0a80065-13c4-50045-61a3ad3-50045@rjolyscs2.ca.nortel.com\r\n"
+           "Cseq: 1 INVITE\r\n"
+           "Via: SIP/2.0/UDP 192.168.0.2;branch=z9hG4bK-sipXecs-8130adee90e0277761fec4ee1c194a56838f~9d6590763d78764b93a42e94dbd6b75a\r\n"
+           "Via: SIP/2.0/UDP 192.168.0.101:5060;branch=z9hG4bK-50045-13890e4e-4f17a229\r\n"
+           "Max-Forwards: 19\r\n"
+           "Supported: replaces\r\n"
+           "Contact: <sip:403@192.168.0.101:5060;x-sipX-nonat>\r\n"
+           "Content-Length: 0\r\n"
+           "\r\n";
+         SipMessage testMsg2(message2, strlen(message2));
+         
+         pNatTraversalAgent->UndoChangesToRequestUri( testMsg2 );
+         testMsg2.getRequestUri( &modifiedRuri );
+         ASSERT_STR_EQUAL( "sip:601@47.135.162.145:29544", modifiedRuri.data() );
+
+         // with x-sipX-privcontact as first of many params
+         const char* message3 =
+            "INVITE sip:601@47.135.162.145:29544;x-sipX-privcontact=192.168.1.11%3A5060;someparam1=12112;someparam2=12222 SIP/2.0\r\n"
+           "Record-Route: <sip:192.168.0.2:5060;lr>\r\n"
+           "From: \"L3\"<sip:403@rjolyscs2.ca.nortel.com>;tag=94bb9480-c0a80065-13c4-50045-20c55bd3-50045\r\n"
+           "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
+           "Call-Id: 94bb55a0-c0a80065-13c4-50045-61a3ad3-50045@rjolyscs2.ca.nortel.com\r\n"
+           "Cseq: 1 INVITE\r\n"
+           "Via: SIP/2.0/UDP 192.168.0.2;branch=z9hG4bK-sipXecs-8130adee90e0277761fec4ee1c194a56838f~9d6590763d78764b93a42e94dbd6b75a\r\n"
+           "Via: SIP/2.0/UDP 192.168.0.101:5060;branch=z9hG4bK-50045-13890e4e-4f17a229\r\n"
+           "Max-Forwards: 19\r\n"
+           "Supported: replaces\r\n"
+           "Contact: <sip:403@192.168.0.101:5060;x-sipX-nonat>\r\n"
+           "Content-Length: 0\r\n"
+           "\r\n";
+         SipMessage testMsg3(message3, strlen(message3));
+         
+         pNatTraversalAgent->UndoChangesToRequestUri( testMsg3 );
+         testMsg3.getRequestUri( &modifiedRuri );
+         ASSERT_STR_EQUAL( "sip:601@192.168.1.11:5060;someparam1=12112;someparam2=12222", modifiedRuri.data() );
+
+         // with x-sipX-privcontact as middle param
+         const char* message4 =
+            "INVITE sip:601@47.135.162.145:29544;someparam1=12112;x-sipX-privcontact=192.168.1.11%3A5060;someparam2=12222 SIP/2.0\r\n"
+           "Record-Route: <sip:192.168.0.2:5060;lr>\r\n"
+           "From: \"L3\"<sip:403@rjolyscs2.ca.nortel.com>;tag=94bb9480-c0a80065-13c4-50045-20c55bd3-50045\r\n"
+           "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
+           "Call-Id: 94bb55a0-c0a80065-13c4-50045-61a3ad3-50045@rjolyscs2.ca.nortel.com\r\n"
+           "Cseq: 1 INVITE\r\n"
+           "Via: SIP/2.0/UDP 192.168.0.2;branch=z9hG4bK-sipXecs-8130adee90e0277761fec4ee1c194a56838f~9d6590763d78764b93a42e94dbd6b75a\r\n"
+           "Via: SIP/2.0/UDP 192.168.0.101:5060;branch=z9hG4bK-50045-13890e4e-4f17a229\r\n"
+           "Max-Forwards: 19\r\n"
+           "Supported: replaces\r\n"
+           "Contact: <sip:403@192.168.0.101:5060;x-sipX-nonat>\r\n"
+           "Content-Length: 0\r\n"
+           "\r\n";
+         SipMessage testMsg4(message4, strlen(message4));
+         
+         pNatTraversalAgent->UndoChangesToRequestUri( testMsg4 );
+         testMsg4.getRequestUri( &modifiedRuri );
+         ASSERT_STR_EQUAL( "sip:601@192.168.1.11:5060;someparam1=12112;someparam2=12222", modifiedRuri.data() );
+
+         // with x-sipX-privcontact as last param
+         const char* message5 =
+            "INVITE sip:601@47.135.162.145:29544;someparam1=12112;someparam2=12222;x-sipX-privcontact=192.168.1.11%3A5060 SIP/2.0\r\n"
+           "Record-Route: <sip:192.168.0.2:5060;lr>\r\n"
+           "From: \"L3\"<sip:403@rjolyscs2.ca.nortel.com>;tag=94bb9480-c0a80065-13c4-50045-20c55bd3-50045\r\n"
+           "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
+           "Call-Id: 94bb55a0-c0a80065-13c4-50045-61a3ad3-50045@rjolyscs2.ca.nortel.com\r\n"
+           "Cseq: 1 INVITE\r\n"
+           "Via: SIP/2.0/UDP 192.168.0.2;branch=z9hG4bK-sipXecs-8130adee90e0277761fec4ee1c194a56838f~9d6590763d78764b93a42e94dbd6b75a\r\n"
+           "Via: SIP/2.0/UDP 192.168.0.101:5060;branch=z9hG4bK-50045-13890e4e-4f17a229\r\n"
+           "Max-Forwards: 19\r\n"
+           "Supported: replaces\r\n"
+           "Contact: <sip:403@192.168.0.101:5060;x-sipX-nonat>\r\n"
+           "Content-Length: 0\r\n"
+           "\r\n";
+         SipMessage testMsg5(message5, strlen(message5));
+         
+         pNatTraversalAgent->UndoChangesToRequestUri( testMsg5 );
+         testMsg5.getRequestUri( &modifiedRuri );
+         ASSERT_STR_EQUAL( "sip:601@192.168.1.11:5060;someparam1=12112;someparam2=12222", modifiedRuri.data() );
+
+         // without x-sipX-privcontact but with other params
+         const char* message6 =
+            "INVITE sip:601@47.135.162.145:29544;someparam1=12112;someparam2=12222 SIP/2.0\r\n"
+           "Record-Route: <sip:192.168.0.2:5060;lr>\r\n"
+           "From: \"L3\"<sip:403@rjolyscs2.ca.nortel.com>;tag=94bb9480-c0a80065-13c4-50045-20c55bd3-50045\r\n"
+           "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
+           "Call-Id: 94bb55a0-c0a80065-13c4-50045-61a3ad3-50045@rjolyscs2.ca.nortel.com\r\n"
+           "Cseq: 1 INVITE\r\n"
+           "Via: SIP/2.0/UDP 192.168.0.2;branch=z9hG4bK-sipXecs-8130adee90e0277761fec4ee1c194a56838f~9d6590763d78764b93a42e94dbd6b75a\r\n"
+           "Via: SIP/2.0/UDP 192.168.0.101:5060;branch=z9hG4bK-50045-13890e4e-4f17a229\r\n"
+           "Max-Forwards: 19\r\n"
+           "Supported: replaces\r\n"
+           "Contact: <sip:403@192.168.0.101:5060;x-sipX-nonat>\r\n"
+           "Content-Length: 0\r\n"
+           "\r\n";
+         SipMessage testMsg6(message6, strlen(message6));
+         
+         pNatTraversalAgent->UndoChangesToRequestUri( testMsg6 );
+         testMsg6.getRequestUri( &modifiedRuri );
+         ASSERT_STR_EQUAL( "sip:601@47.135.162.145:29544;someparam1=12112;someparam2=12222", modifiedRuri.data() );
       }
 };
 

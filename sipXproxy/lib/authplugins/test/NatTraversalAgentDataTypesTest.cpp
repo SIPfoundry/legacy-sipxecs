@@ -139,7 +139,7 @@ class NatTraversalDataTypesTest : public CppUnit::TestCase
       UtlString     rulesFile(TEST_DATA_DIR "/NatTraversalAgent/nattraversalrules1.xml");
       CPPUNIT_ASSERT( natRules.loadRules( rulesFile ) == OS_SUCCESS );
 
-      Url remoteNATedContactUri( "<sip:601@192.168.1.11:6060;x-sipX-pubcontact=47.135.162.145%3A10491>" );
+      Url remoteNATedContactUri( "<sip:601@47.135.162.145:10491;x-sipX-privcontact=192.168.1.11%3A6060>" );
       
       EndpointDescriptor endpointDescriptor( remoteNATedContactUri, natRules );
       
@@ -164,7 +164,7 @@ class NatTraversalDataTypesTest : public CppUnit::TestCase
       UtlString     rulesFile(TEST_DATA_DIR "/NatTraversalAgent/nattraversalrules1.xml");
       CPPUNIT_ASSERT( natRules.loadRules( rulesFile ) == OS_SUCCESS );
 
-      Url remoteNATedContactUri( "<sip:601@192.168.1.11;x-sipX-pubcontact=47.135.162.145>" );
+      Url remoteNATedContactUri( "<sip:601@47.135.162.145;x-sipX-privcontact=192.168.1.11>" );
       
       EndpointDescriptor endpointDescriptor( remoteNATedContactUri, natRules );
       
@@ -189,7 +189,7 @@ class NatTraversalDataTypesTest : public CppUnit::TestCase
       UtlString     rulesFile(TEST_DATA_DIR "/NatTraversalAgent/nattraversalrules1.xml");
       CPPUNIT_ASSERT( natRules.loadRules( rulesFile ) == OS_SUCCESS );
 
-      Url remoteNATedContactUri( "<sip:601@192.168.1.11:6060;transport=tcp;x-sipX-pubcontact=47.135.162.145%3A10491%3Btransport%3Dtcp>" );
+      Url remoteNATedContactUri( "<sip:601@47.135.162.145:10491;transport=tcp;x-sipX-privcontact=192.168.1.11%3A6060%3Btransport%3Dtcp>" );
       EndpointDescriptor endpointDescriptor( remoteNATedContactUri, natRules );
       
       CPPUNIT_ASSERT( endpointDescriptor.getLocationCode() == REMOTE_NATED );

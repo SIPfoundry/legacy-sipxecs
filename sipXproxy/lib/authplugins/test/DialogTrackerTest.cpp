@@ -67,14 +67,14 @@ class DialogTrackerTest : public CppUnit::TestCase, public SessionContextInterfa
       void setUp()
       {
          const char* message =
-            "INVITE sip:601@192.168.1.11:5060;x-sipX-pubcontact=47.135.162.145%3A29544 SIP/2.0\r\n"
+            "INVITE sip:601@47.135.162.145:29544;x-sipX-privcontact=192.168.1.11%3A5060 SIP/2.0\r\n"
             "From: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=94bc25b8-c0a80165-13c4-3e635-37aa1989-3e635\r\n"
             "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
             "Call-Id: 94bb2520-c0a80165-13c4-3e635-3ccd2971-3e635@rjolyscs2.ca.nortel.com\r\n"
             "Cseq: 1 INVITE\r\n"
             "Max-Forwards: 19\r\n"
             "Supported: replaces\r\n"
-            "Contact: <sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956>\r\n"
+            "Contact: <sip:602@47.135.162.145:14956;x-sipX-privcontact=192.168.1.101%3A5060>\r\n"
             "Content-Length: 0\r\n"
             "Via: SIP/2.0/UDP 192.168.0.2;branch=z9hG4bK-sipXecs-01a17f9662b96b1d454a71775bbda1ec6bf6~9d6590763d78764b93a42e94dbd6b75a\r\n"
             "\r\n";
@@ -242,7 +242,7 @@ class DialogTrackerTest : public CppUnit::TestCase, public SessionContextInterfa
       void requestHandledMarkerManipTest()
       {
          const char* message =
-            "INVITE sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956 SIP/2.0\r\n"
+            "INVITE sip:602@47.135.162.145:14956;x-sipX-privcontact=192.168.1.101%3A5060 SIP/2.0\r\n"
             "From: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=94bc25b8-c0a80165-13c4-3e635-37aa1989-3e635\r\n"
             "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
             "Call-Id: 94bb2520-c0a80165-13c4-3e635-3ccd2971-3e635@rjolyscs2.ca.nortel.com\r\n"
@@ -264,7 +264,7 @@ class DialogTrackerTest : public CppUnit::TestCase, public SessionContextInterfa
          CPPUNIT_ASSERT( mpDialogTracker->isRequestAlreadyHandledByAnyone( testMsg ) == true );
 
          const char* message2 =
-            "INVITE sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956 SIP/2.0\r\n"
+            "INVITE sip:602@47.135.162.145:14956;x-sipX-privcontact=192.168.1.101%3A5060 SIP/2.0\r\n"
             "From: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=94bc25b8-c0a80165-13c4-3e635-37aa1989-3e635\r\n"
             "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
             "Call-Id: 94bb2520-c0a80165-13c4-3e635-3ccd2971-3e635@rjolyscs2.ca.nortel.com\r\n"
@@ -289,7 +289,7 @@ class DialogTrackerTest : public CppUnit::TestCase, public SessionContextInterfa
          CPPUNIT_ASSERT( requestRetransmissionDescriptor.getCopyOfSdpBody() == 0 );
          
          const char* message =
-            "INVITE sip:601@192.168.1.11:5060;x-sipX-pubcontact=47.135.162.145%3A29544 SIP/2.0\r\n"
+            "INVITE sip:601@47.135.162.145:29544;x-sipX-privcontact=192.168.1.11%3A5060 SIP/2.0\r\n"
             "Record-Route: <sip:192.168.0.2:5060;lr>\r\n"
             "From: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=94bc25b8-c0a80165-13c4-3e635-37aa1989-3e635\r\n"
             "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
@@ -298,7 +298,7 @@ class DialogTrackerTest : public CppUnit::TestCase, public SessionContextInterfa
             "Max-Forwards: 19\r\n"
             "Supported: replaces\r\n"
             "User-Agent: LG-Nortel LIP 6804 v1.2.38sp SN/00405A187376\r\n"
-            "Contact: <sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956>\r\n"
+            "Contact: <sip:602@47.135.162.145:14956;x-sipX-privcontact=192.168.1.101%3A5060>\r\n"
             "Content-Type: application/sdp\r\n"
             "Content-Length: 297\r\n"
             "Date: Thu, 12 Jun 2008 19:14:29 GMT\r\n"
@@ -328,13 +328,13 @@ class DialogTrackerTest : public CppUnit::TestCase, public SessionContextInterfa
 
          // create message that does not match because of sequence number
          const char* nonMatchingMessage1 =
-            "INVITE sip:601@192.168.1.11:5060;x-sipX-pubcontact=47.135.162.145%3A29544 SIP/2.0\r\n"
+            "INVITE sip:601@47.135.162.145:29544;x-sipX-privcontact=192.168.1.11%3A5060 SIP/2.0\r\n"
             "From: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=94bc25b8-c0a80165-13c4-3e635-37aa1989-3e635\r\n"
             "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
             "Call-Id: 94bb2520-c0a80165-13c4-3e635-3ccd2971-3e635@rjolyscs2.ca.nortel.com\r\n"
             "Cseq: 2 INVITE\r\n"
             "Max-Forwards: 19\r\n"
-            "Contact: <sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956>\r\n"
+            "Contact: <sip:602@47.135.162.145:14956;x-sipX-privcontact=192.168.1.101%3A5060>\r\n"
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage nonMatchingSipMessage1(nonMatchingMessage1, strlen(nonMatchingMessage1) );
@@ -342,13 +342,13 @@ class DialogTrackerTest : public CppUnit::TestCase, public SessionContextInterfa
                
          // create message that does not match because of method
          const char* nonMatchingMessage2 =
-            "REFER sip:601@192.168.1.11:5060;x-sipX-pubcontact=47.135.162.145%3A29544 SIP/2.0\r\n"
+            "REFER sip:601@47.135.162.145:29544;x-sipX-privcontact=192.168.1.11%3A5060 SIP/2.0\r\n"
             "From: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=94bc25b8-c0a80165-13c4-3e635-37aa1989-3e635\r\n"
             "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
             "Call-Id: 94bb2520-c0a80165-13c4-3e635-3ccd2971-3e635@rjolyscs2.ca.nortel.com\r\n"
             "Cseq: 1 REFER\r\n"
             "Max-Forwards: 19\r\n"
-            "Contact: <sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956>\r\n"
+            "Contact: <sip:602@47.135.162.145:14956;x-sipX-privcontact=192.168.1.101%3A5060>\r\n"
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage nonMatchingSipMessage2(nonMatchingMessage2, strlen(nonMatchingMessage2) );
@@ -356,13 +356,13 @@ class DialogTrackerTest : public CppUnit::TestCase, public SessionContextInterfa
 
          // create message that matches sequence number and method
          const char* matchingMessage =
-            "INVITE sip:601@192.168.1.11:5060;x-sipX-pubcontact=47.135.162.145%3A29544 SIP/2.0\r\n"
+            "INVITE sip:601@47.135.162.145:29544;x-sipX-privcontact=192.168.1.11%3A5060 SIP/2.0\r\n"
             "From: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=94bc25b8-c0a80165-13c4-3e635-37aa1989-3e635\r\n"
             "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
             "Call-Id: 94bb2520-c0a80165-13c4-3e635-3ccd2971-3e635@rjolyscs2.ca.nortel.com\r\n"
             "Cseq: 1 INVITE\r\n"
             "Max-Forwards: 19\r\n"
-            "Contact: <sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956>\r\n"
+            "Contact: <sip:602@47.135.162.145:14956;x-sipX-privcontact=192.168.1.101%3A5060>\r\n"
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage matchingSipMessage(matchingMessage, strlen(matchingMessage) );
@@ -508,13 +508,13 @@ class DialogTrackerTest : public CppUnit::TestCase, public SessionContextInterfa
          UtlString originalContactString, modifiedContactString;
 
          const char* message1 =
-            "INVITE sip:601@192.168.1.11:5060;x-sipX-pubcontact=47.135.162.145%3A29544 SIP/2.0\r\n"
+            "INVITE sip:601@47.135.162.145:29544;x-sipX-privcontact=192.168.1.11%3A5060 SIP/2.0\r\n"
             "From: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=94bc25b8-c0a80165-13c4-3e635-37aa1989-3e635\r\n"
             "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
             "Call-Id: 94bb2520-c0a80165-13c4-3e635-3ccd2971-3e635@rjolyscs2.ca.nortel.com\r\n"
             "Cseq: 1 INVITE\r\n"
             "Max-Forwards: 19\r\n"
-            "Contact: <sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956>;dummy=no\r\n"
+            "Contact: <sip:602@47.135.162.145:14956;x-sipX-privcontact=192.168.1.101%3A5060>;dummy=no\r\n"
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage sipMessage1(message1, strlen(message1) );
@@ -524,13 +524,13 @@ class DialogTrackerTest : public CppUnit::TestCase, public SessionContextInterfa
          ASSERT_STR_EQUAL( originalContactString.data(), modifiedContactString.data() );
 
          const char* message2 =
-            "INVITE sip:601@192.168.1.11:5060;x-sipX-pubcontact=47.135.162.145%3A29544 SIP/2.0\r\n"
+            "INVITE sip:601@47.135.162.145:29544;x-sipX-privcontact=192.168.1.11%3A5060 SIP/2.0\r\n"
             "From: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=94bc25b8-c0a80165-13c4-3e635-37aa1989-3e635\r\n"
             "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
             "Call-Id: 94bb2520-c0a80165-13c4-3e635-3ccd2971-3e635@rjolyscs2.ca.nortel.com\r\n"
             "Cseq: 1 INVITE\r\n"
             "Max-Forwards: 19\r\n"
-            "Contact: <sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956>;+sip.rendering=\"wantedvalue\";test\r\n"
+            "Contact: <sip:602@47.135.162.145:14956;x-sipX-privcontact=192.168.1.101%3A5060>;+sip.rendering=\"wantedvalue\";test\r\n"
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage sipMessage2(message2, strlen(message2) );
@@ -540,36 +540,36 @@ class DialogTrackerTest : public CppUnit::TestCase, public SessionContextInterfa
          ASSERT_STR_EQUAL( originalContactString.data(), modifiedContactString.data() );
 
          const char* message3 =
-            "INVITE sip:601@192.168.1.11:5060;x-sipX-pubcontact=47.135.162.145%3A29544 SIP/2.0\r\n"
+            "INVITE sip:601@47.135.162.145:29544;x-sipX-privcontact=192.168.1.11%3A5060 SIP/2.0\r\n"
             "From: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=94bc25b8-c0a80165-13c4-3e635-37aa1989-3e635\r\n"
             "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
             "Call-Id: 94bb2520-c0a80165-13c4-3e635-3ccd2971-3e635@rjolyscs2.ca.nortel.com\r\n"
             "Cseq: 1 INVITE\r\n"
             "Max-Forwards: 19\r\n"
-            "Contact: <sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956>;+sip.rendering=\"no\";test\r\n"
+            "Contact: <sip:602@47.135.162.145:14956;x-sipX-privcontact=192.168.1.101%3A5060>;+sip.rendering=\"no\";test\r\n"
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage sipMessage3(message3, strlen(message3) );
          sipMessage3.getContactEntry(0, &originalContactString);
          DialogTracker::removeUnwantedElements( sipMessage3 );
          sipMessage3.getContactEntry(0, &modifiedContactString);
-         ASSERT_STR_EQUAL( "<sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956>;test", modifiedContactString.data() );
+         ASSERT_STR_EQUAL( "<sip:602@47.135.162.145:14956;x-sipX-privcontact=192.168.1.101%3A5060>;test", modifiedContactString.data() );
 
          const char* message4 =
-            "INVITE sip:601@192.168.1.11:5060;x-sipX-pubcontact=47.135.162.145%3A29544 SIP/2.0\r\n"
+            "INVITE sip:601@47.135.162.145:29544;x-sipX-privcontact=192.168.1.11%3A5060 SIP/2.0\r\n"
             "From: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=94bc25b8-c0a80165-13c4-3e635-37aa1989-3e635\r\n"
             "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
             "Call-Id: 94bb2520-c0a80165-13c4-3e635-3ccd2971-3e635@rjolyscs2.ca.nortel.com\r\n"
             "Cseq: 1 INVITE\r\n"
             "Max-Forwards: 19\r\n"
-            "Contact: <sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956>;dummy;+sip.rendering=\"unknown\";test\r\n"
+            "Contact: <sip:602@47.135.162.145:14956;x-sipX-privcontact=192.168.1.101%3A5060>;dummy;+sip.rendering=\"unknown\";test\r\n"
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage sipMessage4(message4, strlen(message4) );
          sipMessage4.getContactEntry(0, &originalContactString);
          DialogTracker::removeUnwantedElements( sipMessage4 );
          sipMessage4.getContactEntry(0, &modifiedContactString);
-         ASSERT_STR_EQUAL( "<sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956>;dummy;test", modifiedContactString.data() );
+         ASSERT_STR_EQUAL( "<sip:602@47.135.162.145:14956;x-sipX-privcontact=192.168.1.101%3A5060>;dummy;test", modifiedContactString.data() );
       }
    };
 

@@ -113,6 +113,7 @@ class NativeTransportData : public TransportData
 {
 public:
    NativeTransportData( const Url& url );
+   virtual void fromUrl( const Url& url );   
    virtual ~NativeTransportData(){}
 };   
 
@@ -126,7 +127,7 @@ public:
 };   
 
 /// The EndpointDescriptor class is used to analyze a URI to look for
-/// proprietary location markers ("x-sipX-nonat" and "x-sipX-pubcontact")
+/// proprietary location markers ("x-sipX-nonat" and "x-sipX-privcontact")
 /// and derive the native and public IP Address:port;transport 
 /// information relative to a given SIP endpoint.  Furthermore, it is 
 /// responsible for computing the location of that endpoint relative to 

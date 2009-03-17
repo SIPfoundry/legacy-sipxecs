@@ -187,11 +187,11 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
    
    AuthResult result = CONTINUE;
    
-   if( mbNatTraversalFeatureEnabled )
+   // do not look at request if we are still spiraling.  We are only interested in requests
+   // that are about to be sent to the request target.
+   if( priorResult != DENY && bSpiralingRequest == false )
    {
-      // do not look at request if we are still spiraling.  We are only interested in requests
-      // that are about to be sent to the request target.
-      if( priorResult != DENY && bSpiralingRequest == false )
+      if( mbNatTraversalFeatureEnabled )
       {
          // clean up any of the proprietary headers we may have added
          request.removeHeader( SIP_SIPX_SESSION_CONTEXT_ID_HEADER, 0 );
@@ -287,28 +287,27 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
             // SipxNatRoute that will cause the sipXtack to route the message to the proper routable address.
             //
             // If no route state is present and the request is not an INVITE, then send the request to 
-            // the IP address contained in the x-sipX-pubcontact URL parameter of the R-URI if present.
+            // the IP address contained in the Request-URI if a x-sipX-privcontact URL parameter is present.
             //
-            // NOTE: For INVITE requests, we strictly rely on the CrT and CeT parameters of the Route state
-            // and we ignore any x-sipX-pubcontact URL parameter that may be found in the R-URI.  The rationale
-            // behind that behavior is as follows: 
-            //  => INVITE requests are guaranteed to carry a Route state with CrT and CeT params when endpoint is REMOTE_NATED
-            //  => CrT and CeT params cannot be forged by a malicious endpoint whereas x-sipX-pubcontact URL parameter in R-URI can.
-            //     If we relied on x-sipX-pubcontact URL parameter to route INVITEs, someone could exploit that to 
-            //     reach destinations that it would otherwise not be allowed to reach (PSTN gateways for example).
+            // If x-sipX-privcontact is present, the a SipxNatRoute will be added to the address in the request-URI.
+            // Without this step, a request would get routed to the endpoint's private IP address:port as
+            // captured in x-sipX-privcontact due to the call made to UndoChangesToRequestUri() later on
+            // which restores the request-URI to contain the endpoint's private IP address.
             UtlString sipxNatRouteString;         
 
             const char* pParameterName = ( directionIsCallerToCalled ? CALLEE_PUBLIC_TRANSPORT_PARAM : CALLER_PUBLIC_TRANSPORT_PARAM );
             routeState.getParameter( mInstanceName.data(), pParameterName, sipxNatRouteString );
 
-            // If the logic above did not yield a SipXNatRoute then look for 'x-sipX-pubcontact'
-            // in R-URI if the request in not tracked by a CallTracker and is not an INVITE
             if( sipxNatRouteString.isNull() && !pCallTracker && method.compareTo( SIP_INVITE_METHOD ) != 0 )
             {
-               UtlString ruri;
-               request.getRequestUri( &ruri );
-               Url requestUri( ruri, TRUE );
-               requestUri.getUrlParameter( SIPX_PUBLIC_CONTACT_URI_PARAM, sipxNatRouteString, 0 );
+               UtlString dummyString;
+               if( requestUri.getUrlParameter( SIPX_PRIVATE_CONTACT_URI_PARAM, dummyString, 0 ) )
+               {
+                  UtlString ruri;
+                  request.getRequestUri( &ruri );
+                  Url requestUri( ruri, TRUE );
+                  requestUri.getHostWithPort( sipxNatRouteString );
+               }
             }
             
             // If we managed to collect a sipXNatRoute value then set it in the message
@@ -348,6 +347,10 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
             }      
          }
       }
+      // before to send out the message, undo any changes we may have performed on the Request-URI. Note that these
+      // changes are performed even when the NAT traversal feature is disabled, that is why this operation is
+      // performed whether or not the NAT traversal feature is disabled. 
+      UndoChangesToRequestUri( request );
    }
    return result;
 }
@@ -389,6 +392,34 @@ void NatTraversalAgent::handleOutputMessage( SipMessage& message,
       {
          OsSysLog::add(FAC_NAT, PRI_DEBUG, "NatTraversalAgent[%s]::handleOutputMessage failed to retrieve CallTracker to handle request"
                                             , mInstanceName.data() );
+      }
+   }
+}
+
+void NatTraversalAgent::UndoChangesToRequestUri( SipMessage& message )
+{
+   // If the Request-URI has a x-sipX-privcontact, that IP and port that it contains are going to be used  
+   // to set the Request-URI's IP and port to ensure that the endpoint gets the Request-URI it is expecting.
+   // Once this is done, the x-sipX-privcontact is removed.
+   if( !message.isResponse() )
+   {
+      UtlString requestUriString;
+      message.getRequestUri( &requestUriString );
+      Url requestUri( requestUriString, TRUE );
+      UtlString tempUrlString;
+      if( requestUri.getUrlParameter( SIPX_PRIVATE_CONTACT_URI_PARAM, tempUrlString, 0 ) )
+      {
+         // A native IP address is carried by our custom x-sipX-privcontact, use it to init transport data.
+         Url tempUrl;
+         tempUrl.fromString( tempUrlString, TRUE );
+         UtlString hostAddressString;
+         
+         tempUrl.getHostAddress( hostAddressString );
+         requestUri.setHostAddress( hostAddressString );
+         requestUri.setHostPort( tempUrl.getHostPort() );
+         requestUri.removeUrlParameter( SIPX_PRIVATE_CONTACT_URI_PARAM );
+         requestUri.getUri( tempUrlString );
+         message.changeRequestUri( tempUrlString );       
       }
    }
 }

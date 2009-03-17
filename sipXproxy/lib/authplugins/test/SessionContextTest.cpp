@@ -68,14 +68,14 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
       void setUp()
       {
          const char* message =
-            "INVITE sip:601@192.168.1.11:5060;x-sipX-pubcontact=47.135.162.145%3A29544 SIP/2.0\r\n"
+            "INVITE sip:601@47.135.162.145:29544;x-sipX-privcontact=192.168.1.11%3A5060 SIP/2.0\r\n"
             "From: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=94bc25b8-c0a80165-13c4-3e635-37aa1989-3e635\r\n"
             "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
             "Call-Id: 94bb2520-c0a80165-13c4-3e635-3ccd2971-3e635@rjolyscs2.ca.nortel.com\r\n"
             "Cseq: 1 INVITE\r\n"
             "Max-Forwards: 19\r\n"
             "Supported: replaces\r\n"
-            "Contact: <sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956>\r\n"
+            "Contact: <sip:602@47.135.162.145:14956;x-sipX-privcontact=192.168.1.101%3A5060>\r\n"
             "Content-Length: 0\r\n"
             "Via: SIP/2.0/UDP 192.168.0.2;branch=z9hG4bK-sipXecs-01a17f9662b96b1d454a71775bbda1ec6bf6~9d6590763d78764b93a42e94dbd6b75a\r\n"
             "\r\n";
@@ -83,7 +83,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
 
          mpSessionContext = new SessionContext(testMsg, &mRules, "handle-1", &mMediaRelay, 0, this );
       }
-      
+
       void tearDown()
       {
          delete mpSessionContext;
@@ -132,7 +132,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
       void LocationImposesMediaRelayTest_LocalNATed2RemoteNATed()
       {
          const char* message =
-            "INVITE sip:601@192.168.1.11:5060;x-sipX-pubcontact=47.135.162.145%3A29544 SIP/2.0\r\n"
+            "INVITE sip:601@47.135.162.145:29544;x-sipX-privcontact=192.168.1.11%3A5060 SIP/2.0\r\n"
             "From: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=94bc25b8-c0a80165-13c4-3e635-37aa1989-3e635\r\n"
             "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
             "Call-Id: 94bb2520-c0a80165-13c4-3e635-3ccd2971-3e635@rjolyscs2.ca.nortel.com\r\n"
@@ -172,7 +172,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
       void LocationImposesMediaRelayTest_Public2RemoteNATed()
       {
          const char* message =
-            "INVITE sip:601@192.168.1.11:5060;x-sipX-pubcontact=47.135.162.145%3A29544 SIP/2.0\r\n"
+            "INVITE sip:601@47.135.162.145:29544;x-sipX-privcontact=192.168.1.11%3A5060 SIP/2.0\r\n"
             "From: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=94bc25b8-c0a80165-13c4-3e635-37aa1989-3e635\r\n"
             "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
             "Call-Id: 94bb2520-c0a80165-13c4-3e635-3ccd2971-3e635@rjolyscs2.ca.nortel.com\r\n"
@@ -192,14 +192,14 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
       void LocationImposesMediaRelayTest_RemoteNATed2RemoteNATed()
       {
          const char* message =
-            "INVITE sip:601@192.168.1.11:5060;x-sipX-pubcontact=47.135.162.145%3A29544 SIP/2.0\r\n"
+            "INVITE sip:601@47.135.162.145:29544;x-sipX-privcontact=192.168.1.11%3A5060 SIP/2.0\r\n"
             "From: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=94bc25b8-c0a80165-13c4-3e635-37aa1989-3e635\r\n"
             "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
             "Call-Id: 94bb2520-c0a80165-13c4-3e635-3ccd2971-3e635@rjolyscs2.ca.nortel.com\r\n"
             "Cseq: 1 INVITE\r\n"
             "Max-Forwards: 19\r\n"
             "Supported: replaces\r\n"
-            "Contact: <sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956>\r\n"
+            "Contact: <sip:602@47.135.162.145:14956;x-sipX-privcontact=192.168.1.101%3A5060>\r\n"
             "Content-Length: 0\r\n"
             "Via: SIP/2.0/UDP 192.168.0.2;branch=z9hG4bK-sipXecs-01a17f9662b96b1d454a71775bbda1ec6bf6~9d6590763d78764b93a42e94dbd6b75a\r\n"
             "\r\n";
@@ -299,7 +299,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
             "Cseq: 1 INVITE\r\n"
             "Max-Forwards: 19\r\n"
             "Supported: replaces\r\n"
-            "Contact: <sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956>\r\n"
+            "Contact: <sip:602@47.135.162.145:14956;x-sipX-privcontact=192.168.1.101%3A5060>\r\n"
             "Content-Length: 0\r\n"
             "Via: SIP/2.0/UDP 192.168.0.2;branch=z9hG4bK-sipXecs-01a17f9662b96b1d454a71775bbda1ec6bf6~9d6590763d78764b93a42e94dbd6b75a\r\n"
             "\r\n";
@@ -319,7 +319,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
             "Cseq: 1 INVITE\r\n"
             "Max-Forwards: 19\r\n"
             "Supported: replaces\r\n"
-            "Contact: <sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956>\r\n"
+            "Contact: <sip:602@47.135.162.145:14956;x-sipX-privcontact=192.168.1.101%3A5060>\r\n"
             "Content-Length: 0\r\n"
             "Via: SIP/2.0/UDP 192.168.0.2;branch=z9hG4bK-sipXecs-01a17f9662b96b1d454a71775bbda1ec6bf6~9d6590763d78764b93a42e94dbd6b75a\r\n"
             "\r\n";
@@ -359,7 +359,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
             "Cseq: 1 INVITE\r\n"
             "Max-Forwards: 19\r\n"
             "Supported: replaces\r\n"
-            "Contact: <sip:601@192.168.1.11:5060;x-sipX-pubcontact=47.135.162.145%3A29544>\r\n"
+            "Contact: <sip:601@47.135.162.145:29544;x-sipX-privcontact=192.168.1.11%3A5060>\r\n"
             "Content-Length: 0\r\n"
             "Via: SIP/2.0/UDP 192.168.0.2;branch=z9hG4bK-sipXecs-01a17f9662b96b1d454a71775bbda1ec6bf6~9d6590763d78764b93a42e94dbd6b75a\r\n"
             "\r\n";
@@ -379,7 +379,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
             "Cseq: 1 INVITE\r\n"
             "Max-Forwards: 19\r\n"
             "Supported: replaces\r\n"
-            "Contact: <sip:601@192.168.1.11:5060;x-sipX-pubcontact=47.135.162.145%3A29544>\r\n"
+            "Contact: <sip:601@47.135.162.145:29544;x-sipX-privcontact=192.168.1.11%3A5060>\r\n"
             "Content-Length: 0\r\n"
             "Via: SIP/2.0/UDP 192.168.0.2;branch=z9hG4bK-sipXecs-01a17f9662b96b1d454a71775bbda1ec6bf6~9d6590763d78764b93a42e94dbd6b75a\r\n"
             "\r\n";
@@ -472,7 +472,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
       void LocationImposesMediaRelayTest_OutsideUnknown2RemoteNATed()
       {
          const char* message =
-            "INVITE sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956 SIP/2.0\r\n"
+            "INVITE sip:602@47.135.162.145:14956;x-sipX-privcontact=192.168.1.101%3A5060 SIP/2.0\r\n"
             "From: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=94bc25b8-c0a80165-13c4-3e635-37aa1989-3e635\r\n"
             "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
             "Call-Id: 94bb2520-c0a80165-13c4-3e635-3ccd2971-3e635@rjolyscs2.ca.nortel.com\r\n"
@@ -492,7 +492,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
       void LocationImposesMediaRelayTest_LocalUnknown2RemoteNATed()
       {
          const char* message =
-            "INVITE sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956 SIP/2.0\r\n"
+            "INVITE sip:602@47.135.162.145:14956;x-sipX-privcontact=192.168.1.101%3A5060 SIP/2.0\r\n"
             "From: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=94bc25b8-c0a80165-13c4-3e635-37aa1989-3e635\r\n"
             "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
             "Call-Id: 94bb2520-c0a80165-13c4-3e635-3ccd2971-3e635@rjolyscs2.ca.nortel.com\r\n"
@@ -516,14 +516,14 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
          CPPUNIT_ASSERT( tempRules.loadRules( rulesFile ) == OS_SUCCESS );
 
          const char* message =
-            "INVITE sip:601@192.168.1.11:5060;x-sipX-pubcontact=47.135.162.145%3A29544 SIP/2.0\r\n"
+            "INVITE sip:601@47.135.162.145:29544;x-sipX-privcontact=192.168.1.11%3A5060 SIP/2.0\r\n"
             "From: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=94bc25b8-c0a80165-13c4-3e635-37aa1989-3e635\r\n"
             "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
             "Call-Id: 94bb2520-c0a80165-13c4-3e635-3ccd2971-3e635@rjolyscs2.ca.nortel.com\r\n"
             "Cseq: 1 INVITE\r\n"
             "Max-Forwards: 19\r\n"
             "Supported: replaces\r\n"
-            "Contact: <sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956>\r\n"
+            "Contact: <sip:602@47.135.162.145:14956;x-sipX-privcontact=192.168.1.101%3A5060>\r\n"
             "Content-Length: 0\r\n"
             "Via: SIP/2.0/UDP 192.168.0.2;branch=z9hG4bK-sipXecs-01a17f9662b96b1d454a71775bbda1ec6bf6~9d6590763d78764b93a42e94dbd6b75a\r\n"
             "\r\n";
@@ -540,14 +540,14 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
          CPPUNIT_ASSERT( tempRules.loadRules( rulesFile ) == OS_SUCCESS );
 
          const char* message =
-            "INVITE sip:601@192.168.1.11:5060;x-sipX-pubcontact=47.135.162.100%3A29544 SIP/2.0\r\n"
+            "INVITE sip:601@47.135.162.100:29544;x-sipX-privcontact=192.168.1.11%3A5060 SIP/2.0\r\n"
             "From: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=94bc25b8-c0a80165-13c4-3e635-37aa1989-3e635\r\n"
             "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
             "Call-Id: 94bb2520-c0a80165-13c4-3e635-3ccd2971-3e635@rjolyscs2.ca.nortel.com\r\n"
             "Cseq: 1 INVITE\r\n"
             "Max-Forwards: 19\r\n"
             "Supported: replaces\r\n"
-            "Contact: <sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956>\r\n"
+            "Contact: <sip:602@47.135.162.145:14956;x-sipX-privcontact=192.168.1.101%3A5060>\r\n"
             "Content-Length: 0\r\n"
             "Via: SIP/2.0/UDP 192.168.0.2;branch=z9hG4bK-sipXecs-01a17f9662b96b1d454a71775bbda1ec6bf6~9d6590763d78764b93a42e94dbd6b75a\r\n"
             "\r\n";
@@ -560,7 +560,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
       void getDiscriminatingTagValueWithDirectionTest()
       {
          const char* message =
-            "INVITE sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956 SIP/2.0\r\n"
+            "INVITE sip:602@47.135.162.145:14956;x-sipX-privcontact=192.168.1.101%3A5060 SIP/2.0\r\n"
             "From: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=94bc25b8-c0a80165-13c4-3e635-37aa1989-3e635\r\n"
             "To: <sip:601@rjolyscs2.ca.nortel.com>;tag=131313213131-13135363563\r\n"
             "Call-Id: 94bb2520-c0a80165-13c4-3e635-3ccd2971-3e635@rjolyscs2.ca.nortel.com\r\n"
@@ -581,7 +581,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
       void getDiscriminatingTagValueWithoutDirectionTest_CallerToCallee()
       {
          const char* message =
-            "INVITE sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956 SIP/2.0\r\n"
+            "INVITE sip:602@47.135.162.145:14956;x-sipX-privcontact=192.168.1.101%3A5060 SIP/2.0\r\n"
             "From: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=94bc25b8-c0a80165-13c4-3e635-37aa1989-3e635\r\n"
             "To: <sip:601@rjolyscs2.ca.nortel.com>;tag=131313213131-13135363563\r\n"
             "Call-Id: 94bb2520-c0a80165-13c4-3e635-3ccd2971-3e635@rjolyscs2.ca.nortel.com\r\n"
@@ -601,7 +601,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
       void getDiscriminatingTagValueWithoutDirectionTest_CalleeToCaller()
       {
          const char* message =
-            "INVITE sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956 SIP/2.0\r\n"
+            "INVITE sip:602@47.135.162.145:14956;x-sipX-privcontact=192.168.1.101%3A5060 SIP/2.0\r\n"
             "From: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=94bc25b8-c0a80165-13c4-3e635-37aa1989-3e635\r\n"
             "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
             "Call-Id: 94bb2520-c0a80165-13c4-3e635-3ccd2971-3e635@rjolyscs2.ca.nortel.com\r\n"
@@ -618,7 +618,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
          pSessionContext->handleRequest( dialogFormingMsg, "192.168.0.2", 5060, DIR_CALLER_TO_CALLEE ); // inject dialog-forming INVITE into SessioNContext to set reference
          
          const char* message2 =
-            "INVITE sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956 SIP/2.0\r\n"
+            "INVITE sip:602@47.135.162.145:14956;x-sipX-privcontact=192.168.1.101%3A5060 SIP/2.0\r\n"
             "From: <sip:601@rjolyscs2.ca.nortel.com>;tag=131313213131-13135363563\r\n"
             "To: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=94bc25b8-c0a80165-13c4-3e635-37aa1989-3e635\r\n"
             "Call-Id: 94bb2520-c0a80165-13c4-3e635-3ccd2971-3e635@rjolyscs2.ca.nortel.com\r\n"
@@ -636,7 +636,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
       void downstreamForkHandlingTest()
       {
          const char* message =
-            "INVITE sip:602@192.168.1.101:5060;x-sipX-pubcontact=47.135.162.145%3A14956 SIP/2.0\r\n"
+            "INVITE sip:602@47.135.162.145:14956;x-sipX-privcontact=192.168.1.101%3A5060 SIP/2.0\r\n"
             "From: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=94bc25b8-c0a80165-13c4-3e635-37aa1989-3e635\r\n"
             "To: <sip:601@rjolyscs2.ca.nortel.com>\r\n"
             "Call-Id: 94bb2520-c0a80165-13c4-3e635-3ccd2971-3e635@rjolyscs2.ca.nortel.com\r\n"

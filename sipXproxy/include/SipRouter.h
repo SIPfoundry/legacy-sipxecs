@@ -101,7 +101,8 @@ class SipRouter : public OsServerTask
     */
 
    /// @returns true iff the domain of url is a valid form of the domain name for this proxy.
-   bool isLocalDomain(const Url& url ///< a url to be tested
+   bool isLocalDomain(const Url& url, ///< a url to be tested
+                      bool bIncludeDomainAliases = true ///< also test for domain alias matches 
                       ) const;
 
    /// Adds a new host alias to the list of aliases for proxy.  This method

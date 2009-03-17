@@ -335,7 +335,6 @@ void ContactSet::notifyEventCallback(const UtlString* dialogHandle,
                   if (u)
                   {
                      textContentShallow(*uri_allocated, u);
-                     UtlString tmpString (*uri_allocated);
 
                      // Iterate through all the path header elements. Path headers are stored in the
                      // "unknown-param" elements that have a "name" attribute value of "path". 

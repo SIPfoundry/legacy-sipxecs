@@ -29,26 +29,40 @@ NativeTransportData::NativeTransportData( const Url& url )
    fromUrl( url );
 }
 
+void NativeTransportData::fromUrl( const Url& url )
+{
+   UtlString mappingInformationString;
+   if( (const_cast<Url&>(url)).getUrlParameter( SIPX_PRIVATE_CONTACT_URI_PARAM, mappingInformationString, 0 ) )
+   {
+      // A native IP address is carried by our custom x-sipX-privcontact, use it to init transport data.
+       Url tempUrl;
+       tempUrl.fromString( mappingInformationString, true );
+       TransportData::fromUrl( tempUrl );
+   }
+   else
+   {
+      // None of our proprietary headers are present.  The URL contains the native IP address then - use
+      // it to initialize the transport data.
+      TransportData::fromUrl( url );
+   }
+}
+
 PublicTransportData::PublicTransportData( const Url& url )
 {
    mTransportType.remove( 0 );
    mTransportType.append( "Public" );
    fromUrl( url );
-}
+} 
 
 void PublicTransportData::fromUrl( const Url& url )
 {
-   UtlString mappingInformationString;
-   if( (const_cast<Url&>(url)).getUrlParameter( SIPX_PUBLIC_CONTACT_URI_PARAM, mappingInformationString, 0 ) )
+   UtlString dummy;
+   if( (const_cast<Url&>(url)).getUrlParameter( SIPX_PRIVATE_CONTACT_URI_PARAM, dummy, 0 ) ||
+       (const_cast<Url&>(url)).getUrlParameter( SIPX_NO_NAT_URI_PARAM, dummy, 0 ) )         
    {
-      // A public IP address is carried by our custom x-sipX-pubcontact, use it to init transport data.
-      Url tempUrl;
-      tempUrl.fromString( mappingInformationString, true );
-      TransportData::fromUrl( tempUrl );
-   }  
-   else if( (const_cast<Url&>(url)).getUrlParameter( SIPX_NO_NAT_URI_PARAM, mappingInformationString, 0 ) )
-   {
-      // No NAT was detected.  The endpoint's native IP address is public, use it to init transport data. 
+      // The contact header has one of our proprietary URL parameters therefore indicating that the 
+      // IP, port & transport in the contact represent the UA's public IP address.  Use it to set the 
+      // public transport data values encapsulated by this class.
       TransportData::fromUrl( url );
    }
    else
@@ -235,6 +249,7 @@ EndpointDescriptor::EndpointDescriptor( const Url& url, const NatTraversalRules&
          pMatchingContact = (UtlString*)resultList.first();
          Url urlWithLocationInformation( *pMatchingContact );
          mPublicTransport.fromUrl( urlWithLocationInformation );
+         mNativeTransport.fromUrl( urlWithLocationInformation );
          
          OsSysLog::add(FAC_NAT, PRI_DEBUG, "EndpointDescriptor::EndpointDescriptor: Retrieved location info for UNKNOWN user from regDB:'%s'",
                pMatchingContact->data() );
