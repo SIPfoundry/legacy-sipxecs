@@ -5,6 +5,7 @@
  */
 package org.sipfoundry.preflight;
 
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -179,18 +180,12 @@ public class ShellTestRunner {
         gc.dispose();
 
         // Build spinner icon set.
-        spinnerIcon = new Image[5];
-        int angle = 68;
-        for (int x = 0; x < 5; x++) {
-            spinnerIcon[x] = new Image(display, 20, 20);
-            gc = new GC(spinnerIcon[x]);
-            gc.setBackground(black);
-            gc.fillArc(2, 2, 16, 16, angle, 45);
-            gc.fillArc(2, 2, 16, 16, 90 + angle, 45);
-            gc.fillArc(2, 2, 16, 16, 180 + angle, 45);
-            gc.fillArc(2, 2, 16, 16, 270 + angle, 45);
-            gc.dispose();
-            angle -= 18;
+        spinnerIcon = new Image[12];
+        for (int x = 0; x < 12; x++) {
+        	InputStream iconStream = Shell.class.getClassLoader().getResourceAsStream("icons/rotation" + x + ".png");
+            if (iconStream != null) {
+            	spinnerIcon[x] = new Image(display, iconStream);
+            }
         }
 
         // Set up the test summary table.
@@ -413,14 +408,14 @@ public class ShellTestRunner {
                     public void run() {
                         if (!test.isDisposed()) {
                             test.setImage(0, spinnerIcon[sequence]);
-                            if (++sequence == 5) {
+                            if (++sequence == 12) {
                                 sequence = 0;
                             }
                         }
                     }
                 });
                 try {
-                    super.sleep(25);
+                    super.sleep(100);
                 } catch (Throwable th) {
                 }
                 if (display.isDisposed()) {
