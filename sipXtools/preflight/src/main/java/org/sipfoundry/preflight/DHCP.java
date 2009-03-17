@@ -291,7 +291,7 @@ public class DHCP {
         requestMessage.addOption(new MessageTypeOption(DHCPREQUEST));
         requestMessage.addOption(new MessageSizeOption(590));
         requestMessage.addOption(new RequestedAddressOption(assignedAddress));
-        requestMessage.addOption(new ParameterRequestOption(SUBNET_MASK, ROUTER, DOMAIN_NAME, DOMAIN_NAME_SERVER, TFTP_SERVER, BOOT_FILE, NTP_SERVER, TIME_OFFSET));
+        requestMessage.addOption(new ParameterRequestOption(SUBNET_MASK, ROUTER, DOMAIN_NAME, DOMAIN_NAME_SERVER, TFTP_SERVER, BOOT_FILE, SIP_SERVER, NTP_SERVER, TIME_OFFSET));
         requestMessage.addOption(new LeaseTimeOption(360));
         requestMessage.addOption(new VendorIdentifierOption("Pingtel"));
         requestMessage.addOption(new ClientIdentifierOption(ETHERNET, chaddr));
@@ -454,7 +454,7 @@ public class DHCP {
 
         informMessage.addOption(new MessageTypeOption(DHCPINFORM));
         informMessage.addOption(new MessageSizeOption(590));
-        informMessage.addOption(new ParameterRequestOption(SUBNET_MASK, ROUTER, DOMAIN_NAME, DOMAIN_NAME_SERVER, TFTP_SERVER, BOOT_FILE, NTP_SERVER, TIME_OFFSET));
+        informMessage.addOption(new ParameterRequestOption(SUBNET_MASK, ROUTER, DOMAIN_NAME, DOMAIN_NAME_SERVER, TFTP_SERVER, BOOT_FILE, SIP_SERVER, NTP_SERVER, TIME_OFFSET));
         informMessage.addOption(new VendorIdentifierOption("Pingtel"));
         informMessage.addOption(new ClientIdentifierOption(ETHERNET, chaddr));
 

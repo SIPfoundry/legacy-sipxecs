@@ -54,8 +54,7 @@ public class ShellTestRunner {
     public static final int TFTP_TEST = 3;
     public static final int FTP_TEST = 4;
     public static final int HTTP_TEST = 5;
-    public static final int SIP1_TEST = 6;
-    public static final int SIP2_TEST = 7;
+    public static final int SIP_TEST = 6;
 
     public class Test {
         private TableItem tableRow;
@@ -208,7 +207,7 @@ public class ShellTestRunner {
         testSummaryTable.setHeaderVisible(false);
         testSummaryTable.setLinesVisible(true);
 
-        testTable = new Test[8];
+        testTable = new Test[7];
 
         testTable[DHCP_TEST] = new Test("DHCP Server Test");
         testTable[DNS_TEST] = new Test("DNS Server Test");
@@ -216,8 +215,7 @@ public class ShellTestRunner {
         testTable[TFTP_TEST] = new Test("TFTP Server Test");
         testTable[FTP_TEST] = new Test("FTP Server Test");
         testTable[HTTP_TEST] = new Test("HTTP Server Test");
-        // testTable[SIP1_TEST] = new Test("SIP Connectivity Test");
-        // testTable[SIP2_TEST] = new Test("SIP Credentials Test");
+        testTable[SIP_TEST] = new Test("SIP Server Test");
 
         // table.getColumn(0).pack();
         // table.getColumn(1).pack();
@@ -246,8 +244,7 @@ public class ShellTestRunner {
         testTable[TFTP_TEST].update(Test.IDLE);
         testTable[FTP_TEST].update(Test.IDLE);
         testTable[HTTP_TEST].update(Test.IDLE);
-        // testTable[SIP1_TEST].update(Test.IDLE);
-        // testTable[SIP2_TEST].update(Test.IDLE);
+        testTable[SIP_TEST].update(Test.IDLE);
 
         DHCP dhcp = new DHCP();
         DNS dns = new DNS();
@@ -255,6 +252,7 @@ public class ShellTestRunner {
         TFTP tftp = new TFTP();
         FTP ftp = new FTP();
         HTTP http = new HTTP();
+        SIPServerTest sipServerTest = new SIPServerTest();
 
         testTable[DHCP_TEST].update(Test.RUNNING);
         results = dhcp.validate(10, networkResources, journalService, bindAddress);
@@ -285,10 +283,15 @@ public class ShellTestRunner {
                 testTable[HTTP_TEST].update(Test.RUNNING);
                 results = http.validate(10, networkResources, journalService, bindAddress);
                 testTable[HTTP_TEST].update(results);
+                
+                testTable[SIP_TEST].update(Test.RUNNING);
+                results = sipServerTest.validate(10, networkResources, journalService, bindAddress);
+                testTable[SIP_TEST].update(results);
             } else {
                 testTable[TFTP_TEST].update(Test.SKIPPED, "No TFTP server discovered.");
                 testTable[FTP_TEST].update(Test.SKIPPED, "No FTP server discovered.");
                 testTable[HTTP_TEST].update(Test.SKIPPED, "No HTTP server discovered.");
+                testTable[SIP_TEST].update(Test.SKIPPED, "No SIP server discovered.");
             }
         } else {
             testTable[DNS_TEST].update(Test.SKIPPED, "DHCP prerequisite test failed.");
@@ -296,10 +299,8 @@ public class ShellTestRunner {
             testTable[TFTP_TEST].update(Test.SKIPPED, "DHCP prerequisite test failed.");
             testTable[FTP_TEST].update(Test.SKIPPED, "DHCP prerequisite test failed.");
             testTable[HTTP_TEST].update(Test.SKIPPED, "DHCP prerequisite test failed.");
+            testTable[SIP_TEST].update(Test.SKIPPED, "SIP prerequisite test failed.");
         }
-
-        // testTable[SIP1_TEST].update(Test.SKIPPED);
-        // testTable[SIP2_TEST].update(Test.SKIPPED);
 
         active = false;
     }

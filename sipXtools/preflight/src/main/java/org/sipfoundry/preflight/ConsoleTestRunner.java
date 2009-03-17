@@ -56,23 +56,22 @@ public class ConsoleTestRunner {
                 "server").create();
 
         Option tftpTest = OptionBuilder.withLongOpt("tftp-test").withDescription(
-                "Verify that the specified TFTP server is functioning properly.").withValueSeparator('=').hasArg().withArgName(
-                "server").create();
+                "Verify that the specified TFTP server is functioning properly.").withValueSeparator('=').hasArg().withArgName("server").create();
 
         Option ftpTest = OptionBuilder.withLongOpt("ftp-test").withDescription(
-                "Verify that the specified FTP server is functioning properly.").withValueSeparator('=').hasArg().withArgName(
-                "server").create();
+                "Verify that the specified FTP server is functioning properly.").withValueSeparator('=').hasArg().withArgName("server").create();
 
         Option httpTest = OptionBuilder.withLongOpt("http-test").withDescription(
-                "Verify that the specified HTTP server is functioning properly.").withValueSeparator('=').hasArg().withArgName(
-                "server").create();
+                "Verify that the specified HTTP server is functioning properly.").withValueSeparator('=').hasArg().withArgName("server").create();
+
+        Option sipTest = OptionBuilder.withLongOpt("120-test").withDescription(
+                "Verify that DHCP server is properly issuing Option 120 addresses.").create();
 
         Option discover = OptionBuilder.withLongOpt("discover").withDescription(
                 "Attempt to discover SIP devices on the attached subnet.").create();
 
         Option testInterface = OptionBuilder.withLongOpt("interface").withDescription(
-                "IP address of the interface that the tests should run over.").withValueSeparator('=').hasArg().withArgName(
-                "address").create();
+                "IP address of the interface that the tests should run over.").withValueSeparator('=').hasArg().withArgName("address").create();
 
         Option help = OptionBuilder.withLongOpt("help").withDescription("Display preflight usage documentation.").create();
 
@@ -82,6 +81,7 @@ public class ConsoleTestRunner {
         options.addOption(tftpTest);
         options.addOption(ftpTest);
         options.addOption(httpTest);
+        options.addOption(sipTest);
         options.addOption(verbose);
         options.addOption(reportProgress);
         options.addOption(discover);
@@ -144,6 +144,10 @@ public class ConsoleTestRunner {
                         + "                       164: HTTP client encountered unrecoverable error.\n"
                         + "                       165: HTTP get of test file failed.\n"
                         + "                       166: HTTP test file did not verify.\n" + "\n"
+                        + "--120-test           Verify that the DHCP server is properly issuing\n"
+                        + "                     Option 120 addresses.  Possible error conditions:\n"
+                        + "                       167: No SIP servers supplied.\n"
+                        + "                       168: No SIP server is reachable.\n"
                         + "--interface=<address> IP address of the interface that the tests should run over.\n" + "\n"
                         + "--discover           Attempt to discover SIP devices on the attached subnet.\n" + "\n";
                 System.out.println(helpText);
@@ -322,6 +326,16 @@ public class ConsoleTestRunner {
                     System.exit(results.toInt());
                 }
             }
+            
+            if (line.hasOption("120-test")) {
+                SIPServerTest sipServerTest = new SIPServerTest();
+                results = sipServerTest.validate(10, networkResources, journalService, bindAddress);
+                if (results != NONE) {
+                    System.err.println(results.toString());
+                    System.exit(results.toInt());
+                }
+            }
+
         } catch (ParseException exp) {
             System.out.println(exp.getMessage());
             printHelp(options);

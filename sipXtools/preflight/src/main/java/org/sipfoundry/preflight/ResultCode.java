@@ -54,6 +54,8 @@ public enum ResultCode {
     HTTP_CLIENT_FAILURE(164, "HTTP client encountered unrecoverable error.", TOOL), //
     HTTP_GET_FAILED(165, "HTTP get of test file failed.", UUT), //
     HTTP_CONTENTS_FAILED(166, "HTTP test file did not verify.", UUT), //
+    SIP_SERVERS_MISSING(167, "No SIP servers supplied.", WARNING), //
+    SIP_SERVER_UNREACHABLE(168, "No SIP server is reachable.", UUT), //
     INVALID(255, "INVALID", TOOL); //
 
     /**
