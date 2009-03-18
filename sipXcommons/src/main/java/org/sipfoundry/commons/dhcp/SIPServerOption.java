@@ -34,7 +34,6 @@ public class SIPServerOption extends DHCPOption {
     public void addServer(InetAddress server) {
         if (serverList == null) {
             serverList = new LinkedList<SIPServer>();
-            super.setLength(1);
         }
         SIPServer newServer = new SIPServer();
         newServer.IPaddress = server;
@@ -51,7 +50,7 @@ public class SIPServerOption extends DHCPOption {
         newServer.hostName = server;
         newServer.IPaddress = null;
         serverList.add(newServer);
-        super.setLength(3);  // When option is using host name strings, this length value is bogus.
+        super.setLength(super.getLength() + server.length() + 2);
     }
 
     public String toString() {
@@ -75,25 +74,22 @@ public class SIPServerOption extends DHCPOption {
 
         if (serverList != null) {
             dataStream.writeByte(super.getCode().toInt());
+            dataStream.writeByte(super.getLength());
             if (serverList.getFirst().hostName != null) {
+            	dataStream.writeByte(0);  // Encoding type 0.
+            	
             	// First parse all of the host names and build up a list of fields
-            	int length = 1;
             	LinkedList<String> fields = new LinkedList<String>();
             	for (SIPServer server : serverList) {
             		StringTokenizer tokens = new StringTokenizer(server.hostName, ".");
             		while (tokens.hasMoreTokens()) {
             			String token = tokens.nextToken();
             			fields.add(token);
-            			length += token.length() + 1;
             		}
             		fields.add("");
-            		length += 1;
             	}
-            	super.setLength(length);
             	
             	// Now encode the list.
-            	dataStream.writeByte(length);
-            	dataStream.writeByte(0);  // Encoding type 0.
             	for (String field : fields) {
             		dataStream.write(field.length());
             		if (field.length() > 0) {
@@ -101,7 +97,6 @@ public class SIPServerOption extends DHCPOption {
             		}
             	}
             } else if (serverList.getFirst().IPaddress != null) {
-            	dataStream.writeByte(super.getLength());
             	dataStream.writeByte(1);  // Encoding type 1.
             	for (SIPServer server : serverList) {
                 	dataStream.write(server.IPaddress.getAddress(), 0, 4);
