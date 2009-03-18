@@ -194,7 +194,7 @@ public class DeviceTimeZone extends BeanWithId {
     }
 
     public int getStartTimeInHours() {
-        return m_startTime / SECONDS_PER_HOUR;
+        return m_startTime / MINUTES_PER_HOUR;
     }
 
     public void setStartWeek(int startWeek) {
@@ -230,7 +230,7 @@ public class DeviceTimeZone extends BeanWithId {
     }
 
     public int getStopTimeInHours() {
-        return m_stopTime / SECONDS_PER_HOUR;
+        return m_stopTime / MINUTES_PER_HOUR;
     }
 
     public void setStopWeek(int stopWeek) {

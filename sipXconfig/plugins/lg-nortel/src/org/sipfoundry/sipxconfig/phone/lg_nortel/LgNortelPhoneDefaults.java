@@ -168,14 +168,18 @@ public class LgNortelPhoneDefaults {
         return getZone().getUseDaylight();
     }
 
-
-    @SettingEntry(path = "NETTIME/dst_start_month")
-    public Integer getStartMonth() {
-        return nullUnlessDst(getZone().getStartMonth());
+    public int getMonthIndexLgFromJava(int indexJava) {
+        // LG Month mapping starts at 1, but Java starts at 0.
+        return indexJava + 1;
     }
 
     private Integer nullUnlessDst(int i) {
         return (getUseDst() ? i : null);
+    }
+
+    @SettingEntry(path = "NETTIME/dst_start_month")
+    public Integer getStartMonth() {
+        return nullUnlessDst(getMonthIndexLgFromJava(getZone().getStartMonth()));
     }
 
     @SettingEntry(path = "NETTIME/dst_start_day_of_week")
@@ -196,7 +200,7 @@ public class LgNortelPhoneDefaults {
 
     @SettingEntry(path = "NETTIME/dst_stop_month")
     public Integer getStopMonth() {
-        return nullUnlessDst(getZone().getStopMonth());
+        return nullUnlessDst(getMonthIndexLgFromJava(getZone().getStopMonth()));
     }
 
     @SettingEntry(path = "NETTIME/dst_stop_day_of_week")
