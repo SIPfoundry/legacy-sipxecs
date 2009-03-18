@@ -1,75 +1,53 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE model 
-    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
-    "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+  PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
 <model>
   <group name="fs-conf-conference">
     <setting name="organizer-code" hidden="yes">
-      <label>Organizer code</label>
       <type>
         <string required="yes">
           <pattern>[\d#*]+</pattern>
         </string>
       </type>
-      <value></value>
-      <description>DTMF digits for organizer login.</description>
+      <value />
     </setting>
     <setting name="participant-code">
-      <label>Participant PIN</label>
       <type>
         <string>
           <pattern>[\d#*]+</pattern>
         </string>
       </type>
-      <value></value>
-      <description>DTMF digits for participant PIN. Can be empty.</description>
+      <value />
     </setting>
     <setting name="organizer_admit" hidden="yes">
-      <label>Require organizer</label>
       <type>
-        <boolean/>
+        <boolean />
       </type>
       <value>0</value>
-      <description>If set the conference will admit participants only if there is an organizer in the
-        conference</description>
-    </setting>    
+    </setting>
     <setting name="AOR" hidden="yes">
-      <value/>
-      <description>The SIP URI (may include the full name-addr value) this conference should register and use
-        as its AOR. The default is the conference 'name' token as the user part with the
-        FS_BRIDGE_SIP_DOMAIN host part.</description>      
-    </setting>    
+      <value />
+    </setting>
     <setting name="ACCESS" hidden="yes">
-      <label>Access control</label>
       <type>
         <enum>
           <option>
-            <label>Open</label>
             <value>OPEN</value>
           </option>
           <option>
-            <label>Use access codes</label>
             <value>REMOTE_ADMIT</value>
           </option>
         </enum>
       </type>
       <value>OPEN</value>
-      <description>Selects the access control mechanism for this conference. If set to "Open" any call to the
-        AOR or contact address for the conference is accepted and immediatly joins the conference. Otherwise
-        participants are required to enter access code, and optionally wait for organizer to start a
-        conference. </description>      
     </setting>
     <setting name="MAX_LEGS">
-      <label>Maximum legs</label>
       <type>
-        <integer required="yes"/>
+        <integer required="yes" />
       </type>
       <value>0</value>
-      <description>The maximum number of call legs to be allowed by this bridge. 0 means
-        unlimited.</description>
     </setting>
-    <setting name="FS_BRIDGE_CONFERENCE.REMOTE_ADMIT.SECRET" hidden="yes">      
-			<description>Automatically generated value that is used by remote admittance control.</description>      
-    </setting>    
-  </group>  
+    <setting name="FS_BRIDGE_CONFERENCE.REMOTE_ADMIT.SECRET" hidden="yes" />
+  </group>
 </model>

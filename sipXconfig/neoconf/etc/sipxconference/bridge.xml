@@ -1,7 +1,7 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE model 
-    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
-    "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+  PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
 <model>
   <type id="loglevel">
     <enum>
@@ -31,14 +31,15 @@
       </option>
     </enum>
   </type>
-  <!-- 
-  TODO: port type needs to handle - may be number, PORT_DEFAULT, or PORT_NONE (which disables use of that transport).
+  <!--
+    TODO: port type needs to handle - may be number, PORT_DEFAULT, or PORT_NONE (which disables use of that
+    transport).
   -->
   <type id="port-number">
-    <integer required="yes" min="1024" max="65534"/>
+    <integer required="yes" min="1024" max="65534" />
   </type>
   <type id="optional-port-number">
-    <integer min="1024" max="65534"/>
+    <integer min="1024" max="65534" />
   </type>
   <type id="feature-code">
     <string required="yes" maxLen="1">
@@ -46,18 +47,14 @@
     </string>
   </type>
   <type id="upload-music">
-    <file variable="yes"/>
+    <file variable="yes" />
   </type>
-  
   <group name="fs-conf-bridge">
     <setting name="log-level" advanced="yes" hidden="yes">
-      <label>Bridge log level</label>
-      <type refid="loglevel"/>
+      <type refid="loglevel" />
       <value>DEBUG</value>
-      <description>Maximum log severity level to be recorded.</description>
     </setting>
     <setting name="sip-log-level" advanced="yes" hidden="yes">
-      <label>Debug SIP Stack</label>
       <type>
         <boolean>
           <true>
@@ -69,101 +66,71 @@
         </boolean>
       </type>
       <value>DISABLED</value>
-      <description>If set SIP stack debug output will be turned on.</description>
     </setting>
-	<setting name="max-legs">
-      <label>Maximum legs</label>
+    <setting name="max-legs">
       <type>
-        <integer required="yes"/>
+        <integer required="yes" />
       </type>
       <value>0</value>
-      <description>The maximum number of call legs to be allowed by this bridge. 0 means unlimited.</description>
     </setting>
     <setting name="sip-aliases" hidden="yes">
-      <value></value>
-      <description> A comma separated list of host and/or host:port values that the bridge should accept as
-        references to itself (in addition to the SIP DOMAIN value) </description>
+      <value />
     </setting>
-	<group name="dtmf-commands" >
-	    <setting name="mute" advanced="yes">
-	      <label>Mute code</label>
-	      <type refid="feature-code"/>
-	      <value>0</value>
-	      <description> The DTMF sequence to be entered by a conference participant to toggle the 'mute' of input
-	        from thier own call leg.</description>
-	    </setting>
-	    <setting name="deaf-mute" advanced="yes">
-	      <label>Deaf mute code</label>
-	      <type refid="feature-code"/>
-	      <value>*</value>
-	      <description> The DTMF sequence to be entered by a conference participant to toggle the 'mute' of thier own call leg in both directions.</description>
-	    </setting>
-		<group name="energy">
-		    <setting name="up" advanced="yes">
-		      <label>Energy UP</label>
-		      <type refid="feature-code"/>
-		      <value>9</value>
-		      <description> The DTMF sequence to be entered by a participant to bump up minimal voice energy level.</description>
-		    </setting>
-		    <setting name="reset" advanced="yes">
-		      <label>Energy EQU</label>
-		      <type refid="feature-code"/>
-		      <value>#</value>
-		      <description> The DTMF sequence to be entered by a participant to reset minimal voice energy level.</description>
-		    </setting>
-		    <setting name="down" advanced="yes">
-		      <label>Energy DOWN</label>
-		      <type refid="feature-code"/>
-		      <value>7</value>
-		      <description> The DTMF sequence to be entered by a participant to turn down minimal voice energy level.</description>
-		    </setting>
-		</group>
-		<group name="volume-listen">
-		    <setting name="up" advanced="yes">
-		      <label>Volume UP</label>
-		      <type refid="feature-code"/>
-		      <value>6</value>
-		      <description> The DTMF sequence to be entered by a participant to bump up the volume.</description>
-		    </setting>
-		    <setting name="reset" advanced="yes">
-		      <label>Volume RESET</label>
-		      <type refid="feature-code"/>
-		      <value>5</value>
-		      <description> The DTMF sequence to be entered by a participant to reset the volume level.</description>
-		    </setting>
-		    <setting name="down" advanced="yes">
-		      <label>Volume DOWN</label>
-		      <type refid="feature-code"/>
-		      <value>4</value>
-		      <description> The DTMF sequence to be entered by a participant to turn down the volume.</description>
-		    </setting>
-		</group>
-		<group name="volume-talk">
-		    <setting name="up" advanced="yes">
-		      <label>Talk vol. UP</label>
-		      <type refid="feature-code"/>
-		      <value>3</value>
-		      <description> The DTMF sequence to be entered by a participant to bump up microphone sensitivity (=his talk volume).</description>
-		    </setting>
-		    <setting name="reset" advanced="yes">
-		      <label>Talk vol. RESET</label>
-		      <type refid="feature-code"/>
-		      <value>2</value>
-		      <description> The DTMF sequence to be entered by a participant to reset microphone sensitivity.</description>
-		    </setting>
-		    <setting name="down" advanced="yes">
-		      <label>Talk vol. DOWN</label>
-		      <type refid="feature-code"/>
-		      <value>1</value>
-		      <description> The DTMF sequence to be entered by a participant to turn down microphone sensitivity.</description>
-		    </setting>
-		</group>
-	    <setting name="hungup" advanced="yes">
-	      <label>Hungup code</label>
-	      <type refid="feature-code"/>
-	      <value>8</value>
-	      <description> The DTMF sequence to be entered by a participant to leave the conference.</description>
-	    </setting>
-	</group>
+    <group name="dtmf-commands">
+      <setting name="mute" advanced="yes">
+        <type refid="feature-code" />
+        <value>0</value>
+      </setting>
+      <setting name="deaf-mute" advanced="yes">
+        <type refid="feature-code" />
+        <value>*</value>
+      </setting>
+      <group name="energy">
+        <setting name="up" advanced="yes">
+          <type refid="feature-code" />
+          <value>9</value>
+        </setting>
+        <setting name="reset" advanced="yes">
+          <type refid="feature-code" />
+          <value>#</value>
+        </setting>
+        <setting name="down" advanced="yes">
+          <type refid="feature-code" />
+          <value>7</value>
+        </setting>
+      </group>
+      <group name="volume-listen">
+        <setting name="up" advanced="yes">
+          <type refid="feature-code" />
+          <value>6</value>
+        </setting>
+        <setting name="reset" advanced="yes">
+          <type refid="feature-code" />
+          <value>5</value>
+        </setting>
+        <setting name="down" advanced="yes">
+          <type refid="feature-code" />
+          <value>4</value>
+        </setting>
+      </group>
+      <group name="volume-talk">
+        <setting name="up" advanced="yes">
+          <type refid="feature-code" />
+          <value>3</value>
+        </setting>
+        <setting name="reset" advanced="yes">
+          <type refid="feature-code" />
+          <value>2</value>
+        </setting>
+        <setting name="down" advanced="yes">
+          <type refid="feature-code" />
+          <value>1</value>
+        </setting>
+      </group>
+      <setting name="hungup" advanced="yes">
+        <type refid="feature-code" />
+        <value>8</value>
+      </setting>
+    </group>
   </group>
 </model>
