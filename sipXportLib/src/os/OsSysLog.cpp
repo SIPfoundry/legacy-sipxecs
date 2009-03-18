@@ -862,7 +862,7 @@ void myvsprintf(UtlString& results, const char* format, va_list& args)
     results.remove(0) ;
     bool messageConstructed=false;
     while (   ! messageConstructed 
-           && results.capacity(size) <= size )
+           && results.capacity(size) >= size )
     {
         size=results.capacity(); // get the actual space allocated; capacity(n) can round up
 
