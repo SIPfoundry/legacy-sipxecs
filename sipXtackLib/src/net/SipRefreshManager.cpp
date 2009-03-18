@@ -666,11 +666,14 @@ UtlBoolean SipRefreshManager::handleMessage(OsMsg &eventMessage)
                     // to incur the cost of copying the message????
                     SipMessage tempRequest(*(state->mpLastRequest));
                     
-                    UtlString lastRequest;
-                    ssize_t length;
-                    state->mpLastRequest->getBytes(&lastRequest, &length);
-                    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRefreshManager::handleMessage last request = '%s'",
-                                  lastRequest.data());
+                    if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+                    {
+                       UtlString lastRequest;
+                       ssize_t length;
+                       state->mpLastRequest->getBytes(&lastRequest, &length);
+                       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRefreshManager::handleMessage last request = '%s'",
+                                     lastRequest.data());
+                    }
                       
                     unlock();
                     mpUserAgent->send(tempRequest);
@@ -866,6 +869,8 @@ UtlBoolean SipRefreshManager::handleMessage(OsMsg &eventMessage)
                 {
                    // If the refresh state still records the early dialog,
                    // update it to the confirmed dialog.
+                   // (And below we may update the Route's in the stored
+                   // request.)
                    if (foundEarlyDialog && matchesLastLocalTransaction)
                    {
                        // Replace the state object's handle with the confirmed
@@ -922,6 +927,68 @@ UtlBoolean SipRefreshManager::handleMessage(OsMsg &eventMessage)
                            state->mExpiration =
                               state->mPendingStartTime + nextResendSeconds;
                            state->mRequestState = REFRESH_REQUEST_SUCCEEDED;
+
+                           // If the request is a SUBSCRIBE, and this
+                           // response established a dialog, update
+                           // the Route headers of the stored request
+                           // based on the Record-Route headers of the
+                           // 2xx response, and update the request-URI
+                           // based on the Contact in the response.
+                           
+                           // If this is a 2xx response to a
+                           // re-SUBSCRIBE, update the request-URI
+                           // (since SUBSCRIBE is a target-refresh
+                           // method).
+
+                           // If it is a REGISTER, do not modify the
+                           // stored request, since successive
+                           // REGISTERS are a quasi-dialog and
+                           // continue to be routed as the first
+                           // message was.
+
+                           // Use SipMessage::isRecordRouteAccepted to distinguish
+                           // the REGISTER and SUBSCRIBE cases.
+                           if (state->mpLastRequest->isRecordRouteAccepted())
+                           {
+                              // Copy Contact URI in response to
+                              // request-URI in request.
+                              UtlString contact;
+                              sipMessage->getContactUri(0, &contact);
+                              state->mpLastRequest->changeRequestUri(contact);
+
+                              OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                            "SipRefreshManager::handleMessage Updating request-URI to '%s'",
+                                            contact.data());
+
+                              if (foundEarlyDialog && matchesLastLocalTransaction)
+                              {
+                                 // Remove Route headers from the initial request.
+                                 UtlString route;
+                                 while (state->mpLastRequest->removeHeader(SIP_ROUTE_FIELD, 0))
+                                 {
+                                 }
+
+                                 // Copy Record-Route headers from response to
+                                 // Route headers in request (in reverse order).
+                                 UtlString routeField;
+                                 UtlString routeValue;
+                                 for (int index = 0;
+                                      sipMessage->getRecordRouteUri(index, &routeValue);
+                                      index++)
+                                 {
+                                    if (index != 0)
+                                    {
+                                       routeField.prepend(",");
+                                    }
+                                    routeField.prepend(routeValue);
+                                 }
+                                 state->mpLastRequest->setRouteField(routeField);
+
+                                 OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                               "SipRefreshManager::handleMessage Updating Route headers to '%s'",
+                                               routeValue.data());
+                              }
+                           }
                        }
                        // UnSUBSCRIBE or unREGISTER
                        else
@@ -1304,21 +1371,25 @@ void SipRefreshManager::setForResend(RefreshDialogState& state,
 {
     if(state.mpLastRequest)
     {
-        UtlString lastRequest;
-        ssize_t length;
-        state.mpLastRequest->getBytes(&lastRequest, &length);
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                      "SipRefreshManager::setForResend last request = '%s'",
-                      lastRequest.data());
+        if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+        {
+           UtlString lastRequest;
+           ssize_t length;
+           state.mpLastRequest->getBytes(&lastRequest, &length);
+           OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                         "SipRefreshManager::setForResend last request = '%s'",
+                         lastRequest.data());
+        }
        
         // Remove old vias
         state.mpLastRequest->removeTopVia();
 
-        // Remove old routes
-        UtlString route;
-        while(state.mpLastRequest->removeRouteUri(0, &route))
-        {
-        }
+        // Do not modify the Route headers in *state->mpLastRequest.
+        // If it is a REGISTER, they are what was specified to ::initiateRefresh
+        // (and should be maintained, as successive REGISTERS are a quasi-dialog
+        // and continue to be routed as the first message was).
+        // If it is a SUBSCRIBE, the Route headers were revised based on the
+        // Record-Route's in the 2xx response that created the dialog.
 
         // Remove any credentials
         while(state.mpLastRequest->removeHeader(HTTP_AUTHORIZATION_FIELD, 0))
@@ -1339,10 +1410,8 @@ void SipRefreshManager::setForResend(RefreshDialogState& state,
         {
            state.mpLastRequest->setExpiresField(0);
         }
-        else
-        {
-           state.mpLastRequest->setDateField();
-        }
+
+        // The Date header will be set by the SipUserAgent.
     }
 }
 
