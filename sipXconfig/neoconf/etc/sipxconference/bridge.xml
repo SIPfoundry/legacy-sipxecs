@@ -108,7 +108,7 @@
 		    <setting name="reset" advanced="yes">
 		      <label>Energy EQU</label>
 		      <type refid="feature-code"/>
-		      <value>8</value>
+		      <value>#</value>
 		      <description> The DTMF sequence to be entered by a participant to reset minimal voice energy level.</description>
 		    </setting>
 		    <setting name="down" advanced="yes">
@@ -161,7 +161,7 @@
 	    <setting name="hungup" advanced="yes">
 	      <label>Hungup code</label>
 	      <type refid="feature-code"/>
-	      <value>#</value>
+	      <value>8</value>
 	      <description> The DTMF sequence to be entered by a participant to leave the conference.</description>
 	    </setting>
 	</group>
