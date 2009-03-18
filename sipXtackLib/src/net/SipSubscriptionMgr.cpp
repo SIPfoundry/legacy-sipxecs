@@ -572,6 +572,10 @@ UtlBoolean SipSubscriptionMgr::insertDialogInfo(const SipMessage& subscribeReque
         else
         {
             isSubscriptionExpired = TRUE;
+
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipSubscriptionMgr::insertDialogInfo expiration (%d) is < %d",
+                          expiration, mMinExpiration);
         }
     }
 
@@ -702,6 +706,10 @@ UtlBoolean SipSubscriptionMgr::insertDialogInfo(const SipMessage& subscribeReque
         else
         {
             isSubscriptionExpired = isExpired(dialogHandle);
+
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipSubscriptionMgr::insertDialogInfo expiration (%d) is < %d",
+                          expiration, mMinExpiration);
         }
     }
 
