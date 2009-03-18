@@ -152,6 +152,8 @@ SipPersistentSubscriptionMgr::SipPersistentSubscriptionMgr(
             dynamic_cast <UtlString*> (rowp->findValue(&SubscriptionDB::gAcceptKey));
          int version =
             *(dynamic_cast <UtlInt*> (rowp->findValue(&SubscriptionDB::gVersionKey)));
+         const UtlString* keyp =
+            dynamic_cast <UtlString*> (rowp->findValue(&SubscriptionDB::gKeyKey));
 
          // Use SipSubscriptionMgr to update the in-memory data.
 
@@ -199,9 +201,9 @@ SipPersistentSubscriptionMgr::SipPersistentSubscriptionMgr(
          UtlBoolean isNew, isSubscriptionExpired;
          UtlBoolean ret =
             SipSubscriptionMgr::insertDialogInfo(subscribeRequest,
-                                                 // *urip is the request-URI of
-                                                 // of the SUBSCRIBE.
-                                                 *urip,
+                                                 // *keyp is the resource that
+                                                 // is subscribed to.
+                                                 *keyp,
                                                  *eventtypep,
                                                  subscribeDialogHandle,
                                                  isNew,
@@ -210,8 +212,10 @@ SipPersistentSubscriptionMgr::SipPersistentSubscriptionMgr(
          {
             OsSysLog::add(FAC_SIP, PRI_ERR,
                           "SipPersistentSubscriptionMgr:: "
-                          "insertDialogInfo failed urip = '%s', subscribeDialogHandle = '%s'",
-                          urip->data(), subscribeDialogHandle.data());
+                          "SipSubscriptionMgr::insertDialogInfo failed keyp = '%s', eventtypep = '%s', subscribeDialogHandle = '%s'",
+                          keyp->data(),
+                          eventtypep->data(),
+                          subscribeDialogHandle.data());
          }
          else
          {
