@@ -1179,7 +1179,7 @@ public class SymmitronServer implements Symmitron {
             }
 
         } catch (Throwable th) {
-            System.err.println("Exitting main: Cause :  " + th.getMessage());
+            System.err.println("Exiting main: Cause :  " + th.getMessage());
             th.printStackTrace(System.err);
             System.exit(-1);
         }

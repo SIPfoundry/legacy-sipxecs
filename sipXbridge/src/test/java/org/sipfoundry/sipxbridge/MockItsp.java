@@ -149,7 +149,7 @@ public class MockItsp implements SipListener {
 					readCount++;
 				} catch (IOException e) {
 					logger
-							.debug("SocketReader: Exitting read thread -- encountered an IOException");
+							.debug("SocketReader: Exiting read thread -- encountered an IOException");
 					break;
 				}
 			}

@@ -127,7 +127,7 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
                 /*
                  * This is not an error. Somebody closed socket. Just bail.
                  */
-                logger.warn("Exitting early media thread due to closed channel", ex);
+                logger.warn("Exiting early media thread due to closed channel", ex);
             } catch (Exception ex) {
                 logger.error("Unexpected exception in sending early media ", ex);
                 if (bridge != null) {

@@ -241,7 +241,7 @@ public class SipXbridgeXmlRpcServerImpl implements SipXbridgeXmlRpcServer {
 
 			new Timer().schedule(new TimerTask() {
 				public void run() {
-					logger.debug("Exitting bridge!");
+					logger.debug("Exiting bridge!");
 					System.exit(0);
 				}
 			}, 1000);

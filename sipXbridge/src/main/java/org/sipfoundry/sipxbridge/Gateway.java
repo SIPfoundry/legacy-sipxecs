@@ -217,7 +217,7 @@ public class Gateway {
 
 		if (!new File(Gateway.configurationFile).exists()) {
 			System.err.println(String.format(
-					"Configuration %s file not found -- exitting",
+					"Configuration %s file not found -- exiting",
 					Gateway.configurationFile));
 			System.exit(-1);
 		}
@@ -230,7 +230,7 @@ public class Gateway {
 		if (!new File(Gateway.configurationPath + "/nattraversalrules.xml")
 				.exists()) {
 			System.err.println(String.format(
-					"Configuration %s file not found -- exitting",
+					"Configuration %s file not found -- exiting",
 					Gateway.configurationPath + "/nattraversalrules.xml"));
 			System.exit(-1);
 		}
@@ -909,7 +909,7 @@ public class Gateway {
 	/**
 	 * Stop the gateway. Release any port resources associated with ongoing
 	 * dialogs and tear down ongoing Music on hold. This is called when stopping
-	 * the gateway but not exitting the Gateway process.
+	 * the gateway but not exiting the Gateway process.
 	 */
 	static synchronized void stop() {
 		Gateway.state = GatewayState.STOPPING;
