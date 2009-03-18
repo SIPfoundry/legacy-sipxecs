@@ -24,6 +24,8 @@
 #define SUBSCRIPTION_COMPONENT_REG "reg"
 // "component" value for sipXpresence a/k/a the Presence Server
 #define SUBSCRIPTION_COMPONENT_PRESENCE "presence"
+// "component" value for sipXpark a/k/a the Park Server
+#define SUBSCRIPTION_COMPONENT_PARK "park"
 
 // MACROS
 // EXTERNAL FUNCTIONS

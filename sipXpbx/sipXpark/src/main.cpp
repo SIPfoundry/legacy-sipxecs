@@ -19,7 +19,7 @@
 
 #include <net/NameValueTokenizer.h>
 #include <net/SipPublishContentMgr.h>
-#include <net/SipSubscriptionMgr.h>
+#include <persist/SipPersistentSubscriptionMgr.h>
 #include <net/SipSubscribeServerEventHandler.h>
 #include <net/SipSubscribeServer.h>
 #include <net/SipLine.h>
@@ -620,7 +620,10 @@ int main(int argc, char* argv[])
     listener.start();
 
     // Create the SIP Subscribe Server
-    SipSubscriptionMgr subscriptionMgr; // Component for holding the subscription data
+    SipPersistentSubscriptionMgr
+       subscriptionMgr(SUBSCRIPTION_COMPONENT_PARK,
+                       domain,
+                       "subscription"); // Component for holding the subscription data
     SipSubscribeServerEventHandler policyHolder; // Component for granting the subscription rights
     SipPublishContentMgr publisher; // Component for publishing the event contents
 
