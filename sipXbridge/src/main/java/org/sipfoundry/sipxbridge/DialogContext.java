@@ -62,18 +62,18 @@ class DialogContext {
 	/*
 	 * The request that originated the Dialog
 	 */
-	Request request;
+	private Request request;
 
 	/*
 	 * The transaction that created this DialogApplicationData
 	 */
 
-	Transaction transaction;
+	Transaction dialogCreatingTransaction;
 
 	/*
 	 * The current re-invite transaction
 	 */
-	ClientTransaction reInviteTransaction;
+	private ClientTransaction reInviteTransaction;
 
 	/*
 	 * The last ACK.
@@ -142,7 +142,7 @@ class DialogContext {
 	/*
 	 * The generated REFER request.
 	 */
-	Request referRequest;
+	private Request referRequest;
 	
 	/*
 	 * If this flag is set to true then the call dialog is torn down immediately after it is CONFIRMed.
@@ -272,6 +272,11 @@ class DialogContext {
 
 			}
 		}
+
+		public void terminate() {
+			logger.debug("Terminating session Timer Task for " + dialog);
+			this.cancel();
+		}
 	}
 
 	/**
@@ -332,6 +337,8 @@ class DialogContext {
 				logger.error("Error sending INVITE", ex);
 			} finally {
 				dialogContext.waitingToSendReInvite.set(false);
+				this.dialogContext = null;
+				this.ctx = null;
 			}
 		}
 	}
@@ -392,6 +399,8 @@ class DialogContext {
 				}
 			} catch (Exception ex) {
 				logger.error("Error sending moh request", ex);
+			} finally {
+				mohCtx = null;
 			}
 
 		}
@@ -472,14 +481,13 @@ class DialogContext {
 		return ((DialogContext) dialog.getApplicationData()).peerDialog;
 	}
 
-	public static RtpSession getPeerRtpSession(Dialog dialog) {
+	static RtpSession getPeerRtpSession(Dialog dialog) {
 		return get(getPeerDialog(dialog)).rtpSession;
 
 	}
 
 	static RtpSession getRtpSession(Dialog dialog) {
 		logger.debug("DialogApplicationData.getRtpSession " + dialog);
-
 		return ((DialogContext) dialog.getApplicationData()).rtpSession;
 	}
 
@@ -491,25 +499,53 @@ class DialogContext {
 			throw new SipXbridgeException(
 					"DialogContext: Context Already set!!");
 		}
-		DialogContext dat = new DialogContext(dialog);
-		dat.transaction = transaction;
+		DialogContext dialogContext = new DialogContext(dialog);
+		dialogContext.dialogCreatingTransaction = transaction;
 		if (transaction instanceof ClientTransaction) {
-			dat.reInviteTransaction = (ClientTransaction) transaction;
+			dialogContext.reInviteTransaction = (ClientTransaction) transaction;
 		}
-		dat.request = request;
-		dat.setBackToBackUserAgent(backToBackUserAgent);
-		dialog.setApplicationData(dat);
-
-		return dat;
+		dialogContext.request  = request;
+		dialogContext.setBackToBackUserAgent(backToBackUserAgent);
+		dialog.setApplicationData(dialogContext);
+		backToBackUserAgent.addDialog(dialog);
+		return dialogContext;
 	}
-
-	public Transaction getTransaction() {
-		return transaction;
-	}
-
+	
 	static DialogContext get(Dialog dialog) {
 		return (DialogContext) dialog.getApplicationData();
 	}
+	
+	/**
+	 * Get the RTP session of my peer Dialog.
+	 * @param dialog
+	 * @return
+	 */
+	static RtpSession getPeerTransmitter(Dialog dialog) {
+		return DialogContext.get(DialogContext.getPeerDialog(dialog)).rtpSession;
+	}
+	
+	/**
+	 * Convenience method to get the pending action for a dialog.
+	 * 
+	 */
+	static PendingDialogAction getPendingAction(Dialog dialog) {
+		return DialogContext.get(dialog).pendingAction;
+	}
+
+	/**
+	 * Convenience method to get the peer dialog context.
+	 */
+	static DialogContext getPeerDialogContext(Dialog dialog) {
+		return DialogContext.get(DialogContext.getPeerDialog(dialog));
+	}
+	/**
+	 * Get the transaction that created this dialog.
+	 */
+	Transaction getDialogCreatingTransaction() {
+		return dialogCreatingTransaction;
+	}
+
+
 
 	/**
 	 * @param rtpSession
@@ -526,6 +562,9 @@ class DialogContext {
 		return rtpSession;
 	}
 
+	/**
+	 * Record the time when ACK was last sent ( for the session timer ).
+	 */
 	void recordLastAckTime() {
 		this.timeLastAckSent = System.currentTimeMillis();
 	}
@@ -537,7 +576,6 @@ class DialogContext {
 	void setBackToBackUserAgent(BackToBackUserAgent backToBackUserAgent) {
 		this.backToBackUserAgent = backToBackUserAgent;
 		// set the back pointer to our set of active dialogs.
-
 		this.backToBackUserAgent.addDialog(this.dialog);
 	}
 
@@ -571,10 +609,15 @@ class DialogContext {
 	 */
 	void cancelSessionTimer() {
 		if (this.sessionTimer != null) {
-			this.sessionTimer.cancel();
+			this.sessionTimer.terminate();
+			this.sessionTimer = null;
 		}
 	}
 
+	/**
+	 * Set the Expires time for session timer.
+	 * @param expires
+	 */
 	void setSetExpires(int expires) {
 		this.sessionExpires = expires;
 
@@ -608,16 +651,14 @@ class DialogContext {
 	 * Check to see if the ITSP allows a REFER request.
 	 * 
 	 * @return true if REFER is allowed.
-	 * 
-	 * 
 	 */
 	@SuppressWarnings("unchecked")
 	boolean isReferAllowed() {
-		if (this.transaction instanceof ServerTransaction) {
-			if (this.request == null) {
+		if (this.dialogCreatingTransaction instanceof ServerTransaction) {
+			if (this.getRequest() == null) {
 				return false;
 			}
-			ListIterator li = request.getHeaders(AllowHeader.NAME);
+			ListIterator li = getRequest().getHeaders(AllowHeader.NAME);
 
 			while (li != null && li.hasNext()) {
 				AllowHeader ah = (AllowHeader) li.next();
@@ -722,10 +763,14 @@ class DialogContext {
 
 	}
 
-	public static RtpSession getPeerTransmitter(Dialog dialog) {
-		return DialogContext.get(DialogContext.getPeerDialog(dialog)).rtpSession;
-	}
-
+	
+	
+	/**
+	 * Sent the pending action ( to be performed when the next in-Dialog request or
+	 * response arrives ).
+	 * 
+	 * @param pendingAction
+	 */
 	void setPendingAction(PendingDialogAction pendingAction) {
 		/*
 		 * A dialog can have only a single outstanding action.
@@ -741,18 +786,20 @@ class DialogContext {
 		this.pendingAction = pendingAction;
 	}
 
+	/**
+	 * Get the pending action for this dialog.
+	 */
 	PendingDialogAction getPendingAction() {
 		return pendingAction;
 	}
 
-	public static PendingDialogAction getPendingAction(Dialog dialog) {
-		return DialogContext.get(dialog).pendingAction;
-	}
+	
 
-	public static DialogContext getPeerDialogContext(Dialog dialog) {
-		return DialogContext.get(DialogContext.getPeerDialog(dialog));
-	}
-
+	/**
+	 * Set the last seen response for this dialog.
+	 * 
+	 * @param lastResponse
+	 */
 	void setLastResponse(Response lastResponse) {
 		logger.debug("DialogContext.setLastResponse ");
 		if (lastResponse == null) {
@@ -766,6 +813,10 @@ class DialogContext {
 
 	}
 
+	/**
+	 * The last response that was seen for this dialog.
+	 * @return
+	 */
 	Response getLastResponse() {
 		return lastResponse;
 	}
@@ -850,23 +901,39 @@ class DialogContext {
 
 	}
 
+	/**
+	 * Asynchronously send a re-INVITE (when we can).
+	 */
 	void sendReInvite(ClientTransaction clientTransaction) {
 		new Thread(new ReInviteSender(this, clientTransaction)).start();
 	}
 
+	/**
+	 * Send INVITE to MOH server.
+	 */
 	void sendMohInvite(ClientTransaction mohClientTransaction) {
 		Gateway.getTimer().schedule(new MohTimer(mohClientTransaction), 500);
 	}
 
+	/**
+	 * Set the peer dialog of this dialog.
+	 */
 	void setPeerDialog(Dialog peerDialog) {
 		logger.debug("DialogContext.setPeerDialog: " + peerDialog);
 		this.peerDialog = peerDialog;
 	}
 
+	
+	/**
+	 * Get the peer dialog of this dialog.
+	 */
 	Dialog getPeerDialog() {
 		return peerDialog;
 	}
 
+	/**
+	 * Flag that controls whether or not BYE is forwarded to the peer dialog.
+	 */
 	void setForwardByeToPeer(boolean forwardByeToPeer) {
 		logger.debug("setForwardByeToPeer " + forwardByeToPeer);
 		this.forwardByeToPeer = forwardByeToPeer;
@@ -875,5 +942,26 @@ class DialogContext {
 	boolean isForwardByeToPeer() {
 		return forwardByeToPeer;
 	}
+
+	/**
+	 * The pending REFER request that we are processing.
+	 * @param referRequest
+	 */
+	void setReferRequest(Request referRequest) {
+		this.referRequest = referRequest;
+	}
+
+	/**
+	 * The current REFER request being processed.
+	 * @return
+	 */
+	Request getReferRequest() {
+		return referRequest;
+	}
+
+
+	Request getRequest() {
+		return request;
+	}	
 
 }

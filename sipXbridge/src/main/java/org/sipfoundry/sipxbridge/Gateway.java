@@ -8,6 +8,7 @@
 package org.sipfoundry.sipxbridge;
 
 import gov.nist.javax.sip.SipStackExt;
+import gov.nist.javax.sip.SipStackImpl;
 import gov.nist.javax.sip.clientauthutils.AuthenticationHelper;
 
 import java.io.File;
@@ -15,6 +16,7 @@ import java.io.FileInputStream;
 import java.net.InetAddress;
 import java.security.KeyStore;
 import java.security.SecureRandom;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Timer;
@@ -30,6 +32,7 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
+import javax.sip.Dialog;
 import javax.sip.ListeningPoint;
 import javax.sip.SipProvider;
 import javax.sip.address.Address;
@@ -931,11 +934,13 @@ public class Gateway {
 			/*
 			 * Tear down all ongoing calls.
 			 */
-
-			for (BackToBackUserAgent b2bua : backToBackUserAgentFactory
-					.getBackToBackUserAgents()) {
-				b2bua.tearDown(Gateway.SIPXBRIDGE_USER,
+			Collection<Dialog> dialogs = ((SipStackImpl) ProtocolObjects.sipStack).getDialogs();
+			for (Dialog dialog : dialogs) {
+				if ( dialog.getApplicationData() instanceof DialogContext ) {
+					BackToBackUserAgent b2bua = DialogContext.getBackToBackUserAgent(dialog);
+					b2bua.tearDown(Gateway.SIPXBRIDGE_USER,
 						ReasonCode.BRIDGE_STOPPING, "Bridge Stopping");
+				}
 			}
 
 			Gateway.callCount = 0;

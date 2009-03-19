@@ -10,9 +10,9 @@
 
 package org.sipfoundry.sipxbridge;
 
+import gov.nist.javax.sip.SipStackImpl;
+
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.sip.Dialog;
 import javax.sip.ServerTransaction;
@@ -21,7 +21,6 @@ import javax.sip.header.ViaHeader;
 import javax.sip.message.Request;
 
 import org.apache.log4j.Logger;
-
 
 /**
  * Manages a set of back to back user agents indexed by call id.
@@ -32,14 +31,9 @@ import org.apache.log4j.Logger;
  */
 public class BackToBackUserAgentFactory {
 
-	private static final Logger logger = Logger.getLogger(BackToBackUserAgentFactory.class);
-	
-	/*
-	 * An association of callid to back to back user agent.
-	 */
-	private ConcurrentHashMap<String, BackToBackUserAgent> backToBackUserAgentTable = new ConcurrentHashMap<String, BackToBackUserAgent>();
+	private static final Logger logger = Logger
+			.getLogger(BackToBackUserAgentFactory.class);
 
-	
 	/**
 	 * Get a new B2bua instance or return an existing one for a call Id.
 	 * 
@@ -56,9 +50,8 @@ public class BackToBackUserAgentFactory {
 			ServerTransaction serverTransaction, Dialog dialog) {
 
 		boolean callOriginatedFromLan = provider == Gateway.getLanProvider();
-		String callId = SipUtilities.getCallId(request);
-		// BackToBackUserAgent b2bua = callTable.get(callId);
 		BackToBackUserAgent b2bua = null;
+
 		try {
 
 			ItspAccountInfo accountInfo = null;
@@ -91,102 +84,62 @@ public class BackToBackUserAgentFactory {
 			}
 
 			/*
-			 *Do we have a B2BUA for this call ID? If so, point at it.
+			 * Do we have a B2BUA for this call ID? If so, point at it.
+			 * Note that this will happen only once during an INVITE.
 			 */
-			if (this.backToBackUserAgentTable.containsKey(callId)) {
-				b2bua = this.backToBackUserAgentTable.get(callId);
-				if ( dialog.getApplicationData() == null ) {
-					DialogContext.attach(b2bua, dialog, serverTransaction, request);
-					DialogContext.get(dialog).setItspInfo(accountInfo);
+
+			DialogContext dialogContext = DialogContext.get(dialog);
+
+			/*
+			 * The dialog context is null. This is a fresh dialog that we have
+			 * never seen before. See if we have an ogoing call already associated
+			 * with it.
+			 */
+			if (dialogContext == null) {
+				Collection<Dialog> dialogs = ((SipStackImpl) ProtocolObjects.sipStack)
+						.getDialogs();
+				String callId = SipUtilities.getCallId(request);
+
+				/*
+				 * Linear search here but avoids having to keep a reference to 
+				 * the b2bua here. Keeping a reference can lead to reference management
+				 * problems ( leaks ) and hence this quick search is worthwhile.
+				 */
+				for (Dialog sipDialog : dialogs) {
+					if (sipDialog.getApplicationData() != null) {
+						BackToBackUserAgent btobua = DialogContext
+								.getBackToBackUserAgent(sipDialog);
+						if (btobua.managesCallId(callId)) {
+							logger.debug("found existing mapping for B2BuA");
+							b2bua = btobua;
+							break;
+						}
+
+					}
 				}
 
-			} else {
-
-				b2bua = new BackToBackUserAgent(provider, request, dialog,
-						accountInfo);
-				DialogContext.attach(b2bua, dialog, serverTransaction,
-						request);
-				DialogContext.get(dialog).setItspInfo(accountInfo);
-				DialogContext.get(dialog).setBackToBackUserAgent(b2bua);
-				this.backToBackUserAgentTable.put(callId, b2bua);
+				/*
+				 * Could not find an existing call so go ahead and create one.
+				 */
+				if (b2bua == null) {
+					b2bua = new BackToBackUserAgent(provider, request, dialog,
+							accountInfo);
+				}
+				
+				dialogContext = DialogContext.attach(b2bua, dialog, serverTransaction, request);
+				dialogContext.setItspInfo(accountInfo);
+				dialogContext.setBackToBackUserAgent(b2bua);
 			}
 
-	     
-		 } catch (Exception ex) {
+		} catch (Exception ex) {
 			logger.error("unexpected exception ", ex);
 			throw new SipXbridgeException(
 					"Initialization exception while processing request", ex);
 		} finally {
-		    logger.debug("returning " + b2bua);
+			logger.debug("returning " + b2bua);
 		}
 		return b2bua;
 
 	}
-	
-	
-	/**
-	 * Remove all the records in the back to back user agent table corresponsing
-	 * to a given B2BUA.
-	 * 
-	 * @param backToBackUserAgent
-	 */
-	void removeBackToBackUserAgent(BackToBackUserAgent backToBackUserAgent) {
-		for (Iterator<String> keyIterator = this.backToBackUserAgentTable
-				.keySet().iterator(); keyIterator.hasNext();) {
-			String key = keyIterator.next();
-			if (this.backToBackUserAgentTable.get(key) == backToBackUserAgent) {
-				keyIterator.remove();
-			}
-		}
 
-		logger
-				.debug("CallControlManager: removeBackToBackUserAgent() after removal "
-						+ this.backToBackUserAgentTable);
-
-	}
-
-	/**
-	 * Dump the B2BUA table for memory debugging.
-	 */
-
-	void dumpBackToBackUATable() {
-
-		logger.debug("B2BUATable = " + this.backToBackUserAgentTable);
-
-	}
-
-	/**
-	 * Get the Back to back user agent set.
-	 */
-	Collection<BackToBackUserAgent> getBackToBackUserAgents() {
-		return this.backToBackUserAgentTable.values();
-	}
-
-	
-	/**
-	 * Get the B2BUA for a given callId. This method is used by the XML RPC
-	 * interface to cancel a call hence needs to be public.
-	 * 
-	 * @param callId
-	 * @return
-	 */
-	BackToBackUserAgent getBackToBackUserAgent(String callId) {
-
-		return this.backToBackUserAgentTable.get(callId);
-
-	}
-
-	/**
-	 * Set the back to back ua for a given call id.
-	 * 
-	 * @param callId
-	 * @param backToBackUserAgent
-	 */
-	void setBackToBackUserAgent(String callId,
-			BackToBackUserAgent backToBackUserAgent) {
-		this.backToBackUserAgentTable.put(callId, backToBackUserAgent);
-
-	}
-	
-	
 }

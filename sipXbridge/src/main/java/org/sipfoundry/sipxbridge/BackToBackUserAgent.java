@@ -104,9 +104,15 @@ public class BackToBackUserAgent {
 
 	/*
 	 * Any call Id associated with this b2bua will be derived from this base
-	 * call id.
+	 * call id. This is stored here for logging purposes.
 	 */
 	private String creatingCallId;
+	
+	/*
+	 * The call IDs that are associated with this b2bua. 
+	 */
+	private HashSet<String> myCallIds = new HashSet<String>();
+	
 
 	private static Logger logger = Logger.getLogger(BackToBackUserAgent.class);
 
@@ -162,7 +168,7 @@ public class BackToBackUserAgent {
 		BridgeInterface bridge = symmitronClient.createBridge();
 		this.symmitronServerHandle = symmitronClient.getServerHandle();
 		rtpBridge = new RtpBridge(request, bridge);
-		dialogTable.add(dialog);
+		this.addDialog(dialog);
 		if (itspAccountInfo == null || !itspAccountInfo.stripPrivateHeaders()) {
 			/*
 			 * If privacy is not desired we use the incoming callid and generate
@@ -468,6 +474,10 @@ public class BackToBackUserAgent {
 	synchronized void removeDialog(Dialog dialog) {
 
 		this.dialogTable.remove(dialog);
+		
+		String callId = dialog.getCallId().getCallId();
+		
+		this.myCallIds.remove(callId);
 
 		int count = 0;
 
@@ -484,6 +494,7 @@ public class BackToBackUserAgent {
 			}
 			this.rtpBridge.stop();
 			dialogTable.clear();
+			Gateway.getTimer().purge(); // Clean up all canceled timers
 		}
 
 		if (logger.isDebugEnabled()) {
@@ -493,8 +504,6 @@ public class BackToBackUserAgent {
 
 		if (dialogTable.size() == 0) {
 			this.sendByeToMohServer();
-			Gateway.getBackToBackUserAgentFactory().removeBackToBackUserAgent(
-					this);
 		}
 
 	}
@@ -508,7 +517,8 @@ public class BackToBackUserAgent {
 	 */
 	synchronized void addDialog(Dialog dialog) {
 		this.dialogTable.add(dialog);
-
+		String callId = dialog.getCallId().getCallId();
+		this.myCallIds.add(callId);
 	}
 
 	/**
@@ -532,7 +542,7 @@ public class BackToBackUserAgent {
 					.getServerTransaction();
 			Request referRequest = referServerTransaction.getRequest();
 			DialogContext dialogContext = DialogContext.get(dialog);
-			FromHeader fromHeader = (FromHeader) dialogContext.request
+			FromHeader fromHeader = (FromHeader) dialogContext.getRequest()
 					.getHeader(FromHeader.NAME).clone();
 			fromHeader.removeParameter("tag");
 
@@ -609,8 +619,7 @@ public class BackToBackUserAgent {
 						.getHeader(ReferredByHeader.NAME));
 			}
 
-			Gateway.getBackToBackUserAgentFactory().setBackToBackUserAgent(
-					callId.getCallId(), this);
+			
 
 			SipUtilities.addLanAllowHeaders(newRequest);
 
@@ -728,6 +737,7 @@ public class BackToBackUserAgent {
 
 			DialogContext newDialogContext = DialogContext.attach(this, ct
 					.getDialog(), ct, ct.getRequest());
+			this.addDialog(ct.getDialog());
 			DialogContext referDialogContext = (DialogContext) referRequestEventDialog
 					.getApplicationData();
 
@@ -970,8 +980,7 @@ public class BackToBackUserAgent {
 			CallIdHeader callIdHeader = ProtocolObjects.headerFactory
 					.createCallIdHeader(this.creatingCallId + "." + counter++);
 
-			Gateway.getBackToBackUserAgentFactory().setBackToBackUserAgent(
-					callIdHeader.getCallId(), this);
+			
 
 			CSeqHeader cseqHeader = ProtocolObjects.headerFactory
 					.createCSeqHeader(1L, Request.INVITE);
@@ -1145,8 +1154,6 @@ public class BackToBackUserAgent {
 					.createCallIdHeader(this.creatingCallId + "."
 							+ this.counter++);
 
-			Gateway.getBackToBackUserAgentFactory().setBackToBackUserAgent(
-					callIdHeader.getCallId(), this);
 
 			CSeqHeader cseqHeader = ProtocolObjects.headerFactory
 					.createCSeqHeader(1L, Request.INVITE);
@@ -1202,9 +1209,9 @@ public class BackToBackUserAgent {
 					Operation.SEND_INVITE_TO_MOH_SERVER);
 
 			tad.setBackToBackUa(this);
-			this.addDialog(ct.getDialog());
 			DialogContext.attach(this, ct.getDialog(), ct, ct.getRequest());
-
+			this.addDialog(ct.getDialog());
+			
 			this.musicOnHoldDialog = ct.getDialog();
 			this.musicOnHoldInviteTransaction = ct;
 
@@ -1496,7 +1503,7 @@ public class BackToBackUserAgent {
 				}
 				tad.setReferingDialog(referingDialog);
 				tad
-						.setReferRequest(DialogContext.get(referingDialog).referRequest);
+						.setReferRequest(DialogContext.get(referingDialog).getReferRequest());
 				RtpTransmitterEndpoint rtpEndpoint = new RtpTransmitterEndpoint(
 						rtpSession, symmitronClient);
 				rtpSession.setTransmitter(rtpEndpoint);
@@ -1716,14 +1723,14 @@ public class BackToBackUserAgent {
 				okResponse.setContent(rtpSession.getReceiver()
 						.getSessionDescription().toString(), cth);
 				DialogContext replacedDat = DialogContext.get(replacedDialog);
-				if (replacedDat.transaction != null
-						&& replacedDat.transaction instanceof ClientTransaction) {
+				if (replacedDat.dialogCreatingTransaction != null
+						&& replacedDat.dialogCreatingTransaction instanceof ClientTransaction) {
 
-					ClientTransaction ctx = (ClientTransaction) replacedDat.transaction;
+					ClientTransaction ctx = (ClientTransaction) replacedDat.dialogCreatingTransaction;
 					TransactionContext.attach(ctx,
 							Operation.CANCEL_REPLACED_INVITE);
 					Request cancelRequest = ctx.createCancel();
-					if (replacedDat.transaction.getState() != TransactionState.TERMINATED) {
+					if (replacedDat.dialogCreatingTransaction.getState() != TransactionState.TERMINATED) {
 						ClientTransaction cancelTx = txProvider
 								.getNewClientTransaction(cancelRequest);
 
@@ -1766,7 +1773,7 @@ public class BackToBackUserAgent {
 						.cleanSessionDescription(newOffer, codecs);
 				wanRtpSession.getReceiver().setSessionDescription(answerSdes);
 
-				ServerTransaction peerSt = ((ServerTransaction) peerDat.transaction);
+				ServerTransaction peerSt = ((ServerTransaction) peerDat.dialogCreatingTransaction);
 				Response peerOk = SipUtilities.createResponse(peerSt,
 						Response.OK);
 				peerOk.setHeader(contact);
@@ -1914,11 +1921,11 @@ public class BackToBackUserAgent {
 			if (dialog.getState() != DialogState.TERMINATED) {
 				DialogContext dialogCtx = DialogContext.get(dialog);
 				SipProvider lanProvider = ((DialogExt) dialog).getSipProvider();
-				if (dialogCtx.getTransaction() != null
-						&& dialogCtx.getTransaction().getState() != TransactionState.TERMINATED
-						&& dialogCtx.getTransaction() instanceof ClientTransaction) {
+				if (dialogCtx.getDialogCreatingTransaction() != null
+						&& dialogCtx.getDialogCreatingTransaction().getState() != TransactionState.TERMINATED
+						&& dialogCtx.getDialogCreatingTransaction() instanceof ClientTransaction) {
 					ClientTransaction ctx = (ClientTransaction) dialogCtx
-							.getTransaction();
+							.getDialogCreatingTransaction();
 					if (ctx.getState() == TransactionState.PROCEEDING) {
 						ClientTransaction cancelTx = lanProvider
 								.getNewClientTransaction(ctx.createCancel());
@@ -1975,8 +1982,19 @@ public class BackToBackUserAgent {
 		return musicOnHoldDialog;
 	}
 
+	/**
+	 * Return true if MOH is disabled.
+	 */
 	public boolean isMohDisabled() {
 		return this.mohDisabled;
 	}
+
+	/**
+	 * Return true if this structure manages a given call Id
+	 */
+	public boolean managesCallId( String callId ) {
+		return myCallIds.contains(callId);
+	}
+	
 
 }

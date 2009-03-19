@@ -8,6 +8,7 @@ package org.sipfoundry.sipxbridge;
 
 import gov.nist.javax.sip.DialogExt;
 import gov.nist.javax.sip.SipStackExt;
+import gov.nist.javax.sip.SipStackImpl;
 import gov.nist.javax.sip.TransactionExt;
 import gov.nist.javax.sip.header.extensions.MinSE;
 import gov.nist.javax.sip.header.extensions.ReplacesHeader;
@@ -16,6 +17,7 @@ import gov.nist.javax.sip.stack.SIPDialog;
 import gov.nist.javax.sip.stack.SIPServerTransaction;
 
 import java.text.ParseException;
+import java.util.Collection;
 import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Set;
@@ -705,7 +707,7 @@ class CallControlManager implements SymmitronResetHandler {
 			 * refer agent tears down his end of the dialog.
 			 */
 			DialogContext.get(dialog).setForwardByeToPeer(false);
-			DialogContext.get(dialog).referRequest = request;
+			DialogContext.get(dialog).setReferRequest(request);
 
 			/*
 			 * Blind transfer handled by ITSP? If so then forward it if the
@@ -1097,7 +1099,7 @@ class CallControlManager implements SymmitronResetHandler {
 			logger.warn("null client transaction");
 			return;
 		}
-		
+
 		b2bua.sendByeToMohServer();
 
 		logger.debug("Processing ERROR Response " + response.getStatusCode());
@@ -1154,7 +1156,8 @@ class CallControlManager implements SymmitronResetHandler {
 
 				}
 				/*
-				 * Tear down the call if the response status code requires for us to do so.
+				 * Tear down the call if the response status code requires for
+				 * us to do so.
 				 */
 				if (response.getStatusCode() % 100 == 5
 						|| response.getStatusCode() == 6) {
@@ -1627,26 +1630,26 @@ class CallControlManager implements SymmitronResetHandler {
 				 * Check if we need to forward that response and do so if
 				 * needed. see issue 1718
 				 */
-				if (peerDat.transaction != null
-						&& peerDat.transaction instanceof ServerTransaction
-						&& peerDat.transaction.getState() != TransactionState.TERMINATED) {
+				if (peerDat.dialogCreatingTransaction != null
+						&& peerDat.dialogCreatingTransaction instanceof ServerTransaction
+						&& peerDat.dialogCreatingTransaction.getState() != TransactionState.TERMINATED) {
 
-					Request request = ((ServerTransaction) peerDat.transaction)
+					Request request = ((ServerTransaction) peerDat.dialogCreatingTransaction)
 							.getRequest();
 					Response forwardedResponse = ProtocolObjects.messageFactory
 							.createResponse(response.getStatusCode(), request);
 					SipUtilities.setSessionDescription(forwardedResponse,
 							sessionDescription);
 					ContactHeader contact = SipUtilities.createContactHeader(
-							((TransactionExt) peerDat.transaction)
+							((TransactionExt) peerDat.dialogCreatingTransaction)
 									.getSipProvider(), peerDat.getItspInfo());
 					forwardedResponse.setHeader(contact);
-					((ServerTransaction) peerDat.transaction)
+					((ServerTransaction) peerDat.dialogCreatingTransaction)
 							.sendResponse(forwardedResponse);
 				} else {
 					logger
 							.debug("not forwarding response peerDat.transaction  = "
-									+ peerDat.transaction);
+									+ peerDat.dialogCreatingTransaction);
 				}
 
 			} else {
@@ -1677,13 +1680,12 @@ class CallControlManager implements SymmitronResetHandler {
 		if (referDialog.getState() == DialogState.CONFIRMED
 				&& SipUtilities.isOriginatorSipXbridge(response)) {
 			/*
-			 * We terminate the dialog. There is no peer.
-			 * The REFER agent will send a BYE on notification.
-			 * We dont want to forward it.
+			 * We terminate the dialog. There is no peer. The REFER agent will
+			 * send a BYE on notification. We dont want to forward it.
 			 */
 			if (response.getStatusCode() == Response.OK) {
 				DialogContext.get(referDialog).setForwardByeToPeer(false);
-			} 
+			}
 			/*
 			 * Send A NOTIFY to the phone. He will tear down the call.
 			 */
@@ -1703,7 +1705,8 @@ class CallControlManager implements SymmitronResetHandler {
 				CallControlUtilities.sendSdpAnswerInAck(response, dialogToAck);
 			} else if (dialogContext.getPendingAction() == PendingDialogAction.PENDING_RE_INVITE_WITH_SDP_OFFER) {
 				dialogContext.setPendingAction(PendingDialogAction.NONE);
-				CallControlUtilities.sendSdpReOffer(response, dialog, peerDialog);
+				CallControlUtilities.sendSdpReOffer(response, dialog,
+						peerDialog);
 			} else {
 				if (logger.isDebugEnabled()) {
 					logger.debug("tad.dialogPendingSdpAnswer = "
@@ -1893,7 +1896,8 @@ class CallControlManager implements SymmitronResetHandler {
 				CallControlUtilities.sendSdpAnswerInAck(response, dialogToAck);
 			} else if (dialogContext.getPendingAction() == PendingDialogAction.PENDING_RE_INVITE_WITH_SDP_OFFER) {
 				dialogContext.setPendingAction(PendingDialogAction.NONE);
-				CallControlUtilities.sendSdpReOffer(response, dialog, peerDialog);
+				CallControlUtilities.sendSdpReOffer(response, dialog,
+						peerDialog);
 			}
 		}
 
@@ -2807,13 +2811,18 @@ class CallControlManager implements SymmitronResetHandler {
 	 * 
 	 */
 	public void reset(String serverHandle) {
-		for (BackToBackUserAgent btobua : Gateway
-				.getBackToBackUserAgentFactory().getBackToBackUserAgents()) {
-			if (serverHandle.equals(btobua.getSymmitronServerHandle())) {
-				try {
-					btobua.tearDown();
-				} catch (Exception ex) {
-					logger.error("Error tearing down call ", ex);
+		Collection<Dialog> dialogs = ((SipStackImpl) ProtocolObjects.sipStack)
+				.getDialogs();
+		for (Dialog dialog : dialogs) {
+			if (dialog.getApplicationData() instanceof DialogContext) {
+				BackToBackUserAgent btobua = DialogContext
+						.getBackToBackUserAgent(dialog);
+				if (serverHandle.equals(btobua.getSymmitronServerHandle())) {
+					try {
+						btobua.tearDown();
+					} catch (Exception ex) {
+						logger.error("Error tearing down call ", ex);
+					}
 				}
 			}
 		}

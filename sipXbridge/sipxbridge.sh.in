@@ -11,6 +11,8 @@
 # (or end user I suppose) can override
 
 Action=RUN
+
+
 Status=0
 Args=""
 
@@ -52,6 +54,10 @@ do
             Action=STOP
             ;;
 
+        --profile)
+            Action=PROFILE
+            ;;
+
         *)
             Args="$1"
             ;;
@@ -59,6 +65,13 @@ do
 
     shift # always consume 1
 done
+
+#Override the command line if we have specified profiling options.
+#You must have jprofiler installed for this to work.
+if  [ $Action = "RUN" -a -e @SIPX_CONFDIR@/sipxbridge-profile-opts.sh ] 
+then
+    source @SIPX_CONFDIR@/sipxbridge-profile-opts.sh
+fi
 
 CONFIG_FILES="\
   @SIPX_CONFDIR@/sipxbridge.xml \
@@ -106,6 +119,22 @@ case ${Action} in
 	 $Args
 
      sipx_stop sipXbridge @SIPX_RUNDIR@/sipxbridge.pid
+     ;;
+  
+   PROFILE)
+    echo $$ > @SIPX_RUNDIR@/sipxbridge.pid
+    exec $JavaCmd '-agentlib:jprofilerti' \
+         -Dconf.dir=@SIPX_CONFDIR@  \
+	 $TrustStoreOpts \
+	 $KeyStoreOpts	 \
+	 -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
+	 -Djetty.x509.algorithm=$X509Algorithm 		\
+	 -Djetty.ssl.password=$TrustStorePassword	\
+	 -Djetty.ssl.keypassword=$KeyStorePassword	\
+         -Dsipxbridge.command=start 			\
+	 -Xbootclasspath/a:/opt/jprofiler5/bin/agent.jar \
+         -cp $ClassPath org.sipfoundry.sipxbridge.Gateway \
+	 $Args
      ;;
 
    CONFIGTEST)
