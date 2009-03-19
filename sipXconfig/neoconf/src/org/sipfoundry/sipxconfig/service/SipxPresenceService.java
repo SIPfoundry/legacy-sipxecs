@@ -14,7 +14,8 @@ import java.util.Arrays;
 import org.sipfoundry.sipxconfig.admin.commserver.ConflictingFeatureCodeValidator;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-public class SipxPresenceService extends SipxService {
+public class SipxPresenceService extends SipxService implements LoggingEntity {
+
     public static final String BEAN_ID = "sipxPresenceService";
 
     public static final String PRESENCE_SIGN_IN_CODE = "presence-config/SIP_PRESENCE_SIGN_IN_CODE";
@@ -22,18 +23,17 @@ public class SipxPresenceService extends SipxService {
     public static final String PRESENCE_SERVER_SIP_PORT = "presence-config/PRESENCE_SERVER_SIP_PORT";
     public static final String PRESENCE_API_PORT = "presence-config/SIP_PRESENCE_HTTP_PORT";
 
-    private SipxServiceManager m_sipxServiceManager;
+    public static final String LOG_SETTING = "presence-config/SIP_PRESENCE_LOG_LEVEL";
 
-    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
-        m_sipxServiceManager = sipxServiceManager;
-    }
+    private String m_logLevel;
 
     /**
      * Validates the data in this service and throws a UserException if there is a problem
      */
     @Override
     public void validate() {
-        SipxService registrarService = m_sipxServiceManager.getServiceByBeanId(SipxRegistrarService.BEAN_ID);
+        SipxService registrarService = getSipxServiceManager().getServiceByBeanId(
+                SipxRegistrarService.BEAN_ID);
         new ConflictingFeatureCodeValidator().validate(Arrays.asList(new Setting[] {
             getSettings(), registrarService.getSettings()
         }));
@@ -45,5 +45,21 @@ public class SipxPresenceService extends SipxService {
 
     public int getPresenceApiPort() {
         return (Integer) getSettingTypedValue(PRESENCE_API_PORT);
+    }
+
+    public String getLogSetting() {
+        return LOG_SETTING;
+    }
+
+    public void setLogLevel(String logLevel) {
+        super.setLogLevel(logLevel);
+    }
+
+    public String getLogLevel() {
+        return super.getLogLevel();
+    }
+
+    public String getLabelKey() {
+        return super.getLabelKey();
     }
 }

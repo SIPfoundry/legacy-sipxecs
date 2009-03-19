@@ -12,13 +12,17 @@ package org.sipfoundry.sipxconfig.service;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 
-public class SipxMediaService extends SipxService {
+public class SipxMediaService extends SipxService implements LoggingEntity {
     public static final String BEAN_ID = "sipxMediaService";
+
+    public static final String LOG_SETTING = "mediaserver-config/SIPX_MEDIA_SERVER_LOG_LEVEL";
 
     private int m_httpPort;
     private int m_httpsPort;
     private LocationsManager m_locationsManager;
     private String m_mediaServerSipSrvOrHostport;
+
+    private String m_logLevel;
 
     public String getVoicemailServer() {
         StringBuffer voicemailServer = new StringBuffer();
@@ -77,5 +81,21 @@ public class SipxMediaService extends SipxService {
             return "localhost";
         }
         return primaryLocation.getAddress();
+    }
+
+    public String getLogSetting() {
+        return LOG_SETTING;
+    }
+    
+    public void setLogLevel(String logLevel) {
+        super.setLogLevel(logLevel);
+    }
+
+    public String getLogLevel() {
+        return super.getLogLevel();
+    }
+
+    public String getLabelKey() {
+        return super.getLabelKey();
     }
 }

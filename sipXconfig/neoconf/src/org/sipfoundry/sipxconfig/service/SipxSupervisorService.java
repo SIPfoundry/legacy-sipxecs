@@ -25,5 +25,4 @@ public class SipxSupervisorService extends SipxService {
         ValueStorage storage = (ValueStorage) getInitializeValueStorage();
         storage.setSettingValue(LOG_LEVEL_PATH, logLevel);
     }
-                
 }

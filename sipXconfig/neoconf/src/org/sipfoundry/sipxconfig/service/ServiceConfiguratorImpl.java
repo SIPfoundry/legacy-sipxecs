@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import java.util.Collection;
 import java.util.List;
 
 import static java.util.Collections.singleton;
@@ -59,6 +60,15 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
             m_replicationContext.replicate(location, configuration);
         }
         m_configVersionManager.setConfigVersion(service, location);
+    }
+
+    public void replicateServiceConfig(Collection<SipxService> services) {
+        for (SipxService service : services) {
+            List< ? extends ConfigurationFile> configurations = service.getConfigurations();
+            for (ConfigurationFile configuration : configurations) {
+                m_replicationContext.replicate(configuration);
+            }
+        }
     }
 
     /**

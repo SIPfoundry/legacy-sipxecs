@@ -35,6 +35,7 @@ public abstract class SipxService extends BeanWithSettings implements Model {
     private DomainManager m_domainManager;
     private Set<SipxServiceBundle> m_bundles;
     private boolean m_restartable = true;
+    private SipxServiceManager m_serviceManager;
 
     public String getProcessName() {
         return m_processName;
@@ -82,6 +83,15 @@ public abstract class SipxService extends BeanWithSettings implements Model {
 
     public boolean isRestartable() {
         return m_restartable;
+    }
+
+    @Required
+    public void setSipxServiceManager(SipxServiceManager manager) {
+        m_serviceManager = manager;
+    }
+    
+    public SipxServiceManager getSipxServiceManager() {
+        return m_serviceManager;
     }
 
     public void setConfigurations(List< ? extends ConfigurationFile> configurations) {
@@ -176,7 +186,7 @@ public abstract class SipxService extends BeanWithSettings implements Model {
 
     /**
      * Checks if service should be automatically started/enabled.
-     *
+     * 
      * Service is auto-enabled if any of the bundled to which it belongs is auto-enabled
      */
     public boolean isAutoEnabled() {
@@ -189,5 +199,45 @@ public abstract class SipxService extends BeanWithSettings implements Model {
             }
         }
         return false;
+    }
+
+    /**
+     * Should be overridden in specific service subclass if that specific subclass implements
+     * LoggingEntity interface and it should return the path to the logging setting.
+     */
+    public String getLogSetting() {
+        return null;
+    }
+
+    /**
+     * Sets the log level of this service to the specified log level.
+     * This method will only return the correct value if the concrete 
+     * subclass provides an implementation of getLogSetting().
+     * 
+     * Calling this method will cause this service object to be persisted 
+     * to the SipxServiceManager object
+     */
+    protected void setLogLevel(String logLevel) {
+        if (logLevel != null && getLogSetting() != null) {
+            setSettingValue(getLogSetting(), logLevel);
+            getSipxServiceManager().storeService(this);
+        }
+    }
+
+    /**
+     * Get the log level of this service.  This method will only return the 
+     * correct value if the concrete subclass provides an implementation of
+     * getLogSetting()
+     */
+    protected String getLogLevel() {
+        if (getLogSetting() != null) {
+            return getSettingValue(getLogSetting());
+        }
+        
+        return null;
+    }
+    
+    protected String getLabelKey() {
+        return "label." + getBeanId();
     }
 }

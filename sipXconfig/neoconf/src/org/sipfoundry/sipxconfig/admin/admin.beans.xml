@@ -95,5 +95,8 @@
       <ref local="packageUpdateManagerImpl" />
     </property>
   </bean>
-
+	
+  <bean id="loggingManager" class="org.sipfoundry.sipxconfig.admin.LoggingManagerImpl">
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+  </bean>
 </beans>

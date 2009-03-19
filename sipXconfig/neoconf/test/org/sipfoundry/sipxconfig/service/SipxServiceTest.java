@@ -37,4 +37,16 @@ public class SipxServiceTest extends TestCase {
         service.setBundles(Collections.singleton(standardBundle));
         assertFalse(service.isAutoEnabled());
     }
+    
+    public void testGetLogSetting() {
+        // getLogSetting should return the path to the log setting for a service that implements LoggingEntity
+        SipxProxyService proxyService = new SipxProxyService();
+        String logSetting = proxyService.getLogSetting();
+        assertEquals(proxyService.LOG_SETTING,logSetting);
+        
+        // getLogSetting should return null for a service that does not implement LoggingEntity
+        SipxMrtgService mrtgService = new SipxMrtgService();
+        logSetting = mrtgService.getLogSetting();
+        assertNull(logSetting);
+    }
 }

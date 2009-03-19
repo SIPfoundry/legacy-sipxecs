@@ -25,4 +25,13 @@ public class SipxServiceTestIntegration extends IntegrationTestCase {
     public void setSipxStatusService(SipxStatusService sipxStatusService) {
         m_statusService = sipxStatusService;
     }
+    
+    public void testGetSetLogLevel() {
+        String level = m_statusService.getLogLevel();
+        assertEquals("NOTICE", level);
+        level = "DEBUG";
+        m_statusService.setLogLevel(level);
+        level = m_statusService.getLogLevel();
+        assertEquals("DEBUG", level);
+    }
 }

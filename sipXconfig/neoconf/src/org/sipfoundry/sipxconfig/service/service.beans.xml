@@ -107,6 +107,7 @@
     <property name="domainManager" ref="domainManager" />
     <property name="confDir" value="${sysdir.etc}" />
     <property name="logDir" value="${sysdir.log}" />
+	<property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
 
   <bean id="serviceConfigurationFile" parent="defaultConfigurationFile" abstract="true">
@@ -170,7 +171,6 @@
         <ref bean="sipxRegistrarConfiguration" />
       </list>
     </property>
-    <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="domainManager" ref="domainManager" />
     <property name="bundles">
       <set>
@@ -226,7 +226,6 @@
         <ref bean="callCenterBundle" />
       </set>
     </property>
-    <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
 
   <bean id="sipxPresenceConfiguration" class="org.sipfoundry.sipxconfig.service.SipxPresenceConfiguration"

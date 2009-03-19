@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import java.util.Collection;
+
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 
 public interface ServiceConfigurator {
@@ -27,6 +29,8 @@ public interface ServiceConfigurator {
     void replicateServiceConfig(SipxService service);
 
     void replicateServiceConfig(Location locationToActivate, SipxService sipxService);
+    
+    void replicateServiceConfig(Collection<SipxService> services);
 
     /**
      * Modifies list of services running an a specified location to reflect the bundles selection.

@@ -13,13 +13,15 @@ import java.util.Arrays;
 import org.sipfoundry.sipxconfig.admin.commserver.ConflictingFeatureCodeValidator;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-public class SipxRegistrarService extends SipxService {
-
+public class SipxRegistrarService extends SipxService implements LoggingEntity {
     public static final String BEAN_ID = "sipxRegistrarService";
+
+    public static final String LOG_SETTING = "logging/SIP_REGISTRAR_LOG_LEVEL";
 
     private String m_registrarEventSipPort;
     private String m_proxyServerSipHostport;
-    private SipxServiceManager m_sipxServiceManager;
+
+    private String m_logLevel;
 
     public String getRegistrarEventSipPort() {
         return m_registrarEventSipPort;
@@ -37,16 +39,13 @@ public class SipxRegistrarService extends SipxService {
         m_proxyServerSipHostport = serverSipHostport;
     }
 
-    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
-        m_sipxServiceManager = sipxServiceManager;
-    }
-
     /**
      * Validates the data in this service and throws a UserException if there is a problem
      */
     @Override
     public void validate() {
-        SipxService presenceService = m_sipxServiceManager.getServiceByBeanId(SipxPresenceService.BEAN_ID);
+        SipxService presenceService = getSipxServiceManager().getServiceByBeanId(
+                SipxPresenceService.BEAN_ID);
         new ConflictingFeatureCodeValidator().validate(Arrays.asList(new Setting[] {
             getSettings(), presenceService.getSettings()
         }));
@@ -55,9 +54,24 @@ public class SipxRegistrarService extends SipxService {
     public String getDirectedCallPickupCode() {
         return getSettingValue("call-pick-up/SIP_REDIRECT.100-PICKUP.DIRECTED_CALL_PICKUP_CODE");
     }
-    
+
     public String getCallRetrieveCode() {
         return getSettingValue("call-pick-up/SIP_REDIRECT.100-PICKUP.CALL_RETRIEVE_CODE");
     }
 
+    public String getLogSetting() {
+        return LOG_SETTING;
+    }
+
+    public void setLogLevel(String logLevel) {
+        super.setLogLevel(logLevel);
+    }
+
+    public String getLogLevel() {
+        return super.getLogLevel();
+    }
+
+    public String getLabelKey() {
+        return super.getLabelKey();
+    }
 }

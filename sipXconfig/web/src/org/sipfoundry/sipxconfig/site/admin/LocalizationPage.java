@@ -130,7 +130,7 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
         int exitCode = getLocalizationContext().updateLanguage(language);
 
         if (exitCode > 0) {
-            List<SipxService> processList = Arrays.asList(getSipxMediaService(), getSipxProxyService(),
+            List< ? extends SipxService > processList = Arrays.asList(getSipxMediaService(), getSipxProxyService(),
                     getSipxRegistrarService());
             //mark services for restart - a reminder will be shown to the user
             getProcessContext().markServicesForRestart(processList);

@@ -11,14 +11,18 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.springframework.beans.factory.annotation.Required;
 
-public class SipxIvrService extends SipxService {
+public class SipxIvrService extends SipxService implements LoggingEntity {
     public static final String BEAN_ID = "sipxIvrService";
+
+    public static final String LOG_SETTING = "ivr/log.level";
 
     private String m_vxmlDir;
     private String m_mailstoreDir;
     private String m_scriptsDir;
     private String m_docDir;
     private DialPlanContext m_dialPlanContext;
+
+    private String m_logLevel;
 
     @Required
     public void setMailstoreDir(String mailstoreDirectory) {
@@ -63,5 +67,20 @@ public class SipxIvrService extends SipxService {
     public String getVoicemailUrl() {
         String voiceMail = m_dialPlanContext.getVoiceMail();
         return SipUri.fix(voiceMail, getDomainName());
+    }
+    public String getLogSetting() {
+        return LOG_SETTING;
+    }
+
+    public void setLogLevel(String logLevel) {
+        super.setLogLevel(logLevel);
+    }
+
+    public String getLogLevel() {
+        return super.getLogLevel();
+    }
+
+    public String getLabelKey() {
+        return super.getLabelKey();
     }
 }
