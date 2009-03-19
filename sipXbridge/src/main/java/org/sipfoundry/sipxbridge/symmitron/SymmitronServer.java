@@ -151,9 +151,8 @@ public class SymmitronServer implements Symmitron {
             	logger.error("Stun server address not speicifed");
             }
         } catch (Exception ex) {
-
-            logger.error("Error discovering  address -- could be networking is bad", ex);
-            throw ex;
+            logger.error("Error discovering  address -- Check Stun Server", ex);
+            return ;
         }
     }
 
@@ -1074,6 +1073,26 @@ public class SymmitronServer implements Symmitron {
              System.err.println("Missing local address. Cannot start sipxrelay");
              System.exit(-1);
          }
+         /*
+          * Test if port range lower bound is even.
+          */
+         if ( config.getPortRangeLowerBound() %2 != 0 ) {
+        	 System.err.println("Please specify even port range lower bound");
+        	 System.exit(-1);
+         }
+         
+         if ( config.getPortRangeUpperBound() <= config.getPortRangeLowerBound() ) {
+        	 System.err.println("Please specify valid port range");
+        	 System.exit(-1);
+         }
+         
+         if ( (config.getPortRangeUpperBound() - config.getPortRangeLowerBound()) % 4 != 0 ) {
+        	 System.err.println("Port range upper bound - Port range lower bound should be a multiple of 4");
+        	 System.exit(-1);
+         }
+         
+         
+         
          System.exit(0);
     }
     
@@ -1134,7 +1153,11 @@ public class SymmitronServer implements Symmitron {
               * Try an address discovery. If it did not work, then exit. This deals with
               * accidental mis-configurations of the STUN server address.
               */
+        	 
              discoverAddress();
+             if (SymmitronServer.getPublicInetAddress() == null ) {
+            	 throw new SymmitronException("Error discovering address using STUN -- Check STUN Server setting");
+             }
              timer.schedule(new TimerTask() {
 
                  @Override

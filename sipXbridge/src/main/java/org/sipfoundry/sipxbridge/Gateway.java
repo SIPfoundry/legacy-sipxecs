@@ -388,7 +388,8 @@ public class Gateway {
 
 			}
 		} catch (Exception ex) {
-			throw new SipXbridgeException("Error discovering  address", ex);
+			logger.error("Error discovering  address", ex);
+			return;		
 		}
 	}
 
@@ -406,7 +407,7 @@ public class Gateway {
 				try {
 					Gateway.discoverAddress();
 				} catch (Exception ex) {
-					logger.error("Error re-discovering  address");
+					logger.error("Error re-discovering  address" , ex);
 				}
 
 			}
@@ -785,6 +786,9 @@ public class Gateway {
 
 		if (Gateway.getGlobalAddress() == null) {
 			discoverAddress();
+			if ( Gateway.getGlobalAddress() == null) {
+				throw new SipXbridgeException("Could not determine Address using STUN -- check STUN settings.");
+			}
 			startRediscoveryTimer();
 		} else {
 			Gateway.accountManager.getBridgeConfiguration()

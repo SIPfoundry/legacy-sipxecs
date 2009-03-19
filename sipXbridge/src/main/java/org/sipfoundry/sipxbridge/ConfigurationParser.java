@@ -246,8 +246,8 @@ public class ConfigurationParser {
             BridgeConfiguration bridgeConfiguration = accountManagerImpl.getBridgeConfiguration();
             if (bridgeConfiguration.getStunServerAddress() == null) {
                 for (ItspAccountInfo itspAccountInfo : accountManagerImpl.getItspAccounts()) {
-                    if (itspAccountInfo.isGlobalAddressingUsed())
-                        throw new SAXException("Stun Server Address Not Specified");
+                    if (itspAccountInfo.isGlobalAddressingUsed() && bridgeConfiguration.getGlobalAddress() == null )
+                        throw new SAXException("Need stun server address or public address to be specified in sipxbridge configuration.");
 
                 }
             }
