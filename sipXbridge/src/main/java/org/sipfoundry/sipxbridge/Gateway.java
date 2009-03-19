@@ -13,7 +13,10 @@ import gov.nist.javax.sip.clientauthutils.AuthenticationHelper;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.util.Collection;
@@ -203,10 +206,10 @@ public class Gateway {
 	private Gateway() {
 
 	}
-	
+
 	private static void setConfigurationPath() {
 		Gateway.configurationPath = System.getProperty("conf.dir",
-		"/etc/sipxpbx");
+				"/etc/sipxpbx");
 	}
 
 	static void setConfigurationFileName(String configFileName) {
@@ -365,8 +368,26 @@ public class Gateway {
 
 			if (stunServerAddress != null) {
 				// Todo -- deal with the situation when this port may be taken.
+				int localStunPort = 0;
+				
+				for (int i = STUN_PORT; i < STUN_PORT + 10; i++) {
+					try {
+						DatagramSocket socket = new DatagramSocket(new InetSocketAddress(InetAddress
+								.getByName(Gateway.getLocalAddress()), i));
+						localStunPort = i;
+						socket.close();
+						break;
+					} catch (Exception ex) {
+						continue;
+					}
+				}
+				
+				if ( localStunPort == 0) {
+					throw new SipXbridgeException("Could not find port for address discovery");
+				}
+
 				StunAddress localStunAddress = new StunAddress(Gateway
-						.getLocalAddress(), STUN_PORT);
+						.getLocalAddress(), localStunPort);
 
 				StunAddress serverStunAddress = new StunAddress(
 						stunServerAddress, STUN_PORT);
@@ -389,7 +410,7 @@ public class Gateway {
 			}
 		} catch (Exception ex) {
 			logger.error("Error discovering  address", ex);
-			return;		
+			return;
 		}
 	}
 
@@ -407,7 +428,7 @@ public class Gateway {
 				try {
 					Gateway.discoverAddress();
 				} catch (Exception ex) {
-					logger.error("Error re-discovering  address" , ex);
+					logger.error("Error re-discovering  address", ex);
 				}
 
 			}
@@ -786,8 +807,9 @@ public class Gateway {
 
 		if (Gateway.getGlobalAddress() == null) {
 			discoverAddress();
-			if ( Gateway.getGlobalAddress() == null) {
-				throw new SipXbridgeException("Could not determine Address using STUN -- check STUN settings.");
+			if (Gateway.getGlobalAddress() == null) {
+				throw new SipXbridgeException(
+						"Could not determine Address using STUN -- check STUN settings.");
 			}
 			startRediscoveryTimer();
 		} else {
@@ -807,21 +829,24 @@ public class Gateway {
 
 		if (configuration.getGlobalAddress() == null
 				&& configuration.getStunServerAddress() == null) {
-			
+
 			System.err
 					.println("sipxbridge.xml: Configuration error: no global address specified and no stun server specified.");
 			System.exit(-1);
 		}
-		if ( Gateway.accountManager.getBridgeConfiguration().getExternalAddress() == null ) {
-		    System.err.println("Missing configuration parameter <external-address>");
-		    System.exit(-1);
+		if (Gateway.accountManager.getBridgeConfiguration()
+				.getExternalAddress() == null) {
+			System.err
+					.println("Missing configuration parameter <external-address>");
+			System.exit(-1);
 		}
-		
-		if ( Gateway.accountManager.getBridgeConfiguration().getLocalAddress() == null ) {
-            System.err.println("Missing configuration parameter <local-address>");
-            System.exit(-1);
-        }
-		
+
+		if (Gateway.accountManager.getBridgeConfiguration().getLocalAddress() == null) {
+			System.err
+					.println("Missing configuration parameter <local-address>");
+			System.exit(-1);
+		}
+
 		if (Gateway.accountManager.getBridgeConfiguration()
 				.getExternalAddress().equals(
 						Gateway.accountManager.getBridgeConfiguration()
@@ -830,16 +855,29 @@ public class Gateway {
 						.getExternalPort() == Gateway.accountManager
 						.getBridgeConfiguration().getLocalPort()) {
 			System.err
-					.println("sipxbridge.xml: Configuration error: external address == internal address && external port == internal port");
+					.println("Configuration error: external address == internal address && external port == internal port");
 
 			System.exit(-1);
+		}
+
+		if (Gateway.accountManager.getBridgeConfiguration()
+				.getStunServerAddress() != null
+				&& Gateway.accountManager.getBridgeConfiguration()
+						.getGlobalAddress() == null) {
+			Gateway.discoverAddress();
+			if (Gateway.getGlobalAddress() == null) {
+				System.err
+						.println("Configuration error. Could not discover public address. Check your STUN server settings or specify public address");
+				System.exit(-1);
+			}
+
 		}
 
 		/*
 		 * Make sure we can initialize the keystores etc.
 		 */
 		// if (symconfig.getUseHttps()) {
-		// 	initHttpsClient();
+		// initHttpsClient();
 		// }
 		System.exit(0);
 	}
@@ -860,7 +898,7 @@ public class Gateway {
 		}
 
 		Gateway.state = GatewayState.INITIALIZING;
-		
+
 		/*
 		 * Start the web server first so that you can restart reliably.
 		 */
@@ -900,7 +938,6 @@ public class Gateway {
 		 */
 		registerWithItsp();
 
-	
 		/*
 		 * Initialize connection with sipxrelay.
 		 */
@@ -938,12 +975,14 @@ public class Gateway {
 			/*
 			 * Tear down all ongoing calls.
 			 */
-			Collection<Dialog> dialogs = ((SipStackImpl) ProtocolObjects.sipStack).getDialogs();
+			Collection<Dialog> dialogs = ((SipStackImpl) ProtocolObjects.sipStack)
+					.getDialogs();
 			for (Dialog dialog : dialogs) {
-				if ( dialog.getApplicationData() instanceof DialogContext ) {
-					BackToBackUserAgent b2bua = DialogContext.getBackToBackUserAgent(dialog);
+				if (dialog.getApplicationData() instanceof DialogContext) {
+					BackToBackUserAgent b2bua = DialogContext
+							.getBackToBackUserAgent(dialog);
 					b2bua.tearDown(Gateway.SIPXBRIDGE_USER,
-						ReasonCode.BRIDGE_STOPPING, "Bridge Stopping");
+							ReasonCode.BRIDGE_STOPPING, "Bridge Stopping");
 				}
 			}
 
@@ -1233,7 +1272,7 @@ public class Gateway {
 			SSLSocket socket = ((SSLSocket) factory.createSocket());
 			String[] suites = socket.getEnabledCipherSuites();
 			socket.setEnabledCipherSuites(suites);
-			
+
 			HttpsURLConnection.setDefaultSSLSocketFactory(factory);
 
 		} catch (Exception ex) {

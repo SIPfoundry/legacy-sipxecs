@@ -11,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,6 +40,7 @@ import org.mortbay.util.InetAddrPort;
 import org.mortbay.util.ThreadedServer;
 import org.sipfoundry.commons.log4j.SipFoundryAppender;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
+import org.sipfoundry.sipxbridge.Gateway;
 import org.sipfoundry.sipxbridge.SipXbridgeException;
 
 /**
@@ -114,10 +116,28 @@ public class SymmitronServer implements Symmitron {
             
             if (stunServerAddress != null) {
             	logger.info("Start address discovery");
-                // Todo -- deal with the situation when this port may be taken.
-                // The port may be taken by sipxbridge.
+				int localStunPort = 0;		
+				for (int i = STUN_PORT; i < STUN_PORT + 10; i++) {
+					try {
+						DatagramSocket socket = new DatagramSocket(new InetSocketAddress(InetAddress
+								.getByName(symmitronConfig.getLocalAddress()), i));
+						localStunPort = i;
+						socket.close();
+						break;
+					} catch (Exception ex) {
+						continue;
+					}
+				}
+				
+				
+				
+				if ( localStunPort == 0) {
+					throw new SipXbridgeException("Could not find port for address discovery");
+				}
+
+				
                 StunAddress localStunAddress = new StunAddress(symmitronConfig.getLocalAddress(),
-                        STUN_PORT + 1);
+                        localStunPort);
 
                 StunAddress serverStunAddress = new StunAddress(stunServerAddress, STUN_PORT);
 
@@ -1064,6 +1084,8 @@ public class SymmitronServer implements Symmitron {
          if (config.getStunServerAddress() != null ) {                   
              findIpAddress(config.getStunServerAddress());
          }
+         
+                 
          /*
           * Test if local address can be resolved.
           */
@@ -1091,7 +1113,17 @@ public class SymmitronServer implements Symmitron {
         	 System.exit(-1);
          }
          
-         
+         /*
+          * Check if the stun server is running.
+          */
+         if ( config.getStunServerAddress() != null && config.getPublicAddress() == null) {
+        	 discoverAddress();
+        	 if (SymmitronServer.getPublicInetAddress() == null ) {
+        		 System.err.println("Cannot discover the public address -- check your STUN server settings");
+        		 System.exit(-1);
+        	 }
+         }
+
          
          System.exit(0);
     }
