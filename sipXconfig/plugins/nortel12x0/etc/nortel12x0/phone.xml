@@ -254,6 +254,18 @@
      </description>
    </setting>
 
+   <setting name="flashLightOnMwi">
+     <label>Enable Flashing for MWI Indicator</label>
+     <type refid="on-off" />
+     <value>TRUE</value>
+     <description>
+       If checked, the LED lamp on the top of the phone flashes red for indicating new Voicemail or Instant messages  
+       If unchecked, the LED lamp on the top of the phone will be solid red for indicating new Voicemail or Instant messages  
+	&lt;br/&gt; ( &lt;
+       flashLightOnMwi &gt; ) &lt;br/&gt;
+     </description>
+   </setting>
+
    <setting name="imBeepAlert">
      <label>Enable IM Beep Alert</label>
      <type refid="on-off" />
@@ -1240,7 +1252,7 @@
    <setting name="disableStarCodes">
      <label>Disable Star Codes</label>
      <type refid="on-off" />
-     <value>FALSE</value>
+     <value>TRUE</value>
      <description>
        Disabling call feature codes causes the phone to not process and to instead pass through all key presses for
        star feature codes, e.g., *67, *69, *70 and *99, for downstream processing &lt;br/&gt; ( &lt; disableStarCodes

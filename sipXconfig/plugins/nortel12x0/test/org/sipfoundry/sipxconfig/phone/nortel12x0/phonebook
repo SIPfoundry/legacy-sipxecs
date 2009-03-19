@@ -7,6 +7,7 @@
 <phoneSettings>
 <dndControl>FALSE</dndControl>
 <blinkLightOnIncomingCall>TRUE</blinkLightOnIncomingCall>
+<flashLightOnMwi>TRUE</flashLightOnMwi>
 <imBeepAlert>TRUE</imBeepAlert>
 <enableSyslog>FALSE</enableSyslog>
 <syslogServer>10.4.5.2</syslogServer>
@@ -40,7 +41,7 @@
 <disableCall1_2key>FALSE</disableCall1_2key>
 <sipAutoDial>FALSE</sipAutoDial>
 <disableCallWaiting>FALSE</disableCallWaiting>
-<disableStarCodes>FALSE</disableStarCodes>
+<disableStarCodes>TRUE</disableStarCodes>
 <useOnlyUdpSrv>FALSE</useOnlyUdpSrv>
 <timesettings>
 <default>TRUE</default>
