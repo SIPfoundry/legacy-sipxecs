@@ -205,6 +205,9 @@ OsStatus ResourceListFileReader::initialize()
                }
             }
          }
+         OsSysLog::add(FAC_PARK, PRI_DEBUG,
+                       "ResourceListFileReader::initialize Done loading file '%s'",
+                       mFileName.data());
       }
       else
       {
