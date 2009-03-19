@@ -436,7 +436,7 @@ int supervisorMain(bool bOriginalSupervisor)
     if (OS_SUCCESS != supervisorConfiguration.loadFromFile(supervisorConfigPath.data()))
     {
        OsSysLog::add(FAC_SUPERVISOR,PRI_WARNING,
-                     "Failed to open supervisor-config at '%s'",
+                     "Failed to open supervisor configuration file at '%s'",
                      supervisorConfigPath.data()
                      );
     }
@@ -459,10 +459,10 @@ int supervisorMain(bool bOriginalSupervisor)
     managementPortNumber = domainConfiguration.getPort(SipXecsService::DomainDbKey::SUPERVISOR_PORT);
     if (PORT_NONE == managementPortNumber)
     {
-       OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,
-                     "%s not configured in '%s'",
+       OsSysLog::add(FAC_SUPERVISOR,PRI_WARNING,
+                     "%s not configured in '%s', using default: %d",
                      SipXecsService::DomainDbKey::SUPERVISOR_PORT,
-                     domainConfigPath.data()
+                     domainConfigPath.data(), DEFAULT_SUPERVISOR_PORT
                      );
        managementPortNumber=DEFAULT_SUPERVISOR_PORT;
     }
@@ -473,7 +473,7 @@ int supervisorMain(bool bOriginalSupervisor)
                      );
        managementPortNumber=DEFAULT_SUPERVISOR_PORT;
     }
-       
+
     UtlSList allowedPeers;
     UtlString configHosts;
     domainConfiguration.get(SipXecsService::DomainDbKey::CONFIG_HOSTS, configHosts);

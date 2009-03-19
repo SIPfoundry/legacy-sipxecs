@@ -20,8 +20,6 @@ public interface DomainManager extends DialingRuleProvider {
 
     String getAuthorizationRealm();
 
-    String getAlarmServerUrl();
-    
     void initializeDomain();
 
     void saveDomain(Domain domain);

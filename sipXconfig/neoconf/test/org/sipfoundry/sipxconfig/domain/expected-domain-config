@@ -3,6 +3,5 @@ SIP_DOMAIN_ALIASES : alias.example.com 10.10.10.1 host1.example.com
 SIP_REALM : realm.example.com
 SHARED_SECRET : mySecret
 DEFAULT_LANGUAGE : en
-ALARM_SERVER_URL : https://domain.example.com:8092
 SUPERVISOR_PORT : 8092
 CONFIG_HOSTS : master.example.com

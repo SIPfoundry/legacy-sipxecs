@@ -74,7 +74,7 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
         }
         DomainConfiguration domainConfiguration = createDomainConfiguration();
         domainConfiguration.generate(existingDomain, getConfigServerHostname(),
-                getExistingLocalization().getLanguage(), getAlarmServerUrl());
+                getExistingLocalization().getLanguage());
         getReplicationContext().replicate(domainConfiguration);
         getReplicationContext().publishEvent(new DomainConfigReplicatedEvent(this));
     }
@@ -137,10 +137,6 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
 
     public String getAuthorizationRealm() {
         return getDomain().getSipRealm();
-    }
-
-    public String getAlarmServerUrl() {
-        return "https://" + getConfigServerHostname() + ":8092";
     }
 
     public void setDomainConfigFilename(String domainConfigFilename) {

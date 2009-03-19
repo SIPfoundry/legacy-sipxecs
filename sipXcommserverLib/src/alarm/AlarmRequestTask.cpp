@@ -23,6 +23,10 @@ OsMutex           AlarmRequestTask::sLockMutex (OsMutex::Q_FIFO);
 
 // Misc
 // CONSTANTS
+const char* SupervisorConfigName = "sipxsupervisor-config";
+const char* SUPERVISOR_HOST = "SUPERVISOR_HOST";
+const int   DEFAULT_SUPERVISOR_PORT = 8092;  // MUST match sipXsupervisor/src/sipXsupervisor.cpp !
+
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
@@ -69,50 +73,87 @@ void AlarmRequestTask::raiseAlarm(const UtlString& alarmId, const UtlSList& alar
 }
 
 
-// Parses the domain-config file and extracts the Alarm Server URL.  
+// Parses the config files and formats the Alarm Server URL and localhost.
+// Current design is that the Alarm Server runs in the supervisor on the local host.
 // Returns OS_SUCCESS only if a valid URL was found 
 OsStatus AlarmRequestTask::initXMLRPCsettings()
 {
    OsStatus retval = OS_FAILED;
 
-   UtlString  alarmServerUrl;
+   int supervisorPort;
 
    OsConfigDb domainConfiguration;
    OsPath     domainConfigPath = SipXecsService::domainConfigPath();
 
    if (OS_SUCCESS == domainConfiguration.loadFromFile(domainConfigPath.data()))
    {
-      domainConfiguration.get(SipXecsService::DomainDbKey::SIP_DOMAIN_NAME, mLocalHostname);
-      domainConfiguration.get(SipXecsService::DomainDbKey::ALARM_SERVER_URL, alarmServerUrl);
-
-      if (alarmServerUrl.isNull())
+      supervisorPort = domainConfiguration.getPort(SipXecsService::DomainDbKey::SUPERVISOR_PORT);
+      if ( PORT_DEFAULT == supervisorPort )
       {
-         OsSysLog::add(FAC_ALARM, PRI_ERR, "Alarm::initXMLRPCsettings: failed to find Alarm Server URL in '%s'",
-               domainConfigPath.data() );
+         supervisorPort = DEFAULT_SUPERVISOR_PORT;
       }
-      else
+      else if ( PORT_NONE == supervisorPort )
       {
-         // Construct the URL to the Alarm Server's XMLRPC server.
-         Url alarmUrl(alarmServerUrl, Url::AddrSpec);
-         if (alarmUrl.getScheme() != Url::HttpsUrlScheme)
-         {
-            OsSysLog::add(FAC_ALARM, PRI_ERR,
-                  "Alarm::initXMLRPCsettings: badly formed alarm server url '%s'",
-                  alarmServerUrl.data() );
-         }
-         else
-         {
-            mAlarmServerUrl = alarmUrl;
-            mAlarmServerUrl.setPath("RPC2");
-            retval = OS_SUCCESS;
-         }
+         supervisorPort = DEFAULT_SUPERVISOR_PORT;
+         OsSysLog::add(FAC_ALARM, PRI_NOTICE,
+                       "Alarm::initXMLRPCsettings: '%s' not configured, defaulting to %d",
+                       SipXecsService::DomainDbKey::SUPERVISOR_PORT, supervisorPort);
       }
    }
    else
    {
-      OsSysLog::add(FAC_ALARM, PRI_ERR,
+      OsSysLog::add(FAC_ALARM, PRI_WARNING,
             "Alarm::initXMLRPCsettings: failed to load domain configuration from '%s'",
             domainConfigPath.data() );
+   }
+
+   OsConfigDb supervisorConfiguration;
+   OsPath     supervisorConfigPath =
+      SipXecsService::Path(SipXecsService::ConfigurationDirType, SupervisorConfigName);
+
+   if (OS_SUCCESS == supervisorConfiguration.loadFromFile(supervisorConfigPath.data()))
+   {
+      supervisorConfiguration.get(SUPERVISOR_HOST, mLocalHostname);
+   }
+   else
+   {
+      OsSysLog::add(FAC_ALARM, PRI_WARNING,
+            "Alarm::initXMLRPCsettings: failed to load supervisor configuration from '%s'",
+            supervisorConfigPath.data() );
+   }
+
+   if (mLocalHostname.isNull())
+   {
+      // getHostName does not always return the proper fully qualified hostname,
+      // but it is worth trying rather than giving up entirely
+      OsSocket::getHostName(&mLocalHostname);
+      OsSysLog::add(FAC_ALARM, PRI_WARNING,
+            "Alarm::initXMLRPCsettings: failed to find Supervisor host in '%s'; "
+                    "defaulting to local host '%s'",
+            supervisorConfigPath.data(), mLocalHostname.data() );
+   }
+
+   // Construct the URL to the Alarm Server's XMLRPC server.
+   mAlarmServerUrl.fromString(mLocalHostname, Url::AddrSpec);
+   if (mAlarmServerUrl.getScheme() == Url::UnknownUrlScheme)
+   {
+      OsSysLog::add(FAC_ALARM, PRI_ERR,
+            "Alarm::initXMLRPCsettings: badly formed Supervisor host '%s' in '%s'",
+            mLocalHostname.data(), supervisorConfigPath.data() );
+   }
+   else
+   {
+      mAlarmServerUrl.setScheme(Url::HttpsUrlScheme);
+      mAlarmServerUrl.setHostPort(supervisorPort);
+      mAlarmServerUrl.setPath("/RPC2");
+
+      UtlString logUrl;
+      mAlarmServerUrl.toString(logUrl);
+      OsSysLog::add(FAC_ALARM, PRI_NOTICE,
+                    "Alarm::initXMLRPCsettings: Alarm Server URL: '%s'",
+                    logUrl.data());
+
+      retval = OS_SUCCESS;
    }
 
    return retval;

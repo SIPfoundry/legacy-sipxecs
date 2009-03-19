@@ -27,13 +27,11 @@ import static org.easymock.EasyMock.replay;
 
 public class DomainConfigurationTest extends TestCase {
     private String m_language;
-    private String m_alarmServerUrl;
     private DomainConfiguration m_out;
 
     @Override
     public void setUp() throws Exception {
         m_language = "en";
-        m_alarmServerUrl = "https://domain.example.com:8092";
 
         Location location = new Location();
         location.setAddress("10.10.10.1");
@@ -61,7 +59,7 @@ public class DomainConfigurationTest extends TestCase {
         m_domain.setSharedSecret("mySecret");
 
         StringWriter actualConfigWriter = new StringWriter();
-        m_out.generate(m_domain, "master.example.com", m_language, m_alarmServerUrl);
+        m_out.generate(m_domain, "master.example.com", m_language);
         m_out.write(actualConfigWriter, null);
 
         Reader actualConfigReader = new StringReader(actualConfigWriter.toString());
@@ -81,7 +79,7 @@ public class DomainConfigurationTest extends TestCase {
         m_domain.setSharedSecret("mySecret");
 
         StringWriter actualConfigWriter = new StringWriter();
-        m_out.generate(m_domain, "master.example.com", m_language, m_alarmServerUrl);
+        m_out.generate(m_domain, "master.example.com", m_language);
         m_out.write(actualConfigWriter, null);
 
         Reader actualConfigReader = new StringReader(actualConfigWriter.toString());

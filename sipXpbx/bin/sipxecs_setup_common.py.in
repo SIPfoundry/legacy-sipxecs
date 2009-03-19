@@ -540,10 +540,9 @@ def setup_domain_config () :
     minimalDomainConfig = "\
 SIP_DOMAIN_NAME : %s\n\
 SIP_REALM : %s\n\
-ALARM_SERVER_URL : https://%s:8092\n\
 SUPERVISOR_PORT : 8092\n\
 CONFIG_HOSTS : %s\n\
-" % ( SipDomain, SipDomain, HostName, HostName )
+" % ( SipDomain, SipDomain, HostName )
 
     file (DOMAIN_CONFIG, 'w').write(minimalDomainConfig)
     setRights(DOMAIN_CONFIG)
