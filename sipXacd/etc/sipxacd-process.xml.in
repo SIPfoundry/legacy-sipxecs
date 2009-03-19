@@ -21,6 +21,7 @@
   </status>
   <resources>
     <osconfig>@SIPX_CONFDIR@/domain-config</osconfig>
+    <file>@SIPX_CONFDIR@/sipxacd-config</file>
     <file required='false'>@SIPX_CONFDIR@/sipxacd.xml</file>
     <imdb>credential</imdb>
   </resources>

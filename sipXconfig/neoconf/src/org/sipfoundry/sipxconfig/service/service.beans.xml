@@ -416,11 +416,25 @@
 
   <bean id="sipxAcdService" class="org.sipfoundry.sipxconfig.service.SipxAcdService" scope="prototype" parent="sipxService">
     <property name="processName" value="ACDServer" />
+    <property name="modelName" value="sipxacd.xml" />
+    <property name="modelDir" value="acd" />
+    <property name="configurations">
+      <list>
+        <ref bean="sipxAcdConfiguration" />
+      </list>
+    </property>
     <property name="bundles">
       <set>
         <ref bean="callCenterBundle" />
       </set>
     </property>
+  </bean>
+
+  <bean id="sipxAcdConfiguration" class="org.sipfoundry.sipxconfig.acd.AcdConfiguration" scope="prototype"
+    parent="serviceConfigurationFile">
+    <property name="template" value="acd/sipxacd-config.vm" />
+    <property name="name" value="sipxacd-config" />
+    <property name="acdContext" ref="acdContext" />
   </bean>
 
   <bean id="sipxConfigAgentService" class="org.sipfoundry.sipxconfig.service.SipxConfigAgentService" scope="prototype"

@@ -141,6 +141,11 @@
              propertyfile="${top.build.dir}/build.properties">
   		<replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir" />
   	</replace>
+
+        <replace file="${dest.dir}${sipxpbx.conf.dir}/acd/sipxacd-config.vm"
+             propertyfile="${top.build.dir}/build.properties">
+                <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir" />
+        </replace>
   	
   	<replace file="${dest.dir}${sipxpbx.conf.dir}/sipxregistrar/registrar-config.vm"
   	        propertyfile="${top.build.dir}/build.properties">

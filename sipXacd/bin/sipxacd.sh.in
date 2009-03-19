@@ -33,8 +33,8 @@ case ${Action} in
    RUN)
      echo $$ > @SIPX_RUNDIR@/sipxacd.pid
      SUPERVISOR_PORT=`sipx_config_value @SIPX_CONFDIR@/domain-config SUPERVISOR_PORT`
-     # Need to replace hardcoded port 8110 with acd provisioning port from config file
-     exec @bindir@/sipxacd -P 8110 -W $SUPERVISOR_PORT $Args
+     PROVISIONING_PORT=`sipx_config_value @SIPX_CONFDIR@/sipxacd-config SIP_ACD_PROVISIONING_PORT`
+     exec @bindir@/sipxacd -P $PROVISIONING_PORT -W $SUPERVISOR_PORT $Args
      ;;
 
    STOP)
