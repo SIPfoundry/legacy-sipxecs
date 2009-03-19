@@ -71,6 +71,8 @@ SipxRpc::SipxRpc(XmlRpcDispatch* dispatcher, UtlSList& allowedPeers)
    AlarmRpcRaiseAlarm::registerSelf(*this);
    AlarmRpcReloadAlarms::registerSelf(*this);
    SwAdminRpcExec::registerSelf(*this);
+   SwAdminRpcSnapshot::registerSelf(*this);
+   SwAdminRpcExecStatus::registerSelf(*this);
 }
 
 // Destructor

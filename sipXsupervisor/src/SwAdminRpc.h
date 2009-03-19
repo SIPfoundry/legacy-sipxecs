@@ -90,6 +90,9 @@ protected:
                          ExecutionStatus& status
                         );
 
+   /// Common method to check the activity of a process instance.
+   bool isProcessActive(const char* command);
+
    /// Common method to check validity of subcommand and build output filenames.
    bool buildOutputFiles(const UtlString&     command,
                          UtlString&      stdoutfn,
@@ -199,6 +202,171 @@ protected:
 
    /// Constructor.
    SwAdminRpcExec();
+
+   /// The execution of this XML-RPC Method.
+   virtual bool execute(const HttpRequestContext& requestContext, ///< request context
+                        UtlSList& params,                         ///< request param list
+                        void* userData,                           ///< user data
+                        XmlRpcResponse& response,                 ///< request response
+                        ExecutionStatus& status                   ///< XML-RPC method execution status
+                        );
+
+};
+
+/**
+ Execute System Snapshot through the Software Administration RPC interface for sipX on the system.
+
+ The XML-RPC call  will return immediately with the name of the snapshot file, the console output file,
+ and the error file. The files may not exist or be complete yet - you should call
+ SwAdmin.execStatus("snapshot") until it returns a "NOT_RUNNING", then retrieve the file via https server.
+
+ \par
+ <b>Method Name: SwAdmin.snapshot</b>
+
+ \par
+ <b>Input:</b>
+ <table border="1">
+    <tr>
+       <td><b>Data type</b></td>
+       <td><b>Name</b></td>
+       <td><b>Description</b></td>
+    </tr>
+    <tr>
+       <td>string</td>
+       <td>callingHostname</td>
+       <td>The FQDN of the calling host to be checked as an SSL trusted peer <b>and</b>
+           against an explicit list of hosts allowed to make requests.</td>
+    </tr>
+    <tr>
+       <td>array</td>
+       <td>arguments</td>
+       <td>List of arguments to pass to the sipx-snapshot script</td>
+    </tr>
+ </table>
+
+ \par
+ <b>Return Value:</b>
+ <table border="1">
+    <tr>
+       <td><b>Data type</b></td>
+       <td><b>Description</b></td>
+    </tr>
+    <tr>
+       <td>array</td>
+       <td>Array of 3 strings specifying the location of result files (snapshot.tar.gz, output, and err)</td>
+    </tr>
+ </table>
+*/
+
+
+class SwAdminRpcSnapshot :  public SwAdminRpcMethod
+{
+public:
+
+   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.
+   static XmlRpcMethod* get();
+
+   /// Destructor.
+   virtual ~SwAdminRpcSnapshot() {};
+
+   /// Get the name of the XML-RPC method.
+   virtual const char* name();
+
+   /// Register this method handler with the XML-RPC dispatcher.
+   static void registerSelf(SipxRpc & sipxRpcImpl);
+
+protected:
+
+   /// The name of the XML-RPC method.
+   static const char* METHOD_NAME;
+
+   /// The sipx-snapshot output filename
+   static const char* OUTPUT_FILENAME;
+
+   /// Constructor.
+   SwAdminRpcSnapshot();
+
+   /// The execution of this XML-RPC Method.
+   virtual bool execute(const HttpRequestContext& requestContext, ///< request context
+                        UtlSList& params,                         ///< request param list
+                        void* userData,                           ///< user data
+                        XmlRpcResponse& response,                 ///< request response
+                        ExecutionStatus& status                   ///< XML-RPC method execution status
+                        );
+
+};
+
+/**
+  Query status of a process through the Software Administration RPC interface for sipX on the system.
+
+ \par
+ <b>Method Name: SwAdmin.execStatus</b>
+
+ \par
+ <b>Input:</b>
+ <table border="1">
+    <tr>
+       <td><b>Data type</b></td>
+       <td><b>Name</b></td>
+       <td><b>Description</b></td>
+    </tr>
+    <tr>
+       <td>string</td>
+       <td>callingHostname</td>
+       <td>The FQDN of the calling host to be checked as an SSL trusted peer <b>and</b>
+           against an explicit list of hosts allowed to make requests.</td>
+    </tr>
+    <tr>
+       <td>String</td>
+       <td>processName</td>
+       <td>Name of the process to query status for</td>
+    </tr>
+ </table>
+
+ \par
+ <b>Return Value:</b>
+ <table border="1">
+    <tr>
+       <td><b>Data type</b></td>
+       <td><b>Description</b></td>
+    </tr>
+    <tr>
+       <td>UtlString</td>
+       <td>Returns process status -- RUNNING or NOT_RUNNING</td>
+    </tr>
+ </table>
+*/
+
+
+class SwAdminRpcExecStatus :  public SwAdminRpcMethod
+{
+public:
+
+   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.
+   static XmlRpcMethod* get();
+
+   /// Destructor.
+   virtual ~SwAdminRpcExecStatus() {};
+
+   /// Get the name of the XML-RPC method.
+   virtual const char* name();
+
+   /// Register this method handler with the XML-RPC dispatcher.
+   static void registerSelf(SipxRpc & sipxRpcImpl);
+
+protected:
+
+   /// The name of the XML-RPC method.
+   static const char* METHOD_NAME;
+
+   // Process Status
+   static const char* PROCESS_RUNNING;
+   static const char* PROCESS_NOT_RUNNING;
+
+   /// Constructor.
+   SwAdminRpcExecStatus();
+
+   bool isQueryValid(const UtlString& query, UtlString& processName);
 
    /// The execution of this XML-RPC Method.
    virtual bool execute(const HttpRequestContext& requestContext, ///< request context

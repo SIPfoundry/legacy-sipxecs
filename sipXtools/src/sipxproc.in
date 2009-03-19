@@ -59,6 +59,11 @@ def usage_exit(error_code=1)
   -f|--file           Get the named file
   -t|--runConfigtest          Run the configtest for the specified service
   --getConfigtestMessages     Return messages from the configtest for the specified service
+  -S|--snapshot         Execute snapshot on a local/remote system. Snapshot arguments may 
+                        be specified after an empty option -- (two minus symbols) 
+                        e.g. sipxproc --snapshot -- --snapshot_arg_1 x --snapshot_arg_2 y
+  -E|--execStatus       Returns the execution status of any of the following commands :
+                           snapshot, checkUpdate, checkSwVersion, updateSwVersion
   -C|--checkUpdate      Check for Software Updates
   -V|--checkSwVersion   Check Software Version
   -U|--updateSwVersion  Update Software
@@ -86,6 +91,8 @@ if __FILE__ == $0
       ['--getConfigtestMessages',     GetoptLong::REQUIRED_ARGUMENT],
       ['--host','-n',          GetoptLong::REQUIRED_ARGUMENT],
       ['--port','-p',          GetoptLong::REQUIRED_ARGUMENT],
+      ['--snapshot','-S',         GetoptLong::NO_ARGUMENT],
+      ['--execStatus', '-E',      GetoptLong::REQUIRED_ARGUMENT],
       ['--checkUpdate','-C',      GetoptLong::NO_ARGUMENT],
       ['--checkSwVersion','-V',   GetoptLong::NO_ARGUMENT],
       ['--updateSwVersion','-U',  GetoptLong::NO_ARGUMENT],
@@ -108,6 +115,7 @@ filepath = nil
 aliaslist = []
 alias1 = nil
 block = nil
+rpcname = 'ProcMgmtRpc.'
 begin
    opts.each do |name, arg|
       case name
@@ -136,19 +144,47 @@ begin
             argument = arg
             aliaslist.push(argument)
             block = true
+         when '--snapshot'
+            rpcname = 'SwAdminRpc.'
+            action = 'snapshot'
+            argument = []
+            if ARGV.length > 1 && ARGV.shift == "--"
+               while ARGV.length > 0
+                  argument << ARGV.shift
+               end
+            end
+         when '--execStatus'
+            rpcname = 'SwAdminRpc.'
+            action = 'execStatus'
+
+            case arg
+            when 'checkUpdate'
+               argument = 'check-update'
+            when 'checkSwVersion'
+               argument = 'version'
+            when 'updateSwVersion'
+               argument = 'update'
+            else
+               argument = arg
+            end
          when '--checkUpdate'
+            rpcname = 'SwAdminRpc.'
             action = 'exec'
             argument = 'check-update'
          when '--checkSwVersion'
+            rpcname = 'SwAdminRpc.'
             action = 'exec'
             argument = 'version'
          when '--updateSwVersion'
+            rpcname = 'SwAdminRpc.'
             action = 'exec'
             argument = 'update'
          when '--restartSipXecs'
+            rpcname = 'SwAdminRpc.'
             action = 'exec'
             argument = 'restart'
          when '--rebootSystem'
+            rpcname = 'SwAdminRpc.'
             action = 'exec'
             argument = 'reboot'
          when '--getStatusMessages', '--runConfigtest', '--getConfigtestMessages'
@@ -187,7 +223,7 @@ when 'getConfigVersion'
 when 'setConfigVersion'
     params.push(argument)
     params.push(serviceversion)
-when 'exec'
+when 'exec', 'snapshot', 'execStatus'
     params.push(argument)
 else
    # No parms required for all other actions
@@ -227,12 +263,10 @@ else
   client.cert_store = OpenSSL::X509::Store.new.add_path('@SIPX_CONFDIR@/ssl/authorities')
   client.open_timeout = 10 
   client.read_timeout = 60
-  if action != 'exec'
-     pp client.call('ProcMgmtRpc.' << action, *params)
-  else
-     result = client.call('SwAdminRpc.' << action, *params)
-     pp result
-  end
+
+  result = client.call(rpcname << action, *params)
+  pp result
+
 end
 
 exit(exitStatus)

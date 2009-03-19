@@ -30,6 +30,7 @@
 #include "SwAdminRpc.h"
 #include "SipxProcessManager.h"
 #include "FileResource.h"
+#include "utl/XmlContent.h"
 
 // DEFINES
 // EXTERNAL FUNCTIONS
@@ -38,11 +39,13 @@
 //
 //
 const char* SwAdminExec = "sipx-swadmin.py";
+const char* SwAdminSnapshot = "sipx-snapshot";
 const char* SwAdminCheckUpdate_cmd = "check-update";
 const char* SwAdminUpdate_cmd = "update";
 const char* SwAdminVersion_cmd = "version";
 const char* SwAdminRestart_cmd = "restart";
 const char* SwAdminReboot_cmd = "reboot";
+const char* SwAdminSnapshot_cmd = "snapshot";
 const char* SwAdminStdOut_filetype = ".output";
 const char* SwAdminStdErr_filetype = ".err";
 
@@ -175,6 +178,27 @@ bool SwAdminRpcMethod::duplicateProcess(const char*     command,
                                        )
 {
    bool result = false;
+
+   if (isProcessActive(command))
+   {
+      // process already found running.  set found to true.
+      UtlString faultMsg;
+
+      faultMsg.append("Duplicate process '");
+      faultMsg.append(command);
+      faultMsg.append("' found");
+      response.setFault(SwAdminRpcMethod::DuplicateInstance, faultMsg.data());
+      status = XmlRpcMethod::FAILED;
+      result = true;
+   }
+
+   return result;
+}
+
+bool SwAdminRpcMethod::isProcessActive(const char* command)
+{
+   bool result = false;
+
    OsProcessIterator ProcessIterator;
    OsProcess runningProcess;
    OsProcessInfo procInfo;
@@ -190,14 +214,6 @@ bool SwAdminRpcMethod::duplicateProcess(const char*     command,
          procInfo.name.data(), procInfo.commandline.data();
          if (procInfo.commandline.contains(command))
          {
-            // process already found running.  set found to true.
-            UtlString faultMsg;
-
-            faultMsg.append("Duplicate process '");
-            faultMsg.append(command);
-            faultMsg.append("' found");
-            response.setFault(SwAdminRpcMethod::DuplicateInstance, faultMsg.data());
-            status = XmlRpcMethod::FAILED;
             result = true;
          }
       }
@@ -388,3 +404,264 @@ bool SwAdminRpcExec::execute(const HttpRequestContext& requestContext,
    return result;
 }
 
+/*****************************************************************
+ **** SwAdminRpcSnapshot
+ *****************************************************************/
+
+const char* SwAdminRpcSnapshot::METHOD_NAME = "SwAdminRpc.snapshot";
+const char* SwAdminRpcSnapshot::OUTPUT_FILENAME = "sipx-configuration.tar.gz";
+
+const char* SwAdminRpcSnapshot::name()
+{
+   return METHOD_NAME;
+}
+
+SwAdminRpcSnapshot::SwAdminRpcSnapshot()
+{
+}
+
+XmlRpcMethod* SwAdminRpcSnapshot::get()
+{
+   return new SwAdminRpcSnapshot();
+}
+
+void SwAdminRpcSnapshot::registerSelf(SipxRpc & sipxRpcImpl)
+{
+   registerMethod(METHOD_NAME, SwAdminRpcSnapshot::get, sipxRpcImpl);
+}
+
+bool SwAdminRpcSnapshot::execute(const HttpRequestContext& requestContext,
+                                 UtlSList&                 params,
+                                 void*                     userData,
+                                 XmlRpcResponse&           response,
+                                 ExecutionStatus&          status)
+{
+
+   bool result = false;
+   status = XmlRpcMethod::FAILED;
+
+   if (2 != params.entries())
+   {
+      handleExtraExecuteParam(name(), response, status);
+   }
+   else
+   {
+      if (!params.at(0) || !params.at(0)->isInstanceOf(UtlString::TYPE))
+      {
+         handleMissingExecuteParam(name(), PARAM_NAME_CALLING_HOST, response, status);
+      }
+      else
+      {
+         UtlString* pCallingHostname = dynamic_cast<UtlString*>(params.at(0));
+         SipxRpc* pSipxRpcImpl = ((SipxRpc *)userData);
+
+         if (!params.at(1) || !params.at(1)->isInstanceOf(UtlSList::TYPE))
+         {
+            handleMissingExecuteParam(name(), PARAM_NAME_COMMAND, response, status);
+         }
+         else
+         {
+            if (validCaller(requestContext, *pCallingHostname, response, *pSipxRpcImpl, name()))
+            {
+               UtlSList* pArgsList = dynamic_cast<UtlSList*>(params.at(1));
+               UtlSListIterator argsListIterator( *pArgsList );
+               UtlString * pArg;
+
+               // Make sure that there is no other instance running.
+               if (! duplicateProcess(SwAdminSnapshot, response, status))
+               {
+                  UtlBool   method_result(true);
+                  UtlString arguments[pArgsList->entries()+2];
+                  UtlString subCommand;
+                  OsPath    mWorkingDirectory = ".";
+                  OsPath    mExec = SipXecsService::Path(SipXecsService::BinDirType, SwAdminSnapshot);
+
+                  UtlString mStdOutFile(SwAdminSnapshot_cmd);
+                  UtlString mStdErrFile(SwAdminSnapshot_cmd);
+
+                  mStdOutFile.append(SwAdminStdOut_filetype);
+                  mStdErrFile.append(SwAdminStdErr_filetype);
+
+                  // Construct and set the response.
+                  OsPath mStdOutPath = OsPath(SipXecsService::Path(SipXecsService::TmpDirType, mStdOutFile.data()));
+                  OsPath mStdErrPath = OsPath(SipXecsService::Path(SipXecsService::TmpDirType, mStdErrFile.data()));
+                  OsPath processOutPath = OsPath(SipXecsService::Path(SipXecsService::TmpDirType, OUTPUT_FILENAME));
+
+                  for (int i = 0; (pArg = dynamic_cast<UtlString*>(argsListIterator())); i++)
+                  {
+                     XmlUnEscape(arguments[i], *pArg);
+                  }
+
+                  arguments[pArgsList->entries()] = processOutPath.data();
+                  arguments[pArgsList->entries()+1] = NULL;
+
+                  // execute the command and return whether or not the launch was successful.
+                  OsProcess* swCheck = new OsProcess();
+
+                  // Setup the Standard Output and Standard Error files.
+                  OsPath mStdInFile;   // Blank
+                  int rc;
+                  rc = swCheck->setIORedirect(mStdInFile, mStdOutPath, mStdErrPath);
+
+                  // Launch the process but tell the parent to ignore the child's signals (especially on shutdown).
+                  // It will let the system handle it to avoid a defunct process.
+                  if ( (rc=swCheck->launch(mExec, &arguments[0], mWorkingDirectory,
+                                   swCheck->NormalPriorityClass, FALSE,
+                                   TRUE)) // Parent to ignore child signals.
+                           == OS_SUCCESS )
+                  {
+                     // Add the file resources to Supervisor Process so they can be retrieved
+                     FileResource::logFileResource( mStdOutPath, SipxProcessManager::getInstance()->findProcess(SUPERVISOR_PROCESS_NAME));
+                     FileResource::logFileResource( mStdErrPath, SipxProcessManager::getInstance()->findProcess(SUPERVISOR_PROCESS_NAME));
+                     FileResource::logFileResource( processOutPath, SipxProcessManager::getInstance()->findProcess(SUPERVISOR_PROCESS_NAME));
+
+                     UtlString outputFilename = processOutPath;
+
+                     // Construct and set the response.
+                     UtlSList outputPaths;
+                     outputPaths.insert(&outputFilename);
+                     outputPaths.insert(&mStdOutPath);
+                     outputPaths.insert(&mStdErrPath);
+
+                     response.setResponse(&outputPaths);
+                     status = XmlRpcMethod::OK;
+                     result = true;
+                  } // launch
+                  else
+                  {
+                     // Failed to launch the command, send a fault.
+                     response.setFault(SwAdminRpcMethod::FailureToLaunch, "Failure to launch command");
+                     status = XmlRpcMethod::FAILED;
+                  }
+
+                  delete swCheck;
+               }  // duplicateProcess
+            }  // validcaller
+            else
+            {
+               status = XmlRpcMethod::FAILED;
+            }
+         }  // param 1 okay
+      }  // param 0 okay
+   } //number of parms check
+
+   return result;
+}
+
+/*****************************************************************
+ **** SwAdminRpcExecQuery
+ *****************************************************************/
+
+const char* SwAdminRpcExecStatus::METHOD_NAME = "SwAdminRpc.execStatus";
+const char* SwAdminRpcExecStatus::PROCESS_RUNNING = "RUNNING";
+const char* SwAdminRpcExecStatus::PROCESS_NOT_RUNNING = "NOT_RUNNING";
+
+const char* SwAdminRpcExecStatus::name()
+{
+   return METHOD_NAME;
+}
+
+SwAdminRpcExecStatus::SwAdminRpcExecStatus()
+{
+}
+
+XmlRpcMethod* SwAdminRpcExecStatus::get()
+{
+   return new SwAdminRpcExecStatus();
+}
+
+void SwAdminRpcExecStatus::registerSelf(SipxRpc & sipxRpcImpl)
+{
+   registerMethod(METHOD_NAME, SwAdminRpcExecStatus::get, sipxRpcImpl);
+}
+
+bool SwAdminRpcExecStatus::isQueryValid(const UtlString& query, UtlString& processName)
+{
+   if (query.compareTo(SwAdminSnapshot_cmd, UtlString::ignoreCase) ==0)
+   {
+      processName = SwAdminSnapshot;
+      return true;
+   }
+   else if (query.compareTo(SwAdminCheckUpdate_cmd, UtlString::ignoreCase) == 0 ||
+            query.compareTo(SwAdminUpdate_cmd, UtlString::ignoreCase) == 0 ||
+            query.compareTo(SwAdminVersion_cmd, UtlString::ignoreCase) == 0)
+   {
+      processName = SwAdminExec;
+      return true;
+   }
+
+   return false;
+}
+
+bool SwAdminRpcExecStatus::execute(const HttpRequestContext& requestContext,
+                                 UtlSList&                 params,
+                                 void*                     userData,
+                                 XmlRpcResponse&           response,
+                                 ExecutionStatus&          status)
+{
+
+   bool result = false;
+   status = XmlRpcMethod::FAILED;
+
+   if (2 != params.entries())
+   {
+      handleExtraExecuteParam(name(), response, status);
+   }
+   else
+   {
+      if (!params.at(0) || !params.at(0)->isInstanceOf(UtlString::TYPE))
+      {
+         handleMissingExecuteParam(name(), PARAM_NAME_CALLING_HOST, response, status);
+      }
+      else
+      {
+         UtlString* pCallingHostname = dynamic_cast<UtlString*>(params.at(0));
+         SipxRpc* pSipxRpcImpl = ((SipxRpc *)userData);
+
+         if (!params.at(1) || !params.at(1)->isInstanceOf(UtlString::TYPE))
+         {
+            handleMissingExecuteParam(name(), PARAM_NAME_COMMAND, response, status);
+         }
+         else
+         {
+            if (validCaller(requestContext, *pCallingHostname, response, *pSipxRpcImpl, name()))
+            {
+               UtlString* query = dynamic_cast<UtlString*>(params.at(1));
+               UtlString processName;
+
+               // Make sure that the query is valid
+               if (isQueryValid(*query, processName))
+               {
+                  UtlString stat;
+
+                  if (isProcessActive(processName))
+                  {
+                     stat = PROCESS_RUNNING;
+                  }
+                  else
+                  {
+                     stat = PROCESS_NOT_RUNNING;
+                  }
+
+                  response.setResponse(&stat);
+                  status = XmlRpcMethod::OK;
+                  result = true;
+
+               } // wrong Query String
+               else
+               {
+                  // Failed to launch the command, send a fault.
+                  response.setFault(SwAdminRpcMethod::FailureToLaunch, "Invalid query");
+                  status = XmlRpcMethod::FAILED;
+               }
+            }  // validcaller
+            else
+            {
+               status = XmlRpcMethod::FAILED;
+            }
+         }  // param 1 okay
+      }  // param 0 okay
+   } //number of parms check
+
+   return result;
+}
