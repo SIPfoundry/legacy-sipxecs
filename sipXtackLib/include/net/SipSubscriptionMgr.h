@@ -100,13 +100,12 @@ public:
                                         const UtlString& resourceId,
                                         /// the event type key for the events
                                         const UtlString& eventTypeKey,
+                                        /// the expiration epoch
+                                        int expires,
                                         /// the dialog handle for the subscription (out)
                                         UtlString& subscribeDialogHandle,
                                         /// TRUE if the subscription is new (out)
-                                        UtlBoolean& isNew,
-                                        /// TRUE if the subscription is not ongoing (out)
-                                        UtlBoolean& isExpired
-       );
+                                        UtlBoolean& isNew);
 
     //! Set the subscription dialog information and cseq for the next NOTIFY request
     virtual UtlBoolean getNotifyDialogInfo(const UtlString& subscribeDialogHandle,

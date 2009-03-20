@@ -198,16 +198,16 @@ SipPersistentSubscriptionMgr::SipPersistentSubscriptionMgr(
 
          // Variables to hold the output of insertDialogInfo.
          UtlString subscribeDialogHandle;
-         UtlBoolean isNew, isSubscriptionExpired;
+         UtlBoolean isNew;
          UtlBoolean ret =
             SipSubscriptionMgr::insertDialogInfo(subscribeRequest,
                                                  // *keyp is the resource that
                                                  // is subscribed to.
                                                  *keyp,
                                                  *eventtypep,
+                                                 expires,
                                                  subscribeDialogHandle,
-                                                 isNew,
-                                                 isSubscriptionExpired);
+                                                 isNew);
          if (!ret)
          {
             OsSysLog::add(FAC_SIP, PRI_ERR,
@@ -366,9 +366,9 @@ UtlBoolean SipPersistentSubscriptionMgr::insertDialogInfo(
    const SipMessage& subscribeRequest,
    const UtlString& resourceId,
    const UtlString& eventTypeKey,
+   int expires,
    UtlString& subscribeDialogHandle,
-   UtlBoolean& isNew,
-   UtlBoolean& isSubscriptionExpired)
+   UtlBoolean& isNew)
 {
    // This method is defined on the SipSubscriptionMgr to populate state from
    // the IMDB -- it should never be called on the SipPersistentSubscriptionMgr.

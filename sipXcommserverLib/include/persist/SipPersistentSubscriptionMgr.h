@@ -127,9 +127,9 @@ public:
    virtual UtlBoolean insertDialogInfo(const SipMessage& subscribeRequest,
                                        const UtlString& resourceId,
                                        const UtlString& eventTypeKey,
+                                       int expires,
                                        UtlString& subscribeDialogHandle,
-                                       UtlBoolean& isNew,
-                                       UtlBoolean& isExpired);
+                                       UtlBoolean& isNew);
 
    //! Set the subscription dialog information and cseq for the next NOTIFY request
    //  Also, update the database to show the to/from URIs as they appear in NOTIFYs.
