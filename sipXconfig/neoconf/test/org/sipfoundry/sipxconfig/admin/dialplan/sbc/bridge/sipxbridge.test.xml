@@ -2,11 +2,11 @@
 <sipxbridge-config xmlns="http://www.sipfoundry.org/sipX/schema/xml/sipxbridge-00-00">
 
   <bridge-configuration>
-    <global-address>98.65.1.5</global-address>
+    <global-address>192.168.5.240</global-address>
     <global-port>5060</global-port>
-    <external-address>10.1.1.5</external-address>
+    <external-address>98.65.1.5</external-address>
     <external-port>5080</external-port>
-    <local-address>192.168.5.240</local-address>
+    <local-address>98.65.1.5</local-address>
     <local-port>5090</local-port>
     <sipx-proxy-domain>sipfoundry.org</sipx-proxy-domain>
     <stun-server-address>stun01.sipphone.com</stun-server-address>

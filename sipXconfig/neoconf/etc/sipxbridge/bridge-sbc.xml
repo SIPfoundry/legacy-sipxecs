@@ -14,7 +14,7 @@
   </type>
   <group name="bridge-configuration">
     <label>SIP</label>
-    <setting name="global-address">
+    <setting name="global-address" hidden="yes">
       <label>Public address</label>
       <description>
         This is your public (Internet) address. Set this if your ITSP requires a public address and if you do not wish
@@ -28,7 +28,7 @@
       </type>
       <description>Set this if your ITSP requires a specific port.</description>
     </setting>
-    <setting name="external-address">
+    <setting name="external-address" hidden="yes">
       <label>External address</label>
       <description>
         This is the address of the external arm of sipXbridge facing the ITSP. Normally this is an IP address on the

@@ -18,12 +18,15 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.device.Profile;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.gateway.SipTrunk;
 import org.sipfoundry.sipxconfig.gateway.Gateway.AddressTransport;
+import org.sipfoundry.sipxconfig.nattraversal.NatLocation;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 
@@ -50,6 +53,19 @@ public class BridgeSbcTest {
         m_sbc = new BridgeSbc();
         m_location = TestHelper.setVelocityProfileGenerator(m_sbc);
 
+        NatLocation natLocation = new NatLocation();
+        natLocation.setPublicAddress("192.168.5.240");
+
+        LocationsManager locationsManager = createMock(LocationsManager.class);
+        locationsManager.getLocationByAddress("192.168.5.240");
+        Location location = new Location();
+        location.setUniqueId();
+        location.setAddress("98.65.1.5");
+        location.setNat(natLocation);
+        expectLastCall().andReturn(location);
+        replay(locationsManager);
+
+        m_sbc.setLocationsManager(locationsManager);
         m_sbc.setDefaults(deviceDefaults);
         m_sbc.setModelFilesContext(modelFilesContext);
 
@@ -57,9 +73,7 @@ public class BridgeSbcTest {
 
         m_sbc.setAddress("192.168.5.240");
         m_sbc.setPort(5090);
-        m_sbc.setSettingValue("bridge-configuration/global-address", "98.65.1.5");
         m_sbc.setSettingValue("bridge-configuration/global-port", "5060");
-        m_sbc.setSettingValue("bridge-configuration/external-address", "10.1.1.5");
         m_sbc.setSettingValue("bridge-configuration/external-port", "5080");
         m_sbc.setSettingValue("bridge-configuration/log-level", "INFO");
         m_sbc.setSettingValue("bridge-configuration/route-inbound-calls-to-extension", "operator");

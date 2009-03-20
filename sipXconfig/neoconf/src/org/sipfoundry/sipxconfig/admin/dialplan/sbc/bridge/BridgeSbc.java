@@ -25,6 +25,7 @@ import org.sipfoundry.sipxconfig.device.ProfileLocation;
 import org.sipfoundry.sipxconfig.device.ReplicatedProfileLocation;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.gateway.SipTrunk;
+import org.sipfoundry.sipxconfig.nattraversal.NatLocation;
 import org.sipfoundry.sipxconfig.service.SipxBridgeService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -98,7 +99,8 @@ public class BridgeSbc extends SbcDevice {
 
     @Override
     public void initialize() {
-        addDefaultBeanSettingHandler(new Defaults(getDefaults(), this));
+        Location location = m_locationsManager.getLocationByAddress(getAddress());
+        addDefaultBeanSettingHandler(new Defaults(getDefaults(), this, location));
     }
 
     @Override
@@ -143,15 +145,24 @@ public class BridgeSbc extends SbcDevice {
     public static class Defaults {
         private final DeviceDefaults m_defaults;
         private final SbcDevice m_device;
+        private final Location m_location;
+        private final NatLocation m_natLocation;
 
-        Defaults(DeviceDefaults defaults, SbcDevice device) {
+        Defaults(DeviceDefaults defaults, SbcDevice device, Location location) {
             m_defaults = defaults;
             m_device = device;
+            m_location = location;
+            m_natLocation = location.getNat();
         }
 
         @SettingEntry(paths = { "bridge-configuration/local-address", "bridge-configuration/external-address" })
-        public String getLocalAddress() {
-            return m_device.getAddress();
+        public String getExternalAddress() {
+            return m_location.getAddress();
+        }
+
+        @SettingEntry(path = "bridge-configuration/global-address")
+        public String getGlobalAddress() {
+            return m_natLocation.getPublicAddress();
         }
 
         @SettingEntry(path = "bridge-configuration/local-port")
@@ -172,8 +183,8 @@ public class BridgeSbc extends SbcDevice {
 
     @Override
     public void restart() {
-        SipxBridgeService sipxBridgeService = (SipxBridgeService) m_sipxServiceManager.getServiceByBeanId(
-                SipxBridgeService.BEAN_ID);
+        SipxBridgeService sipxBridgeService = (SipxBridgeService) m_sipxServiceManager
+                .getServiceByBeanId(SipxBridgeService.BEAN_ID);
         m_processContext.manageServices(getLocation(), Collections.singleton(sipxBridgeService),
                 SipxProcessContext.Command.RESTART);
     }
