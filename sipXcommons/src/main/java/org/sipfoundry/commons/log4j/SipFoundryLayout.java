@@ -28,27 +28,9 @@ public class SipFoundryLayout extends Layout {
     String hostName;
     String facility;
 
-    /**
-     * Sorry for this ugly routine. It is here because SIPX needs six digits 
-     * and I cannot find a way to make SimpleDateFormat do that.
-     */
-    private String munge(String input) {
-        String[] pieces = input.split("\\.");
-        if ( pieces.length == 0 ) return input;
-        StringBuffer newStringBuilder = new StringBuffer().append(input);
-       
-        if ( pieces[pieces.length -1 ].length() == 4 ) {
-            newStringBuilder.deleteCharAt(input.length()  -1);
-            newStringBuilder.append("000Z");
-            return newStringBuilder.toString();
-        } else {
-            return input;
-        }
-    }
-    
     public SipFoundryLayout() {
         super();
-        dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS000'Z'");
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         hostName = Hostname.get();
         facility = "JAVA"; // Can be set from the property
@@ -129,7 +111,7 @@ public class SipFoundryLayout extends Layout {
          * c == '\n') { n-- ; continue ; } break ; }
          */
 
-        // escape CR LFs
+        // escape CR LFs, slashes, and quotes
         for (int i = 0; i < n; i++) {
             char c = msg.charAt(i);
             if (c == '\r') {
@@ -150,6 +132,16 @@ public class SipFoundryLayout extends Layout {
     
     
 
+    
+    /**
+     * Format the timestamp (mS since epoch) in Sipfoundry format
+     * @param timestamp
+     * @return
+     */
+    String formatTimestamp(long timestamp) {
+        return dateFormat.format(timestamp) ;
+    }
+    
     @Override
     public String format(LoggingEvent arg0) {
         String msg = escapeCrlfQuoteAndBackSlash(arg0.getRenderedMessage());
@@ -181,7 +173,7 @@ public class SipFoundryLayout extends Layout {
         synchronized (lineNumber) {
             lineNumber++;
             String out1 = String.format("\"%s\":%d:%s:%s:%s:%s:%s:%s:\"%s\"%n",
-                    munge(dateFormat.format(System.currentTimeMillis())), lineNumber, // line
+                    formatTimestamp((System.currentTimeMillis())), lineNumber, // line
                     // number
                     localFacility, // Facility
                     mapLevel2SipFoundry(arg0.getLevel()), // msg priority
