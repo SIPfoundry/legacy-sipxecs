@@ -211,7 +211,6 @@ public abstract class TestPage extends BasePage {
     }
 
     public void initNatTraversal() {
-        getNatTraversalManager().saveDefaultNatTraversal();
         getSbcDeviceManager().clear();
         getSbcDescriptor().setModelId("sipXbridgeSbcModel");
         SbcDevice bridge = getSbcDeviceManager().newSbcDevice(getSbcDescriptor());

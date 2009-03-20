@@ -123,7 +123,4 @@
   <!-- paging group -->
   <table name="paging_group"/>
   <table name="user_paging_group"/>  
-
-  <!-- nat traversal -->
-  <table name="nat_traversal"/>
 </dataset>

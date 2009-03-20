@@ -427,6 +427,13 @@
     fqdn CDATA #REQUIRED
     ip_address CDATA #IMPLIED
     primary_location CDATA #IMPLIED
+    use_stun CDATA #IMPLIED
+    stun_address CDATA #IMPLIED
+    stun_interval CDATA #IMPLIED
+    public_address CDATA #IMPLIED
+    public_port CDATA #IMPLIED
+    start_rtp_port CDATA #IMPLIED
+    stop_rtp_port CDATA #IMPLIED
 >
 
 <!ELEMENT location_sipx_service EMPTY>
@@ -482,14 +489,6 @@
     value_storage_id CDATA #IMPLIED
     user_id CDATA #REQUIRED
     meetme_conference_id CDATA #REQUIRED
->
-
-<!ELEMENT nat_traversal EMPTY>
-<!ATTLIST nat_traversal
-    id CDATA #REQUIRED
-    enabled CDATA #IMPLIED
-    behindnat CDATA #IMPLIED
-    value_storage_id CDATA #IMPLIED
 >
 
 <!ELEMENT paging_group EMPTY>

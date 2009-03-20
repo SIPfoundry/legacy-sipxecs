@@ -20,6 +20,7 @@ import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang.RandomStringUtils;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
+import org.sipfoundry.sipxconfig.nattraversal.NatLocation;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceBundle;
@@ -43,6 +44,7 @@ public class Location extends BeanWithId {
     private boolean m_primary;
     private boolean m_registered;
     private List<String> m_installedBundles;
+    private NatLocation m_nat = new NatLocation();
 
     private Collection<LocationSpecificService> m_services;
     private DaoEventPublisher m_daoEventPublisher;
@@ -80,6 +82,14 @@ public class Location extends BeanWithId {
 
     public void setInstalledBundles(List<String> installedBundles) {
         m_installedBundles = installedBundles;
+    }
+
+    public NatLocation getNat() {
+        return m_nat;
+    }
+
+    public void setNat(NatLocation nat) {
+        m_nat = nat;
     }
 
     @Required

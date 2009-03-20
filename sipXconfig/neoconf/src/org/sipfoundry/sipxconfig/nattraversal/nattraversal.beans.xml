@@ -2,33 +2,8 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
-  <bean id="natTraversal" class="org.sipfoundry.sipxconfig.nattraversal.NatTraversal" parent="beanWithSettings"
-    scope="prototype">
-    <property name="logDirectory" value="${sysdir.log}"></property>
-    <property name="sbcDeviceManager" ref="sbcDeviceManager"/>
-    <property name="locationsManager" ref="locationsManager"/>
-  </bean>
-
-  <bean id="natTraversalManagerImpl" class="org.sipfoundry.sipxconfig.nattraversal.NatTraversalManagerImpl">
-    <property name="sessionFactory" ref="sessionFactory" />
-    <property name="dialPlanActivationManager" ref="dialPlanActivationManager" />
-  </bean>
-
-  <bean id="natTraversalManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
-    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.nattraversal.NatTraversalManager" />
-    <property name="target">
-      <ref local="natTraversalManagerImpl" />
-    </property>
-  </bean>
-
-  <bean id="natTraversalInit" class="org.sipfoundry.sipxconfig.nattraversal.NatTraversalInit">
-    <property name="natTraversalManager">
-      <ref local="natTraversalManager" />
-    </property>
-    <property name="taskNames">
-      <list>
-        <value>default_NAT_traversal</value>
-      </list>
-    </property>
+  <bean id="natTraversalManager" class="org.sipfoundry.sipxconfig.nattraversal.NatTraversalManagerImpl">
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="serviceConfigurator" ref="serviceConfigurator" />
   </bean>
 </beans>

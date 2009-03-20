@@ -22,6 +22,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
+import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
@@ -115,6 +116,11 @@ public class EagerDialPlanActivationManagerTest extends TestCase {
     static class MockDpam extends EagerDialPlanActivationManager {
 
         public MockDpam() {
+        }
+
+        @Override
+        public ServiceConfigurator getServiceConfigurator() {
+            return null;
         }
 
         @Override

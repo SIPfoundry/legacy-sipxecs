@@ -23,5 +23,14 @@
       <key column="location_id" not-null="true" foreign-key="location_bundle_fk" />
       <element type="string" column="bundle_bean" not-null="true" />
     </bag>
+    <component name="nat">
+      <property name="useStun" />
+      <property name="stunAddress" />
+      <property name="stunInterval" />
+      <property name="publicAddress" />
+      <property name="publicPort" />
+      <property name="startRtpPort" />
+      <property name="stopRtpPort" />
+    </component>
   </class>
 </hibernate-mapping>

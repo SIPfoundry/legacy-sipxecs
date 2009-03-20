@@ -14,14 +14,17 @@ import java.util.Collection;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManagerImpl;
 import org.sipfoundry.sipxconfig.common.AlarmContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.createNiceMock;
+import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 
@@ -33,6 +36,7 @@ public class FirstRunTaskTestIntegration extends IntegrationTestCase {
     private CoreContext m_coreContext;
     private AdminContext m_adminContext;
     private ServiceConfigurator m_serviceConfigurator;
+    private SbcManagerImpl m_sbcManagerImpl;
 
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
@@ -62,6 +66,10 @@ public class FirstRunTaskTestIntegration extends IntegrationTestCase {
         m_serviceConfigurator = serviceConfigurator;
     }
 
+    public void setSbcManagerImpl(SbcManagerImpl sbcManagerImpl) {
+        m_sbcManagerImpl = sbcManagerImpl;
+    }
+
     @Override
     protected void onTearDownAfterTransaction() throws Exception {
         m_firstRun.setAdminContext(m_adminContext);
@@ -72,16 +80,25 @@ public class FirstRunTaskTestIntegration extends IntegrationTestCase {
     }
 
     public void testEnableFirstRunServices() throws Exception {
-        DomainManager domainManager = createNiceMock(DomainManager.class);
-        m_firstRun.setDomainManager(domainManager);
+        Domain domain = new Domain();
+        domain.setName("example.org");
+        DomainManager domainManager = createMock(DomainManager.class);
+        domainManager.initializeDomain();
+        domainManager.replicateDomainConfig();
+        expect(domainManager.getDomain()).andReturn(domain).anyTimes();
+
         AdminContext adminContext = createNiceMock(AdminContext.class);
-        m_firstRun.setAdminContext(adminContext);
         CoreContext coreContext = createNiceMock(CoreContext.class);
-        m_firstRun.setCoreContext(coreContext);
         AlarmContext alarmContext = createNiceMock(AlarmContext.class);
-        m_firstRun.setAlarmContext(alarmContext);
 
         replay(domainManager, adminContext, coreContext, alarmContext);
+
+        m_sbcManagerImpl.setDomainManager(domainManager);
+        m_firstRun.setDomainManager(domainManager);
+        m_firstRun.setAdminContext(adminContext);
+        m_firstRun.setCoreContext(coreContext);
+        m_firstRun.setAlarmContext(alarmContext);
+        m_firstRun.setSbcManager(m_sbcManagerImpl);
 
         loadDataSetXml("admin/commserver/seedLocationsAndServices.xml");
         m_firstRun.setLocationsManager(m_locationsManager);
@@ -98,7 +115,7 @@ public class FirstRunTaskTestIntegration extends IntegrationTestCase {
         m_firstRun.setServiceConfigurator(serviceConfigurator);
         m_firstRun.runTask();
 
-        verify(serviceConfigurator);
+        verify(domainManager, adminContext, coreContext, alarmContext, serviceConfigurator);
 
         Location primaryLocation = m_locationsManager.getPrimaryLocation();
         Collection<LocationSpecificService> servicesForPrimaryLocation = primaryLocation.getServices();

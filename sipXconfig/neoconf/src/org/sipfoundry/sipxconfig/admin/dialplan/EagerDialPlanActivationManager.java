@@ -43,7 +43,8 @@ public abstract class EagerDialPlanActivationManager implements BeanFactoryAware
 
     private DialPlanContext m_dialPlanContext;
 
-    private ServiceConfigurator m_serviceConfigurator;
+    /* delayed injection - working around circular reference */
+    public abstract ServiceConfigurator getServiceConfigurator();
 
     /* delayed injection - working around circular reference */
     public abstract GatewayContext getGatewayContext();
@@ -55,7 +56,7 @@ public abstract class EagerDialPlanActivationManager implements BeanFactoryAware
         ConfigGenerator generator = generateDialPlan();
         generator.activate(m_sipxReplicationContext);
         SipxService sipxIvrService = m_sipxServiceManager.getServiceByBeanId(SipxIvrService.BEAN_ID);
-        m_serviceConfigurator.replicateServiceConfig(sipxIvrService);
+        getServiceConfigurator().replicateServiceConfig(sipxIvrService);
         pushAffectedProfiles(restartSbcDevices);
         notifyOnDialPlanGeneration();
     }
@@ -123,11 +124,6 @@ public abstract class EagerDialPlanActivationManager implements BeanFactoryAware
     @Required
     public void setDialPlanContext(DialPlanContext dialPlanContext) {
         m_dialPlanContext = dialPlanContext;
-    }
-
-    @Required
-    public void setServiceConfigurator(ServiceConfigurator serviceConfigurator) {
-        m_serviceConfigurator = serviceConfigurator;
     }
 
     public void setBeanFactory(BeanFactory beanFactory) {

@@ -10,9 +10,8 @@
 package org.sipfoundry.sipxconfig.nattraversal;
 
 public interface NatTraversalManager {
-    public static final String CONTEXT_BEAN_NAME = "natTraversalManager";
+    String CONTEXT_BEAN_NAME = "natTraversalManager";
 
-    public void store(NatTraversal natTraversal);
-    public NatTraversal getNatTraversal();
-    public void saveDefaultNatTraversal();
+    void store(NatTraversal natTraversal);
+    NatTraversal getNatTraversal();
 }

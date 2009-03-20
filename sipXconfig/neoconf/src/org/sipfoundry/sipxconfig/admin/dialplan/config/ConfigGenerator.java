@@ -31,18 +31,12 @@ public class ConfigGenerator {
     private AuthRules m_authRules;
     private FallbackRules m_fallbackRules;
     private ForwardingRules m_forwardingRules;
-    private NatTraversalRules m_natTraversalRules;
 
     private DialingRuleProvider m_dialingRuleProvider;
 
     @Required
     public void setForwardingRules(ForwardingRules forwardingRules) {
         m_forwardingRules = forwardingRules;
-    }
-
-    @Required
-    public void setNatTraversalRules(NatTraversalRules natTraversalRules) {
-        m_natTraversalRules = natTraversalRules;
     }
 
     @Required
@@ -66,7 +60,7 @@ public class ConfigGenerator {
     }
 
     private List< ? extends ConfigurationFile> getRulesFiles() {
-        return Arrays.asList(m_mappingRules, m_authRules, m_fallbackRules, m_forwardingRules, m_natTraversalRules);
+        return Arrays.asList(m_mappingRules, m_authRules, m_fallbackRules, m_forwardingRules);
     }
 
     public void generate(DialPlanContext plan) {

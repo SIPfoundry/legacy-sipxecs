@@ -41,4 +41,44 @@ public class EditLocationPageTestUi extends WebTestCase {
         clickButton("form:ok");
         SiteTestHelper.assertUserError(tester);
     }
+
+    public void testDisplayNatLocationPanel() {
+        SiteTestHelper.assertNoUserError(tester);
+        clickLink("menu.locations");
+        assertLinkPresent("editLocationLink");
+        clickLink("editLocationLink");
+
+        assertLinkPresent("link:natLocation");
+        clickLink("link:natLocation");
+        SiteTestHelper.assertNoUserError(tester);
+        assertLinkPresent("setting:toggle");
+
+        assertFormElementPresent("type");
+        // 0 - public address, 1 - use stun
+        assertSelectOptionValuePresent("type", "0");
+        assertSelectOptionValuePresent("type", "1");
+
+        SiteTestHelper.selectOptionByValue(tester, "type", "0");
+        assertElementNotPresent("stunAddress");
+        assertElementNotPresent("stunInterval");
+        assertElementPresent("publicAddress");
+
+        SiteTestHelper.selectOptionByValue(tester, "type", "1");
+        SiteTestHelper.assertNoUserError(tester);
+        assertElementPresent("stunAddress");
+        assertElementPresent("stunInterval");
+        assertTextFieldEquals("stunAddress", "stun01.sipphone.com");
+        assertTextFieldEquals("stunInterval", "60");
+        assertElementNotPresent("publicAddress");
+
+        assertElementPresent("publicPort");
+        assertTextFieldEquals("publicPort", "5060");
+        assertElementNotPresent("startRtpPort");
+        assertElementNotPresent("stopRtpPort");
+        SiteTestHelper.clickSubmitLink(tester, "setting:toggle"); // advanced
+        assertElementPresent("startRtpPort");
+        assertElementPresent("stopRtpPort");
+        assertTextFieldEquals("startRtpPort", "30000");
+        assertTextFieldEquals("stopRtpPort", "31000");
+    }
 }

@@ -27,6 +27,7 @@ public class LocationsPageTestUi extends WebTestCase {
         clickLink("editLocationLink");
         assertLinkPresent("link:configureLocation");
         assertLinkPresent("link:listServices");
+        assertLinkPresent("link:natLocation");
         assertLinkPresent("link:monitorTarget");
         SiteTestHelper.assertNoUserError(tester);
     }

@@ -15,6 +15,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.ResetDialPlanTask;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
 import org.sipfoundry.sipxconfig.common.AlarmContext;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -46,6 +47,7 @@ public class FirstRunTask implements ApplicationListener {
     private ProfileManager m_phoneProfileManager;
     private LocationsManager m_locationsManager;
     private PagingContext m_pagingContext;
+    private SbcManager m_sbcManager;
 
     public void runTask() {
         LOG.info("Executing first run tasks...");
@@ -53,10 +55,11 @@ public class FirstRunTask implements ApplicationListener {
         m_domainManager.replicateDomainConfig();
         m_coreContext.initializeSpecialUsers();
 
-        // create paging server and default dial plan
-        // both need to exist before we start replication
+        // create paging server, default dial plan and default Sbc
+        // all of these need to exist before we start replication
         m_pagingContext.getPagingServer();
         m_resetDialPlanTask.reset(false);
+        m_sbcManager.loadDefaultSbc();
 
         // this is moved from replication trigger will need something better here...
         m_alarmContext.replicateAlarmServer();
@@ -188,5 +191,10 @@ public class FirstRunTask implements ApplicationListener {
     @Required
     public void setResetDialPlanTask(ResetDialPlanTask resetDialPlanTask) {
         m_resetDialPlanTask = resetDialPlanTask;
+    }
+
+    @Required
+    public void setSbcManager(SbcManager sbcManager) {
+        m_sbcManager = sbcManager;
     }
 }

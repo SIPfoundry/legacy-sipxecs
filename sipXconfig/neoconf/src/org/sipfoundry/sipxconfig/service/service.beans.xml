@@ -551,12 +551,25 @@
   <bean id="sipxRelayService" class="org.sipfoundry.sipxconfig.service.SipxRelayService" scope="prototype"
     parent="sipxService">
     <property name="processName" value="SipXrelay" />
+    <property name="modelName" value="nattraversal.xml" />
+    <property name="modelDir" value="nattraversal" />
     <property name="bundles">
       <set>
         <ref bean="primarySipRouterBundle" />
         <ref bean="redundantSipRouterBundle" />
       </set>
     </property>
+    <property name="configurations">
+      <list>
+        <ref bean="natTraversalConfiguration" />
+      </list>
+    </property>
+  </bean>
+
+  <bean id="natTraversalConfiguration" class="org.sipfoundry.sipxconfig.service.NatTraversalConfiguration" parent="serviceConfigurationFile">
+    <property name="name" value="nattraversalrules.xml" />
+    <property name="template" value="nattraversal/nattraversalrules.vm" />
+    <property name="sbcManager" ref="sbcManager" />
   </bean>
 
   <bean id="sipxMrtgService" class="org.sipfoundry.sipxconfig.service.SipxMrtgService" scope="prototype" parent="sipxService">

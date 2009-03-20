@@ -4,20 +4,18 @@
 <nattraversal xmlns="http://www.sipfoundry.org/sipX/schema/xml/nattraversalrules-00-00">
   <info>
     <state>enabled</state>
-    <behindnat>true</behindnat>
-    <useSTUN>false</useSTUN>
+    <behindnat>false</behindnat>
+    <useSTUN>true</useSTUN>
     <stun-server-address>stun01.sipphone.com</stun-server-address>
-    <rediscovery-time>26</rediscovery-time>
-    <publicport>1234</publicport>
-    <publicaddress>1.2.3.4</publicaddress>
+    <rediscovery-time>60</rediscovery-time>
+    <publicport>5060</publicport>
     <proxyhostport>192.168.1.1:5060</proxyhostport>
-    <relayaggressiveness>Aggressive</relayaggressiveness>
-    <concurrentrelays>2</concurrentrelays>
-    <mediarelayexternaladdress>192.168.1.1</mediarelayexternaladdress>
-    <mediarelaynativeaddress>192.168.1.1</mediarelaynativeaddress>
     <mediarelayxml-rpc-port>9090</mediarelayxml-rpc-port>
-    <port-range>30000:30500</port-range>
-    <log-level>INFO</log-level>
+    <relayaggressiveness>Aggressive</relayaggressiveness>
+    <mediarelaynativeaddress>192.168.1.1</mediarelaynativeaddress>
+    <concurrentrelays>50</concurrentrelays>
+    <port-range>30000:31000</port-range>
+    <log-level>NOTICE</log-level>
     <log-directory>/usr/local/sipx/var/log/sipxpbx</log-directory>
   </info>
   <localtopology>

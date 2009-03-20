@@ -14,7 +14,6 @@ import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.nattraversal.NatTraversal;
 import org.sipfoundry.sipxconfig.nattraversal.NatTraversalManager;

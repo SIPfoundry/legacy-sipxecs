@@ -147,7 +147,7 @@
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="sipxProcessContext" ref="sipxProcessContext" />
     <property name="dialPlanContext" ref="dialPlanContext" />
-    <property name="serviceConfigurator" ref="serviceConfigurator" />
+	<lookup-method name="getServiceConfigurator" bean="serviceConfigurator" />
     <lookup-method name="getGatewayProfileManager" bean="gatewayProfileManager" />
     <lookup-method name="getGatewayContext" bean="gatewayContext" />
     <!-- using eager replication and serviceConfiguration -->
@@ -183,15 +183,6 @@
     <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
 
-  <bean id="natTraversalRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.NatTraversalRules" parent="defaultConfigurationFile">
-    <property name="name" value="nattraversalrules.xml" />
-    <property name="velocityEngine" ref="velocityEngine" />
-    <property name="sbcManager" ref="sbcManager" />
-    <property name="natTraversalManager" ref="natTraversalManager" />
-    <property name="template" value="nattraversal/nattraversalrules.vm" />
-    <property name="sipxServiceManager" ref="sipxServiceManager" />
-  </bean>
-
   <bean id="dialingRuleCollector" class="org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleCollector" />
 
   <bean id="dialPlanConfigGenerator" class="org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator"
@@ -207,9 +198,6 @@
     </property>
     <property name="forwardingRules">
       <ref local="forwardingRules" />
-    </property>
-    <property name="natTraversalRules">
-      <ref local="natTraversalRules" />
     </property>
     <property name="dialingRuleProvider">
       <ref local="dialingRuleCollector" />

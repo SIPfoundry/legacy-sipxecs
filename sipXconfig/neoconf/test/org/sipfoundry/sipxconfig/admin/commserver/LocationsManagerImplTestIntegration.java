@@ -9,19 +9,20 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
 
-import static java.util.Arrays.*;
 import java.util.Collection;
 import java.util.Collections;
+
+import static java.util.Arrays.asList;
 
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
+import org.sipfoundry.sipxconfig.nattraversal.NatLocation;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxService;
-import org.springframework.test.annotation.DirtiesContext;
 
 public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
     private LocationsManager m_out;
@@ -87,7 +88,7 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         location.setName("test location");
         location.setAddress("192.168.1.2");
         location.setFqdn("localhost");
-        
+
         DaoEventPublisher daoEventPublisher = EasyMock.createMock(DaoEventPublisher.class);
         daoEventPublisher.publishSave(location);
         EasyMock.expectLastCall();
@@ -101,7 +102,7 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         assertEquals("test location", dbLocations[0].getName());
         assertEquals("192.168.1.2", dbLocations[0].getAddress());
         assertEquals("localhost", dbLocations[0].getFqdn());
-        
+
         EasyMock.verify(daoEventPublisher);
     }
 
@@ -111,7 +112,7 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         assertEquals(2, locationsBeforeDelete.length);
 
         Location locationToDelete = m_out.getLocation(101);
-        
+
         DaoEventPublisher daoEventPublisher = EasyMock.createMock(DaoEventPublisher.class);
         daoEventPublisher.publishDelete(locationToDelete);
         EasyMock.expectLastCall();
@@ -123,7 +124,7 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         Location[] locationsAfterDelete = m_out.getLocations();
         assertEquals(1, locationsAfterDelete.length);
         assertEquals("remotehost.example.org", locationsAfterDelete[0].getFqdn());
-        
+
         EasyMock.verify(daoEventPublisher);
     }
 
@@ -131,7 +132,7 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         loadDataSetXml("admin/commserver/seedLocationsAndServices.xml");
         Location[] locationsBeforeDelete = m_out.getLocations();
         assertEquals(2, locationsBeforeDelete.length);
-        
+
         Location locationToDelete = m_out.getLocation(101);
 
         DaoEventPublisher daoEventPublisher = EasyMock.createMock(DaoEventPublisher.class);
@@ -184,18 +185,55 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         assertEquals(0, m_conferenceBridgeContext.getBridges().size());
     }
 
+    public void testStoreNatLocation() throws Exception {
+        loadDataSetXml("admin/commserver/seedLocations.xml");
+
+        Location location = m_out.getPrimaryLocation();
+        NatLocation natDB = location.getNat();
+        assertNotNull(natDB);
+
+        NatLocation nat = new NatLocation();
+        nat.setStunAddress("stun.com");
+        nat.setStunInterval(30);
+        nat.setPublicPort(5161);
+        nat.setStartRtpPort(30000);
+        nat.setStopRtpPort(30100);
+
+        location.setNat(nat);
+        m_out.storeLocation(location);
+
+        natDB = m_out.getLocation(location.getId()).getNat();
+        assertNotNull(natDB);
+        assertEquals("stun.com", natDB.getStunAddress());
+        assertEquals(30, natDB.getStunInterval());
+        assertEquals(5161, natDB.getPublicPort());
+        assertEquals(30000, natDB.getStartRtpPort());
+        assertEquals(30100, natDB.getStopRtpPort());
+    }
+
+    public void testGetNatLocation() throws Exception {
+        loadDataSet("nattraversal/nat_location.db.xml");
+
+        NatLocation natLocation = m_out.getLocation(111).getNat();
+        assertEquals("stun01.sipphone.com", natLocation.getStunAddress());
+        assertEquals(60, natLocation.getStunInterval());
+        assertEquals(5060, natLocation.getPublicPort());
+        assertEquals(30000, natLocation.getStartRtpPort());
+        assertEquals(31000, natLocation.getStopRtpPort());
+    }
+
     public void setLocationsManager(LocationsManager locationsManager) {
         m_out = locationsManager;
     }
-    
+
     /*
-     * Allows access to setters not exposed in interface.  Used for setting mock
-     * objects for testing purposes
+     * Allows access to setters not exposed in interface. Used for setting mock objects for
+     * testing purposes
      */
     public void setLocationsManagerImpl(LocationsManagerImpl locationsManagerImpl) {
         m_locationsManagerImpl = locationsManagerImpl;
     }
-    
+
     public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
         m_originalDaoEventPublisher = daoEventPublisher;
     }

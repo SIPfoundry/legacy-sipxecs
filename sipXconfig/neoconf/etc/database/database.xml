@@ -299,6 +299,7 @@
     <antcall target="location-bundle" />
     <antcall target="domain-add-realm" />
     <antcall target="location-add-status" />
+    <antcall target="nat-location" />
     <!-- temporary patches -->
     <antcall target="clean-sipx-service-values"/>
     <antcall target="backup-ftp-fix-empty-type-2" />
@@ -809,6 +810,10 @@
 
   <target name="location-add-status" unless="location-add-status">
     <db-patch patch="location-add-status"/>
+  </target>
+
+  <target name="nat-location" unless="nat-location">
+	<db-patch patch="nat-location"/>
   </target>
 
   <!--

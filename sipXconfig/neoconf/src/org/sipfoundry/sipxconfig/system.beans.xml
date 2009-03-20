@@ -150,7 +150,6 @@
         <value>org/sipfoundry/sipxconfig/service/location-specific-service.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/vm/attendant/personalAttendant.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/paging/paging.hbm.xml</value>
-        <value>org/sipfoundry/sipxconfig/nattraversal/nattraversal.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/admin/alarm/alarm.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/device/timezone.hbm.xml</value>
       </list>

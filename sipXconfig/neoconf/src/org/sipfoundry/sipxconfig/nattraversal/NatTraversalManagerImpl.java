@@ -9,70 +9,36 @@
  */
 package org.sipfoundry.sipxconfig.nattraversal;
 
-import java.util.List;
+import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.springframework.beans.factory.annotation.Required;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
-import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
-import org.sipfoundry.sipxconfig.common.UserException;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
+public class NatTraversalManagerImpl implements NatTraversalManager {
 
-import static org.springframework.dao.support.DataAccessUtils.singleResult;
-/**
- * Make this class abstract - the functionality of this class has to be used only through
- * "natTraversalManager" proxy defined in nattraversal.beans.xml
- */
-public class NatTraversalManagerImpl extends SipxHibernateDaoSupport<NatTraversal> implements NatTraversalManager,
-        BeanFactoryAware {
+    private SipxServiceManager m_sipxServiceManager;
 
-    private BeanFactory m_beanFactory;
-
-    private DialPlanActivationManager m_dialPlanActivationManager;
+    private ServiceConfigurator m_serviceConfigurator;
 
     public void store(NatTraversal natTraversal) {
-        checkForRTPPortRangeOverlap(natTraversal);
-        saveBeanWithSettings(natTraversal);
-        m_dialPlanActivationManager.replicateDialPlan(true);
+        natTraversal.store(m_sipxServiceManager);
+        natTraversal.activate(m_serviceConfigurator);
     }
 
     public NatTraversal getNatTraversal() {
-        List nats = getHibernateTemplate().loadAll(NatTraversal.class);
-        NatTraversal natTraversal = (NatTraversal) singleResult(nats);
-        return natTraversal;
+        return new NatTraversal(m_sipxServiceManager);
     }
 
-    /**
-     * Save in database the default settings for NAT Traversal once the application is initialized -
-     * since replication process uses READ ONLY hibernate session. NAT Traversal has to be saved
-     * before replicaion This method is called only once (after application initialization) in
-     * NatTarversalInit listener
-     */
-    public void saveDefaultNatTraversal() {
-        List nats = getHibernateTemplate().loadAll(NatTraversal.class);
-        NatTraversal natTraversal = (NatTraversal) singleResult(nats);
-        // create a new one if one doesn't exists, otherwise
-        // risk having 2 or more in database
-        if (natTraversal == null) {
-            natTraversal = (NatTraversal) m_beanFactory.getBean("natTraversal");
-            getHibernateTemplate().save(natTraversal);
-            // make sure that hibernate session is synchronized with database data
-            getHibernateTemplate().flush();
-        }
+    public void activateNatTraversal() {
+        getNatTraversal().activate(m_serviceConfigurator);
     }
 
-    private void checkForRTPPortRangeOverlap(NatTraversal natTraversal) {
-        int rangeStartNat = Integer.parseInt(natTraversal.getSettingValue(NatTraversal.RTP_PORT_START));
-        int rangeEndNat = Integer.parseInt(natTraversal.getSettingValue(NatTraversal.RTP_PORT_END));
-        if (rangeStartNat > rangeEndNat) {
-            throw new UserException("&error.startEndRtp");
-        }
+    @Required
+    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
+        m_sipxServiceManager = sipxServiceManager;
     }
 
-    public void setBeanFactory(BeanFactory beanFactory) {
-        m_beanFactory = beanFactory;
-    }
-
-    public void setDialPlanActivationManager(DialPlanActivationManager dialPlanActivationManager) {
-        m_dialPlanActivationManager = dialPlanActivationManager;
+    @Required
+    public void setServiceConfigurator(ServiceConfigurator serviceConfigurator) {
+        m_serviceConfigurator = serviceConfigurator;
     }
 }
