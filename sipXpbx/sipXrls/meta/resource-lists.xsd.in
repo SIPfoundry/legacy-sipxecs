@@ -53,7 +53,7 @@
 	   should not contain any (URI) escapes or characters
 	   requiring escaping (within URIs). -->
       <attribute name="user" type="string" use="required" />
-      <!-- 'uri-cons' is the user-part of the URI for "consolidated"
+      <!-- 'user-cons' is the user-part of the URI for "consolidated"
 	   (Broadworks-style) resource list events. -->
       <attribute name="user-cons" type="string" use="required" />
       <!-- 'version', 'fullState', and 'cid' are omitted. -->
