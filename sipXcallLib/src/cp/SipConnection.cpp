@@ -4701,6 +4701,8 @@ void SipConnection::processInviteResponse(const SipMessage* response)
 
         // Send the ACK message
         send(sipRequest);
+        bool sendDelayedRefer = FALSE;
+
         if (mFarEndHoldState == TERMCONNECTION_HOLDING)
         {
             setTerminalConnectionState(PtTerminalConnection::HELD, 1);
@@ -4732,7 +4734,8 @@ void SipConnection::processInviteResponse(const SipMessage* response)
                 // This hold was performed as a precurser to
                 // A blind transfer.
                 mHoldCompleteAction = CpCallManager::CP_UNSPECIFIED;
-                doBlindRefer();
+                //doBlindRefer();
+                sendDelayedRefer = TRUE;
                 break;
 
             default:
@@ -4949,6 +4952,11 @@ void SipConnection::processInviteResponse(const SipMessage* response)
         }
         if(matchingCodecs) delete[] matchingCodecs;
         matchingCodecs = NULL;
+
+        if (sendDelayedRefer)   // send refer AFTER options, gets CSeq's right
+        {
+            doBlindRefer();
+        }
     }   // end 2xx
 
     // Redirect
