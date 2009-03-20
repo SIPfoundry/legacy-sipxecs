@@ -4,15 +4,20 @@
 <nattraversal xmlns="http://www.sipfoundry.org/sipX/schema/xml/nattraversalrules-00-00">
 #set($relay=${service.getSettings().getSetting('relay-config')})
 #set($nat=${service.getSettings().getSetting('nat')})
+#set($behindnat=${nat.getSetting('behind-nat').Value})
   <info>
     <state>${nat.getSetting('enabled').Value}</state>
-    <behindnat>${nat.getSetting('behind-nat').Value}</behindnat>
+    <behindnat>$behindnat</behindnat>
+#if($behindnat == 'true')
     <useSTUN>${natlocation.useStun}</useSTUN>
 #if(${natlocation.useStun})
     <stun-server-address>${natlocation.stunAddress}</stun-server-address>
     <rediscovery-time>${natlocation.stunInterval}</rediscovery-time>
 #else
     <publicaddress>${natlocation.publicAddress}</publicaddress>
+#end
+#else
+    <useSTUN>false</useSTUN>
 #end
     <publicport>${natlocation.publicPort}</publicport>
     <proxyhostport>${location.address}:${proxyService.sipPort}</proxyhostport>

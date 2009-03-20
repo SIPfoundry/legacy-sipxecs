@@ -5,9 +5,7 @@
   <info>
     <state>enabled</state>
     <behindnat>false</behindnat>
-    <useSTUN>true</useSTUN>
-    <stun-server-address>stun01.sipphone.com</stun-server-address>
-    <rediscovery-time>60</rediscovery-time>
+    <useSTUN>false</useSTUN>
     <publicport>5060</publicport>
     <proxyhostport>192.168.1.1:5060</proxyhostport>
     <mediarelayxml-rpc-port>9090</mediarelayxml-rpc-port>
