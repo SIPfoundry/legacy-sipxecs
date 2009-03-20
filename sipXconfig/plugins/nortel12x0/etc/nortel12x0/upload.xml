@@ -7,23 +7,14 @@
       <contentType>application/binary</contentType>
     </file>
   </type>
+  <type id="zip">
+    <file>
+      <contentType>application/zip</contentType>
+    </file>
+  </type>
   <group name="nortel12x0Firmware">
-    <label>Nortel IP Phone 1210/1220/1230 Firmware</label>
-    <description>Firmware upgrade for Nortel IP Phone 1210/1220/1230</description>
-    <setting name="image1210.bin">
-      <label>Firmware for Nortel IP Phone 1210</label>
-      <type refid="binary"/>
-      <description>Example File Name: 1210.img</description>
-    </setting>
-    <setting name="image1220.bin">
-      <label>Firmware for Nortel IP Phone 1220</label>
-      <type refid="binary"/>
-      <description>Example File Name: 1220.img</description>
-    </setting>
-    <setting name="image1230.bin">
-      <label>Firmware for Nortel IP Phone 1230</label>
-      <type refid="binary"/>
-      <description>Example File Name: 1230.img</description>
+    <setting name="image12x0.zip">
+      <type refid="zip"/>
     </setting>
   </group>
 </model>
