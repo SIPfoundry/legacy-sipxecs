@@ -7,6 +7,7 @@
 package org.sipfoundry.sipxbridge;
 
 import java.net.InetAddress;
+import java.util.HashSet;
 
 import org.apache.log4j.Logger;
 
@@ -29,7 +30,7 @@ public class BridgeConfiguration {
     private int sipxProxyPort = -1;
     private String sipxProxyDomain;
     private String stunServerAddress = null;
-    private String logLevel = "INFO";
+    private String logLevel = "WARN";
     private String musicOnHoldName = "~~mh~";
     private boolean musicOnHoldEnabled = false;
     private int xmlRpcPort = 0;
@@ -45,10 +46,17 @@ public class BridgeConfiguration {
     private String sipxProxyTransport = "udp";
     private String sipxbridgeUserName = null;
     private String sipxbridgePassword = null;
-    
+    private int musicOnHoldDelayMiliseconds = 500;
+    private HashSet<Integer> parkServerCodecs = new HashSet<Integer>();
     private boolean isSecure = true;
+    private int sipSessionTimerIntervalSeconds = 1800;
 
     private static Logger logger = Logger.getLogger(BridgeConfiguration.class);
+    
+    public BridgeConfiguration() {
+            parkServerCodecs.add(RtpPayloadTypes.getPayloadType("PCMU"));
+            parkServerCodecs.add(RtpPayloadTypes.getPayloadType("PCMA"));
+    }
 
     /**
      * @param externalAddress the externalAddress to set
@@ -215,6 +223,14 @@ public class BridgeConfiguration {
         else
             return this.musicOnHoldName;
     }
+    
+    public void setMusicOnHoldName( String musicOnHoldName ) {
+        this.musicOnHoldName = musicOnHoldName;
+    }
+    
+    /**
+     * The session timer interval.
+     */
 
     /**
      * @param musicOnHoldEnabled the musicOnHoldEnabled to set
@@ -447,5 +463,58 @@ public class BridgeConfiguration {
     public String getSipxbridgePassword() {
         return sipxbridgePassword;
     }
+
+    /**
+     * @param musicOnHoldDelay the musicOnHoldDelay to set
+     */
+    public void setMusicOnHoldDelayMiliseconds(int musicOnHoldDelay) {
+        this.musicOnHoldDelayMiliseconds = musicOnHoldDelay;
+    }
+
+    /**
+     * @return the musicOnHoldDelay
+     */
+    public int getMusicOnHoldDelayMiliseconds () {
+        return musicOnHoldDelayMiliseconds;
+    }
+
+    
+    public void setMohSupportedCodecs(String mohCodecs) throws IllegalArgumentException {
+        String[] codecs = mohCodecs.split("\\,");
+        for ( String codec : codecs) {
+            if ( ! RtpPayloadTypes.isPayload(codec)) {
+                throw new IllegalArgumentException("Could not find codec " + codec);
+            }
+            int codecNumber = RtpPayloadTypes.getPayloadType(codec);
+            this.parkServerCodecs.add(codecNumber);
+        }
+    }
+
+    /**
+     * @return the parkServerCodecs
+     */
+    public HashSet<Integer> getParkServerCodecs() {
+        return parkServerCodecs;
+    }
+
+    /**
+     * @param sipSessionTimerIntervalSeconds the sipSessionTimerIntervalSeconds to set
+     */
+    public void setSipSessionTimerIntervalSeconds(int sipSessionTimerIntervalSeconds) {
+        if ( sipSessionTimerIntervalSeconds < 0 ) {
+            throw new IllegalArgumentException("Bad session timer interval " 
+                    + sipSessionTimerIntervalSeconds) ;
+        }
+        this.sipSessionTimerIntervalSeconds = sipSessionTimerIntervalSeconds;
+    }
+
+    /**
+     * @return the sipSessionTimerIntervalSeconds
+     */
+    public int getSipSessionTimerIntervalSeconds() {
+        return sipSessionTimerIntervalSeconds;
+    }
+    
+    
 
 }

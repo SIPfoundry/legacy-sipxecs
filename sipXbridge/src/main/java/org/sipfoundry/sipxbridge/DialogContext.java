@@ -420,7 +420,7 @@ class DialogContext {
 					.getSessionTimerMethod());
 			Gateway.getTimer().schedule(
 					this.sessionTimer,
-					Gateway.SESSION_EXPIRES * 1000 - Gateway.TIMER_ADVANCE
+					Gateway.getSessionExpires() * 1000 - Gateway.TIMER_ADVANCE
 							* 1000);
 		}
 
@@ -912,7 +912,7 @@ class DialogContext {
 	 * Send INVITE to MOH server.
 	 */
 	void sendMohInvite(ClientTransaction mohClientTransaction) {
-		Gateway.getTimer().schedule(new MohTimer(mohClientTransaction), 500);
+		Gateway.getTimer().schedule(new MohTimer(mohClientTransaction), Gateway.getMusicOnHoldDelayMiliseconds());
 	}
 
 	/**

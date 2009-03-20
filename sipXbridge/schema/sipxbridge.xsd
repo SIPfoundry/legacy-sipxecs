@@ -133,6 +133,14 @@
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+
+			<xs:element name="sip-session-timer-interval-seconds" type="xs:integer" default="1800" >
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The Session Timer interval (for in-DIALOG re-INVITES)
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 			
 			<xs:element name="media-keepalive-seconds" type="xs:integer"
 				minOccurs="0" maxOccurs="1" default="2">
@@ -144,19 +152,6 @@
 				</xs:annotation>
 			</xs:element>
 			
-
-			<xs:element name="max-number-of-concurrent-calls" type="xs:integer"
-				maxOccurs="1" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation xml:lang="en">
-						The maximum number of concurrent calls allowed via sipxbridge
-						bridge overall. If undefined no limit is imposed.
-						When the limit is reached, sipxbridge will return 
-						"Service Unavailable".
-					</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-
 			<xs:element name="music-on-hold-support-enabled" type="xs:boolean"
 				maxOccurs="1" minOccurs="0" default="false">
 				<xs:annotation>
@@ -164,6 +159,36 @@
 						Whether or not sipxbridge Music On Hold support is enabled.
 						Phones should disable their MOH support if sipxbridge support
 						for MOH is enabled.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="music-on-hold-address" type="xs:string"
+				maxOccurs="1" minOccurs="0" default="~~mh~">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The MOH server address. This can be a host@domain. 
+						If the domain part is missing, it defaults to the sipx domain.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="music-on-hold-delay-miliseconds" type="xs:integer"
+				maxOccurs="1" minOccurs="0" default="500">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The delay after which MOH will start to play.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="music-on-hold-supported-codecs" type="xs:string"
+				maxOccurs="1" minOccurs="0" default="PCMU,PCMA">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Codecs supported by the MOH ( Park ) server 
+						(allows us to short circuit the MOH setup if these codecs 
+						are not supported in the ITSP SDP OFFER).
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
@@ -180,7 +205,7 @@
 
 			
 			<xs:element name="log-level" maxOccurs="1" minOccurs="0"
-				default="INFO">
+				default="WARN">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
 						Log configuration. Defaults to INFO level.
@@ -193,6 +218,7 @@
 						<xs:enumeration value="WARN" />
 						<xs:enumeration value="ERROR" />
 						<xs:enumeration value="DEBUG" />
+						<xs:enumeration value="TRACE" />
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:element>

@@ -161,11 +161,7 @@ public class Gateway {
 	 */
 	protected static final int MIN_EXPIRES = 60;
 
-	/*
-	 * Session expires interval (initial value)
-	 */
-	protected static final int SESSION_EXPIRES = 30 * 60;
-
+	
 	/*
 	 * Advance timer by 10 seconds for session timer.
 	 */
@@ -185,19 +181,13 @@ public class Gateway {
 
 	private static HashSet<String> proxyAddressTable = new HashSet<String>();
 
-	private static HashSet<Integer> parkServerCodecs = new HashSet<Integer>();
+
 
 	static SipFoundryAppender logAppender;
 
 	private static SymmitronConfig symconfig;
 
-	// ///////////////////////////////////////////////////////////////////////
-	// Our park server only supports PCMU and PCMA
-	static {
-		parkServerCodecs.add(RtpPayloadTypes.getPayloadType("PCMU"));
-		parkServerCodecs.add(RtpPayloadTypes.getPayloadType("PCMA"));
-	}
-
+	
 	// ///////////////////////////////////////////////////////////////////////
 
 	/**
@@ -525,12 +515,7 @@ public class Gateway {
 			int localPort = bridgeConfiguration.getLocalPort();
 			String localIpAddress = bridgeConfiguration.getLocalAddress();
 
-			SipURI mohUri = accountManager.getBridgeConfiguration()
-					.getMusicOnHoldName() == null ? null
-					: ProtocolObjects.addressFactory.createSipURI(
-							accountManager.getBridgeConfiguration()
-									.getMusicOnHoldName(), Gateway
-									.getSipxProxyDomain());
+			SipURI mohUri = Gateway.getMusicOnHoldUri();
 			if (mohUri != null) {
 				musicOnHoldAddress = ProtocolObjects.addressFactory
 						.createAddress(mohUri);
@@ -675,11 +660,18 @@ public class Gateway {
 	 */
 	static SipURI getMusicOnHoldUri() {
 		try {
-			return accountManager.getBridgeConfiguration().getMusicOnHoldName() == null ? null
-					: ProtocolObjects.addressFactory.createSipURI(
-							accountManager.getBridgeConfiguration()
+			if (  getBridgeConfiguration().getMusicOnHoldName() == null ) {
+			    return null;
+			} else if ( getBridgeConfiguration().getMusicOnHoldName().indexOf("@") == -1) { 
+					return ProtocolObjects.addressFactory.createSipURI(
+							getBridgeConfiguration()
 									.getMusicOnHoldName(), Gateway
 									.getSipxProxyDomain());
+			} else {
+			       return (SipURI) ProtocolObjects.addressFactory.createURI(
+                           "sip:" + getBridgeConfiguration()
+                           .getMusicOnHoldName());
+			}
 		} catch (Exception ex) {
 			logger.error("Unexpected exception creating Music On Hold URI", ex);
 			throw new SipXbridgeException("Unexpected exception", ex);
@@ -1120,7 +1112,7 @@ public class Gateway {
 	}
 
 	static int getSessionExpires() {
-		return SESSION_EXPIRES;
+		return getBridgeConfiguration().getSipSessionTimerIntervalSeconds();
 	}
 
 	/**
@@ -1137,6 +1129,13 @@ public class Gateway {
 	 */
 	static String getSessionTimerMethod() {
 		return Request.INVITE;
+	}
+	
+	/**
+	 * Get the Music On hold delay ( after which MOH is played )
+	 */
+	static int getMusicOnHoldDelayMiliseconds() {
+	    return getBridgeConfiguration().getMusicOnHoldDelayMiliseconds();
 	}
 
 	/**
@@ -1189,7 +1188,7 @@ public class Gateway {
 	 * @return
 	 */
 	static HashSet<Integer> getParkServerCodecs() {
-		return parkServerCodecs;
+		return getBridgeConfiguration().getParkServerCodecs();
 	}
 
 	/**

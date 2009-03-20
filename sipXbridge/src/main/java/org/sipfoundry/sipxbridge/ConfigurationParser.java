@@ -81,6 +81,20 @@ public class ConfigurationParser {
                 "music-on-hold-support-enabled"), "setMusicOnHoldSupportEnabled", 0, new Class[] {
             Boolean.class
         });
+        
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "music-on-hold-delay-miliseconds"),
+                "setMusicOnHoldDelayMiliseconds", 0, new Class[] {
+                    Integer.class
+        });
+        
+
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "music-on-hold-supported-codecs"),
+                "setMohSupportedCodecs", 0);
+        
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "music-on-hold-address"),
+                "setMusicOnHoldName", 0);
+
+        
 
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "secure-xml-rpc"),
                 "setSecure", 0, new Class[] {
@@ -91,13 +105,15 @@ public class ConfigurationParser {
                 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "sip-keepalive-seconds"),
                 "setSipKeepalive", 0);
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "sip-session-timer-interval-seconds"),
+                "setSipSessionTimerIntervalSeconds", 0, new Class[] {
+                    Integer.class
+        });
+        
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "media-keepalive-seconds"),
                 "setMediaKeepalive", 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "log-directory"),
                 "setLogFileDirectory", 0);
-
-        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
-                "max-number-of-concurrent-calls"), "setMaxCalls", 0);
 
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,
                 "route-inbound-calls-to-extension"), "setAutoAttendantName", 0, new Class[] {
@@ -106,6 +122,7 @@ public class ConfigurationParser {
 
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "sipxrelay-host"),
                 "setSymmitronHost", 0);
+        
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "sipxrelay-xml-rpc-port"),
                 "setSymmitronXmlRpcPort", 0);
 
