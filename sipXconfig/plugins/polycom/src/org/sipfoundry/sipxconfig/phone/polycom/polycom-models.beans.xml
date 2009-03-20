@@ -132,7 +132,7 @@
     parent="abstractPhone">
   </bean>
   <bean id="polycomFirmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
-    <property name="beanId" value="zipUpload" />
+    <property name="beanId" value="upload" />
     <property name="modelFilePath" value="polycom/upload.xml" />
     <property name="label" value="Polycom Soundpoint" />
   </bean>

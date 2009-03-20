@@ -23,5 +23,8 @@
     <setting name="licenses.zip">
       <type refid="zip"/>
     </setting>
+    <setting name="license.cfg">
+      <type refid="binary"/>
+    </setting>
   </group>
 </model>

@@ -4,7 +4,7 @@
     <upload 
         upload_id="1000" 		
         name="flamingo"
-        bean_id="zipUpload"
+        bean_id="upload"
         deployed="false"
 		    specification_id="someSpecId"/>
 </dataset>

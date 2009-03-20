@@ -36,7 +36,7 @@ public class ZipUploadTest extends TestCase {
     }
 
     public void testDeployUndeploy() throws Exception {
-        ZipUpload.deployZipFile(m_expandDir, m_zipFile);
+        Upload.deployZipFile(m_expandDir, m_zipFile);
         File file1 = new File(m_expandDir, "zip-test/subdir/file1.txt");
         assertTrue(file1.exists());
         assertTrue(IOUtils.contentEquals(getClass().getResourceAsStream("file1.txt"),
@@ -45,14 +45,14 @@ public class ZipUploadTest extends TestCase {
         assertTrue(file3.exists());
         InputStream stream3 = getClass().getResourceAsStream("file3.bin");
         assertTrue(IOUtils.contentEquals(stream3, new FileInputStream(file3)));
-        ZipUpload.undeployZipFile(m_expandDir, m_zipFile);
+        Upload.undeployZipFile(m_expandDir, m_zipFile);
         assertFalse(file1.exists());
     }
 
     public void testUndeployMissing() throws Exception {
         File file = new File("test_missing_file.zip");
         assertFalse(file.exists());
-        ZipUpload.undeployZipFile(m_expandDir, file);
+        Upload.undeployZipFile(m_expandDir, file);
     }
 
     public void testFile() throws Exception {

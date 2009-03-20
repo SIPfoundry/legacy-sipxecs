@@ -23,7 +23,7 @@
   </bean>
 
   <bean id="nt1535Upload" class="org.sipfoundry.sipxconfig.phone.nt1535.NT1535Upload" 
-    singleton="false" parent="zipUpload">
+    singleton="false" parent="upload">
     <property name="profileDir">
       <value>${sysdir.phone}/profile/tftproot</value>
     </property>

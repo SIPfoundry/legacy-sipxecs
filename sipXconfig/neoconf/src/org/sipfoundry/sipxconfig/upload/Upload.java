@@ -15,6 +15,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Enumeration;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -32,6 +36,7 @@ import org.sipfoundry.sipxconfig.setting.type.SettingType;
  */
 public class Upload extends BeanWithSettings {
     private static final Log LOG = LogFactory.getLog(Upload.class);
+    private static final String ZIP_TYPE = "application/zip";
     private String m_name;
     private String m_description;
     private UploadSpecification m_specification;
@@ -42,7 +47,8 @@ public class Upload extends BeanWithSettings {
     private boolean m_deployed;
     private String m_directoryId;
     private ModelSource<UploadSpecification> m_specificationSource;
-
+    
+    
     public Upload() {
     }
 
@@ -139,8 +145,15 @@ public class Upload extends BeanWithSettings {
             SettingType type = setting.getType();
             if (type instanceof FileSetting) {
                 String filename = setting.getValue();
+                                               
                 if (filename != null) {
-                    deployFile(filename);
+                    String contentType = ((FileSetting) type).getContentType();  
+                    if (contentType.equalsIgnoreCase(ZIP_TYPE)) {
+                        deployZipFile(new File(getDestinationDirectory()), new File(
+                            getUploadDirectory(), filename));
+                    } else  {
+                        deployFile(filename);
+                    }
                 }
             }
         }
@@ -152,8 +165,14 @@ public class Upload extends BeanWithSettings {
             if (type instanceof FileSetting) {
                 String filename = setting.getValue();
                 if (filename != null) {
-                    File f = new File(getDestinationDirectory(), filename);
-                    f.delete();
+                    String contentType = ((FileSetting) type).getContentType();  
+                    if (contentType.equalsIgnoreCase(ZIP_TYPE)) {
+                        undeployZipFile(new File(getDestinationDirectory()), new File(
+                                getUploadDirectory(), filename));
+                    } else {
+                        File f = new File(getDestinationDirectory(), filename);
+                        f.delete();
+                    }
                 }
             }
         }
@@ -217,14 +236,13 @@ public class Upload extends BeanWithSettings {
     public String getUploadDirectory() {
         return m_uploadRootDirectory + '/' + getDirectoryId();
     }
-
     public void deploy() {
-        getSettings().acceptVisitor(new FileDeployer());        
+        getSettings().acceptVisitor(new FileDeployer());
         m_deployed = true;
     }
     
     public void undeploy() {
-        getSettings().acceptVisitor(new FileUndeployer());        
+        getSettings().acceptVisitor(new FileUndeployer());
         m_deployed = false;
     }
 
@@ -235,4 +253,67 @@ public class Upload extends BeanWithSettings {
     public void setUploadSpecificationSource(ModelSource<UploadSpecification> specificationSource) {
         m_specificationSource = specificationSource;
     }
+    
+    
+    /**
+     * Uses zip file list and list of files to be deleted
+     */
+    static void undeployZipFile(File expandedDirectory, File zipFile) {
+        if (!zipFile.canRead()) {
+            LOG.warn("Undeploying missing or unreadable file: " + zipFile.getPath());
+            return;
+        }
+        try {
+            ZipFile zip = new ZipFile(zipFile);
+            Enumeration< ? extends ZipEntry> entries = zip.entries();
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                if (entry.isDirectory()) {
+                    // do not clean up directory, no guarantee we created them
+                    continue;
+                }
+                File victim = new File(expandedDirectory, entry.getName());
+                victim.delete();
+            }
+        } catch (ZipException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Expand zip file into destination directory
+     */
+    static void deployZipFile(File expandDirectory, File zipFile) {
+        try {
+            ZipFile zip = new ZipFile(zipFile);
+            Enumeration< ? extends ZipEntry> entries = zip.entries();
+            while (entries.hasMoreElements()) {
+                InputStream in = null;
+                OutputStream out = null;
+                try {
+                    ZipEntry entry = entries.nextElement();
+                    File file = new File(expandDirectory, entry.getName());
+                    if (entry.isDirectory()) {
+                        file.mkdirs();
+                    } else {
+                        file.getParentFile().mkdirs();
+                        in = zip.getInputStream(entry);
+                        out = new FileOutputStream(file);
+                        IOUtils.copy(in, out);
+                    }
+                } finally {
+                    IOUtils.closeQuietly(in);
+                    IOUtils.closeQuietly(out);
+                }
+            }
+            zip.close();
+        } catch (ZipException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

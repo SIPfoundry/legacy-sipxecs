@@ -40,11 +40,7 @@
     <property name="uploadSpecificationSource" ref="uploadSpecificationSource"/>
     <property name="uploadManager" ref="uploadManager"/>
   </bean>
-
-  <bean id="zipUpload" class="org.sipfoundry.sipxconfig.upload.ZipUpload"
-    singleton="false" parent="upload">
-  </bean>
-  
+ 
   <bean id="unmanagedUpload" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
     <property name="beanId" value="upload"/>
     <property name="modelFilePath" value="unmanagedPhone/upload.xml"/>

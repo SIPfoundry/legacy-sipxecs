@@ -17,14 +17,14 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.sipfoundry.sipxconfig.upload.ZipUpload;
+import org.sipfoundry.sipxconfig.upload.Upload;
 
 
 
 /**
  * Nortel 1535 device file upload.
  */
-public class  NT1535Upload extends ZipUpload {
+public class  NT1535Upload extends Upload {
 
     private static final Log LOG = LogFactory.getLog(NT1535Upload.class);
 

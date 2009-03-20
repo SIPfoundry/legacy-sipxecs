@@ -80,7 +80,7 @@
     <property name="profileGenerator" ref="grandstreamProfileGenerator" />
   </bean>
   <bean id="gsPhoneFirmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
-    <property name="beanId" value="zipUpload" />
+    <property name="beanId" value="upload" />
     <property name="modelFilePath" value="grandstream/upload.xml" />
     <property name="label" value="Grandstream" />
   </bean>

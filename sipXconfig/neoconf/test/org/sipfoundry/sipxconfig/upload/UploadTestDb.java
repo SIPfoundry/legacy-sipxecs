@@ -133,7 +133,7 @@ public class UploadTestDb extends SipxDatabaseTestCase {
     public void testLoadSubclass() throws Exception {
         TestHelper.cleanInsertFlat("upload/ZipUploadSeed.db.xml");
         Iterator<Upload> existing = m_manager.getUpload().iterator();
-        assertTrue(existing.next() instanceof ZipUpload);
+        assertTrue(existing.next() instanceof Upload);
         assertFalse(existing.hasNext());
     }
 }

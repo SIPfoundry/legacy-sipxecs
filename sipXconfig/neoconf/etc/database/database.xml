@@ -302,6 +302,7 @@
     <!-- temporary patches -->
     <antcall target="clean-sipx-service-values"/>
     <antcall target="backup-ftp-fix-empty-type-2" />
+    <antcall target="drop_zipupload"/>
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="9" -->
   </target>
@@ -911,6 +912,9 @@
   </target>
   <target name="acd_ext" unless="acd_ext">
     <db-patch patch="acd_ext" />
+  </target>
+  <target name="drop_zipupload" unless="drop_zipupload">
+    <db-patch patch="drop_zipupload" />
   </target>
 
   <!--
