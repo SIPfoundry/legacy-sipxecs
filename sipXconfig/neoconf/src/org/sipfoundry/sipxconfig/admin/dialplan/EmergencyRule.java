@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.FullTransform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
@@ -21,6 +22,7 @@ import org.sipfoundry.sipxconfig.gateway.Gateway;
  */
 public class EmergencyRule extends DialingRule {
     private static final String SOS = "sos";
+    private static final String ROUTE_PATTERN = "route=%s";
 
     private String m_emergencyNumber;
     private String m_optionalPrefix;
@@ -56,6 +58,10 @@ public class EmergencyRule extends DialingRule {
                 String validTime = getSchedule().calculateValidTime();
                 String scheduleParam = String.format(VALID_TIME_PARAM, validTime);
                 transform.addFieldParams(scheduleParam);
+            }
+            String route = gateway.getRoute();
+            if (StringUtils.isNotBlank(route)) {
+                transform.setHeaderParams(String.format(ROUTE_PATTERN, route));
             }
             transforms.add(transform);
         }

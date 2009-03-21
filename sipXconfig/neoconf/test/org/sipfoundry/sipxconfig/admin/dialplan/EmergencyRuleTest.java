@@ -22,9 +22,11 @@ import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime.WorkingHours;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.FullTransform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.admin.forwarding.GeneralSchedule;
 import org.sipfoundry.sipxconfig.admin.forwarding.Schedule;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
+import org.sipfoundry.sipxconfig.gateway.SipTrunk;
 import org.sipfoundry.sipxconfig.permission.Permission;
 
 /**
@@ -65,7 +67,13 @@ public class EmergencyRuleTest extends TestCase {
         g2.setAddressPort(0);
         g2.setAddressTransport(Gateway.AddressTransport.TCP);
         g2.setPrefix("4321");
-        m_rule.setGateways(Arrays.asList(g1, g2));
+        Gateway g3 = new SipTrunk();
+        g3.setAddress("sosgateway3.com");
+        g3.setAddressPort(5555);
+        SbcDevice sbcDevice = new SbcDevice();
+        sbcDevice.setAddress("bridge.example.org");
+        g3.setSbcDevice(sbcDevice);
+        m_rule.setGateways(Arrays.asList(g1, g2, g3));
     }
 
     public void testGetPatterns() {
@@ -78,31 +86,37 @@ public class EmergencyRuleTest extends TestCase {
 
     public void testGetTransforms() {
         Transform[] transforms = m_rule.getTransforms();
-        assertEquals(2, transforms.length);
+        assertEquals(3, transforms.length);
         FullTransform emergencyTransform = (FullTransform) transforms[0];
         assertEquals("911", emergencyTransform.getUser());
         assertEquals("sosgateway1.com:4000", emergencyTransform.getHost());
         assertNull(emergencyTransform.getUrlParams());
-        assertEquals("q=0.933", emergencyTransform.getFieldParams()[0]);
+        assertEquals("q=0.95", emergencyTransform.getFieldParams()[0]);
 
         emergencyTransform = (FullTransform) transforms[1];
         assertEquals("4321911", emergencyTransform.getUser());
         assertEquals("sosgateway2.com", emergencyTransform.getHost());
         assertEquals("transport=tcp", emergencyTransform.getUrlParams()[0]);
-        assertEquals("q=0.867", emergencyTransform.getFieldParams()[0]);
+        assertEquals("q=0.9", emergencyTransform.getFieldParams()[0]);
+
+        emergencyTransform = (FullTransform) transforms[2];
+        assertEquals("sosgateway3.com:5555", emergencyTransform.getHost());
+        assertNull(emergencyTransform.getUrlParams());
+        assertEquals("q=0.85", emergencyTransform.getFieldParams()[0]);
+        assertEquals("route=bridge.example.org", emergencyTransform.getHeaderParams()[0]);
     }
 
     public void testGetTransformsWithSchedule() {
         m_rule.setSchedule(m_schedule);
         Transform[] transforms = m_rule.getTransforms();
-        assertEquals(2, transforms.length);
+        assertEquals(3, transforms.length);
         FullTransform emergencyTransform = (FullTransform) transforms[0];
         assertEquals("911", emergencyTransform.getUser());
         assertEquals("sosgateway1.com:4000", emergencyTransform.getHost());
         assertNull(emergencyTransform.getUrlParams());
         String[] fieldParams = emergencyTransform.getFieldParams();
         assertEquals(2, fieldParams.length);
-        assertEquals("q=0.933", fieldParams[0]);
+        assertEquals("q=0.95", fieldParams[0]);
         assertTrue(fieldParams[1].startsWith(VALIDTIME_PARAMS));
 
         emergencyTransform = (FullTransform) transforms[1];
@@ -110,8 +124,17 @@ public class EmergencyRuleTest extends TestCase {
         assertEquals("sosgateway2.com", emergencyTransform.getHost());
         fieldParams = emergencyTransform.getFieldParams();
         assertEquals(2, fieldParams.length);
-        assertEquals("q=0.867", fieldParams[0]);
+        assertEquals("q=0.9", fieldParams[0]);
         assertEquals("transport=tcp", emergencyTransform.getUrlParams()[0]);
+        assertTrue(fieldParams[1].startsWith(VALIDTIME_PARAMS));
+
+        emergencyTransform = (FullTransform) transforms[2];
+        assertEquals("sosgateway3.com:5555", emergencyTransform.getHost());
+        assertEquals("route=bridge.example.org", emergencyTransform.getHeaderParams()[0]);
+        assertNull(emergencyTransform.getUrlParams());
+        fieldParams = emergencyTransform.getFieldParams();
+        assertEquals(2, fieldParams.length);
+        assertEquals("q=0.85", fieldParams[0]);
         assertTrue(fieldParams[1].startsWith(VALIDTIME_PARAMS));
     }
 
@@ -125,12 +148,12 @@ public class EmergencyRuleTest extends TestCase {
         m_rule.setEnabled(true);
         m_rule.setDescription(testDescription);
         List<Gateway> gateways = m_rule.getGateways();
-        assertEquals(2, gateways.size());
+        assertEquals(3, gateways.size());
         ArrayList<DialingRule> rules = new ArrayList<DialingRule>();
         m_rule.appendToGenerationRules(rules);
         assertEquals(1, rules.size());
         DialingRule rule = rules.get(0);
-        assertEquals(2, rule.getGateways().size());
+        assertEquals(3, rule.getGateways().size());
         assertEquals(testDescription, rule.getDescription());
     }
 
