@@ -15,6 +15,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Collections.sort;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IAsset;
@@ -54,6 +56,7 @@ import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
 import org.sipfoundry.sipxconfig.service.SipxRelayService;
 import org.sipfoundry.sipxconfig.service.SipxRlsService;
 import org.sipfoundry.sipxconfig.service.SipxService;
+import org.sipfoundry.sipxconfig.service.SipxServiceBundle;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.service.SipxStatusService;
 import org.sipfoundry.sipxconfig.site.acd.AcdServerPage;
@@ -71,6 +74,7 @@ import org.sipfoundry.sipxconfig.site.service.EditRelayService;
 import org.sipfoundry.sipxconfig.site.service.EditResourceListService;
 import org.sipfoundry.sipxconfig.site.service.EditStatusService;
 
+import static org.apache.commons.lang.StringUtils.join;
 import static org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status.Undefined;
 import static org.sipfoundry.sipxconfig.components.LocalizationUtils.getMessage;
 
@@ -155,6 +159,19 @@ public abstract class ServicesTable extends BaseComponent {
         return getMessage(getMessages(), key, serviceBeanId);
     }
 
+    public String getServiceRoles() {
+        String beanId = getCurrentRow().getServiceBeanId();
+        SipxService service = getSipxServiceManager().getServiceByBeanId(beanId);
+        List<SipxServiceBundle> serviceBundles = service.getBundles(getServiceLocation());
+        List<String> rolesLabels = new ArrayList<String>();
+        for (SipxServiceBundle bundle : serviceBundles) {
+            String serviceBundleName = bundle.getName();
+            rolesLabels.add(getMessage(getMessages(), "bundle." + serviceBundleName, serviceBundleName));
+        }
+        sort(rolesLabels);
+        return join(rolesLabels.iterator(), ", ");
+    }
+
     public boolean isNeedsRestart() {
         return getCurrentRow().isNeedsRestart();
     }
@@ -184,6 +201,7 @@ public abstract class ServicesTable extends BaseComponent {
                 String serviceName = service.getProcessName();
                 if (serviceName != null) {
                     boolean needsRestart = getSipxProcessContext().needsRestart(location, service);
+
                     ServiceStatus status = new ServiceStatus(service.getBeanId(), Undefined, needsRestart);
                     serviceStatusList.add(status);
                 }
@@ -209,9 +227,8 @@ public abstract class ServicesTable extends BaseComponent {
                 return EditSbcDevice.getEditPage(cycle, getSbcDeviceManager().getBridgeSbc(
                         getLocationsManager().getLocation(locationId).getAddress()).getId(), getEditLocationPage()
                         .getPage());
-            } else {
-                return EditSbcDevice.getAddPage(cycle, getSbcDescriptor(), getEditLocationPage().getPage());
             }
+            return EditSbcDevice.getAddPage(cycle, getSbcDescriptor(), getEditLocationPage().getPage());
         }
         page.setReturnPage(EditLocationPage.PAGE);
         return page;

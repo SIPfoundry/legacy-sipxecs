@@ -154,7 +154,7 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
 
     /**
      * Create collection of all known services.
-     * 
+     *
      * If service has been added to DB already a persisted version will be returned, if it's a
      * bran new service a Spring instantiated object will be returned.
      */
@@ -185,7 +185,7 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
             public boolean evaluate(Object item) {
                 SipxService service = (SipxService) item;
                 Set<SipxServiceBundle> serviceBundles = service.getBundles();
-                return (serviceBundles != null && serviceBundles.size() > 0) 
+                return (serviceBundles != null && serviceBundles.size() > 0)
                     && !intersection(serviceBundles, bundles).isEmpty();
             }
         };
@@ -238,7 +238,7 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
 
     /**
      * Transforms the given list of bundles into a corresponding list of bundles Ids
-     * 
+     *
      * @param bundles affected bundles
      * @return corresponding bundles ids
      */
@@ -255,7 +255,7 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
 
     /**
      * Checks if new bundle selection will honor maximum and minimum bundle counts.
-     * 
+     *
      * @param location server for which selection of bundles is changed
      * @param bundles proposed list of newly selected bundles for this location
      */

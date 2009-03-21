@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -16,6 +18,7 @@ import java.util.Set;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.device.Model;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
@@ -89,7 +92,7 @@ public abstract class SipxService extends BeanWithSettings implements Model {
     public void setSipxServiceManager(SipxServiceManager manager) {
         m_serviceManager = manager;
     }
-    
+
     public SipxServiceManager getSipxServiceManager() {
         return m_serviceManager;
     }
@@ -151,6 +154,23 @@ public abstract class SipxService extends BeanWithSettings implements Model {
         return m_bundles;
     }
 
+    /**
+     * Get bundles for this service installed on a given location
+     *
+     * @param location affected location
+     * @return collection of bundles
+     */
+    public List<SipxServiceBundle> getBundles(Location location) {
+        Collection<SipxServiceBundle> all = getBundles();
+        List<SipxServiceBundle> installed = new ArrayList<SipxServiceBundle>();
+        for (SipxServiceBundle bundle : all) {
+            if (location.isBundleInstalled(bundle.getModelId())) {
+                installed.add(bundle);
+            }
+        }
+        return installed;
+    }
+
     public boolean inBundle(SipxServiceBundle bundle) {
         return m_bundles != null && m_bundles.contains(bundle);
     }
@@ -186,7 +206,7 @@ public abstract class SipxService extends BeanWithSettings implements Model {
 
     /**
      * Checks if service should be automatically started/enabled.
-     * 
+     *
      * Service is auto-enabled if any of the bundled to which it belongs is auto-enabled
      */
     public boolean isAutoEnabled() {
@@ -210,12 +230,11 @@ public abstract class SipxService extends BeanWithSettings implements Model {
     }
 
     /**
-     * Sets the log level of this service to the specified log level.
-     * This method will only return the correct value if the concrete 
-     * subclass provides an implementation of getLogSetting().
-     * 
-     * Calling this method will cause this service object to be persisted 
-     * to the SipxServiceManager object
+     * Sets the log level of this service to the specified log level. This method will only return
+     * the correct value if the concrete subclass provides an implementation of getLogSetting().
+     *
+     * Calling this method will cause this service object to be persisted to the
+     * SipxServiceManager object
      */
     protected void setLogLevel(String logLevel) {
         if (logLevel != null && getLogSetting() != null) {
@@ -225,18 +244,17 @@ public abstract class SipxService extends BeanWithSettings implements Model {
     }
 
     /**
-     * Get the log level of this service.  This method will only return the 
-     * correct value if the concrete subclass provides an implementation of
-     * getLogSetting()
+     * Get the log level of this service. This method will only return the correct value if the
+     * concrete subclass provides an implementation of getLogSetting()
      */
     protected String getLogLevel() {
         if (getLogSetting() != null) {
             return getSettingValue(getLogSetting());
         }
-        
+
         return null;
     }
-    
+
     protected String getLabelKey() {
         return "label." + getBeanId();
     }
