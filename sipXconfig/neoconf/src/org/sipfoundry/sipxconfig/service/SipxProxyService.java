@@ -17,8 +17,6 @@ public class SipxProxyService extends SipxService implements LoggingEntity {
 
     private String m_secureSipPort;
 
-    private String m_logLevel;
-
     public String getSecureSipPort() {
         return m_secureSipPort;
     }
@@ -27,18 +25,22 @@ public class SipxProxyService extends SipxService implements LoggingEntity {
         this.m_secureSipPort = secureSipPort;
     }
 
+    @Override
     public String getLogSetting() {
         return LOG_SETTING;
     }
 
+    @Override
     public void setLogLevel(String logLevel) {
         super.setLogLevel(logLevel);
     }
 
+    @Override
     public String getLogLevel() {
         return super.getLogLevel();
     }
 
+    @Override
     public String getLabelKey() {
         return super.getLabelKey();
     }

@@ -16,8 +16,6 @@ public class SipxRlsService extends SipxService implements LoggingEntity {
 
     private String m_rlsPort;
 
-    private String m_logLevel;
-
     public String getRlsPort() {
         return m_rlsPort;
     }
@@ -26,18 +24,22 @@ public class SipxRlsService extends SipxService implements LoggingEntity {
         m_rlsPort = rlsPort;
     }
 
+    @Override
     public String getLogSetting() {
         return LOG_SETTING;
     }
 
+    @Override
     public void setLogLevel(String logLevel) {
         super.setLogLevel(logLevel);
     }
 
+    @Override
     public String getLogLevel() {
         return super.getLogLevel();
     }
 
+    @Override
     public String getLabelKey() {
         return super.getLabelKey();
     }

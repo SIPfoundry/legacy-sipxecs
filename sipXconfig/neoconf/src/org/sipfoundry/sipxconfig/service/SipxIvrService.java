@@ -22,8 +22,6 @@ public class SipxIvrService extends SipxService implements LoggingEntity {
     private String m_docDir;
     private DialPlanContext m_dialPlanContext;
 
-    private String m_logLevel;
-
     @Required
     public void setMailstoreDir(String mailstoreDirectory) {
         m_mailstoreDir = mailstoreDirectory;
@@ -68,18 +66,22 @@ public class SipxIvrService extends SipxService implements LoggingEntity {
         String voiceMail = m_dialPlanContext.getVoiceMail();
         return SipUri.fix(voiceMail, getDomainName());
     }
+    @Override
     public String getLogSetting() {
         return LOG_SETTING;
     }
 
+    @Override
     public void setLogLevel(String logLevel) {
         super.setLogLevel(logLevel);
     }
 
+    @Override
     public String getLogLevel() {
         return super.getLogLevel();
     }
 
+    @Override
     public String getLabelKey() {
         return super.getLabelKey();
     }

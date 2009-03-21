@@ -25,8 +25,6 @@ public class SipxPresenceService extends SipxService implements LoggingEntity {
 
     public static final String LOG_SETTING = "presence-config/SIP_PRESENCE_LOG_LEVEL";
 
-    private String m_logLevel;
-
     /**
      * Validates the data in this service and throws a UserException if there is a problem
      */
@@ -47,18 +45,22 @@ public class SipxPresenceService extends SipxService implements LoggingEntity {
         return (Integer) getSettingTypedValue(PRESENCE_API_PORT);
     }
 
+    @Override
     public String getLogSetting() {
         return LOG_SETTING;
     }
 
+    @Override
     public void setLogLevel(String logLevel) {
         super.setLogLevel(logLevel);
     }
 
+    @Override
     public String getLogLevel() {
         return super.getLogLevel();
     }
 
+    @Override
     public String getLabelKey() {
         return super.getLabelKey();
     }

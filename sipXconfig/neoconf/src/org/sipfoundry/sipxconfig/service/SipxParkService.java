@@ -16,8 +16,6 @@ public class SipxParkService extends SipxService implements LoggingEntity {
 
     private String m_parkServerSipPort;
 
-    private String m_logLevel;
-
     public String getParkServerSipPort() {
         return m_parkServerSipPort;
     }
@@ -26,18 +24,22 @@ public class SipxParkService extends SipxService implements LoggingEntity {
         m_parkServerSipPort = parkServerSipPort;
     }
 
+    @Override
     public String getLogSetting() {
         return LOG_SETTING;
     }
-    
+
+    @Override
     public void setLogLevel(String logLevel) {
         super.setLogLevel(logLevel);
     }
 
+    @Override
     public String getLogLevel() {
         return super.getLogLevel();
     }
 
+    @Override
     public String getLabelKey() {
         return super.getLabelKey();
     }

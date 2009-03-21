@@ -1,12 +1,12 @@
 /*
- * 
- * 
+ *
+ *
  * Copyright (C) 2006 SIPfoundry Inc.
  * Licensed by SIPfoundry under the LGPL license.
- * 
+ *
  * Copyright (C) 2006 Pingtel Corp.
  * Licensed to SIPfoundry under a Contributor Agreement.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.phone.nortel12x0;
@@ -18,20 +18,15 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.apache.commons.io.IOUtils;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
-import org.sipfoundry.sipxconfig.device.Profile;
 import org.sipfoundry.sipxconfig.device.RestartException;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
-import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
@@ -40,13 +35,14 @@ import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.speeddial.Button;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
+import junit.framework.TestCase;
+
 public class Nortel12x0PhoneTest extends TestCase {
 
     private final Collection<PhonebookEntry> m_emptyPhonebook = Collections.<PhonebookEntry> emptyList();
 
     public void _testFactoryRegistered() {
-        PhoneContext pc = (PhoneContext) TestHelper.getApplicationContext().getBean(
-                PhoneContext.CONTEXT_BEAN_NAME);
+        PhoneContext pc = (PhoneContext) TestHelper.getApplicationContext().getBean(PhoneContext.CONTEXT_BEAN_NAME);
         assertNotNull(pc.newPhone(new PhoneModel("nortel12x0")));
     }
 
@@ -65,7 +61,7 @@ public class Nortel12x0PhoneTest extends TestCase {
         model.setModelDir("nortel12x0");
         model.setProfileTemplate("nortel12x0/nortel12x0.vm");
         phone.setModel(model);
-	PhoneTestDriver.supplyTestData(phone);
+        PhoneTestDriver.supplyTestData(phone);
         assertNotNull(phone.getSettings());
     }
 
@@ -125,7 +121,6 @@ public class Nortel12x0PhoneTest extends TestCase {
         }
     }
 
-
     public void testGenerateTypicalProfile() throws Exception {
 
         Nortel12x0Phone phone = new Nortel12x0Phone();
@@ -140,7 +135,7 @@ public class Nortel12x0PhoneTest extends TestCase {
         InputStream expectedProfile = getClass().getResourceAsStream("expected-config");
         String expected = IOUtils.toString(expectedProfile);
         expectedProfile.close();
-	assertEquals(expected, location.toString());
+        assertEquals(expected, location.toString());
     }
 
     public void testGenerateProfilesForSpeedDial() throws Exception {
@@ -177,7 +172,7 @@ public class Nortel12x0PhoneTest extends TestCase {
         InputStream expectedProfile = getClass().getResourceAsStream("speed-dials");
         String expected = IOUtils.toString(expectedProfile);
         expectedProfile.close();
-	assertEquals(expected, location.toString());
+        assertEquals(expected, location.toString());
         phoneContextControl.verify();
     }
 
@@ -193,8 +188,8 @@ public class Nortel12x0PhoneTest extends TestCase {
         PhoneTestDriver.supplyTestData(phone);
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
 
-        List< ? extends PhonebookEntry> phonebook = Arrays.asList(new DummyEntry("001"),
-                new DummyEntry("003"), new DummyEntry("005"));
+        List< ? extends PhonebookEntry> phonebook = Arrays.asList(new DummyEntry("001"), new DummyEntry("003"),
+                new DummyEntry("005"));
 
         IMocksControl phoneContextControl = EasyMock.createNiceControl();
         PhoneContext phoneContext = phoneContextControl.createMock(PhoneContext.class);
@@ -210,7 +205,7 @@ public class Nortel12x0PhoneTest extends TestCase {
         InputStream expectedProfile = getClass().getResourceAsStream("phonebook");
         String expected = IOUtils.toString(expectedProfile);
         expectedProfile.close();
-	assertEquals(expected, location.toString());
+        assertEquals(expected, location.toString());
 
         phoneContextControl.verify();
     }
@@ -264,7 +259,7 @@ public class Nortel12x0PhoneTest extends TestCase {
         Nortel12x0Phone phone = new Nortel12x0Phone();
 
         Nortel12x0Context sc = new Nortel12x0Phone.Nortel12x0Context(phone, null, phonebook, null);
-        Collection<?> maxEntries = (Collection<?>) sc.getContext().get("phoneBook");
+        Collection< ? > maxEntries = (Collection< ? >) sc.getContext().get("phoneBook");
         assertEquals(200, maxEntries.size());
     }
 
@@ -279,7 +274,7 @@ public class Nortel12x0PhoneTest extends TestCase {
         Nortel12x0Phone phone = new Nortel12x0Phone();
 
         Nortel12x0Context sc = new Nortel12x0Phone.Nortel12x0Context(phone, null, phonebook, null);
-        Collection<?> maxEntries = (Collection<?>) sc.getContext().get("phoneBook");
+        Collection< ? > maxEntries = (Collection< ? >) sc.getContext().get("phoneBook");
         assertEquals(120, maxEntries.size());
     }
 
@@ -294,27 +289,9 @@ public class Nortel12x0PhoneTest extends TestCase {
         return sd;
     }
 
-    private void supplyTestData(Nortel12x0Phone phone) {
-        User u1 = new User();
-        u1.setUserName("juser");
-        u1.setFirstName("Joe");
-        u1.setLastName("User");
-        u1.setSipPassword("1234");
-
-        User u2 = new User();
-        u2.setUserName("buser");
-        u2.setSipPassword("abcdef");
-        u2.addAlias("432");
-
-        // call this to inject dummy data
-        PhoneTestDriver.supplyTestData(phone, Arrays.asList(new User[] {
-		     u1, u2
-        }));
-    }
-
     static class DummyEntry implements PhonebookEntry {
 
-        private String entry;
+        private final String entry;
 
         public DummyEntry(String param) {
             entry = param;

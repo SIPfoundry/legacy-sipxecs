@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
@@ -14,16 +14,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.TestCase;
-
 import org.apache.commons.codec.binary.Base64;
-import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.device.InMemoryConfiguration;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
+
+import junit.framework.TestCase;
 
 import static org.easymock.EasyMock.aryEq;
 import static org.easymock.EasyMock.createMock;
@@ -37,13 +36,14 @@ public class ReplicationManagerImplTest extends TestCase {
     private static final Location[] LOCATIONS = new Location[] {
         new Location(), new Location()
     };
-    
+
     private LocationsManager m_locationsManager;
     private ReplicationManagerImpl m_out;
-    
+
+    @Override
     public void setUp() {
         m_locationsManager = TestUtil.getMockLocationsManager();
-        
+
         m_out = new ReplicationManagerImpl();
         m_out.setLocationsManager(m_locationsManager);
     }
@@ -97,10 +97,12 @@ public class ReplicationManagerImplTest extends TestCase {
 
         DataSetGenerator file = new DataSetGenerator() {
 
+            @Override
             protected void addItems(List<Map<String, String>> items) {
                 items.add(data[0]);
             }
 
+            @Override
             protected DataSet getType() {
                 return DataSet.ALIAS;
             }

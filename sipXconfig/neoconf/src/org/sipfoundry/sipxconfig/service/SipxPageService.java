@@ -19,8 +19,6 @@ public class SipxPageService extends SipxService implements LoggingEntity {
 
     private String m_audioDirectory;
 
-    private String m_logLevel;
-
     public String getAudioDir() {
         return m_audioDirectory;
     }
@@ -29,22 +27,27 @@ public class SipxPageService extends SipxService implements LoggingEntity {
         m_audioDirectory = audioDirectory;
     }
 
+    @Override
     public String getSipPort() {
         return getSettingValue(SIP_PORT);
     }
 
+    @Override
     public String getLogSetting() {
         return LOG_SETTING;
     }
-    
+
+    @Override
     public void setLogLevel(String logLevel) {
         super.setLogLevel(logLevel);
     }
 
+    @Override
     public String getLogLevel() {
         return super.getLogLevel();
     }
 
+    @Override
     public String getLabelKey() {
         return super.getLabelKey();
     }

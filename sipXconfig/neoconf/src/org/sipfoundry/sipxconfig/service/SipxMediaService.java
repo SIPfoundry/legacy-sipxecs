@@ -22,8 +22,6 @@ public class SipxMediaService extends SipxService implements LoggingEntity {
     private LocationsManager m_locationsManager;
     private String m_mediaServerSipSrvOrHostport;
 
-    private String m_logLevel;
-
     public String getVoicemailServer() {
         StringBuffer voicemailServer = new StringBuffer();
         voicemailServer.append("https://");
@@ -83,18 +81,22 @@ public class SipxMediaService extends SipxService implements LoggingEntity {
         return primaryLocation.getAddress();
     }
 
+    @Override
     public String getLogSetting() {
         return LOG_SETTING;
     }
-    
+
+    @Override
     public void setLogLevel(String logLevel) {
         super.setLogLevel(logLevel);
     }
 
+    @Override
     public String getLogLevel() {
         return super.getLogLevel();
     }
 
+    @Override
     public String getLabelKey() {
         return super.getLabelKey();
     }

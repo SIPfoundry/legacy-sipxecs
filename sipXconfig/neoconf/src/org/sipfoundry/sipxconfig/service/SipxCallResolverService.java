@@ -22,8 +22,6 @@ public class SipxCallResolverService extends SipxService implements LoggingEntit
     private int m_agentPort;
     private LocationsManager m_locationManager;
 
-    private String m_logLevel;
-
     public int getAgentPort() {
         return m_agentPort;
     }
@@ -41,18 +39,22 @@ public class SipxCallResolverService extends SipxService implements LoggingEntit
     public void setLocationManager(LocationsManager locationManager) {
         m_locationManager = locationManager;
     }
+    @Override
     public String getLogSetting() {
         return LOG_SETTING;
     }
 
+    @Override
     public void setLogLevel(String logLevel) {
         super.setLogLevel(logLevel);
     }
 
+    @Override
     public String getLogLevel() {
         return super.getLogLevel();
     }
 
+    @Override
     public String getLabelKey() {
         return super.getLabelKey();
     }

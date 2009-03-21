@@ -165,8 +165,6 @@ public final class TestUtil {
             String outputDirectory) {
 
         // HACK: sysdir.bin is not a real directory when testing
-        final String domainName = "sipfoundry.org";
-        final String realm = "realm";
         final String vxmlDir = outputDirectory + "/vxml";
         final String mailstoreDir = outputDirectory + "/mailstore";
         final String binDir = outputDirectory + "/bin";
@@ -295,7 +293,7 @@ public final class TestUtil {
         Domain domain = new Domain();
         domain.setName(EXAMPLE_ORG);
         domain.setSipRealm(EXAMPLE_ORG);
-        
+
         DomainManager domainManager = EasyMock.createMock(DomainManager.class);
         domainManager.getDomain();
         EasyMock.expectLastCall().andReturn(domain).anyTimes();
@@ -312,11 +310,11 @@ public final class TestUtil {
         location.setAddress("192.168.1.1");
         return location;
     }
-    
+
     /**
      * Creates a mock LocationsManager with the specified locations.  This
      * LocationsManager only responds to requests for the primary service.
-     * 
+     *
      */
     public static LocationsManager getMockLocationsManager() {
         LocationsManager locationsManager = EasyMock.createMock(LocationsManager.class);

@@ -86,7 +86,7 @@ public class SipStackBean {
     private String m_transport = "udp";
 
     private int m_maxForwards = 70;
-    
+
     private int m_port;
 
     private Properties m_properties;
@@ -110,9 +110,9 @@ public class SipStackBean {
     private CoreContext m_coreContext;
 
     private AuthenticationHelper m_authenticationHelper;
-    
+
     private LocationsManager m_locationsManager;
-    
+
     private SipxServiceManager m_sipxServiceManager;
 
     private final Timer m_timer = new Timer();
@@ -208,12 +208,12 @@ public class SipStackBean {
     final CoreContext getCoreContext() {
         return m_coreContext;
     }
-    
+
     @Required
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
     }
-    
+
     @Required
     public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
         m_sipxServiceManager = sipxServiceManager;
@@ -222,7 +222,7 @@ public class SipStackBean {
     final String getHostName() {
         return m_locationsManager.getPrimaryLocation().getFqdn();
     }
-    
+
     final String getHostIpAddress() {
         return m_locationsManager.getPrimaryLocation().getAddress();
     }
@@ -280,9 +280,10 @@ public class SipStackBean {
                 requestURI.setParameter("sipx-userforward", "false");
             }
             // Dont play MOH if configured on bridge. This is relevant for INVITE to conference.
-            // MOH will still play fine on the click to dial case if so configured. This is only for 
+            // MOH will still play fine on the click to dial case if so configured. This is only
+            // for
             // Preventing MOH playing when we transfer to conference bridge.
-            requestURI.setParameter("sipxbridge-moh", "false"); 
+            requestURI.setParameter("sipxbridge-moh", "false");
             MaxForwardsHeader maxForwards = m_headerFactory.createMaxForwardsHeader(m_maxForwards);
             ViaHeader viaHeader = createViaHeader();
             ContactHeader contactHeader = createContactHeader();
@@ -292,7 +293,8 @@ public class SipStackBean {
             Request request = m_messageFactory.createRequest(requestURI, requestType, callIdHeader, cSeqHeader,
                     fromHeader, toHeader, Collections.singletonList(viaHeader), maxForwards);
 
-            // FIXME: we need to properly resolve address here.  Primary host is not guaranteed to run proxy
+            // FIXME: we need to properly resolve address here. Primary host is not guaranteed to
+            // run proxy
             String proxyHost = m_locationsManager.getPrimaryLocation().getFqdn();
             SipURI sipUri = m_addressFactory.createSipURI(null, proxyHost);
             sipUri.setPort(getProxyPort());
@@ -416,13 +418,12 @@ public class SipStackBean {
         ReferTimerTask referTimerTask = new ReferTimerTask(dialog);
         m_timer.schedule(referTimerTask, 180000);
     }
-    
+
     private int getProxyPort() {
-        SipxService proxyService = (SipxProxyService) m_sipxServiceManager.getServiceByBeanId(SipxProxyService.BEAN_ID);
+        SipxService proxyService = m_sipxServiceManager.getServiceByBeanId(SipxProxyService.BEAN_ID);
         if (proxyService != null) {
             return Integer.valueOf(proxyService.getSipPort());
-        } else {
-            return SipUri.DEFAULT_SIP_PORT;
         }
+        return SipUri.DEFAULT_SIP_PORT;
     }
 }

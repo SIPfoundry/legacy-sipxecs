@@ -21,8 +21,6 @@ public class SipxRegistrarService extends SipxService implements LoggingEntity {
     private String m_registrarEventSipPort;
     private String m_proxyServerSipHostport;
 
-    private String m_logLevel;
-
     public String getRegistrarEventSipPort() {
         return m_registrarEventSipPort;
     }
@@ -59,18 +57,22 @@ public class SipxRegistrarService extends SipxService implements LoggingEntity {
         return getSettingValue("call-pick-up/SIP_REDIRECT.100-PICKUP.CALL_RETRIEVE_CODE");
     }
 
+    @Override
     public String getLogSetting() {
         return LOG_SETTING;
     }
 
+    @Override
     public void setLogLevel(String logLevel) {
         super.setLogLevel(logLevel);
     }
 
+    @Override
     public String getLogLevel() {
         return super.getLogLevel();
     }
 
+    @Override
     public String getLabelKey() {
         return super.getLabelKey();
     }

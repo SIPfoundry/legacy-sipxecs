@@ -19,8 +19,6 @@ public class SipxStatusService extends SipxService implements LoggingEntity {
     // TODO: remove once it's removed from config.defs and voicemail.xml
     private int m_httpsPort;
 
-    private String m_logLevel;
-
     public void setHttpsPort(int httpsPort) {
         m_httpsPort = httpsPort;
     }
@@ -34,18 +32,22 @@ public class SipxStatusService extends SipxService implements LoggingEntity {
         Setting statusSettings = getSettings().getSetting("status-config");
         return statusSettings.getSetting("SIP_STATUS_SIP_PORT").getValue();
     }
+    @Override
     public String getLogSetting() {
         return LOG_SETTING;
     }
 
+    @Override
     public void setLogLevel(String logLevel) {
         super.setLogLevel(logLevel);
     }
 
+    @Override
     public String getLogLevel() {
         return super.getLogLevel();
     }
 
+    @Override
     public String getLabelKey() {
         return super.getLabelKey();
     }
