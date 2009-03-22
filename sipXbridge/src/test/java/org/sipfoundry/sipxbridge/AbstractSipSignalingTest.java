@@ -61,10 +61,7 @@ public abstract class AbstractSipSignalingTest extends SipTestCase {
 				.getLocalAddress();
 		localPort = Gateway.getAccountManager().getBridgeConfiguration()
 				.getLocalPort();
-		Gateway.parseNattraversalrules();
 		Gateway.initializeLogging();		
-		
-		
 		
 	}
 

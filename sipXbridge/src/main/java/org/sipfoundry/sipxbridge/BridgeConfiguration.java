@@ -39,10 +39,9 @@ public class BridgeConfiguration {
     private String logFileDirectory = "/var/log/sipxpbx/";
     private int globalAddressRediscoveryPeriod = 30;
     private boolean reInviteSupported = true;
-    private int maxCalls = -1;
     private String autoAttendantName = null;
     private String symmitronHost;
-    private int symmitronXmlRpcPort = 0;
+    private int symmitronXmlRpcPort = 9090;
     private String sipxProxyTransport = "udp";
     private String sipxbridgeUserName = null;
     private String sipxbridgePassword = null;
@@ -311,23 +310,7 @@ public class BridgeConfiguration {
     }
 
    
-    /**
-     * @param maxCalls the maxCalls to set
-     */
-    public void setMaxCalls(String maxCalls) {
-        try {
-            this.maxCalls = Integer.parseInt(maxCalls);
-        } catch (NumberFormatException ex) {
-            logger.error("Bad Param " + maxCalls);
-        }
-    }
-
-    /**
-     * @return the maxCalls
-     */
-    public int getMaxCalls() {
-        return maxCalls;
-    }
+   
 
     public boolean isReInviteSupported() {
         return this.reInviteSupported;

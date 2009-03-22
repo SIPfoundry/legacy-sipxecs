@@ -1931,10 +1931,7 @@ class CallControlManager implements SymmitronResetHandler {
 		 * Send him an ACK.
 		 */
 		if (response.getStatusCode() == Response.OK) {
-			Request ack = dialog.createAck(((CSeqHeader) response
-					.getHeader(CSeqHeader.NAME)).getSeqNumber());
-
-			DialogContext.get(dialog).sendAck(ack);
+			DialogContext.get(dialog).sendAck(response);
 			/*
 			 * Check the pending action for the peer dialog (pointing to the
 			 * ITSP ).
@@ -1942,6 +1939,7 @@ class CallControlManager implements SymmitronResetHandler {
 			if (tad.getDialogPendingSdpAnswer() != null
 					&& DialogContext.getPendingAction(tad
 							.getDialogPendingSdpAnswer()) == PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK) {
+				
 				/*
 				 * Send the Answer to the peer dialog.
 				 */

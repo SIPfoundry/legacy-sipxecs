@@ -27,6 +27,7 @@ import javax.sip.SipProvider;
 import javax.sip.Transaction;
 import javax.sip.header.AcceptHeader;
 import javax.sip.header.AllowHeader;
+import javax.sip.header.CSeqHeader;
 import javax.sip.header.ContactHeader;
 import javax.sip.header.SubjectHeader;
 import javax.sip.header.SupportedHeader;
@@ -962,6 +963,17 @@ class DialogContext {
 
 	Request getRequest() {
 		return request;
+	}
+
+	public void sendAck(Response response) throws Exception {
+		
+		this.lastResponse = response;
+		
+		Request ack = dialog.createAck(((CSeqHeader) response
+				.getHeader(CSeqHeader.NAME)).getSeqNumber());
+		
+		this.sendAck(ack);
+		
 	}	
 
 }

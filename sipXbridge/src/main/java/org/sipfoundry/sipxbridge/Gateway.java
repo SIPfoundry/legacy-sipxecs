@@ -16,11 +16,11 @@ import java.io.FileInputStream;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.PriorityQueue;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -39,6 +39,7 @@ import javax.sip.Dialog;
 import javax.sip.ListeningPoint;
 import javax.sip.SipProvider;
 import javax.sip.address.Address;
+import javax.sip.address.Hop;
 import javax.sip.address.SipURI;
 import javax.sip.message.Request;
 
@@ -49,14 +50,9 @@ import net.java.stun4j.client.StunDiscoveryReport;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.log4j.SipFoundryAppender;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
+import org.sipfoundry.commons.siprouter.FindSipServer;
 import org.sipfoundry.sipxbridge.symmitron.SymmitronClient;
-import org.sipfoundry.sipxbridge.symmitron.SymmitronConfig;
-import org.sipfoundry.sipxbridge.symmitron.SymmitronConfigParser;
 import org.sipfoundry.sipxbridge.xmlrpc.SipXbridgeXmlRpcClient;
-import org.xbill.DNS.Lookup;
-import org.xbill.DNS.Record;
-import org.xbill.DNS.SRVRecord;
-import org.xbill.DNS.Type;
 
 /**
  * The main class
@@ -161,7 +157,6 @@ public class Gateway {
 	 */
 	protected static final int MIN_EXPIRES = 60;
 
-	
 	/*
 	 * Advance timer by 10 seconds for session timer.
 	 */
@@ -179,15 +174,10 @@ public class Gateway {
 
 	private static String configurationPath;
 
-	private static HashSet<String> proxyAddressTable = new HashSet<String>();
-
-
+	private static PriorityQueue<Hop> proxyAddressTable = new PriorityQueue<Hop>();
 
 	static SipFoundryAppender logAppender;
 
-	private static SymmitronConfig symconfig;
-
-	
 	// ///////////////////////////////////////////////////////////////////////
 
 	/**
@@ -221,19 +211,6 @@ public class Gateway {
 		accountManager = parser.createAccountManager(configurationFile);
 	}
 
-	static void parseNattraversalrules() {
-		Gateway.setConfigurationPath();
-		if (!new File(Gateway.configurationPath + "/nattraversalrules.xml")
-				.exists()) {
-			System.err.println(String.format(
-					"Configuration %s file not found -- exiting",
-					Gateway.configurationPath + "/nattraversalrules.xml"));
-			System.exit(-1);
-		}
-		Gateway.symconfig = new SymmitronConfigParser()
-				.parse(Gateway.configurationPath + "/nattraversalrules.xml");
-	}
-
 	static SymmitronClient initializeSymmitron(String address) {
 		/*
 		 * Looks up a symmitron for a given address.
@@ -242,13 +219,10 @@ public class Gateway {
 		if (symmitronClient == null) {
 			int symmitronPort;
 			boolean isSecure = false;
-			if (Gateway.getBridgeConfiguration().getSymmitronXmlRpcPort() != 0) {
-				symmitronPort = Gateway.getBridgeConfiguration()
-						.getSymmitronXmlRpcPort();
-			} else {
-				symmitronPort = symconfig.getXmlRpcPort();
-				isSecure = symconfig.getUseHttps();
-			}
+
+			symmitronPort = Gateway.getBridgeConfiguration()
+					.getSymmitronXmlRpcPort();
+			isSecure = Gateway.getBridgeConfiguration().isSecure();
 
 			symmitronClient = new SymmitronClient(address, symmitronPort,
 					isSecure, callControlManager);
@@ -359,11 +333,13 @@ public class Gateway {
 			if (stunServerAddress != null) {
 				// Todo -- deal with the situation when this port may be taken.
 				int localStunPort = 0;
-				
+
 				for (int i = STUN_PORT; i < STUN_PORT + 10; i++) {
 					try {
-						DatagramSocket socket = new DatagramSocket(new InetSocketAddress(InetAddress
-								.getByName(Gateway.getLocalAddress()), i));
+						DatagramSocket socket = new DatagramSocket(
+								new InetSocketAddress(InetAddress
+										.getByName(Gateway.getLocalAddress()),
+										i));
 						localStunPort = i;
 						socket.close();
 						break;
@@ -371,9 +347,10 @@ public class Gateway {
 						continue;
 					}
 				}
-				
-				if ( localStunPort == 0) {
-					throw new SipXbridgeException("Could not find port for address discovery");
+
+				if (localStunPort == 0) {
+					throw new SipXbridgeException(
+							"Could not find port for address discovery");
 				}
 
 				StunAddress localStunAddress = new StunAddress(Gateway
@@ -433,38 +410,13 @@ public class Gateway {
 	 * inbound INVITE from other addresses than the ones on this list.
 	 */
 
-	static void getSipxProxyAddresses() throws SipXbridgeException {
+	static void initializeSipxProxyAddresses() throws SipXbridgeException {
 		try {
 
-			Record[] records = new Lookup("_sip._" + getSipxProxyTransport()
-					+ "." + getSipxProxyDomain(), Type.SRV).run();
-
-			/* repopulate the proxy address table in case of reconfiguration */
-			Gateway.proxyAddressTable.clear();
-			if (records == null) {
-				logger.debug("SRV record lookup returned null");
-				String sipxProxyAddress = getSipxProxyDomain();
-				Gateway.proxyAddressTable.add(InetAddress.getByName(
-						sipxProxyAddress).getHostAddress());
-			} else {
-				for (Record rec : records) {
-					SRVRecord record = (SRVRecord) rec;
-					String resolvedName = record.getTarget().toString();
-					/*
-					 * Sometimes the DNS (on linux) appends a "." to the end of
-					 * the record. The library ought to strip this.
-					 */
-					if (resolvedName.endsWith(".")) {
-						resolvedName = resolvedName.substring(0, resolvedName
-								.lastIndexOf('.'));
-					}
-					String ipAddress = InetAddress.getByName(resolvedName)
-							.getHostAddress();
-
-					Gateway.proxyAddressTable.add(ipAddress);
-				}
-			}
-
+			FindSipServer serverFinder = new FindSipServer(logger);
+			SipURI proxyUri = ProtocolObjects.addressFactory.createSipURI(null,getBridgeConfiguration().getSipxProxyDomain());
+			Collection<Hop> hops = serverFinder.findSipServers(proxyUri);
+			Gateway.proxyAddressTable.addAll(hops);
 			logger.debug("proxy address table = " + proxyAddressTable);
 		} catch (Exception ex) {
 			logger.error("Cannot do address lookup ", ex);
@@ -474,9 +426,10 @@ public class Gateway {
 	}
 
 	static boolean isAddressFromProxy(String address) {
-
-		return proxyAddressTable.contains(address);
-
+		for ( Hop  hop : Gateway.proxyAddressTable ) {
+			if ( hop.getHost().equals(address)) return true;
+		}
+		return false;
 	}
 
 	/**
@@ -660,17 +613,16 @@ public class Gateway {
 	 */
 	static SipURI getMusicOnHoldUri() {
 		try {
-			if (  getBridgeConfiguration().getMusicOnHoldName() == null ) {
-			    return null;
-			} else if ( getBridgeConfiguration().getMusicOnHoldName().indexOf("@") == -1) { 
-					return ProtocolObjects.addressFactory.createSipURI(
-							getBridgeConfiguration()
-									.getMusicOnHoldName(), Gateway
-									.getSipxProxyDomain());
+			if (getBridgeConfiguration().getMusicOnHoldName() == null) {
+				return null;
+			} else if (getBridgeConfiguration().getMusicOnHoldName().indexOf(
+					"@") == -1) {
+				return ProtocolObjects.addressFactory.createSipURI(
+						getBridgeConfiguration().getMusicOnHoldName(), Gateway
+								.getSipxProxyDomain());
 			} else {
-			       return (SipURI) ProtocolObjects.addressFactory.createURI(
-                           "sip:" + getBridgeConfiguration()
-                           .getMusicOnHoldName());
+				return (SipURI) ProtocolObjects.addressFactory.createURI("sip:"
+						+ getBridgeConfiguration().getMusicOnHoldName());
 			}
 		} catch (Exception ex) {
 			logger.error("Unexpected exception creating Music On Hold URI", ex);
@@ -908,7 +860,7 @@ public class Gateway {
 		 * sipxbridge when dns addresses are reconfigured.
 		 */
 
-		getSipxProxyAddresses();
+		initializeSipxProxyAddresses();
 
 		/*
 		 * Start up the STUN address discovery.
@@ -933,10 +885,7 @@ public class Gateway {
 		/*
 		 * Initialize connection with sipxrelay.
 		 */
-		Gateway.symconfig = new SymmitronConfigParser()
-				.parse(Gateway.configurationPath + "/nattraversalrules.xml");
-
-		if (symconfig.getUseHttps()) {
+		if (getBridgeConfiguration().isSecure()) {
 			Gateway.initHttpsClient();
 		}
 
@@ -1080,14 +1029,6 @@ public class Gateway {
 	}
 
 	/**
-	 * Get the call limit ( number of concurrent calls)
-	 */
-	static int getCallLimit() {
-		return Gateway.getAccountManager().getBridgeConfiguration()
-				.getMaxCalls();
-	}
-
-	/**
 	 * Get the call count.
 	 * 
 	 * @return -- the call count of the gateway ( number of active calls )
@@ -1130,12 +1071,12 @@ public class Gateway {
 	static String getSessionTimerMethod() {
 		return Request.INVITE;
 	}
-	
+
 	/**
 	 * Get the Music On hold delay ( after which MOH is played )
 	 */
 	static int getMusicOnHoldDelayMiliseconds() {
-	    return getBridgeConfiguration().getMusicOnHoldDelayMiliseconds();
+		return getBridgeConfiguration().getMusicOnHoldDelayMiliseconds();
 	}
 
 	/**
@@ -1190,6 +1131,16 @@ public class Gateway {
 	static HashSet<Integer> getParkServerCodecs() {
 		return getBridgeConfiguration().getParkServerCodecs();
 	}
+	
+	/**
+	 * The set of proxy addresses to route requests to.
+	 * 
+	 * @return
+	 */
+	public static Collection<Hop> getProxyAddressTable() {
+		return Gateway.proxyAddressTable;
+	}
+	
 
 	/**
 	 * Log an internal error and potentially throw a runtime exception ( if
@@ -1291,7 +1242,6 @@ public class Gateway {
 			Gateway.isTlsSupportEnabled = System.getProperty(
 					"sipxbridge.enableTls", "false").equals("true");
 			Gateway.parseConfigurationFile();
-			Gateway.parseNattraversalrules();
 			if (command.equals("start")) {
 				Gateway.start();
 			} else if (command.equals("configtest")) {
@@ -1313,5 +1263,9 @@ public class Gateway {
 		}
 
 	}
+
+	
+
+	
 
 }

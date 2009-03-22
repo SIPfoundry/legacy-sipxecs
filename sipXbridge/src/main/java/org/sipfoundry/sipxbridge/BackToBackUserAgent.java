@@ -37,6 +37,7 @@ import javax.sip.SipException;
 import javax.sip.SipProvider;
 import javax.sip.TransactionState;
 import javax.sip.address.Address;
+import javax.sip.address.Hop;
 import javax.sip.address.SipURI;
 import javax.sip.header.CSeqHeader;
 import javax.sip.header.CallIdHeader;
@@ -64,6 +65,7 @@ import org.sipfoundry.sipxbridge.symmitron.BridgeState;
 import org.sipfoundry.sipxbridge.symmitron.KeepaliveMethod;
 import org.sipfoundry.sipxbridge.symmitron.SymImpl;
 import org.sipfoundry.sipxbridge.symmitron.SymmitronClient;
+import org.sipfoundry.sipxbridge.symmitron.SymmitronException;
 
 /**
  * A class that represents an ongoing call. Each call Id points at one of these
@@ -132,6 +134,8 @@ public class BackToBackUserAgent {
 
 	private ClientTransaction musicOnHoldInviteTransaction;
 
+	private Hop proxyAddress;
+
 	// ///////////////////////////////////////////////////////////////////////
 	// Constructor.
 	// ///////////////////////////////////////////////////////////////////////
@@ -160,9 +164,23 @@ public class BackToBackUserAgent {
 			String address = (viaHeader.getReceived() != null ? viaHeader
 					.getReceived() : viaHeader.getHost());
 			this.symmitronClient = Gateway.getSymmitronClient(address);
+			this.proxyAddress = new HopImpl(address, viaHeader.getPort(), viaHeader.getTransport());
 		} else {
-			this.symmitronClient = Gateway.getSymmitronClient(Gateway
-					.getLocalAddress());
+			boolean found = false;
+			for (Hop hop : Gateway.getProxyAddressTable() ) {
+				try {
+					this.symmitronClient = Gateway.getSymmitronClient(hop.getHost());
+					this.symmitronClient.ping();
+					this.proxyAddress = hop;
+					found = true;
+					break;
+				} catch (SymmitronException ex) {
+					logger.error("Could not contact Relay at " + hop.getHost() );
+				}		
+			}
+			if ( !found  ) {
+				throw new IOException("Could not contact Relay -- cannot create B2BUA");
+			}
 		}
 
 		BridgeInterface bridge = symmitronClient.createBridge();
@@ -557,6 +575,10 @@ public class BackToBackUserAgent {
 			ReferToHeader referToHeader = (ReferToHeader) referRequest
 					.getHeader(ReferToHeader.NAME);
 			SipURI uri = (SipURI) referToHeader.getAddress().getURI().clone();
+			uri.setMAddrParam(proxyAddress.getHost());
+			uri.setPort(proxyAddress.getPort());
+			uri.setTransportParam(proxyAddress.getTransport());
+			
 			CSeqHeader cseq = ProtocolObjects.headerFactory.createCSeqHeader(
 					1L, Request.INVITE);
 			ViaHeader viaHeader = SipUtilities.createViaHeader(Gateway
@@ -1087,6 +1109,11 @@ public class BackToBackUserAgent {
 
 			newRequest.setContent(outboundSession.getReceiver()
 					.getSessionDescription().toString(), cth);
+			
+			SipURI sipUri = (SipURI) newRequest.getRequestURI();
+			sipUri.setMAddrParam(proxyAddress.getHost());
+			sipUri.setPort(proxyAddress.getPort());
+			sipUri.setTransportParam(proxyAddress.getTransport());
 
 			SipUtilities.addLanAllowHeaders(newRequest);
 
@@ -1293,18 +1320,6 @@ public class BackToBackUserAgent {
 		SipProvider itspProvider = Gateway
 				.getWanProvider(itspAccountInfo == null ? Gateway.DEFAULT_ITSP_TRANSPORT
 						: itspAccountInfo.getOutboundTransport());
-
-		if (Gateway.getCallLimit() != -1
-				&& Gateway.getCallCount() >= Gateway.getCallLimit()) {
-			try {
-				serverTransaction.sendResponse(SipUtilities.createResponse(
-						serverTransaction, Response.BUSY_HERE));
-			} catch (Exception e) {
-				String s = "Unepxected exception ";
-				logger.fatal(s, e);
-				throw new SipXbridgeException(s, e);
-			}
-		}
 
 		boolean spiral = SipUtilities.isOriginatorSipXbridge(incomingRequest);
 
@@ -1939,7 +1954,7 @@ public class BackToBackUserAgent {
 				 * Cannot send BYE to a Dialog in EARLY state.
 				 */
 				if (dialog.getState() != null
-						&& dialog.getState() != DialogState.EARLY) {
+					&& ( ! dialog.isServer()  || dialog.getState() != DialogState.EARLY) ) {
 					Request byeRequest = dialog.createRequest(Request.BYE);
 					if (reason != null) {
 						byeRequest.addHeader(reason);
@@ -1950,27 +1965,21 @@ public class BackToBackUserAgent {
 							.getNewClientTransaction(byeRequest);
 					dialog.sendRequest(ct);
 				} else {
-					/* kill the dialog if in early state or not established */
-					dialog.delete();
+					DialogContext.get(dialog).setTerminateOnConfirm();
 				}
 
 			}
 		}
 
 		/* Clean up the MOH dialog */
+		
 		if (this.musicOnHoldDialog != null) {
-			if (this.musicOnHoldDialog.getState() != DialogState.TERMINATED
-					&& this.musicOnHoldDialog.getState() != DialogState.EARLY) {
+			if (this.musicOnHoldDialog.getState() != null 
+					&& this.musicOnHoldDialog.getState() != DialogState.TERMINATED) {
 				this.sendByeToMohServer();
-			} else if (this.musicOnHoldDialog.getState() == null
-					|| this.musicOnHoldDialog.getState() == DialogState.EARLY) {
-				this.musicOnHoldDialog.delete();
-				if (this.musicOnHoldInviteTransaction != null
-						&& this.musicOnHoldInviteTransaction.getState() != TransactionState.TERMINATED) {
-					this.musicOnHoldInviteTransaction.terminate();
-				}
+			} else  {
+				DialogContext.get(this.musicOnHoldDialog).setTerminateOnConfirm();
 			}
-
 		}
 
 	}
