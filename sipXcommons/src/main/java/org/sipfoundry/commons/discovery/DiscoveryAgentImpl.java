@@ -52,25 +52,33 @@ public class DiscoveryAgentImpl extends ActiveObject implements DiscoveryAgent {
     @Synchronous
     public void processPingResponse() {
     	if (discoveryService.isSIPVendor(targetAddress)) {
-            try {
-                ClientTransaction clientTransaction;
+    		if (discoveryService.supportsSIPOptions(targetAddress)) {
+    			try {
+    				ClientTransaction clientTransaction;
 
-                Request request = discoveryService.createOptionsRequest(targetAddress, 5060);
-                // Create the client transaction.
-                clientTransaction = sipProvider.getNewClientTransaction(request);
-                clientTransaction.setApplicationData(this);
-                // Send the request out.
-                clientTransaction.sendRequest();
-            } catch (TransactionUnavailableException e) {
-                e.printStackTrace();
-            } catch (SipException e) {
-                e.printStackTrace();
-            }
+    				Request request = discoveryService.createOptionsRequest(targetAddress, 5060);
+    				// Create the client transaction.
+    				clientTransaction = sipProvider.getNewClientTransaction(request);
+    				clientTransaction.setApplicationData(this);
+    				// Send the request out.
+    				clientTransaction.sendRequest();
+    			} catch (TransactionUnavailableException e) {
+    				e.printStackTrace();
+    			} catch (SipException e) {
+    				e.printStackTrace();
+    			}
+    		} else {
+    	        if (!terminated) {
+    	            discoveryService.addDiscovered(targetAddress, "");
+    	            ActiveObjectGroup activeObjectGroup = getActiveObjectGroup();
+    	            activeObjectGroup.deleteInstance(this);
+    	        }
+    		}
     	} else {
-            if (!terminated) {
-        	    ActiveObjectGroup activeObjectGroup = getActiveObjectGroup();
-        	    activeObjectGroup.deleteInstance(this);
-            }
+    		if (!terminated) {
+    			ActiveObjectGroup activeObjectGroup = getActiveObjectGroup();
+    			activeObjectGroup.deleteInstance(this);
+    		}
     	}
     }
 

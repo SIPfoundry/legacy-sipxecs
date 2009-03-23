@@ -44,89 +44,90 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
     private class UAVendor {
         public final String name;
         public final String oui;
+        public final boolean supportsSIPOptions;
 
-        public UAVendor(String name, String oui) {
+        public UAVendor(String name, String oui, boolean supportsSIPOptions) {
             this.name = name;
             this.oui = oui;
+            this.supportsSIPOptions = supportsSIPOptions;
         }
     }
 
         private final UAVendor[] UAVendorList = {
-
-            new UAVendor("Aastra", "00:08:5D"),
-            new UAVendor("Aastra", "00:10:BC"),
-            new UAVendor("AudioCodes", "00:90:8F"),
-            new UAVendor("ClearOne", "00:90:79"),
-            new UAVendor("Gentner", "00:06:24"),
-            new UAVendor("Grandstream", "00:0B:82"),
-            new UAVendor("ipDialog", "00:04:1C"),
-            new UAVendor("LG-Nortel", "00:40:5A"),
-            new UAVendor("LG-Nortel", "00:1A:7E"),
-            new UAVendor("Linksys", "00:0E:08"),
-            new UAVendor("MITEL", "08:00:0F"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:00:75"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:01:81"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:02:5F"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:03:42"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:03:4B"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:04:38"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:04:DC"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:09:97"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:0C:F7"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:0C:F8"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:0E:40"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:0E:62"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:0E:C0"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:0F:06"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:0F:6A"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:0F:CD"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:10:45"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:11:58"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:11:F9"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:12:83"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:13:0A"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:13:65"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:14:0D"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:14:0E"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:14:C7"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:15:40"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:15:9B"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:15:EB"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:16:60"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:16:CA"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:17:65"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:17:D1"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:18:B0"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:19:69"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:19:E1"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:1A:8F"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:1B:25"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:1B:BA"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:1C:17"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:1C:9C"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:1C:EB"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:1D:42"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:1D:AF"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:1E:1F"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:1E:7E"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:1E:CA"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:1F:0A"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:1F:46"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:1F:9A"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:1F:DA"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:20:D8"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:21:62"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:21:E1"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:22:67"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:23:0D"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:24:00"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:60:38"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:90:8E"),
-            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:90:CF"),
-            new UAVendor("Pingtel Xpressa", "00:D0:1E"),
-            new UAVendor("Polycom", "00:04:F2"),
-            new UAVendor("SNOM", "00:04:13"),
-
+            new UAVendor("Aastra", "00:08:5D", true),
+            new UAVendor("Aastra", "00:10:BC", true),
+            new UAVendor("AudioCodes", "00:17:19", false),
+            new UAVendor("AudioCodes", "00:90:8F", false),
+            new UAVendor("ClearOne", "00:90:79", true),
+            new UAVendor("Gentner", "00:06:24", true),
+            new UAVendor("Grandstream", "00:0B:82", true),
+            new UAVendor("ipDialog", "00:04:1C", true),
+            new UAVendor("LG-Nortel", "00:40:5A", true),
+            new UAVendor("LG-Nortel", "00:1A:7E", true),
+            new UAVendor("Linksys", "00:0E:08", false),
+            new UAVendor("MITEL", "08:00:0F", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:00:75", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:01:81", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:02:5F", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:03:42", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:03:4B", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:04:38", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:04:DC", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:09:97", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:0C:F7", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:0C:F8", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:0E:40", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:0E:62", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:0E:C0", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:0F:06", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:0F:6A", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:0F:CD", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:10:45", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:11:58", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:11:F9", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:12:83", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:13:0A", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:13:65", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:14:0D", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:14:0E", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:14:C7", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:15:40", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:15:9B", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:15:EB", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:16:60", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:16:CA", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:17:65", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:17:D1", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:18:B0", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:19:69", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:19:E1", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:1A:8F", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:1B:25", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:1B:BA", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:1C:17", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:1C:9C", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:1C:EB", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:1D:42", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:1D:AF", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:1E:1F", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:1E:7E", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:1E:CA", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:1F:0A", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:1F:46", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:1F:9A", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:1F:DA", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:20:D8", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:21:62", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:21:E1", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:22:67", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:23:0D", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:24:00", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:60:38", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:90:8E", true),
+            new UAVendor("Nortel IP Phone 1210/1220/1230", "00:90:CF", true),
+            new UAVendor("Pingtel Xpressa", "00:D0:1E", true),
+            new UAVendor("Polycom", "00:04:F2", true),
+            new UAVendor("SNOM", "00:04:13", true),
     };
 
                                                                            
@@ -304,13 +305,35 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
         String hardwareAddress = ArpTable.lookup(networkAddress);
         if (hardwareAddress != null) {
             String vendor = null;
-            for (int x = 0; x < UAVendorList.length; x++) {
-                if (hardwareAddress.startsWith(UAVendorList[x].oui)) {
-                    vendor = UAVendorList[x].name;
+            for (int uaVendorIndex= 0; uaVendorIndex< UAVendorList.length; uaVendorIndex++) {
+                if (hardwareAddress.startsWith(UAVendorList[uaVendorIndex].oui)) {
+                    vendor = UAVendorList[uaVendorIndex].name;
+                    break;
                 }
             }
             if (vendor != null) {
             	return true;
+            } else {
+            	return false;
+            }
+        } else {
+        	return false;
+        }
+    }
+    
+    public synchronized boolean supportsSIPOptions(String networkAddress) {
+        String hardwareAddress = ArpTable.lookup(networkAddress);
+        if (hardwareAddress != null) {
+            String vendor = null;
+            int uaVendorIndex;
+            for (uaVendorIndex = 0; uaVendorIndex < UAVendorList.length; uaVendorIndex++) {
+                if (hardwareAddress.startsWith(UAVendorList[uaVendorIndex].oui)) {
+                    vendor = UAVendorList[uaVendorIndex].name;
+                    break;
+                }
+            }
+            if (vendor != null) {
+            	return UAVendorList[uaVendorIndex].supportsSIPOptions;
             } else {
             	return false;
             }
