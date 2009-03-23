@@ -9,13 +9,14 @@
  */
 package org.sipfoundry.sipxconfig.nattraversal;
 
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxRelayService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
 public class NatTraversal {
-    private static final String SETTING_BEHIND = "nat/enabled";
-    private static final String SETTING_ENABLED = "nat/behind-nat";
+    private static final String SETTING_ENABLED = "nat/enabled";
+    private static final String SETTING_BEHIND = "nat/behind-nat";
 
     private final SipxRelayService m_service;
     private boolean m_enabled;
@@ -35,6 +36,10 @@ public class NatTraversal {
 
     public void activate(ServiceConfigurator serviceConfigurator) {
         serviceConfigurator.replicateServiceConfig(m_service);
+    }
+
+    public void activateOnLocation(Location location, ServiceConfigurator serviceConfigurator) {
+        serviceConfigurator.replicateServiceConfig(location, m_service);
     }
 
     public boolean isBehindnat() {

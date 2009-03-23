@@ -9,11 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.nattraversal;
 
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.beans.factory.annotation.Required;
 
-public class NatTraversalManagerImpl implements NatTraversalManager {
+public class NatTraversalManagerImpl implements NatTraversalManager, DaoEventListener {
 
     private SipxServiceManager m_sipxServiceManager;
 
@@ -28,8 +30,20 @@ public class NatTraversalManagerImpl implements NatTraversalManager {
         return new NatTraversal(m_sipxServiceManager);
     }
 
-    public void activateNatTraversal() {
-        getNatTraversal().activate(m_serviceConfigurator);
+    public void activateNatLocation(Location location) {
+        getNatTraversal().activateOnLocation(location, m_serviceConfigurator);
+    }
+
+    public void onSave(Object entity) {
+        if (entity instanceof Location) {
+            activateNatLocation((Location) entity);
+        }
+    }
+
+    public void onDelete(Object entity) {
+        if (entity instanceof Location) {
+            activateNatLocation((Location) entity);
+        }
     }
 
     @Required
