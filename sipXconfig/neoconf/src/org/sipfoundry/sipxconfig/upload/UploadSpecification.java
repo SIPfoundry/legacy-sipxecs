@@ -16,6 +16,9 @@ import org.sipfoundry.sipxconfig.device.DeviceDescriptor;
  * One UploadSpecification instance for all types of uploads
  */
 public class UploadSpecification extends DeviceDescriptor {
+
+    private boolean m_managed = true;
+
     public UploadSpecification() {
     }
 
@@ -25,6 +28,14 @@ public class UploadSpecification extends DeviceDescriptor {
     
     public UploadSpecification(String beanId, String specificationId) {
         super(beanId, specificationId);
+    }
+
+    public boolean getManaged() {
+        return m_managed;
+    }
+
+    public void setManaged(boolean managed) {
+        m_managed = managed;
     }
     
     /**

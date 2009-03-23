@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.upload;
@@ -15,10 +15,10 @@ import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
+import org.apache.tapestry.annotations.Message;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
-import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
@@ -58,6 +58,9 @@ public abstract class ManageUploads extends BasePage implements PageBeginRenderL
 
     public abstract UploadSpecification getSelectedSpecification();
 
+    @Message("error.alreadyActivated")
+    public abstract String getAlreadyActivatedError();
+
     public IPage editUpload(Integer uploadId) {
         EditUpload page = getEditUploadPage();
         page.setUploadId(uploadId);
@@ -92,17 +95,26 @@ public abstract class ManageUploads extends BasePage implements PageBeginRenderL
     }
 
     private void setDeployed(boolean deploy) {
-        Upload[] uploads = DaoUtils.loadBeansArrayByIds(getUploadManager(), Upload.class,
-                getSelections().getAllSelected());
-        for (int i = 0; i < uploads.length; i++) {
+        Upload[] uploads = DaoUtils.loadBeansArrayByIds(getUploadManager(), Upload.class, getSelections()
+                .getAllSelected());
+        for (Upload upload : uploads) {
             if (deploy) {
-                if (getUploadManager().isActiveUploadById(uploads[i].getSpecification())) {
-                    getValidator().record(new ValidatorException(getMessages().getMessage("error.alreadyActivated")));
+                UploadSpecification uploadSpec = upload.getSpecification();
+                boolean alreadyActive = upload.isDeployed();
+
+                // Managed device types only support a single active entry in the device files
+                // table.
+                if (uploadSpec.getManaged()) {
+                    alreadyActive = getUploadManager().isActiveUploadById(uploadSpec);
+                }
+
+                if (alreadyActive) {
+                    getValidator().record(getAlreadyActivatedError(), null);
                 } else {
-                    getUploadManager().deploy(uploads[i]);
+                    getUploadManager().deploy(upload);
                 }
             } else {
-                getUploadManager().undeploy(uploads[i]);
+                getUploadManager().undeploy(upload);
             }
         }
         // force reload

@@ -45,6 +45,7 @@
     <property name="beanId" value="upload"/>
     <property name="modelFilePath" value="unmanagedPhone/upload.xml"/>
     <property name="label" value="Unmanaged (T)FTP Files"/>
+    <property name="managed" value="false"/>
   </bean>
     
 </beans>

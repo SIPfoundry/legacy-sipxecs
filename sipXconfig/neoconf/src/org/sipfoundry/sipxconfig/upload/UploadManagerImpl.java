@@ -99,14 +99,18 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport<Upload> implement
     public void deploy(Upload upload) {
         UploadSpecification spec = upload.getSpecification();
         List<Upload> existing = getActiveUpload(spec);
-        // should never happen
-        if (existing.size() > 1) {
-            throw new AlreadyDeployedException(existing.size(), spec.getLabel());
-        }
-        if (existing.size() == 1) {
-            Upload existingUpload = existing.get(0);
-            if (!existingUpload.getId().equals(upload.getId())) {
-                throw new AlreadyDeployedException(existingUpload.getName(), spec.getLabel());
+
+        // check if this is a managed device type
+        if (spec.getManaged()) {
+            // should never happen
+            if (existing.size() > 1) {
+                throw new AlreadyDeployedException(existing.size(), spec.getLabel());
+            }
+            if (existing.size() == 1) {
+                Upload existingUpload = existing.get(0);
+                if (!existingUpload.getId().equals(upload.getId())) {
+                    throw new AlreadyDeployedException(existingUpload.getName(), spec.getLabel());
+                }
             }
         }
 

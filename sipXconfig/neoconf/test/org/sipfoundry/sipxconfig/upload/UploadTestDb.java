@@ -25,8 +25,7 @@ public class UploadTestDb extends SipxDatabaseTestCase {
 
     @Override
     protected void setUp() throws Exception {
-        m_manager = (UploadManager) TestHelper.getApplicationContext().getBean(
-                UploadManager.CONTEXT_BEAN_NAME);
+        m_manager = (UploadManager) TestHelper.getApplicationContext().getBean(UploadManager.CONTEXT_BEAN_NAME);
     }
 
     public void testLoadSettings() throws Exception {
@@ -88,11 +87,29 @@ public class UploadTestDb extends SipxDatabaseTestCase {
         assertEquals("ozzie", f[1].getName());
     }
 
+    public void testMoreThanOneUnmanagedActive() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsertFlat("upload/GetUploadSeed.db.xml");
+        Upload upload = m_manager.newUpload(UploadTest.UNMANAGED);
+        upload.setName("monk parakeet");
+
+        m_manager.deploy(upload);
+        assertTrue(upload.isDeployed());
+    }
+
     public void testRestrictDuplicateUploadTypes() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("upload/GetUploadSeed.db.xml");
         Upload[] existing = m_manager.getUpload().toArray(new Upload[0]);
         Upload upload = m_manager.newUpload(UploadTest.UNMANAGED);
+
+        // switch specification to managed so that we can test restrictions
+        UploadSpecification us = new UploadSpecification("test", "unmanagedUpload");
+        us.setManaged(true);
+        us.setModelDir(upload.getSpecification().getModelDir());
+        us.setModelFilePath(upload.getSpecification().getModelFilePath());
+        upload.setSpecification(us);
+
         upload.setName("monk parakeet");
 
         try {
@@ -129,7 +146,6 @@ public class UploadTestDb extends SipxDatabaseTestCase {
             assertTrue(upload.isNew());
         }
     }
-
 
     public void testLoadSubclass() throws Exception {
         TestHelper.cleanInsertFlat("upload/ZipUploadSeed.db.xml");
