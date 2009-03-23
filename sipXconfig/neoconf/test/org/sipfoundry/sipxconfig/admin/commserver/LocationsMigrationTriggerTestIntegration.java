@@ -21,6 +21,7 @@ import org.sipfoundry.sipxconfig.IntegrationTestCase;
 
 public class LocationsMigrationTriggerTestIntegration extends IntegrationTestCase {
 
+    private static final String SIPXCONFIG_HOSTNAME = "sipxconfig.hostname";
     private static final String TOPOLOGY_TEST_XML = "topology.test.xml";
     private static final String TOPOLOGY_TEST_XML_ORIG = "topology.test.xml.orig";
     private LocationsMigrationTrigger m_out;
@@ -30,12 +31,21 @@ public class LocationsMigrationTriggerTestIntegration extends IntegrationTestCas
     protected void onSetUpInTransaction() throws Exception {
         super.onSetUpInTransaction();
         
+        System.setProperty(SIPXCONFIG_HOSTNAME, "sipx.example.org");
+        
         m_out = new LocationsMigrationTrigger();
         m_out.setConfigDirectory(getConfigDirectory());
         m_out.setLocationsManager(m_locationsManager);
         m_out.setTopologyFilename("topology.xml");
         m_out.setNetworkPropertiesFilename("sipxconfig-netif");
         m_out.setTaskNames(Arrays.asList(new String[] {"migrate_locations"}));
+    }
+    
+    @Override
+    protected void onTearDownInTransaction() throws Exception {
+        super.onTearDownInTransaction();
+        
+        System.clearProperty(SIPXCONFIG_HOSTNAME);
     }
 
     public void testOnInitTaskUpgrade() throws Exception {
@@ -97,7 +107,6 @@ public class LocationsMigrationTriggerTestIntegration extends IntegrationTestCas
         assertEquals(0, locationsBeforeMigration.length);
 
         m_out.setNetworkPropertiesFilename("sipxconfig-netif-test");
-        m_out.setDomainConfigurationFilename("domain-config-test");
         m_out.onInitTask("migrate_locations");
 
         Location primaryLocation = m_locationsManager.getPrimaryLocation();

@@ -25,6 +25,7 @@ public class InitializeTestSystem implements ApplicationListener {
     private LocationsMigrationTrigger m_locationsMigrationTrigger;
 
     public void onApplicationEvent(ApplicationEvent event) {
+        System.setProperty("sipxconfig.hostname", "sipx.example.org");
         m_replicationManagerImpl.setEnabled(false);
         m_locationsMigrationTrigger.onInitTask("migrate_locations");
         m_domainManager.initializeDomain();

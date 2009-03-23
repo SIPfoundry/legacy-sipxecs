@@ -56,6 +56,9 @@ ADDITIONAL_JARS="\
 	ant \
 	ant-launcher"
 
+# set primary system hostname (assume sipxconfig is only run on primary system)
+PRIMARY_HOSTNAME=`hostname -f`
+
 # Search/replace variables used in config.defs into config files
 runConfigpp() {
     
@@ -126,7 +129,7 @@ databaseCommand() {
         ${LibDir}/*.jar`
 
     JavaOpts="$SIPXCONFIG_OPTS"
-
+    
     # XCF-1275 - Do not want to suppress output if there is an error
     # however want to be quiet if everything is ok for clean rpm install
     # output
@@ -143,6 +146,7 @@ databaseCommand() {
         -Dlog.dir=${LogDir} \
         -Dtmp.dir=${TmpDir} \
         -Dsipxconfig.db.user=${PostgresUser} \
+        -Dsipxconfig.hostname=$PRIMARY_HOSTNAME \
         -f ${DatabaseProject} \
         $@`
 

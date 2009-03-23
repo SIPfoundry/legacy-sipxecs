@@ -32,12 +32,9 @@ public class LocationsMigrationTrigger extends InitTaskListener {
     private static final Log LOG = LogFactory.getLog(LocationsMigrationTrigger.class);
 
     private LocationsManager m_locationsManager;
-    private String m_hostname;
     private String m_topologyFilename;
     private String m_configDirectory;
     private String m_networkPropertiesFilename;
-
-    private String m_domainConfigurationFilename;
 
     @Override
     public void onInitTask(String task) {
@@ -93,7 +90,7 @@ public class LocationsMigrationTrigger extends InitTaskListener {
         // always one and only one location should be designated as primary
         boolean savePrimary = false;
         for (Location location : locations) {
-            if (location.getFqdn().equals(m_hostname) && !savePrimary) {
+            if (location.getFqdn().equals(getFqdnForPrimaryLocation()) && !savePrimary) {
                 firstLocation.setPrimary(false);
                 location.setPrimary(true);
                 savePrimary = true;
@@ -102,19 +99,7 @@ public class LocationsMigrationTrigger extends InitTaskListener {
     }
 
     private String getFqdnForPrimaryLocation() {
-        File domainConfigFile = new File(m_configDirectory, m_domainConfigurationFilename);
-        try {
-            Properties domainConfig = new Properties();
-            InputStream domainConfigInputStream = new FileInputStream(domainConfigFile);
-            domainConfig.load(domainConfigInputStream);
-            return domainConfig.getProperty("CONFIG_HOSTS");
-        } catch (FileNotFoundException fnfe) {
-            LOG.warn("Unable to find domain configuration file " + domainConfigFile.getPath(), fnfe);
-        } catch (IOException ioe) {
-            LOG.warn("Unable to load domain configuration file " + domainConfigFile.getPath(), ioe);
-        }
-
-        return null;
+        return System.getProperty("sipxconfig.hostname");
     }
 
     private String getAddressForPrimary(String primaryLocationFqdn) {
@@ -151,20 +136,12 @@ public class LocationsMigrationTrigger extends InitTaskListener {
         m_configDirectory = configDirectory;
     }
 
-    public void setHostname(String hostname) {
-        m_hostname = hostname;
-    }
-
     public void setTopologyFilename(String topologyFilename) {
         m_topologyFilename = topologyFilename;
     }
 
     public void setNetworkPropertiesFilename(String networkPropertiesFilename) {
         m_networkPropertiesFilename = networkPropertiesFilename;
-    }
-
-    public void setDomainConfigurationFilename(String domainConfigurationFilename) {
-        m_domainConfigurationFilename = domainConfigurationFilename;
     }
 
     private Location[] loadLocationsFromFile() {

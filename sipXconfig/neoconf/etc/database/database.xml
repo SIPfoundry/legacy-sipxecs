@@ -82,6 +82,7 @@
   <property name="log.dir" value="${basedir}" />
   <property name="migration.log" value="${log.dir}/sipxconfig-2.8-db-migration.log" />
   <property name="tmp.dir" value="${basedir}" />
+  <property name="sipxconfig.hostname" value="@sipxconfig.hostname@" />
 
   <target name="patches">
     <!-- ANT BUG: sql task has issues when output=absolute file path -->
@@ -970,6 +971,7 @@
       <java classname="org.sipfoundry.sipxconfig.common.SystemTaskRunner" output="@{output}">
         <sysproperty key="org.apache.lucene.lockdir" value="${tmp.dir}/index" />
         <sysproperty key="jetty.log.dir" value="${log.dir}" />
+      	<sysproperty key="sipxconfig.hostname" value="${sipxconfig.hostname}" />
         <arg value="@{beanId}" />
         <task-body />
       </java>

@@ -17,9 +17,6 @@ sipxPageService.audioDir=@sipxpage.audio.dir@
 
 sipImpl.port=5180
 
-# This use of MY_FULL_HOSTNAME needs to remain as part of the upgrade to 4.0
-locationsMigrationTrigger.hostname=${MY_FULL_HOSTNAME}
-
 # imdb/sipdb location for https access
 localBackupPlan.backupDirectory=@sipxpbx.backup.dir@
 ftpBackupPlan.backupDirectory=@sipxpbx.download.dir@

@@ -30,7 +30,6 @@
     </property>
     <property name="configDirectory" value="${sysdir.etc}"/>
     <property name="topologyFilename" value="topology.xml"/>
-    <property name="domainConfigurationFilename" value="domain-config" />
     <property name="networkPropertiesFilename" value="sipxconfig-netif" />
     <property name="taskNames">
       <list>
