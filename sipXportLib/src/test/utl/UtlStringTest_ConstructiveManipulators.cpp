@@ -1589,6 +1589,21 @@ public:
          t.remove(0);
          t.appendNumber(12, "%08x");
          ASSERT_STR_EQUAL("0000000c", t.data());
+
+         long long int value = 680531417658032128LL;
+         t.remove(0);
+         t.appendNumber(value, "%lld");
+         ASSERT_STR_EQUAL("680531417658032128", t.data());
+
+         int value1 = 1234;
+         t.remove(0);
+         t.appendNumber(value1);
+         ASSERT_STR_EQUAL("1234", t.data());
+
+         ssize_t value2=1234;
+         t.remove(0);
+         t.appendNumber(value2);
+         ASSERT_STR_EQUAL("1234", t.data());
       }
    
 } ;

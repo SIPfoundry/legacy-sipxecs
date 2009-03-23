@@ -269,7 +269,7 @@ UtlString& UtlString::append(const UtlString& str, size_t position, size_t lengt
    return *this;
 }
 
-UtlString& UtlString::appendNumber(int value, const char* format)
+UtlString& UtlString::appendNumber(Int64 value, const char* format)
 {
    char conversionString[MAX_NUMBER_STRING_SIZE];
    conversionString[0]='\000';

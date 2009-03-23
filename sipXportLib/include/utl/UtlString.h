@@ -390,7 +390,7 @@ public:
     UtlString& append(const char c);
 
     /// Append a string representation of the value to the string
-    UtlString& appendNumber(int value, const char* format = "%d");
+    UtlString& appendNumber(Int64 value, const char* format = "%d");
     /**< MAX_NUMBER_STRING_SIZE is the maximum size text representation of the value allowed
      *   If this size is exceeded an error string is appended in place of the number
      */
