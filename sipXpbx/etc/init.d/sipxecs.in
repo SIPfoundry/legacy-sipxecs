@@ -721,7 +721,7 @@ status() { # process-name
    if [ ! -r @SIPX_RUNDIR@/$proc_name.pid ]
    then
       echo "[Not Running] "
-      proc_status=1
+      proc_status=3
    else
        PID=`cat @SIPX_RUNDIR@/$proc_name.pid 2> /dev/null`
        if proc_alive "$PID"
