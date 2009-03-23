@@ -46,14 +46,14 @@ public class AudioCodesDigitalGatewayTest extends TestCase {
         m_gateway.setDefaults(PhoneTestDriver.getDeviceDefaults());
     }
 
-    public void testGenerateTypicalProfiles50() throws Exception {
-        doTestGenerateTypicalProfiles(AudioCodesModel.REL_5_0);
+    public void testGenerateTypicalProfiles() throws Exception {
+        DeviceVersion[] versions = m_gateway.getModel().getVersions();
+        for (DeviceVersion v : versions) {
+            setUp();
+            doTestGenerateTypicalProfiles(v);
+        }
     }
-    
-    public void testGenerateTypicalProfiles52() throws Exception {
-        doTestGenerateTypicalProfiles(AudioCodesModel.REL_5_2);
-    }    
-    
+
     public void doTestGenerateTypicalProfiles(DeviceVersion version) throws Exception {
         m_gateway.setDeviceVersion(version);
         for (int i = 0; i < 2; i++) {
@@ -70,16 +70,30 @@ public class AudioCodesDigitalGatewayTest extends TestCase {
         m_gateway.setSettingValue("SIP_coders/CoderName/Type[2]", "g711Alaw64k");
         m_gateway.setSettingValue("SIP_coders/CoderName/Type[3]", "g711Alaw64k");
         m_gateway.setSettingValue("SIP_coders/CoderName/Type[4]", "g711Alaw64k");
-        
+        m_gateway.setSettingValue("advanced_general/SAS/EnableSAS", "1");
+        m_gateway.setSettingValue("advanced_general/SAS/SASLocalSIPUDPPort", "5440");
+        m_gateway.setSettingValue("advanced_general/SAS/SASDefaultGatewayIP", "10.10.10.50");
+        if(AudioCodesModel.REL_5_4 == version) {
+            m_gateway.setSettingValue("advanced_general/SAS/SASLocalSIPTCPPort", "5440");
+            m_gateway.setSettingValue("advanced_general/SAS/SASLocalSIPTLSPort", "5441");
+            m_gateway.setSettingValue("advanced_general/SAS/SASRegistrationTime", "5");
+            m_gateway.setSettingValue("advanced_general/SAS/SASShortNumberLength", "4");
+        }
+
         m_gateway.generateProfiles(location);
+        String actual_lines[] = location.toString().toString().split("\n");
 
-        String actual = location.toString();
+        String expectedName = "digital-gateway-" + version.getVersionId() + ".ini";
+        InputStream expectedProfile = getClass().getResourceAsStream(expectedName);
+        assertNotNull(version.getVersionId(), expectedProfile);
+        String expected_lines[] = IOUtils.toString(expectedProfile).split("\n");
 
-        InputStream expectedProfile = getClass().getResourceAsStream("digital-gateway-" + version.getVersionId() + ".ini");
-        assertNotNull(expectedProfile);
-        String expected = IOUtils.toString(expectedProfile);
-
-        assertEquals(expected, actual);
+        for(int x=0; x < expected_lines.length; x++) {
+            String line = expectedName + " line " + (x+1);
+            assertTrue(line, x < actual_lines.length); // Generated too few lines?
+            assertEquals(line, expected_lines[x], actual_lines[x]);
+        }
+        assertEquals(expectedName, expected_lines.length, actual_lines.length); // Generated too many lines?
     }
 
     public void testGetActiveCalls() throws Exception {

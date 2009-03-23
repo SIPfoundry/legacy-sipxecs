@@ -368,7 +368,7 @@
         <string maxLen="50" />
       </type>
     </setting>
-    <setting name="SIPSDPSessionOwner" advanced="yes" if="5.2">
+    <setting name="SIPSDPSessionOwner" advanced="yes" unless="5.0">
       <label>SDP Session Owner</label>
       <type>
         <string maxLen="39" />
@@ -409,7 +409,7 @@
         INVITE. When enabled gateway will use the same call identifiers.
       </description>
     </setting>
-    <setting name="EnablePChargingVector" advanced="yes" if="5.2">
+    <setting name="EnablePChargingVector" advanced="yes" unless="5.0">
       <label>Enable P-Charging-Vector</label>
       <type>
         <boolean />
@@ -417,7 +417,7 @@
       <value>0</value>
       <description>If checked, adds a P-Charging-Vector header to outgoing INVITE messages.</description>
     </setting>
-    <setting name="EnableVMURI" advanced="yes" if="5.2">
+    <setting name="EnableVMURI" advanced="yes" unless="5.0">
       <label>Enable Voicemail URI</label>
       <type>
         <boolean />
@@ -639,7 +639,7 @@
         ‘Gateway Name’.
       </description>
     </setting>
-    <setting name="isProxyHotSwap" if="5.2">
+    <setting name="isProxyHotSwap" unless="5.0">
       <label>Hot-Swap Redundancy Mode</label>
       <type>
         <boolean />
@@ -650,7 +650,7 @@
         redundant Proxy/Registrar server if the primary Proxy/Registrar server does not respond.
       </description>
     </setting>
-    <setting name="HotSwapRtx" advanced="yes" if="5.2">
+    <setting name="HotSwapRtx" advanced="yes" unless="5.0">
       <label>Number of RTX before Hot-Swap</label>
       <type>
         <integer min="1" max="30" />
@@ -683,7 +683,7 @@
       </type>
       <value>0</value>
     </setting>
-    <setting name="SIPChallengeCachingMode" advanced="yes" if="5.2">
+    <setting name="SIPChallengeCachingMode" advanced="yes" unless="5.0">
       <label>Challenge Caching Mode</label>
       <type>
         <enum>
@@ -707,7 +707,7 @@
         use with SIP proxies.
       </description>
     </setting>
-    <setting name="MutualAuthenticationMode" advanced="yes" if="5.2">
+    <setting name="MutualAuthenticationMode" advanced="yes" unless="5.0">
       <label>Mutual Authentication Mode</label>
       <type>
         <enum>
@@ -1139,7 +1139,7 @@
       </type>
       <value>0</value>
     </setting>
-    <group name="SAS">
+    <group name="SAS" unless="fxs">
       <label>Stand-Alone Survivability</label>
       <profileName>Stand-Alone Survivability</profileName>
       <setting name='EnableSAS'>
@@ -1150,15 +1150,37 @@
         <value>0</value>
         <description>Enable/disable Stand-Alone Survivability</description>
       </setting>
+      <setting name='SASRegistrationTime' if="5.4">
+        <label>SAS Registration Time</label>
+        <type>
+          <integer min="0" max="2000000" />
+        </type>
+        <value>20</value>
+        <description>UDP Port for SAS SIP signaling</description>
+      </setting>
       <setting name='SASLocalSIPUDPPort'>
         <label>SAS Local SIP UDP port</label>
         <value>5080</value>
         <description>UDP Port for SAS SIP signaling</description>
       </setting>
+      <setting name='SASLocalSIPTCPPort' if="5.4">
+        <label>SAS Local SIP TCP port</label>
+        <value>5080</value>
+        <description>TCP Port for SAS SIP signaling</description>
+      </setting>
+      <setting name='SASLocalSIPTLSPort' if="5.4">
+        <label>SAS Local SIP TLS port</label>
+        <value>5081</value>
+        <description>TLS Port for SAS SIP signaling</description>
+      </setting>
       <setting name='SASDefaultGatewayIP'>
         <label>SAS Default Gateway</label>
         <value></value>
         <description>SAS Default Gateway</description>
+      </setting>
+      <setting name='SASShortNumberLength' if="5.4">
+        <label>SAS Short Number Length</label>
+        <value></value>
       </setting>
     </group>
   </group>
@@ -1754,7 +1776,7 @@
       <value>0.0.0.0</value>
       <description>IP address of the secondary STUN server</description>
     </setting>
-    <setting name='EnablePPPoE'>
+    <setting name='EnablePPPoE' unless="5.4">
       <label>PPPoE Enabled</label>
       <type>
         <boolean />
@@ -1762,34 +1784,34 @@
       <value>0</value>
       <description>Enable/disable PPPoE</description>
     </setting>
-    <setting name='PPPoEUserName'>
+    <setting name='PPPoEUserName' unless="5.4">
       <label>PPPoE User Name</label>
       <description>PPPoE user name</description>
     </setting>
-    <setting name='PPPoEPassword'>
+    <setting name='PPPoEPassword' unless="5.4">
       <label>PPPoE Password</label>
       <description>PPPoE password</description>
     </setting>
-    <setting name='PPPoEServerName'>
+    <setting name='PPPoEServerName' unless="5.4">
       <label>PPPoE Server Name</label>
       <description>PPPoE server name</description>
     </setting>
-    <setting name='PPPoEStaticIPAddress'>
+    <setting name='PPPoEStaticIPAddress' unless="5.4">
       <label>PPPoE Requested IP Address</label>
       <value>0.0.0.0</value>
       <description>PPPoE Static IP address to be requested from PPPoE server</description>
     </setting>
-    <setting name='PPPoERecoverIPAddress' advanced='yes'>
+    <setting name='PPPoERecoverIPAddress' advanced='yes' unless="5.4">
       <label>PPPoE Recovery IP Address</label>
       <value>10.4.10.4</value>
       <description>IP address to use when IP address negotiation/assignment fails in PPPoE mode.</description>
     </setting>
-    <setting name='PPPoERecoverSubnetMask' advanced='yes'>
+    <setting name='PPPoERecoverSubnetMask' advanced='yes' unless="5.4">
       <label>PPPoE Recovery Subnet Mask</label>
       <value>255.255.0.0</value>
       <description>Subnet mask to use when IP address negotiation/assignment fails in PPPoE mode.</description>
     </setting>
-    <setting name='PPPoERecoverDfgwAddress' advanced='yes'>
+    <setting name='PPPoERecoverDfgwAddress' advanced='yes' unless="5.4">
       <label>PPPoE Recovery Default Gateway</label>
       <value>10.4.10.1</value>
       <description>Default gateway to use when IP address negotiation/assignment fails in PPPoE mode.</description>

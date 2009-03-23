@@ -13,8 +13,8 @@ import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 
 public class AudioCodesFxsModel extends PhoneModel {
-    private static final DeviceVersion[] VERSIONS = {
-        AudioCodesModel.REL_5_0, AudioCodesModel.REL_5_2
+    public static final DeviceVersion[] VERSIONS = {
+        AudioCodesModel.REL_5_0, AudioCodesModel.REL_5_2, AudioCodesModel.REL_5_4
     };
 
     private String m_configDirectory;

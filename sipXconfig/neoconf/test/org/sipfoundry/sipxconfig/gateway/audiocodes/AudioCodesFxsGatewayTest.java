@@ -24,12 +24,10 @@ import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 
 public class AudioCodesFxsGatewayTest extends TestCase {
 
-    public void testGenerateTypicalProfiles50() throws Exception {
-        doTestGenerateTypicalProfiles(AudioCodesModel.REL_5_0);
-    }
-
-    public void testGenerateTypicalProfiles52() throws Exception {
-        doTestGenerateTypicalProfiles(AudioCodesModel.REL_5_2);
+    public void testGenerateTypicalProfiles() throws Exception {
+        for (DeviceVersion v : AudioCodesFxsModel.VERSIONS) {
+            doTestGenerateTypicalProfiles(v);
+        }
     }
 
     public void doTestGenerateTypicalProfiles(DeviceVersion version) throws Exception {
@@ -66,13 +64,18 @@ public class AudioCodesFxsGatewayTest extends TestCase {
         }));
 
         gateway.generateProfiles(location);
+        String actual_lines[] = location.toString().toString().split("\n");
 
-        String actual = location.toString();
+        String expectedName = "fxs-gateway-" + version.getVersionId() + ".ini";
+        InputStream expectedProfile = getClass().getResourceAsStream(expectedName);
+        assertNotNull(version.getVersionId(), expectedProfile);
+        String expected_lines[] = IOUtils.toString(expectedProfile).split("\n");
 
-        InputStream expectedProfile = getClass().getResourceAsStream("fxs-gateway-" + version.getVersionId() + ".ini");
-        assertNotNull(expectedProfile);
-        String expected = IOUtils.toString(expectedProfile);
-
-        assertEquals(expected, actual);
+        for(int x=0; x < expected_lines.length; x++) {
+            String line = expectedName + " line " + (x+1);
+            assertTrue(line, x < actual_lines.length); // Generated too few lines?
+            assertEquals(line, expected_lines[x], actual_lines[x]);
+        }
+        assertEquals(expectedName, expected_lines.length, actual_lines.length); // Generated too many lines?
     }
 }
