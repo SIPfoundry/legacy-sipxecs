@@ -162,6 +162,11 @@ public class Nortel12x0Phone extends Phone {
         public String getSyslogServer() {
             return m_defaults.getServer(0, UnmanagedService.SYSLOG);
         }
+
+        @SettingEntry(path = PAGING_PREFIX)
+        public String getPagingPrefix() {
+            return m_defaults.getPagingPrefix();
+        }
     }
 
     public static class Nortel12x0LineDefaults {

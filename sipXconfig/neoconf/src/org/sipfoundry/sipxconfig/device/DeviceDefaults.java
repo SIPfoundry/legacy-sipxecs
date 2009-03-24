@@ -20,6 +20,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyInfo;
 import org.sipfoundry.sipxconfig.admin.dialplan.InternalRule;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.paging.PagingContext;
 import org.sipfoundry.sipxconfig.service.ConfiguredService;
 import org.sipfoundry.sipxconfig.service.ServiceDescriptor;
 import org.sipfoundry.sipxconfig.service.ServiceManager;
@@ -57,6 +58,8 @@ public class DeviceDefaults {
 
     private String m_mohUser;
 
+    private PagingContext m_pagingContext;
+
     public void setDefaultNtpService(String defaultNtpService) {
         m_defaultNtpService = defaultNtpService;
     }
@@ -76,7 +79,15 @@ public class DeviceDefaults {
     public void setDialPlanContext(DialPlanContext dialPlanContext) {
         m_dialPlanContext = dialPlanContext;
     }
+   
+    public void setPagingContext(PagingContext pagingContext) {
+        m_pagingContext = pagingContext;
+    }
 
+    public String getPagingPrefix() {
+        return m_pagingContext.getPagingPrefix();
+    }
+   
     public String getDomainName() {
         return m_domainManager.getDomain().getName();
     }

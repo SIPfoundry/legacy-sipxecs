@@ -10,6 +10,7 @@
     <property name="logDirectory" value="${sysdir.log}"></property>
     <property name="timeZoneManager" ref="timeZoneManager" />
     <property name="locationsManager" ref="locationsManager" />
+    <property name="pagingContext" ref="pagingContext" />
     <!-- default music-on-hold user -->
     <property name="mohUser" value="~~mh~" />
   </bean>

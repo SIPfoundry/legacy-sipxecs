@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.paging.PagingContext;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.service.ServiceDescriptor;
 import org.sipfoundry.sipxconfig.service.ServiceManager;
@@ -240,6 +241,10 @@ public class PhoneTestDriver {
         serviceManagerControl.replay();
         defaults.setServiceManager(serviceManager);
 
+        IMocksControl pagingContextControl = EasyMock.createNiceControl();
+        PagingContext pagingContext = pagingContextControl.createMock(PagingContext.class);
+        pagingContextControl.replay();
+        defaults.setPagingContext(pagingContext);
         phone.setPhoneContext(phoneContext);
     }
 }
