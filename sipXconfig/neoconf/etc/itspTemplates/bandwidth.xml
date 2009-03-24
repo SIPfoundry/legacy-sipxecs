@@ -102,7 +102,7 @@
       <description>Defines whether or not to register with the given ITSP on initialization.</description>
     </setting>
     <setting name="itsp-registrar-address" advanced="yes">
-      <label>ITSP Regsitrar address</label>
+      <label>ITSP Registrar address</label>
       <description>
 	 If the ITSP specifies a registrar different from the ITSP server address
         above, enter it here. Otherwise this setting is assumed to be identical to
