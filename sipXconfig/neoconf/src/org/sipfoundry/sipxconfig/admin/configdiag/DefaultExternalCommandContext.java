@@ -19,9 +19,13 @@ import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 
 public class DefaultExternalCommandContext implements ExternalCommandContext, Serializable {
+    private static final String DOMAIN = "domain";
+    private static final String HOSTNAME = "hostname";
     private static final Log LOG = LogFactory.getLog(DefaultExternalCommandContext.class);
     private String m_binDirectory;
     private Map<String, String> m_argResolverMap;
+    private DomainManager m_domainManager;
+    private LocationsManager m_locationsManager;
 
     public DefaultExternalCommandContext() {
         m_argResolverMap = new HashMap<String, String>();
@@ -36,20 +40,25 @@ public class DefaultExternalCommandContext implements ExternalCommandContext, Se
     }
 
     public String resolveArgumentString(String key) {
+        initResolverMap();
         return m_argResolverMap.get(key);
+    }
+
+    private void initResolverMap() {
+        if (m_argResolverMap.get(HOSTNAME) == null) {
+            m_argResolverMap.put(HOSTNAME, m_locationsManager.getPrimaryLocation().getFqdn());
+        }
+        
+        if (m_argResolverMap.get(DOMAIN) == null) {
+            m_argResolverMap.put(DOMAIN, m_domainManager.getAuthorizationRealm());
+        }
     }
     
     public void setLocationsManager(LocationsManager locationsManager) {
-        if (locationsManager.getPrimaryLocation() != null) {
-            m_argResolverMap.put("hostname", locationsManager.getPrimaryLocation().getFqdn());
-        }
+        m_locationsManager = locationsManager;
     }
     
     public void setDomainManager(DomainManager domainManager) {
-        try {
-            m_argResolverMap.put("domain", domainManager.getAuthorizationRealm());
-        } catch (DomainManager.DomainNotInitializedException e) {
-            LOG.warn("Unable to get authorization realm; domain not initialized", e);
-        }
+        m_domainManager = domainManager;
     }
 }
