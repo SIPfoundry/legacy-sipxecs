@@ -180,6 +180,7 @@ public class CustomDialingRule extends DialingRule {
         if (transport != null) {
             transform.setUrlParams(transport);
         }
+        transform.addHeaderParams(String.format(GATEWAY_EXPIRES_PATTERN, GATEWAY_EXPIRES_VALUE));
         return transform;
     }
 

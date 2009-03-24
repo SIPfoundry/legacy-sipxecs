@@ -38,6 +38,8 @@ import org.sipfoundry.sipxconfig.permission.PermissionManager;
 public abstract class DialingRule extends BeanWithId implements DataCollectionItem, NamedObject, IDialingRule {
 
     public static final String VALID_TIME_PARAM = "sipx-ValidTime=%s";
+    public static final String GATEWAY_EXPIRES_PATTERN = "expires=%s";
+    public static final String GATEWAY_EXPIRES_VALUE = "60";
 
     private boolean m_enabled;
     private String m_name;

@@ -94,6 +94,7 @@ public class FallbackRulesTest extends XMLTestCase {
         t1.setUser("333");
         t1.setHost("10.1.1.14");
         t1.setFieldParams("Q=0.97");
+        t1.addHeaderParams("expires=60");
 
         IDialingRule rule = createStrictMock(IDialingRule.class);
         rule.isInternal();
@@ -131,8 +132,8 @@ public class FallbackRulesTest extends XMLTestCase {
     }
 
     public void testGenerateRuleWithGatewaysAndSite() throws Exception {
-        Transform t1 = createTransform("444", "montreal.example.org", "q=0.95");
-        Transform t2 = createTransform("9444", "lisbon.example.org", "q=0.95");
+        Transform t1 = createTransform("444", "montreal.example.org", "q=0.95", "expires=60");
+        Transform t2 = createTransform("9444", "lisbon.example.org", "q=0.95", "expires=60");
 
         Map<String, List<Transform>> siteTr = new LinkedHashMap<String, List<Transform>>();
         siteTr.put("Montreal", Arrays.asList(t1));
@@ -171,11 +172,12 @@ public class FallbackRulesTest extends XMLTestCase {
         verify(rule);
     }
 
-    private Transform createTransform(String user, String host, String q) {
+    private Transform createTransform(String user, String host, String q, String expires) {
         FullTransform t1 = new FullTransform();
         t1.setUser(user);
         t1.setHost(host);
         t1.setFieldParams(q);
+        t1.setHeaderParams(expires);
         return t1;
     }
 

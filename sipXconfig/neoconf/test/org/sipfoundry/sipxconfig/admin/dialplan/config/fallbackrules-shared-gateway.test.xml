@@ -15,16 +15,19 @@
         <transform>
           <user>444</user>
           <host>montreal.example.org</host>
+          <headerparams>expires=60</headerparams>
           <fieldparams>q=0.95</fieldparams>
         </transform>
         <transform>
           <user>8444</user>
           <host>example.org</host>
+          <headerparams>expires=60</headerparams>
           <fieldparams>q=0.9</fieldparams>
         </transform>
         <transform>
           <user>9444</user>
           <host>lisbon.example.org</host>
+          <headerparams>expires=60</headerparams>
           <fieldparams>q=0.85</fieldparams>
         </transform>
       </callerLocationMatch>
@@ -33,22 +36,26 @@
         <transform>
           <user>9444</user>
           <host>lisbon.example.org</host>
+          <headerparams>expires=60</headerparams>
           <fieldparams>q=0.933</fieldparams>
         </transform>
         <transform>
           <user>8444</user>
           <host>example.org</host>
+          <headerparams>expires=60</headerparams>
           <fieldparams>q=0.867</fieldparams>
         </transform>
       </callerLocationMatch>
       <transform>
         <user>8444</user>
         <host>example.org</host>
+        <headerparams>expires=60</headerparams>
         <fieldparams>q=0.933</fieldparams>
       </transform>
       <transform>
         <user>9444</user>
         <host>lisbon.example.org</host>
+        <headerparams>expires=60</headerparams>
         <fieldparams>q=0.867</fieldparams>
       </transform>
     </userMatch>

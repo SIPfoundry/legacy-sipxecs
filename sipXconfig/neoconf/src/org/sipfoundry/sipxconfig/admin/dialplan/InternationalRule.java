@@ -61,6 +61,7 @@ public class InternationalRule extends DialingRule {
                 q.getSerial()
             };
             transform.setFieldParams(fieldParams);
+            transform.addHeaderParams(String.format(GATEWAY_EXPIRES_PATTERN, GATEWAY_EXPIRES_VALUE));
             transforms.add(transform);
         }
         return transforms.toArray(new Transform[transforms.size()]);

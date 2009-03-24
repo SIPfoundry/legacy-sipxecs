@@ -63,6 +63,7 @@ public class EmergencyRule extends DialingRule {
             if (StringUtils.isNotBlank(route)) {
                 transform.setHeaderParams(String.format(ROUTE_PATTERN, route));
             }
+            transform.addHeaderParams(String.format(GATEWAY_EXPIRES_PATTERN, GATEWAY_EXPIRES_VALUE));
             transforms.add(transform);
         }
         return transforms.toArray(new Transform[transforms.size()]);

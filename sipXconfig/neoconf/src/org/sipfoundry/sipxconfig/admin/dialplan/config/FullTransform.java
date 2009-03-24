@@ -72,6 +72,14 @@ public class FullTransform extends Transform {
         m_headerParams = headerParams;
     }
 
+    public void addHeaderParams(String... headerParams) {
+        if (m_headerParams == null) {
+            setHeaderParams(headerParams);
+        } else {
+            m_headerParams = (String[]) ArrayUtils.addAll(m_headerParams, headerParams);
+        }
+    }
+
     public String getHost() {
         return m_host;
     }
