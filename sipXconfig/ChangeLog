@@ -4,6 +4,91 @@ SIPfoundry Issue Tracker at:
         http://track.sipfoundry.org/browse?XCF
 
 
+Version 3.11.11
+
+
+** Bug
+    * [XCF-1441] - Gateway is not getting removed from the dialing rule which is enabled
+    * [XCF-2250] - Wide tables overflowing into help text on smaller window sizes
+    * [XCF-2579] - help label for Polycom emergency dialing should specify that comma must be used as the delimiter
+    * [XCF-2656] - Typo in Audiocodes Configuration Port error message.
+    * [XCF-2849] - SipX not recognizing myres.properties - all text changes on the UI not working
+    * [XCF-3066] - "Start Workgroup when client starts" user option field missing in Device>SMC3456>Line>Presence
+    * [XCF-3088] - do not report an error when restarting devices (gateways/phones/SBCs) that do not support restart
+    * [XCF-3109] - Activating the dial plans does not update the userlocation.xml
+    * [XCF-3132] - Settings with "real" type can neither be set nor be displayed in UI
+    * [XCF-3133] - CallResolver-Agent shows "ConfigurationMismatch" overnight(r014238)
+    * [XCF-3141] - Date picker field not updated correctly when Timezone change causes date to be changed.
+    * [XCF-3154] - replicate service changes automatically
+    * [XCF-3156] - Line requesting for userID and PIN displayed in devices restart page.
+    * [XCF-3200] - INTERMITTENT - mapping rules files are missing after the installation
+    * [XCF-3228] - ITSP/sipxbridge calls fail - sipxbridge was found not to start when SBC role was created
+    * [XCF-3233] - When importing name with apostrophe from LDAP Domino server error seen "Invalid Name"
+    * [XCF-3248] - Changing the WEB certificate breaks communication with sipx-supervisor
+    * [XCF-3252] -  Conference "Invite Participant" does not work.
+    * [XCF-3255] - Role names in error messages are not localized
+    * [XCF-3256] - Proper error message should be thrown when roles are assigned while adding server
+    * [XCF-3259] - Internal Exception when clicked on the Userxxx|Conference link.
+    * [XCF-3261] - Generate publicAddress tag in nattraversalrules.xml regardless of whether behind nat is checked
+    * [XCF-3269] - Snapshot taken from Config UI using the time filter does not contain any logs.
+    * [XCF-3271] - When a Conference is Locked there is no indication of it being Locked in the GUI
+    * [XCF-3275] - After adding Call Center/ACD under Server Roles the three services are added but seen as "Disabled"
+    * [XCF-3278] - Failed Services - "Resource Required" seen in GUI for SIP Proxy, SIP Registrar, Auto Attendant Park, Media Engine, Voicemail, VMail MWI, Paging
+    * [XCF-3288] - Internal Exception : Send Profiles to newly added server with Server role enabled.
+    * [XCF-3289] - Proper error message should be displayed while restating services with newly added server
+    * [XCF-3291] - Log file timestamps are not in UTC, and sipXconfig doesn't seem to be using the system timezone correctly
+    * [XCF-3292] - Administrator can use same Line number for Conference Line as an ACD Line
+    * [XCF-3294] - initial sequence of enabling/configuring and setting configuration stamp is not correct
+    * [XCF-3296] - sipXconfig generates incorrect sipXbridge configuration for remote server
+    * [XCF-3306] - HA configuration fails because of service replication failure.
+    * [XCF-3312] - Internal Exception Error seen when selecting Voicemail of Line assigned to SMC 3456
+    * [XCF-3315] - In the Configuration Test GUI "Mouse pointer Roll over help" is broken for 8 of the tests
+    * [XCF-3319] - sorting by 'Participants' causes problems in Conference table
+    * [XCF-3327] - Fix Snapshot default Start and End times
+    * [XCF-3328] - After reboot error seen: File replication: sipxivr.properties - Failed
+    * [XCF-3337] - auto-refresh on conference participants list wipes out Invite Participant
+    * [XCF-3365] - Typo: " [ERROR.NOSUCHCONFERENCE] "under conference page when clicked on Lock/Unlock  button.
+    * [XCF-3367] - Servers -> Send Profiles doesn't seem to send dialplan or Auto Attendant related profiles
+    * [XCF-3370] - Changing Auto Attendant config doesn't automatically push changes to autoattendants.xml
+    * [XCF-3376] - Statistics for Free Memory: legend shows the same values for Free and Total
+    * [XCF-3391] - Restarting of ACD Statistics from Config UI goes into "Stopping" state.
+    * [XCF-3392] - SCS -Wide tables overflowing into help text on smaller window sizes
+    * [XCF-3394] - Sip Proxy Resource Required seen - File replication: forwardingrules.xml  -Failed seen after initial boot-up
+    * [XCF-3399] - Plug-in generates device filenames with hex digits in lower case causing phone to fail to find file on TFTP (Ciscoplus)
+    * [XCF-3405] - Unable to configure remote server: IMDB datasets missing
+    * [XCF-3406] - Unable to Login into the SCS from IE.
+    * [XCF-3409] - HA: registry syncronization is not configured
+    * [XCF-3415] - Internal Exception on "Extension Pool" tab when clicked.
+    * [XCF-3420] - Error seen on Restore screen
+    * [XCF-3425] - Localization : Internal exception is seen when clicked on Apply region
+    * [XCF-3430] - ACD: Creating a new ACD line throws wrong error message.
+    * [XCF-3436] - Upgrades - 3.10.x -> 3.11.y  - first-run deleted but nothing done
+    * [XCF-3443] - "ACD supervision" tab is missing in end user portal  although the end user is a ACD supervisor
+
+** Improvement
+    * [XCF-1708] - download Polycom profiles from sipXconfig UI
+    * [XCF-2374] - Users who aren't defined as ACD agents should not have a GUI for signing in to the ACD Presence server
+    * [XCF-2814] - FreeSwitch: A message should be displayed when an active conference is Locked/Unlocked from User|User XXX|Conference
+    * [XCF-3017] - MRTG Migration to add servers consistent with HA cluster mgmt improvements
+    * [XCF-3150] - Auto-answer for Intercom and Paging should support the same phones
+    * [XCF-3212] - Create a favicon for sipXconfig web app
+    * [XCF-3251] - Snapshot screen re-organization for usability
+    * [XCF-3277] - Voicemail for a Nortel SMC 3456 is not set by default
+    * [XCF-3280] - review the service settings titles/labels/description
+    * [XCF-3287] - The setting in the SMC 3456 for Enable ICE should be disabled by default not enabled
+    * [XCF-3324] - DST-error message should be displayed instead of exception.
+    * [XCF-3335] - report status of newly added server
+    * [XCF-3381] - Provide a link for statistic page from Targets to Monitor page
+    * [XCF-3400] - orbits.xml should be generated as park service configuration file
+    * [XCF-3401] - resource_list_xml shold be replicated as sipXrls configuration
+    * [XCF-3437] - Default style sheet wastes horizontal space and does not scale down (or up) properly
+
+** New Feature
+    * [XCF-2864] - Generate sipxsupervisor-config
+    * [XCF-3216] - Add Polycom 3.1.2 firmware config file content to Polycom generated profiles
+    * [XCF-3305] - uniform approach to service restarts
+
+
 Version 3.11.10
 
 ** Bug
