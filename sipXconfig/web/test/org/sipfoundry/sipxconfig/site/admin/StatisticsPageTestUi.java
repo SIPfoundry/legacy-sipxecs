@@ -34,11 +34,11 @@ public class StatisticsPageTestUi extends WebTestCase {
         setWorkingForm("targets");
 
         // select targets
+        SiteTestHelper.selectRow(tester, 0, true);
         SiteTestHelper.selectRow(tester, 1, true);
         SiteTestHelper.selectRow(tester, 2, true);
         SiteTestHelper.selectRow(tester, 3, true);
         SiteTestHelper.selectRow(tester, 4, true);
-        SiteTestHelper.selectRow(tester, 5, true);
         clickButton("form:ok");
 
         SiteTestHelper.assertNoException(tester);
@@ -84,9 +84,9 @@ public class StatisticsPageTestUi extends WebTestCase {
         clickLink("menu.statistics");
         SiteTestHelper.selectOption(tester, "PropertySelection", "host.example.org");
         clickLink("link.configureTargets");
+        SiteTestHelper.selectRow(tester, 2, false);
         SiteTestHelper.selectRow(tester, 3, false);
         SiteTestHelper.selectRow(tester, 4, false);
-        SiteTestHelper.selectRow(tester, 5, false);
         clickButton("form:ok");
 
         SiteTestHelper.assertNoException(tester);

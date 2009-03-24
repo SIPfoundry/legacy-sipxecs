@@ -75,15 +75,13 @@ public class MonitoringContextImplTest extends TestCase {
     }
 
     public void testGetTargetsFromTemplate() {
-        assertEquals(6, m_monitoringContextImpl.getTargetsFromTemplate().size());
+        assertEquals(5, m_monitoringContextImpl.getTargetsFromTemplate().size());
 
         List<MRTGTarget> templateTargets = m_monitoringContextImpl.getTargetsFromTemplate();
         assertEquals("cpuutil", templateTargets.get(0).getId());
         assertEquals("machine", templateTargets.get(1).getId());
-        assertEquals("memgraph", templateTargets.get(2).getId());
-        assertEquals("mempercent", templateTargets.get(3).getId());
-        assertEquals("newconns", templateTargets.get(4).getId());
-        assertEquals("estabcons", templateTargets.get(5).getId());
+        assertEquals("swap", templateTargets.get(2).getId());
+        assertEquals("estabcons", templateTargets.get(4).getId());
     }
 
     public void testGetHosts() {
@@ -94,35 +92,38 @@ public class MonitoringContextImplTest extends TestCase {
     }
 
     public void testGetTargetsForHost() {
-        assertEquals(4, m_monitoringContextImpl.getTargetsForHost("localhost").size());
+        assertEquals(3, m_monitoringContextImpl.getTargetsForHost("localhost").size());
         assertEquals(1, m_monitoringContextImpl.getTargetsForHost("192.168.0.27").size());
 
         List<MRTGTarget> localhostTargets = m_monitoringContextImpl.getTargetsForHost("localhost");
         assertEquals("Server CPU Load", localhostTargets.get(0).getTitle());
-        assertEquals("Free Memory", localhostTargets.get(1).getTitle());
+        assertEquals("Swap Usage", localhostTargets.get(1).getTitle());
         assertEquals("Currently Established TCP Connections", localhostTargets.get(2).getTitle());
 
         List<MRTGTarget> targets = m_monitoringContextImpl.getTargetsForHost("192.168.0.27");
-        assertEquals("memgraph_192.168.0.27", targets.get(0).getId());
-        assertEquals("memAvailReal.0&memTotalReal.0:sipxtest@192.168.0.27", targets.get(0).getExpression());
-        assertEquals("Free Memory", targets.get(0).getTitle());
-        assertEquals("<H1> Free Memory </H1>", targets.get(0).getPageTop());
+        assertEquals("swap_192.168.0.27", targets.get(0).getId());
+        assertEquals(".1.3.6.1.4.1.2021.4.3.0&.1.3.6.1.4.1.2021.4.4.0:sipxtest@192.168.0.27", targets.get(0).getExpression());
+        assertEquals("Swap Usage", targets.get(0).getTitle());
+        assertEquals("<H1>Swap Usage</H1>", targets.get(0).getPageTop());
         long expectedBytes = 10000000000L;
         assertEquals(expectedBytes, targets.get(0).getMaxBytes());
         assertEquals("B", targets.get(0).getShortLegend());
-        assertEquals("Bytes", targets.get(0).getYLegend());
-        assertEquals("Free", targets.get(0).getLegendI());
-        assertEquals("Total", targets.get(0).getLegendO());
-        assertEquals("Free memory (not including swap) in bytes", targets.get(0).getLegend1());
-        assertEquals("Total memory", targets.get(0).getLegend2());
+        assertEquals("Available Swap",  targets.get(0).getYLegend());
+        assertEquals("Available Swap", targets.get(0).getLegendI());
+        assertEquals("Used Swap", targets.get(0).getLegendO());
+        assertEquals("Used Swap", targets.get(0).getLegend1());
+        assertTrue(targets.get(0).growRight());
+        assertTrue(targets.get(0).noPercent());
+        assertTrue(targets.get(0).gauge());
+
     }
 
     public void testGetReports() {
-        assertEquals(4, m_monitoringContextImpl.getReports("localhost").size());
+        assertEquals(3, m_monitoringContextImpl.getReports("localhost").size());
         assertEquals(1, m_monitoringContextImpl.getReports("192.168.0.27").size());
 
         List<String> reports = m_monitoringContextImpl.getReports("192.168.0.27");
-        assertEquals("Free Memory", reports.get(0));
+        assertEquals("Swap Usage", reports.get(0));
 
     }
 
@@ -131,7 +132,7 @@ public class MonitoringContextImplTest extends TestCase {
                 .getTitle());
         assertEquals("Currently Established TCP Connections", m_monitoringContextImpl.getMRTGTarget(
                 "Currently Established TCP Connections", "localhost").getTitle());
-        assertEquals("Free Memory", m_monitoringContextImpl.getMRTGTarget("Free Memory", "192.168.0.27").getTitle());
+        assertEquals("Swap Usage", m_monitoringContextImpl.getMRTGTarget("Swap Usage", "192.168.0.27").getTitle());
     }
 
     public void testIntializeConfigFiles() throws Exception {

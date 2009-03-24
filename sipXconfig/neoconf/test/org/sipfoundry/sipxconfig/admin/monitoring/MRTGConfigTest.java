@@ -42,7 +42,7 @@ public class MRTGConfigTest extends TestCase {
     public void testGetMRTGConfigTargets() {
         assertEquals(m_mrtgConfigFile.toString(), m_mrtgConfig
                 .getFilename());
-        assertEquals(5, m_mrtgConfig.getTargets().size());
+        assertEquals(4, m_mrtgConfig.getTargets().size());
         assertEquals("/mrtg", m_mrtgConfig.getWorkingDir());
         assertEquals("/mrtg/thresh", m_mrtgConfig.getThreshDir());
         assertEquals("rrdtool", m_mrtgConfig.getLogFormat());
@@ -67,24 +67,19 @@ public class MRTGConfigTest extends TestCase {
         assertFalse(cpuutil.transparent());
         assertFalse(cpuutil.perMinute());
 
-        MRTGTarget memgraph = targets.get(1);
-        assertEquals("memgraph_localhost", memgraph.getId());
-        assertEquals("memAvailReal.0&memTotalReal.0:sipxtest@localhost", memgraph.getExpression());
-        assertEquals("Free Memory", memgraph.getTitle());
-        assertEquals("<H1> Free Memory </H1>", memgraph.getPageTop());
-        assertEquals(10000000000L, memgraph.getMaxBytes());
-        assertEquals("B", memgraph.getShortLegend());
-        assertEquals("Bytes", memgraph.getYLegend());
-        assertEquals("Free", memgraph.getLegendI());
-        assertEquals("Total", memgraph.getLegendO());
-        assertEquals("Free memory (not including swap) in bytes", memgraph.getLegend1());
-        assertEquals("Total memory", memgraph.getLegend2());
-        assertTrue(memgraph.growRight());
-        assertTrue(memgraph.noPercent());
-        assertTrue(memgraph.gauge());
-        assertFalse(memgraph.bits());
-        assertFalse(memgraph.transparent());
-        assertFalse(memgraph.perMinute());
+        MRTGTarget swap = targets.get(1);
+        assertEquals("swap_localhost", swap.getId());
+        assertEquals(".1.3.6.1.4.1.2021.4.3.0&.1.3.6.1.4.1.2021.4.4.0:sipxtest@localhost", swap.getExpression());
+        assertEquals("Swap Usage", swap.getTitle());
+        assertEquals(10000000000L, swap.getMaxBytes());
+        assertEquals("B", swap.getShortLegend());
+        assertEquals("Available Swap", swap.getYLegend());
+        assertEquals("Available Swap", swap.getLegendI());
+        assertEquals("Used Swap", swap.getLegendO());
+        assertEquals("Used Swap", swap.getLegend1());
+        assertTrue(swap.growRight());
+        assertTrue(swap.noPercent());
+        assertTrue(swap.gauge());
 
         MRTGTarget tcpConnections = targets.get(3);
         assertEquals("estabcons_localhost", tcpConnections.getId());
