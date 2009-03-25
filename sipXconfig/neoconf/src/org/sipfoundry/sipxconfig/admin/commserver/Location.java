@@ -35,7 +35,10 @@ public class Location extends BeanWithId {
     // security role
     public static final String ROLE_LOCATION = "ROLE_LOCATION";
     private static final int PROCESS_MONITOR_PORT = 8092;
+    private static final int SOFTWARE_ADMIN_PORT = 8092;
+    private static final int HTTPS_SERVER_PORT = 8092;
     private static final int LOCATION_PASSWORD_LEN = 8;
+    private static final String XML_RPC_URL = "https://%s:%d/RPC2";
 
     private String m_name;
     private String m_address;
@@ -116,7 +119,15 @@ public class Location extends BeanWithId {
     }
 
     public String getProcessMonitorUrl() {
-        return String.format("https://%s:%d/RPC2", m_fqdn, PROCESS_MONITOR_PORT);
+        return String.format(XML_RPC_URL, m_fqdn, PROCESS_MONITOR_PORT);
+    }
+
+    public String getSoftwareAdminUrl() {
+        return String.format(XML_RPC_URL, m_fqdn, SOFTWARE_ADMIN_PORT);
+    }
+
+    public String getHttpsServerUrl() {
+        return String.format("https://%s:%d", m_fqdn, HTTPS_SERVER_PORT);
     }
 
     /**

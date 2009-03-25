@@ -25,6 +25,7 @@
     <pathelement location="${commons-beanutils.jar}" />
     <pathelement location="${commons-collections.jar}" />
     <pathelement location="${commons-codec.jar}" />
+    <pathelement location="${commons-httpclient.jar}" />
     <pathelement location="${commons-net.jar}" />
     <pathelement location="${commons-io.jar}" />
     <pathelement location="${xmlrpc.jar}" />
@@ -221,6 +222,7 @@
       <fileset file="${commons-codec.jar}" />
       <fileset file="${commons-fileupload.jar}" />
       <fileset file="${commons-io.jar}" />
+      <fileset file="${commons-httpclient.jar}" />
       <fileset file="${aopalliance.jar}" />
       <fileset file="${dom4j.jar}" />
       <fileset file="${saxpath.jar}" />

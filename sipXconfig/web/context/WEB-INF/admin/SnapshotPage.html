@@ -2,17 +2,23 @@
   <h2><span key="title">Snapshot</span></h2>
   <span jwcid="@common/ErrorMsg"/>
   <div jwcid="@common/QuickHelp" value="message:quick.help"/>
-  <p jwcid="ifResultsPresent@If" condition="ognl:snapshotFile != null">
-    <ul> 
-      <li> 
-        <a jwcid="snapshotLink@common/DownloadLink"
+  <p jwcid="ifResultsPresent@If" condition="ognl:snapshotFileList != null">
+    <table>
+      <tr>
+        <td>
+          <span key="generated.time">Logs</span>
+          <span jwcid="@Insert" value="ognl:generationDate"/>
+        </td>
+      </tr>
+      <tr jwcid="@For" source="ognl:snapshotFileList" value="ognl:snapshotFile" element="tr">
+        <td><a jwcid="snapshotLink@common/DownloadLink"
           fileName="ognl:snapshotFile.name"
           dirName="ognl:snapshotFile.parentFile.path"
           contentType="tar/x-gzip">
-          <span jwcid="linkText@Insert" value="ognl:snapshotFile.name"/>
-        </a>
-      </li> 
-    </ul>
+          <span jwcid="linkText@Insert" value="ognl:domainForFile(snapshotFile)"/>
+        </a></td>
+      </tr>
+    </table>
   </p>
   <form jwcid="snapshotForm@Form" delegate="bean:validator">
     <fieldset>

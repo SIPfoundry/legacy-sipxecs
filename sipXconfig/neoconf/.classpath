@@ -64,5 +64,6 @@
 	<classpathentry kind="var" path="SIPX_COMMONS/lib/jain-sip-sdp.jar" sourcepath="/LIB_SRC/jain-sip/src.zip"/>
 	<classpathentry kind="var" path="SIPX_COMMONS/lib/log4j.jar"/>
 	<classpathentry kind="var" path="SIPX_COMMONS/lib/commons-net.jar" sourcepath="/LIB_SRC/commons-net/1.4.1/commons-net-1.4.1-src.zip"/>
+	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/commons-httpclient-3.0.1.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

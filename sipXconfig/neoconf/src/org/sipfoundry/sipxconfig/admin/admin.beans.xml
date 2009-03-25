@@ -18,9 +18,19 @@
     <lookup-method name="createFtpBackupPlan" bean="ftpBackupPlan" />
   </bean>
 
+  <bean id="softwareAdminApiProvider"
+    class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">
+    <property name="methodNamePrefix" value="SwAdminRpc." />
+    <property name="secure" value="true" />
+    <property name="serviceInterface"
+      value="org.sipfoundry.sipxconfig.admin.commserver.SoftwareAdminApi" />
+    <property name="timeout" value="10000" />
+  </bean>
+
   <bean id="snapshot" class="org.sipfoundry.sipxconfig.admin.Snapshot">
-    <property name="binDirectory" value="${sysdir.bin}" />
     <property name="destDirectory" value="${sysdir.tmp}" />
+    <property name="softwareAdminApiProvider" ref="softwareAdminApiProvider" />
+    <property name="locationsManager" ref="locationsManager" />
   </bean>
 
   <bean id="restore" class="org.sipfoundry.sipxconfig.admin.Restore">
