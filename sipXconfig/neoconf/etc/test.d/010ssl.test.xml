@@ -15,7 +15,7 @@
       <status>Error</status>
       <msg>SSL key and/or certificate not found or not valid</msg>
       <description>
-        Run setup wizard or check instructions on recreating SSL certificates.
+        Run the setup wizard or check instructions on recreating SSL certificates.
       </description>
     </result>
   </results>

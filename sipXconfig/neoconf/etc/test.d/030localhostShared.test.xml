@@ -15,7 +15,7 @@
       <description>
         The 127.0.0.1 address should map to only the names 'localhost.localdomain' and 'localhost'.
         Any other name for that address may cause routing or authentication errors.
-        Remove the following names from the 127.0.0.1 line in /etc/hosts:
+        Remove any names from the 127.0.0.1 line in /etc/hosts except for 'localhost.localdomain' and 'localhost'.
       </description>
     </result>
   </results>

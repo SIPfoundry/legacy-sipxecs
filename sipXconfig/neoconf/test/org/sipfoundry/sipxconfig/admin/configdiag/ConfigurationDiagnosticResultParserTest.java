@@ -36,7 +36,7 @@ public class ConfigurationDiagnosticResultParserTest extends TestCase {
 
     public void testParseResultWithUnknownExitStatus() {
         ConfigurationDiagnosticResult result = m_out.parseResult(-99);
-        assertEquals(Status.Unknown, result.getStatus());
+        assertEquals(Status.Warning, result.getStatus());
     }
 
     public void testParseResult() {

@@ -183,6 +183,12 @@
         <replacefilter token="@sipxpbx.bin.dir@" property="sipxpbx.bin.dir" />
     </replace>
 
+    <replace dir="${dest.dir}${sipxpbx.conf.dir}/test.d"
+            propertyfile="${top.build.dir}/build.properties">
+        <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir" />
+        <replacefilter token="@sipxecs.name@" property="sipxecs.name" />
+    </replace>
+
     <!-- copy jars and war -->
     <mkdir dir="${dest.dir}${sipxecs.java.dir}/sipXconfig" />
     <copy todir="${dest.dir}${sipxecs.java.dir}/sipXconfig">

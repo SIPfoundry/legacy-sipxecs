@@ -109,4 +109,8 @@ public class ExternalCommand {
     List<String> getArgs() {
         return m_args;
     }
+
+    public String getStdout() {
+        return m_stdout;
+    }
 }

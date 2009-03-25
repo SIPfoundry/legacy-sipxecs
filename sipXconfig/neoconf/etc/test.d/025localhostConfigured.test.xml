@@ -14,11 +14,10 @@
     </result>
     <result exit="1">
       <status>Error</status>
-      <msg>Invalid mapping of 'localhost' found.</msg>
+      <msg>Invalid mapping of 'localhost' found</msg>
       <description>
         The name 'localhost' must map to only the IPv4 address 127.0.0.1
-        Any other IPv4 address for that
-        name may
+        Any other IPv4 address for that name may
         cause routing or authentication errors.
         Remove bad addresses from /etc/hosts.
       </description>
@@ -27,12 +26,11 @@
       <status>Error</status>
       <msg>
         'localhost' mapping missing
-	  </msg>
+      </msg>
       <description>
         The name 'localhost' must map to the IPv4 address 127.0.0.1
         Add the following line to /etc/hosts:
-        127.0.0.1
-        localhost.localdomain localhost
+        127.0.0.1		localhost.localdomain localhost
       </description>
     </result>
   </results>

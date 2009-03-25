@@ -1,11 +1,11 @@
 <test name="dhcp">
   <label>DHCP Test</label>
   <description>
-    Verify that the networks DHCP server is running and properly issuing
+    Verify that the network's DHCP server is running and properly issuing
     IP addresses.
   </description>
   <longDescription>
-      From the perspective of phones which will be used as part of a SIPxchange
+      From the perspective of phones which will be used as part of a @sipxecs.name@
       PBX, a DHCP server is expected to be present on their network.
       At a minimum, the DHCP server should be provisioned to supply the network
       domain name, network mask, default router address and a list of one or
@@ -44,7 +44,7 @@
       <msg>Multiple DHCP servers detected.</msg>
       <description>
           More than one DHCP server was detected on the network being tested
-          and were attempting to issue IP addresses. This is a serious network
+          and was attempting to issue IP addresses. This is a serious network
           error condition which needs to be remedied immediately.
       </description>
     </result>

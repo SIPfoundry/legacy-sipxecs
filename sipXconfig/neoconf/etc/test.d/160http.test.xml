@@ -4,7 +4,7 @@
     Verify that the specified HTTP server is functioning properly.
   </description>
   <longDescription>
-    Phone configuration files produced by the SIPxchange Configuration Server
+    Phone configuration files produced by the @sipxecs.name@ Configuration Server
     can optionally be served by a HTTP server. This test verifies that the
     specified HTTP server can be used to retrieve a special phone configuration
     test file which has been produced by the Configuration Server.
@@ -54,7 +54,7 @@
       <msg>The HTTP client encountered an unrecoverable error.</msg>
       <description>
         The test client has suffered an unrecoverable network failure.
-        Please see the test log for further information.
+        Please see the details for further information.
       </description>
     </result>
     <result exit="165">

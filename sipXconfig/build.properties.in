@@ -16,6 +16,7 @@ dest.dir=
 debuglevel=lines
 
 # S I P X P B X  / S I P X C O N F I G
+sipxecs.name=@SIPXECS_NAME@
 sipxconfig.phone.dir=@SIPX_VARDIR@/configserver/phone
 sipxpbx.backup.dir=@SIPX_VARDIR@/backup
 sipxpbx.download.dir=@SIPX_DOWNLOADDIR@

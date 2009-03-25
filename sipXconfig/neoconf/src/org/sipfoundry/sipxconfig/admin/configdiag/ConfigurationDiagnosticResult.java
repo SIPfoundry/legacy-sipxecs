@@ -20,7 +20,7 @@ public class ConfigurationDiagnosticResult implements Serializable {
         }
     }
 
-    public static final ConfigurationDiagnosticResult UNKNOWN_RESULT = new UnknownTestResult(
+    public static final ConfigurationDiagnosticResult INITIAL_RESULT = new InitialTestResult(
             Integer.MIN_VALUE);
     public static final ConfigurationDiagnosticResult SUCCESS_RESULT = new SuccessTestResult();
     public static final ConfigurationDiagnosticResult INPROGRESS_RESULT = new InProgressTestResult();
@@ -70,10 +70,18 @@ public class ConfigurationDiagnosticResult implements Serializable {
         return new UnknownTestResult(exitStatus);
     }
 
+    private static class InitialTestResult extends ConfigurationDiagnosticResult {
+        public InitialTestResult(int exitCode) {
+            setExitStatus(exitCode);
+            setStatus(Status.Unknown);
+            setMessage("Test has not been run: " + exitCode);
+        }
+    }
+
     private static class UnknownTestResult extends ConfigurationDiagnosticResult {
         public UnknownTestResult(int exitCode) {
             setExitStatus(exitCode);
-            setStatus(Status.Unknown);
+            setStatus(Status.Warning);
             setMessage("Unknown test result: " + exitCode);
         }
     }

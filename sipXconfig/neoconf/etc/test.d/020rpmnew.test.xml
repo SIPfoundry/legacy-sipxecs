@@ -16,7 +16,8 @@
       <msg>The RPM installation has provided new versions of some of the configuration files.</msg>
       <description>
         RPM will not overwrite configuration file modified on your system.
-        You should compare each of the following files with your version (the same name, without '.rpmnew' suffix).
+        You should compare all of the .rpmnew files in @sipxpbx.conf.dir@
+        with your version (the same name, without '.rpmnew' suffix).
         To reconcile the differences, check for new settings in the .rpmnew file and copy them to your file.
         When you have finished, remove the .rpmnew file to suppress this warning.
         </description>
@@ -25,7 +26,8 @@
       <status>Warning</status>
       <msg>The build has provided new versions of some of the configuration files.</msg>
       <description>
-        You should compare each of the following files with your version (the same name, without '.NEW' suffix).
+        You should compare all of the .NEW files in @sipxpbx.conf.dir@
+        with your version (the same name, without '.NEW' suffix).
         When you have finished, remove the .NEW file to suppress this warning.
       </description>
     </result>

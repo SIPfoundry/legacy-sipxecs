@@ -15,7 +15,7 @@
       <status>Error</status>
       <msg>SELinux must run in 'Permissive' or 'Disabled' mode</msg>
       <desciption>
-        Current SELinux mode may cause Apache server to malfunction. Edit /etc/selinux/config and
+        The current SELinux mode may cause Apache server to malfunction. Edit /etc/selinux/config and
         restart your system.
       </desciption>
     </result>

@@ -96,7 +96,7 @@ public class ConfigurationDiagnosticContextImpl implements ConfigurationDiagnost
     }
 
     /**
-     * Loads test descriptrors from XML test descriptor files.
+     * Loads test descriptors from XML test descriptor files.
      * 
      * @return list of test descriptors in the order tests should be run
      */
@@ -119,7 +119,7 @@ public class ConfigurationDiagnosticContextImpl implements ConfigurationDiagnost
     /**
      * Finds all test descriptor files
      * 
-     * @param directory in which descritpor files are located
+     * @param directory in which descriptor files are located
      * @return list of test descriptor files in the alphabetic order.
      */
     private File[] getDescriptorFiles(String descriptorPath) {

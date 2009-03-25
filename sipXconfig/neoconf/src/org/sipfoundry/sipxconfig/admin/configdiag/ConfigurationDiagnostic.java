@@ -23,11 +23,12 @@ public class ConfigurationDiagnostic implements Callable<Integer> {
     private String m_label;
     private String m_description;
     private String m_longDescription;
-    private ConfigurationDiagnosticResult m_result = ConfigurationDiagnosticResult.UNKNOWN_RESULT;
+    private ConfigurationDiagnosticResult m_result = ConfigurationDiagnosticResult.INITIAL_RESULT;
     private ExternalCommand m_command;
     private ConfigurationDiagnosticResultParser m_resultParser;
     private Date m_startTime;
     private Date m_endTime;
+    private String m_stdout;
 
     private static class TestDescriptorDigester extends Digester {
         private static final String TEST_PATH = "test";
@@ -128,12 +129,17 @@ public class ConfigurationDiagnostic implements Callable<Integer> {
         return m_longDescription != null ? m_longDescription : m_description;
     }
 
+    public String getStdout() {
+        return m_stdout;
+    }
+
     public Integer call() throws Exception {
         m_startTime = new Date();
         m_endTime = null;
         m_result = ConfigurationDiagnosticResult.INPROGRESS_RESULT;
         int result = m_command.execute();
         m_result = m_resultParser.parseResult(result);
+        m_stdout = m_command.getStdout();
         m_endTime = new Date();
         return result;
     }

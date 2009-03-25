@@ -12,6 +12,7 @@
     <result exit="1">
       <status>Error</status>
       <msg>Incorrect permissions for the /tmp directory</msg>
+      <description>The /tmp directory should have permissions 'drwxrwxrw[xt]'.</description>
     </result>
   </results>
 </test>

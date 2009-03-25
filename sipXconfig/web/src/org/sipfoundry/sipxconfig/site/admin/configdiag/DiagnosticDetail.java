@@ -18,12 +18,14 @@ import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.Message;
 import org.apache.tapestry.annotations.Parameter;
+import org.apache.tapestry.annotations.Persist;
 import org.sipfoundry.sipxconfig.admin.configdiag.ConfigurationDiagnostic;
 import org.sipfoundry.sipxconfig.admin.configdiag.ConfigurationDiagnosticResult;
 import org.sipfoundry.sipxconfig.admin.configdiag.ConfigurationDiagnosticResult.Status;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class DiagnosticDetail extends BaseComponent {
+
     @Asset("context:/WEB-INF/admin/configdiag/DiagnosticDetail.script")
     public abstract IAsset getScript();
 
@@ -57,4 +59,9 @@ public abstract class DiagnosticDetail extends BaseComponent {
         ConfigurationDiagnosticResult result = getTest().getResult();
         return Status.hasDetails(result.getStatus());
     }
+
+    @Persist
+    public abstract boolean getShowTestResults();
+
+    public abstract void setShowTestResults(boolean showTestResults);
 }

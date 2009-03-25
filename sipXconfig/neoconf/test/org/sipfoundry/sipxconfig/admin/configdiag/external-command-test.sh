@@ -5,5 +5,6 @@
 if [ "$1" = "-s" ]; then
 	exit 0
 else
+        echo "called without -s flag"
 	exit 1
 fi

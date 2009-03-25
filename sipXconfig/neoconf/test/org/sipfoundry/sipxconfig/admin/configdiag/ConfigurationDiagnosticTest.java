@@ -26,7 +26,7 @@ public class ConfigurationDiagnosticTest extends TestCase {
         assertEquals(Status.Success, out.getResultParser().parseResult(0).getStatus());
         assertEquals(Status.Warning, out.getResultParser().parseResult(-1).getStatus());
         assertEquals(Status.Error, out.getResultParser().parseResult(-2).getStatus());
-        assertEquals(Status.Unknown, out.getResultParser().parseResult(-99).getStatus());
+        assertEquals(Status.Warning, out.getResultParser().parseResult(-99).getStatus());
     }
 
     public void testExecuteExpectSuccess() throws Exception {

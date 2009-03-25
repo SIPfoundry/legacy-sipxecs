@@ -36,6 +36,7 @@ public class ExternalCommandTest extends TestCase {
         m_out.setCommand(m_command);
         int exitStatus = m_out.execute();
         assertEquals(1, exitStatus);
+        assertEquals("called without -s flag\n", m_out.getStdout());
     }
 
     public void testExecuteWithArgumentSubstitution() {
