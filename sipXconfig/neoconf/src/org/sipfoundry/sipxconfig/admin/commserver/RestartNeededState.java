@@ -10,10 +10,13 @@
 
 package org.sipfoundry.sipxconfig.admin.commserver;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.service.SipxService;
@@ -68,5 +71,16 @@ public class RestartNeededState {
             }
         }
         return true;
+    }
+
+    public Collection<RestartNeededService> getAffected() {
+        List<RestartNeededService> affected = new ArrayList<RestartNeededService>();
+        for (Entry<String, Set<String>> locationAndService : m_cache.entrySet()) {
+            String locationFqdn = locationAndService.getKey();
+            for (String serviceBeanId : locationAndService.getValue()) {
+                affected.add(new RestartNeededService(locationFqdn, serviceBeanId));
+            }
+        }
+        return affected;
     }
 }

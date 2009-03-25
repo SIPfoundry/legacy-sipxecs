@@ -11,6 +11,8 @@
 package org.sipfoundry.sipxconfig.admin.commserver;
 
 import java.util.Arrays;
+import java.util.Collection;
+
 import org.sipfoundry.sipxconfig.service.SipxAcdService;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxService;
@@ -19,82 +21,97 @@ import junit.framework.TestCase;
 
 public class RestartNeededStateTest extends TestCase {
 
+    private SipxService m_proxy;
+    private SipxAcdService m_acd;
+    private Location m_l1;
+    private Location m_l2;
+
+    @Override
+    protected void setUp() throws Exception {
+        m_proxy = new SipxProxyService();
+        m_proxy.setBeanId(SipxProxyService.BEAN_ID);
+        m_acd = new SipxAcdService();
+        m_acd.setBeanId(SipxAcdService.BEAN_ID);
+
+        m_l1 = new Location();
+        m_l1.setFqdn("l1.example.org");
+
+        m_l2 = new Location();
+        m_l2.setFqdn("l2.example.org");
+    }
+
     public void testMark() {
-        SipxService proxy = new SipxProxyService();
-        proxy.setBeanId(SipxProxyService.BEAN_ID);
-        SipxAcdService acd = new SipxAcdService();
-        acd.setBeanId(SipxAcdService.BEAN_ID);
-
-        Location l1 = new Location();
-        l1.setFqdn("l1.example.org");
-        Location l2 = new Location();
-        l2.setFqdn("l2.example.org");
-
         RestartNeededState state = new RestartNeededState();
         assertTrue(state.isEmpty());
 
-        assertFalse(state.isMarked(l1, proxy));
-        assertFalse(state.isMarked(l1, acd));
-        assertFalse(state.isMarked(l2, proxy));
-        assertFalse(state.isMarked(l2, acd));
+        assertFalse(state.isMarked(m_l1, m_proxy));
+        assertFalse(state.isMarked(m_l1, m_acd));
+        assertFalse(state.isMarked(m_l2, m_proxy));
+        assertFalse(state.isMarked(m_l2, m_acd));
 
-        state.mark(l1, proxy);
-        state.mark(l2, acd);
+        state.mark(m_l1, m_proxy);
+        state.mark(m_l2, m_acd);
 
-        assertTrue(state.isMarked(l1, proxy));
-        assertFalse(state.isMarked(l1, acd));
-        assertFalse(state.isMarked(l2, proxy));
-        assertTrue(state.isMarked(l2, acd));
+        assertTrue(state.isMarked(m_l1, m_proxy));
+        assertFalse(state.isMarked(m_l1, m_acd));
+        assertFalse(state.isMarked(m_l2, m_proxy));
+        assertTrue(state.isMarked(m_l2, m_acd));
 
         assertFalse(state.isEmpty());
 
-        state.mark(l1, acd);
-        state.mark(l2, acd);
+        state.mark(m_l1, m_acd);
+        state.mark(m_l2, m_acd);
 
-        assertTrue(state.isMarked(l1, proxy));
-        assertTrue(state.isMarked(l1, acd));
-        assertFalse(state.isMarked(l2, proxy));
-        assertTrue(state.isMarked(l2, acd));
+        assertTrue(state.isMarked(m_l1, m_proxy));
+        assertTrue(state.isMarked(m_l1, m_acd));
+        assertFalse(state.isMarked(m_l2, m_proxy));
+        assertTrue(state.isMarked(m_l2, m_acd));
 
-        state.unmark(l1, acd);
-        state.unmark(l1, proxy);
+        state.unmark(m_l1, m_acd);
+        state.unmark(m_l1, m_proxy);
 
-        assertFalse(state.isMarked(l1, proxy));
-        assertFalse(state.isMarked(l1, acd));
-        assertFalse(state.isMarked(l2, proxy));
-        assertTrue(state.isMarked(l2, acd));
+        assertFalse(state.isMarked(m_l1, m_proxy));
+        assertFalse(state.isMarked(m_l1, m_acd));
+        assertFalse(state.isMarked(m_l2, m_proxy));
+        assertTrue(state.isMarked(m_l2, m_acd));
 
-        state.unmark(l1, acd);
-        state.unmark(l2, acd);
+        state.unmark(m_l1, m_acd);
+        state.unmark(m_l2, m_acd);
 
         assertTrue(state.isEmpty());
 
-        assertFalse(state.isMarked(l1, proxy));
-        assertFalse(state.isMarked(l1, acd));
-        assertFalse(state.isMarked(l2, proxy));
-        assertFalse(state.isMarked(l2, acd));
+        assertFalse(state.isMarked(m_l1, m_proxy));
+        assertFalse(state.isMarked(m_l1, m_acd));
+        assertFalse(state.isMarked(m_l2, m_proxy));
+        assertFalse(state.isMarked(m_l2, m_acd));
     }
 
     public void testMarkMany() {
-        SipxService proxy = new SipxProxyService();
-        proxy.setBeanId(SipxProxyService.BEAN_ID);
-        SipxAcdService acd = new SipxAcdService();
-        acd.setBeanId(SipxAcdService.BEAN_ID);
-
-        Location l1 = new Location();
-        l1.setFqdn("l1.example.org");
-
         RestartNeededState state = new RestartNeededState();
-        state.mark(l1, Arrays.asList(proxy, acd));
+        state.mark(m_l1, Arrays.asList(m_proxy, m_acd));
 
         assertFalse(state.isEmpty());
-        assertTrue(state.isMarked(l1, proxy));
-        assertTrue(state.isMarked(l1, acd));
+        assertTrue(state.isMarked(m_l1, m_proxy));
+        assertTrue(state.isMarked(m_l1, m_acd));
 
-        state.unmark(l1, Arrays.asList(proxy, acd));
+        state.unmark(m_l1, Arrays.asList(m_proxy, m_acd));
         assertTrue(state.isEmpty());
-        assertFalse(state.isMarked(l1, proxy));
-        assertFalse(state.isMarked(l1, acd));
+        assertFalse(state.isMarked(m_l1, m_proxy));
+        assertFalse(state.isMarked(m_l1, m_acd));
     }
 
+    public void testGetAffectedLocation() {
+        RestartNeededState state = new RestartNeededState();
+        Collection<RestartNeededService> affected = state.getAffected();
+        assertTrue(affected.isEmpty());
+
+        state.mark(m_l1, Arrays.asList(m_proxy, m_acd));
+        affected = state.getAffected();
+        assertEquals(2, affected.size());
+
+        state.mark(m_l2, Arrays.asList(m_proxy));
+
+        affected = state.getAffected();
+        assertEquals(3, affected.size());
+    }
 }

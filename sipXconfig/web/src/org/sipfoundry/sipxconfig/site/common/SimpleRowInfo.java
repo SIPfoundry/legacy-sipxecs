@@ -9,8 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.site.common;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
 import org.sipfoundry.sipxconfig.components.RowInfo;
 
@@ -18,16 +16,12 @@ import org.sipfoundry.sipxconfig.components.RowInfo;
  * Default implementation of information about a row the Table component needs to know to operate
  */
 public class SimpleRowInfo implements RowInfo {
-
-    private static final Log LOG = LogFactory.getLog(SimpleRowInfo.class);
-
     public Object getSelectId(Object row) {
         if (row instanceof PrimaryKeySource) {
             PrimaryKeySource keySource = (PrimaryKeySource) row;
             return keySource.getPrimaryKey();
         }
-        LOG.error("row key cannot be retrieved");
-        return -1;
+        return row;
     }
 
     public boolean isSelectable(Object row) {

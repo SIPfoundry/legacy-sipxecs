@@ -259,4 +259,8 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
     private String getHost() {
         return m_locationsManager.getPrimaryLocation().getFqdn();
     }
+
+    public Collection<RestartNeededService> getRestartNeededServices() {
+        return m_servicesToRestart.getAffected();
+    }
 }

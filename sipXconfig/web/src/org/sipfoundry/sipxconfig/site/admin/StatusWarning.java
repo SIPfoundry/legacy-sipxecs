@@ -14,6 +14,7 @@ import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.job.JobContext;
+import org.sipfoundry.sipxconfig.site.admin.commserver.RestartNeededServicesPage;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class StatusWarning extends BaseComponent {
@@ -30,5 +31,15 @@ public abstract class StatusWarning extends BaseComponent {
      */
     public boolean isShow() {
         return getJobContext().isFailure() && !JobStatusPage.PAGE.equals(getPage().getPageName());
+    }
+
+    /**
+     * Show only if there is least a service mark for restart AND we are NOT on RestartNeededServicesPage page
+     *
+     * @return true if warning should be shown
+     */
+    public boolean showRestartWarning() {
+        return getSipxProcessContext().needsRestart()
+                && !RestartNeededServicesPage.PAGE.equals(getPage().getPageName());
     }
 }

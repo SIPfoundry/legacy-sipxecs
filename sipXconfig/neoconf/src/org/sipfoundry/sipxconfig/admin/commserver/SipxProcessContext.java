@@ -76,4 +76,6 @@ public interface SipxProcessContext {
     public boolean needsRestart();
 
     public boolean needsRestart(Location location, SipxService service);
+
+    Collection<RestartNeededService> getRestartNeededServices();
 }
