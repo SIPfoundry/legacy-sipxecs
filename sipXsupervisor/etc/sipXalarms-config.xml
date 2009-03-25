@@ -81,22 +81,6 @@
                  email="true"
                  />
       </alarm>
-      <alarm id="THRESH_MEM_EXCEEDED">
-         <code>SPX00010</code>
-         <severity>warning</severity>
-         <component>monitoring</component>
-         <action log="true"
-                 email="true"
-                 />
-      </alarm>
-      <alarm id="THRESH_MEM_OK">
-         <code>SPX00011</code>
-         <severity>info</severity>
-         <component>monitoring</component>
-         <action log="true"
-                 email="true"
-                 />
-      </alarm>
       <alarm id="EMERG_NUMBER_DIALED">
          <code>SPX00012</code>
          <severity>crit</severity>
