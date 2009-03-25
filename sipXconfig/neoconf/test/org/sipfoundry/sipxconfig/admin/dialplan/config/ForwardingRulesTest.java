@@ -24,6 +24,8 @@ import org.custommonkey.xmlunit.XMLUnit;
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.AuxSbc;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.DefaultSbc;
@@ -56,15 +58,25 @@ public class ForwardingRulesTest extends XMLTestCase {
         DomainManager domainManager = TestUtil.getMockDomainManager();
         EasyMock.replay(domainManager);
 
+        SipxStatusService statusService = new SipxStatusService();
+        Location statusLocation = new Location();
+        statusLocation.setAddress("192.168.1.5");
+        List<Location> locations = new ArrayList<Location>();
+        locations.add(statusLocation);
+        LocationsManager locationsManager = EasyMock.createNiceMock(LocationsManager.class);
+        locationsManager.getLocationsForService(statusService);
+        EasyMock.expectLastCall().andReturn(locations).anyTimes();
+        EasyMock.replay(locationsManager);
+
         SipxProxyService proxyService = new SipxProxyService();
         proxyService.setBeanName(SipxProxyService.BEAN_ID);
         proxyService.setSipPort("9901");
         proxyService.setDomainManager(domainManager);
 
-        SipxStatusService statusService = new SipxStatusService();
         statusService.setBeanName(SipxStatusService.BEAN_ID);
         statusService.setModelFilesContext(TestHelper.getModelFilesContext());
         statusService.setSettings(TestHelper.loadSettings("sipxstatus/sipxstatus.xml"));
+        statusService.setLocationsManager(locationsManager);
         Setting statusConfigSettings = statusService.getSettings().getSetting("status-config");
         statusConfigSettings.getSetting("SIP_STATUS_SIP_PORT").setValue("9905");
 

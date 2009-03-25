@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Criteria;
@@ -17,6 +18,7 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
+import org.sipfoundry.sipxconfig.service.SipxService;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
@@ -87,5 +89,15 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
 
     public Location getPrimaryLocation() {
         return loadLocationByUniqueProperty(LOCATION_PROP_PRIMARY, true);
+    }
+
+    public List <Location> getLocationsForService(SipxService service) {
+        List<Location> locations = new ArrayList<Location>();
+        for (Location location : getLocations()) {
+            if (location.isServiceInstalled(service)) {
+                locations.add(location);
+            }
+        }
+        return locations;
     }
 }

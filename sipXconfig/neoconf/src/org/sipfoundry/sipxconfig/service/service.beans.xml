@@ -301,6 +301,7 @@
     <property name="processName" value="SIPStatus" />
     <property name="modelName" value="sipxstatus.xml" />
     <property name="modelDir" value="sipxstatus" />
+    <property name="locationsManager" ref="locationsManager" />
     <property name="configurations">
       <list>
         <ref bean="sipxStatusConfiguration" />

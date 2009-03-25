@@ -21,7 +21,7 @@
       <fieldMatch fieldName="Event">
         <fieldPattern>message-summary.*</fieldPattern>
         <!--this goes to the status server-->
-        <routeTo>&lt;192.168.1.1:9905;transport=tcp&gt;</routeTo>
+        <routeTo>&lt;192.168.1.5:9905;transport=tcp&gt;</routeTo>
       </fieldMatch>
 
       <!-- "reg" event subscriptions. -->

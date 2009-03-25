@@ -9,6 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
 
+import java.util.List;
+
+import org.sipfoundry.sipxconfig.service.SipxService;
+
 public interface LocationsManager {
     String CONTEXT_BEAN_NAME = "locationsManager";
 
@@ -41,4 +45,6 @@ public interface LocationsManager {
     void saveMigratedLocation(Location location);
 
     void deleteLocation(Location location);
+
+    List<Location> getLocationsForService(SipxService service);
 }

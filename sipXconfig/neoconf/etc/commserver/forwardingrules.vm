@@ -18,14 +18,14 @@
 #end	    
     <methodMatch>
       <methodPattern>SUBSCRIBE</methodPattern>
-
+#if("" != ${statusService.address})
       <!-- Message waiting indication events -->
       <fieldMatch fieldName="Event">
         <fieldPattern>message-summary.*</fieldPattern>
         <!--this goes to the status server-->
-        <routeTo>&lt;${location.address}:${statusService.sipPort};transport=tcp&gt;</routeTo>
+        <routeTo>&lt;${statusService.address}:${statusService.sipPort};transport=tcp&gt;</routeTo>
       </fieldMatch>
-
+#end
       <!-- "reg" event subscriptions. -->
       <fieldMatch fieldName="Event">
         <fieldPattern>reg</fieldPattern>
