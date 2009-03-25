@@ -1157,7 +1157,7 @@ def removeInitScript () :
                 foundSetup = 'True'
                 continue
             else:
-                newInitFile.write("%s" % line)
+                newInitFile.write("%s\n" % line)
         newInitFile.close
 
         if foundSetup :
