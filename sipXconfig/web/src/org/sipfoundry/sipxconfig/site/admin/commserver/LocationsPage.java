@@ -122,6 +122,9 @@ public abstract class LocationsPage extends BasePage implements PageBeginRenderL
             getServiceConfigurator().replicateServiceConfig(locationToActivate, supervisorService);
             
             getServiceConfigurator().enforceRole(locationToActivate);
+            
+            // replicate domain-config
+            getDomainManager().replicateDomainConfig();
         }
     }
 }

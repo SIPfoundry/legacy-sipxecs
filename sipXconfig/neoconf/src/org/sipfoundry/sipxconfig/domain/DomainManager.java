@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.domain;
 
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleProvider;
 import org.sipfoundry.sipxconfig.admin.localization.Localization;
 
@@ -25,6 +26,8 @@ public interface DomainManager extends DialingRuleProvider {
     void saveDomain(Domain domain);
 
     void replicateDomainConfig();
+    
+    void replicateDomainConfig(Location location);
     
     void setDomainConfigFilename(String domainConfigFilename);
 

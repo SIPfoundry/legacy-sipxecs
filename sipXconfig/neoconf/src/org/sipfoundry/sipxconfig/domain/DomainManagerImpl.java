@@ -21,6 +21,7 @@ import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
@@ -68,6 +69,10 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
     }
 
     public void replicateDomainConfig() {
+        replicateDomainConfig(null);
+    }
+    
+    public void replicateDomainConfig(Location location) {
         Domain existingDomain = getExistingDomain();
         if (existingDomain == null) {
             throw new DomainNotInitializedException();
@@ -75,8 +80,12 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
         DomainConfiguration domainConfiguration = createDomainConfiguration();
         domainConfiguration.generate(existingDomain, getConfigServerHostname(),
                 getExistingLocalization().getLanguage());
-        getReplicationContext().replicate(domainConfiguration);
-        getReplicationContext().publishEvent(new DomainConfigReplicatedEvent(this));
+        
+        if (location != null) {
+            getReplicationContext().replicate(location, domainConfiguration);
+        } else {
+            getReplicationContext().replicate(domainConfiguration);
+        }
     }
 
     protected Domain getExistingDomain() {
