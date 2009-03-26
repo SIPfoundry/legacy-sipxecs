@@ -1,11 +1,11 @@
 alter table location
-  add column use_stun boolean not null,
+  add column use_stun boolean,
   add column stun_address varchar(255),
-  add column stun_interval integer not null,
+  add column stun_interval integer,
   add column public_address varchar(255),
-  add column public_port integer not null,
-  add column start_rtp_port integer not null,
-  add column stop_rtp_port integer not null;
+  add column public_port integer,
+  add column start_rtp_port integer,
+  add column stop_rtp_port integer;
 
 update location
   set
@@ -15,6 +15,13 @@ update location
     public_port=5060,
     start_rtp_port=30000,
     stop_rtp_port=31000;
+
+alter table location
+  alter column use_stun set not null,
+  alter column stun_interval set not null,
+  alter column public_port set not null,
+  alter column start_rtp_port set not null,
+  alter column stop_rtp_port set not null;
 
 alter table location
   alter column use_stun set default true,
