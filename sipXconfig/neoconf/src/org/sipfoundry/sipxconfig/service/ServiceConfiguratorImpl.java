@@ -75,6 +75,7 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
      * Stops services that need to be stopped, replicates the configuration for the ones that need
      * to be started, set configuration stamps for newly replicated configuration and finally
      * starts the services.
+     * Also restarts the services that need to be restarted as a result of profile generation.
      */
     public void enforceRole(Location location) {
         if (!location.isRegistered()) {
@@ -86,6 +87,8 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
             replicateServiceConfig(location, service);
         }
         m_sipxProcessContext.manageServices(location, locationStatus.getToBeStarted(), START);
+        // some services will need to be restarted as a result of profile generation
+        m_sipxProcessContext.restartMarkedServices(location);
     }
 
     public void initLocations() {

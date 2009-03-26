@@ -17,8 +17,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import junit.framework.TestCase;
-
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command;
 import org.sipfoundry.sipxconfig.service.SipxAcdService;
@@ -31,6 +29,8 @@ import org.sipfoundry.sipxconfig.service.SipxServiceBundle;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
+
+import junit.framework.TestCase;
 
 import static org.easymock.EasyMock.aryEq;
 import static org.easymock.EasyMock.createMock;
@@ -292,6 +292,30 @@ public class SipxProcessContextImplTest extends TestCase {
         assertEquals(m_registrarService, toBeStopped.iterator().next());
 
         verify(provider, api, serviceManager);
+    }
+
+    public void testRestartMarked() {
+        Location location = m_locationsManager.getLocations()[0];
+        SipxServiceManager serviceManager = getMockSipxServiceManager(true, m_registrarService, m_mediaService,
+                m_presenceService, m_proxyService);
+
+        ProcessManagerApi api = createMock(ProcessManagerApi.class);
+        api.restart(host(), asArray(m_proxyService.getProcessName(), m_mediaService.getProcessName()), block());
+        expectLastCall().andReturn(null);
+
+        ApiProvider provider = createMock(ApiProvider.class);
+        provider.getApi(location.getProcessMonitorUrl());
+        expectLastCall().andReturn(api).atLeastOnce();
+
+        replay(provider, api);
+
+        m_processContextImpl.setProcessManagerApiProvider(provider);
+        m_processContextImpl.setSipxServiceManager(serviceManager);
+
+        m_processContextImpl.markServicesForRestart(Arrays.asList(m_proxyService, m_mediaService));
+        m_processContextImpl.restartMarkedServices(location);
+
+        verify(provider, api);
     }
 
     static <T> T[] asArray(T... items) {

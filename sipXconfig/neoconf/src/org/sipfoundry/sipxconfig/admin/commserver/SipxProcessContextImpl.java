@@ -263,4 +263,17 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
     public Collection<RestartNeededService> getRestartNeededServices() {
         return m_servicesToRestart.getAffected();
     }
+
+    public void restartMarkedServices(Location location) {
+        Collection<String> beanIds = m_servicesToRestart.getServices(location);
+        if (beanIds.isEmpty()) {
+            return;
+        }
+        List<SipxService> services = new ArrayList<SipxService>(beanIds.size());
+        for (String beanId : beanIds) {
+            SipxService service = m_sipxServiceManager.getServiceByBeanId(beanId);
+            services.add(service);
+        }
+        manageServices(location, services, Command.RESTART);
+    }
 }

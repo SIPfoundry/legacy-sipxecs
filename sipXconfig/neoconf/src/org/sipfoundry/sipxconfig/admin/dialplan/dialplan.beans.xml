@@ -147,11 +147,11 @@
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="sipxProcessContext" ref="sipxProcessContext" />
     <property name="dialPlanContext" ref="dialPlanContext" />
-	<lookup-method name="getServiceConfigurator" bean="serviceConfigurator" />
     <lookup-method name="getGatewayProfileManager" bean="gatewayProfileManager" />
     <lookup-method name="getGatewayContext" bean="gatewayContext" />
     <!-- using eager replication and serviceConfiguration -->
     <property name="sipxReplicationContext" ref="sipxReplicationContextDao" />
+    <lookup-method name="getServiceConfigurator" bean="serviceConfiguratorImpl" />
   </bean>
 
   <bean id="dialPlanActivationManager" class="org.sipfoundry.sipxconfig.admin.dialplan.LazyDialPlanActivationManager"

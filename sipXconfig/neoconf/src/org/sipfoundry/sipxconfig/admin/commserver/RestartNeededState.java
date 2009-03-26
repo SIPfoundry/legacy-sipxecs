@@ -24,7 +24,7 @@ import org.sipfoundry.sipxconfig.service.SipxService;
 public class RestartNeededState {
     private final Map<String, Set<String>> m_cache = new HashMap<String, Set<String>>();
 
-    private Set<String> getServices(Location location) {
+    Set<String> getServices(Location location) {
         String fqdn = location.getFqdn();
         Set<String> services = m_cache.get(fqdn);
         if (services == null) {
