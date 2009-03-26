@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.components;
 
@@ -50,7 +50,7 @@ public abstract class SbcDeviceSelect extends BaseComponent {
     @Parameter(defaultValue = "literal:selectedSbcDevice")
     public abstract void setAddProperty(String addProperty);
     public abstract String getAddProperty();
-    
+
     @Parameter(required = true)
     public abstract void setSelectedSbcDevice(SbcDevice selectedSbcDevice);
     public abstract SbcDevice getSelectedSbcDevice();
@@ -64,6 +64,7 @@ public abstract class SbcDeviceSelect extends BaseComponent {
 
     public abstract boolean getEnforceInternetCallingSupport();
 
+    @Override
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
         if (getSelectedSbcDevice() != null) {
             setSelectedAction(new AddExistingSbcDeviceAction(getSelectedSbcDevice()));
@@ -105,6 +106,13 @@ public abstract class SbcDeviceSelect extends BaseComponent {
         return true;
     }
 
+    private boolean checkIfAllowedToAddNewAction(SbcDescriptor model) {
+        if (model.isInternalSbc()) {
+            return false;
+        }
+        return checkIfAllowedToAddAction(model);
+    }
+
     public IPropertySelectionModel getModel() {
         SbcDeviceManager deviceManager = getSbcDeviceManager();
         Collection<OptionAdapter> actions = new ArrayList<OptionAdapter>();
@@ -124,7 +132,7 @@ public abstract class SbcDeviceSelect extends BaseComponent {
         actions.add(new OptGroup(getMessages().getMessage("label.createSbc")));
         for (SbcDescriptor model : models) {
             boolean maxAllowedReached = deviceManager.maxAllowedLimitReached(model);
-            if (checkIfAllowedToAddAction(model) && !maxAllowedReached) {
+            if (checkIfAllowedToAddNewAction(model) && !maxAllowedReached) {
                 AddNewSbcDeviceAction action = new AddNewSbcDeviceAction(model);
                 actions.add(action);
             }
@@ -136,7 +144,7 @@ public abstract class SbcDeviceSelect extends BaseComponent {
     }
 
     private class AddNewSbcDeviceAction extends SbcDeviceAction {
-        private SbcDescriptor m_model;
+        private final SbcDescriptor m_model;
 
         AddNewSbcDeviceAction(SbcDescriptor model) {
             super(null);
@@ -156,14 +164,17 @@ public abstract class SbcDeviceSelect extends BaseComponent {
             form.addDeferredRunnable(action);
         }
 
+        @Override
         public String getLabel(Object option, int index) {
             return m_model.getLabel();
         }
 
+        @Override
         public Object getValue(Object option, int index) {
             return m_model;
         }
 
+        @Override
         public String squeezeOption(Object option, int index) {
             return m_model.getModelId() + m_model.getBeanId();
         }
@@ -179,10 +190,12 @@ public abstract class SbcDeviceSelect extends BaseComponent {
             setSelectedSbcDevice(getSbcDevice());
         }
 
+        @Override
         public Object getValue(Object option, int index) {
             return this;
         }
 
+        @Override
         public String squeezeOption(Object option, int index) {
             return getSbcDevice().getId().toString();
         }
@@ -193,6 +206,7 @@ public abstract class SbcDeviceSelect extends BaseComponent {
                     .getSbcDevice());
         }
 
+        @Override
         public int hashCode() {
             return this.getSbcDevice().hashCode();
         }
