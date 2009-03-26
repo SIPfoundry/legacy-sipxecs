@@ -9,6 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import java.util.List;
+
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.springframework.dao.support.DataAccessUtils;
+
 public class SipxParkService extends SipxService implements LoggingEntity {
     public static final String BEAN_ID = "sipxParkService";
 
@@ -16,12 +22,24 @@ public class SipxParkService extends SipxService implements LoggingEntity {
 
     private String m_parkServerSipPort;
 
+    private LocationsManager m_locationsManager;
+
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
+    }
+
     public String getParkServerSipPort() {
         return m_parkServerSipPort;
     }
 
     public void setParkServerSipPort(String parkServerSipPort) {
         m_parkServerSipPort = parkServerSipPort;
+    }
+
+    public String getAddress() {
+        List<Location> locations = m_locationsManager.getLocationsForService(this);
+        Location location = (Location) DataAccessUtils.singleResult(locations);
+        return null == location ? "" : location.getAddress();
     }
 
     @Override

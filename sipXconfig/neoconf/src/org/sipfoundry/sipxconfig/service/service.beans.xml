@@ -203,6 +203,7 @@
         <ref bean="primarySipRouterBundle" />
       </set>
     </property>
+    <property name="locationsManager" ref="locationsManager" />
   </bean>
 
   <bean id="sipxParkConfiguration" class="org.sipfoundry.sipxconfig.service.SipxParkConfiguration" scope="prototype"

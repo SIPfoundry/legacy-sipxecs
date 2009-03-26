@@ -14,6 +14,9 @@ import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
@@ -73,6 +76,15 @@ public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
         registrarService.setRegistrarEventSipPort("5075");
 
         SipxParkService parkService = new SipxParkService();
+        Location parkLocation = new Location();
+        parkLocation.setAddress("192.168.1.5");
+        List<Location> locations = new ArrayList<Location>();
+        locations.add(parkLocation);
+        LocationsManager locationsManager = EasyMock.createNiceMock(LocationsManager.class);
+        locationsManager.getLocationsForService(parkService);
+        EasyMock.expectLastCall().andReturn(locations).anyTimes();
+
+        parkService.setLocationsManager(locationsManager);
         parkService.setBeanName(SipxParkService.BEAN_ID);
         parkService.setParkServerSipPort("9909");
 
@@ -92,7 +104,6 @@ public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
         otherMediaServerLocation.setFqdn("other-media-server.example.org");
         otherMediaServerLocation.addService(new LocationSpecificService(new SipxMediaService()));
 
-        LocationsManager locationsManager = EasyMock.createMock(LocationsManager.class);
         locationsManager.getPrimaryLocation();
         EasyMock.expectLastCall().andReturn(primaryLocation).anyTimes();
         locationsManager.getLocations();
