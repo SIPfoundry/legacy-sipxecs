@@ -56,4 +56,14 @@
     <property name="itspTemplate" value="voipuser.xml" />
   </bean>
   
+  <bean id="itspAtt" parent="sipTrunkItsp">
+    <property name="itspName" value="ATT" />
+    <property name="itspTemplate" value="att.xml" />
+  </bean>
+
+  <bean id="itspVoxitas" parent="sipTrunkItsp">
+    <property name="itspName" value="Voxitas" />
+    <property name="itspTemplate" value="voxitas.xml" />
+  </bean>
+
 </beans>
