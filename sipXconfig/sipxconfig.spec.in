@@ -214,16 +214,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,@SIPXPBXUSER@, @SIPXPBXGROUP@) %{_bindir}/sipx-time-manager
 
 # itspTemplates
-%{_sysconfdir}/sipxpbx/itspTemplates/bandtel.xml
-%{_sysconfdir}/sipxpbx/itspTemplates/bandwidth.xml
-%{_sysconfdir}/sipxpbx/itspTemplates/bt.xml
-%{_sysconfdir}/sipxpbx/itspTemplates/callwithus.xml
-%{_sysconfdir}/sipxpbx/itspTemplates/cbeyond.xml
-%{_sysconfdir}/sipxpbx/itspTemplates/eutelia.xml
-%{_sysconfdir}/sipxpbx/itspTemplates/les.xml
-%{_sysconfdir}/sipxpbx/itspTemplates/sipcall.xml
-%{_sysconfdir}/sipxpbx/itspTemplates/vitelity.xml
-%{_sysconfdir}/sipxpbx/itspTemplates/voipuser.xml
+%dir %{sipxpbxconf}/itspTemplates
+%config(noreplace) %{sipxpbxconf}/itspTemplates/*
 
 # Jar files are in here, but declaring the directory includes them all implicitly
 %{_datadir}/java/sipXecs/sipXconfig
