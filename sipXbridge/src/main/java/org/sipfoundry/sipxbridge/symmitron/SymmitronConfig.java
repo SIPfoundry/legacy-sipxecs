@@ -6,207 +6,283 @@
  */
 package org.sipfoundry.sipxbridge.symmitron;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.net.InetAddress;
+
+import org.apache.log4j.Logger;
 
 public class SymmitronConfig {
 
-    private int portRangeLowerBound = 15000;
-    private int portRangeUpperBound = 15500;
-    private int xmlRpcPort = 8089;
-    private String localAddress;
-    private String logFileName = "sipxrelay.log";
-    private String logFileDirectory = null;
-    private String logLevel = "DEBUG";
-    private String publicAddress;
-    private String stunServerAddress;
-    private int rediscoveryTime = 60;
-    private boolean useHttps = true;
-    private boolean behindNat = true;
+	private static Logger logger = Logger.getLogger(SymmitronConfig.class);
 
-    public SymmitronConfig() {
+	private int portRangeLowerBound = 15000;
+	private int portRangeUpperBound = 15500;
+	private int xmlRpcPort = 8089;
+	private String localAddress;
+	private String logFileName = "sipxrelay.log";
+	private String logFileDirectory = null;
+	private String logLevel = "DEBUG";
+	private String publicAddress;
+	private String stunServerAddress;
+	private int rediscoveryTime = 60;
+	private boolean useHttps = true;
+	private boolean behindNat = true;
+	private int sipxSupervisorXmlRpcPort = 0;
+	private String sipxSupervisorHost;
 
-    }
+	public SymmitronConfig() {
 
-    public void setXmlRpcPort(int xmlRpcPort) {
-        this.xmlRpcPort = xmlRpcPort;
-    }
+	}
 
-    /**
-     * @param portRange
-     */
-    public void setPortRange(String portRange) {
-        String[] ports = portRange.split(":");
-        if (ports.length != 2) {
-            throw new IllegalArgumentException("Must have format lower:upper bound");
-        }
-        String lowBound = ports[0];
-        String highBound = ports[1];
-        this.portRangeLowerBound = new Integer(lowBound).intValue();
-        this.portRangeUpperBound = new Integer(highBound).intValue();
-        if (this.portRangeLowerBound >= this.portRangeUpperBound || this.portRangeLowerBound < 0
-                || this.portRangeUpperBound < 0) {
-            throw new IllegalArgumentException(
-                    "Port range should be lower:upper bound integers and postivie");
-        }
-    }
+	public void setXmlRpcPort(int xmlRpcPort) {
+		this.xmlRpcPort = xmlRpcPort;
+	}
 
-    /**
-     * @param localAddress the localAddress to set
-     */
-    public void setLocalAddress(String localAddress) {
-        try {
-            this.localAddress = InetAddress.getByName(localAddress).getHostAddress();
-        } catch (Exception ex) {
-            throw new IllegalArgumentException("invalid address : " + localAddress);
-        }
-    }
+	/**
+	 * @param portRange
+	 */
+	public void setPortRange(String portRange) {
+		String[] ports = portRange.split(":");
+		if (ports.length != 2) {
+			throw new IllegalArgumentException(
+					"Must have format lower:upper bound");
+		}
+		String lowBound = ports[0];
+		String highBound = ports[1];
+		this.portRangeLowerBound = new Integer(lowBound).intValue();
+		this.portRangeUpperBound = new Integer(highBound).intValue();
+		if (this.portRangeLowerBound >= this.portRangeUpperBound
+				|| this.portRangeLowerBound < 0 || this.portRangeUpperBound < 0) {
+			throw new IllegalArgumentException(
+					"Port range should be lower:upper bound integers and postivie");
+		}
+	}
 
-    /**
-     * @return the xmlRpcPort
-     */
-    public int getXmlRpcPort() {
-        return xmlRpcPort;
-    }
+	/**
+	 * @param localAddress
+	 *            the localAddress to set
+	 */
+	public void setLocalAddress(String localAddress) {
+		try {
+			this.localAddress = InetAddress.getByName(localAddress)
+					.getHostAddress();
+		} catch (Exception ex) {
+			throw new IllegalArgumentException("invalid address : "
+					+ localAddress);
+		}
+	}
 
-    /**
-     * @return the localAddress
-     */
-    public String getLocalAddress() {
-        return localAddress;
-    }
+	/**
+	 * @return the xmlRpcPort
+	 */
+	public int getXmlRpcPort() {
+		return xmlRpcPort;
+	}
 
-    public int getPortRangeLowerBound() {
-        return portRangeLowerBound;
-    }
+	/**
+	 * @return the localAddress
+	 */
+	public String getLocalAddress() {
+		return localAddress;
+	}
 
-    /**
-     * @param portRangeLowerBound the portRangeLowerBound to set
-     */
-    public void setPortRangeLowerBound(int portRangeLowerBound) {
-        this.portRangeLowerBound = portRangeLowerBound;
-    }
+	public int getPortRangeLowerBound() {
+		return portRangeLowerBound;
+	}
 
-    /**
-     * @param portRangeUpperBound the portRangeUpperBound to set
-     */
-    public void setPortRangeUpperBound(int portRangeUpperBound) {
-        this.portRangeUpperBound = portRangeUpperBound;
-    }
+	/**
+	 * @param portRangeLowerBound
+	 *            the portRangeLowerBound to set
+	 */
+	public void setPortRangeLowerBound(int portRangeLowerBound) {
+		this.portRangeLowerBound = portRangeLowerBound;
+	}
 
-    /**
-     * @return the portRangeUpperBound
-     */
-    public int getPortRangeUpperBound() {
-        return portRangeUpperBound;
-    }
+	/**
+	 * @param portRangeUpperBound
+	 *            the portRangeUpperBound to set
+	 */
+	public void setPortRangeUpperBound(int portRangeUpperBound) {
+		this.portRangeUpperBound = portRangeUpperBound;
+	}
 
-   
-    public void setLogFileDirectory(String logFileDirectory) {
-        this.logFileDirectory = logFileDirectory;
-    }
+	/**
+	 * @return the portRangeUpperBound
+	 */
+	public int getPortRangeUpperBound() {
+		return portRangeUpperBound;
+	}
 
-    public String getLogFileDirectory() {
-        return logFileDirectory;
-    }
+	public void setLogFileDirectory(String logFileDirectory) {
+		this.logFileDirectory = logFileDirectory;
+	}
 
-    /**
-     * @param logLevel the logLevel to set
-     */
-    public void setLogLevel(String logLevel) {
-        this.logLevel = logLevel;
-    }
+	public String getLogFileDirectory() {
+		return logFileDirectory;
+	}
 
-    /**
-     * @return the logLevel
-     */
-    public String getLogLevel() {
-        return logLevel;
-    }
+	/**
+	 * @param logLevel
+	 *            the logLevel to set
+	 */
+	public void setLogLevel(String logLevel) {
+		this.logLevel = logLevel;
+	}
 
-    /**
-     * @param logFileName the logFileName to set
-     */
-    public void setLogFileName(String logFileName) {
-        this.logFileName = logFileName;
-    }
+	/**
+	 * @return the logLevel
+	 */
+	public String getLogLevel() {
+		return logLevel;
+	}
 
-    /**
-     * @return the logFileName
-     */
-    public String getLogFileName() {
-        return logFileName;
-    }
+	/**
+	 * @param logFileName
+	 *            the logFileName to set
+	 */
+	public void setLogFileName(String logFileName) {
+		this.logFileName = logFileName;
+	}
 
-    public void setPublicAddress(String publicAddress) {
-        try {
-            this.publicAddress = InetAddress.getByName(publicAddress).getHostAddress();
-        } catch (Exception ex) {
-            throw new IllegalArgumentException(ex);
-        }
-    }
+	/**
+	 * @return the logFileName
+	 */
+	public String getLogFileName() {
+		return logFileName;
+	}
 
-    /**
-     * @return the public address of the relay.
-     */
-    public String getPublicAddress() {
-        if ( this.publicAddress != null) {
-            return this.publicAddress;
-        } else if ( !this.behindNat) {
-            return this.getLocalAddress();
-        } else {
-            return null;
-        }
-    }
+	public void setPublicAddress(String publicAddress) {
+		try {
+			this.publicAddress = InetAddress.getByName(publicAddress)
+					.getHostAddress();
+		} catch (Exception ex) {
+			throw new IllegalArgumentException(ex);
+		}
+	}
 
+	/**
+	 * @return the public address of the relay.
+	 */
+	public String getPublicAddress() {
+		if (this.publicAddress != null) {
+			return this.publicAddress;
+		} else if (!this.behindNat) {
+			return this.getLocalAddress();
+		} else {
+			return null;
+		}
+	}
 
-    /**
-     * @param stunServerAddress the stunServerAddress to set
-     */
-    public void setStunServerAddress(String stunServerAddress) {
-        this.stunServerAddress = stunServerAddress;
-    }
+	/**
+	 * @param stunServerAddress
+	 *            the stunServerAddress to set
+	 */
+	public void setStunServerAddress(String stunServerAddress) {
+		this.stunServerAddress = stunServerAddress;
+	}
 
-    /**
-     * @return the stunServerAddress
-     */
-    public String getStunServerAddress() {
-        return stunServerAddress;
-    }
+	/**
+	 * @return the stunServerAddress
+	 */
+	public String getStunServerAddress() {
+		return stunServerAddress;
+	}
 
-    /**
-     * @param rediscoveryTime the rediscoveryTime to set
-     */
-    public void setRediscoveryTime(int rediscoveryTime) {
-        this.rediscoveryTime = rediscoveryTime;
-    }
+	/**
+	 * @param rediscoveryTime
+	 *            the rediscoveryTime to set
+	 */
+	public void setRediscoveryTime(int rediscoveryTime) {
+		this.rediscoveryTime = rediscoveryTime;
+	}
 
-    /**
-     * @return the rediscoveryTime
-     */
-    public int getRediscoveryTime() {
-        return rediscoveryTime;
-    }
-    
-    public void setUseHttps( boolean flag ) {
-        this.useHttps = flag;
-    }
-    
-    public boolean getUseHttps() {
-        return this.useHttps;
-    }
+	/**
+	 * @return the rediscoveryTime
+	 */
+	public int getRediscoveryTime() {
+		return rediscoveryTime;
+	}
 
-    /**
-     * @param behindNat the behindNat to set
-     */
-    public void setBehindNat(boolean behindNat) {
-        this.behindNat = behindNat;
-    }
+	public void setUseHttps(boolean flag) {
+		this.useHttps = flag;
+	}
 
-    /**
-     * @return the behindNat
-     */
-    public boolean isBehindNat() {
-        return behindNat;
-    }
+	public boolean getUseHttps() {
+		return this.useHttps;
+	}
+
+	/**
+	 * @param behindNat
+	 *            the behindNat to set
+	 */
+	public void setBehindNat(boolean behindNat) {
+		this.behindNat = behindNat;
+	}
+
+	/**
+	 * @return the behindNat
+	 */
+	public boolean isBehindNat() {
+		return behindNat;
+	}
+
+	public void setSipXSupervisorXmlRpcPort(int port) {
+		this.sipxSupervisorXmlRpcPort = port;
+	}
+
+	public int getSipXSupervisorXmlRpcPort() {
+		try {
+			if (sipxSupervisorXmlRpcPort == 0) {
+				String configDir = SymmitronServer.getConfigDir();
+				String domainConfig = configDir + "/domain-config";
+				BufferedReader reader = new BufferedReader(new FileReader(
+						new File(domainConfig)));
+				String line = null;
+				while ((line = reader.readLine()) != null) {
+					String[] parts = line.split(":");
+					if (parts[0].trim().equals("SUPERVISOR_PORT")) {
+						sipxSupervisorXmlRpcPort = Integer.parseInt(parts[1]
+								.trim());
+					}
+				}
+			}
+		} catch (Exception ex) {
+			logger.error("Could not find sipXsupervisor port " + ex);
+			return 0;
+		}
+
+		return this.sipxSupervisorXmlRpcPort;
+	}
+
+	public void setSipXSupervisorHost(String hostName) {
+		this.sipxSupervisorHost = hostName;
+	}
+
+	public String getSipXSupervisorHost() {
+		try {
+			/*
+			 * Stop gap -- will go away after sipxconfig gives us the required structures.
+			 */
+			if (sipxSupervisorHost == null) {
+				String configDir = SymmitronServer.getConfigDir();
+				String supervisorConfig = configDir + "/sipxsupervisor-config";
+				BufferedReader reader = new BufferedReader(new FileReader(
+						new File(supervisorConfig)));
+				String line = null;
+				while ((line = reader.readLine()) != null) {
+					String[] parts = line.split(":");
+					if (parts[0].trim().equals("SUPERVISOR_HOST")) {
+						sipxSupervisorHost = parts[1].trim();
+					}
+				}
+			}
+		} catch (Exception ex) {
+			logger.error("Could not find sipXsupervisor host " + ex);
+			return null;
+		}
+		return this.sipxSupervisorHost;
+	}
 
 }

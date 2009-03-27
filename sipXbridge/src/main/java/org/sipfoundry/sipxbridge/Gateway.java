@@ -48,6 +48,8 @@ import net.java.stun4j.client.NetworkConfigurationDiscoveryProcess;
 import net.java.stun4j.client.StunDiscoveryReport;
 
 import org.apache.log4j.Logger;
+import org.apache.xmlrpc.XmlRpcException;
+import org.sipfoundry.commons.alarm.SipXAlarmClient;
 import org.sipfoundry.commons.log4j.SipFoundryAppender;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.commons.siprouter.FindSipServer;
@@ -172,11 +174,17 @@ public class Gateway {
 
 	private static ConcurrentHashMap<String, SymmitronClient> symmitronClients = new ConcurrentHashMap<String, SymmitronClient>();
 
-	private static String configurationPath;
+	static String configurationPath;
 
 	private static PriorityQueue<Hop> proxyAddressTable = new PriorityQueue<Hop>();
 
 	static SipFoundryAppender logAppender;
+
+	static SipXAlarmClient alarmClient;
+
+	private static final String STUN_FAILED_ALARM_ID = "SIPX_BRIDGE_STUN_ADDRESS_DISCOVERY_FAILED";
+
+	private static final String STUN_OK = "SIPX_BRIDGE_STUN_ADDRESS_DISCOVERY_RECOVERED";
 
 	// ///////////////////////////////////////////////////////////////////////
 
@@ -389,12 +397,31 @@ public class Gateway {
 		int rediscoveryTime = Gateway.accountManager.getBridgeConfiguration()
 				.getGlobalAddressRediscoveryPeriod();
 		TimerTask ttask = new TimerTask() {
+			boolean alarmSent;
 
 			@Override
 			public void run() {
 				try {
 					Gateway.discoverAddress();
+					if (alarmSent) {
+						Gateway.alarmClient
+								.raiseAlarm(Gateway.STUN_OK,
+										getBridgeConfiguration()
+												.getStunServerAddress());
+						alarmSent = false;
+					}
 				} catch (Exception ex) {
+					try {
+						if (!alarmSent) {
+							Gateway.alarmClient.raiseAlarm(
+									Gateway.STUN_FAILED_ALARM_ID,
+									getBridgeConfiguration()
+											.getStunServerAddress());
+							alarmSent = true;
+						}
+					} catch (XmlRpcException e) {
+						logger.error("Could not send alarm", e);
+					}
 					logger.error("Error re-discovering  address", ex);
 				}
 
@@ -414,7 +441,8 @@ public class Gateway {
 		try {
 
 			FindSipServer serverFinder = new FindSipServer(logger);
-			SipURI proxyUri = ProtocolObjects.addressFactory.createSipURI(null,getBridgeConfiguration().getSipxProxyDomain());
+			SipURI proxyUri = ProtocolObjects.addressFactory.createSipURI(null,
+					getBridgeConfiguration().getSipxProxyDomain());
 			Collection<Hop> hops = serverFinder.findSipServers(proxyUri);
 			Gateway.proxyAddressTable.addAll(hops);
 			logger.debug("proxy address table = " + proxyAddressTable);
@@ -426,8 +454,9 @@ public class Gateway {
 	}
 
 	static boolean isAddressFromProxy(String address) {
-		for ( Hop  hop : Gateway.proxyAddressTable ) {
-			if ( hop.getHost().equals(address)) return true;
+		for (Hop hop : Gateway.proxyAddressTable) {
+			if (hop.getHost().equals(address))
+				return true;
 		}
 		return false;
 	}
@@ -741,24 +770,35 @@ public class Gateway {
 	}
 
 	static void startAddressDiscovery() {
-
-		if (Gateway.getGlobalAddress() == null
-				&& Gateway.accountManager.getBridgeConfiguration()
-						.getStunServerAddress() == null) {
-			throw new SipXbridgeException(
-					"Gateway address or stun server required. ");
-		}
-
-		if (Gateway.getGlobalAddress() == null) {
-			discoverAddress();
-			if (Gateway.getGlobalAddress() == null) {
+		try {
+			if (Gateway.getGlobalAddress() == null
+					&& Gateway.accountManager.getBridgeConfiguration()
+							.getStunServerAddress() == null) {
 				throw new SipXbridgeException(
-						"Could not determine Address using STUN -- check STUN settings.");
+						"Gateway address or stun server required. ");
 			}
-			startRediscoveryTimer();
-		} else {
-			Gateway.accountManager.getBridgeConfiguration()
-					.setStunServerAddress(null);
+
+			if (Gateway.getGlobalAddress() == null) {
+				discoverAddress();
+				if (Gateway.getGlobalAddress() == null) {
+					Gateway.alarmClient
+							.raiseAlarm(Gateway.STUN_FAILED_ALARM_ID,
+									"Your Configured STUN Server "
+											+ getBridgeConfiguration()
+													.getStunServerAddress()
+											+ " did not respond.\n",
+									"Select another STUN server or configure with known static public IP Address.");
+					throw new SipXbridgeException(
+							"Could not determine Address using STUN -- check STUN settings.");
+				}
+				startRediscoveryTimer();
+			} else {
+				Gateway.accountManager.getBridgeConfiguration()
+						.setStunServerAddress(null);
+			}
+		} catch (XmlRpcException ex) {
+			logger.fatal("Cannot send alarm !");
+			throw new SipXbridgeException(ex);
 		}
 
 	}
@@ -835,6 +875,10 @@ public class Gateway {
 	 */
 	static void start() throws SipXbridgeException {
 		// Wait for the configuration file to become available.
+		Gateway.alarmClient = new SipXAlarmClient(getBridgeConfiguration()
+				.getSipXSupervisorHost(), getBridgeConfiguration()
+				.getSipXSupervisorXmlRpcPort());
+
 		Gateway.initializeLogging();
 
 		if (Gateway.getState() != GatewayState.STOPPED) {
@@ -1131,7 +1175,7 @@ public class Gateway {
 	static HashSet<Integer> getParkServerCodecs() {
 		return getBridgeConfiguration().getParkServerCodecs();
 	}
-	
+
 	/**
 	 * The set of proxy addresses to route requests to.
 	 * 
@@ -1140,7 +1184,6 @@ public class Gateway {
 	public static Collection<Hop> getProxyAddressTable() {
 		return Gateway.proxyAddressTable;
 	}
-	
 
 	/**
 	 * Log an internal error and potentially throw a runtime exception ( if
@@ -1263,9 +1306,5 @@ public class Gateway {
 		}
 
 	}
-
-	
-
-	
 
 }

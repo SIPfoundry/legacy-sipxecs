@@ -10,5 +10,7 @@
 	<classpathentry kind="lib" path="lib/log4j.jar"/>
 	<classpathentry kind="lib" path="lib/jibx-bind.jar"/>
 	<classpathentry kind="lib" path="lib/jibx-run.jar"/>
+	<classpathentry kind="var" path="SIPX-PROJECT-ROOT/sipXcommons/lib/xmlrpc-client.jar"/>
+	<classpathentry kind="var" path="SIPX-PROJECT-ROOT/sipXcommons/lib/xmlrpc-common.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

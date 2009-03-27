@@ -60,6 +60,28 @@
          <resolution>A user has dialed a number which is configured as an Emergency number.
                      The user name and contact address of the phone is given.</resolution>
       </alarm>
+      <alarm id="SIPX_RELAY_STUN_ADDRESS_DISCOVERY_FAILED">
+         <shorttitle>SIPX Relay Public Address Discovery Failed</shorttitle>
+         <description>The STUN Server '{0}' is dysfunctional. </description>
+         <resolution>The STUN Server did not return any information that can be used to determine the public address of the Relay Service.
+                      Reconfigure your STUN server settings in the System > NAT page to point at a functioning STUN server. </resolution>
+      </alarm>
+      <alarm id="SIPX_RELAY_STUN_ADDRESS_DISCOVERY_RECOVERED">
+         <shorttitle>The STUN Server Recovered</shorttitle>
+         <description>The STUN Server '{0}' is functioning OK. </description>
+         <resolution>This message is informational. No action is needed.</resolution>
+      </alarm>
+      <alarm id="SIPX_BRIDGE_STUN_ADDRESS_DISCOVERY_FAILED">
+         <shorttitle>SIPX Bridge Public Address Discovery Failed</shorttitle>
+         <description>The STUN Server '{0}' is dysfunctional. </description>
+         <resolution>The STUN Server did not return any information that can be used to determine the public address of the internal SBC.
+                      Reconfigure your STUN server settings in the Internal SBC settings to point at a functioning STUN server. </resolution>
+      </alarm>
+      <alarm id="SIPX_BRIDGE_STUN_ADDRESS_DISCOVERY_RECOVERED">
+         <shorttitle>The STUN Server Recovered</shorttitle>
+         <description>The STUN Server '{0}' is functioning OK. </description>
+         <resolution>This message is informational. No action is needed.</resolution>
+      </alarm>
 
       <!-- Add new alarms above this line.
           Notes:

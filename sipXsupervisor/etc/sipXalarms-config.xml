@@ -89,6 +89,38 @@
                  email="true"
                  />
       </alarm>
+      <alarm id="SIPX_RELAY_STUN_ADDRESS_DISCOVERY_FAILED">
+         <code>SPX00013</code>
+         <severity>crit</severity>
+         <component>sipXrelay</component>
+         <action log="true"
+                 email="true"
+                 />
+      </alarm>
+      <alarm id="SIPX_RELAY_STUN_ADDRESS_DISCOVERY_RECOVERED">
+         <code>SPX00014</code>
+         <severity>info</severity>
+         <component>sipXrelay</component>
+         <action log="true"
+                 email="true"
+                 />
+      </alarm>
+      <alarm id="SIPX_BRIDGE_STUN_ADDRESS_DISCOVERY_FAILED">
+         <code>SPX00015</code>
+         <severity>crit</severity>
+         <component>sipXbridge</component>
+         <action log="true"
+                 email="true"
+                 />
+      </alarm>
+      <alarm id="SIPX_BRIDGE_STUN_ADDRESS_DISCOVERY_RECOVERED">
+         <code>SPX00016</code>
+         <severity>info</severity>
+         <component>sipXbridge</component>
+         <action log="true"
+                 email="true"
+                 />
+      </alarm>
 
       <!-- Add new alarms above this line.
           Remember to add strings into meta/alarms/sipXalarms-strings.xml also.

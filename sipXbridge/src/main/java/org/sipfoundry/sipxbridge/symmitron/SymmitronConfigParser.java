@@ -87,6 +87,13 @@ public class SymmitronConfigParser {
                 "setUseHttps", 0, new Class[] {
             Boolean.class
         });
+        
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "sipx-supervisor-host"),
+                "setSipXSupervisorHost", 0);
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "sipx-supervisor-xml-rpc-port"),
+                "setSipXSupervisorXmlRpcPort", 0, new Class[] {
+                    Integer.class
+                });
     }
 
     public SymmitronConfig parse(String url) {

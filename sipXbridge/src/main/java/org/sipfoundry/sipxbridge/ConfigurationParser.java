@@ -62,10 +62,14 @@ public class ConfigurationParser {
 
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "global-address"),
                 "setGlobalAddress", 0);
-        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "global-port"),
-                "setGlobalPort", 0, new Class[] {
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "sipx-supervisor-host"),
+                "setSipXSupervisorHost", 0);
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "sipx-supervisor-xml-rpc-port"),
+                "setSipXSupervisorXmlRpcPort", 0, new Class[] {
                     Integer.class
                 });
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "music-on-hold-address"),
+                "setMusicOnHoldName", 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "xml-rpc-port"),
                 "setXmlRpcPort", 0, new Class[] {
                     Integer.class
@@ -93,6 +97,8 @@ public class ConfigurationParser {
         
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "music-on-hold-address"),
                 "setMusicOnHoldName", 0);
+        
+     
 
         
 

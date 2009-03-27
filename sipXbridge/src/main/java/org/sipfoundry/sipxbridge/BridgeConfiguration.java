@@ -6,6 +6,9 @@
  */
 package org.sipfoundry.sipxbridge;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.net.InetAddress;
 import java.util.HashSet;
 
@@ -49,6 +52,8 @@ public class BridgeConfiguration {
     private HashSet<Integer> parkServerCodecs = new HashSet<Integer>();
     private boolean isSecure = true;
     private int sipSessionTimerIntervalSeconds = 1800;
+	private String sipxSupervisorHost;
+	private int sipxSupervisorXmlRpcPort;
 
     private static Logger logger = Logger.getLogger(BridgeConfiguration.class);
     
@@ -498,6 +503,59 @@ public class BridgeConfiguration {
         return sipSessionTimerIntervalSeconds;
     }
     
-    
+   
+
+	public int getSipXSupervisorXmlRpcPort() {
+		try {
+			if (sipxSupervisorXmlRpcPort == 0) {
+				String configDir = Gateway.configurationPath;
+				String domainConfig = configDir + "/domain-config";
+				BufferedReader reader = new BufferedReader(new FileReader(
+						new File(domainConfig)));
+				String line = null;
+				while ((line = reader.readLine()) != null) {
+					String[] parts = line.split(":");
+					if (parts[0].trim().equals("SUPERVISOR_PORT")) {
+						sipxSupervisorXmlRpcPort = Integer.parseInt(parts[1]
+								.trim());
+					}
+				}
+			}
+		} catch (Exception ex) {
+			logger.error("Could not find sipXsupervisor port " + ex);
+			return 0;
+		}
+
+		return this.sipxSupervisorXmlRpcPort;
+	}
+
+	public void setSipXSupervisorHost(String hostName) {
+		this.sipxSupervisorHost = hostName;
+	}
+
+	public String getSipXSupervisorHost() {
+		try {
+			/*
+			 * Stop gap -- will go away after sipxconfig gives us the required structures.
+			 */
+			if (sipxSupervisorHost == null) {
+				String configDir = Gateway.configurationPath;
+				String supervisorConfig = configDir + "/sipxsupervisor-config";
+				BufferedReader reader = new BufferedReader(new FileReader(
+						new File(supervisorConfig)));
+				String line = null;
+				while ((line = reader.readLine()) != null) {
+					String[] parts = line.split(":");
+					if (parts[0].trim().equals("SUPERVISOR_HOST")) {
+						sipxSupervisorHost = parts[1].trim();
+					}
+				}
+			}
+		} catch (Exception ex) {
+			logger.error("Could not find sipXsupervisor host " + ex);
+			return null;
+		}
+		return this.sipxSupervisorHost;
+	}
 
 }
