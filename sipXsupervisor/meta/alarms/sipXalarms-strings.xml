@@ -98,7 +98,7 @@
       <alarm id="SIPX_BRIDGE_ACCOUNT_OK">
          <shorttitle>The ITSP Account has recovered</shorttitle>
          <description>The ITSP Account '{0}' is OK.</description>
-         <resolution>The SIP Trunking Provider recovered and is now funtional. No further action is needed.</resolution>
+         <resolution>The SIP Trunking Provider recovered and is now functional. No further action is needed.</resolution>
       </alarm>
 
       <!-- Add new alarms above this line.
