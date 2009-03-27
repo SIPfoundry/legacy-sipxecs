@@ -172,6 +172,18 @@ public class SbcManagerImplTestIntegration extends IntegrationTestCase {
         assertEquals(2, countRowsInTable("sbc"));
     }
 
+    public void testGetRoutes() throws Exception {
+        loadDataSet("admin/dialplan/sbc/sbc-device.db.xml");
+        loadDataSet("admin/dialplan/sbc/sbc.db.xml");
+
+        SbcRoutes routes = m_sbcManager.getRoutes();
+        assertNotNull(routes);
+        assertTrue(routes.getDomains().contains("*.example.org"));
+        assertTrue(routes.getDomains().contains("*.example.net"));
+        assertTrue(routes.getSubnets().contains("10.1.2.3/24"));
+        assertTrue(routes.getSubnets().contains("10.1.2.5/24"));
+    }
+
     public void setSbcManager(SbcManager sbcManager) {
         m_sbcManager = sbcManager;
     }

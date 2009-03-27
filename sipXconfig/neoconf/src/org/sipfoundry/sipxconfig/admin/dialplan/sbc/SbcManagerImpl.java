@@ -11,7 +11,9 @@ package org.sipfoundry.sipxconfig.admin.dialplan.sbc;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
@@ -60,8 +62,7 @@ public class SbcManagerImpl extends HibernateDaoSupport implements SbcManager, B
     public void saveSbc(Sbc sbc) {
         getHibernateTemplate().saveOrUpdate(sbc);
         m_dialPlanActivationManager.replicateDialPlan(true);
-        NatTraversal nat = m_natTraversalManager.getNatTraversal();
-        nat.activate(m_serviceConfigurator);
+        activateNatTraversal();
     }
 
     public AuxSbc loadSbc(Integer sbcId) {
@@ -72,6 +73,26 @@ public class SbcManagerImpl extends HibernateDaoSupport implements SbcManager, B
         HibernateTemplate hibernate = getHibernateTemplate();
         Collection sbcs = DaoUtils.loadBeanByIds(hibernate, AuxSbc.class, selectedRows);
         hibernate.deleteAll(sbcs);
+        activateNatTraversal();
+    }
+
+    public SbcRoutes getRoutes() {
+        SbcRoutes routes = new SbcRoutes();
+        Set<String> sbcDomains = new HashSet<String>();
+        Set<String> sbcSubnets = new HashSet<String>();
+        List<Sbc> sbcs = getHibernateTemplate().loadAll(Sbc.class);
+        for (Sbc sbc : sbcs) {
+            routes = sbc.getRoutes();
+            sbcDomains.addAll(routes.getDomains());
+            sbcSubnets.addAll(routes.getSubnets());
+        }
+
+        List<String> domains = new ArrayList<String>(sbcDomains);
+        List<String> subnets = new ArrayList<String>(sbcSubnets);
+        routes.setDomains(domains);
+        routes.setSubnets(subnets);
+
+        return routes;
     }
 
     public void clear() {
@@ -116,5 +137,10 @@ public class SbcManagerImpl extends HibernateDaoSupport implements SbcManager, B
         sbcRoutes.setDomains(domains);
 
         return sbcRoutes;
+    }
+
+    private void activateNatTraversal() {
+        NatTraversal nat = m_natTraversalManager.getNatTraversal();
+        nat.activate(m_serviceConfigurator);
     }
 }

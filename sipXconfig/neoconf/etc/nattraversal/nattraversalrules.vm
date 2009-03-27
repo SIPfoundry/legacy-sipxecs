@@ -30,10 +30,10 @@
     <log-directory>${service.logDir}</log-directory>
   </info>
   <localtopology>
-#foreach($subnet in ${sbc.routes.subnets})
+#foreach($subnet in ${routes.subnets})
     <ipV4subnet>$subnet</ipV4subnet>
 #end
-#foreach($domain in ${sbc.routes.domains})
+#foreach($domain in ${routes.domains})
     <dnsWildcard>$domain</dnsWildcard>
 #end
   </localtopology>

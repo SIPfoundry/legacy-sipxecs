@@ -11,8 +11,8 @@ package org.sipfoundry.sipxconfig.service;
 
 import org.apache.velocity.VelocityContext;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.DefaultSbc;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcRoutes;
 import org.sipfoundry.sipxconfig.nattraversal.NatLocation;
 
 public class NatTraversalConfiguration extends SipxServiceConfiguration {
@@ -25,8 +25,8 @@ public class NatTraversalConfiguration extends SipxServiceConfiguration {
     @Override
     protected VelocityContext setupContext(Location location) {
         VelocityContext context = super.setupContext(location);
-        DefaultSbc sbc = m_sbcManager.loadDefaultSbc();
-        context.put("sbc", sbc);
+        SbcRoutes routes = m_sbcManager.getRoutes();
+        context.put("routes", routes);
 
         NatLocation natLocation = location.getNat();
         context.put("natlocation", natLocation);

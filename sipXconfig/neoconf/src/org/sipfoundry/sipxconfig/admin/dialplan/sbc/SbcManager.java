@@ -25,5 +25,7 @@ public interface SbcManager {
 
     void removeSbcs(Collection<Integer> sbcIds);
 
+    SbcRoutes getRoutes();
+
     void clear();
 }

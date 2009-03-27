@@ -12,9 +12,6 @@ import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.DefaultSbc;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.Sbc;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcRoutes;
 import org.sipfoundry.sipxconfig.nattraversal.NatLocation;
@@ -36,12 +33,12 @@ public class NatTraversalConfigurationTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        Sbc sbc = configureSbc(new DefaultSbc(), configureSbcDevice("10.1.2.3"), Arrays.asList("*.example.org"),
-                Arrays.asList("10.0.0.0/22", "172.16.0.0/12", "192.168.0.0/16"));
+        SbcRoutes routes = configureSbcRoutes(Arrays.asList("*.example.org"), Arrays.asList(
+                "10.0.0.0/22", "172.16.0.0/12", "192.168.0.0/16"));
 
         m_sbcManager = createNiceMock(SbcManager.class);
-        m_sbcManager.loadDefaultSbc();
-        expectLastCall().andReturn(sbc);
+        m_sbcManager.getRoutes();
+        expectLastCall().andReturn(routes);
 
         m_locationsManager = createMock(LocationsManager.class);
         m_locationsManager.getPrimaryLocation();
@@ -128,20 +125,11 @@ public class NatTraversalConfigurationTest extends TestCase {
         assertEquals(referenceConfig, actualConfig);
     }
 
-    private static Sbc configureSbc(Sbc sbc, SbcDevice sbcDevice, List<String> domains, List<String> subnets) {
+    private static SbcRoutes configureSbcRoutes(List<String> domains, List<String> subnets) {
         SbcRoutes routes = new SbcRoutes();
         routes.setDomains(domains);
         routes.setSubnets(subnets);
 
-        sbc.setRoutes(routes);
-        sbc.setSbcDevice(sbcDevice);
-        sbc.setEnabled(true);
-        return sbc;
-    }
-
-    private static SbcDevice configureSbcDevice(String address) {
-        SbcDevice sbcDevice = new SbcDevice();
-        sbcDevice.setAddress(address);
-        return sbcDevice;
+        return routes;
     }
 }
