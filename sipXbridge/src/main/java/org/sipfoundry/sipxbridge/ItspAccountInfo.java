@@ -159,6 +159,9 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
 
     
     protected RegistrationTimerTask registrationTimerTask;
+
+
+	private boolean alarmSent;
     
     
     
@@ -626,6 +629,14 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
     public boolean isUserPhone() {
         return isUserPhone;
     }
+
+	public void setAlarmSent(boolean b) {
+		this.alarmSent = b;
+	}
+
+	public boolean isAlarmSent() {
+		return alarmSent;
+	}
 
 
 }

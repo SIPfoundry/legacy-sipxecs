@@ -718,7 +718,7 @@ class SipUtilities {
 			String outboundProxy = itspAccount.getOutboundProxy();
 			SipURI routeUri = ProtocolObjects.addressFactory.createSipURI(null,
 					outboundProxy);
-			if ( itspAccount.getOutboundProxyPort() != 0 ) {
+			if (itspAccount.getOutboundProxyPort() != 0) {
 				routeUri.setPort(itspAccount.getOutboundProxyPort());
 			}
 			routeUri.setLrParam();
@@ -812,12 +812,11 @@ class SipUtilities {
 				Vector formats = mediaDescription.getMedia().getMediaFormats(
 						true);
 
-				
 				for (Iterator it1 = formats.iterator(); it1.hasNext();) {
 					Object format = it1.next();
 					Integer fmt = new Integer(format.toString());
-					if (!codecs.contains(fmt)) {		
-							it1.remove();
+					if (!codecs.contains(fmt)) {
+						it1.remove();
 					}
 				}
 
@@ -832,9 +831,9 @@ class SipUtilities {
 						String attribute = attr.getValue();
 						String[] attrs = attribute.split(" ");
 						int rtpMapCodec = Integer.parseInt(attrs[0]);
-						
+
 						if (!codecs.contains(rtpMapCodec)) {
-								it1.remove();
+							it1.remove();
 						}
 					} else if (attr.getName().equalsIgnoreCase("crypto")) {
 						it1.remove();
@@ -1459,6 +1458,19 @@ class SipUtilities {
 			}
 		}
 		return spiral;
+	}
+
+	public static void addSipFrag(Response response, String message) {
+		try {
+			ContentTypeHeader cth = ProtocolObjects.headerFactory
+					.createContentTypeHeader("message", "sipfrag");
+			response.setContent(message, cth);
+		} catch (Exception ex) {
+			String s = "Unexpected exception";
+			logger.fatal(s, ex);
+			throw new SipXbridgeException(s, ex);
+		}
+
 	}
 
 }

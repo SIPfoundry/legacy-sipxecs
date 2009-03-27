@@ -180,7 +180,7 @@ public class Gateway {
 
 	static SipFoundryAppender logAppender;
 
-	static SipXAlarmClient alarmClient;
+	private static SipXAlarmClient alarmClient;
 
 	private static final String STUN_FAILED_ALARM_ID = "SIPX_BRIDGE_STUN_ADDRESS_DISCOVERY_FAILED";
 
@@ -403,9 +403,17 @@ public class Gateway {
 			public void run() {
 				try {
 					Gateway.discoverAddress();
-					if (alarmSent) {
-						Gateway.alarmClient
-								.raiseAlarm(Gateway.STUN_OK,
+					if ( Gateway.getGlobalAddress() == null && !alarmSent ) {
+						Gateway.getAlarmClient()
+						.raiseAlarm(
+								Gateway.STUN_FAILED_ALARM_ID,
+								getBridgeConfiguration()
+										.getStunServerAddress());
+						alarmSent = true;
+					} else if (Gateway.getGlobalAddress() != null && alarmSent) {
+						Gateway.getAlarmClient()
+								.raiseAlarm(
+										Gateway.STUN_OK,
 										getBridgeConfiguration()
 												.getStunServerAddress());
 						alarmSent = false;
@@ -413,10 +421,11 @@ public class Gateway {
 				} catch (Exception ex) {
 					try {
 						if (!alarmSent) {
-							Gateway.alarmClient.raiseAlarm(
+							Gateway.getAlarmClient().raiseAlarm(
 									Gateway.STUN_FAILED_ALARM_ID,
 									getBridgeConfiguration()
 											.getStunServerAddress());
+
 							alarmSent = true;
 						}
 					} catch (XmlRpcException e) {
@@ -455,8 +464,9 @@ public class Gateway {
 
 	static boolean isAddressFromProxy(String address) {
 		for (Hop hop : Gateway.proxyAddressTable) {
-			if (hop.getHost().equals(address))
+			if (hop.getHost().equals(address)) {
 				return true;
+			}
 		}
 		return false;
 	}
@@ -548,15 +558,28 @@ public class Gateway {
 		return registrationManager;
 	}
 
+	static SipXAlarmClient getAlarmClient() {
+		if (alarmClient == null) {
+			String supervisorHost = getBridgeConfiguration()
+					.getSipXSupervisorHost();
+			logger.debug("supervisorHost = " + supervisorHost);
+			alarmClient = new SipXAlarmClient(supervisorHost,
+					getBridgeConfiguration().getSipXSupervisorXmlRpcPort());
+		}
+
+		return alarmClient;
+	}
+
 	static AuthenticationHelper getAuthenticationHelper() {
 		return authenticationHelper;
 	}
 
 	static SipProvider getWanProvider(String transport) {
-		if (transport.equalsIgnoreCase("tls"))
+		if (transport.equalsIgnoreCase("tls")) {
 			return externalTlsProvider;
-		else
+		} else {
 			return externalProvider;
+		}
 	}
 
 	static SipProvider getLanProvider() {
@@ -770,7 +793,7 @@ public class Gateway {
 	}
 
 	static void startAddressDiscovery() {
-		try {
+	
 			if (Gateway.getGlobalAddress() == null
 					&& Gateway.accountManager.getBridgeConfiguration()
 							.getStunServerAddress() == null) {
@@ -778,29 +801,12 @@ public class Gateway {
 						"Gateway address or stun server required. ");
 			}
 
-			if (Gateway.getGlobalAddress() == null) {
-				discoverAddress();
-				if (Gateway.getGlobalAddress() == null) {
-					Gateway.alarmClient
-							.raiseAlarm(Gateway.STUN_FAILED_ALARM_ID,
-									"Your Configured STUN Server "
-											+ getBridgeConfiguration()
-													.getStunServerAddress()
-											+ " did not respond.\n",
-									"Select another STUN server or configure with known static public IP Address.");
-					throw new SipXbridgeException(
-							"Could not determine Address using STUN -- check STUN settings.");
-				}
+			if (Gateway.getGlobalAddress() == null) {		
 				startRediscoveryTimer();
 			} else {
 				Gateway.accountManager.getBridgeConfiguration()
 						.setStunServerAddress(null);
-			}
-		} catch (XmlRpcException ex) {
-			logger.fatal("Cannot send alarm !");
-			throw new SipXbridgeException(ex);
-		}
-
+			}	
 	}
 
 	/**
@@ -851,8 +857,7 @@ public class Gateway {
 			Gateway.discoverAddress();
 			if (Gateway.getGlobalAddress() == null) {
 				System.err
-						.println("Configuration error. Could not discover public address. Check your STUN server settings or specify public address");
-				System.exit(-1);
+						.println("WARNING: Could not discover public address. Check your STUN server settings or specify public address");
 			}
 
 		}
@@ -875,13 +880,13 @@ public class Gateway {
 	 */
 	static void start() throws SipXbridgeException {
 		// Wait for the configuration file to become available.
-		Gateway.alarmClient = new SipXAlarmClient(getBridgeConfiguration()
-				.getSipXSupervisorHost(), getBridgeConfiguration()
-				.getSipXSupervisorXmlRpcPort());
 
 		Gateway.initializeLogging();
 
 		if (Gateway.getState() != GatewayState.STOPPED) {
+			logger
+					.debug("Gateway State is " + Gateway.getState()
+							+ " Aborting");
 			return;
 		}
 
@@ -916,14 +921,29 @@ public class Gateway {
 		 */
 		startSipListener();
 
+		
+		/*
+		 * Register with ITSPs. Now we can take inbound calls
+		 */
+		while ( Gateway.getGlobalAddress() == null ) {
+		  try {
+			Thread.sleep(5000);
+		  } catch (InterruptedException ex) {
+			  logger.error("Sleep interrupted.");
+			  System.exit(0);
+		  }
+		}
+		logger.debug("Global address = " + Gateway.getGlobalAddress());
+		
 		/*
 		 * Can start sending outbound calls. Cannot yet gake inbound calls.
 		 */
 		Gateway.state = GatewayState.INITIALIZED;
 
 		/*
-		 * Register with ITSPs. Now we can take inbound calls
+		 * Found the global address. Now can REGISTER.
 		 */
+		
 		registerWithItsp();
 
 		/*
@@ -1227,46 +1247,6 @@ public class Gateway {
 			};
 
 			HttpsURLConnection.setDefaultHostnameVerifier(hv);
-
-			String trustStoreType = System
-					.getProperty("javax.net.ssl.trustStoreType");
-
-			logger.debug("trustStoreType = " + trustStoreType);
-
-			KeyStore ks = KeyStore.getInstance(trustStoreType);
-
-			String pathToTrustStore = System
-					.getProperty("javax.net.ssl.trustStore");
-
-			logger.debug("pathToTrustStore = " + pathToTrustStore);
-
-			logger.debug("passwKey = "
-					+ System.getProperty("javax.net.ssl.trustStorePassword"));
-
-			char[] passwKey = System.getProperty(
-					"javax.net.ssl.trustStorePassword").toCharArray();
-
-			ks.load(new FileInputStream(pathToTrustStore), passwKey);
-
-			String x509Algorithm = System.getProperty("jetty.x509.algorithm");
-
-			logger.debug("X509Algorithm = " + x509Algorithm);
-
-			TrustManagerFactory tmf = TrustManagerFactory
-					.getInstance(x509Algorithm);
-
-			tmf.init(ks);
-
-			SSLContext sslContext = SSLContext.getInstance("SSL");
-
-			sslContext.init(null, tmf.getTrustManagers(), new SecureRandom());
-
-			SSLSocketFactory factory = sslContext.getSocketFactory();
-			SSLSocket socket = ((SSLSocket) factory.createSocket());
-			String[] suites = socket.getEnabledCipherSuites();
-			socket.setEnabledCipherSuites(suites);
-
-			HttpsURLConnection.setDefaultSSLSocketFactory(factory);
 
 		} catch (Exception ex) {
 			logger.fatal("Unexpected exception initializing HTTPS client", ex);

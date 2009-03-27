@@ -147,8 +147,6 @@ public class SymmitronClient {
 			this.resetHandler = resetHandler;
 			XmlRpcClient xmlRpcClient = new XmlRpcClient();
 
-			// client.setTransportFactory(new
-			// XmlRpcCommonsTransportFactory(client));
 			xmlRpcClient.setConfig(config);
 			xmlRpcClient.setMaxThreads(32);
 			clientHandle = "sipxbridge:" + Math.abs(new Random().nextLong());
@@ -242,16 +240,18 @@ public class SymmitronClient {
 		try {
 			retval = (Map) client.execute("sipXrelay.getPublicAddress", args);
 		} catch (XmlRpcException e) {
-
 			logger.error("XmlRpcException ", e);
-			throw new SymmitronException(e);
+			throw new SymmitronException("ERROR Contacting SIPXRELAY");
 		}
 
 		if (retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
-			throw new SymmitronException("Error in processing request "
-					+ retval.get(Symmitron.ERROR_INFO));
+			throw new SymmitronException((String)retval.get(Symmitron.ERROR_INFO));
 		}
-		return (String) retval.get(Symmitron.PUBLIC_ADDRESS);
+		
+		String pubaddr  = (String) retval.get(Symmitron.PUBLIC_ADDRESS);
+		if ( pubaddr == null ) {
+			throw new SymmitronException("SIPXRELAY Public address not found");
+		} else return pubaddr;
 	}
 
 	public void destroyBridge(String bridgeId) throws SymmitronException {

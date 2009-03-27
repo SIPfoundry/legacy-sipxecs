@@ -1148,13 +1148,8 @@ public class BackToBackUserAgent {
 			}
 		} catch (Exception ex) {
 			logger.error("Error while processing the request", ex);
-			try {
-				Response response = ProtocolObjects.messageFactory
-						.createResponse(Response.SERVICE_UNAVAILABLE, request);
-				serverTransaction.sendResponse(response);
-			} catch (Exception e) {
-				logger.error("Unexpected exception ", e);
-			}
+			CallControlUtilities.sendServiceUnavailableError(serverTransaction, ex);
+			
 		}
 
 	}
@@ -1312,10 +1307,8 @@ public class BackToBackUserAgent {
 		Dialog incomingDialog = serverTransaction.getDialog();
 		ItspAccountInfo itspAccountInfo = Gateway.getAccountManager()
 				.getAccount(incomingRequest);
-		if (itspAccountInfo == null) {
-			SipUtilities.createResponse(serverTransaction, Response.NOT_FOUND);
-			return;
-		}
+		
+		
 
 		SipProvider itspProvider = Gateway
 				.getWanProvider(itspAccountInfo == null ? Gateway.DEFAULT_ITSP_TRANSPORT
@@ -1575,6 +1568,9 @@ public class BackToBackUserAgent {
 			for (Dialog dialog : this.dialogTable) {
 				dialog.delete();
 			}
+		} catch (SymmitronException ex) {
+			logger.error("Caught exception ", ex);
+			CallControlUtilities.sendServiceUnavailableError(serverTransaction, ex);
 		} catch (Exception ex) {
 			logger.error("Error occurred during processing of request ", ex);
 			try {
@@ -1611,6 +1607,7 @@ public class BackToBackUserAgent {
 				.getHost();
 		DialogContext inviteDat = DialogContext.get(serverTransaction
 				.getDialog());
+		
 		Dialog dialog = serverTransaction.getDialog();
 
 		try {

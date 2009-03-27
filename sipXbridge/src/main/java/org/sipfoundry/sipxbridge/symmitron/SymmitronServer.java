@@ -22,7 +22,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLSession;
 
 import net.java.stun4j.StunAddress;
 import net.java.stun4j.client.NetworkConfigurationDiscoveryProcess;
@@ -256,6 +259,7 @@ public class SymmitronServer implements Symmitron {
 	public static String getConfigDir() {
 		return SymmitronServer.configDir;
 	}
+
 	/**
 	 * Get the port range manager.
 	 * 
@@ -532,10 +536,14 @@ public class SymmitronServer implements Symmitron {
 			Map<String, Object> retval = createSuccessMap();
 			logger.debug(controllerHandle + " getPublicAddress : "
 					+ symmitronConfig.getPublicAddress());
-
-			retval.put(PUBLIC_ADDRESS, symmitronConfig.getPublicAddress());
-
-			return retval;
+			if (symmitronConfig.getPublicAddress() != null) {
+				retval.put(PUBLIC_ADDRESS, symmitronConfig.getPublicAddress());
+				return retval;
+			} else {
+				return createErrorMap(PROCESSING_ERROR,
+						"SIXPRELAY Unable to resolve public address using STUN to "
+								+ symmitronConfig.getStunServerAddress());
+			}
 		} catch (Exception ex) {
 			return createErrorMap(PROCESSING_ERROR, ex.getMessage());
 		}
@@ -1198,16 +1206,33 @@ public class SymmitronServer implements Symmitron {
 			discoverAddress();
 			if (SymmitronServer.getPublicInetAddress() == null) {
 				System.err
-						.println("Cannot discover the public address -- check your STUN server settings");
-				System.exit(-1);
+						.println("STUN Server did not return any meaningful information -- passing configtest with warning");
 			}
 		}
 
 		System.exit(0);
 	}
 
+	private static void initHttpsClient() {
+		try {
+			// Create empty HostnameVerifier
+			HostnameVerifier hv = new HostnameVerifier() {
+				public boolean verify(String arg0, SSLSession arg1) {
+					return true;
+				}
+			};
+
+			HttpsURLConnection.setDefaultHostnameVerifier(hv);
+
+		} catch (Exception ex) {
+			logger.fatal("Unexpected exception initializing HTTPS client", ex);
+			throw new SipXbridgeException(ex);
+		}
+	}
+
 	public static void start() throws Exception {
-		SymmitronServer.configDir = System.getProperty("conf.dir", "/etc/sipxpbx");
+		SymmitronServer.configDir = System.getProperty("conf.dir",
+				"/etc/sipxpbx");
 		String configurationFile = configDir + "/nattraversalrules.xml";
 		if (!new File(configurationFile).exists()) {
 			System.err.println("Configuration file " + configurationFile
@@ -1218,7 +1243,8 @@ public class SymmitronServer implements Symmitron {
 		SymmitronConfig config = new SymmitronConfigParser().parse("file:"
 				+ configurationFile);
 
-		SymmitronServer.alarmClient = new SipXAlarmClient(config.getSipXSupervisorHost(), config.getSipXSupervisorXmlRpcPort());
+		SymmitronServer.alarmClient = new SipXAlarmClient(config
+				.getSipXSupervisorHost(), config.getSipXSupervisorXmlRpcPort());
 
 		InetAddress localAddr = findIpAddress(config.getLocalAddress());
 
@@ -1265,39 +1291,45 @@ public class SymmitronServer implements Symmitron {
 		if (config.getPublicAddress() == null
 				&& config.getStunServerAddress() != null) {
 			/*
-			 * Try an address discovery. If it did not work, then exit. This
-			 * deals with accidental mis-configurations of the STUN server
+			 * Try an address discovery. If it did not work, then send an alarm.
+			 * This deals with accidental mis-configurations of the STUN server
 			 * address.
 			 */
 
-			discoverAddress();
-			if (SymmitronServer.getPublicInetAddress() == null) {
-				SymmitronServer.alarmClient.raiseAlarm(STUN_FAILURE_ALARM_ID,
-						config.getStunServerAddress());
-				throw new SymmitronException(
-						"Error discovering address using STUN -- Check STUN Server setting");
-			
-			}
 			timer.schedule(
 					new TimerTask() {
 						boolean alarmSent;
+
 						@Override
 						public void run() {
-							
+
 							try {
 								discoverAddress();
-								if (alarmSent) {	
+								if (SymmitronServer.getPublicInetAddress() == null
+										&& !alarmSent) {
 									SymmitronServer.alarmClient.raiseAlarm(
-											STUN_RECOVERY_ALARM_ID, 
-											SymmitronServer.symmitronConfig.getStunServerAddress());
+											STUN_FAILURE_ALARM_ID,
+											SymmitronServer.symmitronConfig
+													.getStunServerAddress());
+									alarmSent = true;
+
+								} else if (SymmitronServer
+										.getPublicInetAddress() != null
+										&& alarmSent) {
+									SymmitronServer.alarmClient.raiseAlarm(
+											STUN_RECOVERY_ALARM_ID,
+											SymmitronServer.symmitronConfig
+													.getStunServerAddress());
 									alarmSent = false;
 								}
 							} catch (Exception ex) {
 								try {
 									if (!alarmSent) {
-										SymmitronServer.alarmClient.raiseAlarm(
-												STUN_FAILURE_ALARM_ID, 
-												SymmitronServer.symmitronConfig.getStunServerAddress());
+										SymmitronServer.alarmClient
+												.raiseAlarm(
+														STUN_FAILURE_ALARM_ID,
+														SymmitronServer.symmitronConfig
+																.getStunServerAddress());
 										alarmSent = true;
 									}
 								} catch (XmlRpcException e) {
@@ -1322,6 +1354,8 @@ public class SymmitronServer implements Symmitron {
 
 			}
 		});
+
+		SymmitronServer.initHttpsClient();
 
 		SymmitronServer.startWebServer();
 		status = "RUNNING";

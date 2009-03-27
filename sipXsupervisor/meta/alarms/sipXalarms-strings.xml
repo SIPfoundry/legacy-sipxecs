@@ -83,6 +83,24 @@
          <resolution>This message is informational. No action is needed.</resolution>
       </alarm>
 
+      <alarm id="SIPX_BRIDGE_AUTHENTICATION_FAILED">
+         <shorttitle>The ITSP disallowed an Authentication attempt</shorttitle>
+         <description>The ITSP Account '{0}' disallowed an operation because of Authentication failure.</description>
+         <resolution>Check your ITSP Account domain and password and restart the SIP Trunking Service.</resolution>
+      </alarm>
+
+      <alarm id="SIPX_BRIDGE_OPERATION_TIMED_OUT">
+         <shorttitle>The ITSP Account could not be reached</shorttitle>
+         <description>An attempt to signal the ITSP '{0}' timed out.</description>
+         <resolution>Check your ITSP Account Domain, Proxy and Registrar settings and restart the SIP Trunking Service.</resolution>
+      </alarm>
+
+      <alarm id="SIPX_BRIDGE_ACCOUNT_OK">
+         <shorttitle>The ITSP Account has recovered</shorttitle>
+         <description>The ITSP Account '{0}' is OK.</description>
+         <resolution>The SIP Trunking Provider recovered and is now funtional. No further action is needed.</resolution>
+      </alarm>
+
       <!-- Add new alarms above this line.
           Notes:
             'id='         must match definition in etc/sipXalarms-config.xml

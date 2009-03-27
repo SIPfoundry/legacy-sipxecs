@@ -54,6 +54,7 @@ import javax.sip.message.Response;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.sipxbridge.symmitron.KeepaliveMethod;
+import org.sipfoundry.sipxbridge.symmitron.SymmitronException;
 import org.sipfoundry.sipxbridge.symmitron.SymmitronResetHandler;
 
 /**
@@ -431,6 +432,17 @@ class CallControlManager implements SymmitronResetHandler {
 				return;
 
 			}
+			
+			if ( Gateway.getGlobalAddress() == null ) {
+				logger.debug("Global address not available -- cannot process request");
+				Response response = SipUtilities.createResponse(
+						serverTransaction, Response.SERVICE_UNAVAILABLE);
+				response.setReasonPhrase("SIPXBRIDGE Unable to resolve public address using stun to " + 
+						Gateway.getBridgeConfiguration().getStunServerAddress());
+				serverTransaction.sendResponse(response);
+				return;
+
+			}
 
 			BackToBackUserAgent btobua;
 
@@ -473,6 +485,7 @@ class CallControlManager implements SymmitronResetHandler {
 
 				DialogContext.pairDialogs(dialog, peerDialog);
 
+				
 				b2bua.handleInviteWithReplaces(requestEvent, replacesDialog,
 						serverTransaction);
 				return;
@@ -527,7 +540,7 @@ class CallControlManager implements SymmitronResetHandler {
 				 */
 
 				toDomain = account.getSipDomain();
-
+				
 				/*
 				 * Send the call setup invite out.
 				 */
@@ -624,20 +637,7 @@ class CallControlManager implements SymmitronResetHandler {
 		} catch (Exception ex) {
 			logger.error("Internal error processing request ", ex);
 			try {
-				Response response = ProtocolObjects.messageFactory
-						.createResponse(Response.SERVER_INTERNAL_ERROR, request);
-				if (logger.isDebugEnabled()) {
-					response.setReasonPhrase(ex.getStackTrace()[0]
-							.getFileName()
-							+ ":" + ex.getStackTrace()[0].getLineNumber());
-				}
-
-				if (st != null) {
-					st.sendResponse(response);
-				} else {
-					provider.sendResponse(response);
-				}
-
+				CallControlUtilities.sendInternalError(st, ex);
 			} catch (Exception e) {
 				throw new SipXbridgeException("Check gateway configuration", e);
 			}
@@ -746,7 +746,18 @@ class CallControlManager implements SymmitronResetHandler {
 			// This should never happen
 			logger.fatal("Internal error constructing message ", ex);
 			throw new SipXbridgeException("Internal error", ex);
-
+			
+		} catch (SymmitronException ex) {
+			logger.error("An error occured talking to sipxrelay ", ex);
+			logger.error("Unexpected exception while processing REFER", ex);
+			if (tad != null) {
+				ServerTransaction serverTransaction = tad
+						.getServerTransaction();
+				CallControlUtilities.sendServiceUnavailableError(serverTransaction, ex);
+			}
+			if (btobua != null) {
+				btobua.tearDown();
+			}
 		} catch (InvalidArgumentException ex) {
 			logger.fatal("Internal error -- invalid argument", ex);
 			throw new SipXbridgeException("Internal error", ex);

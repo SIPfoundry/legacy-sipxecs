@@ -81,9 +81,9 @@ public class SipXbridgeXmlRpcServerImpl implements SipXbridgeXmlRpcServer {
 					String[] cypherSuites = ((SSLServerSocket) sslListener
 							.getServerSocket()).getSupportedCipherSuites();
 
-					for (String suite : cypherSuites) {
-						logger.info("Cypher Suites enabled : " + suite);
-					}
+					//for (String suite : cypherSuites) {
+					//	logger.info("Cypher Suites enabled : " + suite);
+					//}
 
 					((SSLServerSocket) sslListener.getServerSocket())
 							.setEnabledCipherSuites(cypherSuites);

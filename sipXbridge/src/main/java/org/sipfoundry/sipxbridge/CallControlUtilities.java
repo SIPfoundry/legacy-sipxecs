@@ -19,6 +19,7 @@ import javax.sip.message.Request;
 import javax.sip.message.Response;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.sipxbridge.symmitron.SymmitronException;
 
 /**
  * Utility functions to send various requests and error responses.
@@ -32,15 +33,13 @@ public class CallControlUtilities {
             Request request = st.getRequest();
             Response response = ProtocolObjects.messageFactory.createResponse(
                     Response.SERVER_INTERNAL_ERROR, request);
-            if (CallControlManager.logger.isDebugEnabled()) {
-                String message = "Exception occured at " + ex.getMessage() + " at "
+            if (CallControlManager.logger.isInfoEnabled()) {
+                String message = "Exception Info " + ex.getMessage() + " at "
                         + ex.getStackTrace()[0].getFileName() + ":"
                         + ex.getStackTrace()[0].getLineNumber();
-
-                response.setReasonPhrase(message);
-            } else {
-                response.setReasonPhrase(ex.getCause().getMessage());
-            }
+                SipUtilities.addSipFrag(response,message);
+               
+            } 
             st.sendResponse(response);
 
         } catch (Exception e) {
@@ -52,12 +51,13 @@ public class CallControlUtilities {
         try {
 
             Response response = SipUtilities.createResponse(st, Response.BAD_REQUEST);
-            if (CallControlManager.logger.isDebugEnabled()) {
-                String message = "Exception occured at " + ex.getMessage() + " at "
+            if (CallControlManager.logger.isInfoEnabled()) {
+                String message = "Exception Info " + ex.getMessage() + " at "
                         + ex.getStackTrace()[0].getFileName() + ":"
                         + ex.getStackTrace()[0].getLineNumber();
-
-                response.setReasonPhrase(message);
+               
+                SipUtilities.addSipFrag(response,message);
+        
             }
             st.sendResponse(response);
 
@@ -65,7 +65,30 @@ public class CallControlUtilities {
             throw new SipXbridgeException("Check gateway configuration", e);
         }
     }
+    
+    
+    public static void sendServiceUnavailableError(
+			ServerTransaction serverTransaction, Exception ex) {
+	
+    	 try {
 
+             Response response = SipUtilities.createResponse(serverTransaction, Response.SERVICE_UNAVAILABLE);
+             if (CallControlManager.logger.isInfoEnabled()) {        	 
+                 String message = "Exception Info " + ex.getMessage() + " at "
+                         + ex.getStackTrace()[0].getFileName() + ":"
+                         + ex.getStackTrace()[0].getLineNumber();
+                 SipUtilities.addSipFrag(response,message);
+                 response.setReasonPhrase(ex.getMessage());
+             } else {
+            	response.setReasonPhrase(ex.getMessage());
+             }
+             serverTransaction.sendResponse(response);
+
+         } catch (Exception e) {
+             throw new SipXbridgeException("Check gateway configuration", e);
+         }
+	}
+    
     /**
      * Sends an in-dialog SDP Offer to the peer of this dialog.
      * 
@@ -232,5 +255,7 @@ public class CallControlUtilities {
         }
 
     }
+
+	
 
 }

@@ -121,6 +121,30 @@
                  email="true"
                  />
       </alarm>
+      <alarm id="SIPX_BRIDGE_AUTHENTICATION_FAILED">
+         <code>SPX00017</code>
+         <severity>crit</severity>
+         <component>sipXbridge</component>
+         <action log="true"
+                 email="true"
+                 />
+      </alarm>
+      <alarm id="SIPX_BRIDGE_OPERATION_TIMED_OUT">
+         <code>SPX00018</code>
+         <severity>crit</severity>
+         <component>sipXbridge</component>
+         <action log="true"
+                 email="true"
+                 />
+      </alarm>
+      <alarm id="SIPX_BRIDGE_ACCOUNT_OK">
+         <code>SPX00019</code>
+         <severity>info</severity>
+         <component>sipXbridge</component>
+         <action log="true"
+                 email="true"
+                 />
+      </alarm>
 
       <!-- Add new alarms above this line.
           Remember to add strings into meta/alarms/sipXalarms-strings.xml also.
