@@ -33,6 +33,8 @@ import org.springframework.context.ApplicationEventPublisherAware;
 public class SipxReplicationContextImpl implements ApplicationEventPublisherAware, BeanFactoryAware,
         SipxReplicationContext {
 
+    private static final String IGNORE_REPLICATION_MESSAGE = "In initialization phase, ignoring request to replicate ";
+
     private static final Log LOG = LogFactory.getLog(SipxReplicationContextImpl.class);
 
     private BeanFactory m_beanFactory;
@@ -44,6 +46,10 @@ public class SipxReplicationContextImpl implements ApplicationEventPublisherAwar
     private ConfigurationFile m_validUsersConfig;
 
     public void generate(DataSet dataSet) {
+        if (inInitializationPhase()) {
+            LOG.debug(IGNORE_REPLICATION_MESSAGE + dataSet.getName());
+            return;
+        }
         String beanName = dataSet.getBeanName();
         final DataSetGenerator generator = (DataSetGenerator) m_beanFactory
                 .getBean(beanName, DataSetGenerator.class);
@@ -67,11 +73,21 @@ public class SipxReplicationContextImpl implements ApplicationEventPublisherAwar
     }
 
     public void replicate(ConfigurationFile file) {
+        if (inInitializationPhase()) {
+            LOG.debug(IGNORE_REPLICATION_MESSAGE + file.getName());
+            return;
+        }
+        
         Location[] locations = m_locationsManager.getLocations();
         replicateWorker(locations, file);
     }
 
     public void replicate(Location location, ConfigurationFile file) {
+        if (inInitializationPhase()) {
+            LOG.debug(IGNORE_REPLICATION_MESSAGE + file.getName());
+            return;
+        }
+        
         Location[] locations = new Location[] {
             location
         };
@@ -117,6 +133,15 @@ public class SipxReplicationContextImpl implements ApplicationEventPublisherAwar
                 m_jobContext.failure(jobId, null, null);
             }
         }
+    }
+    
+    private boolean inInitializationPhase() {
+        String initializationPhase = System.getProperty("sipxconfig.initializationPhase");
+        if (initializationPhase == null) {
+            return false;
+        }
+        
+        return Boolean.parseBoolean(initializationPhase);
     }
 
     interface ReplicateWork {

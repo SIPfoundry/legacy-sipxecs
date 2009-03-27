@@ -38,6 +38,6 @@ public interface AdminContext {
     /**
      * @return true if this is an upgrade/data init run, and *not* a real sipXconfig run
      */
-    boolean inUpgradePhase();
+    boolean inInitializationPhase();
 
 }

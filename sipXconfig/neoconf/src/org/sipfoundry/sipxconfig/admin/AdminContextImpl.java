@@ -134,9 +134,12 @@ public abstract class AdminContextImpl extends HibernateDaoSupport implements Ad
         m_beanFactory = beanFactory;
     }
 
-    public boolean inUpgradePhase() {
-        // HACK: need to find a better way of finding out if this is upgrade or normal (tapestry)
-        // for now we are assuming that "tapestry" bean is not available during upgrade run
-        return !m_beanFactory.containsBean("tapestry");
+    public boolean inInitializationPhase() {
+        String initializationPhase = System.getProperty("sipxconfig.initializationPhase");
+        if (initializationPhase == null) {
+            return false;
+        }
+        
+        return Boolean.parseBoolean(initializationPhase);
     }
 }

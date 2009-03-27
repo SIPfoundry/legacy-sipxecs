@@ -103,7 +103,7 @@ public class FirstRunTask implements ApplicationListener {
             // only interested in init events
             return;
         }
-        if (m_adminContext.inUpgradePhase()) {
+        if (m_adminContext.inInitializationPhase()) {
             LOG.debug("In upgrade phase - skipping initialization");
             // only process this task during normal phase
             return;

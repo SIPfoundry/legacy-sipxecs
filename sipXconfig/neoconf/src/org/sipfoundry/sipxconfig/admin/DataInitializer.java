@@ -27,6 +27,9 @@ public class DataInitializer implements SystemTaskEntryPoint, ApplicationContext
     private ApplicationContext m_app;
 
     public void runSystemTask(String[] args) {
+        // set system property to prevent replication during initialization tasks
+        System.setProperty("sipxconfig.initializationPhase", "true");
+        
         String[] tasks = m_adminContext.getInitializationTasks();
         for (String task : tasks) {
             initializeData(task);

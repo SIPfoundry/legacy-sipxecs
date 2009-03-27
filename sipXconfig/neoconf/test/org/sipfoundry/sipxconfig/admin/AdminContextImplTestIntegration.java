@@ -47,7 +47,12 @@ public class AdminContextImplTestIntegration extends IntegrationTestCase {
     }
 
     public void testInUpgradePhase() {
-        assertTrue(m_adminContext.inUpgradePhase());
+        assertFalse(m_adminContext.inInitializationPhase());
+    
+        System.setProperty("sipxconfig.initializationPhase", "true");
+        assertTrue(m_adminContext.inInitializationPhase());
+        
+        System.clearProperty("sipxconfig.initializationPhase");
     }
 
     public void testStoreLocalBackupPlan() {
