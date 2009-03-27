@@ -38,6 +38,7 @@ public class InternetCallingTestUi extends WebTestCase {
 
     public void testDisplayEdit() throws Exception {
         SiteTestHelper.assertNoException(tester);
+        assertCheckboxPresent("sbc:enabled");
         assertButtonPresent("internetCalling:apply");
         assertLinkNotPresent("sbc:add");
         assertElementNotPresent("sbc:list");
@@ -48,8 +49,12 @@ public class InternetCallingTestUi extends WebTestCase {
         assertLinkPresent("sbc:add");
         assertElementPresent("sbc:list");
         clickButton("internetCalling:apply");
+        SiteTestHelper.assertNoUserError(tester);
 
-        // it's going to fails since SBC address is needed
+        checkCheckbox("sbc:enabled");
+        clickButton("internetCalling:apply");
+
+        // it's going to fail since "Enable Internet Calling" is checked and SBC address is needed
         SiteTestHelper.assertUserError(tester);
 
         SiteTestHelper.selectOption(tester, "sbcDeviceSelect", "Unmanaged SBC");

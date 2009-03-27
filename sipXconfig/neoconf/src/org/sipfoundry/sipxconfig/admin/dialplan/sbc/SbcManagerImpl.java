@@ -17,6 +17,9 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.nattraversal.NatTraversal;
+import org.sipfoundry.sipxconfig.nattraversal.NatTraversalManager;
+import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Required;
@@ -30,6 +33,10 @@ public class SbcManagerImpl extends HibernateDaoSupport implements SbcManager, B
     private BeanFactory m_beanFactory;
 
     private DialPlanActivationManager m_dialPlanActivationManager;
+
+    private NatTraversalManager m_natTraversalManager;
+
+    private ServiceConfigurator m_serviceConfigurator;
 
     public DefaultSbc loadDefaultSbc() {
         List sbcs = getHibernateTemplate().loadAll(DefaultSbc.class);
@@ -53,6 +60,8 @@ public class SbcManagerImpl extends HibernateDaoSupport implements SbcManager, B
     public void saveSbc(Sbc sbc) {
         getHibernateTemplate().saveOrUpdate(sbc);
         m_dialPlanActivationManager.replicateDialPlan(true);
+        NatTraversal nat = m_natTraversalManager.getNatTraversal();
+        nat.activate(m_serviceConfigurator);
     }
 
     public AuxSbc loadSbc(Integer sbcId) {
@@ -76,12 +85,24 @@ public class SbcManagerImpl extends HibernateDaoSupport implements SbcManager, B
         m_domainManager = domainManager;
     }
 
+    @Required
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = beanFactory;
     }
 
+    @Required
     public void setDialPlanActivationManager(DialPlanActivationManager dialPlanActivationManager) {
         m_dialPlanActivationManager = dialPlanActivationManager;
+    }
+
+    @Required
+    public void setNatTraversalManager(NatTraversalManager natTraversalManager) {
+        m_natTraversalManager = natTraversalManager;
+    }
+
+    @Required
+    public void setServiceConfigurator(ServiceConfigurator serviceConfigurator) {
+        m_serviceConfigurator = serviceConfigurator;
     }
 
     protected SbcRoutes createDefaultSbcRoutes() {

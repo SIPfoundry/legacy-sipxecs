@@ -6,6 +6,8 @@
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="domainManager" ref="domainManager" />
     <property name="dialPlanActivationManager" ref="dialPlanActivationManager" />
+    <property name="natTraversalManager" ref="natTraversalManager" />
+    <property name="serviceConfigurator" ref="serviceConfigurator" />
   </bean>
 
   <bean id="sbcManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

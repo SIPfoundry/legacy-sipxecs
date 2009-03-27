@@ -70,7 +70,7 @@ public abstract class InternetCalling extends BasePage implements PageBeginRende
 
     private void saveValid() {
         Sbc sbc = getSbc();
-        if (getSelectedSbcDevice() == null) {
+        if (getSelectedSbcDevice() == null && sbc.isEnabled()) {
             throw new UserException(getMessages().getMessage("error.requiredSbc"));
         }
         sbc.setSbcDevice(getSelectedSbcDevice());
