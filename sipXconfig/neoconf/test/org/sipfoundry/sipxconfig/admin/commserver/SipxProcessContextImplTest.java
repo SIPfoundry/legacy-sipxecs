@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
 
@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.easymock.EasyMock;
+import org.easymock.internal.matchers.ArrayEquals;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command;
 import org.sipfoundry.sipxconfig.service.SipxAcdService;
 import org.sipfoundry.sipxconfig.service.SipxMediaService;
@@ -38,6 +39,7 @@ import static org.easymock.EasyMock.createStrictMock;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.reportMatcher;
 import static org.easymock.EasyMock.verify;
 import static org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status.Disabled;
 import static org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status.Failed;
@@ -300,8 +302,8 @@ public class SipxProcessContextImplTest extends TestCase {
                 m_presenceService, m_proxyService);
 
         ProcessManagerApi api = createMock(ProcessManagerApi.class);
-        api.restart(host(), asArray(m_proxyService.getProcessName(), m_mediaService.getProcessName()), block());
-        expectLastCall().andReturn(null);
+        api.restart(host(), asArrayElems("MediaServer", "SIPXProxy"), block());
+        expectLastCall().andReturn(null).once();
 
         ApiProvider provider = createMock(ApiProvider.class);
         provider.getApi(location.getProcessMonitorUrl());
@@ -312,7 +314,12 @@ public class SipxProcessContextImplTest extends TestCase {
         m_processContextImpl.setProcessManagerApiProvider(provider);
         m_processContextImpl.setSipxServiceManager(serviceManager);
 
+        // no service marked
+        m_processContextImpl.restartMarkedServices(location);
         m_processContextImpl.markServicesForRestart(Arrays.asList(m_proxyService, m_mediaService));
+        // different location
+        m_processContextImpl.restartMarkedServices(m_locationsManager.getLocations()[1]);
+        // this is is only call that should result in restarting services
         m_processContextImpl.restartMarkedServices(location);
 
         verify(provider, api);
@@ -322,11 +329,36 @@ public class SipxProcessContextImplTest extends TestCase {
         return aryEq(items);
     }
 
+    static <T> T[] asArrayElems(T... items) {
+        reportMatcher(new ArrayElementsEquals(items));
+        return null;
+    }
+
     static String host() {
         return eq("sipx.example.org");
     }
 
     static boolean block() {
         return eq(true);
+    }
+
+    static private class ArrayElementsEquals extends ArrayEquals {
+        public ArrayElementsEquals(Object expected) {
+            super(expected);
+        }
+
+        @Override
+        public boolean matches(Object actual) {
+            Object expected = getExpected();
+
+            if (expected instanceof Object[] && (actual == null || actual instanceof Object[])) {
+                Set expectedSet = new HashSet(Arrays.asList((Object[]) expected));
+                Set actualSet = new HashSet(Arrays.asList((Object[]) actual));
+
+                return expectedSet.equals(actualSet);
+            }
+            return super.matches(actual);
+
+        }
     }
 }
