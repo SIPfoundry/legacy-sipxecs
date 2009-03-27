@@ -179,6 +179,11 @@ public class BridgeSbc extends SbcDevice {
         public String getLogDirectory() {
             return m_defaults.getLogDirectory() + "/";
         }
+
+        @SettingEntry(path = "bridge-configuration/stun-server-address")
+        public String getStunServerAddress() {
+            return m_natLocation.getStunAddress();
+        }
     }
 
     @Override

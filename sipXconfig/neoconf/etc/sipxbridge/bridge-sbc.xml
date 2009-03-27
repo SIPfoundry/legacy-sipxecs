@@ -63,13 +63,8 @@
     <setting name="sipx-proxy-domain" hidden="yes">
       <description>The sipXecs proxy domain.</description>
     </setting>
-    <setting name="stun-server-address">
-      <label>STUN server</label>
-      <value>stun01.sipphone.com</value>
-      <description>
-        The STUN server address used to determine the public address of sipXbridge. If you enter a static public address
-        above, this field is ignored.
-      </description>
+    <setting name="stun-server-address" hidden="yes">
+      <!-- set from NAT location data -->
     </setting>
     <setting name="sip-keepalive-seconds" advanced="yes">
       <label>Signaling keep-alive interval</label>
