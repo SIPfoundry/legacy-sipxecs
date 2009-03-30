@@ -756,7 +756,7 @@ generatePKCSPackage()
     ${openssl} x509 -in    "${serverName}${restrictionName}.crt" |
     $KeyTool -import -noprompt -alias "${aliasName}" \
                         -keystore "$TrustStore"  \
-			-trustcacerts \
+                        -trustcacerts \
                         -storepass "$Password" > /dev/null || exit 1
     echo "______________________________________________________________________"
     echo ""
@@ -806,7 +806,7 @@ updatePrimaryServerTrustStore() {
     ${openssl} x509 -in    "${serverName}${restrictionName}.crt" |
     $KeyTool -import -noprompt -alias "${aliasName}" \
                         -keystore "$myTrustStore"  \
-			-trustcacerts \
+                        -trustcacerts \
                         -storepass "$Password" > /dev/null || exit 1
 }
 
