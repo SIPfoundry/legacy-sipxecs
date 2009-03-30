@@ -257,6 +257,12 @@
     scope="prototype" parent="serviceConfigurationFile">
     <property name="template" value="sipxcallresolver/callresolver-config.vm" />
     <property name="name" value="callresolver-config" />
+    <property name="locationsManager" ref="locationsManager" />
+  </bean>
+
+  <bean id="sipxCallResolverDaoListener" class="org.sipfoundry.sipxconfig.service.SipxCallResolverDaoListener">
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="serviceConfigurator" ref="serviceConfigurator" />
   </bean>
 
   <bean id="sipxCallResolverAgentService" class="org.sipfoundry.sipxconfig.service.SipxCallResolverAgentService"

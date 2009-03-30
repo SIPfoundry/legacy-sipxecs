@@ -1,6 +1,7 @@
 package org.sipfoundry.sipxconfig.service;
 
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
@@ -12,9 +13,23 @@ import static org.easymock.EasyMock.verify;
 public class SipxCallResolverConfigurationTest extends SipxServiceTestBase {
 
     public void testWrite() throws Exception {
+        Location primary = new Location();
+        primary.setPrimary(true);
+        primary.setFqdn("localhost");
+        primary.setAddress("192.168.1.1");
+        primary.setName("primary");
+        Location secondary = new Location();
+        secondary.setPrimary(false);
+        secondary.setFqdn("remote.exampl.com");
+        secondary.setAddress("192.168.1.2");
+        secondary.setName("remote");
+
         LocationsManager locationManager = createMock(LocationsManager.class);
+
         locationManager.getPrimaryLocation();
-        expectLastCall().andReturn(createDefaultLocation());
+        expectLastCall().andReturn(primary).anyTimes();
+        locationManager.getLocations();
+        expectLastCall().andReturn(new Location[] { primary, secondary }).anyTimes();
 
         SipxCallResolverService callResolverService = new SipxCallResolverService();
         initCommonAttributes(callResolverService);
@@ -37,10 +52,13 @@ public class SipxCallResolverConfigurationTest extends SipxServiceTestBase {
 
         SipxCallResolverConfiguration out = new SipxCallResolverConfiguration();
         out.setSipxServiceManager(sipxServiceManager);
+        out.setLocationsManager(locationManager);
         out.setTemplate("sipxcallresolver/callresolver-config.vm");
 
         assertCorrectFileGeneration(out, "expected-callresolver-config");
 
         verify(locationManager, sipxServiceManager);
     }
+
+
 }
