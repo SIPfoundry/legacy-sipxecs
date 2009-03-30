@@ -8,6 +8,7 @@
     <property name="name" value="resource-lists.xml"/>
     <property name="coreContext" ref="coreContext" />
     <property name="speedDialManager" ref="speedDialManager" />
+    <property name="restartRequired" value="false" />
   </bean>
 
   <bean id="speedDialManager" class="org.springframework.aop.framework.ProxyFactoryBean"

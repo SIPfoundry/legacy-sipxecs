@@ -9,11 +9,15 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile;
+import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 
 import junit.framework.TestCase;
@@ -78,5 +82,38 @@ public class SipxServiceTest extends TestCase {
         assertTrue(bundles.contains(b1));
         assertFalse(bundles.contains(b2));
         assertTrue(bundles.contains(b3));
+    }
+
+    public void testGetConfigurations() {
+        SipxProxyService proxyService = new SipxProxyService();
+
+        assertTrue(proxyService.getConfigurations().isEmpty());
+        assertTrue(proxyService.getConfigurations(true).isEmpty());
+        assertTrue(proxyService.getConfigurations(false).isEmpty());
+
+        ConfigurationFile a = new DummyConfig("a", true);
+        ConfigurationFile b = new DummyConfig("b", false);
+        ConfigurationFile c = new DummyConfig("c", true);
+
+        proxyService.setConfigurations(Arrays.asList(a, b, c));
+        assertEquals(3, proxyService.getConfigurations().size());
+        assertEquals(3, proxyService.getConfigurations(false).size());
+        assertEquals(1, proxyService.getConfigurations(true).size());
+
+        assertSame(b, proxyService.getConfigurations(true).get(0));
+    }
+
+    static class DummyConfig extends AbstractConfigurationFile {
+        public DummyConfig(String name, boolean restartRequired) {
+            setName(name);
+            setRestartRequired(restartRequired);
+        }
+
+        public String getFileContent() {
+            return null;
+        }
+
+        public void write(Writer writer, Location location) throws IOException {
+        }
     }
 }

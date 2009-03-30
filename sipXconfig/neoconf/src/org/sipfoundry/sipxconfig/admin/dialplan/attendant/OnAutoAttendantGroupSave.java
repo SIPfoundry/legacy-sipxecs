@@ -38,7 +38,7 @@ class OnAutoAttendantGroupSave extends EntitySaveListener<Group> {
             // ignore newly saved group
             return;
         }
-        m_serviceConfigurator.replicateServiceConfig(m_sipxIvrService);
+        m_serviceConfigurator.replicateServiceConfig(m_sipxIvrService, true);
     }
 
     @Required

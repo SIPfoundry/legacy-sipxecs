@@ -28,8 +28,10 @@ public interface ServiceConfigurator {
 
     void replicateServiceConfig(SipxService service);
 
+    void replicateServiceConfig(SipxService service, boolean noRestartOnly);
+
     void replicateServiceConfig(Location locationToActivate, SipxService sipxService);
-    
+
     void replicateServiceConfig(Collection<SipxService> services);
 
     /**

@@ -109,6 +109,26 @@ public abstract class SipxService extends BeanWithSettings implements Model {
         return m_configurations;
     }
 
+    /**
+     * Returns a subset of configuration files for a service.
+     *
+     * @param safeOnly if true return only configurations that do not require restart
+     * @return collection of configuration files
+     */
+    public List< ? extends ConfigurationFile> getConfigurations(boolean safeOnly) {
+        List< ? extends ConfigurationFile> all = getConfigurations();
+        if (!safeOnly) {
+            return all;
+        }
+        List<ConfigurationFile> safe = new ArrayList<ConfigurationFile>();
+        for (ConfigurationFile configurationFile : all) {
+            if (!configurationFile.isRestartRequired()) {
+                safe.add(configurationFile);
+            }
+        }
+        return safe;
+    }
+
     public String getSipPort() {
         return m_sipPort;
     }

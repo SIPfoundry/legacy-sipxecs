@@ -17,6 +17,8 @@ public abstract class AbstractConfigurationFile implements ConfigurationFile {
 
     private String m_directory;
 
+    private boolean m_restartRequired = true;
+
     public final String getName() {
         return m_name;
     }
@@ -65,4 +67,13 @@ public abstract class AbstractConfigurationFile implements ConfigurationFile {
     public boolean isReplicable(Location location) {
         return true;
     }
+
+    public void setRestartRequired(boolean restartRequired) {
+        m_restartRequired = restartRequired;
+    }
+
+    public boolean isRestartRequired() {
+        return m_restartRequired;
+    }
+
 }

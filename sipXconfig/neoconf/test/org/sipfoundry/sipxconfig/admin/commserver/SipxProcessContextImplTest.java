@@ -17,8 +17,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.easymock.EasyMock;
-import org.easymock.internal.matchers.ArrayEquals;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command;
 import org.sipfoundry.sipxconfig.service.SipxAcdService;
 import org.sipfoundry.sipxconfig.service.SipxMediaService;
@@ -33,14 +31,15 @@ import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 
 import junit.framework.TestCase;
 
-import static org.easymock.EasyMock.aryEq;
 import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.createNiceMock;
 import static org.easymock.EasyMock.createStrictMock;
 import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.reportMatcher;
 import static org.easymock.EasyMock.verify;
+import static org.sipfoundry.sipxconfig.TestHelper.asArray;
+import static org.sipfoundry.sipxconfig.TestHelper.asArrayElems;
 import static org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status.Disabled;
 import static org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status.Failed;
 import static org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status.Running;
@@ -68,7 +67,7 @@ public class SipxProcessContextImplTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        m_locationsManager = EasyMock.createNiceMock(LocationsManager.class);
+        m_locationsManager = createNiceMock(LocationsManager.class);
         Location location = TestUtil.createDefaultLocation();
         SipxServiceBundle bundle = new SipxServiceBundle("primarySipRouter");
         bundle.setBeanName(bundle.getName());
@@ -113,12 +112,12 @@ public class SipxProcessContextImplTest extends TestCase {
         location2.setRegistered(true);
 
         m_locationsManager.getLocations();
-        EasyMock.expectLastCall().andReturn(new Location[] {
+        expectLastCall().andReturn(new Location[] {
             location, location2
         }).anyTimes();
         m_locationsManager.getPrimaryLocation();
-        EasyMock.expectLastCall().andReturn(location).anyTimes();
-        EasyMock.replay(m_locationsManager);
+        expectLastCall().andReturn(location).anyTimes();
+        replay(m_locationsManager);
 
         m_processContextImpl = new SipxProcessContextImpl();
         m_processContextImpl.setLocationsManager(m_locationsManager);
@@ -325,40 +324,11 @@ public class SipxProcessContextImplTest extends TestCase {
         verify(provider, api);
     }
 
-    static <T> T[] asArray(T... items) {
-        return aryEq(items);
-    }
-
-    static <T> T[] asArrayElems(T... items) {
-        reportMatcher(new ArrayElementsEquals(items));
-        return null;
-    }
-
     static String host() {
         return eq("sipx.example.org");
     }
 
     static boolean block() {
         return eq(true);
-    }
-
-    static private class ArrayElementsEquals extends ArrayEquals {
-        public ArrayElementsEquals(Object expected) {
-            super(expected);
-        }
-
-        @Override
-        public boolean matches(Object actual) {
-            Object expected = getExpected();
-
-            if (expected instanceof Object[] && (actual == null || actual instanceof Object[])) {
-                Set expectedSet = new HashSet(Arrays.asList((Object[]) expected));
-                Set actualSet = new HashSet(Arrays.asList((Object[]) actual));
-
-                return expectedSet.equals(actualSet);
-            }
-            return super.matches(actual);
-
-        }
     }
 }

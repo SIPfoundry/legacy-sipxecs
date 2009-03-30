@@ -39,14 +39,6 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
         m_sipxProcessContext.manageServices(location, singleton(service), START);
     }
 
-    public void replicateServiceConfig(SipxService service) {
-        List< ? extends ConfigurationFile> configurations = service.getConfigurations();
-        for (ConfigurationFile configuration : configurations) {
-            m_replicationContext.replicate(configuration);
-        }
-        m_sipxProcessContext.markServicesForRestart(singleton(service));
-    }
-
     /**
      * Replicates the configuration for the service and sets configuration stamp once the
      * replication succeeds.
@@ -64,18 +56,41 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
 
     public void replicateServiceConfig(Collection<SipxService> services) {
         for (SipxService service : services) {
-            List< ? extends ConfigurationFile> configurations = service.getConfigurations();
-            for (ConfigurationFile configuration : configurations) {
-                m_replicationContext.replicate(configuration);
+            replicateServiceConfig(service);
+        }
+    }
+
+    public void replicateServiceConfig(SipxService service) {
+        replicateServiceConfig(service, false);
+    }
+
+    /**
+     * Same as replicateServiceConfig but allows to limit replication only for configuration files
+     * that do not require service restart.
+     */
+    public void replicateServiceConfig(SipxService service, boolean noRestartOnly) {
+        List< ? extends ConfigurationFile> configurations = service.getConfigurations(noRestartOnly);
+        replicateServiceConfig(service, configurations);
+    }
+
+    private void replicateServiceConfig(SipxService service, Collection< ? extends ConfigurationFile> configurations) {
+        boolean serviceRequiresRestart = false;
+        for (ConfigurationFile configuration : configurations) {
+            m_replicationContext.replicate(configuration);
+            if (configuration.isRestartRequired()) {
+                serviceRequiresRestart = true;
             }
+        }
+        if (serviceRequiresRestart) {
+            m_sipxProcessContext.markServicesForRestart(singleton(service));
         }
     }
 
     /**
      * Stops services that need to be stopped, replicates the configuration for the ones that need
      * to be started, set configuration stamps for newly replicated configuration and finally
-     * starts the services.
-     * Also restarts the services that need to be restarted as a result of profile generation.
+     * starts the services. Also restarts the services that need to be restarted as a result of
+     * profile generation.
      */
     public void enforceRole(Location location) {
         if (!location.isRegistered()) {

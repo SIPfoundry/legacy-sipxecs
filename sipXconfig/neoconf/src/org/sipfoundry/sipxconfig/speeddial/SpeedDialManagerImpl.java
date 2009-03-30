@@ -81,7 +81,7 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport<SpeedDial> imp
 
     public void activateResourceList() {
         SipxService rlsService = m_sipxServiceManager.getServiceByBeanId(SipxRlsService.BEAN_ID);
-        m_serviceConfigurator.replicateServiceConfig(rlsService);
+        m_serviceConfigurator.replicateServiceConfig(rlsService, true);
     }
 
     @Required

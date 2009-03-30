@@ -56,7 +56,8 @@ public abstract class EagerDialPlanActivationManager implements BeanFactoryAware
         ConfigGenerator generator = generateDialPlan();
         generator.activate(m_sipxReplicationContext);
         SipxService sipxIvrService = m_sipxServiceManager.getServiceByBeanId(SipxIvrService.BEAN_ID);
-        getServiceConfigurator().replicateServiceConfig(sipxIvrService);
+        getServiceConfigurator().replicateServiceConfig(sipxIvrService, true);
+
         pushAffectedProfiles(restartSbcDevices);
         notifyOnDialPlanGeneration();
     }

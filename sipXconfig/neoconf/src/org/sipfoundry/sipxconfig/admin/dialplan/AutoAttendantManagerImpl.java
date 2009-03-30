@@ -173,7 +173,7 @@ public abstract class AutoAttendantManagerImpl extends SipxHibernateDaoSupport i
 
     private void replicateConfig() {
         SipxService sipxIvrService = m_sipxServiceManager.getServiceByBeanId(SipxIvrService.BEAN_ID);
-        m_serviceConfigurator.replicateServiceConfig(sipxIvrService);
+        m_serviceConfigurator.replicateServiceConfig(sipxIvrService, true);
     }
 
     public AutoAttendant createOperator(String attendantId) {

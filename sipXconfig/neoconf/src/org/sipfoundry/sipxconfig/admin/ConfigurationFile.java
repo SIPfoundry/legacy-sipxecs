@@ -52,4 +52,13 @@ public interface ConfigurationFile {
      * @return true if the file can be replicated - false otherwise
      */
     boolean isReplicable(Location location);
+
+
+
+    /**
+     * Checks if a service need to be restarted when this configuration file is changed
+     *
+     * @return true if a service need to be restarted - false otherwise
+     */
+    boolean isRestartRequired();
 }

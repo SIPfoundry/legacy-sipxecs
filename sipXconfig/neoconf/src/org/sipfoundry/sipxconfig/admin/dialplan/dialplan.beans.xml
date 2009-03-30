@@ -295,6 +295,7 @@
     <property name="dialPlanContext" ref="dialPlanContext" />
     <property name="autoAttendantManager" ref="autoAttendantManager" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="restartRequired" value="false" />
   </bean>
 
   <bean id="attendantSaveDefaultGroup" class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.OnAutoAttendantGroupSave">

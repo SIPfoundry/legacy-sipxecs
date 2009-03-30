@@ -16,11 +16,13 @@ import java.io.InputStream;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.sql.DataSource;
-
-import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.velocity.app.VelocityEngine;
@@ -34,6 +36,8 @@ import org.dbunit.dataset.xml.XmlDataSet;
 import org.dbunit.operation.DatabaseOperation;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
+import org.easymock.internal.matchers.ArrayEquals;
+import org.easymock.internal.matchers.Equals;
 import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
@@ -52,6 +56,11 @@ import org.springframework.beans.factory.access.BeanFactoryReference;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
 import org.springframework.dao.DataIntegrityViolationException;
+
+import junit.framework.TestCase;
+
+import static org.easymock.EasyMock.aryEq;
+import static org.easymock.EasyMock.reportMatcher;
 
 /**
  * TestHelper: used for unit tests that need Spring instantiated
@@ -74,8 +83,7 @@ public final class TestHelper {
         // So we have to set this property instead of, or in addition to, the one above.
         // Fixes XCF-537: jdk dependency in DB unit tests, fails with jdk 1.4.2, works with jdk
         // 1.5.
-        System.setProperty("javax.xml.parsers.SAXParserFactory",
-                "org.apache.xerces.jaxp.SAXParserFactoryImpl");
+        System.setProperty("javax.xml.parsers.SAXParserFactory", "org.apache.xerces.jaxp.SAXParserFactoryImpl");
 
         // Activate log configuration on test/log4j.properties
         // System.setProperty("org.apache.commons.logging.Log",
@@ -302,6 +310,45 @@ public final class TestHelper {
         }
     }
 
+    public static class ArrayElementsEquals extends ArrayEquals {
+        public ArrayElementsEquals(Object expected) {
+            super(expected);
+        }
+
+        @Override
+        public boolean matches(Object actual) {
+            Object expected = getExpected();
+
+            if (expected instanceof Object[] && (actual == null || actual instanceof Object[])) {
+                Set expectedSet = new HashSet(Arrays.asList((Object[]) expected));
+                Set actualSet = new HashSet(Arrays.asList((Object[]) actual));
+
+                return expectedSet.equals(actualSet);
+            }
+            return super.matches(actual);
+
+        }
+    }
+
+    public static class CollectionEquals extends Equals {
+        public CollectionEquals(Object expected) {
+            super(expected);
+        }
+
+        @Override
+        public boolean matches(Object actual) {
+            Object expected = getExpected();
+
+            if (expected instanceof Collection && (actual == null || actual instanceof Collection)) {
+                Set expectedSet = new HashSet(((Collection) expected));
+                Set actualSet = new HashSet(((Collection) actual));
+
+                return expectedSet.equals(actualSet);
+            }
+            return super.matches(actual);
+        }
+    }
+
     /**
      * Use in test to create copy of example files to be changed by test methods.
      *
@@ -310,8 +357,7 @@ public final class TestHelper {
      * @param filename destination file name
      * @throws IOException
      */
-    public static final void copyStreamToDirectory(InputStream from, String dir, String filename)
-            throws IOException {
+    public static final void copyStreamToDirectory(InputStream from, String dir, String filename) throws IOException {
         FileOutputStream to = new FileOutputStream(new File(dir, filename));
         IOUtils.copy(from, to);
         IOUtils.closeQuietly(to);
@@ -328,5 +374,14 @@ public final class TestHelper {
     public static File getResourceAsFile(Class klass, String resource) {
         URL url = klass.getResource(resource);
         return new File(url.getFile());
+    }
+
+    public static <T> T[] asArrayElems(T... items) {
+        reportMatcher(new ArrayElementsEquals(items));
+        return null;
+    }
+
+    public static <T> T[] asArray(T... items) {
+        return aryEq(items);
     }
 }
