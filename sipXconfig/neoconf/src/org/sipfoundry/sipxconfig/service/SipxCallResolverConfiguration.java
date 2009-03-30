@@ -9,9 +9,14 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.VelocityContext;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.springframework.beans.factory.annotation.Required;
 
 public class SipxCallResolverConfiguration extends SipxServiceConfiguration {
 
@@ -23,30 +28,24 @@ public class SipxCallResolverConfiguration extends SipxServiceConfiguration {
         SipxService service = getService(SipxCallResolverService.BEAN_ID);
         context.put("settings", service.getSettings().getSetting("callresolver"));
         context.put("callresolverService", service);
-        context.put("callresolverHosts", getDistributedLocations(location));
+        int port = (Integer) service.getSettingTypedValue("callresolver/DATABASE_PORT");
+        context.put("callresolverHosts", getDistributedLocations(port));
         return context;
     }
 
-    private String getDistributedLocations(Location currentlocation) {
-        StringBuffer callresolverHosts = new StringBuffer();
-        Location[] allLocations = m_locationsManager.getLocations();
-        for (Location location : allLocations) {
-            if (location.isPrimary()) {
-                continue;
-            } else {
-                //Add the distributed system fqdn to the string.
-                if (callresolverHosts.length() == 0) {
-                    // string is empty.  Add the localhost first.
-                    callresolverHosts.append("localhost");
-                }
-
-                callresolverHosts.append(", ");
-                callresolverHosts.append(location.getFqdn() + ":5433");
-            }
+    private String getDistributedLocations(int port) {
+        SipxService callResolverAgent = getService(SipxCallResolverAgentService.BEAN_ID);
+        List<Location> agentLocations = m_locationsManager.getLocationsForService(callResolverAgent);
+        if (agentLocations.isEmpty()) {
+            return null;
         }
-
-        return callresolverHosts.toString();
-
+        List<String> callresolverHosts = new ArrayList<String>(agentLocations.size() + 1);
+        // represents primary location...
+        callresolverHosts.add("localhost");
+        for (Location location : agentLocations) {
+            callresolverHosts.add(String.format("%s:%d", location.getFqdn(), port));
+        }
+        return StringUtils.join(callresolverHosts, ", ");
     }
 
     @Override
@@ -54,6 +53,7 @@ public class SipxCallResolverConfiguration extends SipxServiceConfiguration {
         return getSipxServiceManager().isServiceInstalled(location.getId(), SipxCallResolverService.BEAN_ID);
     }
 
+    @Required
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
     }

@@ -70,5 +70,11 @@
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>
+    <setting name="DATABASE_PORT" hidden="yes">
+      <type>
+        <integer />
+      </type>
+      <value>5433</value>
+    </setting>
   </group>
 </model>
