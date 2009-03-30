@@ -233,26 +233,6 @@ public class SymmitronConfig {
 	}
 
 	public int getSipXSupervisorXmlRpcPort() {
-		try {
-			if (sipxSupervisorXmlRpcPort == 0) {
-				String configDir = SymmitronServer.getConfigDir();
-				String domainConfig = configDir + "/domain-config";
-				BufferedReader reader = new BufferedReader(new FileReader(
-						new File(domainConfig)));
-				String line = null;
-				while ((line = reader.readLine()) != null) {
-					String[] parts = line.split(":");
-					if (parts[0].trim().equals("SUPERVISOR_PORT")) {
-						sipxSupervisorXmlRpcPort = Integer.parseInt(parts[1]
-								.trim());
-					}
-				}
-			}
-		} catch (Exception ex) {
-			logger.error("Could not find sipXsupervisor port " + ex);
-			return 0;
-		}
-
 		return this.sipxSupervisorXmlRpcPort;
 	}
 
@@ -261,27 +241,6 @@ public class SymmitronConfig {
 	}
 
 	public String getSipXSupervisorHost() {
-		try {
-			/*
-			 * Stop gap -- will go away after sipxconfig gives us the required structures.
-			 */
-			if (sipxSupervisorHost == null) {
-				String configDir = SymmitronServer.getConfigDir();
-				String supervisorConfig = configDir + "/sipxsupervisor-config";
-				BufferedReader reader = new BufferedReader(new FileReader(
-						new File(supervisorConfig)));
-				String line = null;
-				while ((line = reader.readLine()) != null) {
-					String[] parts = line.split(":");
-					if (parts[0].trim().equals("SUPERVISOR_HOST")) {
-						sipxSupervisorHost = parts[1].trim();
-					}
-				}
-			}
-		} catch (Exception ex) {
-			logger.error("Could not find sipXsupervisor host " + ex);
-			return null;
-		}
 		return this.sipxSupervisorHost;
 	}
 

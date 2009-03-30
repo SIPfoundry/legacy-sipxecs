@@ -503,29 +503,12 @@ public class BridgeConfiguration {
         return sipSessionTimerIntervalSeconds;
     }
     
-   
-
+    public void setSipXSupervisorXmlRpcPort(int port) {
+        if ( port <= 0 ) throw new IllegalArgumentException("Port : " + port);
+        this.sipxSupervisorXmlRpcPort = port;
+    }
+    
 	public int getSipXSupervisorXmlRpcPort() {
-		try {
-			if (sipxSupervisorXmlRpcPort == 0) {
-				String configDir = Gateway.configurationPath;
-				String domainConfig = configDir + "/domain-config";
-				BufferedReader reader = new BufferedReader(new FileReader(
-						new File(domainConfig)));
-				String line = null;
-				while ((line = reader.readLine()) != null) {
-					String[] parts = line.split(":");
-					if (parts[0].trim().equals("SUPERVISOR_PORT")) {
-						sipxSupervisorXmlRpcPort = Integer.parseInt(parts[1]
-								.trim());
-					}
-				}
-			}
-		} catch (Exception ex) {
-			logger.error("Could not find sipXsupervisor port " + ex);
-			return 0;
-		}
-
 		return this.sipxSupervisorXmlRpcPort;
 	}
 
@@ -534,27 +517,6 @@ public class BridgeConfiguration {
 	}
 
 	public String getSipXSupervisorHost() {
-		try {
-			/*
-			 * Stop gap -- will go away after sipxconfig gives us the required structures.
-			 */
-			if (sipxSupervisorHost == null) {
-				String configDir = Gateway.configurationPath;
-				String supervisorConfig = configDir + "/sipxsupervisor-config";
-				BufferedReader reader = new BufferedReader(new FileReader(
-						new File(supervisorConfig)));
-				String line = null;
-				while ((line = reader.readLine()) != null) {
-					String[] parts = line.split(":");
-					if (parts[0].trim().equals("SUPERVISOR_HOST")) {
-						sipxSupervisorHost = parts[1].trim();
-					}
-				}
-			}
-		} catch (Exception ex) {
-			logger.error("Could not find sipXsupervisor host " + ex);
-			return null;
-		}
 		return this.sipxSupervisorHost;
 	}
 
