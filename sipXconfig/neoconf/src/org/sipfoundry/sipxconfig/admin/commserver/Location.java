@@ -34,7 +34,7 @@ import static org.apache.commons.lang.StringUtils.substringBefore;
 public class Location extends BeanWithId {
     // security role
     public static final String ROLE_LOCATION = "ROLE_LOCATION";
-    private static final int PROCESS_MONITOR_PORT = 8092;
+    public static final int PROCESS_MONITOR_PORT = 8092;
     private static final int SOFTWARE_ADMIN_PORT = 8092;
     private static final int HTTPS_SERVER_PORT = 8092;
     private static final int LOCATION_PASSWORD_LEN = 8;

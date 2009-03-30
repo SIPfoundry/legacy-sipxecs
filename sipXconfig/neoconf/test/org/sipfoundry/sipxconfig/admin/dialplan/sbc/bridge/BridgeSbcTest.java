@@ -61,6 +61,7 @@ public class BridgeSbcTest {
         Location location = new Location();
         location.setUniqueId();
         location.setAddress("98.65.1.5");
+        location.setFqdn("sipx.example.org");
         location.setNat(natLocation);
         expectLastCall().andReturn(location);
         replay(locationsManager);

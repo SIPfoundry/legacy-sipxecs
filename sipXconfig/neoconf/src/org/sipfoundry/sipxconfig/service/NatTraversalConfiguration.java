@@ -32,6 +32,7 @@ public class NatTraversalConfiguration extends SipxServiceConfiguration {
         context.put("natlocation", natLocation);
         context.put("service", getService(SipxRelayService.BEAN_ID));
         context.put("location", location);
+        context.put("xmlRpcPort", location.PROCESS_MONITOR_PORT);
         context.put("proxyService", getService(SipxProxyService.BEAN_ID));
 
         return context;

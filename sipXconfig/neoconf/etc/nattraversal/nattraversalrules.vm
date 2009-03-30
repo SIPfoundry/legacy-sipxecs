@@ -28,6 +28,8 @@
     <port-range>${natlocation.startRtpPort}:${natlocation.stopRtpPort}</port-range>
     <log-level>${relay.getSetting('SIP_RELAY_LOG_LEVEL').Value}</log-level>
     <log-directory>${service.logDir}</log-directory>
+    <sipx-supervisor-host>${location.fqdn}</sipx-supervisor-host>
+    <sipx-supervisor-xml-rpc-port>${xmlRpcPort}</sipx-supervisor-xml-rpc-port>
   </info>
   <localtopology>
 #foreach($subnet in ${routes.subnets})

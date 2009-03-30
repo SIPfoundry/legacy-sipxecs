@@ -63,6 +63,16 @@
     <setting name="sipx-proxy-domain" hidden="yes">
       <description>The sipXecs proxy domain.</description>
     </setting>
+    <setting name="sipx-supervisor-host" hidden="yes">
+      <!-- set from Location data -->
+    </setting>
+    <setting name="sipx-supervisor-xml-rpc-port" hidden="yes">
+      <!-- set from Location data -->
+	  <type>
+        <integer required="yes" />
+      </type>
+      <value>8092</value>
+    </setting>
     <setting name="stun-server-address" hidden="yes">
       <!-- set from NAT location data -->
     </setting>

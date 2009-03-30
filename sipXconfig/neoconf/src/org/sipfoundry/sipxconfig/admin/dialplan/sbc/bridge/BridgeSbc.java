@@ -184,6 +184,16 @@ public class BridgeSbc extends SbcDevice {
         public String getStunServerAddress() {
             return m_natLocation.getStunAddress();
         }
+
+        @SettingEntry(path = "bridge-configuration/sipx-supervisor-host")
+        public String getSipxSupervisorHost() {
+            return m_location.getFqdn();
+        }
+
+        @SettingEntry(path = "bridge-configuration/sipx-supervisor-xml-rpc-port")
+        public int getSipxSupervisorXmlRpcPort() {
+            return m_location.PROCESS_MONITOR_PORT;
+        }
     }
 
     @Override

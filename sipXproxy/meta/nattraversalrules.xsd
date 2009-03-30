@@ -55,6 +55,8 @@
         <element ref='dmp:log-level' minOccurs='0' maxOccurs='1'/>        
         <element ref='dmp:log-directory' minOccurs='0' maxOccurs='1'/>           
         <element ref='dmp:secureXMLRPC' minOccurs='0' maxOccurs='1'/>       
+        <element ref='dmp:sipx-supervisor-host' minOccurs='1' maxOccurs='1'/>
+        <element ref='dmp:sipx-supervisor-xml-rpc-port' minOccurs='1' maxOccurs='1'/>
       </all>
     </complexType>
   </element>
@@ -276,7 +278,33 @@
       </documentation>
     </annotation>
   </element>
-  
+
+  <element name='sipx-supervisor-host'>
+    <annotation>
+      <documentation>
+        FQDN of the server
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="normalizedString">
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name='sipx-supervisor-xml-rpc-port'>
+    <annotation>
+      <documentation>
+        Port to use to communicate with sipxsupvervisor over XML-RPC
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base='integer'>
+        <minInclusive value='1024'/>
+        <maxInclusive value='65535'/>
+      </restriction>
+    </simpleType>
+  </element>
+
   <element name='localtopology'>
     <annotation>
       <documentation>
