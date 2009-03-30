@@ -1,7 +1,7 @@
 /*
  *
  *
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * Copyright (C) 2008-2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
@@ -16,13 +16,15 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Locale;
 import java.util.ResourceBundle;
-import java.util.Vector;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.attendant.Configuration.AttendantConfig;
 import org.sipfoundry.sipxivr.Collect;
+import org.sipfoundry.sipxivr.DialByName;
+import org.sipfoundry.sipxivr.DialByNameChoice;
 import org.sipfoundry.sipxivr.FreeSwitchEventSocketInterface;
 import org.sipfoundry.sipxivr.Hangup;
+import org.sipfoundry.sipxivr.Localization;
 import org.sipfoundry.sipxivr.Play;
 import org.sipfoundry.sipxivr.PromptList;
 import org.sipfoundry.sipxivr.Sleep;
@@ -30,25 +32,27 @@ import org.sipfoundry.sipxivr.TextToPrompts;
 import org.sipfoundry.sipxivr.Transfer;
 import org.sipfoundry.sipxivr.User;
 import org.sipfoundry.sipxivr.ValidUsersXML;
+import org.sipfoundry.sipxivr.IvrChoice.IvrChoiceReason;
 
 
 public class Attendant {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
 
-    // Global store for resource bundles keyed by locale
+    // Global store for AutoAttendant resource bundles keyed by locale
+    private static final String RESOURCE_NAME="org.sipfoundry.attendant.AutoAttendant";
     private static HashMap<Locale, ResourceBundle> s_resourcesByLocale = new HashMap<Locale, ResourceBundle>();
 
     private org.sipfoundry.sipxivr.Configuration m_ivrConfig;
     private FreeSwitchEventSocketInterface m_fses;
     private String m_aaId;
     private String m_scheduleId;
-    private ResourceBundle m_attendantBundle;
     private AttendantConfig m_config;
     private Configuration m_attendantConfig;
     private Schedule m_schedule;
     private ValidUsersXML m_validUsers;
     private TextToPrompts m_ttp;
-    private Locale m_locale;
+    private String m_localeString;
+    private Localization m_loc;
 
     enum NextAction {
         repeat, exit, nextAttendant;
@@ -68,34 +72,13 @@ public class Attendant {
         this.m_fses = fses;
         this.m_aaId = parameters.get("attendant_id");
         this.m_scheduleId = parameters.get("schedule_id");
-        this.m_locale = Locale.US; // Default to good ol' US of A
 
         // Look for "locale" parameter
-        String localeString = parameters.get("locale");
-        if (localeString == null) {
+        m_localeString = parameters.get("locale");
+        if (m_localeString == null) {
             // Okay, try "lang" instead
-            localeString = parameters.get("lang");
+            m_localeString = parameters.get("lang");
         }
-
-        // A locale was passed in . Parse it into parts and find a Locale to match
-        if (localeString != null) {
-            String[] localeElements = localeString.split("[_-]"); // Use either _ or - as seperator
-            String lang = "";
-            String country = "";
-            String variant = "";
-            if (localeElements.length >= 3) {
-                variant = localeElements[2];
-            }
-            if (localeElements.length >= 2) {
-                country = localeElements[1];
-            }
-            if (localeElements.length >= 1) {
-                lang = localeElements[0];
-            }
-
-            m_locale = new Locale(lang, country, variant);
-        }
-
     }
 
     /**
@@ -110,32 +93,8 @@ public class Attendant {
      */
     void loadConfig() {
         // Load the resources for the given locale.
-
-        // Check to see if we've loaded this one before...
-        synchronized (s_resourcesByLocale) {
-            m_attendantBundle = s_resourcesByLocale.get(m_locale);
-            if (m_attendantBundle == null) {
-                // Nope. Find the on disk version, and keep it for next time.
-                m_attendantBundle = ResourceBundle.getBundle(
-                        "org.sipfoundry.attendant.AutoAttendant", m_locale);
-                s_resourcesByLocale.put(m_locale, m_attendantBundle);
-            }
-        }
-
-        // Find the TextToPrompt class as well
-        m_ttp = TextToPrompts.getTextToPrompt(m_locale);
-        // Tell it where to find the audio files
-        String globalPrefix = m_attendantBundle.getString("global.prefix");
-        LOG.debug("global.prefix originally "+globalPrefix) ;
-        if (!globalPrefix.startsWith("/")) {
-        	String docDir = m_ivrConfig.getDocDirectory();
-        	if (!docDir.endsWith("/")) {
-        		docDir += "/";
-        	}
-        	globalPrefix = docDir + globalPrefix;
-        }
-        LOG.info("global.prefix is "+globalPrefix) ;
-        m_ttp.setPrefix(globalPrefix);
+        m_loc = new Localization(RESOURCE_NAME, 
+                m_localeString, s_resourcesByLocale, m_ivrConfig, m_fses);
         
         // Load the attendant configuration
         m_attendantConfig = Configuration.update(true);
@@ -147,31 +106,6 @@ public class Attendant {
         m_schedule = m_attendantConfig.getSchedule(m_scheduleId) ;
     }
 
-    /**
-     * Helper function to get the PromptList from the bundle given a fragment name.
-     * 
-     * @param fragment
-     * @param vars
-     * @return The appropriate PromptList.
-     */
-    PromptList getPromptList(String fragment, String... vars) {
-        PromptList pl = new PromptList(m_attendantBundle, m_ivrConfig, m_ttp);
-        pl.addFragment(fragment, vars);
-        return pl;
-    }
-
-    /**
-     * Helper function to get a Player with a PromptList from the bundle given a fragment name.
-     * 
-     * @param fragment
-     * @param vars
-     * @return
-     */
-    Play getPlayer(String fragment, String... vars) {
-        Play p = new Play(m_fses);
-        p.setPromptList(getPromptList(fragment, vars));
-        return p;
-    }
 
     /**
      * Given an extension, convert to a full URL in this domain
@@ -191,34 +125,34 @@ public class Attendant {
      * 
      * @throws Throwable indicating an error or hangup condition.
      */
-    public void run() throws Throwable {
+    public void run() {
 
         String id = null;
 
-        if (m_attendantBundle == null) {
+        if (m_loc == null) {
             loadConfig();
         }
 
         if (m_aaId == null) {
             Date now = Calendar.getInstance().getTime();
             if (m_schedule != null) {
-                LOG.info(String.format("Attendant determined from schedule %s", m_schedule.getId()));
+                LOG.info(String.format("Attendant::run Attendant determined from schedule %s", m_schedule.getId()));
                 // load the organizationprefs.xml file every time
                 // (as it may change without warning
                 m_schedule.loadPrefs(m_ivrConfig.getOrganizationPrefs());
             	id = m_schedule.getAttendant(now);
             } else {
-                LOG.error(String.format("Cannot find schedule %s in autoattendants.xml.", 
+                LOG.error(String.format("Attendant::run Cannot find schedule %s in autoattendants.xml.", 
                 	m_scheduleId != null ?m_scheduleId : "null")) ;
             }
             if (id == null) {
-                LOG.error("Cannot determine which attendant to use from schedule.") ;
+                LOG.error("Attendant::run Cannot determine which attendant to use from schedule.") ;
             } else {
-                LOG.info(String.format("Attendant %s selected", id));
+                LOG.info(String.format("Attendant::run Attendant %s selected", id));
             }
         } else {
             id = m_aaId;
-            LOG.info(String.format("Attendant %s determined from URL parameter", id));
+            LOG.info(String.format("Attendant::run Attendant %s determined from URL parameter", id));
         }
 
         // Wait it bit so audio doesn't start too fast
@@ -236,46 +170,43 @@ public class Attendant {
      * 
      * @param id The id of the attendant.
      * @return The id of the next attendant, or null if there is no next.
-     * @throws Throwable indicating an error or hangup condition.
      */
-    String attendant(String id) throws Throwable {
+    String attendant(String id){
         String nextAttendant = null;
 
         // Find the configuration for the named attendant
         m_config = m_attendantConfig.getAttendant(id);
 
         if (m_config == null) {
-            LOG.error(String.format("Unable to determine which configuration to use from (%s)",
+            LOG.error(String.format("Attendant::attendant Unable to determine which configuration to use from (%s)",
                     id));
             return null;
         }
 
-        LOG.info("Starting attendant id " + id +" (" + m_config.getName() + ") in locale " + m_locale);
+        LOG.info("Attendant::attendant Starting attendant id " + id +" (" + m_config.getName() + ") in locale " + m_loc.getLocale());
 
         String digits;
         int invalidCount = 0;
         int timeoutCount = 0;
         for (;;) {
             // Check for a failure condition
-            if (invalidCount >= m_config.getInvalidResponseCount()
-                    || timeoutCount >= m_config.getNoInputCount()) {
+            if (invalidCount > m_config.getInvalidResponseCount()
+                    || timeoutCount > m_config.getNoInputCount()) {
                 failure();
                 break;
             }
 
             // Play the initial prompt, or main menu.
-            Play p = null;
+            PromptList pl = null;
             if (m_config.getPrompt() != null && !m_config.getPrompt().contentEquals("")) {
                 // Override default main menu prompts with user recorded one
-                p = new Play(m_fses);
-                PromptList pl = new PromptList();
+                pl = m_loc.getPromptList();
                 pl.addPrompts(m_config.getPrompt());
-                p.setPromptList(pl);
             } else {
                 // Use default menu
-                p = getPlayer("main_menu");
+                pl = m_loc.getPromptList("main_menu");
             }
-            p.go();
+            m_loc.play(pl, "0123456789#");
 
             // Wait for the caller to enter a selection.
             Collect c = new Collect(m_fses, m_config.getMaximumDigits(), m_config.getInitialTimeout(),
@@ -283,7 +214,7 @@ public class Attendant {
             c.setTermChars("*#");
             c.go();
             digits = c.getDigits();
-            LOG.info("Collected digits=" + digits);
+            LOG.info("Attendant::attendant Collected digits=" + digits);
 
             // See if it timed out (no digits)
             if (digits.equals("")) {
@@ -316,7 +247,7 @@ public class Attendant {
                 continue;
             }
 
-            // None of the above...must be an extension
+            // None of the above...must be an extension.
             // For a nicer implementation, uncomment this
             // if (digits.length() >= 2)
             // but to match the original VoiceXML...
@@ -327,30 +258,27 @@ public class Attendant {
                 User user = m_validUsers.isValidUser(digits);
                 if (user != null) {
                     String uri = user.getUri();
-                    LOG.info(String.format("Transfer to extension %s (%s)", digits, uri));
+                    LOG.info(String.format("Attendant::attendant Transfer to extension %s (%s)", digits, uri));
                     // It's valid, transfer the call there.
                     transfer(uri);
                     break;
                 }
 
-                LOG.info("Extension " + digits + " is not valid");
-                Play pc2 = getPlayer("invalid_extension");
-
-                pc2.setDigitMask("");
-                pc2.go();
+                LOG.info("Attendant::attendant Extension " + digits + " is not valid");
+                // "That extension is not valid."
+                m_loc.play("invalid_extension", "");
                 invalidCount++;
                 continue;
             }
 
             // What they entered has no corresponding action.
-            LOG.info("Invalid entry");
-            Play e = getPlayer("invalid_entry");
-            e.setDigitMask("");
-            e.go();
+            LOG.info("Attendant::attendant Invalid entry "+digits);
+            // "Invalid entry.  Try again."
+            m_loc.play("invalid_entry", "");
             invalidCount++;
         }
 
-        LOG.info("Ending attendant " + m_config.getName());
+        LOG.info("Attendant::attendant Ending attendant " + m_config.getName());
         return nextAttendant;
     }
 
@@ -359,53 +287,68 @@ public class Attendant {
      * 
      * @param item
      * @return The next action to perform
-     * @throws Throwable
      */
-    NextAction doAction(AttendantMenuItem item) throws Throwable {
+    NextAction doAction(AttendantMenuItem item) {
         String dest;
         Transfer xfer;
         
         switch (item.getAction()) {
         case repeat_prompt: 
-            LOG.info("Repeat Prompt");
+            LOG.info("Attendant::doAction Repeat Prompt");
             return NextAction.repeat;
             
         case voicemail_access: 
             // Transfer to the voicemailUrl
             dest = m_ivrConfig.getVoicemailUrl();
-            LOG.info("Voicemail Access.  Transfer to " + dest);
+            LOG.info("Attendant::doAction Voicemail Access.  Transfer to " + dest);
             xfer = new Transfer(m_fses, dest);
             xfer.go();
             return NextAction.exit;
         
         case voicemail_deposit: {
             // Transfer to the specific extension's VM.
-            // Uses the internal ~~vm~xxxx user to do this.
-            dest = extensionToUrl("~~vm~"+item.getExtension()) ;
-            LOG.info("Voicemail Deposit.  Transfer to " + dest);
-            xfer = new Transfer(m_fses, dest);
-            xfer.go();
+            
+            // Lookup the extension (it may be an alias)
+            String extension = item.getExtension();
+            User u = m_validUsers.isValidUser(extension);
+            if (u != null) {
+                // Use the internal ~~vm~xxxx user to do this.
+                dest = extensionToUrl("~~vm~"+u.getUserName());
+                LOG.info("Attendant::doAction Voicemail Deposit.  Transfer to " + dest);
+                xfer = new Transfer(m_fses, dest);
+                xfer.go();
+            } else {
+                LOG.error("Attendant::doAction Voicemail Deposit cannot find user for extension "+extension);
+            }
             return NextAction.exit;
         }
         case dial_by_name: 
             // Enter the Dial By Name dialog.
-            LOG.info("Dial by Name");
-            if (dialByName()) {
+            LOG.info("Attendant::doAction Dial by Name");
+            DialByName dbn = new DialByName(m_loc, m_config, m_validUsers);
+            DialByNameChoice choice = dbn.dialByName() ;
+            if (choice.getIvrChoiceReason() == IvrChoiceReason.CANCELED) {
+                return NextAction.repeat;
+            }
+            User u = choice.getUser();
+            if (u == null) {
+                goodbye();
                 return NextAction.exit;
             }
+            LOG.info(String.format("Attendant::doAction Transfer to extension %s (%s)", u.getUserName(), u.getUri()));
+            transfer(u.getUri());
             return NextAction.repeat;
         
         case disconnect: 
-            LOG.info("Disconnect");
+            LOG.info("Attendant::doAction Disconnect");
             goodbye();
             return NextAction.exit;
         
         case operator: 
             // Transfer to the operator's address
             dest = m_ivrConfig.getOperatorAddr();
-            LOG.info("Operator.  Transfer to " + dest);
-            xfer = new Transfer(m_fses, dest);
-            xfer.go();
+            LOG.info("Attendant::doAction Operator.  Transfer to " + dest);
+            transfer(dest);
             return NextAction.exit;
         
         case transfer_out: 
@@ -418,15 +361,14 @@ public class Attendant {
                 // Assume it's an extension, and tack on "sip:" and @ourdomain
                 dest = extensionToUrl(extensionOrOther) ;
             }
-            LOG.info("Transfer Out.  Transfer to " + dest);
-            xfer = new Transfer(m_fses, dest);
-            xfer.go();
+            LOG.info("Attendant::doAction Transfer Out.  Transfer to " + dest);
+            transfer(dest);
             return NextAction.exit;
         
         case transfer_to_another_aa_menu: 
             // "Transfer" to another attendant. Not really a call transfer
-            // as it stays in this process. See run().
-            LOG.info("Transfer to attendant " + item.getParameter());
+            // as it stays in this thread. See run().
+            LOG.info("Attendant::doAction Transfer to attendant " + item.getParameter());
             return NextAction.nextAttendant;
         
         default:
@@ -438,12 +380,9 @@ public class Attendant {
      * Play the "please hold" prompt and then transfer.
      * 
      * @param uri
-     * @throws Throwable
      */
-    void transfer(String uri) throws Throwable {
-        Play pc2 = getPlayer("please_hold");
-        pc2.setDigitMask("");
-        pc2.go();
+    void transfer(String uri) {
+        m_loc.play("please_hold", "");
         Transfer xfer = new Transfer(m_fses, uri);
         xfer.go();
     }
@@ -465,202 +404,11 @@ public class Attendant {
     }
 
     /**
-     * Given the dialed digits "spelling" a user name, create a menu of matching users (up to 9)
-     * and have the caller enter one of the selections.
-     * 
-     * @param digits
-     * @return true if attendant should hangup
-     * @throws Throwable
-     */
-    boolean selectChoice(String digits) throws Throwable {
-        // Lookup the list of validUsers that match the DTMF digits
-        Vector<User> matches = m_validUsers.lookupDTMF(digits);
-
-        if (matches.size() == 0) {
-            // Indicate no match
-            Play p = getPlayer("nomatch");
-            p.setDigitMask("");
-            p.go();
-            return false;
-        }
-
-        /*
-         * This is an enhancement over the original vxml which will prompt even if only one
-         * matches. if (matches.size() == 1) { User u = matches.firstElement() ; transfer(u.uri);
-         * return true ; }
-         */
-
-        // Build a menu of the matched user's names.
-        // Limit the choices to the first 9 (or it gets too long)
-        PromptList pl = new PromptList(m_attendantBundle, m_ivrConfig, m_ttp);
-        int choices = matches.size();
-        if (choices > 9) {
-            choices = 9;
-        }
-        for (int i = 0; i < choices; i++) {
-            pl.addFragment("press_n_for", Integer.toString(i + 1));
-
-            User u = matches.get(i);
-            // Try to speak the user's recorded name
-            String recordedName = getRecordedName(u);
-            if (recordedName != null) {
-                pl.addPrompts(recordedName);
-            } else {
-                pl.addFragment("extension", u.getUserName());
-            }
-        }
-        pl.addFragment("enter_different_name");
-
-        // Dialog for the caller to enter one of the choices
-        int invalidCount = 0;
-        int timeoutCount = 0;
-        for (;;) {
-            /*
-             * This is an enhancement over the original VoiceXML As it is more consistant if
-             * (invalidCount >= config.invalidResponseCount || timeoutCount >=
-             * config.noInputCount) { failure() ; return true ; }
-             */
-
-            // This one matches existing VoiceXML
-            if (invalidCount >= 3 || timeoutCount >= 3) {
-                goodbye();
-                return true;
-            }
-
-            // Play the menu
-            Play p = new Play(m_fses, pl);
-            p.go();
-
-            // Wait for the caller to enter a digit
-            Collect c = new Collect(m_fses, 1, m_config.getInitialTimeout(), 0, 0);
-            c.setTermChars("*#");
-            c.go();
-            String choice = c.getDigits();
-            LOG.info("::selectChoice Collected digits=" + choice);
-
-            // See what they entered
-            if (choice.length() == 0) {
-                timeoutCount++;
-                continue;
-            }
-
-            if (choice.contentEquals("*")) {
-                p = getPlayer("canceled");
-                p.go();
-                return false;
-            }
-
-            if (choice.contentEquals("#")) {
-                p = getPlayer("no_entry_matches");
-                p.setDigitMask("");
-                p.go();
-                invalidCount = 0;
-                timeoutCount = 0;
-                continue;
-            }
-
-            if ("123456789".contains(choice)) {
-                int selected = Integer.parseInt(choice);
-                if (selected <= choices) {
-                    User u = matches.get(selected - 1);
-                    LOG.info(String.format("Transfer to extension %s (%s)", u.getUserName(), u.getUri()));
-                    transfer(u.getUri());
-                    return true;
-                }
-            }
-
-            p = getPlayer("no_entry_matches");
-            p.setDigitMask("");
-            p.go();
-            invalidCount = 0;
-            timeoutCount = 0;
-            continue;
-        }
-    }
-
-    /**
-     * The Dial by Name dialog.
-     * 
-     * Prompts the caller to enter digits that "spell" the name of the user.
-     * Collects the digits, then calls selectChoice() to see if it matches
-     * any of the valid user names.
-     * 
-     * @return true if attendant should hangup.
-     * @throws Throwable
-     */
-    boolean dialByName() throws Throwable {
-        int invalidCount = 0;
-        int timeoutCount = 0;
-        for (;;) {
-            /*
-             * 
-             * This is an enhancement over the original VoiceXML 
-               if (invalidCount >= config.invalidResponseCount || timeoutCount >= config.noInputCount) { 
-                  failure() ;
-                  return true ; 
-               }
-             */
-
-            // This one matches the existing VoiceXML
-            if (invalidCount >= 3 || timeoutCount >= 3) {
-                goodbye();
-                return true;
-            }
-
-            // Play the menu
-            Play p = getPlayer("dial_by_name");
-            p.go();
-
-            // Collect the digits from the caller.  Use the "*" and "#" keys as terminators
-            // There are a LONG (10 second) digit timers here, as spelling on the phone
-            // is difficult!  The "#" key will terminate any input if the caller is finished.
-            Collect c = new Collect(m_fses, 20, 10000, 10000, 2000);
-            c.setTermChars("*#");
-            c.go();
-            String digits = c.getDigits();
-            LOG.info("::dialByName Collected digits=" + digits);
-
-            // Timed out.  (No digits)
-            if (digits.length() == 0) {
-                ++timeoutCount;
-                continue;
-            }
-
-            if (digits.contentEquals("*")) {
-                p = getPlayer("canceled");
-                p.go();
-                return false;
-            }
-
-            if (digits.contentEquals("0") || digits.contentEquals("1")) {
-                // This is an enhancement over the original VoiceXML 
-                // if (++invalidCount < config.invalidResponseCount)
-                {
-                    p = getPlayer("invalid_try_again");
-                    p.setDigitMask("");
-                    p.go();
-                }
-                continue;
-            }
-
-            if (selectChoice(digits)) {
-                return true;
-            }
-
-            invalidCount = 0;
-            timeoutCount = 0;
-        }
-    }
-
-    /**
      * Say good bye and hangup.
      * 
-     * @throws Throwable
      */
-    void goodbye() throws Throwable {
-        Play p = getPlayer("goodbye");
-        p.setDigitMask("");
-        p.go();
+    void goodbye() {
+        m_loc.play("goodbye", "");
         Hangup h = new Hangup(m_fses);
         h.go();
     }
@@ -669,10 +417,9 @@ public class Attendant {
      * Perform the configured "failure" behavior, which can be either just hangup
      * or transfer to a destination after playing a prompt.
      * 
-     * @throws Throwable
      */
-    void failure() throws Throwable {
-        LOG.info("Input failure");
+    void failure() {
+        LOG.info("Attendant::failure");
 
         if (m_config.isTransferOnFailure()) {
             Play p = new Play(m_fses);
@@ -683,29 +430,28 @@ public class Attendant {
             
             String dest = m_config.getTransferURL();
             if (!dest.toLowerCase().contains("sip:")) {
-                LOG.error("transferUrl should be a sip: URL.  Assuming extension");
+                LOG.error("Attendant::failure transferUrl should be a sip: URL.  Assuming extension");
                 dest = extensionToUrl(dest) ;
             }
 
-            LOG.info("Transfer on falure to " + dest);
+            LOG.info("Attendant::failure Transfer on falure to " + dest);
             Transfer xfer = new Transfer(m_fses, dest);
             xfer.go();
         }
 
         // This is an enhancement over the original VoiceXML 
-        // goodbye() ;
+        goodbye() ;
 
-        // This one matches the existing VoiceXML
         Hangup h = new Hangup(m_fses);
         h.go();
     }
 
-    public ResourceBundle getAttendantBundle() {
-        return m_attendantBundle;
+    public Localization getLocalization() {
+        return m_loc;
     }
 
-    public void setAttendantBundle(ResourceBundle attendantBundle) {
-        m_attendantBundle = attendantBundle;
+    public void setLocalization(Localization localization) {
+        m_loc = localization;
     }
 
     public AttendantConfig getConfig() {

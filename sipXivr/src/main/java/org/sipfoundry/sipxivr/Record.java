@@ -1,13 +1,14 @@
 /*
  *
  *
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * Copyright (C) 2008-2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
  */
 package org.sipfoundry.sipxivr;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ListIterator;
 
@@ -19,7 +20,8 @@ public class Record extends CallCommand {
     private Break m_breaker;
     private String m_recordFile;
     private int m_recordTime; // in seconds
-
+    private String m_digits = "";
+    
     public Record(FreeSwitchEventSocketInterface fses) {
         super(fses);
     }
@@ -65,7 +67,7 @@ public class Record extends CallCommand {
     }
 
     @Override
-    public boolean start() throws Throwable {
+    public boolean start() {
         m_finished = false;
         m_stopped = false;
 
@@ -87,7 +89,7 @@ public class Record extends CallCommand {
         return m_finished;
     }
 
-    void nextPrompt() throws Throwable {
+    void nextPrompt() {
         if (m_iter != null && m_iter.hasNext()) {
             m_finished = false;
             String prompt = m_iter.next();
@@ -98,14 +100,21 @@ public class Record extends CallCommand {
         }
     }
 
-    void startRecord() throws Throwable {
-    	m_finished = false ;
-    	m_command = String.format("record\nexecute-app-arg: %s %d 200", m_recordFile, m_recordTime);
+    void startRecord() {
+        m_digits = "";
+        new Set(m_fses, "record_rate","8000").go();
+        new Set(m_fses, "playback_terminators", m_digitMask).go();
+    	m_stopped = true;
+    	m_command = String.format("record\nexecute-app-arg: %s %d 500 3", m_recordFile, m_recordTime);
     	super.start();
     }
-    
+
+    public String getDigits() {
+        return m_digits;
+    }
+
     @Override
-    public boolean handleEvent(FreeSwitchEvent event) throws Throwable {
+    public boolean handleEvent(FreeSwitchEvent event) {
         if (m_breaker != null) {
             // Feed event to breaker first, to see if it wants to handle it
             if (m_breaker.handleEvent(event)) {
@@ -117,12 +126,21 @@ public class Record extends CallCommand {
         if (event.getEventValue("Event-Name", "").contentEquals("DTMF")) {
             String encodedDigit = event.getEventValue("DTMF-Digit");
             assert (encodedDigit != null);
-            String digit = URLDecoder.decode(encodedDigit, "UTF-8");
+            String digit;
+            try {
+                digit = URLDecoder.decode(encodedDigit, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                LOG.error("Record::handleEvent cannot decode encoded DTMF digit "+encodedDigit, e);
+                digit = "";
+            }
             String duration = event.getEventValue("DTMF-Duration", "(Unknown)");
             LOG.debug(String.format("DTMF event %s %s", digit, duration));
             if (m_digitMask.contains(digit)) {
                 // Add digit to the DTMF queue
                 m_fses.appendDtmfQueue(digit);
+                
+               // Add digit to list of digits
+                m_digits += digit;
 
                 // No more prompts to play
                 m_stopped = true;

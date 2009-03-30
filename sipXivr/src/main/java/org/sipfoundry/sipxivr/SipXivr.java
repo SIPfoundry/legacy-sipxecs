@@ -1,7 +1,7 @@
 /*
  *
  *
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * Copyright (C) 2008-2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
@@ -40,7 +40,7 @@ public class SipXivr implements Runnable {
      * Otherwise, hang up.
      */
     public void run() {
-        LOG.debug("Starting SipXivr thread with client " + m_clientSocket);
+        LOG.debug("SipXivr::run Starting SipXivr thread with client " + m_clientSocket);
 
         try {
             m_fses = new FreeSwitchEventSocket(s_config);
@@ -65,7 +65,7 @@ public class SipXivr implements Runnable {
                 }
             }
             
-            LOG.info(String.format("Accepting call-id %s from %s to %s", 
+            LOG.info(String.format("SipXivr::run Accepting call-id %s from %s to %s", 
                     m_fses.getVariable("variable_sip_call_id"),
                     m_fses.getVariable("variable_sip_from_uri"),
                     m_fses.getVariable("variable_sip_req_uri")));
@@ -90,13 +90,10 @@ public class SipXivr implements Runnable {
 
             m_fses.invoke(new Hangup(m_fses));
 
+        } catch (DisconnectException e) {
+            LOG.info("SipXivr::run Far end hungup.");
         } catch (Throwable t) {
-            String message = t.getMessage();
-            if (message != null && message.equals("hangup")) {
-                LOG.info("Far end hungup.");
-            } else {
-                LOG.error("::run", t);
-            }
+            LOG.error("SipXivr::run", t);
         } finally {
             try {
                 m_fses.close();
@@ -105,7 +102,7 @@ public class SipXivr implements Runnable {
             }
         }
 
-        LOG.debug("Ending SipXivr thread with client " + m_clientSocket);
+        LOG.debug("SipXivr::run Ending SipXivr thread with client " + m_clientSocket);
     }
 
     /**

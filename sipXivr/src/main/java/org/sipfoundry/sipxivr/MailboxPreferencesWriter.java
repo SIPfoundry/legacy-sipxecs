@@ -7,7 +7,7 @@
  * 
  * $
  */
-package org.sipfoundry.voicemail;
+package org.sipfoundry.sipxivr;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -19,6 +19,7 @@ import org.dom4j.Element;
 import org.dom4j.QName;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
+import org.sipfoundry.voicemail.XmlWriterImpl;
 
 
 public class MailboxPreferencesWriter extends XmlWriterImpl<MailboxPreferences> {

@@ -12,14 +12,13 @@ package org.sipfoundry.voicemail;
 import java.io.File;
 
 import org.apache.log4j.Logger;
-import org.sipfoundry.sipxivr.FreeSwitchEventSocketInterface;
-import org.sipfoundry.sipxivr.Play;
+import org.sipfoundry.sipxivr.Mailbox;
+import org.sipfoundry.sipxivr.MailboxPreferences;
 import org.sipfoundry.sipxivr.PromptList;
 
 
-
 /**
- * 
+ * The greeting for this mailbox
  */
 public class Greeting {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
@@ -28,13 +27,12 @@ public class Greeting {
     private Mailbox m_mailbox;
 
     public Greeting(Mailbox mailbox) {
-        super();
         m_mailbox = mailbox;
         m_MailboxPreferences = mailbox.getMailboxPreferences();
         m_userDirectory = mailbox.getUserDirectory();
     }
     
-    public String getActiveGreetingFile() {
+    private String getActiveGreetingFile() {
         String fileName = null;
         
         switch(m_MailboxPreferences.getActiveGreeting()) {
@@ -56,16 +54,19 @@ public class Greeting {
 
         return null;
     }
-    
+
+    /**
+     * Generate a greeting from info we have, in place of a user recorded one.
+     * 
+     * @param pl
+     */
     private void generateGenericGreeting(PromptList pl) {
-        // Generate a greeting from info we have
-        Name name = new Name(m_mailbox) ;
-        String nameFile = name.getNameFile();
-        if (nameFile != null) {
+        String nameFileName = m_mailbox.getRecordedName();
+        if (nameFileName != null) {
             // Has a recorded name.
             
             // {name} ...
-            pl.addFragment("greeting_hasname", nameFile);
+            pl.addFragment("greeting_hasname", nameFileName);
         } else {
             String mailboxName = m_mailbox.getUser().getUserName();
             if (mailboxName.length() <= 6) {
@@ -81,9 +82,12 @@ public class Greeting {
         }
     }
     
-    public Play getPlayer(FreeSwitchEventSocketInterface m_fses) {
+    /**
+     * Return the list of prompts that make up this greeting
+     * @return
+     */
+    public PromptList getPromptList() {
         
-        Play p = new Play(m_fses);
         PromptList pl = new PromptList(m_mailbox.getLocalization());
         String activeGreetingFile = getActiveGreetingFile();
         if (activeGreetingFile != null) {
@@ -119,8 +123,6 @@ public class Greeting {
             pl.addFragment("greeting_please_leave_message");
 
         }
-        p.setPromptList(pl);
-        
-        return p ;
+        return pl ;
     }
 }

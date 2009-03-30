@@ -1,7 +1,7 @@
 /*
  *
  *
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * Copyright (C) 2008-2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
@@ -30,6 +30,7 @@ public abstract class FreeSwitchEventSocketInterface {
     private LinkedBlockingQueue<FreeSwitchEvent> m_eventQueue = new LinkedBlockingQueue<FreeSwitchEvent>();
     private LinkedBlockingQueue<String> m_dtmfQueue = new LinkedBlockingQueue<String>();
     private Configuration m_config;
+    private boolean m_disconnected;
 
     public abstract void connect(Socket socket) throws IOException;
 
@@ -41,21 +42,34 @@ public abstract class FreeSwitchEventSocketInterface {
 
     public abstract void close() throws IOException;
 
+    public String getDtmfQueue() {
+        StringBuilder que = new StringBuilder();
+        for (Iterator<String> i = m_dtmfQueue.iterator(); i.hasNext();) {
+            que.append((String) i.next());
+        }
+        return que.toString();
+    }
+    
     /**
      * Remove any initial digits in the dtmfQueue that are not in the digitMask.
      * 
      * @param digitMask
-     * @return
+     * @return true if dtmfQueue still contains digits after trimming
      */
     public boolean trimDtmfQueue(String digitMask) {
+        String origDtmfQueue = getDtmfQueue();
+        boolean hasDigits = false ;
         for (Iterator<String> i = m_dtmfQueue.iterator(); i.hasNext();) {
             String digit = (String) i.next();
             if (digitMask.contains(digit)) {
-                return true;
+                hasDigits = true;
+                break;
             }
             i.remove(); // Toss any digits not in the digit mask
         }
-        return false;
+        LOG.debug(String.format("trimDtmfQueue(%s) dtmfQueue was (%s) is (%s)", 
+                digitMask, origDtmfQueue, getDtmfQueue()));
+        return hasDigits;
     }
 
     /**
@@ -64,6 +78,8 @@ public abstract class FreeSwitchEventSocketInterface {
      * @return The digit, or null if none.
      */
     public String getDtmfDigit() {
+        LOG.debug(String.format("getDtmfDigit() dtmfQueue is (%s)", 
+                getDtmfQueue()));
         return m_dtmfQueue.poll();
     }
 
@@ -74,6 +90,8 @@ public abstract class FreeSwitchEventSocketInterface {
      */
     public void appendDtmfQueue(String digit) {
         m_dtmfQueue.add(digit);
+        LOG.debug(String.format("appendDtmfQueue(%s) dtmfQueue is (%s)", 
+                digit, getDtmfQueue()));
     }
 
     /**
@@ -118,16 +136,16 @@ public abstract class FreeSwitchEventSocketInterface {
      * Invoke (start performing) the FreeSwitch command represented by "handler". Pass all events
      * to that handler until it says it's finished.
      * 
-     * "empty" events signify FreeSwitch closed the socket (the caller hungup). Throw a "hangup"
+     * "empty" events signify FreeSwitch closed the socket (the caller hungup). Throw a DisconnectException
      * event in this case.
      * 
      * @param handler
      * @throws Throwable
      */
-    public void invoke(FreeSwitchEventHandler handler) throws Throwable {
+    public void invoke(FreeSwitchEventHandler handler) {
         boolean finished = false;
 
-        LOG.debug("::invoke handler add " + handler);
+        LOG.debug("FSESI::invoke handler add " + handler);
 
         finished = handler.start();
 
@@ -136,17 +154,19 @@ public abstract class FreeSwitchEventSocketInterface {
             // (or suck 'em off the queue if they arrived already)
             FreeSwitchEvent event = awaitEvent();
 
-            LOG.debug(String.format("Send event(%s) to (%s)", event.toString(), handler
+            LOG.debug(String.format("FSEII::invoke Send event(%s) to (%s)", event.toString(), handler
                     .toString()));
             finished = handler.handleEvent(event);
 
-            if (event.isEmpty()) {
+            if (!m_disconnected && event.isEmpty()) {
                 finished = true;
-                throw new Throwable("hangup");
+                m_disconnected = true;
+                LOG.info("FSESI::invoke throw DisconnectException");
+                throw new DisconnectException();
             }
         }
 
-        LOG.debug("::invoke handler remove " + handler);
+        LOG.debug("FSESI::invoke handler remove " + handler);
     }
 
     public void setVariables(HashMap<String, String> variables) {

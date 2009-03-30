@@ -1,7 +1,7 @@
 /*
  *
  *
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * Copyright (C) 2008-2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
@@ -15,6 +15,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.sipxivr.ApplicationConfiguraton;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -26,29 +27,14 @@ import org.w3c.dom.NodeList;
 public class Configuration {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
 
-    public class AttendantConfig {
+    public class AttendantConfig extends ApplicationConfiguraton {
     	private String m_id ; // The ID of this attendant
         private String m_name; // The name of this attendant
         private String m_prompt; // The top level prompt
         private Vector<AttendantMenuItem> m_menuItems;
-        private int m_initialTimeout; // initial digit timeout (mS)
-        private int m_interDigitTimeout; // subsequent digit timeout (mS)
-        private int m_extraDigitTimeout; // extra (wait for #) (mS)
-        private int m_maximumDigits; // maximum extension length
-        private int m_noInputCount; // give up after this many timeouts
-        private int m_invalidResponseCount; // give up after this many bad entries
-        private boolean m_transferOnFailures; // What to do on failure
-        private String m_transferPrompt; // What to say
-        private String m_transferUrl; // Where to go
 
         public AttendantConfig() {
-            // Global defaults if otherwise not specified
-            m_initialTimeout = 7000;
-            m_interDigitTimeout = 3000;
-            m_extraDigitTimeout = 3000;
-            m_maximumDigits = 10;
-            m_noInputCount = 2;
-            m_invalidResponseCount = 2;
+            super();
         }
         
         public String getId() {
@@ -67,41 +53,6 @@ public class Configuration {
             return m_menuItems;
         }
 
-        public int getInitialTimeout() {
-            return m_initialTimeout;
-        }
-
-        public int getInterDigitTimeout() {
-            return m_interDigitTimeout;
-        }
-
-        public int getExtraDigitTimeout() {
-            return m_extraDigitTimeout;
-        }
-
-        public int getMaximumDigits() {
-            return m_maximumDigits;
-        }
-
-        public int getNoInputCount() {
-            return m_noInputCount;
-        }
-
-        public int getInvalidResponseCount() {
-            return m_invalidResponseCount;
-        }
-
-        public boolean isTransferOnFailure() {
-            return m_transferOnFailures;
-        }
-
-        public String getTransferPrompt() {
-            return m_transferPrompt;
-        }
-
-        public String getTransferURL() {
-            return m_transferUrl;
-        }
     }
 
     private static Configuration s_current;
@@ -163,7 +114,7 @@ public class Configuration {
      * Load the autoattendants.xml file
      */
     void loadXML() {
-    	LOG.info("Loading autoattendants.xml configuration");
+    	LOG.info("Configuration::loadXML Loading autoattendants.xml configuration");
         String path = System.getProperty("conf.dir");
         if (path == null) {
             LOG.fatal("Cannot get System Property conf.dir!  Check jvm argument -Dconf.dir=") ;
@@ -180,7 +131,7 @@ public class Configuration {
             autoAttendantsDoc = builder.parse(s_configFile);
             
         } catch (Throwable t) {
-            LOG.fatal("Something went wrong loading the autoattendants.xml file.", t);
+            LOG.fatal("Configuration::loadXML Something went wrong loading the autoattendants.xml file.", t);
             System.exit(1);
         }
 
@@ -226,7 +177,7 @@ public class Configuration {
             }
 
         } catch (Exception e) {
-            LOG.fatal("Problem understanding document "+prop, e);
+            LOG.fatal("Configuration::loadXML Problem understanding document "+prop, e);
             System.exit(1);
         }
     }
@@ -247,15 +198,15 @@ public class Configuration {
             if (next.getNodeType() == Node.ELEMENT_NODE) {
                 String name = next.getNodeName();
                 if (name.equals("noInputCount")) {
-                    c.m_noInputCount = Integer.parseInt(next.getTextContent().trim());
+                    c.setNoInputCount(Integer.parseInt(next.getTextContent().trim()));
                 } else if (name.equals("invalidResponseCount")) {
-                    c.m_invalidResponseCount = Integer.parseInt(next.getTextContent().trim());
+                    c.setInvalidResponseCount(Integer.parseInt(next.getTextContent().trim()));
                 } else if (name.equals("transferOnFailures")) {
-                    c.m_transferOnFailures = Boolean.parseBoolean(next.getTextContent().trim());
+                    c.setTransferOnFailures(Boolean.parseBoolean(next.getTextContent().trim()));
                 } else if (name.equals("transferUrl")) {
-                    c.m_transferUrl =next.getTextContent().trim();
+                    c.setTransferUrl(next.getTextContent().trim());
                 } else if (name.equals("transferPrompt")) {
-                    c.m_transferPrompt = next.getTextContent().trim();
+                    c.setTransferPrompt(next.getTextContent().trim());
                 }
             }
         }
@@ -266,25 +217,28 @@ public class Configuration {
             if (next.getNodeType() == Node.ELEMENT_NODE) {
                 String name = next.getNodeName();
                 if (name.equals("interDigitTimeout")) {
-                    c.m_interDigitTimeout = Integer.parseInt(next.getTextContent().trim());
-                    if (c.m_interDigitTimeout < 100) {
-                        LOG.warn("interDigitTimeout is too short.  Assuming x1000");
-                        c.m_interDigitTimeout *= 1000; // Convert from seconds to mS
+                    int value = Integer.parseInt(next.getTextContent().trim());
+                    if (value < 100) {
+                        LOG.warn("Configuration::parseDtmf interDigitTimeout is too short.  Assuming x1000");
+                        value *= 1000; // Convert from seconds to mS
                     }
+                    c.setInterDigitTimeout(value);
                 } else if (name.equals("maximumDigits")) {
-                    c.m_maximumDigits = Integer.parseInt(next.getTextContent().trim());
+                    c.setMaximumDigits(Integer.parseInt(next.getTextContent().trim()));
                 } else if (name.equals("extraDigitTimeout")) {
-                    c.m_extraDigitTimeout = Integer.parseInt(next.getTextContent().trim());
-                    if (c.m_extraDigitTimeout < 100) {
-                        LOG.warn("extraDigitTimeout is too short.  Assuming x1000");
-                        c.m_extraDigitTimeout *= 1000; // Convert from seconds to mS
+                    int value = Integer.parseInt(next.getTextContent().trim());
+                    if (value < 100) {
+                        LOG.warn("Configuration::parseDtmf extraDigitTimeout is too short.  Assuming x1000");
+                        value *= 1000; // Convert from seconds to mS
                     }
+                    c.setExtraDigitTimeout(value);
                 } else if (name.equals("initialTimeout")) {
-                    c.m_initialTimeout = Integer.parseInt(next.getTextContent().trim());
-                    if (c.m_initialTimeout < 100) {
-                        LOG.warn("initialTimeout is too short.  Assuming x1000");
-                        c.m_initialTimeout *= 1000; // Convert from seconds to mS
+                    int value = Integer.parseInt(next.getTextContent().trim());
+                    if (value < 100) {
+                        LOG.warn("Configuration::parseDtmf initialTimeout is too short.  Assuming x1000");
+                        value *= 1000; // Convert from seconds to mS
                     }
+                    c.setInitialTimeout(value);
                 }
             }
         }
@@ -313,69 +267,6 @@ public class Configuration {
         c.m_menuItems.add(new AttendantMenuItem(dialPad, Actions.valueOf(action), parameter, extension));
     }
     
-    void internal() {
-        m_attendants = new Vector<AttendantConfig>();
-        m_schedules = new Vector<Schedule>();
-        AttendantConfig c = new AttendantConfig();
-        c.m_name = "operator";
-        c.m_menuItems = new Vector<AttendantMenuItem>();
-        c.m_menuItems.add(new AttendantMenuItem("#", Actions.voicemail_access, "", ""));
-        c.m_menuItems.add(new AttendantMenuItem("*", Actions.repeat_prompt, "", ""));
-        c.m_menuItems.add(new AttendantMenuItem("0", Actions.operator, "", ""));
-        c.m_menuItems.add(new AttendantMenuItem("1", Actions.transfer_out, "",
-                "sip:8200@cdhcp151.pingtel.com"));
-        c.m_menuItems.add(new AttendantMenuItem("2", Actions.voicemail_deposit, "", "200"));
-        c.m_menuItems.add(new AttendantMenuItem("3", Actions.disconnect, "", ""));
-        c.m_menuItems.add(new AttendantMenuItem("4", Actions.transfer_to_another_aa_menu,
-                "vacation", ""));
-        c.m_menuItems.add(new AttendantMenuItem("9", Actions.dial_by_name, "", ""));
-        c.m_initialTimeout = 7000;
-        c.m_interDigitTimeout = 3000;
-        c.m_extraDigitTimeout = 3000;
-        c.m_maximumDigits = 10;
-        c.m_noInputCount = 2;
-        c.m_invalidResponseCount = 2;
-        c.m_transferOnFailures = false;
-        c.m_transferPrompt = null;
-        c.m_transferUrl = null;
-        m_attendants.add(c);
-
-        c = new AttendantConfig();
-        c.m_name = "afterhour";
-        c.m_prompt = "/usr/local/ecs/main/var/sipxdata/mediaserver/data/prompts/afterhours.wav";
-        c.m_menuItems = new Vector<AttendantMenuItem>();
-        c.m_menuItems.add(new AttendantMenuItem("#", Actions.voicemail_access, "", ""));
-        c.m_menuItems.add(new AttendantMenuItem("*", Actions.repeat_prompt, "", ""));
-        c.m_menuItems.add(new AttendantMenuItem("9", Actions.dial_by_name, "", ""));
-        c.m_initialTimeout = 7000;
-        c.m_interDigitTimeout = 3000;
-        c.m_extraDigitTimeout = 3000;
-        c.m_maximumDigits = 10;
-        c.m_noInputCount = 2;
-        c.m_invalidResponseCount = 2;
-        c.m_transferOnFailures = false;
-        c.m_transferPrompt = null;
-        c.m_transferUrl = null;
-        m_attendants.add(c);
-
-        c = new AttendantConfig();
-        c.m_name = "vacation";
-        c.m_prompt = "/usr/local/ecs/main/var/sipxdata/mediaserver/data/prompts/afterhours.wav";
-        c.m_menuItems = new Vector<AttendantMenuItem>();
-        c.m_menuItems.add(new AttendantMenuItem("#", Actions.voicemail_access, "", ""));
-        c.m_menuItems.add(new AttendantMenuItem("*", Actions.repeat_prompt, "", ""));
-        c.m_menuItems.add(new AttendantMenuItem("9", Actions.dial_by_name, "", ""));
-        c.m_initialTimeout = 7000;
-        c.m_interDigitTimeout = 3000;
-        c.m_extraDigitTimeout = 3000;
-        c.m_maximumDigits = 10;
-        c.m_noInputCount = 2;
-        c.m_invalidResponseCount = 2;
-        c.m_transferOnFailures = false;
-        c.m_transferPrompt = null;
-        c.m_transferUrl = null;
-        m_attendants.add(c);
-
-    }
+ 
 
 }

@@ -11,59 +11,14 @@ package org.sipfoundry.voicemail;
 import java.io.File;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.sipxivr.ApplicationConfiguraton;
 
 /**
  * Holds the configuration data needed for VoiceMail.
  * 
  */
-public class Configuration {
+public class Configuration extends ApplicationConfiguraton {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
-
-    private int m_initialTimeout; // initial digit timeout (mS)
-    private int m_interDigitTimeout; // subsequent digit timeout (mS)
-    private int m_extraDigitTimeout; // extra (wait for #) (mS)
-    private int m_maximumDigits; // maximum extension length
-    private int m_noInputCount; // give up after this many timeouts
-    private int m_invalidResponseCount; // give up after this many bad entries
-    private boolean m_transferOnFailures; // What to do on failure
-    private String m_transferPrompt; // What to say
-    private String m_transferUrl; // Where to go
-
-    public int getInitialTimeout() {
-        return m_initialTimeout;
-    }
-
-    public int getInterDigitTimeout() {
-        return m_interDigitTimeout;
-    }
-
-    public int getExtraDigitTimeout() {
-        return m_extraDigitTimeout;
-    }
-
-    public int getMaximumDigits() {
-        return m_maximumDigits;
-    }
-
-    public int getNoInputCount() {
-        return m_noInputCount;
-    }
-
-    public int getInvalidResponseCount() {
-        return m_invalidResponseCount;
-    }
-
-    public boolean isTransferOnFailure() {
-        return m_transferOnFailures;
-    }
-
-    public String getTransferPrompt() {
-        return m_transferPrompt;
-    }
-
-    public String getTransferURL() {
-        return m_transferUrl;
-    }
 
     private static Configuration s_current;
     private static File s_configFile;
@@ -73,13 +28,7 @@ public class Configuration {
      * Private constructor for updatable singleton
      */
     private Configuration() {
-        // Global defaults if otherwise not specified
-        m_initialTimeout = 7000;
-        m_interDigitTimeout = 3000;
-        m_extraDigitTimeout = 3000;
-        m_maximumDigits = 10;
-        m_noInputCount = 2;
-        m_invalidResponseCount = 2;
+        super();
     }
 
     /**

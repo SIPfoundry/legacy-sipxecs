@@ -1,7 +1,7 @@
 /*
  *
  *
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * Copyright (C) 2008-2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
@@ -55,7 +55,8 @@ public class ValidUsersXML {
      * @return
      */
     public static ValidUsersXML update(boolean load) {
-        if (s_current == null || s_validUsersFile.lastModified() != s_lastModified) {
+        if (s_current == null || s_validUsersFile == null ||
+                s_validUsersFile.lastModified() != s_lastModified) {
             s_current = new ValidUsersXML();
             if (load) {
                 s_current.loadXML();

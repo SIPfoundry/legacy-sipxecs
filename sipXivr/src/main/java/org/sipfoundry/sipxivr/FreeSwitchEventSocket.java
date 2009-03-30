@@ -1,7 +1,7 @@
 /*
  *
  *
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * Copyright (C) 2008-2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
@@ -46,6 +46,7 @@ public class FreeSwitchEventSocket extends FreeSwitchEventSocketInterface {
 
         // Accept the connection from FreeSwitch, and get the variables for this call
         FreeSwitchEvent event = cmdResponse("connect");
+        LOG.debug(event.getResponse());
         setVariables(FreeSwitchEvent.parseHeaders(event.getResponse()));
 
         // Enable reporting of interesting events
@@ -56,7 +57,7 @@ public class FreeSwitchEventSocket extends FreeSwitchEventSocketInterface {
      * Send a command to FreeSwitch.
      */
     public void cmd(String cmd) {
-        LOG.debug("::cmd " + cmd);
+        LOG.debug("FSES::cmd " + cmd);
         // Send the command
         m_out.printf("%s%n%n", cmd);
     }
@@ -68,6 +69,7 @@ public class FreeSwitchEventSocket extends FreeSwitchEventSocketInterface {
      * 
      */
     public FreeSwitchEvent cmdResponse(String cmd) {
+        LOG.debug("FSES::cmdResponse " + cmd);
         // Send the command
         m_out.printf("%s%n%n", cmd);
 
@@ -77,7 +79,7 @@ public class FreeSwitchEventSocket extends FreeSwitchEventSocketInterface {
             FreeSwitchEvent event = awaitLiveEvent();
 
             if (event.getContentType().contentEquals("command/reply")) {
-                LOG.debug(String.format("cmd (%s) response (%s)", cmd, event.getHeader(
+                LOG.debug(String.format("FSES::cmdResponse cmd (%s) response (%s)", cmd, event.getHeader(
                         "Reply-Text", "(No Reply-Text)")));
                 return event;
             } else {
@@ -105,13 +107,13 @@ public class FreeSwitchEventSocket extends FreeSwitchEventSocketInterface {
                     break;
                 }
                 response.add(line);
-                LOG.debug("::awaitLiveEvent event: " + line);
+ //               LOG.debug("::awaitLiveEvent event: " + line);
                 if (line.startsWith("Content-Length:")) {
                     contentLength = line;
                 }
             }
         } catch (Exception e) {
-            LOG.error("::awaitLiveEvent readLine exception", e);
+            LOG.error("FSES::awaitLiveEvent readLine exception", e);
             return new FreeSwitchEvent(response, null, e);
         }
 
@@ -125,13 +127,13 @@ public class FreeSwitchEventSocket extends FreeSwitchEventSocketInterface {
                         content = new String(cbuf);
                     }
                 } catch (Exception e) {
-                    LOG.error("::awaitEvent content exception", e);
+                    LOG.error("FSES::awaitEvent content exception", e);
                     return new FreeSwitchEvent(response, null, e);
                 }
             }
         }
         event = new FreeSwitchEvent(response, content);
-        LOG.debug(String.format("::awaitEvent live response (%s) Event-Name (%s)", event
+        LOG.debug(String.format("FSES::awaitEvent live response (%s) Event-Name (%s)", event
                 .getContentType(), event.getEventValue("Event-Name", "(null)")));
         return event;
     }

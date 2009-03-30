@@ -7,7 +7,7 @@
  * 
  * $
  */
-package org.sipfoundry.voicemail;
+package org.sipfoundry.sipxivr;
 
 
 // Copy from sipXconfig-neoconf-vm  Perhaps we can share one day?

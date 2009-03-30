@@ -229,7 +229,7 @@ public class Schedule {
                 }
             }
         } catch (Throwable t) {
-            LOG.error("Trouble with schedules section " + parm, t);
+            LOG.error("Schedule::loadSchedule Trouble with schedules section " + parm, t);
         }
     }
 
@@ -242,7 +242,7 @@ public class Schedule {
         try {
             File organizationFile = new File(filename);
             if (organizationFile.exists()) {
-                LOG.info("Loading prefs file " + filename);
+                LOG.info("Schedule::loadPrefs Loading prefs file " + filename);
                 DocumentBuilder builder = DocumentBuilderFactory.newInstance()
                         .newDocumentBuilder();
                 Document schedule = builder.parse(organizationFile);
@@ -255,20 +255,20 @@ public class Schedule {
                             String name = next.getNodeName();
                             if (name.contentEquals("specialoperation")) {
                                 m_specialOperation = Boolean.parseBoolean(next.getTextContent().trim());
-                                LOG.debug(String.format("m_specialOperation is %s", Boolean.toString(m_specialOperation))); 
+                                LOG.debug(String.format("Schedule::loadPrefs m_specialOperation is %s", Boolean.toString(m_specialOperation))); 
                             } else if (name.contentEquals("autoattendant")) {
                                 m_specialAutoAttendantId = next.getTextContent().trim();
-                                LOG.debug(String.format("m_specialOAutoAttendantId is %s", m_specialAutoAttendantId)); 
+                                LOG.debug(String.format("Schedule::loadPrefs m_specialOAutoAttendantId is %s", m_specialAutoAttendantId)); 
                             }
                         }
                         next = next.getNextSibling();
                     }
                 }
             } else {
-                LOG.info(String.format("File %s does not exist.  Using defaults.", filename));
+                LOG.info(String.format("Schedule::loadPrefs File %s does not exist.  Using defaults.", filename));
             }
         } catch (Throwable t) {
-            LOG.error("Trouble reading prefs file " + filename, t);
+            LOG.error("Schedule::loadPrefs Trouble reading prefs file " + filename, t);
         }
     }
 
@@ -285,7 +285,7 @@ public class Schedule {
     public String getAttendant(Date date) {
         // Always use the special AA if specialOperation is in effect
         if (m_specialOperation) {
-            LOG.info("Special Operation AutoAttendant is in effect.");
+            LOG.info("Schedule::getAttendant Special Operation AutoAttendant is in effect.");
             return m_specialAutoAttendantId;
         }
 
@@ -307,7 +307,7 @@ public class Schedule {
                     // Yep, it is
                     DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
 
-                    LOG.info("Using holiday AutoAttendant as " + dateFormat.format(from)
+                    LOG.info("Schedule::getAttendant Using holiday AutoAttendant as " + dateFormat.format(from)
                             + " is a holiday");
                     return m_holidays.m_id;
                 }
@@ -328,7 +328,7 @@ public class Schedule {
                 if (!time.before(day.m_range.m_from)) {
                     if (time.before(day.m_range.m_to)) {
                         // Yep, it does
-                        LOG.info("Using regular hours AutoAttendant as "
+                        LOG.info("Schedule::getAttendant Using regular hours AutoAttendant as "
                                 + timeFormat.format(date) + " is regular hours");
                         return m_hours.m_regularHoursAttendantId;
                     }
@@ -338,7 +338,7 @@ public class Schedule {
         }
 
         // Nope.  Must be after hours
-        LOG.info("Using after hours AutoAttendant as " + timeFormat.format(date)
+        LOG.info("Schedule::getAttendant Using after hours AutoAttendant as " + timeFormat.format(date)
                 + " is after hours");
         return m_hours.m_afterHoursAttendantId;
 

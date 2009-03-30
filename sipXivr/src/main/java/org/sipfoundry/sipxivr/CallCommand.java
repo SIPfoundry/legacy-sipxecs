@@ -1,7 +1,7 @@
 /*
  *
  *
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * Copyright (C) 2008-2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
@@ -20,18 +20,18 @@ public class CallCommand extends FreeSwitchEventHandler {
         this.m_fses = fses;
     }
 
-    public boolean start() throws Throwable {
+    public boolean start() {
         m_finished = false;
         // Send the command to the socket
         m_fses.cmd("sendmsg\ncall-command: execute\nexecute-app-name: " + m_command);
         return false;
     }
 
-    public void go() throws Throwable {
+    public void go() {
         m_fses.invoke(this);
     }
 
-    public boolean handleEvent(FreeSwitchEvent event) throws Throwable {
+    public boolean handleEvent(FreeSwitchEvent event) {
 
         if (event.isEmpty()) {
             m_hungup = true;

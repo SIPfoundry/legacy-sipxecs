@@ -1,7 +1,7 @@
 /*
  *
  *
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * Copyright (C) 2008-2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
@@ -12,7 +12,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Properties;
 
 /**
@@ -62,7 +61,7 @@ public class Configuration {
             System.exit(1);
         }
         String name = "sipxivr.properties";
-        InputStream inStream;
+        FileInputStream inStream;
         Properties props = null;
         try {
         	s_propertiesFile = new File(path + "/" + name);
@@ -70,6 +69,7 @@ public class Configuration {
             inStream = new FileInputStream(s_propertiesFile);
             props = new Properties();
             props.load(inStream);
+            inStream.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace(System.err);
             System.exit(1);

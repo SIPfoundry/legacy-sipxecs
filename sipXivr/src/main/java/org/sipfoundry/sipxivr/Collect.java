@@ -1,13 +1,14 @@
 /*
  *
  *
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * Copyright (C) 2008-2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
  */
 package org.sipfoundry.sipxivr;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
 public class Collect extends CallCommand {
@@ -49,7 +50,7 @@ public class Collect extends CallCommand {
     }
 
     @Override
-    public boolean start() throws Throwable {
+    public boolean start() {
         m_stopped = false;
         m_digits = "";
         m_currentTimer = m_firstDigitTimer;
@@ -125,7 +126,7 @@ public class Collect extends CallCommand {
     }
 
     @Override
-    public boolean handleEvent(FreeSwitchEvent event) throws Throwable {
+    public boolean handleEvent(FreeSwitchEvent event) {
         if (m_breaker != null) {
             // Feed all events to breaker until it is finished.
             if (m_breaker.handleEvent(event)) {
@@ -137,7 +138,13 @@ public class Collect extends CallCommand {
         if (event.getEventValue("Event-Name", "").contentEquals("DTMF")) {
             String encodedDigit = event.getEventValue("DTMF-Digit");
             assert (encodedDigit != null);
-            String digit = URLDecoder.decode(encodedDigit, "UTF-8");
+            String digit;
+            try {
+                digit = URLDecoder.decode(encodedDigit, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                LOG.error("Collect::handleEvent cannot decode encoded DTMF digit "+encodedDigit, e);
+                digit = "";
+            }
             String duration = event.getEventValue("DTMF-Duration", "(Unknown)");
             LOG.debug(String.format("DTMF event %s %s", digit, duration));
             if (m_digitMask.contains(digit)) {

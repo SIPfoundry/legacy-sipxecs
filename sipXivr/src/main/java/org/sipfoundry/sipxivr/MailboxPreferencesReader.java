@@ -6,13 +6,14 @@
  * Licensed to the User under the LGPL license.
  * 
  */
-package org.sipfoundry.voicemail;
+package org.sipfoundry.sipxivr;
 
 import java.util.List;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.Node;
+import org.sipfoundry.voicemail.XmlReaderImpl;
 
 public class MailboxPreferencesReader extends XmlReaderImpl<MailboxPreferences> {
     

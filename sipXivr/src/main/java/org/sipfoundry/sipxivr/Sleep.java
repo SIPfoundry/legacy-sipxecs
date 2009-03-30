@@ -1,7 +1,7 @@
 /*
  *
  *
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * Copyright (C) 2008-2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
@@ -27,7 +27,7 @@ public class Sleep extends CallCommand {
     }
 
     @Override
-    public boolean start() throws Throwable {
+    public boolean start() {
         // Found a bargable digit in the DTMF queue
         if (m_fses.trimDtmfQueue(m_digitMask)) {
             return true;
@@ -37,7 +37,7 @@ public class Sleep extends CallCommand {
     }
 
     @Override
-    public boolean handleEvent(FreeSwitchEvent event) throws Throwable {
+    public boolean handleEvent(FreeSwitchEvent event) {
         if (m_breaker != null) {
             if (m_breaker.handleEvent(event)) {
                 m_breaker = null;

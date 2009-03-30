@@ -1,7 +1,7 @@
 /*
  *
  *
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * Copyright (C) 2008-2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
@@ -9,12 +9,16 @@
 
 package org.sipfoundry.attendant;
 
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.ListResourceBundle;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.Vector;
 
 import org.sipfoundry.sipxivr.Configuration;
 import org.sipfoundry.sipxivr.FreeSwitchEvent;
+import org.sipfoundry.sipxivr.Localization;
 import org.sipfoundry.sipxivr.TextToPrompts_en;
 import org.sipfoundry.sipxivr.FreeSwitchEventSocketEmulator;
 import org.sipfoundry.sipxivr.ValidUsersXML;
@@ -25,7 +29,7 @@ public class AttendantTest extends TestCase {
     public class MyResources extends ListResourceBundle {
         private final Object[][] m_contents = {
             {
-                "global.prefix", "glob/"
+                "global.prefix", "/glob/"
             }, {
                 "goodbye.prompts", "goodbye"
             },
@@ -65,7 +69,10 @@ public class AttendantTest extends TestCase {
         Configuration ivrConfig = Configuration.update(false);
 
         Attendant a = new Attendant(ivrConfig, fses, params);
-        a.setAttendantBundle(new MyResources());
+        HashMap<Locale, ResourceBundle> resourcesByLocale = new HashMap<Locale, ResourceBundle>();
+        resourcesByLocale.put(Locale.ENGLISH, new MyResources());
+        Localization loc = new Localization("dog", Locale.ENGLISH.toString(), resourcesByLocale, ivrConfig, fses);
+        a.setLocalization(loc);
         a.setTtp(new TextToPrompts_en());
         a.setAttendantConfig(org.sipfoundry.attendant.Configuration.update(false));
         a.setValidUsers(ValidUsersXML.update(false));
@@ -84,13 +91,13 @@ public class AttendantTest extends TestCase {
         }
 
         Vector<String> cmds = new Vector<String>();
-        for (String string : fses.cmds.elementAt(0).split("\n")) {
+        for (String string : fses.cmds.elementAt(1).split("\n")) {
             cmds.add(string);
         }
-        assertEquals("glob/goodbye", FreeSwitchEvent.parseHeaders(cmds).get("execute-app-arg"));
+        assertEquals("/glob/goodbye", FreeSwitchEvent.parseHeaders(cmds).get("execute-app-arg"));
 
         cmds.clear();
-        for (String string : fses.cmds.elementAt(1).split("\n")) {
+        for (String string : fses.cmds.elementAt(2).split("\n")) {
             cmds.add(string);
         }
         assertEquals("hangup", FreeSwitchEvent.parseHeaders(cmds).get("execute-app-name"));

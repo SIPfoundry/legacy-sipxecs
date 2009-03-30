@@ -1,7 +1,7 @@
 /*
  *
  *
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * Copyright (C) 2008-2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
@@ -20,7 +20,7 @@ public abstract class FreeSwitchEventHandler {
         return m_hungup;
     }
 
-    public abstract boolean start() throws Throwable;
+    public abstract boolean start() ;
 
-    public abstract boolean handleEvent(FreeSwitchEvent event) throws Throwable;
+    public abstract boolean handleEvent(FreeSwitchEvent event) ;
 }

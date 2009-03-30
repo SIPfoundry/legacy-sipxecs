@@ -1,9 +1,20 @@
-package org.sipfoundry.voicemail;
+/*
+ *
+ *
+ * Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * Contributors retain copyright to elements licensed under a Contributor Agreement.
+ * Licensed to the User under the LGPL license.
+ *
+ */
+package org.sipfoundry.sipxivr;
 
 import java.io.File;
 import java.io.IOException;
 
-import org.sipfoundry.voicemail.MailboxPreferences.ActiveGreeting;
+import org.sipfoundry.sipxivr.MailboxPreferences;
+import org.sipfoundry.sipxivr.MailboxPreferencesReader;
+import org.sipfoundry.sipxivr.MailboxPreferencesWriter;
+import org.sipfoundry.sipxivr.MailboxPreferences.ActiveGreeting;
 
 import junit.framework.TestCase;
 
