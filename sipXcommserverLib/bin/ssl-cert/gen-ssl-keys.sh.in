@@ -88,6 +88,8 @@ openssl="@OPENSSL@"
 
 caName=""
 
+configDir="@SIPX_CONFDIR@"
+
 # if there is a file of saved default answers for the questions, read them
 DefaultDefaults=SSL_DEFAULTS
 Defaults=""
@@ -703,6 +705,8 @@ generatePKCSKeyStoreNoCACert ()
 }
 
 
+
+
 generatePKCSPackage() 
 {
 
@@ -738,13 +742,21 @@ generatePKCSPackage()
     echo "        Generating Java Trust Store                                   "
     if test -e $TrustStore
     then
-       $KeyTool -delete -noprompt -alias "${caName}" \
+       keyExists=`$KeyTool -list  \
+                        -keystore "$TrustStore"  \
+                        -storepass "$Password" | grep ${aliasName} `
+
+       if [ "${keyExists}" != "" ] 
+       then 
+          $KeyTool -delete -noprompt -alias "${aliasName}" \
                         -keystore "$TrustStore"  \
                         -storepass "$Password" > /dev/null || exit 1
+       fi
     fi
     ${openssl} x509 -in    "${serverName}${restrictionName}.crt" |
-    $KeyTool -import -noprompt -alias "${caName}" \
+    $KeyTool -import -noprompt -alias "${aliasName}" \
                         -keystore "$TrustStore"  \
+			-trustcacerts \
                         -storepass "$Password" > /dev/null || exit 1
     echo "______________________________________________________________________"
     echo ""
@@ -769,6 +781,33 @@ generatePKCSPackage()
         exit 1
     fi
 
+}
+
+
+updatePrimaryServerTrustStore() {
+    myTrustStore="${configDir}/ssl/$TrustStore"
+    echo "______________________________________________________________________"
+    echo ""
+    echo "  Updating Primary Server Trust ${myTrystStore} Store with ${serverName} Certificate. "
+
+    if test -e $myTrustStore
+    then
+       keyExists=`$KeyTool -list  \
+                        -keystore "$myTrustStore"  \
+                        -storepass "$Password" | grep "$aliasName" `
+
+       if [ "${keyExists}" != "" ] 
+       then 
+          $KeyTool -delete -noprompt -alias "${aliasName}" \
+                        -keystore "$myTrustStore"  \
+                        -storepass "$Password" > /dev/null || exit 1
+       fi
+    fi
+    ${openssl} x509 -in    "${serverName}${restrictionName}.crt" |
+    $KeyTool -import -noprompt -alias "${aliasName}" \
+                        -keystore "$myTrustStore"  \
+			-trustcacerts \
+                        -storepass "$Password" > /dev/null || exit 1
 }
 
 ################################################################
@@ -801,6 +840,40 @@ EOF
 
 }
 
+
+################################################################
+#### Install the cert for a new host
+################################################################
+doAddNewHostCert()
+{
+    cat <<EOF
+
+  We need some information from you to generate the certificates:
+
+EOF
+
+    getLocality
+    getCAInfo
+    getSubjects
+
+    seedRand
+
+    genServerCSR
+    signServerCertificate
+    aliasName="${serverName}"
+    generatePKCSPackage
+    updatePrimaryServerTrustStore
+
+    cat <<EOF
+
+  To install your certificate, run the following command
+  as root on the server:
+
+    /usr/local/sipx/bin/ssl-cert/install-cert.sh
+
+EOF
+}
+
 ################################################################
 #### Do the one-step self-signed CA and a certificate from it.
 ################################################################
@@ -811,7 +884,7 @@ doAll()
   We need some information from you to generate the certificates:
 
 EOF
-
+    aliasName="${caName}"
     getLocality
     getCAInfo
     getSubjects
@@ -1035,6 +1108,13 @@ showCert()
 while [ $# -ne 0 ]
 do
     case ${1} in
+       --newhost)
+          # 
+          #Add new host. Insert the public key of the new host into
+          #Cached keystore.
+          #
+          Action=DO_ADD_NEW_HOST
+          ;;
 
         --pkcs)
             ##
@@ -1281,6 +1361,10 @@ case ${Action} in
 
     DO_ALL)
         doAll
+        ;;
+
+    DO_ADD_NEW_HOST)
+        doAddNewHostCert
         ;;
 
     DO_PKCS)

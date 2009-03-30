@@ -86,7 +86,7 @@ perl -p \
 
 # generate TLS credentials 
 @SIPX_BINDIR@/ssl-cert/gen-ssl-keys.sh \
-    --workdir "@SIPX_VARDIR@/certdb" -d -s "${newHostname}" \
+    --newhost  --workdir "@SIPX_VARDIR@/certdb" -d -s "${newHostname}" \
     || exit 1
 @SIPX_BINDIR@/ssl-cert/install-cert.sh \
     --workdir "@SIPX_VARDIR@/certdb" --install-prefix "${INITIAL_CONFIG}" "${newHostname}" \
