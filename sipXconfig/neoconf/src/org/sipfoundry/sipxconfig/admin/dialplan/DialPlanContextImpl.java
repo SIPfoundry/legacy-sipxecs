@@ -15,6 +15,8 @@ import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
@@ -28,21 +30,30 @@ import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.dao.support.DataAccessUtils;
 
 /**
  * DialPlanContextImpl is an implementation of DialPlanContext with hibernate support.
  */
 public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implements BeanFactoryAware,
-        DialPlanContext {
+        DialPlanContext, ApplicationContextAware {
+
+    private static final Log LOG = LogFactory.getLog(DialPlanContextImpl.class);
     private static final String DIALING_RULE_IDS_WITH_NAME_QUERY = "dialingRuleIdsWithName";
     private static final String VALUE = "value";
     private static final String DIALING_RULE = "dialing rule";
+    private static final String DIAL_PLAN = "Dial-plan: ";
 
     private AliasManager m_aliasManager;
 
     private ListableBeanFactory m_beanFactory;
+
+    private ApplicationContext m_applicationContext;
 
     /* delayed injection - working around circular reference */
     public abstract GatewayContext getGatewayContext();
@@ -232,7 +243,26 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         getGatewayContext().deleteVolatileGateways();
         getHibernateTemplate().flush();
 
-        DialPlan newDialPlan = (DialPlan) m_beanFactory.getBean(dialPlanBeanName);
+        DialPlan newDialPlan = null;
+        //try loading region specific dialplan
+        try {
+            newDialPlan = (DialPlan) m_beanFactory.getBean(dialPlanBeanName);
+        } catch (NoSuchBeanDefinitionException ex) {
+            LOG.info(DIAL_PLAN + dialPlanBeanName + " not found");
+        }
+        //region specific dial plan may be installed at runtime - we need to load its
+        //corresponding dialrules.beans.xml
+        if (newDialPlan == null) {
+            try {
+                String regionId = dialPlanBeanName.split("\\.")[0];
+                ClassPathXmlApplicationContext beanFactory = new ClassPathXmlApplicationContext(
+                        new String[] {"region_" + regionId + "/dialrules.beans.xml"}, m_applicationContext);
+                newDialPlan = (DialPlan) beanFactory.getBean(dialPlanBeanName);
+                LOG.info(DIAL_PLAN + dialPlanBeanName + " is installed");
+            } catch (Exception ex) {
+                throw new RegionDialPlanException(ex);
+            }
+        }
         newDialPlan.setOperator(operator);
 
         getHibernateTemplate().save(newDialPlan);
@@ -242,6 +272,12 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         // collisions would go away as soon as the session was flushed.
         getHibernateTemplate().flush();
         return newDialPlan;
+    }
+
+    public static class RegionDialPlanException extends UserException {
+        public RegionDialPlanException(Throwable cause) {
+            super(cause);
+        }
     }
 
     /**
@@ -381,4 +417,9 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         return getHibernateTemplate().findByNamedQueryAndNamedParam("attendantRuleIdsWithExtension", VALUE,
                 extension);
     }
+
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        m_applicationContext = applicationContext;
+    }
+
 }

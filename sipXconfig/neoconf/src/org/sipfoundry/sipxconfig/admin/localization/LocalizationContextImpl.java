@@ -25,11 +25,11 @@ import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContextImpl.RegionDialPlanException;
 import org.sipfoundry.sipxconfig.admin.dialplan.ResetDialPlanTask;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.support.DataAccessUtils;
 
@@ -174,7 +174,7 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
             String dialPlanBeanId = regionId + DIALPLAN;
             m_resetDialPlanTask.reset(dialPlanBeanId);
             getHibernateTemplate().saveOrUpdate(localization);
-        } catch (NoSuchBeanDefinitionException e) {
+        } catch (RegionDialPlanException e) {
             LOG.error("Trying to set unsupported region: " + region);
             return -1;
         }
