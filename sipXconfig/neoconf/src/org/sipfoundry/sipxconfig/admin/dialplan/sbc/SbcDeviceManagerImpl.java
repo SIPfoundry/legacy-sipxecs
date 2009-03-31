@@ -14,9 +14,12 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import static java.util.Collections.singleton;
+
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
@@ -24,7 +27,9 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.common.event.SbcDeviceDeleteListener;
+import org.sipfoundry.sipxconfig.service.SipxBridgeService;
 import org.sipfoundry.sipxconfig.service.SipxServiceBundle;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Required;
@@ -46,6 +51,8 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
 
     private SbcDescriptor m_sipXbridgeSbcModel;
 
+    private SipxServiceManager m_sipxServiceManager;
+
     @Required
     public void setBorderControllerBundle(SipxServiceBundle borderControllerBundle) {
         m_borderControllerBundle = borderControllerBundle;
@@ -56,11 +63,18 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
         m_sipXbridgeSbcModel = sipXbridgeSbcModel;
     }
 
+    @Required
+    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
+        m_sipxServiceManager = sipxServiceManager;
+    }
+
     public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
         m_daoEventPublisher = daoEventPublisher;
     }
 
     public abstract DialPlanActivationManager getDialPlanActivationManager();
+
+    public abstract SipxProcessContext getSipxProcessContext();
 
     public void clear() {
         Collection<SbcDevice> sbcs = getSbcDevices();
@@ -250,9 +264,17 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
                     sipXbridgeSbc.setDescription("Internal SBC on " + location.getFqdn());
                     storeSbcDevice(sipXbridgeSbc);
                 }
+                activateBridgeSbc();
             } else if (null != getBridgeSbc(location.getAddress())) {
                 deleteSbcDevice(getBridgeSbc(location.getAddress()).getId());
             }
         }
+    }
+
+    private void activateBridgeSbc() {
+        getDialPlanActivationManager().replicateDialPlan(true);
+        SipxBridgeService service = (SipxBridgeService) m_sipxServiceManager
+                .getServiceByBeanId(SipxBridgeService.BEAN_ID);
+        getSipxProcessContext().markServicesForRestart(singleton(service));
     }
 }

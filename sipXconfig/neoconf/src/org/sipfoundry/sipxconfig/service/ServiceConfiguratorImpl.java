@@ -47,11 +47,18 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
         if (!location.isRegistered()) {
             return;
         }
+        boolean serviceRequiresRestart = false;
         List< ? extends ConfigurationFile> configurations = service.getConfigurations();
         for (ConfigurationFile configuration : configurations) {
             m_replicationContext.replicate(location, configuration);
+            if (configuration.isRestartRequired()) {
+                serviceRequiresRestart = true;
+            }
         }
         m_configVersionManager.setConfigVersion(service, location);
+        if (serviceRequiresRestart) {
+            m_sipxProcessContext.markServicesForRestart(singleton(service));
+        }
     }
 
     public void replicateServiceConfig(Collection<SipxService> services) {
