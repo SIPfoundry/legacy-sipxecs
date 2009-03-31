@@ -41,7 +41,7 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
     private LocationsManager m_locationsManager;
     private ApiProvider<ProcessManagerApi> m_processManagerApiProvider;
     private SipxServiceManager m_sipxServiceManager;
-    private final RestartNeededState m_servicesToRestart = new RestartNeededState();
+    private RestartNeededState m_servicesToRestart = new RestartNeededState();
 
     @Required
     public void setLocationsManager(LocationsManager locationsManager) {
@@ -275,5 +275,9 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
             services.add(service);
         }
         manageServices(location, services, Command.RESTART);
+    }
+
+    public void clear() {
+        m_servicesToRestart = new RestartNeededState();
     }
 }

@@ -83,4 +83,9 @@ public interface SipxProcessContext {
     boolean needsRestart(Location location, SipxService service);
 
     Collection<RestartNeededService> getRestartNeededServices();
+
+    /**
+     * Used in test only: clears the need for restart status
+     */
+    void clear();
 }

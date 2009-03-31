@@ -29,23 +29,24 @@ public class RestartNeededServicesPageTestUi extends WebTestCase {
 
     public void testDisplay() {
         SiteTestHelper.assertNoUserError(tester);
-        assertLinkNotPresent("PageLink_0");
+        clickLink("link:clearRestartNeeded");
+        assertLinkNotPresent("restartNeededLink");
 
         clickLink("link:markForRestart");
-        assertLinkPresent("PageLink_0");
-        clickLink("PageLink_0");
+        assertLinkPresent("restartNeededLink");
+        clickLink("restartNeededLink");
         SiteTestHelper.assertNoUserError(tester);
 
+        assertLinkNotPresent("restartNeededLink");
         assertTablePresent("restartNeededServices:list");
         assertButtonPresent("services:restart");
 
         int rowCount = SiteTestHelper.getRowCount(tester, "restartNeededServices:list");
-        // one service
-        assertEquals(2, rowCount);
+        // at least one service restart is needed
+        assertTrue(1 < rowCount);
 
         SiteTestHelper.selectRow(tester, 0, true);
         submit("services:restart");
-        // XmlRpcRemoteException expected
-        SiteTestHelper.assertUserError(tester);
+        SiteTestHelper.assertNoException(tester);
     }
 }

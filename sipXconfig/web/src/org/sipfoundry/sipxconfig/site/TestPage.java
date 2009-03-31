@@ -636,4 +636,8 @@ public abstract class TestPage extends BasePage {
 
         getSipxProcessContext().markServicesForRestart(Arrays.asList(service));
     }
+
+    public void clearRestartNeeded() {
+        getSipxProcessContext().clear();
+    }
 }
