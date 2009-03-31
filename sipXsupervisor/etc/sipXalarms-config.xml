@@ -145,6 +145,14 @@
                  email="true"
                  />
       </alarm>
+      <alarm id="STUN_ADDRESS_ERROR">
+         <code>SPX00020</code>
+         <severity>crit</severity>
+         <component>sipXconfig</component>
+         <action log="true"
+                 email="true"
+                 />
+      </alarm>
 
       <!-- Add new alarms above this line.
           Remember to add strings into meta/alarms/sipXalarms-strings.xml also.

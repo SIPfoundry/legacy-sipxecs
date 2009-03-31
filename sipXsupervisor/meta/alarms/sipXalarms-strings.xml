@@ -100,6 +100,11 @@
          <description>The ITSP Account '{0}' is OK.</description>
          <resolution>The SIP Trunking Provider recovered and is now functional. No further action is needed.</resolution>
       </alarm>
+      <alarm id="STUN_ADDRESS_ERROR">
+         <shorttitle>The STUN Address cannot be resolved.</shorttitle>
+         <description>The STUN Server address '{0}' is not resolvable. </description>
+         <resolution>The STUN Server address is not resolvable. Reconfigure your STUN server settings to point at a functioning STUN server. </resolution>
+      </alarm>
 
       <!-- Add new alarms above this line.
           Notes:
