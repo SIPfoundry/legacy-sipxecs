@@ -87,6 +87,16 @@
         the NAT pinhole open.
       </description>
     </setting>
+    <setting name="sip-session-timer-interval-seconds" hidden="yes">
+      <label>Signaling keep-alive interval</label>
+      <type>
+        <integer required="no" />
+      </type>
+      <value>1800</value>
+      <description>
+        SIP Session Timer interval (seconds).
+      </description>
+    </setting>
     <setting name="media-keepalive-seconds" advanced="yes">
       <label>Media keep-alive interval</label>
       <type>
@@ -127,6 +137,34 @@
         sipXbridge support for MOH is enabled.
       </description>
     </setting>
+
+    <setting name="music-on-hold-address" hidden="yes">
+      <label>MOH address</label>
+      <value>~~mh~</value>
+      <description>
+        The MOH server address. This can be a host@domain. If the domain part is missing, it defaults to the sipx domain.
+      </description>
+    </setting>
+
+    <setting name="music-on-hold-delay-miliseconds" hidden="yes">
+      <label>MOH delay</label>
+      <type>
+        <integer />
+      </type>
+      <value>500</value>
+      <description>
+        Delay in milliseconds before MOH plays.
+      </description>
+    </setting>
+
+    <setting name="music-on-hold-supported-codecs" hidden="yes">
+      <label>MOH codecs</label>
+      <value>PCMU,PCMA</value>
+      <description>
+        Codecs supported by the MOH Server.
+      </description>
+    </setting>
+
     <setting name="route-inbound-calls-to-extension">
       <label>Incoming calls destination</label>
       <value>operator</value>
@@ -158,12 +196,14 @@
           <option>
             <value>DEBUG</value>
           </option>
+          <option>
+            <value>TRACE</value>
+          </option>
         </enum>
       </type>
       <value>INFO</value>
-      <description>Log configuration. Defaults to INFO level.</description>
+      <description>Log configuration.</description>
     </setting>
-
 
     <setting name="log-directory" hidden="yes">
       <description>Log directory. The log file name is hard coded to "sipxbridge.log".</description>
