@@ -10,6 +10,8 @@ package org.sipfoundry.voicemail;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 
 import junit.framework.TestCase;
 
@@ -93,6 +95,7 @@ public class MessageDescriptorTest extends TestCase {
             "  <priority>normal</priority>\n" +
             "</messagedescriptor>\n";
 
+        TimeZone.setDefault(TimeZone.getTimeZone("America/New_York"));
         long timestamp = 865915200L*1000; // Happy Birthday, Alex!
         md.setTimestamp(timestamp);
         tempFile.delete();
