@@ -1699,7 +1699,7 @@
       <type>
         <string/>
       </type>
-      <value>Unknown</value>
+      <value>Unknown00</value>
       <description>
       Displayed for incoming calls when no Caller ID information is available. The gateway will add a port identification suffix.
       </description>
