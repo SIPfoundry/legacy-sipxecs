@@ -1,10 +1,10 @@
 /*
  *
  *
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  *
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
@@ -48,6 +48,7 @@ public class AttendantMenu {
     }
 
     public void reset(boolean permanent) {
+        m_menuItems.clear();
         addMenuItem(DialPad.NUM_0, new AttendantMenuItem(AttendantMenuAction.OPERATOR));
         addMenuItem(DialPad.STAR, new AttendantMenuItem(AttendantMenuAction.REPEAT_PROMPT));
         if (permanent) {

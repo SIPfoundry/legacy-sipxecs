@@ -81,8 +81,10 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         clickLink("NewAutoAttendant");
         selectOption("addMenuItemAction", "Voicemail Login");
         clickButton("attendant:addMenuItem");
+        clickButton("form:apply");
         clickButton("attendant:reset");
         assertTableRowsEqual("attendant:menuItems", 1, FACTORY_DEFAULT);
+        assertTableRowCountEquals("attendant:menuItems", 4);
     }
 
     public void testRemoveMenuItems() throws Exception {
