@@ -36,6 +36,9 @@ public class CdrMinutesGraphBean implements Comparable<CdrMinutesGraphBean> {
     }
 
     public int compareTo(CdrMinutesGraphBean obj) {
+        if (obj == null) {
+            return -1;
+        }
         return getMinutes().compareTo(obj.getMinutes());
     }
 }

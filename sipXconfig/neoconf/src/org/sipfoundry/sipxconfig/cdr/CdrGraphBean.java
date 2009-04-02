@@ -36,6 +36,9 @@ public class CdrGraphBean implements Comparable<CdrGraphBean> {
     }
 
     public int compareTo(CdrGraphBean obj) {
+        if (obj == null) {
+            return -1;
+        }
         return getCount().compareTo(obj.getCount());
     }
 }

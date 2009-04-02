@@ -20,6 +20,9 @@ public class CdrCallerDecorator extends CdrDecorator implements Comparable<CdrCa
     }
 
     public int compareTo(CdrCallerDecorator obj) {
+        if (obj == null) {
+            return -1;
+        }
         return getCaller().compareTo(obj.getCaller());
     }
 }
