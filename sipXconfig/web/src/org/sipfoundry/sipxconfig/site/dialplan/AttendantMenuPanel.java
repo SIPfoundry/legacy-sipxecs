@@ -193,7 +193,7 @@ public abstract class AttendantMenuPanel extends BaseComponent {
 
         public void setCurrentMenuItemDialPadKeyAssignment(DialPad dialPadKey) {
             AttendantMenuItem value = m_menuItems.get(m_currentDialPadKey);
-            m_menuItems.remove(dialPadKey);
+            m_menuItems.remove(m_currentDialPadKey);
             m_menuItems.put(dialPadKey, value);
             m_currentDialPadKey = dialPadKey;
         }

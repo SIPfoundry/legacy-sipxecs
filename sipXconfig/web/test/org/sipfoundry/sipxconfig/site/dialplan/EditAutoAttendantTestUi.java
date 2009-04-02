@@ -151,6 +151,32 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         assertTableRowsEqual("attendant:menuItems", 1, expected);
     }
 
+    public void testEditMenuItem() throws Exception {
+        seedPromptFile();
+        clickLink("NewAutoAttendant");
+        assertElementPresent("attendant:form");
+        setTextField("item:name", "New Attendant1");
+        String actualFilename = TestUtil.getTestSourceDirectory(getClass()) + "/" + PROMPT_TEST_FILE;
+        File actualFile = new File(actualFilename);
+        assertTrue(actualFile.exists());
+        setTextField("promptUpload", actualFile.getAbsolutePath());
+
+        clickButton("form:apply");
+        clickButton("attendant:reset");
+        clickButton("form:apply");
+        String[][] expected = {
+            {
+                "unchecked", "0", "Operator", ""
+            }, {
+                "unchecked", "6", "Repeat Prompt", ""
+            }
+        };
+        selectOption("menuItemKey", "6");
+        clickButton("form:apply");
+        assertTableRowsEqual("attendant:menuItems", 1, expected);
+        assertTableRowCountEquals("attendant:menuItems", 4);
+    }
+
     public static final String seedPromptFile(String dir) throws IOException {
         File promptsDir = getCleanPromptsDir(dir);
         copyFileToDirectory(PROMPT_TEST_FILE, promptsDir);
