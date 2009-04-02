@@ -140,9 +140,9 @@ private:
          StunClient( const UtlString& stunServer );
          virtual ~StunClient();
          
-         bool getPublicIpAddress( const UtlString& stunServer, UtlString& discoveredPublicIpAddress );
+         bool getPublicIpAddress( UtlString& discoveredPublicIpAddress );
          void maintainPublicIpAddressCurrent( NatTraversalRules* pNatTraversalRulesToKeepCurrent, 
-                                              const UtlString& stunServer, int refreshIntervalInSecs, 
+                                              int refreshIntervalInSecs, 
                                               const UtlString& publicIpAddressHint );
          virtual void requestShutdown( void );
     
@@ -156,6 +156,8 @@ private:
          NatTraversalRules* mpNatTraversalRules;      
          NatTraversalRules* mpNatTraversalRulesToKeepCurrent;
          UtlString mPublicIpAddressObtainedFromLastPoll;
+         UtlString mStunServerName;
+         bool mbStunServerIsValid;  // whether STUN server was resolved to an IP address
    };
 
    TiXmlDocument* mpDoc;

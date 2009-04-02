@@ -363,7 +363,7 @@ void NatTraversalRules::initializeNatTraversalInfo( void )
          mpStunClient = new StunClient( mStunServer );
          
          UtlString publicIpAddress;
-         if( mpStunClient->getPublicIpAddress( mStunServer, publicIpAddress ) )
+         if( mpStunClient->getPublicIpAddress( publicIpAddress ) )
          {
             announceStunResolvedPublicIpAddress( publicIpAddress );
          }
@@ -382,7 +382,7 @@ void NatTraversalRules::initializeNatTraversalInfo( void )
             }
             publicIpAddress = hostIpAddress;
          }
-         mpStunClient->maintainPublicIpAddressCurrent( this, mStunServer, mStunRefreshIntervalInSecs, publicIpAddress ); 
+         mpStunClient->maintainPublicIpAddressCurrent( this, mStunRefreshIntervalInSecs, publicIpAddress ); 
       }
    }
    else
@@ -508,8 +508,11 @@ int NatTraversalRules::getStunRefreshIntervalInSecs( void ) const
 NatTraversalRules::StunClient::StunClient( const UtlString& stunServer ) :
    mTimerMutex( OsMutex::Q_FIFO ),
    mSocket( STUN_PORT, stunServer ),
-   mpNatTraversalRulesToKeepCurrent( 0 )
+   mpNatTraversalRulesToKeepCurrent( 0 ),
+   mStunServerName( stunServer ),
+   mbStunServerIsValid( false )
 {
+   mbStunServerIsValid = stunQueryAgent.setServer( stunServer );
    mTimerMutex.acquire();
 }
 
@@ -517,29 +520,40 @@ NatTraversalRules::StunClient::~StunClient()
 {
 }
 
-bool NatTraversalRules::StunClient::getPublicIpAddress( const UtlString& stunServer, UtlString& discoveredPublicIpAddress )
+bool NatTraversalRules::StunClient::getPublicIpAddress( UtlString& discoveredPublicIpAddress )
 {
-   UtlString mappedAddress;
-   int  mappedPort;
-   OsTime timeout( STUN_QUERY_TIMEOUT_IN_MILLISECS );
-
-   stunQueryAgent.setServer( stunServer );
-   bool rc = stunQueryAgent.getMappedAddress( &mSocket, mappedAddress, mappedPort, 0, timeout );
-   if( rc )
+   bool rc = false;
+   
+   // Not yet resolved the STUN server to a valid IP address, try again in case 
+   // network conditions have cleared.
+   if( !mbStunServerIsValid )
    {
-      discoveredPublicIpAddress = mappedAddress;
-      OsSysLog::add(FAC_NAT,PRI_INFO,"StunClient::getPublicIpAddress obtained public IP address %s from server %s", mappedAddress.data(), stunServer.data() );
+      mbStunServerIsValid = stunQueryAgent.setServer( mStunServerName );
    }
-   else
+   
+   if( mbStunServerIsValid )
    {
-      discoveredPublicIpAddress.remove( 0 );
-      OsSysLog::add(FAC_NAT,PRI_ERR,"StunClient::getPublicIpAddress failed to obtain mapping from server %s", stunServer.data() );
+      UtlString mappedAddress;
+      int  mappedPort;
+      OsTime timeout( STUN_QUERY_TIMEOUT_IN_MILLISECS );
+   
+      rc = stunQueryAgent.getMappedAddress( &mSocket, mappedAddress, mappedPort, 0, timeout );
+      if( rc )
+      {
+         discoveredPublicIpAddress = mappedAddress;
+         OsSysLog::add(FAC_NAT,PRI_INFO,"StunClient::getPublicIpAddress obtained public IP address %s from server %s", mappedAddress.data(), mStunServerName.data() );
+      }
+      else
+      {
+         discoveredPublicIpAddress.remove( 0 );
+         OsSysLog::add(FAC_NAT,PRI_ERR,"StunClient::getPublicIpAddress failed to obtain mapping from server %s", mStunServerName.data() );
+      }
    }
    return rc;   
 }
 
 void NatTraversalRules::StunClient::maintainPublicIpAddressCurrent( NatTraversalRules* pNatTraversalRulesToKeepCurrent, 
-                                     const UtlString& stunServer, int refreshIntervalInSecs, 
+                                     int refreshIntervalInSecs, 
                                      const UtlString& publicIpAddressHint )
 {
    mpNatTraversalRulesToKeepCurrent = pNatTraversalRulesToKeepCurrent;
@@ -559,7 +573,7 @@ int NatTraversalRules::StunClient::run( void* runArg )
       rc = mTimerMutex.acquire( mpNatTraversalRulesToKeepCurrent->getStunRefreshIntervalInSecs() * 1000 );
       if( rc == OS_WAIT_TIMEOUT )
       {
-         if( getPublicIpAddress( mpNatTraversalRulesToKeepCurrent->getStunServer(), discoveredPublicIpAddress ) == true )
+         if( getPublicIpAddress( discoveredPublicIpAddress ) == true )
          {
             if( discoveredPublicIpAddress.compareTo( mPublicIpAddressObtainedFromLastPoll ) != 0 )
             {
