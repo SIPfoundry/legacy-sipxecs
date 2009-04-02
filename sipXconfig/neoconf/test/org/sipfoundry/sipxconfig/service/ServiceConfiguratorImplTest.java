@@ -15,13 +15,18 @@ import static java.util.Collections.singleton;
 
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
+import org.sipfoundry.sipxconfig.service.LocationSpecificService;
+import org.sipfoundry.sipxconfig.service.SipxSupervisorService;
 import org.sipfoundry.sipxconfig.service.SipxServiceTest.DummyConfig;
 
 import junit.framework.TestCase;
 
 import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.same;
 import static org.easymock.EasyMock.verify;
@@ -117,5 +122,88 @@ public class ServiceConfiguratorImplTest extends TestCase {
         sc.replicateServiceConfig(service, true);
 
         verify(pc, rc);
+    }
+
+    public void testReplicateAllServiceConfig() {
+
+        SipxService service = new SipxService() {
+        };
+
+        Location location1 = new Location();
+        Location location2 = new Location();
+        Location location3 = new Location();
+        location1.setRegistered(true);
+        location2.setRegistered(true);
+        location3.setRegistered(false);
+        location1.setServices(singleton(new LocationSpecificService(service)));
+        location2.setServices(singleton(new LocationSpecificService(service)));
+
+        ConfigurationFile a = new DummyConfig("a", true);
+        ConfigurationFile b = new DummyConfig("b", false);
+        ConfigurationFile c = new DummyConfig("c", true);
+
+        service.setConfigurations(asList(a, b, c));
+
+        ServiceConfiguratorImpl sc = new ServiceConfiguratorImpl();
+        SipxServiceManager sm = createMock(SipxServiceManager.class);
+        SipxProcessContext pc = createMock(SipxProcessContext.class);
+        SipxReplicationContext rc = createMock(SipxReplicationContext.class);
+        ConfigVersionManager cvm = createMock(ConfigVersionManager.class);
+        LocationsManager lm = createMock(LocationsManager.class);
+        DialPlanActivationManager dm = createMock(DialPlanActivationManager.class);
+
+        lm.getLocations();
+        expectLastCall().andReturn(new Location[] {
+            location1, location2, location3
+        }).anyTimes();
+
+        SipxSupervisorService sipxSupervisorService = new SipxSupervisorService();
+
+        sipxSupervisorService.setConfigurations(asList(a, b, c));
+
+        sm.getServiceByBeanId(SipxSupervisorService.BEAN_ID);
+        expectLastCall().andReturn(sipxSupervisorService).anyTimes();
+
+        rc.generateAll();
+        expectLastCall().anyTimes();
+
+        dm.replicateDialPlan(false);
+        expectLastCall().times(1);
+
+        rc.replicate(same(location1), same(a));
+        expectLastCall().times(2);
+        rc.replicate(same(location1), same(b));
+        expectLastCall().times(2);
+        rc.replicate(same(location1), same(c));
+        expectLastCall().times(2);
+        cvm.setConfigVersion(same(service), same(location1));
+        cvm.setConfigVersion(same(sipxSupervisorService), same(location1));
+
+        rc.replicate(same(location2), same(a));
+        expectLastCall().times(2);
+        rc.replicate(same(location2), same(b));
+        expectLastCall().times(2);
+        rc.replicate(same(location2), same(c));
+        expectLastCall().times(2);
+        cvm.setConfigVersion(same(service), same(location2));
+        cvm.setConfigVersion(same(sipxSupervisorService), same(location2));
+
+        pc.markServicesForRestart(singleton(service));
+        expectLastCall().times(2);
+        pc.markServicesForRestart(singleton(sipxSupervisorService));
+        expectLastCall().times(2);
+
+        replay(lm, pc, rc, cvm, dm, sm);
+
+        sc.setSipxProcessContext(pc);
+        sc.setSipxReplicationContext(rc);
+        sc.setConfigVersionManager(cvm);
+        sc.setLocationsManager(lm);
+        sc.setDialPlanActivationManager(dm);
+        sc.setSipxServiceManager(sm);
+
+        sc.replicateAllServiceConfig();
+
+        verify(lm, pc, rc, cvm, dm, sm);
     }
 }

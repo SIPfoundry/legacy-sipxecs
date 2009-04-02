@@ -26,11 +26,8 @@ import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
-import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
-import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
-import org.sipfoundry.sipxconfig.service.SipxSupervisorService;
 
 public abstract class LocationsPage extends BasePage implements PageBeginRenderListener {
     public static final String PAGE = "admin/commserver/LocationsPage";
@@ -40,9 +37,9 @@ public abstract class LocationsPage extends BasePage implements PageBeginRenderL
 
     @InjectObject("spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
-    
+
     @InjectObject("spring:sipxServiceManager")
-    public abstract SipxServiceManager getSipxServiceManager();    
+    public abstract SipxServiceManager getSipxServiceManager();
 
     @InjectObject("spring:domainManager")
     public abstract DomainManager getDomainManager();
@@ -107,24 +104,16 @@ public abstract class LocationsPage extends BasePage implements PageBeginRenderL
         if (!selectedLocations.isEmpty()) {
             // HACK: push dataSets and files that are not the part of normal service replication
             getServiceConfigurator().initLocations();
+            getDomainManager().replicateDomainConfig();
         }
         for (Integer id : selectedLocations) {
             Location locationToActivate = getLocationsManager().getLocation(id);
+            getServiceConfigurator().replicateLocation(locationToActivate);
             if (!locationToActivate.isRegistered()) {
                 continue;
             }
-            for (LocationSpecificService service : locationToActivate.getServices()) {
-                getServiceConfigurator().replicateServiceConfig(locationToActivate, service.getSipxService());
-            }
-            
-            //replicate sipxsupervisor service
-            SipxService supervisorService = getSipxServiceManager().getServiceByBeanId(SipxSupervisorService.BEAN_ID);
-            getServiceConfigurator().replicateServiceConfig(locationToActivate, supervisorService);
-            
+
             getServiceConfigurator().enforceRole(locationToActivate);
-            
-            // replicate domain-config
-            getDomainManager().replicateDomainConfig();
         }
     }
 }

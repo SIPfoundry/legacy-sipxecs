@@ -85,7 +85,5 @@ public abstract class ManageDomain extends PageWithCallback implements PageBegin
         d.getAliases().clear();
         d.getAliases().addAll(getAliases());
         getDomainManager().saveDomain(d);
-
-        getDialPlanActivationManager().replicateDialPlan(true);
     }
 }

@@ -34,6 +34,7 @@
 
     <lookup-method name="getReplicationContext" bean="sipxReplicationContext" />
     <lookup-method name="createDomainConfiguration" bean="domainConfiguration" />
+    <lookup-method name="getServiceConfigurator" bean="serviceConfigurator" />
   </bean>
 
   <bean id="domainConfiguration" class="org.sipfoundry.sipxconfig.domain.DomainConfiguration" scope="prototype"

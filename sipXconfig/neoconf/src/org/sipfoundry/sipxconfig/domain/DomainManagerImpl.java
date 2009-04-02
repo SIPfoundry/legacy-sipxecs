@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.localization.Localization;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
+import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.springframework.dao.support.DataAccessUtils;
 
 public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implements
@@ -42,6 +43,8 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
     protected abstract DomainConfiguration createDomainConfiguration();
 
     protected abstract SipxReplicationContext getReplicationContext();
+
+    protected abstract ServiceConfigurator getServiceConfigurator();
 
     /**
      * @return non-null unless test environment
@@ -66,6 +69,9 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
         getHibernateTemplate().flush();
 
         replicateDomainConfig();
+        // As domain change is critical change, force to replicate
+        // all affected services' configurations.
+        getServiceConfigurator().replicateAllServiceConfig();
     }
 
     public void replicateDomainConfig() {

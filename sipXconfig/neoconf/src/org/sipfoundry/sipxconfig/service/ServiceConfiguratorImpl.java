@@ -17,6 +17,7 @@ import static java.util.Collections.singleton;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationStatus;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
@@ -33,6 +34,10 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
     private ConfigVersionManager m_configVersionManager;
 
     private DialPlanActivationManager m_dialPlanActivationManager;
+
+    private LocationsManager m_locationsManager;
+
+    private SipxServiceManager m_sipxServiceManager;
 
     public void startService(Location location, SipxService service) {
         replicateServiceConfig(location, service);
@@ -78,6 +83,35 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
     public void replicateServiceConfig(SipxService service, boolean noRestartOnly) {
         List< ? extends ConfigurationFile> configurations = service.getConfigurations(noRestartOnly);
         replicateServiceConfig(service, configurations);
+    }
+
+    public void replicateLocation(Location location) {
+        if (!location.isRegistered()) {
+            return;
+        }
+
+        // supervisor is always installed, never on the list of standard services
+        SipxService supervisorService = m_sipxServiceManager.getServiceByBeanId(SipxSupervisorService.BEAN_ID);
+        replicateServiceConfig(location, supervisorService);
+
+        for (LocationSpecificService service : location.getServices()) {
+            replicateServiceConfig(location, service.getSipxService());
+        }
+    }
+
+    /**
+     * To replicate all services' configurations for all registered locations, and mark all
+     * affected services as "Restart required".
+     */
+    public void replicateAllServiceConfig() {
+        Location[] locations = m_locationsManager.getLocations();
+        if (locations.length > 0) {
+            // HACK: push dataSets and files that are not the part of normal service replication
+            initLocations();
+        }
+        for (Location location : locations) {
+            replicateLocation(location);
+        }
     }
 
     private void replicateServiceConfig(SipxService service, Collection< ? extends ConfigurationFile> configurations) {
@@ -133,9 +167,9 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
     /**
      * Replicates all data sets eagerly.
      *
-     * Needs to be called whenever we initilize or re-initialize location. It replicates data sets
-     * in the same thread as the one used for pushing configuration files. It ensures the all the
-     * resources are replicated before sipXconfig attempts to start the service.
+     * Needs to be called whenever we initialize or re-initialize location. It replicates data
+     * sets in the same thread as the one used for pushing configuration files. It ensures the all
+     * the resources are replicated before sipXconfig attempts to start the service.
      */
     private void generateDataSets() {
         m_replicationContext.generateAll();
@@ -159,5 +193,15 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
     @Required
     public void setDialPlanActivationManager(DialPlanActivationManager dialPlanActivationManager) {
         m_dialPlanActivationManager = dialPlanActivationManager;
+    }
+
+    @Required
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
+    }
+
+    @Required
+    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
+        m_sipxServiceManager = sipxServiceManager;
     }
 }

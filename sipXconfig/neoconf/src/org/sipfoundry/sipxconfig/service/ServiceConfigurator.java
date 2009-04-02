@@ -35,6 +35,17 @@ public interface ServiceConfigurator {
     void replicateServiceConfig(Collection<SipxService> services);
 
     /**
+     * Replicates configuration for all the services on a specific location.
+     * @param locationToActivate
+     */
+    public void replicateLocation(Location location);
+
+    /**
+     * Replicates configuration for all the services for all the locations
+     */
+    void replicateAllServiceConfig();
+
+    /**
      * Modifies list of services running an a specified location to reflect the bundles selection.
      *
      * If the list of processes running on the server correctly reflects the selected bundle none

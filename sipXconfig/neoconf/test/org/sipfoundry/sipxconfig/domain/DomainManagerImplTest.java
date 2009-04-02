@@ -16,6 +16,7 @@ import junit.framework.TestCase;
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
@@ -65,6 +66,12 @@ public class DomainManagerImplTest extends TestCase {
             protected SipxReplicationContext getReplicationContext() {
                 return replicationContext;
             }
+
+            @Override
+            protected ServiceConfigurator getServiceConfigurator() {
+                return createMock(ServiceConfigurator.class);
+            }
+
         };
 
 

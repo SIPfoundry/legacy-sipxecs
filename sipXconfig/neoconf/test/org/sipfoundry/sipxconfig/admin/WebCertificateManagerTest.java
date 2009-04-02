@@ -20,6 +20,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainConfiguration;
 import org.sipfoundry.sipxconfig.domain.DomainManagerImpl;
+import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class WebCertificateManagerTest extends TestCase {
@@ -40,6 +41,11 @@ public class WebCertificateManagerTest extends TestCase {
 
         @Override
         protected SipxReplicationContext getReplicationContext() {
+            return null;
+        }
+
+        @Override
+        protected ServiceConfigurator getServiceConfigurator() {
             return null;
         }
     }
