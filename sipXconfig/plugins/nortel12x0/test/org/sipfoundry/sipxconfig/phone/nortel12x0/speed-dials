@@ -14,6 +14,7 @@
 <enableSessionTimer>FALSE</enableSessionTimer>
 <sessionTimerInSec>30</sessionTimerInSec>
 <sessionRefresherFlag>FALSE</sessionRefresherFlag>
+<subscriptionExpires>86400</subscriptionExpires>
 <hotDeskingAutoLogin>TRUE</hotDeskingAutoLogin>
 <mohServer>sip:~~mh~@sipfoundry.org</mohServer>
 <autoCallbackTimeout>15</autoCallbackTimeout>
@@ -21,6 +22,7 @@
 <infoDTMFContentType>application/dtmf-relay</infoDTMFContentType>
 <onhookDefaultMode>handsfree</onhookDefaultMode>
 <natTraversal>none</natTraversal>
+<enableCallPark>TRUE</enableCallPark>
 <callParkMethod>none</callParkMethod>
 <callRtrvPrefix>*4</callRtrvPrefix>
 <serverAssistCallPickup>TRUE</serverAssistCallPickup>
@@ -34,7 +36,7 @@
 <okOfInvite>PAId-To-Contact</okOfInvite>
 </callerNameSearchPrecedence>
 <rtpPort>5012</rtpPort>
-<transmitDtmf>rfc2833</transmitDtmf>
+<rfc2833DynamicPayloadType>101</rfc2833DynamicPayloadType>
 <preferredCodec>g711ulaw</preferredCodec>
 <enableRoutingTone>FALSE</enableRoutingTone>
 <toneSet>US/Canada</toneSet>

@@ -324,6 +324,17 @@
      <description>( &lt; sessionRefresherFlag &gt; ) &lt;br/&gt;</description>
    </setting>
 
+   <setting name="subscriptionExpires">
+     <label>Subscription Expires(sec)</label>
+     <type>
+       <integer min="3600" max="604800" />
+     </type>
+     <value>86400</value>
+     <description>
+       The field specifies the subscription duration for SUBSCRIBE requests &lt;br/&gt; ( &lt; subscriptionExpires &gt; ) &lt;br/&gt;
+     </description>
+   </setting>
+
    <setting name="groupPagingPrefix">
      <label>Group Paging Prefix</label>
      <type>
@@ -768,6 +779,16 @@
  <group name="callPark">
    <label>Call Park</label>
 
+   <setting name="enableCallPark">
+     <label>Enable Call Park</label>
+     <type refid="on-off" />
+     <value>TRUE</value>
+     <description>
+       If checked, this will enable the call park feature on the phone &lt;br/&gt; (
+       &lt; enableCallPark &gt; ) &lt;br/&gt;
+     </description>
+   </setting>
+
    <setting name="callParkMethod">
      <label>Call Park Method</label>
      <type>
@@ -902,7 +923,7 @@
      <value>FALSE</value>
      <description>
        If checked, sendrecv direction attribute will be sent in SDP of outgoing INVITE for intercom &lt;br/&gt; If
-       unchecked send only direction attribute is sent &lt;br/&gt; ( &lt; sendrecvInOutgoingIntercom &gt; ) &lt;br/&gt;
+       unchecked sendonly direction attribute is sent &lt;br/&gt; ( &lt; sendrecvInOutgoingIntercom &gt; ) &lt;br/&gt;
        &lt;br/&gt; &lt;br/&gt;
      </description>
    </setting>
@@ -1106,26 +1127,14 @@
      <description>Starting RTP port &lt;br/&gt; ( &lt; rtpPort &gt; ) &lt;br/&gt;</description>
    </setting>
 
-   <setting name="transmitDtmf">
-     <label>Transmit DTMF</label>
+   <setting name="rfc2833DynamicPayloadType">
+     <label>RFC 2833 DTMF Payload Type</label>
      <type>
-       <enum>
-         <option>
-           <value>info</value>
-         </option>
-         <option>
-           <value>inband</value>
-         </option>
-         <option>
-           <value>rfc2833</value>
-         </option>
-       </enum>
+       <integer min="96" max="127" />
      </type>
-     <value>rfc2833</value>
-     <description>
-       If info is selected, SIP INFO DTMF as defined in IETF RFC 2976 will be used. If inband is selected, in-band DTMF
-       is used. If rfc2833 is selected, DTMF is injected into the RTP stream as defined in IETF RFC 2833
-       &lt;br/&gt; ( &lt; transmitDtmf &gt; ) &lt;br/&gt;
+     <value>101</value>
+     <description>RFC 2833 DTMF dynamic payload type to be used in SDP offers
+	&lt;br/&gt; ( &lt; rfc2833DynamicPayloadType &gt; ) &lt;br/&gt;
      </description>
    </setting>
 
@@ -1146,7 +1155,7 @@
      </type>
      <value>g711ulaw</value>
      <description>
-       Preference for audio codec that the phone uses in SDP offer &lt;br/&gt; ( &lt; preferredCodec &gt; ) &lt;br/&gt;
+       Preference for audio codec that the phone uses in SDP offers &lt;br/&gt; ( &lt; preferredCodec &gt; ) &lt;br/&gt;
      </description>
    </setting>
 
