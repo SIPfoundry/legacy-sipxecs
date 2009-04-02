@@ -108,6 +108,7 @@
     <property name="confDir" value="${sysdir.etc}" />
     <property name="logDir" value="${sysdir.log}" />
 	<property name="sipxServiceManager" ref="sipxServiceManager" />
+	<property name="locationsManager" ref="locationsManager" />
   </bean>
 
   <bean id="serviceConfigurationFile" parent="defaultConfigurationFile" abstract="true">
@@ -203,7 +204,6 @@
         <ref bean="primarySipRouterBundle" />
       </set>
     </property>
-    <property name="locationsManager" ref="locationsManager" />
   </bean>
 
   <bean id="sipxParkConfiguration" class="org.sipfoundry.sipxconfig.service.SipxParkConfiguration" scope="prototype"
@@ -308,7 +308,6 @@
     <property name="processName" value="SIPStatus" />
     <property name="modelName" value="sipxstatus.xml" />
     <property name="modelDir" value="sipxstatus" />
-    <property name="locationsManager" ref="locationsManager" />
     <property name="configurations">
       <list>
         <ref bean="sipxStatusConfiguration" />

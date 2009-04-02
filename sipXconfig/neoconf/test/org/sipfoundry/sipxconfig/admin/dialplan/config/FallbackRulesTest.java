@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -23,6 +24,8 @@ import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.dom4j.Document;
 import org.easymock.EasyMock;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.CallDigits;
 import org.sipfoundry.sipxconfig.admin.dialplan.CallPattern;
 import org.sipfoundry.sipxconfig.admin.dialplan.CustomDialingRule;
@@ -68,13 +71,25 @@ public class FallbackRulesTest extends XMLTestCase {
 
         m_out.setDomainManager(domainManager);
 
+        Location serviceLocation = new Location();
+        serviceLocation.setAddress("192.168.1.5");
+        List<Location> locations = new ArrayList<Location>();
+        locations.add(serviceLocation);
+        LocationsManager locationsManager = EasyMock.createNiceMock(LocationsManager.class);
+
         SipxParkService parkService = new SipxParkService();
         parkService.setBeanName(SipxParkService.BEAN_ID);
         parkService.setParkServerSipPort("9905");
+        locationsManager.getLocationsForService(parkService);
+        EasyMock.expectLastCall().andReturn(locations).anyTimes();
+        parkService.setLocationsManager(locationsManager);
 
         SipxRlsService rlsService = new SipxRlsService();
         rlsService.setRlsPort("9906");
         rlsService.setBeanName(SipxRlsService.BEAN_ID);
+        locationsManager.getLocationsForService(rlsService);
+        EasyMock.expectLastCall().andReturn(locations).anyTimes();
+        rlsService.setLocationsManager(locationsManager);
 
         SipxPageService pageService = new SipxPageService() {
             @Override
@@ -83,6 +98,11 @@ public class FallbackRulesTest extends XMLTestCase {
             }
         };
         pageService.setBeanName(SipxPageService.BEAN_ID);
+        locationsManager.getLocationsForService(pageService);
+        EasyMock.expectLastCall().andReturn(locations).anyTimes();
+        pageService.setLocationsManager(locationsManager);
+
+        EasyMock.replay(locationsManager);
 
         SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(true, parkService, rlsService,
                 pageService);

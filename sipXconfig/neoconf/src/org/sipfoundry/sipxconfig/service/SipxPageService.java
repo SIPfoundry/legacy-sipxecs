@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import org.springframework.dao.support.DataAccessUtils;
+
 public class SipxPageService extends SipxService implements LoggingEntity {
 
     public static final String BEAN_ID = "sipxPageService";
@@ -25,6 +27,11 @@ public class SipxPageService extends SipxService implements LoggingEntity {
 
     public void setAudioDir(String audioDirectory) {
         m_audioDirectory = audioDirectory;
+    }
+
+    public String getAddress() {
+        String address = (String) DataAccessUtils.singleResult(getAddresses());
+        return null == address ? "" : address;
     }
 
     @Override

@@ -19,6 +19,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.device.Model;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
@@ -36,6 +37,7 @@ public abstract class SipxService extends BeanWithSettings implements Model {
     private String m_logDir;
     private String m_confDir;
     private DomainManager m_domainManager;
+    private LocationsManager m_locationsManager;
     private Set<SipxServiceBundle> m_bundles;
     private boolean m_restartable = true;
     private SipxServiceManager m_serviceManager;
@@ -91,6 +93,11 @@ public abstract class SipxService extends BeanWithSettings implements Model {
     @Required
     public void setSipxServiceManager(SipxServiceManager manager) {
         m_serviceManager = manager;
+    }
+
+    @Required
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
     }
 
     public SipxServiceManager getSipxServiceManager() {
@@ -159,6 +166,15 @@ public abstract class SipxService extends BeanWithSettings implements Model {
 
     public String getConfDir() {
         return m_confDir;
+    }
+
+    public List<String> getAddresses() {
+        List<Location> locations = m_locationsManager.getLocationsForService(this);
+        List<String> addresses = new ArrayList<String>();
+        for (Location location : locations) {
+            addresses.add(location.getAddress());
+        }
+        return addresses;
     }
 
     @Required

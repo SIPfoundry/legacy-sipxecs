@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import org.springframework.dao.support.DataAccessUtils;
+
 public class SipxRlsService extends SipxService implements LoggingEntity {
     public static final String BEAN_ID = "sipxRlsService";
 
@@ -22,6 +24,11 @@ public class SipxRlsService extends SipxService implements LoggingEntity {
 
     public void setRlsPort(String rlsPort) {
         m_rlsPort = rlsPort;
+    }
+
+    public String getAddress() {
+        String address = (String) DataAccessUtils.singleResult(getAddresses());
+        return null == address ? "" : address;
     }
 
     @Override

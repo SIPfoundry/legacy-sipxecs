@@ -9,10 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
-import java.util.List;
-
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.springframework.dao.support.DataAccessUtils;
 
 public class SipxParkService extends SipxService implements LoggingEntity {
@@ -21,12 +17,6 @@ public class SipxParkService extends SipxService implements LoggingEntity {
     public static final String LOG_SETTING = "park-config/SIP_PARK_LOG_LEVEL";
 
     private String m_parkServerSipPort;
-
-    private LocationsManager m_locationsManager;
-
-    public void setLocationsManager(LocationsManager locationsManager) {
-        m_locationsManager = locationsManager;
-    }
 
     public String getParkServerSipPort() {
         return m_parkServerSipPort;
@@ -37,9 +27,8 @@ public class SipxParkService extends SipxService implements LoggingEntity {
     }
 
     public String getAddress() {
-        List<Location> locations = m_locationsManager.getLocationsForService(this);
-        Location location = (Location) DataAccessUtils.singleResult(locations);
-        return null == location ? "" : location.getAddress();
+        String address = (String) DataAccessUtils.singleResult(getAddresses());
+        return null == address ? "" : address;
     }
 
     @Override

@@ -173,13 +173,13 @@ public class MappingRules extends RulesXmlFile {
 
             SipxRlsService rlsService = (SipxRlsService) m_sipxServiceManager
                     .getServiceByBeanId(SipxRlsService.BEAN_ID);
-            String rlsServerSipSrvOrHostport = location.getAddress() + ':'
+            String rlsServerSipSrvOrHostport = rlsService.getAddress() + ':'
                     + rlsService.getRlsPort();
             rulesString = rulesString.replace(RLS_SIP_SRV_OR_HOSTPORT, rlsServerSipSrvOrHostport);
 
             SipxParkService parkService = (SipxParkService) m_sipxServiceManager
                     .getServiceByBeanId(SipxParkService.BEAN_ID);
-            String parkServerSipSrvOrHostport = location.getAddress() + ':'
+            String parkServerSipSrvOrHostport = parkService.getAddress() + ':'
                     + parkService.getParkServerSipPort();
             rulesString = rulesString.replace(ORBIT_SERVER_SIP_SRV_OR_HOSTPORT,
                     parkServerSipSrvOrHostport);
@@ -187,7 +187,7 @@ public class MappingRules extends RulesXmlFile {
             SipxPageService pageService = (SipxPageService) m_sipxServiceManager
                     .getServiceByBeanId(SipxPageService.BEAN_ID);
             rulesString = rulesString.replace("${PAGE_SERVER_ADDR}",
-                    location.getAddress());
+                    pageService.getAddress());
             rulesString = rulesString.replace("${PAGE_SERVER_SIP_PORT}",
                     pageService.getSipPort());
 
