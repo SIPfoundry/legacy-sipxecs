@@ -27,4 +27,14 @@ public class AudioCodesGatewayTest extends TestCase {
         assertNull(gateway.getProfileFilename());
     }
 
+    public void testDefaultDeviceVersion() {
+        AudioCodesGateway gateway = new AudioCodesGateway() {
+            int getMaxCalls() {
+                return 0;
+            }
+        };
+
+        assertEquals("5.4", gateway.getDeviceVersion().getVersionId());
+    }
+
 }

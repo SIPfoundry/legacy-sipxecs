@@ -26,7 +26,7 @@ public class AudioCodesModel extends GatewayModel {
 
     public static DeviceVersion[] getDeviceVersions() {
         return new DeviceVersion[] {
-            REL_5_0, REL_5_2, REL_5_4
+            REL_5_4, REL_5_2, REL_5_0
         };
     }
 
