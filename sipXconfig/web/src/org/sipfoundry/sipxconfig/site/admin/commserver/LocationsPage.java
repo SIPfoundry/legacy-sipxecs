@@ -104,15 +104,14 @@ public abstract class LocationsPage extends BasePage implements PageBeginRenderL
         if (!selectedLocations.isEmpty()) {
             // HACK: push dataSets and files that are not the part of normal service replication
             getServiceConfigurator().initLocations();
-            getDomainManager().replicateDomainConfig();
         }
         for (Integer id : selectedLocations) {
             Location locationToActivate = getLocationsManager().getLocation(id);
-            getServiceConfigurator().replicateLocation(locationToActivate);
             if (!locationToActivate.isRegistered()) {
                 continue;
             }
 
+            getServiceConfigurator().replicateLocation(locationToActivate);
             getServiceConfigurator().enforceRole(locationToActivate);
         }
     }

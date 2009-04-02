@@ -84,7 +84,6 @@ public class FirstRunTaskTestIntegration extends IntegrationTestCase {
         domain.setName("example.org");
         DomainManager domainManager = createMock(DomainManager.class);
         domainManager.initializeDomain();
-        domainManager.replicateDomainConfig();
         expect(domainManager.getDomain()).andReturn(domain).anyTimes();
 
         AdminContext adminContext = createNiceMock(AdminContext.class);

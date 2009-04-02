@@ -1,15 +1,16 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.domain;
 
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleProvider;
 import org.sipfoundry.sipxconfig.admin.localization.Localization;
 
@@ -25,10 +26,8 @@ public interface DomainManager extends DialingRuleProvider {
 
     void saveDomain(Domain domain);
 
-    void replicateDomainConfig();
-    
-    void replicateDomainConfig(Location location);
-    
+    void replicateDomainConfig(SipxReplicationContext replicationContext, Location location);
+
     void setDomainConfigFilename(String domainConfigFilename);
 
     Localization getExistingLocalization();

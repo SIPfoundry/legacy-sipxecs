@@ -52,7 +52,6 @@ public class FirstRunTask implements ApplicationListener {
     public void runTask() {
         LOG.info("Executing first run tasks...");
         m_domainManager.initializeDomain();
-        m_domainManager.replicateDomainConfig();
         m_coreContext.initializeSpecialUsers();
 
         // create paging server, default dial plan and default Sbc

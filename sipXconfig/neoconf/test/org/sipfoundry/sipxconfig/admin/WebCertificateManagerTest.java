@@ -16,7 +16,6 @@ import java.util.Properties;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainConfiguration;
 import org.sipfoundry.sipxconfig.domain.DomainManagerImpl;
@@ -36,11 +35,6 @@ public class WebCertificateManagerTest extends TestCase {
 
         @Override
         protected DomainConfiguration createDomainConfiguration() {
-            return null;
-        }
-
-        @Override
-        protected SipxReplicationContext getReplicationContext() {
             return null;
         }
 

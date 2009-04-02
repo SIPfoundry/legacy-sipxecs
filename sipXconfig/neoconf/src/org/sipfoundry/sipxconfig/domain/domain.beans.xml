@@ -32,7 +32,6 @@
       - need to maintain list to all.
     -->
 
-    <lookup-method name="getReplicationContext" bean="sipxReplicationContext" />
     <lookup-method name="createDomainConfiguration" bean="domainConfiguration" />
     <lookup-method name="getServiceConfigurator" bean="serviceConfigurator" />
   </bean>

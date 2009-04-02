@@ -70,6 +70,7 @@
     <property name="locationsManager" ref="locationsManager" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="sipxProcessContext" ref="sipxProcessContext" />
+    <property name="domainManager" ref="domainManager" />
   </bean>
 
   <bean id="serviceConfigurator" class="org.springframework.aop.framework.ProxyFactoryBean">

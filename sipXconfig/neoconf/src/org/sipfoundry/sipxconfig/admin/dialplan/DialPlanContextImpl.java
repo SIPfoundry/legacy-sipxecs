@@ -421,5 +421,4 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
     public void setApplicationContext(ApplicationContext applicationContext) {
         m_applicationContext = applicationContext;
     }
-
 }

@@ -11,16 +11,17 @@ package org.sipfoundry.sipxconfig.domain;
 
 import java.util.Collections;
 
-import junit.framework.TestCase;
-
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.orm.hibernate3.HibernateTemplate;
+
+import junit.framework.TestCase;
 
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.classextension.EasyMock.createMock;
@@ -53,18 +54,8 @@ public class DomainManagerImplTest extends TestCase {
         // TEST DELETE EXISTING
         DomainManagerImpl mgr = new DomainManagerImpl() {
             @Override
-            public void replicateDomainConfig() {
-                // do not replicate anything - it's just a test
-            }
-
-            @Override
             protected DomainConfiguration createDomainConfiguration() {
                 return new DomainConfiguration();
-            }
-
-            @Override
-            protected SipxReplicationContext getReplicationContext() {
-                return replicationContext;
             }
 
             @Override
@@ -72,8 +63,11 @@ public class DomainManagerImplTest extends TestCase {
                 return createMock(ServiceConfigurator.class);
             }
 
+            @Override
+            public void replicateDomainConfig(SipxReplicationContext rc, Location location) {
+                // do not replicate anything... it's just a test
+            }
         };
-
 
         mgr.setHibernateTemplate(db);
         mgr.saveDomain(domain);

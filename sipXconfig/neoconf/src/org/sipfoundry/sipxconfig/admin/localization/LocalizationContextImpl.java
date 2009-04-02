@@ -24,12 +24,11 @@ import org.apache.commons.io.filefilter.PrefixFileFilter;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContextImpl.RegionDialPlanException;
 import org.sipfoundry.sipxconfig.admin.dialplan.ResetDialPlanTask;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.support.DataAccessUtils;
 
@@ -49,8 +48,7 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
     private String m_defaultRegion;
     private String m_defaultLanguage;
     private ResetDialPlanTask m_resetDialPlanTask;
-    private DomainManager m_domainManager;
-    private DialPlanActivationManager m_dialPlanActivationManager;
+    private ServiceConfigurator m_serviceConfigurator;
 
     public void setRegionDir(String regionDir) {
         m_regionDir = regionDir;
@@ -72,6 +70,11 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
         m_defaultRegion = defaultRegion;
     }
 
+    @Required
+    public void setServiceConfigurator(ServiceConfigurator serviceConfigurator) {
+        m_serviceConfigurator = serviceConfigurator;
+    }
+
     public void setDefaultLanguage(String defaultLanguage) {
         m_defaultLanguage = defaultLanguage;
         // Calling getLocalization() populates the localization table
@@ -82,16 +85,6 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
     @Required
     public void setResetDialPlanTask(ResetDialPlanTask resetDialPlanTask) {
         m_resetDialPlanTask = resetDialPlanTask;
-    }
-
-    @Required
-    public void setDomainManager(DomainManager domainManager) {
-        m_domainManager = domainManager;
-    }
-
-    @Required
-    public void setDialPlanActivationManager(DialPlanActivationManager dialPlanActivationManager) {
-        m_dialPlanActivationManager = dialPlanActivationManager;
     }
 
     public String getCurrentRegionId() {
@@ -200,8 +193,10 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
         // The language has been changed - handle the change
         localization.setLanguage(language);
         getHibernateTemplate().saveOrUpdate(localization);
-        m_domainManager.replicateDomainConfig();
-        m_dialPlanActivationManager.replicateDialPlan(true);
+
+
+        // new to push domain config and dial plans for all locations...
+        m_serviceConfigurator.initLocations();
 
         return 1;
     }

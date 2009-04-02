@@ -19,6 +19,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxSupervisorService;
 import org.sipfoundry.sipxconfig.service.SipxServiceTest.DummyConfig;
@@ -151,6 +152,7 @@ public class ServiceConfiguratorImplTest extends TestCase {
         ConfigVersionManager cvm = createMock(ConfigVersionManager.class);
         LocationsManager lm = createMock(LocationsManager.class);
         DialPlanActivationManager dm = createMock(DialPlanActivationManager.class);
+        DomainManager domainManager = createMock(DomainManager.class);
 
         lm.getLocations();
         expectLastCall().andReturn(new Location[] {
@@ -193,7 +195,10 @@ public class ServiceConfiguratorImplTest extends TestCase {
         pc.markServicesForRestart(singleton(sipxSupervisorService));
         expectLastCall().times(2);
 
-        replay(lm, pc, rc, cvm, dm, sm);
+        domainManager.replicateDomainConfig(rc, location1);
+        domainManager.replicateDomainConfig(rc, location2);
+
+        replay(lm, pc, rc, cvm, dm, sm, domainManager);
 
         sc.setSipxProcessContext(pc);
         sc.setSipxReplicationContext(rc);
@@ -201,9 +206,10 @@ public class ServiceConfiguratorImplTest extends TestCase {
         sc.setLocationsManager(lm);
         sc.setDialPlanActivationManager(dm);
         sc.setSipxServiceManager(sm);
+        sc.setDomainManager(domainManager);
 
         sc.replicateAllServiceConfig();
 
-        verify(lm, pc, rc, cvm, dm, sm);
+        verify(lm, pc, rc, cvm, dm, sm, domainManager);
     }
 }

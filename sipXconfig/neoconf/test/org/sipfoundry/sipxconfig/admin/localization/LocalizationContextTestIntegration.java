@@ -1,55 +1,44 @@
 /*
  *
  *
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  *
  */
 package org.sipfoundry.sipxconfig.admin.localization;
 
-import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
-import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
+
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
 public class LocalizationContextTestIntegration extends IntegrationTestCase {
 
     // Object Under Test
     private LocalizationContext m_out;
+    private ServiceConfigurator m_origServiceConfigurator;
     private LocalizationContextImpl m_localizationContextImpl;
-    private DomainManager m_originalDomainManager;
-    private DomainManager m_mockDomainManager;
-
-    @Override
-    protected void onSetUpInTransaction() throws Exception {
-        super.onSetUpInTransaction();
-
-        m_mockDomainManager = EasyMock.createMock(DomainManager.class);
-        m_mockDomainManager.replicateDomainConfig();
-        EasyMock.expectLastCall().once();
-        EasyMock.replay(m_mockDomainManager);
-
-        m_localizationContextImpl.setDomainManager(m_mockDomainManager);
-    }
-
-    @Override
-    protected void onTearDownInTransaction() throws Exception {
-        super.onTearDownInTransaction();
-
-        m_localizationContextImpl.setDomainManager(m_originalDomainManager);
-    }
 
     public void testUpdateRegion() throws Exception {
         assertEquals(-1, m_out.updateRegion("PL"));
     }
 
     public void testUpdateLanguage() throws Exception {
+        ServiceConfigurator sc = createMock(ServiceConfigurator.class);
+        sc.initLocations();
+        replay(sc);
+
+        modifyContext(m_localizationContextImpl, "serviceConfigurator", m_origServiceConfigurator, sc);
+
         assertEquals(1, m_out.updateLanguage("stdprompts_pl"));
         flush();
         assertEquals(1, getConnection().getRowCount("localization", "where language = 'pl'"));
 
-        EasyMock.verify(m_mockDomainManager);
+        verify(sc);
     }
 
     public void testDefaults() {
@@ -65,7 +54,7 @@ public class LocalizationContextTestIntegration extends IntegrationTestCase {
         m_localizationContextImpl = localizationContextImpl;
     }
 
-    public void setDomainManager(DomainManager domainManager) {
-        m_originalDomainManager = domainManager;
+    public void setServiceConfigurator(ServiceConfigurator serviceConfigurator) {
+        m_origServiceConfigurator = serviceConfigurator;
     }
 }

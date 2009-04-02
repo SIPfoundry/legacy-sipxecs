@@ -30,8 +30,7 @@ import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.springframework.dao.support.DataAccessUtils;
 
-public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implements
-        DomainManager {
+public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> implements DomainManager {
     private static final String DOMAIN_CONFIG_ERROR = "Unable to load initial domain-config file.";
 
     private static final Log LOG = LogFactory.getLog(DomainManagerImpl.class);
@@ -41,8 +40,6 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
     private LocationsManager m_locationsManager;
 
     protected abstract DomainConfiguration createDomainConfiguration();
-
-    protected abstract SipxReplicationContext getReplicationContext();
 
     protected abstract ServiceConfigurator getServiceConfigurator();
 
@@ -68,30 +65,21 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
         getHibernateTemplate().saveOrUpdate(domain);
         getHibernateTemplate().flush();
 
-        replicateDomainConfig();
         // As domain change is critical change, force to replicate
         // all affected services' configurations.
         getServiceConfigurator().replicateAllServiceConfig();
     }
 
-    public void replicateDomainConfig() {
-        replicateDomainConfig(null);
-    }
-    
-    public void replicateDomainConfig(Location location) {
+    public void replicateDomainConfig(SipxReplicationContext replicationContext, Location location) {
         Domain existingDomain = getExistingDomain();
         if (existingDomain == null) {
             throw new DomainNotInitializedException();
         }
         DomainConfiguration domainConfiguration = createDomainConfiguration();
-        domainConfiguration.generate(existingDomain, getConfigServerHostname(),
-                getExistingLocalization().getLanguage());
-        
-        if (location != null) {
-            getReplicationContext().replicate(location, domainConfiguration);
-        } else {
-            getReplicationContext().replicate(domainConfiguration);
-        }
+        String language = getExistingLocalization().getLanguage();
+        domainConfiguration.generate(existingDomain, getConfigServerHostname(), language);
+
+        replicationContext.replicate(location, domainConfiguration);
     }
 
     protected Domain getExistingDomain() {
@@ -121,7 +109,7 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
      * called, a new domain is created and it is populated with the data from the domain-config
      * file which is written by sipxecs-setup during system installation. If there is an error
      * accessing this file, sipxconfig will not operate correctly.
-     * 
+     *
      * If this is called multiple times, the data in the domain table in the database will be
      * overwritten by what is currently contained in the domain-config file
      */
@@ -129,8 +117,8 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
         try {
             Properties domainConfig = new Properties();
             File domainConfigFile = new File(m_domainConfigFilename);
-            LOG.info("Attempting to load initial domain-config from "
-                    + domainConfigFile.getParentFile().getPath() + "):");
+            LOG.info("Attempting to load initial domain-config from " + domainConfigFile.getParentFile().getPath()
+                    + "):");
             InputStream domainConfigInputStream = new FileInputStream(domainConfigFile);
             domainConfig.load(domainConfigInputStream);
             Domain domain = new Domain();
@@ -157,11 +145,11 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
     public void setDomainConfigFilename(String domainConfigFilename) {
         m_domainConfigFilename = domainConfigFilename;
     }
-    
+
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
     }
-    
+
     private String getConfigServerHostname() {
         return m_locationsManager.getPrimaryLocation().getFqdn();
     }

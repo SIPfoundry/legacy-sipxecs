@@ -21,6 +21,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.springframework.beans.factory.annotation.Required;
 
 import static org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command.START;
@@ -38,6 +39,8 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
     private LocationsManager m_locationsManager;
 
     private SipxServiceManager m_sipxServiceManager;
+
+    private DomainManager m_domainManager;
 
     public void startService(Location location, SipxService service) {
         replicateServiceConfig(location, service);
@@ -89,11 +92,6 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
         if (!location.isRegistered()) {
             return;
         }
-
-        // supervisor is always installed, never on the list of standard services
-        SipxService supervisorService = m_sipxServiceManager.getServiceByBeanId(SipxSupervisorService.BEAN_ID);
-        replicateServiceConfig(location, supervisorService);
-
         for (LocationSpecificService service : location.getServices()) {
             replicateServiceConfig(location, service.getSipxService());
         }
@@ -104,11 +102,8 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
      * affected services as "Restart required".
      */
     public void replicateAllServiceConfig() {
+        initLocations();
         Location[] locations = m_locationsManager.getLocations();
-        if (locations.length > 0) {
-            // HACK: push dataSets and files that are not the part of normal service replication
-            initLocations();
-        }
         for (Location location : locations) {
             replicateLocation(location);
         }
@@ -148,6 +143,21 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
     }
 
     public void initLocations() {
+        Location[] locations = m_locationsManager.getLocations();
+        if (locations.length == 0) {
+            // nothing to do
+            return;
+        }
+        for (Location location : locations) {
+            if (!location.isRegistered()) {
+                continue;
+            }
+            m_domainManager.replicateDomainConfig(m_replicationContext, location);
+            // supervisor is always installed, never on the list of standard services
+            SipxService supervisorService = m_sipxServiceManager.getServiceByBeanId(SipxSupervisorService.BEAN_ID);
+            replicateServiceConfig(location, supervisorService);
+        }
+
         generateDataSets();
         replicateDialPlans();
     }
@@ -203,5 +213,10 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
     @Required
     public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
         m_sipxServiceManager = sipxServiceManager;
+    }
+
+    @Required
+    public void setDomainManager(DomainManager domainManager) {
+        m_domainManager = domainManager;
     }
 }
