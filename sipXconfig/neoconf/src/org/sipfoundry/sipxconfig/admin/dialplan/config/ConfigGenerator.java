@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleProvider;
@@ -110,9 +111,9 @@ public class ConfigGenerator {
         return StringUtils.EMPTY;
     }
 
-    public void activate(SipxReplicationContext sipxReplicationContext) {
+    public void activate(Location location, SipxReplicationContext sipxReplicationContext) {
         for (ConfigurationFile file : getRulesFiles()) {
-            sipxReplicationContext.replicate(file);
+            sipxReplicationContext.replicate(location, file);
         }
     }
 }

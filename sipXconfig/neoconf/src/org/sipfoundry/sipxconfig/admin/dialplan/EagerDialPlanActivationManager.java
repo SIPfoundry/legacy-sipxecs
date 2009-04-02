@@ -12,6 +12,8 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 import java.util.Arrays;
 import java.util.Collection;
 
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
@@ -43,6 +45,8 @@ public abstract class EagerDialPlanActivationManager implements BeanFactoryAware
 
     private DialPlanContext m_dialPlanContext;
 
+    private LocationsManager m_locationsManager;
+
     /* delayed injection - working around circular reference */
     public abstract ServiceConfigurator getServiceConfigurator();
 
@@ -53,8 +57,10 @@ public abstract class EagerDialPlanActivationManager implements BeanFactoryAware
     public abstract ProfileManager getGatewayProfileManager();
 
     public void replicateDialPlan(boolean restartSbcDevices) {
-        ConfigGenerator generator = generateDialPlan();
-        generator.activate(m_sipxReplicationContext);
+        for (Location location : m_locationsManager.getLocations()) {
+            ConfigGenerator generator = generateDialPlan();
+            generator.activate(location, m_sipxReplicationContext);
+        }
         SipxService sipxIvrService = m_sipxServiceManager.getServiceByBeanId(SipxIvrService.BEAN_ID);
         getServiceConfigurator().replicateServiceConfig(sipxIvrService, true);
 
@@ -125,6 +131,11 @@ public abstract class EagerDialPlanActivationManager implements BeanFactoryAware
     @Required
     public void setDialPlanContext(DialPlanContext dialPlanContext) {
         m_dialPlanContext = dialPlanContext;
+    }
+
+    @Required
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
     }
 
     public void setBeanFactory(BeanFactory beanFactory) {

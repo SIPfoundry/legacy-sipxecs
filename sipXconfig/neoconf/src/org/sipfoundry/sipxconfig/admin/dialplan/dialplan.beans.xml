@@ -147,6 +147,7 @@
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="sipxProcessContext" ref="sipxProcessContext" />
     <property name="dialPlanContext" ref="dialPlanContext" />
+    <property name="locationsManager" ref="locationsManager" />
     <lookup-method name="getGatewayProfileManager" bean="gatewayProfileManager" />
     <lookup-method name="getGatewayContext" bean="gatewayContext" />
     <!-- using eager replication and serviceConfiguration -->
