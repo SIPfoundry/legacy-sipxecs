@@ -20,7 +20,9 @@ meta-count.OverrideAttempts, sipXecs uses the recommended "override" method so t
 meta-count.OverrideSuccess, sipXecs uses the recommended "override" method so these are expected
 meta-count.XmlAttributes, Each "override" attempt is performed via an XML attribute so extras are expected
 meta-count.UniqueParameters, The Polycom's phone1.cfg six blank lines lack the secondary server attributes, which sipXecs always generates. 
-meta-mac, Just part of the filename 
+meta-mac, Just part of the filename
+
+^licenses-, sipXecs may insert license content
 
 sip-call.callsPerLineKey, NON-BLANK DEFAULT
 sip-call.directedCallPickupString, sipXecs uses a different default Call Pickup code (it is configurable)
@@ -45,8 +47,9 @@ sip-voIpProt.SIP.musicOnHold.uri, sipXecs has a MOH server
 sip-voIpProt.SIP.specialEvent.checkSync.alwaysReboot, sipXecs has a "Reboot" button for phones
 sip-voIpProt.SIP.outboundProxy.transport, UDPOnly results in an earlier DNS SRV for _sip_udp.hostname, and we don't need NAPTR
 sip-pnet.role, NON-BLANK DEFAULT, though only generated for SoundStation IP 7000s
+sip-up.oneTouchVoiceMail, NON-BLANK DEFAULT (XCF-3077)
 
-sip-voIpProt.SIP.serverFeatureControl.cf, NON-BLANK DEFAULT 
+sip-voIpProt.SIP.serverFeatureControl.cf, NON-BLANK DEFAULT
 sip-voIpProt.SIP.serverFeatureControl.dnd, NON-BLANK DEFAULT
 
 # If the generated profile has Lines programmed, then the following attributes will 
@@ -75,7 +78,9 @@ phone1-reg.[1-6].server.[1-2].transport, UDPOnly results in an earlier DNS SRV f
 phone1-msg.mwi.[1-6].callBackMode, sipXecs voicemail uses the "contact" callback mode
 phone1-msg.mwi.[1-6].callBack, the callback number will be generated for any programmed Line
 phone1-msg.mwi.[1-6].subscribe, the subscribe number will be generated for any programmed Line
-phone1-dialplan.[1-6].routing.emergency.1.server.1, sipXecs hard-codes eactly one alternate server for each Line registration, so this value always indexes it
+phone1-dialplan.[1-6].routing.emergency.1.value, sipXecs default Emergency Dial Rule might be enabled - will be removed with XCF-3581
+phone1-dialplan.[1-6].routing.emergency.1.server.1, sipXecs default Emergency Dial Rule might be enabled - will be removed with XCF-3581
+phone1-dialplan.[1-6].routing.server.1.address, sipXecs default Emergency Dial Rule might be enabled - will be removed with XCF-3581
 phone1-divert.busy.[1-6].enabled, sipXecs uses server-based call forwarding
 phone1-divert.fwd.[1-6].enabled, sipXecs uses server-based call forwarding
 phone1-divert.noanswer.[1-6].enabled, sipXecs uses server-based call forwarding
