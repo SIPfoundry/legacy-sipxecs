@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.service;
@@ -20,18 +20,22 @@ public class SipxSupervisorConfigurationTest extends SipxServiceTestBase {
     protected void setUp() throws Exception {
 
     }
-    
+
     public void testGenerateSipxSupervisor() throws Exception {
         SipxSupervisorConfiguration supervisorConf = new SipxSupervisorConfiguration();
-        SipxSupervisorService supervisor = new SipxSupervisorService ();   
-        supervisor.setLogLevel("DEBUG");
-        
+        SipxSupervisorService supervisor = new SipxSupervisorService ();
+
         SipxServiceManager serviceManager = createMock(SipxServiceManager.class);
         serviceManager.getServiceByBeanId(SipxSupervisorService.BEAN_ID);
         expectLastCall().andReturn(supervisor).atLeastOnce();
+        serviceManager.storeService(supervisor);
         replay(serviceManager);
-        
-        supervisorConf.setSipxServiceManager(serviceManager);        
+
+        supervisor.setSipxServiceManager(serviceManager);
+
+        supervisor.setLogLevel("DEBUG");
+
+        supervisorConf.setSipxServiceManager(serviceManager);
         supervisorConf.setVelocityEngine(TestHelper.getVelocityEngine());
         supervisorConf.setTemplate("commserver/sipxsupervisor-config.vm");
 

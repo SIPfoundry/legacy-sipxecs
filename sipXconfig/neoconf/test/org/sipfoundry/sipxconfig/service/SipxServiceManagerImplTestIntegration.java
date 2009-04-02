@@ -81,12 +81,12 @@ public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
         m_out.storeService(service);
         assertNotNull(m_out.getServiceByBeanId(SipxStatusService.BEAN_ID));
     }
-    
+
     public void testStoreSupervisorLogLevel() {
         SipxSupervisorService service = (SipxSupervisorService)m_out.getServiceByBeanId(SipxSupervisorService.BEAN_ID);
         assertEquals("INFO", service.getLogLevel());
+        service.setSipxServiceManager(m_out);
         service.setLogLevel("DEBUG");
-        m_out.storeService(service);
         service = (SipxSupervisorService)m_out.getServiceByBeanId(SipxSupervisorService.BEAN_ID);
         assertEquals("DEBUG", service.getLogLevel());
     }

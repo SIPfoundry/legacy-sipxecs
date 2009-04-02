@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin;
@@ -25,13 +25,13 @@ import org.springframework.beans.factory.ListableBeanFactory;
 public class LoggingManagerImpl implements LoggingManager, BeanFactoryAware {
 
     private static final Log LOG = LogFactory.getLog(LoggingManagerImpl.class);
-    
+
     private ListableBeanFactory m_beanFactory;
     private SipxServiceManager m_sipxServiceManager;
 
     public Collection<LoggingEntity> getLoggingEntities() {
         Map entitiesMap = m_beanFactory.getBeansOfType(LoggingEntity.class);
-        
+
         Collection<LoggingEntity> logEnabledServices = new ArrayList<LoggingEntity>();
         for (Object bean : entitiesMap.values()) {
             if (!(bean instanceof SipxService)) {
@@ -43,14 +43,14 @@ public class LoggingManagerImpl implements LoggingManager, BeanFactoryAware {
             LoggingEntity loggingEntity = (LoggingEntity) persistedService;
             logEnabledServices.add(loggingEntity);
         }
-        
+
         return logEnabledServices;
     }
 
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = (ListableBeanFactory) beanFactory;
     }
-    
+
     public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
         m_sipxServiceManager = sipxServiceManager;
     }
