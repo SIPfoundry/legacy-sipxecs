@@ -674,31 +674,54 @@ do
 done
 
 . @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+echo "" >> ${SystemConfig}
+
+echo "" >> ${SystemConfig}
+echo "======== START DNS LOOKUPS" >> ${SystemConfig}
 
 sipDomain=`sipx_config_value @SIPX_CONFDIR@/domain-config SIP_DOMAIN_NAME`
 echo "SIP_DOMAIN_NAME = '${sipDomain}'" >> ${SystemConfig}
 
 echo "" >> ${SystemConfig}
-echo ======== DNS LOOKUPS >> ${SystemConfig}
+echo "==== NS $sipDomain = `dns_ns $sipDomain`" >> ${SystemConfig}
 
-echo "" >> ${SystemConfig}
-echo ======== DNS NAPTR $sipDomain >> ${SystemConfig}
+echo "==== NAPTR $sipDomain" >> ${SystemConfig}
 dig -t naptr +noidentify +nocmd +nocomments +noquestion +nostats +noauthority $sipDomain \
 >> ${SystemConfig}
 
-for d in $sipDomain rr.$full_host
+echo "==== SRV $sipDomain" >> ${SystemConfig}
+dig -t srv +noidentify +nocmd +nocomments +noquestion +nostats +noauthority _sip._tcp.$d _sip._udp.$d \
+| sort -u -r \
+>> ${SystemConfig}
+
+tcpProxies=`dns_sipsrv tcp $sipDomain`
+echo "TCP Proxies: ${tcpProxies}" >> ${SystemConfig}
+udpProxies=`dns_sipsrv udp $sipDomain`
+echo "UDP Proxies: ${udpProxies}" >> ${SystemConfig}
+
+Proxies=`for p in ${udpProxies} ${tcpProxies} ; do echo $p; done | sort -u`
+
+test -z "${Proxies}" && echo "! No Proxies in DNS for '$sipDomain'" >> ${SystemConfig}
+
+for p in ${Proxies}
 do
   echo "" >> ${SystemConfig}
-  echo ======== DNS SRV $d >> ${SystemConfig}
-  dig -t srv +noidentify +nocmd +nocomments +noquestion +nostats +noauthority _sip._tcp.$d _sip._udp.$d \
-  | sort -u -r \
+  echo "==== Registrar SRV for $p" >> ${SystemConfig}
+  dig -t srv +noidentify +nocmd +nocomments +noquestion +nostats +noauthority _sip._tcp.rr.$p _sip._udp.rr.$p \
   >> ${SystemConfig}
 done
 
-echo "" >> ${SystemConfig}
-echo ======== DNS A $sipDomain >> ${SystemConfig}
-dig -t a +noidentify +nocmd +nocomments +noquestion +nostats +noauthority $sipDomain \
->> ${SystemConfig}
+for p in $sipDomain ${Proxies}
+do
+    echo "" >> ${SystemConfig}
+    for t in CNAME A
+    do
+        echo "==== $t for $p" >> ${SystemConfig}
+        dig -t $t +noidentify +nocmd +nocomments +noquestion +nostats +noauthority $p \
+        >> ${SystemConfig}
+    done
+done
+echo ======== END DNS LOOKUPS >> ${SystemConfig}
 
 # Get configuration information on sipX components
 for component in pbx config proxy registry publisher vxml commserverlib calllib medialib tacklib portlib
