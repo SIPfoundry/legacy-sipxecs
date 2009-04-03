@@ -206,6 +206,7 @@ SipPersistentSubscriptionMgr::SipPersistentSubscriptionMgr(
                                                  *keyp,
                                                  *eventtypep,
                                                  expires,
+                                                 notifycseq,
                                                  subscribeDialogHandle,
                                                  isNew);
          if (!ret)

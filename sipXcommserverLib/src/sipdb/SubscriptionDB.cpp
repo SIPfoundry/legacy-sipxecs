@@ -472,10 +472,6 @@ SubscriptionDB::insertRow (
         }
         else
         {
-            OsSysLog::add(FAC_DB, PRI_DEBUG,
-                          "SubscriptionDB::insertRow inserting notifycseq for '%s' to: %d",
-                          callid.data(), notifyCseq);
-
             // Insert new row
             SubscriptionRow row;
             row.component = component;
@@ -502,14 +498,32 @@ SubscriptionDB::insertRow (
                           "  from='%s'\n"
                           "  callid='%s'\n"
                           "  eventtype='%s'\n"
-                          "  id='%s'",
+                          "  id='%s'\n"
+                          "  contact='%s'\n"
+                          "  expires=%d\n"
+                          "  uri='%s'\n"
+                          "  subscribecseq=%d\n"
+                          "  notifycseq=%d\n"
+                          "  key='%s'\n"
+                          "  recordroute='%s'\n"
+                          "  accept='%s'\n"
+                          "  version=%d",
                           component.data(),
                           to.data(),
                           from.data(),
                           callid.data(),
                           eventType.data(),
-                          ( id.isNull() ? SPECIAL_IMDB_NULL_VALUE : id.data())
-                          );
+                          (id.isNull() ? SPECIAL_IMDB_NULL_VALUE : id.data()),
+                          contact.data(),
+                          expires,
+                          uri.data(),
+                          subscribeCseq,
+                          notifyCseq,
+                          key.data(),
+                          recordRoute.data(),
+                          accept.data(),
+                          version
+               );
 #           endif
         }
         // Either did an insert or an update

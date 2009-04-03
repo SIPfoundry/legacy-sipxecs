@@ -458,6 +458,7 @@ UtlBoolean SipSubscriptionMgr::insertDialogInfo(const SipMessage& subscribeReque
                                                 const UtlString& resourceId,
                                                 const UtlString& eventTypeKey,
                                                 int expires,
+                                                int notifyCSeq,
                                                 UtlString& subscribeDialogHandle,
                                                 UtlBoolean& isNew)
 {
@@ -495,6 +496,8 @@ UtlBoolean SipSubscriptionMgr::insertDialogInfo(const SipMessage& subscribeReque
 
         // Create the dialog
         mDialogMgr.createDialog(*subscribeCopy, FALSE, dialogHandle);
+        // Set the recorded CSeq of the last NOTIFY.
+        mDialogMgr.setNextLocalCseq(dialogHandle, notifyCSeq);
         isNew = TRUE;
 
         // Create a subscription state
@@ -555,8 +558,11 @@ UtlBoolean SipSubscriptionMgr::insertDialogInfo(const SipMessage& subscribeReque
         lock();
         state = (SubscriptionServerState*)
             mSubscriptionStatesByDialogHandle.find(&dialogHandle);
-        if(state)
+        if (state)
         {
+            // Set the recorded CSeq of the last NOTIFY.
+            mDialogMgr.setNextLocalCseq(dialogHandle, notifyCSeq);
+
             state->mExpirationDate = expires;
             if(state->mpLastSubscribeRequest)
             {
@@ -584,6 +590,8 @@ UtlBoolean SipSubscriptionMgr::insertDialogInfo(const SipMessage& subscribeReque
             SipMessage* subscribeCopy = new SipMessage(subscribeRequest);
             // Create the dialog
             mDialogMgr.createDialog(*subscribeCopy, FALSE, dialogHandle);
+            // Set the recorded CSeq of the last NOTIFY.
+            mDialogMgr.setNextLocalCseq(dialogHandle, notifyCSeq);
             isNew = TRUE;
 
             // Create a subscription state

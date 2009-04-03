@@ -102,6 +102,8 @@ public:
                                         const UtlString& eventTypeKey,
                                         /// the expiration epoch
                                         int expires,
+                                        /// the last NOTIFY CSeq
+                                        int notifyCSeq,
                                         /// the dialog handle for the subscription (out)
                                         UtlString& subscribeDialogHandle,
                                         /// TRUE if the subscription is new (out)
