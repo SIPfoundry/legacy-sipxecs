@@ -13,36 +13,35 @@ CUT_FILE="#{LOG_FILE}.cut"
 
 class SipXCutTest < Test::Unit::TestCase
 
-   def call_script(starttime, stoptime)
-      command="#{DIR}/../sipx-log-cut -i #{DIR}/small.log -s \"#{starttime}\" -e \"#{stoptime}\" 2>/dev/null"
+   def call_script_and_check_result(starttime, stoptime, expected_retcode, expected_contents)
+      command="#{DIR}/../sipx-log-cut -i #{DIR}/#{LOG_FILE} -s \"#{starttime}\" -e \"#{stoptime}\" 2>/dev/null"
       system(command)
-      $?.exitstatus
-   end
 
-   def assert_cut_file_contents(expected)
-      x=0
-      file=File.open("#{DIR}/#{CUT_FILE}", "r") 
-      file.each_line do |line|
-         assert_equal("#{x} - #{expected[x]}", "#{x} - #{line.chomp}")
-         x+=1
+      assert_equal(expected_retcode, $?.exitstatus)
+
+      cut_file="#{DIR}/#{CUT_FILE}"
+      if 1 != expected_retcode
+         x=0
+         file=File.open(cut_file, "r") 
+         file.each_line do |line|
+            assert_equal("#{x} - #{expected_contents[x]}", "#{x} - #{line.chomp}")
+            x+=1
+         end
       end
+
+      File.delete(cut_file)
    end
 
    def test_SpanInvalid
-      retcode=call_script("2009-02-17 09:02:14", "2009-02-16 09:02:18")
-      assert_equal(1, retcode)
+      call_script_and_check_result("2009-02-17 09:02:14", "2009-02-16 09:02:18", 1, nil)
    end
 
    def test_SpanTooLate
-      retcode=call_script("2009-02-17 09:02:10", "2009-02-17 09:02:14")
-      assert_equal(0, retcode)
       expected = []
-      assert_cut_file_contents(expected)
+      call_script_and_check_result("2009-02-17 09:02:10", "2009-02-17 09:02:14", 0, expected)
    end
 
    def test_SpanOutOf
-      retcode=call_script("2009-02-17 09:02:14", "2009-02-17 09:02:18")
-      assert_equal(0, retcode)
       expected = [
          "\"2009-02-17T09:02:15.976445Zaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
          "\"2009-02-17T09:02:15.976563Zaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -50,12 +49,10 @@ class SipXCutTest < Test::Unit::TestCase
          "\"2009-02-17T09:02:18.977017Zaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
          "\"2009-02-17T09:02:19.543211Zaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
       ]
-      assert_cut_file_contents(expected)
+      call_script_and_check_result("2009-02-17 09:02:14", "2009-02-17 09:02:18", 0, expected)
    end
   
    def test_SpanWithin
-      retcode=call_script("2009-02-17 09:02:16", "2009-02-17 09:02:20")
-      assert_equal(2, retcode)
       expected = [
          "\"2009-02-17T09:02:15.976563Zaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
          "\"2009-02-17T09:02:17.976758Zaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -79,12 +76,10 @@ class SipXCutTest < Test::Unit::TestCase
          "\"2009-02-17T09:02:19.999911Zaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
          "\"2009-02-17T09:02:22.000039Zaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
       ]
-      assert_cut_file_contents(expected)
+      call_script_and_check_result("2009-02-17 09:02:16", "2009-02-17 09:02:20", 2, expected)
    end
 
    def test_SpanCovers
-      retcode=call_script("2009-02-17 09:02:14", "2009-02-17 09:04:28")
-      assert_equal(0, retcode)
       expected = [
          "\"2009-02-17T09:02:15.976445Zaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
          "\"2009-02-17T09:02:15.976563Zaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -153,12 +148,10 @@ class SipXCutTest < Test::Unit::TestCase
          "\"2009-02-17T09:03:27.027634Zaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
          "\"2009-02-17T09:04:27.037739Zaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
       ]
-      assert_cut_file_contents(expected)
+      call_script_and_check_result("2009-02-17 09:02:14", "2009-02-17 09:04:28", 0, expected)
    end
 
    def test_SpanInto
-      retcode=call_script("2009-02-17 09:02:27", "2009-02-19 05:00:30")
-      assert_equal(2, retcode)
       expected = [
          "\"2009-02-17T09:02:26.027104Zaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
          "\"2009-02-17T09:03:26.907266Zaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -166,14 +159,12 @@ class SipXCutTest < Test::Unit::TestCase
          "\"2009-02-17T09:03:27.027634Zaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
          "\"2009-02-17T09:04:27.037739Zaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
       ]
-      assert_cut_file_contents(expected)
+      call_script_and_check_result("2009-02-17 09:02:27", "2009-02-19 05:00:30", 2, expected)
    end
 
    def test_SpanTooEarly
-      retcode=call_script("2009-02-17 09:04:28", "2009-02-18 06:30:00")
-      assert_equal(2, retcode)
       expected = []
-      assert_cut_file_contents(expected)
+      call_script_and_check_result("2009-02-17 09:04:28", "2009-02-18 06:30:00", 2, expected)
    end
 
 end
