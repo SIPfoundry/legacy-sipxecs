@@ -26,12 +26,12 @@ SSLCipherSuite ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP:+eNULL
 
 # mod_ssl has problems with HTTP 1.1
 # Force browsers to use HTTP 1.0
-SetEnvIf User-Agent ".*MSIE.*" \\
-             nokeepalive ssl-unclean-shutdown \\
+SetEnvIf User-Agent ".*MSIE.*" \
+             nokeepalive ssl-unclean-shutdown \
              downgrade-1.0 force-response-1.0
              
-SetEnvIf User-Agent ".*Mozilla.*" \\
-             nokeepalive ssl-unclean-shutdown \\
+SetEnvIf User-Agent ".*Mozilla.*" \
+             nokeepalive ssl-unclean-shutdown \
              downgrade-1.0 force-response-1.0
 
 <VirtualHost *:8091>
@@ -54,7 +54,7 @@ SetEnvIf User-Agent ".*Mozilla.*" \\
         SSLOptions +StdEnvVars
     </Directory>
 
-    CustomLog @SIPX_LOGDIR@/httpd_access_log \\
+    CustomLog @SIPX_LOGDIR@/httpd_access_log \
               "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
 
     ######

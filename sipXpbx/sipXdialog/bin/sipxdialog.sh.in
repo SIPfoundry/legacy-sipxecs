@@ -23,25 +23,6 @@ do
     shift # always consume 1
 done
 
-CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
-
-CONFIG_FILES="\
-  @SIPX_CONFDIR@/sipxdialog-config \
-  "
-
-# If the "config.defs" file exists and the <name>.in file exists for a
-# configuration file, then run the config preprocessor to generate the
-# fully resolved configuration file.
-if [ -f "$CONFIG_DEFS" ]
-then
-  for i in $CONFIG_FILES ; do
-    if [ -f "${i}.in" ]
-    then
-       @bindir@/configpp --defs "${CONFIG_DEFS}" --in "${i}.in" --out "$i"
-    fi
-  done
-fi
-
 case ${Action} in
    RUN)
      echo $$ > @SIPX_RUNDIR@/sipxdialog.pid
@@ -51,6 +32,11 @@ case ${Action} in
    CONFIGTEST)
      Status=0
 
+     if [ ! -e "@SIPX_CONFDIR@/sipxdialog-config" ]
+     then
+         echo "Missing configuration file '@SIPX_CONFDIR@/sipxdialog-config'" 1>&2
+         Status=1
+     fi
      #@bindir@/sipx-validate-xml @SIPX_CONFDIR@/sipxdialog-config.xml
      #Status=$(($Status+$?))
 

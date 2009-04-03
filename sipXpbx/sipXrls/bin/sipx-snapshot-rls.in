@@ -7,14 +7,15 @@
 Work=${TMPDIR:-/tmp}/sipx-snapshot-rls.$$
 
 # Get the SIP domain into SIPXCHANGE_DOMAIN_NAME.
-. @SIPX_CONFDIR@/config.defs
+. @SIPX_LIBEXECDIR@/sipx-utils.sh
+Domain=`sipx_config_value @SIPX_CONFDIR@/domain-config SIP_DOMAIN_NAME`
 
 # Send a MESSAGE request to ~~rl~D~dumpstate, which cause the RLS to
 # write its state.
 if @SIPX_BINDIR@/sipsend.pl \
         `hostname -f` \
         MESSAGE \
-        "sip:~~rl~D~dumpstate@${SIPXCHANGE_DOMAIN_NAME}" >$Work &&
+        "sip:~~rl~D~dumpstate@${Domain}" >$Work &&
    grep '^SIP/2\.0  *2' $Work >/dev/null ; then
     # If we got a success response, exit with 0.
     rm $Work

@@ -93,8 +93,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/%name-config
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxsupervisor-process.xml
 
-# The configuration directory needs to be writeable because
-# config files are generated from templates via config.defs
 %config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/alarms/sipXalarms-config.xml
 %config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_datadir}/sipxecs/alarms/alarm-strings.xml
 %config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_datadir}/sipxecs/alarms/sipXalarms-strings.xml

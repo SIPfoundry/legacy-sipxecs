@@ -11,7 +11,8 @@ Url:      http://www.sipfoundry.org/sipXrls
 
 Source:   %name-%version.tar.gz
 
-Requires: sipxcalllib >= 2.9.0
+Requires: sipxcalllib >= %version
+Requires: sipxcommserverlib >= %version
 
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
@@ -25,7 +26,8 @@ TBD
 
 %package devel
 Requires: %name
-Requires: sipxcalllib-devel >= 2.9.0
+Requires: sipxcalllib-devel >= %version
+Requires: sipxcommserverlib-devel >= %version
 Group: Development/Libraries
 Vendor: SIPfoundry
 Summary: Header files for %name 
@@ -64,10 +66,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/sipxrls.sh
 %attr(755,root,root) %{_bindir}/sipxrls
 %attr(755,root,root) %{_bindir}/%name-config
-
-# The configuration directory needs to be writeable because
-# config files are generated from templates via config.defs
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx
 
 %files devel
 %defattr(644,root,root,755)

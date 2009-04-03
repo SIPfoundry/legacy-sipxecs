@@ -14,15 +14,7 @@ CoreDumpDirectory @SIPX_LOGDIR@
     #AllowOverride All  # Commented out by Mike M.
     Order Deny,Allow
     Deny from all
-    Allow from 127.0.0.1 ${CONFIG_SERVER_ADDR}
-    Satisfy any
-</Directory>
-
-<Directory "@wwwdir@/cgi-bin/replication">
-    Options Indexes FollowSymLinks MultiViews
-    Order Deny,Allow
-    Deny from all
-    Allow from 127.0.0.1 ${CONFIG_SERVER_ADDR}
+    Allow from 127.0.0.1 
     Satisfy any
 </Directory>
 
@@ -34,14 +26,6 @@ Alias /phone/ "@SIPX_VARDIR@/configserver/phone/"
     AllowOverride None
     Order allow,deny
     Allow from all
-</Directory>
-
-Alias /sipdb/ "@SIPX_DBDIR@/"
-<Directory "@SIPX_DBDIR@/">
-    Order Deny,Allow
-    Deny from all
-    Allow from 127.0.0.1 ${CONFIG_SERVER_ADDR}
-    Satisfy any
 </Directory>
 
 <Directory "@SIPX_VXMLDATADIR@/prompts/">

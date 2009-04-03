@@ -7,7 +7,6 @@ source ${Path}/shell-unit
 # echo is a way to capture command output
 setUp() {
   JavaCmd="echo java"
-  Configpp="echo configpp"
   SubstituteUser="echo su"
   ServiceDir="/etc/init.d"
   PostgresUser="postgres"
@@ -15,7 +14,6 @@ setUp() {
   Chown="echo chown"
   TmpDir=/tmp
   PidFile=${TmpDir}/pidfile
-  ConfigDefs=${TmpDir}/config.defs
   ConfigFiles="${TmpDir}/sipxconfig.properties"
   LibDir=${Path}/../../lib
   NewLine="
@@ -29,16 +27,6 @@ source ${Path}/sipxconfig.sh.in --nop
 ##------------------------------------
 # test functions
 ##------------------------------------
-testRunConfigPp() {
-  touch ${ConfigDefs}
-  for i in $ConfigFiles ; do  
-    touch $i.in    
-  	Expected="${Expected}${NewLine}configpp --defs ${ConfigDefs} --in $i.in --out $i"
-  done	
-  Actual="`runConfigpp`"
-  # need to prepend newline characted to Actual before comparison
-  assertEquals "${Expected}" "${NewLine}${Actual}"
-}
 
 testClasspath() {
   touch ${TmpDir}/xxxxxxxxxxx1
@@ -74,7 +62,6 @@ testRunningUserCheck() {
 ##------------------------------------
 # test suite
 ##------------------------------------
-runTest testRunConfigPp
 runTest testClasspath
 runTest testRunningUserCheck
 

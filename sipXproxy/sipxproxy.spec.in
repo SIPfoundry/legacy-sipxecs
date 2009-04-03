@@ -61,7 +61,7 @@ Requires: %name
 Group: Development/Libraries
 Vendor: SIPfoundry
 Summary: Internal documentation for %name 
-Requires: sipxcommserverlib-devel >= 3.11
+Requires: sipxcommserverlib-devel >= %version
 
 %description devel
 Internal class documentation for the proxy classes
@@ -144,10 +144,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/authplugins/libEmergencyNotify.la
 %attr(755,root,root) %{_libdir}/authplugins/libEmergencyNotify.a
 %attr(755,root,root) %{_libdir}/authplugins/libEmergencyNotify.so*
-
-# The configuration directory needs to be writeable because
-# config files are generated from templates via config.defs
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx
 
 %{upgrade_archive_dir}/%{this_archive}
 # Where does this come from?

@@ -20,6 +20,5 @@
     <log>@sipxpbx.log.dir@/sipxconfig.log</log>
   </status>
   <resources>
-    <file>@sipxpbx.conf.dir@/config.defs</file>
   </resources>
 </sipXecs-process>

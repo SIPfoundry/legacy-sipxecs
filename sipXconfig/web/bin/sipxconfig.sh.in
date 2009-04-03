@@ -14,8 +14,6 @@ Args=""
 : ${SslDir:=@sipxpbx.conf.dir@/ssl}
 : ${AuthoritiesDir:=$SslDir/authorities}
 : ${JavaCmd:=`@bin.dir@/sipx-config --java`}
-: ${ConfigDefs:=@sipxpbx.conf.dir@/config.defs}
-: ${Configpp:=@bin.dir@/configpp}
 : ${ConfigFiles:=@sipxpbx.conf.dir@/sipxconfig.properties}
 : ${PidFile:=@sipxpbx.run.dir@/sipxconfig.pid}
 : ${DatabaseProject:=@sipxpbx.conf.dir@/database/database.xml}
@@ -42,7 +40,6 @@ then
 fi
 
 TEST_WRITE_ACCESS="\
-  @sipxpbx.conf.dir@/config.defs \
   @sipxpbx.conf.dir@/sipxdialog-config.in \
   "
 
@@ -58,23 +55,6 @@ ADDITIONAL_JARS="\
 
 # set primary system hostname (assume sipxconfig is only run on primary system)
 PRIMARY_HOSTNAME=`hostname -f`
-
-# Search/replace variables used in config.defs into config files
-runConfigpp() {
-    
-    # If the "config.defs" file exists and the <name>.in file exists for a
-    # configuration file, then run the config preprocessor to generate the
-    # fully resolved configuration file.
-    if [ -f "$ConfigDefs" ]
-    then
-      for i in $ConfigFiles ; do
-        if [ -f "${i}.in" ]
-          then
-            ${Configpp} --defs "${ConfigDefs}" --in "${i}.in" --out "$i"
-          fi
-      done
-    fi
-}
 
 # Create a truststore of the same Certificate Authorities the
 # other SIP servers use.
@@ -117,7 +97,6 @@ clearIndexLocks() {
 
 # Turn control over to ant to run database command
 databaseCommand() {
-    runConfigpp
 
     databaseCheck
 
@@ -184,8 +163,6 @@ firstRunCheck() {
 onWebUi() {
 
     runningUserCheck || exit 1 
-
-    runConfigpp   
 
     firstRunCheck
 

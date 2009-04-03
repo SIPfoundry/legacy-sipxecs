@@ -21,7 +21,6 @@ EXTRA_DIST = \
     BUILDSTAMP \
     SVN-VERSION \
     CONTRIBUTORS \
-    bin/httpd-sipxchange-config.sh.in \
     config/apache_version.awk \
     config/sipX-buildstamp.cpp.in \
     config/sipX-buildstamp.h.in \
@@ -29,11 +28,6 @@ EXTRA_DIST = \
     config/svn-version \
     config/Doxyfile.in \
     sipxpbx.spec 
-
-install-exec-hook :
-	@echo "Localize $< -> $@"
-	@$(LocalizeSipXconfig) $(srcdir)/bin/httpd-sipxchange-config.sh.in > httpd-sipxchange-config.sh
-	$(INSTALL) -D -m 755 httpd-sipxchange-config.sh $(DESTDIR)$(bindir)/httpd-sipxchange-config.sh
 
 install-data-hook :
 	$(INSTALL) -d $(DESTDIR)@wwwdir@/doc

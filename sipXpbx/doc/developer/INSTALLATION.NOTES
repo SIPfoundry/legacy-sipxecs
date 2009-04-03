@@ -1,6 +1,6 @@
 These are the overall installation instructions for sipX.
 
-sipX is composed of 11 components.  They have to be installed in
+sipX is composed of many components.  They have to be installed in
 order, because some of the components are prerequisites for others.
 In addition, some packages from other sources are prerequisites for
 the sipX components, and there are some steps that need to be taken
@@ -322,17 +322,6 @@ download and install it (and expat-devel as well).
         - ./configure
         - make
         - sudo make install
-        - Run the configuration preprocessor script
-          /usr/local/sipx/bin/httpd-sipxchange-config.sh to generate
-          fully resolved configuration files in the directories
-          /usr/local/sipx/etc/sipxpbx, /usr/local/sipx/share/www/doc/aa_vxml,
-          and /usr/local/sipx/share/www/doc/vm_vxml.
-          You can run httpd-sipxchange-config.sh from any directory;
-          it knows where to look for files to process.
-        - For this script to work, /usr/local/sipx/etc/sipxpbx/config.defs
-          must exist.  It is created by executing "sudo make install"
-          for sipXcommserverLib.
-
 
 Final Installation Actions
 --------------------------
@@ -350,8 +339,6 @@ connections.
 
 To test that Apache SSL is working:
 
-  - Generate the configuration files from the .in files:
-      ...sipX.../bin/httpd-sipxchange-config.sh
   - Start Apache:
       ...Apache.../bin/httpd -k start \
                   -f ...sipX.../etc/sipxpbx/httpd.conf -DSSL

@@ -559,7 +559,7 @@ def install_ssl_cert () :
 def setup_domain_config () :
     # Configure the SIP Domain and Realm
     # The SIP Domain setting is used to generate the proper certificate and 
-    # we need to configure SIPXCHANGE_DOMAIN_NAME setting in /etc/config.defs
+    # we need to configure SIP_DOMAIN_NAME setting in domain-config
     global HostName
     global SipDomain
 

@@ -8,8 +8,8 @@ pkgconf_DATA = \
 
 wwwconf_files = \
     httpd.conf \
-    httpd-sipxchange-common-ssl.conf.in \
-    httpd-sipxchange-common.conf.in
+    httpd-sipxchange-common-ssl.conf \
+    httpd-sipxchange-common.conf
 
 EXTRA_DIST = \
 	$(pkgconf_DATA) \
@@ -31,12 +31,8 @@ $(DESTDIR)@SERVICEDIR@:
 	$(INSTALL) -d $(DESTDIR)@SERVICEDIR@
 
 install-data-hook : \
-	$(DESTDIR)$(sysconfdir)/sipxpbx/httpd.conf.d \
 	$(DESTDIR)$(sysconfdir)/logrotate.d/sipxchange \
 	$(foreach file, $(wwwconf_files),$(DESTDIR)$(sysconfdir)/sipxpbx/$(file))
-
-$(DESTDIR)$(sysconfdir)/sipxpbx/httpd.conf.d:
-	$(INSTALL) -d -m 755 $@
 
 $(foreach file,$(wwwconf_files),$(DESTDIR)$(sysconfdir)/sipxpbx/$(file)) : $(DESTDIR)$(sysconfdir)/sipxpbx/% : %
 	@if [ -f $@ ]; \

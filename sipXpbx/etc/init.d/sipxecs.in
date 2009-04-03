@@ -37,30 +37,23 @@ fi
 ## Source function library.
 . @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
 
-
-# Source configuration
-. @SIPX_CONFDIR@/config.defs
-
 iam=`whoami`
 
-# Set the limit for core file size based on the SIPX_CORELIMIT
-# variable in config.defs.
-# This either allows core files to be generated when sipXecs
-# processes crash (if SIPX_CORELIMIT is "unlimited"), or
-# disallows it (if SIPX_CORELIMIT is "0").
-ulimit -c ${SIPX_CORELIMIT:-0}
+# This allows core files to be generated when sipXecs
+# processes crash (if SIPX_CORELIMIT is "unlimited")
+ulimit -c unlimited
 
 ## if we are configured to create core files,
 ## and this system is capable of creating core files for setuid
 ## executables, set it to create those core files (read-only to root).
 ## this allows debugging of sipXvxml crashes
 
-if [ "${SIPX_CORELIMIT}" = "unlimited" -a -w /proc/sys/kernel/suid_dumpable ]
+if [ -w /proc/sys/kernel/suid_dumpable ]
   then
     # RHEL uses this
     echo 2 > /proc/sys/kernel/suid_dumpable
   fi
-if [ "${SIPX_CORELIMIT}" = "unlimited" -a -w /proc/sys/fs/suid_dumpable ]
+if [ -w /proc/sys/fs/suid_dumpable ]
   then
     # FC4 and kernel.org use this
     echo 1 > /proc/sys/fs/suid_dumpable
@@ -285,9 +278,10 @@ EOF
         ## rehash certificate authorities certificates - if this fails, it will be caught below
         @bindir@/ssl-cert/ca_rehash > /dev/null 2>&1
 
+        local domain=`sipx_config_value @SIPX_CONFDIR@/domain-config SIP_DOMAIN_NAME`
         ## check certificate
         @bindir@/ssl-cert/check-cert.sh \
-            --name ${SIPXCHANGE_DOMAIN_NAME} --name ${MY_FULL_HOSTNAME} \
+            --name ${domain}  --name `hostname --fqdn` \
             --fail 5 @SIPX_CONFDIR@/ssl/ssl.crt
         ssl_status=$?
     fi
@@ -577,9 +571,6 @@ do_setup() {
         do
             $f
         done
-
-        ## Regenerate httpd configuration files from their .in's.
-        @bindir@/httpd-sipxchange-config.sh
     fi
 }
 
@@ -664,13 +655,29 @@ do_stop() {
    true
 }
 
-# TEMPORARY WORKAROUND TO DETECT MASTER SYSTEM
-activateConfigServerOnMaster () {
-    local thisHost=`hostname -f`
-    local configServerVersion
 
-    if [ "${CONFIG_SERVER_HOST}" = "${thisHost}" ]
+activateConfigServerOnMaster () {
+    ################################################################
+    ###                        IMPORTANT
+    ### The following must be kept consistent with the path used
+    ### by the sipXsupervisor to store the persistent state of a
+    ### service, and with the name declared for sipXconfig in its
+    ### process definition.
+    ###
+    ### The following tests whether or not sipXconfig is enabled,
+    ### which is true only on the master system.
+    ################################################################
+    local configServerEnabled=`cat @SIPX_VARDIR@/process-state/ConfigServer 2> /dev/null`
+    if [ -n "${configServerEnabled}" -a "${configServerEnabled}" = "Enabled" ]
     then
+        ###
+        ### Here we force the 'configuration version stamp' status 
+        ### that is read by sipXsupervisor to match the current version 
+        ### of sipXconfig so that sipXsupervisor will be willing to start
+        ### sipXconfig.
+        ### NO OTHER PROCESS SHOULD BE ENABLED IN THIS WAY.
+        ###
+        local configServerVersion
         configServerVersion=`@SIPX_BINDIR@/sipxconfig-config --version | sed 's/-.*//'`
 
         configVersionDirectory=@SIPX_VARDIR@/process-cfgver

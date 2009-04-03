@@ -673,7 +673,11 @@ do
     full_locale=`echo $full_locale | sed 's/^[^.]*\.//; s/^[^.]*$//'`
 done
 
-sipDomain=`. @SIPX_CONFDIR@/config.defs > /dev/null 2>&1; echo ${SIPXCHANGE_DOMAIN_NAME}`
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+
+sipDomain=`sipx_config_value @SIPX_CONFDIR@/domain-config SIP_DOMAIN_NAME`
+echo "SIP_DOMAIN_NAME = '${sipDomain}'" >> ${SystemConfig}
+
 echo "" >> ${SystemConfig}
 echo ======== DNS LOOKUPS >> ${SystemConfig}
 

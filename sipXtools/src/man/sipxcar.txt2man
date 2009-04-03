@@ -81,15 +81,6 @@ Show all the modified for the sipXproxy module, note capitialzation
 Show the differences in configuration files on this system
   
  $ sipxcar -d 
-    
-Apply the configration changes on local system onto another
-system called flamingo, (both have would need to have sipxcat 
-tool installed.) 
-  
- $ sipxcar -d > changes.patch
- $ scp changes.patch root@flamingo:
- $ # Backup configuration on flamingo first!
- $ ssh root@flamingo "sipxcar -a changes.patch"
 
 HINTS
 -----  
@@ -101,7 +92,7 @@ the fact changes to local files may be overwritten.
 When displaying modified files
   
  $ sipxcar -m
- M /etc/sipxpbx/config.defs
+ M /etc/sipxpbx/sipXproxy-config
   
  'M' - Denotes a file that has been modified from factory defaults   
  '?' - Denotes a file that has been deleted from the system. You can 

@@ -28,7 +28,7 @@ public class Configuration {
     private String m_scriptsDirectory; // File path to the AA scripts (for schedule access)
     private String m_docDirectory; // File path to DOC Directory (usually /usr/share/www/doc)
     private String m_operatorAddr; // Address of 'operator'
-    private String m_sipxchangeDomainName; // The domain name of this system (from config.defs?)
+    private String m_sipxchangeDomainName; // The domain name of this system
     private String m_voicemailUrl; // URL for voicemail access
 
     private static Configuration s_current;

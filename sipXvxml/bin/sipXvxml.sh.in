@@ -27,39 +27,6 @@ do
     shift # always consume 1
 done
 
-CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
-
-CONFIG_FILES="\
-  @SIPX_CONFDIR@/voicemail.xml \
-  "
-
-# If the "config.defs" file exists and the <name>.in file exists for a
-# configuration file, then run the config preprocessor to generate the
-# fully resolved configuration file.
-if [ -f "$CONFIG_DEFS" ]
-then
-  for i in $CONFIG_FILES ; do
-    if [ -f "${i}.in" ]
-    then
-       @bindir@/configpp --defs "${CONFIG_DEFS}" --in "${i}.in" --out "$i"
-    fi
-  done
-
-
-  # run the config preprocessor over the voicexml scripts
-  for cfgfile in @wwwdir@/doc/aa_vxml/*.in @wwwdir@/doc/vm_vxml/*.in 
-  do
-    if [ -f ${cfgfile} ]
-    then
-       genfile=`basename ${cfgfile} .in`
-       gendir=`dirname ${cfgfile}`
-       genout="${gendir}/${genfile}"
-       rm -f ${genout}
-       @bindir@/configpp --defs "${CONFIG_DEFS}" --in "${cfgfile}" --out "${genout}"
-    fi
-  done
-fi
-
 . @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
 
 pidfile=@SIPX_RUNDIR@/sipXvxml.pid
@@ -107,6 +74,8 @@ case ${Action} in
      ;;
 
    CONFIGTEST)
+     test -c @SIPX_CONFDIR@/voicemail.xml
+     Status=$?
      #@bindir@/sipx-validate-xml @SIPX_CONFDIR@/?.xml
      #Status=$(($Status+$?))
      ;;

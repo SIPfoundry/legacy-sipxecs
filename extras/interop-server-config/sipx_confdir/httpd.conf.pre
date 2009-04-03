@@ -1093,8 +1093,6 @@ Include @SIPX_CONFDIR@/httpd-sipxchange-common.conf
 #### match the pattern below, so that we start modularizing this
 ################################################################
 
-Include @SIPX_CONFDIR@/httpd.conf.d/*.conf
-
 ######
 #
 # Special rules for fetching localized files based upon either one of :

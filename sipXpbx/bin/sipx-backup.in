@@ -125,7 +125,6 @@ if [ "$CONFIGURATION" = "yes" ]
 then
   
   ConfigBackupFiles="\
-    @SIPX_CONFDIR@/config.defs \
     @SIPX_CONFDIR@/domain-config \
     @SIPX_CONFDIR@/security.policy \
     @SIPX_CONFDIR@/ssl/ssl.crt \
