@@ -39,10 +39,6 @@ then
   . ${SipxConfigEnv}
 fi
 
-TEST_WRITE_ACCESS="\
-  @sipxpbx.conf.dir@/sipxdialog-config.in \
-  "
-
 Database=SIPXCONFIG
 RequiredDatabaseVersion=8
 IndexDir=${TmpDir}/index
@@ -292,15 +288,6 @@ EOF
       Status=1
     fi
     Status=$(($Status+$?))
-
-    for f in $TEST_WRITE_ACCESS; do
-      if [ -f $f ]; then
-        if [ ! -w $f ]; then
-          echo "WARNING: user $RunningUser requires write access to file $f." >&2
-          Status=1
-        fi
-      fi
-    done
 }
 
 while [ $# -ne 0 ]

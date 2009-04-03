@@ -127,6 +127,9 @@
       <replacefilter token="@sipxpbx.libexec.dir@" property="sipxpbx.libexec.dir" />
     </replace>
 
+    <rename dest="${dest.dir}${sipxpbx.conf.dir}/sipxconfig.properties"
+            src="${dest.dir}${sipxpbx.conf.dir}/sipxconfig.properties.in"/>
+
     <replace file="${dest.dir}${sipxpbx.conf.dir}/database/database.xml"
             propertyfile="${top.build.dir}/build.properties">
       <replacefilter token="@sipxconfig.db.user@" property="sipxconfig.db.user" />

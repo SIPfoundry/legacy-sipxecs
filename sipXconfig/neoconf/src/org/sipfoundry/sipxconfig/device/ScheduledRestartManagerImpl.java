@@ -34,7 +34,7 @@ public class ScheduledRestartManagerImpl implements RestartManager {
     /**
      * The number of millis by which we are going to delay restarting a device if more than one
      * device is restarted. We are delaying restart of the device. The default value is 1 second,
-     * but it can be changes by modifying sipxconfig.properties.in file. Set to 0 to remove the
+     * but it can be changes by modifying sipxconfig.properties file. Set to 0 to remove the
      * throttle.
      *
      */

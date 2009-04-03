@@ -520,7 +520,7 @@
       update phone set device_version_id = 'polycom${polycom-to-id}'
       where bean_id = 'polycom';
     </sipx-sql>
-    <replace file="${sipxpbx.conf.dir}/sipxconfig.properties.in">
+    <replace file="${sipxpbx.conf.dir}/sipxconfig.properties">
       <replacefilter token="polycom.defaultVersionId=${polycom-from-id}" value="polycom.defaultVersionId=${polycom-to-id}" />
     </replace>
   </target>
