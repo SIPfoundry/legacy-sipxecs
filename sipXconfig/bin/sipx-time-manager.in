@@ -5,6 +5,7 @@ GET_SERVERS="no"
 GET_CONFIGURATION="no"
 
 NTP_CONFIGURATION="/etc/ntp.conf"
+NTPD_NAME="ntpd"
 
 check_root() {
   if test "`whoami`" != root; then
@@ -95,11 +96,11 @@ start_ntpd() {
   then
     # RedHat / Fedora
     # make ntpd start by default
-    /sbin/chkconfig --level 3 ntpd on
+    /sbin/chkconfig --level 3 $NTPD_NAME on
     # resync the date ?? this could take a while
     # /usr/sbin/ntpd -q -x -g
     # start ntpd daemon
-    @BASH@ -p /sbin/service ntpd start
+    @BASH@ -p /sbin/service $NTPD_NAME start
   # else
     # Other distributions ...
   fi
@@ -110,9 +111,9 @@ stop_ntpd() {
   then
     # RedHat / Fedora
     # stop ntpd
-    @BASH@ -p /sbin/service ntpd stop
+    @BASH@ -p /sbin/service $NTPD_NAME stop
     # make it not run by default
-    /sbin/chkconfig --level 3 ntpd off
+    /sbin/chkconfig --level 3 $NTPD_NAME off
   # else
     # Other distributions ...
   fi
@@ -178,10 +179,14 @@ do
   shift # always consume one argument
 done
 
+if test -f /etc/SuSE-release; then
+  NTPD_NAME="ntp"
+fi
+
 if test $GET_STATUS = "yes"; then
   if test -f /sbin/chkconfig; then
     # RedHat / Fedora
-    /sbin/service ntpd status &> /dev/null
+    /sbin/service $NTPD_NAME status &> /dev/null
     exit $?
   # else
     # Other distributions ...

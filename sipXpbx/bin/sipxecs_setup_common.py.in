@@ -7,7 +7,8 @@
 
 import os, commands, sys, re, time, traceback, glob, signal, snack, urllib, tarfile
 
-from socket import gethostname, getfqdn
+from socket import gethostname, getfqdn, inet_ntoa, inet_aton
+from struct import pack
 
 # Globals
 
@@ -27,7 +28,17 @@ MASTER_NETIF   = '@SIPX_CONFDIR@/sipxconfig-netif'
 
 IFCONFIGDIR    = '/etc/sysconfig/network-scripts'  # Directory of all interface configurations
 ETHNAME        = 'eth0'                            # Supported Ethernet interface
-IFCFGFILE      = '%s/ifcfg-%s' % (IFCONFIGDIR, ETHNAME)
+
+class sipxecsGlobals:
+   ''' global variables, adjusted in checkSystemType for particular flavour of linux '''
+   IfCfgFile = '%s/ifcfg-%s' % (IFCONFIGDIR, ETHNAME)
+   NetcatCommand = 'nc'
+   NtpServiceName = 'ntpd'
+   NamedDirectory = '/var/named'
+
+   def __init(self):
+      pass
+
 
 global isFirstSystem
 isFirstSystem=True
@@ -61,6 +72,24 @@ def runningAsRoot() :
         MyID = commands.getoutput('id -n -u')
 
     return MyID == 'root'
+
+def checkSystemType () :
+    ''' Update filenames and commands to reflect current system.
+        Returns 'linux' for generic linux, otherwise specific type. '''
+
+    global IFCONFIGDIR
+
+    if os.path.exists("/etc/SuSE-release"):
+        log_printout("Installing on a SuSE system")
+        IFCONFIGDIR   = '/etc/sysconfig/network'          # Directory of all interface configurations on SUSE
+        sipxecsGlobals.IfCfgFile     = '%s/ifcfg-%s' % (IFCONFIGDIR, ETHNAME)
+        sipxecsGlobals.NetcatCommand = 'netcat'
+        sipxecsGlobals.NtpServiceName = 'ntp'
+        sipxecsGlobals.NamedDirectory = '/var/lib/named'
+        return 'suse'
+    else:
+        return 'linux'
+
 
 # logging utilities 
 
@@ -603,7 +632,7 @@ def get_netif () :
      show_progress()
      # Read the configuration file for the ethernet interface
      try:
-         ifcfgContents   = file (IFCFGFILE).read().strip()
+         ifcfgContents   = file (sipxecsGlobals.IfCfgFile).read().strip()
      except:
          ifcfgContents   = ""
 
@@ -611,18 +640,29 @@ def get_netif () :
      reIPADDR = re.compile ('^IPADDR=(\S*)', re.M)
      found    = reIPADDR.search (ifcfgContents)
      if found:
-         IpAddress=found.group(1)
-
-         reIPMASK    = re.compile ('^NETMASK=(\S*)', re.M)
-         found    = reIPMASK.search (ifcfgContents)
-         if found:
-             NetMask=found.group(1)
+         rawIpAddress=found.group(1).lstrip("'").rstrip("'")
+         # address and netmask can be in form ipaddr/prefixlength, in which case NETMASK is ignored
+         partIpAddress=rawIpAddress.split('/')
+         IpAddress=partIpAddress[0]
+         if len(partIpAddress) == 2:
+             prefixlen = int(partIpAddress[1])
+             # adapted from recipes at http://code.activestate.com/recipes/66517/
+             netmasknum = ((2L<<prefixlen-1)-1) << (32-prefixlen)
+             NetMask = inet_ntoa(pack('!L', netmasknum))
+             log_printout("Read network mask from %s: %s" % (rawIpAddress, NetMask))
              netInfoFound=True
-             log_printout("Read network info from %s" % IFCFGFILE)
          else:
-             log_printout("Could not find NETMASK in %s" % IFCFGFILE)
+             reIPMASK    = re.compile ('^NETMASK=(\S*)', re.M)
+             found    = reIPMASK.search (ifcfgContents)
+             if found:
+                 NetMask=found.group(1)
+                 netInfoFound=True
+             else:
+                 log_printout("Could not find NETMASK in %s" % sipxecsGlobals.IfCfgFile)
+         if netInfoFound:
+             log_printout("Read network info from %s" % sipxecsGlobals.IfCfgFile)
      else:
-         log_printout("Could not find IPADDR in %s" % IFCFGFILE)
+         log_printout("Could not find IPADDR in %s" % sipxecsGlobals.IfCfgFile)
              
      return netInfoFound
 
@@ -636,7 +676,7 @@ from the configuration file:\n\
    %s\n\
 Enter the network interface settings for the interface\n\
 to be used by @SIPXECS_NAME@ services:\n\
-" % IFCFGFILE
+" % sipxecsGlobals.IfCfgFile
 
    valuesOk=False
    while not valuesOk :

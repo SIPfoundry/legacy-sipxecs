@@ -123,8 +123,8 @@ public class TimeManagerImpl implements TimeManager {
     public int getSystemTimeSettingType() {
         // return 0 if ntpd is running, 1 if it's not
         try {
-            CommandOutput output = executeCommand(getBinDirectory() + File.separator
-                    + SIPX_TIME, "--status");
+            CommandOutput output = executeCommand(getLibExecDirectory() + File.separator
+                    + SIPX_SUDO_TIME, "--status");
             handleCommandErrors(output);
             int code = output.getReturnCode();
             return code == 0 ? 0 : 1;

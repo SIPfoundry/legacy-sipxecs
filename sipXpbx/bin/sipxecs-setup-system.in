@@ -26,12 +26,7 @@ def testing () :
 
 #--- Local constants and files
 
-IFCONFIGDIR    = '/etc/sysconfig/network-scripts'  # Directory of all interface configurations
-ETHNAME        = 'eth0'                            # Supported Ethernet interface
-IFCFGFILE      = '%s/ifcfg-%s' % (IFCONFIGDIR, ETHNAME)
 RootInitFile   = '/root/.bashrc'
-
-DNSSYSCFGFILE  = '/etc/sysconfig/named'
 
 RUNLEVEL=3
 
@@ -416,9 +411,10 @@ def set_netif () :
      # Read a configuration file for a first ethernet interface
      # (presumably /etc/sysconfig/network-scripts/ifcfg-eth0)
      try:
-         ifcfgContents   = file (IFCFGFILE).read().strip()
+         ifcfgContents   = file (sipxecsGlobals.IfCfgFile).read().strip()
+         log_printout("Read network info from %s" % sipxecsGlobals.IfCfgFile)
      except:
-         ifcfgContents   = ""
+         abortMsgAndExit( "Could not find network file %s" % sipxecsGlobals.IfCfgFile )
 
      # Get IP address and IP mask
      addrLst = IpAddress.split('.')
@@ -456,7 +452,7 @@ def set_netif () :
      log_printout(ifcfgContents)
 
      if runningAsRoot() :
-         file (IFCFGFILE, 'w').write(ifcfgContents)
+         file (sipxecsGlobals.IfCfgFile, 'w').write(ifcfgContents)
 
 def set_network ():
     """
@@ -471,19 +467,27 @@ def set_network ():
 
     show_progress()
 
-    # Create file: /etc/sysconfig/network
-    file1 = '/etc/sysconfig/network'
-    f1Cont = '\
+    if linuxType == 'suse':
+        # Create file: /etc/sysconfig/network/routes
+        file1 = '/etc/sysconfig/network/routes'
+        f1Cont = '\
+default %s - -\
+' % Gateway
+    else:
+        # Create file: /etc/sysconfig/network
+        file1 = '/etc/sysconfig/network'
+        f1Cont = '\
 NETWORKING=yes\n\
 HOSTNAME=%s\n\
 GATEWAY=%s\n\
 ' % ( HostName, Gateway )
+
     log_printout("======= %s:" % file1)
     log_printout(f1Cont)
     if runningAsRoot() :
         file (file1, 'w').write(f1Cont)
 
-    # Rewrtie file: /etc/hosts
+    # Rewrite file: /etc/hosts
     file2 = '/etc/hosts'
     f2Cont  = '\
 # Do not remove the following line, or various programs\n\
@@ -588,10 +592,10 @@ def set_DNS () :
         # Configure the named service
         namedConf = '\
 options {\n\
-        directory  "/var/named";\n\
-        dump-file "/var/named/data/cache_dump.db";\n\
-        statistics-file "/var/named/data/named_stats.txt";\n\
-'
+        directory  "%s";\n\
+        dump-file "%s/data/cache_dump.db";\n\
+        statistics-file "%s/data/named_stats.txt";\n\
+' % ( sipxecsGlobals.NamedDirectory, sipxecsGlobals.NamedDirectory, sipxecsGlobals.NamedDirectory )
         if DnsServers[0] != '' or DnsServers[1] != '':
             namedConf+= '\
         forwarders {\n'
@@ -627,10 +631,10 @@ zone "%s"  IN  {\n\
 //\n\
 \n\
 options {\n\
-        directory "/var/named";\n\
-        dump-file "/var/named/data/cache_dump.db";\n\
-        statistics-file "/var/named/data/named_stats.txt";\n\
-'
+        directory "%s";\n\
+        dump-file "%s/data/cache_dump.db";\n\
+        statistics-file "%s/data/named_stats.txt";\n\
+' % ( sipxecsGlobals.NamedDirectory, sipxecsGlobals.NamedDirectory, sipxecsGlobals.NamedDirectory )
         if DnsServers[0] != '' or DnsServers[1] != '':
             namedConf+= '\
         forwarders {\n'
@@ -658,10 +662,10 @@ options {\n\
         # Zone files are only required for the Master DNS server.
         # A Master DNS server is used for a non HA setup or on the HA Master host
 
-        zoneConfigFile='/var/named/%s.zone' % DomainName
+        zoneConfigFile='%s/%s.zone' % (sipxecsGlobals.NamedDirectory, DomainName)
 
         # Create DNS entries using the sipx-dns script
-        sipxDNSCommand = 'sipx-dns --provide-dns --zone %s %s/%s' \
+        sipxDNSCommand = '@SIPX_BINDIR@/sipx-dns --provide-dns --zone %s %s/%s' \
                          % (DomainName, HostName, IpAddress)
 
         zoneConfig = commands.getoutput(sipxDNSCommand)
@@ -673,7 +677,7 @@ options {\n\
             file ( zoneConfigFile, 'w').write( zoneConfig )
             
     # Change ownership of zone files
-    setOwnerRecursive('/var/named','named', 'named')
+    setOwnerRecursive(sipxecsGlobals.NamedDirectory, 'named', 'named')
 
     if runningAsRoot():
         startNamedCmd = 'service named restart'
@@ -797,8 +801,7 @@ UTC=true\n' % TimeZone
             peerResult=commands.getstatusoutput(peerCmd)
             log_printout(peerResult[1])
             if peerResult[0] == 0 :
-                ntpServerReachable=True
-                peerCmd='nc -u -p 123 -z "%s" 123' % ts
+                peerCmd='%s -u -p 1233 -z "%s" 123' % (sipxecsGlobals.NetcatCommand, ts)
                 log_printout("Checking ntp server port: '%s'" % peerCmd)
                 peerResult=commands.getstatusoutput(peerCmd)
                 log_printout(peerResult[1])
@@ -902,7 +905,7 @@ driftfile /var/lib/ntp/drift\n\
         
     #--- Turn on the ntpd service on runlevel 3
     log_printout('Enable NTP Service in runlevel %d:' % RUNLEVEL)
-    turnOnNtpd='/sbin/chkconfig --level %d ntpd on' % RUNLEVEL
+    turnOnNtpd='/sbin/chkconfig --level %d %s on' % (RUNLEVEL, sipxecsGlobals.NtpServiceName)
     if runningAsRoot() :
         cmdoutput=commands.getoutput(turnOnNtpd)
         log_printout(cmdoutput)
@@ -916,6 +919,9 @@ driftfile /var/lib/ntp/drift\n\
         progress(86, ntpSetMsg)
         show_starting()
         if runningAsRoot() :
+            log_printout("Stopping ntp service to set time")
+            cmdoutput=commands.getoutput ('service %s stop' % sipxecsGlobals.NtpServiceName)
+            log_printout (cmdoutput)
             ntpSetCmd='/usr/sbin/ntpdate ' + ' '.join(NtpServers)
             log_printout("Attempting to set date/time with: '%s'" % ntpSetCmd)
             cmdresult=commands.getstatusoutput(ntpSetCmd)
@@ -1137,28 +1143,31 @@ Hours are 00-23.\
     progress(88, ntpStartMsg)
     show_starting()
     if runningAsRoot() :
-        cmdoutput=commands.getoutput ('service ntpd start')
+        cmdoutput=commands.getoutput ('service %s start' % sipxecsGlobals.NtpServiceName)
         log_printout (cmdoutput)
     else :
-        log_printout('(simlulated) service ntpd start')
+        log_printout('(simlulated) service %s start' % sipxecsGlobals.NtpServiceName)
     show_next()
 
 def removeInitScript () :
 
     if runningAsRoot() :
-        foundSetup = 'False'
-        initFileLines = file(RootInitFile).read().split('\n')
+        foundSetup = False
+        try:
+           initFileLines = file(RootInitFile).read().split('\n')
 
-        # this must be carefully coordinated with the insertion of this in ks.cfg
-        initScript=re.compile('sipxecs-setup-system')
-        newInitFile = open(RootInitFile,'w')
-        for line in initFileLines :
-            if initScript.search(line):
-                foundSetup = 'True'
-                continue
-            else:
-                newInitFile.write("%s\n" % line)
-        newInitFile.close
+           # this must be carefully coordinated with the insertion of this in ks.cfg
+           initScript=re.compile('sipxecs-setup-system')
+           newInitFile = open(RootInitFile,'w')
+           for line in initFileLines :
+               if initScript.search(line):
+                   foundSetup = True
+                   continue
+               else:
+                   newInitFile.write("%s\n" % line)
+           newInitFile.close
+        except:
+           log_printout("'%s' not found" % RootInitFile)
 
         if foundSetup :
             log_printout("sipxecs-setup-system removed from '%s'" % RootInitFile)
@@ -1180,8 +1189,8 @@ Welcome to your new VoIP system\n\
 ===============================\n\
 \n\
 Admin interface:\n\
-Point a Browser at: http://%s\n \
-                or: http://%s\n \
+Point a Browser at: http://%s\n\
+                or: http://%s\n\
 \n' % ( HostName, IpAddress )
 
      log_printout("/etc/issue file:")
@@ -1226,6 +1235,7 @@ try:
             abortMsgAndExit( 'You must be the "root" user to run this script' )
             
     removeInitScript()
+    linuxType=checkSystemType()
 
     progress(3,"Start Wizard")
     screen_startup()
@@ -1277,7 +1287,7 @@ except:
         errMsg   = 'UNEXPECTED EXCEPTION CAPTURED:\n'
         errMsg  += '%s: %s ' % (str(excType), str(excData))
         errMsg  += '(exception occured in file: %s, line: %s)' % (errStack[0], errStack[1])
-        log_printout ( errMsg )
+        abortMsgAndExit( errMsg )
     cleanExit()
 
 

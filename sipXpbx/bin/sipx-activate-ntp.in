@@ -5,14 +5,19 @@ remove_self () {
     rm -f $0
 }
 
-if ! /sbin/chkconfig ntpd
-then
-    /sbin/chkconfig ntpd on
+NTPD_NAME="ntpd"
+if test -f /etc/SuSE-release; then
+  NTPD_NAME="ntp"
 fi
 
-if ! /sbin/service ntpd status
+if ! /sbin/chkconfig $NTPD_NAME
 then
-    /sbin/service ntpd start && remove_self
+    /sbin/chkconfig $NTPD_NAME on
+fi
+
+if ! /sbin/service $NTPD_NAME status
+then
+    /sbin/service $NTPD_NAME start && remove_self
 else
     remove_self
 fi

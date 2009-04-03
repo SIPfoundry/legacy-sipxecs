@@ -86,6 +86,7 @@ try:
     progress(1,"Start @SIPXECS_NAME@ Services Setup")
     screen_sipx_startup()
 
+    checkSystemType()
     do_sipx_setup()
 
     refresh_sipxconfig_db()
@@ -105,7 +106,7 @@ except:
         errMsg   = 'UNEXPECTED EXCEPTION CAPTURED:\n\n'
         errMsg  += '%s: %s ' % (str(excType), str(excData))
         errMsg  += '(exception occured in file: %s, line: %s)' % (errStack[0], errStack[1])
-        log_printout ( errMsg )
+        abortMsgAndExit( errMsg )
     cleanExit()
 
 
