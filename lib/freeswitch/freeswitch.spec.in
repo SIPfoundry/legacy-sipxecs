@@ -39,6 +39,7 @@ BuildRequires: openssl-devel
 BuildRequires: perl
 %if 0%{?fedora_version} >= 8
 BuildRequires: perl-devel
+BuildRequires: perl-ExtUtils-Embed
 %endif
 BuildRequires: pkgconfig
 #BuildRequires: termcap
