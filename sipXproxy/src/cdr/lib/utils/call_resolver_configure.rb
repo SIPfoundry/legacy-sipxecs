@@ -59,7 +59,6 @@ class CallResolverConfigure
     def from_file(confdir = DEFAULT_CONF_DIR, logdir = DEFAULT_LOG_DIR)
       config_file =  File.join(confdir, CONFIG_FILE_NAME)
       configure = if File.exists?(config_file)
-        $stderr.puts("Reading config from #{config_file}")
         Configure.from_file(config_file)
       else
         $stderr.puts("Config file #{config_file} not found, using default settings")
