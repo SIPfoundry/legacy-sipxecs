@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.service;
 import java.util.Arrays;
 
 import org.sipfoundry.sipxconfig.admin.commserver.ConflictingFeatureCodeValidator;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class SipxRegistrarService extends SipxService implements LoggingEntity {
@@ -42,8 +43,7 @@ public class SipxRegistrarService extends SipxService implements LoggingEntity {
      */
     @Override
     public void validate() {
-        SipxService presenceService = getSipxServiceManager().getServiceByBeanId(
-                SipxPresenceService.BEAN_ID);
+        SipxService presenceService = getSipxServiceManager().getServiceByBeanId(SipxPresenceService.BEAN_ID);
         new ConflictingFeatureCodeValidator().validate(Arrays.asList(new Setting[] {
             getSettings(), presenceService.getSettings()
         }));
@@ -75,5 +75,17 @@ public class SipxRegistrarService extends SipxService implements LoggingEntity {
     @Override
     public String getLabelKey() {
         return super.getLabelKey();
+    }
+
+    /**
+     * Generates part of SIP URI used to forward traffic to registrar
+     */
+    public String formatMappingLocation(Location location, boolean multipleRegistrars) {
+        String fqdn = location.getFqdn();
+        if (multipleRegistrars) {
+            // more than one service - use DNS SRV
+            return "rr." + fqdn;
+        }
+        return String.format("%s:%s;transport=tcp", fqdn, getSipPort());
     }
 }

@@ -31,12 +31,12 @@
       </fieldMatch>
 
       <!-- All other SUBSCRIBE requests go to the SIP registry service -->
-      <routeTo>&lt;192.168.1.1:9907;transport=tcp;x-sipx-routetoreg&gt;</routeTo>
+      <routeTo>&lt;sipx.example.org:9907;transport=tcp;x-sipx-routetoreg&gt;</routeTo>
 
     </methodMatch>
 
     <!-- All other requests go to the SIP registry service -->
-    <routeTo>&lt;192.168.1.1:9907;transport=tcp;x-sipx-routetoreg&gt;</routeTo>
+    <routeTo>&lt;sipx.example.org:9907;transport=tcp;x-sipx-routetoreg&gt;</routeTo>
 
   </route>
 

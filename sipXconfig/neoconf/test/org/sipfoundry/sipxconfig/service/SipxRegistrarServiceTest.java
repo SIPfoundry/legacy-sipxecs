@@ -14,6 +14,7 @@ import junit.framework.TestCase;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
@@ -56,12 +57,23 @@ public class SipxRegistrarServiceTest extends TestCase {
 
         presenceSettings.getSetting("presence-config/SIP_PRESENCE_SIGN_IN_CODE").setValue("*123");
         registrarSettings.getSetting("call-pick-up/SIP_REDIRECT.100-PICKUP.DIRECTED_CALL_PICKUP_CODE").setValue("*123");
-        
+
         try {
             m_out.validate();
             fail("Expected validation exception due to duplicate codes.");
         } catch (UserException e) {
             // expected
         }
+    }
+
+    public void testFormatMappingLocation() {
+        Location l = new Location();
+        l.setAddress("10.1.1.1");
+        l.setFqdn("a.example.org");
+
+        m_out.setSipPort("5070");
+
+        assertEquals("a.example.org:5070;transport=tcp", m_out.formatMappingLocation(l, false));
+        assertEquals("rr.a.example.org", m_out.formatMappingLocation(l, true));
     }
 }
