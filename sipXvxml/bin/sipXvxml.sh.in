@@ -74,10 +74,13 @@ case ${Action} in
      ;;
 
    CONFIGTEST)
-     test -c @SIPX_CONFDIR@/voicemail.xml
-     Status=$?
-     #@bindir@/sipx-validate-xml @SIPX_CONFDIR@/?.xml
-     #Status=$(($Status+$?))
+     if test -r @SIPX_CONFDIR@/voicemail.xml
+     then
+         Status=0
+     else
+         echo "Missing @SIPX_CONFDIR@/voicemail.xml" 1>&2
+         Status=1
+     fi
      ;;
 
    STOP)
