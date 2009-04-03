@@ -206,7 +206,7 @@ public class Attendant {
                 // Use default menu
                 pl = m_loc.getPromptList("main_menu");
             }
-            m_loc.play(pl, "0123456789#");
+            m_loc.play(pl, "0123456789#*");
 
             // Wait for the caller to enter a selection.
             Collect c = new Collect(m_fses, m_config.getMaximumDigits(), m_config.getInitialTimeout(),

@@ -71,18 +71,21 @@ public class DialByName {
         }
         for (int i = 0; i < choices; i++) {
             String digit = Integer.toString(i+1);
-            // "Press {number} for"
-            pl.addFragment("press_n_for", digit);
 
             User u = matches.get(i);
             // Try to speak the user's recorded name
             String recordedName = new Mailbox(u, m_loc).getRecordedName();
+            String namePrompts;
             if (recordedName != null) {
-                pl.addPrompts(recordedName);
+                namePrompts = recordedName;
             } else {
+                PromptList ext = new PromptList(m_loc);
                 // "Extension {extension}"
-                pl.addFragment("extension", u.getUserName());
+                ext.addFragment("extension", u.getUserName());
+                namePrompts = ext.toString();
             }
+            // "Press {number} for {name}"
+            pl.addFragment("press_n_for", digit, namePrompts);
             digitMask.append(digit);
         }
         // "To cancel and enter a different name, press *."

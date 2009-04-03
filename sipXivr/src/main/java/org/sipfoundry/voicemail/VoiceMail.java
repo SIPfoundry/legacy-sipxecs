@@ -9,6 +9,8 @@
 
 package org.sipfoundry.voicemail;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Locale;
@@ -49,7 +51,7 @@ public class VoiceMail {
     private Configuration m_config;
     private ValidUsersXML m_validUsers;
 
-    private Hashtable<String, String> m_parameters;
+    private Hashtable<String, String> m_parameters;  // The parameters from the sip URI
     
     private Vector<Message> m_messages; // Message to be delivered at hangup
 
@@ -113,12 +115,11 @@ public class VoiceMail {
     String extensionToUrl(String extension) {
         return "sip:" + extension + "@" + m_ivrConfig.getSipxchangeDomainName();
     }
+    
     /**
-     * Run each Attendant until there is nothing left to do. If the SIP URL didn't pass in a
-     * particular attendant name, use the current time of day and the schedule to find which
-     * attendant to run.
-     * 
-     * Keep running the next returned attendant until there are none left, then exit.
+     * Run Voice Mail for each mailbox until there is nothing left to do.
+     *
+     * Keep running the next returned mailbox until there are none left, then exit.
      * 
      * @throws Throwable indicating an error or hangup condition.
      */
@@ -239,7 +240,14 @@ public class VoiceMail {
         }
         
         // Time to record a message
-        String wavName = "/tmp/dog.wav"; // TODO where to put and name temp files?
+        String wavName = "oops";
+        try {
+            File wavFile = File.createTempFile("temp_recording_", ".wav"); // TODO which tmp dir?
+            wavName = wavFile.getPath();
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot create temp recording file", e);
+        }
+        
         Message message = new Message(mailbox, wavName, displayUri, Priority.NORMAL);
         m_messages.add(message) ;
         
@@ -249,13 +257,14 @@ public class VoiceMail {
             // Record the message
             if (!recorded) {
                 Record rec = recordMessage(wavName);
-                
+
                 if (rec.getDigits() == "0") {
                     // Don't save the message.
                     message.setIsToBeStored(false);
                     transfer(getOperator(pa));
                     return null;
                 }
+                LOG.info("Mailbox "+mailbox.getUser().getUserName()+" Deposit Voicemail recorded message");
                 recorded = true ;
                 m_fses.trimDtmfQueue("") ; // Flush the DTMF queue
             }
@@ -268,6 +277,7 @@ public class VoiceMail {
             // To cancel, press *."
             pl = m_loc.getPromptList("deposit_options");
             String digit = menu(pl, "0123*");
+            LOG.info("Mailbox "+mailbox.getUser().getUserName()+" Deposit Voicemail options ("+digit+")");
 
             // bad entry, timeout or
             // "*" means cancel
@@ -329,7 +339,8 @@ public class VoiceMail {
     
             PromptList pl = m_loc.getPromptList("deposit_more_options");
             String digit = menu(pl, "01*");
-    
+            LOG.info("Mailbox "+mailbox.getUser().getUserName()+" MoreOptions ("+digit+")");
+
             // bad entry, timeout or
             // "*" means cancel
             if (digit == null || digit.equals("*")) {
@@ -360,8 +371,8 @@ public class VoiceMail {
                 c.setTermChars("#*");
                 c.go();
                 String digits = c.getDigits();  
-                LOG.info("copy message Collected digits=" + digits);
-                
+                LOG.info("Mailbox "+mailbox.getUser().getUserName()+" MoreOptions copy message ("+digits+")");
+
                 if (digits == null) {
                     timeoutCount++;
                     continue ;
@@ -372,7 +383,7 @@ public class VoiceMail {
 
                 // "*" means cancel
                 if (digits.equals("*")) {
-                    continue MoreOptions; // Gotta love lables!  Take that Dijkstra!
+                    continue MoreOptions; // Gotta love labels!  Take that Dijkstra!
                 }
 
                 // "0" means transfer to operator
@@ -439,14 +450,22 @@ public class VoiceMail {
      * @return A list of users on the distribution list, null on error
      */
     Vector<User> selectDistributionList(Mailbox mailbox, PersonalAttendant pa) {
-        PromptList pl = m_loc.getPromptList("deposit_select_distribution");
-        String digit = menu(pl, "0*");
+        DistributionsReader dr = new DistributionsReader();
+        Distributions d = dr.readObject(mailbox.getDistributionListsFile()) ;
 
-        // bad entry, timeout or
-        // "*" means cancel
-        if (digit == null || digit.equals("*")) {
-            goodbye(); // TODO * goes back a level, not exit
+        PromptList pl = m_loc.getPromptList("deposit_select_distribution");
+        String digit = menu(pl, "0*"+d.getIndices());
+        LOG.info("Mailbox "+mailbox.getUser().getUserName()+" selectDistributionList ("+digit+")");
+
+        // bad entry, or timeout
+        if (digit == null) {
+            goodbye(); 
             return null;
+        }
+        
+        // "*" means cancel
+        if (digit.equals("*")) {
+            return null ;
         }
 
         // "0" means transfer to operator
@@ -455,8 +474,20 @@ public class VoiceMail {
             return null;
         }
 
-        // TODO actually select a list!
-        return null;
+        Vector<String> userNames = d.getList(digit);
+        if (userNames == null) {
+            return null ;
+        }
+        
+        Vector<User> users = new Vector<User>();
+        for (String userName : userNames) {
+            User u = m_validUsers.isValidUser(userName);
+            if (u != null) {
+                users.add(u);
+            }
+        }
+        
+        return users;
     }
     
 
@@ -490,7 +521,7 @@ public class VoiceMail {
         LOG.info(String.format("Recording message (%s)", wavName));
         Record rec = new Record(m_fses, m_loc.getPromptList("beep"));
         rec.setRecordFile(wavName) ;
-        rec.setRecordTime(60); // TODO a better time here?
+        rec.setRecordTime(300); // TODO a better time here?
         rec.setDigitMask("0123456789*#"); // Any digit can stop the recording
         rec.go();
         return rec;
@@ -555,6 +586,7 @@ public class VoiceMail {
      * 
      */
     void goodbye() {
+        LOG.info("good bye");
         // Thank you.  Goodbye.
         m_loc.play("goodbye", "");
         new Hangup(m_fses).go();

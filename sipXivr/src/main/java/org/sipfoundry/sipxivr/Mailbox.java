@@ -157,4 +157,14 @@ public class Mailbox {
             throw new RuntimeException(e);
         }
     }
+
+    /**
+     * The file that holds the distribution lists
+     * @return the file.
+     */
+
+    public File getDistributionListsFile() {
+        return new File(getUserDirectory(), "distribution.xml");
+    }
+    
 }

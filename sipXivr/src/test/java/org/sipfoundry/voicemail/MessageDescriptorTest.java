@@ -10,14 +10,32 @@ package org.sipfoundry.voicemail;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.io.FileUtils;
 import org.sipfoundry.voicemail.MessageDescriptor.Priority;
 
 public class MessageDescriptorTest extends TestCase {
+    File m_testdir;
+    
+    protected void setUp() throws Exception {
+        super.setUp();
+        m_testdir = new File("/tmp/MessageDescriptorTest/");
+        if (m_testdir.isDirectory()) {
+            FileUtils.forceDelete(m_testdir);
+        }
+        m_testdir.mkdir();
+    }
+
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        if (m_testdir.isDirectory()) {
+            FileUtils.forceDelete(m_testdir);
+        }
+    }
+    
     public void testMessageDescriptorWriter() throws IOException {
         // Start with empty MessageDescriptor
         MessageDescriptor md = new MessageDescriptor();
@@ -35,7 +53,7 @@ public class MessageDescriptorTest extends TestCase {
 
         MessageDescriptorWriter mdw = new MessageDescriptorWriter();
         File tempFile;
-        tempFile = File.createTempFile("MessageDescriptorTest", ".xml", new File("/tmp"));
+        tempFile = File.createTempFile("MessageDescriptorTest", ".xml", m_testdir);
         mdw.writeObject(md, tempFile);
         assertTrue(tempFile.exists());
         String contents = org.apache.commons.io.FileUtils.readFileToString(tempFile);
@@ -104,7 +122,6 @@ public class MessageDescriptorTest extends TestCase {
         contents = org.apache.commons.io.FileUtils.readFileToString(tempFile);
         assertEquals(timeXml, contents);
 
-
         tempFile.delete();
     }
 
@@ -122,7 +139,7 @@ public class MessageDescriptorTest extends TestCase {
             "</messagedescriptor>\n";
 
         File tempFile;
-        tempFile = File.createTempFile("MessageDescriptorTest", ".xml", new File("/tmp"));
+        tempFile = File.createTempFile("MessageDescriptorTest", ".xml", m_testdir);
         org.apache.commons.io.FileUtils.writeStringToFile(tempFile, xml);
         
         MessageDescriptorReader mdr = new MessageDescriptorReader();

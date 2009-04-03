@@ -49,6 +49,8 @@ public class FreeSwitchEventSocket extends FreeSwitchEventSocketInterface {
         LOG.debug(event.getResponse());
         setVariables(FreeSwitchEvent.parseHeaders(event.getResponse()));
 
+        // Enable draining the event queue before the socket closes
+        cmdResponse("linger");
         // Enable reporting of interesting events
         cmdResponse("myevents");
     }
