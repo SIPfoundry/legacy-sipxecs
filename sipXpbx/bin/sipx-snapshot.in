@@ -729,7 +729,7 @@ done
 for sipName in `rpm -qa --nodigest --nosignature | grep sipx`
 do
    echo "" >> ${SystemConfig}
-   echo "======== RPM $d" >> ${SystemConfig}
+   echo "======== RPM $sipName" >> ${SystemConfig}
    rpm -qi $sipName     >> ${SystemConfig}
 done
 
