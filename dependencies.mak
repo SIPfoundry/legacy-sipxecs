@@ -90,5 +90,5 @@ sipXivr : sipXcommons
 	@echo sipXivr
 
 .PHONY: sipXecs
-sipXecs : sipXproxy sipXregistry sipXpublisher sipXvxml sipXconfig sipXpbx sipXsupervisor sipXtools doc
+sipXecs : sipXproxy sipXregistry sipXpublisher sipXvxml sipXconfig sipXfreeSwitch sipXpbx sipXsupervisor sipXtools doc
 	@echo sipXecs
