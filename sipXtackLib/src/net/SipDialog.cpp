@@ -88,13 +88,21 @@ SipDialog::SipDialog(const SipMessage* initialMessage,
        UtlString contact;
        // Get the Contact, but as an addr-spec.
        initialMessage->getContactUri(0, &contact);
-       if(isFromLocal)
+       // If the message has been freshly composed but not yet sent, it
+       // may not have a Contact value (since most application code allows
+       // SipUserAgent to set the Contact).  In that case, do not attempt
+       // to parse the null Contact value.  (The m*Contact member should be
+       // updated later.)
+       if (!contact.isNull())
        {
-          mLocalContact.fromString(contact, TRUE);
-       }
-       else
-       {
-          mRemoteContact.fromString(contact, TRUE);
+          if (isFromLocal)
+          {
+             mLocalContact.fromString(contact, TRUE);
+          }
+          else
+          {
+             mRemoteContact.fromString(contact, TRUE);
+          }
        }
    }
    else
