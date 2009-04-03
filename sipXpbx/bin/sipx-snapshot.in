@@ -783,7 +783,7 @@ for command in \
     "top n 1 b" \
     "vmstat 5 2" \
     "free" \
-    "df" \
+    "df -h" \
     "ls -ld /tmp" \
     "@SIPX_BINDIR@/analyze_483s @SIPX_LOGDIR@/sipXproxy.log"
 do
