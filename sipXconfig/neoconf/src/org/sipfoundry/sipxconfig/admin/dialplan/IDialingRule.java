@@ -66,7 +66,7 @@ public interface IDialingRule {
     /**
      * List of host patterns for this rule, if empty rule will be appended to default host match
      *
-     * @return ip addresses, host names, or variables defined in config.defs
+     * @return ip addresses, host names, or variables 
      */
     public abstract String[] getHostPatterns();
 }

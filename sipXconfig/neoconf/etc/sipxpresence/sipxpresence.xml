@@ -49,12 +49,10 @@
       <value>*86</value>
     </setting>
     <setting name="PRESENCE_SERVER_SIP_PORT" advanced="yes">
-      <profileName>config.defs</profileName>
       <type refid="port-number" />
       <value>5130</value>
     </setting>
     <setting name="PRESENCE_SERVER_HTTP_PORT" advanced="yes">
-      <profileName>config.defs</profileName>
       <type refid="port-number" />
       <value>8111</value>
     </setting>

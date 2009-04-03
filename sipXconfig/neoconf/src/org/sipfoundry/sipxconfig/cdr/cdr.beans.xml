@@ -5,7 +5,6 @@
     <property name="jdbcUrl" value="jdbc:postgresql://localhost/SIPXCDR" />
   </bean>
 
-  <!-- cdrAgentPort and cdrAgentHost are set from config.defs in sipxconfig.properties -->
   <bean id="cdrManagerImpl" class="org.sipfoundry.sipxconfig.cdr.CdrManagerImpl">
     <property name="dataSource" ref="cdrDataSource" />
     <property name="csvLimit" value="25000" />

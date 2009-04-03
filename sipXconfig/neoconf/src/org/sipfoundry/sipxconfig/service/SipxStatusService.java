@@ -17,7 +17,6 @@ public class SipxStatusService extends SipxService implements LoggingEntity {
 
     public static final String LOG_SETTING = "status-config/SIP_STATUS_LOG_LEVEL";
 
-    // TODO: remove once it's removed from config.defs and voicemail.xml
     private int m_httpsPort;
 
     public void setHttpsPort(int httpsPort) {

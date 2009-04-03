@@ -32,7 +32,7 @@ def parse(args)
 
     opts.on_tail("-c", "--configtest", "Run tests on configuration") do 
       if ! defined? CONFIG_SERVER_AGENT_URL
-        raise "Missing items 'CONFIG_SERVER_AGENT_URL' in config.defs" 
+        raise "Missing item 'CONFIG_SERVER_AGENT_URL'" 
       end
       if CONFIG_SERVER_REPORT == "DISABLED"
         puts "sipxconfig-report DISABLED" 
