@@ -348,9 +348,12 @@ UtlBoolean SipRegistrar::operationalPhase()
    {
       OsSysLog::add(FAC_SIP, PRI_EMERG,
             "SipUserAgent reported a problem while starting up (port in use?)");
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "tcpPort = %d, udpPort = %d, tlsPort = %d, mBindIp = '%s'",
+                    tcpPort, udpPort, tlsPort, mBindIp.data());
    }
 
-   return mSipUserAgent->isOk() ;
+   return mSipUserAgent->isOk();
 }
 
 /// Get the XML-RPC dispatcher

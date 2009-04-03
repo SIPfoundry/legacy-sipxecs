@@ -162,9 +162,9 @@ void SipPublishContentMgr::publish(const char* resourceId,
                                    UtlBoolean fullState)
 {
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                  "SipPublishContentMgr::publish resourceId '%s', eventTypeKey '%s', eventType '%s', numContentTypes %d, noNotify %d",
+                  "SipPublishContentMgr::publish resourceId '%s', eventTypeKey '%s', eventType '%s', numContentTypes %d, noNotify %d, fullState %d",
                   resourceId, eventTypeKey, eventType, numContentTypes,
-                  noNotify);
+                  noNotify, fullState);
 
     UtlBoolean resourceIdProvided = resourceId && *resourceId;
 
@@ -645,11 +645,12 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
     {
        // No container found for this resource and event.
        OsSysLog::add(FAC_SIP, PRI_WARNING,
-                     "SipPublishContentMgr::getContent no container found for key '%s', acceptHeaderValue '%s', resourceId '%s', eventTypeKey ='%s', eventType '%s'",
+                     "SipPublishContentMgr::getContent no container found for key '%s', acceptHeaderValue '%s', resourceId '%s', eventTypeKey ='%s', eventType '%s', fullState = %d",
                      key.data(),
                      acceptHeaderValue ? acceptHeaderValue : "[none]",
                      resourceId ? resourceId : "[none]",
-                     eventTypeKey, eventType);
+                     eventTypeKey, eventType,
+                     fullState);
     }
 
     unlock();

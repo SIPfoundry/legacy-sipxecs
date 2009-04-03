@@ -231,6 +231,12 @@ public:
      *  \param fullState - if TRUE, this content is the full state for
      *         the event.  If FALSE, it is "partial state", the incremental
      *         changes since the previously published content.
+     *         Note that if partial state is searched for using ::getContent,
+     *         then it must be supplied, as ::getContent will not retrieve
+     *         full-state content in lieu of missing partial-state content.
+     *         Note that full-state changes should be published before
+     *         partial-state changes, as otherwise a new subscription between the
+     *         two ::publish() calls will see only the previous state.
      */
     virtual void publish(const char* resourceId,
                          const char* eventTypeKey,
@@ -320,6 +326,8 @@ public:
      *         values from the eventTypeKey content default.
      *  \param fullState - if TRUE, search for full-state content.
      *         If FALSE, search for partial-state content.
+     *         Note that full-state content will not be returned if partial-state
+     *         content is requested but none is found.
      */
     virtual UtlBoolean getContent(const char* resourceId,
                                   const char* eventTypeKey,

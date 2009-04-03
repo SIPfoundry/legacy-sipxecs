@@ -632,8 +632,10 @@ void SipUserAgent::addMessageObserver(OsMsgQ& messageQueue,
       mMessageObservers.insert(observer);
 
       // Allow the specified method
-      if(sipMethod && *sipMethod && wantRequests)
+      if (sipMethod && *sipMethod && wantRequests)
+      {
          allowMethod(sipMethod);
+      }
    }
 }
 
@@ -709,6 +711,10 @@ void SipUserAgent::executeAllSipOutputProcessors( SipMessage& message,
 
 void SipUserAgent::allowMethod(const char* methodName, const bool bAllow)
 {
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipUserAgent::allowMethod this = '%s', methodName = '%s', bAllow = %d",
+                  mName.data(), methodName, bAllow);
+
     if(methodName)
     {
         UtlString matchName(methodName);

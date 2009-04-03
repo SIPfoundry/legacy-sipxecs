@@ -218,7 +218,9 @@ UtlBoolean SipSubscribeServer::notifySubscribers(const char* resourceId,
             if (!callId.isNull())
             {
                // Fill in the NOTIFY request body/content
-               int version;
+               // Initialize 'version' to 0 since if getNotifyContent can't find
+               // content, it will not set 'version'.
+               int version = 0;
                eventData->mpEventSpecificHandler->
                   getNotifyContent(resourceId,
                                    eventTypeKey,

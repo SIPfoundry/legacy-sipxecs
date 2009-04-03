@@ -201,6 +201,17 @@ UtlBoolean SipRefreshManager::initiateRefresh(SipMessage& subscribeOrRegisterReq
                                               UtlString& earlyDialogHandle,
                                               UtlBoolean suppressFirstSend)
 {
+    if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+    {
+       UtlString b;
+       ssize_t l;
+       subscribeOrRegisterRequest.getBytes(&b, &l);
+       OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                     "SipRefreshManager::initiateRefresh  "
+                     "refreshStateCallback = %p, suppressFirstSend = %d, subscribeOrRegisterRequest = '%s'",
+                     refreshStateCallback, suppressFirstSend, b.data());
+    }
+
     UtlBoolean intitialRequestSent = FALSE;
 
     // Make sure we do not have an existing dialog or refresh session state
