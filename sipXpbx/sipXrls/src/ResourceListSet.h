@@ -169,10 +169,6 @@ class ResourceListSet : public UtlContainableAtomic
    void notifyEventCallbackSync(const UtlString* dialogHandle,
                                 const UtlString* content);
 
-   //! Static callback routine used to find and replace variable string values.
-   static UtlBoolean contentVersionCallback(SipMessage& notifyRequest,
-                                            int version);
-
    /** Add a mapping for an early dialog handle to its handler for
     *  subscription events.
     *  Note that the handler is UtlContainable, not ResourceSubscriptionReceiver.

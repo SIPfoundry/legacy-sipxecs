@@ -215,7 +215,7 @@ void ResourceListServer::start()
    // done loading the configuration.  This ensures that early subscribers
    // do not get NOTIFYs with incomplete information.
    mSubscribeServer.enableEventType(mEventType, NULL, NULL, NULL, NULL, 
-                                    &ResourceListSet::contentVersionCallback,
+                                    SipSubscribeServer::standardVersionCallback,
                                     FALSE);
    mSubscribeServer.start();
 

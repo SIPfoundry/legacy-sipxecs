@@ -574,6 +574,49 @@ UtlBoolean SipSubscribeServer::isEventTypeEnabled(const UtlString& eventType)
     return(eventData != NULL);
 }
 
+// Static callback routine used to find and replace variable string values in
+// subscription content.
+// For example the NOTIFY message in the SIP stack contains "&version;" rather 
+// than an actual version number [like "22"].
+// The content provided by publish() provides the "context
+// independent" part of the content, and the SIP stack keeps knowledge
+// of the version number sequence for each subscription.  This
+// callback combines these sources of information.
+UtlBoolean SipSubscribeServer::standardVersionCallback(SipMessage& notifyRequest,
+                                                       int version)
+{
+   // Search and replace the version number in the Notify.
+   UtlBoolean result = FALSE;
+
+   if (notifyRequest.getBody() != NULL)
+   {
+      UtlString msgBytes;
+      ssize_t msgLength;
+      // Extract the NOTIFY body as a UtlString.
+      notifyRequest.getBody()->getBytes(&msgBytes, &msgLength);
+      const char* contentType = notifyRequest.getBody()->getContentType();
+
+      // Look for the placeholder for the version number, "&version;".
+      #define PLACEHOLDER "&version;"
+      ssize_t msgIndex = msgBytes.index(PLACEHOLDER);
+      if (msgIndex != UTL_NOT_FOUND)
+      {
+         char buffer[20];
+         sprintf(buffer, "%d", version);
+         msgBytes.replace(msgIndex, sizeof (PLACEHOLDER) - 1, buffer);
+
+         HttpBody* tempBody =
+            new HttpBody(msgBytes.data(), msgBytes.length(), contentType);
+
+         // Write the new message contents (this deletes the old body)
+         notifyRequest.setBody(tempBody);
+         result = TRUE;
+      }
+   }
+
+   return result;
+}
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

@@ -232,6 +232,13 @@ public:
    //! Dump the object's internal state.
    void dumpState();
 
+   //! The standard callback routine to edit content.
+   /** Static method that finds and replaces "&version;" (at most once)
+    *  with the version value.
+    */
+   static UtlBoolean standardVersionCallback(SipMessage& notifyRequest,
+                                             int version);
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
