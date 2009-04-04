@@ -31,10 +31,6 @@ Requires: sendmail
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
 
-# should match sipXlib.m4:SIPX_VARDIR/upgrade
-%define upgrade_archive_dir %{_localstatedir}/sipxdata/upgrade
-%define this_archive %{name}-%{version}-%{release}.tgz
-
 %description
 The sipXecs project is a comprehensive small/medium scale Enterprise SIP PBX.
 
@@ -73,13 +69,6 @@ make
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
 
-%define upgrade_archive_root ${RPM_BUILD_ROOT}%{upgrade_archive_dir}
-mkdir -p %{upgrade_archive_root}
-# Make a 'current' tar file of etc for upgrade
-tar --directory ${RPM_BUILD_ROOT} \
-    -czf %{upgrade_archive_root}/%{this_archive} \
-    etc
-
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -103,8 +92,6 @@ rm -rf $RPM_BUILD_ROOT
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/process-state 
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/process-cfgver
 
-%{upgrade_archive_dir}/%{this_archive}
-
 %files devel
 %defattr(644,root,root,755)
 %docdir %{_datadir}/doc/sipxecs/%name
@@ -116,11 +103,3 @@ rm -rf $RPM_BUILD_ROOT
 rm -f %{_localstatedir}/sipxdata/tmp/processAlias.dat
 rm -f %{_localstatedir}/sipxdata/tmp/locked.lck
 
-%define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
-%define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz
-if [ -f %{current_archive} ]; then
-  mv %{current_archive} %{previous_archive}
-fi
-mv %{upgrade_archive_dir}/%{this_archive} %{current_archive}
-
-pkg-upgrade --previous %{previous_archive} --current %{current_archive}

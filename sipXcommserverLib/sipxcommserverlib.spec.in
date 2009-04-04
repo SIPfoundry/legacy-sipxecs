@@ -31,10 +31,6 @@ Requires: %{name}-doc
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
 
-# should match sipXlib.m4:SIPX_VARDIR/upgrade
-%define upgrade_archive_dir %{_localstatedir}/sipxdata/upgrade
-%define this_archive %{name}-%{version}-%{release}.tgz
-
 %description
 This project is used to hold code used in common by a number of the
 sipX family servers. It is not intended to be useful as a standalone
@@ -122,14 +118,6 @@ fi
 
 %post
 
-%define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
-%define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz
-if [ -f %{current_archive} ]; then
-  mv %{current_archive} %{previous_archive}
-fi
-mv %{upgrade_archive_dir}/%{this_archive} %{current_archive}
-
-pkg-upgrade --previous %{previous_archive} --current %{current_archive}
 
 %files
 %defattr(644,root,root,755)
@@ -176,9 +164,6 @@ pkg-upgrade --previous %{previous_archive} --current %{current_archive}
 %dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/sipdb
 %dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_libexecdir}/sipXecs
 %dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_libexecdir}/sipXecs/setup.d
-
-%{upgrade_archive_dir}/%{this_archive}
-%{upgrade_archive_dir}/%{name}-previous.tgz
 
 %files devel
 %defattr(644,root,root,755)

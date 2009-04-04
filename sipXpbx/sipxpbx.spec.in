@@ -48,10 +48,6 @@ Requires: newt python-newt
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
 
-# should match sipXlib.m4:SIPX_VARDIR/upgrade
-%define upgrade_archive_dir %{_localstatedir}/sipxdata/upgrade
-%define this_archive %{name}-%{version}-%{release}.tgz
-
 %description
 The sipXpbx project is a comprehensive small/medium scale Enterprise SIP PBX. It combines:
 
@@ -93,14 +89,6 @@ make
 # the way it is.
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
-
-%define upgrade_archive_root ${RPM_BUILD_ROOT}%{upgrade_archive_dir}
-mkdir -p %{upgrade_archive_root}
-tar --directory ${RPM_BUILD_ROOT} \
-    -czf %{upgrade_archive_root}/%{this_archive} \
-    etc \
-    usr/share/www/doc/vm_vxml \
-    usr/share/www/doc/aa_vxml
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -195,8 +183,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %attr(755,root,root) %{_datadir}/sipxecs/schema/presence-state.xsd
 
-%{upgrade_archive_dir}/%{this_archive}
-
 %files devel
 %defattr(644,root,root,755)
 %docdir %{_datadir}/doc/sipxecs/%name
@@ -212,21 +198,12 @@ rm -f %{_bindir}/backup-configs.sh
 rm -rf %{_datadir}/www/cgi-bin/processmonitor
 rm -f %{_sysconfdir}/sipxpbx/cbadmission.xml.in
 
-%define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
-%define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz
-if [ -f %{current_archive} ]; then
-  mv %{current_archive} %{previous_archive}
-fi
-mv %{upgrade_archive_dir}/%{this_archive} %{current_archive}
-
 %define old_processdefdir %{_sysconfdir}/sipxpbx/process.d
 %define upg_processdefdir %{_sysconfdir}/sipxpbx/process-old.d
 if [ -d %{old_processdefdir} ]; then
    mv %{old_processdefdir} %{upg_processdefdir}
    chmod -R 0777 %{upg_processdefdir}
 fi
-
-pkg-upgrade --previous %{previous_archive} --current %{current_archive}
 
 # Arrange for sipX to be started every time the system starts up.
 # It starts in runlevels 3 and 5.

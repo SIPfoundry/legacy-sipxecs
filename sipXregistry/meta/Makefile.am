@@ -8,10 +8,9 @@ schemas = \
 EXTRA_DATA = $(foreach xsd,$(schemas),$(xsd).in)
 
 EXTRA_DIST = \
-	$(EXTRA_DATA) \
-	$(SIPX30_CONFIG)
+	$(EXTRA_DATA)
 
-install-data-hook : install-schema $(PREVIOUS_CONFIG)
+install-data-hook : install-schema
 
 .PHONY: install-schema
 install-schema: $(foreach xsd,$(schemas),$(DESTDIR)@SIPX_DATADIR@/schema/$(xsd))
