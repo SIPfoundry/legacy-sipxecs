@@ -386,6 +386,9 @@ void ResourceList::genAndPublish(UtlBoolean consolidated, UtlString resourceList
    UtlSList partialList;
 
    // Generate and publish the fullState=TRUE notice body.
+   // Note that the full-state publish() must be done before the partial-state
+   // publish() to avoid race conditions with regard to starting a new
+   // subscription.
    body = generateRlmiBody(consolidated, RLMI_FULL, mResourcesList);
    getResourceListServer()->getEventPublisher(). 
       publish(resourceListUri.data(), 
