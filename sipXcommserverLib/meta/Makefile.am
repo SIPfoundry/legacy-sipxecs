@@ -3,12 +3,16 @@ include $(top_srcdir)/config/subdir.am
 schemas = \
 	authrules.xsd \
 	urlmap.xsd
+
 processed_schemas = \
 	registration.xsd
 
 EXTRA_DATA = \
 	$(schemas) \
 	$(foreach xsd,$(processed_schemas),$(xsd).in)
+
+EXTRA_DIST = \
+       $(EXTRA_DATA)
 
 install-data-hook : install-schema
 
