@@ -16,8 +16,7 @@ dist_bin_SCRIPTS = \
    ${PACKAGE}-config \
    pkg-upgrade \
    configmerge \
-   configquery \
-   get_def_addr
+   configquery
 
 setupbindir = @SIPX_LIBEXECDIR@/setup.d
 
