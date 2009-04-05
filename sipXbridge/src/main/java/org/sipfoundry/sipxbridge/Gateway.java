@@ -449,6 +449,7 @@ public class Gateway {
 	static void initializeSipxProxyAddresses() throws SipXbridgeException {
 		try {
 
+		    Gateway.proxyAddressTable.clear();
 			FindSipServer serverFinder = new FindSipServer(logger);
 			SipURI proxyUri = ProtocolObjects.addressFactory.createSipURI(null,
 					getBridgeConfiguration().getSipxProxyDomain());
@@ -1202,6 +1203,7 @@ public class Gateway {
 	 * @return
 	 */
 	public static Collection<Hop> getProxyAddressTable() {
+	    Gateway.initializeSipxProxyAddresses();
 		return Gateway.proxyAddressTable;
 	}
 
