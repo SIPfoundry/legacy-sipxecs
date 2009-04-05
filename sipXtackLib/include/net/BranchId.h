@@ -44,6 +44,8 @@ class BranchIdTest;
  * has been done and before any outgoing fork is sent, the loopDetected method
  * should be called passing the parent message; if loopDetected returns non-zero, then
  * a loop has been detected and a loop detected error should be returned instead.
+ * Some (hardcoded) parameters known to change during retargetting but which 
+ * do not affect forking are removed before the key hash is calculated.
  *
  * @nosubgrouping
  */

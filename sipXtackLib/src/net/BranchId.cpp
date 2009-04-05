@@ -46,6 +46,16 @@
 #define RFC3261_MAGIC_COOKIE_VALUE "z9hG4bK"
 const char* BranchId::RFC3261_MAGIC_COOKIE = RFC3261_MAGIC_COOKIE_VALUE;
 
+/// Url parameters that should be removed before hashing for the loop detection key
+const char* StripUrlParams[] =
+{
+};
+/// Header parameters that should be removed before hashing for the loop detection key
+const char* StripHeaderParams[] =
+{
+   SIP_SIPX_AUTHIDENTITY
+};
+
 #ifndef SIPXECS_COOKIE_EXTENSION
 #  define SIPXECS_COOKIE_EXTENSION "-sipXecs-"
 #endif
@@ -202,9 +212,22 @@ void BranchId::addFork(const Url& contact)
    // ensure that the value is regenerated with this key 
    mParentStringValid = false;
 
+   // make a copy of the Url so that we can remove the parameters that damage loop detection
+   Url strippedContact(contact);
+
+   // remove parameters known to break loop detection (by changing but not affecting routing)
+   for (size_t param=0; param<(sizeof(StripUrlParams)/sizeof(const char*)); param++)
+   {
+      strippedContact.removeUrlParameter(StripUrlParams[param]);
+   }
+   for (size_t param=0; param<(sizeof(StripHeaderParams)/sizeof(const char*)); param++)
+   {
+      strippedContact.removeHeaderParameter(StripHeaderParams[param]);
+   }
+
    // extract the requestUri for this fork
    UtlString* contactUri = new UtlString;
-   contact.getUri(*contactUri);
+   strippedContact.getUri(*contactUri);
 
    // put the fork requestUri into an ordered list for later hashing
    // to create the loop detection key.
