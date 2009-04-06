@@ -89,6 +89,11 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
         getHibernateTemplate().delete(sbcDevice);
     }
 
+    public void deleteSbcDevice(SbcDevice sbcDevice) {
+        m_daoEventPublisher.publishDelete(sbcDevice);
+        getHibernateTemplate().delete(sbcDevice);
+    }
+
     public void deleteSbcDevices(Collection<Integer> ids) {
         for (Integer id : ids) {
             SbcDevice sbcDevice = getSbcDevice(id);
@@ -247,8 +252,9 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
     public void onDelete(Object entity) {
         if (entity instanceof Location) {
             Location location = (Location) entity;
-            if (null != getBridgeSbc(location.getAddress())) {
-                deleteSbcDevice(getBridgeSbc(location.getAddress()).getId());
+            BridgeSbc bridgeSbc = getBridgeSbc(location.getAddress());
+            if (null != bridgeSbc) {
+                deleteSbcDevice(bridgeSbc);
             }
         }
     }
@@ -256,8 +262,9 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
     public void onSave(Object entity) {
         if (entity instanceof Location) {
             Location location = (Location) entity;
+            BridgeSbc bridgeSbc = getBridgeSbc(location.getAddress());
             if (location.isBundleInstalled(m_borderControllerBundle.getModelId())) {
-                if (null == getBridgeSbc(location.getAddress())) {
+                if (null == bridgeSbc) {
                     SbcDevice sipXbridgeSbc = newSbcDevice(m_sipXbridgeSbcModel);
                     sipXbridgeSbc.setAddress(location.getAddress());
                     sipXbridgeSbc.setName("sipXbridge-" + location.getId().toString());
@@ -265,8 +272,8 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
                     storeSbcDevice(sipXbridgeSbc);
                 }
                 activateBridgeSbc();
-            } else if (null != getBridgeSbc(location.getAddress())) {
-                deleteSbcDevice(getBridgeSbc(location.getAddress()).getId());
+            } else if (null != bridgeSbc) {
+                deleteSbcDevice(bridgeSbc);
             }
         }
     }
