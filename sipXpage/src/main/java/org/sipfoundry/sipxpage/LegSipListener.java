@@ -234,14 +234,18 @@ public class LegSipListener implements SipListener
       }
       else
       {
-     	 LOG.info(String.format("LegSipListener::endCall Leg %s dialog %s needs a BYE", leg.toString(), dialog.toString())) ; 
-         // Build a BYE request
-         Request request = dialog.createRequest(Request.BYE) ;
-         request.addHeader(userAgent);
-         // Create a new client transaction
-         ClientTransaction byeTransaction = sipProvider.getNewClientTransaction(request);
-         // Send it (in Dialog)
-         dialog.sendRequest(byeTransaction) ;
+         if (leg.isByed()) {
+             LOG.info(String.format("LegSipListener::endcall Leg %s got a bye, so don't send one", leg.toString()));
+         } else {
+         	 LOG.info(String.format("LegSipListener::endCall Leg %s dialog %s needs a BYE", leg.toString(), dialog.toString())) ; 
+             // Build a BYE request
+             Request request = dialog.createRequest(Request.BYE) ;
+             request.addHeader(userAgent);
+             // Create a new client transaction
+             ClientTransaction byeTransaction = sipProvider.getNewClientTransaction(request);
+             // Send it (in Dialog)
+             dialog.sendRequest(byeTransaction) ;
+         }
       }      
    }
 

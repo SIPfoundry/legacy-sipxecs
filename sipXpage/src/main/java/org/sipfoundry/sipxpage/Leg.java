@@ -35,7 +35,8 @@ public abstract class Leg implements LegListener
    String displayName ;             // The display name used in the Dialog
    SipUri requestUri ;              // The request URI that created the Dialog
    int rtpPort ;                    // The inbound RTP port (for OUR sdp)
-   String tag ;                      // This leg's tag (random number)
+   String tag ;                     // This leg's tag (random number)
+   boolean m_gotBye;                // True if the far end sent this leg a bye 
 
    public Leg (LegSipListener legSipListener, LegListener otherListener)
    {
@@ -89,7 +90,10 @@ public abstract class Leg implements LegListener
       if (event.getDescription().equals("sdp"))
       {
          gotSdp(event.getSdpAddress()) ;
+      } else if (event.getDescription().startsWith("dialog bye")) {
+          m_gotBye = true;
       }
+      
       if (otherListener != null)
       {
          event.setLeg(this) ; // Add this leg to the event so the otherListener can id it from us
@@ -202,4 +206,7 @@ public abstract class Leg implements LegListener
       return isServer ;
    }
 
+   public boolean isByed() {
+       return m_gotBye;
+   }
 }
