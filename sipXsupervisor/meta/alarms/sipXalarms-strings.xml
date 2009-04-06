@@ -105,7 +105,11 @@
          <description>The STUN Server address '{0}' is not resolvable. </description>
          <resolution>The STUN Server address is not resolvable. Reconfigure your STUN server settings to point at a functioning STUN server. </resolution>
       </alarm>
-
+      <alarm id="SIPX_BRIDGE_ITSP_SERVER_FAILURE">
+         <shorttitle>The ITSP reported a server failure.</shorttitle>
+         <description>The ITSP '{0}' reported a server failure. </description>
+         <resolution>Contact your ITSP and report the failure.</resolution>
+      </alarm>
       <!-- Add new alarms above this line.
           Notes:
             'id='         must match definition in etc/sipXalarms-config.xml

@@ -189,6 +189,32 @@ public class RegistrationManager {
     					logger.debug("Could not send alarm", ex);
     				}
     			}
+    		} else if ( response.getStatusCode() / 100 == 5 || response.getStatusCode() / 100 == 6){
+    		    /* Authentication failed. Try again after 30 seconds */
+                ItspAccountInfo itspAccount = ((TransactionContext) ct.getApplicationData()).getItspAccountInfo();
+                if (itspAccount.getSipKeepaliveMethod().equals("CR-LF")) {
+                    itspAccount.stopCrLfTimerTask();
+                }
+                if (!itspAccount.isAlarmSent()) {
+                    try {
+                        Gateway.getAlarmClient().raiseAlarm(
+                                "SIPX_BRIDGE_ITSP_SERVER_FAILURE",
+                                itspAccount.getSipDomain());
+                        itspAccount.setAlarmSent(true);
+                    } catch (Exception ex) {
+                        logger.debug("Could not send alarm", ex);
+                    }
+                }
+                /*
+                 * Retry the server again after 60 seconds.
+                 */
+    		    if (itspAccount.registrationTimerTask == null) {
+                    TimerTask ttask = new RegistrationTimerTask(itspAccount);
+                    Gateway.getTimer().schedule(ttask, 60 * 1000);
+                }
+
+    		} else {
+    		    logger.warn("RegistrationManager: Unexpected Error Code seen " + response.getStatusCode());
     		}
 		}
 	}
