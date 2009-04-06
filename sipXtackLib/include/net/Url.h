@@ -24,11 +24,11 @@ class UtlDList;
 // DEFINES
 
 // sip:/sips: URI parameters
-#define SIP_GRUU_URI_PARAM                  ("gr")
-#define SIPX_DONE_URI_PARAM                 ("x-sipX-done")
-#define SIPX_NO_NAT_URI_PARAM               ("x-sipX-nonat")
-#define SIPX_PRIVATE_CONTACT_URI_PARAM      ("x-sipX-privcontact")
-#define SIPX_ROUTE_TO_REGISTRAR_URI_PARAM   ("x-sipX-routetoreg")
+#define SIP_GRUU_URI_PARAM                  "gr"
+#define SIPX_DONE_URI_PARAM                 "x-sipX-done"
+#define SIPX_NO_NAT_URI_PARAM               "x-sipX-nonat"
+#define SIPX_PRIVATE_CONTACT_URI_PARAM      "x-sipX-privcontact"
+#define SIPX_ROUTE_TO_REGISTRAR_URI_PARAM   "x-sipX-routetoreg"
 
 // MACROS
 // EXTERNAL FUNCTIONS
