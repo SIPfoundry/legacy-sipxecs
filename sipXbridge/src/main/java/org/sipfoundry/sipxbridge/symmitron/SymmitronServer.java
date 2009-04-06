@@ -87,6 +87,10 @@ public class SymmitronServer implements Symmitron {
     private static Map<String, String> instanceTable = new ConcurrentHashMap<String, String>();
 
     private static PortRangeManager portRangeManager;
+    
+    private static boolean alarmSent;
+    
+    private static boolean addressResolutionAlarmSent = false;
 
     /*
      * My Instance handle
@@ -129,22 +133,7 @@ public class SymmitronServer implements Symmitron {
 
             if (stunServerAddress != null) {
                 logger.info("Start address discovery");
-                int localStunPort = 0;
-                for (int i = STUN_PORT; i < STUN_PORT + 10; i++) {
-                    try {
-                        DatagramSocket socket = new DatagramSocket(new InetSocketAddress(
-                                InetAddress.getByName(symmitronConfig.getLocalAddress()), i));
-                        localStunPort = i;
-                        socket.close();
-                        break;
-                    } catch (Exception ex) {
-                        continue;
-                    }
-                }
-
-                if (localStunPort == 0) {
-                    throw new SymmitronException("Could not find port for address discovery");
-                }
+                int localStunPort = STUN_PORT + 1;
 
                 StunAddress localStunAddress = new StunAddress(symmitronConfig.getLocalAddress(),
                         localStunPort);
@@ -171,11 +160,15 @@ public class SymmitronServer implements Symmitron {
                     return;
                 }
 
-                publicAddress = stunAddress.getSocketAddress().getAddress();
-                logger.debug("Stun report = " + report);
-                String publicAddr = publicAddress.getHostAddress();
-                logger.debug("publicAddress = " + publicAddr);
-                symmitronConfig.setPublicAddress(publicAddr);
+                if (publicAddress == null
+                        || !publicAddress.equals(stunAddress.getSocketAddress().getAddress())) {
+                    publicAddress = stunAddress.getSocketAddress().getAddress();
+                    logger.debug("Public Address Changed! Stun report = " + report);
+                    String publicAddr = publicAddress.getHostAddress();
+                    logger.debug("publicAddress = " + publicAddr);
+                    symmitronConfig.setPublicAddress(publicAddr);
+                }
+                addressDiscovery.shutDown();
 
             } else {
                 logger.error("Stun server address not speicifed");
@@ -1164,6 +1157,62 @@ public class SymmitronServer implements Symmitron {
             throw new SymmitronException(ex);
         }
     }
+    
+    /**
+     * Try an address discovery. If it did not work, then send an alarm. This deals with
+     * accidental mis-configurations of the STUN server address.
+     */
+    private static void tryDiscoverAddress() {
+        try {
+            try {
+                 SymmitronServer
+                        .findIpAddress(SymmitronServer.symmitronConfig
+                                .getStunServerAddress());
+                addressResolutionAlarmSent = false;
+            } catch (UnknownHostException ex) {
+                /*
+                 * Cannot resolve address or bad address entered. Carry on bravely -
+                 * maybe we will recover.
+                 */
+                try {
+                    if (!addressResolutionAlarmSent) {
+                        SymmitronServer.alarmClient.raiseAlarm(
+                                SymmitronServer.STUN_ADDRESS_ERROR_ALARM_ID,
+                                SymmitronServer.symmitronConfig
+                                        .getStunServerAddress());
+                        addressResolutionAlarmSent = true;
+                        return;
+                    }
+                } catch (XmlRpcException e) {
+                    logger.error("Problem sending Alarm", ex);
+                }
+            }
+            /* Address of STUN server successfully resolved. Lets try to contact it */
+
+            discoverAddress();
+            if (SymmitronServer.getPublicInetAddress() == null && !alarmSent) {
+                SymmitronServer.alarmClient.raiseAlarm(STUN_FAILURE_ALARM_ID,
+                        SymmitronServer.symmitronConfig.getStunServerAddress());
+                alarmSent = true;
+
+            } else if (SymmitronServer.getPublicInetAddress() != null && alarmSent) {
+                SymmitronServer.alarmClient.raiseAlarm(STUN_RECOVERY_ALARM_ID,
+                        SymmitronServer.symmitronConfig.getStunServerAddress());
+                alarmSent = false;
+            }
+        } catch (Exception ex) {
+            try {
+                if (!alarmSent) {
+                    SymmitronServer.alarmClient.raiseAlarm(STUN_FAILURE_ALARM_ID,
+                            SymmitronServer.symmitronConfig.getStunServerAddress());
+                    alarmSent = true;
+                }
+            } catch (XmlRpcException e) {
+                logger.error("Problem sending Alarm", ex);
+            }
+            logger.error("Error discovering address - stun server down?");
+        }
+    }
 
     public static void start() throws Exception {
         SymmitronServer.configDir = System.getProperty("conf.dir", "/etc/sipxpbx");
@@ -1204,7 +1253,7 @@ public class SymmitronServer implements Symmitron {
         }
         SymmitronServer.setSymmitronConfig(config);
 
-        logger.info("Checking port range " + config.getPortRangeLowerBound() + ":"
+        /* logger.info("Checking port range " + config.getPortRangeLowerBound() + ":"
                 + config.getPortRangeUpperBound());
         for (int i = config.getPortRangeLowerBound(); i < config.getPortRangeUpperBound(); i++) {
             try {
@@ -1215,79 +1264,29 @@ public class SymmitronServer implements Symmitron {
                 throw ex;
             }
         }
-        logger.info("Port range checked ");
+        logger.info("Port range checked "); */
 
         if (config.getPublicAddress() == null && config.getStunServerAddress() != null) {
-            /*
-             * Try an address discovery. If it did not work, then send an alarm. This deals with
-             * accidental mis-configurations of the STUN server address.
-             */
-
+            
+            tryDiscoverAddress();
             timer.schedule(new TimerTask() {
-                boolean alarmSent;
-                boolean addressResolutionAlarmSent = false;
-
+              
                 @Override
                 public void run() {
-                    InetAddress stunInetAddress = null;
-                    try {
-                        try {
-                            stunInetAddress = SymmitronServer.findIpAddress(SymmitronServer.symmitronConfig
-                                    .getStunServerAddress());
-                            addressResolutionAlarmSent = false;
-                        } catch (UnknownHostException ex) {
-                            /* Cannot resolve address or bad address entered. Carry on bravely - maybe we will recover. */
-                            try {
-                                if (!addressResolutionAlarmSent) {
-                                    SymmitronServer.alarmClient.raiseAlarm(
-                                            SymmitronServer.STUN_ADDRESS_ERROR_ALARM_ID,
-                                            SymmitronServer.symmitronConfig
-                                                    .getStunServerAddress());
-                                    addressResolutionAlarmSent = true;
-                                    return;
-                                }
-                            } catch (XmlRpcException e) {
-                                logger.error("Problem sending Alarm", ex);
-                            }
-                        }
-                        /* Address of STUN server successfully resolved. Lets try to contact it */
-
-                        discoverAddress();
-                        if (SymmitronServer.getPublicInetAddress() == null && !alarmSent) {
-                            SymmitronServer.alarmClient.raiseAlarm(STUN_FAILURE_ALARM_ID,
-                                    SymmitronServer.symmitronConfig.getStunServerAddress());
-                            alarmSent = true;
-
-                        } else if (SymmitronServer.getPublicInetAddress() != null && alarmSent) {
-                            SymmitronServer.alarmClient.raiseAlarm(STUN_RECOVERY_ALARM_ID,
-                                    SymmitronServer.symmitronConfig.getStunServerAddress());
-                            alarmSent = false;
-                        }
-                    } catch (Exception ex) {
-                        try {
-                            if (!alarmSent) {
-                                SymmitronServer.alarmClient.raiseAlarm(STUN_FAILURE_ALARM_ID,
-                                        SymmitronServer.symmitronConfig.getStunServerAddress());
-                                alarmSent = true;
-                            }
-                        } catch (XmlRpcException e) {
-                            logger.error("Problem sending Alarm", ex);
-                        }
-                        logger.error("Error discovering address - stun server down?");
-                    }
+                  tryDiscoverAddress();
 
                 }
 
             }, config.getRediscoveryTime() * 1000, config.getRediscoveryTime() * 1000);
-        } else {
-            logger.info("Public address is " + config.getPublicAddress());
-        }
+        } 
+        
+        
+        logger.info("Public address is " + config.getPublicAddress());
+        
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
-
                 logger.fatal("RECEIVED SHUTDOWN SIGNAL");
-
             }
         });
 

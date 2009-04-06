@@ -340,26 +340,9 @@ public class Gateway {
 
 			if (stunServerAddress != null) {
 				// Todo -- deal with the situation when this port may be taken.
-				int localStunPort = 0;
+				int localStunPort = STUN_PORT;
 
-				for (int i = STUN_PORT; i < STUN_PORT + 10; i++) {
-					try {
-						DatagramSocket socket = new DatagramSocket(
-								new InetSocketAddress(InetAddress
-										.getByName(Gateway.getLocalAddress()),
-										i));
-						localStunPort = i;
-						socket.close();
-						break;
-					} catch (Exception ex) {
-						continue;
-					}
-				}
-
-				if (localStunPort == 0) {
-					throw new SipXbridgeException(
-							"Could not find port for address discovery");
-				}
+				
 
 				StunAddress localStunAddress = new StunAddress(Gateway
 						.getLocalAddress(), localStunPort);
@@ -381,6 +364,7 @@ public class Gateway {
 					logger
 							.warn("WARNING External port != internal port your NAT may not be symmetric.");
 				}
+				addressDiscovery.shutDown();
 
 			}
 		} catch (Exception ex) {
@@ -399,6 +383,8 @@ public class Gateway {
 		TimerTask ttask = new TimerTask() {
 			boolean alarmSent;
 
+			
+			
 			@Override
 			public void run() {
 				try {
@@ -437,6 +423,9 @@ public class Gateway {
 			}
 
 		};
+		
+		Gateway.discoverAddress();
+		
 		Gateway.getTimer().schedule(ttask, rediscoveryTime * 1000,
 				rediscoveryTime * 1000);
 	}

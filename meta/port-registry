@@ -6,6 +6,9 @@ Please maintain this list sorted by port number.
 
 Port    Component         Use
 
+3478    sipXbridge        Local discovery port for STUN.
+
+3479    sipXrelay        Local discovery port for STUN.
 
 5060    sipXproxy         SIP
 5061    sipXproxy         SIP/TLS
@@ -30,6 +33,7 @@ Port    Component         Use
 
 5140    sipXrls           SIP
 5141    sipXrls           SIP/TLS
+
 
 5150    sipXacd           SIP
 5151    sipXacd           SIP/TLS
@@ -68,3 +72,5 @@ Port    Component         Use
 10000...sipXacd           RTP/RTCP ports
 
 15060   FreeSWITCH        SIP
+
+30000:31000 sipXRelay     RTCP ports for sipx relay (no ports in this range should be used).

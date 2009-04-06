@@ -52,7 +52,7 @@ class DataShuffler implements Runnable {
                         if (session.getReceiver() != null
                                 && bridge.getState() == BridgeState.RUNNING
                                 && session.getReceiver().getDatagramChannel().isOpen()) {
-                            
+
                             session.getReceiver().getDatagramChannel().configureBlocking(false);
                             session.getReceiver().getDatagramChannel().register(selector,
                                     SelectionKey.OP_READ);
@@ -73,13 +73,13 @@ class DataShuffler implements Runnable {
     }
 
     /**
-     * Send method to send a packet received from a datagram channel to all the
-     * active legs of a bridge.
+     * Send method to send a packet received from a datagram channel to all the active legs of a
+     * bridge.
      * 
      * <pre>
      * send(bridge,datagramChannel, addressWherePacketCameFrom) :
      *    for each sym in bridge do :
-     *       if sym.receiver.datagramChannel == datagramChannel && sym.isAutoLearn
+     *       if sym.receiver.datagramChannel == datagramChannel &amp;&amp; sym.isAutoLearn
      *           sym.receiver.farEnd = addressWherePacketCameFrom
      *       else if sym.transmitter.state == RUNNING :
      *          sym.transmitter.send(byteBuffer)
@@ -88,26 +88,27 @@ class DataShuffler implements Runnable {
      * @param bridge -- the bridge to forward through.
      * @param datagramChannel -- datagramChannel on which packet was received.
      * @param remoteAddress -- remote address to send to.
-     * @throws UnknownHostException -- if there was a problem with the specified
-     *    remote address.
+     * @throws UnknownHostException -- if there was a problem with the specified remote address.
      */
     public static void send(Bridge bridge, DatagramChannel datagramChannel,
             InetSocketAddress remoteAddress) throws UnknownHostException {
         try {
-           
-            ByteBuffer bufferToSend = readBuffer.duplicate();
-            bufferToSend.flip();
+
+            if (logger.isTraceEnabled()) {
+                logger.trace("inbound datagramChannel = " + datagramChannel);
+            }
             for (Sym sym : bridge.sessions) {
-                if (sym.getReceiver() != null && datagramChannel == sym.getReceiver().getDatagramChannel()) {
-                    if (logger.isDebugEnabled()) {
-                        
-                        if (remoteAddress != null) {
-                            if (logger.isTraceEnabled()) {
-                                logger.trace("remoteIpAddressAndPort : "
-                                        + remoteAddress.getAddress().getHostAddress() + ":"
-                                        + remoteAddress.getPort());
-                            }
-                        }
+                if (logger.isTraceEnabled() && sym.getReceiver() != null) {
+                    logger.trace("sym.getReceiver().getDatagramChannel() "
+                            + sym.getReceiver().getDatagramChannel());
+                }
+                if (sym.getReceiver() != null
+                        && datagramChannel == sym.getReceiver().getDatagramChannel()) {
+                    if (logger.isTraceEnabled() && remoteAddress != null) {
+                            logger.trace("remoteIpAddressAndPort : "
+                                    + remoteAddress.getAddress().getHostAddress() + ":"
+                                    + remoteAddress.getPort());
+
                     }
                     sym.lastPacketTime = System.currentTimeMillis();
                     sym.packetsReceived++;
@@ -147,13 +148,15 @@ class DataShuffler implements Runnable {
                 try {
 
                     /*
-                     * No need for header rewrite. Just flip and push out.
+                     * No need for header rewrite. Just duplicate, flip and push out.
+                     * Important: We cannot do this outside the loop. See XECS-2425.
                      */
                     if (!writeChannel.isOnHold()) {
+                        ByteBuffer bufferToSend = readBuffer.duplicate();
+                        bufferToSend.flip();
                         writeChannel.send((ByteBuffer) bufferToSend);
                         bridge.packetsSent++;
                         writeChannel.packetsSent++;
-
                     } else {
                         if (logger.isTraceEnabled()) {
                             logger.trace("WriteChannel on hold." + writeChannel.getIpAddress()
@@ -182,7 +185,7 @@ class DataShuffler implements Runnable {
      * send(B,chan,inboundAddress)
      *            
      * </pre>
-     *             
+     * 
      */
     public void run() {
 
@@ -204,44 +207,48 @@ class DataShuffler implements Runnable {
                 Iterator<SelectionKey> selectedKeys = selector.selectedKeys().iterator();
                 while (selectedKeys.hasNext()) {
                     SelectionKey key = (SelectionKey) selectedKeys.next();
-                    // The key must be removed or you can get one way audio ( i.e. will read a null byte ).
+                    // The key must be removed or you can get one way audio ( i.e. will read a
+                    // null byte ).
                     // (see issue 2075 ).
                     selectedKeys.remove();
                     if (!key.isValid()) {
-                        if ( logger.isDebugEnabled()) {
+                        if (logger.isDebugEnabled()) {
                             logger.debug("Discarding packet:Key not valid");
-                        } 
-                  
+                        }
+
                         continue;
                     }
                     if (key.isReadable()) {
                         readBuffer.clear();
                         DatagramChannel datagramChannel = (DatagramChannel) key.channel();
                         if (!datagramChannel.isOpen()) {
-                            logger.debug("DataShuffler: Datagram channel is closed -- discarding packet.");
-                           
+                            logger
+                                    .debug("DataShuffler: Datagram channel is closed -- discarding packet.");
+
                             continue;
                         }
                         bridge = ConcurrentSet.getBridge(datagramChannel);
                         if (bridge == null) {
-                            logger.debug("DataShuffler: Discarding packet: Could not find bridge");
+                            logger
+                                    .debug("DataShuffler: Discarding packet: Could not find bridge");
                             continue;
                         }
                         InetSocketAddress remoteAddress = (InetSocketAddress) datagramChannel
                                 .receive(readBuffer);
 
                         bridge.pakcetsReceived++;
-                        if (bridge.getState() != BridgeState.RUNNING ) {
+                        if (bridge.getState() != BridgeState.RUNNING) {
                             if (logger.isDebugEnabled()) {
                                 logger.debug("DataShuffler: Discarding packet: Bridge state is "
                                         + bridge.getState());
                             }
                             continue;
                         }
-                        if ( logger.isTraceEnabled() ) {
-                            logger.trace("got something on " + datagramChannel.socket().getLocalPort() );
+                        if (logger.isTraceEnabled()) {
+                            logger.trace("got something on "
+                                    + datagramChannel.socket().getLocalPort());
                         }
-                         
+
                         send(bridge, datagramChannel, remoteAddress);
 
                     }
@@ -269,25 +276,27 @@ class DataShuffler implements Runnable {
         }
 
     }
-    
+
     /**
      * 
-     * Implements the following search algorithm to retrieve a datagram channel
-     * that is associated with the far end:
+     * Implements the following search algorithm to retrieve a datagram channel that is associated
+     * with the far end:
+     * 
      * <pre>
      * getSelfRoutedDatagramChannel(farEnd)
      * For each selectable key do:
      *   let ipAddress be the local ip address
      *   let p be the local port
      *   let d be the datagramChannel associated with the key
-     *   If  farEnd.ipAddress == ipAddress  && port == localPort return d
+     *   If  farEnd.ipAddress == ipAddress  &amp;&amp; port == localPort return d
      * return null
      * </pre>
+     * 
      * @param farEnd
      * @return
      */
 
-    public static DatagramChannel getSelfRoutedDatagramChannel (InetSocketAddress farEnd) {
+    public static DatagramChannel getSelfRoutedDatagramChannel(InetSocketAddress farEnd) {
         // Iterate over the set of keys for which events are
         // available
         InetAddress ipAddress = farEnd.getAddress();
@@ -308,7 +317,5 @@ class DataShuffler implements Runnable {
         return null;
 
     }
-
-   
 
 }
