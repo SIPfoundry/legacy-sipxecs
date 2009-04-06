@@ -16,6 +16,8 @@ create table version_history(
  * For sipXconfig v3.7-r7934, the database version is 5.
  * For sipXconfig v3.8-r10357, the database version is 6.
  * For sipXconfig v3.9-r11768, the database version is 7.
+ * For sipXconfig v3.10.3-r11768, the database version is 8.
+ * For sipXconfig v3.11, the database version is 9.
  */
 insert into version_history (version, applied) values (1, now());
 insert into version_history (version, applied) values (2, now());
@@ -25,6 +27,7 @@ insert into version_history (version, applied) values (5, now());
 insert into version_history (version, applied) values (6, now());
 insert into version_history (version, applied) values (7, now());
 insert into version_history (version, applied) values (8, now());
+insert into version_history (version, applied) values (9, now());
 
 create table patch(
   name varchar(32) not null primary key
@@ -121,6 +124,7 @@ create table user_ring (
    user_id int4 not null,
    primary key (user_ring_id)
 );
+
 create table gateway (
    gateway_id int4 not null,
    bean_id varchar(255) not null,
@@ -140,8 +144,16 @@ create table gateway (
    keep_digits integer not null default 0,
    address_port int4 not null default 0,
    address_transport varchar(8) not null default 'none',
+   sbc_device_id int4,
+   enable_caller_id boolean not null default false,
+   caller_id varchar(255),
+   display_name varchar(255),
+   url_parameters varchar(255),
+   shared boolean not null,
+   site_id int4,
    primary key (gateway_id)
 );
+
 create table daily_backup_schedule (
    daily_backup_schedule_id int4 not null,
    enabled bool,
@@ -222,7 +234,6 @@ create table emergency_dialing_rule (
    emergency_dialing_rule_id int4 not null,
    optional_prefix varchar(255),
    emergency_number varchar(255),
-   use_media_server bool,
    primary key (emergency_dialing_rule_id)
 );
 create table backup_plan (
@@ -231,6 +242,8 @@ create table backup_plan (
    configs bool,
    voicemail bool,
    email_address varchar(255),
+   backup_type char not null,
+   ftp_configuration_id int4,
    primary key (backup_plan_id)
 );
 create table dial_plan (
@@ -314,18 +327,17 @@ create table meetme_conference (
     extension varchar(255),
     value_storage_id int4,
     meetme_bridge_id int4 not null,
+    owner_id int4,
     primary key (meetme_conference_id)
 );
 create table meetme_bridge (
     meetme_bridge_id int4 not null,
     enabled bool,
-    name varchar(255) not null,
-    host varchar(255),
-    port int4,
-    description varchar(255),
     value_storage_id int4,
+    location_specific_service_id integer,
     primary key (meetme_bridge_id)
 );
+
 create table extension_pool (
   extension_pool_id int4 not null,
   enabled boolean not null,
@@ -334,20 +346,6 @@ create table extension_pool (
   last_extension int4,
   next_extension int4,
   primary key (extension_pool_id)
-);
-create table emergency_routing (
-    emergency_routing_id int4 not null,
-    gateway_id int4,
-    external_number varchar(255),
-    primary key (emergency_routing_id)
-);
-create table routing_exception (
-    routing_exception_id int4 not null,
-    gateway_id int4,
-    external_number varchar(255),
-    callers  varchar(255),
-    emergency_routing_id int4,
-    primary key (routing_exception_id)
 );
 
 create table upload(
@@ -481,6 +479,7 @@ create table domain (
    domain_id int4 not null,   
    name varchar(255) not null,
    shared_secret varchar(255),
+   sip_realm varchar(255),
    primary key (domain_id)
 );
 
@@ -495,6 +494,7 @@ create table phonebook (
    name varchar(255) not null unique,
    description varchar(255),
    members_csv_filename varchar(255),
+   members_vcard_filename varchar(255),
    primary key (phonebook_id)
 );
 
@@ -579,6 +579,7 @@ create table acd_server (
     port int4,
     description varchar(255),
     value_storage_id int4,
+    location_id int4,
     primary key (acd_server_id)
 );
 
@@ -606,6 +607,7 @@ create table sbc (
     enabled bool,
     address varchar(255),
     sbc_type char(1) not null,
+    sbc_device_id int4,
     primary key (sbc_id)
 );
 
@@ -676,13 +678,13 @@ create table localization (
    primary key (localization_id)
 );
 
-create table paging_group
-(
+create table paging_group (
   paging_group_id integer not null,
   page_group_number integer not null,
   description character varying(255),
   enabled boolean not null default false,
   sound character varying(255) not null,
+  timeout integer not null default 60,
   constraint paging_group_pkey primary key (paging_group_id)
 );
 
@@ -699,10 +701,10 @@ create table user_paging_group
       on update no action on delete no action
 );
 
-create table paging_server
-(
+create table paging_server (
   paging_server_id integer not null,
   prefix character varying(255) not null,
+  sip_trace_level character varying(255) not null,
   constraint paging_server_pkey primary key (paging_server_id)
 );
 
@@ -716,6 +718,7 @@ create table sbc_device (
    value_storage_id int4,
    model_id varchar(64) not null,
    device_version_id varchar(32),
+   port int4 not null default 5060,
    primary key (sbc_device_id)
 );
 
@@ -724,6 +727,90 @@ create table special_user (
   user_type varchar(255),
   sip_password varchar(255),
   primary key (special_user_id)
+);
+
+create table location (
+  location_id int4 not null,
+  name varchar(255) not null,
+  fqdn varchar(255) not null,
+  ip_address varchar(255),
+  password varchar(255),
+  primary_location boolean not null default false,
+  registered boolean not null default false,
+  use_stun boolean not null default true,
+  stun_address varchar(255),
+  stun_interval integer not null default 60,
+  public_address varchar(255),
+  public_port integer not null default 5060,
+  start_rtp_port integer not null default 30000,
+  stop_rtp_port integer not null default 31000,
+  primary key (location_id)
+);
+
+create table sipx_service(
+  sipx_service_id int4 not null primary key,
+  bean_id varchar(32) not null,
+  value_storage_id int4
+);
+
+create table location_specific_service(
+  location_specific_service_id int4 not null primary key,
+  location_id int4 not null,
+  sipx_service_id int4 not null,
+  enable_on_next_upgrade boolean not null default false
+);
+
+create table location_bundle (
+  location_id int4 not null,
+  bundle_bean varchar(255) not null,
+  primary key (location_id, bundle_bean)
+);
+
+create table ftp_configuration (
+  id int4 not null,
+  host varchar(255),
+  user_id varchar(255),
+  "password" varchar(255),
+  constraint ftp_configuration_pkey primary key(id)
+);
+
+create table discovered_devices (
+  mac_address varchar(255) not null,
+  ip_address varchar(255) not null,
+  vendor varchar(255) not null,
+  last_seen timestamp default now(),
+  primary key (mac_address)
+);
+
+create table alarm_server (
+  alarm_server_id integer not null,
+  email_notification_enabled boolean,
+  from_email_address varchar(255),
+  constraint alarm_server_pkey primary key (alarm_server_id)
+);
+
+create table alarm_contacts (
+  alarm_server_id integer not null,
+  address varchar(255) not null,
+  index integer not null,
+  constraint contacts_pkey primary key (alarm_server_id, index)
+);
+
+create table timezone
+(
+  timezone_id integer not null,
+  gmt_offset integer,
+  dstsavings_enabled boolean,
+  dst_savings integer,
+  start_month integer,
+  start_week integer,
+  start_day_of_week integer,
+  start_time integer,
+  stop_month integer,
+  stop_week integer,
+  stop_day_of_week integer,
+  stop_time integer,
+  constraint timezone_pkey primary key (timezone_id)
 );
 
 /*
@@ -771,7 +858,22 @@ alter table group_storage add constraint FK92BDF0BB1E2E76DB foreign key (group_i
 alter table group_storage add constraint uqc_group_storage_name unique (name, resource);
 alter table user_ring add constraint FK143BDE242A05F79C foreign key (call_group_id) references call_group;
 alter table user_ring add constraint FK143BDE24F73AEE0F foreign key (user_id) references users;
-alter table gateway add constraint FKF4BA4644CB50FCED foreign key (value_storage_id) references value_storage;
+
+alter table gateway
+  add constraint FKF4BA4644CB50FCED
+  foreign key (value_storage_id)
+  references value_storage;
+
+alter table gateway
+  add constraint fk_sbc_device_id
+  foreign key (sbc_device_id)
+  references sbc_device(sbc_device_id) match full;
+
+alter table gateway
+  add constraint fk_gateway_site
+  foreign key (site_id)
+  references group_storage;
+
 alter table daily_backup_schedule add constraint FK5518A4EFE76E474 foreign key (backup_plan_id) references backup_plan;
 alter table line add constraint FK32AFF4CB50FCED foreign key (value_storage_id) references value_storage;
 alter table line add constraint FK32AFF4B3B3158C foreign key (phone_id) references phone;
@@ -794,12 +896,32 @@ alter table users add constraint user_fk1 foreign key (value_storage_id) referen
 alter table user_group add constraint user_group_fk1 foreign key (user_id) references users;
 alter table user_group add constraint user_group_fk2 foreign key (group_id) references group_storage;
 alter table user_alias add constraint user_alias_fk1 foreign key (user_id) references users;
-alter table meetme_conference add constraint fk_meetme_conference_bridge foreign key (meetme_bridge_id) references meetme_bridge;
-alter table meetme_participant add constraint fk_meetme_participant_conference foreign key (meetme_conference_id) references meetme_conference;
-alter table meetme_participant add constraint fk_meetme_participant_user foreign key (user_id) references users;
-alter table emergency_routing add constraint fk_emergency_routing_gateway foreign key (gateway_id) references gateway;
-alter table routing_exception add constraint fk_routing_exception_gateway foreign key (gateway_id) references gateway;
-alter table routing_exception add constraint fk_emergency_routing_routing_exception foreign key (emergency_routing_id) references emergency_routing;
+
+alter table meetme_conference
+    add constraint fk_meetme_conference_bridge
+    foreign key (meetme_bridge_id)
+    references meetme_bridge;
+
+alter table meetme_conference
+    add constraint fk_owner_id
+    foreign key (owner_id)
+    references users(user_id) on delete set null;
+
+alter table meetme_participant
+    add constraint fk_meetme_participant_conference
+    foreign key (meetme_conference_id)
+    references meetme_conference;
+
+alter table meetme_participant
+    add constraint fk_meetme_participant_user
+    foreign key (user_id)
+    references users;
+
+alter table meetme_bridge
+    add constraint fk_location_specific_service_id
+    foreign key(location_specific_service_id)
+    references location_specific_service;
+
 alter table attendant_dialing_rule 
   add constraint fk_attendant_dialing_rule_dialing_rule 
   foreign key (attendant_dialing_rule_id) 
@@ -900,6 +1022,10 @@ alter table acd_server
     add constraint FKE5B27DA06C899BCE 
     foreign key (value_storage_id) 
     references value_storage;
+alter table acd_server
+    add constraint fk_location_id
+    foreign key (location_id)
+	references location(location_id) match full;
 
 alter table service add constraint service_value_storage foreign key (value_storage_id) references value_storage;
 
@@ -943,6 +1069,38 @@ alter table dialing_rule
     foreign key (schedule_id)
     references schedule(schedule_id) match full;
 
+alter table sbc
+    add constraint fk_sbc_device_id
+    foreign key (sbc_device_id)
+	references sbc_device(sbc_device_id) match full;
+
+alter table backup_plan
+    add constraint fk_backup_plan_ftp_configuration
+    foreign key (ftp_configuration_id)
+    references ftp_configuration (id);
+
+alter table alarm_contacts
+  add constraint fk_alarm_server_contacts
+  foreign key (alarm_server_id)
+  references alarm_server;
+
+alter table location_specific_service
+  add constraint fk_location_id
+  foreign key (location_id)
+  references location;
+
+alter table location_specific_service
+  add constraint fk_sipx_service
+  foreign key (sipx_service_id)
+  references sipx_service;
+
+alter table location_bundle
+  add constraint location_bundle_fk
+  foreign key (location_id)
+  references location;
+
+-- sequences
+
 create sequence group_weight_seq;
 create sequence dialing_rule_seq;
 create sequence ring_seq;
@@ -973,12 +1131,38 @@ create sequence schedule_seq;
 create sequence personal_attendant_seq;
 create sequence localization_seq;
 create sequence paging_group_seq;
+create sequence location_seq;
+create sequence sipx_service_seq;
+create sequence ftp_configuration_seq;
+create sequence alarm_server_seq;
+create sequence location_specific_service_seq;
+create sequence timezone_seq;
 
 -- used for native hibernate ids  
 create sequence hibernate_sequence;
 
 -- index
 create index index_acd_agent_user_server on acd_agent(acd_agent_id, user_id, acd_server_id);
+
+-- insert standard set of services
+insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxProxyService');
+insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxRegistrarService');
+insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxSupervisorService');
+insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxParkService');
+insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxPresenceService');
+insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxIvrService');
+insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxRlsService');
+insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxMediaService');
+insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxStatusService');
+insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxCallResolverService');
+insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxPageService');
+insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxConfigService');
+insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxConfigAgentService');
+insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxAcdService');
+insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxBridgeService');
+insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxFreeswitchService');
+insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxRelayService');
+insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxMrtgService');
 
 /* will trigger app event to execute java code before next startup to insert default data */
 insert into initialization_task (name) values ('dial-plans');
@@ -988,4 +1172,11 @@ insert into initialization_task (name) values ('operator');
 insert into initialization_task (name) values ('afterhour');
 insert into initialization_task (name) values ('first-run');
 insert into initialization_task (name) values ('callgroup-password-init');
-
+insert into initialization_task (name) values ('sbc_address_migrate_sbc_device');
+insert into initialization_task (name) values ('sip_trunk_address_migrate_sbc_device');
+insert into initialization_task (name) values ('migrate_locations');
+insert into initialization_task (name) values ('initialize-location-service-mapping');
+insert into initialization_task (name) values ('init-location-specific-service');
+insert into initialization_task (name) values ('acd_server_migrate_acd_service');
+insert into initialization_task (name) values ('default-time-zone');
+insert into initialization_task (name) values ('migrate-conference-bridges');

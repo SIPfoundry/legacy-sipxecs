@@ -52,10 +52,10 @@
 <!ATTLIST acd_server
     acd_server_id CDATA #REQUIRED
     host CDATA #IMPLIED
-    location_id CDATA #IMPLIED
     port CDATA #IMPLIED
     description CDATA #IMPLIED
     value_storage_id CDATA #IMPLIED
+    location_id CDATA #IMPLIED
 >
 
 <!ELEMENT alarm_contacts EMPTY>
@@ -69,6 +69,7 @@
 <!ATTLIST alarm_server
     alarm_server_id CDATA #REQUIRED
     email_notification_enabled CDATA #IMPLIED
+    from_email_address CDATA #IMPLIED
 >
 
 <!ELEMENT attendant_dialing_rule EMPTY>
@@ -218,6 +219,7 @@
     domain_id CDATA #REQUIRED
     name CDATA #REQUIRED
     shared_secret CDATA #IMPLIED
+    sip_realm CDATA #IMPLIED
 >
 
 <!ELEMENT domain_alias EMPTY>
@@ -426,20 +428,22 @@
     name CDATA #REQUIRED
     fqdn CDATA #REQUIRED
     ip_address CDATA #IMPLIED
+    password CDATA #IMPLIED
     primary_location CDATA #IMPLIED
-    use_stun CDATA #IMPLIED
+    registered CDATA #REQUIRED
+    use_stun CDATA #REQUIRED
     stun_address CDATA #IMPLIED
-    stun_interval CDATA #IMPLIED
+    stun_interval CDATA #REQUIRED
     public_address CDATA #IMPLIED
-    public_port CDATA #IMPLIED
-    start_rtp_port CDATA #IMPLIED
-    stop_rtp_port CDATA #IMPLIED
+    public_port CDATA #REQUIRED
+    start_rtp_port CDATA #REQUIRED
+    stop_rtp_port CDATA #REQUIRED
 >
 
-<!ELEMENT location_sipx_service EMPTY>
-<!ATTLIST location_sipx_service
+<!ELEMENT location_bundle EMPTY>
+<!ATTLIST location_bundle
     location_id CDATA #REQUIRED
-    sipx_service_id CDATA #REQUIRED
+    bundle_bean CDATA #REQUIRED
 >
 
 <!ELEMENT location_specific_service EMPTY>
@@ -467,7 +471,7 @@
     meetme_bridge_id CDATA #REQUIRED
     enabled CDATA #IMPLIED
     value_storage_id CDATA #IMPLIED
-    location_specific_service_id CDATA #REQUIRED
+    location_specific_service_id CDATA #IMPLIED
 >
 
 <!ELEMENT meetme_conference EMPTY>
@@ -715,6 +719,22 @@
 <!ATTLIST supervisor
     user_id CDATA #REQUIRED
     group_id CDATA #REQUIRED
+>
+
+<!ELEMENT timezone EMPTY>
+<!ATTLIST timezone
+    timezone_id CDATA #REQUIRED
+    gmt_offset CDATA #IMPLIED
+    dstsavings_enabled CDATA #IMPLIED
+    dst_savings CDATA #IMPLIED
+    start_month CDATA #IMPLIED
+    start_week CDATA #IMPLIED
+    start_day_of_week CDATA #IMPLIED
+    start_time CDATA #IMPLIED
+    stop_month CDATA #IMPLIED
+    stop_week CDATA #IMPLIED
+    stop_day_of_week CDATA #IMPLIED
+    stop_time CDATA #IMPLIED
 >
 
 <!ELEMENT upload EMPTY>

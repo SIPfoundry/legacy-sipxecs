@@ -128,7 +128,7 @@
   -->
   <target name="create" depends="createdb,schema" description="create database with schema" />
 
-  <target name="upgrade-no-init" depends="patches,version1,version2,version3,version4,version5,version6,version7,version8" />
+  <target name="upgrade-no-init" depends="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9" />
 
   <target name="upgrade" description="applied all patches that need to be applied, and run initialization tasks" depends="upgrade-no-init,initialize" />
 
@@ -305,8 +305,12 @@
     <antcall target="clean-sipx-service-values"/>
     <antcall target="backup-ftp-fix-empty-type-2" />
     <antcall target="drop_zipupload"/>
+    <sipx-version version="9"/>
+  </target>
+
+  <target name="version9" description="upgrade from version 8" unless="version10">
     <!-- When freezing schema uncomment this line -->
-    <!-- sipx-version version="9" -->
+    <!-- sipx-version version="10" -->
   </target>
 
   <target name="time_of_day" unless="time_of_day">
