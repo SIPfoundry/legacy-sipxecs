@@ -871,9 +871,13 @@ RegistrationDB::getUnexpiredContacts (
                     sizeof (GRUU_PREFIX) - 1) == 0)
         {
            // This is a GRUU, search for it in the gruu column.
-           query="gruu=",identity," and expires>",timeNow;
+           UtlString search_string(identity);
+           search_string.append(";" SIP_GRUU_URI_PARAM);
+           query="gruu=",search_string," and expires>",timeNow;
            OsSysLog::add(FAC_DB, PRI_DEBUG,
-                         "RegistrationDB::getUnexpiredContacts recognized GRUU");
+                         "RegistrationDB::getUnexpiredContacts "
+                         "recognized GRUU, searching for '%s'",
+                         search_string.data());
         }
         else
         {

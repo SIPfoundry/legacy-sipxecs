@@ -461,8 +461,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                            gruuValue->append(hash);
                            gruuValue->append('@');
                            gruuValue->append(mRegistrar.defaultDomain());
-                           gruuValue->append(';');
-                           gruuValue->append(SIP_GRUU_URI_PARAM);
+                           gruuValue->append(";" SIP_GRUU_URI_PARAM);
                            OsSysLog::add(FAC_SIP, PRI_DEBUG,
                                          "SipRegistrarServer::applyRegisterToDirectory "
                                          "temp = '%s' gruu = '%s'",
