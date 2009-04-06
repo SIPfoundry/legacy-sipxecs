@@ -630,21 +630,6 @@ A lower number has a higher priority (therefore 1.0 is the highest priority).</d
         <type refid="codec-preference" />
         <value>0.0</value>
       </setting>
-      <setting name="h264">
-        <profileName>codec_name</profileName>
-        <type refid="codec-preference" />
-        <value>0.0</value>
-      </setting>
-      <setting name="h264_hi">
-        <profileName>codec_name</profileName>
-        <type refid="codec-preference" />
-        <value>5.0</value>
-      </setting>
-      <setting name="h264_lo">
-        <profileName>codec_name</profileName>
-        <type refid="codec-preference" />
-        <value>0.0</value>
-      </setting>
       <setting name="ilbc">
         <profileName>codec_name</profileName>
         <type refid="codec-preference" />

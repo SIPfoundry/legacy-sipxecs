@@ -29,8 +29,12 @@ proxies:proxy${i}:#generate_setting($setting)
 #end
 
 #foreach ($setting in $phone_leaf_settings)
-#if($setting.profileName == "codec_name" && $setting.value != "0.0")
+#if($setting.profileName == "codec_name")
+#if($setting.value != "0.0")
 codecs:${setting.name}:enabled="true"
 codecs:${setting.name}:priority="${setting.value}"
+#else
+codecs:${setting.name}:enabled="false"
+#end
 #end
 #end
