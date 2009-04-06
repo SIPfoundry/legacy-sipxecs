@@ -9,7 +9,7 @@ pkgconf_DATA = \
 wwwconf_files = \
     httpd.conf \
     httpd-sipxchange-common-ssl.conf \
-    httpd-sipxchange-common.conf
+    httpd-sipxchange-common.conf.in
 
 EXTRA_DIST = \
 	$(pkgconf_DATA) \

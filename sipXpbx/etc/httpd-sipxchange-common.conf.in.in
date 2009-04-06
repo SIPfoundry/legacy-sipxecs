@@ -14,7 +14,7 @@ CoreDumpDirectory @SIPX_LOGDIR@
     #AllowOverride All  # Commented out by Mike M.
     Order Deny,Allow
     Deny from all
-    Allow from 127.0.0.1 
+    Allow from 127.0.0.1 %FULLY_QUALIFIED_HOSTNAME%
     Satisfy any
 </Directory>
 
@@ -32,6 +32,6 @@ Alias /phone/ "@SIPX_VARDIR@/configserver/phone/"
     Options Indexes FollowSymLinks MultiViews
     Order Deny,Allow
     Deny from all
-    Allow from 127.0.0.1
+    Allow from 127.0.0.1 %FULLY_QUALIFIED_HOSTNAME%
     Satisfy any
 </Directory>
