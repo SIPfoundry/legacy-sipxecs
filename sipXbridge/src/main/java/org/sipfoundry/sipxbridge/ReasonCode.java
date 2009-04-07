@@ -27,5 +27,6 @@ public class ReasonCode {
 	public static final int AUTHENTICATION_FAILURE = 209;
 	public static final int ERROR_SENDING_REINVITE = 210;
 	public static final int TIMED_OUT_WAITING_TO_SEND_REINVITE = 211;
+	public static final int CALL_TERMINATED = 212;
 
 }

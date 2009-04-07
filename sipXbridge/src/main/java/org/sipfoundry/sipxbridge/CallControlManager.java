@@ -1761,6 +1761,8 @@ class CallControlManager implements SymmitronResetHandler {
             Request ackRequest = dialog.createAck(((CSeqHeader) response
                     .getHeader(CSeqHeader.NAME)).getSeqNumber());
             DialogContext.get(dialog).sendAck(ackRequest);
+            logger.debug("peerDialog : " + DialogContext.getPeerDialog(dialog));
+            DialogContext.pairDialogs(DialogContext.getPeerDialog(dialog), dialog);
             b2bua.sendByeToMohServer();
         }
 
