@@ -234,11 +234,6 @@ public class LgNortelPhoneDefaults {
         return m_defaults.getEmergencyAddress();
     }
 
-    @SettingEntry(path = "DIAL/emergency_address_port")
-    public Integer getEmergencyAddressPort() {
-        return m_defaults.getEmergencyPort();
-    }
-
     /**
      * Adjusts week of month value for LG phones.
      *

@@ -411,11 +411,9 @@
     </setting>
     <setting name='emergency_address'>
       <profileName>$ignore$</profileName>
-    </setting>
-    <setting name='emergency_address_port'>
-      <profileName>$ignore$</profileName>
-      <type refid="restricted-port-number" />
-      <value>1024</value>
+     <type>
+       <ipaddr />
+     </type>
     </setting>
   </group>
   <!-- 
