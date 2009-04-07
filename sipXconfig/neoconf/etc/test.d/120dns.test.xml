@@ -55,5 +55,15 @@
         this network.
       </description>
     </result>
+    <result exit="143">
+      <status>Warning</status>
+      <msg>DNS Server did not report any SRV records.</msg>
+      <description>
+        DNS SRV records are used for call routing control and server redundancy.
+        Name resolution of the specified SIP domain did not report any SRV
+        records. Please verify that SRV records are properly configured on the
+        the DNS server(s).
+      </description>
+    </result>
   </results>
 </test>
