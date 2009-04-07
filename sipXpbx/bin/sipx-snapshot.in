@@ -370,14 +370,13 @@ function cutIfTimestamps() {
       echo "cutting '${log}'" >> ${cutDir}/extract.log
       echo "${outFile}" >> $Work.copy-files
 
-      # Only use this flag with a non-empty value.
-      if ! test -z "${LogStop}"
-      then
-         LogStopFlag="-e ${LogStop}"
-      fi
-
       # Append new cut contents to the end of whatever contents is already in the cut file.
-      @SIPX_BINDIR@/sipx-log-cut -i "${log}" -s "${LogStart}" "${LogStopFlag}" -t \
+      # We use '${LogStop:+-e}' to provide '-e' if ${LogStop} is non-empty,
+      # and '${LogStop:+"${LogStop}"}' to provide the ${LogStop} value
+      # (with its spaces, ugh!) if it is non-empty.
+      # These are supported by 'sh' (per Appendix B of the Bash Reference Manual).
+      @SIPX_BINDIR@/sipx-log-cut -i "${log}" -t \
+	 -s "${LogStart}" ${LogStop:+-e} ${LogStop:+"${LogStop}"} \
          >> "${outFile}" \
          2>> ${cutDir}/extract.log
       result=$?
