@@ -66,4 +66,9 @@ public interface SipxServiceManager {
      * @param bundles list of bundles that should be installed on this location
      */
     public void setBundlesForLocation(Location location, List<SipxServiceBundle> bundles);
+
+    /**
+     * Create collection of the services that belong to the specific subset of bundles
+     */
+    public Collection<SipxService> getServiceDefinitions(final Collection<SipxServiceBundle> bundles);
 }

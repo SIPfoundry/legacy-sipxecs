@@ -35,7 +35,6 @@ import static org.apache.commons.collections.CollectionUtils.collect;
 import static org.apache.commons.collections.CollectionUtils.filter;
 import static org.apache.commons.collections.CollectionUtils.getCardinalityMap;
 import static org.apache.commons.collections.CollectionUtils.intersection;
-import static org.apache.commons.collections.CollectionUtils.subtract;
 
 public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService> implements SipxServiceManager,
         ApplicationContextAware {
@@ -54,8 +53,8 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
 
     public SipxService getServiceByBeanId(String beanId) {
         String query = QUERY_BY_BEAN_ID;
-        Collection<SipxService> services = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                query, "beanId", beanId);
+        Collection<SipxService> services = getHibernateTemplate().findByNamedQueryAndNamedParam(query, "beanId",
+                beanId);
 
         for (SipxService sipxService : services) {
             ensureBeanIsInitialized(sipxService);
@@ -118,8 +117,7 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
             }
         };
         Map<SipxServiceBundle, List<SipxService>> rawBundles = new HashMap<SipxServiceBundle, List<SipxService>>();
-        Map<SipxServiceBundle, List<SipxService>> bundles = LazyMap.decorate(rawBundles,
-                listFactory);
+        Map<SipxServiceBundle, List<SipxService>> bundles = LazyMap.decorate(rawBundles, listFactory);
         Collection<SipxService> allServices = getServiceDefinitions();
         for (SipxService service : allServices) {
             Set<SipxServiceBundle> serviceBundles = service.getBundles();
@@ -175,18 +173,14 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
         return beanIdsToServices.values();
     }
 
-    /**
-     * Create collection of the services that belong to the specific subset of bundles
-     */
-    public Collection<SipxService> getServiceDefinitions(
-            final Collection<SipxServiceBundle> bundles) {
+    public Collection<SipxService> getServiceDefinitions(final Collection<SipxServiceBundle> bundles) {
         Collection<SipxService> services = getServiceDefinitions();
         Predicate inBundle = new Predicate() {
             public boolean evaluate(Object item) {
                 SipxService service = (SipxService) item;
                 Set<SipxServiceBundle> serviceBundles = service.getBundles();
                 return (serviceBundles != null && serviceBundles.size() > 0)
-                    && !intersection(serviceBundles, bundles).isEmpty();
+                        && !intersection(serviceBundles, bundles).isEmpty();
             }
         };
         filter(services, inBundle);
@@ -223,17 +217,8 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
         }
         filter(bundles, new SipxServiceBundle.CanRunOn(location));
         verifyBundleCardinality(location, bundles);
-
-        Collection<SipxService> oldServices = location.getSipxServices();
-        Collection<SipxService> newServices = getServiceDefinitions(bundles);
-
-        Collection<SipxService> stopServices = subtract(oldServices, newServices);
-        Collection<SipxService> startServices = subtract(newServices, oldServices);
-
-        location.removeServices(stopServices);
-        location.addServices(startServices);
-
         location.setInstalledBundles(transformBundlesToIds(bundles));
+        location.resetBundles(this);
     }
 
     /**

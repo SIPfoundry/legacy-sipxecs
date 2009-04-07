@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Required;
 
 import static org.apache.commons.collections.CollectionUtils.collect;
 import static org.apache.commons.collections.CollectionUtils.select;
+import static org.apache.commons.collections.CollectionUtils.subtract;
 import static org.apache.commons.lang.StringUtils.substringBefore;
 
 public class Location extends BeanWithId {
@@ -342,8 +343,15 @@ public class Location extends BeanWithId {
      * selected bundles.
      */
     public void resetBundles(SipxServiceManager sipxServiceManager) {
-        List<SipxServiceBundle> bundles = sipxServiceManager.getBundlesForLocation(this);
-        sipxServiceManager.setBundlesForLocation(this, bundles);
+        Collection<SipxService> oldServices = getSipxServices();
+        Collection<SipxService> newServices = sipxServiceManager.getServiceDefinitions(sipxServiceManager
+                .getBundlesForLocation(this));
+
+        Collection<SipxService> stopServices = subtract(oldServices, newServices);
+        Collection<SipxService> startServices = subtract(newServices, oldServices);
+
+        removeServices(stopServices);
+        addServices(startServices);
     }
 
     public boolean isServiceInstalled(SipxService service) {
