@@ -146,8 +146,9 @@ rm -rf $RPM_BUILD_ROOT
 
 %config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/mime.types
 %config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/httpd-sipxchange-common-ssl.conf
-%config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/httpd-sipxchange-common.conf
+%config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/httpd-sipxchange-common.conf.in
 %config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/httpd.conf
+%dir %attr(755,root,@SIPXPBXGROUP@}/sipxpbx/httpd.conf.d
 
 %config(noreplace) %attr(644,root,root) %{_sysconfdir}/logrotate.d/sipxchange
 
