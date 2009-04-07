@@ -242,7 +242,9 @@ UtlBoolean SipConnection::requestShouldCreateConnection(const SipMessage* sipMsg
         UtlBoolean atLeastOneCodecSupported = TRUE;
         if(codecFactory == NULL ||
             codecFactory->getCodecCount() == 0)
+        {
             atLeastOneCodecSupported = TRUE;
+        }
 
         // Verify that we have some RTP codecs in common
         else
@@ -2255,7 +2257,7 @@ UtlBoolean SipConnection::processRequest(const SipMessage* request,
 
     OsSysLog::add(FAC_CP, PRI_DEBUG,
                   "SipConnection::processRequest "
-                  "mInviteMsg: %x requestSequenceNum: %d "
+                  "mInviteMsg: %p requestSequenceNum: %d "
                   "lastRemoteSequenceNumber: %d "
                   "connectionState: %d reinviteState: %d",
                   mInviteMsg, requestSequenceNum, 
@@ -2418,7 +2420,8 @@ void SipConnection::processInviteRequest(const SipMessage* request)
                                                       TRUE);
     }
 
-    // If this is previous to the last invite
+    // Check if this is a valid new invite...
+    // If this is previous to the last invite, send error response
     if(mInviteMsg && requestSequenceNum < lastRemoteSequenceNumber)
     {
         SipMessage sipResponse;
@@ -2430,7 +2433,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         send(sipResponse);
     }
 
-    // if this is the same invite
+    // if this is the same invite.....
     else if(mInviteMsg 
             && !inviteFromThisSide 
             && requestSequenceNum == lastRemoteSequenceNumber)
@@ -2443,7 +2446,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         UtlString newInviteBranchId;
         SipMessage::getViaTag(viaField.data(), "branch", newInviteBranchId);
 
-        // from a different branch
+        // from a different branch, send loop detected response
         if(!oldInviteBranchId.isNull() 
            && oldInviteBranchId.compareTo(newInviteBranchId) != 0)
         {
@@ -2455,7 +2458,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
             }
             send(sipResponse);
         }
-        else
+        else // same branch, ignore
         {
             // no-op, ignore duplicate INVITE
             OsSysLog::add(FAC_SIP, PRI_WARNING,
@@ -2463,6 +2466,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
                           "received duplicate request");
         }
     }
+    // from here on, message Cseq > this object's lastRemoteSequenceNumber
     else if (hasReplaceHeader && !doesReplaceCallLegExist)
     {
         // has replace header, but it does not match this call, so send 481.
@@ -2479,7 +2483,9 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         setState(CONNECTION_DISCONNECTED, CONNECTION_LOCAL);
         fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_UNKNOWN) ;
 #ifdef TEST_PRINT
-        osPrintf("SipConnection::processInviteRequest - CONNECTION_DISCONNECTED, replace call leg does not match\n");
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                      "SipConnection::processInviteRequest "
+                      "CONNECTION_DISCONNECTED, replace call leg does not match\n");
 #endif
     }
     // Proceed to offering state
@@ -2615,7 +2621,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
 
         // If this is not part of a call leg replaces operation
         // we normally go to offering so that the application
-        // can decide to accept, rejecto or redirect
+        // can decide to accept, reject or redirect
         if(!doesReplaceCallLegExist)
         {
             setState(CONNECTION_OFFERING, CONNECTION_LOCAL, cause);
@@ -2637,7 +2643,10 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         // Get the route for subsequent requests
         request->buildRouteField(&mRouteField);
 #ifdef TEST_PRINT
-        osPrintf("INVITE set mRouteField: %s\n", mRouteField.data());
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                      "SipConnection::processInviteRequest "
+                      "mset mRouteField: %s\n", 
+                      mRouteField.data());
 #endif
         // Set the to tag if it is not set in the Invite
         if(tagNum >= 0)
@@ -2648,7 +2657,10 @@ void SipConnection::processInviteRequest(const SipMessage* request)
             mInviteMsg->getToUrl(mFromUrl);
         }
 #ifdef TEST_PRINT
-        osPrintf("Offering delay: %d\n", mOfferingDelay);
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                      "SipConnection::processInviteRequest "
+                      "Offering delay: %d\n",
+                      mOfferingDelay);
 #endif
         // If we are replacing a call let's answer the call
         // immediately do not go to offering first.
@@ -2707,7 +2719,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
             }
             // Other wise do nothing, let it sit in offering forever
         }
-    }
+    }   // end handling new Invite 
     // Re-INVITE allowed
     else if(   mpMediaInterface != NULL 
             && mInviteMsg 
@@ -2738,7 +2750,10 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         // Do not allow other Requests until the ReINVITE is complete
         reinviteState = REINVITED;
 #ifdef TEST_PRINT
-        osPrintf("INVITE reinviteState: %d\n", reinviteState);
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                      "SipConnection::processInviteRequest "
+                      "reinviteState: %d\n", 
+                      reinviteState);
 #endif
 
         UtlString rtpAddress;
@@ -2908,9 +2923,10 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         else
         {
 #ifdef TEST_PRINT
-            osPrintf("No SDP in reINVITE\n");
-            // Send back the whole set of supported codecs
-            osPrintf("REINVITE: using RTP address: %s\n",
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipConnection::processInviteRequest "
+                          "No SDP in reINVITE "
+                          "REINVITE: using RTP address: %s\n",
                 rtpAddress.data());
 #endif
 
@@ -2960,7 +2976,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         }
         delete[] matchingCodecs;
         matchingCodecs = NULL;
-    }
+    }   // end handling reInvite
 
     // Busy, but queue call
     else if(mpMediaInterface != NULL && getState() == CONNECTION_IDLE &&
@@ -2972,7 +2988,9 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         lastRemoteSequenceNumber = requestSequenceNum;
 
 #ifdef TEST_PRINT
-        osPrintf("Busy, queuing call\n");
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                      "SipConnection::processInviteRequest "
+                      "Busy, queuing call");
 #endif
 
         // This should be the first SIP message
@@ -2999,7 +3017,10 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         // Get the route for subsequent requests
         request->buildRouteField(&mRouteField);
 #ifdef TEST_PRINT
-        osPrintf("queuedINVITE set mRouteField: %s\n", mRouteField.data());
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                      "SipConnection::processInviteRequest "
+                      "queuedINVITE set mRouteField: %s", 
+                      mRouteField.data());
 #endif
 
         // Get the capabilities to figure out the matching codecs
@@ -3058,14 +3079,16 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         }
         delete[] matchingCodecs;
         matchingCodecs = NULL;
-    }
+    }   // end queuing new call on busy 
     // Forward on busy
     else if(getState() == CONNECTION_IDLE &&
         /*!callInFocus && */ mLineBusyBehavior == FORWARD_ON_BUSY &&
         !mForwardOnBusy.isNull())
     {
 #ifdef TEST_PRINT
-        osPrintf("Busy, forwarding call to \"%s\"\n",
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                      "SipConnection::processInviteRequest "
+                      "Busy, forwarding call to \"%s\"",
             mForwardOnBusy.data());
 #endif
 
@@ -3079,17 +3102,21 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         send(sipResponse);
 
 #ifdef TEST_PRINT
-        osPrintf("SipConnection::processInviteRequest - CONNECTION_FAILED, cause BUSY : 2390\n");
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                      "SipConnection::processInviteRequest "
+                      " - CONNECTION_FAILED, cause BUSY : 2390");
 #endif
         setState(CONNECTION_FAILED, CONNECTION_LOCAL, CONNECTION_CAUSE_BUSY);
         fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_BUSY) ;
-    }
+    }   // end forwarding call on busy
     // If busy
     else
     {
 #ifdef TEST_PRINT
-        osPrintf("Call: busy returning response\n");
-        osPrintf("Busy behavior: %d infocus: %d forward on busy URL: %s\n",
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                      "SipConnection::processInviteRequest "
+                      "busy returning response "
+                      "Busy behavior: %d infocus: %d forward on busy URL: %s",
             mLineBusyBehavior, -5/*callInFocus*/, mForwardOnBusy.data());
 #endif
         // This should be the first SIP message
@@ -3122,7 +3149,9 @@ void SipConnection::processInviteRequest(const SipMessage* request)
             if (reinviteState != REINVITING)
             {
 #ifdef TEST_PRINT
-                osPrintf("SipConnection::processInviteRequest - busy, not HELD state, setting state to CONNECTION_FAILED\n");
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                              "SipConnection::processInviteRequest "
+                              "- busy, not HELD state, setting state to CONNECTION_FAILED\n");
 #endif
                 setState(CONNECTION_FAILED, CONNECTION_LOCAL, CONNECTION_CAUSE_BUSY);
                 fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_BUSY) ;
@@ -3926,7 +3955,9 @@ UtlBoolean SipConnection::getInitialSdpCodecs(const SipMessage* sdpMessage,
     if(sdpBody)
     {
 #ifdef TEST_PRINT
-        osPrintf("SDP body in INVITE, finding best codec\n");
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                      "SipConnection::getInitialSdpCodecs "
+                      "SDP body in INVITE, finding best codec");
 #endif
         // This does not support SDP data with multiple media lines (m=)
         // This handicap is also present in SdpBody::getBestAudioCodes
@@ -3951,7 +3982,9 @@ UtlBoolean SipConnection::getInitialSdpCodecs(const SipMessage* sdpMessage,
 #ifdef TEST_PRINT
     else
     {
-        osPrintf("No SDP in message\n");
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                      "SipConnection::getInitialSdpCodecs "
+                      "No SDP in message");
     }
 #endif
     if(sdpBody != NULL)

@@ -12,6 +12,7 @@
 #include <string.h>
 
 // APPLICATION INCLUDES
+#include <os/OsSysLog.h>
 #include <os/OsLock.h>
 
 #include <utl/UtlSListIterator.h>
@@ -22,6 +23,8 @@
 #include <net/SdpCodecFactory.h>
 #include <utl/UtlTokenizer.h>
 #include <net/NetBase64Codec.h>
+
+//#define TEST_PRINT 1
 
 #define MAXIMUM_LONG_INT_CHARS 20
 #define MAXIMUM_MEDIA_TYPES 20
@@ -352,9 +355,8 @@ UtlBoolean SdpBody::getMediaPayloadType(int mediaIndex, int maxTypes,
    UtlString payloadTypeString;
    int typeCount = 0;
 
-   while(typeCount < maxTypes &&
-         getMediaSubfield(mediaIndex, 3 + typeCount,
-                          &payloadTypeString))
+   while(   typeCount < maxTypes 
+         && getMediaSubfield(mediaIndex, 3 + typeCount, &payloadTypeString))
    {
 
       if(!payloadTypeString.isNull())
@@ -444,31 +446,31 @@ UtlBoolean SdpBody::getPayloadRtpMap(int payloadType,
 
       // Verify this is an rtpmap "a" record
       NameValueTokenizer::getSubField(value, 0,
-                                      " \t:/", // seperators
+                                      " \t:/", // separators
                                       &aFieldType);
       if(aFieldType.compareTo("rtpmap") == 0)
       {
          // If this is the rtpmap for the requested payload type
          NameValueTokenizer::getSubField(value, 1,
-                                         " \t:/", // seperators
+                                         " \t:/", // separators
                                          &payloadString);
          if(atoi(payloadString.data()) == payloadType)
          {
             // The mime subtype is the 3rd subfield
             NameValueTokenizer::getSubField(value, 2,
-                                            " \t:/", // seperators
+                                            " \t:/", // separators
                                             &mimeSubtype);
 
             // The sample rate is the 4th subfield
             NameValueTokenizer::getSubField(value, 3,
-                                            " \t:/", // seperators
+                                            " \t:/", // separators
                                             &sampleRateString);
             sampleRate = atoi(sampleRateString.data());
             if(sampleRate <= 0) sampleRate = -1;
 
             // The number of channels is the 5th subfield
             NameValueTokenizer::getSubField(value, 4,
-                                            " \t:/", // seperators
+                                            " \t:/", // separators
                                             &numChannelString);
             numChannels = atoi(numChannelString.data());
             if(numChannels <= 0) numChannels = -1;
@@ -510,18 +512,18 @@ UtlBoolean SdpBody::getPayloadFormat(int payloadType,
 
       // Verify this is an rtpmap "a" record
       NameValueTokenizer::getSubField(value, 0,
-                                      " \t:/", // seperators
+                                      " \t:/", // separators
                                       &aFieldType);
       if(aFieldType.compareTo("fmtp") == 0)
       {
          NameValueTokenizer::getSubField(value, 1,
-                                         " \t:/", // seperators
+                                         " \t:/", // separators
                                          &payloadString);
          if(atoi(payloadString.data()) == payloadType)
          {
             // If this is the rtpmap for the requested payload type
             foundField = NameValueTokenizer::getSubField(value, 3,
-                                                    " \t:", // seperators
+                                                    " \t:", // separators
                                                     &fmtp);
 
 
@@ -530,7 +532,7 @@ UtlBoolean SdpBody::getPayloadFormat(int payloadType,
             while (foundField && index < 7)
             {
                 foundField = NameValueTokenizer::getSubField(value, index++,
-                                                            " \t/:", // seperators
+                                                            " \t/:", // separators
                                                             &temp);
                 if (temp.compareTo("CIF") == 0)
                 {
@@ -577,12 +579,12 @@ UtlBoolean SdpBody::getSrtpCryptoField(int mediaIndex,
 
         // Verify this is an crypto "a" record
         NameValueTokenizer::getSubField(value, 0,
-                                        " \t:/", // seperators
+                                        " \t:/", // separators
                                         &aFieldType);
         if(aFieldType.compareTo("crypto") == 0)
         {
             NameValueTokenizer::getSubField(value, 1,
-                                            " \t:/", // seperators
+                                            " \t:/", // separators
                                             &indexString);
             if(atoi(indexString.data()) == index)
             {
@@ -592,7 +594,7 @@ UtlBoolean SdpBody::getSrtpCryptoField(int mediaIndex,
                 params.securityLevel = SRTP_ENCRYPTION | SRTP_AUTHENTICATION;
 
                 NameValueTokenizer::getSubField(value, 2,
-                                                " \t:/", // seperators
+                                                " \t:/", // separators
                                                 &cryptoSuite);
                 // Check the crypto suite 
                 if (cryptoSuite.compareTo("AES_CM_128_HMAC_SHA1_80") == 0)
@@ -615,7 +617,7 @@ UtlBoolean SdpBody::getSrtpCryptoField(int mediaIndex,
 
                 // Get key
                 foundField = NameValueTokenizer::getSubField(value, 4,
-                                                             " \t/:|", // seperators
+                                                             " \t/:|", // separators
                                                              &temp);
                 NetBase64Codec::decode(temp.length(), temp.data(), size, srtpKey);
                 strncpy((char*)params.masterKey, srtpKey, SRTP_KEY_LENGTH);
@@ -624,7 +626,7 @@ UtlBoolean SdpBody::getSrtpCryptoField(int mediaIndex,
                 for (int index=5; foundField; ++index)
                 {
                     foundField = NameValueTokenizer::getSubField(value, index,
-                                                                 " \t/:|", // seperators
+                                                                 " \t/:|", // separators
                                                                  &temp);
                     if (foundField)
                     {
@@ -885,7 +887,7 @@ UtlBoolean SdpBody::getMediaAddress(int mediaIndex, UtlString* address) const
 }
 
 
-void SdpBody::getBestAudioCodecs(int numRtpCodecs, SdpCodec rtpCodecs[],
+void SdpBody::getBestAudioCodecs(int numRtpCodecs, SdpCodec rtpCodecs[], // this version does not seem to be used 04/2009
                                  UtlString* rtpAddress, int* rtpPort,
                                  int* sendCodecIndex,
                                  int* receiveCodecIndex) const
@@ -904,8 +906,9 @@ void SdpBody::getBestAudioCodecs(int numRtpCodecs, SdpCodec rtpCodecs[],
    *sendCodecIndex = -1;
    *receiveCodecIndex = -1;
 
-   while(mediaIndex >= 0 &&
-         (!sendCodecFound || !receiveCodecFound))
+   while(mediaIndex >= 0 
+         && (!sendCodecFound 
+             || !receiveCodecFound))
    {
       mediaIndex = findMediaType(SDP_AUDIO_MEDIA_TYPE, mediaIndex);
 
@@ -948,7 +951,7 @@ void SdpBody::getBestAudioCodecs(int numRtpCodecs, SdpCodec rtpCodecs[],
    }
 }
 
-
+// version used by SipConnection class
 void SdpBody::getBestAudioCodecs(SdpCodecFactory& localRtpCodecs,
                                  int& numCodecsInCommon,
                                  SdpCodec**& codecsInCommonArray,
@@ -1010,7 +1013,9 @@ void SdpBody::getBestAudioCodecs(SdpCodecFactory& localRtpCodecs,
                               numCodecsInCommon,
                               codecsInCommonArray);
             if (numCodecsInCommon >0)
+            {
                break;
+            }
          }
          mediaAudioIndex++;
          mediaVideoIndex++;
@@ -1054,9 +1059,14 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
    int numChannels;
    const SdpCodec* matchingCodec = NULL;
    int typeIndex;
+   bool matchingDtmf2833Found = FALSE;
+   int dynamicPayloadTypes[audioPayloadIdCount + videoPayloadIdCount];
+   int countDynPT = 0;
+   bool preferDtmf2833PTused = FALSE;
 
    numCodecsInCommon = 0;
 
+   // pick all the audio codecs
    for(typeIndex = 0; typeIndex < audioPayloadIdCount; typeIndex++)
    {
       // Until the real SdpCodec is needed we assume all of
@@ -1070,19 +1080,34 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
       {
          // Find a match for the mime type
          matchingCodec = localRtpCodecs.getCodec(MIME_TYPE_AUDIO, mimeSubtype.data());
-         if((matchingCodec != NULL) &&
-            (matchingCodec->getSampleRate() == sampleRate ||
-             sampleRate == -1) &&
-            (matchingCodec->getNumChannels() == numChannels ||
-             numChannels == -1))
+         if((matchingCodec != NULL) 
+            && (matchingCodec->getSampleRate() == sampleRate || sampleRate == -1) 
+            && (matchingCodec->getNumChannels() == numChannels || numChannels == -1))
          {
             // Create a copy of the SDP codec and set
             // the payload type for it
-            codecsInCommonArray[numCodecsInCommon] =
-               new SdpCodec(*matchingCodec);
+            codecsInCommonArray[numCodecsInCommon] = new SdpCodec(*matchingCodec);
             codecsInCommonArray[numCodecsInCommon]->setCodecPayloadFormat(audioPayloadTypes[typeIndex]);
             numCodecsInCommon++;
+#ifdef TEST_PRINT
 
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SdpBody::getCodecsInCommon "
+                          "found matching dynamic audio codec %d [%d]",
+                          audioPayloadTypes[typeIndex], typeIndex);
+#endif
+            // we will always send 2833 Dtmf codec, need to know whether to add later
+            if (matchingDtmf2833Found == FALSE // only runs if telephone-event not already found
+                && matchingCodec->getCodecType() == SdpCodec::SDP_CODEC_TONES)
+            {
+#ifdef TEST_PRINT
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                              "SdpBody::getCodecsInCommon "
+                              "found dtmf telephone-event format %d [%d]",
+                          audioPayloadTypes[typeIndex], typeIndex);
+#endif
+                matchingDtmf2833Found = TRUE;
+            }
          }
       }
 
@@ -1096,14 +1121,37 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
          {
             // Create a copy of the SDP codec and set
             // the payload type for it
-            codecsInCommonArray[numCodecsInCommon] =
-               new SdpCodec(*matchingCodec);
+            codecsInCommonArray[numCodecsInCommon] = new SdpCodec(*matchingCodec);
             codecsInCommonArray[numCodecsInCommon]->setCodecPayloadFormat(audioPayloadTypes[typeIndex]);
-
             numCodecsInCommon++;
+#ifdef TEST_PRINT
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SdpBody::getCodecsInCommon "
+                          "found matching static audio codec %d [%d]",
+                          audioPayloadTypes[typeIndex], typeIndex);
+#endif
          }
       }
+      // if we need to add 2833 Dtmf, have to remember dynamic payload types already used
+      if (matchingDtmf2833Found == FALSE // only runs if telephone-event not offered
+          && audioPayloadTypes[typeIndex] > SdpCodec::SDP_CODEC_MAXIMUM_STATIC_CODEC)
+      {
+          dynamicPayloadTypes[countDynPT] = audioPayloadTypes[typeIndex];
+          countDynPT++;
+          if (audioPayloadTypes[typeIndex] == SdpCodec::SDP_CODEC_DEFAULT_TONES_CODEC)
+          {
+              preferDtmf2833PTused = TRUE;
+#ifdef TEST_PRINT
+              OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                            "SdpBody::getCodecsInCommon "
+                            "2833 default audio codec %d [%d]",
+                            audioPayloadTypes[typeIndex], typeIndex);
+#endif
+          }
+      }
    }
+
+   // pick all the video codecs
    for(typeIndex = 0; typeIndex < videoPayloadIdCount; typeIndex++)
    {
        int videoFmtp = 0;
@@ -1123,7 +1171,7 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
          getPayloadFormat(videoPayloadTypes[typeIndex], fmtp, videoFmtp);
 
          // Get all codecs with the same mime subtype. Same codecs with different
-         // video resolutions are added seperately but have the same mime subtype.
+         // video resolutions are added separately but have the same mime subtype.
          // The codec negotiation depends on the fact that codecs with the same
          // mime subtype are added sequentially.
          localRtpCodecs.getCodecs(numCodecs, sdpCodecArray, "video", mimeSubtype);
@@ -1134,7 +1182,7 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
             
             // In addition to everything else do a bit-wise comparison of video formats. For
             // every codec with the same sub mime type that supports one of the video formats
-            // add a seperate codec in the codecsInCommonArray.
+            // add a separate codec in the codecsInCommonArray.
             if((matchingCodec != NULL) && (matchingCodec->getVideoFormat() & videoFmtp) &&
                 (matchingCodec->getSampleRate() == sampleRate ||
                 sampleRate == -1) &&
@@ -1144,13 +1192,16 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
             {
                 // Create a copy of the SDP codec and set
                 // the payload type for it
-                codecsInCommonArray[numCodecsInCommon] =
-                new SdpCodec(*matchingCodec);
+                codecsInCommonArray[numCodecsInCommon] = new SdpCodec(*matchingCodec);
                 codecsInCommonArray[numCodecsInCommon]->setCodecPayloadFormat(videoPayloadTypes[typeIndex]);
                 numCodecsInCommon++;
-
+#ifdef TEST_PRINT
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                              "SdpBody::getCodecsInCommon "
+                              "found matching dynamic video codec %d [%d]",
+                              videoPayloadTypes[typeIndex], typeIndex);
+#endif
             }
-
          }
 
          // Delete the codec array we got to loop through codecs with the same mime subtype
@@ -1175,13 +1226,88 @@ void SdpBody::getCodecsInCommon(int audioPayloadIdCount,
          {
             // Create a copy of the SDP codec and set
             // the payload type for it
-            codecsInCommonArray[numCodecsInCommon] =
-               new SdpCodec(*matchingCodec);
+            codecsInCommonArray[numCodecsInCommon] = new SdpCodec(*matchingCodec);
             codecsInCommonArray[numCodecsInCommon]->setCodecPayloadFormat(videoPayloadTypes[typeIndex]);
-
             numCodecsInCommon++;
          }
       }
+      // if we need to add 2833 Dtmf, have to remember dynamic payload types already used
+      if (matchingDtmf2833Found == FALSE // only runs if telephone-event not offered
+          && videoPayloadTypes[typeIndex] > SdpCodec::SDP_CODEC_MAXIMUM_STATIC_CODEC)
+      {
+          dynamicPayloadTypes[countDynPT] = videoPayloadTypes[typeIndex];
+          countDynPT++;
+          if (videoPayloadTypes[typeIndex] == SdpCodec::SDP_CODEC_DEFAULT_TONES_CODEC)
+          {
+              preferDtmf2833PTused = TRUE;
+#ifdef TEST_PRINT
+              OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                            "SdpBody::getCodecsInCommon "
+                            "2833 default audio codec %d [%d]",
+                            videoPayloadTypes[typeIndex], typeIndex);
+#endif
+          }
+      }
+   }
+   if (matchingDtmf2833Found == FALSE)
+   {
+       int useThisPT = SdpCodec::SDP_CODEC_DEFAULT_TONES_CODEC;
+       int ptOuter, iInner;
+
+       if(preferDtmf2833PTused == TRUE)
+       {
+           for (ptOuter = SdpCodec::SDP_CODEC_MAXIMUM_STATIC_CODEC +1;
+                 ptOuter <= SdpCodec::SDP_CODEC_MAXIMUM_DYNAMIC_CODEC;
+                 ptOuter++)
+           {
+               for (iInner = 0; iInner < countDynPT; iInner++)
+               {
+                   if (dynamicPayloadTypes[iInner] == countDynPT)
+                   {
+#ifdef TEST_PRINT
+                       OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                     "SdpBody::getCodecsInCommon "
+                                     "already using %d index [%d]",
+                                     ptOuter, iInner);
+#endif
+                       break;
+                   }
+               }
+               if (iInner == countDynPT )
+               {
+                   useThisPT = ptOuter;
+#ifdef TEST_PRINT
+                   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                 "SdpBody::getCodecsInCommon "
+                                 "ok to use dyn pt %d index [%d]",
+                                 ptOuter, iInner);
+#endif
+                   break;
+               }
+           }
+           if (useThisPT == SdpCodec::SDP_CODEC_DEFAULT_TONES_CODEC)
+           {
+               useThisPT = 0;
+               OsSysLog::add(FAC_SIP, PRI_WARNING,
+                             "SdpBody::getCodecsInCommon "
+                             "no free dynamic PT (%d used)",
+                             countDynPT);
+           }
+       }
+       if (useThisPT != 0)
+       {
+           codecsInCommonArray[numCodecsInCommon] = new SdpCodec(SdpCodec::SDP_CODEC_TONES, 
+                                                                 useThisPT, 
+                                                                 "audio", 
+                                                                 MIME_SUBTYPE_DTMF_TONES) ;
+
+           numCodecsInCommon++;
+           OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                         "SdpBody::getCodecsInCommon "
+                         "add tel-event codec PT %d numCodecs %d",
+                         useThisPT, numCodecsInCommon);
+       }
+
    }
 }
 

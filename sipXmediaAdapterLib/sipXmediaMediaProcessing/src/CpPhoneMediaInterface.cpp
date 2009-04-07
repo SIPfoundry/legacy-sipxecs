@@ -373,6 +373,7 @@ OsStatus CpPhoneMediaInterface::createConnection(int& connectionId,
         mediaConnection->mpRtcpSocket = rtcpSocket;
         mediaConnection->mRtpReceivePort = rtpSocket->getLocalHostPort() ;
         mediaConnection->mRtcpReceivePort = rtcpSocket->getLocalHostPort() ;
+        // copy constructor, from factory created in this class's constructor
         mediaConnection->mpCodecFactory = new SdpCodecFactory(mSupportedCodecs);
         mediaConnection->mpCodecFactory->bindPayloadTypes();
         
@@ -383,7 +384,7 @@ OsStatus CpPhoneMediaInterface::createConnection(int& connectionId,
                 "CpPhoneMediaInterface::createConnection creating a new RTCP socket: %p descriptor: %d",
                 mediaConnection->mpRtcpSocket, mediaConnection->mpRtcpSocket->getSocketDescriptor());
         OsSysLog::add(FAC_CP, PRI_DEBUG, 
-                "CpPhoneMediaInterface::createConnection creating a new SdpCodecFactory %p",
+                "CpPhoneMediaInterface::createConnection creating a new copy of SdpCodecFactory %p",
                 mediaConnection->mpCodecFactory);
 
         returnCode = OS_SUCCESS;

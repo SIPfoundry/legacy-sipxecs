@@ -120,6 +120,8 @@ public:
         SDP_CODEC_L16_MONO = 11, // PCM 16 bit/sample 44100 samples/sec.
         SDP_CODEC_G729 = 18, // G.729, with or without Annexes A or B
         SDP_CODEC_MAXIMUM_STATIC_CODEC = 95,
+        SDP_CODEC_DEFAULT_TONES_CODEC = 101,
+        SDP_CODEC_MAXIMUM_DYNAMIC_CODEC = 127,
         SDP_CODEC_TONES = 128, // AVT/DTMF Tones, RFC 2833
         SDP_CODEC_G729A = 129,
         SDP_CODEC_G7221 = 130, // Siren

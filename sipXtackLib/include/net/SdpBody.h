@@ -435,7 +435,7 @@ class SdpBody : public HttpBody
 
 
    /// Find the send and receive codecs from the rtpCodecs array which are compatible with this SdpBody..
-   void getBestAudioCodecs(int numRtpCodecs,
+   void getBestAudioCodecs(int numRtpCodecs,        // this version does not seem to be used 04/2009
                            SdpCodec rtpCodecs[],
                            UtlString* rtpAddress,
                            int* rtpPort,
@@ -446,7 +446,7 @@ class SdpBody : public HttpBody
 
 
    /// Find the send and receive codecs from the rtpCodecs array which are compatible with this SdpBody.
-   void getBestAudioCodecs(SdpCodecFactory& localRtpCodecs,
+   void getBestAudioCodecs(SdpCodecFactory& localRtpCodecs, // version used by SipConnection class
                            int& numCodecsInCommon,
                            SdpCodec**& codecsInCommonArray,
                            UtlString& rtpAddress, 

@@ -11,9 +11,12 @@
 #include <cppunit/TestCase.h>
 #include <sipxunit/TestUtilities.h>
 
+#include <os/OsSysLog.h>
 #include <os/OsDefs.h>
 #include <net/HttpMessage.h>
 #include <net/SdpBody.h>
+#include <net/SdpCodec.h>
+#include <net/SdpCodecFactory.h>
 
 
 /**
@@ -37,6 +40,7 @@ class SdpBodyTest : public CppUnit::TestCase
    CPPUNIT_TEST(testCandidateParsing);
    CPPUNIT_TEST(testRtcpPortParsing);
    CPPUNIT_TEST(testAddAttribute);
+   CPPUNIT_TEST(testInsertTelephoneEvent);
    CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -1358,6 +1362,95 @@ public:
         body.getBytes(&strBody, &nBody) ;
         ASSERT_STR_EQUAL(sdpExpected, strBody.data()) ;
     }
+
+
+    void testInsertTelephoneEvent()
+    {
+        int audioPayloadIdCount;
+        int videoPayloadIdCount;
+        int audioPayloadTypes[2];
+        int videoPayloadTypes[2];
+
+        int numLocalCodecs;
+        SdpCodecFactory localRtpCodecs;
+        UtlString codecList("");
+
+        int numCodecsInCommon;
+        int& rnumCodecsInCommon = numCodecsInCommon;
+
+        SdpCodec** ppmatchingCodecs = NULL;
+        SdpCodec**& rppcodecsInCommonArray = ppmatchingCodecs;
+        rppcodecsInCommonArray = new SdpCodec*[4];
+
+        numCodecsInCommon = 0;
+        audioPayloadIdCount = 1;
+        videoPayloadIdCount = 1;
+        audioPayloadTypes[0] = 8;
+        videoPayloadTypes[0] = 101;
+        numCodecsInCommon = 0;
+
+        codecList.append("telephone-event ");
+        codecList.append("pcmu ");
+        codecList.append("pcma ");
+        codecList.append("VP71-CIF ");
+
+        localRtpCodecs.buildSdpCodecFactory(codecList);
+
+
+        numLocalCodecs = 4;
+//        memset(codecsInCommonArray, 0, sizeof(SdpCodec*) * 4);
+
+        const char *sdp = 
+           "v=0\r\n"
+           "o=mhandley 2890844526 2890842807 IN IP4 126.16.64.4\r\n"
+           "s=SDP Seminar\r\n"
+           "i=A Seminar on the session description protocol\r\n"
+           "u=http://www.cs.ucl.ac.uk/staff/M.Handley/sdp.03.ps\r\n"
+           "e=mjh@isi.edu (Mark Handley)\r\n"
+           "c=IN IP4 224.2.17.12/127\r\n"
+           "t=2873397496 2873404696\r\n"
+           "m=audio 49170 RTP/AVP 8\r\n"
+           "a=rtpmap:8 pcma/8000/1\r\n"
+           "m=video 51372 RTP/AVP 101\r\n"
+           "a=rtpmap:101 VP71-CIF/9000/2000/1\r\n"
+           ;
+
+        SdpBody body(sdp);
+
+        body.getCodecsInCommon(1, 1,
+                               &audioPayloadTypes[0],
+                               &videoPayloadTypes[0],
+                               localRtpCodecs,
+                               rnumCodecsInCommon,
+                               rppcodecsInCommonArray);
+         OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                       "SdpBodyTest__testInsertTelephoneEvent "
+                       "numCodecs %d ", 
+                       numCodecsInCommon);
+
+         CPPUNIT_ASSERT(numCodecsInCommon == 2) ;
+
+         SdpCodec* pmatchingCodecs = *ppmatchingCodecs;
+/*         SdpCodec matchingCodec1, matchingCodec2;
+
+         matchingCodec1 = *pmatchingCodecs++;
+         matchingCodec2 = *pmatchingCodecs++;
+         OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                       "SdpBodyTest__testInsertTelephoneEvent "
+                       "pt[0] is %d "
+                       "pt[1] is %d ", 
+                       matchingCodec1.getCodecPayloadFormat(),
+                       matchingCodec2.getCodecPayloadFormat()); */
+
+        int checkPT;
+        checkPT = pmatchingCodecs->getCodecPayloadFormat();
+        CPPUNIT_ASSERT(checkPT == 8) ;
+/*
+        pmatchingCodecs++;
+        checkPT = pmatchingCodecs->getCodecPayloadFormat(); */
+//        CPPUNIT_ASSERT(checkPT == 96) ;
+    }
+    
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SdpBodyTest);
