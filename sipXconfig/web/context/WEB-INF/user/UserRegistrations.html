@@ -3,8 +3,13 @@
   <h2 jwcid="@If" condition="ognl:!userSession.admin">
     <span key="title">User Schedules</span>
   </h2>
-  <p><span key="helpText">Registered phones are operational and ready to make and receive calls. Phones that are not
-        registered are turned off or do not have network connectivity.</span></p>
+  <p>
+	<span key="helpText">Registered phones are operational and ready to make and receive calls. Phones that are not
+        registered are turned off or do not have network connectivity.</span>
+  </p>
+  <p jwcid="@If" condition="ognl:counterpath">
+    <span jwcid="@Insert" value="ognl:counterpathHelp"/>
+  </p>
   <div jwcid="@common/OptionalElement" id="settings-content" element="ognl:(userSession.admin ? 'div' : null)">
     <span jwcid="@common/ErrorMsg"/>
     <form jwcid="@common/AutoRefreshForm">
@@ -12,4 +17,3 @@
     </form>
   </div>
 </div>
-
