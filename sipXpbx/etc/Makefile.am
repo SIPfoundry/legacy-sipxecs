@@ -31,11 +31,11 @@ $(DESTDIR)@SERVICEDIR@:
 	$(INSTALL) -d $(DESTDIR)@SERVICEDIR@
 
 install-data-hook : \
-	$(DESTDIR)$(sysconfdir)/logrotate.d/sipxchange \
 	$(DESTDIR)$(sysconfdir)/sipxpbx/httpd.conf.d \
+	$(DESTDIR)$(sysconfdir)/logrotate.d/sipxchange \
 	$(foreach file, $(wwwconf_files),$(DESTDIR)$(sysconfdir)/sipxpbx/$(file))
 
-(DESTDIR)$(sysconfdir)/sipxpbx/httpd.conf.d:
+$(DESTDIR)$(sysconfdir)/sipxpbx/httpd.conf.d:
 	$(INSTALL) -d -m 755 $@
 
 $(foreach file,$(wwwconf_files),$(DESTDIR)$(sysconfdir)/sipxpbx/$(file)) : $(DESTDIR)$(sysconfdir)/sipxpbx/% : %
