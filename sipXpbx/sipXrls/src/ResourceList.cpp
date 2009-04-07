@@ -274,7 +274,7 @@ HttpBody* ResourceList::generateRlmiBody(UtlBoolean consolidated,
       rlmi += "fullState=\"false\">\r\n";
    }
 
-   // If we implemented names for resource lists, <name> elements would go here.
+   // If we implemented names for resource lists, <name> elements would be added here.
 
    // Iterate through the resources.
    UtlSListIterator resourcesItor(listToSend);
@@ -375,7 +375,7 @@ UtlBoolean ResourceList::genPartialList(UtlSList& partialList)
 // Generate and publish the full and partial RLMI for the specified URI
 // (full/consolidated) of a resource list.
 // Both the Full and the Partial RLMI are sent to the SIP Subscribe Server.
-// The  Partial RLMI will then be sent out right away and the Full RLMI 
+// The Partial RLMI will then be sent out right away and the Full RLMI 
 // will be stored in the Subscribe Server to be sent on any initial
 // SUBSCRIBEs and re-SUBSCRIBEs.
 void ResourceList::genAndPublish(UtlBoolean consolidated, UtlString resourceListUri)
