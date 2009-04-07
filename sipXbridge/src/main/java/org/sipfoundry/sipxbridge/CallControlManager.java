@@ -1233,9 +1233,10 @@ class CallControlManager implements SymmitronResetHandler {
         if (DialogContext.getPeerDialog(serverTransaction.getDialog()) != dialog) {
             if (response.getStatusCode() == 200) {
                 Request ackRequest = dialog.createAck(SipUtilities.getSeqNumber(response));
-                DialogContext.get(dialog).setForwardByeToPeer(false);
+              //  DialogContext.get(dialog).setForwardByeToPeer(false);
                 DialogContext.get(dialog).setLastResponse(null);
                 DialogContext.get(dialog).sendAck(ackRequest);
+                DialogContext.pairDialogs(serverTransaction.getDialog(), dialog);
             }
         }
         serverTransaction.sendResponse(newResponse);

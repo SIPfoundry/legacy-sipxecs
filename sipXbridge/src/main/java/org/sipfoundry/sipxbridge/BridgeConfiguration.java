@@ -8,9 +8,11 @@ package org.sipfoundry.sipxbridge;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.net.InetAddress;
 import java.util.HashSet;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
@@ -52,14 +54,15 @@ public class BridgeConfiguration {
     private HashSet<Integer> parkServerCodecs = new HashSet<Integer>();
     private boolean isSecure = true;
     private int sipSessionTimerIntervalSeconds = 1800;
-	private String sipxSupervisorHost;
-	private int sipxSupervisorXmlRpcPort;
+    private String sipxSupervisorHost;
+    private int sipxSupervisorXmlRpcPort;
 
     private static Logger logger = Logger.getLogger(BridgeConfiguration.class);
-    
+
     public BridgeConfiguration() {
-            parkServerCodecs.add(RtpPayloadTypes.getPayloadType("PCMU"));
-            parkServerCodecs.add(RtpPayloadTypes.getPayloadType("PCMA"));
+        parkServerCodecs.add(RtpPayloadTypes.getPayloadType("PCMU"));
+        parkServerCodecs.add(RtpPayloadTypes.getPayloadType("PCMA"));
+
     }
 
     /**
@@ -68,7 +71,7 @@ public class BridgeConfiguration {
     public void setExternalAddress(String externalAddress) {
         try {
             this.externalAddress = InetAddress.getByName(externalAddress).getHostAddress();
-            if ( this.localAddress == null ) {
+            if (this.localAddress == null) {
                 this.setLocalAddress(externalAddress);
             }
         } catch (Exception ex) {
@@ -207,9 +210,30 @@ public class BridgeConfiguration {
      */
     public void setLogLevel(String logLevel) {
         this.logLevel = logLevel;
-    }
+        if (logLevel.equals("DEBUG")) {
+            /*
+             * Check if the TRACE debug override is turned on.
+             * If so, enable tracing.
+             */
+            try {
+                String log4jProps = Gateway.configurationPath + "/log4j.properties";
 
-    
+                if (new File(log4jProps).exists()) {
+                    /*
+                     * Override the file configuration setting.
+                     */
+                    Properties props = new Properties();
+                    props.load(new FileInputStream(log4jProps));
+                    String level = props.getProperty("log4j.category.org.sipfoundry.sipxbridge");
+                    if (level != null) {
+                        setLogLevel(level.toUpperCase());
+                    }
+                }
+            } catch (Exception ex) {
+                /* Ignore */
+            }
+        }
+    }
 
     /**
      * @return the logLevel
@@ -227,11 +251,11 @@ public class BridgeConfiguration {
         else
             return this.musicOnHoldName;
     }
-    
-    public void setMusicOnHoldName( String musicOnHoldName ) {
+
+    public void setMusicOnHoldName(String musicOnHoldName) {
         this.musicOnHoldName = musicOnHoldName;
     }
-    
+
     /**
      * The session timer interval.
      */
@@ -313,9 +337,6 @@ public class BridgeConfiguration {
     public String getLogFileDirectory() {
         return logFileDirectory;
     }
-
-   
-   
 
     public boolean isReInviteSupported() {
         return this.reInviteSupported;
@@ -405,21 +426,21 @@ public class BridgeConfiguration {
     }
 
     /**
-     * Whether or not to forward a REFER ( if the ITSP capablity allows us to do so).
-     * This feature is turned off until further testing can be done.
+     * Whether or not to forward a REFER ( if the ITSP capablity allows us to do so). This feature
+     * is turned off until further testing can be done.
      * 
      * @return
      */
     public boolean isReferForwarded() {
-        
+
         return false;
-        
+
     }
-    
-    public void setSecure(boolean isSecure ) {
+
+    public void setSecure(boolean isSecure) {
         this.isSecure = isSecure;
     }
-    
+
     public boolean isSecure() {
         return this.isSecure;
     }
@@ -462,15 +483,14 @@ public class BridgeConfiguration {
     /**
      * @return the musicOnHoldDelay
      */
-    public int getMusicOnHoldDelayMiliseconds () {
+    public int getMusicOnHoldDelayMiliseconds() {
         return musicOnHoldDelayMiliseconds;
     }
 
-    
     public void setMohSupportedCodecs(String mohCodecs) throws IllegalArgumentException {
         String[] codecs = mohCodecs.split("\\,");
-        for ( String codec : codecs) {
-            if ( ! RtpPayloadTypes.isPayload(codec)) {
+        for (String codec : codecs) {
+            if (!RtpPayloadTypes.isPayload(codec)) {
                 throw new IllegalArgumentException("Could not find codec " + codec);
             }
             int codecNumber = RtpPayloadTypes.getPayloadType(codec);
@@ -489,9 +509,9 @@ public class BridgeConfiguration {
      * @param sipSessionTimerIntervalSeconds the sipSessionTimerIntervalSeconds to set
      */
     public void setSipSessionTimerIntervalSeconds(int sipSessionTimerIntervalSeconds) {
-        if ( sipSessionTimerIntervalSeconds < 0 ) {
-            throw new IllegalArgumentException("Bad session timer interval " 
-                    + sipSessionTimerIntervalSeconds) ;
+        if (sipSessionTimerIntervalSeconds < 0) {
+            throw new IllegalArgumentException("Bad session timer interval "
+                    + sipSessionTimerIntervalSeconds);
         }
         this.sipSessionTimerIntervalSeconds = sipSessionTimerIntervalSeconds;
     }
@@ -502,22 +522,23 @@ public class BridgeConfiguration {
     public int getSipSessionTimerIntervalSeconds() {
         return sipSessionTimerIntervalSeconds;
     }
-    
+
     public void setSipXSupervisorXmlRpcPort(int port) {
-        if ( port <= 0 ) throw new IllegalArgumentException("Port : " + port);
+        if (port <= 0)
+            throw new IllegalArgumentException("Port : " + port);
         this.sipxSupervisorXmlRpcPort = port;
     }
-    
-	public int getSipXSupervisorXmlRpcPort() {
-		return this.sipxSupervisorXmlRpcPort;
-	}
 
-	public void setSipXSupervisorHost(String hostName) {
-		this.sipxSupervisorHost = hostName;
-	}
+    public int getSipXSupervisorXmlRpcPort() {
+        return this.sipxSupervisorXmlRpcPort;
+    }
 
-	public String getSipXSupervisorHost() {
-		return this.sipxSupervisorHost;
-	}
+    public void setSipXSupervisorHost(String hostName) {
+        this.sipxSupervisorHost = hostName;
+    }
+
+    public String getSipXSupervisorHost() {
+        return this.sipxSupervisorHost;
+    }
 
 }
