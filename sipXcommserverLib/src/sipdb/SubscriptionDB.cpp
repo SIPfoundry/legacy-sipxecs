@@ -75,7 +75,7 @@ const UtlString SubscriptionDB::sXmlNamespace("http://www.sipfoundry.org/sipX/sc
 
 SubscriptionDB::SubscriptionDB( const UtlString& name )
 : mDatabaseName( name )
-, mTableLoaded ( false )
+, mTableLoaded ( true )
 {
     // Access the shared table databse
     SIPDBManager* pSIPDBManager = SIPDBManager::getInstance();

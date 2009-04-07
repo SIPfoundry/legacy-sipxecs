@@ -42,7 +42,8 @@ const UtlString ExtensionDB::sXmlNamespace("http://www.sipfoundry.org/sipX/schem
 /* ============================ CREATORS ================================== */
 
 ExtensionDB::ExtensionDB( const UtlString& name ) : 
-    mDatabaseName( name )
+   mDatabaseName( name ),
+   mTableLoaded ( true )
 {
     // Access the shared table databse
     SIPDBManager* pSIPDBManager = SIPDBManager::getInstance();

@@ -104,7 +104,8 @@ const UtlString RegistrationDB::sXmlNamespace("http://www.sipfoundry.org/sipX/sc
  *
  */
 RegistrationDB::RegistrationDB( const UtlString& name ) :
-    mDatabaseName( name )
+   mDatabaseName( name ),
+   mTableLoaded ( true )
 {
     // Access the shared table databse
     SIPDBManager* pSIPDBManager = SIPDBManager::getInstance();
