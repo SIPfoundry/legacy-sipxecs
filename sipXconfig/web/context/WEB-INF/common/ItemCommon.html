@@ -3,7 +3,7 @@
     <tbody jwcid="@common/OptionalElement" element="ognl:useFieldset ? 'tbody' : null">    
     <span jwcid="ifUseEnabled@If" condition="ognl:useEnabled">
       <tr jwcid="@common/FieldPanel" for="item:enabled" field="component:enabled" label="message:enabled">
-      	<input jwcid="enabled@Checkbox" type="checkbox" id="item:enabled" value="ognl:#this.item.enabled"/>
+      	<input jwcid="enabled@Checkbox" type="checkbox" id="item:enabled" value="ognl:#this.item.enabled" disabled="ognl:disableEnabledCheckbox"/>
       </tr>
     </span>    
     <tr jwcid="@common/FieldPanel" for="item:name" field="component:name" label="message:name">

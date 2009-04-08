@@ -38,6 +38,7 @@
   </component>
   <component id="common" type="common/ItemCommon">
     <inherited-binding name="item" parameter-name="rule" />
+    <binding name="disableEnabledCheckbox" value="disableEnabledCheckbox" />
   </component>
   <component id="formActions" type="common/FormActions">
     <binding name="callback" value="callback" />

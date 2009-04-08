@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.dialplan;
@@ -17,6 +17,7 @@ import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.form.IFormComponent;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
+import org.sipfoundry.sipxconfig.admin.dialplan.AttendantRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -87,5 +88,18 @@ public abstract class DialRuleCommon extends BaseComponent {
         if (renderGateways && ruleChanged) {
             commit();
         }
+    }
+
+    public boolean isAttendantRuleInstance() {
+        return getRule() instanceof AttendantRule ? true : false;
+    }
+
+    public boolean isDisableEnabledCheckbox() {
+        if (getRule() != null && !getRule().isInternal()) {
+            if (getRule().getGateways().size() <= 0) {
+                return true;
+            }
+        }
+        return false;
     }
 }
