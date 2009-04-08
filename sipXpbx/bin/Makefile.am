@@ -30,6 +30,7 @@ bin_SCRIPTS = \
 SipxLibexecScripts = \
 	sipx-activate-ntp \
 	sipx-config-httpd-access \
+	sipx-config-vxml-domain \
 	initial-config \
 	sipx-strip-db-secrets.pl
 
@@ -97,6 +98,7 @@ install-exec-hook : \
 	$(foreach sipxScript,$(SipxLibexecPythonScripts),$(DESTDIR)@SIPX_LIBEXECDIR@/$(sipxScript)) \
 	$(DESTDIR)@SIPX_LIBEXECDIR@/setup.d/010_sipx-activate-ntp \
 	$(DESTDIR)@SIPX_LIBEXECDIR@/setup.d/011_sipx-config-httpd-access \
+	$(DESTDIR)@SIPX_LIBEXECDIR@/setup.d/012_sipx-config-vxml-domain \
 	remove-obsolete-bins
 
 .PHONY: remove-obsolete-bins
@@ -152,6 +154,10 @@ $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d/010_sipx-activate-ntp: $(DESTDIR)@SIPX_LIBEX
 $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d/011_sipx-config-httpd-access: $(DESTDIR)@SIPX_LIBEXECDIR@/sipx-config-httpd-access $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d
 	cd $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d \
 	&& ln -sf ../sipx-config-httpd-access 011_sipx-config-httpd-access
+
+$(DESTDIR)@SIPX_LIBEXECDIR@/setup.d/012_sipx-config-vxml-domain: $(DESTDIR)@SIPX_LIBEXECDIR@/sipx-config-vxml-domain $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d
+	cd $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d \
+	&& ln -sf ../sipx-config-vxml-domain 012_sipx-config-vxml-domain
 
 $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d:
 	$(INSTALL) -d $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d

@@ -22,7 +22,7 @@
     <!-- ================ CUSTOMIZABLE PARAMETERS ========================== -->
         
     <!-- Address of 'operator' -->
-    <var name="operatoraddr" expr="'sip:0@${SIPXCHANGE_DOMAIN_NAME}'" />
+    <var name="operatoraddr" expr="'sip:0@%SIP_DOMAIN_NAME%'" />
 
     <!-- Auto attendant options - Valid values are:
         i.  dialbyname - transfers to dial by name functionality
@@ -41,7 +41,7 @@
          autoattendant as well.
     -->
     <var name="aa_option_0" expr="'transfertoextension'" />
-    <var name="aa_option_0_extn" expr="'sip:operator@${SIPXCHANGE_DOMAIN_NAME}'" />
+    <var name="aa_option_0_extn" expr="'sip:operator@%SIP_DOMAIN_NAME%'" />
 
     <var name="aa_option_1" expr="'none'" />
     <var name="aa_option_1_extn" expr="'none'" />

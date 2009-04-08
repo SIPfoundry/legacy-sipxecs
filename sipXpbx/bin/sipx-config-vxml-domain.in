@@ -1,0 +1,23 @@
+#!/bin/sh
+
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+
+SIP_DOMAIN_NAME=`sipx_config_value @SIPX_CONFDIR@/domain-config SIP_DOMAIN_NAME`
+
+VM_VXML_SCRIPT_DIR=@wwwdir@/doc/vm_vxml
+
+iam=`whoami`
+if [ "${iam}" = "root" ]
+then
+    exec su @SIPXPBXUSER@ -c "$0 $*"
+elif [ "${iam}" != "@SIPXPBXUSER@" ]
+then
+    echo "You must be either root or @SIPXPBXUSER@ to execute $0" 1>&2
+    exit 1
+fi
+
+for vxml_template in ${VM_VXML_SCRIPT_DIR}/*.vxml.in
+do
+    vxml_file=`echo "${vxml_template}" | perl -pe 's|\.in$||'`
+    perl -pe "s|%SIP_DOMAIN_NAME%|${SIP_DOMAIN_NAME}|g" "${vxml_template}" > "${vxml_file}"
+done

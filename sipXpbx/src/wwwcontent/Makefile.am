@@ -536,9 +536,9 @@ wwwcontent = \
 	vm_vxml/activategreeting.vxml \
 	vm_vxml/changepin.vxml \
 	vm_vxml/error_handler.vxml \
-	vm_vxml/forwardmessage.vxml.in \
-	vm_vxml/login.vxml.in \
-	vm_vxml/login_no_autoattendant.vxml.in \
+	vm_vxml/forwardmessage.vxml \
+	vm_vxml/login.vxml \
+	vm_vxml/login_no_autoattendant.vxml \
 	vm_vxml/mainmenu.vxml \
 	vm_vxml/mainmenu_no_autoattendant.vxml \
 	vm_vxml/manage_autoattendant.vxml \
@@ -547,8 +547,8 @@ wwwcontent = \
 	vm_vxml/recordgreeting.vxml \
 	vm_vxml/replytovoicemail.vxml \
 	vm_vxml/root.vxml.in \
-	vm_vxml/savemessage.vxml.in \
-	vm_vxml/savemessage_no_operator.vxml.in
+	vm_vxml/savemessage.vxml \
+	vm_vxml/savemessage_no_operator.vxml
 
 install-data-hook: install-wwwcontent
 
