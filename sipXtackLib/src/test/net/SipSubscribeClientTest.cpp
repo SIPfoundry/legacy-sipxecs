@@ -370,6 +370,8 @@ public:
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SipSubscribeClientTest1);
 
+#if 0 // Removed - see XECS-2465
+
 class SipSubscribeClientTest2 : public CppUnit::TestCase
 {
    CPPUNIT_TEST_SUITE(SipSubscribeClientTest2);
@@ -971,6 +973,8 @@ public:
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SipSubscribeClientTest3);
+
+#endif // Removed - see XECS-2465
 
 class SipSubscribeClientTest4 : public CppUnit::TestCase
 {
