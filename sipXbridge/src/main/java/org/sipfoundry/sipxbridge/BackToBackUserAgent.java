@@ -217,14 +217,25 @@ public class BackToBackUserAgent {
     RtpSession createRtpSession(Dialog dialog) {
         RtpSession rtpSession = DialogContext.getRtpSession(dialog);
         SipProvider provider = ((DialogExt) dialog).getSipProvider();
-        DialogContext dialogApplicationData = DialogContext.get(dialog);
+        DialogContext dialogContext = DialogContext.get(dialog);
 
         if (rtpSession == null) {
+            String clid = DialogContext.get(dialog).getCallLegId();
+            for (Dialog dlg : this.dialogTable) {
+                if (DialogContext.get(dlg).getCallLegId().equals(clid)) {
+                    rtpSession = DialogContext.get(dlg).getRtpSession();
+                    if (rtpSession != null) {
+                        dialogContext.setRtpSession(rtpSession);
+                        return rtpSession;
+                    }
+                }
+            }
+
             if (Gateway.getLanProvider() == provider) {
-                if (dialogApplicationData.getRtpSession() == null) {
+                if (dialogContext.getRtpSession() == null) {
                     SymImpl symImpl = symmitronClient.createEvenSym();
                     rtpSession = new RtpSession(symImpl);
-                    dialogApplicationData.setRtpSession(rtpSession);
+                    dialogContext.setRtpSession(rtpSession);
                     this.rtpBridge.addSym(rtpSession);
                 }
 
@@ -233,13 +244,13 @@ public class BackToBackUserAgent {
                 rtpSession = new RtpSession(symImpl);
                 rtpSession.getReceiver().setGlobalAddress(symmitronClient.getPublicAddress());
                 rtpSession.getReceiver().setUseGlobalAddressing(
-                        dialogApplicationData.getItspInfo() == null
-                                || dialogApplicationData.getItspInfo().isGlobalAddressingUsed());
+                        dialogContext.getItspInfo() == null
+                                || dialogContext.getItspInfo().isGlobalAddressingUsed());
                 DialogContext.get(dialog).setRtpSession(rtpSession);
                 this.rtpBridge.addSym(rtpSession);
             }
         }
-        return dialogApplicationData.getRtpSession();
+        return dialogContext.getRtpSession();
     }
 
     /**

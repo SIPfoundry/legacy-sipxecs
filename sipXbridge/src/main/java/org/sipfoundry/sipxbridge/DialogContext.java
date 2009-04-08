@@ -28,7 +28,9 @@ import javax.sip.Transaction;
 import javax.sip.header.AcceptHeader;
 import javax.sip.header.AllowHeader;
 import javax.sip.header.CSeqHeader;
+import javax.sip.header.CallIdHeader;
 import javax.sip.header.ContactHeader;
+import javax.sip.header.FromHeader;
 import javax.sip.header.SubjectHeader;
 import javax.sip.header.SupportedHeader;
 import javax.sip.header.ViaHeader;
@@ -406,6 +408,12 @@ class DialogContext {
 
 		}
 	}
+	
+	public String getCallLegId() {
+	    String fromTag = ((FromHeader) this.getRequest().getHeader(FromHeader.NAME)).getTag();
+	    String callId  = ((CallIdHeader) this.getRequest().getHeader(CallIdHeader.NAME)).getCallId();
+	    return fromTag + ":" + callId;
+	}
 
 	/*
 	 * Constructor.
@@ -603,6 +611,13 @@ class DialogContext {
 	 */
 	ItspAccountInfo getItspInfo() {
 		return itspInfo;
+	}
+	
+	/**
+	 * @return the provider
+	 */
+	SipProvider getSipProvider() {
+	    return ((DialogExt)dialog).getSipProvider();
 	}
 
 	/**
@@ -974,6 +989,15 @@ class DialogContext {
 		
 		this.sendAck(ack);
 		
-	}	
+	}
+
+	
+    void sendBye() throws Exception {
+        Request bye = dialog.createRequest(Request.BYE);
+        ClientTransaction clientTransaction = getSipProvider().getNewClientTransaction(bye);
+        dialog.sendRequest(clientTransaction);  
+    }	
+    
+   
 
 }

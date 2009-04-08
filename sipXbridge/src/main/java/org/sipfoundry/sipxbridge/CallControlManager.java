@@ -910,11 +910,8 @@ class CallControlManager implements SymmitronResetHandler {
             ServerTransaction inviteServerTransaction = ((SIPServerTransaction) requestEvent
                     .getServerTransaction()).getCanceledInviteTransaction();
 
-            if (inviteServerTransaction.getState() == TransactionState.PROCEEDING) {
-                Response response = SipUtilities.createResponse(inviteServerTransaction,
-                        Response.REQUEST_TERMINATED);
-                inviteServerTransaction.sendResponse(response);
-            } else {
+            if (inviteServerTransaction.getState() != TransactionState.PROCEEDING) {
+                
                 // Too late to cancel.
                 logger.debug(String.format("Transaction State is %s too late to cancel",
                         inviteServerTransaction.getState()));
@@ -1050,8 +1047,7 @@ class CallControlManager implements SymmitronResetHandler {
             }
 
             if (tad.getOperation() == Operation.CANCEL_REPLACED_INVITE
-                    || tad.getOperation() == Operation.CANCEL_MOH_INVITE
-                    || response.getStatusCode() == Response.REQUEST_TERMINATED) {
+                    || tad.getOperation() == Operation.CANCEL_MOH_INVITE) {
                 logger.debug("ingoring 4xx response " + tad.getOperation());
             } else if (tad.getOperation() != Operation.REFER_INVITE_TO_SIPX_PROXY) {
                 if (serverTransaction != null) {

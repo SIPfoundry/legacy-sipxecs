@@ -94,14 +94,8 @@ class DataShuffler implements Runnable {
             InetSocketAddress remoteAddress) throws UnknownHostException {
         try {
 
-            if (logger.isTraceEnabled()) {
-                logger.trace("inbound datagramChannel = " + datagramChannel);
-            }
+           
             for (Sym sym : bridge.sessions) {
-                if (logger.isTraceEnabled() && sym.getReceiver() != null) {
-                    logger.trace("sym.getReceiver().getDatagramChannel() "
-                            + sym.getReceiver().getDatagramChannel());
-                }
                 if (sym.getReceiver() != null
                         && datagramChannel == sym.getReceiver().getDatagramChannel()) {
                     if (logger.isTraceEnabled() && remoteAddress != null) {
