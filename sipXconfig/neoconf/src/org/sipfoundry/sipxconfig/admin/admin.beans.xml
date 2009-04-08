@@ -110,4 +110,18 @@
   <bean id="loggingManager" class="org.sipfoundry.sipxconfig.admin.LoggingManagerImpl">
     <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
+
+  <bean id="dnsTestContextImpl" class="org.sipfoundry.sipxconfig.admin.DnsTestContextImpl">
+    <constructor-arg ref="commandContext"/>
+    <constructor-arg value="sipx-dns"/>
+	<property name="locationsManager" ref="locationsManager"/>
+	<property name="sipxServiceManager" ref="sipxServiceManager"/>
+	<property name="coreContext" ref="coreContext"/>
+  </bean>
+
+  <bean id="dnsTestContext" class="org.springframework.aop.framework.ProxyFactoryBean"
+    parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.admin.DnsTestContext"/>
+    <property name="target" ref="dnsTestContextImpl"/>
+  </bean>
 </beans>

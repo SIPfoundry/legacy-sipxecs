@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.configdiag;
@@ -30,7 +30,7 @@ public class ExternalCommand {
     private static final Pattern PARAM_PATTERN = Pattern.compile("\\$\\{(.*)\\}");
 
     private String m_command;
-    private List<String> m_args = new ArrayList<String>();
+    private final List<String> m_args = new ArrayList<String>();
     private ExternalCommandContext m_context;
     private String m_stdout;
 
@@ -104,6 +104,18 @@ public class ExternalCommand {
 
     public void addArgument(String arg) {
         m_args.add(arg);
+    }
+
+    public void addArgument(String arg, int position) {
+        m_args.add(position, arg);
+    }
+
+    public void removeArgument(int index) {
+        m_args.remove(index);
+    }
+
+    public void clearArguments() {
+        m_args.clear();
     }
 
     List<String> getArgs() {

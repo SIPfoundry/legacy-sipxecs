@@ -38,6 +38,5 @@ public class AlarmServerConfigurationTest extends XMLTestCase{
         InputStream referenceXmlStream = AlarmConfigurationTest.class
             .getResourceAsStream("alarm-config-test.xml");
         assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(generatedXml));
-
     }
 }
