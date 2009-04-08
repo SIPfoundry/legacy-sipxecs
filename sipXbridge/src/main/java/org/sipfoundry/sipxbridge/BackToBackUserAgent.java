@@ -1563,7 +1563,7 @@ public class BackToBackUserAgent {
                 HashSet<Integer> codecs = SipUtilities.getCommonCodec(sdes, newOffer);
 
                 logger.debug("Codecs = " + codecs);
-
+              
                 if (replacedDialog.getState() != DialogState.CONFIRMED) {
                     if (codecs.size() == 0) {
                         Response errorResponse = SipUtilities.createResponse(serverTransaction,
@@ -1573,7 +1573,7 @@ public class BackToBackUserAgent {
 
                     }
 
-                    SipUtilities.cleanSessionDescription(sdes, codecs);
+                   
 
                 }
 
@@ -1635,7 +1635,8 @@ public class BackToBackUserAgent {
                 SipProvider wanProvider = ((DialogExt) peerDialog).getSipProvider();
                 ContactHeader contact = SipUtilities.createContactHeader(wanProvider, peerDat
                         .getItspInfo());
-                SessionDescription answerSdes = SipUtilities.cleanSessionDescription(newOffer,
+               
+                SessionDescription answerSdes = SipUtilities.cleanSessionDescription(SipUtilities.cloneSessionDescription(sdes),
                         codecs);
                 wanRtpSession.getReceiver().setSessionDescription(answerSdes);
 
