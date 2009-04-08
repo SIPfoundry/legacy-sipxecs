@@ -134,6 +134,8 @@ public class BackToBackUserAgent {
 
     private Hop proxyAddress;
 
+    private boolean pendingTermination;
+
     // ///////////////////////////////////////////////////////////////////////
     // Constructor.
     // ///////////////////////////////////////////////////////////////////////
@@ -1845,6 +1847,19 @@ public class BackToBackUserAgent {
      */
     public boolean managesCallId(String callId) {
         return myCallIds.contains(callId);
+    }
+
+    public void setPendingTermination(boolean pendingTermination) {
+        this.pendingTermination = pendingTermination;
+    }
+    
+    /**
+     * Return true if this is pending termination.
+     * 
+     * @return
+     */
+    public boolean isPendingTermination() {
+        return this.pendingTermination;
     }
 
 }

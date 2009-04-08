@@ -470,6 +470,12 @@ class CallControlManager implements SymmitronResetHandler {
                     response.setReasonPhrase("No record of ITSP. Check configuration.");
                     serverTransaction.sendResponse(response);
                     return;
+                } else if ( btobua.isPendingTermination()) {
+                    Response response = SipUtilities.createResponse(serverTransaction,
+                            Response.LOOP_DETECTED);
+                    response.setReasonPhrase("Retry detected for declined call.");
+                    serverTransaction.sendResponse(response);
+                    return;
                 }
 
             }
@@ -1049,9 +1055,17 @@ class CallControlManager implements SymmitronResetHandler {
             if (tad.getOperation() == Operation.CANCEL_REPLACED_INVITE
                     || tad.getOperation() == Operation.CANCEL_MOH_INVITE) {
                 logger.debug("ingoring 4xx response " + tad.getOperation());
+               
             } else if (tad.getOperation() != Operation.REFER_INVITE_TO_SIPX_PROXY) {
                 if (serverTransaction != null) {
                     if (serverTransaction.getState() != TransactionState.TERMINATED) {
+                       
+                        if ( (tad.getOperation().equals(Operation.SEND_INVITE_TO_SIPX_PROXY) || 
+                                tad.getOperation().equals(Operation.SEND_INVITE_TO_ITSP)) && 
+                                ( response.getStatusCode()/100 == 6  || response.getStatusCode()/100 == 5)) {
+                            b2bua.setPendingTermination(true);
+                            
+                        }
                         Response newResponse = SipUtilities.createResponse(serverTransaction,
                                 response.getStatusCode());
                         serverTransaction.sendResponse(newResponse);
