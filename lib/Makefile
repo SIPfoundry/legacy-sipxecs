@@ -32,7 +32,8 @@ AC_TARGETS = \
 	freeswitch \
 	rrdtool \
 	nsis \
-	stunnel
+	stunnel \
+	openssl
 
 .PHONY: $(AC_TARGETS)
 $(AC_TARGETS) : 
@@ -52,4 +53,4 @@ f10 : $(CUSTOM_PACKAGES)
 rhel5 centos5 : $(CUSTOM_PACKAGES) cppunit xerces-c w3c-libwww rubygems rrdtool
 
 .PHONY: suse11.1
-suse11.1 : $(CUSTOM_PACKAGES) stunnel w3c-libwww
+suse11.1 : $(CUSTOM_PACKAGES) openssl stunnel w3c-libwww
