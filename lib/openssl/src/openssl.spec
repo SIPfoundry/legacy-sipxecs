@@ -116,6 +116,8 @@ rm -rf $RPM_BUILD_ROOT
 
 %attr(0755,root,root) /usr/bin/*
 %attr(0755,root,root) /usr/lib/*.so*
+%attr(0755,root,root) /usr/lib/engines/*.so*
+%attr(0755,root,root) /usr/lib/pkgconfig/*.pc
 %attr(0755,root,root) %{openssldir}/misc/*
 %attr(0644,root,root) /usr/man/man[157]/*
 
