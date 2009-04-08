@@ -5,12 +5,14 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.site.admin.commserver;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.tapestry.IAsset;
 import org.apache.tapestry.IPage;
@@ -28,6 +30,7 @@ import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.site.common.BreadCrumb;
 
 public abstract class LocationsPage extends BasePage implements PageBeginRenderListener {
     public static final String PAGE = "admin/commserver/LocationsPage";
@@ -43,6 +46,9 @@ public abstract class LocationsPage extends BasePage implements PageBeginRenderL
 
     @InjectObject("spring:domainManager")
     public abstract DomainManager getDomainManager();
+
+    @Asset("/images/breadcrumb_separator.png")
+    public abstract IAsset getBreadcrumbSeparator();
 
     @InjectPage(EditLocationPage.PAGE)
     public abstract EditLocationPage getEditLocationPage();
@@ -77,14 +83,14 @@ public abstract class LocationsPage extends BasePage implements PageBeginRenderL
     public IPage editLocation(int locationId) {
         EditLocationPage editLocationPage = getEditLocationPage();
         editLocationPage.setLocationId(locationId);
-        editLocationPage.setReturnPage(this);
+        editLocationPage.setReturnPage(this, getBreadCrumbs());
         return editLocationPage;
     }
 
     public IPage addLocation() {
         EditLocationPage editLocationPage = getEditLocationPage();
         editLocationPage.setLocationId(null);
-        editLocationPage.setReturnPage(this);
+        editLocationPage.setReturnPage(this, getBreadCrumbs());
         return editLocationPage;
     }
 
@@ -114,5 +120,11 @@ public abstract class LocationsPage extends BasePage implements PageBeginRenderL
             getServiceConfigurator().replicateLocation(locationToActivate);
             getServiceConfigurator().enforceRole(locationToActivate);
         }
+    }
+
+    public List<BreadCrumb> getBreadCrumbs() {
+        List<BreadCrumb> breadCrumbs = new ArrayList<BreadCrumb>();
+        breadCrumbs.add(new BreadCrumb(getPageName(), "&title", getMessages()));
+        return breadCrumbs;
     }
 }

@@ -151,15 +151,16 @@
     </ul>
     <h3>sipX Services</h3>
     <ul>
-      <li><a jwcid="@PageLink" id="editProxyService" page="service/EditProxyService">Edit Proxy Service</a></li>
-      <li><a jwcid="@PageLink" id="editRegistrarService" page="service/EditRegistrarService">Edit Registrar Service</a></li>
-      <li><a jwcid="@PageLink" id="editParkService" page="service/EditParkService">Edit Park Service</a></li>
-      <li><a jwcid="@PageLink" id="editPresenceService" page="service/EditPresenceService">Edit Presence Service</a></li>
-      <li><a jwcid="@PageLink" id="editCallResolverService" page="service/EditCallResolverService">Edit Call Resolver Service</a></li>
-      <li><a jwcid="@PageLink" id="editStatusService" page="service/EditStatusService">Edit Status Service</a></li>
-      <li><a jwcid="@PageLink" id="editPageService" page="service/EditPageService">Edit Page Service</a></li>
-      <li><a jwcid="@PageLink" id="editFreeswitchService" page="service/EditFreeswitchService">Edit Freeswitch Service</a></li>
-      <li><a jwcid="@PageLink" id="editRelayService" page="service/EditRelayService">Edit Nat Traversal Service</a></li>
+      <li><a jwcid="seedCallResolverService@DirectLink" id="seedCallResolverService" listener="listener:seedService" parameters="sipxCallResolverService">Seed Call Resolver Service</a></li>
+      <li><a jwcid="seedProxyService@DirectLink" id="seedProxyService" listener="listener:seedService" parameters="sipxProxyService">Seed Proxy Service</a></li>
+      <li><a jwcid="seedRegistrarService@DirectLink" id="seedRegistrarService" listener="listener:seedService" parameters="sipxRegistrarService">Seed Registrar Service</a></li>
+      <li><a jwcid="seedParkService@DirectLink" id="seedParkService" listener="listener:seedService" parameters="sipxParkService">Seed Park Service</a></li>
+      <li><a jwcid="seedPresenceService@DirectLink" id="seedPresenceService" listener="listener:seedService" parameters="sipxPresenceService">Seed Presence Service</a></li>
+      <li><a jwcid="seedStatusService@DirectLink" id="seedStatusService" listener="listener:seedService" parameters="sipxStatusService">Seed Status Service</a></li>
+      <li><a jwcid="seedPageService@DirectLink" id="seedPageService" listener="listener:seedService" parameters="sipxPageService">Seed Page Service</a></li>
+      <li><a jwcid="seedFreeswitchService@DirectLink" id="seedFreeswitchService" listener="listener:seedService" parameters="sipxFreeswitchService">Seed Freeswitch Service</a></li>
+      <li><a jwcid="seedRelayService@DirectLink" id="seedRelayService" listener="listener:seedService" parameters="sipxRelayService">Seed Relay Service</a></li>
+      <li><a jwcid="seedIvrService@DirectLink" id="seedIvrService" listener="listener:seedService" parameters="sipxIvrService">Seed IVR Service</a></li>
     </ul>
   </div>
 </div>

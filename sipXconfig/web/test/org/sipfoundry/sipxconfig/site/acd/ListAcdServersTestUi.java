@@ -48,7 +48,7 @@ public class ListAcdServersTestUi extends WebTestCase {
         clickButton("form:ok");
         SiteTestHelper.assertNoException(tester);
     }
-    
+
     public void resetAcdContext() {
         SiteTestHelper.home(getTester());        
         clickLink("resetAcdContext");

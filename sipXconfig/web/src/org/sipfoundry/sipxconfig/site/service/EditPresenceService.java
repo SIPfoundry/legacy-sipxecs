@@ -19,11 +19,12 @@ public abstract class EditPresenceService extends EditSipxService {
 
     @InjectObject(value = "spring:sipxReplicationContext")
     public abstract SipxReplicationContext getSipxReplicationContext();
-    
-    protected String getBeanId() {
+
+    @Override
+    public String getMyBeanId() {
         return SipxPresenceService.BEAN_ID;
     }
-    
+
     @Override
     public void apply() {
         super.apply();

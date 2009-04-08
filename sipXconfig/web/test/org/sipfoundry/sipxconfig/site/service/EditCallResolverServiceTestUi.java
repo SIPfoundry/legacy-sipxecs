@@ -20,10 +20,27 @@ public class EditCallResolverServiceTestUi extends WebTestCase {
         return SiteTestHelper.webTestSuite(EditCallResolverServiceTestUi.class);
     }
 
-    public void testDisplay() {
+    @Override
+    protected void setUp() throws Exception {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
-        SiteTestHelper.home(tester);
-        clickLink("editCallResolverService");
+        SiteTestHelper.home(getTester());
+        clickLink("seedCallResolverService");
+        clickLink("toggleNavigation");
+        clickLink("menu.locations");
+    }
+
+    public void testDisplay() {
+        SiteTestHelper.assertNoException(tester);
+        SiteTestHelper.assertNoUserError(tester);
+        clickLink("menu.locations");
+        assertLinkPresent("editLocationLink");
+        clickLink("editLocationLink");
+        assertLinkPresent("link:listServices");
+        clickLink("link:listServices");
+        assertTablePresent("servicesTable");
+        assertEquals(2, getTable("servicesTable").getRowCount());
+        assertLinkPresent("editSipxService");
+        clickLink("editSipxService");
         SiteTestHelper.assertNoException(tester);
         assertElementPresent("setting:SIP_CALLRESOLVER_PURGE_AGE_CDR");
     }

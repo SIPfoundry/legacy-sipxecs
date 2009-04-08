@@ -36,6 +36,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDescriptor;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
@@ -60,19 +61,11 @@ import org.sipfoundry.sipxconfig.service.SipxServiceBundle;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.service.SipxStatusService;
 import org.sipfoundry.sipxconfig.site.acd.AcdServerPage;
+import org.sipfoundry.sipxconfig.site.common.BreadCrumb;
 import org.sipfoundry.sipxconfig.site.sbc.EditSbcDevice;
 import org.sipfoundry.sipxconfig.site.service.EditCallResolverService;
-import org.sipfoundry.sipxconfig.site.service.EditFreeswitchService;
-import org.sipfoundry.sipxconfig.site.service.EditIvrService;
-import org.sipfoundry.sipxconfig.site.service.EditMediaService;
-import org.sipfoundry.sipxconfig.site.service.EditPageService;
-import org.sipfoundry.sipxconfig.site.service.EditParkService;
 import org.sipfoundry.sipxconfig.site.service.EditPresenceService;
-import org.sipfoundry.sipxconfig.site.service.EditProxyService;
-import org.sipfoundry.sipxconfig.site.service.EditRegistrarService;
-import org.sipfoundry.sipxconfig.site.service.EditRelayService;
-import org.sipfoundry.sipxconfig.site.service.EditResourceListService;
-import org.sipfoundry.sipxconfig.site.service.EditStatusService;
+import org.sipfoundry.sipxconfig.site.service.EditSipxService;
 
 import static org.apache.commons.lang.StringUtils.join;
 import static org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status.Undefined;
@@ -82,20 +75,20 @@ public abstract class ServicesTable extends BaseComponent {
 
     public static final Map<String, String> SERVICE_MAP = new HashMap<String, String>();
     static {
-        SERVICE_MAP.put(SipxProxyService.BEAN_ID, EditProxyService.PAGE);
-        SERVICE_MAP.put(SipxRegistrarService.BEAN_ID, EditRegistrarService.PAGE);
-        SERVICE_MAP.put(SipxParkService.BEAN_ID, EditParkService.PAGE);
+        SERVICE_MAP.put(SipxProxyService.BEAN_ID, EditSipxService.PAGE);
+        SERVICE_MAP.put(SipxRegistrarService.BEAN_ID, EditSipxService.PAGE);
+        SERVICE_MAP.put(SipxParkService.BEAN_ID, EditSipxService.PAGE);
+        SERVICE_MAP.put(SipxRlsService.BEAN_ID, EditSipxService.PAGE);
+        SERVICE_MAP.put(SipxStatusService.BEAN_ID, EditSipxService.PAGE);
+        SERVICE_MAP.put(SipxPageService.BEAN_ID, EditSipxService.PAGE);
+        SERVICE_MAP.put(SipxFreeswitchService.BEAN_ID, EditSipxService.PAGE);
+        SERVICE_MAP.put(SipxIvrService.BEAN_ID, EditSipxService.PAGE);
+        SERVICE_MAP.put(SipxMediaService.BEAN_ID, EditSipxService.PAGE);
+        SERVICE_MAP.put(SipxRelayService.BEAN_ID, EditSipxService.PAGE);
         SERVICE_MAP.put(SipxPresenceService.BEAN_ID, EditPresenceService.PAGE);
         SERVICE_MAP.put(SipxCallResolverService.BEAN_ID, EditCallResolverService.PAGE);
-        SERVICE_MAP.put(SipxRlsService.BEAN_ID, EditResourceListService.PAGE);
-        SERVICE_MAP.put(SipxStatusService.BEAN_ID, EditStatusService.PAGE);
-        SERVICE_MAP.put(SipxPageService.BEAN_ID, EditPageService.PAGE);
-        SERVICE_MAP.put(SipxFreeswitchService.BEAN_ID, EditFreeswitchService.PAGE);
-        SERVICE_MAP.put(SipxAcdService.BEAN_ID, AcdServerPage.PAGE);
-        SERVICE_MAP.put(SipxIvrService.BEAN_ID, EditIvrService.PAGE);
-        SERVICE_MAP.put(SipxMediaService.BEAN_ID, EditMediaService.PAGE);
         SERVICE_MAP.put(SipxBridgeService.BEAN_ID, EditSbcDevice.PAGE);
-        SERVICE_MAP.put(SipxRelayService.BEAN_ID, EditRelayService.PAGE);
+        SERVICE_MAP.put(SipxAcdService.BEAN_ID, AcdServerPage.PAGE);
     }
 
     @InjectObject("service:tapestry.ognl.ExpressionEvaluator")
@@ -142,6 +135,11 @@ public abstract class ServicesTable extends BaseComponent {
     public abstract Location getServiceLocation();
 
     public abstract void setServiceLocation(Location location);
+
+    @Parameter(required = true)
+    public abstract List<BreadCrumb> getBreadCrumbs();
+
+    public abstract void setBreadCrumbs(List<BreadCrumb> breadCrumbs);
 
     public abstract void setServiceStatusCached(Object[] serviceStatus);
 
@@ -216,21 +214,27 @@ public abstract class ServicesTable extends BaseComponent {
 
     public IPage editService(IRequestCycle cycle, String serviceBeanId, Integer locationId) {
         PageWithCallback page = (PageWithCallback) cycle.getPage(SERVICE_MAP.get(serviceBeanId));
+        if (page instanceof EditSbcDevice) {
+            String locationAddress = getLocationsManager().getLocation(locationId).getAddress();
+            BridgeSbc bridgeSbc = getSbcDeviceManager().getBridgeSbc(locationAddress);
+            if (null != bridgeSbc) {
+                return EditSbcDevice.getEditPage(cycle, bridgeSbc.getId(), getEditLocationPage().getPage());
+            }
+            return EditSbcDevice.getAddPage(cycle, getSbcDescriptor(), getEditLocationPage().getPage());
+        }
         if (page instanceof AcdServerPage) {
             AcdServer acdServer = getAcdContext().getAcdServerForLocationId(locationId);
             if (acdServer != null) {
                 ((AcdServerPage) page).setAcdServerId(acdServer.getId());
             }
-        } else if (page instanceof EditSbcDevice) {
-            if (null != getSbcDeviceManager().getBridgeSbc(
-                    getLocationsManager().getLocation(locationId).getAddress())) {
-                return EditSbcDevice.getEditPage(cycle, getSbcDeviceManager().getBridgeSbc(
-                        getLocationsManager().getLocation(locationId).getAddress()).getId(), getEditLocationPage()
-                        .getPage());
+        } else if (page instanceof EditSipxService) {
+            EditSipxService servicePage = (EditSipxService) page;
+            servicePage.setBeanId(serviceBeanId);
+            if (SipxRegistrarService.BEAN_ID.equals(serviceBeanId)) {
+                servicePage.setGroupTitleEnabled(true);
             }
-            return EditSbcDevice.getAddPage(cycle, getSbcDescriptor(), getEditLocationPage().getPage());
+            page.setReturnPage(getEditLocationPage().getPage(), getBreadCrumbs());
         }
-        page.setReturnPage(EditLocationPage.PAGE);
         return page;
     }
 

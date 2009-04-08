@@ -98,4 +98,9 @@ public abstract class AcdServerPage extends PageWithCallback implements PageBegi
         editPage.setReturnPage(this);
         return editPage;
     }
+
+    @Override
+    public String getBreadCrumbTitle() {
+        return "&crumb.editSipxService";
+    }
 }

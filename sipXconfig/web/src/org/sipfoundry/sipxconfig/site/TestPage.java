@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
@@ -304,6 +305,17 @@ public abstract class TestPage extends BasePage {
         remoteLocation.initBundles(getSipxServiceManager());
         remoteLocation.setRegistered(true);
         getLocationsManager().storeLocation(remoteLocation);
+    }
+
+    public void seedService(String beanId) {
+        seedLocationsManager();
+        Location location = getLocationsManager().getPrimaryLocation();
+        Collection<LocationSpecificService> sipxServices = location.getServices();
+        for (LocationSpecificService service : sipxServices) {
+            location.removeService(service);
+        }
+        location.addService(getSipxServiceManager().getServiceByBeanId(beanId));
+        getLocationsManager().storeLocation(location);
     }
 
     public void seedAcdServer() {

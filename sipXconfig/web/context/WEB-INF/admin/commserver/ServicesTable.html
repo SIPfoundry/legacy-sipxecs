@@ -20,7 +20,7 @@
 		  <img jwcid="@Image" image="asset:serviceIcon" align="absmiddle" />
         </span>
         <span jwcid="@If" condition="ognl:currentRowHasServiceLink">
-          <a jwcid="@DirectLink" listener="listener:editService"
+          <a jwcid="editSipxService@DirectLink" listener="listener:editService"
             parameters="ognl:{currentRow.serviceBeanId, serviceLocation.id}" >
             <span jwcid="@Insert" value="ognl:serviceLabel" />
           </a>

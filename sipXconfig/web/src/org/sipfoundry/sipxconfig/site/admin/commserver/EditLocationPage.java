@@ -94,4 +94,10 @@ public abstract class EditLocationPage extends PageWithCallback implements PageB
         }
         setLocationBean(location);
     }
+
+    @Override
+    public String getBreadCrumbTitle() {
+        return null == getLocationId() ? "&crumb.new.server"
+            : getLocationsManager().getLocation(getLocationId()).getFqdn();
+    }
 }

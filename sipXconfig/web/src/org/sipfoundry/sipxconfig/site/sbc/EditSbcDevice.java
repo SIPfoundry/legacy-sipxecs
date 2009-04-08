@@ -186,5 +186,10 @@ public abstract class EditSbcDevice extends PageWithCallback implements PageBegi
         page.setReturnPageName(returnPage.getPageName());
         page.setAddProperty(addProperty);
         return page;
-    }    
+    }
+
+    @Override
+    public String getBreadCrumbTitle() {
+        return "&crumb.editSbcBridge";
+    }
 }
