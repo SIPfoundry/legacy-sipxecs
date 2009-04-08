@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 
 package org.sipfoundry.sipxconfig.site.admin.commserver;
@@ -35,6 +35,7 @@ public abstract class ServiceStatusDisplay extends BaseComponent {
 
     @Parameter(required = true)
     public abstract void setStatus(ServiceStatus status);
+
     public abstract ServiceStatus getStatus();
 
     @Parameter(required = true)
@@ -74,9 +75,11 @@ public abstract class ServiceStatusDisplay extends BaseComponent {
     public abstract ViewStatusMessages getViewStatusMessagesPage();
 
     public abstract String getStatusMessage();
+
     public abstract void setStatusMessage(String statusMessage);
 
     public abstract boolean getShowAllLink();
+
     public abstract void setShowAllLink(boolean showAllLink);
 
     public IAsset getStatusIcon(ServiceStatus status) {
@@ -147,9 +150,9 @@ public abstract class ServiceStatusDisplay extends BaseComponent {
 
         if (!allMessages.isEmpty()) {
             ServiceStatusMessage message = new ServiceStatusMessage(allMessages.get(0));
-            setStatusMessage(
-                    String.format("%s: %s", getMessages().getMessage(message.getPrefix()), message.getMessage()));
-            setShowAllLink(allMessages.size() > 1);
+            setStatusMessage(String.format("%s: %s", getMessages().getMessage(message.getPrefix()), message
+                    .getMessage()));
+            setShowAllLink((allMessages.size() > 1) || shouldTruncate());
         }
     }
 }
