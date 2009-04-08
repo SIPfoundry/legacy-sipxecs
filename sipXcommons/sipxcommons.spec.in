@@ -18,6 +18,10 @@ Requires: java-ibm-unrestricted
 Requires: java-sun >= 1.6
 %endif
 
+%if %{_vendor} == suse
+Requires: openssl >= 0.9.8k
+%endif
+
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
 
