@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-import time, sys, os, time, commands
+import time, calendar, sys, os, time
 from getopt import getopt
 
 hlpMsg = """
@@ -37,8 +37,8 @@ def date2sec (dateStr):
         dateStr = '%s %s' % (dateStr[:10], dateStr[11:])
     if dateStr.find('GMT') < 0:
         dateStr += ' GMT'
-    tm = commands.getoutput ("date +%%s -d '%s'" % dateStr)
-    return int(tm.strip())
+    dateStruct=time.strptime(dateStr, "%Y-%m-%d %H:%M:%S %Z")
+    return calendar.timegm(dateStruct)
 
 def setLongFilePtr (longPtr):
     m = 1            # This is a workaround for old Python's versions that don't accept
