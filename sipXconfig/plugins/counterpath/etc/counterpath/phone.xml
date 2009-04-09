@@ -558,7 +558,7 @@ A lower number has a higher priority (therefore 1.0 is the highest priority).</d
       <setting name="broadvoice32">
         <profileName>codec_name</profileName>
         <type refid="codec-preference" />
-        <value>1.0</value>
+        <value>2.0</value>
       </setting>
       <setting name="broadvoice32_fec">
         <profileName>codec_name</profileName>
@@ -593,7 +593,7 @@ A lower number has a higher priority (therefore 1.0 is the highest priority).</d
       <setting name="g722">
         <profileName>codec_name</profileName>
         <type refid="codec-preference" />
-        <value>0.0</value>
+        <value>1.0</value>
       </setting>
       <setting name="g722_2_wb">
         <profileName>codec_name</profileName>
