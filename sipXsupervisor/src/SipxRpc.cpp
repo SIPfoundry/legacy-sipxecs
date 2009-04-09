@@ -20,6 +20,7 @@
 #include "ImdbRpc.h"
 #include "FileRpc.h"
 #include "SwAdminRpc.h"
+#include "ZoneAdminRpc.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -73,6 +74,7 @@ SipxRpc::SipxRpc(XmlRpcDispatch* dispatcher, UtlSList& allowedPeers)
    SwAdminRpcExec::registerSelf(*this);
    SwAdminRpcSnapshot::registerSelf(*this);
    SwAdminRpcExecStatus::registerSelf(*this);
+   ZoneAdminRpcExec::registerSelf(*this);
 }
 
 // Destructor

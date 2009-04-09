@@ -11,6 +11,7 @@ bin_SCRIPTS = \
 	 sipx-restore \
 	 sipx-package.py \
 	 sipx-swadmin.py \
+	 sipx-zoneadmin.sh \
 	 sipx-sendmail-configure \
 	 sipxlocalization \
 	 check-fqdn \
@@ -64,7 +65,8 @@ SCRIPT_TEMPLATES = \
 	check-fqdn.in \
 	sipx-archive-common.in \
 	sipx-test-tmp.in \
-	sipx-test-maxfds.in
+	sipx-test-maxfds.in \
+	sipx-zoneadmin.sh.in
 
 PythonScripts = \
 	sipxecs-setup.in \

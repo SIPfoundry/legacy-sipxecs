@@ -84,6 +84,7 @@ AC_CONFIG_FILES([
   src/sipxrestorebinary/Makefile
   src/sipxpackage/Makefile
   src/sipxswadmin/Makefile
+  src/sipxzoneadmin/Makefile
   src/sipxtimemanager/Makefile
   src/sipxchangetimezone/Makefile
 ])

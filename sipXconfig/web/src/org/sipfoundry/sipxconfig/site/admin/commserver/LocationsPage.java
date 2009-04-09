@@ -23,6 +23,7 @@ import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.admin.commserver.DnsGenerator;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.components.SelectMap;
@@ -47,8 +48,8 @@ public abstract class LocationsPage extends BasePage implements PageBeginRenderL
     @InjectObject("spring:domainManager")
     public abstract DomainManager getDomainManager();
 
-    @Asset("/images/breadcrumb_separator.png")
-    public abstract IAsset getBreadcrumbSeparator();
+    @InjectObject("spring:dnsGenerator")
+    public abstract DnsGenerator getDnsGenerator();
 
     @InjectPage(EditLocationPage.PAGE)
     public abstract EditLocationPage getEditLocationPage();
@@ -58,6 +59,9 @@ public abstract class LocationsPage extends BasePage implements PageBeginRenderL
 
     @Bean
     public abstract SelectMap getSelections();
+
+    @Asset("/images/breadcrumb_separator.png")
+    public abstract IAsset getBreadcrumbSeparator();
 
     @Asset("/images/server.png")
     public abstract IAsset getServerIcon();
@@ -119,6 +123,10 @@ public abstract class LocationsPage extends BasePage implements PageBeginRenderL
 
             getServiceConfigurator().replicateLocation(locationToActivate);
             getServiceConfigurator().enforceRole(locationToActivate);
+
+            if (locationToActivate.isPrimary()) {
+                getDnsGenerator().generate();
+            }
         }
     }
 

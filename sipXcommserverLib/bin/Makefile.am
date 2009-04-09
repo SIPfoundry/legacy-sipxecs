@@ -24,7 +24,8 @@ setupbin_SCRIPTS = \
         sipx-time-manager-init \
         sipx-change-timezone-init \
         sipxpackage-init \
-        sipxswadmin-init
+        sipxswadmin-init \
+        sipxzoneadmin-init
 
 setupbin_IN = $(foreach file,$(setupbin_SCRIPTS),$(file).in)
 

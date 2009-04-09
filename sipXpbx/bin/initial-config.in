@@ -62,6 +62,7 @@ USAGE
 fi
 
 myHostname=`hostname -f`
+myHostaddr=`hostname -i`
 INITIAL_CONFIG="${INITIAL_CONFIG_BASE}/${newHostname}"
 
 if test -d "${INITIAL_CONFIG}"; then
@@ -83,6 +84,32 @@ perl -p \
     -e 's/fudge\s+127.127.1.0\s+stratum\s+10/fudge  127.127.1.0 stratum 12/;' \
     -e "END { print \"\\nserver ${myHostname}\\n\"; };" \
     /etc/ntp.conf > "${INITIAL_CONFIG}/etc/ntp.conf" || exit 1
+
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+
+# If this host is the DNS server for the zone then create a modified 
+# named.conf file pointing to this host's DNS server.
+myDomname=`dnsdomainname`
+myZonedns=`dns_ns ${myDomname}`
+if [ "${myHostname}" = "${myZonedns}" ]
+then
+    echo "Generating DNS record for secondary server"
+    cat > "${INITIAL_CONFIG}/etc/named.conf" <<EOF
+options {
+    directory "/var/named";
+    dump-file "/var/named/data/cacahe_dump.db";
+    statistics-file "/var/named/data/named_stats.txt";
+};
+
+zone "${myDomname}" IN {
+    type slave;
+    file "${myDomname}.zone";
+    masters {${myHostaddr};};
+};
+EOF
+else
+    echo "NOT generating DNS record for secondary server"
+fi
 
 # generate TLS credentials 
 @SIPX_BINDIR@/ssl-cert/gen-ssl-keys.sh \

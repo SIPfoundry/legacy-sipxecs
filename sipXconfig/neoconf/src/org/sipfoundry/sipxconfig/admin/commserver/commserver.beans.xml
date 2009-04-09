@@ -13,7 +13,7 @@
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="daoEventPublisher" ref="daoEventPublisher" />
   </bean>
-  
+
   <bean id="locationsManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces">
       <value>org.sipfoundry.sipxconfig.admin.commserver.LocationsManager</value>
@@ -36,6 +36,17 @@
         <value>migrate_locations</value>
       </list>
     </property>
+  </bean>
+
+  <bean id="zoneAdminApiProvider" class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">
+    <property name="methodNamePrefix" value="ZoneAdminRpc." />
+    <property name="secure" value="true" />
+    <property name="serviceInterface" value="org.sipfoundry.sipxconfig.admin.commserver.ZoneAdminApi" />
+  </bean>
+
+  <bean id="dnsGenerator" class="org.sipfoundry.sipxconfig.admin.commserver.DnsGeneratorImpl">
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="zoneAdminApiProvider" ref="zoneAdminApiProvider" />
   </bean>
 
   <bean id="fileApiProvider"
@@ -94,7 +105,7 @@
       <ref local="sipxReplicationContextDao"></ref>
     </property>
   </bean>
-  
+
   <bean id="processManagerApiProvider"
     class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">
     <property name="methodNamePrefix" value="ProcMgmtRpc." />

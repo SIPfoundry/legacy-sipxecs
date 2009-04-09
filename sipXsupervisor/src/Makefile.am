@@ -27,6 +27,7 @@ libsipXsupervisor_la_SOURCES =  \
 	ImdbRpc.cpp \
 	FileRpc.cpp \
 	SwAdminRpc.cpp \
+	ZoneAdminRpc.cpp \
 	SipxProcessManager.cpp \
 	SipxProcessResourceManager.cpp \
 	SipxProcessResource.cpp \
@@ -52,6 +53,7 @@ noinst_HEADERS = \
 	ImdbRpc.h \
 	FileRpc.h \
 	SwAdminRpc.h \
+	ZoneAdminRpc.h \
 	SipxProcessManager.h \
 	SipxProcessCmd.h \
 	SipxCommand.h \
