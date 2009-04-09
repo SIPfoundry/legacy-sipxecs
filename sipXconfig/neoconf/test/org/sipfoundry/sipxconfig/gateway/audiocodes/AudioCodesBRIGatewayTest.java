@@ -26,6 +26,7 @@ public class AudioCodesBRIGatewayTest extends TestCase {
     private ModelFilesContext m_modelFilesContext;
     private AudioCodesGateway m_gateway;
 
+    @Override
     protected void setUp() throws Exception {
         m_modelFilesContext = TestHelper.getModelFilesContext();
         AudioCodesModel model = new AudioCodesModel();
@@ -73,7 +74,7 @@ public class AudioCodesBRIGatewayTest extends TestCase {
         m_gateway.setSettingValue("SIP_coders/CoderName/Type[4]", "g711Alaw64k");
 
         m_gateway.generateProfiles(location);
-        String actual_lines[] = location.toString().toString().split("\n");
+        String actual_lines[] = location.toString("001122334455.ini").split("\n");
 
         String expectedName = "bri-gateway-" + version.getVersionId() + ".ini";
         InputStream expectedProfile = getClass().getResourceAsStream(expectedName);

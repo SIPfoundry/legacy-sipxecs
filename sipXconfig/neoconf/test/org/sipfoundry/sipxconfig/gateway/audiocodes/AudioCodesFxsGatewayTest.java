@@ -1,10 +1,10 @@
 /*
  *
  *
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  */
 package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
@@ -63,8 +63,9 @@ public class AudioCodesFxsGatewayTest extends TestCase {
             u1, u2
         }));
 
+        gateway.setSerialNumber("001122334455");
         gateway.generateProfiles(location);
-        String actual_lines[] = location.toString().toString().split("\n");
+        String actual_lines[] = location.toString("001122334455.ini").split("\n");
 
         String expectedName = "fxs-gateway-" + version.getVersionId() + ".ini";
         InputStream expectedProfile = getClass().getResourceAsStream(expectedName);

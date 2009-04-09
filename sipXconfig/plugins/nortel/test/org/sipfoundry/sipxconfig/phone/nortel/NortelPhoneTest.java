@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.phone.nortel;
@@ -68,11 +68,12 @@ public class NortelPhoneTest extends TestCase {
         NortelPhone phone = new NortelPhone();
         phone.setModel(nortelModel);
         PhoneTestDriver.supplyTestData(phone);
+        phone.setSerialNumber("001122334455");
 
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
 
         phone.generateProfiles(location);
         String expected = IOUtils.toString(this.getClass().getResourceAsStream("mac_1140.cfg"));
-        assertEquals(expected, location.toString());
+        assertEquals(expected, location.toString("001122334455.cfg"));
     }
 }

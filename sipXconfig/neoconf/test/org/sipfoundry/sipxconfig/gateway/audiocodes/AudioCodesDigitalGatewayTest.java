@@ -1,10 +1,10 @@
 /*
  *
  *
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  */
 package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
@@ -26,6 +26,7 @@ public class AudioCodesDigitalGatewayTest extends TestCase {
     private ModelFilesContext m_modelFilesContext;
     private AudioCodesGateway m_gateway;
 
+    @Override
     protected void setUp() throws Exception {
         m_modelFilesContext = TestHelper.getModelFilesContext();
         AudioCodesModel model = new AudioCodesModel();
@@ -62,7 +63,7 @@ public class AudioCodesDigitalGatewayTest extends TestCase {
         }
         m_gateway.setSerialNumber("001122334455");
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_gateway);
-        
+
         m_gateway.setSettingValue("SIP_general/SOURCENUMBERMAPIP2TEL","*,0,$$,$$,$$,$$,*,1,*");
         m_gateway.setSettingValue("SIP_general/REMOVECLIWHENRESTRICTED","1");
         m_gateway.setSettingValue("SIP_coders/CoderName/Type[0]", "g711Alaw64k");
@@ -81,7 +82,7 @@ public class AudioCodesDigitalGatewayTest extends TestCase {
         }
 
         m_gateway.generateProfiles(location);
-        String actual_lines[] = location.toString().toString().split("\n");
+        String actual_lines[] = location.toString("001122334455.ini").split("\n");
 
         String expectedName = "digital-gateway-" + version.getVersionId() + ".ini";
         InputStream expectedProfile = getClass().getResourceAsStream(expectedName);
@@ -104,7 +105,7 @@ public class AudioCodesDigitalGatewayTest extends TestCase {
             FxoPort trunk = new FxoPort();
             m_gateway.addPort(trunk);
             trunk.setSettingValue("Trunk/MaxChannel", Integer.toString(5 + i));
-            
+
         }
         // 18 == (5 + 0) + (5 + 1) + (5 + 2)
         assertEquals(18, m_gateway.getMaxCalls());

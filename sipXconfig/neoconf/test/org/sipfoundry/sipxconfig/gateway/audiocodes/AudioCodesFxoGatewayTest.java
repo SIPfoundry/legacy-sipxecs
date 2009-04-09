@@ -1,10 +1,10 @@
 /*
  *
  *
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  */
 package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
@@ -32,6 +32,7 @@ public class AudioCodesFxoGatewayTest extends TestCase {
     private AudioCodesModel m_model;
     private AudioCodesGateway m_gateway;
 
+    @Override
     protected void setUp() throws Exception {
         m_modelFilesContext = TestHelper.getModelFilesContext();
         m_model = new AudioCodesModel();
@@ -73,7 +74,7 @@ public class AudioCodesFxoGatewayTest extends TestCase {
         // call this to inject dummy data
 
         m_gateway.generateProfiles(location);
-        String actual_lines[] = location.toString().toString().split("\n");
+        String actual_lines[] = location.toString("001122334455.ini").split("\n");
 
         String expectedName = "fxo-gateway-" + version.getVersionId() + ".ini";
         InputStream expectedProfile = getClass().getResourceAsStream(expectedName);
