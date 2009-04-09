@@ -14,7 +14,8 @@ public class LoggingManagerImplTestIntegration extends IntegrationTestCase {
     private LoggingManager m_out;
     private SipxServiceManager m_sipxServiceManager;
 
-    public void testGetLoggingEntities() {
+    public void testGetLoggingEntities() throws Exception {
+        loadDataSetXml("admin/commserver/seedLocations.xml");
         SipxRegistrarService registrarService = (SipxRegistrarService) m_sipxServiceManager
                 .getServiceByBeanId(SipxRegistrarService.BEAN_ID);
         registrarService.getSettings().getSetting(TEST_SETTING).setValue("999");
@@ -25,13 +26,16 @@ public class LoggingManagerImplTestIntegration extends IntegrationTestCase {
         boolean foundRegistrarService = false;
         for (LoggingEntity loggingEntity : loggingEntities) {
             SipxService logEnabledService = (SipxService) loggingEntity;
+            if (logEnabledService == null) {
+                fail("Found null LoggingEntity");
+            }
             if (logEnabledService.getBeanId().equals(SipxRegistrarService.BEAN_ID)) {
                 Setting testSetting = logEnabledService.getSettings().getSetting(TEST_SETTING);
                 assertEquals("999", testSetting.getValue());
                 foundRegistrarService = true;
             }
         }
-        
+
         assertTrue(foundRegistrarService);
     }
 

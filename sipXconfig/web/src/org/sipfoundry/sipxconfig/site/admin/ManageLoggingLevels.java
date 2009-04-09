@@ -21,7 +21,13 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.StringPropertySelectionModel;
 import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.acd.AcdContext;
+import org.sipfoundry.sipxconfig.acd.AcdProvisioningContext;
+import org.sipfoundry.sipxconfig.acd.AcdServer;
 import org.sipfoundry.sipxconfig.admin.LoggingManager;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
 import org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.service.LoggingEntity;
@@ -30,10 +36,16 @@ import org.sipfoundry.sipxconfig.service.SipxService;
 
 public abstract class ManageLoggingLevels extends BasePage implements PageBeginRenderListener {
     public static final String PAGE = "admin/ManageLoggingLevels";
+    public static final String DEBUG = "DEBUG";
 
     private static final IPropertySelectionModel LOGGING_LEVEL_MODEL = new StringPropertySelectionModel(
             new String[] {
-                "DEBUG", "INFO", "NOTICE", "WARNING", "ERR", "CRIT", "ALERT", "EMERG"
+                DEBUG, "INFO", "NOTICE", "WARNING", "ERR", "CRIT", "ALERT", "EMERG"
+            });
+
+    private static final IPropertySelectionModel FREESWITCH_LOGGING_LEVEL_MODEL = new StringPropertySelectionModel(
+            new String[] {
+                DEBUG, "NON-DEBUG"
             });
 
     private String m_generalLevel;
@@ -50,6 +62,18 @@ public abstract class ManageLoggingLevels extends BasePage implements PageBeginR
     @InjectObject(value = "spring:serviceConfigurator")
     public abstract ServiceConfigurator getServiceConfigurator();
 
+    @InjectObject(value = "spring:dialPlanActivationManager")
+    public abstract DialPlanActivationManager getDialPlanActivationManager();
+
+    @InjectObject(value = "spring:sbcDeviceManager")
+    public abstract SbcDeviceManager getSbcDeviceManager();
+
+    @InjectObject(value = "spring:acdContext")
+    public abstract AcdContext getAcdContext();
+
+    @InjectObject(value = "spring:acdProvisioningContext")
+    public abstract AcdProvisioningContext getAcdProvisioningContext();
+
     @Persist
     public abstract Collection<LoggingEntity> getLoggingEntities();
 
@@ -65,6 +89,10 @@ public abstract class ManageLoggingLevels extends BasePage implements PageBeginR
         model.setExtraLabel(getMessages().getMessage("option.selectLevel"));
         model.setExtraOption(null);
         return model;
+    }
+
+    public IPropertySelectionModel getFreeswitchLoggingLevelsModel() {
+        return FREESWITCH_LOGGING_LEVEL_MODEL;
     }
 
     public String getGeneralLevel() {
@@ -93,6 +121,15 @@ public abstract class ManageLoggingLevels extends BasePage implements PageBeginR
             }
             if (entity instanceof SipxService) {
                 services.add((SipxService) entity);
+            } else if (entity instanceof BridgeSbc) {
+                SbcDeviceManager sbcDeviceContext = getSbcDeviceManager();
+                sbcDeviceContext.storeSbcDevice((BridgeSbc) entity);
+                getDialPlanActivationManager().replicateDialPlan(true);
+            } else if (entity instanceof AcdServer) {
+                AcdServer server = (AcdServer) entity;
+                AcdContext context = getAcdContext();
+                context.store(server);
+                getAcdProvisioningContext().deploy(server.getId());
             }
         }
         getServiceConfigurator().replicateServiceConfig(services);

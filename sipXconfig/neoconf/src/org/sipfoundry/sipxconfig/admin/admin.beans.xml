@@ -109,6 +109,9 @@
 	
   <bean id="loggingManager" class="org.sipfoundry.sipxconfig.admin.LoggingManagerImpl">
     <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="sbcDeviceManager" ref="sbcDeviceManager"/>
+    <property name="acdContext" ref="acdContext"/>
   </bean>
 
   <bean id="dnsTestContextImpl" class="org.sipfoundry.sipxconfig.admin.DnsTestContextImpl">

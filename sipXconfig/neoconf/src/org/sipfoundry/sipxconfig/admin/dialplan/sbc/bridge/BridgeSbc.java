@@ -26,13 +26,16 @@ import org.sipfoundry.sipxconfig.device.ReplicatedProfileLocation;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.gateway.SipTrunk;
 import org.sipfoundry.sipxconfig.nattraversal.NatLocation;
+import org.sipfoundry.sipxconfig.service.LoggingEntity;
 import org.sipfoundry.sipxconfig.service.SipxBridgeService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.springframework.beans.factory.annotation.Required;
 
-public class BridgeSbc extends SbcDevice {
+public class BridgeSbc extends SbcDevice implements LoggingEntity {
+
+    public static final String LOG_SETTING = "bridge-configuration/log-level";
 
     private GatewayContext m_gatewayContext;
 
@@ -155,7 +158,9 @@ public class BridgeSbc extends SbcDevice {
             m_natLocation = location.getNat();
         }
 
-        @SettingEntry(paths = { "bridge-configuration/local-address", "bridge-configuration/external-address" })
+        @SettingEntry(paths = {
+                "bridge-configuration/local-address", "bridge-configuration/external-address"
+                })
         public String getExternalAddress() {
             return m_location.getAddress();
         }
@@ -202,5 +207,24 @@ public class BridgeSbc extends SbcDevice {
                 .getServiceByBeanId(SipxBridgeService.BEAN_ID);
         m_processContext.manageServices(getLocation(), Collections.singleton(sipxBridgeService),
                 SipxProcessContext.Command.RESTART);
+    }
+
+    public void setLogLevel(String logLevel) {
+        if (logLevel != null) {
+            if (logLevel.equals("CRIT") || logLevel.equals("ALERT") || logLevel.equals("EMERG")) {
+                String newLogLevel = "ERR";
+                setSettingValue(LOG_SETTING, newLogLevel);
+            } else {
+                setSettingValue(LOG_SETTING, logLevel);
+            }
+        }
+    }
+
+    public String getLogLevel() {
+        return getSettingValue(LOG_SETTING);
+    }
+
+    public String getLabelKey() {
+        return "label.sipxBridgeService";
     }
 }

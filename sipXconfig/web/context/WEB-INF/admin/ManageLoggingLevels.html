@@ -24,14 +24,27 @@
 	  <legend><span key="label.individualLevels"/></legend>
 	  <table>
 	    <span jwcid="@For" source="ognl:loggingEntities" value="ognl:currentLoggingEntity">
-		  <tr>
-	        <td><span jwcid="@Insert" value="ognl:messages.getMessage(currentLoggingEntity.labelKey)"/></td>
-		    <td><span jwcid="individualLevel@PropertySelection"
-	          model="ognl:loggingLevelsModel"
-	          value="ognl:currentLoggingEntity.logLevel"
-	          id="loggingLevel:individualLevel"/>
-		    </td>
-		  </tr>
+          <span jwcid="@If" condition="ognl:currentLoggingEntity instanceof org.sipfoundry.sipxconfig.service.SipxFreeswitchService">
+            <tr>
+              <td><span jwcid="@Insert" value="ognl:messages.getMessage(currentLoggingEntity.labelKey)"/></td>
+              <td><span jwcid="individualFreeswitchLevel@PropertySelection"
+	            model="ognl:freeswitchLoggingLevelsModel"
+	            value="ognl:currentLoggingEntity.logLevel"
+	            id="loggingLevel:individualLevel"/>
+		      </td>
+            </tr>
+		    <tr>
+          </span>
+          <span jwcid="@Else">
+            <tr>
+	          <td><span jwcid="@Insert" value="ognl:messages.getMessage(currentLoggingEntity.labelKey)"/></td>
+		      <td><span jwcid="individualLevel@PropertySelection"
+	            model="ognl:loggingLevelsModel"
+	            value="ognl:currentLoggingEntity.logLevel"
+	            id="loggingLevel:individualLevel"/>
+		      </td>
+		    </tr>
+          </span>
 	    </span>
 	  </table>
     </fieldset>

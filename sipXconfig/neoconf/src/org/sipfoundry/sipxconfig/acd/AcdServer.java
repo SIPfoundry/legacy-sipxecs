@@ -23,15 +23,18 @@ import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.SipUri;
+import org.sipfoundry.sipxconfig.service.LoggingEntity;
 import org.sipfoundry.sipxconfig.service.SipxPresenceService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
-public class AcdServer extends AcdComponent {
+public class AcdServer extends AcdComponent implements LoggingEntity {
     public static final Log LOG = LogFactory.getLog(AcdServer.class);
     public static final String OBJECT_CLASS = "acd-server";
 
     public static final String BEAN_NAME = "acdServer";
+
+    public static final String LOG_SETTING = "acd-server/log-level";
 
     static final String ADMIN_STATE = "acd-server/administrative-state";
 
@@ -341,5 +344,19 @@ public class AcdServer extends AcdComponent {
     @Override
     public void initialize() {
         addDefaultBeanSettingHandler(new AcdServerDefaults(this));
+    }
+
+    public void setLogLevel(String logLevel) {
+        if (logLevel != null) {
+            setSettingValue(LOG_SETTING, logLevel);
+        }
+    }
+
+    public String getLogLevel() {
+        return getSettingValue(LOG_SETTING);
+    }
+
+    public String getLabelKey() {
+        return "label.sipxAcdService";
     }
 }
