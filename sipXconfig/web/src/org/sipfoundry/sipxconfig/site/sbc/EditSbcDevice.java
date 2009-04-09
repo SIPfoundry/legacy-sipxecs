@@ -24,6 +24,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
@@ -46,12 +47,14 @@ public abstract class EditSbcDevice extends PageWithCallback implements PageBegi
 
     @Persist
     public abstract String getReturnPageName();
+
     public abstract void setReturnPageName(String returnPageName);
-    
+
     @Persist
     public abstract String getAddProperty();
+
     public abstract void setAddProperty(String addPropertyName);
-    
+
     @Bean
     public abstract SipxValidationDelegate getValidator();
 
@@ -141,17 +144,20 @@ public abstract class EditSbcDevice extends PageWithCallback implements PageBegi
 
     public void save() {
         SbcDevice sbcDevice = getSbcDevice();
-        
+        if (!TapestryUtils.isValid(this)) {
+            return;
+        }
+
         if (getReturnPageName() != null && getAddProperty() != null) {
             IPage returnPage = getRequestCycle().getPage(getReturnPageName());
             if (PropertyUtils.isWritable(returnPage, getAddProperty())) {
                 PropertyUtils.write(returnPage, getAddProperty(), sbcDevice);
             }
         }
-        
+
         SbcDeviceManager sbcDeviceContext = getSbcDeviceManager();
         sbcDeviceContext.storeSbcDevice(sbcDevice);
-        
+
         // refresh SbcDevice - it cannot be new any more
         if (getSbcDeviceId() == null) {
             setSbcDeviceId(sbcDevice.getId());
@@ -169,19 +175,18 @@ public abstract class EditSbcDevice extends PageWithCallback implements PageBegi
         return page;
     }
 
-    public static EditSbcDevice getAddPage(IRequestCycle cycle, SbcDescriptor model,
-            IPage returnPage) {
+    public static EditSbcDevice getAddPage(IRequestCycle cycle, SbcDescriptor model, IPage returnPage) {
         EditSbcDevice page = (EditSbcDevice) cycle.getPage(PAGE);
         page.setSbcDescriptor(model);
         page.setSbcDeviceId(null);
         page.setSbcDevice(null);
         page.setCurrentSettingSetName(null);
-        page.setReturnPage(returnPage);        
+        page.setReturnPage(returnPage);
         return page;
     }
-    
-    public static EditSbcDevice getAddPage(IRequestCycle cycle, SbcDescriptor model,
-            IPage returnPage, String addProperty) {
+
+    public static EditSbcDevice getAddPage(IRequestCycle cycle, SbcDescriptor model, IPage returnPage,
+            String addProperty) {
         EditSbcDevice page = getAddPage(cycle, model, returnPage);
         page.setReturnPageName(returnPage.getPageName());
         page.setAddProperty(addProperty);

@@ -45,7 +45,7 @@ public class EditSbcDeviceTestUi extends WebTestCase {
         sbcsTable = getTable("list:sbc");
         assertEquals(2, sbcsTable.getRowCount());
 
-        //local address automatically configured
+        // local address automatically configured
         SiteTestHelper.selectOption(tester, "PropertySelection", "Unmanaged SBC");
         setTextField("sbcDevice:name", "sbc2");
         assertTextFieldEquals("sbcDevice:address", "");
@@ -55,7 +55,7 @@ public class EditSbcDeviceTestUi extends WebTestCase {
         sbcsTable = getTable("list:sbc");
         assertEquals(3, sbcsTable.getRowCount());
 
-        //delete one sbc
+        // delete one sbc
         setWorkingForm("Form");
         checkCheckbox("checkbox");
         clickButton("list:sbc:delete");
@@ -63,7 +63,7 @@ public class EditSbcDeviceTestUi extends WebTestCase {
         sbcsTable = getTable("list:sbc");
         assertEquals(2, sbcsTable.getRowCount());
 
-        //delete all sbcs
+        // delete all sbcs
         deleteAllSbcs();
 
     }
@@ -95,5 +95,19 @@ public class EditSbcDeviceTestUi extends WebTestCase {
         clickButton("form:ok");
 
         SiteTestHelper.assertUserError(tester);
+    }
+
+    public void testAddSbcWithoutAddress() {
+        SiteTestHelper.assertNoUserError(tester);
+        int rowCount = SiteTestHelper.getRowCount(getTester(), "list:sbc");
+
+        SiteTestHelper.selectOption(tester, "PropertySelection", "Unmanaged SBC");
+        setTextField("sbcDevice:name", "sbcWithoutIp");
+        clickButton("form:ok");
+
+        SiteTestHelper.assertUserError(tester);
+        clickButton("form:cancel");
+        assertTableRowCountEquals("list:sbc", rowCount);
+
     }
 }
