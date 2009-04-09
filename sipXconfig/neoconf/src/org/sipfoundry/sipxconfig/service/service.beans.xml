@@ -478,6 +478,11 @@
         <ref bean="borderControllerBundle" />
       </set>
     </property>
+    <property name="configurations">
+      <list>
+        <ref bean="sbcSipXbridgeConfiguration" />
+      </list>
+    </property>
   </bean>
 
   <bean id="sipxFreeswitchService" class="org.sipfoundry.sipxconfig.service.SipxFreeswitchService" scope="prototype"

@@ -24,4 +24,10 @@
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="locationsManager" ref="locationsManager" />
   </bean>
+
+  <bean id="sbcSipXbridgeConfiguration" parent="defaultConfigurationFile"
+    class="org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbcConfigurationFile">
+    <property name="name" value="sipxbridge.xml" />
+    <property name="sbcDeviceManager" ref="sbcDeviceManager" />
+  </bean>
 </beans>

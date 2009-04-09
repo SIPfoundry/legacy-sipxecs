@@ -99,14 +99,14 @@ public class BridgeSbc extends SbcDevice {
 
     @Override
     public void initialize() {
-        Location location = m_locationsManager.getLocationByAddress(getAddress());
+        Location location = getLocation();
         addDefaultBeanSettingHandler(new Defaults(getDefaults(), this, location));
     }
 
     @Override
     public ProfileLocation getProfileLocation() {
         ReplicatedProfileLocation profileLocation = new ReplicatedProfileLocation();
-        Location location = m_locationsManager.getLocationByAddress(getAddress());
+        Location location = getLocation();
         profileLocation.setLocation(location);
         profileLocation.setName(m_profileName);
         profileLocation.setDirectory(m_profileDirectory);
