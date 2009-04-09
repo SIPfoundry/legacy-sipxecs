@@ -42,7 +42,7 @@ public class DnsGeneratorImpl implements DnsGenerator, DaoEventListener {
     public void generateWithout(Location locationToSkip) {
         Location primaryLocation = m_locationsManager.getPrimaryLocation();
 
-        if(primaryLocation == null) {
+        if (primaryLocation == null) {
             LOG.error("No primary location defined. OK in test environment");
             return;
         }
