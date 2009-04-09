@@ -192,7 +192,7 @@ public class BridgeSbc extends SbcDevice {
 
         @SettingEntry(path = "bridge-configuration/sipx-supervisor-xml-rpc-port")
         public int getSipxSupervisorXmlRpcPort() {
-            return m_location.PROCESS_MONITOR_PORT;
+            return Location.PROCESS_MONITOR_PORT;
         }
     }
 

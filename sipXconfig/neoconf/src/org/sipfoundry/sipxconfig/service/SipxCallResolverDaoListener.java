@@ -5,13 +5,11 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
  */
 package org.sipfoundry.sipxconfig.service;
 
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
-
 
 public class SipxCallResolverDaoListener implements DaoEventListener {
 
@@ -20,21 +18,22 @@ public class SipxCallResolverDaoListener implements DaoEventListener {
 
     public void onDelete(Object entity) {
         if (entity instanceof Location) {
-          // A location has been deleted. We need to regenerate the callresolver-config on the master.
-            Location location = (Location) entity;
-            SipxService callresolverService = m_sipxServiceManager.getServiceByBeanId(SipxCallResolverService.BEAN_ID);
-            m_serviceConfigurator.replicateServiceConfig(callresolverService);
-
+            generateCallResoverConfig();
         }
     }
 
     public void onSave(Object entity) {
         if (entity instanceof Location) {
-            // A new location has been added.  We need to regenerate the callresolver-config on the master.
-            Location location = (Location) entity;
-            SipxService callresolverService = m_sipxServiceManager.getServiceByBeanId(SipxCallResolverService.BEAN_ID);
-            m_serviceConfigurator.replicateServiceConfig(callresolverService);
+            generateCallResoverConfig();
         }
+    }
+
+    /**
+     * Regenerate call resolver configuration whenever location is added or removed.
+     */
+    private void generateCallResoverConfig() {
+        SipxService service = m_sipxServiceManager.getServiceByBeanId(SipxCallResolverService.BEAN_ID);
+        m_serviceConfigurator.replicateServiceConfig(service);
     }
 
     public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {

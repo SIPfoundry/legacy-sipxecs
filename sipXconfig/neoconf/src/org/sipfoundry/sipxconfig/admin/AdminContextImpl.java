@@ -5,7 +5,6 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
  */
 package org.sipfoundry.sipxconfig.admin;
 
@@ -17,8 +16,6 @@ import java.util.List;
 import org.sipfoundry.sipxconfig.admin.ftp.FtpConfiguration;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.DSTChangeEvent;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.dao.support.DataAccessUtils;
@@ -29,15 +26,12 @@ import static org.springframework.dao.support.DataAccessUtils.singleResult;
 /**
  * Backup provides Java interface to backup scripts
  */
-public abstract class AdminContextImpl extends HibernateDaoSupport implements AdminContext, ApplicationListener,
-        BeanFactoryAware {
+public abstract class AdminContextImpl extends HibernateDaoSupport implements AdminContext, ApplicationListener {
     private String m_binDirectory;
 
     private String m_libExecDirectory;
 
     private ExportCsv m_exportCsv;
-
-    private BeanFactory m_beanFactory;
 
     public abstract FtpBackupPlan createFtpBackupPlan();
 
@@ -130,16 +124,12 @@ public abstract class AdminContextImpl extends HibernateDaoSupport implements Ad
         getHibernateTemplate().deleteAll(l);
     }
 
-    public void setBeanFactory(BeanFactory beanFactory) {
-        m_beanFactory = beanFactory;
-    }
-
     public boolean inInitializationPhase() {
         String initializationPhase = System.getProperty("sipxconfig.initializationPhase");
         if (initializationPhase == null) {
             return false;
         }
-        
+
         return Boolean.parseBoolean(initializationPhase);
     }
 }
