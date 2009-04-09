@@ -5,15 +5,13 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.io.Writer;
 
-import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.DocumentFactory;
 import org.dom4j.io.OutputFormat;
@@ -53,34 +51,5 @@ public abstract class XmlFile extends AbstractConfigurationFile implements Confi
         format.setNewlines(true);
         format.setIndent(true);
         return format;
-    }
-
-    /**
-     * Retrieves configuration file content as string
-     *
-     * Use only for preview, use write function to dump it to the file.
-     *
-     */
-    public String getFileContent() {
-        return getFileContent(null);
-    }
-
-    /**
-     * Retrieves configuration file content as string depending on the location
-     *
-     * Use only for preview, use write function to dump it to the file.
-     *
-     */
-    public String getFileContent(Location location) {
-        try {
-            StringWriter writer = new StringWriter();
-            write(writer, location);
-            writer.close();
-            return writer.toString();
-        } catch (IOException e) {
-            // ignore when writing to string
-            LogFactory.getLog(XmlFile.class).error("Ignoring exception", e);
-            return "";
-        }
     }
 }

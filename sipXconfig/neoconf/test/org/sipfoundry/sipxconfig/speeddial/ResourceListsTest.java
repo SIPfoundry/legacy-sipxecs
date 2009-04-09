@@ -23,6 +23,8 @@ import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 
+import static org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile.getFileContent;
+
 public class ResourceListsTest extends XMLTestCase {
 
     public static String[][] BUTTONS_1 = {
@@ -115,7 +117,7 @@ public class ResourceListsTest extends XMLTestCase {
         rl.setCoreContext(coreContext);
         rl.setSpeedDialManager(sdm);
 
-        String generatedXml = rl.getFileContent();
+        String generatedXml = getFileContent(rl, null);
 
         InputStream referenceXml = getClass().getResourceAsStream("resource-lists.test.xml");
         assertXMLEqual(new InputStreamReader(referenceXml), new StringReader(generatedXml));
@@ -134,9 +136,8 @@ public class ResourceListsTest extends XMLTestCase {
         ResourceLists rl = new ResourceLists();
         rl.setCoreContext(coreContext);
 
-        String fileContent = rl.getFileContent();
-        assertXMLEqual(
-                "<lists xmlns=\"http://www.sipfoundry.org/sipX/schema/xml/resource-lists-00-01\"/>",
+        String fileContent = getFileContent(rl, null);
+        assertXMLEqual("<lists xmlns=\"http://www.sipfoundry.org/sipX/schema/xml/resource-lists-00-01\"/>",
                 fileContent);
         coreContextControl.verify();
     }

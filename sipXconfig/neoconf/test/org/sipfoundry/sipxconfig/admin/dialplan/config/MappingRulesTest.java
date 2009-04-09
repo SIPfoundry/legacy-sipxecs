@@ -50,6 +50,8 @@ import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.speeddial.RlsRule;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
+import static org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile.getFileContent;
+
 /**
  * MappingRulesTest
  */
@@ -322,7 +324,7 @@ public class MappingRulesTest extends XMLTestCase {
         m_out.end();
         m_out.localizeDocument(TestUtil.createDefaultLocation());
 
-        String generatedXml = m_out.getFileContent();
+        String generatedXml = getFileContent(m_out, null);
 
         InputStream referenceXmlStream = getClass().getResourceAsStream("mappingrules-multiple-servers.test.xml");
 

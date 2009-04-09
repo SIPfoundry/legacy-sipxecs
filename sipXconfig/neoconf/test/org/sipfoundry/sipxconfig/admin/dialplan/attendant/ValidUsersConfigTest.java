@@ -29,6 +29,7 @@ import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
+import static org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile.getFileContent;
 
 public class ValidUsersConfigTest extends XMLTestCase {
 
@@ -70,10 +71,10 @@ public class ValidUsersConfigTest extends XMLTestCase {
 
         AliasMapping am1 = new AliasMapping("500@example.com", "sip:500@example.com");
         AliasMapping am2 = new AliasMapping("501@example.com", "sip:501@example.com");
-        
+
         AliasProvider aliasProvider = createMock(AliasProvider.class);
         expect(aliasProvider.getAliasMappings()).andReturn(Arrays.asList(am1, am2)).anyTimes();
-        
+
         replay(coreContext, domainManager, aliasProvider);
 
         ValidUsersConfig vu = new ValidUsersConfig();
@@ -81,7 +82,7 @@ public class ValidUsersConfigTest extends XMLTestCase {
         vu.setDomainManager(domainManager);
         vu.setAliasProvider(aliasProvider);
 
-        String generatedXml = vu.getFileContent();
+        String generatedXml = getFileContent(vu, null);
         InputStream referenceXml = getClass().getResourceAsStream("validusers.test.xml");
         assertXMLEqual(new InputStreamReader(referenceXml), new StringReader(generatedXml));
 

@@ -1,7 +1,7 @@
 /*
  *
  *
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  */
@@ -17,14 +17,8 @@ public class AbstractConfigurationFileTest extends TestCase {
 
     public void testGetPath() {
         AbstractConfigurationFile file = new AbstractConfigurationFile() {
-
-            public String getFileContent() {
-                return "";
-            }
-
             public void write(Writer writer, Location location) throws IOException {
             }
-
         };
 
         try {

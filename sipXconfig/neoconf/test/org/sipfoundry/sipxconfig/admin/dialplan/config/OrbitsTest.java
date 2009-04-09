@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
@@ -23,6 +23,8 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.test.TestUtil;
+
+import static org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile.getFileContent;
 
 public class OrbitsTest extends XMLTestCase {
     private List<ParkOrbit> m_parkOrbits;
@@ -75,11 +77,10 @@ public class OrbitsTest extends XMLTestCase {
         parkOrbitContextControl.andReturn(m_parkOrbits);
         parkOrbitContextControl.replay();
 
-
         Orbits orbits = new Orbits();
         orbits.setAudioDirectory("/var/sipxdata/parkserver/music");
         orbits.setParkOrbitContext(parkOrbitContext);
-        String generatedXml = orbits.getFileContent();
+        String generatedXml = getFileContent(orbits, null);
         // orbits file on windows includes "c:/" etc
         generatedXml = generatedXml.replaceAll(TestUtil.currentDrive(), "");
         generatedXml = generatedXml.replace('\\', '/');

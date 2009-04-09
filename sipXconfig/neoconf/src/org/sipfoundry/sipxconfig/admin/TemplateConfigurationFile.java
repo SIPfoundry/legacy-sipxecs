@@ -10,11 +10,8 @@
 package org.sipfoundry.sipxconfig.admin;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.io.Writer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
@@ -24,8 +21,6 @@ import org.sipfoundry.sipxconfig.admin.commserver.Location;
  * TemplateConfigurationFile
  */
 public abstract class TemplateConfigurationFile extends AbstractConfigurationFile {
-    private static final Log LOG = LogFactory.getLog(TemplateConfigurationFile.class);
-
     private VelocityEngine m_velocityEngine;
     private String m_templateLocation;
 
@@ -67,16 +62,5 @@ public abstract class TemplateConfigurationFile extends AbstractConfigurationFil
             context.put("location", location);
         }
         return context;
-    }
-
-    public final String getFileContent() {
-        try {
-            StringWriter out = new StringWriter();
-            write(out, null);
-            return out.toString();
-        } catch (IOException e) {
-            LOG.error("Rethrowing unexpected: " + e.getMessage());
-            throw new RuntimeException(e);
-        }
     }
 }

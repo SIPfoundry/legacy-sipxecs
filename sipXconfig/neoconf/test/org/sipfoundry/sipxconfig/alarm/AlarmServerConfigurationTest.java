@@ -1,3 +1,12 @@
+/*
+ *
+ *
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * Contributors retain copyright to elements licensed under a Contributor Agreement.
+ * Licensed to the User under the LGPL license.
+ *
+ *
+ */
 package org.sipfoundry.sipxconfig.alarm;
 
 import java.io.InputStream;
@@ -8,16 +17,12 @@ import java.util.List;
 
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.alarm.AlarmServer;
 import org.sipfoundry.sipxconfig.admin.alarm.AlarmServerConfiguration;
 import org.sipfoundry.sipxconfig.admin.alarm.AlarmServerContacts;
 
-public class AlarmServerConfigurationTest extends XMLTestCase{
-    @Override
-    protected void setUp() throws Exception {
-        
-    }
-    
+public class AlarmServerConfigurationTest extends XMLTestCase {
     public void testGenerateAlarmServer() throws Exception {
         AlarmServerConfiguration alarmServerConf = new AlarmServerConfiguration();
         alarmServerConf.setVelocityEngine(TestHelper.getVelocityEngine());
@@ -28,15 +33,14 @@ public class AlarmServerConfigurationTest extends XMLTestCase{
         List<String> addresses = new ArrayList<String>();
         addresses.add("address1@localhost");
         addresses.add("address2@localhost");
-        contacts.setAddresses(addresses);       
-        
+        contacts.setAddresses(addresses);
+
         server.setContacts(contacts);
-        
+
         alarmServerConf.generate(server, "/usr/local/sipx/var/log/sipxpbx", "post.example.org");
-        
-        String generatedXml = alarmServerConf.getFileContent();
-        InputStream referenceXmlStream = AlarmConfigurationTest.class
-            .getResourceAsStream("alarm-config-test.xml");
+
+        String generatedXml = AbstractConfigurationFile.getFileContent(alarmServerConf, null);
+        InputStream referenceXmlStream = AlarmConfigurationTest.class.getResourceAsStream("alarm-config-test.xml");
         assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(generatedXml));
     }
 }

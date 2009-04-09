@@ -24,14 +24,6 @@ public interface ConfigurationFile {
     void write(Writer writer, Location location) throws IOException;
 
     /**
-     * Retrieves configuration file content as string
-     *
-     * Use only for preview, use write function to dump it to the file.
-     *
-     */
-    String getFileContent();
-
-    /**
      * Returns the name of the file.
      *
      * This is just the last name in the pathname's name sequence.
@@ -52,8 +44,6 @@ public interface ConfigurationFile {
      * @return true if the file can be replicated - false otherwise
      */
     boolean isReplicable(Location location);
-
-
 
     /**
      * Checks if a service need to be restarted when this configuration file is changed

@@ -17,6 +17,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
 import org.easymock.EasyMock;
+import static org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile.getFileContent;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.Holiday;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.ScheduledAttendant;
@@ -43,6 +44,7 @@ public class AttendantRuleTest extends TestCase {
 
     private DomainManager m_domainManager;
 
+    @Override
     public void setUp() {
         m_domainManager = TestUtil.getMockDomainManager();
         EasyMock.replay(m_domainManager);
@@ -125,7 +127,7 @@ public class AttendantRuleTest extends TestCase {
         }
         mappingRules.end();
 
-        String generatedXml = mappingRules.getFileContent();
+        String generatedXml = getFileContent(mappingRules, null);
         InputStream referenceXmlStream = getClass().getResourceAsStream("sipxvxml-aa-rules.test.xml");
 
         assertEquals(IOUtils.toString(referenceXmlStream), generatedXml);
@@ -140,10 +142,10 @@ public class AttendantRuleTest extends TestCase {
         FreeswitchMediaServer mediaServer = new FreeswitchMediaServer();
         mediaServer.setLocalizationContext(lc);
         mediaServer.setPort(15060);
-        
+
         LocationsManager locationsManager = TestUtil.getMockLocationsManager();
         mediaServer.setLocationsManager(locationsManager);
-        
+
         rule.setMediaServer(mediaServer);
         rule.setName("abc");
         rule.setExtension("100");
@@ -160,7 +162,7 @@ public class AttendantRuleTest extends TestCase {
         }
         mappingRules.end();
 
-        String generatedXml = mappingRules.getFileContent();
+        String generatedXml = getFileContent(mappingRules, null);
         InputStream referenceXmlStream = getClass().getResourceAsStream("sipxivr-aa-rules.test.xml");
 
         assertEquals(IOUtils.toString(referenceXmlStream), generatedXml);

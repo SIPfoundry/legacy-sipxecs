@@ -7,12 +7,18 @@
  */
 package org.sipfoundry.sipxconfig.admin;
 
+import java.io.IOException;
+import java.io.StringWriter;
+
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 import org.springframework.beans.factory.annotation.Required;
 
 public abstract class AbstractConfigurationFile implements ConfigurationFile {
+    private static final Log LOG = LogFactory.getLog(AbstractConfigurationFile.class);
+
     private String m_name;
 
     private String m_directory;
@@ -52,8 +58,8 @@ public abstract class AbstractConfigurationFile implements ConfigurationFile {
      */
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof XmlFile) {
-            XmlFile file = (XmlFile) obj;
+        if (obj instanceof ConfigurationFile) {
+            ConfigurationFile file = (ConfigurationFile) obj;
             return getPath().equals(file.getPath());
         }
         return false;
@@ -76,4 +82,19 @@ public abstract class AbstractConfigurationFile implements ConfigurationFile {
         return m_restartRequired;
     }
 
+    /**
+     * Retrieves configuration file content as string
+     *
+     * Use only for preview, use write function to dump it to the file.
+     */
+    public static String getFileContent(ConfigurationFile cf, Location location) {
+        try {
+            StringWriter out = new StringWriter();
+            cf.write(out, location);
+            return out.toString();
+        } catch (IOException e) {
+            LOG.error("Rethrowing unexpected: " + e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
 }

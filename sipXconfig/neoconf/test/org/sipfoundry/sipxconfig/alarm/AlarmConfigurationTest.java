@@ -1,3 +1,12 @@
+/*
+ *
+ *
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * Contributors retain copyright to elements licensed under a Contributor Agreement.
+ * Licensed to the User under the LGPL license.
+ *
+ *
+ */
 package org.sipfoundry.sipxconfig.alarm;
 
 import java.io.InputStream;
@@ -8,15 +17,11 @@ import java.util.List;
 
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.alarm.Alarm;
 import org.sipfoundry.sipxconfig.admin.alarm.AlarmConfiguration;
 
 public class AlarmConfigurationTest extends XMLTestCase {
-    @Override
-    protected void setUp() throws Exception {
-
-    }
-
     public void testGenerateAlarms() throws Exception {
         AlarmConfiguration alarmConf = new AlarmConfiguration();
         alarmConf.setVelocityEngine(TestHelper.getVelocityEngine());
@@ -43,11 +48,9 @@ public class AlarmConfigurationTest extends XMLTestCase {
 
         alarmConf.generate(alarms);
 
-        String generatedXml = alarmConf.getFileContent();
+        String generatedXml = AbstractConfigurationFile.getFileContent(alarmConf, null);
 
-        InputStream referenceXmlStream = AlarmConfigurationTest.class
-                .getResourceAsStream("alarms-config-test.xml");
+        InputStream referenceXmlStream = AlarmConfigurationTest.class.getResourceAsStream("alarms-config-test.xml");
         assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(generatedXml));
-
     }
 }

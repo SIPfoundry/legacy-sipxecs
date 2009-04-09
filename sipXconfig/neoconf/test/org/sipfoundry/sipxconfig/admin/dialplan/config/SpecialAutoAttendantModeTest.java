@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
@@ -17,6 +17,8 @@ import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
+
+import static org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile.getFileContent;
 
 public class SpecialAutoAttendantModeTest extends XMLTestCase {
 
@@ -33,19 +35,18 @@ public class SpecialAutoAttendantModeTest extends XMLTestCase {
         file.generate(false, aa);
         String expected = "<organizationprefs><specialoperation>false</specialoperation><autoattendant>abc</autoattendant></organizationprefs>";
 
-        assertXMLEqual(expected, file.getFileContent());
+        assertXMLEqual(expected, getFileContent(file, null));
     }
 
     public void testGetDocument() throws Exception {
         AutoAttendant aa = new AutoAttendant();
         aa.setSystemId("afterhours");
 
-        InputStream referenceXmlStream = getClass().getResourceAsStream(
-                "organizationprefs.test.xml");
+        InputStream referenceXmlStream = getClass().getResourceAsStream("organizationprefs.test.xml");
 
         SpecialAutoAttendantMode file = new SpecialAutoAttendantMode();
-        file.generate(true, aa);        
-        String generatedXml = file.getFileContent();
+        file.generate(true, aa);
+        String generatedXml = getFileContent(file, null);
         assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(generatedXml));
     }
 }

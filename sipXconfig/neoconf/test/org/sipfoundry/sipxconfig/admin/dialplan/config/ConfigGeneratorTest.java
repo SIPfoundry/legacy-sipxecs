@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
@@ -17,6 +17,7 @@ import org.custommonkey.xmlunit.XMLUnit;
 import org.dom4j.Document;
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleProvider;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
@@ -134,7 +135,7 @@ public class ConfigGeneratorTest extends XMLTestCase {
         Document document = configFile.getDocument();
         StringWriter writer = new StringWriter();
         document.write(writer);
-        String actualXml = generator.getFileContent(name);
+        String actualXml =  AbstractConfigurationFile.getFileContent(generator.getConfigurationFileByName(name), null);
         String expectedXml = writer.getBuffer().toString();
 
         // The XML diff is getting confused by whitespace, so remove it

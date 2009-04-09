@@ -17,6 +17,7 @@ import org.custommonkey.xmlunit.XMLUnit;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
@@ -84,7 +85,7 @@ public class ConferenceConfigurationTest extends XMLTestCase {
         config.setDomainManager(domainManager);
         config.setConferenceBridgeContext(confContext);
 
-        String generatedXml = config.getFileContent(location);
+        String generatedXml = AbstractConfigurationFile.getFileContent(config, location);
         System.err.println(generatedXml);
         /*
          * We use two files for reversed order of the "profile" elements of the xml because the

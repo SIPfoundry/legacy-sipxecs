@@ -28,6 +28,8 @@ import org.sipfoundry.sipxconfig.common.DialPad;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 
+import static org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile.getFileContent;
+
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
@@ -65,7 +67,7 @@ public class AutoAttendantsConfigTest extends XMLTestCase {
         autoAttendantsConfig.setDialPlanContext(dialPlanContext);
         autoAttendantsConfig.setAutoAttendantManager(aam);
 
-        String generatedXml = autoAttendantsConfig.getFileContent();
+        String generatedXml = getFileContent(autoAttendantsConfig, null);
         InputStream referenceXml = getClass().getResourceAsStream("empty-autoattendants.test.xml");
 
         assertXMLEqual(new InputStreamReader(referenceXml), new StringReader(generatedXml));
@@ -113,7 +115,7 @@ public class AutoAttendantsConfigTest extends XMLTestCase {
         autoAttendantsConfig.setDialPlanContext(dialPlanContext);
         autoAttendantsConfig.setAutoAttendantManager(aam);
 
-        String generatedXml = autoAttendantsConfig.getFileContent();
+        String generatedXml = getFileContent(autoAttendantsConfig, null);
         InputStream referenceXml = getClass().getResourceAsStream("autoattendants.test.xml");
         assertXMLEqual(new InputStreamReader(referenceXml), new StringReader(generatedXml));
 
@@ -159,7 +161,7 @@ public class AutoAttendantsConfigTest extends XMLTestCase {
         autoAttendantsConfig.setAutoAttendantManager(aam);
         autoAttendantsConfig.setDialPlanContext(dialPlanContext);
 
-        String generatedXml = autoAttendantsConfig.getFileContent();
+        String generatedXml = getFileContent(autoAttendantsConfig, null);
         InputStream referenceXml = getClass().getResourceAsStream("schedules-autoattendants.test.xml");
 
         assertXMLEqual(new InputStreamReader(referenceXml), new StringReader(generatedXml));

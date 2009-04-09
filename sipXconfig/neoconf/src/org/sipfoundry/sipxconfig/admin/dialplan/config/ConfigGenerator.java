@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
@@ -95,20 +94,18 @@ public class ConfigGenerator {
     }
 
     /**
-     * Retrieves configuration file content as stream.
-     *
-     * Use only for preview, use write function to dump it to the file.
+     * Retrieves configuration file - only for testing.
      *
      * @param type type of the configuration file
      */
-    public String getFileContent(String name) {
+    final ConfigurationFile getConfigurationFileByName(String name) {
         for (ConfigurationFile file : getRulesFiles()) {
             if (name.equals(file.getName())) {
-                return file.getFileContent();
+                return file;
             }
         }
 
-        return StringUtils.EMPTY;
+        return null;
     }
 
     public void activate(Location location, SipxReplicationContext sipxReplicationContext) {
