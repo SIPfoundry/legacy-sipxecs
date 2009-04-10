@@ -15,9 +15,12 @@ EXTRA_DIST = \
 	$(pkgconf_DATA) \
 	$(foreach file,$(wwwconf_files),$(file).in) \
 	init.d/sipxecs.in \
+	init.d/phonelogd.in \
+	phonelog.conf.syslogd \
+	phonelog.conf.rsyslogd \
 	logrotate.d/sipxchange.in
 
-install-exec-hook : $(DESTDIR)@SERVICEDIR@/sipxecs
+install-exec-hook : $(DESTDIR)@SERVICEDIR@/sipxecs $(DESTDIR)@SERVICEDIR@/phonelogd
 
 $(DESTDIR)@SERVICEDIR@/sipxecs: $(DESTDIR)@SERVICEDIR@ init.d/sipxecs
 	$(INSTALL) -D -m 755 init.d/sipxecs $(DESTDIR)@SERVICEDIR@/sipxecs
@@ -27,10 +30,26 @@ init.d/sipxecs: init.d/sipxecs.in
 	@echo "Localizing $(srcdir)/init.d/sipxecs.in -> init.d/sipxecs"
 	@$(LocalizeSipXconfig) $(srcdir)/init.d/sipxecs.in > init.d/sipxecs
 
+$(DESTDIR)@SERVICEDIR@/phonelogd: $(DESTDIR)@SERVICEDIR@ init.d/phonelogd
+	$(INSTALL) -D -m 755 init.d/phonelogd $(DESTDIR)@SERVICEDIR@/phonelogd
+
+init.d/phonelogd: init.d/phonelogd.in
+	test -d init.d || mkdir init.d
+	@echo "Localizing $(srcdir)/init.d/phonelogd.in -> init.d/phonelogd"
+	@$(LocalizeSipXconfig) \
+		-e 's,@SYSLOG_CMD\@,@SYSLOG_CMD@,g' \
+		-e 's,@SYSLOG_LIBS\@,@SYSLOG_LIBS@,g' \
+		-e 's,@SYSLOG_ARGS\@,@SYSLOG_ARGS@,g' \
+		$(srcdir)/init.d/phonelogd.in > init.d/phonelogd
+
+$(DESTDIR)${sysconfdir}/sipxpbx/phonelog.conf: phonelog.conf@SYSLOG_CFG@
+	$(INSTALL) -D -m 755 $< $@
+
 $(DESTDIR)@SERVICEDIR@:
 	$(INSTALL) -d $(DESTDIR)@SERVICEDIR@
 
 install-data-hook : \
+	$(DESTDIR)$(sysconfdir)/sipxpbx/phonelog.conf \
 	$(DESTDIR)$(sysconfdir)/sipxpbx/httpd.conf.d \
 	$(DESTDIR)$(sysconfdir)/logrotate.d/sipxchange \
 	$(foreach file, $(wwwconf_files),$(DESTDIR)$(sysconfdir)/sipxpbx/$(file))

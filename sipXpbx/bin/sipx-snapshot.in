@@ -450,7 +450,7 @@ case ${Logs} in
 
         # Place extract.log at the top level of the tar file.
         CommentFiles="${CommentFiles} ${cutDir}/extract.log"
-        for base_log in @SIPX_LOGDIR@/*log
+        for base_log in @SIPX_LOGDIR@/*log @SIPX_LOGDIR@/phonelog/phones.log
         do
             # Start cutting at the base log.
             if cutIfTimestamps "${base_log}"
@@ -491,14 +491,18 @@ case ${Logs} in
         done
         ;;
     current)
-        for log in @SIPX_LOGDIR@/*log
+        for log in @SIPX_LOGDIR@/*log @SIPX_LOGDIR@/phonelog/phones.log
         do
           echo $log >> $Work.copy-files
         done
         ;;
     [1-9]*)
-        if ! ls -1 @SIPX_LOGDIR@/*log.${Logs}{,.gz} 2>/dev/null |
-             grep '.' >> $Work.copy-files
+        if ! ls -1 \
+             @SIPX_LOGDIR@/*log.${Logs}{,.gz} \
+             @SIPX_LOGDIR@/phonelog/phones.log.${Logs}{,.gz} \
+             2>/dev/null \
+             | grep '.' \
+             >> $Work.copy-files
         then
             echo "Can't find any log files for past day ${Logs}:" >&2
             echo "    @SIPX_LOGDIR@/*log.${Logs}{,.gz}: No such file or directory" >&2

@@ -20,5 +20,14 @@
     <log>@sipxpbx.log.dir@/sipxconfig.log</log>
   </status>
   <resources>
+    <!-- 
+    - The following is actually configuration for the phonelogd service,
+    - which is installed in the sipXpbx project, but that service is 
+    - managed by init.d rather than by sipxsupervisor.  This file, if
+    - it exists, just has one configuration variable that either enables
+    - or disables the service.  Its purpose is to start an instance of
+    - the syslog daemon to receive logging from phones.
+    -->
+    <osconfig required='false'>@sipxpbx.conf.dir@/phonelog-config</osconfig>
   </resources>
 </sipXecs-process>

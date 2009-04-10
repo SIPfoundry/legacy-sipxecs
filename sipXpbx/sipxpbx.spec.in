@@ -137,6 +137,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/012_sipx-config-vxml-domain
 
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxecs
+%attr(755,root,root) %{_sysconfdir}/init.d/phonelogd
 %attr(755,root,root) %{_sysconfdir}/cron.daily/sipx-chkspace
 %attr(755,root,root) %{_sysconfdir}/cron.daily/voicemail_clean
 %attr(755,root,root) %{_sysconfdir}/cron.daily/sipx-core-clean
@@ -154,6 +155,8 @@ rm -rf $RPM_BUILD_ROOT
 %dir %attr(755,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/httpd.conf.d
 
 %config(noreplace) %attr(644,root,root) %{_sysconfdir}/logrotate.d/sipxchange
+
+%config(noreplace) %attr(644,root,root) %{_sysconfdir}/sipxpbx/phonelog.conf
 
 %dir %attr(775,@SIPXPBXUSER@,root) %{_datadir}/www/doc
 %config(noreplace) %attr(755,root,@SIPXPBXGROUP@) %{_datadir}/www/doc/index.html
@@ -216,9 +219,11 @@ fi
 if [ -x /sbin/chkconfig ]; then
   # RedHat / Fedora
   chkconfig --add sipxecs
+  chkconfig --add phonelogd
 else
   # SuSE
   insserv sipxecs
+  insserv phonelogd
 fi
 
 # Reconfigure sendmail (if that is the mail daemon chosen) to ensure

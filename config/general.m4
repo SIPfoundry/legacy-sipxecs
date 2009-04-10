@@ -1751,3 +1751,40 @@ the SIPfoundry repositories.])
 #   AC_SUBST(RPMBUILD_DEBUG_PACKAGE_NAME)
 #   AC_MSG_RESULT([$RPMBUILD_DEBUG_PACKAGE_NAME])
 #])
+
+# ==================== SYSLOG ====================
+AC_DEFUN([CHECK_SYSLOGD],
+[
+   AC_MSG_CHECKING([Checking for syslog daemon name])
+   if test -x /sbin/syslogd
+   then
+      # CentOS
+      SYSLOG_CMD="/sbin/syslogd"
+      SYSLOG_CFG=".syslogd"
+      SYSLOG_LIBS=""
+      SYSLOG_ARGS="-f phonelog.conf -r -x"
+   elif test -x /sbin/rsyslogd
+   then
+      # Fedora
+      SYSLOG_CMD="/sbin/rsyslogd"
+      SYSLOG_CFG=".rsyslogd"
+      SYSLOG_LIBS="$(echo /usr/lib/rsyslog/*)"
+      SYSLOG_ARGS="-f phonelog.conf -x -i /var/run/syslogd.pid -c3"
+   else
+      SYSLOG_CMD=""
+      SYSLOG_CFG=".syslogd"
+      SYSLOG_LIBS=""
+      SYSLOG_ARGS=""
+   fi
+     
+   if test "x${SYSLOG_CMD}" != "x" 
+   then
+      AC_MSG_RESULT(${SYSLOG_CMD})
+   else
+      AC_MSG_WARN([No syslog daemon command found - remote phone logging disabled])
+   fi
+   AC_SUBST(SYSLOG_CMD)
+   AC_SUBST(SYSLOG_CFG)
+   AC_SUBST(SYSLOG_LIBS)
+   AC_SUBST(SYSLOG_ARGS)
+])
