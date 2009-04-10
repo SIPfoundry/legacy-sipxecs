@@ -30,6 +30,11 @@ public interface SipxProcessContext {
     ServiceStatus[] getStatus(Location location, boolean onlyActiveServices);
 
     /**
+     * Get status for a particular service on a given location
+     */
+    ServiceStatus.Status getStatus(Location location, SipxService service);
+
+    /**
      * Return a list of status messages for a given service on a given server.
      */
     List<String> getStatusMessages(Location location, SipxService service);

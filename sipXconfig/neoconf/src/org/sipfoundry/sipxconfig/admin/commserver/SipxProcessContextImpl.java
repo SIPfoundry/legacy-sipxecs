@@ -86,6 +86,17 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
         }
     }
 
+    public ServiceStatus.Status getStatus(Location location, SipxService service) {
+        String serviceBeanId = service.getBeanId();
+        ServiceStatus[] status = getStatus(location, true);
+        for (ServiceStatus serviceStatus : status) {
+            if (serviceBeanId.equals(serviceStatus.getServiceBeanId())) {
+                return serviceStatus.getStatus();
+            }
+        }
+        return ServiceStatus.Status.Undefined;
+    }
+
     public List<String> getStatusMessages(Location location, SipxService service) {
         try {
             ProcessManagerApi api = m_processManagerApiProvider.getApi(location.getProcessMonitorUrl());

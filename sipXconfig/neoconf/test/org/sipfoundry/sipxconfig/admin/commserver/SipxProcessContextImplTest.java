@@ -177,6 +177,38 @@ public class SipxProcessContextImplTest extends TestCase {
         verify(provider, api, serviceManager);
     }
 
+    public void testGetStatusSingle() {
+        Location location = m_locationsManager.getLocations()[0];
+
+        Map<String, String> result = new LinkedHashMap<String, String>();
+        result.put("SIPRegistrar", "Starting");
+        result.put("MediaServer", "Running");
+
+        SipxServiceManager serviceManager = getMockSipxServiceManager(false, m_registrarService, m_mediaService,
+                m_proxyService);
+
+        ProcessManagerApi api = createMock(ProcessManagerApi.class);
+        api.getStateAll("sipx.example.org");
+        expectLastCall().andReturn(result).atLeastOnce();
+
+        ApiProvider provider = createMock(ApiProvider.class);
+        provider.getApi(location.getProcessMonitorUrl());
+        expectLastCall().andReturn(api).atLeastOnce();
+
+        m_processContextImpl.setProcessManagerApiProvider(provider);
+        m_processContextImpl.setSipxServiceManager(serviceManager);
+        // mark services for restart
+        m_processContextImpl.markServicesForRestart(Arrays.asList(m_registrarService, m_mediaService,
+                m_presenceService));
+        replay(provider, api, serviceManager);
+
+        assertEquals(ServiceStatus.Status.Running, m_processContextImpl.getStatus(location, m_mediaService));
+        assertEquals(ServiceStatus.Status.Starting, m_processContextImpl.getStatus(location, m_registrarService));
+        assertEquals(ServiceStatus.Status.Undefined, m_processContextImpl.getStatus(location, m_proxyService));
+
+        verify(provider, api, serviceManager);
+    }
+
     public void testGetStatusForServices() {
         Location location = m_locationsManager.getLocations()[0];
 
