@@ -305,6 +305,7 @@
     <antcall target="clean-sipx-service-values"/>
     <antcall target="backup-ftp-fix-empty-type-2" />
     <antcall target="drop_zipupload"/>
+    <antcall target="migrate-grandstream" />
     <sipx-version version="9"/>
   </target>
 
@@ -819,6 +820,10 @@
 
   <target name="nat-location" unless="nat-location">
 	<db-patch patch="nat-location"/>
+  </target>
+
+  <target name="migrate-grandstream" unless="migrate-grandstream">
+    <db-patch patch="migrate-grandstream"/>
   </target>
 
   <!--
