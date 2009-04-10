@@ -657,8 +657,7 @@ do
   echo "${Core}" >>${Work}.core-related-files
   echo "${Executable}" >>${Work}.core-related-files
   # Get the dynamic libraries this executable needs.
-  /lib/ld-linux.so* --list ${Executable} |
-      sed -e '/ => [^ ]/!d' -e 's/^.* => \([^ ]*\) .*$/\1/' >>${Work}.core-related-files
+  ldd ${Executable} | perl -pe 's|^.*=>\s*||; s|\s*\(.*$||; s|^\s*||' >>${Work}.core-related-files
 
 done
 
