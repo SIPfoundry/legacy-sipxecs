@@ -189,7 +189,7 @@ This is the password for the root shell, not for the\n\
            adminPassword = e1a.value()
            valuesOk=True
 
-           progress(20, "Set Password")
+           progress(15, "Set Password")
            show_progress()
 
            passwdSetCmd='echo "%s" | passwd --stdin root' % adminPassword
@@ -692,13 +692,104 @@ options {\n\
     else:
         log_printout("Named not configured or started because not running as root")
 
+def screen_set_dhcpd () :
+    # Currently there is at most one DHCP server configured (only on the first system).
+    # The max lease time is 12 hours (43200 seconds).
+    global useDHCPServer
+    global NetMask
+    global IpAddress
+    global Gateway
+    global DomainName
+    global DnsServers
+    global NtpServers
+    global HostName
+
+    show_progress()
+    serverMessage ='\
+You will need a DHCP server for your phones.\n\
+\n\
+Do you have a DHCP server on your network?\
+'
+
+    layout = snack.Grid(1, 2)
+    yesButton = snack.Button("Yes - %s SHOULD NOT be my DHCP server." % HostName)
+    noButton  = snack.Button("No  - %s SHOULD be my DHCP server." % HostName)
+    layout.setField(yesButton, 0, 0, (1,1,1,1))
+    layout.setField(noButton, 0, 1, (1,1,1,1))
+
+    f = screen_setup("DHCP Service", serverMessage, layout)
+    choice = f.run()
+
+    if choice == noButton :
+        log_printout("Selected to configure DHCP")
+        ProvideDHCP = True
+    else :
+        log_printout("Selected NOT to configure DHCP")
+        ProvideDHCP = False
+
+    screen_end()
+
+    if ProvideDHCP :
+
+        dhcpConfigFile='/etc/dhcpd.conf'
+
+        # If DHCP not set still create configuration and write to log file
+        #
+        # Calculate subnet address based on the NetMask
+        # NetMask has already been checked and is valid
+
+        addrLst = IpAddress.split('.')
+        maskLst = NetMask.split('.')
+
+        # Construct subnet address
+        SubnetLst = [str(int(addrLst[i]) & int(maskLst[i]))  for i in range(4)]
+        Subnet  = '.'.join(SubnetLst)
+
+        # The DHCP range is set to the full range of the subnet excluding broadcast address and the first address
+        rangeStart =  '.'.join (SubnetLst[:3]) + '.' + str( int(SubnetLst[3]) +1 )
+        rangeEndLst   =  [str(int(addrLst[i]) | (255 - int(maskLst[i]))) for i in range(4)]
+        rangeEndLst[3]   = str( int(rangeEndLst[3]) - 1 )
+        rangeEnd   = '.'.join (rangeEndLst) 
+
+        # Create dhcpd.conf file entries
+        dhcpdConf = '\
+authoritative;\n\
+ddns-update-style  none;\n\
+\n\
+subnet %s netmask %s {\n\
+   range                        %s  %s;\n\
+   default-lease-time           43200;\n\
+   max-lease-time               43200;\n\
+   option routers               %s;\n\
+   option subnet-mask           %s;\n\
+   option domain-name           "%s";\n\
+   option tftp-server-name      "%s";\n\
+'  % (Subnet, NetMask, rangeStart, rangeEnd, Gateway, NetMask, DomainName, HostName)
+
+        dhcpdConf +='  option domain-name-servers   %s' % DnsServers[0]
+        if DnsServers[1] != '' :
+            dhcpdConf +=', %s' % DnsServers[1]
+        dhcpdConf +=';\n'        
+
+        dhcpdConf +='   option ntp-servers           %s' % NtpServers[0]
+        if NtpServers[1] != '' :
+            dhcpdConf +=', %s' % NtpServers[1]
+        if NtpServers[2] != '' :
+            dhcpdConf +=', %s' % NtpServers[2]
+        dhcpdConf +=';\n'        
+
+        dhcpdConf +='}\n'
+
+        log_printout(dhcpdConf)
+
+        if runningAsRoot() :
+            file ( dhcpConfigFile, 'w').write( dhcpdConf )
+
 def start_network () :
      show_progress()
 
      # restart the network
 
-     netStartMsg="Starting Network"
-     progress(65, netStartMsg)
      show_starting()
      netRestart='service network restart'
      if runningAsRoot() :
@@ -774,7 +865,7 @@ UTC=true\n' % TimeZone
     #--- Create /etc/ntp.conf
 
     # must be after the timezone
-    progress(80, "Set system clock")
+    progress(70, "Set system clock")
     show_progress()
 
     timeBeforeSet=time.strftime("%Y-%m-%d %H:%M:%S +000", time.gmtime())
@@ -786,7 +877,7 @@ UTC=true\n' % TimeZone
     while (not ntpServerReachable) and (not ntpServerForceReady) :
         # Test for something listening to the ntp port on the configured servers
         # so we don't get stuck in the ntpd command if it's unreachable
-        ntpProbe=82
+        ntpProbe=72
         checkMsg  = 'Checking reachability of NTP servers:\n   '
         checkMsg += '\n   '.join(NtpServers)
         progress(ntpProbe, checkMsg)
@@ -916,7 +1007,7 @@ driftfile /var/lib/ntp/drift\n\
         # Set Time
         # try setting the clock with ntp if possible
         ntpSetMsg="Setting time with NTP"
-        progress(86, ntpSetMsg)
+        progress(78, ntpSetMsg)
         show_starting()
         if runningAsRoot() :
             log_printout("Stopping ntp service to set time")
@@ -1140,7 +1231,7 @@ Hours are 00-23.\
         log_printout("(simulated) Setting hardware clock: "+dateCmd)
 
     ntpStartMsg='Start NTP Server'
-    progress(88, ntpStartMsg)
+    progress(79, ntpStartMsg)
     show_starting()
     if runningAsRoot() :
         cmdoutput=commands.getoutput ('service %s start' % sipxecsGlobals.NtpServiceName)
@@ -1256,11 +1347,14 @@ try:
     set_network()
     set_DNS()
 
-    progress(60, "Start network")
+    progress(55, "Start network")
     start_network()
     
-    progress(70, "Time Settings")
+    progress(60, "Time Settings")
     screen_set_time()
+
+    progress(80, "DHCP Service")
+    screen_set_dhcpd()
 
     # Modify console logon message
     progress(90, "Finish system setup")
