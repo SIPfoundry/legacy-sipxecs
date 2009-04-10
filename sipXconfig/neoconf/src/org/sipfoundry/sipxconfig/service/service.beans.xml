@@ -112,6 +112,7 @@
     <property name="logDir" value="${sysdir.log}" />
 	<property name="sipxServiceManager" ref="sipxServiceManager" />
 	<property name="locationsManager" ref="locationsManager" />
+    <property name="loggingManager" ref="loggingManager" />
   </bean>
 
   <bean id="serviceConfigurationFile" parent="defaultConfigurationFile" abstract="true">

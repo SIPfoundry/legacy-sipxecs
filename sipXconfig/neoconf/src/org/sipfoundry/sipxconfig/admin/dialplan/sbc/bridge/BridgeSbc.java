@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.sipfoundry.sipxconfig.admin.LoggingManager;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
@@ -50,6 +51,8 @@ public class BridgeSbc extends SbcDevice implements LoggingEntity {
     private String m_profileName;
 
     private String m_profileDirectory;
+
+    private LoggingManager m_loggingManager;
 
     @Required
     public void setGatewayContext(GatewayContext gatewayContext) {
@@ -209,13 +212,19 @@ public class BridgeSbc extends SbcDevice implements LoggingEntity {
                 SipxProcessContext.Command.RESTART);
     }
 
+    public void setLoggingManager(LoggingManager loggingManager) {
+        m_loggingManager = loggingManager;
+    }
+
     public void setLogLevel(String logLevel) {
         if (logLevel != null) {
+            String newLogLevel = logLevel;
             if (logLevel.equals("CRIT") || logLevel.equals("ALERT") || logLevel.equals("EMERG")) {
-                String newLogLevel = "ERR";
+                newLogLevel = "ERR";
+            }
+            if (!newLogLevel.equals(getSettingValue(LOG_SETTING))) {
                 setSettingValue(LOG_SETTING, newLogLevel);
-            } else {
-                setSettingValue(LOG_SETTING, logLevel);
+                m_loggingManager.getEntitiesToProcess().add(this);
             }
         }
     }

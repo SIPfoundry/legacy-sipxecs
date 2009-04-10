@@ -23,6 +23,7 @@
     <property name="sipxReplicationContext" ref="sipxReplicationContextDao" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="locationsManager" ref="locationsManager" />
+    <property name="loggingManager" ref="loggingManager"/>
   </bean>
 
   <bean id="sbcSipXbridgeConfiguration" parent="defaultConfigurationFile"

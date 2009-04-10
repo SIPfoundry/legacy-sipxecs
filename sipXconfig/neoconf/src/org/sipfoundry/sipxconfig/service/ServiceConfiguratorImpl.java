@@ -219,4 +219,8 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
     }
+
+    public void markServiceForRestart(SipxService service) {
+        m_sipxProcessContext.markServicesForRestart(singleton(service));
+    }
 }

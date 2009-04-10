@@ -21,6 +21,7 @@
       <ref local="acdContextImpl"/>
     </property>
     <property name="sipxServiceManager" ref="sipxServiceManager"/>
+    <property name="loggingManager" ref="loggingManager"/>
   </bean>
   <bean id="acdAgent" class="org.sipfoundry.sipxconfig.acd.AcdAgent" parent="acdComponent"
     singleton="false"/>

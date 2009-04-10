@@ -9,9 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.admin.LoggingManager;
 
 public class SipxServiceTestIntegration extends IntegrationTestCase {
 
@@ -25,8 +28,14 @@ public class SipxServiceTestIntegration extends IntegrationTestCase {
     public void setSipxStatusService(SipxStatusService sipxStatusService) {
         m_statusService = sipxStatusService;
     }
-    
+
     public void testGetSetLogLevel() {
+        List<LoggingEntity> entities = new ArrayList<LoggingEntity>();
+        LoggingManager manager = EasyMock.createMock(LoggingManager.class);
+        manager.getEntitiesToProcess();
+        EasyMock.expectLastCall().andReturn(entities).anyTimes();
+        EasyMock.replay(manager);
+        m_statusService.setLoggingManager(manager);
         String level = m_statusService.getLogLevel();
         assertEquals("NOTICE", level);
         level = "DEBUG";

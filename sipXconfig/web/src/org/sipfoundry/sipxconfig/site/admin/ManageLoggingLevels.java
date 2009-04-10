@@ -35,6 +35,7 @@ import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxService;
 
 public abstract class ManageLoggingLevels extends BasePage implements PageBeginRenderListener {
+
     public static final String PAGE = "admin/ManageLoggingLevels";
     public static final String DEBUG = "DEBUG";
 
@@ -111,27 +112,43 @@ public abstract class ManageLoggingLevels extends BasePage implements PageBeginR
         // just to make sure the general log level will not remain on some value and to override
         // the individual log levels
         setGeneralLevel(null);
+        if (event_.getRequestCycle().isRewinding()) {
+            getLoggingManager().setEntitiesToProcess(new ArrayList<LoggingEntity>());
+        }
     }
 
     public void commit() {
         List<SipxService> services = new ArrayList<SipxService>();
-        for (LoggingEntity entity : getLoggingEntities()) {
+        Collection<LoggingEntity> entitiesToProcess;
+        if (m_generalLevel != null) {
+            entitiesToProcess = getLoggingEntities();
+        } else {
+            entitiesToProcess = getLoggingManager().getEntitiesToProcess();
+        }
+        for (LoggingEntity entity : entitiesToProcess) {
             if (m_generalLevel != null) {
                 entity.setLogLevel(m_generalLevel);
             }
+            
+            SipxService serviceToRestart = getLoggingManager().getSipxServiceForLoggingEntity(entity);
+            
             if (entity instanceof SipxService) {
                 services.add((SipxService) entity);
             } else if (entity instanceof BridgeSbc) {
                 SbcDeviceManager sbcDeviceContext = getSbcDeviceManager();
                 sbcDeviceContext.storeSbcDevice((BridgeSbc) entity);
                 getDialPlanActivationManager().replicateDialPlan(true);
+                getServiceConfigurator().markServiceForRestart(serviceToRestart);
             } else if (entity instanceof AcdServer) {
                 AcdServer server = (AcdServer) entity;
                 AcdContext context = getAcdContext();
                 context.store(server);
                 getAcdProvisioningContext().deploy(server.getId());
+                getServiceConfigurator().markServiceForRestart(serviceToRestart);
             }
         }
         getServiceConfigurator().replicateServiceConfig(services);
+
+        getLoggingManager().setEntitiesToProcess(new ArrayList<LoggingEntity>());
     }
 }

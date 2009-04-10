@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.admin;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -21,6 +22,8 @@ import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
 import org.sipfoundry.sipxconfig.service.LoggingEntity;
+import org.sipfoundry.sipxconfig.service.SipxAcdService;
+import org.sipfoundry.sipxconfig.service.SipxBridgeService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.beans.factory.BeanFactory;
@@ -36,6 +39,7 @@ public class LoggingManagerImpl implements LoggingManager, BeanFactoryAware {
     private LocationsManager m_locationsManager;
     private SbcDeviceManager m_sbcDeviceManager;
     private AcdContext m_acdContext;
+    private List<LoggingEntity> m_entitiesToProcess;
 
     public Collection<LoggingEntity> getLoggingEntities() {
         Map entitiesMap = m_beanFactory.getBeansOfType(LoggingEntity.class);
@@ -89,5 +93,26 @@ public class LoggingManagerImpl implements LoggingManager, BeanFactoryAware {
 
     public void setAcdContext(AcdContext acdContext) {
         m_acdContext = acdContext;
+    }
+
+    public List<LoggingEntity> getEntitiesToProcess() {
+        return m_entitiesToProcess;
+    }
+
+    public void setEntitiesToProcess(List<LoggingEntity> entitiesToProcess) {
+        m_entitiesToProcess = entitiesToProcess;
+    }
+
+    public SipxService getSipxServiceForLoggingEntity(LoggingEntity loggingEntity) {
+        if (loggingEntity != null) {
+            if (loggingEntity instanceof SipxService) {
+                return (SipxService) loggingEntity;
+            } else if (loggingEntity instanceof BridgeSbc) {
+                return m_sipxServiceManager.getServiceByBeanId(SipxBridgeService.BEAN_ID);
+            } else if (loggingEntity instanceof AcdServer) {
+                return m_sipxServiceManager.getServiceByBeanId(SipxAcdService.BEAN_ID);
+            }
+        }
+        return null;
     }
 }

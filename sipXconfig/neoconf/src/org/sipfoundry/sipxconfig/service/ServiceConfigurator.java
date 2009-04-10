@@ -60,4 +60,6 @@ public interface ServiceConfigurator {
      * to be present before sipXconfig attempts to restart the services.
      */
     public void initLocations();
+
+    public void markServiceForRestart(SipxService service);
 }

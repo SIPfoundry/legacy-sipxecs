@@ -20,6 +20,7 @@ import java.util.Set;
 import org.apache.commons.lang.enums.ValuedEnum;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.admin.LoggingManager;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.SipUri;
@@ -76,6 +77,8 @@ public class AcdServer extends AcdComponent implements LoggingEntity {
     private int m_maxAgents;
 
     private int m_maxLines;
+
+    private LoggingManager m_loggingManager;
 
     public AcdServer() {
         super("sipxacd-server.xml", OBJECT_CLASS);
@@ -346,9 +349,14 @@ public class AcdServer extends AcdComponent implements LoggingEntity {
         addDefaultBeanSettingHandler(new AcdServerDefaults(this));
     }
 
+    public void setLoggingManager(LoggingManager loggingManager) {
+        m_loggingManager = loggingManager;
+    }
+
     public void setLogLevel(String logLevel) {
-        if (logLevel != null) {
+        if (logLevel != null && !logLevel.equals(getSettingValue(LOG_SETTING))) {
             setSettingValue(LOG_SETTING, logLevel);
+            m_loggingManager.getEntitiesToProcess().add(this);
         }
     }
 

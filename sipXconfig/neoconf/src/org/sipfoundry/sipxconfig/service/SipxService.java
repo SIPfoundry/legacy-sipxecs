@@ -18,6 +18,7 @@ import java.util.Set;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
+import org.sipfoundry.sipxconfig.admin.LoggingManager;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.device.Model;
@@ -41,6 +42,7 @@ public abstract class SipxService extends BeanWithSettings implements Model {
     private Set<SipxServiceBundle> m_bundles;
     private boolean m_restartable = true;
     private SipxServiceManager m_serviceManager;
+    private LoggingManager m_loggingManager;
 
     public String getProcessName() {
         return m_processName;
@@ -211,6 +213,10 @@ public abstract class SipxService extends BeanWithSettings implements Model {
         return m_bundles != null && m_bundles.contains(bundle);
     }
 
+    public void setLoggingManager(LoggingManager loggingManager) {
+        m_loggingManager = loggingManager;
+    }
+
     /**
      * Override this method to perform validation
      */
@@ -274,8 +280,11 @@ public abstract class SipxService extends BeanWithSettings implements Model {
      */
     protected void setLogLevel(String logLevel) {
         if (logLevel != null && getLogSetting() != null) {
-            setSettingValue(getLogSetting(), logLevel);
-            getSipxServiceManager().storeService(this);
+            if (!logLevel.equals(this.getSettingValue(getLogSetting()))) {
+                m_loggingManager.getEntitiesToProcess().add((LoggingEntity) this);
+                setSettingValue(getLogSetting(), logLevel);
+                getSipxServiceManager().storeService(this);
+            }
         }
     }
 
