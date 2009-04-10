@@ -271,11 +271,11 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
                         logger.trace("SymTransmitterEndpoint:selfRoutedBridge = " + bridge);
                     }
                     if (bridge != null) {
-
                         DataShuffler.send(bridge, channel, this.farEnd);
                         return;
-
                     }
+                } else {
+                    logger.trace("Could not find self routed datagram channel");
                 }
             }
 

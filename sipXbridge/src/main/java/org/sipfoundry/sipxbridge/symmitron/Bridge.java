@@ -6,6 +6,7 @@
  */
 package org.sipfoundry.sipxbridge.symmitron;
 
+import java.nio.channels.DatagramChannel;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
@@ -275,6 +276,23 @@ final class Bridge implements BridgeInterface {
      */
     void setLastPacketTime(long lastPacketTime) {
         this.lastPacketTime.set(lastPacketTime);
+    }
+
+    public void clearAllVisited() {
+       for ( Sym sym: this.sessions ) {
+           sym.setVisited(false);
+       }
+    }
+
+    Sym getReceiverSym(DatagramChannel datagramChannel) {
+        Sym retval = null;
+        for (Sym sym : this.sessions ) {
+            if ( sym.getReceiver().getDatagramChannel() == datagramChannel ) {
+                retval = sym;
+                break;
+            }
+        }
+        return retval;
     }
 
 }

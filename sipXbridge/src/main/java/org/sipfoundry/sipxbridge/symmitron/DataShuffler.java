@@ -94,14 +94,17 @@ class DataShuffler implements Runnable {
             InetSocketAddress remoteAddress) throws UnknownHostException {
         try {
 
-           
+            if (logger.isTraceEnabled()) {
+                logger.trace("BridgeSize = " + bridge.sessions.size());
+            }
+
             for (Sym sym : bridge.sessions) {
                 if (sym.getReceiver() != null
                         && datagramChannel == sym.getReceiver().getDatagramChannel()) {
                     if (logger.isTraceEnabled() && remoteAddress != null) {
-                            logger.trace("remoteIpAddressAndPort : "
-                                    + remoteAddress.getAddress().getHostAddress() + ":"
-                                    + remoteAddress.getPort());
+                        logger.trace("remoteIpAddressAndPort : "
+                                + remoteAddress.getAddress().getHostAddress() + ":"
+                                + remoteAddress.getPort());
 
                     }
                     sym.lastPacketTime = System.currentTimeMillis();
@@ -131,7 +134,6 @@ class DataShuffler implements Runnable {
                         }
 
                     }
-
                     continue;
                 }
                 SymTransmitterEndpoint writeChannel = sym.getTransmitter();
@@ -142,15 +144,22 @@ class DataShuffler implements Runnable {
                 try {
 
                     /*
-                     * No need for header rewrite. Just duplicate, flip and push out.
-                     * Important: We cannot do this outside the loop. See XECS-2425.
+                     * No need for header rewrite. Just duplicate, flip and push out. Important:
+                     * We cannot do this outside the loop. See XECS-2425.
                      */
                     if (!writeChannel.isOnHold()) {
-                        ByteBuffer bufferToSend = readBuffer.duplicate();
-                        bufferToSend.flip();
-                        writeChannel.send((ByteBuffer) bufferToSend);
-                        bridge.packetsSent++;
-                        writeChannel.packetsSent++;
+                        if (!sym.isVisited()) {
+                            sym.setVisited(true);
+                            ByteBuffer bufferToSend = readBuffer.duplicate();
+                            bufferToSend.flip();
+                            writeChannel.send((ByteBuffer) bufferToSend);
+                            bridge.packetsSent++;
+                            writeChannel.packetsSent++;
+                        } else {
+                            if (logger.isTraceEnabled()) {
+                                logger.trace("sym " + sym + " Routing Loop detected!");
+                            }
+                        }
                     } else {
                         if (logger.isTraceEnabled()) {
                             logger.trace("WriteChannel on hold." + writeChannel.getIpAddress()
@@ -222,6 +231,13 @@ class DataShuffler implements Runnable {
                             continue;
                         }
                         bridge = ConcurrentSet.getBridge(datagramChannel);
+                        bridge.clearAllVisited();
+                        Sym packetReceivedSym = bridge.getReceiverSym(datagramChannel);
+                        /*
+                         * Note the original hold value and put the transmitter on which this packet was received on hold.
+                         */
+                        boolean holdValue = packetReceivedSym.getTransmitter().isOnHold();
+                        packetReceivedSym.getTransmitter().setOnHold(true);
                         if (bridge == null) {
                             logger
                                     .debug("DataShuffler: Discarding packet: Could not find bridge");
@@ -244,6 +260,10 @@ class DataShuffler implements Runnable {
                         }
 
                         send(bridge, datagramChannel, remoteAddress);
+                        /*
+                         * Reset the old value.
+                         */
+                        packetReceivedSym.getTransmitter().setOnHold(holdValue);
 
                     }
                 }

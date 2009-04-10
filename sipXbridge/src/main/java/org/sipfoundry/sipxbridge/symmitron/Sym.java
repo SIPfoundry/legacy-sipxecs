@@ -49,6 +49,8 @@ final class Sym implements SymInterface, Serializable {
     private Bridge bridge;
 
     long packetsReceived;
+    
+    private boolean visited;
 
     public Sym() {
         id = "sym:" + Math.abs(new Random().nextLong());
@@ -244,5 +246,15 @@ final class Sym implements SymInterface, Serializable {
         return retval;
         
     }
+    
+    void setVisited(boolean bool) {
+        visited = bool; 
+    }
+
+    boolean isVisited() {
+        return this.visited;
+    }
+    
+    
 
 }
