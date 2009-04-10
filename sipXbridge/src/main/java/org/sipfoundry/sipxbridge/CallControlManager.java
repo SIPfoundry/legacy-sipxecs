@@ -2527,6 +2527,9 @@ class CallControlManager implements SymmitronResetHandler {
                     Response newResponse = SipUtilities.createResponse(st, response
                             .getStatusCode());
                     st.sendResponse(newResponse);
+                    BackToBackUserAgent b2bua = DialogContext.getBackToBackUserAgent(responseEvent.getDialog());
+                    b2bua.removeDialog(responseEvent.getDialog());
+                    b2bua.removeDialog(st.getDialog());
                 }
             }
 

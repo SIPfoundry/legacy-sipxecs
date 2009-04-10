@@ -1709,6 +1709,10 @@ public class BackToBackUserAgent {
                 logger.error("Unexpected exception", ex);
             }
         }
+        /*
+         * Saw a BYE on this dialog and processed it so we are done with it.
+         */
+        this.removeDialog(dialog);
 
     }
 
@@ -1807,6 +1811,7 @@ public class BackToBackUserAgent {
                     }
                     SipProvider provider = ((DialogExt) dialog).getSipProvider();
                     ClientTransaction ct = provider.getNewClientTransaction(byeRequest);
+                    TransactionContext.attach(ct,Operation.SEND_BYE_FOR_TEARDOWN);
                     dialog.sendRequest(ct);
                 } else {
                     DialogContext.get(dialog).setTerminateOnConfirm();

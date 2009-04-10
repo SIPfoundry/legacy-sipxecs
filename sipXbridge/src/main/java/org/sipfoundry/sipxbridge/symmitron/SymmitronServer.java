@@ -87,9 +87,9 @@ public class SymmitronServer implements Symmitron {
     private static Map<String, String> instanceTable = new ConcurrentHashMap<String, String>();
 
     private static PortRangeManager portRangeManager;
-    
+
     private static boolean alarmSent;
-    
+
     private static boolean addressResolutionAlarmSent = false;
 
     /*
@@ -1157,7 +1157,7 @@ public class SymmitronServer implements Symmitron {
             throw new SymmitronException(ex);
         }
     }
-    
+
     /**
      * Try an address discovery. If it did not work, then send an alarm. This deals with
      * accidental mis-configurations of the STUN server address.
@@ -1165,21 +1165,19 @@ public class SymmitronServer implements Symmitron {
     private static void tryDiscoverAddress() {
         try {
             try {
-                 SymmitronServer
-                        .findIpAddress(SymmitronServer.symmitronConfig
-                                .getStunServerAddress());
+                SymmitronServer.findIpAddress(SymmitronServer.symmitronConfig
+                        .getStunServerAddress());
                 addressResolutionAlarmSent = false;
             } catch (UnknownHostException ex) {
                 /*
-                 * Cannot resolve address or bad address entered. Carry on bravely -
-                 * maybe we will recover.
+                 * Cannot resolve address or bad address entered. Carry on bravely - maybe we will
+                 * recover.
                  */
                 try {
                     if (!addressResolutionAlarmSent) {
                         SymmitronServer.alarmClient.raiseAlarm(
                                 SymmitronServer.STUN_ADDRESS_ERROR_ALARM_ID,
-                                SymmitronServer.symmitronConfig
-                                        .getStunServerAddress());
+                                SymmitronServer.symmitronConfig.getStunServerAddress());
                         addressResolutionAlarmSent = true;
                         return;
                     }
@@ -1253,7 +1251,7 @@ public class SymmitronServer implements Symmitron {
         }
         SymmitronServer.setSymmitronConfig(config);
 
-        /* logger.info("Checking port range " + config.getPortRangeLowerBound() + ":"
+        logger.info("Checking port range " + config.getPortRangeLowerBound() + ":"
                 + config.getPortRangeUpperBound());
         for (int i = config.getPortRangeLowerBound(); i < config.getPortRangeUpperBound(); i++) {
             try {
@@ -1264,25 +1262,23 @@ public class SymmitronServer implements Symmitron {
                 throw ex;
             }
         }
-        logger.info("Port range checked "); */
+        logger.info("Port range checked ");
 
         if (config.getPublicAddress() == null && config.getStunServerAddress() != null) {
-            
+
             tryDiscoverAddress();
             timer.schedule(new TimerTask() {
-              
+
                 @Override
                 public void run() {
-                  tryDiscoverAddress();
+                    tryDiscoverAddress();
 
                 }
 
             }, config.getRediscoveryTime() * 1000, config.getRediscoveryTime() * 1000);
-        } 
-        
-        
+        }
+
         logger.info("Public address is " + config.getPublicAddress());
-        
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
