@@ -67,7 +67,7 @@
       </type>
       <value>DISABLED</value>
     </setting>
-    <setting name="max-legs">
+    <setting name="max-legs" hidden="yes">
       <type>
         <integer required="yes" />
       </type>
