@@ -30,12 +30,15 @@ public interface ServiceConfigurator {
 
     void replicateServiceConfig(SipxService service, boolean noRestartOnly);
 
-    void replicateServiceConfig(Location locationToActivate, SipxService sipxService);
+    void replicateServiceConfig(Location location, SipxService sipxService);
+
+    void replicateServiceConfig(Location location, SipxService sipxService, boolean noRestartOnly);
 
     void replicateServiceConfig(Collection<SipxService> services);
 
     /**
      * Replicates configuration for all the services on a specific location.
+     *
      * @param locationToActivate
      */
     public void replicateLocation(Location location);

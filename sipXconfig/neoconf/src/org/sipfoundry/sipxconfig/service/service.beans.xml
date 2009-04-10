@@ -491,6 +491,9 @@
     <property name="processName" value="FreeSWITCH" />
     <property name="modelName" value="freeswitch.xml" />
     <property name="modelDir" value="freeswitch" />
+    <property name="jobContext" ref="jobContext" />
+    <property name="freeswitchApiProvider" ref="freeswitchApiProvider" />
+    <property name="sipxProcessContext" ref="sipxProcessContext" />
     <property name="configurations">
       <list>
         <ref bean="freeswitchConfiguration" />
@@ -521,6 +524,7 @@
 
   <bean id="defaultContextConfiguration" parent="serviceConfigurationFile"
     class="org.sipfoundry.sipxconfig.service.freeswitch.DefaultContextConfiguration" scope="prototype">
+    <property name="restartRequired" value="false" />
     <property name="name" value="sipX_context.xml" />
     <property name="template" value="freeswitch/default_context.xml.vm" />
     <property name="directory" value="${sysdir.etc}/freeswitch/conf/dialplan" />

@@ -125,6 +125,66 @@ public class ServiceConfiguratorImplTest extends TestCase {
         verify(pc, rc);
     }
 
+    public void testReplicateServiceConfigLocationSipxServiceOnlyNoRestart() {
+        Location location = new Location();
+        location.setUniqueId();
+
+        SipxService service = new SipxService() {
+        };
+
+        ConfigurationFile a = new DummyConfig("a", true);
+        ConfigurationFile b = new DummyConfig("b", false);
+        ConfigurationFile c = new DummyConfig("c", true);
+
+        service.setConfigurations(asList(a, b, c));
+
+        ServiceConfiguratorImpl sc = new ServiceConfiguratorImpl();
+        SipxProcessContext pc = createMock(SipxProcessContext.class);
+        SipxReplicationContext rc = createMock(SipxReplicationContext.class);
+        rc.replicate(same(location), same(b));
+
+        replay(pc, rc);
+
+        sc.setSipxProcessContext(pc);
+        sc.setSipxReplicationContext(rc);
+
+        sc.replicateServiceConfig(location, service, true);
+
+        verify(pc, rc);
+    }
+
+    public void testReplicateServiceConfigLocationSipxServiceAll() {
+        Location location = new Location();
+        location.setUniqueId();
+
+        SipxService service = new SipxService() {
+        };
+
+        ConfigurationFile a = new DummyConfig("a", true);
+        ConfigurationFile b = new DummyConfig("b", false);
+        ConfigurationFile c = new DummyConfig("c", true);
+
+        service.setConfigurations(asList(a, b, c));
+
+        ServiceConfiguratorImpl sc = new ServiceConfiguratorImpl();
+        SipxProcessContext pc = createMock(SipxProcessContext.class);
+        SipxReplicationContext rc = createMock(SipxReplicationContext.class);
+        rc.replicate(same(location), same(a));
+        rc.replicate(same(location), same(b));
+        rc.replicate(same(location), same(c));
+
+        pc.markServicesForRestart(singleton(service));
+
+        replay(pc, rc);
+
+        sc.setSipxProcessContext(pc);
+        sc.setSipxReplicationContext(rc);
+
+        sc.replicateServiceConfig(location, service, false);
+
+        verify(pc, rc);
+    }
+
     public void testReplicateAllServiceConfig() {
 
         SipxService service = new SipxService() {

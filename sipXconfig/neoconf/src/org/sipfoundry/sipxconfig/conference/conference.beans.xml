@@ -2,8 +2,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
-  <bean name="conferenceBridge" class="org.sipfoundry.sipxconfig.conference.Bridge" scope="prototype"
-    parent="beanWithSettings">
+  <bean name="conferenceBridge" class="org.sipfoundry.sipxconfig.conference.Bridge" scope="prototype" parent="beanWithSettings">
     <property name="audioDirectory" value="${sysdir.doc}/stdprompts" />
     <!-- default value - overridden in sipxconfig.properties -->
   </bean>
@@ -34,7 +33,7 @@
     <property name="provisioning">
       <ref local="conferenceBridgeProvisioning" />
     </property>
-    <property name="conferenceBundle" ref="conferenceBundle"/>
+    <property name="conferenceBundle" ref="conferenceBundle" />
   </bean>
 
   <bean id="conferenceBridgeContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
@@ -53,32 +52,29 @@
     </property>
   </bean>
 
-  <bean id="conferenceConfiguration" class="org.sipfoundry.sipxconfig.conference.ConferenceConfiguration"
-    scope="prototype" parent="defaultConfigurationFile">
+  <bean id="conferenceConfiguration" class="org.sipfoundry.sipxconfig.conference.ConferenceConfiguration" scope="prototype"
+    parent="defaultConfigurationFile">
     <property name="name" value="conference.conf.xml" />
-    <property name="directory" value="${sysdir.etc}/freeswitch/conf/autoload_configs" />    
+    <property name="directory" value="${sysdir.etc}/freeswitch/conf/autoload_configs" />
     <property name="domainManager" ref="domainManager" />
     <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
   </bean>
 
-  <bean id="eagerConferenceBridgeProvisioning" class="org.springframework.aop.framework.ProxyFactoryBean"
-    parent="abstractDao">
+  <bean id="eagerConferenceBridgeProvisioning" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.conference.ConferenceBridgeProvisioning" />
     <property name="target">
       <bean class="org.sipfoundry.sipxconfig.conference.ConferenceBridgeProvisioningImpl">
-        <property name="sipxReplicationContext" ref="sipxReplicationContext" />
-        <property name="jobContext" ref="jobContext" />
         <property name="sessionFactory" ref="sessionFactory" />
-        <property name="freeswitchApiProvider" ref="freeswitchApiProvider" />
-        <property name="serviceConfigurator" ref="serviceConfigurator" />    
-        <property name="freeswitchService" ref="sipxFreeswitchService" />
         <lookup-method name="createConferenceConfiguration" bean="conferenceConfiguration" />
+        <!-- eager replication here -->
+        <property name="serviceConfigurator" ref="serviceConfiguratorImpl" />
+        <property name="replicationContext" ref="sipxReplicationContextDao" />
       </bean>
     </property>
   </bean>
 
-  <bean id="conferenceBridgeProvisioning"
-    class="org.sipfoundry.sipxconfig.conference.LazyConferenceBridgeProvisioningImpl" init-method="init">
+  <bean id="conferenceBridgeProvisioning" class="org.sipfoundry.sipxconfig.conference.LazyConferenceBridgeProvisioningImpl"
+    init-method="init">
     <property name="target">
       <ref local="eagerConferenceBridgeProvisioning" />
     </property>
@@ -96,7 +92,7 @@
       <list>
         <value>migrate-conference-bridges</value>
       </list>
-    </property>  
+    </property>
   </bean>
 
 </beans>

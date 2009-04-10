@@ -1,15 +1,14 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.conference;
 
-import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -17,10 +16,8 @@ import java.util.Set;
 
 import org.sipfoundry.sipxconfig.common.LazyDaemon;
 
-import org.springframework.context.ApplicationEvent;
-
 public class LazyConferenceBridgeProvisioningImpl implements ConferenceBridgeProvisioning {
-    private Set m_servers = new HashSet();
+    private Set<Integer> m_servers = new HashSet<Integer>();
 
     private ConferenceBridgeProvisioning m_target;
 
@@ -38,16 +35,16 @@ public class LazyConferenceBridgeProvisioningImpl implements ConferenceBridgePro
         }
     }
 
-    private synchronized Set getTasks() {
+    private synchronized Set<Integer> getTasks() {
         if (m_servers.isEmpty()) {
-            return Collections.EMPTY_SET;
+            return Collections.emptySet();
         }
         Set oldTasks = m_servers;
-        m_servers = new HashSet();
+        m_servers = new HashSet<Integer>();
         return oldTasks;
     }
 
-    private synchronized void addTasks(Set tasks) {
+    private synchronized void addTasks(Set<Integer> tasks) {
         m_servers.addAll(tasks);
     }
 
@@ -63,15 +60,17 @@ public class LazyConferenceBridgeProvisioningImpl implements ConferenceBridgePro
             super("Conference Bridge Provisioning thread", m_sleepInterval);
         }
 
+        @Override
         protected void waitForWork() throws InterruptedException {
             LazyConferenceBridgeProvisioningImpl.this.waitForWork();
         }
 
+        @Override
         protected boolean work() {
-            Set tasks = getTasks();
+            Set<Integer> tasks = getTasks();
             try {
-                for (Iterator i = tasks.iterator(); i.hasNext();) {
-                    Serializable id = (Serializable) i.next();
+                for (Iterator<Integer> i = tasks.iterator(); i.hasNext();) {
+                    int id = i.next();
                     i.remove();
                     m_target.deploy(id);
                 }
@@ -91,14 +90,8 @@ public class LazyConferenceBridgeProvisioningImpl implements ConferenceBridgePro
     /**
      * Add bridge id to the set and notify worker thread
      */
-    public synchronized void deploy(Serializable bridgeId) {
+    public synchronized void deploy(int bridgeId) {
         m_servers.add(bridgeId);
         notify();
     }
-    
-    public void onApplicationEvent(ApplicationEvent event) {
-        if (m_target != null) {
-            m_target.onApplicationEvent(event);
-        }
-    }    
 }

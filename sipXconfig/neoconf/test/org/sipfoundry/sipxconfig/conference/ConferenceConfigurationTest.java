@@ -86,7 +86,6 @@ public class ConferenceConfigurationTest extends XMLTestCase {
         config.setConferenceBridgeContext(confContext);
 
         String generatedXml = AbstractConfigurationFile.getFileContent(config, location);
-        System.err.println(generatedXml);
         /*
          * We use two files for reversed order of the "profile" elements of the xml because the
          * HashSet containing the conferences doesn't guarantee some specific order

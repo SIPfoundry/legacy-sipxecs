@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.conference;
@@ -49,7 +49,7 @@ public class BridgeTest extends BeanWithSettingsTestCase {
         assertTrue(bridge.getConferences().isEmpty());
         assertNull(c.getBridge());
     }
-    
+
     public void testAccessors()
     {
         Location location = new Location();
@@ -57,36 +57,30 @@ public class BridgeTest extends BeanWithSettingsTestCase {
         sipxService.setSettings(TestHelper.loadSettings("freeswitch/freeswitch.xml"));
         LocationSpecificService service = new LocationSpecificService(sipxService);
         service.setLocation(location);
-        
+
         Bridge bridge = new Bridge();
         bridge.setService(service);
-        
+
         bridge.setModelFilesContext(TestHelper.getModelFilesContext());
         assertTrue(bridge.getConferences().isEmpty());
-        
+
         // Test the defaults
         assertEquals(null, bridge.getHost());
-        assertEquals(8080, bridge.getPort());
-        assertEquals(15060, bridge.getSipPort());
+        assertEquals(15060, bridge.getFreeswitchService().getFreeswitchSipPort());
         assertEquals(null, bridge.getDescription());
         assertEquals(false, bridge.isEnabled());
         assertEquals(null, bridge.getName());
         assertEquals("http://null:8080/RPC2", bridge.getServiceUri());
-        
+
         // Test setting explicit values
         location.setFqdn("bridge");
         location.setName("Example Bridge");
-        sipxService.setSettingValue(Bridge.FREESWITCH_XMLRPC_PORT, "8081");
-        sipxService.setSettingValue(Bridge.FREESWITCH_SIP_PORT, "15061");
         bridge.setEnabled(true);
         bridge.setAudioDirectory("/tmp") ;
-        
+
         assertEquals("bridge", bridge.getHost());
-        assertEquals(8081, bridge.getPort());
-        assertEquals(15061, bridge.getSipPort());
         assertEquals("Example Bridge", bridge.getDescription());
         assertEquals(true, bridge.isEnabled());
-        assertEquals("http://bridge:8081/RPC2", bridge.getServiceUri());
         assertEquals("/tmp", bridge.getAudioDirectory());
-    }    
+    }
 }

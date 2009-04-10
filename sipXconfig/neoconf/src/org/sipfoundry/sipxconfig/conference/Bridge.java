@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.conference;
@@ -14,7 +14,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
+import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -23,13 +25,10 @@ import org.sipfoundry.sipxconfig.setting.type.SettingType;
 
 public class Bridge extends BeanWithSettings {
     public static final String BEAN_NAME = "conferenceBridge";
-    
+
     public static final String CONFERENCES_PROP = "conferences";
-    public static final String SERVICE_URI_PROP = "serviceUri";    
-    
-    public static final String FREESWITCH_SIP_PORT = "freeswitch-config/FREESWITCH_SIP_PORT";
-    public static final String FREESWITCH_XMLRPC_PORT = "freeswitch-config/FREESWITCH_XMLRPC_PORT";
-    
+    public static final String SERVICE_URI_PROP = "serviceUri";
+
     public static final String CALL_CONTROL_MUTE = "fs-conf-bridge/dtmf-commands/mute";
     public static final String CALL_CONTROL_DEAF_MUTE = "fs-conf-bridge/dtmf-commands/deaf-mute";
     public static final String CALL_CONTROL_ENERGY_UP = "fs-conf-bridge/dtmf-commands/energy/up";
@@ -42,28 +41,24 @@ public class Bridge extends BeanWithSettings {
     public static final String CALL_CONTROL_TALK_RESET = "fs-conf-bridge/dtmf-commands/volume-talk/reset";
     public static final String CALL_CONTROL_TALK_DOWN = "fs-conf-bridge/dtmf-commands/volume-talk/down";
     public static final String CALL_CONTROL_HANGUP = "fs-conf-bridge/dtmf-commands/hungup";
-       
+
     private boolean m_enabled;
 
     private Set m_conferences = new HashSet();
 
     private String m_audioDirectory;
-    
+
     /** The associated FreeSWITCH service. */
     private LocationSpecificService m_service;
 
-    public String getHost() {
-        return getService().getLocation().getFqdn();
-    }
-    
     public LocationSpecificService getService() {
         return m_service;
     }
-    
+
     public void setService(LocationSpecificService service) {
         m_service = service;
     }
-    
+
     @Override
     protected Setting loadSettings() {
         return getModelFilesContext().loadModelFile("sipxconference/bridge.xml");
@@ -85,10 +80,10 @@ public class Bridge extends BeanWithSettings {
         conference.setBridge(null);
         getConferences().remove(conference);
     }
-    
+
     // trivial get/set
     public String getDescription() {
-        return getService().getLocation().getName();
+        return getLocation().getName();
     }
 
     public boolean isEnabled() {
@@ -114,19 +109,11 @@ public class Bridge extends BeanWithSettings {
     public void setAudioDirectory(String audioDirectory) {
         m_audioDirectory = audioDirectory;
     }
-    
+
     public String getAudioDirectory() {
         return m_audioDirectory;
     }
 
-    public int getSipPort() {
-        return (Integer) getService().getSipxService().getSettingTypedValue(FREESWITCH_SIP_PORT);
-    }
-    
-    public int getPort() {
-        return (Integer) getService().getSipxService().getSettingTypedValue(FREESWITCH_XMLRPC_PORT);
-    }
-    
     @Override
     public void setSettings(Setting settings) {
         settings.acceptVisitor(new AudioDirectorySetter());
@@ -145,6 +132,19 @@ public class Bridge extends BeanWithSettings {
     }
 
     public String getServiceUri() {
-        return String.format("http://%s:%d/RPC2", getHost(), getPort());
-    }    
+        return getFreeswitchService().getServiceUri(getLocation());
+    }
+
+    public SipxFreeswitchService getFreeswitchService() {
+        SipxFreeswitchService freeswitchService = (SipxFreeswitchService) m_service.getSipxService();
+        return freeswitchService;
+    }
+
+    public Location getLocation() {
+        return m_service.getLocation();
+    }
+
+    public String getHost() {
+        return getLocation().getFqdn();
+    }
 }

@@ -55,14 +55,8 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
         if (!location.isRegistered()) {
             return;
         }
-        boolean serviceRequiresRestart = false;
         List< ? extends ConfigurationFile> configurations = service.getConfigurations();
-        for (ConfigurationFile configuration : configurations) {
-            m_replicationContext.replicate(location, configuration);
-            if (configuration.isRestartRequired()) {
-                serviceRequiresRestart = true;
-            }
-        }
+        boolean serviceRequiresRestart = replicateConfigurations(location, configurations);
         m_configVersionManager.setConfigVersion(service, location);
         if (serviceRequiresRestart) {
             m_sipxProcessContext.markServicesForRestart(singleton(service));
@@ -86,6 +80,14 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
     public void replicateServiceConfig(SipxService service, boolean noRestartOnly) {
         List< ? extends ConfigurationFile> configurations = service.getConfigurations(noRestartOnly);
         replicateServiceConfig(service, configurations);
+    }
+
+    public void replicateServiceConfig(Location location, SipxService service, boolean noRestartOnly) {
+        List< ? extends ConfigurationFile> configurations = service.getConfigurations(noRestartOnly);
+        boolean restartRequired = replicateConfigurations(location, configurations);
+        if (restartRequired) {
+            m_sipxProcessContext.markServicesForRestart(singleton(service));
+        }
     }
 
     public void replicateLocation(Location location) {
@@ -120,6 +122,17 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
         if (serviceRequiresRestart) {
             m_sipxProcessContext.markServicesForRestart(singleton(service));
         }
+    }
+
+    private boolean replicateConfigurations(Location location, List< ? extends ConfigurationFile> configurations) {
+        boolean serviceRequiresRestart = false;
+        for (ConfigurationFile configuration : configurations) {
+            m_replicationContext.replicate(location, configuration);
+            if (configuration.isRestartRequired()) {
+                serviceRequiresRestart = true;
+            }
+        }
+        return serviceRequiresRestart;
     }
 
     /**
