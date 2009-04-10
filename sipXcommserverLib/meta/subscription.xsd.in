@@ -80,9 +80,10 @@
       <documentation>
         A string that describes the sipX component which owns this row.
 	Current values are:
-		status	sipXpublisher (the Status Server)
+	        park    sipXpark
 		reg	sipXregistrar 'reg' event server
 		rls	sipXrls
+		status	sipXpublisher (the Status Server)
       </documentation>
     </annotation>
   </element>
