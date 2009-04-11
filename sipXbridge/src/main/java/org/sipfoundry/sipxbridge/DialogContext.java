@@ -911,6 +911,7 @@ class DialogContext {
 			public void run() {
 				if (DialogContext.this.dialog.getState() != DialogState.TERMINATED) {
 					DialogContext.this.dialog.delete();
+					DialogContext.this.backToBackUserAgent.removeDialog(dialog);
 				}
 			}
 		}, 8000);

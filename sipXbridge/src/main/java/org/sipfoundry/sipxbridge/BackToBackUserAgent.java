@@ -530,6 +530,7 @@ public class BackToBackUserAgent {
      * @param dialog
      */
     synchronized void addDialog(Dialog dialog) {
+        logger.debug("addDialog dialogId = " + dialog);
         this.dialogTable.add(dialog);
         String callId = dialog.getCallId().getCallId();
         this.myCallIds.add(callId);
@@ -565,9 +566,12 @@ public class BackToBackUserAgent {
 
             ReferToHeader referToHeader = (ReferToHeader) referRequest
                     .getHeader(ReferToHeader.NAME);
+            /*
+             * Do not set maddr parameter here. This is the refer target. 
+             * The phone sets it. We do not want to override the
+             * port. See XECS-2480.
+             */
             SipURI uri = (SipURI) referToHeader.getAddress().getURI().clone();
-            uri.setMAddrParam(proxyAddress.getHost());
-            uri.setPort(proxyAddress.getPort());
             uri.setTransportParam(proxyAddress.getTransport());
 
             CSeqHeader cseq = ProtocolObjects.headerFactory.createCSeqHeader(1L, Request.INVITE);
@@ -1451,6 +1455,7 @@ public class BackToBackUserAgent {
             logger.error("Caught IO exception ", ex);
             for (Dialog dialog : this.dialogTable) {
                 dialog.delete();
+                this.removeDialog(dialog);
             }
         } catch (SymmitronException ex) {
             logger.error("Caught exception ", ex);
@@ -1460,9 +1465,10 @@ public class BackToBackUserAgent {
             try {
                 Response response = SipUtilities.createResponse(serverTransaction,
                         Response.SERVER_INTERNAL_ERROR);
-                response.setReasonPhrase("Unexpected Exception occured at "
+                ContentTypeHeader cth  = ProtocolObjects.headerFactory.createContentTypeHeader("message", "sipfrag");
+                response.setContent("Server Exception occured at "
                         + ex.getStackTrace()[1].getFileName() + ":"
-                        + ex.getStackTrace()[1].getLineNumber());
+                        + ex.getStackTrace()[1].getLineNumber(), cth);
                 serverTransaction.sendResponse(response);
             } catch (Exception e) {
                 logger.error("Unexpected exception ", e);
@@ -1782,8 +1788,10 @@ public class BackToBackUserAgent {
          */
         HashSet<Dialog> temp = new HashSet<Dialog>();
         temp.addAll(this.dialogTable);
-
+       
         for (Dialog dialog : temp) {
+            logger.debug("tearing down " + dialog + " dialogState = " + dialog.getState() 
+                    + " dialog.isServer " + dialog.isServer());
             if (dialog.getState() != DialogState.TERMINATED) {
                 DialogContext dialogCtx = DialogContext.get(dialog);
                 SipProvider lanProvider = ((DialogExt) dialog).getSipProvider();
@@ -1817,7 +1825,7 @@ public class BackToBackUserAgent {
                     DialogContext.get(dialog).setTerminateOnConfirm();
                 }
 
-            }
+            } 
         }
 
         /* Clean up the MOH dialog */

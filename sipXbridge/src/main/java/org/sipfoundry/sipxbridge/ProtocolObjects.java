@@ -60,9 +60,11 @@ public class ProtocolObjects {
                      */
                     stackProperties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", Level.INFO
                             .toString());
+                    stackProperties.setProperty("gov.nist.javax.sip.LOG_STACK_TRACE_ON_MESSAGE_SEND","true");
                 } else {
                     stackProperties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", Gateway
                             .getLogLevel());
+                    stackProperties.setProperty("gov.nist.javax.sip.LOG_STACK_TRACE_ON_MESSAGE_SEND","false");
                 }
 
             } else {
