@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.site.user;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
@@ -21,6 +22,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
+import org.springframework.dao.support.DataAccessUtils;
 
 public abstract class UserRegistrations extends UserBasePage {
     public static final String PAGE = "user/UserRegistrations";
@@ -58,12 +60,21 @@ public abstract class UserRegistrations extends UserBasePage {
     }
 
     public boolean isCounterpath() {
-        Collection<Phone> phones = getPhoneContext().getPhonesByUserIdAndPhoneModel(getUser().getId(),
-                COUNTERPATH_MODEL);
-        return !phones.isEmpty();
+        return null != getCounterpathPhone();
     }
 
     public String getCounterpathHelp() {
-        return getMessages().format("helpText.counterpath", getLocationsManager().getPrimaryLocation().getFqdn());
+        Phone phone = getCounterpathPhone();
+        if (phone == null) {
+            return StringUtils.EMPTY;
+        }
+        String host = getLocationsManager().getPrimaryLocation().getFqdn();
+        return getMessages().format("helpText.counterpath", host, phone.getModelLabel());
+    }
+
+    private Phone getCounterpathPhone() {
+        Collection<Phone> phones = getPhoneContext().getPhonesByUserIdAndPhoneModel(getUser().getId(),
+                COUNTERPATH_MODEL);
+        return (Phone) DataAccessUtils.singleResult(phones);
     }
 }
