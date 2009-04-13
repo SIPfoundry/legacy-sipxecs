@@ -81,6 +81,7 @@
         A string that describes the sipX component which owns this row.
 	Current values are:
 	        park    sipXpark
+                presence sipXpresence
 		reg	sipXregistrar 'reg' event server
 		rls	sipXrls
 		status	sipXpublisher (the Status Server)
