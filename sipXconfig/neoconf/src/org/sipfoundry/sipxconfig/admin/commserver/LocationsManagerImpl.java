@@ -68,7 +68,7 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
         return location;
     }
 
-    public void saveMigratedLocation(Location location) {
+    public void storeMigratedLocation(Location location) {
         getHibernateTemplate().saveOrUpdate(location);
     }
 

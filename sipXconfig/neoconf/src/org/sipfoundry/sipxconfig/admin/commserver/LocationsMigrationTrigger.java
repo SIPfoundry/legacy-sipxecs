@@ -57,7 +57,7 @@ public class LocationsMigrationTrigger extends InitTaskListener {
                     location.setAddress(getAddressForPrimary(location.getFqdn()));
                 }
                 // save locations in DB without publishing events
-                m_locationsManager.saveMigratedLocation(location);
+                m_locationsManager.storeMigratedLocation(location);
             }
         } else {
             LOG.info("No locations migrated from topology.xml - Creating localhost location.");
@@ -69,7 +69,7 @@ public class LocationsMigrationTrigger extends InitTaskListener {
             primaryLocation.setFqdn(primaryLocationFqdn);
             primaryLocation.setAddress(getAddressForPrimary(primaryLocationFqdn));
             // save locations in DB without publishing events
-            m_locationsManager.saveMigratedLocation(primaryLocation);
+            m_locationsManager.storeMigratedLocation(primaryLocation);
         }
 
         LOG.info("Deleting topology.xml after data migration");

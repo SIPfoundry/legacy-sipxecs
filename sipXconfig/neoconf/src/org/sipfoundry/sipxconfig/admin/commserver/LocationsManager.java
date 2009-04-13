@@ -42,7 +42,7 @@ public interface LocationsManager {
      *
      * @param location new location migrated from topology file
      */
-    void saveMigratedLocation(Location location);
+    void storeMigratedLocation(Location location);
 
     void deleteLocation(Location location);
 

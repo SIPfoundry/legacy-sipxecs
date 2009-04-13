@@ -54,7 +54,7 @@ public class LocationSpecificServiceInitTrigger extends InitTaskListener {
                 }
             }
         }
-        m_locationsManager.storeLocation(primaryServer);
+        m_locationsManager.storeMigratedLocation(primaryServer);
     }
 
     public void setLocationManager(LocationsManager locationsManager) {
