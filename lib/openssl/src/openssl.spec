@@ -87,8 +87,11 @@ documentation and POD files from which the man pages were produced.
 
 perl util/perlpath.pl /usr/bin/perl
 
-%ifarch i386 i486 i586 i686 x86_64
+%ifarch i386 i486 i586 i686
 ./Configure %{CONFIG_FLAGS} linux-elf shared
+%endif
+%ifarch x86_64
+./Configure %{CONFIG_FLAGS} linux-x86_64 shared
 %endif
 %ifarch ppc
 ./Configure %{CONFIG_FLAGS} linux-ppc shared
