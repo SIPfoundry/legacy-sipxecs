@@ -40,7 +40,7 @@ public class CallerAliases extends DataSetGenerator {
             addItem(items, gatewayAddr, callerAliasUri);
 
             // only add user aliases is overwrite is not set
-            if (gatewayInfo.isIgnoreUserInfo()) {
+            if (gatewayInfo.isIgnoreUserInfo() || gatewayInfo.isEnableCallerId()) {
                 continue;
             }
             // add per-user entries

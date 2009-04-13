@@ -49,11 +49,13 @@ public class CallerAliasesTest extends XMLTestCase {
 
     private final Object[][] GATEWAY_DATA = {
         {
-            "example.org", 0, "7832331111", true, false, "", -1, false
+            "example.org", 0, "7832331111", true, false, "", -1, false, false
         }, {
-            "bongo.com", 5060, null, false, false, "", -1, false
+            "bongo.com", 5060, null, false, false, "", -1, false, false
         }, {
-            "kuku.net", 1025, "233", false, true, "+", 2, true
+            "kuku.net", 1025, "233", false, true, "+", 2, true, false
+        },  {
+            "1.2.3.4", 0, "1234", false, false, "", -1, false, true
         }
     };
 
@@ -91,6 +93,7 @@ public class CallerAliasesTest extends XMLTestCase {
             info.setAddPrefix((String) gd[5]);
             info.setKeepDigits((Integer) gd[6]);
             info.setAnonymous((Boolean) gd[7]);
+            info.setEnableCallerId((Boolean) gd[8]);
             gateway.setCallerAliasInfo(info);
             m_gateways.add(gateway);
         }

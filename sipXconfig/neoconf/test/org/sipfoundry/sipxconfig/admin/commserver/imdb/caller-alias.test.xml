@@ -33,4 +33,8 @@
     <domain>kuku.net:1025</domain>
     <alias>"user without"&lt;sip:+45@example.org&gt;</alias>
   </item>  
+  <item>
+    <domain>1.2.3.4</domain>
+    <alias>sip:1234@example.org</alias>
+  </item>
 </items>
