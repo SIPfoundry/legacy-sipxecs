@@ -119,17 +119,15 @@ then
                running=`cat ${PidFile} 2>/dev/null`
                if [ -n "${running}" ] && proc_alive ${running}
                then
-                   echo -n " The sipXecs phonelog may already be running (pid ${running})."
+                   echo -n " The phonelogd may already be running (pid ${running})."
                    echo -n " Try stop or restart."
                    echo_failure
                    echo ""
                    ExitStatus=1
                else
                    # stale pid file found? - do stop just in case
-                   echo " phonelog not found - running restart to clean locks."
-                   do_stop
-                   do_start
-                   ExitStatus=$?
+                   echo " phonelogd not found - running restart"
+                   exec $0 restart
                fi
            else
                do_start
@@ -195,8 +193,8 @@ then
            exit 1
    esac
 else
-   ExitStatus=1
-   echo "Not enabled in @SIPX_CONFDIR@/phonelog-config" 1>&2
+   echo "(Unconfigured)" 1>&2
+   ExitStatus=0
 fi
 
 exit ${ExitStatus}
