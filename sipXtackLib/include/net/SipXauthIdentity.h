@@ -101,12 +101,30 @@ class SipXauthIdentity
    ///@{
 
    /// Constructor which decodes SipXauthIdentity or P-Asserted-Identity from a received message.
-   SipXauthIdentity(const SipMessage& message, ///< message to scan for an identity header
-                    HeaderName headerName,    /**<headerName for the identity,
-                                               * either SipXauthIdentity or P-Asserted-Identity
-                                               */
+   /// The headerName parameter dictates which of SipXauthIdentity or P-Asserted-Identity will 
+   /// be decoded.
+   SipXauthIdentity(const SipMessage& message,   ///< message to scan for an identity header
+                    const HeaderName headerName, /**<headerName for the identity,
+                                                  * either SipXauthIdentity or P-Asserted-Identity
+                                                  */
                     DialogRule bindRule = requireDialogBinding
                     );
+   
+   /// Constructor which decodes SipXauthIdentity or P-Asserted-Identity from a received message.
+   /// In this version of the constructor, the headerName is not supplied.  As such, the routine
+   /// will look for SipXauthIdentity and P-Asserted-Identity headers.   
+   /// If either are found to contain a valid signature, the name of the matching header will 
+   /// be returned in the supplied matchedHeaderName.
+   /// If neither are found, an empty string will be returned.
+   /// The order in which the routine will look for SipXauthIdentity and P-Asserted-Identity headers
+   /// is dictated by the bSipXauthIdentityTakesPrecedence flag.
+   SipXauthIdentity(const SipMessage& message,     ///< message to scan for an identity header
+                    UtlString& matchedHeaderName, ///< will receive name of header carrying the authenticated identity
+                    bool bSipXauthIdentityTakesPrecedence, ///< true  = will look for SipXauthIdentity first;
+                                                           ///< false = will look for P-Asserted-Identity first.
+                    DialogRule bindRule = requireDialogBinding
+                    );
+   
    /**<
     * The message may or may not contain SipXauthIdentity information. If identity information is
     * present but signature does not match subsequent calls to getIdentity return false
@@ -211,7 +229,6 @@ class SipXauthIdentity
     * @Note  Existing identity info in the URI is removed
     */
 
-
    /// Initialize the signature validity interval
    static void setSignatureValidityInterval(const OsTime & interval);
    /**<
@@ -270,6 +287,21 @@ class SipXauthIdentity
                );
    /**<
     * Decodes the identity in the identity header, validates authenticity
+    * of the valid, sets validity flag accordingly
+    *
+    * @returns true iff the identity was correctly signed and successfully parsed
+    */
+   
+   /// Check the signature, parse the identity info and extract the identity 
+   bool decode(const UtlString& headerName,  ///<  name of header containing the authenticated identity
+               const SipMessage& message,    ///<  message to take identity header from.
+               const UtlString& callId,      ///<  callId request Call-ID
+               const UtlString& fromTag,     ///<  fromTag request From-tag
+               DialogRule bindRule = requireDialogBinding
+               );
+   /**<
+    * Searches for an authenticated identity in a header matching the supplied name then 
+    * if found, decodes the identity in the header, validates authenticity
     * of the valid, sets validity flag accordingly
     *
     * @returns true iff the identity was correctly signed and successfully parsed

@@ -1103,23 +1103,25 @@ void SipRouter::authenticationChallenge(const SipMessage& sipRequest, ///< messa
 // Section 9.1 of RFC 3325 gives the table of REQUESTs where P-Asserted Identities are
 // applicable. We use a slightly modified criteria (outlined below) to determine if
 // we should authenticate the REQUEST or not.
+//   - we only consider INVITEs
+//   - If the request has a 'Replaces' header, we do not add a PAI as we do not
+//     want to challenge the party that is being transfered since it may not
+//     be capable of responding (sipXbridge for example).
+//   - If the request already has a properly signed idenfity either in the form of a
+//     sipX-auth-identity or PAI then we do not add a PAI.
+// 
 bool SipRouter::isPAIdentityApplicable(const SipMessage& sipRequest) 
                                      
 {
    bool result = false;
    bool requestIsAuthenticated = false;
    
-   // If the request contains P-Asserted-Identity header and is not signed,
-   // we will not trust it. 
-   if (sipRequest.getHeaderValue(0, SipXauthIdentity::PAssertedIdentityHeaderName))
-   { 
-       // Check to see if P-Asserted-Identity is signed. If signed, it has been
-       // authenticated.
-       UtlString authUser;
-
-       SipXauthIdentity sipxIdentity(sipRequest,SipXauthIdentity::PAssertedIdentityHeaderName);
-       requestIsAuthenticated = sipxIdentity.getIdentity(authUser);
-   }      
+   // Check to see if request carries a signed identity header. If signed, it has been
+   // authenticated already.
+   UtlString matchingIdentityHeader;
+   UtlString authUser;
+   SipXauthIdentity sipxIdentity(sipRequest, matchingIdentityHeader, true, SipXauthIdentity::allowUnbound );
+   requestIsAuthenticated = sipxIdentity.getIdentity(authUser);
 
    // Only out-of-dialog INVITE requests are authenticated
    if (!requestIsAuthenticated) 
@@ -1133,7 +1135,8 @@ bool SipRouter::isPAIdentityApplicable(const SipMessage& sipRequest)
        toUrl.getFieldParameter("tag", toTag);
 
        if(toTag.isNull() &&
-          0 == method.compareTo(SIP_INVITE_METHOD, UtlString::ignoreCase))
+          0 == method.compareTo(SIP_INVITE_METHOD, UtlString::ignoreCase) &&
+          0 == sipRequest.getHeaderValue(0, SIP_REPLACES_FIELD ) )
        {
            result = true;
        }

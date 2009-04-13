@@ -61,7 +61,7 @@ SipXauthIdentity::~SipXauthIdentity()
 
 /// Decode the identity from a message.
 SipXauthIdentity::SipXauthIdentity(const SipMessage& message,
-                                   HeaderName headerName,
+                                   const HeaderName headerName,
                                    DialogRule bindRule
                                    )
   : mIsValidIdentity(FALSE)
@@ -72,37 +72,48 @@ SipXauthIdentity::SipXauthIdentity(const SipMessage& message,
    message.getCallIdField(&callId);
    message.getFromUrl(fromUrl);
    fromUrl.getFieldParameter("tag", fromTag);
-   UtlString rUri;
-   message.getRequestUri(&rUri);
 
-   bool foundIdentityHeader = false;
+   decode(headerName, message, callId, fromTag, bindRule);
+}
 
-   int idHeaderCount = message.getCountHeaderFields(headerName);
-   if (1==idHeaderCount)
+/// Decode the identity from a message by searching for SipXauthIdentity then P-Asserted-Identity
+SipXauthIdentity::SipXauthIdentity( const SipMessage& message,     
+                                    UtlString& matchedHeaderName,
+                                    bool bSipXauthIdentityTakesPrecedence,
+                                    DialogRule bindRule )
+  : mIsValidIdentity(FALSE)
+{
+   UtlString callId;
+   UtlString fromTag;
+   Url fromUrl;
+   message.getCallIdField(&callId);
+   message.getFromUrl(fromUrl);
+   fromUrl.getFieldParameter("tag", fromTag);
+   matchedHeaderName.remove(0);
+   HeaderName firstHeaderToTest;
+   HeaderName secondHeaderToTest;
+   
+   if( bSipXauthIdentityTakesPrecedence == true )
    {
-      foundIdentityHeader =
-         decode(message.getHeaderValue(0, headerName),
-                callId, fromTag, bindRule);
+      firstHeaderToTest  = AuthIdentityHeaderName;
+      secondHeaderToTest = PAssertedIdentityHeaderName;
    }
-   else if (idHeaderCount>1)
+   else
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipXauthIdentity::SipXauthIdentity:"
-                    " '%d' occurrences of %s in request to '%s'",
-                    idHeaderCount, headerName, rUri.data());
-      foundIdentityHeader =
-         decode(message.getHeaderValue(idHeaderCount-1, headerName),
-                callId, fromTag, bindRule);
+      firstHeaderToTest  = PAssertedIdentityHeaderName;
+      secondHeaderToTest = AuthIdentityHeaderName;
    }
-
-   if (foundIdentityHeader)
+   
+   if( decode(firstHeaderToTest, message, callId, fromTag, bindRule) )
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipXauthIdentity::SipXauthIdentity:"
-                    " found %s '%s' in request to '%s'",
-                    headerName, mIdentity.data(), rUri.data());
+      matchedHeaderName = firstHeaderToTest;
+   }
+   else if( decode(secondHeaderToTest, message, callId, fromTag, bindRule) )
+   {
+      matchedHeaderName = secondHeaderToTest;
    }
 }
+
 
 /// Extract identity saved in the SipXauthIdentity.
 bool SipXauthIdentity::getIdentity(UtlString&  identityValue) const
@@ -507,6 +518,45 @@ bool SipXauthIdentity::decode(const UtlString& identityValue,
    }
    
    return mIsValidIdentity;
+}
+
+/// Check the signature and parse the identity contained in specified header name
+bool SipXauthIdentity::decode(const UtlString& headerName,  
+                              const SipMessage& message,    
+                              const UtlString& callId,      
+                              const UtlString& fromTag,     
+                              DialogRule bindRule )
+{
+   bool foundIdentityHeader = false;
+   UtlString rUri;
+   message.getRequestUri(&rUri);
+
+   int idHeaderCount = message.getCountHeaderFields(headerName);
+   if (1==idHeaderCount)
+   {
+      foundIdentityHeader =
+         decode(message.getHeaderValue(0, headerName),
+                callId, fromTag, bindRule);
+   }
+   else if (idHeaderCount>1)
+   {
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipXauthIdentity::decode:"
+                    " '%d' occurrences of %s in request to '%s'",
+                    idHeaderCount, headerName.data(), rUri.data());
+      foundIdentityHeader =
+         decode(message.getHeaderValue(idHeaderCount-1, headerName),
+                callId, fromTag, bindRule);
+   }
+
+   if (foundIdentityHeader)
+   {
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipXauthIdentity::decode:"
+                    " found %s '%s' in request to '%s'",
+                    headerName.data(), mIdentity.data(), rUri.data());
+   }
+   return foundIdentityHeader;
 }
 
 

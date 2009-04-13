@@ -59,6 +59,11 @@ class SipRouterTest : public CppUnit::TestCase
    CPPUNIT_TEST(testInDialogRequestOther);
    CPPUNIT_TEST(testInDialogRequestOtherGruu);
    CPPUNIT_TEST(testProxyChallengeLocal);
+   CPPUNIT_TEST(testProxyDontChallengeLocalWithReplaces);
+   CPPUNIT_TEST(testProxyDontChallengeLocalWithSignedPAI);
+   CPPUNIT_TEST(testProxyChallengeLocalWithBadlySignedPAI);
+   CPPUNIT_TEST(testProxyDontChallengeLocalWithSignedAuthIdentity);
+   CPPUNIT_TEST(testProxyChallengeLocalWithBadlySignedAuthIdentity);
    CPPUNIT_TEST(testProxyChallengeDialogForming_Invite);   
    CPPUNIT_TEST(testProxyChallengeDialogForming_Notify);   
    CPPUNIT_TEST(testProxyChallengeDialogForming_Options);   
@@ -949,6 +954,139 @@ public:
          SipMessage testMsg(message, strlen(message));
          SipMessage testRsp;
        
+         CPPUNIT_ASSERT_EQUAL(SipRouter::SendResponse,mSipRouter->proxyMessage(testMsg, testRsp));
+
+         ssize_t msgSize;
+         UtlString challenge;
+         testRsp.getBytes(&challenge, &msgSize);
+         OsSysLog::add(FAC_SIP, PRI_INFO, "Returned Challenge:\n%s", challenge.data());
+
+         CPPUNIT_ASSERT_EQUAL(HTTP_PROXY_UNAUTHORIZED_CODE, testRsp.getResponseStatusCode());
+      }
+   
+   void testProxyDontChallengeLocalWithReplaces()
+      {
+         const char* message =
+            "INVITE sip:user@external.example.net SIP/2.0\r\n"
+            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+            "To: sip:user@example.com\r\n"
+            "From: Mighty Hunter <sip:mightyhunter@example.com>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Replaces: 94bdd328-c0a8010b-13c4-275cd-1f6fb0c8-275cd@rjolyscs2.ca.nortel.com;to-tag=94be0850-c0a8010b-13c4-275cd-6572ae0c-275cd;from-tag=1868015434\r\n"
+            "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Max-Forwards: 20\r\n"
+            "Contact: mightyhunter@127.0.0.1\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+
+         SipMessage testMsg(message, strlen(message));
+         SipMessage testRsp;
+         
+         CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
+      }
+   
+   void testProxyDontChallengeLocalWithSignedPAI()
+      {
+         const char* message =
+            "INVITE sip:user@external.example.net SIP/2.0\r\n"
+            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+            "To: sip:user@example.com\r\n"
+            "From: Mighty Hunter <sip:mightyhunter@example.com>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Max-Forwards: 20\r\n"
+            "Contact: mightyhunter@127.0.0.1\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+
+         SipMessage testMsg(message, strlen(message));
+         SipMessage testRsp;
+         
+         // add P-Asserted-Iendtity to message
+         Url fromUrl;
+         testMsg.getFromUrl(fromUrl); 
+         SipXauthIdentity pAuthIdentity;
+         UtlString fromIdentity;
+         fromUrl.getIdentity(fromIdentity);
+         pAuthIdentity.setIdentity(fromIdentity);
+         pAuthIdentity.insert(testMsg, SipXauthIdentity::PAssertedIdentityHeaderName);
+         CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
+      }
+   
+   void testProxyChallengeLocalWithBadlySignedPAI()
+      {
+         const char* message =
+            "INVITE sip:user@external.example.net SIP/2.0\r\n"
+            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+            "To: sip:user@example.com\r\n"
+            "From: Mighty Hunter <sip:mightyhunter@example.com>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "P-Asserted-Identity: <sip:mightyhunter@example.com;signature=thishastobeaninvalidsignature>\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Max-Forwards: 20\r\n"
+            "Contact: mightyhunter@127.0.0.1\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+
+         SipMessage testMsg(message, strlen(message));
+         SipMessage testRsp;
+         
+         CPPUNIT_ASSERT_EQUAL(SipRouter::SendResponse,mSipRouter->proxyMessage(testMsg, testRsp));
+
+         ssize_t msgSize;
+         UtlString challenge;
+         testRsp.getBytes(&challenge, &msgSize);
+         OsSysLog::add(FAC_SIP, PRI_INFO, "Returned Challenge:\n%s", challenge.data());
+
+         CPPUNIT_ASSERT_EQUAL(HTTP_PROXY_UNAUTHORIZED_CODE, testRsp.getResponseStatusCode());
+      }
+
+   void testProxyDontChallengeLocalWithSignedAuthIdentity()
+      {
+         const char* message =
+            "INVITE sip:user@external.example.net SIP/2.0\r\n"
+            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+            "To: sip:user@example.com\r\n"
+            "From: Mighty Hunter <sip:mightyhunter@example.com>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Max-Forwards: 20\r\n"
+            "Contact: mightyhunter@127.0.0.1\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+
+         SipMessage testMsg(message, strlen(message));
+         SipMessage testRsp;
+         
+         // add sipX-auth-identity to message
+         Url fromUrl;
+         testMsg.getFromUrl(fromUrl); 
+         SipXauthIdentity pAuthIdentity;
+         UtlString fromIdentity;
+         fromUrl.getIdentity(fromIdentity);
+         pAuthIdentity.setIdentity(fromIdentity);
+         pAuthIdentity.insert(testMsg, SipXauthIdentity::AuthIdentityHeaderName);
+         CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
+      }
+   
+   void testProxyChallengeLocalWithBadlySignedAuthIdentity()
+      {
+         const char* message =
+            "INVITE sip:user@external.example.net SIP/2.0\r\n"
+            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+            "To: sip:user@example.com\r\n"
+            "From: Mighty Hunter <sip:mightyhunter@example.com>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "X-sipX-Authidentity: <sip:mightyhunter@example.com;signature=thishastobeaninvalidsignature>\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Max-Forwards: 20\r\n"
+            "Contact: mightyhunter@127.0.0.1\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+
+         SipMessage testMsg(message, strlen(message));
+         SipMessage testRsp;
+         
          CPPUNIT_ASSERT_EQUAL(SipRouter::SendResponse,mSipRouter->proxyMessage(testMsg, testRsp));
 
          ssize_t msgSize;
