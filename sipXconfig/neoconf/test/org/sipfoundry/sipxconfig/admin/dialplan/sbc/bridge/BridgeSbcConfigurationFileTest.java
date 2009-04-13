@@ -42,6 +42,7 @@ public class BridgeSbcConfigurationFileTest extends SipxServiceTestBase {
         descriptor.setModelId("sbcSipXbridge");
 
         BridgeSbc sbc = new BridgeSbc();
+        sbc.setLocation(location);
         sbc.setAddress(location.getAddress());
         sbc.setModel(descriptor);
         sbc.setProfileName("sibxbridge.xml");
@@ -54,7 +55,7 @@ public class BridgeSbcConfigurationFileTest extends SipxServiceTestBase {
         out.setName("sipxbridge.xml");
 
         SbcDeviceManager sbcDeviceManager = createMock(SbcDeviceManager.class);
-        sbcDeviceManager.getBridgeSbc(location.getAddress());
+        sbcDeviceManager.getBridgeSbc(location);
         expectLastCall().andReturn(sbc);
 
         GatewayContext gatewayContext = createMock(GatewayContext.class);

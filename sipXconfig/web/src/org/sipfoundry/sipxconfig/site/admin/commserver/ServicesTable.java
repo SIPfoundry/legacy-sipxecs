@@ -215,8 +215,8 @@ public abstract class ServicesTable extends BaseComponent {
     public IPage editService(IRequestCycle cycle, String serviceBeanId, Integer locationId) {
         PageWithCallback page = (PageWithCallback) cycle.getPage(SERVICE_MAP.get(serviceBeanId));
         if (page instanceof EditSbcDevice) {
-            String locationAddress = getLocationsManager().getLocation(locationId).getAddress();
-            BridgeSbc bridgeSbc = getSbcDeviceManager().getBridgeSbc(locationAddress);
+            Location location = getLocationsManager().getLocation(locationId);
+            BridgeSbc bridgeSbc = getSbcDeviceManager().getBridgeSbc(location);
             if (null != bridgeSbc) {
                 return EditSbcDevice.getEditPage(cycle, bridgeSbc.getId(), getEditLocationPage().getPage());
             }

@@ -23,7 +23,7 @@ public class BridgeSbcConfigurationFile extends AbstractConfigurationFile {
     private SbcDeviceManager m_sbcDeviceManager;
 
     public void write(Writer writer, Location location) throws IOException {
-        BridgeSbc bridgeSbc = m_sbcDeviceManager.getBridgeSbc(location.getAddress());
+        BridgeSbc bridgeSbc = m_sbcDeviceManager.getBridgeSbc(location);
         if (bridgeSbc == null) {
             throw new IllegalArgumentException("Cannot generate SBC configuration for location:"
                     + location.getFqdn());
@@ -37,7 +37,7 @@ public class BridgeSbcConfigurationFile extends AbstractConfigurationFile {
 
     @Override
     public boolean isReplicable(Location location) {
-        BridgeSbc bridgeSbc = m_sbcDeviceManager.getBridgeSbc(location.getAddress());
+        BridgeSbc bridgeSbc = m_sbcDeviceManager.getBridgeSbc(location);
         return bridgeSbc != null;
     }
 

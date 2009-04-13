@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.admin.dialplan.sbc;
 import java.util.Collection;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
 
 public interface SbcDeviceManager {
@@ -33,7 +34,7 @@ public interface SbcDeviceManager {
 
     Collection<Integer> getAllSbcDeviceIds();
 
-    public BridgeSbc getBridgeSbc(String address);
+    public BridgeSbc getBridgeSbc(Location location);
 
     public void checkForNewSbcDeviceCreation(SbcDescriptor descriptor);
 

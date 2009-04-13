@@ -67,6 +67,7 @@ public class BridgeSbcTest {
         replay(locationsManager);
 
         m_sbc.setLocationsManager(locationsManager);
+        m_sbc.setLocation(location);
         m_sbc.setDefaults(deviceDefaults);
         m_sbc.setModelFilesContext(modelFilesContext);
 

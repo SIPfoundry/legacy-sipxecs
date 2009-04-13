@@ -54,6 +54,8 @@ public class BridgeSbc extends SbcDevice implements LoggingEntity {
 
     private LoggingManager m_loggingManager;
 
+    private Location m_location;
+
     @Required
     public void setGatewayContext(GatewayContext gatewayContext) {
         m_gatewayContext = gatewayContext;
@@ -88,6 +90,10 @@ public class BridgeSbc extends SbcDevice implements LoggingEntity {
         m_profileDirectory = profileDirectory;
     }
 
+    public void setLocation(Location location) {
+        m_location = location;
+    }
+
     @Override
     protected Setting loadSettings() {
         return getModelFilesContext().loadModelFile("bridge-sbc.xml", "sipxbridge");
@@ -105,8 +111,7 @@ public class BridgeSbc extends SbcDevice implements LoggingEntity {
 
     @Override
     public void initialize() {
-        Location location = getLocation();
-        addDefaultBeanSettingHandler(new Defaults(getDefaults(), this, location));
+        addDefaultBeanSettingHandler(new Defaults(getDefaults(), this, getLocation()));
     }
 
     @Override
@@ -131,7 +136,11 @@ public class BridgeSbc extends SbcDevice implements LoggingEntity {
     }
 
     public Location getLocation() {
-        return m_locationsManager.getLocationByAddress(getAddress());
+        if (m_location != null) {
+            return m_location;
+        }
+        Integer id = (Integer) getSettings().getSetting("bridge-configuration/location-id").getTypedValue();
+        return m_locationsManager.getLocation(id);
     }
 
     public static class Context extends ProfileContext<BridgeSbc> {
@@ -161,9 +170,7 @@ public class BridgeSbc extends SbcDevice implements LoggingEntity {
             m_natLocation = location.getNat();
         }
 
-        @SettingEntry(paths = {
-                "bridge-configuration/local-address", "bridge-configuration/external-address"
-                })
+        @SettingEntry(paths = { "bridge-configuration/local-address", "bridge-configuration/external-address"  })
         public String getExternalAddress() {
             return m_location.getAddress();
         }

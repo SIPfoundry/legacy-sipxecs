@@ -53,8 +53,7 @@ public class LoggingManagerImpl implements LoggingManager, BeanFactoryAware {
                 loggingEntity = (LoggingEntity) persistedService;
             } else if (bean instanceof BridgeSbc) {
                 LOG.warn("Special case of sipxbridge (BridgeSbc)");
-                BridgeSbc bridgeSbc = m_sbcDeviceManager.getBridgeSbc(m_locationsManager.getPrimaryLocation()
-                        .getAddress());
+                BridgeSbc bridgeSbc = m_sbcDeviceManager.getBridgeSbc(m_locationsManager.getPrimaryLocation());
                 loggingEntity = bridgeSbc;
                 
             } else if (bean instanceof AcdServer) {

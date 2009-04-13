@@ -208,5 +208,10 @@
     <setting name="log-directory" hidden="yes">
       <description>Log directory. The log file name is hard coded to "sipxbridge.log".</description>
     </setting>
+    <setting name="location-id" hidden="yes">
+      <type>
+        <integer required="yes" />
+      </type>
+    </setting>
   </group>
 </model>
