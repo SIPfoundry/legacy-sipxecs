@@ -7,7 +7,7 @@
     <label>sipLine</label>
     <setting name="featureID">
       <label>feature ID</label>
-      <value/>
+      <value>9</value>
     </setting>
     <setting name="featureLabel">
       <label>Feature Label</label>
