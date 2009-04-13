@@ -60,7 +60,7 @@
     <property name="emergencyNumber" value="986" />
   </bean>
 
-  <!-- properties for all long distance rules:  pstnPrefixOptional, pstnPrefix, 
+  <!-- properties for all long distance rules:  pstnPrefixOptional, pstnPrefix,
     longDistancePrefixOptional, longDistancePrefix, externalLen, permissionName -->
   <!-- if you are located outside warsaw, please add 22 to the list of area codes here and replace the 022 in local with your local area code -->
   <bean id="pl.longDistanceRule" parent="defaultLongDistanceRule" singleton="false">

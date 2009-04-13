@@ -47,7 +47,7 @@
     <property name="emergencyNumber" value="158" />
   </bean>
 
-  <!-- properties for all long distance rules:  pstnPrefixOptional, pstnPrefix, 
+  <!-- properties for all long distance rules:  pstnPrefixOptional, pstnPrefix,
     longDistancePrefixOptional, longDistancePrefix, externalLen, permissionName -->
   <bean id="cs.longDistanceRule" parent="defaultLongDistanceRule" singleton="false">
     <property name="name" value="Meziměsto" />

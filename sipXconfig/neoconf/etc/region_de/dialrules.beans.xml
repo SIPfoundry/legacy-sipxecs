@@ -31,7 +31,7 @@
     <property name="emergencyNumber" value="110" />
   </bean>
 
-  <!-- properties for all long distance rules:  pstnPrefixOptional, pstnPrefix, 
+  <!-- properties for all long distance rules:  pstnPrefixOptional, pstnPrefix,
        longDistancePrefixOptional, longDistancePrefix, externalLen, permissionName -->
   <bean id="de.longDistanceRule" parent="defaultLongDistanceRule" singleton="false">
     <property name="name" value="Ferngespräche" />
