@@ -51,7 +51,6 @@ module States
     private 
     def newer_index(from_time)
       @history.each_index do |i|
-#puts "considering #{@history[i].time.rfc2822} >= #{from_time.rfc2822} : #{@history[i].time >= from_time}"
         return i if @history[i].time >= from_time
       end
       return @history.size

@@ -79,14 +79,12 @@ module States
     end
     
     def call_history(from_time)
-puts "call history requested from time #{from_time.rfc2822}"    
       synchronize do        
         @call_history.get_history(from_time)
       end        
     end
     
     def agent_history(from_time)
-puts "agent history requested from time #{from_time.rfc2822}"    
       synchronize do        
         @agent_history.get_history(from_time)
       end
