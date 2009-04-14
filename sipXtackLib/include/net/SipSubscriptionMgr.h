@@ -104,6 +104,8 @@ public:
                                         int expires,
                                         /// the last NOTIFY CSeq
                                         int notifyCSeq,
+                                        /// the last version number to be sent
+                                        int version,
                                         /// the dialog handle for the subscription (out)
                                         UtlString& subscribeDialogHandle,
                                         /// TRUE if the subscription is new (out)
@@ -160,9 +162,11 @@ public:
     *  of notifyRequest.  It then calls the application's substitution callback
     *  function (setContentInfo), which replaces the version number in the dialog message.
     *  On a successful replacement, it then increments the dialog version number.
+    *  Returns the version number used via the 'version' parameter.
     */
    virtual void updateNotifyVersion(SipContentVersionCallback setContentInfo,
-                                    SipMessage& notifyRequest);
+                                    SipMessage& notifyRequest,
+                                    int& version);
 
     //! Set the minimum, default, and maximum subscription times that will be granted.
     UtlBoolean setSubscriptionTimes(int minExpiration,

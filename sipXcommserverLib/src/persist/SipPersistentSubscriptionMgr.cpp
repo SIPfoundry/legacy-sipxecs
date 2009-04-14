@@ -207,6 +207,7 @@ SipPersistentSubscriptionMgr::SipPersistentSubscriptionMgr(
                                                  *eventtypep,
                                                  expires,
                                                  notifycseq,
+                                                 version,
                                                  subscribeDialogHandle,
                                                  isNew);
          if (!ret)
@@ -547,7 +548,7 @@ void SipPersistentSubscriptionMgr::setNextNotifyCSeq(
 void SipPersistentSubscriptionMgr::updateVersion(SipMessage& notifyRequest,
                                                  int version)
 {
-   // Call the superclass's version.
+   // Call the superclass's updateVersion.
    SipSubscriptionMgr::updateVersion(notifyRequest, version);
 
    // Extract from the NOTIFY the information we need to find the right
@@ -569,7 +570,7 @@ void SipPersistentSubscriptionMgr::updateVersion(SipMessage& notifyRequest,
    notifyRequest.getFromField(&to);
    notifyRequest.getCallIdField(&callId);
    notifyRequest.getEventField(&eventType, &eventId);
-   now = (int)OsDateTime::getSecsSinceEpoch();
+   now = (int) OsDateTime::getSecsSinceEpoch();
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipPersistentSubscriptionMgr::updateVersion "

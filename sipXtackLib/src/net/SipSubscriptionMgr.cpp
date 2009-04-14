@@ -34,7 +34,7 @@ public:
     UtlString mEventTypeKey;
     UtlString mAcceptHeaderValue;
     long mExpirationDate;       // expiration time
-    int mDialogVer;             // the next value to use in a 'version' attribute
+    int mDialogVer;             // the last value used in a 'version' attribute
     SipMessage* mpLastSubscribeRequest;
     OsTimer* mpExpirationTimer;
 
@@ -86,7 +86,7 @@ private:
 SubscriptionServerState::SubscriptionServerState()
 {
     mExpirationDate = -1;
-    mDialogVer = 0;
+    mDialogVer = -1;
     mpLastSubscribeRequest = NULL;
     mpExpirationTimer = NULL;
 }
@@ -459,9 +459,25 @@ UtlBoolean SipSubscriptionMgr::insertDialogInfo(const SipMessage& subscribeReque
                                                 const UtlString& eventTypeKey,
                                                 int expires,
                                                 int notifyCSeq,
+                                                int version,
                                                 UtlString& subscribeDialogHandle,
                                                 UtlBoolean& isNew)
 {
+    if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+    {
+       UtlString request;
+       int len;
+       subscribeRequest.getBytes(&request, &len);
+
+       OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                     "SipSubscriptionMgr::insertDialogInfo "
+                     "resourceId = '%s', eventTypeKey = '%s', expires = %d, "
+                     "notifyCSeq = %d, version = %d, subscribeRequest = '%s'",
+                     resourceId.data(), eventTypeKey.data(),
+                     expires, notifyCSeq, version,
+                     request.data());
+    }
+
     isNew = FALSE;
     UtlBoolean subscriptionSucceeded = FALSE;
     UtlString dialogHandle;
@@ -469,10 +485,13 @@ UtlBoolean SipSubscriptionMgr::insertDialogInfo(const SipMessage& subscribeReque
     SubscriptionServerState* state = NULL;
 
     // If this is an early dialog we need to make it an established dialog.
-    if(SipDialog::isEarlyDialog(dialogHandle))
+    if (SipDialog::isEarlyDialog(dialogHandle))
     {
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                      "SipSubscriptionMgr::insertDialogInfo is an early dialog handle");
+
         UtlString establishedDialogHandle;
-        if(mDialogMgr.getEstablishedDialogHandleFor(dialogHandle, establishedDialogHandle))
+        if (mDialogMgr.getEstablishedDialogHandleFor(dialogHandle, establishedDialogHandle))
         {
             OsSysLog::add(FAC_SIP, PRI_WARNING,
                 "Incoming early SUBSCRIBE dialog: %s matches established dialog: %s",
@@ -508,6 +527,7 @@ UtlBoolean SipSubscriptionMgr::insertDialogInfo(const SipMessage& subscribeReque
         state->mResourceId = resourceId;
         subscribeCopy->getAcceptField(state->mAcceptHeaderValue);
         state->mExpirationDate = expires;
+        state->mDialogVer = version;
 
         // TODO: currently the SipSubsribeServer does not handle timeout
         // events to send notifications that the subscription has ended.
@@ -560,10 +580,15 @@ UtlBoolean SipSubscriptionMgr::insertDialogInfo(const SipMessage& subscribeReque
             mSubscriptionStatesByDialogHandle.find(&dialogHandle);
         if (state)
         {
+           OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                         "SipSubscriptionMgr::insertDialogInfo "
+                         "is an established dialog handle, state found");
+
             // Set the recorded CSeq of the last NOTIFY.
             mDialogMgr.setNextLocalCseq(dialogHandle, notifyCSeq);
 
             state->mExpirationDate = expires;
+            state->mDialogVer = version;
             if(state->mpLastSubscribeRequest)
             {
                 delete state->mpLastSubscribeRequest;
@@ -587,6 +612,10 @@ UtlBoolean SipSubscriptionMgr::insertDialogInfo(const SipMessage& subscribeReque
         // No state, but SUBSCRIBE had a to-tag.
         else
         {
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipSubscriptionMgr::insertDialogInfo "
+                          "is an established dialog handle, no state found");
+
             SipMessage* subscribeCopy = new SipMessage(subscribeRequest);
             // Create the dialog
             mDialogMgr.createDialog(*subscribeCopy, FALSE, dialogHandle);
@@ -603,6 +632,7 @@ UtlBoolean SipSubscriptionMgr::insertDialogInfo(const SipMessage& subscribeReque
             subscribeCopy->getAcceptField(state->mAcceptHeaderValue);
 
             state->mExpirationDate = expires;
+            state->mDialogVer = version;
             // TODO: currently the SipSubsribeServer does not handle timeout
             // events to send notifications that the subscription has ended.
             // So we do not set a timer at the end of the subscription
@@ -610,7 +640,7 @@ UtlBoolean SipSubscriptionMgr::insertDialogInfo(const SipMessage& subscribeReque
 
             // Create the index by resourceId and eventTypeKey key
             SubscriptionServerStateIndex* stateKey = new SubscriptionServerStateIndex;
-            *((UtlString*)stateKey) = resourceId;
+            *((UtlString*) stateKey) = resourceId;
             stateKey->append(eventTypeKey);
             stateKey->mpState = state;
             mSubscriptionStatesByDialogHandle.insert(state);
@@ -643,7 +673,11 @@ UtlBoolean SipSubscriptionMgr::insertDialogInfo(const SipMessage& subscribeReque
         unlock();
     }
 
-    return(subscriptionSucceeded);
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipSubscriptionMgr::insertDialogInfo "
+                  "subscribeDialogHandle = '%s', isNew = %d, ret = %d",
+                  subscribeDialogHandle.data(), isNew, subscriptionSucceeded);
+    return subscriptionSucceeded;
 }
 
 UtlBoolean SipSubscriptionMgr::getNotifyDialogInfo(const UtlString& subscribeDialogHandle,
@@ -962,49 +996,47 @@ void SipSubscriptionMgr::updateVersion(SipMessage& notifyRequest,
 // Update the NOTIFY message content by calling the application's
 // substitution callback function.
 void SipSubscriptionMgr::updateNotifyVersion(SipContentVersionCallback setContentInfo,
-                                             SipMessage& notifyRequest)
+                                             SipMessage& notifyRequest,
+                                             int& version)
 {
-   // Check if content version modification has been registered.
+   UtlString dialogHandle;
+   notifyRequest.getDialogHandleReverse(dialogHandle);
+
+   // Initialize the last version number to 0 and the found
+   // subscription state state to NULL.
+   version = 0;
+   SubscriptionServerState* state = NULL;
+
+   // Try to find the subscription state for the dialog, otherwise use
+   // the default values set above.
+   if (!dialogHandle.isNull())
+   {
+      state =
+         dynamic_cast <SubscriptionServerState*>
+         (mSubscriptionStatesByDialogHandle.find(&dialogHandle));
+
+      if (state != NULL)
+      {
+         // Increment the saved "last XML version number".
+         // Keep that value for insertion into the XML.
+         version = ++state->mDialogVer;
+
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "SipSubscriptionMgr::updateNotifyVersion "
+                       "dialogHandle = '%s', new mDialogVer = %d",
+                       dialogHandle.data(), state->mDialogVer);
+      }
+      else
+      {
+         OsSysLog::add(FAC_SIP, PRI_ERR, "SipSubscriptionMgr::updateNotifyVersion Unable to find dialog state for handle '%s'",
+                       dialogHandle.data());
+      }
+   }
+
+   // Call the application "string variable replacement" callback routine.
    if (setContentInfo != NULL)
    {
-      UtlString dialogHandle;
-      notifyRequest.getDialogHandleReverse(dialogHandle);
-
-      // Initialize version to 0 and found subscription state state to NULL.
-      int tempVer = 0;
-      SubscriptionServerState* state = NULL;
-
-      // Try to find the subscription state for the dialog, otherwise use
-      // the default values.
-      if (!dialogHandle.isNull())
-      {
-         state =
-            dynamic_cast <SubscriptionServerState*>
-            (mSubscriptionStatesByDialogHandle.find(&dialogHandle));
-
-         if (state != NULL)
-         {
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipSubscriptionMgr::updateNotifyVersion dialogHandle = '%s', mDialogVer=%d",
-                          dialogHandle.data(), state->mDialogVer);
-
-            tempVer = state->mDialogVer;
-         }
-         else
-         {
-            OsSysLog::add(FAC_SIP, PRI_ERR, "SipSubscriptionMgr::updateNotifyVersion Unable to find dialog state for handle '%s'",
-                          dialogHandle.data());
-         }
-      }
-
-      // Call the application "string variable replacement" callback routine.
-      if ((*setContentInfo)(notifyRequest, tempVer))
-      {
-         if (state != NULL)
-         {
-            // If we sent the content version number then increment it now.
-            state->mDialogVer++;
-         }
-      }
+      setContentInfo(notifyRequest, version);
    }
 }
 
