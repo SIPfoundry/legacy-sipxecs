@@ -121,7 +121,7 @@ sudo ln -s $FULL_INSTALL_PATH/etc/logrotate.d/sipxchange /etc/logrotate.d/sipxch
 sudo rm -rf /etc/logrotate.d/freeswitch
 sudo ln -s $FULL_INSTALL_PATH/etc/logrotate.d/freeswitch /etc/logrotate.d/freeswitch
 
-# Adjust the TFTP /FTP directory.
+# Adjust the TFTP/FTP directory.
 TFTP_PATH=$FULL_INSTALL_PATH/var/sipxdata/configserver/phone/profile/tftproot
 ruby -e 'path=""; ARGV[0].split("/").each {|x| path+=x+"/"; `sudo chmod g+x #{path}`}' $TFTP_PATH
 sudo rm -rf /tftpboot
@@ -146,7 +146,7 @@ ln -s $FULL_INSTALL_PATH/share/sipxecs/process.d process.d
 popd
 
 # sipxecs-setup
-sudo $FULL_INSTALL_PATH/bin/sipxecs-setup
+$FULL_INSTALL_PATH/bin/sipxecs-setup
 
 # Restart sipXecs twice.  This gets around the "httpd-sipxchange-common-ssl.conf: No 
 # such file or directory" error on first start, and I've also seen it fix the 
