@@ -45,16 +45,36 @@ FS_EXEC="@FREESWITCH_PREFIX@/bin/freeswitch \
    -htdocs $FS_CONFDIR/htdocs"
 
 SIPXDIRS="$FS_DBDIR $FS_CONFDIR"
+pidFile=@SIPX_RUNDIR@/freeswitch.pid
 
 case ${Action} in
    RUN)
      ulimit -s 244  # Keep stack size small for maximum number of threads
+     echo $$ > $pidFile
      exec $FS_EXEC -nc -nf -nosql $Args
      exit 0
      ;;
 
    STOP)
-     exec $FS_EXEC -stop
+     PID=`cat ${pidFile} 2> /dev/null`
+
+     # Tell FS to stop the nice way
+     $FS_EXEC -stop
+
+     # Give it some time to die...
+     # (FreeSWITCH normally shuts down in about 5 seconds)
+     for ticks in `seq 10 -1 0`
+     do
+         sleep 1
+         proc_alive "$PID" && echo -n "." || break
+     done
+
+     if proc_alive "$PID"
+     then
+         # Still alive, kill it the hard way
+         sipx_stop freeswitch $pidFile
+     fi
+
      exit $?
      ;;
 
