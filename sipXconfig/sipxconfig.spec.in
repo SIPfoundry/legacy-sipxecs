@@ -89,7 +89,11 @@ Group: Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry
 Summary: Configures/enables FTP for devices controlled by %{name} 
 
+%if %{_vendor} == suse
+%define vsftpd_conf /etc/vsftpd.conf
+%else
 %define vsftpd_conf /etc/vsftpd/vsftpd.conf
+%endif
 
 %description ftp
 * installs and configures vsftpd server
@@ -347,6 +351,12 @@ rm -rf /var/sipxdata/tmp/Jetty__8443__sipxconfig 2> /dev/null
 
 %post tftp
 sed /etc/xinetd.d/tftp -i -e 's|^\W*disable\W*=\W*yes\W*$|disable = no|' -e 's|\W*/tftpboot\W*| %{phonedir}/profile/tftproot|'
+
+# ensure that INET services are running
+if [ -f /etc/sysconfig/network ] ; then
+  /sbin/service xinetd start >/dev/null
+fi
+
 # empty but required to generate RPM
 %files ftp
 
@@ -354,28 +364,23 @@ sed /etc/xinetd.d/tftp -i -e 's|^\W*disable\W*=\W*yes\W*$|disable = no|' -e 's|\
 
 %if %{_vendor} == suse
 %define adduser /usr/sbin/useradd
+%define nologin /bin/false
 %else
 %define adduser /usr/sbin/adduser
+%define nologin /sbin/nologin
 %endif
 
 if ! id -u PlcmSpIp > /dev/null 2>&1
 then
   # default user account polycom phones use
-  %{adduser} -d %{phonedir}/profile/tftproot -s /sbin/nologin -M PlcmSpIp >/dev/null
+  %{adduser} -d %{phonedir}/profile/tftproot -s %{nologin} -M PlcmSpIp >/dev/null
   echo -e "PlcmSpIp" | sudo passwd --stdin PlcmSpIp >/dev/null
 fi
 
 if ! id -u lvp2890 > /dev/null 2>&1
 then
   # default user account Nortel 1535 phones use
-  %{adduser} -d %{phonedir}/profile/tftproot -s /sbin/nologin -M lvp2890 >/dev/null
-  echo -e "28904all" | sudo passwd --stdin lvp2890 >/dev/null
-fi
-
-if ! id -u lvp2890 > /dev/null 2>&1
-then
-  # default user account Nortel 1535 phones use
-  %{adduser} -d %{phonedir}/profile/tftproot -s /sbin/nologin -M lvp2890 >/dev/null
+  %{adduser} -d %{phonedir}/profile/tftproot -s %{nologin} -M lvp2890 >/dev/null
   echo -e "28904all" | sudo passwd --stdin lvp2890 >/dev/null
 fi
 
@@ -391,9 +396,7 @@ xferlog_enable=YES
 connect_from_port_20=YES
 xferlog_std_format=YES
 pam_service_name=vsftpd
-userlist_enable=YES
 listen=YES
-tcp_wrappers=YES
 chroot_local_user=YES
 EOF
 chmod 600 %{vsftpd_conf}
