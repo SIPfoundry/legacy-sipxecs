@@ -1,0 +1,19 @@
+#!/bin/sh
+usage() {
+  cat <<EOF
+  Usage: fix-commit-msg <checker> [<filter-branch options>] <rev-list options>
+  Example: fix-commit-msg "John Doe" master..
+EOF
+}
+
+checker="$1"
+[ -n "$checker" ] || { usage >&2; exit 2; }
+shift
+
+params="$@"
+[ -n "$params" ] || { usage >&2; exit 2; }
+
+set -x
+git filter-branch --force --msg-filter "sed '\$a\\
+\\
+Patch from: $checker - thanks!'" "$params"
