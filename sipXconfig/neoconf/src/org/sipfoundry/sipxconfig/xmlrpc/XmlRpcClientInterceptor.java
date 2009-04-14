@@ -1,11 +1,11 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
- * $
+ *
+ *
  */
 package org.sipfoundry.sipxconfig.xmlrpc;
 
@@ -21,6 +21,8 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import static java.lang.String.format;
+
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
@@ -29,6 +31,7 @@ import org.apache.xmlrpc.XmlRpcClient;
 import org.apache.xmlrpc.XmlRpcClientRequest;
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.secure.SecureXmlRpcClient;
+import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.remoting.support.UrlBasedRemoteAccessor;
@@ -44,27 +47,27 @@ public class XmlRpcClientInterceptor extends UrlBasedRemoteAccessor implements M
 
     private long m_timeout = 5000;
 
-    private ExecutorService m_service = Executors.newSingleThreadExecutor();
+    private final ExecutorService m_service = Executors.newSingleThreadExecutor();
 
     /**
      * Intercepts method call and executes XML/RPC call instead.
-     * 
+     *
      * The exceptions handling is a bit unusual here, but this is a reflection of how
      * XmlRpcClient.execute is now coded. When there it encounters server fault it returns the
      * exception instead of throwing it. Proxied interface is trying to cast returned exception to
      * whatever is the return type of the proxied method, which more often than not results in
      * ClassCastException. That's why we checking if return type is XmlRpcException.
-     * 
+     *
      * The other interesting aspect is that like most Spring remote proxies we are translating
      * checked exceptions to RuntimeExceptions, giving client a chance to handle them but not
      * forcing the proxied interface to define them. The constructor of the XmlRpcRemoteException
      * effectively performs that translation.
-     * 
+     *
      */
     public Object invoke(MethodInvocation invocation) throws Throwable {
-        final XmlRpcClientRequest request = new Request(invocation, m_marshaller);
+        final Request request = new Request(invocation, m_marshaller);
         if (LOG.isInfoEnabled()) {
-            String msg = String.format("XML/RPC %s on %s", request, getServiceUrl());
+            String msg = format("XML/RPC %s on %s", request.dump(LOG.isDebugEnabled()), getServiceUrl());
             LOG.info(msg);
         }
 
@@ -81,6 +84,7 @@ public class XmlRpcClientInterceptor extends UrlBasedRemoteAccessor implements M
         }
     }
 
+    @Override
     public void afterPropertiesSet() {
         super.afterPropertiesSet();
         if (getServiceInterface() == null) {
@@ -100,11 +104,11 @@ public class XmlRpcClientInterceptor extends UrlBasedRemoteAccessor implements M
     /**
      * Temporary workaround for the problem with timeout (or lack thereof) in the XML/RPC library
      * transport.
-     * 
+     *
      * We call the XML/RPC in the background thread and interrupt it if it takes too long. We
      * attempt to handle exceptions related to the threading issues (And timeout) only. Everything
      * else is handled by the invoke method.
-     * 
+     *
      * @param request XML/RPC request
      * @return result of XML/RPC call
      */
@@ -143,7 +147,7 @@ public class XmlRpcClientInterceptor extends UrlBasedRemoteAccessor implements M
 
     /**
      * Mostly for testing - one can inject other XmlRpcClient implementations
-     * 
+     *
      * @param xmlRpcClient client that would be used to make remote calls
      */
     public void setXmlRpcClient(XmlRpcClient xmlRpcClient) {
@@ -167,8 +171,8 @@ public class XmlRpcClientInterceptor extends UrlBasedRemoteAccessor implements M
     }
 
     static class Request implements XmlRpcClientRequest {
-        private String m_methodName;
-        private Object[] m_args;
+        private final String m_methodName;
+        private final Object[] m_args;
 
         public Request(MethodInvocation invocation, XmlRpcMarshaller marshaller) {
             Method method = invocation.getMethod();
@@ -189,8 +193,14 @@ public class XmlRpcClientInterceptor extends UrlBasedRemoteAccessor implements M
             return m_args[index];
         }
 
+        @Override
         public String toString() {
-            return String.format("%s with %s", m_methodName, Arrays.deepToString(m_args));
+            return dump(true);
+        }
+
+        public String dump(boolean full) {
+            String params = full ? Arrays.deepToString(m_args) : SipxCollectionUtils.arrayToShortString(m_args, 25);
+            return format("%s with %s", m_methodName, params);
         }
     }
 
@@ -214,6 +224,5 @@ public class XmlRpcClientInterceptor extends UrlBasedRemoteAccessor implements M
         public Object[] parameters(String name, Object... args) {
             return args;
         }
-
     }
 }

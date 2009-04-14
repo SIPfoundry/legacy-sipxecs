@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.common;
@@ -19,7 +19,7 @@ public class BackgroundTaskQueue {
     private static final Log LOG = LogFactory.getLog(BackgroundTaskQueue.class);
 
     private final Buffer m_queue = BufferUtils.blockingBuffer(new UnboundedFifoBuffer());
-    private Worker m_worker = new Worker();
+    private final Worker m_worker = new Worker();
 
     public void addTask(Runnable task) {
         m_queue.add(task);
@@ -76,7 +76,7 @@ public class BackgroundTaskQueue {
         private boolean m_suspend;
 
         public Worker() {
-            super("BackgroundTaskQueue - WorkerThread");
+            super("background");
             // do not stop JVM from dying
             setDaemon(true);
         }
@@ -88,6 +88,7 @@ public class BackgroundTaskQueue {
             }
         }
 
+        @Override
         public void run() {
             try {
                 while (true) {
