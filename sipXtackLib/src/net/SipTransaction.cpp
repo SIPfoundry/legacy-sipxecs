@@ -39,7 +39,8 @@
 //#define ROUTE_DEBUG
 //#define DUMP_TRANSACTIONS   
 //#define RESPONSE_DEBUG
-
+//#define TEST_PRINT
+//#define TEST_TOUCH
 //#define LOG_TRANSLOCK
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -2199,6 +2200,9 @@ void SipTransaction::handleChildTimeoutEvent(SipTransaction& child,
                            && foundBestResponse
                            )
                         {
+                            SipMessage betterResponse;
+                            SipMessage& rpUseThisMsg = bestResponse;
+
 #                           ifdef LOG_FORKING
                             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                                           "SipTransaction::handleChildTimeoutEvent "
@@ -2210,23 +2214,23 @@ void SipTransaction::handleChildTimeoutEvent(SipTransaction& child,
                                || bestResponseCode == SIP_NOT_FOUND_CODE)
                             {
                                 bestResponseCode = SIP_REQUEST_TIMEOUT_CODE;
-                                bestResponse.setResponseData(mpRequest,
+                                betterResponse.setResponseData(mpRequest,
                                                              SIP_REQUEST_TIMEOUT_CODE,
                                                              SIP_REQUEST_TIMEOUT_TEXT);
-
+                                rpUseThisMsg = betterResponse;
                             }
 
                             if (   (SIP_REQUEST_TIMEOUT_CODE == bestResponseCode)
-                                && (!bestResponse.hasSelfHeader())
+                                && (!rpUseThisMsg.hasSelfHeader())
                                 )
                             {
-                               userAgent.setSelfHeader(bestResponse);
+                               userAgent.setSelfHeader(rpUseThisMsg);
                             }
 
-                            handleOutgoing(bestResponse,
-                                            userAgent,
-                                            transactionList,
-                                            MESSAGE_FINAL);
+                            handleOutgoing(rpUseThisMsg,
+                                           userAgent,
+                                           transactionList,
+                                           MESSAGE_FINAL);
                         }
                         else
                         {
@@ -3138,7 +3142,9 @@ enum SipTransaction::ResponsePriority SipTransaction::findRespPriority(int respo
 UtlBoolean SipTransaction::findBestChildResponse(SipMessage& bestResponse, int responseFoundCount)
 {
 #   ifdef TEST_PRINT
-    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::findBestChildResponse start %p", this);
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                  "SipTransaction::findBestChildResponse start %p", 
+                  this);
 #   endif
 
     UtlSListIterator iterator(mChildTransactions);
@@ -4712,12 +4718,14 @@ void SipTransaction::touchBelow(int newDate)
 {
     mTimeStamp = newDate;
 
-#ifdef TEST_PRINT
+#ifdef TEST_TOUCH
     UtlString serialized;
     toString(serialized, FALSE);
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                  "SipTransaction::touchBelow '%s'", serialized.data());
-#endif // TEST_PRINT
+                  "SipTransaction::touchBelow "
+                  "'%s'", 
+                  serialized.data());
+#endif // TEST_TOUCH
 
     SipTransaction* child = NULL;
     UtlSListIterator iterator(mChildTransactions);

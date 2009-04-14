@@ -16,6 +16,7 @@
 //uncomment next line to track the create and destroy of messages
 //#define TRACK_LIFE
 //#define TEST_PRINT
+//#define TEST
 
 // APPLICATION INCLUDES
 #include <utl/UtlDListIterator.h>
@@ -473,7 +474,7 @@ void SipMessage::setInviteData(const char* fromField,
         setSessionExpires(sessionReinviteTimer);
 
 #ifdef TEST
-   osPrintf("SipMessage::setInviteData rtpAddress: %s\n", rtpAddress);
+   //osPrintf("SipMessage::setInviteData rtpAddress: %s\n", rtpAddress);
 #endif
 }
 
@@ -2269,7 +2270,10 @@ void SipMessage::setViaFromRequest(const SipMessage* request)
    while(request->getViaFieldSubField(&viaSubField, subFieldindex ))
    {
 #ifdef TEST
-      osPrintf("Adding via field: %s\n", viaSubField.data());
+       OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                     "SipMessage::setViaFromRequest "
+                     "Adding via field: %s\n", 
+                     viaSubField.data());
 #endif
       addViaField(viaSubField.data(), FALSE);
       subFieldindex++;
@@ -3017,7 +3021,7 @@ UtlBoolean SipMessage::removeTopVia()
    NameValuePair* nv = dynamic_cast <NameValuePair*> (mNameValues.find(&viaHeaderField));
    if(nv)
    {
-        mHeaderCacheClean = FALSE;
+      mHeaderCacheClean = FALSE;
       mNameValues.destroy(nv);
       nv = NULL;
       fieldFound = TRUE;
