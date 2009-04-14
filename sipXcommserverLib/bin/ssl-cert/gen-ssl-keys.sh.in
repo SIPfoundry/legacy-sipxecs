@@ -90,6 +90,8 @@ caName=""
 
 configDir="@SIPX_CONFDIR@"
 
+logFile="@SIPX_LOGDIR@"/setup.log
+
 # if there is a file of saved default answers for the questions, read them
 DefaultDefaults=SSL_DEFAULTS
 Defaults=""
@@ -664,8 +666,7 @@ EOT
         -in "${serverName}${restrictionName}.csr" \
         -out "${serverName}${restrictionName}.crt" \
         -text \
-        -certopt no_pubkey,no_sigdump \
-        > /dev/null 2>&1
+        -certopt no_pubkey,no_sigdump > /dev/null 2>&1
 
     if [ $? -ne 0 ]; then
         echo "${myName}:Error: Failed to generate X.509 certificate" 1>&2
@@ -693,7 +694,7 @@ generatePKCSKeyStoreNoCACert ()
         -password "pass:$Password" \
         -in "${serverName}${restrictionName}.crt" \
         -inkey "${serverName}${restrictionName}.key"  -name "${serverName}" \
-        -caname "${caName}" #1> /dev/null 2>&1
+        -caname "${caName}" > /dev/null 2>&1
 
     echo -e "$Password\n$Password" | 
     $JavaCmd \
@@ -722,24 +723,26 @@ generatePKCSPackage()
           -password "pass:$Password" \
           -in "${serverName}${restrictionName}.crt" \
           -inkey "${serverName}${restrictionName}.key"  -name "${serverName}" \
-          -certfile "${caName}.crt" -caname "${caName}" #1> /dev/null 2>&1
+          -certfile "${caName}.crt" -caname "${caName}" >> ${logFile}  2>&1
 
 
     echo "______________________________________________________________________"
     echo ""
     echo "        Generating Java Key Store                                       "
 
+
     echo -e "$Password\n$Password" | 
     $JavaCmd \
       -classpath $SipXCommonsDir/sipxcommons.jar \
       org.sipfoundry.commons.PKCS12Import.PKCS12Import \
       "${serverName}${restrictionName}.p12" \
-      "${serverName}${restrictionName}.keystore" > /dev/null 2>&1
+      "${serverName}${restrictionName}.keystore" >> ${logFile} 2>&1
 
 
     echo "______________________________________________________________________"
     echo ""
     echo "        Generating Java Trust Store                                   "
+
     if test -e $TrustStore
     then
        keyExists=`$KeyTool -list  \
@@ -750,25 +753,39 @@ generatePKCSPackage()
        then 
           $KeyTool -delete -noprompt -alias "${aliasName}" \
                         -keystore "$TrustStore"  \
-                        -storepass "$Password" > /dev/null || exit 1
+                        -storepass "$Password" >> ${logFile} || exit 1
        fi
     fi
-    ${openssl} x509 -in    "${serverName}${restrictionName}.crt" |
-    $KeyTool -import -noprompt -alias "${aliasName}" \
+    if [ "${aliasName}" == "${caName}" ] 
+    then 
+       # add the certificate as the trusted CA certificate.
+       ${openssl} x509 -in    "${aliasName}.crt" -outform DER  -out "${aliasName}.der"
+       $KeyTool -import -noprompt -alias "${aliasName}" \
                         -keystore "$TrustStore"  \
+                        -file "${aliasName}.der" \
+                        -noprompt \
                         -trustcacerts \
-                        -storepass "$Password" > /dev/null || exit 1
+                        -storepass "$Password" >> ${logFile} || exit 1
+    else 
+       ${openssl} x509 -in    "${serverName}${restrictionName}.crt" -outform DER  -out  "${serverName}${restrictionName}.der"
+       $KeyTool -import -noprompt -alias "${aliasName}" \
+                        -keystore "$TrustStore"  \
+                        -noprompt \
+                        -file  "${serverName}${restrictionName}.der" \
+                        -storepass "$Password" >> ${logFile} || exit 1
+    fi
     echo "______________________________________________________________________"
     echo ""
     echo "        Verify pem format certificates"
     echo ""
+
     local verified=0
     local vfy
     echo -n "    ${serverName}${restrictionName}.crt ..."
     ${openssl} verify \
        -CAfile "${caName}.crt" \
       "${serverName}${restrictionName}.crt" \
-     > /dev/null
+     >>  ${logFile}
     vfy=$?
     test ${vfy} -eq 0 && echo "ok" || echo "failed"
     verified=$((${vfy} + ${verified}))
@@ -784,31 +801,6 @@ generatePKCSPackage()
 }
 
 
-updatePrimaryServerTrustStore() {
-    myTrustStore="${configDir}/ssl/$TrustStore"
-    echo "______________________________________________________________________"
-    echo ""
-    echo "  Updating Primary Server Trust ${myTrystStore} Store with ${serverName} Certificate. "
-
-    if test -e $myTrustStore
-    then
-       keyExists=`$KeyTool -list  \
-                        -keystore "$myTrustStore"  \
-                        -storepass "$Password" | grep "$aliasName" `
-
-       if [ "${keyExists}" != "" ] 
-       then 
-          $KeyTool -delete -noprompt -alias "${aliasName}" \
-                        -keystore "$myTrustStore"  \
-                        -storepass "$Password" > /dev/null || exit 1
-       fi
-    fi
-    ${openssl} x509 -in    "${serverName}${restrictionName}.crt" |
-    $KeyTool -import -noprompt -alias "${aliasName}" \
-                        -keystore "$myTrustStore"  \
-                        -trustcacerts \
-                        -storepass "$Password" > /dev/null || exit 1
-}
 
 ################################################################
 #### ACTION FUNCTIONS
@@ -842,8 +834,11 @@ EOF
 
 
 ################################################################
-#### Install the cert for a new host
-#### This method does not generate a CA certificate.
+####  Install the cert for a new host
+####  This method does not generate a CA certificate.
+####  This method is called with the severName as argument.
+####  It adds a cert to the java keystore that is shipped to 
+####  the second host.
 ################################################################
 doAddNewHostCert()
 {
@@ -859,11 +854,10 @@ EOF
 
     seedRand
 
+    aliasName="${serverName}"
     genServerCSR
     signServerCertificate
-    aliasName="${caName}"
     generatePKCSPackage
-#    updatePrimaryServerTrustStore
 
     cat <<EOF
 
