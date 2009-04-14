@@ -59,13 +59,19 @@ do
   shift # always consume one argument
 done
 
+if test -f /etc/SuSE-release; then
+  ZONE_PATH="/var/lib/named"
+else
+  ZONE_PATH="/var/named"
+fi
+
 # Generate the zone file
 domname=`dnsdomainname`
 echo "Generating zone file for:"
 echo $domname
 echo $Args
-@SIPX_BINDIR@/sipx-dns $domname $Args > /var/named/${domname}.zone
-chgowner=`/bin/chown named:named /var/named/${domname}.zone`
+@SIPX_BINDIR@/sipx-dns $domname $Args > ${ZONE_PATH}/${domname}.zone
+chgowner=`/bin/chown named:named ${ZONE_PATH}/${domname}.zone`
 
 # Reload the zone files into the DNS server.
 # If the DNS server is not running this will do nothing.
