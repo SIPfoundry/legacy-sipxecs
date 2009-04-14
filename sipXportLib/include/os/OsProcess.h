@@ -136,6 +136,9 @@ public:
     virtual PID getParentPID();
      //: Returns the parent PID for this process.
 
+    /// returns the thread ID currently running
+    static pthread_t getCurrentThreadId();
+
     virtual OsStatus getProcessName(UtlString& rProcessName);
      //: Returns the current process name (full path).
      //: Returns OS_SUCCESS if name retrieved ok.

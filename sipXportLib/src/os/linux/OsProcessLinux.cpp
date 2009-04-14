@@ -531,6 +531,11 @@ PID OsProcessLinux::getCurrentPID()
     return getpid();
 }
 
+pthread_t OsProcessLinux::getCurrentThreadId()
+{
+    return pthread_self();
+}
+
 /* ============================ INQUIRY =================================== */
 UtlBoolean OsProcessLinux::isRunning() const
 {

@@ -71,6 +71,11 @@ PID OsProcessBase::getCurrentPID()
     return 0; //doesn't mean anything for base class, we need to know platform first
 }
 
+pthread_t OsProcessBase::getCurrentThreadId()
+{
+    return 0; //doesn't mean anything for base class, we need to know platform first
+}
+
 PID OsProcessBase::getPID()
 {
     return mPID;

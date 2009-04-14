@@ -291,6 +291,7 @@ OsStatus OsSysLog::add(const OsSysLogFacility facility,
       else
       {
          mysprintf(taskName, "pid-%d", OsProcess::getCurrentPID()) ;
+         taskId = OsProcess::getCurrentThreadId();
       }
          
       rc = vadd(taskName.data(), taskId, facility, priority, format, ap);
