@@ -1176,7 +1176,6 @@ insert into initialization_task (name) values ('sbc_address_migrate_sbc_device')
 insert into initialization_task (name) values ('sip_trunk_address_migrate_sbc_device');
 insert into initialization_task (name) values ('migrate_locations');
 insert into initialization_task (name) values ('initialize-location-service-mapping');
-insert into initialization_task (name) values ('init-location-specific-service');
 insert into initialization_task (name) values ('acd_server_migrate_acd_service');
 insert into initialization_task (name) values ('default-time-zone');
 insert into initialization_task (name) values ('migrate-conference-bridges');

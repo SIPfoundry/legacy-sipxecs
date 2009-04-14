@@ -21,5 +21,3 @@ insert into location_specific_service(
 
 -- remove table that is no longer used
 drop table location_sipx_service cascade;
-
-insert into initialization_task (name) values('init-location-specific-service');
