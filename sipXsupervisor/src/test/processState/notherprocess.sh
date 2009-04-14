@@ -11,8 +11,8 @@ Args=""
 # Check if the process is alive
 proc_alive() # pid
 {
-      2>/dev/null kill -0 $1
-            return $?
+   2>/dev/null kill -0 $1
+   return $?
 }
 
 sipx_stop() {
@@ -32,7 +32,7 @@ sipx_stop() {
           for ticks in `seq 19 -1 0`
           do
              sleep 1
-             proc_alive "PID" && echo -n "." || break
+             proc_alive "$PID" && echo -n "." || break
           done
           if proc_alive "$PID"
           then
@@ -96,30 +96,30 @@ do
             ;;
 
         *)
-            Args="$Args $1"
+            Args="$1"
             ;;
     esac           
 
     shift # always consume 1
 done
 
-pidfile=/tmp/notherprocess.pid
+pidfile=/tmp/$Args.pid
 
 case ${Action} in
    RUN)
      echo $$ > ${pidfile}
-     echo faking start for notherprocess...
+     echo faking start for $Args...
      sleep 50
      ;;
 
    STOP)
-     echo killing notherprocess...
-     sipx_stop testsuite ${pidfile}
+     echo killing $Args...
+     sipx_stop $Args ${pidfile}
      ;;
 
    CONFIGTEST)
      Status=0
-     echo faking configtest for notherprocess...
+     echo faking configtest for $Args...
      sleep 0.5
      ;;
 esac

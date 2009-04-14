@@ -4,17 +4,22 @@
   <version>1.0.0</version>
   <commands>
     <configtest>
-      <execute>./newprocess1.sh</execute>
+      <execute>./notherprocess.sh</execute>
+      <parameter>--configtest</parameter>
+      <parameter>new</parameter>
     </configtest>
     <start>
-      <execute>./newprocess2.sh</execute>
+      <execute>./notherprocess.sh</execute>
+      <parameter>new</parameter>
     </start>
     <stop>
-      <execute>./newprocess3.sh</execute>
+      <execute>./notherprocess.sh</execute>
+      <parameter>--stop</parameter>
+      <parameter>new</parameter>
     </stop>
   </commands>
   <status>
-    <pid>/var/run/newprocess.pid</pid>
+    <pid>/var/run/new.pid</pid>
   </status>
   <resources>
     <file>work/processState/newprocess.xml</file>

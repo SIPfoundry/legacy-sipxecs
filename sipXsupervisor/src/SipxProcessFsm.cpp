@@ -168,6 +168,11 @@ void Disabled::evProcessStopped( SipxProcess& impl ) const
                  impl.name(), impl.GetCurrentState()->name());
 }
 
+void Disabled::evShutdown( SipxProcess& impl ) const
+{
+   ChangeState( impl, impl.pShutDown );
+}
+
 
 void ConfigurationMismatch::DoEntryAction( SipxProcess& impl ) const
 {
@@ -249,6 +254,14 @@ void Testing::evRestartProcess( SipxProcess& impl ) const
    OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s': aborting configtest in order to restart",
                  impl.name());
    ChangeState( impl, impl.pStoppingConfigtestToRestart );
+   impl.killConfigTest();
+}
+
+void Testing::evShutdown( SipxProcess& impl ) const
+{
+   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s': aborting configtest in order to shutdown",
+                 impl.name());
+   ChangeState( impl, impl.pShuttingDown );
    impl.killConfigTest();
 }
 
@@ -457,6 +470,20 @@ void ShuttingDown::evStopCompleted( SipxProcess& impl ) const
    }
 }
 
+void ShuttingDown::evConfigTestPassed( SipxProcess& impl ) const
+{
+   ChangeState( impl, impl.pShutDown );
+}
+
+void ShuttingDown::evConfigTestFailed( SipxProcess& impl ) const
+{
+   ChangeState( impl, impl.pShutDown );
+}
+
+void ShuttingDown::evShutdown( SipxProcess& impl ) const
+{
+   // NOP
+}
 
 void ShutDown::DoEntryAction( SipxProcess& impl ) const
 {   
@@ -469,3 +496,7 @@ void ShutDown::evStopCompleted( SipxProcess& impl ) const
                  impl.name(), impl.GetCurrentState()->name());
 }
 
+void ShutDown::evShutdown( SipxProcess& impl ) const
+{
+   // NOP
+}

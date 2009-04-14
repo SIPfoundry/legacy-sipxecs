@@ -6,17 +6,20 @@
     <configtest>
       <execute>./notherprocess.sh</execute>
       <parameter>--configtest</parameter>
+      <parameter>nother</parameter>
     </configtest>
     <start>
       <execute>./notherprocess.sh</execute>
+      <parameter>nother</parameter>
     </start>
     <stop>
       <execute>./notherprocess.sh</execute>
       <parameter>--stop</parameter>
+      <parameter>nother</parameter>
     </stop>
   </commands>
   <status>
-    <pid>/tmp/notherprocess.pid</pid>
+    <pid>/tmp/nother.pid</pid>
   </status>
   <resources>
     <file>work/processState/another-process.xml</file>

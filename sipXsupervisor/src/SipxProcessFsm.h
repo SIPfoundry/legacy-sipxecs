@@ -89,6 +89,7 @@ public:
    virtual void evRestartProcess( SipxProcess& impl ) const;
    virtual void evStopProcess( SipxProcess& impl ) const;
    virtual void evProcessStopped( SipxProcess& impl ) const;
+   virtual void evShutdown( SipxProcess& impl ) const;
 };
 
 class ConfigurationMismatch: public SipxProcessFsm
@@ -128,6 +129,7 @@ public:
    virtual void evConfigTestPassed( SipxProcess& impl ) const;
    virtual void evConfigTestFailed( SipxProcess& impl ) const;
    virtual void evRestartProcess( SipxProcess& impl ) const;
+   virtual void evShutdown( SipxProcess& impl ) const;
 };
 
 class StoppingConfigtestToRestart : public SipxProcessFsm
@@ -220,6 +222,9 @@ public:
    virtual void DoEntryAction( SipxProcess& impl ) const;
    virtual void evProcessStopped( SipxProcess& impl ) const;
    virtual void evStopCompleted( SipxProcess& impl ) const;
+   virtual void evConfigTestPassed( SipxProcess& impl ) const;
+   virtual void evConfigTestFailed( SipxProcess& impl ) const;
+   virtual void evShutdown( SipxProcess& impl ) const;
 };
 
 
@@ -232,6 +237,7 @@ public:
    // State machine events relevant for this state
    virtual void DoEntryAction( SipxProcess& impl ) const;
    virtual void evStopCompleted( SipxProcess& impl ) const;
+   virtual void evShutdown( SipxProcess& impl ) const;
 };
 
 #endif // _SipxProcessFsmS_H_
