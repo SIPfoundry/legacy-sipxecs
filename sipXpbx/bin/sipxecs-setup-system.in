@@ -680,7 +680,7 @@ options {\n\
     setOwnerRecursive(sipxecsGlobals.NamedDirectory, 'named', 'named')
 
     if runningAsRoot():
-        startNamedCmd = 'service named restart'
+        startNamedCmd = '/sbin/service named restart'
         log_printout("Attempting to start DNS with: '%s'" % startNamedCmd)
         cmdoutput=commands.getoutput(startNamedCmd)
         log_printout(cmdoutput)
@@ -791,7 +791,7 @@ def start_network () :
      # restart the network
 
      show_starting()
-     netRestart='service network restart'
+     netRestart='/sbin/service network restart'
      if runningAsRoot() :
          cmdoutput=commands.getoutput(netRestart)
      else :
@@ -1011,7 +1011,7 @@ driftfile /var/lib/ntp/drift\n\
         show_starting()
         if runningAsRoot() :
             log_printout("Stopping ntp service to set time")
-            cmdoutput=commands.getoutput ('service %s stop' % sipxecsGlobals.NtpServiceName)
+            cmdoutput=commands.getoutput ('/sbin/service %s stop' % sipxecsGlobals.NtpServiceName)
             log_printout (cmdoutput)
             ntpSetCmd='/usr/sbin/ntpdate ' + ' '.join(NtpServers)
             log_printout("Attempting to set date/time with: '%s'" % ntpSetCmd)
@@ -1234,10 +1234,10 @@ Hours are 00-23.\
     progress(79, ntpStartMsg)
     show_starting()
     if runningAsRoot() :
-        cmdoutput=commands.getoutput ('service %s start' % sipxecsGlobals.NtpServiceName)
+        cmdoutput=commands.getoutput ('/sbin/service %s start' % sipxecsGlobals.NtpServiceName)
         log_printout (cmdoutput)
     else :
-        log_printout('(simlulated) service %s start' % sipxecsGlobals.NtpServiceName)
+        log_printout('(simulated) /sbin/service %s start' % sipxecsGlobals.NtpServiceName)
     show_next()
 
 def removeInitScript () :

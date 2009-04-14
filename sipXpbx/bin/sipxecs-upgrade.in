@@ -125,7 +125,7 @@ Your upgrade is complete.\
     if choice == startButton :
         log_printout('--- Starting @SIPXECS_NAME@ ---' )
         if runningAsRoot() :
-           execNext('service', ['sipxecs', 'start'])
+           execNext('/sbin/service', ['sipxecs', 'start'])
            # execNext does not return
         else :
            execNext('sudo', ['@SERVICEDIR@/sipxecs', 'start'])
