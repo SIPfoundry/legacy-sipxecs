@@ -94,8 +94,6 @@ ShuttingDown*            SipxProcess::pShuttingDown = 0;
 ShutDown*                SipxProcess::pShutDown = 0;
 Undefined*               SipxProcess::pUndefined = 0;
 
-OsMutex                  SipxProcess::sLock(OsMutex::Q_FIFO);
-
 // FORWARD DECLARATIONS
 
 /// constructor
@@ -105,6 +103,7 @@ SipxProcess::SipxProcess(const UtlString& name,
                          ) :
    UtlString(name),
    OsServerTask("SipxProcess-%d"),
+   mLock(OsMutex::Q_FIFO),
    mVersion(version),
    mConfigtest(NULL),
    mStart(NULL),
@@ -168,16 +167,31 @@ void SipxProcess::initializeStatePointers( void )
 }
 
 
+void SipxProcess::checkThreadId()
+{
+   pthread_t currThreadId;
+   currThreadId = OsProcess::getCurrentThreadId();
+
+   if ( currThreadId != mpThreadId )
+   {
+      OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT,
+            "SipxProcess::checkThreadId: state machine function called from incorrect thread "
+            "%01X - should be %01X", (unsigned)currThreadId, (unsigned)mpThreadId);
+      assert(0);
+   }
+}
+
 const SipxProcessFsm* SipxProcess::GetCurrentState()
 {
-   OsLock mutex(sLock);
+   OsLock mutex(mLock);
 
    return mpCurrentState;
 }  
    
 void SipxProcess::SetCurrentState( const SipxProcessFsm* pState )
 {
-   OsLock mutex(sLock);
+   checkThreadId();
+   OsLock mutex(mLock);
 
    mpCurrentState = pState;
 }
@@ -649,7 +663,7 @@ SipxProcess* SipxProcess::createFromDefinition(const OsPath& definitionFile)
                      process->readPersistentState();
 
                      {
-                        OsLock mutex(process->sLock);
+                        OsLock mutex(process->mLock);
                         /*
                          * Now that the SipxProcessManager could return this, locking is
                          * important.  Both persistDesiredState and readConfigurationVersion
@@ -727,7 +741,7 @@ SipxProcess* SipxProcess::createFromDefinition(const OsPath& definitionFile)
 /// Return the SipxProcessResource for this SipxProcess.
 SipxProcessResource* SipxProcess::resource()
 {
-   OsLock mutex(sLock);
+   OsLock mutex(mLock);
    
    return mSelfResource;
 }
@@ -736,7 +750,7 @@ SipxProcessResource* SipxProcess::resource()
 // Caller must hold the lock
 bool SipxProcess::isEnabled()
 {
-   OsLock mutex(sLock);
+   OsLock mutex(mLock);
    
    OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess[%s]::isEnabled %d",
                  data(), (pRunning == mpDesiredState) );
@@ -751,7 +765,7 @@ bool SipxProcess::isEnabled()
 /// Return whether or not the service for this process is Running.
 bool SipxProcess::isRunning()
 {
-   OsLock mutex(sLock);
+   OsLock mutex(mLock);
    
    OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess[%s]::isRunning %d",
                  data(), (pRunning == mpCurrentState) );
@@ -769,7 +783,11 @@ bool SipxProcess::isCompletelyStopped()
 
 void SipxProcess::startStateMachineInTask()
 {
-   OsLock mutex(sLock);
+   // from now on, all state machine activity must happen in this thread
+   {
+      OsLock mutex(mLock);
+      mpThreadId = OsProcess::getCurrentThreadId();
+   }
 
    const SipxProcessFsm* pState = pDisabled;
    StateAlg::StartStateMachine( *this, pState );
@@ -778,14 +796,14 @@ void SipxProcess::startStateMachineInTask()
 /// Set the persistent desired state of the SipxProcess to Running.
 void SipxProcess::enableInTask()
 {
-   OsLock mutex(sLock);
-
    OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess[%s]::enable",
                  data());
-
-   mRetries=0;
-   mpDesiredState = pRunning;
-   persistDesiredState();
+   {
+      OsLock mutex(mLock);
+      mRetries=0;
+      mpDesiredState = pRunning;
+      persistDesiredState();
+   }
 
    mpCurrentState->evStartProcess(*this);
 }
@@ -793,13 +811,14 @@ void SipxProcess::enableInTask()
 /// Set the persistent desired state of the SipxProcess to Disabled.
 void SipxProcess::disableInTask()
 {
-   OsLock mutex(sLock);
-   
    OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess[%s]::disable",
                  data());
 
-   mpDesiredState = pDisabled;
-   persistDesiredState();
+   {
+      OsLock mutex(mLock);
+      mpDesiredState = pDisabled;
+      persistDesiredState();
+   }
 
    mpCurrentState->evStopProcess(*this);
 }
@@ -807,12 +826,13 @@ void SipxProcess::disableInTask()
 /// Stop the process without Disabling the persistent desired state
 void SipxProcess::restartInTask()
 {
-   OsLock mutex(sLock);
-   
    OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess[%s]::restart",
                  data());
 
-   mRetries=0;
+   {
+      OsLock mutex(mLock);
+      mRetries=0;
+   }
 
    mpCurrentState->evRestartProcess(*this);
 }
@@ -820,8 +840,6 @@ void SipxProcess::restartInTask()
 /// Shutting down sipXsupervisor, so shut down the service.
 void SipxProcess::shutdownInTask()
 {
-   OsLock mutex(sLock);
-   
    //This does not affect the persistent state of the service.
    OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess[%s]::shutdown in state %s",
                  data(), mpCurrentState->name());
@@ -861,6 +879,18 @@ bool SipxProcess::restart()
 void SipxProcess::shutdown()
 {
    SipxProcessMsg message(SipxProcessMsg::SHUTDOWN );
+   postMessage( message );
+}
+
+void SipxProcess::configurationVersionChange()
+{
+   SipxProcessMsg message(SipxProcessMsg::CONFIG_VERSION_CHANGED );
+   postMessage( message );
+}
+
+void SipxProcess::configurationChange(const SipxResource& changedResource)
+{
+   SipxProcessMsg message(SipxProcessMsg::CONFIG_CHANGED, NULL, 0, NULL, &changedResource );
    postMessage( message );
 }
 
@@ -972,6 +1002,14 @@ UtlBoolean SipxProcess::handleMessage( OsMsg& rMsg )
          evRetryTimeoutInTask();
          handled = TRUE;
          break;
+      case SipxProcessMsg::CONFIG_VERSION_CHANGED:
+         configurationVersionChangeInTask();
+         handled = TRUE;
+         break;
+      case SipxProcessMsg::CONFIG_CHANGED:
+         configurationChangeInTask((SipxResource*)pMsg->getUserData());
+         handled = TRUE;
+         break;
 
       case SipxProcessMsg::STARTED:
          evCommandStartedInTask(pMsg->getCmd());
@@ -1008,17 +1046,16 @@ UtlBoolean SipxProcess::handleMessage( OsMsg& rMsg )
 
 void SipxProcess::evRetryTimeoutInTask()
 {
-   OsLock mutex(sLock);
-
    OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess[%s]::evRetryTimeoutInTask",
                  data());
+   checkThreadId();
 
    mpCurrentState->evRetryTimeout(*this);
 }
 
 void SipxProcess::evCommandStartedInTask(const SipxProcessCmd* command)
 {
-   OsLock mutex(sLock);
+   checkThreadId();
 
    if (command == mStart)
    {
@@ -1036,7 +1073,7 @@ void SipxProcess::evCommandStartedInTask(const SipxProcessCmd* command)
 
 void SipxProcess::evCommandStoppedInTask(const SipxProcessCmd* command, int rc)
 {
-   OsLock mutex(sLock);
+   checkThreadId();
 
    if (command == mStart)
    {
@@ -1073,6 +1110,8 @@ void SipxProcess::evCommandOutputInTask(const SipxProcessCmd* command,
                                         OsSysLogPriority pri, 
                                         UtlString output)
 {
+   checkThreadId();
+
    // The output is sure to contain newlines, and may contain several lines.
    // Clean it up before dispatching.
    UtlTokenizer tokenizer(output);
@@ -1084,25 +1123,25 @@ void SipxProcess::evCommandOutputInTask(const SipxProcessCmd* command,
 }
 
 /// Notify the SipxProcess that some configuration change has occurred.
-void SipxProcess::configurationChange(const SipxResource& changedResource)
+void SipxProcess::configurationChangeInTask(const SipxResource* changedResource)
 {
    UtlString changedResourceDescription;
-   changedResource.appendDescription(changedResourceDescription);
+   changedResource->appendDescription(changedResourceDescription);
    
    OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess[%s]::configurationChange(%s)",
                  data(), changedResourceDescription.data());
+   checkThreadId();
 
-   OsLock mutex(sLock);
    mpCurrentState->evConfigurationChanged(*this);
 }
    
 /// Notify the SipxProcess that some configuration change has occurred.
-void SipxProcess::configurationVersionChange()
+void SipxProcess::configurationVersionChangeInTask()
 {
    OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess[%s]::configurationVersionChange(%s)",
                  data(), mConfigVersion.data());
    
-   OsLock mutex(sLock);
+   checkThreadId();
    mpCurrentState->evConfigurationChanged(*this);
 }
 
@@ -1129,6 +1168,7 @@ void SipxProcess::stopProcess()
 
 void SipxProcess::processFailed()
 {
+   OsLock mutex(mLock);
    // if process managed to stay up for a minute after its last restart, 
    // then start the retry counter over again.  Otherwise random failures
    // will accumulate and prevent quick recovery.
@@ -1182,7 +1222,7 @@ void SipxProcess::cancelRetryTimer()
 
 void SipxProcess::readConfigurationVersion()
 {
-   // caller must be holding sLock
+   // caller must be holding mLock
 
    OsPath persistentConfigVersionPath(SipXecsService::Path(SipXecsService::VarDirType,
                                                            SipxProcessConfigVersionDir)
@@ -1221,7 +1261,7 @@ void SipxProcess::readConfigurationVersion()
 /// Check whether or not the configuration version matches the process version.
 bool SipxProcess::configurationVersionMatches()
 {
-   OsLock mutex(sLock);
+   OsLock mutex(mLock);
    bool versionMatches = (0==mConfigVersion.compareTo(mVersion, UtlString::matchCase));
 
    if (!versionMatches)
@@ -1237,7 +1277,7 @@ bool SipxProcess::configurationVersionMatches()
 /// Set the version stamp value of the configuration.
 void SipxProcess::setConfigurationVersion(const UtlString& newConfigVersion)
 {
-   OsLock mutex(sLock);
+   OsLock mutex(mLock);
    
    if (0!=newConfigVersion.compareTo(mConfigVersion,UtlString::matchCase))
    {
@@ -1310,7 +1350,7 @@ void SipxProcess::setConfigurationVersion(const UtlString& newConfigVersion)
 void SipxProcess::getConfigurationVersion(UtlString& version)
 {
    version.remove(0);
-   OsLock mutex(sLock);
+   OsLock mutex(mLock);
    
    if (!mConfigVersion.isNull())
    {
@@ -1330,8 +1370,7 @@ void SipxProcess::getConfigurationVersion(UtlString& version)
 /// Check that all resources on the mRequiredResources list are ready so this can start.
 bool SipxProcess::resourcesAreReady()
 {
-   OsLock mutex(sLock);
-   
+   // the lock is not required when creating or using the UtlIterator (ref?)
    UtlSListIterator resourceListIterator( mRequiredResources );
    SipxResource* pResource;
    bool bReady = true;
@@ -1360,14 +1399,14 @@ UtlContainableType SipxProcess::getContainableType() const
 
 void SipxProcess::requireResource(SipxResource* resource)
 {
-   OsLock mutex(sLock);
+   OsLock mutex(mLock);
 
    mRequiredResources.append(resource);
 }
 
 void SipxProcess::resourceIsOptional(SipxResource* resource)
 {
-   OsLock mutex(sLock);
+   OsLock mutex(mLock);
 
    mRequiredResources.removeReference(resource);
 }
@@ -1376,7 +1415,7 @@ void SipxProcess::resourceIsOptional(SipxResource* resource)
 /// Save the persistent desired state.
 void SipxProcess::persistDesiredState()
 {
-   // caller must be holding sLock.
+   // caller must be holding mLock.
 
    OsPath persistentStateDirPath  // normally {prefix}/var/sipxecs/process-state
       = SipXecsService::Path(SipXecsService::VarDirType, SipxProcessStateDir);
@@ -1426,7 +1465,7 @@ void SipxProcess::persistDesiredState()
 /// Read the persistent desired state into mDesiredState.
 void SipxProcess::readPersistentState()
 {
-   OsLock mutex(sLock);
+   OsLock mutex(mLock);
    
    mpDesiredState = pDisabled;
 
@@ -1464,8 +1503,7 @@ void SipxProcess::readPersistentState()
 /// The caller is responsible for freeing the memory used for the strings.
 void SipxProcess::getStatusMessages(UtlSList& statusMessages)
 {
-   OsLock mutex(sLock);
-   
+   //UtlSListIterator does not require a lock (ref?)
    statusMessages.removeAll();
    UtlSListIterator messages(mStatusMessages);
    UtlString* message = NULL;
@@ -1478,7 +1516,7 @@ void SipxProcess::getStatusMessages(UtlSList& statusMessages)
 /// Clear any status messages accumulated so far and reset log counters
 void SipxProcess::clearStatusMessages()
 {
-   OsLock mutex(sLock);
+   OsLock mutex(mLock);
    
    mStatusMessages.destroyAll();
    mNumStdoutMsgs = 0;
@@ -1489,12 +1527,7 @@ void SipxProcess::clearStatusMessages()
 /// in turn notify the processes that have a start-up dependency on this.
 void SipxProcess::notifyProcessRunning()
 {
-   OsLock mutex(sLock);
-   
-   if( mSelfResource )
-   {
-      mSelfResource->modified();
-   }
+   resource()->modified();
 }
 
 /// Custom comparison method that allows SipxProcess retrieved in Utl containers
@@ -1520,7 +1553,7 @@ int SipxProcess::compareTo(const char* other) const
 /// Save status message so it can be queried later
 void SipxProcess::addStatusMessage(const char* msgTag, UtlString& msg)
 {
-   OsLock mutex(sLock);
+   OsLock mutex(mLock);
    
    // only keep a limited amount of command output.
    if ( mStatusMessages.entries() > MAX_STATUS_MSGS )
@@ -1557,7 +1590,7 @@ void SipxProcess::logMissingResource(UtlString& resource)
 /// Save and log a command output message
 void SipxProcess::logCommandOutput(OsSysLogPriority pri, UtlString& msg)
 {
-   OsLock mutex(sLock);
+   OsLock mutex(mLock);
    
    UtlString msgTag;
    if ( pri == PRI_ERR )
@@ -1600,7 +1633,7 @@ SipxProcess::~SipxProcess()
       waitUntilShutDown();
    }
    
-   OsLock mutex(sLock);
+   OsLock mutex(mLock);
    if (mConfigtest)
    {
       delete mConfigtest;
@@ -1633,12 +1666,14 @@ SipxProcess::~SipxProcess()
 SipxProcessMsg::SipxProcessMsg(EventSubType eventSubType,
                                const SipxProcessCmd* cmd,
                                int rc,
-                               const UtlString& message
+                               const UtlString& message,
+                               const void *userData
                                ):
    OsMsg( OS_EVENT, eventSubType ),
    mCmd( cmd ),
    mIntData( rc ),
-   mMessage( message )
+   mMessage( message ),
+   mUserData( userData )
 {
 }
 
@@ -1647,7 +1682,8 @@ SipxProcessMsg::SipxProcessMsg( const SipxProcessMsg& rhs) :
    OsMsg( OS_EVENT, rhs.getMsgSubType() ),
    mCmd( rhs.getCmd() ),
    mIntData( rhs.getIntData() ),
-   mMessage( rhs.getMessage() )
+   mMessage( rhs.getMessage() ),
+   mUserData( rhs.getUserData() )
 {
 }
 

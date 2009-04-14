@@ -107,7 +107,7 @@ void SipxProcessManager::getProcessStateAll(UtlHashMap& processStates //< key->n
    processStates.destroyAll();
    SipxProcess* process;
 
-   OsLock mutex(mProcessTableLock);
+   // the lock is not required with the Iterator
    UtlHashBagIterator processes(mProcesses);
    while ((process = dynamic_cast<SipxProcess*>(processes())))
    {

@@ -127,12 +127,14 @@ void SipxProcessFsm::evConfigTestFailed( SipxProcess& impl ) const
 void SipxProcessFsm::ChangeState( SipxProcess& impl, 
                                        const SipxProcessFsm* targetState ) const
 {
-    StateAlg::ChangeState( impl, this, targetState );
+   impl.checkThreadId();
+   StateAlg::ChangeState( impl, this, targetState );
 }
 
 
 void Disabled::DoEntryAction( SipxProcess& impl ) const
 {
+   impl.checkThreadId();
    impl.clearStatusMessages();
 
    if (impl.isEnabled())
@@ -169,6 +171,7 @@ void Disabled::evProcessStopped( SipxProcess& impl ) const
 
 void ConfigurationMismatch::DoEntryAction( SipxProcess& impl ) const
 {
+   impl.checkThreadId();
    impl.clearStatusMessages();
    
    if ( impl.configurationVersionMatches() )
@@ -201,6 +204,7 @@ void ConfigurationMismatch::evRestartProcess( SipxProcess& impl ) const
 
 void ResourceRequired::DoEntryAction( SipxProcess& impl ) const
 {
+   impl.checkThreadId();
    impl.clearStatusMessages();
 
    if ( impl.resourcesAreReady() )
@@ -222,6 +226,7 @@ void ResourceRequired::evRestartProcess( SipxProcess& impl ) const
 
 void Testing::DoEntryAction( SipxProcess& impl ) const
 {
+   impl.checkThreadId();
    impl.clearStatusMessages();
 
    impl.startConfigTest();
@@ -281,6 +286,7 @@ void ConfigTestFailed::evConfigurationVersionUpdated( SipxProcess& impl ) const
 
 void Starting::DoEntryAction( SipxProcess& impl ) const
 {
+   impl.checkThreadId();
    impl.startProcess();
 }
 
@@ -296,6 +302,7 @@ void Starting::evProcessStarted( SipxProcess& impl ) const
 
 void Stopping::DoEntryAction( SipxProcess& impl ) const
 {
+   impl.checkThreadId();
    impl.stopProcess();
 }
 
@@ -310,6 +317,7 @@ void Stopping::evRestartProcess( SipxProcess& impl ) const
 // before we move on.  These events can come in any order.
 void Stopping::evProcessStopped( SipxProcess& impl ) const
 {
+   impl.checkThreadId();
    if (impl.isCompletelyStopped())
    {
       if (impl.isEnabled())
@@ -330,6 +338,7 @@ void Stopping::evProcessStopped( SipxProcess& impl ) const
 
 void Stopping::evStopCompleted( SipxProcess& impl ) const
 {
+   impl.checkThreadId();
    if (impl.isCompletelyStopped())
    {
       if (impl.isEnabled())
@@ -403,6 +412,7 @@ void Running::evShutdown( SipxProcess& impl ) const
 
 void Running::evProcessStopped( SipxProcess& impl ) const
 {
+   impl.checkThreadId();
    if (impl.isEnabled())
    {
       impl.processFailed();

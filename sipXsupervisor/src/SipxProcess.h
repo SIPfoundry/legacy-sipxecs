@@ -82,6 +82,11 @@ class SipxProcessStateTest;
  *
  * @par(SipxProcess State Machine:)
  *
+ * State machine events are handled by a single thread and are read from a message queue
+ * (handleMessage).  This is enforced by checkThreadId() which is called at least on every
+ * state change.  The process lock should not be held while handling events (it should only
+ * be held while member variables are accessed).
+ *
  * The following shows the states and transition events for a SipxProcess:
  *
  * @dot
@@ -297,6 +302,9 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
      void disableInTask();
      void restartInTask();
      void shutdownInTask();
+     void configurationVersionChangeInTask();
+     void configurationChangeInTask(const SipxResource* changedResource);
+
    
    
 // ================================================================
@@ -368,6 +376,7 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
    // /////////////////////////////////////// //
    // state machine framework related methods //
    // /////////////////////////////////////// //
+   void checkThreadId();                                 ///< Enforces single threading of FSM
    const SipxProcessFsm* GetCurrentState();              ///< Returns the current state, as required by UtlFsm's StateAlg 
    void SetCurrentState( const SipxProcessFsm* pState ); ///< Sets the current state, as required by UtlFsm's StateAlg
    const char* name( void ) const;                       ///< Returns the state name string
@@ -393,7 +402,7 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
 
    /// Save the persistent desired state from mDesiredState.
    void persistDesiredState();
-   ///< caller must be holding sLock.
+   ///< caller must be holding mLock.
 
    /// Read the persistent desired state into mDesiredState.
    void readPersistentState();
@@ -425,15 +434,14 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
 
    /// Read version stamp value of the configuration into mConfigVersion.
    void readConfigurationVersion();
-   ///< caller must be holding sLock.
+   ///< caller must be holding mLock.
 
 ///@}
 // ================================================================
 
   private:
 
-   /// one lock across all process objects to allow inter-process dependencies
-   static OsMutex   sLock;          ///< must be held to access other member variables.
+   OsMutex          mLock;          ///< must be held to access other member variables.
 
    SipxProcessResource* mSelfResource;  ///< the SipxProcessResource for this SipxProcess.
 
@@ -472,6 +480,9 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
    OsPath           mDefinitionFile; ///< path to *-process.xml file that defined this process.
    
    UtlBoolean       mbTaskRunning;     ///< true if the FSM is running in its own task
+   pthread_t        mpThreadId;        /**< thread ID of the FSM task.  All state activity
+                                        *   must be in this thread.
+                                        */
    OsTimer*         mpTimer;
    OsCallback*      mpTimeoutCallback;
    ssize_t          mRetries;          ///< number of times we have attempted to start process
@@ -519,6 +530,8 @@ public:
       RESTART     = 3,
       SHUTDOWN    = 4,
       RETRY_TIMEOUT = 5,
+      CONFIG_VERSION_CHANGED = 6,
+      CONFIG_CHANGED = 7,
       
       // return events from the SipxProcessCmd task: must supply cmd
       STARTED     = 10,
@@ -530,7 +543,8 @@ public:
    SipxProcessMsg(EventSubType eventSubType,
               const SipxProcessCmd* cmd = NULL,     ///< command which is returning
               int   rc = 0,                         ///< optional int data from command
-              const UtlString& message = NULL       ///< optional message from command
+              const UtlString& message = NULL,      ///< optional message from command
+              const void* userData = NULL           ///< optional user data
               );
 
    /// Destructor
@@ -540,6 +554,7 @@ public:
    const SipxProcessCmd* getCmd( void ) const    {return mCmd;}
    int   getIntData( void )             const    {return mIntData;}
    const UtlString& getMessage( void )  const    {return mMessage;}
+   const void* getUserData( void )      const    {return mUserData;}
  
 protected:
    static const UtlContainableType TYPE;   ///< Class type used for runtime checking
@@ -548,6 +563,7 @@ private:
    const SipxProcessCmd* mCmd;               ///< command which is returning
    int   mIntData;                           ///< optional int from command
    UtlString mMessage;                       ///< optional msg from command
+   const void* mUserData;                    ///< optional user data
 
    /// Copy constructor
    SipxProcessMsg( const SipxProcessMsg& rhs);
