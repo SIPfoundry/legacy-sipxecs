@@ -843,6 +843,7 @@ EOF
 
 ################################################################
 #### Install the cert for a new host
+#### This method does not generate a CA certificate.
 ################################################################
 doAddNewHostCert()
 {
@@ -860,9 +861,9 @@ EOF
 
     genServerCSR
     signServerCertificate
-    aliasName="${serverName}"
+    aliasName="${caName}"
     generatePKCSPackage
-    updatePrimaryServerTrustStore
+#    updatePrimaryServerTrustStore
 
     cat <<EOF
 
