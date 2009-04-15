@@ -1,0 +1,56 @@
+SIPX-ALIAS2DOT(1)
+=================
+
+NAME
+----
+sipx-alias2dot - translates alias file into input for the dot graph generator.
+
+SYNOPSIS
+--------
+
+sipx-alias2dot  [ { --help | -h } ]
+                [ { --domain | -d } <domain-name> ]
+                <alias.xml>
+
+DESCRIPTION
+-----------
+
+Given an alias.xml file (the persistent copy of the aliases in-memory 
+database), prints a directed graph (on stdout) for processing with 'dot'
+to produce a visual map of the aliases. 
+
+This can be useful for finding loops or documenting how forwarding 
+relationships work.
+
+OPTIONS
+-------
+
+--domain  If specified, this argument strips the domain part of each 
+          identity in which appears (which generally makes reading easier).
+
+ENVIRONMENT
+-----------
+Requires the Perl packages Getopt::Long (included in the default 
+Perl distribution), and XML::Simple, which is available from CPAN
+and in most RPM repositories (for FC6 it is perl-XML-Simple).
+  
+EXAMPLE
+-------  
+
+$ sipx-alias2dot -d example.com /var/sipxdata/sipdb/alias.xml > alias.dot
+
+$ dot -Tpng alias.dot > alias.png
+   
+SEE ALSO
+--------
+dot
+
+BUGS
+----
+see http://tracker.sipfoundry.org
+  
+AUTHOR
+------
+Scott Lawrence
+
+

@@ -1,0 +1,5 @@
+<!-- do not validate against DTD - table snippet -->
+<dataset>
+  <attendant_dialing_rule attendant_aliases="aaa bbb" extension="987" after_hours_attendant_id="1000" after_hours_attendant_enabled="true" holiday_attendant_enabled="false" working_time_attendant_enabled="false"/>
+  <attendant_dialing_rule attendant_aliases="cc dddd" extension="988" after_hours_attendant_id="1001" after_hours_attendant_enabled="true" holiday_attendant_enabled="false" working_time_attendant_enabled="false"/>   
+</dataset>

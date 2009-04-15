@@ -1,0 +1,7 @@
+# Driver script with two test scripts.
+jobs ${J}
+time ${T}
+# Pause up to 30 seconds between job executions.
+randomize 30000
+script 1 leave-message TO=sip:${EXT}@${HOST}
+script 1 retrieve-message TO=sip:101@${HOST}

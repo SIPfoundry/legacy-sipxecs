@@ -1,0 +1,104 @@
+#!/bin/bash
+#
+# Copyright (C) 2004 SIPfoundry Inc.
+# Licensed by SIPfoundry under the LGPL license.
+#
+# Copyright (C) 2004 Pingtel Corp.
+# Licensed to SIPfoundry under a Contributor Agreement.
+
+Action=RUN
+Status=0
+Args=""
+
+iam=`whoami`
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        --configtest)
+            Action=CONFIGTEST
+            ;;
+
+        --stop)
+            Action=STOP
+            ;;
+
+        *)
+            Args="$Args $1"
+            ;;
+    esac           
+
+    shift # always consume 1
+done
+
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+
+SIPX_USER=@SIPXPBXUSER@
+
+FS_LOGDIR=@SIPX_LOGDIR@
+FS_DBDIR=@SIPX_VARDIR@/tmp/freeswitch
+FS_CONFDIR=@SIPX_CONFDIR@/freeswitch/conf
+FS_EXEC="@FREESWITCH_PREFIX@/bin/freeswitch \
+   -conf $FS_CONFDIR \
+   -db $FS_DBDIR \
+   -log $FS_LOGDIR \
+   -htdocs $FS_CONFDIR/htdocs"
+
+SIPXDIRS="$FS_DBDIR $FS_CONFDIR"
+pidFile=@SIPX_RUNDIR@/freeswitch.pid
+
+case ${Action} in
+   RUN)
+     ulimit -s 244  # Keep stack size small for maximum number of threads
+     echo $$ > $pidFile
+     exec $FS_EXEC -nc -nf -nosql $Args
+     exit 0
+     ;;
+
+   STOP)
+     PID=`cat ${pidFile} 2> /dev/null`
+
+     # Tell FS to stop the nice way
+     $FS_EXEC -stop
+
+     # Give it some time to die...
+     # (FreeSWITCH normally shuts down in about 5 seconds)
+     for ticks in `seq 10 -1 0`
+     do
+         sleep 1
+         proc_alive "$PID" && echo -n "." || break
+     done
+
+     if proc_alive "$PID"
+     then
+         # Still alive, kill it the hard way
+         sipx_stop freeswitch $pidFile
+     fi
+
+     exit $?
+     ;;
+
+   CONFIGTEST)
+     WRONGPERM=`find $SIPXDIRS -not -user $SIPX_USER -or -not -group $SIPX_USER 2> /dev/null | wc -l`
+     if [ $WRONGPERM -gt 0 ] 
+     then
+        if [ $iam = root ]
+        then
+           Status=0
+           echo -e "\n Fixing FreeSWITCH folder permissions \n"
+           rm -rf $SIPXDIRS
+           @SIPX_LIBEXECDIR@/setup.d/freeswitch_setup.sh
+        else
+           Status=1
+           echo -e "\n Invalid FreeSWITCH folders & files permissions, run 'freeswitch.sh --configtest' as root to fix this \n"
+        fi  
+     fi
+     # check validity of xml routing rules
+#     @SIPX_BINDIR@/sipx-validate-xml @FREESWITCH_PREFIX@/conf/freeswitch.xml
+#     Status=$?
+
+     ;;
+esac
+
+exit $Status
+

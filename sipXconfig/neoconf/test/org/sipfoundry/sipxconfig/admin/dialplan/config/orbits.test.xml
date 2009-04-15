@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<orbits xmlns="http://www.sipfoundry.org/sipX/schema/xml/orbits-00-00">
+  <music-on-hold>
+    <background-audio>file:///var/sipxdata/parkserver/music/default.wav</background-audio>
+  </music-on-hold>
+  <orbit>
+    <name>sales</name>
+    <extension>400</extension>
+    <background-audio>file:///var/sipxdata/parkserver/music/name%20with%20spaces.wav</background-audio>
+    <capacity>1</capacity>
+    <description>test description</description>
+  </orbit>
+  <orbit>
+    <name>CEO orbit</name>
+    <extension>179</extension>
+    <background-audio>file:///var/sipxdata/parkserver/music/marketing.wav</background-audio>
+    <time-out>150</time-out>
+    <transfer-key>9</transfer-key>
+  </orbit>
+</orbits>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<distributions>
+  <list>
+    <index>1</index>
+    <destination>200</destination>
+    <destination>202</destination>
+  </list>
+  <list>
+    <index>3</index>
+    <destination>211</destination>
+    <destination>212</destination>
+  </list>
+</distributions>

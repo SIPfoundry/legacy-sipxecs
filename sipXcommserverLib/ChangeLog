@@ -1,0 +1,49 @@
+The most current information on the status of any release is in the
+SIPfoundry Issue Tracker at:
+
+	http://track.sipfoundry.org/browse?XCS
+
+
+Release Notes - sipXcommsrvLib - Version 2.6.2
+
+** Bug
+   * fix check-cert.sh installation
+   * Support https on sipXconfig web admin ui
+   * [XPB-106] Raise default logging level to NOTICE.
+   * [XVX-100] Changed code so that authentication properly distinguishes between
+               <realm> and <domain>.  This is particularly important when the
+               two are not configured to be the same.
+
+
+Release Notes - sipXcommsrvLib - Version 2.6.1
+
+** Bug
+    * [XCS-15] - imdb empty after watchdog restarts it, not persistant
+    * [XCS-17] - class.cpp fails to compile under Microsoft's compiler, version 13
+    * [XCS-24] - install of sipxcommserverlib gives warning no sipxchange user
+    * [XCS-25] - Wrong certificate files being looked for when apache starts
+    * [XCS-26] - sipxcommserverlib rpm fails to create sipxchange user
+    * [XCS-27] - Missing INSTALL.ssl on install
+    * [XCS-28] - self-signed cert won't work if ca and server name are the same
+    * [XCS-32] - config.defs installed with read-only access level
+
+** Improvement
+    * [XCS-20] - Revise SIPDBManager::getVarPath and SIPDBManager::getCfgPath
+
+Release Notes - sipXcommsrvLib - Version 2.5.2
+
+** Bug
+    * [XCS-8] - Crash in Unittest UrlMapping
+    * [XCS-13] - dbmonitor.log in bin directory, should be in log dir
+    * [XCS-14] - imdb.odb in bin directory, should be in var dir
+    * [XCS-15] - imdb empty after watchdog restarts it, not persistant
+
+** Improvement
+    * [XCS-6] - Clean up code to remove all warnings.
+
+Release Notes - sipXcommsrvLib - Version 2.5.1
+
+** Bug
+    * [XCS-2] - won't build with sipXportLib
+
+

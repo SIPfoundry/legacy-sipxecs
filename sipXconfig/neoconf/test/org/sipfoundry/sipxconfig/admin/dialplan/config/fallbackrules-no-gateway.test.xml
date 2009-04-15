@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mappings xmlns="http://www.sipfoundry.org/sipX/schema/xml/fallback-00-00">
+  <hostMatch>
+    <hostPattern>example.org</hostPattern>
+    <hostPattern>sipx.example.org</hostPattern>
+    <hostPattern>sipx</hostPattern>
+    <hostPattern>192.168.1.1</hostPattern>
+  </hostMatch>
+</mappings>

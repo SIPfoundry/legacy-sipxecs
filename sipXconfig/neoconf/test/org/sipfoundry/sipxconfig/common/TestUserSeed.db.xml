@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+<dataset>
+	<users 
+    user_id="1000"
+    user_name="testuser" 
+    first_name="Test"
+    last_name="User"
+    sip_password="1234"
+    pintoken="1234"/>
+	<user_alias user_id="1000" alias="123"/>
+</dataset>

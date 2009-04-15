@@ -1,0 +1,89 @@
+#!/usr/bin/env ruby
+
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+require 'getoptlong'
+require 'rexml/document'
+
+class PolycomConfig
+  attr_accessor :verbose
+
+  def flatten(*files)
+      files.each { |file|
+	      doc = REXML::Document.new(File.new(file))	      
+	      print_elements(doc.root.elements)
+	   }
+  end
+  
+  def print_elements(elements)
+    elements.each { |element|
+	  print_element(element) 
+	}
+  end
+  
+  def print_element(element)
+    element.attributes.each { |name, value|
+      puts "#{element_path(element)}#{name}=#{value}"
+    }        
+    print_elements(element.elements)
+  end
+  
+  def element_path(element)
+    path = ''
+    e = element
+    while (e) do 
+      path = "#{e.name}/#{path}"
+      e = e.parent
+    end
+    path
+  end
+
+end
+
+def usage_exit(error_code=1)
+      usage = <<__EOU__
+
+  Usage: #{ $0 } xml-files ...
+
+    Flatten polycom configuration file so they can be viewed, grep'ed
+    and diff'ed more easily. Take any polycom configuration file.
+
+  Parameters:
+  -h|--help         This help text
+
+__EOU__
+
+      STDERR << usage
+      exit error_code
+end
+
+if __FILE__ == $0
+  OptSet = [
+    ['--help','-h', GetoptLong::NO_ARGUMENT]
+  ]
+
+  setup = PolycomConfig.new
+  opts = GetoptLong.new(*OptSet)
+  action = 'flatten'
+  begin
+    opts.each do |name, arg|
+      case name
+        when '--help'
+          usage_exit 0
+        else
+          usage_exit
+        end
+    end
+    
+  rescue StandardError => bang
+    puts bang
+    usage_exit
+  end
+
+  begin
+    setup.send(action, *ARGV)
+  end
+end
+

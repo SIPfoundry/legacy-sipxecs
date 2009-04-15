@@ -1,0 +1,61 @@
+# ===============================================================================================
+# Aastra SIP IP Phone configuration file
+# ================================================================================================
+
+#macro(Add_setting_with_subgroup $s)
+# -----------------------------------------
+#foreach ($group in $phone.Settings.Values)
+#if ($group.Name == $s)
+# == Settings for ${group.Name} ==
+#foreach ($setting in $group.Values)
+# __ ${setting.Name} __
+#foreach ($subSetting in $setting.Values)
+${subSetting.profileName}: $!{subSetting.Value}
+#end
+#end
+#end
+#end
+#end
+##
+#macro(Add_setting $s)
+# -----------------------------------------
+#foreach ($group in $phone.Settings.Values)
+#if ($group.Name == $s)
+# == Settings for ${s} ==
+#foreach ($setting in $group.Values)
+${setting.profileName}: $!{setting.Value}
+#end
+#end
+#end
+#end
+##
+##
+#Add_setting_with_subgroup('network')
+#Add_setting_with_subgroup('globalsr')
+#Add_setting_with_subgroup('server')
+#Add_setting_with_subgroup('preferences')
+#Add_setting('forwarding')
+#Add_setting('td')
+#Add_setting('security')
+#Add_setting('log')
+#Add_setting('web_server')
+#Add_setting('audioTransmit')
+
+
+# -----------------------------------------
+# Line Settings
+# -----------------------------------------
+
+#foreach ($line in $phone.lines)
+#set($line_id = $velocityCount)
+#foreach ($group in $line.Settings.Values)
+#if ($group.Name != "Not_needed")
+# == Settings for $group.Name ==
+#foreach ($setting in $group.Values)
+sip line${line_id} ${setting.ProfileName}: $!{setting.Value}
+#end
+#end
+#end
+# --- End setings for line${line_id} --
+
+#end

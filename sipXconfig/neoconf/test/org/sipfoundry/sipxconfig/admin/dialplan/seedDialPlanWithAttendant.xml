@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dataset>
+  <table name="auto_attendant">
+      <column>auto_attendant_id</column>
+      <column>name</column>
+      <column>prompt</column>	  	
+	  <row>
+		<value>2000</value>
+		<value>test attendant in use</value>
+		<value>hello.wav</value>
+	  </row>
+  </table>
+  <table name="dialing_rule">
+    <column>dialing_rule_id</column>
+    <column>name</column>
+    <column>description</column>
+	<column>position</column>
+    <column>enabled</column>
+    <row>
+      <value>1000</value>
+      <value>Internal</value>
+      <value><![CDATA[Default internal dialing plan]]></value>
+	  <value>0</value>
+      <value>true</value>
+    </row>
+  </table>
+  <table name="internal_dialing_rule">
+    <column>internal_dialing_rule_id</column>
+    <column>local_extension_len</column>
+    <column>voice_mail</column>
+    <column>voice_mail_prefix</column>
+    <row>
+      <value>1000</value>
+      <value>3</value>
+      <value>100</value>
+      <value>8</value>
+    </row>
+  </table>
+</dataset>

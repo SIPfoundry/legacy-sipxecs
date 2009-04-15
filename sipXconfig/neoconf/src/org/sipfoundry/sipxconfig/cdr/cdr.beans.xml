@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+  <bean id="cdrDataSource" parent="dataSource">
+    <property name="jdbcUrl" value="jdbc:postgresql://localhost/SIPXCDR" />
+  </bean>
+
+  <bean id="cdrManagerImpl" class="org.sipfoundry.sipxconfig.cdr.CdrManagerImpl">
+    <property name="dataSource" ref="cdrDataSource" />
+    <property name="csvLimit" value="25000" />
+    <property name="jsonLimit" value="500" />
+    <property name="sipxServiceManager" ref="sipxServiceManager"/>
+    <property name="cdrServiceProvider">
+      <bean class="org.sipfoundry.sipxconfig.cdr.SimpleCdrServiceProvider" />
+    </property>
+  </bean>
+
+  <!-- We probably do not need to proxy this -->
+  <alias alias="cdrManager" name="cdrManagerImpl" />
+</beans>

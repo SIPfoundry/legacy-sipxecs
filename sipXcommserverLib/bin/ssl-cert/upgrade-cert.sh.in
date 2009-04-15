@@ -1,0 +1,46 @@
+#!@BASH@
+##
+## upgrade-cert.sh
+##
+##  Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+##  Contributors retain copyright to elements licensed under a Contributor Agreement.
+##  Licensed to the User under the LGPL license.
+
+################################################################
+## This script is used during an upgrade from 3.10 to 4.0 to 
+## copy certificate and key files from the 3.10 location to the
+## 4.0 location.  Once copied, the java key stores are generated
+## using gen-ssl-keys.sh and finally installed in the proper 
+## location.
+##
+## See the comments at the top of gen-ssl-keys.sh for the list 
+## of files in the WorkDir.
+################################################################
+
+GenDir="@SIPX_VARDIR@"
+OldGenDir=${HOME}
+sipXuser="@SIPXPBXUSER@"
+
+
+if [ -x "${OldGenDir}/sipx-certdb" ]
+then
+   # old SSL working directory found.
+   if ! [ -x "${GenDir}/certdb" ]
+   then
+      # create the directory.
+      mkdir               "${GenDir}/certdb" || exit 1
+      chown ${sipXuser}   "${GenDir}/certdb" || exit 1
+      chmod 0700          "${GenDir}/certdb" || exit 1
+   fi
+   cd "${OldGenDir}/sipx-certdb/"
+   cp -r "." "${GenDir}/certdb" || exit 1
+
+   rm -rf "${OldGenDir}/sipx-certdb/"
+
+   # old data copied.  Generate the Java keystore and then install the certs.
+   cd "${GenDir}/certdb"
+   @bindir@/ssl-cert/gen-ssl-keys.sh -d -s "`hostname --fqdn`" 1>/dev/null
+   @bindir@/ssl-cert/install-cert.sh "`hostname --fqdn`" 1>/dev/null
+   exit 0
+fi
+

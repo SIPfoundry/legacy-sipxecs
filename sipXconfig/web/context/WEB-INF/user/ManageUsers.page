@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.user.ManageUsers">
+  <description>add a description</description>
+  <!--
+	  - P R O P E R T I E S
+	  -->
+  <inject property="coreContext" object="spring:coreContext"/>
+  <property name="groupId" persist="session" />
+  <property name="queryText" persist="session" />
+  <property name="searchMode" persist="session" />
+  <!--
+	  - B E A N S
+	  -->
+  <bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
+  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+  <!--
+	  - C O M P O N E N T S
+	  -->
+  <component id="addUser" type="DirectLink">
+    <binding name="listener" value="listener:addUser"/>
+  </component>
+  <component id="userManagement" type="Form">
+    <binding name="delegate" value="bean:validator"/>
+  </component>
+  <component id="groupFilter" type="setting/GroupFilter">
+    <binding name="selectedGroupId" value="groupId"/>
+    <binding name="groups" value="coreContext.groups"/>
+    <binding name="queryText" value="queryText"/>
+    <binding name="searchMode" value="searchMode"/>
+  </component>
+  <component id="userTable" type="user/UserTable">
+    <binding name="userListener" value="listener:editUser"/>
+    <binding name="groupId" value="groupId"/>
+    <binding name="searchString" value="queryText"/>
+    <binding name="searchMode" value="searchMode"/>
+  </component>
+  <component id="delete" type="Submit">
+    <binding name="listener" value="listener:deleteUsers"/>
+    <binding name="value" value="message:label.delete"/>
+  </component>
+  <component id="groupActions" type="phone/GroupActions">
+    <binding name="actionModel" value="actionModel"/>
+    <binding name="selectedIds" value="components.userTable.selections.allSelected"/>
+  </component>
+</page-specification>

@@ -1,0 +1,40 @@
+INTRODUCTION
+============
+Preflight is a network test utility used to verify the functionality of various
+network services which are required for proper operation of the sipXecs system.
+It is capable of testing proper operation of the following network services:
+  DHCP
+  DNS
+  NTP
+  TFTP
+  FTP
+  HTTP
+
+It can also perform basic testing of the sipXecs proxy, registrar and publisher.
+
+In addition, it also has a device discovery feature which allows it to locate
+and identify SIP compliant telephones attached to the same network for which
+the host running preflight is.
+
+For details on the operation of the command line version of preflight, invoke
+with the "--help" switch.
+
+
+BUILDING PREREQUISITES
+======================
+There are two different versions of preflight, a command line version which
+can be invoked on the sipXecs server either from a command shell or from the
+diagnostics screen of the Config Server, and an optional graphical version
+which can be installed on either Windows XP or Vista.  The graphical version,
+although targeted for a Windows system, is built as part of a normal Linux
+build.  Before this can be accomplished, the NSIS prerequisit package must be
+installed:
+
+NSIS
+----
+Nullsoft Scriptable Install System is a professional Open Source system used
+to create Windows installers.  For more information about this package, visit:
+
+	http://nsis.sourceforge.net/
+
+A prebuilt NSIS RPM can be retrieved from the SIPfounry yum repository.

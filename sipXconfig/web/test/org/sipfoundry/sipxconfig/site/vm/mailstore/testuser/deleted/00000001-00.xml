@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<messagedescriptor>
+  <id>200@penguin.pingtel.com</id>
+  <from>&quot;Douglas+Hubler&quot;&lt;sip:201@nuthatch.pingtel.com&gt;;tag%3DEF23A26-F28BB5AB</from>
+  <durationsecs>1</durationsecs>
+  <timestamp>Tue, 9-Jan-2007 10:15:45 AM EST</timestamp>
+  <subject>Voice Message 00000001</subject>
+  <priority>normal</priority>
+</messagedescriptor>

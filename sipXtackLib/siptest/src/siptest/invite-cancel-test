@@ -1,0 +1,67 @@
+#! /bin/bash
+
+# Program configuration.
+SIPTEST=siptest
+
+# Test driver system configuration
+# The IP address or DNS name of the host that will run this script.
+MY_ADDRESS=10.1.1.139
+# The SIP user name (not including domain part) to use in the From: headers.
+FROM_USER=Q
+# How long to wait to ensure that a SUBSCRIBE has replied.
+NOTIFY_DELAY=3
+
+# Functions to generate Call-Ids and tags.
+Call_Id_sequence_no=0
+Call_Id_base=$$-$( date --iso-8601=seconds )@${PHONE_ADDR}
+function generate_Call_Id ()
+{
+    (( Call_Id_sequence_no++ ))
+    C=${Call_Id_sequence_no}-${Call_Id_base}
+}
+
+tag_sequence_no=0
+function generate_tag ()
+{
+    (( tag_sequence_no++ ))
+    T=t${tag_sequence_no}
+}
+
+cat /dev/null >temp.W1
+
+TO='*78222@cdhcp139.pingtel.com'
+FROM='173@cdhcp139.pingtel.com'
+
+# Generate an INVITE for a call.
+generate_Call_Id
+generate_tag
+cat <<-EOF >temp.U
+	INVITE sip:$TO SIP/2.0
+	From: sip:$FROM;tag=${T}
+	To: sip:$TO
+	Call-Id: ${C}
+	CSeq: 1000 INVITE
+
+	EOF
+
+cat <<-EOF >temp.U1
+	CANCEL sip:$TO SIP/2.0
+	From: sip:$FROM;tag=${T}
+	To: sip:$TO
+	Call-Id: ${C}
+	CSeq: 1000 CANCEL
+
+	EOF
+
+cat temp.U temp.U1
+
+# Send the INVITE and then the SUBSCRIBE.
+${SIPTEST} <<-EOF >>temp.W1
+	send temp.U
+	sleep 1
+	send temp.U1
+	sleep ${NOTIFY_DELAY}
+	log dump
+	EOF
+
+cat temp.W1

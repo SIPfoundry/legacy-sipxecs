@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dataset>
+  <table name="park_orbit">
+    <column>park_orbit_id</column>
+    <column>enabled</column>
+    <column>name</column>
+    <column>extension</column>
+    <column>description</column>
+    <column>music</column>
+    <column>orbit_type</column>
+    <row>
+      <value>1001</value>
+      <value>true</value>
+      <value>sales</value>      
+      <value>501</value>
+      <value>something, something, something</value>
+      <value>something.wav</value>
+	  <value>P</value>        
+    </row>
+    <row>
+      <value>1002</value>
+      <value>false</value>
+      <value>eng</value>      
+      <value>502</value>
+      <value>something else</value>
+      <value>info.wav</value>
+	  <value>P</value>        
+     </row>
+    <row>
+      <value>1102</value>
+      <value>false</value>
+      <value></value>      
+      <value></value>
+      <value></value>
+      <value>default.wav</value>
+	  <value>H</value>        
+     </row>
+   </table>    
+</dataset>

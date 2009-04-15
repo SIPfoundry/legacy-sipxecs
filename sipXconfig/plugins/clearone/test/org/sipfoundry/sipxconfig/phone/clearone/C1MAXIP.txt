@@ -1,0 +1,56 @@
+<C1MAXSIPCONFIG>
+   <username> admin </username>                      <!-- web login id -->
+   <password> clearone </password>                   <!-- web login password -->
+   <ringtone> 1 </ringtone>                          <!-- ringtone index 1 to 5 -->
+   <localnum> 1234 </localnum>                       <!-- Local telephone number -->
+   <conference_num> 6625 </conference_num>           <!-- Conference number -->
+   <helpline_num> 6356 </helpline_num>               <!-- helpline number -->
+   <allow_reboot_in_call> 0  </allow_reboot_in_call> <!-- 1 - allow reboot during a call 0 - wait till call complete -->
+   <mute_ringtone> 0 </mute_ringtone>                <!-- 1 - mute ringer on incoming call 0 - disable mute -->
+   <dialplan> c1dialplan_0004F200E06B.txt </dialplan>   <!-- File describing MAX Dialplan - TFTPed from server -->
+   <SNTP_server_1> ntp.example.org </SNTP_server_1>          <!-- SNTP 1 IP address -->
+   <SNTP_server_2> 0.0.0.0 </SNTP_server_2>          <!-- SNTP 2 IP address -->
+   <timezone> 7 </timezone>                          <!-- Timezone offset -->
+   <adjust_dst> 0 </adjust_dst>                      <!-- 1 - adjust for daylight savings time 0 - disable -->
+   <speed_dial_0> </speed_dial_0>                    <!-- Speed dial 0 -->
+   <speed_dial_1> </speed_dial_1>                    <!-- Speed dial 1 -->
+   <speed_dial_2> </speed_dial_2>                    <!-- Speed dial 2 -->
+   <speed_dial_3> </speed_dial_3>                    <!-- Speed dial 3 -->
+   <speed_dial_4> </speed_dial_4>                    <!-- Speed dial 4 -->
+   <speed_dial_5> </speed_dial_5>                    <!-- Speed dial 5 -->
+   <speed_dial_6> </speed_dial_6>                    <!-- Speed dial 6 -->
+   <speed_dial_7> </speed_dial_7>                    <!-- Speed dial 7 -->
+   <speed_dial_8> </speed_dial_8>                    <!-- Speed dial 8 -->
+   <speed_dial_9> </speed_dial_9>                    <!-- Speed dial 9 -->
+   <dtmf_relay_enable> 1 </dtmf_relay_enable>        <!-- Inband DTMF -->
+   <dtmf_relay_payload> 96 </dtmf_relay_payload>     <!-- DTMF relay payload -->
+   <vad_enable> 1 </vad_enable>                      <!-- 1 - enable voice activity detection 0 - disable -->
+   <adaptive_vad> 1 </adaptive_vad>                  <!-- 1 - enable adaptive vad 0 - disable -->
+   <vad_thresh> -20 </vad_thresh>                    <!-- vad threshold -20 to +10 -->
+   <vad_noise_match> none </vad_noise_match>         <!-- vad noise matching none, level, g711a2 -->
+   <vad_noise_order> 0 </vad_noise_order>            <!-- vad noise order 0 to 10 -->
+   <g711ulaw_priority> 255 </g711ulaw_priority>      <!-- g.711ulaw codec priority 1(lowest) to 255(highest) -->
+   <g711Alaw_priority> 254 </g711Alaw_priority>      <!-- g.711Alaw codec priority 1(lowest) to 255(highest) -->
+   <g729ab_priority> 250 </g729ab_priority>          <!-- g.729A/B codec priority 1(lowest) to 255(highest) -->
+   <g7231_53_priority> 240 </g7231_53_priority>      <!-- g.723.1 lowrate priority 1(lowest) to 255(highest) -->
+   <g7231_63_priority> 245 </g7231_63_priority>      <!-- g.723.1 highrate priority 1(lowest) to 255(highest) -->
+   <agc_enable> 0 </agc_enable>                      <!-- AGC enable (1) disable (0) -->
+   <alc_enable> 0 </alc_enable>                      <!-- ALC enable (1) disable (0) -->
+   <vlan_enable> 0 </vlan_enable>                    <!-- VLAN enable (1) disable (0) -->
+   <vlan_priority> 0 </vlan_priority>                <!-- VLAN priority 0-7 -->
+   <qos_precedence> 2 </qos_precedence>              <!-- Diffserv Code Point index (0 - 7), custom (8) -->
+   <qos_custom_dscp> 0x32 </qos_custom_dscp>         <!-- Custom DSCP hex value (0x00 - 0x3F) -->
+   <use_sipauth> 1 </use_sipauth>                    <!-- Use SIP Authentication -->
+   <sip_username> juser </sip_username>              <!-- SIP authentication username -->
+   <sip_password> 1234 </sip_password>               <!-- SIP authentication password -->
+   <sip_proxy_enable> 1 </sip_proxy_enable>          <!-- Use SIP proxy -->
+   <sip_proxy_server> sipfoundry.org </sip_proxy_server> <!-- SIP proxy server IP, hostname or FQDN -->
+   <sip_proxy_port> 5555 </sip_proxy_port>           <!-- SIP proxy server port -->
+   <outbound_sip_proxy_enable> 0 </outbound_sip_proxy_enable>   <!-- Use outbound proxy -->
+   <outbound_sip_proxy> sipfoundry.org </outbound_sip_proxy> <!-- SIP outbound proxy IP, hostname or FQDN -->
+   <outbound_proxy_port> 5555 </outbound_proxy_port> <!-- SIP outbound proxy port -->
+   <sip_register_timeout> 3600 </sip_register_timeout> <!-- SIP registration timeout in seconds -->
+   <sip_transport> 0 </sip_transport>                <!-- Transport -->
+   <sip_udp_port> 5060 </sip_udp_port>               <!-- UDP port -->
+   <sip_tcp_port> 5060 </sip_tcp_port>               <!-- TCP port -->
+</C1MAXSIPCONFIG>

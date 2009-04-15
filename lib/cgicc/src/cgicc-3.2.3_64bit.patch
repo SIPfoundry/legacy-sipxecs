@@ -1,0 +1,13 @@
+Index: cgicc-3.2.3/cgicc/CgiUtils.cpp
+===================================================================
+--- cgicc-orig/CgiUtils.cpp 2004-06-12 
++++ cgicc/CgiUtils.cpp 2007-05-01 
+@@ -211,7 +211,7 @@
+ 		      const std::string& separator2)
+ {
+   std::string result;
+-  unsigned int start, limit;
++  std::string::size_type start, limit;
+   
+   start = data.find(separator1, 0);
+   if(start != std::string::npos) {

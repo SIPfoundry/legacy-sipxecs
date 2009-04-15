@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+<dataset>
+  <users user_name="yellowthroat" user_id="1001" pintoken="1234" />
+  <value_storage value_storage_id="1001" />
+  <group_storage group_id="1001" resource="user" weight="1001" name="warblers" />
+  <user_group group_id="1001" user_id="1001" />
+  <phonebook name="test" phonebook_id="1001" members_csv_filename="thrush"/>
+  <phonebook_member phonebook_id="1001" group_id="1001"/>
+</dataset>

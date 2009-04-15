@@ -1,0 +1,13 @@
+<launch4jConfig>
+  <headerType>gui</headerType>
+  <jar>preflight.jar</jar>
+  <dontWrapJar>true</dontWrapJar>
+  <outfile>@build.dir@/dist/Preflight.exe</outfile>
+  <errTitle>Preflight</errTitle>
+  <chdir>.</chdir>
+  <customProcName>true</customProcName>
+  <icon>@src.dir@/icons/preflight.ico</icon>
+  <jre>
+    <path>jre6</path>
+  </jre>
+</launch4jConfig>

@@ -1,0 +1,11 @@
+<div>
+	<h3><span jwcid="@Insert" value="ognl:messages.format('title',user.label)"/></h3>
+	
+    <fieldset jwcid="conferencesPanel@conference/ConferencesPanel" 
+              conferences="ognl:conferenceBridgeContext.findConferencesByOwner(user)" 
+              showOwner="false" enableDelete="ognl:userSession.isAdmin()" enableAdd="ognl:userSession.isAdmin()"
+              addListener="listener:addConference" 
+              selectListener="listener:selectConference" 
+              selectActiveListener="listener:selectActiveConference" />
+              
+</div>

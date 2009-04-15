@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="src" output="target/test-classes" path="src/test/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
+	<classpathentry kind="lib" path="lib/jain-sip-sdp.jar"/>
+	<classpathentry kind="lib" path="lib/dnsjava.jar"/>
+	<classpathentry kind="lib" path="lib/junit.jar"/>
+	<classpathentry kind="lib" path="lib/log4j.jar"/>
+	<classpathentry kind="lib" path="lib/jibx-bind.jar"/>
+	<classpathentry kind="lib" path="lib/jibx-run.jar"/>
+	<classpathentry kind="var" path="SIPX-PROJECT-ROOT/sipXcommons/lib/xmlrpc-client.jar"/>
+	<classpathentry kind="var" path="SIPX-PROJECT-ROOT/sipXcommons/lib/xmlrpc-common.jar"/>
+	<classpathentry kind="output" path="target/classes"/>
+</classpath>

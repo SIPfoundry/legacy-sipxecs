@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<!-- INSTRUCTIONS FOR DESIGNERS WISHING TO ADD AN ALARM
+  Each alarm is defined in the etc/sipXalarms-config.xml file, and identified by its
+  unique id, which is an internal (not customer-visible) string.
+  Strings containing the alarm description, a short title for the alarm,
+  and suggested actions to resolve it, must be added in this file.  
+  These strings can be localized for different languages (into sipXalarms-strings_xx.xml).
+
+  Parameters provided at runtime can be inserted into the description string using placeholders
+  of the form {n}.
+  -->
+
+<alarm_server xmlns="http://www.sipfoundry.org/sipX/schema/xml/alarm-00-00">
+   <definitions>
+      <alarm id="PROCESS_RESTARTED">
+         <shorttitle>Restarting process</shorttitle>
+         <description>Process {0} was found in a non-running state.  Attempting to restart the process.</description>
+         <resolution>No action required.</resolution>
+      </alarm>
+      <alarm id="PROCESS_FAILED_RESTART">
+         <shorttitle>Process failed restart</shorttitle>
+         <description>Process {0} was found in a non-running state.  Process failed restart.</description>
+         <resolution>The system will retry several times.</resolution>
+      </alarm>
+      <alarm id="PROCESS_FAILED">
+         <shorttitle>Process cannot be restarted!</shorttitle>
+         <description>Process {0} was found in a non-running state, and failed MAX restarts.  Process cannot be restarted!</description>
+         <resolution>If the process is required, check logs for more details.</resolution>
+      </alarm>
+      <alarm id="LOGIN_FAILED">
+         <shorttitle>Login failed</shorttitle>
+         <description>Login attempt as '{0}' failed several times in a short period.</description>
+         <resolution>If condition recurs, may indicate an attempt to break in. </resolution>
+      </alarm>
+      <alarm id="THRESH_CPUUTIL_EXCEEDED">
+         <shorttitle>CPU threshold exceeded</shorttitle>
+         <description>The threshold for CPU load on {0} has been exceeded.  The threshold is {1}%.  The current value is {2}%.</description>
+         <resolution>If condition persists, check for runaway processes.</resolution>
+      </alarm>
+      <alarm id="THRESH_CPUUTIL_OK">
+         <shorttitle>CPU threshold recovered</shorttitle>
+         <description>CPU load on {0} has recovered back to {2}%.  The threshold is {1}%.</description>
+         <resolution>No action is required.</resolution>
+      </alarm>
+      <alarm id="THRESH_DISK_EXCEEDED">
+         <shorttitle>Disk usage threshold exceeded</shorttitle>
+         <description>The threshold for disk usage on {0} has been exceeded.  The threshold is {1}%.  The current value is {2}%.</description>
+         <resolution>If condition persists, clean out log and temporary directories.  Remove old voice mails.
+                     Reduce log levels.</resolution>
+      </alarm>
+      <alarm id="THRESH_DISK_OK">
+         <shorttitle>Disk usage threshold recovered</shorttitle>
+         <description>Disk usage on {0} has recovered back to {2}%.  The threshold is {1}%.</description>
+         <resolution>No action is required.</resolution>
+      </alarm>
+      <alarm id="EMERG_NUMBER_DIALED">
+         <shorttitle>Emergency number dialed</shorttitle>
+         <description>Emergency dial rule '{0} ({1})' was invoked by '{2}&lt;{3}&gt;' contact {4}</description>
+         <resolution>A user has dialed a number which is configured as an Emergency number.
+                     The user name and contact address of the phone is given.</resolution>
+      </alarm>
+      <alarm id="SIPX_RELAY_STUN_ADDRESS_DISCOVERY_FAILED">
+         <shorttitle>SIPX Relay Public Address Discovery Failed</shorttitle>
+         <description>The STUN Server '{0}' is dysfunctional. </description>
+         <resolution>The STUN Server did not return any information that can be used to determine the public address of the Relay Service.
+                      Reconfigure your STUN server settings in the System > NAT page to point at a functioning STUN server. </resolution>
+      </alarm>
+      <alarm id="SIPX_RELAY_STUN_ADDRESS_DISCOVERY_RECOVERED">
+         <shorttitle>The STUN Server Recovered</shorttitle>
+         <description>The STUN Server '{0}' is functioning OK. </description>
+         <resolution>This message is informational. No action is needed.</resolution>
+      </alarm>
+      <alarm id="SIPX_BRIDGE_STUN_ADDRESS_DISCOVERY_FAILED">
+         <shorttitle>SIPX Bridge Public Address Discovery Failed</shorttitle>
+         <description>The STUN Server '{0}' is dysfunctional. </description>
+         <resolution>The STUN Server did not return any information that can be used to determine the public address of the internal SBC.
+                      Reconfigure your STUN server settings in the Internal SBC settings to point at a functioning STUN server. </resolution>
+      </alarm>
+      <alarm id="SIPX_BRIDGE_STUN_ADDRESS_DISCOVERY_RECOVERED">
+         <shorttitle>The STUN Server Recovered</shorttitle>
+         <description>The STUN Server '{0}' is functioning OK. </description>
+         <resolution>This message is informational. No action is needed.</resolution>
+      </alarm>
+
+      <alarm id="SIPX_BRIDGE_AUTHENTICATION_FAILED">
+         <shorttitle>The ITSP disallowed an Authentication attempt</shorttitle>
+         <description>The ITSP Account '{0}' disallowed an operation because of Authentication failure.</description>
+         <resolution>Check your ITSP Account domain and password and restart the SIP Trunking Service.</resolution>
+      </alarm>
+
+      <alarm id="SIPX_BRIDGE_OPERATION_TIMED_OUT">
+         <shorttitle>The ITSP Account could not be reached</shorttitle>
+         <description>An attempt to signal the ITSP '{0}' timed out.</description>
+         <resolution>Check your ITSP Account Domain, Proxy and Registrar settings and restart the SIP Trunking Service.</resolution>
+      </alarm>
+
+      <alarm id="SIPX_BRIDGE_ACCOUNT_OK">
+         <shorttitle>The ITSP Account has recovered</shorttitle>
+         <description>The ITSP Account '{0}' is OK.</description>
+         <resolution>The SIP Trunking Provider recovered and is now functional. No further action is needed.</resolution>
+      </alarm>
+      <alarm id="STUN_ADDRESS_ERROR">
+         <shorttitle>The STUN Address cannot be resolved.</shorttitle>
+         <description>The STUN Server address '{0}' is not resolvable. </description>
+         <resolution>The STUN Server address is not resolvable. Reconfigure your STUN server settings to point at a functioning STUN server. </resolution>
+      </alarm>
+      <alarm id="SIPX_BRIDGE_ITSP_SERVER_FAILURE">
+         <shorttitle>The ITSP reported a server failure.</shorttitle>
+         <description>The ITSP '{0}' reported a server failure. </description>
+         <resolution>Contact your ITSP and report the failure.</resolution>
+      </alarm>
+      <!-- Add new alarms above this line.
+          Notes:
+            'id='         must match definition in etc/sipXalarms-config.xml
+            'shorttitle'  contains a short title to be used in email subject headers.
+            'description' contains text to be sent in alarm notifications.  Parameters may be 
+                          inserted at runtime by using placeholders of the format {0}, {1}, etc.  
+                          XML reserved characters (&lt;, &gt;, &amp;) should be escaped as in 
+                          this example.
+            'resolution'  contains text to be sent in alarm notifications.  It should provide any 
+                          steps the customer could follow to solve or debug the problem.
+      -->
+   </definitions>
+</alarm_server>

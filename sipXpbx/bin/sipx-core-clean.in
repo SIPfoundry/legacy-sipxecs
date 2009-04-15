@@ -1,0 +1,135 @@
+#!@BASH@
+### -*- mode: shell-script;-*-
+# Archive core files in the sip log directory older than N days
+
+DefaultMaxDays=120
+DefaultMaxCores=50
+
+MaxDays=${DefaultMaxDays}
+MaxCores=${DefaultMaxCores}
+
+DoIt=TRUE
+Feedback=
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        ##
+        ## for testing
+        ##
+        -n|--dry-run)
+            DoIt=FALSE
+            Feedback=--verbose
+            ;;
+
+        ##
+        ## for testing
+        ##
+        -v|--verbose)
+            Feedback=--verbose
+            ;;
+
+        ##
+        ## Override maximum number of core files that are allowed regardless of age
+        ##
+        -m|--maxcores)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <number> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                MaxCores=${2}
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+
+
+        ##
+        ## Override maximum age in days a core file is allowed to be
+        ##
+        -d|--days)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <age> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                MaxDays=${2}
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+
+        ##
+        ## handle an unknown argument
+        ##
+        *)
+            echo "Too many arguments supplied: $@" 1>&2
+            Action=USAGE
+            break
+            ;;
+    esac
+
+    shift # always consume 1
+done
+
+if [ "${Action}" = "USAGE" ]
+then
+    cat <<USAGE
+
+Usage:
+
+    sipx-core-clean [ -v | --verbose ]
+                    [ -n | --dry-run ]
+                    [ -m | --maxcores <number> ]
+                    [ -d | --days <number> ]
+
+    Cleans old and excessive core files from the @SIPX_LOGDIR@
+
+    -v | --verbose   lists files deleted, and displays information about remaining files
+    -n | --dry-run   does not delete anything - lists what it would have done (implies --verbose)
+    -m | --maxcores <number>  sets maximum number of files to leave (default ${DefaultMaxCores})
+    -d | --days <number>      sets age in day of files to leave (default ${DefaultMaxDays})
+
+USAGE
+    exit
+fi
+
+case $DoIt in
+    TRUE)
+        remove="rm ${Feedback} -f"
+        ;;
+    FALSE)
+        remove="echo rm -f"
+        ;;
+    *)
+        echo "internal error" 1>&2
+        exit 1
+        ;;
+esac
+
+cd @SIPX_LOGDIR@ || exit 1
+
+# delete core files older than MaxDays old (or just say we would have)
+find . -maxdepth 1 -type f -name core.\* -mtime +${MaxDays} -print0 \
+| xargs --null --max-args 1 ${remove}
+
+# count the MaxCores youngest cores; delete any others after that
+count=0
+ls --sort=time -1 \
+| grep '^core\.' \
+| while read corefile
+do
+    count=$(( ${count} + 1 ))
+    if [ ${count} -gt ${MaxCores} ]
+    then
+        ${remove} ${corefile}
+    elif [ "${Feedback}" = "--verbose" ]
+    then
+        ls -l ${corefile}
+        file -b ${corefile}
+    fi
+done
+
+exit 0
+

@@ -1,0 +1,105 @@
+#!/usr/bin/perl
+
+$Usage = <<USAGE;    
+    sipx-readroute [ -h | --help ] <route-parameter-value>
+ 
+    sipx-readroute [ -h | --help ] - 
+
+      Prints a decoded version of the values in the sipXecs-rs parameter.
+
+      The first form takes the parameter value as a command line argument;
+      the second form reads stdin and pipes it to stdout with values expanded.
+
+      Note: values are allowed to contain non-printable characters.
+
+USAGE
+
+    BEGIN
+{
+
+    $RequireMsg = <<REQUIREMENTS;
+
+    You must install the missing Perl package(s) to use this script.
+        As far as I know, these are not available as rpms.  You can install
+        them using 'cpan'.
+REQUIREMENTS
+
+    @modules = qw(Getopt::Long MIME::Base64 URI::Escape English );
+    for $pm ( @modules )
+    {
+        eval "require $pm;" || die "Failed to load $pm\n$@\n$RequireMsg\n";
+        $pm->import();
+    }
+}
+
+Getopt::Long::Configure("no_auto_abbrev", "no_ignore_case_always");
+
+GetOptions( 'help|h' => \$Help,
+            'verbose|v' => \$Verbose,
+            'version|V' => \$Version
+            )
+    || exit -1;
+
+if ( $Help )
+{
+    print $Usage;
+    exit 0;
+}
+
+if ( $Version )
+{ 
+    print '@SIPX_VERSION@' . "\n";
+    exit 0;
+}
+
+sub printroute
+{
+    my ($paramvalue) = shift;
+
+    print "Input value:\n'$paramvalue'\n\n"
+        if $Verbose;
+
+    $paramvalue =~ s/.*sipXecs-rs=([^;?>]+)/\1/;
+
+    print "Escaped RouteState value:\n'$paramvalue'\n\n"
+        if $Verbose;
+
+    my ($rawvalue) = uri_unescape($paramvalue);
+
+    print "Raw RouteState value:\n'$rawvalue'\n\n"
+        if $Verbose;
+
+    my ($output, $nvpair, $pname, $pvalue, $pdecoded );
+
+    $rawvalue =~ s/![0-9a-f]{32}//;
+
+    $output = '';
+    for $nvpair ( split '\.', $rawvalue )
+    {
+        ( $pname, $pvalue ) = split '~', $nvpair;
+        $pvalue =~ tr/'`/+=/; #' undo idiosyncratic alphabet
+        $pdecoded=decode_base64($pvalue);
+        $output .= "    $pname=$pdecoded\n";
+    }
+    print $output;
+}
+
+$token = shift;
+if ( ! defined $token || $token eq '-' )
+{
+    while(<>)
+    {
+        if ( m|\bsipXecs-rs=([a-z0-9+/=%]+)|i )
+        {
+            &printroute($_);
+        }
+        else
+        {
+            print;
+        }
+    }
+}
+else
+{
+    &printroute($token);
+}

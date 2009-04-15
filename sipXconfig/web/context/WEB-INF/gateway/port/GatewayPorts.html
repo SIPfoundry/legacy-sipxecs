@@ -1,0 +1,33 @@
+<span jwcid="$content$">
+  <ul class="component-links">
+    <li>
+      <a jwcid="addPort@LinkSubmit" listener="ognl:addPortListener">
+        <span key="link.addPort">Add Port</span>
+      </a>
+    </li>
+  </ul>
+  <table jwcid="@common/Table" id="line:list"
+    source="ognl:ports"
+    columns="* !index,!name"
+    selections="ognl:selections"
+    row="ognl:port">
+    <span jwcid="indexColumnValue@Block">
+     <span jwcid="@Insert" value="ognl:index"/>
+    </span>
+    <span jwcid="nameColumnValue@Block">
+      <a href="#" jwcid="@DirectLink"
+        listener="ognl:editPortListener"
+        parameters="ognl:port.id">
+          <span jwcid="@Insert" value="ognl:port.label"/>
+      </a>
+    </span>
+  </table>
+  <ul class="component-submit">
+    <li>
+      <input id="port:delete" jwcid="delete@Submit" listener="listener:deletePorts"
+        value="message:label.delete"/>
+      <span jwcid="@common/Confirm" component="component:delete"
+        prompt="message:confirm.delete"/>
+    </li>
+  </ul>
+</span>

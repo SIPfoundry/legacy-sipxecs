@@ -1,0 +1,6 @@
+set xlabel "Number of conferences(each is size 10)"
+set ylabel "RMS deviation of inter-arrival time (miliseconds)."
+set pointsize 5
+set terminal gif 
+set out "jitter.gif"
+plot "jitter.txt" with linespoints, "worst-case-jitter.txt" with linespoints

@@ -1,0 +1,3147 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd" [
+  <!ENTITY types SYSTEM "types.xml">
+  ]>
+<model>
+  &types;
+
+  <group name="Enable_Line">
+    <label>Enable Line</label>
+    <setting name="Line_Enable">
+      <label>Line Enable</label>
+      <profileName>Enable_Line</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+  </group>
+
+  <group name="Streaming_Audio_Server">
+    <label>Streaming Audio Server</label>
+    <setting name="SAS_Enable">
+      <label>SAS Enable</label>
+      <profileName>Streaming_Audio_Server</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="SAS_DLG_Refresh_Intvl" advanced="no">
+      <label>SAS DLG Refresh Intvl</label>
+      <profileName>Streaming_Audio_Server</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>30</value>
+    </setting>
+    <setting name="SAS_Inbound_RTP_Slink">
+      <label>SAS Inbound RTP Slink</label>
+      <profileName>Streaming_Audio_Server</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+     </setting>
+ </group>
+  <group name="NAT_Settings">
+    <label>NAT Settings</label>
+    <setting name="NAT_Mapping_Enable">
+      <label>NAT Mapping Enable</label>
+      <profileName>NAT_Settings</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="NAT_Keep_Alive_Enable" advanced="no">
+      <label>NAT Keep Alive Enable</label>
+      <profileName>NAT_Settings</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="NAT_Keep_Alive_Msg">
+      <label>NAT Keep Alive Msg</label>
+      <profileName>NAT_Settings</profileName>
+      <value>$NOTIFY</value>
+    </setting>
+    <setting name="NAT_Keep_Alive_Dest">
+      <label>NAT Keep Alive Dest</label>
+      <profileName>NAT_Settings</profileName>
+      <value>$PROXY</value>
+    </setting>
+  </group>
+
+  <group name="Network_Settings">
+    <label>Network Settings</label>
+    <setting name="SIP_TOS_DiffServ_Value" advanced="no">
+      <label>SIP TOS DiffServ Value</label>
+      <profileName>Network_Settings</profileName>
+      <value>0x68</value>
+    </setting>
+    <setting name="SIP_CoS_Value" advanced="no">
+      <label>SIP CoS Value</label>
+      <profileName>Network_Settings</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+        </enum>
+      </type>
+      <value>3</value>
+    </setting>
+    <setting name="RTP_TOS_DiffServ_Value" advanced="no">
+      <label>RTP TOS DiffServ Value</label>
+      <profileName>Network_Settings</profileName>
+      <value>0xb8</value>
+    </setting>
+    <setting name="RTP_COS_Value" advanced="no">
+      <label>RTP COS Value</label>
+      <profileName>Network_Settings</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+        </enum>
+      </type>
+      <value>6</value>
+    </setting>
+    <setting name="Network_Jitter_Level" advanced="no">
+      <label>Network Jitter Level</label>
+      <profileName>Network_Settings</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>low</value>
+          </option>
+          <option>
+            <value>medium</value>
+          </option>
+          <option>
+            <value>high</value>
+          </option>
+          <option>
+            <value>very high</value>
+          </option>
+          <option>
+            <value>extremely high</value>
+          </option>
+        </enum>
+      </type>
+      <value>high</value>
+    </setting>
+    <setting name="Jitter_Buffer_Adjustment" advanced="no">
+      <label>Jitter Buffer Adjustment</label>
+      <profileName>Network_Settings</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>up and down</value>
+          </option>
+          <option>
+            <value>up only</value>
+          </option>
+          <option>
+            <value>down only</value>
+          </option>
+          <option>
+            <value>disable</value>
+          </option>
+        </enum>
+      </type>
+      <value>up and down</value>
+    </setting>
+  </group>
+
+  <group name="SIP_Settings">
+    <label>SIP Settings</label>
+    <setting name="SIP_Port">
+      <label>SIP Port</label>
+      <profileName>SIP_Settings</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>5060</value>
+    </setting>
+    <setting name="SIP_100REL_Enable" advanced="no">
+      <label>SIP 100REL Enable</label>
+      <profileName>SIP_Settings</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="EXT_SIP_Port" advanced="no">
+      <label>EXT SIP Port</label>
+      <profileName>SIP_Settings</profileName>
+      <type>
+        <integer />
+      </type>
+      <value />
+    </setting>
+    <setting name="Auth_Resync-Reboot" advanced="no">
+      <label>Auth Resync-Reboot</label>
+      <profileName>SIP_Settings</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+    <setting name="SIP_Proxy-Require" advanced="no">
+      <label>SIP Proxy-Require</label>
+      <profileName>SIP_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="SIP_Remote-Party-ID" advanced="no">
+      <label>SIP Remote-Party-ID</label>
+      <profileName>SIP_Settings</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="Referor_Bye_Delay" advanced="no">
+      <label>Referor Bye Delay</label>
+      <profileName>SIP_Settings</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>4</value>
+    </setting>
+    <setting name="Refer-To_Target_Contact" advanced="no">
+      <label>Refer-To Target Contact</label>
+      <profileName>SIP_Settings</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="Referee_Bye_Delay" advanced="no">
+      <label>Referee Bye Delay</label>
+      <profileName>SIP_Settings</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="SIP_Debug_Option">
+      <label>SIP Debug Option</label>
+      <profileName>SIP_Settings</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>none</value>
+          </option>
+          <option>
+            <value>1-line</value>
+          </option>
+          <option>
+            <value>1-line excl. OPT</value>
+          </option>
+          <option>
+            <value>1-line excl. NTFY</value>
+          </option>
+          <option>
+            <value>1-line excl. REG</value>
+          </option>
+          <option>
+            <value>1-line excl. OPT|NTFY|REG</value>
+          </option>
+          <option>
+            <value>full</value>
+          </option>
+          <option>
+            <value>full excl. OPT</value>
+          </option>
+          <option>
+            <value>full excl. NTFY</value>
+          </option>
+          <option>
+            <value>full excl. REG</value>
+          </option>
+          <option>
+            <value>full excl. OPT|NTFY|REG</value>
+          </option>
+        </enum>
+      </type>
+      <value>none</value>
+    </setting>
+    <setting name="Refer_Target_Bye_Delay" advanced="no">
+      <label>Refer Target Bye Delay</label>
+      <profileName>SIP_Settings</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="Sticky_183" advanced="no">
+      <label>Sticky 183</label>
+      <profileName>SIP_Settings</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="Auth_INVITE" advanced="no">
+      <label>Auth Invite</label>
+      <profileName>SIP_Settings</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+  </group>
+
+  <group name="Call_Feature_Settings">
+    <label>Call Feature Settings</label>
+    <setting name="Blind_Attn-Xfer_Enable">
+      <label>Blind Attn-Xfer Enable</label>
+      <profileName>Call_Feature_Settings</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="MOH_Server" advanced="no">
+      <label>MOH Server</label>
+      <profileName>Call_Feature_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Xfer_When_Hangup_Conf">
+      <label>Xfer When Hangup Conf</label>
+      <profileName>Call_Feature_Settings</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+  </group>
+
+  <group name="Proxy_and_Registration">
+    <label>Proxy and Registration</label>
+    <setting name="Proxy">
+      <label>Proxy</label>
+      <profileName>Proxy_and_Registration</profileName>
+      <value />
+    </setting>
+    <setting name="Use_Outbound_Proxy" advanced="no">
+      <label>Use Outbound Proxy</label>
+      <profileName>Proxy_and_Registration</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="Outbound_Proxy" advanced="no">
+      <label>Outbound Proxy</label>
+      <profileName>Proxy_and_Registration</profileName>
+      <value />
+    </setting>
+    <setting name="Use_OB_Proxy_In_Dialog" advanced="no">
+      <label>Use OB Proxy In Dialog</label>
+      <profileName>Proxy_and_Registration</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="Register">
+      <label>Register</label>
+      <profileName>Proxy_and_Registration</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+    <setting name="Make_Call_Without_Reg">
+      <label>Make Call Without Reg</label>
+      <profileName>Proxy_and_Registration</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="Register_Expires" advanced="no">
+      <label>Register Expires</label>
+      <profileName>Proxy_and_Registration</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>3600</value>
+    </setting>
+    <setting name="Ans_Call_Without_Reg">
+      <label>Ans Call Without Reg</label>
+      <profileName>Proxy_and_Registration</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="Use_DNS_SRV" advanced="no">
+      <label>Use DNS SRV</label>
+      <profileName>Proxy_and_Registration</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+    <setting name="DNS_SRV_Auto_Prefix" advanced="no">
+      <label>DNS SRV Auto Prefix</label>
+      <profileName>Proxy_and_Registration</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+    <setting name="Proxy_Fallback_Intvl" advanced="no">
+      <label>Proxy Fallback Intvl</label>
+      <profileName>Proxy_and_Registration</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>3600</value>
+    </setting>
+    <setting name="Proxy_Redundancy_Method" advanced="no">
+      <label>Proxy Redundancy Method</label>
+      <profileName>Proxy_and_Registration</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>Normal</value>
+          </option>
+          <option>
+            <value>Based on SRV Port</value>
+          </option>
+        </enum>
+      </type>
+      <value>Normal</value>
+    </setting>
+    <setting name="Voice_Mail_Server" advanced="no">
+      <label>Voice Mail Server</label>
+      <profileName>Proxy_and_Registration</profileName>
+      <value />
+    </setting>
+    <setting name="Mailbox_Subscribe_Expires" advanced="no">
+      <label>Mailbox Subscribe Expires</label>
+      <profileName>Proxy_and_Registration</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>2147483647</value>
+    </setting>
+  </group>
+   <group name="Subscriber_Information">
+    <label>Subscriber Information</label>
+    <setting name="Use_Auth_ID" advanced="no">
+      <label>Use Auth ID</label>
+      <profileName>Subscriber_Information</profileName>
+      <value />
+    </setting>
+    <setting name="User_ID" advanced="no">
+      <label>User ID</label>
+      <profileName>Subscriber_Information</profileName>
+      <value />
+    </setting>
+    <setting name="Display_Name">
+      <label>Display Name</label>
+      <profileName>Subscriber_Information</profileName>
+      <value />
+    </setting>
+    <setting name="Password" advanced="no">
+      <label>Password</label>
+      <profileName>Subscriber_Information</profileName>
+      <type>
+        <string password="yes" />
+      </type>
+      <value />
+    </setting>
+    <setting name="Mini_Certificate" advanced="no">
+      <label>Mini Certificate</label>
+      <profileName>Subscriber_Information</profileName>
+      <value />
+    </setting>
+    <setting name="SRTP_Private_Key" advanced="no">
+      <label>SRTP Private Key</label>
+      <profileName>Subscriber_Information</profileName>
+      <value />
+    </setting>
+  </group>
+
+  <group name="Audio">
+    <label>Audio</label>
+    <setting name="Preferred_Codec">
+      <label>Preferred Codec</label>
+      <profileName>Audio</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>G711u</value>
+          </option>
+          <option>
+            <value>G711a</value>
+          </option>
+          <option>
+            <value>G726-16</value>
+          </option>
+          <option>
+            <value>G726-24</value>
+          </option>
+          <option>
+            <value>G726-32</value>
+          </option>
+          <option>
+            <value>G726-40</value>
+          </option>
+          <option>
+            <value>G729a</value>
+          </option>
+          <option>
+            <value>G723</value>
+          </option>
+        </enum>
+      </type>
+      <value>G711u</value>
+    </setting>
+    <setting name="G729a_Enable">
+      <label>G729a Enable</label>
+      <profileName>Audio</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+    <setting name="G723_Enable">
+      <label>G723 Enable</label>
+      <profileName>Audio</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+    <setting name="G726-16_Enable">
+      <label>G726-16 Enable</label>
+      <profileName>Audio</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+    <setting name="G726-24_Enable">
+      <label>G726-24 Enable</label>
+      <profileName>Audio</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+    <setting name="G726-32_Enable">
+      <label>G726-32 Enable</label>
+      <profileName>Audio</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+    <setting name="G726-40_Enable">
+      <label>G726-40 Enable</label>
+      <profileName>Audio</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+    <setting name="Release_Unused_Codec" advanced="no">
+      <label>Release Unused Codec</label>
+      <profileName>Audio</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+    <setting name="Use_Pref_Codec_Only">
+      <label>Use Pref Codec Only</label>
+      <profileName>Audio</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="Silence_Supp_Enable">
+      <label>Silence Supp Enable</label>
+      <profileName>Audio</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="DTMF_Process_AVT" advanced="no">
+      <label>DTMF Process AVT</label>
+      <profileName>Audio</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+    <setting name="DTMF_Tx_Method" advanced="no">
+      <label>DTMF Tx Method</label>
+      <profileName>Audio</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>InBand</value>
+          </option>
+          <option>
+            <value>AVT</value>
+          </option>
+          <option>
+            <value>INFO</value>
+          </option>
+          <option>
+            <value>Auto</value>
+          </option>
+          <option>
+            <value>Inband+INFO</value>
+          </option>
+          <option>
+            <value>AVT+INFO</value>
+          </option>
+        </enum>
+      </type>
+      <value>Auto</value>
+    </setting>
+  </group>
+
+  <group name="Dial_Plan">
+    <label>Dial Plan</label>
+    <setting name="Dial_Plan">
+      <label>Dial Plan</label>
+      <profileName>Dial_Plan</profileName>
+      <value>(*xx|[3469]11|0|00|[2-9]xxxxxx|1xxx[2-9]xxxxxxS0|xxxxxxxxxxxx.)</value>
+    </setting>
+    <setting name="Enable_IP_Dialing" advanced="no">
+      <label>Enable IP Dialing</label>
+      <profileName>Dial_Plan</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+    <setting name="Emergency_Number" advanced="no">
+      <label>Emergency Number</label>
+      <profileName>Dial_Plan</profileName>
+      <value />
+    </setting>
+  </group>
+
+  <group name="FXS_Port_Polarity_Configuration">
+    <label>FXS Port Polarity Configuration</label>
+    <setting name="Idle_Polarity">
+      <label>Idle Polarity</label>
+      <profileName>FXS_Port_Polarity_Configuration</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>Forward</value>
+          </option>
+          <option>
+            <value>Reverse</value>
+          </option>
+        </enum>
+      </type>
+      <value>Forward</value>
+    </setting>
+    <setting name="Caller_Conn_Polarity">
+      <label>Caller Conn Polarity</label>
+      <profileName>FXS_Port_Polarity_Configuration</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>Forward</value>
+          </option>
+          <option>
+            <value>Reverse</value>
+          </option>
+        </enum>
+      </type>
+      <value>Forward</value>
+    </setting>
+    <setting name="Callee_Conn_Polarity">
+      <label>Callee Conn Polarity</label>
+      <profileName>FXS_Port_Polarity_Configuration</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>Forward</value>
+          </option>
+          <option>
+            <value>Reverse</value>
+          </option>
+        </enum>
+      </type>
+      <value>Forward</value>
+    </setting>
+  </group>
+
+  <group name="Call_Forward_Settings">
+    <label>Call Forward Settings</label>
+    <setting name="Cfwd_All_Dest" advanced="yes">
+      <label>Cfwd All Dest</label>
+      <profileName>Call_Forward_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Cfwd_Busy_Dest" advanced="yes">
+      <label>Cfwd Busy Dest</label>
+      <profileName>Call_Forward_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Cfwd_No_Ans_Dest" advanced="yes">
+      <label>Cfwd No Ans Dest</label>
+      <profileName>Call_Forward_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Cfwd_No_Ans_Delay" advanced="yes">
+      <label>Cfwd No Ans Delay</label>
+      <profileName>Call_Forward_Settings</profileName>
+      <value>20</value>
+    </setting>
+  </group>
+  <group name="Selective_Call_Forward_Settings">
+    <label>Selective Call Forward Settings</label>
+    <setting name="Cfwd_Sel1_Caller" advanced="yes">
+      <label>Cfwd Sel1 Caller</label>
+      <profileName>Selective_Call_Forward_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Cfwd_Sel1_Dest" advanced="yes">
+      <label>Cfwd Sel1 Dest</label>
+      <profileName>Selective_Call_Forward_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Cfwd_Sel2_Caller" advanced="yes">
+      <label>Cfwd Sel2 Caller</label>
+      <profileName>Selective_Call_Forward_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Cfwd_Sel2_Dest" advanced="yes">
+      <label>Cfwd Sel2 Dest</label>
+      <profileName>Selective_Call_Forward_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Cfwd_Sel3_Caller" advanced="yes">
+      <label>Cfwd Sel3 Caller</label>
+      <profileName>Selective_Call_Forward_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Cfwd_Sel3_Dest" advanced="yes">
+      <label>Cfwd Sel3 Dest</label>
+      <profileName>Selective_Call_Forward_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Cfwd_Sel4_Caller" advanced="yes">
+      <label>Cfwd Sel4 Caller</label>
+      <profileName>Selective_Call_Forward_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Cfwd_Sel4_Dest" advanced="yes">
+      <label>Cfwd Sel4 Dest</label>
+      <profileName>Selective_Call_Forward_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Cfwd_Sel5_Caller" advanced="yes">
+      <label>Cfwd Sel5 Caller</label>
+      <profileName>Selective_Call_Forward_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Cfwd_Sel5_Dest" advanced="yes">
+      <label>Cfwd Sel5 Dest</label>
+      <profileName>Selective_Call_Forward_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Cfwd_Sel6_Caller" advanced="yes">
+      <label>Cfwd Sel6 Caller</label>
+      <profileName>Selective_Call_Forward_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Cfwd_Sel6_Dest" advanced="yes">
+      <label>Cfwd Sel6 Dest</label>
+      <profileName>Selective_Call_Forward_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Cfwd_Sel7_Caller" advanced="yes">
+      <label>Cfwd Sel7 Caller</label>
+      <profileName>Selective_Call_Forward_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Cfwd_Sel7_Dest" advanced="yes">
+      <label>Cfwd Sel7 Dest</label>
+      <profileName>Selective_Call_Forward_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Cfwd_Sel8_Caller" advanced="yes">
+      <label>Cfwd Sel8 Caller</label>
+      <profileName>Selective_Call_Forward_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Cfwd_Sel8_Dest" advanced="yes">
+      <label>Cfwd Sel8 Dest</label>
+      <profileName>Selective_Call_Forward_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Cfwd_Last_Caller" advanced="yes">
+      <label>Cfwd Last Caller</label>
+      <profileName>Selective_Call_Forward_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Cfwd_Last_Dest" advanced="yes">
+      <label>Cfwd Last Dest</label>
+      <profileName>Selective_Call_Forward_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Block_Last_Caller" advanced="yes">
+      <label>Block Last Caller</label>
+      <profileName>Selective_Call_Forward_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Accept_Last_Caller" advanced="yes">
+      <label>Accept Last Caller</label>
+      <profileName>Selective_Call_Forward_Settings</profileName>
+      <value />
+    </setting>
+  </group>
+ <group name="Speed_Dial_Settings">
+    <label>Speed Dial Settings</label>
+    <setting name="Speed_Dial_2" advanced="yes">
+      <label>Speed Dial 2</label>
+      <profileName>Speed_Dial_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Speed_Dial_3" advanced="yes">
+      <label>Speed Dial 3</label>
+      <profileName>Speed_Dial_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Speed_Dial_4" advanced="yes">
+      <label>Speed Dial 4</label>
+      <profileName>Speed_Dial_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Speed_Dial_5" advanced="yes">
+      <label>Speed Dial 5</label>
+      <profileName>Speed_Dial_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Speed_Dial_6" advanced="yes">
+      <label>Speed Dial 6</label>
+      <profileName>Speed_Dial_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Speed_Dial_7" advanced="yes">
+      <label>Speed Dial 7</label>
+      <profileName>Speed_Dial_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Speed_Dial_8" advanced="yes">
+      <label>Speed Dial 8</label>
+      <profileName>Speed_Dial_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Speed_Dial_9" advanced="yes">
+      <label>Speed Dial 9</label>
+      <profileName>Speed_Dial_Settings</profileName>
+      <value />
+    </setting>
+  </group>
+  <group name="Supplementary_Service_Settings">
+    <label>Supplementary Service Settings</label>
+    <setting name="CW_Setting" advanced="yes">
+      <label>CW Setting</label>
+      <profileName>Supplementary_Service_Settings</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+    <setting name="Block_CID_Setting" advanced="yes">
+      <label>Block CID Setting</label>
+      <profileName>Supplementary_Service_Settings</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="Block_ANC_Setting" advanced="yes">
+      <label>Block ANC Setting</label>
+      <profileName>Supplementary_Service_Settings</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="DND_Setting" advanced="yes">
+      <label>DND Setting</label>
+      <profileName>Supplementary_Service_Settings</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="CID_Setting" advanced="yes">
+      <label>CID Setting</label>
+      <profileName>Supplementary_Service_Settings</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+    <setting name="CWCID_Setting" advanced="yes">
+      <label>CWCID Setting</label>
+      <profileName>Supplementary_Service_Settings</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+    <setting name="Dist_Ring_Setting" advanced="yes">
+      <label>Dist Ring Setting</label>
+      <profileName>Supplementary_Service_Settings</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+    <setting name="Secure_Call_Setting" advanced="no">
+      <label>Secure Call Setting</label>
+      <profileName>Supplementary_Service_Settings</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="Message_Waiting" advanced="yes">
+      <label>Message Waiting</label>
+      <profileName>Supplementary_Service_Settings</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="Accept_Media_Loopback_Request" advanced="no">
+      <label>Accept Media Loopback Request</label>
+      <profileName>Supplementary_Service_Settings</profileName>
+      <value>automatic</value>
+    </setting>
+    <setting name="Accept_Media_Loopback_Request" advanced="no">
+      <label>Accept Media Loopback Request</label>
+      <profileName>Supplementary_Service_Settings</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>never</value>
+          </option>
+          <option>
+            <value>automatic</value>
+          </option>
+          <option>
+            <value>manual</value>
+          </option>
+        </enum>
+      </type>
+      <value>automatic</value>
+    </setting>
+    <setting name="Media_Loopback_Mode" advanced="no">
+      <label>Media Loopback Mode</label>
+      <profileName>Supplementary_Service_Settings</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>source</value>
+          </option>
+          <option>
+            <value>mirror</value>
+          </option>
+        </enum>
+      </type>
+      <value>source</value>
+    </setting>
+    <setting name="Media_Loopback_Type" advanced="yes">
+      <label>Media Loopback Type</label>
+      <profileName>Supplementary_Service_Settings</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>media</value>
+          </option>
+          <option>
+            <value>packet</value>
+          </option>
+        </enum>
+      </type>
+      <value>media</value>
+    </setting>
+  </group>
+<group name="Distinctive_Ring_Settings">
+    <label>Distinctive Ring Settings</label>
+    <setting name="Ring1_Caller" advanced="yes">
+      <label>Ring1 Caller</label>
+      <profileName>Distinctive_Ring_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Ring2_Caller" advanced="yes">
+      <label>Ring2 Caller</label>
+      <profileName>Distinctive_Ring_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Ring3_Caller" advanced="yes">
+      <label>Ring3 Caller</label>
+      <profileName>Distinctive_Ring_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Ring4_Caller" advanced="yes">
+      <label>Ring4 Caller</label>
+      <profileName>Distinctive_Ring_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Ring5_Caller" advanced="yes">
+      <label>Ring5 Caller</label>
+      <profileName>Distinctive_Ring_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Ring6_Caller" advanced="yes">
+      <label>Ring6 Caller</label>
+      <profileName>Distinctive_Ring_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Ring7_Caller" advanced="yes">
+      <label>Ring7 Caller</label>
+      <profileName>Distinctive_Ring_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Ring8_Caller" advanced="yes">
+      <label>Ring8 Caller</label>
+      <profileName>Distinctive_Ring_Settings</profileName>
+      <value />
+    </setting>
+  </group>
+<group name="Ring_Settings">
+    <label>Ring Settings</label>
+    <setting name="Default_Ring" advanced="yes">
+      <label>Default Ring</label>
+      <profileName>Ring_Settings</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="Default_CWT" advanced="yes">
+      <label>Default CWT</label>
+      <profileName>Ring_Settings</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="Hold_Reminder_Ring" advanced="yes">
+      <label>Hold Reminder Ring</label>
+      <profileName>Ring_Settings</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+          <option>
+            <value>none</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="Call_Back_Ring" advanced="yes">
+      <label>Call Back Ring</label>
+      <profileName>Ring_Settings</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>7</value>
+    </setting>
+    <setting name="Cfwd_Ring_Splash_Len" advanced="yes">
+      <label>Cfwd Ring Splash Len</label>
+      <profileName>Ring_Settings</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="Cblk_Ring_Splash_Len" advanced="yes">
+      <label>Cblk Ring Splash Len</label>
+      <profileName>Ring_Settings</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="VMWI_Ring_Splash_Len" advanced="yes">
+      <label>VMWI Ring Splash Len</label>
+      <profileName>Ring_Settings</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="VMWI_Ring_Policy" advanced="no">
+      <label>VMWI Ring Policy</label>
+      <profileName>Ring_Settings</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>New VM Available</value>
+          </option>
+          <option>
+            <value>New VM Becomes Available</value>
+          </option>
+          <option>
+            <value>New VM Arrives</value>
+          </option>
+        </enum>
+      </type>
+      <value>New VM Available</value>
+    </setting>
+    <setting name="Ring_On_No_New_VM" advanced="no">
+      <label>Ring On No New VM</label>
+      <profileName>Ring_Settings</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+</group>
+<group name="Gateway_Accounts">
+    <setting name="Gateway_1" advanced="no">
+      <label>Gateway 1</label>
+      <profileName>Gateway_Accounts</profileName>
+      <value />
+    </setting>
+    <setting name="GW1_NAT_Mapping_Enable" advanced="no">
+      <label>GW1 NAT Mapping Enable</label>
+      <profileName>Gateway_Accounts</profileName>
+      <value />
+    </setting>
+    <setting name="GW1_Auth_ID" advanced="no">
+      <label>GW1 Auth ID</label>
+      <profileName>Gateway_Accounts</profileName>
+      <value />
+    </setting>
+    <setting name="GW1_Password" advanced="no">
+      <label>GW1 Password</label>
+      <profileName>Gateway_Accounts</profileName>
+      <value />
+    </setting>
+    <setting name="Gateway_2" advanced="no">
+      <label>Gateway 2</label>
+      <profileName>Gateway_Accounts</profileName>
+      <value />
+    </setting>
+    <setting name="GW2_NAT_Mapping_Enable" advanced="no">
+      <label>GW2 NAT Mapping Enable</label>
+      <profileName>Gateway_Accounts</profileName>
+      <value />
+    </setting>
+    <setting name="GW2_Auth_ID" advanced="no">
+      <label>GW2 Auth ID</label>
+      <profileName>Gateway_Accounts</profileName>
+      <value />
+    </setting>
+    <setting name="GW2_Password" advanced="no">
+      <label>GW2 Password</label>
+      <profileName>Gateway_Accounts</profileName>
+      <value />
+    </setting>
+    <setting name="Gateway_3" advanced="no">
+      <label>Gateway 3</label>
+      <profileName>Gateway_Accounts</profileName>
+      <value />
+    </setting>
+    <setting name="GW3_NAT_Mapping_Enable" advanced="no">
+      <label>GW3 NAT Mapping Enable</label>
+      <profileName>Gateway_Accounts</profileName>
+      <value />
+    </setting>
+    <setting name="GW3_Auth_ID" advanced="no">
+      <label>GW3 Auth ID</label>
+      <profileName>Gateway_Accounts</profileName>
+      <value />
+    </setting>
+    <setting name="GW3_Password" advanced="no">
+      <label>GW3 Password</label>
+      <profileName>Gateway_Accounts</profileName>
+      <value />
+    </setting>
+    <setting name="Gateway_4" advanced="no">
+      <label>Gateway 4</label>
+      <profileName>Gateway_Accounts</profileName>
+      <value />
+    </setting>
+    <setting name="GW4_NAT_Mapping_Enable" advanced="no">
+      <label>GW4 NAT Mapping Enable</label>
+      <profileName>Gateway_Accounts</profileName>
+      <value />
+    </setting>
+    <setting name="GW4_Auth_ID" advanced="no">
+      <label>GW4 Auth ID</label>
+      <profileName>Gateway_Accounts</profileName>
+      <value />
+    </setting>
+    <setting name="GW4_Password" advanced="no">
+      <label>GW4 Password</label>
+      <profileName>Gateway_Accounts</profileName>
+      <value />
+    </setting>
+</group>
+  <group name="Dial_Plans">
+    <setting name="Dial_Plan_1_2_" advanced="no">
+      <label>Dial_Plan_1_2_</label>
+      <profileName>Dial_Plans</profileName>
+      <value>(xx.)</value>
+    </setting>
+    <setting name="Dial_Plan_2_2_" advanced="no">
+      <label>Dial_Plan_2_2_</label>
+      <profileName>Dial_Plans</profileName>
+      <value>(xx.)</value>
+    </setting>
+    <setting name="Dial_Plan_3_2_" advanced="no">
+      <label>Dial_Plan_3_2_</label>
+      <profileName>Dial_Plans</profileName>
+      <value>(xx.)</value>
+    </setting>
+    <setting name="Dial_Plan_4_2_" advanced="no">
+      <label>Dial_Plan_4_2_</label>
+      <profileName>Dial_Plans</profileName>
+      <value>(xx.)</value>
+    </setting>
+   <setting name="Dial_Plan_5_2_" advanced="no">
+      <label>Dial_Plan_5_2_</label>
+      <profileName>Dial_Plans</profileName>
+      <value>(xx.)</value>
+    </setting>
+    <setting name="Dial_Plan_6_2_" advanced="no">
+      <label>Dial_Plan_6_2_</label>
+      <profileName>Dial_Plans</profileName>
+      <value>(xx.)</value>
+    </setting>
+    <setting name="Dial_Plan_7_2_" advanced="no">
+      <label>Dial_Plan_7_2_</label>
+      <profileName>Dial_Plans</profileName>
+      <value>(xx.)</value>
+    </setting>
+    <setting name="Dial_Plan_8_2_" advanced="no">
+      <label>Dial_Plan_8_2_</label>
+      <profileName>Dial_Plans</profileName>
+      <value>(xx.)</value>
+    </setting>
+  </group>
+<group name="VoIP-To-PSTN_Gateway_Setup">
+    <setting name="VoIP-To-PSTN_Gateway_Enable" advanced="no">
+      <label>VoIP-To-PSTN Gateway Enable</label>
+      <profileName>VoIP-To-PSTN_Gateway_Setup</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+   <setting name="VoIP_Caller_Auth_Method" advanced="no">
+      <label>VoIP Caller Auth Method</label>
+      <profileName>VoIP-To-PSTN_Gateway_Setup</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>none</value>
+          </option>
+          <option>
+            <value>PIN</value>
+          </option>
+          <option>
+            <value>HTTP Digest</value>
+          </option>
+        </enum>
+      </type>
+      <value>none</value>
+    </setting>
+    <setting name="VoIP_PIN_Max_Retry" advanced="no">
+      <label>VoIP PIN Max Retry</label>
+      <profileName>VoIP-To-PSTN_Gateway_Setup</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>3</value>
+    </setting>
+    <setting name="One_Stage_Dialing" advanced="no">
+      <label>One Stage Dialing</label>
+      <profileName>VoIP-To-PSTN_Gateway_Setup</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+    <setting name="Line_1_VoIP_Caller_DP" advanced="no">
+      <label>Line 1 VoIP Caller DP</label>
+      <profileName>VoIP-To-PSTN_Gateway_Setup</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>none</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="VoIP_Caller_Default_DP" advanced="no">
+      <label>VoIP Caller Default DP</label>
+      <profileName>VoIP-To-PSTN_Gateway_Setup</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>none</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="Line_1_Fallback_DP" advanced="no">
+      <label>Line 1 Fallback DP</label>
+      <profileName>VoIP-To-PSTN_Gateway_Setup</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>none</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>none</value>
+    </setting>
+    <setting name="VoIP_Caller_ID_Pattern" advanced="no">
+      <label>VoIP Caller ID Pattern</label>
+      <profileName>VoIP-To-PSTN_Gateway_Setup</profileName>
+      <value />
+    </setting>
+    <setting name="VoIP_Access_List" advanced="no">
+      <label>VoIP Access List</label>
+      <profileName>VoIP-To-PSTN_Gateway_Setup</profileName>
+      <value />
+    </setting>
+    <setting name="VoIP_Caller_1_PIN" advanced="no">
+      <label>VoIP Caller 1 PIN</label>
+      <profileName>VoIP-To-PSTN_Gateway_Setup</profileName>
+      <value />
+    </setting>
+    <setting name="VoIP_Caller_1_DP" advanced="no">
+      <label>VoIP Caller 1 DP</label>
+      <profileName>VoIP-To-PSTN_Gateway_Setup</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>none</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="VoIP_Caller_2_PIN" advanced="no">
+      <label>VoIP Caller 2 PIN</label>
+      <profileName>VoIP-To-PSTN_Gateway_Setup</profileName>
+      <value />
+    </setting>
+    <setting name="VoIP_Caller_2_DP" advanced="no">
+      <label>VoIP Caller 2 DP</label>
+      <profileName>VoIP-To-PSTN_Gateway_Setup</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>none</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="VoIP_Caller_3_PIN" advanced="no">
+      <label>VoIP Caller 3 PIN</label>
+      <profileName>VoIP-To-PSTN_Gateway_Setup</profileName>
+      <value />
+    </setting>
+    <setting name="VoIP_Caller_3_DP" advanced="no">
+      <label>VoIP Caller 3 DP</label>
+      <profileName>VoIP-To-PSTN_Gateway_Setup</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>none</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="VoIP_Caller_4_PIN" advanced="no">
+      <label>VoIP Caller 4 PIN</label>
+      <profileName>VoIP-To-PSTN_Gateway_Setup</profileName>
+      <value />
+    </setting>
+    <setting name="VoIP_Caller_4_DP" advanced="no">
+      <label>VoIP Caller 4 DP</label>
+      <profileName>VoIP-To-PSTN_Gateway_Setup</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>none</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="VoIP_Caller_5_PIN" advanced="no">
+      <label>VoIP Caller 1 PIN</label>
+      <profileName>VoIP-To-PSTN_Gateway_Setup</profileName>
+      <value />
+    </setting>
+    <setting name="VoIP_Caller_5_DP" advanced="no">
+      <label>VoIP Caller 1 DP</label>
+      <profileName>VoIP-To-PSTN_Gateway_Setup</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>none</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="VoIP_Caller_6_PIN" advanced="no">
+      <label>VoIP Caller 6 PIN</label>
+      <profileName>VoIP-To-PSTN_Gateway_Setup</profileName>
+      <value />
+    </setting>
+    <setting name="VoIP_Caller_6_DP" advanced="no">
+      <label>VoIP Caller 6 DP</label>
+      <profileName>VoIP-To-PSTN_Gateway_Setup</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>none</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="VoIP_Caller_7_PIN" advanced="no">
+      <label>VoIP Caller 7 PIN</label>
+      <profileName>VoIP-To-PSTN_Gateway_Setup</profileName>
+      <value />
+    </setting>
+    <setting name="VoIP_Caller_7_DP" advanced="no">
+      <label>VoIP Caller 7 DP</label>
+      <profileName>VoIP-To-PSTN_Gateway_Setup</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>none</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="VoIP_Caller_8_PIN" advanced="no">
+      <label>VoIP Caller 8 PIN</label>
+      <profileName>VoIP-To-PSTN_Gateway_Setup</profileName>
+      <value />
+    </setting>
+    <setting name="VoIP_Caller_8_DP" advanced="no">
+      <label>VoIP Caller 8 DP</label>
+      <profileName>VoIP-To-PSTN_Gateway_Setup</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>none</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+</group>
+<group name="VoIP_Users_and_Passwords__HTTP_Authentication">
+    <setting name="VoIP_User_1_Auth_ID" advanced="no">
+      <label>VoIP User 1 Auth ID</label>
+      <profileName>VoIP_Users_and_Passwords__HTTP_Authentication</profileName>
+      <value />
+    </setting>
+    <setting name="VoIP_User_1_DP" advanced="no">
+      <label>VoIP User 1 DP</label>
+      <profileName>VoIP_Users_and_Passwords__HTTP_Authentication</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>none</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="VoIP_User_1_Password" advanced="no">
+      <label>VoIP User 1 Password</label>
+      <profileName>VoIP_Users_and_Passwords__HTTP_Authentication</profileName>
+      <value />
+    </setting>
+    <setting name="VoIP_User_2_Auth_ID" advanced="no">
+      <label>VoIP User 2 Auth ID</label>
+      <profileName>VoIP_Users_and_Passwords__HTTP_Authentication</profileName>
+      <value />
+    </setting>
+    <setting name="VoIP_User_2_DP" advanced="no">
+      <label>VoIP User 2 DP</label>
+      <profileName>VoIP_Users_and_Passwords__HTTP_Authentication</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>none</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="VoIP_User_2_Password" advanced="no">
+      <label>VoIP User 2 Password</label>
+      <profileName>VoIP_Users_and_Passwords__HTTP_Authentication</profileName>
+      <value />
+    </setting>
+    <setting name="VoIP_User_3_Auth_ID" advanced="no">
+      <label>VoIP User 3 Auth ID</label>
+      <profileName>VoIP_Users_and_Passwords__HTTP_Authentication</profileName>
+      <value />
+    </setting>
+    <setting name="VoIP_User_3_DP" advanced="no">
+      <label>VoIP User 3 DP</label>
+      <profileName>VoIP_Users_and_Passwords__HTTP_Authentication</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>none</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="VoIP_User_3_Password" advanced="no">
+      <label>VoIP User 3 Password</label>
+      <profileName>VoIP_Users_and_Passwords__HTTP_Authentication</profileName>
+      <value />
+    </setting>
+    <setting name="VoIP_User_4_Auth_ID" advanced="no">
+      <label>VoIP User 4 Auth ID</label>
+      <profileName>VoIP_Users_and_Passwords__HTTP_Authentication</profileName>
+      <value />
+    </setting>
+    <setting name="VoIP_User_4_DP" advanced="no">
+      <label>VoIP User 4 DP</label>
+      <profileName>VoIP_Users_and_Passwords__HTTP_Authentication</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>none</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="VoIP_User_4_Password" advanced="no">
+      <label>VoIP User 4 Password</label>
+      <profileName>VoIP_Users_and_Passwords__HTTP_Authentication</profileName>
+      <value />
+    </setting>
+    <setting name="VoIP_User_5_Auth_ID" advanced="no">
+      <label>VoIP User 5 Auth ID</label>
+      <profileName>VoIP_Users_and_Passwords__HTTP_Authentication</profileName>
+      <value />
+    </setting>
+    <setting name="VoIP_User_5_DP" advanced="no">
+      <label>VoIP User 5 DP</label>
+      <profileName>VoIP_Users_and_Passwords__HTTP_Authentication</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>none</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="VoIP_User_5_Password" advanced="no">
+      <label>VoIP User 5 Password</label>
+      <profileName>VoIP_Users_and_Passwords__HTTP_Authentication</profileName>
+      <value />
+    </setting>
+    <setting name="VoIP_User_6_Auth_ID" advanced="no">
+      <label>VoIP User 6 Auth ID</label>
+      <profileName>VoIP_Users_and_Passwords__HTTP_Authentication</profileName>
+      <value />
+    </setting>
+    <setting name="VoIP_User_6_DP" advanced="no">
+      <label>VoIP User 6 DP</label>
+      <profileName>VoIP_Users_and_Passwords__HTTP_Authentication</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>none</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="VoIP_User_6_Password" advanced="no">
+      <label>VoIP User 6 Password</label>
+      <profileName>VoIP_Users_and_Passwords__HTTP_Authentication</profileName>
+      <value />
+    </setting>
+    <setting name="VoIP_User_7_Auth_ID" advanced="no">
+      <label>VoIP User 7 Auth ID</label>
+      <profileName>VoIP_Users_and_Passwords__HTTP_Authentication</profileName>
+      <value />
+    </setting>
+    <setting name="VoIP_User_7_DP" advanced="no">
+      <label>VoIP User 7 DP</label>
+      <profileName>VoIP_Users_and_Passwords__HTTP_Authentication</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>none</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="VoIP_User_7_Password" advanced="no">
+      <label>VoIP User 7 Password</label>
+      <profileName>VoIP_Users_and_Passwords__HTTP_Authentication</profileName>
+      <value />
+    </setting>
+    <setting name="VoIP_User_8_Auth_ID" advanced="no">
+      <label>VoIP User 8 Auth ID</label>
+      <profileName>VoIP_Users_and_Passwords__HTTP_Authentication</profileName>
+      <value />
+    </setting>
+    <setting name="VoIP_User_8_DP" advanced="no">
+      <label>VoIP User 8 DP</label>
+      <profileName>VoIP_Users_and_Passwords__HTTP_Authentication</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>none</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="VoIP_User_8_Password" advanced="no">
+      <label>VoIP User 8 Password</label>
+      <profileName>VoIP_Users_and_Passwords__HTTP_Authentication</profileName>
+      <value />
+    </setting>
+</group>
+<group name="PSTN-To-VoIP_Gateway_Setup">
+    <setting name="PSTN-To-VoIP_Gateway_Enable" advanced="no">
+      <label>PSTN-To-VoIP Gateway Enable</label>
+      <profileName>PSTN-To-VoIP_Gateway_Setup</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+   <setting name="PSTN_Caller_Auth_Method" advanced="no">
+      <label>PSTN Caller Auth Method</label>
+      <profileName>PSTN-To-VoIP_Gateway_Setup</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>none</value>
+          </option>
+          <option>
+            <value>PIN</value>
+          </option>
+        </enum>
+      </type>
+      <value>none</value>
+    </setting>
+    <setting name="PSTN_Ring_Thru_Line" advanced="no">
+      <label>PSTN Ring Thru Line</label>
+      <profileName>PSTN-To-VoIP_Gateway_Setup</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+    <setting name="PSTN_PIN_Max_Retry" advanced="no">
+      <label>PSTN PIN Max Retry</label>
+      <profileName>PSTN-To-VoIP_Gateway_Setup</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>3</value>
+    </setting>
+    <setting name="PSTN_CID_For_VoIP_CID" advanced="no">
+      <label>PSTN CID For VoIP CID</label>
+      <profileName>PSTN-To-VoIP_Gateway_Setup</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="PSTN_CID_Number_Prefix" advanced="no">
+      <label>PSTN CID Number Prefix</label>
+      <profileName>PSTN-To-VoIP_Gateway_Setup</profileName>
+      <value />
+    </setting>
+    <setting name="PSTN_Caller_Default_DP" advanced="no">
+      <label>PSTN Caller Default DP</label>
+      <profileName>PSTN-To-VoIP_Gateway_Setup</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="Off_Hook_While_Calling_VoIP" advanced="no">
+      <label>Off_Hook While Calling VoIP</label>
+      <profileName>PSTN-To-VoIP_Gateway_Setup</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="Line_1_Signal_Hook_Flash_To_PSTN" advanced="no">
+      <label>Line 1 Signal Hook Flash To PSTN</label>
+      <profileName>PSTN-To-VoIP_Gateway_Setup</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>Disabled</value>
+          </option>
+          <option>
+            <value>Double Hook Flash</value>
+          </option>
+        </enum>
+      </type>
+      <value>Disabled</value>
+    </setting>
+    <setting name="PSTN_CID_Number_Prefix" advanced="no">
+      <label>PSTN CID Number Prefix</label>
+      <profileName>PSTN-To-VoIP_Gateway_Setup</profileName>
+      <value />
+    </setting>
+    <setting name="PSTN_Caller_Default_DP" advanced="no">
+      <label>PSTN Caller Default DP</label>
+      <profileName>PSTN-To-VoIP_Gateway_Setup</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="Off_Hook_While_Calling_VoIP" advanced="no">
+      <label>Off Hook While Calling VoIP</label>
+      <profileName>PSTN-To-VoIP_Gateway_Setup</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="Line_1_Signal_Hook_Flash_To_PSTN" advanced="no">
+      <label>Line 1 Signal Hook Flash To PSTN</label>
+      <profileName>PSTN-To-VoIP_Gateway_Setup</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>Disabled</value>
+          </option>
+          <option>
+            <value>Double Hook Flash</value>
+          </option>
+        </enum>
+      </type>
+      <value>Disabled</value>
+    </setting>
+    <setting name="PSTN_CID_Name_Prefix" advanced="no">
+      <label>PSTN CID Name Prefix</label>
+      <profileName>PSTN-To-VoIP_Gateway_Setup</profileName>
+      <value />
+    </setting>
+    <setting name="PSTN_Caller_ID_Pattern" advanced="no">
+      <label>PSTN Caller ID Pattern</label>
+      <profileName>PSTN-To-VoIP_Gateway_Setup</profileName>
+      <value />
+    </setting>
+    <setting name="PSTN_Access_List" advanced="no">
+      <label>PSTN Access List</label>
+      <profileName>PSTN-To-VoIP_Gateway_Setup</profileName>
+      <value />
+    </setting>
+    <setting name="PSTN_Caller_1_PIN" advanced="no">
+      <label>PSTN Caller 1 PIN</label>
+      <profileName>PSTN-To-VoIP_Gateway_Setup</profileName>
+      <value />
+    </setting>
+    <setting name="PSTN_Caller_1_DP" advanced="no">
+      <label>PSTN Caller 1 DP</label>
+      <profileName>PSTN-To-VoIP_Gateway_Setup</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="PSTN_Caller_2_PIN" advanced="no">
+      <label>PSTN Caller 2 PIN</label>
+      <profileName>PSTN-To-VoIP_Gateway_Setup</profileName>
+      <value />
+    </setting>
+    <setting name="PSTN_Caller_2_DP" advanced="no">
+      <label>PSTN Caller 2 DP</label>
+      <profileName>PSTN-To-VoIP_Gateway_Setup</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="PSTN_Caller_3_PIN" advanced="no">
+      <label>PSTN Caller 3 PIN</label>
+      <profileName>PSTN-To-VoIP_Gateway_Setup</profileName>
+      <value />
+    </setting>
+    <setting name="PSTN_Caller_3_DP" advanced="no">
+      <label>PSTN Caller 3 DP</label>
+      <profileName>PSTN-To-VoIP_Gateway_Setup</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="PSTN_Caller_4_PIN" advanced="no">
+      <label>PSTN Caller 4 PIN</label>
+      <profileName>PSTN-To-VoIP_Gateway_Setup</profileName>
+      <value />
+    </setting>
+    <setting name="PSTN_Caller_4_DP" advanced="no">
+      <label>PSTN Caller 4 DP</label>
+      <profileName>PSTN-To-VoIP_Gateway_Setup</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="PSTN_Caller_5_PIN" advanced="no">
+      <label>PSTN Caller 5 PIN</label>
+      <profileName>PSTN-To-VoIP_Gateway_Setup</profileName>
+      <value />
+    </setting>
+    <setting name="PSTN_Caller_5_DP" advanced="no">
+      <label>PSTN Caller 5 DP</label>
+      <profileName>PSTN-To-VoIP_Gateway_Setup</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="PSTN_Caller_6_PIN" advanced="no">
+      <label>PSTN Caller 6 PIN</label>
+      <profileName>PSTN-To-VoIP_Gateway_Setup</profileName>
+      <value />
+    </setting>
+    <setting name="PSTN_Caller_6_DP" advanced="no">
+      <label>PSTN Caller 6 DP</label>
+      <profileName>PSTN-To-VoIP_Gateway_Setup</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="PSTN_Caller_7_PIN" advanced="no">
+      <label>PSTN Caller 7 PIN</label>
+      <profileName>PSTN-To-VoIP_Gateway_Setup</profileName>
+      <value />
+    </setting>
+    <setting name="PSTN_Caller_7_DP" advanced="no">
+      <label>PSTN Caller 7 DP</label>
+      <profileName>PSTN-To-VoIP_Gateway_Setup</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="PSTN_Caller_8_PIN" advanced="no">
+      <label>PSTN Caller 8 PIN</label>
+      <profileName>PSTN-To-VoIP_Gateway_Setup</profileName>
+      <value />
+    </setting>
+    <setting name="PSTN_Caller_8_DP" advanced="no">
+      <label>PSTN Caller 8 DP</label>
+      <profileName>PSTN-To-VoIP_Gateway_Setup</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+</group>
+<group name="FXO_Timer_Values__sec">
+    <setting name="VoIP_Answer_Delay" advanced="no">
+      <label>VoIP Answer Delay</label>
+      <profileName>FXO_Timer_Values__sec</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="VoIP_PIN_Digit_Timeout" advanced="no">
+      <label>VoIP PIN Digit Timeout</label>
+      <profileName>FXO_Timer_Values__sec</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>10</value>
+    </setting>
+    <setting name="PSTN_Answer_Delay" advanced="no">
+      <label>PSTN Answer Delay</label>
+      <profileName>FXO_Timer_Values__sec</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>16</value>
+    </setting>
+    <setting name="PSTN_PIN_Digit_Timeout" advanced="no">
+      <label>PSTN PIN Digit Timeout</label>
+      <profileName>FXO_Timer_Values__sec</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>10</value>
+    </setting>
+    <setting name="PSTN-To-VoIP_Call_Max_Dur" advanced="no">
+      <label>PSTN-To-VoIP Call Max Dur</label>
+      <profileName>FXO_Timer_Values__sec</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="PSTN_Ring_Thru_Delay" advanced="no">
+      <label>PSTN Ring Thru Delay</label>
+      <profileName>FXO_Timer_Values__sec</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="VoIP-To-PSTN_Call_Max_Dur" advanced="no">
+      <label>VoIP-To-PSTN Call Max Dur</label>
+      <profileName>FXO_Timer_Values__sec</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="PSTN_Ring_Thru_CWT_Delay" advanced="no">
+      <label>PSTN Ring Thru CWT Delay</label>
+      <profileName>FXO_Timer_Values__sec</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>3</value>
+    </setting>
+    <setting name="VoIP_DLG_Refresh_Intvl" advanced="no">
+      <label>VoIP DLG Refresh Intvl</label>
+      <profileName>FXO_Timer_Values__sec</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="PSTN_Ring_Timeout" advanced="no">
+      <label>PSTN Ring Timeout</label>
+      <profileName>FXO_Timer_Values__sec</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>5</value>
+    </setting>
+    <setting name="PSTN_Dialing_Delay" advanced="no">
+      <label>PSTN Dialing Delay</label>
+      <profileName>FXO_Timer_Values__sec</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="PSTN_Dial_Digit_Len" advanced="no">
+      <label>PSTN Dial Digit Len</label>
+      <profileName>FXO_Timer_Values__sec</profileName>
+      <value>.1/.1</value>
+    </setting>
+    <setting name="PSTN_Hook_Flash_Len" advanced="no">
+      <label>PSTN Hook Flash Len</label>
+      <profileName>FXO_Timer_Values__sec</profileName>
+      <type>
+        <real />
+      </type>
+      <value>.25</value>
+    </setting>
+</group>
+<group name="PSTN_Disconnect_Detection">
+    <setting name="Detect_CPC" advanced="no">
+      <label>Detect CPC</label>
+      <profileName>PSTN_Disconnect_Detection</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+    <setting name="Detect_Polarity_Reversal" advanced="no">
+      <label>Detect Polarity Reversal</label>
+      <profileName>PSTN_Disconnect_Detection</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+    <setting name="Detect_PSTN_Long_Silence" advanced="no">
+      <label>Detect PSTN Long Silence</label>
+      <profileName>PSTN_Disconnect_Detection</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="Detect_VoIP_Long_Silence" advanced="no">
+      <label>Detect VoIP Long Silence</label>
+      <profileName>PSTN_Disconnect_Detection</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="PSTN_Long_Silence_Duration" advanced="no">
+      <label>PSTN Long Silence Duration</label>
+      <profileName>PSTN_Disconnect_Detection</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>30</value>
+    </setting>
+    <setting name="VoIP_Long_Silence_Duration" advanced="no">
+      <label>VoIP Long Silence Duration</label>
+      <profileName>PSTN_Disconnect_Detection</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>30</value>
+    </setting>
+    <setting name="PSTN_Silence_Threshold" advanced="no">
+      <label>PSTN Silence Threshold</label>
+      <profileName>PSTN_Disconnect_Detection</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>very high</value>
+          </option>
+          <option>
+            <value>high</value>
+          </option>
+          <option>
+            <value>medium</value>
+          </option>
+          <option>
+            <value>low</value>
+          </option>
+          <option>
+            <value>very low</value>
+          </option>
+        </enum>
+      </type>
+      <value>medium</value>
+    </setting>
+    <setting name="Min_CPC_Duration" advanced="no">
+      <label>Min CPC Duration</label>
+      <profileName>PSTN_Disconnect_Detection</profileName>
+      <type>
+        <real />
+      </type>
+      <value>0.2</value>
+    </setting>
+    <setting name="Detect_Disconnect_Tone" advanced="no">
+      <label>Detect Disconnect Tone</label>
+      <profileName>PSTN_Disconnect_Detection</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+    <setting name="Disconnect_Tone" advanced="no">
+      <label>Disconnect Tone</label>
+      <profileName>PSTN_Disconnect_Detection</profileName>
+      <value>480@-30,620@-30;4(.25/.25/1+2)</value>
+    </setting>
+</group>
+<group name="International_Control">
+    <setting name="FXO_Port_Impedance" advanced="no">
+      <label>FXO Port Impedance</label>
+      <profileName>International_Control</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>600</value>
+          </option>
+          <option>
+            <value>900</value>
+          </option>
+          <option>
+            <value>270+750||150nF</value>
+          </option>
+          <option>
+            <value>220+820||120nF</value>
+          </option>
+          <option>
+            <value>370+620||310nF</value>
+          </option>
+          <option>
+            <value>320+1050||230nF</value>
+          </option>
+          <option>
+            <value>370+820||110nF</value>
+          </option>
+          <option>
+            <value>275+780||115nF</value>
+          </option>
+          <option>
+            <value>120+820||110nF</value>
+          </option>
+          <option>
+            <value>350+1000||210nF</value>
+          </option>
+          <option>
+            <value>0+900||30nF</value>
+          </option>
+          <option>
+            <value>600+2.16uF</value>
+          </option>
+          <option>
+            <value>900+1uF</value>
+          </option>
+          <option>
+            <value>900+2.16uF</value>
+          </option>
+          <option>
+            <value>600+1uF</value>
+          </option>
+          <option>
+            <value>Global</value>
+          </option>
+        </enum>
+      </type>
+      <value>600</value>
+    </setting>
+    <setting name="Ring_Frequency_Min" advanced="no">
+      <label>Ring Frequency Min</label>
+      <profileName>International_Control</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>10</value>
+    </setting>
+    <setting name="SPA_To_PSTN_Gain" advanced="no">
+      <label>SPA To PSTN Gain</label>
+      <profileName>International_Control</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="Ring_Frequency_Max" advanced="no">
+      <label>Ring Frequency Max</label>
+      <profileName>International_Control</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>100</value>
+    </setting>
+    <setting name="PSTN_To_SPA_Gain" advanced="no">
+      <label>PSTN To SPA Gain</label>
+      <profileName>International_Control</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="Ring_Validation_Time" advanced="no">
+      <label>Ring Validation Time</label>
+      <profileName>International_Control</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>100 ms</value>
+          </option>
+          <option>
+            <value>150 ms</value>
+          </option>
+          <option>
+            <value>200 ms</value>
+          </option>
+          <option>
+            <value>256 ms</value>
+          </option>
+          <option>
+            <value>384 ms</value>
+          </option>
+          <option>
+            <value>512 ms</value>
+          </option>
+          <option>
+            <value>640 ms</value>
+          </option>
+          <option>
+            <value>1024 ms</value>
+          </option>
+        </enum>
+      </type>
+      <value>256 ms</value>
+    </setting>
+    <setting name="Tip_Ring_Voltage_Adjust" advanced="no">
+      <label>Tip Ring Voltage Adjust</label>
+      <profileName>International_Control</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>3.1 V</value>
+          </option>
+          <option>
+            <value>3.2 V</value>
+          </option>
+          <option>
+            <value>3.35 V</value>
+          </option>
+          <option>
+            <value>3.5 V</value>
+          </option>
+        </enum>
+      </type>
+      <value>3.5 V</value>
+    </setting>
+    <setting name="Ring_Indication_Delay" advanced="no">
+      <label>Ring Indication Delay</label>
+      <profileName>International_Control</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>256 ms</value>
+          </option>
+          <option>
+            <value>512 ms</value>
+          </option>
+          <option>
+            <value>768 ms</value>
+          </option>
+          <option>
+            <value>1024 ms</value>
+          </option>
+          <option>
+            <value>1280 ms</value>
+          </option>
+          <option>
+            <value>1536 ms</value>
+          </option>
+          <option>
+            <value>1792 ms</value>
+          </option>
+        </enum>
+      </type>
+      <value>512 ms</value>
+    </setting>
+    <setting name="Operational_Loop_Current_Min" advanced="no">
+      <label>Operational Loop Current Min</label>
+      <profileName>International_Control</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>10 mA</value>
+          </option>
+          <option>
+            <value>12 mA</value>
+          </option>
+          <option>
+            <value>14 mA</value>
+          </option>
+          <option>
+            <value>16 mA</value>
+          </option>
+        </enum>
+      </type>
+      <value>10 mA</value>
+    </setting>
+    <setting name="Ring_Timeout" advanced="no">
+      <label>Ring Timeout</label>
+      <profileName>International_Control</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>10 mA</value>
+          </option>
+          <option>
+            <value>128 ms</value>
+          </option>
+          <option>
+            <value>256 ms</value>
+          </option>
+          <option>
+            <value>384 ms</value>
+          </option>
+          <option>
+            <value>512 ms</value>
+          </option>
+          <option>
+            <value>640 ms</value>
+          </option>
+          <option>
+            <value>768 ms</value>
+          </option>
+          <option>
+            <value>896 ms</value>
+          </option>
+          <option>
+            <value>1024 ms</value>
+          </option>
+          <option>
+            <value>1152 ms</value>
+          </option>
+          <option>
+            <value>1280 ms</value>
+          </option>
+          <option>
+            <value>1408 ms</value>
+          </option>
+          <option>
+            <value>1536 ms</value>
+          </option>
+          <option>
+            <value>1664 ms</value>
+          </option>
+          <option>
+            <value>1792 ms</value>
+          </option>
+          <option>
+            <value>1920 ms</value>
+          </option>
+        </enum>
+      </type>
+      <value>640 ms</value>
+    </setting>
+    <setting name="On-Hook_Speed" advanced="no">
+      <label>On-Hook Speed</label>
+      <profileName>International_Control</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>Less than 0.5 ms</value>
+          </option>
+          <option>
+            <value>3 ms (ETSI)</value>
+          </option>
+          <option>
+            <value>26 ms (Australia)</value>
+          </option>
+        </enum>
+      </type>
+      <value>Less than 0.5 ms</value>
+    </setting>
+    <setting name="Ring_Threshold" advanced="no">
+      <label>Ring Threshold</label>
+      <profileName>International_Control</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>13.5-16.5 Vrms</value>
+          </option>
+          <option>
+            <value>19.35-23.65 Vrms</value>
+          </option>
+          <option>
+            <value>40.5-49.5 Vrms</value>
+          </option>
+        </enum>
+      </type>
+      <value>13.5-16.5 Vrms</value>
+    </setting>
+    <setting name="Current_Limiting_Enable" advanced="no">
+      <label>Current Limiting Enable</label>
+      <profileName>International_Control</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="Ringer_Impedance" advanced="no">
+      <label>Ringer Impedance</label>
+      <profileName>International_Control</profileName>
+     <type>
+        <enum>
+          <option>
+            <value>High (Normal)</value>
+          </option>
+          <option>
+            <value>Synthesized (Poland,S.Africa,Slovenia)</value>
+          </option>
+        </enum>
+      </type>
+      <value>High (Normal)</value>
+    </setting>
+    <setting name="Line-In-Use_Voltage" advanced="no">
+      <label>Line-In-Use Voltage</label>
+      <profileName>International_Control</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>30</value>
+    </setting>
+</group>
+</model>

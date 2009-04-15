@@ -1,0 +1,23 @@
+<span jwcid="$content$">
+  <span jwcid="@phone/PhoneLabel" phone="ognl:bean"/>
+      <div jwcid="@common/LeftNavigation">
+        <span jwcid="@setting/SettingsNavigation" bean="ognl:bean"
+          activeSetting="ognl:activeSetting"
+          editSettingsListener="listener:editSettings">
+          <span jwcid="@common/Tab" isActive="ognl:identificationTabActive">
+            <a jwcid="deviceIdLink@DirectLink" listener="listener:editPhone"
+              parameters="ognl:bean.id">
+              <span key="link.identification">Identification</span>
+            </a>
+          </span>
+          <span jwcid="@common/Tab" isActive="ognl:linesTabActive">
+            <a jwcid="linesLink@DirectLink" listener="listener:editLines"
+              parameters="ognl:bean.id">
+              <span key="link.lines">Lines</span>
+            </a>
+          </span>
+        </span>
+      </div>
+  <span jwcid="@RenderBody"/>
+  <div jwcid="@common/ProfilePreview" device="ognl:bean"/>
+</span>

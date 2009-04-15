@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dataset>
+ <domain name="robin" domain_id="[domain_id]" sip_realm="realm" shared_secret="secret"/>
+</dataset>

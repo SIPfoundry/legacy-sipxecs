@@ -1,0 +1,7 @@
+SIP_DOMAIN_NAME : domain.example.com
+SIP_DOMAIN_ALIASES : alias.example.com 10.10.10.1 host1.example.com
+SIP_REALM : realm.example.com
+SHARED_SECRET : mySecret
+DEFAULT_LANGUAGE : en
+SUPERVISOR_PORT : 8092
+CONFIG_HOSTS : master.example.com

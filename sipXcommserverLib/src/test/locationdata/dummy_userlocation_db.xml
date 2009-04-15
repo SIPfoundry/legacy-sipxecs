@@ -1,0 +1,31 @@
+<?xml version="1.0" standalone="yes" ?>
+<items type="userlocation" xmlns="http://www.sipfoundry.org/sipX/schema/xml/userlocation-00-00">
+    <item>
+        <identity>201@example.com</identity>
+        <location>Ottawa</location>
+    </item>
+    <item>
+        <identity>202@example.com</identity>
+        <location>Montreal</location>
+    </item>
+    <item>
+        <identity>203@example.com</identity>
+        <location>Venise-Sur-Mer</location>
+    </item>
+    <item>
+        <identity>204@example.com</identity>
+        <location>Drummondville</location>
+    </item>
+    <item>
+        <identity>205@example.com</identity>
+        <location>Ottawa</location>
+    </item>
+    <item>
+        <identity>206@example.com</identity>
+        <location>Ottawa</location>
+    </item>
+    <item>
+        <identity>201@example.com</identity>
+        <location>Quebec</location>
+    </item>
+</items>

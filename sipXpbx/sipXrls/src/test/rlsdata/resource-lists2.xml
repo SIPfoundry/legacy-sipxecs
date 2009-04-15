@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<lists xmlns="http://www.sipfoundry.org/sipX/schema/xml/resource-lists-00-01">
+  <list user="~~rl~F~332" user-cons="~~rl~C~332">
+    <resource uri="sip:332@rlstest.test">
+      <name>332</name>
+    </resource>
+  </list>
+</lists>

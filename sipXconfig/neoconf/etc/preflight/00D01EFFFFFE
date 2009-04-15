@@ -1,0 +1,170 @@
+;================================================================================================
+; LIP-68XX configuration information
+;================================================================================================
+
+[LAN]
+tos b8
+pc_802_priority 3
+pc_vlan_id 0
+phone_802_priority 5
+phone_vlan_id 0
+
+[NETTIME]
+sntp_server_address pool.ntp.org
+interval 24
+timezone 9
+dst_auto_adjust on
+dst_start_month 3
+dst_start_day 0
+dst_start_day_of_week 1
+dst_start_week_of_month 2
+dst_start_time 2
+dst_stop_month 11
+dst_stop_day 0
+dst_stop_day_of_week 1
+dst_stop_week_of_month 1
+dst_stop_time 2
+time_format 2
+
+[VOIP]
+outbound_proxy_server 
+outbound_proxy_port 5060
+backup_proxy_server 
+backup_proxy_port 5060
+SIP_service_domain 
+moh_url ~~mh~@acme.com
+rtp_port 23000
+prack_mode disable
+user_param disable
+replaces_mode enable
+local_udp_port 5060
+message_url 101
+preferred_codec g729 g723 pcmu pcma
+timer_register_expires 3600
+timer_session 0
+timer_t1 500
+timer_t2 4000
+stun_server 
+max_line_num 3
+
+line1_proxy_address acme.com
+line1_proxy_port 5060
+line1_displayname x201
+line1_name 201
+line1_authname 201
+line1_password 1234
+line1_type private
+line1_extension 
+line1_bla_prim 
+line1_acd_activity 
+line1_acdgroupid 
+
+line2_proxy_address acme.com
+line2_proxy_port 5060
+line2_displayname x202
+line2_name 202
+line2_authname 202
+line2_password 1234
+line2_type private
+line2_extension 
+line2_bla_prim 
+line2_acd_activity 
+line2_acdgroupid 
+
+line3_proxy_address acme.com
+line3_proxy_port 5060
+line3_displayname x203
+line3_name 203
+line3_authname 203
+line3_password 1234
+line3_type private
+line3_extension 
+line3_bla_prim 
+line3_acd_activity 
+line3_acdgroupid 
+
+[DSP]
+ringer_off on
+VAD off
+dtmf_payload 101
+frame_duration 20
+headset_mode disable
+dtmf nego
+ringtype0 425 440
+ringtype1 530 555
+cadence0 2000 4000 0 0 0 0
+cadence1 800 400 800 4000 0 0
+cadence2 400 200 400 200 800
+cadence3 300 200 1000 200 300
+cadence4 500 0 0 0 0 0
+jitterbuffer_min_delay 30
+jitterbuffer_nom_delay 60
+jitterbuffer_max_delay 120
+
+[FWRD]
+condition -1
+forwarding_address 
+noanswer_time 10
+
+[DIAL]
+dial_mode number
+pause_timer 3
+inter_digit_timer 6
+
+[CALL]
+caller_id_blk disable
+anonymous_call_blk disable
+call_waiting enable
+call_waiting_tone enable
+call_hold_ringback enable
+msg_waiting_tone disable
+auto_answer disable
+intercom_noti enable
+acd_active disable
+acd_primary_line 
+acd_unavail_completed enable
+acd_unavail_missed enable
+acd_unavail_time_completed 60
+call_direct disable
+call_direct_number 
+call_direct_timer 5
+
+[SNMP]
+snmp_function off
+snmp_manager_address 
+snmp_read_community 
+snmp_write_community 
+
+[SYSTEM]
+lang 0
+phone_password 
+lock_outgoing_call 0
+use_speed_number 1
+web_server 1
+telnet_server 1
+function call_park disable
+function call_pickup disable
+function group_call_pickup disable
+function direct_call_pickup disable
+
+include 00D01EFFFFFE-phonebook.csv phonebook
+
+[PROVISION]
+type 0
+cfg_download enable
+sw_download enable
+dhcp_get_tftp enable
+https_url 
+dhcp_get_http enable
+https_port 443
+https_id 
+https_password 
+https_macform $MAC
+verifying_cert 0
+smartup_use enable
+smartup_type 2
+smartup_interval 3600
+smartup_time 0
+smartup_confirm enable
+decrypt_key 
+

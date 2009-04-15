@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<mappings>
+  <hostMatch>
+    <hostPattern>thisdomain</hostPattern>
+
+    <userMatch>
+      <!-- Test + -->
+      <userPattern>101+</userPattern>
+      <permissionMatch>
+        <transform>
+          <user>OneZeroOnePlus</user>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+    <userMatch>
+      <!-- Test ? -->
+      <userPattern>1012?</userPattern>
+      <permissionMatch>
+        <transform>
+          <user>OneZeroOneTwoQmark</user>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+    <userMatch>
+      <!-- Test Parenthesis -->
+      <userPattern>(101)</userPattern>
+      <permissionMatch>
+        <transform>
+          <user>ParenOneZeroOneParen</user>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+    <userMatch>
+      <!-- Test Dollar Sign -->
+      <userPattern>101$</userPattern>
+      <permissionMatch>
+        <transform>
+          <user>OneZeroOneDollar</user>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+    <userMatch>
+      <!-- Test Asterisk -->
+      <userPattern>1013*</userPattern>
+      <permissionMatch>
+        <transform>
+          <user>OneZeroOneThreeStar</user>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+  </hostMatch>
+</mappings>

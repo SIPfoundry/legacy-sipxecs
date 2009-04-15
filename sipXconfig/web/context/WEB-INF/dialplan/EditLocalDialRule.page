@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.dialplan.EditLocalDialRule">
+  <!--
+    - B E A N S
+  -->
+  <bean name="externalLenModel" class="org.sipfoundry.sipxconfig.components.LenSelectionModel"
+    lifecycle="page">
+    <set name="min" value="literal:5" />
+    <set name="max" value="literal:15" />
+  </bean>
+  <!--
+    - C O M P O N E N T S
+  -->
+  <component id="dialRuleCommon" type="dialplan/DialRuleCommon">
+    <binding name="ruleId" value="ruleId" />
+    <binding name="rule" value="rule" />
+    <binding name="callback" value="callback" />
+  </component>
+
+  <component id="pstnPrefixLabel" type="FieldLabel">
+    <binding name="field" value="components.pstnPrefix" />
+  </component>
+  <component id="pstnPrefix" type="TextField">
+    <binding name="value" value="rule.pstnPrefix" />
+    <binding name="validators" value="spring-validators:validSipUserId" />
+    <binding name="displayName" value="message:label.pstnPrefix" />
+  </component>
+  <component id="externalLenLabel" type="FieldLabel">
+    <binding name="field" value="components.externalLen" />
+    <binding name="displayName" value="message:label.externalNumberLen" />
+  </component>
+  <component id="externalLen" type="PropertySelection">
+    <binding name="value" value="rule.externalLen" />
+    <binding name="model" value="bean:externalLenModel" />
+  </component>
+</page-specification>

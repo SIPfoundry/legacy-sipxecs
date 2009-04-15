@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="src" path="src/test/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/sipxcommons"/>
+	<classpathentry kind="var" path="SIPX_COMMONS/lib/log4j.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
+	<classpathentry kind="var" path="SIPX_PREFIX/share/java/sipXecs/sipXcommons/sipxcommons.jar"/>
+	<classpathentry kind="var" path="SIPX_COMMONS/lib/dom4j.jar" sourcepath="LIB_SRC/dom4j/1.6.1/src.zip"/>
+	<classpathentry kind="var" path="SIPX_COMMONS/lib/commons-io.jar"/>
+	<classpathentry kind="var" path="SIPX_COMMONS/lib/jaxen.jar"/>
+	<classpathentry kind="output" path="classes"/>
+</classpath>

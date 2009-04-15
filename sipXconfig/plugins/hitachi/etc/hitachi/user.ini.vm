@@ -1,0 +1,451 @@
+## params macro emits a parameter per line
+## setting - reference to a setting group
+## param_list - list of parameter names
+#macro(params $setting $param_list)
+#foreach($p in $param_list)
+$p=$!setting.getSetting($p).Value
+#end
+#end
+#set($ps = $phone.Settings)
+#set($myphone = $phone.Model.modelId.trim())
+##set($ls = $phone.Lines.get(0).Settings)
+
+#set($sysset = $ps.getSetting('SYSTEM'))
+[SYSTEM]
+Language=$!sysset.getSetting('Language').Value
+Admin_Password=$!sysset.getSetting('Admin_Password').Value
+TFTP_Server_IP=$!sysset.getSetting('TFTP_Server_IP').Value
+Country_Tone_Type=$!sysset.getSetting('Country_Tone_Type').Value
+Use_DNS_SRV=$!sysset.getSetting('Use_DNS_SRV').Value
+Vendor_ID=
+Vendor_Password=
+LCD_Contrast=$!sysset.getSetting('LCD_Contrast').Value
+Watchdog_Timeout=$!sysset.getSetting('Watchdog_Timeout').Value
+
+#set($rtp = $ps.getSetting('SIP').getSetting('RTP_RTCP'))
+[RTP_RTCP]
+Use_RTCP=$!rtp.getSetting('Use_RTCP').Value
+RTP_Port_Min=$!rtp.getSetting('RTP_Port_Min').Value
+RTP_Port_Max=$!rtp.getSetting('RTP_Port_Max').Value
+RTCP_Report_Interval=$!rtp.getSetting('RTCP_Report_Interval').Value
+RTCP_CNAME=$!rtp.getSetting('RTCP_CNAME').Value
+Last_RTP_Received_Timeout=$!rtp.getSetting('Last_RTP_Received_Timeout').Value
+
+[WEB_SERVER]
+Use_WEB_Server=$!sysset.getSetting('WebServer').Value
+
+#set($slog = $ps.getSetting('SYSLOG'))
+[SYSLOG]
+Mode=$!slog.getSetting('Mode').Value
+Server_IP=$!slog.getSetting('Server_IP').Value
+Server_Port=$!slog.getSetting('Server_Port').Value
+Use_MACIP_Header=$!slog.getSetting('Use_MACIP_Header').Value
+
+#set($sntps = $ps.getSetting('SNTP'))
+[TIME]
+Enable_NTP=$!sntps.getSetting('Enable_NTP').Value
+Date_Format=$!sntps.getSetting('Date_Format').Value
+Time_Format=$!sntps.getSetting('Time_Format').Value
+Time_Zone=$!sntps.getSetting('Time_Zone').Value
+Enable_Daylight_Saving_Time=$!sntps.getSetting('Enable_Daylight_Saving_Time').Value
+DST_Start_Month=$!sntps.getSetting('DST_Start_Month').Value
+DST_Start_Day=$!sntps.getSetting('DST_Start_Day').Value
+DST_Start_Hour=$!sntps.getSetting('DST_Start_Hour').Value
+DST_Start_Min=$!sntps.getSetting('DST_Start_Min').Value
+DST_End_Month=$!sntps.getSetting('DST_End_Month').Value
+DST_End_Day=$!sntps.getSetting('DST_End_Day').Value
+DST_End_Hour=$!sntps.getSetting('DST_End_Hour').Value
+DST_End_Min=$!sntps.getSetting('DST_End_Min').Value
+NTP_Refresh_Interval=$!sntps.getSetting('NTP_Refresh_Interval').Value
+NTP_Server1=$!sntps.getSetting('NTP_Server1').Value
+NTP_Server2=$!sntps.getSetting('NTP_Server2').Value
+
+#set($pssip = $ps.getSetting('SIP'))
+[SIP]
+Local_Port=$!pssip.getSetting('Local_Port').Value
+T1=$!pssip.getSetting('T1').Value
+T2=$!pssip.getSetting('T2').Value
+T4=$!pssip.getSetting('T4').Value
+Timer_B=$!pssip.getSetting('Timer_B').Value
+Timer_F=$!pssip.getSetting('Timer_F').Value
+Use_User_Agent=$!pssip.getSetting('Use_User_Agent').Value
+User_Agent_Name=$!pssip.getSetting('User_Agent_Name').Value
+Use_Version_On_User_Agent=$!pssip.getSetting('Use_Version_On_User_Agent').Value
+Use_Vendor_ID_On_User_Agent=$!pssip.getSetting('Use_Vendor_ID_On_User_Agent').Value
+Use_MAC_On_User_Agent=$!pssip.getSetting('Use_MAC_On_User_Agent').Value
+Max_Forwards=$!pssip.getSetting('Max_Forwards').Value
+Retry_Hold_On_491=$!pssip.getSetting('Retry_Hold_On_491').Value
+Caller_ID_Mode=$!pssip.getSetting('Caller_ID_Mode').Value
+ICT_Transaction_Max_Count=$!pssip.getSetting('ICT_Transaction_Max_Count').Value
+Use_rport=$!pssip.getSetting('Use_rport').Value
+Options_Expire=$!pssip.getSetting('Options_Expire').Value
+Request_REFER_Timeout=$!pssip.getSetting('Request_REFER_Timeout').Value
+Wait_REFER_Response_Timeout=$!pssip.getSetting('Wait_REFER_Response_Timeout').Value
+180_Retransmission_Interval=$!pssip.getSetting('180_Retransmission_Interval').Value
+Invite_Expire=$!pssip.getSetting('Invite_Expire').Value
+Reuse_Auth_Header_Within_Dialog=$!pssip.getSetting('Reuse_Auth_Header_Within_Dialog').Value
+Reuse_Auth_Header_On_Register=$!pssip.getSetting('Reuse_Auth_Header_On_Register').Value
+Register_Contact_Change=$!pssip.getSetting('Register_Contact_Change').Value
+Use_Remove_All_Contact=$!pssip.getSetting('Use_Remove_All_Contact').Value
+Use_Random_Contact=$!pssip.getSetting('Use_Random_Contact').Value
+Retry_To_Redirect_Contact=$!pssip.getSetting('Retry_To_Redirect_Contact').Value
+Auth_Retry_Count=$!pssip.getSetting('Auth_Retry_Count').Value
+Retry_Register_After_Auth_Fail=$!pssip.getSetting('Retry_Register_After_Auth_Fail').Value
+Ignore_183_Without_SDP=$!pssip.getSetting('Ignore_183_Without_SDP').Value
+
+#set($pssdp = $ps.getSetting('SIP').getSetting('SDP'))
+[SDP]
+Use_Increase_session_id=$!pssdp.getSetting('Use_Increase_session_id').Value
+Use_Increase_version=$!pssdp.getSetting('Use_Increase_version').Value
+Modified_Session_Detection=$!pssdp.getSetting('Modified_Session_Detection').Value
+Session_Name=$!pssdp.getSetting('Session_Name').Value
+
+#foreach ($line in $phone.lines)
+#foreach ($group in $line.Settings.Values)
+[${group.Name}]
+#foreach ($setting in $group.Values)
+${setting.ProfileName}=$!{setting.Value}
+#end
+#end
+#end
+
+#set($ss = $ps.getSetting('SERVER_SETTINGS'))
+[SERVER_SETTINGS]
+1st_Proxy=$!ss.getSetting('1st_Proxy').Value
+1st_Registrar=$!ss.getSetting('1st_Registrar').Value
+2nd_Proxy=$!ss.getSetting('2nd_Proxy').Value
+2nd_Registrar=$!ss.getSetting('2nd_Registrar').Value
+Domain_Realm=$!ss.getSetting('Domain_Realm').Value
+Register_Expire=$!ss.getSetting('Register_Expire').Value
+Register_Retry_Backoff_Interval=60,120,240,480,960
+
+#set($redund = $ps.getSetting('SIP').getSetting('REDUNDANCY'))
+[REDUNDANCY]
+Mode=$!redund.getSetting('Mode').Value
+Request_Timeout=$!redund.getSetting('Request_Timeout').Value
+Use_Fixed_Primary_Server=$!redund.getSetting('Use_Fixed_Primary_Server').Value
+Use_DNS_Additional_Records=$!redund.getSetting('Use_DNS_Additional_Records').Value
+
+#set($dialplan = $ps.getSetting('CallSettings').getSetting('DIALPLAN'))
+[DIALPLAN]
+External_Prefix=$!dialplan.getSetting('External_Prefix').Value
+Caller_ID_On_Prefix=$!dialplang.getSetting('Caller_ID_On_Prefix').Value
+Caller_ID_Off_Prefix=$!dialplan.getSetting('Caller_ID_Off_Prefix').Value
+Global_Network_Prefix=$!dialplan.getSetting('Global_Network_Prefix').Value
+
+#set($basic = $ps.getSetting('CallSettings').getSetting('BASIC_CALL'))
+[BASIC_CALL]
+Busy_Tone_Count=$!basic.getSetting('Busy_Tone_Count').Value
+Transfer_Busy_Tone_Count=$!basic.getSetting('Transfer_Busy_Tone_Count').Value
+Call_Waiting_Tone_Count=-$!basic.getSetting('Call_Waiting_Tone_Count').Value
+Reject_Hold_Request_On_Hold=$!basic.getSetting('Reject_Hold_Request_On_Hold').Value
+Reject_Hold_Request_On_2Calls=$!basic.getSetting('Reject_Hold_Request_On_2Calls').Value
+Block_Request_Hold_On_Holded=$!basic.getSetting('Block_Request_Hold_On_Holded').Value
+Session_Expire=$!basic.getSetting('Session_Expire').Value
+Ringing_Timeout=$!basic.getSetting('Ringing_Timeout').Value
+Update_RBT=$!basic.getSetting('Update_RBT').Value
+Dial_Sending_Timeout=$!basic.getSetting('Dial_Sending_Timeout').Value
+Check_Alias_In_Call_List=$!basic.getSetting('Check_Alias_In_Call_List').Value
+Remove_DASH_On_Alias=$!basic.getSetting('Remove_DASH_On_Alias').Value
+Use_Silent_Packet_On_Mute=$!basic.getSetting('Use_Silent_Packet_On_Mute').Value
+Echo_Canceller=$!basic.getSetting('Echo_Canceller').Value
+Reject_Invite_During_BT=$!basic.getSetting('Reject_Invite_During_BT').Value
+
+#set($hold = $ps.getSetting('CallFeatures').getSetting('HOLD'))
+[HOLD]
+Mode=$hold.getSetting('Mode').Value
+Use_Local_Hold_Tone=$!hold.getSetting('Use_Local_Hold_Tone').Value
+RTP_Hold_Multiframe=$!hold.getSetting('RTP_Hold_Multiframe').Value
+RTP_Hold_Play_Wait_Time=$!hold.getSetting('RTP_Hold_Play_Wait_Time').Value
+Enable_Hold_With_Inactive=$!hold.getSetting('Enable_Hold_With_Inactive').Value
+Enable_RTP_Hold=$!hold.getSetting('Enable_RTP_Hold').Value
+
+#set($mwi = $ps.getSetting('CallFeatures').getSetting('MWI'))
+[MWI]
+Use_MWI=$!mwi.getSetting('Use_MWI').Value
+Use_Subscribe=$!mwi.getSetting('Use_Subscribe').Value
+Subscribe_Server=$!mwi.getSetting('Subscribe_Server').Value
+Subscribe_Expire=$!mwi.getSetting('Subscribe_Expire').Value
+
+#set($transfer = $ps.getSetting('CallFeatures').getSetting('TRANSFER'))
+[TRANSFER]
+Use_Transfer_Target_Hold=$!transfer.getSetting('Use_Transfer_Target_Hold').Value
+Use_Consultation_Transfer=$!transfer.getSetting('Use_Consultation_Transfer').Value
+Use_Blind_Transfer=$!transfer.getSetting('Use_Blind_Transfer').Value
+Use_100_NOTIFY=$!transfer.getSetting('Use_100_NOTIFY').Value
+Use_Attended_Transfer_On_Incomming_Call=$!transfer.getSetting('Use_Attended_Transfer_On_Incomming_Call').Value
+Use_Contact_For_Refer_To=$!transfer.getSetting('Use_Contact_For_Refer_To').Value
+Use_Attended_Transfer_On_Call_Switch=$!transfer.getSetting('Use_Attended_Transfer_On_Call_Switch').Value
+Check_BYE_After_Refer=$!transfer.getSetting('Check_BYE_After_Refer').Value
+
+#set($conf = $ps.getSetting('CallFeatures').getSetting('CONFERENCE'))
+[CONFERENCE]
+Use_Conference=$!conf.getSetting('Use_Conference').Value
+Phone_Number=$!conf.getSetting('Phone_Number').Value
+
+#set($dialmode = $ps.getSetting('CallSettings').getSetting('DIAL_MODE'))
+[DIAL_MODE]
+DTMF_Input_Timeout=$!dialmode.getSetting('DTMF_Input_Timeout').Value
+UnHold_Indication_Timeout=$!dialmode.getSetting('UnHold_Indication_Timeout').Value
+Overlap_Send_Timeout=$!dialmode.getSetting('Overlap_Send_Timeout').Value
+Use_Overlap_Send_on_Hold=$!dialmode.getSetting('Use_Overlap_Send_on_Hold').Value
+
+#set($ring = $ps.getSetting('RingAndAlert').getSetting('RING'))
+[RING]
+Use_Ring=$!ring.getSetting('Use_Ring').Value
+External1_Ring_Type=$!ring.getSetting('External1_Ring_Type').Value
+External1_Mode=$!ring.getSetting('External1_Mode').Value
+External1_Led=$!ring.getSetting('External1_Led').Value
+External2_Ring_Type=$ring.getSetting('External2_Ring_Type').Value
+External2_Mode=$!ring.getSetting('External2_Mode').Value
+External2_Led=$!ring.getSetting('External2_Led').Value
+Internal1_Ring_Type=$!ring.getSetting('Internal1_Ring_Type').Value
+Internal1_Mode=$!ring.getSetting('Internal1_Mode').Value
+Internal1_Led=$!ring.getSetting('Internal1_Led').Value
+Internal2_Ring_Type=$!ring.getSetting('Internal2_Ring_Type').Value
+Internal2_Mode=$!ring.getSetting('Internal2_Mode').Value
+Internal2_Led=$!ring.getSetting('Internal2_Led').Value
+Message_Mode=$!ring.getSetting('Message_Mode').Value
+Message_Ring_Type=$!ring.getSetting('Message_Ring_Type').Value
+Message_Ring_Volume=$!ring.getSetting('Message_Ring_Volume').Value
+ID_String_External1=$!ring.getSetting('ID_String_External1').Value
+ID_String_External2=$!ring.getSetting('ID_String_External2').Value
+ID_String_Internal1=$!ring.getSetting('ID_String_Internal1').Value
+ID_String_Internal2=$!ring.getSetting('ID_String_Internal2').Value
+ID_String_Silence=$!ring.getSetting('ID_String_Silence').Value
+
+#set($ring2 = $ps.getSetting('RingAndAlert').getSetting('RING2'))
+[RING2]
+Use_Ring2=$!ring2.getSetting('Use_Ring2').Value
+Received_Number1_Location=$!ring2.getSetting('Received_Number1_Location').Value
+Received_Number1=$!ring2.getSetting('Received_Number1').Value
+Received1_Ring_Type=$!ring2.getSetting('Received1_Ring_Type').Value
+Received1_Mode=$!ring2.getSetting('Received1_Mode').Value
+Received1_Led=$!ring2.getSetting('Received1_Led').Value
+Received_Number2_Location=$!ring2.getSetting('Received_Number2_Location').Value
+Received_Number2=$!ring2.getSetting('Received_Number2').Value
+Received2_Ring_Type=$!ring2.getSetting('Received2_Ring_Type').Value
+Received2_Mode=$!ring2.getSetting('Received2_Mode').Value
+Received2_Led=$!ring2.getSetting('Received2_Led').Value
+Received_Number3_Location=$!ring2.getSetting('Received_Number3_Location').Value
+Received_Number3=$!ring2.getSetting('Received_Number3').Value
+Received3_Ring_Type=$!ring2.getSetting('Received3_Ring_Type').Value
+Received3_Mode=$!ring2.getSetting('Received3_Mode').Value
+Received3_Led=$!ring2.getSetting('Received3_Led').Value
+Received_Number4_Location=$!ring2.getSetting('Received_Number4_Location').Value
+Received_Number4=$!ring2.getSetting('Received_Number4').Value
+Received4_Ring_Type=$!ring2.getSetting('Received4_Ring_Type').Value
+Received4_Mode=$!ring2.getSetting('Received4_Mode').Value
+Received4_Led=$!ring2.getSetting('Received4_Led').Value
+Received_Number5_Location=$!ring2.getSetting('Received_Number5_Location').Value
+Received_Number5=$!ring2.getSetting('Received_Number5').Value
+Received5_Ring_Type=$!ring2.getSetting('Received5_Ring_Type').Value
+Received5_Mode=$!ring2.getSetting('Received5_Mode').Value
+Received5_Led=$!ring2.getSetting('Received5_Led').Value
+Received_External_Ring_Type=$!ring2.getSetting('Received_External_Ring_Type').Value
+Received_External_Mode=$!ring2.getSetting('Received_External_Mode').Value
+Received_External_Led=$!ring2.getSetting('Received_External_Led').Value
+Received_Internal_Ring_Type=$!ring2.getSetting('Received_Internal_Ring_Type').Value
+Received_Internal_Mode=$!ring2.getSetting('Received_Internal_Mode').Value
+Received_Internal_Led=$!ring2.getSetting('Received_Internal_Led').Value
+Dialed_Number1=$!ring2.getSetting('Dialed_Number1').Value
+Dialed1_Ring_Type=$!ring2.getSetting('Dialed1_Ring_Type').Value
+Dialed1_Mode=$!ring2.getSetting('Dialed1_Mode').Value
+Dialed1_Led=$!ring2.getSetting('Dialed1_Led').Value
+Dialed_Number2=$!ring2.getSetting('Dialed_Number2').Value
+Dialed2_Ring_Type=$!ring2.getSetting('Dialed2_Ring_Type').Value
+Dialed2_Mode=$!ring2.getSetting('Dialed2_Mode').Value
+Dialed2_Led=$!ring2.getSetting('Dialed2_Led').Value
+Dialed_Number3=$!ring2.getSetting('Dialed_Number3').Value
+Dialed3_Ring_Type=$!ring2.getSetting('Dialed3_Ring_Type').Value
+Dialed3_Mode=$!ring2.getSetting('Dialed3_Mode').Value
+Dialed3_Led=$!ring2.getSetting('Dialed3_Led').Value
+Dialed_Number4=$!ring2.getSetting('Dialed_Number4').Value
+Dialed4_Ring_Type=$!ring2.getSetting('Dialed4_Ring_Type').Value
+Dialed4_Mode=$!ring2.getSetting('Dialed4_Mode').Value
+Dialed4_Led=$!ring2.getSetting('Dialed4_Led').Value
+Dialed_Number5=$!ring2.getSetting('Dialed_Number5').Value
+Dialed5_Ring_Type=$!ring2.getSetting('Dialed5_Ring_Type').Value
+Dialed5_Mode=$!ring2.getSetting('Dialed5_Mode').Value
+Dialed5_Led=$!ring2.getSetting('Dialed5_Led').Value
+
+#set($wifiset = $ps.getSetting('WiFiSettings').getSetting('WIFI'))
+[WIFI]
+Data_Packet_TxRate=$!wifiset.getSetting('Data_Packet_TxRate').Value
+Use_PowerSave=$!wifiset.getSetting('Use_PowerSave').Value
+Domain=$!wifiset.getSetting('Domain').Value
+Short_Retry_Limit=$!wifiset.getSetting('Short_Retry_Limit').Value
+Long_Retry_Limit=$!wifiset.getSetting('Long_Retry_Limit').Value
+Preamble_Mode=$!wifiset.getSetting('Preamble_Mode').Value
+RTS_Threshold=$!wifiset.getSetting('RTS_Threshold').Value
+Default_Listen_Interval=$!wifiset.getSetting('Default_Listen_Interval').Value
+#if($myphone != "hitachi5000")
+802_11_Tx_Mode=$!wifiset.getSetting('802_11_Tx_Mode').Value
+Use_WLAN_Watchdog=$!wifiset.getSetting('Use_WLAN_Watchdog').Value
+#end
+#if($myphone == "hitachi5000")
+Dot11_Packet_TxRate=$!wifiset.getSetting('Dot11_Packet_TxRate').Value
+PowerSave_Wakeup_Period=$!wifiset.getSetting('PowerSave_Wakeup_Period').Value
+PowerSave_Awake_Interval=$!wifiset.getSetting('PowerSave_Awake_Interval').Value
+Use_Statistics_Window=$!wifiset.getSetting('Use_Statistics_Window').Value
+Statistics_Window_Update_Interval=$!wifiset.getSetting('Statistics_Window_Update_Interval').Value
+Use_Meru_Extension=$!wifiset.getSetting('Use_Menu_Extension').Value
+RxLevel_Association_Threshold=$!wifiset.getSetting('RxLevel_Association_Threshold').Value
+Use_PowerSave_Monitor=$!wifiset.getSetting('Use_PowerSave_Monitor').Value
+Use_Supported_Rates_By_AP=$!wifiset.getSetting('Use_Supported_Rates_By_AP').Value
+#end
+
+#set($wifiscan = $ps.getSetting('WiFiSettings').getSetting('WIFI_SCAN'))
+[WIFI_SCAN]
+#if($myphone == "hitachi5000")
+Scan_Count=$!wifiscan.getSetting('Scan_Count').Value
+#else
+Scan_Mode=$!wifiscan.getSetting('Scan_Mode').Value
+#end
+Scan_Channel_List=$!wifiscan.getSetting('Scan_Channel_List').Value
+
+#set($roam = $ps.getSetting('WiFiSettings').getSetting('ROAMING'))
+[ROAMING]
+#if($myphone == "hitachi5000")
+Try_RxLevel=$!roam.getSetting('Try_RxLevel').Value
+PreRoaming_Enable_RxLevel=$!roam.getSetting('PreRoaming_Enable_RxLevel').Value
+Try_Over_RxError_Count=$!roam.getSetting('Try_Over_RxError_Count').Value
+Use_Refresh_PreRoaming=$!roam.getSetting('Use_Refresh_PreRoaming').Value
+Enable_PreRoaming_On_Association=$!roam.getSetting('Enable_PreRoaming_On_Association').Value
+PreRoaming_Mode=$!roam.getSetting('PreRoaming_Mode').Value
+PreRoaming_Refresh_Interval=$!roam.getSetting('PreRoaming_Refresh_Interval').Value
+#else
+Try_Beacon_Signal_Level=$!roam.getSetting('Try_Beacon_Signal_Level').Value
+Try_Rx_Signal_Level=$!roam.getSetting('Try_Rx_Signal_Level').Value
+#end
+Try_Over_TxError_Count=$!roam.getSetting('Try_Over_TxError_Count').Value
+Level_Diff_Higher_Than_Curr_Site=$!roam.getSetting('Level_Diff_Higher_Than_Curr_Site').Value
+Clear_Blacklist_Interval=$!roam.getSetting('Clear_Blacklist_Interval').Value
+
+#macro(network $net)
+#params($net ['Name', 'Enable', 'Join_Method', 'SSID'])
+#params($net.getSetting('NetworkSettings') ['Enable_DHCP', 'Address', 'Netmask', 'Gateway', 'DNS1', 'DNS2'])
+#if ($myphone == "hitachi5000")
+#params($net.getSetting('WifiSecurity') ['Enable_WEP'])
+#else
+#params($net.getSetting('WifiSecurity') ['Security', 'WPA_PSK_Passphrase'])
+#end
+#params($net.getSetting('WifiSecurity') ['WEP_Bits', 'Default_WEP_Key', 'WEP_Key1', 'WEP_Key2', 'WEP_Key3', 'WEP_Key4', 'Authentication_Algorithm'])
+#params($net.getSetting('PostAuthentication') ['Post_Authentication_Mode', '8021X_Name', '8021X_Password', 'UAM_Use_Manual', 'UAM_Login_URL', 'UAM_IDTag_Name', 'UAM_PWTag_Name', 'UAM_URL', 'UAM_ID', 'UAM_Password']) 
+#params($net.getSetting('NAT') ['NAT_Traversal_Mode', 'Static_NAT_External_IP', 'Static_NAT_Start_Port', 'STUN_Server', 'STUN_Port' ])
+#set($net2Qos = $net.getSetting('QoS'))
+#if ($myphone != "hitachi5000")
+#params($net2Qos ['WMM'])
+#end
+#params($net2Qos ['DiffServ_Signal', 'DiffServ_Media'])
+#params($net.getSetting('VoIP') ['Jitter_Buffer_Size', 'Payload_Type', 'Multiframe'])
+#end
+## generate params for Networks 1 - 5
+#foreach($i in [1..5])
+[NETWORK$i]
+#network($ps.getSetting("NETWORK$i"))
+
+#end
+#set($dtmf = $ps.getSetting('CallSettings').getSetting('DTMF'))
+[DTMF]
+Mode=$!dtmf.getSetting('Mode').Value
+Duration=$!dtmf.getSetting('Duration').Value
+RFC2833_Volume=$!dtmf.getSetting('RFC2833_Volume').Value
+RFC2833_Payload_Type=$!dtmf.getSetting('RFC2833_Payload_Type').Value
+Enable_Auto_DTMF_Mode=$!dtmf.getSetting('Enable_Auto_DTMF_Mode').Value
+
+#set($cid = $ps.getSetting('CallSettings').getSetting('CALLER_ID'))
+[CALLER_ID]
+Use_Caller_ID_OnOff=$!cid.getSetting('Use_Caller_ID_OnOff').Value
+Enable_Caller_ID=$!cid.getSetting('Enable_Caller_ID').Value
+Anonymous_Displayname=$!cid.getSetting('Anonymous_Displayname').Value
+Use_Update_Caller_ID=$!cid.getSetting('Use_Update_Caller_ID').Value
+Hide_Displayname=$!cid.getSetting('Hide_Displayname').Value
+Update_Caller_ID_After_Transfer=$!cid.getSetting('Update_Caller_ID_After_Transfer').Value
+
+#set($UI = $ps.getSetting('UI'))
+[UI]
+Dial_Number_Font_Size=$!UI.getSetting('Dial_Number_Font_Size').Value
+Enable_Key_Lock=$!UI.getSetting('Enable_Key_Lock').Value
+Enable_Key_Lock_Password=$!UI.getSetting('Enable_Key_Lock_Password').Value
+Enable_Mannermode=$!UI.getSetting('Enable_Mannermode').Value
+Enable_Error_Indication=$!UI.getSetting('Enable_Error_Indication').Value
+#if($myphone != "hitachi3000")
+Use_Advanced_Rate_Set=$!UI.getSetting('Use_Advanced_Rate_Set').Value
+#end
+Network_Setup_Menu_Location=$!UI.getSetting('Network_Setup_Menu_Location').Value
+SIP_Menu_Location=$!UI.getSetting('SIP_Menu_Location').Value
+
+
+[KEY_TONE]
+Key_Tone_Volume=$!UI.getSetting('Key_Tone_Volume').Value
+
+[PHONEBOOK]
+Use_Index_Sending=$!UI.getSetting('Use_Index_Setting').Value
+
+#set($pres = $ps.getSetting('PRESENCE'))
+[PRESENCE]
+Use_Presence=$!pres.getSetting('Use_Presence').Value
+Enable_Online_Ring=$!pres.getSetting('Enable_Online_Ring').Value
+Online_Ring_Type=$!pres.getSetting('Online_Ring_Type').Value
+Online_Ring_Mode=$!pres.getSetting('Online_Ring_Mode').Value
+Subscribe_Expire=$!pres.getSetting('Subscribe_Expire').Value
+Presence_Server=$!pres.getSetting('Presence_Server').Value
+Use_Register=$!pres.getSetting('Use_Register').Value
+
+#set($lamp = $ps.getSetting('SYSTEM').getSetting('SERVICE_LAMP'))
+[SERVICE_LAMP]
+Enable_Service_Lamp=$!lamp.getSetting('Enable_Service_Lamp').Value
+Red_Alert_Antenna_Level=$!lamp.getSetting('Red_Alert_Antenna_Level').Value
+Indication_Interval=$!lamp.getSetting('Indication_Interval').Value
+Indication_Mode=$!lamp.getSetting('Indication_Mode').Value
+
+#set($dnet = $ps.getSetting('SYSTEM').getSetting('DYNAMIC_NETWORK'))
+[DYNAMIC_NETWORK]
+Backoff_Interval=$!dnet.getSetting('Backoff_Interval').Value
+DHCP_Verify_Count=$!dnet.getSetting('DHCP_Verify_Count').Value
+DHCP_Verify_Interval=$!dnet.getSetting('DHCP_Verify_Interval').Value
+8021X_Bind_Timeout=$!dnet.getSetting('8021X_Bind_Timeout').Value
+
+#set($ttype = $ps.getSetting('CallSettings').getSetting('TONE_TYPE'))
+[TONE_TYPE]
+Dial_Tone_Type_On_Idle=$!ttype.getSetting('Dial_Tone_Type_On_Idle').Value
+Dial_Tone_Type_On_Hold=$!ttype.getSetting('Dial_Tone_Type_On_Hold').Value
+Send_Dial_Tone_Type=$!ttype.getSetting('Send_Dial_Tone_Type').Value
+
+#set($sms = $ps.getSetting('SMS'))
+[SMS]
+Use_SMS=$!sms.getSetting('Use_SMS').Value
+Message_Server=$!sms.getSetting('Message_Server').Value
+Messasge_Content_Type=$!sms.getSetting('Message_Content_Type').Value
+
+#if($myphone != "hitachi5000")
+[TOS_WMM]
+Precedence_0=$!sysset.getSetting('TOS_WMM').getSetting('Precedence_0').Value
+Precedence_1=$!sysset.getSetting('TOS_WMM').getSetting('Precedence_1').Value
+Precedence_2=$!sysset.getSetting('TOS_WMM').getSetting('Precedence_2').Value
+Precedence_3=$!sysset.getSetting('TOS_WMM').getSetting('Precedence_3').Value
+Precedence_4=$!sysset.getSetting('TOS_WMM').getSetting('Precedence_4').Value
+Precedence_5=$!sysset.getSetting('TOS_WMM').getSetting('Precedence_5').Value
+Precedence_6=$!sysset.getSetting('TOS_WMM').getSetting('Precedence_6').Value
+Precedence_7=$!sysset.getSetting('TOS_WMM').getSetting('Precedence_7').Value
+#end
+
+#if($myphone != "hitachi5000")
+[UNICODE]
+Use_Unicode_On_SMS=$!sms.getSetting('Use_Unicode_On_SMS').Value
+#end
+
+#set($aupg = $ps.getSetting('PROVISIONING').getSetting('AUTO_UPGRADE'))
+[AUTO_UPGRADE]
+Enable=$!aupg.getSetting('Enable').Value
+Time=$aupg.getSetting('Time').Value
+Repeat=$aupg.getSetting('Repeat').Value
+
+#set($prov = $ps.getSetting('PROVISIONING').getSetting('PROVISION'))
+[PROVISION]
+Use_Provision=$!prov.getSetting('Use_Provision').Value
+Configuration_URL=$!prov.getSetting('Configuration_URL').Value
+Firmware_URL=$!prov.getSetting('Firmware_URL').Value
+Configuration_Version=$!prov.getSetting('Configuration_Version').Value
+Firmware_Version=$!prov.getSetting('Firmware_Version').Value

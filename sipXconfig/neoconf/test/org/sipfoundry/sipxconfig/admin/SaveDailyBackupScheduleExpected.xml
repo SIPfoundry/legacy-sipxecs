@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DOCTYPE dataset SYSTEM "sipxconfig-db.dtd" -->
+<dataset>
+    <daily_backup_schedule 
+	    daily_backup_schedule_id="[daily_backup_schedule_id]"
+  		enabled="0"
+	  	backup_plan_id="[backup_plan_id]"
+		  time_of_day="[time_of_day]"
+		  scheduled_day="Every day"
+     />
+    <daily_backup_schedule
+	    daily_backup_schedule_id="[daily_backup_schedule_id2]"
+		enabled="0"
+		backup_plan_id="[backup_plan_id2]"
+		  time_of_day="[time_of_day2]"
+		  scheduled_day="Every day"
+     />
+</dataset>

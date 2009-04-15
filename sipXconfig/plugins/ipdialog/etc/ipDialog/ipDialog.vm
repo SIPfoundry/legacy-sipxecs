@@ -1,0 +1,1133 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<configuration>
+<networkSettings>
+#set ($group = $cfg.EndpointSettings.getSetting('networkSettings'))
+#foreach ($setting in $cfg.getSettings($group))
+#if($setting.Value.trim())
+#if($setting.ProfileName == "networkSetup")
+<$!{setting.Value}>TRUE</$!{setting.Value}>
+#set ($temp = $!{setting.Value})
+#else
+#if($temp == "manual")
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end
+#end
+#end
+#end
+#set ($group = $cfg.EndpointSettings.getSetting('networkSettings').getSetting('qos'))
+#foreach ($setting in $cfg.getSettings($group))
+#if($setting.Value.trim())
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end
+#end
+</networkSettings>
+#foreach ($number in $speedDialNames)
+#set ($i = $velocityCount)
+#if($i == 1)
+#set ($memName1 = $number)
+#elseif($i == 2)
+#set ($memName2 = $number)
+#elseif($i == 3)
+#set ($memName3 = $number)
+#elseif($i == 4)
+#set ($memName4 = $number)
+#elseif($i == 5)
+#set ($memName5 = $number)
+#elseif($i == 6)
+#set ($memName6 = $number)
+#elseif($i == 7)
+#set ($memName7 = $number)
+#elseif($i == 8)
+#set ($memName8 = $number)
+#elseif($i == 9)
+#set ($memName9 = $number)
+#elseif($i == 10)
+#set ($memName10 = $number)
+#elseif($i == 11)
+#set ($memName11 = $number)
+#elseif($i == 12)
+#set ($memName12 = $number)
+#elseif($i == 13)
+#set ($memName13 = $number)
+#elseif($i == 14)
+#set ($memName14 = $number)
+#elseif($i == 15)
+#set ($memName15 = $number)
+#elseif($i == 16)
+#set ($memName16 = $number)
+#end
+#end
+#foreach ($number in $speedDialNumber)
+#set ($i = $velocityCount)
+#if($i == 1)
+#set ($memNum1 = $number)
+#elseif($i == 2)
+#set ($memNum2 = $number)
+#elseif($i == 3)
+#set ($memNum3 = $number)
+#elseif($i == 4)
+#set ($memNum4 = $number)
+#elseif($i == 5)
+#set ($memNum5 = $number)
+#elseif($i == 6)
+#set ($memNum6 = $number)
+#elseif($i == 7)
+#set ($memNum7 = $number)
+#elseif($i == 8)
+#set ($memNum8 = $number)
+#elseif($i == 9)
+#set ($memNum9 = $number)
+#elseif($i == 10)
+#set ($memNum10 = $number)
+#elseif($i == 11)
+#set ($memNum11 = $number)
+#elseif($i == 12)
+#set ($memNum12 = $number)
+#elseif($i == 13)
+#set ($memNum13 = $number)
+#elseif($i == 14)
+#set ($memNum14 = $number)
+#elseif($i == 15)
+#set ($memNum15 = $number)
+#elseif($i == 16)
+#set ($memNum16 = $number)
+#end
+#end
+#foreach ($number in $speedDialPresence)
+#set ($i = $velocityCount)
+#if($i == 1)
+#set ($memPre1 = $number)
+#elseif($i == 2)
+#set ($memPre2 = $number)
+#elseif($i == 3)
+#set ($memPre3 = $number)
+#elseif($i == 4)
+#set ($memPre4 = $number)
+#elseif($i == 5)
+#set ($memPre5 = $number)
+#elseif($i == 6)
+#set ($memPre6 = $number)
+#elseif($i == 7)
+#set ($memPre7 = $number)
+#elseif($i == 8)
+#set ($memPre8 = $number)
+#elseif($i == 9)
+#set ($memPre9 = $number)
+#elseif($i == 10)
+#set ($memPre10 = $number)
+#elseif($i == 11)
+#set ($memPre11 = $number)
+#elseif($i == 12)
+#set ($memPre12 = $number)
+#elseif($i == 13)
+#set ($memPre13 = $number)
+#elseif($i == 14)
+#set ($memPre14 = $number)
+#elseif($i == 15)
+#set ($memPre15 = $number)
+#elseif($i == 16)
+#set ($memPre16 = $number)
+#end
+#end
+<phoneSettings>
+#set ($group = $cfg.EndpointSettings.getSetting('phoneSettings'))
+#foreach ($setting in $cfg.getSettings($group))
+#if($setting.Value.trim())
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end        
+#end
+<timesettings>
+#set ($group = $cfg.EndpointSettings.getSetting('timesettings'))
+#foreach ($setting in $cfg.getSettings($group))
+#if($setting.Value.trim())
+#if($setting.ProfileName == "timeSettings")
+<$!{setting.Value}>TRUE</$!{setting.Value}>
+#set ($temp = $!{setting.Value})
+#else
+#if($temp == "manual")
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#elseif(($temp == "default") && ($setting.ProfileName == "timezone" || $setting.ProfileName == "dstAutoAdjust"))
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end	
+#end        
+#end
+#end
+</timesettings> 
+<autoconfig>
+#set ($group = $cfg.EndpointSettings.getSetting('autoconfig'))
+#foreach ($setting in $cfg.getSettings($group))
+#if($setting.Value.trim())
+#if($setting.ProfileName == "autoconfigOption")
+<$!{setting.Value}>TRUE</$!{setting.Value}>
+#set ($temp = $!{setting.Value})
+#else
+#if($temp == "https" || $temp == "http")
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#elseif(($temp == "tftp") && ($setting.ProfileName == "autoConfigAddress" || $setting.ProfileName == "autoConfigProfile"))
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#elseif(($temp == "tftp") && ($setting.ProfileName == "autoConfigPath" || $setting.ProfileName == "autoConfigEveryBoot"))
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end	
+#end
+#end
+#end        
+#set ($group = $cfg.EndpointSettings.getSetting('autoconfig').getSetting('autoconfigCert'))
+#foreach ($setting in $cfg.getSettings($group))
+#if($setting.Value.trim())
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end
+#end
+</autoconfig> 
+#set ($group = $cfg.EndpointSettings.getSetting('presence'))
+#foreach ($setting in $cfg.getSettings($group))
+#if($setting.Value.trim())
+<presence>
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+</presence>
+#end
+#end
+#set ($group = $cfg.EndpointSettings.getSetting('memKeys'))
+#foreach ($setting in $cfg.getSettings($group))
+#if($setting.ProfileName == "mem1")
+#set ($memLine1 = $!{setting.Value})
+#elseif($setting.ProfileName == "mem2")
+#set ($memLine2 = $!{setting.Value})
+#elseif($setting.ProfileName == "mem3")
+#set ($memLine3 = $!{setting.Value})
+#elseif($setting.ProfileName == "mem4")
+#set ($memLine4 = $!{setting.Value})
+#elseif($setting.ProfileName == "mem5")
+#set ($memLine5 = $!{setting.Value})
+#elseif($setting.ProfileName == "mem6")
+#set ($memLine6 = $!{setting.Value})
+#elseif($setting.ProfileName == "mem7")
+#set ($memLine7 = $!{setting.Value})
+#elseif($setting.ProfileName == "mem8")
+#set ($memLine8 = $!{setting.Value})
+#elseif($setting.ProfileName == "mem9")
+#set ($memLine9 = $!{setting.Value})
+#elseif($setting.ProfileName == "mem10")
+#set ($memLine10 = $!{setting.Value})
+#elseif($setting.ProfileName == "mem11")
+#set ($memLine11 = $!{setting.Value})
+#elseif($setting.ProfileName == "mem12")
+#set ($memLine12 = $!{setting.Value})
+#elseif($setting.ProfileName == "mem13")
+#set ($memLine13 = $!{setting.Value})
+#elseif($setting.ProfileName == "mem14")
+#set ($memLine14 = $!{setting.Value})
+#elseif($setting.ProfileName == "mem15")
+#set ($memLine15 = $!{setting.Value})
+#elseif($setting.ProfileName == "mem16")
+#set ($memLine16 = $!{setting.Value})
+#elseif($setting.ProfileName == "simpleMem1")
+#set ($memSimple1 = $!{setting.Value})
+#elseif($setting.ProfileName == "simpleMem2")
+#set ($memSimple2 = $!{setting.Value})
+#elseif($setting.ProfileName == "simpleMem3")
+#set ($memSimple3 = $!{setting.Value})
+#elseif($setting.ProfileName == "simpleMem4")
+#set ($memSimple4 = $!{setting.Value})
+#elseif($setting.ProfileName == "simpleMem5")
+#set ($memSimple5 = $!{setting.Value})
+#elseif($setting.ProfileName == "simpleMem6")
+#set ($memSimple6 = $!{setting.Value})
+#elseif($setting.ProfileName == "simpleMem7")
+#set ($memSimple7 = $!{setting.Value})
+#elseif($setting.ProfileName == "simpleMem8")
+#set ($memSimple8 = $!{setting.Value})
+#elseif($setting.ProfileName == "simpleMem9")
+#set ($memSimple9 = $!{setting.Value})
+#elseif($setting.ProfileName == "simpleMem10")
+#set ($memSimple10 = $!{setting.Value})
+#elseif($setting.ProfileName == "simpleMem11")
+#set ($memSimple11 = $!{setting.Value})
+#elseif($setting.ProfileName == "simpleMem12")
+#set ($memSimple12 = $!{setting.Value})
+#elseif($setting.ProfileName == "simpleMem13")
+#set ($memSimple13 = $!{setting.Value})
+#elseif($setting.ProfileName == "simpleMem14")
+#set ($memSimple14 = $!{setting.Value})
+#elseif($setting.ProfileName == "simpleMem15")
+#set ($memSimple15 = $!{setting.Value})
+#elseif($setting.ProfileName == "simpleMem16")
+#set ($memSimple16 = $!{setting.Value})
+#end
+#end
+#if($memSimple1.trim() == "TRUE")
+#set ($memSimple1 = 1)
+#elseif($memSimple1.trim() == "FALSE")
+#set ($memSimple1 = 0)
+#end
+#if($memSimple2.trim() == "TRUE")
+#set ($memSimple2 = 1)
+#elseif($memSimple2.trim() == "FALSE")
+#set ($memSimple2 = 0)
+#end
+#if($memSimple3.trim() == "TRUE")
+#set ($memSimple3 = 1)
+#elseif($memSimple3.trim() == "FALSE")
+#set ($memSimple3 = 0)
+#end
+#if($memSimple4.trim() == "TRUE")
+#set ($memSimple4 = 1)
+#elseif($memSimple4.trim() == "FALSE")
+#set ($memSimple4 = 0)
+#end
+#if($memSimple5.trim() == "TRUE")
+#set ($memSimple5 = 1)
+#elseif($memSimple5.trim() == "FALSE")
+#set ($memSimple5 = 0)
+#end
+#if($memSimple6.trim() == "TRUE")
+#set ($memSimple6 = 1)
+#elseif($memSimple6.trim() == "FALSE")
+#set ($memSimple6 = 0)
+#end
+#if($memSimple7.trim() == "TRUE")
+#set ($memSimple7 = 1)
+#elseif($memSimple7.trim() == "FALSE")
+#set ($memSimple7 = 0)
+#end
+#if($memSimple8.trim() == "TRUE")
+#set ($memSimple8 = 1)
+#elseif($memSimple8.trim() == "FALSE")
+#set ($memSimple8 = 0)
+#end
+#if($memSimple9.trim() == "TRUE")
+#set ($memSimple9 = 1)
+#elseif($memSimple9.trim() == "FALSE")
+#set ($memSimple9 = 0)
+#end
+#if($memSimple10.trim() == "TRUE")
+#set ($memSimple10 = 1)
+#elseif($memSimple10.trim() == "FALSE")
+#set ($memSimple10 = 0)
+#end
+#if($memSimple11.trim() == "TRUE")
+#set ($memSimple11 = 1)
+#elseif($memSimple11.trim() == "FALSE")
+#set ($memSimple11 = 0)
+#end
+#if($memSimple12.trim() == "TRUE")
+#set ($memSimple12 = 1)
+#elseif($memSimple12.trim() == "FALSE")
+#set ($memSimple12 = 0)
+#end
+#if($memSimple13.trim() == "TRUE")
+#set ($memSimple13 = 1)
+#elseif($memSimple13.trim() == "FALSE")
+#set ($memSimple13 = 0)
+#end
+#if($memSimple14.trim() == "TRUE")
+#set ($memSimple14 = 1)
+#elseif($memSimple14.trim() == "FALSE")
+#set ($memSimple14 = 0)
+#end
+#if($memSimple15.trim() == "TRUE")
+#set ($memSimple15 = 1)
+#elseif($memSimple15.trim() == "FALSE")
+#set ($memSimple15 = 0)
+#end
+#if($memSimple16.trim() == "TRUE")
+#set ($memSimple16 = 1)
+#elseif($memSimple16.trim() == "FALSE")
+#set ($memSimple16 = 0)
+#end
+#if($memName1.trim() && $memNum1.trim())
+<memKeys>
+<mem1>${memName1}^${memNum1}^${memLine1}^${memPre1}^${memSimple1}</mem1>
+#end
+#if($memName2.trim() && $memNum2.trim())
+<mem2>${memName2}^${memNum2}^${memLine2}^${memPre2}^${memSimple2}</mem2>
+#end
+#if($memName3.trim() && $memNum3.trim())
+<mem3>${memName3}^${memNum3}^${memLine3}^${memPre3}^${memSimple3}</mem3>
+#end
+#if($memName4.trim() && $memNum4.trim())
+<mem4>${memName4}^${memNum4}^${memLine4}^${memPre4}^${memSimple4}</mem4>
+#end
+#if($memName5.trim() && $memNum5.trim())
+<mem5>${memName5}^${memNum5}^${memLine5}^${memPre5}^${memSimple5}</mem5>
+#end
+#if($memName6.trim() && $memNum6.trim())
+<mem6>${memName6}^${memNum6}^${memLine6}^${memPre6}^${memSimple6}</mem6>
+#end
+#if($memName7.trim() && $memNum7.trim())
+<mem7>${memName7}^${memNum7}^${memLine7}^${memPre7}^${memSimple7}</mem7>
+#end
+#if($memName8.trim() && $memNum8.trim())
+<mem8>${memName8}^${memNum8}^${memLine8}^${memPre8}^${memSimple8}</mem8>
+#end
+#if($memName9.trim() && $memNum9.trim())
+<mem9>${memName9}^${memNum9}^${memLine9}^${memPre9}^${memSimple9}</mem9>
+#end
+#if($memName10.trim() && $memNum10.trim())
+<mem10>${memName10}^${memNum10}^${memLine10}^${memPre10}^${memSimple10}</mem10>
+#end
+#if($memName11.trim() && $memNum11.trim())
+<mem11>${memName11}^${memNum11}^${memLine11}^${memPre11}^${memSimple11}</mem11>
+#end
+#if($memName12.trim() && $memNum12.trim())
+<mem12>${memName12}^${memNum12}^${memLine12}^${memPre12}^${memSimple12}</mem12>
+#end
+#if($memName13.trim() && $memNum13.trim())
+<mem13>${memName13}^${memNum13}^${memLine13}^${memPre13}^${memSimple13}</mem13>
+#end
+#if($memName14.trim() && $memNum14.trim())
+<mem14>${memName14}^${memNum14}^${memLine14}^${memPre14}^${memSimple14}</mem14>
+#end
+#if($memName15.trim() && $memNum15.trim())
+<mem15>${memName15}^${memNum15}^${memLine15}^${memPre15}^${memSimple15}</mem15>
+#end
+#if($memName16.trim() && $memNum16.trim())
+<mem16>${memName16}^${memNum16}^${memLine16}^${memPre16}^${memSimple16}</mem16>
+#end
+#if($memName1.trim() && $memNum1.trim())
+</memKeys>
+#end
+#set ($onlyOnce_1 = "1")
+</phoneSettings> 
+#foreach ($line in $phone.lines)
+#foreach ($group in $line.Settings.Values)
+#foreach ($setting in $group.Values)
+#if($onlyOnce_1 == "1")
+#if($setting.ProfileName == "authname")
+#set ($authname_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "authPassword")
+#set ($authPassword_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "displayname")
+#set ($displayname_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "registrarOption")
+#set ($registrarOption_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "registrarAddress")
+#set ($registrarAddress_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "registrarToAddress")
+#set ($registrarToAddress_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "registrarFromAddress")
+#set ($authFromPassword_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "registrarUsedomainName")
+#set ($registrarUsedomainName_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "registertimer")
+#set ($registertimer_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "proxyOption")
+#set ($proxyOption_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "proxyAddress")
+#set ($proxyAddress_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "registerThroughProxy")
+#set ($registerThroughProxy_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "forwardModeOption")
+#set ($forwardModeOption_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "forwardonNoAnswer")
+#set ($forwardonNoAnswer_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "callForwardAddress")
+#set ($callForwardAddress_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "callForwardTimer")
+#set ($callForwardTimer_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "callParkMethod")
+#set ($callParkMethod_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "callParkExtension")
+#set ($callParkExtension_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "callRtrvPrefix")
+#set ($callRtrvPrefix_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "serverAssistCallPickup")
+#set ($serverAssistCallPickup_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "callPickupPrefix")
+#set ($callPickupPrefix_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "groupPagingPrefix")
+#set ($groupPagingPrefix_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "intercomOption")
+#set ($intercomOption_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "intercomPrefixValue")
+#set ($intercomPrefixValue_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "alertInfoSecret")
+#set ($alertInfoSecret_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "sendrecvInOutgoingIntercom")
+#set ($sendrecvInOutgoingIntercom_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "sipPort")
+#set ($sipPort_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "rtpPort")
+#set ($rtpPort_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "tlsPort")
+#set ($tlsPort_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "incomingInvite")
+#set ($incomingInvite_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "okOfInvite")
+#set ($okOfInvite_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "mwiSubscribe")
+#set ($mwiSubscribe_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "mwiReqUri")
+#set ($mwiReqUri_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "voiceMailServerAddress")
+#set ($voiceMailServerAddress_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "presenceServer")
+#set ($presenceServer_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "conferenceServerAddress")
+#set ($conferenceServerAddress_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "mohServer")
+#set ($mohServer_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "sipDialplan")
+#set ($sipDialplan_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "enableTlsSecurity")
+#set ($enableTlsSecurity_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "tlsClientCertificateUrl")
+#set ($tlsClientCertificateUrl_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "tlsClientKeyUrl")
+#set ($tlsClientKeyUrl_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "tlsCaCertificateUrl")
+#set ($tlsCaCertificateUrl_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "offhookOnRefer")
+#set ($offhookOnRefer_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "transmitDtmf")
+#set ($transmitDtmf_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "preferredCodec")
+#set ($preferredCodec_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "disableCall1_2key")
+#set ($disableCall1_2key_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "sipAutoDial")
+#set ($sipAutoDial_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "sipAutoDialUserid")
+#set ($sipAutoDialUserid_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "disableCallWaiting")
+#set ($disableCallWaiting_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "natAddress")
+#set ($natAddress_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "disableStarCodes")
+#set ($disableStarCodes_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "callerIdBlocking")
+#set ($callerIdBlocking_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "enableRoutingTone")
+#set ($enableRoutingTone_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "toneSet")
+#set ($toneSet_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "useOnlyUdpSrv")
+#set ($useOnlyUdpSrv_1 = $!{setting.Value})
+#set ($onlyOnce_1 = "0")
+#elseif($setting.ProfileName == "usePreloadedRoute")
+#set ($usePreloadedRoute_1 = $!{setting.Value})
+#elseif($setting.ProfileName == "sipUsePublish")
+#set ($sipUsePublish_1 = $!{setting.Value})
+#end
+#else
+#if($setting.ProfileName == "authname")
+#set ($authname_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "authPassword")
+#set ($authPassword_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "displayname")
+#set ($displayname_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "registrarOption")
+#set ($registrarOption_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "registrarAddress")
+#set ($registrarAddress_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "registrarToAddress")
+#set ($registrarToAddress_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "registrarFromAddress")
+#set ($authFromPassword_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "registrarUsedomainName")
+#set ($registrarUsedomainName_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "registertimer")
+#set ($registertimer_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "proxyOption")
+#set ($proxyOption_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "proxyAddress")
+#set ($proxyAddress_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "registerThroughProxy")
+#set ($registerThroughProxy_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "forwardModeOption")
+#set ($forwardModeOption_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "forwardonNoAnswer")
+#set ($forwardonNoAnswer_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "callForwardAddress")
+#set ($callForwardAddress_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "callForwardTimer")
+#set ($callForwardTimer_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "callParkMethod")
+#set ($callParkMethod_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "callParkExtension")
+#set ($callParkExtension_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "callRtrvPrefix")
+#set ($callRtrvPrefix_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "serverAssistCallPickup")
+#set ($serverAssistCallPickup_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "callPickupPrefix")
+#set ($callPickupPrefix_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "groupPagingPrefix")
+#set ($groupPagingPrefix_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "intercomOption")
+#set ($intercomOption_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "intercomPrefixValue")
+#set ($intercomPrefixValue_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "alertInfoSecret")
+#set ($alertInfoSecret_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "sendrecvInOutgoingIntercom")
+#set ($sendrecvInOutgoingIntercom_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "sipPort")
+#set ($sipPort_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "rtpPort")
+#set ($rtpPort_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "tlsPort")
+#set ($tlsPort_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "incomingInvite")
+#set ($incomingInvite_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "okOfInvite")
+#set ($okOfInvite_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "mwiSubscribe")
+#set ($mwiSubscribe_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "mwiReqUri")
+#set ($mwiReqUri_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "voiceMailServerAddress")
+#set ($voiceMailServerAddress_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "presenceServer")
+#set ($presenceServer_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "conferenceServerAddress")
+#set ($conferenceServerAddress_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "mohServer")
+#set ($mohServer_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "sipDialplan")
+#set ($sipDialplan_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "enableTlsSecurity")
+#set ($enableTlsSecurity_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "tlsClientCertificateUrl")
+#set ($tlsClientCertificateUrl_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "tlsClientKeyUrl")
+#set ($tlsClientKeyUrl_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "tlsCaCertificateUrl")
+#set ($tlsCaCertificateUrl_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "offhookOnRefer")
+#set ($offhookOnRefer_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "transmitDtmf")
+#set ($transmitDtmf_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "preferredCodec")
+#set ($preferredCodec_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "disableCall1_2key")
+#set ($disableCall1_2key_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "sipAutoDial")
+#set ($sipAutoDial_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "sipAutoDialUserid")
+#set ($sipAutoDialUserid_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "disableCallWaiting")
+#set ($disableCallWaiting_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "natAddress")
+#set ($natAddress_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "disableStarCodes")
+#set ($disableStarCodes_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "callerIdBlocking")
+#set ($callerIdBlocking_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "enableRoutingTone")
+#set ($enableRoutingTone_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "toneSet")
+#set ($toneSet_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "useOnlyUdpSrv")
+#set ($useOnlyUdpSrv_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "usePreloadedRoute")
+#set ($usePreloadedRoute_2 = $!{setting.Value})
+#elseif($setting.ProfileName == "sipUsePublish")
+#set ($sipUsePublish_2 = $!{setting.Value})
+#end
+#end
+#end
+#end
+#end
+#set ($onlyOnce_1 = "1")
+<sipAccounts>
+<account_L1>
+#if($registrarUsedomainName_1.trim())
+#if($authname_1.trim())
+<authname>$authname_1</authname>
+#end
+#if($authPassword_1.trim())
+<authPassword>$authPassword_1</authPassword>
+#end
+#if($displayname_1.trim())
+<displayname>$displayname_1</displayname>
+#end
+#if($registrarOption_1 == "manual")
+<registrar>
+<manual>TRUE</manual>
+#if($registrarAddress_1.trim())
+<registrarAddress>$registrarAddress_1</registrarAddress>
+#end
+#if($registrarToAddress_1.trim())
+<registrarToAddress>$registrarToAddress_1</registrarToAddress>
+#end
+#if($registrarFromAddress_1.trim())
+<registrarFromAddress>$registrarFromAddress_1</registrarFromAddress>
+#end
+<registrarUsedomainName>$registrarUsedomainName_1</registrarUsedomainName>
+#if($registertimer_1.trim())
+<registertimer>$registertimer_1</registertimer>
+#end
+</registrar>
+#elseif($registrarOption_1 == "auto")
+<registrar>
+<auto>TRUE</auto>
+#if($registrarToAddress_1.trim())
+<registrarToAddress>$registrarToAddress_1</registrarToAddress>
+#end
+#if($registrarFromAddress_1.trim())
+<registrarFromAddress>$registrarFromAddress_1</registrarFromAddress>
+#end
+<registrarUsedomainName>$registrarUsedomainName_1</registrarUsedomainName>
+#if($registertimer_1.trim())
+<registertimer>$registertimer_1</registertimer>
+#end
+</registrar>
+#else
+<registrar>
+<none>TRUE</none>
+</registrar>
+#end
+#if($proxyOption_1 == "forwardAllThroughProxy")
+<sipProxy>
+<forwardAllThroughProxy>TRUE</forwardAllThroughProxy>
+#if($proxyAddress_1.trim())
+<proxyAddress>$proxyAddress_1</proxyAddress>
+#end
+<registerThroughProxy>$registerThroughProxy_1</registerThroughProxy>
+</sipProxy>
+#elseif($proxyOption_1 == "sendFirstInviteToProxy")
+<sipProxy>
+<sendFirstInviteToProxy>TRUE</sendFirstInviteToProxy>
+#if($proxyAddress_1.trim())
+<proxyAddress>$proxyAddress_1</proxyAddress>
+#end
+<registerThroughProxy>$registerThroughProxy_1</registerThroughProxy>
+</sipProxy>
+#else
+<sipProxy>
+<noneThroughProxy>TRUE</noneThroughProxy>
+</sipProxy>
+#end
+#else
+<registrar>
+<none>TRUE</none>
+</registrar>
+<sipProxy>
+<noneThroughProxy>TRUE</noneThroughProxy>
+</sipProxy>
+#end
+#if($forwardModeOption_1.trim())
+#if($forwardModeOption_1 == "forwardonBusy")
+<callForwardMode>
+<forwardonBusy>TRUE</forwardonBusy>
+#if($callForwardAddress_1.trim())
+<callForwardAddress>$callForwardAddress_1</callForwardAddress>
+#end
+</callForwardMode>
+#elseif($forwardModeOption_1 == "forwardonNoAnswer")
+<callForwardMode>
+<forwardonNoAnswer>TRUE</forwardonNoAnswer>
+#if($callForwardAddress_1.trim())
+<callForwardAddress>$callForwardAddress_1</callForwardAddress>
+#end
+<callForwardTimer>$callForwardTimer_1</callForwardTimer>
+</callForwardMode>
+#elseif($forwardModeOption_1 == "forwardonBusyOrNoAnswer")
+<callForwardMode>
+<forwardonBusy>TRUE</forwardonBusy>
+<forwardonNoAnswer>TRUE</forwardonNoAnswer>
+#if($callForwardAddress_1.trim())
+<callForwardAddress>$callForwardAddress_1</callForwardAddress>
+#end
+<callForwardTimer>$callForwardTimer_1</callForwardTimer>
+</callForwardMode>
+#elseif($forwardModeOption_1 == "forwardAll")
+<callForwardMode>
+<forwardAll>TRUE</forwardAll>
+#if($callForwardAddress_1.trim())
+<callForwardAddress>$callForwardAddress_1</callForwardAddress>
+#end
+</callForwardMode>
+#else
+<callForwardMode>
+<none>TRUE</none>
+</callForwardMode>
+#end
+#end
+#if($incomingInvite_1.trim())
+<callerNameSearchPrecedence>
+<incomingInvite>$incomingInvite_1</incomingInvite>
+<okOfInvite>$okOfInvite_1</okOfInvite>
+</callerNameSearchPrecedence>
+#end
+#if($intercomOption_1.trim())
+#if($intercomOption_1 == "callInfoHeader")
+<intercom>
+<callInfoHeader>TRUE</callInfoHeader>
+#if($alertInfoSecret_1.trim())
+<alertInfoSecret>$alertInfoSecret_1</alertInfoSecret>
+#end
+<sendrecvInOutgoingIntercom>$sendrecvInOutgoingIntercom_1</sendrecvInOutgoingIntercom>
+</intercom>
+#elseif($intercomOption_1 == "alertInfoHeader")
+<intercom>
+<alertInfoHeader>TRUE</alertInfoHeader>
+#if($alertInfoSecret_1.trim())
+<alertInfoSecret>$alertInfoSecret_1</alertInfoSecret>
+#end
+<sendrecvInOutgoingIntercom>$sendrecvInOutgoingIntercom_1</sendrecvInOutgoingIntercom>
+</intercom>
+#elseif($intercomOption_1 == "intercomPrefix")
+<intercom>
+<intercomPrefix>TRUE</intercomPrefix>
+#if($intercomPrefixValue_1.trim())
+<intercomPrefixValue>$intercomPrefixValue_1</intercomPrefixValue>
+#end
+#if($alertInfoSecret_1.trim())
+<alertInfoSecret>$alertInfoSecret_1</alertInfoSecret>
+#end
+<sendrecvInOutgoingIntercom>$sendrecvInOutgoingIntercom_1</sendrecvInOutgoingIntercom>
+</intercom>
+#end
+#end
+#if($forwardModeOption_1.trim())
+#if($sipPort_1.trim())
+<sipPort>$sipPort_1</sipPort>
+#end
+#if($rtpPort_1.trim())
+<rtpPort>$rtpPort_1</rtpPort>
+#end
+#if($tlsPort_1.trim())
+<tlsPort>$tlsPort_1</tlsPort>
+#end
+<callParkMethod>$callParkMethod_1</callParkMethod>
+#if($callParkMethod_1 == "prefix" || $callParkMethod_1 == "incall DTMF")
+#if($callParkExtension_1.trim())
+<callParkExtension>$callParkExtension_1</callParkExtension>
+#end
+#end
+#if($callRtrvPrefix_1.trim())
+<callRtrvPrefix>$callRtrvPrefix_1</callRtrvPrefix>
+#end
+#if($serverAssistCallPickup_1 == "TRUE")
+<serverAssistCallPickup>TRUE</serverAssistCallPickup>
+#if($callPickupPrefix_1.trim())
+<callPickupPrefix>$callPickupPrefix_1</callPickupPrefix>
+#end
+#else
+<serverAssistCallPickup>FALSE</serverAssistCallPickup>
+#if($callPickupPrefix_1.trim())
+<callPickupPrefix>$callPickupPrefix_1</callPickupPrefix>
+#end
+#end
+#if($groupPagingPrefix_1.trim())
+<groupPagingPrefix>$groupPagingPrefix_1</groupPagingPrefix>
+#end
+<mwiSubscribe>$mwiSubscribe_1</mwiSubscribe>
+#if($mwiReqUri_1.trim())
+<mwiReqUri>$mwiReqUri_1</mwiReqUri>
+#end
+#if($voiceMailServerAddress_1.trim())
+<voiceMailServerAddress>$voiceMailServerAddress_1</voiceMailServerAddress>
+#end
+#if($presenceServer_1.trim())
+<presenceServer>$presenceServer_1</presenceServer>
+#end
+<sipUsePublish>$sipUsePublish_1</sipUsePublish>
+#if($conferenceServerAddress_1.trim())
+<conferenceServerAddress>$conferenceServerAddress_1</conferenceServerAddress>
+#end
+#if($mohServer_1.trim())
+<mohServer>$mohServer_1</mohServer>
+#end
+#if($sipDialplan_1.trim())
+<sipDialplan>$sipDialplan_1</sipDialplan>
+#end
+<enableTlsSecurity>$enableTlsSecurity_1</enableTlsSecurity>
+<offhookOnRefer>$offhookOnRefer_1</offhookOnRefer>
+<transmitDtmf>$transmitDtmf_1</transmitDtmf>
+<preferredCodec>$preferredCodec_1</preferredCodec>
+<disableCall1_2key>$disableCall1_2key_1</disableCall1_2key>
+<sipAutoDial>$sipAutoDial_1</sipAutoDial>
+#if($sipAutoDialUserid_1.trim())
+<sipAutoDialUserid>$sipAutoDialUserid_1</sipAutoDialUserid>
+#end
+<disableCallWaiting>$disableCallWaiting_1</disableCallWaiting>
+#if($natAddress_1.trim())
+<natAddress>$natAddress_1</natAddress>
+#end
+<disableStarCodes>$disableStarCodes_1</disableStarCodes>
+<callerIdBlocking>$callerIdBlocking_1</callerIdBlocking>
+<enableRoutingTone>$enableRoutingTone_1</enableRoutingTone>
+<toneSet>$toneSet_1</toneSet>
+<useOnlyUdpSrv>$useOnlyUdpSrv_1</useOnlyUdpSrv>
+<usePreloadedRoute>$usePreloadedRoute_1</usePreloadedRoute>
+#if($tlsClientCertificateUrl_1.trim())
+<tlsClientCertificateUrl>$tlsClientCertificateUrl_1</tlsClientCertificateUrl>
+#end
+#if($tlsClientKeyUrl_1.trim())
+<tlsClientKeyUrl>$tlsClientKeyUrl_1</tlsClientKeyUrl>
+#end
+#if($tlsCaCertificateUrl_1.trim())
+<tlsCaCertificateUrl>$tlsCaCertificateUrl_1</tlsCaCertificateUrl>
+#end
+#end
+</account_L1>
+<account_L2>
+#if($registrarUsedomainName_2.trim())
+#if($authname_2.trim())
+<authname>$authname_2</authname>
+#end
+#if($authPassword_2.trim())
+<authPassword>$authPassword_2</authPassword>
+#end
+#if($displayname_2.trim())
+<displayname>$displayname_2</displayname>
+#end
+#if($registrarOption_2 == "manual")
+<registrar>
+<manual>TRUE</manual>
+#if($registrarAddress_2.trim())
+<registrarAddress>$registrarAddress_2</registrarAddress>
+#end
+#if($registrarToAddress_2.trim())
+<registrarToAddress>$registrarToAddress_2</registrarToAddress>
+#end
+#if($registrarFromAddress_2.trim())
+<registrarFromAddress>$registrarFromAddress_2</registrarFromAddress>
+#end
+<registrarUsedomainName>$registrarUsedomainName_2</registrarUsedomainName>
+#if($registertimer_2.trim())
+<registertimer>$registertimer_2</registertimer>
+#end
+</registrar>
+#elseif($registrarOption_2 == "auto")
+<registrar>
+<auto>TRUE</auto>
+#if($registrarToAddress_2.trim())
+<registrarToAddress>$registrarToAddress_2</registrarToAddress>
+#end
+#if($registrarFromAddress_2.trim())
+<registrarFromAddress>$registrarFromAddress_2</registrarFromAddress>
+#end
+<registrarUsedomainName>$registrarUsedomainName_2</registrarUsedomainName>
+#if($registertimer_2.trim())
+<registertimer>$registertimer_2</registertimer>
+#end
+</registrar>
+#else
+<registrar>
+<none>TRUE</none>
+</registrar>
+#end
+#if($proxyOption_2 == "forwardAllThroughProxy")
+<sipProxy>
+<forwardAllThroughProxy>TRUE</forwardAllThroughProxy>
+#if($proxyAddress_2.trim())
+<proxyAddress>$proxyAddress_2</proxyAddress>
+#end
+<registerThroughProxy>$registerThroughProxy_2</registerThroughProxy>
+</sipProxy>
+#elseif($proxyOption_2 == "sendFirstInviteToProxy")
+<sipProxy>
+<sendFirstInviteToProxy>TRUE</sendFirstInviteToProxy>
+#if($proxyAddress_2.trim())
+<proxyAddress>$proxyAddress_2</proxyAddress>
+#end
+<registerThroughProxy>$registerThroughProxy_2</registerThroughProxy>
+</sipProxy>
+#else
+<sipProxy>
+<noneThroughProxy>TRUE</noneThroughProxy>
+</sipProxy>
+#end
+#else
+<registrar>
+<none>TRUE</none>
+</registrar>
+<sipProxy>
+<noneThroughProxy>TRUE</noneThroughProxy>
+</sipProxy>
+#end
+#if($forwardModeOption_2.trim())
+#if($forwardModeOption_2 == "forwardonBusy")
+<callForwardMode>
+<forwardonBusy>TRUE</forwardonBusy>
+#if($callForwardAddress_2.trim())
+<callForwardAddress>$callForwardAddress_2</callForwardAddress>
+#end
+</callForwardMode>
+#elseif($forwardModeOption_2 == "forwardonNoAnswer")
+<callForwardMode>
+<forwardonNoAnswer>TRUE</forwardonNoAnswer>
+#if($callForwardAddress_2.trim())
+<callForwardAddress>$callForwardAddress_2</callForwardAddress>
+#end
+<callForwardTimer>$callForwardTimer_2</callForwardTimer>
+</callForwardMode>
+#elseif($forwardModeOption_2 == "forwardonBusyOrNoAnswer")
+<callForwardMode>
+<forwardonBusy>TRUE</forwardonBusy>
+<forwardonNoAnswer>TRUE</forwardonNoAnswer>
+#if($callForwardAddress_2.trim())
+<callForwardAddress>$callForwardAddress_2</callForwardAddress>
+#end
+<callForwardTimer>$callForwardTimer_2</callForwardTimer>
+</callForwardMode>
+#elseif($forwardModeOption_2 == "forwardAll")
+<callForwardMode>
+<forwardAll>TRUE</forwardAll>
+#if($callForwardAddress_2.trim())
+<callForwardAddress>$callForwardAddress_2</callForwardAddress>
+#end
+</callForwardMode>
+#else
+<callForwardMode>
+<none>TRUE</none>
+</callForwardMode>
+#end
+#end
+#if($incomingInvite_2.trim())
+<callerNameSearchPrecedence>
+<incomingInvite>$incomingInvite_2</incomingInvite>
+<okOfInvite>$okOfInvite_2</okOfInvite>
+</callerNameSearchPrecedence>
+#end
+#if($intercomOption_2.trim())
+#if($intercomOption_2 == "callInfoHeader")
+<intercom>
+<callInfoHeader>TRUE</callInfoHeader>
+#if($alertInfoSecret_2.trim())
+<alertInfoSecret>$alertInfoSecret_2</alertInfoSecret>
+#end
+<sendrecvInOutgoingIntercom>$sendrecvInOutgoingIntercom_2</sendrecvInOutgoingIntercom>
+</intercom>
+#elseif($intercomOption_2 == "alertInfoHeader")
+<intercom>
+<alertInfoHeader>TRUE</alertInfoHeader>
+#if($alertInfoSecret_2.trim())
+<alertInfoSecret>$alertInfoSecret_2</alertInfoSecret>
+#end
+<sendrecvInOutgoingIntercom>$sendrecvInOutgoingIntercom_2</sendrecvInOutgoingIntercom>
+</intercom>
+#elseif($intercomOption_2 == "intercomPrefix")
+<intercom>
+<intercomPrefix>TRUE</intercomPrefix>
+#if($intercomPrefixValue_2.trim())
+<intercomPrefixValue>$intercomPrefixValue_2</intercomPrefixValue>
+#end
+#if($alertInfoSecret_2.trim())
+<alertInfoSecret>$alertInfoSecret_2</alertInfoSecret>
+#end
+<sendrecvInOutgoingIntercom>$sendrecvInOutgoingIntercom_2</sendrecvInOutgoingIntercom>
+</intercom>
+#end
+#end
+#if($forwardModeOption_2.trim())
+#if($sipPort_2.trim())
+<sipPort>$sipPort_2</sipPort>
+#end
+#if($rtpPort_2.trim())
+<rtpPort>$rtpPort_2</rtpPort>
+#end
+#if($tlsPort_2.trim())
+<tlsPort>$tlsPort_2</tlsPort>
+#end
+<callParkMethod>$callParkMethod_2</callParkMethod>
+#if($callParkExtension_2.trim())
+#if($callParkMethod_2 == "prefix" || $callParkMethod_2 == "incall DTMF")
+<callParkExtension>$callParkExtension_2</callParkExtension>
+#end
+#end
+#if($callRtrvPrefix_2.trim())
+<callRtrvPrefix>$callRtrvPrefix_2</callRtrvPrefix>
+#end
+#if($serverAssistCallPickup_2 == "TRUE")
+<serverAssistCallPickup>TRUE</serverAssistCallPickup>
+#if($callPickupPrefix_2.trim())
+<callPickupPrefix>$callPickupPrefix_2</callPickupPrefix>
+#end
+#else
+<serverAssistCallPickup>FALSE</serverAssistCallPickup>
+#if($callPickupPrefix_2.trim())
+<callPickupPrefix>$callPickupPrefix_2</callPickupPrefix>
+#end
+#end
+#if($groupPagingPrefix_2.trim())
+<groupPagingPrefix>$groupPagingPrefix_2</groupPagingPrefix>
+#end
+<mwiSubscribe>$mwiSubscribe_2</mwiSubscribe>
+#if($mwiReqUri_2.trim())
+<mwiReqUri>$mwiReqUri_2</mwiReqUri>
+#end
+#if($voiceMailServerAddress_2.trim())
+<voiceMailServerAddress>$voiceMailServerAddress_2</voiceMailServerAddress>
+#end
+#if($presenceServer_2.trim())
+<presenceServer>$presenceServer_2</presenceServer>
+#end
+<sipUsePublish>$sipUsePublish_2</sipUsePublish>
+#if($conferenceServerAddress_2.trim())
+<conferenceServerAddress>$conferenceServerAddress_2</conferenceServerAddress>
+#end
+#if($mohServer_2.trim())
+<mohServer>$mohServer_2</mohServer>
+#end
+#if($sipDialplan_2.trim())
+<sipDialplan>$sipDialplan_2</sipDialplan>
+#end
+<enableTlsSecurity>$enableTlsSecurity_2</enableTlsSecurity>
+<offhookOnRefer>$offhookOnRefer_2</offhookOnRefer>
+<transmitDtmf>$transmitDtmf_2</transmitDtmf>
+<preferredCodec>$preferredCodec_2</preferredCodec>
+<disableCall1_2key>$disableCall1_2key_2</disableCall1_2key>
+<sipAutoDial>$sipAutoDial_2</sipAutoDial>
+#if($sipAutoDialUserid_2.trim())
+<sipAutoDialUserid>$sipAutoDialUserid_2</sipAutoDialUserid>
+#end
+<disableCallWaiting>$disableCallWaiting_2</disableCallWaiting>
+#if($natAddress_2.trim())
+<natAddress>$natAddress_2</natAddress>
+#end
+<disableStarCodes>$disableStarCodes_2</disableStarCodes>
+<callerIdBlocking>$callerIdBlocking_2</callerIdBlocking>
+<enableRoutingTone>$enableRoutingTone_2</enableRoutingTone>
+<toneSet>$toneSet_2</toneSet>
+<useOnlyUdpSrv>$useOnlyUdpSrv_2</useOnlyUdpSrv>
+<usePreloadedRoute>$usePreloadedRoute_2</usePreloadedRoute>
+#if($tlsClientCertificateUrl_2.trim())
+<tlsClientCertificateUrl>$tlsClientCertificateUrl_2</tlsClientCertificateUrl>
+#end
+#if($tlsClientKeyUrl_2.trim())
+<tlsClientKeyUrl>$tlsClientKeyUrl_2</tlsClientKeyUrl>
+#end
+#if($tlsCaCertificateUrl_2.trim())
+<tlsCaCertificateUrl>$tlsCaCertificateUrl_2</tlsCaCertificateUrl>
+#end
+#end
+</account_L2>
+</sipAccounts>
+<upgrade>
+#set ($group = $cfg.EndpointSettings.getSetting('upgrade'))
+#foreach ($setting in $cfg.getSettings($group))
+#if($setting.Value.trim())
+#if($setting.ProfileName == "upgradeOption")
+<$!{setting.Value}>TRUE</$!{setting.Value}>
+#set ($temp = $!{setting.Value})
+#end
+#end
+#end
+#set ($group = $cfg.EndpointSettings.getSetting('upgrade').getSetting('tftpOrFtp'))
+#foreach ($setting in $cfg.getSettings($group))
+#if($setting.Value.trim())
+#if($temp == "ftp" || $temp == "tftp")
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end
+#end
+#end
+#set ($group = $cfg.EndpointSettings.getSetting('upgrade').getSetting('httpsOrHttp'))
+#foreach ($setting in $cfg.getSettings($group))
+#if($setting.Value.trim())
+#if($temp == "http" || $temp == "https")
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end
+#end
+#end
+#set ($group = $cfg.EndpointSettings.getSetting('upgrade').getSetting('upgradeCert'))
+#foreach ($setting in $cfg.getSettings($group))
+#if($setting.Value.trim())
+<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end
+#end
+</upgrade>
+</configuration>

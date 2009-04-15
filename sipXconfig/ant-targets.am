@@ -1,0 +1,34 @@
+include $(top_srcdir)/config/subdir.am
+
+# Automake - Ant adapter
+# ANT_FLAGS
+#  -e is to remove extraneous logging to console, not required
+#  -Dtop.build.dir is required if you call ./configure from a different dir
+
+# Passing it everytime ensures it's a fresh value.
+ANT_FLAGS += -Dversion.buildno=$(SIPX_VERSION)
+
+all : all-ant
+
+.PHONY: all-ant
+all-ant :
+	$(ANT_CMD) $(ANT_FLAGS)
+
+clean :
+	$(ANT_CMD) $(ANT_FLAGS) clean
+
+distclean :
+	$(ANT_CMD) $(ANT_FLAGS) distclean
+
+.PHONY: doc
+doc :
+	$(ANT_CMD) $(ANT_FLAGS) doc
+
+install :
+	$(ANT_CMD) $(ANT_FLAGS) -Ddest.dir=$(DESTDIR) install
+
+check :
+	$(ANT_CMD) $(ANT_FLAGS) test style
+
+precommit :
+	$(ANT_CMD) $(ANT_FLAGS) precommit

@@ -1,0 +1,8 @@
+<project name="polycom" default="default">
+
+  <property name="project.dir" value="plugins/polycom" />
+  <property name="plugin.models.dir" value="etc/polycom" />
+  <property name="plugin.name" value="polycom-phones" />
+
+  <import file="../plugins.build.xml" />
+</project>

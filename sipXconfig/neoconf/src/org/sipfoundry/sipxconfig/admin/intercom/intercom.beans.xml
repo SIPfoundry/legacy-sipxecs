@@ -1,0 +1,48 @@
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <!--
+    - I N T E R C O M   M A N A G E R   I M P L
+  -->
+  <bean id="intercomManagerImpl"
+    class="org.sipfoundry.sipxconfig.admin.intercom.IntercomManagerImpl">
+    <property name="sessionFactory">
+      <ref bean="sessionFactory" />
+    </property>
+    <property name="dialPlanActivationManager" ref="dialPlanActivationManager" />
+  </bean>
+
+  <bean id="intercomManagerGroupDelete" factory-bean="intercomManagerImpl"
+    factory-method="createGroupDeleteListener" />
+
+  <!--
+    - I N T E R C O M   M A N A G E R
+  -->
+  <bean id="intercomManager" class="org.springframework.aop.framework.ProxyFactoryBean"
+    parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.admin.intercom.IntercomManager</value>
+    </property>
+    <property name="target">
+      <ref local="intercomManagerImpl" />
+    </property>
+  </bean>
+
+  <!--
+    - I N T E R C O M
+  -->
+  <bean id="org.sipfoundry.sipxconfig.admin.intercom.Intercom"
+    class="org.sipfoundry.sipxconfig.admin.intercom.Intercom" singleton="false"
+    parent="beanWithSettings">
+    <property name="prefix" value="*76" />
+    <property name="timeout" value="5000" />
+  </bean>
+
+  <bean id="phonesWithIntercom" class="org.sipfoundry.sipxconfig.device.FilteredModelSource">
+    <property name="modelSource" ref="phoneModelSource" />
+    <property name="filter">
+      <bean class="org.sipfoundry.sipxconfig.device.FeatureFilter">
+        <constructor-arg value="intercom" />
+      </bean>
+    </property>
+  </bean>
+</beans>

@@ -1,0 +1,22 @@
+<div id="breadcrumbs">
+  <span jwcid="@If" condition="ognl:breadCrumbsEnabled" renderTag="false">
+    <span jwcid="@For" source="ognl:breadCrumbs" value="ognl:breadCrumb" index="ognl:crumbId" renderTag="false">
+      <span jwcid="@If" condition="ognl:lastLink" renderTag="false">
+        <span jwcid="@Insert" value="ognl:breadCrumb.crumbName" />
+      </span>
+      <span jwcid="@Else" renderTag="false">
+        <span jwcid="@If" condition="ognl:breadCrumb.usePageLinks" renderTag="false">
+          <a jwcid="@PageLink" page="ognl:breadCrumb.pageLink">
+            <span jwcid="@Insert" value="ognl:breadCrumb.crumbName" />
+          </a>
+        </span>
+        <span jwcid="@Else" renderTag="false">
+          <a jwcid="directLink@DirectLink" parameters="ognl:crumbId">
+            <span jwcid="@Insert" value="ognl:breadCrumb.crumbName" />
+          </a>
+        </span>
+        <img jwcid="@Image" image="asset:breadcrumbsSeparator" align="absmiddle" />
+      </span>
+    </span>
+  </span>
+</div>

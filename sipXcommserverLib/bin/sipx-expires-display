@@ -1,0 +1,64 @@
+#!/usr/bin/perl
+
+if (! @ARGV)
+{
+    print "   sipx-expires-display <xml-file-name>\n";
+    exit 1;
+}
+
+$now = time();
+
+while(<>)
+{
+    chomp;
+    print;
+    if ( m|<expires>(\d+)</expires>| )
+    {
+        $localtime = asDate($1); 
+        $delta     = relativeTime($1);
+        print "<!-- $localtime ($delta) -->";
+    }
+    print "\n";
+}
+
+sub asDate
+{
+    my $Epoch = shift;
+    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) =
+        localtime($Epoch);
+
+    $mon += 1;
+    $year += 1900;
+
+    return sprintf( "%04d-%02d-%02d %02d:%02d:%02d", $year, $mon, $mday, $hour, $min, $sec);
+}
+
+sub relativeTime
+{
+    my $Epoch = shift;
+    my $difference = $Epoch-$now;
+
+    if ( $difference < 0 )
+    {
+        $sign="-";
+        $difference = abs($difference);
+    }
+    else
+    {
+        $sign="+";
+    }
+    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) =
+        gmtime($difference);
+
+    $year -= 70;
+    $mday -= 1;
+
+    if ( $difference <= 24*60*60 )
+    {
+        return sprintf( "%s%02d:%02d:%02d", $sign, $hour, $min, $sec);
+    }
+    else
+    {
+        return sprintf( "%s%04d-%02d-%02d %02d:%02d:%02d", $sign, $year, $mon, $mday, $hour, $min, $sec);
+    }
+}

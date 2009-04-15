@@ -1,0 +1,157 @@
+#
+# ptag.dat -- for Cisco ATA 18X
+#
+# This file contains configuration parameter's tag descriptor
+#   that is used by cfgfmt program to determine how to convert
+#   a string representation of parameter value pair to its
+#   corresponding TLV (Tag Length Value) binary representation.
+#
+# Each descriptor is on one line, of the following format:
+#	tag,tagFmtBit,nameStr,size,context
+# where
+#   * tag is the integer value assigned to a parameter named nameStr.
+#   * tagFmtBit is bitmap of value's format information. Available
+#     format are limited to the following set for historical
+#     compatibility:
+#       0x0002 -- IP address format
+#       0x0004 -- 32-bit integer format
+#       0x0008 -- digits (0-9 and include dot)
+#       0x0010 -- alphabetic characters
+#       0x0020 -- boolean
+#       0x0040 -- array of shorts (array of 2-bytes value)
+#       0x0080 -- extended IP address (IP.PORT)
+#       0x0100 -- tone frequency format (to be obsoleted)
+#       0x0200 -- treated unsigned integer (hex format).
+#       0x4000 -- if -g flag specify if cfgfmt, do not include
+#                 those with this bit set in ata<mac> file.
+#       0x8000 -- firmware version 3.0 format bit that if the profile
+#           is larger than bigger than 2000 bytes, those TLV that has
+#           this bit set will be put in separate extended profile.
+#                
+#   * nameStr refers to the parameter.
+#   * size is the length of the value of the parameter.
+#   * context -- which protocol this tag apply to:
+#       0x1 -- H323
+#       0x2 -- SIP
+#       0x4 -- MGCP
+#       0x8 -- SCCP
+#
+3,0x0006,StaticIP,4,0xF
+4,0x0006,StaticRoute,4,0xF
+5,0x0006,StaticNetMask,4,0xF
+7,0x000C,RxCodec,4,0x3
+7,0x000C,PrfCodec,4,0xC
+8,0x000C,TxCodec,4,0x3
+9,0x0006,DNS1IP,4,0xF
+10,0x0006,DNS2IP,4,0xF
+11,0x000C,NumTxFrames,4,0xF
+12,0x020C,AutMethod,4,0x1
+13,0x000C,SIPRegInterval,4,0x2
+14,0x000C,MaxRedirect,4,0x2
+15,0x0028,Dhcp,1,0xF
+17,0x0028,IPDialTone,1,0x3
+18,0x0028,UseSIP,1,0x3
+18,0x0028,UseMGCP,1,0xC
+19,0x0028,SIPRegOn,1,0x2
+20,0x0028,UseTftp,1,0xF
+21,0x0028,UseLoginID,1,0x3
+21,0x0028,UseH323ID,1,0x1	#obsoleted alias
+23,0x4008,UIPassword,10,0xF
+24,0x0006,NTPIP,4,0x3
+25,0x4010,UID0,32,0x3
+25,0x4010,CA0UID,32,0xC
+26,0x4010,PWD0,32,0x3
+27,0x4010,UID1,32,0x3
+27,0x4010,CA1UID,32,0xC
+28,0x4010,PWD1,32,0x3
+29,0x0010,Proxy,32,0x3
+29,0x0010,GateKeeper,32,0x3
+29,0x0010,CallAgent0,32,0x3
+29,0x0010,CA0orCM0,32,0xC
+30,0x0010,Gateway,32,0x1
+31,0x0010,GkId,32,0x3
+32,0x0010,TftpURL,32,0xF
+35,0x0080,NPrintf,6,0xF
+36,0x0150,DialToneFreq,18,0xF	#obsoleted alias of DialTone
+36,0x0050,DialTone,22,0xF
+37,0x0150,BusyToneFreq,18,0xF	#obsoleted alias of BusyTone
+37,0x0050,BusyTone,22,0xF
+38,0x0150,ReorderToneFreq,18,0xF	#obsoleted alias of ReorderTone
+38,0x0050,ReorderTone,34,0xF
+39,0x0150,RingBackToneFreq,18,0xF	#obsoleted alais of RingBackTone
+39,0x0050,RingBackTone,22,0xF
+40,0x0150,CallWaitToneFreq,18,0xF	#obsoleted alais of CallWaitTone
+40,0x0050,CallWaitTone,22,0xF
+41,0x0010,DialPlan,200,0x3
+43,0x0050,DialTone2,22,0xF
+44,0x4010,LoginID0,52,0x3
+44,0x4010,H323id0,52,0x1	#obsoleted alias
+44,0x0010,EPID0orSID0,52,0xC
+45,0x4010,LoginID1,52,0x3
+45,0x4010,H323id1,52,0x1	#obsoleted alias
+45,0x0010,EPID1orSID1,52,0xC
+47,0x0150,AlertToneFreq,18,0xF	#obsoleted alias of AlertTone
+47,0x0050,AlertTone,22,0xF
+47,0x0050,ConfirmTone,22,0xF
+48,0x0050,SITone,34,0x2
+49,0x0028,ToConfig,1,0xF	#obsoleted
+50,0x000C,CfgInterval,4,0xF
+52,0x000C,IPDialPlan,4,0x3
+54,0x000C,LBRCodec,4,0xF
+55,0x020C,Polarity,4,0xF
+56,0x000C,TimeZone,4,0x3
+57,0x020C,ConnectMode,4,0xF
+58,0x020C,AudioMode,4,0xF
+59,0x020C,TraceFlags,4,0xF
+60,0x0050,RingOnOffTime,6,0x3
+60,0x0050,RingCadence,6,0xC
+61,0x0010,EncryptKey,9,0xF
+62,0x020C,CallFeatures,4,0x3
+63,0x0010,CallCmd,248,0x3
+64,0x020C,PaidFeatures,4,0x3
+65,0x020C,CallerIdMethod,4,0xF
+66,0x0010,AltTftpURL,32,0x8
+67,0x0010,AltGk,32,0x3
+67,0x0010,SecProxy,32,0x3
+67,0x0010,CallAgent1,32,0x3
+67,0x0010,CA1orCM1,32,0xC
+68,0x0006,NATIP,4,0x3
+69,0x000C,SIPPort,4,0x2
+70,0x000C,MediaPort,4,0xF
+71,0x000C,GkTimeToLive,4,0x1
+72,0x020C,TOS,4,0xF
+72,0x020C,UDPTOS,4,0xF	#obsoleted, replaced by TOS
+74,0x000C,AltGkTimeOut,4,0x3
+74,0x000C,SecProxyTimeOut,4,0x3
+75,0x0010,SipOutBoundProxy,32,0x2
+76,0x020C,SigTimer,4,0xF
+77,0x020C,OpFlags,4,0xF
+78,0x0006,AltNTPIP,4,0x3
+90,0x0010,CodecName,248,0x4
+91,0x000C,MGCPPort,4,0x4
+92,0x000C,RetxLim,4,0x4
+93,0x000C,RetxIntvl,4,0x4
+94,0x0010,MGCPVer,32,0x4
+95,0x020C,VLANSetting,4,0xF
+97,0x0010,NatServer,48,0x2
+98,0x020C,NatTimer,4,0x2
+99,0x0010,Domain,32,0xC
+100,0x020C,FeatureTimer,4,0x3
+101,0x020C,CFGID,4,0x3	#availablity: v3.0
+102,0x0080,SyslogIP,6,0xF	#availablity: v3.0
+103,0x020C,SyslogCtrl,4,0xF	#availablity: v3.0
+104,0x020C,PortsSetting,4,0xF	#availablity: v3.2
+105,0x000C,L2KeepAlive,4,0xF	#availablity: v3.2
+129,0x8010,DialPlanEx,500,0x3	#availablity: v3.0
+130,0x8010,DisplayName0,32,0x2	#availablity: v3.0
+131,0x8010,DisplayName1,32,0x2	#availablity: v3.0
+132,0x8010,ACRDN,8,0x2		#availablity: v3.2
+160,0x020C,FeatureTimer2,4,0x3	#availablity: v3.0
+161,0x020C,MsgRetryLimits,4,0x2	#availablity: v3.0
+162,0x020C,SessionTimer,4,0x2	#availablity: v3.0
+163,0x000C,SessionInterval,4,0x2	#availablity: v3.0
+164,0x000C,MinSessionInterval,4,0x2	#availablity: v3.0
+170,0x000C,FXSInputLevel,4,0xF	#availablity: v3.0
+171,0x000C,FXSOutputLevel,4,0xF	#availablity: v3.0
+# any tag bigger than 255 is pseudo parameter
+0x2001,0x020C,RegMode,4,0x8

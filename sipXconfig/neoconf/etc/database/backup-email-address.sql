@@ -1,0 +1,1 @@
+alter table backup_plan add column email_address varchar(255);

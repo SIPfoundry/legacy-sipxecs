@@ -1,0 +1,31 @@
+<?xml version="1.0" standalone="yes" ?>
+<items type="userlocation" xmlns="http://www.sipfoundry.org/sipX/schema/xml/userlocation-00-00">
+    <item>
+        <identity>201@rjolyscs2.ca.nortel.com</identity>
+        <location>Ottawa</location>
+    </item>
+    <item>
+        <identity>202@rjolyscs2.ca.nortel.com</identity>
+        <location>Montreal</location>
+    </item>
+    <item>
+        <identity>203@rjolyscs2.ca.nortel.com</identity>
+        <location>Venise-Sur-Mer</location>
+    </item>
+    <item>
+        <identity>204@rjolyscs2.ca.nortel.com</identity>
+        <location>Drummondville</location>
+    </item>
+    <item>
+        <identity>205@rjolyscs2.ca.nortel.com</identity>
+        <location>Ottawa</location>
+    </item>
+    <item>
+        <identity>206@rjolyscs2.ca.nortel.com</identity>
+        <location>Ottawa</location>
+    </item>
+    <item>
+        <identity>201@rjolyscs2.ca.nortel.com</identity>
+        <location>Quebec</location>
+    </item>
+</items>

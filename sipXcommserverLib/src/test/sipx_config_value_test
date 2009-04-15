@@ -1,0 +1,50 @@
+#!/bin/sh
+
+. ../sipx-utils.sh || exit 1
+
+testdata=${srcdir}/sipx_config_value/testdata
+
+Status=0
+
+case_expected_actual () { # ( CASE, EXPECTED, ACTUAL )
+  if [ "$2" != "$3" ]
+  then
+      echo "Case $1 Failed"
+      echo "   Expected '$2'"
+      echo "   Actual   '$3'"
+      Status=1
+  fi
+}
+
+actual=`sipx_config_value ${testdata} DIRECTIVE1`
+case_expected_actual DIRECTIVE1 VALUE1 "$actual"
+
+actual=`sipx_config_value ${testdata} DIRECTIVE2`
+case_expected_actual DIRECTIVE2 VALUE2 "$actual"
+
+actual=`sipx_config_value ${testdata} DIRECTIVE3`
+case_expected_actual DIRECTIVE3 VALUE3 "$actual"
+
+actual=`sipx_config_value ${testdata} COMMENTED_DIRECTIVE`
+case_expected_actual COMMENTED_DIRECTIVE "" "$actual"
+
+actual=`sipx_config_value ${testdata} EMPTY_DIRECTIVE1`
+case_expected_actual EMPTY_DIRECTIVE1 "" "$actual"
+
+actual=`sipx_config_value ${testdata} EMPTY_DIRECTIVE2`
+case_expected_actual EMPTY_DIRECTIVE2 "" "$actual"
+
+actual=`sipx_config_value ${testdata} EMPTY_DIRECTIVE3`
+case_expected_actual EMPTY_DIRECTIVE3 "" "$actual"
+
+actual=`sipx_config_value ${testdata} EMPTY_DIRECTIVE4`
+case_expected_actual EMPTY_DIRECTIVE4 "" "$actual"
+
+actual=`sipx_config_value ${testdata} LIST_DIRECTIVE1`
+case_expected_actual LIST_DIRECTIVE1 "A B C D" "$actual"
+
+actual=`sipx_config_value ${testdata} LIST_DIRECTIVE2`
+case_expected_actual LIST_DIRECTIVE2 "A B C" "$actual"
+
+exit $Status
+

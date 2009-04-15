@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DOCTYPE dataset SYSTEM "sipxconfig-db.dtd" -->
+<dataset>
+    <ftp_configuration
+		id="[id]"
+		host="[host]"
+		user_id="[user_id]"
+		password="[password]"
+     />
+</dataset>

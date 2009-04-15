@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE model 
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 1.0//EN" 
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_1_0.dtd">
+<model>
+  <type id="true-false">
+    <boolean>
+      <true>
+        <value>TRUE</value>
+      </true>
+      <false>
+        <value>FALSE</value>
+      </false>
+    </boolean>
+  </type>
+  <group name="acd-audio">
+    <setting name="uri" hidden="yes">
+      <type>
+        <string required="yes" />
+      </type>
+      <value />
+    </setting>
+    <setting name="name" hidden="yes">
+      <type />
+      <value />
+    </setting>
+    <setting name="description" hidden="yes">
+      <type />
+      <value />
+    </setting>
+    <setting name="local-store" hidden="yes">
+      <type refid="true-false" />
+      <value>TRUE</value>
+    </setting>
+  </group>
+</model>

@@ -1,0 +1,5 @@
+#!/bin/sh
+
+JavaCmd=`@bin.dir@/sipx-config --java`
+$JavaCmd -cp @sipxcommons.dir@/jdom-1.0.jar:@sipviewer.lib.dir@/sipviewer.jar \
+    com.pingtel.sipviewer.SIPViewer "$@"

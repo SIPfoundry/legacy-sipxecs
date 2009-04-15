@@ -1,0 +1,428 @@
+<type id="lan_port">
+  <enum>
+    <option>
+      <value>0</value>
+    </option>
+    <option>
+      <value>1</value>
+    </option>
+    <option>
+      <value>2</value>
+    </option>
+    <option>
+      <value>3</value>
+    </option>
+    <option>
+      <value>4</value>
+    </option>
+  </enum>
+</type>
+<type id="resync-mode">
+  <enum>
+    <option>
+      <value>0</value>
+    </option>
+    <option>
+      <value>1</value>
+    </option>
+    <option>
+      <value>2</value>
+    </option>
+    <option>
+      <value>3</value>
+    </option>
+  </enum>
+</type>
+<type id="country-tone">
+  <enum>
+    <option>
+      <value>Australia</value>
+    </option>
+    <option>
+      <value>Europe</value>
+    </option>
+    <option>
+      <value>France</value>
+    </option>
+    <option>
+      <value>Germany</value>
+    </option>
+    <option>
+      <value>Italy</value>
+    </option>
+    <option>
+      <value>Mexico</value>
+    </option>
+    <option>
+      <value>United Kingdom</value>
+    </option>
+    <option>
+      <value>US</value>
+    </option>
+  </enum>
+</type>
+<type id="global-tone">
+  <enum>
+    <option>
+      <value>0</value>
+    </option>
+    <option>
+      <value>1</value>
+    </option>
+    <option>
+      <value>2</value>
+    </option>
+    <option>
+      <value>3</value>
+    </option>
+    <option>
+      <value>4</value>
+    </option>
+    <option>
+      <value>5</value>
+    </option>
+  </enum>
+</type>
+<type id="line-tone">
+  <enum>
+    <option>
+      <value>-1</value>
+    </option>
+    <option>
+      <value>0</value>
+    </option>
+    <option>
+      <value>1</value>
+    </option>
+    <option>
+      <value>2</value>
+    </option>
+    <option>
+      <value>3</value>
+    </option>
+    <option>
+      <value>4</value>
+    </option>
+    <option>
+      <value>5</value>
+    </option>
+  </enum>
+</type>
+<type id="protocol-type">
+  <enum>
+    <option>
+      <value>TFTP</value>
+    </option>
+    <option>
+      <value>FTP</value>
+    </option>
+    <option>
+      <value>HTTP</value>
+    </option>
+    <option>
+      <value>HTTPS</value>
+    </option>
+  </enum>
+</type>
+<type id="lang-pack">
+  <enum>
+    <option>
+      <label>Select one</label>
+      <value></value>
+    </option>
+    <option>
+      <label>lang_fr_ca.txt</label>
+      <value>lang_fr_ca.txt</value>
+    </option>
+    <option>
+      <label>lang_es_mx.txt</label>
+      <value>lang_es_mx.txt</value>
+    </option>
+    <option>
+      <label>lang_de.txt</label>
+      <value>lang_de.txt</value>
+    </option>
+    <option>
+      <label>lang_it.txt</label>
+      <value>lang_it.txt</value>
+    </option>
+  </enum>
+</type>
+<type id="time-zone">
+  <enum>
+    <option>
+        <label></label>
+        <value></value>
+    </option>
+    <option>
+        <label>GMT-10:00 Hawaii</label>
+        <value>US-Hawaii</value>
+    </option>
+    <option>
+        <label>GMT-09:00 Alaska</label>
+        <value>US-Alaska</value>
+    </option>
+    <option>
+        <label>GMT-08:00 Pacific Standard</label>
+        <value>US-Pacific</value>
+    </option>
+    <option>
+        <label>GMT-07:00 Mountain Standard</label>
+        <value>US-Mountain</value>
+    </option>
+    <option>
+        <label>GMT-06:00 Central Standard</label>
+        <value>US-Central</value>
+    </option>
+    <option>
+        <label>GMT-05:00 Eastern Standard</label>
+        <value>US-Eastern</value>
+    </option>
+    <option>
+        <label>GMT-04:00 Atlantic Standard</label>
+        <value>CA-Atlantic</value>
+    </option>
+    <option>
+        <label>GMT-03:30 Newfoundland</label>
+        <value>CA-Newfoundland</value>
+    </option>
+    <option>
+        <label>GMT-03:00 Brasilia, Brazil</label>
+        <value>BR-Sao Paulo</value>
+    </option>
+    <option>
+        <label>GMT 00:00 Western European</label>
+        <value>GB-London</value>
+    </option>
+    <option>
+        <label>GMT+01:00 Central European</label>
+        <value>BE-Brussels</value>
+    </option>
+    <option>
+        <label>GMT+02:00 Easern Europian</label>
+        <value>GR-Athens</value>
+    </option>
+    <option>
+        <label>GMT+03:00 Moscow, Russia</label>
+        <value>RU-Moscow</value>
+    </option>
+    <option>
+        <label>GMT+05:30 Bangalore, India</label>
+        <value>SG-Singapore</value>
+    </option>
+    <option>
+        <label>GMT+07:00 Taipei, Taiwan</label>
+        <value>TW-Taipei</value>
+    </option>
+    <option>
+        <label>GMT+08:00 Bejing, China</label>
+        <value>CN-China</value>
+    </option>
+    <option>
+        <label>GMT+09:00 Tokyo, Japan</label>
+        <value>JP-Tokyo</value>
+    </option>
+    <option>
+        <label>GMT+09:30 Darwin, Australia</label>
+        <value>AU-Darwin</value>
+    </option>
+    <option>
+        <label>Auckland, Wellington</label>
+        <value>NZ-Auckland</value>
+    </option>
+  </enum>
+</type>
+<type id="exp-key-type">
+  <enum>
+    <option>
+      <value>none</value>
+    </option>
+    <option>
+      <value>line</value>
+    </option>
+    <option>
+      <value>speeddial</value>
+    </option>
+    <option>
+      <value>dnd</value>
+    </option>
+    <option>
+      <value>blf</value>
+    </option>
+    <option>
+      <value>list</value>
+    </option>
+    <option>
+      <value>acd</value>
+    </option>
+    <option>
+      <value>dcp</value>
+    </option>
+    <option>
+      <value>xml</value>
+    </option>
+    <option>
+      <value>lcr</value>
+    </option>
+    <option>
+      <value>callers list</value>
+    </option>
+    <option>
+      <value>directory</value>
+    </option>
+    <option>
+      <value>icom</value>
+    </option>
+    <option>
+      <value>services</value>
+    </option>
+    <option>
+      <value>phonelock</value>
+    </option>
+    <option>
+      <value>empty</value>
+    </option>
+  </enum>
+</type>
+<type id="outgoing-intercom-type">
+  <enum>
+    <option>
+      <value>1</value>
+    </option>
+    <option>
+      <value>2</value>
+    </option>
+    <option>
+      <value>3</value>
+    </option>
+  </enum>
+</type>
+<type id="alert-community-tone">
+  <enum>
+    <option>
+      <value>0</value>
+    </option>
+    <option>
+      <value>1</value>
+    </option>
+    <option>
+      <value>2</value>
+    </option>
+    <option>
+      <value>3</value>
+    </option>
+    <option>
+      <value>4</value>
+    </option>
+    <option>
+      <value>5</value>
+    </option>
+  </enum>
+</type>
+<type id="time-format">
+  <enum>
+    <option>
+      <value>0</value>
+    </option>
+    <option>
+      <value>1</value>
+    </option>
+  </enum>
+</type>
+<type id="date-format">
+  <enum>
+    <option>
+      <value>0</value>
+    </option>
+    <option>
+      <value>1</value>
+    </option>
+    <option>
+      <value>2</value>
+    </option>
+    <option>
+      <value>3</value>
+    </option>
+    <option>
+      <value>4</value>
+    </option>
+    <option>
+      <value>5</value>
+    </option>
+    <option>
+      <value>6</value>
+    </option>
+    <option>
+      <value>7</value>
+    </option>
+  </enum>
+</type>
+<type id="dst-type">
+  <enum>
+    <option>
+      <value>0</value>
+    </option>
+    <option>
+      <value>1</value>
+    </option>
+    <option>
+      <value>2</value>
+    </option>
+    <option>
+      <value>3</value>
+    </option>
+  </enum>
+</type>
+<type id="rtp-encryption">
+  <enum>
+    <option>
+      <label>SRTP Disabled</label>
+      <value>0</value>
+    </option>
+    <option>
+      <label>SRTP Preferred</label>
+      <value>1</value>
+    </option>
+    <option>
+      <label>SRTP Only</label>
+      <value>2</value>
+    </option>
+  </enum>
+</type>
+<type id="dtmf-method">
+  <enum>
+    <option>
+      <label>RTP</label>
+      <value>0</value>
+    </option>
+    <option>
+      <label>SIP INFO</label>
+      <value>1</value>
+    </option>
+    <option>
+      <label>Both</label>
+      <value>2</value>
+    </option>
+  </enum>
+</type>
+<type id="line-rtp-encrypt">
+  <enum>
+    <option>
+      <label>Global</label>
+      <value>-1</value>
+    </option>
+    <option>
+      <label>SRTP Disabled</label>
+      <value>0</value>
+    </option>
+    <option>
+      <label>SRTP Preferred</label>
+      <value>1</value>
+    </option>
+    <option>
+      <label>SRTP Only</label>
+      <value>2</value>
+    </option>
+  </enum>
+</type>
+

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<component-specification class="org.sipfoundry.sipxconfig.site.dialplan.PatternsEditor"
+  allow-body="no" allow-informal-parameters="no">
+
+  <!-- P R O P E R T I E S -->
+  <property name="pattern" />
+
+  <!-- B E A N S -->
+  <bean name="digitsModel" class="org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator"
+    lifecycle="page">
+    <set name="model" value="bean:digitsOnlyModel" />
+    <set name="extraLabel" value="message:label.anyDigits" />
+  </bean>
+
+</component-specification>

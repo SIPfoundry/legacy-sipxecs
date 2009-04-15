@@ -1,0 +1,26 @@
+#!/bin/bash
+
+sipx_log_cut=sipx-log-cut
+
+regLog=/var/log/sipxpbx/sipregistrar.log
+#regLog=test.log
+regLogLength=`wc -l <${regLog}`
+
+startTime=""
+backlinesPrev=0
+for (( backlines=2000 ; ${backlinesPrev} < ${regLogLength} && ! ${#startTime} ;
+       backlines*=2 ))
+do
+  startTime=` \
+  tail -n ${backlines} ${regLog} \
+  | grep '>>>> STARTED' \
+  | tail -n 1 \
+  | cut -c 2-20 \
+  `
+  backlinesPrev=${backlines}
+done
+
+echo "Started at: '${startTime}'"
+echo ""
+${sipx_log_cut} -i ${regLog} -s ${startTime} -t 2> /dev/null \
+| grep -e '\(update numbering synchronized\|Incompatible\)'

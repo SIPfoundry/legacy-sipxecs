@@ -1,0 +1,1 @@
+CONFIG_SERVER_AGENT_PORT=$settings.getSetting('CONFIG_SERVER_AGENT_PORT').Value

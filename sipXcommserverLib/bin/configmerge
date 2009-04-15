@@ -1,0 +1,226 @@
+#!/usr/bin/perl
+
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributo r Agreement.  
+# Contributors retain copyright to elements licensed under a Contributor Agreeme nt.
+# Licensed to the User under the LGPL license.
+
+# configmerge - merge config files from old RPM, new RPM, and user
+#  to produce a new user config file updated for the latest version.
+#
+# Input 4 args:
+#  the old rpm config file,
+#  the new rpm config file,
+#  the current users config file
+#  an optional new to old mapping file.
+#
+# Output:
+#  STDOUT the merged configuration
+#  STDERR debug output for logging
+#
+# Returns:
+#  0 on success
+# 
+# The idea is to go thru the new RPM config file line by line.  Comments 
+# and blank lines are output unchanged.  Key/value pairs are looked up 
+# against the old RPM and current user config files.  If the Key/value pair 
+# isn't found in the old RPM file, it is output unchanged.
+# (it is a new pair).
+# 
+# If the Key/value pair is found, and the user config value and the old RPM
+# value are the same, (meaning the user has not changed the default value), 
+# then the new Key/value pair is output (in case the default value has 
+# changed).  Otherwise the value from the user config file is output.  
+# 
+# Also, if a key in the new RPM file has an entry in the mapping file, then 
+# the mapped "old" name for that key is used in the lookup process in the 
+# user and old RPM files.  This enables moving user configured elements 
+# to renamed keys.
+#
+
+# Parse argument string as a configuration file line.
+# Valid formats are "name : value", "name = value", or "name (whitespace) value".
+# See top of OsConfigDb::insertEntry() for spec for the :-format.
+# Result is an array of 3 items:  the name, the value, and the separator
+# between the two.  Any leading and trailing whitespace is lost.
+sub parse()
+{
+   my ($line) = @_ ;
+   my ($key, $value, $separator) ;
+
+   # Key can be alphanumeric, with ".", "_", and "-"
+   # separator can be ":" or "="
+   # Try "key : value", or "key = value",  ala Pingtel config files
+   ($key, $separator, $value) =
+       $line =~ /^\s*([\.\-[:word:]]+)(\s*[:=]\s*)(.*?)\s*$/ ;
+   if (length($key) == 0)
+   {
+      # Try key{whitespace}value, ala mediaserver config file
+      ($key, $separator, $value) =
+	  $line =~ /^\s*(\S+)(\s+)(.*?)\s*$/ ;
+   }
+   $value = "" unless length($value) ; # "" instead of undef
+   return ($key, $value, $separator)
+}
+
+if ($debug)
+{
+   print STDERR "Old RPM file: $orpm\n" ;
+   print STDERR "New RPM file: $nrpm\n" ;
+   print STDERR "USER file: $user\n" ;
+   print STDERR "MAP file: $map\n" ;
+}
+
+
+$debug = 2 ; # Output interesting things to STDERR
+
+# takes 4 args:
+# old rpm config, new rpm config, current user config,  optional new to old map
+$orpm = shift @ARGV;
+$nrpm = shift @ARGV;
+$user = shift @ARGV ;
+$map = shift @ARGV;
+
+
+# Suck user config into a hashmap.
+open USER, $user || die "Cannot open $user" ;
+print STDERR "User:----------------\n" if $debug ;
+while(<USER>)
+{
+   chomp ;
+   print STDERR "$_\n" if $debug ;
+   if (/^\s*$/ || /^#/)
+   {
+      # skip blank lines
+      # skip comments
+      next ;
+   }
+   ($key, $value) = &parse($_) ;
+   print STDERR "  ($key):($value)\n" if $debug == 2 ;
+   $USER{$key} = $value ;
+}
+print STDERR "User:----------------\n\n" if $debug ;
+
+# Suck rename map into a hashmap.
+# Entries with a new name of "-" indicate that the old name is to be
+# deleted, and so won't be carried into the output file even though
+# no line in the template new file references the old name.
+print STDERR "Map:----------------\n" if $debug ;
+if (length($map))
+{
+   open MAP, $map || warn "Cannot open $map" ;
+   while(<MAP>)
+   {
+      chomp ;
+      print STDERR "$_\n" if $debug ;
+      if (/^\s*$/ || /^#/)
+      {
+         # skip blank lines
+         # skip comments
+         next ;
+      }
+      ($key, $value) = &parse($_) ;
+      if ($key ne '-')
+      {
+	 print STDERR "  ($key):($value)\n" if $debug == 2 ;
+	 $MAP{$key} = $value ;
+      }
+      else
+      {
+	 print STDERR "  deleted:($value)\n" if $debug == 2 ;
+	 $DELETED{$value} = 1;
+      }
+   }
+}
+print STDERR "Map:----------------\n\n" if $debug ;
+
+# Suck old rpm config into a hashmap.
+print STDERR "Old RPM:----------------\n" if $debug ;
+open ORPM, $orpm || die "Cannot open $orpm" ;
+while(<ORPM>)
+{
+   chomp ;
+   print STDERR "$_\n" if $debug ;
+   if (/^\s*$/ || /^#/)
+   {
+      # skip blank lines
+      # skip comments
+      next ;
+   }
+   ($key, $value) = &parse($_) ;
+   print STDERR "  ($key):($value)\n" if $debug == 2 ;
+   $OLD{$key} = $value ;
+}
+print STDERR "Old RPM:----------------\n\n" if $debug ;
+
+# For each key in the new RPM, see if an equivelent key exists in the old RPM.
+# If so, see if the default value has changed and also look at the
+# user version to see if they have overridden the default.  Overridden value
+# always wins, then new default.
+open NRPM, $nrpm || die "Cannot open $nrpm" ;
+print STDERR "New RPM:----------------\n" if $debug ;
+while(<NRPM>)
+{
+   chomp ;
+   print STDERR "$_\n" if $debug ;
+   if (/^\s*$/ || /^#/)
+   {
+      # keep blank lines
+      # keep comments
+      print "$_\n" ;
+      next ;
+   }
+   ($key, $new, $separator) = &parse($_) ;
+   print STDERR "  ($key):($new)\n" if $debug == 2 ;
+
+   $old = $OLD{$key} ;
+   $user = $USER{$key} ;
+
+   # See if there is a new to old mapping to deal with
+   $mapping = $MAP{$key} ;
+   if (defined($mapping) && $mapping ne '' && !defined($old))
+   {
+      # Use old name to lookup original value
+      print STDERR "Using old($mapping) for new ($key)\n" if $debug ;
+      $old = $OLD{$mapping} ;
+      $user = $USER{$mapping} ;
+      $USER_REFERENCED{$mapping} = 1 ;
+   }
+   else
+   {
+      $USER_REFERENCED{$key} = 1 ;
+   }
+
+   if ($old eq $user)
+   {
+      # user is still defaulted from old, use new default value
+      $value = $new ;
+      $where = "N" ; # Value from New
+   }
+   else
+   {
+      # user has changed from default, use user's value
+      $value = $user ;
+      $where = "U" ; # Value from User
+   }
+   print STDERR "$where ($key):($value)\n" if $debug == 2 ;
+
+   print "${key}${separator}${value}\n" ;
+}
+# At the end of the new file, print any values that were seen in the old file
+# but were not referenced in the new template.
+$append = '';
+foreach $key (keys %USER)
+{
+   if (!$USER_REFERENCED{$key} && !$DELETED{$key})
+   {
+      # Use the last separator seen to compose the new line.
+      $append .= "${key}${separator}$USER{$key}\n" ;
+   }
+}
+if ($append ne '')
+{
+   print "\n" ;
+   print "# Values found in the old file but not referenced in the new template\n" ;
+   print $append ;
+}
+print STDERR "New RPM:----------------\n" if $debug ;

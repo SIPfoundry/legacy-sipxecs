@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <group name="ui-fields-test">
+    <setting name="int-field-default-min-max-required">
+      <type>
+        <integer min="1" max="100" required="yes" />
+      </type>
+      <value>16</value>
+    </setting>
+    <setting name="int-field-min-max-not-required">
+      <type>
+        <integer min="1" max="100" required="no" />
+      </type>
+      <value></value>
+    </setting>
+    <setting name="int-field-not-required">
+      <type>
+        <integer required="no" />
+      </type>
+      <value></value>
+    </setting>
+  </group>
+</model>

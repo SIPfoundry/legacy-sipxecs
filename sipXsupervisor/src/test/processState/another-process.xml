@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<sipXecs-process xmlns='http://www.sipfoundry.org/sipX/schema/xml/sipXecs-process-01-00'>
+  <name>Nother</name>
+  <version>1.0.0</version>
+  <commands>
+    <configtest>
+      <execute>./notherprocess.sh</execute>
+      <parameter>--configtest</parameter>
+      <parameter>nother</parameter>
+    </configtest>
+    <start>
+      <execute>./notherprocess.sh</execute>
+      <parameter>nother</parameter>
+    </start>
+    <stop>
+      <execute>./notherprocess.sh</execute>
+      <parameter>--stop</parameter>
+      <parameter>nother</parameter>
+    </stop>
+  </commands>
+  <status>
+    <pid>/tmp/nother.pid</pid>
+  </status>
+  <resources>
+    <file>work/processState/another-process.xml</file>
+  </resources>
+</sipXecs-process>

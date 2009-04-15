@@ -1,0 +1,54 @@
+#!@BASH@
+#
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+Action=RUN
+Status=0
+Args=""
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        --configtest)
+            Action=CONFIGTEST
+            ;;
+
+        *)
+            Args="$Args $1"
+            ;;
+    esac           
+
+    shift # always consume 1
+done
+
+case ${Action} in
+   RUN)
+     echo $$ > @SIPX_RUNDIR@/sipxdialog.pid
+     exec @bindir@/sipxdialog $Args
+     ;;
+
+   CONFIGTEST)
+     Status=0
+
+     if [ ! -e "@SIPX_CONFDIR@/sipxdialog-config" ]
+     then
+         echo "Missing configuration file '@SIPX_CONFDIR@/sipxdialog-config'" 1>&2
+         Status=1
+     fi
+     #@bindir@/sipx-validate-xml @SIPX_CONFDIR@/sipxdialog-config.xml
+     #Status=$(($Status+$?))
+
+     # Check that the log file is writable.
+     logfile="@SIPX_LOGDIR@/sipxdialog.log"
+     if [ -e $logfile -a ! -w $logfile ]
+     then
+	 echo "Log file '$logfile' exists but is not writable by user '@SIPXPBXUSER@'." >&2
+	 Status=1
+     fi
+
+     ;;
+esac
+
+exit $Status

@@ -1,0 +1,76 @@
+VXILOG                                  Environment     @sipxpbx.log.dir@
+VXITMP                                  Environment     @sipxpbx.tmp.dir@
+
+mediaserver.max.active.calls            VXIInteger      300
+
+mediaserver.rtp.codecs                  VXIString       EG711U EG711A pcmu pcma telephone-event
+
+mediaserver.udp.port                    VXIInteger      5100
+mediaserver.tcp.port                    VXIInteger      5100
+mediaserver.bindip                      VXIString       192.168.1.2
+
+client.log.dir                          VXIString       $(VXILOG)
+client.log.filename                     VXIString       $(VXILOG)/vxmlengine.log
+mediaserver.log.level                   VXIString       CRIT
+
+client.log.logToStdout                  VXIInteger      0
+
+client.inet.cacheDir                    VXIString       $(VXITMP)/cache_sbinet
+client.inet.cacheTotalSizeMB            VXIInteger      40
+client.inet.cacheEntryMaxSizeMB         VXIInteger      4
+client.inet.cacheEntryExpTimeSec        VXIInteger      86400
+client.inet.userAgent                   VXIString       sipXvxml/1.0
+client.inet.acceptCookies               VXIInteger      1
+client.prompt.baseUrl                   VXIString       file:///@www.dir@/doc/stdprompts/
+
+
+client.jsi.runtimeSizeBytes             VXIInteger      16384000
+client.jsi.contextSizeBytes             VXIInteger      131072
+client.jsi.maxBranches                  VXIInteger      100000
+
+client.vxi.beepURI                      VXIString       file:///@www.dir@/doc/stdprompts/beep.wav
+
+client.vxmlURL                          VXIString       http://localhost:8090/vm_vxml/
+
+autothrottle.engage			VXIInteger      0
+autothrottle.tick                       VXIInteger      1000
+autothrottle.limit                      VXIInteger      10
+autothrottle.trigger                    VXIInteger      5
+autothrottle.verbose                    VXIInteger      0
+
+client.inet.diagLogBase                 VXIInteger      3000
+client.jsi.diagLogBase                  VXIInteger      4000
+client.prompt.diagLogBase               VXIInteger      5000
+client.rec.diagLogBase                  VXIInteger      6000
+client.tel.diagLogBase                  VXIInteger      7000
+client.vxi.diagLogBase                  VXIInteger      8000
+client.object.diagLogBase               VXIInteger      9000
+client.client.diagLogBase               VXIInteger      10000
+
+client.log.diagTag.5000                 VXIInteger      0
+client.log.diagTag.6000                 VXIInteger      0
+client.log.diagTag.6001                 VXIInteger      0
+client.log.diagTag.7000                 VXIInteger      0
+
+client.log.diagTag.3000                 VXIInteger      0
+client.log.diagTag.4000                 VXIInteger      0
+client.log.diagTag.9000                 VXIInteger      0
+
+client.log.diagTag.8000                 VXIInteger      0
+client.log.diagTag.8001                 VXIInteger      0
+client.log.diagTag.8002                 VXIInteger      0
+
+client.log.diagTag.10000                VXIInteger      0
+client.log.diagTag.10001                VXIInteger      0
+client.log.diagTag.10002                VXIInteger      0
+
+client.log.diagTag.60001                VXIInteger      0
+
+client.inet.extensionRule.alaw          VXIString       audio/x-alaw-basic
+client.inet.extensionRule.txt           VXIString       text/plain
+client.inet.extensionRule.ulaw          VXIString       audio/basic
+client.inet.extensionRule.vox           VXIString       audio/x-dialogic-vox
+client.inet.extensionRule.wav           VXIString       audio/x-wav
+client.inet.extensionRule.xml           VXIString       text/xml
+client.inet.extensionRule.vxml          VXIString       application/vxml+xml
+client.inet.extensionRule.L8            VXIString       audio/L8;rate=8000

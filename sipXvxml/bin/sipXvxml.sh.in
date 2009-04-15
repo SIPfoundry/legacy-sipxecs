@@ -1,0 +1,92 @@
+#!@BASH@
+#
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+Action=RUN
+Status=0
+Args=""
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        --configtest)
+            Action=CONFIGTEST
+            ;;
+
+        --stop)
+            Action=STOP
+            ;;
+
+        *)
+            Args="$Args $1"
+            ;;
+    esac           
+
+    shift # always consume 1
+done
+
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+
+pidfile=@SIPX_RUNDIR@/sipXvxml.pid
+
+case ${Action} in
+   RUN)
+     # Create the voicemail directories if they do not already exist.
+     mkdir -p @SIPX_VXMLDATADIR@/autoattendant/ui/adminui
+     mkdir -p @SIPX_VXMLDATADIR@/autoattendant/vxml
+     mkdir -p @SIPX_VXMLDATADIR@/mailstore
+     mkdir -p @SIPX_VXMLDATADIR@/prompts
+     mkdir -p @SIPX_VXMLDATADIR@/voicemail/ui/adminui
+     mkdir -p @SIPX_VXMLDATADIR@/voicemail/vxml
+
+     # Update the symbolic link to the voice prompt directory if required
+     DIR=@wwwdir@/doc
+     SUBDIR=stdprompts
+     LINK=$DIR/$SUBDIR
+     if [ -d $LINK ]; then
+         ls -l -d $LINK | cut -c 1 | grep d
+         if [ $? -eq 0 ]; then
+             # stdprompts is the original directory - move it to stdprompts_en
+             # and create a symbolic link to it
+             mv $LINK $LINK\_en
+             ln -s $SUBDIR\_en $LINK
+         fi
+     fi
+     SLINK=$(ls -l -d $DIR/stdprompts);LEN=${#SLINK};: $((LEN-=13));SLINK=${SLINK:LEN}
+     CUR_LANG=$(echo $SLINK | cut -d _ -f 2)
+     DEF_LANG=$(@bindir@/configquery @SIPX_CONFDIR@/domain-config DEFAULT_LANGUAGE)
+     if [ ${#DEF_LANG} -ne 0 ]; then
+         if [ $DEF_LANG != $CUR_LANG ]; then
+             DEST=$SUBDIR\_$DEF_LANG
+             if [ -e $DIR/$DEST ]; then
+                 if [ -e $LINK ]; then
+                     rm $LINK
+                 fi
+                 ln -s $DEST $LINK
+             fi
+         fi
+     fi
+
+     echo $$ > ${pidfile}
+     exec @bindir@/sipXvxml $Args
+     ;;
+
+   CONFIGTEST)
+     if test -r @SIPX_CONFDIR@/voicemail.xml
+     then
+         Status=0
+     else
+         echo "Missing @SIPX_CONFDIR@/voicemail.xml" 1>&2
+         Status=1
+     fi
+     ;;
+
+   STOP)
+     sipx_stop sipXvxml ${pidfile}
+     ;;
+
+esac
+
+exit $Status

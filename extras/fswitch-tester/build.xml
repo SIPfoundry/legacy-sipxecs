@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<project name="FREESWITCH-TESTER" default="compile">
+<property  file="config.properties"/>
+<property name="classes" value="./classes" />
+<property name="prefix" value = "/usr/local/sipx" />
+<property name="src" value="src/main/java, src/test/java" />
+<property name="logs" value="./logs" />
+<property name="srcroot" value="src/main/java;src/test/java" />
+<property name="junit.reports" value="junit-reports" />
+<property file="ant-build.properties" />
+
+<target name="compile" >
+    <mkdir dir="classes" />
+    <javac debug="${javac.debug}" debuglevel="${javac.debuglevel}" nowarn="${javac.nowarn}" 
+	deprecation="${javac.deprecation}" optimize="${javac.optimize}" 
+	srcdir="${srcroot}"  target="${javac.target}"  destdir="${classes}">
+           <classpath>
+		  <pathelement location="${classes}" />
+                  <fileset dir="lib">
+                         <include name="**/*.jar" />
+                  </fileset>
+                  <fileset dir="${commons}">
+                         <include name="**/*.jar" />
+                  </fileset>
+           </classpath>
+    </javac>
+</target>
+
+
+<target name="test" >
+	<junit fork="yes" showoutput="yes" failureproperty="testing.failed">
+	<classpath>
+	  <pathelement location="${classes}" />
+          <fileset dir="lib">
+                  <include name="**/*.jar" />
+           </fileset>
+           <fileset dir="${commons}">
+                   <include name="**/*.jar" />
+           </fileset>
+	</classpath>
+	<formatter type="xml" />
+	<test name="org.sipfoundry.fswitchtester.SendDataTest" todir="${junit.reports}" />
+	</junit>
+
+</target>
+
+
+<target name="tester" description="Start tester"  >
+     <mkdir dir="${logs}" />
+     <java fork="yes" classname="org.sipfoundry.fswitchtester.FreeSwitchTester">
+           <classpath>
+		  <pathelement location="${classes}" />
+                  <fileset dir="lib">
+                         <include name="**/*.jar" />
+                  </fileset>
+           	  <fileset dir="${commons}">
+                   	<include name="**/*.jar" />
+           	   </fileset>
+           </classpath>
+	   <jvmarg value="-DclientId=${clientId}" />
+     </java>
+</target>
+</project>

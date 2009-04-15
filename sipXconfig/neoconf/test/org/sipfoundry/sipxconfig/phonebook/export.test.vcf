@@ -1,0 +1,12 @@
+BEGIN:vCard
+VERSION:3.0
+N:Picard;Jean Luc;;;
+TEL;TYPE=WORK:1234
+END:vCard
+
+BEGIN:vCard
+VERSION:3.0
+N:Skywalker;Luke;;;
+TEL;TYPE=WORK:1235
+END:vCard
+

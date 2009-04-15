@@ -1,0 +1,111 @@
+#!@BASH@
+
+# Script to reconfigure sendmail (if that is the mail daemon chosen)
+# to ensure prompt delivery of voicemail notifications.  This is not a
+# particularly good configuration for general e-mail use.
+
+# The changed files are:
+#    /etc/sysconfig/sendmail
+#    /etc/mail/sendmail.mc
+# The previous versions of the files are saved in *.pre-sipX.
+
+# The build number has to be input as an argument.
+BUILDNO=$1
+
+# Configure sendmail (if that is the mail daemon chosen) to never delay a
+# caller to validate the message, but also to deliver mail quickly (as users
+# may use e-mail as their primary way to access voicemail).
+CONFIGFILE=/etc/sysconfig/sendmail
+if [ -f $CONFIGFILE ]; then
+  # Save the current $CONFIGFILE, if we haven't saved one before.
+  if [ ! -f $CONFIGFILE.pre-sipX ]; then
+    cp $CONFIGFILE $CONFIGFILE.pre-sipX
+  fi
+  # Extract lines (including comments) mentioning DAEMON, if any.
+  grep DAEMON <$CONFIGFILE >$CONFIGFILE.DAEMON
+  (
+    echo "# Configured by sipX PBX: @PACKAGE@ @VERSION@ $BUILDNO"
+    echo '# Queue incoming messages immediately.'
+    echo 'SENDMAIL_OPTARG=-odd'
+    echo '# Process queued messages quickly (usually within 15 seconds).'
+    echo 'QUEUE=p15s'
+    # Copy DAEMON lines, if any.
+    if [ -s $CONFIGFILE.DAEMON ]; then
+      # Add annotating comment that will not be passed by 'grep DAEMON' on the
+      # next upgrade.
+      echo '# sendmail daemon configuration saved from previous file contents:'
+      cat $CONFIGFILE.DAEMON
+    fi
+  ) >$CONFIGFILE.new
+  rm -f $CONFIGFILE.DAEMON
+
+  mv $CONFIGFILE $CONFIGFILE.old
+  mv $CONFIGFILE.new $CONFIGFILE
+fi
+
+# Edit sendmail.mc to set various parameters to ensure prompt
+# processing of mail.
+MCFILE=/etc/mail/sendmail.mc
+if [ -f $MCFILE ]; then
+  # Save the current $MCFILE, if we haven't saved one before.
+  if [ ! -f $MCFILE.pre-sipX ]; then
+    cp $MCFILE $MCFILE.pre-sipX
+  fi
+ 
+  # Assemble sed commands to delete existing definitions of the parameters.
+  # Assemble temporary file containing lines to be appended.
+  SCRIPTFILE=`mktemp /tmp/tfile.XXXXXXXXXX`
+  APPENDFILE=`mktemp /tmp/tfile.XXXXXXXXXX`
+  COMMON_TIMEOUT=1m
+
+  cat <<EOF >$APPENDFILE
+#
+# Configured by sipX PBX: @PACKAGE@ @VERSION@ $BUILDNO
+EOF
+
+  while read PARAMETER VALUE
+  do
+    echo "/^define(\`$PARAMETER',/d" >>$SCRIPTFILE
+    echo "define(\`$PARAMETER', \`$VALUE')dnl" >>$APPENDFILE
+  done <<EOF
+  confMCI_CACHE_TIMEOUT $COMMON_TIMEOUT
+  confTO_INITIAL $COMMON_TIMEOUT
+  confTO_CONNECT $COMMON_TIMEOUT
+  confTO_ACONNECT $COMMON_TIMEOUT
+  confTO_HELO $COMMON_TIMEOUT
+  confTO_MAIL $COMMON_TIMEOUT
+  confTO_RCPT $COMMON_TIMEOUT
+  confTO_DATAINIT $COMMON_TIMEOUT
+  confTO_DATABLOCK $COMMON_TIMEOUT
+  confTO_DATAFINAL $COMMON_TIMEOUT
+  confTO_RSET $COMMON_TIMEOUT
+  confTO_QUIT $COMMON_TIMEOUT
+  confTO_MISC $COMMON_TIMEOUT
+  confTO_COMMAND $COMMON_TIMEOUT
+  confTO_IDENT $COMMON_TIMEOUT
+  confTO_FILEOPEN $COMMON_TIMEOUT
+  confTO_LHLO $COMMON_TIMEOUT
+  confTO_AUTH $COMMON_TIMEOUT
+  confTO_STARTTLS $COMMON_TIMEOUT
+  confTO_CONTROL $COMMON_TIMEOUT
+  confTO_QUEUERETURN 1d
+  confTO_QUEUERETURN_DSN 1h
+  confTO_QUEUEWARN 2d
+EOF
+
+  <$MCFILE \
+  sed -f $SCRIPTFILE |
+  cat - $APPENDFILE \
+  >$MCFILE.new
+
+  mv $MCFILE $MCFILE.old
+  mv $MCFILE.new $MCFILE
+
+  rm -f $SCRIPTFILE $APPENDFILE
+
+  # Rebuild sendmail.cf.  (sendmail will be restarted later.)
+  make -C /etc/mail >/dev/null
+fi
+
+# Restart sendmail so the configuration takes effect.
+/sbin/service sendmail restart >/dev/null

@@ -1,0 +1,8 @@
+<project name="nortel12x0" default="default">
+
+  <property name="project.dir" value="plugins/nortel12x0" />
+  <property name="plugin.models.dir" value="etc/nortel12x0" />
+  <property name="plugin.name" value="nortel12x0-phones" />
+
+  <import file="../plugins.build.xml" />
+</project>

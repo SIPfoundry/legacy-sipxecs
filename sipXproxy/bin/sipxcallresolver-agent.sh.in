@@ -1,0 +1,112 @@
+#!@BASH@
+#
+# Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+Action=RUN
+Status=0
+Args=""
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        --configtest)
+            Action=CONFIGTEST
+            ;;
+
+        --stop)
+            Action=STOP
+            ;;
+
+        --help)
+            Action=USAGE
+            ;;
+
+        start|--start)
+            Action=RUN
+            ;;
+
+        *)
+            echo "Unrecognized argument '$1'." >&2
+            exit 1
+            ;;
+    esac           
+
+    shift # always consume 1
+done
+
+CONFIG_FILE="@SIPX_CONFDIR@/sipxcallresolver-agent-config"
+  
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+
+case ${Action} in
+   RUN)
+     # the stunnel command creates the pid file as specified by the configuration file
+     exec @STUNNEL@ "${CONFIG_FILE}"
+     ;;
+
+   STOP)
+     # the stunnel command creates the pid file as specified by the configuration file
+     MYPID=`cat @SIPX_RUNDIR@/sipxcallresolver-agent.pid 2>/dev/null`
+
+     # begin workaround for stunnel 4.24 which leaves child processes hanging when parent is killed
+     # get all of the children pids from the stunnel parent and store them.
+     PIDLIST=`ps --ppid $MYPID -o pid=`
+
+     if 2>/dev/null kill -0 $MYPID
+     then
+        kill $MYPID 2> /dev/null
+        for ticks in `seq 9 -1 0`
+        do
+           sleep 1
+           2>/dev/null kill -0 "$MYPID" && echo -n "." || break
+        done
+     fi
+
+     # if there are children hanging around after the parent was killed, kill them off.
+     # this is a workaround for a bug in stunnel 4.24 which leaves the children hanging and chewing up CPU.
+     for cpid in $PIDLIST ; do
+        if [ ! `2>/dev/null kill -0 $cpid` ]
+        then
+           kill $cpid 2>/dev/null
+        fi
+     done
+
+     # leave this as a fallback.  When stunnel is upgraded, all but this next line can be removed.
+     sipx_stop sipxcallresolver-agent @SIPX_RUNDIR@/sipxcallresolver-agent.pid
+
+     ;;
+
+   CONFIGTEST)
+     # Check that the log file is writable.
+     logfile="@SIPX_LOGDIR@/sipxcallresolver-agent.log"
+     if [ -e $logfile -a ! -w $logfile ]
+     then
+         echo "Log file '$logfile' exists but is not writable by user '@SIPXPBXUSER@'." >&2
+         Status=1
+     fi
+     # Check that the configuration file is readable.
+     if [ ! -r "${CONFIG_FILE}" ]
+     then
+         echo "Configuration file '$CONFIG_FILE' not found or not readable." >&2
+         Status=1
+     fi
+     ;;
+
+    USAGE)
+        myname=`basename $0`
+        cat <<EOF
+To test configuration:
+  ${myname} --configtest
+
+To start the service
+  ${myname} start
+or
+  ${myname}
+
+EOF
+esac
+
+exit $Status
+

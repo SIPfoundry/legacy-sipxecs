@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.admin.commserver.ReplicationData">
+  <inject property="sipxReplicationContext" object="spring:sipxReplicationContext"/>
+  <property name="dataSetName"/>
+  <component id="dataSetLabel" type="Insert">
+    <binding name="value" value="dataSetName + '.xml'"/>
+  </component>
+  <component id="xmlData" type="Insert">
+    <binding name="value" value="Xml"/>
+  </component>
+</page-specification>

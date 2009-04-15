@@ -1,0 +1,341 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+"http://www.docbook.org/xml/4.2/docbookx.dtd" [
+<!ENTITY % sipxecs SYSTEM "../config/sipxecs_entities.ent">
+%sipxecs;
+]>
+<article lang="en">
+  
+  <!-- 
+       - Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+       - Contributors retain copyright to elements licensed under a Contributor Agreement.
+       - Licensed to the User under the LGPL license.
+  -->
+
+  <title>&sipxecs; SSL Key and Certificate Installation</title>
+
+  <warning>
+    <para>
+      This Is Not Optional.
+      Without SSL, sipX will not merely operate insecurely;
+      it will not work at all.
+    </para>
+  </warning>
+
+  <para>
+    sipX relies on SSL to secure communications between some of its
+    distributed components, and to protect parts of its web interfaces, so
+    your installation requires an SSL key and certificate.  
+  </para>
+  <para>
+    Creating these files need only be done once, regardless of how many sipX
+    components you are using.  (The installation instructions for each of the
+    components that requires SSL direct you to these instructions.)  You can
+    create these files at any time before you attempt to start sipX (or
+    test Apache or any other secured component of sipX).
+  </para>
+  <para>
+    There are two ways to create your certificate file; either requires that
+    you create a local key for your server and a Certificate Signing Request
+    (CSR).  The instructions below will help with these steps.  The two
+    sources for a certificate are: 
+    <itemizedlist>
+      <listitem><para>Obtaining a certificate from a Certificate Authority, or</para></listitem>
+      <listitem><para>"Self-Certifying" (acting as your own Certificate Authority)</para></listitem>
+    </itemizedlist>
+  </para>
+  <para>
+    Your company may have a source for certificates.  (If you have a secured
+    web site, you almost certainly do.)  If so, and you are planning to use
+    sipX in production, it is best to obtain a certificate from
+    your existing Certificate Authority.
+  </para>
+  <para>
+    If you do not have a relationship with a Certificate Authority, you can
+    act as your own Certificate Authority.  This provides significant
+    security to communications between the sipX components, but it is not as
+    secure as using a certificate obtained from a Certificate Authority.
+  </para>
+  <para>
+    This choice is not a permanent one - you can use self-certification as a
+    temporary measure and switch to using a certificate from a Certificate
+    Authority later.  To change the certificate, you must install new
+    certificate and key files into sipX in the same way you installed the
+    first set (which is described in some detail below). 
+  </para>
+  <section>
+    <title>Obtaining a certificate from a Certificate Authority</title>
+
+    <para>
+      This method is a little less quick and convenient for you to set up
+      initially, because you must generate a Certificate Request and send it to
+      the Certificate Authority to obtain your certificate.  However, it is
+      probably more secure and is easier for your users because the browsers
+      they use will probably already trust certificates issued this way.
+    </para>
+    <para>
+      Your Certificate Authority may have its own instructions for how to
+      generate a Certificate Request.  A sipX system can use a web
+      server certificate, so follow the instructions from your CA on how to
+      request a certificate to secure an Apache web server. 
+    </para>
+    <para>
+      If your Certificate Authority has not given you instructions on how to
+      generate a request, you can create a Certificate Signing Request and key
+      by running the gen-ssl-keys.sh script.  (The details are listed below.)  
+    </para>
+  </section>
+
+  <section>
+    <title>Self-Certifying</title>
+    <para>
+      This method is quicker, but is slightly less secure because your
+      certificate signing key is not protected by a Certificate Authority.
+      Also, your users will see warning messages when they first access your
+      server because the certificate is not derived from a well-known
+      authority.  (They can choose to accept your certificate, which will
+      eliminate future warnings.)
+    </para>
+    <para>
+      To use this method, run the gen-ssl-keys.sh script and then follow the
+      instructions under Key and Certificate Installation below.
+    </para>
+
+    <section>
+      <title>Running gen-ssl-keys.sh</title>
+      <para>
+        gen-ssl-keys.sh is usually installed as /usr/bin/ssl-cert/gen-ssl-keys.sh.
+        It may be in a different location if sipXecs is built with a non-standard
+        directory prefix.  Adjust the examples below to fit your installation.
+      </para>
+      <para>
+        The gen-ssl-keys.sh script can be run in a few different ways depending
+        on how you want to manage your certificates:
+        <itemizedlist>
+          <listitem>
+            <para>
+              To generate a self-signed certificate for a single system:
+              <informalexample>
+                <screen>
+                  /usr/bin/ssl-cert/gen-ssl-keys.sh
+                </screen>
+              </informalexample>
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              To generate a private key and certificate request for use
+              with a public or private certificate authority:
+              <informalexample>
+                <screen>
+                  /usr/bin/ssl-cert/gen-ssl-keys.sh --csr
+                </screen>
+              </informalexample>
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              To generate a private self-signed authority certificate you can use
+              to sign certificates for multiple systems:
+              <informalexample>
+                <screen>
+                  /usr/bin/ssl-cert/gen-ssl-keys.sh --new-ca
+                </screen>
+              </informalexample>
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              To sign a certificate for your server using your own authority
+              certificate (as generated above):
+              <cmdsynopsis>
+                <command>gen-ssl-keys.sh</command>
+                <arg choice='req'>--sign <replaceable>csr-file</replaceable></arg>
+                <arg choice='opt'>--ca <replaceable>ca-name</replaceable></arg>
+                <arg choice='opt'>--ca-key <replaceable>keyfile</replaceable></arg>
+              </cmdsynopsis>
+            </para>
+          </listitem>
+        </itemizedlist>
+      </para>
+      <para>
+        gen-ssl-keys.sh is "safe"; it does not modify any part of your sipX
+        configuration.  The actual installation of the certificates and key it
+        generates are described under Key and Certificate Installation below.
+      </para>
+      <para>
+        To use gen-ssl-keys.sh:
+        <itemizedlist>
+          <listitem>
+            <para>
+              Create a temporary directory and change into it.  For example:
+              <informalexample>
+                <screen>
+                  mkdir $HOME/sslkeys
+                  cd    $HOME/sslkeys
+                </screen>
+              </informalexample>
+            </para>
+          </listitem>
+        </itemizedlist>
+      </para>
+      <para>
+        Run the script:
+      </para>
+      <para>
+        It prompts you for the following information about your organization:
+        <informalexample>
+          <screen>
+            Country Name (2 letter code) [] : 
+            State or Province Name (full name) [] :
+            Locality Name (eg, city) [] :
+            Organization Name (eg, company) [] :
+            Organization Unit Name (eg, section) [VoIP Services] :
+          </screen>
+        </informalexample>
+      </para>
+      <para>
+        Depending on which form you used (see above), it may also request:
+      </para>
+      <variablelist>
+        <varlistentry>
+          <term>CA Common Name (DNS name for CA)</term>
+          <listitem>
+            <para>
+              If you are self-certifying, provide the DNS domain name of your
+              organization with a unique host name _not_ the same as the name of
+              your sipX server.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>Server Common Name (DNS name for Server)</term>
+          <listitem>
+            <para>
+              Provide the DNS name of the sipX server.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>SIP Domain Name</term>
+          <listitem>
+            <para>
+              Like email, the domain part of your sip addresses may be different
+              from the DNS name of the server you use; this is where you specify
+              the domain part of the addresses for your server.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>Email Contact Address for CA (name@example.org)</term>
+          <listitem>
+            <para>
+              If you are making a request to a Certificate Authority, provide
+              their e-mail contact address.  If you are self-certifying,
+              provide the e-mail contact address for someone responsible for
+              sipX.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>Email Contact Address for Server (name@example.org)</term>
+          <listitem>
+            <para>
+              Provide the e-mail contact address for someone responsible for the
+              specific sipX server.
+            </para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </section>
+  </section>
+  <section id='installation'>
+    <title>Key and Certificate Installation</title>
+
+    <section id='installation.wellknown'>
+      <title>Well Known Certificate Authority</title>
+      <para>
+        The gen-ssl-keys script produces:
+      </para>
+      <variablelist>
+        <varlistentry>
+          <term>The server key (<replaceable>hostname</replaceable>.key)</term>
+          <listitem>
+            <para>
+              This is your private key - it must be kept secret.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>The server certificate request (<replaceable>hostname</replaceable>.csr)</term>
+          <listitem>
+            <para>
+              This is sent to the certificate authority to provide them the information to be signed.
+            </para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+      <para>
+        To obtain your key from a Certificate Authority, send the CSR
+        file to your CA for signing.  The CA will give you a certificate
+        file; copy it to the directory with the <replaceable>hostname</replaceable>.key file;
+        name it '<replaceable>hostname</replaceable>.crt', and then as root run:
+      </para>
+      <informalexample>
+        <screen>
+          # Must be ROOT
+          /usr/bin/ssl-cert/install-cert.sh <replaceable>server-key-file</replaceable>
+        </screen>
+      </informalexample>
+      <para>
+        (Similarly to gen-ssl-keys.sh, install-cert.sh is usually installed
+        as /usr/bin/ssl-cert/install-cert.sh.)
+      </para>
+      <para>
+        If the installation fails, it may be because you need to install a 
+        root certificate from the CA.  If the install script detects that
+        this is the problem, it will print the file name you need to copy 
+        the root certificate to and rerun the install-cert.sh.
+      </para>
+    </section>
+
+    <section id='installation.selfsigned'>
+      <title>Self-signed Certificate Authority</title>
+      <para>
+        There are some additional files used in this method:
+      </para>
+      
+      <variablelist>
+        <varlistentry>
+          <term>CA key</term>
+          <listitem>
+            <para>
+              The CA key file MUST be kept as secure as you can make it.  It is
+              the foundation of all the security provided by SSL.  You do not
+              need regular access to this file, so moving it to offline storage
+              would be an appropriate precaution.  If you do this, then when you
+              sign a new server key, you need to pass the location of this CA
+              key using 'gen-ssl-keys.sh --ca-key <replaceable>ca-key-filename</replaceable>'.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>CA and Server certificates</term>
+          <listitem>
+            <para>
+              To install these certificates and the server key on this system,
+              run the following command as root in this directory.
+            </para>
+            <informalexample>
+              <screen>
+                # Must be ROOT
+                /usr/bin/ssl-cert/install-cert.sh
+              </screen>
+            </informalexample>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </section>
+  </section>
+</article>
+

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--  -->
+
+<!--
+  - project file all build.xml's should import
+  -
+  - NOTES:
+  -
+  -  Works for projects that is a composite of subprojects. Limitation, that
+  -    composite project can not have it's own src as well
+  -
+  -->
+<project name="subant-targets" default="default">
+
+  <!-- 
+    -  P R O P E R T I E S
+    -
+    - EXTERNAL PROPERTIES DEPENDECIES:
+    -  project.dir          = path relative to subant-targets.xml to project
+    -->
+  <dirname property="subant-targets.basedir" file="${ant.file.subant-targets}"/>
+  <property file="${subant-targets.basedir}/top.build.dir"/>
+  <property file="${top.build.dir}/build.properties"/>
+
+  <!--
+    -  D E F A U L T
+    -->
+  <target name="default"
+      description="recurse w/default target">
+    <my.subant/>
+  </target>
+
+  <!-- PRE CHECK -->
+  <target name="precommit" depends="clean,style,default,test-all,install"/>
+
+  <!-- C L E A N -->
+  <target name="clean" 
+        description="[internal] recurse w/clean target">
+    <my.subant target="clean"/>
+  </target>
+
+
+  <!-- I N S T A L L -->
+  <target name="install" >
+    <my.subant target="install"/>
+  </target>
+
+  <!-- U N I N S T A L L -->
+  <target name="uninstall" >
+    <my.subant target="install"/>
+  </target>
+  
+  <!-- C H E C K S T Y L E -->
+  <target name="style"  
+       description="run checkstyle">
+    <my.subant target="style"/>
+  </target>
+
+  <!-- J A V A D O C -->
+  <target name="doc" 
+      description="[internal] recurse w/given target">
+    <my.subant target="doc"/>
+  </target>
+
+  <!--
+    - U N I T T E S T 
+    -->
+  <target name="test"  
+       description="run junit tests">
+    <my.subant target="test"/>
+  </target>
+
+  <target name="test-db"  
+       description="run junit tests that require database to be setup and running">
+    <my.subant target="test-db"/>
+  </target>
+
+  <target name="test-all"  
+       description="run all possible junit tests">
+    <my.subant target="test-all"/>
+  </target>
+
+  <!-- 
+    - C L O V E R 
+   -->
+  <target name="with.clover"
+       description="Enables code coverage instrumentation">
+    <my.subant target="with.clover"/>
+  </target>
+ 
+  <target name="clover.report"
+       description="Generate HTML based clover report">
+    <my.subant target="clover.report"/>
+  </target>
+
+
+  <!--
+    - U N I T T E S T   R E P O R T
+    -->
+  <target name="test-report" 
+      description="[internal] recurse">
+    <my.subant target="test-report"/>
+  </target>
+
+  <!-- 
+    - R E C U R S E  B U I L D S 
+    - Analogous to autoconf's SUBDIRS this will recurse directories calling
+    - build files ANT passing target name
+    - This is our own subant definition - it passes only top.build.dir property to subant and 
+    - it operated on a fileset defined by ${subdirs} is set.
+    --> 
+    <presetdef name="my.subant"> 
+      <subant inheritall="false" inheritrefs="false">
+        <property name="top.build.dir" value="${top.build.dir}"/>
+        <!-- may be tempted to use patternset, but order is not 
+             preserved -->
+        <filelist refid="${subdirs}"/>
+        <!-- order does not mattter for plugins -->
+        <fileset refid="${plugin.subdirs}"/>
+      </subant>
+    </presetdef>
+
+</project>

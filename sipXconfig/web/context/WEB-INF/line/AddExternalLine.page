@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC
+  "-//Apache Software Foundation//Tapestry Specification 4.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+
+<page-specification class="org.sipfoundry.sipxconfig.site.line.AddExternalLine">
+  <description>add a description</description>
+  <property name="phoneId"  persist="session"/>
+  <property name="lineInfo" initial-value="new org.sipfoundry.sipxconfig.phone.LineInfo()"/>
+  <property name="phone" />
+  <property name="settings" />
+  <inject property="phoneContext" object="spring:phoneContext"/>
+  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+  <component id="displayNamePanel" type="common/FieldPanel">
+    <binding name="field" value="components.displayName"/>
+    <binding name="label" value="message:label.displayName"/>
+  </component>
+  <component id="displayName" type="TextField">
+    <binding name="value" value="lineInfo.displayName"/>
+    <binding name="displayName" value="message:label.displayName"/>
+  </component>
+  <component id="userIdPanel" type="common/FieldPanel">
+    <binding name="field" value="components.userId"/>
+    <binding name="label" value="message:label.userId"/>
+    <binding name="description" value="message:description.userId"/>
+  </component>
+  <component id="userId" type="TextField">
+    <binding name="value" value="lineInfo.userId"/>
+    <binding name="validators" value="validators:required"/>
+    <binding name="displayName" value="message:label.userId"/>
+  </component>
+  <component id="passwordConfirmPanel" type="user/ConfirmPassword">
+    <binding name="password" value="lineInfo.password"/>
+  </component>
+  <component id="registrationServerPanel" type="common/FieldPanel">
+    <binding name="field" value="components.registrationServer"/>
+    <binding name="label" value="message:label.registrationServer"/>
+    <binding name="description" value="message:description.registrationServer"/>
+  </component>
+  <component id="registrationServer" type="TextField">
+    <binding name="value" value="lineInfo.registrationServer"/>
+    <binding name="validators" value="validators:required"/>
+    <binding name="displayName" value="message:label.registrationServer"/>
+  </component>
+  <component id="voiceMailPanel" type="common/FieldPanel">
+    <binding name="field" value="components.voiceMail"/>
+    <binding name="label" value="message:label.voiceMail"/>
+    <binding name="description" value="message:description.voiceMail"/>
+  </component>
+  <component id="voiceMail" type="TextField">
+    <binding name="value" value="lineInfo.voiceMail"/>
+    <binding name="displayName" value="message:label.voiceMail"/>
+  </component>
+  <component id="formActions" type="common/FormActions">
+    <binding name="listener" value="listener:ok"/>
+    <binding name="includeApplyButton" value="literal:false"/>
+    <binding name="callback" value="callback"/>
+  </component>
+</page-specification>

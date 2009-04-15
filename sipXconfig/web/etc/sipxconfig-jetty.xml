@@ -1,0 +1,52 @@
+<?xml version="1.0"?> 
+<!DOCTYPE Configure PUBLIC 
+ "-//Mort Bay Consulting//DTD Configure 1.2//EN"
+ "http://jetty.mortbay.org/configure_1_2.dtd">
+                                               
+<Configure class="org.mortbay.jetty.Server">
+  
+  <Call name="addListener">
+    <Arg>
+      <New class="org.mortbay.http.SslListener">
+        <Set name="Port">8443</Set>     
+        <Set name="Keystore"><SystemProperty name="jetty.conf.dir"/>/ssl/ssl-web.keystore</Set>
+	      <Set name="Password">changeit</Set>
+	      <Set name="KeyPassword">changeit</Set>
+      	<Set name="PoolName">P1</Set>
+        <Set name="MinThreads">20</Set>
+        <Set name="MaxThreads">200</Set>
+        <Set name="lowResources">50</Set>
+        <Set name="MaxIdleTimeMs">30000</Set>
+        <Set name="LowResourcePersistTimeMs">2000</Set>
+        <Set name="acceptQueueSize">0</Set>
+        <Set name="algorithm"><SystemProperty name="jetty.x509.algorithm"/></Set>
+        <Set name="protocol">SSLv3</Set>
+      </New>
+    </Arg>
+  </Call>
+
+  <Set name="rootWebApp">sipxconfig</Set>
+  <Call name="addWebApplication">
+    <Arg>/sipxconfig</Arg>
+    <Arg><SystemProperty name="jetty.lib.dir"/>/sipxconfig.war</Arg>
+    <Set name="extractWAR">true</Set>
+  </Call>
+
+  <Call name="addWebApplication">
+    <Arg>/cmcprov</Arg>
+    <Arg><SystemProperty name="jetty.lib.dir"/>/cmcprov.war</Arg>
+    <Set name="extractWAR">true</Set>
+  </Call>
+
+  <Call name="addListener">
+    <Arg>
+      <New class="org.mortbay.http.SocketListener">
+        <Set name="Port">12000</Set>
+        <Set name="PoolName">P2</Set>
+        <Set name="MinThreads">20</Set>
+        <Set name="MaxThreads">200</Set>
+      </New>
+    </Arg>
+  </Call>
+
+</Configure>

@@ -1,0 +1,145 @@
+<?xml version="1.0"?>
+<!DOCTYPE script PUBLIC
+    "-//Apache Software Foundation//Tapestry Script Specification 3.0//EN"
+    "http://jakarta.apache.org/tapestry/dtd/Script_3_0.dtd">
+<script>
+    <body>
+<![CDATA[
+    dojo.require("dojo.lfx.*");
+
+    /** The delay before showing a tooltip, in milliseconds */
+    var TOOLTIP_DELAY = 1000;
+
+    /** The offset from the mouse cursor's X coordinate for the tooltip. */
+    var TOOLTIP_X_OFFSET = 10;
+
+    /** The offset from the mouse cursor's Y coordinate for the tooltip. */
+    var TOOLTIP_Y_OFFSET = 10;
+
+    var DESCRIPTION_ELEMENT_ID = "Description";
+    var NAME_ELEMENT_ID = "Name";
+
+    /** Contains information about a tooltip pending display */
+    var pendingTooltipEvent = false;
+
+    /**
+     * Given an element ID, get the "base ID" representing which configuration
+     * test it represents.
+     */
+    function getBaseId(idString) {
+        var idRegex = /test[0-9]+/;
+        var matches = idString.match(idRegex);
+        return (matches !== null) ? matches[0] : null;
+    }
+
+    /**
+     * Shows the tooltip containing the test description.
+     */
+    function showTestTooltip() {
+        if (pendingTooltipEvent) {
+        
+            // Suspend autorefresh while this tooltip is displayed.
+            refreshEnabled = false;
+        
+            var baseId = getBaseId(pendingTooltipEvent.target.id);
+            var testDescriptionContainer = dojo.byId(baseId + DESCRIPTION_ELEMENT_ID);
+            var testNameContainer = dojo.byId(baseId + NAME_ELEMENT_ID);
+
+            var contentArea = dojo.byId("content");
+            if (testDescriptionContainer.className == "testDescription hidden") {
+                testDescriptionContainer.style.top = (pendingTooltipEvent.y + TOOLTIP_Y_OFFSET - contentArea.offsetTop) + "px";
+                testDescriptionContainer.style.left = (pendingTooltipEvent.x + TOOLTIP_X_OFFSET - contentArea.offsetLeft) + "px";
+                testDescriptionContainer.className = "testDescription visible";
+                dojo.lfx.fadeIn(testDescriptionContainer, 100).play();
+            }
+        }
+    }
+
+    /**
+     * Hides the tooltip containing the test description.
+     */
+    function hideTestTooltip(event) {
+        var target = event.target;
+        if (target && (target.className == "tooltipTitle" || target.className == "tooltipBody")) {
+            target = target.parentNode;
+        }
+
+        var relatedTarget = event.relatedTarget;
+        if (relatedTarget && (relatedTarget.className == "tooltipTitle" || relatedTarget.className == "tooltipBody")) {
+            relatedTarget = relatedTarget.parentNode;
+        }
+
+        var baseId = getBaseId(target.id);
+
+        if (baseId) {
+            var testDescriptionContainer = dojo.byId(baseId + DESCRIPTION_ELEMENT_ID);
+            var testNameContainer = dojo.byId(baseId + NAME_ELEMENT_ID);
+
+            if (relatedTarget != testNameContainer && relatedTarget != testDescriptionContainer) {
+                dojo.lfx.fadeOut(testDescriptionContainer, 100, 0,
+                    function() { testDescriptionContainer.className = "testDescription hidden"; }
+                ).play();
+            }
+        }
+        
+        // Now we can re-enable autorefresh.
+        refreshEnabled = true;
+    }
+
+    /**
+     * Begins waiting for a preset interval before displaying the tooltip.
+     */
+    function waitAndShowTooltip(event) {
+        pendingTooltipEvent = {
+            x: event.pageX,
+            y: event.pageY,
+            target: event.target
+        };
+
+        pendingTooltipEvent.timeoutId = setTimeout(showTestTooltip, TOOLTIP_DELAY);
+    }
+
+    /**
+     * Cancels a pending tooltip from being displayed.
+     */
+    function cancelTooltip() {
+        if (pendingTooltipEvent) {
+            clearTimeout(pendingTooltipEvent.timeoutId);
+            pendingTooltipEvent = null;
+        }
+    }
+
+    /**
+     * Handles the mouse pointer rolling over a rule name.
+     * This will begin the countdown to display the tooltip, unless the
+     * mouse is moved out of the rule name.
+     */
+    function rowMouseOver(event) {
+        cancelTooltip();
+
+        var baseId = getBaseId(event.target.id);
+        var testDescriptionContainer = dojo.byId(baseId + DESCRIPTION_ELEMENT_ID);
+        var testNameContainer = dojo.byId(baseId + NAME_ELEMENT_ID);
+
+        if (testDescriptionContainer.className == "testDescription hidden") {
+            waitAndShowTooltip(event);
+        }
+    }
+
+    /**
+     * Handles the mouse pointer leaving a rule name.
+     * This hides any visible tooltip as well as cancels any pending tooltip
+     * event.
+     */
+    function rowMouseOut(event) {
+        cancelTooltip();
+        hideTestTooltip(event);
+    }
+]]>
+    </body>
+    <initialization>
+<![CDATA[
+
+]]>
+    </initialization>
+</script>

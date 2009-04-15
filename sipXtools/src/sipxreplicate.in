@@ -1,0 +1,287 @@
+#!/usr/bin/env ruby
+
+# Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+require 'pp'
+require 'getoptlong'
+require 'xmlrpc/client'
+require 'openssl/x509'
+require 'base64'
+
+port = "8092" 
+filepermissions = 0766
+
+# Hash maps for sample credential DB Records - Used for table replacement
+credential1 = { "realm", "demo.pingtel.com", "uri", "\"210 210\"<sip:210@demo.pingtel.com>", "userid", "210", "passtoken", "03c1b0b31d1067beca87a9bd4a61fbd9", "pintoken", "03c1b0b31d1067beca87a9bd4a61fbd9", "authtype", "DIGEST" }
+credential2 = { "realm", "demo.pingtel.com", "uri", "\"211 211\"<sip:211@demo.pingtel.com>", "userid", "211", "passtoken", "03c1b0b31d1067beca87a9bd4a61fbd9", "pintoken", "03c1b0b31d1067beca87a9bd4a61fbd9", "authtype", "DIGEST" }
+credentialdb = [ credential1, credential2 ]
+
+# Hash maps for sample credential DB Records - Used for table record add
+add_credential1 = { "realm", "demo.pingtel.com", "uri", "\"212 212\"<sip:212@demo.pingtel.com>", "userid", "212", "passtoken", "03c1b0b31d1067beca87a9bd4a61fbd9", "pintoken", "03c1b0b31d1067beca87a9bd4a61fbd9", "authtype", "DIGEST" }
+add_credential2 = { "realm", "demo.pingtel.com", "uri", "\"213 213\"<sip:213@demo.pingtel.com>", "userid", "213", "passtoken", "03c1b0b31d1067beca87a9bd4a61fbd9", "pintoken", "03c1b0b31d1067beca87a9bd4a61fbd9", "authtype", "DIGEST" }
+
+add_credentialdb = [ add_credential1, add_credential2 ]
+
+# Hash maps for sample credential DB Record Keys - Used for table record delete
+del_credential1 = { "uri", "\"212 212\"<sip:212@demo.pingtel.com>" }
+del_credential2 = { "uri", "\"213 213\"<sip:213@demo.pingtel.com>" }
+
+del_credentialdb = [ del_credential1, del_credential2 ]
+
+# Hash maps for sample permission DB Records - Used for table replacement
+permission1 = { "identity", "~~id~park@demo.pingtel.com", "permission", "InternationalDialing" }
+permission2 = { "identity", "~~id~park@demo.pingtel.com", "permission", "LocalDialing" }
+permission3 = { "identity", "~~id~park@demo.pingtel.com", "permission", "LongDistanceDialing" }
+permission4 = { "identity", "~~id~park@demo.pingtel.com", "permission", "Mobile" }
+permission5 = { "identity", "~~id~media@demo.pingtel.com", "permission", "LocalDialing" }
+
+permissiondb = [ permission1, permission2, permission3, permission4, permission5 ]
+
+# Hash maps for sample permission DB Records - Used for table record add
+add_permission1 = { "identity", "~~id~media@demo.pingtel.com", "permission", "LongDistanceDialing" }
+add_permission2 = { "identity", "~~id~media2@demo.pingtel.com", "permission", "LongDistanceDialing" }
+
+add_permissiondb = [ add_permission1, add_permission2 ]
+
+# Hash maps for sample permission DB Record Keys - Used for table record delete
+del_permission1 = { "identity", "~~id~media@demo.pingtel.com" }
+del_permission2 = { "identity", "~~id~media2@demo.pingtel.com" }
+
+del_permissiondb = [ del_permission1, del_permission2 ]
+
+# Hash maps for sample alias DB Records
+alias1 = { "identity", "*88@demo.pingtel.com", "contact", "sip:*88@demo.pingtel.com:5130" }
+alias2 = { "identity", "*86@demo.pingtel.com", "contact", "sip:*86@demo.pingtel.com:5130" }
+
+aliasdb = [ alias1, alias2 ]
+
+# Hash maps for sample alias DB Records - Used for table record add
+add_alias1 = { "identity", "*89@demo.pingtel.com", "contact", "sip:*89@demo.pingtel.com:5130" }
+
+add_aliasdb = [ add_alias1 ]
+
+# Hash maps for sample alias DB Record Keys - Used for table record delete
+del_alias1 = { "identity", "*89@demo.pingtel.com" }
+
+del_aliasdb = [ del_alias1 ]
+
+# Hash maps for sample user location DB Records
+userlocation1 = { "identity", "200@demo.pingtel.com", "location", "Montreal" }
+userlocation2 = { "identity", "201@demo.pingtel.com", "location", "Quebec" }
+
+userlocationdb = [ userlocation1, userlocation2 ]
+
+# Hash maps for sample user location DB Records - Used for table record add
+add_userlocation1 = { "identity", "202@demo.pingtel.com", "location", "Chicoutimi" }
+
+add_userlocationdb = [ add_userlocation1 ]
+
+# Hash maps for sample user location  DB Record Keys - Used for table record delete
+del_userlocation1 = { "identity", "202@demo.pingtel.com", "location", "Chicoutimi" }
+
+del_userlocationdb = [ del_userlocation1 ]
+
+# Allow the required SSL certificate information to be set.
+module XMLRPC   
+   class Client 
+      def key=(x)
+         @http.key = x
+      end
+      def cert=(x)
+         @http.cert = x
+      end
+      def verify_mode=(x)
+         @http.verify_mode = x
+      end
+      def cert_store=(x)
+         @http.cert_store = x
+      end
+      def open_timeout=(x)
+         @http.open_timeout = x
+      end
+      def read_timeout=(x)
+         @http.read_timeout = x
+      end
+   end
+end
+
+def usage_exit(error_code=1)
+      usage = <<__EOU__
+
+  Usage: #{ $0 } parameters
+
+    Interface with the sipXpbx replication XMLRPC interface.
+
+  Parameters:
+  -h|--help                            This help text
+  -n|--host hostname                   Remote server, e.g. HA slave (default is localhost)
+  -p|--port portnum                    Server port (default is 8092)
+  -t|--table name                      Populate the specified IMDB Table 
+  -r|--readtable name                  Read the specified IMDB Table
+  -a|--addrecords name                 Add records to the specified IMDB Table
+  -d|--deleterecordsR name             Delete records from the specified IMDB Table
+  -f|--file path/file                  Replicate a file and assign permissions.
+  -x|--permissions filepermissions     File permissions.
+
+__EOU__
+
+      STDERR << usage
+      exit error_code
+end
+
+if __FILE__ == $0
+  OptSet = [
+      ['--table','-t',            GetoptLong::REQUIRED_ARGUMENT],
+      ['--readtable','-r',        GetoptLong::REQUIRED_ARGUMENT],
+      ['--addrecords','-a',       GetoptLong::REQUIRED_ARGUMENT],
+      ['--deleterecords','-d',    GetoptLong::REQUIRED_ARGUMENT],
+      ['--file','-f',             GetoptLong::REQUIRED_ARGUMENT],
+      ['--permissions','-x',      GetoptLong::REQUIRED_ARGUMENT],
+      ['--host','-n',             GetoptLong::REQUIRED_ARGUMENT],
+      ['--port','-p',             GetoptLong::REQUIRED_ARGUMENT],
+      ['--help','-h',             GetoptLong::NO_ARGUMENT]
+   ]
+end
+
+def strip(str, char)
+   new_str = ""
+   str.each_byte do |byte|
+      new_str << byte.chr unless byte.chr == char
+   end
+   new_str
+end
+
+
+client_host = `hostname -f`.chomp
+server_host = String.new(client_host)
+
+# The default action if no other is specified.
+action = 'ImdbTable.replace'
+
+opts = GetoptLong.new(*OptSet)
+argument = 'credential'
+block = nil
+begin
+   opts.each do |name, arg|
+      case name
+         when '--help'
+            usage_exit 0
+         when '--table'
+            # One string argument must be specified.
+            argument = arg
+         when '--readtable'
+            # One string argument must be specified.
+            argument = arg
+            action = 'ImdbTable.read'
+         when '--addrecords'
+            # One string argument must be specified.
+            argument = arg
+            action = 'ImdbTable.insertRows'
+         when '--deleterecords'
+            # One string argument must be specified.
+            argument = arg
+            action = 'ImdbTable.deleteRows'
+         when '--file'
+            # One string argument must be specified.
+            argument = arg
+            action = 'File.replace'
+         when '--permissions'
+            # One integer argument must be specified.
+            filepermissions = Integer( arg )
+         when '--host'
+            server_host = arg
+         when '--port'
+            port = arg
+         else
+            usage_exit
+         end
+     end
+
+   rescue StandardError => bang
+      puts bang
+      usage_exit
+   end
+
+if 0 != ARGV.length
+   usage_exit
+end   
+
+params = [ client_host ]
+if argument
+   params.push(argument)
+   if action == 'ImdbTable.replace'
+      if argument == 'credential'
+         params.push(credentialdb)
+      end
+      if argument == 'alias'
+         params.push(aliasdb)
+      end
+      if argument == 'permission'
+         params.push(permissiondb)
+      end
+      if argument == 'userlocation'
+         params.push(userlocationdb)
+      end
+   end
+   if action == 'ImdbTable.insertRows'
+      if argument == 'credential'
+         params.push(add_credentialdb)
+      end
+      if argument == 'alias'
+         params.push(add_aliasdb)
+      end
+      if argument == 'permission'
+         params.push(add_permissiondb)
+      end
+      if argument == 'userlocation'
+         params.push(add_userlocationdb)
+      end
+   end
+   if action == 'ImdbTable.deleteRows'
+      if argument == 'credential'
+         params.push(del_credentialdb)
+      end
+      if argument == 'alias'
+         params.push(del_aliasdb)
+      end
+      if argument == 'permission'
+         params.push(del_permissiondb)
+      end
+      if argument == 'userlocation'
+         params.push(del_userlocationdb)
+      end
+   end
+   if action == 'File.replace'
+      file = File.open(argument, "r")
+      filecontent = ""
+      while content = file.gets
+         filecontent = filecontent + content
+      end
+      file.close
+      b64filecontent = Base64.encode64(filecontent)
+
+      # Remove spaces from encoded string.  Ruby issue as far as I'm concerned.
+      newb64filecontent = b64filecontent.gsub(/\s/,'')
+
+      params.push(filepermissions)
+      params.push(newb64filecontent)
+   end   
+end
+if block
+   params.push(block)
+end
+
+client = XMLRPC::Client.new2("https://" << server_host << ":" << port << "/RPC2")
+
+# SSL certificate information
+client.verify_mode = OpenSSL::SSL::VERIFY_PEER
+client.cert = OpenSSL::X509::Certificate.new(File.read('@SIPX_CONFDIR@/ssl/ssl.crt'))
+client.key = OpenSSL::PKey::RSA.new(File.read('@SIPX_CONFDIR@/ssl/ssl.key'))
+client.cert_store = OpenSSL::X509::Store.new.add_path('@SIPX_CONFDIR@/ssl/authorities')
+client.open_timeout = 10 
+client.read_timeout = 60
+
+pp client.call(action, *params)
+

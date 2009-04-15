@@ -1,0 +1,50 @@
+#!/bin/bash
+#
+# Copyright (C) 2008 SIPfoundry Inc.
+# Licensed by SIPfoundry under the LGPL license.
+#
+# Copyright (C) 2008 Pingtel Corp.
+# Licensed to SIPfoundry under a Contributor Agreement.
+
+. @SIPX_LIBEXECDIR@/sipx-utils.sh
+
+# Ensure that important FreeSWITCH files are writeable by @SIPXPBXUSER@
+FS_DBDIR=@SIPX_VARDIR@/tmp/freeswitch
+FS_CONFDIR=@FREESWITCH_PREFIX@/conf
+SIPX_FSDIR=@SIPX_CONFDIR@/freeswitch
+SIPX_FS_CONFDIR=$SIPX_FSDIR/conf
+
+if test ! -e $FS_DBDIR
+then
+    mkdir $FS_DBDIR
+    chown -R @SIPXPBXUSER@ $FS_DBDIR
+    chgrp -R @SIPXPBXUSER@ $FS_DBDIR
+    chmod -R u+rwX,ga+rX $FS_DBDIR
+fi
+
+if test -e $FS_CONFDIR
+then
+    if test ! -d $SIPX_FS_CONFDIR
+    then
+       # Copy the orignal FS conf dir to SIPX's
+       # Leaving empy dialplan and sip_profiles, and keeping autoload_configs
+       mkdir -p $SIPX_FS_CONFDIR
+       mkdir $SIPX_FS_CONFDIR/autoload_configs/
+       mkdir $SIPX_FS_CONFDIR/dialplan/
+       mkdir $SIPX_FS_CONFDIR/lang/
+       mkdir $SIPX_FS_CONFDIR/jingle_profiles/
+       mkdir $SIPX_FS_CONFDIR/sip_profiles/
+       mkdir $SIPX_FS_CONFDIR/htdocs/
+
+       cp -p $FS_CONFDIR/vars.xml $SIPX_FS_CONFDIR 2> /dev/null
+       cp -pR $FS_CONFDIR/autoload_configs/* $SIPX_FS_CONFDIR/autoload_configs 2> /dev/null
+       cp -pR $FS_CONFDIR/jingle_profiles/* $SIPX_FS_CONFDIR/jingle_profiles 2> /dev/null
+       cp -pR $FS_CONFDIR/lang/* $SIPX_FS_CONFDIR/lang 2> /dev/null
+
+       # Correct ownership and permissions so sipXconfig can write
+       chown -R @SIPXPBXUSER@ $SIPX_FSDIR
+       chgrp -R @SIPXPBXUSER@ $SIPX_FSDIR
+       chmod -R u+rwX,ga+rX $SIPX_FSDIR
+   fi
+fi
+

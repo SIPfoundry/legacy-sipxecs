@@ -1,0 +1,98 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  
+  <groupId>org.sipfoundry</groupId>
+  <artifactId>sipxappearance-server</artifactId>
+  <packaging>pom</packaging>
+  <version>1.0</version>
+  <name>sipXappearance Server</name>
+  
+  <developers>
+    <developer>
+      <id>MPM</id>
+      <email>mardy@pingtel.com</email>
+      <roles>
+        <role>dev</role>
+      </roles>
+      <timezone>-5</timezone>
+    </developer>
+  </developers>
+  
+  <organization>
+    <name>Pingtel Corporation</name>
+    <url>http://www.pingtel.com/</url>
+  </organization>
+  
+  <issueManagement>
+    <system>jira</system>
+    <url>http://track.sipfoundry.org/browse/XECS/component/10200</url>
+  </issueManagement>
+  <scm>
+    <connection>svn:http://sipxecs.sipfoundry.org/rep/sipXecs/main/sipXappearance</connection>
+    <url>http:http://scm.sipfoundry.org/viewsvn/sipX/main/sipXappearance</url>
+  </scm>
+
+  <modules>
+    <module>reginfo</module>
+    <module>dialoginfo</module>
+    <module>sipxappearance</module>
+  </modules>
+  
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-eclipse-plugin</artifactId>
+          <configuration>
+            <workspace>/Users/mardy/Workspaces/sipxappearance</workspace>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <configuration>
+            <source>1.5</source>
+            <target>1.5</target>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+  
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.3.1</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>log4j</groupId>
+        <artifactId>log4j</artifactId>
+        <version>1.2.14</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+    
+  <repositories>
+    <repository>
+      <id>voysys</id>
+      <url>http://repo.voysys.com:8081/artifactory/repo</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>voysys</id>
+      <url>http://repo.voysys.com:8081/artifactory/repo</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </pluginRepository>
+  </pluginRepositories>
+</project>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<distributions>
+#foreach ($list in ${lists})
+#set ($index = $velocityCount - 1)
+#if ($list.Extensions)
+  <list>
+    <index>$index</index>
+#foreach ($extension in ${list.Extensions})
+    <destination>$extension</destination>
+#end
+  </list>
+#end
+#end
+</distributions>

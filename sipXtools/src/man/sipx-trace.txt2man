@@ -1,0 +1,52 @@
+SIPX-TRACE(1)
+=============
+
+NAME
+----
+sipx-trace - displays the SIP signalling for some message sequence
+
+SYNOPSIS
+--------
+    sipx-trace  [ {-c|--component} <component-name> ]...
+                { { {-P|--prefix} <prefix-dir> }* | { {-s|--server} <server> } }*
+                [-o|--output]
+                [-h|--help]
+                <token>
+           
+DESCRIPTION
+-----------
+   Select all messages containing <token> from a set of sipX component log files,
+   and display them using sipviewer.
+
+   For remote use (using the '--server' option), this script uses 'ssh'.  For this
+   mode to be convenient, you should have installed your ssh public key so that login
+   to the server does not require a password.
+
+OPTIONS
+-------
+--component specifies one or more components (if more than one, quote and separate
+            with spaces as: -c "sipXproxy sipregistrar").  May be repeated to add more.
+            If unspecified, defaults to "sipXproxy sipregistrar", which
+            is usually enough to figure out where messages went and why.
+
+--prefix    File prefix if specified in the configure script.
+
+--server    name of a remote server.  You must be able to execute a command on that
+            server using ssh.  May be repeated for multiple servers.
+            (may not be used with --prefix)
+
+--output    Do not run sipviewer - just extract the messages for sipviewer display
+            to the named output file.
+
+ENVIRONMENT
+-----------
+NONE
+  
+BUGS
+----
+see http://tracker.sipfoundry.org
+  
+AUTHOR
+------
+Scott Lawrence
+

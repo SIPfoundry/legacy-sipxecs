@@ -1,0 +1,28 @@
+#! /bin/bash
+
+# Script to run from cron every hour (shortly after the hour) to check whether
+# the number of message-summary SUBSCRIBEs in any minute of the preceding
+# hour exceeds a limit.
+
+# The maximum number of SUBSCRIBEs in a single minute before a report is made.
+SUBSCRIBE_LIMIT=500
+
+START_TIMESTAMP=$( date -d'1 hour ago' -u +'%Y-%m-%d %H:00:00' )
+TEMP1=$( mktemp )
+
+# We have to suppress the normal stderr of sipx-log-cut to prevent
+# a report every time this script is run.
+sipx-log-cut -i /var/log/sipxpbx/sipXproxy.log -s "$START_TIMESTAMP" -t 2>/dev/null |
+grep -i ':INCOMING:.*\\nSUBSCRIBE .*\\nEvent: *message-summary' |
+cut -c 2-17 |
+sort |
+uniq -c >$TEMP1
+
+if <$TEMP1 awk '$1 > '$SUBSCRIBE_LIMIT' { print $0 }' | grep '' >/dev/null
+then
+    echo Number of incoming subscriptions exceeds $SUBSCRIBE_LIMIT during one minute.
+    echo
+    cat $TEMP1
+fi
+
+rm $TEMP1

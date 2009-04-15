@@ -1,0 +1,47 @@
+<span jwcid="@common/AjaxToggleButton"
+	renderBlocks="ognl:{components.get('show')}"
+	linkShowText="message:label.showFtp"
+	linkHideText="message:label.hideFtp"/>
+<span jwcid="show@Block">
+  <form jwcid="configurationForm@Form">
+	<fieldset>
+	<table>
+	<tbody>
+    <tr jwcid="@common/FieldPanel"
+        for="ftp:address"
+        label="message:label.address"
+        field="component:address"
+        description="message:description.address" >
+        <input jwcid="address@TextField"
+            id="ftp:address"
+            value="ognl:ftpConfiguration.host"
+            displayName="message:label.address"/>
+     </tr>
+     <tr jwcid="@common/FieldPanel"
+        for="ftp:user"
+        label="message:label.user"
+        field="component:user"
+        description="message:description.user" >
+        <input jwcid="user@TextField"
+            id="ftp:user"
+            value="ognl:ftpConfiguration.userId"
+            displayName="message:label.user"/>
+     </tr>
+     <tr jwcid="@common/FieldPanel"
+        for="ftp:password"
+        label="message:label.password"
+        field="component:password"
+        description="message:description.password" >
+        <input jwcid="password@TextField"
+            id="ftp:password"
+            value="ognl:ftpConfiguration.password"
+            displayName="message:label.password"
+            hidden="true"/>
+     </tr>
+     </tbody>
+     </table>
+     <ul jwcid="@common/FormActions"
+       listener="listener:onApply"/>
+     </fieldset>
+  </form>
+</span>

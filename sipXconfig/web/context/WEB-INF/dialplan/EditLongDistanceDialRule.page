@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification
+      PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN"
+      "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.dialplan.EditDialRule">
+  <!--
+    - P R O P E R T I E S
+  -->
+  <property name="showAdvanced" persist="session" initial-value="false" />
+  <!--
+    - B E A N S
+  -->
+  <bean name="digitsOnlyModel" class="org.sipfoundry.sipxconfig.components.LenSelectionModel"
+    lifecycle="page">
+    <set name="min" value="literal:5" />
+    <set name="max" value="literal:15" />
+  </bean>
+  <bean name="externalLenModel" class="org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator"
+    lifecycle="page">
+    <set name="model" value="bean:digitsOnlyModel" />
+    <set name="extraLabel" value="message:label.anyDigits" />
+  </bean>
+
+  <bean name="permissionAdapter" class="org.sipfoundry.sipxconfig.site.permission.PermissionOptionAdapter"
+    lifecycle="request">
+    <set name="locale" value="locale" />
+  </bean>
+  <bean name="barePermissionTypeModel"
+    class="org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel" lifecycle="request">
+    <set name="collection" value="permissionManager.callPermissions" />
+    <set name="adapter" value="bean:permissionAdapter" />
+  </bean>
+  <bean name="permissionTypeModel" class="org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator"
+    lifecycle="request">
+    <set name="model" value="bean:barePermissionTypeModel" />
+    <set name="extraLabel" value="message:label.noPermission" />
+    <set name="extraOption" value="ognl:null" />
+  </bean>
+
+  <!--
+    - C O M P O N E N T S
+  -->
+
+  <component id="dialRuleCommon" type="dialplan/DialRuleCommon">
+    <binding name="ruleId" value="ruleId" />
+    <binding name="rule" value="rule" />
+    <binding name="callback" value="callback" />
+  </component>
+
+  <component id="permissionTypeLabel" type="common/FieldPanel">
+    <binding name="field" value="components.permissionType" />
+    <binding name="label" value="message:label.permissionType" />
+    <binding name="description" value="message:description.permissionType" />
+  </component>
+  <component id="permissionType" type="PropertySelection">
+    <binding name="model" value="bean:permissionTypeModel"></binding>
+    <binding name="value" value="rule.permission"></binding>
+  </component>
+  <component id="pstnPrefixLabel" type="common/FieldPanel">
+    <binding name="field" value="components.pstnPrefix" />
+    <binding name="label" value="message:label.pstnPrefix" />
+    <binding name="description" value="message:description.pstnPrefix" />
+  </component>
+  <component id="pstnPrefix" type="TextField">
+    <binding name="value" value="rule.pstnPrefix" />
+    <binding name="validators" value="spring-validators:validSipUserId" />
+    <binding name="displayName" value="message:label.pstnPrefix" />
+  </component>
+  <component id="pstnPrefixOptionalLabel" type="common/FieldPanel">
+    <binding name="field" value="components.pstnPrefixOptional" />
+    <binding name="label" value="message:label.pstnPrefixOptional" />
+    <binding name="description" value="message:description.pstnPrefixOptional" />
+  </component>
+  <component id="pstnPrefixOptional" type="Checkbox">
+    <binding name="value" value="rule.pstnPrefixOptional" />
+  </component>
+  <component id="longDistancePrefixLabel" type="common/FieldPanel">
+    <binding name="field" value="components.longDistancePrefix" />
+    <binding name="label" value="message:label.longDistancePrefix" />
+    <binding name="description" value="message:description.longDistancePrefix" />
+  </component>
+  <component id="longDistancePrefix" type="TextField">
+    <binding name="value" value="rule.longDistancePrefix" />
+    <binding name="validators" value="spring-validators:validSipUserId" />
+    <binding name="displayName" value="message:label.longDistancePrefix" />
+  </component>
+  <component id="longDistancePrefixOptionalLabel" type="common/FieldPanel">
+    <binding name="field" value="components.longDistancePrefixOptional" />
+    <binding name="label" value="message:label.longDistancePrefixOptional" />
+    <binding name="description" value="message:description.longDistancePrefixOptional" />
+  </component>
+  <component id="longDistancePrefixOptional" type="Checkbox">
+    <binding name="value" value="rule.longDistancePrefixOptional" />
+  </component>
+  <component id="areaCodesLabel" type="common/FieldPanel">
+    <binding name="field" value="components.areaCodes" />
+    <binding name="label" value="message:label.areaCodes" />
+    <binding name="description" value="message:description.areaCodes" />
+  </component>
+  <component id="areaCodes" type="TextField">
+    <binding name="value" value="rule.areaCodes" />
+    <binding name="validators" value="spring-validators:validPhoneSequence" />
+    <binding name="displayName" value="message:label.areaCodes" />
+  </component>
+  <component id="externalLenLabel" type="common/FieldPanel">
+    <binding name="field" value="components.externalLen" />
+    <binding name="label" value="message:label.externalLen" />
+    <binding name="description" value="message:description.externalLen" />
+  </component>
+  <component id="externalLen" type="PropertySelection">
+    <binding name="value" value="rule.externalLen" />
+    <binding name="model" value="bean:externalLenModel" />
+  </component>
+
+  <component id="toggleAdvanced" type="common/ToggleLink">
+    <binding name="toggle" value="showAdvanced" />
+  </component>
+  <component id="renderPstnPrefixOptional" type="If">
+    <binding name="condition" value="showAdvanced" />
+  </component>
+  <component id="renderLongDistancePrefixOptional" copy-of="renderPstnPrefixOptional" />
+
+</page-specification>

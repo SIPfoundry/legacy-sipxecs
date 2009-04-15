@@ -1,0 +1,85 @@
+The most current information on the status of any release is in the
+SIPfoundry Issue Tracker at:
+
+        http://track.sipfoundry.org/browse?XVX
+
+
+Release Notes - sipXvxml - Version 2.6.2
+
+** Bug
+    * [XVX-60] sipXvxml crashed while not being used
+    * [XPB-135] Removed <domain> from media server voicemail and custom
+                prompt directory structures.
+
+** New Features
+    * voicemail_clean.sh.in:
+        Add --days switch to override the age of voicemails to be deleted
+
+
+Release Notes - sipXvxml - Version 2.6.1
+
+** Bug
+    * [XVX-11] - general.m4 uses --with-pcre for several different things
+    * [XVX-14] - The autoattendant welcome message is only played once after reboot
+    * [XVX-19] - sipxvxml  produces core file when it is shut down
+    * [XVX-25] - Components do not find their config files if --prefix not used in ./configure
+    * [XVX-32] - Fix overloading of == and != to allow const arguments
+    * [XVX-44] - "Play inbox messages" when there are heard messages but no unheard messages causes hangup
+    * [XVX-45] - Playing empty list of messages causes hangup.
+    * [XVX-48] - Long delays before MS starts prompting caller
+    * [XVX-52] - buffer overflow
+    * [XVX-53] - sipxvxml rpm fails to install as the userID  and groupID are incorrect
+    * [XVX-55] - VXILOG element of mediaserver-config is wrong
+    * [XVX-56] - log files not in SIPX_LOGDIR
+    * [XVX-57] - libz.a dependency check missing
+    * [XVX-58] - An 'orphaned' prompt plays when voicemail is being retrieved
+    * [XVX-59] - Trying to return call from voicemail retreival options, fails
+    * [XVX-60] - sipXvxml crashed while not being used
+    * [XVX-62] - Message Retreival plays heard messages before unheard messages
+    * [XVX-63] - Very Very bad crash of sipXvxml
+    * [XVX-64] - Trying to forward message to another extension using 'dial-by-name' fails
+    * [XVX-65] - Cannot forward message using dial-by-name
+    * [XVX-68] - Managing system administration options from the TUI doesn't work
+    * [XVX-69] - sipXvxml cache directory is put in wrong place.
+    * [XVX-70] - Mediaserver Web UI login error.
+    * [XVX-72] - sipXvxml build errors on updated FC 2 - w3c-libwww-devel
+    * [XVX-75] - When trying to play 'unheard' messages using the web-ui, the wav file is not actually played
+    * [XVX-76] - When playing 'heard' messages using the voicemail web ui, a blank popup page is opened
+    * [XVX-77] - The error message popping up when the user doesn't have voicemail permissions has to be more 'understandable'
+    * [XVX-78] - clicking on personal folders in the voicemail web ui shows two additional system folders
+    * [XVX-79] - Cannot move messages around folders using the voicemail web ui
+    * [XVX-80] - Something caused all my saved voicemail messages to disappear
+    * [XVX-85] - mediaserver cgi segfaults when trying to send out email notifications
+    * [XVX-90] - Email notification doesn't work for me
+    * [XVX-93] - Garbled Audio when using sipXvxml
+
+
+** Task
+    * [XVX-24] - Deleting *.pid files when tasks stop.
+    * [XVX-30] - Revise how SSL certificates are dealt with during the build/install process
+    * [XVX-31] - Edit the Apache config files via a block of instrs in a Makefile
+    * [XVX-33] - Get media server working
+    * [XVX-34] - Build RPM for installing the mediaserver.
+
+** Improvement
+    * [XVX-21] - Configuration variables have multiple names
+
+
+Release Notes - sipXvxml - Version 2.5.2
+
+** Bug
+    * [XVX-2] - a bunch mozilla files are missing from sipxvxml-2.5.0/js/src
+    * [XVX-3] - VXItrd.h is mising
+
+** Task
+    * [XVX-8] - CVS directory in subversion
+
+** Improvement
+    * [XVX-6] - Windows project for sipXvxml
+    * [XVX-7] - Clean up code to remove all warnings.
+
+Release Notes - sipXvxml - Version 2.5.1
+
+** Bug
+    * [XVX-1] - w3c-libwww-5.4.0-configure.patch is missing from sipxvxml distribution
+    * [XVX-4] - won't build with sipXportLib

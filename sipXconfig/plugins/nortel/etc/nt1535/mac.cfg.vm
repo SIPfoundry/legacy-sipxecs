@@ -1,0 +1,17 @@
+## emit 'setting value' pair
+#macro(emit_setting $s $i)
+#if($s.Value)
+line${i}_${s.ProfileName} $!{s.Value}
+#end
+#end
+#macro(emit_settings_by_name $group $setting_names $i)
+#foreach ($sn in $setting_names)
+#emit_setting($group.getSetting("$sn") $i)
+#end
+#end
+[VOIP]
+#foreach ($line in $phone.lines)
+#set($line_id = $velocityCount)
+#set($voip = $line.Settings.getSetting('VOIP'))
+#emit_settings_by_name($voip ['name', 'authname', 'display_name', 'password', 'type'] $line_id)
+#end

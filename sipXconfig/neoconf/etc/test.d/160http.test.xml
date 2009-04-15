@@ -1,0 +1,78 @@
+<test name="http">
+  <label>HTTP Test</label>
+  <description>
+    Verify that the specified HTTP server is functioning properly.
+  </description>
+  <longDescription>
+    Phone configuration files produced by the @sipxecs.name@ Configuration Server
+    can optionally be served by a HTTP server. This test verifies that the
+    specified HTTP server can be used to retrieve a special phone configuration
+    test file which has been produced by the Configuration Server.
+  </longDescription>
+  <command>
+    <exec>preflight</exec>
+    <arg>-v</arg>
+    <arg>--http-test</arg>
+    <arg>${hostname}</arg>
+  </command>
+  <results>
+    <result exit="0">
+      <status>Success</status>
+      <msg>The test was successful</msg>
+    </result>
+    <result exit="128">
+      <status>Error</status>
+      <msg>Network access failure.</msg>
+    </result>
+    <result exit="130">
+      <status>Error</status>
+      <msg>Timeout waiting for network response.</msg>
+    </result>
+    <result exit="161">
+      <status>Error</status>
+      <msg>The HTTP URL is malformed.</msg>
+    </result>
+    <result exit="162">
+      <status>Error</status>
+      <msg>The HTTP server address could not be resolved.</msg>
+      <description>
+        The specified HTTP server address could not be resolved to an IP
+        address. Verify that the DNS server(s) have a valid entry.
+      </description>
+    </result>
+    <result exit="163">
+      <status>Error</status>
+      <msg>The HTTP server is unreachable.</msg>
+      <description>
+        The resolved IP address of the specified HTTP server did not respond
+        to ICMP pings. Verify that the server is running and reachable
+        from this network.
+      </description>
+    </result>
+    <result exit="164">
+      <status>Error</status>
+      <msg>The HTTP client encountered an unrecoverable error.</msg>
+      <description>
+        The test client has suffered an unrecoverable network failure.
+        Please see the details for further information.
+      </description>
+    </result>
+    <result exit="165">
+      <status>Error</status>
+      <msg>HTTP GET of test file failed.</msg>
+      <description>
+        The specified HTTP server failed to serve the test configuration file.
+        Verify that the HTTP server is running and properly configured.
+      </description>
+    </result>
+    <result exit="166">
+      <status>Error</status>
+      <msg>HTTP test file did not verify.</msg>
+      <description>
+        The test file that was retrieved from the specified HTTP server was
+        found to be corrupted. Please contact technical support for
+        further assistance.
+      </description>
+    </result>
+  </results>
+</test>

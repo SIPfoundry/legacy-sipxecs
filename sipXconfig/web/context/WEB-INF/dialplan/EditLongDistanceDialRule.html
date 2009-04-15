@@ -1,0 +1,37 @@
+<div jwcid="dialRuleCommon" availableSchedules="ognl:availableSchedules">
+  <span jwcid="@common/QuickHelp" value="message:quick.help" />
+  <ul class="component-links">
+    <li jwcid="toggleAdvanced" />
+  </ul>
+  <fieldset>
+    <table>
+      <tbody>
+        <tr for="dialplan:permissionType" jwcid="permissionTypeLabel">
+          <select jwcid="permissionType" id="dialplan:externalLen" size="1" />
+        </tr>
+        <span jwcid="renderPstnPrefixOptional">
+          <tr for="dialplan:pstnPrefixOptional" jwcid="pstnPrefixOptionalLabel">
+            <input jwcid="pstnPrefixOptional" id="dialplan:pstnPrefixOptional" />
+          </tr>
+        </span>
+        <tr for="dialplan:pstnPrefix" jwcid="pstnPrefixLabel">
+          <input jwcid="pstnPrefix" id="dialplan:pstnPrefix" maxlength="40" type="text" />
+        </tr>
+        <span jwcid="renderLongDistancePrefixOptional">
+          <tr for="dialplan:longDistancePrefixOptional" jwcid="longDistancePrefixOptionalLabel">
+            <input jwcid="longDistancePrefixOptional" id="dialplan:longDistancePrefixOptional" />
+          </tr>
+        </span>
+        <tr for="dialplan:longDistancePrefix" jwcid="longDistancePrefixLabel">
+          <input jwcid="longDistancePrefix" id="dialplan:longDistancePrefix" maxlength="40" type="text" />
+        </tr>
+        <tr for="dialplan:areaCodes" jwcid="areaCodesLabel">
+          <input jwcid="areaCodes" id="dialplan:areaCodes" maxlength="255" type="text" />
+        </tr>
+        <tr for="dialplan:externalLen" jwcid="externalLenLabel">
+          <select jwcid="externalLen" id="dialplan:externalLen" size="1" />
+        </tr>
+      </tbody>
+    </table>
+  </fieldset>
+</div>

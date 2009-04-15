@@ -1,0 +1,69 @@
+//
+// sipXsupervisor process state machine
+//
+// 
+//
+digraph map {
+   size="6,3";
+
+   node [shape=box color=black fontcolor=black];
+
+   subgraph ConfiguredState {
+      rank=same;
+      Disabled      [label="Disabled"];
+      Enabled       [label="Enabled"];
+   }     
+
+   subgraph TransientStates {
+      rank=same;
+      node [shape=ellipse];
+      Testing [label="Testing"];
+      Starting [label="Starting"];
+      Running [shape=box label="Running"];
+      Stopping [label="Stopping"];
+   }
+
+   subgraph FailureStates {
+      rank=same;
+      node [shape=parallelogram];
+      ConfigurationMismatch  [label="ConfigurationMismatch"];
+      ResourceRequired       [label="ResourceRequired"];
+      ConfigurationTestFailed [label="ConfigurationTestFailed"];
+      Failed [label="Failed"];
+   }
+
+   Disabled -> Testing [label="enable"];
+
+   Testing -> Starting [label="passed"];
+
+   Testing -> ConfigurationMismatch [label="failed"];
+
+   ConfigurationMismatch ->Testing [label="set cfg version"];
+
+   Testing -> ResourceRequired [label="failed"];
+
+   ResourceRequired -> Testing [label="created"];
+
+   Testing -> ConfigurationTestFailed [label="failed"];
+
+   ConfigurationTestFailed -> Testing [label="created"];
+
+   Starting -> Running [label="started"];
+
+   Starting -> Failed [label="stopped"];
+
+   Running -> Stopping [label="stop"];
+
+   Stopping -> Disabled [label="stopped"];
+
+   Running -> Failed [label="exit"];
+
+   Running -> Starting [label="restart"];
+
+   Starting -> Failed [label="exit"];
+
+   Failed -> Testing [label="retry"];
+
+   Enabled -> Testing [label="boot"];
+
+};

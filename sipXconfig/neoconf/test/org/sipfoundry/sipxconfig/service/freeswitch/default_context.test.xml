@@ -1,0 +1,17 @@
+<context name="default">
+  <extension name="400">
+    <condition field="destination_number" expression="^sales$">
+      <action application="conference" data="sales@400+400222"/>
+    </condition>
+  </extension>
+  <extension name="500">
+    <condition field="destination_number" expression="^marketing$">
+      <action application="conference" data="marketing@500+500222"/>
+    </condition>
+  </extension>
+  <extension name="IVR">
+    <condition field="destination_number" expression="^IVR$">
+      <action application="socket" data="192.168.1.1:8084 async"/>
+    </condition>
+  </extension>
+</context>

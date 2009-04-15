@@ -1,0 +1,33 @@
+Index: setup.rb
+===================================================================
+--- setup.rb.orig
++++ setup.rb
+@@ -266,17 +266,17 @@
+ 				SUBPACKAGES.each do |package_code, capname|
+ 					basefile = capname + '.rb'
+ 					if @with.include?( package_code )
+-						isdir( File.join( @config['rb-dir'], 'DBD', capname ) )
++						inst_dir = isdir( File.join( @config['rb-dir'], 'DBD', capname ) )
+ 						install(
+ 							basefile,
+-							File.join( @config['rb-dir'], 'DBD', capname, basefile ),
++							File.join( inst_dir, basefile ),
+ 							0644
+ 						)
+ 					end
+ 				end
+ 			}
+ 			into_dir( 'dbi' ) { install_rb 'dbi' }
+-			install( 'dbi.rb', @config['rb-dir'], 0644 )
++			install( 'dbi.rb', isdir(@config['rb-dir']), 0644 )
+     }
+     into_dir( 'ext' ) {
+       foreach_package do |targ, *dummy|
+@@ -643,6 +643,7 @@
+   end
+ 
+   def isdir( dn )
++    dn = ENV['DESTDIR'] ? File.join(ENV['DESTDIR'], dn) : dn
+     mkpath dn
+     dn
+   end

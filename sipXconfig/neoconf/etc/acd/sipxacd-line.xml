@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE model 
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 1.0//EN" 
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_1_0.dtd">
+<model>
+  <group name="acd-line">
+    <setting name="uri" hidden="yes">
+      <type>
+        <string required="yes" />
+      </type>
+      <value />
+    </setting>
+    <setting name="name" hidden="yes">
+      <type>
+        <string required="yes" />
+      </type>
+      <value />
+    </setting>
+    <setting name="extension" hidden="yes">
+      <type>
+        <string required="yes">
+          <pattern>[0-9#\*]*</pattern>
+        </string>
+      </type>
+      <value />
+    </setting>
+    <setting name="trunk-mode">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="publish-line-presence" hidden="yes">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="acd-queue" hidden="yes">
+      <type>
+        <string required="yes" />
+      </type>
+      <value />
+    </setting>
+  </group>
+</model>

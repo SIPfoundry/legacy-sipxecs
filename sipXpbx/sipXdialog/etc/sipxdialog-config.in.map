@@ -1,0 +1,9 @@
+# Specify how to rename old configuration values.
+# Lines are:
+#   {key in new config file} : {original key from old config file}
+# Values in the old config file that are not known will be carried
+# into the new config file intact, unless there is a rule like this
+# to suppress copying:
+#   - : {original key from old config file}
+
+SIP_DIALOG_MONITOR_LOG_CONSOLE : SIP_PDIALOG_MONITOR_LOG_CONSOLE

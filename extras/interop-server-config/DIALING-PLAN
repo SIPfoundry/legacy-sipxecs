@@ -1,0 +1,95 @@
+This directory contains the configuration for the interoperability test server,
+interop.pingtel.com.
+
+The subdirectories are:
+
+sipx_confdir
+   Configuration files to be unpacked into /etc/sipxpbx after a standard
+   sipX installation.
+
+scripts
+   Scripts that are run as cron jobs, and the crontab file that run them.
+
+http_rootdir
+   HTML files to be unpacked into /usr/share/www/doc for the custom web interface.
+
+sipx_dbdir
+   Customized configuration databases to be put in /var/sipxdata/sipdb.
+
+The current number assignments are as follows.  "gg" is the group
+number, from 00 to 99.  (index.html claims only 10..99 as groups, but
+we may need the single-digit groups as well.)  "n" is used here to mean
+1 through 9, to shorten the table.
+
+0n	(that is, 01 through 09) Forwarding prefixes for other PBXs
+	("city codes")
+
+100	Auto-attendant
+
+101	Voicemail server
+
+1ggn	Addresses Of Record
+
+2gg1	Directly deposit voicemail for 1gg1
+2gg2	Directly deposit voicemail for 1gg2
+
+3ggn	Authenticated INVITE test
+
+4ggn	Failed authenticated INVITE test
+
+5gg0	Serial forking
+5ggn	Parking orbits
+
+6gg0	Parallel forking
+
+7ggn	Long path to 1ggn
+
+8ggn	Merge fork
+
+9000	Too many hops test
+
+9ggn	Forwarding prefixes for gateways
+
+*1xxx*xxx	ISN dialing string (*1, one or more digits, *, one or
+		more digits)
+
+*4xxxx	Call retrieve
+
+*63xxxx	Send call to xxxx with "Require: merde" to test rejection
+	of unknown Require's (and display of 420 responses).
+
+*701ggxy	Send out-of-dialog REFER to 1ggx with Refer-To 1ggy
+
+*71gg	Paging call to all phones registered to 1ggn.
+
+*78xxxx	Call pick-up
+
+*79xxxx	Call join
+
+Special properties of phones within each group:
+
+1gg0	Not used
+
+1gg1	Has voicemail and MWI.
+
+1gg2	Has voicemail and MWI.
+	Included in resource list ~~rl~gg.
+
+1gg3	Target of forking tests 5ggx and 6ggx.
+
+1gg4	Target of forking tests 5ggx and 6ggx.
+
+1gg5	Target of forking tests 5ggx and 6ggx.
+
+1gg6	Target of forking tests 5ggx and 6ggx.
+	Included in resource list ~~rl~gg.
+
+1gg7	(Not implemented: Generating GRUU suppressed.)
+	Can authenticate in 4ggn test.
+
+1gg8	(Not implemented: Generating GRUU suppressed.)
+	Can authenticate in 4ggn test.
+
+1gg9	(Not implemented: Generating GRUU suppressed.)
+	Can authenticate in 4ggn test.
+	Included in resource list ~~rl~gg.

@@ -1,0 +1,444 @@
+#! /usr/bin/perl
+
+# This line functions like "use XML::Parser;", but rpmbuild does not
+# detect it as a dependency, so we can package it with sipX and not require
+# the customers to install the Perl XML parser.  Of course, dialogdisplay
+# will fail at runtime if the Perl XML parser isn't installed.
+BEGIN { eval 'use XML::Parser;' }
+use strict;
+
+# Check for URI to subscribe to.
+if ($#ARGV < 0) {
+    print STDERR "Usage of dialogdisplay is the same as of dialogwatch:\n";
+    print STDERR "\n";
+    system("dialogwatch");
+    exit 1;
+}
+my($URI) = $ARGV[0];
+
+# Markers for beginning and end of the NOTIFY body output.
+my($output_prefix) = '[start of body]';
+my($output_suffix) = '[end of body]';
+
+# Record the last subscription state update.
+my($last_subscription_state);
+
+# Run dialogwatch, with the same arguments as dialogdisplay.
+my($command) = "dialogwatch '" . join("' '", @ARGV) . "' 2>/dev/null";
+open(DIALOGWATCH, $command . '|') ||
+    die "Error starting dialogwatch with command '$command': $!\n";
+
+# Unbuffer output.
+$| = 1;
+
+# Difference between our 0-origin row numbers and the ANSI 1-origin cursor
+# control indexes for where the rows are displayed on the screen.
+my($line_offset) = 3;
+# Number of lines used by each dialog when we display it.
+my($lines_per_row) = 4;
+
+# WINCH signal handler.
+$SIG{'WINCH'} = \&winch;
+# WINCH flag.
+my($winch) = 0;
+
+# Initialize the display.
+&initialize_display;
+
+# The next row to display a dialog in.
+my($next_row) = 0;
+
+# Screen formatting.
+my($screen_rows, $screen_columns, $initial_headers, $indent,
+   $endpoint_field_length, $num_rows);
+
+# Keep track of what dialog id's are displayed on what rows.
+my(%row_of_id, @id_of_row, @display_of_row);
+
+# Read and process each event body.
+while (1)
+{
+    # Put the cursor at the end of the display, so stderr from our data
+    # source displays at least somewhat reasonably.
+    &cursor_to_row($num_rows);
+
+    my($r) = '';
+    my($timeout) = 1;
+    vec($r, fileno(DIALOGWATCH), 1) = 1;
+    my($rout, $tout);
+    my($nfound) = select($rout=$r, undef, undef, $tout=$timeout);
+
+    # If screen was resized, reinitialize it.
+    if ($winch) {
+	$winch = 0;
+	&initialize_display;
+    }
+
+    if ($nfound > 0) {
+        # DIALOGWATCH became ready to read.
+        # Check if this is an EOF, and if so, exit the main loop.
+        last if eof(DIALOGWATCH);
+
+        # Read and process the event body.
+
+        my($event) = &read_next_event;
+
+        # Extract information from the event body.
+        my(%new_state, @heading);
+
+        # Check that the event body is non-empty.
+        if ($event ne '') {
+            # Parse the event body.
+            my($parser) = new XML::Parser(Style => 'Tree');
+            my($tree);
+            # &XML::Parse::parse dies if it can't parse the string.
+            eval { $tree = $parser->parse($event) };
+            if ($@ ne '') {
+                print "Can't parse event body:\n";
+                print $event, "\n";
+                print "Can't parse event body.\n";
+                next;
+            }
+
+            # Construct the display lines from the event notice.
+            &process_event($tree, \%new_state, \@heading);
+        } else {
+            # The event body should not be empty, but broken implementations
+            # will give empty bodies if there are no dialogs.
+            %new_state = ();
+            @heading = ('empty', 'unknown', 'full');
+        }
+
+        # Display the status.
+        &display_event(\%new_state, \@heading);
+    } else {
+        # Timeout happened.
+        # Tidy the display.
+
+        &tidy_display;
+    }
+}
+
+# We get here if dialogwatch terminates, which is usually due to an error.
+print "Last response code: $last_subscription_state\n";
+close DIALOGWATCH ||
+    die "Error returned by dialogwatch: $!\n";
+
+exit 0;
+
+sub read_next_event {
+    # Read until we see $output_suffix.
+    my($body);
+    while (<DIALOGWATCH>) {
+	my($x) = $_;
+        $body .= $x;
+	# Notice and save subscription state info.
+	$last_subscription_state = $1
+	    if $x =~ /^subscriptionStateCallback is called with responseCode =\s*(.*)$/;
+        last if m%\Q$output_suffix\E%o;
+    }
+    # Remove the prefix and suffix and leading and trailing whitespace.
+    # (Leading NLs are not allowed in XML.)
+    $body =~ s/^\s*\Q$output_prefix\E\s*//o;
+    $body =~ s/\s*\Q$output_suffix\E\s*$//o;
+    return $body;
+}
+
+sub process_event {
+    my($tree, $dialogs, $heading) = @_;
+
+    my($di_content) = $tree->[1];
+
+    # Get the dialog-info attributes.
+    my($entity) = $di_content->[0]->{'entity'};
+    my($version) = $di_content->[0]->{'version'};
+    my($state) = $di_content->[0]->{'state'};
+    @$heading = ($entity, $version, $state);
+
+    my($i, $dialog);
+    for ($i = 1; $i <= $#$di_content; $i += 2) {
+        if ($di_content->[$i] eq 'dialog') {
+            my($c) = $di_content->[$i+1];
+            # Extract the attributes of dialog.
+            my($attrs) = $c->[0];
+            my($id) = $attrs->{'id'};
+            my($call_id) = $attrs->{'call-id'};
+            my($local_tag) = $attrs->{'local-tag'};
+            my($remote_tag) = $attrs->{'remote-tag'};
+            my($direction) = $attrs->{'direction'};
+
+            # Process the children of dialog.
+            my($j);
+            my($state, $duration, $local_identity, $local_target,
+               $remote_identity, $remote_target);
+            for ($j = 1; $j < $#$c; $j += 2) {
+                my($e) = $c->[$j];
+                my($f) = $c->[$j+1];
+                if ($e eq 'state') {
+                    $state = &text($f);
+                } elsif ($e eq 'duration') {
+                    $duration = &text($f);
+                } elsif ($e eq 'local') {
+                    my($k);
+                    for ($k = 1; $k < $#$f; $k += 2) {
+                        my($g) = $f->[$k];
+                        my($h) = $f->[$k+1];
+                        if ($g eq 'identity') {
+                            $local_identity = &text($h);
+                        } elsif ($g eq 'target') {
+                            $local_target = $h->[0]->{'uri'};
+                        }
+                    }
+                } elsif ($e eq 'remote') {
+                    my($k);
+                    for ($k = 1; $k < $#$f; $k += 2) {
+                        my($g) = $f->[$k];
+                        my($h) = $f->[$k+1];
+                        if ($g eq 'identity') {
+                            $remote_identity = &text($h);
+                        } elsif ($g eq 'target') {
+                            $remote_target = $h->[0]->{'uri'};
+                        }
+                    }
+                }
+            }
+
+            # Compose the display string.
+            my($s) =
+                &field($id, 6, 1) .
+                &field($call_id, 30, 1) .
+                &field($local_tag, 13, 1) .
+                &field($remote_tag, 13, 1) .
+                ($direction eq 'initiator' ? 'I' :
+                 $direction eq 'recipient' ? 'R' :
+                 '?') . ' ' .
+                substr($state, 0, 4) . ' ' .
+                &field($duration, 4, 1, 1) .
+		"LI: " .
+                &field($local_identity, $endpoint_field_length) . "\n" .
+		$indent .
+		"LT: " .
+                &field($local_target, $endpoint_field_length) . "\n" .
+		$indent .
+		"RI: " .
+                &field($remote_identity, $endpoint_field_length) . "\n" .
+		$indent .
+		"RT: " .
+                &field($remote_target, $endpoint_field_length);
+
+            # Store it in the hash.
+            $dialogs->{$id} = $s;
+        }
+    }
+}
+
+# Format a field.
+# Arguments are:
+#    string to be formatted
+#    field width to pad or truncate string to fit
+#    additional spaces to add after 'field width' characters
+#    right-justify - 1 if string should be right-justified rather than
+#        left-justified
+sub field {
+    my($string, $width, $spaces, $right_justify) = @_;
+
+    my($x) = substr($string, 0, $width);
+    $x = $right_justify ?
+        (' ' x ($width - length($x))) . $x :
+        $x . (' ' x ($width - length($x)));
+    return $x . (' ' x $spaces);
+}
+
+# Extract the (top-level) text content from an XML tree.
+sub text {
+    my($tree) = @_;
+    my($text) = '';
+    my $i;
+    for ($i = 1; $i < $#$tree; $i += 2) {
+        if (${$tree}[$i] eq '0') {
+            $text .= ${$tree}[$i+1];
+        }
+    }
+    return $text;
+}
+
+# Record the last version in which each dialog was seen.
+my(@row_seen);
+
+# Go through the list of dialogs, displaying them.
+sub display_event {
+    my($dialogs, $heading) = @_;
+
+    # Display the status line.
+    my($version) = $heading->[1];
+    print "\e[H";       # Go to line 1
+    print "\e[K";       # Erase to right
+    print "Entity: $heading->[0]    Version: $version    ",
+           "Status: $heading->[2]";
+
+    # Loop through the dialogs, displaying them on the appropriate lines.
+    foreach my $id (keys %$dialogs) {
+        # Find or allocate a row for this dialog.
+        my($row);
+        if (exists($row_of_id{$id})) {
+            $row = $row_of_id{$id};
+        } else {
+            # If this dialog has status 'terminated' (and since we are
+            # here, it has no assigned row), do not display it, as it
+            # may have already been erased by display clean-up.
+            next if $dialogs->{$id} =~ / term /;
+            # Allocate it to a row.
+	    $row = &allocate_row($version);
+	    # If $row == -1, there is no room on the display.
+	    # Hopefully, there will be room in the future, and some update
+	    # will display this dialog.
+	    if ($row != -1) {
+		$id_of_row[$row] = $id;
+		$row_of_id{$id} = $row;
+	    }
+        }
+	if ($row != -1) {
+	    # Write the dialog to that row.
+	    $display_of_row[$row] = $dialogs->{$id};
+	    &erase_row($row);
+	    &cursor_to_row($row);
+	    print $display_of_row[$row];
+	    # Record that this row has been updated in this event.
+	    $row_seen[$row] = $version;
+	}
+    }
+
+    # If this is a full update, eliminate any dialogs not mentioned.
+    if ($heading->[2] eq 'full') {
+        foreach my $i (0 .. $#id_of_row) {
+            if (defined($id_of_row[$i]) && $row_seen[$i] != $version) {
+                # Remove from the display.
+                &erase_dialog($i);
+            }
+        }
+    }
+}
+
+# Clean up the display by one action.
+sub tidy_display {
+    # Tidying aren't done in this version of dialogdisplay.
+}
+
+sub erase_dialog {
+    my($row) = @_;
+
+    my($id) = $id_of_row[$row];
+    $id_of_row[$row] = undef;
+    $display_of_row[$row] = undef;
+    delete($row_of_id{$id});
+
+    # Clear the lines.
+    &erase_row($row);
+}
+
+# Put cursor at beginning of row $row, plus $delta lines further down.
+sub cursor_to_row {
+    my($row) = @_;
+
+    print "\e[", $row * $lines_per_row + $line_offset, "H";
+}
+
+# Erase the screen area for a particular row.
+sub erase_row {
+    my($row) = @_;
+    my($i);
+
+    &cursor_to_row($row);
+    print "\e[K";           # Erase to right
+    for ($i = 1; $i < $lines_per_row; $i++) {
+	print "\n";
+        print "\e[K";           # Erase to right
+    }
+    # Don't print newline at last line of row.
+}
+
+# Assign a row for a new dialog.
+# Returns -1 if no row can be assigned.
+sub allocate_row {
+    my($version) = @_;
+    my($current_next_row) = $next_row;
+    my($assigned_row);
+
+    while (1) {
+	# Consider $next_row to be assigned.
+	$assigned_row = $next_row;
+	# Advance $next_row.
+	$next_row++;
+	$next_row = 0 if $next_row >= $num_rows;
+	# If $assigned_row is free, exit.
+	# Or, if it is terminated, but not due to an update in this
+	# event, allocate it.  (This prevents a UA that only sends changes
+	# in partial events from filling the table with terminated
+	# dialogs and preventing new ones from being displayed.  But
+	# the check that it was not updated in this event ensures that
+	# we don't write over a dialog that was newly terminated in
+	# this event.)
+	last
+	    if !defined($id_of_row[$assigned_row]) ||
+	       ($display_of_row[$assigned_row] =~ / term / &&
+	        $row_seen[$assigned_row] != $version);
+	# If $next_row is back to $current_next_row, we've cycled through
+	# the display and found no place for the dialog.
+	if ($next_row == $current_next_row) {
+	    $assigned_row = -1;
+	    last;
+	}
+    }
+    return $assigned_row;
+}
+
+sub initialize_display {
+    # Get the screen size.
+    ($screen_rows, $screen_columns) = split(' ', `stty size`);
+    # Limit the values to prevent total failure.
+    $screen_rows = 24 if $screen_rows <= 10;
+    $screen_columns = 96 if $screen_columns <= 10;
+
+    # Clear the screen.
+    print "\e[H\e[J";
+
+    # Display the column headers.
+    # Set the variables used to construct dialog entries.
+    print "\e[", -1+$line_offset, "H";
+    $initial_headers =
+	&field('Id', 6, 1) .
+	&field('Call-Id', 30, 1) .
+	&field('local-tag', 13, 1) .
+	&field('remote-tag', 13, 1) .
+	'D ' .
+	'Stat ' .
+	&field('Dur', 4, 1, 1);
+    $indent = ' ' x length($initial_headers);
+    # Subtract an additional 1 to avoid writing in the last column.
+    $endpoint_field_length =
+	$screen_columns - (length($initial_headers) + 4) - 1;
+    print
+	$initial_headers .
+	'    ' .
+	&field('Endpoints', $endpoint_field_length);
+
+    # Calculate the number of rows available.
+    # Take the total screen rows and deduct $line_offset, and divide by
+    # $lines_per_row.  This allows for the header lines, and an extra
+    # line at the bottom to rest the cursor on.
+    $num_rows = int(($screen_rows - $line_offset) / $lines_per_row);
+
+    # De-assign all dialogs from all rows.  This will force the redisplay
+    # to assign them all fresh.
+    %row_of_id = ();
+    @id_of_row = ();
+    @display_of_row = ();
+
+    # Start assigning rows at 0 again.
+    $next_row = 0;
+}
+
+# Handle WINCH events by setting $winch.
+sub winch {
+    $winch = 1;
+}

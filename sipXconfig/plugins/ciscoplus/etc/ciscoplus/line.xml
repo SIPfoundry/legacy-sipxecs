@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<!DOCTYPE model
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <group name="sipLines">
+    <label>sipLine</label>
+    <setting name="featureID">
+      <label>feature ID</label>
+      <value>9</value>
+    </setting>
+    <setting name="featureLabel">
+      <label>Feature Label</label>
+      <value/>
+    </setting>
+    <setting name="proxy">
+      <label>Proxy</label>
+      <value/>
+    </setting>
+    <setting name="port">
+      <label>Port</label>
+      <value/>
+    </setting>
+    <setting name="name">
+      <label>Name</label>
+      <value/>
+    </setting>
+    <setting name="displayName" advanced="yes">
+      <label>Display Name</label>
+      <value/>
+    </setting>
+    <setting name="autoAnswerEnabled">
+       <label>autoAnswerEnabled</label>
+       <value>2</value>
+    </setting>
+    <setting name="callWaiting">
+       <label>callWaiting</label>
+       <value>3</value>
+    </setting>
+    <setting name="authName">
+        <label>authName</label>
+        <value/>
+    </setting>
+    <setting name="authPassword" advanced="yes">
+      <label>Password</label>
+      <type>
+        <string password="yes"/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="sharedLine">
+       <label>Shared Line</label>
+       <value>false</value>
+    </setting>
+    <setting name="messageWaitingLampPolicy">
+       <label>messageWaitingLampPolicy</label>
+       <value>1</value>
+    </setting>
+    <setting name="messagesNumber">
+       <label>messagesNumber</label>
+       <value/>
+    </setting>
+    <setting name="ringSettingIdle">
+       <label>ringSettingIdle</label>
+       <value>4</value>
+    </setting>
+    <setting name="ringSettingActive">
+       <label>ringSettingActive</label>
+       <value>5</value>
+    </setting>
+    <setting name="contact">
+       <label>Contact</label>
+       <value/>
+    </setting>
+    <setting name="callerName">
+       <label>Caller Name</label>
+       <value>true</value>
+    </setting>
+  </group>
+</model>

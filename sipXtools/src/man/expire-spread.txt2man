@@ -1,0 +1,59 @@
+EXPIRE-SPREAD(1)
+================
+
+NAME
+----
+expire-spread - displays when registrations and subscriptions expire 
+
+SYNOPSIS
+--------
+expire-spread  [ --db <database.xml> ]
+                 [ { --real | -r } ] 
+                 [ { --summary | -s } ] 
+                 [ --sample <seconds> ]
+DESCRIPTION
+-----------
+Show how subscriptions and/or registrations are distributed over time.
+By default, a histogram is printed showing the number of expirations
+and the rate per second in each sample interval.
+
+If a specific database is given, only that database is displayed.
+
+OPTIONS
+-------
+--real      use the actual current time to determine whether or not
+            a registration or subscription has expired.  If this is 
+            not specified, the timestamp in the database is used.
+
+--summary   limit the report to the number active and the peak rate
+            (in expirations/second), without showing data for each
+            interval.
+
+--sample    specify the interval size in seconds (default is 60).
+
+ENVIRONMENT
+-----------
+NONE
+  
+EXAMPLE
+-------  
+Show full information on how both exirations are distributed
+
+   $ expire-spread
+
+Show only information on registrations
+
+   $ expire-spread --db /var/sipxdata/sipdb/registration.xml
+   
+SEE ALSO
+--------
+monitor-spread
+
+BUGS
+----
+see http://tracker.sipfoundry.org
+  
+AUTHOR
+------
+Scott Lawrence
+

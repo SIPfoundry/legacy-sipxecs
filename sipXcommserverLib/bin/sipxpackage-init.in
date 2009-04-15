@@ -1,0 +1,19 @@
+#@BASH@
+
+## Source function library.
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+
+# Ensure that sipxpackage is owned by root and
+# that the UID permission bit is set.
+if test -e @SIPX_LIBEXECDIR@/sipxpackage
+then
+    is_file_owned_by_username @SIPX_LIBEXECDIR@/sipxpackage "root"
+    if [ $? -ne 0 ]
+    then
+        chown root @SIPX_LIBEXECDIR@/sipxpackage
+    fi
+    if test ! -x @SIPX_LIBEXECDIR@/sipxpackage -o ! -u @SIPX_LIBEXECDIR@/sipxpackage
+    then
+        chmod 4755 @SIPX_LIBEXECDIR@/sipxpackage
+    fi
+fi 

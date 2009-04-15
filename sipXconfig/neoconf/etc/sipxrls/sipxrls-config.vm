@@ -1,0 +1,10 @@
+SIP_RLS_LOG_DIR :
+SIP_RLS_LOG_LEVEL : $settings.getSetting('SIP_RLS_LOG_LEVEL').Value
+SIP_RLS_LOG_CONSOLE : 
+SIP_RLS_UDP_PORT : $rlsService.rlsPort
+SIP_RLS_TCP_PORT : $rlsService.rlsPort
+SIP_RLS_BIND_IP : $location.address
+SIP_RLS_FILE_NAME : @sipxpbx.conf.dir@/resource-lists.xml
+SIP_RLS_DOMAIN_NAME : $rlsService.domainName
+SIP_RLS_AUTHENTICATE_REALM : $rlsService.realm
+SIP_RLS_SERVER_MIN_EXPIRATION : 1800

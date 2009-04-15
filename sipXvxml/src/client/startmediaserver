@@ -1,0 +1,1 @@
+./mediaserver -url ~/sambashare/main/packages/OpenVXI_2.0.1/samples/rec_test.vxml -config ~/sambashare/main/packages/OpenVXI_2.0.1/config/OSBclient.cfg

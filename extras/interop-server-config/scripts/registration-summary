@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# Set default log file.
+Log="/var/log/sipxpbx/sipregistrar.log.1"
+
+# Recipients for the report.
+Recipients="interop-config@pingtel.com"
+
+MyHostname=`hostname -f`
+
+if [ -r $Log ]
+then
+    regtimes -s $Log \
+    | mail -s "Registration report for $MyHostname" $Recipients
+else
+    echo "Cannot read $Log" 1>&2
+fi
+

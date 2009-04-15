@@ -1,0 +1,7 @@
+INVITE sip:1@192.168.0.6 SIP/2.0
+Route: <sip:foo@192.168.0.4:5064;lr>
+From: <sip:888@10.1.1.144;user=phone>;tag=bbb
+To: <sip:3000@192.168.0.3:3000;user=phone>
+Call-Id: 8
+Cseq: 1 INVITE
+Content-Length: 0

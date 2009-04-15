@@ -1,0 +1,7 @@
+SIP_DOMAIN_NAME : ${domain.name}
+SIP_DOMAIN_ALIASES : ${domainAliases}
+SIP_REALM : ${domain.sipRealm}
+SHARED_SECRET : ${domain.sharedSecret}
+DEFAULT_LANGUAGE : $language
+SUPERVISOR_PORT : 8092
+CONFIG_HOSTS : ${configServerHost}

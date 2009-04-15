@@ -1,0 +1,24 @@
+#!@BASH@
+
+# This script runs as root and restarts SIPxchange if the IMDB locks up.
+
+# Monitor delay in seconds
+DELAY=30
+
+# File to monitor, this will
+FILE=@SIPX_TMPDIR@/imdb.bad
+
+# When the file is detected, remove the file, and restart SIPxchange.
+# A new copy of this script will be started as well.
+take_action() {
+        rm "$FILE"
+        @SERVICEDIR@/watchdog restart
+        exit
+}
+
+# main loop
+while :
+do
+        sleep $DELAY
+        [ -f "$FILE" ] && take_action
+done

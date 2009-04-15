@@ -1,0 +1,22 @@
+<span jwcid="errorMsg"/>
+<form jwcid="@common/AutoRefreshForm" actionBlock="component:actions">
+  <table id="list.presence" jwcid="userTable">
+    <span jwcid="statusColumnValue@Block">
+      <span jwcid="statusLabel"/>
+    </span>
+  </table>
+  <ul jwcid="actions@Block" class="component-submit">
+    <li>
+      <input id="signInButton" jwcid="signInButton@Submit"
+        updateComponents="ognl:{'refreshedContent'}"
+        listener="listener:signIn"
+        value="message:signIn"/>
+    </li>
+    <li>
+      <input id="signOutButton" jwcid="signOutButton@Submit"
+        updateComponents="ognl:{'refreshedContent'}"
+        listener="listener:signOut"
+        value="message:signOut"/>
+    </li>
+  </ul>
+</form>

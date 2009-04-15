@@ -1,0 +1,386 @@
+#!/usr/bin/perl
+
+BEGIN
+{
+
+    $RequireMsg = <<REQUIREMENTS;
+
+    You must install the missing Perl package(s) to use this script.
+        As far as I know, these are not available as rpms.  You can install
+        them using 'cpan'.
+        For the DateTime::Format::ISO8601 package, you may need to 
+        force the installation because there is a problem in the unit tests.
+
+        >> cpan
+        force install DateTime::Format::ISO8601
+REQUIREMENTS
+
+    @modules = qw(Getopt::Long DateTime::Format::ISO8601 DateTime::Duration );
+    for $pm ( @modules )
+    {
+        eval "require $pm;" || die "Failed to load $pm\n$@\n$RequireMsg\n";
+        $pm->import();
+    }
+}
+
+$Usage = <<USAGE;
+
+regtimes  [ { --help | -h } ]
+          [ { --summary | -s } ]
+          <sipregistrar.log>...
+
+    Show intervals for renewal of registrations.  The time for
+    each registration of each contact is shown, with when the 
+    previous expiration would have expired, the actual time it
+    was renewed and the difference between them.  If the refresh
+    is late (there was a period when the registration had expired),
+    then that is flagged.
+
+    Note that in an HA system, you must provide the logs for all
+    registrars or the output will report errors that did not happen.
+
+    If the summary switch is used, successful refreshes are combined
+    into a single line, which considerably shortens the output.
+
+USAGE
+
+GetOptions( 'help|h' => \$Help,
+            'summary|s' => \$Summary
+            )
+    || exit -1;
+
+if ( $Help )
+{
+    print $Usage;
+    exit 0;
+}
+
+
+while(<>)
+{
+    m|^"([^"]+)":| && do { $LastLogTime = $1; }; # "
+
+    # REGISTER Request
+    if (m|^"[^"]+":\d+:INCOMING:INFO:.*Read SIP message:(?:.+?)\\nREGISTER\s+.*\\nCall-Id:\s+(.+?)\\r|i ) # "
+    {
+        $cid  = $1;
+
+        #print STDERR "Req CID: $cid\n";
+        if ( m/\\nTo:\s*(.+?(>|\\r))/i )
+        { 
+            $aor = $1;
+            $aor =~ s/\\r//;
+            $aor =~ s/\\//g;
+            $AOR{$cid} = $aor;
+        }
+        m|\\nUser-Agent:\s*(.+?)\\r|i && do { $UserAgent{$cid} = $1; };
+
+        m|\\nCseq:\s*(\d+)|i              && do { $cseq = $1; };
+        push @{$Cseqs{$cid}}, $cseq;
+
+        if (m|\\r\\nContact:\s*([^>]+>)([^;]*;)*EXPIRES=(\d+)|i)
+        {
+            $Contact{$cid} = $1;
+            #print STDERR "         Cseq $cseq : req $3 $1\n";
+
+            $Requested{$cid.$cseq} = $3;
+        }
+        elsif (m|\\r\\nContact:\s*(.+?)\\r|i)
+        {
+            $Contact{$cid} = $1;
+            if (m|\\r\\nExpires:\s*(\d+)|i)
+            {
+                #print STDERR "         Cseq $cseq : req $1 $Contact{$cid}\n";
+
+                $Requested{$cid.$cseq} = $1;
+            }
+        }
+    }
+    # Successful Response
+    elsif ( m|^"([^"]+)":.*Sending final response\\nSIP/2\.0\s+200.*\\nCall-Id:\s+(.+?)\\r|i ) # "
+    {
+        $rawtime = $1;
+        $cid  = $2;
+        #print STDERR "Rsp CID: $cid\n";
+
+        if (m|\\nCseq:\s*(\d+)\s+REGISTER|i)
+        { 
+            # Successful REGISTER Response
+            $cseq = $1; 
+            if (m|\\r\\nContact:\s*([^>]+>)(?:[^;]*;)*?EXPIRES=(\d+)|i)
+            {
+                # successful registration
+                $secs = $2;
+
+                #print STDERR "         Cseq $cseq : rsp $3\n";
+
+                push @{$Registrations{$cid}}, $rawtime;
+
+                $Time{$cid.','.$cseq} = DateTime::Format::ISO8601->parse_datetime($rawtime);
+                $Granted{$cid.','.$cseq} = new DateTime::Duration( seconds => $secs );
+            }
+            else
+            {
+                # successful unregistration
+                #print STDERR "         Cseq $cseq : unregister\n";
+                $Time{$cid.','.$cseq} = DateTime::Format::ISO8601->parse_datetime($rawtime);
+                $Unregistered{$cid.','.$cseq} = 1;
+            }
+        }
+    }
+}
+
+format STDOUT_TOP =
+   
+@<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<...
+$AOR{$cid}
+     @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<...
+     $Contact{$cid}
+     @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<...
+     $UserAgent{$cid}
+
+   Cseq          Time           Delta   Event             Duration
+   ----  -------------------  --------  ----------------- -----------------
+.
+format STDOUT =
+   @<<<< @<<<<<<<<<<<<<<<<<<  @>>>>>>>  @<<<<<<<<<<<<<<<< @<<<<<<<<<<<<<<<<<
+   $cseq,$time,$delta,$event,$duration
+.
+
+$LastTime = DateTime::Format::ISO8601->parse_datetime($LastLogTime);
+
+foreach $cid ( sort { $AOR{$a} cmp $AOR{$b} } keys %Registrations )
+{
+    $- = 0;
+    undef $previous;
+    $refreshes = 0;
+    &clearLast;
+
+    foreach $cseqVal ( sort { $a <=> $b } @{$Cseqs{$cid}} )
+    {
+        $_ = $cid.','.$cseqVal;
+        # Call-Id/CSeq pairs with no recorded successful response times
+        # were REGISTERs that failed, and so are ignored.
+        if (defined $Time{$_})
+        {
+            $cseq  = $cseqVal;
+            $time  = $Time{$_};
+            # a successful REGISTER response
+            # If there was a previous event, and it was not an unregister,
+            # determine how this event relates to it.
+            if (defined $previous && !$Unregistered{$previous})
+            { 
+                $delta   = &dt($Time{$_} - $Time{$previous}); 
+
+                $lastexp = $Time{$previous} + $Granted{$previous};
+
+                if ( $Time{$_} <= $lastexp ) 
+                {                    
+                    if ($Unregistered{$_})
+                    {
+                        $event = 'unregister';
+                        $duration = '';
+                        write;
+                    }
+                    else
+                    {
+                        $refreshes++;
+                        $event = 'refresh';
+                        $duration = &dt($Granted{$_}); 
+                        write
+                            unless $Summary;
+                    }
+                }
+                else
+                { 
+                    &showRefreshes( $refreshes-1 )
+                        if $Summary;
+                    $saveDelta = $delta;
+                    $saveCseq  = $cseq;
+
+                    &showLast
+                        if $refreshes > 0;
+
+                    $delta = &dt($Granted{$previous});
+                    $event = 'expired';
+                    $cseq  = $prevcseq;
+                    $time  = $Time{$previous} + $Granted{$previous};
+                    write;
+
+                    $cseq  = $saveCseq;
+                    $delta = $saveDelta;
+                    if ($Unregistered{$_})
+                    {
+                        $event = '! late unregister';
+                        $duration = '';
+                        write;
+                    }
+                    else
+                    {
+                        $event = '! late refresh';
+                        $time  = $Time{$_};
+                        $duration = &dt($Granted{$_}); 
+                        write;
+                    }
+                    $Problems{$UserAgent{$cid} || "(unknown)"} = 1;
+                }
+            }
+            else
+            {
+                if ($Unregistered{$_})
+                {
+                    # clearing old registrations for this cid
+                    $event = 'clear';
+                    $delta    = '';
+                    $duration = '';
+                    undef $previous;
+                    write
+                        unless $Summary;
+                }
+                else
+                {
+                    # first registration for this cid
+                    $delta    = '';
+                    $event    = 'initial';
+                    $duration = &dt($Granted{$_});
+                    write;
+                }
+            }
+
+            if ( $event ne 'clear' )
+            {
+                $previous = $_;
+                $prevcseq = $cseq;
+            }
+        }
+
+        &saveLast;
+    }
+    &showRefreshes( $refreshes-1 )
+        if ( $Summary && $event eq 'refresh' );
+
+    $lastexp = $Time{$previous} + $Granted{$previous}
+        if defined $Granted{$previous};
+
+    # If the last event was not a register, report when it will expire.
+    if ( defined $previous && !$Unregistered{$previous} && $LastTime > $lastexp )
+    {
+        &showLast if ($Summary && defined $savedLastEvent && $savedLastEvent eq 'refresh');
+
+        $time = $lastexp;
+        $event = 'expired';
+        $duration = '';
+        $cseq = '';
+        write;
+    }
+}
+
+sub showRefreshes
+{
+    my ($savedEvent) = $event;
+    my ($savedDuration) = $duration;
+    my ($savedDelta) = $delta;
+    my ($savedTime) = $time;
+    my ($savedCseq) = $cseq;
+
+    my ($times) = shift;
+    if ($times > 0)
+    {
+        $event = "$times refreshes";
+        $duration = '';
+        $delta = '';
+        $cseq = '';
+        $time = '';
+        write;
+    }
+
+    $event = $savedEvent;
+    $duration = $savedDuration;
+    $delta = $savedDelta;
+    $cseq = $savedCseq;
+    $time = $savedTime;
+}
+
+sub clearLast
+{
+    undef $savedLastEvent;
+    undef $savedLastDuration;
+    undef $savedLastDelta;
+    undef $savedLastTime;
+    undef $savedLastCseq;
+}
+
+sub saveLast
+{
+    $savedLastEvent    = $event;
+    $savedLastDuration = $duration;
+    $savedLastDelta    = $delta;
+    $savedLastTime     = $time;
+    $savedLastCseq     = $cseq;
+}
+
+sub showLast
+{
+    my ($savedEvent)    = $event;
+    my ($savedDuration) = $duration;
+    my ($savedDelta)    = $delta;
+    my ($savedTime)     = $time;
+    my ($savedCseq)     = $cseq;
+
+    if (defined $savedLastCseq)
+    {
+        $event    = $savedLastEvent;
+        $duration = $savedLastDuration;
+        $delta    = $savedLastDelta;
+        $time     = $savedLastTime;
+        $cseq     = $savedLastCseq;
+        write;
+
+        $savedLastEvent    = $event;
+        $savedLastDuration = $duration;
+        $savedLastDelta    = $delta;
+        $savedLastTime     = $time;
+        $savedLastCseq     = $cseq;
+    }
+}
+
+format SUMMARY_TOP =
+   
+Problem Summary
+   The following User Agents had at least one late registration:
+
+.
+
+format SUMMARY =
+      @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<...
+      $_
+.
+
+$^ = SUMMARY_TOP;
+$~ = SUMMARY;
+$- = 0;
+
+
+foreach ( sort keys %Problems )
+{
+    write;
+}
+
+sub dt
+{
+    my $t = shift;
+
+    my ($hours, $minutes, $seconds) = $t->in_units('hours','minutes','seconds');
+    if ( $seconds > 60 )
+    {
+        $minutes += $seconds / 60;
+        $seconds =  $seconds % 60;
+    }
+
+    if ( $minutes > 60 )
+    {
+        $hours   += $minutes / 60;
+        $minutes =  $minutes % 60;
+    }
+    return sprintf("%02d:%02d:%02d", $hours, $minutes, $seconds);
+}

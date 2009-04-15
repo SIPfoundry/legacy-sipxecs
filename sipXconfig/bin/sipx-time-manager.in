@@ -1,0 +1,258 @@
+#!@BASH@
+
+GET_STATUS="no"
+GET_SERVERS="no"
+GET_CONFIGURATION="no"
+
+NTP_CONFIGURATION="/etc/ntp.conf"
+NTPD_NAME="ntpd"
+
+check_root() {
+  if test "`whoami`" != root; then
+    return 1
+  else
+    return 0
+  fi
+}
+
+usage() {
+  echo
+  echo Usage: $0 parameters
+  echo
+  echo "   Change the system date"
+  echo
+  echo "Parameters:"
+  echo "   -h|--help                     Display this help text."
+  echo "   --status                      Get the status of the ntp server"
+  echo "                                 0 means ntpd is running, !=0 means it's not running."
+  echo "   --date NEW_DATE               Change the system date to NEW_DATE. Using this option also"
+  echo "                                 disables ntpd."
+  echo "   --ntp-server NEW_SERVER       Add new ntp server. Using this option also enables ntpd."
+  echo "                                 To add more than one server, use the same option"
+  echo "                                 Ex: $0 --ntp-server NEW_SERVER1 --ntp-server NEW_SERVER2 etc."
+  echo "   --get-servers                 Displays a list of the configured servers"
+  echo "   --display-configuration       Displays the configuration file for NTP"
+  echo "   --set-configuration CFG_FILE  Copies the content of CFG_FILE into the configuration file for NTP"
+  echo
+  echo "The precedence is --status, --get-servers, --display-configuration,--set-configuration, --ntp-server and --date"
+  echo
+}
+
+read_file_without_servers() {
+  FILE=${1}
+  while read line
+  do
+    AUX="`echo $line | cut -d ' ' -f 1`"
+    if test $AUX; then
+      if test $AUX != "server"; then
+        if test "$OUTPUT"; then
+          OUTPUT=$OUTPUT"\n"$line
+        else
+          OUTPUT=$line
+        fi
+      fi
+    else
+      if test "$OUTPUT"; then
+        OUTPUT=$OUTPUT"\n"$line
+      else
+        OUTPUT=$line
+      fi
+    fi
+  done < $FILE
+}
+
+read_servers_from_file() {
+  FILE=${1}
+  while read line
+  do
+    AUX="`echo $line | cut -d ' ' -f 1`"
+    if test $AUX; then
+      if test $AUX = "server"; then
+        if test "$OUTPUT"; then
+          OUTPUT=$OUTPUT"\n"$line
+        else
+          OUTPUT=$line
+        fi
+      fi
+    fi
+  done < $FILE
+}
+
+write_file() {
+  OUTPUT=${1}
+  OUTPUT_FILE=${2}
+  SERVERS=${3}
+  while test $SERVERS; do 
+    APPEND="server `echo $SERVERS | cut -d ':' -f 1`"
+    OUTPUT=$OUTPUT"\n"$APPEND
+    SERVERS=`echo $SERVERS | cut -d ':' -s -f 2-`
+  done
+  OUTPUT=$OUTPUT"\n"
+  echo -e $OUTPUT > $OUTPUT_FILE
+}
+
+start_ntpd() {
+  if test -f /sbin/chkconfig;
+  then
+    # RedHat / Fedora
+    # make ntpd start by default
+    /sbin/chkconfig --level 3 $NTPD_NAME on
+    # resync the date ?? this could take a while
+    # /usr/sbin/ntpd -q -x -g
+    # start ntpd daemon
+    @BASH@ -p /sbin/service $NTPD_NAME start
+  # else
+    # Other distributions ...
+  fi
+}
+
+stop_ntpd() {
+  if test -f /sbin/chkconfig;
+  then
+    # RedHat / Fedora
+    # stop ntpd
+    @BASH@ -p /sbin/service $NTPD_NAME stop
+    # make it not run by default
+    /sbin/chkconfig --level 3 $NTPD_NAME off
+  # else
+    # Other distributions ...
+  fi
+}
+
+while [ $# -ne 0 ]
+do
+  case ${1} in
+    --status)
+      GET_STATUS="yes"
+      ;;
+
+    --get-servers)
+      GET_SERVERS="yes"
+      ;;
+
+    --display-configuration)
+      GET_CONFIGURATION="yes"
+      ;;
+
+    -h|--help)
+      usage
+      exit
+      ;;
+
+    --date)
+      if test -z "${2}"; then
+        echo "No argument specified for ${1}."
+        usage
+      fi
+      DATE="${2}"
+      shift
+      ;;
+
+    --ntp-server)
+      if test -z "${2}"; then
+        echo "No argument specified for ${1}."
+        usage
+      fi
+      if test -z "$NTP_SERVERS"; then
+        NTP_SERVERS="${2}"
+      else
+        NTP_SERVERS="$NTP_SERVERS:${2}"
+      fi
+      shift
+      ;;
+
+    --set-configuration)
+      if test -z "${2}"; then
+        echo "No argument specified for ${1}."
+        usage
+      fi
+      TEMP_CFG_FILE="${2}"
+      shift
+      ;;
+      
+    *)
+      echo "Unknown option: ${1}"
+      usage
+      exit
+      ;;
+    esac
+  shift # always consume one argument
+done
+
+if test -f /etc/SuSE-release; then
+  NTPD_NAME="ntp"
+fi
+
+if test $GET_STATUS = "yes"; then
+  if test -f /sbin/chkconfig; then
+    # RedHat / Fedora
+    /sbin/service $NTPD_NAME status &> /dev/null
+    exit $?
+  # else
+    # Other distributions ...
+  fi
+  exit 0
+fi
+
+if test $GET_SERVERS = "yes"; then
+  if test -e $NTP_CONFIGURATION; then
+    read_servers_from_file "$NTP_CONFIGURATION"
+    SERVERS=$OUTPUT
+    echo -e $SERVERS
+  else
+    echo
+  fi
+  exit 0
+fi
+
+if test $GET_CONFIGURATION = "yes"; then
+  if test -e $NTP_CONFIGURATION; then
+    cat $NTP_CONFIGURATION
+  else
+    echo
+  fi
+  echo
+  exit 0
+fi
+
+if test -n "$TEMP_CFG_FILE"; then
+  cat $TEMP_CFG_FILE > $NTP_CONFIGURATION
+  start_ntpd
+  exit 0
+fi
+
+
+if test -n "$NTP_SERVERS"; then
+  check_root
+  if test $? -ne 0; then
+    echo "You must be root to perform this command"
+    exit 0
+  fi
+  # read the old ntp.conf, if it exists
+  if test -e $NTP_CONFIGURATION; then
+    read_file_without_servers "$NTP_CONFIGURATION"
+    NTP_CFG_FILE=$OUTPUT
+  else
+    NTP_CFG_FILE=""
+  fi
+  # append the servers and re-write the ntp.conf
+  write_file "$NTP_CFG_FILE" "$NTP_CONFIGURATION" "$NTP_SERVERS"
+  start_ntpd
+  exit 0
+fi
+
+
+if test -n "$DATE"; then
+  check_root
+  if test $? -ne 0; then
+    echo "You must be root to perform this command"
+    exit 0
+  fi
+  # disable ntpd
+  stop_ntpd
+  # change the date
+  @DATE_BINARY@ $DATE
+  exit 0
+fi
+
+exit 0

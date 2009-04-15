@@ -1,0 +1,22 @@
+<!-- Delegating build script, used by cruisecontrol to build sipXconfig.
+     Note that the basedir is set to the checked out project -->
+<project name="build-sipXconfig" default="build" basedir="..">
+  <target name="build">
+    <!-- Get the latest from SVN -->
+    <exec executable="/usr/bin/svn">
+      <arg line="up"/>
+    </exec>
+    <!-- Call the target that does everything -->
+    <ant antfile="build.xml" target="clean"/>
+    <ant antfile="build.xml" target="default">
+      <property name="with.clover" value="true"/>
+    </ant>
+    <ant antfile="build.xml" target="style"/>
+    <ant antfile="build.xml" target="test-all">
+      <!-- this is how long (in seconds) we should wait till server starts, before we begin SOAP API tests -->
+      <property name="test-api.sleep" value="90"/>
+    </ant>
+    <ant antfile="build.xml" target="test-report"/>
+    <ant antfile="build.xml" target="clover.report"/>
+  </target>
+</project>

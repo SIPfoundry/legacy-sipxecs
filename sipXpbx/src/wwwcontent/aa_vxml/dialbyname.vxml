@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<vxml version="2.0" application="../vm_vxml/root.vxml">
+    <!-- Implements "Dial by Name" -->
+
+    <form id="dialbyname">
+        <property name="interdigittimeout" value="3s" />
+        <property name="timeout" value="7s" />
+
+        <!-- Parameters passed in from the calling subroutine -->
+        <var name="from" />
+        <var name="mediaserverurl" />
+        <var name="securemediaserverurl" />
+        <var name="fromdeposit" />
+
+        <!-- Parameters required for invoking the CGI -->
+        <var name="action" expr="'dialbyname'"/>
+
+        <!-- Prompt the user to enter the digits -->
+        <field name="digits" type="digits?minlength=1">
+            <prompt timeout="10s">
+                <audio expr="mediaserverurl + promptsalias + 'dialbyname.wav'" />
+                <audio expr="mediaserverurl + promptsalias + 'to_cancel_press_star.wav'" />
+            </prompt>
+            <filled>
+                <if cond="digits=='0'" >
+                    <prompt bargein="false">
+                        <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
+                    </prompt>
+                    <clear namelist="digits" />
+                    <goto nextitem="digits" />
+               <elseif cond="digits=='1'" />
+                    <prompt bargein="false">
+                        <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
+                    </prompt>
+                    <clear namelist="digits" />
+                    <goto nextitem="digits" />
+                <elseif cond="digits=='*'" />
+                    <prompt bargein="false">
+                        <audio expr="mediaserverurl + promptsalias + 'cancelled.wav'" />
+                    </prompt>
+                    <if cond="fromdeposit == 'yes'">
+                        <var name="result" expr="'quit'" />
+                        <var name="extension" expr="'-1'" />
+                        <return namelist="extension result"/>
+                    <else />
+                        <var name="result" expr="'quit'" />
+                        <return namelist="result"/>
+                    </if>
+                <else />
+                    <goto nextitem="dbncgi"/>
+                </if>
+            </filled>
+            <noinput count="3">
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                </prompt>
+                <disconnect />
+            </noinput>
+        </field>
+
+        <!-- Invoke the CGI to find the matches and play appropriate prompts -->
+        <subdialog name="dbncgi" method="get" srcexpr="securemediaserverurl + cgiurl" namelist="action from digits fromdeposit">
+            <filled>
+                <if cond="fromdeposit == 'yes'">
+                    <if cond="dbncgi.extension == '-1'" >
+                        <clear namelist="digits" />
+                        <goto nextitem="digits" />
+                    <else />
+                        <var name="extension" expr="dbncgi.extension" />
+                        <return namelist="extension"/>
+                    </if>
+                <else />
+                    <clear namelist="digits" />
+                    <goto nextitem="digits" />
+                </if>
+            </filled>
+        </subdialog>
+    </form>
+</vxml>

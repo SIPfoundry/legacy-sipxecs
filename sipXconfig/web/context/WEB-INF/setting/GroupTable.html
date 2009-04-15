@@ -1,0 +1,26 @@
+<span jwcid="$content$">
+  <form jwcid="groupManagement">
+    <table jwcid="tableView" id="group:list">
+        <span jwcid="nameColumnValue">
+            <span jwcid="lineNumber"/>.
+            <img jwcid="@Image" image="asset:groupIcon" align="absmiddle" />
+            <a jwcid="viewGroupLink"><span jwcid="viewGroupLabel"/></a>
+        </span>
+        <span jwcid="membersColumnValue">
+            <a jwcid="memberLink"><span jwcid="memberCount"/></a>
+        </span>
+    </table>
+    <ul class="component-submit">
+      <li>
+        <input id="group:delete" jwcid="delete" value="Delete"
+          onclick="return confirm('Are you sure you want to delete selected groups?')"/>
+      </li>
+		<li>
+			<submit id="group:moveUp" jwcid="moveUp" value="Move Up"/>
+		</li>
+		<li>
+			<submit id="group:moveDown" jwcid="moveDown" value="Move Down"/>
+		</li>
+    </ul>
+  </form>
+</span>

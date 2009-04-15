@@ -1,0 +1,56 @@
+<cruisecontrol>
+	<!-- to be used with default installation of cruisecontrol 2.3.1 or newer -->
+	<!-- svn co {sipXconfg-url} projects/sipXconfig to initialize -->
+	<plugin name="ant" antscript="/usr/bin/ant" uselogger="true" usedebug="false"/>
+	
+	<plugin name="htmlemail" buildresultsurl="http://osprey:8080/cruisecontrol"
+		defaultsuffix="@pingtel.com" mailhost="mail.pingtel.com" xsldir="webapps/cruisecontrol/xsl"
+		css="webapps/cruisecontrol/css/cruisecontrol.css" returnaddress="cruisecontrol@pingtel.com">
+		<map alias="lazyboy" address="dhubler"/>
+	</plugin>
+	
+	<project name="sipXconfig" buildafterfailed="true">
+		
+		<listeners>
+			<currentbuildstatuslistener file="logs/sipXconfig/status.txt"/>
+		</listeners>
+		
+		<!-- Bootstrappers are run every time the build runs,
+		*before* the modification checks -->
+		<bootstrappers>
+		</bootstrappers>
+		
+		<!-- Defines where cruise looks for changes, to decide
+		whether to run the build -->
+		<modificationset quietperiod="10">
+			<svn localworkingcopy="projects/sipXconfig"/>
+		</modificationset>
+		
+		<!-- Configures the actual build loop, how often and which
+		build file/target -->
+		<schedule interval="60">
+			<ant buildfile="build.sipXconfig.xml" target="build"/>
+		</schedule>
+		
+		<!-- directory to write build logs to -->
+		<log logdir="logs/sipXconfig">
+			<merge dir="projects/sipXconfig/build/neoconf/junit/"/>
+			<merge dir="projects/sipXconfig/build/web/junit/"/>
+			<merge file="projects/sipXconfig/build/neoconf/checkstyle_errors.xml"/>
+			<merge file="projects/sipXconfig/build/web/checkstyle_errors.xml"/>
+		</log>
+		
+		<!-- Publishers are run *after* a build completes -->
+		<publishers>
+			<htmlemail subjectprefix="sipXconfig build:"/>
+			
+			<!-- publish clover stats on success -->
+			<onsuccess>
+				<artifactspublisher dir="projects/sipXconfig/build/neoconf/clover/html"
+					dest="logs/sipXconfig" subdirectory="neoconf"/>
+				<artifactspublisher dir="projects/sipXconfig/build/web/clover/html"
+					dest="logs/sipXconfig" subdirectory="web"/>
+			</onsuccess>
+		</publishers>
+	</project>
+</cruisecontrol>

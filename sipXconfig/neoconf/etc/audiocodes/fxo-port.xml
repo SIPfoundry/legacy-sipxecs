@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!DOCTYPE model 
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <group name='Port'>
+    <label>Analog Line</label>
+    <setting name="AutomaticDialing">
+      <label>Automatic Dialing</label>
+      <profileName>$$</profileName>
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+      <description>
+        If enabled calls received on this PSTN line will be automatically sent to the destination (extension or user) specified below.
+      </description>
+    </setting>
+    <setting name="Extension">
+      <label>Extension</label>
+      <profileName>$$</profileName>
+      <type>
+        <string required="yes"/>
+      </type>
+      <value>operator</value>
+      <description>Specify the destination for incoming calls on this PSTN line, such as an auto-attendant, a hunt group, an ACD queue, or any internal extension, user or alias.</description>
+    </setting>
+  </group>
+</model>

@@ -1,0 +1,11 @@
+<div jwcid="@common/Border">
+  <span jwcid="@user/UserNavigation" bean="ognl:user" activeSetting="ognl:parentSetting">
+    <span jwcid="@Insert" value="ognl:parentSettingDescription"/>
+  </span>
+  <span jwcid="@setting/SettingsForm"
+    settings="ognl:parentSetting"
+    cancelListener="listener:cancel"
+    okListener="listener:ok"
+    applyListener="listener:apply"
+    validator="bean:validator"/>
+</div>

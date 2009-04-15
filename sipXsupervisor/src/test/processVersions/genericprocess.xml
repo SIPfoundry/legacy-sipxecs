@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<sipXecs-process xmlns='http://www.sipfoundry.org/sipX/schema/xml/sipXecs-process-01-00'>
+  <name>Generic</name>
+  <version>1.0.0</version>
+  <commands>
+    <configtest>
+      <execute>/bin/genericprocess1.sh</execute>
+    </configtest>
+    <start>
+      <execute>/bin/genericprocess2.sh</execute>
+    </start>
+    <stop>
+      <execute>/bin/genericprocess3.sh</execute>
+    </stop>
+  </commands>
+  <status>
+    <pid>/var/run/genericprocess.pid</pid>
+  </status>
+  <resources>
+    <file>/etc/sipxpbx/genericprocess.xml</file>
+  </resources>
+</sipXecs-process>

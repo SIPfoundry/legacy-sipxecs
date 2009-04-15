@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<sipXecs-process xmlns='http://www.sipfoundry.org/sipX/schema/xml/sipXecs-process-01-00'>
+  <name>Past</name>
+  <version>1.0.0</version>
+  <commands>
+    <configtest>
+      <execute>/bin/pastprocess1.sh</execute>
+    </configtest>
+    <start>
+      <execute>/bin/pastprocess2.sh</execute>
+    </start>
+    <stop>
+      <execute>/bin/pastprocess3.sh</execute>
+    </stop>
+  </commands>
+  <status>
+    <pid>/var/run/pastprocess.pid</pid>
+  </status>
+  <resources>
+    <file>/etc/sipxpbx/pastprocess.xml</file>
+  </resources>
+</sipXecs-process>

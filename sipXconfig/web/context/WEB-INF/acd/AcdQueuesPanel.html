@@ -1,0 +1,60 @@
+<fieldset>
+    <legend><span key="section">ACD Lines</span></legend>
+    <ul class="component-links">
+        <li jwcid="ifRenderAddLink@If"
+           condition="ognl:addListener != null" renderTag="ognl:true">
+           <a jwcid="addLink@DirectLink" id="queue:add" href="#"
+              listener="ognl:addListener">
+              <span key="add_link">Add New Line</span>
+           </a>
+        </li>
+    </ul>
+	<table jwcid="tableView@common/Table" id="queue:list" class="component"
+	   source="ognl:queues"
+	   columns="literal:* name:name,description:description,overflowQueue:overflowQueue"
+	   row="ognl:currentRow"
+	   converter="ognl:converter"
+	   selections="ognl:selections"
+	   usePager="ognl:false">
+		<span jwcid="nameColumnValue@Block">
+			<span jwcid="editRowLink@DirectLink"
+			   listener="ognl:selectListener"
+               parameters="ognl:currentRow.id">
+			   <span jwcid="nameText@Insert"
+			      value="ognl:currentRow.name"/>
+			</span>
+		</span>
+		<span jwcid="overflowQueueColumnValue@Block">
+           <span jwcid="@If" condition="ognl:currentRow.overflowQueue">
+              <span jwcid="@DirectLink"
+                 listener="ognl:selectListener"
+                 parameters="ognl:currentRow.overflowQueue.id">
+                 <span jwcid="@Insert" value="ognl:currentRow.overflowQueue.name"/>
+              </span>
+          </span>
+       </span>
+	</table>
+    <ul class="component-submit">
+        <li jwcid="ifRenderDelete@If"
+           condition="ognl:acdAgentId == null">
+           <input jwcid="delete@Submit" type="submit" id="queue:delete" name=""
+              selected="ognl:rowsToDelete"
+              tag="ognl:selections.allSelected"
+              value="message:button.delete"/>
+        </li>
+        <li jwcid="ifRenderMoveUp@If"
+           condition="ognl:acdAgentId != null">
+           <input jwcid="moveUp@Submit" type="submit" id="agent:moveUp"
+              selected="ognl:rowsToMoveUp"
+              tag="ognl:selections.allSelected"
+              value="message:button.moveUp"/>
+        </li>
+        <li jwcid="ifRenderMoveDown@If"
+           condition="ognl:acdAgentId != null">
+           <input jwcid="moveDown@Submit" type="submit" id="agent:moveDown"
+              selected="ognl:rowsToMoveDown"
+              tag="ognl:selections.allSelected"
+              value="message:button.moveDown"/>
+        </li>
+    </ul>
+</fieldset>

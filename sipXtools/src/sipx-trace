@@ -1,0 +1,271 @@
+#!/bin/sh
+###
+### SIP Trace something
+###
+
+MyName=`basename $0`
+
+Action=LOCAL
+Prefix=""
+Output=""
+Token="("
+
+User=admin
+Password=
+
+DefaultPrefix="/"
+DefaultComponents="sipXproxy sipregistrar"
+AllComponents=TRUE
+Components=""
+
+dump=cat
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        ##
+        ## handle an option with a value followiing
+        ##
+
+        -s|--server)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <server> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                Action=SERVER
+                Server="${Server} ${2}"
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+
+        -P|--prefix)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <prefix-dir> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                Action=LOCAL
+                Prefix="${Prefix} ${2}"
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+            
+        -e|--extension)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <log-extension> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                LogExtension=${2}
+                case ${LogExtension} in
+                    *.gz)
+                        dump=zcat
+                        ;;
+                esac
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+            
+        -a|--all-components)
+            AllComponents=TRUE
+            ;;
+
+        -c|--component)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <component-name> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                AllComponents=FALSE
+                Components="${Components} ${2}"
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+
+        -o|--output)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <file-name> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                Output="${2}"
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+
+
+        -h|--help)
+            Action=USAGE
+            break
+            ;;
+
+        ##
+        ## handle an unknown switch
+        ##
+        -*)
+            Action=USAGE
+            break
+            ;;
+
+        *)
+            if [ "${Token}"x = "("x ]
+            then
+                Token="${Token}$1"
+            else
+                Token="${Token}|$1"
+            fi
+            ;;
+    esac           
+
+    shift # always consume 1
+done
+
+if [ -z "${Prefix}" ]
+then
+    Prefix=${DefaultPrefix}
+fi
+
+getAllComponents() {
+    case ${Action} in
+        USAGE)
+            ;;
+
+        SERVER)
+            echo "the --all-components option is not yet available for remote servers" 1>&2
+            exit 1
+            ;;
+
+        LOCAL)
+            TMP=`mktemp -t sipx-trace.components.XXXXXX`
+            trap "rm $TMP* 2>/dev/null" 0
+            for prefix in ${Prefix}
+            do
+                for c in ${prefix}/var/log/sipxpbx/*.log${LogExtension}
+                do
+                    basename $c .log${LogExtension} >> $TMP
+                done
+            done
+            Components=`sort -u $TMP`
+            rm -f $TMP
+            ;;
+    esac
+}
+
+if [ ${AllComponents} = TRUE ]
+then
+    getAllComponents
+elif [ -z "${Components}" ]
+then
+    Components=${DefaultComponents}
+fi
+
+# We have to append "x" to test whether $Token is '(', because an argument
+# to '[' that is '(' and not in the final position is treated as starting a
+# parenthesized expression.
+if [ "${Token}"x = "("x -a ${Action} != USAGE ]
+then
+    echo "Must specify at least one token to search for; try '${MyName} --help'." 1>&2
+    exit 1;
+else
+    Token="${Token})"
+fi
+
+Trace=`mktemp -t -d trace.XXXXXXXX` || exit
+
+pullServer() { # server
+    local system
+    system=$1
+
+    for c in ${Components}
+    do
+      echo searching ${system} $c log
+      ssh ${1} "${dump} /var/log/sipxpbx/${c}.log${LogExtension} | grep --text -E \"${Token}\"" \
+        > ${Trace}/${system}.${c}.log
+    done
+}
+
+grepLog() { # prefix
+    local prefix
+    prefix=$1
+
+    alias=`echo "$prefix" | perl -p -e 's|/|_|g; s|^\.|_|'`
+    for c in ${Components}
+    do
+      echo searching ${prefix} ${c} log
+      ${dump} ${prefix}/var/log/sipxpbx/${c}.log${LogExtension} \
+      | grep --text -E "${Token}" \
+      > ${Trace}/${alias}.${c}.log
+    done
+}
+
+
+case ${Action} in
+    USAGE)
+        cat <<USAGE
+
+Usage:
+    
+   ${MyName} <options> <token>...
+
+   options:
+           { {-a|--all-components} | {-c|--component} <component-name> ... }
+           [ { {-P|--prefix} <prefix-dir> }* | { {-s|--server} <server> }* ]
+           [-o|--output]
+           [-h|--help]
+           
+   Select all messages containing any <token> from a set of sipX component log files,
+   and display them using sipviewer.  The tokens are combined into a single 'grep -E' 
+   expression when searching the log files.
+
+   For remote use (using the '--server' option), this script uses 'ssh'.  For this
+   mode to be convenient, you should have installed your ssh public key so that login
+   to the server does not require a password.
+
+USAGE
+        exit
+        ;;
+    
+    SERVER)
+        for server in $Server
+        do 
+          pullServer $server
+        done        
+        ;;
+
+    LOCAL)
+        for prefix in ${Prefix}
+        do
+          grepLog $prefix
+        done
+        ;;
+esac
+
+
+for log in ${Trace}/*.log
+do 
+  xtract=`basename ${log} .log`
+  echo translating ${xtract}
+  syslog2siptrace <  ${log} > ${Trace}/${xtract}.trace.xml
+done
+
+echo merging
+siptrace-merge  ${Trace}/*.trace.xml > ${Trace}/merged.xml
+
+if [ -z "${Output}" ]
+then
+    sipviewer ${Trace}/merged.xml
+else
+    cp -v ${Trace}/merged.xml ${Output} 
+fi
+
+exit
+
+
+
+

@@ -1,0 +1,9 @@
+<project name="lg-nortel" default="default">
+
+  <property name="project.dir" value="plugins/lg-nortel" />
+  <property name="plugin.models.dir" value="etc/lg-nortel" />
+  <property name="plugin.name" value="lg-nortel-phones" />
+
+  <import file="../plugins.build.xml" />
+
+</project>

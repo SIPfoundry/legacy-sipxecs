@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<component-specification class="org.sipfoundry.sipxconfig.site.dialplan.CallPatternEditor" allow-body="no" allow-informal-parameters="no">
+  <!-- B E A N S -->
+  <bean name="digitsModel" class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel" lifecycle="page">
+    <set name="enumClass" value="@org.sipfoundry.sipxconfig.admin.dialplan.CallDigits@class"/>
+  </bean>
+  <bean name="localizedDigitsModel" class="org.sipfoundry.sipxconfig.components.LocalizedOptionModelDecorator" lifecycle="page">
+    <set name="model" value="bean:digitsModel"/>
+    <set name="resourcePrefix" value="literal:digits."/>
+    <set name="messages" value="messages"/>
+  </bean>
+
+</component-specification>

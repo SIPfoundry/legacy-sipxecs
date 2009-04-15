@@ -1,0 +1,63 @@
+body
+{
+color: black;
+background: white;
+margin-left: +10%;
+margin-right: +10%;
+}
+
+h1
+{
+margin-left: -7%;
+text-decoration: underline;
+font-size: +2;
+font-weight: bold;
+}
+h2
+{
+margin-left: -7%;
+font-size: +2;
+font-weight: bold;
+}
+h3
+{
+margin-left: -3%;
+font-size: +1;
+font-weight: bold;
+}
+a:visited
+{
+color: blue;
+}
+a:active, a:link
+{
+color: blue;
+text-decoration: underline;
+}
+
+div.note, div.warning, div.caution
+{
+border-style: solid hidden solid hidden;
+border-color: black;
+border-width: thin none thin none;
+}
+
+.programlisting
+{
+font-family: Courier,monospace;
+white-space: pre;
+}
+
+div.programlisting
+{
+border-style: solid;
+border-color: black;
+border-width: 1px;
+padding:      5px;
+}
+
+.parameter
+{
+font-style: italic;
+}
+

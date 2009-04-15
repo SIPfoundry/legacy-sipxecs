@@ -1,0 +1,152 @@
+<?xml version="1.0"?>
+<vxml version="2.0" application="root.vxml">
+    <!-- Plays messages in the owner's mailbox -->
+    <form id="listenform">
+        <!--Parameters passed in from the subroutine defined in mainmenu.vxml-->
+        <var name="mailbox" />
+        <var name="extn" />
+        <var name="from" />
+        <var name="mediaserverurl" />
+        <var name="securemediaserverurl" />
+
+        <!-- Messages are retrieved on per category basis.
+            Categories are: unheard (inbox unheard) , heard (inbox heard) , 
+            saved, deleted, custom foldernames
+            Default category: unheard
+        -->
+        <var name="category" />
+    
+        <!-- Parameters required for the CGI -->
+        <var name="action" expr="'playmsg'" />
+
+        <!-- For efficiency, messages are retrieved in chunks.
+            'Blocksize' specifies the size of each chunk.
+            If blocksize = -1, all messages in the category will be retrieved.
+            -1 is used by the WebUI.
+        -->
+        <var name="blocksize" expr="'10'" />
+
+        <!-- Cursor to indicate where we left of in the previous block.
+            This is the Id of the last message in the previous block.
+            If set to -1, indicates that this is the first block.
+        -->
+        <var name="nextblockhandle" expr="'-1'" />
+
+        <!-- Used by the UpdateMessageStates CGI.
+            Contains a space separated list of all the message ids whose state 
+            has to be changed from 'unheard' to 'heard'.
+            If set to -1, all msgs in the specified category will be updated.
+        -->
+        <var name="messageidlist" expr="'-1'" />
+        <var name="unheardmsgsavailable" />
+        <var name="unheardMsgIdList" expr="'0'" />
+
+        <!-- Invoke the CGI for playing the messages -->
+        <subdialog name="msglisten" method="get" srcexpr="securemediaserverurl + cgiurl" namelist="action mailbox from category blocksize nextblockhandle unheardMsgIdList">
+            <filled>
+                <if cond="msglisten.endofmessages == 'yes'">
+                    <!-- All messages in the current category have been played.-->
+                    <if cond="category == 'unheard'">
+                        <!-- Get the next category -->
+                        <assign name="unheardMsgIdList" expr="msglisten.messageidlist" />
+                        <assign name="unheardmsgsavailable" expr="'yes'" />
+                        <assign name="category" expr="'heard'"/>
+                        <assign name="nextblockhandle" expr="'-1'" />
+                        <clear namelist="msglisten"/>
+                        <goto nextitem="msglisten" />
+                    <elseif cond="category == 'heard'"/>
+                        <!-- All messages in the inbox have been played.
+                            Change the state of all the messages to 'heard'.
+                        -->
+                        <if cond="unheardmsgsavailable=='no'">
+                            <prompt>
+                                <audio expr="mediaserverurl + promptsalias + 'end_of_messages.wav'" />
+                            </prompt>
+                            <return/>
+                        <else />
+                            <assign name="messageidlist" expr="msglisten.messageidlist" />
+                            <assign name="action" expr="'updatestatus'"/>
+                            <assign name="category" expr="'inbox'" />
+                            <goto nextitem="updatestatus" />
+                        </if>
+                    <else />
+                        <assign name="messageidlist" expr="'-1'" />
+                        <assign name="action" expr="'updatestatus'"/>
+                        <assign name="category" expr="category" />
+                        <goto nextitem="updatestatus" />
+                    </if>
+                <elseif cond="msglisten.endofmessages == 'no'" />
+                    <!-- Get the next chunk -->
+                    <if cond="category=='unheard'">
+                        <assign name="unheardmsgsavailable" expr="'yes'" />
+                    </if>
+                    <assign name="nextblockhandle" expr="msglisten.nextblockhandle"/>
+                    <clear namelist="msglisten"/>
+                    <goto nextitem="msglisten" />
+                <elseif cond="msglisten.endofmessages == 'nomessages'"/>
+                    <!-- There are no messages in this category  -->
+                    <if cond="category == 'unheard'">
+                        <!-- Get the next category -->
+                        <assign name="unheardMsgIdList" expr="msglisten.messageidlist" />
+                        <assign name="unheardmsgsavailable" expr="'no'" />
+                        <assign name="category" expr="'heard'"/>
+                        <assign name="nextblockhandle" expr="'-1'" />
+                        <clear namelist="msglisten"/>
+                        <goto nextitem="msglisten" />
+                    <elseif cond="category == 'heard'"/>
+                        <if cond="unheardmsgsavailable=='no'">
+                            <prompt>
+                                <audio expr="mediaserverurl + promptsalias + 'you_have.wav'" />
+                                <audio expr="mediaserverurl + promptsalias + 'no_msgs_in_inbox.wav'" />
+                            </prompt>
+                            <return/>
+                        <else />
+                            <assign name="messageidlist" expr="msglisten.messageidlist" />
+                            <assign name="action" expr="'updatestatus'"/>
+                            <assign name="category" expr="category" />
+                            <goto nextitem="updatestatus" />
+                        </if>
+                    <elseif cond="category == 'saved'"/>
+                        <prompt>
+                            <audio expr="mediaserverurl + promptsalias + 'you_have.wav'" />
+                            <audio expr="mediaserverurl + promptsalias + 'no_saved_msgs.wav'" />
+                        </prompt>
+                        <return/>
+                    <elseif cond="category == 'deleted'"/>
+                        <prompt>
+                            <audio expr="mediaserverurl + promptsalias + 'you_have.wav'" />
+                            <audio expr="mediaserverurl + promptsalias + 'no_deleted_msgs.wav'" />
+                        </prompt>
+                        <return/>
+                    </if>
+                <elseif cond="msglisten.endofmessages == 'cancelled'"/>
+                    <assign name="action" expr="'updatestatus'"/>
+                    <assign name="category" expr="category" />
+                    <assign name="messageidlist" expr="msglisten.messageidlist" />
+                    <goto nextitem="updatestatus" />
+                </if>
+            </filled>                                                   
+        </subdialog>
+
+        <!-- Invoke the CGI for updating the message states -->
+        <subdialog name="updatestatus" method="get" srcexpr="securemediaserverurl + cgiurl" namelist="action mailbox category messageidlist">
+            <filled>
+                <if cond="msglisten.endofmessages == 'cancelled'">
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'cancelled.wav'" />
+                    </prompt>
+                <elseif cond="updatestatus.result == 'success'" />
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'end_of_messages.wav'" />
+                    </prompt>
+                <else />
+                    <!-- TODO: indicate failure -->
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'end_of_messages.wav'" />
+                    </prompt>
+                </if>
+                <return />
+            </filled>
+        </subdialog>
+    </form>
+</vxml>

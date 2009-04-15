@@ -1,0 +1,79 @@
+#! /usr/bin/env python
+
+#----------------------------------------------------------------------
+#
+# Copyright (C) 2008 Nortel Networks
+#
+# This script drives the package update process, interacting with Yum 
+# and presenting output that is easily parsed by the 
+# sipXconfig process.
+#
+#----------------------------------------------------------------------
+
+import yum, sys, os
+from subprocess import Popen, PIPE
+
+# Checks for updated sipXecs packages.
+def check_update():
+    print "# Package Name|Installed Version|Updated Version"
+    yumBase = yum.YumBase()
+    yumBase.repos.disableRepo("*")
+    yumBase.repos.enableRepo("sipxecs")
+    packages = yumBase.doPackageLists('updates')
+
+    for package in packages.updates:
+        installedPackage = yumBase.rpmdb.searchAll(package.name)[0]
+        print package.name + "|" + installedPackage.ver + "-" + installedPackage.release + "|" + package.ver + "-" + package.release
+
+# Checks the version of sipXecs installed on the system.
+# The version of the main sipxecs package is checked, and that version number is used.
+def check_version():
+    yumBase = yum.YumBase()
+    sipxecs = yumBase.rpmdb.searchAll("sipxecs")[0]
+    print sipxecs.name + " " + sipxecs.ver + "-" + sipxecs.release
+    
+# Downloads and installs updated packages for the system    
+def update():
+    yumLog = open('@SIPX_LOGDIR@/sipx-package-update.log', 'w')
+    yumLog.write("Stopping sipxecs services...\n\n")
+    os.spawnl(os.P_WAIT, "@BASH@", "-p", "@SERVICEDIR@/sipxecs", "stop")
+    yumLog.write("Downloading and installing updated packages...\n\n");
+    yumProcess = Popen(["yum", "update", "-y"], stdout=PIPE)
+    yumStdOut = yumProcess.stdout
+    line = yumStdOut.readline()
+    while line != "":
+       yumLog.write(line)
+       line = yumStdOut.readline()
+
+    yumLog.write("Package update complete.\n")
+    yumLog.write("Starting sipxecs services...\n")
+    os.spawnl(os.P_WAIT, "@BASH@", "-p", "@SERVICEDIR@/sipxecs", "start")
+    yumLog.close()
+    
+def usage():
+    print """
+        Usage: sipx-package.py <command>
+
+        Valid commands:
+          check-update      Check for updated sipx packages
+          update            Update packages on the system
+          version           Show installed sipXecs version
+    """
+    sys.exit(1);
+
+#======================================================================
+# MAIN SCRIPT BODY STARTS HERE
+#======================================================================
+
+if len(sys.argv) < 2:
+    usage()
+    quit()
+if sys.argv[1] == "check-update":
+    check_update()
+elif sys.argv[1] == "version":
+    check_version()
+elif sys.argv[1] == "update":
+    update()    
+else:
+    usage()
+

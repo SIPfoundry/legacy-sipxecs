@@ -1,0 +1,10 @@
+<type id="on-off">
+	<boolean>
+		<true>
+			<value>TRUE</value>
+		</true>
+		<false>
+			<value>FALSE</value>
+		</false>
+	</boolean>
+</type>

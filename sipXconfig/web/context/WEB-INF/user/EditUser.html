@@ -1,0 +1,13 @@
+<div jwcid="@common/Border" useDojo="true">
+  <span jwcid="@setting/GroupCloud" groups="ognl:coreContext.groups"/>
+  <!-- h2>Edit User</h2 -->
+  <span jwcid="@user/UserNavigation" bean="ognl:user" />
+  <span jwcid="@common/ErrorMsg"/>
+  <span jwcid="@common/QuickHelp" value="message:quick.help" />
+  <div id="settings-content">    
+    <form jwcid="form">
+      <span jwcid="userForm"/>
+      <ul jwcid="formActions"/>
+    </form>
+  </div>
+</div>

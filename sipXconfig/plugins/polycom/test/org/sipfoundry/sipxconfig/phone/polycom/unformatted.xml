@@ -1,0 +1,8 @@
+<?xml
+  version="1.0"
+  standalone="yes"?>
+<!-- SIP Application Configuration File -->
+<!-- $Revision: 1.100.4.10.2.16 $  $Date: 2006/02/27 21:37:23 $ -->
+<sip><voIpProt><local
+    voIpProt.local.port="5061"/>
+</voIpProt></sip>

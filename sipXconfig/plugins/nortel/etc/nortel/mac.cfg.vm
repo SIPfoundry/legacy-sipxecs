@@ -1,0 +1,32 @@
+## Velocity macros
+## emit 'setting value' pair
+#macro(emit_setting $s)
+${s.ProfileName} $!{s.Value}
+#end
+## emit setting line for every setting in the group
+#macro(emit_group $g)
+#foreach ($s in $g.Values)
+#emit_setting($s)
+#end
+
+#end
+#macro(emit_groups_by_name $group_names)
+#foreach ($gn in $group_names)
+#emit_group($phone.Settings.getSetting("$gn"))
+#end
+#end
+
+#emit_groups_by_name(['NETWORK'])
+#foreach ($line in $phone.lines)
+#set($line_id = $velocityCount)
+#foreach ($group in $line.Settings.Values)
+#foreach ($setting in $group.Values)
+${setting.ProfileName} $!{setting.Value}
+#end
+#end
+#end
+
+#emit_groups_by_name(['VOIP', 'VM', 'ADMIN', 'TIME', 'VOICE', 'QOS', 'STORAGE', 'DEBUG', 'AUTO', 'NAT', 'VQMON', 'TONES', 'SYSTEM'])
+#set($lowercase = "$phone.SerialNumber")
+#set($caps = "${lowercase.toUpperCase()}")
+

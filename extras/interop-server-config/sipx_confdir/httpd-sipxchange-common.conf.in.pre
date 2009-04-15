@@ -1,0 +1,28 @@
+# Listen 8090 - this is the unprotected part of the UI
+Listen 8090
+
+# Point core dump directory to a location where we can write to
+# for CGI's and other such interesting information.
+# Core files will not appear unless "ulimit -c unlimited" (or whatever
+# is appropriate) is in effect, which is usually controlled by the
+# ulimit command in .../etc/init.d/sipxecs.in.
+CoreDumpDirectory @SIPX_LOGDIR@
+
+# protect the sipxchange cgi-bin directory from unauthorized access
+<Directory "/usr/share/www/cgi-bin">
+    # Standard directory settings taken from httpd.conf
+    #AllowOverride All  # Commented out by Mike M.
+    Order Deny,Allow
+    Deny from all
+    Allow from 127.0.0.1 ${CONFIG_SERVER_ADDR}
+    Satisfy any
+</Directory>
+
+<Directory "@SIPX_DATADIR@/mediaserver/data/prompts/">
+    Options Indexes FollowSymLinks MultiViews
+    Order Deny,Allow
+    Deny from all
+    Allow from 127.0.0.1
+    Satisfy any
+</Directory>
+

@@ -1,0 +1,19 @@
+<!DOCTYPE dataset SYSTEM "../../sipxconfig-db.dtd">
+<dataset>
+  <dial_plan dial_plan_id="500"/>
+  
+  <auto_attendant auto_attendant_id="1000" name="a0" prompt="kuku.wav" extension="987"/>
+  <auto_attendant auto_attendant_id="1001" name="a1" prompt="kuku.wav" extension="988"/>
+  
+  <dialing_rule dialing_rule_id="2002" name="attendant_rule2" position="0" dial_plan_id="500"
+    enabled="true"/>
+  <dialing_rule dialing_rule_id="2003" name="attendant_rule3" position="1" dial_plan_id="500"
+    enabled="true"/>
+  <dialing_rule dialing_rule_id="2004" name="attendant_rule4" position="2" dial_plan_id="500"
+    enabled="false"/>
+  
+  <internal_dialing_rule auto_attendant_id="1000" aa_aliases="aaa,bbb" internal_dialing_rule_id="2002" local_extension_len="3"/>
+  <internal_dialing_rule auto_attendant_id="1001" aa_aliases="cc,dddd" internal_dialing_rule_id="2003" local_extension_len="3"/>
+  <internal_dialing_rule auto_attendant_id="1001" aa_aliases="ff,rr" internal_dialing_rule_id="2004" local_extension_len="3"/>
+  
+</dataset>

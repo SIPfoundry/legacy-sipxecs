@@ -1,0 +1,66 @@
+<div jwcid="@common/Border">
+
+  <h2>
+    <span key="title">Group Settings</span>
+  </h2>
+  <ul class="component-links">
+    <li>
+      <a id="group:edit" jwcid="editGroup@DirectLink"
+        listener="listener:editGroupName"><span key="editGroup">Edit Group</span></a>
+    </li>
+  </ul>
+  <span jwcid="@If" condition="ognl:parentSettingName.equals('personal-attendant')">
+    <span jwcid="@common/QuickHelp" value="message:quick.help.personalAttendant"/>
+  </span>
+  
+  <div jwcid="@common/LeftNavigation">
+    <span jwcid="settingsNavigation@setting/SettingsNavigation" bean="ognl:bean"
+      source="ognl:settings.values" activeSetting="ognl:parentSetting"
+      editSettingsListener="listener:editGroupSettings">
+      <span jwcid="@common/Tab" isActive="ognl:scheduleTabActive">
+        <a id="link:schedules.label" jwcid="editSchedule@DirectLink" listener="listener:editSchedule">
+          <span key="link.schedules">Schedules</span>
+        </a>
+      </span>
+      <span jwcid="@common/Tab" isActive="ognl:conferenceTabActive">
+      	<a id="link:conferences" jwcid="editConferenceSettings@DirectLink" listener="listener:editConferenceSettings">
+      		<span key="conference.link">Conference Assignment</span>
+      	</a>
+      </span>
+    </span>
+  </div>
+  
+  <span jwcid="@common/ErrorMsg"/>
+  
+  <span jwcid="@If" condition="ognl:scheduleTabActive">
+    <span jwcid="@common/QuickHelp" value="message:quick.help.schedule"/>
+    <form jwcid="userSchedules@Form" delegate="bean:validator">
+      <ul class="component-links">
+        <li>
+          <a id="group:addSchedules" jwcid="addSchedule@DirectLink" listener="listener:addSchedule">
+            <span key="add">Add Schedule</span>
+          </a>
+        </li>
+      </ul>
+      <table>
+        <tr>
+          <td>
+            <span jwcid="schedulesTable@setting/SchedulesTable" schedules="ognl:schedules"
+              viewSchedulesListener="listener:editSchedulesGroup" changed="ognl:changed"/>
+          </td>
+        </tr>
+      </table>
+    </form>
+  </span>
+  
+  <span jwcid="@If" condition="ognl:conferenceTabActive">
+      <form jwcid="@user/UserGroupConferenceSettings" settings="ognl:settings" group="ognl:group" validator="bean:validator" />
+  </span>
+  
+  <span jwcid="@Else">
+    <span jwcid="settingsForm@setting/SettingsForm" settings="ognl:parentSetting"
+      cancelListener="listener:cancel" okListener="listener:ok"
+      applyListener="listener:apply" validator="bean:validator"
+      requiredEnabled="literal:false"/>
+  </span>
+</div>

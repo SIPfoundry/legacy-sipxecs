@@ -1,0 +1,91 @@
+; preflight.nsi
+;--------------------------------
+
+; The name of the installer
+Name "Preflight"
+
+SetCompressor /SOLID lzma
+
+; The file to write
+OutFile "@build.dir@/dist/preflight_installer.exe"
+
+; The default installation directory
+InstallDir $PROGRAMFILES\Preflight
+
+; Registry key to check for directory (so if you install again, it will 
+; overwrite the old one automatically)
+InstallDirRegKey HKLM "Software\Pingtel_Preflight" "Install_Dir"
+
+;--------------------------------
+
+; Pages
+
+Page components
+Page directory
+Page instfiles
+
+UninstPage uninstConfirm
+UninstPage instfiles
+
+;--------------------------------
+
+; The stuff to install
+Section "Preflight (required)"
+
+  SectionIn RO
+  
+  ; Set output path to the installation directory.
+  SetOutPath $INSTDIR
+  
+  ; Put file there
+  File "@build.dir@/dist/Preflight.exe"
+  File "@build.dir@/dist/preflight.jar"
+  File /r "@build.dir@/dist/jre6"
+  
+  ; Write the installation path into the registry
+  WriteRegStr HKLM SOFTWARE\Pingtel_Preflight "Install_Dir" "$INSTDIR"
+  
+;;  ; Write the uninstall keys for Windows
+;;  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Preflight" "DisplayName" "Preflight"
+;;  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Preflight" "UninstallString" '"$INSTDIR\uninstall.exe"'
+;;  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Preflight" "NoModify" 1
+;;  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Preflight" "NoRepair" 1
+;;  WriteUninstaller "uninstall.exe"
+  
+SectionEnd
+
+; Optional section (can be disabled by the user)
+Section "Start Menu Shortcuts"
+
+  CreateDirectory "$SMPROGRAMS\Preflight"
+;;  CreateShortCut "$SMPROGRAMS\Preflight\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
+  CreateShortCut "$SMPROGRAMS\Preflight\Preflight.lnk" "$INSTDIR\Preflight.exe" "" "$INSTDIR\Preflight.exe" 0
+  CreateShortCut "$DESKTOP\Preflight.lnk" "$INSTDIR\Preflight.exe"
+  
+SectionEnd
+
+;--------------------------------
+
+;;; Uninstaller
+;;
+;;Section "Uninstall"
+;;  
+;;  ; Remove registry keys
+;;  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Preflight"
+;;  DeleteRegKey HKLM "SOFTWARE\Pingtel_Preflight"
+;;
+;;  ; Remove files and uninstaller
+;;  Delete   "$INSTDIR\Preflight.exe"
+;;  Delete   "$INSTDIR\preflight.jar"
+;;  RMDir /r "$INSTDIR\jre6"
+;;  Delete   "$INSTDIR\uninstall.exe"
+;;
+;;  ; Remove shortcuts, if any
+;;  Delete "$SMPROGRAMS\Preflight\*.*"
+;;  Delete "$DESKTOP\Preflight.lnk"
+;;
+;;  ; Remove directories used
+;;  RMDir "$SMPROGRAMS\Preflight"
+;;  RMDir "$INSTDIR"
+;;
+;;SectionEnd

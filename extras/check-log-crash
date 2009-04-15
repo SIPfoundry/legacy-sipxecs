@@ -1,0 +1,92 @@
+#! /usr/bin/perl
+
+# Check log files for signs of crashes, in particular, a significant
+# drop in the sequence number field.
+
+# Amount to allow sequence number to drop before reporting.
+$fuzz = 100;
+# Always report if the second number is less than this limit.
+$bottom = 10;
+
+# Status to return.
+$return = 0;
+
+# If there is one argument that is a directory, cd to it.
+if ($#ARGV == 0 && -d $ARGV[0]) {
+    chdir($ARGV[0]);
+    shift @ARGV;
+}
+
+# For every file specified, or in <*.log *.log.gz>.
+if ($#ARGV == -1) {
+    @ARGV = sort(glob('*.log'), glob('*.log.[1-9]*'),
+		 glob('*.log.gz'), glob('*.log.[1-0]*.gz'));
+}
+
+# Iterate through the files.
+while ($file = shift(@ARGV)) {
+    # Skip mediaserver_cgi.log files.
+    if ($file =~ /\bmediaserver_cgi\.log\b/) {
+	print "Skipping file '$file' because it looks like a mediaserver_cgi.log.\n";
+	next;
+    }
+
+    # Open the file.
+    if ($file !~ /\.gz/) {
+	# Uncompressed file.
+	open(FILE, $file) ||
+	    do {
+		print "Error opening file '$file' for input: $!\n";
+		next;
+	    };
+    } else {
+	# Compressed file.
+	open(FILE, "zcat $file |") ||
+	    do {
+		print "Error opening gzipped file '$file' for input: $!\n";
+		next;
+	    }
+    }
+
+    # A block to allow us to abort processing the file.
+    {
+	$last = -1;
+
+	# Read the first line of the file to check the format of the file.
+	$_ = <FILE>;
+	if (defined($_)) {
+	    $last = (split(/:/))[3];
+	    if ($last !~ /^\d+$/) {
+		print "File '$file' does not appear to be a sipX log file.\n";
+		last;
+	    }
+	}
+
+	# Report the file name.
+	print "Processing file '$file'.\n";
+
+	# Read the file.
+	while (<FILE>) {
+	    # Extract the sequence number.
+	    $current = (split(/:/))[3];
+	    # If this is not the first line, test the sequence number.
+	    if ($last != -1) {
+		if ($last > $current &&
+		    ($last - $current > $fuzz || $current < $bottom)) {
+		    $time = (/^"([^"]*)"/)[0];
+		    print "Sequence number dropped from '$last' to '$current' " .
+                          "at line $., time '$time' in file '$file'.\n";
+		    $return = 1;
+		}
+            }
+	    $last = $current;
+	}
+    }
+
+    close FILE ||
+        do {
+	    print "Error closing file '$file': $!\n";
+        };
+}
+
+exit $return;

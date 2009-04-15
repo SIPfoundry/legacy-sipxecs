@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+# Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+fd_max=16384
+
+# Try to bump up max fds
+ulimit -n $fd_max > /dev/null 2>&1
+echo $?
+exit $?

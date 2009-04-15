@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="aastraModel" abstract="true" parent="abstractPhoneModel">
+    <property name="beanId" value="aastra" />
+    <property name="profileTemplate" value="aastra/aastra.cfg.vm" />
+    <property name="vendor" value="Aastra"/>
+    <property name="restartSupported" value="true" />
+    <property name="staticProfileFilenames">
+      <list>
+        <value>aastra.cfg</value>
+      </list>
+    </property>
+  </bean>
+  <bean id="aastra53i" parent="aastraModel">
+    <property name="label" value="Aastra SIP IP 53i" />
+    <property name="maxLineCount" value="9" />
+    <property name="supportedFeatures">
+      <set>
+        <value>intercom</value>
+      </set>
+    </property>
+  </bean>
+  <bean id="aastra55i" parent="aastraModel">
+    <property name="label" value="Aastra SIP IP 55i" />
+    <property name="maxLineCount" value="9" />
+    <property name="supportedFeatures">
+      <set>
+        <value>intercom</value>
+      </set>
+    </property>
+  </bean>
+  <bean id="aastra57i" parent="aastraModel">
+    <property name="label" value="Aastra SIP IP 57i" />
+    <property name="maxLineCount" value="9" />
+    <property name="supportedFeatures">
+      <set>
+        <value>intercom</value>
+      </set>
+    </property>
+  </bean>
+  <bean id="aastra560m" parent="aastraModel">
+    <property name="label" value="Aastra SIP IP 560m" />
+    <property name="maxLineCount" value="9" />
+    <property name="supportedFeatures">
+      <set>
+        <value>intercom</value>
+      </set>
+    </property>
+  </bean>
+  <bean id="aastra" class="org.sipfoundry.sipxconfig.phone.aastra.AastraPhone" singleton="false"
+    parent="abstractPhone">
+  </bean>
+</beans>

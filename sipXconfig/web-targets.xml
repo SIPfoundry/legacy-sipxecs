@@ -1,0 +1,112 @@
+<project name="web-targets" default="default">
+
+  <!-- TODO: move to ant-targets -->
+  <property name="test.src.dir" value="test"/>
+  <property name="checkstyle.severity" value="error"/>
+
+  <import file="ant-targets.xml"/>
+
+  <property name="test.war" value="${test.classes.dir}/war"/>
+  <patternset id="test-ui.classes" includes="**/*TestUi.class"/> 
+
+  <path id="web.compile.dependencies">
+    <pathelement path="${servlet.jar}"/>
+    <pathelement path="${tapestry.jar}"/>
+    <pathelement path="${tapestry-contrib.jar}"/>
+    <pathelement path="${tapestry-checkboxes.jar}"/>
+    <pathelement path="${ognl.jar}"/>
+  </path>
+
+  <path id="spring.runtime.dependencies">
+      <fileset file="${spring.jar}" />
+  </path>
+
+  <path id="web.runtime.dependencies">
+    <path refid="spring.runtime.dependencies"/>
+    <pathelement path="${backport-util-concurrent.jar}"/>
+    <pathelement path="${bsf.jar}"/>
+    <pathelement path="${commons-beanutils.jar}"/>
+    <pathelement path="${commons-collections.jar}"/>
+    <pathelement path="${commons-fileupload.jar}"/>
+    <pathelement path="${commons-io.jar}"/>
+    <pathelement path="${commons-lang.jar}"/>
+    <pathelement path="${commons-logging.jar}"/>
+    <pathelement path="${jakarta-oro.jar}"/>
+    <pathelement path="${jasper-compiler.jar}"/>
+    <pathelement path="${jasper-runtime.jar}"/>
+    <pathelement path="${javassist.jar}"/>
+    <pathelement path="${servlet.jsp.jar}"/>
+    <pathelement path="${xerces.jar}"/>
+    <pathelement path="${xml-apis.jar}"/>
+  </path>
+
+  <path id="web.test.dependencies">
+    <pathelement path="${sipxconfig.jar}"/>
+    <path refid="web.compile.dependencies"/>
+    <path refid="web.runtime.dependencies"/>
+    <pathelement path="${commons-digester.jar}"/>
+    <pathelement path="${easymock.jar}"/>
+    <pathelement path="${easymockclassextension.jar}"/>
+    <pathelement path="${httpunit.jar}"/>
+    <pathelement path="${jwebunit.jar}"/>
+    <pathelement path="${jetty.jar}"/>
+    <pathelement path="${servlet.jsp.jar}"/>
+    <pathelement path="${jasper-runtime.jar}"/>
+    <pathelement path="${jasper-compiler.jar}"/>
+    <pathelement path="${tidy.jar}"/>
+    <pathelement path="${commons-codec.jar}"/>
+  </path>
+
+
+  <target name="install" depends="war">
+    <mkdir dir="${dest.dir}${sipxpbx.conf.dir}"/>
+  
+    <copy todir="${dest.dir}${sipxecs.java.dir}/sipXconfig">
+      <fileset file="${backport-util-concurrent.jar}"/>
+      <fileset file="${tapestry.jar}"/>
+      <fileset file="${tapestry-contrib.jar}"/>
+      <fileset file="${tapestry-checkboxes.jar}"/>
+      <fileset file="${ognl.jar}"/>
+    </copy>
+  </target>
+
+  <target name="run" depends="test-war" 
+    description="Runs Jetty on current code, development purpose only">
+    <java classname="org.sipfoundry.sipxconfig.site.test.WebTestHelper" fork="true">
+      <classpath refid="base.path"/>
+      <classpath refid="test.path"/>
+      <classpath location="${junit.jar}"/>
+      <classpath location="${log4j.jar}"/>
+      <sysproperty key="basedir" value="${basedir}"/>
+    </java>
+  </target>
+
+  <target name="test-all" depends="ant-targets.test-all,test-ui"/>
+
+  <target name="test-war" depends="default.deps,compile.test,war" 
+    description="Creates a war file for unittests">
+    <delete dir="${test.war}"/>
+    <unwar src="${war.file}" dest="${test.war}"/>
+  </target>
+
+  <!-- 
+    - U N I T T E S T   W E B   U I
+    -->
+  <target name="test-ui" depends="test-war" 
+    description="run junit tests for web interface">
+    <junit fork="yes" forkmode="perBatch" haltonfailure="no" printsummary="on" 
+      failureproperty="junit.failed">
+      <classpath refid="test.path"/>
+      <formatter type="plain"/>
+      <formatter type="xml"/>
+      <sysproperty key="basedir" value="${basedir}"/>
+      <batchtest todir="${junit.results.dir}">
+        <fileset dir="${test.classes.dir}">
+          <patternset refid="test-ui.classes"/>
+        </fileset>
+      </batchtest>
+    </junit>
+    <fail if="junit.failed"/>
+  </target>
+
+</project>

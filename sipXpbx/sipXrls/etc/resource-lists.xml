@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  - Example resource-lists.xml file
+  -
+  - One resource list with the URI "sip:~~r1~1@example.com",
+  - containing one resource, "sip:bob@example.com".
+  - Both the list and the resource have <name> elements.
+  -->
+
+<lists xmlns="http://www.sipfoundry.org/sipX/schema/xml/resource-lists-00-01">
+  <list user="~~rl~1">
+    <name xml:lang="en">Buddy List</name>
+    <name xml:lang="fr">Liste d'amis</name>
+    <resource uri="sip:bob@example.com">
+      <name>Bob Smith</name>
+    </resource>
+  </list>
+</lists>

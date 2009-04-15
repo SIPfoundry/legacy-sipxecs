@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE dataset SYSTEM "../../../sipxconfig-db.dtd">
+<dataset>
+  <sbc sbc_id="1000" sbc_device_id="1000" enabled="true" sbc_type="D" />
+  <sbc sbc_id="1001" sbc_device_id="1001" enabled="true" sbc_type="A" />
+  <sbc sbc_id="1002" sbc_device_id="1002" enabled="false" sbc_type="A" />
+  <sbc_route_domain index="0" sbc_id="1000" domain="*.example.org" />
+  <sbc_route_domain index="1" sbc_id="1000" domain="*.example.net" />
+  <sbc_route_subnet index="0" sbc_id="1000" subnet="10.1.2.3/24" />
+  <sbc_route_subnet index="0" sbc_id="1001" subnet="10.1.2.5/24" />
+</dataset>

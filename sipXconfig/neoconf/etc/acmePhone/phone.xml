@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!DOCTYPE model 
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <group name="server">
+    <label>Servers</label>
+    <setting name="outboundProxy">
+      <label>Outbound Proxy</label>
+      <value/>
+    </setting>
+    <setting name="outboundProxyPort">
+      <label>Outbound Proxy Port</label>
+      <value/>
+    </setting>
+  </group>
+  <group name="system">
+    <label>System</label>
+    <setting name="domainName">
+      <label>Domain Name</label>
+      <value/>
+    </setting>
+    <setting name="voiceMailNumber">
+      <label>Voicemail Number</label>
+      <value/>
+    </setting>    
+  </group>    
+</model>

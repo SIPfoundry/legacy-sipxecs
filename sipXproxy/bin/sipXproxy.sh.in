@@ -1,0 +1,83 @@
+#!@BASH@
+#
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+Action=RUN
+Status=0
+Args=""
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        --configtest)
+            Action=CONFIGTEST
+            ;;
+
+        --stop)
+            Action=STOP
+            ;;
+
+        *)
+            Args="$Args $1"
+            ;;
+    esac           
+
+    shift # always consume 1
+done
+
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+
+pidfile="@SIPX_RUNDIR@/sipXproxy.pid"
+
+case ${Action} in
+   RUN)
+     echo $$ > ${pidfile}
+     exec @bindir@/sipXproxy $Args
+     ;;
+
+   STOP)
+     sipx_stop sipXproxy ${pidfile}
+     ;;
+
+   CONFIGTEST)
+     myDomain=`sipx_config_value @SIPX_CONFDIR@/domain-config SIP_DOMAIN_NAME`
+     Status=$((${Status} + $?))
+     sipx_config_exists @SIPX_CONFDIR@/sipXproxy-config
+     proxy_config_status=$?
+     Status=$((${Status} + ${proxy_config_status}))
+
+     # check validity of xml routing rules, and authorization rules
+     @bindir@/sipx-validate-xml @SIPX_CONFDIR@/forwardingrules.xml
+     Status=$((${Status} + $?))
+     @bindir@/sipx-validate-xml @SIPX_CONFDIR@/authrules.xml
+     Status=$((${Status} + $?))
+     @bindir@/sipx-validate-xml @SIPX_CONFDIR@/nattraversalrules.xml
+     Status=$((${Status} + $?))
+
+     # Check that the log file is writable.
+     logfile="@SIPX_LOGDIR@/sipXproxy.log"
+     if [ -e $logfile -a ! -w $logfile ]
+     then
+         echo "Log file '$logfile' exists but is not writable by user '@SIPXPBXUSER@'." >&2
+         Status=1
+     fi
+
+     if [ ${proxy_config_status} -eq 0 ]
+     then
+         myIp=`sipx_config_value @SIPX_CONFDIR@/sipXproxy-config SIPX_PROXY_BIND_IP 2> /dev/null`
+         if ! sip_resolves_to ${myDomain} ${myIp}
+         then
+             cat <<ERROR
+    SIP route to SIPXCHANGE_DOMAIN_NAME '${myDomain}' is not to my IP address: ${myIp}
+    See the installation guide on setting the DNS SRV records and domain names
+ERROR
+             Status=1
+         fi
+     fi
+     ;;
+esac
+
+exit $Status
+

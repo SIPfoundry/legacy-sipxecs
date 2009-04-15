@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="yes-no">
+    <boolean>
+      <true>
+        <value>Yes</value>
+      </true>
+      <false>
+        <value>No</value>
+      </false>
+    </boolean>
+  </type>
+  <group name="Registration">
+    <label>Registration</label>
+    <setting name="SipUri">
+      <label>SIP URI</label>
+      <value></value>
+      <description>Identifier in SIP address</description>
+    </setting>
+    <setting name="UserName">
+      <label>User name</label>
+      <value></value>
+      <description>User name sent to SIP Registry server to authenticate as</description>
+    </setting>
+    <setting name="SipServer">
+      <label>SIP Server</label>
+      <value></value>
+      <description>If non-empty, all out-going SIP messages will be delivered to this SIP Proxy 
+        Server for the SIP URI. If you send outgoing SIP messages to another server enter full 
+        host name</description>
+    </setting>
+    <setting name="AutoRegister">
+      <label>Auto Register</label>
+      <type refid="yes-no"/>
+      <value>Yes</value>
+      <description>Immediately upon starting, attempt to register with SIP Server</description>
+    </setting>
+    <setting name="qValue">
+      <label>Q Value</label>
+      <value></value>
+      <description>From 0.0 to 1.0, if mulitple SIP clients register with this same SIP 
+        address, the incoming calls will be directed to the highest Q values. Identical Q 
+        Values will be called in unison. See RFC 3263 for more information. </description>
+    </setting>
+  </group>
+</model>

@@ -1,0 +1,29 @@
+The most current information on the status of any release is in the
+SIPfoundry Issue Tracker at:
+
+        http://track.sipfoundry.org/browse?XCL
+
+
+Release Notes - sipXcallLib - Version 2.6.2
+
+    The only significant changes were in the dependent projects.
+
+Release Notes - sipXcallLib - Version 2.6.1
+
+** Bug
+    * [XCL-17] - Program crashes on multi-processor system
+
+
+Release Notes - sipXcallLib - Version 2.5.2
+
+** Bug
+    * [XCL-2] - Varied unittest failure
+
+** Improvement
+    * [XCL-3] - Clean up code to remove all warnings.
+
+
+Release Notes - sipXcallLib - Version 2.5.1
+
+** Bug
+    * [XCL-1] - won't build with sipXportLib

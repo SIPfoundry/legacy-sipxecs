@@ -1,0 +1,265 @@
+<?xml version="1.0"?>
+<vxml version="2.0" application="root.vxml">
+    <!-- 
+      Lets mailbox owner to select their active greeting. 
+      This greeting will be played when someone accesses this owner's voicemail.
+    -->
+    <form id="activategreeting">
+        <property name="interdigittimeout" value="3s"/>
+        <property name="timeout" value="10s"/>
+
+        <!-- Parameters passed in from the calling subroutine -->
+        <var name="mailbox" />
+        <var name="extension" />
+        <var name="mediaserverurl" />
+        <var name="securemediaserverurl" />
+
+        <!-- Parameter required for invoking the CGIs -->
+        <var name="action" />
+
+        <!-- Indicates the greeting selected to be active.
+            Possible values: standard, outofoffice, extendedabsence, none (for default system greeting)
+        -->
+        <var name="greetingtype" />
+
+        <!-- Prompts users to select the active greeting -->
+        <field name="start">
+            <grammar>1|2|3|4|5|*</grammar>
+            <prompt>
+                <audio expr="mediaserverurl + promptsalias + 'select_active_greeting.wav'"/>
+                <audio expr="mediaserverurl + promptsalias + 'to_cancel_press_star.wav'"/>
+            </prompt>
+            <filled>
+                <if cond="start == '1'" >
+                    <assign name="action" expr="'getallgreetings'" />
+                    <goto nextitem="playallgreetings" />
+                <elseif cond="start == '2'" />
+                    <assign name="greetingtype" expr="'standard'" />
+                    <goto nextitem="confirm" />
+                <elseif cond="start == '3'" />
+                    <assign name="greetingtype" expr="'outofoffice'" />
+                    <goto nextitem="confirm" />
+                <elseif cond="start == '4'" />
+                    <assign name="greetingtype" expr="'extendedabsence'" />
+                    <goto nextitem="confirm" />
+                <elseif cond="start == '5'" />
+                    <assign name="greetingtype" expr="'none'" />
+                    <goto nextitem="confirm" />
+                <elseif cond="start == '*'" />
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'cancelled.wav'"/>
+                    </prompt>
+                    <return />
+                <else />
+                    <prompt bargein="false">
+                        <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
+                    </prompt>
+                    <clear namelist="start" />
+                    <goto nextitem="start" />
+                </if>
+            </filled>
+            <noinput count="3">
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                </prompt>
+                <disconnect/>
+            </noinput>
+            <nomatch>
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
+                </prompt>
+                <reprompt />
+            </nomatch>
+        </field>
+        
+        <!-- Prompt users to confirm their selection -->
+        <field name="confirm" cond="start == '2' || start == '3' || start == '4' || start == '5'">
+            <grammar>1|2|*</grammar>
+            <prompt cond="start=='2'">
+                <audio expr="mediaserverurl + promptsalias + 'standard_selected.wav'"/>
+                <audio expr="mediaserverurl + promptsalias + 'select_active_greeting_confirm.wav'"/>
+            </prompt>
+            <prompt cond="start=='3'">
+                <audio expr="mediaserverurl + promptsalias + 'outofoffice_selected.wav'"/>
+                <audio expr="mediaserverurl + promptsalias + 'select_active_greeting_confirm.wav'"/>
+            </prompt>
+            <prompt cond="start=='4'">
+                <audio expr="mediaserverurl + promptsalias + 'extd_abs_selected.wav'"/>
+                <audio expr="mediaserverurl + promptsalias + 'select_active_greeting_confirm.wav'"/>
+            </prompt>
+            <prompt cond="start=='5'">
+                <audio expr="mediaserverurl + promptsalias + 'default_selected.wav'"/>
+                <audio expr="mediaserverurl + promptsalias + 'select_active_greeting_confirm.wav'"/>
+            </prompt>
+            <filled>
+                <if cond="confirm=='1'">
+                    <assign name="action" expr="'setactivegreeting'" />
+                    <goto nextitem="setactivegreeting"/>
+                <elseif cond="confirm=='2'"/>
+                    <clear namelist="start confirm"/>
+                    <goto nextitem="start"/>
+                <elseif cond="confirm=='*'" />
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'cancelled.wav'"/>
+                    </prompt>
+                    <return />
+                <else />
+                    <prompt bargein="false">
+                        <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
+                    </prompt>
+                    <clear namelist="confirm" />
+                    <goto nextitem="confirm" />
+                </if>
+            </filled>
+            <noinput count="3">
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                </prompt>
+                <disconnect/>
+            </noinput>
+            <nomatch>
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
+                </prompt>
+                <reprompt />
+            </nomatch>
+        </field>
+    
+        <!-- Invoke the CGI to set the active greeting -->
+        <subdialog name="setactivegreeting" cond="confirm == '1'" method="get" srcexpr="securemediaserverurl + cgiurl" namelist="action mailbox greetingtype">
+            <filled>
+                <if cond="setactivegreeting.result == 'success'" >
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'activate_greeting_success.wav'" />
+                    </prompt>
+                    <return />
+                <elseif cond="setactivegreeting.result == 'filenotfound'" />
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'greeting_not_found.wav'" />
+                    </prompt>
+                    <clear namelist="start confirm setactivegreeting" />
+                    <goto nextitem="start" />
+                <else />
+                    <goto nextitem="setactivefailed"/>
+                </if>
+            </filled>
+        </subdialog>
+
+        <field name="setactivefailed" cond="setactivegreeting.result == 'failed'">
+            <grammar>1|*</grammar>
+            <prompt>
+                <audio expr="mediaserverurl + promptsalias + 'system_error.wav'" />
+            </prompt>
+            <filled>
+                <if cond="setactivefailed=='*'">
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'cancelled.wav'"/>
+                    </prompt>
+                    <return />
+                <else/>
+                    <clear namelist="setactivegreeting" />
+                    <goto nextitem="setactivegreeting"/>
+                </if>
+            </filled>
+            <noinput count="3">
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                </prompt>
+                <disconnect/>
+            </noinput>
+            <nomatch>
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
+                </prompt>
+                <reprompt />
+            </nomatch>
+        </field>
+
+
+        <!-- Invoke the CGI for playing all the greetings -->
+        <subdialog name="playallgreetings" cond="start == '1'" method="get" srcexpr="securemediaserverurl + cgiurl" namelist="action mailbox">
+            <filled>
+                <if cond="playallgreetings.result =='failed'" >
+                    <goto nextitem="playgreetingsfailed"/>
+                <else />
+                    <prompt cond="playallgreetings.standard != '-1'">
+                        <audio expr="mediaserverurl + promptsalias + 'standard_greeting_is.wav'" />
+                        <audio expr="playallgreetings.standard" />
+                    </prompt>
+                    <prompt cond="playallgreetings.outofoffice != '-1'">
+                        <audio expr="mediaserverurl + promptsalias + 'outofoffice_greeting_is.wav'" />
+                        <audio expr="playallgreetings.outofoffice" />
+                    </prompt>
+                    <prompt cond="playallgreetings.extendedabs != '-1'">
+                        <audio expr="mediaserverurl + promptsalias + 'extd_abs_greeting_is.wav'" />
+                        <audio expr="playallgreetings.extendedabs" />
+                    </prompt>
+                    <prompt cond="playallgreetings.defaultsystem != '-1'">
+                        <audio expr="mediaserverurl + promptsalias + 'default_system_greeting_is.wav'" />
+                        <audio expr="playallgreetings.defaultsystem" />
+                    </prompt>
+                    <if cond="playallgreetings.msgurl != '-1'">
+                        <prompt>
+                            <audio expr="mediaserverurl + promptsalias + 'your_active_greeting_is.wav'" />
+                        </prompt>
+                        <if cond="playallgreetings.msgurltype == 'url'">
+                            <prompt>
+                                <audio expr="playallgreetings.msgurl"/>
+                            </prompt>
+                        <elseif cond="playallgreetings.msgurltype == 'name'" />
+                            <prompt>
+                                <audio expr="playallgreetings.msgurl"/>
+                                <audio expr="mediaserverurl + promptsalias + 'is_not_available.wav'" />
+                            </prompt>
+                        <elseif cond="playallgreetings.msgurltype == 'extension'" />
+                            <prompt>
+                                <audio expr="mediaserverurl + promptsalias + 'extension.wav'" />
+                            </prompt>
+                            <prompt>
+                                <say-as type="acronym">
+                                    <value expr="playallgreetings.msgurl"/>
+                                </say-as>
+                            </prompt>
+                            <prompt>
+                                <audio expr="mediaserverurl + promptsalias + 'is_not_available.wav'" />
+                            </prompt>
+                        </if>
+                    </if>
+                    <clear namelist="start playallgreetings" />
+                    <goto nextitem="start" />
+                </if>
+            </filled>
+        </subdialog>
+
+        <field name="playgreetingsfailed" cond="playallgreetings.result == 'failed'">
+            <grammar>1|*</grammar>
+            <prompt>
+                <audio expr="mediaserverurl + promptsalias + 'system_error.wav'" />
+            </prompt>
+            <filled>
+                <if cond="playgreetingsfailed=='*'">
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'cancelled.wav'"/>
+                    </prompt>
+                    <return />
+                <else/>
+                    <clear namelist="playallgreetings" />
+                    <goto nextitem="playallgreetings"/>
+                </if>
+            </filled>
+            <noinput count="3">
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                </prompt>
+                <disconnect/>
+            </noinput>
+            <nomatch>
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
+                </prompt>
+                <reprompt />
+            </nomatch>
+        </field>
+    </form>
+</vxml>
+

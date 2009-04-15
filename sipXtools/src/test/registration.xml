@@ -1,0 +1,16 @@
+<?xml version="1.0" standalone="yes" ?>
+<items type="registration" timestamp="1164082128">
+    <item>
+        <callid>c29c2b63-de009a78-44188331@10.1.1.161</callid>
+        <cseq>958</cseq>
+        <primary>sipxchange.pingtel.com</primary>
+        <uri>sip:160@pingtel.com</uri>
+        <contact>&lt;sip:160@10.1.1.161;transport=tcp&gt;</contact>
+        <qvalue></qvalue>
+        <expires>1164082496</expires>
+        <instance_id></instance_id>
+        <gruu></gruu>
+        <path></path>
+        <update_number>0x456232bf00000287</update_number>
+    </item>
+</items>

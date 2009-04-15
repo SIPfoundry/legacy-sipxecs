@@ -1,0 +1,32 @@
+<form jwcid="@Form" delegate="ognl:validator">
+<fieldset>
+  <p>
+   <span jwcid="@Insert" value="ognl:prompt">Profiles for selected devices will be generated.</span>
+  </p>
+  <p>
+    <input jwcid="restart@Checkbox" id="restart:checkbox" value="ognl:restart"/>
+    <label for="restart:checkbox">
+      <span key="restart.label">Restart affected devices after generating profiles.</span>
+    </label>
+  </p>
+  <p>
+    <span jwcid="scheduledRestartDate@common/DateTimeEditor"
+      datetime="ognl:restartDate"
+      label="message:label.restartTime"/>
+  </p>
+</fieldset>
+  <ul class="form-actions">
+    <li>
+      <input jwcid="@Submit"
+        id="generate:ok"
+      value="message:button.ok"
+      listener="listener:generate"/>
+  </li>
+  <li>
+    <input jwcid="@Submit"
+        id="generate:cancel"
+      value="message:button.cancel"
+      listener="listener:cancel"/>
+  </li>
+  </ul>
+</form>

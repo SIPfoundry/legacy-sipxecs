@@ -1,0 +1,180 @@
+<?xml version="1.0"?>
+<vxml version="2.0" application="../vm_vxml/root.vxml">
+  <!-- Auto-Attendant Default Off Hour Menu -->
+
+  <!-- Autoattendant main menu -->
+
+  <!-- This variable is common to both the forms.
+       It is filled when the user selects the auto attendant 
+       option that should result in a transfer. This variable is
+       filled with the destination extension.
+       This is used by the form 'transferform'. -->
+  <var name="transferextn"/>
+
+  <form id="aa">
+    <property name="interdigittimeout" value="3s" />
+    <property name="timeout" value="7s" />
+
+    <!-- Parameters passed in from the calling subroutine -->
+    <var name="from" />
+    <var name="mediaserverurl" />
+    <var name="securemediaserverurl" />
+    <var name="action" />
+    <var name="extension" />
+    <var name="mailbox" />
+    <var name="aa_menu_name" />
+
+    <!-- Play the autoattendant main menu -->
+    <field name="menu" type="digits?minlength=1;maxlength=10">
+      <prompt>
+		<audio expr="securemediaserverurl + aa_promptsalias + 'afterhours.wav'" />
+      </prompt>
+      <filled>
+	<if cond="menu=='0'" >
+	  <assign name="operation" expr="'operator'" />
+	  <assign name="extension" expr="'operatoraddr'" />
+	  <goto nextitem="menuaction" />
+	<elseif cond="menu=='9'" />
+	  <assign name="operation" expr="'dial_by_name'" />
+	  <assign name="extension" expr="'none'" />
+	  <goto nextitem="menuaction" />
+	<elseif cond="menu=='*'" />
+	  <assign name="operation" expr="'repeat_prompt'" />
+	  <assign name="extension" expr="'none'" />
+	  <goto nextitem="menuaction" />
+	<elseif cond="menu=='#'" />
+	  <assign name="operation" expr="'voicemail_access'" />
+	  <assign name="extension" expr="'none'" />
+	  <goto nextitem="menuaction" />
+	<else />
+	  <!-- Here is the transfer to a given extension -->
+	  <assign name="operation" expr="'transfer_to_extension'" />
+	  <assign name="extension" expr="menu" />
+	  <goto nextitem="menuaction"/>
+	</if>
+      </filled>
+      <noinput count="1">
+	<reprompt/>
+      </noinput>
+      <noinput count="2">
+	<reprompt/>
+      </noinput>
+      <noinput count="3">
+	<prompt bargein="false">
+	  <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+	</prompt>
+	<disconnect />
+      </noinput>
+    </field>
+
+    <block name="menuaction">
+      <if cond="operation == 'dial_by_name'">
+	<goto nextitem="dialbyname"/>
+      <elseif cond="operation == 'transfer_to_another_aa_menu'" />
+	<assign name="aa_menu_name" expr="extension" />
+	<goto nextitem="another_aa_menu" />
+      <elseif cond="operation == 'voicemail_access'" />
+	<assign name="action" expr="'retrieve'" />
+	<goto nextitem="retrieve" />
+      <elseif cond="operation == 'voicemail_deposit'" />
+	<assign name="action" expr="'deposit'" />
+	<assign name="mailbox" expr="extension" />
+	<goto nextitem="deposit" />
+      <elseif cond="operation == 'transfer_to_extension'" />
+	<assign name="action" expr="'transfer'" />
+	<prompt bargein="false">
+	  <audio expr="mediaserverurl + promptsalias + 'please_hold.wav'" />
+	</prompt>
+	<goto nextitem="transfertoextn" />
+      <elseif cond="operation == 'operator'" />
+	<prompt bargein="false">
+	  <audio expr="mediaserverurl + promptsalias + 'please_hold.wav'" />
+	</prompt>
+	<goto next="root.vxml#operator" />
+      <elseif cond="operation == 'hangup'" />
+	<prompt bargein="false">
+	  <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+	</prompt>
+	<disconnect />
+      <elseif cond="operation == 'repeat_prompt'" />
+	<clear namelist="menu" />
+	<goto nextitem="menu" />
+      <else/>
+	<prompt>
+	  <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
+	</prompt>
+	<clear namelist="menu" />
+	<goto nextitem="menu" />
+      </if>
+    </block>
+
+    <subdialog name="transfertoextn" cond="operation == 'transfer_to_extension'" srcexpr="securemediaserverurl + cgiurl" namelist="action extension">
+      <filled>
+	<if cond="transfertoextn.result=='invalidextn'">
+	  <audio expr="mediaserverurl + promptsalias + 'extn_invalid.wav'" />
+	  <clear namelist="menu" />
+	  <goto nextitem="menu" />
+	<elseif cond="transfertoextn.result=='failed'"/>
+	  <prompt>
+	    <audio expr="mediaserverurl + promptsalias + 'system_error.wav'" />
+	  </prompt>
+	  <clear namelist="menu" />
+	  <goto nextitem="menu" />
+	<else />
+	  <return />
+	</if>
+      </filled>
+    </subdialog>
+
+    <subdialog name="dialbyname" cond="operation == 'dial_by_name'" srcexpr="securemediaserverurl + dialbynameurl">
+      <param name="from" expr="from"/>
+      <param name="mediaserverurl" expr="mediaserverurl"/>
+      <param name="securemediaserverurl" expr="securemediaserverurl" />
+      <param name="fromdeposit" expr="'no'" />
+      <filled>
+	<if cond="dialbyname.result=='success'">
+	  <clear namelist="menu" />
+	  <goto nextitem="menu" />
+	<elseif cond="dialbyname.result=='failed'"/>
+	  <goto nextitem="dialbyname"/>
+	<elseif cond="dialbyname.result=='quit'"/>
+	  <clear namelist="menu" />
+	  <goto nextitem="menu"/>
+	</if>
+      </filled>
+    </subdialog>
+
+    <subdialog name="another_aa_menu" cond="operation == 'transfer_to_another_aa_menu'" srcexpr="securemediaserverurl + aa_alias + 'autoattendant-' + aa_menu_name + '.vxml'">
+      <param name="from" expr="from"/>
+      <param name="mediaserverurl" expr="mediaserverurl"/>
+      <param name="securemediaserverurl" expr="securemediaserverurl" />
+      <filled>
+	<if cond="another_aa_menu.result=='success'">
+	  <clear namelist="menu" />
+	  <goto nextitem="menu" />
+	<elseif cond="another_aa_menu.result=='failed'"/>
+	  <goto nextitem="another_aa_menu"/>
+	<elseif cond="another_aa_menu.result=='quit'"/>
+	  <clear namelist="menu" />
+	  <goto nextitem="menu"/>
+	</if>
+      </filled>
+    </subdialog>
+
+    <subdialog name="retrieve" cond="operation == 'voicemail_access'" srcexpr="securemediaserverurl + cgiurl" namelist="action from">
+      <filled>
+	<return />
+      </filled>
+    </subdialog>
+
+    <subdialog name="deposit" cond="operation == 'voicemail_deposit'" srcexpr="securemediaserverurl + cgiurl" namelist="action from mailbox">
+      <filled>
+	<return />
+      </filled>
+    </subdialog>
+  </form>
+
+  <form id="transferform">
+    <transfer name="extntranfer" destexpr="transferextn" />
+  </form>
+</vxml>

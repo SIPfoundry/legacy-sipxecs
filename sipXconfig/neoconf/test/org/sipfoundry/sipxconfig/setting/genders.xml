@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model>
+	<group name="human">
+		<label>Human</label>		
+		<group name="eat">
+			<setting name="hamburger"/>
+			<group name="fruit">
+				<setting name="apple"/>
+			</group>
+		</group>
+		<description>Earthlings</description>
+	</group>
+	<group name="man" copy-of="human">
+		<label>Man</label>
+		<setting name="shave">
+			<value>face</value>
+		</setting>
+		<setting name="reason" hidden="yes"/>
+	</group>
+	<group name="woman" copy-of="human">
+		<label>Woman</label>
+		<setting name="shave">
+			<value>legs</value>
+		</setting>
+		<setting name="giveBirth" advanced="yes"/>
+	</group>
+</model>

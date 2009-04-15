@@ -1,0 +1,258 @@
+<?xml version="1.0"?>
+<vxml version="2.0" application="root.vxml">
+    <!--
+        Reply to Voicemail
+    -->
+    <form id="incoming">
+        <property name="interdigittimeout" value="3s" />
+        <property name="timeout" value="7s" />
+
+        <!-- Record noinput count 
+	     For some reason, the input count does not increment in record.
+	     This is a manual way to count the noinput events.
+	-->
+        <var name="record_reprompt" expr="'0'" />
+
+        <!-- Parameters passed in by the subroutine that invoked this VXML -->
+        <var name="mailbox" />
+        <var name="from" />
+	  <var name="category" />
+	  <var name="messageidlist" />
+        <var name="mediaserverurl" />
+        <var name="securemediaserverurl" />
+
+        <!-- Parameters for invoking the SaveMessage CGI -->
+        <var name="action" expr="'savemessage'"/>
+        <var name="size" />
+        <var name="duration" />
+        <var name="timestamp" />
+        <var name="termchar" />
+
+        <!-- Flag to indicate if the user has recorded the message -->
+        <var name="alreadyrecorded" />
+        <block>
+            <assign name="alreadyrecorded" expr="'0'" />
+        </block>
+
+        <!-- Flag to indicate if the user will save the message -->
+        <var name="save_message" expr="'yes'" />
+
+        <!-- Flag to indicate if the user has disconnected the call -->
+        <var name="call_disconnected" expr="'no'" />
+
+        <!-- Play the user's greeting -->
+        <field name="playgreeting" cond="alreadyrecorded=='0'">
+            <grammar>0 | *</grammar>
+            <prompt timeout="1s">
+                <audio expr="mediaserverurl + promptsalias + 'record_comments.wav'" />
+            </prompt>
+            <filled>
+                <if cond="playgreeting == '0'" >
+                    <prompt bargein="false">
+                        <audio expr="mediaserverurl + promptsalias + 'please_hold.wav'" />
+                    </prompt>
+                    <goto next="root.vxml#operator" />
+                <elseif cond="playgreeting == '*'" />
+                    <prompt bargein="false">
+                    	<audio expr="mediaserverurl + promptsalias + 'cancelled.wav'" />
+                    </prompt>
+                     <return />
+                <else />
+                    <assign name="alreadyrecorded" expr="'0'" />
+                    <goto nextitem="vm" />
+                </if>
+            </filled>
+            <noinput>
+                <assign name="alreadyrecorded" expr="'0'" />
+                <goto nextitem="vm" />
+            </noinput>
+            <nomatch>
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
+                </prompt>
+                <reprompt/>
+            </nomatch>
+        </field>
+
+        <!-- Record the voicemail message -->
+        <record name="vm" cond="alreadyrecorded=='0'" beep="true" finalsilence="8000ms" dtmfterm="true">
+            <filled>
+                <assign name="duration" expr="vm$.duration"/>
+                <assign name="size" expr="vm$.size"/>
+                <assign name="timestamp" expr="vm$.timestamp"/>
+                <assign name="termchar" expr="vm$.termchar"/>
+                <if cond="vm$.termchar=='0'">
+                    <prompt bargein="false">
+                        <audio expr="mediaserverurl + promptsalias + 'please_hold.wav'" />
+                    </prompt>
+                    <goto next="root.vxml#operator" />
+                <elseif cond="vm$.termchar=='*'"/>
+          		  <prompt bargein="false">
+                    	<audio expr="mediaserverurl + promptsalias + 'cancelled.wav'" />
+                    </prompt>
+                    <return />
+                <else />
+                    <assign name="save_message" expr="'yes'" />
+                    <assign name="alreadyrecorded" expr="'1'" />
+                    <goto nextitem="confirm" />
+                </if>
+            </filled>
+            <noinput>
+                <if cond="record_reprompt=='0'">
+                        <assign name="record_reprompt" expr="'1'" />
+                        <reprompt/>
+                <elseif cond="record_reprompt=='1'" />
+                        <assign name="record_reprompt" expr="'2'" />
+                        <reprompt/>
+                <else />
+                        <prompt bargein="false">
+                    		<audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                		</prompt>
+                		<assign name="save_message" expr="'no'" />
+                		<disconnect/>
+                </if>
+            </noinput>
+        </record>
+    
+        <!-- Prompt user's to confirm that their message can be sent -->
+        <field name="confirm"  cond="vm != 'undefined'" type="digits?minlength=1;maxlength=1">
+            <prompt>
+                <audio expr="mediaserverurl + promptsalias + 'comment_options.wav'" />
+                <audio expr="mediaserverurl + promptsalias + 'to_cancel_press_star.wav'" />
+            </prompt>
+            <filled>
+                <if cond="confirm == '0'">
+                    <!-- Transfer to the operator -->
+                    <prompt bargein="false">
+                        <audio expr="mediaserverurl + promptsalias + 'please_hold.wav'" />
+                    </prompt>
+                    <assign name="save_message" expr="'no'" />
+                    <goto next="root.vxml#operator"/>
+                <elseif cond="confirm == '1'"/>
+                    <!-- Play back the recorded message -->
+                    <assign name="save_message" expr="'yes'" />
+                    <prompt>
+                        <value expr="vm"/>
+                    </prompt>
+                    <clear namelist="confirm"/>
+                    <goto nextitem="confirm"/>
+                <elseif cond="confirm == '2'"/>
+                    <!-- proceed with delivering the message -->
+                    <assign name="save_message" expr="'yes'" />
+                    <goto nextitem="recording" />
+                <elseif cond="confirm == '3'"/>
+                    <!-- Cancel the recording and try again -->
+                    <assign name="save_message" expr="'no'" />
+                    <clear namelist="vm confirm alreadyrecorded"/>
+                    <goto nextitem="playgreeting" />
+                <elseif cond="confirm == '*'" />
+                    <!-- Cancel -->
+                    <assign name="save_message" expr="'no'" />
+                    <prompt>
+                    	<audio expr="mediaserverurl + promptsalias + 'cancelled.wav'" />
+                    </prompt>
+                    <return />
+                <else />
+                    <!-- Reprompt -->
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
+                    </prompt>
+                    <clear namelist="confirm" />
+                    <goto nextitem="confirm" />
+                </if>
+            </filled>
+            <noinput count="3">
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                </prompt>
+                <assign name="save_message" expr="'yes'" />
+                <disconnect/>
+            </noinput>
+            <nomatch>
+                <reprompt/>
+            </nomatch>
+        </field>
+
+        <!-- Invoke the CGI for depositing the voicemail -->
+        <subdialog cond="confirm == '2'" name="recording" srcexpr="securemediaserverurl + cgiurl" method="post" enctype="audio/x-wav" namelist="vm action duration from mailbox timestamp size termchar">
+            <filled>
+                <assign name="save_message" expr="'no'" />
+                <if cond="recording.result == 'success'">
+                    <if cond="call_disconnected == 'yes'">
+				<assign name="action" expr="'updatestatus'"/>
+            		<goto nextitem="updatestatus" />
+			  <else />
+                        <prompt>
+                        	<audio expr="mediaserverurl + promptsalias + 'msg_recorded.wav'" />
+                        </prompt>
+                        <return />
+                    </if>
+                <elseif cond="recording.result == 'failed'" />
+                    <goto nextitem="failure" />
+                <elseif cond="recording.result == 'msgtooshort'" />
+                    <prompt>
+                       <audio expr="mediaserverurl + promptsalias + 'msg_too_short.wav'" />
+                    </prompt>
+                    <clear namelist="recording confirm vm" />
+                    <assign name="save_message" expr="'no'" />
+                    <assign name="alreadyrecorded" expr="'0'" />
+                    <goto nextitem="playgreeting"/>
+		    <elseif cond="recording.result == 'invalidextn'" />
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'no_vm_inbox.wav'" />
+                    </prompt>
+                    <return/>
+                </if>
+            </filled>
+        </subdialog>
+
+        <field name="failure" cond="recording.result == 'failed'">
+            <grammar>0|1|*</grammar>
+            <prompt>
+                <audio expr="mediaserverurl + promptsalias + 'system_error.wav'" />
+            </prompt>
+            <filled>
+                <if cond="failure=='0'">
+                    <prompt bargein="false">
+                        <audio expr="mediaserverurl + promptsalias + 'please_hold.wav'" />
+                    </prompt>
+                    <goto next="root.vxml#operator" />
+                <elseif cond="failure=='*'" />
+                    <disconnect />
+                <else/>
+                    <assign name="save_message" expr="'yes'" />
+                    <clear namelist="recording" />
+                    <goto nextitem="recording"/>
+                </if>
+            </filled>
+        </field>
+
+        <catch event="telephone.disconnect.hangup">
+            <if cond="vm$.size > 0">
+                <if  cond="save_message == 'yes'" >
+                    <assign name="duration" expr="vm$.duration"/>
+                    <assign name="size" expr="vm$.size"/>
+                    <assign name="timestamp" expr="vm$.timestamp"/>
+                    <assign name="termchar" expr="vm$.termchar"/>
+                    <assign name="call_disconnected" expr="'yes'" />
+                    <assign name="confirm" expr="'2'" />
+                    <goto nextitem="recording" />
+                <else />
+                    <assign name="action" expr="'updatestatus'"/>
+            	  <goto nextitem="updatestatus" />
+                </if>
+            <else />
+                <assign name="action" expr="'updatestatus'"/>
+                <goto nextitem="updatestatus" />
+            </if>
+        </catch>
+
+
+        <subdialog name="updatestatus" method="get" srcexpr="securemediaserverurl + cgiurl" namelist="action mailbox category messageidlist">
+            <filled>
+                <exit />
+            </filled>
+        </subdialog>
+
+    </form>
+</vxml>

@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<sipXecs-command xmlns='http://www.sipfoundry.org/sipX/schema/xml/sipXecs-command-01-00'>
+  <name>Good</name>
+  <command>
+      <execute>./goodcommand.sh</execute>
+      <parameter>--configtest</parameter>
+      <parameter>--arg2</parameter>
+      <parameter>arg2value</parameter>
+  </command>
+</sipXecs-command>

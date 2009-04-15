@@ -1,0 +1,11 @@
+# Summarize traffic through the proxy, just after the logs are rotated.
+30 4 * * *	$HOME/interop-server-config/scripts/proxy-summary
+35 4 * * *	$HOME/interop-server-config/scripts/dialog-event-summary
+40 4 * * *	$HOME/interop-server-config/scripts/registration-summary
+45 4 * * *	$HOME/interop-server-config/scripts/registration-summary-old
+
+# Restart once a week, at 00:00 Sunday UTC, which is
+# 19:00 Saturday EST and 20:00 Saturday EDT.
+# Note that for this sudo to work, you have to comment out
+# "Defaults requiretty" in /etc/sudoers.
+0 20 * * 6	/usr/bin/sudo /sbin/service sipxpbx restart

@@ -1,0 +1,72 @@
+#!/bin/bash
+
+# Unit tests for sipx-upgrade
+Path=`dirname $0`
+source ${Path}/shell-unit
+
+# echo is a way to capture command output
+setUp() {
+  JavaCmd="echo java"
+  SubstituteUser="echo su"
+  ServiceDir="/etc/init.d"
+  PostgresUser="postgres"
+  Psql="echo psql"
+  Chown="echo chown"
+  TmpDir=/tmp
+  PidFile=${TmpDir}/pidfile
+  ConfigFiles="${TmpDir}/sipxconfig.properties"
+  LibDir=${Path}/../../lib
+  NewLine="
+"
+  RunningUser=$USER
+}
+
+setUp
+source ${Path}/sipxconfig.sh.in --nop
+
+##------------------------------------
+# test functions
+##------------------------------------
+
+testClasspath() {
+  touch ${TmpDir}/xxxxxxxxxxx1
+  touch ${TmpDir}/xxxxxxxxxxx2
+  Actual=`classpath ${TmpDir}/xxxxxxxxxxx*`
+  Expected=${TmpDir}/xxxxxxxxxxx1:${TmpDir}/xxxxxxxxxxx2
+  assertEquals "$Expected" "$Actual"
+}
+
+testDatabaseCommand() {
+  Actual=`databaseCommand command1 command2`
+  Expected="java -classpath ${LibDir}/xercesImpl-2.6.2.jar:${LibDir}/xml-apis.jar:${LibDir}/ant-1.6.5.jar:${LibDir}/ant-launcher-1.6.5.jar org.apache.tools.ant.launch.Launcher -Dlib.dir=${LibDir} -f @sipxpbx.conf.dir@/database/database.xml command1 command2"
+  assertEquals "${Expected}" "${Actual}"
+
+  assertTrue [ -f $PidFile ]
+}
+
+testDatabaseCheck() {
+  Psql=echo
+  assertTrue ! databaseCheck
+  Psql="echo SIPXCONFIG"
+  assertTrue databaseCheck
+}
+
+testRunningUserCheck() {
+  runningUserCheck
+  
+  RunningUser=bogus
+  Actual=`runningUserCheck 2>&1`
+  assertEquals "Only user bogus can run this command." "$Actual"
+}
+
+##------------------------------------
+# test suite
+##------------------------------------
+runTest testClasspath
+runTest testRunningUserCheck
+
+# not working because they probably we're updated, difficult to capture 
+#   expected results so commenting out for now
+# runTest testDatabaseCommand
+# runTest testDatabaseCheck
+

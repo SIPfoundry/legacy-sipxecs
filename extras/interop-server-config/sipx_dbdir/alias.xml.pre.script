@@ -1,0 +1,131 @@
+#!/bin/bash
+
+cat <<EOF
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<items type="alias" xmlns="http://www.sipfoundry.org/sipX/schema/xml/alias-00-00">
+EOF
+
+for gg in `seq 10 1 99`; 
+do 
+    cat <<EOF
+  <!-- serial fork 5${gg}0 -> 1${gg}3, 1${gg}4, 1${gg}5, 1${gg}6 -->
+EOF
+    for e in 3 4 5 6; 
+    do 
+        cat <<EOF
+  <item> 
+    <identity>5${gg}0@@SIPXCHANGE_DOMAIN_NAME@</identity> 
+    <contact>&lt;1${gg}${e}@@SIPXCHANGE_DOMAIN_NAME@&gt;;q=0.$((8 - ${e}))</contact>
+  </item> 
+EOF
+    done ; 
+    cat <<EOF
+  <!-- parallel fork 6${gg}0 -> 1${gg}3, 1${gg}4, 1${gg}5, 1${gg}6 -->
+EOF
+    for e in 3 4 5 6; 
+    do 
+        cat <<EOF
+  <item> 
+    <identity>6${gg}0@@SIPXCHANGE_DOMAIN_NAME@</identity> 
+    <contact>&lt;1${gg}${e}@@SIPXCHANGE_DOMAIN_NAME@&gt;</contact>
+  </item> 
+EOF
+    done ; 
+done
+
+cat <<EOF
+  <!-- a series of translations that go over the 20-hop limit -->
+  <item>
+    <identity>9000@@SIPXCHANGE_DOMAIN_NAME@</identity>
+    <contact>sip:9000_01@@SIPXCHANGE_DOMAIN_NAME@</contact>
+  </item>
+  <item>
+    <identity>9000_01@@SIPXCHANGE_DOMAIN_NAME@</identity>
+    <contact>sip:9000_02@@SIPXCHANGE_DOMAIN_NAME@</contact>
+  </item>
+  <item>
+    <identity>9000_02@@SIPXCHANGE_DOMAIN_NAME@</identity>
+    <contact>sip:9000_03@@SIPXCHANGE_DOMAIN_NAME@</contact>
+  </item>
+  <item>
+    <identity>9000_03@@SIPXCHANGE_DOMAIN_NAME@</identity>
+    <contact>sip:9000_04@@SIPXCHANGE_DOMAIN_NAME@</contact>
+  </item>
+  <item>
+    <identity>9000_04@@SIPXCHANGE_DOMAIN_NAME@</identity>
+    <contact>sip:9000_05@@SIPXCHANGE_DOMAIN_NAME@</contact>
+  </item>
+  <item>
+    <identity>9000_05@@SIPXCHANGE_DOMAIN_NAME@</identity>
+    <contact>sip:9000_06@@SIPXCHANGE_DOMAIN_NAME@</contact>
+  </item>
+  <item>
+    <identity>9000_06@@SIPXCHANGE_DOMAIN_NAME@</identity>
+    <contact>sip:9000_07@@SIPXCHANGE_DOMAIN_NAME@</contact>
+  </item>
+  <item>
+    <identity>9000_07@@SIPXCHANGE_DOMAIN_NAME@</identity>
+    <contact>sip:9000_08@@SIPXCHANGE_DOMAIN_NAME@</contact>
+  </item>
+  <item>
+    <identity>9000_08@@SIPXCHANGE_DOMAIN_NAME@</identity>
+    <contact>sip:9000_09@@SIPXCHANGE_DOMAIN_NAME@</contact>
+  </item>
+  <item>
+    <identity>9000_09@@SIPXCHANGE_DOMAIN_NAME@</identity>
+    <contact>sip:9000_10@@SIPXCHANGE_DOMAIN_NAME@</contact>
+  </item>
+  <item>
+    <identity>9000_10@@SIPXCHANGE_DOMAIN_NAME@</identity>
+    <contact>sip:9000_11@@SIPXCHANGE_DOMAIN_NAME@</contact>
+  </item>
+  <item>
+    <identity>9000_11@@SIPXCHANGE_DOMAIN_NAME@</identity>
+    <contact>sip:9000_12@@SIPXCHANGE_DOMAIN_NAME@</contact>
+  </item>
+  <item>
+    <identity>9000_12@@SIPXCHANGE_DOMAIN_NAME@</identity>
+    <contact>sip:9000_13@@SIPXCHANGE_DOMAIN_NAME@</contact>
+  </item>
+  <item>
+    <identity>9000_13@@SIPXCHANGE_DOMAIN_NAME@</identity>
+    <contact>sip:9000_14@@SIPXCHANGE_DOMAIN_NAME@</contact>
+  </item>
+  <item>
+    <identity>9000_14@@SIPXCHANGE_DOMAIN_NAME@</identity>
+    <contact>sip:9000_15@@SIPXCHANGE_DOMAIN_NAME@</contact>
+  </item>
+  <item>
+    <identity>9000_15@@SIPXCHANGE_DOMAIN_NAME@</identity>
+    <contact>sip:9000_16@@SIPXCHANGE_DOMAIN_NAME@</contact>
+  </item>
+  <item>
+    <identity>9000_16@@SIPXCHANGE_DOMAIN_NAME@</identity>
+    <contact>sip:9000_17@@SIPXCHANGE_DOMAIN_NAME@</contact>
+  </item>
+  <item>
+    <identity>9000_17@@SIPXCHANGE_DOMAIN_NAME@</identity>
+    <contact>sip:9000_18@@SIPXCHANGE_DOMAIN_NAME@</contact>
+  </item>
+  <item>
+    <identity>9000_18@@SIPXCHANGE_DOMAIN_NAME@</identity>
+    <contact>sip:9000_19@@SIPXCHANGE_DOMAIN_NAME@</contact>
+  </item>
+  <item>
+    <identity>9000_19@@SIPXCHANGE_DOMAIN_NAME@</identity>
+    <contact>sip:9000_20@@SIPXCHANGE_DOMAIN_NAME@</contact>
+  </item>
+  <item>
+    <identity>9000_20@@SIPXCHANGE_DOMAIN_NAME@</identity>
+    <contact>sip:9000_21@@SIPXCHANGE_DOMAIN_NAME@</contact>
+  </item>
+  <item>
+    <identity>9000_21@@SIPXCHANGE_DOMAIN_NAME@</identity>
+    <contact>sip:9000_22@@SIPXCHANGE_DOMAIN_NAME@</contact>
+  </item>
+EOF
+
+cat <<EOF
+</items>
+
+EOF

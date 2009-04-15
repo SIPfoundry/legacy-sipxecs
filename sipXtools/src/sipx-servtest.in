@@ -1,0 +1,1334 @@
+#!/usr/bin/perl
+###
+###   Check if various SIP servers are working correctly
+###
+### Written by: Andy Spitzer <woof@pingtel.com>
+### Written by: Scott Lawrence <slawrence@pingtel.com>
+### Based on Scott Lawrence's sipsend.pl
+### Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+### Contributors retain copyright to elements licensed under a Contributor Agreement.
+### Licensed to the User under the LGPL license.
+###
+
+use Socket;
+use Digest::MD5 qw(md5_hex);
+use Getopt::Long;
+use File::Basename;
+use Net::Ping;
+
+#') fix the perl indenting funnies caused by the above
+
+## Constants
+$CRLF = "\r\n";
+$SipVersion = '2.0';
+$VERSION = '@SIPX_VERSION@';
+$BINDIR = "@SIPX_BINDIR@";
+
+## Globals
+# %Child holds pids for each UAS, indexed by $server:$port
+$Me = fileparse($0) ;
+$DefaultUserAgent = "$Me/$VERSION";
+$TopLevel=1; # is this the top level process?
+
+## Defaults
+$SipPort = 5060;
+$RegistrarPort = 5070;
+$UserAgent = $DefaultUserAgent ;
+$MaxForwards = 3;
+$UseViaName = 0;
+$SymmetricPort = 0;
+$LocalPort=0;
+$Cseq = 1;
+$Timeout = 10 ;
+$RepeatDelay = 60 ;
+$SendMailCmd = "/usr/sbin/sendmail -t" ;
+
+chomp( $MyHost=`hostname` );
+$TestId=$MyHost;
+
+$SHORT_HELP = <<SHORT_HELP;
+
+   Monitors the reachability and functionality of a sipXecs system.
+
+   sipx-servtest [--test-id <label>]
+                 [--domain <domain>]
+                 [--commserver <server>]...  
+
+                 [--proxy <proxy-server>]...  
+                 [--redirect <redirect-server>]...  
+
+                 [--aor <aor>]...  
+                 [--alarm <alarm-address>]...  
+                 [--alarm-from <from-address>]...  
+
+                 [--delay <delay-seconds>]
+                 [--timeout <timeout-seconds>]
+                 [--symmetric]
+                 [--local <port>]
+
+   sipx-servtest --test-alarm
+                 [--test-id <label>]
+                 [--alarm <alarm-address>]...  
+                 
+    sipx-servtest --help
+
+    sipx-servtest --version
+
+SHORT_HELP
+
+$HELP = <<HELP;
+
+$SHORT_HELP
+
+   Important Options:
+
+      --domain <domain>
+         Specifies the URI of your sip domain.
+
+      --aor <aor> or -a <aor>
+         Specifies the SIP URL of a User Agent that MUST be valid;
+         that is, that the registry/redirect service will translate to a
+         Contact address, and which will respond to an OPTIONS request
+         with a 200 response.  (may be specified more than once)
+
+         The <aor> MUST ALWAYS be reachable; one useful test is the
+         sipXvxml voicemail server address (by default, sip:101\@{domain}.
+
+         Valid examples:
+            sip:woof\@pingtel.com
+            sip:100\@myserver.example.com
+
+      --commserver <server>
+         Specifies a server name or address for a server in the
+         domain; this specifies that the server runs a proxy and 
+         a registrar, so it is equivalent to specifying:
+           --proxy server --redirect server
+         (may be specified more than once) 
+
+      --proxy <proxy-server>
+         Specifies a server name or address and port for a proxy in the
+         domain (if not specified, the port defaults to 5060).  (may be
+         specified more than once) 
+ 
+      --redirect <redirect-server>
+         Specifies a server name or address and port for a
+         registry/redirect server (sipregistrar) in the domain (if not
+         specified, the port defaults to 5070).  (may be specified more
+         than once) 
+ 
+         The server addresses MAY include the port number by including it
+         after the server address and a colon.
+
+         Valid examples:
+            sipxchange.pingtel.com
+            myserver.example.com:5000
+            127.0.0.1:12000
+
+      --alarm <alarm-address>  or -e <alarm-address>
+         An email address where mail messages are sent when errors are
+         detected.    (may be specified more than once)
+
+         If at least one alarm address is provided,  the entire of cycle of
+         tests is run sequentially.  The sipx-servtest program then waits
+         <delay-seconds> and repeats the tests in an infinite loop. 
+
+         If any test fails, an email is sent describing each failure to
+         each <alarm-address>.  After any cycle in which at least one test
+         has failed, subsequent iterations will not repeat alarms for the
+         same test, but will send new alarms for any new failures; if,
+         after any failure, a full cycle of tests passes, then a message
+         indicating that the problem has cleared is sent to each
+         <alarm-address>.
+
+         If no alarm addresses are provided, sipx-servtest runs only one
+         instance of each tests, prints a message describing the result of
+         each on the standard output, and exits with status zero if all
+         tests passed and a non-zero status if any failed.
+
+   Other available options:
+
+      --test-id <label>
+         Specifies an identifying label included in any message sent
+         (useful if you are running more than one instance of the tester). 
+         Defaults to the host name where the tester is run.
+
+      --delay <delay-seconds> (default is 60)
+         How long to wait between each cycle of tests.
+
+      --verbose
+         Prints details about each step of each test on the standard output 
+         as the tests are performed.  
+
+      --test-alarm
+         Sends a trial message to each <alarm-address>.  At least one --alarm
+         must be specified.  Useful to verify that email sent from the test
+         platform reaches each recipient promptly.  
+         Does not actually run any tests.
+
+      --alarm-from <from-address> or -f <from-address>
+        The From address for alarm email mail messages.
+
+      --timeout <timeout-seconds> (default is 10)
+         How long to wait for an expected event in any test.
+
+      --symmetric
+         Use symmetric signalling (send and listen on the same port)
+
+      --local <port>
+         Specifies the local port number for incoming requests.  The
+         program defaults to using an available port assigned by the OS. 
+
+   sipx-servtest executes the following tests:
+
+   Connect:
+      For each server (of any type), the tester checks that it can create 
+      a connection to the specified address (it uses TCP to the standard 'echo' 
+      port - no data is sent or expected); the test fails if there is no
+      response or if an error response is received.
+
+   Proxy Forwarding:
+      Sends an 'OPTIONS <tester>' request to each <proxy-server> (the
+      <tester> address is a dynamic port opened by sipx-servtest for its own
+      use), and responds to it with a 200 response; this passes if both the
+      request and response are delivered by the proxies.  
+
+      This tests that the proxy is communicating and routing requests correctly.
+
+   Redirect: 
+      Sends a 'PING <aor>' request to each <aor> at each <redirect-server>;
+      this passes if it gets back any 302 response.
+     
+      This tests that the redirect service is operating correctly.  If the
+      target aor is one maintained by a registration, it can also confirm
+      that registrations are syncronized between redundant redirect servers.
+
+      If you want to test the validity of an address that is maintained by
+      a registration, then make sure that the aor DOES NOT have the VoiceMail
+      permission so that the registry will return a redirection ONLY when the
+      registration is valid (if it has voicemail, it will get a redirection
+      to the voicemail server even if the registration has failed).
+
+   Domain Response:
+      Sends an 'OPTIONS <domain>' request to each <proxy-server>; this
+      passes if it gets back a 200 response.  
+
+      This test confirms that the proxy is communicating with the redirect 
+      service (the 200 response actually comes from the registry/redirect 
+      server through the proxy).
+
+   End Point:
+      Sends an 'OPTIONS <aor>' request to each <proxy-server>, which should
+      be forwarded to the user agent; this passes if it gets back a 200
+      response.
+
+      This is an end-to-end test of the target address; in order to pass, all
+      the SIP services must be operating correctly and the target user agent
+      must be reachable.  It can be used to verify that any of the user 
+      agent services in the system, such as the voicemail service and park
+      service are operating.
+
+HELP
+
+GetOptions(
+           'test-id=s'      => \$TestId,
+
+           'domain=s'       => \$Domain,
+           'commserver|c=s' => \@CommServers,
+
+           'proxy|p=s'      => \@Proxies,
+           'redirect|r=s'   => \@Redirectors,
+
+           'aor|a=s'        => \@Aors,
+
+           'verbose|v+'     => \$Verbose,
+           'timeout|t=i'    => \$Timeout,
+           'delay=i'        => \$RepeatDelay,
+           'symmetric=i'    => \$SymmetricPort,
+           'local=i'        => \$LocalPort,
+           # 'route=s'        => \$Route,
+
+           'test-alarm'     => \$TestAlarm,
+           'alarm|e=s'      => \@EmailAddrs,
+           'alarm-from|f=s' => \$AlarmFrom,
+
+           'help|h'         => \$Help,
+           'version|V'      => \$ShowVersion,
+           ) 
+                                            || die "$SHORT_HELP\n";                                             
+
+if ($Help)
+{
+   print $HELP;
+   exit(0); 
+}
+
+if ($ShowVersion)
+{
+    print $VERSION;
+    exit(0); 
+}
+
+if ($TestAlarm)
+{
+    die "No alarm addresses specified.\n\n$SHORT_HELP\n"
+        unless (@EmailAddrs);
+
+    print STDERR "Sending To: " . join(',', @EmailAddrs) ."\n" ;
+
+    &SendEmail(\@EmailAddrs, "$TestId test message", 
+               "This is a test of alarm delivery.\n"
+               . "Had there been an actual alarm, this would have detailed the test state.\n"
+               );
+    exit(0);
+}
+
+$tcp = getprotobyname('tcp');
+
+$SIG{INT}  = \&Catch;
+$SIG{TERM} = \&Catch;
+$SIG{INTR} = \&Catch;
+
+##
+## Test Types
+##
+$Connect             = 'Connect';
+$ProxyForwarding     = 'Proxy Forwarding';
+$Redirect            = 'Redirect';
+$DomainResponse      = 'Domain Response';
+$EndPoint            = 'Endpoint';
+
+sub byOrder { return defined $DependsOn{$a} && defined $DependsOn{$a}->{$b} }
+
+## 
+## Test List 
+##
+@TestList=();
+
+## Calculate which tests we can perform with the arguments given.
+foreach ( ( @Proxies, @Redirectors, @CommServers ) )
+{
+    $Servers{$_} = 1;
+}
+foreach ( sort keys %Servers )
+{
+    push @TestList, "$Connect->$_";
+}
+
+foreach $Redirector ( ( @Redirectors, @CommServers ) )
+{
+    foreach ( sort @Aors )
+    {
+        push @TestList, "$Redirect->$Redirector,$_";
+        $DependsOn{"$Redirect->$Redirector,$_"} = { "$Connect->$Redirector" => 1 };
+    }
+}
+
+if ( $Domain )
+{
+    foreach ( ( @Proxies, @CommServers ) )
+    {
+        push @TestList, "$DomainResponse->$_";
+        $DependsOn{"$DomainResponse->$_"} = { "$Connect->$_" => 1 };
+    }
+}
+
+foreach ( ( @Proxies, @CommServers ) )
+{
+    push @TestList, "$ProxyForwarding->$_";
+    $DependsOn{"$ProxyForwarding->$_"} = { "$Connect->$_" => 1 };
+}
+
+foreach $Proxy ( ( @Proxies, @CommServers ) )
+{
+    foreach ( sort @Aors )
+    {
+        push @TestList, "$EndPoint->$Proxy,$_";
+        $DependsOn{"$EndPoint->$Proxy,$_"} = { "$ProxyForwarding->$Proxy" => 1 };
+    }
+}
+
+
+##
+## Initialize results table - assume all is well
+##
+foreach ( @TestList )
+{
+    $ErrorState{$_} = "Good" ;
+}
+
+@TestSequence =  sort byOrder @TestList;
+
+if ( @TestSequence )
+{
+    print "Planned Test Sequence:\n   ".join("\n   ", @TestSequence )."\n"
+        if $Verbose;
+}
+else
+{
+    die "\nNot enough information to execute any test.\n"
+        . "\nUsage:\n" . $SHORT_HELP . "\n";
+}
+
+$Pinger = Net::Ping->new();
+
+## and counters
+$ErrorCount = 0 ;
+$LastErrorCount = 0 ;
+
+## Perform tests
+do
+{
+    ## $Test is a global used by various subroutines
+
+    foreach $Test ( @TestSequence )
+    {
+        my ($testtype, $target) = split '->', $Test;
+        
+        if ( &TestStart($Test) )
+        {
+            if ($testtype eq $Connect)
+            {
+                &ConnectTest($target);
+            }
+            elsif ($testtype eq $ProxyForwarding)
+            {
+                &ProxyForwardingTest($target);
+            }
+            elsif ($testtype eq $Redirect)
+            {
+                &RedirectTest($target);
+            }
+            elsif ($testtype eq $DomainResponse)
+            {
+                &DomainResponseTest($target);
+            }
+            elsif ($testtype eq $EndPoint)
+            {
+                &EndPointTest($target);
+            }
+            else
+            {
+                warn "Internal Error: unrecognized test type '$Test'\n";
+            }
+        }
+        else
+        {
+            &Skip;
+        }
+    }
+
+    if ($LastErrorCount != 0 && $ErrorCount == 0 && @EmailAddrs)
+    {
+        &SendEmail(\@EmailAddrs, "$TestId all tests passed.", 
+                   join( "\n  ", @TestList )
+                   ) ;
+    }
+    $LastErrorCount = $ErrorCount;
+
+    # Sleep a bit, then try again!
+    sleep($RepeatDelay)
+        if @EmailAddrs;
+
+} while (@EmailAddrs);
+
+if ($ErrorCount)
+{
+    my $testcount = @TestList;
+
+    print "Failed ".&Red().$ErrorCount.&Black()." of $testcount tests\n";
+}
+else
+{
+    print &GreenBackground()."Passed all tests.".&Black()."\n";
+}
+
+&Bye($ErrorCount);
+
+sub ConnectTest
+{
+    my $host = shift;
+    $host =~ s/:\d+$//;
+
+    if ( $Pinger->ping($host) )
+    {
+        &Pass;
+    }
+    else
+    {
+        &Failure("Cannot connect to TCP echo on server");
+    }
+}
+
+sub ProxyForwardingTest
+{
+    my ($proxy) = shift;
+    my ($server, $port);
+
+    # Send SIP PING to AOR to test for 302
+    if ( $proxy =~ m/([^:]+):(\d+)/ )
+    {
+        $server = $1;
+        $port = $2;
+    }
+    else
+    {
+        $server=$proxy;
+        $port = $SipPort;
+    }
+    
+    ## Start up the UAS child process
+    ($UasPort, $UasAddr) = &StartUas($server, $port) 
+        unless $Child{"$server:$port"};
+
+    # Send Options to sip:{this server} to test the proxy
+    &SendOptions($server, $port, "sip:$UasAddr:$UasPort;transport=tcp");
+}
+
+
+sub RedirectTest
+{
+    my ($target) = shift;
+    my ($registrarServer, $aor) = split(',', $target) ;
+
+    # Send SIP PING to AOR to test for 302
+    my $port = $RegistrarPort ;
+    my $server = $registrarServer;
+    if ( $registrarServer =~ m/([^:]+):(\d+)/ )
+    {
+        $server = $1;
+        $port = $2;
+    }
+    
+    &SendPing($server, $port, $aor, "Registrar Ping Test");
+}
+
+sub DomainResponseTest
+{
+    my ($proxy) = shift;
+    my ($server, $port);
+
+    # Send Ping to AOR to test for 302
+    if ( $proxy =~ m/([^:]+):(\d+)/ )
+    {
+        $server = $1;
+        $port = $2;
+    }
+    else
+    {
+        $server=$proxy;
+        $port = $SipPort;
+    }
+    
+    &SendOptions($server, $port, "sip:$Domain");
+}
+
+sub EndPointTest
+{
+    my ($target) = shift;
+    my ($proxy, $aor) = split(",", $target);
+    my ($server, $port);
+
+    # Send Ping to AOR to test for 302
+    if ( $proxy =~ m/([^:]+):(\d+)/ )
+    {
+        $server = $1;
+        $port = $2;
+    }
+    else
+    {
+        $server=$proxy;
+        $port = $SipPort;
+    }
+    
+    &SendOptions($server, $port, "$aor");
+}
+
+sub TestStart
+
+{
+    my $test = shift;
+    my $isReady = 1;
+
+    if ($Verbose)
+    {
+        print &Black()."================================================================\n"
+            if $Verbose;
+        print "======== $test\n";
+    }
+
+    if ( defined $DependsOn{$Test} )
+    {
+        foreach ( keys %{$DependsOn{$Test}} )
+        {
+            my $condition = $ErrorState{$_};
+            if ( $condition ne "Good" )
+            {
+                print &Black()."   skipped because $condition $_\n".&Black()
+                    if $Verbose;
+                $isReady = 0;
+            }
+        }
+    }
+
+    return $isReady;
+}
+
+sub Catch
+{
+   warn "Shutting down $Me due to signal\n" 
+       if $Verbose > 1;
+
+   &SendEmail(\@EmailAddrs, "$TestId $Me monitor shutting down", "")
+       if $TopLevel && @EmailAddrs;
+
+   &Bye(0) ;
+}
+
+sub StartUas
+{
+   my ($server, $port) = @_ ;
+
+   # To find the IP addr of THIS machine that will be used to
+   # connect to the server, make a test connection first.  This gives
+   # the Interface that was used so we can bind a server socket
+   # on it.
+
+   my $hisiaddr = inet_aton($server) || die "Unable to resolve $server" ;
+
+   $serverAddr = sockaddr_in( $port, $hisiaddr);
+   socket( TEST, PF_INET, SOCK_STREAM, $tcp );
+   connect( TEST, $serverAddr ) ;
+   my ($myPort, $myAddr) = sockaddr_in(getsockname(TEST));
+   my $MyAddr = inet_ntoa($myAddr);
+   close(TEST) ;
+
+   socket( UAS, PF_INET, SOCK_STREAM, $tcp );
+   setsockopt( UAS, SOL_SOCKET, SO_REUSEADDR, pack("l", 1));
+   bind( UAS, sockaddr_in( $LocalPort, $myAddr ))
+           || die "Bind to INADDR_ANY:$LocalPort failed: $!\n";
+   listen(UAS, 5) ;
+   ($myPort, $myAddr) = sockaddr_in(getsockname(UAS));
+   $MyAddr = inet_ntoa($myAddr);
+
+   my $pid = fork() ;
+   if ($pid == 0) 
+   {
+       # this is the child (the UAS), delete any record of siblings
+       $Me = "SipUas($server:$port)";
+       %Child = ();
+       $TopLevel=0;
+       # and start listening
+       &SipUas($myPort, $MyAddr) ;
+   }
+   else
+   {
+       # this is the parent, so record the pid of the child for that server:port
+       print "Spawned child $pid for '$server:$port'\n"
+           if $Verbose > 1;
+       $Child{"$server:$port"} = $pid;
+   }
+   
+   return ($myPort, $MyAddr) ;
+}
+
+sub SipUas
+{
+   my ($myPort, $MyAddr) = @_ ;
+
+   print "SipUas listening on $MyAddr:$myPort\n" 
+       if $Verbose > 1;
+   for(;;)
+   {
+      my ($Request, $error, $Response);
+      # Wait for a client to connect
+      if (!accept(CONNECTION, UAS))
+      {
+         warn "accept on $MyAddr:$myPort failed. $!\n" ;
+         sleep(5) ;
+         next ;
+      }
+      select(CONNECTION); $| = 1; select(STDOUT);
+      if ($Verbose)
+      {
+            print "+++++++++++++++++++++++++++\n";
+            print "$Me ".&Magenta()."Accepting Connection\n".&Black();
+            print "+++++++++++++++++++++++++++\n";
+            print &Black() ;
+      }
+      ($error, $Request) = GetRequest(10) ;
+   
+      if ($error)
+      {
+         &Failure("$Me Problem reading OPTIONS request",$error) ;
+      }
+      else
+      {
+         if ($Verbose)
+         {
+            print "+++++++++++++++++++++++++++\n";
+            print "$Me Receiving:\n".&Magenta().$Request.&Black()."\n";
+            print "+++++++++++++++++++++++++++\n";
+
+         }
+         my $pos = index($Request, $CRLF) ;
+         if ($pos >= 0)
+         {
+            $Request=substr($Request, $pos+2);
+         }
+         $Response = "SIP/2.0 200 OK".$CRLF.$Request ;
+         if ($Verbose)
+         {
+            print "+++++++++++++++++++++++++++\n";
+            print "$Me Sending:\n".&Blue().$Response.&Black()."\n";
+            print "+++++++++++++++++++++++++++\n";
+            print &Black() ;
+         }
+         print CONNECTION $Response ;
+      }
+      close(CONNECTION) ;
+   }
+   exit(0);
+}
+
+#
+#  Send an OPTIONS request to the Target RequestURI
+#
+sub SendOptions
+{
+   my ($server, $Port, $Target) = @_ ;
+
+   # Make a User Agent Client socket
+   socket( UAC, PF_INET, SOCK_STREAM, $tcp );
+   $serverAddr = sockaddr_in( $Port, inet_aton( $server ) );
+   if ( $SymmetricPort )
+   {
+       setsockopt( UAC, SOL_SOCKET, SO_REUSEADDR, pack("l", 1));
+       bind( UAC, sockaddr_in( $SymmetricPort, INADDR_ANY ))
+           || die "Bind to INADDR_ANY:$SymmetricPort failed: $!\n";
+   }
+
+   print "Connecting: to $server:$Port\n" 
+       if ($Verbose > 1);
+
+   # Connect to the server
+   if (!connect( UAC, $serverAddr ))
+   {
+      &Failure("Unable to Connect to $server:$Port: $!") ;
+
+   }
+   else
+   {
+       ($myPort, $myAddr) = sockaddr_in(getsockname(UAC));
+
+       select(UAC); $| = 1; select(STDOUT); $| = 1;
+
+       # Build up an OPTIONS request with next Cseq and new CallId
+       $Cseq++;
+       $CallId = $$."-".&RandHash;
+       $Request = &BuildRequest("OPTIONS", $Target, $CallId, $Cseq, $myPort, $myAddr) ;
+
+       # Send it to the server
+       print "Sending: to $server:$Port \n".&Blue().$Request.&Black()
+           if $Verbose;
+
+       print UAC $Request;
+
+       # Get the response from the server (on the same socket)
+       ($error, $Response, $statuscode, $statustext) = GetResponse($Timeout) ;
+
+       print &Magenta().$Response.&Black()
+           if ($Verbose) ;
+
+       if ($error)
+       {
+           &Failure("Error getting response from $server.",$error) ;
+       }
+       elsif ($statuscode != 200)
+       {
+           &Failure("Bad response=$statuscode $statustext\n$Response") ;
+       }
+       else
+       {
+           &Pass;
+       }
+       close UAC;
+   }
+}
+
+#
+#  Send an PING request to the Target RequestURI,
+#
+sub SendPing
+{
+   my ($server, $Port, $Target, $Test) = @_ ;
+
+   # Make a User Agent Client socket
+   socket( UAC, PF_INET, SOCK_STREAM, $tcp );
+   $serverAddr = sockaddr_in( $Port, inet_aton( $server ) );
+   if ( $SymmetricPort )
+   {
+       setsockopt( UAC, SOL_SOCKET, SO_REUSEADDR, pack("l", 1));
+       bind( UAC, sockaddr_in( $SymmetricPort, INADDR_ANY ))
+           || die "Bind to INADDR_ANY:$SymmetricPort failed: $!\n";
+   }
+
+   print "Connecting: to $server:$Port\n"
+       if ($Verbose > 1);
+
+   # Connect to the server
+   if (!connect( UAC, $serverAddr ))
+   {
+      &Failure("Unable to Connect to $server:$Port: $!") ;
+      return ;
+   }
+   ($myPort, $myAddr) = sockaddr_in(getsockname(UAC));
+
+   select(UAC); $| = 1; select(STDOUT); $| = 1;
+
+   # Build up a PING request with next Cseq and new CallId
+   $Cseq++;
+   $CallId = $$."-".&RandHash;
+   $Request = &BuildRequest("PING", $Target, $CallId, $Cseq, $myPort, $myAddr) ;
+
+   # Send it to the server
+   print "Sending: to $server:$Port \n".&Blue().$Request
+      if ($Verbose);
+
+   print UAC $Request;
+
+   # Get the response from the server (on the same socket)
+   ($error, $Response, $statuscode, $statustext) = GetResponse($Timeout) ;
+
+   print &Magenta().$Response.&Black()
+       if ($Verbose) ;
+
+   if ($error)
+   {
+      &Failure("Error getting response from $server:$Port",$error) ;
+   }
+   elsif ($statuscode != 302)
+   {
+      &Failure("Bad response=$statuscode $statustext\n$Response") ;
+   }
+   else
+   {
+      &Pass;
+   }
+   close UAC;
+}
+
+#
+# Kill of any children, then exit
+#
+sub Bye
+{
+   my $exitVal = shift;
+
+   $Pinger->close();
+   print &Black();
+   my $child;
+   foreach $target ( sort { $Child{$a} cmp $Child{$b} } keys %Child )
+   {
+       if ($target)
+       {
+           print "Terminating SipUas $Child{$target} for '$target'\n"
+               if $Verbose > 1;
+           kill TERM, $Child{$target};
+       }
+   }
+
+   exit $exitVal;
+}
+
+#
+# Something not right happened.
+sub Failure
+{
+    my ($error) = join("\n  ", @_);
+
+    if ($ErrorState{$Test} ne "Failed")
+    {
+        # first failure for this test
+        $ErrorCount++;
+
+        if (@EmailAddrs)
+        {
+            &SendEmail(\@EmailAddrs, "$TestId failed $Test", $error) ;
+        }
+        else
+        {
+            print &RedBackground()."Failed".&Black()." $Test".&Red()."\n  $error\n".&Black();
+            print &Black()."================================================================\n"
+                if $Verbose;
+        }
+    }
+    $ErrorState{$Test} = "Failed" ;
+}
+
+#
+# Everything went as planned
+sub Pass
+{
+    if ($ErrorState{$Test} eq "Failed")
+    {
+        $ErrorCount--;
+    }
+
+    if (! @EmailAddrs)
+    {
+        print &GreenBackground()."Passed".&Black()." $Test\n";
+        print &Black()."================================================================\n"
+            if $Verbose;
+    }
+
+    $ErrorState{$Test} = "Good";
+}
+
+sub Skip
+{
+    if (! @EmailAddrs)
+    {
+        print &BlueBackground()."(Skip)".&Black()." $Test\n";
+    }
+
+    $ErrorState{$Test} = "Skip";
+}
+
+#
+# Wait for and parse a User Agent Server request
+#
+sub GetRequest
+{
+   my ($Timeout) = @_ ;
+   my $Req = '';
+   my $error ;
+
+   my $RspState = 'None';
+   my $RspContentLength = 0;
+   my $buffer = "" ;
+   my $line ;
+   my ($Challenge, $ProxyChallenge);  
+   my $ReqURI ;
+
+   for(;;)
+   {
+      # Wait for a line from the connection
+      ($error, $line, $buffer) = &GetLine('CONNECTION', $Timeout, $buffer) ;
+      last if defined $error ;
+      $_ = $line;
+#      print "trace: xxxx(".$line.")xxxx\n${RspState}\n";
+      if ( $RspState eq 'None' )
+      {
+         next if /^\s*$/;
+         if ( m|^OPTIONS\s+(.+)\s+SIP/| )
+         {
+            $ReqURI = $1 ;
+         }
+         else
+         {
+            $error = "Invalid request line: $_\n";
+            last ;
+         }
+
+         $RspState = 'Headers';
+      }
+      elsif ( $RspState eq 'Headers' )
+      {
+         if ( m|^Content-Length\s*:\s*(\d+)|i )
+         {
+            $RspContentLength = $1;
+         }
+         elsif ( m|^WWW-Authenticate\s*:\s*Digest\s+(.+)|i )
+         {
+            $Challenge = $1;
+         }
+         elsif ( m|^Proxy-Authenticate\s*:\s*Digest\s+(.+)|i )
+         {
+            $ProxyChallenge = $1;
+         }
+         elsif ( $_ eq "")
+         {
+            $RspState = $RspContentLength ? 'Body' : 'Done';
+         }
+       }
+       elsif ( $RspState eq 'Body' )
+       {
+          $RspContentLength -= length;
+          if ( $RspContentLength == 0 )
+          {
+              $RspState = 'Done';
+          }
+          elsif ( $RspContentLength < 0 )
+          {
+             $error = "Lost stream syncronization\n";
+             last ;
+          }
+       }
+
+       $Req .= $_.$CRLF ;
+
+       last if $RspState eq 'Done';
+   }
+
+   return ($error, $Req) ;
+}
+
+sub GetResponse
+{
+   my ($Timeout) = @_ ;
+   my $StatusClass=0;
+   my $StatusCode ;
+   my $StatusText;
+   my $Rsp = '';
+   my $error ;
+
+   while ( $StatusClass < 2 )
+   {
+      my $RspState = 'None';
+      my $RspContentLength = 0;
+      my $buffer = "" ;
+      my $line ;
+      my ($Challenge, $ProxyChallenge);  
+
+       for(;;) # see also conditional 'last' at bottom
+       {
+           ($error, $line, $buffer) = &GetLine('UAC', $Timeout, $buffer) ;
+           last if defined $error ;
+           $Rsp .= $line . $CRLF ;
+           $_ = $line;
+           #print "trace: xxxx\n$_\nxxxx\n";
+           if ( $RspState eq 'None' )
+           {
+               next if /^\s*$/;
+               if ( m|^SIP/\d+\.\d+\s+(([1-6])[0-9][0-9])\s+(.+)$| )
+               {
+                   $StatusCode = $1;
+                   $StatusClass = $2;
+                   $StatusText = $3;
+               }
+               else
+               {
+                   return ("Invalid response line: $_", "", "", "") ;
+               }
+
+               $RspState = 'Headers';
+           }
+           elsif ( $RspState eq 'Headers' )
+           {
+               if ( m|^Content-Length\s*:\s*(\d+)|i )
+               {
+                   $RspContentLength = $1;
+               }
+               elsif ( m|^WWW-Authenticate\s*:\s*Digest\s+(.+)|i )
+               {
+                   $Challenge = $1;
+               }
+               elsif ( m|^Proxy-Authenticate\s*:\s*Digest\s+(.+)|i )
+               {
+                   $ProxyChallenge = $1;
+               }
+               elsif ( $_ eq "" )
+               {
+                   $RspState = $RspContentLength ? 'Body' : 'Done';
+               }
+           }
+           elsif ( $RspState eq 'Body' )
+           {
+               $RspContentLength -= (length($_) + 2); # add 2 for CRLF
+               if ( $RspContentLength == 0 )
+               {
+                   $RspState = 'Done';
+               }
+               elsif ( $RspContentLength < 0 )
+               {
+                   return ("Lost stream syncronization", $Rsp, "", "") ;
+               }
+           }
+
+           last if $RspState eq 'Done';
+       }
+
+       if ( $RspState ne 'Done' )
+       {
+           return ("premature connection close; state=$RspState expected $RspContentLength more bytes", $Rsp, "");
+       }
+
+      if(0)
+      {
+          if ( $AuthState eq 'None'
+               && ( $StatusCode == 401 || $StatusCode == 407 )
+               )
+          {
+              if ( @Credentials )
+              {
+                  print "Challenge: ".&Magenta().$Rsp.&Black()
+                      if $Verbose;
+
+                  &AuthenticateRequest;
+                  $Cseq++;
+                  $Request = &SipRequest;
+
+                  print "Sending:".&Blue().$Request.&Black()
+                      if $Verbose;
+                  print UAC $Request;
+
+                  $StatusClass = 0; # wait for another response
+                  $AuthState = 'Attempted';
+              }
+          }
+      }
+   }
+   return ($error, $Rsp, $StatusCode, $StatusText) ;
+}
+
+
+sub BuildRequest
+{
+   my ($Method, $Target, $CallId, $Cseq, $Port, $Addr) = @_ ;
+   my $MyAddr = inet_ntoa($myAddr);
+   my ($MyName, $MySystem, $Branch, $Request, %P);
+
+   if ( $UseViaName )
+   {
+     $MyName = scalar gethostbyaddr($myAddr, AF_INET);
+     $MySystem = $MyName || $MyAddr;
+   }
+   else
+   {
+     $MySystem = $MyAddr;
+   }
+   $Branch = "z9hG4bK-".&RandHash;
+
+   # Construct request
+
+   $P{Method} = $Method ;
+   $P{Target} =  $Target;
+   # $P{Route} =  $Route;
+   $P{Via} = "SIP/$SipVersion/TCP $MySystem:$myPort;branch=$Branch";
+   $P{Authorization} = $Authorization;
+   $P{ProxyAuthorization} = $ProxyAuthorization;
+   $P{To} = "<".$P{Target}.">";
+   $P{From} = "Sip Send <sip:$Me\@$MySystem:$myPort;transport=tcp>;tag=".substr(&RandHash,0,8);
+   $P{MaxForwards} = $MaxForwards;
+   $P{UserAgent} = $UserAgent;
+   $P{Contact} = "<sip:$Me\@$MySystem:$myPort;transport=tcp>";
+   $P{CallId} = $CallId;
+   $P{Cseq} = $Cseq;
+
+   $Request = &SipRequest(%P);
+
+   return $Request;
+}
+
+sub SipRequest()
+{
+    my %P = @_ ;
+    my $request;
+    my @wdname = ( "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" );
+    my @mname = ( "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+                  );
+
+    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday) = gmtime;
+    my $Date = sprintf( "%s, %d %s %d %02d:%02d:%02d GMT",
+                        $wdname[$wday], $mday, $mname[$mon],
+                        $year+1900, $hour, $min, $sec
+                        );
+
+    $request  = "$P{Method} $P{Target} SIP/$SipVersion" . $CRLF;
+    #$request .= "Route: $P{Route}" . $CRLF if $P{Route};
+    $request .= "Via: $P{Via}" . $CRLF;
+    $request .= "Authorization: $P{Authorization}" . $CRLF if $P{Authorization};
+    $request .= "Proxy-Authorization: $P{ProxyAuthorization}" . $CRLF if $P{ProxyAuthorization};
+    $request .= "To: $P{To}" . $CRLF if $P{To};
+    $request .= "From: $P{From}" . $CRLF;
+    $request .= "Call-ID: $P{CallId}" . $CRLF;
+    $request .= "Cseq: $P{Cseq} $P{Method}" . $CRLF;
+    $request .= "Max-Forwards: $P{MaxForwards}" . $CRLF;
+    $request .= "User-Agent: $P{UserAgent} ($TestId)" . $CRLF;
+    $request .= "Contact: $P{Contact}" . $CRLF;
+    $request .= "Date: $Date" . $CRLF;
+    $request .= "Content-Length: 0" . $CRLF; 
+    $request .= $CRLF;
+
+    return $request;
+}
+
+
+sub AuthenticateRequest
+{
+    ( $User, $Password ) = @Credentials;
+
+    if ( $Challenge )
+    {
+        $Authorization = &DigestResponse( $Challenge );
+    }
+
+    if ( $ProxyChallenge )
+    {
+        $ProxyAuthorization = &DigestResponse( $ProxyChallenge );
+    }
+}
+
+sub DigestResponse
+{
+    my ( $challenge ) = @_;
+
+    if ( $challenge =~ m/nonce="([0-9a-f]+)"/i )
+    {
+        $nonce = $1;
+    }
+    if ( $challenge =~ m/realm="([^"]+)"/i ) #"
+    {
+        $realm = $1;
+    }
+    if ( $challenge =~ m/opaque="([^"]+)"/i ) #"
+    {
+        $opaque = $1;
+    }
+    if ( $challenge =~ m/algorithm=(MD5|MD5-sess)/i )
+    {
+        $algorithm = $1;
+    }
+    else
+    {
+        $algorithm = "MD5";
+    }
+    if ( $challenge =~ m/qop=/i )
+    {
+        $do_2616 = 1;
+    }
+
+        if ( $do_2616 )
+        {
+            die "RFC2616 TBD:\n\tnonce='$nonce'\n\trealm='$realm'\n\topaque='$opaque'\n\talgorithm='$algorithm'\n\t\n";
+        }
+        else
+        {
+            $A1 = &md5_hex("$User:$realm:$Password");
+            $A2 = &md5_hex("$Method:$Target");
+        }
+
+        $hash  = &md5_hex("$A1:$nonce:$A2");
+        $auth  = "Digest ";
+        $auth .= "algorithm=$algorithm";
+        $auth .= ",username=\"$User\"";
+        $auth .= ",realm=\"$realm\"";
+        $auth .= ",nonce=\"$nonce\"";
+        $auth .= ",uri=\"$Target\"";
+        $auth .= ",opaque=\"$opaque\"" if $opaque;
+        $auth .= ",response=\"$hash\"";
+
+    return $auth;
+}
+
+sub RandHash
+{
+    my $in = rand;
+    return &md5_hex("$in");
+}
+
+#
+# Get a line from the buffer.
+# If there isn't a line there, wait for one to arrive on $fh
+#
+# Returns the line, minus any EOL characters.
+# Sets error if something bad happend.  Keeps unused characters in buffer,
+# so please send it back the next time GetLine is called.  Also make sure
+# buffer starts as "" the first time!
+#
+sub GetLine
+{
+   my ($fh, $timeout, $buffer) = @_ ;
+   my $error ;
+   my $rin = '';
+   my $rout ;
+   vec($rin, fileno($fh), 1) = 1 ;
+   my ($n, $timeleft, $rlen, $buf);
+   my $response = "" ;
+   my $line="";
+
+   for(;;)
+   {
+      $pos = index($buffer, "\n") ;
+      if ($pos >= 0)
+      {
+         $line=substr($buffer, 0, $pos) ;   # line is buffer up to \n
+         $buffer=substr($buffer, $pos+1);   # buffer is moved up past \n
+         $pos = index($line, "\r") ;        # if line has \r, remove it
+         $line=substr($line, 0, $pos) if $pos >= 0 ;
+         last ;
+      }
+
+      ($n, $timeout) = select($rout=$rin, undef, undef, $timeout);
+      $error="select problem $n", last if ($n <= 0) ;
+      $rlen = sysread($fh, $buf, 8192) ;
+      $error="Connection closed", last if $rlen <= 0 ;  # Connection closed
+      $buffer .= $buf ;
+   }
+   return ($error, $line, $buffer) ;
+}
+
+#
+# ANSI color sequences for nice color output
+sub Black
+{
+   return "\033[0m";
+}
+
+sub Red
+{
+    return "\033[31m";
+}
+
+sub Magenta
+{
+    return "\033[35m";
+}
+
+sub RedBackground
+{
+    return "\033[41m";
+}
+
+sub Blue
+{
+    return "\033[34m";
+}
+
+sub GreenBackground
+{
+    return "\033[42m";
+}
+
+sub BlueBackground
+{
+    return "\033[44m";
+}
+
+#
+# Use $SendMailCmd to send an e-mail message.
+# (presumes "sendmail" style lines (end with "dot"), and
+# that it will get the To addresses from the message.
+#
+sub SendEmail
+{
+   my ($addrlist, $subject, $message) = @_ ;
+
+   open(SENDMAIL, "|$SendMailCmd") || die "Cannot open $SendMailCmd: $!" ;
+   print SENDMAIL "To: " . join(',', @{$addrlist}) ."\n" ;
+   print SENDMAIL "From: ${AlarmFrom}\n" 
+       if ${AlarmFrom};
+   print SENDMAIL "Subject: $subject\n" ;
+   print SENDMAIL "Content-type: text/plain\n\n" ;
+   print SENDMAIL "$message\n" ;
+   print SENDMAIL "." ;
+   close(SENDMAIL)
+}
+
+
+__END__
+### Local Variables: ***
+### mode: perl ***
+### comment-start: "## "  ***
+### End: ***

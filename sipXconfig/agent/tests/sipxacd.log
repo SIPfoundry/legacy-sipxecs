@@ -1,0 +1,24 @@
+start-acd : 2006-03-21T20:03:03.865070Z
+enter-queue : 2006-03-21T20:05:04.731834Z : sip:Boston@cdhcp178.pingtel.com : "206"<sip:206@cdhcp178.pingtel.com>
+sign-in-agent : 2006-03-21T20:05:05.204343Z : sip:Boston@cdhcp178.pingtel.com : sip:201@cdhcp178.pingtel.com
+pick-up : 2006-03-21T20:05:12.848470Z : sip:Boston@cdhcp178.pingtel.com : sip:201@cdhcp178.pingtel.com : "206"<sip:206@cdhcp178.pingtel.com>
+enter-queue : 2006-03-21T20:05:31.852134Z : sip:Boston@cdhcp178.pingtel.com : "202"<sip:202@cdhcp178.pingtel.com;transport=udp>
+terminate : 2006-03-21T20:06:04.781573Z : "206"<sip:206@cdhcp178.pingtel.com>
+pick-up : 2006-03-21T20:06:10.708397Z : sip:Boston@cdhcp178.pingtel.com : sip:201@cdhcp178.pingtel.com : "202"<sip:202@cdhcp178.pingtel.com;transport=udp>
+terminate : 2006-03-21T20:06:44.111565Z : "202"<sip:202@cdhcp178.pingtel.com;transport=udp>
+start-acd : 2006-03-21T20:18:05.318194Z
+enter-queue : 2006-03-21T20:18:58.429554Z : sip:Boston@cdhcp178.pingtel.com : "202"<sip:202@cdhcp178.pingtel.com;transport=udp>
+sign-in-agent : 2006-03-21T20:19:02.975656Z : sip:Boston@cdhcp178.pingtel.com : sip:201@cdhcp178.pingtel.com
+pick-up : 2006-03-21T20:19:03.975656Z : sip:Boston@cdhcp178.pingtel.com : sip:201@cdhcp178.pingtel.com : "202"<sip:202@cdhcp178.pingtel.com;transport=udp>
+terminate : 2006-03-21T20:19:13.979904Z : "202"<sip:202@cdhcp178.pingtel.com;transport=udp>
+sign-out-agent : 2006-03-21T20:19:47.133248Z : sip:Boston@cdhcp178.pingtel.com : sip:201@cdhcp178.pingtel.com
+start-acd : 2006-03-21T20:47:45.435831Z
+enter-queue : 2006-03-21T20:47:53.382639Z : sip:Boston@cdhcp178.pingtel.com : "202"<sip:202@cdhcp178.pingtel.com;transport=udp>
+terminate : 2006-03-21T20:47:53.439520Z : "202"<sip:202@cdhcp178.pingtel.com;transport=udp>
+sign-in-agent : 2006-03-21T20:48:03.523657Z : sip:Boston@cdhcp178.pingtel.com : sip:201@cdhcp178.pingtel.com
+enter-queue : 2006-03-21T20:48:45.632400Z : sip:Boston@cdhcp178.pingtel.com : "202"<sip:202@cdhcp178.pingtel.com;transport=udp>
+pick-up : 2006-03-21T20:48:51.208908Z : sip:Boston@cdhcp178.pingtel.com : sip:201@cdhcp178.pingtel.com : "202"<sip:202@cdhcp178.pingtel.com;transport=udp>
+enter-queue : 2006-03-21T20:48:57.809582Z : sip:Boston@cdhcp178.pingtel.com : "206"<sip:206@cdhcp178.pingtel.com>
+terminate : 2006-03-21T20:49:51.233228Z : "202"<sip:202@cdhcp178.pingtel.com;transport=udp>
+pick-up : 2006-03-21T20:49:56.928811Z : sip:Boston@cdhcp178.pingtel.com : sip:201@cdhcp178.pingtel.com : "206"<sip:206@cdhcp178.pingtel.com>
+terminate : 2006-03-21T20:50:20.471650Z : "206"<sip:206@cdhcp178.pingtel.com>

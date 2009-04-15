@@ -1,0 +1,4 @@
+SIP_DOMAIN_NAME : example.edu
+SIP_REALM : scott
+SHARED_SECRET : zFkXxBFZcB+PxXOqJq6sYUwf
+DEFAULT_LANGUAGE : en

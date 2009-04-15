@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model>
+    <type id="true-false">
+      <boolean>
+        <true>Yes</true>
+        <false>No</false>
+      </boolean>
+    </type>
+    <type id="string-type">
+      <string/>
+    </type>
+    <type id="required-string-type">
+      <string required="yes"/>
+    </type>
+    <group name="group">
+        <setting name="true-false-setting">
+            <label>True False Checkbox</label>
+            <type refid="true-false"/>
+        </setting>
+        <group name="not-required-in-type">
+          <setting name="not-required">
+              <type refid="string-type"/>
+          </setting>
+          <setting name="required">
+              <type refid="string-type" required="yes"/>
+          </setting>
+        </group>
+        <group name="required-in-type">
+          <setting name="required">
+              <type refid="required-string-type"/>
+          </setting>
+          <setting name="not-required">
+              <type refid="required-string-type" required="no"/>
+          </setting>
+        </group>
+    </group>
+</model>

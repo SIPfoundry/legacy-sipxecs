@@ -1,0 +1,94 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<!--
+- XML Schema for sipX watchdog configuration
+-->
+<schema
+    xmlns:h='http://www.sipfoundry.org/sipX/schema/xml/watchdog-00-00'
+    targetNamespace='http://www.sipfoundry.org/sipX/schema/xml/watchdog-00-00'
+    xmlns='http://www.w3.org/2001/XMLSchema'
+    >
+
+  <annotation>
+    <documentation>
+      Definition of process to monitor for the sipX watchdog
+    </documentation>
+  </annotation>
+
+  <!-- Elements -->
+
+  <element name='watchdog'>
+    <complexType>
+      <sequence>
+        <element ref='h:settings' minOccurs='1' maxOccurs='1' />
+        <element ref='h:monitor' minOccurs='1' maxOccurs='1' />
+        <element ref='h:logfile' minOccurs='1' maxOccurs='1' />
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='monitor'>
+  </element>
+
+  <element name='settings'>
+    <annotation>
+      <documentation>
+        Global configuration settings for the watchdog process.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='h:health' minOccurs='1' maxOccurs='1' />
+        <element ref='h:processxmlpath' minOccurs='1' maxOccurs='1' />
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='health'>
+    <annotation>
+      <documentation>
+        Configures the number of seconds between process status checks.
+      </documentation>
+    </annotation>
+    <complexType>
+      <attribute name="check_period" type="decimal"/>
+    </complexType>
+  </element>
+
+  <element name='processxmlpath'>
+    <annotation>
+      <documentation>
+        Configures the directory for the sipX configuration files.
+      </documentation>
+    </annotation>
+    <complexType>
+      <attribute name="location" type="string"/>
+    </complexType>
+  </element>
+
+  <simpleType name="LogLevel">
+    <restriction base="string">
+      <enumeration value="debug" />
+      <enumeration value="info" />
+      <enumeration value="notice" />
+      <enumeration value="warning" />
+      <enumeration value="error" />
+      <!-- there are other levels, but level < error is not allowed -->
+    </restriction>
+  </simpleType>
+
+  <element name='logfile'>
+    <annotation>
+      <documentation>
+        The full path to the log file
+      </documentation>
+    </annotation>
+    <complexType>
+      <simpleContent>
+        <extension base="string">
+          <attribute name="level" type="h:LogLevel" />
+        </extension>
+      </simpleContent>
+    </complexType>
+  </element>
+
+</schema>

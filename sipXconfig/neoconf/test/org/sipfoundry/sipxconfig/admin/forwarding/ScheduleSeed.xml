@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dataset>
+  <schedule schedule_id="100" user_id="1000" name="WorkingHours" description="Working Hours" schedule_type="S" />
+  <schedule schedule_id="101" user_id="1000" name="WeekEnd" description="Week End" schedule_type="S" />
+  <schedule schedule_id="102" user_id="1001" name="MondaySchedule" description="Monday Schedule" schedule_type="S" />
+  <schedule schedule_id="103" user_id="1001" name="MondaySchedule" description="Monday Schedule" schedule_type="U" group_id="1001"/>
+  <schedule schedule_id="104" user_id="1001" name="GeneralSchedule" description="Schedule for dialing rule" schedule_type="G"/>
+</dataset>

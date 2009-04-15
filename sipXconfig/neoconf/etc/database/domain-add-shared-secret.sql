@@ -1,0 +1,1 @@
+alter table domain add column shared_secret varchar(255);

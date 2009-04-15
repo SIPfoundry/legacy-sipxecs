@@ -1,0 +1,594 @@
+# Call State Event (CSE) test data.
+# Construct multiple test cases for the Call Resolver by creating sets of CSEs.
+
+# Event types are:
+#    'R' - Call Request
+#    'S' - Call Setup
+#    'E' - Call End
+#    'T' - Transfer
+#    'F' - Call Failure
+
+#-------------------------------------------------------------------------------
+
+# Simple success case: call request, call connect, call end.
+# Should yield a single CDR.
+# Throw in junk events for testing purposes.
+# Scramble the order of listing events to test sorting.
+
+testSimpleSuccess_Junk_Early:
+  id:         5
+  observer:   O
+  event_seq:  5
+  event_time: 1990-05-16T19:33:00.000Z
+  event_type: F
+  cseq:       500
+  call_id:    testSimpleSuccessBogusCallEarly
+  from_tag:   f
+  to_tag:     t
+  from_url:   sip:alice@example.com; tag=f
+  to_url:     sip:bob@example.com; tag=t
+  contact:
+  
+testSimpleSuccess_1:
+  id:         1
+  observer:   O
+  event_seq:  1
+  event_time: 1990-05-17T19:30:00.000Z
+  event_type: R
+  cseq:       1  
+  call_id:    testSimpleSuccess
+  from_tag:   f
+  to_tag:
+  from_url:   sip:alice@example.com; tag=f
+  to_url:     sip:bob@example.com
+  contact:    sip:alice@1.1.1.1
+
+testSimpleSuccess_Junk:
+  id:         4
+  observer:   O
+  event_seq:  4
+  event_time: 1990-05-17T19:33:00.000Z
+  event_type: F
+  cseq:       501   
+  call_id:    testSimpleSuccessBogusCallInTimeWindow
+  from_tag:   f
+  to_tag:     t
+  from_url:   sip:alice@example.com; tag=f
+  to_url:     sip:bob@example.com; tag=t
+  contact:
+
+testSimpleSuccess_3:
+  id:         3
+  observer:   O
+  event_seq:  3
+  event_time: 1990-05-17T19:40:00.000Z
+  event_type: E
+  cseq:       3   
+  call_id:    testSimpleSuccess
+  from_tag:   f
+  to_tag:     t
+  from_url:   sip:alice@example.com; tag=f
+  to_url:     sip:bob@example.com; tag=t
+  contact :
+  
+testSimpleSuccess_2:
+  id:         2
+  observer:   O
+  event_seq:  2
+  event_time: 1990-05-17T19:31:00.000Z
+  event_type: S
+  cseq:       2   
+  call_id:    testSimpleSuccess
+  from_tag:   f
+  to_tag:     t
+  from_url:   sip:alice@example.com; tag=f
+  to_url:     sip:bob@example.com; tag=t
+  contact:    sip:bob@2.2.2.2
+
+testSimpleSuccess_Junk_Late:
+  id:         6
+  observer:   O
+  event_seq:  6
+  event_time: 1990-05-18T19:33:00.000Z
+  event_type: F
+  cseq:       503   
+  call_id:    testSimpleSuccessBogusCallLate
+  from_tag:   f
+  to_tag:     t
+  from_url:   sip:alice@example.com; tag=f
+  to_url:     sip:bob@example.com; tag=t
+  contact:
+  
+#-------------------------------------------------------------------------------
+
+# Simple success case: call request, call connect, call end with callee hanging
+# up.  Should yield a single CDR.
+  
+testSimpleSuccess_CalleeEnd_1:
+  id:         81
+  observer:   O
+  event_seq:  1
+  event_time: 1990-05-17T19:40:00.000Z
+  event_type: R
+  cseq:       1   
+  call_id:    testSimpleSuccess_CalleeEnd
+  from_tag:   f
+  to_tag:
+  from_url:   sip:alice@example.com; tag=f
+  to_url:     sip:bob@example.com
+  contact:    sip:alice@1.1.1.1
+  
+testSimpleSuccess_CalleeEnd_2:
+  id:         82
+  observer:   O
+  event_seq:  2
+  event_time: 1990-05-17T19:41:00.000Z
+  event_type: S
+  cseq:       2   
+  call_id:    testSimpleSuccess_CalleeEnd
+  from_tag:   f
+  to_tag:     t
+  from_url:   sip:alice@example.com; tag=f
+  to_url:     sip:bob@example.com; tag=t
+  contact:    sip:bob@2.2.2.2
+
+testSimpleSuccess_CalleeEnd_3:
+  id:         83
+  observer:   O
+  event_seq:  3
+  event_time: 1990-05-17T19:50:00.000Z
+  event_type: E
+  cseq:       3   
+  call_id:    testSimpleSuccess_CalleeEnd
+  from_tag:   t
+  to_tag:     f
+  from_url:   sip:bob@example.com; tag=t
+  to_url:     sip:alice@example.com; tag=f
+  contact :
+  
+#-------------------------------------------------------------------------------
+
+# Complicated success case: include multiple call legs.
+# First call leg fails immediately.
+# Second call leg: phone answers but gets an immediate BYE because another phone
+# gets answered first.
+# Third call leg: phone answers and we get a real conversation.
+# List events in reverse order to test sorting.
+
+testComplicatedSuccess_15:
+  id:         15
+  observer:   O
+  event_seq:  15
+  event_time: 1999-08-13T06:10:00.000Z
+  event_type: E
+  cseq:       3   
+  call_id:    testComplicatedSuccess
+  from_tag:   f
+  to_tag:     t2
+  from_url:   sip:cathy@example.com; tag=f
+  to_url:     sip:heathcliff@example.com; tag=t2
+  contact:    sip:cathy@3.3.3.3
+
+testComplicatedSuccess_14:
+  id:         14
+  observer:   O
+  event_seq:  14
+  event_time: 1999-08-13T06:03:00.000Z
+  event_type: S
+  cseq:       2   
+  call_id:    testComplicatedSuccess
+  from_tag:   f
+  to_tag:     t2
+  from_url:   sip:cathy@example.com; tag=f
+  to_url:     sip:heathcliff@example.com; tag=t2
+  contact:    sip:cathy@3.3.3.3
+
+testComplicatedSuccess_13:
+  id:         13
+  observer:   O
+  event_seq:  13
+  event_time: 1999-08-13T06:02:00.000Z
+  event_type: E
+  cseq:       5   
+  call_id:    testComplicatedSuccess
+  from_tag:   f
+  to_tag:     t1
+  from_url:   sip:cathy@example.com; tag=f
+  to_url:     sip:heathcliff@example.com; tag=t1
+  contact:    sip:cathy@2.2.2.2
+
+testComplicatedSuccess_12:
+  id:         12
+  observer:   O
+  event_seq:  12
+  event_time: 1999-08-13T06:01:00.000Z
+  event_type: S
+  cseq:       4   
+  call_id:    testComplicatedSuccess
+  from_tag:   f
+  to_tag:     t1
+  from_url:   sip:cathy@example.com; tag=f
+  to_url:     sip:heathcliff@example.com; tag=t1
+  contact:    sip:cathy@2.2.2.2
+
+testComplicatedSuccess_11:
+  id:             11
+  observer:       O
+  event_seq:      11
+  event_time:     1999-08-13T06:01:00.000Z
+  event_type:     F
+  cseq:           502   
+  call_id:        testComplicatedSuccess
+  from_tag:       f
+  to_tag:         t0
+  from_url:       sip:cathy@example.com; tag=f
+  to_url:         sip:heathcliff@example.com; tag=t0
+  failure_status: 486
+  failure_reason: Busy Doing My Taxes
+
+testComplicatedSuccess_10:
+  id:         10
+  observer:   O
+  event_seq:  10
+  event_time: 1999-08-13T06:00:00.000Z
+  event_type: R
+  cseq:       6   
+  call_id:    testComplicatedSuccess
+  from_tag:   f
+  to_tag:
+  from_url:   sip:cathy@example.com; tag=f
+  to_url:     sip:heathcliff@example.com
+  contact:    sip:cathy@1.1.1.1
+
+  
+#-------------------------------------------------------------------------------
+
+# Call that failed
+
+testFailed_20:
+  id:         20
+  observer:   O
+  event_seq:  20
+  event_time: 2000-1-1T00:00:00.000Z
+  event_type: R
+  cseq:       1   
+  call_id:    testFailed
+  from_tag:   f
+  to_tag:
+  from_url:   sip:mick@example.com; tag=f
+  to_url:     sip:keith@example.com
+  contact:    sip:mick@1.1.1.1
+
+testFailed_21:
+  id:         21
+  observer:   O
+  event_seq:  21
+  event_time: 2000-1-1T01:00:00.000Z
+  event_type: S
+  cseq:       2   
+  call_id:    testFailed
+  from_tag:   f
+  to_tag:     t
+  from_url:   sip:mick@example.com; tag=f
+  to_url:     sip:keith@example.com; tag=t
+  contact:    sip:keith@2.2.2.2
+
+testFailed_22:
+  id:         22
+  observer:   O
+  event_seq:  22
+  event_time: 2000-1-1T02:00:00.000Z
+  event_type: F
+  cseq:       3   
+  call_id:    testFailed
+  from_tag:   f
+  to_tag:     t
+  from_url:   sip:mick@example.com; tag=f
+  to_url:     sip:keith@example.com; tag=t
+  failure_status: 499
+  failure_reason: You Can't Always Get What You Want
+
+  
+#-------------------------------------------------------------------------------
+
+# More successful calls. Use them for testing call direction.
+
+testAnotherSuccess1_30:
+  id:         30
+  observer:   O
+  event_seq:  30
+  event_time: 2001-1-1T00:00:00.000Z
+  event_type: R
+  cseq:       1   
+  call_id:    testAnotherSuccess1
+  from_tag:   f
+  to_tag:
+  from_url:   sip:mick@example.com; tag=f
+  to_url:     sip:keith@example.com
+  contact:    sip:mick@1.1.1.1
+
+testAnotherSuccess1_31:
+  id:         31
+  observer:   O
+  event_seq:  31
+  event_time: 2001-1-1T01:00:00.000Z
+  event_type: S
+  cseq:       2   
+  call_id:    testAnotherSuccess1
+  from_tag:   f
+  to_tag:     t
+  from_url:   sip:mick@example.com; tag=f
+  to_url:     sip:keith@example.com; tag=t
+  contact:    sip:keith@2.2.2.2
+
+testAnotherSuccess1_32:
+  id:         32
+  observer:   O
+  event_seq:  32
+  event_time: 2001-1-1T02:00:00.000Z
+  event_type: E
+  cseq:       3   
+  call_id:    testAnotherSuccess1
+  from_tag:   f
+  to_tag:     t
+  from_url:   sip:mick@example.com; tag=f
+  to_url:     sip:keith@example.com; tag=t
+
+testAnotherSuccess2_40:
+  id:         40
+  observer:   O
+  event_seq:  40
+  event_time: 2001-1-1T00:00:00.000Z
+  event_type: R
+  cseq:       4   
+  call_id:    testAnotherSuccess2
+  from_tag:   f
+  to_tag:
+  from_url:   sip:mick@example.com; tag=f
+  to_url:     sip:keith@example.com
+  contact:    sip:mick@2.2.2.2
+
+testAnotherSuccess2_41:
+  id:         41
+  observer:   O
+  event_seq:  41
+  event_time: 2001-1-1T01:00:00.000Z
+  event_type: S
+  cseq:       5   
+  call_id:    testAnotherSuccess2
+  from_tag:   f
+  to_tag:     t
+  from_url:   sip:mick@example.com; tag=f
+  to_url:     sip:keith@example.com; tag=t
+  contact:    sip:keith@1.1.1.1
+
+testAnotherSuccess2_42:
+  id:         42
+  observer:   O
+  event_seq:  42
+  event_time: 2001-1-1T02:00:00.000Z
+  event_type: E
+  cseq:       6   
+  call_id:    testAnotherSuccess2
+  from_tag:   f
+  to_tag:     t
+  from_url:   sip:mick@example.com; tag=f
+  to_url:     sip:keith@example.com; tag=t
+
+testAnotherSuccess3_50:
+  id:         50
+  observer:   O
+  event_seq:  50
+  event_time: 2001-1-1T00:00:00.000Z
+  event_type: R
+  cseq:       7   
+  call_id:    testAnotherSuccess3
+  from_tag:   f
+  to_tag:
+  from_url:   sip:mick@example.com; tag=f
+  to_url:     sip:keith@example.com
+  contact:    sip:mick@2.2.2.2
+
+testAnotherSuccess3_51:
+  id:         51
+  observer:   O
+  event_seq:  51
+  event_time: 2001-1-1T01:00:00.000Z
+  event_type: S
+  cseq:       8   
+  call_id:    testAnotherSuccess3
+  from_tag:   f
+  to_tag:     t
+  from_url:   sip:mick@example.com; tag=f
+  to_url:     sip:keith@example.com; tag=t
+  contact:    sip:keith@3.3.3.3
+
+testAnotherSuccess3_52:
+  id:         52
+  observer:   O
+  event_seq:  52
+  event_time: 2001-1-1T02:00:00.000Z
+  event_type: E
+  cseq:       9   
+  call_id:    testAnotherSuccess3
+  from_tag:   f
+  to_tag:     t
+  from_url:   sip:mick@example.com; tag=f
+  to_url:     sip:keith@example.com; tag=t
+
+  
+#-------------------------------------------------------------------------------
+
+# Call that failed, caller contact is not a gateway, and callee has no contact
+# Test case for XPR-138
+
+testFailed_60:
+  id:         60
+  observer:   O
+  event_seq:  60
+  event_time: 2001-1-2T00:00:00.000Z
+  event_type: R
+  cseq:       1   
+  call_id:    testFailedNoCalleeContact
+  from_tag:   f
+  to_tag:
+  from_url:   sip:mick@example.com; tag=f
+  to_url:     sip:keith@example.com
+  contact:    sip:mick@3.3.3.3
+
+testFailed_61:
+  id:         61
+  observer:   O
+  event_seq:  61
+  event_time: 2001-1-2T01:00:00.000Z
+  event_type: F
+  cseq:       2   
+  call_id:    testFailedNoCalleeContact
+  from_tag:   f
+  to_tag:     t
+  from_url:   sip:mick@example.com; tag=f
+  to_url:     sip:keith@example.com; tag=t
+  failure_status: 499
+  failure_reason: I Feel Stupid and Contagious
+
+  
+#-------------------------------------------------------------------------------
+
+# Success case.  Test that contact params are stripped off of contact URLs.
+
+testContactParamStripping_1:
+  id:         71
+  observer:   O
+  event_seq:  71
+  event_time: 2001-1-3T00:00:00.000Z
+  event_type: R
+  cseq:       1   
+  call_id:    testContactParamStripping
+  from_tag:   f
+  to_tag:
+  from_url:   sip:alice@example.com; tag=f
+  to_url:     sip:bob@example.com
+  contact:    sip:alice_with_params@1.1.1.1;param_to_be_stripped
+
+testContactParamStripping_2:
+  id:         72
+  observer:   O
+  event_seq:  72
+  event_time: 2001-1-3T01:00:00.000Z
+  event_type: S
+  cseq:       2   
+  call_id:    testContactParamStripping
+  from_tag:   f
+  to_tag:     t
+  from_url:   sip:alice@example.com; tag=f
+  to_url:     sip:bob@example.com; tag=t
+  contact:    <sip:bob_with_params@2.2.2.2;param1;param2>
+  
+testContactParamStripping_3:
+  id:         73
+  observer:   O
+  event_seq:  73
+  event_time: 2001-1-3T02:00:00.000Z
+  event_type: E
+  cseq:       3   
+  call_id:    testContactParamStripping
+  from_tag:   f
+  to_tag:     t
+  from_url:   sip:alice@example.com; tag=f
+  to_url:     sip:bob@example.com; tag=t
+  contact :
+
+  
+#-------------------------------------------------------------------------------
+
+# Success case.  Test weird display names
+
+testWeirdNameStripping_1:
+  id:         91
+  observer:   O
+  event_seq:  91
+  event_time: 2001-1-4T00:00:00.000Z
+  event_type: R
+  cseq:       1   
+  call_id:    testWeirdNameStripping
+  from_tag:   f
+  to_tag:
+  from_url:   sip:alice@example.com; tag=f
+  to_url:     sip:bob@example.com
+  contact:    '"Alice:; \"in\" :Wonderland" <sip:alice_with_params@1.1.1.1;param_to_be_stripped>'
+  
+testWeirdNameStripping_2:
+  id:         92
+  observer:   O
+  event_seq:  92
+  event_time: 2001-1-4T01:00:00.000Z
+  event_type: S
+  cseq:       2
+  call_id:    testWeirdNameStripping
+  from_tag:   f
+  to_tag:     t
+  from_url:   sip:alice@example.com; tag=f
+  to_url:     sip:bob@example.com; tag=t
+  contact:    <sip:bob_with_params@2.2.2.2;param1;param2>
+  
+testWeirdNameStripping_3:
+  id:         93
+  observer:   O
+  event_seq:  93
+  event_time: 2001-1-4T02:00:00.000Z
+  event_type: E
+  cseq:       3
+  call_id:    testWeirdNameStripping
+  from_tag:   f
+  to_tag:     t
+  from_url:   sip:alice@example.com; tag=f
+  to_url:     sip:bob@example.com; tag=t
+  contact:
+  
+#-------------------------------------------------------------------------------
+
+# Success case.  Test contact addresses with domain names instead of IPs
+
+testDomainNameContact_1:
+  id:         101
+  observer:   O
+  event_seq:  101
+  event_time: 2001-1-5T00:00:00.000Z
+  event_type: R
+  cseq:       1   
+  call_id:    testDomainNameContact
+  from_tag:   f
+  to_tag:
+  from_url:   sip:alice@example.com; tag=f
+  to_url:     sip:bob@example.com
+  contact:    '"Alice:; \"in\" :Wonderland" <sip:alice_with_params@gateway.example.com;param_to_be_stripped>'
+  
+testDomainNameContact_2:
+  id:         102
+  observer:   O
+  event_seq:  102
+  event_time: 2001-1-5T01:00:00.000Z
+  event_type: S
+  cseq:       2
+  call_id:    testDomainNameContact
+  from_tag:   f
+  to_tag:     t
+  from_url:   sip:alice@example.com; tag=f
+  to_url:     sip:bob@example.com; tag=t
+  contact:    <sip:bob_with_params@2.2.2.2;param1;param2>
+  
+testDomainNameContact_3:
+  id:         103
+  observer:   O
+  event_seq:  103
+  event_time: 2001-1-5T02:00:00.000Z
+  event_type: E
+  cseq:       3
+  call_id:    testDomainNameContact
+  from_tag:   f
+  to_tag:     t
+  from_url:   sip:alice@example.com; tag=f
+  to_url:     sip:bob@example.com; tag=t
+  contact:  
+
+  

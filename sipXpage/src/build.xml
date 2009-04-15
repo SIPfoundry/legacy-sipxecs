@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--  -->
+
+<project name="sipXpage" default="jar" basedir="." >
+
+  <property name="debug" value="true"/>
+  <patternset id="test.classes" excludes="**"/>
+  <property name="build.dir" value="${top.build.dir}"/>
+  <import file="ant-targets.xml"/>
+
+  <path id="base.path" >
+    <pathelement location="${sipxcommons.jar}"/>
+    <pathelement location="${JainSip.jar}"/>
+    <pathelement location="${junit.jar}"/>
+    <pathelement location="${log4j.jar}"/>
+    <pathelement location="${dnsjava.jar}"/>
+  </path>
+  <property name="classpath" refid="base.path" />
+
+
+  <!-- J A R -->
+  <target name="jar" depends="compile" description="create jar file">
+
+    <jar jarfile="${build.dir}/dist/sipXpage.jar">
+      <fileset dir="${classes.dir}" >
+        <include name="**/*.class" />
+      </fileset>
+    </jar>
+  </target>
+
+  <!--
+    -  I N S T A L L
+  -->
+  <target name="install">
+
+  <!-- BINARIES/LIB/SCRIPTS -->
+  <delete dir="${dest.dir}${sipxpage.dir}"/>
+  <mkdir dir="${dest.dir}${sipxpage.dir}"/>
+  <copy file="${build.dir}/dist/sipXpage.jar" todir="${dest.dir}${sipxpage.dir}"/>
+
+  </target>
+
+  <target name="uninstall">
+    <delete file="${dest.dir}${bin.dir}/sipxpage.sh"/>
+    <delete dir="${dest.dir}${sipxpage.dir}"/>
+  </target>
+
+</project>

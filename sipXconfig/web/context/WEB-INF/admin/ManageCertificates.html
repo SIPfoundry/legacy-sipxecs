@@ -1,0 +1,164 @@
+<div jwcid="@common/Border">
+  <span jwcid="@common/TabNavigation" tabNames="ognl:{'generate', 'import'}" selectedTab="ognl:tab"/>
+  <div id="settings-content">
+    <span jwcid="@common/ErrorMsg"/>
+    <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
+  </div>
+  <div jwcid="generateTab@Block">
+    <div jwcid="@common/QuickHelp" value="message:quick.help.generate"></div>
+    <form jwcid="generateForm@Form" delegate="bean:validator">
+      <fieldset>
+        <table>
+          <tr>
+			<td>
+              <span jwcid="countryLabel@FieldLabel"
+			        field="component:country"/>
+			</td>
+			<td>
+              <span jwcid="country@TextField"
+			        value="ognl:country"
+			        displayName="message:label.country"
+			        validators="spring-validators:required,validCountryName"/>
+			</td>
+		  </tr>
+          <tr>
+			<td>
+              <span jwcid="stateLabel@FieldLabel"
+				    field="component:state"/>
+			</td>
+            <td>
+              <span jwcid="state@TextField"
+				    value="ognl:state"
+				    displayName="message:label.state"
+				    validators="validators:required"/>
+			</td>
+		  </tr>
+          <tr>
+			<td>
+              <span jwcid="localityLabel@FieldLabel"
+				    field="component:locality"/>
+			</td>
+			<td>
+              <span jwcid="locality@TextField"
+				    value="ognl:locality"
+				    displayName="message:label.locality"
+				    validators="validators:required"/>
+			</td>
+		  </tr>
+          <tr>
+			<td>
+              <span jwcid="organizationLabel@FieldLabel"
+				    field="component:organization"/>
+			</td>
+			<td>
+              <span jwcid="organization@TextField"
+				    value="ognl:organization"
+				    displayName="message:label.organization"
+				    validators="validators:required"/>
+			</td>
+		  </tr>
+          <tr>
+			<td>
+              <span jwcid="serverLabel@FieldLabel"
+				    field="component:server"/>
+			</td>
+			<td>
+              <span jwcid="server@TextField"
+				    value="ognl:server"
+					readonly="ognl:true"
+				    displayName="message:label.server"
+				    validators="validators:required"/>
+			</td>
+		  </tr>
+          <tr>
+			<td>
+              <span jwcid="emailLabel@FieldLabel"
+				    field="component:email"/>
+			</td>
+			<td>
+              <span jwcid="email@TextField"
+				    value="ognl:email"
+				    displayName="message:label.email"
+				    validators="validators:required,email"/>
+			</td>
+		  </tr>
+          <tr>
+            <td>
+              <span jwcid="generate@Submit"
+				    id="generate"
+				    action="listener:generate"
+				    value="message:button.generate"/>
+			</td>
+            <td/>
+		  </tr>
+          <tr>
+            <td>
+              <span jwcid="csrLabel@FieldLabel"
+				    field="component:csr"/>
+			</td>
+            <td>
+              <span jwcid="csr@TextArea"
+				    value="ognl:csr"
+				    displayName="message:label.csr"
+				    readonly="ognl:true"
+				    rows="16"
+				    cols="65"/>
+			</td>
+		  </tr>
+        </table>
+	  </fieldset>
+    </form>
+  </div>
+  <div jwcid="importTab@Block">
+    <div jwcid="@common/QuickHelp" value="message:quick.help.import"></div>
+	<form jwcid="importForm@Form" delegate="bean:validator">
+      <fieldset>
+		<span jwcid="importMethod@RadioGroup"
+              selected="ognl:importMethodSelected">
+        <table>
+          <tr>
+			<td>
+              <span jwcid="crtFileRadio@Radio"
+                    value="ognl:@org.sipfoundry.sipxconfig.site.admin.ManageCertificates@UPLOAD"
+				    onchange="javascript:this.form.submit();"/>
+			</td>
+            <td>
+              <span jwcid="crtFileLabel@FieldLabel"
+			        field="component:crtFile"/>
+            </td>
+			<td>
+			  <span jwcid="crtFile@Upload"
+                    file="ognl:uploadFile"
+                    displayName="message:label.crtFile"
+                    disabled="ognl:uploadDisabled"/>
+			</td>
+          </tr>
+          <tr>
+			<td>
+              <span jwcid="crtRadio@Radio"
+                    value="ognl:@org.sipfoundry.sipxconfig.site.admin.ManageCertificates@TEXT"
+                    onchange="javascript:this.form.submit();"/>
+			</td>
+            <td>
+              <span jwcid="crtLabel@FieldLabel"
+                    field="component:crt"/>
+			</td>
+            <td>
+              <span jwcid="crt@TextArea"
+                    value="ognl:certificate"
+                    displayName="message:label.crt"
+                    rows="16"
+                    cols="65"
+                    disabled="ognl:textDisabled"/>
+			</td>
+          </tr>
+        </table>
+        <span jwcid="import@Submit"
+              id="import"
+              action="listener:importCertificate"
+              value="message:button.import"/>
+		</span>
+      </fieldset>
+    </form>
+  </div>
+</div>

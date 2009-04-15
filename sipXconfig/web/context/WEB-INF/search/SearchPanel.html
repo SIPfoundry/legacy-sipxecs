@@ -1,0 +1,9 @@
+<span jwcid="@Script"
+    scriptAsset="asset:script"
+    placeholder="message:label.search"
+    queryField="component:queryField"/>
+<form jwcid="searchForm@Form" listener="listener:search" focus="false" style="display: inline;">
+  <span id="searchContainer">
+      <span id="searchBox" jwcid="queryField@TextField" value="ognl:query" class="inactive" />
+  </span>
+</form>

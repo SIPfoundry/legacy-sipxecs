@@ -1,0 +1,49 @@
+This is a short description of the files in this directory.  Beware
+that this directory is not maintained documentation; these files may
+be out of date.
+
+HIPO
+
+	Start on a "Hierarchy, Input, Processing, Output" description
+	of the media server.
+
+VXI-notes
+
+	Lists files mentioning SpeechWorks.  These files must be
+	derived from the VXI distribution.  But some are clearly not
+	drop-in SpeechWorks files, for example, clientMain.cpp.  The
+	SpeechWorks VXI should probably be cleanly separated.
+
+build-notes
+
+	Detailed notes on building sipXvxml.
+
+build-script.sh
+
+	A script to build sipXvxml, based on the instructions in build-notes.
+
+call-setup
+
+	Incoming call processing sequence for a call that goes to
+	voicemail.
+
+call-teardown
+
+	How a call is torn down.
+
+class-hierarchy
+
+	The hierarchy of classes in the media server.
+
+prompt
+
+	How the Voice XML "prompt" element is processed by the media
+	server.
+
+sipXvxml.ppt
+
+	A Power Point presentation on the Media Server.
+
+threads
+
+	And accounting for some of the threads in the media server.

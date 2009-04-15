@@ -1,0 +1,11 @@
+<span jwcid="$content$">
+  <span jwcid="@If" condition="ognl:dialingRule != null">
+    <strong><span key="label.dialingRuleNav"/> : </strong> <a jwcid="@DirectLink" listener="listener:editRule" parameters="ognl:dialingRule.id">
+      <span jwcid="@Insert" value="ognl:dialingRule.name"/></a> /
+      <span jwcid="@Insert" value="ognl:dialingRule.type.name"/>
+    <br/>
+  </span>
+  <strong><span key="label.gatewayNav"/> : </strong> <a jwcid="@DirectLink" listener="listener:editGateway" parameters="ognl:gateway.id">
+    <span jwcid="@Insert" value="ognl:gateway.name"/></a> /
+    <span jwcid="@Insert" value="ognl:gateway.model.label"/>
+</span>

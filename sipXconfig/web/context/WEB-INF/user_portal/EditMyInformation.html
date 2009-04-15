@@ -1,0 +1,82 @@
+<div jwcid="@common/Border" restricted="false">
+  <h2>
+    <span key="title"/>
+  </h2>
+  <span jwcid="@common/TabNavigation" tabNames="ognl:availableTabNames" selectedTab="ognl:tab"/>
+  <div id="settings-content">  
+    <span jwcid="@common/ErrorMsg"/>
+    <form jwcid="@common/AutoRefreshForm" delegate="bean:validator" showRefresh="ognl:tab == 'conferences'">
+      <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
+    </form>
+  </div>
+</div>
+<div jwcid="infoTab@Block">
+  <fieldset>
+    <table>
+      <span jwcid="@vm/MailboxPreferencesForm" preferences="ognl:mailboxPreferences"/>
+      <tr jwcid="pin@user/ConfirmPassword"
+        password="ognl:pin"
+        passwordDisplayName="message:label.pin"
+        confirmPasswordDisplayName="message:label.pin2"
+        passwordMismatchMessage="message:error.pinMismatch">
+      </tr>
+    </table>
+  </fieldset>
+  <ul jwcid="@common/FormActions" listener="listener:save" callback="ognl:callback"/>
+</div>
+<div jwcid="conferencesTab@Block">
+    <div jwcid="@conference/UserConferencesPanel" user="ognl:user" />    
+</div>
+<div jwcid="menuTab@Block">
+   <span jwcid="@common/QuickHelp" value="message:quick.help"/>
+  <fieldset>
+    <table>
+      <tr jwcid="@common/FieldPanel"
+        for="personalAttendant:overrideLanguage"
+        label="message:label.overrideLanguage"
+        description="message:description.overrideLanguage"
+        field="component:overrideLanguage">
+        <td jwcid="overrideLanguage@Checkbox"
+          id="personalAttendant:overrideLanguage"
+          value="ognl:personalAttendant.overrideLanguage"
+          displayName="message:label.overrideLanguage"/>
+      </tr>
+      <tr>
+        <td jwcid="@common/FieldPanel" field="component:language"
+          for="personalAttendant:language"
+          label="message:label.language"
+          description="message:description.language">
+          <input jwcid="language@PropertySelection" 
+            model="bean:languageSelectionModel"
+            value="ognl:personalAttendant.language"
+            id="personalAttendant:language" />
+        </td>
+      </tr>
+      <tr jwcid="@common/FieldPanel"
+        for="personalAttendant:operator" 
+        label="message:label.operator"
+        description="message:description.operator"
+        field="component:operator">
+        <td jwcid="operator@TextField" 
+          id="personalAttendant:operator"
+          value="ognl:personalAttendant.operator"
+          validators="spring-validators:validSipUserIdOrAor"
+          displayName="message:label.operator"/>
+      </tr>
+    </table>
+  </fieldset>
+  <fieldset jwcid="@dialplan/AttendantMenuPanel" 
+    menu="ognl:personalAttendant.menu"
+    minKey="1"
+    maxKey="9"
+    extensionOnly="ognl:true" />
+    <ul jwcid="@common/FormActions" listener="listener:save" callback="ognl:callback"/>
+</div>
+<div jwcid="distributionListsTab@Block">
+  <div class="help">        
+    <span key="description.extensions"/>
+  </div>
+  <p><span key="description.editDistributionLists"/></p>
+  <span jwcid="@vm/DistributionListComponent"
+    user="ognl:user"/>
+</div>

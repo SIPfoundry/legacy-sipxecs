@@ -1,0 +1,24 @@
+<div jwcid="@common/Border">
+  <h2>
+    <span key="title">ACD Server</span>
+  </h2>
+  <div class="help">
+    <b><span key="label.quickLinks">Quick Links</span></b>
+    <ul>
+      <li>
+        <a jwcid="presenceServerLink" id="link:presence" href="#"><span key="label.presenceServer">Presence Server</span></a>
+      </li>
+      <li>
+        <a jwcid="@PageLink" page="admin/commserver/LocationsPage" href="#"><span key="label.locationsPage">Servers</span></a>
+      </li>
+      <li>
+        <a jwcid="@PageLink" page="admin/JobStatusPage" href="#"><span key="label.jobStatus">Job Status</span></a>
+      </li>
+    </ul>
+  </div>
+  <span jwcid="@common/QuickHelp" value="message:quick.help"/>
+  <span jwcid="@common/ErrorMsg"/>
+  <form jwcid="form" id="server:form">
+    <span jwcid="acdServersPanel"/>
+  </form>
+</div>

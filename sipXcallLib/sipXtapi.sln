@@ -1,0 +1,104 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXportLib", "..\sipXportLib\sipXportLib.vcproj", "{F604CF5E-0EA6-48C2-9194-1CEA47B0A3F5}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PlaceCall", "examples\PlaceCall\PlaceCall.vcproj", "{14441867-4291-4174-812E-00C774370C61}"
+	ProjectSection(ProjectDependencies) = postProject
+		{85CAC56D-4E3A-4712-91A5-AE724B11AE25} = {85CAC56D-4E3A-4712-91A5-AE724B11AE25}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ReceiveCall", "examples\ReceiveCall\ReceiveCall.vcproj", "{0FF92063-90A6-41B2-947B-AD3ADAE06FAC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{85CAC56D-4E3A-4712-91A5-AE724B11AE25} = {85CAC56D-4E3A-4712-91A5-AE724B11AE25}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXmediaLib", "..\sipXmediaLib\sipXmediaLib.vcproj", "{0EC8287A-481E-45DC-8F95-BAD940AE1038}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646} = {0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXtackLib", "..\sipXtackLib\sipXtackLib.vcproj", "{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F604CF5E-0EA6-48C2-9194-1CEA47B0A3F5} = {F604CF5E-0EA6-48C2-9194-1CEA47B0A3F5}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXcallLib", "sipXcallLib.vcproj", "{0EADF7C3-7D48-45BF-A00D-ECB94DC912EA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0EC8287A-481E-45DC-8F95-BAD940AE1038} = {0EC8287A-481E-45DC-8F95-BAD940AE1038}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXtapi", "sipXtapi.vcproj", "{85CAC56D-4E3A-4712-91A5-AE724B11AE25}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0E229E54-9234-44DC-8B74-8C6BA553D3C5} = {0E229E54-9234-44DC-8B74-8C6BA553D3C5}
+		{0EADF7C3-7D48-45BF-A00D-ECB94DC912EA} = {0EADF7C3-7D48-45BF-A00D-ECB94DC912EA}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXezPhone", "examples\sipXezPhone\sipXezPhone.vcproj", "{F0EBB1F7-CA6B-4201-976E-4CF7D0A19BA1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{85CAC56D-4E3A-4712-91A5-AE724B11AE25} = {85CAC56D-4E3A-4712-91A5-AE724B11AE25}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXtapiTest", "sipXtapiTest.vcproj", "{9021B9D9-54AA-4A84-89EA-1A2B88D7202E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{85CAC56D-4E3A-4712-91A5-AE724B11AE25} = {85CAC56D-4E3A-4712-91A5-AE724B11AE25}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXmediaMediaProcessing", "..\sipXmediaAdapterLib\sipXmediaMediaProcessing\sipXmediaMediaProcessing.vcproj", "{0E229E54-9234-44DC-8B74-8C6BA553D3C5}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{F604CF5E-0EA6-48C2-9194-1CEA47B0A3F5}.Debug.ActiveCfg = Debug|Win32
+		{F604CF5E-0EA6-48C2-9194-1CEA47B0A3F5}.Debug.Build.0 = Debug|Win32
+		{F604CF5E-0EA6-48C2-9194-1CEA47B0A3F5}.Release.ActiveCfg = Release|Win32
+		{F604CF5E-0EA6-48C2-9194-1CEA47B0A3F5}.Release.Build.0 = Release|Win32
+		{14441867-4291-4174-812E-00C774370C61}.Debug.ActiveCfg = Debug|Win32
+		{14441867-4291-4174-812E-00C774370C61}.Debug.Build.0 = Debug|Win32
+		{14441867-4291-4174-812E-00C774370C61}.Release.ActiveCfg = Release|Win32
+		{14441867-4291-4174-812E-00C774370C61}.Release.Build.0 = Release|Win32
+		{0FF92063-90A6-41B2-947B-AD3ADAE06FAC}.Debug.ActiveCfg = Debug|Win32
+		{0FF92063-90A6-41B2-947B-AD3ADAE06FAC}.Debug.Build.0 = Debug|Win32
+		{0FF92063-90A6-41B2-947B-AD3ADAE06FAC}.Release.ActiveCfg = Release|Win32
+		{0FF92063-90A6-41B2-947B-AD3ADAE06FAC}.Release.Build.0 = Release|Win32
+		{0EC8287A-481E-45DC-8F95-BAD940AE1038}.Debug.ActiveCfg = Debug|Win32
+		{0EC8287A-481E-45DC-8F95-BAD940AE1038}.Debug.Build.0 = Debug|Win32
+		{0EC8287A-481E-45DC-8F95-BAD940AE1038}.Release.ActiveCfg = Release|Win32
+		{0EC8287A-481E-45DC-8F95-BAD940AE1038}.Release.Build.0 = Release|Win32
+		{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}.Debug.ActiveCfg = Debug|Win32
+		{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}.Debug.Build.0 = Debug|Win32
+		{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}.Release.ActiveCfg = Release|Win32
+		{0D0CE4BC-3884-4ABE-9795-8CCA6C3BC646}.Release.Build.0 = Release|Win32
+		{0EADF7C3-7D48-45BF-A00D-ECB94DC912EA}.Debug.ActiveCfg = Debug|Win32
+		{0EADF7C3-7D48-45BF-A00D-ECB94DC912EA}.Debug.Build.0 = Debug|Win32
+		{0EADF7C3-7D48-45BF-A00D-ECB94DC912EA}.Release.ActiveCfg = Release|Win32
+		{0EADF7C3-7D48-45BF-A00D-ECB94DC912EA}.Release.Build.0 = Release|Win32
+		{85CAC56D-4E3A-4712-91A5-AE724B11AE25}.Debug.ActiveCfg = Debug|Win32
+		{85CAC56D-4E3A-4712-91A5-AE724B11AE25}.Debug.Build.0 = Debug|Win32
+		{85CAC56D-4E3A-4712-91A5-AE724B11AE25}.Release.ActiveCfg = Release|Win32
+		{85CAC56D-4E3A-4712-91A5-AE724B11AE25}.Release.Build.0 = Release|Win32
+		{F0EBB1F7-CA6B-4201-976E-4CF7D0A19BA1}.Debug.ActiveCfg = Debug|Win32
+		{F0EBB1F7-CA6B-4201-976E-4CF7D0A19BA1}.Debug.Build.0 = Debug|Win32
+		{F0EBB1F7-CA6B-4201-976E-4CF7D0A19BA1}.Release.ActiveCfg = Release|Win32
+		{F0EBB1F7-CA6B-4201-976E-4CF7D0A19BA1}.Release.Build.0 = Release|Win32
+		{9021B9D9-54AA-4A84-89EA-1A2B88D7202E}.Debug.ActiveCfg = Debug|Win32
+		{9021B9D9-54AA-4A84-89EA-1A2B88D7202E}.Debug.Build.0 = Debug|Win32
+		{9021B9D9-54AA-4A84-89EA-1A2B88D7202E}.Release.ActiveCfg = Release|Win32
+		{9021B9D9-54AA-4A84-89EA-1A2B88D7202E}.Release.Build.0 = Release|Win32
+		{0E229E54-9234-44DC-8B74-8C6BA553D3C5}.Debug.ActiveCfg = Debug|Win32
+		{0E229E54-9234-44DC-8B74-8C6BA553D3C5}.Debug.Build.0 = Debug|Win32
+		{0E229E54-9234-44DC-8B74-8C6BA553D3C5}.Release.ActiveCfg = Release|Win32
+		{0E229E54-9234-44DC-8B74-8C6BA553D3C5}.Release.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionItems) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

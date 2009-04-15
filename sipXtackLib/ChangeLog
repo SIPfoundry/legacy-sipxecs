@@ -1,0 +1,53 @@
+The most current information on the status of any release is in the
+SIPfoundry Issue Tracker at:
+
+        http://track.sipfoundry.org/browse?XSL
+
+
+Release Notes - sipXtackLib - Version 2.6.2
+
+** Bug
+    * [XSL-38] - SdpBody::setValue does not update existing values
+    * [XSL-41] - SIP logs show an error message "unknown protocol using UDP"  in many places
+    * [XSL-45] - Messages saying "Not all content data successfully read"
+    * [XSL-46] - Many messages "matches via address: xxx port: xxx but is not trusted"
+    * [XSL-47] - Many messages "ACK matches transaction with 2XX class response"
+    * In SipMessage.cpp:
+         Even with non-proxy based authentication, we should always
+         validate the MD5 hash with the Auth header uri parameter.
+         The code was using the request URI for registration requests
+         incorrectly assuming the request URI and the Auth header
+         uri parameter would always match (it should, but some UACs get
+         this wrong).
+
+Release Notes - sipXtackLib - Version 2.6.1
+
+** Bug
+    * [XSL-32] - messages terminated with a null byte
+    * [XSL-40] - Clean up log error message - Read failure 'n' socket
+
+Release Notes - sipXtackLib - Version 2.5.2
+
+** Bug
+    * [XSL-14] - Failed unittests under electric fence
+    * [XSL-15] - Failed unittests in UrlTest
+    * [XSL-17] - SipXtack trying to send responses to incorrect address
+    * [XSL-22] - Proxy stripping off the URL parameters when sending out the INVITE
+
+** Task
+    * [XSL-5] - Verify passes unit tests
+
+** Improvement
+    * [XSL-16] - Clean up code to remove all warnings.
+
+Release Notes - sipXtackLib - Version 2.5.1
+
+** Bug
+    * [XSL-3] - commented out critical code in SipMessage.cpp
+    * [XSL-4] - Compile successfully under Linux w/ sipXportLib
+    * [XSL-6] - Need to update the tarballs now that this project builds
+
+
+
+** Improvement
+    * [XSL-12] - share config directory with sipXportLib

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mappings xmlns="http://www.sipfoundry.org/sipX/schema/xml/urlauth-00-00">
+  <hostMatch>
+    <name>test</name>
+    <description>Calls to internal extensions</description>
+    <hostPattern>example.org</hostPattern>
+    <hostPattern>sipx.example.org</hostPattern>
+    <hostPattern>sipx</hostPattern>
+    <hostPattern>192.168.1.1</hostPattern>
+    <userMatch>
+      <userPattern>7xxx</userPattern>
+      <userPattern>7xxxx</userPattern>
+      <permissionMatch>
+        <permission>LocalDialing</permission>
+      </permissionMatch>
+    </userMatch>
+  </hostMatch>
+</mappings>

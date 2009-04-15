@@ -1,0 +1,24 @@
+#!/bin/sh
+#
+# Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+Status=0
+if [ "@SELINUX_GETENFORCE@" != "NOT_SUPPORTED" ];    then
+    selinuxStatus=`@SELINUX_GETENFORCE@ 2> /dev/null`
+    case $selinuxStatus in
+        Permissive|Disabled)
+            ;;
+        *)
+    cat <<EOF
+      selinux status is '${selinuxStatus}'
+      It must be 'Permissive' or 'Disabled' for sipxpbx;
+      this may cause apache to fail.
+      Edit /etc/selinux/config and restart your system.
+EOF
+      Status=1
+      ;;
+    esac
+fi
+exit $Status

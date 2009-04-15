@@ -1,0 +1,285 @@
+<?xml version="1.0"?>
+<definitions xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+  xmlns:tns="urn:StatsService" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+  xmlns:si="http://soapinterop.org/xsd" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns="http://schemas.xmlsoap.org/wsdl/"
+  targetNamespace="urn:StatsService">
+
+  <types>
+    <xsd:schema targetNamespace="urn:StatsService">
+      <xsd:complexType name="ArrayOfBird">
+        <xsd:complexContent>
+          <xsd:restriction base="SOAP-ENC:Array">
+            <xsd:attribute ref="SOAP-ENC:arrayType" wsdl:arrayType="tns:Bird[]" />
+          </xsd:restriction>
+        </xsd:complexContent>
+      </xsd:complexType>
+
+      <xsd:complexType name="Bird">
+        <xsd:sequence>
+          <xsd:element name="species" type="xsd:string" minOccurs="1" maxOccurs="1" />
+        </xsd:sequence>
+      </xsd:complexType>
+
+      <xsd:complexType name="ArrayOfString">
+        <xsd:complexContent>
+          <xsd:restriction base="SOAP-ENC:Array">
+            <xsd:attribute ref="SOAP-ENC:arrayType" wsdl:arrayType="xsd:string[]" />
+          </xsd:restriction>
+        </xsd:complexContent>
+      </xsd:complexType>
+
+      <xsd:complexType name="ArrayOfCallStats">
+        <xsd:complexContent>
+          <xsd:restriction base="SOAP-ENC:Array">
+            <xsd:attribute ref="SOAP-ENC:arrayType" wsdl:arrayType="tns:CallStats[]" />
+          </xsd:restriction>
+        </xsd:complexContent>
+      </xsd:complexType>
+
+      <xsd:complexType name="CallStats">
+        <xsd:sequence>
+          <xsd:element name="from" type="xsd:string" minOccurs="1" maxOccurs="1" />
+          <xsd:element name="state" type="xsd:string" minOccurs="1" maxOccurs="1" />
+          <xsd:element name="agent_uri" type="xsd:string" minOccurs="1" maxOccurs="1" />
+          <xsd:element name="queue_uri" type="xsd:string" minOccurs="1" maxOccurs="1" />
+          <xsd:element name="queue_wait_time" type="xsd:long" minOccurs="1" maxOccurs="1" />
+          <xsd:element name="total_wait_time" type="xsd:long" minOccurs="1" maxOccurs="1" />
+          <xsd:element name="processing_time" type="xsd:long" minOccurs="1" maxOccurs="1" />
+        </xsd:sequence>
+      </xsd:complexType>
+
+      <xsd:complexType name="ArrayOfAgentStats">
+        <xsd:complexContent>
+          <xsd:restriction base="SOAP-ENC:Array">
+            <xsd:attribute ref="SOAP-ENC:arrayType" wsdl:arrayType="tns:AgentStats[]" />
+          </xsd:restriction>
+        </xsd:complexContent>
+      </xsd:complexType>
+
+      <xsd:complexType name="AgentStats">
+        <xsd:sequence>
+          <xsd:element name="agent_uri" type="xsd:string" minOccurs="1" maxOccurs="1" />
+          <xsd:element name="state" type="xsd:string" minOccurs="1" maxOccurs="1" />
+          <xsd:element name="current_state_time" type="xsd:long" minOccurs="1" maxOccurs="1" />
+          <xsd:element name="queues" type="tns:ArrayOfString" minOccurs="1" maxOccurs="1" />
+        </xsd:sequence>
+      </xsd:complexType>
+
+      <xsd:complexType name="ArrayOfQueueStats">
+        <xsd:complexContent>
+          <xsd:restriction base="SOAP-ENC:Array">
+            <xsd:attribute ref="SOAP-ENC:arrayType" wsdl:arrayType="tns:QueueStats[]" />
+          </xsd:restriction>
+        </xsd:complexContent>
+      </xsd:complexType>
+
+      <xsd:complexType name="QueueStats">
+        <xsd:sequence>
+          <xsd:element name="queue_uri" type="xsd:string" minOccurs="1" maxOccurs="1" />
+          <xsd:element name="waiting_calls" type="xsd:long" minOccurs="1" maxOccurs="1" />
+          <xsd:element name="avg_wait_time" type="xsd:long" minOccurs="1" maxOccurs="1" />
+          <xsd:element name="max_wait_time" type="xsd:long" minOccurs="1" maxOccurs="1" />
+          <xsd:element name="abandoned_calls" type="xsd:long" minOccurs="1" maxOccurs="1" />
+          <xsd:element name="avg_abandoned_time" type="xsd:long" minOccurs="1" maxOccurs="1" />
+          <xsd:element name="max_abandoned_time" type="xsd:long" minOccurs="1" maxOccurs="1" />
+          <xsd:element name="processed_calls" type="xsd:long" minOccurs="1" maxOccurs="1" />
+          <xsd:element name="avg_processing_time" type="xsd:long" minOccurs="1" maxOccurs="1" />
+          <xsd:element name="max_processing_time" type="xsd:long" minOccurs="1" maxOccurs="1" />
+          <xsd:element name="idle_agents" type="xsd:int" minOccurs="1" maxOccurs="1" />
+          <xsd:element name="busy_agents" type="xsd:int" minOccurs="1" maxOccurs="1" />
+        </xsd:sequence>
+      </xsd:complexType>
+      
+      <xsd:complexType name="ArrayOfCallAudit">
+        <xsd:complexContent>
+          <xsd:restriction base="SOAP-ENC:Array">
+            <xsd:attribute ref="SOAP-ENC:arrayType" wsdl:arrayType="tns:CallAudit[]" />
+          </xsd:restriction>
+        </xsd:complexContent>
+      </xsd:complexType>
+
+      <xsd:complexType name="CallAudit">
+        <xsd:sequence>
+          <xsd:element name="from" type="xsd:string" minOccurs="1" maxOccurs="1" />
+          <xsd:element name="state" type="xsd:string" minOccurs="1" maxOccurs="1" />
+          <xsd:element name="agent_uri" type="xsd:string" minOccurs="1" maxOccurs="1" />
+          <xsd:element name="queue_uri" type="xsd:string" minOccurs="1" maxOccurs="1" />
+          <xsd:element name="enter_time" type="xsd:dateTime" minOccurs="1" maxOccurs="1" />          
+          <xsd:element name="pick_up_time" type="xsd:dateTime" minOccurs="1" maxOccurs="1" />          
+          <xsd:element name="terminate_time" type="xsd:dateTime" minOccurs="1" maxOccurs="1" />          
+        </xsd:sequence>        
+      </xsd:complexType>
+      
+      <xsd:complexType name="ArrayOfAgentAudit">
+        <xsd:complexContent>
+          <xsd:restriction base="SOAP-ENC:Array">
+            <xsd:attribute ref="SOAP-ENC:arrayType" wsdl:arrayType="tns:AgentAudit[]" />
+          </xsd:restriction>
+        </xsd:complexContent>
+      </xsd:complexType>
+
+      <xsd:complexType name="AgentAudit">
+        <xsd:sequence>
+          <xsd:element name="agent_uri" type="xsd:string" minOccurs="1" maxOccurs="1" />
+          <xsd:element name="queue_uri" type="xsd:string" minOccurs="1" maxOccurs="1" />
+          <xsd:element name="sign_in_time" type="xsd:dateTime" minOccurs="1" maxOccurs="1" />          
+          <xsd:element name="sign_out_time" type="xsd:dateTime" minOccurs="1" maxOccurs="1" />          
+        </xsd:sequence>        
+      </xsd:complexType>      
+    </xsd:schema>
+  </types>
+
+  <message name="getBirdArrayRequest" />
+  <message name="getBirdArrayResponse">
+    <part name="getBirdArrayResponse" type="tns:ArrayOfBird" />
+  </message>
+
+  <message name="getCallStatsResponse">
+    <part name="getCallStatsResponse" type="tns:ArrayOfCallStats"></part>
+  </message>
+  <message name="getCallStatsRequest"></message>
+
+  <message name="getAgentStatsResponse">
+    <part name="getAgentStatsResponse" type="tns:ArrayOfAgentStats"></part>
+  </message>
+  <message name="getAgentStatsRequest"></message>
+
+  <message name="getQueueStatsResponse">
+    <part name="getQueueStatsResponse" type="tns:ArrayOfQueueStats"></part>
+  </message>
+  <message name="getQueueStatsRequest"></message>
+
+  <message name="getCallHistoryRequest">
+    <part name="fromTime" type="xsd:dateTime"></part>
+  </message>
+  <message name="getCallHistoryResponse">
+    <part name="callHistory" type="tns:ArrayOfCallAudit"></part>
+  </message>
+
+  <message name="getAgentHistoryRequest">
+    <part name="fromTime" type="xsd:dateTime"></part>
+  </message>
+  <message name="getAgentHistoryResponse">
+    <part name="agentHistory" type="tns:ArrayOfAgentAudit"></part>
+  </message>
+
+  <portType name="AcdStatsService">
+
+    <operation name="getBirdArray">
+      <input message="tns:getBirdArrayRequest" />
+      <output message="tns:getBirdArrayResponse" />
+    </operation>
+
+    <operation name="getCallStats">
+      <input message="tns:getCallStatsRequest"></input>
+      <output message="tns:getCallStatsResponse"></output>
+    </operation>
+
+    <operation name="getAgentStats">
+      <input message="tns:getAgentStatsRequest"></input>
+      <output message="tns:getAgentStatsResponse"></output>
+    </operation>
+
+    <operation name="getQueueStats">
+      <input message="tns:getQueueStatsRequest"></input>
+      <output message="tns:getQueueStatsResponse"></output>
+    </operation>
+
+    <operation name="getCallHistory">
+      <input message="tns:getCallHistoryRequest" />
+      <output message="tns:getCallHistoryResponse" />
+    </operation>
+
+    <operation name="getAgentHistory">
+      <input message="tns:getAgentHistoryRequest" />
+      <output message="tns:getAgentHistoryResponse" />
+    </operation>
+
+  </portType>
+
+  <binding name="AcdStatsBinding" type="tns:AcdStatsService">
+    <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http" />
+
+    <operation name="getBirdArray">
+      <soap:operation soapAction="urn:StatsService#getBirdArray" style="rpc" />
+      <input>
+        <soap:body use="encoded" namespace="urn:StatsService"
+          encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="urn:StatsService"
+          encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </output>
+    </operation>
+
+    <operation name="getCallStats">
+      <soap:operation soapAction="urn:StatsService#getCallStats" style="rpc" />
+      <input>
+        <soap:body use="encoded" namespace="urn:StatsService"
+          encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="urn:StatsService"
+          encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </output>
+    </operation>
+
+    <operation name="getAgentStats">
+      <soap:operation soapAction="urn:StatsService#getAgentStats" style="rpc" />
+      <input>
+        <soap:body use="encoded" namespace="urn:StatsService"
+          encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="urn:StatsService"
+          encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </output>
+    </operation>
+
+    <operation name="getQueueStats">
+      <soap:operation soapAction="urn:StatsService#getQueueStats" style="rpc" />
+      <input>
+        <soap:body use="encoded" namespace="urn:StatsService"
+          encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="urn:StatsService"
+          encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </output>
+    </operation>
+
+    <operation name="getCallHistory">
+      <soap:operation soapAction="urn:StatsService#getCallHistory" style="rpc" />
+      <input>
+        <soap:body use="encoded" namespace="urn:StatsService"
+          encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="urn:StatsService"
+          encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </output>
+    </operation>
+
+    <operation name="getAgentHistory">
+      <soap:operation soapAction="urn:StatsService#getCallHistory" style="rpc" />
+      <input>
+        <soap:body use="encoded" namespace="urn:StatsService"
+          encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="urn:StatsService"
+          encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </output>
+    </operation>
+  </binding>
+
+  <service name="StatsImplService">
+    <documentation>Realtime Statistics about ACD</documentation>
+    <port name="AcdStatsService" binding="tns:AcdStatsBinding">
+      <soap:address location="http://localhost:2000/" />
+    </port>
+  </service>
+</definitions>

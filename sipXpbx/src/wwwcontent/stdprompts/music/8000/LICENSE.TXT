@@ -1,0 +1,7 @@
+The music contained in this directory comes from the Musopen online music 
+library of copyright free (public domain) music. http://www.musopen.com
+
+Converted from Ogg Voribs Sound 136kbps to
+  RIFF (little-endian) data, WAVE audio, Microsoft PCM, 16 bit, mono 8000 Hz
+by the FreeSWITCH project, available here:
+   http://files.freeswitch.org/freeswitch-sounds-music-8000-1.0.7.tar.gz

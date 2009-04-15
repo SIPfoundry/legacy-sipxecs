@@ -1,0 +1,67 @@
+           Testing protocol for certifying the Media Server
+                 to perform at a certain load level.
+
+The test suite contains two test scripts.  One (currently,
+"leave-message-r") deposits short voicemails.  The other (currently,
+"retrieve") retrieves the first voicemail from the mailbox.
+CallScriptDriver is run with a one-to-one mix of these scripts.  Since
+retrieving takes longer, the mailbox never goes empty.  The test
+scripts should not contain pauses that do not wait for prompts from
+the Media Server, other than an initial 'pause random' to prevent
+synchronization of the scripts.
+
+Both scripts start with "pause random 30000" (wait a random time up to
+30 seconds) to ensure that interaction with the media server does not
+cause the script executions to become synchronized.
+
+Running log-analyze on the output of CallScriptDriver verifies the
+average number of ports used.  Currently, the number of jobs run by
+CallScriptDriver needs to be 30% to 50% higher than the desired number
+of ports.
+
+Configure and run sipX or SIPxchange on a suitable computer for the
+number of ports.
+
+The tests are divided into two categories.  The first category
+verifies that the audio quality is at MOS 4.0 under the rated load.
+The second category verifies that the PBX has 99.99% availability.
+
+Ideally, the audio tests should use a soft-phone configured without
+GIPS or other sophisticated audio processing, on a lightly-loaded
+network.
+
+Test 1:
+
+While the test script driver is running:  Call an extension on the PBX
+(not one being used by the test scripts).  Leave a message of at least
+15 seconds.  During the entire transaction, monitor the audio quality.
+There should be no audible artifacts, including breaks, pauses, or
+distortion in the audio, or noticeably long pauses at the beginning of
+prompts.
+
+Test 2:
+
+Play the WAV file stored by the system on a lightly loaded computer to
+verify its audio quality as in Test 1.
+
+Test 3:
+
+While the test script driver is running:  Call 101 on the PBX, and
+retrieve the voicemail left in Test 1.  Allow the entire prompt after
+listening to the message to paly.  Monitor the audio quality of the
+prompts as in Test 1.  Also monitor the replayed message for audio
+quality.
+
+Test 4:
+
+The reliability tests are configured based on the equivalence that "4
+nines" (99.99%) reliability is equivalent to one second of downtime
+for every 2.8 hours of operation.  First, for each component,
+determine how long it takes the watchdog to discover that a component
+is down and to restart it.  These times will be on the order of 30
+seconds.  From that, calculate the required run times, which will be
+on the order of 90 hours, or 3.5 days.
+
+The test consists of running the system under load for the full run
+time, and then verifying that it responds to calls correctly and
+promptly (via running Tests 1 and 3).

@@ -1,0 +1,57 @@
+# /bin/sh
+
+# Script to generate credential.xml.in.pre.
+
+cat <<EOF
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<items type="permission" xmlns="http://www.sipfoundry.org/sipX/schema/xml/permission-00-00">
+EOF
+
+# Generate the permissions for all the groups.
+for GG in `seq 10 99`
+do
+  cat <<EOF
+  <!-- Voicemail permissions for 1${GG}1 and 1${GG}2. -->
+  <item>
+    <identity>1${GG}1@@SIPXCHANGE_DOMAIN_NAME@</identity>
+    <permission>Voicemail</permission>
+  </item>
+  <item>
+    <identity>1${GG}1@@SIPXCHANGE_DOMAIN_NAME@</identity>
+    <permission>SipXVoicemailServer</permission>
+  </item>
+  <item>
+    <identity>~~vm~1${GG}1@@SIPXCHANGE_DOMAIN_NAME@</identity>
+    <permission>SipXVoicemailServer</permission>
+  </item>
+  <item>
+    <identity>1${GG}2@@SIPXCHANGE_DOMAIN_NAME@</identity>
+    <permission>Voicemail</permission>
+  </item>
+  <item>
+    <identity>1${GG}2@@SIPXCHANGE_DOMAIN_NAME@</identity>
+    <permission>SipXVoicemailServer</permission>
+  </item>
+  <item>
+    <identity>~~vm~1${GG}2@@SIPXCHANGE_DOMAIN_NAME@</identity>
+    <permission>SipXVoicemailServer</permission>
+  </item>
+  <!-- BigShot permissions for 1${GG}7, 1${GG}8, and 1${GG}9. -->
+  <item>
+    <identity>1${GG}7@@SIPXCHANGE_DOMAIN_NAME@</identity>
+    <permission>BigShot</permission>
+  </item>
+  <item>
+    <identity>1${GG}8@@SIPXCHANGE_DOMAIN_NAME@</identity>
+    <permission>BigShot</permission>
+  </item>
+  <item>
+    <identity>1${GG}9@@SIPXCHANGE_DOMAIN_NAME@</identity>
+    <permission>BigShot</permission>
+  </item>
+EOF
+done
+
+cat <<EOF
+</items>
+EOF

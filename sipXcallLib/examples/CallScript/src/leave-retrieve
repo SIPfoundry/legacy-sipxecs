@@ -1,0 +1,24 @@
+# Script to leave a message and then retrieve a message.
+# Performs its own randomization.
+# Doesn't seem to work, probably because CallScript doesn't place a
+# second call correctly.
+
+# Leave a message
+pause random 30000
+call sip:555@belize.pingtel.com
+pause 15000
+file /home/dworley/images/5:11pm.wav
+pause 3000
+hangup
+# Retrieve and delete the message
+pause random 30000
+call sip:101@belize.pingtel.com
+pause 5000
+tones 555
+tones 1234#
+pause 20000
+tones 1
+pause 16000
+tones 4
+pause 20000
+hangup

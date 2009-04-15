@@ -1,0 +1,20 @@
+[server]
+outboundProxy=
+outboundProxyPort=
+
+[system]
+domainName=
+voiceMailNumber=
+
+[credential]
+userId=juser
+displayName=Joe User
+password=1234
+authorizationRealm=
+domainName=
+
+[server]
+registrationServer=sipfoundry.org
+registrationServerPort=
+voiceMail=
+

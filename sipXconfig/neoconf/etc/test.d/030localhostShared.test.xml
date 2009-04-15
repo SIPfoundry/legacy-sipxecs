@@ -1,0 +1,22 @@
+<test name="localhostShared">
+  <label>127.0.0.1 configuration</label>
+  <description>Verify that 127.0.0.1 maps only to 'localhost.localdomain' and 'localhost'</description>
+  <command>
+    <exec>sipx-test-localhostShared</exec>
+  </command>
+  <results>
+    <result exit="0">
+      <status>Success</status>
+      <msg>The test was successful</msg>
+    </result>
+    <result exit="1">
+      <status>Error</status>
+      <msg>Invalid mapping for 127.0.0.1</msg>
+      <description>
+        The 127.0.0.1 address should map to only the names 'localhost.localdomain' and 'localhost'.
+        Any other name for that address may cause routing or authentication errors.
+        Remove any names from the 127.0.0.1 line in /etc/hosts except for 'localhost.localdomain' and 'localhost'.
+      </description>
+    </result>
+  </results>
+</test>

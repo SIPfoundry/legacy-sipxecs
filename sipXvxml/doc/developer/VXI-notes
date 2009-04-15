@@ -1,0 +1,181 @@
+The files mentioning SpeechWorks.  These must be derived from the VXI
+distribution.  But some are clearly not drop-in SpeechWorks files, for
+example, clientMain.cpp.  The SpeechWorks VXI should probably be
+cleanly separated.
+
+sipXvxml/etc/mediaserver-config.in.in
+sipXvxml/include/OSBclient.h
+sipXvxml/include/OSBinet.h
+sipXvxml/include/OSBjsi.h
+sipXvxml/include/OSBlog.h
+sipXvxml/include/OSBobject.h
+sipXvxml/include/OSBprompt.h
+sipXvxml/include/OSBrec.h
+sipXvxml/include/OSBtel.h
+sipXvxml/include/SBclientConfig.h
+sipXvxml/include/SBclientUtils.h
+sipXvxml/include/VXIcache.h
+sipXvxml/include/VXIcompilerMsvc.h
+sipXvxml/include/VXIheaderPrefix.h
+sipXvxml/include/VXIheaderSuffix.h
+sipXvxml/include/VXIinet.h
+sipXvxml/include/VXIinterpreter.h
+sipXvxml/include/VXIjsi.h
+sipXvxml/include/VXIlog.h
+sipXvxml/include/VXIobject.h
+sipXvxml/include/VXIplatform.h
+sipXvxml/include/VXIprompt.h
+sipXvxml/include/VXIrec.h
+sipXvxml/include/VXItel.h
+sipXvxml/include/VXItrd.h
+sipXvxml/include/VXItypes.h
+sipXvxml/include/VXIvalue.h
+sipXvxml/src/Makefile.am
+sipXvxml/src/VXI/CommonExceptions.hpp
+sipXvxml/src/VXI/Counters.cpp
+sipXvxml/src/VXI/Counters.hpp
+sipXvxml/src/VXI/DTD.hpp
+sipXvxml/src/VXI/Defaults.hpp
+sipXvxml/src/VXI/DefaultsDTD.hpp
+sipXvxml/src/VXI/DocumentConverter.cpp
+sipXvxml/src/VXI/DocumentConverter.hpp
+sipXvxml/src/VXI/DocumentModel.cpp
+sipXvxml/src/VXI/DocumentModel.hpp
+sipXvxml/src/VXI/DocumentParser.cpp
+sipXvxml/src/VXI/DocumentParser.hpp
+sipXvxml/src/VXI/DocumentRep.hpp
+sipXvxml/src/VXI/GrammarManager.cpp
+sipXvxml/src/VXI/GrammarManager.hpp
+sipXvxml/src/VXI/InternalMutex.hpp
+sipXvxml/src/VXI/Makefile.unix
+sipXvxml/src/VXI/PromptManager.cpp
+sipXvxml/src/VXI/PromptManager.hpp
+sipXvxml/src/VXI/PropertyList.cpp
+sipXvxml/src/VXI/PropertyList.hpp
+sipXvxml/src/VXI/Scripter.cpp
+sipXvxml/src/VXI/Scripter.hpp
+sipXvxml/src/VXI/SimpleLogger.cpp
+sipXvxml/src/VXI/SimpleLogger.hpp
+sipXvxml/src/VXI/VXI.cpp
+sipXvxml/src/VXI/VXI.hpp
+sipXvxml/src/VXI/VXI_api.cpp
+sipXvxml/src/VXI/VXML.h
+sipXvxml/src/VXI/XMLChConverter.hpp
+sipXvxml/src/client/OSBclient.cfg
+sipXvxml/src/client/api/OSBclient.cpp
+sipXvxml/src/client/api/SBclientUtils.cpp
+sipXvxml/src/client/api/SBobject.cpp
+sipXvxml/src/client/ivr/ConfigFile.cpp
+sipXvxml/src/client/ivr/ConfigFile.h
+sipXvxml/src/client/ivr/clientMain.h
+sipXvxml/src/inet/SBHTEvtLst.cpp
+sipXvxml/src/inet/SBHTEvtLst.h
+sipXvxml/src/inet/SBHTStream.cpp
+sipXvxml/src/inet/SBHTStream.h
+sipXvxml/src/inet/SBinet.cpp
+sipXvxml/src/inet/SBinetCacheLock.cpp
+sipXvxml/src/inet/SBinetCacheLock.h
+sipXvxml/src/inet/SBinetChannel.cpp
+sipXvxml/src/inet/SBinetChannel.h
+sipXvxml/src/inet/SBinetCookie.cpp
+sipXvxml/src/inet/SBinetCookie.h
+sipXvxml/src/inet/SBinetFileStream.cpp
+sipXvxml/src/inet/SBinetHttpStream.cpp
+sipXvxml/src/inet/SBinetInternal.h
+sipXvxml/src/inet/SBinetLog.h
+sipXvxml/src/inet/SBinetLogger.cpp
+sipXvxml/src/inet/SBinetLogger.hpp
+sipXvxml/src/inet/SBinetStream.h
+sipXvxml/src/inet/SBinetString.hpp
+sipXvxml/src/inet/SBinetURL.cpp
+sipXvxml/src/inet/SBinetURL.h
+sipXvxml/src/inet/SBinetValidator.cpp
+sipXvxml/src/inet/SBinetValidator.h
+sipXvxml/src/jsi/JsiContext.cpp
+sipXvxml/src/jsi/JsiContext.hpp
+sipXvxml/src/jsi/JsiRuntime.cpp
+sipXvxml/src/jsi/JsiRuntime.hpp
+sipXvxml/src/jsi/SBjsi.cpp
+sipXvxml/src/jsi/SBjsiAPI.h
+sipXvxml/src/jsi/SBjsiFuncs.cpp
+sipXvxml/src/jsi/SBjsiInterface.h
+sipXvxml/src/jsi/SBjsiInternal.h
+sipXvxml/src/jsi/SBjsiLog.h
+sipXvxml/src/log/OSBlog.cpp
+sipXvxml/src/log/SBlogOSUtils.cpp
+sipXvxml/src/log/SBlogOSUtils.h
+sipXvxml/src/prompt/Makefile.unix
+sipXvxml/src/rec/Makefile.unix
+sipXvxml/src/rec/osbrec_utils.cpp
+sipXvxml/src/rec/osbrec_utils.h
+sipXvxml/src/tel/Makefile.unix
+sipXvxml/src/trd/OSBtrdPthreads.cpp
+sipXvxml/src/trd/OSBtrdWin32.cpp
+sipXvxml/src/value/Value.hpp
+sipXvxml/src/value/ValueBasic.cpp
+sipXvxml/src/value/ValueNoSTL.cpp
+sipXvxml/src/value/ValueSTL.cpp
+
+VXI::InstallDocument sucks a document into a VXI execution context.
+It is called only in VXI::RunOuterLoop, which has an argument
+"initialDocument".  RunOuterLoop loops indefinitely, so there must be
+a separate thread for each VXML execution.  It appears to be the central interpreter of VXML documents.
+
+VXI::RunOuterLoop is called by VXI::Run, which seems to be the
+intended external entry point:
+
+   * Run a VoiceXML document and optionally return the result
+
+The only reference to VXI::Run is in VXIinterpreterCreateResource in
+sipXvxml/src/VXI/VXI_api.cpp:242, where it is stored in
+interpreter->interface.Run.  This 'interpreter' is created as a new
+Interpreter in VXIinterpreterCreateResource, and
+interpreter->implementation is created as a new VXI.
+
+VXIinterpreterCreateResource is called by
+
+sipXvxml/src/client/api/OSBclient.cpp:545 in VXIplatformCreateResources
+   VXIinterpreterCreateResource(&newPlatform->resources,
+
+sipXvxml/src/client/ivr/clientMain.cpp:1146 in VXITRD_DEFINE_THREAD_FUNC
+  platformResult = VXIplatformCreateResources(channelArgs->channelNum, channelConfig,
+
+which is a macro that transforms the header into VXItrdThreadArg
+funcName(VXItrdThreadArg userData), so the real function name is
+ChannelThread.
+
+ChannelThread is referred to at clientMain.cpp:1349 in VXIProcessUrl,
+where it is used as an argument to VXItrdThreadCreate.
+
+VXIProcessUrl is called from
+sipXvxml/src/client/ivr/IvrCallListener.cpp:337 in
+IvrCallListener::handleStartVXISession.
+
+IvrCallListener::handleStartVXISession is called at
+IvrCallListener.cpp:190 in IvrCallListener::handleMessage.
+
+One IvrCallListener is created in clientMain at
+sipXvxml/src/client/ivr/clientMain.cpp:856.
+
+
+This pointer could be executed in:
+
+sipXvxml/src/VXI/VXI_api.cpp:100 in VXIinterpreterRun
+  interpreter->implementation->Run(name, sessionArgs, ...)
+
+sipXvxml/src/client/api/OSBclient.cpp:1005 in VXIplatformProcessDocument
+  interpreterResult = platform->VXIinterpreter->Run( ... )
+
+
+
+There is a Run field in struct VXIinterpreterInterface.
+It is probably called by VXIinterpreterRun.
+
+
+sipXvxml/include/VXIinterpreter.h:   * Run a VoiceXML document and optionally return the result
+sipXvxml/include/VXIinterpreter.h:  VXIinterpreterResult (*Run)(struct VXIinterpreterInterface  *pThis,
+sipXvxml/src/VXI/VXI_api.cpp:  switch(interpreter->implementation->Run(name, sessionArgs,
+sipXvxml/src/VXI/VXI_api.cpp:  interpreter->interface.Run = VXIinterpreterRun;
+sipXvxml/src/VXI/VXI.cpp:int VXI::Run(const VXIchar * initialDocument,
+sipXvxml/src/VXI/VXI.hpp:  int Run(const VXIchar * initialDocument, const VXIMap * args,
+sipXvxml/src/client/api/OSBclient.cpp:  interpreterResult = platform->VXIinterpreter->Run(platform->VXIinterpreter,
