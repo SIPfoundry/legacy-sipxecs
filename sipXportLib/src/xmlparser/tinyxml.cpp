@@ -23,6 +23,9 @@ distribution.
 */
 
 #include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 #ifndef _WIN32
 #	include <unistd.h>
 #else
@@ -994,19 +997,30 @@ bool TiXmlDocument::SaveFile( const char * filename ) const
 {
    bool result = false;
 
-   // the filename is what we want to write, but if we crash or are restarted
-   // when it is only partially written, then the resulting file will not be
-   // well-formed, so we first write to a .new file and then only when that is
-   // done do we change the name to the real filename
-   const char* newsuffix = ".new";
-   char* newfilename = new char[strlen(filename) + strlen(newsuffix) + 1];
-   if (newfilename)
+   // The filename is what we want to write, but if we crash or are
+   // restarted when it is only partially written, or if another
+   // process is writing this file at the same time, then the
+   // resulting file will not be well-formed.  So we first write to a
+   // uniquely-named temporary file and then only when that is done do
+   // we rename it to the real filename (thus replacing the old file).
+
+   #define SUFFIX "XXXXXX"
+   // *newfilename is long enough to hold filename with SUFFIX appended.
+   char newfilename[strlen(filename) + (sizeof (SUFFIX) - 1) + 1];
+   // Assemble the template string for mkstemp.
+   strcpy(newfilename,filename);
+   strcat(newfilename,SUFFIX);
+   // Create the unique file name and open it.
+   // Use mkstemp rather than mktemp to avoid race conditions -- see the
+   // man pages for details.
+   int fd = mkstemp(newfilename);
+
+   // Check that mktemp was able to create and open the file --
+   // otherwise mkstemp returns -1.
+   if (fd >= 0)
    {
-      strcpy(newfilename,filename);
-      strcat(newfilename,newsuffix);
-   
-      // The old c stuff lives on...
-      FILE* fp = fopen( newfilename, "w" );
+      // The old C stuff lives on...
+      FILE* fp = fdopen(fd, "w");
       if ( fp )
       {
          Print( fp, 0 );
@@ -1018,9 +1032,9 @@ bool TiXmlDocument::SaveFile( const char * filename ) const
          rename( newfilename, filename );
          result = true;
       }
-      delete [] newfilename;
-	}
-	return result;
+   }
+   
+   return result;
 }
 
 
