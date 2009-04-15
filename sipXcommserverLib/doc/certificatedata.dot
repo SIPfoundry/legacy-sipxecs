@@ -1,0 +1,161 @@
+/*
+ * This file specifies a diagram of the dataflow and connections between
+ * the various files involved in TLS/SSL certificates and keys.
+ *
+ * To produce certificatedata.png from this file, execute:
+ *
+ *   dot -T png certificatedata.dot > certificatedata.png
+ */
+
+digraph map {
+
+  node [shape=box];
+  subgraph clusterCA 
+   {
+      style=invis;
+
+      Domain        [label="Domain Name"];
+      CertData      [label="Other certificate data"];
+
+      GenerateCA     [shape=oval];
+  
+      Domain -> GenerateCA; 
+      CertData -> GenerateCA;
+
+      CAKey         [label="<ca>.key"];
+      CACert        [label="<ca>.crt"];
+      CAP12         [label="<ca>.p12"];
+      CAData        [label="Other CA data"];
+      CAJava        [label="<ca>.jks"];
+
+      GenerateCA -> CAKey;
+      GenerateCA -> CACert;
+      GenerateCA -> CAData;
+
+      CAKey  -> CAP12 [style=dashed];
+      CACert -> CAP12 [style=dashed];
+      CAP12  -> CAJava [style=dashed];
+   }
+
+  subgraph clusterHost 
+   {
+      style=invis;
+
+      Host          [label="Host Name"];
+
+      GenerateHost  [label="Generate Host" shape=oval];
+  
+      Domain -> GenerateHost;
+      Host -> GenerateHost;
+      CACert -> GenerateHost;
+      CAKey -> GenerateHost;
+
+      HostKey         [label="<host>.key"];
+      HostCert        [label="<host>.crt"];
+
+      GenerateHost -> HostKey;
+      GenerateHost -> HostCert;
+      GenerateHost -> CAData;
+
+      HostP12         [label="<host>.p12"];
+
+      edge [style=dashed];
+
+      HostKey -> HostP12;
+      HostCert -> HostP12;
+      CACert -> HostP12;
+
+      HostKS         [label="<host>.jks"];
+
+      HostP12 -> HostKS;
+   }     
+
+  subgraph clusterWeb
+   {
+      style=invis;
+
+      GenerateCSR  [label="Generate Request" shape=oval];
+
+      Host -> GenerateCSR;
+
+      node [shape=box];
+      WebKey         [label="<host>-web.key"];
+      WebCSR         [label="<host>-web.csr"];
+
+      GenerateCSR -> WebKey;
+      GenerateCSR -> WebCSR;
+
+      SignCert  [label="Purchase Certificate" shape=oval];
+
+      edge [style=dashed];
+      WebCSR -> SignCert;
+      SignCert -> WebCert;
+
+      WebCert         [label="<host>-web.crt"];
+
+      WebKey -> WebP12;
+      WebCert -> WebP12;
+
+      WebP12         [label="<host>-web.p12"];
+      WebKS         [label="<host>-web.jks"];
+
+      WebP12 -> WebKS;
+   }     
+
+  subgraph clusterInstallation 
+   {
+      style=invis;
+      node [shape=box];
+
+      SSLKey         [label="ssl.key"];
+      SSLCert        [label="ssl.crt"];
+      SSLP12         [label="ssl.p12"];
+      SSLKS          [label="ssl.keystore"];
+
+      SSLWebKey         [label="ssl-web.key"];
+      SSLWebCert        [label="ssl-web.crt"];
+      SSLWebP12         [label="ssl-web.p12"];
+      SSLWebKS          [label="ssl-web.keystore"];
+
+      AuthCert       [label="authorities/<ca>.crt"];
+      AuthJava       [label="authorities/authorities.jks"];
+
+      edge [style=dotted];
+
+      HostKey -> SSLKey;
+      HostCert -> SSLCert;
+      HostP12 -> SSLP12;
+      HostKS -> SSLKS;
+
+      WebKey -> SSLWebKey;
+      WebCert -> SSLWebCert;
+      WebP12 -> SSLWebP12;
+      WebKS -> SSLWebKS;
+
+      CACert -> AuthCert;
+      CAJava -> AuthJava;
+
+   }
+
+   subgraph clusterKey
+   {
+     rank=same;
+
+     a [shape=box];
+     x [shape=oval label="a used by x to create b"];
+     b [shape=box];
+     a -> x [style=solid];
+     x -> b [style=solid];
+
+     node [shape=box];
+     c1;
+     c2;
+     d      [label="c1 and c2 combine to make d"];
+     c1 -> d [style=dashed];
+     c2 -> d [style=dashed];
+
+     e;
+     f;
+     e -> f [style=dotted label="e copied to f"];
+    }
+}
