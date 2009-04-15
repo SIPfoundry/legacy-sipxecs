@@ -215,6 +215,11 @@ public interface Symmitron {
      * The state of the datagam socket for a SYM (for debugging purposes).
      */
     public static final String RECEIVER_STATE = "receiver-state";
+    
+    /**
+     * The number of bridges.
+     */
+    public static final String NBRIDGES = "nbridges";
 
     /**
      * Successful return.

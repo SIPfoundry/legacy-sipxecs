@@ -546,6 +546,7 @@ public class FindSipServer {
 							ProxyHop hop = new ProxyHop(addr.getHostAddress(), port,
 									transport);
 							hop.setPriority(srvRecord.getPriority());
+							hop.setWeight(srvRecord.getWeight());
 							retval.add(hop);
 						}
 					}

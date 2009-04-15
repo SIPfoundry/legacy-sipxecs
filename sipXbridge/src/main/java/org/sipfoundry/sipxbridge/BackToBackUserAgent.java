@@ -146,6 +146,7 @@ public class BackToBackUserAgent {
 
     BackToBackUserAgent(SipProvider provider, Request request, Dialog dialog,
             ItspAccountInfo itspAccountInfo) throws IOException {
+        int load = 0;
 
         /*
          * Received this request from the LAN The symmitron to use is the symmitron that runs
@@ -164,22 +165,28 @@ public class BackToBackUserAgent {
             this.symmitronClient = Gateway.getSymmitronClient(address);
             this.proxyAddress = new HopImpl(address, viaHeader.getPort(), viaHeader
                     .getTransport());
+            load = symmitronClient.ping();
         } else {
-            boolean found = false;
             for (Hop hop : Gateway.getProxyAddressTable()) {
                 try {
-                    this.symmitronClient = Gateway.getSymmitronClient(hop.getHost());
-                    this.symmitronClient.ping();
+                    SymmitronClient symmitronClient = Gateway.getSymmitronClient(hop.getHost());
+                    /* Find the number of active bridges there */
+                    load = symmitronClient.ping();
+                    /*
+                     * Find the Proxy with the fewest number of active bridges.
+                     */
                     this.proxyAddress = hop;
-                    found = true;
-                    break;
+                    this.symmitronClient = symmitronClient;
+
                 } catch (SymmitronException ex) {
                     logger.error("Could not contact Relay at " + hop.getHost());
                 }
             }
-            if (!found) {
+            if (this.proxyAddress == null) {
                 throw new IOException("Could not contact Relay -- cannot create B2BUA");
             }
+            logger.debug("routing call to " + this.proxyAddress.getHost() + ":"
+                    + this.proxyAddress.getPort() + " relay load = " + load);
         }
 
         BridgeInterface bridge = symmitronClient.createBridge();
@@ -567,9 +574,8 @@ public class BackToBackUserAgent {
             ReferToHeader referToHeader = (ReferToHeader) referRequest
                     .getHeader(ReferToHeader.NAME);
             /*
-             * Do not set maddr parameter here. This is the refer target. 
-             * The phone sets it. We do not want to override the
-             * port. See XECS-2480.
+             * Do not set maddr parameter here. This is the refer target. The phone sets it. We do
+             * not want to override the port. See XECS-2480.
              */
             SipURI uri = (SipURI) referToHeader.getAddress().getURI().clone();
             uri.setTransportParam(proxyAddress.getTransport());
@@ -1465,7 +1471,8 @@ public class BackToBackUserAgent {
             try {
                 Response response = SipUtilities.createResponse(serverTransaction,
                         Response.SERVER_INTERNAL_ERROR);
-                ContentTypeHeader cth  = ProtocolObjects.headerFactory.createContentTypeHeader("message", "sipfrag");
+                ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader(
+                        "message", "sipfrag");
                 response.setContent("Server Exception occured at "
                         + ex.getStackTrace()[1].getFileName() + ":"
                         + ex.getStackTrace()[1].getLineNumber(), cth);
@@ -1571,7 +1578,7 @@ public class BackToBackUserAgent {
                 HashSet<Integer> codecs = SipUtilities.getCommonCodec(sdes, newOffer);
 
                 logger.debug("Codecs = " + codecs);
-              
+
                 if (replacedDialog.getState() != DialogState.CONFIRMED) {
                     if (codecs.size() == 0) {
                         Response errorResponse = SipUtilities.createResponse(serverTransaction,
@@ -1580,8 +1587,6 @@ public class BackToBackUserAgent {
                         return;
 
                     }
-
-                   
 
                 }
 
@@ -1643,9 +1648,9 @@ public class BackToBackUserAgent {
                 SipProvider wanProvider = ((DialogExt) peerDialog).getSipProvider();
                 ContactHeader contact = SipUtilities.createContactHeader(wanProvider, peerDat
                         .getItspInfo());
-               
-                SessionDescription answerSdes = SipUtilities.cleanSessionDescription(SipUtilities.cloneSessionDescription(sdes),
-                        codecs);
+
+                SessionDescription answerSdes = SipUtilities.cleanSessionDescription(SipUtilities
+                        .cloneSessionDescription(sdes), codecs);
                 wanRtpSession.getReceiver().setSessionDescription(answerSdes);
 
                 ServerTransaction peerSt = ((ServerTransaction) peerDat.dialogCreatingTransaction);
@@ -1788,9 +1793,9 @@ public class BackToBackUserAgent {
          */
         HashSet<Dialog> temp = new HashSet<Dialog>();
         temp.addAll(this.dialogTable);
-       
+
         for (Dialog dialog : temp) {
-            logger.debug("tearing down " + dialog + " dialogState = " + dialog.getState() 
+            logger.debug("tearing down " + dialog + " dialogState = " + dialog.getState()
                     + " dialog.isServer " + dialog.isServer());
             if (dialog.getState() != DialogState.TERMINATED) {
                 DialogContext dialogCtx = DialogContext.get(dialog);
@@ -1819,13 +1824,13 @@ public class BackToBackUserAgent {
                     }
                     SipProvider provider = ((DialogExt) dialog).getSipProvider();
                     ClientTransaction ct = provider.getNewClientTransaction(byeRequest);
-                    TransactionContext.attach(ct,Operation.SEND_BYE_FOR_TEARDOWN);
+                    TransactionContext.attach(ct, Operation.SEND_BYE_FOR_TEARDOWN);
                     dialog.sendRequest(ct);
                 } else {
                     DialogContext.get(dialog).setTerminateOnConfirm();
                 }
 
-            } 
+            }
         }
 
         /* Clean up the MOH dialog */
@@ -1865,7 +1870,7 @@ public class BackToBackUserAgent {
     public void setPendingTermination(boolean pendingTermination) {
         this.pendingTermination = pendingTermination;
     }
-    
+
     /**
      * Return true if this is pending termination.
      * 

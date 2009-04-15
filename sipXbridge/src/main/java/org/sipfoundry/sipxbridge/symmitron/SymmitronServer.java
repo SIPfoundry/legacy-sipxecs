@@ -954,6 +954,9 @@ public class SymmitronServer implements Symmitron {
                     timedOutSyms.toArray(symArray);
                     retval.put(SYM_SESSION, symArray);
                 }
+                
+                int nbridges = this.bridgeMap.size();
+                retval.put(NBRIDGES, new Integer(nbridges).toString());
             }
             return retval;
         } catch (Exception ex) {

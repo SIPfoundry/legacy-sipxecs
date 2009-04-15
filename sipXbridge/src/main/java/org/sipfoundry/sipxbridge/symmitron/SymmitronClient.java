@@ -501,12 +501,14 @@ public class SymmitronClient {
 		}
 
 	}
-	public void ping() {
+	public int ping() {
 		Object[] args = new Object[1];
 		args[0] = clientHandle;
+		Map retval;
 		
 		try {
-			client.execute("sipXrelay.ping", args);
+			retval = (Map) client.execute("sipXrelay.ping", args);
+			return Integer.parseInt((String)retval.get(Symmitron.NBRIDGES));
 		} catch (XmlRpcException e) {
 			logger.error("XmlRpcException ", e);
 			throw new SymmitronException("Error pinging " + this.serverAddress);
