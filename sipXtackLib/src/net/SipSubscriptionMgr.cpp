@@ -466,7 +466,7 @@ UtlBoolean SipSubscriptionMgr::insertDialogInfo(const SipMessage& subscribeReque
     if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
     {
        UtlString request;
-       int len;
+       ssize_t len;
        subscribeRequest.getBytes(&request, &len);
 
        OsSysLog::add(FAC_SIP, PRI_DEBUG,
