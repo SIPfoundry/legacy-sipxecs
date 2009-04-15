@@ -664,33 +664,25 @@ activateConfigServerOnMaster () {
     ### service, and with the name declared for sipXconfig in its
     ### process definition.
     ###
-    ### The following tests whether or not sipXconfig is enabled,
-    ### which is true only on the master system.
+    ### The following unconditionally creates a 'configuration
+    ### version stamp' regardless of whether or not ConfigServer
+    ### is enabled on this system.
     ################################################################
-    local configServerEnabled=`cat @SIPX_VARDIR@/process-state/ConfigServer 2> /dev/null`
-    if [ -n "${configServerEnabled}" -a "${configServerEnabled}" = "Enabled" ]
-    then
-        ###
-        ### Here we force the 'configuration version stamp' status 
-        ### that is read by sipXsupervisor to match the current version 
-        ### of sipXconfig so that sipXsupervisor will be willing to start
-        ### sipXconfig.
-        ### NO OTHER PROCESS SHOULD BE ENABLED IN THIS WAY.
-        ###
-        local configServerVersion
-        configServerVersion=`@SIPX_BINDIR@/sipxconfig-config --version | sed 's/-.*//'`
+    ### NO OTHER PROCESS SHOULD BE ENABLED IN THIS WAY.
+    ###
+    local configServerVersion
+    configServerVersion=`@SIPX_BINDIR@/sipxconfig-config --version | sed 's/-.*//'`
 
-        configVersionDirectory=@SIPX_VARDIR@/process-cfgver
-        if [ ! -d ${configVersionDirectory} ]
-        then
-            mkdir -p ${configVersionDirectory}
-            chown @SIPXPBXUSER@:@SIPXPBXGROUP@ ${configVersionDirectory}
-            chmod u=rwx,g=rws,o=rx ${configVersionDirectory}
-        fi
-        echo "${configServerVersion}" > @SIPX_VARDIR@/process-cfgver/ConfigServer
-        chown @SIPXPBXUSER@:@SIPXPBXGROUP@ ${configVersionDirectory}/ConfigServer
-        chmod u=rw,g=rw,o=r ${configVersionDirectory}/ConfigServer
+    configVersionDirectory=@SIPX_VARDIR@/process-cfgver
+    if [ ! -d ${configVersionDirectory} ]
+    then
+        mkdir -p ${configVersionDirectory}
+        chown @SIPXPBXUSER@:@SIPXPBXGROUP@ ${configVersionDirectory}
+        chmod u=rwx,g=rws,o=rx ${configVersionDirectory}
     fi
+    echo "${configServerVersion}" > @SIPX_VARDIR@/process-cfgver/ConfigServer
+    chown @SIPXPBXUSER@:@SIPXPBXGROUP@ ${configVersionDirectory}/ConfigServer
+    chmod u=rw,g=rw,o=r ${configVersionDirectory}/ConfigServer
 }
 
 # High-level start function.
