@@ -117,8 +117,9 @@ case ${Action} in
          -Dsipxbridge.command=stop 			\
          -cp $ClassPath org.sipfoundry.sipxbridge.Gateway \
 	 $Args
-
      sipx_stop sipXbridge @SIPX_RUNDIR@/sipxbridge.pid
+     #Failsafe in case the process does not die.
+     kill -9 `ps auxw | grep org.sipfoundry.sipxbridge.Gateway | grep java | awk '{print $2}'`
      ;;
   
    PROFILE)
