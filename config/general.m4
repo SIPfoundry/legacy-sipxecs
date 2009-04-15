@@ -1433,6 +1433,35 @@ AC_DEFUN([CHECK_ODBC],
     fi
 ])dnl
 
+# ============ F R E E S W I T C H ==================
+AC_DEFUN([CHECK_FREESWITCH],
+[   AC_MSG_CHECKING([for FreeSWITCH])
+    AC_ARG_WITH(freeswitch,
+                [--with-freeswitch=PATH to FreeSWITCH install directory],
+		[freeswitch_path=$withval],
+		[freeswitch_path="/usr/local/freeswitch"]
+                )
+    for dir in $freeswitch_path ; do
+        freeswitch_dir="$dir"
+        if test -x "$dir/bin/freeswitch"; then
+            found_freeswitch="yes";
+            break;
+        fi
+    done
+
+    if test x_$found_freeswitch != x_yes; then
+        AC_MSG_ERROR(not found; 'bin/freeswitch' not in any of: $freeswitch_path)
+    fi
+
+    if test x_$found_freeswitch = x_yes; then
+        AC_MSG_RESULT( [    FreeSWITCH installed in $freeswitch_dir] )
+        AC_SUBST(FREESWITCH_PREFIX, $freeswitch_dir)
+    fi
+],
+[
+    AC_MSG_RESULT(yes)
+])dnl
+
 # ================== COMPILER VENDOR ====================================
 
 AC_DEFUN([AX_COMPILER_VENDOR],
