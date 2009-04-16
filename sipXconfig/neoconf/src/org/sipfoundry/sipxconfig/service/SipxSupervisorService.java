@@ -9,11 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import org.sipfoundry.sipxconfig.admin.LoggingManager;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
 
 public class SipxSupervisorService extends SipxService implements LoggingEntity {
     public static final String BEAN_ID = "sipxSupervisorService";
     private static final String LOG_LEVEL_PATH = "log_level";
+    private LoggingManager m_loggingManager;
 
     @Override
     public String getLogLevel() {
@@ -26,8 +28,12 @@ public class SipxSupervisorService extends SipxService implements LoggingEntity 
     public void setLogLevel(String logLevel) {
         if (logLevel != null) {
             ValueStorage storage = (ValueStorage) getInitializeValueStorage();
-            storage.setSettingValue(LOG_LEVEL_PATH, logLevel);
-            getSipxServiceManager().storeService(this);
+            String oldLogLevel = storage.getSettingValue(LOG_LEVEL_PATH);
+            if (!logLevel.equals(oldLogLevel)) {
+                m_loggingManager.getEntitiesToProcess().add(this);
+                storage.setSettingValue(LOG_LEVEL_PATH, logLevel);
+                getSipxServiceManager().storeService(this);
+            }
         }
     }
 
@@ -39,5 +45,10 @@ public class SipxSupervisorService extends SipxService implements LoggingEntity 
     @Override
     public String getLogSetting() {
         return LOG_LEVEL_PATH;
+    }
+
+    @Override
+    public void setLoggingManager(LoggingManager loggingManager) {
+        m_loggingManager = loggingManager;
     }
 }

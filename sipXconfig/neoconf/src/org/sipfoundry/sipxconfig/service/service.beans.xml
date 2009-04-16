@@ -118,6 +118,7 @@
         <ref bean="sipxSupervisorConfiguration" />
       </list>
     </property>
+    <property name="loggingManager" ref="loggingManager" />
   </bean>
   
   <bean id="sipxSupervisorConfiguration" class="org.sipfoundry.sipxconfig.service.SipxSupervisorConfiguration" scope="prototype"

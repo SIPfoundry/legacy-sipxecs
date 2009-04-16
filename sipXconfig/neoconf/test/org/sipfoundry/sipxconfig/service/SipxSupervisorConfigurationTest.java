@@ -9,11 +9,14 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.createMock;
+
+import java.util.ArrayList;
 
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.LoggingManager;
 
 public class SipxSupervisorConfigurationTest extends SipxServiceTestBase {
     @Override
@@ -32,6 +35,12 @@ public class SipxSupervisorConfigurationTest extends SipxServiceTestBase {
         replay(serviceManager);
 
         supervisor.setSipxServiceManager(serviceManager);
+
+        LoggingManager loggingManagerMock = createMock(LoggingManager.class);
+        loggingManagerMock.getEntitiesToProcess();
+        expectLastCall().andReturn(new ArrayList<LoggingEntity>()).atLeastOnce();
+        replay(loggingManagerMock);
+        supervisor.setLoggingManager(loggingManagerMock);
 
         supervisor.setLogLevel("DEBUG");
 
