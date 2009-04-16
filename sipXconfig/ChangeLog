@@ -4,8 +4,111 @@ SIPfoundry Issue Tracker at:
         http://track.sipfoundry.org/browse?XCF
 
 
-Version 3.11.11
+Version 3.11.12
 
+** Bug
+    * [XCF-2343] - Hover mouse pointer over the Configuration Test Names no explanation of the test is seen
+    * [XCF-2373] - only one unmanaged (t)ftp device file can be activated at a time
+    * [XCF-2550] - Internal exception occured on clicking search button in french language config UI
+    * [XCF-2599] - grandstream model names are not properly upgraded
+    * [XCF-2892] - NAT Traversal is told to use STUN when it should not
+    * [XCF-2961] - domain-config not generated (designer environment)
+    * [XCF-3121] - call and agent history output
+    * [XCF-3139] - Cannot add or delete Intranet Subnets on the Internet Calling GUI Page
+    * [XCF-3142] - After adding any Localization Package the GUI Header Skin is broken
+    * [XCF-3272] - Remove "Maximum legs" field from the FreeSwitch Conference Server page.
+    * [XCF-3309] - domain config did not replicate
+    * [XCF-3390] - DST offset " when set from Device Time Zone tab does not get reflected on the LG Phones TUI"
+    * [XCF-3415] - Intermittent:Internal Exception on "Extension Pool" tab when clicked.
+    * [XCF-3429] - Localization: Dial plans are not reactivated when default language is changed to other language
+    * [XCF-3457] - Issue with transform generated for SIP Trunk if used for Emergency Gateway
+    * [XCF-3459] - HA -If Call park message gets routed through distributed server, call fails
+    * [XCF-3460] - HA -  Distributed machine fails to forward MWI SUBSCRIBE messages to the Master machine.
+    * [XCF-3468] - Upgrade HA - 3.10.x -> 3.11.y : Setting of bundles causes TooFewBundles exception
+    * [XCF-3472] - 1200 Set f/w upload needs to be changed to handle 1 zip file
+    * [XCF-3478] - An internal error has occurred. Click here to continue - seen in CDR Reports area of GUI
+    * [XCF-3483] - Gateway's 'ignore user caller ID' and 'Specify Caller ID'  fail to function as expected.
+    * [XCF-3487] - In Conference Server Advanced Configuration page the last configuration option says "Hungup code"
+    * [XCF-3490] - Internal execption occurs on navigating to dial plan tab after region is set to  newly installed localization package.
+    * [XCF-3495] - After a fresh install services stop/start operation does not occur after all configuration files are replicated (firstRun task execution). Autoatendant is marked for restart
+    * [XCF-3497] - Nortel 12xx IP sets need a new check box for Enable/Disable Syslog
+    * [XCF-3499] - When a License File is added to SCS user is asked to restart 3 services
+    * [XCF-3503] - [PATCH] Added a new setting for MWI flashing red and set 'Disable Star(*) codes' to true by default
+    * [XCF-3515] - Auto Attendant service is unnecessarily marked for restart
+    * [XCF-3525] - Change Audiocodes First Default Caller ID to end with 2 numeric digits
+    * [XCF-3528] - "Route" on SIP trunk screen should not have an option to 'Create new Internal SBC'
+    * [XCF-3529] - New Logging Level Page does not Manage/turn on logging for ACD Server, NAT Traversal, sipxbridge & Media Engine.
+    * [XCF-3530] - New Logging Level Page does not ask the user to reboot services after changing the logging levels
+    * [XCF-3533] - sipxsupervisor log level is not included in global log level settings
+    * [XCF-3538] - Role column overlaps help text when clicked on "show details" link on Services screen
+    * [XCF-3541] - Nortel 3456 Codec Preference Order in SCS GUI not uploaded to 3456 when profile is sent. G722 is not selected by default
+    * [XCF-3542] - Typo in ITSP Registrar address on ITSP template for Bandwidth.com
+    * [XCF-3544] - Null pointer observed when adding ITSP account.
+    * [XCF-3545] - All the services do not restart upon 'send profile' to the default server
+    * [XCF-3552] - AA- "Reset to Defaults" button not functioning.
+    * [XCF-3554] - Change domain name does not update voicemail.xml hence user fails to deposit voicemail.
+    * [XCF-3560] - errors when applying nat-location patch
+    * [XCF-3561] - Need a single STUN Server field for both NAT & Internal sipxbridge-1
+    * [XCF-3562] - HA -  CDR  not displaying the details of the calls routed through the Distributed server.
+    * [XCF-3563] - After changing the Address Type & the STUN server address field under Services > NAT user is not asked to Reboot any services
+    * [XCF-3575] - Invalid LG-Nortel config file generated - emergency_address & emergency_address_port
+    * [XCF-3582] - HA - Mappingrules incorrectly generated when adding new role to Server
+    * [XCF-3584] - Service location addresses in MappingRules.java should not be blindly set to the local server address
+    * [XCF-3585] - In auto attendant page changing a dialpad will add a new one
+    * [XCF-3587] - HA - forwardingrules incorrectly generated
+    * [XCF-3589] - Cannot delete Secondary Server with "SIP Trunking"
+    * [XCF-3594] - Freeswitch reload configuration Failure
+    * [XCF-3595] - DNS test reports 'unknown test result: 143'
+    * [XCF-3605] - changing location IP address detaches Internal SBC
+    * [XCF-3606] - Adding unmanaged sbc without ip address.
+    * [XCF-3613] - CiscoPlus Multi-line, FeatureID generate incorrect
+    * [XCF-3614] - init-location-specific-service fails: DB is not initialized and projection of  profiles fails later
+    * [XCF-3618] - sipxMediaService (a.k.a. Voicemail) should not be in "Primary SIP router" role
+
+** Improvement
+    * [XCF-1665] - Cannot get a snapshot for distributed servers in an HA cluster
+    * [XCF-2221] - all log levels should be settable from within sipxconfig GUI
+    * [XCF-3045] - Change Help Link to Go to Nortel Documentation area on box
+    * [XCF-3195] - creation of internal SBC through services screen
+    * [XCF-3226] - Audiocodes: Support firmware version 5.4 - new SAS fields, plus Modified fields
+    * [XCF-3316] - Prune the ITSP list for the OEM build.
+    * [XCF-3368] - MAC address/ Serial number for SMC 3456 is not needed - text to be changed or field removed
+    * [XCF-3369] - Need the SMC 3456 provisioning server default url available the User portal
+    * [XCF-3386] - Server Role help text
+    * [XCF-3389] - Server page: A help text needs to explain how to commission a new server
+    * [XCF-3410] - Drop "500" from SCS500 branding
+    * [XCF-3413] - Need mechanism to handle Second server added in DNS records
+    * [XCF-3428] - NAT traversal configuration rewrite
+    * [XCF-3444] - Config tests screen messages refer to "following files" but never list any
+    * [XCF-3445] - single upload bean instance can not support zip and non-zip upload at same time.
+    * [XCF-3465] - Conference is disconnected after entering the Conference Password then pressing Hash/Pound (#) key
+    * [XCF-3488] - [PATCH] sipXconfig update patch for Nortel 1200 series phones
+    * [XCF-3507] - Navigation improvement in Servers Page
+    * [XCF-3508] - Change Free Memory graphs to Swap Usage
+    * [XCF-3509] - Help text for Polycom Device File upload should reflect Productivity Suite for licenses
+    * [XCF-3510] - New UI needed to show all services on all servers to allow for restarts
+    * [XCF-3511] - Services page under servers should have column to reflect what role the service is in
+    * [XCF-3513] - Nortel IP Phone 12xx fails to obtain default 'Group Paging Prefix' in sipXconfig GUI
+    * [XCF-3519] - Make Audiocodes 5.4 Firmware Version the default
+    * [XCF-3522] - Remove MY_FULL_HOSTNAME param from sipxconfig.properties.in
+    * [XCF-3536] - sipxbridge.xml and nattraversalrules.xml each need fqdn of machine on which they run and the XML RPC port of sipx-supervisor.
+    * [XCF-3565] - Add Polycom 3.1.2 Rev B firmware config file content to Polycom generated profiles
+    * [XCF-3588] - Nortel IP Phone 1200:  sipXconfig needs a patch for Enable/Disable call park configuration.
+    * [XCF-3600] - Add Polycom 3.1.3 firmware config file content to Polycom generated profiles
+    * [XCF-3610] - Manage Log Levels page should not say 'Sipx Supervisor''
+    * [XCF-3611] - rename Counterpath softphone
+    * [XCF-3612] - Update test descriptor: preflight need to check for Options 66 and 120
+
+** New Feature
+    * [XCF-3412] - Create screen to display DNS test script results
+    * [XCF-3555] - add ITSP template definitions for ATT and voxitas
+
+** Task
+    * [XCF-2809] - Migrate remaining settings from config.defs to sipxconfig database
+    * [XCF-3304] - freeze DB schema before 4.0 release
+
+
+Version 3.11.11
 
 ** Bug
     * [XCF-1441] - Gateway is not getting removed from the dialing rule which is enabled
