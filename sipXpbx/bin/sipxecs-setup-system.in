@@ -785,6 +785,18 @@ subnet %s netmask %s {\n\
         if runningAsRoot() :
             file ( dhcpConfigFile, 'w').write( dhcpdConf )
 
+            startDhcpdCmd = '/sbin/service dhcpd restart'
+            log_printout("Attempting to start DHCP with: '%s'" % startDhcpdCmd)
+            cmdoutput=commands.getoutput(startDhcpdCmd)
+            log_printout(cmdoutput)
+
+            startDhcpdCmd = '/sbin/chkconfig --level %d dhcpd on' % RUNLEVEL
+            log_printout("Configuring autostart of DHCP with: '%s'" % startDhcpdCmd)
+            cmdoutput=commands.getoutput(startDhcpdCmd)
+            log_printout(cmdoutput)
+        else:
+            log_printout("dhcpd not configured or started because not running as root")
+
 def start_network () :
      show_progress()
 
