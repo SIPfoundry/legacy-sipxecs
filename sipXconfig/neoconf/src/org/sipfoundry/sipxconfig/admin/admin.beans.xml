@@ -18,12 +18,10 @@
     <lookup-method name="createFtpBackupPlan" bean="ftpBackupPlan" />
   </bean>
 
-  <bean id="softwareAdminApiProvider"
-    class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">
+  <bean id="softwareAdminApiProvider" class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">
     <property name="methodNamePrefix" value="SwAdminRpc." />
     <property name="secure" value="true" />
-    <property name="serviceInterface"
-      value="org.sipfoundry.sipxconfig.admin.commserver.SoftwareAdminApi" />
+    <property name="serviceInterface" value="org.sipfoundry.sipxconfig.admin.commserver.SoftwareAdminApi" />
     <property name="timeout" value="10000" />
   </bean>
 
@@ -99,6 +97,7 @@
 
   <bean id="packageUpdateManagerImpl" class="org.sipfoundry.sipxconfig.admin.PackageUpdateManagerImpl">
     <property name="adminContext" ref="adminContext" />
+    <property name="alarmContext" ref="alarmContext" />
   </bean>
 
   <bean id="packageUpdateManager" class="org.springframework.aop.framework.ProxyFactoryBean">
@@ -106,25 +105,38 @@
       <ref local="packageUpdateManagerImpl" />
     </property>
   </bean>
-	
+
+  <bean id="checkForUpdatesTask" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean">
+    <property name="targetObject" ref="packageUpdateManager" />
+    <property name="targetMethod" value="checkForUpdates" />
+  </bean>
+
+  <bean id="checkForUpdatesTrigger" class="org.springframework.scheduling.timer.ScheduledTimerTask">
+    <property name="fixedRate" value="true" />
+    <!-- wait 10 minutes before checking -->
+    <property name="delay" value="600000" />
+    <!-- once a day -->
+    <property name="period" value="86400000" />
+    <property name="timerTask" ref="checkForUpdatesTask" />
+  </bean>
+
   <bean id="loggingManager" class="org.sipfoundry.sipxconfig.admin.LoggingManagerImpl">
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="locationsManager" ref="locationsManager" />
-    <property name="sbcDeviceManager" ref="sbcDeviceManager"/>
-    <property name="acdContext" ref="acdContext"/>
+    <property name="sbcDeviceManager" ref="sbcDeviceManager" />
+    <property name="acdContext" ref="acdContext" />
   </bean>
 
   <bean id="dnsTestContextImpl" class="org.sipfoundry.sipxconfig.admin.DnsTestContextImpl">
-    <constructor-arg ref="commandContext"/>
-    <constructor-arg value="sipx-dns"/>
-	<property name="locationsManager" ref="locationsManager"/>
-	<property name="sipxServiceManager" ref="sipxServiceManager"/>
-	<property name="coreContext" ref="coreContext"/>
+    <constructor-arg ref="commandContext" />
+    <constructor-arg value="sipx-dns" />
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="coreContext" ref="coreContext" />
   </bean>
 
-  <bean id="dnsTestContext" class="org.springframework.aop.framework.ProxyFactoryBean"
-    parent="abstractDao">
-    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.admin.DnsTestContext"/>
-    <property name="target" ref="dnsTestContextImpl"/>
+  <bean id="dnsTestContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.admin.DnsTestContext" />
+    <property name="target" ref="dnsTestContextImpl" />
   </bean>
 </beans>

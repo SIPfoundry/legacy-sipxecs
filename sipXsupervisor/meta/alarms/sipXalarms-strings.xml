@@ -110,6 +110,12 @@
          <description>The ITSP '{0}' reported a server failure. </description>
          <resolution>Contact your ITSP and report the failure.</resolution>
       </alarm>
+       <alarm id="SOFTWARE_UPDATE_AVAILABLE">
+         <shorttitle>Software Updates Available.</shorttitle>
+         <description>Software Updates Available. </description>
+         <resolution>Software Updates Available. Install the available software updates. </resolution>
+      </alarm>
+
       <!-- Add new alarms above this line.
           Notes:
             'id='         must match definition in etc/sipXalarms-config.xml
