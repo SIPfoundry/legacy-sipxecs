@@ -578,8 +578,7 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
                 return this.callerAlias;
             }
         } catch (Exception ex) {
-            logger.error("Bad caller alias", ex);
-            throw new SipXbridgeException("Bad caller alias", ex);
+            return null;
         }
     }
 

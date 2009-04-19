@@ -1245,7 +1245,7 @@ public class BackToBackUserAgent {
             if (replacesHeader != null) {
 
                 /* Fetch the Dialog object corresponding to the ReplacesHeader */
-                Dialog replacedDialog = ((SipStackExt) ProtocolObjects.sipStack)
+                Dialog replacedDialog = ((SipStackExt) ProtocolObjects.getSipStack())
                         .getReplacesDialog(replacesHeader);
 
                 if (replacedDialog == null) {

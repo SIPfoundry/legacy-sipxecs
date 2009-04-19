@@ -432,7 +432,7 @@ class CallControlManager implements SymmitronResetHandler {
 
                 ReplacesHeader replacesHeader = (ReplacesHeader) request
                         .getHeader(ReplacesHeader.NAME);
-                Dialog replacesDialog = ((SipStackExt) ProtocolObjects.sipStack)
+                Dialog replacesDialog = ((SipStackExt) ProtocolObjects.getSipStack())
                         .getReplacesDialog(replacesHeader);
                 if (replacesDialog == null) {
                     Response response = SipUtilities.createResponse(serverTransaction,
@@ -2593,7 +2593,7 @@ class CallControlManager implements SymmitronResetHandler {
      * 
      */
     public void reset(String serverHandle) {
-        Collection<Dialog> dialogs = ((SipStackImpl) ProtocolObjects.sipStack).getDialogs();
+        Collection<Dialog> dialogs = ((SipStackImpl) ProtocolObjects.getSipStack()).getDialogs();
         for (Dialog dialog : dialogs) {
             if (dialog.getApplicationData() instanceof DialogContext) {
                 BackToBackUserAgent btobua = DialogContext.getBackToBackUserAgent(dialog);

@@ -96,7 +96,7 @@ public class BackToBackUserAgentFactory {
 			 * with it.
 			 */
 			if (dialogContext == null) {
-				Collection<Dialog> dialogs = ((SipStackImpl) ProtocolObjects.sipStack)
+				Collection<Dialog> dialogs = ((SipStackImpl) ProtocolObjects.getSipStack())
 						.getDialogs();
 				String callId = SipUtilities.getCallId(request);
 

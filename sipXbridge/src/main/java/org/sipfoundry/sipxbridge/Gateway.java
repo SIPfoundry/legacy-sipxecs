@@ -47,7 +47,9 @@ import net.java.stun4j.StunAddress;
 import net.java.stun4j.client.NetworkConfigurationDiscoveryProcess;
 import net.java.stun4j.client.StunDiscoveryReport;
 
+import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Logger;
+import org.apache.log4j.SimpleLayout;
 import org.apache.xmlrpc.XmlRpcException;
 import org.sipfoundry.commons.alarm.SipXAlarmClient;
 import org.sipfoundry.commons.log4j.SipFoundryAppender;
@@ -186,6 +188,9 @@ public class Gateway {
 
 	private static final String STUN_OK = "SIPX_BRIDGE_STUN_ADDRESS_DISCOVERY_RECOVERED";
 
+    static final String ACCOUNT_NOT_FOUND_ALARM_ID = "SIPX_BRIDGE_ITSP_ACCOUNT_NOT_FOUND";
+	
+	
 	// ///////////////////////////////////////////////////////////////////////
 
 	/**
@@ -471,7 +476,7 @@ public class Gateway {
 			BridgeConfiguration bridgeConfiguration = accountManager
 					.getBridgeConfiguration();
 
-			authenticationHelper = ((SipStackExt) ProtocolObjects.sipStack)
+			authenticationHelper = ((SipStackExt) ProtocolObjects.getSipStack())
 					.getAuthenticationHelper(accountManager,
 							ProtocolObjects.headerFactory);
 
@@ -479,18 +484,18 @@ public class Gateway {
 			String externalAddress = bridgeConfiguration.getExternalAddress();
 			logger.debug("External Address:port = " + externalAddress + ":"
 					+ externalPort);
-			ListeningPoint externalUdpListeningPoint = ProtocolObjects.sipStack
+			ListeningPoint externalUdpListeningPoint = ProtocolObjects.getSipStack()
 					.createListeningPoint(externalAddress, externalPort, "udp");
-			ListeningPoint externalTcpListeningPoint = ProtocolObjects.sipStack
+			ListeningPoint externalTcpListeningPoint = ProtocolObjects.getSipStack()
 					.createListeningPoint(externalAddress, externalPort, "tcp");
 			if (Gateway.isTlsSupportEnabled) {
-				ListeningPoint externalTlsListeningPoint = ProtocolObjects.sipStack
+				ListeningPoint externalTlsListeningPoint = ProtocolObjects.getSipStack()
 						.createListeningPoint(externalAddress,
 								externalPort + 1, "tls");
-				externalTlsProvider = ProtocolObjects.sipStack
+				externalTlsProvider = ProtocolObjects.getSipStack()
 						.createSipProvider(externalTlsListeningPoint);
 			}
-			externalProvider = ProtocolObjects.sipStack
+			externalProvider = ProtocolObjects.getSipStack()
 					.createSipProvider(externalUdpListeningPoint);
 			externalProvider.addListeningPoint(externalTcpListeningPoint);
 
@@ -510,13 +515,13 @@ public class Gateway {
 			logger.debug("Local Address:port " + localIpAddress + ":"
 					+ localPort);
 
-			ListeningPoint internalUdpListeningPoint = ProtocolObjects.sipStack
+			ListeningPoint internalUdpListeningPoint = ProtocolObjects.getSipStack()
 					.createListeningPoint(localIpAddress, localPort, "udp");
 
-			ListeningPoint internalTcpListeningPoint = ProtocolObjects.sipStack
+			ListeningPoint internalTcpListeningPoint = ProtocolObjects.getSipStack()
 					.createListeningPoint(localIpAddress, localPort, "tcp");
 
-			internalProvider = ProtocolObjects.sipStack
+			internalProvider = ProtocolObjects.getSipStack()
 					.createSipProvider(internalUdpListeningPoint);
 
 			internalProvider.addListeningPoint(internalTcpListeningPoint);
@@ -804,6 +809,13 @@ public class Gateway {
 	 * 
 	 */
 	static void configtest() {
+	    
+	    
+	    Logger.getLogger("org.sipfoundry.sipxbridge").
+	    addAppender(
+                new ConsoleAppender( new SimpleLayout()));
+	    
+	    
 		BridgeConfiguration configuration = Gateway.accountManager
 				.getBridgeConfiguration();
 
@@ -838,6 +850,28 @@ public class Gateway {
 					.println("Configuration error: external address == internal address && external port == internal port");
 
 			System.exit(-1);
+		}
+		
+		/*
+		 * Check for mandatory fields.
+		 */
+		for (ItspAccountInfo accountInfo : Gateway.accountManager.getItspAccounts()) {
+		    if ( accountInfo.getProxyDomain() == null ) {
+		        System.err.println("Proxy Domain is mandatory for ITSP accounts");
+		        System.exit(-1);
+		    }
+		    
+		    if ( accountInfo.getUserName() == null ) {
+		        System.err.println("User Name is mandatory for ITSP accounts. Check ITSP account "
+		                + accountInfo.getProxyDomain());
+		        System.exit(-1);
+		    }
+		    
+		    if ( accountInfo.getCallerAlias() == null ) {
+		        System.err.println("Could not parse asserted ID. Must be user@domain - Check ITSP account "
+                        + accountInfo.getProxyDomain());
+		        System.exit(-1);
+		    }
 		}
 
 		if (Gateway.accountManager.getBridgeConfiguration()
@@ -970,7 +1004,7 @@ public class Gateway {
 			/*
 			 * Tear down all ongoing calls.
 			 */
-			Collection<Dialog> dialogs = ((SipStackImpl) ProtocolObjects.sipStack)
+			Collection<Dialog> dialogs = ((SipStackImpl) ProtocolObjects.getSipStack())
 					.getDialogs();
 			for (Dialog dialog : dialogs) {
 				if (dialog.getApplicationData() instanceof DialogContext) {
