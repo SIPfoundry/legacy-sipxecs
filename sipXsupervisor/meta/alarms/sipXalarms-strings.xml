@@ -94,7 +94,6 @@
          <description>An attempt to signal the ITSP '{0}' timed out.</description>
          <resolution>Check your ITSP Account Domain, Proxy and Registrar settings and restart the SIP Trunking Service.</resolution>
       </alarm>
-
       <alarm id="SIPX_BRIDGE_ACCOUNT_OK">
          <shorttitle>The ITSP Account has recovered</shorttitle>
          <description>The ITSP Account '{0}' is OK.</description>
@@ -110,12 +109,17 @@
          <description>The ITSP '{0}' reported a server failure. </description>
          <resolution>Contact your ITSP and report the failure.</resolution>
       </alarm>
-       <alarm id="SOFTWARE_UPDATE_AVAILABLE">
+      <alarm id="SIPX_BRIDGE_ITSP_ACCOUNT_NOT_FOUND">
+         <shorttitle>An ITSP account could not be found. </shorttitle>
+         <description>An ITSP for the domain '{0}' could not be found. </description>
+         <resolution>Check your Trunking Gateway configuration and ITSP account. 
+               Make sure the Address of the Trunking Gateway matches the ITSP account server domain name.</resolution>
+      </alarm>
+      <alarm id="SOFTWARE_UPDATE_AVAILABLE">
          <shorttitle>Software Updates Available.</shorttitle>
          <description>Software Updates Available. </description>
          <resolution>Software Updates Available. Install the available software updates. </resolution>
       </alarm>
-
       <!-- Add new alarms above this line.
           Notes:
             'id='         must match definition in etc/sipXalarms-config.xml

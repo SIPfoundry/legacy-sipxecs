@@ -161,8 +161,16 @@
                  email="true"
                  />
       </alarm>
+      <alarm id="SIPX_BRIDGE_ITSP_ACCOUNT_NOT_FOUND">
+         <code>SPX00022</code>
+         <severity>crit</severity>
+         <component>sipXbridge</component>
+         <action log="true"
+                 email="true"
+                 />
+      </alarm>
       <alarm id="SOFTWARE_UPDATE_AVAILABLE">
-         <code>SPX00021</code>
+         <code>SPX00023</code>
          <severity>info</severity>
          <component>sipXconfig</component>
          <action log="true"

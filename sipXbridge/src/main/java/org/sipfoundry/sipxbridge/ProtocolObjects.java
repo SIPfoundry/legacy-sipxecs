@@ -37,7 +37,7 @@ public class ProtocolObjects {
     public static final MessageFactory messageFactory;
     public static final AddressFactory addressFactory;
     public static final SipFactory sipFactory;
-    public static final SipStack sipStack;
+    private static  SipStack sipStack;
 
     static {
         try {
@@ -51,8 +51,17 @@ public class ProtocolObjects {
             ServerHeader serverHeader = SipUtilities.createServerHeader();
             ((MessageFactoryImpl) messageFactory).setDefaultServerHeader(serverHeader);
             addressFactory = sipFactory.createAddressFactory();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            throw new SipXbridgeException("Error loading factories", ex);
+        }
+    }
+
+    private static void createSipStack() {
+        try {
+
             Properties stackProperties = new Properties();
-            stackProperties.setProperty("javax.sip.STACK_NAME", "org.sipfoundry.sipXBridge");
+            stackProperties.setProperty("javax.sip.STACK_NAME", "org.sipfoundry.sipxbridge");
             if (!Gateway.getLogLevel().equalsIgnoreCase("TRACE")) {
                 if (Gateway.getLogLevel().equalsIgnoreCase("DEBUG")) {
                     /*
@@ -60,11 +69,13 @@ public class ProtocolObjects {
                      */
                     stackProperties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", Level.INFO
                             .toString());
-                    stackProperties.setProperty("gov.nist.javax.sip.LOG_STACK_TRACE_ON_MESSAGE_SEND","true");
+                    stackProperties.setProperty(
+                            "gov.nist.javax.sip.LOG_STACK_TRACE_ON_MESSAGE_SEND", "true");
                 } else {
                     stackProperties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", Gateway
                             .getLogLevel());
-                    stackProperties.setProperty("gov.nist.javax.sip.LOG_STACK_TRACE_ON_MESSAGE_SEND","false");
+                    stackProperties.setProperty(
+                            "gov.nist.javax.sip.LOG_STACK_TRACE_ON_MESSAGE_SEND", "false");
                 }
 
             } else {
@@ -80,13 +91,13 @@ public class ProtocolObjects {
             stackProperties.setProperty("gov.nist.javax.sip.LOG_FACTORY",
                     SipFoundryLogRecordFactory.class.getName());
             stackProperties.setProperty("javax.sip.ROUTER_PATH",
-                    org.sipfoundry.commons.siprouter.ProxyRouter.class.getName());          
+                    org.sipfoundry.commons.siprouter.ProxyRouter.class.getName());
             /*
              * Break up the via encoding.
              */
             ViaList.setPrettyEncode(true);
-            sipStack = ProtocolObjects.sipFactory.createSipStack(stackProperties);
-            ((SipStackImpl) sipStack).addLogAppender(Gateway.logAppender);
+            sipStack = ProtocolObjects.sipFactory.createSipStack(stackProperties);         
+            ((SipStackImpl) getSipStack()).addLogAppender(Gateway.logAppender);
         } catch (Exception ex) {
             ex.printStackTrace();
             logger.error("Error loading factories ", ex);
@@ -96,12 +107,22 @@ public class ProtocolObjects {
     }
 
     public static void start() throws SipException {
-        sipStack.start();
+        getSipStack().start();
     }
 
     public static void stop() {
-        sipStack.stop();
+        getSipStack().stop();
 
+    }
+
+    /**
+     * @return the sipStack
+     */
+    public static SipStack getSipStack() {
+        if ( sipStack == null ) {
+            createSipStack();
+        }
+        return sipStack;
     }
 
 }
