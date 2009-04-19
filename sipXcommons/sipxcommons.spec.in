@@ -14,6 +14,7 @@ Source: %name-%version.tar.gz
 %if %{use_ibm_jvm}
 Requires: java-ibm >= 1.6
 Requires: java-ibm-unrestricted
+Obsoletes: java-sun
 %else
 Requires: java-sun >= 1.6
 %endif
