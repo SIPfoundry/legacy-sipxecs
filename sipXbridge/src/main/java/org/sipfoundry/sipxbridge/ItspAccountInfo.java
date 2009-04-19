@@ -6,8 +6,6 @@
  */
 package org.sipfoundry.sipxbridge;
 
-import gov.nist.javax.sip.address.AddressFactoryImpl;
-
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Iterator;

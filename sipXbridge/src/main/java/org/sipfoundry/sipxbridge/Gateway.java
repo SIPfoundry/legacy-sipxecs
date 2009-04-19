@@ -185,7 +185,7 @@ public class Gateway {
 	private static final String STUN_FAILED_ALARM_ID = "SIPX_BRIDGE_STUN_ADDRESS_DISCOVERY_FAILED";
 
 	private static final String STUN_OK = "SIPX_BRIDGE_STUN_ADDRESS_DISCOVERY_RECOVERED";
-
+	
 	// ///////////////////////////////////////////////////////////////////////
 
 	/**
@@ -839,6 +839,13 @@ public class Gateway {
 
 			System.exit(-1);
 		}
+		
+		for (ItspAccountInfo accountInfo : Gateway.accountManager.getItspAccounts()) {
+		    if ( accountInfo.getProxyDomain() == null ) {
+		        System.err.println("Proxy Domain is mandatory for ITSP accounts");
+		        System.exit(-1);
+		    }
+		}
 
 		if (Gateway.accountManager.getBridgeConfiguration()
 				.getStunServerAddress() != null
@@ -851,13 +858,6 @@ public class Gateway {
 			}
 
 		}
-
-		/*
-		 * Make sure we can initialize the keystores etc.
-		 */
-		// if (symconfig.getUseHttps()) {
-		// initHttpsClient();
-		// }
 		System.exit(0);
 	}
 
