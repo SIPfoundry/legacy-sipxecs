@@ -30,7 +30,7 @@ Args=""
 : ${PostgresUser:=@sipxconfig.db.user@}
 : ${FirstRunFile:=@sipxpbx.conf.dir@/.first-run}
 : ${SipxUtils:=@sipxpbx.libexec.dir@/sipx-utils.sh}
-: ${SipxConfigEnv:=@sipxpbx.conf.dir@/sipxconfig}
+: ${SipxConfigEnv:=@sipxpbx.conf.dir@/sipxconfigrc}
 
 . ${SipxUtils}
 
