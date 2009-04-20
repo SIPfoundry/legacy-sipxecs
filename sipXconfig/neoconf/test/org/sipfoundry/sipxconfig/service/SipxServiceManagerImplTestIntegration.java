@@ -9,11 +9,17 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.admin.LoggingManager;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
@@ -84,6 +90,11 @@ public class SipxServiceManagerImplTestIntegration extends IntegrationTestCase {
 
     public void testStoreSupervisorLogLevel() {
         SipxSupervisorService service = (SipxSupervisorService)m_out.getServiceByBeanId(SipxSupervisorService.BEAN_ID);
+        LoggingManager loggingManagerMock = createMock(LoggingManager.class);
+        loggingManagerMock.getEntitiesToProcess();
+        expectLastCall().andReturn(new ArrayList<LoggingEntity>()).atLeastOnce();
+        replay(loggingManagerMock);
+        service.setLoggingManager(loggingManagerMock);
         assertEquals("INFO", service.getLogLevel());
         service.setSipxServiceManager(m_out);
         service.setLogLevel("DEBUG");
