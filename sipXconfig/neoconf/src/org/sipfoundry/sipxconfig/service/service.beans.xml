@@ -408,12 +408,25 @@
   <bean id="sipxConfigService" class="org.sipfoundry.sipxconfig.service.SipxConfigService" scope="prototype"
     parent="sipxService">
     <property name="processName" value="ConfigServer" />
+    <property name="modelName" value="sipxconfig.xml" />
+    <property name="modelDir" value="sipxconfig" />
     <property name="restartable" value="false" />
+    <property name="configurations">
+      <list>
+        <ref bean="phoneLogConfiguration" />
+      </list>
+    </property>
     <property name="bundles">
       <set>
         <ref bean="managementBundle" />
       </set>
     </property>
+  </bean>
+
+  <bean id="phoneLogConfiguration" class="org.sipfoundry.sipxconfig.service.PhoneLogConfiguration" scope="prototype"
+    parent="serviceConfigurationFile">
+    <property name="template" value="sipxconfig/phonelog-config.vm" />
+    <property name="name" value="phonelog-config" />
   </bean>
 
   <bean id="sipxAcdService" class="org.sipfoundry.sipxconfig.service.SipxAcdService" scope="prototype" parent="sipxService">

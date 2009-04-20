@@ -46,6 +46,7 @@ import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxAcdService;
 import org.sipfoundry.sipxconfig.service.SipxBridgeService;
 import org.sipfoundry.sipxconfig.service.SipxCallResolverService;
+import org.sipfoundry.sipxconfig.service.SipxConfigService;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxIvrService;
 import org.sipfoundry.sipxconfig.service.SipxMediaService;
@@ -75,6 +76,7 @@ public abstract class ServicesTable extends BaseComponent {
 
     public static final Map<String, String> SERVICE_MAP = new HashMap<String, String>();
     static {
+        SERVICE_MAP.put(SipxConfigService.BEAN_ID, EditSipxService.PAGE);
         SERVICE_MAP.put(SipxProxyService.BEAN_ID, EditSipxService.PAGE);
         SERVICE_MAP.put(SipxRegistrarService.BEAN_ID, EditSipxService.PAGE);
         SERVICE_MAP.put(SipxParkService.BEAN_ID, EditSipxService.PAGE);

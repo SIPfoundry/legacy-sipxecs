@@ -10,4 +10,5 @@
 package org.sipfoundry.sipxconfig.service;
 
 public class SipxConfigService extends SipxService {
+    public static final String BEAN_ID = "sipxConfigService";
 }
