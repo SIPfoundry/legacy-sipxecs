@@ -60,4 +60,6 @@ sipImpl.port : sip.port
 - : freeswitchMediaServer.hostname
 - : phoneDefaults.proxyServerAddr
 - : phoneDefaults.proxyServerSipPort
-
+# Fixing params that are causing 3.10 -> 4.0 upgrade issues
+- : pagingProvisioningContextImpl.audioDirectory
+- : domainManagerImpl.initialAlias
