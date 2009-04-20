@@ -26,6 +26,11 @@ while (1) {
     } elsif ($ARGV[0] =~ /^--progress(=(\d+))?$/) {
 	$progress = $2 || 1000;
 	shift @ARGV;
+    } elsif ($ARGV[0] eq '--') {
+	shift;
+	last;
+    } elsif ($ARGV[0] =~ /^-/) {
+	die "Unknown argument '$ARGV[0]'\n";
     } else {
 	last;
     }
