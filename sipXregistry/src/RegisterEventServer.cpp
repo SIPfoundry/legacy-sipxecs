@@ -80,7 +80,7 @@ RegEventDefaultConstructor::~RegEventDefaultConstructor()
 {
 }
 
-// Generate the default content for dialog status.
+// Generate the default content for registration status.
 void RegEventDefaultConstructor::generateDefaultContent(SipPublishContentMgr* contentMgr,
                                                         const char* resourceId,
                                                         const char* eventTypeKey,
