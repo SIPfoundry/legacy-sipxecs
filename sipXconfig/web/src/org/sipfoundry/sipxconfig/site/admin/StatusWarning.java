@@ -5,16 +5,18 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
+import org.sipfoundry.sipxconfig.admin.PackageUpdateManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.job.JobContext;
 import org.sipfoundry.sipxconfig.site.admin.commserver.RestartNeededServicesPage;
+import org.sipfoundry.sipxconfig.site.admin.softwareupdates.SoftwareUpdatesPage;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class StatusWarning extends BaseComponent {
@@ -23,6 +25,9 @@ public abstract class StatusWarning extends BaseComponent {
 
     @InjectObject(value = "spring:sipxProcessContext")
     public abstract SipxProcessContext getSipxProcessContext();
+
+    @InjectObject(value = "spring:packageUpdateManager")
+    public abstract PackageUpdateManager getPackageUpdateManager();
 
     /**
      * Show only if there was a failure AND we are NOT on JobStatus page
@@ -34,12 +39,25 @@ public abstract class StatusWarning extends BaseComponent {
     }
 
     /**
-     * Show only if there is least a service mark for restart AND we are NOT on RestartNeededServicesPage page
+     * Show only if there is least a service mark for restart AND we are NOT on
+     * RestartNeededServicesPage page
      *
      * @return true if warning should be shown
      */
     public boolean showRestartWarning() {
         return getSipxProcessContext().needsRestart()
                 && !RestartNeededServicesPage.PAGE.equals(getPage().getPageName());
+    }
+
+    /**
+     * Show only if there is package(s) need to be updated AND we are NOT on
+     * RestartNeededServicesPage page
+     *
+     * @return true if warning should be shown
+     */
+    public boolean showPackageUpdateWarning() {
+        return getPackageUpdateManager().getState() == PackageUpdateManager.UpdaterState.UPDATES_AVAILABLE
+                && !SoftwareUpdatesPage.PAGE.equals(getPage().getPageName());
+
     }
 }
