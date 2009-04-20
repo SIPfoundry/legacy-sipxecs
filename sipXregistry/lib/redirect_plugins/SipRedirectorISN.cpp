@@ -314,7 +314,7 @@ SipRedirectorISN::lookUp(
                      // Parse result string into URI.
                      Url contact(result, TRUE);
                      // Almost all strings are parsable as SIP URIs with a sufficient
-                     // number of components missing.  Be we can check that a scheme
+                     // number of components missing.  But we can check that a scheme
                      // was identified, and that a host name was found.
                      // (A string with sufficiently few punctuation characters appears to
                      // be a sip: URI with the scheme missing and only a host name, but
