@@ -276,11 +276,12 @@ SipRedirectorFallback::determineCallerLocationFromProvisionedUserLocation(
       // First, determine the identity of the caller.  This is done by looking for
       // a properly signed P-Asserted identity in the request message.
       // If the request contains a P-Asserted-Identity header and is not signed,
-      // we will not trust it the returned location will be blank. 
-      if (message.getHeaderValue( 0, SipXauthIdentity::PAssertedIdentityHeaderName ) )
+      // we will not trust it the returned location will be blank.
+      UtlString matchedIdentityHeader;
+      SipXauthIdentity sipxIdentity( message, matchedIdentityHeader, false );
+
+      if( !matchedIdentityHeader.isNull() )
       { 
-         // A P-Asserted identity has been found - verify that it is properly signed
-         SipXauthIdentity sipxIdentity( message, SipXauthIdentity::PAssertedIdentityHeaderName );
    
          UtlString authenticatedUserIdentity;
          bool bRequestIsAuthenticated;       
@@ -306,8 +307,9 @@ SipRedirectorFallback::determineCallerLocationFromProvisionedUserLocation(
                   callerLocation = *((UtlString*)record.findValue( &locationKey ) );
                   result = OS_SUCCESS;
                   OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                "%s::determineCallerLocationFromProvisionedUserLocation mapped user '%s' to location '%s' based on its provisioned location",
+                                "%s::determineCallerLocationFromProvisionedUserLocation mapped user '%s' taken from header '%s' to location '%s' based on its provisioned location",
                                 mLogName.data(), authenticatedUserIdentity.data(),
+                                matchedIdentityHeader.data(),
                                 callerLocation.data() );
                }
             }

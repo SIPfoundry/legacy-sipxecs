@@ -106,27 +106,14 @@ TransferControl::authorizeAndModify(const UtlString& id,    /**< The authenticat
                     || (0==targetMethod.compareTo(SIP_INVITE_METHOD, UtlString::ignoreCase))
                     ))
             {
-               // check whether or not this is REFER with Replaces
-               
-               UtlString targetDialog;
-               if (target.getHeaderParameter(SIP_REPLACES_FIELD, targetDialog))
+               if (id.isNull())
                {
-                  /*
-                   * This is a REFER with Replaces: probably either the completion
-                   * of a call pickup or a consultative transfer.
-                   * In any case, it will not create a new call - just connect something
-                   * to an existing call - so we don't need to make any new authorization
-                   * decisions.
-                   */
-                  OsSysLog::add(FAC_AUTH, PRI_INFO, "TransferControl[%s]::authorizeAndModify "
-                                "allowing REFER with Replaces in call '%s' to '%s'",
-                                mInstanceName.data(), callId.data(), targetDialog.data()
-                                );
-                  result = ALLOW;
-               }
-               else if (id.isNull())
-               {
-                  // UnAuthenticated REFER without Replaces
+                  // UnAuthenticated REFER. Do challenge the REFER to confirm the 
+                  // identity of the transferor.  Note:  prior to XECS-2487, we used to challenge
+                  // only the unauthenticated REFERs that didn't carry a Replaces header.
+                  // The fix for XECS-2487 now requires that all unauthenticated REFERs
+                  // be challenged so that consultative transfers get routed properly
+                  // when user-based gateway section is used.  See tracker for the details
                   if (mpSipRouter->isLocalDomain(target))
                   {
                      OsSysLog::add(FAC_AUTH, PRI_INFO, "TransferControl[%s]::authorizeAndModify "
@@ -150,7 +137,7 @@ TransferControl::authorizeAndModify(const UtlString& id,    /**< The authenticat
                }
                else
                {
-                  // Authenticated REFER without Replaces 
+                  // Authenticated REFER 
 
                   // annotate the refer-to with the authenticated controller identity
                   SipXauthIdentity controllerIdentity;
