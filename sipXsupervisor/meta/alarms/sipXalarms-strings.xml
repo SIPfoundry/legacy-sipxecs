@@ -120,6 +120,11 @@
          <description>Software Updates Available. </description>
          <resolution>Software Updates Available. Install the available software updates. </resolution>
       </alarm>
+      <alarm id="SIPX_BRIDGE_ACCOUNT_CONFIGURATION_ERROR">
+         <shorttitle>Could not send REGISTER to the  ITSP account. </shorttitle>
+         <description>An ITSP '{0}' was not configured correctly. SipXbridge could not Register with it. </description>
+         <resolution>Check your Domain, Proxy and Registrar settings for the ITSP account. </resolution>
+      </alarm>
       <!-- Add new alarms above this line.
           Notes:
             'id='         must match definition in etc/sipXalarms-config.xml

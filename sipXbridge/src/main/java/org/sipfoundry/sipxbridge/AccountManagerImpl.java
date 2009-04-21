@@ -41,12 +41,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
 
     private HashSet<ItspAccountInfo> itspAccounts = new HashSet<ItspAccountInfo>();
 
-    /*
-     * A concurrent hash map is need here because of dynamic updates of these records. It is read
-     * by the AddressResolver of the JAIN-SIP stack.
-     */
-    private ConcurrentMap<String, HopImpl> domainNameToProxyAddressMap = new ConcurrentHashMap<String, HopImpl>();
-
+ 
     /*
      * The reverse name lookup map
      */
@@ -70,31 +65,6 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
         return bridgeConfiguration;
     }
 
-    void lookupItspAccountAddresses() throws SipXbridgeException {
-
-        for (ItspAccountInfo accountInfo : this.getItspAccounts()) {
-
-            try {
-                accountInfo.lookupAccount();
-                this.addressToDomainNameMap.put(InetAddress.getByName(
-                        accountInfo.getOutboundProxy()).getHostAddress(), accountInfo
-                        .getSipDomain());
-
-                this.domainNameToProxyAddressMap.put(accountInfo.getSipDomain(), new HopImpl(
-                        InetAddress.getByName(accountInfo.getOutboundProxy()).getHostAddress(),
-                        accountInfo.getOutboundProxyPort(), accountInfo.getOutboundTransport(),
-                        accountInfo));
-            } catch (TextParseException ex) {
-                accountInfo.setState(AccountState.INVALID);
-                logger.error("Error looking up address " + accountInfo.getProxyDomain());
-                logger.error("Error looking up gateway configuration", ex);
-            } catch (UnknownHostException ex) {
-                accountInfo.setState(AccountState.INVALID);
-                logger.error("Unknown host exception looking up name", ex);
-            }
-        }
-
-    }
 
     /**
      * Start the failure timout timers for each of the accounts we manage.
@@ -106,14 +76,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
         }
     }
 
-    /**
-     * Update the mapping in our table ( after an srv rescan )
-     */
-    void setHopToItsp(String domain, HopImpl proxyHop) {
-        this.addressToDomainNameMap.put(proxyHop.getHost(), domain);
-
-        this.domainNameToProxyAddressMap.put(domain, proxyHop);
-    }
+   
 
     /**
      * Get the default outbound ITSP account for outbound calls.
@@ -204,16 +167,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
         return itspAccounts;
     }
 
-    /**
-     * Resolves hop to ITSP account.
-     * 
-     * @param host
-     * @return hop to the itsp account.
-     */
-
-    HopImpl getHopToItsp(String host) {
-        return this.domainNameToProxyAddressMap.get(host);
-    }
+  
 
     /**
      * Get an ITSP account based on the host and port of the indbound request.

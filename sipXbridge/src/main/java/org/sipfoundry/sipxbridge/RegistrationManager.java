@@ -44,11 +44,9 @@ public class RegistrationManager {
 		ClientTransaction ct = provider.getNewClientTransaction(request);
 		TransactionContext tad = new TransactionContext(ct,
 				Operation.SEND_REGISTER);
-		itspAccount.setState(AccountState.AUTHENTICATING);
 		tad.setItspAccountInfo(itspAccount);
-
 		ct.sendRequest();
-
+		itspAccount.setState(AccountState.AUTHENTICATING);
 	}
 
 	/**
