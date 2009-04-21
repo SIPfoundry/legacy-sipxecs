@@ -149,9 +149,9 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxrls-process.xml
 
 %config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/mime.types
-%config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/httpd-sipxchange-common-ssl.conf
+%config %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/httpd-sipxchange-common-ssl.conf
 %config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/httpd-sipxchange-common.conf.in
-%config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/httpd.conf
+%config %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/httpd.conf
 %dir %attr(755,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/httpd.conf.d
 
 %config(noreplace) %attr(644,root,root) %{_sysconfdir}/logrotate.d/sipxchange
