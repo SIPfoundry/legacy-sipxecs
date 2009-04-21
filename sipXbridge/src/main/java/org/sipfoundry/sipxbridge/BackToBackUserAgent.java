@@ -1445,41 +1445,23 @@ public class BackToBackUserAgent {
             ct.sendRequest();
 
         } catch (SdpParseException ex) {
-            try {
-                serverTransaction.sendResponse(SipUtilities.createResponse(serverTransaction,
-                        Response.BAD_REQUEST));
-            } catch (Exception e) {
-                String s = "Unepxected exception ";
-                logger.fatal(s, e);
-                throw new SipXbridgeException(s, e);
-            }
+            logger.error("Unexpected exception ",ex);
+            CallControlUtilities.sendBadRequestError(serverTransaction, ex);
         } catch (ParseException ex) {
-            String s = "Unepxected exception ";
-            logger.fatal(s, ex);
-            throw new SipXbridgeException(s, ex);
+            logger.error("Unexpected exception ",ex);
+            CallControlUtilities.sendInternalError(serverTransaction, ex);
         } catch (IOException ex) {
             logger.error("Caught IO exception ", ex);
-            for (Dialog dialog : this.dialogTable) {
-                dialog.delete();
-                this.removeDialog(dialog);
-            }
+            CallControlUtilities.sendInternalError(serverTransaction, ex);
         } catch (SymmitronException ex) {
             logger.error("Caught exception ", ex);
             CallControlUtilities.sendServiceUnavailableError(serverTransaction, ex);
+        } catch (SipException ex) {
+            logger.error("Error occurred during processing of request ", ex);
+            CallControlUtilities.sendServiceUnavailableError(serverTransaction,ex);
         } catch (Exception ex) {
             logger.error("Error occurred during processing of request ", ex);
-            try {
-                Response response = SipUtilities.createResponse(serverTransaction,
-                        Response.SERVER_INTERNAL_ERROR);
-                ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader(
-                        "message", "sipfrag");
-                response.setContent("Server Exception occured at "
-                        + ex.getStackTrace()[1].getFileName() + ":"
-                        + ex.getStackTrace()[1].getLineNumber(), cth);
-                serverTransaction.sendResponse(response);
-            } catch (Exception e) {
-                logger.error("Unexpected exception ", e);
-            }
+            CallControlUtilities.sendInternalError(serverTransaction,ex);
         }
 
     }

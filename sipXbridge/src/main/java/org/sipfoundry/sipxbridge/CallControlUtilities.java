@@ -43,7 +43,7 @@ public class CallControlUtilities {
             st.sendResponse(response);
 
         } catch (Exception e) {
-            throw new SipXbridgeException("Check gateway configuration", e);
+            logger.error("Check gateway configuration", e);
         }
     }
 
@@ -62,7 +62,7 @@ public class CallControlUtilities {
             st.sendResponse(response);
 
         } catch (Exception e) {
-            throw new SipXbridgeException("Check gateway configuration", e);
+            logger.error("Check gateway configuration", e);
         }
     }
     
@@ -85,7 +85,7 @@ public class CallControlUtilities {
              serverTransaction.sendResponse(response);
 
          } catch (Exception e) {
-             throw new SipXbridgeException("Check gateway configuration", e);
+             logger.error("Check gateway configuration", e);
          }
 	}
     

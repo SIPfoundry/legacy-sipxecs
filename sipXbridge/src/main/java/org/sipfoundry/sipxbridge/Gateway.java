@@ -37,6 +37,7 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
 import javax.sip.Dialog;
 import javax.sip.ListeningPoint;
+import javax.sip.SipException;
 import javax.sip.SipProvider;
 import javax.sip.address.Address;
 import javax.sip.address.Hop;
@@ -178,8 +179,6 @@ public class Gateway {
 
     static String configurationPath;
 
-    
-
     static SipFoundryAppender logAppender;
 
     private static SipXAlarmClient alarmClient;
@@ -191,6 +190,8 @@ public class Gateway {
     private static final String STUN_OK = "SIPX_BRIDGE_STUN_ADDRESS_DISCOVERY_RECOVERED";
 
     static final String ACCOUNT_NOT_FOUND_ALARM_ID = "SIPX_BRIDGE_ITSP_ACCOUNT_NOT_FOUND";
+    
+    private static final String SIPXBRIDGE_ACCOUNT_CONFIGURATION_ERROR_ALARM_ID = "SIPX_BRIDGE_ACCOUNT_CONFIGURATION_ERROR";
 
     // ///////////////////////////////////////////////////////////////////////
 
@@ -424,7 +425,6 @@ public class Gateway {
     static PriorityQueue<Hop> initializeSipxProxyAddresses() throws SipXbridgeException {
         try {
 
-          
             FindSipServer serverFinder = new FindSipServer(logger);
             SipURI proxyUri = getProxyURI();
 
@@ -441,7 +441,7 @@ public class Gateway {
     }
 
     static boolean isAddressFromProxy(String address) {
-        
+
         PriorityQueue<Hop> proxyAddressTable = initializeSipxProxyAddresses();
         for (Hop hop : proxyAddressTable) {
             if (hop.getHost().equals(address)) {
@@ -672,20 +672,35 @@ public class Gateway {
     static void registerWithItsp() throws SipXbridgeException {
         logger.info("------- REGISTERING--------");
         try {
-            Gateway.accountManager.lookupItspAccountAddresses();
             Gateway.accountManager.startAuthenticationFailureTimers();
 
             for (ItspAccountInfo itspAccount : Gateway.accountManager.getItspAccounts()) {
 
                 if (itspAccount.isRegisterOnInitialization()
                         && itspAccount.getState() != AccountState.INVALID) {
-                    Gateway.registrationManager.sendRegistrer(itspAccount);
+                    try {
+                        Gateway.registrationManager.sendRegistrer(itspAccount);
+                    } catch (SipException ex) {
+                        logger.error("Exception sending REGISTER to "
+                                + itspAccount.getProxyDomain());
+                        // Maybe an route could not be found so start a timer to keep trying
+                        TimerTask ttask = new RegistrationTimerTask(itspAccount);
+                        // Retry after 60 seconds.
+                        timer.schedule(ttask, 60*1000);
+                    } catch (SipXbridgeException ex ) {
+                        logger.error("Exception registering with account. ",ex);
+                        itspAccount.setState(AccountState.INVALID);
+                        Gateway.getAlarmClient().raiseAlarm(Gateway.SIPXBRIDGE_ACCOUNT_CONFIGURATION_ERROR_ALARM_ID, 
+                                itspAccount.getProxyDomain());
+                        
+                    }
                 }
 
             }
 
             /*
-             * Wait for successful registration.
+             * Wait for successful registration. After this period, all
+             * well behaved accounts will have registered.
              */
             for (int i = 0; i < MAX_REGISTRATION_TIMER / 1000; i++) {
 
@@ -1153,8 +1168,6 @@ public class Gateway {
     static HashSet<Integer> getParkServerCodecs() {
         return getBridgeConfiguration().getParkServerCodecs();
     }
-
-  
 
     /**
      * Log an internal error and potentially throw a runtime exception ( if debug is enabled).

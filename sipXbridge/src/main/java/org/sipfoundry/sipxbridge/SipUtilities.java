@@ -36,6 +36,7 @@ import javax.sdp.SessionDescription;
 import javax.sip.Dialog;
 import javax.sip.InvalidArgumentException;
 import javax.sip.ListeningPoint;
+import javax.sip.SipException;
 import javax.sip.SipProvider;
 import javax.sip.Transaction;
 import javax.sip.address.Address;
@@ -321,7 +322,7 @@ class SipUtilities {
      */
 
     static Request createRegistrationRequestTemplate(ItspAccountInfo itspAccount,
-            SipProvider sipProvider) throws ParseException, InvalidArgumentException {
+            SipProvider sipProvider) throws ParseException, InvalidArgumentException, SipException {
 
         String registrar = itspAccount.getProxyDomain();
 
@@ -372,18 +373,23 @@ class SipUtilities {
 
         SipUtilities.addWanAllowHeaders(request);
 
-        if (itspAccount.getOutboundRegistrar() != null
+        String outboundRegistrar = itspAccount.getOutboundRegistrar();
+        
+        if (outboundRegistrar == null) {
+            throw new SipException("No route to Registrar found for " + itspAccount.getProxyDomain());
+        }
+        
+        if (outboundRegistrar != null
                 && !itspAccount.getProxyDomain().equals(itspAccount.getOutboundRegistrar())) {
-            String outboundRegistrarRoute = itspAccount.getOutboundRegistrar();
             SipURI routeUri = ProtocolObjects.addressFactory.createSipURI(null,
-                    outboundRegistrarRoute);
+                    outboundRegistrar);
             routeUri.setPort(itspAccount.getInboundProxyPort());
             routeUri.setLrParam();
             Address routeAddress = ProtocolObjects.addressFactory.createAddress(routeUri);
             RouteHeader routeHeader = ProtocolObjects.headerFactory
                     .createRouteHeader(routeAddress);
             request.addHeader(routeHeader);
-        }
+        } 
 
         return request;
     }
@@ -476,7 +482,7 @@ class SipUtilities {
      * @throws SipXbridgeException
      */
     static Request createRegistrationRequest(SipProvider sipProvider, ItspAccountInfo itspAccount)
-            throws SipXbridgeException {
+            throws SipException, SipXbridgeException {
 
         try {
             Request request = createRegistrationRequestTemplate(itspAccount, sipProvider);
@@ -529,7 +535,7 @@ class SipUtilities {
 
     static Request createInviteRequest(SipURI requestUri, SipProvider sipProvider,
             ItspAccountInfo itspAccount, FromHeader from, String callId)
-            throws SipXbridgeException {
+            throws SipException, SipXbridgeException {
         try {
 
             String toUser = requestUri.getUser();
@@ -656,6 +662,10 @@ class SipUtilities {
             request.addHeader(contactHeader);
 
             String outboundProxy = itspAccount.getOutboundProxy();
+            if ( outboundProxy == null ) {
+                throw new SipException("No route to ITSP could be found " + 
+                        itspAccount.getProxyDomain());
+            }
             SipURI routeUri = ProtocolObjects.addressFactory.createSipURI(null, outboundProxy);
             if (itspAccount.getOutboundProxyPort() != 0) {
                 routeUri.setPort(itspAccount.getOutboundProxyPort());
@@ -670,6 +680,10 @@ class SipUtilities {
             }
             return request;
 
+        } catch (SipException e) {
+            String s = "Unexpected error creating INVITE ";
+            logger.error(s, e);
+            throw e;
         } catch (Exception ex) {
             String s = "Unexpected error creating INVITE ";
             logger.error(s, ex);

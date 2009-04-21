@@ -12,9 +12,11 @@ import java.util.Iterator;
 import java.util.TimerTask;
 
 import javax.sip.address.Address;
+import javax.sip.address.Hop;
 import javax.sip.address.SipURI;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.commons.siprouter.FindSipServer;
 import org.sipfoundry.sipxbridge.symmitron.KeepaliveMethod;
 import org.sipfoundry.sipxbridge.xmlrpc.RegistrationRecord;
 import org.xbill.DNS.Lookup;
@@ -162,39 +164,13 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
 
 
 	private boolean alarmSent;
+
+
+    private boolean reUseOutboundProxySetting;
     
     
     
-    /**
-     * This task runs periodically depending upon the timeout of the lookup specified.
-     * 
-     */
-    class Scanner extends TimerTask {
-
-        public void run() {
-            try {
-                Record[] records = new Lookup("_sip._" + getOutboundTransport() + "."
-                        + getSipDomain(), Type.SRV).run();
-                logger.debug("Did a successful DNS SRV lookup");
-                SRVRecord record = (SRVRecord) records[0];
-                int port = record.getPort();
-                setOutboundProxyPort(port);
-                long time = record.getTTL() * 1000;
-                String resolvedName = record.getTarget().toString();
-                setOutboundProxy(resolvedName);
-                HopImpl proxyHop = new HopImpl(InetAddress.getByName(getOutboundProxy())
-                        .getHostAddress(), getOutboundProxyPort(), getOutboundTransport(),
-                        ItspAccountInfo.this);
-                Gateway.getAccountManager().setHopToItsp(getSipDomain(), proxyHop);
-                Gateway.getTimer().schedule(new Scanner(), time);
-            } catch (Exception ex) {
-                logger.error("Error looking up domain " + "_sip._" + getOutboundTransport() + "."
-                        + getSipDomain());
-            }
-
-        }
-
-    }
+ 
 
     class FailureCounterScanner extends TimerTask {
 
@@ -242,11 +218,14 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
     }
 
     public String getOutboundProxy() {
-        if (outboundProxy != null)
+        if (!reUseOutboundProxySetting) {
+            this.lookupAccount();
             return outboundProxy;
-        else
+        } else if ( this.outboundProxy != null) {
+            return outboundProxy;
+        } else {
             return this.getSipDomain();
-
+        }
     }
 
     public int getOutboundProxyPort() {
@@ -274,47 +253,25 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
 
     public void setOutboundProxy(String resolvedName) {
         this.outboundProxy = resolvedName;
+        this.reUseOutboundProxySetting = true;
 
     }
 
-    public void startDNSScannerThread(long time) {
-        Gateway.getTimer().schedule(new Scanner(), time);
 
-    }
-
-    public void lookupAccount() throws TextParseException, SipXbridgeException {
+    public void lookupAccount()  {
         // User has already specified an outbound proxy so just bail out.
-        if (this.outboundProxy != null)
+        if (this.outboundProxy != null && reUseOutboundProxySetting) {
             return;
+        }
         try {
             String outboundDomain = this.getSipDomain();
-            Record[] records = new Lookup("_sip._" + this.getOutboundTransport() + "."
-                    + outboundDomain, Type.SRV).run();
-
-            if (records == null || records.length == 0) {
-                // SRV lookup failed, use the outbound proxy directly.
-                logger
-                        .debug("SRV lookup returned nothing -- we are going to just use the domain name directly");
-            } else {
-                logger.debug("Did a successful DNS SRV lookup");
-                SRVRecord record = (SRVRecord) records[0];
-                int port = record.getPort();
-                this.setOutboundProxyPort(port);
-                long time = record.getTTL() * 1000;
-                String resolvedName = record.getTarget().toString();
-                if (resolvedName.endsWith(".")) {
-                    resolvedName = resolvedName.substring(0, resolvedName.lastIndexOf('.'));
-                }
-                this.setOutboundProxy(resolvedName);
-                this.startDNSScannerThread(time);
-            }
-
-        } catch (TextParseException ex) {
-            throw ex;
+            SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(null, outboundDomain);
+            Hop hop = new FindSipServer(logger).findServer(sipUri);
+            this.setOutboundProxyPort(hop.getPort());
+            this.outboundProxy = hop.getHost(); 
+            this.reUseOutboundProxySetting = false;
         } catch (Exception ex) {
-
-            logger.fatal("Exception in processing -- could not add ITSP account ", ex);
-            throw new SipXbridgeException("Problem with domain name lookup", ex);
+            logger.error("Exception in processing -- could not add ITSP account ", ex);          
         }
     }
 
