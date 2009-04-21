@@ -384,10 +384,22 @@ proxy( int argc, char* argv[] )
     int defaultSerialExpires;
     configDb.get("SIPX_PROXY_DEFAULT_EXPIRES", defaultExpires);
     configDb.get("SIPX_PROXY_DEFAULT_SERIAL_EXPIRES", defaultSerialExpires);
-    if(defaultExpires <= 0 ||
-       defaultExpires > 180) defaultExpires = 180;
+    if(defaultExpires <= 0 ) 
+    {
+            defaultExpires = 180;
+    }
+    else if(defaultExpires > 180) 
+    {
+        OsSysLog::add(FAC_SIP, PRI_WARNING,
+                      "SipXproxymain::proxy "
+                      "large default expires value: %d NOT RECOMMENDED",
+                      defaultExpires);
+    }
     if(defaultSerialExpires <= 0 ||
-       defaultSerialExpires >= defaultExpires) defaultSerialExpires = 20;
+       defaultSerialExpires >= defaultExpires) 
+    {
+            defaultSerialExpires = 20;
+    }
     OsSysLog::add(FAC_SIP, PRI_INFO, "SIPX_PROXY_DEFAULT_EXPIRES : %d", defaultExpires);
     osPrintf("SIPX_PROXY_DEFAULT_EXPIRES : %d\n", defaultExpires);
     OsSysLog::add(FAC_SIP, PRI_INFO, "SIPX_PROXY_DEFAULT_SERIAL_EXPIRES : %d", defaultSerialExpires);

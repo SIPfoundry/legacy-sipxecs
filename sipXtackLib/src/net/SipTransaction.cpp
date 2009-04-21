@@ -1208,11 +1208,13 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
                 mTimers.append(expiresTimer);
 #ifdef TEST_PRINT
                 OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                              "SipTransaction::doFirstSend added timer %p to timer list.",
+                              "SipTransaction::doFirstSend "
+                              "added timer %p to timer list.",
                               expiresTimer);
 #endif
 
-                OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::doFirstSend"
+                OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                              "SipTransaction::doFirstSend"
                               " transaction %p setting timeout %d secs.",
                               this, expireSeconds
                               );
@@ -4757,19 +4759,31 @@ void SipTransaction::markBusy()
     OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::markBusy %p", this);
 #   endif
 
-    if(mpParentTransaction) mpParentTransaction->markBusy();
+    if(mpParentTransaction) 
+    {
+        mpParentTransaction->markBusy();
+    }
     else
     {
         OsTime time;
         OsDateTime::getCurTimeSinceBoot(time);
         int busyTime = time.seconds();
         // Make sure it is not equal to zero
-        if(!busyTime) busyTime++;
+        if(!busyTime) 
+        {
+            busyTime++;
+        }
         doMarkBusy(busyTime);
 
         OsTask* busyTask = OsTask::getCurrentTask();
-        if(busyTask) mBusyTaskName = busyTask->getName();
-        else mBusyTaskName = "";
+        if(busyTask) 
+        {
+            mBusyTaskName = busyTask->getName();
+        }
+        else
+        {
+            mBusyTaskName = "";
+        }
     }
 }
 

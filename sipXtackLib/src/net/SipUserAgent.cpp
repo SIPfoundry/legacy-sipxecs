@@ -65,6 +65,7 @@
 // can be idle before it is garbage collected.
 // Default value is 5 minutes.
 #define DEFAULT_TCP_SOCKET_IDLE_TIME 300
+#define DEFAULT_SIP_TRANSACTION_TIMEOUT 180
 
 #define MAXIMUM_SIP_LOG_SIZE 100000
 #define SIP_UA_LOG "sipuseragent.log"
@@ -93,7 +94,7 @@
 #endif /* PLATFORM_UA_PARAM */
 
 //#define LOG_TIME
-//# define TRANSACTION_MATCH_DEBUG // enable only for transaction match debugging - log is confusing otherwise
+//#define TRANSACTION_MATCH_DEBUG // enable only for transaction match debugging - log is confusing otherwise
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -217,7 +218,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
 
     // INVITE transactions need to stick around for a minimum of
     // 3 minutes
-    mMinInviteTransactionTimeout = 180;
+    mMinInviteTransactionTimeout = DEFAULT_SIP_TRANSACTION_TIMEOUT;
 
     mForkingEnabled = TRUE;
     mRecurseOnlyOne300Contact = FALSE;
@@ -386,7 +387,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
     // (Default is 8000 msec.)
     mTransactionStateTimeoutMs = 10 * mMaxResendTimeoutMs;
     // How long before we expire transactions by default
-    mDefaultExpiresSeconds = 180;
+    mDefaultExpiresSeconds = DEFAULT_SIP_TRANSACTION_TIMEOUT;
     mDefaultSerialExpiresSeconds = 20;
 
     // Construct the default Contact header value.
@@ -2595,8 +2596,9 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                enum SipTransaction::messageRelationship relationship;
                //mSipTransactions.lock();
 #ifdef TRANSACTION_MATCH_DEBUG // enable only for transaction match debugging - log is confusing otherwise
-            OsSysLog::add(FAC_SIP, PRI_DEBUG
-                          ,"SipUserAgent[%s]::handleMessage(resend) searching for transaction",
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipUserAgent[%s]::handleMessage(resend) "
+                          "searching for transaction",
                           getName().data());
 #           endif
                SipTransaction* transaction =
@@ -2606,8 +2608,8 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                if(transaction)
                {
 #ifdef TRANSACTION_MATCH_DEBUG // enable only for transaction match debugging - log is confusing otherwise
-            OsSysLog::add(FAC_SIP, PRI_DEBUG
-                          ,"SipUserAgent[%s]::handleMessage(resend) found transaction %p",
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipUserAgent[%s]::handleMessage(resend) found transaction %p",
                           getName().data(), transaction);
 #endif
                    // If we are in shutdown mode, unlock the transaction
@@ -2675,7 +2677,7 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                      // delayedDispatchMessage gets freed in queueMessageToObservers
                      delayedDispatchMessage = NULL;
                   }
-               }
+               }    // end transaction is not null
 
                // No transaction for this timeout
                else
@@ -2720,7 +2722,8 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
          else if(msgEventType == SipMessageEvent::TRANSACTION_EXPIRATION)
          {
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipUserAgent[%s]::handleMessage transaction expiration message received",
+                          "SipUserAgent[%s]::handleMessage "
+                          "transaction expiration message received",
                           getName().data());
 
             if(sipMessage)
@@ -2745,7 +2748,8 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                //mSipTransactions.lock();
 #ifdef TRANSACTION_MATCH_DEBUG // enable only for transaction match debugging - log is confusing otherwise
             OsSysLog::add(FAC_SIP, PRI_DEBUG
-                          ,"SipUserAgent[%s]::handleMessage(expired) searching for transaction",
+                          ,"SipUserAgent[%s]::handleMessage(expired) "
+                           "searching for transaction",
                           getName().data());
 #           endif
                SipTransaction* transaction =
@@ -2756,7 +2760,8 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                {
 #ifdef TRANSACTION_MATCH_DEBUG // enable only for transaction match debugging - log is confusing otherwise
             OsSysLog::add(FAC_SIP, PRI_DEBUG
-                          ,"SipUserAgent[%s]::handleMessage(expired) found transaction %p",
+                          ,"SipUserAgent[%s]::handleMessage(expired) "
+                           "found transaction %p",
                           getName().data(), transaction);
 #           endif
                    // If we are shutting down, unlock the transaction
@@ -2877,7 +2882,7 @@ void SipUserAgent::garbageCollection()
         tcpThen = -1;
     }
 
-    if(mLastCleanUpTime < then)
+    if(mLastCleanUpTime < then)      // tx timeout could have happened
     {
        #ifdef LOG_TIME
           OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -3300,6 +3305,32 @@ int SipUserAgent::getMaxResendTimeout()
     return(mMaxResendTimeoutMs);
 }
 
+void SipUserAgent::setInviteTransactionTimeoutSeconds(int expiresSeconds)
+{
+    if(expiresSeconds > 0 ) 
+    {
+        mMinInviteTransactionTimeout = expiresSeconds;
+        if(expiresSeconds > DEFAULT_SIP_TRANSACTION_TIMEOUT)
+        {
+            OsSysLog::add(FAC_SIP, PRI_WARNING,
+                          "SipUserAgent::setInviteTransactionTimeoutSeconds "
+                          "large expiresSeconds value: %d NOT RECOMMENDED",
+                          expiresSeconds);
+        }
+    }
+    else
+    {
+        OsSysLog::add(FAC_SIP, PRI_ERR,
+                      "SipUserAgent::setInviteTransactionTimeoutSeconds "
+                      "illegal expiresSeconds value: %d IGNORED",
+                      expiresSeconds);
+    }
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipUserAgent::setInviteTransactionTimeoutSeconds "
+                  "mMinInviteTransactionTimeout %d ",
+                  mDefaultExpiresSeconds);
+}
+
 int SipUserAgent::getDefaultExpiresSeconds() const
 {
     return(mDefaultExpiresSeconds);
@@ -3307,10 +3338,24 @@ int SipUserAgent::getDefaultExpiresSeconds() const
 
 void SipUserAgent::setDefaultExpiresSeconds(int expiresSeconds)
 {
-    if(expiresSeconds > 0 &&
-       expiresSeconds <= mMinInviteTransactionTimeout)
+    if(expiresSeconds > 0 ) 
     {
         mDefaultExpiresSeconds = expiresSeconds;
+        if(expiresSeconds > DEFAULT_SIP_TRANSACTION_TIMEOUT)
+        {
+            OsSysLog::add(FAC_SIP, PRI_WARNING,
+                          "SipUserAgent::setDefaultExpiresSeconds "
+                          "large expiresSeconds value: %d NOT RECOMMENDED",
+                          expiresSeconds);
+        }
+        if(expiresSeconds > mMinInviteTransactionTimeout)
+        {
+            setInviteTransactionTimeoutSeconds(expiresSeconds);
+        }
+        if(expiresSeconds > mMaxTcpSocketIdleTime)
+        {
+            setMaxTcpSocketIdleTime(expiresSeconds);
+        }
     }
     else
     {
@@ -3319,6 +3364,10 @@ void SipUserAgent::setDefaultExpiresSeconds(int expiresSeconds)
                       "illegal expiresSeconds value: %d IGNORED",
                       expiresSeconds);
     }
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipUserAgent::setDefaultExpiresSeconds "
+                  "mDefaultExpiresSeconds %d ",
+                  mDefaultExpiresSeconds);
 }
 
 int SipUserAgent::getDefaultSerialExpiresSeconds() const
@@ -3328,17 +3377,36 @@ int SipUserAgent::getDefaultSerialExpiresSeconds() const
 
 void SipUserAgent::setDefaultSerialExpiresSeconds(int expiresSeconds)
 {
-    if(expiresSeconds > 0 &&
-       expiresSeconds <= mMinInviteTransactionTimeout)
+    if(expiresSeconds > 0 ) 
     {
         mDefaultSerialExpiresSeconds = expiresSeconds;
+        if(expiresSeconds > DEFAULT_SIP_TRANSACTION_TIMEOUT)
+        {
+            OsSysLog::add(FAC_SIP, PRI_WARNING,
+                          "SipUserAgent::setDefaultSerialExpiresSeconds "
+                          "large expiresSeconds value: %d NOT RECOMMENDED",
+                          expiresSeconds);
+        }
+        if(expiresSeconds > mMinInviteTransactionTimeout)
+        {
+            setInviteTransactionTimeoutSeconds(expiresSeconds);
+        }
+        if(expiresSeconds > mMaxTcpSocketIdleTime)
+        {
+            setMaxTcpSocketIdleTime(expiresSeconds);
+        }
     }
     else
     {
-        OsSysLog::add(FAC_SIP, PRI_ERR, "SipUserAgent::setDefaultSerialExpiresSeconds "
+        OsSysLog::add(FAC_SIP, PRI_ERR,
+                      "SipUserAgent::setDefaultSerialExpiresSeconds "
                       "illegal expiresSeconds value: %d IGNORED",
                       expiresSeconds);
     }
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipUserAgent::setDefaultSerialExpiresSeconds "
+                  "mDefaultExpiresSeconds %d ",
+                  mDefaultExpiresSeconds);
 }
 
 void SipUserAgent::setMaxTcpSocketIdleTime(int idleTimeSeconds)
@@ -3353,6 +3421,10 @@ void SipUserAgent::setMaxTcpSocketIdleTime(int idleTimeSeconds)
                       "idleTimeSeconds: %d less than mMinInviteTransactionTimeout: %d, ignored",
                       idleTimeSeconds, mMinInviteTransactionTimeout);
     }
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipUserAgent::setMaxTcpSocketIdleTime "
+                  "mMinInviteTransactionTimeout value: %d ",
+                  mMinInviteTransactionTimeout);
 }
 
 void SipUserAgent::setHostAliases(const UtlString& aliases)
