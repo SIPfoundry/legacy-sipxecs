@@ -21,6 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
@@ -48,6 +49,9 @@ public class Nortel12x0Phone extends Phone {
     public static final String RLS_SETTING = "presence/sipRlsUri";
     public static final String TIME_SERVER_NAME = "timesettings/ntpIp";
     public static final String ALTERNATE_TIME_SERVER_NAME = "timesettings/ntpIp2";
+    public static final String TIMEZONE = "timesettings/timezone";
+    public static final String DST_AUTO_AJUST = "timesettings/dstAutoAdjust";
+
     public static final String CALL_RETRIEVE_PREFIX = "callPark/callRtrvPrefix";
     public static final String CALL_PICKUP_PREFIX = "callPickup/callPickupPrefix";
     public static final String PAGING_PREFIX = "phoneSettings/groupPagingPrefix";
@@ -105,6 +109,8 @@ public class Nortel12x0Phone extends Phone {
     }
 
     public static class Nortel12x0PhoneDefaults {
+
+        public static final String GMT_LONDON = "+00:00 GMT London";
 
         private DeviceDefaults m_defaults;
         private SpeedDial m_speedDial;
@@ -166,6 +172,118 @@ public class Nortel12x0Phone extends Phone {
         @SettingEntry(path = PAGING_PREFIX)
         public String getPagingPrefix() {
             return m_defaults.getPagingPrefix();
+        }
+
+        @SettingEntry(path = TIMEZONE)
+        public String getTimeZone() {
+            return getTimezoneFromRawOffsetSeconds(getZone().getOffsetInSeconds());
+        }
+
+        @SettingEntry(path = DST_AUTO_AJUST)
+        public boolean getDstAutoAdjust() {
+            return getZone().getUseDaylight();
+        }
+
+        private DeviceTimeZone getZone() {
+            return m_defaults.getTimeZone();
+        }
+
+        private static String getTimezoneFromRawOffsetSeconds(int offset) {
+
+            switch (offset) {
+            case -43200:
+                return "-12:00 Date Line";
+
+            case -39600:
+                return "-11:00 Nome";
+
+            case -36000:
+                return "-10:00 Hawaii";
+
+            case -32400:
+                return "-09:00 Alaska";
+
+            case -28800:
+                return "-08:00 Pacific";
+
+            case -25200:
+                return "-07:00 Mountain";
+
+            case -21600:
+                return "-06:00 Central";
+
+            case -18000:
+                return "-05:00 Eastern";
+
+            case -14400:
+                return "-04:00 Atlantic";
+
+            case -12600:
+                return "-03:30 NewFoundland";
+
+            case -10800:
+                return "-03:00 Brasilia";
+
+            case -7200:
+                return "-02:00 Mid-Atlantic";
+
+            case -3600:
+                return "-01:00 Azores";
+
+            case 0:
+                return GMT_LONDON;
+
+            case 3600:
+                return "+01:00 Amsterdam";
+
+            case 7200:
+                return "+02:00 Athens";
+
+            case 10800:
+                return "+03:00 Moscow";
+
+            case 12600:
+                return "+03:30 Tehran, Iran";
+
+            case 14400:
+                return "+04:00 Abu Dhabi";
+
+            case 16200:
+                return "+04:30 Afghanistan";
+
+            case 18000:
+                return "+05:00 Pakistan";
+
+            case 19800:
+                return "+05:30 India";
+
+            case 21600:
+                return "+06:00 Astana";
+
+            case 25200:
+                return "+07:00 Bangkok";
+
+            case 28800:
+                return "+08:00 Beijing";
+
+            case 32400:
+                return "+09:00 Seoul";
+
+            case 34200:
+                return "+09:30 Darwin";
+
+            case 36000:
+                return "+10:00 Guam";
+
+            case 39600:
+                return "+11:00 Solomon Is";
+
+            case 43200:
+                return "+12:00 New Zealand";
+
+            default: // GMT by default
+                return GMT_LONDON;
+            }
         }
     }
 

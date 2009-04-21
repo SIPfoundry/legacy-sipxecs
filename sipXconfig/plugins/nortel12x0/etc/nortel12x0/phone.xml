@@ -751,7 +751,7 @@
    <setting name="dstAutoAdjust">
      <label>Enable DST</label>
      <type refid="on-off" />
-     <value>FALSE</value>
+     <value>TRUE</value>
      <description>
        If checked, this will enable the Daylight Saving Time for the selected timezone, if applicable &lt;br/&gt; (
        &lt; dstAutoAdjust &gt; ) &lt;br/&gt;
