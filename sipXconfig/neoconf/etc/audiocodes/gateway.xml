@@ -963,9 +963,9 @@
         Defines the time interval (in seconds) between detection of offhook and generation of DID Wink.
       </description>
     </setting>
-    <group name="Disconnect" advanced="yes" unless="digital">
+    <group name="Disconnect" advanced="yes">
       <label>Disconnect and Answer Supervision</label>
-      <setting name='EnableReversalPolarity'>
+      <setting name='EnableReversalPolarity' unless="digital">
         <label>Enable Call Disconnect on Polarity Reversal</label>
         <type>
           <boolean />
@@ -973,8 +973,11 @@
         <value>0</value>
         <description>If checked, enable port disconnect (on-hook) based on polarity reversal.</description>
       </setting>
-      <setting name='EnableCurrentDisconnect'>
+      <setting name='EnableCurrentDisconnect' unless="digital">
         <label>Enable Call Disconnect on Current Drop</label>
+        <type>
+          <boolean />
+        </type>
         <value>0</value>
         <description>If checked, enable port disconnect (on-hook) based on current drop.</description>
       </setting>
@@ -983,16 +986,16 @@
         <type>
           <boolean />
         </type>
-        <value>1</value>
+        <value>0</value>
         <description>If checked, call is released if gateways stops receiving RTP for a period of time</description>
       </setting>
       <setting name='BrokenConnectionEventTimeout'>
-        <label>Broken Connection Timeout (10msec)</label>
+        <label>Broken Connection Timeout</label>
         <type>
           <integer max='1000' min='1' />
         </type>
-        <value>500</value>
-        <description>Amount of time RTP is not received, after which call is cleared. In 10ms steps.</description>
+        <value>100</value>
+        <description>Amount of time RTP is not received, after which call is cleared. In 100ms steps.</description>
       </setting>
       <setting name='EnableSilenceDisconnect'>
         <label>Enable Call Disconnect on Far End Silence</label>
