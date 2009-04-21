@@ -167,6 +167,6 @@ fi
 # Uninstall the sipxcallresolver gem, unless this RPM uninstall is part of
 # an upgrade.
 #   see http://fedoraproject.org/wiki/Packaging/ScriptletSnippets
-if [ "$1" = "0" ] ; then
+if [ "$1" == "0" ] ; then
   gem uninstall sipxcallresolver >/dev/null 2>&1
 fi
