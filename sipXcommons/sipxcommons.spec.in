@@ -11,6 +11,8 @@ Url: http://www.sipfoundry.org/sipXcommons
 
 Source: %name-%version.tar.gz
 
+Requires: shadow-utils
+
 %if %{use_ibm_jvm}
 Requires: java-ibm >= 1.6
 Requires: java-ibm-unrestricted
