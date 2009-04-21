@@ -46,7 +46,7 @@
 <disableStarCodes>TRUE</disableStarCodes>
 <useOnlyUdpSrv>FALSE</useOnlyUdpSrv>
 <timesettings>
-<default>TRUE</default>
+<manual>TRUE</manual>
 <ntpIp>ntp.example.org</ntpIp>
 <timezone>-05:00 Eastern</timezone>
 <dstAutoAdjust>FALSE</dstAutoAdjust>

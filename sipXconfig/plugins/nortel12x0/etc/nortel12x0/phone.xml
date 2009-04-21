@@ -517,10 +517,9 @@
          </option>
        </enum>
      </type>
-     <value>default</value>
+     <value>manual</value>
      <description>
-       If default is selected, the default time servers which are pre-configured in the phone are used. Select manual
-       to configure the time servers manually &lt;br/&gt; ( &lt; timesettings &gt; ) &lt;br/&gt;
+       The NTP server settings to use if none are supplied via DHCP.  Select "manual" to use the settings below, or "default" to use the built-in phone defaults (1.pool.ntp.org and 2.pool.ntp.org.) &lt;br/&gt; ( &lt; timesettings &gt; ) &lt;br/&gt;
      </description>
    </setting>
 
