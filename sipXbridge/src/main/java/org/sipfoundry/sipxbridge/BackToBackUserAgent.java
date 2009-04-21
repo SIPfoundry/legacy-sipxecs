@@ -167,7 +167,7 @@ public class BackToBackUserAgent {
                     .getTransport());
             load = symmitronClient.ping();
         } else {
-            for (Hop hop : Gateway.getProxyAddressTable()) {
+            for (Hop hop : Gateway.initializeSipxProxyAddresses()) {
                 try {
                     SymmitronClient symmitronClient = Gateway.getSymmitronClient(hop.getHost());
                     /* Find the number of active bridges there */

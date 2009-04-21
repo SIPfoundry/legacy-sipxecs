@@ -338,6 +338,7 @@ class CallControlManager implements SymmitronResetHandler {
                  * This is a request that can be handled locally. Grab the previous session
                  * description from the receiver side.
                  */
+                logger.debug("session Timer INVITE -- sending old response ");
                 SessionDescription newDescription = rtpSession.getReceiver()
                         .getSessionDescription();
                 Response response = SipUtilities.createResponse(serverTransaction, Response.OK);
@@ -352,14 +353,16 @@ class CallControlManager implements SymmitronResetHandler {
                 ContactHeader contactHeader = SipUtilities
                         .createContactHeader(userName, provider);
                 response.setHeader(contactHeader);
+                
+                DialogContext dialogContext = DialogContext.get(serverTransaction.getDialog());
+                
+                dialogContext.setSessionTimerResponseSent();
 
                 serverTransaction.sendResponse(response);
 
             }
 
         }
-
-        return;
     }
 
     /**

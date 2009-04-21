@@ -133,8 +133,8 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
         try {
 
             for (ItspAccountInfo accountInfo : itspAccounts) {
-
-                if (sipUri.getHost().endsWith(accountInfo.getProxyDomain())) {
+                if (accountInfo.getProxyDomain() != null
+                        && sipUri.getHost().endsWith(accountInfo.getProxyDomain())) {
                     if (accountInfo.getCallerId() == null) {
                         accountFound = accountInfo;
                         return accountInfo;
@@ -167,9 +167,11 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
             // Fallback -- cannot find calling line id.
             for (ItspAccountInfo accountInfo : itspAccounts) {
                 logger.warn("Could not match user part of inbound request URI");
-                if (sipUri.getHost().endsWith(accountInfo.getProxyDomain())) {
-                    accountFound = accountInfo;
-                    return accountInfo;
+                if (accountInfo.getProxyDomain() != null) {
+                    if (sipUri.getHost().endsWith(accountInfo.getProxyDomain())) {
+                        accountFound = accountInfo;
+                        return accountInfo;
+                    }
                 }
             }
             logger.error( Gateway.ACCOUNT_NOT_FOUND_ALARM_ID + " uri = "   + sipUri );

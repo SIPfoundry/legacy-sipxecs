@@ -541,16 +541,8 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
         return retval;
     }
 
-    public void setCallerId(String callerId) {
-        try {
-            SipURI sipUri = (SipURI) ProtocolObjects.addressFactory.createURI("sip:"+ callerId);
-
-            this.callerAlias = ProtocolObjects.addressFactory.createAddress(sipUri);
-
-        } catch (Exception ex) {
-            logger.error("invalid caller alias setting", ex);
-
-        }
+    public void setCallerId(String callerId) {     
+        this.callerId = callerId;  
     }
 
     public String getCallerId() {

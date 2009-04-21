@@ -235,7 +235,7 @@ public class RegistrationManager {
 		 */
 		if (itspAccount.registrationTimerTask == null) {
 			TimerTask ttask = new RegistrationTimerTask(itspAccount);
-			Gateway.getTimer().schedule(ttask, 30 * 1000);
+			Gateway.getTimer().schedule(ttask, 60 * 1000);
 		}
 		try {
 			if (!itspAccount.isAlarmSent()) {

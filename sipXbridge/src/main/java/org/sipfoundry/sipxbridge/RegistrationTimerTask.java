@@ -26,7 +26,7 @@ public class RegistrationTimerTask extends TimerTask {
         this.itspAccount.registrationTimerTask = this;
 
     }
-
+    
     @Override
     public void run() {
 
@@ -34,11 +34,25 @@ public class RegistrationTimerTask extends TimerTask {
             Gateway.getRegistrationManager().sendRegistrer(itspAccount);
             this.itspAccount.registrationTimerTask = null;
         } catch (Exception ex) {
-        	/*
-        	 * Dont throw runtime exception here! It will kill the Timer.
-        	 */
-        	logger.error("Unexpected Exception in timer task",ex);
+            RegistrationTimerTask ttask = new RegistrationTimerTask(itspAccount);
+            Gateway.getTimer().schedule(ttask, 60 * 1000);
+            try {
+                if (!itspAccount.isAlarmSent()) {
+                    Gateway.getAlarmClient().raiseAlarm(
+                            "SIPX_BRIDGE_OPERATION_TIMED_OUT", 
+                            itspAccount.getSipDomain());
+                    itspAccount.setAlarmSent(true);
+                }
+            } catch (Exception e) {
+                logger.error("Could not send alarm.", e);
+            }
+            /*
+             * Dont throw runtime exception here! It will kill the Timer.
+             */
+            logger.error("Unexpected Exception Sending registration in timer task",ex);
         }
     }
+
+  
 
 }
