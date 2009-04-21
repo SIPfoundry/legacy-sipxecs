@@ -723,6 +723,8 @@ protected:
     
     UtlBoolean doesMaddrMatchesUserAgent(SipMessage& message) ;
 
+    void setInviteTransactionTimeoutSeconds(int expiresSeconds);
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
