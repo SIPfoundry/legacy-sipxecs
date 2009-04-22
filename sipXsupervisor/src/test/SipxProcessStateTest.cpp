@@ -161,7 +161,7 @@ public:
             TEST_WORK_DIR "processState");
 
       // copy test files into testContext structure
-      testContext.inputFile("another-process.xml");
+      testContext.inputFile("parent-process.xml");
       testContext.inputFile("dependent-process.xml");
       testContext.inputFile("notherprocess.sh");
 
@@ -176,13 +176,13 @@ public:
       SipxProcess* process1;
       SipxProcess* process2;
 
-      testContext.inputFilePath("another-process.xml", path);
+      testContext.inputFilePath("parent-process.xml", path);
       CPPUNIT_ASSERT((process1 = SipxProcess::createFromDefinition(path)));
       testContext.inputFilePath("dependent-process.xml", path);
       CPPUNIT_ASSERT((process2 = SipxProcess::createFromDefinition(path)));
       OsTask::delay(1 * OsTime::MSECS_PER_SEC); // give task some time to get up and running
 
-      ASSERT_STR_EQUAL("Nother", process1->data());
+      ASSERT_STR_EQUAL("Parent", process1->data());
       ASSERT_STR_EQUAL("1.0.0", process1->mVersion.data());
 
       CPPUNIT_ASSERT_EQUAL(SipxProcess::pDisabled->name(), process1->GetCurrentState()->name());
