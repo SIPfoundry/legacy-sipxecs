@@ -766,17 +766,14 @@ subnet %s netmask %s {\n\
    option tftp-server-name      "%s";\n\
 '  % (Subnet, NetMask, rangeStart, rangeEnd, Gateway, NetMask, DomainName, HostName)
 
-        dhcpdConf +='  option domain-name-servers   %s' % DnsServers[0]
+        dhcpdConf +='   option domain-name-servers   %s' % DnsServers[0]
         if DnsServers[1] != '' :
             dhcpdConf +=', %s' % DnsServers[1]
-        dhcpdConf +=';\n'        
+        dhcpdConf +=';\n'
 
-        dhcpdConf +='   option ntp-servers           %s' % NtpServers[0]
-        if NtpServers[1] != '' :
-            dhcpdConf +=', %s' % NtpServers[1]
-        if NtpServers[2] != '' :
-            dhcpdConf +=', %s' % NtpServers[2]
-        dhcpdConf +=';\n'        
+        # dhcpd does not like hosts to start with a digit, so just use pool.ntp.org here
+        dhcpdConf +='   option ntp-servers           pool.ntp.org'
+        dhcpdConf +=';\n'
 
         dhcpdConf +='}\n'
 
