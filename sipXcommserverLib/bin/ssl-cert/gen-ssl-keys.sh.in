@@ -90,8 +90,6 @@ caName=""
 
 configDir="@SIPX_CONFDIR@"
 
-logFile="@SIPX_LOGDIR@"/setup.log
-
 # if there is a file of saved default answers for the questions, read them
 DefaultDefaults=SSL_DEFAULTS
 Defaults=""
@@ -294,14 +292,12 @@ seedRand()
         ${openssl} rand \
             -rand "${randfiles}" \
             -out "${randomFile}" \
-            ${CAkeyBits} \
-            > /dev/null 2>&1
+            ${CAkeyBits}
     else
         ${openssl} rand \
             -rand "${randomFile}" \
             -out "${randomFile}" \
-            ${CAkeyBits} \
-            > /dev/null 2>&1
+            ${CAkeyBits}
     fi
 }
 
@@ -477,8 +473,7 @@ EOF
     ${openssl} genrsa \
         -rand ${randomFile} \
         -out "${caName}.key" \
-        ${CAkeyBits} \
-        > /dev/null 2> /dev/null
+        ${CAkeyBits}
 
     if [ $? -ne 0 ]; then
         echo "${myName}:Error: Failed to generate RSA private key" 1>&2
@@ -511,8 +506,7 @@ EOT
         -new \
         -key "${caName}.key" \
         -sha1 \
-        -out "${caName}.csr" \
-        > /dev/null
+        -out "${caName}.csr"
 
     if [ $? -ne 0 ]; then
         echo "${myName}:Error: Failed to generate certificate signing request" 1>&2
@@ -547,8 +541,7 @@ EOT
         -in "${caName}.csr" \
         -out "${caName}.crt" \
         -text \
-        -certopt no_pubkey,no_sigdump \
-        > /dev/null 2>&1
+        -certopt no_pubkey,no_sigdump
 
     if [ $? -ne 0 ]; then
         echo "${myName}:Error: Failed to generate self-signed CA certificate" 1>&2
@@ -559,7 +552,7 @@ EOT
     echo "______________________________________________________________________"
     echo ""
     echo -n "Verify..."
-    ${openssl} verify "${caName}.crt" > /dev/null 2>&1
+    ${openssl} verify "${caName}.crt"
 
     if [ $? -eq 0 ]; then
         echo "CA certificate OK" 1>&2
@@ -583,8 +576,7 @@ genServerCSR()
     ${openssl} genrsa \
         -rand "${randomFile}" \
         -out "${serverName}${restrictionName}.key" \
-        ${ServerKeyBits} \
-        > /dev/null 2>&1
+        ${ServerKeyBits}
 
     if [ $? -ne 0 ]; then
         echo "${myName}:Error: Failed to generate RSA private key" 1>&2
@@ -623,8 +615,7 @@ EOT
         -key "${serverName}${restrictionName}.key" \
         -reqexts extend_req \
         -out "${serverName}${restrictionName}.csr" \
-        -days ${CertDays} \
-        > /dev/null
+        -days ${CertDays}
 
     if [ $? -ne 0 ]; then
         echo "${myName}:Error: Failed to generate certificate signing request" 1>&2
@@ -666,7 +657,7 @@ EOT
         -in "${serverName}${restrictionName}.csr" \
         -out "${serverName}${restrictionName}.crt" \
         -text \
-        -certopt no_pubkey,no_sigdump > /dev/null 2>&1
+        -certopt no_pubkey,no_sigdump
 
     if [ $? -ne 0 ]; then
         echo "${myName}:Error: Failed to generate X.509 certificate" 1>&2
@@ -694,14 +685,14 @@ generatePKCSKeyStoreNoCACert ()
         -password "pass:$Password" \
         -in "${serverName}${restrictionName}.crt" \
         -inkey "${serverName}${restrictionName}.key"  -name "${serverName}" \
-        -caname "${caName}" > /dev/null 2>&1
+        -caname "${caName}"
 
     echo -e "$Password\n$Password" | 
     $JavaCmd \
       -classpath $SipXCommonsDir/sipxcommons.jar \
       org.sipfoundry.commons.PKCS12Import.PKCS12Import \
       "${serverName}${restrictionName}.p12" \
-      "${serverName}${restrictionName}.keystore" > /dev/null 2>&1
+      "${serverName}${restrictionName}.keystore"
 
 }
 
@@ -723,7 +714,7 @@ generatePKCSPackage()
           -password "pass:$Password" \
           -in "${serverName}${restrictionName}.crt" \
           -inkey "${serverName}${restrictionName}.key"  -name "${serverName}" \
-          -certfile "${caName}.crt" -caname "${caName}" >> ${logFile}  2>&1
+          -certfile "${caName}.crt" -caname "${caName}"
 
 
     echo "______________________________________________________________________"
@@ -736,7 +727,7 @@ generatePKCSPackage()
       -classpath $SipXCommonsDir/sipxcommons.jar \
       org.sipfoundry.commons.PKCS12Import.PKCS12Import \
       "${serverName}${restrictionName}.p12" \
-      "${serverName}${restrictionName}.keystore" >> ${logFile} 2>&1
+      "${serverName}${restrictionName}.keystore"
 
 
     echo "______________________________________________________________________"
@@ -753,7 +744,7 @@ generatePKCSPackage()
        then 
           $KeyTool -delete -noprompt -alias "${aliasName}" \
                         -keystore "$TrustStore"  \
-                        -storepass "$Password" >> ${logFile} || exit 1
+                        -storepass "$Password" || exit 1
        fi
     fi
     if [ "${aliasName}" == "${caName}" ] 
@@ -765,14 +756,14 @@ generatePKCSPackage()
                         -file "${aliasName}.der" \
                         -noprompt \
                         -trustcacerts \
-                        -storepass "$Password" >> ${logFile} || exit 1
+                        -storepass "$Password" || exit 1
     else 
        ${openssl} x509 -in    "${serverName}${restrictionName}.crt" -outform DER  -out  "${serverName}${restrictionName}.der"
        $KeyTool -import -noprompt -alias "${aliasName}" \
                         -keystore "$TrustStore"  \
                         -noprompt \
                         -file  "${serverName}${restrictionName}.der" \
-                        -storepass "$Password" >> ${logFile} || exit 1
+                        -storepass "$Password" || exit 1
     fi
     echo "______________________________________________________________________"
     echo ""
@@ -784,8 +775,7 @@ generatePKCSPackage()
     echo -n "    ${serverName}${restrictionName}.crt ..."
     ${openssl} verify \
        -CAfile "${caName}.crt" \
-      "${serverName}${restrictionName}.crt" \
-     >>  ${logFile}
+      "${serverName}${restrictionName}.crt"
     vfy=$?
     test ${vfy} -eq 0 && echo "ok" || echo "failed"
     verified=$((${vfy} + ${verified}))
