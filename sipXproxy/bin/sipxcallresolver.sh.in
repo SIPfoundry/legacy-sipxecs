@@ -16,7 +16,12 @@ Args=""
 : ${SslDir:=${ConfDir}/ssl}
 : ${AuthoritiesDir:=${SslDir}/authorities}
 : ${PidFile:=@SIPX_RUNDIR@/sipxcallresolver.pid}
-: ${LibDir:=@SIPX_LIBDIR@}
+# SUSE uses unixODBC sub-directory for some ODBC files
+if test -d @SIPX_LIBDIR@/unixODBC ; then
+    : ${LibOdbcDir:=@SIPX_LIBDIR@/unixODBC}
+else
+    : ${LibOdbcDir:=@SIPX_LIBDIR@}
+fi
 : ${Psql:=psql}
 if [ `uname -s` = FreeBSD ] ; then
     : ${ServiceDir:=@PREFIX@/etc/rc.d}
@@ -83,8 +88,8 @@ configOdbcDrivers() {
 # Included in the unixODBC package
 [PostgreSQL]
 Description = ODBC for PostgreSQL
-Driver = ${LibDir}/libodbcpsql.so
-Setup = ${LibDir}/libodbcpsqlS.so
+Driver = ${LibOdbcDir}/libodbcpsql.so
+Setup = ${LibOdbcDir}/libodbcpsqlS.so
 FileUsage = 1
 EOF
 }
