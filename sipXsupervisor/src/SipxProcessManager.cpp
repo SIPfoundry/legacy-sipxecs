@@ -140,6 +140,7 @@ SipxProcessManager::~SipxProcessManager()
    while ((process = dynamic_cast<SipxProcess*>(processes())))
    {
       process->shutdown();
+      OsTask::delay(100);
    }
 
    OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE, "SipxProcessManager::~ "

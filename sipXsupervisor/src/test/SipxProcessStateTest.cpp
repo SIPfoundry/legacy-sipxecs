@@ -104,7 +104,9 @@ public:
       process2->enable();
 
       int retries = 5;
-      while ( retries-- && strcmp(process1->GetCurrentState()->name(),SipxProcess::pRunning->name()) )
+      while ( retries-- &&
+            !(process1->GetCurrentState()->name()==SipxProcess::pRunning->name() &&
+              process2->GetCurrentState()->name()==SipxProcess::pConfigurationMismatch->name()) )
       {
          OsTask::delay(1 * OsTime::MSECS_PER_SEC);
       }
