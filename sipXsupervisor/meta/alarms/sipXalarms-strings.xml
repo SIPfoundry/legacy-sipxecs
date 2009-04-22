@@ -61,24 +61,24 @@
                      The user name and contact address of the phone is given.</resolution>
       </alarm>
       <alarm id="SIPX_RELAY_STUN_ADDRESS_DISCOVERY_FAILED">
-         <shorttitle>SIPX Relay Public Address Discovery Failed</shorttitle>
+         <shorttitle>Media Relay public address discovery failed</shorttitle>
          <description>The STUN Server '{0}' is dysfunctional. </description>
-         <resolution>The STUN Server did not return any information that can be used to determine the public address of the Relay Service.
-                      Reconfigure your STUN server settings in the System > NAT page to point at a functioning STUN server. </resolution>
+         <resolution>The STUN Server did not return any information that can be used to determine the public address of the Media Relay service.
+                      Reconfigure your STUN server settings in the System > Servers > NAT page to point at a functioning STUN server. </resolution>
       </alarm>
       <alarm id="SIPX_RELAY_STUN_ADDRESS_DISCOVERY_RECOVERED">
-         <shorttitle>The STUN Server Recovered</shorttitle>
+         <shorttitle>The STUN Server recovered</shorttitle>
          <description>The STUN Server '{0}' is functioning OK. </description>
          <resolution>This message is informational. No action is needed.</resolution>
       </alarm>
       <alarm id="SIPX_BRIDGE_STUN_ADDRESS_DISCOVERY_FAILED">
-         <shorttitle>SIPX Bridge Public Address Discovery Failed</shorttitle>
+         <shorttitle>SIP Trunking public address discovery failed</shorttitle>
          <description>The STUN Server '{0}' is dysfunctional. </description>
          <resolution>The STUN Server did not return any information that can be used to determine the public address of the internal SBC.
                       Reconfigure your STUN server settings in the Internal SBC settings to point at a functioning STUN server. </resolution>
       </alarm>
       <alarm id="SIPX_BRIDGE_STUN_ADDRESS_DISCOVERY_RECOVERED">
-         <shorttitle>The STUN Server Recovered</shorttitle>
+         <shorttitle>The STUN Server recovered</shorttitle>
          <description>The STUN Server '{0}' is functioning OK. </description>
          <resolution>This message is informational. No action is needed.</resolution>
       </alarm>
@@ -86,13 +86,13 @@
       <alarm id="SIPX_BRIDGE_AUTHENTICATION_FAILED">
          <shorttitle>The ITSP disallowed an Authentication attempt</shorttitle>
          <description>The ITSP Account '{0}' disallowed an operation because of Authentication failure.</description>
-         <resolution>Check your ITSP Account domain and password and restart the SIP Trunking Service.</resolution>
+         <resolution>Check your ITSP Account domain and password and restart the SIP Trunking service.</resolution>
       </alarm>
 
       <alarm id="SIPX_BRIDGE_OPERATION_TIMED_OUT">
          <shorttitle>The ITSP Account could not be reached</shorttitle>
          <description>An attempt to signal the ITSP '{0}' timed out.</description>
-         <resolution>Check your ITSP Account Domain, Proxy and Registrar settings and restart the SIP Trunking Service.</resolution>
+         <resolution>Check your ITSP Account Domain, Proxy and Registrar settings and restart the SIP Trunking service.</resolution>
       </alarm>
       <alarm id="SIPX_BRIDGE_ACCOUNT_OK">
          <shorttitle>The ITSP Account has recovered</shorttitle>
@@ -121,8 +121,8 @@
          <resolution>Software Updates Available. Install the available software updates. </resolution>
       </alarm>
       <alarm id="SIPX_BRIDGE_ACCOUNT_CONFIGURATION_ERROR">
-         <shorttitle>Could not send REGISTER to the  ITSP account. </shorttitle>
-         <description>An ITSP '{0}' was not configured correctly. SipXbridge could not Register with it. </description>
+         <shorttitle>Could not send REGISTER to the ITSP account. </shorttitle>
+         <description>An ITSP '{0}' was not configured correctly. The SIP Trunking service could not Register with it. </description>
          <resolution>Check your Domain, Proxy and Registrar settings for the ITSP account. </resolution>
       </alarm>
       <!-- Add new alarms above this line.
