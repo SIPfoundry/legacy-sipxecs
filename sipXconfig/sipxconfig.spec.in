@@ -354,10 +354,10 @@ rm -rf /var/sipxdata/tmp/Jetty__8443__sipxconfig 2> /dev/null
 %post tftp
 sed /etc/xinetd.d/tftp -i -e 's|^\W*disable\W*=\W*yes\W*$|disable = no|' -e 's|\W*/tftpboot\W*| %{phonedir}/profile/tftproot|'
 
+%if %{_vendor} == suse
 # ensure that INET services are running
-if [ -f /etc/sysconfig/network ] ; then
-  /sbin/service xinetd start >/dev/null
-fi
+/sbin/service xinetd start >/dev/null
+%endif
 
 # empty but required to generate RPM
 %files ftp
