@@ -21,7 +21,7 @@ sudo killall httpd
 # You can override the CODE directory, relative to the current directory.
 INSTALL=INSTALL
 BUILD=BUILD
-CODE=main
+CODE=4.0
 LINKS=links
 if [ $# -gt 0 ]
 then
@@ -55,7 +55,7 @@ sudo mv /tmp/srestart /usr/bin/
 sudo chmod a+rx /usr/bin/srestart
 
 # Install FreeSWITCH.
-SIPFOUNDRY_RPM_BASE_URL=http://sipxecs.sipfoundry.org/temp/sipXecs/main/FC/8/i386/RPM
+SIPFOUNDRY_RPM_BASE_URL=http://sipxecs.sipfoundry.org/temp/sipXecs/4.0/FC/8/i386/RPM
 function install_sipfoundry_rpm {
    # Out with the old.
    rm -rf $1-*.rpm
