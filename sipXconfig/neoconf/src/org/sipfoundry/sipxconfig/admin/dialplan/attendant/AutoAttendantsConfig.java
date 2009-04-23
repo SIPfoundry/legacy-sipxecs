@@ -40,6 +40,7 @@ public class AutoAttendantsConfig extends XmlFile {
     private static final SimpleDateFormat HOLIDAY_FORMAT = new SimpleDateFormat("dd-MMM-yyyy", Locale.US);
     private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/autoattendants-00-00";
     private static final String ID = "id";
+    private static final String PARAMETER = "parameter";
 
     private AutoAttendantManager m_autoAttendantManager;
 
@@ -129,7 +130,7 @@ public class AutoAttendantsConfig extends XmlFile {
         if (transfer.booleanValue()) {
             String value = autoAttendant.getSettingValue("onfail/transfer-extension");
             if (value != null) {
-                String transferUrl = SipUri.fix(value, m_domainManager.getDomain().getName());
+                String transferUrl = SipUri.fix(value, getDomainName());
                 irEl.addElement("transferUrl").setText(transferUrl);
             }
             String transferPromptValue = autoAttendant.getSettingValue("onfail/transfer-prompt");
@@ -175,12 +176,24 @@ public class AutoAttendantsConfig extends XmlFile {
         miEl.addElement("dialPad").setText(dialPad.getName());
         AttendantMenuAction action = menuItem.getAction();
         miEl.addElement("action").setText(action.getName());
+        if (action.isVoicemailParameter()) {
+            miEl.addElement(PARAMETER).setText(getVoicemailUrl());
+        }
         if (action.isAttendantParameter()) {
-            miEl.addElement("parameter").setText(menuItem.getParameter());
+            miEl.addElement(PARAMETER).setText(menuItem.getParameter());
         }
         if (action.isExtensionParameter()) {
             miEl.addElement("extension").setText(menuItem.getParameter());
         }
+    }
+
+    public String getVoicemailUrl() {
+        String voiceMail = m_dialPlanContext.getVoiceMail();
+        return SipUri.fix(voiceMail, getDomainName());
+    }
+
+    public String getDomainName() {
+        return m_domainManager.getDomain().getName();
     }
 
     @Override

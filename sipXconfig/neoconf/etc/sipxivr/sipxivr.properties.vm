@@ -10,4 +10,3 @@ ivr.docDirectory=${service.docDir}
 ivr.organizationPrefs=${service.vxmlDir}/organizationprefs.xml
 ivr.operatorAddr=sip:operator@${service.domainName}
 ivr.sipxchangeDomainName=${service.domainName}
-ivr.voicemailUrl=${service.voicemailUrl}

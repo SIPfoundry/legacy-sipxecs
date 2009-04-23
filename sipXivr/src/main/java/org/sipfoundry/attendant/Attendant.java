@@ -299,7 +299,7 @@ public class Attendant {
             
         case voicemail_access: 
             // Transfer to the voicemailUrl
-            dest = m_ivrConfig.getVoicemailUrl();
+            dest = item.getParameter();
             LOG.info("Attendant::doAction Voicemail Access.  Transfer to " + dest);
             xfer = new Transfer(m_fses, dest);
             xfer.go();
