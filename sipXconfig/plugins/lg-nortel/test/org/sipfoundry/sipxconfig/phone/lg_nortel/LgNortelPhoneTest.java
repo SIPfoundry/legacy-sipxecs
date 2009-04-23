@@ -158,8 +158,10 @@ public class LgNortelPhoneTest extends TestCase {
 
         supplyTestData(phone);
 
-        // test E911 forwarding
-        PhoneTestDriver.supplyVitalEmergencyData(phone, "sos");
+        // XCF-3581: No longer automatically generating phone emergency dial routing.  These settings
+        // are as if they'd been manually configured under Dialing.
+        phone.setSettingValue("DIAL/emergency_number", "911");
+        phone.setSettingValue("DIAL/emergency_address", "emergency-gateway.example.org");
 
         phone.getProfileTypes()[0].generate(phone, location);
         InputStream expectedProfile = getClass().getResourceAsStream("mac_e911.cfg");

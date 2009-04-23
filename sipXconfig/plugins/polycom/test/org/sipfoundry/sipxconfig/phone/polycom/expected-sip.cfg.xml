@@ -72,8 +72,8 @@
     />
     <routing>
       <server
-        dialplan.routing.server.1.address=""
-        dialplan.routing.server.1.port="5060"
+        dialplan.routing.server.1.address="emergency-gateway.example.org"
+        dialplan.routing.server.1.port="9999"
       />
       <emergency
         dialplan.routing.emergency.1.value="911"

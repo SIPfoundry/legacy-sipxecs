@@ -13,6 +13,7 @@
     <property name="pagingContext" ref="pagingContext" />
     <!-- default music-on-hold user -->
     <property name="mohUser" value="~~mh~" />
+    <property name="routeEmergencyCallsDirectly" value="false" />
   </bean>
 
 

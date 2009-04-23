@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.device;
 
@@ -60,6 +60,13 @@ public class DeviceDefaults {
 
     private PagingContext m_pagingContext;
 
+    /**
+     * If true sipXconfig will attempt to route emergency calls directly through emergency
+     * gateways. By default all calls are routed through SIP proxy, which allows for sending
+     * alarms and registering CDRs.
+     */
+    private boolean m_routeEmergencyCallsDirectly;
+
     public void setDefaultNtpService(String defaultNtpService) {
         m_defaultNtpService = defaultNtpService;
     }
@@ -79,7 +86,7 @@ public class DeviceDefaults {
     public void setDialPlanContext(DialPlanContext dialPlanContext) {
         m_dialPlanContext = dialPlanContext;
     }
-   
+
     public void setPagingContext(PagingContext pagingContext) {
         m_pagingContext = pagingContext;
     }
@@ -87,7 +94,7 @@ public class DeviceDefaults {
     public String getPagingPrefix() {
         return m_pagingContext.getPagingPrefix();
     }
-   
+
     public String getDomainName() {
         return m_domainManager.getDomain().getName();
     }
@@ -106,7 +113,7 @@ public class DeviceDefaults {
 
     /**
      * Find IP address (or FQDN) of the specific type of server.
-     * 
+     *
      * @param index 0-based index of the server (0 == Primary, 1 = Secondary, etc._
      * @param s service descriptor
      * @return null if service is not defined
@@ -143,7 +150,7 @@ public class DeviceDefaults {
 
     /**
      * URL where phone profiles are delivered from apache web server.
-     * 
+     *
      * @return generated url if not set
      */
     public String getProfileRootUrl() {
@@ -182,6 +189,10 @@ public class DeviceDefaults {
     }
 
     private EmergencyInfo getLikelyEmergencyInfo() {
+        if (!m_routeEmergencyCallsDirectly) {
+            return null;
+        }
+
         if (m_dialPlanContext == null) {
             return null;
         }
@@ -233,6 +244,11 @@ public class DeviceDefaults {
         m_mohUser = mohUser;
     }
 
+    @Required
+    public void setRouteEmergencyCallsDirectly(boolean routeEmergencyCallsDirectly) {
+        m_routeEmergencyCallsDirectly = routeEmergencyCallsDirectly;
+    }
+
     public String getMusicOnHoldUri(String domainName) {
         return SipUri.format(m_mohUser, domainName, false);
     }
@@ -250,7 +266,7 @@ public class DeviceDefaults {
                 .getServiceByBeanId(SipxRegistrarService.BEAN_ID);
         return registrarService.getDirectedCallPickupCode();
     }
-    
+
     public String getCallRetrieveCode() {
         SipxRegistrarService registrarService = (SipxRegistrarService) m_sipxServiceManager
                 .getServiceByBeanId(SipxRegistrarService.BEAN_ID);
