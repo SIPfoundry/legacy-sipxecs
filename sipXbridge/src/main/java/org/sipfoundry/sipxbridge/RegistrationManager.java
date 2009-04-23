@@ -134,7 +134,7 @@ public class RegistrationManager {
 					if (responseContactUri.getHost().equals(
 							requestContactUri.getHost())
 							&& requestContactUri.getPort() == port) {
-						time = contactHeader.getExpires();
+						time = contactHeader.getExpires();			
 						break;
 					}
 				}
@@ -145,6 +145,10 @@ public class RegistrationManager {
 					.getApplicationData()).getItspAccountInfo();
 			if (itspAccount.getSipKeepaliveMethod().equals("REGISTER")) {
 				time = ct.getRequest().getExpires().getExpires();
+			}
+			
+			if ( time > 2*Gateway.REGISTER_DELTA) {
+			    time = time - Gateway.REGISTER_DELTA;
 			}
 
 			if (itspAccount.isAlarmSent()) {

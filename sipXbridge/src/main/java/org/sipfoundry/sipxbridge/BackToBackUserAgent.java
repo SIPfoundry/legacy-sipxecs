@@ -1443,6 +1443,10 @@ public class BackToBackUserAgent {
 
             logger.debug("Dialog table size = " + this.dialogTable.size());
             ct.sendRequest();
+            /*
+             * Kick off our session timer.
+             */
+            DialogContext.get(ct.getDialog()).startSessionTimer(Gateway.getSessionExpires());
 
         } catch (SdpParseException ex) {
             logger.error("Unexpected exception ",ex);

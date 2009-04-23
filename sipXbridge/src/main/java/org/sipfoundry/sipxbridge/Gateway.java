@@ -193,6 +193,8 @@ public class Gateway {
     
     private static final String SIPXBRIDGE_ACCOUNT_CONFIGURATION_ERROR_ALARM_ID = "SIPX_BRIDGE_ACCOUNT_CONFIGURATION_ERROR";
 
+    public static final int REGISTER_DELTA = 5;
+
     // ///////////////////////////////////////////////////////////////////////
 
     /**
@@ -1089,7 +1091,6 @@ public class Gateway {
 
     static void incrementCallCount() {
         Gateway.callCount++;
-
     }
 
     static int getSessionExpires() {

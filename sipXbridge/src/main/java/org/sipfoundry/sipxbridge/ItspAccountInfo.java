@@ -6,7 +6,6 @@
  */
 package org.sipfoundry.sipxbridge;
 
-import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TimerTask;
@@ -19,11 +18,6 @@ import org.apache.log4j.Logger;
 import org.sipfoundry.commons.siprouter.FindSipServer;
 import org.sipfoundry.sipxbridge.symmitron.KeepaliveMethod;
 import org.sipfoundry.sipxbridge.xmlrpc.RegistrationRecord;
-import org.xbill.DNS.Lookup;
-import org.xbill.DNS.Record;
-import org.xbill.DNS.SRVRecord;
-import org.xbill.DNS.TextParseException;
-import org.xbill.DNS.Type;
 
 /**
  * The information pertaining to an ITSP account resides in this class.
