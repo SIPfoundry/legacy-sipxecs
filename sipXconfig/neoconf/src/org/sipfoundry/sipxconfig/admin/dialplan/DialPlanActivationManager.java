@@ -11,4 +11,7 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 
 public interface DialPlanActivationManager {
     public abstract void replicateDialPlan(boolean restartSbcDevices);
+
+    /** Only replicate dial plan if there was a valid request to do so */
+    public abstract void replicateIfNeeded();
 }

@@ -93,4 +93,14 @@ public interface SipxProcessContext {
      * Used in test only: clears the need for restart status
      */
     void clear();
+
+    /**
+     * A special version of markServiceForRestart. It does all what markServicesForRestart does
+     * *and* also Forces SipxProxyContext to activate the dial plan before restarting any of the
+     * services listed here.
+     *
+     * @param the beanId beanId of the service, restart of which should cause dial plan
+     *        replication
+     */
+    void markDialPlanRelatedServicesForRestart(String... serviceBeansIds);
 }
