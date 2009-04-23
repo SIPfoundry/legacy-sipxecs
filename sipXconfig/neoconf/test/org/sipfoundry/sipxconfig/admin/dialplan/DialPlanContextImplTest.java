@@ -13,7 +13,6 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import org.sipfoundry.sipxconfig.gateway.Gateway;
-import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import junit.framework.TestCase;
@@ -126,11 +125,6 @@ public class DialPlanContextImplTest extends TestCase {
         @Override
         DialPlan getDialPlan() {
             return m_plan;
-        }
-
-        @Override
-        public GatewayContext getGatewayContext() {
-            return null;
         }
 
         @Override

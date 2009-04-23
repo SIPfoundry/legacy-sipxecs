@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.gateway;
@@ -127,15 +127,6 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         m_dialPlanActivationManager.replicateDialPlan(true);
     }
 
-    public void deleteVolatileGateways() {
-        List<Gateway> gateways = getGateways();
-        for (Gateway gateway : gateways) {
-            if (gateway.getModel().isVolatile()) {
-                deleteGateway(gateway.getId());
-            }
-        }
-    }
-
     public List<Gateway> getGatewayByIds(Collection<Integer> gatewayIds) {
         List<Gateway> gateways = new ArrayList<Gateway>(gatewayIds.size());
         for (Integer id : gatewayIds) {
@@ -156,7 +147,7 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
 
     /**
      * Returns the list of gateways available for a specific rule
-     * 
+     *
      * @param ruleId id of the rule for which gateways are checked
      * @return collection of available gateways
      */
@@ -236,6 +227,7 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
     }
 
     private class OnSbcDeviceDelete extends SbcDeviceDeleteListener {
+        @Override
         protected void onSbcDeviceDelete(SbcDevice sbcDevice) {
             List<SipTrunk> sipTrunks = getGatewayByType(SipTrunk.class);
             for (SipTrunk sipTrunk : sipTrunks) {
@@ -248,6 +240,7 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
     }
 
     private class OnUserGroupDelete extends UserGroupDeleteListener {
+        @Override
         protected void onUserGroupDelete(Group group) {
             // get all gateways for the user group and reset specific location
             List<Gateway> gateways = getGatewaysForUserGroup(group);

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.gateway;
@@ -20,11 +20,6 @@ public class GatewayModel extends DeviceDescriptor {
     private String[] m_portLabelSettings;
 
     private String m_portLabelFormat;
-
-    /**
-     * true for gateway that should not survive dial plan reset operations
-     */
-    private boolean m_volatile;
 
     public GatewayModel() {
     }
@@ -59,14 +54,5 @@ public class GatewayModel extends DeviceDescriptor {
 
     public String getPortLabelFormat() {
         return m_portLabelFormat;
-    }
-
-    public boolean isVolatile() {
-        return m_volatile;
-
-    }
-
-    public void setVolatile(boolean v) {
-        m_volatile = v;
     }
 }
