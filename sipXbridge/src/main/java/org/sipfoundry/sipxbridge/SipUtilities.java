@@ -11,6 +11,8 @@ import gov.nist.javax.sip.DialogExt;
 import gov.nist.javax.sip.TransactionExt;
 import gov.nist.javax.sip.header.HeaderFactoryExt;
 import gov.nist.javax.sip.header.extensions.ReplacesHeader;
+import gov.nist.javax.sip.header.extensions.SessionExpires;
+import gov.nist.javax.sip.header.extensions.SessionExpiresHeader;
 import gov.nist.javax.sip.header.ims.PAssertedIdentityHeader;
 import gov.nist.javax.sip.header.ims.PrivacyHeader;
 
@@ -678,6 +680,17 @@ class SipUtilities {
             if (itspAccount.stripPrivateHeaders()) {
                 SipUtilities.stripPrivateHeaders(request);
             }
+            
+            /*
+             * By default the UAC always refreshes the session.
+             */
+            
+            SessionExpires sessionExpires = (SessionExpires) ((HeaderFactoryExt) ProtocolObjects.headerFactory).createSessionExpiresHeader(Gateway.getSessionExpires());
+            sessionExpires.setParameter("refresher", "uac");
+            sessionExpires.setExpires(Gateway.getSessionExpires());
+            request.addHeader(sessionExpires);
+            
+            
             return request;
 
         } catch (SipException e) {
@@ -1382,6 +1395,21 @@ class SipUtilities {
             throw new SipXbridgeException(s, ex);
         }
 
+    }
+
+    public static SessionExpiresHeader createSessionExpires() {
+        
+        try {
+            SessionExpiresHeader sessionExpires =  ((HeaderFactoryExt) ProtocolObjects.headerFactory)
+            .createSessionExpiresHeader(Gateway.getSessionExpires());
+            sessionExpires.setExpires(Gateway.getSessionExpires());
+            sessionExpires.setRefresher("uac");
+            return sessionExpires;
+        } catch (InvalidArgumentException ex) {
+            String s = "Unexpected exception";
+            logger.fatal(s, ex);
+            throw new SipXbridgeException(s, ex);
+        }
     }
 
 }

@@ -12,6 +12,8 @@ import gov.nist.javax.sip.SipStackImpl;
 import gov.nist.javax.sip.TransactionExt;
 import gov.nist.javax.sip.header.extensions.MinSE;
 import gov.nist.javax.sip.header.extensions.ReplacesHeader;
+import gov.nist.javax.sip.header.extensions.SessionExpires;
+import gov.nist.javax.sip.header.extensions.SessionExpiresHeader;
 import gov.nist.javax.sip.message.SIPResponse;
 import gov.nist.javax.sip.stack.SIPDialog;
 import gov.nist.javax.sip.stack.SIPServerTransaction;
@@ -1020,6 +1022,11 @@ class CallControlManager implements SymmitronResetHandler {
          * The dialog context associated with this dialog.
          */
         DialogContext dialogContext = DialogContext.get(dialog);
+        
+        /*
+         * Set the last response.
+         */
+        dialogContext.setLastResponse(response);
 
         /*
          * The call context from the Dialog context.
@@ -1207,8 +1214,16 @@ class CallControlManager implements SymmitronResetHandler {
             if (transactionContext.getOperation() == Operation.SEND_INVITE_TO_ITSP) {
                 keepaliveMethod = transactionContext.getItspAccountInfo().getRtpKeepaliveMethod();
             } else {
+                // Operation is SEND_INVITE_TO_SIPX_PROXY
+                // The other end request us to run a session timer.
+                SessionExpires seh = (SessionExpires) serverTransaction.getRequest().getHeader(SessionExpiresHeader.NAME);
+                if ( seh != null && seh.getParameter("refresher").equals("uas")) {
+                    int timerInterval = seh.getExpires();
+                    DialogContext peerDialogContext = DialogContext.getPeerDialogContext(dialog);
+                    peerDialogContext.startSessionTimer(timerInterval);
+                }
                 keepaliveMethod = KeepaliveMethod.NONE;
-            }
+            } 
             hisEndpoint.setKeepAliveMethod(keepaliveMethod);
 
             hisEndpoint.setSessionDescription(sessionDescription, false);

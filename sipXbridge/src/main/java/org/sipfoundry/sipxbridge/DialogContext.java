@@ -21,6 +21,7 @@ import javax.sdp.SessionDescription;
 import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
 import javax.sip.DialogState;
+import javax.sip.ObjectInUseException;
 import javax.sip.ServerTransaction;
 import javax.sip.SipException;
 import javax.sip.SipProvider;
@@ -169,6 +170,7 @@ class DialogContext {
     class SessionTimerTask extends TimerTask {
 
         String method;
+        private ReInviteSender reInviteSender;
 
         public SessionTimerTask(String method) {
             this.method = method;
@@ -212,8 +214,10 @@ class DialogContext {
                         ContactHeader cth = SipUtilities.createContactHeader(provider,
                                 getItspInfo());
                         request.setHeader(cth);
-                        SessionExpiresHeader sexp = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
-                                .createSessionExpiresHeader(Gateway.getSessionExpires());
+                        SessionExpiresHeader sexp = SipUtilities.createSessionExpires();
+                        
+                       
+                        
                         request.setHeader(sexp);
                         MinSE minSe = new MinSE();
                         minSe.setExpires(Gateway.getSessionExpires());
@@ -242,8 +246,8 @@ class DialogContext {
                     ClientTransaction ctx = dialogExt.getSipProvider().getNewClientTransaction(
                             request);
                     TransactionContext.attach(ctx, Operation.SESSION_TIMER);
-
-                    new ReInviteSender(DialogContext.get(dialog), ctx).run();
+                    this.reInviteSender =  new ReInviteSender(DialogContext.get(dialog), ctx);
+                    new Thread(reInviteSender).start();
                     DialogContext.this.sessionTimer = new SessionTimerTask(this.method);
 
                     int expiryTime = sessionExpires < Gateway.MIN_EXPIRES ? Gateway.MIN_EXPIRES
@@ -263,18 +267,35 @@ class DialogContext {
 
         public void terminate() {
             logger.debug("Terminating session Timer Task for " + dialog);
+            if (this.reInviteSender != null) {
+                this.reInviteSender.terminate();
+            }
             this.cancel();
         }
     }
 
     /**
-     * This task waits till a pending ack has been recorded and then sends out a re-INVITE. This
+     * This task waits till a pending ACK has been recorded and then sends out a re-INVITE. This
      * is to prevent interleaving INVITEs ( which will result in a 493 from the ITSP ).
+     * Some ITSPs will send 400 response instead of 493 and are generally very bad at
+     * dealing with interleaved INVITEs on dialogs. Hence we use this mechanism
+     * to strictly serialize INVTES sent to the ITSP. 
      * 
      */
     public class ReInviteSender implements Runnable {
         DialogContext dialogContext;
         ClientTransaction ctx;
+        
+        
+        public void terminate() {
+            try {
+                ctx.terminate();
+                Thread.currentThread().interrupt();
+            } catch (ObjectInUseException e) {          
+                logger.error("unexpected error",e);
+            }
+        }
+        
 
         public ReInviteSender(DialogContext dialogContext, ClientTransaction ctx) {
             this.dialogContext = dialogContext;
@@ -300,7 +321,12 @@ class DialogContext {
                         return;
                     } else {
                         logger.debug("Waiting for ACK");
-                        Thread.sleep(100);
+                        try {
+                            Thread.sleep(100);
+                        } catch ( InterruptedException ex) {
+                            logger.debug("Interrupted sleep");
+                            return;
+                        }
                     }
                 }
 
@@ -308,8 +334,12 @@ class DialogContext {
                  * Wait for the ACK to actually get to the other side. Wait for any ACK
                  * retransmissions to finish. Then send out the request.
                  */
-
-                Thread.sleep(500);
+                try {
+                    Thread.sleep(500);
+                } catch ( InterruptedException ex) {
+                    logger.debug("Interrupted sleep");
+                    return;
+                }
 
                 logger.debug("Sending re-INVITE : Transaction operation = "
                         + TransactionContext.get(ctx).getOperation());
@@ -394,9 +424,18 @@ class DialogContext {
     }
 
     private void startSessionTimer() {
+        logger.debug("startSessionTimer()");
         this.sessionTimer = new SessionTimerTask(Gateway.getSessionTimerMethod());
         Gateway.getTimer().schedule(this.sessionTimer,
                 (Gateway.getSessionExpires() - Gateway.TIMER_ADVANCE) * 1000);
+    }
+    
+   public void startSessionTimer( int sessionTimeout ) {
+       logger.debug(String.format("startSessionTimer(%d)",sessionTimeout));
+       this.sessionTimer = new SessionTimerTask(Gateway.getSessionTimerMethod());
+        this.sessionExpires = sessionTimeout;
+        Gateway.getTimer().schedule(this.sessionTimer,
+                (this.sessionExpires - Gateway.TIMER_ADVANCE) * 1000);
     }
 
     /*
@@ -404,22 +443,25 @@ class DialogContext {
      */
     private DialogContext(Dialog dialog) {
         this.sessionExpires = Gateway.getSessionExpires();
-        this.dialog = dialog;
-        // Kick off a task to test for session liveness.
-        SipProvider provider = ((DialogExt) dialog).getSipProvider();
-        if (Gateway.getSessionTimerMethod() != null && provider != Gateway.getLanProvider()) {
-            this.startSessionTimer();
-        }
-
+        this.dialog = dialog;  
     }
 
     /**
      * Avoid interleaving of INVITE transactions for a given Dialog (some ITSPs return unreliable
      * error codes when transactions are interleaved).
+     * This hack returns true if the last transaction for this dialog has not been ACKed.
+     * This support should be moved into the JAIN-SIP stack.
      */
     private boolean isWaitingForAck(ClientTransaction ctx) {
         long seqno = SipUtilities.getSeqNumber(ctx.getRequest());
         if (this.reInviteTransaction == null) {
+            return false;
+        } else if ( this.getLastResponse() != null && 
+                SipUtilities.getSeqNumber(this.getLastResponse()) == seqno + 1 &&
+                this.getLastResponse().getStatusCode()/100 > 2) {
+            /*
+             * Error response received (stack will ACK this).
+             */
             return false;
         } else if (this.lastAck == null || seqno != SipUtilities.getSeqNumber(this.lastAck) + 1) {
             return true;
@@ -953,11 +995,14 @@ class DialogContext {
 
     void setSessionTimerResponseSent() {
         if (this.sessionTimer != null) {
-            this.sessionTimer.cancel();
+            logger.debug("setSessionTimerResponseSent()");
+            this.cancelSessionTimer();
             this.startSessionTimer();
         }
 
     }
+
+    
 
   
 
