@@ -202,6 +202,32 @@ void ResourceList::publish()
    }
 }
 
+// Incrementally remove and delete one component of the ResourceList.
+UtlBoolean ResourceList::shrink()
+{
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceList::shrink mUserPart = '%s'",
+                 mUserPart.data());
+
+   // Incrementally remove element from the ResourceReferences and delete it.
+   // Get pointer to the first ResourceReference.
+   ResourceReference* rr =
+      dynamic_cast <ResourceReference*> (mResourcesList.first());
+
+   // If one exists, delete it.
+   if (rr) {
+      mResourcesList.removeReference(rr);
+      // A ResourceReference can be deleted outright because it contains
+      // no lists.
+      // It may cause deletion of the ResourceCached that it points to.
+      delete rr;
+   }
+
+   // mChangesList is not handled here, as it is just a list of UtlStrings.
+
+   return rr == NULL;
+}
+
 /* ============================ ACCESSORS ================================= */
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */

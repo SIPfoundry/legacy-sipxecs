@@ -207,6 +207,9 @@ class ResourceListServer : public UtlContainableAtomic
    //! Get the server user agent.
    SipUserAgent& getServerUserAgent();
 
+   //! Get the bulk add/delete delay (in msec).
+   static int getChangeDelay();
+
    /**
     * Get the ContainableType for a UtlContainable-derived class.
     */
@@ -291,6 +294,10 @@ class ResourceListServer : public UtlContainableAtomic
 
    //! The ResourceListFileReader.
    ResourceListFileReader mResourceListFileReader;
+
+   //! Milliseconds of delay to allow between calls that add or delete resources
+   //! to/from ResourceList's when doing bulk updating of ResourceList's.
+   static const int sChangeDelay;
 
    //! Disabled copy constructor
    ResourceListServer(const ResourceListServer& rResourceListServer);
@@ -458,6 +465,12 @@ inline int ResourceListServer::getMaxDialogsInResInst() const
 inline SipUserAgent& ResourceListServer::getServerUserAgent()
 {
    return mServerUserAgent;
+}
+
+// Get the bulk add/delete delay (in msec).
+inline int ResourceListServer::getChangeDelay()
+{
+   return sChangeDelay;
 }
 
 #endif  // _ResourceListServer_h_

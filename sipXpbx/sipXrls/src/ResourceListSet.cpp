@@ -175,11 +175,30 @@ void ResourceListSet::deleteAllResourceLists()
                  "ResourceListSet::deleteAllResourceLists this = %p",
                  this);
 
-   // Serialize access to the ResourceListSet.
-   OsLock lock(mSemaphore);
-   
-   // Delete all the ResourceList's.
-   mResourceLists.destroyAll();
+   // Gradually remove elements from the ResourceLists and delete them.
+   ResourceList* rl;
+   int changeDelay = getResourceListServer()->getChangeDelay();
+   do {
+      {
+         // Serialize access to the ResourceListSet.
+         OsLock lock(mSemaphore);
+      
+         // Get pointer to the first ResourceList.
+         rl = dynamic_cast <ResourceList*> (mResourceLists.first());
+
+         // If one exists, shrink it.
+         if (rl) {
+            if (rl->shrink()) {
+               // The ResourceList is empty, and so can be removed and deleted.
+               mResourceLists.removeReference(rl);
+               delete rl;
+            }
+         }
+      }
+
+      // Delay to allow the consequent processing to catch up.
+      OsTask::delay(changeDelay);
+   } while (rl);
 }
 
 // Delete all resources from a resource list.
