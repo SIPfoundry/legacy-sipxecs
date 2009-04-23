@@ -232,6 +232,8 @@ class ResourceListServer : public UtlContainableAtomic
    UtlString mClientFromURI;
    //! Contact URI for mClientSipUserAgent.
    UtlString mClientContactURI;
+   //! Name of the file containing the resource lists.
+   UtlString mResourceListFile;
    //! Refresh interval for reinitializing connection to resource URIs, in seconds.
    int mRefreshInterval;
    //! Max resubscription interval to request whem making subscriptions, in seconds.
