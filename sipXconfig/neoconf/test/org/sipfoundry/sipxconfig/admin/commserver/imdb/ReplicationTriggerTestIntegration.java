@@ -50,6 +50,7 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
         SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
         replicationContext.generate(DataSet.PERMISSION);
         replicationContext.generate(DataSet.USER_LOCATION);
+        replicationContext.generate(DataSet.CALLER_ALIAS);
         replay(replicationContext);
         m_trigger.setReplicationContext(replicationContext);
 
@@ -67,6 +68,7 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
         SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
         replicationContext.generate(DataSet.PERMISSION);
         replicationContext.generate(DataSet.USER_LOCATION);
+        replicationContext.generate(DataSet.CALLER_ALIAS);
         replay(replicationContext);
 
         m_trigger.setReplicationContext(replicationContext);
