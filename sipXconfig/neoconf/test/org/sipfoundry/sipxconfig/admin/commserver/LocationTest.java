@@ -2,8 +2,9 @@ package org.sipfoundry.sipxconfig.admin.commserver;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
-import junit.framework.TestCase;
+import static java.util.Arrays.asList;
 
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxParkService;
@@ -11,8 +12,14 @@ import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceBundle;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
-import static java.util.Arrays.asList;
+import junit.framework.TestCase;
+
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
 public class LocationTest extends TestCase {
     public void testGetProcessMonitorUrl() {
@@ -237,5 +244,41 @@ public class LocationTest extends TestCase {
         assertFalse(location.isBundleInstalled(null));
         assertTrue(location.isBundleInstalled("b1"));
         assertFalse(location.isBundleInstalled("b3"));
+    }
+
+    public void testInitBundlesExistingLocation() {
+        Location location = new Location();
+        location.setInstalledBundles(asList("b1", "b2"));
+        location.initBundles(null);
+        List<String> installedBundles = location.getInstalledBundles();
+        assertEquals(2, installedBundles.size());
+        assertTrue(installedBundles.contains("b1"));
+        assertTrue(installedBundles.contains("b2"));
+    }
+
+    public void testInitBundlesNewLocation() {
+        SipxServiceBundle b1 = new SipxServiceBundle("b1");
+        b1.setBeanName("b1");
+        b1.setAutoEnable(true);
+        SipxServiceBundle b2 = new SipxServiceBundle("b2");
+        b2.setBeanName("b2");
+        b2.setAutoEnable(false);
+
+        SipxServiceManager sipxServiceManager = createMock(SipxServiceManager.class);
+        sipxServiceManager.getBundleDefinitions();
+        expectLastCall().andReturn(asList(b1, b2));
+
+        replay(sipxServiceManager);
+
+        Location location = new Location();
+        location.setPrimary(true);
+        location.initBundles(sipxServiceManager);
+
+        List<String> installedBundles = location.getInstalledBundles();
+        assertEquals(1, installedBundles.size());
+        assertTrue(installedBundles.contains("b1"));
+        assertFalse(installedBundles.contains("b2"));
+
+        verify(sipxServiceManager);
     }
 }

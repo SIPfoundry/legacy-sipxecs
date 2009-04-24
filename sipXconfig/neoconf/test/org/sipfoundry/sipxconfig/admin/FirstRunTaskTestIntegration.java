@@ -120,6 +120,6 @@ public class FirstRunTaskTestIntegration extends IntegrationTestCase {
         Collection<LocationSpecificService> servicesForPrimaryLocation = primaryLocation.getServices();
         assertFalse(servicesForPrimaryLocation.isEmpty());
         // auto-enabled bundles are set for primary location
-        assertEquals(3, primaryLocation.getInstalledBundles().size());
+        assertEquals(4, primaryLocation.getInstalledBundles().size());
     }
 }
