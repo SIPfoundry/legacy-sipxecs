@@ -60,9 +60,6 @@ public class FirstRunTask implements ApplicationListener {
         m_resetDialPlanTask.reset(false);
         m_sbcManager.loadDefaultSbc();
 
-        // this is moved from replication trigger will need something better here...
-        m_alarmContext.replicateAlarmServer();
-
         enforceRoles();
         generateAllProfiles();
     }
