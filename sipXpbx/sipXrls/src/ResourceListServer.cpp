@@ -214,6 +214,8 @@ void ResourceListServer::start()
    mResourceListTask.start();
 
    // Start the ResourceListFileReader by giving it the file name.
+   // Do this after starting all the subscription client server tasks,
+   // as otherwise it will fill their queues.
    mResourceListFileReader.setFileName(&mResourceListFile);
 
    // Start the SIP Subscribe Server after the ResourceListFileReader is
