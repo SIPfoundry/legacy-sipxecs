@@ -28,6 +28,10 @@
 
 const UtlContainableType ResourceListServer::TYPE = "ResourceListServer";
 
+// Milliseconds of delay to allow between calls that add or delete resources
+// to/from ResourceList's when doing bulk updating of ResourceList's.
+const int ResourceListServer::sChangeDelay = 10;
+
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -60,6 +64,7 @@ ResourceListServer::ResourceListServer(const UtlString& domainName,
    mDomainName(domainName),
    mEventType(eventType),
    mContentType(contentType),
+   mResourceListFile(*resourceListFile),
    mRefreshInterval(refreshInterval),
    mResubscribeInterval(resubscribeInterval),
    mMinResubscribeInterval(minResubscribeInterval),
@@ -169,9 +174,6 @@ ResourceListServer::ResourceListServer(const UtlString& domainName,
    // Require the "eventlist" extension in the Resource List clients.
    mServerUserAgent.requireExtension(SIP_EVENTLIST_EXTENSION);
    
-   // Start the ResourceListFileReader by giving it the file name.
-   mResourceListFileReader.setFileName(resourceListFile);
-
    // Set the subscribe server grant times.
    if (!mSubscriptionMgr.setSubscriptionTimes(serverMinExpiration,
                                               serverDefaultExpiration,
@@ -210,6 +212,11 @@ void ResourceListServer::start()
 
    // Start the ResourceListTask.
    mResourceListTask.start();
+
+   // Start the ResourceListFileReader by giving it the file name.
+   // Do this after starting all the subscription client server tasks,
+   // as otherwise it will fill their queues.
+   mResourceListFileReader.setFileName(&mResourceListFile);
 
    // Start the SIP Subscribe Server after the ResourceListFileReader is
    // done loading the configuration.  This ensures that early subscribers

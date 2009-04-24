@@ -91,6 +91,11 @@ class ResourceList : public UtlContainableAtomic
    //! Dump the object's internal state.
    void dumpState();
 
+   //! Incrementally remove and delete one component of the ResourceList.
+   // Returns TRUE if the ResourceList is empty, that is, if its deletion
+   // will be quick.
+   UtlBoolean shrink();
+
    /**
     * Get the ContainableType for a UtlContainable-derived class.
     */

@@ -27,9 +27,6 @@
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
 
-// Milliseconds of delay after calls of addResource*() methods, in
-// order to pace the demand placed on server tasks.
-static int addDelay = 100;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -63,6 +60,8 @@ OsStatus ResourceListFileReader::initialize()
 {
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
                  "ResourceListFileReader::initialize entered");
+
+   int changeDelay = mResourceListSet->getResourceListServer()->getChangeDelay();
 
    // The status to return.
    OsStatus ret = OS_SUCCESS;
@@ -134,7 +133,7 @@ OsStatus ResourceListFileReader::initialize()
                   mResourceListSet->addResourceList(user_attribute,
                                                     user_cons_attribute,
                                                     "");
-                  OsTask::delay(addDelay);
+                  OsTask::delay(changeDelay);
 
                   // Find all the <resource> children and add them to the
                   // ResourceList.
@@ -198,7 +197,7 @@ OsStatus ResourceListFileReader::initialize()
                                                          uri_attribute,
                                                          names.data(),
                                                          display_name.data());
-                           OsTask::delay(addDelay);
+                           OsTask::delay(changeDelay);
                         }
                      }
                   }
