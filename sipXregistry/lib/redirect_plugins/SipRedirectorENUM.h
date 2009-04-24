@@ -81,9 +81,6 @@ class SipRedirectorENUM : public RedirectPlugin
    UtlString mE164Prefix;
    // Base domain for DNS lookup.
    UtlString mBaseDomain;
-   // The Route header parameter value to use to spiral generated
-   // contacts to the proxy.  E.g., "<sip:example.com;lr>".
-   UtlString mLocalDomainRoute;
 };
 
 #endif // SIPREDIRECTORENUM_H
