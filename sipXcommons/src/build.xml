@@ -165,6 +165,7 @@
       <fileset file="${src.dir}/lib/bcel.jar"/>
       <fileset file="${src.dir}/lib/commons-beanutils.jar"/>
       <fileset file="${src.dir}/lib/commons-cli.jar"/>
+      <fileset file="${src.dir}/lib/commons-codec.jar"/>
       <fileset file="${src.dir}/lib/commons-collections.jar"/>
       <fileset file="${src.dir}/lib/commons-digester.jar"/>
       <fileset file="${src.dir}/lib/commons-io.jar"/>
