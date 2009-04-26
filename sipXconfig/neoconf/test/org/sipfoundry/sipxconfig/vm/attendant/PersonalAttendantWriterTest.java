@@ -37,6 +37,9 @@ public class PersonalAttendantWriterTest extends TestCase {
         profileGenerator.generate(isA(FileSystemProfileLocation.class),
                 isA(PersonalAttendant.AttendantProfileContext.class), (ProfileFilter) isNull(),
                 eq("savemessage.vxml"));
+        profileGenerator.generate(isA(FileSystemProfileLocation.class),
+                isA(PersonalAttendant.AttendantProfileContext.class), (ProfileFilter) isNull(),
+                eq("PersonalAttendant.properties"));
         expectLastCall();
 
         CoreContext coreContext = createMock(CoreContext.class);

@@ -1,0 +1,15 @@
+#if($operator)
+pa.operator=${operator}
+#else
+pa.operator=
+#end
+#if($overrideLanguage && $language)
+pa.language=${language}
+#else
+pa.language=
+#end
+#foreach( $item in $menu )
+#set($id = "pa.menu.${velocityCount}")
+${id}.key=${item.key}
+${id}.uri=${item.uri}
+#end

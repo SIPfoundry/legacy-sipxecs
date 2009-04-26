@@ -23,7 +23,8 @@ public class PersonalAttendantWriter {
         FileSystemProfileLocation location = new FileSystemProfileLocation();
         location.setParentDir(mailbox.getUserDirectory().getPath());
         String domain = m_coreContext.getDomainName();
-        pa.generateProfile(location, domain, m_generator);
+        pa.generateVxmlProfile(location, domain, m_generator);
+        pa.generatePropertiesProfile(location, domain, m_generator);
     }
 
     public void setGenerator(ProfileGenerator generator) {

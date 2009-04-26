@@ -82,10 +82,28 @@ public class PersonalAttendant extends BeanWithId {
      * @param domain SIP domain for which we are generating VXML
      * @param generator Velocity based VXML generator
      */
-    public void generateProfile(ProfileLocation location, String domain,
+    public void generateVxmlProfile(ProfileLocation location, String domain,
             ProfileGenerator generator) {
-        AttendantProfileContext context = new AttendantProfileContext(this, domain);
-        generator.generate(location, context, null, "savemessage.vxml");
+        // Generate the voicexml for the old vm
+        AttendantProfileContext vxmlContext = new AttendantProfileContext(
+                this, domain, "sipxvxml/savemessage.vxml.vm");
+        generator.generate(location, vxmlContext, null, "savemessage.vxml");
+        
+    }
+
+    /**
+     * Generate personal AA Properties file (from the template)
+     * 
+     * @param location profile destination
+     * @param domain SIP domain for which we are generating this file
+     * @param generator Velocity based generator
+     */
+    public void generatePropertiesProfile(ProfileLocation location, String domain,
+            ProfileGenerator generator) {
+        // Generate the properties for the new vm
+        AttendantProfileContext propertiesContext = new AttendantProfileContext(
+                this, domain, "sipxivr/PersonalAttendant.properties.vm");
+        generator.generate(location, propertiesContext, null, "PersonalAttendant.properties");
     }
 
     public static class MenuItem {
@@ -110,8 +128,8 @@ public class PersonalAttendant extends BeanWithId {
         private PersonalAttendant m_aa;
         private String m_domain;
 
-        public AttendantProfileContext(PersonalAttendant aa, String domain) {
-            super(null, "sipxvxml/savemessage.vxml.vm");
+        public AttendantProfileContext(PersonalAttendant aa, String domain, String template) {
+            super(null, template);
             m_aa = aa;
             m_domain = domain;
         }
