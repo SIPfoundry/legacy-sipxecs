@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.admin.alarm.AlarmServerActivatedEvent;
 import org.sipfoundry.sipxconfig.admin.alarm.AlarmServerConfiguration;
 import org.sipfoundry.sipxconfig.admin.alarm.AlarmServerContacts;
 import org.sipfoundry.sipxconfig.admin.commserver.AlarmApi;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
@@ -43,7 +44,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-public class AlarmContextImpl extends SipxHibernateDaoSupport implements AlarmContext, ApplicationListener {
+public class AlarmContextImpl extends SipxHibernateDaoSupport implements AlarmContext,
+        ApplicationListener {
     private static final Log LOG = LogFactory.getLog(AlarmContextImpl.class);
     private static final String DEFAULT_HOST = "@localhost";
     private static final String EMPTY = "";
@@ -56,7 +58,7 @@ public class AlarmContextImpl extends SipxHibernateDaoSupport implements AlarmCo
     private String m_configDirectory;
     private String m_alarmsStringsDirectory;
     private LocationsManager m_locationsManager;
-    
+
     @Required
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
@@ -66,7 +68,7 @@ public class AlarmContextImpl extends SipxHibernateDaoSupport implements AlarmCo
     public void setAlarmApiProvider(ApiProvider<AlarmApi> alarmApiProvider) {
         m_alarmApiProvider = alarmApiProvider;
     }
-    
+
     @Required
     public void setReplicationContext(SipxReplicationContext replicationContext) {
         m_replicationContext = replicationContext;
@@ -141,7 +143,7 @@ public class AlarmContextImpl extends SipxHibernateDaoSupport implements AlarmCo
         // save alarm server configuration
         saveAlarmServer(server);
         // replicate new alarm server configuration
-        replicateAlarmServer();
+        replicateAlarmServer(m_replicationContext, null);
         // replicate new alarm types configuration
         replicateAlarmsConfiguration(alarms);
 
@@ -182,10 +184,15 @@ public class AlarmContextImpl extends SipxHibernateDaoSupport implements AlarmCo
         template.flush();
     }
 
-    public void replicateAlarmServer() {
+    public void replicateAlarmServer(SipxReplicationContext replicationContext, Location location) {
         AlarmServer alarmServer = getAlarmServer();
         m_alarmServerConfiguration.generate(alarmServer, getLogDirectory(), getHost());
-        m_replicationContext.replicate(m_alarmServerConfiguration);
+
+        if (location == null) {
+            replicationContext.replicate(m_alarmServerConfiguration);
+        } else {
+            replicationContext.replicate(location, m_alarmServerConfiguration);
+        }
     }
 
     private void replicateAlarmsConfiguration(List<Alarm> alarms) {
@@ -262,12 +269,13 @@ public class AlarmContextImpl extends SipxHibernateDaoSupport implements AlarmCo
         }
         return EMPTY;
     }
-    
+
     private String getHost() {
         return m_locationsManager.getPrimaryLocation().getFqdn();
     }
-    
+
     private AlarmApi getAlarmApi() {
-        return m_alarmApiProvider.getApi(m_locationsManager.getPrimaryLocation().getProcessMonitorUrl());
+        return m_alarmApiProvider.getApi(m_locationsManager.getPrimaryLocation()
+                .getProcessMonitorUrl());
     }
 }

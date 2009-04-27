@@ -13,6 +13,8 @@ import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.alarm.Alarm;
 import org.sipfoundry.sipxconfig.admin.alarm.AlarmServer;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 
 public interface AlarmContext {
     public static enum Command {
@@ -38,8 +40,8 @@ public interface AlarmContext {
 
     public void deployAlarmConfiguration(AlarmServer alarmServer, List<Alarm> alarms);
 
-    public void replicateAlarmServer();
-
+    public void replicateAlarmServer(SipxReplicationContext replicationContext, Location location);
+    
     public String getSipxUser();
 
     public String getConfigDirectory();
