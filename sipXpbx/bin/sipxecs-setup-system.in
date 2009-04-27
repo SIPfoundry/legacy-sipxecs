@@ -338,9 +338,9 @@ Do you have a DNS server on another system?\
    if ProvideDNS :
        dnsExplanation='\
 Configure upstream DNS servers to be used, if any.\n\
-  If you have an intranet DNS system,\n\
-  or use DNS from your IP service provider,\n\
-Enter those servers here.\n\
+If you have an intranet DNS system,\n\
+or use DNS from your IP service provider,\n\
+enter those servers here.\n\
 Otherwise, leave these entries blank.\
 '
    else:
@@ -766,7 +766,12 @@ subnet %s netmask %s {\n\
    option tftp-server-name      "%s";\n\
 '  % (Subnet, NetMask, rangeStart, rangeEnd, Gateway, NetMask, DomainName, HostName)
 
-        dhcpdConf +='   option domain-name-servers   %s' % DnsServers[0]
+        if ProvideDNS:
+            dhcpdConf +='   option domain-name-servers   %s' % IpAddress
+            if DnsServers[0] != '' :
+                dhcpdConf +=', %s' % DnsServers[0]
+        else:
+            dhcpdConf +='  option domain-name-servers   %s' % DnsServers[0]
         if DnsServers[1] != '' :
             dhcpdConf +=', %s' % DnsServers[1]
         dhcpdConf +=';\n'
