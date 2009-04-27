@@ -338,9 +338,9 @@ Do you have a DNS server on another system?\
    if ProvideDNS :
        dnsExplanation='\
 Configure upstream DNS servers to be used, if any.\n\
-  If you have an intranet DNS system,\n\
-  or use DNS from your IP service provider,\n\
-Enter those servers here.\n\
+If you have an intranet DNS system,\n\
+or use DNS from your IP service provider,\n\
+enter those servers here.\n\
 Otherwise, leave these entries blank.\
 '
    else:
@@ -463,7 +463,6 @@ def set_network ():
     global HostName
     global IpAddress
     global Gateway
-    global DomainName
 
     show_progress()
 
@@ -661,23 +660,7 @@ options {\n\
     if ProvideDNS:
         # Zone files are only required for the Master DNS server.
         # A Master DNS server is used for a non HA setup or on the HA Master host
-
-        zoneConfigFile='%s/%s.zone' % (sipxecsGlobals.NamedDirectory, DomainName)
-
-        # Create DNS entries using the sipx-dns script
-        sipxDNSCommand = '@SIPX_BINDIR@/sipx-dns --provide-dns --zone %s %s/%s' \
-                         % (DomainName, HostName, IpAddress)
-
-        zoneConfig = commands.getoutput(sipxDNSCommand)
-
-        log_printout("======= %s:" % zoneConfigFile)
-        log_printout(zoneConfig)
-
-        if runningAsRoot():
-            file ( zoneConfigFile, 'w').write( zoneConfig )
-            
-    # Change ownership of zone files
-    setOwnerRecursive(sipxecsGlobals.NamedDirectory, 'named', 'named')
+        setup_DNS_zone( DomainName, HostName, IpAddress )
 
     if runningAsRoot():
         startNamedCmd = '/sbin/service named restart'
@@ -766,7 +749,12 @@ subnet %s netmask %s {\n\
    option tftp-server-name      "%s";\n\
 '  % (Subnet, NetMask, rangeStart, rangeEnd, Gateway, NetMask, DomainName, HostName)
 
-        dhcpdConf +='   option domain-name-servers   %s' % DnsServers[0]
+        if ProvideDNS:
+            dhcpdConf +='   option domain-name-servers   %s' % IpAddress
+            if DnsServers[0] != '' :
+                dhcpdConf +=', %s' % DnsServers[0]
+        else:
+            dhcpdConf +='  option domain-name-servers   %s' % DnsServers[0]
         if DnsServers[1] != '' :
             dhcpdConf +=', %s' % DnsServers[1]
         dhcpdConf +=';\n'
