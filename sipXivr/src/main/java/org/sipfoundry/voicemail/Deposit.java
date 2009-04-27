@@ -20,7 +20,6 @@ import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.sipxivr.Menu;
 import org.sipfoundry.sipxivr.PersonalAttendant;
 import org.sipfoundry.sipxivr.PromptList;
-import org.sipfoundry.sipxivr.Record;
 import org.sipfoundry.voicemail.MessageDescriptor.Priority;
 
 
@@ -110,7 +109,6 @@ public class Deposit {
         for(;;) {
             // Record the message
             if (!recorded) {
-                m_fses.trimDtmfQueue("") ; // Flush the DTMF queue
                 m_vm.recordMessage(wavName);
     
                 String digit = m_fses.getDtmfDigit();

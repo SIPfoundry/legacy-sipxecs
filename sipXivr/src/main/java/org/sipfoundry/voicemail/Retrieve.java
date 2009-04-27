@@ -24,11 +24,11 @@ import org.sipfoundry.sipxivr.Localization;
 import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.sipxivr.Menu;
 import org.sipfoundry.sipxivr.PromptList;
-import org.sipfoundry.sipxivr.Record;
 import org.sipfoundry.sipxivr.TextToPrompts;
 import org.sipfoundry.sipxivr.User;
 import org.sipfoundry.sipxivr.ValidUsersXML;
 import org.sipfoundry.sipxivr.IvrChoice.IvrChoiceReason;
+import org.sipfoundry.voicemail.MessageDescriptor.Priority;
 import org.sipfoundry.voicemail.Messages.Folders;
 
 public class Retrieve {
@@ -219,7 +219,7 @@ public class Retrieve {
             menuPl.addFragment("main_menu_options");
             mainMenu.collectDigit(menuPl, "1234578");
             
-            if (mainMenu.getChoice().equals(IvrChoiceReason.CANCELED)) {
+            if (mainMenu.getChoice().getIvrChoiceReason().equals(IvrChoiceReason.CANCELED)) {
                 // Canceled has no meaning at the top level.
                 continue ;
             }
@@ -259,6 +259,14 @@ public class Retrieve {
                 playMessages(Messages.Folders.DELETED);
                 continue;
             }
+            // TODO 4 send a message 
+            // TODO 5 voicemail options
+            
+            if (digit.equals("8")) {
+                m_vm.goodbye();
+            }
+            
+            // TODO 7 sysadmin options
         }
     }
 
@@ -282,6 +290,7 @@ public class Retrieve {
                 messagePl.addPrompts(vmMessage.getAudioFile().getPath());
                 VmMenu menu = new VmMenu(m_loc, m_vm);
                 menu.setPrePromptPl(prePromptPl);
+                menu.setSpeakCanceled(false);
                 
                 // Read the message descriptor file to obtain the info we need
                 MessageDescriptor md = new MessageDescriptorReader().readObject(vmMessage.getDescriptorFile());
@@ -399,7 +408,7 @@ public class Retrieve {
                     continue;
                 }
                 if (digit.equals("6")) {
-                    // TODO the reply thing
+                    reply(vmMessage, user);
                     continue;
                 }
                 if (digit.equals("#")) {
@@ -506,7 +515,8 @@ public class Retrieve {
      * @param vmMessage
      */
     void forward(VmMessage vmMessage) {
-        String commentsWav;
+        String commentsWav = null;
+        Message comments = null;
         boolean askAboutComments = true;
         for(;;) {
             if (askAboutComments) {
@@ -535,13 +545,20 @@ public class Retrieve {
                     continue;
                 }
                 askAboutComments = false;
+             // Build a message with the comments (if any)
+                comments = Message.newMessage(null, commentsWav, m_fses.getDisplayUri(), Priority.NORMAL);
             }
 
+            
             // Get a list of extensions 
             EnterExtension ee = new EnterExtension(m_vm, m_loc);
             DialByNameChoice choice = ee.extensionDialog();
             if (choice.getIvrChoiceReason() == IvrChoiceReason.SUCCESS) {
-                // TODO the actual work of forwarding
+                // Forward the message to each destination
+                for (User destUser : choice.getUsers()) {
+                    Mailbox destMailbox = new Mailbox(destUser, m_loc);
+                    vmMessage.forward(destMailbox, comments);
+                }
                 
                 // "Message forwarded."
                 m_loc.play("msg_forwarded", "");
@@ -561,14 +578,43 @@ public class Retrieve {
         }
     }
     
+    /** 
+     * Reply to a message, with a recorded comment back to the sender
+     * @param vmMessage
+     */
+    void reply(VmMessage vmMessage, User sendingUser) {
+        String commentsWav = recordComments();
+        if (commentsWav == null) {
+            return;
+        }
+
+        // Find the user who sent this message
+        Mailbox destMailbox = new Mailbox(sendingUser, m_loc);
+        
+        // Build a message with the comments sent by this user.
+        Message comments = Message.newMessage(destMailbox, commentsWav, 
+                m_mailbox.getUser().getUri(), Priority.NORMAL);
+
+        // Send the message.
+        comments.storeInInbox();
+                
+        // "Message sent."
+        m_loc.play("msg_replyed", "");
+    }
+    
+    /**
+     * Record a comment to a message to be forwarded.
+     * 
+     * @return the wav file of the recording
+     */
     String recordComments() {
-        String wavName = "oops" ;
+        String wavPath = "oops" ;
         File wavFile;
 
         // Time to record a message
         try {
             wavFile = File.createTempFile("temp_recording_", ".wav"); // TODO which tmp dir?
-            wavName = wavFile.getPath();
+            wavPath = wavFile.getPath(); // TODO, how to delete this temp file on hangup
         } catch (IOException e) {
             throw new RuntimeException("Cannot create temp recording file", e);
         }
@@ -586,8 +632,7 @@ public class Retrieve {
                 String digit = c.getDigits();
                 LOG.debug("Retrieve::comments collected ("+digit+")");
                 if (digit.length() == 0 || !"*0".contains(digit) ) {
-                    m_fses.trimDtmfQueue("") ; // Flush the DTMF queue
-                    Record rec = m_vm.recordMessage(wavName);
+                    m_vm.recordMessage(wavPath);
                     digit = m_fses.getDtmfDigit();
                     if (digit == null) {
                         digit = "";
@@ -610,12 +655,12 @@ public class Retrieve {
                 recordComments = false;
             }
         
-            // Confirm caller's intent for this message
+            // Confirm caller's intent for this comment
             Menu menu2 = new VmMenu(m_loc, m_vm);
             if (playComments) {
                 // (pre-menu: message)
                 PromptList messagePl = new PromptList(m_loc);
-                messagePl.addPrompts(wavName);
+                messagePl.addPrompts(wavPath);
                 menu2.setPrePromptPl(messagePl);
                 playComments = false ; // Only play it once
             }
@@ -639,14 +684,14 @@ public class Retrieve {
     
             // "1" means play the recording
             if (digit.equals("1")) {
-                LOG.info(String.format("Playing back comment (%s)", wavName));
+                LOG.info(String.format("Playing back comment (%s)", wavPath));
                 playComments = true ;
                 continue ;
             }
     
             // "2" means accept the comments recording
             if (digit.equals("2")) {
-                return wavName;
+                return wavPath;
             }
     
             // "3" means "erase" and re-record
