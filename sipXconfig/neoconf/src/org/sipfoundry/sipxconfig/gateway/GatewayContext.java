@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.gateway;
@@ -38,14 +38,8 @@ public interface GatewayContext {
     void deleteGateways(Collection<Integer> selectedRows);
 
     /**
-     * Some gateways represent temporary services and should not survive dial plan resets. They
-     * are represented by volatile flag in gateway model. This method deletes them.
-     */
-    void deleteVolatileGateways();
-
-    /**
      * Returns the list of gateways available for a specific rule
-     * 
+     *
      * @param ruleId id of the rule for which gateways are checked
      * @return collection of available gateways
      */

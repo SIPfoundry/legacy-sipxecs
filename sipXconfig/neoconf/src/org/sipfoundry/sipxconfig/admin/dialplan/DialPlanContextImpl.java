@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
@@ -26,7 +26,6 @@ import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
-import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
@@ -54,9 +53,6 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
     private ListableBeanFactory m_beanFactory;
 
     private ApplicationContext m_applicationContext;
-
-    /* delayed injection - working around circular reference */
-    public abstract GatewayContext getGatewayContext();
 
     public abstract DialPlanActivationManager getDialPlanActivationManager();
 
@@ -240,23 +236,23 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
     public DialPlan resetToFactoryDefault(String dialPlanBeanName, AutoAttendant operator) {
         removeAll(DialingRule.class);
         removeAll(DialPlan.class);
-        getGatewayContext().deleteVolatileGateways();
         getHibernateTemplate().flush();
 
         DialPlan newDialPlan = null;
-        //try loading region specific dialplan
+        // try loading region specific dialplan
         try {
             newDialPlan = (DialPlan) m_beanFactory.getBean(dialPlanBeanName);
         } catch (NoSuchBeanDefinitionException ex) {
             LOG.info(DIAL_PLAN + dialPlanBeanName + " not found");
         }
-        //region specific dial plan may be installed at runtime - we need to load its
-        //corresponding dialrules.beans.xml
+        // region specific dial plan may be installed at runtime - we need to load its
+        // corresponding dialrules.beans.xml
         if (newDialPlan == null) {
             try {
                 String regionId = dialPlanBeanName.split("\\.")[0];
-                ClassPathXmlApplicationContext beanFactory = new ClassPathXmlApplicationContext(
-                        new String[] {"region_" + regionId + "/dialrules.beans.xml"}, m_applicationContext);
+                ClassPathXmlApplicationContext beanFactory = new ClassPathXmlApplicationContext(new String[] {
+                    "region_" + regionId + "/dialrules.beans.xml"
+                }, m_applicationContext);
                 newDialPlan = (DialPlan) beanFactory.getBean(dialPlanBeanName);
                 LOG.info(DIAL_PLAN + dialPlanBeanName + " is installed");
             } catch (Exception ex) {
