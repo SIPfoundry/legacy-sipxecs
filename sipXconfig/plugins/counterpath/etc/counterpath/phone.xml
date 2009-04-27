@@ -669,13 +669,19 @@ A lower number has a higher priority (therefore 1.0 is the highest priority).</d
 If setting is true and the application computer has a high bandwidth network connection, then the application will choose CIF resolution.
 If this setting is true and the computer has a low bandwidth connection, then the application will probably choose QCIF.</description>
     </setting>
-    <setting name='system:network:honor_first_codec'>
+    <setting name='system:network:honor_first_codec' advanced="yes">
       <label>Honor first codec</label>
       <type refid="true-false" />
       <value>true</value>
       <description>Controls the codec the application will use for outgoing audio or video (audio or video being sent to the other party).
 - Set to true to instruct the application to respect the other party’s preferred codec (as advertised in their SDP).
 - Set to false to instruct the application to ignore the other party’s preferred codec (as advertised in their SDP), and to send audio or video in the codec that sounds best, based on the other party’s capability, the available bandwidth, and network conditions.</description>
+    </setting>
+    <setting name='codecs:codec_selection_manager:enable' advanced="yes">
+      <label>Mid-call codec optimizing</label>
+      <type refid="true-false" />
+      <value>false</value>
+      <description>Controls whether or not the automatic codec selection manager is enabled.  The manager uses RTCP statistics feedback to determine whether it should switch to a more appropriate codec mid-call.  Most hard-phones and gateways cannot handle mid-call codec changes, so it is typically best to leave this feature disabled.</description>
     </setting>
   </group>
 
