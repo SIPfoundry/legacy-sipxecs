@@ -158,6 +158,7 @@
   <bean id="dialPlanActivationManager" class="org.sipfoundry.sipxconfig.admin.dialplan.LazyDialPlanActivationManager"
     init-method="init">
     <property name="target" ref="eagerDialPlanActivationManager" />
+    <property name="sipxProcessContext" ref="sipxProcessContext" />
   </bean>
 
   <bean id="mappingRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.MappingRules" parent="defaultConfigurationFile">

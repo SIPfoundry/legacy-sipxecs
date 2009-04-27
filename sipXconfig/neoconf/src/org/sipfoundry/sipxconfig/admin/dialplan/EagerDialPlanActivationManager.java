@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
-import java.util.Arrays;
 import java.util.Collection;
 
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
@@ -68,6 +67,10 @@ public abstract class EagerDialPlanActivationManager implements BeanFactoryAware
         notifyOnDialPlanGeneration();
     }
 
+    public void replicateIfNeeded() {
+        // empty: conditional activation only makes sense for a lazy implementation
+    }
+
     ConfigGenerator generateDialPlan() {
         ConfigGenerator generator = createConfigGenerator();
         generator.generate(m_dialPlanContext);
@@ -85,10 +88,8 @@ public abstract class EagerDialPlanActivationManager implements BeanFactoryAware
      */
     private void notifyOnDialPlanGeneration() {
         m_sipxReplicationContext.publishEvent(new DialPlanActivatedEvent(this));
-        SipxService proxy = m_sipxServiceManager.getServiceByBeanId(SipxProxyService.BEAN_ID);
-        SipxService registrar = m_sipxServiceManager.getServiceByBeanId(SipxRegistrarService.BEAN_ID);
-        // mark services for restart - a reminder will be shown to the user
-        m_sipxProcessContext.markServicesForRestart(Arrays.asList(proxy, registrar));
+        m_sipxProcessContext.markDialPlanRelatedServicesForRestart(SipxProxyService.BEAN_ID,
+                SipxRegistrarService.BEAN_ID);
     }
 
     /**
