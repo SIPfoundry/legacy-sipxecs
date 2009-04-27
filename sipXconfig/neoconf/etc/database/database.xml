@@ -306,6 +306,7 @@
     <antcall target="backup-ftp-fix-empty-type-2" />
     <antcall target="drop_zipupload"/>
     <antcall target="migrate-grandstream" />
+    <antcall target="delete-volatile-gateways" />
     <sipx-version version="9"/>
   </target>
 
@@ -824,6 +825,12 @@
 
   <target name="migrate-grandstream" unless="migrate-grandstream">
     <db-patch patch="migrate-grandstream"/>
+  </target>
+
+  <target name="delete-volatile-gateways" unless="delete-volatile-gateways">
+    <sipx-sql>
+      delete from gateway where model_id = 'genericVolatileGatewayStandard';
+    </sipx-sql>
   </target>
 
   <!--
