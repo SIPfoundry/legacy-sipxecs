@@ -55,7 +55,13 @@ public class SipConfigurationTest extends XMLTestCase {
     public void testGenerateProfile20() throws Exception {
         initSettings();
         phone.setDeviceVersion(PolycomModel.VER_2_0);
+
+        // XCF-3581: No longer automatically generating phone emergency dial routing.  These settings
+        // are as if they'd been manually configured under Phone - Dial Plan - Emergency Routing.
+        phone.setSettingValue("dialplan/digitmap/routing.1/address", "emergency-gateway.example.org");
+        phone.setSettingValue("dialplan/digitmap/routing.1/port", "9999");
         phone.setSettingValue("dialplan/digitmap/routing.1/emergency.1.value", "911,912");
+
         phone.beforeProfileGeneration();
         ProfileContext cfg = new SipConfiguration(phone);
 
