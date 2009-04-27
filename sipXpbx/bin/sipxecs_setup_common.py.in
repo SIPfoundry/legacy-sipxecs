@@ -347,6 +347,7 @@ def screen_fetch_config ():
     
     masterSystemName=''
     gotConfig=False
+    HostName = getfqdn(gethostname())
     while not gotConfig :
         MasterSystemMessage ="\
 Enter the full hostname of your Master system,\n\

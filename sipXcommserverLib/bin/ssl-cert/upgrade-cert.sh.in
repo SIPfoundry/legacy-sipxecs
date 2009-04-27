@@ -29,8 +29,6 @@ then
    then
       # create the directory.
       mkdir               "${GenDir}/certdb" || exit 1
-      chown ${sipXuser}   "${GenDir}/certdb" || exit 1
-      chmod 0700          "${GenDir}/certdb" || exit 1
    fi
    cd "${OldGenDir}/sipx-certdb/"
    cp -r "." "${GenDir}/certdb" || exit 1
@@ -40,6 +38,8 @@ then
    # old data copied.  Generate the Java keystore and then install the certs.
    cd "${GenDir}/certdb"
    @bindir@/ssl-cert/gen-ssl-keys.sh -d -s "`hostname --fqdn`" 1>/dev/null
+   chown -R ${sipXuser}   "${GenDir}/certdb" || exit 1
+   chmod -R 0700          "${GenDir}/certdb" || exit 1
    @bindir@/ssl-cert/install-cert.sh "`hostname --fqdn`" 1>/dev/null
    exit 0
 fi
