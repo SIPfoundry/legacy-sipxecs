@@ -463,7 +463,6 @@ def set_network ():
     global HostName
     global IpAddress
     global Gateway
-    global DomainName
 
     show_progress()
 
@@ -661,23 +660,7 @@ options {\n\
     if ProvideDNS:
         # Zone files are only required for the Master DNS server.
         # A Master DNS server is used for a non HA setup or on the HA Master host
-
-        zoneConfigFile='%s/%s.zone' % (sipxecsGlobals.NamedDirectory, DomainName)
-
-        # Create DNS entries using the sipx-dns script
-        sipxDNSCommand = '@SIPX_BINDIR@/sipx-dns --provide-dns --zone %s %s/%s' \
-                         % (DomainName, HostName, IpAddress)
-
-        zoneConfig = commands.getoutput(sipxDNSCommand)
-
-        log_printout("======= %s:" % zoneConfigFile)
-        log_printout(zoneConfig)
-
-        if runningAsRoot():
-            file ( zoneConfigFile, 'w').write( zoneConfig )
-            
-    # Change ownership of zone files
-    setOwnerRecursive(sipxecsGlobals.NamedDirectory, 'named', 'named')
+        setup_DNS_zone( DomainName, HostName, IpAddress )
 
     if runningAsRoot():
         startNamedCmd = '/sbin/service named restart'

@@ -31,6 +31,7 @@ ETHNAME        = 'eth0'                            # Supported Ethernet interfac
 
 class sipxecsGlobals:
    ''' global variables, adjusted in checkSystemType for particular flavour of linux '''
+   systemType = 'unknown'
    IfCfgFile = '%s/ifcfg-%s' % (IFCONFIGDIR, ETHNAME)
    NetcatCommand = 'nc'
    NtpServiceName = 'ntpd'
@@ -79,17 +80,19 @@ def checkSystemType () :
 
     global IFCONFIGDIR
 
-    if os.path.exists("/etc/SuSE-release"):
-        log_printout("Installing on a SuSE system")
-        IFCONFIGDIR   = '/etc/sysconfig/network'          # Directory of all interface configurations on SUSE
-        sipxecsGlobals.IfCfgFile     = '%s/ifcfg-%s' % (IFCONFIGDIR, ETHNAME)
-        sipxecsGlobals.NetcatCommand = 'netcat'
-        sipxecsGlobals.NtpServiceName = 'ntp'
-        sipxecsGlobals.NamedDirectory = '/var/lib/named'
-        return 'suse'
-    else:
-        return 'linux'
+    if sipxecsGlobals.systemType == 'unknown':
+       if os.path.exists("/etc/SuSE-release"):
+           sipxecsGlobals.systemType = 'suse'
+           log_printout("Installing on a SuSE system")
+           IFCONFIGDIR   = '/etc/sysconfig/network'          # Directory of all interface configurations on SUSE
+           sipxecsGlobals.IfCfgFile     = '%s/ifcfg-%s' % (IFCONFIGDIR, ETHNAME)
+           sipxecsGlobals.NetcatCommand = 'netcat'
+           sipxecsGlobals.NtpServiceName = 'ntp'
+           sipxecsGlobals.NamedDirectory = '/var/lib/named'
+       else:
+           sipxecsGlobals.systemType = 'linux'
 
+    return sipxecsGlobals.systemType
 
 # logging utilities 
 
@@ -579,6 +582,31 @@ CONFIG_HOSTS : %s\n\
 
     log_printout (minimalDomainConfig)
 
+def setup_DNS_zone( domain, hostname, ipaddress ):
+   ''' Create zone files for the specified domain '''
+
+   # Zone files are only required for the Master DNS server.
+   # A Master DNS server is used for a non HA setup or on the HA Master host
+
+   zoneConfigFile='%s/%s.zone' % (sipxecsGlobals.NamedDirectory, domain)
+
+   # Create DNS entries using the sipx-dns script
+   sipxDNSCommand = '@SIPX_BINDIR@/sipx-dns --provide-dns --zone %s %s/%s' \
+                      % (domain, hostname, ipaddress)
+
+   log_printout("Creating DNS zone file %s with %s" % (zoneConfigFile, sipxDNSCommand))
+   zoneConfig = commands.getoutput(sipxDNSCommand)
+
+   log_printout("======= %s:" % zoneConfigFile)
+   log_printout(zoneConfig)
+
+   if runningAsRoot():
+      file ( zoneConfigFile, 'w').write( zoneConfig )
+
+      # Change ownership of zone files
+      setOwnerRecursive(sipxecsGlobals.NamedDirectory, 'named', 'named')
+
+
 def enable_sipXconfig () :
     ################################################################
     ###                        IMPORTANT
@@ -790,6 +818,18 @@ def do_sipx_setup() :
 
         progress(30, "Set SIP Domain Name and Realm")
         setup_domain_config()
+
+        if ( SipDomain != DomainName ):
+           progress(35, "Create DNS records");
+           setup_DNS_zone( SipDomain, HostName, IpAddress )
+           if runningAsRoot():
+              reload="/usr/sbin/rndc reload"
+              log_printout("Attempting to reload zone files with: '%s'" % reload)
+              cmdoutput=commands.getoutput(reload)
+              log_printout(cmdoutput)
+           else:
+              log_printout("The SIP Domain is different from the Domain Name, \
+but not running as root, so DNS zone file was not written." )
 
         progress(40, "Generate TLS/SSL Certificate")
         set_fixed_cert_params()
