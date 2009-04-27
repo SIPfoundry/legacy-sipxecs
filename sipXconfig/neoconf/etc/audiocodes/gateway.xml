@@ -823,7 +823,7 @@
       </description>
     </setting>
     <setting name="TimeForDialTone" if="fxs">
-      <label> Dial Tone Duration [sec]</label>
+      <label>Dial Tone Duration [sec]</label>
       <type>
         <integer />
       </type>
