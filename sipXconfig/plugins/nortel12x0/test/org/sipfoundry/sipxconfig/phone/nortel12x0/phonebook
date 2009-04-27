@@ -48,7 +48,7 @@
 <timesettings>
 <default>TRUE</default>
 <ntpIp>ntp.example.org</ntpIp>
-<timezone>+00:00 GMT London</timezone>
+<timezone>-05:00 Eastern</timezone>
 <dstAutoAdjust>FALSE</dstAutoAdjust>
 </timesettings> 
 <intercom>
