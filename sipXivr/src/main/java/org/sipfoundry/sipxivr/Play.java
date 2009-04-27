@@ -102,7 +102,7 @@ public class Play extends CallCommand {
                 digit = "";
             }
             String duration = event.getEventValue("DTMF-Duration", "(Unknown)");
-            LOG.debug(String.format("DTMF event %s %s", digit, duration));
+            LOG.debug(String.format("DTMF event %s %s", m_fses.redact(digit), duration));
             if (m_digitMask.contains(digit)) {
                 // Add digit to the DTMF queue
                 m_fses.appendDtmfQueue(digit);

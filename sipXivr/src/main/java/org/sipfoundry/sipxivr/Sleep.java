@@ -48,7 +48,7 @@ public class Sleep extends CallCommand {
             String digit = event.getEventValue("DTMF-Digit");
             assert (digit != null);
             String duration = event.getEventValue("DTMF-Duration", "(Unknown)");
-            LOG.debug(String.format("DTMF event %s %s", digit, duration));
+            LOG.debug(String.format("DTMF event %s %s", m_fses.redact(digit), duration));
             if (m_digitMask.contains(digit)) {
                 // Add digit to the Dtmf queue
                 m_fses.appendDtmfQueue(digit);

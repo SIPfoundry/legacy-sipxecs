@@ -32,7 +32,7 @@ import org.apache.log4j.Logger;
  */
 public abstract class TextToPrompts {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
-
+    
     public enum Types {
         cardinal, ordinal, digits, letters, prompts, date
     }
@@ -247,6 +247,14 @@ public abstract class TextToPrompts {
     protected abstract String ohJoy(int num);
 
     /**
+     * The Date format needed for feeding date
+     * @return
+     */
+    public static DateFormat ttsDateFormat() {
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    }
+    
+    /**
      * Render the value as a Date and/or Time.
      * <br><br>
      * The input format is fixed: yyyy-MM-dd HH:mm:ss
@@ -270,7 +278,7 @@ public abstract class TextToPrompts {
         
         try {
             // Parse value as YYYY-MM-DD HH:MM:SS
-            DateFormat timeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            DateFormat timeFormat = ttsDateFormat();
             Date d = timeFormat.parse(getValue());
     
             // For each letter of format, get the corresponding part of the value

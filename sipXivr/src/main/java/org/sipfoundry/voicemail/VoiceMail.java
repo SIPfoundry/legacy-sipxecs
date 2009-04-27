@@ -9,8 +9,6 @@
 
 package org.sipfoundry.voicemail;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Locale;
@@ -18,14 +16,14 @@ import java.util.ResourceBundle;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
-import org.sipfoundry.sipxivr.Collect;
-import org.sipfoundry.sipxivr.DialByName;
-import org.sipfoundry.sipxivr.DialByNameChoice;
 import org.sipfoundry.sipxivr.DisconnectException;
 import org.sipfoundry.sipxivr.FreeSwitchEventSocketInterface;
 import org.sipfoundry.sipxivr.Hangup;
+import org.sipfoundry.sipxivr.IvrChoice;
 import org.sipfoundry.sipxivr.Localization;
 import org.sipfoundry.sipxivr.Mailbox;
+import org.sipfoundry.sipxivr.Menu;
+import org.sipfoundry.sipxivr.PersonalAttendant;
 import org.sipfoundry.sipxivr.Play;
 import org.sipfoundry.sipxivr.PromptList;
 import org.sipfoundry.sipxivr.Record;
@@ -33,8 +31,6 @@ import org.sipfoundry.sipxivr.Sleep;
 import org.sipfoundry.sipxivr.Transfer;
 import org.sipfoundry.sipxivr.User;
 import org.sipfoundry.sipxivr.ValidUsersXML;
-import org.sipfoundry.sipxivr.IvrChoice.IvrChoiceReason;
-import org.sipfoundry.voicemail.MessageDescriptor.Priority;
 
 
 public class VoiceMail {
@@ -57,6 +53,8 @@ public class VoiceMail {
 
     private String m_action; // "deposit" or "retrieve"
 
+    private Mailbox m_mailbox ;
+    
     enum NextAction {
         repeat, exit, nextAttendant;
     }
@@ -121,7 +119,6 @@ public class VoiceMail {
      *
      * Keep running the next returned mailbox until there are none left, then exit.
      * 
-     * @throws Throwable indicating an error or hangup condition.
      */
     public void run() throws Throwable {
         if (m_vmBundle == null) {
@@ -160,320 +157,53 @@ public class VoiceMail {
             return null ;
         }
         
+        m_mailbox = mailbox;
         if (m_action.equals("deposit")) {
             try {
-                return depositVoicemail(mailbox) ;
+                
+                String result = new Deposit(this, m_loc).depositVoicemail() ;
+                if (result == null) {
+                    goodbye();
+                    return null ;
+                }
+                m_action = result;
+                
             } catch (DisconnectException e) {
             } finally {
                 // Deliver any messages that are pending
                 for (Message message : m_messages) {
                     message.storeInInbox();
                 }
-                // TODO Light MWI
             }
-        } else {
-            // TODO other actions
+        }
+        
+        if (m_action.equals("retrieve")) {
+            return new Retrieve(this, m_loc).retrieveVoiceMail();
         }
         
         return null;
     }
 
 
-    /**
-     * The depositVoicemail dialog for the give mailbox
-     * 
-     * @param mailbox
-     * @return
-     * @throws Throwable
-     */
-    String depositVoicemail(Mailbox mailbox) {
-        // FreeSWITCH breaks up the original From URI, rebuild it as much as possible
-        // (header/field parameters are missing, but I don't think VoiceMail cares)
-        String callerId = m_fses.getVariable("Caller-Caller-ID-Name");
-        String fromUri = m_fses.getVariable("variable_sip_from_uri");
-        String displayUri = String.format("\"%s\" <sip:%s>", callerId, fromUri);
-        LOG.info("Mailbox "+mailbox.getUser().getUserName()+" Deposit Voicemail from "+displayUri);
-        
-        PersonalAttendant pa = new PersonalAttendant(mailbox) ;
-        String localeString = pa.getLanguage();
-        if (localeString != null) {
-            LOG.debug("Changing locale for this call to "+localeString);
-            m_loc.changeLocale(localeString);
-        }
-        
-        // {user's greeting}
-        Greeting greeting = new Greeting(mailbox) ;
-        PromptList pl = greeting.getPromptList() ;
-
-        // When you are finished, press 1 for more options.
-        // To reach the operator, dial 0 at any time.
-        pl.addFragment("VoiceMail_options");
-        
-        // Allow caller to barge with 0, *, and any defined Personal Attendant digit
-        // Also, allow barge to recording with "#"
-        m_loc.play(pl, "#0*"+pa.getValidDigits());
-
-        Collect c = new Collect(m_fses, 1, 100, 0, 0);
-        c.setTermChars("#");
-        c.go();
-        String digits = c.getDigits();  
-        LOG.info("depositVoicemail Collected digits=" + digits);
-        
-        if (digits.equals("*")) {
-            // TODO retrieval mode
-            return null;
-        }
-        
-        // See if the digit they pressed was defined in the Personal Attendant
-        String transferUrl = null;
-        if (digits.equals("0")) {
-            transferUrl = getOperator(pa);
-        } else {
-            // See if the Personal Attendant defined that digit to mean anything
-            transferUrl = pa.getMenuValue(digits) ;
-        }
-        
-        if (transferUrl != null) {
-            LOG.info(String.format("Transfer to %s", transferUrl));
-            transfer(transferUrl);
-            return null ;
-        }
-        
-        // Time to record a message
-        String wavName = "oops";
-        try {
-            File wavFile = File.createTempFile("temp_recording_", ".wav"); // TODO which tmp dir?
-            wavName = wavFile.getPath();
-        } catch (IOException e) {
-            throw new RuntimeException("Cannot create temp recording file", e);
-        }
-        
-        Message message = new Message(mailbox, wavName, displayUri, Priority.NORMAL);
-        m_messages.add(message) ;
-        
-        boolean recorded = false ;
-        
-        for(;;) {
-            // Record the message
-            if (!recorded) {
-                Record rec = recordMessage(wavName);
-
-                if (rec.getDigits() == "0") {
-                    // Don't save the message.
-                    message.setIsToBeStored(false);
-                    transfer(getOperator(pa));
-                    return null;
-                }
-                LOG.info("Mailbox "+mailbox.getUser().getUserName()+" Deposit Voicemail recorded message");
-                recorded = true ;
-                m_fses.trimDtmfQueue("") ; // Flush the DTMF queue
-            }
-            
-            // Confirm caller's intent for this message
-
-            // To play this message, press 1.  
-            // To send this message, press 2. 
-            // To delete this message and try again, press 3.  
-            // To cancel, press *."
-            pl = m_loc.getPromptList("deposit_options");
-            String digit = menu(pl, "0123*");
-            LOG.info("Mailbox "+mailbox.getUser().getUserName()+" Deposit Voicemail options ("+digit+")");
-
-            // bad entry, timeout or
-            // "*" means cancel
-            if (digit == null || digit.equals("*")) {
-                // Don't save the message.
-                message.setIsToBeStored(false);
-                goodbye();
-                return null;
-            }
-            
-            // "0" means transfer to operator
-            if (digit.equals("0")) {
-                // Don't save the message.
-                message.setIsToBeStored(false);
-                transfer(getOperator(pa));
-                return null;
-            }
-            
-            // "1" means play the message
-            if (digit.equals("1")) {
-                LOG.info(String.format("Playing back message (%s)", wavName));
-                new Play(m_fses, wavName).go();
-                continue ;
-            }
-            
-            // "2" means send the message.
-            if (digit.equals("2")) {
-                message.storeInInbox(); // TODO failure (too short)
-                break ;
-            }
-            
-            // "3" means "erase" and re-record
-            if (digit.equals("3")) {
-                recorded = false ;
-                continue ;
-            }
-        }
-
-        // "Your message has been recorded."
-        m_loc.play("deposit_recorded", "");
-
-        // Message sent, now see what else they want to do
-        MoreOptions(mailbox, pa, message);
-        
-        return null;
-    }
-
-    /**
-     * See if the caller wants to send this message to other mailboxes
-     * @param mailbox
-     */
-    void MoreOptions(Mailbox mailbox, PersonalAttendant pa, Message existingMessage) {
-        Vector<User> userList = new Vector<User>() ;
-        
-        MoreOptions:
-        for(;;) {
-            // "To deliver this message to another address, press 1."
-            // "If you are finished, press *."
-    
-            PromptList pl = m_loc.getPromptList("deposit_more_options");
-            String digit = menu(pl, "01*");
-            LOG.info("Mailbox "+mailbox.getUser().getUserName()+" MoreOptions ("+digit+")");
-
-            // bad entry, timeout or
-            // "*" means cancel
-            if (digit == null || digit.equals("*")) {
-                goodbye();
-                return;
-            }
-    
-            // "0" means transfer to operator
-            if (digit.equals("0")) {
-                transfer(getOperator(pa));
-                return;
-            }
-            
-            int timeoutCount = 0;
-            for(;;) {
-                if (timeoutCount > m_config.getNoInputCount()) {
-                    goodbye();
-                    return ;
-                }
-                
-                // "Please dial an extension."
-                // "Press 8 to use a distribution list,"
-                // "Or press 9 to use the dial by name directory."
-                m_loc.play("deposit_copy_message", "0123456789*");
-                
-                Collect c = new Collect(m_fses, 10, m_config.getInitialTimeout(), 
-                        m_config.getInterDigitTimeout(), m_config.getExtraDigitTimeout());
-                c.setTermChars("#*");
-                c.go();
-                String digits = c.getDigits();  
-                LOG.info("Mailbox "+mailbox.getUser().getUserName()+" MoreOptions copy message ("+digits+")");
-
-                if (digits == null) {
-                    timeoutCount++;
-                    continue ;
-                }
-                
-                // Reset timeout counter, they entered something
-                timeoutCount = 0;
-
-                // "*" means cancel
-                if (digits.equals("*")) {
-                    continue MoreOptions; // Gotta love labels!  Take that Dijkstra!
-                }
-
-                // "0" means transfer to operator
-                if (digits.equals("0")) {
-                    transfer(getOperator(pa));
-                    return;
-                }
-                
-                if (digits.equals("8")) {
-                    Vector<User> users = selectDistributionList(mailbox, pa);
-                    if (users == null) {
-                        continue;
-                    }
-                    userList.addAll(users);
-                    break ;
-                    
-                } else if (digits.equals("9")) {
-                    // Do the DialByName dialog
-                    DialByName dbn = new DialByName(m_loc, m_config, m_validUsers);
-                    DialByNameChoice choice = dbn.dialByName();
-                    
-                    // If they canceled DialByName, backup
-                    if (choice.getIvrChoiceReason() == IvrChoiceReason.CANCELED) {
-                        continue ;
-                    }
-                    
-                    // If an error occurred, hangup
-                    if (choice.getUser() == null) {
-                        goodbye();
-                        continue;
-                    }
-                    
-                    // Add the selected user to the list
-                    userList.add(choice.getUser());
-                    break ;
-                    
-                } else {
-                    User user = m_validUsers.isValidUser(digits);
-                    if (user == null) {
-                        // "that extension is not valid"
-                        m_loc.play("invalid_extension", "");
-                        continue ;
-                    }
-                    userList.add(user) ;
-                }
-                break;
-            }
-             
-            // Store the message with each user in the list
-            for (User user : userList) {
-                Mailbox otherBox = new Mailbox(user, m_loc);
-                Message otherMessage = new Message(otherBox, existingMessage);
-                otherMessage.storeInInbox();
-            }
-            m_loc.play("deposit_copied", "");
-        }
-
-    }
-    
     /**
      * Select a distribution list from the list of lists.  Boy is this confuzing!
-     * @param mailbox
-     * @param pa
      * @return A list of users on the distribution list, null on error
      */
-    Vector<User> selectDistributionList(Mailbox mailbox, PersonalAttendant pa) {
+    Vector<User> selectDistributionList() {
         DistributionsReader dr = new DistributionsReader();
-        Distributions d = dr.readObject(mailbox.getDistributionListsFile()) ;
+        Distributions d = dr.readObject(m_mailbox.getDistributionListsFile()) ;
 
+        // "Please select the distribution list.  Press * to cancel."
         PromptList pl = m_loc.getPromptList("deposit_select_distribution");
-        String digit = menu(pl, "0*"+d.getIndices());
-        LOG.info("Mailbox "+mailbox.getUser().getUserName()+" selectDistributionList ("+digit+")");
+        Menu menu = new VmMenu(m_loc, this);
+        IvrChoice choice = menu.collectDigit(pl, d.getIndices());
 
-        // bad entry, or timeout
-        if (digit == null) {
-            goodbye(); 
+        if (!menu.isOkay()) {
             return null;
         }
+        String digit = choice.getDigits();
+        LOG.info("Mailbox "+m_mailbox.getUser().getUserName()+" selectDistributionList ("+digit+")");
         
-        // "*" means cancel
-        if (digit.equals("*")) {
-            return null ;
-        }
-
-        // "0" means transfer to operator
-        if (digit.equals("0")) {
-            transfer(getOperator(pa));
-            return null;
-        }
-
         Vector<String> userNames = d.getList(digit);
         if (userNames == null) {
             return null ;
@@ -513,7 +243,6 @@ public class VoiceMail {
      * 
      * @param wavName
      * @return The Recording object
-     * @throws Throwable
      */
     Record recordMessage(String wavName) {
         // Flush any typed ahead digits
@@ -527,47 +256,12 @@ public class VoiceMail {
         return rec;
     }
     
-    String menu(PromptList pl, String validDigits) {
-        String digit;
-        int invalidCount = 0;
-        int timeoutCount = 0;
-        for (;;) {
-            // Check for a failure condition
-            if (invalidCount > m_config.getInvalidResponseCount()
-                    || timeoutCount > m_config.getNoInputCount()) {
-                failure();
-                break;
-            }
-
-            // Play the prompts
-            Play p = new Play(m_fses, pl);
-            p.setDigitMask(validDigits);
-            p.go();
-
-            // Wait for the caller to enter a selection.
-            Collect c = new Collect(m_fses, 1, m_config.getInitialTimeout(), 0, 0);
-            c.setTermChars("#");
-            c.go();
-            digit = c.getDigits();
-            LOG.info("menu Collected digit=" + digit);
-
-            // See if it timed out (no digits)
-            if (digit.equals("")) {
-                timeoutCount++;
-                continue;
-            }
-
-            // Check if entered digits match any actions
-            if (validDigits.contains(digit)) {
-                return digit;
-            }
-
-            // What they entered has no corresponding action.
-            LOG.info("menu Invalid entry");
-            m_loc.play("invalid_try_again", "");
-            invalidCount++;
-        }
-        return null;
+ 
+    /**
+     * Transfer to the operator
+     */
+    void operator() {
+        transfer(getOperator(m_mailbox.getPersonalAttendant()));
     }
     
     /**
@@ -638,5 +332,17 @@ public class VoiceMail {
 
     public void setValidUsers(ValidUsersXML validUsers) {
         m_validUsers = validUsers;
+    }
+    
+    /**
+     * Get the list of messages to be delivered at hangup.
+     * @return
+     */
+    public Vector<Message> getMessages() {
+        return m_messages;
+    }
+
+    public Mailbox getMailbox() {
+        return m_mailbox;
     }
 }

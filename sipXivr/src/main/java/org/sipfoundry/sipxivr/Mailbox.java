@@ -27,6 +27,8 @@ public class Mailbox {
     private String m_savedDirectory;
     private String m_deletedDirectory;
     private Localization m_localization;
+    
+    private PersonalAttendant m_personalAttendant;
 
     public Mailbox(User user, Localization localization) {
         m_user = user ;
@@ -165,6 +167,17 @@ public class Mailbox {
 
     public File getDistributionListsFile() {
         return new File(getUserDirectory(), "distribution.xml");
+    }
+
+    /**
+     * Load the personal attendant for this mailbox if not already done so.
+     * @return
+     */
+    public PersonalAttendant getPersonalAttendant() {
+        if (m_personalAttendant == null) {
+            m_personalAttendant = new PersonalAttendant(this);
+        }
+        return m_personalAttendant;
     }
     
 }

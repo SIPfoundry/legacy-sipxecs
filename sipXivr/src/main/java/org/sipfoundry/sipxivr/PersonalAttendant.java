@@ -7,7 +7,7 @@
  *
  */
 
-package org.sipfoundry.voicemail;
+package org.sipfoundry.sipxivr;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,7 +17,6 @@ import java.util.HashMap;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
-import org.sipfoundry.sipxivr.Mailbox;
 
 /**
  * Holds the configuration data and performs the parts needed for 

@@ -10,6 +10,7 @@ package org.sipfoundry.sipxivr;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Properties;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -107,12 +108,12 @@ public class ValidUsersXMLTest extends TestCase {
     }
 
     public void testGetDisplayName() {
-        assertNull(ValidUsersXML.getDisplayName(null));
-        assertNull(ValidUsersXML.getDisplayName("woof"));
-        assertEquals("", ValidUsersXML.getDisplayName("sip:woof@somewhere"));
-        assertEquals("woof", ValidUsersXML.getDisplayName("woof <sip:woof@somewhere>"));
+        assertNull(ValidUsersXML.getDisplayPart(null));
+        assertNull(ValidUsersXML.getDisplayPart("woof"));
+        assertEquals("", ValidUsersXML.getDisplayPart("sip:woof@somewhere"));
+        assertEquals("woof", ValidUsersXML.getDisplayPart("woof <sip:woof@somewhere>"));
         assertEquals("Quebit T. Dogg", ValidUsersXML
-                .getDisplayName("\"Quebit T. Dogg\" <sip:woof@somewhere>"));
+                .getDisplayPart("\"Quebit T. Dogg\" <sip:woof@somewhere>"));
     }
 
     public void testBuildDialPatterns() {
@@ -144,4 +145,19 @@ public class ValidUsersXMLTest extends TestCase {
 
     }
 
+    public void testPin() {
+        // Configure log4j
+        Properties props = new Properties();
+        props.setProperty("log4j.rootLogger", "debug, cons");
+        props.setProperty("log4j.appender.cons", "org.apache.log4j.ConsoleAppender");
+        props.setProperty("log4j.appender.cons.layout", "org.sipfoundry.commons.log4j.SipFoundryLayout");
+        props.setProperty("log4j.appender.cons.layout.facility", "sipXivr");
+
+        User u = new User();
+        u.setIdentity("201@woof3.fuzzy");
+        u.setUserName("201");
+        u.setPintoken("3c46585d782a8b9444feca1c697e4d4f");
+        
+        assertTrue(u.isPinCorrect("9663", "woof3.fuzzy"));
+    }
 }

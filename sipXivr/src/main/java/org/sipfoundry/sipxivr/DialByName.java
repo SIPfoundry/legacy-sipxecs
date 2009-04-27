@@ -51,8 +51,8 @@ public class DialByName {
             // "No name in the directory matches the name you entered."
             m_loc.play("dial_by_name_nomatch", "");
             // create a SUCCESS return as they didn't timeout or enter bad data
-            // but the choice is null
-            return new DialByNameChoice(null, digits, IvrChoiceReason.SUCCESS);
+            // but the user is null
+            return new DialByNameChoice(new IvrChoice(digits, IvrChoiceReason.SUCCESS));
         }
 
         /*
@@ -95,7 +95,7 @@ public class DialByName {
         int timeoutCount = 0;
         for (;;) {
             if (timeoutCount > m_config.getNoInputCount()) {
-                return new DialByNameChoice(null, "", IvrChoiceReason.FAILURE);
+                return new DialByNameChoice(new IvrChoice("", IvrChoiceReason.FAILURE));
             }
 
             // Play the menu
@@ -121,7 +121,8 @@ public class DialByName {
             if (choice.contentEquals("*")) {
                 // "Canceled."
                 m_loc.play("canceled", "");
-                return new DialByNameChoice(null, "*", IvrChoiceReason.CANCELED);
+                return new DialByNameChoice(new IvrChoice("*", IvrChoiceReason.CANCELED));
+
             }
 
             if (choice.contentEquals("#")) {
@@ -159,7 +160,8 @@ public class DialByName {
         for (;;) {
             
             if (timeoutCount > m_config.getNoInputCount()) {
-                return new DialByNameChoice(null, "", IvrChoiceReason.FAILURE);
+                return new DialByNameChoice(new IvrChoice("", IvrChoiceReason.TIMEOUT));
+
             }
 
             // "Please spell the name of the person, last name first. 
@@ -187,7 +189,8 @@ public class DialByName {
             if (digits.contentEquals("*")) {
                 // "Canceled."
                 m_loc.play("canceled", "");
-                return new DialByNameChoice(null, "*", IvrChoiceReason.CANCELED);
+                return new DialByNameChoice(new IvrChoice("*", IvrChoiceReason.CANCELED));
+
             }
 
             if (digits.contentEquals("0") || digits.contentEquals("1")) {
@@ -206,12 +209,11 @@ public class DialByName {
             }
             
             if (choice.getIvrChoiceReason() == IvrChoiceReason.SUCCESS && 
-                    choice.getUser() == null) {
+                    choice.getUsers() == null) {
                 // Matched no names
                 continue;
             }
             return choice;
         }
     }
-
 }

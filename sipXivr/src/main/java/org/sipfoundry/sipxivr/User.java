@@ -9,6 +9,8 @@
 package org.sipfoundry.sipxivr;
 
 import java.util.Vector;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.log4j.Logger;
 
 public class User {
     private String m_identity;
@@ -17,8 +19,8 @@ public class User {
     private String m_uri;
     private String m_pintoken;
     private boolean m_inDirectory;
-    private Vector<String> dialPatterns;
-    private Vector<String> aliases;
+    private Vector<String> m_dialPatterns;
+    private Vector<String> m_aliases;
 
     public String getIdentity() {
         return m_identity;
@@ -69,18 +71,26 @@ public class User {
     }
 
     public Vector<String> getDialPatterns() {
-        return dialPatterns;
+        return m_dialPatterns;
     }
 
     public void setDialPatterns(Vector<String> dialPatterns) {
-        this.dialPatterns = dialPatterns;
+        this.m_dialPatterns = dialPatterns;
     }
     
     public Vector<String> getAliases() {
-    	return aliases;
+    	return m_aliases;
     }
     
     public void setAliases(Vector<String> aliases) {
-    	this.aliases = aliases;
+    	this.m_aliases = aliases;
+    }
+
+    public boolean isPinCorrect(String pin, String realm) {
+        // pintoken is MD5 Hash of:
+        //   userName:realm:pin
+        String token = m_userName+":"+realm+":"+pin;
+        String hash = DigestUtils.md5Hex(token);
+        return hash.equals(m_pintoken);
     }
 }

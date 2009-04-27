@@ -9,19 +9,31 @@
 
 package org.sipfoundry.sipxivr;
 
+import java.util.Vector;
+
 /**
  * Holds the User selected by the DialByName dialog, and a reason code if none selected
  */
 public class DialByNameChoice extends IvrChoice {
 
-    private User m_user;
+    private Vector<User> m_users;
     
-    DialByNameChoice(User user, String digits, IvrChoiceReason ivrReason) {
-        super(digits, ivrReason);
-        m_user = user;
+    public DialByNameChoice(IvrChoice choice) {
+        super(choice.getDigits(), choice.getIvrChoiceReason());
     }
     
-    public User getUser() {
-        return m_user;
+    public DialByNameChoice(User user, String digits, IvrChoiceReason ivrReason) {
+        super(digits, ivrReason);
+        m_users = new Vector<User>();
+        m_users.add(user);
+    }
+
+    public DialByNameChoice(Vector<User> users, String digits, IvrChoiceReason ivrReason) {
+        super(digits, ivrReason);
+        m_users = users;
+    }
+    
+    public Vector<User> getUsers() {
+        return m_users;
     }
 }

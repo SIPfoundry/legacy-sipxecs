@@ -29,6 +29,7 @@ public class Configuration {
     private String m_docDirectory; // File path to DOC Directory (usually /usr/share/www/doc)
     private String m_operatorAddr; // Address of 'operator'
     private String m_sipxchangeDomainName; // The domain name of this system
+    private String m_realm;
 
     private static Configuration s_current;
     private static File s_propertiesFile;
@@ -89,6 +90,7 @@ public class Configuration {
             m_docDirectory = props.getProperty(prop = "ivr.docDirectory") ;
             m_operatorAddr = props.getProperty(prop = "ivr.operatorAddr");
             m_sipxchangeDomainName = props.getProperty(prop = "ivr.sipxchangeDomainName");
+            m_realm = props.getProperty(prop ="ivr.realm");
         } catch (Exception e) {
             System.err.println("Problem understanding property " + prop);
             e.printStackTrace(System.err);
@@ -130,5 +132,13 @@ public class Configuration {
 
     public String getSipxchangeDomainName() {
         return m_sipxchangeDomainName;
+    }
+
+    public String getRealm() {
+        return m_realm;
+    }
+    
+    public void setRealm(String realm) {
+        m_realm = realm;
     }
 }

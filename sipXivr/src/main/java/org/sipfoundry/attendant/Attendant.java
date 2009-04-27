@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.Vector;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.attendant.Configuration.AttendantConfig;
@@ -330,13 +331,13 @@ public class Attendant {
             if (choice.getIvrChoiceReason() == IvrChoiceReason.CANCELED) {
                 return NextAction.repeat;
             }
-            User u = choice.getUser();
+            Vector<User> u = choice.getUsers();
             if (u == null) {
                 goodbye();
                 return NextAction.exit;
             }
-            LOG.info(String.format("Attendant::doAction Transfer to extension %s (%s)", u.getUserName(), u.getUri()));
-            transfer(u.getUri());
+            LOG.info(String.format("Attendant::doAction Transfer to extension %s (%s)", u.get(0).getUserName(), u.get(0).getUri()));
+            transfer(u.get(0).getUri());
             return NextAction.repeat;
         
         case disconnect: 

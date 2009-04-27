@@ -20,7 +20,6 @@ public class Record extends CallCommand {
     private Break m_breaker;
     private String m_recordFile;
     private int m_recordTime; // in seconds
-    private String m_digits = "";
     
     public Record(FreeSwitchEventSocketInterface fses) {
         super(fses);
@@ -101,16 +100,11 @@ public class Record extends CallCommand {
     }
 
     void startRecord() {
-        m_digits = "";
         new Set(m_fses, "record_rate","8000").go();
         new Set(m_fses, "playback_terminators", m_digitMask).go();
     	m_stopped = true;
     	m_command = String.format("record\nexecute-app-arg: %s %d 500 3", m_recordFile, m_recordTime);
     	super.start();
-    }
-
-    public String getDigits() {
-        return m_digits;
     }
 
     @Override
@@ -134,14 +128,11 @@ public class Record extends CallCommand {
                 digit = "";
             }
             String duration = event.getEventValue("DTMF-Duration", "(Unknown)");
-            LOG.debug(String.format("DTMF event %s %s", digit, duration));
+            LOG.debug(String.format("DTMF event %s %s", m_fses.redact(digit), duration));
             if (m_digitMask.contains(digit)) {
                 // Add digit to the DTMF queue
                 m_fses.appendDtmfQueue(digit);
                 
-               // Add digit to list of digits
-                m_digits += digit;
-
                 // No more prompts to play
                 m_stopped = true;
 

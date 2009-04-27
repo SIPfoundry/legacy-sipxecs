@@ -15,6 +15,7 @@
     <pathelement location="${dom4j.jar}"/>
     <pathelement location="${commons-io.jar}"/>
     <pathelement location="${jaxen.jar}"/>
+    <pathelement location="${commons-codec.jar}"/>
   </path>
   <property name="classpath" refid="base.path" />
 

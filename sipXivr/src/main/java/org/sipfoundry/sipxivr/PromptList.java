@@ -138,6 +138,15 @@ public class PromptList {
         addPromptsPrefixed(null, index, prompts, vars);
     }
 
+    public void addPrompts(int index, PromptList pl) {
+        this.m_promptGroups.addAll(index, pl.m_promptGroups);
+    }
+
+    public void addPrompts(PromptList pl) {
+        this.m_promptGroups.addAll(pl.m_promptGroups);
+    }
+
+
     public void addFragment(String fragment, String... vars) {
         // First see if the prompt has an prefix override
         String fragmentPrefix = null;

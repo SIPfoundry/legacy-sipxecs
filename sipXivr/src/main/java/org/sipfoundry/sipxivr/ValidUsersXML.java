@@ -236,7 +236,7 @@ public class ValidUsersXML {
         return output.toString();
     }
 
-    static String getUserName(String uri) {
+    public static String getUserPart(String uri) {
         if (uri == null) {
             return null;
         }
@@ -257,7 +257,7 @@ public class ValidUsersXML {
         return userName.trim();
     }
 
-    static String getDisplayName(String uri) {
+    public static String getDisplayPart(String uri) {
         if (uri == null) {
             return null;
         }

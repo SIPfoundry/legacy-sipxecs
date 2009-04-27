@@ -55,8 +55,8 @@ public class MessageTest extends TestCase {
         assertTrue("mailstore/woof/inbox doesn't exist!", 
                 new File(m_mailstore.getPath()+"/woof/inbox").isDirectory());
         
-        String messageId1 = Message.nextMessageId(m_mailbox);
-        String messageId2 = Message.nextMessageId(m_mailbox);
+        String messageId1 = VmMessage.nextMessageId(m_testdir.getPath());
+        String messageId2 = VmMessage.nextMessageId(m_testdir.getPath());
         assertEquals("00000001", messageId1);
         assertEquals("00000002", messageId2);
     }
@@ -64,13 +64,13 @@ public class MessageTest extends TestCase {
     public void testMessage() throws IOException {
         File wavFile = new File(m_testdir.getPath()+"fake.wav");
         FileUtils.touch(wavFile);
-        Message message = new Message(m_mailbox, wavFile.getPath(), 
+        Message message = Message.newMessage(m_mailbox, wavFile.getPath(), 
                 "\"Me\" <woof@pingtel.com>", Priority.NORMAL);
         message.storeInInbox();
-        assertEquals(message.getMessageId(), "00000001");
-        assertEquals(m_mailbox.getInboxDirectory()+"00000001-00.wav", message.getWavName());
+        assertEquals("00000001", message.getMessageId());
+        assertEquals(m_mailbox.getInboxDirectory()+"00000001-00.wav", message.getWavPath());
         assertTrue("mailstore/woof/inbox/00000001-00.wav doesn't exist!",
-                new File(message.getWavName()).exists());
+                new File(message.getWavPath()).exists());
     }
 
 

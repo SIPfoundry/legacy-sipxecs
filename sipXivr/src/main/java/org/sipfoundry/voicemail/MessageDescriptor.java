@@ -9,7 +9,9 @@
  */
 package org.sipfoundry.voicemail;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 
 
@@ -18,7 +20,9 @@ import java.text.SimpleDateFormat;
  * Maps directly to the xml in MessageDescriptorReader/Writer
  */
 public class MessageDescriptor {
-    private String m_id;
+    private static final String DATE_FORMAT="EEE, d-MMM-yyyy hh:mm:ss aaa z";
+    
+    private String m_id; // The id is an almost URI (user@domain) of the recipient
     private String m_fromUri;
     private String m_durationSecs;
     private String m_timestamp;
@@ -71,8 +75,25 @@ public class MessageDescriptor {
     public void setDurationSecs(String durationSecs) {
         m_durationSecs = durationSecs;
     }
+   
+    public long getDurationSecsLong() {
+        return Long.parseLong(m_durationSecs);
+    }
+
+    public void setDurationSecs(long durationSecs) {
+        m_durationSecs = Long.toString(durationSecs);
+    }
+
+    public Date getTimeStampDate() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        try {
+            return dateFormat.parse(m_timestamp);
+        } catch (ParseException e) {
+            return null;
+        }
+    }
     
-    public String getTimestamp() {
+    public String getTimestampString() {
         return m_timestamp;
     }
     
@@ -82,7 +103,7 @@ public class MessageDescriptor {
     
     public void setTimestamp(long timestamp) {
         // Use RFC-2822 format
-        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, d-MMM-yyyy hh:mm:ss aaa z");
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         m_timestamp = dateFormat.format(timestamp); 
     }
     

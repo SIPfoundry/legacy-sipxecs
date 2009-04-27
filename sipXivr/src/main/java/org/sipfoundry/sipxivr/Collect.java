@@ -51,6 +51,8 @@ public class Collect extends CallCommand {
 
     @Override
     public boolean start() {
+        LOG.info(String.format("Collect::start %d %d/%d/%d mask %s", m_maxDigits,
+                m_firstDigitTimer, m_interDigitTimer, m_extraDigitTimer, m_digitMask));
         m_stopped = false;
         m_digits = "";
         m_currentTimer = m_firstDigitTimer;
@@ -146,7 +148,7 @@ public class Collect extends CallCommand {
                 digit = "";
             }
             String duration = event.getEventValue("DTMF-Duration", "(Unknown)");
-            LOG.debug(String.format("DTMF event %s %s", digit, duration));
+            LOG.debug(String.format("DTMF event %s %s", m_fses.redact(digit), duration));
             if (m_digitMask.contains(digit)) {
                 // Timer did not expire
                 m_done = false;

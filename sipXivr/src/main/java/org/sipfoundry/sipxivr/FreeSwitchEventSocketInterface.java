@@ -31,6 +31,7 @@ public abstract class FreeSwitchEventSocketInterface {
     private LinkedBlockingQueue<String> m_dtmfQueue = new LinkedBlockingQueue<String>();
     private Configuration m_config;
     private boolean m_disconnected;
+    private boolean m_redactDtmf; // True if DTMF logs should be redacted (for "security")
 
     public abstract void connect(Socket socket) throws IOException;
 
@@ -67,8 +68,13 @@ public abstract class FreeSwitchEventSocketInterface {
             }
             i.remove(); // Toss any digits not in the digit mask
         }
-        LOG.debug(String.format("trimDtmfQueue(%s) dtmfQueue was (%s) is (%s)", 
-                digitMask, origDtmfQueue, getDtmfQueue()));
+        if (m_redactDtmf) {
+            LOG.debug(String.format("trimDtmfQueue(_REDACTED_) dtmfQueue was (%d long) is (%d long)", 
+                    origDtmfQueue.length(), getDtmfQueue().length()));
+        } else {
+            LOG.debug(String.format("trimDtmfQueue(%s) dtmfQueue was (%s) is (%s)", 
+                    digitMask, origDtmfQueue, getDtmfQueue()));
+        }
         return hasDigits;
     }
 
@@ -79,7 +85,7 @@ public abstract class FreeSwitchEventSocketInterface {
      */
     public String getDtmfDigit() {
         LOG.debug(String.format("getDtmfDigit() dtmfQueue is (%s)", 
-                getDtmfQueue()));
+                redact(getDtmfQueue())));
         return m_dtmfQueue.poll();
     }
 
@@ -91,7 +97,7 @@ public abstract class FreeSwitchEventSocketInterface {
     public void appendDtmfQueue(String digit) {
         m_dtmfQueue.add(digit);
         LOG.debug(String.format("appendDtmfQueue(%s) dtmfQueue is (%s)", 
-                digit, getDtmfQueue()));
+            redact(digit), redact(getDtmfQueue())));
     }
 
     /**
@@ -193,4 +199,34 @@ public abstract class FreeSwitchEventSocketInterface {
         return m_config;
     }
 
+    public String getCallerId() {
+        return getVariable("Caller-Caller-ID-Name");
+    }
+
+    public String getFromUri() {
+        return getVariable("variable_sip_from_uri");
+    }
+
+    public String getDisplayUri() {
+        // FreeSWITCH breaks up the original From URI, rebuild it as much as possible
+        // (header/field parameters are missing, but I don't think VoiceMail cares)
+        String displayUri = String.format("\"%s\" <sip:%s>", getCallerId(), getFromUri());
+        return displayUri;
+    }
+
+    public boolean isRedactDTMF() {
+        return m_redactDtmf;
+    }
+
+    public void setRedactDTMF(boolean redactDTMF) {
+        m_redactDtmf = redactDTMF;
+    }
+    
+    public String redact(String digits) {
+        if (m_redactDtmf) {
+            return "_REDACTED_";
+        } else {
+            return digits ;
+        }
+    }
 }

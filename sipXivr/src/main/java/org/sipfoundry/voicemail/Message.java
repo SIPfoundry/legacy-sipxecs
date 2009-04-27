@@ -9,7 +9,6 @@
 package org.sipfoundry.voicemail;
 
 import java.io.File;
-import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -19,52 +18,52 @@ import org.sipfoundry.voicemail.MessageDescriptor.Priority;
 public class Message {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
     private Mailbox m_mailbox;
-    private String m_messageId; // A machine wide unique incremented "number"
     private String m_fromUri;
     private Priority m_priority;
-    private MessageDescriptor m_messageDescriptor;
-    private String m_wavName;
+    private String m_wavPath;
     private boolean m_stored;
-    private boolean m_isTempWav;
     private boolean m_isToBeStored;
+    private long m_duration;
+    private long m_timestamp;
+    private VmMessage m_vmMessage; // Once converted to a VmMessage, use this
     
     public enum Reason {
         SAVED,
         TOO_SHORT,
         FAILED
     }
+    
+    private Message() {
+        // Private constructor for internal use only
+    }
+    
     /**
+     * Factory method to create a new message from a wav file
+     * 
      * Create a new message in the mailbox from the given wav file
      * Message isn't physically stored in the inbox until storeInInbox is invoked.
+     * 
      * @param mailbox
+     * @param wavPath
+     * @param fromUri
+     * @param priority
+     * @return
      */
-    Message(Mailbox mailbox, String wavName, String fromUri, Priority priority) {
-        m_mailbox = mailbox;
+    public static Message newMessage(Mailbox mailbox, String wavPath, String fromUri, Priority priority) {
+        Message me = new Message();
+        me.m_mailbox = mailbox;
         
-        m_wavName = wavName;
-        m_isTempWav = true ;
-        m_fromUri = fromUri;
-        m_priority = priority;
-        m_stored = false;
-        m_isToBeStored = true;
+        me.m_wavPath = wavPath;
+        me.m_fromUri = fromUri;
+        me.m_priority = priority;
+        me.m_stored = false;
+        me.m_isToBeStored = true;
+        me.m_duration = 42; // TODO correct duration
+        me.m_timestamp = System.currentTimeMillis();
+        return me;
     }
-
-    /**
-     * Copy a new message in the mailbox from an other Message
-     * Message isn't physically stored in the inbox until storeInInbox is invoked.
-     * @param mailbox
-     */
-    Message(Mailbox mailbox, Message existingMessage) {
-        m_mailbox = mailbox;
         
-        m_wavName = existingMessage.getWavName();
-        m_isTempWav = false;
-        m_fromUri = existingMessage.getFromUri();
-        m_priority = existingMessage.getPriority();
-        m_stored = false;
-        m_isToBeStored = true;
-    }
-
+    
     Priority getPriority() {
         return m_priority;
     }
@@ -82,10 +81,9 @@ public class Message {
     }
     
     public void deleteTempWav() {
-        if (m_isTempWav = true) {
-            FileUtils.deleteQuietly(new File(m_wavName)) ;
-        }
+        FileUtils.deleteQuietly(new File(m_wavPath)) ;
     }
+    
     public Reason storeInInbox() {
         // Not this one, just delete any temp file
         if (!m_isToBeStored) {
@@ -98,99 +96,47 @@ public class Message {
             return Reason.SAVED;  // Well, it was already, so it still is!
         }
         
-        // Generate the next message ID
-        m_messageId = Message.nextMessageId(m_mailbox);
-        
-        // Generate the MessageDescriptor;
-        m_messageDescriptor = new MessageDescriptor();
-        m_messageDescriptor.setId(m_mailbox.getUser().getIdentity());
-        m_messageDescriptor.setFromUri(m_fromUri);
-        m_messageDescriptor.setDurationSecs("0"); //TODO
-        m_messageDescriptor.setTimestamp(System.currentTimeMillis());
-        m_messageDescriptor.setSubject("Voice Message "+m_messageId);
-        m_messageDescriptor.setPriority(m_priority);
-        
-        File temp = new File(m_wavName);
-        String baseName = m_messageId+"-00"; //TODO the -00 means something...
-        File wavFile = new File(m_mailbox.getInboxDirectory()+baseName+".wav");
-        File xmlFile = new File(m_mailbox.getInboxDirectory()+baseName+".xml");
-        File staFile = new File(m_mailbox.getInboxDirectory()+baseName+".sta");
-        
-        String operation = "storeInInbox";
-        try {
-            if (m_isTempWav) {
-                operation = "storeInInbox moving temp .wav file to "+wavFile.getPath();
-                LOG.debug("Message::storeInInbox "+operation);
-                FileUtils.moveFile(temp, wavFile);
-                m_isTempWav = false; // temp file is no more
-                
-            } else {
-                operation = "storeInInbox copy orig .wav file to "+wavFile.getPath();
-                LOG.debug("Message::storeInInbox "+operation);
-                FileUtils.copyFile(temp, wavFile, true);
-            }
-            // Now has a new name!
-            m_wavName = wavFile.getPath();
-            
-            operation = "storeInInbox creating messageDescriptor "+xmlFile.getPath();
-            LOG.debug("Message::storeInInbox "+operation);
-            new MessageDescriptorWriter().writeObject(m_messageDescriptor, xmlFile);
-
-            operation = "storeInInbox creating status file "+staFile.getPath();
-            LOG.debug("Message::storeInInbox "+operation);
-
-            FileUtils.touch(staFile);
-            
-        } catch (IOException e) {
-            LOG.error("Message::storeInInbox  error during "+operation, e);
+        // Create a new VoiceMail message out of this 
+        m_vmMessage = VmMessage.newMessage(m_mailbox, this);
+        if (m_vmMessage == null) {
+            // Oops, something went wrong
             return Reason.FAILED;
         }
+        
         m_stored = true;
-        LOG.info("Message::storeInInbox stored messageId "+m_messageId);
+        deleteTempWav();
+        
+        LOG.info("Message::storeInInbox stored messageId "+getMessageId());
         return Reason.SAVED;
     }
     
-    /**
-     * Generate the next message Id
-     * static synchronized as it's machine wide
-     * @param mailbox
-     */
-    static synchronized String nextMessageId(Mailbox mailbox) {
-        long numericMessageId = 1;
-        String format = "%08d";
-        String messageId = String.format(format,numericMessageId);
-        
-        // messageid.txt file is one level up from mailstore
-        String messageIdFileName = mailbox.getUserDirectory()+"../../messageid.txt";
-        File midFile = new File(messageIdFileName);
-        if (midFile.exists()) {
-            try {
-                // The messageid in the file is the NEXT one
-                messageId = FileUtils.readFileToString(midFile);
-                numericMessageId = Long.parseLong(messageId);
-            } catch (IOException e) {
-                LOG.error("Message::nextMessageId cannot read "+messageIdFileName, e);
-                throw new RuntimeException(e);
-            }
-        }
-        // Increment message id, store for another day
-        numericMessageId++;
-        try {
-            FileUtils.writeStringToFile(midFile, String.format(format, numericMessageId));
-        } catch (IOException e) {
-            LOG.error("Message::nextMessageId cannot write "+messageIdFileName, e);
-            throw new RuntimeException(e);
-        }
-        
-        return messageId;
-    }
     
     public String getMessageId() {
-        return m_messageId;
+        if (m_vmMessage != null) {
+            return m_vmMessage.getMessageId();
+        } else {
+            return null;
+        }
     }
     
-    public String getWavName() {
-        return m_wavName;
+    public String getWavPath() {
+        if (m_vmMessage != null) {
+            return m_vmMessage.getAudioFile().getPath();
+        } else {
+            return m_wavPath;
+        }
+    }
+
+    public long getDuration() {
+        return m_duration;
+    }
+
+    public long getTimestamp() {
+        return m_timestamp;
+    }
+
+    public VmMessage getVmMessage() {
+        return m_vmMessage;
     }
     
 }

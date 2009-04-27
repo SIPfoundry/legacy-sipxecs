@@ -14,6 +14,7 @@ public class IvrChoice {
     public enum IvrChoiceReason {
         SUCCESS,
         CANCELED,
+        TIMEOUT,
         FAILURE
         }
     
