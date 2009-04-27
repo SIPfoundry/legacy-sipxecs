@@ -47,7 +47,7 @@ public class AutoAttendantsConfigTest extends XMLTestCase {
         domain.setName("example.org");
         m_domainManager = createMock(DomainManager.class);
         m_domainManager.getDomain();
-        expectLastCall().andReturn(domain);
+        expectLastCall().andReturn(domain).atLeastOnce();
         replay(m_domainManager);
     }
 
@@ -107,6 +107,8 @@ public class AutoAttendantsConfigTest extends XMLTestCase {
         DialPlanContext dialPlanContext = createMock(DialPlanContext.class);
         dialPlanContext.getAttendantRules();
         expectLastCall().andReturn(Collections.emptyList());
+        dialPlanContext.getVoiceMail();
+        expectLastCall().andReturn("101");
 
         replay(dialPlanContext, aam);
 

@@ -51,7 +51,11 @@ public final class AttendantMenuAction extends Enum {
     public boolean isAttendantParameter() {
         return (this == AUTO_ATTENDANT);
     }
-    
+
+    public boolean isVoicemailParameter() {
+        return (this == VOICEMAIL_LOGIN);
+    }
+
     public String vxmlParameter(String parameter, String domainName) {
         if (this == OPERATOR) {
             return "operatoraddr";

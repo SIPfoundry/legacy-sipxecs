@@ -284,7 +284,6 @@
     <property name="scriptsDir" value="${sysdir.vxml.scripts}" />
     <property name="docDir" value="${sysdir.doc}" />
     <property name="vxmlDir" value="${sysdir.vxml}" />
-    <property name="dialPlanContext" ref="dialPlanContext" />
     <property name="bundles">
       <set>
         <ref bean="primarySipRouterBundle" />

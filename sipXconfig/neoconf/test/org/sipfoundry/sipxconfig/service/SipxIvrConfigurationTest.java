@@ -9,8 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
-
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
@@ -19,14 +17,9 @@ import static org.easymock.EasyMock.verify;
 public class SipxIvrConfigurationTest extends SipxServiceTestBase {
 
     public void testWrite() throws Exception {
-        DialPlanContext dialPlanContext = createMock(DialPlanContext.class);
-        dialPlanContext.getVoiceMail();
-        expectLastCall().andReturn("101");
-
         SipxIvrService ivrService = new SipxIvrService();
         ivrService.setModelDir("sipxivr");
         ivrService.setModelName("sipxivr.xml");
-        ivrService.setDialPlanContext(dialPlanContext);
         initCommonAttributes(ivrService);
 
         ivrService.setMailstoreDir("/var/sipxdata/mediaserver/data/mailstore");
@@ -37,7 +30,7 @@ public class SipxIvrConfigurationTest extends SipxServiceTestBase {
         SipxServiceManager sipxServiceManager = createMock(SipxServiceManager.class);
         sipxServiceManager.getServiceByBeanId(SipxIvrService.BEAN_ID);
         expectLastCall().andReturn(ivrService).atLeastOnce();
-        replay(sipxServiceManager, dialPlanContext);
+        replay(sipxServiceManager);
 
         SipxIvrConfiguration out = new SipxIvrConfiguration();
         out.setSipxServiceManager(sipxServiceManager);
@@ -45,6 +38,6 @@ public class SipxIvrConfigurationTest extends SipxServiceTestBase {
 
         assertCorrectFileGeneration(out, "expected-sipxivr.properties");
 
-        verify(sipxServiceManager, dialPlanContext);
+        verify(sipxServiceManager);
     }
 }

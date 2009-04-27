@@ -29,7 +29,6 @@ public class Configuration {
     private String m_docDirectory; // File path to DOC Directory (usually /usr/share/www/doc)
     private String m_operatorAddr; // Address of 'operator'
     private String m_sipxchangeDomainName; // The domain name of this system
-    private String m_voicemailUrl; // URL for voicemail access
 
     private static Configuration s_current;
     private static File s_propertiesFile;
@@ -90,7 +89,6 @@ public class Configuration {
             m_docDirectory = props.getProperty(prop = "ivr.docDirectory") ;
             m_operatorAddr = props.getProperty(prop = "ivr.operatorAddr");
             m_sipxchangeDomainName = props.getProperty(prop = "ivr.sipxchangeDomainName");
-            m_voicemailUrl = props.getProperty(prop = "ivr.voicemailUrl");
         } catch (Exception e) {
             System.err.println("Problem understanding property " + prop);
             e.printStackTrace(System.err);
@@ -132,13 +130,5 @@ public class Configuration {
 
     public String getSipxchangeDomainName() {
         return m_sipxchangeDomainName;
-    }
-
-    public String getVoicemailUrl() {
-        return m_voicemailUrl;
-    }
-
-    public void setVoicemailUrl(String voicemailUrl) {
-        m_voicemailUrl = voicemailUrl;
     }
 }

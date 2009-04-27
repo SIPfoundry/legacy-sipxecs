@@ -8,6 +8,7 @@
       <menuItem>
         <dialPad>#</dialPad>
         <action>voicemail_access</action>
+        <parameter>sip:101@example.org</parameter>
       </menuItem>
       <menuItem>
         <dialPad>*</dialPad>
