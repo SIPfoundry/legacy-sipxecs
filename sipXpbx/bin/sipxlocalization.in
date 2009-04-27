@@ -32,33 +32,33 @@ if ! [ -f $FILE -a -r $FILE ]; then
     exit 1
 fi
 # Check that 'tar' can read the file.
-if ! tar tf $FILE >/dev/null 2>&1 ; then
+if ! tar --wildcards -tf $FILE >/dev/null 2>&1 ; then
     echo "'$FILE' is not a (possibly gzipped) tar file." >&2
     exit 1
 fi
 # Check that 'tar' contains at least one member with an expected name.
-if ! tar tf $FILE |
+if ! tar --wildcards -tf $FILE |
      grep -E '^(stdprompts_|region_|sipxpbx/|third_party/)' >/dev/null ; then
     echo "'$FILE' contains no localization members.  Is it a localization file?" >&2
     exit 1
 fi
 
 # Extract files from the localization package
-if tar tf $FILE 'region_*' >/dev/null 2>&1 ; then
+if tar --wildcards -tf $FILE 'region_*' >/dev/null 2>&1 ; then
     # The file contains region specific files - extract them
-    tar xf $FILE --directory=$REGION_DIR 'region_*'
+    tar --wildcards -xf $FILE --directory=$REGION_DIR 'region_*'
 fi
-if tar tf $FILE 'stdprompts_*' >/dev/null 2>&1 ; then
+if tar --wildcards -tf $FILE 'stdprompts_*' >/dev/null 2>&1 ; then
     # The file contains voice prompts - extract them
-    tar xf $FILE --directory=$VOICE_PROMPT_DIR 'stdprompts_*'
+    tar --wildcards -xf $FILE --directory=$VOICE_PROMPT_DIR 'stdprompts_*'
 fi
-if tar tf $FILE sipxpbx >/dev/null 2>&1 ; then
+if tar --wildcards -tf $FILE sipxpbx >/dev/null 2>&1 ; then
     # The file contains UI property files - extract them
-    tar xf $FILE --directory=$REGION_DIR/.. 'sipxpbx/*'
+    tar --wildcards -xf $FILE --directory=$REGION_DIR/.. 'sipxpbx/*'
 fi
-if tar tf $FILE third_party >/dev/null 2>&1 ; then
+if tar --wildcards -tf $FILE third_party >/dev/null 2>&1 ; then
     # The file contains third party files - extract them
-    tar xf $FILE --directory=$SHARE_DIR 'third_party/*'
+    tar --wildcards -xf $FILE --directory=$SHARE_DIR 'third_party/*'
 fi
 
 # Delete the localization package file
