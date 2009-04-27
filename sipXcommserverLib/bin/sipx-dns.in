@@ -465,13 +465,15 @@ validate_ns_records () {
     local target
     local returned
     local resolves=NO
-    local liveservers=`dns_ns ${name}`
+    local liveservers
 
     verbose && echo -e "\nChecking 'NS' (domain->nameserver) Records:"
     generate_ns_records \
     | strip_space_and_comments \
-    | while read fullname intag rectype target extrajunk ; do
+    | while read fullname intag rectype fulltarget extrajunk ; do
         name=`normName ${fullname}`
+        target=`normName ${fulltarget}`
+        liveservers=`dns_ns ${name}`
 
         for returned in ${liveservers}
         do
