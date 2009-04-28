@@ -269,13 +269,9 @@ UtlString& UtlString::append(const UtlString& str, size_t position, size_t lengt
    return *this;
 }
 
-UtlString& UtlString::appendNumber(Int64 value, const char* format)
+UtlString& UtlString::appendFormattedNumber(int formatResult, char* conversionString, const char* format)
 {
-   char conversionString[MAX_NUMBER_STRING_SIZE];
-   conversionString[0]='\000';
-
-   int formatResult = snprintf(conversionString,MAX_NUMBER_STRING_SIZE,format,value);
-   if ((0 < formatResult) || ((int)MAX_NUMBER_STRING_SIZE < formatResult))
+   if ((0 < formatResult) && ((int)MAX_NUMBER_STRING_SIZE > formatResult))
    {
       append(conversionString);
    }
@@ -287,6 +283,42 @@ UtlString& UtlString::appendNumber(Int64 value, const char* format)
    }
 
    return(*this);
+}
+
+UtlString& UtlString::appendNumber(int value, const char* format)
+{
+   char conversionString[MAX_NUMBER_STRING_SIZE];
+   conversionString[0]='\000';
+
+   int formatResult = snprintf(conversionString,MAX_NUMBER_STRING_SIZE,format,value);
+   return appendFormattedNumber(formatResult, conversionString, format);
+}
+
+UtlString& UtlString::appendNumber(size_t value, const char* format)
+{
+   char conversionString[MAX_NUMBER_STRING_SIZE];
+   conversionString[0]='\000';
+
+   int formatResult = snprintf(conversionString,MAX_NUMBER_STRING_SIZE,format,value);
+   return appendFormattedNumber(formatResult, conversionString, format);
+}
+
+UtlString& UtlString::appendNumber(ssize_t value, const char* format)
+{
+   char conversionString[MAX_NUMBER_STRING_SIZE];
+   conversionString[0]='\000';
+
+   int formatResult = snprintf(conversionString,MAX_NUMBER_STRING_SIZE,format,value);
+   return appendFormattedNumber(formatResult, conversionString, format);
+}
+
+UtlString& UtlString::appendNumber(Int64 value, const char* format)
+{
+   char conversionString[MAX_NUMBER_STRING_SIZE];
+   conversionString[0]='\000';
+
+   int formatResult = snprintf(conversionString,MAX_NUMBER_STRING_SIZE,format,value);
+   return appendFormattedNumber(formatResult, conversionString, format);
 }
 
 UtlString& UtlString::insert(size_t position, const char* source)
