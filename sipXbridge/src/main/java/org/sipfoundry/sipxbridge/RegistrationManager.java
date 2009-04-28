@@ -168,7 +168,8 @@ public class RegistrationManager {
 
 			}
 			logger.debug("time = " + time + " Seconds ");
-			if (time > 0 && itspAccount.registrationTimerTask == null) {
+			if (time > 0 ) {
+			    if ( itspAccount.registrationTimerTask != null) itspAccount.registrationTimerTask.cancel();
 				TimerTask ttask = new RegistrationTimerTask(itspAccount);
 				Gateway.getTimer().schedule(ttask, time * 1000);
 			}
