@@ -159,6 +159,13 @@
     call_pattern_prefix CDATA #IMPLIED
 >
 
+<!ELEMENT site_to_site_dialing_rule EMPTY>
+<!ATTLIST site_to_site_dialing_rule
+    site_to_site_dialing_rule_id CDATA #REQUIRED
+    call_pattern_digits CDATA #IMPLIED
+    call_pattern_prefix CDATA #IMPLIED
+>
+
 <!ELEMENT custom_dialing_rule_permission EMPTY>
 <!ATTLIST custom_dialing_rule_permission
     custom_dialing_rule_id CDATA #REQUIRED

@@ -349,12 +349,13 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
         DialingRule internationalRule = m_context.getRule(6);
         DialingRule localRule = m_context.getRule(7);
         DialingRule longDistanceRule = m_context.getRule(8);
+        DialingRule siteToSiteRule = m_context.getRule(9);
 
         DialingRule[] nonGatewayAwareRules = {
             attendantRule, internalRule
         };
         DialingRule[] gatewayAwareRules = {
-            rule2, emergencyRule, internationalRule, localRule, longDistanceRule
+            rule2, emergencyRule, internationalRule, localRule, longDistanceRule, siteToSiteRule
         };
 
         List<DialingRule> availableRules = m_context.getAvailableRules(gateway.getId());

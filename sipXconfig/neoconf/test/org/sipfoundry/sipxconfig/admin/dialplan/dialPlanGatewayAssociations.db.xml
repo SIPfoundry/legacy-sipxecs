@@ -37,6 +37,9 @@
   <long_distance_dialing_rule external_len="3" pstn_prefix_optional="true"
     long_distance_prefix_optional="true" international_dialing_rule_id="8" />
 
+  <dialing_rule dialing_rule_id="9" name="SiteToSiteRule" position="9" enabled="true" dial_plan_id="0" />
+  <site_to_site_dialing_rule site_to_site_dialing_rule_id="9" call_pattern_digits="1" call_pattern_prefix="1" />
+
   <dialing_rule_gateway dialing_rule_id="0" gateway_id="1001" index="0" />
   <dialing_rule_gateway dialing_rule_id="1" gateway_id="1001" index="1" />
 </dataset>

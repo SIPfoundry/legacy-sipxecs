@@ -99,6 +99,10 @@
     <property name="permissionManager" ref="permissionManager" />
   </bean>
 
+  <bean id="siteToSiteRule" class="org.sipfoundry.sipxconfig.admin.dialplan.SiteToSiteDialingRule" scope="prototype">
+    <property name="permissionManager" ref="permissionManager" />
+  </bean>
+
   <bean id="defaultDialPlan" class="org.sipfoundry.sipxconfig.admin.dialplan.DialPlan" scope="prototype"
     abstract="true">
   </bean>
@@ -120,6 +124,7 @@
         <value>emergencyRule</value>
         <value>internationalRule</value>
         <value>attendantRule</value>
+        <value>siteToSiteRule</value>
       </list>
     </property>
   </bean>

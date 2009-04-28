@@ -43,6 +43,7 @@ public abstract class EditDialRule extends BasePage implements PageBeginRenderLi
     public static final String LONG_DISTANCE = "dialplan/EditLongDistanceDialRule";
     public static final String EMERGENCY = "dialplan/EditEmergencyDialRule";
     public static final String INTERNATIONAL = "dialplan/EditInternationalDialRule";
+    public static final String SITE_TO_SITE = "dialplan/EditSiteToSiteDialRule";
 
     @InjectObject("spring:dialPlanContext")
     public abstract DialPlanContext getDialPlanContext();

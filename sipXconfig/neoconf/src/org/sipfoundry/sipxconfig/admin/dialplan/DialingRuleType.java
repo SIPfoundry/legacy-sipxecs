@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
@@ -35,8 +35,10 @@ public final class DialingRuleType extends Enum {
             IntercomRule.class);
     public static final DialingRuleType PAGING = new DialingRuleType("Paging",
             PagingRule.class);
+    public static final DialingRuleType SITE_TO_SITE = new DialingRuleType("Site To Site",
+            SiteToSiteDialingRule.class);
 
-    private Class< ? extends DialingRule> m_klass;
+    private final Class< ? extends DialingRule> m_klass;
 
     private DialingRuleType(String name, Class< ? extends DialingRule> klass) {
         super(name);

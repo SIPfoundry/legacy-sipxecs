@@ -40,6 +40,7 @@ public abstract class SelectRuleType extends BaseComponent {
         TYPE_2_PAGE.put(DialingRuleType.INTERNATIONAL, EditDialRule.INTERNATIONAL);
         TYPE_2_PAGE.put(DialingRuleType.TOLL_FREE, EditDialRule.LONG_DISTANCE);
         TYPE_2_PAGE.put(DialingRuleType.RESTRICTED, EditDialRule.LONG_DISTANCE);
+        TYPE_2_PAGE.put(DialingRuleType.SITE_TO_SITE, EditDialRule.SITE_TO_SITE);
     }
 
     public abstract String getRuleBeanId();

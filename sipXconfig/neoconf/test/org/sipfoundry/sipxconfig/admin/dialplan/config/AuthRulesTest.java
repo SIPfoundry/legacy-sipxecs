@@ -5,7 +5,6 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
@@ -32,6 +31,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.CallPattern;
 import org.sipfoundry.sipxconfig.admin.dialplan.CustomDialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPattern;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
+import org.sipfoundry.sipxconfig.admin.dialplan.SiteToSiteDialingRule;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
@@ -43,7 +43,7 @@ public class AuthRulesTest {
 
     public static junit.framework.Test suite() {
         return new JUnit4TestAdapter(AuthRulesTest.class);
-      }
+    }
 
     public AuthRulesTest() {
         XmlUnitHelper.setNamespaceAware(false);
@@ -57,8 +57,7 @@ public class AuthRulesTest {
         Document doc = rules.getDocument();
 
         String xml = XmlUnitHelper.asString(doc);
-        XMLAssert.assertXMLEqual(
-                "<mappings xmlns=\"http://www.sipfoundry.org/sipX/schema/xml/urlauth-00-00\"/>",
+        XMLAssert.assertXMLEqual("<mappings xmlns=\"http://www.sipfoundry.org/sipX/schema/xml/urlauth-00-00\"/>",
                 xml);
     }
 
@@ -77,6 +76,8 @@ public class AuthRulesTest {
         control.andReturn("test rule");
         rule.getDescription();
         control.andReturn("test rule description");
+        rule.isAuthorizationChecked();
+        control.andReturn(true);
         rule.getRuleType();
         control.andReturn(null);
         rule.getTransformedPatterns(gateway);
@@ -101,13 +102,12 @@ public class AuthRulesTest {
 
         XMLAssert.assertXpathEvaluatesTo("test rule", "/mappings/hostMatch/name", domDoc);
         XMLAssert.assertXpathEvaluatesTo("test rule description", "/mappings/hostMatch/description", domDoc);
-        XMLAssert.assertXpathEvaluatesTo(gateway.getGatewayAddress(), "/mappings/hostMatch/hostPattern",
-                domDoc);
+        XMLAssert.assertXpathEvaluatesTo(gateway.getGatewayAddress(), "/mappings/hostMatch/hostPattern", domDoc);
         XMLAssert.assertXpathEvaluatesTo("555", "/mappings/hostMatch/userMatch/userPattern", domDoc);
         XMLAssert.assertXpathEvaluatesTo("666", "/mappings/hostMatch/userMatch/userPattern[2]", domDoc);
         XMLAssert.assertXpathEvaluatesTo("777", "/mappings/hostMatch/userMatch/userPattern[3]", domDoc);
-        XMLAssert.assertXpathEvaluatesTo("Voicemail",
-                "/mappings/hostMatch/userMatch/permissionMatch/permission", domDoc);
+        XMLAssert.assertXpathEvaluatesTo("Voicemail", "/mappings/hostMatch/userMatch/permissionMatch/permission",
+                domDoc);
 
         // check if generate no access has been called properly
         Assert.assertEquals(1, authRules.uniqueGateways);
@@ -130,6 +130,8 @@ public class AuthRulesTest {
 
         IMocksControl control = EasyMock.createControl();
         IDialingRule rule = control.createMock(IDialingRule.class);
+        rule.isAuthorizationChecked();
+        control.andReturn(true);
         rule.getGateways();
         control.andReturn(Arrays.asList(gateways));
         rule.getName();
@@ -163,15 +165,14 @@ public class AuthRulesTest {
         prefixBuilder = new StringBuilder();
         for (int i = 0; i < gateways.length; i++) {
             String hostMatch = String.format(hostMatchFormat, i + 1);
-            XMLAssert.assertXpathEvaluatesTo(gateways[i].getGatewayAddress(), hostMatch + "hostPattern",
-                    domDoc);
+            XMLAssert.assertXpathEvaluatesTo(gateways[i].getGatewayAddress(), hostMatch + "hostPattern", domDoc);
 
             String prefix = prefixBuilder.toString();
             XMLAssert.assertXpathEvaluatesTo(prefix + "555", hostMatch + "userMatch/userPattern", domDoc);
             XMLAssert.assertXpathEvaluatesTo(prefix + "666", hostMatch + "userMatch/userPattern[2]", domDoc);
             XMLAssert.assertXpathEvaluatesTo(prefix + "777", hostMatch + "userMatch/userPattern[3]", domDoc);
-            XMLAssert.assertXpathEvaluatesTo("Voicemail", hostMatch
-                    + "/userMatch/permissionMatch/permission", domDoc);
+            XMLAssert.assertXpathEvaluatesTo("Voicemail", hostMatch + "/userMatch/permissionMatch/permission",
+                    domDoc);
             prefixBuilder.append("2");
         }
 
@@ -183,8 +184,7 @@ public class AuthRulesTest {
         }
 
         XMLAssert.assertXpathEvaluatesTo(".", lastHostMatch + "userMatch/userPattern", domDoc);
-        XMLAssert.assertXpathEvaluatesTo("NoAccess",
-                lastHostMatch + "userMatch/permissionMatch/permission", domDoc);
+        XMLAssert.assertXpathEvaluatesTo("NoAccess", lastHostMatch + "userMatch/permissionMatch/permission", domDoc);
 
         control.verify();
     }
@@ -200,6 +200,8 @@ public class AuthRulesTest {
 
         IMocksControl control = EasyMock.createControl();
         IDialingRule rule = control.createMock(IDialingRule.class);
+        rule.isAuthorizationChecked();
+        control.andReturn(true);
         rule.getName();
         control.andReturn("testrule").times(gateways.length);
         rule.getDescription();
@@ -229,8 +231,7 @@ public class AuthRulesTest {
         String hostMatchFormat = "/mappings/hostMatch[%d]/";
         for (int i = 0; i < gateways.length; i++) {
             String hostMatch = String.format(hostMatchFormat, i + 1);
-            XMLAssert.assertXpathEvaluatesTo(gateways[i].getGatewayAddress(), hostMatch + "hostPattern",
-                    domDoc);
+            XMLAssert.assertXpathEvaluatesTo(gateways[i].getGatewayAddress(), hostMatch + "hostPattern", domDoc);
             XMLAssert.assertXpathEvaluatesTo("555", hostMatch + "userMatch/userPattern", domDoc);
             XMLAssert.assertXpathEvaluatesTo("666", hostMatch + "userMatch/userPattern[2]", domDoc);
             XMLAssert.assertXpathEvaluatesTo("777", hostMatch + "userMatch/userPattern[3]", domDoc);
@@ -254,6 +255,8 @@ public class AuthRulesTest {
 
         IMocksControl control = EasyMock.createControl();
         IDialingRule rule = control.createMock(IDialingRule.class);
+        rule.isAuthorizationChecked();
+        control.andReturn(true);
         rule.getName();
         control.andReturn("test emerg rule").times(gateways.length);
         rule.getDescription();
@@ -283,10 +286,10 @@ public class AuthRulesTest {
         String hostMatchFormat = "/mappings/hostMatch[%d]/";
         for (int i = 0; i < gateways.length; i++) {
             String hostMatch = String.format(hostMatchFormat, i + 1);
-            XMLAssert.assertXpathEvaluatesTo(gateways[i].getGatewayAddress(), hostMatch + "hostPattern",
-                    domDoc);
+            XMLAssert.assertXpathEvaluatesTo(gateways[i].getGatewayAddress(), hostMatch + "hostPattern", domDoc);
             XMLAssert.assertXpathEvaluatesTo("test emerg rule", "/mappings/hostMatch/name", domDoc);
-            XMLAssert.assertXpathEvaluatesTo("test emerg rule description", "/mappings/hostMatch/description", domDoc);
+            XMLAssert.assertXpathEvaluatesTo("test emerg rule description", "/mappings/hostMatch/description",
+                    domDoc);
             XMLAssert.assertXpathEvaluatesTo("Emergency", "/mappings/hostMatch/ruleType", domDoc);
             XMLAssert.assertXpathEvaluatesTo("911", hostMatch + "userMatch/userPattern", domDoc);
             XMLAssert.assertXpathEvaluatesTo("9911", hostMatch + "userMatch/userPattern[2]", domDoc);
@@ -317,13 +320,12 @@ public class AuthRulesTest {
         String domDoc = XmlUnitHelper.asString(document);
         // "no access" match at the end of the file
         for (int i = 0; i < gateways.length; i++) {
-            XMLAssert.assertXpathEvaluatesTo(gateways[i].getGatewayAddress(), lastHostMatch
-                    + "hostPattern[" + (i + 1) + "]", domDoc);
+            XMLAssert.assertXpathEvaluatesTo(gateways[i].getGatewayAddress(), lastHostMatch + "hostPattern["
+                    + (i + 1) + "]", domDoc);
         }
 
         XMLAssert.assertXpathEvaluatesTo(".", lastHostMatch + "userMatch/userPattern", domDoc);
-        XMLAssert.assertXpathEvaluatesTo("NoAccess",
-                lastHostMatch + "userMatch/permissionMatch/permission", domDoc);
+        XMLAssert.assertXpathEvaluatesTo("NoAccess", lastHostMatch + "userMatch/permissionMatch/permission", domDoc);
     }
 
     @Test
@@ -365,6 +367,37 @@ public class AuthRulesTest {
         String domDoc = XmlUnitHelper.asString(document);
 
         InputStream controlXml = getClass().getResourceAsStream("authrules-internal-target-perm.test.xml");
+        XMLAssert.assertXMLEqual(IOUtils.toString(controlXml), domDoc);
+    }
+
+    @Test
+    public void testGenerateRuleWithNoAuthorizationRequired() throws Exception {
+        CustomDialingRule rule = new SiteToSiteDialingRule();
+        rule.setName("test");
+        rule.setDescription("Calls to internal extensions");
+        DialPattern pattern1 = new DialPattern("12", 3);
+        DialPattern pattern2 = new DialPattern("13", 4);
+        rule.setDialPatterns(Arrays.asList(pattern1, pattern2));
+        CallPattern callPattern = new CallPattern("7", CallDigits.VARIABLE_DIGITS);
+        rule.setCallPattern(callPattern);
+        rule.setPermissionNames(Arrays.asList("LocalDialing"));
+
+        DomainManager domainManager = EasyMock.createMock(DomainManager.class);
+        domainManager.getDomain();
+        EasyMock.expectLastCall().andReturn(new Domain("example.org")).anyTimes();
+        EasyMock.replay(domainManager);
+
+        MockAuthRules authRules = new MockAuthRules();
+        authRules.setDomainManager(domainManager);
+        authRules.begin();
+        authRules.generate(rule);
+        authRules.end();
+        authRules.localizeDocument(TestUtil.createDefaultLocation());
+
+        Document document = authRules.getDocument();
+        String domDoc = XmlUnitHelper.asString(document);
+
+        InputStream controlXml = getClass().getResourceAsStream("authrules-empty.test.xml");
         XMLAssert.assertXMLEqual(IOUtils.toString(controlXml), domDoc);
     }
 

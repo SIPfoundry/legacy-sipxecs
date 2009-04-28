@@ -118,6 +118,13 @@ public abstract class DialingRule extends BeanWithId implements DataCollectionIt
         return false;
     }
 
+    /**
+     * All rules by default require authorization.
+     */
+    public boolean isAuthorizationChecked() {
+        return true;
+    }
+
     public final List<Permission> getPermissions() {
         List<String> permissionNames = getPermissionNames();
         List<Permission> permissions = new ArrayList<Permission>(permissionNames.size());
