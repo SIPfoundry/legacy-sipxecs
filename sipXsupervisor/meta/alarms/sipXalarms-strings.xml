@@ -15,18 +15,13 @@
    <definitions>
       <alarm id="PROCESS_RESTARTED">
          <shorttitle>Restarting process</shorttitle>
-         <description>Process {0} was found in a non-running state.  Attempting to restart the process.</description>
+         <description>Process '{0}' stopped unexpectedly.  Attempting to restart the process.</description>
          <resolution>No action required.</resolution>
       </alarm>
-      <alarm id="PROCESS_FAILED_RESTART">
-         <shorttitle>Process failed restart</shorttitle>
-         <description>Process {0} was found in a non-running state.  Process failed restart.</description>
-         <resolution>The system will retry several times.</resolution>
-      </alarm>
       <alarm id="PROCESS_FAILED">
-         <shorttitle>Process cannot be restarted!</shorttitle>
-         <description>Process {0} was found in a non-running state, and failed MAX restarts.  Process cannot be restarted!</description>
-         <resolution>If the process is required, check logs for more details.</resolution>
+         <shorttitle>Process failed</shorttitle>
+         <description>Process '{0}' stopped unexpectedly, and failed several restarts.</description>
+         <resolution>The system will keep trying to restart the process.  Check logs for more details.</resolution>
       </alarm>
       <alarm id="LOGIN_FAILED">
          <shorttitle>Login failed</shorttitle>
