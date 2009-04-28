@@ -23,14 +23,6 @@
                  email="false"
                   />
       </alarm>
-      <alarm id="PROCESS_FAILED_RESTART">
-         <code>SPX00003</code>
-         <severity>error</severity>
-         <component>sipXsupervisor</component>
-         <action log="true"
-                 email="true"
-                  />
-      </alarm>
       <alarm id="PROCESS_FAILED">
          <code>SPX00004</code>
          <severity>crit</severity>
