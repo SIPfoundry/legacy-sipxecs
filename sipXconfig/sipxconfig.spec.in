@@ -355,6 +355,9 @@ rm -rf /var/sipxdata/tmp/Jetty__8443__sipxconfig 2> /dev/null
 sed /etc/xinetd.d/tftp -i -e 's|^\W*disable\W*=\W*yes\W*$|disable = no|' -e 's|\W*/tftpboot\W*| %{phonedir}/profile/tftproot|'
 
 %if %{_vendor} == suse
+# turn on the service so its started after all reboots.
+/sbin/chkconfig xinetd on >/dev/null
+
 # ensure that INET services are running
 /sbin/service xinetd start >/dev/null
 %endif
