@@ -1,0 +1,19 @@
+<?xml version="1.0" standalone="yes"?>
+<!-- Device Configuration File -->
+<device device.set="1"
+    device.syslog.serverName.set="1"
+    device.syslog.serverName="10.4.5.2"
+    device.syslog.transport.set="1"
+    device.syslog.transport="1"
+    device.syslog.facility.set="1"
+    device.syslog.facility="16"
+    device.syslog.renderLevel.set="1"
+    device.syslog.renderLevel="0"
+    device.syslog.prependMac.set="1"
+    device.syslog.prependMac="1"
+
+    device.net.vlanId.set="1"
+    device.net.vlanId=""
+    device.net.cdpEnabled.set="1"
+    device.net.cdpEnabled="0"
+/>
