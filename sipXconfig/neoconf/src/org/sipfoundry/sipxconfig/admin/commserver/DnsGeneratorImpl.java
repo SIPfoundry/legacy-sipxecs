@@ -15,6 +15,9 @@ import java.util.Formatter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
+import org.sipfoundry.sipxconfig.service.SipxProxyService;
+import org.sipfoundry.sipxconfig.service.SipxService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 import org.springframework.beans.factory.annotation.Required;
@@ -26,6 +29,7 @@ public class DnsGeneratorImpl implements DnsGenerator, DaoEventListener {
     private ApiProvider<ZoneAdminApi> m_zoneAdminApiProvider;
 
     private LocationsManager m_locationsManager;
+    private SipxServiceManager m_sipxServiceManager;
 
     public void generate() {
         generateWithout(null);
@@ -47,14 +51,23 @@ public class DnsGeneratorImpl implements DnsGenerator, DaoEventListener {
             return;
         }
 
-        String primaryFqdn = primaryLocation.getFqdn();
-        String primaryAddr = primaryLocation.getAddress();
-
         Formatter cmd = new Formatter();
-        cmd.format("%s/%s ", primaryFqdn, primaryAddr);
+        SipxService proxyService = m_sipxServiceManager.getServiceByBeanId(SipxProxyService.BEAN_ID);
 
+        // First list the servers that have a SIP Router role
         for (Location location : m_locationsManager.getLocations()) {
-            if (location.isPrimary()) {
+            if (!location.isServiceInstalled(proxyService)) {
+                continue;
+            }
+            if (location.equals(locationToSkip)) {
+                continue;
+            }
+            cmd.format("%s/%s ", location.getFqdn(), location.getAddress());
+        }
+
+        // Next list the servers that do not have a SIP Router role
+        for (Location location : m_locationsManager.getLocations()) {
+            if (location.isServiceInstalled(proxyService)) {
                 continue;
             }
             if (location.equals(locationToSkip)) {
@@ -89,6 +102,11 @@ public class DnsGeneratorImpl implements DnsGenerator, DaoEventListener {
     @Required
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
+    }
+
+    @Required
+    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
+        m_sipxServiceManager = sipxServiceManager;
     }
 
     @Required
