@@ -426,8 +426,11 @@ def set_netif () :
      # Construct broadcast address
      broadAddr = '.'.join([str(int(addrLst[i]) | (255 - int(maskLst[i]))) for i in range(4)])
 
-     bootProto = "none"
-     
+     if linuxType == 'suse':
+         bootProto = "static"
+     else:
+         bootProto = "none"
+
      reONBOOT    = re.compile ('^ONBOOT=(\S*)', re.M)   
      reIPADDR    = re.compile ('^IPADDR=(\S*)', re.M)
      reIPMASK    = re.compile ('^NETMASK=(\S*)', re.M)
