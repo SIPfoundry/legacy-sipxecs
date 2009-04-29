@@ -46,6 +46,7 @@
 
   <bean id="dnsGenerator" class="org.sipfoundry.sipxconfig.admin.commserver.DnsGeneratorImpl">
     <property name="locationsManager" ref="locationsManager" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="zoneAdminApiProvider" ref="zoneAdminApiProvider" />
   </bean>
 
