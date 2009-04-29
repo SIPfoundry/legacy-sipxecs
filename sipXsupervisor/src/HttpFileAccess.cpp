@@ -124,7 +124,7 @@ void HttpFileAccess::processRequest(const HttpRequestContext& requestContext,
                   else
                   {
                      message.append("error writing response after ");
-                     message.appendNumber(totalBytes,"%"FORMAT_INTLL);
+                     message.appendNumber(totalBytes,"%"FORMAT_INTLL"d");
                      message.append(" body bytes in ");
                      message.appendNumber(chunks,"%"FORMAT_INTLL"d");
                      message.append(" chunks) to peer ");
