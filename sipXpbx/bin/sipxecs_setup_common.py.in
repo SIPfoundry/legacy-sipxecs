@@ -313,7 +313,7 @@ def screen_hostname_error () :
 
     errorExplanation = "\
 Your system hostname ('%s') is not set correctly.\n\
-  It needs to be set to a fully qualified DNS name.\n\
+It needs to be set to a fully qualified DNS name.\n\
 \n\
 Please correct your hostname and rerun sipxecs-setup." % HostName
     
@@ -589,6 +589,7 @@ def setup_DNS_zone( domain, hostname, ipaddress ):
    # A Master DNS server is used for a non HA setup or on the HA Master host
 
    zoneConfigFile='%s/%s.zone' % (sipxecsGlobals.NamedDirectory, domain)
+   dnsConfigFile='/etc/named.conf'
 
    # Create DNS entries using the sipx-dns script
    sipxDNSCommand = '@SIPX_BINDIR@/sipx-dns --provide-dns --zone %s %s/%s' \
@@ -600,8 +601,21 @@ def setup_DNS_zone( domain, hostname, ipaddress ):
    log_printout("======= %s:" % zoneConfigFile)
    log_printout(zoneConfig)
 
+   zoneRef = '\
+\n\
+zone "%s"  IN  {\n\
+     type master;\n\
+     file "%s.zone";\n\
+     allow-update { none; };\n\
+};\n\
+' % ( domain, domain )
+
+   log_printout("======= %s (appended):" % dnsConfigFile)
+   log_printout(zoneRef)
+
    if runningAsRoot():
       file ( zoneConfigFile, 'w').write( zoneConfig )
+      file ( dnsConfigFile, 'a').write( zoneRef )
 
       # Change ownership of zone files
       setOwnerRecursive(sipxecsGlobals.NamedDirectory, 'named', 'named')
@@ -822,6 +836,9 @@ def do_sipx_setup() :
         if ( SipDomain != DomainName ):
            progress(35, "Create DNS records");
            setup_DNS_zone( SipDomain, HostName, IpAddress )
+           log_printout("NOTE: if the DNS running on this machine is not authoritative for zone %s,\
+ you may have to remove the zone file %s/%s.zone and the reference to it in /etc/named.conf" %
+              (DomainName, sipxecsGlobals.NamedDirectory, DomainName))
            if runningAsRoot():
               reload="/usr/sbin/rndc reload"
               log_printout("Attempting to reload zone files with: '%s'" % reload)
