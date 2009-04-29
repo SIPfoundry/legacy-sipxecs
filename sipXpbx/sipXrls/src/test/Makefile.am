@@ -15,7 +15,7 @@ COMMON_LIBS = \
    @SIPXUNIT_LIBS@ \
    @SIPXCOMMSERVERTEST_LIBS@ \
    @SIPXCOMMSERVER_LIBS@ 
-   
+
 testsuite_CXXFLAGS = \
 	$(COMMON_CXX_FLAGS)
 
@@ -63,6 +63,3 @@ testsuite_LDADD = \
 #sandbox_CXXFLAGS = $(testsuite_CXXFLAGS)
 #sandbox_SOURCES = \
 #   ResourceListServerTest.cpp
-
-
-
