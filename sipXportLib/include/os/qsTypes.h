@@ -48,7 +48,7 @@ typedef unsigned short USHORT;
 typedef int INT;
 typedef unsigned int UINT;
 
-/* 64 bit integers; unsigned is not defined since it is not likely needed */
+/* 64 bit integers */
 #ifdef WIN32
 typedef unsigned __int64 UInt64;
 typedef __int64 Int64;
