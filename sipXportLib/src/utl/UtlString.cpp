@@ -303,6 +303,7 @@ UtlString& UtlString::appendNumber(size_t value, const char* format)
    return appendFormattedNumber(formatResult, conversionString, format);
 }
 
+#if __WORDSIZE == 64
 UtlString& UtlString::appendNumber(ssize_t value, const char* format)
 {
    char conversionString[MAX_NUMBER_STRING_SIZE];
@@ -311,6 +312,16 @@ UtlString& UtlString::appendNumber(ssize_t value, const char* format)
    int formatResult = snprintf(conversionString,MAX_NUMBER_STRING_SIZE,format,value);
    return appendFormattedNumber(formatResult, conversionString, format);
 }
+#else
+UtlString& UtlString::appendNumber(long value, const char* format)
+{
+   char conversionString[MAX_NUMBER_STRING_SIZE];
+   conversionString[0]='\000';
+
+   int formatResult = snprintf(conversionString,MAX_NUMBER_STRING_SIZE,format,value);
+   return appendFormattedNumber(formatResult, conversionString, format);
+}
+#endif
 
 UtlString& UtlString::appendNumber(Int64 value, const char* format)
 {
