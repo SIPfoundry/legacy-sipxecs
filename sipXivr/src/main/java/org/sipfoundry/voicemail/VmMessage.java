@@ -21,8 +21,6 @@ import javax.sound.sampled.AudioSystem;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.sipfoundry.sipxivr.Mailbox;
-import org.sipfoundry.voicemail.Message.Reason;
-import org.sipfoundry.voicemail.MessageDescriptor.Priority;
 
 /**
  * Represents the message in a mailbox
@@ -138,7 +136,7 @@ public class VmMessage {
         me.m_messageDescriptor.setSubject("Voice Message "+me.m_messageId);
         me.m_messageDescriptor.setPriority(recording.getPriority());
 
-        File temp = new File(recording.getWavPath());
+        File tempFile = recording.getWavFile();
         String baseName = mailbox.getInboxDirectory()+me.m_messageId+"-00"; 
         me.m_audioFile = new File(baseName+".wav");
         me.m_descriptorFile = new File(baseName+".xml");
@@ -151,7 +149,7 @@ public class VmMessage {
             
             operation = "copying recording .wav file to "+me.m_audioFile.getPath();
             LOG.debug("VmMessage::newMessage "+operation);
-            FileUtils.copyFile(temp, me.m_audioFile, true);
+            FileUtils.copyFile(tempFile, me.m_audioFile, true);
             
             operation = "creating messageDescriptor "+me.m_descriptorFile.getPath();
             LOG.debug("VmMessage::newMessage "+operation);
@@ -277,10 +275,10 @@ public class VmMessage {
             FileUtils.copyFile(m_descriptorFile, me.m_originalDescriptorFile, true);
             
             // The recording (if any) becomes the audioFile as NewID-00.wav
-            if (recording.getWavPath() != null) {
-                File temp = new File(recording.getWavPath());
+            if (recording.getWavFile() != null) {
+                File tempFile = recording.getWavFile();
                 operation = "copying comments .wav file to "+me.m_audioFile.getPath();
-                FileUtils.copyFile(temp, me.m_audioFile, true);
+                FileUtils.copyFile(tempFile, me.m_audioFile, true);
 
                 // Combine the new and the old file into one bigger .wav as NewID-FW.wav
                 operation = "combining "+me.m_audioFile.getPath()+" with "+me.m_originalAudioFile.getPath();

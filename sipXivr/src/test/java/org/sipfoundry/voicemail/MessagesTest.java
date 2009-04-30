@@ -11,7 +11,6 @@ package org.sipfoundry.voicemail;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
@@ -20,15 +19,14 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.spi.AudioFileWriter;
+
+import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.PropertyConfigurator;
 import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.sipxivr.User;
 import org.sipfoundry.voicemail.MessageDescriptor.Priority;
-
-import junit.framework.TestCase;
 
 public class MessagesTest extends TestCase {
     File m_testDir;
@@ -283,11 +281,11 @@ public class MessagesTest extends TestCase {
         user.setIdentity("user@dog");
 
         Mailbox mbox = new Mailbox(user, m_testDir.getPath());
-        File temp = new File(m_testDir, "temp.wav");
-        FileUtils.touch(temp);
-        Message m = Message.newMessage(mbox, temp.getPath(), "woof@dog", Priority.NORMAL);
+        File tempFile = new File(m_testDir, "temp.wav");
+        FileUtils.touch(tempFile);
+        Message m = Message.newMessage(mbox, tempFile, "woof@dog", Priority.NORMAL);
         m.storeInInbox();
-        assertFalse("temp file was not deleted", temp.exists());
+        assertFalse("temp file was not deleted", tempFile.exists());
         VmMessage vm = m.getVmMessage();
         assertTrue("vmMessage wasn't created", vm != null);
         assertTrue("Audio File not created", vm.m_audioFile.exists());
@@ -302,11 +300,11 @@ public class MessagesTest extends TestCase {
         user.setIdentity("user@dog");
         
         Mailbox mbox = new Mailbox(user, m_testDir.getPath());
-        File temp = new File(m_testDir, "temp.wav");
-        FileUtils.touch(temp);
-        Message m = Message.newMessage(mbox, temp.getPath(), "woof@dog", Priority.NORMAL);
+        File tempFile = new File(m_testDir, "temp.wav");
+        FileUtils.touch(tempFile);
+        Message m = Message.newMessage(mbox, tempFile, "woof@dog", Priority.NORMAL);
         m.storeInInbox();
-        assertFalse("temp file was not deleted", temp.exists());
+        assertFalse("temp file was not deleted", tempFile.exists());
         VmMessage vm = m.getVmMessage();
         VmMessage vm2 = vm.copy(mbox);
         assertFalse("Message ID didn't change", vm.getMessageId().equals(vm2.getMessageId()));
@@ -351,12 +349,12 @@ public class MessagesTest extends TestCase {
         user.setIdentity("user@dog");
         
         Mailbox mbox = new Mailbox(user, m_testDir.getPath());
-        File temp = new File(m_testDir, "temp.wav");
-        makeWaves(temp, (byte)0, 42);
+        File tempFile = new File(m_testDir, "temp.wav");
+        makeWaves(tempFile, (byte)0, 42);
         
-        Message m = Message.newMessage(mbox, temp.getPath(), "woof@dog", Priority.NORMAL);
+        Message m = Message.newMessage(mbox, tempFile, "woof@dog", Priority.NORMAL);
         m.storeInInbox();
-        assertFalse("temp file was not deleted", temp.exists());
+        assertFalse("temp file was not deleted", tempFile.exists());
         VmMessage vm = m.getVmMessage();
         
         Message m2 = Message.newMessage(mbox, null, "knight@dog", Priority.NORMAL);
@@ -372,9 +370,9 @@ public class MessagesTest extends TestCase {
         assertFalse("Subject didn't change", vm.m_messageDescriptor.getSubject().equals(vm2.m_messageDescriptor.getSubject()));
         
         File comment = new File(m_testDir, "comment.wav");
-        makeWaves(temp, (byte)-1, 42);
-        Message m3 = Message.newMessage(mbox, comment.getPath(), "knight@dog", Priority.NORMAL);
-        VmMessage vm3 = vm.forward(mbox, m2);
+        makeWaves(comment, (byte)-1, 42);
+        Message m3 = Message.newMessage(mbox, comment, "knight@dog", Priority.NORMAL);
+        VmMessage vm3 = vm.forward(mbox, m3);
         assertTrue("Combined audio File not created", vm3.m_combinedAudioFile.exists());
     }
 }

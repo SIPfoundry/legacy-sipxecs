@@ -64,13 +64,12 @@ public class MessageTest extends TestCase {
     public void testMessage() throws IOException {
         File wavFile = new File(m_testdir.getPath()+"fake.wav");
         FileUtils.touch(wavFile);
-        Message message = Message.newMessage(m_mailbox, wavFile.getPath(), 
+        Message message = Message.newMessage(m_mailbox, wavFile, 
                 "\"Me\" <woof@pingtel.com>", Priority.NORMAL);
         message.storeInInbox();
         assertEquals("00000001", message.getMessageId());
         assertEquals(m_mailbox.getInboxDirectory()+"00000001-00.wav", message.getWavPath());
-        assertTrue("mailstore/woof/inbox/00000001-00.wav doesn't exist!",
-                new File(message.getWavPath()).exists());
+        assertTrue("mailstore/woof/inbox/00000001-00.wav doesn't exist!", message.getWavFile().exists());
     }
 
 

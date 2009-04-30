@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Vector;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -40,12 +41,14 @@ public class Retrieve {
     FreeSwitchEventSocketInterface m_fses;
     Mailbox m_mailbox;
     Messages m_messages;
-
+    Vector<File> m_tempRecordings; // Temp recordings that need to be destroyed on hangup
+    
     public Retrieve(VoiceMail vm, Localization loc) {
         m_vm = vm;
         m_loc = loc ;
         m_fses = m_loc.getFreeSwitchEventSocketInterface();
         m_mailbox = m_vm.getMailbox();
+        m_tempRecordings = new Vector<File>();
     }
     
     public String retrieveVoiceMail() {
@@ -59,7 +62,16 @@ public class Retrieve {
         if (user != null) {
             m_mailbox = new Mailbox(user, m_loc);
             LOG.info("Mailbox "+m_mailbox.getUser().getUserName()+" logged in");
-            main_menu();
+            try {
+                main_menu();
+            } finally {
+                for (File tempRecording : m_tempRecordings) {
+                    if (tempRecording.exists()) {
+                        LOG.debug("Retrieve::retrieveVoiceMail deleting unused temporary recording "+tempRecording.getPath());
+                        FileUtils.deleteQuietly(tempRecording);
+                    }
+                }
+            }
         }
         
         return null ;
@@ -188,8 +200,23 @@ public class Retrieve {
         
         return pl;
     }
+
+    File makeTempWavFile() {
+        File wavFile = null;
+        try {
+            wavFile = File.createTempFile("temp_recording_", ".wav"); // TODO which tmp dir?
+            m_tempRecordings.add(wavFile);
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot create temp recording file", e);
+        }
+        return wavFile;
+    }
+
+    void dontDeleteTempFile(File tempFile) {
+        m_tempRecordings.remove(tempFile);
+    }
     
-    private void main_menu() {
+    void main_menu() {
         m_messages = new Messages(m_mailbox);
         
         boolean playStatus = true ;
@@ -259,7 +286,11 @@ public class Retrieve {
                 playMessages(Messages.Folders.DELETED);
                 continue;
             }
-            // TODO 4 send a message 
+            if (digit.equals("4")) {
+                sendMessage();
+                continue;
+                
+            }
             // TODO 5 voicemail options
             
             if (digit.equals("8")) {
@@ -515,7 +546,7 @@ public class Retrieve {
      * @param vmMessage
      */
     void forward(VmMessage vmMessage) {
-        String commentsWav = null;
+        File commentsFile = null;
         Message comments = null;
         boolean askAboutComments = true;
         for(;;) {
@@ -536,8 +567,15 @@ public class Retrieve {
                 LOG.debug("Retrieve::forward collected ("+digit+")");
                 
                 if (digit.equals("1")) {
-                    commentsWav = recordComments();
-                    if (commentsWav == null) {
+                    // "Record your comments, then press #"
+                    // 
+                    // "To play your comments, press 1."
+                    // "To accept your comments, press 2."  
+                    // "To delete these comments and try again, press 3."  
+                    // To cancel, press *"
+                    commentsFile = recordDialog("msg_record_comments", "msg_confirm_record");
+                    
+                    if (commentsFile == null) {
                         continue ;
                     }
                 } else  if (digit.equals("2")) {
@@ -546,18 +584,19 @@ public class Retrieve {
                 }
                 askAboutComments = false;
              // Build a message with the comments (if any)
-                comments = Message.newMessage(null, commentsWav, m_fses.getDisplayUri(), Priority.NORMAL);
+                comments = Message.newMessage(null, commentsFile, 
+                        m_fses.getDisplayUri(), Priority.NORMAL);
             }
 
             
             // Get a list of extensions 
-            EnterExtension ee = new EnterExtension(m_vm, m_loc);
-            DialByNameChoice choice = ee.extensionDialog();
+            DialByNameChoice choice = EnterExtension.dialog(m_vm, m_loc);
             if (choice.getIvrChoiceReason() == IvrChoiceReason.SUCCESS) {
                 // Forward the message to each destination
                 for (User destUser : choice.getUsers()) {
                     Mailbox destMailbox = new Mailbox(destUser, m_loc);
                     vmMessage.forward(destMailbox, comments);
+                    dontDeleteTempFile(commentsFile);
                 }
                 
                 // "Message forwarded."
@@ -583,8 +622,15 @@ public class Retrieve {
      * @param vmMessage
      */
     void reply(VmMessage vmMessage, User sendingUser) {
-        String commentsWav = recordComments();
-        if (commentsWav == null) {
+        // "Record your comments, then press #"
+        // 
+        // "To play your comments, press 1."
+        // "To accept your comments, press 2."  
+        // "To delete these comments and try again, press 3."  
+        // To cancel, press *"
+        File commentsFile = recordDialog("msg_record_comments", "msg_confirm_record");
+
+        if (commentsFile == null) {
             return;
         }
 
@@ -592,111 +638,162 @@ public class Retrieve {
         Mailbox destMailbox = new Mailbox(sendingUser, m_loc);
         
         // Build a message with the comments sent by this user.
-        Message comments = Message.newMessage(destMailbox, commentsWav, 
+        Message comments = Message.newMessage(destMailbox, commentsFile, 
                 m_mailbox.getUser().getUri(), Priority.NORMAL);
 
         // Send the message.
         comments.storeInInbox();
-                
+        dontDeleteTempFile(commentsFile);
+        
         // "Message sent."
         m_loc.play("msg_replyed", "");
     }
     
-    /**
-     * Record a comment to a message to be forwarded.
-     * 
-     * @return the wav file of the recording
+    /** 
+     * Record a new message and send to a selected destination
+     * @param vmMessage
      */
-    String recordComments() {
-        String wavPath = "oops" ;
-        File wavFile;
+    void sendMessage() {
+        Message message = null;
+        
+        // "Record your message, then press #"
+        // 
+        // "To play this message, press 1."
+        // "To send this message, press 2." 
+        // "To delete this message and try again, press 3."
+        // "To cancel, press *."
+        File recordingFile = recordDialog("send_record_message", "send_confirm_record");
 
-        // Time to record a message
-        try {
-            wavFile = File.createTempFile("temp_recording_", ".wav"); // TODO which tmp dir?
-            wavPath = wavFile.getPath(); // TODO, how to delete this temp file on hangup
-        } catch (IOException e) {
-            throw new RuntimeException("Cannot create temp recording file", e);
+        if (recordingFile == null) {
+            return ;
         }
-        boolean recordComments = true ;
-        boolean playComments = false;
+        
+        for(;;) {
+            // Get a list of extensions 
+            DialByNameChoice choice = EnterExtension.dialog(m_vm, m_loc);
+            if (choice.getIvrChoiceReason() == IvrChoiceReason.SUCCESS) {
+                // Forward the message to each destination
+                for (User destUser : choice.getUsers()) {
+                    Mailbox destMailbox = new Mailbox(destUser, m_loc);
+                    if (message == null) {
+                        // Build a message with the recording sent by this user.
+                        message = Message.newMessage(destMailbox, recordingFile, 
+                                m_mailbox.getUser().getUri(), Priority.NORMAL);
+                        // Send the message.
+                        message.storeInInbox();
+                        dontDeleteTempFile(recordingFile);
+                    } else {
+                        // Copy the existing message
+                        message.getVmMessage().copy(destMailbox) ;
+                    }
+                }
+                
+                // "Message sent."
+                m_loc.play("msg_sent", "");
+
+                // "To deliver this message to another address, press 1."
+                // "If you are finished, press *."
+                PromptList pl = m_loc.getPromptList("send_more_options");
+                VmMenu menu1 = new VmMenu(m_loc, m_vm);
+                menu1.setSpeakCanceled(false);
+                menu1.collectDigit(pl, "1");
+        
+                if (!menu1.isOkay()) {
+                    return;
+                }
+                // Back to enter another extension
+            }
+        }
+    }
+
+
+    /**
+     * Record a wav file with confirmation dialog.
+     * 
+     * @param recordFragment  To play before the recording
+     * @param confirmMenuFragment  To play after the recording
+     * @return the temporary wav file.  null if recording is to be tossed
+     */
+    private File recordDialog(String recordFragment, String confirmMenuFragment) {
+        File wavFile = makeTempWavFile();
+        String wavPath = wavFile.getPath();
+
+        boolean recordWav = true ;
+        boolean playWav = false;
         for(;;) {
 
-            if (recordComments) {
-                // Record your comments, then press #
-                m_loc.play("msg_record_comments", "*");
+            if (recordWav) {
+                // Record your {comments|message} then press #
+                m_loc.play(recordFragment, "*");
                 // Give the user 1 second to press "*" to cancel, then start recording
                 Collect c = new Collect(m_fses, 1, 1000, 0, 0);
                 c.setTermChars("*");
                 c.go();
                 String digit = c.getDigits();
-                LOG.debug("Retrieve::comments collected ("+digit+")");
+                LOG.debug("Retrieve::recordWav collected ("+digit+")");
                 if (digit.length() == 0 || !"*0".contains(digit) ) {
                     m_vm.recordMessage(wavPath);
                     digit = m_fses.getDtmfDigit();
                     if (digit == null) {
                         digit = "";
                     }
-                    LOG.debug("Retrieve::comments record terminated collected ("+digit+")");
+                    LOG.debug("Retrieve::recordWav record terminated collected ("+digit+")");
                 }
         
                 if (digit.equals("0")) {
-                    FileUtils.deleteQuietly(wavFile);
                     m_vm.operator();
                     return null;
                 }
         
                 if (digit.equals("*")) {
                  // "Canceled."
-                    FileUtils.deleteQuietly(wavFile);
                     m_loc.play("canceled", "");
                     return null;
                 }
-                recordComments = false;
+                recordWav = false;
             }
         
             // Confirm caller's intent for this comment
             Menu menu2 = new VmMenu(m_loc, m_vm);
-            if (playComments) {
+            if (playWav) {
                 // (pre-menu: message)
                 PromptList messagePl = new PromptList(m_loc);
                 messagePl.addPrompts(wavPath);
                 menu2.setPrePromptPl(messagePl);
-                playComments = false ; // Only play it once
+                playWav = false ; // Only play it once
             }
 
-            // "To play your comments, press 1."
-            // "To accept your comments, press 2."  
-            // "To delete these comments and try again, press 3."  
+            // "To play your {comments|recording}, press 1."
+            // "To accept your {comments|record}, press 2."  
+            // "To delete these {comments|recording} and try again, press 3."  
             // To cancel, press *"
-            PromptList pl = m_loc.getPromptList("msg_confirm_comments");
+            PromptList pl = m_loc.getPromptList(confirmMenuFragment);
             IvrChoice choice = menu2.collectDigit(pl, "123");
 
             // bad entry, timeout, canceled
             if (!menu2.isOkay()) {
-                FileUtils.deleteQuietly(wavFile);
                 return null;
             }
                 
             String digit = choice.getDigits();
 
-            LOG.info("Retrieve::comments: Mailbox "+m_mailbox.getUser().getUserName()+" options ("+digit+")");
+            LOG.info("Retrieve::recordWav: Mailbox "+m_mailbox.getUser().getUserName()+" options ("+digit+")");
     
             // "1" means play the recording
             if (digit.equals("1")) {
-                LOG.info(String.format("Playing back comment (%s)", wavPath));
-                playComments = true ;
+                LOG.info(String.format("Retrieve::recordWav Playing back recording (%s)", wavPath));
+                playWav = true ;
                 continue ;
             }
     
-            // "2" means accept the comments recording
+            // "2" means accept the recording
             if (digit.equals("2")) {
-                return wavPath;
+                return wavFile;
             }
     
             // "3" means "erase" and re-record
             if (digit.equals("3")) {
-                recordComments = true ;
+                recordWav = true ;
                 continue ;
             }
         }

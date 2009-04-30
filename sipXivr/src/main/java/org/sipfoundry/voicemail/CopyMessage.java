@@ -17,32 +17,24 @@ import org.sipfoundry.sipxivr.IvrChoice.IvrChoiceReason;
 
 public class CopyMessage {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
-    private VoiceMail m_vm;
-    private Localization m_loc;
-
-    public CopyMessage(VoiceMail vm, Localization loc) {
-        m_vm = vm;
-        m_loc = loc ;
-    }
     
     /**
      * Copy the message to a selected user's mailbox
      * @param existingMessage the message they want to copy
      */
-    public boolean copyDialog(VmMessage existingMessage) {
-        EnterExtension ee = new EnterExtension(m_vm, m_loc);
-        DialByNameChoice choice = ee.extensionDialog();
+    public static boolean dialog(VmMessage existingMessage, VoiceMail vm, Localization loc) {
+        DialByNameChoice choice = EnterExtension.dialog(vm, loc);
         if (choice.getIvrChoiceReason() != IvrChoiceReason.SUCCESS) {
             return false;
         }
         
         // Store the message with each user in the list
         for (User user : choice.getUsers()) {
-            Mailbox otherBox = new Mailbox(user, m_loc);
+            Mailbox otherBox = new Mailbox(user, loc);
            existingMessage.copy(otherBox);
         }
         // "Your message has been copied."
-        m_loc.play("deposit_copied", "");
+        loc.play("deposit_copied", "");
         return true;
     }
 }

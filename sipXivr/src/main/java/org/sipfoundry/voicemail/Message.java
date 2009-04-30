@@ -9,6 +9,13 @@
 package org.sipfoundry.voicemail;
 
 import java.io.File;
+import java.io.IOException;
+
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -20,7 +27,7 @@ public class Message {
     private Mailbox m_mailbox;
     private String m_fromUri;
     private Priority m_priority;
-    private String m_wavPath;
+    private File m_wavFile;
     private boolean m_stored;
     private boolean m_isToBeStored;
     private long m_duration;
@@ -49,16 +56,16 @@ public class Message {
      * @param priority
      * @return
      */
-    public static Message newMessage(Mailbox mailbox, String wavPath, String fromUri, Priority priority) {
+    public static Message newMessage(Mailbox mailbox, File wavFile, String fromUri, Priority priority) {
         Message me = new Message();
         me.m_mailbox = mailbox;
         
-        me.m_wavPath = wavPath;
+        me.m_wavFile = wavFile;
         me.m_fromUri = fromUri;
         me.m_priority = priority;
         me.m_stored = false;
         me.m_isToBeStored = true;
-        me.m_duration = 42; // TODO correct duration
+        me.m_duration = 0;
         me.m_timestamp = System.currentTimeMillis();
         return me;
     }
@@ -81,7 +88,10 @@ public class Message {
     }
     
     public void deleteTempWav() {
-        FileUtils.deleteQuietly(new File(m_wavPath)) ;
+        if (m_wavFile.exists()) {
+            LOG.debug("Message:deleteTempWav deleting "+ m_wavFile.getPath());
+            FileUtils.deleteQuietly(m_wavFile) ;
+        }
     }
     
     public Reason storeInInbox() {
@@ -100,6 +110,7 @@ public class Message {
         m_vmMessage = VmMessage.newMessage(m_mailbox, this);
         if (m_vmMessage == null) {
             // Oops, something went wrong
+            deleteTempWav();
             return Reason.FAILED;
         }
         
@@ -119,15 +130,29 @@ public class Message {
         }
     }
     
-    public String getWavPath() {
+    public File getWavFile() {
         if (m_vmMessage != null) {
-            return m_vmMessage.getAudioFile().getPath();
+            return m_vmMessage.getAudioFile();
         } else {
-            return m_wavPath;
+            return m_wavFile;
         }
+    }
+    
+    public String getWavPath() {
+        return getWavFile().getPath();
     }
 
     public long getDuration() {
+        // Calculate the duration (in seconds) from the Wav file
+        try {
+            AudioInputStream ais = AudioSystem.getAudioInputStream(getWavFile());
+            float secs =  ais.getFrameLength() / ais.getFormat().getFrameRate();
+            m_duration = Math.round(secs+0.5); // Round up.
+        } catch (Exception e) {
+            String trouble = "Message::getDuration Problem determining duration of "+getWavFile().getPath();
+            LOG.error(trouble, e);
+            throw new RuntimeException(trouble, e);            
+        }
         return m_duration;
     }
 

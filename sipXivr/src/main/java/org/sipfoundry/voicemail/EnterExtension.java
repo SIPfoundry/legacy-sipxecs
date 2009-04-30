@@ -21,23 +21,24 @@ import org.sipfoundry.sipxivr.IvrChoice.IvrChoiceReason;
 
 public class EnterExtension {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
-    private VoiceMail m_vm;
-    private Localization m_loc;
-
-    public EnterExtension(VoiceMail vm, Localization loc) {
-        m_vm = vm;
-        m_loc = loc ;
-    }
     
-    public DialByNameChoice extensionDialog() {
+    /**
+     * The Enter Extension dialog
+     * Lets the user enter an extension which is validated against the ValidUsers list.
+     * Or they can enter a 9 and use dial by name spelling to find the extension.
+     * Or they can enter an 8 and select a distribution list to select several extensions.
+     * 
+     * @return The user's choice
+     */
+    public static DialByNameChoice dialog(VoiceMail vm, Localization loc) {
         Vector<User> userList = new Vector<User>() ;
         
         for(;;) {
             // "Please dial an extension."
             // "Press 8 to use a distribution list,"
             // "Or press 9 for the dial by name directory."
-            PromptList pl = m_loc.getPromptList("dial_extension");
-            VmMenu menu = new VmMenu(m_loc, m_vm);
+            PromptList pl = loc.getPromptList("dial_extension");
+            VmMenu menu = new VmMenu(loc, vm);
             IvrChoice choice = menu.collectDigits(pl, 10);
             
             if (!menu.isOkay()) {
@@ -48,7 +49,7 @@ public class EnterExtension {
             LOG.info("EnterExtension::extensionDialog collected ("+digits+")");
             
             if (digits.equals("8")) {
-                Vector<User> users = m_vm.selectDistributionList();
+                Vector<User> users = vm.selectDistributionList();
                 if (users == null) {
                     continue;
                 }
@@ -57,7 +58,7 @@ public class EnterExtension {
                 
             } else if (digits.equals("9")) {
                 // Do the DialByName dialog
-                DialByName dbn = new DialByName(m_loc, m_vm.getConfig(), m_vm.getValidUsers());
+                DialByName dbn = new DialByName(loc, vm.getConfig(), vm.getValidUsers());
                 DialByNameChoice dbnChoice = dbn.dialByName();
                 
                 // If they canceled DialByName, backup
@@ -67,7 +68,7 @@ public class EnterExtension {
                 
                 // If an error occurred, failure
                 if (dbnChoice.getUsers() == null) {
-                    m_vm.failure();
+                    vm.failure();
                     return new DialByNameChoice(dbnChoice);
                 }
                 
@@ -75,10 +76,10 @@ public class EnterExtension {
                 userList.addAll(dbnChoice.getUsers());
                 break ;
             } else {
-                User user = m_vm.getValidUsers().isValidUser(digits);
+                User user = vm.getValidUsers().isValidUser(digits);
                 if (user == null) {
                     // "that extension is not valid"
-                    m_loc.play("invalid_extension", "");
+                    loc.play("invalid_extension", "");
                     continue ;
                 }
                 userList.add(user) ;
