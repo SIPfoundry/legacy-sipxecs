@@ -8,8 +8,14 @@
  */
 package org.sipfoundry.voicemail;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
 
 import junit.framework.TestCase;
 
@@ -61,9 +67,19 @@ public class MessageTest extends TestCase {
         assertEquals("00000002", messageId2);
     }
 
+    private void makeWaves(File wavFile, byte filler, int length) throws IOException {
+        byte[] fill = new byte[length];
+        for(int i=0; i<length; i++) {
+            fill[i] = filler;
+        }
+        AudioInputStream ais = new AudioInputStream(new ByteArrayInputStream(fill), 
+                new AudioFormat(8000,16, 1, true, false), fill.length);
+        AudioSystem.write(ais, AudioFileFormat.Type.WAVE, wavFile);
+    }
+
     public void testMessage() throws IOException {
         File wavFile = new File(m_testdir.getPath()+"fake.wav");
-        FileUtils.touch(wavFile);
+        makeWaves(wavFile, (byte)0, 8000);
         Message message = Message.newMessage(m_mailbox, wavFile, 
                 "\"Me\" <woof@pingtel.com>", Priority.NORMAL);
         message.storeInInbox();

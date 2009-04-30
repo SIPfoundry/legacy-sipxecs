@@ -282,7 +282,7 @@ public class MessagesTest extends TestCase {
 
         Mailbox mbox = new Mailbox(user, m_testDir.getPath());
         File tempFile = new File(m_testDir, "temp.wav");
-        FileUtils.touch(tempFile);
+        makeWaves(tempFile, (byte)0, 4);
         Message m = Message.newMessage(mbox, tempFile, "woof@dog", Priority.NORMAL);
         m.storeInInbox();
         assertFalse("temp file was not deleted", tempFile.exists());
@@ -301,7 +301,7 @@ public class MessagesTest extends TestCase {
         
         Mailbox mbox = new Mailbox(user, m_testDir.getPath());
         File tempFile = new File(m_testDir, "temp.wav");
-        FileUtils.touch(tempFile);
+        makeWaves(tempFile, (byte)0, 4);
         Message m = Message.newMessage(mbox, tempFile, "woof@dog", Priority.NORMAL);
         m.storeInInbox();
         assertFalse("temp file was not deleted", tempFile.exists());
@@ -357,7 +357,9 @@ public class MessagesTest extends TestCase {
         assertFalse("temp file was not deleted", tempFile.exists());
         VmMessage vm = m.getVmMessage();
         
-        Message m2 = Message.newMessage(mbox, null, "knight@dog", Priority.NORMAL);
+        File fwdWavFile = new File(m_testDir, "fwd.wav");
+        makeWaves(fwdWavFile, (byte)-1, 42);
+        Message m2 = Message.newMessage(mbox, fwdWavFile, "knight@dog", Priority.NORMAL);
         VmMessage vm2 = vm.forward(mbox, m2);
         assertFalse("Message ID didn't change", vm.getMessageId().equals(vm2.getMessageId()));
         assertTrue("vmMessage wasn't created", vm2 != null);
