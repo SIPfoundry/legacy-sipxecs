@@ -1203,18 +1203,19 @@ class SipUtilities {
 
         message.removeHeader(AllowHeader.NAME); // Remove existing Allow
         try {
+           
             for (String method : new String[] {
-                Request.INVITE, Request.BYE, Request.ACK, Request.CANCEL, Request.OPTIONS,
-                Request.PRACK
+                Request.INVITE, Request.BYE, Request.ACK, Request.CANCEL, Request.OPTIONS
             }) {
                 AllowHeader allow = ProtocolObjects.headerFactory.createAllowHeader(method);
                 message.addHeader(allow);
             }
-            if (message instanceof Request) {
-                SupportedHeader supportedHeader = ProtocolObjects.headerFactory
-                        .createSupportedHeader("100rel");
-                message.setHeader(supportedHeader);
-            }
+           /*
+            * 100rel not supported from the WAN side.
+            * DO NOT add 100rel support when signaling the WAN ( not needed -- leads to
+            * needless complications). See issue XX-5609
+            */ 
+           
         } catch (Exception ex) {
             logger.error("Unexpected exception", ex);
             throw new SipXbridgeException(ex);

@@ -15,6 +15,8 @@ import gov.nist.javax.sip.message.SIPResponse;
 
 import java.util.ListIterator;
 import java.util.TimerTask;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.sdp.SessionDescription;
@@ -105,6 +107,12 @@ class DialogContext {
      * sipXbridge.
      */
     boolean isOriginatedBySipxbridge;
+    
+    /*
+     * A semaphore to wait for ACK to be sent.
+     */
+    Semaphore ackSem = new Semaphore(0);
+    
 
     // /////////////////////////////////////////////////////////////
     // Auxilliary data structures associated with dialog state machine.
@@ -307,32 +315,31 @@ class DialogContext {
             try {
                 int i = 0;
 
-                while (dialogContext.dialog.getState() != DialogState.TERMINATED
+                if  (dialogContext.dialog.getState() != DialogState.TERMINATED
                         && dialogContext.isWaitingForAck(ctx)) {
-                    if (i++ > 80) {
-                        /*
-                         * Could not send re-INVITE we should kill the call.
-                         */
-                        logger.error("Could not send re-INVITE -- killing call");
-                        ctx.terminate();
-                        backToBackUserAgent.tearDown("sipxbridge",
-                                ReasonCode.TIMED_OUT_WAITING_TO_SEND_REINVITE,
-                                "Timed out waiting to re-INVITE");
-                        return;
-                    } else {
-                        logger.debug("Waiting for ACK");
-                        try {
-                            Thread.sleep(100);
-                        } catch ( InterruptedException ex) {
-                            logger.debug("Interrupted sleep");
-                            return;
-                        }
-                    }
+                     /*
+                      * prevent interleaving by waiting for 8 seconds until the previous ACK gets 
+                      * sent. Certain ITSPs do not deal well with interleaved INVITE transactions 
+                      * (return bad error code).
+                      */
+                     if ( ! ackSem.tryAcquire(8,TimeUnit.SECONDS) ) {
+                         /*
+                          * Could not send re-INVITE we should kill the call.
+                          */
+                         logger.error("Could not send re-INVITE -- killing call");
+                         ctx.terminate();
+                         backToBackUserAgent.tearDown("sipxbridge",
+                                 ReasonCode.TIMED_OUT_WAITING_TO_SEND_REINVITE,
+                                 "Timed out waiting to re-INVITE");
+                         return;
+                     }
                 }
 
                 /*
                  * Wait for the ACK to actually get to the other side. Wait for any ACK
-                 * retransmissions to finish. Then send out the request.
+                 * retransmissions to finish. Then send out the request. This is a 
+                 * hack in support of some ITSPs that want re-INVITEs to be spaced 
+                 * out in time ( else they return a 400 error code ).
                  */
                 try {
                     Thread.sleep(500);
@@ -671,6 +678,7 @@ class DialogContext {
          */
         SipUtilities.setDuplexity(sessionDescription, "sendrecv");
         this.sendAck(ackRequest);
+       
         setPendingAction(PendingDialogAction.NONE);
     }
 
@@ -878,6 +886,7 @@ class DialogContext {
         this.recordLastAckTime();
         this.lastAck = ack;
         dialog.sendAck(ack);
+        ackSem.release();
 
         if (terminateOnConfirm) {
             Request byeRequest = dialog.createRequest(Request.BYE);
