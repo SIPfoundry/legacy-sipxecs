@@ -415,15 +415,18 @@ public class ItspAccountInfo implements gov.nist.javax.sip.clientauthutils.UserC
 
     public void startCrLfTimerTask() {
         if (!this.crLfTimerTaskStarted) {
+          
             this.crLfTimerTaskStarted = true;
             this.crlfTimerTask = new CrLfTimerTask(Gateway.getWanProvider("udp"), this);
-            Gateway.getTimer().schedule(crlfTimerTask, Gateway.getSipKeepaliveSeconds() * 1000);
+            logger.debug("ItspAccountInfo: startCrLfTimerTask() : " + this.getProxyDomain() + " keepalive = " +  Gateway.getSipKeepaliveSeconds());
+            Gateway.getTimer().schedule(crlfTimerTask, Gateway.getSipKeepaliveSeconds() * 1000, Gateway.getSipKeepaliveSeconds() * 1000);
         }
 
     }
 
     public void stopCrLfTimerTask() {
         if (this.crLfTimerTaskStarted) {
+            logger.debug("ItspAccountInfo: stopCrLfTimerTask() : " + this.getProxyDomain());
             this.crLfTimerTaskStarted = false;
             this.crlfTimerTask.cancel();
 

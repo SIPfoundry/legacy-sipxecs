@@ -39,7 +39,7 @@ public class BridgeConfiguration {
     private String musicOnHoldName = "~~mh~";
     private boolean musicOnHoldEnabled = false;
     private int xmlRpcPort = 0;
-    private int sipKeepalive = 20 * 1000; // Miliseconds for SIP keepalive.
+    private int sipKeepalive = 20 ; // Seconds for SIP keepalive.
     private int mediaKeepalive = 100; // milisec for media keepalive.
     private String logFileDirectory = "/var/log/sipxpbx/";
     private int globalAddressRediscoveryPeriod = 30;

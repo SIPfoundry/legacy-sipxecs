@@ -36,6 +36,7 @@ class CrLfTimerTask extends TimerTask {
     public void run() {
         try {
             ListeningPointExt listeningPoint = (ListeningPointExt) provider.getListeningPoint("udp");
+            logger.debug("sending heartbeat to " + accountInfo.getInboundProxy());
             listeningPoint.sendHeartbeat
                 (InetAddress.getByName(accountInfo.getInboundProxy()).getHostAddress(),
                     accountInfo.getInboundProxyPort());
