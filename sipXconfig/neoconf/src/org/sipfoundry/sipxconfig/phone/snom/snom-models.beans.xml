@@ -37,6 +37,15 @@
       </set>
     </property>
   </bean>
+    <bean id="snom370" parent="snomModel">
+    <property name="label" value="Snom 370" />
+    <property name="maxLineCount" value="12" />
+    <property name="supportedFeatures">
+      <set>
+        <value>intercom</value>
+      </set>
+    </property>
+  </bean>
   <bean id="snom" class="org.sipfoundry.sipxconfig.phone.snom.SnomPhone" singleton="false" parent="abstractPhone">
   </bean>
 </beans>

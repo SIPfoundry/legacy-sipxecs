@@ -99,12 +99,8 @@ public class SnomPhone extends Phone {
 
     @Override
     public String getProfileFilename() {
-        String serialNumber = getSerialNumber();
-        if (StringUtils.isEmpty(serialNumber)) {
-            return "snom.htm";
-        }
-        StringBuilder buffer = new StringBuilder(serialNumber.toUpperCase());
-        buffer.append(".htm");
+        StringBuilder buffer = new StringBuilder(getSerialNumber().toUpperCase());
+        buffer.append(".xml");
         return buffer.toString();
     }
 
@@ -212,7 +208,7 @@ public class SnomPhone extends Phone {
             User u = m_line.getUser();
             if (u != null) {
                 String domainName = m_defaults.getDomainName();
-                registrationUri = domainName + UDP_TRANSPORT_TAG;
+                registrationUri = domainName;
             }
             return registrationUri;
         }
