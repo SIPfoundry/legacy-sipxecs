@@ -23,8 +23,7 @@ import org.sipfoundry.sipxconfig.speeddial.Button;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
 public class SnomTest extends TestCase {
-    private final Collection<PhonebookEntry> m_emptyPhonebook = Collections
-            .<PhonebookEntry> emptyList();
+    private final Collection<PhonebookEntry> m_emptyPhonebook = Collections.<PhonebookEntry> emptyList();
 
     public void testGenerateProfiles() throws Exception {
         SnomPhone phone = new SnomPhone();
@@ -40,8 +39,7 @@ public class SnomTest extends TestCase {
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
 
         phone.generateProfiles(location);
-        String expected = IOUtils.toString(this.getClass()
-                .getResourceAsStream("expected-snom-360.xml"));
+        String expected = IOUtils.toString(this.getClass().getResourceAsStream("expected-snom-360.xml"));
 
         assertEquals(expected, location.toString());
     }
@@ -55,8 +53,7 @@ public class SnomTest extends TestCase {
         model.setProfileTemplate("snom/snom.vm");
 
         SpeedDial sp = new SpeedDial();
-        sp.setButtons(Arrays.asList(new Button("Yogi", "yogi@example.com"), new Button(
-                "Daffy Duck", "213")));
+        sp.setButtons(Arrays.asList(new Button("Yogi", "yogi@example.com"), new Button("Daffy Duck", "213")));
 
         phone.setModel(model);
 
@@ -90,8 +87,8 @@ public class SnomTest extends TestCase {
         model.setModelDir("snom");
         model.setProfileTemplate("snom/snom.vm");
 
-        List< ? extends PhonebookEntry> phonebook = Arrays.asList(new DummyEntry("1"),
-                new DummyEntry("3"), new DummyEntry("5"));
+        List< ? extends PhonebookEntry> phonebook = Arrays.asList(new DummyEntry("1"), new DummyEntry("3"),
+                new DummyEntry("5"));
 
         phone.setModel(model);
 
@@ -111,10 +108,13 @@ public class SnomTest extends TestCase {
 
         String profile = location.toString();
 
-        assertTrue(profile.contains("<item context=\"active\" type=\"none\" index=\"0\">\n			<name>first1 last1</name>\n			<number>number1</number>\n			<search></search>\n		</item>"));
+        assertTrue(profile
+                .contains("<item context=\"active\" type=\"none\" index=\"0\">\n			<name>first1 last1</name>\n			<number>number1</number>\n			<search></search>\n		</item>"));
 
-        assertTrue(profile.contains("<item context=\"active\" type=\"none\" index=\"1\">\n			<name>first3 last3</name>\n			<number>number3</number>\n			<search></search>\n		</item>"));
-        assertTrue(profile.contains("<item context=\"active\" type=\"none\" index=\"2\">\n			<name>first5 last5</name>\n			<number>number5</number>\n			<search></search>\n		</item>"));
+        assertTrue(profile
+                .contains("<item context=\"active\" type=\"none\" index=\"1\">\n			<name>first3 last3</name>\n			<number>number3</number>\n			<search></search>\n		</item>"));
+        assertTrue(profile
+                .contains("<item context=\"active\" type=\"none\" index=\"2\">\n			<name>first5 last5</name>\n			<number>number5</number>\n			<search></search>\n		</item>"));
 
         phoneContextControl.verify();
     }
@@ -163,7 +163,7 @@ public class SnomTest extends TestCase {
         SnomPhone phone = new SnomPhone();
 
         SnomContext sc = new SnomPhone.SnomContext(phone, null, phonebook, null);
-        Collection<?> trimmed = (Collection<?>) sc.getContext().get("phoneBook");
+        Collection< ? > trimmed = (Collection< ? >) sc.getContext().get("phoneBook");
         assertEquals(100, trimmed.size());
     }
 
@@ -178,7 +178,7 @@ public class SnomTest extends TestCase {
     }
 
     static class DummyEntry implements PhonebookEntry {
-        private String m_id;
+        private final String m_id;
 
         public DummyEntry(String id) {
             m_id = id;

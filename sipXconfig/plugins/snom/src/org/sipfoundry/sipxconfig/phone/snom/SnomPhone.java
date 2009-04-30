@@ -5,7 +5,6 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
  */
 package org.sipfoundry.sipxconfig.phone.snom;
 
@@ -53,7 +52,6 @@ public class SnomPhone extends Phone {
     private static final String TIMEZONE_SETTING = "network/utc_offset";
     private static final String CONFIG_URL = "update/setting_server";
     private static final String DST_SETTING = "network/dst";
-    private static final String UDP_TRANSPORT_TAG = ";transport=udp";
 
     public SnomPhone() {
     }
@@ -337,5 +335,4 @@ public class SnomPhone extends Phone {
         }
 
     }
-
 }

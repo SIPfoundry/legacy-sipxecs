@@ -1,0 +1,9 @@
+<project name="snom" default="default">
+
+  <property name="project.dir" value="plugins/snom" />
+  <property name="plugin.models.dir" value="etc/snom" />
+  <property name="plugin.name" value="snom-phones" />
+
+  <import file="../plugins.build.xml" />
+
+</project>

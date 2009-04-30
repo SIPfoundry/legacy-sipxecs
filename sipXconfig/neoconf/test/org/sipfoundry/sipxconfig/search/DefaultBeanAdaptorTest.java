@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.search;
@@ -16,12 +16,13 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.index.Term;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.Phone;
-import org.sipfoundry.sipxconfig.phone.snom.SnomPhone;
+import org.sipfoundry.sipxconfig.phone.acme.AcmePhone;
 import org.sipfoundry.sipxconfig.search.BeanAdaptor.Identity;
 
 public class DefaultBeanAdaptorTest extends TestCase {
     private DefaultBeanAdaptor m_adaptor;
 
+    @Override
     protected void setUp() throws Exception {
         m_adaptor = new DefaultBeanAdaptor();
     }
@@ -75,7 +76,7 @@ public class DefaultBeanAdaptorTest extends TestCase {
         assertEquals(User.class.getName(), doc.get(Indexer.CLASS_FIELD));
 
         doc = new Document();
-        m_adaptor.indexClass(doc, SnomPhone.class);
+        m_adaptor.indexClass(doc, AcmePhone.class);
         // snom phone should be indexed as phone
         assertEquals(Phone.class.getName(), doc.get(Indexer.CLASS_FIELD));
 

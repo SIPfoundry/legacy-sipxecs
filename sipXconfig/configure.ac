@@ -122,6 +122,7 @@ AC_CONFIG_FILES([
     plugins/counterpath/Makefile
     plugins/cmcprov/Makefile
     plugins/polycom/Makefile
+    plugins/snom/Makefile
 ])
 
 AC_OUTPUT
