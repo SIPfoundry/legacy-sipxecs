@@ -141,6 +141,19 @@
      </description>
    </setting>
 
+   <setting name="numberofLinekeys">
+     <label>Number of Line Keys</label>
+     <type>
+       <integer/>
+     </type>
+     <value>1</value>
+     <description>
+        This field specifies the number of line keys linked with this registration.
+	The maximum value of this field can be set to the maximum number of lines supported by the phone.
+	If not specified, value is 1. &lt;br/&gt;( &lt; numberofLinekeys &gt; ) &lt;br/&gt; &lt;br/&gt; &lt;br/&gt;
+     </description>
+   </setting>
+
    <setting name="voiceMailServerAddress">
      <label>Voicemail Access Number</label>
      <type>
