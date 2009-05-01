@@ -10,6 +10,8 @@ Action=RUN
 Status=0
 Args=""
 
+. @SIPX_LIBEXECDIR@/sipx-utils.sh
+
 iam=`whoami`
 
 while [ $# -ne 0 ]
@@ -90,15 +92,21 @@ case ${Action} in
            @SIPX_LIBEXECDIR@/setup.d/freeswitch_setup.sh
         else
            Status=1
-           echo -e "\n Invalid FreeSWITCH folders & files permissions, run 'freeswitch.sh --configtest' as root to fix this \n"
+           echo -e "\n Invalid FreeSWITCH folders & files permissions, run 'freeswitch.sh --configtest' as root to fix this \n" >&2
         fi  
      fi
+
      # check validity of xml routing rules
 #     @SIPX_BINDIR@/sipx-validate-xml @FREESWITCH_PREFIX@/conf/freeswitch.xml
-#     Status=$?
+#     Status=$((${Status} + $?))
+
+     if [ ! -x @FREESWITCH_PREFIX@/bin/freeswitch ]
+     then
+	 echo "Error: FreeSWITCH executable is not at @FREESWITCH_PREFIX@/bin/freeswitch" >&2
+	 Status=$((${Status} + 1))
+     fi
 
      ;;
 esac
 
 exit $Status
-

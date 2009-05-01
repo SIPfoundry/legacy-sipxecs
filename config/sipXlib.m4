@@ -87,9 +87,6 @@ AC_DEFUN([SFAC_SIPX_GLOBAL_OPTS],
     AC_SUBST(SIPX_VARLIB,  [${localstatedir}/lib/sipxpbx])
     AC_SUBST(SIPX_VXMLDATADIR,[${localstatedir}/sipxdata/mediaserver/data])
 
-    # Freeswitch prefix directory
-    AC_SUBST(FREESWITCH_PREFIX,  [/usr/local/freeswitch])
-
     ## Used in a number of different project and subjective where this should really go
     ## INSTALL instruction assume default, otherwise safe to change/override
     AC_ARG_VAR(wwwdir, [Web root for web content, default is ${datadir}/www. \
@@ -168,7 +165,7 @@ AC_DEFUN([SFAC_CONFIGURE_OPTIONS],
     -e 's/^ *\$ .*\/configure *//' \
     config.log`
 
-  ## Strip out configure switched that cause issue in RPM spec file
+  ## Strip out configure switches that cause issue in RPM spec file
   ## configure switch. Does not support spaces in paths
   for a in $ConfigureArgs; do
     case ${a} in

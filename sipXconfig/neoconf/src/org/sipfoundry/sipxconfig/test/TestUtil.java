@@ -180,7 +180,6 @@ public final class TestUtil {
         sysProps.setProperty("sysdir.tmp", tmpDir);
         sysProps.setProperty("sysdir.log", outputDirectory);
         sysProps.setProperty("sysdir.doc", outputDirectory);
-        sysProps.setProperty("sysdir.freeswitch", outputDirectory + "/freeswitch");
         sysProps.setProperty("sysdir.mailstore", mailstoreDir);
         sysProps.setProperty("sysdir.vxml", vxmlDir);
         sysProps.setProperty("sysdir.vxml.prompts", vxmlDir + "/prompts");

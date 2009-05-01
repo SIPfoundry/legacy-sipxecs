@@ -52,7 +52,7 @@ PsqlCmd="${Psql} --quiet --tuples-only --no-align --username ${PgUser} --dbname 
 assertRoot() {
     user=`whoami`
     if [ "${user}" != "root" ]; then
-      echo_error "Error: Must be root to run sipxcallresolver.sh script."
+      echo "Error: Must be root to run sipxcallresolver.sh script." >&2
       exit 1
     fi
 }

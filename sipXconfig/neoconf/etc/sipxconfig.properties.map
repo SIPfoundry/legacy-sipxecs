@@ -67,3 +67,4 @@ sipImpl.port : sip.port
 - : conferenceConference.admissionScriptServer
 - : conferenceBridge.admissionServer
 - : polycom.defaultVersionId
+- : sysdir.freeswitch
