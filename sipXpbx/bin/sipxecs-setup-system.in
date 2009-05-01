@@ -982,6 +982,7 @@ driftfile /var/lib/ntp/drift\n\
 
     if runningAsRoot() :
         file ('/etc/ntp.conf', 'w').write ('%s\n' % ntpConf)
+        os.chmod("/etc/ntp.conf",0644)
         
     #--- Turn on the ntpd service on runlevel 3
     log_printout('Enable NTP Service in runlevel %d:' % RUNLEVEL)
