@@ -38,6 +38,12 @@
 ## This macro adds the lines information if configured in the XML configuration file
 #########################################################################################
 #macro ( addLines $set )
+#if($set.ProfileName == "numberofLinekeys")
+#if($set.Value.trim())
+#else
+<${set.ProfileName}>1</${set.ProfileName}>
+#end
+#end
 #if($set.ProfileName == "registrarAuto")
 <registrar>
 #set ($tempAutoMode = $!{set.Value})

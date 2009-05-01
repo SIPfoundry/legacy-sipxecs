@@ -1194,6 +1194,46 @@
      <description>Country specific tones &lt;br/&gt; ( &lt; toneSet &gt; ) &lt;br/&gt;</description>
    </setting>
 
+   <setting name="ringtoneSelected">
+    <label>Ringer Type</label>
+     <type>
+       <enum>
+         <option>
+           <value>Ringer1</value>
+         </option>
+         <option>
+           <value>Ringer2</value>
+         </option>
+         <option>
+           <value>Ringer3</value>
+         </option>
+         <option>
+           <value>Ringer4</value>
+         </option>
+         <option>
+           <value>Ringer5</value>
+         </option>
+         <option>
+           <value>Ringer6</value>
+         </option>
+         <option>
+           <value>Ringer7</value>
+         </option>
+         <option>
+           <value>Ringer8</value>
+         </option>
+         <option>
+           <value>Ringer9</value>
+         </option>
+         <option>
+           <value>Ringback</value>
+         </option>
+       </enum>
+     </type>
+     <value>Ringer1</value>
+     <description>Ringer type to be played on incoming calls &lt;br/&gt; ( &lt; ringtoneSelected &gt; ) &lt;br/&gt;</description>
+   </setting>
+
  </group>
 
 <!--  MISC SETTINGS  -->
