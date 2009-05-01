@@ -780,8 +780,18 @@ subnet %s netmask %s {\n\
 
         log_printout(dhcpdConf)
 
+        if checkSystemType() == 'suse':
+            # update /etc/sysconfig/dhcpd
+            suseConfigFile = '/etc/sysconfig/dhcpd'
+            configText = file(suseConfigFile).read()
+            configText = change_setting('DHCPD_INTERFACE', "ANY", configText)
+            log_printout("======= %s:" % suseConfigFile)
+            log_printout(configText)
+
         if runningAsRoot() :
             file ( dhcpConfigFile, 'w').write( dhcpdConf )
+            if checkSystemType() == 'suse':
+                file(suseConfigFile, 'w').write("%s\n" % configText)
 
             startDhcpdCmd = '/sbin/service dhcpd restart'
             log_printout("Attempting to start DHCP with: '%s'" % startDhcpdCmd)
