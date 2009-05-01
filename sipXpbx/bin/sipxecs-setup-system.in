@@ -612,18 +612,7 @@ options {\n\
         namedConf += '\
 };\n\
 \n\
-zone "%s"  IN  {\n\
-     type master;\n\
-     file "%s.zone";\n\
-     allow-update { none; };\n\
-};\n\
-\n\
-' % ( DomainName, DomainName )
-    #zone "%s.IN-ADDR.ARPA" {\n\
-    #     type master;\n\
-    #     file "%s.zone";\n\
-    #};\n\
-    #\n' % ( DomainName, DomainName, reverseArpa, Subnet )
+'
 
     else:
         # Set up a caching-only name server.
