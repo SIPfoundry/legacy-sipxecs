@@ -541,7 +541,28 @@ def set_DNS () :
         log_printout("remove %s" % dhcpResolvFile)
         if runningAsRoot():
             os.remove(dhcpResolvFile)
-        
+
+    if checkSystemType() == 'suse':
+        # update /etc/sysconfig/network/config which drives resolv.conf for suse
+        suseConfigFile = '/etc/sysconfig/network/config'
+        configText = file(suseConfigFile).read()
+        static_dns = "127.0.1"
+        if DnsServers[0] != '':
+            static_dns += " %s" % DnsServers[0]
+        if DnsServers[1] != '':
+            static_dns += " %s" % DnsServers[1]
+
+        configText = change_setting('NETCONFIG_DNS_STATIC_SEARCHLIST', DomainName, configText)
+        configText = change_setting('NETCONFIG_DNS_STATIC_SERVERS', static_dns, configText)
+        # (for older suse) set MODIFY_RESOLV_CONF_STATIC_DNS as above
+        configText = change_setting('MODIFY_RESOLV_CONF_STATIC_DNS', static_dns, configText)
+
+        log_printout("======= %s:" % suseConfigFile)
+        log_printout(configText)
+
+        if runningAsRoot() :
+            file(suseConfigFile, 'w').write("%s\n" % configText)
+
     # Create the configuration of the local name server
     #  a) non HA system:  A Master DNS server is configured on the sipX host
     #  b) HA Master system: A Master DNS server is configured on the Master sipX host.
