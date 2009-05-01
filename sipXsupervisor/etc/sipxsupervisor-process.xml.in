@@ -22,5 +22,6 @@
     <osconfig>@SIPX_CONFDIR@/sipxsupervisor-config</osconfig>
     <file>@SIPX_CONFDIR@/alarm-config.xml</file>
     <file>@SIPX_CONFDIR@/alarms/sipXalarms-config.xml</file>
+    <file>@SIPX_LOGDIR@/sipXalarms.log</file>
   </resources>
 </sipXecs-process>
