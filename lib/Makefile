@@ -33,7 +33,8 @@ AC_TARGETS = \
 	rrdtool \
 	nsis \
 	stunnel \
-	openssl
+	openssl \
+	libpcap
 
 .PHONY: $(AC_TARGETS)
 $(AC_TARGETS) : 
@@ -53,4 +54,4 @@ f10 : $(CUSTOM_PACKAGES)
 rhel5 centos5 : $(CUSTOM_PACKAGES) cppunit xerces-c w3c-libwww rubygems rrdtool
 
 .PHONY: suse11.1
-suse11.1 : $(CUSTOM_PACKAGES) openssl stunnel w3c-libwww
+suse11.1 : $(CUSTOM_PACKAGES) libpcap openssl stunnel w3c-libwww
