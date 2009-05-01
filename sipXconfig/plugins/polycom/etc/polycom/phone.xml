@@ -310,7 +310,8 @@
         </setting>
         <setting name="jitterBufferMax">
           <!--  greater than jitterBufferMin, multiple of 10, less than or =500 for IP 500 and IP 600, less than or =
-            160 for IP 300 -->
+            160 for IP 300
+-->
           <type>
             <integer min="10" max="500" />
           </type>
@@ -341,7 +342,8 @@
         </setting>
         <setting name="jitterBufferMax">
           <!--  greater than jitterBufferMin, multiple of 10, less than or =500 for IP 500 and IP 600, less than or =
-            160 for IP 300 -->
+            160 for IP 300
+-->
           <type>
             <integer min="10" max="500" />
           </type>
@@ -372,7 +374,8 @@
         </setting>
         <setting name="jitterBufferMax">
           <!--  greater than jitterBufferMin, multiple of 10, less than or =500 for IP 500 and IP 600, less than or =
-            160 for IP 300 -->
+            160 for IP 300
+-->
           <type>
             <integer min="10" max="500" />
           </type>
@@ -403,7 +406,8 @@
         </setting>
         <setting name="jitterBufferMax">
           <!--  greater than jitterBufferMin, multiple of 10, less than or =500 for IP 500 and IP 600, less than or =
-            160 for IP 300 -->
+            160 for IP 300
+-->
           <type>
             <integer min="10" max="500" />
           </type>
@@ -434,7 +438,8 @@
         </setting>
         <setting name="jitterBufferMax">
           <!--  greater than jitterBufferMin, multiple of 10, less than or =500 for IP 500 and IP 600, less than or =
-            160 for IP 300 -->
+            160 for IP 300
+-->
           <type>
             <integer min="10" max="500" />
           </type>
@@ -810,7 +815,8 @@
     </group>
   </group>
   <group name="call">
-    <!-- PhoneConfiguration  - Filtered by excludes in SipConfiguration.java -->
+    <!-- PhoneConfiguration  - Filtered by excludes in SipConfiguration.java
+-->
     <setting name="donotdisturb.perReg">
       <type>
         <boolean />
@@ -1712,7 +1718,8 @@
       <group name="1">
         <setting name="value">
           <type>
-            <!-- string to compare against the value of Alert-Info headers in INVITE requests -->
+            <!-- string to compare against the value of Alert-Info headers in INVITE requests
+-->
             <string />
           </type>
           <value />
@@ -1724,7 +1731,8 @@
           <value />
         </setting>
       </group>
-      <!-- reserved for sipXpage - call with this value of alert-info will be used for paging -->
+      <!-- reserved for sipXpage - call with this value of alert-info will be used for paging
+-->
       <group name="2" hidden="yes">
         <setting name="value">
           <value>sipXpage</value>
@@ -1841,7 +1849,8 @@
       <value />
     </setting>
   </group>
-  <!-- SIMILIAR SECTION EXISTS IN line.xml to control dialplans per line -->
+  <!-- SIMILIAR SECTION EXISTS IN line.xml to control dialplans per line
+-->
   <group name="dialplan">
     <setting name="impossibleMatchHandling">
       <type>
@@ -2049,5 +2058,40 @@
       <type refid="reg-server-index" />
       <value />
     </setting>
+  </group>
+  <group name="network">
+	  <group name="device.net">
+            <setting name="overwrite">
+            <profileName>$ignore$</profileName>
+              <type>
+                <boolean />
+              </type>
+              <value>0</value>
+            </setting>
+	    <setting name="vlanId.set" hidden="yes">
+	       <type>
+	          <boolean />
+	        </type>
+	        <value>1</value>
+	    </setting>
+	    <setting name="vlanId">
+	      <type>
+	        <integer min="0" max="4094" />
+	      </type>
+	      <value />
+	    </setting>
+	    <setting name="cdpEnabled.set" hidden="yes">
+	       <type>
+	          <boolean />
+	        </type>
+	        <value>1</value>
+	    </setting>
+	    <setting name="cdpEnabled">
+	      <type>
+	        <boolean />
+	      </type>
+	      <value>0</value>
+	    </setting>
+	  </group>
   </group>
 </model>

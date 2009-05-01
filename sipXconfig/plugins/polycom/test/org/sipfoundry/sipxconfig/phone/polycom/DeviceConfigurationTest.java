@@ -44,7 +44,7 @@ public class DeviceConfigurationTest extends TestCase {
         m_pg = pg;
     }
 
-    public void testGenerateDeviceProfile() throws Exception {
+    public void testGenerateSyslogProfile() throws Exception {
         phone.setSettingValue("log/device.syslog/transport", "2");
         phone.setSettingValue("log/device.syslog/facility", "18");
         phone.setSettingValue("log/device.syslog/renderLevel", "5");
@@ -54,7 +54,33 @@ public class DeviceConfigurationTest extends TestCase {
 
         m_pg.generate(m_location, cfg, null, "profile");
 
-        InputStream expected = getClass().getResourceAsStream("expected-device.cfg.xml");
+        InputStream expected = getClass().getResourceAsStream("expected-syslog-device.cfg.xml");
+
+        assertEquals(IOUtils.toString(expected), m_location.toString());
+        expected.close();
+    }
+
+    public void testGenerateNetworkProfileDisableOverwrite() throws Exception {
+        phone.setSettingValue("network/device.net/overwrite", "0");
+        phone.beforeProfileGeneration();
+        ProfileContext cfg = new DeviceConfiguration(phone);
+
+        m_pg.generate(m_location, cfg, null, "profile");
+
+        InputStream expected = getClass().getResourceAsStream("expected-disable-overwrite-device.cfg.xml");
+
+        assertEquals(IOUtils.toString(expected), m_location.toString());
+        expected.close();
+    }
+
+    public void testGenerateNetworkProfileEnableOverwrite() throws Exception {
+        phone.setSettingValue("network/device.net/overwrite", "1");
+        phone.beforeProfileGeneration();
+        ProfileContext cfg = new DeviceConfiguration(phone);
+
+        m_pg.generate(m_location, cfg, null, "profile");
+
+        InputStream expected = getClass().getResourceAsStream("expected-enable-overwrite-device.cfg.xml");
 
         assertEquals(IOUtils.toString(expected), m_location.toString());
         expected.close();
