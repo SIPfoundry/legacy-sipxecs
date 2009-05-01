@@ -2051,38 +2051,38 @@
     </setting>
   </group>
   <group name="network">
-	  <group name="device.net">
-            <setting name="overwrite">
-            <profileName>$ignore$</profileName>
-              <type>
-                <boolean />
-              </type>
-              <value>0</value>
-            </setting>
-	    <setting name="vlanId.set" hidden="yes">
-	       <type>
-	          <boolean />
-	        </type>
-	        <value>1</value>
-	    </setting>
-	    <setting name="vlanId">
-	      <type>
-	        <integer min="0" max="4094" />
-	      </type>
-	      <value />
-	    </setting>
-	    <setting name="cdpEnabled.set" hidden="yes">
-	       <type>
-	          <boolean />
-	        </type>
-	        <value>1</value>
-	    </setting>
-	    <setting name="cdpEnabled">
-	      <type>
-	        <boolean />
-	      </type>
-	      <value>0</value>
-	    </setting>
-	  </group>
+    <group name="device.net">
+      <setting name="overwrite">
+        <profileName>$ignore$</profileName>
+        <type>
+          <boolean />
+        </type>
+          <value>0</value>
+      </setting>
+      <setting name="vlanId.set" hidden="yes">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="vlanId">
+        <type>
+          <integer min="0" max="4094" />
+        </type>
+        <value />
+      </setting>
+      <setting name="cdpEnabled.set" hidden="yes">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="cdpEnabled">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+    </group>
   </group>
 </model>
