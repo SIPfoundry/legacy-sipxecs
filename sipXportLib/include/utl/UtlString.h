@@ -390,9 +390,16 @@ public:
     UtlString& append(const char c);
 
     /// Append a string representation of the value to the string
-    UtlString& appendNumber(Int64 value, const char* format = "%d");
-    /**< MAX_NUMBER_STRING_SIZE is the maximum size text representation of the value allowed.
-     *   If this size is exceeded an error string is appended in place of the number.
+    UtlString& appendNumber(Int64 value, const char* format = "%"FORMAT_INTLL"d");
+    UtlString& appendNumber(int value, const char* format = "%d");
+    UtlString& appendNumber(size_t value, const char* format = "%zu");
+#if __WORDSIZE == 64
+    UtlString& appendNumber(ssize_t value, const char* format = "%zd");
+#else
+    UtlString& appendNumber(long value, const char* format = "%ld");
+#endif
+    /**< MAX_NUMBER_STRING_SIZE is the maximum size text representation of the value allowed
+     *   If this size is exceeded an error string is appended in place of the number
      */
 
 ///@}
@@ -689,6 +696,8 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+   UtlString& appendFormattedNumber(int formatResult, char* conversionString, const char* format);
+
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

@@ -1592,7 +1592,7 @@ public:
 
          long long int value = 680531417658032128LL;
          t.remove(0);
-         t.appendNumber(value, "%lld");
+         t.appendNumber(value);
          ASSERT_STR_EQUAL("680531417658032128", t.data());
 
          int value1 = 1234;
@@ -1604,6 +1604,11 @@ public:
          t.remove(0);
          t.appendNumber(value2);
          ASSERT_STR_EQUAL("1234", t.data());
+
+         t = base;
+         t.appendNumber(base.length(), "%x");
+         ASSERT_STR_EQUAL("Number: 8", t.data());
+
       }
    
 } ;
