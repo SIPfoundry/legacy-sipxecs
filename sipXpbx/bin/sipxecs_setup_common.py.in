@@ -94,6 +94,22 @@ def checkSystemType () :
 
     return sipxecsGlobals.systemType
 
+def change_setting(variable, value, text):
+    ''' Locate the variable in the text, and change its value.
+        The format is expected to be
+           VARIABLE   =        "oldvalue"
+        (whitespace is variable, but the quotes are required).
+        If the variable is not found, no change is made to the text.
+        '''
+    regex = re.compile('^%s\s*=\s*"(?P<value>.*)"' % variable, re.M)
+    match = regex.search(text)
+    if match:
+       log_printout( 'replacing %s = "%s" with "%s"' % (variable, match.group('value'), value) )
+       text = regex.sub('%s = "%s"' % (variable, value), text)
+
+    return text
+
+
 # logging utilities 
 
 def log_init ():
