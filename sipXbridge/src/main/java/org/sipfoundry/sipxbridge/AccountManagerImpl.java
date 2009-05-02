@@ -137,20 +137,24 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
                     }
                 }
             }
-            logger.error( Gateway.ACCOUNT_NOT_FOUND_ALARM_ID + " uri = "   + sipUri );
-            try {
-                /*
-                 * Only send a single alarm for this URI.
-                 */
-                if (alarmTable.get(sipUri.getHost()) == null) {
-                    alarmTable.put(sipUri.getHost(), true);
-                    Gateway.getAlarmClient().raiseAlarm(Gateway.ACCOUNT_NOT_FOUND_ALARM_ID,
-                            sipUri.getHost());
-                }
-            } catch (XmlRpcException e) {
-                logger.error("Could not send alarm " + Gateway.ACCOUNT_NOT_FOUND_ALARM_ID + " uri = "  
-                        + sipUri);
-            }
+           /*
+             * logger.error( Gateway.ACCOUNT_NOT_FOUND_ALARM_ID + " uri = " + sipUri ); try {
+             * 
+             * if (alarmTable.get(sipUri.getHost()) == null) { alarmTable.put(sipUri.getHost(),
+             * true); Gateway.getAlarmClient().raiseAlarm(Gateway.ACCOUNT_NOT_FOUND_ALARM_ID,
+             * sipUri.getHost()); } } catch (XmlRpcException e) { logger.error("Could not send
+             * alarm " + Gateway.ACCOUNT_NOT_FOUND_ALARM_ID + " uri = " + sipUri); }
+             */
+            
+            /*
+             * If an account is not found return an account record with the
+             * domain set to the outbound request domain. The INVITE will be
+             * forwarded. If the other side does not like the INVITE it an
+             * complain about it. See issue XX-5623 
+             */
+            accountFound = new ItspAccountInfo();
+            accountFound.setProxyDomain(sipUri.getHost());
+            accountFound.setGlobalAddressingUsed(true);
             return null;
         } finally {
             logger.debug("getItspAccount: returning " + accountFound);
