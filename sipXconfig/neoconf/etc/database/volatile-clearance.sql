@@ -26,7 +26,7 @@ ALTER TABLE long_distance_dialing_rule ADD CONSTRAINT FKA10B67307DD83CC0_cascade
 ALTER TABLE dialing_rule_gateway ADD CONSTRAINT referenceGatewayCascade foreign key (gateway_id) references gateway ON UPDATE NO ACTION ON DELETE CASCADE;
 ALTER TABLE dialing_rule_gateway ADD CONSTRAINT referenceRuleCascade foreign key (dialing_rule_id) references dialing_rule ON UPDATE NO ACTION ON DELETE CASCADE;
 
-DELETE FROM dialing_rule dr where dr.dialing_rule_id IN (SELECT drg.dialing_rule_id FROM dialing_rule_gateway drg WHERE drg.gateway_id IN (SELECT gateway_Id from gateway g where g.model_id = 'genericVolatileGatewayStandard'));
+DELETE FROM dialing_rule where dialing_rule_id IN (SELECT dialing_rule_id FROM dialing_rule_gateway WHERE gateway_id IN (SELECT gateway_id from gateway where model_id = 'genericVolatileGatewayStandard'));
 DELETE FROM gateway where model_id = 'genericVolatileGatewayStandard';
 
 ALTER TABLE dialing_rule_gateway DROP CONSTRAINT referenceGatewayCascade;
