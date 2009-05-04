@@ -61,7 +61,7 @@ public class Deposit {
         for(;;) {
             // {user's greeting}
             Greeting greeting = new Greeting(m_mailbox) ;
-            PromptList pl = greeting.getPromptList() ;
+            PromptList pl = greeting.getPromptList(m_loc); ;
         
             // When you are finished, press 1 for more options.
             // To reach the operator, dial 0 at any time.

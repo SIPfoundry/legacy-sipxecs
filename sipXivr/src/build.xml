@@ -16,6 +16,9 @@
     <pathelement location="${commons-io.jar}"/>
     <pathelement location="${jaxen.jar}"/>
     <pathelement location="${commons-codec.jar}"/>
+    <pathelement location="${commons-logging.jar}"/>
+    <pathelement location="${javax.servlet.jar}"/>
+    <pathelement location="${jetty.jar}"/>
   </path>
   <property name="classpath" refid="base.path" />
 

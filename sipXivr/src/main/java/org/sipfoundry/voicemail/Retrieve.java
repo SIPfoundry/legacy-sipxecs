@@ -60,7 +60,7 @@ public class Retrieve {
         User user = login() ;
         m_fses.setRedactDTMF(false);
         if (user != null) {
-            m_mailbox = new Mailbox(user, m_loc);
+            m_mailbox = new Mailbox(user);
             LOG.info("Mailbox "+m_mailbox.getUser().getUserName()+" logged in");
             try {
                 main_menu();
@@ -512,7 +512,7 @@ public class Retrieve {
         User user = m_vm.getValidUsers().isValidUser(from);
         if (user != null) {
             // Well, looky here!  A sipXecs user!  Get his recorded name if we can
-            Mailbox userMbox = new Mailbox(user, m_loc);
+            Mailbox userMbox = new Mailbox(user);
             String nameWav = userMbox.getRecordedName();
             if (nameWav != null) {
                 fromPrompts = nameWav;
@@ -594,7 +594,7 @@ public class Retrieve {
             if (choice.getIvrChoiceReason() == IvrChoiceReason.SUCCESS) {
                 // Forward the message to each destination
                 for (User destUser : choice.getUsers()) {
-                    Mailbox destMailbox = new Mailbox(destUser, m_loc);
+                    Mailbox destMailbox = new Mailbox(destUser);
                     vmMessage.forward(destMailbox, comments);
                     dontDeleteTempFile(commentsFile);
                 }
@@ -635,7 +635,7 @@ public class Retrieve {
         }
 
         // Find the user who sent this message
-        Mailbox destMailbox = new Mailbox(sendingUser, m_loc);
+        Mailbox destMailbox = new Mailbox(sendingUser);
         
         // Build a message with the comments sent by this user.
         Message comments = Message.newMessage(destMailbox, commentsFile, 
@@ -674,7 +674,7 @@ public class Retrieve {
             if (choice.getIvrChoiceReason() == IvrChoiceReason.SUCCESS) {
                 // Forward the message to each destination
                 for (User destUser : choice.getUsers()) {
-                    Mailbox destMailbox = new Mailbox(destUser, m_loc);
+                    Mailbox destMailbox = new Mailbox(destUser);
                     if (message == null) {
                         // Build a message with the recording sent by this user.
                         message = Message.newMessage(destMailbox, recordingFile, 

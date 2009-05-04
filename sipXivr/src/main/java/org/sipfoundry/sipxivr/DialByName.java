@@ -74,7 +74,7 @@ public class DialByName {
 
             User u = matches.get(i);
             // Try to speak the user's recorded name
-            String recordedName = new Mailbox(u, m_loc).getRecordedName();
+            String recordedName = new Mailbox(u).getRecordedName();
             String namePrompts;
             if (recordedName != null) {
                 namePrompts = recordedName;

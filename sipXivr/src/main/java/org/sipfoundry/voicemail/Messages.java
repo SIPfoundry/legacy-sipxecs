@@ -33,8 +33,6 @@ public class Messages {
         INBOX, SAVED, DELETED;
     }
     
-    Mailbox m_mailbox ;
-    
     HashMap<String, VmMessage> m_inbox = new HashMap<String, VmMessage>();
     HashMap<String, VmMessage> m_saved = new HashMap<String, VmMessage>();
     HashMap<String, VmMessage> m_deleted = new HashMap<String, VmMessage>();
@@ -46,11 +44,9 @@ public class Messages {
     File m_deletedDir;
     
     public Messages(Mailbox mailbox) {
-        m_mailbox = mailbox ;
-        
-        m_inboxDir = new File(m_mailbox.getInboxDirectory());
-        m_savedDir = new File(m_mailbox.getSavedDirectory());
-        m_deletedDir = new File(m_mailbox.getDeletedDirectory());
+        m_inboxDir = new File(mailbox.getInboxDirectory());
+        m_savedDir = new File(mailbox.getSavedDirectory());
+        m_deletedDir = new File(mailbox.getDeletedDirectory());
         
         // Load the inbox folder and count unheard messages there
         loadFolder(m_inboxDir, m_inbox, true);

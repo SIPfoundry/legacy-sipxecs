@@ -26,26 +26,27 @@ public class Mailbox {
     private String m_inboxDirectory;
     private String m_savedDirectory;
     private String m_deletedDirectory;
-    private Localization m_localization;
     
     private PersonalAttendant m_personalAttendant;
 
-    public Mailbox(User user, Localization localization) {
-        m_user = user ;
-        m_localization = localization;
-        m_mailStoreDirectory = org.sipfoundry.sipxivr.Configuration.update(true).getMailstoreDirectory();
-        defineDirs();
+    
+    public Mailbox(User user) {
+        init(user, org.sipfoundry.sipxivr.Configuration.update(true).getMailstoreDirectory());
     }
 
     /**
-     * Mini constructor, used for testing (passed in mailstore, no localization)
+     * Mini constructor, passed in mailstore for testing (no need for config)
      */
     public Mailbox(User user, String mailStoreDirectory) {
+        init(user, mailStoreDirectory);
+    }
+
+    private void init(User user, String mailStoreDirectory) {
         m_user = user;
         m_mailStoreDirectory = mailStoreDirectory;
         defineDirs();
     }
-
+    
     void defineDirs() {
         m_userDirectory = m_mailStoreDirectory + "/" + m_user.getUserName()+ "/";
         m_inboxDirectory = m_userDirectory+"inbox/";
@@ -78,11 +79,7 @@ public class Mailbox {
     public User getUser() {
         return m_user;
     }
-    
-    public Localization getLocalization() {
-        return m_localization;
-    }
-    
+        
     /**
      * 
      * @return the directory that contains this mailbox

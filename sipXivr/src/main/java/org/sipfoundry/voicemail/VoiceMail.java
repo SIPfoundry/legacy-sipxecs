@@ -147,7 +147,7 @@ public class VoiceMail {
         User user = m_validUsers.isValidUser(mailboxString) ;
         Mailbox mailbox = null;
         if (user != null) {
-           mailbox = new Mailbox(user, m_loc);
+           mailbox = new Mailbox(user);
         }
         
         if (mailbox == null) {

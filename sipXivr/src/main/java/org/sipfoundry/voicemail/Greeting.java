@@ -12,6 +12,7 @@ package org.sipfoundry.voicemail;
 import java.io.File;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.sipxivr.Localization;
 import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.sipxivr.MailboxPreferences;
 import org.sipfoundry.sipxivr.PromptList;
@@ -86,9 +87,9 @@ public class Greeting {
      * Return the list of prompts that make up this greeting
      * @return
      */
-    public PromptList getPromptList() {
+    public PromptList getPromptList(Localization loc) {
         
-        PromptList pl = new PromptList(m_mailbox.getLocalization());
+        PromptList pl = new PromptList(loc);
         String activeGreetingFile = getActiveGreetingFile();
         if (activeGreetingFile != null) {
             // A user recorded version exists, use it.

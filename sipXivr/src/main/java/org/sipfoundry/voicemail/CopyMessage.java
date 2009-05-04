@@ -30,7 +30,7 @@ public class CopyMessage {
         
         // Store the message with each user in the list
         for (User user : choice.getUsers()) {
-            Mailbox otherBox = new Mailbox(user, loc);
+            Mailbox otherBox = new Mailbox(user);
            existingMessage.copy(otherBox);
         }
         // "Your message has been copied."

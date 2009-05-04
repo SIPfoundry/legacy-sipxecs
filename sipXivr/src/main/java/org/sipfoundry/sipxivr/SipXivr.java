@@ -18,13 +18,13 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.sipfoundry.attendant.Attendant;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
+import org.sipfoundry.voicemail.Mwistatus;
 import org.sipfoundry.voicemail.VoiceMail;
 
 
 public class SipXivr implements Runnable {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
     private static Configuration s_config;
-    private static int s_eventSocketPort;
 
     private Socket m_clientSocket;
     private FreeSwitchEventSocketInterface m_fses;
@@ -105,6 +105,7 @@ public class SipXivr implements Runnable {
         LOG.debug("SipXivr::run Ending SipXivr thread with client " + m_clientSocket);
     }
 
+    
     /**
      * Load the configuration from the sipxivr.properties file.
      * Wait for FreeSWITCH to make a TCP connection to s_eventSocketPort.
@@ -113,6 +114,8 @@ public class SipXivr implements Runnable {
      * @throws Throwable
      */
     static void init() throws Throwable {
+        int eventSocketPort;
+        
         // Load the configuration
         s_config = Configuration.update(true);
 
@@ -126,9 +129,13 @@ public class SipXivr implements Runnable {
         props.setProperty("log4j.appender.file.layout", "org.sipfoundry.commons.log4j.SipFoundryLayout");
         props.setProperty("log4j.appender.file.layout.facility", "sipXivr");
         PropertyConfigurator.configure(props);
-        s_eventSocketPort = s_config.getEventSocketPort();
-        LOG.info("Starting SipXivr listening on port " + s_eventSocketPort);
-        ServerSocket serverSocket = new ServerSocket(s_eventSocketPort);
+        
+        // start MWI servlet 
+        Mwistatus.StartMWIServlet(s_config);
+ 
+        eventSocketPort = s_config.getEventSocketPort();
+        LOG.info("Starting SipXivr listening on port " + eventSocketPort);
+        ServerSocket serverSocket = new ServerSocket(eventSocketPort);
         for (;;) {
             Socket client = serverSocket.accept();
             SipXivr ivr = new SipXivr(client);
