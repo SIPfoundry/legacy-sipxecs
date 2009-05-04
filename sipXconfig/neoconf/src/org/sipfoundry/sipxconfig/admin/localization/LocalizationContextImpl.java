@@ -24,6 +24,7 @@ import org.apache.commons.io.filefilter.PrefixFileFilter;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContextImpl.RegionDialPlanException;
 import org.sipfoundry.sipxconfig.admin.dialplan.ResetDialPlanTask;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
@@ -49,6 +50,7 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
     private String m_defaultLanguage;
     private ResetDialPlanTask m_resetDialPlanTask;
     private ServiceConfigurator m_serviceConfigurator;
+    private DialPlanActivationManager m_dialPlanActivationManager;
 
     public void setRegionDir(String regionDir) {
         m_regionDir = regionDir;
@@ -73,6 +75,11 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
     @Required
     public void setServiceConfigurator(ServiceConfigurator serviceConfigurator) {
         m_serviceConfigurator = serviceConfigurator;
+    }
+
+    @Required
+    public void setDialPlanActivationManager(DialPlanActivationManager dialPlanActivationManager) {
+        m_dialPlanActivationManager = dialPlanActivationManager;
     }
 
     public void setDefaultLanguage(String defaultLanguage) {
@@ -166,6 +173,7 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
         try {
             String dialPlanBeanId = regionId + DIALPLAN;
             m_resetDialPlanTask.reset(dialPlanBeanId);
+            m_dialPlanActivationManager.replicateDialPlan(false);
             getHibernateTemplate().saveOrUpdate(localization);
         } catch (RegionDialPlanException e) {
             LOG.error("Trying to set unsupported region: " + region);

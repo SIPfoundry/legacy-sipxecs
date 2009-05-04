@@ -9,7 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.admin.localization;
 
+import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 
 import static org.easymock.EasyMock.createMock;
@@ -22,9 +24,18 @@ public class LocalizationContextTestIntegration extends IntegrationTestCase {
     private LocalizationContext m_out;
     private ServiceConfigurator m_origServiceConfigurator;
     private LocalizationContextImpl m_localizationContextImpl;
+    private DialPlanActivationManager m_origDialPlanActivationManager;
 
     public void testUpdateRegion() throws Exception {
-        assertEquals(-1, m_out.updateRegion("PL"));
+        DialPlanActivationManager dpam = createMock(DialPlanActivationManager.class);
+        dpam.replicateDialPlan(false);
+        replay(dpam);
+        modifyContext(m_localizationContextImpl, "dialPlanActivationManager", m_origDialPlanActivationManager, dpam);
+
+        assertEquals(-1, m_out.updateRegion("xx"));
+
+        assertEquals(1, m_out.updateRegion("pl"));
+        EasyMock.verify(dpam);
     }
 
     public void testUpdateLanguage() throws Exception {
@@ -56,5 +67,9 @@ public class LocalizationContextTestIntegration extends IntegrationTestCase {
 
     public void setServiceConfigurator(ServiceConfigurator serviceConfigurator) {
         m_origServiceConfigurator = serviceConfigurator;
+    }
+
+    public void setDialPlanActivationManager(DialPlanActivationManager dialPlanActivationManager) {
+        m_origDialPlanActivationManager = dialPlanActivationManager;
     }
 }
