@@ -20,27 +20,49 @@
 GenDir="@SIPX_VARDIR@"
 OldGenDir=${HOME}
 sipXuser="@SIPXPBXUSER@"
+sipXgroup="@SIPXPBXGROUP@"
+
+#   external tools
+openssl="@OPENSSL@"
 
 
-if [ -x "${OldGenDir}/sipx-certdb" ]
+set -e
+if [ -d "${OldGenDir}/sipx-certdb" ]
 then
    # old SSL working directory found.
-   if ! [ -x "${GenDir}/certdb" ]
+   echo "Migrating SSL certificate Database to new location"
+   if ! [ -d "${GenDir}/certdb" ]
    then
       # create the directory.
-      mkdir               "${GenDir}/certdb" || exit 1
+      mkdir  -v  "${GenDir}/certdb"
    fi
    cd "${OldGenDir}/sipx-certdb/"
-   cp -r "." "${GenDir}/certdb" || exit 1
+   cp -v -r "." "${GenDir}/certdb" 
 
-   rm -rf "${OldGenDir}/sipx-certdb/"
+   cd "${GenDir}/certdb"
+   rm -rfv "${OldGenDir}/sipx-certdb/"
 
    # old data copied.  Generate the Java keystore and then install the certs.
-   cd "${GenDir}/certdb"
-   @bindir@/ssl-cert/gen-ssl-keys.sh -d -s "`hostname --fqdn`" 1>/dev/null
-   chown -R ${sipXuser}   "${GenDir}/certdb" || exit 1
-   chmod -R 0700          "${GenDir}/certdb" || exit 1
-   @bindir@/ssl-cert/install-cert.sh "`hostname --fqdn`" 1>/dev/null
+   # Keystore with HostName
+   # Truststore with caName
+
+   echo "Generating Java Keystore using Certificate"
+   serverName=`hostname --fqdn`
+   @bindir@/ssl-cert/gen-ssl-keys.sh --convert-crt2jks ${serverName} 
+
+   echo "Generating Java Truststore based on CA"
+   caName="`${openssl} x509 -noout -text -in ${serverName}.crt |\
+         grep Issuer: | sed -e 's;.*CN=;;' -e 's;/Em.*;;'`"
+   @bindir@/ssl-cert/gen-ssl-keys.sh --convert-ca2trust ${caName}
+
+   echo "Changing permissions on new Certificate Database files"
+   chown -vR ${sipXuser}   "${GenDir}/certdb" 
+   chgrp -vR ${sipXgroup}   "${GenDir}/certdb" 
+   chmod -vR 0700          "${GenDir}/certdb" 
+
+   # install the certificates.
+   echo "Installing certificates for the host"
+   @bindir@/ssl-cert/install-cert.sh "`hostname --fqdn`" 
    exit 0
 fi
 
