@@ -1,16 +1,17 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -60,6 +61,27 @@ public class DialPlan extends BeanWithId {
         m_rules.clear();
     }
 
+    /**
+     * In some cases after DB upgrade we can end up with disjoint areas in the DB. If position
+     * column has holes in it, hibernate retrieves array with null elements. We are cleaning it
+     * here.
+     *
+     * @return boolean true if dial plan was changed and needs to be saved
+     */
+    public boolean removeEmptyRules() {
+        boolean changed = false;
+        for (Iterator<DialingRule> i = m_rules.iterator(); i.hasNext();) {
+            if (i.next() == null) {
+                i.remove();
+                changed = true;
+            }
+        }
+        if (changed) {
+            DataCollectionUtil.updatePositions(m_rules);
+        }
+        return changed;
+    }
+
     public void moveRules(Collection<Integer> selectedRows, int step) {
         DataCollectionUtil.moveByPrimaryKey(m_rules, selectedRows.toArray(), step);
     }
@@ -78,7 +100,7 @@ public class DialPlan extends BeanWithId {
 
     /**
      * This function return all attendant rules contained in this plan.
-     * 
+     *
      * @return list of attendant rules, empty list if no attendant rules in this plan
      */
     public List<AttendantRule> getAttendantRules() {
