@@ -164,7 +164,7 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
     public void markServicesForRestart(Collection< ? extends SipxService> processes) {
         for (Location location : m_locationsManager.getLocations()) {
             for (SipxService service : processes) {
-                if (location.isServiceInstalled(service)) {
+                if (location.isServiceInstalled(service) && location.isRegistered()) {
                     m_servicesToRestart.mark(location, service);
                 }
             }
