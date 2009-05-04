@@ -916,29 +916,6 @@
      </description>
    </setting>
 
-   <setting name="sendrecvInOutgoingIntercom">
-     <label>sendrecv attribute in outgoing intercom</label>
-     <type refid="on-off" />
-     <value>FALSE</value>
-     <description>
-       If checked, sendrecv direction attribute will be sent in SDP of outgoing INVITE for intercom &lt;br/&gt; If
-       unchecked sendonly direction attribute is sent &lt;br/&gt; ( &lt; sendrecvInOutgoingIntercom &gt; ) &lt;br/&gt;
-       &lt;br/&gt; &lt;br/&gt;
-     </description>
-   </setting>
-
-
-     <setting name="sendrecvInIncomingIntercom">
-     <label>sendrecv attribute in incoming intercom</label>
-     <type refid="on-off" />
-     <value>FALSE</value>
-     <description>
-       If checked, sendrecv direction attribute will be sent in SDP answer of incoming intercom INVITE &lt;br/&gt; If
-       unchecked recvonly direction attribute is sent &lt;br/&gt; ( &lt; sendrecvInIncomingIntercom &gt; ) &lt;br/&gt;
-       &lt;br/&gt; &lt;br/&gt;
-     </description>
-   </setting>
-
    <setting name="intercomTimeout">
      <label>Intercom Timeout(sec)</label>
      <type>
