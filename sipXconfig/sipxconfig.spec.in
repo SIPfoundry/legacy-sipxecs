@@ -358,6 +358,9 @@ sed /etc/xinetd.d/tftp -i -e 's|^\W*disable\W*=\W*yes\W*$|disable = no|' -e 's|\
 /sbin/chkconfig xinetd on >/dev/null
 
 %if %{_vendor} == suse
+# turn on the service so its started after all reboots.
+/sbin/chkconfig xinetd on >/dev/null
+
 # ensure that INET services are running
 /sbin/service xinetd start >/dev/null
 %endif
