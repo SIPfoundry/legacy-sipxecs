@@ -829,9 +829,7 @@
   </target>
 
   <target name="delete-volatile-gateways" unless="delete-volatile-gateways">
-    <sipx-sql>
-      delete from gateway where model_id = 'genericVolatileGatewayStandard';
-    </sipx-sql>
+    <db-patch patch="volatile-clearance"/>
   </target>
 
   <!--
