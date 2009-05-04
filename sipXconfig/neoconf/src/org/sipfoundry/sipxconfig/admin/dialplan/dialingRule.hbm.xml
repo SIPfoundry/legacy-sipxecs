@@ -134,6 +134,23 @@
       </component>
     </joined-subclass>
 
+    <joined-subclass name="SiteToSiteDialingRule" table="site_to_site_dialing_rule">
+      <key column="site_to_site_dialing_rule_id" />
+      <component name="callPattern" class="CallPattern">
+        <property name="digits" column="call_pattern_digits"
+          type="org.sipfoundry.sipxconfig.admin.dialplan.CallDigits$UserType" />
+        <property name="prefix" column="call_pattern_prefix" />
+      </component>
+      <list name="dialPatterns" table="site_to_site_dial_pattern">
+        <key column="site_to_site_dialing_rule_id" />
+        <index column="index" />
+        <composite-element class="DialPattern">
+          <property name="prefix" column="element_prefix" />
+          <property name="digits" column="element_digits" />
+        </composite-element>
+      </list>
+    </joined-subclass>
+
   </class>
 
   <query name="dialingRuleIdsWithName">

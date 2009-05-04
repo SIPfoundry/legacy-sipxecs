@@ -5,7 +5,6 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
@@ -15,9 +14,6 @@ import java.util.Map;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 
-/**
- * IDialingRule
- */
 public interface IDialingRule {
     public abstract String getDescription();
 
@@ -44,12 +40,19 @@ public interface IDialingRule {
     public abstract Integer getId();
 
     /**
-     * Returns the xml tag to be used for this rule type in authrules.xml.
-     * Unless over-written for a specific rule type, returns empty string and is not added to authrules.xml.
+     * Returns the xml tag to be used for this rule type in authrules.xml. Unless over-written for
+     * a specific rule type, returns empty string and is not added to authrules.xml.
      */
     public abstract String getRuleType();
 
     public abstract boolean isInternal();
+
+    /**
+     * Most rules require configuring the proxy to check authorization for the calls using the
+     * rules. By returning false here rule can be excluded from usual authorization mechanism. All
+     * calls made using this rule will be allowed.
+     */
+    public abstract boolean isAuthorizationChecked();
 
     /**
      * Some rules are "source" permission rules - need "permission" elements in mappingrules.xml.
@@ -66,7 +69,7 @@ public interface IDialingRule {
     /**
      * List of host patterns for this rule, if empty rule will be appended to default host match
      *
-     * @return ip addresses, host names, or variables 
+     * @return ip addresses, host names, or variables
      */
     public abstract String[] getHostPatterns();
 }

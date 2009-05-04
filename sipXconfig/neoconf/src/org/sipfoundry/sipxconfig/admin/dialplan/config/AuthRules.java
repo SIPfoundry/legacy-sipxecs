@@ -77,6 +77,10 @@ public class AuthRules extends RulesXmlFile {
 
     @Override
     public void generate(IDialingRule rule) {
+        if (!rule.isAuthorizationChecked()) {
+            // do not generate entries for rules that do not require authorization
+            return;
+        }
         List<Gateway> gateways = rule.getGateways();
         List<String> permissions = rule.getPermissionNames();
         Element mappings = m_doc.getRootElement();

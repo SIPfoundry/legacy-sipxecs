@@ -313,6 +313,7 @@
   <target name="version9" description="upgrade from version 8" unless="version10">
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="10" -->
+    <antcall target="site-to-site-rule" />
   </target>
 
   <target name="time_of_day" unless="time_of_day">
@@ -938,6 +939,10 @@
   <target name="drop_zipupload" unless="drop_zipupload">
     <db-patch patch="drop_zipupload" />
   </target>
+  <target name="site-to-site-rule" unless="site-to-site-rule">
+    <db-patch patch="site-to-site-rule"/>
+  </target>
+
 
   <!--
     - SUPPORT UTILITIES

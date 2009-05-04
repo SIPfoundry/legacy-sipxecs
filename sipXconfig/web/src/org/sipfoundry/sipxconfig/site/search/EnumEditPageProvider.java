@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.search;
@@ -32,6 +32,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.InternalRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.InternationalRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.LocalRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.LongDistanceRule;
+import org.sipfoundry.sipxconfig.admin.dialplan.SiteToSiteDialingRule;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.conference.Bridge;
@@ -58,7 +59,7 @@ import org.sipfoundry.sipxconfig.upload.Upload;
  * This is a class in charge of determining which "edit" page should be used for an entity object
  * (bean). It does not seem to be any elegant way of solving this problem - we have object type
  * and id and we need to find an edit page for it.
- * 
+ *
  */
 public class EnumEditPageProvider implements EditPageProvider {
     public static final Log LOG = LogFactory.getLog(EnumEditPageProvider.class);
@@ -98,6 +99,8 @@ public class EnumEditPageProvider implements EditPageProvider {
             "dialplan/EditInternationalDialRule", RULE_ID
         }, AttendantRule.class, new String[] {
             "dialplan/EditAttendantDialRule", RULE_ID
+        }, SiteToSiteDialingRule.class, new String[] {
+            "dialplan/EditSiteToSiteDialRule", RULE_ID
         }, Upload.class, new String[] {
             EditUpload.PAGE, "uploadId"
         }, AcdServer.class, new String[] {
@@ -111,7 +114,7 @@ public class EnumEditPageProvider implements EditPageProvider {
         }
     };
 
-    private Map m_classToPageInfo;
+    private final Map m_classToPageInfo;
 
     public EnumEditPageProvider() {
         m_classToPageInfo = new HashMap(PAGES.length / 2);
@@ -142,12 +145,11 @@ public class EnumEditPageProvider implements EditPageProvider {
         return null;
     }
 
-    private IPage getEditPage(IRequestCycle cycle, Object id, String[] pageInfo,
-            boolean ignoreExceptions) {
+    private IPage getEditPage(IRequestCycle cycle, Object id, String[] pageInfo, boolean ignoreExceptions) {
         Exception exception = null;
         try {
             IPage page = cycle.getPage(pageInfo[0]);
-            // HACK: see http://issues.apache.org/bugzilla/show_bug.cgi?id=16525 
+            // HACK: see http://issues.apache.org/bugzilla/show_bug.cgi?id=16525
             // we need to use copyProperty and not setProperty
             BeanUtils.copyProperty(page, pageInfo[1], id);
             return page;
