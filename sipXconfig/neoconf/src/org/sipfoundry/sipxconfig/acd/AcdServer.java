@@ -43,6 +43,8 @@ public class AcdServer extends AcdComponent implements LoggingEntity {
 
     static final String DOMAIN = "acd-server/domain";
 
+    static final String FQDN = "acd-server/fqdn";
+
     static final String PRESENCE_SERVER_URI = "acd-server/presence-server-uri";
 
     static final String PRESENCE_SERVICE_URI = "acd-server/presence-service-uri";
@@ -172,6 +174,12 @@ public class AcdServer extends AcdComponent implements LoggingEntity {
         public String getDomain() {
             return m_server.getCoreContext().getDomainName();
         }
+
+        @SettingEntry(path = FQDN)
+        public String getFqdn() {
+            return m_server.getLocation().getFqdn();
+        }
+
 
         @SettingEntry(path = PRESENCE_SERVER_URI)
         public String getPresenceServerUri() {

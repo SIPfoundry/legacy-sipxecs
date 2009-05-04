@@ -32,6 +32,7 @@
 #define LOG_LEVEL_TAG                 "log-level"
 #define LOG_TO_CONSOLE_TAG            "log-to-console"
 #define DOMAIN_TAG                    "domain"
+#define FQDN_TAG                      "fqdn"
 #define UDP_PORT_TAG                  "udp-port"
 #define TCP_PORT_TAG                  "tcp-port"
 #define RTP_PORT_TAG                  "rtp-port"
@@ -155,6 +156,7 @@ private:
    UtlString          mLogLevel;                ///< The logging level.
    bool               mLogToConsole;            ///< Console logging switch.
    UtlString          mDomain;                  ///< The SIP domain of this server.
+   UtlString          mFqdn;                    ///< The FQDN of this server.
    UtlString          mRealm;                   ///< The SIP authentication realm of this server.
    Url                mDefaultIdentity;         ///< Identity to use if the line does not have one.
    int                mUdpPort;                 ///< The UDP Port used by this server.
