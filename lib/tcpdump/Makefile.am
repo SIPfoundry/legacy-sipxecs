@@ -1,13 +1,12 @@
-VERSION = 1.0.0
+VERSION = 4.0.0
 RELEASE = 1
 
 SRC_DIR = $(srcdir)/src
-SRC_TARBALL = libpcap-$(VERSION).tar.gz
-SRPM = $(DEST_SRPM)/libpcap-$(VERSION)-$(RELEASE).src.rpm
-RPMS = $(DEST_RPM)/libpcap-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm \
-       $(DEST_RPM)/libpcap-devel-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm
+SRC_TARBALL = tcpdump-$(VERSION).tar.gz
+SRPM = $(DEST_SRPM)/tcpdump-$(VERSION)-$(RELEASE).src.rpm
+RPMS = $(DEST_RPM)/tcpdump-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm
 
-SPEC_FILE = libpcap.spec
+SPEC_FILE = tcpdump.spec
 
 all : PRINT_HEADER $(SRPM) $(RPMS) PRINT_FOOTER
 
@@ -17,7 +16,6 @@ $(RPM_SOURCES_DIR)/% : %
 .PHONY: build-rpms
 build-rpms: 
 	cp $(SRC_DIR)/$(SRC_TARBALL) @RPMBUILD_TOPDIR@/SOURCES
-	cp $(SRC_DIR)/*.patch @RPMBUILD_TOPDIR@/SOURCES
 	cp $(SRC_DIR)/$(SPEC_FILE) @RPMBUILD_TOPDIR@/SPECS
 	rpmbuild -ba --target @RPM_TARGET_ARCH@-none-linux @RPMBUILD_TOPDIR@/SPECS/$(SPEC_FILE)
 

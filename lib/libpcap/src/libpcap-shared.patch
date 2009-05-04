@@ -1,0 +1,136 @@
+--- libpcap-0.9.4/Makefile.in.orig	2003-12-15 02:35:03.000000000 +0100
++++ libpcap-0.9.4/Makefile.in	2005-10-13 12:17:30.000000000 +0200
+@@ -41,6 +41,14 @@
+ # You shouldn't need to edit anything below.
+ #
+ 
++MAJ=0
++MIN=5
++VERSION=$(MAJ).$(MIN)
++LIBNAME=pcap
++LIBRARY=lib$(LIBNAME).a
++SOLIBRARY=lib$(LIBNAME).so
++SHAREDLIB=lib$(LIBNAME).so.$(VERSION)
++
+ CC = @CC@
+ CCOPT = @V_CCOPT@
+ INCLS = -I. @V_INCLS@
+@@ -50,6 +58,7 @@
+ 
+ # Standard CFLAGS
+ CFLAGS = $(CCOPT) $(INCLS) $(DEFS)
++CFLAGS_SHAREDLIB = -shared -Wl,-soname,$(SOLIBRARY).$(MAJ)
+ 
+ INSTALL = @INSTALL@
+ INSTALL_PROGRAM = @INSTALL_PROGRAM@
+@@ -71,6 +80,10 @@
+ 	@rm -f $@
+ 	$(CC) $(CFLAGS) -c $(srcdir)/$*.c
+ 
++%_pic.o: %.c
++	@rm -f $@
++	$(CC) -fPIC $(CFLAGS) -c -o $@ $(srcdir)/$*.c
++
+ PSRC =	pcap-@V_PCAP@.c @USB_SRC@ @BT_SRC@
+ FSRC =  fad-@V_FINDALLDEVS@.c
+ SSRC =  @SSRC@
+@@ -103,6 +103,7 @@
+ # We would like to say "OBJ = $(SRC:.c=.o)" but Ultrix's make cannot
+ # hack the extra indirection
+ OBJ =	$(PSRC:.c=.o) $(FSRC:.c=.o) $(CSRC:.c=.o) $(SSRC:.c=.o) $(GENSRC:.c=.o) $(LIBOBJS)
++OBJ_PIC =	$(PSRC:.c=_pic.o) $(FSRC:.c=_pic.o) $(CSRC:.c=_pic.o) $(SSRC:.c=_pic.o) $(GENSRC:.c=_pic.o) $(LIBOBJS:.o=_pic.o)
+ HDR = \
+ 	acconfig.h \
+ 	arcnet.h \
+@@ -135,7 +135,7 @@
+ TAGFILES = \
+ 	$(SRC) $(HDR) $(TAGHDR)
+ 
+-CLEANFILES = $(OBJ) libpcap.a $(GENSRC) $(GENHDR) lex.yy.c
++CLEANFILES = $(OBJ) $(OBJ_PIC) libpcap.a $(GENSRC) $(GENHDR) lex.yy.c
+ 
+ MAN1 = pcap-config.1
+ 
+@@ -324,13 +324,20 @@
+ 	Win32/Src/inet_net.c \
+ 	Win32/Src/inet_pton.c
+ 
+-all: libpcap.a pcap-config
++all: $(LIBRARY) $(SHAREDLIB) pcap-config
+ 
+-libpcap.a: $(OBJ)
++$(LIBRARY): $(OBJ)
+ 	@rm -f $@
+ 	$(AR) rc $@ $(OBJ) $(LIBS)
+ 	$(RANLIB) $@
+ 
++$(SHAREDLIB): $(OBJ_PIC)
++	-@rm -f $@
++	-@rm -f $(SOLIBRARY) $(SOLIBRARY).$(MAJ)
++	$(CC) $(CFLAGS_SHAREDLIB) -o $(SHAREDLIB) $(OBJ_PIC)
++	ln -s $(SHAREDLIB) $(SOLIBRARY).$(MAJ)
++	ln -s $(SOLIBRARY).$(MAJ) $(SOLIBRARY)
++
+ shared: libpcap.$(DYEXT)
+ 
+ #
+@@ -129,6 +150,9 @@
+ scanner.o: scanner.c tokdefs.h
+ 	$(CC) $(CFLAGS) -c scanner.c
+ 
++scanner_pic.o: scanner.c tokdefs.h
++	$(CC) -fPIC $(CFLAGS) -c -o $@ scanner.c
++
+ pcap.o: version.h
+ 
+ tokdefs.h: grammar.c
+@@ -142,12 +166,22 @@
+ 	@rm -f $@
+ 	$(CC) $(CFLAGS) -Dyylval=pcap_lval -c grammar.c
+ 
++grammar_pic.o: grammar.c
++	@rm -f $@
++	$(CC) -fPIC $(CFLAGS) -Dyylval=pcap_lval -c -o $@ grammar.c
++
+ version.o: version.c
+ 	$(CC) $(CFLAGS) -c version.c
+ 
++version_pic.o: version.c
++	$(CC) -fPIC $(CFLAGS) -o $@ -c version.c
++
+ snprintf.o: $(srcdir)/missing/snprintf.c
+ 	$(CC) $(CFLAGS) -o $@ -c $(srcdir)/missing/snprintf.c
+ 
++snprintf_pic.o: $(srcdir)/missing/snprintf.c
++	$(CC) -fPIC $(CFLAGS) -o $@ -c $(srcdir)/missing/snprintf.c
++
+ version.c: $(srcdir)/VERSION
+ 	@rm -f $@
+ 	sed -e 's/.*/char pcap_version[] = "&";/' $(srcdir)/VERSION > $@
+@@ -426,6 +426,9 @@
+ bpf_filter.o: bpf_filter.c
+ 	$(CC) $(CFLAGS) -c bpf_filter.c
+ 
++bpf_filter_pic.o: bpf_filter.c
++	$(CC) -fPIC $(CFLAGS) -o $@ -c bpf_filter.c
++
+ #
+ # Generate the pcap-config script.
+ #
+@@ -450,11 +450,14 @@
+ findalldevstest: findalldevstest.c libpcap.a
+ 	$(CC) $(CFLAGS) -I. -L. -o findalldevstest findalldevstest.c libpcap.a
+ 
+-install: libpcap.a pcap-config
++install: $(LIBRARY) $(SHAREDLIB) pcap-config
+ 	[ -d $(DESTDIR)$(libdir) ] || \
+ 	    (mkdir -p $(DESTDIR)$(libdir); chmod 755 $(DESTDIR)$(libdir))
+ 	$(INSTALL_DATA) libpcap.a $(DESTDIR)$(libdir)/libpcap.a
+ 	$(RANLIB) $(DESTDIR)$(libdir)/libpcap.a
++	$(INSTALL) -m 755 $(SHAREDLIB) $(DESTDIR)$(libdir)
++	ln -sf $(SHAREDLIB) $(DESTDIR)$(libdir)/$(SOLIBRARY)
++	ln -sf $(SHAREDLIB) $(DESTDIR)$(libdir)/$(SOLIBRARY).$(MAJ)
+ 	[ -d $(DESTDIR)$(includedir) ] || \
+ 	    (mkdir -p $(DESTDIR)$(includedir); chmod 755 $(DESTDIR)$(includedir))
+ 	[ -d $(DESTDIR)$(includedir)/pcap ] || \
+

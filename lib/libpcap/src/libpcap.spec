@@ -1,18 +1,17 @@
-%define prefix   /usr
-%define version 1.0.0
-
-Summary: packet capture library
-Name: libpcap
-Version: %version
-Release: 1
-Group: Development/Libraries
-License: BSD
-Source: libpcap-1.0.0.tar.gz
-BuildRoot: /tmp/%{name}-buildroot
-URL: http://www.tcpdump.org
-
-BuildRequires: flex
-BuildRequires: bison
+Summary:	A system-independent interface for user-level packet capture.
+Name:		libpcap
+Version:	1.0.0
+Release:	1
+License:	BSD
+Group:		Libraries
+Source:		%{name}-%{version}.tar.gz
+Patch0:		%{name}-shared.patch
+Patch1:		%{name}-any_device.patch
+URL:		http://www.tcpdump.org/
+BuildRequires:	bison
+BuildRequires:	flex
+Obsoletes:	libpcap0
+BuildRoot:	/tmp/%{name}-buildroot
 
 %description
 Packet-capture library LIBPCAP 1.0.0
@@ -20,44 +19,58 @@ Now maintained by "The Tcpdump Group"
 See http://www.tcpdump.org
 Please send inquiries/comments/reports to tcpdump-workers@lists.tcpdump.org
 
-%prep
-%setup
+%package devel
+Summary:	A pcap library.
+Group:		Development/Libraries
+Requires:	%{name} = %{version}-%{release}
+Obsoletes:	libpcap0-devel
 
-%post
-ldconfig
+%description devel
+Packet-capture library LIBPCAP 1.0.0
+Now maintained by "The Tcpdump Group"
+See http://www.tcpdump.org
+Please send inquiries/comments/reports to tcpdump-workers@lists.tcpdump.org
+
+%prep
+%setup -q
+%patch0 -p1
+%patch1 -p1
 
 %build
-CFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=%prefix
-make
+%{__autoconf}
+%configure --with-pcap=linux
+%{__make}
 
 %install
 rm -rf $RPM_BUILD_ROOT
-make install DESTDIR=$RPM_BUILD_ROOT mandir=/usr/share/man
-cd $RPM_BUILD_ROOT/usr/lib
-V1=`echo 1.0.0 | sed 's/\\.[^\.]*$//g'`
-V2=`echo 1.0.0 | sed 's/\\.[^\.]*\.[^\.]*$//g'`
-ln -sf libpcap.so.1.0.0 libpcap.so.$V1
-if test "$V2" -ne "$V1"; then
-    ln -sf libpcap.so.$V1 libpcap.so.$V2
-    ln -sf libpcap.so.$V2 libpcap.so
-else
-    ln -sf libpcap.so.$V1 libpcap.so
-fi
+install -d $RPM_BUILD_ROOT%{_bindir}
+
+%{__make} install DESTDIR=$RPM_BUILD_ROOT
+
+# some packages want it... but sanitize somehow
+# (don't depend on HAVE_{STRLCPY,SNPRINTF,VSNPRINTF} defines)
+sed -e '390,396d;399,408d' pcap-int.h > $RPM_BUILD_ROOT%{_includedir}/pcap-int.h
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
+%post   -p /sbin/ldconfig
+%postun -p /sbin/ldconfig
+
 %files
-%defattr(-,root,root)
-%doc LICENSE CHANGES INSTALL.txt README.linux TODO VERSION CREDITS
-/usr/lib/libpcap.a
-/usr/bin/pcap-config
-/usr/share/man/man1/*
-/usr/share/man/man3/*
-/usr/share/man/man5/*
-/usr/share/man/man7/*
-/usr/include/pcap.h
-/usr/include/pcap/*.h
-/usr/include/pcap-bpf.h
-/usr/include/pcap-namedb.h
-/usr/lib/libpcap.so*
+%defattr(644,root,root,755)
+%doc CHANGES CREDITS LICENSE README
+%attr(755,root,root) %{_libdir}/libpcap.so.*.*
+%attr(755,root,root) %ghost %{_libdir}/libpcap.so.0
+%{_mandir}/man5/pcap-savefile.5*
+%{_mandir}/man7/pcap-*.7*
+
+%files devel
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_bindir}/pcap-config
+%attr(755,root,root) %{_libdir}/libpcap.so
+%attr(755,root,root) %{_libdir}/libpcap.a
+%{_includedir}/pcap
+%{_includedir}/pcap*.h
+%{_mandir}/man1/pcap-config.1*
+%{_mandir}/man3/pcap*.3*
