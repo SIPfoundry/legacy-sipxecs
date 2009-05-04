@@ -231,7 +231,7 @@ fi
 sipx-sendmail-configure %{buildno}
 
 # If this is an upgrade from 3.10, need to setup the SSL db correctly
-%{_bindir}/ssl-cert/upgrade-cert.sh
+%{_bindir}/ssl-cert/upgrade-cert.sh >> %{_localstatedir}/log/sipxpbx/upgrade-cert.log 2>&1 
 
 %preun
 # see http://fedoraproject.org/wiki/Packaging/ScriptletSnippets
