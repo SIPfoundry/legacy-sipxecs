@@ -510,6 +510,16 @@ GATEWAY=%s\n\
     else :
         log_printout('(simulated) %s' % SETHOSTNAMECMD)
 
+    if checkSystemType() == 'suse':
+        file3 = '/etc/HOSTNAME'
+        f3Cont  = '\
+%s\n\
+' % HostName
+        log_printout("======= %s:" % file3)
+        log_printout(f3Cont)
+        if runningAsRoot() :
+            file (file3, 'w').write(f3Cont)
+
 def set_DNS () :
     global ProvideDNS
     global DomainName
