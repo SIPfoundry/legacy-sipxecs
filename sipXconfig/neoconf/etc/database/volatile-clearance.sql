@@ -52,3 +52,5 @@ ALTER TABLE local_dialing_rule ADD CONSTRAINT FK365020FD76B0539D foreign key (lo
 ALTER TABLE long_distance_dialing_rule ADD CONSTRAINT FKA10B67307DD83CC0 foreign key (international_dialing_rule_id) references dialing_rule;
 ALTER TABLE dialing_rule_gateway ADD CONSTRAINT FK65E824AE38F854F6 foreign key (gateway_id) references gateway;
 ALTER TABLE dialing_rule_gateway ADD CONSTRAINT FK65E824AEF6075471 foreign key (dialing_rule_id) references dialing_rule;
+
+insert into initialization_task (name) values ('cleanup-dial-plans');

@@ -300,6 +300,16 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
     }
 
     /**
+     * Called after upgrade only to cleanup holes in dial plan after some rules are deleted.
+     */
+    public void removeEmptyRules() {
+        DialPlan dialPlan = getDialPlan();
+        if (dialPlan.removeEmptyRules()) {
+            getHibernateTemplate().saveOrUpdate(dialPlan);
+        }
+    }
+
+    /**
      * There can be multiple internal dialing rules and therefore multiple voicemail extensions,
      * but pick the most likely one.
      */

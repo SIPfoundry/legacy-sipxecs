@@ -290,6 +290,15 @@
     </property>
   </bean>
 
+  <bean id="cleanupDialPlanTask" class="org.sipfoundry.sipxconfig.admin.dialplan.CleanupDialPlanTask">
+    <property name="dialPlanContext" ref="dialPlanContext" />
+    <property name="taskNames">
+      <list>
+        <value>cleanup-dial-plans</value>
+      </list>
+    </property>
+  </bean>
+
   <bean id="specialAutoAttendantMode" class="org.sipfoundry.sipxconfig.admin.dialplan.config.SpecialAutoAttendantMode"
     scope="prototype" parent="defaultConfigurationFile">
     <property name="directory" value="${sysdir.vxml}" />
