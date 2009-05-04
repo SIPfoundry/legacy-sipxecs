@@ -410,9 +410,7 @@ chmod 600 %{vsftpd_conf}
 
 # anaconda installs may not have network installed or ready
 # however they do restart system post installation
-if [ -f /etc/sysconfig/network ] ; then
-  /sbin/service vsftpd start >/dev/null
-fi
+/sbin/service vsftpd start >/dev/null
 
 %preun ftp
 if [ "$1" = "0" ] ; then
