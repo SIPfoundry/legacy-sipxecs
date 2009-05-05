@@ -27,7 +27,6 @@ public class Timezone {
     private static final String ERROR_MSG = "Error when reading current time zone info from: " + CLOCK_FILE;
 
     private static final Log LOG = LogFactory.getLog(Timezone.class);
-    private static final String ETC_NAME = "Etc";
     private static final String EMPTY_STRING = "";
     private static final String ZONE_EQUALS_TOKEN = "ZONE=";
     private static final String FORWARD_SLASH = "/";
@@ -42,23 +41,13 @@ public class Timezone {
         "Australia",
         "Europe",
         "Indian",
-        "Pacific",
-        ETC_NAME
+        "Pacific"
     };
 
     private String m_timezone;
 
     public Timezone() {
         m_timezone = initalizeTimezoneFromClockFile();
-    }
-
-    //
-    // method to convert realName to DisplayName:
-    // i.e. Replace Etc with Non-geographic.
-    // This is done in getTimezone which is called by Web component.
-    //
-    private static String convertRealNameToDisplayName(String realName) {
-        return (realName.replaceAll(ETC_NAME, "Non-geographic"));
     }
 
     // Process all files and directories under dir
@@ -85,7 +74,7 @@ public class Timezone {
             // First convert the name to Display name.
 
             if (!fullname.contains(" ")) {
-                timezoneList.add(convertRealNameToDisplayName(fullname));
+                timezoneList.add(fullname);
             }
         } else if (dir.isDirectory()) {
             // This is another sub-directory, recursively call this method
@@ -161,6 +150,6 @@ public class Timezone {
     }
 
     public String getTimezone() {
-        return convertRealNameToDisplayName(m_timezone);
+        return m_timezone;
     }
 }
