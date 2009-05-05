@@ -53,7 +53,7 @@ public class RRDToolGraphUpdater {
     private static final String PRINT_MAX_LINE2 = "PRINT:line2:MAX:\"Max ";
     private static final String PRINT_LAST = "PRINT:in:LAST:\"Current ";
     private static final String PRINT_LAST_LINE2 = "PRINT:line2:LAST:\"Current ";
-    private static final String LF = "=%.1lf\"";
+    private static final String LF = "=%.1lf %s\"";
 
     private static final String FILE_SEPARATOR = "file.separator";
     private static final String TOOL_ERROR = "\nAn error occurred while running graphing tool.";
