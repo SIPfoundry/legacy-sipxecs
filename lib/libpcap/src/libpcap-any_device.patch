@@ -1,0 +1,11 @@
+--- libpcap-1.0.0/pcap-linux.c~	2008-10-28 02:52:19.000000000 +0100
++++ libpcap-1.0.0/pcap-linux.c	2009-01-19 03:40:30.967028036 +0100
+@@ -522,7 +522,7 @@
+ 	 * monitor all devices.
+ 	 */
+ 	if (!device || strcmp(device, "any") == 0) {
+-		device			= NULL;
++		handle->opt.source	= NULL;
+ 		handle->md.device	= strdup("any");
+ 		if (handle->opt.promisc) {
+ 			handle->opt.promisc = 0;
