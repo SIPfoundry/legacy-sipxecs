@@ -81,23 +81,27 @@
                  email="true"
                  />
       </alarm>
-      <alarm id="SIPX_RELAY_STUN_ADDRESS_DISCOVERY_FAILED">
+      <alarm id="STUN_ADDRESS_DISCOVERY_FAILED">
          <code>SPX00013</code>
          <severity>crit</severity>
-         <component>sipXrelay</component>
+         <component>sipXbridge</component>
          <action log="true"
                  email="true"
                  />
+         <filter max_threshold="1"
+                 />
       </alarm>
-      <alarm id="SIPX_RELAY_STUN_ADDRESS_DISCOVERY_RECOVERED">
+      <alarm id="STUN_ADDRESS_DISCOVERY_RECOVERED">
          <code>SPX00014</code>
          <severity>info</severity>
-         <component>sipXrelay</component>
+         <component>sipXbridge</component>
          <action log="true"
                  email="true"
                  />
+         <filter max_threshold="1"
+                 />
       </alarm>
-      <alarm id="SIPX_BRIDGE_STUN_ADDRESS_DISCOVERY_FAILED">
+      <alarm id="SIPX_BRIDGE_AUTHENTICATION_FAILED">
          <code>SPX00015</code>
          <severity>crit</severity>
          <component>sipXbridge</component>
@@ -105,24 +109,8 @@
                  email="true"
                  />
       </alarm>
-      <alarm id="SIPX_BRIDGE_STUN_ADDRESS_DISCOVERY_RECOVERED">
-         <code>SPX00016</code>
-         <severity>info</severity>
-         <component>sipXbridge</component>
-         <action log="true"
-                 email="true"
-                 />
-      </alarm>
-      <alarm id="SIPX_BRIDGE_AUTHENTICATION_FAILED">
-         <code>SPX00017</code>
-         <severity>crit</severity>
-         <component>sipXbridge</component>
-         <action log="true"
-                 email="true"
-                 />
-      </alarm>
       <alarm id="SIPX_BRIDGE_OPERATION_TIMED_OUT">
-         <code>SPX00018</code>
+         <code>SPX00016</code>
          <severity>crit</severity>
          <component>sipXbridge</component>
          <action log="true"
@@ -130,7 +118,7 @@
                  />
       </alarm>
       <alarm id="SIPX_BRIDGE_ACCOUNT_OK">
-         <code>SPX00019</code>
+         <code>SPX00017</code>
          <severity>info</severity>
          <component>sipXbridge</component>
          <action log="true"
@@ -138,15 +126,17 @@
                  />
       </alarm>
       <alarm id="STUN_ADDRESS_ERROR">
-         <code>SPX00020</code>
+         <code>SPX00018</code>
          <severity>crit</severity>
          <component>sipXconfig</component>
          <action log="true"
                  email="true"
                  />
+         <filter max_threshold="1"
+                 />
       </alarm>
       <alarm id="SIPX_BRIDGE_ITSP_SERVER_FAILURE">
-         <code>SPX00021</code>
+         <code>SPX00019</code>
          <severity>crit</severity>
          <component>sipXbridge</component>
          <action log="true"
@@ -154,7 +144,7 @@
                  />
       </alarm>
       <alarm id="SIPX_BRIDGE_ITSP_ACCOUNT_NOT_FOUND">
-         <code>SPX00022</code>
+         <code>SPX00020</code>
          <severity>crit</severity>
          <component>sipXbridge</component>
          <action log="true"
@@ -162,7 +152,7 @@
                  />
       </alarm>
       <alarm id="SOFTWARE_UPDATE_AVAILABLE">
-         <code>SPX00023</code>
+         <code>SPX00021</code>
          <severity>info</severity>
          <component>sipXconfig</component>
          <action log="true"
@@ -170,7 +160,7 @@
                  />
       </alarm>
       <alarm id="SIPX_BRIDGE_ACCOUNT_CONFIGURATION_ERROR">
-         <code>SPX00024</code>
+         <code>SPX00022</code>
          <severity>info</severity>
          <component>sipXconfig</component>
          <action log="true"
