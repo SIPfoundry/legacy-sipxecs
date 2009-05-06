@@ -22,10 +22,8 @@ import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.BeanFactoryModelSource;
-import org.springframework.dao.support.DataAccessUtils;
 
-public class SbcMigrationContextImpl extends SipxHibernateDaoSupport implements
-        SbcMigrationContext {
+public class SbcMigrationContextImpl extends SipxHibernateDaoSupport implements SbcMigrationContext {
     public static final Log LOG = LogFactory.getLog(SbcMigrationContextImpl.class);
 
     private static final String SQL = "alter table sbc drop column address";
@@ -53,11 +51,7 @@ public class SbcMigrationContextImpl extends SipxHibernateDaoSupport implements
                 sbc.setSbcDevice(m_sbcDeviceManager.getSbcDevice(sbcDeviceId));
                 SbcDevice sbcDevice = sbc.getSbcDevice();
                 if (sbcDevice instanceof BridgeSbc) {
-                    Integer valueStorageId = (Integer) DataAccessUtils.singleResult(getHibernateTemplate()
-                            .findByNamedQueryAndNamedParam("sbcValueStorageId", "sbcId", sbcDevice.getId()));
-                    if (null == valueStorageId) {
-                        ((BridgeSbc) sbcDevice).updateBridgeLocationId();
-                    }
+                    ((BridgeSbc) sbcDevice).updateBridgeLocationId();
                 }
                 getHibernateTemplate().save(sbc);
                 getHibernateTemplate().flush();
@@ -83,8 +77,7 @@ public class SbcMigrationContextImpl extends SipxHibernateDaoSupport implements
 
     private void cleanSchema() {
         try {
-            Session currentSession = getHibernateTemplate().getSessionFactory()
-                    .getCurrentSession();
+            Session currentSession = getHibernateTemplate().getSessionFactory().getCurrentSession();
             Connection connection = currentSession.connection();
             Statement statement = connection.createStatement();
             statement.addBatch(SQL);
