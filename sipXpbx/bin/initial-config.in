@@ -91,14 +91,20 @@ perl -p \
 # named.conf file pointing to this host's DNS server.
 myDomname=`dnsdomainname`
 myZonedns=`dns_ns ${myDomname}`
+if test -f /etc/SuSE-release; then
+  ZONE_PATH="/var/lib/named"
+else
+  ZONE_PATH="/var/named"
+fi
+
 if [ "${myHostname}" = "${myZonedns}" ]
 then
     echo "Generating DNS record for secondary server"
     cat > "${INITIAL_CONFIG}/etc/named.conf" <<EOF
 options {
-    directory "/var/named";
-    dump-file "/var/named/data/cacahe_dump.db";
-    statistics-file "/var/named/data/named_stats.txt";
+    directory "${ZONE_PATH}";
+    dump-file "${ZONE_PATH}/data/cache_dump.db";
+    statistics-file "${ZONE_PATH}/data/named_stats.txt";
 };
 
 zone "${myDomname}" IN {
