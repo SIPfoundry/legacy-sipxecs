@@ -8,7 +8,9 @@
  *
  */
 
-package org.sipfoundry.sipxconfig.admin;
+package org.sipfoundry.sipxconfig.admin.update;
+
+import static org.apache.commons.lang.StringUtils.split;
 
 /**
  * Represents an available package update.
@@ -69,5 +71,22 @@ public class PackageUpdate {
     @Override
     public String toString() {
         return String.format("%s|%s|%s", m_packageName, m_currentVersion, m_updatedVersion);
+    }
+
+    public static PackageUpdate parse(String line) {
+        if (line == null) {
+            return null;
+        }
+        if (line.startsWith("#")) {
+            // comment
+            return null;
+        }
+
+        String[] items = split(line, '|');
+        if (items.length < 3) {
+            return null;
+        }
+
+        return new PackageUpdate(items[0], items[1], items[2]);
     }
 }
