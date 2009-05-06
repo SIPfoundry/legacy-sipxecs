@@ -124,6 +124,7 @@ public class PersonalAttendantSettingListenerTest extends TestCase {
         }
         
         public void delete(Mailbox mailbox, Voicemail voicemail) {}
+        public void triggerSipNotify(Mailbox mailbox) {}
         public void deleteMailbox(String userId) {}
 
         public Mailbox getMailbox(String userId) {
