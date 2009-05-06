@@ -939,6 +939,10 @@ class CallControlManager implements SymmitronResetHandler {
 
             String transport = itspAccount != null ? itspAccount.getOutboundTransport()
                     : Gateway.DEFAULT_ITSP_TRANSPORT;
+            /*
+             * Look at the state of the peer client transaction. If in calling or proceeding
+             * state we can process the CANCEL. If not we have to decline it.
+             */
             if (ct.getState() == TransactionState.CALLING
                     || ct.getState() == TransactionState.PROCEEDING) {
                 Request cancelRequest = ct.createCancel();
@@ -950,7 +954,7 @@ class CallControlManager implements SymmitronResetHandler {
                 clientTransaction.sendRequest();
                 /*
                  * In case the dialog ever goes into a Confirmed state, it will be killed right
-                 * away using a BYE.
+                 * away by sending a BYE after an ACK is sent.
                  */
                 Dialog peerDialog = DialogContext.getPeerDialog(dialog);
                 if (peerDialog != null && peerDialog.getState() != DialogState.CONFIRMED) {
@@ -966,26 +970,10 @@ class CallControlManager implements SymmitronResetHandler {
                         inviteServerTransaction, Response.REQUEST_TERMINATED);
 
                 inviteServerTransaction.sendResponse(requestTerminatedResponse);
-                if ( dialog.getState() != DialogState.CONFIRMED ) {
-                    DialogContext.get(dialog).sendBye();
-                }
-                
-                if ( peerDialog != null &&
-                        peerDialog.getState() != DialogState.CONFIRMED) {
-                    DialogContext.get(peerDialog).sendBye();
-                }
+               
             } else {
-                logger.debug("CallControlManager:processCancel -- sending BYE " + ct.getState());
-                DialogContext dialogApplicationData = (DialogContext) dialog.getApplicationData();
-
-                if (dialog.getState() != DialogState.CONFIRMED) {
-                    Dialog peerDialog = dialogApplicationData.getPeerDialog();
-                    if (peerDialog != null) {
-                        DialogContext.get(peerDialog).sendBye();
-
-                    }
-                    DialogContext.get(dialog).sendBye();
-                }
+                logger.debug("CallControlManager:processCancel -- too late to CANCEL " + ct.getState());
+               
             }
         } catch (Exception ex) {
             logger.error("Unexpected exception processing cancel", ex);
