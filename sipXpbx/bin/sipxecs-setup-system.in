@@ -685,6 +685,9 @@ options {\n\
         # A Master DNS server is used for a non HA setup or on the HA Master host
         setup_DNS_zone( DomainName, HostName, IpAddress )
 
+    # Change ownership of zone files
+    setOwnerRecursive(sipxecsGlobals.NamedDirectory, 'named', 'named')
+
     if runningAsRoot():
         startNamedCmd = '/sbin/service named restart'
         log_printout("Attempting to start DNS with: '%s'" % startNamedCmd)

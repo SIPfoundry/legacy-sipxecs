@@ -633,9 +633,6 @@ zone "%s"  IN  {\n\
       file ( zoneConfigFile, 'w').write( zoneConfig )
       file ( dnsConfigFile, 'a').write( zoneRef )
 
-      # Change ownership of zone files
-      setOwnerRecursive(sipxecsGlobals.NamedDirectory, 'named', 'named')
-
 
 def enable_sipXconfig () :
     ################################################################
@@ -856,6 +853,8 @@ def do_sipx_setup() :
  you may have to remove the zone file %s/%s.zone and the reference to it in /etc/named.conf" %
               (DomainName, sipxecsGlobals.NamedDirectory, DomainName))
            if runningAsRoot():
+              # Change ownership of zone files
+              setOwnerRecursive(sipxecsGlobals.NamedDirectory, 'named', 'named')
               reload="/usr/sbin/rndc reload"
               log_printout("Attempting to reload zone files with: '%s'" % reload)
               cmdoutput=commands.getoutput(reload)
