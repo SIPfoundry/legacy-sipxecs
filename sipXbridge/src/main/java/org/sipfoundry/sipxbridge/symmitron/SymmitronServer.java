@@ -113,9 +113,9 @@ public class SymmitronServer implements Symmitron {
 
     private static String configDir;
 
-    private static final String STUN_FAILURE_ALARM_ID = "SIPX_RELAY_STUN_ADDRESS_DISCOVERY_FAILED";
+    private static final String STUN_FAILURE_ALARM_ID = "STUN_ADDRESS_DISCOVERY_FAILED";
 
-    private static final String STUN_RECOVERY_ALARM_ID = "SIPX_RELAY_STUN_ADDRESS_DISCOVERY_RECOVERED";
+    private static final String STUN_RECOVERY_ALARM_ID = "STUN_ADDRESS_DISCOVERY_RECOVERED";
 
     private static final String STUN_ADDRESS_ERROR_ALARM_ID = "STUN_ADDRESS_ERROR";
 

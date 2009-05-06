@@ -185,9 +185,9 @@ public class Gateway {
 
     private static SipURI proxyURI;
 
-    private static final String STUN_FAILED_ALARM_ID = "SIPX_BRIDGE_STUN_ADDRESS_DISCOVERY_FAILED";
+    private static final String STUN_FAILED_ALARM_ID = "STUN_ADDRESS_DISCOVERY_FAILED";
 
-    private static final String STUN_OK = "SIPX_BRIDGE_STUN_ADDRESS_DISCOVERY_RECOVERED";
+    private static final String STUN_OK = "STUN_ADDRESS_DISCOVERY_RECOVERED";
 
     static final String ACCOUNT_NOT_FOUND_ALARM_ID = "SIPX_BRIDGE_ITSP_ACCOUNT_NOT_FOUND";
     
