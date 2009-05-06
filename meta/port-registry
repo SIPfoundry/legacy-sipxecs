@@ -47,6 +47,7 @@ Port    Component         Use
 8080    FreeSWITCH        FreeSWITCH XML-RPC
 
 8084    sipXivr           event_socket interface
+8085    sipXivr           Jetty interface
 
 8088    sipXbridge	  HTTP sipXbridge XML RPC port
 

@@ -11,3 +11,5 @@ ivr.organizationPrefs=${service.vxmlDir}/organizationprefs.xml
 ivr.operatorAddr=sip:operator@${service.domainName}
 ivr.sipxchangeDomainName=${service.domainName}
 ivr.realm=${service.realm}
+ivr.httpsPort=$ivr.getSetting('httpsPort').Value
+ivr.mwiUrl=https://${location.fqdn}:${statusService.httpsPort}/cgi/StatusEvent.cgi

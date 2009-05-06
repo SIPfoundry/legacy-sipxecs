@@ -21,12 +21,14 @@ public class StatusPluginConfigurationTest extends SipxServiceTestBase {
         initCommonAttributes(statusService);
         statusService.setBeanName(SipxStatusService.BEAN_ID);
 
-        SipxMediaService mediaService = new SipxMediaService();
-        mediaService.setVoicemailHttpsPort(9905);
-        mediaService.setBeanName(SipxMediaService.BEAN_ID);
-
+        SipxIvrService ivrService = new SipxIvrService();
+        ivrService.setModelDir("sipxivr");
+        ivrService.setModelName("sipxivr.xml");
+        initCommonAttributes(ivrService);
+        ivrService.setBeanName(SipxIvrService.BEAN_ID);
+        
         SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(false, statusService,
-                mediaService);
+                ivrService);
         replay(sipxServiceManager);
 
         StatusPluginConfiguration out = new StatusPluginConfiguration();

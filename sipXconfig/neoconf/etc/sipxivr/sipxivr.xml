@@ -45,5 +45,11 @@
       </type>
       <value>8084</value>
     </setting>
+    <setting name="httpsPort" advanced="yes">
+      <type>
+        <integer/>
+      </type>
+      <value>8085</value>
+    </setting>
   </group>
 </model>

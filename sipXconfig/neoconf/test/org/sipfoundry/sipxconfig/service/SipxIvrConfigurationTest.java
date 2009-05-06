@@ -14,6 +14,8 @@ import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+
 public class SipxIvrConfigurationTest extends SipxServiceTestBase {
 
     public void testWrite() throws Exception {
@@ -27,7 +29,13 @@ public class SipxIvrConfigurationTest extends SipxServiceTestBase {
         ivrService.setDocDir("/usr/share/www/doc");
         ivrService.setVxmlDir("/var/sipxdata/mediaserver/data");
 
+        SipxStatusService statusService = new SipxStatusService();
+        statusService.setBeanName(SipxStatusService.BEAN_ID);
+        statusService.setHttpsPort(9910);
+
         SipxServiceManager sipxServiceManager = createMock(SipxServiceManager.class);
+        sipxServiceManager.getServiceByBeanId(SipxStatusService.BEAN_ID);
+        expectLastCall().andReturn(statusService).atLeastOnce();
         sipxServiceManager.getServiceByBeanId(SipxIvrService.BEAN_ID);
         expectLastCall().andReturn(ivrService).atLeastOnce();
         replay(sipxServiceManager);
@@ -39,5 +47,13 @@ public class SipxIvrConfigurationTest extends SipxServiceTestBase {
         assertCorrectFileGeneration(out, "expected-sipxivr.properties");
 
         verify(sipxServiceManager);
+    }
+    
+    @Override
+    protected Location createDefaultLocation() {
+        Location location = super.createDefaultLocation();
+        location.setAddress("192.168.1.2");
+        location.setFqdn("puppy.org");
+        return location;
     }
 }

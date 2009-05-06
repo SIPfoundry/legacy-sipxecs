@@ -1,3 +1,4 @@
+#set($ivr=${ivrService.getSettings().getSetting('ivr')})
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <subscribe-server-plugins>
   <subscribe-plugin>
@@ -8,7 +9,7 @@
     <load-library></load-library>
     <plugin-factory>MwiFactory</plugin-factory>
     <plugin-data>
-      <voicemail-cgi-url>https://localhost:${mediaService.voicemailHttpsPort}/cgi-bin/voicemail/mediaserver.cgi</voicemail-cgi-url>
+      <voicemail-cgi-url>http://localhost:$ivr.getSetting('httpsPort').Value/mwi</voicemail-cgi-url>
     </plugin-data>
   </subscribe-plugin>
 </subscribe-server-plugins>

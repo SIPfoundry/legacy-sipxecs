@@ -279,6 +279,7 @@
       <list>
         <ref bean="sipxIvrConfiguration" />
         <ref bean="autoAttendantsConfig" />
+        <ref bean="statusPluginConfiguration" />
       </list>
     </property>
     <property name="mailstoreDir" value="${sysdir.mailstore}" />
@@ -307,6 +308,7 @@
       <list>
         <ref bean="sipxStatusConfiguration" />
         <ref bean="statusPluginConfiguration" />
+        <ref bean="sipxIvrConfiguration" />
       </list>
     </property>
     <property name="bundles">
