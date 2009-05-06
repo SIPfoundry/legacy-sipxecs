@@ -38,6 +38,8 @@ public class BridgeSbc extends SbcDevice implements LoggingEntity {
 
     public static final String LOG_SETTING = "bridge-configuration/log-level";
 
+    public static final String LOCATION_ID_SETTING = "bridge-configuration/location-id";
+
     private GatewayContext m_gatewayContext;
 
     private SipxProcessContext m_processContext;
@@ -139,8 +141,13 @@ public class BridgeSbc extends SbcDevice implements LoggingEntity {
         if (m_location != null) {
             return m_location;
         }
-        Integer id = (Integer) getSettings().getSetting("bridge-configuration/location-id").getTypedValue();
-        return m_locationsManager.getLocation(id);
+        Integer id = (Integer) getSettings().getSetting(LOCATION_ID_SETTING).getTypedValue();
+        return null == id ? m_locationsManager.getLocationByAddress(getAddress()) : m_locationsManager.getLocation(id);
+    }
+
+    public void updateBridgeLocationId() {
+        Location location = m_locationsManager.getLocationByAddress(getAddress());
+        setSettingTypedValue(LOCATION_ID_SETTING, location.getId());
     }
 
     public static class Context extends ProfileContext<BridgeSbc> {

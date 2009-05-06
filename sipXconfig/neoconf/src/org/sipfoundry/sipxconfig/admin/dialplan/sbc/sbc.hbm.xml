@@ -75,4 +75,9 @@
   <query name="countSbcsByType">
     <![CDATA[select count (*) from SbcDevice sbc where sbc.beanId = :sbcBeanId]]>
   </query>
+
+  <query name="sbcValueStorageId">
+    <![CDATA[select sbc.valueStorage from SbcDevice sbc where sbc.id = :sbcId]]>
+  </query>
+
 </hibernate-mapping>

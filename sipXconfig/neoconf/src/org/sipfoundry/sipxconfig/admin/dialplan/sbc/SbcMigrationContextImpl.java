@@ -18,9 +18,11 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.classic.Session;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.BeanFactoryModelSource;
+import org.springframework.dao.support.DataAccessUtils;
 
 public class SbcMigrationContextImpl extends SipxHibernateDaoSupport implements
         SbcMigrationContext {
@@ -49,6 +51,14 @@ public class SbcMigrationContextImpl extends SipxHibernateDaoSupport implements
                 Integer sbcDeviceId = createAssociateSbcDevice(address);
                 Sbc sbc = getSbc(sbcId);
                 sbc.setSbcDevice(m_sbcDeviceManager.getSbcDevice(sbcDeviceId));
+                SbcDevice sbcDevice = sbc.getSbcDevice();
+                if (sbcDevice instanceof BridgeSbc) {
+                    Integer valueStorageId = (Integer) DataAccessUtils.singleResult(getHibernateTemplate()
+                            .findByNamedQueryAndNamedParam("sbcValueStorageId", "sbcId", sbcDevice.getId()));
+                    if (null == valueStorageId) {
+                        ((BridgeSbc) sbcDevice).updateBridgeLocationId();
+                    }
+                }
                 getHibernateTemplate().save(sbc);
                 getHibernateTemplate().flush();
             } catch (UserException e) {
