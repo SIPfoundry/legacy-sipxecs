@@ -9,13 +9,9 @@
 package org.sipfoundry.voicemail;
 
 import java.io.File;
-import java.io.IOException;
 
-import javax.sound.sampled.AudioFileFormat;
-import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.UnsupportedAudioFileException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;

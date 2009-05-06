@@ -8,11 +8,12 @@
  */
 package org.sipfoundry.voicemail;
 
-import java.io.*;
-import java.net.URL;
-
-import javax.servlet.*;
-import javax.servlet.http.*;
+import java.io.IOException;
+import java.io.OutputStream;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 import org.mortbay.http.HttpContext;
@@ -30,15 +31,12 @@ import org.sipfoundry.sipxivr.ValidUsersXML;
  *
  */
 public class Mwistatus extends HttpServlet {
-    /**
-     * 
-     */
     private static final long serialVersionUID = 2609976094457923038L;
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
     
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-        response.setContentType("application/simple-message-summary");
+        response.setContentType(Mwi.MessageSummaryContentType);
         // Use the OutputStream rather than the PrintWriter as this will cause Jetty
         // To NOT set the charset= parameter on the content type, which breaks
         // The status server doing this request.
@@ -72,84 +70,39 @@ public class Mwistatus extends HttpServlet {
         }
 
         // Just dump the bytes of the string.  No character encoding or nothing.
-        os.write(formatRFC3842(unheard, heard, unheardUrgent, heardUrgent).getBytes());
+        os.write(Mwi.formatRFC3842(unheard, heard, unheardUrgent, heardUrgent).getBytes());
         os.close();
     }
     
-    /**
-     * Format the status ala RFC-3842
-     * 
-     * @param numNew
-     * @param numOld
-     * @param numNewUrgent
-     * @param numOldUrgent
-     * @return
-     */
-    String formatRFC3842(int numNew, int numOld, int numNewUrgent, int numOldUrgent) {
-        return String.format("Messages-Waiting: %s\r\nVoice-Message: %d/%d (%d/%d)\r\n\r\n",
-        		numNew > 0 ? "yes":"no", numNew, numOld, numNewUrgent, numOldUrgent);
-    }
     
     /**
      * Start the servlet that handles MWI requests
      * @param s_config 
      */
-    public static void StartMWIServlet(Configuration s_config) {
+    public static void StartMWIServlet(Configuration s_config, String path) {
         try {
+            // TODO change status-plugin.xml to point to https://{machine}:port/mwi
             
-            String mwiStatusURL = null;
-            URL url; 
-
-/*            
- * Parse the status-plugin.xml file to use the same URl that the Status Server uses.
- * This presumes the Status Server and this server are on the same machine.
- * 
-            String path = System.getProperty("conf.dir");
-            
-            // Find the URL the status server is using
-            File s_propertiesFile = new File(path + "/status-plugin.xml");
-
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            Document doc = db.parse(s_propertiesFile);
-            NodeList list = doc.getElementsByTagName("voicemail-cgi-url");
-                
-            Node firstNode = list.item(0);
-            if(firstNode.getNodeType() == Node.ELEMENT_NODE){
- 
-                NodeList textFNlist = ((Element)firstNode).getChildNodes();
-                mwiStatusURL = ((Node)textFNlist.item(0)).getNodeValue().trim();                                                                             
-            }
-*/
-   
-            // For now, just hardcode this.  We cannot steal the CGI script's port as
-            // that comes from Apache and it is using that port for other things besides
-            // just MWI.
-            // TODO Replace with configuration, and change status-plugin.xml to point to here
-            mwiStatusURL = "http://localhost:8085/mwi";
-            
-            url = new URL (mwiStatusURL);              
-            
-
             // Start up jetty
             HttpServer server = new HttpServer();
 
             // Bind the port on all interfaces
             // TODO HTTPS support
-            server.addListener(":" + url.getPort());
+            int httpsPort = org.sipfoundry.sipxivr.Configuration.get().getHttpsPort();
+            server.addListener(":" + httpsPort);
 
             HttpContext httpContext = new HttpContext();
             httpContext.setContextPath("/");
 
-            // Setup the servlet to call the Mwistatus class when that URL is fetched
+            // Setup the servlet to call the Mwistatus class when the URL is fetched
             ServletHandler servletHandler = new ServletHandler();
-            servletHandler.addServlet("mwistatus", url.getPath(), Mwistatus.class.getName());
+            servletHandler.addServlet("mwistatus", path, Mwistatus.class.getName());
             httpContext.addHandler(servletHandler);
 
             server.addContext(httpContext);
             
             // Start it up.
-            LOG.info(String.format("Starting MWI servlet on %s", url.toExternalForm()));
+            LOG.info(String.format("Starting MWI servlet on *:%d%s", httpsPort, path));
             server.start();
         } catch (Exception e) {
             e.printStackTrace(); 

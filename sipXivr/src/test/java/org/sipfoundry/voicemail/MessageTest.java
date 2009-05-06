@@ -45,6 +45,7 @@ public class MessageTest extends TestCase {
         m_mailstore.mkdirs();
         m_mailbox = new Mailbox(m_user, m_mailstore.getPath());
         Mailbox.createDirsIfNeeded(m_mailbox);
+        Mwi.setJustTesting(true);
 
     }
 

@@ -117,7 +117,7 @@ public class SipXivr implements Runnable {
         int eventSocketPort;
         
         // Load the configuration
-        s_config = Configuration.update(true);
+        s_config = Configuration.get();
 
         // Configure log4j
         Properties props = new Properties();
@@ -130,8 +130,8 @@ public class SipXivr implements Runnable {
         props.setProperty("log4j.appender.file.layout.facility", "sipXivr");
         PropertyConfigurator.configure(props);
         
-        // start MWI servlet 
-        Mwistatus.StartMWIServlet(s_config);
+        // start MWI servlet on /mwi
+        Mwistatus.StartMWIServlet(s_config, "/mwi");
  
         eventSocketPort = s_config.getEventSocketPort();
         LOG.info("Starting SipXivr listening on port " + eventSocketPort);

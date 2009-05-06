@@ -28,6 +28,7 @@ import org.sipfoundry.sipxivr.Mailbox;
  */
 public class Messages {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
+    Mailbox m_mailbox;
     
     public enum Folders {
         INBOX, SAVED, DELETED;
@@ -44,6 +45,7 @@ public class Messages {
     File m_deletedDir;
     
     public Messages(Mailbox mailbox) {
+        m_mailbox = mailbox;
         m_inboxDir = new File(mailbox.getInboxDirectory());
         m_savedDir = new File(mailbox.getSavedDirectory());
         m_deletedDir = new File(mailbox.getDeletedDirectory());
@@ -184,6 +186,7 @@ public class Messages {
         if (msg.isUnHeard()) {
             msg.markHeard();
             m_numUnheard--;
+            Mwi.sendMWI(m_mailbox, this);
         }
     }
     
@@ -205,6 +208,7 @@ public class Messages {
             m_deleted.put(id, msg);
             removeRemains(m_inboxDir, id);
             LOG.info(String.format("Messages::deleted moved %s from inbox to deleted Folder", id));
+            Mwi.sendMWI(m_mailbox, this);
         } else if (m_saved.containsKey(id)) {
             // Move files from saved to deleted
             msg.moveToDirectory(m_deletedDir);
@@ -239,6 +243,7 @@ public class Messages {
             m_saved.put(id, msg);
             removeRemains(m_inboxDir, id);
             LOG.info(String.format("Messages::saveMessage moved %s from inbox to saved Folder", id));
+            Mwi.sendMWI(m_mailbox, this);
         } else if (m_saved.containsKey(id)) {
             // It's already saved!  do nothing.
         } else if (m_deleted.containsKey(id)) {
@@ -248,6 +253,7 @@ public class Messages {
             m_inbox.put(id, msg);
             removeRemains(m_deletedDir, id);
             LOG.info(String.format("Messages::saveMessage moved %s from deleted to inbox Folder", id));
+            Mwi.sendMWI(m_mailbox, this);
         }
     }
     

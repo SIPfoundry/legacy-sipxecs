@@ -56,6 +56,8 @@ public class MessagesTest extends TestCase {
         m_savedDir = new File(m_userDir, "saved"); m_savedDir.mkdir();
         m_deletedDir = new File(m_userDir, "deleted"); m_deletedDir.mkdir();
 
+        // Tell MWI not to bother contacting an external server
+        Mwi.setJustTesting(true);
     }
 
     protected void tearDown() throws Exception {

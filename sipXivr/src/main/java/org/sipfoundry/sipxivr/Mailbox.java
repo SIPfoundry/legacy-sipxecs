@@ -31,7 +31,7 @@ public class Mailbox {
 
     
     public Mailbox(User user) {
-        init(user, org.sipfoundry.sipxivr.Configuration.update(true).getMailstoreDirectory());
+        init(user, Configuration.get().getMailstoreDirectory());
     }
 
     /**

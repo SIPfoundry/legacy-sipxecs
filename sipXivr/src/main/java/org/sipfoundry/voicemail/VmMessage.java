@@ -159,7 +159,9 @@ public class VmMessage {
             return null;
         }
         LOG.info("VmMessage::newMessage created message "+me.m_descriptorFile.getPath());
-        // TODO MWI, msg to email
+        Mwi.sendMWI(mailbox);
+        // TODO msg to email
+        
 
         return me;
     }
@@ -217,8 +219,9 @@ public class VmMessage {
         new MessageDescriptorWriter().writeObject(me.m_messageDescriptor, me.m_descriptorFile);
         
         LOG.info("VmMessage::copy created message "+me.m_descriptorFile.getPath());
+        Mwi.sendMWI(mailbox);
 
-        // TODO MWI, msg to email
+        // TODO msg to email
 
         return me;
     }
@@ -298,8 +301,10 @@ public class VmMessage {
             return null;        
         }
         LOG.info("VmMessage::forward created message "+me.m_descriptorFile.getPath());
+        Mwi.sendMWI(mailbox);
+        // TODO msg to email
+
         return me;
-        // TODO MWI, msg to email
 
     }
     

@@ -66,7 +66,7 @@ public class AttendantTest extends TestCase {
     public void testGoodbye() {
         FreeSwitchEventSocketEmulator fses = new FreeSwitchEventSocketEmulator();
         Hashtable<String, String> params = new Hashtable<String, String>();
-        Configuration ivrConfig = Configuration.update(false);
+        Configuration ivrConfig = Configuration.getTest();
 
         Attendant a = new Attendant(ivrConfig, fses, params);
         HashMap<Locale, ResourceBundle> resourcesByLocale = new HashMap<Locale, ResourceBundle>();

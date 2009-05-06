@@ -30,6 +30,8 @@ public class Configuration {
     private String m_operatorAddr; // Address of 'operator'
     private String m_sipxchangeDomainName; // The domain name of this system
     private String m_realm;
+    private String m_mwiUrl; // The url of the Status Server we send MWI requests to
+    private int m_httpsPort; // The port on which we listen for HTTPS services
 
     private static Configuration s_current;
     private static File s_propertiesFile;
@@ -38,13 +40,21 @@ public class Configuration {
     private Configuration() {
     }
     
+    public static Configuration get() {
+        return update(true);
+    }
+    
+    public static Configuration getTest() {
+        return update(false);
+    }
+    
     /**
      * Load new Configuration object if the underlying properties files have changed since the last
      * time
      * 
      * @return
      */
-    public static Configuration update(boolean load) {
+    private static Configuration update(boolean load) {
         if (s_current == null || s_propertiesFile.lastModified() != s_lastModified) {
             s_current = new Configuration();
             if (load) {
@@ -60,6 +70,26 @@ public class Configuration {
             System.err.println("Cannot get System Property conf.dir!  Check jvm argument -Dconf.dir=") ;
             System.exit(1);
         }
+        
+        // Setup SSL properties so we can talk to HTTPS servers
+        String keyStore = System.getProperty("javax.net.ssl.keyStore");
+        if (keyStore == null) {
+            // Take an educated guess as to where it should be
+            keyStore = path+"/ssl/ssl.keystore";
+            System.setProperty("javax.net.ssl.keyStore", keyStore);
+            System.setProperty("javax.net.ssl.keyStorePassword", "changeit"); // Real security!
+ //           System.setProperty("java.protocol.handler.pkgs", "com.sun.net.ssl.internal.www.protocol");
+ //           System.setProperty("javax.net.debug", "ssl");
+        }
+        String trustStore = System.getProperty("javax.net.ssl.trustStore");
+        if (trustStore == null) {
+            // Take an educated guess as to where it should be
+            trustStore = path+"/ssl/authorities.jks";
+            System.setProperty("javax.net.ssl.trustStore", trustStore);
+            System.setProperty("javax.net.ssl.trustStoreType", "JKS");
+            System.setProperty("javax.net.ssl.trustStorePassword", "changeit"); // Real security!
+        }
+        
         String name = "sipxivr.properties";
         FileInputStream inStream;
         Properties props = null;
@@ -91,6 +121,8 @@ public class Configuration {
             m_operatorAddr = props.getProperty(prop = "ivr.operatorAddr");
             m_sipxchangeDomainName = props.getProperty(prop = "ivr.sipxchangeDomainName");
             m_realm = props.getProperty(prop ="ivr.realm");
+            m_mwiUrl = props.getProperty(prop = "ivr.mwiUrl");
+            m_httpsPort = Integer.parseInt(props.getProperty(prop = "ivr.httpsPort"));
         } catch (Exception e) {
             System.err.println("Problem understanding property " + prop);
             e.printStackTrace(System.err);
@@ -140,5 +172,21 @@ public class Configuration {
     
     public void setRealm(String realm) {
         m_realm = realm;
+    }
+    
+    public String getMwiUrl() {
+        return m_mwiUrl;
+    }
+    
+    public void setMwiUrl(String mwiUrl) {
+        m_mwiUrl = mwiUrl;
+    }
+
+    public int getHttpsPort() {
+        return m_httpsPort;
+    }
+    
+    public void setHttpsPort(int httpsPort) {
+        m_httpsPort = httpsPort;
     }
 }
