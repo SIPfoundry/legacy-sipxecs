@@ -939,6 +939,10 @@ class CallControlManager implements SymmitronResetHandler {
 
             String transport = itspAccount != null ? itspAccount.getOutboundTransport()
                     : Gateway.DEFAULT_ITSP_TRANSPORT;
+            /*
+             * Look at the state of the peer client transaction. If in calling or proceeding
+             * state we can process the CANCEL. If not we have to decline it.
+             */
             if (ct.getState() == TransactionState.CALLING
                     || ct.getState() == TransactionState.PROCEEDING) {
                 Request cancelRequest = ct.createCancel();
@@ -948,18 +952,27 @@ class CallControlManager implements SymmitronResetHandler {
                 ClientTransaction clientTransaction = provider
                         .getNewClientTransaction(cancelRequest);
                 clientTransaction.sendRequest();
-            } else {
-                logger.debug("CallControlManager:processCancel -- sending BYE " + ct.getState());
-                DialogContext dialogApplicationData = (DialogContext) dialog.getApplicationData();
-
-                Dialog peerDialog = dialogApplicationData.getPeerDialog();
-                if (peerDialog != null) {
-                    Request byeRequest = peerDialog.createRequest(Request.BYE);
-                    SipProvider provider = SipUtilities.getPeerProvider(
-                            (SipProvider) requestEvent.getSource(), transport);
-                    ClientTransaction byeCt = provider.getNewClientTransaction(byeRequest);
-                    peerDialog.sendRequest(byeCt);
+                /*
+                 * In case the dialog ever goes into a Confirmed state, it will be killed right
+                 * away by sending a BYE after an ACK is sent.
+                 */
+                Dialog peerDialog = DialogContext.getPeerDialog(dialog);
+                if (peerDialog != null && peerDialog.getState() != DialogState.CONFIRMED) {
+                    DialogContext.get(peerDialog).setTerminateOnConfirm();
                 }
+                /*
+                 * Send the Request TERMINATED response right away. We are done with the server
+                 * transaction at this point. This REQUEST_TERMINATED response must be sent back
+                 * to the ITSP here ( we cannot wait for the other end to send us the response --
+                 * see XX-517 workaround. )
+                 */
+                Response requestTerminatedResponse = SipUtilities.createResponse(
+                        inviteServerTransaction, Response.REQUEST_TERMINATED);
+
+                inviteServerTransaction.sendResponse(requestTerminatedResponse);
+            } else {
+                logger.debug("CallControlManager:processCancel -- too late to CANCEL " + ct.getState());
+               
             }
         } catch (Exception ex) {
             logger.error("Unexpected exception processing cancel", ex);
