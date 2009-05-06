@@ -137,6 +137,8 @@ if [ $CHECK_VERSION = "yes" ]
 then
   # Get the current sipxconfig version
   CURRENT_VERSION=$(@SIPX_BINDIR@/sipxpbx-config --version | awk -F'-' '{ print $1 ;}')
+  #Get the current MAJOR version. We will be able to backup-restore different post 4.0 versions.
+  CURRENT_VERSION_MAJOR=`expr substr $CURRENT_VERSION 1 1`;
 
   # If a configuration backup is specified
   if [ -n "$CONFIGURATION_PATH" ]
@@ -144,12 +146,17 @@ then
     # Extract the version file (to current directory)
     tar --gzip --extract --file=$CONFIGURATION_PATH version
     ARCHIVED_VERSION=$(cat version | awk -F'-' '{ print $1 ;}')
+    ARCHIVED_VERSION_MAJOR=`expr substr $ARCHIVED_VERSION 1 1`;
     # Remove the version file
     rm -f version
-    if [ "$ARCHIVED_VERSION" != "$CURRENT_VERSION" ]
+    # XX-5479: Starting in 4.0, backups taken can be restored to later releases.
+    if [ $CURRENT_VERSION_MAJOR -lt 4 -o  $ARCHIVED_VERSION_MAJOR -lt 4 ]
     then
-      echo "Current version ($CURRENT_VERSION) is different than the backed-up version ($ARCHIVED_VERSION)"
-      exit 5
+      if [ "$ARCHIVED_VERSION" != "$CURRENT_VERSION" ]
+      then
+        echo "Current version ($CURRENT_VERSION) is different than the backed-up version ($ARCHIVED_VERSION)"
+        exit 5
+      fi
     fi
   fi
 
@@ -158,12 +165,17 @@ then
   then
     tar --gzip --extract --file=$VOICEMAIL_PATH version
     ARCHIVED_VERSION=$(cat version | awk -F'-' '{ print $1 ;}')
+    ARCHIVED_VERSION_MAJOR=`expr substr $ARCHIVED_VERSION 1 1`;
     # Remove the version file
     rm -f version
-    if [ "$ARCHIVED_VERSION" != "$CURRENT_VERSION" ]
+    # XX-5479: Starting in 4.0, backups taken can be restored to later releases.
+    if [ $CURRENT_VERSION_MAJOR -lt 4 -o  $ARCHIVED_VERSION_MAJOR -lt 4 ]
     then
-      echo "Current version ($CURRENT_VERSION) is different than the backed-up version ($ARCHIVED_VERSION)"
-      exit 5
+      if [ "$ARCHIVED_VERSION" != "$CURRENT_VERSION" ]
+      then
+        echo "Current version ($CURRENT_VERSION) is different than the backed-up version ($ARCHIVED_VERSION)"
+        exit 5
+      fi
     fi
   fi
 fi
@@ -219,6 +231,9 @@ then
   echo "done."
 
 fi # *** END Voicemail ***
+
+#run "first-run" task to force regenerating the configuration files
+@BASH@ -p @SIPX_BINDIR@/sipxconfig.sh --first-run
 
 # Start all services.
 @BASH@ -p @SERVICEDIR@/sipxecs start
