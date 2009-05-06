@@ -126,14 +126,10 @@ then
   
   ConfigBackupFiles="\
     @SIPX_CONFDIR@/domain-config \
-    @SIPX_CONFDIR@/security.policy \
     @SIPX_CONFDIR@/ssl/ssl.crt \
     @SIPX_CONFDIR@/ssl/ssl.key \
     "
   ConfigSets=" \
-    @SIPX_DBDIR@/*.xml \
-    @SIPX_CONFDIR@/*.in \
-    @SIPX_CONFDIR@/sipxacd.xml \
     @SIPX_CONFDIR@/ssl/authorities/* \
     @SIPX_VARDIR@/configserver/phone/acd/audio/* \
     @SIPX_VARDIR@/parkserver/music/* \
