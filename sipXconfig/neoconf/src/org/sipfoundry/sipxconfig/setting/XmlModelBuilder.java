@@ -84,15 +84,19 @@ public class XmlModelBuilder implements ModelBuilder {
         EntityResolver entityResolver = new ModelEntityResolver(m_configDirectory, baseSystemId);
         digester.setEntityResolver(entityResolver);
         digester.push(new ConditionalSet());
-        addSettingTypes(digester, "model/type/");
+
+        // keeps all types encountered during parsing
+        SettingTypeIdRule typeIdRule = new SettingTypeIdRule();
+
+        addSettingTypes(digester, "model/type/", typeIdRule);
 
         CollectionRuleSet collectionRule = new CollectionRuleSet();
         digester.addRuleSet(collectionRule);
 
-        SettingRuleSet groupRule = new SettingRuleSet("*/group", ConditionalSet.class);
+        SettingRuleSet groupRule = new SettingRuleSet("*/group", ConditionalSet.class, typeIdRule);
         digester.addRuleSet(groupRule);
 
-        SettingRuleSet settingRule = new SettingRuleSet("*/setting", ConditionalSettingImpl.class);
+        SettingRuleSet settingRule = new SettingRuleSet("*/setting", ConditionalSettingImpl.class, typeIdRule);
         digester.addRuleSet(settingRule);
 
         try {
@@ -102,14 +106,14 @@ public class XmlModelBuilder implements ModelBuilder {
         }
     }
 
-    private static void addSettingTypes(Digester digester, String patternPrefix) {
-        digester.addRuleSet(new IntegerSettingRule(patternPrefix + "integer"));
-        digester.addRuleSet(new RealSettingRule(patternPrefix + "real"));
-        digester.addRuleSet(new StringSettingRule(patternPrefix + "string"));
-        digester.addRuleSet(new EnumSettingRule(patternPrefix + "enum"));
-        digester.addRuleSet(new BooleanSettingRule(patternPrefix + "boolean"));
-        digester.addRuleSet(new FileSettingRule(patternPrefix + "file"));
-        digester.addRuleSet(new SipUriSettingRule(patternPrefix + "sip-uri"));
+    private static void addSettingTypes(Digester digester, String patternPrefix, SettingTypeIdRule typeIdRule) {
+        digester.addRuleSet(new IntegerSettingRule(patternPrefix + "integer", typeIdRule));
+        digester.addRuleSet(new RealSettingRule(patternPrefix + "real", typeIdRule));
+        digester.addRuleSet(new StringSettingRule(patternPrefix + "string", typeIdRule));
+        digester.addRuleSet(new EnumSettingRule(patternPrefix + "enum", typeIdRule));
+        digester.addRuleSet(new BooleanSettingRule(patternPrefix + "boolean", typeIdRule));
+        digester.addRuleSet(new FileSettingRule(patternPrefix + "file", typeIdRule));
+        digester.addRuleSet(new SipUriSettingRule(patternPrefix + "sip-uri", typeIdRule));
     }
 
     static class AbstractSettingRuleSet extends RuleSetBase {
@@ -151,8 +155,11 @@ public class XmlModelBuilder implements ModelBuilder {
     }
 
     static class SettingRuleSet extends AbstractSettingRuleSet {
-        public SettingRuleSet(String pattern, Class klass) {
+        private final SettingTypeIdRule m_typeIdRule;
+
+        public SettingRuleSet(String pattern, Class klass, SettingTypeIdRule typeIdRule) {
             super(pattern, klass);
+            m_typeIdRule = typeIdRule;
         }
 
         @Override
@@ -160,7 +167,7 @@ public class XmlModelBuilder implements ModelBuilder {
             super.addRuleInstances(digester);
             digester.addRule(getPattern(), new CopyOfRule());
             digester.addRule(getPattern() + EL_VALUE, new BeanPropertyNullOnEmptyStringRule("value"));
-            addSettingTypes(digester, getPattern() + "/type/");
+            addSettingTypes(digester, getPattern() + "/type/", m_typeIdRule);
             digester.addSetNext(getPattern(), ADD_SETTING_METHOD, ConditionalSettingImpl.class.getName());
         }
     }
@@ -251,19 +258,19 @@ public class XmlModelBuilder implements ModelBuilder {
     }
 
     static class SettingTypeRule extends RuleSetBase {
-        /** shared among all type rules */
-        private static final SettingTypeIdRule SETTING_TYPE_ID_RULE = new SettingTypeIdRule();
-
         private final String m_pattern;
 
-        public SettingTypeRule(String pattern) {
+        private final SettingTypeIdRule m_typeIdRule;
+
+        public SettingTypeRule(String pattern, SettingTypeIdRule typeIdRule) {
             m_pattern = pattern;
+            m_typeIdRule = typeIdRule;
         }
 
         @Override
         public void addRuleInstances(Digester digester) {
             digester.addSetNext(m_pattern, "setType", SettingType.class.getName());
-            digester.addRule(getParentPattern(), SETTING_TYPE_ID_RULE);
+            digester.addRule(getParentPattern(), m_typeIdRule);
         }
 
         String getParentPattern() {
@@ -277,8 +284,8 @@ public class XmlModelBuilder implements ModelBuilder {
     }
 
     static class StringSettingRule extends SettingTypeRule {
-        public StringSettingRule(String pattern) {
-            super(pattern);
+        public StringSettingRule(String pattern, SettingTypeIdRule typeIdRule) {
+            super(pattern, typeIdRule);
         }
 
         @Override
@@ -291,8 +298,8 @@ public class XmlModelBuilder implements ModelBuilder {
     }
 
     static class IntegerSettingRule extends SettingTypeRule {
-        public IntegerSettingRule(String pattern) {
-            super(pattern);
+        public IntegerSettingRule(String pattern, SettingTypeIdRule typeIdRule) {
+            super(pattern, typeIdRule);
         }
 
         @Override
@@ -304,8 +311,8 @@ public class XmlModelBuilder implements ModelBuilder {
     }
 
     static class RealSettingRule extends SettingTypeRule {
-        public RealSettingRule(String pattern) {
-            super(pattern);
+        public RealSettingRule(String pattern, SettingTypeIdRule typeIdRule) {
+            super(pattern, typeIdRule);
         }
 
         @Override
@@ -317,8 +324,8 @@ public class XmlModelBuilder implements ModelBuilder {
     }
 
     static class BooleanSettingRule extends SettingTypeRule {
-        public BooleanSettingRule(String pattern) {
-            super(pattern);
+        public BooleanSettingRule(String pattern, SettingTypeIdRule typeIdRule) {
+            super(pattern, typeIdRule);
         }
 
         @Override
@@ -333,8 +340,8 @@ public class XmlModelBuilder implements ModelBuilder {
     }
 
     static class EnumSettingRule extends SettingTypeRule {
-        public EnumSettingRule(String pattern) {
-            super(pattern);
+        public EnumSettingRule(String pattern, SettingTypeIdRule typeIdRule) {
+            super(pattern, typeIdRule);
         }
 
         @Override
@@ -350,8 +357,8 @@ public class XmlModelBuilder implements ModelBuilder {
     }
 
     static class FileSettingRule extends SettingTypeRule {
-        public FileSettingRule(String pattern) {
-            super(pattern);
+        public FileSettingRule(String pattern, SettingTypeIdRule typeIdRule) {
+            super(pattern, typeIdRule);
         }
 
         @Override
@@ -364,8 +371,8 @@ public class XmlModelBuilder implements ModelBuilder {
     }
 
     static class SipUriSettingRule extends SettingTypeRule {
-        public SipUriSettingRule(String pattern) {
-            super(pattern);
+        public SipUriSettingRule(String pattern, SettingTypeIdRule typeIdRule) {
+            super(pattern, typeIdRule);
         }
 
         @Override
