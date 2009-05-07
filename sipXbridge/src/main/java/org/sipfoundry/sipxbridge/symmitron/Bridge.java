@@ -124,9 +124,7 @@ final class Bridge implements BridgeInterface {
     public void stop() {
         if (logger.isDebugEnabled()) {
             logger.debug("Closing SymBridge : " + this.toString());
-            Exception ex = new Exception();
-            logger.debug("caller = " + ex.getStackTrace()[1].getFileName() + ":" 
-                    + ex.getStackTrace()[1].getLineNumber());
+           
         }
         
         for (Sym sym : this.sessions) {
@@ -278,11 +276,7 @@ final class Bridge implements BridgeInterface {
         this.lastPacketTime.set(lastPacketTime);
     }
 
-    public void clearAllVisited() {
-       for ( Sym sym: this.sessions ) {
-           sym.setVisited(false);
-       }
-    }
+   
 
     Sym getReceiverSym(DatagramChannel datagramChannel) {
         Sym retval = null;
