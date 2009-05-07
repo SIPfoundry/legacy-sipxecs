@@ -9,8 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+
+import org.springframework.dao.support.DataAccessUtils;
 
 public class SipxMediaService extends SipxService implements LoggingEntity {
     public static final String BEAN_ID = "sipxMediaService";
@@ -19,7 +19,6 @@ public class SipxMediaService extends SipxService implements LoggingEntity {
 
     private int m_httpPort;
     private int m_httpsPort;
-    private LocationsManager m_locationsManager;
     private String m_mediaServerSipSrvOrHostport;
 
     public String getVoicemailServer() {
@@ -69,16 +68,9 @@ public class SipxMediaService extends SipxService implements LoggingEntity {
         m_httpsPort = httpsPort;
     }
 
-    public void setLocationsManager(LocationsManager locationsManager) {
-        m_locationsManager = locationsManager;
-    }
-
     private String getMediaServerAddress() {
-        Location primaryLocation = m_locationsManager.getPrimaryLocation();
-        if (primaryLocation == null) {
-            return "localhost";
-        }
-        return primaryLocation.getAddress();
+        String mediaServerAddress = (String) DataAccessUtils.singleResult(getAddresses());
+        return mediaServerAddress;
     }
 
     @Override
