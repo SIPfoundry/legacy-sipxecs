@@ -22,7 +22,7 @@ public class SipxServiceTestIntegration extends IntegrationTestCase {
 
     public void testGetConfigurations() {
         List configurations = m_statusService.getConfigurations();
-        assertEquals(2, configurations.size());
+        assertEquals(3, configurations.size());
     }
 
     public void setSipxStatusService(SipxStatusService sipxStatusService) {
