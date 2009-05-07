@@ -1153,6 +1153,13 @@
         <value>0</value>
         <description>Enable/disable Stand-Alone Survivability</description>
       </setting>
+      <setting name='SASBindingMode' if="5.4" hidden="yes">
+        <label>SASBindingMode</label>
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
       <setting name='SASRegistrationTime' if="5.4">
         <label>SAS Registration Time</label>
         <type>
