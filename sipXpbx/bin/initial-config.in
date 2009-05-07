@@ -109,7 +109,7 @@ options {
 
 zone "${myDomname}" IN {
     type slave;
-    file "${myDomname}.zone";
+    file "data/${myDomname}.zone";
     masters {${myHostaddr};};
 };
 EOF
