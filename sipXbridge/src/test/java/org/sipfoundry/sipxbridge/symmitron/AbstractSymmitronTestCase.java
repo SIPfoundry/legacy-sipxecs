@@ -41,6 +41,7 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
         String url = "file:" + accountName;
 
         SymmitronConfig symConfig = parser.parse(url);
+        symConfig.setLogLevel("trace");
         SymmitronServer.setSymmitronConfig(symConfig);
         SymmitronServer.startWebServer();
         port = symConfig.getXmlRpcPort();
@@ -51,7 +52,7 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
 
     protected void tearDown() throws Exception {
         super.tearDown();
-        client.execute("sipXrelay.stop", (Object[]) null);
+        client.execute("sipXrelay.tearDown", (Object[]) null);
 
     }
 
@@ -61,8 +62,8 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
     }
 
     protected String start() throws Exception {
-        String retval = (String) client.execute("sipXrelay.start", (Object[]) null);
-        return retval;
+      //  String retval = (String) client.execute("sipXrelay.start", (Object[]) null);
+        return "OK";
 
     }
 

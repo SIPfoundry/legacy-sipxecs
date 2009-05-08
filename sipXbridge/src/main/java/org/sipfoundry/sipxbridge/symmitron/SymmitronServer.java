@@ -422,6 +422,14 @@ public class SymmitronServer implements Symmitron {
         status = "STOPPED";
 
     }
+    
+    /**
+     * For testing purposes only
+     */
+    public Map tearDown() {
+        stop();
+        return createSuccessMap();
+    }
 
     /**
      * Get the Port Range that is handled by the Bridge.

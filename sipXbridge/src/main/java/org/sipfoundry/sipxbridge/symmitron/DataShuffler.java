@@ -20,6 +20,7 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.Iterator;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.log4j.Logger;
@@ -32,6 +33,9 @@ class DataShuffler implements Runnable {
     private static Logger logger = Logger.getLogger(DataShuffler.class.getPackage().getName());
 
     private static AtomicBoolean initializeSelectors = new AtomicBoolean(true);
+    
+    static long packetCounter = 1;
+    
 
     public DataShuffler() {
 
@@ -91,7 +95,7 @@ class DataShuffler implements Runnable {
      * @throws UnknownHostException -- if there was a problem with the specified remote address.
      */
     public static void send(Bridge bridge, DatagramChannel datagramChannel,
-            InetSocketAddress remoteAddress) throws UnknownHostException {
+            InetSocketAddress remoteAddress, long stamp) throws UnknownHostException {
         try {
 
             if (logger.isTraceEnabled()) {
@@ -148,11 +152,11 @@ class DataShuffler implements Runnable {
                      * We cannot do this outside the loop. See XECS-2425.
                      */
                     if (!writeChannel.isOnHold()) {
-                        if (!sym.isVisited()) {
-                            sym.setVisited(true);
+                        if (!sym.isVisited(stamp)) {
+                            sym.setVisited(stamp);
                             ByteBuffer bufferToSend = readBuffer.duplicate();
                             bufferToSend.flip();
-                            writeChannel.send((ByteBuffer) bufferToSend);
+                            writeChannel.send((ByteBuffer) bufferToSend,stamp);
                             bridge.packetsSent++;
                             writeChannel.packetsSent++;
                         } else {
@@ -231,7 +235,7 @@ class DataShuffler implements Runnable {
                             continue;
                         }
                         bridge = ConcurrentSet.getBridge(datagramChannel);
-                        bridge.clearAllVisited();
+                       
                         Sym packetReceivedSym = bridge.getReceiverSym(datagramChannel);
                         /*
                          * Note the original hold value and put the transmitter on which this packet was received on hold.
@@ -259,7 +263,8 @@ class DataShuffler implements Runnable {
                                     + datagramChannel.socket().getLocalPort());
                         }
 
-                        send(bridge, datagramChannel, remoteAddress);
+                        long stamp = packetCounter++;
+                        send(bridge, datagramChannel, remoteAddress,stamp);
                         /*
                          * Reset the old value.
                          */

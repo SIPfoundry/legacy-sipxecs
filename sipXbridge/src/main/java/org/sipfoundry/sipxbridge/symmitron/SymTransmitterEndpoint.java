@@ -13,6 +13,7 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.DatagramChannel;
+import java.util.Random;
 import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicLong;
@@ -80,7 +81,7 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
 
             Bridge bridge = ConcurrentSet.getBridge(datagramChannel);
             if (bridge == null || bridge.getState() == BridgeState.TERMINATED || bridge.getState() == BridgeState.INITIAL) {
-                if (logger.isDebugEnabled()) {
+                if (logger.isDebugEnabled() && bridge != null) {
                     logger.debug("Bridge is not in running state " + bridge.getState());
                 }
                 return;
@@ -107,19 +108,21 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
                 return;
             }
 
+            long stamp = DataShuffler.packetCounter++;
+            
             try {
 
                 if (keepaliveMethod.equals(KeepaliveMethod.USE_EMPTY_PACKET)) {
                     if (datagramChannel != null && getSocketAddress() != null
                             && datagramChannel.isOpen() && getSocketAddress() != null) {
-                        send(emptyBuffer);
+                        send(emptyBuffer,stamp);
                     }
                 } else if (keepaliveMethod.equals(KeepaliveMethod.REPLAY_LAST_SENT_PACKET)
                         || keepaliveMethod.equals(KeepaliveMethod.USE_DUMMY_RTP_PAYLOAD)) {
                     if (keepAliveBuffer != null && datagramChannel != null
                             && getSocketAddress() != null && datagramChannel.isOpen()) {
                         logger.trace("Sending keepalive");
-                        send((ByteBuffer) keepAliveBuffer);
+                        send((ByteBuffer) keepAliveBuffer,stamp);
 
                     }
                 }
@@ -222,7 +225,7 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
      * @param byteBuffer
      * @throws IOException
      */
-    public void send(ByteBuffer byteBuffer) throws IOException {
+    public void send(ByteBuffer byteBuffer, long stamp) throws IOException {
 
         if (this.getSocketAddress() == null) {
             if (logger.isTraceEnabled()) {
@@ -271,7 +274,7 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
                         logger.trace("SymTransmitterEndpoint:selfRoutedBridge = " + bridge);
                     }
                     if (bridge != null) {
-                        DataShuffler.send(bridge, channel, this.farEnd);
+                        DataShuffler.send(bridge, channel, this.farEnd,stamp);
                         return;
                     }
                 } else {

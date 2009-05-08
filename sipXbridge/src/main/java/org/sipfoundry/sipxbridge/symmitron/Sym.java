@@ -50,7 +50,7 @@ final class Sym implements SymInterface, Serializable {
 
     long packetsReceived;
     
-    private boolean visited;
+    private long visited;
 
     public Sym() {
         id = "sym:" + Math.abs(new Random().nextLong());
@@ -247,12 +247,12 @@ final class Sym implements SymInterface, Serializable {
         
     }
     
-    void setVisited(boolean bool) {
-        visited = bool; 
+    void setVisited(long stamp) {
+        visited = stamp; 
     }
 
-    boolean isVisited() {
-        return this.visited;
+    boolean isVisited(long stamp) {
+        return this.visited == stamp;
     }
     
     

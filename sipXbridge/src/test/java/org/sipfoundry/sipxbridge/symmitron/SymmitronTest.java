@@ -142,6 +142,8 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         params[2] = sym2;
         retval = (Map) client.execute("sipXrelay.addSym", params);
         super.checkStandardMap(retval);
+        
+      
 
         /*
          * setDestination(String controllerHandle, String symId, String ipAddress, int port, int
@@ -180,15 +182,19 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
                 .getByName(serverAddress));
 
         new Thread(new Listener(datagramSocket2)).start();
+        
+        super.startBridge(bridge);
 
         Thread.sleep(10000);
 
-        assertTrue("Should see a non zero counter", counter != 0);
-
+      
         datagramSocket1.close();
         datagramSocket2.close();
 
         super.destroyBridge(bridge);
+        
+        assertTrue("Should see a non zero counter", counter != 0);
+
     }
 
     /**
@@ -251,16 +257,16 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
 
         new Thread(new Listener(datagramSocket2)).start();
 
-        Thread.sleep(2000);
-
-        assertTrue("Should see a non zero counter", counter != 0);
-
+       
         args = new Object[2];
         args[0] = clientHandle;
         args[1] = bridge;
         retval = (Map) client.execute("sipXrelay.startBridge", args);
 
         super.checkStandardMap(retval);
+        Thread.sleep(2000);
+
+        assertTrue("Should see a non zero counter", counter != 0);
 
         this.counter = 0;
 
@@ -282,6 +288,8 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
             Thread.sleep(10);
             datagramSocket1.send(datagramPacket);
         }
+        
+        Thread.sleep(100);
         assertTrue("Counter is " + counter, counter >= 1000);
 
         datagramSocket1.close();
@@ -338,16 +346,16 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
 
         new Thread(new Listener(datagramSocket2)).start();
 
-        Thread.sleep(2000);
-
-        assertTrue("Should see a non zero counter", counter != 0);
-
+      
         args = new Object[2];
         args[0] = clientHandle;
         args[1] = bridge;
         retval = (Map) client.execute("sipXrelay.startBridge", args);
 
         super.checkStandardMap(retval);
+        Thread.sleep(2000);
+
+        assertTrue("Should see a non zero counter", counter != 0);
 
         this.counter = 0;
 
@@ -429,16 +437,16 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
 
         new Thread(new Listener(datagramSocket2)).start();
 
-        Thread.sleep(2000);
-
-        assertTrue("Should see a non zero counter", counter != 0);
-
+       
         args = new Object[2];
         args[0] = clientHandle;
         args[1] = bridge;
         retval = (Map) client.execute("sipXrelay.startBridge", args);
 
         super.checkStandardMap(retval);
+        Thread.sleep(2000);
+
+        assertTrue("Should see a non zero counter", counter != 0);
 
         this.counter = 0;
 
@@ -793,14 +801,14 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
 
         new Thread(new Listener(datagramSocket2)).start();
 
-        Thread.sleep(2000);
-
-        assertTrue("Should see a non zero counter", counter != 0);
-
+       
         args = new Object[2];
         args[0] = clientHandle;
         args[1] = bridge;
         retval = (Map) client.execute("sipXrelay.startBridge", args);
+        Thread.sleep(2000);
+
+        assertTrue("Should see a non zero counter", counter != 0);
 
         super.checkStandardMap(retval);
 
@@ -824,6 +832,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
             Thread.sleep(10);
             datagramSocket1.send(datagramPacket);
         }
+        Thread.sleep(100);
         assertTrue("Counter is " + counter, counter >= 1000);
         
         args = new Object[2];
@@ -1001,10 +1010,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
 
         new Thread(new Listener(datagramSocket2)).start();
 
-        Thread.sleep(2000);
-
-        assertTrue("Should see a non zero counter", counter != 0);
-
+       
         args = new Object[2];
         args[0] = clientHandle;
         args[1] = bridge1;
@@ -1018,6 +1024,10 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         retval = (Map) client.execute("sipXrelay.startBridge", args);
 
         super.checkStandardMap(retval);
+        
+        Thread.sleep(2000);
+
+        assertTrue("Should see a non zero counter", counter != 0);
 
 
         this.counter = 0;
@@ -1044,6 +1054,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
             datagramSocket.send(datagramPacket);
         }
         
+        Thread.sleep(100);
         
         assertTrue("Counter is " + counter, counter >= 1000);
 

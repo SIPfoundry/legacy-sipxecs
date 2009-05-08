@@ -217,7 +217,9 @@ public class RegistrationManager {
                 }
 
     		} else {
-    		    logger.warn("RegistrationManager: Unexpected Error Code seen " + response.getStatusCode());
+    		    if ( response.getStatusCode() != 100 ) {
+    		        logger.warn("RegistrationManager: Unexpected Error Code seen " + response.getStatusCode());
+    		    }
     		}
 		}
 	}
