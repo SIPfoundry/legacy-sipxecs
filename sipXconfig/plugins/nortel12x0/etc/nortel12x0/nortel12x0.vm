@@ -6,16 +6,17 @@
 #if($setting.Value.trim())
 #if($setting.ProfileName == "incomingInvite")
 <callerNameSearchPrecedence>
-<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+<![CDATA[$!{setting.Value}]]>
+<${setting.ProfileName}><![CDATA[$!{setting.Value}]]></${setting.ProfileName}>
 #elseif($setting.ProfileName == "okOfInvite")
-<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+<${setting.ProfileName}><![CDATA[$!{setting.Value}]]></${setting.ProfileName}>
 </callerNameSearchPrecedence>
 #elseif($setting.ProfileName == "sipRlsUri")
 <presence>
-<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+<${setting.ProfileName}><![CDATA[$!{setting.Value}]]></${setting.ProfileName}>
 </presence>
 #else
-<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+<${setting.ProfileName}><![CDATA[$!{setting.Value}]]></${setting.ProfileName}>
 #end
 #end
 #end
@@ -29,7 +30,7 @@
 #if($setting.ProfileName == $set)
 <$!{setting.Value}>TRUE</$!{setting.Value}>
 #else
-<${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+<${setting.ProfileName}><![CDATA[$!{setting.Value}]]></${setting.ProfileName}>
 #end
 #end
 #end
@@ -52,12 +53,12 @@
 <${set.ProfileName}>AUTO</${set.ProfileName}>
 #else
 #if($set.Value.trim())
-<${set.ProfileName}>$!{set.Value}</${set.ProfileName}>
+<${set.ProfileName}><![CDATA[$!{set.Value}]]></${set.ProfileName}>
 #end
 #end
 #elseif($set.ProfileName == "registertimer")
 #if($set.Value.trim())
-<${set.ProfileName}>$!{set.Value}</${set.ProfileName}>
+<${set.ProfileName}><![CDATA[$!{set.Value}]]></${set.ProfileName}>
 #end
 </registrar>
 #elseif($set.ProfileName == "forwardModeOption")
@@ -69,11 +70,11 @@
 <$!{set.Value}>TRUE</$!{set.Value}>
 #end
 #elseif($set.ProfileName == "callForwardTimer")
-<${set.ProfileName}>$!{set.Value}</${set.ProfileName}>
+<${set.ProfileName}><![CDATA[$!{set.Value}]]></${set.ProfileName}>
 </callForwardMode>
 #else
 #if($set.Value.trim())
-<${set.ProfileName}>$!{set.Value}</${set.ProfileName}>
+<${set.ProfileName}><![CDATA[$!{set.Value}]]></${set.ProfileName}>
 #end
 #end
 #end
@@ -91,14 +92,14 @@
 #if($bName == 1)
 #set ($k = $k + 1)
 <sp${k}>
-<name>$number</name>
+<name><![CDATA[$number]]></name>
 #set ($bName = 0)
 #set ($bNum = 1)
 #elseif($bNum == 1)
-<number>$number</number>
+<number><![CDATA[$number]]></number>
 #set ($bNum = 0)
 #else
-<presence>$number</presence>
+<presence><![CDATA[$number]]></presence>
 </sp${k}>
 #set ($bName = 1)
 #end
@@ -119,19 +120,23 @@
 #set ($bBookPresent = 1)
 #end
 <bookEntry${i}>
-#if($entry.FirstName.trim() || $entry.LastName.trim())
-<name>${entry.FirstName} ${entry.LastName}</name>
+#if($entry.FirstName.trim() && $entry.LastName.trim())
+<name><![CDATA[${entry.FirstName} ${entry.LastName}]]></name>
+#elseif($entry.FirstName.trim())
+<name><![CDATA[${entry.FirstName}]]></name>
+#elseif($entry.LastName.trim())
+<name><![CDATA[${entry.LastName}]]></name>
 #else
-<name>${entry.Number}</name>
+<name><![CDATA[${entry.Number}]]></name>
 #end
-<number>${entry.Number}</number>
+<number><![CDATA[${entry.Number}]]></number>
 </bookEntry${i}>
 #end
 #if($bBookPresent == 1)
 </phoneBook>
 #set ($bBookPresent = 0)
 #end
-#end	
+#end
 #########################################################################################
 ####################    Below code makes the XML file    ################################
 #########################################################################################
@@ -149,6 +154,7 @@
 #addGroup($cfg.EndpointSettings.getSetting('rtpSettings'))
 #addGroup($cfg.EndpointSettings.getSetting('toneSettings'))
 #addGroup($cfg.EndpointSettings.getSetting('miscSettings'))
+#addGroup($cfg.EndpointSettings.getSetting('featureSettings'))
 <timesettings>
 #addCustomGroup($cfg.EndpointSettings.getSetting('timesettings') 'timeSettings')
 </timesettings> 

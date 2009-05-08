@@ -778,16 +778,6 @@
  <group name="callPark">
    <label>Call Park</label>
 
-   <setting name="enableCallPark">
-     <label>Enable Call Park</label>
-     <type refid="on-off" />
-     <value>TRUE</value>
-     <description>
-       If checked, this will enable the call park feature on the phone &lt;br/&gt; (
-       &lt; enableCallPark &gt; ) &lt;br/&gt;
-     </description>
-   </setting>
-
    <setting name="callParkMethod">
      <label>Call Park Method</label>
      <type>
@@ -1297,4 +1287,39 @@
 
  </group>
 
+<!--  FEATURE SETTINGS  -->
+ <group name="featureSettings">
+   <label>Features</label>
+
+   <setting name="disableWebUi">
+     <label>Disable Web UI</label>
+     <type refid="on-off" />
+     <value>FALSE</value>
+     <description>
+       If checked, this will disable the web graphical user interface on the phone
+       &lt;br/&gt; ( &lt; disableWebUi &gt; ) &lt;br/&gt;
+     </description>
+   </setting>
+
+   <setting name="enableCallPark">
+     <label>Enable Call Park</label>
+     <type refid="on-off" />
+     <value>TRUE</value>
+     <description>
+       If checked, this will enable the call park feature on the phone &lt;br/&gt; (
+       &lt; enableCallPark &gt; ) &lt;br/&gt;
+     </description>
+   </setting>
+
+   <setting name="enableConferencing">
+     <label>Enable Conferencing</label>
+     <type refid="on-off" />
+     <value>TRUE</value>
+     <description>
+       If checked, this will enable the conferencing feature on the phone &lt;br/&gt; (
+       &lt; enableConferencing &gt; ) &lt;br/&gt;
+     </description>
+   </setting>
+
+ </group>
 </model>
