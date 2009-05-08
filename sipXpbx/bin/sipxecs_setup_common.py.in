@@ -857,7 +857,7 @@ def do_sipx_setup() :
                  os.makedirs(sipxecsGlobals.NamedDirectory + "/data")
               # Change ownership of zone files
               setOwnerRecursive(sipxecsGlobals.NamedDirectory, 'root', 'named')
-              setRights(sipxecsGlobals.NamedDirectory + "/data",root,named) # makes data named-writable
+              setRights(sipxecsGlobals.NamedDirectory + "/data",'root','named') # makes data named-writable
               reload="/usr/sbin/rndc reload"
               log_printout("Attempting to reload zone files with: '%s'" % reload)
               cmdoutput=commands.getoutput(reload)
