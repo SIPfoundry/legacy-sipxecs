@@ -1042,7 +1042,7 @@ RegistrationDB::getAllOldBindings(int newerThanTime,
       int rows = cursor.select( query );
       if (rows > 0)
       {
-         // Create UtlString containing the AOR from the "uri" column.
+         // Create UtlString containing the AOR name-addr from the "uri" column.
          UtlString* uri = new UtlString(cursor->uri);
          // Add it to the result set.
          rAors.insert(uri);

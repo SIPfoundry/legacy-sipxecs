@@ -1462,15 +1462,16 @@ void SipRegistrarServer::cleanAndPersist()
    RegisterEventServer* s = mRegistrar.getRegisterEventServer();
    if (s)
    {
-      // Use getUri to extract the AOR as a string, because
-      UtlHashBag aors;
+      UtlHashBag aors;          // AOR name-addrs of the expired bindings.
       imdb->getAllOldBindings(timeNow, aors);
       UtlHashBagIterator itor(aors);
       UtlString* aor;
       while ((aor = dynamic_cast <UtlString*> (itor())))
       {
-         Url aor_uri(*aor, TRUE);
-         s->generateAndPublishContent(*aor, aor_uri);
+         Url aor_uri(*aor, FALSE); // Parse name-addr format.
+         UtlString aor_addr;
+         aor_uri.getUri(aor_addr); // Generate addr-spec (URI) format.
+         s->generateAndPublishContent(aor_addr, aor_uri);
       }
    }
 
