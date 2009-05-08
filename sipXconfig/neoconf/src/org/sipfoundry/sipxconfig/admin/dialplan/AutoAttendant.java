@@ -10,7 +10,9 @@
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.io.File;
+import java.io.IOException;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.NamedObject;
@@ -144,6 +146,15 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject {
 
     public File getPromptFile() {
         return new File(m_promptsDirectory, m_prompt);
+    }
+    /**
+     * updates current prompt file with a new one from the given location
+     * @param sourceDir new prompt location
+     * @throws IOException - exception if file read fails
+     */
+    public void updatePrompt(File sourceDir) throws IOException {
+        File newPrompt = new File(sourceDir, m_prompt);
+        FileUtils.copyFileToDirectory(newPrompt, new File(m_promptsDirectory));
     }
 
     @Override

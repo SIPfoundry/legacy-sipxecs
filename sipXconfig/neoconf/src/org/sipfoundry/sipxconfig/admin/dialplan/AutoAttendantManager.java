@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.List;
 
@@ -39,4 +40,12 @@ public interface AutoAttendantManager extends AliasOwner {
     AutoAttendant getOperator();
 
     AutoAttendant createOperator(String attendantId);
+
+    /**
+     * Get new default prompts autoattendant.wav
+     * (operator Autoattendant) and afterhours.wav (afterhour Autoattendant)
+     * from given directory. Used when a different localization language is set
+     * @param sourceDir - path directory where new prompts are saved
+     */
+    void updatePrompts(File sourceDir);
 }

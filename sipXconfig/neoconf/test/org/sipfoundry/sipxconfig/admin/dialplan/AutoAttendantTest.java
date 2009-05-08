@@ -9,6 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import java.io.File;
+import java.io.IOException;
+
+import org.sipfoundry.sipxconfig.test.TestUtil;
+
 import junit.framework.TestCase;
 
 public class AutoAttendantTest extends TestCase {
@@ -33,5 +38,23 @@ public class AutoAttendantTest extends TestCase {
         assertTrue(afterhour.isAfterhour());
         assertFalse(afterhour.isOperator());
         assertTrue(afterhour.isPermanent());
+    }
+
+    public void testUpdatePrompt() {
+        AutoAttendant aa = new AutoAttendant();
+        String promptPath = TestUtil.getTestSourceDirectory(this.getClass());
+        String newPromptPath = promptPath + "/..";
+        aa.setPromptsDirectory(promptPath);
+        aa.setPrompt("prompt.txt");
+        try {
+            aa.updatePrompt(new File(newPromptPath));
+            File f = new File(promptPath+"/prompt.txt");
+            assertTrue(f.exists());
+            if (f.exists()) {
+                f.delete();
+            }
+        } catch (IOException ex) {
+            assertTrue(false);
+        }
     }
 }
