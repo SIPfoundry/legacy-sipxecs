@@ -48,7 +48,7 @@ def check_version():
     # or Slave system.
     sipxPackage = yumBase.rpmdb.searchAll("sipxcommons")
     if len(sipxPackage) == 0:
-       sipxPackage = yumBase.rpmdb.searchAll("sipxcommonserverlib")
+       sipxPackage = yumBase.rpmdb.searchAll("sipxcommserverlib")
  
     if len(sipxPackage) > 0:
        print sipxPackage[0].name + " " + sipxPackage[0].ver + "-" + sipxPackage[0].release
