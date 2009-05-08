@@ -15,6 +15,10 @@ import gov.nist.javax.sip.header.extensions.ReplacesHeader;
 import gov.nist.javax.sip.message.SIPMessage;
 
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.URLDecoder;
 import java.text.ParseException;
 import java.util.HashSet;
@@ -24,6 +28,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.TimerTask;
+import java.util.concurrent.Semaphore;
 
 import javax.sdp.SdpParseException;
 import javax.sdp.SessionDescription;
@@ -136,6 +141,40 @@ public class BackToBackUserAgent {
 
     private boolean pendingTermination;
 
+    // ////////////////////////////////////////////////////////////////////////
+    // Private classes.
+    // ////////////////////////////////////////////////////////////////////////
+    class CRLFReceiver implements Runnable {
+        Semaphore waitSem;
+        DatagramSocket pingSocket;
+        boolean packetRecieved;
+      
+        public CRLFReceiver(DatagramSocket pingSocket) {
+            this.waitSem = new Semaphore(0);
+            this.pingSocket = pingSocket;
+            this.packetRecieved = false;
+        }
+
+        @Override
+        public void run() {
+            byte[] buffer = new String("\r\n\r\n").getBytes();
+            DatagramPacket datagramPacket = new DatagramPacket(buffer, buffer.length);
+            waitSem.release();
+            long startTime = System.currentTimeMillis();
+            try {
+                pingSocket.receive(datagramPacket);
+            } catch (Exception ex) {
+                logger.error("Could not get response from ProxyServer " + ex.getMessage());
+                return;
+            }
+            long endTime = System.currentTimeMillis();
+            logger.debug("received message Wait time =  " + (endTime - startTime));
+            packetRecieved = true;
+
+        }
+
+    }
+
     // ///////////////////////////////////////////////////////////////////////
     // Constructor.
     // ///////////////////////////////////////////////////////////////////////
@@ -167,21 +206,57 @@ public class BackToBackUserAgent {
                     .getTransport());
             load = symmitronClient.ping();
         } else {
+            DatagramSocket pingSocket = new DatagramSocket();
+           
             for (Hop hop : Gateway.initializeSipxProxyAddresses()) {
                 try {
+
                     SymmitronClient symmitronClient = Gateway.getSymmitronClient(hop.getHost());
                     /* Find the number of active bridges there */
                     load = symmitronClient.ping();
                     /*
-                     * Find the Proxy with the fewest number of active bridges.
+                     * Lets try to send the proxy a couple of UDP packets and see if we get any
+                     * ICMP errors.
                      */
+                    byte[] CRLF = "\r\n\r\n".getBytes();
+                    DatagramPacket datagramPacket = new DatagramPacket(CRLF, CRLF.length,
+                            InetAddress.getByName(hop.getHost()), hop.getPort());
+                    CRLFReceiver livenessTest = new CRLFReceiver(pingSocket);
+                    Thread livenessThread  = new Thread(livenessTest);
+                    livenessThread.start();
+                    livenessTest.waitSem.acquire();
+                    logger.debug("Testing " + hop.getHost() );
+                    /* Wait till the reciever is ready */
+                    Thread.sleep(10);
+                    pingSocket.send(datagramPacket);
+                    /* Poll and wait for a response from the Proxy server */
+                    for (int i = 0; i < 10 ; i++ ) {
+                        if ( livenessTest.packetRecieved) {
+                            break;
+                        } else {
+                            Thread.sleep(10);
+                        }
+                    }
+                    if ( !livenessTest.packetRecieved) {
+                        livenessThread.interrupt();
+                        logger.error("Did not get a ping from proxy at selecting next one" 
+                                + hop.getHost());
+                        continue;
+                    }
+
+                  
                     this.proxyAddress = hop;
                     this.symmitronClient = symmitronClient;
 
                 } catch (SymmitronException ex) {
                     logger.error("Could not contact Relay at " + hop.getHost());
+                } catch (IOException ex) {
+                    logger.error("Could not contact proxy at " + hop.getHost());
+                } catch (InterruptedException ex) {
+                    throw new IOException(ex);
                 }
             }
+            pingSocket.close();
             if (this.proxyAddress == null) {
                 throw new IOException("Could not contact Relay -- cannot create B2BUA");
             }
@@ -1449,10 +1524,10 @@ public class BackToBackUserAgent {
             DialogContext.get(ct.getDialog()).startSessionTimer(Gateway.getSessionExpires());
 
         } catch (SdpParseException ex) {
-            logger.error("Unexpected exception ",ex);
+            logger.error("Unexpected exception ", ex);
             CallControlUtilities.sendBadRequestError(serverTransaction, ex);
         } catch (ParseException ex) {
-            logger.error("Unexpected exception ",ex);
+            logger.error("Unexpected exception ", ex);
             CallControlUtilities.sendInternalError(serverTransaction, ex);
         } catch (IOException ex) {
             logger.error("Caught IO exception ", ex);
@@ -1462,10 +1537,10 @@ public class BackToBackUserAgent {
             CallControlUtilities.sendServiceUnavailableError(serverTransaction, ex);
         } catch (SipException ex) {
             logger.error("Error occurred during processing of request ", ex);
-            CallControlUtilities.sendServiceUnavailableError(serverTransaction,ex);
+            CallControlUtilities.sendServiceUnavailableError(serverTransaction, ex);
         } catch (Exception ex) {
             logger.error("Error occurred during processing of request ", ex);
-            CallControlUtilities.sendInternalError(serverTransaction,ex);
+            CallControlUtilities.sendInternalError(serverTransaction, ex);
         }
 
     }
