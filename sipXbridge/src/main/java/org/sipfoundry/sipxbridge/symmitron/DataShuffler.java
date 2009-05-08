@@ -34,7 +34,7 @@ class DataShuffler implements Runnable {
 
     private static AtomicBoolean initializeSelectors = new AtomicBoolean(true);
     
-    static Random random = new Random();
+    static long packetCounter = 1;
     
 
     public DataShuffler() {
@@ -263,7 +263,7 @@ class DataShuffler implements Runnable {
                                     + datagramChannel.socket().getLocalPort());
                         }
 
-                        long stamp = random.nextLong() + 1;
+                        long stamp = packetCounter++;
                         send(bridge, datagramChannel, remoteAddress,stamp);
                         /*
                          * Reset the old value.

@@ -108,7 +108,7 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
                 return;
             }
 
-            long stamp = DataShuffler.random.nextLong() + 1;
+            long stamp = DataShuffler.packetCounter++;
             
             try {
 
