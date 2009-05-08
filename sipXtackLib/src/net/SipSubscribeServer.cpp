@@ -784,20 +784,33 @@ UtlBoolean SipSubscribeServer::handleNotifyResponse(const SipMessage& notifyResp
        UtlString dialogHandle;
        notifyResponse.getDialogHandleReverse(dialogHandle);
 
-       if (SIP_REQUEST_TIMEOUT_CODE == responseCode)
+       if (   SIP_REQUEST_TIMEOUT_CODE == responseCode
+           || SIP_LOOP_DETECTED_CODE == responseCode)
        { 
-          // Log Timeout responses.
+          // Log the response.
           OsSysLog::add(FAC_SIP, PRI_WARNING,
-             "SipSubscribeServer::handleNotifyResponse Timeout NOTIFY response. Handle: %s",
-             dialogHandle.data());
+                        "SipSubscribeServer::handleNotifyResponse "
+                        "Not terminating subscription due to %d response. Handle: %s",
+                        responseCode, dialogHandle.data());
 
-          // RFC 3265 section 3.2.2 says that when a "NOTIFY request fails ... due to a timeout 
-          // condition ... the notifier SHOULD remove the subscription."  However, we feel this
-          // is a problem with the spec.  Endpoints that become temporarily unavailable and do not
-          // respond to the NOTIFY (or do not respond in time) should not cause the subscription 
-          // to be silently terminated.  True our deviation from the spec will cause subscriptions 
-          // to now-defunct subscribers to continue, but only until the subscription expires.  This 
-          // is far preferable to the alternative.
+          // RFC 3265 section 3.2.2 says that when a "NOTIFY request
+          // fails ... due to a timeout condition ... the notifier
+          // SHOULD remove the subscription."  However, we feel this
+          // is a problem with the spec.  Endpoints that become
+          // temporarily unavailable and do not respond to the NOTIFY
+          // (or do not respond in time) should not cause the
+          // subscription to be silently terminated.  Our deviation
+          // from the spec will cause subscriptions to now-defunct
+          // subscribers to continue, but only until the subscription
+          // expires.  This is far preferable to the alternative.
+
+          // Similarly, RFC 3265 prescribes that when the notifier
+          // receives a 482 response, it should remove the
+          // subscription.  But that seems to be counterproductive in
+          // practice, as a 482 response shows that the subscriber did
+          // receive the NOTIFY.  Unfortunately, under congested
+          // circumstances, a notifier can receive a 482 response
+          // rather than the more informative 2xx response.
        } 
        else if (notifyResponse.getHeaderValue(0, SIP_RETRY_AFTER_FIELD) == NULL)
        { 
