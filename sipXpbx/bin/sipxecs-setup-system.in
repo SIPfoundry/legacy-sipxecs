@@ -556,7 +556,7 @@ def set_DNS () :
         # update /etc/sysconfig/network/config which drives resolv.conf for suse
         suseConfigFile = '/etc/sysconfig/network/config'
         configText = file(suseConfigFile).read()
-        static_dns = "127.0.1"
+        static_dns = "127.0.0.1"
         if DnsServers[0] != '':
             static_dns += " %s" % DnsServers[0]
         if DnsServers[1] != '':
