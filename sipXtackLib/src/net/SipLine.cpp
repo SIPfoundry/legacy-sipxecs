@@ -322,28 +322,32 @@ int SipLine::GetNumOfCredentials()
 }
 
 UtlBoolean SipLine::getCredentials(const UtlString& type /*[in]*/,
-                             const UtlString& realm /*[in]*/,
-                             UtlString* userID /*[out]*/,
-                             UtlString* MD5_token /*[out]*/)
+                                   const UtlString& realm /*[in]*/,
+                                   UtlString* userID /*[out]*/,
+                                   UtlString* MD5_token /*[out]*/)
 {
    UtlBoolean credentialsFound = FALSE;
-   UtlString matchRealm(realm);
 
-   SipLineCredentials* credential = (SipLineCredentials*) mCredentials.find(&matchRealm);
-   if(credential)
+   SipLineCredentials* credential = (SipLineCredentials*) mCredentials.find(&realm);
+   if (credential)
    {
       credential->getUserId(userID);
       credential->getPasswordToken(MD5_token);
       credentialsFound = TRUE;
       credential = NULL;
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipLine::getCredentials Credentials for realm '%s' found: "
+                    "userID '%s'",
+                    realm.data(), userID->data());
    }
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipLine::getCredentials realm '%s' %s userID '%s'",
-                 realm.data(), credentialsFound ? "found" : "NOT found",
-                 (credentialsFound && userID) ? userID->data(): ""
-                 );
+   else
+   {
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipLine::getCredentials Credentials for realm '%s' NOT found",
+                    realm.data());
+   }
 
-   return  credentialsFound ;
+   return  credentialsFound;
 }
 
 void SipLine::removeCredential(const UtlString *realm)
