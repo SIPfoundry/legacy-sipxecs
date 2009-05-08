@@ -194,7 +194,7 @@ accept_unsigned_yum_packages /etc/yum.conf
 accept_unsigned_yum_packages /etc/yum.repos.d/sipxecs-unstable-fc.repo
 
 #* Install the required packages.
-YUM_PACKAGES="gcc gcc-c++ autoconf automake libtool subversion rpm-build httpd httpd-devel openssl-devel jpackage-utils pcre-devel expat-devel unixODBC-devel jakarta-commons-beanutils jakarta-commons-collections jakarta-commons-net ant log4j junit ant-commons-logging ant-trax ant-nodeps postgresql-server zlib-devel postgresql-devel cppunit cppunit-devel redhat-rpm-config alsa-lib-devel curl gnutls-devel lzo-devel mysql-devel ncurses-devel python-devel ruby ruby-devel ruby-postgres rubygems rubygem-rake ruby-dbi bind cgicc-devel java-1.6.0-sun-devel w3c-libwww-devel xerces-c-devel git tftp-server doxygen rpm-build zip which unzip createrepo ant-junit mod_ssl libXp libpng-devel libart_lgpl-devel freetype freetype-devel rpmdevtools alsa-lib-devel gnutls-devel lzo-devel gdb gdbm-devel mysql-devel ncurses-devel python-devel nsis vsftpd sipx-jasperreports-deps rpmdevtools"
+YUM_PACKAGES="gcc gcc-c++ autoconf automake libtool subversion rpm-build httpd httpd-devel openssl-devel jpackage-utils pcre-devel expat-devel unixODBC-devel jakarta-commons-beanutils jakarta-commons-collections jakarta-commons-net ant log4j junit ant-commons-logging ant-trax ant-nodeps postgresql-server zlib-devel postgresql-devel cppunit cppunit-devel redhat-rpm-config alsa-lib-devel curl gnutls-devel lzo-devel mysql-devel ncurses-devel python-devel ruby ruby-devel ruby-postgres rubygems rubygem-rake ruby-dbi bind cgicc-devel java-1.6.0-sun-devel w3c-libwww-devel xerces-c-devel git tftp-server doxygen rpm-build zip which unzip createrepo ant-junit mod_ssl libXp libpng-devel libart_lgpl-devel freetype freetype-devel rpmdevtools alsa-lib-devel gnutls-devel lzo-devel gdb gdbm-devel mysql-devel ncurses-devel python-devel vsftpd sipx-jasperreports-deps rpmdevtools"
    # The Fedora 10 experiment.
    uname -a | cut -d" " -f3 | grep fc10 > /dev/null
    if [ $? == 0 ]; then
@@ -202,7 +202,7 @@ YUM_PACKAGES="gcc gcc-c++ autoconf automake libtool subversion rpm-build httpd h
       YUM_PACKAGES="$YUM_PACKAGES libcurl-devel scons"
    else
       # Assume Fedora 8.
-      YUM_PACKAGES="$YUM_PACKAGES curl-devel termcap"
+      YUM_PACKAGES="$YUM_PACKAGES curl-devel termcap nsis"
    fi
 for package in $YUM_PACKAGES;
 do
