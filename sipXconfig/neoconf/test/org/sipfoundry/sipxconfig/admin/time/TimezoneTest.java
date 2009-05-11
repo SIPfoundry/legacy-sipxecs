@@ -49,10 +49,6 @@ public class TimezoneTest extends TestCase {
         assertTrue(timezonesList.contains("Africa/Timbuktu"));
         assertTrue(timezonesList.contains("America/Los_Angeles"));
 
-        // Test that displayName is in the list and not RealName.
-        assertTrue(timezonesList.contains("Non-geographic/GMT+3"));
-        assertFalse(timezonesList.contains("Etc/GMT+3"));
-
         // Brazil/Acres should not be in list.
         assertFalse(timezonesList.contains("Brazil/Acres"));
         assertTrue(timezonesList.contains(tzm.getTimezone()));

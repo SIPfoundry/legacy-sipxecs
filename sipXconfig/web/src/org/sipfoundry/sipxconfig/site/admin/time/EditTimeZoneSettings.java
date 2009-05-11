@@ -57,20 +57,11 @@ public abstract class EditTimeZoneSettings extends BaseComponent implements Page
         // the dropdown list, if it wasn't in it.
         setTimezoneType(timezone.getTimezone());
         
-        TimeZone.setDefault(TimeZone.getTimeZone(convertDisplayNameToRealName(timezone.getTimezone())));
+        TimeZone.setDefault(TimeZone.getTimeZone(timezone.getTimezone()));
     }
     
     public void setSysTimezone() {
-        getTimeManager().setSystemTimezone(convertDisplayNameToRealName(getTimezoneType()));
+        getTimeManager().setSystemTimezone(getTimezoneType());
     }
-    
 
-    //
-    // method to convert displayName to realName:
-    // i.e. Replace Non-geographic with Etc.
-    // This is done before call setSystemTimezone
-    //
-    private String convertDisplayNameToRealName(String displayName) {
-        return (displayName.replaceAll("Non-geographic", "Etc"));
-    }
 }
