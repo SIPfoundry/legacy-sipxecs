@@ -416,6 +416,7 @@ ProvisioningAttrList* ACDServer::Create(ProvisioningAttrList& rRequestAttributes
    try {
       rRequestAttributes.validateAttribute(SERVER_NAME_TAG,           ProvisioningAttrList::STRING);
       rRequestAttributes.validateAttribute(DOMAIN_TAG,                ProvisioningAttrList::STRING);
+      rRequestAttributes.validateAttribute(FQDN_TAG,                  ProvisioningAttrList::STRING);
       rRequestAttributes.validateAttribute(UDP_PORT_TAG,              ProvisioningAttrList::INT);
       rRequestAttributes.validateAttribute(TCP_PORT_TAG,              ProvisioningAttrList::INT);
       rRequestAttributes.validateAttribute(RTP_PORT_TAG,              ProvisioningAttrList::INT);
@@ -508,6 +509,12 @@ ProvisioningAttrList* ACDServer::Create(ProvisioningAttrList& rRequestAttributes
    if (rRequestAttributes.getAttribute(DOMAIN_TAG, mDomain)) {
       setPSAttribute(pInstanceNode, DOMAIN_TAG, mDomain);
    }
+
+   // fqdn
+   if (rRequestAttributes.getAttribute(FQDN_TAG, mFqdn)) {
+      setPSAttribute(pInstanceNode, FQDN_TAG, mFqdn);
+   }
+
 
    // udp-port
    rRequestAttributes.getAttribute(UDP_PORT_TAG, mUdpPort);
@@ -751,6 +758,7 @@ ProvisioningAttrList* ACDServer::Set(ProvisioningAttrList& rRequestAttributes)
       rRequestAttributes.validateAttributeType(LOG_LEVEL_TAG,               ProvisioningAttrList::STRING);
       rRequestAttributes.validateAttributeType(LOG_TO_CONSOLE_TAG,          ProvisioningAttrList::BOOL);
       rRequestAttributes.validateAttributeType(DOMAIN_TAG,                  ProvisioningAttrList::STRING);
+      rRequestAttributes.validateAttributeType(FQDN_TAG,                    ProvisioningAttrList::STRING);
       rRequestAttributes.validateAttributeType(UDP_PORT_TAG,                ProvisioningAttrList::INT);
       rRequestAttributes.validateAttributeType(TCP_PORT_TAG,                ProvisioningAttrList::INT);
       rRequestAttributes.validateAttributeType(RTP_PORT_TAG,                ProvisioningAttrList::INT);
@@ -790,6 +798,12 @@ ProvisioningAttrList* ACDServer::Set(ProvisioningAttrList& rRequestAttributes)
    if (rRequestAttributes.getAttribute(DOMAIN_TAG, mDomain)) {
       setPSAttribute(pInstanceNode, DOMAIN_TAG, mDomain);
    }
+
+   // fqdn
+   if (rRequestAttributes.getAttribute(FQDN_TAG, mFqdn)) {
+      setPSAttribute(pInstanceNode, FQDN_TAG, mFqdn);
+   }
+
 
    // udp-port
    if (rRequestAttributes.getAttribute(UDP_PORT_TAG, mUdpPort)) {
@@ -915,7 +929,7 @@ ProvisioningAttrList* ACDServer::Set(ProvisioningAttrList& rRequestAttributes)
       // Construct the URL to the watchdog's XMLRPC server.
       Url targetURL;
       targetURL.setUrlType("https");
-      targetURL.setHostAddress(mDomain.data());
+      targetURL.setHostAddress(mFqdn.data());
       targetURL.setHostPort(mWatchdogRpcServerPort);
       targetURL.setPath("RPC2");
 
@@ -924,7 +938,7 @@ ProvisioningAttrList* ACDServer::Set(ProvisioningAttrList& rRequestAttributes)
       UtlString alias(ACD_SERVER_ALIAS);
       aliases.append(&alias);
       XmlRpcRequest requestRestart(targetURL, "ProcMgmtRpc.restart");
-      requestRestart.addParam(&mDomain);
+      requestRestart.addParam(&mFqdn);
       requestRestart.addParam(&aliases);
       UtlBool bBlock(false);
       requestRestart.addParam(&bBlock); // No, don't block for the state change.
@@ -1024,6 +1038,7 @@ ProvisioningAttrList* ACDServer::Get(ProvisioningAttrList& rRequestAttributes)
           rRequestAttributes.attributePresent(LOG_LEVEL_TAG) ||
           rRequestAttributes.attributePresent(LOG_TO_CONSOLE_TAG) ||
           rRequestAttributes.attributePresent(DOMAIN_TAG) ||
+          rRequestAttributes.attributePresent(FQDN_TAG) ||
           rRequestAttributes.attributePresent(UDP_PORT_TAG) ||
           rRequestAttributes.attributePresent(TCP_PORT_TAG) ||
           rRequestAttributes.attributePresent(RTP_PORT_TAG) ||
@@ -1052,6 +1067,10 @@ ProvisioningAttrList* ACDServer::Get(ProvisioningAttrList& rRequestAttributes)
          // domain
          if (rRequestAttributes.attributePresent(DOMAIN_TAG)) {
             pResponse->setAttribute(DOMAIN_TAG, mDomain);
+         }
+         // fqdn
+         if (rRequestAttributes.attributePresent(FQDN_TAG)) {
+            pResponse->setAttribute(FQDN_TAG, mFqdn);
          }
 
          // udp-port
@@ -1134,6 +1153,9 @@ ProvisioningAttrList* ACDServer::Get(ProvisioningAttrList& rRequestAttributes)
 
          // domain
          pResponse->setAttribute(DOMAIN_TAG, mDomain);
+
+         // fqdn
+         pResponse->setAttribute(FQDN_TAG, mFqdn);
 
          // udp-port
          pResponse->setAttribute(UDP_PORT_TAG, mUdpPort);
@@ -1293,6 +1315,7 @@ bool ACDServer::loadConfiguration(void)
    getPSAttribute(pInstanceNode, LOG_LEVEL_TAG,               mLogLevel);
    getPSAttribute(pInstanceNode, LOG_TO_CONSOLE_TAG,          mLogToConsole);
    getPSAttribute(pInstanceNode, DOMAIN_TAG,                  mDomain);
+   getPSAttribute(pInstanceNode, FQDN_TAG,                    mFqdn);
    getPSAttribute(pInstanceNode, UDP_PORT_TAG,                mUdpPort);
    getPSAttribute(pInstanceNode, TCP_PORT_TAG,                mTcpPort);
    getPSAttribute(pInstanceNode, RTP_PORT_TAG,                mRtpBase);

@@ -112,5 +112,12 @@
       </type>
       <value />
     </setting>
+    <setting name="fqdn" hidden="yes">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+
   </group>
 </model>

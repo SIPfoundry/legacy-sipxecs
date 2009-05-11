@@ -224,6 +224,7 @@ public class AcdServerTest extends BeanWithSettingsTestCase {
         m_server.setLocation(m_location);
 
         assertEquals("mydomain.org", m_server.getSettingValue("acd-server/domain"));
+        assertEquals("presence.com", m_server.getSettingValue("acd-server/fqdn"));
         assertEquals("sip:presence.com:5130", m_server
                 .getSettingValue("acd-server/presence-server-uri"));
         assertEquals("http://presence.com:8111/RPC2", m_server
