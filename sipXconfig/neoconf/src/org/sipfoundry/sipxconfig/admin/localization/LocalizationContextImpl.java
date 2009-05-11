@@ -24,6 +24,7 @@ import org.apache.commons.io.filefilter.PrefixFileFilter;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendantManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContextImpl.RegionDialPlanException;
 import org.sipfoundry.sipxconfig.admin.dialplan.ResetDialPlanTask;
@@ -51,6 +52,7 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
     private ResetDialPlanTask m_resetDialPlanTask;
     private ServiceConfigurator m_serviceConfigurator;
     private DialPlanActivationManager m_dialPlanActivationManager;
+    private AutoAttendantManager m_autoAttendantManager;
 
     public void setRegionDir(String regionDir) {
         m_regionDir = regionDir;
@@ -80,6 +82,11 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
     @Required
     public void setDialPlanActivationManager(DialPlanActivationManager dialPlanActivationManager) {
         m_dialPlanActivationManager = dialPlanActivationManager;
+    }
+
+    @Required
+    public void setAutoAttendantManager(AutoAttendantManager autoAttendantManager) {
+        m_autoAttendantManager = autoAttendantManager;
     }
 
     public void setDefaultLanguage(String defaultLanguage) {
@@ -200,8 +207,10 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
         }
         // The language has been changed - handle the change
         localization.setLanguage(language);
+        // Copy default AutoAttendant prompts in the currently applied language
+        // to AutoAttendant prompts directory.
+        m_autoAttendantManager.updatePrompts(new File(m_promptsDir, getCurrentLanguageDir()));
         getHibernateTemplate().saveOrUpdate(localization);
-
 
         // new to push domain config and dial plans for all locations...
         m_serviceConfigurator.initLocations();

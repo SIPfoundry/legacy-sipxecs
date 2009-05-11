@@ -9,11 +9,15 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.SpecialAutoAttendantMode;
@@ -35,8 +39,12 @@ import org.springframework.beans.factory.annotation.Required;
 
 public abstract class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements AutoAttendantManager,
         BeanFactoryAware {
+
     private static final String OPERATOR_CONSTANT = "operator";
+
     private static final String AUTO_ATTENDANT = "auto attendant";
+
+    private static final Log LOG = LogFactory.getLog(AutoAttendantManagerImpl.class);
 
     private ServiceConfigurator m_serviceConfigurator;
 
@@ -70,6 +78,10 @@ public abstract class AutoAttendantManagerImpl extends SipxHibernateDaoSupport i
 
     public AutoAttendant getOperator() {
         return getAttendant(AutoAttendant.OPERATOR_ID);
+    }
+
+    private AutoAttendant getAfterhour() {
+        return getAttendant(AutoAttendant.AFTERHOUR_ID);
     }
 
     protected AutoAttendant getAttendant(String attendantId) {
@@ -194,6 +206,19 @@ public abstract class AutoAttendantManagerImpl extends SipxHibernateDaoSupport i
     public void clear() {
         List attendants = getHibernateTemplate().loadAll(AutoAttendant.class);
         getHibernateTemplate().deleteAll(attendants);
+    }
+
+    public void updatePrompts(File sourceDir) {
+        try {
+            if (getOperator() != null) {
+                getOperator().updatePrompt(sourceDir);
+            }
+            if (getAfterhour() != null) {
+                getAfterhour().updatePrompt(sourceDir);
+            }
+        } catch (IOException  e) {
+            LOG.warn("Failed to copy default AA prompts to AA prompts directory");
+        }
     }
 
     @Required
