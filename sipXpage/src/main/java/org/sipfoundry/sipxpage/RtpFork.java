@@ -48,8 +48,11 @@ public class RtpFork implements Runnable
    int rhythm ;            // Time (in mS) between beats
    PacketSocket socket ;
    ArrayList<SocketAddress> destinations ;
+   DatagramPacket nextAudioPacket = null ;  // Packet held until next time slice
    long sequenceNumber ;   // The last RTP sequence number sent
    long timestamp ;        // The last RTP timestamp sent ;
+   long firstStamp ;
+   long firstTime = 0 ;
    int payloadSize ;        // The number of audio samples in an RTP packet
    byte [] rtpOutBuf ;
    DatagramPacket rtpOutPacket ;
@@ -58,6 +61,8 @@ public class RtpFork implements Runnable
    LegListener legListener ;
 
    ScheduledExecutorService service ;   
+
+   public static final int BYTES_PER_MS = 8;   // 8 bytes per mS at 8000 samples/second uLaw
    
    /**
     * @param socket The socket on which to recieve RTP packets.
@@ -72,7 +77,7 @@ public class RtpFork implements Runnable
       destinations = new ArrayList<SocketAddress>(50) ;
       sequenceNumber = 42L ;
       timestamp = 0L ;
-      payloadSize = rhythm * 8 ;  // 8 bytes per mS at 8000 samples/second uLaw
+      payloadSize = rhythm * BYTES_PER_MS ;
       rtpOutBuf = new byte[12+payloadSize] ; // 12 byte RTP header + payload
       rtpOutPacket = new DatagramPacket(rtpOutBuf, rtpOutBuf.length) ;
       jitterBuff = new JitterBuffer(5) ;
@@ -319,12 +324,63 @@ public class RtpFork implements Runnable
     */
    void beat()
    {
+      // This method needs to handle two manufacturers of JAVA:
+      // SUN - always makes extra calls to catch up if it's late for a timeout.
+      // IBM - may not make extra calls to catch up if it's late for a timeout.
+      DatagramPacket localPacket;
+
       // Get the next packet of local audio (if any)
-      DatagramPacket localPacket = getLocalAudioRtp() ;
+      if (nextAudioPacket == null)
+      {
+         localPacket = getLocalAudioRtp() ;
+      }
+      else
+      {
+         localPacket = nextAudioPacket ;
+      }
       if (localPacket != null)
       {
-         // Send it
-         rtpSend(localPacket) ;
+         // Check if this is the first packet of the local audio
+         if (firstTime == 0)
+         {
+            firstTime = System.currentTimeMillis() ;
+            firstStamp = timestamp ;
+         }
+
+         // Calculate the ideal timestamp for the outgoing packet.
+         long idealStamp = firstStamp + ((System.currentTimeMillis() - firstTime) * BYTES_PER_MS) ;
+
+         if (timestamp <= idealStamp)
+         {
+            // Send it
+            rtpSend(localPacket) ;
+            nextAudioPacket = null;
+
+            // Catch up if we haven't sent enough packets yet.
+            for(int i=0; ((i<4) && (timestamp <= idealStamp)); i++)
+            {
+               // Send it and get the next packet
+               localPacket = getLocalAudioRtp() ;
+               if (localPacket != null)
+               {
+                  rtpSend(localPacket) ;
+               }
+               else
+               {
+                  break ;
+               }
+            }
+         }
+         else
+         {
+            // We can't send this audio packet yet. Hold it until later.
+            nextAudioPacket = localPacket;
+         }
+      }
+      if (localPacket == null)
+      {
+         // Reset ready for the next local audio.
+         firstTime = 0 ;
       }
 
       /*
