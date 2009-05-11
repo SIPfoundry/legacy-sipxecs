@@ -54,8 +54,6 @@
 </timesettings> 
 <intercom>
 <callInfoHeader>TRUE</callInfoHeader>
-<sendrecvInOutgoingIntercom>FALSE</sendrecvInOutgoingIntercom>
-<sendrecvInIncomingIntercom>FALSE</sendrecvInIncomingIntercom>
 <intercomTimeout>15</intercomTimeout>
 </intercom>
 <sipProxy>
