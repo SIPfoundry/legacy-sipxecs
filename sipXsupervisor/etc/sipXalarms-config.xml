@@ -88,7 +88,7 @@
          <action log="true"
                  email="true"
                  />
-         <filter max_threshold="1"
+         <filter max_reports="1"
                  />
       </alarm>
       <alarm id="STUN_ADDRESS_DISCOVERY_RECOVERED">
@@ -98,7 +98,7 @@
          <action log="true"
                  email="true"
                  />
-         <filter max_threshold="1"
+         <filter max_reports="1"
                  />
       </alarm>
       <alarm id="SIPX_BRIDGE_AUTHENTICATION_FAILED">
@@ -132,7 +132,7 @@
          <action log="true"
                  email="true"
                  />
-         <filter max_threshold="1"
+         <filter max_reports="1"
                  />
       </alarm>
       <alarm id="SIPX_BRIDGE_ITSP_SERVER_FAILURE">
