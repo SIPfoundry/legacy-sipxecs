@@ -194,12 +194,12 @@ accept_unsigned_yum_packages /etc/yum.conf
 accept_unsigned_yum_packages /etc/yum.repos.d/sipxecs-unstable-fc.repo
 
 #* Install the required packages.
-YUM_PACKAGES="gcc gcc-c++ autoconf automake libtool subversion rpm-build httpd httpd-devel openssl-devel jpackage-utils pcre-devel expat-devel unixODBC-devel jakarta-commons-beanutils jakarta-commons-collections jakarta-commons-net ant log4j junit ant-commons-logging ant-trax ant-nodeps postgresql-server zlib-devel postgresql-devel cppunit cppunit-devel redhat-rpm-config alsa-lib-devel curl gnutls-devel lzo-devel mysql-devel ncurses-devel python-devel ruby ruby-devel ruby-postgres rubygems rubygem-rake ruby-dbi bind cgicc-devel java-1.6.0-sun-devel w3c-libwww-devel xerces-c-devel git tftp-server doxygen rpm-build zip which unzip createrepo ant-junit mod_ssl libXp libpng-devel libart_lgpl-devel freetype freetype-devel rpmdevtools alsa-lib-devel gnutls-devel lzo-devel gdb gdbm-devel mysql-devel ncurses-devel python-devel vsftpd sipx-jasperreports-deps rpmdevtools"
+YUM_PACKAGES="gcc gcc-c++ autoconf automake libtool subversion rpm-build httpd httpd-devel openssl-devel jpackage-utils pcre-devel expat-devel unixODBC-devel jakarta-commons-beanutils jakarta-commons-collections jakarta-commons-net ant log4j junit ant-commons-logging ant-trax ant-nodeps postgresql-server zlib-devel postgresql-devel cppunit cppunit-devel redhat-rpm-config alsa-lib-devel curl gnutls-devel lzo-devel mysql-devel ncurses-devel python-devel ruby ruby-devel ruby-postgres rubygems rubygem-rake ruby-dbi bind cgicc-devel java-1.6.0-sun-devel w3c-libwww-devel xerces-c-devel git tftp-server doxygen rpm-build zip which unzip createrepo ant-junit mod_ssl libXp libpng-devel libart_lgpl-devel freetype freetype-devel rpmdevtools alsa-lib-devel gnutls-devel lzo-devel gdb gdbm-devel mysql-devel ncurses-devel python-devel vsftpd sipx-jasperreports-deps rpmdevtools mod_perl-devel"
    # The Fedora 10 experiment.
    uname -a | cut -d" " -f3 | grep fc10 > /dev/null
    if [ $? == 0 ]; then
       # This is a Fedora 10 system.
-      YUM_PACKAGES="$YUM_PACKAGES libcurl-devel scons"
+      YUM_PACKAGES="$YUM_PACKAGES libcurl-devel scons git-svn"
    else
       # Assume Fedora 8.
       YUM_PACKAGES="$YUM_PACKAGES curl-devel termcap nsis"
@@ -250,9 +250,10 @@ then
    sed -i -e "s/$WHEEL_GROUP_ORIG/$WHEEL_GROUP_ORIG,$DEVEL_USER/g" $ETC_GROUP_FILE
 fi
 
-# Enable TFTP.  Don't bother chaging the /tftpboot, it will later be replaced with a symbolic link
-# by the $DEVEL_USER.
+# Enable TFTP.  Make sure it's using /tftpboot, which will be later be replaced with a symbolic 
+# link by the $DEVEL_USER.  (The Fedora 10 default is /var/lib/tftpboot.)
 sed -i -e "s/[\t]disable[\t][\t][\t]= yes/\tdisable\t\t\t= no/g" /etc/xinetd.d/tftp
+sed -i -e "s/\/var\/lib\/tftpboot/\/tftpboot/g" /etc/xinetd.d/tftp
 /sbin/service xinetd restart
 
 # Enable FTP with a Polycom user, also using the /tftpboot directory.

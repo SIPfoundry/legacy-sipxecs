@@ -35,7 +35,7 @@ echo INSTALL=`pwd`/$INSTALL > env
 echo BUILD=`pwd`/$BUILD >> env
 echo CODE=`pwd`/$CODE >> env
 echo LINKS=`pwd`/$LINKS >> env
-sudo rm -rf $INSTALL $BUILD $LINKS
+sudo rm -rf $INSTALL $BUILD $LINKS $CODE/lib/freeswitch/dist
 mkdir $INSTALL
 mkdir $BUILD
 
@@ -54,34 +54,54 @@ echo sudo `pwd`/$INSTALL/etc/init.d/sipxecs start >> /tmp/srestart
 sudo mv /tmp/srestart /usr/bin/
 sudo chmod a+rx /usr/bin/srestart
 
-# Install FreeSWITCH.
-SIPFOUNDRY_RPM_BASE_URL=http://sipxecs.sipfoundry.org/temp/sipXecs/main/FC/8/i386/RPM
-function install_sipfoundry_rpm {
-   # Out with the old.
-   rm -rf $1-*.rpm
-   rpm -q $1 > /dev/null
-   if [ $? == 0 ]
-   then
-      sudo rpm --erase --nodeps $1
-   fi
+# Get ready to build RPMs.
+mv ~/.rpmmacros ~/.rpmmacros.old 2> /dev/null
+rpmdev-setuptree
 
-   # In with the new.
-   rm -rf index.html*
-   wget $SIPFOUNDRY_RPM_BASE_URL
-   rpm_name=`grep $1-[0-9] index.html | ruby -e 'puts STDIN.readline.split("a href=\"")[1].split("\"")[0]'`
-   rm -rf index.html*
-   wget $SIPFOUNDRY_RPM_BASE_URL/$rpm_name
-   sudo rpm -ihv $rpm_name
+# Configure and compile FreeSWITCH RPMs.
+pushd $CODE/lib/freeswitch
+rm -rf dist
+autoreconf -if
+if [ $? != 0 ]
+then
+   echo "Error: FreeSWITCH autoreconf failed, see console output."
+   exit 2
+fi
+./configure SIPXPBXUSER='whoami' &> fs_configure_output.txt
+if [ $? != 0 ]
+then
+   echo "Error: FreeSWITCH configure failed, see fs_configure_output.txt."
+   exit 3
+fi
+sudo make &> fs_make_output.txt
+if [ $? != 0 ]
+then
+   echo "Error: FreeSWITCH RPM build failed, see fs_make_output.txt."
+   exit 4
+fi
+
+# Uninstall any old FreeSWITCH RPMs.
+for fs_old_rpm in `rpm -qa | grep sipx-freeswitch`
+do
+   sudo rpm --erase --nodeps $fs_old_rpm &> fs_install_output.txt
    if [ $? != 0 ]
    then
-      echo "Error: RPM install failed, see console output."
-      exit 2
+      echo "Error: FreeSWITCH old RPM uninstall failed, see fs_install_output.txt"
+      exit 5
    fi
-   rm -rf $rpm_name
-}
-install_sipfoundry_rpm sipx-freeswitch
+done
 
-# Configure, compile, test, and install.
+# Install the new FreeSWITCH RPMs.
+sudo yum -y localinstall dist/RPM/*.rpm &> fs_install_output.txt
+if [ $? != 0 ]
+then
+   echo "Error: FreeSWITCH RPM install failed, see fs_install_output.txt."
+   exit 6
+fi
+
+popd
+
+# Configure, compile, test, and installi sipXecs.
 pushd $INSTALL
 FULL_INSTALL_PATH=`pwd`
 popd
@@ -90,8 +110,8 @@ FULL_CODE_PATH=`pwd`
 autoreconf -if  
 if [ $? != 0 ]
 then
-   echo "Error: autoreconf failed, see console output."
-   exit 3
+   echo "Error: sipXecs autoreconf failed, see console output."
+   exit 7
 fi
 popd
 
@@ -99,14 +119,14 @@ pushd $BUILD
 $FULL_CODE_PATH/configure --srcdir=$FULL_CODE_PATH --cache-file=`pwd`/ac-cache-file SIPXPBXUSER=`whoami` JAVAC_DEBUG=on --prefix=$FULL_INSTALL_PATH --enable-reports --enable-agent --enable-cdr --enable-conference &> configure_output.txt
 if [ $? != 0 ]
 then
-   echo "Error: configure failed, see configure_output.txt."
-   exit 4
+   echo "Error: sipXecs configure failed, see configure_output.txt."
+   exit 8
 fi
 make recurse TARGETS="all install" &> make_output.txt
 if [ $? != 0 ]
 then
-   echo "Error: make failed, see make_output.txt."
-   exit 5
+   echo "Error: sipXecs build/install failed, see make_output.txt."
+   exit 9
 fi
 popd
 
