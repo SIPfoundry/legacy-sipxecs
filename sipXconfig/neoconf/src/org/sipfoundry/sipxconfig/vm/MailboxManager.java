@@ -40,6 +40,8 @@ public interface MailboxManager {
 
     void delete(Mailbox mailbox, Voicemail voicemail);
 
+    void triggerSipNotify(Mailbox mailbox);
+
     PersonalAttendant loadPersonalAttendantForUser(User user);
 
     void removePersonalAttendantForUser(User user);

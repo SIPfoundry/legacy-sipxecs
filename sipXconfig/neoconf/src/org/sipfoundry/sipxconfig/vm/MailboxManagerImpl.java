@@ -110,7 +110,6 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
         for (File f : voicemail.getAllFiles()) {
             f.renameTo(new File(destination, f.getName()));
         }
-
         triggerSipNotify(mailbox);
     }
 
@@ -118,11 +117,10 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
         for (File f : voicemail.getAllFiles()) {
             f.delete();
         }
-
-        triggerSipNotify(mailbox);
+        // NOTE: triggerSipNotify is done externally, so bulk delete's only send one notify
     }
 
-    private void triggerSipNotify(Mailbox mailbox) {
+    public void triggerSipNotify(Mailbox mailbox) {
         // reversed engineered this string from using sipx 3.6 system.
         String request = String.format("action=updatestatus&from=gateway&category=inbox&"
                 + "mailbox=%s&messageidlist=-2", mailbox.getUserId());

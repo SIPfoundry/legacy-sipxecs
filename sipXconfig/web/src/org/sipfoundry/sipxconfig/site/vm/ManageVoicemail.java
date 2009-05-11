@@ -158,7 +158,8 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
         for (Serializable id : allSelected) {
             Voicemail vm = getVoicemailSource().getVoicemail(id);
             getMailboxManager().delete(mbox, vm);
-        }        
+        }
+        getMailboxManager().triggerSipNotify(mbox);
     }
     
     public String getFolderLabel() {
