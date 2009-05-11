@@ -9,11 +9,16 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import static org.easymock.EasyMock.createNiceMock;
 import static org.easymock.EasyMock.replay;
 import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.service.SipxMediaService;
@@ -65,16 +70,20 @@ public class SipXMediaServerTest extends TestCase {
      */
     public static final void configureMediaServer(SipXMediaServer mediaServer) {
         LocationsManager locationsManager = EasyMock.createMock(LocationsManager.class);
-        locationsManager.getPrimaryLocation();
-        EasyMock.expectLastCall().andReturn(TestUtil.createDefaultLocation()).anyTimes();
-        EasyMock.replay(locationsManager);
+
+        Location serviceLocation = TestUtil.createDefaultLocation();
 
         SipxMediaService mediaService = new SipxMediaService();
         mediaService.setBeanName(SipxMediaService.BEAN_ID);
-        mediaService.setLocationsManager(locationsManager);
         mediaService.setVoicemailHttpsPort(443);
+        mediaService.setLocationsManager(locationsManager);
+
+        locationsManager.getLocationsForService(mediaService);
+        EasyMock.expectLastCall().andReturn(Arrays.asList(serviceLocation)).anyTimes();
+        EasyMock.replay(locationsManager);
 
         SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(true, mediaService);
         mediaServer.setSipxServiceManager(sipxServiceManager);
+
     }
 }
