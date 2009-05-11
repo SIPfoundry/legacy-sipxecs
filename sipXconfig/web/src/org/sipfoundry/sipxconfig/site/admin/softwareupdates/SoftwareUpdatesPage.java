@@ -21,11 +21,12 @@ import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.html.BasePage;
-import org.sipfoundry.sipxconfig.admin.PackageUpdate;
-import org.sipfoundry.sipxconfig.admin.PackageUpdateManager;
-import org.sipfoundry.sipxconfig.admin.PackageUpdateManager.UpdaterState;
-import org.sipfoundry.sipxconfig.admin.SynchronousPackageUpdate;
+import org.sipfoundry.sipxconfig.admin.update.PackageUpdate;
+import org.sipfoundry.sipxconfig.admin.update.PackageUpdateManager;
+import org.sipfoundry.sipxconfig.admin.update.SynchronousPackageUpdate;
 import org.sipfoundry.sipxconfig.site.admin.WaitingPage;
+
+import static org.sipfoundry.sipxconfig.admin.update.PackageUpdateManager.UpdaterState.UPDATES_AVAILABLE;
 
 public abstract class SoftwareUpdatesPage extends BasePage {
 
@@ -64,7 +65,7 @@ public abstract class SoftwareUpdatesPage extends BasePage {
     }
 
     public boolean getReadyToInstall() {
-        return getPackageUpdateManager().getState().equals(UpdaterState.UPDATES_AVAILABLE);
+        return getPackageUpdateManager().getState().equals(UPDATES_AVAILABLE);
     }
 
     public String getCurrentVersion() {
@@ -76,10 +77,8 @@ public abstract class SoftwareUpdatesPage extends BasePage {
     }
 
     public IPage installUpdates() {
-        // getPackageUpdateManager().installUpdates();
         WaitingPage waitingPage = getWaitingPage();
-        waitingPage
-                .setWaitingListener(new SynchronousPackageUpdate(getPackageUpdateManager().getUpdateBinaryPath()));
+        waitingPage.setWaitingListener(new SynchronousPackageUpdate(getPackageUpdateManager()));
         return waitingPage;
     }
 }

@@ -27,7 +27,7 @@ public abstract class WaitingPage extends UserBasePage implements PageEndRenderL
     @Asset("context:/WEB-INF/admin/WaitingPage.script")
     public abstract IAsset getWaitingScript();
 
-    @Persist(value = "client")
+    @Persist
     public abstract WaitingListener getWaitingListener();
 
     public abstract void setWaitingListener(WaitingListener wl);
