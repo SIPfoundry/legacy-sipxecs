@@ -111,9 +111,11 @@ public class LocationsMigrationTrigger extends InitTaskListener {
             networkProperties.load(inputStream);
             primaryLocationAddress = networkProperties.getProperty("IpAddress");
         } catch (FileNotFoundException fnfe) {
-            LOG.warn("Unable to find network properties file " + networkPropertiesFile.getPath(), fnfe);
+            LOG.warn("Unable to find network properties file " + networkPropertiesFile.getPath()
+                    + "  ( - Only an issue for new installation)");
         } catch (IOException ioe) {
-            LOG.warn("Unable to load network properties file " + networkPropertiesFile.getPath(), ioe);
+            LOG.warn("Unable to load network properties file " + networkPropertiesFile.getPath()
+                    + " ( - Only an issue for new installation)");
         }
 
         if (StringUtils.isEmpty(primaryLocationAddress)) {
@@ -124,7 +126,7 @@ public class LocationsMigrationTrigger extends InitTaskListener {
                 LOG.warn("Unable to resolve address for " + primaryLocationFqdn);
             }
         }
-        
+
         return primaryLocationAddress;
     }
 
