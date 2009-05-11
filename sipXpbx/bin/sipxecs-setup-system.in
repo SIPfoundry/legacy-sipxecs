@@ -692,7 +692,7 @@ options {\n\
 
         # Change ownership of zone files
         setOwnerRecursive(sipxecsGlobals.NamedDirectory, 'root', 'named')
-        setRights(sipxecsGlobals.NamedDirectory + "/data",'root','named') # makes data directory named-writable
+        setRights(sipxecsGlobals.NamedDirectory + "/data",'root','named','u=rwx,g=rwx,o=') # makes data directory named-writable
     else :
         log_printout("Named directories not created because not running as root")
             
