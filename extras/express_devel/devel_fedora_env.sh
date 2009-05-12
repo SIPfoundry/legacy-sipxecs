@@ -199,7 +199,7 @@ YUM_PACKAGES="gcc gcc-c++ autoconf automake libtool subversion rpm-build httpd h
    uname -a | cut -d" " -f3 | grep fc10 > /dev/null
    if [ $? == 0 ]; then
       # This is a Fedora 10 system.
-      YUM_PACKAGES="$YUM_PACKAGES libcurl-devel scons git-svn"
+      YUM_PACKAGES="$YUM_PACKAGES libcurl-devel scons git-svn mingw32-nsis"
    else
       # Assume Fedora 8.
       YUM_PACKAGES="$YUM_PACKAGES curl-devel termcap nsis"
@@ -259,7 +259,7 @@ sed -i -e "s/\/var\/lib\/tftpboot/\/tftpboot/g" /etc/xinetd.d/tftp
 # Enable FTP with a Polycom user, also using the /tftpboot directory.
 /usr/sbin/useradd -d /tftpboot -G $DEVEL_USER -s /sbin/nologin -M PlcmSpIp
 echo -e "PlcmSpIp" | sudo passwd --stdin PlcmSpIp
-echo "dirlist_enable=NO" >> /etc/vsftpd/vsftpd.conf
+# Uncomment to disable directory listing - echo "dirlist_enable=NO" >> /etc/vsftpd/vsftpd.conf
 /sbin/chkconfig vsftpd on
 /sbin/service vsftpd restart
 

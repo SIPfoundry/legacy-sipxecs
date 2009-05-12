@@ -23,6 +23,7 @@ INSTALL=INSTALL
 BUILD=BUILD
 CODE=main
 LINKS=links
+EDE_LOGS=ede_logs
 if [ $# -gt 0 ]
 then
    CODE=$1
@@ -35,9 +36,11 @@ echo INSTALL=`pwd`/$INSTALL > env
 echo BUILD=`pwd`/$BUILD >> env
 echo CODE=`pwd`/$CODE >> env
 echo LINKS=`pwd`/$LINKS >> env
-sudo rm -rf $INSTALL $BUILD $LINKS $CODE/lib/freeswitch/dist
+sudo rm -rf $INSTALL $BUILD $LINKS $CODE/lib/freeswitch/dist $EDE_LOGS
 mkdir $INSTALL
 mkdir $BUILD
+mkdir $EDE_LOGS
+FULL_PATH_EDE_LOGS=`pwd`/$EDE_LOGS
 
 # Easy scripts to start, stop, restart, and get status.
 echo sudo `pwd`/$INSTALL/etc/init.d/sipxecs start > /tmp/sstart
@@ -67,35 +70,35 @@ then
    echo "Error: FreeSWITCH autoreconf failed, see console output."
    exit 2
 fi
-./configure SIPXPBXUSER='whoami' &> fs_configure_output.txt
+./configure SIPXPBXUSER='whoami' &> $FULL_PATH_EDE_LOGS/fs_configure_output.txt
 if [ $? != 0 ]
 then
-   echo "Error: FreeSWITCH configure failed, see fs_configure_output.txt."
+   echo "Error: FreeSWITCH configure failed, see $EDE_LOGS/fs_configure_output.txt."
    exit 3
 fi
-sudo make &> fs_make_output.txt
+sudo make &> $FULL_PATH_EDE_LOGS/fs_make_output.txt
 if [ $? != 0 ]
 then
-   echo "Error: FreeSWITCH RPM build failed, see fs_make_output.txt."
+   echo "Error: FreeSWITCH RPM build failed, see $EDE_LOGS/fs_make_output.txt."
    exit 4
 fi
 
 # Uninstall any old FreeSWITCH RPMs.
 for fs_old_rpm in `rpm -qa | grep sipx-freeswitch`
 do
-   sudo rpm --erase --nodeps $fs_old_rpm &> fs_install_output.txt
+   sudo rpm --erase --nodeps $fs_old_rpm &> $FULL_PATH_EDE_LOGS/fs_install_output.txt
    if [ $? != 0 ]
    then
-      echo "Error: FreeSWITCH old RPM uninstall failed, see fs_install_output.txt"
+      echo "Error: FreeSWITCH old RPM uninstall failed, see $EDE_LOGS/fs_install_output.txt"
       exit 5
    fi
 done
 
 # Install the new FreeSWITCH RPMs.
-sudo yum -y localinstall dist/RPM/*.rpm &> fs_install_output.txt
+sudo yum -y localinstall dist/RPM/*.rpm &> $FULL_PATH_EDE_LOGS/fs_install_output.txt
 if [ $? != 0 ]
 then
-   echo "Error: FreeSWITCH RPM install failed, see fs_install_output.txt."
+   echo "Error: FreeSWITCH RPM install failed, see $EDE_LOGS/fs_install_output.txt."
    exit 6
 fi
 
@@ -116,16 +119,16 @@ fi
 popd
 
 pushd $BUILD
-$FULL_CODE_PATH/configure --srcdir=$FULL_CODE_PATH --cache-file=`pwd`/ac-cache-file SIPXPBXUSER=`whoami` JAVAC_DEBUG=on --prefix=$FULL_INSTALL_PATH --enable-reports --enable-agent --enable-cdr --enable-conference &> configure_output.txt
+$FULL_CODE_PATH/configure --srcdir=$FULL_CODE_PATH --cache-file=`pwd`/ac-cache-file SIPXPBXUSER=`whoami` JAVAC_DEBUG=on --prefix=$FULL_INSTALL_PATH --enable-reports --enable-agent --enable-cdr --enable-conference &> $FULL_PATH_EDE_LOGS/configure_output.txt
 if [ $? != 0 ]
 then
-   echo "Error: sipXecs configure failed, see configure_output.txt."
+   echo "Error: sipXecs configure failed, see $EDE_LOGS/configure_output.txt."
    exit 8
 fi
-make recurse TARGETS="all install" &> make_output.txt
+make recurse TARGETS="all install" &> $FULL_PATH_EDE_LOGS/make_output.txt
 if [ $? != 0 ]
 then
-   echo "Error: sipXecs build/install failed, see make_output.txt."
+   echo "Error: sipXecs build/install failed, see $EDE_LOGS/make_output.txt."
    exit 9
 fi
 popd
@@ -148,11 +151,11 @@ sudo rm -rf /tftpboot
 sudo ln -s $TFTP_PATH /tftpboot
 
 # Clear any database contents that might be left over from the last install.
-$FULL_INSTALL_PATH/bin/sipxconfig.sh --database drop create &> sipxconfig_drop_create.log
-$FULL_INSTALL_PATH/bin/sipxconfig.sh --first-run &> sipxconfig_first-run.log
+$FULL_INSTALL_PATH/bin/sipxconfig.sh --database drop create &> $FULL_PATH_EDE_LOGS/sipxconfig_drop_create.log
+$FULL_INSTALL_PATH/bin/sipxconfig.sh --first-run &> $FULL_PATH_EDE_LOGS/sipxconfig_first-run.log
 
 # Fix FreeSWITCH
-sudo $FULL_INSTALL_PATH/bin/freeswitch.sh --configtest &> freeswitch_configtest.log
+sudo $FULL_INSTALL_PATH/bin/freeswitch.sh --configtest &> $FULL_PATH_EDE_LOGS/freeswitch_configtest.log
 
 # Create some helpful links.
 mkdir $LINKS
