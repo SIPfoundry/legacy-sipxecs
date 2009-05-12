@@ -12,6 +12,7 @@ import gov.nist.javax.sip.TransactionExt;
 
 import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
+import javax.sip.RequestEvent;
 import javax.sip.ServerTransaction;
 import javax.sip.SipProvider;
 import javax.sip.Transaction;
@@ -113,6 +114,8 @@ class TransactionContext {
 	 * Client transaction pending for Music On Hold.
 	 */
 	private ClientTransaction mohClientTransaction;
+
+    private RequestEvent requestEvent;
 	
     static TransactionContext attach(Transaction transaction,
             Operation operation) {
@@ -356,6 +359,17 @@ class TransactionContext {
 	public ClientTransaction getMohClientTransaction() {
 		return mohClientTransaction;
 	}
+
+    public void setRequestEvent(RequestEvent requestEvent) {
+        this.requestEvent = requestEvent;      
+    }
+
+    /**
+     * @return the requestEvent
+     */
+    RequestEvent getRequestEvent() {
+        return requestEvent;
+    }
 
     
 

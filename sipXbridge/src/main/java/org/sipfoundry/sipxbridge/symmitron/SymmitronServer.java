@@ -9,6 +9,7 @@ package org.sipfoundry.sipxbridge.symmitron;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -21,6 +22,7 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Semaphore;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -55,7 +57,8 @@ import org.sipfoundry.commons.log4j.SipFoundryLayout;
 @SuppressWarnings("unchecked")
 public class SymmitronServer implements Symmitron {
 
-    private static Logger logger = Logger.getLogger(SymmitronServer.class.getPackage().getName());
+    private static Logger logger = Logger.getLogger(SymmitronServer.class
+            .getPackage().getName());
 
     protected static Timer timer = new Timer();
 
@@ -95,7 +98,8 @@ public class SymmitronServer implements Symmitron {
     /*
      * My Instance handle
      */
-    private static String myHandle = "sipxbridge:" + Math.abs(new Random().nextLong());
+    private static String myHandle = "sipxbridge:"
+            + Math.abs(new Random().nextLong());
 
     private static boolean isWebServerRunning;
 
@@ -119,6 +123,54 @@ public class SymmitronServer implements Symmitron {
 
     private static final String STUN_ADDRESS_ERROR_ALARM_ID = "STUN_ADDRESS_ERROR";
 
+    private CRLFReceiver crlfReceiver;
+
+    // ////////////////////////////////////////////////////////////////////////
+    // Private classes.
+    // ////////////////////////////////////////////////////////////////////////
+    class CRLFReceiver implements Runnable {
+        Semaphore waitSem;
+        DatagramSocket pingSocket;
+        boolean packetRecieved;
+
+        public CRLFReceiver() throws Exception {
+            try {
+                this.waitSem = new Semaphore(0);
+                this.packetRecieved = false;
+                pingSocket = new DatagramSocket();
+            } catch (Exception ex) {
+                logger
+                        .error("Exception caught when creating CRLF Receiver",
+                                ex);
+            }
+        }
+
+
+        @Override
+        public void run() {
+            while (true) {
+                byte[] buffer = new String("\r\n\r\n").getBytes();
+                DatagramPacket datagramPacket = new DatagramPacket(buffer,
+                        buffer.length);
+                waitSem.release();
+                long startTime = System.currentTimeMillis();
+                try {
+                    pingSocket.receive(datagramPacket);
+                } catch (Exception ex) {
+                    logger.error("Could not get response from ProxyServer "
+                            + ex.getMessage());
+                    return;
+                }
+                long endTime = System.currentTimeMillis();
+                logger.debug("received message Wait time =  "
+                        + (endTime - startTime));
+                packetRecieved = true;
+            }
+
+        }
+
+    }
+
     // /////////////////////////////////////////////////////////////
 
     /**
@@ -135,35 +187,42 @@ public class SymmitronServer implements Symmitron {
                 logger.info("Start address discovery");
                 int localStunPort = STUN_PORT + 1;
 
-                StunAddress localStunAddress = new StunAddress(symmitronConfig.getLocalAddress(),
-                        localStunPort);
+                StunAddress localStunAddress = new StunAddress(symmitronConfig
+                        .getLocalAddress(), localStunPort);
 
-                StunAddress serverStunAddress = new StunAddress(stunServerAddress, STUN_PORT);
+                StunAddress serverStunAddress = new StunAddress(
+                        stunServerAddress, STUN_PORT);
 
                 NetworkConfigurationDiscoveryProcess addressDiscovery = new NetworkConfigurationDiscoveryProcess(
                         localStunAddress, serverStunAddress);
                 java.util.logging.LogManager logManager = java.util.logging.LogManager
                         .getLogManager();
                 java.util.logging.Logger log = logManager
-                        .getLogger(NetworkConfigurationDiscoveryProcess.class.getName());
+                        .getLogger(NetworkConfigurationDiscoveryProcess.class
+                                .getName());
                 log.setLevel(java.util.logging.Level.OFF);
 
                 addressDiscovery.start();
-                StunDiscoveryReport report = addressDiscovery.determineAddress();
+                StunDiscoveryReport report = addressDiscovery
+                        .determineAddress();
                 if (report == null) {
-                    logger.error("No stun report - could not do address discovery");
+                    logger
+                            .error("No stun report - could not do address discovery");
                     return;
                 }
                 StunAddress stunAddress = report.getPublicAddress();
                 if (stunAddress == null) {
-                    logger.error("No stun address - could not do address discovery");
+                    logger
+                            .error("No stun address - could not do address discovery");
                     return;
                 }
 
                 if (publicAddress == null
-                        || !publicAddress.equals(stunAddress.getSocketAddress().getAddress())) {
+                        || !publicAddress.equals(stunAddress.getSocketAddress()
+                                .getAddress())) {
                     publicAddress = stunAddress.getSocketAddress().getAddress();
-                    logger.debug("Public Address Changed! Stun report = " + report);
+                    logger.debug("Public Address Changed! Stun report = "
+                            + report);
                     String publicAddr = publicAddress.getHostAddress();
                     logger.debug("publicAddress = " + publicAddr);
                     symmitronConfig.setPublicAddress(publicAddr);
@@ -210,7 +269,8 @@ public class SymmitronServer implements Symmitron {
         }
     }
 
-    private static InetAddress findIpAddress(String localAddress) throws UnknownHostException {
+    private static InetAddress findIpAddress(String localAddress)
+            throws UnknownHostException {
         String[] addressParts = localAddress.split("\\.");
         boolean isIpAddress = true;
         byte[] addressBytes = new byte[addressParts.length];
@@ -257,7 +317,8 @@ public class SymmitronServer implements Symmitron {
 
     public static InetAddress getLocalInetAddress() throws UnknownHostException {
         if (SymmitronServer.localAddressByName == null) {
-            SymmitronServer.localAddressByName = InetAddress.getByName(getLocalAddress());
+            SymmitronServer.localAddressByName = InetAddress
+                    .getByName(getLocalAddress());
         }
         return localAddressByName;
     }
@@ -272,23 +333,29 @@ public class SymmitronServer implements Symmitron {
         return symmitronConfig.getPortRangeUpperBound();
     }
 
-    public static void setSymmitronConfig(SymmitronConfig symmitronConfig) throws IOException {
+    public static void setSymmitronConfig(SymmitronConfig symmitronConfig)
+            throws IOException {
         SymmitronServer.symmitronConfig = symmitronConfig;
         if (symmitronConfig.getPublicAddress() != null) {
-            publicAddress = InetAddress.getByName(symmitronConfig.getPublicAddress());
+            publicAddress = InetAddress.getByName(symmitronConfig
+                    .getPublicAddress());
         }
         String logFileName = symmitronConfig.getLogFileName();
         if (logFileName != null) {
-            String dirName = symmitronConfig.getLogFileDirectory() + "/sipxrelay.log";
-            Logger logger = Logger.getLogger(SymmitronServer.class.getPackage().getName());
+            String dirName = symmitronConfig.getLogFileDirectory()
+                    + "/sipxrelay.log";
+            Logger logger = Logger.getLogger(SymmitronServer.class.getPackage()
+                    .getName());
 
-            SipFoundryAppender sfa = new SipFoundryAppender(new SipFoundryLayout(), dirName);
+            SipFoundryAppender sfa = new SipFoundryAppender(
+                    new SipFoundryLayout(), dirName);
             logger.addAppender(sfa);
 
             logger.setLevel(Level.toLevel(symmitronConfig.getLogLevel()));
         }
-        portRangeManager = new PortRangeManager(symmitronConfig.getPortRangeLowerBound(),
-                symmitronConfig.getPortRangeUpperBound());
+        portRangeManager = new PortRangeManager(symmitronConfig
+                .getPortRangeLowerBound(), symmitronConfig
+                .getPortRangeUpperBound());
     }
 
     public static void startWebServer() throws Exception {
@@ -299,9 +366,10 @@ public class SymmitronServer implements Symmitron {
             isWebServerRunning = true;
             webServer = new HttpServer();
 
-            InetAddrPort inetAddrPort = new InetAddrPort(symmitronConfig.getLocalAddress(),
-                    symmitronConfig.getXmlRpcPort());
-            inetAddrPort.setInetAddress(InetAddress.getByName(symmitronConfig.getLocalAddress()));
+            InetAddrPort inetAddrPort = new InetAddrPort(symmitronConfig
+                    .getLocalAddress(), symmitronConfig.getXmlRpcPort());
+            inetAddrPort.setInetAddress(InetAddress.getByName(symmitronConfig
+                    .getLocalAddress()));
 
             if (symmitronConfig.getUseHttps()) {
                 logger.info("Starting  secure xml rpc server on inetAddr:port "
@@ -309,23 +377,28 @@ public class SymmitronServer implements Symmitron {
                         + symmitronConfig.getXmlRpcPort());
 
                 SslListener sslListener = new SslListener(inetAddrPort);
-                inetAddrPort.setInetAddress(InetAddress.getByName(symmitronConfig
-                        .getLocalAddress()));
+                inetAddrPort.setInetAddress(InetAddress
+                        .getByName(symmitronConfig.getLocalAddress()));
 
-                String keystore = System.getProperties().getProperty("javax.net.ssl.keyStore");
+                String keystore = System.getProperties().getProperty(
+                        "javax.net.ssl.keyStore");
                 logger.info("keystore = " + keystore);
                 sslListener.setKeystore(keystore);
-                String keystoreType = System.getProperty("javax.net.ssl.trustStoreType");
+                String keystoreType = System
+                        .getProperty("javax.net.ssl.trustStoreType");
                 logger.info("keyStoreType = " + keystoreType);
                 sslListener.setKeystoreType(keystoreType);
 
-                String algorithm = System.getProperties().getProperty("jetty.x509.algorithm");
+                String algorithm = System.getProperties().getProperty(
+                        "jetty.x509.algorithm");
                 logger.info("algorithm = " + algorithm);
                 sslListener.setAlgorithm(algorithm);
-                String password = System.getProperties().getProperty("jetty.ssl.password");
+                String password = System.getProperties().getProperty(
+                        "jetty.ssl.password");
                 sslListener.setPassword(password);
 
-                String keypassword = System.getProperties().getProperty("jetty.ssl.keypassword");
+                String keypassword = System.getProperties().getProperty(
+                        "jetty.ssl.keypassword");
 
                 sslListener.setKeyPassword(keypassword);
 
@@ -335,8 +408,8 @@ public class SymmitronServer implements Symmitron {
 
                 ((ThreadedServer) sslListener).open();
 
-                String[] cypherSuites = ((SSLServerSocket) sslListener.getServerSocket())
-                        .getSupportedCipherSuites();
+                String[] cypherSuites = ((SSLServerSocket) sslListener
+                        .getServerSocket()).getSupportedCipherSuites();
 
                 for (String suite : cypherSuites) {
                     logger.info("Cypher Suites enabled : " + suite);
@@ -345,18 +418,17 @@ public class SymmitronServer implements Symmitron {
                 ((SSLServerSocket) sslListener.getServerSocket())
                         .setEnabledCipherSuites(cypherSuites);
 
-                String[] protocols = ((SSLServerSocket) sslListener.getServerSocket())
-                        .getSupportedProtocols();
+                String[] protocols = ((SSLServerSocket) sslListener
+                        .getServerSocket()).getSupportedProtocols();
 
                 for (String protocol : protocols) {
                     logger.info("Supported protocol = " + protocol);
                 }
 
-                ((SSLServerSocket) sslListener.getServerSocket()).setEnabledProtocols(protocols);
+                ((SSLServerSocket) sslListener.getServerSocket())
+                        .setEnabledProtocols(protocols);
 
-                webServer.setListeners(new HttpListener[] {
-                    sslListener
-                });
+                webServer.setListeners(new HttpListener[] { sslListener });
 
                 for (HttpListener listener : webServer.getListeners()) {
                     logger.debug("Listener = " + listener);
@@ -365,9 +437,11 @@ public class SymmitronServer implements Symmitron {
                 }
 
             } else {
-                logger.info("Starting unsecure xml rpc server on inetAddr:port "
-                        + symmitronConfig.getLocalAddress() + ":"
-                        + symmitronConfig.getXmlRpcPort());
+                logger
+                        .info("Starting unsecure xml rpc server on inetAddr:port "
+                                + symmitronConfig.getLocalAddress()
+                                + ":"
+                                + symmitronConfig.getXmlRpcPort());
 
                 SocketListener socketListener = new SocketListener(inetAddrPort);
                 socketListener.setMaxThreads(32);
@@ -380,7 +454,8 @@ public class SymmitronServer implements Symmitron {
 
             httpContext.setContextPath("/");
             ServletHandler servletHandler = new ServletHandler();
-            servletHandler.addServlet("symmitron", "/*", SymmitronServlet.class.getName());
+            servletHandler.addServlet("symmitron", "/*", SymmitronServlet.class
+                    .getName());
             httpContext.addHandler(servletHandler);
 
             webServer.addContext(httpContext);
@@ -395,7 +470,9 @@ public class SymmitronServer implements Symmitron {
     /**
      * The RPC handler for sipxbridge.
      */
-    public SymmitronServer() {
+    public SymmitronServer() throws Exception {
+        this.crlfReceiver = new CRLFReceiver();
+        new Thread(crlfReceiver).start();
 
     }
 
@@ -422,7 +499,7 @@ public class SymmitronServer implements Symmitron {
         status = "STOPPED";
 
     }
-    
+
     /**
      * For testing purposes only
      */
@@ -439,8 +516,9 @@ public class SymmitronServer implements Symmitron {
 
     public Map getRtpPortRange() {
 
-        PortRange portRange = new PortRange(symmitronConfig.getPortRangeLowerBound(),
-                symmitronConfig.getPortRangeUpperBound());
+        PortRange portRange = new PortRange(symmitronConfig
+                .getPortRangeLowerBound(), symmitronConfig
+                .getPortRangeUpperBound());
 
         return portRange.toMap();
 
@@ -453,7 +531,8 @@ public class SymmitronServer implements Symmitron {
     /**
      * Check for client reboot.
      * 
-     * @param controllerHandle - a client handle in the form componentName:instanceId
+     * @param controllerHandle -
+     *            a client handle in the form componentName:instanceId
      */
     public void checkForControllerReboot(String controllerHandle) {
         String[] handleParts = controllerHandle.split(":");
@@ -466,7 +545,8 @@ public class SymmitronServer implements Symmitron {
         if (previousInstance == null) {
             instanceTable.put(componentName, controllerHandle);
         } else if (!previousInstance.equals(controllerHandle)) {
-            HashSet<Bridge> rtpBridges = bridgeResourceMap.get(previousInstance);
+            HashSet<Bridge> rtpBridges = bridgeResourceMap
+                    .get(previousInstance);
             if (rtpBridges != null) {
                 for (Bridge rtpBridge : rtpBridges) {
                     rtpBridge.stop();
@@ -525,26 +605,29 @@ public class SymmitronServer implements Symmitron {
     /*
      * (non-Javadoc)
      * 
-     * @see org.sipfoundry.sipxbridge.Symmitron#createSyms(java.lang.String, int, int)
+     * @see org.sipfoundry.sipxbridge.Symmitron#createSyms(java.lang.String,
+     *      int, int)
      */
-    public Map<String, Object> createSyms(String controllerHandle, int count, int parity) {
+    public Map<String, Object> createSyms(String controllerHandle, int count,
+            int parity) {
         try {
             this.checkForControllerReboot(controllerHandle);
 
-            PortRange portRange = SymmitronServer.getPortManager().allocate(count,
-                    parity == ODD ? Parity.ODD : Parity.EVEN);
+            PortRange portRange = SymmitronServer.getPortManager().allocate(
+                    count, parity == ODD ? Parity.ODD : Parity.EVEN);
             if (portRange == null) {
-                logger.error("Ports not available " + count + " parity " + parity);
-                return createErrorMap(PORTS_NOT_AVAILABLE, "Ports not available");
+                logger.error("Ports not available " + count + " parity "
+                        + parity);
+                return createErrorMap(PORTS_NOT_AVAILABLE,
+                        "Ports not available");
             }
 
             Map<String, Object> retval = createSuccessMap();
             HashMap[] hmapArray = new HashMap[count];
             for (int i = 0; i < count; i++) {
                 Sym sym = new Sym();
-                SymReceiverEndpoint rtpEndpoint = new SymReceiverEndpoint(portRange
-                        .getLowerBound()
-                        + i);
+                SymReceiverEndpoint rtpEndpoint = new SymReceiverEndpoint(
+                        portRange.getLowerBound() + i);
                 sym.setReceiver(rtpEndpoint);
                 hmapArray[i] = sym.toMap();
                 this.addSymResource(controllerHandle, sym);
@@ -565,7 +648,8 @@ public class SymmitronServer implements Symmitron {
     /*
      * (non-Javadoc)
      * 
-     * @see org.sipfoundry.sipxbridge.Symmitron#getSym(java.lang.String, java.lang.String)
+     * @see org.sipfoundry.sipxbridge.Symmitron#getSym(java.lang.String,
+     *      java.lang.String)
      */
     public Map<String, Object> getSym(String controllerHandle, String symId) {
 
@@ -593,19 +677,23 @@ public class SymmitronServer implements Symmitron {
     /*
      * (non-Javadoc)
      * 
-     * @see org.sipfoundry.sipxbridge.Symmitron#setDestination(java.lang.String, java.lang.String,
-     *      java.lang.String, int , int, java.lang.String, byte[], boolean)
+     * @see org.sipfoundry.sipxbridge.Symmitron#setDestination(java.lang.String,
+     *      java.lang.String, java.lang.String, int , int, java.lang.String,
+     *      byte[], boolean)
      */
-    public Map<String, Object> setDestination(String controllerHandle, String symId,
-            String ipAddress, int port, int keepAliveTime, String keepaliveMethod) {
+    public Map<String, Object> setDestination(String controllerHandle,
+            String symId, String ipAddress, int port, int keepAliveTime,
+            String keepaliveMethod) {
         try {
             this.checkForControllerReboot(controllerHandle);
 
             if (logger.isDebugEnabled()) {
-                logger.debug(String.format("setDestination : " + " controllerHande %s "
-                        + " symId %s " + " ipAddress %s " + " port %d "
-                        + " keepAliveMethod = %s " + " keepAliveTime %d ", controllerHandle,
-                        symId, ipAddress, port, keepaliveMethod, keepAliveTime));
+                logger.debug(String.format("setDestination : "
+                        + " controllerHande %s " + " symId %s "
+                        + " ipAddress %s " + " port %d "
+                        + " keepAliveMethod = %s " + " keepAliveTime %d ",
+                        controllerHandle, symId, ipAddress, port,
+                        keepaliveMethod, keepAliveTime));
             }
 
             Sym sym = sessionMap.get(symId);
@@ -625,11 +713,13 @@ public class SymmitronServer implements Symmitron {
 
             // Allocate a new session if needed.
             SymTransmitterEndpoint transmitter = sym.getTransmitter() != null ? sym
-                    .getTransmitter() : new SymTransmitterEndpoint();
+                    .getTransmitter()
+                    : new SymTransmitterEndpoint();
 
             transmitter.setIpAddressAndPort(ipAddress, port);
             transmitter.computeAutoDiscoveryFlag();
-            KeepaliveMethod method = KeepaliveMethod.valueOfString(keepaliveMethod);
+            KeepaliveMethod method = KeepaliveMethod
+                    .valueOfString(keepaliveMethod);
             transmitter.setMaxSilence(keepAliveTime, method);
 
             if (sym.getTransmitter() == null) {
@@ -646,9 +736,11 @@ public class SymmitronServer implements Symmitron {
 
     }
 
-    public Map<String, Object> startBridge(String controllerHandle, String bridgeId) {
+    public Map<String, Object> startBridge(String controllerHandle,
+            String bridgeId) {
         try {
-            logger.debug("startBridge: " + controllerHandle + " bridgeId = " + bridgeId);
+            logger.debug("startBridge: " + controllerHandle + " bridgeId = "
+                    + bridgeId);
             this.checkForControllerReboot(controllerHandle);
 
             Bridge rtpBridge = bridgeMap.get(bridgeId);
@@ -663,9 +755,11 @@ public class SymmitronServer implements Symmitron {
         }
     }
 
-    public Map<String, Object> pauseSym(String controllerHandle, String sessionId) {
+    public Map<String, Object> pauseSym(String controllerHandle,
+            String sessionId) {
         try {
-            logger.debug("pauseSym: " + controllerHandle + " symId = " + sessionId);
+            logger.debug("pauseSym: " + controllerHandle + " symId = "
+                    + sessionId);
             this.checkForControllerReboot(controllerHandle);
             Sym rtpSession = sessionMap.get(sessionId);
             if (rtpSession == null) {
@@ -674,7 +768,8 @@ public class SymmitronServer implements Symmitron {
             }
             if (rtpSession.getTransmitter() == null) {
                 return this.createErrorMap(ILLEGAL_STATE,
-                        "transmitter is not assigned for rtp session " + sessionId);
+                        "transmitter is not assigned for rtp session "
+                                + sessionId);
             }
             rtpSession.getTransmitter().setOnHold(true);
             return this.createSuccessMap();
@@ -687,13 +782,14 @@ public class SymmitronServer implements Symmitron {
     /*
      * (non-Javadoc)
      * 
-     * @see org.sipfoundry.sipxbridge.Symmitron#removeSym(java.lang.String, java.lang.String,
-     *      java.lang.String)
+     * @see org.sipfoundry.sipxbridge.Symmitron#removeSym(java.lang.String,
+     *      java.lang.String, java.lang.String)
      */
-    public Map<String, Object> removeSym(String controllerHandle, String bridgeId, String symId) {
+    public Map<String, Object> removeSym(String controllerHandle,
+            String bridgeId, String symId) {
         try {
-            logger.debug("removeSym: " + controllerHandle + " bridgeId = " + bridgeId
-                    + " symId = " + symId);
+            logger.debug("removeSym: " + controllerHandle + " bridgeId = "
+                    + bridgeId + " symId = " + symId);
 
             this.checkForControllerReboot(controllerHandle);
             Bridge rtpBridge = bridgeMap.get(bridgeId);
@@ -720,25 +816,26 @@ public class SymmitronServer implements Symmitron {
     /*
      * (non-Javadoc)
      * 
-     * @see org.sipfoundry.sipxbridge.Symmitron#addSym(java.lang.String, java.lang.String,
-     *      java.lang.String)
+     * @see org.sipfoundry.sipxbridge.Symmitron#addSym(java.lang.String,
+     *      java.lang.String, java.lang.String)
      */
-    public Map<String, Object> addSym(String controllerHandle, String bridgeId, String symId) {
+    public Map<String, Object> addSym(String controllerHandle, String bridgeId,
+            String symId) {
         try {
             this.checkForControllerReboot(controllerHandle);
             Bridge bridge = bridgeMap.get(bridgeId);
-            logger.debug("addSym: " + controllerHandle + " bridgeId = " + bridgeId + " symId = "
-                    + symId);
+            logger.debug("addSym: " + controllerHandle + " bridgeId = "
+                    + bridgeId + " symId = " + symId);
             if (bridge == null) {
-                return this.createErrorMap(SESSION_NOT_FOUND, "Specified Bridge was not found "
-                        + bridgeId);
+                return this.createErrorMap(SESSION_NOT_FOUND,
+                        "Specified Bridge was not found " + bridgeId);
             }
 
             Sym sym = sessionMap.get(symId);
 
             if (sym == null) {
-                return this.createErrorMap(SESSION_NOT_FOUND, "Specified sym was not found "
-                        + symId);
+                return this.createErrorMap(SESSION_NOT_FOUND,
+                        "Specified sym was not found " + symId);
             }
 
             bridge.addSym(sym);
@@ -752,7 +849,8 @@ public class SymmitronServer implements Symmitron {
     /*
      * (non-Javadoc)
      * 
-     * @see org.sipfoundry.sipxbridge.Symmitron#createBridge(java.lang.String, boolean)
+     * @see org.sipfoundry.sipxbridge.Symmitron#createBridge(java.lang.String,
+     *      boolean)
      */
     public Map<String, Object> createBridge(String controllerHandle) {
         try {
@@ -781,14 +879,15 @@ public class SymmitronServer implements Symmitron {
 
     }
 
-    public Map<String, Object> pauseBridge(String controllerHandle, String bridgeId) {
+    public Map<String, Object> pauseBridge(String controllerHandle,
+            String bridgeId) {
         try {
             logger.debug(" pauseBridge: " + controllerHandle + " " + bridgeId);
             this.checkForControllerReboot(controllerHandle);
             Bridge bridge = bridgeMap.get(bridgeId);
             if (bridge == null) {
-                return this.createErrorMap(SESSION_NOT_FOUND, "Bridge corresponding to "
-                        + bridgeId + " not found");
+                return this.createErrorMap(SESSION_NOT_FOUND,
+                        "Bridge corresponding to " + bridgeId + " not found");
             }
             bridge.pause();
             return this.createSuccessMap();
@@ -798,13 +897,14 @@ public class SymmitronServer implements Symmitron {
         }
     }
 
-    public Map<String, Object> resumeBridge(String controllerHandle, String bridgeId) {
+    public Map<String, Object> resumeBridge(String controllerHandle,
+            String bridgeId) {
         try {
             this.checkForControllerReboot(controllerHandle);
             Bridge rtpBridge = bridgeMap.get(bridgeId);
             if (rtpBridge == null) {
-                return this.createErrorMap(SESSION_NOT_FOUND, "Bridge corresponding to "
-                        + bridgeId + " not found");
+                return this.createErrorMap(SESSION_NOT_FOUND,
+                        "Bridge corresponding to " + bridgeId + " not found");
             }
             rtpBridge.resume();
             return this.createSuccessMap();
@@ -814,18 +914,21 @@ public class SymmitronServer implements Symmitron {
         }
     }
 
-    public Map<String, Object> resumeSym(String controllerHandle, String sessionId) {
+    public Map<String, Object> resumeSym(String controllerHandle,
+            String sessionId) {
         try {
-            logger.debug("resumeSym : " + controllerHandle + " symId = " + sessionId);
+            logger.debug("resumeSym : " + controllerHandle + " symId = "
+                    + sessionId);
             this.checkForControllerReboot(controllerHandle);
             Sym rtpSession = sessionMap.get(sessionId);
             if (rtpSession == null) {
-                return this.createErrorMap(SESSION_NOT_FOUND, "Specified sym was not found "
-                        + sessionId);
+                return this.createErrorMap(SESSION_NOT_FOUND,
+                        "Specified sym was not found " + sessionId);
             }
             if (rtpSession.getTransmitter() == null) {
                 return this.createErrorMap(ILLEGAL_STATE,
-                        "transmitter is not assigned for rtp session " + sessionId);
+                        "transmitter is not assigned for rtp session "
+                                + sessionId);
             }
             rtpSession.getTransmitter().setOnHold(false);
             return this.createSuccessMap();
@@ -835,13 +938,15 @@ public class SymmitronServer implements Symmitron {
         }
     }
 
-    public Map<String, Object> getSymStatistics(String controllerHandle, String symId) {
+    public Map<String, Object> getSymStatistics(String controllerHandle,
+            String symId) {
         try {
-            logger.debug("getSymStatistics : " + controllerHandle + " symId = " + symId);
+            logger.debug("getSymStatistics : " + controllerHandle + " symId = "
+                    + symId);
             Sym sym = sessionMap.get(symId);
             if (sym == null) {
-                return this.createErrorMap(SESSION_NOT_FOUND, "Specified sym was not found "
-                        + symId);
+                return this.createErrorMap(SESSION_NOT_FOUND,
+                        "Specified sym was not found " + symId);
             }
 
             Map<String, Object> stats = sym.getStats();
@@ -855,26 +960,31 @@ public class SymmitronServer implements Symmitron {
         }
     }
 
-    public Map<String, Object> getBridgeStatistics(String controllerHandle, String bridgeId) {
+    public Map<String, Object> getBridgeStatistics(String controllerHandle,
+            String bridgeId) {
         try {
             this.checkForControllerReboot(controllerHandle);
 
-            logger.debug("getBridgeStatistics : " + controllerHandle + " bridgeId " + bridgeId);
+            logger.debug("getBridgeStatistics : " + controllerHandle
+                    + " bridgeId " + bridgeId);
 
             Bridge bridge = bridgeMap.get(bridgeId);
             if (bridge == null) {
-                return this.createErrorMap(SESSION_NOT_FOUND, "Specified bridge was not found "
-                        + bridgeId);
+                return this.createErrorMap(SESSION_NOT_FOUND,
+                        "Specified bridge was not found " + bridgeId);
             }
             Map<String, Object> retval = this.createSuccessMap();
             retval.put(Symmitron.BRIDGE_STATE, bridge.getState().toString());
-            retval.put(Symmitron.CREATION_TIME, new Long(bridge.getCreationTime()).toString());
-            retval.put(Symmitron.LAST_PACKET_RECEIVED, new Long(bridge.getLastPacketTime())
+            retval.put(Symmitron.CREATION_TIME, new Long(bridge
+                    .getCreationTime()).toString());
+            retval.put(Symmitron.LAST_PACKET_RECEIVED, new Long(bridge
+                    .getLastPacketTime()).toString());
+            retval.put(Symmitron.CURRENT_TIME_OF_DAY, new Long(System
+                    .currentTimeMillis()).toString());
+            retval.put(Symmitron.PACKETS_RECEIVED, new Long(
+                    bridge.pakcetsReceived).toString());
+            retval.put(Symmitron.PACKETS_SENT, new Long(bridge.packetsSent)
                     .toString());
-            retval.put(Symmitron.CURRENT_TIME_OF_DAY, new Long(System.currentTimeMillis())
-                    .toString());
-            retval.put(Symmitron.PACKETS_RECEIVED, new Long(bridge.pakcetsReceived).toString());
-            retval.put(Symmitron.PACKETS_SENT, new Long(bridge.packetsSent).toString());
             Map[] symStats = new Map[bridge.getSyms().size()];
             int i = 0;
             for (Sym sym : bridge.getSyms()) {
@@ -892,7 +1002,8 @@ public class SymmitronServer implements Symmitron {
     public Map<String, Object> signOut(String controllerHandle) {
         try {
             logger.debug("signOut " + controllerHandle);
-            HashSet<Bridge> rtpBridges = bridgeResourceMap.get(controllerHandle);
+            HashSet<Bridge> rtpBridges = bridgeResourceMap
+                    .get(controllerHandle);
             if (rtpBridges != null) {
                 for (Bridge rtpBridge : rtpBridges) {
                     rtpBridge.stop();
@@ -918,7 +1029,8 @@ public class SymmitronServer implements Symmitron {
     public Map<String, Object> destroySym(String controllerHandle, String symId) {
 
         try {
-            logger.debug("destroySym: " + controllerHandle + " symId = " + symId);
+            logger.debug("destroySym: " + controllerHandle + " symId = "
+                    + symId);
             this.checkForControllerReboot(controllerHandle);
 
             if (sessionMap.containsKey(symId)) {
@@ -962,7 +1074,7 @@ public class SymmitronServer implements Symmitron {
                     timedOutSyms.toArray(symArray);
                     retval.put(SYM_SESSION, symArray);
                 }
-                
+
                 int nbridges = this.bridgeMap.size();
                 retval.put(NBRIDGES, new Integer(nbridges).toString());
             }
@@ -974,8 +1086,37 @@ public class SymmitronServer implements Symmitron {
 
     }
 
-    public Map<String, Object> setTimeout(String controllerHandle, String symId,
-            int inactivityTimeout) {
+    public Map<String, Object> pingAndTest(String controllerHandle,
+            String host, int port) {
+        try {
+            logger.debug("pingAndTest : " + controllerHandle);
+            this.checkForControllerReboot(controllerHandle);
+            Map<String, Object> retval = createSuccessMap();
+            DatagramSocket pingSocket = this.crlfReceiver.pingSocket;
+            this.crlfReceiver.packetRecieved = false;
+            byte[] CRLF = "\r\n\r\n".getBytes();
+            InetAddress proxyAddr = InetAddress.getByName(host);
+            DatagramPacket datagramPacket = new DatagramPacket(CRLF,
+                    CRLF.length, proxyAddr, port);
+            pingSocket.send(datagramPacket);
+            for (int i = 0; i < 10; i++) {
+                if (crlfReceiver.packetRecieved) {
+                    break;
+                } else {
+                    Thread.sleep(5);
+                }
+            }
+            retval.put(PROXY_LIVENESS, new Boolean(
+                    this.crlfReceiver.packetRecieved).toString());
+            return retval;
+        } catch (Exception ex) {
+            logger.error("Processing Error", ex);
+            return createErrorMap(PROCESSING_ERROR, ex.getMessage());
+        }
+    }
+
+    public Map<String, Object> setTimeout(String controllerHandle,
+            String symId, int inactivityTimeout) {
         try {
             this.checkForControllerReboot(controllerHandle);
 
@@ -993,14 +1134,17 @@ public class SymmitronServer implements Symmitron {
         }
     }
 
-    public Map<String, Object> destroyBridge(String controllerHandle, String bridgeId) {
+    public Map<String, Object> destroyBridge(String controllerHandle,
+            String bridgeId) {
         try {
-            logger.debug("destroyBridge: " + controllerHandle + " bridgeId " + bridgeId);
+            logger.debug("destroyBridge: " + controllerHandle + " bridgeId "
+                    + bridgeId);
             this.checkForControllerReboot(controllerHandle);
             Bridge bridge = bridgeMap.get(bridgeId);
             if (bridge != null) {
                 bridgeMap.remove(bridgeId);
-                HashSet<Bridge> bridges = bridgeResourceMap.get(controllerHandle);
+                HashSet<Bridge> bridges = bridgeResourceMap
+                        .get(controllerHandle);
                 bridges.remove(bridge);
                 if (bridges.isEmpty()) {
                     bridgeResourceMap.remove(controllerHandle);
@@ -1008,7 +1152,8 @@ public class SymmitronServer implements Symmitron {
                 for (Sym sym : bridge.getSyms()) {
                     sym.close();
                     sessionMap.remove(sym.getId());
-                    HashSet<Sym> syms = sessionResourceMap.get(controllerHandle);
+                    HashSet<Sym> syms = sessionResourceMap
+                            .get(controllerHandle);
                     syms.remove(sym);
                     if (syms.isEmpty()) {
                         sessionResourceMap.remove(controllerHandle);
@@ -1030,12 +1175,14 @@ public class SymmitronServer implements Symmitron {
     /*
      * (non-Javadoc)
      * 
-     * @see org.sipfoundry.sipxbridge.symmitron.Symmitron#getReceiverState(java.lang .String,
-     *      java.lang.String)
+     * @see org.sipfoundry.sipxbridge.symmitron.Symmitron#getReceiverState(java.lang
+     *      .String, java.lang.String)
      */
-    public Map<String, Object> getReceiverState(String controllerHandle, String symId) {
+    public Map<String, Object> getReceiverState(String controllerHandle,
+            String symId) {
         try {
-            logger.debug("getReceiverState : " + controllerHandle + " symId " + symId);
+            logger.debug("getReceiverState : " + controllerHandle + " symId "
+                    + symId);
             this.checkForControllerReboot(controllerHandle);
 
             if (sessionMap.containsKey(symId)) {
@@ -1073,11 +1220,13 @@ public class SymmitronServer implements Symmitron {
         if (!new File(configurationFile).exists()) {
             System.exit(-1);
         }
-        SymmitronConfig config = new SymmitronConfigParser().parse("file:" + configurationFile);
+        SymmitronConfig config = new SymmitronConfigParser().parse("file:"
+                + configurationFile);
         SymmitronServer.setSymmitronConfig(config);
 
         if (config.getLogFileDirectory() == null) {
-            String installRoot = configDir.substring(0, configDir.indexOf("/etc/sipxpbx"));
+            String installRoot = configDir.substring(0, configDir
+                    .indexOf("/etc/sipxpbx"));
             config.setLogFileDirectory(installRoot + "/var/log/sipxpbx");
         }
         config.setLogFileName("sipxrelay.log");
@@ -1087,9 +1236,11 @@ public class SymmitronServer implements Symmitron {
             System.exit(-1);
         }
 
-        if (config.getPublicAddress() == null && config.getStunServerAddress() == null
+        if (config.getPublicAddress() == null
+                && config.getStunServerAddress() == null
                 && config.isBehindNat()) {
-            System.err.println("Must specify either public address or stun server address");
+            System.err
+                    .println("Must specify either public address or stun server address");
             System.exit(-1);
         }
 
@@ -1170,8 +1321,8 @@ public class SymmitronServer implements Symmitron {
     }
 
     /**
-     * Try an address discovery. If it did not work, then send an alarm. This deals with
-     * accidental mis-configurations of the STUN server address.
+     * Try an address discovery. If it did not work, then send an alarm. This
+     * deals with accidental mis-configurations of the STUN server address.
      */
     private static void tryDiscoverAddress() {
         try {
@@ -1181,14 +1332,15 @@ public class SymmitronServer implements Symmitron {
                 addressResolutionAlarmSent = false;
             } catch (UnknownHostException ex) {
                 /*
-                 * Cannot resolve address or bad address entered. Carry on bravely - maybe we will
-                 * recover.
+                 * Cannot resolve address or bad address entered. Carry on
+                 * bravely - maybe we will recover.
                  */
                 try {
                     if (!addressResolutionAlarmSent) {
                         SymmitronServer.alarmClient.raiseAlarm(
                                 SymmitronServer.STUN_ADDRESS_ERROR_ALARM_ID,
-                                SymmitronServer.symmitronConfig.getStunServerAddress());
+                                SymmitronServer.symmitronConfig
+                                        .getStunServerAddress());
                         addressResolutionAlarmSent = true;
                         return;
                     }
@@ -1196,7 +1348,10 @@ public class SymmitronServer implements Symmitron {
                     logger.error("Problem sending Alarm", ex);
                 }
             }
-            /* Address of STUN server successfully resolved. Lets try to contact it */
+            /*
+             * Address of STUN server successfully resolved. Lets try to contact
+             * it
+             */
 
             discoverAddress();
             if (SymmitronServer.getPublicInetAddress() == null && !alarmSent) {
@@ -1204,7 +1359,8 @@ public class SymmitronServer implements Symmitron {
                         SymmitronServer.symmitronConfig.getStunServerAddress());
                 alarmSent = true;
 
-            } else if (SymmitronServer.getPublicInetAddress() != null && alarmSent) {
+            } else if (SymmitronServer.getPublicInetAddress() != null
+                    && alarmSent) {
                 SymmitronServer.alarmClient.raiseAlarm(STUN_RECOVERY_ALARM_ID,
                         SymmitronServer.symmitronConfig.getStunServerAddress());
                 alarmSent = false;
@@ -1212,8 +1368,10 @@ public class SymmitronServer implements Symmitron {
         } catch (Exception ex) {
             try {
                 if (!alarmSent) {
-                    SymmitronServer.alarmClient.raiseAlarm(STUN_FAILURE_ALARM_ID,
-                            SymmitronServer.symmitronConfig.getStunServerAddress());
+                    SymmitronServer.alarmClient.raiseAlarm(
+                            STUN_FAILURE_ALARM_ID,
+                            SymmitronServer.symmitronConfig
+                                    .getStunServerAddress());
                     alarmSent = true;
                 }
             } catch (XmlRpcException e) {
@@ -1224,22 +1382,26 @@ public class SymmitronServer implements Symmitron {
     }
 
     public static void start() throws Exception {
-        SymmitronServer.configDir = System.getProperty("conf.dir", "/etc/sipxpbx");
+        SymmitronServer.configDir = System.getProperty("conf.dir",
+                "/etc/sipxpbx");
         String configurationFile = configDir + "/nattraversalrules.xml";
         if (!new File(configurationFile).exists()) {
-            System.err.println("Configuration file " + configurationFile + " missing.");
+            System.err.println("Configuration file " + configurationFile
+                    + " missing.");
             System.exit(-1);
         }
 
-        SymmitronConfig config = new SymmitronConfigParser().parse("file:" + configurationFile);
+        SymmitronConfig config = new SymmitronConfigParser().parse("file:"
+                + configurationFile);
 
-        SymmitronServer.alarmClient = new SipXAlarmClient(config.getSipXSupervisorHost(), config
-                .getSipXSupervisorXmlRpcPort());
+        SymmitronServer.alarmClient = new SipXAlarmClient(config
+                .getSipXSupervisorHost(), config.getSipXSupervisorXmlRpcPort());
 
         InetAddress localAddr = findIpAddress(config.getLocalAddress());
 
         if (config.getLogFileDirectory() == null) {
-            String installRoot = configDir.substring(0, configDir.indexOf("/etc/sipxpbx"));
+            String installRoot = configDir.substring(0, configDir
+                    .indexOf("/etc/sipxpbx"));
             config.setLogFileDirectory(installRoot + "/var/log/sipxpbx");
         }
         config.setLogFileName("sipxrelay.log");
@@ -1262,20 +1424,23 @@ public class SymmitronServer implements Symmitron {
         }
         SymmitronServer.setSymmitronConfig(config);
 
-        logger.info("Checking port range " + config.getPortRangeLowerBound() + ":"
-                + config.getPortRangeUpperBound());
-        for (int i = config.getPortRangeLowerBound(); i < config.getPortRangeUpperBound(); i++) {
+        logger.info("Checking port range " + config.getPortRangeLowerBound()
+                + ":" + config.getPortRangeUpperBound());
+        for (int i = config.getPortRangeLowerBound(); i < config
+                .getPortRangeUpperBound(); i++) {
             try {
                 DatagramSocket sock = new DatagramSocket(i, localAddr);
                 sock.close();
             } catch (Exception ex) {
-                logger.error(String.format("Failed to bind to %s:%d", localAddr, i), ex);
+                logger.error(String.format("Failed to bind to %s:%d",
+                        localAddr, i), ex);
                 throw ex;
             }
         }
         logger.info("Port range checked ");
 
-        if (config.getPublicAddress() == null && config.getStunServerAddress() != null) {
+        if (config.getPublicAddress() == null
+                && config.getStunServerAddress() != null) {
 
             tryDiscoverAddress();
             timer.schedule(new TimerTask() {
@@ -1286,7 +1451,8 @@ public class SymmitronServer implements Symmitron {
 
                 }
 
-            }, config.getRediscoveryTime() * 1000, config.getRediscoveryTime() * 1000);
+            }, config.getRediscoveryTime() * 1000,
+                    config.getRediscoveryTime() * 1000);
         }
 
         logger.info("Public address is " + config.getPublicAddress());

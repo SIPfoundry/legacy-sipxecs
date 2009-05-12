@@ -217,6 +217,11 @@ public interface Symmitron {
     public static final String RECEIVER_STATE = "receiver-state";
     
     /**
+     * The proxy liveness flag
+     */
+    public static final String PROXY_LIVENESS = "proxy-liveness";
+    
+    /**
      * The number of bridges.
      */
     public static final String NBRIDGES = "nbridges";
@@ -225,6 +230,7 @@ public interface Symmitron {
      * Successful return.
      */
     public static final String OK = "ok";
+    
 
     /**
      * Error return.

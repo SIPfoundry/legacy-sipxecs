@@ -15,6 +15,10 @@ import gov.nist.javax.sip.header.extensions.ReplacesHeader;
 import gov.nist.javax.sip.message.SIPMessage;
 
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.URLDecoder;
 import java.text.ParseException;
 import java.util.HashSet;
@@ -24,6 +28,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.TimerTask;
+import java.util.concurrent.Semaphore;
 
 import javax.sdp.SdpParseException;
 import javax.sdp.SessionDescription;
@@ -61,6 +66,7 @@ import javax.sip.message.Request;
 import javax.sip.message.Response;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.commons.siprouter.ProxyHop;
 import org.sipfoundry.sipxbridge.symmitron.BridgeInterface;
 import org.sipfoundry.sipxbridge.symmitron.BridgeState;
 import org.sipfoundry.sipxbridge.symmitron.KeepaliveMethod;
@@ -69,10 +75,11 @@ import org.sipfoundry.sipxbridge.symmitron.SymmitronClient;
 import org.sipfoundry.sipxbridge.symmitron.SymmitronException;
 
 /**
- * A class that represents an ongoing call. Each call Id points at one of these structures. It can
- * be a many to one mapping. When we receive an incoming request we retrieve the corresponding
- * backtobackuseragent and route the request to it. It keeps the necessary state to handle
- * subsequent requests that are related to this call.
+ * A class that represents an ongoing call. Each call Id points at one of these
+ * structures. It can be a many to one mapping. When we receive an incoming
+ * request we retrieve the corresponding backtobackuseragent and route the
+ * request to it. It keeps the necessary state to handle subsequent requests
+ * that are related to this call.
  * 
  * @author M. Ranganathan
  * 
@@ -87,8 +94,8 @@ public class BackToBackUserAgent {
     private RtpBridge rtpBridge;
 
     /*
-     * This is just a table of dialogs that reference this B2bua. When the table is empty the
-     * b2bua is GCd.
+     * This is just a table of dialogs that reference this B2bua. When the table
+     * is empty the b2bua is GCd.
      */
     HashSet<Dialog> dialogTable = new HashSet<Dialog>();
 
@@ -105,8 +112,8 @@ public class BackToBackUserAgent {
     private int counter;
 
     /*
-     * Any call Id associated with this b2bua will be derived from this base call id. This is
-     * stored here for logging purposes.
+     * Any call Id associated with this b2bua will be derived from this base
+     * call id. This is stored here for logging purposes.
      */
     private String creatingCallId;
 
@@ -122,8 +129,9 @@ public class BackToBackUserAgent {
     private String symmitronServerHandle;
 
     /*
-     * A given B2BUA has one pair of dialogs one for the WAN and one for the LAN and additionally
-     * possibly a MOH dialog which is signaled when the WAN side is put on hold.
+     * A given B2BUA has one pair of dialogs one for the WAN and one for the LAN
+     * and additionally possibly a MOH dialog which is signaled when the WAN
+     * side is put on hold.
      */
 
     private Dialog musicOnHoldDialog;
@@ -135,6 +143,10 @@ public class BackToBackUserAgent {
     private Hop proxyAddress;
 
     private boolean pendingTermination;
+    
+    private HashSet<Hop> blackListedProxyServers = new HashSet<Hop>();
+
+    
 
     // ///////////////////////////////////////////////////////////////////////
     // Constructor.
@@ -149,41 +161,29 @@ public class BackToBackUserAgent {
         int load = 0;
 
         /*
-         * Received this request from the LAN The symmitron to use is the symmitron that runs
-         * where the request originated from. If received this request from the LAN side then we
-         * look at the topmost via header and try to contact the server at that address.
+         * Received this request from the LAN The symmitron to use is the
+         * symmitron that runs where the request originated from. If received
+         * this request from the LAN side then we look at the topmost via header
+         * and try to contact the server at that address.
          */
         if (provider == Gateway.getLanProvider()) {
             ViaHeader viaHeader = (ViaHeader) request.getHeader(ViaHeader.NAME);
             /*
-             * If we have a received header, then use that header to look for a symmmitron there.
-             * Otherwise use the Via header. The symmitron must be up and running by the time the
-             * request is seen at the server.
+             * If we have a received header, then use that header to look for a
+             * symmmitron there. Otherwise use the Via header. The symmitron
+             * must be up and running by the time the request is seen at the
+             * server.
              */
-            String address = (viaHeader.getReceived() != null ? viaHeader.getReceived()
-                    : viaHeader.getHost());
+            String address = (viaHeader.getReceived() != null ? viaHeader
+                    .getReceived() : viaHeader.getHost());
             this.symmitronClient = Gateway.getSymmitronClient(address);
-            this.proxyAddress = new HopImpl(address, viaHeader.getPort(), viaHeader
-                    .getTransport());
-            load = symmitronClient.ping();
+            this.proxyAddress = new ProxyHop(address, viaHeader.getPort(),
+                    viaHeader.getTransport());
         } else {
-            for (Hop hop : Gateway.initializeSipxProxyAddresses()) {
-                try {
-                    SymmitronClient symmitronClient = Gateway.getSymmitronClient(hop.getHost());
-                    /* Find the number of active bridges there */
-                    load = symmitronClient.ping();
-                    /*
-                     * Find the Proxy with the fewest number of active bridges.
-                     */
-                    this.proxyAddress = hop;
-                    this.symmitronClient = symmitronClient;
-
-                } catch (SymmitronException ex) {
-                    logger.error("Could not contact Relay at " + hop.getHost());
-                }
-            }
+            this.findNextSipXProxy();
             if (this.proxyAddress == null) {
-                throw new IOException("Could not contact Relay -- cannot create B2BUA");
+                throw new IOException(
+                        "Could not locate a sipx proxy server -- cannot create B2BUA");
             }
             logger.debug("routing call to " + this.proxyAddress.getHost() + ":"
                     + this.proxyAddress.getPort() + " relay load = " + load);
@@ -195,11 +195,12 @@ public class BackToBackUserAgent {
         this.addDialog(dialog);
         if (itspAccountInfo == null || !itspAccountInfo.stripPrivateHeaders()) {
             /*
-             * If privacy is not desired we use the incoming callid and generate new call ids off
-             * that one. This makes life a bit easier when extracting traces.
+             * If privacy is not desired we use the incoming callid and generate
+             * new call ids off that one. This makes life a bit easier when
+             * extracting traces.
              */
-            this.creatingCallId = ((CallIdHeader) request.getHeader(CallIdHeader.NAME))
-                    .getCallId();
+            this.creatingCallId = ((CallIdHeader) request
+                    .getHeader(CallIdHeader.NAME)).getCallId();
         } else {
             /*
              * If privacy IS desired then generate a new random call id header.
@@ -216,9 +217,10 @@ public class BackToBackUserAgent {
     /**
      * Create an RTP session for a dialog.
      * 
-     * RTP session that is connected to the WAN Side. Note that we use a different method here
-     * because we need to record additionally whether or not to use global addressing in the RTP
-     * session descriptor associated with the receiver.
+     * RTP session that is connected to the WAN Side. Note that we use a
+     * different method here because we need to record additionally whether or
+     * not to use global addressing in the RTP session descriptor associated
+     * with the receiver.
      * 
      * @return the rtp session created.
      */
@@ -251,10 +253,12 @@ public class BackToBackUserAgent {
             } else {
                 SymImpl symImpl = symmitronClient.createEvenSym();
                 rtpSession = new RtpSession(symImpl);
-                rtpSession.getReceiver().setGlobalAddress(symmitronClient.getPublicAddress());
+                rtpSession.getReceiver().setGlobalAddress(
+                        symmitronClient.getPublicAddress());
                 rtpSession.getReceiver().setUseGlobalAddressing(
                         dialogContext.getItspInfo() == null
-                                || dialogContext.getItspInfo().isGlobalAddressingUsed());
+                                || dialogContext.getItspInfo()
+                                        .isGlobalAddressingUsed());
                 DialogContext.get(dialog).setRtpSession(rtpSession);
                 this.rtpBridge.addSym(rtpSession);
             }
@@ -263,9 +267,9 @@ public class BackToBackUserAgent {
     }
 
     /**
-     * This method handles an Invite with a replaces header in it. It is invoked for consultative
-     * transfers. It does a Dialog splicing and media splicing on the Refer dialog. Here is the
-     * reference call flow for this case:
+     * This method handles an Invite with a replaces header in it. It is invoked
+     * for consultative transfers. It does a Dialog splicing and media splicing
+     * on the Refer dialog. Here is the reference call flow for this case:
      * 
      * <pre>
      * 
@@ -305,14 +309,19 @@ public class BackToBackUserAgent {
      * </pre>
      * 
      * 
-     * @param serverTransaction - Inbound server transaction we are processing.
-     * @param toDomain -- domain to send the request to.
-     * @param requestEvent -- the request event we are processing.
-     * @param replacedDialog -- the dialog we are replacing.
+     * @param serverTransaction -
+     *            Inbound server transaction we are processing.
+     * @param toDomain --
+     *            domain to send the request to.
+     * @param requestEvent --
+     *            the request event we are processing.
+     * @param replacedDialog --
+     *            the dialog we are replacing.
      * @throws SipException
      */
-    void handleSpriralInviteWithReplaces(RequestEvent requestEvent, Dialog replacedDialog,
-            ServerTransaction serverTransaction, String toDomain) throws SipException {
+    void handleSpriralInviteWithReplaces(RequestEvent requestEvent,
+            Dialog replacedDialog, ServerTransaction serverTransaction,
+            String toDomain) throws SipException {
         /* The inbound INVITE */
         SipProvider provider = (SipProvider) requestEvent.getSource();
         try {
@@ -320,34 +329,38 @@ public class BackToBackUserAgent {
                     .getApplicationData()).getPeerDialog();
             if (logger.isDebugEnabled()) {
                 logger.debug("replacedDialogPeerDialog = "
-                        + ((DialogContext) replacedDialog.getApplicationData()).getPeerDialog());
-                logger.debug("referingDialogPeerDialog = " + this.referingDialogPeer);
+                        + ((DialogContext) replacedDialog.getApplicationData())
+                                .getPeerDialog());
+                logger.debug("referingDialogPeerDialog = "
+                        + this.referingDialogPeer);
 
             }
 
             if (replacedDialogPeerDialog.getState() == DialogState.TERMINATED) {
-                Response response = SipUtilities.createResponse(serverTransaction,
-                        Response.BUSY_HERE);
+                Response response = SipUtilities.createResponse(
+                        serverTransaction, Response.BUSY_HERE);
                 serverTransaction.sendResponse(response);
                 return;
             }
 
             if (this.referingDialogPeer.getState() == DialogState.TERMINATED) {
-                Response response = SipUtilities.createResponse(serverTransaction,
-                        Response.BUSY_HERE);
+                Response response = SipUtilities.createResponse(
+                        serverTransaction, Response.BUSY_HERE);
                 serverTransaction.sendResponse(response);
                 return;
             }
 
-            DialogContext.pairDialogs(((DialogContext) replacedDialog.getApplicationData())
-                    .getPeerDialog(), this.referingDialogPeer);
+            DialogContext.pairDialogs(((DialogContext) replacedDialog
+                    .getApplicationData()).getPeerDialog(),
+                    this.referingDialogPeer);
             /*
              * Tear down the Music On Hold Dialog if any.
              */
             this.sendByeToMohServer();
 
             /* The replaced dialog is about ready to die so he has no peer */
-            ((DialogContext) replacedDialog.getApplicationData()).setPeerDialog(null);
+            ((DialogContext) replacedDialog.getApplicationData())
+                    .setPeerDialog(null);
 
             if (logger.isDebugEnabled()) {
                 logger.debug("referingDialog = " + referingDialog);
@@ -355,15 +368,17 @@ public class BackToBackUserAgent {
             }
 
             /*
-             * We need to form a new bridge. Remove the refering dialog from our rtp bridge.
-             * Remove the replacedDialog from its rtpBridge and form a new bridge.
+             * We need to form a new bridge. Remove the refering dialog from our
+             * rtp bridge. Remove the replacedDialog from its rtpBridge and form
+             * a new bridge.
              */
             rtpBridge.pause();
 
             Set<RtpSession> myrtpSessions = this.rtpBridge.getSyms();
             DialogContext replacedDialogApplicationData = (DialogContext) replacedDialog
                     .getApplicationData();
-            RtpBridge hisBridge = replacedDialogApplicationData.getBackToBackUserAgent().rtpBridge;
+            RtpBridge hisBridge = replacedDialogApplicationData
+                    .getBackToBackUserAgent().rtpBridge;
             hisBridge.pause();
 
             Set<RtpSession> hisRtpSessions = hisBridge.getSyms();
@@ -371,7 +386,8 @@ public class BackToBackUserAgent {
 
             RtpBridge newBridge = new RtpBridge(bridge);
 
-            for (Iterator<RtpSession> it = myrtpSessions.iterator(); it.hasNext();) {
+            for (Iterator<RtpSession> it = myrtpSessions.iterator(); it
+                    .hasNext();) {
                 RtpSession sym = it.next();
                 if (sym != DialogContext.getRtpSession(replacedDialog)
                         && sym != DialogContext.getRtpSession(referingDialog)) {
@@ -380,7 +396,8 @@ public class BackToBackUserAgent {
                 }
             }
 
-            for (Iterator<RtpSession> it = hisRtpSessions.iterator(); it.hasNext();) {
+            for (Iterator<RtpSession> it = hisRtpSessions.iterator(); it
+                    .hasNext();) {
                 RtpSession sym = it.next();
                 if (sym != DialogContext.getRtpSession(replacedDialog)
                         && sym != DialogContext.getRtpSession(referingDialog)) {
@@ -400,40 +417,46 @@ public class BackToBackUserAgent {
             newBridge.start();
 
             if (logger.isDebugEnabled()) {
-                logger.debug("replacedDialog State " + replacedDialog.getState());
+                logger.debug("replacedDialog State "
+                        + replacedDialog.getState());
             }
 
             if (replacedDialog.getState() != DialogState.TERMINATED
                     && replacedDialog.getState() != DialogState.EARLY) {
                 Request byeRequest = replacedDialog.createRequest(Request.BYE);
-                ClientTransaction byeCtx = ((DialogExt) replacedDialog).getSipProvider()
-                        .getNewClientTransaction(byeRequest);
-                TransactionContext.attach(byeCtx, Operation.HANDLE_SPIRAL_INVITE_WITH_REPLACES);
+                ClientTransaction byeCtx = ((DialogExt) replacedDialog)
+                        .getSipProvider().getNewClientTransaction(byeRequest);
+                TransactionContext.attach(byeCtx,
+                        Operation.HANDLE_SPIRAL_INVITE_WITH_REPLACES);
                 replacedDialog.sendRequest(byeCtx);
 
             }
 
-            Response response = SipUtilities.createResponse(serverTransaction, Response.OK);
+            Response response = SipUtilities.createResponse(serverTransaction,
+                    Response.OK);
 
             ContactHeader contactHeader = SipUtilities.createContactHeader(
                     Gateway.SIPXBRIDGE_USER, provider);
             response.setHeader(contactHeader);
 
             /*
-             * If re-INVITE is supported send the INVITE down the other leg. Note that at this
-             * point we have already queried the Sdp from the other leg. We will ACK that with the
-             * response received.
+             * If re-INVITE is supported send the INVITE down the other leg.
+             * Note that at this point we have already queried the Sdp from the
+             * other leg. We will ACK that with the response received.
              */
 
-            if (Gateway.getAccountManager().getBridgeConfiguration().isReInviteSupported()) {
+            if (Gateway.getAccountManager().getBridgeConfiguration()
+                    .isReInviteSupported()) {
                 Dialog referingDialogPeer = this.referingDialogPeer;
 
                 DialogContext referingDialogPeerApplicationData = DialogContext
                         .get(referingDialogPeer);
-                Response lastResponse = referingDialogPeerApplicationData.getLastResponse();
+                Response lastResponse = referingDialogPeerApplicationData
+                        .getLastResponse();
                 DialogContext replacedDialogPeerDialogApplicationData = DialogContext
                         .get(replacedDialogPeerDialog);
-                Request reInvite = replacedDialogPeerDialog.createRequest(Request.INVITE);
+                Request reInvite = replacedDialogPeerDialog
+                        .createRequest(Request.INVITE);
 
                 ItspAccountInfo accountInfo = replacedDialogPeerDialogApplicationData
                         .getItspInfo();
@@ -447,16 +470,21 @@ public class BackToBackUserAgent {
                 SessionDescription sessionDescription = SipUtilities
                         .getSessionDescription(lastResponse);
 
-                replacedDialogPeerDialogApplicationData.getRtpSession().getReceiver()
+                replacedDialogPeerDialogApplicationData.getRtpSession()
+                        .getReceiver()
                         .setSessionDescription(sessionDescription);
 
                 SipUtilities.incrementSessionVersion(sessionDescription);
 
-                reInvite.setContent(sessionDescription.toString(), ProtocolObjects.headerFactory
-                        .createContentTypeHeader("application", "sdp"));
-                SipProvider wanProvider = ((DialogExt) replacedDialogPeerDialog).getSipProvider();
-                ClientTransaction ctx = wanProvider.getNewClientTransaction(reInvite);
-                TransactionContext.attach(ctx, Operation.HANDLE_SPIRAL_INVITE_WITH_REPLACES);
+                reInvite.setContent(sessionDescription.toString(),
+                        ProtocolObjects.headerFactory.createContentTypeHeader(
+                                "application", "sdp"));
+                SipProvider wanProvider = ((DialogExt) replacedDialogPeerDialog)
+                        .getSipProvider();
+                ClientTransaction ctx = wanProvider
+                        .getNewClientTransaction(reInvite);
+                TransactionContext.attach(ctx,
+                        Operation.HANDLE_SPIRAL_INVITE_WITH_REPLACES);
                 replacedDialogPeerDialog.sendRequest(ctx);
             }
             serverTransaction.sendResponse(response);
@@ -470,11 +498,13 @@ public class BackToBackUserAgent {
     }
 
     /**
-     * Remove a dialog from the table ( the dialog terminates ). This is a garbage collection
-     * routine. When all the dialogs referencing this structure have terminated, then we send BYE
-     * to the MOH dialog ( if it is still alive ).
+     * Remove a dialog from the table ( the dialog terminates ). This is a
+     * garbage collection routine. When all the dialogs referencing this
+     * structure have terminated, then we send BYE to the MOH dialog ( if it is
+     * still alive ).
      * 
-     * @param dialog -- the terminated dialog.
+     * @param dialog --
+     *            the terminated dialog.
      */
     synchronized void removeDialog(Dialog dialog) {
 
@@ -513,7 +543,8 @@ public class BackToBackUserAgent {
                 public void run() {
                     if (dialogTable.size() == 1) {
                         try {
-                            tearDown(Gateway.SIPXBRIDGE_USER, ReasonCode.CALL_TERMINATED,
+                            tearDown(Gateway.SIPXBRIDGE_USER,
+                                    ReasonCode.CALL_TERMINATED,
                                     "Call Termination Detected");
                         } catch (Exception ex) {
                             logger.error("Error tearing down call", ex);
@@ -530,8 +561,8 @@ public class BackToBackUserAgent {
     }
 
     /**
-     * Add a dialog entry to the b2bua. This implies that the given dialog holds a pointer to this
-     * structure.
+     * Add a dialog entry to the b2bua. This implies that the given dialog holds
+     * a pointer to this structure.
      * 
      * @param provider
      * @param dialog
@@ -544,54 +575,63 @@ public class BackToBackUserAgent {
     }
 
     /**
-     * Create an INVITE request from an in-bound REFER. Note that the only reason why this is here
-     * and not in SipUtilites is because we need the callId counter - should it be moved?
+     * Create an INVITE request from an in-bound REFER. Note that the only
+     * reason why this is here and not in SipUtilites is because we need the
+     * callId counter - should it be moved?
      * 
      * 
-     * @param requestEvent -- the in-bound REFER request Event.
+     * @param requestEvent --
+     *            the in-bound REFER request Event.
      * 
      * @return the INVITE request crafted from the IB Refer
      * 
      */
     @SuppressWarnings("unchecked")
-    Request createInviteFromReferRequest(RequestEvent requestEvent) throws SipException,
-            ParseException, IOException {
+    Request createInviteFromReferRequest(RequestEvent requestEvent)
+            throws SipException, ParseException, IOException {
         try {
             Dialog dialog = requestEvent.getDialog();
-            ServerTransaction referServerTransaction = requestEvent.getServerTransaction();
+            ServerTransaction referServerTransaction = requestEvent
+                    .getServerTransaction();
             Request referRequest = referServerTransaction.getRequest();
             DialogContext dialogContext = DialogContext.get(dialog);
-            FromHeader fromHeader = (FromHeader) dialogContext.getRequest().getHeader(
-                    FromHeader.NAME).clone();
+            FromHeader fromHeader = (FromHeader) dialogContext.getRequest()
+                    .getHeader(FromHeader.NAME).clone();
             fromHeader.removeParameter("tag");
 
-            ToHeader toHeader = (ToHeader) referRequest.getHeader(ToHeader.NAME).clone();
+            ToHeader toHeader = (ToHeader) referRequest
+                    .getHeader(ToHeader.NAME).clone();
             toHeader.removeParameter("tag");
             /*
-             * Get the Refer-To header and convert it into an INVITE to send to the REFER target.
+             * Get the Refer-To header and convert it into an INVITE to send to
+             * the REFER target.
              */
 
             ReferToHeader referToHeader = (ReferToHeader) referRequest
                     .getHeader(ReferToHeader.NAME);
             /*
-             * Do not set maddr parameter here. This is the refer target. The phone sets it. We do
-             * not want to override the port. See XECS-2480.
+             * Do not set maddr parameter here. This is the refer target. The
+             * phone sets it. We do not want to override the port. See
+             * XECS-2480.
              */
             SipURI uri = (SipURI) referToHeader.getAddress().getURI().clone();
             uri.setTransportParam(proxyAddress.getTransport());
 
-            CSeqHeader cseq = ProtocolObjects.headerFactory.createCSeqHeader(1L, Request.INVITE);
-            ViaHeader viaHeader = SipUtilities.createViaHeader(Gateway.getLanProvider(), Gateway
-                    .getSipxProxyTransport());
+            CSeqHeader cseq = ProtocolObjects.headerFactory.createCSeqHeader(
+                    1L, Request.INVITE);
+            ViaHeader viaHeader = SipUtilities.createViaHeader(Gateway
+                    .getLanProvider(), Gateway.getSipxProxyTransport());
             List viaList = new LinkedList();
             viaList.add(viaHeader);
             MaxForwardsHeader maxForwards = ProtocolObjects.headerFactory
                     .createMaxForwardsHeader(20);
             CallIdHeader callId = ProtocolObjects.headerFactory
-                    .createCallIdHeader(this.creatingCallId + "." + this.counter++);
+                    .createCallIdHeader(this.creatingCallId + "."
+                            + this.counter++);
 
-            Request newRequest = ProtocolObjects.messageFactory.createRequest(uri,
-                    Request.INVITE, callId, cseq, fromHeader, toHeader, viaList, maxForwards);
+            Request newRequest = ProtocolObjects.messageFactory.createRequest(
+                    uri, Request.INVITE, callId, cseq, fromHeader, toHeader,
+                    viaList, maxForwards);
 
             /*
              * Does the refer to header contain a Replaces? ( attended transfer )
@@ -603,9 +643,10 @@ public class BackToBackUserAgent {
 
             if (replacesParam != null) {
 
-                String decodedReplaces = URLDecoder.decode(replacesParam, "UTF-8");
-                replacesHeader = (ReplacesHeader) ProtocolObjects.headerFactory.createHeader(
-                        ReplacesHeader.NAME, decodedReplaces);
+                String decodedReplaces = URLDecoder.decode(replacesParam,
+                        "UTF-8");
+                replacesHeader = (ReplacesHeader) ProtocolObjects.headerFactory
+                        .createHeader(ReplacesHeader.NAME, decodedReplaces);
                 newRequest.addHeader(replacesHeader);
             }
 
@@ -616,9 +657,10 @@ public class BackToBackUserAgent {
                 String headerValue = uri.getHeader(headerName);
                 Header header = null;
                 if (headerValue != null) {
-                    String decodedHeaderValue = URLDecoder.decode(headerValue, "UTF-8");
-                    header = (Header) ProtocolObjects.headerFactory.createHeader(headerName,
-                            decodedHeaderValue);
+                    String decodedHeaderValue = URLDecoder.decode(headerValue,
+                            "UTF-8");
+                    header = (Header) ProtocolObjects.headerFactory
+                            .createHeader(headerName, decodedHeaderValue);
                 }
                 if (header != null) {
                     newRequest.addHeader(header);
@@ -626,32 +668,37 @@ public class BackToBackUserAgent {
             }
 
             /*
-             * Remove any header parameters - we have already dealt with them above.
+             * Remove any header parameters - we have already dealt with them
+             * above.
              */
             ((gov.nist.javax.sip.address.SipURIExt) uri).removeHeaders();
 
             if (referRequest.getHeader(ReferredByHeader.NAME) != null) {
-                newRequest.setHeader(referRequest.getHeader(ReferredByHeader.NAME));
+                newRequest.setHeader(referRequest
+                        .getHeader(ReferredByHeader.NAME));
             }
 
             SipUtilities.addLanAllowHeaders(newRequest);
 
-            String fromUser = ((SipURI) fromHeader.getAddress().getURI()).getUser();
-            ContactHeader contactHeader = SipUtilities.createContactHeader(fromUser, Gateway
-                    .getLanProvider());
+            String fromUser = ((SipURI) fromHeader.getAddress().getURI())
+                    .getUser();
+            ContactHeader contactHeader = SipUtilities.createContactHeader(
+                    fromUser, Gateway.getLanProvider());
             newRequest.setHeader(contactHeader);
             /*
              * Create a new out of dialog request.
              */
             toHeader.getAddress().setURI(uri);
 
-            fromHeader.setTag(Integer.toString(Math.abs(new Random().nextInt())));
-            ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader(
-                    "application", "sdp");
+            fromHeader.setTag(Integer
+                    .toString(Math.abs(new Random().nextInt())));
+            ContentTypeHeader cth = ProtocolObjects.headerFactory
+                    .createContentTypeHeader("application", "sdp");
             newRequest.setHeader(fromHeader);
 
             RtpSession lanRtpSession = this.createRtpSession(dialog);
-            SessionDescription sd = lanRtpSession.getReceiver().getSessionDescription();
+            SessionDescription sd = lanRtpSession.getReceiver()
+                    .getSessionDescription();
             SipUtilities.setDuplexity(sd, "sendrecv");
             newRequest.setContent(sd, cth);
 
@@ -663,26 +710,32 @@ public class BackToBackUserAgent {
     }
 
     /**
-     * This method is called when the REFER is received at the B2BUA. Since ITSPs do not handle
-     * REFER, we convert it to a re-INVITE to solicit an offer. To determine the codec that was
-     * negotiated in the original Call Setup, we send an INVITE (no-sdp) to the dialog to solicit
-     * an offer. This operation has already returned a result when this method is called. This
-     * method is called when the response for that solicitation is received. We need to direct an
-     * INVITE to the contact mentioned in the Refer. Notice that when this method is called, we
-     * have already created an INVITE previously that we will now replay with the SDP answer to
-     * the PBX side.
+     * This method is called when the REFER is received at the B2BUA. Since
+     * ITSPs do not handle REFER, we convert it to a re-INVITE to solicit an
+     * offer. To determine the codec that was negotiated in the original Call
+     * Setup, we send an INVITE (no-sdp) to the dialog to solicit an offer. This
+     * operation has already returned a result when this method is called. This
+     * method is called when the response for that solicitation is received. We
+     * need to direct an INVITE to the contact mentioned in the Refer. Notice
+     * that when this method is called, we have already created an INVITE
+     * previously that we will now replay with the SDP answer to the PBX side.
      * 
      * 
-     * @param inviteRequest -- the INVITE request.
-     * @param referRequestEvent -- the REFER dialog
-     * @param sessionDescription -- the session description to use when forwarding the INVITE to
-     *        the sipx proxy server.
-     * @param dialogPendingSdpAnswer -- the dialog that is pending SDP answer in ACK after the OK
-     *        comes in with an SDP.
+     * @param inviteRequest --
+     *            the INVITE request.
+     * @param referRequestEvent --
+     *            the REFER dialog
+     * @param sessionDescription --
+     *            the session description to use when forwarding the INVITE to
+     *            the sipx proxy server.
+     * @param dialogPendingSdpAnswer --
+     *            the dialog that is pending SDP answer in ACK after the OK
+     *            comes in with an SDP.
      * 
      */
 
-    void referInviteToSipxProxy(Request inviteRequest, ClientTransaction mohClientTransaction,
+    void referInviteToSipxProxy(Request inviteRequest,
+            ClientTransaction mohClientTransaction,
             Dialog dialogPendingSdpAnswer, RequestEvent referRequestEvent,
             SessionDescription sessionDescription) {
         logger.debug("referInviteToSipxProxy: ");
@@ -694,7 +747,8 @@ public class BackToBackUserAgent {
             ServerTransaction stx = referRequestEvent.getServerTransaction();
 
             /*
-             * Transfer agent canceled the REFER before we had a chance to process it.
+             * Transfer agent canceled the REFER before we had a chance to
+             * process it.
              */
             if (referRequestEventDialog == null
                     || referRequestEventDialog.getState() == DialogState.TERMINATED) {
@@ -703,38 +757,43 @@ public class BackToBackUserAgent {
                  */
                 Response response;
                 if (stx != null) {
-                    response = SipUtilities.createResponse(stx, Response.NOT_ACCEPTABLE);
+                    response = SipUtilities.createResponse(stx,
+                            Response.NOT_ACCEPTABLE);
                 } else {
                     response = ProtocolObjects.messageFactory.createResponse(
                             Response.NOT_ACCEPTABLE, referRequest);
                 }
-                WarningHeader warning = ProtocolObjects.headerFactory.createWarningHeader(
-                        Gateway.SIPXBRIDGE_USER, WarningCode.OUT_OF_DIALOG_REFER,
-                        "Out of dialog REFER");
+                WarningHeader warning = ProtocolObjects.headerFactory
+                        .createWarningHeader(Gateway.SIPXBRIDGE_USER,
+                                WarningCode.OUT_OF_DIALOG_REFER,
+                                "Out of dialog REFER");
                 response.setHeader(SipUtilities.createContactHeader(null,
                         ((SipProvider) referRequestEvent.getSource())));
                 response.setHeader(warning);
                 if (stx != null) {
                     stx.sendResponse(response);
                 } else {
-                    ((SipProvider) referRequestEvent.getSource()).sendResponse(response);
+                    ((SipProvider) referRequestEvent.getSource())
+                            .sendResponse(response);
                 }
 
                 return;
             }
 
             /*
-             * Create a new client transaction. First attach any queried session description.
+             * Create a new client transaction. First attach any queried session
+             * description.
              */
             if (sessionDescription != null) {
                 SipUtilities.setDuplexity(sessionDescription, "sendrecv");
-                SipUtilities.setSessionDescription(inviteRequest, sessionDescription);
+                SipUtilities.setSessionDescription(inviteRequest,
+                        sessionDescription);
             }
             ClientTransaction ct = Gateway.getLanProvider()
                     .getNewClientTransaction(inviteRequest);
 
-            DialogContext newDialogContext = DialogContext.attach(this, ct.getDialog(), ct, ct
-                    .getRequest());
+            DialogContext newDialogContext = DialogContext.attach(this, ct
+                    .getDialog(), ct, ct.getRequest());
             this.addDialog(ct.getDialog());
             DialogContext referDialogContext = (DialogContext) referRequestEventDialog
                     .getApplicationData();
@@ -750,7 +809,8 @@ public class BackToBackUserAgent {
 
             this.referingDialogPeer = referDialogContext.getPeerDialog();
 
-            DialogContext dat = (DialogContext) this.referingDialogPeer.getApplicationData();
+            DialogContext dat = (DialogContext) this.referingDialogPeer
+                    .getApplicationData();
             dat.setPeerDialog(ct.getDialog());
 
             /*
@@ -759,8 +819,8 @@ public class BackToBackUserAgent {
             newDialogContext.isOriginatedBySipxbridge = true;
 
             /*
-             * Record the referDialog so that when responses for the Client transaction come in we
-             * can NOTIFY the referrer.
+             * Record the referDialog so that when responses for the Client
+             * transaction come in we can NOTIFY the referrer.
              */
             this.referingDialog = referRequestEventDialog;
 
@@ -774,8 +834,8 @@ public class BackToBackUserAgent {
 
             TransactionContext tad = TransactionContext.attach(ct,
                     Operation.REFER_INVITE_TO_SIPX_PROXY);
-            tad.setBackToBackUa(((DialogContext) referRequestEventDialog.getApplicationData())
-                    .getBackToBackUserAgent());
+            tad.setBackToBackUa(((DialogContext) referRequestEventDialog
+                    .getApplicationData()).getBackToBackUserAgent());
             tad.setReferingDialog(referRequestEventDialog);
 
             tad.setReferRequest(referRequest);
@@ -785,15 +845,16 @@ public class BackToBackUserAgent {
             tad.setMohClientTransaction(mohClientTransaction);
 
             /*
-             * Stamp the via header with our stamp so that we know we Referred this request. we
-             * will use this for spiral detection.
+             * Stamp the via header with our stamp so that we know we Referred
+             * this request. we will use this for spiral detection.
              */
             ViaHeader via = (ViaHeader) inviteRequest.getHeader(ViaHeader.NAME);
             /*
-             * This is our signal that we originated the redirection. We use this in the INVITE
-             * processing below. SIPX will not strip any via header parameters.If the INVITE
-             * spirals back to us, we need to know that it is a spiral( see processing above that
-             * checks this flag).
+             * This is our signal that we originated the redirection. We use
+             * this in the INVITE processing below. SIPX will not strip any via
+             * header parameters.If the INVITE spirals back to us, we need to
+             * know that it is a spiral( see processing above that checks this
+             * flag).
              */
             via.setParameter(ORIGINATOR, Gateway.SIPXBRIDGE_USER);
 
@@ -805,8 +866,8 @@ public class BackToBackUserAgent {
             /*
              * We have the INVITE now so send an ACCEPTED to the REFER agent.
              */
-            Response response = ProtocolObjects.messageFactory.createResponse(Response.ACCEPTED,
-                    referRequest);
+            Response response = ProtocolObjects.messageFactory.createResponse(
+                    Response.ACCEPTED, referRequest);
             response.setHeader(SipUtilities.createContactHeader(null,
                     ((SipProvider) referRequestEvent.getSource())));
             stx.sendResponse(response);
@@ -816,7 +877,9 @@ public class BackToBackUserAgent {
             throw new SipXbridgeException("Unexpected parse exception", ex);
 
         } catch (Exception ex) {
-            logger.error("Error while processing the request - hanging up ", ex);
+            logger
+                    .error("Error while processing the request - hanging up ",
+                            ex);
             try {
                 this.tearDown();
             } catch (Exception e) {
@@ -827,11 +890,13 @@ public class BackToBackUserAgent {
     }
 
     /**
-     * Forward the REFER request to the ITSP. This only works if the ITSP actually supports REFER.
-     * It is not used but we keep it around for future use.
+     * Forward the REFER request to the ITSP. This only works if the ITSP
+     * actually supports REFER. It is not used but we keep it around for future
+     * use.
      * 
      * 
-     * @param requestEvent - INBOUND REFER ( from sipx )
+     * @param requestEvent -
+     *            INBOUND REFER ( from sipx )
      */
     void forwardReferToItsp(RequestEvent requestEvent) {
 
@@ -839,7 +904,8 @@ public class BackToBackUserAgent {
             Dialog dialog = requestEvent.getDialog();
             Dialog peerDialog = DialogContext.getPeerDialog(dialog);
             Request referRequest = requestEvent.getRequest();
-            ItspAccountInfo itspInfo = DialogContext.get(peerDialog).getItspInfo();
+            ItspAccountInfo itspInfo = DialogContext.get(peerDialog)
+                    .getItspInfo();
             SipProvider wanProvider = ((DialogExt) peerDialog).getSipProvider();
 
             Request outboundRefer = peerDialog.createRequest(Request.REFER);
@@ -849,14 +915,16 @@ public class BackToBackUserAgent {
             SipURI uri = (SipURI) referToHeader.getAddress().getURI();
             String referToUserName = uri.getUser();
 
-            SipURI forwardedReferToUri = SipUtilities.createInboundRequestUri(itspInfo);
+            SipURI forwardedReferToUri = SipUtilities
+                    .createInboundRequestUri(itspInfo);
 
             forwardedReferToUri.setParameter("target", referToUserName);
 
             Address referToAddress = ProtocolObjects.addressFactory
                     .createAddress(forwardedReferToUri);
 
-            SipURI forwardedReferredByUri = SipUtilities.createInboundReferredByUri(itspInfo);
+            SipURI forwardedReferredByUri = SipUtilities
+                    .createInboundReferredByUri(itspInfo);
 
             Address referByAddress = ProtocolObjects.addressFactory
                     .createAddress(forwardedReferredByUri);
@@ -879,13 +947,15 @@ public class BackToBackUserAgent {
 
             ClientTransaction outboundReferClientTx = wanProvider
                     .getNewClientTransaction(outboundRefer);
-            TransactionContext tad = TransactionContext.attach(outboundReferClientTx,
-                    Operation.FORWARD_REFER);
+            TransactionContext tad = TransactionContext.attach(
+                    outboundReferClientTx, Operation.FORWARD_REFER);
             tad.setServerTransaction(requestEvent.getServerTransaction());
             peerDialog.sendRequest(outboundReferClientTx);
 
         } catch (SipException ex) {
-            logger.error("Error while processing the request - hanging up ", ex);
+            logger
+                    .error("Error while processing the request - hanging up ",
+                            ex);
             try {
                 this.tearDown(ProtocolObjects.headerFactory.createReasonHeader(
                         Gateway.SIPXBRIDGE_USER, ReasonCode.PROTOCOL_ERROR,
@@ -894,85 +964,108 @@ public class BackToBackUserAgent {
                 logger.error("Unexpected exception tearing down session", e);
             }
         } catch (ParseException e) {
-            logger.error("INTERNAL Error while processing the request - hanging up ", e);
-            throw new SipXbridgeException("INTERNAL Error while processing the request ", e);
+            logger
+                    .error(
+                            "INTERNAL Error while processing the request - hanging up ",
+                            e);
+            throw new SipXbridgeException(
+                    "INTERNAL Error while processing the request ", e);
         }
     }
 
     /**
      * Send an INVITE to SIPX proxy server.
      * 
-     * @param requestEvent -- The incoming RequestEvent ( from the ITSP side ) for which we are
-     *        generating the request outbound to the sipx proxy server.
+     * @param requestEvent --
+     *            The incoming RequestEvent ( from the ITSP side ) for which we
+     *            are generating the request outbound to the sipx proxy server.
      * 
-     * @param serverTransaction -- The SIP Server transaction that we created to service this
-     *        request.
+     * @param serverTransaction --
+     *            The SIP Server transaction that we created to service this
+     *            request.
      */
 
-    void sendInviteToSipxProxy(RequestEvent requestEvent, ServerTransaction serverTransaction) {
+    void sendInviteToSipxProxy(RequestEvent requestEvent,
+            ServerTransaction serverTransaction) {
         Request request = requestEvent.getRequest();
 
-        logger.debug("sendInviteToSipXProxy " + ((SIPMessage) request).getFirstLine());
+        logger.debug("sendInviteToSipXProxy "
+                + ((SIPMessage) request).getFirstLine());
 
         try {
             /*
-             * This is a request I got from the external provider. Route this into the network.
-             * The SipURI is the sipx proxy URI. He takes care of the rest.
+             * This is a request I got from the external provider. Route this
+             * into the network. The SipURI is the sipx proxy URI. He takes care
+             * of the rest.
              */
 
             SipURI incomingRequestURI = (SipURI) request.getRequestURI();
             Dialog inboundDialog = serverTransaction.getDialog();
-            ViaHeader inboundVia = ((ViaHeader) request.getHeader(ViaHeader.NAME));
+            ViaHeader inboundVia = ((ViaHeader) request
+                    .getHeader(ViaHeader.NAME));
 
-            String host = inboundVia.getReceived() != null ? inboundVia.getReceived()
-                    : inboundVia.getHost();
-            int port = inboundVia.getRPort() != -1 ? inboundVia.getRPort() : inboundVia.getPort();
+            String host = inboundVia.getReceived() != null ? inboundVia
+                    .getReceived() : inboundVia.getHost();
+            int port = inboundVia.getRPort() != -1 ? inboundVia.getRPort()
+                    : inboundVia.getPort();
 
-            ItspAccountInfo itspAccountInfo = Gateway.getAccountManager().getItspAccount(host,
-                    port);
+            ItspAccountInfo itspAccountInfo = Gateway.getAccountManager()
+                    .getItspAccount(host, port);
 
             SipURI uri = null;
             if (!Gateway.isInboundCallsRoutedToAutoAttendant()) {
-                uri = ProtocolObjects.addressFactory.createSipURI(incomingRequestURI.getUser(),
-                        Gateway.getSipxProxyDomain());
+                uri = ProtocolObjects.addressFactory.createSipURI(
+                        incomingRequestURI.getUser(), Gateway
+                                .getSipxProxyDomain());
             } else {
                 String destination = Gateway.getAutoAttendantName();
                 if (destination.indexOf("@") == -1) {
-                    uri = ProtocolObjects.addressFactory.createSipURI(destination, Gateway
-                            .getSipxProxyDomain());
+                    uri = ProtocolObjects.addressFactory.createSipURI(
+                            destination, Gateway.getSipxProxyDomain());
                     if (Gateway.getBridgeConfiguration().getSipxProxyPort() != -1) {
-                        uri.setPort(Gateway.getBridgeConfiguration().getSipxProxyPort());
+                        uri.setPort(Gateway.getBridgeConfiguration()
+                                .getSipxProxyPort());
                     }
                 } else {
                     logger.warn("routing to domain other than proxy domain!");
-                    uri = (SipURI) ProtocolObjects.addressFactory.createURI("sip:" + destination);
+                    uri = (SipURI) ProtocolObjects.addressFactory
+                            .createURI("sip:" + destination);
                 }
             }
+
+            uri.setParameter("maddr", proxyAddress.getHost());
+            uri.setPort(proxyAddress.getPort());
 
             CallIdHeader callIdHeader = ProtocolObjects.headerFactory
                     .createCallIdHeader(this.creatingCallId + "." + counter++);
 
-            CSeqHeader cseqHeader = ProtocolObjects.headerFactory.createCSeqHeader(1L,
-                    Request.INVITE);
+            CSeqHeader cseqHeader = ProtocolObjects.headerFactory
+                    .createCSeqHeader(1L, Request.INVITE);
 
-            FromHeader fromHeader = (FromHeader) request.getHeader(FromHeader.NAME).clone();
+            FromHeader fromHeader = (FromHeader) request.getHeader(
+                    FromHeader.NAME).clone();
 
-            fromHeader.setParameter("tag", Long.toString(Math.abs(new Random().nextLong())));
+            fromHeader.setParameter("tag", Long.toString(Math.abs(new Random()
+                    .nextLong())));
 
             /*
-             * Change the domain of the inbound request to that of the sipx proxy. Change the user
-             * part if routed to specific extension.
+             * Change the domain of the inbound request to that of the sipx
+             * proxy. Change the user part if routed to specific extension.
              */
             String autoAttendantName = Gateway.getAutoAttendantName();
             ToHeader toHeader = null;
-            if (autoAttendantName != null && autoAttendantName.indexOf("@") != -1) {
-                SipURI toUri = (SipURI) ProtocolObjects.addressFactory.createURI("sip:"
-                        + autoAttendantName);
-                Address toAddress = ProtocolObjects.addressFactory.createAddress(toUri);
-                toHeader = ProtocolObjects.headerFactory.createToHeader(toAddress, null);
+            if (autoAttendantName != null
+                    && autoAttendantName.indexOf("@") != -1) {
+                SipURI toUri = (SipURI) ProtocolObjects.addressFactory
+                        .createURI("sip:" + autoAttendantName);
+                Address toAddress = ProtocolObjects.addressFactory
+                        .createAddress(toUri);
+                toHeader = ProtocolObjects.headerFactory.createToHeader(
+                        toAddress, null);
             } else {
                 toHeader = (ToHeader) request.getHeader(ToHeader.NAME).clone();
-                ((SipURI) toHeader.getAddress().getURI()).setHost(Gateway.getSipxProxyDomain());
+                ((SipURI) toHeader.getAddress().getURI()).setHost(Gateway
+                        .getSipxProxyDomain());
                 ((SipURI) toHeader.getAddress().getURI()).removePort();
                 if (Gateway.isInboundCallsRoutedToAutoAttendant()) {
                     ((SipURI) toHeader.getAddress().getURI()).setUser(Gateway
@@ -981,8 +1074,8 @@ public class BackToBackUserAgent {
                 toHeader.removeParameter("tag");
             }
 
-            ViaHeader viaHeader = SipUtilities.createViaHeader(Gateway.getLanProvider(), Gateway
-                    .getSipxProxyTransport());
+            ViaHeader viaHeader = SipUtilities.createViaHeader(Gateway
+                    .getLanProvider(), Gateway.getSipxProxyTransport());
             viaHeader.setParameter(ORIGINATOR, Gateway.SIPXBRIDGE_USER);
 
             List<ViaHeader> viaList = new LinkedList<ViaHeader>();
@@ -993,37 +1086,41 @@ public class BackToBackUserAgent {
                     .getHeader(MaxForwardsHeader.NAME);
 
             maxForwards.decrementMaxForwards();
-            Request newRequest = ProtocolObjects.messageFactory.createRequest(uri,
-                    Request.INVITE, callIdHeader, cseqHeader, fromHeader, toHeader, viaList,
-                    maxForwards);
-            ContactHeader contactHeader = SipUtilities.createContactHeader(incomingRequestURI
-                    .getUser(), Gateway.getLanProvider());
+            Request newRequest = ProtocolObjects.messageFactory.createRequest(
+                    uri, Request.INVITE, callIdHeader, cseqHeader, fromHeader,
+                    toHeader, viaList, maxForwards);
+            ContactHeader contactHeader = SipUtilities.createContactHeader(
+                    incomingRequestURI.getUser(), Gateway.getLanProvider());
             newRequest.setHeader(contactHeader);
             /*
              * The incoming session description.
              */
-            SessionDescription sessionDescription = SipUtilities.getSessionDescription(request);
+            SessionDescription sessionDescription = SipUtilities
+                    .getSessionDescription(request);
 
             RtpSession incomingSession = this.createRtpSession(inboundDialog);
 
             incomingSession.getReceiver().setUseGlobalAddressing(
-                    itspAccountInfo == null || itspAccountInfo.isGlobalAddressingUsed());
+                    itspAccountInfo == null
+                            || itspAccountInfo.isGlobalAddressingUsed());
 
-            RtpTransmitterEndpoint rtpEndpoint = new RtpTransmitterEndpoint(incomingSession,
-                    symmitronClient);
+            RtpTransmitterEndpoint rtpEndpoint = new RtpTransmitterEndpoint(
+                    incomingSession, symmitronClient);
             incomingSession.setTransmitter(rtpEndpoint);
             KeepaliveMethod keepaliveMethod = itspAccountInfo != null ? itspAccountInfo
-                    .getRtpKeepaliveMethod() : KeepaliveMethod.NONE;
+                    .getRtpKeepaliveMethod()
+                    : KeepaliveMethod.NONE;
 
             rtpEndpoint.setKeepAliveMethod(keepaliveMethod);
             rtpEndpoint.setSessionDescription(sessionDescription, true);
 
-            ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader(
-                    "application", "sdp");
+            ContentTypeHeader cth = ProtocolObjects.headerFactory
+                    .createContentTypeHeader("application", "sdp");
             /*
              * Create a new client transaction.
              */
-            ClientTransaction ct = Gateway.getLanProvider().getNewClientTransaction(newRequest);
+            ClientTransaction ct = Gateway.getLanProvider()
+                    .getNewClientTransaction(newRequest);
 
             Dialog outboundDialog = ct.getDialog();
 
@@ -1035,9 +1132,9 @@ public class BackToBackUserAgent {
             DialogContext.pairDialogs(inboundDialog, outboundDialog);
 
             /*
-             * Apply the Session Description from the INBOUND invite to the Receiver of the RTP
-             * session pointing towards the PBX side. This resets the ports in the session
-             * description.
+             * Apply the Session Description from the INBOUND invite to the
+             * Receiver of the RTP session pointing towards the PBX side. This
+             * resets the ports in the session description.
              */
             SessionDescription sd = SipUtilities.getSessionDescription(request);
 
@@ -1045,8 +1142,8 @@ public class BackToBackUserAgent {
 
             outboundSession.getReceiver().setSessionDescription(sd);
 
-            newRequest.setContent(outboundSession.getReceiver().getSessionDescription()
-                    .toString(), cth);
+            newRequest.setContent(outboundSession.getReceiver()
+                    .getSessionDescription().toString(), cth);
 
             SipURI sipUri = (SipURI) newRequest.getRequestURI();
             sipUri.setMAddrParam(proxyAddress.getHost());
@@ -1058,6 +1155,7 @@ public class BackToBackUserAgent {
             TransactionContext tad = new TransactionContext(ct,
                     Operation.SEND_INVITE_TO_SIPX_PROXY);
 
+            tad.setRequestEvent(requestEvent);
             tad.setServerTransaction(serverTransaction);
             tad.setBackToBackUa(this);
             tad.setItspAccountInfo(itspAccountInfo);
@@ -1071,21 +1169,23 @@ public class BackToBackUserAgent {
 
         } catch (InvalidArgumentException ex) {
             logger.error("Unexpected exception encountered");
-            throw new SipXbridgeException("Unexpected exception encountered", ex);
+            throw new SipXbridgeException("Unexpected exception encountered",
+                    ex);
         } catch (ParseException ex) {
             logger.error("Unexpected parse exception", ex);
             throw new SipXbridgeException("Unexpected parse exception", ex);
         } catch (SdpParseException ex) {
             try {
-                Response response = ProtocolObjects.messageFactory.createResponse(
-                        Response.BAD_REQUEST, request);
+                Response response = ProtocolObjects.messageFactory
+                        .createResponse(Response.BAD_REQUEST, request);
                 serverTransaction.sendResponse(response);
             } catch (Exception e) {
                 logger.error("Unexpected exception", e);
             }
         } catch (Exception ex) {
             logger.error("Error while processing the request", ex);
-            CallControlUtilities.sendServiceUnavailableError(serverTransaction, ex);
+            CallControlUtilities.sendServiceUnavailableError(serverTransaction,
+                    ex);
 
         }
 
@@ -1094,12 +1194,15 @@ public class BackToBackUserAgent {
     /**
      * Create a Client Tx pointing towards the park server.
      * 
-     * @param - the session description to apply to the INVITE.
+     * @param -
+     *            the session description to apply to the INVITE.
      * 
-     * @return the dialog generated as a result of sending the invite to the MOH server.
+     * @return the dialog generated as a result of sending the invite to the MOH
+     *         server.
      * 
      */
-    ClientTransaction createClientTxToMohServer(SessionDescription sessionDescription) {
+    ClientTransaction createClientTxToMohServer(
+            SessionDescription sessionDescription) {
 
         ClientTransaction retval = null;
 
@@ -1108,25 +1211,27 @@ public class BackToBackUserAgent {
             SipURI uri = Gateway.getMusicOnHoldUri();
 
             CallIdHeader callIdHeader = ProtocolObjects.headerFactory
-                    .createCallIdHeader(this.creatingCallId + "." + this.counter++);
+                    .createCallIdHeader(this.creatingCallId + "."
+                            + this.counter++);
 
-            CSeqHeader cseqHeader = ProtocolObjects.headerFactory.createCSeqHeader(1L,
-                    Request.INVITE);
+            CSeqHeader cseqHeader = ProtocolObjects.headerFactory
+                    .createCSeqHeader(1L, Request.INVITE);
 
             Address gatewayAddress = Gateway.getGatewayFromAddress();
 
-            FromHeader fromHeader = ProtocolObjects.headerFactory.createFromHeader(
-                    gatewayAddress, Long.toString(Math.abs(new Random().nextLong())));
+            FromHeader fromHeader = ProtocolObjects.headerFactory
+                    .createFromHeader(gatewayAddress, Long.toString(Math
+                            .abs(new Random().nextLong())));
 
             Address mohServerAddress = Gateway.getMusicOnHoldAddress();
 
-            ToHeader toHeader = ProtocolObjects.headerFactory.createToHeader(mohServerAddress,
-                    null);
+            ToHeader toHeader = ProtocolObjects.headerFactory.createToHeader(
+                    mohServerAddress, null);
 
             toHeader.removeParameter("tag");
 
-            ViaHeader viaHeader = SipUtilities.createViaHeader(Gateway.getLanProvider(), Gateway
-                    .getSipxProxyTransport());
+            ViaHeader viaHeader = SipUtilities.createViaHeader(Gateway
+                    .getLanProvider(), Gateway.getSipxProxyTransport());
 
             List<ViaHeader> viaList = new LinkedList<ViaHeader>();
 
@@ -1136,9 +1241,9 @@ public class BackToBackUserAgent {
                     .createMaxForwardsHeader(20);
 
             maxForwards.decrementMaxForwards();
-            Request newRequest = ProtocolObjects.messageFactory.createRequest(uri,
-                    Request.INVITE, callIdHeader, cseqHeader, fromHeader, toHeader, viaList,
-                    maxForwards);
+            Request newRequest = ProtocolObjects.messageFactory.createRequest(
+                    uri, Request.INVITE, callIdHeader, cseqHeader, fromHeader,
+                    toHeader, viaList, maxForwards);
             ContactHeader contactHeader = SipUtilities.createContactHeader(
                     Gateway.SIPXBRIDGE_USER, Gateway.getLanProvider());
             newRequest.setHeader(contactHeader);
@@ -1146,15 +1251,16 @@ public class BackToBackUserAgent {
             /*
              * Create a new client transaction.
              */
-            ClientTransaction ct = Gateway.getLanProvider().getNewClientTransaction(newRequest);
+            ClientTransaction ct = Gateway.getLanProvider()
+                    .getNewClientTransaction(newRequest);
 
             /*
              * Set the duplexity of the INVITE to recvonly.
              */
             SipUtilities.setDuplexity(sessionDescription, "recvonly");
 
-            ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader(
-                    "application", "sdp");
+            ContentTypeHeader cth = ProtocolObjects.headerFactory
+                    .createContentTypeHeader("application", "sdp");
 
             newRequest.setContent(sessionDescription.toString(), cth);
 
@@ -1172,7 +1278,8 @@ public class BackToBackUserAgent {
 
         } catch (InvalidArgumentException ex) {
             logger.error("Unexpected exception encountered");
-            throw new SipXbridgeException("Unexpected exception encountered", ex);
+            throw new SipXbridgeException("Unexpected exception encountered",
+                    ex);
         } catch (Exception ex) {
             logger.error("Unexpected parse exception", ex);
             if (retval != null) {
@@ -1194,14 +1301,17 @@ public class BackToBackUserAgent {
                     && this.musicOnHoldDialog.getState() != DialogState.TERMINATED) {
                 if (this.musicOnHoldDialog.getState() == DialogState.CONFIRMED) {
                     logger.debug("sendByeToMohServer");
-                    Request byeRequest = musicOnHoldDialog.createRequest(Request.BYE);
+                    Request byeRequest = musicOnHoldDialog
+                            .createRequest(Request.BYE);
 
-                    ClientTransaction ctx = Gateway.getLanProvider().getNewClientTransaction(
-                            byeRequest);
-                    TransactionContext.attach(ctx, Operation.SEND_BYE_TO_MOH_SERVER);
+                    ClientTransaction ctx = Gateway.getLanProvider()
+                            .getNewClientTransaction(byeRequest);
+                    TransactionContext.attach(ctx,
+                            Operation.SEND_BYE_TO_MOH_SERVER);
                     musicOnHoldDialog.sendRequest(ctx);
                 } else {
-                    DialogContext.get(this.musicOnHoldDialog).setTerminateOnConfirm();
+                    DialogContext.get(this.musicOnHoldDialog)
+                            .setTerminateOnConfirm();
 
                 }
             }
@@ -1212,22 +1322,28 @@ public class BackToBackUserAgent {
     }
 
     /**
-     * Send a request to an ITSP. This is the out of dialog request that sets up the call.
+     * Send a request to an ITSP. This is the out of dialog request that sets up
+     * the call.
      * 
-     * @param requestEvent -- in bound request event ( sent by the sipx proxy server)
-     * @param serverTransaction -- the server transaction.
-     * @param toDomain -- domain to send it to.
+     * @param requestEvent --
+     *            in bound request event ( sent by the sipx proxy server)
+     * @param serverTransaction --
+     *            the server transaction.
+     * @param toDomain --
+     *            domain to send it to.
      * 
      * @throws SipException
      */
 
-    void sendInviteToItsp(RequestEvent requestEvent, ServerTransaction serverTransaction,
-            String toDomain) throws SipException {
+    void sendInviteToItsp(RequestEvent requestEvent,
+            ServerTransaction serverTransaction, String toDomain)
+            throws SipException {
 
         logger.debug("sendInviteToItsp: " + this);
         Request incomingRequest = serverTransaction.getRequest();
         Dialog incomingDialog = serverTransaction.getDialog();
-        ItspAccountInfo itspAccountInfo = Gateway.getAccountManager().getAccount(incomingRequest);
+        ItspAccountInfo itspAccountInfo = Gateway.getAccountManager()
+                .getAccount(incomingRequest);
 
         SipProvider itspProvider = Gateway
                 .getWanProvider(itspAccountInfo == null ? Gateway.DEFAULT_ITSP_TRANSPORT
@@ -1245,55 +1361,61 @@ public class BackToBackUserAgent {
             if (replacesHeader != null) {
 
                 /* Fetch the Dialog object corresponding to the ReplacesHeader */
-                Dialog replacedDialog = ((SipStackExt) ProtocolObjects.getSipStack())
-                        .getReplacesDialog(replacesHeader);
+                Dialog replacedDialog = ((SipStackExt) ProtocolObjects
+                        .getSipStack()).getReplacesDialog(replacesHeader);
 
                 if (replacedDialog == null) {
 
-                    Response response = SipUtilities.createResponse(serverTransaction,
-                            Response.NOT_FOUND);
+                    Response response = SipUtilities.createResponse(
+                            serverTransaction, Response.NOT_FOUND);
                     response.setReasonPhrase("Replaced Dialog not found");
                     serverTransaction.sendResponse(response);
                     return;
                 }
 
                 if (spiral) {
-                    handleSpriralInviteWithReplaces(requestEvent, replacedDialog,
-                            serverTransaction, toDomain);
+                    handleSpriralInviteWithReplaces(requestEvent,
+                            replacedDialog, serverTransaction, toDomain);
                 } else {
-                    handleInviteWithReplaces(requestEvent, replacedDialog, serverTransaction);
+                    handleInviteWithReplaces(requestEvent, replacedDialog,
+                            serverTransaction);
                 }
 
                 return;
             }
 
-            SipURI incomingRequestUri = (SipURI) incomingRequest.getRequestURI();
+            SipURI incomingRequestUri = (SipURI) incomingRequest
+                    .getRequestURI();
 
-            this.mohDisabled = incomingRequestUri.getParameter("sipxbridge-moh") != null
-                    && incomingRequestUri.getParameter("sipxbridge-moh").equals("false");
+            this.mohDisabled = incomingRequestUri
+                    .getParameter("sipxbridge-moh") != null
+                    && incomingRequestUri.getParameter("sipxbridge-moh")
+                            .equals("false");
 
-            FromHeader fromHeader = (FromHeader) incomingRequest.getHeader(FromHeader.NAME)
-                    .clone();
+            FromHeader fromHeader = (FromHeader) incomingRequest.getHeader(
+                    FromHeader.NAME).clone();
 
             Request outgoingRequest = SipUtilities.createInviteRequest(
-                    (SipURI) incomingRequestUri.clone(), itspProvider, itspAccountInfo,
-                    fromHeader, this.creatingCallId + "." + this.counter++);
+                    (SipURI) incomingRequestUri.clone(), itspProvider,
+                    itspAccountInfo, fromHeader, this.creatingCallId + "."
+                            + this.counter++);
 
             /*
-             * Attach headers selectively to the outbound request. If privacy is requested, we
-             * suppress forwarding certain headers that can reveal information about the caller.
+             * Attach headers selectively to the outbound request. If privacy is
+             * requested, we suppress forwarding certain headers that can reveal
+             * information about the caller.
              */
-            for (String headerName : new String[] {
-                ReplyToHeader.NAME, CallInfoHeader.NAME, SubjectHeader.NAME,
-                OrganizationHeader.NAME, InReplyToHeader.NAME
-            }) {
+            for (String headerName : new String[] { ReplyToHeader.NAME,
+                    CallInfoHeader.NAME, SubjectHeader.NAME,
+                    OrganizationHeader.NAME, InReplyToHeader.NAME }) {
                 Header header = incomingRequest.getHeader(headerName);
                 if (header != null && !itspAccountInfo.stripPrivateHeaders()) {
                     outgoingRequest.addHeader(header);
                 }
             }
             SipUtilities.addWanAllowHeaders(outgoingRequest);
-            ClientTransaction ct = itspProvider.getNewClientTransaction(outgoingRequest);
+            ClientTransaction ct = itspProvider
+                    .getNewClientTransaction(outgoingRequest);
             Dialog outboundDialog = ct.getDialog();
 
             DialogContext.attach(this, outboundDialog, ct, outgoingRequest);
@@ -1302,33 +1424,41 @@ public class BackToBackUserAgent {
             SessionDescription outboundSessionDescription = null;
 
             /*
-             * Set up to use global addressing on the outbound session if needed.
+             * Set up to use global addressing on the outbound session if
+             * needed.
              */
             boolean globalAddressing = itspAccountInfo == null
                     || itspAccountInfo.isGlobalAddressingUsed();
             if (spiral) {
                 /*
-                 * If this is a spiral, we re-use the RTP session from the refering dialog. This
-                 * case occurs when we do a blind transfer.
+                 * If this is a spiral, we re-use the RTP session from the
+                 * refering dialog. This case occurs when we do a blind
+                 * transfer.
                  */
                 if (globalAddressing) {
-                    DialogContext.getRtpSession(this.referingDialog).getReceiver()
-                            .setGlobalAddress(this.symmitronClient.getPublicAddress());
+                    DialogContext.getRtpSession(this.referingDialog)
+                            .getReceiver().setGlobalAddress(
+                                    this.symmitronClient.getPublicAddress());
                 }
                 DialogContext.getRtpSession(this.referingDialog).getReceiver()
                         .setUseGlobalAddressing(globalAddressing);
-                outboundSessionDescription = DialogContext.getRtpSession(this.referingDialog)
-                        .getReceiver().getSessionDescription();
+                outboundSessionDescription = DialogContext.getRtpSession(
+                        this.referingDialog).getReceiver()
+                        .getSessionDescription();
             } else {
-                RtpSession wanRtpSession = this.createRtpSession(outboundDialog);
-                wanRtpSession.getReceiver().setUseGlobalAddressing(globalAddressing);
-                outboundSessionDescription = SipUtilities.getSessionDescription(incomingRequest);
-                wanRtpSession.getReceiver().setSessionDescription(outboundSessionDescription);
+                RtpSession wanRtpSession = this
+                        .createRtpSession(outboundDialog);
+                wanRtpSession.getReceiver().setUseGlobalAddressing(
+                        globalAddressing);
+                outboundSessionDescription = SipUtilities
+                        .getSessionDescription(incomingRequest);
+                wanRtpSession.getReceiver().setSessionDescription(
+                        outboundSessionDescription);
             }
 
             if (outboundSessionDescription == null) {
-                Response response = SipUtilities.createResponse(serverTransaction,
-                        Response.NOT_ACCEPTABLE_HERE);
+                Response response = SipUtilities.createResponse(
+                        serverTransaction, Response.NOT_ACCEPTABLE_HERE);
                 serverTransaction.sendResponse(response);
                 return;
             }
@@ -1337,28 +1467,32 @@ public class BackToBackUserAgent {
              * Indicate that we will be transmitting first.
              */
 
-            ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader(
-                    "application", "sdp");
+            ContentTypeHeader cth = ProtocolObjects.headerFactory
+                    .createContentTypeHeader("application", "sdp");
 
-            outgoingRequest.setContent(outboundSessionDescription.toString(), cth);
+            outgoingRequest.setContent(outboundSessionDescription.toString(),
+                    cth);
 
             String outboundTransport = itspAccountInfo == null ? Gateway.DEFAULT_ITSP_TRANSPORT
                     : itspAccountInfo.getOutboundTransport();
-            ListeningPoint lp = itspProvider.getListeningPoint(outboundTransport);
+            ListeningPoint lp = itspProvider
+                    .getListeningPoint(outboundTransport);
             String sentBy = lp.getSentBy();
-            if (itspAccountInfo == null || itspAccountInfo.isGlobalAddressingUsed()) {
+            if (itspAccountInfo == null
+                    || itspAccountInfo.isGlobalAddressingUsed()) {
                 lp.setSentBy(Gateway.getGlobalAddress() + ":" + lp.getPort());
             }
             lp.setSentBy(sentBy);
 
             /*
-             * If we spiraled back, then pair the refered dialog with the outgoing dialog.
-             * Otherwise pair the inbound and outboud dialogs.
+             * If we spiraled back, then pair the refered dialog with the
+             * outgoing dialog. Otherwise pair the inbound and outboud dialogs.
              */
             if (!spiral) {
                 DialogContext.pairDialogs(incomingDialog, outboundDialog);
             } else {
-                DialogContext.pairDialogs(this.referingDialogPeer, outboundDialog);
+                DialogContext.pairDialogs(this.referingDialogPeer,
+                        outboundDialog);
             }
 
             SessionDescription sessionDescription = SipUtilities
@@ -1375,29 +1509,34 @@ public class BackToBackUserAgent {
             tad.setClientTransaction(ct);
 
             if (!spiral) {
-                RtpSession incomingSession = this.createRtpSession(incomingDialog);
-                KeepaliveMethod keepAliveMethod = itspAccountInfo.getRtpKeepaliveMethod();
-                RtpTransmitterEndpoint rtpEndpoint = new RtpTransmitterEndpoint(incomingSession,
-                        symmitronClient);
+                RtpSession incomingSession = this
+                        .createRtpSession(incomingDialog);
+                KeepaliveMethod keepAliveMethod = itspAccountInfo
+                        .getRtpKeepaliveMethod();
+                RtpTransmitterEndpoint rtpEndpoint = new RtpTransmitterEndpoint(
+                        incomingSession, symmitronClient);
                 rtpEndpoint.setKeepAliveMethod(keepAliveMethod);
                 incomingSession.setTransmitter(rtpEndpoint);
                 rtpEndpoint.setSessionDescription(sessionDescription, true);
             } else if (spiral && replacesHeader == null) {
 
                 /*
-                 * This is a spiral. We are going to reuse the port in the incoming INVITE (we
-                 * already own this port). Note here that we set the early media flag.
+                 * This is a spiral. We are going to reuse the port in the
+                 * incoming INVITE (we already own this port). Note here that we
+                 * set the early media flag.
                  */
 
                 if (this.rtpBridge.getState() == BridgeState.RUNNING) {
                     this.rtpBridge.pause(); // Pause to block inbound packets.
                 }
 
-                RtpSession rtpSession = DialogContext.getRtpSession(this.referingDialog);
+                RtpSession rtpSession = DialogContext
+                        .getRtpSession(this.referingDialog);
                 if (rtpSession == null) {
-                    Response errorResponse = SipUtilities.createResponse(serverTransaction,
-                            Response.SESSION_NOT_ACCEPTABLE);
-                    errorResponse.setReasonPhrase("Could not RtpSession for refering dialog");
+                    Response errorResponse = SipUtilities.createResponse(
+                            serverTransaction, Response.SESSION_NOT_ACCEPTABLE);
+                    errorResponse
+                            .setReasonPhrase("Could not RtpSession for refering dialog");
                     serverTransaction.sendResponse(errorResponse);
                     if (this.rtpBridge.getState() == BridgeState.PAUSED) {
                         this.rtpBridge.resume();
@@ -1406,16 +1545,18 @@ public class BackToBackUserAgent {
                     return;
                 }
                 tad.setReferingDialog(referingDialog);
-                tad.setReferRequest(DialogContext.get(referingDialog).getReferRequest());
-                RtpTransmitterEndpoint rtpEndpoint = new RtpTransmitterEndpoint(rtpSession,
-                        symmitronClient);
+                tad.setReferRequest(DialogContext.get(referingDialog)
+                        .getReferRequest());
+                RtpTransmitterEndpoint rtpEndpoint = new RtpTransmitterEndpoint(
+                        rtpSession, symmitronClient);
                 rtpSession.setTransmitter(rtpEndpoint);
 
                 rtpEndpoint.setSessionDescription(sessionDescription, true);
                 int keepaliveInterval = Gateway.getMediaKeepaliveMilisec();
                 KeepaliveMethod keepaliveMethod = tad.getItspAccountInfo()
                         .getRtpKeepaliveMethod();
-                rtpEndpoint.setIpAddressAndPort(keepaliveInterval, keepaliveMethod);
+                rtpEndpoint.setIpAddressAndPort(keepaliveInterval,
+                        keepaliveMethod);
 
                 /*
                  * The RTP session now belongs to the ClientTransaction.
@@ -1446,26 +1587,29 @@ public class BackToBackUserAgent {
             /*
              * Kick off our session timer.
              */
-            DialogContext.get(ct.getDialog()).startSessionTimer(Gateway.getSessionExpires());
+            DialogContext.get(ct.getDialog()).startSessionTimer(
+                    Gateway.getSessionExpires());
 
         } catch (SdpParseException ex) {
-            logger.error("Unexpected exception ",ex);
+            logger.error("Unexpected exception ", ex);
             CallControlUtilities.sendBadRequestError(serverTransaction, ex);
         } catch (ParseException ex) {
-            logger.error("Unexpected exception ",ex);
+            logger.error("Unexpected exception ", ex);
             CallControlUtilities.sendInternalError(serverTransaction, ex);
         } catch (IOException ex) {
             logger.error("Caught IO exception ", ex);
             CallControlUtilities.sendInternalError(serverTransaction, ex);
         } catch (SymmitronException ex) {
             logger.error("Caught exception ", ex);
-            CallControlUtilities.sendServiceUnavailableError(serverTransaction, ex);
+            CallControlUtilities.sendServiceUnavailableError(serverTransaction,
+                    ex);
         } catch (SipException ex) {
             logger.error("Error occurred during processing of request ", ex);
-            CallControlUtilities.sendServiceUnavailableError(serverTransaction,ex);
+            CallControlUtilities.sendServiceUnavailableError(serverTransaction,
+                    ex);
         } catch (Exception ex) {
             logger.error("Error occurred during processing of request ", ex);
-            CallControlUtilities.sendInternalError(serverTransaction,ex);
+            CallControlUtilities.sendInternalError(serverTransaction, ex);
         }
 
     }
@@ -1478,29 +1622,36 @@ public class BackToBackUserAgent {
      * @param serverTransaction
      * @throws Exception
      */
-    void handleInviteWithReplaces(RequestEvent requestEvent, Dialog replacedDialog,
-            ServerTransaction serverTransaction) throws Exception {
+    void handleInviteWithReplaces(RequestEvent requestEvent,
+            Dialog replacedDialog, ServerTransaction serverTransaction)
+            throws Exception {
         Request request = requestEvent.getRequest();
-        SessionDescription newOffer = SipUtilities.getSessionDescription(request);
-        logger.debug("handleInviteWithReplaces: replacedDialog = " + replacedDialog);
-        String address = ((ViaHeader) request.getHeader(ViaHeader.NAME)).getHost();
-        DialogContext inviteDat = DialogContext.get(serverTransaction.getDialog());
+        SessionDescription newOffer = SipUtilities
+                .getSessionDescription(request);
+        logger.debug("handleInviteWithReplaces: replacedDialog = "
+                + replacedDialog);
+        String address = ((ViaHeader) request.getHeader(ViaHeader.NAME))
+                .getHost();
+        DialogContext inviteDat = DialogContext.get(serverTransaction
+                .getDialog());
 
         Dialog dialog = serverTransaction.getDialog();
 
         try {
             RtpSession rtpSession = this.createRtpSession(replacedDialog);
-            String ipAddress = SipUtilities.getSessionDescriptionMediaIpAddress(newOffer);
+            String ipAddress = SipUtilities
+                    .getSessionDescriptionMediaIpAddress(newOffer);
             int port = SipUtilities.getSessionDescriptionMediaPort(newOffer);
             if (rtpSession.getTransmitter() != null) {
                 /*
-                 * Already has a transmitter then simply redirect the transmitter to the new
-                 * location.
+                 * Already has a transmitter then simply redirect the
+                 * transmitter to the new location.
                  */
-                rtpSession.getTransmitter().setIpAddressAndPort(ipAddress, port);
+                rtpSession.getTransmitter()
+                        .setIpAddressAndPort(ipAddress, port);
             } else {
-                RtpTransmitterEndpoint transmitter = new RtpTransmitterEndpoint(rtpSession,
-                        Gateway.getSymmitronClient(address));
+                RtpTransmitterEndpoint transmitter = new RtpTransmitterEndpoint(
+                        rtpSession, Gateway.getSymmitronClient(address));
                 transmitter.setIpAddressAndPort(ipAddress, port);
                 rtpSession.setTransmitter(transmitter);
             }
@@ -1510,12 +1661,15 @@ public class BackToBackUserAgent {
                 rtpSession.getTransmitter().setOnHold(false);
             }
 
-            logger.debug("replacedDialog.getState() : " + replacedDialog.getState());
+            logger.debug("replacedDialog.getState() : "
+                    + replacedDialog.getState());
 
             if (replacedDialog.getState() == DialogState.CONFIRMED) {
-                DialogContext replacedDialogApplicationData = DialogContext.get(replacedDialog);
+                DialogContext replacedDialogApplicationData = DialogContext
+                        .get(replacedDialog);
 
-                Dialog peerDialog = replacedDialogApplicationData.getPeerDialog();
+                Dialog peerDialog = replacedDialogApplicationData
+                        .getPeerDialog();
                 DialogContext peerDat = DialogContext.get(peerDialog);
 
                 Request reInvite = peerDialog.createRequest(Request.INVITE);
@@ -1528,8 +1682,10 @@ public class BackToBackUserAgent {
                         .createContentTypeHeader("application", "sdp");
                 reInvite.setContent(newOffer.toString(), contentTypeHeader);
 
-                SipProvider provider = ((DialogExt) peerDialog).getSipProvider();
-                ClientTransaction ctx = provider.getNewClientTransaction(reInvite);
+                SipProvider provider = ((DialogExt) peerDialog)
+                        .getSipProvider();
+                ClientTransaction ctx = provider
+                        .getNewClientTransaction(reInvite);
                 TransactionContext tad = TransactionContext.attach(ctx,
                         Operation.HANDLE_INVITE_WITH_REPLACES);
                 tad.setServerTransaction(serverTransaction);
@@ -1539,36 +1695,42 @@ public class BackToBackUserAgent {
                 DialogContext.get(peerDialog).sendReInvite(ctx);
             } else {
                 /*
-                 * The following condition happens during call pickup. The other side has not been
-                 * sent an SDP answer yet. Extract the OFFER from the in-bound INVITE and send it
-                 * as an answer. We have to follow these restrictions: For each "m=" line in the
-                 * offer, there MUST be a corresponding "m=" line in the answer. The answer MUST
-                 * contain exactly the same number of "m=" lines as the offer. This allows for
-                 * streams to be matched up based on their order. This implies that if the offer
-                 * contained zero "m=" lines, the answer MUST contain zero "m=" lines.
+                 * The following condition happens during call pickup. The other
+                 * side has not been sent an SDP answer yet. Extract the OFFER
+                 * from the in-bound INVITE and send it as an answer. We have to
+                 * follow these restrictions: For each "m=" line in the offer,
+                 * there MUST be a corresponding "m=" line in the answer. The
+                 * answer MUST contain exactly the same number of "m=" lines as
+                 * the offer. This allows for streams to be matched up based on
+                 * their order. This implies that if the offer contained zero
+                 * "m=" lines, the answer MUST contain zero "m=" lines.
                  * 
-                 * The "t=" line in the answer MUST equal that of the offer. The time of the
-                 * session cannot be negotiated. An offered stream MAY be rejected in the answer,
-                 * for any reason. If a stream is rejected, the offerer and answerer MUST NOT
-                 * generate media (or RTCP packets) for that stream. To reject an offered stream,
-                 * the port number in the corresponding stream in the answer MUST be set to zero.
-                 * Any media formats listed are ignored. At least one MUST be present, as
-                 * specified by SDP.
+                 * The "t=" line in the answer MUST equal that of the offer. The
+                 * time of the session cannot be negotiated. An offered stream
+                 * MAY be rejected in the answer, for any reason. If a stream is
+                 * rejected, the offerer and answerer MUST NOT generate media
+                 * (or RTCP packets) for that stream. To reject an offered
+                 * stream, the port number in the corresponding stream in the
+                 * answer MUST be set to zero. Any media formats listed are
+                 * ignored. At least one MUST be present, as specified by SDP.
                  */
 
-                SessionDescription sdes = rtpSession.getReceiver().getSessionDescription();
+                SessionDescription sdes = rtpSession.getReceiver()
+                        .getSessionDescription();
 
                 /*
                  * Inbound INVITE (for call pickup).
                  */
-                HashSet<Integer> codecs = SipUtilities.getCommonCodec(sdes, newOffer);
+                HashSet<Integer> codecs = SipUtilities.getCommonCodec(sdes,
+                        newOffer);
 
                 logger.debug("Codecs = " + codecs);
 
                 if (replacedDialog.getState() != DialogState.CONFIRMED) {
                     if (codecs.size() == 0) {
-                        Response errorResponse = SipUtilities.createResponse(serverTransaction,
-                                Response.NOT_ACCEPTABLE_HERE);
+                        Response errorResponse = SipUtilities
+                                .createResponse(serverTransaction,
+                                        Response.NOT_ACCEPTABLE_HERE);
                         serverTransaction.sendResponse(errorResponse);
                         return;
 
@@ -1582,24 +1744,28 @@ public class BackToBackUserAgent {
                 inviteDat.rtpSession = rtpSession;
 
                 /*
-                 * Generate an OK response to be sent after BYE OK comes in from transfer agent.
+                 * Generate an OK response to be sent after BYE OK comes in from
+                 * transfer agent.
                  */
-                Response okResponse = SipUtilities.createResponse(serverTransaction, Response.OK);
+                Response okResponse = SipUtilities.createResponse(
+                        serverTransaction, Response.OK);
 
-                ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader(
-                        "application", "sdp");
-                SipProvider txProvider = ((TransactionExt) serverTransaction).getSipProvider();
+                ContentTypeHeader cth = ProtocolObjects.headerFactory
+                        .createContentTypeHeader("application", "sdp");
+                SipProvider txProvider = ((TransactionExt) serverTransaction)
+                        .getSipProvider();
                 ContactHeader contactHeader = SipUtilities.createContactHeader(
                         Gateway.SIPXBRIDGE_USER, txProvider);
                 okResponse.setHeader(contactHeader);
-                okResponse.setContent(
-                        rtpSession.getReceiver().getSessionDescription().toString(), cth);
+                okResponse.setContent(rtpSession.getReceiver()
+                        .getSessionDescription().toString(), cth);
                 DialogContext replacedDat = DialogContext.get(replacedDialog);
                 if (replacedDat.dialogCreatingTransaction != null
                         && replacedDat.dialogCreatingTransaction instanceof ClientTransaction) {
 
                     ClientTransaction ctx = (ClientTransaction) replacedDat.dialogCreatingTransaction;
-                    TransactionContext.attach(ctx, Operation.CANCEL_REPLACED_INVITE);
+                    TransactionContext.attach(ctx,
+                            Operation.CANCEL_REPLACED_INVITE);
                     Request cancelRequest = ctx.createCancel();
                     if (replacedDat.dialogCreatingTransaction.getState() != TransactionState.TERMINATED) {
                         ClientTransaction cancelTx = txProvider
@@ -1610,14 +1776,17 @@ public class BackToBackUserAgent {
                 }
 
                 Request byeRequest = replacedDialog.createRequest(Request.BYE);
-                SipProvider provider = ((DialogExt) replacedDialog).getSipProvider();
-                ClientTransaction byeCtx = provider.getNewClientTransaction(byeRequest);
+                SipProvider provider = ((DialogExt) replacedDialog)
+                        .getSipProvider();
+                ClientTransaction byeCtx = provider
+                        .getNewClientTransaction(byeRequest);
 
                 /*
-                 * Create a little transaction context to identify the operator in our state
-                 * machine. when we see a response to the BYE.
+                 * Create a little transaction context to identify the operator
+                 * in our state machine. when we see a response to the BYE.
                  */
-                TransactionContext.attach(byeCtx, Operation.SEND_BYE_TO_REPLACED_DIALOG);
+                TransactionContext.attach(byeCtx,
+                        Operation.SEND_BYE_TO_REPLACED_DIALOG);
 
                 /*
                  * bid adeu to the replaced dialog.
@@ -1626,21 +1795,26 @@ public class BackToBackUserAgent {
 
                 serverTransaction.sendResponse(okResponse);
 
-                DialogContext replacedDialogApplicationData = DialogContext.get(dialog);
+                DialogContext replacedDialogApplicationData = DialogContext
+                        .get(dialog);
 
-                Dialog peerDialog = replacedDialogApplicationData.getPeerDialog();
+                Dialog peerDialog = replacedDialogApplicationData
+                        .getPeerDialog();
                 DialogContext peerDat = DialogContext.get(peerDialog);
                 RtpSession wanRtpSession = peerDat.getRtpSession();
-                SipProvider wanProvider = ((DialogExt) peerDialog).getSipProvider();
-                ContactHeader contact = SipUtilities.createContactHeader(wanProvider, peerDat
-                        .getItspInfo());
+                SipProvider wanProvider = ((DialogExt) peerDialog)
+                        .getSipProvider();
+                ContactHeader contact = SipUtilities.createContactHeader(
+                        wanProvider, peerDat.getItspInfo());
 
-                SessionDescription answerSdes = SipUtilities.cleanSessionDescription(SipUtilities
-                        .cloneSessionDescription(sdes), codecs);
+                SessionDescription answerSdes = SipUtilities
+                        .cleanSessionDescription(SipUtilities
+                                .cloneSessionDescription(sdes), codecs);
                 wanRtpSession.getReceiver().setSessionDescription(answerSdes);
 
                 ServerTransaction peerSt = ((ServerTransaction) peerDat.dialogCreatingTransaction);
-                Response peerOk = SipUtilities.createResponse(peerSt, Response.OK);
+                Response peerOk = SipUtilities.createResponse(peerSt,
+                        Response.OK);
                 peerOk.setHeader(contact);
                 peerOk.setContent(answerSdes, cth);
                 peerSt.sendResponse(peerOk);
@@ -1651,8 +1825,8 @@ public class BackToBackUserAgent {
             logger.error("Unexpected exception -- tearing down call ", ex);
             try {
                 this.tearDown(ProtocolObjects.headerFactory.createReasonHeader(
-                        Gateway.SIPXBRIDGE_USER, ReasonCode.SIPXBRIDGE_INTERNAL_ERROR, ex
-                                .getMessage()));
+                        Gateway.SIPXBRIDGE_USER,
+                        ReasonCode.SIPXBRIDGE_INTERNAL_ERROR, ex.getMessage()));
             } catch (Exception e) {
                 logger.error("Unexpected exception ", e);
             }
@@ -1671,22 +1845,26 @@ public class BackToBackUserAgent {
         logger.debug("processBye : BYE received on dialog " + dialog);
         ServerTransaction st = requestEvent.getServerTransaction();
 
-        DialogContext dialogContext = (DialogContext) dialog.getApplicationData();
+        DialogContext dialogContext = (DialogContext) dialog
+                .getApplicationData();
         Dialog peer = dialogContext.getPeerDialog();
 
         if (dialogContext.isForwardByeToPeer() && peer != null
-                && peer.getState() != DialogState.TERMINATED && peer.getState() != null) {
-            SipProvider provider = ((gov.nist.javax.sip.DialogExt) peer).getSipProvider();
+                && peer.getState() != DialogState.TERMINATED
+                && peer.getState() != null) {
+            SipProvider provider = ((gov.nist.javax.sip.DialogExt) peer)
+                    .getSipProvider();
 
             Request bye = peer.createRequest(Request.BYE);
 
             ClientTransaction ct = provider.getNewClientTransaction(bye);
 
-            TransactionContext transactionContext = TransactionContext.attach(st,
-                    Operation.PROCESS_BYE);
+            TransactionContext transactionContext = TransactionContext.attach(
+                    st, Operation.PROCESS_BYE);
 
             transactionContext.setClientTransaction(ct);
-            transactionContext.setItspAccountInfo(DialogContext.get(peer).getItspInfo());
+            transactionContext.setItspAccountInfo(DialogContext.get(peer)
+                    .getItspInfo());
             ct.setApplicationData(transactionContext);
 
             peer.sendRequest(ct);
@@ -1696,7 +1874,8 @@ public class BackToBackUserAgent {
              */
             logger.debug("BackToBackUserAgent: peerDialog = " + peer);
             if (peer != null) {
-                logger.debug("BackToBackUserAgent: peerDialog state = " + peer.getState());
+                logger.debug("BackToBackUserAgent: peerDialog state = "
+                        + peer.getState());
             }
             try {
                 Response ok = SipUtilities.createResponse(st, Response.OK);
@@ -1762,7 +1941,8 @@ public class BackToBackUserAgent {
      * tear down dialogs.
      */
     void tearDown(String agent, int code, String reason) throws Exception {
-        ReasonHeader rh = ProtocolObjects.headerFactory.createReasonHeader(agent, code, reason);
+        ReasonHeader rh = ProtocolObjects.headerFactory.createReasonHeader(
+                agent, code, reason);
         this.tearDown(rh);
     }
 
@@ -1775,14 +1955,16 @@ public class BackToBackUserAgent {
 
     void tearDown(ReasonHeader reason) throws Exception {
         /*
-         * Prevent a concurrent modification exception. Copy all the dialogs into a temp set.
+         * Prevent a concurrent modification exception. Copy all the dialogs
+         * into a temp set.
          */
         HashSet<Dialog> temp = new HashSet<Dialog>();
         temp.addAll(this.dialogTable);
 
         for (Dialog dialog : temp) {
-            logger.debug("tearing down " + dialog + " dialogState = " + dialog.getState()
-                    + " dialog.isServer " + dialog.isServer());
+            logger.debug("tearing down " + dialog + " dialogState = "
+                    + dialog.getState() + " dialog.isServer "
+                    + dialog.isServer());
             if (dialog.getState() != DialogState.TERMINATED) {
                 DialogContext dialogCtx = DialogContext.get(dialog);
                 SipProvider lanProvider = ((DialogExt) dialog).getSipProvider();
@@ -1792,9 +1974,10 @@ public class BackToBackUserAgent {
                     ClientTransaction ctx = (ClientTransaction) dialogCtx
                             .getDialogCreatingTransaction();
                     if (ctx.getState() == TransactionState.PROCEEDING) {
-                        ClientTransaction cancelTx = lanProvider.getNewClientTransaction(ctx
-                                .createCancel());
-                        TransactionContext.attach(cancelTx, Operation.CANCEL_INVITE);
+                        ClientTransaction cancelTx = lanProvider
+                                .getNewClientTransaction(ctx.createCancel());
+                        TransactionContext.attach(cancelTx,
+                                Operation.CANCEL_INVITE);
                         cancelTx.sendRequest();
                     }
                 }
@@ -1808,9 +1991,12 @@ public class BackToBackUserAgent {
                     if (reason != null) {
                         byeRequest.addHeader(reason);
                     }
-                    SipProvider provider = ((DialogExt) dialog).getSipProvider();
-                    ClientTransaction ct = provider.getNewClientTransaction(byeRequest);
-                    TransactionContext.attach(ct, Operation.SEND_BYE_FOR_TEARDOWN);
+                    SipProvider provider = ((DialogExt) dialog)
+                            .getSipProvider();
+                    ClientTransaction ct = provider
+                            .getNewClientTransaction(byeRequest);
+                    TransactionContext.attach(ct,
+                            Operation.SEND_BYE_FOR_TEARDOWN);
                     dialog.sendRequest(ct);
                 } else {
                     DialogContext.get(dialog).setTerminateOnConfirm();
@@ -1826,7 +2012,8 @@ public class BackToBackUserAgent {
                     && this.musicOnHoldDialog.getState() != DialogState.TERMINATED) {
                 this.sendByeToMohServer();
             } else {
-                DialogContext.get(this.musicOnHoldDialog).setTerminateOnConfirm();
+                DialogContext.get(this.musicOnHoldDialog)
+                        .setTerminateOnConfirm();
             }
         }
 
@@ -1864,6 +2051,43 @@ public class BackToBackUserAgent {
      */
     public boolean isPendingTermination() {
         return this.pendingTermination;
+    }
+
+    public boolean findNextSipXProxy() throws IOException, SymmitronException,
+            SipXbridgeException {
+  
+       
+       
+        
+        if ( this.proxyAddress != null ) {
+            this.blackListedProxyServers.add(this.proxyAddress);
+            this.proxyAddress = null;
+            
+        }
+
+        for (Hop hop : Gateway.initializeSipxProxyAddresses()) {
+
+            try {
+                SymmitronClient symmitronClient = Gateway
+                        .getSymmitronClient(hop.getHost());
+                /* Find if sipxrelay is alive */
+                if (!symmitronClient.pingAndTest(hop.getHost(), hop.getPort())) {
+                    this.blackListedProxyServers.add(hop);
+                    continue;
+                }
+
+                this.proxyAddress = hop;
+                this.symmitronClient = symmitronClient;
+                break;
+
+            } catch (SymmitronException ex) {
+                logger.error("Could not contact Relay at " + hop.getHost());
+                this.blackListedProxyServers.add(hop);
+            } 
+        }
+       
+        
+        return ( this.proxyAddress != null );
     }
 
 }

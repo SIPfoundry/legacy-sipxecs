@@ -440,7 +440,19 @@ public class SipListenerImpl implements SipListener {
                      */
                     BackToBackUserAgent b2bua = DialogContext.get(ctx.getDialog())
                             .getBackToBackUserAgent();
-                    b2bua.sendByeToMohServer();
+                    
+                    TransactionContext transactionContext = TransactionContext.get(ctx);
+                    if (transactionContext.getOperation() ==  Operation.SEND_INVITE_TO_SIPX_PROXY) {           
+                        if ( ! b2bua.findNextSipXProxy() ) {
+                            b2bua.tearDown(Gateway.SIPXBRIDGE_USER, ReasonCode.CALL_SETUP_ERROR, 
+                                    "SipxProxy is down");
+                        } else {
+                            b2bua.sendInviteToSipxProxy(transactionContext.getRequestEvent(),
+                                transactionContext.getServerTransaction() );
+                        }
+                    } else {
+                        b2bua.sendByeToMohServer();
+                    }
 
                 }
             }
