@@ -520,6 +520,26 @@ public class SymmitronClient {
 		
 	}
 	
+	public boolean pingAndTest(String host, int port) {
+	    Object[] args = new Object[3];
+        args[0] = clientHandle;
+        args[1] = host;
+        args[2] = new Integer(port);
+        Map retval;
+        
+        try {
+            retval = (Map) client.execute("sipXrelay.pingAndTest", args);
+            if ( (String)retval.get(Symmitron.PROXY_LIVENESS) != null ) {
+                return Boolean.parseBoolean((String)retval.get(Symmitron.PROXY_LIVENESS));
+            } else {
+                return false;
+            }
+        } catch (XmlRpcException e) {
+            logger.error("XmlRpcException ", e);
+            throw new SymmitronException("Error pinging " + this.serverAddress);
+        }
+	}
+	
 	
 	public void signIn() throws SymmitronException {
 
