@@ -61,5 +61,19 @@ public class ProxyHop implements Hop, Comparable<ProxyHop> {
 
         }
     }
+    
+    @Override
+    public boolean equals(Object that) {
+        if ( !(that instanceof ProxyHop)) {
+            return false;
+        } else {
+            ProxyHop other = (ProxyHop) that;
+            if (! this.getHost().equals(other.getHost()) || this.getPort() != other.getPort()) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+    }
 
 }
