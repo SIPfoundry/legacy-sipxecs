@@ -158,7 +158,9 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
             accountFound.setOutboundProxyPort(sipUri.getPort());
             accountFound.setOutboundTransport(sipUri.getTransportParam());
             accountFound.setGlobalAddressingUsed(true);
-            return null;
+            accountFound.setOutboundTransport("udp");
+            this.addItspAccount(accountFound);
+            return accountFound;
         } finally {
             logger.debug("getItspAccount: returning " + accountFound);
         }
