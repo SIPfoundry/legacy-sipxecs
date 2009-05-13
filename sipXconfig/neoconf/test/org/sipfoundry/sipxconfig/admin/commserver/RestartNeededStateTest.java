@@ -114,4 +114,13 @@ public class RestartNeededStateTest extends TestCase {
         affected = state.getAffected();
         assertEquals(3, affected.size());
     }
+
+    public void testUnmark() {
+        RestartNeededState state = new RestartNeededState();
+        state.mark(m_l1, Arrays.asList(m_proxy));
+        assertFalse(state.isEmpty());
+
+        state.unmark(m_l1, m_proxy);
+        assertTrue(state.isEmpty());
+    }
 }

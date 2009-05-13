@@ -40,6 +40,7 @@ public class RestartNeededServicesPageTestUi extends WebTestCase {
         assertLinkNotPresent("restartNeededLink");
         assertTablePresent("restartNeededServices:list");
         assertButtonPresent("services:restart");
+        assertButtonPresent("services:ignore");
 
         int rowCount = SiteTestHelper.getRowCount(tester, "restartNeededServices:list");
         // at least one service restart is needed

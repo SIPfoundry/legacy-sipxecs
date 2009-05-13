@@ -103,4 +103,6 @@ public interface SipxProcessContext {
      *        replication
      */
     void markDialPlanRelatedServicesForRestart(String... serviceBeansIds);
+
+    void unmarkServicesToRestart(Collection<RestartNeededService> services);
 }

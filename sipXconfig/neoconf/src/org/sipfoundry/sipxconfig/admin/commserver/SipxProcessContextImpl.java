@@ -329,4 +329,8 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
         }
         markServicesForRestart(services);
     }
+
+    public void unmarkServicesToRestart(Collection<RestartNeededService> services) {
+        m_servicesToRestart.unmark(services);
+    }
 }

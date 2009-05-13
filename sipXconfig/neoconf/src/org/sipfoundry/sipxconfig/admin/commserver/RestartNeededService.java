@@ -35,4 +35,13 @@ public class RestartNeededService implements Serializable {
     public int hashCode() {
         return new HashCodeBuilder().append(m_fqdn).append(m_serviceBeanId).toHashCode();
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof RestartNeededService) {
+            RestartNeededService service = (RestartNeededService) obj;
+            return m_fqdn.equals(service.getLocation()) && m_serviceBeanId.equals(service.getServiceBeanId());
+        }
+        return false;
+    }
 }
