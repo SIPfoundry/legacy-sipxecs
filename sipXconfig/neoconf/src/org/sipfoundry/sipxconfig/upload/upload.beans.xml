@@ -36,9 +36,18 @@
     <property name="uploadSpecificationSource" ref="uploadSpecificationSource"/>
   </bean>
 
-  <bean id="uploadTask" class="org.sipfoundry.sipxconfig.upload.UploadTask">
+  <bean id="uploadUtil" class="org.sipfoundry.sipxconfig.upload.UploadUtil">
     <property name="uploadSpecificationSource" ref="uploadSpecificationSource"/>
     <property name="uploadManager" ref="uploadManager"/>
+  </bean>
+
+  <bean id="uploadTask" class="org.sipfoundry.sipxconfig.upload.UploadTask">
+    <property name="uploadUtil" ref="uploadUtil"/>
+  </bean>
+
+  <bean id="defaultSystemFirmwareInstall" class="org.sipfoundry.sipxconfig.upload.DefaultSystemFirmwareInstall">
+    <property name="uploadUtil" ref="uploadUtil"/>
+    <property name="firmwareDirectory" value="${sysdir.default.firmware}"/>
   </bean>
  
   <bean id="unmanagedUpload" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">

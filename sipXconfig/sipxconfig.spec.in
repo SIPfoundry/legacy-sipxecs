@@ -15,6 +15,7 @@ Url:      http://www.sipfoundry.org/
 %define sipxpbxvarlib %{_var}/lib/sipxpbx
 %define sipxconfiglib %{_datadir}/sipXecs/sipXconfig
 %define tftproot /tftpboot
+%define devicefilesdir %{_datadir}/sipxecs/devicefiles
 
 # Should match sipXlib.m4:SIPX_CONFIGPHONEDIR
 %define phonedir %{_localstatedir}/sipxdata/configserver/phone
@@ -326,6 +327,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{reportsdir}/*
 
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/configserver/web-cert
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{devicefilesdir}
 
 %pre
 

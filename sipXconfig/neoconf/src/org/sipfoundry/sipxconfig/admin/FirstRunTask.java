@@ -16,7 +16,6 @@ import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.ResetDialPlanTask;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
-import org.sipfoundry.sipxconfig.common.AlarmContext;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
@@ -40,7 +39,6 @@ public class FirstRunTask implements ApplicationListener {
     private SipxServiceManager m_sipxServiceManager;
     private ServiceConfigurator m_serviceConfigurator;
     private String m_taskName;
-    private AlarmContext m_alarmContext;
     private GatewayContext m_gatewayContext;
     private PhoneContext m_phoneContext;
     private ProfileManager m_gatewayProfileManager;
@@ -137,11 +135,6 @@ public class FirstRunTask implements ApplicationListener {
     @Required
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
-    }
-
-    @Required
-    public void setAlarmContext(AlarmContext alarmContext) {
-        m_alarmContext = alarmContext;
     }
 
     @Required

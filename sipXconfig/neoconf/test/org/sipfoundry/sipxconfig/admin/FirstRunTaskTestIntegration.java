@@ -32,7 +32,6 @@ public class FirstRunTaskTestIntegration extends IntegrationTestCase {
     private LocationsManager m_locationsManager;
     private FirstRunTask m_firstRun;
     private DomainManager m_domainManager;
-    private AlarmContext m_alarmContext;
     private CoreContext m_coreContext;
     private AdminContext m_adminContext;
     private ServiceConfigurator m_serviceConfigurator;
@@ -40,10 +39,6 @@ public class FirstRunTaskTestIntegration extends IntegrationTestCase {
 
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
-    }
-
-    public void setAlarmContext(AlarmContext alarmContext) {
-        m_alarmContext = alarmContext;
     }
 
     public void setAdminContext(AdminContext adminContext) {
@@ -73,7 +68,6 @@ public class FirstRunTaskTestIntegration extends IntegrationTestCase {
     @Override
     protected void onTearDownAfterTransaction() throws Exception {
         m_firstRun.setAdminContext(m_adminContext);
-        m_firstRun.setAlarmContext(m_alarmContext);
         m_firstRun.setDomainManager(m_domainManager);
         m_firstRun.setCoreContext(m_coreContext);
         m_firstRun.setServiceConfigurator(m_serviceConfigurator);
@@ -96,7 +90,6 @@ public class FirstRunTaskTestIntegration extends IntegrationTestCase {
         m_firstRun.setDomainManager(domainManager);
         m_firstRun.setAdminContext(adminContext);
         m_firstRun.setCoreContext(coreContext);
-        m_firstRun.setAlarmContext(alarmContext);
         m_firstRun.setSbcManager(m_sbcManagerImpl);
 
         loadDataSetXml("admin/commserver/seedLocationsAndServices.xml");

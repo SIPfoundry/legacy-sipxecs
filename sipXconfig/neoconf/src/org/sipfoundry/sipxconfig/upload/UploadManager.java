@@ -40,6 +40,11 @@ public interface UploadManager extends DataObjectSource<Upload> {
     void deploy(Upload upload);
 
     /**
+     * Find any Uploads of this specification and undeloy them
+     */
+    void undeploy(UploadSpecification spec);
+
+    /**
      * Delegates undeployment to upload object then saves the upload state is undeployment was
      * successful
      */
