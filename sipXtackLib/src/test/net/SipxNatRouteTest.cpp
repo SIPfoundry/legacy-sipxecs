@@ -6,11 +6,13 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
+#include <sys/time.h>
+#include <unistd.h>
+
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
 #include <sipxunit/TestUtilities.h>
 
-#include <sys/time.h>
 #include <utl/UtlSList.h>
 #include <utl/UtlString.h>
 #include <os/OsDefs.h>
