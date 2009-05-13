@@ -2,7 +2,8 @@
     <span jwcid="@Script" scriptAsset="asset:script" />
     <h1><span key="title">Software Updates</span></h1>
 
-    <form jwcid="@common/AutoRefreshForm" interval="10" componentsToUpdate="ognl:{'packageList'}" >
+    <form jwcid="@common/AutoRefreshForm" interval="10" componentsToUpdate="ognl:{'packageList'}" delegate="bean:validator">
+	<span jwcid="@common/ErrorMsg"></span>
 	    <div id="updateBox">
 	        <h3 id="statusText"><span jwcid="@Insert" value="ognl:messages.getMessage(packageUpdateManager.state)">No updates available</span></h3>
 	        
@@ -16,8 +17,7 @@
 		           <b><span jwcid="@Insert" value="ognl:packageUpdateManager.lastCheckedDate" format="ognl:dateFormat" /></b>.	           
 		        </div>
 		        <div id="currentVersion">
-		           The system is currently running
-		           <b><span jwcid="@Insert" value="ognl:currentVersion" /></b>.
+                    <span jwcid="@Insert" value="ognl:formattedCurrentVersion" raw="ognl:true" />
 	            </div>
 		        <div jwcid="@If" condition="ognl:packageUpdateManager.updatedVersion != null" 
 		             id="availableVersion">

@@ -14,6 +14,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Future;
 
+import org.sipfoundry.sipxconfig.common.UserException;
+
 public interface PackageUpdateManager {
 
     public enum UpdaterState {
@@ -50,4 +52,6 @@ public interface PackageUpdateManager {
     Future<Boolean> checkForUpdates();
 
     boolean isYumCapable();
+
+    UserException getUserException();
 }
