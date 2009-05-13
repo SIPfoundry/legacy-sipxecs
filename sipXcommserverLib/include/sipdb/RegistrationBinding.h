@@ -44,7 +44,7 @@ public:
    RegistrationBinding(const UtlHashMap& regData);
 
    /// Destructor
-   virtual ~RegistrationBinding() {}
+   virtual ~RegistrationBinding();
 
    /// Copy the binding data to a hash map
    void copy(UtlHashMap& map) const;
@@ -54,7 +54,7 @@ public:
    
    const Url* getUri() const;
    void       setUri(const Url& uri);
-   void       setUri(const UtlString& uri);
+   void       setUri(const char* uri); // name-addr format
    
    const UtlString* getCallId() const;
    void       setCallId(const UtlString& callId);
