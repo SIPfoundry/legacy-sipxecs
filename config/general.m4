@@ -1788,3 +1788,10 @@ AC_DEFUN([CHECK_SYSLOGD],
    AC_SUBST(SYSLOG_LIBS)
    AC_SUBST(SYSLOG_ARGS)
 ])
+
+# ============ Y U M  ==================
+AC_DEFUN([CHECK_YUM],
+[
+   AC_ARG_VAR(YUM_EXISTS, [Yum program])
+   AC_CHECK_PROG(YUM_EXISTS, yum, "true", "false", $PATH:/usr/bin)
+])

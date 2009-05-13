@@ -9,6 +9,7 @@
   <inject property="acdContext" object="spring:acdContext" />
   <inject property="monitoringContext" object="spring:monitoringContext" />
   <inject property="coreContext" object="spring:coreContext" />
+  <inject property="packageUpdateManager" object="spring:packageUpdateManager" />
 
   <component id="ieHackScript" type="Script">
     <binding name="script" value="literal:AdminNavigation.script" />

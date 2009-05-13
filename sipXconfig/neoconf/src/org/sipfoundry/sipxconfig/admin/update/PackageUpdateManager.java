@@ -48,4 +48,6 @@ public interface PackageUpdateManager {
     Future< ? > installUpdates();
 
     Future<Boolean> checkForUpdates();
+
+    boolean isYumCapable();
 }

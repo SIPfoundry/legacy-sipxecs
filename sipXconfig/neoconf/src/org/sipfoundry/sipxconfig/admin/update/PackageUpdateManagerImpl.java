@@ -48,6 +48,8 @@ public class PackageUpdateManagerImpl implements Serializable, PackageUpdateMana
 
     private AlarmContext m_alarmContext;
 
+    private boolean m_yumCapable;
+
     public List<PackageUpdate> getAvailablePackages() {
         return m_availablePackages;
     }
@@ -141,5 +143,13 @@ public class PackageUpdateManagerImpl implements Serializable, PackageUpdateMana
     @Required
     public void setAlarmContext(AlarmContext alarmContext) {
         m_alarmContext = alarmContext;
+    }
+
+    public void setYumCapable(boolean yumCapable) {
+        m_yumCapable = yumCapable;
+    }
+
+    public boolean isYumCapable() {
+        return m_yumCapable;
     }
 }
