@@ -39,7 +39,7 @@ public class RegistrationTimerTask extends TimerTask {
             try {
                 if (!itspAccount.isAlarmSent()) {
                     Gateway.getAlarmClient().raiseAlarm(
-                            "SIPX_BRIDGE_OPERATION_TIMED_OUT", 
+                            Gateway.SIPXBRIDGE_ACCOUNT_CONFIGURATION_ERROR_ALARM_ID, 
                             itspAccount.getSipDomain());
                     itspAccount.setAlarmSent(true);
                 }
