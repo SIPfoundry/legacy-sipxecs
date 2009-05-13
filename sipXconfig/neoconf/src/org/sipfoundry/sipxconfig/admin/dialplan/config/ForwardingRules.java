@@ -19,7 +19,10 @@ import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.DefaultSbc;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
@@ -35,9 +38,18 @@ public class ForwardingRules extends TemplateConfigurationFile {
     private List<String> m_routes;
     private SipxServiceManager m_sipxServiceManager;
     private LocationsManager m_locationsManager;
+    private SbcDeviceManager m_sbcDeviceManager;
 
     public void setSbcManager(SbcManager sbcManager) {
         m_sbcManager = sbcManager;
+    }
+
+    public void setSbcDeviceManager(SbcDeviceManager sbcDeviceManager) {
+        m_sbcDeviceManager = sbcDeviceManager;
+    }
+
+    public SbcDeviceManager getSbcDeviceManager() {
+        return m_sbcDeviceManager;
     }
 
     public void begin() {
@@ -80,6 +92,16 @@ public class ForwardingRules extends TemplateConfigurationFile {
         String registrarMappingLocation = registrarService.formatMappingLocation(location,
                 registrarLocations.size() > 1);
         context.put("registrarMappingLocation", registrarMappingLocation);
+
+        List<BridgeSbc> bridgeSbcs = new ArrayList<BridgeSbc>();
+        List<SbcDevice> sbcDevices = m_sbcDeviceManager.getSbcDevices();
+        for (SbcDevice device : sbcDevices) {
+            if (device.getModel().isInternalSbc()) {
+                bridgeSbcs.add((BridgeSbc) device);
+            }
+        }
+        context.put("bridgeSbcs", bridgeSbcs);
+
         return context;
     }
 
@@ -90,5 +112,4 @@ public class ForwardingRules extends TemplateConfigurationFile {
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
     }
-
 }

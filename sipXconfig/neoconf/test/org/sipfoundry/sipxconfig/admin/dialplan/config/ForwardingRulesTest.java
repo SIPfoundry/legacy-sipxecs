@@ -16,6 +16,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -30,14 +31,23 @@ import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.AuxSbc;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.DefaultSbc;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.Sbc;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDescriptor;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcRoutes;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.gateway.GatewayContext;
+import org.sipfoundry.sipxconfig.gateway.SipTrunk;
+import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
+import org.sipfoundry.sipxconfig.service.SipxBridgeService;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.service.SipxStatusService;
+import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
@@ -48,12 +58,13 @@ import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 
 public class ForwardingRulesTest extends XMLTestCase {
-
     private SipxServiceManager m_sipxServiceManager;
     private LocationsManager m_locationsManager;
     private Location m_statusLocation;
+    private SipxBridgeService m_bridgeService;
     private SipxStatusService m_statusService;
     private SipxRegistrarService m_registrarService;
+    private SbcDeviceManager m_sbcDeviceManager;
 
     @Override
     protected void setUp() throws Exception {
@@ -63,6 +74,7 @@ public class ForwardingRulesTest extends XMLTestCase {
         DomainManager domainManager = TestUtil.getMockDomainManager();
         replay(domainManager);
 
+        m_bridgeService = new SipxBridgeService();
         m_statusService = new SipxStatusService();
         m_registrarService = new SipxRegistrarService();
         m_statusLocation = new Location();
@@ -73,6 +85,10 @@ public class ForwardingRulesTest extends XMLTestCase {
         m_locationsManager.getLocationsForService(m_statusService);
         expectLastCall().andReturn(locations).anyTimes();
         m_locationsManager.getLocationsForService(m_registrarService);
+        expectLastCall().andReturn(locations).anyTimes();
+        m_locationsManager.getPrimaryLocation();
+        expectLastCall().andReturn(m_statusLocation).anyTimes();
+        m_locationsManager.getLocationsForService(m_bridgeService);
         expectLastCall().andReturn(locations).anyTimes();
         replay(m_locationsManager);
 
@@ -94,11 +110,30 @@ public class ForwardingRulesTest extends XMLTestCase {
         m_registrarService.setSipPort("9907");
         m_statusLocation.addService(m_registrarService);
 
+        m_bridgeService.setBeanName(SipxBridgeService.BEAN_ID);
+        m_bridgeService.setSipPort("9908");
+        m_statusLocation.addService(m_bridgeService);
+        m_bridgeService.setLocationsManager(m_locationsManager);
+
         m_sipxServiceManager = TestUtil.getMockSipxServiceManager(false, proxyService, m_registrarService,
-                m_statusService);
+                m_statusService, m_bridgeService);
         m_sipxServiceManager.isServiceInstalled(m_statusLocation.getId(), SipxRegistrarService.BEAN_ID);
         expectLastCall().andReturn(true).anyTimes();
         replay(m_sipxServiceManager);
+
+        m_sbcDeviceManager = createMock(SbcDeviceManager.class);
+
+        GatewayContext gatewayContext = createMock(GatewayContext.class);
+        gatewayContext.getGatewayByType(SipTrunk.class);
+        expectLastCall().andReturn(null);
+        replay(gatewayContext);
+
+        m_sbcDeviceManager.getBridgeSbc(m_statusLocation);
+        expectLastCall().andReturn(null).anyTimes();
+
+        m_sbcDeviceManager.getSbcDevices();
+        expectLastCall().andReturn(Collections.emptyList());
+        replay(m_sbcDeviceManager);
     }
 
     public void testGenerate() throws Exception {
@@ -180,6 +215,10 @@ public class ForwardingRulesTest extends XMLTestCase {
         expectLastCall().andReturn(Arrays.asList(m_statusLocation)).anyTimes();
         m_locationsManager.getLocationsForService(m_registrarService);
         expectLastCall().andReturn(Arrays.asList(m_statusLocation, location2)).anyTimes();
+        m_locationsManager.getLocationsForService(m_bridgeService);
+        expectLastCall().andReturn(Arrays.asList(m_statusLocation)).anyTimes();
+        m_locationsManager.getPrimaryLocation();
+        expectLastCall().andReturn(m_statusLocation).anyTimes();
 
         Sbc sbc = configureSbc(new DefaultSbc(), configureSbcDevice("10.1.2.3"), new ArrayList<String>(),
                 new ArrayList<String>());
@@ -194,9 +233,11 @@ public class ForwardingRulesTest extends XMLTestCase {
 
         String generatedXml = getGeneratedXmlFileAsString(rules);
 
-        InputStream referenceXmlStream = ForwardingRulesTest.class.getResourceAsStream("forwardingrules-ha.test.xml");
+        InputStream referenceXmlStream = ForwardingRulesTest.class
+                .getResourceAsStream("forwardingrules-ha.test.xml");
 
-        assertEquals(IOUtils.toString(referenceXmlStream), generatedXml);
+        // assertEquals(IOUtils.toString(referenceXmlStream), generatedXml);
+        assertEquals(generatedXml, IOUtils.toString(referenceXmlStream));
 
         assertXpathEvaluatesTo("gander", "/routes/route/routeFrom[5]", generatedXml);
 
@@ -211,7 +252,7 @@ public class ForwardingRulesTest extends XMLTestCase {
             "gander"
         });
 
-        Sbc sbc = configureSbc(new DefaultSbc(), configureSbcDevice("10.1.2.3"), Arrays.asList("*.example.org",
+        Sbc sbc = configureSbc(new DefaultSbc(), configureSbcDevice("10.1.2.3", 5070), Arrays.asList("*.example.org",
                 "*.example.net"), Arrays.asList("10.1.2.3/16"));
         Sbc aux1 = configureSbc(new AuxSbc(), configureSbcDevice("10.1.2.4"), Arrays.asList("*.sipfoundry.org",
                 "*.sipfoundry.net"), new ArrayList<String>());
@@ -272,6 +313,64 @@ public class ForwardingRulesTest extends XMLTestCase {
         verify(rule, sbcManager);
     }
 
+    public void testGenerateWithItspNameCallback() throws Exception {
+        IDialingRule rule = createNiceMock(IDialingRule.class);
+        rule.getHostPatterns();
+        expectLastCall().andReturn(new String[] {
+            "gander"
+        });
+
+        ModelFilesContext modelFilesContext = TestHelper.getModelFilesContext();
+        DeviceDefaults deviceDefaults = PhoneTestDriver.getDeviceDefaults();
+
+        SbcDescriptor sbcDescriptor = new SbcDescriptor();
+        sbcDescriptor.setInternalSbc(true);
+
+        BridgeSbc bridgeSbc = new BridgeSbc();
+        bridgeSbc.setModel(sbcDescriptor);
+        bridgeSbc.setDefaults(deviceDefaults);
+        bridgeSbc.setAddress("192.168.5.240");
+        bridgeSbc.setPort(5090);
+
+        SipTrunk sipTrunk = new SipTrunk();
+        sipTrunk.setDefaults(deviceDefaults);
+        sipTrunk.setModelFilesContext(modelFilesContext);
+        sipTrunk.setSbcDevice(bridgeSbc);
+        sipTrunk.setAddress("itsp.example.com");
+        sipTrunk.setSettingValue("itsp-account/itsp-proxy-domain", "itsp.example.com");
+
+        GatewayContext gatewayContext = createMock(GatewayContext.class);
+        gatewayContext.getGatewayByType(SipTrunk.class);
+        expectLastCall().andReturn(Arrays.asList(sipTrunk));
+        replay(gatewayContext);
+        bridgeSbc.setGatewayContext(gatewayContext);
+
+        m_sbcDeviceManager = createNiceMock(SbcDeviceManager.class);
+        m_sbcDeviceManager.getSbcDevices();
+        expectLastCall().andReturn(Collections.singletonList(bridgeSbc));
+        replay(m_sbcDeviceManager);
+
+        Sbc sbc = configureSbc(new DefaultSbc(), configureSbcDevice("10.1.2.3"), Arrays.asList("*.example.org",
+                "*.example.net"), Arrays.asList("10.1.2.3/16"));
+
+        SbcManager sbcManager = createNiceMock(SbcManager.class);
+        sbcManager.loadDefaultSbc();
+        expectLastCall().andReturn(sbc);
+        sbcManager.loadAuxSbcs();
+        expectLastCall().andReturn(null);
+
+        replay(rule, sbcManager);
+
+        ForwardingRules rules = generate(rule, sbcManager);
+
+        String generatedXml = getGeneratedXmlFileAsString(rules);
+
+        InputStream referenceXmlStream = ForwardingRulesTest.class
+                .getResourceAsStream("forwardingrules-itsp-callback-test.xml");
+
+        assertXMLEqual(new StringReader(generatedXml), new InputStreamReader(referenceXmlStream));
+    }
+
     private ForwardingRules generate(IDialingRule rule, SbcManager sbcManager) {
         ForwardingRules rules = new ForwardingRules();
         rules.setTemplate("commserver/forwardingrules.vm");
@@ -279,6 +378,7 @@ public class ForwardingRulesTest extends XMLTestCase {
         rules.setLocationsManager(m_locationsManager);
         rules.setVelocityEngine(TestHelper.getVelocityEngine());
         rules.setSbcManager(sbcManager);
+        rules.setSbcDeviceManager(m_sbcDeviceManager);
         rules.begin();
         rules.generate(rule);
         rules.end();
@@ -296,10 +396,15 @@ public class ForwardingRulesTest extends XMLTestCase {
         return sbc;
     }
 
-    private SbcDevice configureSbcDevice(String address) {
+    private SbcDevice configureSbcDevice(String address, int port) {
         SbcDevice sbcDevice = new SbcDevice();
         sbcDevice.setAddress(address);
+        sbcDevice.setPort(port);
         return sbcDevice;
+    }
+
+    private SbcDevice configureSbcDevice(String address) {
+        return configureSbcDevice(address, 0);
     }
 
     private String getGeneratedXmlFileAsString(ConfigurationFile xmlFile) throws Exception {

@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.admin.dialplan.sbc;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.ModelSource;
+import org.sipfoundry.sipxconfig.gateway.SipTrunk;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -95,5 +96,14 @@ public class SbcDevice extends Device implements NamedObject {
     @Override
     protected Setting loadSettings() {
         return null;
+    }
+
+    public String getRoute() {
+        StringBuilder route = new StringBuilder(m_address);
+        if (m_port > 0 && m_port != SipTrunk.DEFAULT_PORT) {
+            route.append(':');
+            route.append(getPort());
+        }
+        return route.toString();
     }
 }
