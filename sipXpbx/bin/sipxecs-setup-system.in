@@ -772,6 +772,7 @@ Do you have a DHCP server on your network?\
         dhcpdConf = '\
 authoritative;\n\
 ddns-update-style  none;\n\
+option sip-servers-name code 120 = text;\n\
 \n\
 subnet %s netmask %s {\n\
    range                        %s  %s;\n\
@@ -781,7 +782,8 @@ subnet %s netmask %s {\n\
    option subnet-mask           %s;\n\
    option domain-name           "%s";\n\
    option tftp-server-name      "%s";\n\
-'  % (Subnet, NetMask, rangeStart, rangeEnd, Gateway, NetMask, DomainName, HostName)
+   option sip-servers-name      "%s";\n\
+'  % (Subnet, NetMask, rangeStart, rangeEnd, Gateway, NetMask, DomainName, HostName, DomainName)
 
         if ProvideDNS:
             dhcpdConf +='   option domain-name-servers   %s' % IpAddress
