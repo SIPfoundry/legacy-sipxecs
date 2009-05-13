@@ -1352,10 +1352,10 @@ UtlBoolean SipUserAgent::sendStatelessAck(SipMessage& ackRequest,
 }
 
 UtlBoolean SipUserAgent::sendStatelessRequest(SipMessage& request,
-                                              UtlString& address,
+                                              const UtlString& address,
                                               int port,
                                               OsSocket::IpProtocolSocketType protocol,
-                                              UtlString& branchId)
+                                              const UtlString& branchId)
 {
    // Convert the enum to a protocol string
    UtlString viaProtocolString;

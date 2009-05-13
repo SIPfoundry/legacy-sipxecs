@@ -678,10 +678,10 @@ protected:
     UtlBoolean sendStatelessResponse(SipMessage& response);
 
     UtlBoolean sendStatelessRequest(SipMessage& request,
-                                    UtlString& address,
+                                    const UtlString& address,
                                     int port,
                                     OsSocket::IpProtocolSocketType protocol,
-                                    UtlString& branchId);
+                                    const UtlString& branchId);
 
     /** Send the message to the specified serverAddress/port using
      *  the specified transport protocol.

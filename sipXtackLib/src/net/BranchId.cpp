@@ -122,11 +122,18 @@ BranchId::BranchId(BranchId&         parentId, ///< the branchid of the server t
 }
 
 
-/// accessor for the full string form of the value.
+/// Accessor for the full string form of the value.
 const char* BranchId::data()
 {
    generateFullValue();
    return this->UtlString::data();
+}
+
+/// Accessor for the full string form of the value.
+const UtlString& BranchId::utlString()
+{
+   generateFullValue();
+   return *(static_cast <const UtlString*> (this));
 }
 
 /// Equality Operator

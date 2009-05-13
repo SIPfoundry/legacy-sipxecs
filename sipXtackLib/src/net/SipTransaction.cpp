@@ -2038,7 +2038,7 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
                                                        mSendToAddress,
                                                        mSendToPort,
                                                        mSendToProtocol,
-                                                       *mpBranchId);
+                                                       mpBranchId->utlString());
                     }
 
                     // If this is a duplicate 2xx response and there is only
@@ -2072,7 +2072,7 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
                                                    mSendToAddress,
                                                    mSendToPort,
                                                    mSendToProtocol,
-                                                   *mpBranchId);
+                                                   mpBranchId->utlString());
                 }
 
                 // No ACK for a duplicate failed response.  Something

@@ -123,8 +123,11 @@ class BranchId : protected UtlString
     */
    ///@{
 
-   /// accessor for the full string form of the value - used like UtlString::data()
+   /// Accessor for the full string form of the value - used like UtlString::data()
    const char* data();
+
+   /// Accessor for the full string form of the value.
+   const UtlString& utlString();
 
    ///@}
 
