@@ -109,7 +109,7 @@ public:
         testDataForStringList[2].item = new UtlString("Zyxw") ; 
         testDataForStringList[2].expectedIndex = 2 ; 
 
-        testDataForStringList[3].testDescription = \
+        testDataForStringList[3].testDescription =
                              "An alpha numeric string(alphabetically fourth!)" ; 
         testDataForStringList[3].item = new UtlString("ab#34cd") ; 
         testDataForStringList[3].expectedIndex = 3 ; 
@@ -176,7 +176,7 @@ public:
             char strItr[33] ; 
             sprintf(strItr, "%zu", expectedIndex);
             TestUtilities::createMessage(3, &msg, prefix1, suffix, strItr) ; 
-            CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), \
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(),
                         (void*)testDataForStringList[expectedIndex].item, (void*)ucAct) ; 
         }
         
@@ -188,15 +188,15 @@ public:
             char strItr[33] ; 
             sprintf(strItr, "%zu", expectedIndex);
             TestUtilities::createMessage(3, &msg, prefix2, suffix, strItr) ; 
-            CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), \
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(),
                         (void*)testDataForIntList[expectedIndex].item, (void*)ucAct) ; 
         }
         
-        CPPUNIT_ASSERT_EQUAL_MESSAGE("Verify that the entries() for an empty list returns 0", \
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("Verify that the entries() for an empty list returns 0",
                                    0, (int)emptyList.entries()) ; 
-        CPPUNIT_ASSERT_EQUAL_MESSAGE("Verify the entries() method for a list", \
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("Verify the entries() method for a list",
                                    stringListCount, (int)stringList.entries() ) ; 
-        CPPUNIT_ASSERT_EQUAL_MESSAGE("Verify the entries() method for a int list", \
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("Verify the entries() method for a int list",
                                    intListCount, (int)intList.entries()) ; 
     }// checkSanity_Append_And_At()
 
@@ -209,7 +209,7 @@ public:
     */
     void testInsert_StringList()
     {
-        const char* prefix = "For sortedlist consisting of UtlStrings, " \
+        const char* prefix = "For sortedlist consisting of UtlStrings, "
                              "test the insert(Containable cont) method, where cont = " ; 
         const char* suffix1 = " :- check return value" ; 
         const char* suffix2 = " :- check if inserted at correct position" ; 
@@ -219,10 +219,10 @@ public:
         UtlString string2("BCD") ; 
         UtlString string3("zzzzz") ; 
 
-        TestSortedListStruct testData[] = { \
-           { "the new first list item", &string1, 0}, \
-           { "the new fourth item", &string2, 3 }, \
-           { "the new last item", &string3, 6} \
+        TestSortedListStruct testData[] = {
+           { "the new first list item", &string1, 0},
+           { "the new fourth item", &string2, 3 },
+           { "the new last item", &string3, 6}
         } ; 
         // Adjust the expected indices for the original test data
         testDataForStringList[0].expectedIndex = 1 ; 
@@ -236,14 +236,14 @@ public:
         {
             UtlContainable* returnValue = stringList.insert(testData[i].item) ; 
             // Verify return value
-            TestUtilities::createMessage(3,&Message, prefix, \
+            TestUtilities::createMessage(3,&Message, prefix,
                                          testData[i].testDescription, suffix1) ; 
-            CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), (void*)testData[i].item, \
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), (void*)testData[i].item,
                                       (void*)returnValue) ; 
         }
         // Verify that the total number of entries has increased accordingly
-        CPPUNIT_ASSERT_EQUAL_MESSAGE("Verify that the total number of entries goes up" \
-                    "accordingly after insert()ing items", \
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("Verify that the total number of entries goes up"
+                    "accordingly after insert()ing items",
                     stringListCount + newItemsCount, (int)stringList.entries()) ; 
         
         // Verify that the new items are inserted according to their sorting order. 
@@ -251,9 +251,9 @@ public:
         {
             const UtlContainable* returnValue = stringList.at(testData[j].expectedIndex); 
             
-            TestUtilities::createMessage(3, &Message, prefix, \
+            TestUtilities::createMessage(3, &Message, prefix,
                                          testData[j].testDescription, suffix2) ; 
-            CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), (void*)testData[j].item, \
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), (void*)testData[j].item,
                                       (void*)returnValue) ; 
         }
 
@@ -270,7 +270,7 @@ public:
             
             TestUtilities::createMessage(5, &Message, "Verify that old item at ", strOldItr, 
                            " is re-sorted to position # ", strItr, " after insert()ing") ;   
-            CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), (void*)testDataForStringList[k].item, \
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), (void*)testDataForStringList[k].item,
                                       (void*)returnValue) ; 
         }
 
@@ -286,7 +286,7 @@ public:
     */
     void testInsert_IntList()
     {
-        const char* prefix = "For sortedlist consisting of UtlInts, " \
+        const char* prefix = "For sortedlist consisting of UtlInts, "
                              "test the insert(Containable cont) method, where cont = " ; 
         const char* suffix1 = " :- check return value" ; 
         const char* suffix2 = " :- check if inserted at correct position" ; 
@@ -296,10 +296,10 @@ public:
         UtlInt int2(10) ; 
         UtlInt int3(50000) ; 
 
-        TestSortedListStruct testData[] = { \
-           { "the new first list item", &int1, 0}, \
-           { "the new fourth item", &int2, 3 }, \
-           { "the new last item", &int3, 6} \
+        TestSortedListStruct testData[] = {
+           { "the new first list item", &int1, 0},
+           { "the new fourth item", &int2, 3 },
+           { "the new last item", &int3, 6}
         } ; 
         // Adjust the expected indices for the original test data
         testDataForIntList[0].expectedIndex = 1 ; 
@@ -312,15 +312,15 @@ public:
         {
             UtlContainable* returnValue = intList.insert(testData[i].item) ; 
             // Verify return value
-            TestUtilities::createMessage(3,&Message, prefix, \
+            TestUtilities::createMessage(3,&Message, prefix,
                                          testData[i].testDescription, suffix1) ; 
-            CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), (void*)testData[i].item, \
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), (void*)testData[i].item,
                                       (void*)returnValue) ; 
         }
 
         // Verify that the total number of entries has increased accordingly
-        CPPUNIT_ASSERT_EQUAL_MESSAGE("Verify that the total number of entries goes up" \
-                    "accordingly after insert()ing items", \
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("Verify that the total number of entries goes up"
+                    "accordingly after insert()ing items",
                     intListCount + newItemsCount, (int)intList.entries()) ; 
         
         // Verify that the new items are inserted according to their sorting order. 
@@ -328,9 +328,9 @@ public:
         {
             const UtlContainable* returnValue = intList.at(testData[j].expectedIndex); 
             
-            TestUtilities::createMessage(3, &Message, prefix, \
+            TestUtilities::createMessage(3, &Message, prefix,
                                          testData[j].testDescription, suffix2) ; 
-            CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), (void*)testData[j].item, \
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), (void*)testData[j].item,
                                       (void*)returnValue) ; 
         }
 
@@ -347,7 +347,7 @@ public:
             
             TestUtilities::createMessage(5, &Message, "Verify that old item at ", strOldItr, 
                            " is re-sorted to position # ", strItr, " after insert()ing") ;   
-            CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(),(void*)testDataForIntList[k].item, \
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(),(void*)testDataForIntList[k].item,
                                       (void*)returnValue) ; 
         }
     } //testInsert_IntList
@@ -365,7 +365,7 @@ public:
         UtlVoidPtr objVoid((void*)this) ; 
         emptyList.insert(&objVoid) ; 
         int expectedCount = 3; 
-        CPPUNIT_ASSERT_EQUAL_MESSAGE("Verify that different types of UtlContainable objects can " \
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("Verify that different types of UtlContainable objects can "
             "be added to the same UtlSortedList", expectedCount, (int)emptyList.entries()) ;
     } //testInsert_MixedContainableObjects() 
 
@@ -374,7 +374,7 @@ public:
     */
     void testInsert_LikeExistingItem()
     {
-        const char* prefix = "Test the insert(UtlContainable cont) method when cont is " \
+        const char* prefix = "Test the insert(UtlContainable cont) method when cont is "
                     "equal to an existing item in the list" ; 
         const char* suffix1 = " Verify the position of the old element" ;
         const char* suffix2 = " Verify the position of the new element" ; 
@@ -414,7 +414,7 @@ public:
         // that was *NOT* found at position1.
         returnValue = stringList.at(2) ; 
         TestUtilities::createMessage(2, &Message, prefix, secondSuffix) ; 
-        CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), (void*)secondExpectedValue, \
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), (void*)secondExpectedValue,
                                   (void*)returnValue) ; 
     } //testInsert_LikeExistingItem()
 
@@ -435,21 +435,21 @@ public:
         UtlString noExistString("CannotExist") ; 
         UtlString midItemClone(((UtlString*)testDataForStringList[2].item) -> data()) ; 
 
-        TestSortedListStruct testData[] = { \
-            { "first item in the list", testDataForStringList[0].item, \
-                     testDataForStringList[0].expectedIndex }, \
-            { "last item in the list", testDataForStringList[stringListCount-1].item, \
-                     testDataForStringList[stringListCount-1].expectedIndex }, \
-            { "like a mid item in the list", &midItemClone, \
-                     testDataForStringList[2].expectedIndex}, \
-            { "item doesn't exist in the list", &noExistString, UTL_NOT_FOUND } \
+        TestSortedListStruct testData[] = {
+            { "first item in the list", testDataForStringList[0].item,
+                     testDataForStringList[0].expectedIndex },
+            { "last item in the list", testDataForStringList[stringListCount-1].item,
+                     testDataForStringList[stringListCount-1].expectedIndex },
+            { "like a mid item in the list", &midItemClone,
+                     testDataForStringList[2].expectedIndex},
+            { "item doesn't exist in the list", &noExistString, UTL_NOT_FOUND }
         };
         const int testCount = sizeof(testData)/sizeof(testData[0]); 
         for (int i =0 ; i<testCount; i++)
         {
             ssize_t returnValue = stringList.index(testData[i].item) ; 
             TestUtilities::createMessage(2, &Message, prefix, testData[i].testDescription) ; 
-            CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), (int)testData[i].expectedIndex, \
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), (int)testData[i].expectedIndex,
                                       (int)returnValue) ; 
         }
     }//testIndex() 
@@ -496,16 +496,16 @@ public:
 
         // now insert a duplicate element for position #3
         intList.insert(testDataForIntList[2].item) ; 
-        TestFindDataStructure testData[] = { \
-            { "first element", testDataForIntList[0].item, \
-                     testDataForIntList[0].item}, \
-            { "last element", testDataForIntList[intListCount -1].item,\
-                     testDataForIntList[intListCount-1].item }, \
-            { "like a mid element", &midElementClone, \
-                     testDataForIntList[2].item }, \
-            { "is a duplicate match", testDataForIntList[2].item, \
-                     testDataForIntList[2].item }, \
-            { "has no match", &noExist, NULL } \
+        TestFindDataStructure testData[] = {
+            { "first element", testDataForIntList[0].item,
+                     testDataForIntList[0].item},
+            { "last element", testDataForIntList[intListCount -1].item,
+                     testDataForIntList[intListCount-1].item },
+            { "like a mid element", &midElementClone,
+                     testDataForIntList[2].item },
+            { "is a duplicate match", testDataForIntList[2].item,
+                     testDataForIntList[2].item },
+            { "has no match", &noExist, NULL }
         };
 
         const int testCount = sizeof(testData)/sizeof(testData[0]) ; 
@@ -516,18 +516,18 @@ public:
                 case TEST_FIND:
                 {
                     UtlContainable* foundValue = intList.find(testData[i].searchData) ; 
-                    TestUtilities::createMessage(2, &Message, prefix1, \
+                    TestUtilities::createMessage(2, &Message, prefix1,
                         testData[i].testDescription) ; 
-                    CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), testData[i].expectedData, \
+                    CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), testData[i].expectedData,
                            foundValue) ; 
                     break ; 
                 }
                 case TEST_CONTAINS:
                 {
                     UtlBoolean wasFound = intList.contains(testData[i].searchData) ; 
-                    TestUtilities::createMessage(2, &Message, prefix2, \
+                    TestUtilities::createMessage(2, &Message, prefix2,
                         testData[i].testDescription) ; 
-                    CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), testData[i].expectedData!=NULL, \
+                    CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), testData[i].expectedData!=NULL,
                             (TRUE == wasFound)) ; 
                     break ;
                 }
@@ -602,20 +602,20 @@ public:
         // position 4 (add 2) (before remove)
         
         
-        TestRemoveDataStructure testData[] = { \
-            { "like a mid element", &midItemClone, 1, -1, true, --elementsCount }, \
-            { "is the first element", testDataForStringList[0].item, 0, -1, \
-               true, --elementsCount}, \
-            { "is the last element", testDataForStringList[stringListCount-1].item, \
-               2, -1, true, --elementsCount}, \
+        TestRemoveDataStructure testData[] = {
+            { "like a mid element", &midItemClone, 1, -1, true, --elementsCount },
+            { "is the first element", testDataForStringList[0].item, 0, -1,
+               true, --elementsCount},
+            { "is the last element", testDataForStringList[stringListCount-1].item,
+               2, -1, true, --elementsCount},
                      //initialy the last index was 3. We inserted one item and made it 4.
                      // during the above 2 steps we removed 2 items.
-            { "is an element with duplicate entries", testDataForStringList[2].item, \
-               0, 0, true, --elementsCount}, \
+            { "is an element with duplicate entries", testDataForStringList[2].item,
+               0, 0, true, --elementsCount},
                      //It is still -2 & not -3. that is because the
                      //previous item's position was always after and doesn't affect the cur index.
-            { "is an element with no match", &noExistString, \
-               -1, -1, false, elementsCount} \
+            { "is an element with no match", &noExistString,
+               -1, -1, false, elementsCount}
         };
         const int testCount = sizeof(testData)/sizeof(testData[0]) ; 
         for (int i = 0 ; i < testCount; i++)
@@ -634,18 +634,18 @@ public:
                     break;
             }
 
-            TestUtilities::createMessage(3, &Message, prefix, \
+            TestUtilities::createMessage(3, &Message, prefix,
                 testData[i].testDescription, suffix1) ;
-            CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), testData[i].expectedResult, \
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), testData[i].expectedResult,
                 (NULL != actualResult)) ; 
-            TestUtilities::createMessage(3, &Message, prefix, \
+            TestUtilities::createMessage(3, &Message, prefix,
                 testData[i].testDescription, suffix2) ;
-            CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), \
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(),
                  (int)testData[i].expectedEntries, (int)stringList.entries()) ; 
             ssize_t indexAfterRemove = stringList.index(testData[i].itemToRemove) ; 
-            TestUtilities::createMessage(3, &Message, prefix, \
+            TestUtilities::createMessage(3, &Message, prefix,
                  testData[i].testDescription, suffix3) ; 
-            CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), testData[i].expectedIndex, \
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), testData[i].expectedIndex,
                  indexAfterRemove) ; 
         }
     } //utlTestRemove
@@ -723,7 +723,7 @@ public:
         intList.removeAll() ; 
         intList.insert(testDataForIntList[1].item) ; 
         intList.insert(testDataForIntList[2].item) ;
-        TestUtilities::createMessage(3, &Message, prefix, \
+        TestUtilities::createMessage(3, &Message, prefix,
             "entries are inserted after removeAll", suffix) ; 
         CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), 2, (int)intList.entries()) ; 
 
@@ -733,7 +733,7 @@ public:
         emptyList.insert(testDataForStringList[3].item) ; 
         emptyList.removeAll() ;
         emptyList.removeAll() ; 
-        TestUtilities::createMessage(3, &Message, prefix, \
+        TestUtilities::createMessage(3, &Message, prefix,
             "removeAll() is called twice", suffix) ; 
         CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), 0, (int)emptyList.entries()) ; 
     }//testRemoveAll()
@@ -788,12 +788,12 @@ public:
         TestUtilities::createMessage(2, &Message, prefix, "the list has a single entry") ; 
         CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), false, (TRUE == newList.isEmpty())) ; 
 
-        TestUtilities::createMessage(2, &Message, prefix, \
+        TestUtilities::createMessage(2, &Message, prefix,
             "the list has multiple entries in it") ; 
         CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), false, (TRUE == stringList.isEmpty())) ; 
 
         stringList.removeAll() ; 
-        TestUtilities::createMessage(2, &Message, prefix, \
+        TestUtilities::createMessage(2, &Message, prefix,
             "removeAll() has been called on the list") ;
         CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), true, (TRUE == stringList.isEmpty())) ; 
     }//testIsEmpty()
@@ -806,4 +806,3 @@ const int UtlSortedListTest::intListCount = 4 ;
 
 
 CPPUNIT_TEST_SUITE_REGISTRATION(UtlSortedListTest);
-
