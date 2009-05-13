@@ -306,7 +306,7 @@ UtlBoolean SipRegistrar::operationalPhase()
                                     SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE, // OsServerTask message queue size
                                     FALSE,  // do not use next available port
                                     FALSE,  // do not do UA message checks for METHOD, requires, etc...
-                                    TRUE,
+                                    TRUE,   // forceSymmetricSignaling
                                     SipUserAgent::PASS_OPTIONS_TO_CONSUMER
                                     );
 
