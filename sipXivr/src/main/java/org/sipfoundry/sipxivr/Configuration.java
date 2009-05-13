@@ -23,7 +23,9 @@ public class Configuration {
     private String m_logLevel; // The desired logging level in SipFoundry format (not log4j!)
     private String m_logFile; // The file to log into
     private int m_eventSocketPort; // The Event Socket Listen port
+    private String m_dataDirectory; // File path to the media server data directory
     private String m_mailstoreDirectory; // File path to the mailstore
+    private String m_promptsDirectory; // File path to the AA prompts
     private String m_organizationPrefs; // File path to organizationprefs.xml
     private String m_scriptsDirectory; // File path to the AA scripts (for schedule access)
     private String m_docDirectory; // File path to DOC Directory (usually /usr/share/www/doc)
@@ -31,6 +33,7 @@ public class Configuration {
     private String m_sipxchangeDomainName; // The domain name of this system
     private String m_realm;
     private String m_mwiUrl; // The url of the Status Server we send MWI requests to
+    private String m_configUrl; // The url of the Config Server for PIN change requests
     private int m_httpsPort; // The port on which we listen for HTTPS services
 
     private static Configuration s_current;
@@ -114,7 +117,9 @@ public class Configuration {
             m_logFile = props.getProperty(prop = "log.file");
             m_eventSocketPort = Integer.parseInt(props
                     .getProperty(prop = "freeswitch.eventSocketPort"));
+            m_dataDirectory = props.getProperty(prop = "ivr.dataDirectory");
             m_mailstoreDirectory = props.getProperty(prop = "ivr.mailstoreDirectory");
+            m_promptsDirectory = props.getProperty(prop = "ivr.promptsDirectory");
             m_organizationPrefs = props.getProperty(prop = "ivr.organizationPrefs");
             m_scriptsDirectory = props.getProperty(prop = "ivr.scriptsDirectory");
             m_docDirectory = props.getProperty(prop = "ivr.docDirectory") ;
@@ -123,6 +128,7 @@ public class Configuration {
             m_realm = props.getProperty(prop ="ivr.realm");
             m_mwiUrl = props.getProperty(prop = "ivr.mwiUrl");
             m_httpsPort = Integer.parseInt(props.getProperty(prop = "ivr.httpsPort"));
+            m_configUrl = props.getProperty(prop = "ivr.configUrl");
         } catch (Exception e) {
             System.err.println("Problem understanding property " + prop);
             e.printStackTrace(System.err);
@@ -142,10 +148,18 @@ public class Configuration {
         return m_eventSocketPort;
     }
 
+    public String getDataDirectory() {
+        return m_dataDirectory;
+    }
+    
     public String getMailstoreDirectory() {
         return m_mailstoreDirectory;
     }
 
+    public String getPromptsDirectory() {
+        return m_promptsDirectory;
+    }
+    
     public String getOrganizationPrefs() {
         return m_organizationPrefs;
     }
@@ -182,6 +196,14 @@ public class Configuration {
         m_mwiUrl = mwiUrl;
     }
 
+    public String getConfigUrl() {
+        return m_configUrl;
+    }
+    
+    public void setConfigUrl(String configUrl) {
+        m_configUrl = configUrl;
+    }
+    
     public int getHttpsPort() {
         return m_httpsPort;
     }

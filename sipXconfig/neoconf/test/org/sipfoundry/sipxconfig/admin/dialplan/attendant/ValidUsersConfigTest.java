@@ -49,6 +49,8 @@ public class ValidUsersConfigTest extends XMLTestCase {
         u1.setLastName("Adams");
         u1.setPin("1234", "example");
         u1.setPermission(PermissionName.AUTO_ATTENDANT_DIALING, true);
+        u1.setPermission(PermissionName.VOICEMAIL, true);
+        u1.setPermission(PermissionName.RECORD_SYSTEM_PROMPTS, false);
         u1.setAliasesString("jdoe 18003010000");
 
         User u2 = new User();
@@ -58,6 +60,8 @@ public class ValidUsersConfigTest extends XMLTestCase {
         u2.setLastName("Washington");
         u2.setPin("1234", "example");
         u2.setPermission(PermissionName.AUTO_ATTENDANT_DIALING, false);
+        u2.setPermission(PermissionName.VOICEMAIL, true);
+        u2.setPermission(PermissionName.RECORD_SYSTEM_PROMPTS, true);
 
         CoreContext coreContext = createMock(CoreContext.class);
         coreContext.loadUsers();

@@ -25,13 +25,13 @@ package org.sipfoundry.sipxivr;
  */
 public class MailboxPreferences {
     public static final String EMAIL_PROP = "emailAddress";
-    private ActiveGreeting m_activeGreeting = ActiveGreeting.NONE;
+    private GreetingType m_activeGreeting = GreetingType.NONE;
     private String m_emailAddress;
     private boolean m_attachVoicemailToEmail;
     private String m_alternateEmailAddress;
     private boolean m_attachVoicemailToAlternateEmail;
          
-    public enum ActiveGreeting {
+    public enum GreetingType {
         NONE("none"), 
         STANDARD("standard"), 
         OUT_OF_OFFICE("outofoffice"), 
@@ -39,7 +39,7 @@ public class MailboxPreferences {
         
         private String m_id;
         
-        ActiveGreeting(String id) {
+        GreetingType(String id) {
             m_id = id;
         }
         
@@ -47,8 +47,8 @@ public class MailboxPreferences {
             return m_id;
         }
         
-        public static ActiveGreeting valueOfById(String id) {
-            for (ActiveGreeting greeting : ActiveGreeting.values()) {
+        public static GreetingType valueOfById(String id) {
+            for (GreetingType greeting : GreetingType.values()) {
                 if (greeting.getId().equals(id)) {
                     return greeting;
                 }
@@ -57,12 +57,12 @@ public class MailboxPreferences {
         }
     }
     
-    public ActiveGreeting getActiveGreeting() {
+    public GreetingType getActiveGreeting() {
         return m_activeGreeting;
     }
     
-    public void setActiveGreeting(ActiveGreeting activeGreeting) {
-        m_activeGreeting = activeGreeting;
+    public void setActiveGreeting(GreetingType greetingType) {
+        m_activeGreeting = greetingType;
     }
     
     public boolean isAttachVoicemailToEmail() {

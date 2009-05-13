@@ -23,7 +23,7 @@ public class MailboxPreferencesReader extends XmlReaderImpl<MailboxPreferences> 
         MailboxPreferences prefs = new MailboxPreferences();
         Node root = doc.getRootElement();
         String greetingId = root.valueOf("activegreeting");
-        MailboxPreferences.ActiveGreeting greeting = MailboxPreferences.ActiveGreeting.valueOfById(greetingId); 
+        MailboxPreferences.GreetingType greeting = MailboxPreferences.GreetingType.valueOfById(greetingId); 
         prefs.setActiveGreeting(greeting);
         List<Element> contacts = root.selectNodes("notification/contact");
         prefs.setEmailAddress(getEmailAddress(0, contacts));

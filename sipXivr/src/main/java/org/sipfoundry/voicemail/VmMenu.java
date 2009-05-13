@@ -1,7 +1,6 @@
 package org.sipfoundry.voicemail;
 
 import org.sipfoundry.sipxivr.IvrChoice;
-import org.sipfoundry.sipxivr.Localization;
 import org.sipfoundry.sipxivr.PromptList;
 
 /**
@@ -11,8 +10,8 @@ public class VmMenu extends org.sipfoundry.sipxivr.Menu {
     private VoiceMail m_vm;
     private boolean m_speakCanceled;
     
-    public VmMenu(Localization loc, VoiceMail vm) {
-        super(loc);
+    public VmMenu(VoiceMail vm) {
+        super(vm.getLoc());
         m_vm = vm ;
         m_speakCanceled = true;
         setInvalidMax(vm.getConfig().getInvalidResponseCount());
@@ -20,7 +19,7 @@ public class VmMenu extends org.sipfoundry.sipxivr.Menu {
         setInitialTimeout(vm.getConfig().getInitialTimeout());
         setInterDigitTimeout(vm.getConfig().getInterDigitTimeout());
         setExtraDigitTimeout(vm.getConfig().getExtraDigitTimeout());
-        setErrorPl(loc.getPromptList("invalid_try_again"));
+        setErrorPl(vm.getLoc().getPromptList("invalid_try_again"));
     }
 
     @Override

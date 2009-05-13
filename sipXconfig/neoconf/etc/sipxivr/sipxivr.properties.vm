@@ -4,7 +4,9 @@ log.file=${service.logDir}/sipxivr.log
 
 freeswitch.eventSocketPort=$ivr.getSetting('freeswitch.eventSocketPort').Value
 
+ivr.dataDirectory=${service.vxmlDir}
 ivr.mailstoreDirectory=${service.mailstoreDir}
+ivr.promptsDirectory=${service.promptsDir}
 ivr.scriptsDirectory=${service.scriptsDir}
 ivr.docDirectory=${service.docDir}
 ivr.organizationPrefs=${service.vxmlDir}/organizationprefs.xml
@@ -13,3 +15,4 @@ ivr.sipxchangeDomainName=${service.domainName}
 ivr.realm=${service.realm}
 ivr.httpsPort=$ivr.getSetting('httpsPort').Value
 ivr.mwiUrl=https://${location.fqdn}:${statusService.httpsPort}/cgi/StatusEvent.cgi
+ivr.configUrl=https://${location.fqdn}:8443

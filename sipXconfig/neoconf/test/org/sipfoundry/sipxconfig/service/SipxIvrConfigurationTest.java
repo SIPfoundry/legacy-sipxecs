@@ -25,6 +25,7 @@ public class SipxIvrConfigurationTest extends SipxServiceTestBase {
         initCommonAttributes(ivrService);
 
         ivrService.setMailstoreDir("/var/sipxdata/mediaserver/data/mailstore");
+        ivrService.setPromptsDir("/var/sipxdata/mediaserver/data/prompts");
         ivrService.setScriptsDir("/usr/share/www/doc/aa_vxml");
         ivrService.setDocDir("/usr/share/www/doc");
         ivrService.setVxmlDir("/var/sipxdata/mediaserver/data");

@@ -47,18 +47,22 @@ public class ValidUsersXMLTest extends TestCase {
             "   <contact>\"Woof Dogg\"&lt;sip:+9663@woof.us.nortel.com&gt;</contact>" +
             "   <pintoken>8ce33da2e5e332b81cc67c4f49077e7d</pintoken>" +
             "   <inDirectory>false</inDirectory>" +
+            "   <hasVoicemail>true</hasVoicemail>" +
+            "   <canRecordPrompts>false</canRecordPrompts>" +
             "  </user>" +
 			"  <user>" +
-			"  <aliases>" +
-			"    <alias>42</alias>" +
-			"    <alias>24</alias>" +
-			"  </aliases>" +
-		    "  <identity>lab@woof.us.nortel.com</identity>" +
-		    "  <userName>lab</userName>" +
-		    "  <displayName>Knight Dogg</displayName>" +
-		    "  <contact>\"Knight Dogg\"&lt;sip:lab@woof.us.nortel.com&gt;</contact>" +
-		    "  <pintoken>dae9763344ea0122eb7b10ab857e2704</pintoken>" +
-		    "  <inDirectory>false</inDirectory>" +
+			"   <aliases>" +
+			"     <alias>42</alias>" +
+			"     <alias>24</alias>" +
+			"   </aliases>" +
+		    "   <identity>lab@woof.us.nortel.com</identity>" +
+		    "   <userName>lab</userName>" +
+		    "   <displayName>Knight Dogg</displayName>" +
+		    "   <contact>\"Knight Dogg\"&lt;sip:lab@woof.us.nortel.com&gt;</contact>" +
+		    "   <pintoken>dae9763344ea0122eb7b10ab857e2704</pintoken>" +
+		    "   <inDirectory>false</inDirectory>" +
+            "   <hasVoicemail>true</hasVoicemail>" +
+            "   <canRecordPrompts>false</canRecordPrompts>" +
 		    "  </user>" +
 		    "</validusers>";
 		
@@ -91,6 +95,7 @@ public class ValidUsersXMLTest extends TestCase {
 		u = vu.isValidUser("24"); // Another alias for lab
 		assertNotNull(u);
 		assertEquals("lab", u.getUserName());
+		assertTrue("hasVoicemail", u.hasVoicemail());
 	}
     public void testCompress() {
         assertEquals("WOOF", ValidUsersXML.compress("Woof!")); 

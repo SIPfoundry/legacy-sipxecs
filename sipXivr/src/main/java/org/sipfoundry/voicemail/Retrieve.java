@@ -10,6 +10,7 @@ package org.sipfoundry.voicemail;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.List;
@@ -23,12 +24,13 @@ import org.sipfoundry.sipxivr.FreeSwitchEventSocketInterface;
 import org.sipfoundry.sipxivr.IvrChoice;
 import org.sipfoundry.sipxivr.Localization;
 import org.sipfoundry.sipxivr.Mailbox;
-import org.sipfoundry.sipxivr.Menu;
 import org.sipfoundry.sipxivr.PromptList;
+import org.sipfoundry.sipxivr.RemoteRequest;
 import org.sipfoundry.sipxivr.TextToPrompts;
 import org.sipfoundry.sipxivr.User;
 import org.sipfoundry.sipxivr.ValidUsersXML;
 import org.sipfoundry.sipxivr.IvrChoice.IvrChoiceReason;
+import org.sipfoundry.sipxivr.MailboxPreferences.GreetingType;
 import org.sipfoundry.voicemail.MessageDescriptor.Priority;
 import org.sipfoundry.voicemail.Messages.Folders;
 
@@ -43,17 +45,20 @@ public class Retrieve {
     Messages m_messages;
     Vector<File> m_tempRecordings; // Temp recordings that need to be destroyed on hangup
     
-    public Retrieve(VoiceMail vm, Localization loc) {
+    String m_ident; // Used to identify a particular call in the logs
+    
+    public Retrieve(VoiceMail vm) {
         m_vm = vm;
-        m_loc = loc ;
+        m_loc = vm.getLoc();
         m_fses = m_loc.getFreeSwitchEventSocketInterface();
         m_mailbox = m_vm.getMailbox();
         m_tempRecordings = new Vector<File>();
     }
     
     public String retrieveVoiceMail() {
+        m_ident = "Mailbox "+m_mailbox.getUser().getUserName();
         String displayUri = m_fses.getDisplayUri();
-        LOG.info("Mailbox "+m_mailbox.getUser().getUserName()+" Retrieve Voicemail from "+displayUri);
+        LOG.info("Retrieve::retrieveVoiceMail "+m_ident+" Retrieve Voicemail from "+displayUri);
 
         m_fses.setRedactDTMF(true);
         m_fses.trimDtmfQueue("") ; // Flush the DTMF queue
@@ -61,13 +66,14 @@ public class Retrieve {
         m_fses.setRedactDTMF(false);
         if (user != null) {
             m_mailbox = new Mailbox(user);
-            LOG.info("Mailbox "+m_mailbox.getUser().getUserName()+" logged in");
+            m_ident = "Mailbox "+m_mailbox.getUser().getUserName();
+            LOG.info("Retrieve::retrieveVoiceMail "+m_ident+" logged in");
             try {
                 main_menu();
             } finally {
                 for (File tempRecording : m_tempRecordings) {
                     if (tempRecording.exists()) {
-                        LOG.debug("Retrieve::retrieveVoiceMail deleting unused temporary recording "+tempRecording.getPath());
+                        LOG.debug("Retrieve::retrieveVoiceMail "+m_ident+" deleting unused temporary recording "+tempRecording.getPath());
                         FileUtils.deleteQuietly(tempRecording);
                     }
                 }
@@ -99,7 +105,7 @@ public class Retrieve {
             // "Enter your personal identification number, and then press #.":
             // "To log in as a different user, press #"
             PromptList menuPl = m_loc.getPromptList("enter_pin");
-            VmMenu menu = new VmMenu(m_loc, m_vm);
+            VmMenu menu = new VmMenu(m_vm);
             if (playWelcome) {
                 menu.setPrePromptPl(welcomePl);
                 playWelcome = false;
@@ -113,11 +119,13 @@ public class Retrieve {
             if (choice.getDigits().equals("#")) {
                 // "Enter your extension."
                 PromptList extPl = m_loc.getPromptList("enter_extension");
-                VmMenu extMenu = new VmMenu(m_loc, m_vm);
+                VmMenu extMenu = new VmMenu(m_vm);
                 IvrChoice extChoice = extMenu.collectDigits(extPl, 10);
                 if (!extMenu.isOkay()) {
                     return null ;
                 }
+                LOG.info("Retrieve::login "+m_ident+" changing to extension "+extChoice.getDigits());
+
                 // See if the user exists
                 user = m_vm.getValidUsers().isValidUser(extChoice.getDigits());
                 continue;
@@ -131,7 +139,6 @@ public class Retrieve {
                 ++errorCount;
                 continue;
             }
-            LOG.info("Retrieve::getpasscode PIN is valid");
             break ;
         }
         return user ;
@@ -221,7 +228,8 @@ public class Retrieve {
         
         boolean playStatus = true ;
         for(;;) {
-            VmMenu mainMenu = new VmMenu(m_loc, m_vm);
+            LOG.info("Retrieve::main_menu "+m_ident);
+            VmMenu mainMenu = new VmMenu(m_vm);
             mainMenu.setSpeakCanceled(false);
 
             if (playStatus) {
@@ -239,12 +247,15 @@ public class Retrieve {
             // For voicemail options, press 5.  
             // To logoff, press 8.  
             // To reach the company operator, press 0"
+            String validDigits = "123458";
             PromptList menuPl = m_loc.getPromptList("main_menu");
-            
-            // TODO what selects this prompt?
-            // For system administration options, press 7.
-            menuPl.addFragment("main_menu_options");
-            mainMenu.collectDigit(menuPl, "1234578");
+
+            if (m_mailbox.getUser().canRecordPrompts()) {
+                // For system administration options, press 7.
+                menuPl.addFragment("main_menu_options");
+                validDigits += "7";
+            }
+            mainMenu.collectDigit(menuPl, validDigits);
             
             if (mainMenu.getChoice().getIvrChoiceReason().equals(IvrChoiceReason.CANCELED)) {
                 // Canceled has no meaning at the top level.
@@ -289,15 +300,22 @@ public class Retrieve {
             if (digit.equals("4")) {
                 sendMessage();
                 continue;
-                
             }
-            // TODO 5 voicemail options
             
+            if (digit.equals("5")) {
+                voicemailOptions();
+                continue;
+            }
+
+            if (digit.equals("7")) {
+                adminOptions();
+                continue;
+            }
+
             if (digit.equals("8")) {
                 m_vm.goodbye();
+                continue;
             }
-            
-            // TODO 7 sysadmin options
         }
     }
 
@@ -319,18 +337,23 @@ public class Retrieve {
                 
                 // {the message}
                 messagePl.addPrompts(vmMessage.getAudioFile().getPath());
-                VmMenu menu = new VmMenu(m_loc, m_vm);
-                menu.setPrePromptPl(prePromptPl);
-                menu.setSpeakCanceled(false);
                 
                 // Read the message descriptor file to obtain the info we need
                 MessageDescriptor md = new MessageDescriptorReader().readObject(vmMessage.getDescriptorFile());
                 // Determine if the message is from a known user
                 String from = ValidUsersXML.getUserPart(md.getFromUri());                
                 User user = m_vm.getValidUsers().isValidUser(from);
+                if (user != null) {
+                    // If user doesn't have voicemail, don't allow reply
+                    if (!user.hasVoicemail()) {
+                        user = null;
+                    }
+                }
                 
                 switch (folder) {
                 case INBOX: 
+                    LOG.info("Retrieve::playMessages INBOX "+m_ident);
+
                     validDigits="12345#";
                     if (user != null) {
                         menuFragment = "msg_inbox_options_reply";
@@ -338,7 +361,7 @@ public class Retrieve {
                     } else {
                         menuFragment = "msg_inbox_options";
                     }
-                    // "To play information about this message, press 1.  "
+                    // "To play information about this message, press 1."
                     // "To replay press 2."
                     // "To save, press 3."
                     // "To delete press 4."
@@ -348,6 +371,8 @@ public class Retrieve {
                     // "To return to the main menu, press *."
                     break;
                 case SAVED: 
+                    LOG.info("Retrieve::playMessages SAVED "+m_ident);
+
                     validDigits="1245#";
                     if (user != null) {
                         menuFragment = "msg_saved_options_reply";
@@ -364,6 +389,8 @@ public class Retrieve {
                     // "To return to the main menu, press *."
                     break;
                 case DELETED: 
+                    LOG.info("Retrieve::playMessages DELETED "+m_ident);
+
                     validDigits="12345#";
                     if (user != null) {
                         menuFragment = "msg_deleted_options_reply";
@@ -371,18 +398,17 @@ public class Retrieve {
                     } else {
                         menuFragment = "msg_deleted_options";
                     }
-                    // "To play information about this message, press 1.
-                    // To replay press 2. 
-                    // To restore to inbox, press 3. 
-                    // To delete permanently press 4.  
-                    // forward to another inbox, press 5.  
-                    // {if from sipXuser} To reply, press 6.  
-                    // To play the next message, press #. 
-                    // To return to the main menu, press *.
+                    // "To play information about this message, press 1."
+                    // "To replay press 2."
+                    // "To restore to inbox, press 3."
+                    // "To delete permanently press 4."
+                    // "To forward to another inbox, press 5."  
+                    // {if from sipXuser} "To reply, press 6."  
+                    // "To play the next message, press #." 
+                    // "To return to the main menu, press *."
 
                     break;
                 }
-                PromptList menuPl = m_loc.getPromptList(menuFragment);
                 
                 // If we need to play the message, add it as a prePrompt to the menu.
                 // This is so we can barge it with a digit press and act on the digit in the menu.
@@ -395,17 +421,19 @@ public class Retrieve {
                     prePromptPl.addPrompts(messageInfo(md));
                     playInfo = false;
                 }
-                menu.collectDigit(menuPl, validDigits);
      
-                // Timeout, cancel, or errors
-                if (!menu.isOkay()) {
+                VmDialog vmd = new VmDialog(m_vm, menuFragment);
+                vmd.setPrePromptList(prePromptPl);
+                vmd.setSpeakCanceled(false);
+                String digit = vmd.collectDigit(validDigits);
+                if (digit == null) {
+                    // Timeout, cancel, or errors
                     return;
                 }
-     
+                
                 // Mark the message heard (if it wasn't before)
                 m_messages.markMessageHeard(vmMessage);
                 
-                String digit = menu.getChoice().getDigits();
                 if (digit.equals("1")) {
                     playInfo = true;
                     continue;
@@ -513,9 +541,9 @@ public class Retrieve {
         if (user != null) {
             // Well, looky here!  A sipXecs user!  Get his recorded name if we can
             Mailbox userMbox = new Mailbox(user);
-            String nameWav = userMbox.getRecordedName();
-            if (nameWav != null) {
-                fromPrompts = nameWav;
+            File nameFile = userMbox.getRecordedNameFile();
+            if (nameFile.exists()) {
+                fromPrompts = nameFile.getPath();
             } else {
                 PromptList ext = m_loc.getPromptList("extension", user.getUserName());
                 // "Extension {extension}"
@@ -550,20 +578,19 @@ public class Retrieve {
         Message comments = null;
         boolean askAboutComments = true;
         for(;;) {
+            LOG.info("Retrieve::forward "+m_ident);
+
             if (askAboutComments) {
-                VmMenu menu = new VmMenu(m_loc, m_vm);
                 // "To record comments, press 1."
                 // "To forward this message without comments, press 2."
                 // "To cancel, press *."
-                PromptList menuPl = m_loc.getPromptList("msg_forward");
-                menu.collectDigit(menuPl, "12");
-                
-                // Timeout, cancel, or errors
-                if (!menu.isOkay()) {
+                VmDialog vmd = new VmDialog(m_vm, "msg_forward");
+                String digit = vmd.collectDigit("12");
+                if (digit == null) {
+                    // Timeout, cancel, or errors
                     return;
                 }
-    
-                String digit = menu.getChoice().getDigits();
+                
                 LOG.debug("Retrieve::forward collected ("+digit+")");
                 
                 if (digit.equals("1")) {
@@ -604,14 +631,12 @@ public class Retrieve {
 
                 // "To deliver this message to another address, press 1."
                 // "If you are finished, press *."
-                PromptList pl = m_loc.getPromptList("deposit_more_options");
-                VmMenu menu1 = new VmMenu(m_loc, m_vm);
-                menu1.setSpeakCanceled(false);
-                menu1.collectDigit(pl, "1");
-        
-                if (!menu1.isOkay()) {
+                VmDialog vmd = new VmDialog(m_vm, "deposit_more_options");
+                vmd.setSpeakCanceled(false);
+                if (vmd.collectDigit("1") == null) {
                     return;
                 }
+                
                 // Back to enter another extension
             }
         }
@@ -622,6 +647,8 @@ public class Retrieve {
      * @param vmMessage
      */
     void reply(VmMessage vmMessage, User sendingUser) {
+        LOG.info("Retrieve::reply "+m_ident);
+
         // "Record your comments, then press #"
         // 
         // "To play your comments, press 1."
@@ -654,6 +681,8 @@ public class Retrieve {
      * @param vmMessage
      */
     void sendMessage() {
+        LOG.info("Retrieve::sendMessage "+m_ident);
+
         Message message = null;
         
         // "Record your message, then press #"
@@ -693,19 +722,377 @@ public class Retrieve {
 
                 // "To deliver this message to another address, press 1."
                 // "If you are finished, press *."
-                PromptList pl = m_loc.getPromptList("send_more_options");
-                VmMenu menu1 = new VmMenu(m_loc, m_vm);
-                menu1.setSpeakCanceled(false);
-                menu1.collectDigit(pl, "1");
-        
-                if (!menu1.isOkay()) {
+                VmDialog vmd = new VmDialog(m_vm, "send_more_options");
+                vmd.setSpeakCanceled(false);
+                if (vmd.collectDigit("1") == null) {
                     return;
                 }
+                
                 // Back to enter another extension
             }
         }
     }
 
+
+    void voicemailOptions() {
+        voicemailOptions:
+        for(;;) {
+            LOG.info("Retrieve::voicemailOptions "+m_ident);
+
+            // "Voicemail Options."
+            // "To record a personal greeting, press 1."
+            // "To record your name, press 2."
+            // "To select the greeting to play, press 3."
+            // "To clear your deleted messages folder, press 4."
+            // "To change your personal identification number, press 5."
+            // "To return to the main menu, press *."            
+            VmDialog vmd = new VmDialog(m_vm, "vm_options");
+            String digit = vmd.collectDigit("12345");
+            if (digit == null) {
+                // bad entry, timeout, canceled
+                return ;
+            }
+            
+            if (digit.equals("1")) {
+                for (;;) {
+                    // "To record a standard greeting, press 1."
+                    // "To record an out-of-office greeting, press 2."
+                    // "To record an extended absence greeting, press 3."
+                    // "To cancel, press *."
+                    vmd = new VmDialog(m_vm, "greeting_choice");
+                    String digit1 = vmd.collectDigit("123");
+                    if (digit1 == null) {
+                        continue voicemailOptions;
+                    }
+                    
+                    LOG.info("Retrieve::voicemailOptions:recordGreeting "+m_ident);
+
+                    // "Record your greeting, then press #"
+                    // 
+                    // "To listen to this greeting, press 1."
+                    // "To use this greeting, press 2." 
+                    // "To delete this greeting and try again, press 3."
+                    // "To cancel, press *."
+                    File recordingFile = recordDialog("record_greeting", "greeting_confirm");
+    
+                    if (recordingFile == null) {
+                        continue;
+                    }
+                    
+                    // Save the recording as the appropriate greeting 
+                    Greeting greeting = new Greeting(m_vm) ;
+                    GreetingType type = GreetingType.NONE;
+                    if (digit1.equals("1")) {
+                        type = GreetingType.STANDARD;
+                    } else if (digit1.equals("2")) {
+                        type = GreetingType.OUT_OF_OFFICE;
+                    } else if (digit1.equals("3")) {
+                        type = GreetingType.EXTENDED_ABSENCE;
+                    }
+                    dontDeleteTempFile(recordingFile);
+                    greeting.saveGreetingFile(type, recordingFile);
+                    
+                    // Greeting recorded.
+                    m_loc.play("greeting_recorded", "");
+
+                    continue voicemailOptions;
+                }
+            }
+
+            if (digit.equals("2")) {
+                for (;;) {
+                    LOG.info("Retrieve::voicemailOptions:recordName "+m_ident);
+
+                    // "Record your name, then press #"
+                    // 
+                    // "To listen to your recording, press 1."
+                    // "To use this recording, press 2." 
+                    // "To delete this recording and try again, press 3."
+                    // "To cancel, press *."
+                    File recordingFile = recordDialog("record_name", "name_confirm");
+    
+                    if (recordingFile == null) {
+                        continue voicemailOptions;
+                    }
+
+                    // Save the recording as the name
+                    File nameFile = m_mailbox.getRecordedNameFile();
+                    if (nameFile.exists()) {
+                        nameFile.delete();
+                    }
+                    // Do this before the rename, as once renamed recordingFile is changed
+                    dontDeleteTempFile(recordingFile);
+                    recordingFile.renameTo(nameFile);
+                    
+                    // Name recorded.
+                    m_loc.play("name_recorded", "");
+                    
+                    continue voicemailOptions;
+                }
+            }
+            
+            if (digit.equals("3")) {
+                PromptList greetings = null;
+                for(;;) {
+                    LOG.info("Retrieve::voicemailOptions:selectGreeting "+m_ident);
+
+                    // "Select the greeting to play to your callers."
+                    // "To listen to your greetings before making a selection, press 1."
+                    // "To select the standard greeting, press 2."
+                    // "To select the out-of-office greeting, press 3."
+                    // "To select the extended absence greeting, press 4."
+                    // "To select the default system greeting, press 5."
+                    // "To cancel, press *."
+                    vmd = new VmDialog(m_vm, "select_greeting");
+                    if (greetings != null) {
+                        // {all the greetings}
+                        vmd.setPrePromptList(greetings);
+                        greetings = null;
+                    }
+                    String digit1 = vmd.collectDigit("12345");
+                    if (digit1 == null) {
+                        continue voicemailOptions;
+                    }
+                    
+                    if (digit1.equals("1")) {
+                        Greeting greeting = new Greeting(m_vm);
+                        greetings = m_loc.getPromptList();
+                        // "Your standard greeting is...{prompts}"
+                        // "Your out-of-office greeting is...{prompts}"
+                        // "Your extended absence greeting is...{prompts}"
+                        // "The default system greeting is...{prompts}"
+                        // "Your active greeting is...{prompts}"
+                        greetings.addFragment("play_greetings", 
+                                greeting.getPromptList(GreetingType.STANDARD).toString(),
+                                greeting.getPromptList(GreetingType.OUT_OF_OFFICE).toString(),
+                                greeting.getPromptList(GreetingType.EXTENDED_ABSENCE).toString(),
+                                greeting.getPromptList(GreetingType.NONE).toString(),
+                                greeting.getPromptList().toString());
+                        continue;
+                    }
+                    
+                    GreetingType type = GreetingType.NONE;
+                    String greetingFrag = "default_selected";
+                    if (digit1.equals("2")) {
+                        type = GreetingType.STANDARD;
+                        greetingFrag = "standard_selected";
+                    } else if (digit1.equals("3")) {
+                        type = GreetingType.OUT_OF_OFFICE;
+                        greetingFrag = "outofoffice_selected";
+                    } else if (digit1.equals("4")) {
+                        type = GreetingType.EXTENDED_ABSENCE;
+                        greetingFrag = "extended_selected";
+                    }
+
+                    // "You selected the {type} greeting."
+                    // "If this is correct, press 1."
+                    // "To select a different greeting, press 2."
+                    vmd = new VmDialog(m_vm, greetingFrag);
+                    String digit2 = vmd.collectDigit("12");
+                    if (digit2 == null) {
+                        continue voicemailOptions;
+                    }
+
+                    if (digit2.equals("1")) {
+                        m_mailbox.getMailboxPreferences().setActiveGreeting(type);
+                        // Active greeting set successfully.
+                        m_loc.play("selected_greeting_okay", "");
+                        continue voicemailOptions;
+                    }
+                }
+            }
+            
+            if (digit.equals("4")) {
+                LOG.info("Retrieve::voicemailOptions:destroyDeletedMessages "+m_ident);
+
+                m_messages.destroyDeletedMessages();
+                // Your deleted messages folder is now empty.
+                m_loc.play("deleted_okay", "");
+                continue voicemailOptions;
+            }
+            
+            if (digit.equals("5")) {
+                int errorCount = 0;
+                for(;;) {
+                    LOG.info("Retrieve::voicemailOptions:changePin "+m_ident);
+
+                    if (errorCount > m_vm.getConfig().getInvalidResponseCount()) {
+                        m_vm.failure();
+                        return;
+                    }
+
+                    // "Enter your personal identification number, and then press #."
+                    // (Oh I was born an original pinner, I was born from original pin...)
+                    PromptList pl1 = m_loc.getPromptList("original_pin");
+                    VmMenu menu1 = new VmMenu(m_vm);
+                    m_fses.setRedactDTMF(true);
+                    IvrChoice choice1 = menu1.collectDigits(pl1, 10);
+                    m_fses.setRedactDTMF(false);
+
+                    if (!menu1.isOkay()) {
+                        continue voicemailOptions;
+                    }
+                    String originalPin = choice1.getDigits();
+                    String newPin = "";
+
+                    for(;;) {
+                        // "Enter your new personal identification number, and then press #."
+                        pl1 = m_loc.getPromptList("new_pin");
+                        menu1 = new VmMenu(m_vm);
+                        m_fses.setRedactDTMF(true);
+                        choice1 = menu1.collectDigits(pl1, 10);
+                        m_fses.setRedactDTMF(false);
+    
+                        if (!menu1.isOkay()) {
+                            continue voicemailOptions;
+                        }
+                        newPin = choice1.getDigits();
+    
+                        // "Enter your new personal identification number again, and then press #."
+                        pl1 = m_loc.getPromptList("new_pin2");
+                        menu1 = new VmMenu(m_vm);
+                        m_fses.setRedactDTMF(true);
+                        choice1 = menu1.collectDigits(pl1, 10);
+                        m_fses.setRedactDTMF(false);
+    
+                        if (!menu1.isOkay()) {
+                            continue voicemailOptions;
+                        }
+                        String newPin2 = choice1.getDigits();
+                        
+                        if (newPin.equals(newPin2)) {
+                            break;
+                        }
+                        errorCount++;
+                        LOG.info("Retrieve::voicemailOptions:changePin "+m_ident+" Pins do not match.");
+                        // "The two personal identification numbers you have entered do not match."
+                        m_loc.play("pin_mismatch", "");
+                    }
+                    
+                    User user = m_mailbox.getUser();
+                    String realm = m_loc.getIvrConfig().getRealm();
+                    if (!user.isPinCorrect(originalPin, realm)) {
+                        errorCount++;
+                        LOG.info("Retrieve::voicemailOptions:changePin "+m_ident+" Pin invalid.");
+                        // "The personal identification number you have entered is not valid."
+                        m_loc.play("pin_invalid", "");
+                        continue;
+                    }
+                    
+                    try {
+                        // TODO  Use new RESTful way of setting PIN.
+                        
+                        // See org.sipfoundry.sipxconfig.site.user.PinTokenChangeServlet.java
+                        URL url = new URL(m_loc.getIvrConfig().getConfigUrl()+"/sipxconfig/api/change-pintoken");
+                        String hashedOriginalPin = user.getPintoken();
+                        String hashedNewPin= user.hashPin(newPin, realm);
+                        RemoteRequest rr = new RemoteRequest(url, "application/x-www-form-urlencoded", 
+                                String.format("%s;%s;%s", user.getUserName(),hashedOriginalPin,hashedNewPin));
+                        if (rr.http()) {
+                            LOG.info("Retrieve::voicemailOptions:changePin "+m_ident+" Pin changed.");
+
+                            // "Personal identification number changed."
+                            m_loc.play("pin_changed","");
+                            continue voicemailOptions;
+                        }
+                        LOG.error("Retrieve::voicemailOptions new pin trouble "+rr.getResponse());
+                    } catch (Exception e) {
+                        LOG.error("Retrieve::voicemailOptions new pin trouble", e);
+                    }
+                    // "An error occurred while processing your request."
+                    // "Your personal identification number is not changed."
+                    m_loc.play("pin_change_failed", "");
+                    continue voicemailOptions;
+                }
+            }
+        }
+    }
+    
+    void adminOptions() {
+        adminOptions:
+        for(;;) {
+            LOG.info("Retrieve::adminOptions "+m_ident);
+
+            // "System Administration Options."
+            // "To manage the auto attendant prompts, press 1."
+            // "To return to the main menu, press *."
+            VmDialog vmd = new VmDialog(m_vm, "sysadmin_options");
+            vmd.setSpeakCanceled(false);
+            if (vmd.collectDigit("1") == null) {
+                // bad entry, timeout, canceled
+                return;
+            }
+            
+            // No need to check what they pressed, if it wasn't "1", then we aren't here!
+            
+            // "To record the Auto Attendant prompt, press 1."
+            // "To Manage the special Auto Attendant menu, press 2."
+            // "To cancel, press *."
+            vmd = new VmDialog(m_vm, "sysadmin_opts2");
+            String digit = vmd.collectDigit("12");
+            if (digit == null) {
+                // bad entry, timeout, canceled
+                continue adminOptions;
+            }
+            
+            if (digit.equals("1")) {
+                LOG.info("Retrieve::adminOptions:recordAA "+m_ident);
+
+                // "Record the Auto Attendant prompt, then press #"
+                // 
+                // "To listen to your recording, press 1."
+                // "To use this recording, press 2." 
+                // "To delete this recording and try again, press 3."
+                // "To cancel, press *."
+                File recordingFile = recordDialog("record_aa", "aa_confirm");
+
+                if (recordingFile == null) {
+                    continue adminOptions;
+                }
+
+                String aaName = String.format("customautoattendant-%d.wav", System.currentTimeMillis()/1000);
+                File aaFile = new File(m_loc.getIvrConfig().getPromptsDirectory(), aaName);
+                
+                // Save the recording as the aaFile
+                if (aaFile.exists()) {
+                    aaFile.delete();
+                }
+                // Do this before the rename, as once renamed recordingFile is changed
+                dontDeleteTempFile(recordingFile);
+                recordingFile.renameTo(aaFile);
+                
+                // Auto Attendant prompt recorded.
+                m_loc.play("aa_recorded", "");
+                
+                continue adminOptions;
+            }
+            if (digit.equals("2")) {
+                // "To enable the special autoattendant menu, press 1."
+                // "To disable it, press 2."
+                // "To cancel, press *."
+                vmd = new VmDialog(m_vm, "special_menu_options");
+                String digit1 = vmd.collectDigit("12");
+                if (digit1 == null) {
+                    continue adminOptions;
+                }
+                // TODO tell sipXconfig about the change.
+                // (or write organizationprefs.xml directly)
+                
+                if (digit1.equals("1")) {
+                    // "Special Auto Attendant menu is enabled."
+                    m_loc.play("special_menu_enabled", "");
+                    continue adminOptions;
+                }
+
+                if (digit1.equals("2")) {
+                    // "Special Auto Attendant menu is disabled."
+                    m_loc.play("special_menu_disabled", "");
+                    continue adminOptions;
+                }
+            }
+        }
+
+    }
 
     /**
      * Record a wav file with confirmation dialog.
@@ -714,30 +1101,30 @@ public class Retrieve {
      * @param confirmMenuFragment  To play after the recording
      * @return the temporary wav file.  null if recording is to be tossed
      */
-    private File recordDialog(String recordFragment, String confirmMenuFragment) {
+    File recordDialog(String recordFragment, String confirmMenuFragment) {
         File wavFile = makeTempWavFile();
         String wavPath = wavFile.getPath();
-
+    
         boolean recordWav = true ;
         boolean playWav = false;
         for(;;) {
-
+    
             if (recordWav) {
-                // Record your {comments|message} then press #
+                // Record your {thingy} then press #
                 m_loc.play(recordFragment, "*");
                 // Give the user 1 second to press "*" to cancel, then start recording
                 Collect c = new Collect(m_fses, 1, 1000, 0, 0);
                 c.setTermChars("*");
                 c.go();
                 String digit = c.getDigits();
-                LOG.debug("Retrieve::recordWav collected ("+digit+")");
+                LOG.debug("Retrieve::recordDialog collected ("+digit+")");
                 if (digit.length() == 0 || !"*0".contains(digit) ) {
                     m_vm.recordMessage(wavPath);
                     digit = m_fses.getDtmfDigit();
                     if (digit == null) {
                         digit = "";
                     }
-                    LOG.debug("Retrieve::recordWav record terminated collected ("+digit+")");
+                    LOG.debug("Retrieve::recordDialog record terminated collected ("+digit+")");
                 }
         
                 if (digit.equals("0")) {
@@ -753,41 +1140,40 @@ public class Retrieve {
                 recordWav = false;
             }
         
-            // Confirm caller's intent for this comment
-            Menu menu2 = new VmMenu(m_loc, m_vm);
+            // Confirm caller's intent for this {thingy}
+
+            // (pre-menu: {recording})
+
+            // "To play your {thingy}, press 1."
+            // "To accept your {thingy}, press 2."  
+            // "To delete this {thingy} and try again, press 3."  
+            // To cancel, press *"
+            VmDialog vmd = new VmDialog(m_vm, confirmMenuFragment);
             if (playWav) {
-                // (pre-menu: message)
                 PromptList messagePl = new PromptList(m_loc);
                 messagePl.addPrompts(wavPath);
-                menu2.setPrePromptPl(messagePl);
-                playWav = false ; // Only play it once
+                vmd.setPrePromptList(messagePl);
             }
-
-            // "To play your {comments|recording}, press 1."
-            // "To accept your {comments|record}, press 2."  
-            // "To delete these {comments|recording} and try again, press 3."  
-            // To cancel, press *"
-            PromptList pl = m_loc.getPromptList(confirmMenuFragment);
-            IvrChoice choice = menu2.collectDigit(pl, "123");
-
+    
+            String digit = vmd.collectDigit("123");
+    
             // bad entry, timeout, canceled
-            if (!menu2.isOkay()) {
+            if (digit == null) {
                 return null;
             }
                 
-            String digit = choice.getDigits();
-
-            LOG.info("Retrieve::recordWav: Mailbox "+m_mailbox.getUser().getUserName()+" options ("+digit+")");
+            LOG.info("Retrieve::recordDialog "+m_ident+" options ("+digit+")");
     
             // "1" means play the recording
             if (digit.equals("1")) {
-                LOG.info(String.format("Retrieve::recordWav Playing back recording (%s)", wavPath));
+                LOG.info(String.format("Retrieve::recordDialog "+m_ident+" Playing back recording (%s)", wavPath));
                 playWav = true ;
                 continue ;
             }
     
             // "2" means accept the recording
             if (digit.equals("2")) {
+                LOG.info(String.format("Retrieve::recordDialog "+m_ident+" accepted recording (%s)", wavPath));
                 return wavFile;
             }
     

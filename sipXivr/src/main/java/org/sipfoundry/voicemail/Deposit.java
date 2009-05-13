@@ -30,9 +30,9 @@ public class Deposit {
     private FreeSwitchEventSocketInterface m_fses;
     private Mailbox m_mailbox;
 
-    public Deposit(VoiceMail vm, Localization loc) {
+    public Deposit(VoiceMail vm) {
         m_vm = vm;
-        m_loc = loc ;
+        m_loc = vm.getLoc();
         m_fses = m_loc.getFreeSwitchEventSocketInterface();
         m_mailbox = vm.getMailbox();
     }
@@ -60,8 +60,8 @@ public class Deposit {
         Greeting:
         for(;;) {
             // {user's greeting}
-            Greeting greeting = new Greeting(m_mailbox) ;
-            PromptList pl = greeting.getPromptList(m_loc); ;
+            Greeting greeting = new Greeting(m_vm) ;
+            PromptList pl = greeting.getPromptList(); ;
         
             // When you are finished, press 1 for more options.
             // To reach the operator, dial 0 at any time.
@@ -130,7 +130,7 @@ public class Deposit {
                 
                 // Confirm caller's intent for this message
         
-                Menu menu = new VmMenu(m_loc, m_vm);
+                Menu menu = new VmMenu(m_vm);
                 if (playMessage) {
                     // (pre-menu: message)
                     PromptList messagePl = new PromptList(m_loc);
@@ -207,7 +207,7 @@ public class Deposit {
             // "To deliver this message to another address, press 1."
             // "If you are finished, press *."
             PromptList pl = m_loc.getPromptList("deposit_more_options");
-            VmMenu menu1 = new VmMenu(m_loc, m_vm);
+            VmMenu menu1 = new VmMenu(m_vm);
             menu1.setSpeakCanceled(false);
             IvrChoice choice = menu1.collectDigit(pl, "1");
 

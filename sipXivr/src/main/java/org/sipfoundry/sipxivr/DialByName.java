@@ -9,6 +9,7 @@
 
 package org.sipfoundry.sipxivr;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -74,10 +75,10 @@ public class DialByName {
 
             User u = matches.get(i);
             // Try to speak the user's recorded name
-            String recordedName = new Mailbox(u).getRecordedName();
+            File nameFile = new Mailbox(u).getRecordedNameFile();
             String namePrompts;
-            if (recordedName != null) {
-                namePrompts = recordedName;
+            if (nameFile.exists()) {
+                namePrompts = nameFile.getPath();
             } else {
                 PromptList ext = new PromptList(m_loc);
                 // "Extension {extension}"

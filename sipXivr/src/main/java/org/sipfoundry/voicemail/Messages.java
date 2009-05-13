@@ -257,6 +257,19 @@ public class Messages {
         }
     }
     
+    /**
+     * Destroy all the messages in the deleted folder.
+     */
+    public void destroyDeletedMessages() {
+        for (VmMessage msg : getDeleted()) {
+            String id = msg.getMessageId() ;
+            // Delete the files
+            removeRemains(m_deletedDir, id);
+            m_deleted.remove(id);
+            LOG.info(String.format("Messages::deleted destroyed %s", id));
+        }
+    }
+    
     void removeRemains(File dir, String id) {
         File[] files = dir.listFiles(new FileFilterByMessageId(id));
         for (File file : files) {

@@ -16,9 +16,11 @@ public class SipxIvrService extends SipxService implements LoggingEntity {
 
     private String m_vxmlDir;
     private String m_mailstoreDir;
+    private String m_promptsDir;
     private String m_scriptsDir;
     private String m_docDir;
 
+    
     @Required
     public void setMailstoreDir(String mailstoreDirectory) {
         m_mailstoreDir = mailstoreDirectory;
@@ -28,6 +30,15 @@ public class SipxIvrService extends SipxService implements LoggingEntity {
         return m_mailstoreDir;
     }
 
+    @Required
+    public void setPromptsDir(String promptsDirectory) {
+        m_promptsDir = promptsDirectory;
+    }
+    
+    public String getPromptsDir() {
+        return m_promptsDir;
+    }
+    
     @Required
     public void setVxmlDir(String vxmlDirectory) {
         m_vxmlDir = vxmlDirectory;

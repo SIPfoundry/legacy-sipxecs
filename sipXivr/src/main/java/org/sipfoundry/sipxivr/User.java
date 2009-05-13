@@ -19,6 +19,8 @@ public class User {
     private String m_uri;
     private String m_pintoken;
     private boolean m_inDirectory;
+    private boolean m_hasVoicemail;
+    private boolean m_canRecordPrompts;
     private Vector<String> m_dialPatterns;
     private Vector<String> m_aliases;
 
@@ -70,6 +72,22 @@ public class User {
         m_inDirectory = inDirectory;
     }
 
+    public boolean hasVoicemail() {
+        return m_hasVoicemail;
+    }
+
+    public void setHasVoicemail(boolean hasVoicmail) {
+        m_hasVoicemail = hasVoicmail;
+    }
+
+    public boolean canRecordPrompts() {
+        return m_canRecordPrompts;
+    }
+
+    public void setCanRecordPrompts(boolean canRecordPrompts) {
+        m_canRecordPrompts = canRecordPrompts;
+    }
+
     public Vector<String> getDialPatterns() {
         return m_dialPatterns;
     }
@@ -86,11 +104,14 @@ public class User {
     	this.m_aliases = aliases;
     }
 
-    public boolean isPinCorrect(String pin, String realm) {
+    public String hashPin(String pin, String realm) {
         // pintoken is MD5 Hash of:
         //   userName:realm:pin
         String token = m_userName+":"+realm+":"+pin;
-        String hash = DigestUtils.md5Hex(token);
-        return hash.equals(m_pintoken);
+        return DigestUtils.md5Hex(token);
+    }
+
+    public boolean isPinCorrect(String pin, String realm) {
+        return m_pintoken.equals(hashPin(pin, realm));
     }
 }

@@ -34,7 +34,8 @@ public class ValidUsersConfig extends XmlFile {
     private static final String ELEMENT_NAME_PINTOKEN = "pintoken";
     private static final String ELEMENT_NAME_USER = "user";
     private static final String ELEMENT_NAME_USERNAME = "userName";
-    
+    private static final String ELEMENT_NAME_HASVOICEMAIL = "hasVoicemail";
+    private static final String ELEMENT_NAME_CANRECORDPROMPTS = "canRecordPrompts";
     private CoreContext m_coreContext;
 
     private DomainManager m_domainManager;
@@ -86,6 +87,10 @@ public class ValidUsersConfig extends XmlFile {
         userEl.addElement(ELEMENT_NAME_PINTOKEN).setText(user.getPintoken());
         boolean inDirectory = user.hasPermission(PermissionName.AUTO_ATTENDANT_DIALING);
         userEl.addElement(ELEMENT_NAME_INDIRECTORY).setText(Boolean.toString(inDirectory));
+        boolean hasVoiceMail = user.hasPermission(PermissionName.VOICEMAIL);
+        userEl.addElement(ELEMENT_NAME_HASVOICEMAIL).setText(Boolean.toString(hasVoiceMail));
+        boolean canRecordPrompts = user.hasPermission(PermissionName.RECORD_SYSTEM_PROMPTS);
+        userEl.addElement(ELEMENT_NAME_CANRECORDPROMPTS).setText(Boolean.toString(canRecordPrompts));
     }
 
     private void generateAlias(Element usersEl, AliasMapping am) {

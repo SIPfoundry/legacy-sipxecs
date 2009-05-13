@@ -8,13 +8,11 @@
  */
 package org.sipfoundry.voicemail;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.net.HttpURLConnection;
 import java.net.URL;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.sipxivr.Mailbox;
+import org.sipfoundry.sipxivr.RemoteRequest;
 
 
 public class Mwi {
@@ -78,48 +76,22 @@ public class Mwi {
 
         heard = messages.getHeardCount();
         unheard = messages.getUnheardCount();
-        // No support for urgent messages
+        // No support for urgent messages at this time
 
         LOG.info(String.format("Mwi::SendMWI %s %d/%d", idUri, unheard, heard));
+        // URL of Status Server
+        String mwiUrlString = org.sipfoundry.sipxivr.Configuration.get().getMwiUrl();
+        URL mwiUrl;
         try {
-            // URL of Status Server
-            String mwiUrlString = org.sipfoundry.sipxivr.Configuration.get().getMwiUrl();
-            URL mwiUrl = new URL(mwiUrlString);
-            DataOutputStream printout;
-            DataInputStream input;
-
-            // URL connection channel.
-            HttpURLConnection urlConn = (HttpURLConnection) mwiUrl.openConnection();
-
-            // Let the run-time system (RTS) know that we want input.
-            urlConn.setDoInput(true);
-
-            // Let the RTS know that we want to do output.
-            urlConn.setDoOutput(true);
-
-            // No caching, we want the real thing.
-            urlConn.setUseCaches(false);
-
-            // Specify the content type.
-            urlConn.setRequestProperty("Content-Type", MessageSummaryContentType);
-
-
+            mwiUrl = new URL(mwiUrlString);
             String content = "eventType=message-summary&" + "identity=" + idUri + "\r\n" + 
-                formatRFC3842(unheard, heard, unheardUrgent, heardUrgent);
-            LOG.debug("Mwistatus::SendMWI posting "+content);
-            printout = new DataOutputStream(urlConn.getOutputStream());
-
-            printout.writeBytes(content);
-            printout.flush();
-            printout.close();
-
-            input = new DataInputStream(urlConn.getInputStream());
-
-            input.close();
-        }
-
-        catch (Exception ex) {
-            LOG.error("MwiStatus::SendMWI trouble", ex);
+            formatRFC3842(unheard, heard, unheardUrgent, heardUrgent);
+            RemoteRequest rr = new RemoteRequest(mwiUrl, MessageSummaryContentType, content);
+            if (!rr.http()) {
+                LOG.error("Mwi::sendMWI Trouble with RemoteRequest "+rr.getResponse());
+            }
+        } catch (Exception e) {
+            LOG.error("Mwi::sendMWI Trouble with mwiUrl", e);
         }
     }
 

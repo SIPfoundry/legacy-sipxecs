@@ -50,6 +50,22 @@
          </documentation>
       </annotation>
    </element>
+
+   <element name="hasVoiceMail" type="boolean">
+      <annotation>
+         <documentation>
+            true if this user has a voicemail box
+         </documentation>
+      </annotation>
+   </element>
+
+   <element name="canRecordPrompts" type="boolean">
+      <annotation>
+         <documentation>
+            true if this user can record system prompts
+         </documentation>
+      </annotation>
+   </element>
         
    <element name="contact" type="normalizedString">
       <annotation>
@@ -80,6 +96,8 @@
             <element ref="tns:contact" maxOccurs="1" minOccurs="1"/>
             <element ref="tns:pintoken" maxOccurs="1" minOccurs="0"/>
             <element ref="tns:inDirectory" maxOccurs="1" minOccurs="1"/>
+            <element ref="tns:hasVoiceMail" maxOccurs="1" minOccurs="1"/>
+            <element ref="tns:canRecordPrompts" maxOccurs="1" minOccurs="1"/>
          </all>
       </complexType>
    </element>

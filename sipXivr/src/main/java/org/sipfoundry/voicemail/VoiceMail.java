@@ -161,7 +161,7 @@ public class VoiceMail {
         if (m_action.equals("deposit")) {
             try {
                 
-                String result = new Deposit(this, m_loc).depositVoicemail() ;
+                String result = new Deposit(this).depositVoicemail() ;
                 if (result == null) {
                     goodbye();
                     return null ;
@@ -178,7 +178,7 @@ public class VoiceMail {
         }
         
         if (m_action.equals("retrieve")) {
-            return new Retrieve(this, m_loc).retrieveVoiceMail();
+            return new Retrieve(this).retrieveVoiceMail();
         }
         
         return null;
@@ -195,7 +195,7 @@ public class VoiceMail {
 
         // "Please select the distribution list.  Press * to cancel."
         PromptList pl = m_loc.getPromptList("deposit_select_distribution");
-        Menu menu = new VmMenu(m_loc, this);
+        Menu menu = new VmMenu(this);
         IvrChoice choice = menu.collectDigit(pl, d.getIndices());
 
         if (!menu.isOkay()) {
@@ -332,6 +332,14 @@ public class VoiceMail {
 
     public void setValidUsers(ValidUsersXML validUsers) {
         m_validUsers = validUsers;
+    }
+    
+    public Localization getLoc() {
+        return m_loc;
+    }
+    
+    public void setLoc(Localization loc) {
+        m_loc = loc;
     }
     
     /**

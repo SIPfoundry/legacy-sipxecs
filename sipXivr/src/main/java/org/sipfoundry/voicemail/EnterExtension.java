@@ -38,7 +38,7 @@ public class EnterExtension {
             // "Press 8 to use a distribution list,"
             // "Or press 9 for the dial by name directory."
             PromptList pl = loc.getPromptList("dial_extension");
-            VmMenu menu = new VmMenu(loc, vm);
+            VmMenu menu = new VmMenu(vm);
             IvrChoice choice = menu.collectDigits(pl, 10);
             
             if (!menu.isOkay()) {

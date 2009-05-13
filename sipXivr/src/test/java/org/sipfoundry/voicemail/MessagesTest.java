@@ -30,6 +30,7 @@ import org.sipfoundry.voicemail.MessageDescriptor.Priority;
 
 public class MessagesTest extends TestCase {
     File m_testDir;
+    File m_mailstoreDir;
     File m_userDir;
     File m_inboxDir;
     File m_savedDir;
@@ -51,7 +52,9 @@ public class MessagesTest extends TestCase {
             FileUtils.forceDelete(m_testDir);
         }
         m_testDir.mkdir();
-        m_userDir = new File(m_testDir, "user"); m_userDir.mkdir();
+        m_mailstoreDir = new File(m_testDir, "mailstore");
+        m_mailstoreDir.mkdir();
+        m_userDir = new File(m_mailstoreDir, "user"); m_userDir.mkdir();
         m_inboxDir = new File(m_userDir, "inbox"); m_inboxDir.mkdir();
         m_savedDir = new File(m_userDir, "saved"); m_savedDir.mkdir();
         m_deletedDir = new File(m_userDir, "deleted"); m_deletedDir.mkdir();
@@ -156,7 +159,7 @@ public class MessagesTest extends TestCase {
         user.setIdentity("user@dog");
 
         
-        Mailbox mbox = new Mailbox(user, m_testDir.getPath());
+        Mailbox mbox = new Mailbox(user, m_mailstoreDir.getPath());
 
         FileUtils.touch(new File(m_inboxDir, "0001-00.wav"));
         FileUtils.touch(new File(m_inboxDir, "0001-00.xml"));
@@ -282,7 +285,7 @@ public class MessagesTest extends TestCase {
         user.setUserName("user");
         user.setIdentity("user@dog");
 
-        Mailbox mbox = new Mailbox(user, m_testDir.getPath());
+        Mailbox mbox = new Mailbox(user, m_mailstoreDir.getPath());
         File tempFile = new File(m_testDir, "temp.wav");
         makeWaves(tempFile, (byte)0, 4);
         Message m = Message.newMessage(mbox, tempFile, "woof@dog", Priority.NORMAL);
@@ -301,7 +304,7 @@ public class MessagesTest extends TestCase {
         user.setUserName("user");
         user.setIdentity("user@dog");
         
-        Mailbox mbox = new Mailbox(user, m_testDir.getPath());
+        Mailbox mbox = new Mailbox(user, m_mailstoreDir.getPath());
         File tempFile = new File(m_testDir, "temp.wav");
         makeWaves(tempFile, (byte)0, 4);
         Message m = Message.newMessage(mbox, tempFile, "woof@dog", Priority.NORMAL);
@@ -350,7 +353,7 @@ public class MessagesTest extends TestCase {
         user.setUserName("user");
         user.setIdentity("user@dog");
         
-        Mailbox mbox = new Mailbox(user, m_testDir.getPath());
+        Mailbox mbox = new Mailbox(user, m_mailstoreDir.getPath());
         File tempFile = new File(m_testDir, "temp.wav");
         makeWaves(tempFile, (byte)0, 42);
         

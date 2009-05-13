@@ -12,6 +12,8 @@
     <contact>"John Adams"&lt;sip:301@example.com&gt;</contact>
     <pintoken>9c78d7b04fa11fe0086eb25933b01af3</pintoken>
     <inDirectory>true</inDirectory>
+    <hasVoicemail>true</hasVoicemail>
+    <canRecordPrompts>false</canRecordPrompts>
   </user>
   <user>
     <identity>302@example.com</identity>
@@ -21,6 +23,8 @@
     <contact>"George Washington"&lt;sip:302@example.com&gt;</contact>
     <pintoken>6833fd1fc2dd908dc99a3a457d88b812</pintoken>
     <inDirectory>false</inDirectory>
+    <hasVoicemail>true</hasVoicemail>
+    <canRecordPrompts>true</canRecordPrompts>
   </user>
   <user>
     <identity>500@example.com</identity>

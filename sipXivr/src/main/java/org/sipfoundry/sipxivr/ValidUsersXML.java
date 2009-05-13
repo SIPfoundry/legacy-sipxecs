@@ -121,6 +121,10 @@ public class ValidUsersXML {
                             u.setPintoken(text);
                         } else if (name.contentEquals("inDirectory")) {
                             u.setInDirectory(Boolean.parseBoolean(text));
+                        } else if (name.contentEquals("hasVoicemail")) {
+                            u.setHasVoicemail(Boolean.parseBoolean(text));
+                        } else if (name.contentEquals("canRecordPrompts")) {
+                            u.setCanRecordPrompts(Boolean.parseBoolean(text));
                         } else if (name.contentEquals("aliases")) {
                         	Node alias = next.getFirstChild() ;
                         	while (alias != null) {

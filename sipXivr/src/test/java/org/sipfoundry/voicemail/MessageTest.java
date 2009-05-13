@@ -41,7 +41,7 @@ public class MessageTest extends TestCase {
         if (m_testdir.isDirectory()) {
             FileUtils.forceDelete(m_testdir);
         }
-        m_mailstore = new File(m_testdir.getPath()+"/mailstore") ;
+        m_mailstore = new File(m_testdir.getPath()+"/mailstore/") ;
         m_mailstore.mkdirs();
         m_mailbox = new Mailbox(m_user, m_mailstore.getPath());
         Mailbox.createDirsIfNeeded(m_mailbox);
@@ -62,8 +62,8 @@ public class MessageTest extends TestCase {
         assertTrue("mailstore/woof/inbox doesn't exist!", 
                 new File(m_mailstore.getPath()+"/woof/inbox").isDirectory());
         
-        String messageId1 = VmMessage.nextMessageId(m_testdir.getPath());
-        String messageId2 = VmMessage.nextMessageId(m_testdir.getPath());
+        String messageId1 = VmMessage.nextMessageId(m_mailstore.getPath());
+        String messageId2 = VmMessage.nextMessageId(m_mailstore.getPath());
         assertEquals("00000001", messageId1);
         assertEquals("00000002", messageId2);
     }

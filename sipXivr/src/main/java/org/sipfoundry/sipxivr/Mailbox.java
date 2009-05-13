@@ -79,7 +79,15 @@ public class Mailbox {
     public User getUser() {
         return m_user;
     }
-        
+
+    /**
+     * 
+     * @return the directory that contains all the mailboxes
+     */
+    public String getMailstoreDirectory() {
+        return m_mailStoreDirectory;
+    }
+
     /**
      * 
      * @return the directory that contains this mailbox
@@ -113,18 +121,15 @@ public class Mailbox {
     }
 
     /**
-     * Get the path with the user's recorded name.
+     * Get the File with the user's recorded name.
      * 
-     * @return the path, or null if it doesn't exist.
+     * @return the File
      */
-    public String getRecordedName() {
+    public File getRecordedNameFile() {
         // The recorded name is stored in the "name.wav" file in the user's directory
         String name = m_userDirectory + "name.wav";
         File f = new File(name);
-        if (f.exists()) {
-            return name;
-        }
-        return null;
+        return f;
     }
     
     /**

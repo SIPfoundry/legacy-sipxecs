@@ -16,6 +16,7 @@ import org.sipfoundry.sipxivr.Localization;
 import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.sipxivr.MailboxPreferences;
 import org.sipfoundry.sipxivr.PromptList;
+import org.sipfoundry.sipxivr.MailboxPreferences.GreetingType;
 
 
 /**
@@ -23,51 +24,83 @@ import org.sipfoundry.sipxivr.PromptList;
  */
 public class Greeting {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
+    private VoiceMail m_vm;
     private MailboxPreferences m_MailboxPreferences;
     private String m_userDirectory;
     private Mailbox m_mailbox;
 
-    public Greeting(Mailbox mailbox) {
-        m_mailbox = mailbox;
-        m_MailboxPreferences = mailbox.getMailboxPreferences();
-        m_userDirectory = mailbox.getUserDirectory();
+    public Greeting(VoiceMail vm) {
+        m_vm = vm;
+        m_mailbox = vm.getMailbox();
+        m_MailboxPreferences = m_mailbox.getMailboxPreferences();
+        m_userDirectory = m_mailbox.getUserDirectory();
     }
     
-    private String getActiveGreetingFile() {
-        String fileName = null;
-        
-        switch(m_MailboxPreferences.getActiveGreeting()) {
+    /**
+     * Get the name of the file for the particular greeting type.
+     * 
+     * @param type
+     * @return
+     */
+    private String getGreetingTypeName(GreetingType type) {
+        switch(type) {
         case STANDARD:
-            fileName = "standard.wav";
-            break;
+            return "standard.wav";
         case OUT_OF_OFFICE:
-            fileName = "outofoffice.wav";
-            break;
+            return "outofoffice.wav";
         case EXTENDED_ABSENCE:
-            fileName = "extendedabs.wav";
-            break;
+            return "extendedabs.wav";
         default:
             return null;
+        }        
+    }
+    
+    
+    /**
+     * Get the path to the particular greeting type.  Null if there is no such greeting.
+     * @return
+     */
+    private String getGreetingPath(GreetingType type) {
+        String filePath = getGreetingTypeName(type);
+
+        if (filePath == null) {
+            return null;
         }
-        File greetingFile = new File(m_userDirectory + fileName);
+    
+        File greetingFile = new File(m_userDirectory, filePath);
         if (greetingFile.exists())
-            return m_userDirectory + fileName;
+            return greetingFile.getPath();
 
         return null;
     }
 
     /**
+     * Moves the recording to the appropriate place/name for the GreetingType.
+     * 
+     * @param type
+     * @param recording
+     */
+    public void saveGreetingFile(GreetingType type, File recording) {
+        String filePath = getGreetingTypeName(type);
+        File greetingFile = new File (m_userDirectory, filePath);
+        if (greetingFile.exists()) {
+            greetingFile.delete();
+        }
+        recording.renameTo(greetingFile);
+    }
+    
+    /**
      * Generate a greeting from info we have, in place of a user recorded one.
      * 
-     * @param pl
+     * @param pl  PromptList which gets the prompts added to it.
      */
     private void generateGenericGreeting(PromptList pl) {
-        String nameFileName = m_mailbox.getRecordedName();
-        if (nameFileName != null) {
+        File nameFile = m_mailbox.getRecordedNameFile();
+        if (nameFile.exists()) {
             // Has a recorded name.
             
             // {name} ...
-            pl.addFragment("greeting_hasname", nameFileName);
+            pl.addFragment("greeting_hasname", nameFile.getPath());
         } else {
             String mailboxName = m_mailbox.getUser().getUserName();
             if (mailboxName.length() <= 6) {
@@ -84,20 +117,28 @@ public class Greeting {
     }
     
     /**
-     * Return the list of prompts that make up this greeting
+     * Return the list of prompts that make up the current active greeting
      * @return
      */
-    public PromptList getPromptList(Localization loc) {
-        
-        PromptList pl = new PromptList(loc);
-        String activeGreetingFile = getActiveGreetingFile();
-        if (activeGreetingFile != null) {
+    public PromptList getPromptList() {
+        return getPromptList(m_MailboxPreferences.getActiveGreeting());
+    }
+    
+    /**
+     * Return the list of prompts that make up the greeting type
+     * @param type
+     * @return
+     */
+    public PromptList getPromptList(GreetingType type) {
+        PromptList pl = new PromptList(m_vm.getLoc());
+        String greetingFile = getGreetingPath(type);
+        if (greetingFile != null) {
             // A user recorded version exists, use it.
-            pl.addPrompts(activeGreetingFile);
+            pl.addPrompts(greetingFile);
         } else {
             // Generate a greeting from info we have
             generateGenericGreeting(pl) ;
-            switch(m_MailboxPreferences.getActiveGreeting()) {
+            switch(type) {
             case NONE:
                 // User never specified what to do
                 LOG.info("Mailbox "+m_mailbox.getUser().getUserName()+" Default Greeting");

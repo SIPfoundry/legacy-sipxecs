@@ -124,7 +124,7 @@ public class VmMessage {
         VmMessage me = new VmMessage();
         
         // Generate the next message ID
-        me.m_messageId = nextMessageId(mailbox.getInboxDirectory()+"../..");
+        me.m_messageId = nextMessageId(mailbox.getMailstoreDirectory()+"/..");
         me.m_unHeard = true;
 
         // Generate the MessageDescriptor;
@@ -175,7 +175,7 @@ public class VmMessage {
         VmMessage me = new VmMessage();
         
         // Generate the next message ID
-        me.m_messageId = nextMessageId(mailbox.getInboxDirectory()+"../..");
+        me.m_messageId = nextMessageId(mailbox.getMailstoreDirectory()+"/..");
         
         // Copy into the inbox of the mailbox
         File directory = new File(mailbox.getInboxDirectory());
@@ -238,7 +238,7 @@ public class VmMessage {
         
         
         // Generate the next message ID
-        me.m_messageId = nextMessageId(mailbox.getInboxDirectory()+"../..");
+        me.m_messageId = nextMessageId(mailbox.getMailstoreDirectory()+"/..");
         
         // Generate the MessageDescriptor;
         me.m_messageDescriptor = new MessageDescriptor();
@@ -422,8 +422,8 @@ public class VmMessage {
         String messageId = String.format(format,numericMessageId);
         
         // messageid.txt file is (hopefully) in the directory
-        String messageIdFilePath = directory+"/messageid.txt";
-        File midFile = new File(messageIdFilePath);
+        File midFile = new File(directory, "messageid.txt");
+        String messageIdFilePath = midFile.getPath();
         if (midFile.exists()) {
             try {
                 // The messageid in the file is the NEXT one
