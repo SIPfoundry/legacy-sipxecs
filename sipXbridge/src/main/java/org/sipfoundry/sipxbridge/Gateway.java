@@ -201,6 +201,8 @@ public class Gateway {
 
     static final int REGISTER_DELTA = 5;
 
+    public static final String SIPX_BRIDGE_ACCOUNT_OK = "SIPX_BRIDGE_ACCOUNT_OK";
+
     // ///////////////////////////////////////////////////////////////////////
 
     /**
