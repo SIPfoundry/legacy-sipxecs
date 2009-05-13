@@ -185,7 +185,7 @@ public class RegistrationManager {
     			if (!itspAccount.isAlarmSent()) {
     				try {
     					Gateway.getAlarmClient().raiseAlarm(
-    							"SIPX_BRIDGE_AUTHENTICATION_FAILED",
+    							Gateway.SIPX_BRIDGE_AUTHENTICATION_FAILED,
     							itspAccount.getSipDomain());
     					itspAccount.setAlarmSent(true);
     				} catch (Exception ex) {
@@ -193,15 +193,14 @@ public class RegistrationManager {
     				}
     			}
     		} else if ( response.getStatusCode() / 100 == 5 || response.getStatusCode() / 100 == 6){
-    		    /* Authentication failed. Try again after 30 seconds */
-                ItspAccountInfo itspAccount = ((TransactionContext) ct.getApplicationData()).getItspAccountInfo();
+    		    ItspAccountInfo itspAccount = ((TransactionContext) ct.getApplicationData()).getItspAccountInfo();
                 if (itspAccount.getSipKeepaliveMethod().equals("CR-LF")) {
                     itspAccount.stopCrLfTimerTask();
                 }
                 if (!itspAccount.isAlarmSent()) {
                     try {
                         Gateway.getAlarmClient().raiseAlarm(
-                                "SIPX_BRIDGE_ITSP_SERVER_FAILURE",
+                                Gateway.SIPX_BRIDGE_ITSP_SERVER_FAILURE,
                                 itspAccount.getSipDomain());
                         itspAccount.setAlarmSent(true);
                     } catch (Exception ex) {
@@ -215,7 +214,29 @@ public class RegistrationManager {
                     TimerTask ttask = new RegistrationTimerTask(itspAccount);
                     Gateway.getTimer().schedule(ttask, 60 * 1000);
                 }
-
+    		} else if (response.getStatusCode() == Response.REQUEST_TIMEOUT) {
+    		    ItspAccountInfo itspAccount = ((TransactionContext) ct.getApplicationData()).getItspAccountInfo();
+                if (itspAccount.getSipKeepaliveMethod().equals("CR-LF")) {
+                    itspAccount.stopCrLfTimerTask();
+                }
+         
+    		    try {
+    	            if (!itspAccount.isAlarmSent()) {
+    	                Gateway.getAlarmClient().raiseAlarm(
+    	                        Gateway.SIPX_BRIDGE_OPERATION_TIMED_OUT,  
+    	                        itspAccount.getSipDomain());
+    	                itspAccount.setAlarmSent(true);
+    	            }
+    	        } catch (Exception ex) {
+    	            logger.error("Could not send alarm.", ex);
+    	        }
+    	        /*
+                 * Retry the server again after 60 seconds.
+                 */
+                if (itspAccount.registrationTimerTask == null) {
+                    TimerTask ttask = new RegistrationTimerTask(itspAccount);
+                    Gateway.getTimer().schedule(ttask, 60 * 1000);
+                }
     		} else {
     		    if ( response.getStatusCode() != 100 ) {
     		        logger.warn("RegistrationManager: Unexpected Error Code seen " + response.getStatusCode());
@@ -245,7 +266,7 @@ public class RegistrationManager {
 		try {
 			if (!itspAccount.isAlarmSent()) {
 				Gateway.getAlarmClient().raiseAlarm(
-						"SIPX_BRIDGE_OPERATION_TIMED_OUT", 
+						Gateway.SIPX_BRIDGE_OPERATION_TIMED_OUT,  
 						itspAccount.getSipDomain());
 				itspAccount.setAlarmSent(true);
 			}
