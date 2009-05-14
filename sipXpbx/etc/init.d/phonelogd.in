@@ -4,7 +4,7 @@
 # description: This script starts up a dedicated instance of syslogd to receive logging from phones
 #
 # processname: phonelog
-# pidfile: @SIPX_LOGDIR@/phonelog/var/run/syslog.pid
+# pidfile: @SIPX_LOGDIR@/phone/var/run/syslog.pid
 #
 # Copyright (C) 2009 Nortel Networks, certain elements licensed under a Contributor Agreement.
 # Contributors retain copyright to elements licensed under a Contributor Agreement.
@@ -33,17 +33,36 @@ fi
 ## Source function library.
 . @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
 
-if [ -z "@SYSLOG_CMD@" ]
+SyslogCmd=/sbin/rsyslogd
+if [ ! -x "${SyslogCmd}" ]
 then
-   echo "No syslog daemon command detected for this platform" 1>&2
+   cat 1>&2 <<EOF
+The program '${SyslogCmd}' not installed or not executable.
+The phonelogd service requires that rsyslog be installed.
+phonelogd disabled.
+EOF
    exit 1
+else 
+    # calculate the correct arguments based on the major version
+    rsyslogVersion=$(${SyslogCmd} -v | perl -ne 'm/^rsyslogd\s+(\d+)/ && print $1')
+    RsyslogVersionArgs=""
+    if [ -z "${rsyslogVersion}" ]
+    then
+        echo "rsyslogd version check failed - phonelogd disabled." 1>&2
+        exit 1
+    elif [ ${rsyslogVersion} -ge 3 ]
+    then
+        RsyslogVersionArgs="-c3"
+    else
+        RsyslogVersionArgs="-r514"
+    fi
 fi
 
 ExitStatus=0
 
 Enabled=`sipx_config_value @SIPX_CONFDIR@/phonelog-config PHONELOG_ENABLED`
 
-PhoneLogRoot=@SIPX_LOGDIR@/phonelog
+PhoneLogRoot=@SIPX_LOGDIR@/phone
 # PidFile must agree with 'pidfile:' line in comments above
 #   this is actually fixed because on CentOS5 it cannot be changed
 PidFile=${PhoneLogRoot}/var/run/syslogd.pid
@@ -63,7 +82,8 @@ as_sipxpbxuser () {
 do_start () {
     ## set up the chroot environment (done as SIPXPBXUSER)
     $0 setup
-    chroot ${PhoneLogRoot} @SYSLOG_CMD@ @SYSLOG_ARGS@
+
+    chroot ${PhoneLogRoot} ${SyslogCmd} -f phonelog.conf -x -i /var/run/syslogd.pid ${RsyslogVersionArgs}
 }
 
 do_stop () {
@@ -78,6 +98,23 @@ do_stop () {
     fi
 }
 
+copy2chroot () {
+    local file=$1
+    local dir=$(dirname ${file})
+
+    if [ -e ${PhoneLogRoot}${file} ] 
+    then
+        if ! cmp ${file} ${PhoneLogRoot}${file} 2> /dev/null
+        then
+            rm -f ${PhoneLogRoot}${file}
+            cp ${file} ${PhoneLogRoot}${file}
+        fi
+    else
+        test -d ${PhoneLogRoot}${dir} || mkdir -p ${PhoneLogRoot}${dir}
+        cp ${file} ${PhoneLogRoot}${file}
+    fi
+}
+
 do_setup () {
     # if needed, construct the chroot environment for the phonelog daemon
     test -d ${PhoneLogRoot}         || mkdir ${PhoneLogRoot}
@@ -89,21 +126,21 @@ do_setup () {
     cp @SIPX_CONFDIR@/phonelog.conf ${PhoneLogRoot}/phonelog.conf
 
     # link any dynamic libraries needed by the daemon executable
-    for lib in @SYSLOG_CMD@ @SYSLOG_LIBS@ \
-        $(ldd @SYSLOG_CMD@ | perl -pe 's|^.*=>\s*||; s|\s*\(.*$||; s|^\s*||')
+    syslog_libs=""
+    if [ -d /usr/lib/rsyslog ]
+    then
+        syslog_libs=$(ls /usr/lib/rsyslog/*.so 2> /dev/null)
+    elif [ -d /usr/lib64/rsyslog ]
+    then
+        syslog_libs=$(ls /usr/lib64/rsyslog/*.so 2> /dev/null)
+    fi
+    for obj in ${SyslogCmd} $syslog_libs
     do
-        libdir=$(dirname ${lib})
-        test -d ${PhoneLogRoot}${libdir} || mkdir -p ${PhoneLogRoot}${libdir}
-        if [ -e ${PhoneLogRoot}${lib} ] 
-        then
-            if ! cmp ${lib} ${PhoneLogRoot}${lib} 2> /dev/null
-            then
-                rm -f ${PhoneLogRoot}${lib}
-                cp ${lib} ${PhoneLogRoot}${lib}
-            fi
-        else
-            cp ${lib} ${PhoneLogRoot}${lib}
-        fi
+        copy2chroot $obj
+        for lib in $(ldd "$obj" | perl -pe 's|^.*=>\s*||; s|\s*\(.*$||; s|^\s*||') 
+        do
+            copy2chroot $lib
+        done
     done
 }
 
@@ -111,7 +148,7 @@ if [ "${Enabled}" = "TRUE" ]
 then
    case "$1" in
      start)
-           ### Verify that the sipXecs services are not already running.
+           ### Verify that the phonelog service is not already running.
            if [ -e ${PidFile} ]
            then
                echo "   Found ${PidFile}..."

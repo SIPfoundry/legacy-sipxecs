@@ -22,9 +22,10 @@ missingok
    copytruncate
 }
 
-@SIPX_LOGDIR@/phonelog/phones.log {
+@SIPX_LOGDIR@/phone/*.log {
+    sharedscripts             
     postrotate
-       kill -HUP $(cat @SIPX_LOGDIR@/phonelog/var/run/syslog.pid) 2> /dev/null || true
+       kill -HUP $(cat @SIPX_LOGDIR@/phone/var/run/syslog.pid) 2> /dev/null || true
 }
 
 @SIPX_LOGDIR@/httpd_error_log @SIPX_LOGDIR@/httpd_access_log @SIPX_LOGDIR@/httpd_rewrite_log {

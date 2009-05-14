@@ -1,4 +1,0 @@
-# Log messages from remote clients so phones can log to the server
-# The phonelogd starts this syslogd in a chroot jail, so the log file
-# appears to be in the root directory.
-*.*		/phones.log

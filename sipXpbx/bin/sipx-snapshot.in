@@ -376,7 +376,7 @@ function cutIfTimestamps() {
       # (with its spaces, ugh!) if it is non-empty.
       # These are supported by 'sh' (per Appendix B of the Bash Reference Manual).
       @SIPX_BINDIR@/sipx-log-cut -i "${log}" -t \
-	 -s "${LogStart}" ${LogStop:+-e} ${LogStop:+"${LogStop}"} \
+         -s "${LogStart}" ${LogStop:+-e} ${LogStop:+"${LogStop}"} \
          >> "${outFile}" \
          2>> ${cutDir}/extract.log
       result=$?
@@ -450,7 +450,7 @@ case ${Logs} in
 
         # Place extract.log at the top level of the tar file.
         CommentFiles="${CommentFiles} ${cutDir}/extract.log"
-        for base_log in @SIPX_LOGDIR@/*log @SIPX_LOGDIR@/phonelog/phones.log
+        for base_log in @SIPX_LOGDIR@/*log @SIPX_LOGDIR@/phone/*.log
         do
             # Start cutting at the base log.
             if cutIfTimestamps "${base_log}"
@@ -491,7 +491,7 @@ case ${Logs} in
         done
         ;;
     current)
-        for log in @SIPX_LOGDIR@/*log @SIPX_LOGDIR@/phonelog/phones.log
+        for log in @SIPX_LOGDIR@/*log @SIPX_LOGDIR@/phone/*.log
         do
           echo $log >> $Work.copy-files
         done
@@ -499,7 +499,7 @@ case ${Logs} in
     [1-9]*)
         if ! ls -1 \
              @SIPX_LOGDIR@/*log.${Logs}{,.gz} \
-             @SIPX_LOGDIR@/phonelog/phones.log.${Logs}{,.gz} \
+             @SIPX_LOGDIR@/phone/*.log.${Logs}{,.gz} \
              2>/dev/null \
              | grep '.' \
              >> $Work.copy-files
@@ -509,7 +509,7 @@ case ${Logs} in
         fi
         ;;
     all)
-        for log in @SIPX_LOGDIR@/*log  @SIPX_LOGDIR@/*log.*
+        for log in @SIPX_LOGDIR@/*log  @SIPX_LOGDIR@/*log.* @SIPX_LOGDIR@/phone/*.log.*
         do
           echo $log >> $Work.copy-files
         done
