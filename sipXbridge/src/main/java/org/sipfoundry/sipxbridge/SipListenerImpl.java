@@ -6,6 +6,9 @@
  */
 package org.sipfoundry.sipxbridge;
 
+import gov.nist.javax.sip.ServerTransactionExt;
+import gov.nist.javax.sip.TransactionExt;
+
 import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
 import javax.sip.DialogState;
@@ -20,7 +23,9 @@ import javax.sip.TimeoutEvent;
 import javax.sip.Transaction;
 import javax.sip.TransactionAlreadyExistsException;
 import javax.sip.TransactionTerminatedEvent;
+import javax.sip.address.SipURI;
 import javax.sip.header.CSeqHeader;
+import javax.sip.header.FromHeader;
 import javax.sip.header.ToHeader;
 import javax.sip.header.ViaHeader;
 import javax.sip.message.Request;
@@ -48,26 +53,50 @@ public class SipListenerImpl implements SipListener {
         SipProvider provider = (SipProvider) responseEvent.getSource();
 
         Dialog dialog = responseEvent.getDialog();
+
+        int statusCode = responseEvent.getResponse().getStatusCode();
+        
+        ClientTransaction ctx = responseEvent.getClientTransaction();
+        
         /*
          * challenge from LAN side. Cannot handle this.
          */
         if (provider == Gateway.getLanProvider()) {
             /*
-             * If we do not handle LAN originated challenges, tear down the call.
+             * By default, we do not handle LAN originated challenges unless the inbound domain is the 
+             * same as the outbound domain -- in which case we forward the challenge.
              */
             if (Gateway.getBridgeConfiguration().getSipxbridgePassword() == null) {
                 ServerTransaction stx = ((TransactionContext) responseEvent
                         .getClientTransaction().getApplicationData()).getServerTransaction();
                 if (stx != null) {
-                    Response errorResponse = SipUtilities.createResponse(stx, Response.DECLINE);
-                    stx.sendResponse(errorResponse);
+                    FromHeader stxFromHeader = (FromHeader) stx.getRequest().getHeader(FromHeader.NAME);
+                    FromHeader ctxFromHeader = (FromHeader) ctx.getRequest().getHeader(FromHeader.NAME);
+                    
+                    String fromHost = ((SipURI) stxFromHeader.getAddress().getURI()).getHost(); 
+                    String toHost  = ((SipURI) ctxFromHeader.getAddress().getURI()).getHost(); 
+               
+                    /*
+                     * See what the host part of the inbound request looks like.
+                     * If the inbound request does not have the same domain as the outbound
+                     * request then decline the request. Otherwise forward the challenge.
+                     */
+                    if (! fromHost.equalsIgnoreCase(toHost)) {
+                        Response errorResponse = SipUtilities.createResponse(stx,
+                                Response.DECLINE);
+                        stx.sendResponse(errorResponse);
+                        if (dialog != null
+                                && DialogContext.get(dialog).getBackToBackUserAgent() != null) {
+                            DialogContext.get(dialog).getBackToBackUserAgent().tearDown(
+                                    Gateway.SIPXBRIDGE_USER, ReasonCode.AUTHENTICATION_FAILURE,
+                                    "Unexpected challenge from Pbx.");
+                        }
+                    } else {
+                        Response errorResponse = SipUtilities.createResponse(stx, statusCode);
+                        stx.sendResponse(errorResponse);
+                    }
+                }
 
-                }
-                if (dialog != null && DialogContext.get(dialog).getBackToBackUserAgent() != null) {
-                    DialogContext.get(dialog).getBackToBackUserAgent().tearDown(
-                            Gateway.SIPXBRIDGE_USER, ReasonCode.AUTHENTICATION_FAILURE,
-                            "Unexpected challenge from Pbx.");
-                }
                 return;
             }
         }
@@ -440,15 +469,15 @@ public class SipListenerImpl implements SipListener {
                      */
                     BackToBackUserAgent b2bua = DialogContext.get(ctx.getDialog())
                             .getBackToBackUserAgent();
-                    
+
                     TransactionContext transactionContext = TransactionContext.get(ctx);
-                    if (transactionContext.getOperation() ==  Operation.SEND_INVITE_TO_SIPX_PROXY) {           
-                        if ( ! b2bua.findNextSipXProxy() ) {
-                            b2bua.tearDown(Gateway.SIPXBRIDGE_USER, ReasonCode.CALL_SETUP_ERROR, 
+                    if (transactionContext.getOperation() == Operation.SEND_INVITE_TO_SIPX_PROXY) {
+                        if (!b2bua.findNextSipXProxy()) {
+                            b2bua.tearDown(Gateway.SIPXBRIDGE_USER, ReasonCode.CALL_SETUP_ERROR,
                                     "SipxProxy is down");
                         } else {
                             b2bua.sendInviteToSipxProxy(transactionContext.getRequestEvent(),
-                                transactionContext.getServerTransaction() );
+                                    transactionContext.getServerTransaction());
                         }
                     } else {
                         b2bua.sendByeToMohServer();
