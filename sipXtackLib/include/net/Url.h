@@ -182,7 +182,7 @@ public:
     Url& operator=(const Url& rhs);
 
     //! Assignment from string
-    Url& operator=(const char* urlString);
+    Url& operator=(const char* urlString); // name-addr format
     /**<
      *  @DEPRECATED due to poor error handling - use the fromString method instead
      *  Parse the given null terminated string and set the
