@@ -1,5 +1,5 @@
 SIP_PRESENCE_AUTHENTICATE_REALM : ${presenceService.realm}
-SIP_PRESENCE_DOMAIN_NAME : ${presenceService.domainName}
+SIP_PRESENCE_DOMAIN_NAME : ${location.fqdn}
 SIP_PRESENCE_LOG_DIR : 
 SIP_PRESENCE_LOG_LEVEL : $settings.getSetting('SIP_PRESENCE_LOG_LEVEL').Value
 SIP_PRESENCE_LOG_CONSOLE : 
