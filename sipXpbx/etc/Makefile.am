@@ -16,8 +16,7 @@ EXTRA_DIST = \
 	$(foreach file,$(wwwconf_files),$(file).in) \
 	init.d/sipxecs.in \
 	init.d/phonelogd.in \
-	phonelog.conf.syslogd \
-	phonelog.conf.rsyslogd \
+	phonelog.conf \
 	logrotate.d/sipxchange.in
 
 install-exec-hook : $(DESTDIR)@SERVICEDIR@/sipxecs $(DESTDIR)@SERVICEDIR@/phonelogd
@@ -42,7 +41,7 @@ init.d/phonelogd: init.d/phonelogd.in
 		-e 's,@SYSLOG_ARGS\@,@SYSLOG_ARGS@,g' \
 		$(srcdir)/init.d/phonelogd.in > init.d/phonelogd
 
-$(DESTDIR)${sysconfdir}/sipxpbx/phonelog.conf: phonelog.conf@SYSLOG_CFG@
+$(DESTDIR)${sysconfdir}/sipxpbx/phonelog.conf: phonelog.conf
 	$(INSTALL) -D -m 755 $< $@
 
 $(DESTDIR)@SERVICEDIR@:

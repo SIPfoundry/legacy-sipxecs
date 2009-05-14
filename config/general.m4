@@ -566,7 +566,7 @@ AC_DEFUN([CHECK_APACHE2],
                [ apache2_mod_search_path="$withval"
                  apache2_mod_override="$withval"
                 ],
-               [ apache2_mod_search_path="/usr/local/apache2/modules /usr/apache2/modules /etc/httpd/modules /usr/lib/httpd/modules 
+               [ apache2_mod_search_path="/usr/local/apache2/modules /usr/apache2/modules /etc/httpd/modules /usr/lib/httpd/modules
 /usr/lib/apache2-prefork /usr/lib/apache2-worker /usr/lib/apache2/modules /usr/lib64/apache2 /usr/lib64/apache2-prefork /usr/lib64/apache2-worker"
                  apache2_mod_override=""
                 ]
@@ -911,7 +911,7 @@ AC_DEFUN([ENABLE_DOT],
    AC_ARG_ENABLE(dot, [  --enable-dot            use dot to generate graphs],
                       [enable_dot="$enableval"], [enable_dot=yes])
    if test "x$enable_dot" != xno
-   then 
+   then
       AC_PATH_PROG(DOT, dot, , $PATH)
       if test x$DOT = x
       then
@@ -945,9 +945,9 @@ AC_DEFUN([ENABLE_DOXYGEN],
           fi
   fi
 
-  AC_ARG_ENABLE(html-docs, 
-                [--enable-html-docs      enable HTML generation with doxygen (yes)], 
-                [enable_html_docs="$enableval"], 
+  AC_ARG_ENABLE(html-docs,
+                [--enable-html-docs      enable HTML generation with doxygen (yes)],
+                [enable_html_docs="$enableval"],
                 [enable_html_docs=$enable_doxygen])
 
   if test "$enable_html_docs" = "yes"
@@ -957,9 +957,9 @@ AC_DEFUN([ENABLE_DOXYGEN],
      enable_html_docs="false"
   fi
 
-  AC_ARG_ENABLE(latex-docs, 
-                [  --enable-latex-docs     enable LaTeX documentation generation with doxygen (no)], 
-                [enable_latex_docs="$enableval"], 
+  AC_ARG_ENABLE(latex-docs,
+                [  --enable-latex-docs     enable LaTeX documentation generation with doxygen (no)],
+                [enable_latex_docs="$enableval"],
                 [enable_latex_docs=no])
 
   if test "$enable_latex_docs" = "yes"
@@ -1781,39 +1781,10 @@ the SIPfoundry repositories.])
 #   AC_MSG_RESULT([$RPMBUILD_DEBUG_PACKAGE_NAME])
 #])
 
-# ==================== SYSLOG ====================
-AC_DEFUN([CHECK_SYSLOGD],
+# ============ Y U M  ==================
+AC_DEFUN([CHECK_YUM],
 [
-   AC_MSG_CHECKING([Checking for syslog daemon name])
-   if test -x /sbin/syslogd
-   then
-      # CentOS
-      SYSLOG_CMD="/sbin/syslogd"
-      SYSLOG_CFG=".syslogd"
-      SYSLOG_LIBS=""
-      SYSLOG_ARGS="-f phonelog.conf -r -x"
-   elif test -x /sbin/rsyslogd
-   then
-      # Fedora
-      SYSLOG_CMD="/sbin/rsyslogd"
-      SYSLOG_CFG=".rsyslogd"
-      SYSLOG_LIBS="$(echo /usr/lib/rsyslog/*)"
-      SYSLOG_ARGS="-f phonelog.conf -x -i /var/run/syslogd.pid -c3"
-   else
-      SYSLOG_CMD=""
-      SYSLOG_CFG=".syslogd"
-      SYSLOG_LIBS=""
-      SYSLOG_ARGS=""
-   fi
-     
-   if test "x${SYSLOG_CMD}" != "x" 
-   then
-      AC_MSG_RESULT(${SYSLOG_CMD})
-   else
-      AC_MSG_WARN([No syslog daemon command found - remote phone logging disabled])
-   fi
-   AC_SUBST(SYSLOG_CMD)
-   AC_SUBST(SYSLOG_CFG)
-   AC_SUBST(SYSLOG_LIBS)
-   AC_SUBST(SYSLOG_ARGS)
+   AC_ARG_VAR(YUM_EXISTS, [Yum program])
+   AC_CHECK_PROG(YUM_EXISTS, yum, "true", "false", $PATH:/usr/bin)
 ])
+

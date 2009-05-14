@@ -31,6 +31,8 @@ Requires: sipxcommserverlib >= 3.11
 Requires: sipxtools >= 3.11
 
 Requires: httpd >= 2.0
+Requires: rsyslog
+Requires: glibc-common
 
 # sending email - an smtp listener must be running on localhost
 %if %{_vendor} == redhat
