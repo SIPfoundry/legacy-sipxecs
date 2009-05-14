@@ -119,6 +119,19 @@ RegistrationBinding::RegistrationBinding(const UtlHashMap& regData) :
    }
 }
 
+RegistrationBinding::~RegistrationBinding()
+{
+   delete mIdentity;
+   delete mUri;
+   delete mCallId;
+   delete mContact;
+   delete mQvalue;
+   delete mInstanceId;
+   delete mGruu;
+   delete mPath;
+   delete mPrimary;
+}
+
 void RegistrationBinding::copy(UtlHashMap& map) const
 {
    if (mIdentity)
@@ -238,15 +251,15 @@ void RegistrationBinding::setUri(const Url& uri)
       mUri = new Url(uri);
    }
 }
-void RegistrationBinding::setUri(const UtlString& uri)
+void RegistrationBinding::setUri(const char* uri)
 {
    if (mUri)
    {
-      *mUri = uri;
+      *mUri = uri;              // name-addr format
    }
    else
    {
-      mUri = new Url(uri);
+      mUri = new Url(uri);      // name-addr format
    }
 }
 

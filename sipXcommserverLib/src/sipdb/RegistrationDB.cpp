@@ -1008,17 +1008,17 @@ RegistrationBinding*
 RegistrationDB::copyRowToRegistrationBinding(dbCursor<RegistrationRow>& cursor) const
 {
    RegistrationBinding *reg = new RegistrationBinding();
-   reg->setUri(* new UtlString(cursor->uri));
-   reg->setCallId(* new UtlString(cursor->callid));
-   reg->setContact(* new UtlString(cursor->contact));
-   reg->setQvalue(* new UtlString(cursor->qvalue));
-   reg->setInstanceId(* new UtlString(cursor->instance_id));
-   reg->setGruu(* new UtlString(cursor->gruu));
-   reg->setPath(* new UtlString(cursor->path));
-   reg->setCseq(cursor->cseq);
-   reg->setExpires(cursor->expires);
-   reg->setPrimary(* new UtlString(cursor->primary));
-   reg->setUpdateNumber(cursor->update_number);
+   reg->setUri( cursor->uri );
+   reg->setCallId( cursor->callid );
+   reg->setContact( cursor->contact );
+   reg->setQvalue( cursor->qvalue );
+   reg->setInstanceId( cursor->instance_id );
+   reg->setGruu( cursor->gruu );
+   reg->setPath( cursor->path );
+   reg->setCseq( cursor->cseq );
+   reg->setExpires( cursor->expires );
+   reg->setPrimary( cursor->primary );
+   reg->setUpdateNumber( cursor->update_number );
    return reg;
 }
 
