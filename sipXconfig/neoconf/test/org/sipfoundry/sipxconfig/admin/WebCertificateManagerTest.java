@@ -16,48 +16,30 @@ import java.util.Properties;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.domain.Domain;
-import org.sipfoundry.sipxconfig.domain.DomainConfiguration;
-import org.sipfoundry.sipxconfig.domain.DomainManagerImpl;
-import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
+import org.easymock.EasyMock;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class WebCertificateManagerTest extends TestCase {
 
-    private WebCertificateManagerImpl manager;
-    private DomainManagerMock domainManager;
-
-    private class DomainManagerMock extends DomainManagerImpl {
-        @Override
-        public Domain getDomain() {
-            return new DomainMock();
-        }
-
-        @Override
-        protected DomainConfiguration createDomainConfiguration() {
-            return null;
-        }
-
-        @Override
-        protected ServiceConfigurator getServiceConfigurator() {
-            return null;
-        }
-    }
-
-    private class DomainMock extends Domain {
-        @Override
-        public String getName() {
-            return "test.org";
-        }
-    }
+    private WebCertificateManagerImpl m_manager;
+    private LocationsManager m_locationsManager;
+    private Location m_primaryLocation;
 
     @Override
     protected void setUp() {
-        manager = new WebCertificateManagerImpl();
-        manager.setCertDirectory(TestUtil.getTestSourceDirectory(this.getClass()));
-        manager.setSslDirectory(TestUtil.getTestSourceDirectory(this.getClass()));
-        domainManager = new DomainManagerMock();
-        manager.setDomainManager(domainManager);
+        m_manager = new WebCertificateManagerImpl();
+        m_manager.setCertDirectory(TestUtil.getTestSourceDirectory(this.getClass()));
+        m_manager.setSslDirectory(TestUtil.getTestSourceDirectory(this.getClass()));
+
+        m_primaryLocation = TestUtil.createDefaultLocation();
+
+        m_locationsManager = EasyMock.createMock(LocationsManager.class);
+        m_locationsManager.getPrimaryLocation();
+        EasyMock.expectLastCall().andReturn(m_primaryLocation).anyTimes();
+        EasyMock.replay(m_locationsManager);
+        m_manager.setLocationsManager(m_locationsManager);
     }
 
     public void testWriteAndLoadCertPropertiesFile() {
@@ -68,30 +50,30 @@ public class WebCertificateManagerTest extends TestCase {
         prop1.put("localityName", "Austin");
         prop1.put("organizationName", "Test Organization");
         prop1.put("serverEmail", "test@test.org");
-        manager.writeCertPropertiesFile(prop1);
+        m_manager.writeCertPropertiesFile(prop1);
 
         // load properties from file
-        Properties prop2 = manager.loadCertPropertiesFile();
+        Properties prop2 = m_manager.loadCertPropertiesFile();
         assertEquals("US", prop2.get("countryName"));
         assertEquals("Texas", prop2.get("stateOrProvinceName"));
         assertEquals("Austin", prop2.get("localityName"));
         assertEquals("Test Organization", prop2.get("organizationName"));
         assertEquals("test@test.org", prop2.get("serverEmail"));
 
-        //cleanup
-        File propertiesFile = new File(TestUtil.getTestSourceDirectory(this.getClass()),"webCert.properties");
+        // cleanup
+        File propertiesFile = new File(TestUtil.getTestSourceDirectory(this.getClass()), "webCert.properties");
         assertTrue(propertiesFile.delete());
     }
 
     public void testGetCRTFilePath() {
         assertEquals(TestUtil.getTestSourceDirectory(this.getClass()) + File.separator
-                + domainManager.getDomain().getName() + "-web.crt", manager.getCRTFile().getPath());
+                + m_locationsManager.getPrimaryLocation().getFqdn() + "-web.crt", m_manager.getCRTFile().getPath());
     }
 
     public void testWriteCRTFile() throws Exception {
         String certificate = new String("TEST");
-        manager.writeCRTFile(certificate);
-        BufferedReader reader = new BufferedReader(new FileReader(manager.getCRTFile()));
+        m_manager.writeCRTFile(certificate);
+        BufferedReader reader = new BufferedReader(new FileReader(m_manager.getCRTFile()));
         String line = reader.readLine();
         assertEquals("TEST", line);
         assertNull(reader.readLine());

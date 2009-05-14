@@ -21,8 +21,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.domain.DomainManager;
 
 /**
  * Backup provides Java interface to backup scripts
@@ -50,7 +50,7 @@ public class WebCertificateManagerImpl implements WebCertificateManager {
 
     private String m_sslDirectory;
 
-    private DomainManager m_domainManager;
+    private LocationsManager m_locationsManager;
 
     public void setBinDirectory(String binDirectory) {
         m_binDirectory = binDirectory;
@@ -64,8 +64,8 @@ public class WebCertificateManagerImpl implements WebCertificateManager {
         m_sslDirectory = sslDirectory;
     }
 
-    public void setDomainManager(DomainManager domainManager) {
-        m_domainManager = domainManager;
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
     }
 
     public Properties loadCertPropertiesFile() {
@@ -107,7 +107,7 @@ public class WebCertificateManagerImpl implements WebCertificateManager {
     }
 
     public String readCSRFile() {
-        File csrFile = new File(m_certDirectory, getDomainName() + "-web.csr");
+        File csrFile = new File(m_certDirectory, getPrimaryServerFqdn() + "-web.csr");
         try {
             return FileUtils.readFileToString(csrFile, "US-ASCII");
         } catch (FileNotFoundException e) {
@@ -138,7 +138,7 @@ public class WebCertificateManagerImpl implements WebCertificateManager {
     }
 
     public File getCRTFile() {
-        return new File(m_certDirectory, getDomainName() + "-web.crt");
+        return new File(m_certDirectory, getPrimaryServerFqdn() + "-web.crt");
     }
 
     public void writeCRTFile(String crt) {
@@ -156,7 +156,7 @@ public class WebCertificateManagerImpl implements WebCertificateManager {
             return;
         }
 
-        File sourceKey = new File(m_certDirectory, getDomainName() + "-web.key");
+        File sourceKey = new File(m_certDirectory, getPrimaryServerFqdn() + "-web.key");
         if (!sourceKey.exists()) {
             return;
         }
@@ -164,9 +164,8 @@ public class WebCertificateManagerImpl implements WebCertificateManager {
         try {
             Runtime runtime = Runtime.getRuntime();
             String[] cmdLine = new String[] {
-                m_binDirectory + GEN_SSL_KEYS_SH, WORKDIR_FLAG, m_certDirectory,
-                "--pkcs", WEB_ONLY, DEFAULTS_FLAG, PARAMETERS_FLAG,
-                PROPERTIES_FILE,
+                m_binDirectory + GEN_SSL_KEYS_SH, WORKDIR_FLAG, m_certDirectory, "--pkcs", WEB_ONLY, DEFAULTS_FLAG,
+                PARAMETERS_FLAG, PROPERTIES_FILE,
             };
             Process proc = runtime.exec(cmdLine);
             LOG.debug(RUNNING + StringUtils.join(cmdLine, BLANK));
@@ -178,10 +177,10 @@ public class WebCertificateManagerImpl implements WebCertificateManager {
             File destinationKey = new File(m_sslDirectory, "ssl-web.key");
             FileUtils.copyFile(sourceCertificate, destinationCertificate);
             FileUtils.copyFile(sourceKey, destinationKey);
-            File sourceKeyStore = new File(m_certDirectory, getDomainName() + "-web.keystore");
+            File sourceKeyStore = new File(m_certDirectory, getPrimaryServerFqdn() + "-web.keystore");
             File destinationKeyStore = new File(m_sslDirectory, "ssl-web.keystore");
             FileUtils.copyFile(sourceKeyStore, destinationKeyStore);
-            File sourcePkcsKeyStore = new File(m_certDirectory, getDomainName() + "-web.p12");
+            File sourcePkcsKeyStore = new File(m_certDirectory, getPrimaryServerFqdn() + "-web.p12");
             File destinationPkcsKeyStore = new File(m_sslDirectory, "ssl-web.p12");
             FileUtils.copyFile(sourcePkcsKeyStore, destinationPkcsKeyStore);
         } catch (Exception e) {
@@ -189,7 +188,7 @@ public class WebCertificateManagerImpl implements WebCertificateManager {
         }
     }
 
-    private String getDomainName() {
-        return m_domainManager.getDomain().getName();
+    private String getPrimaryServerFqdn() {
+        return m_locationsManager.getPrimaryLocation().getFqdn();
     }
 }

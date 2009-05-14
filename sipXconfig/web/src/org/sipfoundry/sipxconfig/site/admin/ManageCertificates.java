@@ -20,10 +20,10 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.request.IUploadFile;
 import org.sipfoundry.sipxconfig.admin.WebCertificateManager;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.domain.DomainManager;
 
 public abstract class ManageCertificates extends BasePage implements PageBeginRenderListener {
 
@@ -43,8 +43,8 @@ public abstract class ManageCertificates extends BasePage implements PageBeginRe
     @InjectObject(value = "spring:webCertificateManagerImpl")
     public abstract WebCertificateManager getWebCertificateManager();
 
-    @InjectObject(value = "spring:domainManager")
-    public abstract DomainManager getDomainManager();
+    @InjectObject(value = "spring:locationsManager")
+    public abstract LocationsManager getLocationsManager();
 
     @Persist
     @InitialValue(value = "literal:generate")
@@ -90,7 +90,7 @@ public abstract class ManageCertificates extends BasePage implements PageBeginRe
             return;
         }
 
-        setServer(getDomainManager().getDomain().getName());
+        setServer(getLocationsManager().getPrimaryLocation().getFqdn());
 
         SipxValidationDelegate validator = (SipxValidationDelegate) TapestryUtils.getValidator(this);
 
