@@ -97,7 +97,16 @@ else
   ZONE_PATH="/var/named"
 fi
 
-if [ "${myHostname}" = "${myZonedns}" ]
+# Check each of the zone DNS servers.
+genZone=0
+for zoneHost in ${myZonedns}; do
+    if [ "${myHostname}" = "${zoneHost}" ]
+    then
+       genZone=1
+    fi
+done
+
+if [ ${genZone} -ne 0 ]
 then
     echo "Generating DNS record for secondary server"
     cat > "${INITIAL_CONFIG}/etc/named.conf" <<EOF
