@@ -145,7 +145,7 @@ public:
     /// Get all bindings expiring before newerThanTime.
     void getAllOldBindings (/// Get bindings expiring before newerThanTime
                             int newerThanTime,
-                            /// Return their AORs in rAors.
+                            /// Return their AORs (name-addrs) in rAors.
                             UtlHashBag& rAors) const;
 
     void removeAllRows ();

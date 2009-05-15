@@ -106,7 +106,7 @@ SubscriptionDB::~SubscriptionDB()
 void
 SubscriptionDB::releaseInstance()
 {
-    OsSysLog::add(FAC_DB, PRI_DEBUG, "<><>## SubscriptionDB:: releaseInstance() spInstance=%p", spInstance);
+    OsSysLog::add(FAC_DB, PRI_DEBUG, "<><>## SubscriptionDB::releaseInstance() spInstance=%p", spInstance);
 
     // Critical Section here
     OsLock lock( sLockMutex );
@@ -1164,7 +1164,7 @@ void SubscriptionDB::updateToTag(
    ) const
 {
    bool match_found = FALSE;
-   OsSysLog::add(FAC_DB, PRI_DEBUG, "SubscriptionDB::updateFromAndTo callid = '%s', fromtag = '%s', totag = '%s'",
+   OsSysLog::add(FAC_DB, PRI_DEBUG, "SubscriptionDB::updateToTag callid = '%s', fromtag = '%s', totag = '%s'",
                  callid.data(), fromtag.data(), totag.data());
 
    if ( m_pFastDB != NULL )
@@ -1191,7 +1191,7 @@ void SubscriptionDB::updateToTag(
             // Get the tag on the URI in the "from" column.
             Url from_uri(cursor->fromUri, FALSE);
             r = from_uri.getFieldParameter("tag", seen_tag);
-            OsSysLog::add(FAC_DB, PRI_DEBUG, "SubscriptionDB::updateFromAndTo cursor->fromUri = '%s', cursor->toUri = '%s', seen_tag = '%s'",
+            OsSysLog::add(FAC_DB, PRI_DEBUG, "SubscriptionDB::updateToTag cursor->fromUri = '%s', cursor->toUri = '%s', seen_tag = '%s'",
                           cursor->fromUri, cursor->toUri, seen_tag.data());
 
             // If it matches...
@@ -1204,7 +1204,7 @@ void SubscriptionDB::updateToTag(
                {
                   toUri.setFieldParameter("tag", totag);
                   toUri.toString(dummy); // un-parse as name-addr
-                  OsSysLog::add(FAC_DB, PRI_DEBUG, "SubscriptionDB::updateFromAndTo cursor->toUri = '%s'",
+                  OsSysLog::add(FAC_DB, PRI_DEBUG, "SubscriptionDB::updateToTag cursor->toUri = '%s'",
                                 dummy.data());
                   cursor->toUri = dummy.data();
                   cursor.update();
@@ -1246,15 +1246,15 @@ UtlBoolean SubscriptionDB::findFromAndTo(
             UtlString seen_tag;
             
             // Get the tag on the URI in the "from" column.
-            Url from(cursor->fromUri, FALSE);
-            r = from.getUrlParameter("tag", seen_tag);
+            Url fromUri(cursor->fromUri, FALSE);
+            r = fromUri.getFieldParameter("tag", seen_tag);
 
             // If it matches...
             if (r && seen_tag.compareTo(fromtag) == 0)
             {
                // Get the tag on the URI in the "to" column.
-               Url to(cursor->toUri, FALSE);
-               r = to.getUrlParameter("tag", seen_tag);
+               Url toUri(cursor->toUri, FALSE);
+               r = toUri.getFieldParameter("tag", seen_tag);
 
                // If it matches...
                if (r && seen_tag.compareTo(totag) == 0)

@@ -1328,9 +1328,9 @@ SipRedirectorPickUp::addCredentials (UtlString domain, UtlString realm)
       else
       {
          OsSysLog::add(FAC_SIP, PRI_ERR,
-                       "No credential found for '%s' in realm '%s'\n"
+                       "No credential found for '%s' in realm '%s'. "
                        "Call Pickup will not work!"
-                       ,identity.toString().data(), domain.data(), realm.data()
+                       ,identity.toString().data(), realm.data()
                        );
       }
       

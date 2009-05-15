@@ -893,7 +893,7 @@ UtlBoolean SipSubscriptionMgr::endSubscription(const UtlString& dialogHandle)
 		   UtlString requestContact;
 		   state->mpLastSubscribeRequest->getContactField(0, requestContact);
 		   OsSysLog::add(FAC_SIP, PRI_DEBUG,
-				 "SipSubscriptionMgr::endSubscription delete subscription for dialog handle '%s', key '%s', contact '%s', mExpirationDate %ld",
+				 "SipSubscriptionMgr::endSubscription Delete subscription for dialog handle '%s', key '%s', contact '%s', mExpirationDate %ld",
 				 state->data(), stateIndex->data(),
                                  requestContact.data(), state->mExpirationDate);
                 }

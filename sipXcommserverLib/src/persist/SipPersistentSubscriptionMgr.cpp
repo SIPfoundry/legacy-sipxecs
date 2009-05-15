@@ -475,7 +475,11 @@ UtlBoolean SipPersistentSubscriptionMgr::endSubscription(const UtlString& dialog
       SipDialog::parseHandle(dialogHandle.data(),
                              callId, localTag, remoteTag);
       UtlString from, to;
-      if (mSubscriptionDBInstance->findFromAndTo(callId, remoteTag, localTag,
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipPersistentSubscriptionMgr::endSubscription callId = '%s', localTag = '%s', remoteTag = '%s'",
+                    callId.data(), localTag.data(), remoteTag.data());
+
+      if (mSubscriptionDBInstance->findFromAndTo(callId, localTag, remoteTag,
                                                  from, to))
       {
          // We use the largest possible CSeq number here, as we assume
@@ -484,8 +488,7 @@ UtlBoolean SipPersistentSubscriptionMgr::endSubscription(const UtlString& dialog
          // machinery makes that assumption, and does not provide us with the CSeq
          // value, nor with the event type and id, which are necessary to uniquely
          // identify a subscription.  (See RFC 3265, section 7.2.1.)
-         mSubscriptionDBInstance->removeRow(mComponent, callId,
-                                            to, from,
+         mSubscriptionDBInstance->removeRow(mComponent, to, from, callId,
                                             0x7FFFFFFF);
 
          // Start the save timer.
@@ -495,7 +498,7 @@ UtlBoolean SipPersistentSubscriptionMgr::endSubscription(const UtlString& dialog
       {
          OsSysLog::add(FAC_SIP, PRI_WARNING,
                        "SipPersistentSubscriptionMgr::endSubscription "
-                       "cannot find subscription for dialog handle '%s'",
+                       "Cannot find subscription for dialog handle '%s'",
                        dialogHandle.data());
       }
    }

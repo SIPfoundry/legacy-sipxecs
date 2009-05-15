@@ -1123,11 +1123,11 @@ SipLineMgr::addCredentialForLine(
         return false;
     }
 
-    if (!line->addCredentials(strRealm , strUserID, md5Token, type))
+    if (!line->addCredentials(strRealm, strUserID, md5Token, type))
     {
         line = NULL;
         OsSysLog::add(FAC_LINE_MGR, PRI_ERR,
-                      "SipLineMgr::addCredentialForLine addCredential failed for"
+                      "SipLineMgr::addCredentialForLine addCredentials failed for"
                       " identity '%s' user '%s' realm '%s'",
                       identity.toString().data(), strUserID.data(), strRealm.data()
                       );
