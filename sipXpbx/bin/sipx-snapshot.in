@@ -803,6 +803,28 @@ echo ======== TZ=UTC $command  > ${DirListing}
 echo                          >> ${DirListing}
 TZ=UTC $command               >> ${DirListing}
 
+# Backtrace all sipX processes
+
+Backtrace=${Work}/Backtrace
+echo ======== Backtrace of all sipX processes > ${Backtrace}
+for PID_FILE in ~/sandbox-147/dir-local/var/run/sipxpbx/*.pid
+do
+    PID=$( cat $PID_FILE )
+    echo
+    echo Process ${PID_FILE%.pid} number $PID
+    echo
+    if [[ -n "$PID" ]]
+    then
+	time \
+	    gdb < /dev/null \
+	    -eval-command "attach $PID" \
+	    -eval-command 'thread apply all backtrace' \
+	    -eval-command detach \
+	    -eval-command quit
+    fi
+    echo
+done >> ${Backtrace} 2>&1
+
 # Collect sipX configuration information
 echo "" >> ${SystemConfig}
 
