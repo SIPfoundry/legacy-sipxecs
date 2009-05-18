@@ -25,7 +25,10 @@ public class RestartNeededState {
     private final Map<String, Set<String>> m_cache = new HashMap<String, Set<String>>();
 
     Set<String> getServices(Location location) {
-        String fqdn = location.getFqdn();
+        return getServices(location.getFqdn());
+    }
+
+    Set<String> getServices(String fqdn) {
         Set<String> services = m_cache.get(fqdn);
         if (services == null) {
             services = new HashSet<String>();
@@ -53,6 +56,17 @@ public class RestartNeededState {
     public void unmark(Location location, Collection< ? extends SipxService> services) {
         for (SipxService sipxService : services) {
             unmark(location, sipxService);
+        }
+    }
+
+    public void unmark(RestartNeededService serviceToRestart) {
+        Set<String> services = getServices(serviceToRestart.getLocation());
+        services.remove(serviceToRestart.getServiceBeanId());
+    }
+
+    public void unmark(Collection<RestartNeededService> servicesToUnmark) {
+        for (RestartNeededService service : servicesToUnmark) {
+            unmark(service);
         }
     }
 

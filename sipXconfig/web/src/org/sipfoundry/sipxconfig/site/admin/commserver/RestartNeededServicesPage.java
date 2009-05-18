@@ -108,4 +108,16 @@ public abstract class RestartNeededServicesPage extends BasePage implements Page
         }
         return map;
     }
+
+    public void ignore() {
+        Collection<RestartNeededService> beans = getSelections().getAllSelected();
+        if (beans == null) {
+            return;
+        }
+
+        getSipxProcessContext().unmarkServicesToRestart(beans);
+
+        // Forces a page refresh
+        setRestartNeededServices(null);
+    }
 }
