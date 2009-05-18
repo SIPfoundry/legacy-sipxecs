@@ -29,7 +29,7 @@ public class RuleValidator extends BaseValidator {
             // only validate enabled rules
             return;
         }
-        if (!rule.isInternal() && rule.getGateways().size() <= 0) {
+        if (!rule.isEnablable()) {
             // rule is invalid - external rules have to have gateways
             rule.setEnabled(false);
             throw new ValidatorException(getMessage(), ValidationConstraint.CONSISTENCY);

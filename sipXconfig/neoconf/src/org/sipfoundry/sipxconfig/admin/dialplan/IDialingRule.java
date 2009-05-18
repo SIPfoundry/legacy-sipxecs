@@ -72,4 +72,10 @@ public interface IDialingRule {
      * @return ip addresses, host names, or variables
      */
     public abstract String[] getHostPatterns();
+    
+    /**
+     * Determines if the affected rule is enablable or not  
+     * @return
+     */
+    boolean isEnablable();
 }

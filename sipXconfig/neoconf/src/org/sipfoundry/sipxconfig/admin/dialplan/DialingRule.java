@@ -159,6 +159,10 @@ public abstract class DialingRule extends BeanWithId implements DataCollectionIt
             Integer id = i.next();
             m_gateways.remove(new BeanWithId(id));
         }
+
+        if (!isEnablable()) {
+            m_enabled = false;
+        }
     }
 
     /**
@@ -250,5 +254,12 @@ public abstract class DialingRule extends BeanWithId implements DataCollectionIt
         Map<String, List<Transform>> siteTransforms = new HashMap<String, List<Transform>>(1);
         siteTransforms.put(StringUtils.EMPTY, Arrays.asList(transforms));
         return siteTransforms;
+    }
+    
+    /**
+     * Only internal rules or rules with gateways can be enabled
+     */
+    public boolean isEnablable() {
+        return isInternal() || m_gateways.size() > 0;
     }
 }
