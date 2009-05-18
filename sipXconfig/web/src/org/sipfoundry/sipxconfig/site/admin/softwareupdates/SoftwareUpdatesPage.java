@@ -17,18 +17,24 @@ import java.util.List;
 import org.apache.tapestry.IAsset;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.Asset;
+import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
+import org.apache.tapestry.event.PageBeginRenderListener;
+import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.update.PackageUpdate;
 import org.sipfoundry.sipxconfig.admin.update.PackageUpdateManager;
+import org.sipfoundry.sipxconfig.admin.update.PackageUpdateManager.UpdaterState;
 import org.sipfoundry.sipxconfig.admin.update.SynchronousPackageUpdate;
+import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.site.admin.WaitingPage;
 
 import static org.sipfoundry.sipxconfig.admin.update.PackageUpdateManager.UpdaterState.UPDATES_AVAILABLE;
 
-public abstract class SoftwareUpdatesPage extends BasePage {
+public abstract class SoftwareUpdatesPage extends BasePage implements PageBeginRenderListener {
 
     public static final Object PAGE = "admin/softwareupdates/SoftwareUpdatesPage";
 
@@ -60,6 +66,13 @@ public abstract class SoftwareUpdatesPage extends BasePage {
 
     public abstract PackageUpdate getPackage();
 
+    public abstract void setCurrentVersion(String version);
+
+    public abstract String getCurrentVersion();
+
+    @Bean
+    public abstract SipxValidationDelegate getValidator();
+
     public Format getDateFormat() {
         return DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.SHORT, getPage().getLocale());
     }
@@ -68,8 +81,19 @@ public abstract class SoftwareUpdatesPage extends BasePage {
         return getPackageUpdateManager().getState().equals(UPDATES_AVAILABLE);
     }
 
-    public String getCurrentVersion() {
-        return getPackageUpdateManager().getCurrentVersion();
+    public void pageBeginRender(PageEvent event) {
+        if (getPackageUpdateManager().getState().equals(UpdaterState.NO_UPDATES_AVAILABLE)
+                && getCurrentVersion() == null) {
+            try {
+                setCurrentVersion(getPackageUpdateManager().getCurrentVersion());
+            } catch (UserException e) {
+                getValidator().record(e, getMessages());
+            }
+        }
+        UserException passedException = getPackageUpdateManager().getUserException();
+        if (passedException != null) {
+            getValidator().record(passedException, getMessages());
+        }
     }
 
     public void checkForUpdates() {
@@ -80,5 +104,14 @@ public abstract class SoftwareUpdatesPage extends BasePage {
         WaitingPage waitingPage = getWaitingPage();
         waitingPage.setWaitingListener(new SynchronousPackageUpdate(getPackageUpdateManager()));
         return waitingPage;
+    }
+
+    public String getFormattedCurrentVersion() {
+        String currentVersion = getCurrentVersion();
+        if (currentVersion == null) {
+            return getMessages().getMessage("label.version.undetermined");
+        } else {
+            return getMessages().format("label.version", getCurrentVersion());
+        }
     }
 }

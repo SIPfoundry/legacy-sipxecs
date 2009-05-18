@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -50,6 +49,12 @@ public class PackageUpdateManagerImpl implements Serializable, PackageUpdateMana
 
     private boolean m_yumCapable;
 
+    private UserException m_userException;
+
+    public UserException getUserException() {
+        return m_userException;
+    }
+
     public List<PackageUpdate> getAvailablePackages() {
         return m_availablePackages;
     }
@@ -68,11 +73,13 @@ public class PackageUpdateManagerImpl implements Serializable, PackageUpdateMana
 
     public Future<Boolean> checkForUpdates() {
         m_state = UpdaterState.CHECKING_FOR_UPDATES;
+        m_userException = null;
         return m_updateExecutor.submit(new CheckForUpdatesTask());
     }
 
     public Future< ? > installUpdates() {
         m_state = UpdaterState.INSTALLING;
+        m_userException = null;
         Runnable task = new Runnable() {
             public void run() {
                 m_updateApi.installUpdates();
@@ -96,7 +103,7 @@ public class PackageUpdateManagerImpl implements Serializable, PackageUpdateMana
             m_currentVersion = future.get();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
-        } catch (ExecutionException e) {
+        } catch (Exception e) {
             throw new UserException(e);
         }
         return m_currentVersion;
@@ -116,24 +123,31 @@ public class PackageUpdateManagerImpl implements Serializable, PackageUpdateMana
      */
     class CheckForUpdatesTask implements Callable<Boolean> {
         public Boolean call() throws Exception {
-            m_lastCheckedDate = new Date();
-            m_availablePackages = m_updateApi.getAvailableUpdates();
-            if (CollectionUtils.isEmpty(m_availablePackages)) {
-                m_state = UpdaterState.NO_UPDATES_AVAILABLE;
-            } else {
-                m_state = UpdaterState.UPDATES_AVAILABLE;
-                String alarmData = buildAvailablePackagesString();
-                m_alarmContext.raiseAlarm("SOFTWARE_UPDATE_AVAILABLE", alarmData);
-            }
-
-            for (PackageUpdate update : m_availablePackages) {
-                if (update.getPackageName().equals("sipxecs")) {
-                    m_updatedVersion = String.format("sipxecs %s", update.getUpdatedVersion());
+            try {
+                m_lastCheckedDate = new Date();
+                m_availablePackages = m_updateApi.getAvailableUpdates();
+                if (CollectionUtils.isEmpty(m_availablePackages)) {
+                    m_state = UpdaterState.NO_UPDATES_AVAILABLE;
+                } else {
+                    m_state = UpdaterState.UPDATES_AVAILABLE;
+                    String alarmData = buildAvailablePackagesString();
+                    m_alarmContext.raiseAlarm("SOFTWARE_UPDATE_AVAILABLE", alarmData);
                 }
+
+                for (PackageUpdate update : m_availablePackages) {
+                    if (update.getPackageName().equals("sipxecs")) {
+                        m_updatedVersion = String.format("sipxecs %s", update.getUpdatedVersion());
+                    }
+                }
+                return !m_availablePackages.isEmpty();
+            } catch (Exception e) {
+                m_state = UpdaterState.ERROR;
+                m_userException = new UserException(e);
+                return false;
             }
-            return !m_availablePackages.isEmpty();
         }
     }
+
 
     @Required
     public void setUpdateApi(UpdateApi updateApi) {
