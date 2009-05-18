@@ -72,7 +72,6 @@
     <property name="adminContext" ref="adminContext" />
     <property name="domainManager" ref="domainManager" />
     <property name="resetDialPlanTask" ref="resetDialPlanTask" />
-    <property name="alarmContext" ref="alarmContext" />
     <property name="gatewayContext" ref="gatewayContext" />
     <property name="phoneContext" ref="phoneContext" />
     <property name="gatewayProfileManager" ref="gatewayProfileManager" />

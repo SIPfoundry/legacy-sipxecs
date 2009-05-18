@@ -24,6 +24,7 @@ import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.device.ModelSource;
+import org.sipfoundry.sipxconfig.upload.DefaultSystemFirmwareInstall;
 import org.sipfoundry.sipxconfig.upload.Upload;
 import org.sipfoundry.sipxconfig.upload.UploadManager;
 import org.sipfoundry.sipxconfig.upload.UploadSpecification;
@@ -37,6 +38,9 @@ public abstract class ManageUploads extends BasePage implements PageBeginRenderL
 
     @InjectObject(value = "spring:uploadManager")
     public abstract UploadManager getUploadManager();
+
+    @InjectObject(value = "spring:defaultSystemFirmwareInstall")
+    public abstract DefaultSystemFirmwareInstall getDefaultSystemFirmwareInstall();
 
     @InjectObject(value = "spring:uploadSpecificationSource")
     public abstract ModelSource<UploadSpecification> getUploadSpecificationSource();
@@ -92,6 +96,12 @@ public abstract class ManageUploads extends BasePage implements PageBeginRenderL
 
     public void inactivate() {
         setDeployed(false);
+    }
+
+    public void installFirmware() {
+        // force reload
+        setUpload(null);
+        getDefaultSystemFirmwareInstall().installAvailableFirmwares();
     }
 
     private void setDeployed(boolean deploy) {

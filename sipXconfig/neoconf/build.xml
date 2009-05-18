@@ -111,6 +111,7 @@
       <replacefilter token="@sipxconfig.upload.dir@" property="sipxconfig.upload.dir" />
       <replacefilter token="@sipxconfig.phonebook.dir@" property="sipxconfig.phonebook.dir" />
       <replacefilter token="@sipxconfig.phone.dir@" property="sipxconfig.phone.dir" />
+      <replacefilter token="@sipxpbx.default.firmware@" property="sipxpbx.default.firmware" />
       <replacefilter token="@sipxpbx.tmp.dir@" property="sipxpbx.tmp.dir" />
       <replacefilter token="@sipxvxml.data.dir@" property="sipxvxml.data.dir" />
       <replacefilter token="@sipxpark.audio.dir@" property="sipxpark.audio.dir" />
@@ -247,6 +248,7 @@
     <mkdir dir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot" />
     <mkdir dir="${dest.dir}${sipxconfig.phonebook.dir}" />
     <mkdir dir="${dest.dir}${sipxpbx.log.dir}" />
+    <mkdir dir="${dest.dir}${sipxpbx.default.firmware}" />
 
     <copy todir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot" file="etc/ciscoIp/syncinfo.xml" />
     <copy todir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot" file="etc/ciscoAta/sipx7912.logo" />
