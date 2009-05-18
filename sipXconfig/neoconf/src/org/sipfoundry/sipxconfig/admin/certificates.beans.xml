@@ -16,7 +16,7 @@
 	<property name="binDirectory" value="${sysdir.bin}"/>
     <property name="certDirectory" value="${sysdir.var}/configserver/web-cert"/>
 	<property name="sslDirectory" value="${sysdir.etc}/ssl"/>
-    <property name="domainManager" ref="domainManager"/>
+    <property name="locationsManager" ref="locationsManager"/>
   </bean>
 
 </beans>
