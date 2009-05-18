@@ -612,15 +612,21 @@ public class BackToBackUserAgent {
             /*
              * Do not set maddr parameter here. This is the refer target. The
              * phone sets it. We do not want to override the port. See
-             * XECS-2480.
+             * XECS-2480. We do not want to set the transport here either.
              */
             SipURI uri = (SipURI) referToHeader.getAddress().getURI().clone();
-            uri.setTransportParam(proxyAddress.getTransport());
+           
 
             CSeqHeader cseq = ProtocolObjects.headerFactory.createCSeqHeader(
                     1L, Request.INVITE);
-            ViaHeader viaHeader = SipUtilities.createViaHeader(Gateway
-                    .getLanProvider(), Gateway.getSipxProxyTransport());
+            ViaHeader viaHeader = null;
+            if (uri.getTransportParam() != null) {
+                viaHeader = SipUtilities.createViaHeader(Gateway
+                    .getLanProvider(), uri.getTransportParam() );
+            } else {
+                viaHeader = SipUtilities.createViaHeader(Gateway
+                        .getLanProvider(), "UDP");
+            }
             List viaList = new LinkedList();
             viaList.add(viaHeader);
             MaxForwardsHeader maxForwards = ProtocolObjects.headerFactory
@@ -1073,9 +1079,11 @@ public class BackToBackUserAgent {
                 }
                 toHeader.removeParameter("tag");
             }
-
+            
+            String transport = proxyAddress.getTransport().equalsIgnoreCase("TLS") ? "TLS": "UDP";
+            
             ViaHeader viaHeader = SipUtilities.createViaHeader(Gateway
-                    .getLanProvider(), Gateway.getSipxProxyTransport());
+                    .getLanProvider(), transport);
             viaHeader.setParameter(ORIGINATOR, Gateway.SIPXBRIDGE_USER);
 
             List<ViaHeader> viaList = new LinkedList<ViaHeader>();
@@ -1148,8 +1156,10 @@ public class BackToBackUserAgent {
             SipURI sipUri = (SipURI) newRequest.getRequestURI();
             sipUri.setMAddrParam(proxyAddress.getHost());
             sipUri.setPort(proxyAddress.getPort());
-            sipUri.setTransportParam(proxyAddress.getTransport());
-
+           if ( transport.equalsIgnoreCase("tls")) {
+                sipUri.setTransportParam(transport);
+            }
+        
             SipUtilities.addLanAllowHeaders(newRequest);
 
             TransactionContext tad = new TransactionContext(ct,
