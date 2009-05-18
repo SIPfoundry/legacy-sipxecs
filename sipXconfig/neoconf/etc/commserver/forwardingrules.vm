@@ -76,17 +76,30 @@
     <routeDnsWildcard>$domain</routeDnsWildcard>
 #end
 
-    <routeTo authRequired="true">${auxSbc.sbcDevice.address}</routeTo>
+    <routeTo authRequired="true">${auxSbc.sbcDevice.route}</routeTo>
   </route>
 #end
 #end
+#foreach($bridgeSbc in $bridgeSbcs)
+#foreach($sipTrunk in ${bridgeSbc.mySipTrunks})
+
+  <route mappingType="itspname-callback">
+    <description>
+      Route url-dialed calls for itspname to the sipXbridge.
+    </description>
+    <routeFrom>${sipTrunk.Settings.getSetting("itsp-account").getSetting("itsp-proxy-domain").value}</routeFrom>
+    <routeTo authRequired='true'>${bridgeSbc.route}</routeTo>
+  </route>
+#end
+#end
+
   <route mappingType="external destinations">
     <description>Any foreign domain - route via session border.</description>
 
     <routeDnsWildcard>*</routeDnsWildcard>
     <routeIPv4subnet>0/0</routeIPv4subnet>
 
-    <routeTo authRequired="true">${sbc.sbcDevice.address}</routeTo>
+    <routeTo authRequired="true">${sbc.sbcDevice.route}</routeTo>
   </route>
 #end
 </routes>
