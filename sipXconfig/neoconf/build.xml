@@ -124,6 +124,7 @@
       <replacefilter token="@mrtg-enabled@" property="mrtg-enabled" />
       <replacefilter token="@debug@" property="debug" />
       <replacefilter token="@sipxpbx.libexec.dir@" property="sipxpbx.libexec.dir" />
+      <replacefilter token="@YUM_EXISTS@" property="yum_exists"/>
     </replace>
 
     <rename dest="${dest.dir}${sipxpbx.conf.dir}/sipxconfig.properties"

@@ -79,5 +79,8 @@ acdQueue.audioDirectory=@sipxconfig.phone.dir@/acd/audio
 presenceServer.enabled=true
 mailboxManagerImpl.mailstoreDirectory=@sipxvxml.data.dir@/mailstore
 
+# yum command exists on system?
+packageUpdateManager.yumCapable=@YUM_EXISTS@
+
 # ======= BEGIN NEW INSTALLATION SETTINGS =================
 

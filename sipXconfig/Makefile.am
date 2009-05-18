@@ -13,7 +13,8 @@ edit = $(LocalizeSipXconfig) \
     -e 's,@SIPX_PAGEMUSICDIR\@,@SIPX_PAGEMUSICDIR@,g' \
     -e 's,@SIPFOUNDRY_ORG\@,@SIPFOUNDRY_ORG@,g' \
     -e 's,@SIPX_DOWNLOADDIR\@,@SIPX_DOWNLOADDIR@,g' \
-    -e 's,@MRTG_BINARY\@,@MRTG_BINARY@,g'
+    -e 's,@MRTG_BINARY\@,@MRTG_BINARY@,g' \
+    -e 's,@YUM_EXISTS\@,@YUM_EXISTS@,g'
 
 RPMS = \
 	$(RPM) \

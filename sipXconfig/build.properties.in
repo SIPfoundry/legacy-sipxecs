@@ -10,6 +10,7 @@ lib.dir=@libdir@
 service.dir=@SERVICEDIR@
 localstate.dir=@localstatedir@
 dest.dir=
+yum_exists=@YUM_EXISTS@
 
 # comma-separated combination of 'lines' 'source' and 'var' only valid
 # when debug is on
