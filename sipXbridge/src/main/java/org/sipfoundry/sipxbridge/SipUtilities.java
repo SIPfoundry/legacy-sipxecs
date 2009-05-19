@@ -50,6 +50,7 @@ import javax.sip.header.ContactHeader;
 import javax.sip.header.ContentTypeHeader;
 import javax.sip.header.ExpiresHeader;
 import javax.sip.header.FromHeader;
+import javax.sip.header.Header;
 import javax.sip.header.InReplyToHeader;
 import javax.sip.header.MaxForwardsHeader;
 import javax.sip.header.OrganizationHeader;
@@ -1411,6 +1412,26 @@ class SipUtilities {
             logger.fatal(s, ex);
             throw new SipXbridgeException(s, ex);
         }
+    }
+
+    /**
+     * This routine copies headers from inbound to outbound responses.
+     * 
+     * @param response
+     * @param newResponse
+     */
+    public static void copyHeaders(Response response, Response newResponse) {
+        Iterator<String> headerNames = response.getHeaderNames();
+        while (headerNames.hasNext()) {
+            String headerName = headerNames.next();
+           if ( newResponse.getHeader(headerName) != null) {
+               ListIterator<Header> responseHeaderIterator = response.getHeaders(headerName);
+               while (responseHeaderIterator.hasNext()) {
+                   newResponse.addHeader(responseHeaderIterator.next());
+               }
+           }
+        }
+        
     }
 
 }

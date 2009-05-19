@@ -6,6 +6,8 @@
  */
 package org.sipfoundry.sipxbridge;
 
+import java.util.Iterator;
+
 import gov.nist.javax.sip.ServerTransactionExt;
 import gov.nist.javax.sip.TransactionExt;
 
@@ -25,6 +27,7 @@ import javax.sip.TransactionAlreadyExistsException;
 import javax.sip.TransactionTerminatedEvent;
 import javax.sip.address.SipURI;
 import javax.sip.header.CSeqHeader;
+import javax.sip.header.ContactHeader;
 import javax.sip.header.FromHeader;
 import javax.sip.header.ToHeader;
 import javax.sip.header.ViaHeader;
@@ -93,6 +96,10 @@ public class SipListenerImpl implements SipListener {
                         }
                     } else {
                         Response errorResponse = SipUtilities.createResponse(stx, statusCode);
+                        SipUtilities.copyHeaders(responseEvent.getResponse(),errorResponse);
+                        errorResponse.removeHeader(ContactHeader.NAME);
+                        ContactHeader cth = SipUtilities.createContactHeader(null, ((TransactionExt)stx).getSipProvider()));
+                        errorResponse.setHeader(cth);
                         stx.sendResponse(errorResponse);
                     }
                 }
