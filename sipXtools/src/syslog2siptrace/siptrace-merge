@@ -172,7 +172,7 @@ foreach $file (@files) {
 		} elsif ($_ =~ m%<method>([^<]*)</method>% ||
 			 $_ =~ m%<responseCode>([^<]*)</responseCode>% ||
 			 $_ =~ m%<transactionId>([^<]*)</transactionId>%) {
-		    $identifier .= $1;
+		    $identifier .= $1 . $;;
 		} elsif ($_ =~ m%<time>(.*)Z</time>%) {
 		    $time = $1;
 		}
@@ -183,7 +183,8 @@ foreach $file (@files) {
 	    # It is a fine-grained identifier of the message, and all
 	    # duplicates of this message will have the same identifier.
 	    # (The proper assembly of $identity requires that the
-	    # XML elements appear in a canonical order.)
+	    # siptrace file has the canonical format, with the leaf elements
+	    # on separate lines and the elements in the canonical order.)
 
 	    # Check whether this element is to be included.
 	    next unless &select($element, $identifier, $time);
@@ -296,7 +297,7 @@ sub insert_message_into_list {
     }
 
     # No match found, append this message to the list.
-    push(@{$list}, [$time_value, $element]);
+    push(@{$list_ref}, [$time_value, $element]);
 }
 
 sub combine_elements {
