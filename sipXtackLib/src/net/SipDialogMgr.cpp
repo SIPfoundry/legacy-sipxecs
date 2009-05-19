@@ -32,13 +32,6 @@ SipDialogMgr::SipDialogMgr()
 }
 
 
-// Copy constructor NOT IMPLEMENTED
-SipDialogMgr::SipDialogMgr(const SipDialogMgr& rSipDialogMgr)
-: mDialogMgrMutex(OsMutex::Q_FIFO)
-{
-}
-
-
 // Destructor
 SipDialogMgr::~SipDialogMgr()
 {
