@@ -234,19 +234,37 @@ void NatTraversalRules::initializeNatTraversalInfo( void )
             OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s'", XML_TAG_MR_XMLRPC_PORT );
          }
          
-         // get the 'maxmediarelaysessions' node
-         if( ( ( pChildNode = pNode->FirstChild( XML_TAG_MR_MAX_SESSIONS1 ) ) ||
-               ( pChildNode = pNode->FirstChild( XML_TAG_MR_MAX_SESSIONS2 ) ) 
-             ) && pChildNode->FirstChild() )
+         // Derive the max media relay sessions from the media relay port range.
+         // Basically, each media relay session takes up 4 ports and 50% of the
+         // range is allocated to NAT traversal.  So, the max media relay sessions
+         // will be given by (end-start)*0.5/4
+         if( ( pChildNode = pNode->FirstChild( XML_TAG_MR_PORT_RANGE ) ) && pChildNode->FirstChild() )
          {
-            UtlString tempMaxMediaRelaySessionsString; 
-            tempMaxMediaRelaySessionsString = pChildNode->FirstChild()->Value();
-            mMaxMediaRelaySessions = atoi( tempMaxMediaRelaySessionsString.data() );
+            int startPort = 0;
+            int endPort = 0;
+            UtlString tempString;
+            bool isValid = false;
+            tempString = pChildNode->FirstChild()->Value();
+            if( sscanf( tempString.data(), "%d:%d", &startPort, &endPort ) == 2 &&
+                startPort < endPort )
+            {
+               mMaxMediaRelaySessions = ( endPort - startPort ) * NAT_TRAVERSAL_SHARE / PORTS_PER_MEDIA_RELAY_SESSIONS;
+               if( mMaxMediaRelaySessions > 0 )
+               {
+                  isValid = true;
+               }
+            }
+            if( isValid == false )
+            {
+               OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo -"
+                             "Failed to determine Max Media Relay Sessions from range '%s'; disabling NAT traversal feature", tempString.data() );
+               mbNatTraveralEnabled = false;
+            }
          }
          else
          {
             mMaxMediaRelaySessions = DEFAULT_MAX_MEDIA_RELAY_SESSIONS;
-            OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s' or '%s'", XML_TAG_MR_MAX_SESSIONS1, XML_TAG_MR_MAX_SESSIONS2 );
+            OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s'", XML_TAG_MR_PORT_RANGE );
          }
          
          // get the 'useSTUN' node

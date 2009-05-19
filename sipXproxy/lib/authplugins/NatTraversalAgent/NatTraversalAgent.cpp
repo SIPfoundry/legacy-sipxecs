@@ -117,6 +117,7 @@ NatTraversalAgent::readConfig( OsConfigDb& configDb /**< a subhash of the indivi
       size_t attemptCounter;
       for( attemptCounter = 0; attemptCounter < MAX_MEDIA_RELAY_INIT_ATTEMPTS; attemptCounter++ )
       {
+         OsSysLog::add(FAC_NAT, PRI_INFO, "NatTraversalAgent[%s]::readConfig trying to initialize media relay with %d sessions", mInstanceName.data(), mNatTraversalRules.getMaxMediaRelaySessions() ); 
          if( mpMediaRelay->initialize( mNatTraversalRules.getMediaRelayPublicAddress(),
                                        mNatTraversalRules.getMediaRelayNativeAddress(),
                                        mNatTraversalRules.isXmlRpcSecured(),

@@ -26,6 +26,7 @@ class NatTraversalRulesTest : public CppUnit::TestCase
       CPPUNIT_TEST(testGetProxyHostPort);
       CPPUNIT_TEST(testIsXmlRpcSecured);
       CPPUNIT_TEST(testIsPartOfLocalTopology);
+      CPPUNIT_TEST(testGetMaxMediaRelaySessions);
       CPPUNIT_TEST_SUITE_END();
 
    public:
@@ -161,6 +162,32 @@ class NatTraversalRulesTest : public CppUnit::TestCase
          CPPUNIT_ASSERT( theRules.isPartOfLocalTopology( "host.bbbb.bbbb.com"     , true, false ) == 0 );
          CPPUNIT_ASSERT( theRules.isPartOfLocalTopology( "some.host.bbbb.bbbb.com", true, false ) == 0 );
          CPPUNIT_ASSERT( theRules.isPartOfLocalTopology( "bbbb.bbbb.com"          , true, false ) == 0 );
+      }
+      
+      void testGetMaxMediaRelaySessions()
+      {
+         NatTraversalRules theRules;
+         // port range = 30000-31000
+         UtlString     rulesFile1(TEST_DATA_DIR "/NatTraversalAgent/maxrelaysessiontest1.xml");
+         CPPUNIT_ASSERT( theRules.loadRules( rulesFile1 ) == OS_SUCCESS );
+         CPPUNIT_ASSERT( theRules.getMaxMediaRelaySessions() == 125 );
+         CPPUNIT_ASSERT( theRules.isEnabled() == true );
+         
+         // port range = 30000-30016
+         UtlString     rulesFile2(TEST_DATA_DIR "/NatTraversalAgent/maxrelaysessiontest2.xml");
+         CPPUNIT_ASSERT( theRules.loadRules( rulesFile2 ) == OS_SUCCESS );
+         CPPUNIT_ASSERT( theRules.getMaxMediaRelaySessions() == 2 );
+         CPPUNIT_ASSERT( theRules.isEnabled() == true );
+
+         // port range = 30000-29000 -> invalid range
+         UtlString     rulesFile3(TEST_DATA_DIR "/NatTraversalAgent/maxrelaysessiontest3.xml");
+         CPPUNIT_ASSERT( theRules.loadRules( rulesFile3 ) == OS_SUCCESS );
+         CPPUNIT_ASSERT( theRules.isEnabled() == false );
+
+         // port range = 30000-30004 -> not enough ports
+         UtlString     rulesFile4(TEST_DATA_DIR "/NatTraversalAgent/maxrelaysessiontest4.xml");
+         CPPUNIT_ASSERT( theRules.loadRules( rulesFile4 ) == OS_SUCCESS );
+         CPPUNIT_ASSERT( theRules.isEnabled() == false );
       }
 };
 

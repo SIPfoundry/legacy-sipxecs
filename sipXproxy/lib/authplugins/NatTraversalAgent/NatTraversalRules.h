@@ -39,8 +39,7 @@
 #define XML_TAG_MR_PUBLIC_ADDRESS     "mediarelayexternaladdress"
 #define XML_TAG_MR_NATIVE_ADDRESS     "mediarelaynativeaddress"
 #define XML_TAG_MR_XMLRPC_PORT        "mediarelayxml-rpc-port"
-#define XML_TAG_MR_MAX_SESSIONS1      "concurrentrelays"
-#define XML_TAG_MR_MAX_SESSIONS2      "maxremoteusercalls"
+#define XML_TAG_MR_PORT_RANGE         "port-range"
 #define XML_TAG_USE_STUN              "useSTUN"
 #define XML_TAG_STUN_SERVER           "stun-server-address"
 #define XML_TAG_STUN_REFRESH_INTERVAL "rediscovery-time"
@@ -58,6 +57,10 @@
 #define DEFAULT_MAX_MEDIA_RELAY_SESSIONS (50)
 #define DEFAULT_PUBLIC_PORT              (5060)
 #define DEFAULT_MR_XMLRPC_PORT           (9090)
+
+// OTHER
+#define PORTS_PER_MEDIA_RELAY_SESSIONS   (4)   // RHS RTP & RTCP + LHS RTP & RTCP
+#define NAT_TRAVERSAL_SHARE              (0.5) // NAT Traversal gets half of the media relay ports
 
 // MACROS
 // EXTERNAL FUNCTIONS
