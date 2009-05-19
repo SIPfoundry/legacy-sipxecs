@@ -13,6 +13,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Locale;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hivemind.Messages;
 import org.sipfoundry.sipxconfig.cdr.Cdr;
 import org.sipfoundry.sipxconfig.components.MillisDurationFormat;
@@ -32,19 +33,19 @@ public class CdrDecorator implements Serializable {
     }
 
     public String getCalleeAor() {
-        return m_cdr.getCalleeAor();
+        return StringUtils.defaultString(m_cdr.getCalleeAor());
     }
 
     public String getCallee() {
-        return m_cdr.getCallee();
+        return StringUtils.defaultString(m_cdr.getCallee());
     }
 
     public String getCallerAor() {
-        return m_cdr.getCalleeAor();
+        return StringUtils.defaultString(m_cdr.getCalleeAor());
     }
 
     public String getCaller() {
-        return m_cdr.getCaller();
+        return StringUtils.defaultString(m_cdr.getCaller());
     }
 
     public Date getConnectTime() {

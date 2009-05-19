@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.site.cdr.decorators;
 
 import java.util.Locale;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hivemind.Messages;
 import org.sipfoundry.sipxconfig.cdr.Cdr;
 
@@ -23,6 +24,8 @@ public class CdrCallerDecorator extends CdrDecorator implements Comparable<CdrCa
         if (obj == null) {
             return -1;
         }
-        return getCaller().compareTo(obj.getCaller());
+        String s1 = StringUtils.defaultString(getCaller());
+        String s2 = StringUtils.defaultString(obj.getCaller());
+        return s1.compareTo(s2);
     }
 }
