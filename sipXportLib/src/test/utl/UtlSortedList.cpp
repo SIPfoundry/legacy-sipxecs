@@ -54,7 +54,7 @@ private:
     {
         const char* testDescription ; 
         UtlContainable* item ; 
-        size_t expectedIndex ; 
+        ssize_t expectedIndex ;    // Needs to be able to hold UTL_NOT_FOUND.
     };
     
     enum FindOrContains { TEST_FIND, TEST_CONTAINS} ; 
@@ -449,8 +449,9 @@ public:
         {
             ssize_t returnValue = stringList.index(testData[i].item) ; 
             TestUtilities::createMessage(2, &Message, prefix, testData[i].testDescription) ; 
-            CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), (int)testData[i].expectedIndex,
-                                      (int)returnValue) ; 
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(),
+                                         (int)testData[i].expectedIndex,
+                                         (int)returnValue) ; 
         }
     }//testIndex() 
 
@@ -645,8 +646,9 @@ public:
             ssize_t indexAfterRemove = stringList.index(testData[i].itemToRemove) ; 
             TestUtilities::createMessage(3, &Message, prefix,
                  testData[i].testDescription, suffix3) ; 
-            CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), testData[i].expectedIndex,
-                 indexAfterRemove) ; 
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(),
+                                         testData[i].expectedIndex,
+                                         indexAfterRemove) ; 
         }
     } //utlTestRemove
 

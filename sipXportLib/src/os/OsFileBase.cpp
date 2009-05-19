@@ -402,7 +402,7 @@ OsStatus OsFileBase::getPosition(size_t &pos)
 {
    OsLock lock(fileMutex);
 
-   pos = UTL_NOT_FOUND;
+   pos = (size_t) UTL_NOT_FOUND;
 
 #ifdef DEBUG_FS
    pthread_t nTaskId = 0;
@@ -410,6 +410,7 @@ OsStatus OsFileBase::getPosition(size_t &pos)
    if (pTask) pTask->id(nTaskId);
    OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::getPosition ENTER threadid=%ld\n", nTaskId);
 #endif
+
     OsStatus stat = OS_INVALID;
 
     if (mOsFileHandle)
@@ -424,6 +425,7 @@ OsStatus OsFileBase::getPosition(size_t &pos)
 #ifdef DEBUG_FS
    OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::getPosition EXIT threadid=%ld\n", nTaskId);
 #endif
+
     return stat;
 }
 

@@ -577,7 +577,7 @@ OsStatus OsTaskLinux::id(pthread_t& rId)
    else
    {
       retVal = OS_TASK_NOT_STARTED;
-      rId = -1;  
+      rId = (pthread_t) (-1);  
    }
 
 
