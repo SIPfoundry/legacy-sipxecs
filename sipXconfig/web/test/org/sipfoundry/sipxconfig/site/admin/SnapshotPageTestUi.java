@@ -32,6 +32,8 @@ public class SnapshotPageTestUi extends WebTestCase {
      */
     public void testDisplay() {
         SiteTestHelper.assertNoException(getTester());
+        assertFormPresent("snapshotForm");
+        setWorkingForm("snapshotForm");
         assertCheckboxSelected("snapshot:logs");
         assertCheckboxNotSelected("snapshot:credentials");
         assertCheckboxNotSelected("snapshot:cdr");
@@ -43,6 +45,7 @@ public class SnapshotPageTestUi extends WebTestCase {
         assertElementPresent("datetime:time_0");
         clickButton("form:apply");
         SiteTestHelper.assertNoException(getTester());
-        SiteTestHelper.assertUserError(getTester());
+        SiteTestHelper.assertNoUserError(getTester());
+        assertFormPresent("refreshForm");
     }
 }

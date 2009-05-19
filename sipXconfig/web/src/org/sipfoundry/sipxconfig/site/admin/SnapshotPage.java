@@ -9,31 +9,33 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
-import java.io.File;
 import java.text.DateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import static java.text.DateFormat.SHORT;
 
+import org.apache.tapestry.IAsset;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.EventListener;
 import org.apache.tapestry.annotations.InjectObject;
-import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.Snapshot;
+import org.sipfoundry.sipxconfig.admin.Snapshot.SnapshotResult;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class SnapshotPage extends BasePage implements PageBeginRenderListener {
+    @Asset("/images/loading.gif")
+    public abstract IAsset getLoadingImage();
+
     public abstract Date getStartDate();
 
     public abstract void setStartDate(Date date);
@@ -42,16 +44,9 @@ public abstract class SnapshotPage extends BasePage implements PageBeginRenderLi
 
     public abstract void setEndDate(Date date);
 
-    @Persist
-    public abstract void setSnapshotFileList(File [] file);
-
-    @Persist
-    public abstract void setFileToDomain(Map<File, String> fileToDomain);
-
-    @Persist
     public abstract void setGenerationDate(String date);
 
-    public abstract Map<File, String> getFileToDomain();
+    public abstract String getGenerationDate();
 
     @InjectObject("spring:snapshot")
     public abstract Snapshot getSnapshot();
@@ -62,7 +57,7 @@ public abstract class SnapshotPage extends BasePage implements PageBeginRenderLi
     @Bean
     public abstract SipxValidationDelegate getValidator();
 
-    public abstract void setSnapshotFile(File snapshot);
+    public abstract void setResult(Snapshot.SnapshotResult snapshotResult);
 
     public void pageBeginRender(PageEvent event_) {
         if (!TapestryUtils.isValid(this)) {
@@ -80,14 +75,26 @@ public abstract class SnapshotPage extends BasePage implements PageBeginRenderLi
             now.add(Calendar.HOUR, -3);
             setStartDate(now.getTime());
         }
+
+        if (!getSnapshot().isRefreshing()) {
+            DateFormat dateFormat = DateFormat.getDateTimeInstance(SHORT, SHORT, getPage().getLocale());
+            Date lastDate = getSnapshot().getGeneratedDate();
+            if (lastDate != null) {
+                String date = dateFormat.format(lastDate);
+                setGenerationDate(date);
+            }
+        }
+
+        List<SnapshotResult> results = getSnapshot().getResults();
+        for (SnapshotResult result : results) {
+            if (!result.isSuccess()) {
+                UserException exception = result.getUserException();
+                getValidator().record(exception, getMessages());
+            }
+        }
     }
 
     public void createSnapshot() {
-        if (!TapestryUtils.isValid(this)) {
-            // do nothing on errors
-            return;
-        }
-
         if (!getSnapshot().isLogs() && getSnapshot().isFilterTime()) {
             // 'Time filter' may only be specified with 'Log files'
             throw new UserException("&message.invalidSelection");
@@ -98,19 +105,11 @@ public abstract class SnapshotPage extends BasePage implements PageBeginRenderLi
             throw new UserException("&message.invalidDates");
         }
 
-        Map<File, String> logFileToLocationFqdn = getSnapshot().perform(getStartDate(), getEndDate(),
-                getLocationsManager().getLocations());
-        List<File> outputFiles = new ArrayList<File>();
+        getSnapshot().perform(getStartDate(), getEndDate(), getLocationsManager().getLocations());
+    }
 
-        for (Map.Entry<File, String> entry : logFileToLocationFqdn.entrySet()) {
-            outputFiles.add(entry.getKey());
-        }
-
-        DateFormat dateFormat = DateFormat.getDateTimeInstance(SHORT, SHORT, getPage().getLocale());
-        String now = dateFormat.format(new Date());
-        setGenerationDate(now);
-        setSnapshotFileList(outputFiles.toArray(new File[outputFiles.size()]));
-        setFileToDomain(logFileToLocationFqdn);
+    public String getGenerationSuccessMsg() {
+        return getMessages().format("generated.time", getGenerationDate());
     }
 
     @EventListener(targets = "profilesCheck", events = "onclick")
@@ -120,9 +119,5 @@ public abstract class SnapshotPage extends BasePage implements PageBeginRenderLi
             snapshot.setCredentials(true);
         }
         cycle.getResponseBuilder().updateComponent("snapshotForm");
-    }
-
-    public String domainForFile(File file) {
-        return getFileToDomain().get(file);
     }
 }

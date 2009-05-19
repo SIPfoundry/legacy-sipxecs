@@ -1,25 +1,42 @@
 <div jwcid="@common/Border">
   <h2><span key="title">Snapshot</span></h2>
-  <span jwcid="@common/ErrorMsg"/>
+  <div jwcid="@If" condition="ognl:snapshot.initialized" renderTag="false">
+    <form jwcid="resultForm@common/AutoRefreshForm"
+      delegate="bean:validator"
+	  interval="5"
+	  componentsToUpdate="ognl:{'message'}">
+	  <span jwcid="@common/ErrorMsg"/>
+	  <fieldset id="message">
+	    <div jwcid="ifRunning@If" condition="ognl:snapshot.refreshing" renderTag="false">
+	      <img jwcid="@Image" image="asset:loadingImage"/>
+	      <span key="messages.running">Running</span>
+	    </div>
+        <div jwcid="ifResultsPresent@Else" renderTag="false">
+          <table>
+            <tr jwcid="@If" condition="ognl:snapshot.success">
+              <td class="user-success">
+                <span jwcid="@Insert" value="ognl:generationSuccessMsg"/>
+              </td>
+            </tr>
+            <tr jwcid="@For" source="ognl:snapshot.results" value="ognl:result">
+              <td jwcid="@If" condition="ognl:result.success">
+                <a jwcid="snapshotLink@common/DownloadLink"
+                  fileName="ognl:result.file.name"
+                  dirName="ognl:result.dir"
+                  contentType="tar/x-gzip">
+                  <span jwcid="linkText@Insert" value="ognl:result.fqdn"/>
+		        </a>
+		      </td>
+		    </tr>
+	      </table>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+  <div jwcid="@Else">
+	<span jwcid="@common/ErrorMsg"/>
+  </div>
   <div jwcid="@common/QuickHelp" value="message:quick.help"/>
-  <p jwcid="ifResultsPresent@If" condition="ognl:snapshotFileList != null">
-    <table>
-      <tr>
-        <td>
-          <span key="generated.time">Logs</span>
-          <span jwcid="@Insert" value="ognl:generationDate"/>
-        </td>
-      </tr>
-      <tr jwcid="@For" source="ognl:snapshotFileList" value="ognl:snapshotFile" element="tr">
-        <td><a jwcid="snapshotLink@common/DownloadLink"
-          fileName="ognl:snapshotFile.name"
-          dirName="ognl:snapshotFile.parentFile.path"
-          contentType="tar/x-gzip">
-          <span jwcid="linkText@Insert" value="ognl:domainForFile(snapshotFile)"/>
-        </a></td>
-      </tr>
-    </table>
-  </p>
   <form jwcid="snapshotForm@Form" delegate="bean:validator">
     <fieldset>
       <table>
