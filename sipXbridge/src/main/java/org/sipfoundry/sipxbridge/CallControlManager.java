@@ -1124,21 +1124,7 @@ class CallControlManager implements SymmitronResetHandler {
         }
     }
 
-    /*
-     * This is a polycomm specific hack. Polycomm sometimes sends 500 if NOTIFY sent too early.
-     */
-
-    private void delayNotifyReferDialog(Request referRequest, Dialog referDialog,
-            Response response) throws SipException {
-
-        if (response.getStatusCode() == Response.OK) {
-            Gateway.getTimer().schedule(
-                    new NotifyReferDialogTimerTask(referRequest, referDialog, response), 2000);
-        } else {
-            this.notifyReferDialog(referRequest, referDialog, response);
-        }
-
-    }
+   
 
     private void inviteToItspOrProxyResponse(ResponseEvent responseEvent) throws Exception {
 
@@ -1215,11 +1201,15 @@ class CallControlManager implements SymmitronResetHandler {
             RtpTransmitterEndpoint hisEndpoint = null;
             if (rtpSession != null) {
                 hisEndpoint = rtpSession.getTransmitter();
+            } else {
+                logger.debug("CallControlManager: inviteToItspOrProxyResponse: null rtpSession");
             }
 
             if (hisEndpoint == null) {
                 hisEndpoint = new RtpTransmitterEndpoint(rtpSession, b2bua.getSymmitronClient());
                 rtpSession.setTransmitter(hisEndpoint);
+            } else {
+                logger.debug("CallControlManager: inviteToItspOrProxyResponse: hisEndpoint != null" );
             }
 
             KeepaliveMethod keepaliveMethod;

@@ -48,6 +48,7 @@ class RtpSession {
     }
 
     protected void setTransmitter(RtpTransmitterEndpoint endpoint) {
+        logger.debug("setTransmitter " + this.symImpl.getId());
         this.rtpTransmitterEndpoint = endpoint;
         symImpl.setTransmitter(endpoint.getSymTransmitter());
     }
