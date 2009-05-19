@@ -604,7 +604,9 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
                                          const SipMessage* subscribeResponse)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG, 
-                 "SipSubscribeClient::refreshCallback newState = %d, earlyDialogHandle = '%s', dialogHandle = '%s', responseCode = %d, responseCode = %d, responseText = '%s', expirationDate = %ld",
+                 "SipSubscribeClient::refreshCallback "
+                 "newState = %d, earlyDialogHandle = '%s', dialogHandle = '%s', "
+                 "responseCode = %d, responseText = '%s', expirationDate = %ld",
                  newState, earlyDialogHandle, dialogHandle, responseCode,
                  responseText, expirationDate);
 
@@ -668,8 +670,9 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
             else
             {
                OsSysLog::add(FAC_SIP, PRI_ERR, 
-                             "SipSubscribeClient::refreshCallback Unable to get established dialog handle for early handle '%s'",
-                             earlyDialogHandle.data());
+                             "SipSubscribeClient::refreshCallback "
+                             "Unable to get established dialog handle for early handle '%s'",
+                             earlyDialogHandle);
             }
          }
          else
