@@ -2429,7 +2429,8 @@ void SipUserAgent::queueMessageToInterestedObservers(SipMessageEvent& event,
                                 "(numMsgs = %d, maxMsgs = %d)",
                                 r, numMsgs, maxMsgs);
                   OsSysLog::add(FAC_SIP, PRI_CRIT,
-                                "SipUserAgent::queueMessageToInterestedObservers queue name '%s'",
+                                "SipUserAgent::queueMessageToInterestedObservers "
+                                "send failed to queue named '%s'",
                                 observerQueue->getName()->data());
                   UtlString eventName;
                   observerCriteria->getEventName(eventName);

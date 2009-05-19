@@ -603,6 +603,11 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
                                          long expirationDate, // epoch seconds
                                          const SipMessage* subscribeResponse)
 {
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                 "SipSubscribeClient::refreshCallback newState = %d, earlyDialogHandle = '%s', dialogHandle = '%s', responseCode = %d, responseCode = %d, responseText = '%s', expirationDate = %ld",
+                 newState, earlyDialogHandle, dialogHandle, responseCode,
+                 responseText, expirationDate);
+
    long now = OsDateTime::getSecsSinceEpoch();
    switch(newState)
    {
@@ -613,8 +618,8 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
    case SipRefreshManager::REFRESH_REQUEST_SUCCEEDED:
    { // Variable scope
       // Either the subscription dialog went from early to established,
-      // or a second dailog was created from the early dialog.  Hense
-      // there may be more than one established dialog
+      // or a second dialog was created from the early dialog.  Hence
+      // there may be more than one established dialog.
       // Determine which case we have:
       //   1) transition of early dialog to established
       //   2) second or subsequent dialog established
@@ -623,7 +628,7 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
       lock();
       SubscribeClientState* clientState = NULL;
 
-      // See if we can find any state for the early dialog
+      // See if we can find any state for the early dialog.
       if (earlyDialogHandle && *earlyDialogHandle)
       {
          UtlString dialogString(earlyDialogHandle);
@@ -653,6 +658,18 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
                   clientState->mState = SUBSCRIPTION_SETUP;
                   addState(*clientState);
                }
+               else
+               {
+                  OsSysLog::add(FAC_SIP, PRI_ERR, 
+                                "SipSubscribeClient::refreshCallback Unable to get state for handle '%s'",
+                                establishedDialogHandle.data());
+               }
+            }
+            else
+            {
+               OsSysLog::add(FAC_SIP, PRI_ERR, 
+                             "SipSubscribeClient::refreshCallback Unable to get established dialog handle for early handle '%s'",
+                             earlyDialogHandle.data());
             }
          }
          else
@@ -664,6 +681,9 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
             static_cast <UtlString&> (*clientState) = dialogHandle;
             clientState->mState = SUBSCRIPTION_SETUP;
             addState(*clientState);
+            OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                          "SipSubscribeClient::refreshCallback dialog handle of clientState %p changed to '%s'",
+                          clientState, dialogHandle);
          }
       }
       else
@@ -675,8 +695,11 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
       // or NULL if none was found.
 
       // If the response code is > 299, the reSUBSCRIBE failed,
-      // but a prior SUBSCRIBE has not expired yet
+      // but a prior SUBSCRIBE has not expired yet.
 
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                    "SipSubscribeClient::refreshCallback clientState = %p",
+                    clientState);
       if (clientState)
       {
          if (expirationDate < now)
@@ -892,6 +915,10 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
            }
         }
     }
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                  "SipSubscribeClient::handleNotifyRequest "
+                  "foundDialog = %d, foundEarlyDialog = %d, sequence = %d",
+                  foundDialog, foundEarlyDialog, sequence);
 
     // Construct the response based on the request's status.
     SipMessage subscriptionResponse;
@@ -906,7 +933,7 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
     case SipDialogMgr::IN_ORDER:
     {
        // Request is a new transaction (i.e. cseq greater than
-       // last remote transaction
+       // last remote transaction)
        // Update the dialog
        mpDialogMgr->updateDialog(notifyRequest, notifyDialogHandle);
 
@@ -923,7 +950,7 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
             
           // Update the subscription state
           // Take the state out of the hashbag, change the key
-          // and put it back in as it is not clear the hasbag 
+          // and put it back in, as it is not clear the hashbag 
           // will work correctly if you modify the key in place.
           if (clientState)
           {
@@ -949,9 +976,9 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
           else
           {
              // There is a race condition which may cause the early dialog
-             // to be promoted to established by RefreshManager thread
-             // after this thread determined that the NOTIFY corresponds to
-             // an early dialog
+             // to be promoted to established by the RefreshManager thread
+             // after this thread has determined that the NOTIFY corresponds to
+             // an early dialog.
              clientState = getState(notifyDialogHandle);
           }
        }
@@ -991,8 +1018,13 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
        subscriptionResponse.setResponseData(&notifyRequest,
                                             SIP_LOOP_DETECTED_CODE,
                                             SIP_LOOP_DETECTED_TEXT);
-       /** Set "Retry-After: 0" to prevent termination of the subscription.
-        *  See RFC 3265, section 3.2.2.
+       /* Set "Retry-After: 0" to prevent termination of the subscription.
+        * The reason we don't want the notifier to terminate the
+        * subscription is that we must have received and processed
+        * another copy of this NOTIFY, so there is no failure from
+        * our point of view.
+        * See RFC 3265, section 3.2.2 for why "Retry-After: 0" has
+        * this effect.
         */
        subscriptionResponse.setHeaderValue(SIP_RETRY_AFTER_FIELD, "0");
        break;
@@ -1003,6 +1035,11 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
        subscriptionResponse.setResponseData(&notifyRequest,
                                             SIP_OUT_OF_ORDER_CODE,
                                             SIP_OUT_OF_ORDER_TEXT);
+       /* Try to prevent the notifier from terminating the subscription,
+        * since we have received a later version of the information.
+        * If having all the notifies is important, the application
+        * code will detect and act on the missing "version".
+        */
        subscriptionResponse.setHeaderValue(SIP_RETRY_AFTER_FIELD, "0");
        break;
     }
