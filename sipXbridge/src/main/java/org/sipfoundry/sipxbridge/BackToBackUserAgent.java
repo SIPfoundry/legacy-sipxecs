@@ -1587,11 +1587,6 @@ public class BackToBackUserAgent {
             ct.setApplicationData(tad);
             this.addDialog(ct.getDialog());
 
-            /*
-             * Record the call for this dialog.
-             */
-            this.addDialog(ct.getDialog());
-
             logger.debug("Dialog table size = " + this.dialogTable.size());
             ct.sendRequest();
             /*

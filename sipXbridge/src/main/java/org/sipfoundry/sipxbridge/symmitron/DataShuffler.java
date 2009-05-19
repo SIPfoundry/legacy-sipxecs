@@ -229,24 +229,33 @@ class DataShuffler implements Runnable {
                         readBuffer.clear();
                         DatagramChannel datagramChannel = (DatagramChannel) key.channel();
                         if (!datagramChannel.isOpen()) {
-                            logger
+                            if (logger.isDebugEnabled()) {
+                                logger
                                     .debug("DataShuffler: Datagram channel is closed -- discarding packet.");
-
+                            }
                             continue;
                         }
                         bridge = ConcurrentSet.getBridge(datagramChannel);
-                       
+                        if (bridge == null) {
+                            if (logger.isDebugEnabled()) {
+                                logger
+                                    .debug("DataShuffler: Discarding packet: Could not find bridge");
+                            }
+                            continue;
+                        }
                         Sym packetReceivedSym = bridge.getReceiverSym(datagramChannel);
                         /*
                          * Note the original hold value and put the transmitter on which this packet was received on hold.
                          */
-                        boolean holdValue = packetReceivedSym.getTransmitter().isOnHold();
-                        packetReceivedSym.getTransmitter().setOnHold(true);
-                        if (bridge == null) {
-                            logger
-                                    .debug("DataShuffler: Discarding packet: Could not find bridge");
+                        if ( packetReceivedSym == null  || packetReceivedSym.getTransmitter() == null ) {
+                            if (logger.isDebugEnabled()) {
+                                logger.debug("DataShuffler: Could not find sym for inbound channel -- discaring packet");
+                            }
                             continue;
                         }
+                        boolean holdValue = packetReceivedSym.getTransmitter().isOnHold();
+                        packetReceivedSym.getTransmitter().setOnHold(true);
+                       
                         InetSocketAddress remoteAddress = (InetSocketAddress) datagramChannel
                                 .receive(readBuffer);
 
