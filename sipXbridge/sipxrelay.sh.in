@@ -60,7 +60,7 @@ CONFIG_FILES="\
 
 . @SIPX_LIBEXECDIR@/sipx-utils.sh
 
-JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
+JavaCmd=`@SIPX_BINDIR@/sipx-config --java` 
 LibPath=`perl -e 'print join(":", @ARGV);' @SIPX_JAVADIR@/sipXbridge/*.jar @SIPX_JAVADIR@/sipXcommons/*.jar`
 ClassPath=$LibPath
 
@@ -75,7 +75,7 @@ case ${Action} in
      echo $$ > @SIPX_RUNDIR@/sipxrelay.pid
 
 
-     exec $JavaCmd -Dconf.dir=@SIPX_CONFDIR@  \
+     exec $JavaCmd -server -Dconf.dir=@SIPX_CONFDIR@  \
 	 $TrustStoreOpts				\
 	 $KeyStoreOpts					\
 	 -Dsipxrelay.command=start \
