@@ -348,6 +348,7 @@ public class Gateway {
      * @throws SipXbridgeException
      */
     static void discoverAddress() throws SipXbridgeException {
+        NetworkConfigurationDiscoveryProcess addressDiscovery = null;
         try {
 
             BridgeConfiguration bridgeConfiguration = accountManager
@@ -365,7 +366,7 @@ public class Gateway {
                 StunAddress serverStunAddress = new StunAddress(
                         stunServerAddress, STUN_PORT);
 
-                NetworkConfigurationDiscoveryProcess addressDiscovery = new NetworkConfigurationDiscoveryProcess(
+                addressDiscovery = new NetworkConfigurationDiscoveryProcess(
                         localStunAddress, serverStunAddress);
 
                 addressDiscovery.start();
@@ -383,6 +384,12 @@ public class Gateway {
 
             }
         } catch (Exception ex) {
+            /*
+             * If problem finding address. release the port.
+             */
+            if ( addressDiscovery != null ) {
+                addressDiscovery.shutDown();
+            }
             logger.error("Error discovering  address", ex);
             return;
         }
