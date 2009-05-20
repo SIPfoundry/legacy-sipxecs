@@ -98,7 +98,7 @@ public class SipListenerImpl implements SipListener {
                         Response errorResponse = SipUtilities.createResponse(stx, statusCode);
                         SipUtilities.copyHeaders(responseEvent.getResponse(),errorResponse);
                         errorResponse.removeHeader(ContactHeader.NAME);
-                        ContactHeader cth = SipUtilities.createContactHeader(null, ((TransactionExt)stx).getSipProvider()));
+                        ContactHeader cth = SipUtilities.createContactHeader(null, ((TransactionExt)stx).getSipProvider());
                         errorResponse.setHeader(cth);
                         stx.sendResponse(errorResponse);
                     }
