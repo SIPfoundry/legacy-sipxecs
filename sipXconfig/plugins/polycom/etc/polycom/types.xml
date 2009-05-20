@@ -14,13 +14,16 @@
 <type id="transport">
   <enum>
     <option>
-      <value>DNSnaptr</value>
+      <value>UDPonly</value>
+    </option>
+    <option>
+      <value>TCPonly</value>
     </option>
     <option>
       <value>TCPpreferred</value>
     </option>
     <option>
-      <value>UDPonly</value>
+      <value>DNSnaptr</value>
     </option>
   </enum>
 </type>
