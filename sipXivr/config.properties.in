@@ -30,4 +30,5 @@ jaxen.jar=${sipxcommons.dir}/jaxen.jar
 commons-logging.jar=${sipxcommons.dir}/commons-logging.jar
 jetty.jar=${sipxcommons.dir}/jetty.jar
 javax.servlet.jar=${sipxcommons.dir}/javax.servlet.jar
+javamail.jar=${sipxcommons.dir}/javamail.jar
 

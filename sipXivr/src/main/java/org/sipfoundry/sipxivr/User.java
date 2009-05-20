@@ -9,8 +9,8 @@
 package org.sipfoundry.sipxivr;
 
 import java.util.Vector;
+
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.log4j.Logger;
 
 public class User {
     private String m_identity;

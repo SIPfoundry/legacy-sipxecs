@@ -36,6 +36,9 @@ public class MessagesTest extends TestCase {
     File m_savedDir;
     File m_deletedDir;
 
+    MessageDescriptorWriter m_mw;
+    MessageDescriptor m_md;
+    
     protected void setUp() throws Exception {
         super.setUp();
         // Configure log4j
@@ -59,8 +62,19 @@ public class MessagesTest extends TestCase {
         m_savedDir = new File(m_userDir, "saved"); m_savedDir.mkdir();
         m_deletedDir = new File(m_userDir, "deleted"); m_deletedDir.mkdir();
 
-        // Tell MWI not to bother contacting an external server
+        // Tell MWI & email not to bother contacting an external server
         Mwi.setJustTesting(true);
+        Emailer.setJustTesting(true);
+        
+        m_mw = new MessageDescriptorWriter();
+        m_md = new MessageDescriptor();
+        m_md.setId("woof");
+        m_md.setFromUri("user@dog");
+        m_md.setDurationSecs(42);
+        m_md.setTimestamp(System.currentTimeMillis());
+        m_md.setSubject("Voice Message");
+        m_md.setPriority(Priority.NORMAL);
+
     }
 
     protected void tearDown() throws Exception {
@@ -70,30 +84,34 @@ public class MessagesTest extends TestCase {
         }
     }
 
+    protected void makeMd(File file) {
+        m_mw.writeObject(m_md, file);
+    }
+    
     public void testLoadFolder() throws IOException, InterruptedException {
         Messages m = new Messages();
         m.loadFolder(m_inboxDir, m.m_inbox, true);
         assertEquals(0, m.getInboxCount());
 
         FileUtils.touch(new File(m_inboxDir, "0001-00.wav"));
-        FileUtils.touch(new File(m_inboxDir, "0001-00.xml"));
+        makeMd(new File(m_inboxDir, "0001-00.xml"));
         FileUtils.touch(new File(m_inboxDir, "0002-00.wav"));
-        FileUtils.touch(new File(m_inboxDir, "0002-00.xml"));
+        makeMd(new File(m_inboxDir, "0002-00.xml"));
         FileUtils.touch(new File(m_inboxDir, "0003-00.wav"));
-        FileUtils.touch(new File(m_inboxDir, "0003-00.xml"));
+        makeMd(new File(m_inboxDir, "0003-00.xml"));
         FileUtils.touch(new File(m_inboxDir, "0003-00.sta"));
         FileUtils.touch(new File(m_inboxDir, "0004-00.wav"));
-        FileUtils.touch(new File(m_inboxDir, "0004-00.xml"));
+        makeMd(new File(m_inboxDir, "0004-00.xml"));
         FileUtils.touch(new File(m_inboxDir, "0004-00.sta"));
         
         FileUtils.touch(new File(m_inboxDir, "0005-00.dog")); // .dog doesn't count
-        FileUtils.touch(new File(m_inboxDir, "0006-00.xml")); // .xml with no .wav, doesn't count.
+        makeMd(new File(m_inboxDir, "0006-00.xml")); // .xml with no .wav, doesn't count.
         FileUtils.touch(new File(m_inboxDir, "0007-00.wav")); // .wav with no .xml, doesn't count.
         
-        FileUtils.touch(new File(m_inboxDir, "0008-00.xml"));
+        makeMd(new File(m_inboxDir, "0008-00.xml"));
         FileUtils.touch(new File(m_inboxDir, "0008-00.wav"));
         FileUtils.touch(new File(m_inboxDir, "0008-00.sta"));
-        FileUtils.touch(new File(m_inboxDir, "0008-01.xml"));
+        makeMd(new File(m_inboxDir, "0008-01.xml"));
         FileUtils.touch(new File(m_inboxDir, "0008-01.wav"));
         FileUtils.touch(new File(m_inboxDir, "0008-FW.wav"));
 
@@ -158,17 +176,16 @@ public class MessagesTest extends TestCase {
         user.setUserName("user");
         user.setIdentity("user@dog");
 
-        
         Mailbox mbox = new Mailbox(user, m_mailstoreDir.getPath());
 
         FileUtils.touch(new File(m_inboxDir, "0001-00.wav"));
-        FileUtils.touch(new File(m_inboxDir, "0001-00.xml"));
+        makeMd(new File(m_inboxDir, "0001-00.xml"));
         FileUtils.touch(new File(m_inboxDir, "0001-00.sta"));
         FileUtils.touch(new File(m_inboxDir, "0001-01.wav"));
-        FileUtils.touch(new File(m_inboxDir, "0001-01.xml"));
+        makeMd(new File(m_inboxDir, "0001-01.xml"));
         FileUtils.touch(new File(m_inboxDir, "0001-FW.wav"));
         FileUtils.touch(new File(m_inboxDir, "0002-00.wav"));
-        FileUtils.touch(new File(m_inboxDir, "0002-00.xml"));
+        makeMd(new File(m_inboxDir, "0002-00.xml"));
 
         Messages m = new Messages(mbox);
         m.loadFolder(m_inboxDir, m.m_inbox, true);

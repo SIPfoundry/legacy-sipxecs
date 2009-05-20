@@ -11,9 +11,21 @@ package org.sipfoundry.voicemail;
 import java.io.File;
 import java.io.IOException;
 import java.io.SequenceInputStream;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
+import javax.mail.Multipart;
+import javax.mail.Part;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -21,6 +33,7 @@ import javax.sound.sampled.AudioSystem;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.sipfoundry.sipxivr.Mailbox;
+import org.sipfoundry.sipxivr.MailboxPreferences;
 
 /**
  * Represents the message in a mailbox
@@ -160,7 +173,7 @@ public class VmMessage {
         }
         LOG.info("VmMessage::newMessage created message "+me.m_descriptorFile.getPath());
         Mwi.sendMWI(mailbox);
-        // TODO msg to email
+        me.sendToEmail(mailbox);
         
 
         return me;
@@ -220,8 +233,7 @@ public class VmMessage {
         
         LOG.info("VmMessage::copy created message "+me.m_descriptorFile.getPath());
         Mwi.sendMWI(mailbox);
-
-        // TODO msg to email
+        sendToEmail(mailbox);
 
         return me;
     }
@@ -302,8 +314,8 @@ public class VmMessage {
         }
         LOG.info("VmMessage::forward created message "+me.m_descriptorFile.getPath());
         Mwi.sendMWI(mailbox);
-        // TODO msg to email
-
+        sendToEmail(mailbox);
+        
         return me;
 
     }
@@ -409,6 +421,15 @@ public class VmMessage {
         } catch (IOException e) {
             LOG.error(String.format("Failed to move message %s to directory %s", m_messageId, newDirectory.getPath()), e);
         }
+    }
+    
+    /**
+     * Send this message to the e-mail addrs specified in the mailbox
+     * @param mailbox
+     */
+    void sendToEmail(Mailbox mailbox) {
+        // Queue it in a background thread
+        Emailer.queueVm2Email(mailbox, this);
     }
     
     /**

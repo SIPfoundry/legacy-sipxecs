@@ -250,6 +250,11 @@ public class ValidUsersXML {
 
         if (urlStart >= 0) {
             userName = userName.substring(urlStart + 4);
+        } else {
+            int gtStart = userName.indexOf("<");
+            if (gtStart >= 0) {
+                userName = userName.substring(gtStart+1);
+            }
         }
 
         int atStart = userName.indexOf("@");

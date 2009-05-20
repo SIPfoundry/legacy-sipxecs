@@ -176,6 +176,7 @@
       <fileset file="${src.dir}/lib/dom4j.jar"/>
       <fileset file="${src.dir}/lib/dnsjava.jar"/>
       <fileset file="${src.dir}/lib/jain-sip-sdp.jar"/>
+      <fileset file="${src.dir}/lib/javamail.jar"/>
       <fileset file="${src.dir}/lib/jaxen.jar"/>
       <fileset file="${src.dir}/lib/javax.servlet.jar"/>
       <fileset file="${src.dir}/lib/jdom-1.0.jar"/>

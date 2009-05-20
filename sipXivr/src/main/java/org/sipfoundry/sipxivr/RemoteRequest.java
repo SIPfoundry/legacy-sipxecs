@@ -8,7 +8,6 @@
  */
 package org.sipfoundry.sipxivr;
 
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -49,7 +48,6 @@ public class RemoteRequest {
         HttpURLConnection urlConn = null;
         try {
             DataOutputStream printout;
-            DataInputStream input;
 
             // URL connection channel.
             urlConn = (HttpURLConnection) m_url.openConnection();
@@ -77,6 +75,7 @@ public class RemoteRequest {
             m_response = urlConn.getResponseMessage();
  
 /*
+            DataInputStream input;
             input = new DataInputStream(urlConn.getInputStream());
             m_result = input.readUTF();
             input.close();

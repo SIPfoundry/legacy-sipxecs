@@ -63,6 +63,7 @@ public class Mailbox {
         
         File userDir = new File(mailbox.getUserDirectory());
         if (!userDir.isDirectory()) {
+            LOG.info("Mailbox::createDirsIfNeeded creating mailbox "+userDir.getPath());
             userDir.mkdir();
             File inboxDir = new File(mailbox.getInboxDirectory());
             File savedDir = new File(mailbox.getSavedDirectory());
@@ -137,17 +138,18 @@ public class Mailbox {
      * @return the MailboxPreferences object described in mailboxprefs.xml
      */
     public MailboxPreferences getMailboxPreferences() {
-        createDirsIfNeeded(this);
         if (m_mailboxPreferences == null || m_lastModified != m_mailboxPreferencesFile.lastModified()) {
             MailboxPreferencesReader mpr = new MailboxPreferencesReader();
             m_lastModified = m_mailboxPreferencesFile.lastModified();
             m_mailboxPreferences = mpr.readObject(m_mailboxPreferencesFile) ;
+            if (m_mailboxPreferences == null) {
+                m_mailboxPreferences = new MailboxPreferences();
+            }
         }
         return m_mailboxPreferences ; 
     }
     
     public void writeMailboxPreferences() {
-        createDirsIfNeeded(this);
         MailboxPreferencesWriter mpw = new MailboxPreferencesWriter() ;
         try {
             // Write a temporary file so any readers will not read incomplete data

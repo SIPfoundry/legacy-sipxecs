@@ -17,7 +17,7 @@ import org.sipfoundry.sipxivr.RemoteRequest;
 
 public class Mwi {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
-    private static Mwi m_me;
+    private static Mwi s_me;
     public static final String MessageSummaryContentType = "application/simple-message-summary";
 
     boolean m_justTesting;
@@ -27,10 +27,10 @@ public class Mwi {
     }
     
     public static Mwi getMwi() {
-        if (m_me == null) {
-            m_me = new Mwi(false);
+        if (s_me == null) {
+            s_me = new Mwi(false);
         }
-        return m_me;
+        return s_me;
     }
     
     /**

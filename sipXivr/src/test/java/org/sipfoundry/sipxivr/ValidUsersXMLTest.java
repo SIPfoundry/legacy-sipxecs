@@ -120,6 +120,17 @@ public class ValidUsersXMLTest extends TestCase {
         assertEquals("Quebit T. Dogg", ValidUsersXML
                 .getDisplayPart("\"Quebit T. Dogg\" <sip:woof@somewhere>"));
     }
+    
+    public void testGetUserPart() {
+        assertNull(ValidUsersXML.getUserPart(null));
+        assertNull(ValidUsersXML.getUserPart("woof"));
+        assertEquals("woof", ValidUsersXML.getUserPart("sip:woof@somewhere"));
+        assertEquals("woof", ValidUsersXML.getUserPart("Woof <sip:woof@somewhere>"));
+        assertEquals("woof", ValidUsersXML.getUserPart("\"Me and I\" <woof@somewhere>"));
+        assertEquals("woof", ValidUsersXML
+                .getUserPart("\"Quebit T. Dogg\" <sip:woof@somewhere>"));
+
+    }
 
     public void testBuildDialPatterns() {
         User u = new User();

@@ -68,6 +68,8 @@ public class Retrieve {
             m_mailbox = new Mailbox(user);
             m_ident = "Mailbox "+m_mailbox.getUser().getUserName();
             LOG.info("Retrieve::retrieveVoiceMail "+m_ident+" logged in");
+            // Create the mailbox if it isn't there
+            Mailbox.createDirsIfNeeded(m_mailbox);
             try {
                 main_menu();
             } finally {

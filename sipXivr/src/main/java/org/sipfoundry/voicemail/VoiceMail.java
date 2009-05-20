@@ -156,7 +156,9 @@ public class VoiceMail {
             goodbye();
             return null ;
         }
-        
+
+        // Create the mailbox if it isn't there
+        Mailbox.createDirsIfNeeded(mailbox);
         m_mailbox = mailbox;
         if (m_action.equals("deposit")) {
             try {

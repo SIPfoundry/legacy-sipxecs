@@ -143,7 +143,7 @@ public class Message {
         try {
             AudioInputStream ais = AudioSystem.getAudioInputStream(getWavFile());
             float secs =  ais.getFrameLength() / ais.getFormat().getFrameRate();
-            m_duration = Math.round(secs+0.5); // Round up.
+            m_duration = Math.round(secs); // Round up.
         } catch (Exception e) {
             String trouble = "Message::getDuration Problem determining duration of "+getWavFile().getPath();
             LOG.error(trouble, e);

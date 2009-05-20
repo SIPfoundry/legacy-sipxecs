@@ -12,7 +12,6 @@ package org.sipfoundry.voicemail;
 import java.io.File;
 
 import org.apache.log4j.Logger;
-import org.sipfoundry.sipxivr.Localization;
 import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.sipxivr.MailboxPreferences;
 import org.sipfoundry.sipxivr.PromptList;

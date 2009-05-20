@@ -19,6 +19,7 @@
     <pathelement location="${commons-logging.jar}"/>
     <pathelement location="${javax.servlet.jar}"/>
     <pathelement location="${jetty.jar}"/>
+    <pathelement location="${javamail.jar}"/>
   </path>
   <property name="classpath" refid="base.path" />
 

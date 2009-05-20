@@ -58,7 +58,7 @@ public class Configuration {
      * @return
      */
     private static Configuration update(boolean load) {
-        if (s_current == null || s_propertiesFile.lastModified() != s_lastModified) {
+        if (s_current == null || s_propertiesFile != null && s_propertiesFile.lastModified() != s_lastModified) {
             s_current = new Configuration();
             if (load) {
                 s_current.properties();
