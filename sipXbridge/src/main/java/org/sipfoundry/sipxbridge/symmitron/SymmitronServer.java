@@ -1161,9 +1161,13 @@ public class SymmitronServer implements Symmitron {
                 }
                 return this.createSuccessMap();
             } else {
-                return this.createErrorMap(SESSION_NOT_FOUND,
+                if ( logger.isDebugEnabled())  {
+                    logger.error("Bridge with the given ID was not found " + bridgeId);               
+                    return this.createErrorMap(SESSION_NOT_FOUND,
                         "Bridge with the given ID was not found");
-
+                } else {
+                    return this.createSuccessMap();
+                }
             }
         } catch (Exception ex) {
             logger.error("Processing Error", ex);

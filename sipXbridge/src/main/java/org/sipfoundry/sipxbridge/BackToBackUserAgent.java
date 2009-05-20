@@ -638,6 +638,15 @@ public class BackToBackUserAgent {
             Request newRequest = ProtocolObjects.messageFactory.createRequest(
                     uri, Request.INVITE, callId, cseq, fromHeader, toHeader,
                     viaList, maxForwards);
+            /*
+             * If we are routing this request to the Proxy server,
+             * better send it to the SAME proxy server.
+             * See XX-5792. Dont do this if we are sending the 
+             * request directly to a phone!
+             */
+            if ( uri.getHost().equals(Gateway.getSipxProxyDomain())) {
+                uri.setMAddrParam(this.proxyAddress.getHost());
+            }
 
             /*
              * Does the refer to header contain a Replaces? ( attended transfer )
