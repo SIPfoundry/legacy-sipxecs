@@ -45,6 +45,17 @@
       </set>
     </property>
   </bean>
+  <bean id="polycom450" parent="polycomModel">
+    <property name="label" value="Polycom SoundPoint IP 450" />
+    <property name="maxLineCount" value="3" />
+    <property name="supportedFeatures">
+      <set>
+        <value>disableCallList</value>
+        <value>intercom</value>
+        <value>voiceQualityMonitoring</value>
+      </set>
+    </property>
+  </bean>
   <bean id="polycom500" parent="polycomModel">
     <property name="label" value="Polycom SoundPoint IP 500/501" />
     <property name="maxLineCount" value="3" />
