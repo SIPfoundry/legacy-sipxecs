@@ -300,6 +300,82 @@ void Negotiating::FailureResponse( DialogTracker& impl, SipMessage& response, co
    }   
 }
 
+const char* ProcessingPrack::name( void ) const
+{
+   return "ProcessingPrack";
+}
+
+const DialogTrackerState* ProcessingPrack::GetParent( DialogTracker& impl ) const
+{
+   return impl.pNegotiating;
+}
+
+void ProcessingPrack::ProvisionalResponse( DialogTracker& impl, SipMessage& response, const char* address, int port ) const
+{
+   int seqNum;
+   UtlString seqMethod;
+   
+   if( response.getCSeqField( &seqNum, &seqMethod ) )
+   {
+      if( seqMethod.compareTo( SIP_INVITE_METHOD ) == 0 )
+      {
+         // normally we would not be expecting this provisional response to carry
+         // an SDP in this state however we have encountered in the field some endpoints
+         // that repeat the SDP answer they already sent in a previous
+         // reliable provisional response (see XECS-2079 for the details).
+         // Given that, if an SDP answer is found, we will reprocess it
+         // to make sure it gets the same transformations that the initial
+         // one got as per XECS-2089.
+         if( response.hasSdpBody() )
+         {
+            impl.ProcessMediaAnswer( response, INITIAL_OFFER_ANSWER );
+         }
+      }
+      else
+      {
+         OsSysLog::add(FAC_NAT,PRI_DEBUG,"'%s:%s' - Received unexpected Provisional Response for %s request",
+               impl.name(), impl.GetCurrentState()->name(), seqMethod.data() );    
+      }
+   }  
+   // We have received a response - although that does
+   // not cause a state machine state change, we need to reset the tick counter
+   // to show that there is still activity in this dialog.
+   impl.resetTimerTickCounter();              
+}
+
+void ProcessingPrack::SuccessfulResponse( DialogTracker& impl, SipMessage& response, const char* address, int port ) const
+{
+   int seqNum;
+   UtlString seqMethod;
+   
+   if( response.getCSeqField( &seqNum, &seqMethod ) )
+   {
+      if( seqMethod.compareTo( SIP_INVITE_METHOD ) == 0 )
+      {
+         // normally we would not be expecting this 200 OK response to carry
+         // an SDP in this state however we have encountered in the field some endpoints
+         // that repeat the SDP answer they already sent in a previous
+         // Successful response (see XECS-2079 for the details).
+         // Given that, if an SDP answer is found, we will reprocess it
+         // to make sure it gets the same transformations that the initial
+         // one got as per XECS-2089.
+         if( response.hasSdpBody() )
+         {
+            impl.ProcessMediaAnswer( response, INITIAL_OFFER_ANSWER );
+         }
+      }
+      else
+      {
+         OsSysLog::add(FAC_NAT,PRI_DEBUG,"'%s:%s' - Received unexpected Successful Response for %s request",
+               impl.name(), impl.GetCurrentState()->name(), seqMethod.data() );    
+      }
+      // We have received a response - although that does
+      // not cause a state machine state change, we need to reset the tick counter
+      // to show that there is still activity in this dialog.
+      impl.resetTimerTickCounter();              
+   }   
+}
+
 const char* WaitingForAckForInvite::name( void ) const
 {
    return "WaitingForAckForInvite";
@@ -431,7 +507,7 @@ void WaitingForMediaAnswer::SuccessfulResponse( DialogTracker& impl, SipMessage&
    
 const DialogTrackerState* WaitingForPrack::GetParent( DialogTracker& impl ) const
 {
-   return impl.pNegotiating;
+   return impl.pProcessingPrack;
 }
 
 const char* WaitingForPrack::name( void ) const
@@ -508,7 +584,7 @@ void WaitingFor200OkForSlowStartPrack::SuccessfulResponse( DialogTracker& impl, 
    {
       if( seqMethod.compareTo( SIP_PRACK_METHOD ) == 0 )
       {
-         ChangeState( impl, impl.pWaitingFor200OkforInvite );
+         ChangeState( impl, impl.pWaitingForAckForInvite );
       }
       else
       {
@@ -541,7 +617,7 @@ void WaitingFor200OkForSlowStartPrack::FailureResponse( DialogTracker& impl, Sip
 
 const DialogTrackerState* WaitingFor200OkForPrack::GetParent( DialogTracker& impl ) const
 {
-   return impl.pNegotiating;
+   return impl.pProcessingPrack;
 }
 
 const char* WaitingFor200OkForPrack::name( void ) const
@@ -558,12 +634,13 @@ void WaitingFor200OkForPrack::SuccessfulResponse( DialogTracker& impl, SipMessag
    {
       if( seqMethod.compareTo( SIP_PRACK_METHOD ) == 0 )
       {
-         ChangeState( impl, impl.pWaitingFor200OkforInvite );
+         ChangeState( impl, impl.pProcessingPrackWaitingForAckforInvite );
       }
       else
       {
-         OsSysLog::add(FAC_NAT,PRI_DEBUG,"'%s:%s' - Received unexpected successful response for %s request",
-               impl.name(), impl.GetCurrentState()->name(), seqMethod.data() );    
+         // Not interesting for us but our parent class provides some handling for
+         // other successful responses.
+         ProcessingPrack::SuccessfulResponse( impl, response, address, port );
       }
    }
 }
@@ -589,7 +666,7 @@ void WaitingFor200OkForPrack::FailureResponse( DialogTracker& impl, SipMessage& 
 
 const DialogTrackerState* WaitingFor200OkWithAnswerForPrack::GetParent( DialogTracker& impl ) const
 {
-   return impl.pNegotiating;
+   return impl.pProcessingPrack;
 }
 
 const char* WaitingFor200OkWithAnswerForPrack::name( void ) const
@@ -608,12 +685,13 @@ void WaitingFor200OkWithAnswerForPrack::SuccessfulResponse( DialogTracker& impl,
       {
          impl.ProcessMediaAnswer( response, NON_INITIAL_OFFER_ANSWER );
          impl.modifyNonIntialOfferAnswerExchangeDoneFlag( true );
-         ChangeState( impl, impl.pWaitingFor200OkforInvite );
+         ChangeState( impl, impl.pProcessingPrackWaitingForAckforInvite );
       }
       else
       {
-         OsSysLog::add(FAC_NAT,PRI_DEBUG,"'%s:%s' - Received unexpected successful response for %s request",
-               impl.name(), impl.GetCurrentState()->name(), seqMethod.data() );    
+         // Not interesting for us but our parent class provides some handling for
+         // other successful responses.
+         ProcessingPrack::SuccessfulResponse( impl, response, address, port );
       }
    }
 }
@@ -640,44 +718,22 @@ void WaitingFor200OkWithAnswerForPrack::FailureResponse( DialogTracker& impl, Si
    }
 }
 
-const DialogTrackerState* WaitingFor200OkforInvite::GetParent( DialogTracker& impl ) const
+const DialogTrackerState* ProcessingPrackWaitingForAckforInvite::GetParent( DialogTracker& impl ) const
 {
-   return impl.pNegotiating;
+   return impl.pProcessingPrack;
 }
 
-const char* WaitingFor200OkforInvite::name( void ) const
+const char* ProcessingPrackWaitingForAckforInvite::name( void ) const
 {
-   return "WaitingFor200OkforInvite";
+   return "ProcessingPrackWaitingForAckforInvite";
 }
 
-void WaitingFor200OkforInvite::SuccessfulResponse( DialogTracker& impl, SipMessage& response, const char* address, int port ) const
+bool ProcessingPrackWaitingForAckforInvite::AckRequest( DialogTracker& impl, SipMessage& request, TransactionDirectionality direction, const char* address, int port ) const
 {
-   int seqNum;
-   UtlString seqMethod;
-   
-   if( response.getCSeqField( &seqNum, &seqMethod ) )
-   {
-      if( seqMethod.compareTo( SIP_INVITE_METHOD ) == 0 )
-      {
-         // normally we would not be expecting this 200 OK response to carry
-         // an SDP however we have encountered in the field some endpoints
-         // that repeat the SDP answer they already sent in a previous
-         // reliable provisional response (see XECS-2079 for the details).
-         // Given that, if an SDP answer is found, we will reprocess it
-         // to make sure it gets the same transformations that the initial
-         // one got as per XECS-2089.
-         if( response.hasSdpBody() )
-         {
-            impl.ProcessMediaAnswer( response, INITIAL_OFFER_ANSWER );
-         }
-         ChangeState( impl, impl.pWaitingForAckForInvite );
-      }
-      else
-      {
-         OsSysLog::add(FAC_NAT,PRI_DEBUG,"'%s:%s' - Received unexpected successful response for %s request",
-               impl.name(), impl.GetCurrentState()->name(), seqMethod.data() );    
-      }
-   }   
+      impl.setDialogEstablishedFlag();
+      impl.promoteTentativeMediaRelaySessionsToCurrent();
+      ChangeState( impl, impl.pWaitingForInvite );
+      return false;
 }
 
 
