@@ -30,13 +30,14 @@ struct DialogTrackerStateStruct
    Negotiating                                negotiating;
    WaitingForMediaOffer                       waitingForMediaOffer;
    WaitingForMediaAnswer                      waitingForMediaAnswer;
+   ProcessingPrack                            processingPrack;
    WaitingForPrack                            waitingForPrack;
    WaitingForAckWithAnswerForInvite           waitingForAckWithAnswerForInvite;
    WaitingForPrackWithMediaAnswer             waitingForPrackWithMediaAnswer;
    WaitingFor200OkForSlowStartPrack           waitingFor200OkForSlowStartPrack;
    WaitingFor200OkForPrack                    waitingFor200OkForPrack;
    WaitingFor200OkWithAnswerForPrack          waitingFor200OkWithAnswerForPrack;
-   WaitingFor200OkforInvite                   waitingFor200OkforInvite;
+   ProcessingPrackWaitingForAckforInvite      processingPrackWaitingForAckforInvite;
    Moribund                                   moribund; };
 
 // STATICS INITIALIZATION
@@ -46,13 +47,14 @@ TimeBoundState*                             DialogTracker::pTimeBoundState = 0;
 Negotiating*                                DialogTracker::pNegotiating = 0;
 WaitingForMediaOffer*                       DialogTracker::pWaitingForMediaOffer = 0;
 WaitingForMediaAnswer*                      DialogTracker::pWaitingForMediaAnswer = 0;
+ProcessingPrack*                            DialogTracker::pProcessingPrack = 0;
 WaitingForPrack*                            DialogTracker::pWaitingForPrack = 0;
 WaitingForAckWithAnswerForInvite*           DialogTracker::pWaitingForAckWithAnswerForInvite = 0;
 WaitingForPrackWithMediaAnswer*             DialogTracker::pWaitingForPrackWithMediaAnswer = 0;
 WaitingFor200OkForSlowStartPrack*           DialogTracker::pWaitingFor200OkForSlowStartPrack = 0;
 WaitingFor200OkForPrack*                    DialogTracker::pWaitingFor200OkForPrack = 0;
 WaitingFor200OkWithAnswerForPrack*          DialogTracker::pWaitingFor200OkWithAnswerForPrack = 0;
-WaitingFor200OkforInvite*                   DialogTracker::pWaitingFor200OkforInvite = 0;
+ProcessingPrackWaitingForAckforInvite*      DialogTracker::pProcessingPrackWaitingForAckforInvite = 0;
 Moribund*                                   DialogTracker::pMoribund = 0;
 
 DialogTracker::DialogTracker( const DialogTracker& referenceDialogTracker,
@@ -1133,13 +1135,14 @@ void DialogTracker::initializeStatePointers( void )
    pNegotiating                                = &states.negotiating;
    pWaitingForMediaOffer                       = &states.waitingForMediaOffer;
    pWaitingForMediaAnswer                      = &states.waitingForMediaAnswer;
+   pProcessingPrack                            = &states.processingPrack;
    pWaitingForPrack                            = &states.waitingForPrack;
    pWaitingForAckWithAnswerForInvite           = &states.waitingForAckWithAnswerForInvite;
    pWaitingForPrackWithMediaAnswer             = &states.waitingForPrackWithMediaAnswer;
    pWaitingFor200OkForSlowStartPrack           = &states.waitingFor200OkForSlowStartPrack;
    pWaitingFor200OkForPrack                    = &states.waitingFor200OkForPrack;
    pWaitingFor200OkWithAnswerForPrack          = &states.waitingFor200OkWithAnswerForPrack;
-   pWaitingFor200OkforInvite                   = &states.waitingFor200OkforInvite;
+   pProcessingPrackWaitingForAckforInvite      = &states.processingPrackWaitingForAckforInvite;
    pMoribund                                   = &states.moribund;
 }   
 

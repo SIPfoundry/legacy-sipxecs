@@ -229,13 +229,14 @@ public:
     static Negotiating*            pNegotiating;
        static WaitingForMediaOffer*                       pWaitingForMediaOffer;
        static WaitingForMediaAnswer*                      pWaitingForMediaAnswer;
-       static WaitingForPrack*                            pWaitingForPrack;
        static WaitingForAckWithAnswerForInvite*           pWaitingForAckWithAnswerForInvite;
        static WaitingForPrackWithMediaAnswer*             pWaitingForPrackWithMediaAnswer;
        static WaitingFor200OkForSlowStartPrack*           pWaitingFor200OkForSlowStartPrack;
-       static WaitingFor200OkForPrack*                    pWaitingFor200OkForPrack;
-       static WaitingFor200OkWithAnswerForPrack*          pWaitingFor200OkWithAnswerForPrack;
-       static WaitingFor200OkforInvite*                   pWaitingFor200OkforInvite;
+       static ProcessingPrack*                            pProcessingPrack;
+          static WaitingForPrack*                            pWaitingForPrack;
+          static WaitingFor200OkForPrack*                    pWaitingFor200OkForPrack;
+          static WaitingFor200OkWithAnswerForPrack*          pWaitingFor200OkWithAnswerForPrack;
+          static ProcessingPrackWaitingForAckforInvite*      pProcessingPrackWaitingForAckforInvite;
    
 protected:
 
