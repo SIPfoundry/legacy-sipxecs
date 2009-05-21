@@ -1219,9 +1219,11 @@ class CallControlManager implements SymmitronResetHandler {
             } else {
                 // Operation is SEND_INVITE_TO_SIPX_PROXY
                 // The other end request us to run a session timer.
+                final String REFRESHER = "refresher";
                 SessionExpires seh = (SessionExpires) serverTransaction.getRequest().getHeader(
                         SessionExpiresHeader.NAME);
-                if (seh != null && seh.getParameter("refresher").equals("uas")) {
+                if (seh != null && seh.getParameter(REFRESHER) != null && 
+                        seh.getParameter(REFRESHER).equals("uas")) {
                     int timerInterval = seh.getExpires();
                     DialogContext peerDialogContext = DialogContext.getPeerDialogContext(dialog);
                     peerDialogContext.startSessionTimer(timerInterval);

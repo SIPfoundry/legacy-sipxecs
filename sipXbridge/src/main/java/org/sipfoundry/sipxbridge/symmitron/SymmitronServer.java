@@ -178,6 +178,7 @@ public class SymmitronServer implements Symmitron {
      * @throws SipXbridgeException
      */
     static void discoverAddress() throws Exception {
+        NetworkConfigurationDiscoveryProcess addressDiscovery = null;
         try {
 
             String stunServerAddress = symmitronConfig.getStunServerAddress();
@@ -192,7 +193,7 @@ public class SymmitronServer implements Symmitron {
                 StunAddress serverStunAddress = new StunAddress(
                         stunServerAddress, STUN_PORT);
 
-                NetworkConfigurationDiscoveryProcess addressDiscovery = new NetworkConfigurationDiscoveryProcess(
+                addressDiscovery = new NetworkConfigurationDiscoveryProcess(
                         localStunAddress, serverStunAddress);
                 java.util.logging.LogManager logManager = java.util.logging.LogManager
                         .getLogManager();
@@ -226,7 +227,7 @@ public class SymmitronServer implements Symmitron {
                     logger.debug("publicAddress = " + publicAddr);
                     symmitronConfig.setPublicAddress(publicAddr);
                 }
-                addressDiscovery.shutDown();
+             
 
             } else {
                 logger.error("Stun server address not speicifed");
@@ -235,6 +236,14 @@ public class SymmitronServer implements Symmitron {
 
             logger.error("Error discovering  address -- Check Stun Server", ex);
             return;
+        } finally {
+            if ( addressDiscovery != null ) {
+                try {
+                    addressDiscovery.shutDown();
+                } catch (Exception ex) {
+                    logger.error("Problem shutting down address discovery!");
+                }
+            }
         }
     }
 
