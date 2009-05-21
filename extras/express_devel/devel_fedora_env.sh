@@ -128,7 +128,8 @@ function yum_install_and_check {
 
 function gem_install_and_check {
    echo -n "  Checking for (gem package) $1..." 
-   if [ gem list | grep $1 > /dev/null ]
+   gem list | grep $1 > /dev/null
+   if [ $? ]
    then
       echo " FOUND."
    else
@@ -256,10 +257,15 @@ sed -i -e "s/[\t]disable[\t][\t][\t]= yes/\tdisable\t\t\t= no/g" /etc/xinetd.d/t
 sed -i -e "s/\/var\/lib\/tftpboot/\/tftpboot/g" /etc/xinetd.d/tftp
 /sbin/service xinetd restart
 
-# Enable FTP with a Polycom user, also using the /tftpboot directory.
-/usr/sbin/useradd -d /tftpboot -G $DEVEL_USER -s /sbin/nologin -M PlcmSpIp
-echo -e "PlcmSpIp" | sudo passwd --stdin PlcmSpIp
-# Uncomment to disable directory listing - echo "dirlist_enable=NO" >> /etc/vsftpd/vsftpd.conf
+function add_ftp_user { # username, password
+   /usr/sbin/useradd -d /tftpboot -G $DEVEL_USER -s /sbin/nologin -M $1
+   echo -e "$2" | sudo passwd --stdin $1
+}
+
+# Enable the FTP users, also using the /tftpboot directory.
+add_ftp_user PlcmSpIp PlcmSpIp
+add_ftp_user lvp2890 28904all
+#Uncomment to disable directory listing# echo "dirlist_enable=NO" >> /etc/vsftpd/vsftpd.conf
 /sbin/chkconfig vsftpd on
 /sbin/service vsftpd restart
 
