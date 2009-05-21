@@ -351,7 +351,7 @@ function hasTimestamps () {
    local log=$1
    local sawTime
    sawTime=`head -n 1 "${log}" \
-            | perl -ne 'm/^"\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d.\d{6}Z":/ && print "YES"'`
+            | perl -ne 'm/^"\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d.\d{6}Z":/ && print "YES"'` 2>&1
    test "${sawTime}" = "YES"
 }
 
