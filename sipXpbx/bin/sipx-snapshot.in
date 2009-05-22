@@ -569,19 +569,27 @@ date -u                 >> ${SystemConfig}
 echo -n "           "   >> ${SystemConfig}
 date                    >> ${SystemConfig}
 echo ""                 >> ${SystemConfig}
+if [ -n "${LogStart}" ]
+then
+  echo -n "Cut start: "   >> ${SystemConfig}
+  date -d "${LogStart} Z" >> ${SystemConfig}
+  echo -n "Cut stop:  "   >> ${SystemConfig}
+  date -d "${LogStop} Z"  >> ${SystemConfig}
+  echo ""                 >> ${SystemConfig}
+fi
 echo -n "SysVersion: "  >> ${SystemConfig}
 uname -a                >> ${SystemConfig}
 if [ -f /etc/issue ]
 then
-echo ""                 >> ${SystemConfig}
-echo "Release (/etc/issue):" >> ${SystemConfig}
-cat /etc/issue          >> ${SystemConfig}
+  echo ""                 >> ${SystemConfig}
+  echo "Release (/etc/issue):" >> ${SystemConfig}
+  cat /etc/issue          >> ${SystemConfig}
 fi
 if [ -f /etc/redhat-release ]
 then
-echo ""                 >> ${SystemConfig}
-echo "Release (/etc/redhat-release):" >> ${SystemConfig}
-cat /etc/redhat-release >> ${SystemConfig}
+  echo ""                 >> ${SystemConfig}
+  echo "Release (/etc/redhat-release):" >> ${SystemConfig}
+  cat /etc/redhat-release >> ${SystemConfig}
 fi
 echo ""                 >> ${SystemConfig}
 echo    "sipXpbx User:" >> ${SystemConfig}
@@ -809,15 +817,15 @@ Backtrace=${Work}/Backtrace
 echo ======== Backtrace of all sipX processes > ${Backtrace}
 for PID_FILE in ~/sandbox-147/dir-local/var/run/sipxpbx/*.pid
 do
-    PID=$( cat $PID_FILE )
+    PID=$( cat ${PID_FILE} )
     echo
-    echo Process ${PID_FILE%.pid} number $PID
+    echo Process ${PID_FILE%.pid} number ${PID}
     echo
-    if [[ -n "$PID" ]]
+    if [[ -n "${PID}" ]]
     then
 	time \
 	    gdb < /dev/null \
-	    -eval-command "attach $PID" \
+	    -eval-command "attach ${PID}" \
 	    -eval-command 'thread apply all backtrace' \
 	    -eval-command detach \
 	    -eval-command quit
