@@ -541,6 +541,18 @@ serverEmail="root@%s"\n\
 
     os.chdir (curDir)
 
+def sync_ntp_time () :
+    # Sync the NTP time on the distributed system with the primary system NTP
+    # time to ensure that the time on the certificate will be valid
+    # Note: Fedora/CentOS will use /etc/ntp/step-tickers to sync on start.
+    cmdoutput=commands.getoutput ('/sbin/service %s stop' % sipxecsGlobals.NtpServiceName)
+    log_printout(cmdoutput)
+    if os.path.exists("/etc/SuSE-release"):
+        cmdoutput=commands.getoutput ('/sbin/service %s ntpsettime' % sipxecsGlobals.NtpServiceName)
+        log_printout(cmdoutput)
+    cmdoutput=commands.getoutput ('/sbin/service %s start' % sipxecsGlobals.NtpServiceName)
+    log_printout(cmdoutput)
+
 def generate_ssl_cert () :
     global HostName
     
@@ -883,6 +895,9 @@ but not running as root, so DNS zone file was not written." )
 
         progress(30, "Retrieve @SIPXECS_NAME@ Configuration")
         screen_fetch_config()
+
+        progress(40, "Synchronize NTP Time")
+        sync_ntp_time()
         
     progress(90, 'Configuring @SIPXECS_NAME@ Autostart' )
     configure_autostart_service()

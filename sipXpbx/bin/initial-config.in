@@ -85,6 +85,12 @@ perl -p \
     -e "END { print \"\\nserver ${myHostname}\\n\"; };" \
     /etc/ntp.conf > "${INITIAL_CONFIG}/etc/ntp.conf" || exit 1
 
+# create a modified /etc/ntp/step-tickers file
+test -d "${INITIAL_CONFIG}/etc/ntp" || mkdir -p "${INITIAL_CONFIG}/etc/ntp" || exit 1
+perl -p \
+    -e "END { print \"\\n${myHostname}\\n\"; };" \
+    /etc/ntp/step-tickers > "${INITIAL_CONFIG}/etc/ntp/step-tickers" || exit 1
+
 . @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
 
 # If this host is the DNS server for the zone then create a modified 
