@@ -3,42 +3,22 @@
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
   <!--
-    - Wouldn't be that hard to create a finder that finds beans by using some - convention so you wouldn't have to
-    define this bean so many times.
+    SpringBeanRouter finds all resources in the application context. Aliases starting from '/' are bind as routes for
+    referenced resources.
   -->
-  <bean id="springFinder" class="org.restlet.ext.spring.SpringFinder" abstract="true" />
-
-  <bean id="restManager" class="org.sipfoundry.sipxconfig.rest.RestManager">
-    <property name="resourceMappings">
-      <map>
-        <entry key="/phonebook">
-          <bean parent="springFinder">
-            <lookup-method bean="phonebooksResource" name="createResource" />
-          </bean>
-        </entry>
-        <entry key="/phonebook/{name}">
-          <bean parent="springFinder">
-            <lookup-method bean="phonebookResource" name="createResource" />
-          </bean>
-        </entry>
-        <entry key="/call/{to}">
-          <bean parent="springFinder">
-            <lookup-method bean="callResource" name="createResource" />
-          </bean>
-        </entry>
-      </map>
-    </property>
-  </bean>
+  <bean id="restletSpringBeanRouter" class="org.restlet.ext.spring.SpringBeanRouter" />
 
   <bean id="phonebookResource" class="org.sipfoundry.sipxconfig.rest.PhonebookResource" scope="prototype">
     <property name="phonebookManager" ref="phonebookManager" />
     <property name="modifiable" value="false" />
   </bean>
+  <alias name="phonebookResource" alias="/phonebook/{name}" />
 
   <bean id="phonebooksResource" class="org.sipfoundry.sipxconfig.rest.PhonebooksResource" scope="prototype">
     <property name="phonebookManager" ref="phonebookManager" />
     <property name="modifiable" value="false" />
   </bean>
+  <alias name="phonebooksResource" alias="/phonebook" />
 
   <bean id="callResource" class="org.sipfoundry.sipxconfig.rest.CallResource" scope="prototype">
     <property name="sipService" ref="sip" />
@@ -47,5 +27,6 @@
     <property name="available" value="false" />
     <property name="readable" value="false" />
   </bean>
+  <alias name="callResource" alias="/call/{to}" />
 
 </beans>

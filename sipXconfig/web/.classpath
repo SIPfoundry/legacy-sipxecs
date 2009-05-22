@@ -48,7 +48,7 @@
 	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/postgresql-8.2-504.jdbc3.jar" sourcepath="/LIB_SRC/pgsql/8.2/src.zip"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/org.restlet_1.1.4.jar" sourcepath="/LIB_SRC/restlet/1.1.4/src.zip"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/com.noelios.restlet_1.1.4.jar" sourcepath="/LIB_SRC/restlet/1.1.4/src.zip"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/org.restlet.ext.spring_2.5.jar" sourcepath="/LIB_SRC/restlet/1.0.1/src.zip"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/org.restlet.ext.spring_2.5.jar" sourcepath="/LIB_SRC/restlet/1.1.4/src.zip"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/com.noelios.restlet.ext.servlet_2.5.jar" sourcepath="/LIB_SRC/restlet/1.0.1/src.zip"/>
 	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/sipx-jwebunit-htmlunit-plugin-1.4.1.jar" sourcepath="/LIB_SRC/jwebunit/1.4.1/src/jwebunit-htmlunit-plugin-1.4.1-sources.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/regexp-1.3.jar"/>
