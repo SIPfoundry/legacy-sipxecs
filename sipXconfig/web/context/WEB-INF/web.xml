@@ -141,11 +141,6 @@
   </servlet>
 
   <servlet>
-    <servlet-name>change-pintoken</servlet-name>
-    <servlet-class>org.sipfoundry.sipxconfig.site.user.PinTokenChangeServlet</servlet-class>
-  </servlet>
-
-  <servlet>
     <servlet-name>rest</servlet-name>
     <servlet-class>org.sipfoundry.sipxconfig.rest.RestSpringAdapterServlet</servlet-class>
   </servlet>
@@ -199,11 +194,6 @@
   <servlet-mapping>
     <servlet-name>sipXconfig-web</servlet-name>
     <url-pattern>*.svc</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>change-pintoken</servlet-name>
-    <url-pattern>/api/change-pintoken</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
