@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.security;
 
-
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 import org.acegisecurity.userdetails.UserDetails;
@@ -24,11 +23,16 @@ public class AuthenticationDaoImpl implements UserDetailsService {
     // granted authorities
     static final GrantedAuthority AUTH_USER = new GrantedAuthorityImpl(User.ROLE_USER);
     static final GrantedAuthority AUTH_ADMIN = new GrantedAuthorityImpl(User.ROLE_ADMIN);
-    static final GrantedAuthority[] AUTH_USER_ARRAY = new GrantedAuthority[] {AUTH_USER};
-    static final GrantedAuthority[] AUTH_USER_AND_ADMIN_ARRAY =
-        new GrantedAuthority[] {AUTH_USER, AUTH_ADMIN};
+    static final GrantedAuthority[] AUTH_USER_ARRAY = new GrantedAuthority[] {
+        AUTH_USER
+    };
+    static final GrantedAuthority[] AUTH_USER_AND_ADMIN_ARRAY = new GrantedAuthority[] {
+        AUTH_USER, AUTH_ADMIN
+    };
     static final GrantedAuthority AUTH_LOCATION = new GrantedAuthorityImpl(Location.ROLE_LOCATION);
-    static final GrantedAuthority [] AUTH_LOCATION_ARRAY = new GrantedAuthority[] {AUTH_LOCATION};
+    static final GrantedAuthority[] AUTH_LOCATION_ARRAY = new GrantedAuthority[] {
+        AUTH_LOCATION
+    };
 
     /** Whether dummy admin user is enabled. For use only by unit tests! */
     private static boolean s_dummyAdminUserEnabled;
@@ -38,7 +42,7 @@ public class AuthenticationDaoImpl implements UserDetailsService {
     private LocationsManager m_locationsManager;
 
     public UserDetails loadUserByUsername(String userNameOrAlias) {
-        if (isDummyAdminUserEnabled() && userNameOrAlias.equals(DUMMY_ADMIN_USER_NAME)) {
+        if (allowDummyUser(userNameOrAlias)) {
             return loadDummyAdminUser();
         }
 
@@ -51,7 +55,7 @@ public class AuthenticationDaoImpl implements UserDetailsService {
             }
         }
 
-        // All users are granted ROLE_USER.  Only admins get ROLE_ADMIN.
+        // All users are granted ROLE_USER. Only admins get ROLE_ADMIN.
         UserDetails details = null;
         if (user != null) {
             boolean isAdmin = user.isAdmin();
@@ -74,11 +78,6 @@ public class AuthenticationDaoImpl implements UserDetailsService {
         m_locationsManager = locationsManager;
     }
 
-    /** Return true if dummy admin user is enabled, false otherwise */
-    public static boolean isDummyAdminUserEnabled() {
-        return s_dummyAdminUserEnabled;
-    }
-
     /** Enable dummy admin user. For use by unit tests only! */
     public static void setDummyAdminUserEnabled(boolean dummyAdminUserEnabled) {
         s_dummyAdminUserEnabled = dummyAdminUserEnabled;
@@ -93,5 +92,13 @@ public class AuthenticationDaoImpl implements UserDetailsService {
         UserDetailsImpl details = new UserDetailsImpl(testUser, DUMMY_ADMIN_USER_NAME, AUTH_USER_AND_ADMIN_ARRAY);
 
         return details;
+    }
+
+    /**
+     * @param userName
+     * @return
+     */
+    public static boolean allowDummyUser(String userName) {
+        return s_dummyAdminUserEnabled && DUMMY_ADMIN_USER_NAME.equals(userName);
     }
 }
