@@ -32,7 +32,9 @@ Requires: sipxtools >= 3.11
 
 Requires: httpd >= 2.0
 Requires: rsyslog
+%if %{_vendor} == redhat
 Requires: glibc-common
+%endif
 
 # sending email - an smtp listener must be running on localhost
 %if %{_vendor} == redhat
