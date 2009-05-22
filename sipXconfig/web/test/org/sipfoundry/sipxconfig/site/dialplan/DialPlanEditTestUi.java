@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.dialplan;
@@ -53,6 +53,7 @@ public class DialPlanEditTestUi extends WebTestCase {
         },
     };
 
+    @Override
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(tester);
@@ -184,7 +185,7 @@ public class DialPlanEditTestUi extends WebTestCase {
         clickButton("dialplan:move:up");
         // no changes
         SiteTestHelper.assertNoException(getTester());
-        
+
         String[][] expected = DEFAULTS.clone();
         expected[0] = expected[0].clone();
         expected[0][0] = "checked";
@@ -237,10 +238,11 @@ public class DialPlanEditTestUi extends WebTestCase {
 
             // Give the new gateway a name that is extremely unlikely to collide
             // with any existing gateway names
-            String gatewayName = "gateway" + i +
-		Long.toString(System.currentTimeMillis()) + ".localdomain";
+            String gatewayName = "gateway" + i + Long.toString(System.currentTimeMillis()) + ".localdomain";
 
             gateways[i] = GatewaysTestUi.addGateway(tester, gatewayName);
+            // HACK: fix --all-- to All
+            gateways[i][3] = "All";
             SiteTestHelper.assertNoException(tester);
         }
 

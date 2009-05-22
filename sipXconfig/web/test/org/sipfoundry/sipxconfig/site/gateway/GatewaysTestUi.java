@@ -32,6 +32,10 @@ import static org.sipfoundry.sipxconfig.site.SiteTestHelper.webTestSuite;
  * GatewaysTestUi
  */
 public class GatewaysTestUi extends WebTestCase {
+
+    private static final String ALL = "-- all --";
+    private static final String GROUP = "seedGroup0";
+
     public static Test suite() throws Exception {
         return webTestSuite(GatewaysTestUi.class);
     }
@@ -60,7 +64,7 @@ public class GatewaysTestUi extends WebTestCase {
         Table gatewaysTable = getTable("list:gateway");
 
         int lastColumn = getColumnCount(gatewaysTable) - 1;
-        assertEquals(4, lastColumn);
+        assertEquals(5, lastColumn);
 
         SiteTestHelper.selectOption(tester, "selectGatewayModel", "Unmanaged gateway");
 
@@ -74,6 +78,7 @@ public class GatewaysTestUi extends WebTestCase {
         // we should have 2 gateway now
         assertEquals(2, gatewaysTable.getRowCount());
         assertEquals("bongoDescription", getCellAsText(gatewaysTable, 1, lastColumn));
+        assertEquals("All", getCellAsText(gatewaysTable, 1, 3));
 
         SiteTestHelper.selectOption(tester, "selectGatewayModel", "Unmanaged gateway");
 
@@ -81,7 +86,7 @@ public class GatewaysTestUi extends WebTestCase {
 
         SiteTestHelper.selectOption(tester, "selectGatewayModel", "Unmanaged gateway");
 
-        addGateway("sharedG", true);
+        addGateway("sharedG", true, ALL);
 
         gatewaysTable = getTable("list:gateway");
         // we should have 3 gateway now
@@ -89,6 +94,18 @@ public class GatewaysTestUi extends WebTestCase {
         assertTextInTable("list:gateway", "kukuDescription");
         assertTextInTable("list:gateway", "bongoDescription");
         assertTextInTable("list:gateway", "sharedGDescription");
+        assertImagePresent("/sipxconfig/images/gateway_shared.png", "sharedIcon");
+
+    }
+
+    public void testGroup() {
+        clickLink("ManageUsers");
+        SiteTestHelper.seedGroup(tester, "NewUserGroup", 1);
+        clickLink("ListGateways");
+        assertTablePresent("list:gateway");
+        SiteTestHelper.selectOption(tester, "selectGatewayModel", "Unmanaged gateway");
+        addGateway("sharedG", true, GROUP);
+        assertTextInTable("list:gateway", GROUP);
     }
 
     public void testEditGatewaySettings() throws Exception {
@@ -129,7 +146,7 @@ public class GatewaysTestUi extends WebTestCase {
         SiteTestHelper.selectOption(tester, "selectGatewayModel", "SIP trunk");
         setTextField("gateway:name", "SipTrunkRouteTest");
         setTextField("gateway:address", "1.2.3.4");
-//        // FIXME: apply should not be necessary see: XCF-2444
+        // // FIXME: apply should not be necessary see: XCF-2444
         clickButton("form:apply");
         SiteTestHelper.selectOption(tester, "sbcDeviceSelect", "Unmanaged SBC");
         setTextField("sbcDevice:name", "sbcDeviceForSipTrunk");
@@ -137,7 +154,7 @@ public class GatewaysTestUi extends WebTestCase {
         clickButton("form:ok");
         assertNoUserError(tester);
         assertSelectedOptionEquals("sbcDeviceSelect", "sbcDeviceForSipTrunk");
-        clickButton("form:ok");        
+        clickButton("form:ok");
         assertNoUserError(tester);
     }
 
@@ -214,26 +231,27 @@ public class GatewaysTestUi extends WebTestCase {
         addGateway(tester, name);
     }
 
-    private void addGateway(String name, boolean shared) {
-        addGateway(tester, name, shared);
+    private void addGateway(String name, boolean shared, String location) {
+        addGateway(tester, name, shared, location);
     }
 
-    private static String[] addGateway(WebTester tester, String name, boolean shared) {
+    private static String[] addGateway(WebTester tester, String name, boolean shared, String location) {
         String[] row = new String[] {
-                "unchecked", name + "Name", name + "Address" + ".localdomain",
-            "Unmanaged gateway", name + "Description"
-            };
+            "unchecked", name + "Name", name + "Address" + ".localdomain", location, "Unmanaged gateway",
+            name + "Description"
+        };
 
-            if (null != name) {
-                tester.setTextField("gateway:name", row[1]);
-                tester.setTextField("gateway:address", row[2]);
-                tester.setTextField("gateway:description", row[4]);
-                if (shared) {
-                    tester.checkCheckbox("gateway:shared");
-                }
+        if (null != name) {
+            tester.setTextField("gateway:name", row[1]);
+            tester.setTextField("gateway:address", row[2]);
+            tester.selectOption("gateways:site", row[3]);
+            tester.setTextField("gateway:description", row[5]);
+            if (shared) {
+                tester.checkCheckbox("gateway:shared");
             }
-            tester.submit("form:ok");
-            return row;
+        }
+        tester.submit("form:ok");
+        return row;
     }
 
     /**
@@ -242,7 +260,7 @@ public class GatewaysTestUi extends WebTestCase {
      * @param name response after clicking submit button
      */
     public static String[] addGateway(WebTester tester, String name) {
-        return addGateway(tester, name, false);
+        return addGateway(tester, name, false, ALL);
     }
 
     /**
