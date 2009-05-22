@@ -9,12 +9,23 @@ class RestServiceTestApi < Test::Unit::TestCase
   API_URL = "http://#{USER}:#{PASS}@localhost:9999/sipxconfig/rest"
 
   def setup
-    super
+    RestClient.log='stderr'
   end
 
-  def test_phoneBookService
-    RestClient.log='stderr'
+  def test_get_phonebooks_xml
+    phonebooks = RestClient.get(API_URL + '/phonebook', :accept=>'text/xml')
+    p phonebooks
+    assert_not_nil(phonebooks)
+  end
+
+  def test_get_phonebook_csv
     phonebook = RestClient.get(API_URL + '/phonebook/sales', :accept=>'text/comma-separated-values')
+    assert_not_nil(phonebook)
+  end
+
+  def test_get_phonebook_xml
+    phonebook = RestClient.get(API_URL + '/phonebook/sales', :accept=>'text/xml')
+    p phonebook
     assert_not_nil(phonebook)
   end
 end

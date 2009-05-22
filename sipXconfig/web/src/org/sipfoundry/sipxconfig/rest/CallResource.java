@@ -7,7 +7,7 @@
  *
  * $
  */
-package org.sipfoundry.sipxconfig.site.phonebook;
+package org.sipfoundry.sipxconfig.rest;
 
 import org.restlet.Context;
 import org.restlet.data.ChallengeResponse;
