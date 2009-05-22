@@ -20,6 +20,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 
 public class DomainConfiguration extends TemplateConfigurationFile {
 
+    public static final char SEPARATOR_CHAR = ' ';
     private Domain m_domain;
     private String m_language;
     private String m_configServerHost;
@@ -62,6 +63,6 @@ public class DomainConfiguration extends TemplateConfigurationFile {
             aliases.add(location.getFqdn());
         }
 
-        return StringUtils.join(aliases, ' ');
+        return StringUtils.join(aliases, SEPARATOR_CHAR);
     }
 }

@@ -14,11 +14,15 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
@@ -136,6 +140,7 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
         domain.setSipRealm(domainConfig.getProperty("SIP_REALM"));
         domain.setName(domainConfig.getProperty("SIP_DOMAIN_NAME"));
         domain.setSharedSecret(domainConfig.getProperty("SHARED_SECRET"));
+        domain.setAliases(getAlliasesFromDomainConfig(domainConfig));
     }
 
     public String getAuthorizationRealm() {
@@ -152,5 +157,27 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
 
     private String getConfigServerHostname() {
         return m_locationsManager.getPrimaryLocation().getFqdn();
+    }
+
+    private Set<String> getAlliasesFromDomainConfig(Properties domainConfig) {
+        List<String> infoLocations = new ArrayList<String>();
+        Location[] locations = m_locationsManager.getLocations();
+        for (Location location : locations) {
+            infoLocations.add(location.getAddress());
+            infoLocations.add(location.getFqdn());
+        }
+
+        Set<String> aliases = new LinkedHashSet<String>();
+        String[] domainConfigAliases = StringUtils.split(domainConfig.getProperty("SIP_DOMAIN_ALIASES"),
+                DomainConfiguration.SEPARATOR_CHAR);
+        if (domainConfigAliases != null) {
+            for (String alias : domainConfigAliases) {
+                if (!infoLocations.contains(alias)) {
+                    aliases.add(alias);
+                }
+            }
+        }
+
+        return aliases;
     }
 }
