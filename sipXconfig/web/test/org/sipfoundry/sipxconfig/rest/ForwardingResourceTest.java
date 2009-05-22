@@ -131,6 +131,44 @@ public class ForwardingResourceTest extends TestCase {
         verify(forwardingContext);
     }
 
+    public void testStoreJson() throws Exception {
+        CallSequence oldCallSequence = new CallSequence();
+        oldCallSequence.setUser(m_user);
+
+        CallSequenceMatcher matcher = new CallSequenceMatcher();
+
+        ForwardingContext forwardingContext = createMock(ForwardingContext.class);
+        forwardingContext.getCallSequenceForUser(null);
+        expectLastCall().andReturn(oldCallSequence);
+        forwardingContext.saveCallSequence(callSequence(matcher));
+        replay(forwardingContext);
+
+        final InputStream xmlStream = getClass().getResourceAsStream("call-sequence.rest.test.json");
+        Representation entity = new InputRepresentation(xmlStream, MediaType.APPLICATION_JSON);
+
+        ForwardingResource resource = new ForwardingResource();
+        resource.setForwardingContext(forwardingContext);
+        resource.storeRepresentation(entity);
+
+        CallSequence savedCallSequence = matcher.getArgument();
+
+        assertEquals(m_user, savedCallSequence.getUser());
+        assertEquals(5, savedCallSequence.getRings().size());
+
+        for (int i = 0; i < 5; i++) {
+            AbstractRing ring = savedCallSequence.getRings().get(i);
+            assertEquals(i, ring.getPosition());
+            assertEquals(25 + i, ring.getExpiration());
+            if (i % 2 == 0) {
+                assertEquals(Type.DELAYED, ring.getType());
+            } else {
+                assertEquals(Type.IMMEDIATE, ring.getType());
+            }
+        }
+
+        verify(forwardingContext);
+    }
+
     private static CallSequence callSequence(CallSequenceMatcher matcher) {
         reportMatcher(matcher);
         return null;

@@ -16,6 +16,10 @@ import java.util.List;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.SingleValueConverter;
+import com.thoughtworks.xstream.converters.UnmarshallingContext;
+import com.thoughtworks.xstream.converters.collections.CollectionConverter;
+import com.thoughtworks.xstream.io.HierarchicalStreamReader;
+import com.thoughtworks.xstream.mapper.Mapper;
 
 import org.restlet.Context;
 import org.restlet.data.MediaType;
@@ -24,6 +28,7 @@ import org.restlet.data.Response;
 import org.restlet.resource.Representation;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.Variant;
+import org.sipfoundry.sipxconfig.admin.callgroup.AbstractCallSequence;
 import org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing;
 import org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing.Type;
 import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
@@ -48,7 +53,8 @@ public class ForwardingResource extends UserResource {
     @Override
     public Representation represent(Variant variant) throws ResourceException {
         CallSequence callSequence = m_forwardingContext.getCallSequenceForUser(getUser());
-        return new CallSequenceRepresentation(variant.getMediaType(), callSequence);
+        CallSequence reprCallSequence = (CallSequence) callSequence.duplicate();
+        return new CallSequenceRepresentation(variant.getMediaType(), reprCallSequence);
     }
 
     @Override
@@ -89,6 +95,17 @@ public class ForwardingResource extends UserResource {
         }
     }
 
+    static class RingsConverter extends CollectionConverter {
+        public RingsConverter(Mapper mapper) {
+            super(mapper);
+        }
+
+        @Override
+        protected Object readItem(HierarchicalStreamReader reader, UnmarshallingContext context, Object current) {
+            return context.convertAnother(current, Ring.class);
+        }
+    }
+
     static class CallSequenceRepresentation extends XStreamRepresentation<CallSequence> {
 
         public CallSequenceRepresentation(MediaType mediaType, CallSequence object) {
@@ -101,7 +118,6 @@ public class ForwardingResource extends UserResource {
 
         @Override
         protected void configureXStream(XStream xstream) {
-            super.configureXStream(xstream);
             xstream.omitField(BeanWithId.class, "m_id");
             xstream.alias("call-sequence", CallSequence.class);
             xstream.omitField(CallSequence.class, "m_user");
@@ -111,5 +127,11 @@ public class ForwardingResource extends UserResource {
             xstream.addImmutableType(Type.class);
             xstream.registerConverter(new RingTypeConverter());
         }
+
+        @Override
+        protected void configureImplicitCollections(XStream xstream) {
+            xstream.addImplicitCollection(AbstractCallSequence.class, "m_rings", Ring.class);
+        }
+
     }
 }

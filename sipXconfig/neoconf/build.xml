@@ -31,6 +31,7 @@
     <pathelement location="${xmlrpc.jar}" />
     <pathelement location="${acegi-security.jar}" />
     <pathelement location="${xstream.jar}" />
+    <pathelement location="${jettison.jar}" />
     <path refid="axis.path" />
     <pathelement location="${agent-bindings.jar}" />
     <pathelement location="${cdr-bindings.jar}" />
@@ -242,6 +243,7 @@
       <fileset file="${agent-bindings.jar}" />
       <fileset file="${cdr-bindings.jar}" />
       <fileset file="${xstream.jar}" />
+      <fileset file="${jettison.jar}" />
     </copy>
 
     <mkdir dir="${dest.dir}${sipxconfig.phone.dir}/profile/docroot" />

@@ -28,6 +28,7 @@ import java.io.OutputStream;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.HierarchicalStreamDriver;
+import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
 import com.thoughtworks.xstream.io.json.JsonHierarchicalStreamDriver;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 import com.thoughtworks.xstream.mapper.MapperWrapper;
@@ -56,6 +57,8 @@ public class XStreamRepresentation<T> extends OutputRepresentation {
 
     private XStream m_xstream;
 
+    private final boolean m_parse;
+
     /**
      * Constructor.
      *
@@ -68,6 +71,7 @@ public class XStreamRepresentation<T> extends OutputRepresentation {
         m_representation = null;
         m_jsonDriverClass = JsonHierarchicalStreamDriver.class;
         m_xmlDriverClass = DomDriver.class;
+        m_parse = false;
     }
 
     /**
@@ -79,21 +83,40 @@ public class XStreamRepresentation<T> extends OutputRepresentation {
         super(representation.getMediaType());
         m_object = null;
         m_representation = representation;
-        m_jsonDriverClass = JsonHierarchicalStreamDriver.class;
+        m_jsonDriverClass = JettisonMappedXmlDriver.class;
         m_xmlDriverClass = DomDriver.class;
+        m_parse = true;
     }
 
-    protected XStream newXStreamInstance(HierarchicalStreamDriver driver) {
-        return new XStream(driver) {
-            @Override
-            protected MapperWrapper wrapMapper(MapperWrapper next) {
-                return new XstreamFieldMapper(next);
-            }
-        };
+    protected XStream newXStreamInstance(Class< ? extends HierarchicalStreamDriver> driver) {
+        try {
+            return new XStream(driver.newInstance()) {
+                @Override
+                protected MapperWrapper wrapMapper(MapperWrapper next) {
+                    return new XstreamFieldMapper(next);
+                }
+            };
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (InstantiationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
+    /**
+     * Override to configure xstream aliases
+     *
+     * @param xstream XStream instance to be configured
+     */
     protected void configureXStream(XStream xstream) {
-        xstream.setMode(XStream.NO_REFERENCES);
+    }
+
+    /**
+     * Override to declare collections as implicit: it's needed for JSON parsing.
+     *
+     * @param xstream XStream instance to be configured
+     */
+    protected void configureImplicitCollections(XStream xstream) {
     }
 
     /**
@@ -104,22 +127,16 @@ public class XStreamRepresentation<T> extends OutputRepresentation {
      * @return The XStream object.
      */
     protected XStream createXstream(MediaType mediaType) {
-        XStream result = null;
+        boolean json = MediaType.APPLICATION_JSON.isCompatible(mediaType);
 
-        try {
-            if (MediaType.APPLICATION_JSON.isCompatible(mediaType)) {
-                result = newXStreamInstance(m_jsonDriverClass.newInstance());
-            } else {
-                result = newXStreamInstance(m_xmlDriverClass.newInstance());
-            }
-            configureXStream(result);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InstantiationException e) {
-            throw new RuntimeException(e);
+        XStream xs = newXStreamInstance(json ? m_jsonDriverClass : m_xmlDriverClass);
+        xs.setMode(XStream.NO_REFERENCES);
+        configureXStream(xs);
+        if (json && m_parse) {
+            // if parsing JSON additional config is needed
+            configureImplicitCollections(xs);
         }
-
-        return result;
+        return xs;
     }
 
     public T getObject() {
