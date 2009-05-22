@@ -49,6 +49,7 @@ $(DESTDIR)@SERVICEDIR@:
 
 install-data-hook : \
 	$(DESTDIR)$(sysconfdir)/sipxpbx/phonelog.conf \
+	$(DESTDIR)$(localstatedir)/log/sipxpbx/phone \
 	$(DESTDIR)$(sysconfdir)/sipxpbx/httpd.conf.d \
 	$(DESTDIR)$(sysconfdir)/logrotate.d/sipxchange \
 	$(foreach file, $(wwwconf_files),$(DESTDIR)$(sysconfdir)/sipxpbx/$(file))
@@ -91,5 +92,8 @@ $(DESTDIR)$(sysconfdir)/logrotate.d/sipxchange: logrotate.d/sipxchange
 		echo "Installing default $@"; \
 		$(INSTALL) -D -m 644 $< $@; \
 	fi
+
+$(DESTDIR)$(localstatedir)/log/sipxpbx/phone:
+	${INSTALL) -d -m 755 $@
 
 DISTCLEANFILES = sipxpbx
