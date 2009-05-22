@@ -29,4 +29,12 @@
   </bean>
   <alias name="callResource" alias="/call/{to}" />
 
+  <bean id="voicemailPinResource" class="org.sipfoundry.sipxconfig.rest.VoicemailPinResource" scope="prototype">
+    <property name="domainManager" ref="domainManager" />
+    <property name="coreContext" ref="coreContext" />
+    <property name="available" value="false" />
+    <property name="readable" value="false" />
+  </bean>
+  <alias name="voicemailPinResource" alias="/voicemail/pin/{pin}" />
+
 </beans>
