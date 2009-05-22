@@ -116,7 +116,7 @@ public class MappingRulesTest extends XMLTestCase {
         m_out.localizeDocument(TestUtil.createDefaultLocation());
         Document document = m_out.getDocument();
 
-        String xml = XmlUnitHelper.asString(document);
+        String xml = TestUtil.asString(document);
         XmlUnitHelper.assertElementInNamespace(document.getRootElement(),
                 "http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00");
 
@@ -133,7 +133,7 @@ public class MappingRulesTest extends XMLTestCase {
         m_out.setExternalRulesFileName("/invalid/file/name");
         Document document = m_out.getDocument();
 
-        String xml = XmlUnitHelper.asString(document);
+        String xml = TestUtil.asString(document);
         XmlUnitHelper.assertElementInNamespace(document.getRootElement(),
                 "http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00");
 
@@ -149,7 +149,7 @@ public class MappingRulesTest extends XMLTestCase {
         m_out.localizeDocument(TestUtil.createDefaultLocation());
         Document document = m_out.getDocument();
 
-        String xml = XmlUnitHelper.asString(document);
+        String xml = TestUtil.asString(document);
 
         XmlUnitHelper.assertElementInNamespace(document.getRootElement(),
                 "http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00");
@@ -170,7 +170,7 @@ public class MappingRulesTest extends XMLTestCase {
         m_out.localizeDocument(TestUtil.createDefaultLocation());
         Document document = m_out.getDocument();
 
-        String xml = XmlUnitHelper.asString(document);
+        String xml = TestUtil.asString(document);
 
         XmlUnitHelper.assertElementInNamespace(document.getRootElement(),
                 "http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00");
@@ -250,7 +250,7 @@ public class MappingRulesTest extends XMLTestCase {
 
         Document document = m_out.getDocument();
 
-        String domDoc = XmlUnitHelper.asString(document);
+        String domDoc = TestUtil.asString(document);
 
         assertXpathEvaluatesTo("my rule description", "/mappings/hostMatch/userMatch/description", domDoc);
         assertXpathEvaluatesTo("x.", "/mappings/hostMatch/userMatch/userPattern", domDoc);
@@ -275,7 +275,7 @@ public class MappingRulesTest extends XMLTestCase {
         m_out.end();
 
         Document document = m_out.getDocument();
-        String domDoc = XmlUnitHelper.asString(document);
+        String domDoc = TestUtil.asString(document);
 
         assertXpathNotExists("/mappings/hostMatch/userMatch/userPattern", domDoc);
         assertXpathNotExists("/mappings/hostMatch/userMatch/permissionMatch", domDoc);
@@ -373,7 +373,7 @@ public class MappingRulesTest extends XMLTestCase {
         m_out.end();
 
         Document document = m_out.getDocument();
-        String domDoc = XmlUnitHelper.asString(document);
+        String domDoc = TestUtil.asString(document);
 
         assertXpathExists("/mappings/hostMatch[1]/hostPattern", domDoc);
         assertXpathExists("/mappings/hostMatch[1]/userMatch/userPattern", domDoc);
@@ -411,7 +411,7 @@ public class MappingRulesTest extends XMLTestCase {
 
         Document document = m_out.getDocument();
 
-        String domDoc = XmlUnitHelper.asString(document);
+        String domDoc = TestUtil.asString(document);
 
         assertXpathEvaluatesTo("my rule description", "/mappings/hostMatch/userMatch/description", domDoc);
         assertXpathEvaluatesTo("xxx", "/mappings/hostMatch/userMatch/userPattern", domDoc);

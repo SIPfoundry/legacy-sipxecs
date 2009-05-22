@@ -29,10 +29,24 @@ class RestServiceTestApi < Test::Unit::TestCase
 
   def test_change_pin
     # change PIN: 1235 -> 4321
-    uri1 = "http://userpintest:1235@localhost:9999/sipxconfig/rest/voicemail/pin/4321"
+    uri1 = "http://userpintest:1235@localhost:9999/sipxconfig/rest/my/voicemail/pin/4321"
     RestClient.put(uri1, '+')
     # change PIN back: 4321 -> 1235
-    uri2 = "http://userpintest:4321@localhost:9999/sipxconfig/rest/voicemail/pin/1235"
+    uri2 = "http://userpintest:4321@localhost:9999/sipxconfig/rest/my/voicemail/pin/1235"
     RestClient.put(uri2, '+')
+  end
+
+  def test_forwarding_xml
+    uri = "http://userpintest:1235@localhost:9999/sipxconfig/rest/my/forward"
+    forwarding = RestClient.get(uri, :accept=>'text/xml')
+    p forwarding
+    assert_not_nil(forwarding)
+  end
+
+  def test_forwarding_json
+    uri = "http://userpintest:1235@localhost:9999/sipxconfig/rest/my/forward"
+    forwarding = RestClient.get(uri, :accept=>'application/json')
+    p forwarding
+    assert_not_nil(forwarding)
   end
 end

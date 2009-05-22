@@ -20,9 +20,9 @@ import static org.easymock.EasyMock.*
 
 import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
-import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.rest.PhonebookResource.PhonebookCsv;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class PhonebookResourceTest extends TestCase {
     private PhonebookEntry m_entry;
@@ -52,7 +52,7 @@ public class PhonebookResourceTest extends TestCase {
     public void testXml() throws Exception {
         Document phonebookXml = PhonebookResource.getPhonebookXml(Collections.singleton(m_entry));
 
-        String phonebook = XmlUnitHelper.asString(phonebookXml);
+        String phonebook = TestUtil.asString(phonebookXml);
         String expected = IOUtils.toString(getClass().getResourceAsStream("phonebook.test.xml"));
         assertEquals(expected, phonebook);
     }

@@ -35,6 +35,14 @@
     <property name="available" value="false" />
     <property name="readable" value="false" />
   </bean>
-  <alias name="voicemailPinResource" alias="/voicemail/pin/{pin}" />
+  <alias name="voicemailPinResource" alias="/my/voicemail/pin/{pin}" />
+
+  <bean id="forwardingResource" class="org.sipfoundry.sipxconfig.rest.ForwardingResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="forwardingContext" ref="forwardingContext" />
+    <property name="available" value="true" />
+    <property name="modifiable" value="true" />
+  </bean>
+  <alias name="forwardingResource" alias="/my/forward" />
 
 </beans>

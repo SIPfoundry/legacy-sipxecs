@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.forwarding;
@@ -15,6 +15,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing;
 import org.sipfoundry.sipxconfig.common.User;
 
 /**
@@ -23,6 +24,7 @@ import org.sipfoundry.sipxconfig.common.User;
 public class CallSequenceTest extends TestCase {
     private User m_user;
 
+    @Override
     protected void setUp() throws Exception {
         m_user = new User();
         m_user.setUserName("abc");
@@ -32,7 +34,7 @@ public class CallSequenceTest extends TestCase {
         final int N = 7;
         List rings = new ArrayList(N);
         for (int i = 0; i < N; i++) {
-            Ring ring = new Ring("2" + i, i, Ring.Type.DELAYED, true);
+            Ring ring = new Ring("2" + i, i, AbstractRing.Type.DELAYED, true);
             rings.add(ring);
         }
         // add empty ring - should not change anything
@@ -73,7 +75,7 @@ public class CallSequenceTest extends TestCase {
         sequence.setRings(ringsMixed);
         aliases = sequence.generateAliases("sipfoundry.org");
         assertEquals(N/2, aliases.size());
-        
+
         for (Iterator i = aliases.iterator(); i.hasNext();) {
             AliasMapping a = (AliasMapping) i.next();
             assertEquals("abc@sipfoundry.org", a.getIdentity());

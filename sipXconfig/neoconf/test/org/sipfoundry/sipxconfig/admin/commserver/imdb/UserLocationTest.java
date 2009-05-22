@@ -18,6 +18,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class UserLocationTest extends XMLTestCase {
     public UserLocationTest() {
@@ -99,7 +100,7 @@ public class UserLocationTest extends XMLTestCase {
         EasyMock.replay(coreContext);
 
         Document document = ul.generateXml();
-        String ulXml = XmlUnitHelper.asString(document);
+        String ulXml = TestUtil.asString(document);
 
         InputStream referenceXmlStream = UserLocationTest.class.getResourceAsStream("userlocation.test.xml");
         assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(ulXml));

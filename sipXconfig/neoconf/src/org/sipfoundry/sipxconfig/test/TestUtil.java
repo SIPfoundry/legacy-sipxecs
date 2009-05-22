@@ -14,6 +14,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.net.URL;
 import java.security.CodeSource;
 import java.text.DateFormat;
@@ -22,6 +23,10 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Properties;
 
+import junit.framework.Assert;
+import org.dom4j.Document;
+import org.dom4j.io.OutputFormat;
+import org.dom4j.io.XMLWriter;
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
@@ -42,8 +47,8 @@ public final class TestUtil {
 
     private static final String FORWARD_SLASH = "/";
 
-    private static final DateFormat ENGLISH_DATE = DateFormat.getDateTimeInstance(
-            DateFormat.SHORT, DateFormat.FULL, Locale.ENGLISH);
+    private static final DateFormat ENGLISH_DATE = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.FULL,
+            Locale.ENGLISH);
     static {
         ENGLISH_DATE.setLenient(true);
     }
@@ -117,8 +122,8 @@ public final class TestUtil {
      * </pre>
      */
     public static String getTestSourceDirectory(Class testClass) {
-        StringBuffer sb = new StringBuffer(TestUtil.getProjectDirectory()).append("/test/")
-                .append(testClass.getPackage().getName().replace('.', '/'));
+        StringBuffer sb = new StringBuffer(TestUtil.getProjectDirectory()).append("/test/").append(
+                testClass.getPackage().getName().replace('.', '/'));
         String path = sb.toString();
 
         return path;
@@ -148,9 +153,8 @@ public final class TestUtil {
                 }
                 dir = dir.getParentFile();
             }
-            throw new RuntimeException(String
-                    .format("Cannot find %s in any of the parent of %s.", propName,
-                            getProjectDirectory()));
+            throw new RuntimeException(String.format("Cannot find %s in any of the parent of %s.", propName,
+                    getProjectDirectory()));
         } catch (IOException ioe) {
             throw new RuntimeException("Could not find top build directory", ioe);
         }
@@ -161,8 +165,7 @@ public final class TestUtil {
      * tests are unjar-ed. We could do this in ant, but this approach avoids setup and works in
      * IDEs like Eclipse where bin.eclipse is the classpath.
      */
-    public static void setSysDirProperties(Properties sysProps, String etcDirectory,
-            String outputDirectory) {
+    public static void setSysDirProperties(Properties sysProps, String etcDirectory, String outputDirectory) {
 
         // HACK: sysdir.bin is not a real directory when testing
         final String vxmlDir = outputDirectory + "/vxml";
@@ -188,25 +191,20 @@ public final class TestUtil {
         sysProps.setProperty("sysdir.libexec", outputDirectory);
         sysProps.setProperty("sysdir.default.firmware", outputDirectory + "/devicefiles");
 
-
         sysProps.setProperty("dataSource.jdbcUrl", "jdbc:postgresql://localhost/SIPXCONFIG_TEST");
-        sysProps.setProperty("acdHistoryDataSource.jdbcUrl",
-                "jdbc:postgresql://localhost/SIPXACD_HISTORY_TEST");
+        sysProps.setProperty("acdHistoryDataSource.jdbcUrl", "jdbc:postgresql://localhost/SIPXACD_HISTORY_TEST");
         sysProps.setProperty("acdHistoricalStatsImpl.enabled", Boolean.toString(true));
         sysProps.setProperty("localBackupPlan.backupDirectory", outputDirectory + "/backup");
         sysProps.setProperty("ftpBackupPlan.backupDirectory", outputDirectory + "/ftpBackup");
-        sysProps.setProperty("ftpRestore.downloadDirectory", outputDirectory
-                + "/downloadFtpBackup");
-        sysProps.setProperty("orbitsGenerator.audioDirectory", outputDirectory
-                + "/parkserver/music");
+        sysProps.setProperty("ftpRestore.downloadDirectory", outputDirectory + "/downloadFtpBackup");
+        sysProps.setProperty("orbitsGenerator.audioDirectory", outputDirectory + "/parkserver/music");
         sysProps.setProperty("replicationTrigger.replicateOnStartup", Boolean.toString(false));
         sysProps.setProperty("whacker.enabled", Boolean.toString(false));
         sysProps.setProperty("acdContextImpl.enabled", Boolean.toString(true));
         sysProps.setProperty("indexTrigger.enabled", Boolean.toString(false));
         sysProps.setProperty("upload.uploadRootDirectory", outputDirectory + "/upload");
         sysProps.setProperty("upload.destinationDirectory", outputDirectory + "/tftproot");
-        sysProps.setProperty("phonebookManagerImpl.externalUsersDirectory", outputDirectory
-                + "/phonebook");
+        sysProps.setProperty("phonebookManagerImpl.externalUsersDirectory", outputDirectory + "/phonebook");
         sysProps.setProperty("audiocodesGatewayModel.configDirectory", etcDirectory);
         sysProps.setProperty("audiocodesFxs.configDirectory", etcDirectory);
 
@@ -215,8 +213,7 @@ public final class TestUtil {
         sysProps.setProperty("sipxconfig.db.user", "postgres");
         sysProps.setProperty("mrtgTemplateConfig.filename", etcDirectory + "/mrtg-t.cfg");
         sysProps.setProperty("mrtgConfig.filename", outputDirectory + "/mrtg.cfg");
-        sysProps.setProperty("jasperReportContextImpl.reportsDirectory", etcDirectory
-                + "/reports");
+        sysProps.setProperty("jasperReportContextImpl.reportsDirectory", etcDirectory + "/reports");
 
         File vmDir = createDirectory(mailstoreDir, "Could not create voicemail store");
         createDirectory(tmpDir, "Could not create tmp directory");
@@ -267,8 +264,7 @@ public final class TestUtil {
      * look ups by process names will work as well.
      *
      */
-    public static SipxServiceManager getMockSipxServiceManager(boolean replay,
-            SipxService... sipxServices) {
+    public static SipxServiceManager getMockSipxServiceManager(boolean replay, SipxService... sipxServices) {
         SipxServiceManager sipxServiceManager = EasyMock.createMock(SipxServiceManager.class);
         for (SipxService sipxService : sipxServices) {
             sipxServiceManager.getServiceByBeanId(sipxService.getBeanId());
@@ -313,8 +309,8 @@ public final class TestUtil {
     }
 
     /**
-     * Creates a mock LocationsManager with the specified locations.  This
-     * LocationsManager only responds to requests for the primary service.
+     * Creates a mock LocationsManager with the specified locations. This LocationsManager only
+     * responds to requests for the primary service.
      *
      */
     public static LocationsManager getMockLocationsManager() {
@@ -323,5 +319,28 @@ public final class TestUtil {
         EasyMock.expectLastCall().andReturn(createDefaultLocation()).anyTimes();
         EasyMock.replay(locationsManager);
         return locationsManager;
+    }
+
+    /**
+     * Dumps DOM4J document to Strings.
+     *
+     * @param doc DOM4J document
+     * @return String containing XML document
+     */
+    public static String asString(Document doc) {
+        try {
+            StringWriter writer = new StringWriter();
+            OutputFormat format = new OutputFormat();
+            format.setNewlines(true);
+            format.setIndent(true);
+            XMLWriter xmlWriter = new XMLWriter(writer, format);
+            xmlWriter.write(doc);
+            xmlWriter.close();
+            return writer.toString();
+        } catch (IOException e) {
+            e.printStackTrace(System.err);
+            Assert.fail(e.getMessage());
+            return null;
+        }
     }
 }

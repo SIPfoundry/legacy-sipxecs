@@ -30,6 +30,7 @@ import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayCallerAliasInfo;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class CallerAliasesTest extends XMLTestCase {
     public CallerAliasesTest() {
@@ -150,7 +151,7 @@ public class CallerAliasesTest extends XMLTestCase {
         EasyMock.replay(coreContext, gatewayContext);
 
         Document document = cas.generateXml();
-        String casXml = XmlUnitHelper.asString(document);
+        String casXml = TestUtil.asString(document);
 
         InputStream referenceXmlStream = AliasesTest.class.getResourceAsStream("caller-alias.test.xml");
         assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(casXml));

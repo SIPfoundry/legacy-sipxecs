@@ -46,7 +46,6 @@ import static org.easymock.EasyMock.createStrictMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
-import static org.sipfoundry.sipxconfig.XmlUnitHelper.asString;
 import static org.sipfoundry.sipxconfig.XmlUnitHelper.assertElementInNamespace;
 import static org.sipfoundry.sipxconfig.XmlUnitHelper.setNamespaceAware;
 
@@ -144,7 +143,7 @@ public class FallbackRulesTest extends XMLTestCase {
         assertElementInNamespace(document.getRootElement(),
                 "http://www.sipfoundry.org/sipX/schema/xml/fallback-00-00");
 
-        String domDoc = asString(document);
+        String domDoc = TestUtil.asString(document);
         InputStream referenceXmlStream = getClass().getResourceAsStream("fallbackrules.test.xml");
         assertEquals(IOUtils.toString(referenceXmlStream), domDoc);
 
@@ -184,7 +183,7 @@ public class FallbackRulesTest extends XMLTestCase {
         assertElementInNamespace(document.getRootElement(),
                 "http://www.sipfoundry.org/sipX/schema/xml/fallback-00-00");
 
-        String domDoc = asString(document);
+        String domDoc = TestUtil.asString(document);
 
         InputStream referenceXmlStream = getClass().getResourceAsStream("fallbackrules-sites.test.xml");
         assertEquals(IOUtils.toString(referenceXmlStream), domDoc);
@@ -245,7 +244,7 @@ public class FallbackRulesTest extends XMLTestCase {
         assertElementInNamespace(document.getRootElement(),
                 "http://www.sipfoundry.org/sipX/schema/xml/fallback-00-00");
 
-        String domDoc = asString(document);
+        String domDoc = TestUtil.asString(document);
 
         InputStream referenceXmlStream = getClass().getResourceAsStream("fallbackrules-shared-gateway.test.xml");
         assertEquals(IOUtils.toString(referenceXmlStream), domDoc);
@@ -267,7 +266,7 @@ public class FallbackRulesTest extends XMLTestCase {
         assertElementInNamespace(document.getRootElement(),
                 "http://www.sipfoundry.org/sipX/schema/xml/fallback-00-00");
 
-        String domDoc = asString(document);
+        String domDoc = TestUtil.asString(document);
 
         InputStream referenceXmlStream = getClass().getResourceAsStream("fallbackrules-no-gateway.test.xml");
         assertEquals(IOUtils.toString(referenceXmlStream), domDoc);

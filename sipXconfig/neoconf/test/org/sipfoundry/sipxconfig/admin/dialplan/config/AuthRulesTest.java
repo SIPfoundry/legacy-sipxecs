@@ -56,7 +56,7 @@ public class AuthRulesTest {
         rules.begin();
         Document doc = rules.getDocument();
 
-        String xml = XmlUnitHelper.asString(doc);
+        String xml = TestUtil.asString(doc);
         XMLAssert.assertXMLEqual("<mappings xmlns=\"http://www.sipfoundry.org/sipX/schema/xml/urlauth-00-00\"/>",
                 xml);
     }
@@ -98,7 +98,7 @@ public class AuthRulesTest {
         authRules.end();
 
         Document document = authRules.getDocument();
-        String domDoc = XmlUnitHelper.asString(document);
+        String domDoc = TestUtil.asString(document);
 
         XMLAssert.assertXpathEvaluatesTo("test rule", "/mappings/hostMatch/name", domDoc);
         XMLAssert.assertXpathEvaluatesTo("test rule description", "/mappings/hostMatch/description", domDoc);
@@ -159,7 +159,7 @@ public class AuthRulesTest {
         authRules.end();
 
         Document document = authRules.getDocument();
-        String domDoc = XmlUnitHelper.asString(document);
+        String domDoc = TestUtil.asString(document);
 
         String hostMatchFormat = "/mappings/hostMatch[%d]/";
         prefixBuilder = new StringBuilder();
@@ -226,7 +226,7 @@ public class AuthRulesTest {
         authRules.end();
 
         Document document = authRules.getDocument();
-        String domDoc = XmlUnitHelper.asString(document);
+        String domDoc = TestUtil.asString(document);
 
         String hostMatchFormat = "/mappings/hostMatch[%d]/";
         for (int i = 0; i < gateways.length; i++) {
@@ -281,7 +281,7 @@ public class AuthRulesTest {
         authRules.end();
 
         Document document = authRules.getDocument();
-        String domDoc = XmlUnitHelper.asString(document);
+        String domDoc = TestUtil.asString(document);
 
         String hostMatchFormat = "/mappings/hostMatch[%d]/";
         for (int i = 0; i < gateways.length; i++) {
@@ -317,7 +317,7 @@ public class AuthRulesTest {
         rules.generateNoAccess(Arrays.asList(gateways));
         String lastHostMatch = "/mappings/hostMatch/";
         Document document = rules.getDocument();
-        String domDoc = XmlUnitHelper.asString(document);
+        String domDoc = TestUtil.asString(document);
         // "no access" match at the end of the file
         for (int i = 0; i < gateways.length; i++) {
             XMLAssert.assertXpathEvaluatesTo(gateways[i].getGatewayAddress(), lastHostMatch + "hostPattern["
@@ -364,7 +364,7 @@ public class AuthRulesTest {
         authRules.localizeDocument(TestUtil.createDefaultLocation());
 
         Document document = authRules.getDocument();
-        String domDoc = XmlUnitHelper.asString(document);
+        String domDoc = TestUtil.asString(document);
 
         InputStream controlXml = getClass().getResourceAsStream("authrules-internal-target-perm.test.xml");
         XMLAssert.assertXMLEqual(IOUtils.toString(controlXml), domDoc);
@@ -395,7 +395,7 @@ public class AuthRulesTest {
         authRules.localizeDocument(TestUtil.createDefaultLocation());
 
         Document document = authRules.getDocument();
-        String domDoc = XmlUnitHelper.asString(document);
+        String domDoc = TestUtil.asString(document);
 
         InputStream controlXml = getClass().getResourceAsStream("authrules-empty.test.xml");
         XMLAssert.assertXMLEqual(IOUtils.toString(controlXml), domDoc);

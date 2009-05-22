@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.callgroup;
@@ -36,6 +36,7 @@ public class AbstractCallSequence extends BeanWithId {
     /**
      * Deep clone. Hiberate friendly.
      */
+    @Override
     protected Object clone() throws CloneNotSupportedException {
         AbstractCallSequence clone = (AbstractCallSequence) super.clone();
         clone.m_rings = new ArrayList(m_rings.size());
@@ -51,6 +52,11 @@ public class AbstractCallSequence extends BeanWithId {
     protected void insertRings(Collection< ? extends AbstractRing> rings) {
         m_rings.addAll(rings);
         DataCollectionUtil.updatePositions(m_rings);
+    }
+
+    public void replaceRings(Collection< ? extends AbstractRing> rings) {
+        clearRings();
+        insertRings(rings);
     }
 
     public void removeRings(Collection ids) {
@@ -110,7 +116,7 @@ public class AbstractCallSequence extends BeanWithId {
     /**
      * Generate aliases from the calling list. All aliases have the following form: identity ->
      * ring_contact
-     * 
+     *
      * @param identity
      * @param domain used to calculate proper URI for ring contact
      * @param neverRouteToVoicemail set to true if call should never be routed to voicemail, set
@@ -119,8 +125,8 @@ public class AbstractCallSequence extends BeanWithId {
      *        with a number at least as large as the size of the rings list
      * @return list of AliasMapping objects
      */
-    protected List<AliasMapping> generateAliases(String identity, String domain,
-            boolean neverRouteToVoicemail, boolean userForward, ForkQueueValue q) {
+    protected List<AliasMapping> generateAliases(String identity, String domain, boolean neverRouteToVoicemail,
+            boolean userForward, ForkQueueValue q) {
 
         List<AbstractRing> rings = getRings();
 
@@ -150,15 +156,14 @@ public class AbstractCallSequence extends BeanWithId {
     /**
      * Generate aliases from the calling list. All aliases have the following form: identity ->
      * ring_contact
-     * 
+     *
      * @param identity
      * @param domain used to calculate proper URI for ring contact
      * @param neverRouteToVoicemail set to true if call should never be routed to voicemail, set
      *        to false to allow for routing the last call to voicemail
      * @return list of AliasMapping objects
      */
-    protected List<AliasMapping> generateAliases(String identity, String domain,
-            boolean neverRouteToVoicemail) {
+    protected List<AliasMapping> generateAliases(String identity, String domain, boolean neverRouteToVoicemail) {
         ForkQueueValue forkQueueValue = new ForkQueueValue(getRings().size());
         return generateAliases(identity, domain, neverRouteToVoicemail, true, forkQueueValue);
     }

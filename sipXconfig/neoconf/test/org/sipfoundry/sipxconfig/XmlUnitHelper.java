@@ -9,10 +9,8 @@
  */
 package org.sipfoundry.sipxconfig;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
-import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Iterator;
 import java.util.Map;
@@ -32,9 +30,8 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.QName;
 import org.dom4j.io.DOMWriter;
-import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
-import org.dom4j.io.XMLWriter;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 /**
  * Collection of utility function to XMLUnit and DOM4J testing with XMLUnit
@@ -61,22 +58,10 @@ public abstract class XmlUnitHelper {
      *
      * @param doc DOM4J document
      * @return String containing XML document
+     * @deprecated Use {@link TestUtil#asString(Document)} instead
      */
     public static String asString(Document doc) {
-        try {
-            StringWriter writer = new StringWriter();
-            OutputFormat format = new OutputFormat();
-            format.setNewlines(true);
-            format.setIndent(true);
-            XMLWriter xmlWriter = new XMLWriter(writer, format);
-            xmlWriter.write(doc);
-            xmlWriter.close();
-            return writer.toString();
-        } catch (IOException e) {
-            e.printStackTrace(System.err);
-            Assert.fail(e.getMessage());
-            return null;
-        }
+        return TestUtil.asString(doc);
     }
 
     /**
@@ -85,7 +70,7 @@ public abstract class XmlUnitHelper {
      * @param doc
      */
     public static void dumpXml(Document doc) {
-        System.err.println(asString(doc));
+        System.err.println(TestUtil.asString(doc));
     }
 
     /**
