@@ -170,6 +170,8 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/parkserver
 %config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/sipxpresence
 
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/log/sipxpbx/phone
+
 %attr(755,root,root) %{_bindir}/sipxpark.sh
 %attr(755,root,root) %{_bindir}/sipxpark
 %attr(755,root,root) %{_bindir}/sipxpark-config
