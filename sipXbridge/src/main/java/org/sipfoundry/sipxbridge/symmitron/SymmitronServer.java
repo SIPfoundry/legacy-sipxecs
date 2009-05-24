@@ -22,7 +22,6 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Semaphore;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -57,8 +56,8 @@ import org.sipfoundry.commons.log4j.SipFoundryLayout;
 @SuppressWarnings("unchecked")
 public class SymmitronServer implements Symmitron {
 
-    private static Logger logger = Logger.getLogger(SymmitronServer.class
-            .getPackage().getName());
+    static Logger logger = Logger.getLogger(SymmitronServer.class.getPackage()
+            .getName());
 
     protected static Timer timer = new Timer();
 
@@ -123,54 +122,16 @@ public class SymmitronServer implements Symmitron {
 
     private static final String STUN_ADDRESS_ERROR_ALARM_ID = "STUN_ADDRESS_ERROR";
 
-    private CRLFReceiver crlfReceiver;
+    private static CRLFReceiver crlfReceiver;
 
-    // ////////////////////////////////////////////////////////////////////////
-    // Private classes.
-    // ////////////////////////////////////////////////////////////////////////
-    class CRLFReceiver implements Runnable {
-        Semaphore waitSem;
-        DatagramSocket pingSocket;
-        boolean packetRecieved;
-
-        public CRLFReceiver() throws Exception {
-            try {
-                this.waitSem = new Semaphore(0);
-                this.packetRecieved = false;
-                pingSocket = new DatagramSocket();
-            } catch (Exception ex) {
-                logger
-                        .error("Exception caught when creating CRLF Receiver",
-                                ex);
-            }
+    static {
+        try {
+            crlfReceiver = new CRLFReceiver();
+            new Thread(crlfReceiver).start();
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
         }
-
-
-        public void run() {
-            while (true) {
-                byte[] buffer = new String("\r\n\r\n").getBytes();
-                DatagramPacket datagramPacket = new DatagramPacket(buffer,
-                        buffer.length);
-                waitSem.release();
-                long startTime = System.currentTimeMillis();
-                try {
-                    pingSocket.receive(datagramPacket);
-                } catch (Exception ex) {
-                    logger.error("Could not get response from ProxyServer "
-                            + ex.getMessage());
-                    return;
-                }
-                long endTime = System.currentTimeMillis();
-                logger.debug("received message Wait time =  "
-                        + (endTime - startTime));
-                packetRecieved = true;
-            }
-
-        }
-
     }
-
-    // /////////////////////////////////////////////////////////////
 
     /**
      * Discover our address using stun.
@@ -227,7 +188,6 @@ public class SymmitronServer implements Symmitron {
                     logger.debug("publicAddress = " + publicAddr);
                     symmitronConfig.setPublicAddress(publicAddr);
                 }
-             
 
             } else {
                 logger.error("Stun server address not speicifed");
@@ -237,7 +197,7 @@ public class SymmitronServer implements Symmitron {
             logger.error("Error discovering  address -- Check Stun Server", ex);
             return;
         } finally {
-            if ( addressDiscovery != null ) {
+            if (addressDiscovery != null) {
                 try {
                     addressDiscovery.shutDown();
                 } catch (Exception ex) {
@@ -332,7 +292,6 @@ public class SymmitronServer implements Symmitron {
     }
 
     public static int getRangeLowerBound() {
-
         return symmitronConfig.getPortRangeLowerBound();
     }
 
@@ -479,8 +438,6 @@ public class SymmitronServer implements Symmitron {
      * The RPC handler for sipxbridge.
      */
     public SymmitronServer() throws Exception {
-        this.crlfReceiver = new CRLFReceiver();
-        new Thread(crlfReceiver).start();
 
     }
 
@@ -1170,10 +1127,11 @@ public class SymmitronServer implements Symmitron {
                 }
                 return this.createSuccessMap();
             } else {
-                if ( logger.isDebugEnabled())  {
-                    logger.error("Bridge with the given ID was not found " + bridgeId);               
+                if (logger.isDebugEnabled()) {
+                    logger.error("Bridge with the given ID was not found "
+                            + bridgeId);
                     return this.createErrorMap(SESSION_NOT_FOUND,
-                        "Bridge with the given ID was not found");
+                            "Bridge with the given ID was not found");
                 } else {
                     return this.createSuccessMap();
                 }
