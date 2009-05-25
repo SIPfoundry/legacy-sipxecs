@@ -11,15 +11,17 @@ EXTRA_DIST = \
 cfgdir = $(SIPX_CONFDIR)/report
 
 cfg_DATA = \
-	schema.sql
+	schema.sql \
+	location_fqdn.sql \
+	sipxconfig-report-config.vm
 
-install-data-hook : $(CRON_INSTALL) $(DESTDIR)@SIPX_CONFDIR@/report/sipxconfig-report-config
+install-data-hook : $(CRON_INSTALL) $(DESTDIR)@SIPX_CONFDIR@/sipxconfig-report-config
 
 sipxconfig-report-config : sipxconfig-report-config.in
 	@echo "Localize $< -> $@"
 	@$(LocalizeSipXconfig) $< > $@
 
-$(DESTDIR)$(sysconfdir)/sipxpbx/report/sipxconfig-report-config: sipxconfig-report-config
+$(DESTDIR)$(sysconfdir)/sipxpbx/sipxconfig-report-config: sipxconfig-report-config
 	@if ! test -f $@; \
 	then \
 		echo "Installing default $@"; \

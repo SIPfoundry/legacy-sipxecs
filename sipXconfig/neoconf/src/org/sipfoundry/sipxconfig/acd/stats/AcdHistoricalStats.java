@@ -27,4 +27,8 @@ public interface AcdHistoricalStats {
     public List<Map<String, Object>> getReport(String name, Date startTime, Date endTime);
     
     public void dumpReport(Writer writer, List<Map<String, Object>> reportData, Locale locale) throws IOException;
+
+    public String getCallCenterLocationFqdn();
+
+    public boolean isEnabled();
 }

@@ -478,7 +478,7 @@ fi
 %attr(755,root,root) %{_bindir}/sipxconfig-report
 
 %defattr(644,@SIPXPBXUSER@,@SIPXPBXUSER@,755)
-%config(noreplace) %{sipxpbxconf}/report/sipxconfig-report-config
+%config(noreplace) %{sipxpbxconf}/sipxconfig-report-config
 %config(noreplace) %{sipxpbxconf}/report/schema.sql
 
 %post report

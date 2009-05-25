@@ -11,7 +11,7 @@ require 'state/queue'
 require 'state/acd_stats'
 
 module States
-  
+
   class Acd < State
     include MonitorMixin    
     

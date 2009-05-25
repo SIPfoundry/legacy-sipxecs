@@ -29,5 +29,8 @@
     - the syslog daemon to receive logging from phones.
     -->
     <osconfig required='false'>@sipxpbx.conf.dir@/phonelog-config</osconfig>
+
+    <!-- This is required for sipxconfig-report, but not for sipXconfig in general -->
+    <osconfig required='false'>@sipxpbx.conf.dir@/sipxconfig-report-config</osconfig>
   </resources>
 </sipXecs-process>
