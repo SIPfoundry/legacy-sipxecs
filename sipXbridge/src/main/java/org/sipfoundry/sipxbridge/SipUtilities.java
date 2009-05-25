@@ -8,6 +8,7 @@ package org.sipfoundry.sipxbridge;
 
 import gov.nist.javax.sdp.MediaDescriptionImpl;
 import gov.nist.javax.sip.DialogExt;
+import gov.nist.javax.sip.ServerTransactionExt;
 import gov.nist.javax.sip.TransactionExt;
 import gov.nist.javax.sip.header.HeaderFactoryExt;
 import gov.nist.javax.sip.header.extensions.ReplacesHeader;
@@ -15,6 +16,7 @@ import gov.nist.javax.sip.header.extensions.SessionExpires;
 import gov.nist.javax.sip.header.extensions.SessionExpiresHeader;
 import gov.nist.javax.sip.header.ims.PAssertedIdentityHeader;
 import gov.nist.javax.sip.header.ims.PrivacyHeader;
+import gov.nist.javax.sip.message.SIPResponse;
 
 import java.io.InputStream;
 import java.text.ParseException;
@@ -38,6 +40,7 @@ import javax.sdp.SessionDescription;
 import javax.sip.Dialog;
 import javax.sip.InvalidArgumentException;
 import javax.sip.ListeningPoint;
+import javax.sip.ServerTransaction;
 import javax.sip.SipException;
 import javax.sip.SipProvider;
 import javax.sip.Transaction;
@@ -48,12 +51,14 @@ import javax.sip.header.CSeqHeader;
 import javax.sip.header.CallIdHeader;
 import javax.sip.header.ContactHeader;
 import javax.sip.header.ContentTypeHeader;
+import javax.sip.header.ErrorInfoHeader;
 import javax.sip.header.ExpiresHeader;
 import javax.sip.header.FromHeader;
 import javax.sip.header.Header;
 import javax.sip.header.InReplyToHeader;
 import javax.sip.header.MaxForwardsHeader;
 import javax.sip.header.OrganizationHeader;
+import javax.sip.header.ReasonHeader;
 import javax.sip.header.ReferToHeader;
 import javax.sip.header.ReplyToHeader;
 import javax.sip.header.RouteHeader;
@@ -93,28 +98,30 @@ class SipUtilities {
             return userAgent;
         } else {
             try {
-                InputStream cfg = SipUtilities.class.getClassLoader().getResourceAsStream(
-                        CONFIG_PROPERTIES);
+                InputStream cfg = SipUtilities.class.getClassLoader()
+                        .getResourceAsStream(CONFIG_PROPERTIES);
                 if (cfg != null) {
                     Properties configProperties = new Properties();
 
                     configProperties.load(cfg);
-                    userAgent = (UserAgentHeader) ProtocolObjects.headerFactory.createHeader(
-                            UserAgentHeader.NAME, String.format(
-                                    "sipXecs/%s sipXecs/sipxbridge (Linux)", configProperties
-                                            .get("version")));
+                    userAgent = (UserAgentHeader) ProtocolObjects.headerFactory
+                            .createHeader(UserAgentHeader.NAME, String.format(
+                                    "sipXecs/%s sipXecs/sipxbridge (Linux)",
+                                    configProperties.get("version")));
                     cfg.close();
                     return userAgent;
                 } else {
-                    userAgent = (UserAgentHeader) ProtocolObjects.headerFactory.createHeader(
-                            UserAgentHeader.NAME, String.format(
-                                    "sipXecs/%s sipXecs/sipxbridge (Linux)", "xxxx.yyyy"));
+                    userAgent = (UserAgentHeader) ProtocolObjects.headerFactory
+                            .createHeader(UserAgentHeader.NAME, String.format(
+                                    "sipXecs/%s sipXecs/sipxbridge (Linux)",
+                                    "xxxx.yyyy"));
                     logger.warn("Creating Default User Agent Header");
                     return userAgent;
 
                 }
             } catch (Exception e) {
-                throw new SipXbridgeException("unexpected exception creating UserAgent header", e);
+                throw new SipXbridgeException(
+                        "unexpected exception creating UserAgent header", e);
 
             }
         }
@@ -130,32 +137,35 @@ class SipUtilities {
             return serverHeader;
         } else {
             try {
-                InputStream cfg = SipUtilities.class.getClassLoader().getResourceAsStream(
-                        CONFIG_PROPERTIES);
+                InputStream cfg = SipUtilities.class.getClassLoader()
+                        .getResourceAsStream(CONFIG_PROPERTIES);
                 if (cfg != null) {
                     Properties configProperties = new Properties();
                     configProperties.load(cfg);
-                    serverHeader = (ServerHeader) ProtocolObjects.headerFactory.createHeader(
-                            ServerHeader.NAME, String.format(
-                                    "sipXecs/%s sipXecs/sipxbridge (Linux)", configProperties
-                                            .get("version")));
+                    serverHeader = (ServerHeader) ProtocolObjects.headerFactory
+                            .createHeader(ServerHeader.NAME, String.format(
+                                    "sipXecs/%s sipXecs/sipxbridge (Linux)",
+                                    configProperties.get("version")));
                     cfg.close();
                     return serverHeader;
                 } else {
-                    serverHeader = (ServerHeader) ProtocolObjects.headerFactory.createHeader(
-                            ServerHeader.NAME, String.format(
-                                    "sipXecs/%s sipXecs/sipxbridge (Linux)", "xxxx.yyyy"));
+                    serverHeader = (ServerHeader) ProtocolObjects.headerFactory
+                            .createHeader(ServerHeader.NAME, String.format(
+                                    "sipXecs/%s sipXecs/sipxbridge (Linux)",
+                                    "xxxx.yyyy"));
                     logger.warn("Creating Default Server Header");
                     return serverHeader;
                 }
             } catch (Exception e) {
-                throw new SipXbridgeException("unexpected exception creating UserAgent header", e);
+                throw new SipXbridgeException(
+                        "unexpected exception creating UserAgent header", e);
 
             }
         }
     }
 
-    static MediaDescription getMediaDescription(SessionDescription sessionDescription) {
+    static MediaDescription getMediaDescription(
+            SessionDescription sessionDescription) {
         try {
             Vector sdVector = sessionDescription.getMediaDescriptions(true);
             MediaDescription mediaDescription = null;
@@ -181,14 +191,16 @@ class SipUtilities {
      */
     static ViaHeader createViaHeader(SipProvider sipProvider, String transport) {
         try {
-            if (!transport.equalsIgnoreCase("tcp") && !transport.equalsIgnoreCase("udp"))
+            if (!transport.equalsIgnoreCase("tcp")
+                    && !transport.equalsIgnoreCase("udp"))
                 throw new IllegalArgumentException("Bad transport");
 
-            ListeningPoint listeningPoint = sipProvider.getListeningPoint(transport);
+            ListeningPoint listeningPoint = sipProvider
+                    .getListeningPoint(transport);
             String host = listeningPoint.getIPAddress();
             int port = listeningPoint.getPort();
-            return ProtocolObjects.headerFactory.createViaHeader(host, port, listeningPoint
-                    .getTransport(), null);
+            return ProtocolObjects.headerFactory.createViaHeader(host, port,
+                    listeningPoint.getTransport(), null);
         } catch (Exception ex) {
             throw new SipXbridgeException("Unexpected exception ", ex);
         }
@@ -196,30 +208,35 @@ class SipUtilities {
     }
 
     /**
-     * Get the Via header to assign for this message processor. The topmost via header of the
-     * outoging messages use this.
+     * Get the Via header to assign for this message processor. The topmost via
+     * header of the outoging messages use this.
      * 
-     * @return the ViaHeader to be used by the messages sent via this message processor.
+     * @return the ViaHeader to be used by the messages sent via this message
+     *         processor.
      */
-    static ViaHeader createViaHeader(SipProvider sipProvider, ItspAccountInfo itspAccount) {
+    static ViaHeader createViaHeader(SipProvider sipProvider,
+            ItspAccountInfo itspAccount) {
         try {
             if (itspAccount != null && !itspAccount.isGlobalAddressingUsed()) {
-                ListeningPoint listeningPoint = sipProvider.getListeningPoint(itspAccount
-                        .getOutboundTransport());
+                ListeningPoint listeningPoint = sipProvider
+                        .getListeningPoint(itspAccount.getOutboundTransport());
                 String host = listeningPoint.getIPAddress();
                 int port = listeningPoint.getPort();
-                ViaHeader viaHeader = ProtocolObjects.headerFactory.createViaHeader(host, port,
-                        listeningPoint.getTransport(), null);
+                ViaHeader viaHeader = ProtocolObjects.headerFactory
+                        .createViaHeader(host, port, listeningPoint
+                                .getTransport(), null);
 
                 return viaHeader;
 
             } else {
                 // Check -- what other parameters need to be set for NAT
                 // traversal here?
-                String transport = itspAccount != null ? itspAccount.getOutboundTransport()
+                String transport = itspAccount != null ? itspAccount
+                        .getOutboundTransport()
                         : Gateway.DEFAULT_ITSP_TRANSPORT;
-                return ProtocolObjects.headerFactory.createViaHeader(Gateway.getGlobalAddress(),
-                        Gateway.getGlobalPort(), transport, null);
+                return ProtocolObjects.headerFactory.createViaHeader(Gateway
+                        .getGlobalAddress(), Gateway.getGlobalPort(),
+                        transport, null);
 
             }
 
@@ -232,30 +249,37 @@ class SipUtilities {
     /**
      * Create a contact header for the given provider.
      */
-    static ContactHeader createContactHeader(SipProvider provider, ItspAccountInfo itspAccount) {
+    static ContactHeader createContactHeader(SipProvider provider,
+            ItspAccountInfo itspAccount) {
         try {
             /*
-             * If we are creating a contact header for a provider that is facing the WAN and if
-             * global addressing is used, then place the bridge public address in the contact
-             * header.
+             * If we are creating a contact header for a provider that is facing
+             * the WAN and if global addressing is used, then place the bridge
+             * public address in the contact header.
              */
             if (provider != Gateway.getLanProvider()
-                    && (itspAccount != null && !itspAccount.isGlobalAddressingUsed())
+                    && (itspAccount != null && !itspAccount
+                            .isGlobalAddressingUsed())
                     || Gateway.getGlobalAddress() == null) {
-                String transport = itspAccount != null ? itspAccount.getOutboundTransport()
+                String transport = itspAccount != null ? itspAccount
+                        .getOutboundTransport()
                         : Gateway.DEFAULT_ITSP_TRANSPORT;
-                String userName = itspAccount != null ? itspAccount.getUserName() : null;
+                String userName = itspAccount != null ? itspAccount
+                        .getUserName() : null;
                 if (userName == null) {
                     userName = Gateway.SIPXBRIDGE_USER;
                 }
                 ListeningPoint lp = provider.getListeningPoint(transport);
                 String ipAddress = lp.getIPAddress();
                 int port = lp.getPort();
-                SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(userName, ipAddress);
+                SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(
+                        userName, ipAddress);
                 sipUri.setPort(port);
                 sipUri.setTransportParam(transport);
-                Address address = ProtocolObjects.addressFactory.createAddress(sipUri);
-                ContactHeader ch = ProtocolObjects.headerFactory.createContactHeader(address);
+                Address address = ProtocolObjects.addressFactory
+                        .createAddress(sipUri);
+                ContactHeader ch = ProtocolObjects.headerFactory
+                        .createContactHeader(address);
                 ch.removeParameter("expires");
                 return ch;
 
@@ -263,32 +287,37 @@ class SipUtilities {
                 /*
                  * Creating contact header for LAN bound request.
                  */
-                return SipUtilities.createContactHeader(Gateway.SIPXBRIDGE_USER, provider);
+                return SipUtilities.createContactHeader(
+                        Gateway.SIPXBRIDGE_USER, provider);
             } else {
                 /*
-                 * Creating contact header for WAN bound request. Nothing is known about this
-                 * ITSP. We just use global addressing.
+                 * Creating contact header for WAN bound request. Nothing is
+                 * known about this ITSP. We just use global addressing.
                  */
 
-                ContactHeader contactHeader = ProtocolObjects.headerFactory.createContactHeader();
-                String userName = itspAccount != null ? itspAccount.getUserName() : null;
+                ContactHeader contactHeader = ProtocolObjects.headerFactory
+                        .createContactHeader();
+                String userName = itspAccount != null ? itspAccount
+                        .getUserName() : null;
                 if (userName == null) {
                     userName = Gateway.SIPXBRIDGE_USER;
                 }
-                SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(userName, Gateway
-                        .getGlobalAddress());
+                SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(
+                        userName, Gateway.getGlobalAddress());
                 sipUri.setPort(Gateway.getGlobalPort());
-                String transport = itspAccount != null ? itspAccount.getOutboundTransport()
-                        : "udp";
+                String transport = itspAccount != null ? itspAccount
+                        .getOutboundTransport() : "udp";
                 sipUri.setTransportParam(transport);
-                Address address = ProtocolObjects.addressFactory.createAddress(sipUri);
+                Address address = ProtocolObjects.addressFactory
+                        .createAddress(sipUri);
                 contactHeader.setAddress(address);
                 contactHeader.removeParameter("expires");
                 return contactHeader;
             }
         } catch (Exception ex) {
             logger.fatal("Unexpected exception creating contact header", ex);
-            throw new SipXbridgeException("Unexpected error creating contact header", ex);
+            throw new SipXbridgeException(
+                    "Unexpected error creating contact header", ex);
         }
 
     }
@@ -300,23 +329,28 @@ class SipUtilities {
         try {
 
             /*
-             * The preferred transport of the sipx proxy server ( defaults to tcp ).
+             * The preferred transport of the sipx proxy server ( defaults to
+             * tcp ).
              */
             String transport = Gateway.getSipxProxyTransport();
 
             ListeningPoint lp = provider.getListeningPoint(transport);
             String ipAddress = lp.getIPAddress();
             int port = lp.getPort();
-            SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(user, ipAddress);
+            SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(user,
+                    ipAddress);
             sipUri.setPort(port);
             if (transport.equals("tls")) {
                 sipUri.setTransportParam(transport);
             }
-            Address address = ProtocolObjects.addressFactory.createAddress(sipUri);
-            ContactHeader ch = ProtocolObjects.headerFactory.createContactHeader(address);
+            Address address = ProtocolObjects.addressFactory
+                    .createAddress(sipUri);
+            ContactHeader ch = ProtocolObjects.headerFactory
+                    .createContactHeader(address);
             return ch;
         } catch (Exception ex) {
-            throw new SipXbridgeException("Unexpected error creating contact header", ex);
+            throw new SipXbridgeException(
+                    "Unexpected error creating contact header", ex);
         }
     }
 
@@ -324,12 +358,14 @@ class SipUtilities {
      * Create a basic registration request.
      */
 
-    static Request createRegistrationRequestTemplate(ItspAccountInfo itspAccount,
-            SipProvider sipProvider) throws ParseException, InvalidArgumentException, SipException {
+    static Request createRegistrationRequestTemplate(
+            ItspAccountInfo itspAccount, SipProvider sipProvider)
+            throws ParseException, InvalidArgumentException, SipException {
 
         String registrar = itspAccount.getProxyDomain();
 
-        SipURI requestUri = ProtocolObjects.addressFactory.createSipURI(null, registrar);
+        SipURI requestUri = ProtocolObjects.addressFactory.createSipURI(null,
+                registrar);
         int port = itspAccount.getInboundProxyPort();
         if (port != 5060) {
             requestUri.setPort(port);
@@ -342,27 +378,31 @@ class SipUtilities {
          * We register with From and To headers set to the proxy domain.
          */
         String proxyDomain = itspAccount.getProxyDomain();
-        SipURI fromUri = ProtocolObjects.addressFactory.createSipURI(itspAccount.getUserName(),
-                proxyDomain);
+        SipURI fromUri = ProtocolObjects.addressFactory.createSipURI(
+                itspAccount.getUserName(), proxyDomain);
 
-        SipURI toUri = ProtocolObjects.addressFactory.createSipURI(itspAccount.getUserName(),
-                proxyDomain);
+        SipURI toUri = ProtocolObjects.addressFactory.createSipURI(itspAccount
+                .getUserName(), proxyDomain);
 
-        Address fromAddress = ProtocolObjects.addressFactory.createAddress(fromUri);
+        Address fromAddress = ProtocolObjects.addressFactory
+                .createAddress(fromUri);
 
-        FromHeader fromHeader = ProtocolObjects.headerFactory.createFromHeader(fromAddress,
-                new Long(Math.abs(new java.util.Random().nextLong())).toString());
+        FromHeader fromHeader = ProtocolObjects.headerFactory.createFromHeader(
+                fromAddress, new Long(Math.abs(new java.util.Random()
+                        .nextLong())).toString());
 
         Address toAddress = ProtocolObjects.addressFactory.createAddress(toUri);
 
-        ToHeader toHeader = ProtocolObjects.headerFactory.createToHeader(toAddress, null);
+        ToHeader toHeader = ProtocolObjects.headerFactory.createToHeader(
+                toAddress, null);
 
         CallIdHeader callid = sipProvider.getNewCallId();
 
-        CSeqHeader cseqHeader = ProtocolObjects.headerFactory.createCSeqHeader(1L,
-                Request.REGISTER);
+        CSeqHeader cseqHeader = ProtocolObjects.headerFactory.createCSeqHeader(
+                1L, Request.REGISTER);
 
-        MaxForwardsHeader maxForwards = ProtocolObjects.headerFactory.createMaxForwardsHeader(70);
+        MaxForwardsHeader maxForwards = ProtocolObjects.headerFactory
+                .createMaxForwardsHeader(70);
 
         ViaHeader viaHeader = null;
 
@@ -371,35 +411,39 @@ class SipUtilities {
         List<ViaHeader> list = new LinkedList<ViaHeader>();
         list.add(viaHeader);
 
-        Request request = ProtocolObjects.messageFactory.createRequest(requestUri,
-                Request.REGISTER, callid, cseqHeader, fromHeader, toHeader, list, maxForwards);
+        Request request = ProtocolObjects.messageFactory.createRequest(
+                requestUri, Request.REGISTER, callid, cseqHeader, fromHeader,
+                toHeader, list, maxForwards);
 
         SipUtilities.addWanAllowHeaders(request);
 
         String outboundRegistrar = itspAccount.getOutboundRegistrar();
-        
+
         if (outboundRegistrar == null) {
-            throw new SipException("No route to Registrar found for " + itspAccount.getProxyDomain());
+            throw new SipException("No route to Registrar found for "
+                    + itspAccount.getProxyDomain());
         }
-        
+
         if (outboundRegistrar != null
-                && !itspAccount.getProxyDomain().equals(itspAccount.getOutboundRegistrar())) {
+                && !itspAccount.getProxyDomain().equals(
+                        itspAccount.getOutboundRegistrar())) {
             SipURI routeUri = ProtocolObjects.addressFactory.createSipURI(null,
                     outboundRegistrar);
             routeUri.setPort(itspAccount.getInboundProxyPort());
             routeUri.setLrParam();
-            Address routeAddress = ProtocolObjects.addressFactory.createAddress(routeUri);
+            Address routeAddress = ProtocolObjects.addressFactory
+                    .createAddress(routeUri);
             RouteHeader routeHeader = ProtocolObjects.headerFactory
                     .createRouteHeader(routeAddress);
             request.addHeader(routeHeader);
-        } 
+        }
 
         return request;
     }
 
     /**
-     * Creates a deregistration request and sends it out to deregister ourselves from the proxy
-     * server.
+     * Creates a deregistration request and sends it out to deregister ourselves
+     * from the proxy server.
      * 
      * @param sipProvider
      * @param itspAccount
@@ -410,12 +454,15 @@ class SipUtilities {
             ItspAccountInfo itspAccount) throws SipXbridgeException {
         try {
 
-            Request request = createRegistrationRequestTemplate(itspAccount, sipProvider);
+            Request request = createRegistrationRequestTemplate(itspAccount,
+                    sipProvider);
 
-            ContactHeader contactHeader = createContactHeader(sipProvider, itspAccount);
+            ContactHeader contactHeader = createContactHeader(sipProvider,
+                    itspAccount);
 
             request.addHeader(contactHeader);
-            ExpiresHeader expiresHeader = ProtocolObjects.headerFactory.createExpiresHeader(0);
+            ExpiresHeader expiresHeader = ProtocolObjects.headerFactory
+                    .createExpiresHeader(0);
             request.addHeader(expiresHeader);
             return request;
         } catch (Exception ex) {
@@ -431,31 +478,35 @@ class SipUtilities {
      * Create an OPTIONS Request
      */
 
-    static Request createOptionsRequest(SipProvider sipProvider, ItspAccountInfo itspAccount)
-            throws SipXbridgeException {
+    static Request createOptionsRequest(SipProvider sipProvider,
+            ItspAccountInfo itspAccount) throws SipXbridgeException {
         try {
-            SipURI requestUri = ProtocolObjects.addressFactory.createSipURI(null, itspAccount
-                    .getSipDomain());
+            SipURI requestUri = ProtocolObjects.addressFactory.createSipURI(
+                    null, itspAccount.getSipDomain());
 
-            SipURI fromUri = ProtocolObjects.addressFactory.createSipURI(itspAccount
-                    .getUserName(), itspAccount.getSipDomain());
+            SipURI fromUri = ProtocolObjects.addressFactory.createSipURI(
+                    itspAccount.getUserName(), itspAccount.getSipDomain());
 
-            SipURI toUri = ProtocolObjects.addressFactory.createSipURI(itspAccount.getUserName(),
-                    itspAccount.getSipDomain());
+            SipURI toUri = ProtocolObjects.addressFactory.createSipURI(
+                    itspAccount.getUserName(), itspAccount.getSipDomain());
 
-            Address fromAddress = ProtocolObjects.addressFactory.createAddress(fromUri);
+            Address fromAddress = ProtocolObjects.addressFactory
+                    .createAddress(fromUri);
 
-            FromHeader fromHeader = ProtocolObjects.headerFactory.createFromHeader(fromAddress,
-                    new Long(Math.abs(new java.util.Random().nextLong())).toString());
+            FromHeader fromHeader = ProtocolObjects.headerFactory
+                    .createFromHeader(fromAddress, new Long(Math
+                            .abs(new java.util.Random().nextLong())).toString());
 
-            Address toAddress = ProtocolObjects.addressFactory.createAddress(toUri);
+            Address toAddress = ProtocolObjects.addressFactory
+                    .createAddress(toUri);
 
-            ToHeader toHeader = ProtocolObjects.headerFactory.createToHeader(toAddress, null);
+            ToHeader toHeader = ProtocolObjects.headerFactory.createToHeader(
+                    toAddress, null);
 
             CallIdHeader callid = sipProvider.getNewCallId();
 
-            CSeqHeader cseqHeader = ProtocolObjects.headerFactory.createCSeqHeader(1L,
-                    Request.OPTIONS);
+            CSeqHeader cseqHeader = ProtocolObjects.headerFactory
+                    .createCSeqHeader(1L, Request.OPTIONS);
 
             MaxForwardsHeader maxForwards = ProtocolObjects.headerFactory
                     .createMaxForwardsHeader(70);
@@ -467,8 +518,9 @@ class SipUtilities {
             List<ViaHeader> list = new LinkedList<ViaHeader>();
             list.add(viaHeader);
 
-            Request request = ProtocolObjects.messageFactory.createRequest(requestUri,
-                    Request.OPTIONS, callid, cseqHeader, fromHeader, toHeader, list, maxForwards);
+            Request request = ProtocolObjects.messageFactory.createRequest(
+                    requestUri, Request.OPTIONS, callid, cseqHeader,
+                    fromHeader, toHeader, list, maxForwards);
 
             return request;
         } catch (Exception ex) {
@@ -484,18 +536,21 @@ class SipUtilities {
      * @return
      * @throws SipXbridgeException
      */
-    static Request createRegistrationRequest(SipProvider sipProvider, ItspAccountInfo itspAccount)
-            throws SipException, SipXbridgeException {
+    static Request createRegistrationRequest(SipProvider sipProvider,
+            ItspAccountInfo itspAccount) throws SipException,
+            SipXbridgeException {
 
         try {
-            Request request = createRegistrationRequestTemplate(itspAccount, sipProvider);
+            Request request = createRegistrationRequestTemplate(itspAccount,
+                    sipProvider);
 
-            ContactHeader contactHeader = createContactHeader(sipProvider, itspAccount);
+            ContactHeader contactHeader = createContactHeader(sipProvider,
+                    itspAccount);
             contactHeader.removeParameter("expires");
 
             request.addHeader(contactHeader);
-            int registrationTimer = itspAccount.getSipKeepaliveMethod().equals(Request.REGISTER) ? Gateway
-                    .getSipKeepaliveSeconds()
+            int registrationTimer = itspAccount.getSipKeepaliveMethod().equals(
+                    Request.REGISTER) ? Gateway.getSipKeepaliveSeconds()
                     : itspAccount.getRegistrationInterval();
             ExpiresHeader expiresHeader = ProtocolObjects.headerFactory
                     .createExpiresHeader(registrationTimer);
@@ -521,10 +576,11 @@ class SipUtilities {
      * @return
      * @throws SipXbridgeException
      */
-    static Request createRegisterQuery(SipProvider sipProvider, ItspAccountInfo itspAccount)
-            throws SipXbridgeException {
+    static Request createRegisterQuery(SipProvider sipProvider,
+            ItspAccountInfo itspAccount) throws SipXbridgeException {
         try {
-            Request request = createRegistrationRequestTemplate(itspAccount, sipProvider);
+            Request request = createRegistrationRequestTemplate(itspAccount,
+                    sipProvider);
 
             return request;
         } catch (Exception ex) {
@@ -536,9 +592,10 @@ class SipUtilities {
 
     }
 
-    static Request createInviteRequest(SipURI requestUri, SipProvider sipProvider,
-            ItspAccountInfo itspAccount, FromHeader from, String callId)
-            throws SipException, SipXbridgeException {
+    static Request createInviteRequest(SipURI requestUri,
+            SipProvider sipProvider, ItspAccountInfo itspAccount,
+            FromHeader from, String callId) throws SipException,
+            SipXbridgeException {
         try {
 
             String toUser = requestUri.getUser();
@@ -560,23 +617,27 @@ class SipUtilities {
             FromHeader fromHeader = from;
 
             /*
-             * Handle the case of anonymous calling. If the from header has anonymous@invalid then
-             * attach a P-Preferred-Identity Header to reflect the actual value of the caller Id.
+             * Handle the case of anonymous calling. If the from header has
+             * anonymous@invalid then attach a P-Preferred-Identity Header to
+             * reflect the actual value of the caller Id.
              */
-            if (fromUser.equalsIgnoreCase("anonymous") && fromDomain.equalsIgnoreCase("invalid")) {
+            if (fromUser.equalsIgnoreCase("anonymous")
+                    && fromDomain.equalsIgnoreCase("invalid")) {
 
                 String domain = "anonymous.invalid";
-                SipURI fromUri = ProtocolObjects.addressFactory.createSipURI(fromUser, domain);
+                SipURI fromUri = ProtocolObjects.addressFactory.createSipURI(
+                        fromUser, domain);
                 fromHeader = ProtocolObjects.headerFactory.createFromHeader(
-                        ProtocolObjects.addressFactory.createAddress(fromUri), new Long(Math
-                                .abs(new java.util.Random().nextLong())).toString());
+                        ProtocolObjects.addressFactory.createAddress(fromUri),
+                        new Long(Math.abs(new java.util.Random().nextLong()))
+                                .toString());
                 privacyHeader = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
                         .createPrivacyHeader("id");
             } else {
                 fromHeader = (FromHeader) from.clone();
 
-                fromHeader.setTag(new Long(Math.abs(new java.util.Random().nextLong()))
-                        .toString());
+                fromHeader.setTag(new Long(Math.abs(new java.util.Random()
+                        .nextLong())).toString());
                 if (itspAccount.stripPrivateHeaders()) {
                     privacyHeader = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
                             .createPrivacyHeader("id");
@@ -584,17 +645,18 @@ class SipUtilities {
             }
 
             /*
-             * Remove stuff from the request that can have an effect on the routing of the request
-             * and add stuff that we want to add.
+             * Remove stuff from the request that can have an effect on the
+             * routing of the request and add stuff that we want to add.
              */
 
             /*
-             * If the target is a phone number we set user=phone. Otherwise we remove it.
+             * If the target is a phone number we set user=phone. Otherwise we
+             * remove it.
              */
             if (itspAccount.isUserPhone()) {
                 /*
-                 * If call routed to phone then the RURI MUST have user=phone set ( sipconnect
-                 * requirement ).
+                 * If call routed to phone then the RURI MUST have user=phone
+                 * set ( sipconnect requirement ).
                  */
                 requestUri.setParameter("user", "phone");
             } else {
@@ -602,7 +664,8 @@ class SipUtilities {
             }
 
             if (itspAccount.getOutboundTransport() != null) {
-                requestUri.setTransportParam(itspAccount.getOutboundTransport());
+                requestUri
+                        .setTransportParam(itspAccount.getOutboundTransport());
             } else {
                 requestUri.removeParameter("transport");
             }
@@ -611,9 +674,11 @@ class SipUtilities {
 
             requestUri.removeParameter("maddr");
 
-            fromHeader.setTag(new Long(Math.abs(new java.util.Random().nextLong())).toString());
+            fromHeader.setTag(new Long(Math.abs(new java.util.Random()
+                    .nextLong())).toString());
 
-            SipURI toUri = ProtocolObjects.addressFactory.createSipURI(toUser, toDomain);
+            SipURI toUri = ProtocolObjects.addressFactory.createSipURI(toUser,
+                    toDomain);
 
             if (itspAccount.isUserPhone()) {
                 toUri.setParameter("user", "phone");
@@ -622,8 +687,8 @@ class SipUtilities {
             ToHeader toHeader = ProtocolObjects.headerFactory.createToHeader(
                     ProtocolObjects.addressFactory.createAddress(toUri), null);
 
-            CSeqHeader cseqHeader = ProtocolObjects.headerFactory.createCSeqHeader(1L,
-                    Request.INVITE);
+            CSeqHeader cseqHeader = ProtocolObjects.headerFactory
+                    .createCSeqHeader(1L, Request.INVITE);
 
             MaxForwardsHeader maxForwards = ProtocolObjects.headerFactory
                     .createMaxForwardsHeader(70);
@@ -633,9 +698,11 @@ class SipUtilities {
             List<ViaHeader> list = new LinkedList<ViaHeader>();
             list.add(viaHeader);
 
-            CallIdHeader callid = ProtocolObjects.headerFactory.createCallIdHeader(callId);
-            Request request = ProtocolObjects.messageFactory.createRequest(requestUri,
-                    Request.INVITE, callid, cseqHeader, fromHeader, toHeader, list, maxForwards);
+            CallIdHeader callid = ProtocolObjects.headerFactory
+                    .createCallIdHeader(callId);
+            Request request = ProtocolObjects.messageFactory.createRequest(
+                    requestUri, Request.INVITE, callid, cseqHeader, fromHeader,
+                    toHeader, list, maxForwards);
 
             /*
              * Attach the PreferredIdentity header if we generated one.
@@ -661,37 +728,40 @@ class SipUtilities {
 
             Gateway.getAuthenticationHelper().setAuthenticationHeaders(request);
 
-            ContactHeader contactHeader = createContactHeader(sipProvider, itspAccount);
+            ContactHeader contactHeader = createContactHeader(sipProvider,
+                    itspAccount);
             request.addHeader(contactHeader);
 
             String outboundProxy = itspAccount.getOutboundProxy();
-            if ( outboundProxy == null ) {
-                throw new SipException("No route to ITSP could be found " + 
-                        itspAccount.getProxyDomain());
+            if (outboundProxy == null) {
+                throw new SipException("No route to ITSP could be found "
+                        + itspAccount.getProxyDomain());
             }
-            SipURI routeUri = ProtocolObjects.addressFactory.createSipURI(null, outboundProxy);
+            SipURI routeUri = ProtocolObjects.addressFactory.createSipURI(null,
+                    outboundProxy);
             if (itspAccount.getOutboundProxyPort() != 0) {
                 routeUri.setPort(itspAccount.getOutboundProxyPort());
             }
             routeUri.setLrParam();
-            Address routeAddress = ProtocolObjects.addressFactory.createAddress(routeUri);
+            Address routeAddress = ProtocolObjects.addressFactory
+                    .createAddress(routeUri);
             RouteHeader routeHeader = ProtocolObjects.headerFactory
                     .createRouteHeader(routeAddress);
             request.addHeader(routeHeader);
             if (itspAccount.stripPrivateHeaders()) {
                 SipUtilities.stripPrivateHeaders(request);
             }
-            
+
             /*
              * By default the UAC always refreshes the session.
              */
-            
-            SessionExpires sessionExpires = (SessionExpires) ((HeaderFactoryExt) ProtocolObjects.headerFactory).createSessionExpiresHeader(Gateway.getSessionExpires());
+
+            SessionExpires sessionExpires = (SessionExpires) ((HeaderFactoryExt) ProtocolObjects.headerFactory)
+                    .createSessionExpiresHeader(Gateway.getSessionExpires());
             sessionExpires.setParameter("refresher", "uac");
             sessionExpires.setExpires(Gateway.getSessionExpires());
             request.addHeader(sessionExpires);
-            
-            
+
             return request;
 
         } catch (SipException e) {
@@ -706,11 +776,13 @@ class SipUtilities {
         }
     }
 
-    static SessionDescription getSessionDescription(Message message) throws SdpParseException {
+    static SessionDescription getSessionDescription(Message message)
+            throws SdpParseException {
         if (message.getRawContent() == null)
             throw new SdpParseException(0, 0, "Missing sdp body");
         String messageString = new String(message.getRawContent());
-        SessionDescription sd = SdpFactory.getInstance().createSessionDescription(messageString);
+        SessionDescription sd = SdpFactory.getInstance()
+                .createSessionDescription(messageString);
         return sd;
 
     }
@@ -718,17 +790,21 @@ class SipUtilities {
     /**
      * Extract and return the media formats from the session description.
      * 
-     * @param sessionDescription -- the SessionDescription to examine.
+     * @param sessionDescription --
+     *            the SessionDescription to examine.
      * @return a Set of media formats. Each element is a codec number.
      */
     static Set<Integer> getMediaFormats(SessionDescription sessionDescription) {
         try {
-            Vector mediaDescriptions = sessionDescription.getMediaDescriptions(true);
+            Vector mediaDescriptions = sessionDescription
+                    .getMediaDescriptions(true);
 
             HashSet<Integer> retval = new HashSet<Integer>();
             for (Iterator it = mediaDescriptions.iterator(); it.hasNext();) {
-                MediaDescription mediaDescription = (MediaDescription) it.next();
-                Vector formats = mediaDescription.getMedia().getMediaFormats(true);
+                MediaDescription mediaDescription = (MediaDescription) it
+                        .next();
+                Vector formats = mediaDescription.getMedia().getMediaFormats(
+                        true);
                 for (Iterator it1 = formats.iterator(); it1.hasNext();) {
                     Object format = it1.next();
                     int fmt = new Integer(format.toString());
@@ -738,20 +814,23 @@ class SipUtilities {
             return retval;
         } catch (Exception ex) {
             logger.fatal("Unexpected exception!", ex);
-            throw new SipXbridgeException("Unexpected exception getting media formats", ex);
+            throw new SipXbridgeException(
+                    "Unexpected exception getting media formats", ex);
         }
     }
 
     /**
-     * Cleans the Session description to include only the specified codec set. It removes all the
-     * SRTP related fields as well.
+     * Cleans the Session description to include only the specified codec set.
+     * It removes all the SRTP related fields as well.
      * 
-     * @param sessionDescription -- the session description to clean ( modify )
-     * @param codecs -- the codec set to restrict to.
+     * @param sessionDescription --
+     *            the session description to clean ( modify )
+     * @param codecs --
+     *            the codec set to restrict to.
      * @return
      */
-    static SessionDescription cleanSessionDescription(SessionDescription sessionDescription,
-            Set<Integer> codecs) {
+    static SessionDescription cleanSessionDescription(
+            SessionDescription sessionDescription, Set<Integer> codecs) {
         try {
 
             if (codecs.isEmpty()) {
@@ -759,22 +838,25 @@ class SipUtilities {
             }
 
             logger.debug("Codecs = " + codecs);
-            Vector mediaDescriptions = sessionDescription.getMediaDescriptions(true);
+            Vector mediaDescriptions = sessionDescription
+                    .getMediaDescriptions(true);
 
             for (Iterator it = mediaDescriptions.iterator(); it.hasNext();) {
 
-                MediaDescription mediaDescription = (MediaDescription) it.next();
-                Vector formats = mediaDescription.getMedia().getMediaFormats(true);
+                MediaDescription mediaDescription = (MediaDescription) it
+                        .next();
+                Vector formats = mediaDescription.getMedia().getMediaFormats(
+                        true);
 
                 for (Iterator it1 = formats.iterator(); it1.hasNext();) {
                     Object format = it1.next();
                     Integer fmt = new Integer(format.toString());
                     if (!codecs.contains(fmt)) {
                         /*
-                         * Preserve the telephone event lines -- this 
-                         * upsets some ITSPs otherwise. AT&T Hack.
+                         * Preserve the telephone event lines -- this upsets
+                         * some ITSPs otherwise. AT&T Hack.
                          */
-                        if ( fmt != 100 && fmt != 101 ) {
+                        if (fmt != 100 && fmt != 101) {
                             it1.remove();
                         }
                     }
@@ -794,8 +876,8 @@ class SipUtilities {
 
                         if (!codecs.contains(rtpMapCodec)) {
                             /*
-                             * Preserve the telephone event lines -- this 
-                             * upsets some ITSPs otherwise. AT&T Hack.
+                             * Preserve the telephone event lines -- this upsets
+                             * some ITSPs otherwise. AT&T Hack.
                              */
                             if (rtpMapCodec != 100 && rtpMapCodec != 101) {
                                 it1.remove();
@@ -803,10 +885,10 @@ class SipUtilities {
                         }
                     }
                     /*
-                     * else if (attr.getName().equalsIgnoreCase("crypto")) { it1.remove();
-                     * logger.debug("Not adding crypto"); } else if
-                     * (attr.getName().equalsIgnoreCase("encryption")) { it1.remove();
-                     * logger.debug("Not adding encryption"); }
+                     * else if (attr.getName().equalsIgnoreCase("crypto")) {
+                     * it1.remove(); logger.debug("Not adding crypto"); } else
+                     * if (attr.getName().equalsIgnoreCase("encryption")) {
+                     * it1.remove(); logger.debug("Not adding encryption"); }
                      */
                 }
 
@@ -816,11 +898,13 @@ class SipUtilities {
 
         } catch (Exception ex) {
             logger.fatal("Unexpected exception!", ex);
-            throw new SipXbridgeException("Unexpected exception cleaning SDP", ex);
+            throw new SipXbridgeException("Unexpected exception cleaning SDP",
+                    ex);
         }
     }
 
-    static String getSessionDescriptionMediaIpAddress(SessionDescription sessionDescription) {
+    static String getSessionDescriptionMediaIpAddress(
+            SessionDescription sessionDescription) {
         try {
             String ipAddress = null;
             if (sessionDescription.getConnection() != null)
@@ -863,7 +947,8 @@ class SipUtilities {
 
     }
 
-    static String getSessionDescriptionAttribute(SessionDescription sessionDescription) {
+    static String getSessionDescriptionAttribute(
+            SessionDescription sessionDescription) {
         try {
             Vector sessionAttributes = sessionDescription.getAttributes(false);
             if (sessionAttributes == null)
@@ -879,11 +964,13 @@ class SipUtilities {
             }
             return null;
         } catch (SdpParseException ex) {
-            throw new SipXbridgeException("Unexpected exeption retrieving a field", ex);
+            throw new SipXbridgeException(
+                    "Unexpected exeption retrieving a field", ex);
         }
     }
 
-    static void setDuplexity(SessionDescription sessionDescription, String attributeValue) {
+    static void setDuplexity(SessionDescription sessionDescription,
+            String attributeValue) {
 
         try {
 
@@ -891,14 +978,16 @@ class SipUtilities {
             md.setDuplexity(attributeValue);
 
         } catch (Exception ex) {
-            logger.error("Error while processing the following SDP : " + sessionDescription);
+            logger.error("Error while processing the following SDP : "
+                    + sessionDescription);
             logger.error("attributeValue = " + attributeValue);
             throw new SipXbridgeException("Malformatted sdp", ex);
         }
 
     }
 
-    static int getSessionDescriptionMediaPort(SessionDescription sessionDescription) {
+    static int getSessionDescriptionMediaPort(
+            SessionDescription sessionDescription) {
         try {
             MediaDescription mediaDescription = getMediaDescription(sessionDescription);
 
@@ -914,23 +1003,29 @@ class SipUtilities {
     }
 
     static String getCallId(Message message) {
-        String callId = ((CallIdHeader) message.getHeader(CallIdHeader.NAME)).getCallId();
+        String callId = ((CallIdHeader) message.getHeader(CallIdHeader.NAME))
+                .getCallId();
 
         return callId;
     }
 
-    private static Response createResponse(SipProvider provider, Request request, int statusCode)
-            throws ParseException {
-        Response response = ProtocolObjects.messageFactory.createResponse(statusCode, request);
-        ContactHeader contactHeader = createContactHeader(Gateway.SIPXBRIDGE_USER, provider);
+    private static Response createResponse(SipProvider provider,
+            Request request, int statusCode) throws ParseException {
+        Response response = ProtocolObjects.messageFactory.createResponse(
+                statusCode, request);
+        ContactHeader contactHeader = createContactHeader(
+                Gateway.SIPXBRIDGE_USER, provider);
         response.addHeader(contactHeader);
 
         if (provider == Gateway.getLanProvider()) {
-            SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
+            SupportedHeader sh = ProtocolObjects.headerFactory
+                    .createSupportedHeader("replaces");
             response.setHeader(sh);
-            response.addHeader(ProtocolObjects.headerFactory.createSupportedHeader("100rel"));
+            response.addHeader(ProtocolObjects.headerFactory
+                    .createSupportedHeader("100rel"));
         } else {
-            SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("replaces");
+            SupportedHeader sh = ProtocolObjects.headerFactory
+                    .createSupportedHeader("replaces");
             response.setHeader(sh);
         }
         return response;
@@ -940,15 +1035,18 @@ class SipUtilities {
         try {
             Request request = transaction.getRequest();
 
-            SipProvider provider = ((TransactionExt) transaction).getSipProvider();
+            SipProvider provider = ((TransactionExt) transaction)
+                    .getSipProvider();
             Response response = createResponse(provider, request, statusCode);
             Dialog dialog = transaction.getDialog();
             /*
-             * Privacy enabled ? if so, remove private headers while sending response.
+             * Privacy enabled ? if so, remove private headers while sending
+             * response.
              */
             if (dialog.getApplicationData() != null
                     && DialogContext.get(dialog).getItspInfo() != null
-                    && DialogContext.get(dialog).getItspInfo().stripPrivateHeaders()
+                    && DialogContext.get(dialog).getItspInfo()
+                            .stripPrivateHeaders()
                     && provider != Gateway.getLanProvider()) {
                 SipUtilities.stripPrivateHeaders(response);
             }
@@ -972,16 +1070,20 @@ class SipUtilities {
     }
 
     /**
-     * Fix up the Origin field, ip address and port of the given session description.
+     * Fix up the Origin field, ip address and port of the given session
+     * description.
      * 
-     * @param sessionDescription -- session description field to fix up.
+     * @param sessionDescription --
+     *            session description field to fix up.
      * 
-     * @param address -- new address to assign to media
+     * @param address --
+     *            new address to assign to media
      * 
-     * @param port -- new port to assign.
+     * @param port --
+     *            new port to assign.
      */
-    static void fixupSdpMediaAddresses(SessionDescription sessionDescription, String address,
-            int port) {
+    static void fixupSdpMediaAddresses(SessionDescription sessionDescription,
+            String address, int port) {
         try {
             Connection connection = sessionDescription.getConnection();
 
@@ -1000,7 +1102,8 @@ class SipUtilities {
 
         } catch (Exception ex) {
             logger.error("Unepxected exception fixing up sdp addresses", ex);
-            throw new SipXbridgeException("Unepxected exception fixing up sdp addresses", ex);
+            throw new SipXbridgeException(
+                    "Unepxected exception fixing up sdp addresses", ex);
         }
 
     }
@@ -1039,11 +1142,12 @@ class SipUtilities {
      */
     static void setGlobalAddresses(Request request) {
         try {
-            SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(null, Gateway
-                    .getGlobalAddress());
+            SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(null,
+                    Gateway.getGlobalAddress());
             sipUri.setPort(Gateway.getGlobalPort());
 
-            ContactHeader contactHeader = (ContactHeader) request.getHeader(ContactHeader.NAME);
+            ContactHeader contactHeader = (ContactHeader) request
+                    .getHeader(ContactHeader.NAME);
             contactHeader.getAddress().setURI(sipUri);
             ViaHeader viaHeader = (ViaHeader) request.getHeader(ViaHeader.NAME);
             viaHeader.setHost(Gateway.getGlobalAddress());
@@ -1057,11 +1161,12 @@ class SipUtilities {
 
     static void setGlobalAddress(Response response) {
         try {
-            SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(null, Gateway
-                    .getGlobalAddress());
+            SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(null,
+                    Gateway.getGlobalAddress());
             sipUri.setPort(Gateway.getGlobalPort());
 
-            ContactHeader contactHeader = (ContactHeader) response.getHeader(ContactHeader.NAME);
+            ContactHeader contactHeader = (ContactHeader) response
+                    .getHeader(ContactHeader.NAME);
             contactHeader.getAddress().setURI(sipUri);
 
         } catch (Exception ex) {
@@ -1087,12 +1192,13 @@ class SipUtilities {
     }
 
     static String getToUser(Message message) {
-        return ((SipURI) ((ToHeader) message.getHeader(ToHeader.NAME)).getAddress().getURI())
-                .getUser();
+        return ((SipURI) ((ToHeader) message.getHeader(ToHeader.NAME))
+                .getAddress().getURI()).getUser();
 
     }
 
-    static HashSet<Integer> getCommonCodec(SessionDescription sd1, SessionDescription sd2) {
+    static HashSet<Integer> getCommonCodec(SessionDescription sd1,
+            SessionDescription sd2) {
 
         Set<Integer> codecSet1 = getMediaFormats(sd1);
         Set<Integer> codecSet2 = getMediaFormats(sd2);
@@ -1110,10 +1216,11 @@ class SipUtilities {
 
     }
 
-    static void setSessionDescription(Message message, SessionDescription sessionDescription) {
+    static void setSessionDescription(Message message,
+            SessionDescription sessionDescription) {
         try {
-            ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader(
-                    "application", "sdp");
+            ContentTypeHeader cth = ProtocolObjects.headerFactory
+                    .createContentTypeHeader("application", "sdp");
             message.setContent(sessionDescription.toString(), cth);
         } catch (Exception ex) {
             logger.error("Unexpected exception", ex);
@@ -1123,7 +1230,8 @@ class SipUtilities {
     }
 
     /**
-     * Return true if the session description contains at least one codec of the specified set.
+     * Return true if the session description contains at least one codec of the
+     * specified set.
      * 
      * @param sd
      * @param codecSet
@@ -1153,15 +1261,18 @@ class SipUtilities {
 
     static WarningHeader createWarningHeader(String agent, int code, String text) {
         try {
-            return ProtocolObjects.headerFactory.createWarningHeader(agent, code, text);
+            return ProtocolObjects.headerFactory.createWarningHeader(agent,
+                    code, text);
         } catch (Exception ex) {
-            logger.fatal(String.format("Unexpected Error creating warning header %s %d %s",
-                    agent, code, text));
+            logger.fatal(String.format(
+                    "Unexpected Error creating warning header %s %d %s", agent,
+                    code, text));
             return null;
         }
     }
 
-    static String getSessionDescriptionMediaType(SessionDescription sessionDescription) {
+    static String getSessionDescriptionMediaType(
+            SessionDescription sessionDescription) {
         try {
             MediaDescription mediaDescription = (MediaDescription) sessionDescription
                     .getMediaDescriptions(true).get(0);
@@ -1179,18 +1290,19 @@ class SipUtilities {
     static void addLanAllowHeaders(Message message) {
         message.removeHeader(AllowHeader.NAME); // Remove existing Allow
         try {
-            for (String method : new String[] {
-                Request.INVITE, Request.BYE, Request.ACK, Request.CANCEL, Request.REFER,
-                Request.OPTIONS, Request.PRACK
-            }) {
-                AllowHeader allow = ProtocolObjects.headerFactory.createAllowHeader(method);
+            for (String method : new String[] { Request.INVITE, Request.BYE,
+                    Request.ACK, Request.CANCEL, Request.REFER,
+                    Request.OPTIONS, Request.PRACK }) {
+                AllowHeader allow = ProtocolObjects.headerFactory
+                        .createAllowHeader(method);
                 message.addHeader(allow);
             }
             if (message instanceof Request) {
                 SupportedHeader supportedHeader = ProtocolObjects.headerFactory
                         .createSupportedHeader("replaces");
                 message.setHeader(supportedHeader);
-                supportedHeader = ProtocolObjects.headerFactory.createSupportedHeader("100rel");
+                supportedHeader = ProtocolObjects.headerFactory
+                        .createSupportedHeader("100rel");
                 message.addHeader(supportedHeader);
             }
         } catch (Exception ex) {
@@ -1204,32 +1316,35 @@ class SipUtilities {
 
         message.removeHeader(AllowHeader.NAME); // Remove existing Allow
         try {
-           
-            for (String method : new String[] {
-                Request.INVITE, Request.BYE, Request.ACK, Request.CANCEL, Request.OPTIONS
-            }) {
-                AllowHeader allow = ProtocolObjects.headerFactory.createAllowHeader(method);
+
+            for (String method : new String[] { Request.INVITE, Request.BYE,
+                    Request.ACK, Request.CANCEL, Request.OPTIONS }) {
+                AllowHeader allow = ProtocolObjects.headerFactory
+                        .createAllowHeader(method);
                 message.addHeader(allow);
             }
-           /*
-            * 100rel not supported from the WAN side.
-            * DO NOT add 100rel support when signaling the WAN ( not needed -- leads to
-            * needless complications). See issue XX-5609
-            */ 
-           
+            /*
+             * 100rel not supported from the WAN side. DO NOT add 100rel support
+             * when signaling the WAN ( not needed -- leads to needless
+             * complications). See issue XX-5609
+             */
+
         } catch (Exception ex) {
             logger.error("Unexpected exception", ex);
             throw new SipXbridgeException(ex);
         }
     }
 
-    static boolean isCodecDifferent(SessionDescription sd1, SessionDescription sd2) {
+    static boolean isCodecDifferent(SessionDescription sd1,
+            SessionDescription sd2) {
 
         try {
             MediaDescription md1 = getMediaDescription(sd1);
             MediaDescription md2 = getMediaDescription(sd2);
-            HashSet<String> fmt1 = new HashSet<String>(md1.getMedia().getMediaFormats(true));
-            HashSet<String> fmt2 = new HashSet<String>(md2.getMedia().getMediaFormats(true));
+            HashSet<String> fmt1 = new HashSet<String>(md1.getMedia()
+                    .getMediaFormats(true));
+            HashSet<String> fmt2 = new HashSet<String>(md2.getMedia()
+                    .getMediaFormats(true));
             logger.debug("Comparing " + fmt1 + " with " + fmt2 + " returning "
                     + !fmt1.equals(fmt2));
             return !fmt1.equals(fmt2);
@@ -1240,7 +1355,8 @@ class SipUtilities {
     }
 
     static boolean isReplacesHeaderPresent(Request referRequest) {
-        ReferToHeader referToHeader = (ReferToHeader) referRequest.getHeader(ReferToHeader.NAME);
+        ReferToHeader referToHeader = (ReferToHeader) referRequest
+                .getHeader(ReferToHeader.NAME);
 
         if (referToHeader == null) {
             return false;
@@ -1264,12 +1380,15 @@ class SipUtilities {
             String address;
 
             address = itspInfo == null || !itspInfo.isGlobalAddressingUsed() ? Gateway
-                    .getLocalAddress() : Gateway.getGlobalAddress();
+                    .getLocalAddress()
+                    : Gateway.getGlobalAddress();
 
-            SipURI retval = (SipURI) ProtocolObjects.addressFactory.createURI("sip:" + address);
+            SipURI retval = (SipURI) ProtocolObjects.addressFactory
+                    .createURI("sip:" + address);
 
             int port = itspInfo == null || !itspInfo.isGlobalAddressingUsed() ? Gateway
-                    .getBridgeConfiguration().getExternalPort() : Gateway.getGlobalPort();
+                    .getBridgeConfiguration().getExternalPort()
+                    : Gateway.getGlobalPort();
 
             retval.setPort(port);
 
@@ -1288,7 +1407,8 @@ class SipUtilities {
 
             address = itspInfo.getCallerId();
 
-            SipURI retval = (SipURI) ProtocolObjects.addressFactory.createURI("sip:" + address);
+            SipURI retval = (SipURI) ProtocolObjects.addressFactory
+                    .createURI("sip:" + address);
 
             return retval;
         } catch (Exception ex) {
@@ -1299,14 +1419,16 @@ class SipUtilities {
 
     static SessionDescription cloneSessionDescription(SessionDescription sd) {
         try {
-            return SdpFactory.getInstance().createSessionDescription(sd.toString());
+            return SdpFactory.getInstance().createSessionDescription(
+                    sd.toString());
         } catch (Exception ex) {
             logger.error("unexpected exception cloning sd", ex);
             throw new SipXbridgeException("unexpected exception cloning sd", ex);
         }
     }
 
-    static long getSessionDescriptionVersion(SessionDescription sessionDescription) {
+    static long getSessionDescriptionVersion(
+            SessionDescription sessionDescription) {
         try {
             long version = sessionDescription.getOrigin().getSessionVersion();
             return version;
@@ -1333,7 +1455,8 @@ class SipUtilities {
                  * Request is bound to the WAN.
                  */
                 if (DialogContext.get(dialog).getItspInfo() == null
-                        || DialogContext.get(dialog).getItspInfo().isGlobalAddressingUsed()) {
+                        || DialogContext.get(dialog).getItspInfo()
+                                .isGlobalAddressingUsed()) {
                     SipUtilities.setGlobalAddresses(request);
                     SipUtilities.addWanAllowHeaders(request);
                     request.removeHeader(SupportedHeader.NAME);
@@ -1341,9 +1464,8 @@ class SipUtilities {
                 }
             } else {
                 SipUtilities.addLanAllowHeaders(request);
-                request
-                        .setHeader(ProtocolObjects.headerFactory
-                                .createSupportedHeader("replaces"));
+                request.setHeader(ProtocolObjects.headerFactory
+                        .createSupportedHeader("replaces"));
             }
         } catch (Exception ex) {
             String s = "Unexpected exception";
@@ -1361,8 +1483,8 @@ class SipUtilities {
             message.removeHeader(InReplyToHeader.NAME);
             message.removeHeader(UserAgentHeader.NAME);
             if (message instanceof Request) {
-                Address fromAddress = ((FromHeader) message.getHeader(FromHeader.NAME))
-                        .getAddress();
+                Address fromAddress = ((FromHeader) message
+                        .getHeader(FromHeader.NAME)).getAddress();
                 fromAddress.setDisplayName(null);
             }
         } catch (Exception ex) {
@@ -1374,22 +1496,25 @@ class SipUtilities {
     }
 
     static boolean isOriginatorSipXbridge(Message incomingMessage) {
-        ListIterator headerIterator = incomingMessage.getHeaders(ViaHeader.NAME);
+        ListIterator headerIterator = incomingMessage
+                .getHeaders(ViaHeader.NAME);
         boolean spiral = false;
         while (headerIterator.hasNext()) {
             ViaHeader via = (ViaHeader) headerIterator.next();
-            String originator = via.getParameter(BackToBackUserAgent.ORIGINATOR);
-            if (originator != null && originator.equals(Gateway.SIPXBRIDGE_USER)) {
+            String originator = via
+                    .getParameter(BackToBackUserAgent.ORIGINATOR);
+            if (originator != null
+                    && originator.equals(Gateway.SIPXBRIDGE_USER)) {
                 spiral = true;
             }
         }
         return spiral;
     }
 
-    public static void addSipFrag(Response response, String message) {
+    static void addSipFrag(Response response, String message) {
         try {
-            ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader(
-                    "message", "sipfrag");
+            ContentTypeHeader cth = ProtocolObjects.headerFactory
+                    .createContentTypeHeader("message", "sipfrag");
             response.setContent(message, cth);
         } catch (Exception ex) {
             String s = "Unexpected exception";
@@ -1399,11 +1524,11 @@ class SipUtilities {
 
     }
 
-    public static SessionExpiresHeader createSessionExpires() {
-        
+    static SessionExpiresHeader createSessionExpires() {
+
         try {
-            SessionExpiresHeader sessionExpires =  ((HeaderFactoryExt) ProtocolObjects.headerFactory)
-            .createSessionExpiresHeader(Gateway.getSessionExpires());
+            SessionExpiresHeader sessionExpires = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
+                    .createSessionExpiresHeader(Gateway.getSessionExpires());
             sessionExpires.setExpires(Gateway.getSessionExpires());
             sessionExpires.setRefresher("uac");
             return sessionExpires;
@@ -1434,4 +1559,68 @@ class SipUtilities {
         
     }
 
+    static Response createErrorResponse(ServerTransaction serverTransaction,
+            ItspAccountInfo itspAccount, Response response) {
+        try {
+            Response newResponse = SipUtilities.createResponse(
+                    serverTransaction, response.getStatusCode());
+
+            SipProvider provider = ((TransactionExt) serverTransaction)
+                    .getSipProvider();
+
+            if (provider != Gateway.getLanProvider()) {
+                ContactHeader contactHeader = SipUtilities.createContactHeader(
+                        provider, itspAccount);
+                newResponse.setHeader(contactHeader);
+            }
+
+            ReasonHeader rh = ProtocolObjects.headerFactory.createReasonHeader(
+                    Gateway.SIPXBRIDGE_USER, ReasonCode.RELAYED_ERROR_RESPONSE,
+                    "Relayed Error Response");
+
+            newResponse.setHeader(rh);
+        
+            /*
+             * Response is heading towards the LAN. Extract diagnostic information
+             * from the inbound response and hand it back in the forwarded response.
+             * This allows the diagnostic information to be available at the phone
+             * ( useful for debugging ). We want to preserve the information for
+             * server errors because these are converted to 500 error when relayed by
+             * the proxy server.
+             */
+            if (provider == Gateway.getLanProvider() && response.getStatusCode() / 100 == 5) {
+                StringBuffer sb = new StringBuffer();
+                sb.append(((SIPResponse) response).getFirstLine());
+                if (itspAccount != null) {
+                    sb.append("ITSP-Domain: " + itspAccount.getProxyDomain()
+                            + "\r\n");
+                }
+                if (response.getHeader(UserAgentHeader.NAME) != null) {
+                    sb.append(response.getHeader(UserAgentHeader.NAME)
+                            .toString());
+                }
+
+                if (response.getHeader(ReasonHeader.NAME) != null) {
+                    sb.append(response.getHeader(ReasonHeader.NAME).toString());
+                }
+                if ( response.getHeader(WarningHeader.NAME) != null) {
+                    sb.append(response.getHeader(WarningHeader.NAME).toString());
+                }
+                if ( response.getHeader(ErrorInfoHeader.NAME) != null) {
+                    sb.append(response.getHeader(ErrorInfoHeader.NAME).toString());
+                }
+                
+                if (sb.length() != 0) {
+                    SipUtilities.addSipFrag(newResponse, sb.toString().trim());
+                }
+            }
+
+            return newResponse;
+        } catch (Exception ex) {
+            String s = "Unexpected exception";
+            logger.fatal(s, ex);
+            throw new SipXbridgeException(s, ex);
+        }
+
+    }
 }

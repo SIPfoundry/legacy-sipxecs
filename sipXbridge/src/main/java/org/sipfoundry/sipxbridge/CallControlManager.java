@@ -1067,8 +1067,8 @@ class CallControlManager implements SymmitronResetHandler {
             Operation continuationOperation = tad.getContinuationOperation();
             if (continuationOperation != Operation.NONE) {
                 ContinuationData cdata = (ContinuationData) tad.getContinuationData();
-                Response errorResponse = SipUtilities.createResponse(cdata.getRequestEvent()
-                        .getServerTransaction(), response.getStatusCode());
+                Response errorResponse = SipUtilities.createErrorResponse(cdata.getRequestEvent()
+                        .getServerTransaction(), dialogContext.getItspInfo(), response);
                 if (cdata.getRequestEvent().getServerTransaction().getState() != TransactionState.TERMINATED) {
                     cdata.getRequestEvent().getServerTransaction().sendResponse(errorResponse);
                 }
@@ -1089,8 +1089,8 @@ class CallControlManager implements SymmitronResetHandler {
                             b2bua.setPendingTermination(true);
 
                         }
-                        Response newResponse = SipUtilities.createResponse(serverTransaction,
-                                response.getStatusCode());
+                        Response newResponse = SipUtilities.createErrorResponse(serverTransaction,
+                                dialogContext.getItspInfo(),response);
                         serverTransaction.sendResponse(newResponse);
                     } else {
                         logger
