@@ -129,7 +129,7 @@ function yum_install_and_check {
 function gem_install_and_check {
    echo -n "  Checking for (gem package) $1..." 
    gem list | grep $1 > /dev/null
-   if [ $? ]
+   if [ $? == 0 ]
    then
       echo " FOUND."
    else
