@@ -231,7 +231,7 @@ class CdrTest < Test::Unit::TestCase
   def test_accept_transfer
     cdr = Cdr.new('test')
     cse = make_cse(:to_tag => 't6', :event_type => 'T', :event_time => 100)
-    assert_nil cdr.accept(cse)    
+    assert_not_nil cdr.accept(cse)    
   end
   
   def test_call_success

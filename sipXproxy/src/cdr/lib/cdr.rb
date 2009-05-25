@@ -171,6 +171,7 @@ class Cdr
   CALL_REQUESTED_TERM   = 'R'
   CALL_IN_PROGRESS_TERM = 'I'
   CALL_COMPLETED_TERM   = 'C'
+  CALL_TRANSFERRED_TERM = 'T'
   CALL_UNKNOWN_COMPLETED_TERM = 'U'
   CALL_FAILED_TERM      = 'F'
   
@@ -192,6 +193,7 @@ class Cdr
     @connect_time = nil
     @end_time = nil    
     @termination = nil
+    @pendingtermination = nil
     @failure_status = nil
     @failure_reason = nil
     @call_direction = nil
@@ -220,7 +222,7 @@ class Cdr
   end
   
   def terminated?
-    @termination == CALL_COMPLETED_TERM || CALL_UNKNOWN_COMPLETED_TERM
+    @termination == CALL_COMPLETED_TERM || @termination == CALL_UNKNOWN_COMPLETED_TERM || @termination == CALL_TRANSFERRED_TERM
   end
   
   # Return a text description of the termination status for this CDR.
@@ -242,6 +244,8 @@ class Cdr
          # non-established calls only consider a failure if the reason is not a timeout, auth required or unauthorized.
          accept_call_end(cse)  unless ((cse.failure_status == SIP_REQUEST_TIMEOUT_CODE) || (cse.failure_status == SIP_PROXY_AUTH_REQUIRED_CODE) || (cse.failure_status == SIP_UNAUTHORIZED_CODE))
       end
+    when cse.call_transfer?
+      accept_call_transfer(cse)
     when cse.call_end?
       accept_call_end(cse)
     end
@@ -306,6 +310,10 @@ class Cdr
     finish
   end
   
+  def accept_call_transfer(cse)
+    @pendingtermination = CALL_TRANSFERRED_TERM
+  end
+  
   def accept_call_end(cse)
     @legs.accept_end(cse)
     finish
@@ -322,6 +330,11 @@ class Cdr
     @connect_time = leg.connect_time
     @end_time = leg.end_time
     @termination = leg.status
+    if @pendingtermination and leg.status == CALL_COMPLETED_TERM
+       @termination = @pendingtermination
+    else
+       @termination = leg.status
+    end
     @failure_reason = leg.failure_reason
     @failure_status = leg.failure_status
     @callee_contact = leg.callee_contact  
@@ -332,6 +345,7 @@ class Cdr
     CALL_REQUESTED_TERM   => 'requested',
     CALL_IN_PROGRESS_TERM => 'in progress',
     CALL_COMPLETED_TERM   => 'completed',
+    CALL_TRANSFERRED_TERM   => 'transferred',
     CALL_UNKNOWN_COMPLETED_TERM   => 'unknown',
     CALL_FAILED_TERM      => 'failed'}  
 end
