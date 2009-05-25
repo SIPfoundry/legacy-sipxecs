@@ -92,10 +92,24 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
 
    int aliasIndex = 0;
    UtlString aliasString;
+   // Using IP-address-based domain aliases in HA configurations creates
+   // interaction problems with remote workers (see XX-4557 for details).
+   // To avoid these problems, we omit the IP-based domain aliases in the   
+   // list of configured domain aliases. 
+   RegEx refIp4Address("^[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+$");
    while(NameValueTokenizer::getSubField(mDomainAliases.data(), aliasIndex,
                                          ", \t", &aliasString))
    {
-      mpSipUserAgent->setHostAliases(aliasString);
+      RegEx ip4Address( refIp4Address );
+      if( !ip4Address.Search( aliasString.data() ) )
+      {
+         mpSipUserAgent->setHostAliases(aliasString);
+      }
+      else
+      {
+         OsSysLog::add(FAC_SIP, PRI_NOTICE, "SipRouter::SipRouter "
+                       "Skipping IP address-based domain alias '%s'", aliasString.data() );
+      }
       aliasIndex++;
    }
 
