@@ -94,6 +94,6 @@ $(DESTDIR)$(sysconfdir)/logrotate.d/sipxchange: logrotate.d/sipxchange
 	fi
 
 $(DESTDIR)$(localstatedir)/log/sipxpbx/phone:
-	${INSTALL) -d -m 755 $@
+	$(INSTALL) -d -m 755 $@
 
 DISTCLEANFILES = sipxpbx
