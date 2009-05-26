@@ -548,7 +548,7 @@ def sync_ntp_time () :
     cmdoutput=commands.getoutput ('/sbin/service %s stop' % sipxecsGlobals.NtpServiceName)
     log_printout(cmdoutput)
     if os.path.exists("/etc/SuSE-release"):
-        cmdoutput=commands.getoutput ('/sbin/service %s ntpsettime' % sipxecsGlobals.NtpServiceName)
+        cmdoutput=commands.getoutput ('/sbin/service %s ntptimeset' % sipxecsGlobals.NtpServiceName)
         log_printout(cmdoutput)
     cmdoutput=commands.getoutput ('/sbin/service %s start' % sipxecsGlobals.NtpServiceName)
     log_printout(cmdoutput)
