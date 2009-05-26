@@ -9,13 +9,15 @@
  */
 package org.sipfoundry.sipxconfig.cdr;
 
+import org.apache.commons.lang.StringUtils;
+
 public class CdrMinutesGraphBean implements Comparable<CdrMinutesGraphBean> {
     private String m_extension;
 
     private Long m_minutes;
 
     public CdrMinutesGraphBean(String extension, Long minutes) {
-        this.m_extension = extension;
+        this.m_extension = StringUtils.defaultString(extension);
         this.m_minutes = minutes;
     }
 

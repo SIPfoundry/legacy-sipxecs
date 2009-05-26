@@ -9,13 +9,15 @@
  */
 package org.sipfoundry.sipxconfig.cdr;
 
+import org.apache.commons.lang.StringUtils;
+
 public class CdrGraphBean implements Comparable<CdrGraphBean> {
     private String m_key;
 
     private Integer m_count;
 
     public CdrGraphBean(String key, Integer count) {
-        this.m_key = key;
+        this.m_key = StringUtils.defaultString(key);
         this.m_count = count;
     }
 
