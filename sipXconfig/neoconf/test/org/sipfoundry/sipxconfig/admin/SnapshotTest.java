@@ -5,11 +5,15 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
  */
 package org.sipfoundry.sipxconfig.admin;
 
+import java.io.File;
 import java.util.Date;
+
+import org.sipfoundry.sipxconfig.admin.Snapshot.SnapshotResult;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.common.UserException;
 
 import junit.framework.TestCase;
 
@@ -44,5 +48,24 @@ public class SnapshotTest extends TestCase {
         assertEquals(
                 "--logs|none|--credentials|--cdr|--profiles|--no-www",
                 cmdLine);
+    }
+
+    public void testSnapshotResultFailure() {
+        SnapshotResult result = new Snapshot.SnapshotResult(new UserException());
+        assertFalse(result.isSuccess());
+        assertNotNull(result.getUserException());
+    }
+
+    public void testSnapshotResultSuccess() {
+        File file = new File("/snapshot/dir/snapshot.tgz");
+        Location location = new Location();
+        location.setFqdn("host.example.com");
+
+        SnapshotResult result = new Snapshot.SnapshotResult(location, file);
+        assertTrue(result.isSuccess());
+        assertNull(result.getUserException());
+
+        assertEquals("/snapshot/dir", result.getDir());
+        assertEquals("host.example.com", result.getFqdn());
     }
 }

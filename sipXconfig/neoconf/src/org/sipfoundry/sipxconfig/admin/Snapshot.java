@@ -5,19 +5,18 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
  */
 package org.sipfoundry.sipxconfig.admin;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -61,6 +60,12 @@ public class Snapshot {
 
     private String m_destDirectory;
 
+    private volatile Date m_generatedDate;
+
+    private ExecutorService m_executorService;
+
+    private List<Future<SnapshotResult>> m_futures;
+
     @Required
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
@@ -79,7 +84,7 @@ public class Snapshot {
         return m_destDirectory;
     }
 
-    class GetSnapshot implements Callable<File> {
+    class GetSnapshot implements Callable<SnapshotResult> {
         private final Location m_location;
         private final Date m_startDate;
         private final Date m_endDate;
@@ -91,13 +96,14 @@ public class Snapshot {
             m_endDate = endDate;
         }
 
-        public File call() throws InterruptedException {
+        public SnapshotResult call() throws InterruptedException {
             HttpClient client = new HttpClient();
+            String fqdn = m_location.getFqdn();
             try {
                 SoftwareAdminApi api = m_softwareAdminApiProvider.getApi(m_location.getSoftwareAdminUrl());
                 List<String> remoteLogFilename = api.snapshot(getHost(), getCmdLine(m_startDate, m_endDate));
                 if (remoteLogFilename.isEmpty() || remoteLogFilename.get(0).length() == 0) {
-                    throw new UserException("&error.xml.rpc.null.snapshot", m_location.getFqdn());
+                    return new SnapshotResult(new UserException("&error.xml.rpc.null.snapshot", fqdn));
                 }
 
                 do {
@@ -108,58 +114,40 @@ public class Snapshot {
 
                 int statusCode = client.executeMethod(httpget);
                 if (statusCode != 200) {
-                    throw new UserException("&error.https.server.status.code", m_location.getFqdn(), String
-                            .valueOf(statusCode));
+                    return new SnapshotResult(new UserException("&error.https.server.status.code", fqdn, String
+                            .valueOf(statusCode)));
                 }
 
-                File localOutputFile = new File(getDestinationDirectory(), "sipx-snapshot-"
-                        + m_location.getFqdn() + ".tar.gz");
+                File localOutputFile = new File(getDestinationDirectory(), "sipx-snapshot-" + fqdn + ".tar.gz");
                 FileOutputStream fos = new FileOutputStream(localOutputFile);
-
                 IOUtils.copy(httpget.getResponseBodyAsStream(), fos);
-
                 fos.close();
+
+                setGeneratedDate(new Date());
+
                 httpget.releaseConnection();
-                return localOutputFile;
+                return new SnapshotResult(m_location, localOutputFile);
             } catch (HttpException e) {
-                throw new UserException("&error.https.server", m_location.getFqdn(), e.getMessage());
+                return new SnapshotResult(new UserException("&error.https.server", fqdn, e.getMessage()));
             } catch (IOException e) {
-                throw new UserException("&error.io.exception", e.getMessage());
+                return new SnapshotResult(new UserException("&error.io.exception", e.getMessage()));
             } catch (XmlRpcRemoteException e) {
-                throw new UserException("&error.xml.rpc", e.getMessage(), m_location.getFqdn());
+                return new SnapshotResult(new UserException("&error.xml.rpc", e.getMessage(), fqdn));
             }
         }
     }
 
-    public Map<File, String> perform(Date startDate, Date endDate, Location[] locations) {
-        List<Callable<File>> tasks = new ArrayList<Callable<File>>();
+    public synchronized void perform(Date startDate, Date endDate, Location[] locations) {
+        m_executorService = Executors.newFixedThreadPool(locations.length);
+
+        m_futures = new ArrayList<Future<SnapshotResult>>(locations.length);
         for (Location location : locations) {
             if (location.isRegistered()) {
-                tasks.add(new GetSnapshot(location, startDate, endDate));
+                GetSnapshot task = new GetSnapshot(location, startDate, endDate);
+                m_futures.add(m_executorService.submit(task));
             }
         }
-
-        ExecutorService executorService = Executors.newFixedThreadPool(tasks.size());
-        Map<File, String> logFileToLocationFqdn = new HashMap<File, String>();
-
-        try {
-            List<Future<File>> results = executorService.invokeAll(tasks);
-            for (int i = 0; i < locations.length; i++) {
-                if (locations[i].isRegistered()) {
-                    logFileToLocationFqdn.put(results.get(i).get(), locations[i].getFqdn());
-                }
-            }
-        } catch (ExecutionException e) {
-            // unpack UserExceptions
-            Throwable cause = e.getCause();
-            if (cause instanceof RuntimeException) {
-                throw (RuntimeException) cause;
-            }
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
-            throw new UserException("&error.snapshot.interrupted", e.getMessage());
-        }
-        return logFileToLocationFqdn;
+        m_executorService.shutdown();
     }
 
     String[] getCmdLine(Date startDate, Date endDate) {
@@ -254,5 +242,99 @@ public class Snapshot {
 
     public void setDestDirectory(String destDirectory) {
         m_destDirectory = destDirectory;
+    }
+
+    public Date getGeneratedDate() {
+        return m_generatedDate;
+    }
+
+    public void setGeneratedDate(Date generatedDate) {
+        m_generatedDate = generatedDate;
+    }
+
+    /**
+     * Executor service has been created and is now in running (not terminated) state.
+     */
+    public synchronized boolean isRefreshing() {
+        return isInitialized() && !m_executorService.isTerminated();
+    }
+
+    /**
+     * Executor service has been created.
+     */
+    public synchronized boolean isInitialized() {
+        return m_executorService != null;
+    }
+
+    /**
+     * Returns 'true' if at least one SnapshotResult bean was successfully retrieved
+     */
+    public synchronized boolean isSuccess() {
+        List<SnapshotResult> results = getResults();
+        for (SnapshotResult result : results) {
+            if (result.isSuccess()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public synchronized List<SnapshotResult> getResults() {
+        if (isRefreshing()) {
+            return Collections.emptyList();
+        }
+        if (m_futures == null) {
+            return Collections.emptyList();
+        }
+        List<SnapshotResult> results = new ArrayList<SnapshotResult>(m_futures.size());
+        try {
+            for (Future<SnapshotResult> future : m_futures) {
+                results.add(future.get());
+            }
+            return results;
+        } catch (InterruptedException e) {
+            throw new UserException(e);
+        } catch (ExecutionException e) {
+            // we handle exceptions in task already so this should not happen
+            throw new UserException(e);
+        }
+    }
+
+    public static class SnapshotResult implements Serializable {
+        private final File m_snaphotFile;
+        private final String m_fqdn;
+        private final UserException m_userException;
+
+        public SnapshotResult(Location location, File snapshotFile) {
+            m_fqdn = location.getFqdn();
+            m_snaphotFile = snapshotFile;
+            m_userException = null;
+        }
+
+        public SnapshotResult(UserException userException) {
+            m_fqdn = null;
+            m_snaphotFile = null;
+            m_userException = userException;
+        }
+
+        public UserException getUserException() {
+            return m_userException;
+        }
+
+        public boolean isSuccess() {
+            return m_userException == null;
+        }
+
+        public String getFqdn() {
+            return m_fqdn;
+        }
+
+        public File getFile() {
+            return m_snaphotFile;
+        }
+
+        public String getDir() {
+            return m_snaphotFile.getParent();
+        }
     }
 }
