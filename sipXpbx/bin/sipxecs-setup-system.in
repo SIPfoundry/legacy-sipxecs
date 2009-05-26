@@ -692,7 +692,11 @@ options {\n\
 
         # Change ownership of zone files
         setOwnerRecursive(sipxecsGlobals.NamedDirectory, 'root', 'named')
-        setRights(sipxecsGlobals.NamedDirectory + "/data",'root','named','u=rwx,g=rwx,o=') # makes data directory named-writable
+        # Makes data directory named-writable
+        setRights(sipxecsGlobals.NamedDirectory + "/data",'root','named','u=rwx,g=rwx,o=')
+        # On SUSE /var/run/named is a link to /var/lib/named/var/run/named
+        # On RedHat /var/run/named is a regular directory
+        setRights("/var/run/named",'named','named','u=rwx,g=rwx,o=')
     else :
         log_printout("Named directories not created because not running as root")
             
