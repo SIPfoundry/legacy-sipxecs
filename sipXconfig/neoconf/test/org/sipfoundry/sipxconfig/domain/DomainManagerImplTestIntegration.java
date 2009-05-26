@@ -33,6 +33,8 @@ public class DomainManagerImplTestIntegration extends IntegrationTestCase {
         Location primaryLocation = TestUtil.createDefaultLocation();
         locationsManager.getPrimaryLocation();
         EasyMock.expectLastCall().andReturn(primaryLocation).anyTimes();
+        locationsManager.getLocations();
+        EasyMock.expectLastCall().andReturn(new Location[]{primaryLocation}).anyTimes();
         EasyMock.replay(locationsManager);
         
         modifyContext(m_domainManagerImpl, "locationsManager", m_originalLocationsManager, locationsManager);
@@ -92,6 +94,8 @@ public class DomainManagerImplTestIntegration extends IntegrationTestCase {
         
         assertEquals("domain.example.org", domain.getName());
         assertEquals("realm.example.org", domain.getSipRealm());
+        assertNotNull(domain.getAliases());
+        assertEquals("alias.example.org", domain.getAliases().iterator().next());
         assertNotNull(domain.getSharedSecret());
     }
 
