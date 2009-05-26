@@ -80,6 +80,9 @@ public class FtpContextImpl implements FtpContext {
         try {
             FTPFile[] files = m_client.listFiles(path);
             for (FTPFile file : files) {
+                if (file == null) {
+                    continue;
+                }
                 if (type == null || type.intValue() == file.getType()) {
                     names.add(file.getName());
                 }
