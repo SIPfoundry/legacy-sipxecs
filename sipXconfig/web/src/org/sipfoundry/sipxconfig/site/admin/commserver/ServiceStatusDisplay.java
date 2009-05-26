@@ -153,6 +153,8 @@ public abstract class ServiceStatusDisplay extends BaseComponent {
             setStatusMessage(String.format("%s: %s", getMessages().getMessage(message.getPrefix()), message
                     .getMessage()));
             setShowAllLink((allMessages.size() > 1) || shouldTruncate());
+        } else {
+            setStatusMessage(getMessages().getMessage("status.emptyStatus"));
         }
     }
 }
