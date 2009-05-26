@@ -9,7 +9,7 @@ require 'tempfile'
 require 'optparse'
 require 'ostruct'
 
-load '@SIPX_CONFDIR@/report/sipxconfig-report-config'
+load '@SIPX_CONFDIR@/sipxconfig-report-config'
 
 $psql = '/usr/bin/psql'
 if FileTest.exists?($psql)
@@ -80,7 +80,7 @@ def parse(args)
     end
 
     def disablereport
-      `#perl -pi -e 's/^(CONFIG_SERVER_REPORT\s*=\s*")ENABLED"/\1DISABLED"/' @SIPX_CONFDIR@/report/sipxconfig-report-config`
+      `#perl -pi -e 's/^(CONFIG_SERVER_REPORT\s*=\s*")ENABLED"/\1DISABLED"/' @SIPX_CONFDIR@/sipxconfig-report-config`
     end
 
     def setuppg

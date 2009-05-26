@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.acd.stats;
@@ -19,30 +19,28 @@ import junit.framework.TestCase;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.postgresql.util.PGInterval;
+import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 import org.springframework.context.ApplicationContext;
 
-public class AcdHistoricalStatsTestDb extends TestCase {
-    
-    private AcdHistoricalStats m_history;
+public class AcdHistoricalStatsTestIntegration extends IntegrationTestCase {
 
-    protected void setUp() throws Exception {
-        ApplicationContext app = TestHelper.getApplicationContext();
-        m_history = (AcdHistoricalStats) app.getBean(AcdHistoricalStats.BEAN_NAME);
-    }
-    
-    public void testSignoutActivityReport() {
-        List<Map<String, Object>> stats = m_history.getReport("agentAvailablityReport", new Date(0), new Date());        
-        assertEquals(10, stats.size());
+    private AcdHistoricalStats m_acdHistoricalStats;
+
+    public void testSignoutActivityReport() throws Exception {
+        loadDataSetXml("admin/commserver/seedLocationsAndServices3.xml");
+        List<Map<String, Object>> stats = m_acdHistoricalStats.getReport("agentAvailablityReport", new Date(0), new Date());
+        assertEquals(4, stats.size());
         Map<String, Object> record;
         Iterator<Map<String, Object>> i = stats.iterator();
         record = i.next();
         assertEquals("sip:374@pingtel.com", record.get("agent_uri"));
     }
 
-    public void testSignoutActivityReportSigninTime() {
-        List<Map<String, Object>> stats = m_history.getReport("agentAvailablityReport", new Date(0), new Date());        
+    public void testSignoutActivityReportSigninTime() throws Exception {
+        loadDataSetXml("admin/commserver/seedLocationsAndServices3.xml");
+        List<Map<String, Object>> stats = m_acdHistoricalStats.getReport("agentAvailablityReport", new Date(0), new Date());
         Map<String, Object> record;
         Iterator<Map<String, Object>> i = stats.iterator();
         record = i.next();
@@ -52,32 +50,39 @@ public class AcdHistoricalStatsTestDb extends TestCase {
         assertTrue(DateUtils.isSameInstant(expectedSigninTime, actualSigninTime));
     }
 
-    public void testSignoutActivityReportColumns() {
-        List<String> columns = m_history.getReportFields("agentAvailablityReport");        
+    public void testSignoutActivityReportColumns() throws Exception {
+        loadDataSetXml("admin/commserver/seedLocationsAndServices3.xml");
+        List<String> columns = m_acdHistoricalStats.getReportFields("agentAvailablityReport");
         assertEquals(3, columns.size());
         assertEquals("agent_uri", columns.get(0));
         assertEquals("sign_in_time", columns.get(1));
         assertEquals("sign_out_time", columns.get(2));
     }
-    
+
     public void testForReportSQLErrors() {
-        List<String> reports = m_history.getReports();
+        List<String> reports = m_acdHistoricalStats.getReports();
         for (String report : reports) {
-            m_history.getReportFields(report);
-            m_history.getReport(report, new Date(0), new Date());
+            m_acdHistoricalStats.getReportFields(report);
+            m_acdHistoricalStats.getReport(report, new Date(0), new Date());
         }
     }
-    
-    public void testAgentActivityReport() {
-        List<Map<String, Object>> stats = m_history.getReport("agentActivityReport", new Date(0), new Date());        
+
+    public void testAgentActivityReport() throws Exception {
+        loadDataSetXml("admin/commserver/seedLocationsAndServices3.xml");
+        List<Map<String, Object>> stats = m_acdHistoricalStats.getReport("agentActivityReport", new Date(0), new Date());
         Map<String, Object> record;
         Iterator<Map<String, Object>> i = stats.iterator();
         record = i.next();
-        // Seed file has 3 complete calls for this uri, totaling 4:36
+        // Seed file has 2 complete calls for this uri, totaling 3:06
         assertEquals("sip:374@pingtel.com", record.get("agent_uri"));
-        assertEquals(3L, record.get("num_calls"));
-        PGInterval expectedDuration = new PGInterval(0,0,0,0,4,36);
+        assertEquals(2L, record.get("num_calls"));
+        PGInterval expectedDuration = new PGInterval(0,0,0,0,3,6);
         PGInterval actualDuration = (PGInterval)record.get("handle_duration");
         assertEquals(expectedDuration, actualDuration);
     }
+
+    public void setAcdHistoricalStats(AcdHistoricalStats acdHistoricalStats) {
+        m_acdHistoricalStats = acdHistoricalStats;
+    }
+
 }

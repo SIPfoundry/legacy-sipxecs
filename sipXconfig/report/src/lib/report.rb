@@ -21,24 +21,25 @@ module DBI
 end
 
 module Reports
-  
+
   class Importer
     
     attr_accessor :dbi
 
     def run(url)
       service = AcdStatsService.new(url)
-      
       dao = CallStatDao.new(@dbi)
       from_time = dao.from_time
       puts "requesting call stats from #{from_time} (class = #{from_time.class.name})"
       stats = service.getCallHistory(from_time)
+
       dao.persist(stats)
       
       dao = AgentStatDao.new(@dbi)
       from_time = dao.from_time
       puts "requesting agent stats from #{from_time} (class = #{from_time.class.name})"
       stats = service.getAgentHistory(from_time)
+
       dao.persist(stats)
     end 
     
@@ -82,11 +83,12 @@ module Reports
       end
       sql << ")"
     end
-    
-    def get_param(obj, column) 
+
+    def get_param(obj, column)
+      return ::LOCATION_FQDN if column == "location_fqdn"
       coerse_value(column, obj.send(column))
     end
-    
+
     def coerse_value(column, value)      
       case value 
         # after reading code in DBI, DateTime turn into DBI::Date 

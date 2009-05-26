@@ -17,9 +17,24 @@
   <bean id="acdHistoricalStatsImpl" class="org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalStatsImpl">
     <property name="dataSource" ref="acdHistoryDataSource" />
     <property name="reportScript" value="${sysdir.bin}/sipxconfig-report"/>
+    <property name="sipxReplicationContext" ref="sipxReplicationContext"/>
+    <property name="acdHistoricalConfiguration" ref="acdHistoricalConfiguration" />
+    <property name="locationsManager" ref="locationsManager" />
   </bean>  
 
-  <alias alias="acdHistoricalStats" name="acdHistoricalStatsImpl" />
+  <bean id="acdHistoricalStats" class="org.springframework.aop.framework.ProxyFactoryBean"
+    parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalStats"/>
+    <property name="target" ref="acdHistoricalStatsImpl"/>
+  </bean>
+
+  <bean id="acdHistoricalConfiguration" class="org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalConfigurationFile" parent="defaultConfigurationFile">
+    <property name="name" value="sipxconfig-report-config" />
+    <property name="velocityEngine" ref="velocityEngine" />
+    <property name="template" value="report/sipxconfig-report-config.vm" />
+    <property name="dbUser" value="${sipxconfig.db.user}" />
+    <property name="locationsManager" ref="locationsManager" />
+  </bean>
   
   <!--
     - If you change these reports, you need to update AcdHistoryPage.properties to reflect 
@@ -32,7 +47,7 @@
      sign_in_time, 
      sign_out_time 
     from acd_agent_stat 
-    where sign_in_time >= ? and sign_out_time < ?
+    where sign_in_time >= ? and sign_out_time < ? and location_fqdn = ?
       ]]></value>
     </property>
   </bean>
@@ -44,7 +59,7 @@
      sum(sign_out_time - sign_in_time) as time_signed_in,
      max(sign_out_time - sign_in_time) as max_time_signed_in
     from acd_agent_stat
-    where sign_in_time >= ? and sign_out_time < ?
+    where sign_in_time >= ? and sign_out_time < ? and location_fqdn = ?
     group by agent_uri      
       ]]></value>
     </property>
@@ -63,7 +78,7 @@
     where 
      c.agent_uri in (select distinct agent_uri from acd_agent_stat) and
      c.state = 'terminate' and
-     c.terminate_time >= ? and c.pick_up_time < ? 
+     c.terminate_time >= ? and c.pick_up_time < ?  and location_fqdn = ?
     group by c.agent_uri
       ]]></value>
     </property>
@@ -78,7 +93,7 @@
       count(*) - count(pick_up_time) as num_calls_abandoned
      from acd_call_stat
      where
-      terminate_time >= ? and enter_time < ? 
+      terminate_time >= ? and enter_time < ? and location_fqdn = ?
      group by queue_uri
       ]]></value>
     </property>
@@ -93,7 +108,7 @@
       max(pick_up_time - enter_time) as max_wait_time
      from acd_call_stat
      where state = 'terminate' and
-      terminate_time >= ? and pick_up_time < ? 
+      terminate_time >= ? and pick_up_time < ? and location_fqdn = ?
      group by queue_uri       
       ]]></value>
     </property>
@@ -108,7 +123,7 @@
       max(terminate_time - enter_time) as max_wait_time
      from acd_call_stat
      where state = 'unanswered' and
-      terminate_time >= ? and enter_time < ? 
+      terminate_time >= ? and enter_time < ? and location_fqdn = ?
      group by queue_uri       
       ]]></value>
     </property>
@@ -123,7 +138,7 @@
       from_uri
      from acd_call_stat 
      where state = 'unanswered' and
-      terminate_time >= ? and enter_time < ? 
+      terminate_time >= ? and enter_time < ? and location_fqdn = ?
       ]]></value>
     </property>
   </bean>
@@ -139,7 +154,7 @@
       from_uri
      from acd_call_stat 
      where state = 'terminate' and
-      terminate_time >= ? and pick_up_time < ? 
+      terminate_time >= ? and pick_up_time < ? and location_fqdn = ?
       ]]></value>
     </property>
   </bean>

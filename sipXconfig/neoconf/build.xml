@@ -398,6 +398,7 @@
       <arg line="-U ${sipxconfig.db.user} ${acd.history.test.db}" />
     </exec>
     <pgsql url="${acd.history.test.db.url}" src="${acd.history.db.schema}" />
+	<pgsql url="${acd.history.test.db.url}" src="${acd.history.db.locationFqdnPatch}" />
     <pgsql url="${acd.history.test.db.url}" src="test/org/sipfoundry/sipxconfig/acd/stats/history-seed.sql" />
   </target>
 
