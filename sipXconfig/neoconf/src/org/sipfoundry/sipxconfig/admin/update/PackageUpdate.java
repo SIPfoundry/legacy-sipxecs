@@ -10,12 +10,14 @@
 
 package org.sipfoundry.sipxconfig.admin.update;
 
+import java.io.Serializable;
+
 import static org.apache.commons.lang.StringUtils.split;
 
 /**
  * Represents an available package update.
  */
-public class PackageUpdate {
+public class PackageUpdate implements Serializable {
     private String m_packageName;
     private String m_currentVersion;
     private String m_updatedVersion;
