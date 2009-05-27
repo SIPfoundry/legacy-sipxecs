@@ -6,6 +6,9 @@
  */
 package org.sipfoundry.sipxbridge;
 
+import java.util.Collection;
+import java.util.Iterator;
+
 import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
 import javax.sip.DialogState;
@@ -20,6 +23,7 @@ import javax.sip.TimeoutEvent;
 import javax.sip.Transaction;
 import javax.sip.TransactionAlreadyExistsException;
 import javax.sip.TransactionTerminatedEvent;
+import javax.sip.address.Hop;
 import javax.sip.header.CSeqHeader;
 import javax.sip.header.ToHeader;
 import javax.sip.header.ViaHeader;
@@ -417,6 +421,7 @@ public class SipListenerImpl implements SipListener {
         try {
             if (ctx != null) {
                 Request request = ctx.getRequest();
+                
                 if (request.getMethod().equals(Request.OPTIONS)) {
                     ClientTransaction clientTransaction = timeoutEvent.getClientTransaction();
                     Dialog dialog = clientTransaction.getDialog();
@@ -451,7 +456,19 @@ public class SipListenerImpl implements SipListener {
                                 transactionContext.getServerTransaction() );
                         }
                     } else {
-                        b2bua.sendByeToMohServer();
+                        if (transactionContext.getOperation() == Operation.SEND_INVITE_TO_ITSP 
+                                || transactionContext.getOperation() == Operation.SPIRAL_BLIND_TRANSFER_INVITE_TO_ITSP) {
+                            /* Try another hop */
+                            Collection<Hop> hops = transactionContext.getProxyAddresses();
+                            if ( hops.size() == 0 ) {
+                                b2bua.sendByeToMohServer();
+                            } else {
+                                b2bua.resendInviteToItsp(timeoutEvent.getClientTransaction());
+                            }
+                                
+                        } else {
+                            b2bua.sendByeToMohServer();
+                        }
                     }
 
                 }

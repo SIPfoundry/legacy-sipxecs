@@ -34,6 +34,8 @@ import javax.sip.header.CSeqHeader;
 import javax.sip.header.CallIdHeader;
 import javax.sip.header.ContactHeader;
 import javax.sip.header.FromHeader;
+import javax.sip.header.Header;
+import javax.sip.header.RouteHeader;
 import javax.sip.header.SubjectHeader;
 import javax.sip.header.SupportedHeader;
 import javax.sip.header.ViaHeader;
@@ -167,6 +169,8 @@ class DialogContext {
      */
 
     private AtomicBoolean waitingToSendReInvite = new AtomicBoolean(false);
+
+
 
     // /////////////////////////////////////////////////////////////////
     // Inner classes.
@@ -742,7 +746,7 @@ class DialogContext {
                 logger.debug("queryDialogFromPeer -- sending query to " + peerDialog
                         + " continuationOperation = " + continuationData.getOperation());
 
-                Request reInvite = peerDialog.createRequest(Request.INVITE);
+                Request reInvite = peerDialog.createRequest(Request.INVITE);    
                 reInvite.removeHeader(SupportedHeader.NAME);
                 SipUtilities.addWanAllowHeaders(reInvite);
                 SipProvider provider = ((DialogExt) peerDialog).getSipProvider();
@@ -1011,8 +1015,18 @@ class DialogContext {
 
     }
 
-    
 
-  
+   
+
+    public void setDialog(Dialog dialog) {
+      this.dialog = dialog;  
+      dialog.setApplicationData(this);
+    }
+
+    public void setDialogCreatingTransaction(ClientTransaction newTransaction) {
+        this.dialogCreatingTransaction = newTransaction;
+        this.request = newTransaction.getRequest();
+    }
+
 
 }

@@ -6,6 +6,7 @@
  */
 package org.sipfoundry.sipxbridge;
 
+import java.util.Collection;
 import java.util.Random;
 
 import gov.nist.javax.sip.TransactionExt;
@@ -16,6 +17,7 @@ import javax.sip.RequestEvent;
 import javax.sip.ServerTransaction;
 import javax.sip.SipProvider;
 import javax.sip.Transaction;
+import javax.sip.address.Hop;
 import javax.sip.message.Request;
 
 import org.apache.log4j.Logger;
@@ -116,6 +118,8 @@ class TransactionContext {
 	private ClientTransaction mohClientTransaction;
 
     private RequestEvent requestEvent;
+
+    private Collection<Hop> proxyAddresses;
 	
     static TransactionContext attach(Transaction transaction,
             Operation operation) {
@@ -369,6 +373,34 @@ class TransactionContext {
      */
     RequestEvent getRequestEvent() {
         return requestEvent;
+    }
+
+    public void setProxyAddresses(Collection<Hop> addresses) {
+       this.proxyAddresses = addresses;
+    }
+    
+    public Collection<Hop> getProxyAddresses() {
+        return this.proxyAddresses;
+    }
+
+    public void copyTo(TransactionContext newContext) {
+        
+    
+        newContext.operation = operation;
+        newContext.outgoingRtpSession = outgoingRtpSession;
+        newContext.itspAccountInfo = itspAccountInfo;
+        newContext.serverTransaction = serverTransaction;
+        newContext.referingDialog = referingDialog;
+        newContext.replacedDialog = replacedDialog;
+        newContext.backToBackUa = backToBackUa; 
+        newContext.dialogPendingSdpAnswer = dialogPendingSdpAnswer ;
+        newContext.continuationData = continuationData;
+        newContext.referRequest = referRequest;
+        newContext.counter = counter;
+        newContext.mohClientTransaction = mohClientTransaction;
+        newContext.requestEvent = requestEvent;
+        newContext.proxyAddresses = proxyAddresses;
+        
     }
 
     

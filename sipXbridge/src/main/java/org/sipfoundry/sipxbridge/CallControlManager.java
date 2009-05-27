@@ -701,6 +701,7 @@ class CallControlManager implements SymmitronResetHandler {
             ReferInviteToSipxProxyContinuationData continuation = new ReferInviteToSipxProxyContinuationData(
                     inviteRequest, requestEvent);
             dat.solicitSdpOfferFromPeerDialog(continuation);
+            
         } catch (ParseException ex) {
             // This should never happen
             logger.fatal("Internal error constructing message ", ex);
