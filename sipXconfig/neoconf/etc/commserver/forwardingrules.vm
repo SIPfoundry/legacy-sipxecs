@@ -80,6 +80,17 @@
   </route>
 #end
 #end
+
+  <route mappingType="external destinations">
+    <description>Any foreign domain - route via session border.</description>
+
+    <routeDnsWildcard>*</routeDnsWildcard>
+    <routeIPv4subnet>0/0</routeIPv4subnet>
+
+    <routeTo authRequired="true">${sbc.sbcDevice.route}</routeTo>
+  </route>
+#end
+
 #foreach($bridgeSbc in $bridgeSbcs)
 #foreach($sipTrunk in ${bridgeSbc.mySipTrunks})
 
@@ -91,15 +102,5 @@
     <routeTo authRequired='true'>${bridgeSbc.route}</routeTo>
   </route>
 #end
-#end
-
-  <route mappingType="external destinations">
-    <description>Any foreign domain - route via session border.</description>
-
-    <routeDnsWildcard>*</routeDnsWildcard>
-    <routeIPv4subnet>0/0</routeIPv4subnet>
-
-    <routeTo authRequired="true">${sbc.sbcDevice.route}</routeTo>
-  </route>
 #end
 </routes>
