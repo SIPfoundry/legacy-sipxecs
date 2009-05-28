@@ -7,6 +7,7 @@
 package org.sipfoundry.sipxbridge;
 
 import gov.nist.javax.sip.SipStackExt;
+import gov.nist.javax.sip.TransactionExt;
 
 import java.util.Collection;
 import java.util.Iterator;
