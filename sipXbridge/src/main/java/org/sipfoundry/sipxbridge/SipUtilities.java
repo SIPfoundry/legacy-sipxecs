@@ -20,6 +20,7 @@ import gov.nist.javax.sip.message.SIPResponse;
 
 import java.io.InputStream;
 import java.text.ParseException;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -45,6 +46,7 @@ import javax.sip.SipException;
 import javax.sip.SipProvider;
 import javax.sip.Transaction;
 import javax.sip.address.Address;
+import javax.sip.address.Hop;
 import javax.sip.address.SipURI;
 import javax.sip.header.AllowHeader;
 import javax.sip.header.CSeqHeader;
@@ -594,7 +596,7 @@ class SipUtilities {
 
     static Request createInviteRequest(SipURI requestUri,
             SipProvider sipProvider, ItspAccountInfo itspAccount,
-            FromHeader from, String callId) throws SipException,
+            FromHeader from, String callId, Collection<Hop> addresses) throws SipException,
             SipXbridgeException {
         try {
 
@@ -737,16 +739,11 @@ class SipUtilities {
                 throw new SipException("No route to ITSP could be found "
                         + itspAccount.getProxyDomain());
             }
-            SipURI routeUri = ProtocolObjects.addressFactory.createSipURI(null,
-                    outboundProxy);
-            if (itspAccount.getOutboundProxyPort() != 0) {
-                routeUri.setPort(itspAccount.getOutboundProxyPort());
-            }
-            routeUri.setLrParam();
-            Address routeAddress = ProtocolObjects.addressFactory
-                    .createAddress(routeUri);
-            RouteHeader routeHeader = ProtocolObjects.headerFactory
-                    .createRouteHeader(routeAddress);
+            Iterator<Hop>  hopIter = addresses.iterator();
+            Hop hop = hopIter.next();
+            hopIter.remove();
+           
+            RouteHeader routeHeader = SipUtilities.createRouteHeader(hop);
             request.addHeader(routeHeader);
             if (itspAccount.stripPrivateHeaders()) {
                 SipUtilities.stripPrivateHeaders(request);
@@ -1623,4 +1620,43 @@ class SipUtilities {
         }
 
     }
+
+    public static RouteHeader createRouteHeader(Hop hop) {
+        try {
+            SipURI routeUri = ProtocolObjects.addressFactory.createSipURI(null,
+                    hop.getHost());
+            if (hop.getPort() != -1) {
+                routeUri.setPort(hop.getPort());
+            }
+            routeUri.setTransportParam(hop.getTransport());
+            routeUri.setLrParam();
+            Address routeAddress = ProtocolObjects.addressFactory
+            .createAddress(routeUri);
+            RouteHeader routeHeader = ProtocolObjects.headerFactory
+            .createRouteHeader(routeAddress);
+            return routeHeader;
+        } catch (Exception ex) {
+            String s = "Unexpected exception";
+            logger.fatal(s, ex);
+            throw new SipXbridgeException(s, ex);
+        }
+    }
+
+    public static String getCallLegId(Message message) {
+        String fromTag = ((FromHeader) message.getHeader(FromHeader.NAME)).getTag();
+        String callId = ((CallIdHeader) message.getHeader(CallIdHeader.NAME))
+                .getCallId();
+        return fromTag + ":" + callId;
+    }
+
+    public static String  getFromTag(Message message) {
+        
+        return ((FromHeader) message.getHeader(FromHeader.NAME)).getTag();
+    }
+    
+    public static String getToTag(Message message) {
+        return ((ToHeader) message.getHeader(ToHeader.NAME)).getTag();
+    }
+    
+    
 }

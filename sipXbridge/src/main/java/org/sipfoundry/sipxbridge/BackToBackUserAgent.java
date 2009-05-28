@@ -6,6 +6,7 @@
  */
 package org.sipfoundry.sipxbridge;
 
+import gov.nist.javax.sip.ClientTransactionExt;
 import gov.nist.javax.sip.DialogExt;
 import gov.nist.javax.sip.SipStackExt;
 import gov.nist.javax.sip.TransactionExt;
@@ -21,6 +22,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URLDecoder;
 import java.text.ParseException;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -58,6 +60,7 @@ import javax.sip.header.OrganizationHeader;
 import javax.sip.header.ReasonHeader;
 import javax.sip.header.ReferToHeader;
 import javax.sip.header.ReplyToHeader;
+import javax.sip.header.RouteHeader;
 import javax.sip.header.SubjectHeader;
 import javax.sip.header.ToHeader;
 import javax.sip.header.ViaHeader;
@@ -518,7 +521,7 @@ public class BackToBackUserAgent {
 
         for (Dialog d : dialogTable) {
             DialogContext dat = DialogContext.get(d);
-            if (!dat.isOriginatedBySipxbridge) {
+            if (dat != null && !dat.isOriginatedBySipxbridge) {
                 count++;
             }
         }
@@ -1413,11 +1416,12 @@ public class BackToBackUserAgent {
 
             FromHeader fromHeader = (FromHeader) incomingRequest.getHeader(
                     FromHeader.NAME).clone();
-
+            Collection<Hop> addresses = itspAccountInfo.getItspProxyAddresses();
+            
             Request outgoingRequest = SipUtilities.createInviteRequest(
                     (SipURI) incomingRequestUri.clone(), itspProvider,
                     itspAccountInfo, fromHeader, this.creatingCallId + "."
-                            + this.counter++);
+                            + this.counter++, addresses);
 
             /*
              * Attach headers selectively to the outbound request. If privacy is
@@ -1526,6 +1530,8 @@ public class BackToBackUserAgent {
             tad.setItspAccountInfo(itspAccountInfo);
             tad.setBackToBackUa(this);
             tad.setClientTransaction(ct);
+            
+            
 
             if (!spiral) {
                 RtpSession incomingSession = this
@@ -1624,6 +1630,58 @@ public class BackToBackUserAgent {
         } catch (Exception ex) {
             logger.error("Error occurred during processing of request ", ex);
             CallControlUtilities.sendInternalError(serverTransaction, ex);
+        }
+
+    }
+    
+    
+    /**
+     * Retransmits the client transaction to the next hop.
+     * @param request
+     * @param hops
+     */
+    public void resendInviteToItsp(ClientTransaction clientTransaction) {
+        TransactionContext transactionContext = TransactionContext.get(clientTransaction);
+        ServerTransaction serverTransaction = transactionContext.getServerTransaction();
+        try {
+            /*
+             * Restart transaction and send to new hop.
+             */
+
+            Collection<Hop> hops = transactionContext.getProxyAddresses();
+            Iterator<Hop> hopIter = hops.iterator();
+            Hop nextHop = hopIter.next();
+            Request request = clientTransaction.getRequest();
+            Request newRequest = (Request) request.clone();
+            RouteHeader routeHeader = SipUtilities.createRouteHeader(nextHop);
+            newRequest.setHeader(routeHeader);
+            ( (ViaHeader) newRequest.getHeader(ViaHeader.NAME)).removeParameter("branch");
+            ((FromHeader)newRequest.getHeader(FromHeader.NAME)).removeParameter("tag");
+            String newTag =  new Integer( Math.abs(new Random().nextInt())).toString();
+            ((FromHeader)newRequest.getHeader(FromHeader.NAME)).setTag(newTag);
+
+            DialogContext dialogContext = DialogContext.get(clientTransaction.getDialog());
+            SipProvider provider = ( (TransactionExt) clientTransaction ).getSipProvider();
+            newRequest.setContent(request.getContent(), (ContentTypeHeader) request.getHeader(ContentTypeHeader.NAME));
+
+            ClientTransaction newTransaction = provider.getNewClientTransaction(newRequest);
+
+            TransactionContext newContext = TransactionContext.attach(newTransaction, transactionContext.getOperation());
+           
+            transactionContext.copyTo(newContext);
+            
+
+            dialogContext.setDialog(newTransaction.getDialog());
+            dialogContext.setDialogCreatingTransaction(newTransaction);
+            this.addDialog(newTransaction.getDialog());
+            newTransaction.sendRequest();
+        } catch (ParseException ex) {
+            logger.error("Unexpected exception ", ex);
+            CallControlUtilities.sendInternalError(serverTransaction, ex);
+        } catch ( SipException ex) {
+            logger.error("Error occurred during processing of request ", ex);
+            CallControlUtilities.sendServiceUnavailableError(serverTransaction,
+                    ex);
         }
 
     }
@@ -2103,5 +2161,7 @@ public class BackToBackUserAgent {
         
         return ( this.proxyAddress != null );
     }
+
+    
 
 }

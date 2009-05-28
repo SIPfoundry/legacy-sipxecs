@@ -701,6 +701,7 @@ class CallControlManager implements SymmitronResetHandler {
             ReferInviteToSipxProxyContinuationData continuation = new ReferInviteToSipxProxyContinuationData(
                     inviteRequest, requestEvent);
             dat.solicitSdpOfferFromPeerDialog(continuation);
+            
         } catch (ParseException ex) {
             // This should never happen
             logger.fatal("Internal error constructing message ", ex);
@@ -935,7 +936,7 @@ class CallControlManager implements SymmitronResetHandler {
                 return;
             }
             ClientTransaction ct = tad.getClientTransaction();
-            ItspAccountInfo itspAccount = DialogContext.get(ct.getDialog()).getItspInfo();
+            ItspAccountInfo itspAccount = DialogContext.get(dialog).getItspInfo();
 
             String transport = itspAccount != null ? itspAccount.getOutboundTransport()
                     : Gateway.DEFAULT_ITSP_TRANSPORT;
@@ -1130,10 +1131,16 @@ class CallControlManager implements SymmitronResetHandler {
 
         Dialog dialog = responseEvent.getDialog();
         DialogContext dialogContext = DialogContext.get(dialog);
-        ClientTransaction ctx = responseEvent.getClientTransaction();
-        TransactionContext transactionContext = TransactionContext.get(ctx);
+        ClientTransaction ctx = null;
+        if ( responseEvent.getClientTransaction() == null ) {
+            ctx = (ClientTransaction) DialogContext.get(dialog).getDialogCreatingTransaction();
+        } else {
+            ctx = responseEvent.getClientTransaction();
+        }
+        TransactionContext tad = TransactionContext.get(ctx);
+        ClientTransaction mohCtx = TransactionContext.get(ctx).getMohClientTransaction();
         Response response = responseEvent.getResponse();
-
+        TransactionContext transactionContext = TransactionContext.get(ctx);     
         BackToBackUserAgent b2bua = dialogContext.getBackToBackUserAgent();
 
         if (logger.isDebugEnabled()) {
@@ -1489,11 +1496,20 @@ class CallControlManager implements SymmitronResetHandler {
 
         Dialog dialog = responseEvent.getDialog();
         DialogContext dialogContext = DialogContext.get(dialog);
-        ClientTransaction ctx = responseEvent.getClientTransaction();
+        ClientTransaction ctx = null;
+        if ( responseEvent.getClientTransaction() == null ) {
+            ctx = (ClientTransaction) DialogContext.get(dialog).getDialogCreatingTransaction();
+        } else {
+            ctx = responseEvent.getClientTransaction();
+        }
         TransactionContext tad = TransactionContext.get(ctx);
         ClientTransaction mohCtx = TransactionContext.get(ctx).getMohClientTransaction();
         Response response = responseEvent.getResponse();
-
+     
+        
+        
+        
+        
         BackToBackUserAgent b2bua = DialogContext.getBackToBackUserAgent(dialog);
 
         /*
@@ -2179,11 +2195,35 @@ class CallControlManager implements SymmitronResetHandler {
     private void processInviteResponse(ResponseEvent responseEvent) {
 
         Response response = responseEvent.getResponse();
-        /*
-         * Dialog for the response.
-         */
+       
         Dialog dialog = responseEvent.getDialog();
+        
+        ClientTransaction clientTransaction = null;
+       
+        /*
+         * No client transaction in response. Discard it unless it is a forked
+         * response.
+         */
+        if ( responseEvent.getClientTransaction() == null ) {
+            /*
+             * An In-Dialog response. If no client transaction
+             * then return.
+             */
+            if ( SipUtilities.getFromTag(response) != null 
+                    && SipUtilities.getToTag(response) != null ) {
+                logger.debug("Dropping response -- no client transaction");
+                return;
+            } else if (DialogContext.get(dialog).getDialogCreatingTransaction() instanceof ClientTransaction ) {
+                clientTransaction = (ClientTransaction) DialogContext.get(dialog).getDialogCreatingTransaction();
+            } else {
+                logger.debug("Dropping response -- no client transaction");
+                return;
+            }
+        } else {
+            clientTransaction = responseEvent.getClientTransaction();
+        }
 
+       
         if (logger.isDebugEnabled()) {
             logger.debug("processInviteResponse : " + ((SIPResponse) response).getFirstLine()
                     + " dialog = " + dialog);
@@ -2194,8 +2234,7 @@ class CallControlManager implements SymmitronResetHandler {
          */
         long seqno = SipUtilities.getSeqNumber(response);
 
-        ClientTransaction clientTransaction = responseEvent.getClientTransaction();
-
+       
         /*
          * The dialog context associated with this dialog.
          */
@@ -2203,56 +2242,39 @@ class CallControlManager implements SymmitronResetHandler {
         BackToBackUserAgent b2bua;
 
         try {
-
             if (dialogContext == null) {
-                logger.fatal("Could not find DialogApplicationData -- dropping the response");
+                logger.error("Could not find DialogApplicationData -- dropping the response");
                 try {
                     if (response.getStatusCode() == 200) {
                         Request ack = dialog.createAck(((CSeqHeader) response
                                 .getHeader(CSeqHeader.NAME)).getSeqNumber());
-                        DialogContext.get(dialog).sendAck(ack);
+                        dialog.sendAck(ack);
 
                     }
-
                     return;
                 } catch (Exception ex) {
                     logger.error("Unexpected error sending ACK for 200 OK");
                     return;
                 }
-
             }
             /*
              * The call context.
              */
-            b2bua = dialogContext.getBackToBackUserAgent();
-            if (responseEvent.getClientTransaction() == null) {
-                /*
-                 * This is an OK retransmission. We ACK it right away. NOTE : This should never
-                 * happen unless the dialog has terminated before we saw the OK. This is a catch
-                 * for extremely late arriving OKs.
-                 */
-                logger.debug("Could not find client transaction -- must be stray response.");
-                if (response.getStatusCode() == 200 && dialog != null) {
-                    Request ack = dialog.createAck(seqno);
-                    DialogContext.get(dialog).sendAck(ack);
-                }
-                return;
-            } else if (((TransactionContext) responseEvent.getClientTransaction()
-                    .getApplicationData()).getOperation() == Operation.SESSION_TIMER
-                    && dialog != null) {
-
-            }
+            b2bua = dialogContext.getBackToBackUserAgent();     
         } catch (Exception ex) {
             logger.error("Unexpected error sending ACK for 200 OK", ex);
             return;
         }
+        
+        
+        TransactionContext transactionContext = TransactionContext.get(clientTransaction);
+
         if (b2bua == null) {
             logger.fatal("Could not find a BackToBackUA -- dropping the response");
             throw new SipXbridgeException("Could not find a B2BUA for this response : "
                     + response);
         }
-        TransactionContext transactionContext = TransactionContext.get(clientTransaction);
-
+       
         /*
          * At this point we have weeded out the
          */
