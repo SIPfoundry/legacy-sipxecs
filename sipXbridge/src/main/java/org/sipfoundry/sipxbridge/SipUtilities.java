@@ -1620,4 +1620,22 @@ class SipUtilities {
             throw new SipXbridgeException(s, ex);
         }
     }
+
+    public static String getCallLegId(Message message) {
+        String fromTag = ((FromHeader) message.getHeader(FromHeader.NAME)).getTag();
+        String callId = ((CallIdHeader) message.getHeader(CallIdHeader.NAME))
+                .getCallId();
+        return fromTag + ":" + callId;
+    }
+
+    public static String  getFromTag(Message message) {
+        
+        return ((FromHeader) message.getHeader(FromHeader.NAME)).getTag();
+    }
+    
+    public static String getToTag(Message message) {
+        return ((ToHeader) message.getHeader(ToHeader.NAME)).getTag();
+    }
+    
+    
 }

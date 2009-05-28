@@ -6,6 +6,8 @@
  */
 package org.sipfoundry.sipxbridge;
 
+import gov.nist.javax.sip.SipStackExt;
+
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -33,7 +35,8 @@ import javax.sip.message.Response;
 import org.apache.log4j.Logger;
 
 /**
- * This is the JAIN-SIP listener that fields all request and response events from the stack.
+ * This is the JAIN-SIP listener that fields all request and response events
+ * from the stack.
  * 
  * @author M. Ranganathan
  * 
@@ -43,11 +46,12 @@ public class SipListenerImpl implements SipListener {
     private static Logger logger = Logger.getLogger(SipListenerImpl.class);
 
     /**
-     * Handle a Dialog Terminated event. Cleans up all the resources associated with a Dialog.
+     * Handle a Dialog Terminated event. Cleans up all the resources associated
+     * with a Dialog.
      */
 
-    private static void handleAuthenticationChallenge(ResponseEvent responseEvent)
-            throws Exception {
+    private static void handleAuthenticationChallenge(
+            ResponseEvent responseEvent) throws Exception {
 
         SipProvider provider = (SipProvider) responseEvent.getSource();
 
@@ -57,33 +61,40 @@ public class SipListenerImpl implements SipListener {
          */
         if (provider == Gateway.getLanProvider()) {
             /*
-             * If we do not handle LAN originated challenges, tear down the call.
+             * If we do not handle LAN originated challenges, tear down the
+             * call.
              */
             if (Gateway.getBridgeConfiguration().getSipxbridgePassword() == null) {
                 ServerTransaction stx = ((TransactionContext) responseEvent
-                        .getClientTransaction().getApplicationData()).getServerTransaction();
+                        .getClientTransaction().getApplicationData())
+                        .getServerTransaction();
                 if (stx != null) {
-                    Response errorResponse = SipUtilities.createResponse(stx, Response.DECLINE);
+                    Response errorResponse = SipUtilities.createResponse(stx,
+                            Response.DECLINE);
                     stx.sendResponse(errorResponse);
 
                 }
-                if (dialog != null && DialogContext.get(dialog).getBackToBackUserAgent() != null) {
-                    DialogContext.get(dialog).getBackToBackUserAgent().tearDown(
-                            Gateway.SIPXBRIDGE_USER, ReasonCode.AUTHENTICATION_FAILURE,
-                            "Unexpected challenge from Pbx.");
+                if (dialog != null
+                        && DialogContext.get(dialog).getBackToBackUserAgent() != null) {
+                    DialogContext.get(dialog).getBackToBackUserAgent()
+                            .tearDown(Gateway.SIPXBRIDGE_USER,
+                                    ReasonCode.AUTHENTICATION_FAILURE,
+                                    "Unexpected challenge from Pbx.");
                 }
                 return;
             }
         }
 
         Response response = responseEvent.getResponse();
-        CSeqHeader cseqHeader = (CSeqHeader) response.getHeader(CSeqHeader.NAME);
+        CSeqHeader cseqHeader = (CSeqHeader) response
+                .getHeader(CSeqHeader.NAME);
         /*
-         * Note that we need to store a pointer in the TransactionContext because REGISTER does
-         * not have a dialog.
+         * Note that we need to store a pointer in the TransactionContext
+         * because REGISTER does not have a dialog.
          */
-        ItspAccountInfo accountInfo = ((TransactionContext) responseEvent.getClientTransaction()
-                .getApplicationData()).getItspAccountInfo();
+        ItspAccountInfo accountInfo = ((TransactionContext) responseEvent
+                .getClientTransaction().getApplicationData())
+                .getItspAccountInfo();
 
         String method = cseqHeader.getMethod();
         String callId = SipUtilities.getCallId(response);
@@ -93,30 +104,35 @@ public class SipListenerImpl implements SipListener {
          */
 
         if (accountInfo != null
-                && (accountInfo.incrementFailureCount(callId) > 1 || accountInfo.getPassword() == null)) {
+                && (accountInfo.incrementFailureCount(callId) > 1 || accountInfo
+                        .getPassword() == null)) {
 
             /*
-             * Got a 4xx response. Increment the failure count for the account and mark it as
-             * AUTHENTICATION_FAILED
+             * Got a 4xx response. Increment the failure count for the account
+             * and mark it as AUTHENTICATION_FAILED
              */
             accountInfo.setState(AccountState.AUTHENTICATION_FAILED);
             if (logger.isDebugEnabled()) {
-                logger.debug("SipListenerImpl: could not authenticate with server. method = "
-                        + method);
+                logger
+                        .debug("SipListenerImpl: could not authenticate with server. method = "
+                                + method);
 
             }
             accountInfo.removeFailureCounter(callId);
             if (responseEvent.getDialog() != null) {
-                BackToBackUserAgent b2bua = DialogContext.getBackToBackUserAgent(responseEvent
-                        .getDialog());
-                logger.debug("Cannot authenticate request -- tearing down call");
+                BackToBackUserAgent b2bua = DialogContext
+                        .getBackToBackUserAgent(responseEvent.getDialog());
+                logger
+                        .debug("Cannot authenticate request -- tearing down call");
                 if (b2bua != null) {
-                    b2bua.tearDown(Gateway.SIPXBRIDGE_USER, ReasonCode.AUTHENTICATION_FAILURE,
+                    b2bua.tearDown(Gateway.SIPXBRIDGE_USER,
+                            ReasonCode.AUTHENTICATION_FAILURE,
                             "Could not authenticate request");
                 }
             }
             if (!accountInfo.isAlarmSent()) {
-                Gateway.getAlarmClient().raiseAlarm("SIPX_BRIDGE_AUTHENTICATION_FAILED",
+                Gateway.getAlarmClient().raiseAlarm(
+                        "SIPX_BRIDGE_AUTHENTICATION_FAILED",
                         accountInfo.getSipDomain());
                 accountInfo.setAlarmSent(true);
             }
@@ -124,12 +140,13 @@ public class SipListenerImpl implements SipListener {
 
         }
 
-        ClientTransaction newClientTransaction = Gateway.getAuthenticationHelper()
-                .handleChallenge(response, responseEvent.getClientTransaction(), provider,
+        ClientTransaction newClientTransaction = Gateway
+                .getAuthenticationHelper().handleChallenge(response,
+                        responseEvent.getClientTransaction(), provider,
                         method.equals(Request.REGISTER) ? 0 : -1);
 
-        TransactionContext tad = (TransactionContext) responseEvent.getClientTransaction()
-                .getApplicationData();
+        TransactionContext tad = (TransactionContext) responseEvent
+                .getClientTransaction().getApplicationData();
         tad.setClientTransaction(newClientTransaction);
 
         if (dialog == null) {
@@ -142,25 +159,32 @@ public class SipListenerImpl implements SipListener {
                 logger.debug("SipListenerImpl : dialog = " + dialog);
             }
 
-            BackToBackUserAgent b2bua = DialogContext.getBackToBackUserAgent(responseEvent
-                    .getDialog());
+            BackToBackUserAgent b2bua = DialogContext
+                    .getBackToBackUserAgent(responseEvent.getDialog());
             if (b2bua != null) {
                 b2bua.removeDialog(dialog);
                 b2bua.addDialog(newClientTransaction.getDialog());
-                DialogContext dialogApplicationData = (DialogContext) dialog.getApplicationData();
+                DialogContext dialogApplicationData = (DialogContext) dialog
+                        .getApplicationData();
 
-                DialogContext newDialogApplicationData = DialogContext.attach(b2bua,
-                        newClientTransaction.getDialog(), newClientTransaction,
-                        newClientTransaction.getRequest());
-                newDialogApplicationData.setPeerDialog(dialogApplicationData.getPeerDialog());
-                newClientTransaction.getDialog().setApplicationData(newDialogApplicationData);
+                DialogContext newDialogApplicationData = DialogContext
+                        .attach(b2bua, newClientTransaction.getDialog(),
+                                newClientTransaction, newClientTransaction
+                                        .getRequest());
+                newDialogApplicationData.setPeerDialog(dialogApplicationData
+                        .getPeerDialog());
+                newClientTransaction.getDialog().setApplicationData(
+                        newDialogApplicationData);
                 /*
-                 * Hook the application data pointer of the previous guy in the chain at us.
+                 * Hook the application data pointer of the previous guy in the
+                 * chain at us.
                  */
                 DialogContext peerDialogApplicationData = (DialogContext) dialogApplicationData
                         .getPeerDialog().getApplicationData();
-                peerDialogApplicationData.setPeerDialog(newClientTransaction.getDialog());
-                newDialogApplicationData.setRtpSession(dialogApplicationData.getRtpSession());
+                peerDialogApplicationData.setPeerDialog(newClientTransaction
+                        .getDialog());
+                newDialogApplicationData.setRtpSession(dialogApplicationData
+                        .getRtpSession());
 
                 if (logger.isDebugEnabled()) {
                     logger.debug("SipListenerImpl: New Dialog = "
@@ -173,8 +197,8 @@ public class SipListenerImpl implements SipListener {
                 /*
                  * In-DIALOG challenge. Re-INVITE was challenged.
                  */
-                ToHeader toHeader = (ToHeader) newClientTransaction.getRequest().getHeader(
-                        ToHeader.NAME);
+                ToHeader toHeader = (ToHeader) newClientTransaction
+                        .getRequest().getHeader(ToHeader.NAME);
                 if (toHeader.getTag() != null) {
                     /*
                      * This check should not be necessary.
@@ -215,8 +239,8 @@ public class SipListenerImpl implements SipListener {
     }
 
     public void processIOException(IOExceptionEvent ioex) {
-        logger.error("Got an unexpected IOException " + ioex.getHost() + ":" + ioex.getPort()
-                + "/" + ioex.getTransport());
+        logger.error("Got an unexpected IOException " + ioex.getHost() + ":"
+                + ioex.getPort() + "/" + ioex.getTransport());
 
     }
 
@@ -228,7 +252,8 @@ public class SipListenerImpl implements SipListener {
     public void processRequest(RequestEvent requestEvent) {
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Gateway: got an incoming request " + requestEvent.getRequest());
+            logger.debug("Gateway: got an incoming request "
+                    + requestEvent.getRequest());
         }
         Request request = requestEvent.getRequest();
         String method = request.getMethod();
@@ -244,9 +269,10 @@ public class SipListenerImpl implements SipListener {
             } else if (Gateway.getState() == GatewayState.INITIALIZING) {
                 logger.debug("Rejecting request -- gateway is initializing");
 
-                Response response = ProtocolObjects.messageFactory.createResponse(
-                        Response.SERVICE_UNAVAILABLE, request);
-                response.setReasonPhrase("Gateway is initializing -- try later");
+                Response response = ProtocolObjects.messageFactory
+                        .createResponse(Response.SERVICE_UNAVAILABLE, request);
+                response
+                        .setReasonPhrase("Gateway is initializing -- try later");
                 ServerTransaction st = requestEvent.getServerTransaction();
                 if (st == null) {
                     st = provider.getNewServerTransaction(request);
@@ -257,8 +283,9 @@ public class SipListenerImpl implements SipListener {
 
             } else if (provider == Gateway.getLanProvider()
                     && method.equals(Request.INVITE)
-                    && ((viaHeader.getReceived() != null && !Gateway.isAddressFromProxy(viaHeader
-                            .getReceived())) || !Gateway.isAddressFromProxy(viaHeader.getHost()))) {
+                    && ((viaHeader.getReceived() != null && !Gateway
+                            .isAddressFromProxy(viaHeader.getReceived())) || !Gateway
+                            .isAddressFromProxy(viaHeader.getHost()))) {
                 /*
                  * Check to see that via header originated from proxy server.
                  */
@@ -268,8 +295,10 @@ public class SipListenerImpl implements SipListener {
 
                 }
 
-                Response forbidden = SipUtilities.createResponse(st, Response.FORBIDDEN);
-                forbidden.setReasonPhrase("Request not issued from SIPX proxy server");
+                Response forbidden = SipUtilities.createResponse(st,
+                        Response.FORBIDDEN);
+                forbidden
+                        .setReasonPhrase("Request not issued from SIPX proxy server");
                 st.sendResponse(forbidden);
                 return;
 
@@ -285,13 +314,13 @@ public class SipListenerImpl implements SipListener {
 
         if (method.equals(Request.INVITE) || method.equals(Request.ACK)
                 || method.equals(Request.CANCEL) || method.equals(Request.BYE)
-                || method.equals(Request.OPTIONS) || method.equals(Request.REFER)
-                || method.equals(Request.PRACK)) {
+                || method.equals(Request.OPTIONS)
+                || method.equals(Request.REFER) || method.equals(Request.PRACK)) {
             Gateway.getCallControlManager().processRequest(requestEvent);
         } else {
             try {
-                Response response = ProtocolObjects.messageFactory.createResponse(
-                        Response.METHOD_NOT_ALLOWED, request);
+                Response response = ProtocolObjects.messageFactory
+                        .createResponse(Response.METHOD_NOT_ALLOWED, request);
                 ServerTransaction st = requestEvent.getServerTransaction();
                 if (st == null) {
                     st = provider.getNewServerTransaction(request);
@@ -321,52 +350,63 @@ public class SipListenerImpl implements SipListener {
         }
 
         Response response = responseEvent.getResponse();
-        CSeqHeader cseqHeader = (CSeqHeader) response.getHeader(CSeqHeader.NAME);
+        CSeqHeader cseqHeader = (CSeqHeader) response
+                .getHeader(CSeqHeader.NAME);
 
         String method = cseqHeader.getMethod();
+        Dialog dialog = responseEvent.getDialog();
 
         try {
 
-            if (responseEvent.getClientTransaction() == null) {
+            if (dialog != null && dialog.getApplicationData() == null
+                    && method.equals(Request.INVITE)) {
                 /*
-                 * Cannot find transaction state -- this must be a timed out transaction. Just
-                 * ignore the response and wait for the other end to time out.
+                 * if the tx does not exist but the dialog does exist then this
+                 * is a forked response
                  */
 
-                logger.debug("Discarding response - no client tx state found");
-                /*
-                 * if the tx does not exist but the dialog does exist then this is a forked
-                 * response
-                 */
-
-                Dialog dialog = responseEvent.getDialog();
                 SipProvider provider = (SipProvider) responseEvent.getSource();
-                if (dialog != null && dialog.getApplicationData() == null) {
+                logger.debug("Forked dialog response detected.");
+                /*
+                 * This is a forked dialog response. Look through and pick up a
+                 * dialog context for this dialog.
+                 */
+                SipStackExt sipStack = (SipStackExt) ProtocolObjects
+                        .getSipStack();
+                boolean attached = false;
+                for (Dialog dialogExt : sipStack.getDialogs()) {
+                    DialogContext dialogContext = (DialogContext) dialogExt
+                            .getApplicationData();
                     /*
-                     * Kill off the dialog.
+                     * Grab the dialog context of the other fork.
                      */
-                    if (response.getStatusCode() == Response.OK && method.equals(Request.INVITE)) {
-                        Request ackRequest = dialog.createAck(cseqHeader.getSeqNumber());
-                        /* Cannot access the dialogContext here */
-                        dialog.sendAck(ackRequest);
-                        Request byeRequest = dialog.createRequest(Request.BYE);
-                        ClientTransaction byeClientTransaction = provider
-                                .getNewClientTransaction(byeRequest);
-                        dialog.sendRequest(byeClientTransaction);
+                    if (dialogContext != null
+                            && SipUtilities.getCallLegId(response).equals(
+                                    dialogContext.getCallLegId())) {
+                        dialogContext.detach();
+                        dialogContext.setDialog(dialog);
+                        dialogContext.setLastResponse(responseEvent
+                                .getResponse());
+                        dialog.setApplicationData(dialogContext);
+                        attached = true;
                     }
                 }
-                return;
-            }
+                /*
+                 * Kill off the dialog if we cannot file a dialog context.
+                 */
+                if (!attached ) {
+                    Request ackRequest = dialog.createAck(cseqHeader
+                            .getSeqNumber());
+                    /* Cannot access the dialogContext here */
+                    dialog.sendAck(ackRequest);
+                    Request byeRequest = dialog.createRequest(Request.BYE);
+                    ClientTransaction byeClientTransaction = provider
+                            .getNewClientTransaction(byeRequest);
+                    dialog.sendRequest(byeClientTransaction);
+                    return;
+                }
 
-            if (responseEvent.getClientTransaction().getApplicationData() == null) {
-                logger.debug("Discarding response -- no transaction context information");
-                return;
             }
-
-            logger
-                    .debug("processResponse : operator "
-                            + TransactionContext.get(responseEvent.getClientTransaction())
-                                    .getOperation());
 
             /*
              * Handle proxy challenge.
@@ -377,8 +417,14 @@ public class SipListenerImpl implements SipListener {
                 return;
             }
 
-            ItspAccountInfo accountInfo = ((TransactionContext) responseEvent
-                    .getClientTransaction().getApplicationData()).getItspAccountInfo();
+            ItspAccountInfo accountInfo = null;
+
+            if (responseEvent.getClientTransaction() != null
+                    && ((TransactionContext) responseEvent
+                            .getClientTransaction().getApplicationData()) != null) {
+                ((TransactionContext) responseEvent.getClientTransaction()
+                        .getApplicationData()).getItspAccountInfo();
+            }
 
             String callId = SipUtilities.getCallId(response);
 
@@ -391,8 +437,10 @@ public class SipListenerImpl implements SipListener {
 
             if (method.equals(Request.REGISTER)) {
                 Gateway.getRegistrationManager().processResponse(responseEvent);
-            } else if (method.equals(Request.INVITE) || method.equals(Request.CANCEL)
-                    || method.equals(Request.BYE) || method.equals(Request.REFER)
+            } else if (method.equals(Request.INVITE)
+                    || method.equals(Request.CANCEL)
+                    || method.equals(Request.BYE)
+                    || method.equals(Request.REFER)
                     || method.equals(Request.OPTIONS)) {
                 Gateway.getCallControlManager().processResponse(responseEvent);
             } else {
@@ -400,10 +448,10 @@ public class SipListenerImpl implements SipListener {
             }
 
         } catch (Exception ex) {
-            logger.error("Unexpected error processing response >>>> " + response, ex);
+            logger.error("Unexpected error processing response >>>> "
+                    + response, ex);
             logger.error("cause = " + ex.getCause());
-            Dialog dialog = responseEvent.getDialog();
-            if (dialog != null) {
+            if (dialog != null && DialogContext.get(dialog) != null) {
                 DialogContext.get(dialog).getBackToBackUserAgent().tearDown();
             }
 
@@ -412,8 +460,8 @@ public class SipListenerImpl implements SipListener {
     }
 
     /**
-     * Remove state. Drop B2Bua structrue from our table so we will drop all requests
-     * corresponding to this call in future.
+     * Remove state. Drop B2Bua structrue from our table so we will drop all
+     * requests corresponding to this call in future.
      */
 
     public void processTimeout(TimeoutEvent timeoutEvent) {
@@ -421,18 +469,22 @@ public class SipListenerImpl implements SipListener {
         try {
             if (ctx != null) {
                 Request request = ctx.getRequest();
-                
+
                 if (request.getMethod().equals(Request.OPTIONS)) {
-                    ClientTransaction clientTransaction = timeoutEvent.getClientTransaction();
+                    ClientTransaction clientTransaction = timeoutEvent
+                            .getClientTransaction();
                     Dialog dialog = clientTransaction.getDialog();
                     BackToBackUserAgent b2bua = DialogContext.get(dialog)
                             .getBackToBackUserAgent();
-                    b2bua.tearDown(Gateway.SIPXBRIDGE_USER, ReasonCode.SESSION_TIMER_ERROR,
+                    b2bua.tearDown(Gateway.SIPXBRIDGE_USER,
+                            ReasonCode.SESSION_TIMER_ERROR,
                             "OPTIONS Session timer timed out.");
                 } else if (request.getMethod().equals(Request.REGISTER)) {
-                    Gateway.getRegistrationManager().processTimeout(timeoutEvent);
+                    Gateway.getRegistrationManager().processTimeout(
+                            timeoutEvent);
                 } else if (request.getMethod().equals(Request.BYE)) {
-                    ClientTransaction clientTransaction = timeoutEvent.getClientTransaction();
+                    ClientTransaction clientTransaction = timeoutEvent
+                            .getClientTransaction();
                     Dialog dialog = clientTransaction.getDialog();
                     BackToBackUserAgent b2bua = DialogContext.get(dialog)
                             .getBackToBackUserAgent();
@@ -440,32 +492,37 @@ public class SipListenerImpl implements SipListener {
                     b2bua.removeDialog(dialog);
                 } else if (request.getMethod().equals(Request.INVITE)) {
                     /*
-                     * If this is a refer request -- grab the MOH Dialog and kill it. Otherwise we
-                     * are stuck with the MOH dialog.
+                     * If this is a refer request -- grab the MOH Dialog and
+                     * kill it. Otherwise we are stuck with the MOH dialog.
                      */
-                    BackToBackUserAgent b2bua = DialogContext.get(ctx.getDialog())
-                            .getBackToBackUserAgent();
-                    
-                    TransactionContext transactionContext = TransactionContext.get(ctx);
-                    if (transactionContext.getOperation() ==  Operation.SEND_INVITE_TO_SIPX_PROXY) {           
-                        if ( ! b2bua.findNextSipXProxy() ) {
-                            b2bua.tearDown(Gateway.SIPXBRIDGE_USER, ReasonCode.CALL_SETUP_ERROR, 
+                    BackToBackUserAgent b2bua = DialogContext.get(
+                            ctx.getDialog()).getBackToBackUserAgent();
+
+                    TransactionContext transactionContext = TransactionContext
+                            .get(ctx);
+                    if (transactionContext.getOperation() == Operation.SEND_INVITE_TO_SIPX_PROXY) {
+                        if (!b2bua.findNextSipXProxy()) {
+                            b2bua.tearDown(Gateway.SIPXBRIDGE_USER,
+                                    ReasonCode.CALL_SETUP_ERROR,
                                     "SipxProxy is down");
                         } else {
-                            b2bua.sendInviteToSipxProxy(transactionContext.getRequestEvent(),
-                                transactionContext.getServerTransaction() );
+                            b2bua.sendInviteToSipxProxy(transactionContext
+                                    .getRequestEvent(), transactionContext
+                                    .getServerTransaction());
                         }
                     } else {
-                        if (transactionContext.getOperation() == Operation.SEND_INVITE_TO_ITSP 
+                        if (transactionContext.getOperation() == Operation.SEND_INVITE_TO_ITSP
                                 || transactionContext.getOperation() == Operation.SPIRAL_BLIND_TRANSFER_INVITE_TO_ITSP) {
                             /* Try another hop */
-                            Collection<Hop> hops = transactionContext.getProxyAddresses();
-                            if ( hops.size() == 0 ) {
+                            Collection<Hop> hops = transactionContext
+                                    .getProxyAddresses();
+                            if (hops.size() == 0) {
                                 b2bua.sendByeToMohServer();
                             } else {
-                                b2bua.resendInviteToItsp(timeoutEvent.getClientTransaction());
+                                b2bua.resendInviteToItsp(timeoutEvent
+                                        .getClientTransaction());
                             }
-                                
+
                         } else {
                             b2bua.sendByeToMohServer();
                         }
@@ -481,17 +538,18 @@ public class SipListenerImpl implements SipListener {
 
     public void processTransactionTerminated(TransactionTerminatedEvent tte) {
 
-        Transaction transaction = tte.getClientTransaction() != null ? tte.getClientTransaction()
-                : tte.getServerTransaction();
+        Transaction transaction = tte.getClientTransaction() != null ? tte
+                .getClientTransaction() : tte.getServerTransaction();
         Dialog dialog = transaction.getDialog();
         Request request = transaction.getRequest();
         /*
-         * When the INVITE tx terminates and the associated dialog state is CONFIRMED, we
-         * increment the call count.
+         * When the INVITE tx terminates and the associated dialog state is
+         * CONFIRMED, we increment the call count.
          */
         if (request.getMethod().equals(Request.INVITE)
                 && dialog.getState() == DialogState.CONFIRMED
-                && ((ToHeader) request.getHeader(ToHeader.NAME)).getParameter("tag") == null) {
+                && ((ToHeader) request.getHeader(ToHeader.NAME))
+                        .getParameter("tag") == null) {
             TransactionContext txContext = TransactionContext.get(transaction);
             if (txContext != null
                     && (txContext.getOperation() == Operation.SEND_INVITE_TO_ITSP || txContext

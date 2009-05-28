@@ -428,10 +428,7 @@ class DialogContext {
     }
 
     public String getCallLegId() {
-        String fromTag = ((FromHeader) this.getRequest().getHeader(FromHeader.NAME)).getTag();
-        String callId = ((CallIdHeader) this.getRequest().getHeader(CallIdHeader.NAME))
-                .getCallId();
-        return fromTag + ":" + callId;
+       return SipUtilities.getCallLegId(this.getRequest());
     }
 
     private void startSessionTimer() {
@@ -1026,6 +1023,12 @@ class DialogContext {
     public void setDialogCreatingTransaction(ClientTransaction newTransaction) {
         this.dialogCreatingTransaction = newTransaction;
         this.request = newTransaction.getRequest();
+    }
+
+    public void detach() {
+      this.dialog.setApplicationData(null);
+      this.dialog = null;
+      this.pendingAction = PendingDialogAction.NONE;          
     }
 
 

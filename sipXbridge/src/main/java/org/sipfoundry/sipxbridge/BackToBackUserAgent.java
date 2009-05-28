@@ -521,7 +521,7 @@ public class BackToBackUserAgent {
 
         for (Dialog d : dialogTable) {
             DialogContext dat = DialogContext.get(d);
-            if (!dat.isOriginatedBySipxbridge) {
+            if (dat != null && !dat.isOriginatedBySipxbridge) {
                 count++;
             }
         }
