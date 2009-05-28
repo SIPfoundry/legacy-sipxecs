@@ -25,6 +25,7 @@ import javax.sip.SipProvider;
 import javax.sip.TimeoutEvent;
 import javax.sip.Transaction;
 import javax.sip.TransactionAlreadyExistsException;
+import javax.sip.TransactionState;
 import javax.sip.TransactionTerminatedEvent;
 import javax.sip.address.SipURI;
 import javax.sip.address.Hop;
@@ -543,6 +544,10 @@ public class SipListenerImpl implements SipListener {
                     } else {
                         if (transactionContext.getOperation() == Operation.SEND_INVITE_TO_ITSP
                                 || transactionContext.getOperation() == Operation.SPIRAL_BLIND_TRANSFER_INVITE_TO_ITSP) {
+                            logger.debug("Timed sending request to ITSP -- trying alternate proxy");
+                            if ( ctx.getState() != TransactionState.TERMINATED ) {
+                                ctx.terminate();
+                            }
                             /* Try another hop */
                             Collection<Hop> hops = transactionContext
                                     .getProxyAddresses();
