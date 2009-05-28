@@ -85,7 +85,7 @@ public:
 
    void StartLineMgr();
 
-   UtlBoolean initializeRefreshMgr( SipRefreshMgr * refreshMgr );
+   UtlBoolean initializeRefreshMgr(SipRefreshMgr * refreshMgr);
 
    void setDefaultContactUri(const Url& contactUri);
 

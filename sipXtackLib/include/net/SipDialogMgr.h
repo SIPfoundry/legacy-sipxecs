@@ -30,12 +30,7 @@ class SipDialog;
 
 // TYPEDEFS
 
-//! Class for refreshing SIP subscriptions and registrations
-/*! This is currently verified for SUBSCRIPTIONS ONLY.
- *  This class is intended to replace the SipRefreshMgr.
- *
- * \par 
- */
+//! Class for maintaining information about SIP dialogs.
 class SipDialogMgr
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
