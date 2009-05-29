@@ -6,6 +6,10 @@ fqdn=`hostname -f`
 iam=`whoami`
 if [ "$iam" = "root" ]
 then
+    if [ -f ${HttpAccessConfig} ]
+    then
+        rm -f ${HttpAccessConfig}
+    fi
     exec su @SIPXPBXUSER@ -c "$0 $*"    
 elif [ "${iam}" != "@SIPXPBXUSER@" ]
 then
