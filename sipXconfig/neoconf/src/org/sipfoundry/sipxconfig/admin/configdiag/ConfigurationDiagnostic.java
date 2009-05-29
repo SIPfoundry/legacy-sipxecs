@@ -23,6 +23,8 @@ public class ConfigurationDiagnostic implements Callable<Integer> {
     private String m_label;
     private String m_description;
     private String m_longDescription;
+    private String m_detailedHelp;
+
     private ConfigurationDiagnosticResult m_result = ConfigurationDiagnosticResult.INITIAL_RESULT;
     private ExternalCommand m_command;
     private ConfigurationDiagnosticResultParser m_resultParser;
@@ -43,6 +45,7 @@ public class ConfigurationDiagnostic implements Callable<Integer> {
             addBeanPropertySetter(TEST_PATH + "/label");
             addBeanPropertySetter(TEST_PATH + DESCRIPTION_PATH);
             addBeanPropertySetter(TEST_PATH + "/longDescription");
+            addBeanPropertySetter(TEST_PATH + "/detailedHelp");
             addObjectCreate(COMMAND_PATH, ExternalCommand.class);
             addSetNext(COMMAND_PATH, "setCommand");
             addBeanPropertySetter(COMMAND_PATH + "/exec", "command");
@@ -131,6 +134,14 @@ public class ConfigurationDiagnostic implements Callable<Integer> {
 
     public String getStdout() {
         return m_stdout;
+    }
+
+    public String getDetailedHelp() {
+        return m_detailedHelp;
+    }
+
+    public void setDetailedHelp(String detailedHelp) {
+        m_detailedHelp = detailedHelp;
     }
 
     public Integer call() throws Exception {

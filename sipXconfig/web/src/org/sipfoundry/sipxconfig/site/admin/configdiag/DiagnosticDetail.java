@@ -63,5 +63,8 @@ public abstract class DiagnosticDetail extends BaseComponent {
     @Persist
     public abstract boolean getShowTestResults();
 
+    @Persist
+    public abstract boolean isShowDetailedHelp();
+
     public abstract void setShowTestResults(boolean showTestResults);
 }
