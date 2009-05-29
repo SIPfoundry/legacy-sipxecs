@@ -1,4 +1,4 @@
-<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
   "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd" [
   <!ENTITY types SYSTEM "types.xml">
   ]>
@@ -193,7 +193,7 @@
       <value>off</value>
     </setting>
     <setting name="contrast">
-      <profileName>contrast$</profileName>
+      <profileName>contrast!</profileName>
       <type>
         <enum>
           <option>
@@ -303,7 +303,7 @@
       <type>
         <integer />
       </type>
-      <value />
+      <value>5060</value>
     </setting>
     <setting name="sip_retry_t1" advanced="yes">
       <type>
@@ -1113,16 +1113,28 @@
             <value>AUS</value>
           </option>
           <option>
+            <value>AUT</value>
+          </option>
+          <option>
             <value>CHN</value>
           </option>
           <option>
             <value>DNK</value>
           </option>
           <option>
+            <value>FRA</value>
+          </option>
+          <option>
             <value>GER</value>
           </option>
           <option>
+            <value>GBR</value>
+          </option>
+          <option>
             <value>IND</value>
+          </option>
+          <option>
+            <value>ITA</value>
           </option>
           <option>
             <value>JPN</value>
@@ -1131,13 +1143,22 @@
             <value>MEX</value>
           </option>
           <option>
+            <value>NLD</value>
+          </option>
+          <option>
+            <value>NOR</value>
+          </option>
+          <option>
+            <value>NZL</value>
+          </option>
+          <option>
+            <value>ESP</value>
+          </option>
+          <option>
             <value>SWE</value>
           </option>
           <option>
             <value>SWI</value>
-          </option>
-          <option>
-            <value>GBR</value>
           </option>
           <option>
             <value>USA</value>
@@ -1684,7 +1705,7 @@
       </setting>
       <setting name="number">
         <type>
-          <integer />
+          <string />
         </type>
         <value></value>
       </setting>
@@ -1700,7 +1721,7 @@
       </setting>
       <setting name="number">
         <type>
-          <integer />
+          <string />
         </type>
         <value></value>
       </setting>
@@ -1716,7 +1737,7 @@
       </setting>
       <setting name="number">
         <type>
-          <integer />
+          <string />
         </type>
         <value></value>
       </setting>
@@ -1732,7 +1753,7 @@
       </setting>
       <setting name="number">
         <type>
-          <integer />
+          <string />
         </type>
         <value></value>
       </setting>
@@ -1748,7 +1769,7 @@
       </setting>
       <setting name="number">
         <type>
-          <integer />
+          <string />
         </type>
         <value></value>
       </setting>
@@ -1764,7 +1785,7 @@
       </setting>
       <setting name="number">
         <type>
-          <integer />
+          <string />
         </type>
         <value></value>
       </setting>
@@ -1780,7 +1801,7 @@
       </setting>
       <setting name="number">
         <type>
-          <integer />
+          <string />
         </type>
         <value></value>
       </setting>
@@ -1796,7 +1817,7 @@
       </setting>
       <setting name="number">
         <type>
-          <integer />
+          <string />
         </type>
         <value></value>
       </setting>
@@ -1812,7 +1833,7 @@
       </setting>
       <setting name="number">
         <type>
-          <integer />
+          <string />
         </type>
         <value></value>
       </setting>
@@ -1828,7 +1849,7 @@
       </setting>
       <setting name="number">
         <type>
-          <integer />
+          <string />
         </type>
         <value></value>
       </setting>
@@ -1844,7 +1865,7 @@
       </setting>
       <setting name="number">
         <type>
-          <integer />
+          <string />
         </type>
         <value></value>
       </setting>
@@ -1860,7 +1881,7 @@
       </setting>
       <setting name="number">
         <type>
-          <integer />
+          <string />
         </type>
         <value></value>
       </setting>

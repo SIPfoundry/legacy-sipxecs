@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
   "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
   <bean id="snomModel" abstract="true" parent="abstractPhoneModel">
@@ -30,6 +30,15 @@
   </bean>
   <bean id="snom360" parent="snomModel">
     <property name="label" value="Snom 360" />
+    <property name="maxLineCount" value="12" />
+    <property name="supportedFeatures">
+      <set>
+        <value>intercom</value>
+      </set>
+    </property>
+  </bean>
+    <bean id="snom370" parent="snomModel">
+    <property name="label" value="Snom 370" />
     <property name="maxLineCount" value="12" />
     <property name="supportedFeatures">
       <set>

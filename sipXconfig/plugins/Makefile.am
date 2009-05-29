@@ -11,7 +11,8 @@ SUBDIRS = \
         nortel12x0 \
         counterpath \
         cmcprov \
-        polycom
+        polycom \
+        snom
 
 EXTRA_DIST = \
 	$(SUBDIRS) \

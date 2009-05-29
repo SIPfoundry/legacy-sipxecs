@@ -94,10 +94,22 @@
       <value>url</value>
     </option>
     <option>
-      <value>keyevent</value>
+      <value>speed</value>
     </option>
     <option>
-      <value>speed</value>
+      <value>button</value>
+    </option>
+    <option>
+      <value>blf</value>
+    </option>
+    <option>
+      <value>keyevent</value>
+    </option>
+        <option>
+      <value>ivr</value>
+    </option>
+    <option>
+      <value>presence</value>
     </option>
     <option>
       <value>none</value>
