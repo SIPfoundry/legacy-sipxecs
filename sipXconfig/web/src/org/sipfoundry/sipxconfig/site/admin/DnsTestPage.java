@@ -30,6 +30,9 @@ public abstract class DnsTestPage extends BasePage {
     public abstract boolean getShowTestResults();
     public abstract void setShowTestResults(boolean showTestResults);
 
+    @Persist
+    public abstract boolean isShowDetailedHelp();
+
     @Asset("/images/bullet_error.png")
     public abstract IAsset getDnsErrorImage();
 

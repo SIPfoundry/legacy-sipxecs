@@ -3,7 +3,6 @@ package org.sipfoundry.sipxconfig.site.admin;
 import junit.framework.Test;
 
 import net.sourceforge.jwebunit.junit.WebTestCase;
-
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class DnsTestPageTestUi extends WebTestCase {
@@ -25,17 +24,41 @@ public class DnsTestPageTestUi extends WebTestCase {
     }
 
     private void assertNeedToRunTest() {
+        setWorkingForm("dnsTestForm");
         assertElementPresent("showPrompt");
         assertElementPresent("provideDns");
         assertElementPresent("runTest");
         assertElementNotPresent("testResults_0");
+        //assert help
+        setWorkingForm("detailedHelpForm");
+        assertElementPresent("setting:toggle");
+        assertElementNotPresent("detailedHelp");
+        SiteTestHelper.clickSubmitLink(tester, "setting:toggle");
+        assertElementPresent("detailedHelp");
+        setWorkingForm("detailedHelpForm");
+        SiteTestHelper.clickSubmitLink(tester, "setting:toggle");
+        assertElementNotPresent("detailedHelp");
     }
 
     private void assertTestRan() {
+        setWorkingForm("dnsTestForm");
         assertElementNotPresent("showPrompt");
         assertElementPresent("provideDns");
         assertElementPresent("runTest");
         assertElementPresent("testResults_0");
+        //assert results / help
+        assertElementNotPresent("dnsTestStatus");
+        SiteTestHelper.clickSubmitLink(tester, "setting:toggle");
+        assertElementPresent("dnsTestStatus");
+        setWorkingForm("dnsTestForm");
+        SiteTestHelper.clickSubmitLink(tester, "setting:toggle");
+        assertElementNotPresent("dnsTestStatus");
+        setWorkingForm("detailedHelpForm");
+        SiteTestHelper.clickSubmitLink(tester, "setting:toggle_0");
+        assertElementPresent("detailedHelp");
+        setWorkingForm("detailedHelpForm");
+        SiteTestHelper.clickSubmitLink(tester, "setting:toggle_0");
+        assertElementNotPresent("detailedHelp");
     }
 
     public void testRunDns() throws Exception {
@@ -43,7 +66,8 @@ public class DnsTestPageTestUi extends WebTestCase {
         SiteTestHelper.assertNoUserError(tester);
 
         assertNeedToRunTest();
-        clickButton("runTest");
+        setWorkingForm("dnsTestForm");
+        submit("runTest");
         assertTestRan();
 
         SiteTestHelper.assertNoException(tester);
@@ -53,7 +77,8 @@ public class DnsTestPageTestUi extends WebTestCase {
     public void testChangeSystemConfiguration() throws Exception {
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
-        clickButton("runTest");
+        setWorkingForm("dnsTestForm");
+        submit("runTest");
         assertTestRan();
 
         //add location
@@ -76,4 +101,5 @@ public class DnsTestPageTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
     }
+
 }
