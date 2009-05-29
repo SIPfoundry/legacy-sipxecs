@@ -122,9 +122,18 @@ public class SymmitronServer implements Symmitron {
 
     private static final String STUN_ADDRESS_ERROR_ALARM_ID = "STUN_ADDRESS_ERROR";
 
-    private static CRLFReceiver crlfReceiver;
+    static CRLFReceiver crlfReceiver;
 
     static {
+        try {
+            crlfReceiver = new CRLFReceiver();
+            new Thread(crlfReceiver).start();
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+    
+    private static void restartCrLfReceiver() {
         try {
             crlfReceiver = new CRLFReceiver();
             new Thread(crlfReceiver).start();
@@ -1057,13 +1066,10 @@ public class SymmitronServer implements Symmitron {
             logger.debug("pingAndTest : " + controllerHandle);
             this.checkForControllerReboot(controllerHandle);
             Map<String, Object> retval = createSuccessMap();
-            DatagramSocket pingSocket = this.crlfReceiver.pingSocket;
-            this.crlfReceiver.packetRecieved = false;
-            byte[] CRLF = "\r\n\r\n".getBytes();
-            InetAddress proxyAddr = InetAddress.getByName(host);
-            DatagramPacket datagramPacket = new DatagramPacket(CRLF,
-                    CRLF.length, proxyAddr, port);
-            pingSocket.send(datagramPacket);
+            if ( crlfReceiver == null ) {
+                restartCrLfReceiver();
+            }
+            crlfReceiver.sendPing(host,port);
             for (int i = 0; i < 10; i++) {
                 if (crlfReceiver.packetRecieved) {
                     break;

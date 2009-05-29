@@ -6,42 +6,62 @@ package org.sipfoundry.sipxbridge.symmitron;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.util.concurrent.Semaphore;
 
+import org.apache.log4j.Logger;
+
 class CRLFReceiver implements Runnable {
-    Semaphore waitSem;
+
+    private static Logger logger = Logger.getLogger(CRLFReceiver.class);
+
     DatagramSocket pingSocket;
-    boolean packetRecieved;
+    boolean packetRecieved;    
+    private long startTime;
+    private byte[] buffer;
+    private byte[] receiveBuffer;
 
     public CRLFReceiver() throws Exception {
         try {
-            this.waitSem = new Semaphore(0);
             this.packetRecieved = false;
             pingSocket = new DatagramSocket();
+            this.buffer = new String("\r\n\r\n").getBytes();  
+            this.receiveBuffer = new String("\r\n\r\n").getBytes();
+         } catch (Exception ex) {
+            logger.error("Exception caught when creating CRLF Receiver", ex);
+        }
+    }
+
+    public void sendPing(String host, int port) {
+        try {
+            packetRecieved = false;
+            InetAddress proxyAddr = InetAddress.getByName(host);
+            DatagramPacket sendDatagramPacket = new DatagramPacket(buffer,
+                    buffer.length, proxyAddr, port);
+            startTime = System.currentTimeMillis();
+            pingSocket.send(sendDatagramPacket);
         } catch (Exception ex) {
-            SymmitronServer.logger
-                    .error("Exception caught when creating CRLF Receiver",
-                            ex);
+            logger.error("Unexpected exception", ex);
         }
     }
 
     public void run() {
         while (true) {
-            byte[] buffer = new String("\r\n\r\n").getBytes();
-            DatagramPacket datagramPacket = new DatagramPacket(buffer,
-                    buffer.length);
-            waitSem.release();
-            long startTime = System.currentTimeMillis();
-            try {
-                pingSocket.receive(datagramPacket);
+             try {
+                DatagramPacket receiveDatagramPacket = new DatagramPacket(receiveBuffer,receiveBuffer.length);        
+                pingSocket.receive(receiveDatagramPacket);
             } catch (Exception ex) {
-                SymmitronServer.logger.error("Could not get response from ProxyServer "
-                        + ex.getMessage());
+                logger.fatal("Could not get response from ProxyServer ", ex);
+                logger.fatal("Exit Pinger Thread!");
+                pingSocket.close();
+                SymmitronServer.crlfReceiver = null;
                 return;
             }
             long endTime = System.currentTimeMillis();
-            SymmitronServer.logger.debug("received message Wait time =  "
+            if ( logger.isDebugEnabled() ) {
+                logger.debug("received message Wait time =  "
                     + (endTime - startTime));
+            }
             packetRecieved = true;
         }
 

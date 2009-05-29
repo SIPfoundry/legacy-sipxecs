@@ -531,16 +531,10 @@ public class SipListenerImpl implements SipListener {
 
                     TransactionContext transactionContext = TransactionContext
                             .get(ctx);
-                    if (transactionContext.getOperation() == Operation.SEND_INVITE_TO_SIPX_PROXY) {
-                        if (!b2bua.findNextSipXProxy()) {
+                    if (transactionContext.getOperation() == Operation.SEND_INVITE_TO_SIPX_PROXY) {               
                             b2bua.tearDown(Gateway.SIPXBRIDGE_USER,
                                     ReasonCode.CALL_SETUP_ERROR,
                                     "SipxProxy is down");
-                        } else {
-                            b2bua.sendInviteToSipxProxy(transactionContext
-                                    .getRequestEvent(), transactionContext
-                                    .getServerTransaction());
-                        }
                     } else {
                         if (transactionContext.getOperation() == Operation.SEND_INVITE_TO_ITSP
                                 || transactionContext.getOperation() == Operation.SPIRAL_BLIND_TRANSFER_INVITE_TO_ITSP) {
