@@ -51,8 +51,11 @@ class CRLFReceiver implements Runnable {
                 DatagramPacket receiveDatagramPacket = new DatagramPacket(receiveBuffer,receiveBuffer.length);        
                 pingSocket.receive(receiveDatagramPacket);
             } catch (Exception ex) {
-                logger.error("Could not get response from ProxyServer "
-                        + ex);
+                logger.fatal("Could not get response from ProxyServer ", ex);
+                logger.fatal("Exit Pinger Thread!");
+                pingSocket.close();
+                SymmitronServer.crlfReceiver = null;
+                return;
             }
             long endTime = System.currentTimeMillis();
             if ( logger.isDebugEnabled() ) {
