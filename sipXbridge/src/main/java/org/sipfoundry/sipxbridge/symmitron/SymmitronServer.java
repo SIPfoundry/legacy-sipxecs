@@ -1057,13 +1057,7 @@ public class SymmitronServer implements Symmitron {
             logger.debug("pingAndTest : " + controllerHandle);
             this.checkForControllerReboot(controllerHandle);
             Map<String, Object> retval = createSuccessMap();
-            DatagramSocket pingSocket = this.crlfReceiver.pingSocket;
-            this.crlfReceiver.packetRecieved = false;
-            byte[] CRLF = "\r\n\r\n".getBytes();
-            InetAddress proxyAddr = InetAddress.getByName(host);
-            DatagramPacket datagramPacket = new DatagramPacket(CRLF,
-                    CRLF.length, proxyAddr, port);
-            pingSocket.send(datagramPacket);
+            crlfReceiver.sendPing(host,port);
             for (int i = 0; i < 10; i++) {
                 if (crlfReceiver.packetRecieved) {
                     break;
