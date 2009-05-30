@@ -908,16 +908,9 @@ public class Gateway {
                 System.exit(-1);
             }
 
-            if (accountInfo.getUserName() == null) {
+            if (accountInfo.isRegisterOnInitialization() && accountInfo.getUserName() == null) {
                 System.err
-                        .println("User Name is mandatory for ITSP accounts. Check ITSP account "
-                                + accountInfo.getProxyDomain());
-                System.exit(-1);
-            }
-
-            if (accountInfo.getCallerAlias() == null) {
-                System.err
-                        .println("Could not parse asserted ID. Must be user@domain - Check ITSP account "
+                        .println("User Name is mandatory for ITSP accounts requiring Registration. Check ITSP account "
                                 + accountInfo.getProxyDomain());
                 System.exit(-1);
             }

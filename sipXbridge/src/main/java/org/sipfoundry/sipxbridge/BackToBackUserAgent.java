@@ -43,6 +43,7 @@ import javax.sip.RequestEvent;
 import javax.sip.ServerTransaction;
 import javax.sip.SipException;
 import javax.sip.SipProvider;
+import javax.sip.TransactionAlreadyExistsException;
 import javax.sip.TransactionState;
 import javax.sip.address.Address;
 import javax.sip.address.Hop;
@@ -146,10 +147,8 @@ public class BackToBackUserAgent {
     private Hop proxyAddress;
 
     private boolean pendingTermination;
-    
-    private HashSet<Hop> blackListedProxyServers = new HashSet<Hop>();
 
-    
+    private HashSet<Hop> blackListedProxyServers = new HashSet<Hop>();
 
     // ///////////////////////////////////////////////////////////////////////
     // Constructor.
@@ -618,14 +617,13 @@ public class BackToBackUserAgent {
              * XECS-2480. We do not want to set the transport here either.
              */
             SipURI uri = (SipURI) referToHeader.getAddress().getURI().clone();
-           
 
             CSeqHeader cseq = ProtocolObjects.headerFactory.createCSeqHeader(
                     1L, Request.INVITE);
             ViaHeader viaHeader = null;
             if (uri.getTransportParam() != null) {
                 viaHeader = SipUtilities.createViaHeader(Gateway
-                    .getLanProvider(), uri.getTransportParam() );
+                        .getLanProvider(), uri.getTransportParam());
             } else {
                 viaHeader = SipUtilities.createViaHeader(Gateway
                         .getLanProvider(), "UDP");
@@ -642,12 +640,11 @@ public class BackToBackUserAgent {
                     uri, Request.INVITE, callId, cseq, fromHeader, toHeader,
                     viaList, maxForwards);
             /*
-             * If we are routing this request to the Proxy server,
-             * better send it to the SAME proxy server.
-             * See XX-5792. Dont do this if we are sending the 
-             * request directly to a phone!
+             * If we are routing this request to the Proxy server, better send
+             * it to the SAME proxy server. See XX-5792. Dont do this if we are
+             * sending the request directly to a phone!
              */
-            if ( uri.getHost().equals(Gateway.getSipxProxyDomain())) {
+            if (uri.getHost().equals(Gateway.getSipxProxyDomain())) {
                 uri.setMAddrParam(this.proxyAddress.getHost());
             }
 
@@ -1091,9 +1088,10 @@ public class BackToBackUserAgent {
                 }
                 toHeader.removeParameter("tag");
             }
-            
-            String transport = proxyAddress.getTransport().equalsIgnoreCase("TLS") ? "TLS": "UDP";
-            
+
+            String transport = proxyAddress.getTransport().equalsIgnoreCase(
+                    "TLS") ? "TLS" : "UDP";
+
             ViaHeader viaHeader = SipUtilities.createViaHeader(Gateway
                     .getLanProvider(), transport);
             viaHeader.setParameter(ORIGINATOR, Gateway.SIPXBRIDGE_USER);
@@ -1168,10 +1166,10 @@ public class BackToBackUserAgent {
             SipURI sipUri = (SipURI) newRequest.getRequestURI();
             sipUri.setMAddrParam(proxyAddress.getHost());
             sipUri.setPort(proxyAddress.getPort());
-           if ( transport.equalsIgnoreCase("tls")) {
+            if (transport.equalsIgnoreCase("tls")) {
                 sipUri.setTransportParam(transport);
             }
-        
+
             SipUtilities.addLanAllowHeaders(newRequest);
 
             TransactionContext tad = new TransactionContext(ct,
@@ -1417,7 +1415,7 @@ public class BackToBackUserAgent {
             FromHeader fromHeader = (FromHeader) incomingRequest.getHeader(
                     FromHeader.NAME).clone();
             Collection<Hop> addresses = itspAccountInfo.getItspProxyAddresses();
-            
+
             Request outgoingRequest = SipUtilities.createInviteRequest(
                     (SipURI) incomingRequestUri.clone(), itspProvider,
                     itspAccountInfo, fromHeader, this.creatingCallId + "."
@@ -1531,12 +1529,10 @@ public class BackToBackUserAgent {
             tad.setBackToBackUa(this);
             tad.setClientTransaction(ct);
             /*
-             * Set up for fast failover. If we dont get a 100 in 1 second
-             * we will get a timeout alert.
+             * Set up for fast failover. If we dont get a 100 in 1 second we
+             * will get a timeout alert.
              */
-            ((ClientTransactionExt)ct).alertIfStillInCallingStateBy(2);
-            
-            
+            ((ClientTransactionExt) ct).alertIfStillInCallingStateBy(2);
 
             if (!spiral) {
                 RtpSession incomingSession = this
@@ -1638,16 +1634,18 @@ public class BackToBackUserAgent {
         }
 
     }
-    
-    
+
     /**
      * Retransmits the client transaction to the next hop.
+     * 
      * @param request
      * @param hops
      */
     public void resendInviteToItsp(ClientTransaction clientTransaction) {
-        TransactionContext transactionContext = TransactionContext.get(clientTransaction);
-        ServerTransaction serverTransaction = transactionContext.getServerTransaction();
+        TransactionContext transactionContext = TransactionContext
+                .get(clientTransaction);
+        ServerTransaction serverTransaction = transactionContext
+                .getServerTransaction();
         try {
             /*
              * Restart transaction and send to new hop.
@@ -1660,21 +1658,29 @@ public class BackToBackUserAgent {
             Request newRequest = (Request) request.clone();
             RouteHeader routeHeader = SipUtilities.createRouteHeader(nextHop);
             newRequest.setHeader(routeHeader);
-            ( (ViaHeader) newRequest.getHeader(ViaHeader.NAME)).removeParameter("branch");
-            ((FromHeader)newRequest.getHeader(FromHeader.NAME)).removeParameter("tag");
-            String newTag =  new Integer( Math.abs(new Random().nextInt())).toString();
-            ((FromHeader)newRequest.getHeader(FromHeader.NAME)).setTag(newTag);
+            ((ViaHeader) newRequest.getHeader(ViaHeader.NAME))
+                    .removeParameter("branch");
+            ((FromHeader) newRequest.getHeader(FromHeader.NAME))
+                    .removeParameter("tag");
+            String newTag = new Integer(Math.abs(new Random().nextInt()))
+                    .toString();
+            ((FromHeader) newRequest.getHeader(FromHeader.NAME)).setTag(newTag);
 
-            DialogContext dialogContext = DialogContext.get(clientTransaction.getDialog());
-            SipProvider provider = ( (TransactionExt) clientTransaction ).getSipProvider();
-            newRequest.setContent(request.getContent(), (ContentTypeHeader) request.getHeader(ContentTypeHeader.NAME));
+            DialogContext dialogContext = DialogContext.get(clientTransaction
+                    .getDialog());
+            SipProvider provider = ((TransactionExt) clientTransaction)
+                    .getSipProvider();
+            newRequest.setContent(request.getContent(),
+                    (ContentTypeHeader) request
+                            .getHeader(ContentTypeHeader.NAME));
 
-            ClientTransaction newTransaction = provider.getNewClientTransaction(newRequest);
+            ClientTransaction newTransaction = provider
+                    .getNewClientTransaction(newRequest);
 
-            TransactionContext newContext = TransactionContext.attach(newTransaction, transactionContext.getOperation());
-           
+            TransactionContext newContext = TransactionContext.attach(
+                    newTransaction, transactionContext.getOperation());
+
             transactionContext.copyTo(newContext);
-            
 
             dialogContext.setDialog(newTransaction.getDialog());
             dialogContext.setDialogCreatingTransaction(newTransaction);
@@ -1683,7 +1689,7 @@ public class BackToBackUserAgent {
         } catch (ParseException ex) {
             logger.error("Unexpected exception ", ex);
             CallControlUtilities.sendInternalError(serverTransaction, ex);
-        } catch ( SipException ex) {
+        } catch (SipException ex) {
             logger.error("Error occurred during processing of request ", ex);
             CallControlUtilities.sendServiceUnavailableError(serverTransaction,
                     ex);
@@ -2050,12 +2056,16 @@ public class BackToBackUserAgent {
                         && dialogCtx.getDialogCreatingTransaction() instanceof ClientTransaction) {
                     ClientTransaction ctx = (ClientTransaction) dialogCtx
                             .getDialogCreatingTransaction();
-                    if (ctx.getState() == TransactionState.PROCEEDING) {
-                        ClientTransaction cancelTx = lanProvider
-                                .getNewClientTransaction(ctx.createCancel());
-                        TransactionContext.attach(cancelTx,
-                                Operation.CANCEL_INVITE);
-                        cancelTx.sendRequest();
+                    try {
+                        if (ctx.getState() == TransactionState.PROCEEDING) {
+                            ClientTransaction cancelTx = lanProvider
+                                    .getNewClientTransaction(ctx.createCancel());
+                            TransactionContext.attach(cancelTx,
+                                    Operation.CANCEL_INVITE);
+                            cancelTx.sendRequest();
+                        }
+                    } catch (TransactionAlreadyExistsException ex) {
+                        logger.debug("CANCEL Already issued on transaction");
                     }
                 }
 
@@ -2132,14 +2142,11 @@ public class BackToBackUserAgent {
 
     public boolean findNextSipXProxy() throws IOException, SymmitronException,
             SipXbridgeException {
-  
-       
-       
-        
-        if ( this.proxyAddress != null ) {
+
+        if (this.proxyAddress != null) {
             this.blackListedProxyServers.add(this.proxyAddress);
             this.proxyAddress = null;
-            
+
         }
 
         for (Hop hop : Gateway.initializeSipxProxyAddresses()) {
@@ -2160,13 +2167,10 @@ public class BackToBackUserAgent {
             } catch (SymmitronException ex) {
                 logger.error("Could not contact Relay at " + hop.getHost());
                 this.blackListedProxyServers.add(hop);
-            } 
+            }
         }
-       
-        
-        return ( this.proxyAddress != null );
-    }
 
-    
+        return (this.proxyAddress != null);
+    }
 
 }

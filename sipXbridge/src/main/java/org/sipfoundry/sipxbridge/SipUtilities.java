@@ -596,8 +596,8 @@ class SipUtilities {
 
     static Request createInviteRequest(SipURI requestUri,
             SipProvider sipProvider, ItspAccountInfo itspAccount,
-            FromHeader from, String callId, Collection<Hop> addresses) throws SipException,
-            SipXbridgeException {
+            FromHeader from, String callId, Collection<Hop> addresses)
+            throws SipException, SipXbridgeException {
         try {
 
             String toUser = requestUri.getUser();
@@ -610,46 +610,50 @@ class SipUtilities {
             }
 
             Address address = itspAccount.getCallerAlias();
-
-            PAssertedIdentityHeader passertedIdentityHeader = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
-                    .createPAssertedIdentityHeader(address);
+            PAssertedIdentityHeader passertedIdentityHeader = null;
+            if (address != null) {
+                passertedIdentityHeader = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
+                        .createPAssertedIdentityHeader(address);
+            }
 
             PrivacyHeader privacyHeader = null;
 
             FromHeader fromHeader = from;
 
             /*
-             * Handle the case of anonymous calling. If the from header has
-             * anonymous@invalid then attach a P-Preferred-Identity Header to
-             * reflect the actual value of the caller Id.
+             * From: header Domain determination.
              */
+            String domain = fromDomain;
             if (fromUser.equalsIgnoreCase("anonymous")
                     && fromDomain.equalsIgnoreCase("invalid")) {
-
-                String domain = "anonymous.invalid";
-                SipURI fromUri = ProtocolObjects.addressFactory.createSipURI(
-                        fromUser, domain);
-                fromHeader = ProtocolObjects.headerFactory.createFromHeader(
-                        ProtocolObjects.addressFactory.createAddress(fromUri),
-                        new Long(Math.abs(new java.util.Random().nextLong()))
-                                .toString());
                 privacyHeader = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
                         .createPrivacyHeader("id");
-            } else {
-                fromHeader = (FromHeader) from.clone();
-
-                fromHeader.setTag(new Long(Math.abs(new java.util.Random()
-                        .nextLong())).toString());
-                if (itspAccount.stripPrivateHeaders()) {
-                    privacyHeader = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
-                            .createPrivacyHeader("id");
+                domain = "anonymous.invalid";
+            } else if (fromDomain
+                    .equalsIgnoreCase(Gateway.getSipxProxyDomain())) {
+                if (!itspAccount.isRegisterOnInitialization()) {
+                   if ( itspAccount.isGlobalAddressingUsed()) {
+                       domain = Gateway.getGlobalAddress();
+                   } else {
+                       domain = Gateway.getLocalAddress();
+                   }
+                } else {
+                    domain = itspAccount.getProxyDomain();
                 }
             }
+            SipURI fromUri = ProtocolObjects.addressFactory.createSipURI(
+                    fromUser, domain);
+            fromHeader = ProtocolObjects.headerFactory.createFromHeader(
+                    ProtocolObjects.addressFactory.createAddress(fromUri),
+                    new Long(Math.abs(new java.util.Random().nextLong()))
+                            .toString());
 
-            /*
-             * Remove stuff from the request that can have an effect on the
-             * routing of the request and add stuff that we want to add.
-             */
+            fromHeader.setTag(new Long(Math.abs(new java.util.Random()
+                    .nextLong())).toString());
+            if (itspAccount.stripPrivateHeaders()) {
+                privacyHeader = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
+                        .createPrivacyHeader("id");
+            }
 
             /*
              * If the target is a phone number we set user=phone. Otherwise we
@@ -673,8 +677,6 @@ class SipUtilities {
             }
 
             requestUri.removePort();
-
-            requestUri.removeParameter("maddr");
 
             fromHeader.setTag(new Long(Math.abs(new java.util.Random()
                     .nextLong())).toString());
@@ -723,7 +725,7 @@ class SipUtilities {
             /*
              * Strip any identifying information if needed.
              */
-            if (itspAccount.stripPrivateHeaders()) {
+            if (itspAccount.stripPrivateHeaders() || domain.equals("anonymous.invalid")) {
                 /* Remove the display name */
                 SipUtilities.stripPrivateHeaders(request);
             }
@@ -739,15 +741,15 @@ class SipUtilities {
                 throw new SipException("No route to ITSP could be found "
                         + itspAccount.getProxyDomain());
             }
-            Iterator<Hop>  hopIter = addresses.iterator();
+            Iterator<Hop> hopIter = addresses.iterator();
             Hop hop = hopIter.next();
             hopIter.remove();
+
+            // sipxbridge router will strip maddr before forwarding.
            
-            RouteHeader routeHeader = SipUtilities.createRouteHeader(hop);
-            request.addHeader(routeHeader);
-            if (itspAccount.stripPrivateHeaders()) {
-                SipUtilities.stripPrivateHeaders(request);
-            }
+            requestUri.setMAddrParam(hop.getHost());
+            requestUri.setPort(hop.getPort());
+           
 
             /*
              * By default the UAC always refreshes the session.
@@ -1402,7 +1404,7 @@ class SipUtilities {
         try {
             String address;
 
-            address = itspInfo.getCallerId();
+            address = Gateway.getGlobalAddress();
 
             SipURI retval = (SipURI) ProtocolObjects.addressFactory
                     .createURI("sip:" + address);
@@ -1576,16 +1578,17 @@ class SipUtilities {
                     "Relayed Error Response");
 
             newResponse.setHeader(rh);
-        
+
             /*
-             * Response is heading towards the LAN. Extract diagnostic information
-             * from the inbound response and hand it back in the forwarded response.
-             * This allows the diagnostic information to be available at the phone
-             * ( useful for debugging ). We want to preserve the information for
-             * server errors because these are converted to 500 error when relayed by
-             * the proxy server.
+             * Response is heading towards the LAN. Extract diagnostic
+             * information from the inbound response and hand it back in the
+             * forwarded response. This allows the diagnostic information to be
+             * available at the phone ( useful for debugging ). We want to
+             * preserve the information for server errors because these are
+             * converted to 500 error when relayed by the proxy server.
              */
-            if (provider == Gateway.getLanProvider() && response.getStatusCode() / 100 == 5) {
+            if (provider == Gateway.getLanProvider()
+                    && response.getStatusCode() / 100 == 5) {
                 StringBuffer sb = new StringBuffer();
                 sb.append(((SIPResponse) response).getFirstLine());
                 if (itspAccount != null) {
@@ -1600,13 +1603,16 @@ class SipUtilities {
                 if (response.getHeader(ReasonHeader.NAME) != null) {
                     sb.append(response.getHeader(ReasonHeader.NAME).toString());
                 }
-                if ( response.getHeader(WarningHeader.NAME) != null) {
-                    sb.append(response.getHeader(WarningHeader.NAME).toString());
+                if (response.getHeader(WarningHeader.NAME) != null) {
+                    sb
+                            .append(response.getHeader(WarningHeader.NAME)
+                                    .toString());
                 }
-                if ( response.getHeader(ErrorInfoHeader.NAME) != null) {
-                    sb.append(response.getHeader(ErrorInfoHeader.NAME).toString());
+                if (response.getHeader(ErrorInfoHeader.NAME) != null) {
+                    sb.append(response.getHeader(ErrorInfoHeader.NAME)
+                            .toString());
                 }
-                
+
                 if (sb.length() != 0) {
                     SipUtilities.addSipFrag(newResponse, sb.toString().trim());
                 }
@@ -1631,9 +1637,9 @@ class SipUtilities {
             routeUri.setTransportParam(hop.getTransport());
             routeUri.setLrParam();
             Address routeAddress = ProtocolObjects.addressFactory
-            .createAddress(routeUri);
+                    .createAddress(routeUri);
             RouteHeader routeHeader = ProtocolObjects.headerFactory
-            .createRouteHeader(routeAddress);
+                    .createRouteHeader(routeAddress);
             return routeHeader;
         } catch (Exception ex) {
             String s = "Unexpected exception";
@@ -1643,20 +1649,20 @@ class SipUtilities {
     }
 
     public static String getCallLegId(Message message) {
-        String fromTag = ((FromHeader) message.getHeader(FromHeader.NAME)).getTag();
+        String fromTag = ((FromHeader) message.getHeader(FromHeader.NAME))
+                .getTag();
         String callId = ((CallIdHeader) message.getHeader(CallIdHeader.NAME))
                 .getCallId();
         return fromTag + ":" + callId;
     }
 
-    public static String  getFromTag(Message message) {
-        
+    public static String getFromTag(Message message) {
+
         return ((FromHeader) message.getHeader(FromHeader.NAME)).getTag();
     }
-    
+
     public static String getToTag(Message message) {
         return ((ToHeader) message.getHeader(ToHeader.NAME)).getTag();
     }
-    
-    
+
 }

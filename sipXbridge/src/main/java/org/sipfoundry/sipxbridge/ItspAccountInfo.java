@@ -505,14 +505,16 @@ public class ItspAccountInfo implements
     }
 
     public String getCallerId() {
-        if (this.callerId != null && !useDefaultAssertedIdentity) {
+        if (!useDefaultAssertedIdentity) {
             return this.callerId;
         } else if (this.isRegisterOnInitialization()) {
             return this.getUserName() + "@" + this.getProxyDomain();
-        } else if (this.isGlobalAddressingUsed()) {
+        } else if (this.isGlobalAddressingUsed() && this.getUserName() != null ) {
             return this.getUserName() + "@" + Gateway.getGlobalAddress();
-        } else {
+        } else if (this.getUserName() != null ){
             return this.getUserName() + "@" + Gateway.getLocalAddress();
+        } else {
+            return null;
         }
 
     }
@@ -522,13 +524,17 @@ public class ItspAccountInfo implements
             if (this.callerAlias != null) {
                 return this.callerAlias;
             } else {
-                String callerId = "sip:" + this.getCallerId();
-                SipURI sipUri = (SipURI) ProtocolObjects.addressFactory
-                        .createURI(callerId);
+                if (this.getCallerId() != null) {
+                    String callerId = "sip:" + this.getCallerId();
+                    SipURI sipUri = (SipURI) ProtocolObjects.addressFactory
+                            .createURI(callerId);
 
-                this.callerAlias = ProtocolObjects.addressFactory
-                        .createAddress(sipUri);
-                return this.callerAlias;
+                    this.callerAlias = ProtocolObjects.addressFactory
+                            .createAddress(sipUri);
+                    return this.callerAlias;
+                } else {
+                    return null;
+                }
             }
         } catch (Exception ex) {
             return null;

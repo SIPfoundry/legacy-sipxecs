@@ -109,7 +109,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
                         String domainStr = ((SipURI) fromHeader.getAddress().getURI()).getHost();
                         if (userStr.equals("anonymous") && domainStr.equals("invalid")) {
                             PPreferredIdentityHeader pai = (PPreferredIdentityHeader) request
-                                    .getHeader(PPreferredIdentityHeader.NAME);
+                            .getHeader(PPreferredIdentityHeader.NAME);
                             if (pai == null) {
                                 logger.warn("Anonymous call without P-Preferred-Identity ");
                                 // BUGBUG - this is really a mistake we should reject
@@ -123,6 +123,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
                             accountFound = accountInfo;
                             return accountInfo;
                         }
+
 
                     }
                 }
