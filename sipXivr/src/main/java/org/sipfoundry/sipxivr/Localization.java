@@ -9,6 +9,7 @@
 
 package org.sipfoundry.sipxivr;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -32,6 +33,7 @@ public class Localization {
     private TextToPrompts m_ttp;
     private Configuration m_ivrConfig;
     private FreeSwitchEventSocketInterface m_fses;
+    private String m_prefix;
 
     public Localization(String bundleName, String localeString, HashMap<Locale, ResourceBundle> resourcesByLocale,
             Configuration ivrConfig, FreeSwitchEventSocketInterface fses) {
@@ -65,7 +67,9 @@ public class Localization {
     public void changeLocale(String localeString) {
         // A locale was passed in . Parse it into parts and find a Locale to match
         if (localeString != null) {
-            String[] localeElements = localeString.split("_");
+            // convert any dashes to underscores, as sometimes locales are misrepresented
+            String ls = localeString.replace('-', '_');
+            String[] localeElements = ls.split("_");
             String lang = "";
             String country = "";
             String variant = "";
@@ -78,8 +82,9 @@ public class Localization {
             if (localeElements.length >= 1) {
                 lang = localeElements[0];
             }
-
             m_locale = new Locale(lang, country, variant);
+            LOG.debug(String.format("Localization::changeLocale to %s,%s,%s found %s", 
+                    lang, country, variant, m_locale.toString()));
         }
 
         // Check to see if we've loaded this one before...
@@ -106,14 +111,43 @@ public class Localization {
         m_ttp = TextToPrompts.getTextToPrompt(m_locale);
         // Tell it where to find the audio files
         String globalPrefix = m_bundle.getString("global.prefix");
+        if (globalPrefix.endsWith("/")) {
+            // Trim trailing "/" (will put it back in a bit)
+            globalPrefix = globalPrefix.substring(0, globalPrefix.length()-1);
+        }
         if (!globalPrefix.startsWith("/")) {
             String docDir = m_ivrConfig.getDocDirectory();
             if (!docDir.endsWith("/")) {
                 docDir += "/";
             }
             globalPrefix = docDir + globalPrefix;
+            
         }
-        m_ttp.setPrefix(globalPrefix);
+
+        if (m_bundle != null) {
+            Locale actual = m_bundle.getLocale();
+            if (actual == null || !actual.equals(m_locale)) {
+                // This bundle's locale isn't exactly what we asked for.
+                
+                // If the path doesn't end with the locale, add the locale
+                // to it.  This is in case the Properties file isn't there
+                // and the top level one was picked up instead.  The prompts
+                // are still there, just not the .properties file
+                if (localeString != null) {
+                    String suffix = "_"+localeString;
+                    if (!globalPrefix.endsWith(suffix)) {
+                        String path = globalPrefix + suffix;
+                        File testFile = new File(path);
+                        if (testFile.exists()) {
+                            globalPrefix = path;
+                        }
+                    }
+                }
+            }
+        }
+        globalPrefix += "/";
+        m_prefix = globalPrefix;
+        m_ttp.setPrefix(m_prefix);
     }
 
     public ResourceBundle getBundle() {
@@ -134,6 +168,10 @@ public class Localization {
     
     public FreeSwitchEventSocketInterface getFreeSwitchEventSocketInterface() {
         return m_fses;
+    }
+    
+    public String getPrefix() {
+        return m_prefix;
     }
     
     /**

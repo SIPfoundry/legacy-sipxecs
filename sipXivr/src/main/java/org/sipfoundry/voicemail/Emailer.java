@@ -220,6 +220,5 @@ public class Emailer {
     
     public static void submit(BackgroundMailer bm) {
         getEmailer().m_es.submit(bm);
-        //bm.run();
     }
 }

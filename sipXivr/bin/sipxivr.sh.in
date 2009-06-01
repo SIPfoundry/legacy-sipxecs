@@ -44,7 +44,7 @@ case ${Action} in
 
      JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
      LibPath=`perl -e 'print join(":", @ARGV);' @SIPX_JAVADIR@/sipXivr/*.jar @SIPX_JAVADIR@/sipXcommons/*.jar`
-     ClassPath=$LibPath
+     ClassPath=$LibPath:@SIPX_CONFDIR@/sipxivr
      exec $JavaCmd -Dconf.dir=@SIPX_CONFDIR@ \
          -cp $ClassPath org.sipfoundry.sipxivr.SipXivr \
          $Args

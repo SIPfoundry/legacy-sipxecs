@@ -31,6 +31,7 @@ public class PromptList {
     public PromptList(Localization localization) {
         setResourceBundle(localization.getBundle(), localization.getIvrConfig());
         setTtp(localization.getTtp());
+        setPrefix(localization.getPrefix());
     }
     
     public PromptList(ResourceBundle resourceBundle, Configuration config, TextToPrompts ttp) {

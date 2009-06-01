@@ -10,7 +10,6 @@ package org.sipfoundry.voicemail;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.List;
@@ -25,7 +24,7 @@ import org.sipfoundry.sipxivr.IvrChoice;
 import org.sipfoundry.sipxivr.Localization;
 import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.sipxivr.PromptList;
-import org.sipfoundry.sipxivr.RemoteRequest;
+import org.sipfoundry.sipxivr.RestfulRequest;
 import org.sipfoundry.sipxivr.TextToPrompts;
 import org.sipfoundry.sipxivr.User;
 import org.sipfoundry.sipxivr.ValidUsersXML;
@@ -982,15 +981,11 @@ public class Retrieve {
                     }
                     
                     try {
-                        // TODO  Use new RESTful way of setting PIN.
-                        
-                        // See org.sipfoundry.sipxconfig.site.user.PinTokenChangeServlet.java
-                        URL url = new URL(m_loc.getIvrConfig().getConfigUrl()+"/sipxconfig/api/change-pintoken");
-                        String hashedOriginalPin = user.getPintoken();
-                        String hashedNewPin= user.hashPin(newPin, realm);
-                        RemoteRequest rr = new RemoteRequest(url, "application/x-www-form-urlencoded", 
-                                String.format("%s;%s;%s", user.getUserName(),hashedOriginalPin,hashedNewPin));
-                        if (rr.http()) {
+                        // Use sipXconfig's RESTful interface to change the PIN
+                        RestfulRequest rr = new RestfulRequest(
+                                m_loc.getIvrConfig().getConfigUrl()+"/sipxconfig/rest/my/voicemail/pin/", 
+                                user.getUserName(), originalPin);
+                        if (rr.put(newPin)) {
                             LOG.info("Retrieve::voicemailOptions:changePin "+m_ident+" Pin changed.");
 
                             // "Personal identification number changed."
