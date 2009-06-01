@@ -1229,6 +1229,8 @@ public class BackToBackUserAgent {
         try {
 
             SipURI uri = Gateway.getMusicOnHoldUri();
+            uri.setMAddrParam(this.proxyAddress.getHost());
+            uri.setPort(this.proxyAddress.getPort());
 
             CallIdHeader callIdHeader = ProtocolObjects.headerFactory
                     .createCallIdHeader(this.creatingCallId + "."
@@ -1286,7 +1288,7 @@ public class BackToBackUserAgent {
 
             TransactionContext tad = TransactionContext.attach(ct,
                     Operation.SEND_INVITE_TO_MOH_SERVER);
-
+           
             tad.setBackToBackUa(this);
             DialogContext.attach(this, ct.getDialog(), ct, ct.getRequest());
             this.addDialog(ct.getDialog());
