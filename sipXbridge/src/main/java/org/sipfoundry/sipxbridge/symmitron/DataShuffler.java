@@ -34,7 +34,9 @@ class DataShuffler implements Runnable {
 
     private static AtomicBoolean initializeSelectors = new AtomicBoolean(true);
     
-    static long packetCounter = 1;
+    private static Random random = new Random();
+    
+    private static long packetCounter = Math.abs(random.nextLong());
     
 
     public DataShuffler() {
@@ -265,6 +267,7 @@ class DataShuffler implements Runnable {
                                 logger.debug("DataShuffler: Discarding packet: Bridge state is "
                                         + bridge.getState());
                             }
+                            packetReceivedSym.getTransmitter().setOnHold(holdValue);
                             continue;
                         }
                         if (logger.isTraceEnabled()) {
@@ -272,7 +275,7 @@ class DataShuffler implements Runnable {
                                     + datagramChannel.socket().getLocalPort());
                         }
 
-                        long stamp = packetCounter++;
+                        long stamp = getPacketCounter();
                         send(bridge, datagramChannel, remoteAddress,stamp);
                         /*
                          * Reset the old value.
@@ -344,6 +347,12 @@ class DataShuffler implements Runnable {
         }
         return null;
 
+    }
+
+    synchronized static long getPacketCounter() {
+        long retval = packetCounter;
+        packetCounter++;
+        return retval;
     }
 
 }

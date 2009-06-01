@@ -486,11 +486,14 @@ class SipUtilities {
             SipURI requestUri = ProtocolObjects.addressFactory.createSipURI(
                     null, itspAccount.getSipDomain());
 
+            String fromUser = itspAccount.getUserName() == null ? Gateway.SIPXBRIDGE_USER :
+                itspAccount.getUserName();
+            
             SipURI fromUri = ProtocolObjects.addressFactory.createSipURI(
-                    itspAccount.getUserName(), itspAccount.getSipDomain());
+                    fromUser, itspAccount.getSipDomain());
 
             SipURI toUri = ProtocolObjects.addressFactory.createSipURI(
-                    itspAccount.getUserName(), itspAccount.getSipDomain());
+                    fromUser, itspAccount.getSipDomain());
 
             Address fromAddress = ProtocolObjects.addressFactory
                     .createAddress(fromUri);
@@ -1391,7 +1394,10 @@ class SipUtilities {
 
             retval.setPort(port);
 
-            retval.setUser(itspInfo.getUserName());
+            String userName = itspInfo.getUserName() == null ? Gateway.SIPXBRIDGE_USER :
+                itspInfo.getUserName();
+            
+            retval.setUser(userName);
 
             return retval;
         } catch (Exception ex) {
