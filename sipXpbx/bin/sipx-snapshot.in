@@ -350,8 +350,11 @@ function hasTimestamps () {
    # looks for a timestamp like "2008-01-17T09:02:09.451460Z": on the first line
    local log=$1
    local sawTime
-   sawTime=`head -n 1 "${log}" \
-            | perl -ne 'm/^"\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d.\d{6}Z":/ && print "YES"'` 2>&1
+   if [ -e ${log} ]
+   then
+       sawTime=`head -n 1 "${log}" \
+                | perl -ne 'm/^"\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d.\d{6}Z":/ && print "YES"'` 2>&1
+   fi
    test "${sawTime}" = "YES"
 }
 
@@ -467,7 +470,10 @@ case ${Logs} in
                     if [ `echo ${extension} | grep "[0-9]*[\".gz\"]$"` ]
                     then
                         # Unzip the rollover files contents.
-                        gzip --to-stdout -d "${base_log}.${extension}" > "${extractFile}"
+                        if [ -e ${base_log}.${extension} ]
+                        then
+                            gzip --to-stdout -d "${base_log}.${extension}" > "${extractFile}"
+                        fi
                     else
                         # Use a soft link to the rollover file, since its contents isn't zipped.
                         ln -s "${base_log}.${extension}" "${extractFile}"
