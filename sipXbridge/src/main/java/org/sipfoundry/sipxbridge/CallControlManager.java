@@ -286,7 +286,8 @@ class CallControlManager implements SymmitronResetHandler {
              * the Ack along with the SDP that is offered.
              */
             peerDat.setPendingAction(PendingDialogAction.PENDING_FORWARD_ACK_WITH_SDP_ANSWER);
-            peerDialog.sendRequest(ctx);
+            peerDat.sendReInvite(ctx);
+            // peerDialog.sendRequest(ctx);
 
         } else {
 

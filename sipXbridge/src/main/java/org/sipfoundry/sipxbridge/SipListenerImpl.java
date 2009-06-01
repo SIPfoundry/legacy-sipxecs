@@ -553,6 +553,9 @@ public class SipListenerImpl implements SipListener {
                             }
 
                         } else {
+                            logger.debug("Timed out processing "
+                                    + transactionContext.getOperation());
+                            
                             b2bua.sendByeToMohServer();
                         }
                     }

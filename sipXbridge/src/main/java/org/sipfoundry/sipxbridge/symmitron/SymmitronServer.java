@@ -1322,6 +1322,7 @@ public class SymmitronServer implements Symmitron {
                     }
                 } catch (XmlRpcException e) {
                     logger.error("Problem sending Alarm", ex);
+                    return;
                 }
             }
             /*

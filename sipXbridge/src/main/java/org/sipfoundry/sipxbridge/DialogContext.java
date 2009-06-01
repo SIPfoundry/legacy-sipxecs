@@ -318,6 +318,7 @@ class DialogContext {
         public void run() {
             try {
                 int i = 0;
+                long timeToWait = 0;
 
                 if  (dialogContext.dialog.getState() != DialogState.TERMINATED
                         && dialogContext.isWaitingForAck(ctx)) {
@@ -326,6 +327,7 @@ class DialogContext {
                       * sent. Certain ITSPs do not deal well with interleaved INVITE transactions 
                       * (return bad error code).
                       */
+                     long startTime = System.currentTimeMillis();
                      if ( ! ackSem.tryAcquire(8,TimeUnit.SECONDS) ) {
                          /*
                           * Could not send re-INVITE we should kill the call.
@@ -336,17 +338,22 @@ class DialogContext {
                                  ReasonCode.TIMED_OUT_WAITING_TO_SEND_REINVITE,
                                  "Timed out waiting to re-INVITE");
                          return;
+                     } else {
+                         timeToWait = System.currentTimeMillis() - startTime;
                      }
                 }
 
                 /*
-                 * Wait for the ACK to actually get to the other side. Wait for any ACK
+                 * If we had to wait for ACK then
+                 * wait for the ACK to actually get to the other side. Wait for any ACK
                  * retransmissions to finish. Then send out the request. This is a 
                  * hack in support of some ITSPs that want re-INVITEs to be spaced 
                  * out in time ( else they return a 400 error code ).
                  */
                 try {
-                    Thread.sleep(500);
+                    if ( timeToWait != 0 ) {
+                        Thread.sleep(500);
+                    }
                 } catch ( InterruptedException ex) {
                     logger.debug("Interrupted sleep");
                     return;
