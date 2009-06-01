@@ -37,7 +37,7 @@ AC_DEFUN([CHECK_JPACKAGE],
 
   AS_VAR_SET_IF([found_jpackage],
 		[AC_MSG_RESULT([    jar directory found in $JAVA_LIBDIR])],
-		[AC_MSG_ERROR([Cannot system jar directory. Try to install jpackage-utils package.])]
+		[AC_MSG_ERROR([Cannot find system jar directory.  Try to install jpackage-utils package.])]
 	)
 ])
 
