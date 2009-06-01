@@ -416,7 +416,8 @@ public:
      *        transaction as the request sent in message
      * \param responseListenerData - optional data to be passed back
      *        with responses
-     * Returns true if the message was successfully sent.
+     * Returns true if the message was accepted for sending.  If true
+     *        is returned, any send failure will be reported asynchronously.
      */
     virtual UtlBoolean send(SipMessage& message,
                             OsMsgQ* responseListener = NULL,
