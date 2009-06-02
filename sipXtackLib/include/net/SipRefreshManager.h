@@ -45,12 +45,18 @@ public:
 
     enum RefreshRequestState
     {
-       REFRESH_REQUEST_UNKNOWN,  // not yet initialized
-       REFRESH_REQUEST_PENDING,  // a SUBSCRIBE has been sent but has not
-                                 // received a final response
-       REFRESH_REQUEST_FAILED,   // last SUBSCRIBE received a non-remediable
+       REFRESH_REQUEST_UNKNOWN,  // not yet started
+       REFRESH_REQUEST_PENDING,  // an initial request has been sent but has not
+                                 // received a final response, and therefore
+                                 // a terminating request (with "Expires: 0")
+                                 // cannot yet be sent
+                                 // (Can only happen with SUBSCRIBE.)
+       REFRESH_REQUEST_FAILED,   // last request received a non-remediable
                                  // failure response
-       REFRESH_REQUEST_SUCCEEDED // last SUBSCRIBE received a success response
+       REFRESH_REQUEST_SUCCEEDED // last request received a success response,
+                                 // or was an initial request that does not
+                                 // require waiting before termination
+                                 // (The latter can only happen with REGISTER.)
     };
 
     /*! Typedef defining the signature of the callback used to inform
@@ -65,7 +71,7 @@ public:
      *         the dialog just changed to an established dialog otherwise NULL
      *  \param dialogHandle - provided if dialog is established otherwise NULL
      *  \param applicationData - pass back of application data provided upon
-     *         adding SUBSCRIBE or REGISTRATION to be refreshed
+     *         adding SUBSCRIBE or REGISTER to be refreshed
      *  \param responseCode - SIP response code 200-299 Success, > 300 failure
      *         Has no meaning if subscribeResponse is NULL
      *         NOTE: a failure code does not mean that the subscription or
@@ -131,16 +137,18 @@ public:
     //! End the SIP refresh (registration or subscription) indicated by 
     /*! the dialog handle.  If the given dialogHandle is an early dialog it
      *  will end any established subscriptions.  Typically 
-     *  the application SHOULD use the established dialog handle.  This
+     *  the application should use the established dialog handle.  This
      *  method can also be used to end one of the dialogs if multiple
      *  subsription dialogs were created as a result of a single 
      *  subscribe request.  The application will get multiple 
      *  REFRESH_SETUP RefreshStateCallback events when
      *  multiple dialogs are created as a result of a single SUBSCRIBE.
-     *  To end one of the subscriptions the application should use
-     *  the setup dialogHandle provided by the SubscriptionStateCallback.
+     *  To end one of the subscriptions, the application should use
+     *  the confirmed dialogHandle provided by the SubscriptionStateCallback.
      *  Only a single registration can occur as a result of sending
      *  a REGISTER request.
+     *  If stopRefresh stops a (quasi)dialog that has not been stopped
+     *  before, the state callback will be called to signal its stopping.
      */
     UtlBoolean stopRefresh(const char* dialogHandle);
 
