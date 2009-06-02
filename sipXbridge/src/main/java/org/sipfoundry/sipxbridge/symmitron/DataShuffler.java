@@ -97,7 +97,7 @@ class DataShuffler implements Runnable {
      * @throws UnknownHostException -- if there was a problem with the specified remote address.
      */
     public static void send(Bridge bridge, DatagramChannel datagramChannel,
-            InetSocketAddress remoteAddress, long stamp) throws UnknownHostException {
+            InetSocketAddress remoteAddress, long stamp, boolean selfRouted) throws UnknownHostException {
         try {
 
             if (logger.isTraceEnabled()) {
@@ -128,13 +128,41 @@ class DataShuffler implements Runnable {
                                 .getAutoDiscoveryFlag();
 
                         if (autoDiscoveryFlag != AutoDiscoveryFlag.NO_AUTO_DISCOVERY) {
+                            
                             if (remoteAddress != null) {
-                                if (autoDiscoveryFlag == AutoDiscoveryFlag.IP_ADDRESS_AND_PORT) {
-                                    sym.getTransmitter().setIpAddressAndPort(
-                                            remoteAddress.getAddress().getHostAddress(),
-                                            remoteAddress.getPort());
-                                } else if (autoDiscoveryFlag == AutoDiscoveryFlag.PORT_ONLY) {
-                                    sym.getTransmitter().setPort(remoteAddress.getPort());
+                                // This packet was self routed.       
+                                if (selfRouted ) {
+                                    if ( sym.getTransmitter().getIpAddress() != null ) {
+                                        continue;
+                                    } else {
+                                        String remoteHostAddress = remoteAddress.getAddress().getHostAddress();
+                                        int remotePort = remoteAddress.getPort();
+                              
+                                        // This search is done just once on the first auto address discovery for a self
+                                        // routed packet. Hence the loop is not too alarming subsequently, you dont ever have to look again.
+                                        // However, there is probably a better way to do this.
+                                        for ( Sym tsym : SymmitronServer.getSyms() ) {
+                                            if (tsym.getTransmitter().getIpAddress().equals(remoteHostAddress) && 
+                                                    tsym.getTransmitter().getPort() == remotePort ) {
+                                                sym.getTransmitter().setIpAddressAndPort(tsym.getReceiver().getIpAddress(), tsym.getReceiver().getPort());
+                                                break;
+                                            }
+                                        }
+                                        if ( logger.isTraceEnabled()) {
+                                            for ( Bridge br : SymmitronServer.getBridges() ) {
+                                                logger.trace(br.toString());
+                                            }
+                                        }
+                                    }
+                            
+                                } else {
+                                    if (autoDiscoveryFlag == AutoDiscoveryFlag.IP_ADDRESS_AND_PORT) {
+                                        sym.getTransmitter().setIpAddressAndPort(
+                                                remoteAddress.getAddress().getHostAddress(),
+                                                remoteAddress.getPort());
+                                    } else if (autoDiscoveryFlag == AutoDiscoveryFlag.PORT_ONLY) {
+                                        sym.getTransmitter().setPort(remoteAddress.getPort());
+                                    }
                                 }
                             }
                         }
@@ -276,7 +304,7 @@ class DataShuffler implements Runnable {
                         }
 
                         long stamp = getPacketCounter();
-                        send(bridge, datagramChannel, remoteAddress,stamp);
+                        send(bridge, datagramChannel, remoteAddress,stamp,false);
                         /*
                          * Reset the old value.
                          */

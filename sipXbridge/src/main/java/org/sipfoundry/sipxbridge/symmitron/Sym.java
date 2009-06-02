@@ -107,6 +107,9 @@ final class Sym implements SymInterface, Serializable {
         } else {
             throw new IllegalStateException ("Attempt to set transmitter but Receiver not set.");
         }
+        if ( logger.isDebugEnabled() ) {
+            logger.debug("Sym:setTransmitter : " + this.toString());
+        }
 
     }
 

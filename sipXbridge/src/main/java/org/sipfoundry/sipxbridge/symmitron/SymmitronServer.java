@@ -14,6 +14,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -1446,6 +1447,14 @@ public class SymmitronServer implements Symmitron {
         status = "RUNNING";
 
     }
+    
+    public static Collection<Sym> getSyms() {
+        return SymmitronServer.sessionMap.values();
+    }
+    
+    public static Collection<Bridge> getBridges() {
+       return SymmitronServer.bridgeMap.values();
+    }
 
     public static void main(String[] args) throws Exception {
         try {
@@ -1466,5 +1475,7 @@ public class SymmitronServer implements Symmitron {
             System.exit(-1);
         }
     }
+
+    
 
 }
