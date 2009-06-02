@@ -17,4 +17,6 @@ import org.apache.tapestry.annotations.Parameter;
 public abstract class ItemCommon extends BaseComponent {
     @Parameter(required = true)
     public abstract Object getItem();
+    @Parameter(required = false, defaultValue = "true")
+    public abstract boolean getUseName();
 }

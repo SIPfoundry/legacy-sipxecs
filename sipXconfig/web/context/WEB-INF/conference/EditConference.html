@@ -39,15 +39,9 @@
 	              <td><label>Extension</label></td>
 	              <td><span jwcid="@Insert" value="ognl:conference.extension" /></td>
 	          </tr>
-		      <tr jwcid="@common/FieldPanel" for="item:description"  
-		          field="component:description" label="message:description">
-			      <textarea jwcid="description@TextArea" id="item:description"
-			        value="ognl:conference.description"
-			        validators="validators:maxLength=255[Maximum allowed characters is 255]"
-			        cols="45" rows="5">
-			      </textarea>      
-		      </tr>
 	      </table>
+          <fieldset jwcid="@common/ItemCommon" item="ognl:conference"
+			useEnabled="ognl:true" useExtension="ognl:false" useName="ognl:false" />
       </span>
       <fieldset jwcid="settingsFieldset"/>
       <span jwcid="formActions"/>
