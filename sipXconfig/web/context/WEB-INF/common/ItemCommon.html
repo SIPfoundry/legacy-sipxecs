@@ -5,14 +5,16 @@
       <tr jwcid="@common/FieldPanel" for="item:enabled" field="component:enabled" label="message:enabled">
       	<input jwcid="enabled@Checkbox" type="checkbox" id="item:enabled" value="ognl:#this.item.enabled" disabled="ognl:disableEnabledCheckbox"/>
       </tr>
-    </span>    
-    <tr jwcid="@common/FieldPanel" for="item:name" field="component:name" label="message:name">
+    </span>
+    <span jwcid="ifUseName@If" condition="ognl:useName">
+     <tr jwcid="@common/FieldPanel" for="item:name" field="component:name" label="message:name">
         <input jwcid="name@TextField" id="item:name"
           maxlength="40"
           validators="ognl:nameValidator"
           displayName="message:name"
           value="ognl:#this.item.name"/>
-    </tr>
+     </tr>
+    </span>
     <span jwcid="ifUseExtension@If" condition="ognl:useExtension">
       <tr jwcid="@common/FieldPanel" for="item:extension" field="component:extension" label="message:extension">
       	<input jwcid="extension@TextField" id="item:extension"
