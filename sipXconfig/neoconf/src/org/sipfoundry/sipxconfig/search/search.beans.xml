@@ -63,6 +63,7 @@
     <property name="indexManager">
       <ref local="indexManager"/>      
     </property>
+    <property name="adminContext" ref="adminContext" />
   </bean>
   
   <bean id="userSearchManager" class="org.sipfoundry.sipxconfig.search.UserSearchManagerImpl">
