@@ -3,7 +3,7 @@
 		  PUBLIC "-//JasperReports//DTD Report Design//EN"
 		  "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
 
-<jasperReport name="cdr-table-report" pageWidth="595" pageHeight="842" columnWidth="515" leftMargin="40" rightMargin="40" topMargin="50" bottomMargin="50" whenNoDataType="AllSectionsNoDetail">
+<jasperReport name="cdr-table-report" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="50" bottomMargin="50" whenNoDataType="AllSectionsNoDetail">
 	<reportFont name="Arial_Normal" isDefault="true" fontName="Arial" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
 	<reportFont name="Arial_Bold" isDefault="false" fontName="Arial" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica-Bold" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
 	<reportFont name="Arial_Italic" isDefault="false" fontName="Arial" size="12" isBold="false" isItalic="true" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica-Oblique" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
@@ -19,11 +19,11 @@
 	<title>
 		<band height="70">
 			<line>
-				<reportElement x="0" y="0" width="515" height="1"/>
+				<reportElement x="0" y="0" width="555" height="1"/>
 				<graphicElement/>
 			</line>
 			<textField isBlankWhenNull="true">
-				<reportElement x="0" y="10" width="515" height="30"/>
+				<reportElement x="0" y="10" width="555" height="30"/>
 				<textElement textAlignment="Center">
 					<font reportFont="Arial_Normal" size="22"/>
 				</textElement>
@@ -35,7 +35,7 @@
 	<pageHeader>
 		<band height="20">
 			<rectangle>
-				<reportElement x="0" y="5" width="515" height="15" forecolor="#333333" backcolor="#333333"/>
+				<reportElement x="0" y="5" width="555" height="15" forecolor="#333333" backcolor="#333333"/>
 				<graphicElement/>
 			</rectangle>
 			<staticText>
@@ -46,29 +46,29 @@
 				<text><![CDATA[From]]></text>
 			</staticText>
 			<staticText>
-				<reportElement mode="Opaque" x="115" y="5" width="50" height="15" forecolor="#ffffff" backcolor="#333333"/>
-				<textElement>
+				<reportElement mode="Opaque" x="115" y="5" width="115" height="15" forecolor="#ffffff" backcolor="#333333"/>
+				<textElement textAlignment="Center">
 					<font reportFont="Arial_Bold"/>
 				</textElement>
 				<text><![CDATA[To]]></text>
 			</staticText>
 			<staticText>
-				<reportElement mode="Opaque" x="165" y="5" width="100" height="15" forecolor="#ffffff" backcolor="#333333"/>
-				<textElement>
+				<reportElement mode="Opaque" x="230" y="5" width="100" height="15" forecolor="#ffffff" backcolor="#333333"/>
+				<textElement textAlignment="Center">
 					<font reportFont="Arial_Bold"/>
 				</textElement>
 				<text><![CDATA[Start]]></text>
 			</staticText>
 			<staticText>
-				<reportElement mode="Opaque" x="265" y="5" width="150" height="15" forecolor="#ffffff" backcolor="#333333"/>
-				<textElement>
+				<reportElement mode="Opaque" x="330" y="5" width="150" height="15" forecolor="#ffffff" backcolor="#333333"/>
+				<textElement textAlignment="Center">
 					<font reportFont="Arial_Bold"/>
 				</textElement>
 				<text><![CDATA[Duration]]></text>
 			</staticText>
 			<staticText>
-				<reportElement mode="Opaque" x="415" y="5" width="100" height="15" forecolor="#ffffff" backcolor="#333333"/>
-				<textElement>
+				<reportElement mode="Opaque" x="480" y="5" width="75" height="15" forecolor="#ffffff" backcolor="#333333"/>
+				<textElement textAlignment="Center">
 					<font reportFont="Arial_Bold"/>
 				</textElement>
 				<text><![CDATA[Status]]></text>
@@ -78,33 +78,33 @@
 
 	<detail>
 		<band height="20">
-			<textField>
+			<textField isStretchWithOverflow="true">
 				<reportElement x="0" y="4" width="100" height="15"/>
-				<textElement textAlignment="Center"/>
+				<textElement/>
 				<textFieldExpression class="java.lang.String"><![CDATA[$F{caller}]]></textFieldExpression>
 			</textField>
-			<textField>
-				<reportElement positionType="Float" x="115" y="4" width="50" height="15"/>
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" x="115" y="4" width="115" height="15"/>
 				<textElement/>
 				<textFieldExpression class="java.lang.String"><![CDATA[$F{callee}]]></textFieldExpression>
 			</textField>
-			<textField>
-				<reportElement positionType="Float" x="165" y="4" width="100" height="15"/>
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" x="230" y="4" width="100" height="15"/>
 				<textElement/>
 				<textFieldExpression class="java.util.Date"><![CDATA[$F{startTime}]]></textFieldExpression>
 			</textField>
-			<textField>
-				<reportElement positionType="Float" x="265" y="4" width="150" height="15"/>
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" x="330" y="4" width="150" height="15"/>
 				<textElement/>
 				<textFieldExpression class="java.lang.String"><![CDATA[$F{duration}]]></textFieldExpression>
 			</textField>
-			<textField>
-				<reportElement positionType="Float" x="415" y="4" width="100" height="15"/>
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" x="480" y="4" width="75" height="15"/>
 				<textElement/>
 				<textFieldExpression class="java.lang.String"><![CDATA[$F{termination}]]></textFieldExpression>
 			</textField>
 			<line>
-				<reportElement positionType="Float" x="0" y="19" width="515" height="1" forecolor="#808080"/>
+				<reportElement positionType="Float" x="0" y="19" width="555" height="1" forecolor="#808080"/>
 				<graphicElement/>
 			</line>
 		</band>
@@ -113,7 +113,7 @@
 	<pageFooter>
 		<band height="40">
 			<line>
-				<reportElement x="0" y="10" width="515" height="1"/>
+				<reportElement x="0" y="10" width="555" height="1"/>
 				<graphicElement/>
 			</line>
 			<textField>
