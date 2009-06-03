@@ -287,6 +287,10 @@ UtlBoolean SipSubscribeClient::addSubscription(
 
 UtlBoolean SipSubscribeClient::endSubscription(const char* dialogHandle)
 {
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                  "SipSubscribeClient::endSubscription dialogHandle = '%s'",
+                  dialogHandle);
+
     UtlBoolean foundSubscription = FALSE;
     UtlBoolean foundRefreshSubscription = FALSE;
     UtlString matchDialog(dialogHandle);
@@ -296,6 +300,10 @@ UtlBoolean SipSubscribeClient::endSubscription(const char* dialogHandle)
 
     if (clientState)
     {
+        OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                      "SipSubscribeClient::endSubscription clientState = %p",
+                      clientState);
+
         foundSubscription = TRUE;
         // If there is a state change of interest and
         // there is a callback function
@@ -333,6 +341,9 @@ UtlBoolean SipSubscribeClient::endSubscription(const char* dialogHandle)
             lock();
             clientState = removeState(establishedDialogHandle);
             unlock();
+            OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                          "SipSubscribeClient::endSubscription establishedDialogHandle = '%s', clientState = %p",
+                          establishedDialogHandle.data(), clientState);
 
             if (clientState)
             {
@@ -900,7 +911,29 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
     {
     case SipDialogMgr::NO_DIALOG:
        // NOTIFY does not match a dialog
-       subscriptionResponse.setBadSubscriptionData(&notifyRequest);
+       // If this NOTIFY is for termination, give a 200 response, to avoid
+       // giving 481 responses to a NOTIFY confirming that we have just
+       // terminated a subscription.
+       // This allows a NOTIFY for a totally unknown subscription to get
+       // a 200 response rather than a 481 response, but since the NOTIFY
+       // claims the subscription is terminated, this won't prevent clearing
+       // of dangling subscriptions.
+    {
+       const char *subscription_state =
+          notifyRequest.getHeaderValue(0, SIP_SUBSCRIPTION_STATE_FIELD);
+       #define TERMINATED "terminated"
+       if (strncasecmp(subscription_state, TERMINATED,
+                       sizeof (TERMINATED) - 1) == 0)
+       {
+          // Send special 200 response.
+          subscriptionResponse.setOkResponseData(&notifyRequest);
+       }
+       else
+       {
+          // Send ordinary 481 response.
+          subscriptionResponse.setBadSubscriptionData(&notifyRequest);
+       }
+    }
     break;
 
     case SipDialogMgr::IN_ORDER:
