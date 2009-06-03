@@ -40,4 +40,15 @@ public class ConfigurationDiagnosticPageTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
         assertLinkPresent("downloadLink");
     }
+
+    public void testDetailedHelp() throws Exception{
+        SiteTestHelper.assertNoException(tester);
+        assertLinkPresentWithText("Show Detailed Help");
+        setWorkingForm("refreshForm");
+        SiteTestHelper.clickSubmitLink(tester, "setting:toggle");
+        assertElementPresent("detailedHelp_0");
+        setWorkingForm("refreshForm");
+        SiteTestHelper.clickSubmitLink(tester, "setting:toggle");
+        assertElementNotPresent("detailedHelp_0");
+    }
 }

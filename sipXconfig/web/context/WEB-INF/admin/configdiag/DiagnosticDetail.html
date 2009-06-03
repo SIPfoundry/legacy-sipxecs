@@ -2,6 +2,16 @@
 <tr jwcid="@Any" class="ognl:rowClass">
   <td id="ognl:'test' + rowId + 'Name'" jwcid="@Any">
     <span jwcid="@Insert" value="ognl:test.label"/>
+    <div jwcid="@If" condition="ognl:test.detailedHelp != null"  style="white-space:normal" class="settingDescription">
+     <ul>
+     <span jwcid="@common/ToggleLink" toggle="ognl:showDetailedHelp"
+        labelOn="message:test.hideDetailedHelp"
+        labelOff="message:test.showDetailedHelp"/>
+     </ul>
+     <span jwcid="detailedHelp@If" condition="ognl:showDetailedHelp">
+        <span jwcid="@Insert" value="ognl:test.detailedHelp" raw="true"/>
+     </span>
+    </div>
   </td>
   <td>
     <span jwcid="@Insert" value="ognl:lastRunTime"/>  
