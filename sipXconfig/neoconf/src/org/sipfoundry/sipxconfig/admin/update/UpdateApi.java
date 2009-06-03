@@ -12,9 +12,11 @@ package org.sipfoundry.sipxconfig.admin.update;
 
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 
 public interface UpdateApi {
     void installUpdates();
     String getCurrentVersion();
     List<PackageUpdate> getAvailableUpdates();
+    void restart(Location location);
 }

@@ -102,10 +102,12 @@ public class UpdateApiXmlRpcTest extends TestCase {
         Location l1 = new Location();
         l1.setFqdn("sipx.example.com");
         l1.setUniqueId();
+        l1.setPrimary(true);
 
         Location l2 = new Location();
         l2.setFqdn("sipx2.example.com");
         l2.setUniqueId();
+        l2.setPrimary(false);
 
         LocationsManager lm = createMock(LocationsManager.class);
         lm.getPrimaryLocation();

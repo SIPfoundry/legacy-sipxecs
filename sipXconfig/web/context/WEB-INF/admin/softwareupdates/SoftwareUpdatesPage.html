@@ -13,7 +13,7 @@
 	        </div>
 	        <div jwcid="@Else">
 		        <div jwcid="@If" condition="ognl:packageUpdateManager.lastCheckedDate != null" id="lastChecked">
-                   The package information was last updated 
+				   <span jwcid="@Insert" value="message:label.lastUpdated"/>
 		           <b><span jwcid="@Insert" value="ognl:packageUpdateManager.lastCheckedDate" format="ognl:dateFormat" /></b>.	           
 		        </div>
 		        <div id="currentVersion">
@@ -22,7 +22,7 @@
 		        <div jwcid="@If" condition="ognl:packageUpdateManager.updatedVersion != null" 
 		             id="availableVersion">
 		             <br/>
-		               <b>Update details:</b>
+		               <b><span jwcid="@Insert" value="message:label.details"/></b>
 		               <div id="newVersion">
 		                  <img jwcid="@Image" image="asset:newSoftwareIcon" align="absmiddle" />
 		                  <span jwcid="@Insert" value="ognl:packageUpdateManager.updatedVersion" />
@@ -31,10 +31,12 @@
 	        </div>
 	        
 	    <br/>
-        <input jwcid="@Submit" listener="listener:checkForUpdates" value="Check for updates" />
-         
+        <input jwcid="@Submit" listener="listener:checkForUpdates" value="message:button.check" />
         <span jwcid="@If" condition="ognl:readyToInstall" renderTag="ognl:false"> 
-            <input jwcid="@Submit" listener="listener:installUpdates" disabled="ognl:!readyToInstall" value="Install updates" />
+            <input jwcid="@Submit" listener="listener:installUpdates" disabled="ognl:!readyToInstall" value="message:button.install" />
+        </span>
+        <span jwcid="@If" condition="ognl:updateCompleted" renderTag="ognl:false">
+          <input jwcid="@Submit" listener="listener:restart" disabled="ognl:!updateCompleted" value="message:button.restart" />
         </span>
 	    </div>
     </form>     
@@ -43,7 +45,7 @@
 	
 	<div jwcid="@Any" id="packageList">
 		<span jwcid="@If" condition="ognl:packageUpdateManager.availablePackages != null && !packageUpdateManager.availablePackages.isEmpty()">
-		    <b>Packages to be updated:</b> <br/>	
+		    <b><span jwcid="@Insert" value="message:label.toBeUpdated"/></b><br/>
             <table jwcid="tableView@common/Table"
                    columns="packageName,currentVersion,updatedVersion"
                    row="ognl:package" source="ognl:packageUpdateManager.availablePackages">
