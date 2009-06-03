@@ -74,12 +74,6 @@ public class AcdServer extends AcdComponent implements LoggingEntity {
 
     private Set m_agents = new HashSet();
 
-    private int m_maxQueues;
-
-    private int m_maxAgents;
-
-    private int m_maxLines;
-
     private LoggingManager m_loggingManager;
 
     public AcdServer() {
@@ -112,9 +106,6 @@ public class AcdServer extends AcdComponent implements LoggingEntity {
 
     public void insertLine(AcdLine acdLine) {
         Collection lines = getLines();
-        if (lines.size() >= m_maxLines) {
-            throw new LicenseException(acdLine.getName(), m_maxLines);
-        }
         acdLine.setAcdServer(this);
         m_lines.add(acdLine);
     }
@@ -126,9 +117,6 @@ public class AcdServer extends AcdComponent implements LoggingEntity {
 
     public void insertQueue(AcdQueue acdQueue) {
         Collection queues = getQueues();
-        if (queues.size() >= m_maxQueues) {
-            throw new LicenseException(acdQueue.getName(), m_maxQueues);
-        }
         acdQueue.setAcdServer(this);
         queues.add(acdQueue);
     }
@@ -140,9 +128,6 @@ public class AcdServer extends AcdComponent implements LoggingEntity {
 
     public void insertAgent(AcdAgent acdAgent) {
         Collection agents = getAgents();
-        if (agents.size() >= m_maxAgents) {
-            throw new LicenseException(acdAgent.getName(), m_maxAgents);
-        }
         acdAgent.setAcdServer(this);
         agents.add(acdAgent);
     }
@@ -313,18 +298,6 @@ public class AcdServer extends AcdComponent implements LoggingEntity {
 
     public void setAgentPort(int agentPort) {
         m_agentPort = agentPort;
-    }
-
-    public void setMaxAgents(int maxAgents) {
-        m_maxAgents = maxAgents;
-    }
-
-    public void setMaxQueues(int maxQueues) {
-        m_maxQueues = maxQueues;
-    }
-
-    public void setMaxLines(int maxLines) {
-        m_maxLines = maxLines;
     }
 
     public void setAcdContext(AcdContext acdContext) {

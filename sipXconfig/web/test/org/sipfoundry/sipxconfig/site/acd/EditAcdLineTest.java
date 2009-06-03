@@ -30,7 +30,6 @@ public class EditAcdLineTest extends TestCase {
 
     public void testPageBeginRender() {
         AcdServer server = new AcdServer();
-        server.setMaxLines(10);
         server.setUniqueId();
 
         AcdLine line = new AcdLine();
@@ -119,7 +118,6 @@ public class EditAcdLineTest extends TestCase {
         line.associateQueue(queue);
 
         AcdServer server = new AcdServer();
-        server.setMaxLines(10);
         server.setUniqueId();
 
         IMocksControl control = EasyMock.createControl();

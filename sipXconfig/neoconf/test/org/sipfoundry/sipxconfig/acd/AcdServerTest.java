@@ -88,7 +88,6 @@ public class AcdServerTest extends BeanWithSettingsTestCase {
     public void testAddRemoveQueue() {
         AcdQueue queue = new AcdQueue();
         AcdServer server = new AcdServer();
-        server.setMaxQueues(10);
         assertNull(queue.getAcdServer());
         assertTrue(server.getQueues().isEmpty());
 
@@ -104,7 +103,6 @@ public class AcdServerTest extends BeanWithSettingsTestCase {
     public void testAddRemoveLine() {
         AcdLine line = new AcdLine();
         AcdServer server = new AcdServer();
-        server.setMaxLines(10);
         assertNull(line.getAcdServer());
         assertTrue(server.getLines().isEmpty());
 
@@ -126,89 +124,6 @@ public class AcdServerTest extends BeanWithSettingsTestCase {
         m_server.setLocation(m_location);
         assertEquals("http://bongo.sipfoudry.org:7777/RPC2", m_server.getServiceUri());
 
-    }
-
-    public void testMaxQueues() {
-        final int MAX = 3;
-
-        AcdServer server = new AcdServer();
-        server.setMaxQueues(MAX);
-
-        for (int i = 0; i < MAX; i++) {
-            AcdQueue queue = new AcdQueue();
-            queue.setUniqueId();
-            server.insertQueue(queue);
-        }
-
-        assertEquals(MAX, server.getQueues().size());
-
-        try {
-            AcdQueue queue = new AcdQueue();
-            queue.setUniqueId();
-            server.insertQueue(queue);
-            fail("Should fail with license exception");
-        } catch (LicenseException e) {
-            assertTrue(e.getMessage().indexOf(Integer.toString(MAX)) > 0);
-        }
-
-        assertEquals(MAX, server.getQueues().size());
-    }
-
-    public void testMaxAgents() {
-        final int MAX = 4;
-        User user = new User();
-        user.setUserName("kuku");
-
-        AcdServer server = new AcdServer();
-        server.setMaxAgents(MAX);
-
-        for (int i = 0; i < MAX; i++) {
-            AcdAgent agent = new AcdAgent();
-            agent.setUser(user);
-            agent.setUniqueId();
-            server.insertAgent(agent);
-        }
-
-        assertEquals(MAX, server.getAgents().size());
-
-        try {
-            AcdAgent agent = new AcdAgent();
-            agent.setUser(user);
-            agent.setUniqueId();
-            server.insertAgent(agent);
-            fail("Should fail with license exception");
-        } catch (LicenseException e) {
-            assertTrue(e.getMessage().indexOf(Integer.toString(MAX)) > 0);
-        }
-
-        assertEquals(MAX, server.getAgents().size());
-    }
-
-    public void testMaxLines() {
-        final int MAX = 5;
-        AcdServer server = new AcdServer();
-        server.setMaxLines(MAX);
-
-        for (int i = 0; i < MAX; i++) {
-            AcdLine line = new AcdLine();
-            line.setUniqueId();
-            line.setName("line" + i);
-            server.insertLine(line);
-        }
-
-        assertEquals(MAX, server.getLines().size());
-
-        try {
-            AcdLine line = new AcdLine();
-            line.setUniqueId();
-            line.setName("line" + MAX);
-            server.insertLine(line);
-            fail("Should fail with license exception");
-        } catch (LicenseException e) {
-            assertTrue(e.getMessage().indexOf(Integer.toString(MAX)) > 0);
-        }
-
-        assertEquals(MAX, server.getLines().size());
     }
 
     public void testPrepareSettings() {

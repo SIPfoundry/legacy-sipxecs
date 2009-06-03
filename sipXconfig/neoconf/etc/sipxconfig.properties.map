@@ -68,3 +68,6 @@ sipImpl.port : sip.port
 - : conferenceBridge.admissionServer
 - : polycom.defaultVersionId
 - : sysdir.freeswitch
+- : acdServer.maxQueues
+- : acdServer.maxAgents
+- : acdServer.maxLines
