@@ -51,15 +51,6 @@
     <routeTo authRequired="true"/>
   </route>
 
-
-  <route mappingType='itspname-callback'>
-    <description>
-      Route url-dialed calls for itspname to the sipXbridge.
-    </description>
-    <routeFrom>itsp.example.com</routeFrom>
-    <routeTo authRequired='true'>192.168.5.240:5090</routeTo>
-  </route>
-
   <route mappingType="external destinations">
     <description>Any foreign domain - route via session border.</description>
 
@@ -67,5 +58,14 @@
     <routeIPv4subnet>0/0</routeIPv4subnet>
 
     <routeTo authRequired="true">10.1.2.3</routeTo>
+  </route>
+
+
+  <route mappingType='itspname-callback'>
+    <description>
+      Route url-dialed calls for itspname to the sipXbridge.
+    </description>
+    <routeFrom>itsp.example.com</routeFrom>
+    <routeTo authRequired='true'>192.168.5.240:5090</routeTo>
   </route>
 </routes>
