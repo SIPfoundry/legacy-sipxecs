@@ -4,7 +4,8 @@
     <span key="prompt.runtest">Run test needed</span>
   </div>
   <span jwcid="@common/QuickHelp" value="message:quick.help" />
-  <form jwcid="@Form" id="dnsTestForm" delegate="bean:validator">
+
+  <form jwcid="dnsTestForm@Form" delegate="bean:validator">
       <fieldset>
 	      <span jwcid="@common/FieldPanel" for="provideDns" field="component:provideDns"
 		      label="message:label.provideDns"
@@ -26,17 +27,32 @@
 					<img jwcid="@Image" image="asset:dnsSuccessImage" align="absmiddle" />
 					<b><span jwcid="@Insert" value="message:validationDns.labelSuccess"/></b><br/>
 				</span>
-				<span jwcid="@Insert" value="message:validationDns.description"/>
+				<span jwcid="validation@Insert" value="message:validationDns.description"/>
 				<ul>
-					<span jwcid="@common/ToggleLink" toggle="ognl:showTestResults"
+					<span jwcid="dnsTestLink@common/ToggleLink" toggle="ognl:showTestResults"
 						labelOn="message:test.hideDetails"
 						labelOff="message:test.showDetails"/>
 				</ul>
 				<span jwcid="@If" condition="ognl:showTestResults" renderTag="false">
-					<pre><span jwcid="@Insert" value="ognl:dnsTestContext.result"/></pre>
+					<textarea jwcid="dnsTestStatus@Any" rows="30" cols="100" readonly="ognl:true">
+						<span jwcid="@Insert" value="ognl:dnsTestContext.result"/>
+					</textarea>
 				</span>
 			</span>
 		</div>
       </fieldset>
+  </form>
+  <form jwcid="detailedHelpForm@Form">
+   <fieldset>
+	<span jwcid="detailedHelpLink@common/ToggleLink" toggle="ognl:showDetailedHelp"
+		  labelOn="message:toggle.hideDetailedHelp"
+		  labelOff="message:toggle.showDetailedHelp"/>
+    <span jwcid="@If" condition="ognl:showDetailedHelp" renderTag="false">
+	  <span key="title.detailedHelp" renderTag="false"/><br/>
+	  <textarea jwcid="detailedHelp@Any"rows="30" cols="100" readonly="ognl:true" style="margin-left:9px">
+			<span jwcid="@Insert" value="message:detailedHelp" renderTag="false"/>
+	  </textarea>
+    </span>
+   </fieldset>
   </form>
 </div>
