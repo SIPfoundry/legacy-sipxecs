@@ -14,9 +14,6 @@
     singleton="false">
     <property name="location" ref="location"/>
     <property name="port" value="8110"/>
-    <property name="maxQueues" value="12"/>
-    <property name="maxAgents" value="50"/>
-    <property name="maxLines" value="50"/>
     <property name="acdContext">
       <ref local="acdContextImpl"/>
     </property>
