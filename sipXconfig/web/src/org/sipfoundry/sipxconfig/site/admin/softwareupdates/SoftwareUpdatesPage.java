@@ -24,15 +24,19 @@ import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.update.PackageUpdate;
 import org.sipfoundry.sipxconfig.admin.update.PackageUpdateManager;
-import org.sipfoundry.sipxconfig.admin.update.PackageUpdateManager.UpdaterState;
-import org.sipfoundry.sipxconfig.admin.update.SynchronousPackageUpdate;
+import org.sipfoundry.sipxconfig.admin.update.Restart;
+import org.sipfoundry.sipxconfig.admin.update.UpdateApi;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.site.admin.WaitingPage;
 
+import static org.sipfoundry.sipxconfig.admin.update.PackageUpdateManager.UpdaterState.NO_UPDATES_AVAILABLE;
 import static org.sipfoundry.sipxconfig.admin.update.PackageUpdateManager.UpdaterState.UPDATES_AVAILABLE;
+import static org.sipfoundry.sipxconfig.admin.update.PackageUpdateManager.UpdaterState.UPDATE_COMPLETED;
 
 public abstract class SoftwareUpdatesPage extends BasePage implements PageBeginRenderListener {
 
@@ -55,6 +59,12 @@ public abstract class SoftwareUpdatesPage extends BasePage implements PageBeginR
 
     @InjectObject("spring:packageUpdateManager")
     public abstract PackageUpdateManager getPackageUpdateManager();
+
+    @InjectObject("spring:locationsManager")
+    public abstract LocationsManager getLocationsManager();
+
+    @InjectObject("spring:updateApi")
+    public abstract UpdateApi getUpdateApi();
 
     @InjectPage(value = WaitingPage.PAGE)
     public abstract WaitingPage getWaitingPage();
@@ -81,8 +91,12 @@ public abstract class SoftwareUpdatesPage extends BasePage implements PageBeginR
         return getPackageUpdateManager().getState().equals(UPDATES_AVAILABLE);
     }
 
+    public boolean getUpdateCompleted() {
+        return getPackageUpdateManager().getState().equals(UPDATE_COMPLETED);
+    }
+
     public void pageBeginRender(PageEvent event) {
-        if (getPackageUpdateManager().getState().equals(UpdaterState.NO_UPDATES_AVAILABLE)
+        if (getPackageUpdateManager().getState().equals(NO_UPDATES_AVAILABLE)
                 && getCurrentVersion() == null) {
             try {
                 setCurrentVersion(getPackageUpdateManager().getCurrentVersion());
@@ -100,9 +114,20 @@ public abstract class SoftwareUpdatesPage extends BasePage implements PageBeginR
         getPackageUpdateManager().checkForUpdates();
     }
 
-    public IPage installUpdates() {
+    public void installUpdates() {
+        getPackageUpdateManager().installUpdates();
+    }
+
+    public IPage restart() {
+        Location[] locations = getLocationsManager().getLocations();
+        for (Location location : locations) {
+            if (!location.isPrimary()) {
+                getUpdateApi().restart(location);
+            }
+        }
+
         WaitingPage waitingPage = getWaitingPage();
-        waitingPage.setWaitingListener(new SynchronousPackageUpdate(getPackageUpdateManager()));
+        waitingPage.setWaitingListener(new Restart(getUpdateApi(), getLocationsManager().getPrimaryLocation()));
         return waitingPage;
     }
 
