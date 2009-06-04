@@ -123,6 +123,8 @@ public class SymmitronServer implements Symmitron {
 
     private static final String STUN_ADDRESS_ERROR_ALARM_ID = "STUN_ADDRESS_ERROR";
 
+    private static NetworkConfigurationDiscoveryProcess addressDiscovery = null;
+    
     static CRLFReceiver crlfReceiver;
 
     static {
@@ -149,29 +151,31 @@ public class SymmitronServer implements Symmitron {
      * @throws SipXbridgeException
      */
     static void discoverAddress() throws Exception {
-        NetworkConfigurationDiscoveryProcess addressDiscovery = null;
+       
         try {
 
             String stunServerAddress = symmitronConfig.getStunServerAddress();
 
             if (stunServerAddress != null) {
                 logger.info("Start address discovery");
-                int localStunPort = STUN_PORT + 1;
+              
+                if ( addressDiscovery == null ) { 
+                    int localStunPort = STUN_PORT + 1;
+                    StunAddress localStunAddress = new StunAddress(symmitronConfig
+                            .getLocalAddress(), localStunPort);
 
-                StunAddress localStunAddress = new StunAddress(symmitronConfig
-                        .getLocalAddress(), localStunPort);
+                    StunAddress serverStunAddress = new StunAddress(
+                            stunServerAddress, STUN_PORT);
 
-                StunAddress serverStunAddress = new StunAddress(
-                        stunServerAddress, STUN_PORT);
-
-                addressDiscovery = new NetworkConfigurationDiscoveryProcess(
-                        localStunAddress, serverStunAddress);
-                java.util.logging.LogManager logManager = java.util.logging.LogManager
-                        .getLogManager();
-                java.util.logging.Logger log = logManager
-                        .getLogger(NetworkConfigurationDiscoveryProcess.class
-                                .getName());
-                log.setLevel(java.util.logging.Level.OFF);
+                    addressDiscovery = new NetworkConfigurationDiscoveryProcess(
+                            localStunAddress, serverStunAddress);
+                    java.util.logging.LogManager logManager = java.util.logging.LogManager
+                    .getLogManager();
+                    java.util.logging.Logger log = logManager
+                    .getLogger(NetworkConfigurationDiscoveryProcess.class
+                            .getName());
+                    log.setLevel(java.util.logging.Level.OFF);
+                }
 
                 addressDiscovery.start();
                 StunDiscoveryReport report = addressDiscovery
@@ -203,17 +207,19 @@ public class SymmitronServer implements Symmitron {
                 logger.error("Stun server address not speicifed");
             }
         } catch (Exception ex) {
-
-            logger.error("Error discovering  address -- Check Stun Server", ex);
-            return;
-        } finally {
             if (addressDiscovery != null) {
                 try {
                     addressDiscovery.shutDown();
-                } catch (Exception ex) {
-                    logger.error("Problem shutting down address discovery!");
+                } catch (Exception e ) {
+                    logger.error("Problem shutting down address discovery!",e);
+                } finally {
+                    addressDiscovery = null;
                 }
             }
+            logger.error("Error discovering  address -- Check Stun Server", ex);
+            return;
+        } finally {
+           logger.debug("public address = " + publicAddress);
         }
     }
 
