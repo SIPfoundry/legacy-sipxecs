@@ -23,6 +23,13 @@
 // FORWARD DECLARATIONS
 // GLOBAL VARIABLES
 
+// Send an alarm to the Alarm Server with no runtime parameter.  Non-blocking.
+void Alarm::raiseAlarm(UtlString alarmId)
+{
+   UtlSList alarmParams;
+   raiseAlarm(alarmId, alarmParams);
+}
+
 // Send an alarm to the Alarm Server with a single runtime parameter.  Non-blocking.
 void Alarm::raiseAlarm(UtlString alarmId, UtlString alarmParam)
 {

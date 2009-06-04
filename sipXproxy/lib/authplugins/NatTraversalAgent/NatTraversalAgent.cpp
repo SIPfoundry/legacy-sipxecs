@@ -20,6 +20,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
+#include "alarm/Alarm.h"
 #include "net/SipMessage.h"
 #include "os/OsReadLock.h"
 #include "os/OsWriteLock.h"
@@ -79,6 +80,7 @@ NatTraversalAgent::readConfig( OsConfigDb& configDb /**< a subhash of the indivi
                                                       * parameters for this instance of this plugin. */
                              )
 {
+   OsWriteLock lock( mMessageProcessingMutex ); // ensures that we are not processing calls while we are setting the config
    OsSysLog::add(FAC_NAT, PRI_DEBUG, "NatTraversalAgent[%s]::readConfig",
                  mInstanceName.data() );
  
@@ -138,7 +140,7 @@ NatTraversalAgent::readConfig( OsConfigDb& configDb /**< a subhash of the indivi
          mbNatTraversalFeatureEnabled = false;
          OsSysLog::add(FAC_NAT, PRI_CRIT, "NatTraversalAgent[%s]::readConfig failed to initialize media relay - NAT traversal feature will be disabled",
                        mInstanceName.data() );
-         
+         Alarm::raiseAlarm( "NAT_TRAVERSAL_FAILED_TO_INITIALIZE_MEDIA_RELAY" );
       }
       else
       {
@@ -156,7 +158,6 @@ NatTraversalAgent::readConfig( OsConfigDb& configDb /**< a subhash of the indivi
          mCleanupTimer.periodicEvery( cleanUpTimerPeriod, cleanUpTimerPeriod );
          OsSysLog::add(FAC_NAT, PRI_INFO, "NatTraversalAgent[%s]::readConfig successfully initialized media relay - NAT traversal feature will is enabled",
                        mInstanceName.data() );
-
       }
    }
    else
