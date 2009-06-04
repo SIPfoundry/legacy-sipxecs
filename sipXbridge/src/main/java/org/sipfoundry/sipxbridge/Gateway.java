@@ -180,6 +180,8 @@ public class Gateway {
     static String configurationPath;
 
     static SipFoundryAppender logAppender;
+    
+    static NetworkConfigurationDiscoveryProcess addressDiscovery = null;
 
     private static SipXAlarmClient alarmClient;
 
@@ -306,7 +308,7 @@ public class Gateway {
                     .getLogger("net.java.stun4j");
             log.setLevel(level);
             java.util.logging.FileHandler fileHandler = new java.util.logging.FileHandler(
-                    Gateway.getLogFile());
+                    Gateway.getLogFile(),true);
 
             /*
              * Remove all existing handlers.
@@ -321,7 +323,7 @@ public class Gateway {
             log.addHandler(fileHandler);
 
             Gateway.logAppender = new SipFoundryAppender(
-                    new SipFoundryLayout(), Gateway.getLogFile());
+                    new SipFoundryLayout(), Gateway.getLogFile(),true);
             Logger applicationLogger = Logger.getLogger(Gateway.class
                     .getPackage().getName());
 
@@ -348,7 +350,7 @@ public class Gateway {
      * @throws SipXbridgeException
      */
     static void discoverAddress() throws SipXbridgeException {
-        NetworkConfigurationDiscoveryProcess addressDiscovery = null;
+       
         try {
 
             BridgeConfiguration bridgeConfiguration = accountManager
@@ -358,40 +360,49 @@ public class Gateway {
 
             if (stunServerAddress != null) {
                 // Todo -- deal with the situation when this port may be taken.
-                int localStunPort = STUN_PORT;
+                if (addressDiscovery == null ) {
+                    int localStunPort = STUN_PORT + 2;
 
-                StunAddress localStunAddress = new StunAddress(Gateway
-                        .getLocalAddress(), localStunPort);
+                    StunAddress localStunAddress = new StunAddress(Gateway
+                            .getLocalAddress(), localStunPort);
 
-                StunAddress serverStunAddress = new StunAddress(
-                        stunServerAddress, STUN_PORT);
+                    StunAddress serverStunAddress = new StunAddress(
+                            stunServerAddress, STUN_PORT);
 
-                addressDiscovery = new NetworkConfigurationDiscoveryProcess(
-                        localStunAddress, serverStunAddress);
+                    addressDiscovery = new NetworkConfigurationDiscoveryProcess(
+                            localStunAddress, serverStunAddress);
 
-                addressDiscovery.start();
+                    addressDiscovery.start();
+                }
                 StunDiscoveryReport report = addressDiscovery
                         .determineAddress();
                 globalAddress = report.getPublicAddress().getSocketAddress()
                         .getAddress().getHostAddress();
                 logger.debug("Stun report = " + report);
 
-                if (report.getPublicAddress().getPort() != STUN_PORT) {
+                if (report.getPublicAddress().getPort() != STUN_PORT + 2) {
                     logger
                             .warn("WARNING External port != internal port your NAT may not be symmetric.");
                 }
-                addressDiscovery.shutDown();
-
+               
             }
         } catch (Exception ex) {
             /*
              * If problem finding address. release the port.
-             */
-            if ( addressDiscovery != null ) {
-                addressDiscovery.shutDown();
-            }
+             */      
             logger.error("Error discovering  address", ex);
+            try {
+                if ( addressDiscovery != null ) {
+                    addressDiscovery.shutDown();
+                }
+            } catch (Exception e ) {
+                logger.error("Error shutting down address discovery ", e);
+            } finally {
+                addressDiscovery = null;
+            }
             return;
+        } finally {
+           logger.debug("global address = " + globalAddress);
         }
     }
 

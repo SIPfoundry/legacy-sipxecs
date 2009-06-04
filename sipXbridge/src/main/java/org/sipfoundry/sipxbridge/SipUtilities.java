@@ -750,8 +750,13 @@ class SipUtilities {
 
             // sipxbridge router will strip maddr before forwarding.
            
-            requestUri.setMAddrParam(hop.getHost());
-            requestUri.setPort(hop.getPort());
+           requestUri.setMAddrParam(hop.getHost());
+           requestUri.setPort(hop.getPort());
+           
+           // This is the right way to do this after the following is fixed:
+           // http://track.sipfoundry.org/browse/XX-5884 
+           // RouteHeader proxyRoute = SipUtilities.createRouteHeader(hop);      
+           // request.setHeader(proxyRoute);
            
 
             /*

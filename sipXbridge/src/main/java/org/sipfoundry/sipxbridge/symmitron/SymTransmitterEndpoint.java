@@ -274,7 +274,7 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
                         logger.trace("SymTransmitterEndpoint:selfRoutedBridge = " + bridge);
                     }
                     if (bridge != null) {
-                        DataShuffler.send(bridge, channel, this.farEnd,stamp);
+                        DataShuffler.send(bridge, channel, this.farEnd,stamp,true);
                         return;
                     }
                 } else {
@@ -282,7 +282,7 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
                 }
             }
 
-            if (this.datagramChannel != null) {
+            if (this.datagramChannel != null && this.getSocketAddress() != null) {
                 int bytesSent = this.datagramChannel.send(byteBuffer, this.getSocketAddress());
                 if (logger.isTraceEnabled()) {
                     logger.trace("SymTransmitterEndpoint:actually sending to "
