@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.common;
@@ -16,13 +16,13 @@ import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 @ComponentClass(allowBody = true, allowInformalParameters = true)
-public abstract class BeanNavigation<T extends BeanWithSettings> extends BaseComponent {
-    
+public abstract class BeanNavigation extends BaseComponent {
+
     @Parameter(required = true)
-    public abstract T getBean();
-    
-    public abstract void setBean(T bean);
-   
+    public abstract BeanWithSettings getBean();
+
+    public abstract void setBean(BeanWithSettings bean);
+
     @Parameter()
     public abstract Setting getActiveSetting();
 }

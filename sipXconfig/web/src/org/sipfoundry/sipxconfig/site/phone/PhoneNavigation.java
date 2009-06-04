@@ -1,24 +1,23 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.phone;
 
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.InjectPage;
-import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.site.common.BeanNavigation;
 
 /**
  * Top portion of pages that show tabs, help box, intro text, etc
  */
-public abstract class PhoneNavigation extends BeanNavigation<Phone> {
-    
+public abstract class PhoneNavigation extends BeanNavigation {
+
     @InjectPage(value = PhoneSettings.PAGE)
     public abstract PhoneSettings getPhoneSettingsPage();
 
@@ -33,7 +32,7 @@ public abstract class PhoneNavigation extends BeanNavigation<Phone> {
         page.setPhoneId(phoneId);
         return page;
     }
-    
+
     public boolean isIdentificationTabActive() {
         return EditPhone.PAGE.equals(getPage().getPageName());
     }
@@ -41,7 +40,7 @@ public abstract class PhoneNavigation extends BeanNavigation<Phone> {
     public boolean isLinesTabActive() {
         return PhoneLines.PAGE.equals(getPage().getPageName());
     }
-    
+
     public IPage editLines(Integer phoneId) {
         PhoneLines page = getPhoneLinesPage();
         page.setPhoneId(phoneId);

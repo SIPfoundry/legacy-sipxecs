@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.user;
@@ -17,18 +17,17 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.Parameter;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.common.BeanNavigation;
 import org.sipfoundry.sipxconfig.site.speeddial.SpeedDialPage;
 import org.sipfoundry.sipxconfig.site.user_portal.UserCallForwarding;
 import org.sipfoundry.sipxconfig.site.user_portal.UserSchedules;
 
-public abstract class UserNavigation extends BeanNavigation<User> {
+public abstract class UserNavigation extends BeanNavigation {
 
     @Parameter(required = false, defaultValue = "true")
     public abstract void setRenderCondition(boolean renderCondition);
-    
+
     @InjectObject(value = "spring:coreContext")
     public abstract CoreContext getCoreContext();
 
@@ -46,7 +45,7 @@ public abstract class UserNavigation extends BeanNavigation<User> {
 
     @InjectPage(value = UserSettings.PAGE)
     public abstract UserSettings getUserSettingsPage();
-    
+
     @InjectPage(value = EditPersonalAttendant.PAGE)
     public abstract EditPersonalAttendant getEditPersonalAttendantPage();
 
@@ -61,7 +60,7 @@ public abstract class UserNavigation extends BeanNavigation<User> {
 
     @InjectPage(value = UserConferences.PAGE)
     public abstract UserConferences getUserConferencesPage();
-    
+
     public IPage editCallForwarding(Integer userId) {
         UserCallForwarding page = getUserCallForwardingPage();
         page.setUserId(userId);
@@ -95,7 +94,7 @@ public abstract class UserNavigation extends BeanNavigation<User> {
         page.setReturnPage(ManageUsers.PAGE);
         return page;
     }
-    
+
     public IPage editSettings(Integer beanId, String path) {
         UserSettings page = getUserSettingsPage();
         page.setUserId(beanId);
@@ -130,15 +129,15 @@ public abstract class UserNavigation extends BeanNavigation<User> {
         page.setReturnPage(ManageUsers.PAGE);
         return page;
     }
-    
+
     public boolean isConferencesTabActive() {
         return UserConferences.PAGE.equals(getPage().getPageName());
     }
-    
+
     public boolean isIdentificationTabActive() {
         return EditUser.PAGE.equals(getPage().getPageName());
     }
-    
+
     public boolean isPhonesTabActive() {
         return UserPhones.PAGE.equals(getPage().getPageName());
     }
@@ -158,7 +157,7 @@ public abstract class UserNavigation extends BeanNavigation<User> {
     public boolean isSupervisorTabActive() {
         return SupervisorPermission.PAGE.equals(getPage().getPageName());
     }
-    
+
     public boolean isPersonalAttendantTabActive() {
         return EditPersonalAttendant.PAGE.equals(getPage().getPageName());
     }
@@ -177,18 +176,18 @@ public abstract class UserNavigation extends BeanNavigation<User> {
      * tree that looks like this: <code>
      * - permission
      * -- application permissions
-     * -- call handling 
+     * -- call handling
      * - group 1
      * - group 2
      * </code>
-     * 
+     *
      * Into tree that looks like this: <code>
-     * - application permissions 
+     * - application permissions
      * - call handling
      * - group 1
      * - group 2
      * </code>
-     * 
+     *
      * Additionally, the personal-attendant group is hidden as this tab is implemented
      * as its own page
      */

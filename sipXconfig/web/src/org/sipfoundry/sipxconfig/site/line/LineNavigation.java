@@ -1,20 +1,19 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.line;
 
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.InjectPage;
-import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.site.common.BeanNavigation;
 
-public abstract class LineNavigation extends BeanNavigation<Line> {
+public abstract class LineNavigation extends BeanNavigation {
 
     @InjectPage(value = LineSettings.PAGE)
     public abstract LineSettings getLineSettingsPage();
