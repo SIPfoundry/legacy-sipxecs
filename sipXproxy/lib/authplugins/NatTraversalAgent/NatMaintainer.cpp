@@ -51,6 +51,7 @@ NatMaintainer::NatMaintainer( SipRouter* sipRouter ) :
        "Accept: application/sdp\r\n"
        "Contact: anonymous@anonymous.invalid\r\n"
        "Content-Length: 0\r\n"
+       "Server: sipXecs/NatMaintainer\r\n"
        "\r\n";  
    
    mpKeepAliveMessage = new SipMessage( optionsMessageString, optionsMessageString.length() );

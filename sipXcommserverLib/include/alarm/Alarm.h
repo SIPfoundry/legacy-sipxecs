@@ -30,17 +30,22 @@ class Alarm
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
-   /// Send an alarm to the Alarm Server with a single runtime parameter.  Non-blocking.
+   /// Send an alarm to the Alarm Server without any runtime parameter.  Non-blocking.
    /// The Alarm Server is configured in sipxsupervisor-config, so any process generating an
    /// alarm using this interface should declare sipxsupervisor-config as a resource.
    static void raiseAlarm(
-         UtlString alarmId,                ///< internal unique alarm ID
-         UtlString alarmParam              ///< string containing single runtime parameter
+         UtlString alarmId                 ///< internal unique alarm ID
          );
    /** Alarms are identified by a unique alarm ID, which is not visible to the customer.
     * Configuration data for new alarms are added by editing the alarm xml files
     * in sipXsupervisor/etc.
     */
+
+   /// Send an alarm to the Alarm Server with a single runtime parameter.  Non-blocking.
+   static void raiseAlarm(
+         UtlString alarmId,                ///< internal unique alarm ID
+         UtlString alarmParam              ///< string containing single runtime parameter
+         );
    
    /// Send an alarm to the Alarm Server with a list of runtime parameters.  Non-blocking.
    static void raiseAlarm(

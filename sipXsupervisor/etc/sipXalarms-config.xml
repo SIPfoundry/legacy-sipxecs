@@ -167,6 +167,54 @@
                  email="true"
                  />
       </alarm>
+      <alarm id="NAT_TRAVERSAL_FAILED_TO_INITIALIZE_MEDIA_RELAY">
+         <code>SPX00023</code>
+         <severity>crit</severity>
+         <component>sipXproxy</component>
+         <action log="true"
+                 email="true"
+                 />
+      </alarm>
+      <alarm id="NAT_TRAVERSAL_LOST_CONTACT_WITH_MEDIA_RELAY">
+         <code>SPX00024</code>
+         <severity>err</severity>
+         <component>sipXproxy</component>
+         <action log="true"
+                 email="true"
+                 />
+      </alarm>
+      <alarm id="NAT_TRAVERSAL_MEDIA_RELAY_RESET_DETECTED_RECONNECTED">
+         <code>SPX00025</code>
+         <severity>warning</severity>
+         <component>sipXproxy</component>
+         <action log="true"
+                 email="true"
+                 />
+      </alarm>
+      <alarm id="NAT_TRAVERSAL_MEDIA_RELAY_RESET_DETECTED_RECONNECTING">
+         <code>SPX00026</code>
+         <severity>err</severity>
+         <component>sipXproxy</component>
+         <action log="true"
+                 email="true"
+                 />
+      </alarm>
+      <alarm id="NAT_TRAVERSAL_MEDIA_RELAY_RECONNECTED">
+         <code>SPX00027</code>
+         <severity>info</severity>
+         <component>sipXproxy</component>
+         <action log="true"
+                 email="true"
+                 />
+      </alarm>
+      <alarm id="NAT_TRAVERSAL_RAN_OUT_OF_MEDIA_RELAY_SESSIONS">
+         <code>SPX00028</code>
+         <severity>crit</severity>
+         <component>sipXproxy</component>
+         <action log="true"
+                 email="true"
+                 />
+      </alarm>
 
       <!-- Add new alarms above this line.
           Remember to add strings into meta/alarms/sipXalarms-strings.xml also.

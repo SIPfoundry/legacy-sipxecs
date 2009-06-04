@@ -11,6 +11,7 @@
 // APPLICATION INCLUDES
 #include "MediaRelay.h"
 #include "NatTraversalRules.h"
+#include "alarm/Alarm.h"
 #include "net/XmlRpcRequest.h"
 #include "net/XmlRpcResponse.h"
 #include "os/OsLock.h"
@@ -542,17 +543,28 @@ void MediaRelay::notifySymmitronResetDetected( const UtlString& newSymmitronInst
    if( !newSymmitronInstanceHandle.isNull() )
    {
       // A new Symmitron instance is up already, preallocate resources on that new symmitron
-      preAllocateSymmitronResources();
+      
+      if( preAllocateSymmitronResources() == false )
+      {
+         Alarm::raiseAlarm( "NAT_TRAVERSAL_MEDIA_RELAY_RESET_DETECTED_RECONNECTING" );
+         mbPollForSymmitronRecovery = true;
+      }
+      else
+      {
+         Alarm::raiseAlarm( "NAT_TRAVERSAL_MEDIA_RELAY_RESET_DETECTED_RECONNECTED" );
+      }
    }
    else
    {
       // The Symmitron is not up yet.  Set up a flag that will poll for Symmitron's recovery
+      Alarm::raiseAlarm( "NAT_TRAVERSAL_LOST_CONTACT_WITH_MEDIA_RELAY" );
       mbPollForSymmitronRecovery = true;
    }
 }
 
 void MediaRelay::notifyBridgeStatistics( const UtlString& bridgeId, intptr_t numberOfPacketsProcessed, void* opaqueData )
 {
+   OsLock lock( mMutex );
    tMediaRelayHandle mediaRelaySessionHandle = (intptr_t)opaqueData;
    MediaRelaySession* pMediaRelaySession = getSessionByHandle( mediaRelaySessionHandle );
 
@@ -639,6 +651,7 @@ bool MediaRelay::allocateSession( tMediaRelayHandle& relayHandle, int& endpoint1
    {
       OsSysLog::add( FAC_NAT, PRI_CRIT, "MediaRelay::allocateSession() failed to allocate a new session - "
                                         "ran out of bridges (max = %zu)", mMaxMediaRelaySessions );
+      Alarm::raiseAlarm("NAT_TRAVERSAL_RAN_OUT_OF_MEDIA_RELAY_SESSIONS");   
    }
    return result;
 }
@@ -1059,6 +1072,7 @@ void MediaRelay::deallocateAllSymmitronResourcesAndSignOut( void )
 bool MediaRelay::getPacketProcessingStatsForMediaRelaySession( const tMediaRelayHandle& handle,
                                                                PacketProcessingStatistics& stats )
 {
+   OsLock lock( mMutex );   
    bool result = false;
    MediaRelaySession* pMediaRelaySession = getSessionByHandle( handle );
    if( pMediaRelaySession )
@@ -1102,6 +1116,7 @@ OsStatus MediaRelay::signal( intptr_t eventData )
       {
          // we managed to reconnect, clear the recovery flag
          mbPollForSymmitronRecovery = false;
+         Alarm::raiseAlarm( "NAT_TRAVERSAL_MEDIA_RELAY_RECONNECTED" );
       }
    }
    
