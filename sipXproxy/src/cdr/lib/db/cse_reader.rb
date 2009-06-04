@@ -67,8 +67,9 @@ class CseReader < Dao
     end
   rescue DBI::DatabaseError, DBI::OperationalError, DBI::ProgrammingError => excp
     log.error("Loss of connection to database - retrying to connect after sleep")
-    break if @stop.wait
-    retry
+    if !@stop.wait
+       retry
+    end
   rescue
     log.error("Exception in reader thread: <#{$!}>")
     # save current exception so that we can re-raise it

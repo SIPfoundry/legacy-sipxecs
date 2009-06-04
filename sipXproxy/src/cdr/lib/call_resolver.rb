@@ -135,5 +135,9 @@ class CallResolver
     Signal.trap("USR1") do
       log.debug(@state.to_s)
     end
+    Signal.trap("ABRT") do
+      # A signal abort has been received.  Handle it by simply exiting.
+      exit 0
+    end
   end
 end
