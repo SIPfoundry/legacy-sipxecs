@@ -1,17 +1,19 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.common;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -92,6 +94,7 @@ public abstract class AssetSelector extends BaseComponent {
         return localized;
     }
 
+    @Override
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
         super.renderComponent(writer, cycle);
         if (TapestryUtils.isRewinding(cycle, this)) {
@@ -141,13 +144,13 @@ public abstract class AssetSelector extends BaseComponent {
 
     /**
      * Extract file name from the path in a system independed way.
-     * 
+     *
      * C:\a\b\c.txt -> c.txt a/b/c.txt => c.txt
-     * 
+     *
      * We cannot use File.getName() here since it only works for filenames from the same operating
      * system. We have to handle the case when Windows file is downloaded on Linux server and vice
      * versa
-     * 
+     *
      * @param filePath full name of the downloaded file in a client sytem format
      * @return base name and extension of the file
      */
@@ -161,7 +164,7 @@ public abstract class AssetSelector extends BaseComponent {
 
     /**
      * Only call during validation phase
-     * 
+     *
      * @param validator
      * @param errorMsg - if empty we will not validate, if not empty we will record this message
      *        as an error in the validator
@@ -177,7 +180,7 @@ public abstract class AssetSelector extends BaseComponent {
 
     /**
      * Check if uploaded audio files can be played by media server.
-     * 
+     *
      * @throws ValidatorException if audio file is uploaded but cannot be validated
      */
     private void validateFileType(IValidationDelegate validator) {
@@ -189,22 +192,8 @@ public abstract class AssetSelector extends BaseComponent {
         if (!isUploadFileSpecified(upload)) {
             return;
         }
-        try {
-            AudioInputStream inStream = AudioSystem.getAudioInputStream(upload.getStream());
-            AudioFormat acceptedFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 8000, // sample
-                    // rate
-                    16, // bits per sample
-                    1, // channels
-                    2, // frame rate
-                    8000, // frame size
-                    false); // isBigEndian)
-            if (acceptedFormat.matches(inStream.getFormat())) {
-                return;
-            }
-        } catch (IOException e) {
-            LOG.warn("Uploaded file problems.", e);
-        } catch (UnsupportedAudioFileException e) {
-            LOG.info("Unsupported format", e);
+        if (isAcceptedAudioFormat(upload.getStream())) {
+            return;
         }
 
         String error = getMessages().format("error.badWavFormat", upload.getFileName());
@@ -213,8 +202,8 @@ public abstract class AssetSelector extends BaseComponent {
 
     /**
      * It is required that the label field is attached to field component
-     * 
-     * @return promtp componnent
+     *
+     * @return prompt component
      */
     public IFormComponent getPrompt() {
         return (IFormComponent) getComponent("prompt");
@@ -222,5 +211,31 @@ public abstract class AssetSelector extends BaseComponent {
 
     public boolean isDisabled() {
         return !isEnabled();
+    }
+
+    public static boolean isAcceptedAudioFormat(InputStream stream) {
+        try {
+            InputStream testedStream = stream;
+            // HACK: looks like in openjdk InputStream does not support mark/reset
+            if (!stream.markSupported()) {
+                // getAudioInputStream depends on mark reset do we wrap buffered input stream
+                // around passed stream
+                testedStream = new BufferedInputStream(stream);
+            }
+            AudioInputStream audio = AudioSystem.getAudioInputStream(new BufferedInputStream(testedStream));
+            AudioFormat format = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 8000, // sample
+                    // rate
+                    16, // bits per sample
+                    1, // channels
+                    2, // frame rate
+                    8000, // frame size
+                    false); // isBigEndian)
+            return format.matches(audio.getFormat());
+        } catch (IOException e) {
+            LOG.warn("Uploaded file problems.", e);
+        } catch (UnsupportedAudioFileException e) {
+            LOG.info("Unsupported format", e);
+        }
+        return false;
     }
 }
