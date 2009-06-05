@@ -8,7 +8,6 @@
  */
 package org.sipfoundry.attendant;
 
-import java.io.File;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -16,11 +15,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 public class Schedule {
@@ -111,8 +106,6 @@ public class Schedule {
 	private String m_id;
     private Holidays m_holidays;
     private Hours m_hours;
-    private boolean m_specialOperation;
-    private String m_specialAutoAttendantId;
 
     Schedule() {
         m_holidays = new Holidays();
@@ -233,44 +226,6 @@ public class Schedule {
         }
     }
 
-    /**
-     * Load the "organization preferences" XML file
-     * 
-     * @param filename
-     */
-    public void loadPrefs(String filename) {
-        try {
-            File organizationFile = new File(filename);
-            if (organizationFile.exists()) {
-                LOG.info("Schedule::loadPrefs Loading prefs file " + filename);
-                DocumentBuilder builder = DocumentBuilderFactory.newInstance()
-                        .newDocumentBuilder();
-                Document schedule = builder.parse(organizationFile);
-                
-                Node next = schedule.getFirstChild();
-                if (next != null) {
-                    next = next.getFirstChild() ;
-                    while (next != null) {
-                        if (next.getNodeType() == Node.ELEMENT_NODE) {
-                            String name = next.getNodeName();
-                            if (name.contentEquals("specialoperation")) {
-                                m_specialOperation = Boolean.parseBoolean(next.getTextContent().trim());
-                                LOG.debug(String.format("Schedule::loadPrefs m_specialOperation is %s", Boolean.toString(m_specialOperation))); 
-                            } else if (name.contentEquals("autoattendant")) {
-                                m_specialAutoAttendantId = next.getTextContent().trim();
-                                LOG.debug(String.format("Schedule::loadPrefs m_specialOAutoAttendantId is %s", m_specialAutoAttendantId)); 
-                            }
-                        }
-                        next = next.getNextSibling();
-                    }
-                }
-            } else {
-                LOG.info(String.format("Schedule::loadPrefs File %s does not exist.  Using defaults.", filename));
-            }
-        } catch (Throwable t) {
-            LOG.error("Schedule::loadPrefs Trouble reading prefs file " + filename, t);
-        }
-    }
 
     public String getId() {
     	return m_id;
@@ -283,13 +238,7 @@ public class Schedule {
      * @return
      */
     public String getAttendant(Date date) {
-        // Always use the special AA if specialOperation is in effect
-        if (m_specialOperation) {
-            LOG.info("Schedule::getAttendant Special Operation AutoAttendant is in effect.");
-            return m_specialAutoAttendantId;
-        }
-
-        // Otherwise check the schedule to see which AA to use.
+        // Check the schedule to see which AA to use.
         Calendar nowCalendar = Calendar.getInstance();
         nowCalendar.setTime(date);
 
@@ -358,21 +307,5 @@ public class Schedule {
 
     public void setHours(Hours hours) {
         m_hours = hours;
-    }
-
-    public boolean isSpecialOperation() {
-        return m_specialOperation;
-    }
-
-    public void setSpecialOperation(boolean specialOperation) {
-        m_specialOperation = specialOperation;
-    }
-
-    public String getSpecialAutoAttendant() {
-        return m_specialAutoAttendantId;
-    }
-
-    public void setSpecialAutoAttendant(String specialAutoAttendant) {
-        m_specialAutoAttendantId = specialAutoAttendant;
     }
 }

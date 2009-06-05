@@ -25,8 +25,6 @@ public class SchedulesTest extends TestCase {
         DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
         DateFormat dateTimeFormat = new SimpleDateFormat("dd-MMM-yyyy HH:mm");
         Schedule s = new Schedule();
-        s.setSpecialOperation(false);
-        s.setSpecialAutoAttendant("special");
         try {
             Date date = dateTimeFormat.parse("01-jan-2001 12:00");
             assertNull("empty Schedules didn't return null!", s.getAttendant(date));
@@ -71,8 +69,6 @@ public class SchedulesTest extends TestCase {
         DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
         DateFormat dateTimeFormat = new SimpleDateFormat("dd-MMM-yyyy HH:mm");
         Schedule s = new Schedule();
-        s.setSpecialOperation(false);
-        s.setSpecialAutoAttendant("special");
         try {
             s.getHours().setAfterHoursAttendantId("afterhours");
             s.getHours().setRegularHoursAttendantId("regularhours");
@@ -144,20 +140,6 @@ public class SchedulesTest extends TestCase {
             assertEquals(116, regularhours);
             assertEquals(580, afterhours);
 
-        } catch (ParseException e) {
-            fail(e.toString());
-        }
-
-    }
-
-    public void testGetAttendant3() {
-        DateFormat dateTimeFormat = new SimpleDateFormat("dd-MMM-yyyy HH:mm");
-        Schedule s = new Schedule();
-        s.setSpecialOperation(true);
-        s.setSpecialAutoAttendant("special");
-        try {
-            Date date = dateTimeFormat.parse("01-jan-2001 12:00");
-            assertEquals("special", s.getAttendant(date));
         } catch (ParseException e) {
             fail(e.toString());
         }

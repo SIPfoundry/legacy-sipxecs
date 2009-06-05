@@ -26,6 +26,7 @@ import org.w3c.dom.NodeList;
  */
 public class Configuration {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
+    private String m_specialId; // The ID of the special attendant (if any)
 
     public class AttendantConfig extends ApplicationConfiguraton {
     	private String m_id ; // The ID of this attendant
@@ -111,6 +112,14 @@ public class Configuration {
     }
 
     /**
+     * Returns the id of the Special Autoattendant, or null if there is none specified.
+     * @return
+     */
+    public String getSpecialAttendantId() {
+        return m_specialId;
+    }
+    
+    /**
      * Load the autoattendants.xml file
      */
     void loadXML() {
@@ -147,6 +156,10 @@ public class Configuration {
                 AttendantConfig c = new AttendantConfig() ;
                 String id = attendantNode.getAttributes().getNamedItem("id").getNodeValue();
                 c.m_id = id;
+                Node specialNode = attendantNode.getAttributes().getNamedItem("special");
+                if (specialNode != null && Boolean.parseBoolean(specialNode.getNodeValue())) {
+                    m_specialId = id;
+                }
                 for(Node next = attendantNode.getFirstChild(); next != null; next = next.getNextSibling()) {
                     if (next.getNodeType() == Node.ELEMENT_NODE) {
                         String name = next.getNodeName();

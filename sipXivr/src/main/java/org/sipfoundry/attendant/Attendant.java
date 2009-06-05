@@ -135,21 +135,25 @@ public class Attendant {
         }
 
         if (m_aaId == null) {
-            Date now = Calendar.getInstance().getTime();
-            if (m_schedule != null) {
-                LOG.info(String.format("Attendant::run Attendant determined from schedule %s", m_schedule.getId()));
-                // load the organizationprefs.xml file every time
-                // (as it may change without warning
-                m_schedule.loadPrefs(m_ivrConfig.getOrganizationPrefs());
-            	id = m_schedule.getAttendant(now);
+            // See if a special attendant is defined
+            id = m_attendantConfig.getSpecialAttendantId() ;
+            if (id != null) {
+                // Always use the special AA if specialOperation is in effect
+                LOG.info("Attendant::run Special Operation AutoAttendant is in effect.");
             } else {
-                LOG.error(String.format("Attendant::run Cannot find schedule %s in autoattendants.xml.", 
-                	m_scheduleId != null ?m_scheduleId : "null")) ;
-            }
-            if (id == null) {
-                LOG.error("Attendant::run Cannot determine which attendant to use from schedule.") ;
-            } else {
-                LOG.info(String.format("Attendant::run Attendant %s selected", id));
+                Date now = Calendar.getInstance().getTime();
+                if (m_schedule != null) {
+                    LOG.info(String.format("Attendant::run Attendant determined from schedule %s", m_schedule.getId()));
+                	id = m_schedule.getAttendant(now);
+                } else {
+                    LOG.error(String.format("Attendant::run Cannot find schedule %s in autoattendants.xml.", 
+                    	m_scheduleId != null ?m_scheduleId : "null")) ;
+                }
+                if (id == null) {
+                    LOG.error("Attendant::run Cannot determine which attendant to use from schedule.") ;
+                } else {
+                    LOG.info(String.format("Attendant::run Attendant %s selected", id));
+                }
             }
         } else {
             id = m_aaId;

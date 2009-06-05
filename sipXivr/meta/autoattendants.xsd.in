@@ -314,6 +314,7 @@
 				</element>
 			</sequence>
                         <attribute name="id" type="string" use="required"/>
+                        <attribute name="special" type="boolean" use="optional" default="false"/>
 		</complexType>
 	</element>
 
