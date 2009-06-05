@@ -155,6 +155,8 @@ public class ItspAccountInfo implements
 
     private boolean reUseOutboundProxySetting;
 
+    private boolean inboundProxyPortSet;
+
     class FailureCounterScanner extends TimerTask {
 
         public FailureCounterScanner() {
@@ -486,6 +488,7 @@ public class ItspAccountInfo implements
         if (port < 0) {
             throw new IllegalArgumentException("Bad inbound proxy port " + port);
         } else if (port > 0) {
+            this.inboundProxyPortSet = true;
             this.inboundProxyPort = port;
         }
     }
@@ -614,6 +617,15 @@ public class ItspAccountInfo implements
         } catch (Exception ex) {
             throw new SipXbridgeException(ex);
         }
+    }
+
+    
+
+    /**
+     * @return the inboundProxyPortSet
+     */
+    public boolean isInboundProxyPortSet() {
+        return inboundProxyPortSet;
     }
 
 }

@@ -820,7 +820,7 @@ public class Gateway {
             throw ex;
 
         } catch (Exception ex) {
-            logger.fatal(ex);
+            logger.fatal("Could not initialize bridge",ex);
             throw new SipXbridgeException(ex.getMessage());
         }
     }

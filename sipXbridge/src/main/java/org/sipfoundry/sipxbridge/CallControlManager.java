@@ -2214,6 +2214,9 @@ class CallControlManager implements SymmitronResetHandler {
                     && SipUtilities.getToTag(response) != null ) {
                 logger.debug("Dropping response -- no client transaction");
                 return;
+            } else if ( dialog == null ) {
+                logger.debug("Dialog not found -- dropping response!");
+                return;
             } else if (DialogContext.get(dialog).getDialogCreatingTransaction() instanceof ClientTransaction ) {
                 clientTransaction = (ClientTransaction) DialogContext.get(dialog).getDialogCreatingTransaction();
             } else {
