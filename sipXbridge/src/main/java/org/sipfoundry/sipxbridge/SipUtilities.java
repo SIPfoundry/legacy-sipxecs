@@ -75,6 +75,8 @@ import javax.sip.message.Request;
 import javax.sip.message.Response;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.commons.siprouter.FindSipServer;
+import org.sipfoundry.commons.siprouter.ProxyRouter;
 
 /**
  * 
@@ -425,20 +427,18 @@ class SipUtilities {
                     + itspAccount.getProxyDomain());
         }
 
-        if (outboundRegistrar != null
-                && !itspAccount.getProxyDomain().equals(
-                        itspAccount.getOutboundRegistrar())) {
-            SipURI routeUri = ProtocolObjects.addressFactory.createSipURI(null,
-                    outboundRegistrar);
-            routeUri.setPort(itspAccount.getInboundProxyPort());
-            routeUri.setLrParam();
-            Address routeAddress = ProtocolObjects.addressFactory
-                    .createAddress(routeUri);
-            RouteHeader routeHeader = ProtocolObjects.headerFactory
-                    .createRouteHeader(routeAddress);
-            request.addHeader(routeHeader);
+        SipURI registrarUri = ProtocolObjects.addressFactory.createSipURI(null,
+                outboundRegistrar);
+        if (itspAccount.isInboundProxyPortSet()) {
+            registrarUri.setPort(itspAccount.getInboundProxyPort());
+        }
+        Collection<Hop> hops = new FindSipServer(logger).findSipServers(registrarUri);
+        if ( hops == null || hops.isEmpty() )  {
+            throw new SipException ("No route to registrar found");
         }
 
+        RouteHeader routeHeader  = SipUtilities.createRouteHeader(hops.iterator().next());   
+        request.setHeader(routeHeader);
         return request;
     }
 
