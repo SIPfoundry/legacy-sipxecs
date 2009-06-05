@@ -204,9 +204,18 @@ void ResourceCached::generateBody(UtlString& rlmi,
                                   const UtlString& nameXml,
                                   const UtlString& displayName) const
 {
+   // Remove any suffix from the URI, for example it removes:
+   // ";sipx-noroute=VoiceMail;sipx-userforward=false"
+   UtlString rlmi_uri = *(static_cast <const UtlString*> (this));
+   ssize_t temp_idx = rlmi_uri.index(';');
+   if (temp_idx != UTL_NOT_FOUND)
+   {
+      rlmi_uri.remove(temp_idx);
+   }
+
    // Generate the preamble for the resource.
    rlmi += "  <resource uri=\"";
-   XmlEscape(rlmi, *(static_cast <const UtlString*> (this)));
+   XmlEscape(rlmi, rlmi_uri);
    rlmi += "\">\r\n";
    if (!nameXml.isNull())
    {
@@ -252,7 +261,7 @@ void ResourceCached::generateBody(UtlString& rlmi,
       dialog_event += "\"full\"";
       dialog_event += ENTITY_EQUAL;
       dialog_event += "\"";
-      dialog_event += *(static_cast <const UtlString*> (this));
+      dialog_event += rlmi_uri;
       dialog_event += "\">\r\n";
       // Save the length of dialog_event, so we can tell later if
       // any <dialog>s have been added to it.
@@ -273,7 +282,7 @@ void ResourceCached::generateBody(UtlString& rlmi,
             "<dialog id=\";\"><state>terminated</state><local><identity display=\"";
          XmlEscape(dialog_event, displayName);
          dialog_event += "\">";
-         XmlEscape(dialog_event, *(static_cast <const UtlString*> (this)));
+         XmlEscape(dialog_event, rlmi_uri);
          dialog_event += "</identity></local></dialog>\r\n";
       }
 
