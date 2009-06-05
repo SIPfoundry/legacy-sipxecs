@@ -220,9 +220,13 @@ class SipUtilities {
     static ViaHeader createViaHeader(SipProvider sipProvider,
             ItspAccountInfo itspAccount) {
         try {
-            if (itspAccount != null && !itspAccount.isGlobalAddressingUsed()) {
-                ListeningPoint listeningPoint = sipProvider
-                        .getListeningPoint(itspAccount.getOutboundTransport());
+             String outboundTransport = itspAccount == null  ? 
+                     Gateway.DEFAULT_ITSP_TRANSPORT : itspAccount.getOutboundTransport();
+            
+             if (itspAccount != null && !itspAccount.isGlobalAddressingUsed()) {
+                 
+                 ListeningPoint listeningPoint = sipProvider
+                        .getListeningPoint(outboundTransport);
                 String host = listeningPoint.getIPAddress();
                 int port = listeningPoint.getPort();
                 ViaHeader viaHeader = ProtocolObjects.headerFactory
@@ -232,14 +236,9 @@ class SipUtilities {
                 return viaHeader;
 
             } else {
-                // Check -- what other parameters need to be set for NAT
-                // traversal here?
-                String transport = itspAccount != null ? itspAccount
-                        .getOutboundTransport()
-                        : Gateway.DEFAULT_ITSP_TRANSPORT;
                 return ProtocolObjects.headerFactory.createViaHeader(Gateway
                         .getGlobalAddress(), Gateway.getGlobalPort(),
-                        transport, null);
+                        outboundTransport, null);
 
             }
 
@@ -373,9 +372,7 @@ class SipUtilities {
         if (port != 5060) {
             requestUri.setPort(port);
         }
-        if (itspAccount.getOutboundTransport().equalsIgnoreCase("tcp")) {
-            requestUri.setTransportParam("tcp");
-        }
+        
 
         /*
          * We register with From and To headers set to the proxy domain.
@@ -429,14 +426,18 @@ class SipUtilities {
 
         SipURI registrarUri = ProtocolObjects.addressFactory.createSipURI(null,
                 outboundRegistrar);
+      
         if (itspAccount.isInboundProxyPortSet()) {
             registrarUri.setPort(itspAccount.getInboundProxyPort());
         }
         Collection<Hop> hops = new FindSipServer(logger).findSipServers(registrarUri);
+     
+       
         if ( hops == null || hops.isEmpty() )  {
             throw new SipException ("No route to registrar found");
         }
-
+        
+     
         RouteHeader routeHeader  = SipUtilities.createRouteHeader(hops.iterator().next());   
         request.setHeader(routeHeader);
         return request;
@@ -671,12 +672,12 @@ class SipUtilities {
                 requestUri.removeParameter("user");
             }
 
-            if (itspAccount.getOutboundTransport() != null) {
+            /* if (itspAccount.getOutboundTransport() != null) {
                 requestUri
                         .setTransportParam(itspAccount.getOutboundTransport());
             } else {
                 requestUri.removeParameter("transport");
-            }
+            } */
 
             requestUri.removePort();
 
@@ -747,15 +748,15 @@ class SipUtilities {
             Hop hop = hopIter.next();
             hopIter.remove();
 
-            // sipxbridge router will strip maddr before forwarding.
-           
-           requestUri.setMAddrParam(hop.getHost());
-           requestUri.setPort(hop.getPort());
+           // sipxbridge router will strip maddr before forwarding.
+           // maddr parameter is obsolete.
+           //requestUri.setMAddrParam(hop.getHost());
+           //requestUri.setPort(hop.getPort());
            
            // This is the right way to do this after the following is fixed:
            // http://track.sipfoundry.org/browse/XX-5884 
-           // RouteHeader proxyRoute = SipUtilities.createRouteHeader(hop);      
-           // request.setHeader(proxyRoute);
+           RouteHeader proxyRoute = SipUtilities.createRouteHeader(hop);      
+           request.setHeader(proxyRoute);
            
 
             /*
@@ -1606,6 +1607,8 @@ class SipUtilities {
                 if (sb.length() != 0) {
                     SipUtilities.addSipFrag(newResponse, sb.toString().trim());
                 }
+                
+                newResponse.setReasonPhrase("ITSP Error " + response.getReasonPhrase());
             }
 
             return newResponse;
