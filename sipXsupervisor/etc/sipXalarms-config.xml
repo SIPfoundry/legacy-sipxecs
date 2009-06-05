@@ -177,7 +177,7 @@
       </alarm>
       <alarm id="NAT_TRAVERSAL_LOST_CONTACT_WITH_MEDIA_RELAY">
          <code>SPX00024</code>
-         <severity>err</severity>
+         <severity>error</severity>
          <component>sipXproxy</component>
          <action log="true"
                  email="true"
@@ -193,7 +193,7 @@
       </alarm>
       <alarm id="NAT_TRAVERSAL_MEDIA_RELAY_RESET_DETECTED_RECONNECTING">
          <code>SPX00026</code>
-         <severity>err</severity>
+         <severity>error</severity>
          <component>sipXproxy</component>
          <action log="true"
                  email="true"
@@ -223,7 +223,7 @@
             'id=' the id can be any unique string (no spaces).  This is how the alarm is raised 
                   by application code.
             'code' should be unique, and of the form SPXnnnnn, incremented for each new alarm
-            'severity' is one of debug, info, notice, warning, err, crit
+            'severity' is one of debug, info, notice, warning, error, crit
             'component' as appropriate (e.g. sipXconfig, sipXregistrar, etc)
             'action' is optional.  Default for all notifiers is "true".
             'filter' specifies optional rudimentary thresholds:
