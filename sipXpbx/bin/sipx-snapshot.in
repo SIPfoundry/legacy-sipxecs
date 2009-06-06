@@ -23,6 +23,7 @@ LogStart=
 LogStop=
 IncludeCallRecords="FALSE"
 IncludeProfiles="FALSE"
+GenerateCoreFiles=NO
 Arguments=
 
 DefaultTarFile="sipx-configuration-`hostname -f`.tar.gz"
@@ -189,6 +190,10 @@ do
             fi
             CommentFiles="${CommentFiles} ${2}"
             shift
+            ;;
+
+        --generate-core-files)
+            GenerateCoreFiles=YES
             ;;
 
         ##
@@ -621,6 +626,60 @@ echo "  Certificate Dump:"     >> ${SystemConfig}
 cat @SIPX_CONFDIR@/ssl/ssl.crt >> ${SystemConfig} 2>&1
 echo ""
 
+# Set the file name to hold the output from core file and backtrace manipulation.
+Backtrace=${Work}/Backtrace
+
+# If requested, create core files for all the processes.
+# If not, get backtraces of all processes.
+if [ ${GenerateCoreFiles} = YES ]
+then
+    echo ======== Generate core files for all sipX processes > ${Backtrace}
+    for PID_FILE in ~/sandbox-147/dir-local/var/run/sipxpbx/*.pid
+    do
+        PID=$( cat ${PID_FILE} )
+        FILE=/tmp/core.${PID}
+        echo
+        echo Generate core file for ${PID_FILE%.pid} process number $PID into ${FILE}
+        echo
+        if [[ -n "${PID}" ]]
+        then
+            time \
+                gdb < /dev/null \
+                -eval-command "attach ${PID}" \
+                -eval-command 'thread apply all backtrace' \
+                -eval-command "generate-core-file ${FILE}" \
+                -eval-command detach \
+                -eval-command quit
+	    # Check that we managed to create the core file.
+	    if test -e ${FILE}
+	    then
+		CoreFiles="${CoreFiles} ${FILE}"
+	    else
+		echo Could not generate core file ${FILE} for process number $PID
+	    fi
+        fi
+    done
+else
+    echo ======== Backtrace of all sipX processes > ${Backtrace}
+    for PID_FILE in ~/sandbox-147/dir-local/var/run/sipxpbx/*.pid
+    do
+        PID=$( cat ${PID_FILE} )
+        echo
+        echo Process ${PID_FILE%.pid} number ${PID}
+        echo
+        if [[ -n "${PID}" ]]
+        then
+            time \
+                gdb < /dev/null \
+                -eval-command "attach ${PID}" \
+                -eval-command 'thread apply all backtrace' \
+                -eval-command detach \
+                -eval-command quit
+        fi
+        echo
+    done
+fi >> ${Backtrace} 2>&1
+
 # Process the core file specifications (if any) into the list of files to save
 # and include details in SystemConfig.
 
@@ -649,17 +708,14 @@ do
       exit 1
   fi
 
-  Executable="${file_output##*\ from\ \'}"
-  Executable="${Executable%\'}"
-
-  # Point the executable file name to SIPX_BINDIR if it has no /.
-  Executable=$( make_absolute ${Executable} @SIPX_BINDIR@ )
-
-  # Check that the file exists.
-  if [ ! -e ${Executable} ]
+  if [[ "${file_output}" = *" from "* ]]
   then
-      echo File ${Executable}, the executable for ${Core}, does not exist. 1>&2
-      exit 1
+      Executable="${file_output##*\ from\ \'}"
+      Executable="${Executable%\'}"
+      # Point the executable file name to SIPX_BINDIR if it has no /.
+      Executable=$( make_absolute ${Executable} @SIPX_BINDIR@ )
+  else
+      Executable='(unknown)'
   fi
 
   echo ""                               >> ${SystemConfig}
@@ -669,9 +725,21 @@ do
 
   # Accumulate the list of files to be added to the snapshot in 
   echo "${Core}" >>${Work}.core-related-files
-  echo "${Executable}" >>${Work}.core-related-files
-  # Get the dynamic libraries this executable needs.
-  ldd ${Executable} | perl -pe 's|^.*=>\s*||; s|\s*\(.*$||; s|^\s*||' >>${Work}.core-related-files
+
+  # Check that the executable file exists.
+  if [ "${Executable}" = '(unknown)' ]
+  then
+      : Do nothing
+  elif [ ! -e ${Executable} ]
+  then
+      echo File ${Executable}, the apparent executable for ${Core}, does not exist. 1>&2
+      echo "Warning: ${Executable} does not exist." >> ${SystemConfig}
+  else
+      echo "${Executable}" >>${Work}.core-related-files
+
+      # Get the dynamic libraries this executable needs.
+      ldd ${Executable} | perl -pe 's|^.*=>\s*||; s|\s*\(.*$||; s|^\s*||' >>${Work}.core-related-files
+  fi
 
 done
 
@@ -816,28 +884,6 @@ DirListing=${Work}/ls-lR
 echo ======== TZ=UTC $command  > ${DirListing}
 echo                          >> ${DirListing}
 TZ=UTC $command               >> ${DirListing}
-
-# Backtrace all sipX processes
-
-Backtrace=${Work}/Backtrace
-echo ======== Backtrace of all sipX processes > ${Backtrace}
-for PID_FILE in ~/sandbox-147/dir-local/var/run/sipxpbx/*.pid
-do
-    PID=$( cat ${PID_FILE} )
-    echo
-    echo Process ${PID_FILE%.pid} number ${PID}
-    echo
-    if [[ -n "${PID}" ]]
-    then
-	time \
-	    gdb < /dev/null \
-	    -eval-command "attach ${PID}" \
-	    -eval-command 'thread apply all backtrace' \
-	    -eval-command detach \
-	    -eval-command quit
-    fi
-    echo
-done >> ${Backtrace} 2>&1
 
 # Collect sipX configuration information
 echo "" >> ${SystemConfig}
