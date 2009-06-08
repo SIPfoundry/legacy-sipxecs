@@ -128,8 +128,16 @@ zone "${myDomname}" IN {
     masters {${myHostaddr};};
 };
 EOF
+    echo "Generating resolver configuration for secondary server that points to master"
+    cat > "${INITIAL_CONFIG}/etc/resolv.conf" <<EOF
+search ${myDomname}
+nameserver 127.0.0.1
+nameserver ${myHostaddr}
+EOF
 else
     echo "NOT generating DNS record for secondary server"
+    echo "Generating resolver configuration for secondary server by copying from master"
+    cp "/etc/resolv.conf" "${INITIAL_CONFIG}/etc/resolv.conf"
 fi
 
 # generate TLS credentials 
