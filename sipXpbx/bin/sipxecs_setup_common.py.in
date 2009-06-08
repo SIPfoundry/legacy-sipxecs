@@ -360,6 +360,7 @@ the next screen\n\
 
 def screen_fetch_config ():
     global HostName
+    global DomainName
     
     masterSystemName=''
     gotConfig=False
@@ -370,23 +371,28 @@ Enter the full hostname of your Master system,\n\
 and the Setup Password assigned to this new system\n\
 to fetch the configuration for this system.\
 "
-        sg = snack.Grid(2, 3)
+        sg = snack.Grid(2, 4)
 
         l1 = snack.Label("Master Hostname:   ")
         e1 = snack.Entry(32, masterSystemName)
         sg.setField(l1, 0, 0)
         sg.setField(e1, 1, 0)
 
-        l2 = snack.Label("%s Setup Password:   " % HostName)
-        e2 = snack.Entry(8, "")
+        l2 = snack.Label("Master IP Address:   ")
+        e2 = snack.Entry(15, "")
         sg.setField(l2, 0, 1)
         sg.setField(e2, 1, 1)
 
+        l3 = snack.Label("%s Setup Password:   " % HostName)
+        e3 = snack.Entry(8, "")
+        sg.setField(l3, 0, 2)
+        sg.setField(e3, 1, 2)
+
         okButton = snack.Button("   OK   ")
-        sg.setField(okButton, 0, 2, (1,1,1,1))
+        sg.setField(okButton, 0, 3, (1,1,1,1))
 
         abortButton = snack.Button("Abort")
-        sg.setField(abortButton, 1, 2, (1,1,1,1))
+        sg.setField(abortButton, 1, 3, (1,1,1,1))
 
         form = screen_setup("Configuration Master", MasterSystemMessage, sg)
         choice = form.run()
@@ -395,13 +401,28 @@ to fetch the configuration for this system.\
 
         if choice == okButton :
             masterSystemName=e1.value().lower()
-            password=e2.value()
+            masterSystemAddr=e2.value().lower()
+            password=e3.value()
 
             progress(40, "Contact %s" % masterSystemName)
             show_progress()
 
+            # temporarily set the local resolver to use the master as the dns server
+            # (this is overwritten by the configuration returned from the master)
+            resolvFile = '/etc/resolv.conf'
+            resolvContent = '\
+search %s\n\
+nameserver %s\n\
+' % (DomainName, masterSystemAddr)
+            log_printout("======= temporary %s:" % resolvFile)
+            log_printout(resolvContent)
+            if runningAsRoot() :
+                file (resolvFile, 'w').write(resolvContent)
+
             ConfigUrl='https://%s:8443/sipxconfig/initial-config/%s'\
                        % ( masterSystemName, HostName )
+
+            log_printout("======= Configuration URL '%s'" % ConfigUrl)
 
             urlopener = ConfigURLOpener()
             urlopener.setpasswd(HostName, password)
@@ -817,8 +838,9 @@ NetMask=%s\n\
     log_printout("Writing %s" % MASTER_NETIF)
     log_printout(masterNetIf)
 
-    file(MASTER_NETIF, 'w').write(masterNetIf)
-    setRights(MASTER_NETIF)
+    if runningAsRoot() :
+       file(MASTER_NETIF, 'w').write(masterNetIf)
+       setRights(MASTER_NETIF)
 
 def do_sipx_setup() :
     global HostName
