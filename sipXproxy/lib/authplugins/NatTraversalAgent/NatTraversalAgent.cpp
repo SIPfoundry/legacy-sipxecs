@@ -310,7 +310,6 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
                   Url requestUri( ruri, TRUE );
                   TransportData requestUriAsTransport( requestUri );
                   requestUriAsTransport.toUrlString( sipxNatRouteString );
-OsSysLog::add(FAC_NAT, PRI_DEBUG, "bobjoly '%s'", sipxNatRouteString.data() );                           
                }
             }
             
