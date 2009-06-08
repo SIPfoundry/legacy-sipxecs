@@ -39,13 +39,17 @@ public class FreeSwitchEventSocket extends FreeSwitchEventSocketInterface {
      * 
      * Enable FreeSwitch to report async events of interest.
      */
-    public void connect(Socket socket) throws IOException {
+    public boolean connect(Socket socket) throws IOException {
         m_clientSocket = socket;
         m_out = new PrintWriter(m_clientSocket.getOutputStream(), true);
         setIn(new BufferedReader(new InputStreamReader(m_clientSocket.getInputStream())));
 
         // Accept the connection from FreeSwitch, and get the variables for this call
         FreeSwitchEvent event = cmdResponse("connect");
+        if (event.isEmpty()) {
+        	return false;
+        }
+        
         LOG.debug(event.getResponse());
         setVariables(FreeSwitchEvent.parseHeaders(event.getResponse()));
 
@@ -53,6 +57,7 @@ public class FreeSwitchEventSocket extends FreeSwitchEventSocketInterface {
         cmdResponse("linger");
         // Enable reporting of interesting events
         cmdResponse("myevents");
+        return true;
     }
 
     /**
@@ -80,7 +85,10 @@ public class FreeSwitchEventSocket extends FreeSwitchEventSocketInterface {
         for (;;) {
             FreeSwitchEvent event = awaitLiveEvent();
 
-            if (event.getContentType().contentEquals("command/reply")) {
+            if (event.isEmpty()) {
+            	// Hey! FS closed the socket on us!
+            	return event;
+            } else if (event.getContentType().contentEquals("command/reply")) {
                 LOG.debug(String.format("FSES::cmdResponse cmd (%s) response (%s)", cmd, event.getHeader(
                         "Reply-Text", "(No Reply-Text)")));
                 return event;

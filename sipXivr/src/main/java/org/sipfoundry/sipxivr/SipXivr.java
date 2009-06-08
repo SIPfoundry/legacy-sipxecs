@@ -44,52 +44,52 @@ public class SipXivr implements Runnable {
 
         try {
             m_fses = new FreeSwitchEventSocket(s_config);
-            m_fses.connect(m_clientSocket);
-
-
-            String sipReqParams = m_fses.getVariable("variable_sip_req_params");
-            // Create a table of parameters to pass in
-            Hashtable<String, String> parameters = new Hashtable<String, String>();
-
-            if (sipReqParams != null) {
-                // Split parameter fields (separated by semicolons)
-                String[] params = sipReqParams.split(";");
-                for (String param : params) {
-                    // Split key value pairs (separated by optional equal sign)
-                    String[] kvs = param.split("=", 2);
-                    if (kvs.length == 2) {
-                        parameters.put(kvs[0], kvs[1]);
-                    } else {
-                        parameters.put(kvs[0], "");
-                    }
-                }
+            if (m_fses.connect(m_clientSocket)) {
+		
+		
+		        String sipReqParams = m_fses.getVariable("variable_sip_req_params");
+		        // Create a table of parameters to pass in
+		        Hashtable<String, String> parameters = new Hashtable<String, String>();
+		
+		        if (sipReqParams != null) {
+		            // Split parameter fields (separated by semicolons)
+		            String[] params = sipReqParams.split(";");
+		            for (String param : params) {
+		                // Split key value pairs (separated by optional equal sign)
+		                String[] kvs = param.split("=", 2);
+		                if (kvs.length == 2) {
+		                    parameters.put(kvs[0], kvs[1]);
+		                } else {
+		                    parameters.put(kvs[0], "");
+		                }
+		            }
+		        }
+		        
+		        LOG.info(String.format("SipXivr::run Accepting call-id %s from %s to %s", 
+		                m_fses.getVariable("variable_sip_call_id"),
+		                m_fses.getVariable("variable_sip_from_uri"),
+		                m_fses.getVariable("variable_sip_req_uri")));
+		        
+		        m_fses.invoke(new Answer(m_fses));
+		
+		        String action = parameters.get("action");
+		        if (action == null) {
+		            LOG.warn("Cannot determine which application to run as the action parameter is missing.");
+		        } else if (action.contentEquals("autoattendant")) {
+		            // Run the Attendant.
+		            Attendant app = new Attendant(s_config, m_fses, parameters);
+		            app.run();
+		        } else if (action.equals("deposit") || action.equals("retrieve")) {
+		        	// Run VoiceMail
+		        	VoiceMail app = new VoiceMail(s_config, m_fses, parameters);
+		        	app.run();
+		        } else {
+		            // Nothing else to run...
+		            LOG.warn("Cannot determine which application to run from action="+ action);
+		        }
+		
+		        m_fses.invoke(new Hangup(m_fses));
             }
-            
-            LOG.info(String.format("SipXivr::run Accepting call-id %s from %s to %s", 
-                    m_fses.getVariable("variable_sip_call_id"),
-                    m_fses.getVariable("variable_sip_from_uri"),
-                    m_fses.getVariable("variable_sip_req_uri")));
-            
-            m_fses.invoke(new Answer(m_fses));
-
-            String action = parameters.get("action");
-            if (action == null) {
-                LOG.warn("Cannot determine which application to run as the action parameter is missing.");
-            } else if (action.contentEquals("autoattendant")) {
-                // Run the Attendant.
-                Attendant app = new Attendant(s_config, m_fses, parameters);
-                app.run();
-            } else if (action.equals("deposit") || action.equals("retrieve")) {
-            	// Run VoiceMail
-            	VoiceMail app = new VoiceMail(s_config, m_fses, parameters);
-            	app.run();
-            } else {
-                // Nothing else to run...
-                LOG.warn("Cannot determine which application to run from action="+ action);
-            }
-
-            m_fses.invoke(new Hangup(m_fses));
-
         } catch (DisconnectException e) {
             LOG.info("SipXivr::run Far end hungup.");
         } catch (Throwable t) {

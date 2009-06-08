@@ -32,7 +32,7 @@ public abstract class FreeSwitchEventSocketInterface {
     private Configuration m_config;
     private boolean m_disconnected;
 
-    public abstract void connect(Socket socket) throws IOException;
+    public abstract boolean connect(Socket socket) throws IOException;
 
     public abstract void cmd(String cmd);
 
