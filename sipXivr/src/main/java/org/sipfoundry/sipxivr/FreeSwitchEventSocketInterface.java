@@ -33,7 +33,7 @@ public abstract class FreeSwitchEventSocketInterface {
     private boolean m_disconnected;
     private boolean m_redactDtmf; // True if DTMF logs should be redacted (for "security")
 
-    public abstract void connect(Socket socket) throws IOException;
+    public abstract boolean connect(Socket socket) throws IOException;
 
     public abstract void cmd(String cmd);
 
