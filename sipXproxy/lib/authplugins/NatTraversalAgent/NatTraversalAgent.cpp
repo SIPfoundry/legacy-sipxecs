@@ -308,7 +308,9 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
                   UtlString ruri;
                   request.getRequestUri( &ruri );
                   Url requestUri( ruri, TRUE );
-                  requestUri.getHostWithPort( sipxNatRouteString );
+                  TransportData requestUriAsTransport( requestUri );
+                  requestUriAsTransport.toUrlString( sipxNatRouteString );
+OsSysLog::add(FAC_NAT, PRI_DEBUG, "bobjoly '%s'", sipxNatRouteString.data() );                           
                }
             }
             
