@@ -206,12 +206,11 @@ void ResourceCached::generateBody(UtlString& rlmi,
 {
    // Remove any suffix from the URI, for example it removes:
    // ";sipx-noroute=VoiceMail;sipx-userforward=false"
-   UtlString rlmi_uri = *(static_cast <const UtlString*> (this));
-   ssize_t temp_idx = rlmi_uri.index(';');
-   if (temp_idx != UTL_NOT_FOUND)
-   {
-      rlmi_uri.remove(temp_idx);
-   }
+   UtlString temp_uri = *(static_cast <const UtlString*> (this));
+   Url temp_url(temp_uri, TRUE);    // addr-spec format, i.e., URI
+   temp_url.removeUrlParameters();
+   UtlString rlmi_uri;
+   temp_url.getUri(rlmi_uri);       // addr-spec format, i.e., URI
 
    // Generate the preamble for the resource.
    rlmi += "  <resource uri=\"";
