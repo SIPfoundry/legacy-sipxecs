@@ -134,14 +134,10 @@
         <value>localConferenceCallHold</value>
         <value>singleKeyPressConference</value>
         <value>VVX_1500_CodecPref</value>
-        <value>video</value>
-        <value>powerSaving</value>
-        <value>microbrowserLunchPad</value>
-        <value>pictureFrame</value>
-        <value>screenSaver</value>
         <value>Lin16</value>
         <value>G722</value>
         <value>Siren14</value>
+        <value>video</value>
       </set>
     </property>
   </bean>

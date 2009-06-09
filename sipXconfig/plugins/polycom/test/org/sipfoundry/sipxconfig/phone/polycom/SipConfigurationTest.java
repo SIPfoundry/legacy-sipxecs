@@ -88,10 +88,6 @@ public class SipConfigurationTest extends XMLTestCase {
         features.add("voiceQualityMonitoring");
         features.add("VVX_1500_CodecPref");
         features.add("video");
-        features.add("powerSaving");
-        features.add("microbrowserLunchPad");
-        features.add("pictureFrame");
-        features.add("screenSaver");
         features.add("Lin16");
         features.add("G722");
         features.add("Siren14");

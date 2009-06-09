@@ -152,7 +152,7 @@
 #end
 #end
   >
-#if ($phone.model.isSupported("pictureFrame"))
+#if ($phone.model.isSupported("video"))
     <pictureFrame
 #set ($group = $cfg.EndpointSettings.getSetting('up').getSetting('pictureFrame'))
 #foreach ($setting in $cfg.getSettings($group))
@@ -160,7 +160,7 @@
 #end
     />
 #end
-#if ($phone.model.isSupported("screenSaver"))
+#if ($phone.model.isSupported("video"))
     <screenSaver
 #set ($group = $cfg.EndpointSettings.getSetting('up').getSetting('screenSaver'))
 #foreach ($setting in $cfg.getSettings($group))
@@ -555,7 +555,7 @@
 #end
   />
 #end
-#if ($phone.model.isSupported("powerSaving"))
+#if ($phone.model.isSupported("video"))
   <powerSaving
 #set ($group = $cfg.EndpointSettings.getSetting('powerSaving'))
 #foreach ($setting in $cfg.getSettings($group))

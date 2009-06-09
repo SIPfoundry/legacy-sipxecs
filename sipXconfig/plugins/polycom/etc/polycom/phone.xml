@@ -90,7 +90,7 @@
       </type>
       <value />
     </setting>
-    <group name="pictureFrame" if="pictureFrame">
+    <group name="pictureFrame" if="video">
       <setting name="folder">
         <type>
           <string />
@@ -104,7 +104,7 @@
         <value />
       </setting>
     </group>
-    <group name="screenSaver" if="screenSaver">
+    <group name="screenSaver" if="video">
       <setting name="enabled">
         <type>
           <boolean />
@@ -1971,7 +1971,7 @@
       </type>
       <value />
     </setting>
-    <setting name="LaunchPad.enabled" if="microbrowserLunchPad">
+    <setting name="LaunchPad.enabled" if="video">
       <type>
         <boolean />
       </type>
@@ -2580,7 +2580,7 @@
       </setting>
     </group>
   </group>
-  <group name="powerSaving" if="powerSaving">
+  <group name="powerSaving" if="video">
     <setting name="enabled">
       <type>
         <boolean />
