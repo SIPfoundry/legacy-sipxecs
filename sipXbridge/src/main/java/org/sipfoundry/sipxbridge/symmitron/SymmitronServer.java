@@ -1142,9 +1142,11 @@ public class SymmitronServer implements Symmitron {
                     sessionMap.remove(sym.getId());
                     HashSet<Sym> syms = sessionResourceMap
                             .get(controllerHandle);
-                    syms.remove(sym);
-                    if (syms.isEmpty()) {
-                        sessionResourceMap.remove(controllerHandle);
+                    if ( syms != null ) {
+                        syms.remove(sym);
+                        if (syms.isEmpty()) {
+                            sessionResourceMap.remove(controllerHandle);
+                        }
                     }
 
                 }

@@ -20,10 +20,14 @@ public class RegistrationTimerTask extends TimerTask {
 	private static Logger logger = Logger.getLogger(RegistrationTimerTask.class);
 
     ItspAccountInfo itspAccount;
+    long cseq;
+    String callId;
 
-    public RegistrationTimerTask(ItspAccountInfo itspAccount) {
+    public RegistrationTimerTask(ItspAccountInfo itspAccount, String callId, long cseq) {
         this.itspAccount = itspAccount;
         this.itspAccount.registrationTimerTask = this;
+        this.callId = callId;
+        this.cseq = cseq;
 
     }
     
@@ -31,10 +35,10 @@ public class RegistrationTimerTask extends TimerTask {
     public void run() {
 
         try {
-            Gateway.getRegistrationManager().sendRegistrer(itspAccount);
+            Gateway.getRegistrationManager().sendRegistrer(itspAccount,callId,cseq+1);
             this.itspAccount.registrationTimerTask = null;
         } catch (Exception ex) {
-            RegistrationTimerTask ttask = new RegistrationTimerTask(itspAccount);
+            RegistrationTimerTask ttask = new RegistrationTimerTask(itspAccount, null, 1L);
             Gateway.getTimer().schedule(ttask, 60 * 1000);
             try {
                 if (!itspAccount.isAlarmSent()) {

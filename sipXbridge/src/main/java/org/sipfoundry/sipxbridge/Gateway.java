@@ -762,13 +762,13 @@ public class Gateway {
                 if (itspAccount.isRegisterOnInitialization()
                         && itspAccount.getState() != AccountState.INVALID) {
                     try {
-                        Gateway.registrationManager.sendRegistrer(itspAccount);
+                        Gateway.registrationManager.sendRegistrer(itspAccount,null,1L);
                     } catch (SipException ex) {
                         logger.error("Exception sending REGISTER to "
                                 + itspAccount.getProxyDomain());
                         // Maybe an route could not be found so start a timer to
                         // keep trying
-                        TimerTask ttask = new RegistrationTimerTask(itspAccount);
+                        TimerTask ttask = new RegistrationTimerTask(itspAccount,null,1L);
                         // Retry after 60 seconds.
                         timer.schedule(ttask, 60 * 1000);
                         if (!itspAccount.isAlarmSent()) {

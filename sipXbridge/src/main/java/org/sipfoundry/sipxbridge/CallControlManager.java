@@ -505,9 +505,6 @@ class CallControlManager implements SymmitronResetHandler {
 
                 ItspAccountInfo account = Gateway.getAccountManager().getAccount(request);
                 if (account == null) {
-                    Response response = SipUtilities.createResponse(serverTransaction,
-                            Response.NOT_FOUND);
-                    response.setReasonPhrase("ITSP account not found");
                     return;
                 }
                 if (account.getState() == AccountState.INVALID) {

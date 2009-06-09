@@ -145,7 +145,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
                  */
                 if (alarmTable.get(sipUri.getHost()) == null) {
                     /* If To tag is present we will return a 481 for this requet */
-                    if ( SipUtilities.getToTag(request) != null ) {
+                    if ( SipUtilities.getToTag(request) == null ) {
                          alarmTable.put(sipUri.getHost(), true); 
                          Gateway.getAlarmClient().raiseAlarm(Gateway.ACCOUNT_NOT_FOUND_ALARM_ID,
                             sipUri.getHost());
