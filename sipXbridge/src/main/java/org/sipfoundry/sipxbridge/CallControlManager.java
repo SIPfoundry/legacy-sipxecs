@@ -471,11 +471,19 @@ class CallControlManager implements SymmitronResetHandler {
                  * here.
                  */
                 if (btobua == null) {
-                    Response response = SipUtilities.createResponse(serverTransaction,
-                            Response.NOT_FOUND);
-                    response.setReasonPhrase("No record of ITSP. Check configuration.");
-                    serverTransaction.sendResponse(response);
-                    return;
+                    if ( SipUtilities.getToTag(request) == null ) {
+                        Response response = SipUtilities.createResponse(serverTransaction,
+                                Response.NOT_FOUND);
+                        response.setReasonPhrase("No record of ITSP. Check configuration.");
+                        serverTransaction.sendResponse(response);
+                        return;
+                    } else {
+                        Response response = SipUtilities.createResponse(serverTransaction,
+                                Response.CALL_OR_TRANSACTION_DOES_NOT_EXIST);
+                        response.setReasonPhrase("No record of ITSP. Check configuration.");
+                        serverTransaction.sendResponse(response);
+                        return;
+                    }
                 } else if (btobua.isPendingTermination()) {
                     Response response = SipUtilities.createResponse(serverTransaction,
                             Response.LOOP_DETECTED);
@@ -830,10 +838,18 @@ class CallControlManager implements SymmitronResetHandler {
                          */
                         ack = peerDialog.createAck(SipUtilities.getSeqNumber(peerDialogContext
                                 .getLastResponse()));
-
+                        
+                       
                         ContentTypeHeader cth = ProtocolObjects.headerFactory
                                 .createContentTypeHeader("application", "sdp");
                         SessionDescription sd = SipUtilities.getSessionDescription(inboundAck);
+                        /*
+                         * XX-5709 set the destination so we know where to expect RTP from.
+                         */
+                        String ipAddress = SipUtilities.getSessionDescriptionMediaIpAddress(sd);
+                        int port = SipUtilities.getSessionDescriptionMediaPort(sd);
+                        dialogContext.getRtpSession().getTransmitter().setIpAddressAndPort(ipAddress, port);
+                        
                         SipUtilities.incrementSessionVersion(sd);
                         peerDialogContext.getRtpSession().getReceiver().setSessionDescription(sd);
                         /*

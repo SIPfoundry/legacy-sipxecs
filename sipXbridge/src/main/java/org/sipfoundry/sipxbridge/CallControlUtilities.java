@@ -162,6 +162,10 @@ public class CallControlUtilities {
 
             SessionDescription answerSessionDescription = SipUtilities
                     .getSessionDescription(response);
+            
+            String ipAddress = SipUtilities.getSessionDescriptionMediaIpAddress(answerSessionDescription);
+            int port = SipUtilities.getSessionDescriptionMediaPort(answerSessionDescription);
+         
             /*
              * Get the codecs in the answer.
              */
@@ -205,8 +209,10 @@ public class CallControlUtilities {
                 DialogContext.getRtpSession(dialog).getTransmitter().setOnHold(false);
 
             } else {
-                
-
+                /*
+                 * Set the remote port so that we know where to expect media from.
+                 */
+                DialogContext.getPeerRtpSession(dialog).getTransmitter().setIpAddressAndPort(ipAddress, port);
                 ackSd = answerSessionDescription;
 
                 /*

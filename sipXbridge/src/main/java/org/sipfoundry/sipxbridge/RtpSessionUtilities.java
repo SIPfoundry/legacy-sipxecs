@@ -53,6 +53,12 @@ public class RtpSessionUtilities {
 				SessionDescription inboundSessionDescription = SipUtilities
 						.getSessionDescription(request);
 				/*
+				 * Exclude stray packets set the destination.
+				 */
+				String ipAddress = SipUtilities.getSessionDescriptionMediaIpAddress(inboundSessionDescription);
+				int port  = SipUtilities.getSessionDescriptionMediaPort(inboundSessionDescription);
+				rtpSession.getTransmitter().setIpAddressAndPort(ipAddress, port);
+				/*
 				 * This is our offer that we are forwarding to the other side.
 				 * Store it here. Note that setting the session description also
 				 * remaps the ports to where we want to listen.

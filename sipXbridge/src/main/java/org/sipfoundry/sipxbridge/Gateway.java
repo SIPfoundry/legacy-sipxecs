@@ -376,6 +376,19 @@ public class Gateway {
                 }
                 StunDiscoveryReport report = addressDiscovery
                         .determineAddress();
+                if ( report == null || report.getPublicAddress() == null ) {
+                    logger.warn("STUN Error : Global address could not be found");
+                    try {
+                        if ( addressDiscovery != null ) {
+                            addressDiscovery.shutDown();
+                        }
+                    } catch (Exception e ) {
+                        logger.error("Error shutting down address discovery ", e);
+                    } finally {
+                        addressDiscovery = null;
+                    }
+                    return;
+                }
                 globalAddress = report.getPublicAddress().getSocketAddress()
                         .getAddress().getHostAddress();
                 logger.debug("Stun report = " + report);

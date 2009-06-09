@@ -69,7 +69,7 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
         KeepaliveTimerTask() {
 
             logger.debug("Starting early media sender TimerTask : remote endpoint = "
-                    + getIpAddress() + "/ " + port);
+                    + getIpAddress() + "/ " + getPort());
 
         }
 
@@ -282,7 +282,7 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
                 }
             }
 
-            if (this.datagramChannel != null && this.getSocketAddress() != null) {
+            if (this.datagramChannel != null && this.getSocketAddress() != null ) {
                 int bytesSent = this.datagramChannel.send(byteBuffer, this.getSocketAddress());
                 if (logger.isTraceEnabled()) {
                     logger.trace("SymTransmitterEndpoint:actually sending to "
@@ -328,11 +328,11 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
     }
 
     void computeAutoDiscoveryFlag() throws Exception {
-        if (this.ipAddress == null && this.port == 0) {
+        if (getIpAddress() == null && this.getPort() == 0) {
             this.remoteAddressAutoDiscovered = AutoDiscoveryFlag.IP_ADDRESS_AND_PORT;
-        } else if (this.ipAddress != null && this.port == 0) {
+        } else if (getIpAddress() != null && this.getPort() == 0) {
             this.remoteAddressAutoDiscovered = AutoDiscoveryFlag.PORT_ONLY;
-        } else if (this.ipAddress != null && this.port != 0) {
+        } else if (getIpAddress() != null && this.getPort() != 0) {
             this.remoteAddressAutoDiscovered = AutoDiscoveryFlag.NO_AUTO_DISCOVERY;
         }
 
@@ -355,8 +355,8 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
      * @throws UnknownHostException
      */
     public void setIpAddressAndPort(String ipAddress, int port) throws UnknownHostException {
-        super.ipAddress = ipAddress;
-        super.port = port;
+        super.setIpAddress(ipAddress);
+        super.setPort(port);
         // Note that the IP address does not need to be specified ( can be auto
         // discovered ).
         if (ipAddress != null && port != 0) {
@@ -371,14 +371,15 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
     public void setPort(int port) throws IllegalArgumentException {
         try {
             super.setPort(port);
-            if (ipAddress != null && port != 0) {
-                setSocketAddress(new InetSocketAddress(InetAddress.getByName(ipAddress), port));
+            if (getIpAddress() != null && port != 0) {
+                setSocketAddress(new InetSocketAddress(InetAddress.getByName(getIpAddress()), port));
 
             } else {
                 setSocketAddress(null);
             }
         } catch (UnknownHostException ex) {
-            throw new IllegalArgumentException("Unknown host " + ipAddress);
+            logger.error("Error processing request" ,ex);
+            throw new IllegalArgumentException("Unknown host " );
         }
     }
 
@@ -386,13 +387,14 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
     public void setIpAddress(String ipAddress) throws IllegalArgumentException {
         try {
             super.setIpAddress(ipAddress);
-            if (ipAddress != null && port != 0) {
-                setSocketAddress(new InetSocketAddress(InetAddress.getByName(ipAddress), port));
+            if (ipAddress != null && getPort() != 0) {
+                setSocketAddress(new InetSocketAddress(InetAddress.getByName(ipAddress), getPort()));
 
             } else {
                 setSocketAddress(null);
             }
         } catch (UnknownHostException ex) {
+            logger.error("Error processing request ", ex);
             throw new IllegalArgumentException("Unknown host " + ipAddress);
         }
     }

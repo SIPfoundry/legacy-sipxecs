@@ -101,9 +101,27 @@ class DataShuffler implements Runnable {
         try {
 
             if (logger.isTraceEnabled()) {
-                logger.trace("BridgeSize = " + bridge.sessions.size());
+                logger.trace("DataShuffler.send(): BridgeSize = " + bridge.sessions.size());
             }
-
+            /* xx-5907 sipxrelay needs to guard against stray media streams. */
+            Sym receivedOn = bridge.getReceiverSym(datagramChannel);
+            if ( receivedOn.getTransmitter() != null && receivedOn.getTransmitter().getInetAddress() != null &&
+                 receivedOn.getTransmitter().getAutoDiscoveryFlag() == AutoDiscoveryFlag.NO_AUTO_DISCOVERY &&
+                    !receivedOn.getTransmitter().getInetAddress().equals(remoteAddress.getAddress())) {
+                if ( logger.isTraceEnabled() ) {
+                    logger.trace("Discarding packet - remote endpoint does not match transmitter endpoint" );
+                    logger.trace("receivedOn = " + receivedOn.getTransmitter().getInetAddress() + " remoteAddress " + remoteAddress.getAddress());
+                }
+                return;
+            } else if ( logger.isTraceEnabled() && receivedOn.getTransmitter() != null ) {
+                if ( logger.isTraceEnabled() ) {
+                    logger.trace("receivedOn : " + receivedOn.getTransmitter().getInetAddress() 
+                            + " ipaddr = " + receivedOn.getTransmitter().getIpAddress() );
+                }
+            } else if ( logger.isTraceEnabled() ) {
+                logger.trace("receivedOn : transmitter == null " );
+            }
+            
             for (Sym sym : bridge.sessions) {
                 if (sym.getReceiver() != null
                         && datagramChannel == sym.getReceiver().getDatagramChannel()) {
@@ -126,9 +144,7 @@ class DataShuffler implements Runnable {
                     if (sym.getTransmitter() != null) {
                         AutoDiscoveryFlag autoDiscoveryFlag = sym.getTransmitter()
                                 .getAutoDiscoveryFlag();
-
-                        if (autoDiscoveryFlag != AutoDiscoveryFlag.NO_AUTO_DISCOVERY) {
-                            
+                        if (autoDiscoveryFlag != AutoDiscoveryFlag.NO_AUTO_DISCOVERY) {                    
                             if (remoteAddress != null) {
                                 // This packet was self routed.       
                                 if (selfRouted ) {
@@ -137,13 +153,15 @@ class DataShuffler implements Runnable {
                                     } else {
                                         String remoteHostAddress = remoteAddress.getAddress().getHostAddress();
                                         int remotePort = remoteAddress.getPort();
-                              
-                                        // This search is done just once on the first auto address discovery for a self
-                                        // routed packet. Hence the loop is not too alarming subsequently, you dont ever have to look again.
-                                        // However, there is probably a better way to do this.
+                                        /* This search is done just once on the first auto address discovery for a self
+                                        * routed packet. Hence the loop is not too alarming subsequently, you dont ever have to look again.
+                                        * However, there is probably a better way to do this.
+                                        */
                                         for ( Sym tsym : SymmitronServer.getSyms() ) {
-                                            if (tsym.getTransmitter().getIpAddress().equals(remoteHostAddress) && 
+                                            if (tsym.getTransmitter() != null &&  tsym.getTransmitter().getIpAddress() != null && 
+                                                    tsym.getTransmitter().getIpAddress().equals(remoteHostAddress) && 
                                                     tsym.getTransmitter().getPort() == remotePort ) {
+                                                logger.debug("linking syms for self routed packet ");
                                                 sym.getTransmitter().setIpAddressAndPort(tsym.getReceiver().getIpAddress(), tsym.getReceiver().getPort());
                                                 break;
                                             }
@@ -153,19 +171,19 @@ class DataShuffler implements Runnable {
                                                 logger.trace(br.toString());
                                             }
                                         }
-                                    }
-                            
+                                    }               
                                 } else {
                                     if (autoDiscoveryFlag == AutoDiscoveryFlag.IP_ADDRESS_AND_PORT) {
                                         sym.getTransmitter().setIpAddressAndPort(
                                                 remoteAddress.getAddress().getHostAddress(),
                                                 remoteAddress.getPort());
                                     } else if (autoDiscoveryFlag == AutoDiscoveryFlag.PORT_ONLY) {
-                                        sym.getTransmitter().setPort(remoteAddress.getPort());
+                                        // Only update the remote port when the IP address matches. OR if the address is not yet set.             
+                                         sym.getTransmitter().setPort(remoteAddress.getPort());
                                     }
                                 }
                             }
-                        }
+                        } 
 
                     }
                     continue;
@@ -174,6 +192,8 @@ class DataShuffler implements Runnable {
                 if (writeChannel == null) {
                     continue;
                 }
+                
+                
 
                 try {
 
@@ -203,6 +223,7 @@ class DataShuffler implements Runnable {
 
                 } catch (Exception ex) {
                     logger.error("Unexpected error shuffling bytes", ex);
+                    SymmitronServer.printBridges();
                 }
             }
         } finally {
@@ -279,7 +300,7 @@ class DataShuffler implements Runnable {
                          */
                         if ( packetReceivedSym == null  || packetReceivedSym.getTransmitter() == null ) {
                             if (logger.isDebugEnabled()) {
-                                logger.debug("DataShuffler: Could not find sym for inbound channel -- discaring packet");
+                                logger.debug("DataShuffler: Could not find sym for inbound channel -- discarding packet");
                             }
                             continue;
                         }

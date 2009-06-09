@@ -157,7 +157,7 @@ public class SymmitronServer implements Symmitron {
             String stunServerAddress = symmitronConfig.getStunServerAddress();
 
             if (stunServerAddress != null) {
-                logger.info("Start address discovery");
+              
               
                 if ( addressDiscovery == null ) { 
                     int localStunPort = STUN_PORT + 1;
@@ -180,9 +180,17 @@ public class SymmitronServer implements Symmitron {
                 addressDiscovery.start();
                 StunDiscoveryReport report = addressDiscovery
                         .determineAddress();
-                if (report == null) {
-                    logger
-                            .error("No stun report - could not do address discovery");
+                if (report == null) {    
+                    if (addressDiscovery != null) {
+                        try {
+                            addressDiscovery.shutDown();
+                        } catch (Exception e ) {
+                            logger.error("Problem shutting down address discovery!",e);
+                        } finally {
+                            addressDiscovery = null;
+                        }
+                    }
+                    logger.warn("Error discovering  address -- Check Stun Server");
                     return;
                 }
                 StunAddress stunAddress = report.getPublicAddress();
@@ -204,7 +212,7 @@ public class SymmitronServer implements Symmitron {
                 }
 
             } else {
-                logger.error("Stun server address not speicifed");
+                logger.error("Stun server address not specified");
             }
         } catch (Exception ex) {
             if (addressDiscovery != null) {
@@ -470,7 +478,7 @@ public class SymmitronServer implements Symmitron {
      * Stop the bridge
      */
     public static void stop() {
-
+        logger.info("stop");
         for (Bridge bridge : ConcurrentSet.getBridges()) {
             bridge.stop();
         }
@@ -553,7 +561,7 @@ public class SymmitronServer implements Symmitron {
      */
     public Map<String, Object> signIn(String remoteHandle) {
 
-        logger.debug("signIn " + remoteHandle);
+        logger.info("signIn " + remoteHandle);
         try {
             checkForControllerReboot(remoteHandle);
             return createSuccessMap();
@@ -634,7 +642,7 @@ public class SymmitronServer implements Symmitron {
      */
     public Map<String, Object> getSym(String controllerHandle, String symId) {
 
-        logger.debug("getSym : " + controllerHandle + " symId = " + symId);
+        logger.info("getSym : " + controllerHandle + " symId = " + symId);
         try {
             this.checkForControllerReboot(controllerHandle);
 
@@ -668,14 +676,14 @@ public class SymmitronServer implements Symmitron {
         try {
             this.checkForControllerReboot(controllerHandle);
 
-            if (logger.isDebugEnabled()) {
-                logger.debug(String.format("setDestination : "
+         
+             logger.info(String.format("setDestination : "
                         + " controllerHande %s " + " symId %s "
                         + " ipAddress %s " + " port %d "
                         + " keepAliveMethod = %s " + " keepAliveTime %d ",
                         controllerHandle, symId, ipAddress, port,
                         keepaliveMethod, keepAliveTime));
-            }
+         
 
             Sym sym = sessionMap.get(symId);
             if (sym == null) {
@@ -720,7 +728,7 @@ public class SymmitronServer implements Symmitron {
     public Map<String, Object> startBridge(String controllerHandle,
             String bridgeId) {
         try {
-            logger.debug("startBridge: " + controllerHandle + " bridgeId = "
+            logger.info("startBridge: " + controllerHandle + " bridgeId = "
                     + bridgeId);
             this.checkForControllerReboot(controllerHandle);
 
@@ -739,7 +747,7 @@ public class SymmitronServer implements Symmitron {
     public Map<String, Object> pauseSym(String controllerHandle,
             String sessionId) {
         try {
-            logger.debug("pauseSym: " + controllerHandle + " symId = "
+            logger.info("pauseSym: " + controllerHandle + " symId = "
                     + sessionId);
             this.checkForControllerReboot(controllerHandle);
             Sym rtpSession = sessionMap.get(sessionId);
@@ -769,7 +777,7 @@ public class SymmitronServer implements Symmitron {
     public Map<String, Object> removeSym(String controllerHandle,
             String bridgeId, String symId) {
         try {
-            logger.debug("removeSym: " + controllerHandle + " bridgeId = "
+            logger.info("removeSym: " + controllerHandle + " bridgeId = "
                     + bridgeId + " symId = " + symId);
 
             this.checkForControllerReboot(controllerHandle);
@@ -836,7 +844,7 @@ public class SymmitronServer implements Symmitron {
     public Map<String, Object> createBridge(String controllerHandle) {
         try {
             this.checkForControllerReboot(controllerHandle);
-            logger.debug("createBridge: " + controllerHandle);
+            logger.info("createBridge: " + controllerHandle);
 
             Bridge bridge = new Bridge();
             bridgeMap.put(bridge.getId(), bridge);
@@ -863,7 +871,7 @@ public class SymmitronServer implements Symmitron {
     public Map<String, Object> pauseBridge(String controllerHandle,
             String bridgeId) {
         try {
-            logger.debug(" pauseBridge: " + controllerHandle + " " + bridgeId);
+            logger.info(" pauseBridge: " + controllerHandle + " " + bridgeId);
             this.checkForControllerReboot(controllerHandle);
             Bridge bridge = bridgeMap.get(bridgeId);
             if (bridge == null) {
@@ -881,6 +889,7 @@ public class SymmitronServer implements Symmitron {
     public Map<String, Object> resumeBridge(String controllerHandle,
             String bridgeId) {
         try {
+            logger.info("resumeBridge : " + controllerHandle + " bridgeId " + bridgeId);
             this.checkForControllerReboot(controllerHandle);
             Bridge rtpBridge = bridgeMap.get(bridgeId);
             if (rtpBridge == null) {
@@ -898,7 +907,7 @@ public class SymmitronServer implements Symmitron {
     public Map<String, Object> resumeSym(String controllerHandle,
             String sessionId) {
         try {
-            logger.debug("resumeSym : " + controllerHandle + " symId = "
+            logger.info("resumeSym : " + controllerHandle + " symId = "
                     + sessionId);
             this.checkForControllerReboot(controllerHandle);
             Sym rtpSession = sessionMap.get(sessionId);
@@ -922,7 +931,7 @@ public class SymmitronServer implements Symmitron {
     public Map<String, Object> getSymStatistics(String controllerHandle,
             String symId) {
         try {
-            logger.debug("getSymStatistics : " + controllerHandle + " symId = "
+            logger.info("getSymStatistics : " + controllerHandle + " symId = "
                     + symId);
             Sym sym = sessionMap.get(symId);
             if (sym == null) {
@@ -946,7 +955,7 @@ public class SymmitronServer implements Symmitron {
         try {
             this.checkForControllerReboot(controllerHandle);
 
-            logger.debug("getBridgeStatistics : " + controllerHandle
+            logger.info("getBridgeStatistics : " + controllerHandle
                     + " bridgeId " + bridgeId);
 
             Bridge bridge = bridgeMap.get(bridgeId);
@@ -982,7 +991,7 @@ public class SymmitronServer implements Symmitron {
 
     public Map<String, Object> signOut(String controllerHandle) {
         try {
-            logger.debug("signOut " + controllerHandle);
+            logger.info("signOut " + controllerHandle);
             HashSet<Bridge> rtpBridges = bridgeResourceMap
                     .get(controllerHandle);
             if (rtpBridges != null) {
@@ -1010,7 +1019,7 @@ public class SymmitronServer implements Symmitron {
     public Map<String, Object> destroySym(String controllerHandle, String symId) {
 
         try {
-            logger.debug("destroySym: " + controllerHandle + " symId = "
+            logger.info("destroySym: " + controllerHandle + " symId = "
                     + symId);
             this.checkForControllerReboot(controllerHandle);
 
@@ -1096,6 +1105,7 @@ public class SymmitronServer implements Symmitron {
     public Map<String, Object> setTimeout(String controllerHandle,
             String symId, int inactivityTimeout) {
         try {
+            logger.info("setTimeOut " + controllerHandle + " symId " + symId +  " inactivityTimeout " + inactivityTimeout);
             this.checkForControllerReboot(controllerHandle);
 
             if (sessionMap.containsKey(symId)) {
@@ -1115,7 +1125,7 @@ public class SymmitronServer implements Symmitron {
     public Map<String, Object> destroyBridge(String controllerHandle,
             String bridgeId) {
         try {
-            logger.debug("destroyBridge: " + controllerHandle + " bridgeId "
+            logger.info("destroyBridge: " + controllerHandle + " bridgeId "
                     + bridgeId);
             this.checkForControllerReboot(controllerHandle);
             Bridge bridge = bridgeMap.get(bridgeId);
@@ -1150,6 +1160,8 @@ public class SymmitronServer implements Symmitron {
                 }
             }
         } catch (Exception ex) {
+            logger.error("destroyBridge: " + controllerHandle + " bridgeId "
+                    + bridgeId);
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
         }
@@ -1164,7 +1176,7 @@ public class SymmitronServer implements Symmitron {
     public Map<String, Object> getReceiverState(String controllerHandle,
             String symId) {
         try {
-            logger.debug("getReceiverState : " + controllerHandle + " symId "
+            logger.info("getReceiverState : " + controllerHandle + " symId "
                     + symId);
             this.checkForControllerReboot(controllerHandle);
 
@@ -1454,6 +1466,12 @@ public class SymmitronServer implements Symmitron {
 
     }
     
+    public static void printBridges() {
+      for ( Bridge bridge : SymmitronServer.bridgeMap.values() ) {
+          logger.error("Bridge = " + bridge);
+      }      
+    }
+    
     public static Collection<Sym> getSyms() {
         return SymmitronServer.sessionMap.values();
     }
@@ -1481,6 +1499,8 @@ public class SymmitronServer implements Symmitron {
             System.exit(-1);
         }
     }
+
+   
 
     
 

@@ -119,6 +119,11 @@ public class SipListenerImpl implements SipListener {
         Response response = responseEvent.getResponse();
         CSeqHeader cseqHeader = (CSeqHeader) response
                 .getHeader(CSeqHeader.NAME);
+        if ( responseEvent.getClientTransaction() == null || responseEvent
+                .getClientTransaction().getApplicationData() == null  ) {
+            logger.warn("Cannot process event : NullClientTransaction or NullTransactionContext");
+            return;
+        }
         /*
          * Note that we need to store a pointer in the TransactionContext
          * because REGISTER does not have a dialog.
