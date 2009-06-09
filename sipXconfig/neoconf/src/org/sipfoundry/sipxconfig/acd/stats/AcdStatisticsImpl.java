@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.acd.stats;
@@ -93,6 +93,7 @@ public class AcdStatisticsImpl implements AcdStatistics {
     public List getCallsStats(Serializable acdServerId, String queueUri) {
         try {
             CallStats[] rawStats = getAcdStatsService(acdServerId).getCallStats();
+            LOG.debug("Calls before filtering stats: " + rawStats.length);
             Predicate filter = m_callFilter;
             if (!StringUtils.isBlank(queueUri)) {
                 String queueName = SipUri.extractUser(queueUri);
@@ -100,6 +101,7 @@ public class AcdStatisticsImpl implements AcdStatistics {
                 filter = new AndPredicate(filter, new QueueNameFilter(queueNames));
             }
             List stats = getStats(rawStats, new CallTransformer(), filter);
+            LOG.debug("Calls after filtering stats: " + stats.size());
             return stats;
         } catch (RemoteException e) {
             LOG.warn("getCallStats failed", e);
@@ -110,7 +112,9 @@ public class AcdStatisticsImpl implements AcdStatistics {
     public List getQueuesStats(Serializable acdServerId) {
         try {
             QueueStats[] rawStats = getAcdStatsService(acdServerId).getQueueStats();
+            LOG.debug("Queues before filtering stats: " + rawStats.length);
             List stats = getStats(rawStats, new QueueTransformer(), m_queueFilter);
+            LOG.debug("Queues after filtering stats: " + stats.size());
             return stats;
         } catch (RemoteException e) {
             LOG.warn("getQueueStats failed", e);
@@ -131,8 +135,8 @@ public class AcdStatisticsImpl implements AcdStatistics {
 
     static class AgentNameFilter implements Predicate {
 
-        private Set<String> m_names;
-        private boolean m_allowBlankName;
+        private final Set<String> m_names;
+        private final boolean m_allowBlankName;
 
         AgentNameFilter(Set<String> names, boolean allowBlankName) {
             m_names = names;
@@ -150,10 +154,13 @@ public class AcdStatisticsImpl implements AcdStatistics {
     }
 
     static class QueueNameFilter implements Predicate {
-        private Set<String> m_names;
+        private final Set<String> m_names;
 
         QueueNameFilter(Set<String> names) {
             m_names = names;
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Filtered queues: " + StringUtils.join(names, ", "));
+            }
         }
 
         public boolean evaluate(Object object) {
@@ -186,15 +193,12 @@ public class AcdStatisticsImpl implements AcdStatistics {
             stats.setMaxWaitMillis(qs.getMax_wait_time() * DateUtils.MILLIS_PER_SECOND);
             stats.setWaitingCalls(qs.getWaiting_calls());
 
-            stats.setAverageAbandonedMillis(qs.getAvg_abandoned_time()
-                    * DateUtils.MILLIS_PER_SECOND);
+            stats.setAverageAbandonedMillis(qs.getAvg_abandoned_time() * DateUtils.MILLIS_PER_SECOND);
             stats.setMaxAbandonedMillis(qs.getMax_abandoned_time() * DateUtils.MILLIS_PER_SECOND);
             stats.setAbandonedCalls(qs.getAbandoned_calls());
 
-            stats.setAverageProcessingMillis(qs.getAvg_processing_time()
-                    * DateUtils.MILLIS_PER_SECOND);
-            stats.setMaxProcessingMillis(qs.getMax_processing_time()
-                    * DateUtils.MILLIS_PER_SECOND);
+            stats.setAverageProcessingMillis(qs.getAvg_processing_time() * DateUtils.MILLIS_PER_SECOND);
+            stats.setMaxProcessingMillis(qs.getMax_processing_time() * DateUtils.MILLIS_PER_SECOND);
             stats.setProcessedCalls(qs.getProcessed_calls());
 
             stats.setBusyAgents(qs.getBusy_agents());
@@ -222,7 +226,7 @@ public class AcdStatisticsImpl implements AcdStatistics {
     }
 
     static class AgentFilterByQueueUri implements Predicate {
-        private String m_queueUri;
+        private final String m_queueUri;
 
         public AgentFilterByQueueUri(String queueUri) {
             m_queueUri = queueUri;
