@@ -50,7 +50,9 @@ public class SipConfigurationTest extends XMLTestCase {
         model.setModelId("polycom600");
         Set<String> features = new HashSet<String>();
         features.add("voiceQualityMonitoring");
-        features.add("genericCodecs");
+        features.add("G711Mu_CodecPref");
+        features.add("G711A_CodecPref");
+        features.add("G729AB_CodecPref");
         model.setSupportedFeatures(features);
         phone.setModel(model);
 
@@ -84,15 +86,15 @@ public class SipConfigurationTest extends XMLTestCase {
         model.setModelId("polycomVVX1500");
         Set<String> features = new HashSet<String>();
         features.add("voiceQualityMonitoring");
-        features.add("VVX_1500_Codecs");
+        features.add("VVX_1500_CodecPref");
         features.add("video");
         features.add("powerSaving");
-        features.add("httpdIp");
         features.add("microbrowserLunchPad");
-        features.add("url");
         features.add("pictureFrame");
         features.add("screenSaver");
-        features.add("siren14");
+        features.add("Lin16");
+        features.add("G722");
+        features.add("Siren14");
         model.setSupportedFeatures(features);
         phone.setModel(model);
 

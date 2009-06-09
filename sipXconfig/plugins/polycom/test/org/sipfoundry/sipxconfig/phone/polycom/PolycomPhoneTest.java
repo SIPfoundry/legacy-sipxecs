@@ -49,7 +49,9 @@ public class PolycomPhoneTest extends TestCase {
         model.setModelId("polycom600");
         Set<String> features = new HashSet<String>();
         features.add("voiceQualityMonitoring");
-        features.add("genericCodecs");
+        features.add("G711Mu_CodecPref");
+        features.add("G711A_CodecPref");
+        features.add("G729AB_CodecPref");
         model.setSupportedFeatures(features);
         m_tester = PhoneTestDriver.supplyTestData(m_phone);
 

@@ -21,7 +21,7 @@
       <set>
         <value>disableCallList</value>
         <value>intercom</value>
-        <value>IP_300_Codecs</value>
+        <value>IP_300_CodecPref</value>
       </set>
     </property>
   </bean>
@@ -32,7 +32,9 @@
       <set>
         <value>voiceQualityMonitoring</value>
         <value>intercom</value>
-        <value>genericCodecs</value>
+        <value>G711Mu_CodecPref</value>
+        <value>G711A_CodecPref</value>
+        <value>G729AB_CodecPref</value>
       </set>
     </property>
   </bean>
@@ -44,7 +46,9 @@
         <value>disableCallList</value>
         <value>intercom</value>
         <value>voiceQualityMonitoring</value>
-        <value>genericCodecs</value>
+        <value>G711Mu_CodecPref</value>
+        <value>G711A_CodecPref</value>
+        <value>G729AB_CodecPref</value>
       </set>
     </property>
   </bean>
@@ -56,7 +60,9 @@
         <value>disableCallList</value>
         <value>intercom</value>
         <value>voiceQualityMonitoring</value>
-        <value>genericCodecs</value>
+        <value>G711Mu_CodecPref</value>
+        <value>G711A_CodecPref</value>
+        <value>G729AB_CodecPref</value>
       </set>
     </property>
   </bean>
@@ -82,7 +88,7 @@
         <value>nway-conference</value>
         <value>localConferenceCallHold</value>
         <value>singleKeyPressConference</value>
-        <value>IP_650_Codecs</value>
+        <value>IP_650_CodecPref</value>
       </set>
     </property>
   </bean>
@@ -94,7 +100,9 @@
         <value>disableCallList</value>
         <value>intercom</value>
         <value>voiceQualityMonitoring</value>
-        <value>genericCodecs</value>
+        <value>G711Mu_CodecPref</value>
+        <value>G711A_CodecPref</value>
+        <value>G729AB_CodecPref</value>
       </set>
     </property>
   </bean>
@@ -109,7 +117,8 @@
         <value>nway-conference</value>
         <value>localConferenceCallHold</value>
         <value>singleKeyPressConference</value>
-        <value>IP_650_Codecs</value>
+        <value>G722</value>
+        <value>IP_650_CodecPref</value>
       </set>
     </property>
   </bean>
@@ -124,15 +133,15 @@
         <value>nway-conference</value>
         <value>localConferenceCallHold</value>
         <value>singleKeyPressConference</value>
-        <value>VVX_1500_Codecs</value>
+        <value>VVX_1500_CodecPref</value>
         <value>video</value>
         <value>powerSaving</value>
-        <value>httpdIp</value>
         <value>microbrowserLunchPad</value>
-        <value>url</value>
         <value>pictureFrame</value>
         <value>screenSaver</value>
-        <value>siren14</value>
+        <value>Lin16</value>
+        <value>G722</value>
+        <value>Siren14</value>
       </set>
     </property>
   </bean>
@@ -145,7 +154,7 @@
         <value>disableCallList</value>
         <value>intercom</value>
         <value>voiceQualityMonitoring</value>
-        <value>IP_4000_Codecs</value>
+        <value>IP_4000_CodecPref</value>
       </set>
     </property>
   </bean>
@@ -156,7 +165,9 @@
       <set>
         <value>disableCallList</value>
         <value>intercom</value>
-        <value>IP_6000_Codecs</value>
+        <value>IP_6000_CodecPref</value>
+        <value>G722</value>
+        <value>Siren14</value>
       </set>
     </property>
   </bean>
@@ -169,7 +180,10 @@
         <value>nway-conference</value>
         <value>localConferenceCallHold</value>
         <value>singleKeyPressConference</value>
-        <value>IP_7000_Codecs</value>
+        <value>IP_7000_CodecPref</value>
+        <value>Lin16</value>
+        <value>G722</value>
+        <value>Siren14</value>
       </set>
     </property>
   </bean>

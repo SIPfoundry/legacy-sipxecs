@@ -235,7 +235,7 @@
       voice.vadThresh="15"
     />
   </voice>
-    <video
+  <video
     video.enable=""
     video.autoStartVideoTx=""
     video.autoFullScreen=""
@@ -361,6 +361,9 @@
     <cfg
       httpd.cfg.enabled="1"
       httpd.cfg.port="80"
+    />
+    <ip
+      httpd.ip.port="80"
     />
   </HTTPD>
   <call
