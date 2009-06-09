@@ -6,11 +6,14 @@
  */
 package org.sipfoundry.sipxbridge.symmitron;
 
+import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.channels.DatagramChannel;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+
+import org.apache.log4j.Logger;
 
 /**
  * A media endpoint is an ip addres, port pair.
@@ -25,12 +28,17 @@ abstract class SymEndpoint implements SymEndpointInterface {
     /*
      * IP address
      */
-    protected String ipAddress;
+    private String ipAddress;
 
     /*
      * My port
      */
-    protected int port;
+    private int port;
+    
+    /*
+     * My Inet address.
+     */
+    private InetAddress inetAddress;
 
     /*
      * Our datagram channel.
@@ -38,13 +46,15 @@ abstract class SymEndpoint implements SymEndpointInterface {
     protected  DatagramChannel datagramChannel;
 
     private Sym sym;
+    
+    private static Logger logger = Logger.getLogger(SymEndpoint.class);
  
     public Map<String,Object> toMap() {
        
             Map<String,Object> retval = new HashMap<String,Object>();
             retval.put("id", this.getId());
             retval.put("ipAddress", ipAddress);
-            retval.put("port", new Integer(port) );
+            retval.put("port", new Integer(getPort()) );
             return retval;
         
 
@@ -52,7 +62,8 @@ abstract class SymEndpoint implements SymEndpointInterface {
     
     public void setIpAddressAndPort(String ipAddress, int port) throws UnknownHostException {
         this.ipAddress = ipAddress;
-        this.port = port;
+        this.inetAddress = InetAddress.getByName(ipAddress);
+        this.setPort(port);
     }
 
     /**
@@ -125,9 +136,16 @@ abstract class SymEndpoint implements SymEndpointInterface {
      * address or the remote address ( for transmitter).
      * 
      * @param ipAddress
+     * @throws UnknownHostException 
      */
-    public void setIpAddress(String ipAddress) {
+    public void setIpAddress(String ipAddress) throws UnknownHostException {
+        logger.debug("SymEndpoint: setIpAddress: " + ipAddress);
         this.ipAddress = ipAddress;
+        if ( ipAddress != null ) {
+            this.inetAddress = InetAddress.getByName(ipAddress);
+        } else {
+            this.inetAddress = null;
+        }
     }
 
     
@@ -138,6 +156,7 @@ abstract class SymEndpoint implements SymEndpointInterface {
      * @param port
      */
     public void setPort(int port) throws IllegalArgumentException {
+        logger.debug("SymEndpoint : setPort : " + port);
         if ( port < 0 ) throw new IllegalArgumentException("Bad port "+ port);
         this.port = port;
     }
@@ -174,6 +193,14 @@ abstract class SymEndpoint implements SymEndpointInterface {
         return state;
         
        
+    }
+
+
+    /**
+     * @return the inetAddress
+     */
+    InetAddress getInetAddress() {
+        return inetAddress;
     }
 
 }

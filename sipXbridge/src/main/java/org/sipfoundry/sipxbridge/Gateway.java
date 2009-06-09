@@ -376,7 +376,7 @@ public class Gateway {
                 }
                 StunDiscoveryReport report = addressDiscovery
                         .determineAddress();
-                if ( report == null ) {
+                if ( report == null || report.getPublicAddress() == null ) {
                     logger.warn("STUN Error : Global address could not be found");
                     try {
                         if ( addressDiscovery != null ) {

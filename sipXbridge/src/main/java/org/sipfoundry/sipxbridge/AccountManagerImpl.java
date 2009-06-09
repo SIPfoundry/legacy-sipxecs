@@ -144,9 +144,12 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
                  * Only send a single alarm for this URI.
                  */
                 if (alarmTable.get(sipUri.getHost()) == null) {
-                    alarmTable.put(sipUri.getHost(), true);
-                    Gateway.getAlarmClient().raiseAlarm(Gateway.ACCOUNT_NOT_FOUND_ALARM_ID,
+                    /* If To tag is present we will return a 481 for this requet */
+                    if ( SipUtilities.getToTag(request) != null ) {
+                         alarmTable.put(sipUri.getHost(), true); 
+                         Gateway.getAlarmClient().raiseAlarm(Gateway.ACCOUNT_NOT_FOUND_ALARM_ID,
                             sipUri.getHost());
+                    }
                 }
             } catch (XmlRpcException e) {
                 logger.error("Could not send alarm " + Gateway.ACCOUNT_NOT_FOUND_ALARM_ID + " uri = "  

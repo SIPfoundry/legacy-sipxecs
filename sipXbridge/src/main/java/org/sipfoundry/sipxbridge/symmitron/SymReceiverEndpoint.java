@@ -31,14 +31,14 @@ final class SymReceiverEndpoint extends SymEndpoint {
 
         // Our IP address is the address where we are listening.
 
-        this.ipAddress = SymmitronServer.getLocalAddress();
+        setIpAddress(SymmitronServer.getLocalAddress());
         
         // Our port where we listen for stuff.
         
-        this.port = port;
+        setPort(port);
 
         if ( logger.isDebugEnabled()) {
-            logger.debug("Creating SymReceiverEndpoint " + ipAddress + " port " + port);
+            logger.debug("Creating SymReceiverEndpoint " + getIpAddress() + " port " + port);
         }
 
         // The datagram channel which is used to receive packets.
@@ -48,7 +48,7 @@ final class SymReceiverEndpoint extends SymEndpoint {
         this.datagramChannel.configureBlocking(false);
         
 
-        InetAddress inetAddress = InetAddress.getByName(ipAddress);
+        InetAddress inetAddress = super.getInetAddress();
         //SymmitronServer.getLocalAddressByName();
 
         // Allocate the datagram channel on which we will listen.
