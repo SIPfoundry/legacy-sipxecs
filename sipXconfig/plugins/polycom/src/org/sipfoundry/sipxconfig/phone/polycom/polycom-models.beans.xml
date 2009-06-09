@@ -136,6 +136,8 @@
         <value>VVX_1500_CodecPref</value>
         <value>Lin16</value>
         <value>G722</value>
+        <value>G7221</value>
+        <value>G7221C</value>
         <value>Siren14</value>
         <value>video</value>
       </set>

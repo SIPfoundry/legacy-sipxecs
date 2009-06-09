@@ -90,6 +90,8 @@ public class SipConfigurationTest extends XMLTestCase {
         features.add("video");
         features.add("Lin16");
         features.add("G722");
+        features.add("G7221");
+        features.add("G7221C");
         features.add("Siren14");
         model.setSupportedFeatures(features);
         phone.setModel(model);

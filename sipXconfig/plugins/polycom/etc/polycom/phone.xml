@@ -511,6 +511,68 @@
           <value>200</value>
         </setting>
       </group>
+      <group name="G7221" if="G7221">
+        <setting name="payloadSize">
+          <type>
+            <!-- 10, 20, 30, ...80 -->
+            <integer min="10" max="80" />
+          </type>
+          <value>20</value>
+        </setting>
+        <setting name="jitterBufferMin">
+          <!-- 40, 50, 60, ... (multiple of 10) -->
+          <type>
+            <integer min="40" />
+          </type>
+          <value>40</value>
+        </setting>
+        <setting name="jitterBufferShrink">
+          <!--10, 20, 30, ... (multiple of 10) -->
+          <type>
+            <integer min="10" />
+          </type>
+          <value>1500</value>
+        </setting>
+        <setting name="jitterBufferMax">
+          <!--  greater than jitterBufferMin, multiple of 10, less than or =500 for IP 500 and IP 600, less than or =
+            160 for IP 300 -->
+          <type>
+            <integer min="10" max="500" />
+          </type>
+          <value>200</value>
+        </setting>
+      </group>
+      <group name="G7221C" if="G7221C">
+        <setting name="payloadSize">
+          <type>
+            <!-- 10, 20, 30, ...80 -->
+            <integer min="10" max="80" />
+          </type>
+          <value>20</value>
+        </setting>
+        <setting name="jitterBufferMin">
+          <!-- 40, 50, 60, ... (multiple of 10) -->
+          <type>
+            <integer min="40" />
+          </type>
+          <value>40</value>
+        </setting>
+        <setting name="jitterBufferShrink">
+          <!--10, 20, 30, ... (multiple of 10) -->
+          <type>
+            <integer min="10" />
+          </type>
+          <value>1500</value>
+        </setting>
+        <setting name="jitterBufferMax">
+          <!--  greater than jitterBufferMin, multiple of 10, less than or =500 for IP 500 and IP 600, less than or =
+            160 for IP 300 -->
+          <type>
+            <integer min="10" max="500" />
+          </type>
+          <value>200</value>
+        </setting>
+      </group>
       <group name="Lin16" if="Lin16">
         <setting name="payloadSize">
           <type>
@@ -540,12 +602,6 @@
             <integer min="10" max="500" />
           </type>
           <value>100</value>
-        </setting>
-        <setting name="48ksps.payloadType" advanced="yes">
-          <type>
-            <integer required="yes" />
-          </type>
-          <value>119</value>
         </setting>
       </group>
       <group name="Siren14" if="Siren14">
@@ -577,12 +633,6 @@
             <integer min="10" max="500" />
           </type>
           <value>100</value>
-        </setting>
-        <setting name="48ksps.payloadType" advanced="yes">
-          <type>
-            <integer required="yes" />
-          </type>
-          <value>119</value>
         </setting>
       </group>
     </group>
