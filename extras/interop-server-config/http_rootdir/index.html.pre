@@ -966,9 +966,8 @@ Since there is not and never will be a SIP extension named
 </p>
 <p>
 This server uses a
-<a href='https://sipxecs.sipfoundry.org/rep/sipXecs/main/extras/interop-server-config'>special test configuration</a> of the
-<a href='http://www.sipfoundry.org/sipXpbx/'>sipXecs Open Source
-PBX Project</a>.
+<a href='http://sipxecs.sipfoundry.org/rep/sipXecs/main/extras/interop-server-config'>special test configuration</a> of the
+<a href='http://www.sipfoundry.org/'>sipXecs Open Source IP PBX</a>.
 (It would not make a very friendly configuration in a real PBX :-).)
 </p>
 
