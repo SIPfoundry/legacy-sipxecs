@@ -21,6 +21,7 @@
       <set>
         <value>disableCallList</value>
         <value>intercom</value>
+        <value>IP_300_Codecs</value>
       </set>
     </property>
   </bean>
@@ -31,6 +32,7 @@
       <set>
         <value>voiceQualityMonitoring</value>
         <value>intercom</value>
+        <value>genericCodecs</value>
       </set>
     </property>
   </bean>
@@ -42,6 +44,7 @@
         <value>disableCallList</value>
         <value>intercom</value>
         <value>voiceQualityMonitoring</value>
+        <value>genericCodecs</value>
       </set>
     </property>
   </bean>
@@ -53,6 +56,7 @@
         <value>disableCallList</value>
         <value>intercom</value>
         <value>voiceQualityMonitoring</value>
+        <value>genericCodecs</value>
       </set>
     </property>
   </bean>
@@ -78,6 +82,7 @@
         <value>nway-conference</value>
         <value>localConferenceCallHold</value>
         <value>singleKeyPressConference</value>
+        <value>IP_650_Codecs</value>
       </set>
     </property>
   </bean>
@@ -89,6 +94,7 @@
         <value>disableCallList</value>
         <value>intercom</value>
         <value>voiceQualityMonitoring</value>
+        <value>genericCodecs</value>
       </set>
     </property>
   </bean>
@@ -103,9 +109,34 @@
         <value>nway-conference</value>
         <value>localConferenceCallHold</value>
         <value>singleKeyPressConference</value>
+        <value>IP_650_Codecs</value>
       </set>
     </property>
   </bean>
+  <bean id="polycomVVX1500" parent="polycomModel">
+    <property name="label" value="Polycom VVX IP 1500" />
+    <property name="maxLineCount" value="6" />
+    <property name="supportedFeatures">
+      <set>
+        <value>disableCallList</value>
+        <value>intercom</value>
+        <value>voiceQualityMonitoring</value>
+        <value>nway-conference</value>
+        <value>localConferenceCallHold</value>
+        <value>singleKeyPressConference</value>
+        <value>VVX_1500_Codecs</value>
+        <value>video</value>
+        <value>powerSaving</value>
+        <value>httpdIp</value>
+        <value>microbrowserLunchPad</value>
+        <value>url</value>
+        <value>pictureFrame</value>
+        <value>screenSaver</value>
+        <value>siren14</value>
+      </set>
+    </property>
+  </bean>
+
   <bean id="polycom4000" parent="polycomModel">
     <property name="label" value="Polycom SoundStation IP 4000" />
     <property name="maxLineCount" value="1" />
@@ -114,6 +145,7 @@
         <value>disableCallList</value>
         <value>intercom</value>
         <value>voiceQualityMonitoring</value>
+        <value>IP_4000_Codecs</value>
       </set>
     </property>
   </bean>
@@ -124,6 +156,7 @@
       <set>
         <value>disableCallList</value>
         <value>intercom</value>
+        <value>IP_6000_Codecs</value>
       </set>
     </property>
   </bean>
@@ -136,6 +169,7 @@
         <value>nway-conference</value>
         <value>localConferenceCallHold</value>
         <value>singleKeyPressConference</value>
+        <value>IP_7000_Codecs</value>
       </set>
     </property>
   </bean>

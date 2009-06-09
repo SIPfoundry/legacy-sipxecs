@@ -171,16 +171,6 @@
         voice.codecPref.G711Mu="1"
         voice.codecPref.G711A="2"
         voice.codecPref.G729AB="3"
-        voice.codecPref.IP_300.G711Mu="1"
-        voice.codecPref.IP_300.G711A="2"
-        voice.codecPref.IP_300.G729AB="3"
-        voice.codecPref.IP_4000.G711Mu="1"
-        voice.codecPref.IP_4000.G711A="2"
-        voice.codecPref.IP_4000.G729AB=""
-        voice.codecPref.IP_650.G722="1"
-        voice.codecPref.IP_650.G711Mu="2"
-        voice.codecPref.IP_650.G711A="3"
-        voice.codecPref.IP_650.G729AB="4"
       />
       <profiles
         voice.audioProfile.G711Mu.payloadSize="20"

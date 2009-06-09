@@ -151,7 +151,24 @@
     up.${setting.ProfileName}="$!{setting.Value}"
 #end
 #end
-  />
+  >
+#if ($phone.model.isSupported("pictureFrame"))
+    <pictureFrame
+#set ($group = $cfg.EndpointSettings.getSetting('up').getSetting('pictureFrame'))
+#foreach ($setting in $cfg.getSettings($group))
+      up.pictureFrame.${setting.ProfileName}="$!{setting.Value}"
+#end
+    />
+#end
+#if ($phone.model.isSupported("screenSaver"))
+    <screenSaver
+#set ($group = $cfg.EndpointSettings.getSetting('up').getSetting('screenSaver'))
+#foreach ($setting in $cfg.getSettings($group))
+      up.screenSaver.${setting.ProfileName}="$!{setting.Value}"
+#end
+    />
+#end
+  </user_preferences>
   <tones>
     <DTMF
 #set ($group = $cfg.EndpointSettings.getSetting('tone.dtmf'))
@@ -283,6 +300,39 @@
     </qualityMonitoring>
 #end
   </voice>
+#if ($phone.model.isSupported("video"))
+  <video
+#set ($group = $cfg.EndpointSettings.getSetting('video'))
+#foreach ($setting in $cfg.getSettings($group))
+    video.${setting.ProfileName}="$!{setting.Value}"
+#end
+  >
+    <codecPref
+#set ($group = $cfg.EndpointSettings.getSetting('video').getSetting('codecPref'))
+#foreach ($setting in $cfg.getSettings($group))
+      video.codecPref.${setting.ProfileName}="$!{setting.Value}"
+#end
+    />
+    <profile
+#set ($group = $cfg.EndpointSettings.getSetting('video').getSetting('profile'))
+#foreach ($setting in $cfg.getSettings($group))
+      video.profile.${setting.ProfileName}="$!{setting.Value}"
+#end
+    />
+    <camera
+#set ($group = $cfg.EndpointSettings.getSetting('video').getSetting('camera'))
+#foreach ($setting in $cfg.getSettings($group))
+      video.camera.${setting.ProfileName}="$!{setting.Value}"
+#end
+    />
+    <localCameraView
+#set ($group = $cfg.EndpointSettings.getSetting('video').getSetting('localCameraView'))
+#foreach ($setting in $cfg.getSettings($group))
+      video.localCameraView.${setting.ProfileName}="$!{setting.Value}"
+#end
+    />
+  </video>
+#end
   <QOS>
     <Ethernet>
 #set ($group = $cfg.EndpointSettings.getSetting('qos').getSetting('ethernet'))
@@ -292,6 +342,10 @@
       <CallControl qos.ethernet.${setting.ProfileName}="$!{setting.Value}" />
 #set ($setting = $group.getSetting('other.user_priority'))
       <Other qos.ethernet.${setting.ProfileName}="$!{setting.Value}" />
+#if ($phone.model.isSupported("video"))
+#set ($setting = $group.getSetting('rtp.video.user_priority'))
+      <Other qos.ethernet.${setting.ProfileName}="$!{setting.Value}" />
+#end
     </Ethernet>
     <IP>
       <RTP
@@ -299,7 +353,16 @@
 #foreach ($setting in $cfg.getSettings($group))
         qos.ip.rtp.${setting.ProfileName}="$!{setting.Value}"
 #end
-      />
+      >
+#if ($phone.model.isSupported("video"))
+        <Video
+#set ($group = $cfg.EndpointSettings.getSetting('qos').getSetting('ip.rtp').getSetting('video'))
+#foreach ($setting in $cfg.getSettings($group))
+        qos.ip.rtp.video.${setting.ProfileName}="$!{setting.Value}"
+#end
+        />
+#end
+      </RTP>
       <CallControl
 #set ($group = $cfg.EndpointSettings.getSetting('qos').getSetting('ip.callControl'))
 #foreach ($setting in $cfg.getSettings($group))
@@ -342,6 +405,14 @@
       httpd.cfg.${setting.ProfileName}="$!{setting.Value}"
 #end
     />
+#if ($phone.model.isSupported("ip"))
+    <ip
+#set ($group = $cfg.EndpointSettings.getSetting('httpd').getSetting('ip'))
+#foreach ($setting in $cfg.getSettings($group))
+      httpd.ip.${setting.ProfileName}="$!{setting.Value}"
+#end
+    />
+#end
   </HTTPD>
   <call
 #foreach ($setting in ${call})
@@ -447,7 +518,22 @@
 #foreach ($setting in $cfg.getSettings($group))
       mb.main.${setting.ProfileName}="$!{setting.Value}"
 #end
-    />
+    >
+#if ($phone.model.isSupported("url"))
+      <app1
+#set ($group = $cfg.EndpointSettings.getSetting('mb').getSetting('main').getSetting('1'))
+#foreach ($setting in $cfg.getSettings($group))
+        mb.main.1.${setting.ProfileName}="$!{setting.Value}"
+#end
+      />
+      <app2
+#set ($group = $cfg.EndpointSettings.getSetting('mb').getSetting('main').getSetting('2'))
+#foreach ($setting in $cfg.getSettings($group))
+        mb.main.2.${setting.ProfileName}="$!{setting.Value}"
+#end
+      />
+#end
+    </main>
     <idleDisplay
 #set ($group = $cfg.EndpointSettings.getSetting('mb').getSetting('idleDisplay'))
 #foreach ($setting in $cfg.getSettings($group))
@@ -468,5 +554,32 @@
       pnet.${setting.ProfileName}="$!{setting.Value}"
 #end
   />
+#end
+#if ($phone.model.isSupported("powerSaving"))
+  <powerSaving
+#set ($group = $cfg.EndpointSettings.getSetting('powerSaving'))
+#foreach ($setting in $cfg.getSettings($group))
+      powerSaving.${setting.ProfileName}="$!{setting.Value}"
+#end
+  >
+     <officeHours
+#set ($group = $cfg.EndpointSettings.getSetting('powerSaving').getSetting('officeHours'))
+#foreach ($setting in $cfg.getSettings($group))
+      powerSaving.officeHours.${setting.ProfileName}="$!{setting.Value}"
+#end
+     />
+     <idleTimeout
+#set ($group = $cfg.EndpointSettings.getSetting('powerSaving').getSetting('idleTimeout'))
+#foreach ($setting in $cfg.getSettings($group))
+      powerSaving.idleTimeout.${setting.ProfileName}="$!{setting.Value}"
+#end
+     />
+    <userDetectionSensitivity
+#set ($group = $cfg.EndpointSettings.getSetting('powerSaving').getSetting('userDetectionSensitivity'))
+#foreach ($setting in $cfg.getSettings($group))
+      powerSaving.userDetectionSensitivity.${setting.ProfileName}="$!{setting.Value}"
+#end
+     />
+  </powerSaving>
 #end
 </sip>

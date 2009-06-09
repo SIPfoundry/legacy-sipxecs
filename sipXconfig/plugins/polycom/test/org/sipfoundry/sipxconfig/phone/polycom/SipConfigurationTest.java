@@ -36,15 +36,7 @@ public class SipConfigurationTest extends XMLTestCase {
 
     @Override
     protected void setUp() throws Exception {
-        PolycomModel model = new PolycomModel();
-        model.setMaxLineCount(6);
-        model.setModelId("polycom600");
-        Set<String> features = new HashSet<String>();
-        features.add("voiceQualityMonitoring");
-        model.setSupportedFeatures(features);
         phone = new PolycomPhone();
-        phone.setModel(model);
-        tester = PhoneTestDriver.supplyTestData(phone);
 
         m_location = new MemoryProfileLocation();
         VelocityProfileGenerator pg = new VelocityProfileGenerator();
@@ -53,6 +45,16 @@ public class SipConfigurationTest extends XMLTestCase {
     }
 
     public void testGenerateProfile20() throws Exception {
+        PolycomModel model = new PolycomModel();
+        model.setMaxLineCount(6);
+        model.setModelId("polycom600");
+        Set<String> features = new HashSet<String>();
+        features.add("voiceQualityMonitoring");
+        features.add("genericCodecs");
+        model.setSupportedFeatures(features);
+        phone.setModel(model);
+
+        tester = PhoneTestDriver.supplyTestData(phone);
         initSettings();
         phone.setDeviceVersion(PolycomModel.VER_2_0);
 
@@ -68,6 +70,47 @@ public class SipConfigurationTest extends XMLTestCase {
         m_pg.generate(m_location, cfg, null, "profile");
 
         InputStream expected = getClass().getResourceAsStream("expected-sip.cfg.xml");
+
+        Reader expectedXml = new InputStreamReader(expected);
+
+        Diff phoneDiff = new Diff(expectedXml, m_location.getReader());
+        assertXMLEqual(phoneDiff, true);
+        expected.close();
+    }
+
+    public void testGenerateVVX1500Profile() throws Exception {
+        PolycomModel model = new PolycomModel();
+        model.setMaxLineCount(6);
+        model.setModelId("polycomVVX1500");
+        Set<String> features = new HashSet<String>();
+        features.add("voiceQualityMonitoring");
+        features.add("VVX_1500_Codecs");
+        features.add("video");
+        features.add("powerSaving");
+        features.add("httpdIp");
+        features.add("microbrowserLunchPad");
+        features.add("url");
+        features.add("pictureFrame");
+        features.add("screenSaver");
+        features.add("siren14");
+        model.setSupportedFeatures(features);
+        phone.setModel(model);
+
+        tester = PhoneTestDriver.supplyTestData(phone);
+        initSettings();
+        phone.setDeviceVersion(PolycomModel.VER_2_0);
+        // XCF-3581: No longer automatically generating phone emergency dial routing.  These settings
+        // are as if they'd been manually configured under Phone - Dial Plan - Emergency Routing.
+        phone.setSettingValue("dialplan/digitmap/routing.1/address", "emergency-gateway.example.org");
+        phone.setSettingValue("dialplan/digitmap/routing.1/port", "9999");
+        phone.setSettingValue("dialplan/digitmap/routing.1/emergency.1.value", "911,912");
+       
+        phone.beforeProfileGeneration();
+        ProfileContext cfg = new SipConfiguration(phone);
+
+        m_pg.generate(m_location, cfg, null, "profile");
+
+        InputStream expected = getClass().getResourceAsStream("expected-VVX1500-sip.cfg.xml");
 
         Reader expectedXml = new InputStreamReader(expected);
 

@@ -15,6 +15,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.HashSet;
+import java.util.Set;
 
 import junit.framework.TestCase;
 
@@ -42,7 +44,13 @@ public class PolycomPhoneTest extends TestCase {
     @Override
     protected void setUp() {
         m_phone = new PolycomPhone();
-        m_phone.setModel(new PolycomModel());
+        PolycomModel model = new PolycomModel();
+        m_phone.setModel(model);
+        model.setModelId("polycom600");
+        Set<String> features = new HashSet<String>();
+        features.add("voiceQualityMonitoring");
+        features.add("genericCodecs");
+        model.setSupportedFeatures(features);
         m_tester = PhoneTestDriver.supplyTestData(m_phone);
 
         m_location = new FileSystemProfileLocation();
