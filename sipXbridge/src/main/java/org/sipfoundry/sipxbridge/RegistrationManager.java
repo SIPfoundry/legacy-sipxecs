@@ -108,6 +108,10 @@ public class RegistrationManager {
         logger.debug("registrationManager.processResponse() "
                 + response.getStatusCode());
         ClientTransaction ct = responseEvent.getClientTransaction();
+        if ( ct == null ) {
+            logger.warn("Null transaction. Probably delayed response. Dropping response");
+            return;
+        }
         Request request = ct.getRequest();
         ContactHeader requestContactHeader = (ContactHeader) request
                 .getHeader(ContactHeader.NAME);

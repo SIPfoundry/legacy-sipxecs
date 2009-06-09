@@ -157,7 +157,7 @@ public class SymmitronServer implements Symmitron {
             String stunServerAddress = symmitronConfig.getStunServerAddress();
 
             if (stunServerAddress != null) {
-                logger.info("Start address discovery");
+              
               
                 if ( addressDiscovery == null ) { 
                     int localStunPort = STUN_PORT + 1;
@@ -180,9 +180,17 @@ public class SymmitronServer implements Symmitron {
                 addressDiscovery.start();
                 StunDiscoveryReport report = addressDiscovery
                         .determineAddress();
-                if (report == null) {
-                    logger
-                            .error("No stun report - could not do address discovery");
+                if (report == null) {    
+                    if (addressDiscovery != null) {
+                        try {
+                            addressDiscovery.shutDown();
+                        } catch (Exception e ) {
+                            logger.error("Problem shutting down address discovery!",e);
+                        } finally {
+                            addressDiscovery = null;
+                        }
+                    }
+                    logger.warn("Error discovering  address -- Check Stun Server");
                     return;
                 }
                 StunAddress stunAddress = report.getPublicAddress();
@@ -204,7 +212,7 @@ public class SymmitronServer implements Symmitron {
                 }
 
             } else {
-                logger.error("Stun server address not speicifed");
+                logger.error("Stun server address not specified");
             }
         } catch (Exception ex) {
             if (addressDiscovery != null) {
