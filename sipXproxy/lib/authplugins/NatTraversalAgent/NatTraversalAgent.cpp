@@ -308,7 +308,8 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
                   UtlString ruri;
                   request.getRequestUri( &ruri );
                   Url requestUri( ruri, TRUE );
-                  requestUri.getHostWithPort( sipxNatRouteString );
+                  TransportData requestUriAsTransport( requestUri );
+                  requestUriAsTransport.toUrlString( sipxNatRouteString );
                }
             }
             
