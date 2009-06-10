@@ -190,6 +190,8 @@ public class Gateway {
     private static final String STUN_FAILED_ALARM_ID = "STUN_ADDRESS_DISCOVERY_FAILED";
 
     private static final String STUN_OK = "STUN_ADDRESS_DISCOVERY_RECOVERED";
+    
+    private static final String STUN_PUBLIC_ADDRESS_CHANGED_ALARM_ID = "STUN_PUBLIC_ADDRESS_CHANGED";
 
     static final String ACCOUNT_NOT_FOUND_ALARM_ID = "SIPX_BRIDGE_ITSP_ACCOUNT_NOT_FOUND";
 
@@ -357,6 +359,7 @@ public class Gateway {
                     .getBridgeConfiguration();
             String stunServerAddress = bridgeConfiguration
                     .getStunServerAddress();
+            String oldPublicAddress = Gateway.getGlobalAddress();
 
             if (stunServerAddress != null) {
                 // Todo -- deal with the situation when this port may be taken.
@@ -389,9 +392,17 @@ public class Gateway {
                     }
                     return;
                 }
+                
                 globalAddress = report.getPublicAddress().getSocketAddress()
                         .getAddress().getHostAddress();
                 logger.debug("Stun report = " + report);
+                
+                if ( oldPublicAddress != null && !oldPublicAddress.equals(globalAddress)) {
+                    Gateway.getAlarmClient()
+                    .raiseAlarm(
+                            Gateway.STUN_PUBLIC_ADDRESS_CHANGED_ALARM_ID,
+                            globalAddress);
+                }
 
                 if (report.getPublicAddress().getPort() != STUN_PORT + 2) {
                     logger
@@ -762,13 +773,13 @@ public class Gateway {
                 if (itspAccount.isRegisterOnInitialization()
                         && itspAccount.getState() != AccountState.INVALID) {
                     try {
-                        Gateway.registrationManager.sendRegistrer(itspAccount);
+                        Gateway.registrationManager.sendRegistrer(itspAccount,null,1L);
                     } catch (SipException ex) {
                         logger.error("Exception sending REGISTER to "
                                 + itspAccount.getProxyDomain());
                         // Maybe an route could not be found so start a timer to
                         // keep trying
-                        TimerTask ttask = new RegistrationTimerTask(itspAccount);
+                        TimerTask ttask = new RegistrationTimerTask(itspAccount,null,1L);
                         // Retry after 60 seconds.
                         timer.schedule(ttask, 60 * 1000);
                         if (!itspAccount.isAlarmSent()) {

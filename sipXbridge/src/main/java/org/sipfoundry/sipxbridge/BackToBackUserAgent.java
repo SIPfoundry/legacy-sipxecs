@@ -1530,6 +1530,7 @@ public class BackToBackUserAgent {
             tad.setItspAccountInfo(itspAccountInfo);
             tad.setBackToBackUa(this);
             tad.setClientTransaction(ct);
+            tad.setProxyAddresses(addresses);
             /*
              * Set up for fast failover. If we dont get a 100 in 1 second we
              * will get a timeout alert.

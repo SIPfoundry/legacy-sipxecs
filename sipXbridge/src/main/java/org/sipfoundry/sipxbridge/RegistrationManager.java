@@ -38,9 +38,9 @@ public class RegistrationManager {
 
     }
 
-    public void sendRegistrer(ItspAccountInfo itspAccount) throws SipException {
+    public void sendRegistrer(ItspAccountInfo itspAccount, String callId, long cseq) throws SipException {
         Request request = SipUtilities.createRegistrationRequest(provider,
-                itspAccount);
+                itspAccount,callId,cseq);
         ClientTransaction ct = provider.getNewClientTransaction(request);
         TransactionContext tad = new TransactionContext(ct,
                 Operation.SEND_REGISTER);
@@ -176,7 +176,9 @@ public class RegistrationManager {
             if (time > 0) {
                 if (itspAccount.registrationTimerTask != null)
                     itspAccount.registrationTimerTask.cancel();
-                TimerTask ttask = new RegistrationTimerTask(itspAccount);
+                String callId = SipUtilities.getCallId(response);
+                long cseq = SipUtilities.getSeqNumber(response);
+                TimerTask ttask = new RegistrationTimerTask(itspAccount,callId,cseq);
                 Gateway.getTimer().schedule(ttask, time * 1000);
             }
 
@@ -219,7 +221,7 @@ public class RegistrationManager {
                  * Retry the server again after 60 seconds.
                  */
                 if (itspAccount.registrationTimerTask == null) {
-                    TimerTask ttask = new RegistrationTimerTask(itspAccount);
+                    TimerTask ttask = new RegistrationTimerTask(itspAccount,null,1L);
                     Gateway.getTimer().schedule(ttask, 60 * 1000);
                 }
             } else if (response.getStatusCode() / 100 == 5
@@ -244,7 +246,7 @@ public class RegistrationManager {
                  * Retry the server again after 60 seconds.
                  */
                 if (itspAccount.registrationTimerTask == null) {
-                    TimerTask ttask = new RegistrationTimerTask(itspAccount);
+                    TimerTask ttask = new RegistrationTimerTask(itspAccount,null,1L);
                     Gateway.getTimer().schedule(ttask, 60 * 1000);
                 }
             } else {
@@ -272,7 +274,7 @@ public class RegistrationManager {
          * plug).
          */
         if (itspAccount.registrationTimerTask == null) {
-            TimerTask ttask = new RegistrationTimerTask(itspAccount);
+            TimerTask ttask = new RegistrationTimerTask(itspAccount,null,1L);
             Gateway.getTimer().schedule(ttask, 60 * 1000);
         }
         try {

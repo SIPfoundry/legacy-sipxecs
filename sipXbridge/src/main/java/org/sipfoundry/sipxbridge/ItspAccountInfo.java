@@ -249,7 +249,9 @@ public class ItspAccountInfo implements
             SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(null,
                     outboundDomain);
             Hop hop = new FindSipServer(logger).findServer(sipUri);
-            this.setOutboundProxyPort(hop.getPort());
+            if ( this.outboundProxyPort != 5060 ) {
+              this.setOutboundProxyPort(hop.getPort());
+            }
             this.outboundProxy = hop.getHost();
             this.reUseOutboundProxySetting = false;
         } catch (Exception ex) {
@@ -612,6 +614,9 @@ public class ItspAccountInfo implements
                 String outboundDomain = this.getSipDomain();
                 SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(
                         null, outboundDomain);
+                if ( this.outboundProxyPort != 5060 ) {
+                    sipUri.setPort(this.outboundProxyPort);
+                }
                 return new FindSipServer(logger).findSipServers(sipUri);
             }
         } catch (Exception ex) {

@@ -91,7 +91,7 @@ class SipUtilities {
     static UserAgentHeader userAgent;
     static ServerHeader serverHeader;
     private static final String CONFIG_PROPERTIES = "config.properties";
-
+  
     /**
      * Create the UA header.
      * 
@@ -362,7 +362,7 @@ class SipUtilities {
      */
 
     static Request createRegistrationRequestTemplate(
-            ItspAccountInfo itspAccount, SipProvider sipProvider)
+            ItspAccountInfo itspAccount, SipProvider sipProvider,String callId, long cseq)
             throws ParseException, InvalidArgumentException, SipException {
 
         String registrar = itspAccount.getProxyDomain();
@@ -397,10 +397,12 @@ class SipUtilities {
         ToHeader toHeader = ProtocolObjects.headerFactory.createToHeader(
                 toAddress, null);
 
-        CallIdHeader callid = sipProvider.getNewCallId();
+        CallIdHeader callidHeader = callId == null? sipProvider.getNewCallId() : ProtocolObjects.headerFactory.createCallIdHeader(callId);
 
+       
+        
         CSeqHeader cseqHeader = ProtocolObjects.headerFactory.createCSeqHeader(
-                1L, Request.REGISTER);
+                cseq, Request.REGISTER);
 
         MaxForwardsHeader maxForwards = ProtocolObjects.headerFactory
                 .createMaxForwardsHeader(70);
@@ -413,7 +415,7 @@ class SipUtilities {
         list.add(viaHeader);
 
         Request request = ProtocolObjects.messageFactory.createRequest(
-                requestUri, Request.REGISTER, callid, cseqHeader, fromHeader,
+                requestUri, Request.REGISTER, callidHeader, cseqHeader, fromHeader,
                 toHeader, list, maxForwards);
 
         SipUtilities.addWanAllowHeaders(request);
@@ -458,7 +460,7 @@ class SipUtilities {
         try {
 
             Request request = createRegistrationRequestTemplate(itspAccount,
-                    sipProvider);
+                    sipProvider,null,1L);
 
             ContactHeader contactHeader = createContactHeader(sipProvider,
                     itspAccount);
@@ -543,12 +545,12 @@ class SipUtilities {
      * @throws SipXbridgeException
      */
     static Request createRegistrationRequest(SipProvider sipProvider,
-            ItspAccountInfo itspAccount) throws SipException,
+            ItspAccountInfo itspAccount,String callId, long cseq) throws SipException,
             SipXbridgeException {
 
         try {
             Request request = createRegistrationRequestTemplate(itspAccount,
-                    sipProvider);
+                    sipProvider,callId,cseq);
 
             ContactHeader contactHeader = createContactHeader(sipProvider,
                     itspAccount);
@@ -586,7 +588,7 @@ class SipUtilities {
             ItspAccountInfo itspAccount) throws SipXbridgeException {
         try {
             Request request = createRegistrationRequestTemplate(itspAccount,
-                    sipProvider);
+                    sipProvider,null,1L);
 
             return request;
         } catch (Exception ex) {
@@ -654,6 +656,10 @@ class SipUtilities {
 
             fromHeader.setTag(new Long(Math.abs(new java.util.Random()
                     .nextLong())).toString());
+            if ( !domain.equals("anonymous.invalid") && fromDisplayName != null) {
+                // Set the from header display name.
+                fromHeader.getAddress().setDisplayName(fromDisplayName);
+            }
             if (itspAccount.stripPrivateHeaders()) {
                 privacyHeader = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
                         .createPrivacyHeader("id");

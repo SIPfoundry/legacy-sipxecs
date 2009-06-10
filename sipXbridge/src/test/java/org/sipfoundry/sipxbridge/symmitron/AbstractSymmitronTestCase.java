@@ -17,6 +17,7 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
     protected static int port; // Make sure your sever is running there.
     protected XmlRpcClient client;
     protected String clientHandle;
+    protected String testerAddress;
 
     protected void connectToServer() throws Exception {
         clientHandle = "thruput-tester:" + new Random().nextLong();
@@ -37,6 +38,7 @@ public abstract class AbstractSymmitronTestCase extends TestCase {
         Properties properties = new Properties();
         properties.load(new FileInputStream(new File("testdata/selftest.properties")));
         String accountName = properties.getProperty("org.sipfoundry.gateway.symmitronConfig");
+        this.testerAddress = properties.getProperty("org.sipfoundry.gateway.symmitronTestClientAddress");
         SymmitronConfigParser parser = new SymmitronConfigParser();
         String url = "file:" + accountName;
 

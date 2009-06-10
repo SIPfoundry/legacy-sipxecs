@@ -575,7 +575,9 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         Thread.sleep(100);
         int counter = this.counter;
         
-        DatagramSocket strayPacketSocket = new DatagramSocket(new InetSocketAddress(InetAddress.getByName("192.168.5.240"),7782));
+        
+        
+        DatagramSocket strayPacketSocket = new DatagramSocket(new InetSocketAddress(InetAddress.getByName(super.testerAddress),7782));
      
         for (int i = 0; i < 1000; i++) {
 

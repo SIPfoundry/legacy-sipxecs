@@ -550,8 +550,19 @@ public class SipListenerImpl implements SipListener {
                             /* Try another hop */
                             Collection<Hop> hops = transactionContext
                                     .getProxyAddresses();
-                            if (hops.size() == 0) {
+                            if (hops == null || hops.size() == 0 ) {
                                 b2bua.sendByeToMohServer();
+                                TransactionContext txContext  = TransactionContext.get(ctx);
+                                if ( txContext.getServerTransaction() != null
+                                        && txContext.getServerTransaction().getState()
+                                        != TransactionState.TERMINATED ) {
+                                    Response errorResponse = SipUtilities.createResponse(txContext.getServerTransaction(), 
+                                            Response.REQUEST_TIMEOUT);
+                                    errorResponse.setReasonPhrase("ITSP Timed Out");
+                                    SipUtilities.addSipFrag(errorResponse, "ITSP Domain : " 
+                                            + txContext.getItspAccountInfo().getProxyDomain());
+                                    txContext.getServerTransaction().sendResponse(errorResponse);
+                                }
                             } else {
                                 b2bua.resendInviteToItsp(timeoutEvent
                                         .getClientTransaction());

@@ -109,11 +109,11 @@ public class SymmitronServer implements Symmitron {
 
     private static InetAddress publicAddress;
 
-    private static SymmitronConfig symmitronConfig;
+    static SymmitronConfig symmitronConfig;
 
     private static final int STUN_PORT = 3478;
 
-    private static SipXAlarmClient alarmClient;
+    static SipXAlarmClient alarmClient;
 
     private static String configDir;
 
@@ -123,6 +123,8 @@ public class SymmitronServer implements Symmitron {
 
     private static final String STUN_ADDRESS_ERROR_ALARM_ID = "STUN_ADDRESS_ERROR";
 
+    static final String SIPX_RELAY_STRAY_PACKET_ALARM_ID = "MEDIA_RELAY_STRAY_PACKETS_DETECTED";
+    
     private static NetworkConfigurationDiscoveryProcess addressDiscovery = null;
     
     static CRLFReceiver crlfReceiver;
@@ -1142,9 +1144,11 @@ public class SymmitronServer implements Symmitron {
                     sessionMap.remove(sym.getId());
                     HashSet<Sym> syms = sessionResourceMap
                             .get(controllerHandle);
-                    syms.remove(sym);
-                    if (syms.isEmpty()) {
-                        sessionResourceMap.remove(controllerHandle);
+                    if ( syms != null ) {
+                        syms.remove(sym);
+                        if (syms.isEmpty()) {
+                            sessionResourceMap.remove(controllerHandle);
+                        }
                     }
 
                 }
