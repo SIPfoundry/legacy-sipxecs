@@ -16,6 +16,7 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -54,12 +55,30 @@ public class ResourceLists extends XmlFile {
 
     Element createResourceForUser(Element list, Button button, String domainName) {
         Element resource = list.addElement("resource");
+        resource.addAttribute("uri", buildUri(button, domainName));
+        addNameElement(resource, StringUtils.defaultIfEmpty(button.getLabel(), button.getNumber()));
+        return resource;
+    }
+
+    String buildUri(Button button, String domainName) {
+        String number = button.getNumber();
+        StringBuilder uri = new StringBuilder();
+        if (SipUri.matches(number)) {
+            uri.append(SipUri.normalize(number));
+        } else {
+            // not a URI - check if we have a user
+            User user = m_coreContext.loadUserByAlias(number);
+            if (user != null) {
+                // if number matches any known user make sure to use username and not an alias
+                number = user.getUserName();
+            }
+            uri.append(SipUri.format(number, domainName, false));
+        }
         // Append "sipx-noroute=Voicemail" and "sipx-userforward=false"
         // URI parameters to the target URI to control how the proxy forwards
         // SUBSCRIBEs to the resource URI.
-        resource.addAttribute("uri", button.getUri(domainName) + ";sipx-noroute=VoiceMail;sipx-userforward=false");
-        addNameElement(resource, StringUtils.defaultIfEmpty(button.getLabel(), button.getNumber()));
-        return resource;
+        uri.append(";sipx-noroute=VoiceMail;sipx-userforward=false");
+        return uri.toString();
     }
 
     private void addNameElement(Element parent, String name) {
