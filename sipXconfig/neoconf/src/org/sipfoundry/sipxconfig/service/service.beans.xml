@@ -504,6 +504,7 @@
         <ref bean="sofiaConfiguration" />
         <ref bean="xmlRpcConfiguration" />
         <ref bean="modulesConfiguration" />
+        <ref bean="switchConfiguration" />
         <ref bean="logfileConfiguration" />
         <ref bean="localStreamConfiguration" />
       </list>
@@ -554,6 +555,13 @@
     scope="prototype">
     <property name="name" value="modules.conf.xml" />
     <property name="template" value="freeswitch/modules.conf.xml.vm" />
+    <property name="directory" value="${sysdir.etc}/freeswitch/conf/autoload_configs" />
+  </bean>
+
+  <bean id="switchConfiguration" parent="serviceConfigurationFile" class="org.sipfoundry.sipxconfig.service.freeswitch.SwitchConfiguration"
+    scope="prototype">
+    <property name="name" value="switch.conf.xml" />
+    <property name="template" value="freeswitch/switch.conf.xml.vm" />
     <property name="directory" value="${sysdir.etc}/freeswitch/conf/autoload_configs" />
   </bean>
 

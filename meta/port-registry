@@ -71,6 +71,8 @@ Port    Component         Use
 
 10000...sipXacd           RTP/RTCP ports
 
+11000:12999 FreeeSWITCH   RTP/RTCP ports
+
 15060   FreeSWITCH        SIP
 
 30000:31000 sipXRelay     RTCP ports for sipx relay (no ports in this range should be used).
