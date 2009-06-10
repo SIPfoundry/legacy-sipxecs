@@ -206,6 +206,8 @@ public class Gateway {
     static final int REGISTER_DELTA = 5;
 
     public static final String SIPX_BRIDGE_ACCOUNT_OK = "SIPX_BRIDGE_ACCOUNT_OK";
+    
+    private static int oldStunPort = -1;
 
     // ///////////////////////////////////////////////////////////////////////
 
@@ -360,6 +362,8 @@ public class Gateway {
             String stunServerAddress = bridgeConfiguration
                     .getStunServerAddress();
             String oldPublicAddress = Gateway.getGlobalAddress();
+            
+            int oldPublicPort = Gateway.oldStunPort;
 
             if (stunServerAddress != null) {
                 // Todo -- deal with the situation when this port may be taken.
@@ -397,12 +401,14 @@ public class Gateway {
                         .getAddress().getHostAddress();
                 logger.debug("Stun report = " + report);
                 
-                if ( oldPublicAddress != null && !oldPublicAddress.equals(globalAddress)) {
+                if ( oldPublicAddress != null && !oldPublicAddress.equals(globalAddress) || 
+                    ( oldStunPort != -1 && oldStunPort != report.getPublicAddress().getPort() ) ) {
                     Gateway.getAlarmClient()
                     .raiseAlarm(
                             Gateway.STUN_PUBLIC_ADDRESS_CHANGED_ALARM_ID,
                             globalAddress);
                 }
+                oldStunPort = report.getPublicAddress().getPort();
 
                 if (report.getPublicAddress().getPort() != STUN_PORT + 2) {
                     logger
