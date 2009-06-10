@@ -86,6 +86,7 @@ SipRegistrarServer::SipRegistrarServer(SipRegistrar& registrar) :
     mIsStarted(FALSE),
     mSipUserAgent(NULL),
     mDefaultRegistryPeriod(),
+    mSendExpiresInResponse(TRUE),
     mNonceExpiration(5*60)
 {
 }
@@ -193,6 +194,13 @@ SipRegistrarServer::initialize(
           mAdditionalContact.remove(0);
        }
     }
+
+    // This is a developer-only configuration parameter
+    // to prevent sending an Expires header in REGISTER responses
+    mSendExpiresInResponse = pOsConfigDb->getBoolean("SIP_REGISTRAR_EXP_HDR_RSP", TRUE);
+    OsSysLog::add(FAC_SIP, PRI_INFO,
+                  "SipRegistrarServer::initialize SIP_REGISTRAR_EXP_HDR_RSP is %s",
+                  mSendExpiresInResponse ? "Enabled" : "Disabled");
 
     /*
      * Unused Authentication Directives
@@ -309,7 +317,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                                );
             if ( registerContactStr.compareTo("*") != 0 ) // is contact == "*" ?
             {
-                // contact != "*"; a normal contact
+               // contact != "*"; a normal contact
                 int expires;
                 UtlString qStr, expireStr;
                 Url registerContactURL( registerContactStr );
@@ -1043,6 +1051,9 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                         // "Supported: gruu" was not in request.
                         requestSupportsGruu = true;
 #endif
+                        bool allExpirationsEqual = false;
+                        bool firstConsideredContact = true;
+                        int  commonExpirationTime;
                         int numRegistrations = registrations.getSize();
                         for ( int i = 0 ; i<numRegistrations; i++ )
                         {
@@ -1079,11 +1090,22 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
 
                             OsSysLog::add( FAC_SIP, PRI_DEBUG,
                                           "SipRegistrarServer::handleMessage - "
-                                          "processing contact '%s'", contact.data());
+                                          "processing contact '%s'", contact.data());                        
                             Url contactUri( contact );
 
                             UtlString expiresStr;
                             expiresStr.appendNumber(expires);
+
+                            if ( firstConsideredContact ) // first considered contact
+                            {
+                               firstConsideredContact = false;
+                               allExpirationsEqual = true;
+                               commonExpirationTime = expires;
+                            }
+                            else if (expires != commonExpirationTime)
+                            {
+                               allExpirationsEqual = false;
+                            }
 
                             contactUri.setFieldParameter(SIP_EXPIRES_FIELD, expiresStr.data());
                             if ( !qvalue.isNull() && qvalue.compareTo(SPECIAL_IMDB_NULL_VALUE)!=0 )
@@ -1141,8 +1163,55 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                                }
                             }
 
+                            // Undo the transformations made to the Contact by the 
+                            // sipXproxy for NAT traversal.  These transformations
+                            // effectively create a Contact that will cause a UAC compliant 
+                            // with section 19.1.4 of RFC 3261 to fail to match the 
+                            // Contact returned in the 200 OK with the one it sent.
+                            // We have seen that this causes interop problems
+                            // with some phones.  As a results, steps are taken here
+                            // to undo the transformations that sipXproxy applied to the 
+                            // Contact.  See XX-5926 for details.
+                            UtlString privateContact;
+                            if( contactUri.getUrlParameter( SIPX_PRIVATE_CONTACT_URI_PARAM, privateContact, 0 ) )
+                            {
+                               Url privateContactAsUrl;
+                               UtlString hostAddressString;
+                               int hostPort;
+                               
+                               privateContactAsUrl.fromString( privateContact );
+                               privateContactAsUrl.getHostAddress( hostAddressString );
+                               contactUri.setHostAddress( hostAddressString );
+                               if( ( hostPort = privateContactAsUrl.getHostPort() ) != PORT_NONE )
+                               {
+                                  contactUri.setHostPort( hostPort );
+                               }
+                               contactUri.removeUrlParameter( SIPX_PRIVATE_CONTACT_URI_PARAM );
+                            }
+                            else
+                            {
+                               // if we do not have a SIPX_PRIVATE_CONTACT_URI_PARAM,
+                               // we almost certainly have a SIPX_NO_NAT_URI_PARAM - just
+                               // remove it without testing for its presence - if it is not
+                               // present then the remove operation just ends up being a no-op
+                               contactUri.removeUrlParameter( SIPX_NO_NAT_URI_PARAM );
+                            }
+
                             finalResponse.setContactField(contactUri.toString(), i);
                           }
+                        }
+
+                        if (allExpirationsEqual && mSendExpiresInResponse)
+                        {
+                           /*
+                            * Some clients are not good at picking the expiration out of the contact
+                            * field parameter, so if all the expiration times are the same (usually
+                            * true in a REGISTER response because we only send the contacts for that call-id),
+                            * copy the value into an Expires header too.
+                            */
+                           UtlString expiresString;
+                           expiresString.appendNumber(commonExpirationTime);
+                           finalResponse.setHeaderValue(SIP_EXPIRES_FIELD, expiresString, 0);
                         }
 
                         // Add the testing contact, if it is set.

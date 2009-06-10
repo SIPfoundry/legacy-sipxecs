@@ -127,7 +127,8 @@ protected:
     int mMinExpiresTimeint;
     bool mUseCredentialDB;
     UtlString mRealm;
-
+    UtlBoolean mSendExpiresInResponse;
+    
     SipNonceDb mNonceDb;
     long mNonceExpiration;
 
