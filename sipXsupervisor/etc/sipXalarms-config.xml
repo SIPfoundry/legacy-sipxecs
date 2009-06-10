@@ -215,6 +215,14 @@
                  email="true"
                  />
       </alarm>
+      <alarm id="STUN_PUBLIC_ADDRESS_CHANGED">
+         <code>SPX00029</code>
+         <severity>info</severity>
+         <component>sipXbridge</component>
+         <action log="true"
+                 email="true"
+                 />
+      </alarm>
 
       <!-- Add new alarms above this line.
           Remember to add strings into meta/alarms/sipXalarms-strings.xml also.

@@ -88,6 +88,14 @@
          <description>The STUN Server address '{0}' is not resolvable. </description>
          <resolution>The STUN Server address is not resolvable. Reconfigure your STUN server settings to point at a functioning STUN server. </resolution>
       </alarm>
+      <alarm id="STUN_PUBLIC_ADDRESS_CHANGED">
+         <shorttitle>The Public Address Changed.</shorttitle>
+         <description>The SIPX Server Public Address as determined by STUN has changed to {0}. </description>
+         <resolution>Depending on how they were provisioned, some ITSP accounts may fail to function after this happens. 
+           Wait for 10 minutes and check your ITSP accounts. All ITSP accounts that were directly provisioned by your public 
+           IP Address will cease to function. Contact the ITSP and re-start the SIP Trunking service. 
+         </resolution>
+      </alarm>
       <alarm id="SIPX_BRIDGE_ITSP_SERVER_FAILURE">
          <shorttitle>The ITSP reported a server failure.</shorttitle>
          <description>The ITSP '{0}' reported a server failure. </description>
