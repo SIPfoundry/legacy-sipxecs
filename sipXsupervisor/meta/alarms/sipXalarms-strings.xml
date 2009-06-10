@@ -93,7 +93,17 @@
          <description>The SIPX Server Public Address as determined by STUN has changed to {0}. </description>
          <resolution>Depending on how they were provisioned, some ITSP accounts may fail to function after this happens. 
            Wait for 10 minutes and check your ITSP accounts. All ITSP accounts that were directly provisioned by your public 
-           IP Address will cease to function. Contact the ITSP and re-start the SIP Trunking service. 
+           IP Address will cease to function. Contact the ITSP to report your new public address in such cases and 
+           re-start the SIP Trunking service after the ITSP has reprovisioned such accounts with your new public IP Address.  
+           You may also need to restart your SIP Trunking and Media Relay services if your ITSP implements "Hosted NAT Compensation"
+           and the NAT mappings have changed.
+         </resolution>
+      </alarm>
+      <alarm id="MEDIA_RELAY_STRAY_PACKETS_DETECTED">
+         <shorttitle>Stray packets were detected by the Media Relay service.</shorttitle>
+         <description>Stray packets originating from {0} were detected by the Media Relay Service. </description>
+         <resolution> Stray packets can adversely affect the performance of the Media Relay Service. 
+          Shut down the source of the problem. 
          </resolution>
       </alarm>
       <alarm id="SIPX_BRIDGE_ITSP_SERVER_FAILURE">

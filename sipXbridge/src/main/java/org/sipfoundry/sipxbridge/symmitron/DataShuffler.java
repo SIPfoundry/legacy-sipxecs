@@ -112,6 +112,7 @@ class DataShuffler implements Runnable {
                     logger.trace("Discarding packet - remote endpoint does not match transmitter endpoint" );
                     logger.trace("receivedOn = " + receivedOn.getTransmitter().getInetAddress() + " remoteAddress " + remoteAddress.getAddress());
                 }
+                receivedOn.recordStrayPacket(remoteAddress.getAddress().getHostAddress());
                 return;
             } else if ( logger.isTraceEnabled() && receivedOn.getTransmitter() != null ) {
                 if ( logger.isTraceEnabled() ) {

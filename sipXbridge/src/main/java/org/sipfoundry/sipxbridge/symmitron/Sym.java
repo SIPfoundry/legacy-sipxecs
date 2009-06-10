@@ -8,10 +8,12 @@ package org.sipfoundry.sipxbridge.symmitron;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
 
 import org.apache.log4j.Logger;
+import org.apache.xmlrpc.XmlRpcException;
 
 /**
  * Representation of a media session. A media sesison is a pair of media endpoints.
@@ -51,6 +53,10 @@ final class Sym implements SymInterface, Serializable {
     long packetsReceived;
     
     private long visited;
+    
+    private HashMap<String,Integer> strayPacketCounters = new HashMap<String,Integer>();
+    
+    private static HashSet<String> strayPacketAlarmTable = new HashSet<String>();
 
     public Sym() {
         id = "sym:" + Math.abs(new Random().nextLong());
@@ -256,6 +262,33 @@ final class Sym implements SymInterface, Serializable {
 
     boolean isVisited(long stamp) {
         return this.visited == stamp;
+    }
+    
+    void clearStrayPacketMap() {
+        this.strayPacketCounters.clear();
+    }
+
+    public void recordStrayPacket(String hostAddress) {
+        if (!strayPacketAlarmTable.contains(hostAddress)) {
+            if (!this.strayPacketCounters.containsKey(hostAddress)) {
+                this.strayPacketCounters.put(hostAddress, 0);
+            }
+            int current = this.strayPacketCounters.get(hostAddress).intValue();
+            this.strayPacketCounters.put(hostAddress, current + 1);
+            if (current + 1 == 10 * 1024) {
+                try {
+                    SymmitronServer.alarmClient.raiseAlarm(
+                            SymmitronServer.SIPX_RELAY_STRAY_PACKET_ALARM_ID,
+                            hostAddress);
+                    strayPacketAlarmTable.add(hostAddress);
+                    this.strayPacketCounters.remove(hostAddress);
+                } catch (XmlRpcException e) {
+                    logger.error("Problem sending Alarm", e);
+                    return;
+                }
+            }
+        }
+
     }
     
     
