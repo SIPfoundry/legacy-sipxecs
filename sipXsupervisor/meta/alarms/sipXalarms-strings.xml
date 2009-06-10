@@ -89,14 +89,14 @@
          <resolution>The STUN Server address is not resolvable. Reconfigure your STUN server settings to point at a functioning STUN server. </resolution>
       </alarm>
       <alarm id="STUN_PUBLIC_ADDRESS_CHANGED">
-         <shorttitle>The Public Address Changed.</shorttitle>
-         <description>The SIPX Server Public Address as determined by STUN has changed to {0}. </description>
+         <shorttitle>NAT Reboot or SIPX Public Address change detected.</shorttitle>
+         <description>The SIPX Server Public IP Address as determined by STUN has changed to {0}, or a  NAT rebooted was detected. </description>
          <resolution>Depending on how they were provisioned, some ITSP accounts may fail to function after this happens. 
-           Wait for 10 minutes and check your ITSP accounts. All ITSP accounts that were directly provisioned by your public 
-           IP Address will cease to function. Contact the ITSP to report your new public address in such cases and 
-           re-start the SIP Trunking service after the ITSP has reprovisioned such accounts with your new public IP Address.  
-           You may also need to restart your SIP Trunking and Media Relay services if your ITSP implements "Hosted NAT Compensation"
-           and the NAT mappings have changed.
+           If your public address changed, all ITSP accounts that were directly provisioned by your public 
+           IP Address will cease to function. Contact the ITSP to report your new public 
+           address in such cases and re-start the SIP Trunking service after the ITSP has reprovisioned such 
+           accounts with your new Public IP Address.  If your ITSP implements "Hosted NAT compensation", and your 
+           NAT reboots,  you may need to restart your SIP Trunking, depending upon the type of NAT you are using. 
          </resolution>
       </alarm>
       <alarm id="MEDIA_RELAY_STRAY_PACKETS_DETECTED">
