@@ -1,11 +1,6 @@
 /* suppress warnings */
 SET client_min_messages TO 'error';
 
-create table version_history(
-  version int4 not null primary key,
-  applied date not null
-);
-
 /**
  * CHANGE VERSION HERE ----------------------------> X <------------------
  *
@@ -21,11 +16,6 @@ create table version_history(
  * For the initial sipX release with ACD History, the database version is 1.
  * Version 2: location_fqdn new column
  */
-insert into version_history (version, applied) values (1, now());
-
-create table patch(
-  name varchar(32) not null primary key
-);
 
 create table acd_agent_stat (
   acd_agent_stat_id serial8 not null primary key,

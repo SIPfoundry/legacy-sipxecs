@@ -480,6 +480,7 @@ fi
 %defattr(644,@SIPXPBXUSER@,@SIPXPBXUSER@,755)
 %config(noreplace) %{sipxpbxconf}/sipxconfig-report-config
 %config(noreplace) %{sipxpbxconf}/report/schema.sql
+%config(noreplace) %{sipxpbxconf}/report/enable_upgrades.sql
 %config(noreplace) %{sipxpbxconf}/report/location_fqdn.sql
 %config(noreplace) %{sipxpbxconf}/report/sipxconfig-report-config.vm
 
