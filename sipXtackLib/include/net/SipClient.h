@@ -77,9 +77,9 @@ public:
    // is now writable).
    virtual void writeMore(void);
 
-   // Remove and report all stored message content (because the socket
+   // Remove and report(if requested) all stored message content (because the socket
    // is not usable).
-   virtual void emptyBuffer(void);
+   virtual void emptyBuffer(bool reportError);
 
    UtlBoolean isSharedSocket( void ) const;
 

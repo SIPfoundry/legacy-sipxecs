@@ -38,6 +38,7 @@
 #define POLL_TIMEOUT 100
 
 #define LOG_TIME
+//#define TEST_SOCKET
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -326,11 +327,11 @@ UtlBoolean SipClient::sendTo(SipMessage& message,
    return sendOk;
 }
 
-// Remove and report all stored message content (because the socket
+// Remove and report(if requested) all stored message content (because the socket
 // is not usable).
 // This is the default, do-nothing, implementation, to be overridden
 // by classes that use this functionality.
-void SipClient::emptyBuffer(void)
+void SipClient::emptyBuffer(bool reportError)
 {
    assert(FALSE);
 }
@@ -517,39 +518,50 @@ int SipClient::run(void* runArg)
       // the initial read showed an error but we have to wait to report it.
       if (!waitingToReportErr)   
       {
+          // This is the normal path.
           // Read the socket only if the socket is not shared.
           // If it is shared, the ancestral SipClient will read it.
           // If multiple threads attempt to read the socket, poll() may
           // succeed but another may read the data, leaving us to block on
           // read.
           fds[1].events = mbSharedSocket ? 0 : POLLIN;
+
+          // Set wait for writing the socket if there is queued messages to
+          // send.
+          if (mWriteQueued)
+          {
+             // Wait for output on the socket to not block.
+             fds[1].events |= POLLOUT;
+          }
+
       }
       else 
       {
+          // just waiting to report error, ignore the socket
+          fds[1].fd =-1;
           fds[1].events = 0;
       }
 
-      // Set wait for writing the socket if there is queued messages to
-      // send.
-      if (mWriteQueued)
-      {
-         // Wait for output on the socket to not block.
-         fds[1].events |= POLLOUT;
-      }
-
-      // Wait for work to do.
+      // If there is residual data in the read buffer, 
+      // pretend the socket is ready to read.
       if (!readBuffer.isNull())
       {
-         // If there is residual data in the read buffer, pretend the socket
-         // is ready to read.
          fds[1].revents = POLLIN;
       }
       else
       {
          // Otherwise, call poll() to wait.
-         int res = poll(&fds[0], sizeof (fds) / sizeof (fds[0]),
+         int resPoll = poll(&fds[0], sizeof (fds) / sizeof (fds[0]),
                         POLL_TIMEOUT);
-         assert(res >= 0 || (res == -1 && errno == EINTR));
+         assert(resPoll >= 0 || (resPoll == -1 && errno == EINTR));
+         if (resPoll != 0)
+         {
+             OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                           "SipClient[%s]::run "
+                           "resPoll= %d revents: fd[0]= %x fd[1]= %x",
+                           mName.data(), 
+                           resPoll, fds[0].revents, fds[1].revents );
+         }
       }
 
       // Check for message queue messages (fds[0]) before checking the socket(fds[1]),
@@ -601,16 +613,18 @@ int SipClient::run(void* runArg)
                pMsg->releaseMsg();                         // free the message
             }
 
-            // if this helps, why is it needed?
+            // In order to report an unframed(eg TCP) socket error to SipUserAgent dispatcher, 
+            // the error must be carried in a sip message from the client's message queue.
+            // The message holds all the identifying information.
             if (waitingToReportErr)   
             {
                 // Return all buffered messages with a transport error indication.
-                emptyBuffer();
+                emptyBuffer(TRUE);
                 clientStopSelf();
             }
          }
+      } // end reading msg-available-for-output-queue pipe
 
-      }
       else if ((fds[1].revents & POLLOUT) != 0)
       {
          // Poll finished because socket is ready to write.
@@ -724,7 +738,8 @@ int SipClient::run(void* runArg)
             // Now that logging is done, remove the parsed bytes and
             // remember any unparsed input for later use.
             readBuffer.remove(0, res);
-         }
+         }  // end keep-alive msg 
+
          else if (res > 0)      // got message, but not keep-alive
          {
             // Message successfully read.
@@ -741,7 +756,7 @@ int SipClient::run(void* runArg)
             // Now that logging is done, remove the parsed bytes and
             // remember any unparsed input for later use.
             readBuffer.remove(0, res);
-         }
+         }  // end process read of >0 bytes 
          else
          {
             // Something went wrong while reading the message.
@@ -757,13 +772,10 @@ int SipClient::run(void* runArg)
 
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "SipClient[%s]::run error wait status  "
-                          "OnErrWait-%d waitingToReport-%d mbOnErrWait-%d EOFs-%d",
+                          "OnErrWait=%d waitingToReport=%d mbOnErrWait=%d EOFs=%d"
+                          "protocol %d ",
                           mName.data(), tcpOnErrWaitForSend, waitingToReportErr, 
-                          mbTcpOnErrWaitForSend, repeatedEOFs);
-
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipClient[%s]::run read error protocol %d ",
-                          mName.data(), 
+                          mbTcpOnErrWaitForSend, repeatedEOFs, 
                           OsSocket::isFramed(clientSocket->getIpProtocol()));
 
             // If the socket is not framed (is connection-oriented), 
@@ -780,11 +792,12 @@ int SipClient::run(void* runArg)
                 if (!tcpOnErrWaitForSend)
                 {
                    // Return all buffered messages with a transport error indication.
-                   emptyBuffer();
+                   emptyBuffer(TRUE);
                    clientStopSelf();
                 }
                 else
                 {
+                   fds[1].revents &= ~(POLLERR | POLLHUP);  // clear error bit if waiting
                    waitingToReportErr = TRUE;
                 }
             }
@@ -792,6 +805,46 @@ int SipClient::run(void* runArg)
             // deleted by HttpMessage::read.
             readBuffer.remove(0);
          }
+      } // end POLLIN reading socket 
+      else if (fds[1].revents & (POLLERR | POLLHUP) != 0)
+      {
+          OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                        "SipClient[%s]::run "
+                        "SipMessage::poll error(%d) ",
+                        mName.data(), errno);
+
+          if (OsSocket::isFramed(clientSocket->getIpProtocol()))
+          {
+              OsSysLog::add(FAC_SIP, PRI_ERR,
+                            "SipClient[%s]::run "
+                            "SipMessage::poll error(%d) got POLLERR | POLLHUP on UDP socket",
+                            mName.data(), errno);
+
+          }
+          else	// eg. tcp socket
+          // This client's socket is a connection-oriented protocol and the
+          // connection has been terminated (probably by the remote end).
+          // We must terminate the SipClient.
+          // We drop the queued messages, but we do not report them to
+          // SipUserAgent as failed sends.  This will cause SipUserAgent to
+          // retry the send using the same transport (rather than continuing
+          // to the next transport), which should cause a new connection to
+          // be made to the remote end.
+          {
+              // On non-blocking connect failures, we need to get the first send message  
+              // in order to successfully trigger the protocol fallback mechanism
+              if (!tcpOnErrWaitForSend)
+              {
+                 // Return all buffered messages with a transport error indication.
+                 emptyBuffer(TRUE);
+                 clientStopSelf();
+              }
+              else
+              {
+                 fds[1].revents &= ~(POLLERR | POLLHUP);  // clear error bit if waiting
+                 waitingToReportErr = TRUE;
+              }
+          }
       }
    }
    while (isStarted());

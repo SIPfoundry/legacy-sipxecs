@@ -65,9 +65,9 @@ public:
    /// Write as much of the buffered messages as can be written.
    virtual void writeMore();
 
-   /// Empty the buffer, returning all messages in the queue to the SipUserAgent
+   /// Empty the buffer, if requested, return all messages in the queue to the SipUserAgent
    /// as transport errors.
-   virtual void emptyBuffer();
+   virtual void emptyBuffer(bool reportError);
 
 /* ============================ ACCESSORS ================================= */
 
