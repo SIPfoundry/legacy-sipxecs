@@ -36,7 +36,7 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
 
     private AutoDiscoveryFlag remoteAddressAutoDiscovered = AutoDiscoveryFlag.NO_AUTO_DISCOVERY;
 
-    private KeepaliveMethod keepaliveMethod = KeepaliveMethod.NONE;
+    KeepaliveMethod keepaliveMethod = KeepaliveMethod.NONE;
 
     private KeepaliveTimerTask keepaliveTimerTask;
 
@@ -56,9 +56,45 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
     private InetSocketAddress socketAddress;
 
     private InetSocketAddress farEnd;
+    class SendKeepaliveWorkItem extends WorkItem {
+         Bridge bridge;
+      
+        @Override
+        public void doWork() {
+            // TODO Auto-generated method stub
+            long stamp = DataShuffler.getPacketCounter();
+                 
+            try {
 
-    private Semaphore sem = new Semaphore(1);
+                if (keepaliveMethod.equals(KeepaliveMethod.USE_EMPTY_PACKET)) {
+                    if (datagramChannel != null && getSocketAddress() != null
+                            && datagramChannel.isOpen() && getSocketAddress() != null) {
+                        send(emptyBuffer,stamp);
+                    }
+                } else if (keepaliveMethod.equals(KeepaliveMethod.REPLAY_LAST_SENT_PACKET)
+                        || keepaliveMethod.equals(KeepaliveMethod.USE_DUMMY_RTP_PAYLOAD)) {
+                    if (keepAliveBuffer != null && datagramChannel != null
+                            && getSocketAddress() != null && datagramChannel.isOpen()) {
+                        logger.trace("Sending keepalive");
+                        send((ByteBuffer) keepAliveBuffer,stamp);
 
+                    }
+                }
+            } catch (ClosedChannelException ex) {
+                /*
+                 * This is not an error. Somebody closed socket. Just bail.
+                 */
+                logger.warn("Exiting early media thread due to closed channel", ex);
+            } catch (Exception ex) {
+                logger.error("Unexpected exception in sending early media ", ex);
+                if (bridge != null) {
+                    bridge.stop();
+                }
+            }
+        }
+        
+    }
+ 
     /**
      * The keepalive timer task.
      * 
@@ -107,36 +143,12 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
             if (now - bridge.getLastPacketTime() < maxSilence) {
                 return;
             }
-
-            long stamp = DataShuffler.getPacketCounter();
             
-            try {
+            SendKeepaliveWorkItem workItem = new SendKeepaliveWorkItem();
+            workItem.bridge = bridge;
+            DataShuffler.addWorkItem(workItem);
 
-                if (keepaliveMethod.equals(KeepaliveMethod.USE_EMPTY_PACKET)) {
-                    if (datagramChannel != null && getSocketAddress() != null
-                            && datagramChannel.isOpen() && getSocketAddress() != null) {
-                        send(emptyBuffer,stamp);
-                    }
-                } else if (keepaliveMethod.equals(KeepaliveMethod.REPLAY_LAST_SENT_PACKET)
-                        || keepaliveMethod.equals(KeepaliveMethod.USE_DUMMY_RTP_PAYLOAD)) {
-                    if (keepAliveBuffer != null && datagramChannel != null
-                            && getSocketAddress() != null && datagramChannel.isOpen()) {
-                        logger.trace("Sending keepalive");
-                        send((ByteBuffer) keepAliveBuffer,stamp);
-
-                    }
-                }
-            } catch (ClosedChannelException ex) {
-                /*
-                 * This is not an error. Somebody closed socket. Just bail.
-                 */
-                logger.warn("Exiting early media thread due to closed channel", ex);
-            } catch (Exception ex) {
-                logger.error("Unexpected exception in sending early media ", ex);
-                if (bridge != null) {
-                    bridge.stop();
-                }
-            }
+           
 
         }
 
@@ -239,18 +251,7 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
          */
         this.lastPacketSentTime.set(System.currentTimeMillis());
 
-        boolean semAquired = false;
-        /*
-         * Need the critical section here if keepalive is enabled because datagram channels are not thread safe.
-         */
-        try {
-            if (this.keepaliveTimerTask != null) {
-                sem.acquire();
-                semAquired = true;
-            }
-        } catch (InterruptedException ex) {
-
-        }
+       
         
         try {
 
@@ -295,8 +296,8 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
             }
 
         } finally {
-            if ( semAquired) {
-                sem.release();
+            if ( logger.isTraceEnabled() ) {
+                 logger.trace("Done sending packet on " + this.getSym().getId());
             }
         }
     }
@@ -327,14 +328,9 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
 
     }
 
-    void computeAutoDiscoveryFlag() throws Exception {
-        if (getIpAddress() == null && this.getPort() == 0) {
-            this.remoteAddressAutoDiscovered = AutoDiscoveryFlag.IP_ADDRESS_AND_PORT;
-        } else if (getIpAddress() != null && this.getPort() == 0) {
-            this.remoteAddressAutoDiscovered = AutoDiscoveryFlag.PORT_ONLY;
-        } else if (getIpAddress() != null && this.getPort() != 0) {
-            this.remoteAddressAutoDiscovered = AutoDiscoveryFlag.NO_AUTO_DISCOVERY;
-        }
+    public void setAutoDiscoveryFlag(AutoDiscoveryFlag autoDiscoveryFlag) {
+        this.remoteAddressAutoDiscovered = autoDiscoveryFlag;
+       
 
     }
 

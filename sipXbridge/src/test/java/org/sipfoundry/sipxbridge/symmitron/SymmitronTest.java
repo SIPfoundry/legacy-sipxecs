@@ -215,7 +215,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         this.counter = 0;
 
         byte[] data = new byte[1024];
-        DatagramSocket datagramSocket = new DatagramSocket();
+        DatagramSocket datagramSocket = datagramSocket1;
         System.out.println("Sending to " + port1);
         DatagramPacket datagramPacket = new DatagramPacket(data, data.length, InetAddress
                 .getByName(ipAddr), port1);
@@ -230,7 +230,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         datagramPacket = new DatagramPacket(data, data.length, InetAddress.getByName(ipAddr),
                 port4);
         System.out.println("Sending to " + port4);
-        
+        datagramSocket = datagramSocket2;
         for (int i = 0; i < 1000; i++) {
             Thread.sleep(10);
             datagramSocket.send(datagramPacket);
@@ -242,7 +242,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
 
         datagramSocket1.close();
         datagramSocket2.close();
-        datagramSocket.close();
+      
 
         super.destroyBridge(bridge1);
         super.destroyBridge(bridge2);
@@ -449,22 +449,21 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         this.counter = 0;
 
         byte[] data = new byte[1024];
-        DatagramSocket datagramSocket = new DatagramSocket();
         DatagramPacket datagramPacket = new DatagramPacket(data, data.length, InetAddress
                 .getByName(ipAddr), port1);
         for (int i = 0; i < 1000; i++) {
 
             Thread.sleep(10);
-            datagramSocket.send(datagramPacket);
+            datagramSocket1.send(datagramPacket);
         }
         Thread.sleep(100);
         assertTrue("Counter is " + counter, counter >= 1000);
         this.counter = 0;
-        datagramPacket = new DatagramPacket(data, data.length, InetAddress.getByName(ipAddr),
-                port2);
+        datagramPacket = new DatagramPacket(data, data.length,InetAddress
+                .getByName(ipAddr), port2);
         for (int i = 0; i < 1000; i++) {
             Thread.sleep(10);
-            datagramSocket1.send(datagramPacket);
+            datagramSocket2.send(datagramPacket);
         }
         
         Thread.sleep(100);
@@ -472,8 +471,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
 
         datagramSocket1.close();
         datagramSocket2.close();
-        datagramSocket.close();
-
+      
         super.destroyBridge(bridge);
 
     }
@@ -552,13 +550,12 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         this.counter = 0;
 
         byte[] data = new byte[1024];
-        DatagramSocket datagramSocket = new DatagramSocket();
         DatagramPacket datagramPacket = new DatagramPacket(data, data.length, InetAddress
                 .getByName(ipAddr), port1);
         for (int i = 0; i < 100; i++) {
 
             Thread.sleep(10);
-            datagramSocket.send(datagramPacket);
+            datagramSocket1.send(datagramPacket);
         }
         Thread.sleep(100);
         
@@ -570,14 +567,14 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         
         for (int i = 0; i < 100; i++) {
             Thread.sleep(10);
-            datagramSocket1.send(datagramPacket);
+            datagramSocket2.send(datagramPacket);
         }
         Thread.sleep(100);
         int counter = this.counter;
         
         
         
-        DatagramSocket strayPacketSocket = new DatagramSocket(new InetSocketAddress(InetAddress.getByName(super.testerAddress),7782));
+        DatagramSocket strayPacketSocket = new DatagramSocket(new InetSocketAddress(InetAddress.getByName(super.testerAddress),7784));
      
         for (int i = 0; i < 1000; i++) {
 
@@ -589,8 +586,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         strayPacketSocket.close();
         datagramSocket1.close();
         datagramSocket2.close();
-        datagramSocket.close();
-
+      
         super.destroyBridge(bridge);
 
     }
@@ -745,7 +741,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         this.counter = 0;
 
         byte[] data = new byte[1024];
-        DatagramSocket datagramSocket = new DatagramSocket();
+        DatagramSocket datagramSocket = datagramSocket1;
         for (int i = 0; i < 1000; i++) {
             DatagramPacket datagramPacket = new DatagramPacket(data, data.length, InetAddress
                     .getByName(ipAddr), port);
@@ -753,7 +749,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
             datagramSocket.send(datagramPacket);
         }
         Thread.sleep(100);
-        assertTrue(counter >= 1000);
+        assertTrue("couner must exceed 1000",counter >= 1000);
 
         args = new Object[2];
         args[0] = clientHandle;
@@ -843,7 +839,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         this.counter = 0;
 
         byte[] data = new byte[1024];
-        DatagramSocket datagramSocket = new DatagramSocket();
+        DatagramSocket datagramSocket = datagramSocket1;
         for (int i = 0; i < 1000; i++) {
             DatagramPacket datagramPacket = new DatagramPacket(data, data.length, InetAddress
                     .getByName(ipAddr), port);
@@ -1109,7 +1105,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
         this.counter = 0;
 
         byte[] data = new byte[1024];
-        DatagramSocket datagramSocket = new DatagramSocket();
+        DatagramSocket datagramSocket = datagramSocket1;
         DatagramPacket datagramPacket = new DatagramPacket(data, data.length, InetAddress
                 .getByName(ipAddr), port1);
         for (int i = 0; i < 1000; i++) {
@@ -1124,7 +1120,7 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
                 port2);
         for (int i = 0; i < 1000; i++) {
             Thread.sleep(10);
-            datagramSocket1.send(datagramPacket);
+            datagramSocket2.send(datagramPacket);
         }
         Thread.sleep(100);
         assertTrue("Counter is " + counter, counter >= 1000);
@@ -1149,7 +1145,6 @@ public class SymmitronTest extends AbstractSymmitronTestCase {
       
         datagramSocket1.close();
         datagramSocket2.close();
-        datagramSocket.close();
         
         return bridge;
 
