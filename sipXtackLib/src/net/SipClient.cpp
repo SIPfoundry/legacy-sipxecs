@@ -806,7 +806,7 @@ int SipClient::run(void* runArg)
             readBuffer.remove(0);
          }
       } // end POLLIN reading socket 
-      else if (fds[1].revents & (POLLERR | POLLHUP) != 0)
+      else if ((fds[1].revents & (POLLERR | POLLHUP)) != 0)
       {
           OsSysLog::add(FAC_SIP, PRI_DEBUG,
                         "SipClient[%s]::run "
