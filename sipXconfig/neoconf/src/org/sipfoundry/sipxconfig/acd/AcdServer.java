@@ -105,7 +105,6 @@ public class AcdServer extends AcdComponent implements LoggingEntity {
     }
 
     public void insertLine(AcdLine acdLine) {
-        Collection lines = getLines();
         acdLine.setAcdServer(this);
         m_lines.add(acdLine);
     }
@@ -143,7 +142,7 @@ public class AcdServer extends AcdComponent implements LoggingEntity {
 
     String getServiceUri() {
         Object[] params = new Object[] {
-                getLocation().getFqdn(), Integer.toString(m_port)
+            getLocation().getFqdn(), Integer.toString(m_port)
         };
         return MessageFormat.format(URI, params);
     }
@@ -164,7 +163,6 @@ public class AcdServer extends AcdComponent implements LoggingEntity {
         public String getFqdn() {
             return m_server.getLocation().getFqdn();
         }
-
 
         @SettingEntry(path = PRESENCE_SERVER_URI)
         public String getPresenceServerUri() {
@@ -199,7 +197,7 @@ public class AcdServer extends AcdComponent implements LoggingEntity {
 
     public String getPresenceServiceUri() {
         Object[] params = new Object[] {
-                getLocation().getFqdn(), String.valueOf(m_presenceService.getPresenceApiPort())
+            getLocation().getFqdn(), String.valueOf(m_presenceService.getPresenceApiPort())
         };
         return MessageFormat.format(URI, params);
     }

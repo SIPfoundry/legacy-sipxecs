@@ -15,14 +15,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.TestCase;
-
 import org.apache.commons.lang.time.DateUtils;
 import org.postgresql.util.PGInterval;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.test.TestUtil;
-import org.springframework.context.ApplicationContext;
 
 public class AcdHistoricalStatsTestIntegration extends IntegrationTestCase {
 

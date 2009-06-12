@@ -9,17 +9,16 @@
  */
 package org.sipfoundry.sipxconfig.acd;
 
-import static org.easymock.EasyMock.expectLastCall;
-
 import java.util.Set;
 
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.service.SipxPresenceService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+
+import static org.easymock.EasyMock.expectLastCall;
 
 public class AcdServerTest extends BeanWithSettingsTestCase {
 

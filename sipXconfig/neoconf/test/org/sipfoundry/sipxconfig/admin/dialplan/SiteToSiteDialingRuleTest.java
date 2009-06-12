@@ -16,11 +16,9 @@ import java.util.List;
 import java.util.TimeZone;
 
 import junit.framework.JUnit4TestAdapter;
-
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.ScheduledDay;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime.WorkingHours;
@@ -33,7 +31,6 @@ import org.sipfoundry.sipxconfig.gateway.Gateway;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  * SiteToSiteDialingRuleTest
@@ -156,6 +153,7 @@ public class SiteToSiteDialingRuleTest {
     @Test
     public void testGetRouteHeader() {
         Gateway g = new Gateway() {
+            @Override
             public String getRoute() {
                 return "bongo.example.org";
             }

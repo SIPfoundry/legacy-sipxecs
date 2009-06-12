@@ -96,9 +96,8 @@ public class SipxFreeswitchService extends SipxService implements LoggingEntity 
         String logLevel = super.getLogLevel();
         if (logLevel != null && logLevel.equals(TRUE)) {
             return DEBUG;
-        } else {
-            return NON_DEBUG;
         }
+        return NON_DEBUG;
     }
 
     @Override

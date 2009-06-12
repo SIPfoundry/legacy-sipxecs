@@ -96,8 +96,7 @@ public abstract class SoftwareUpdatesPage extends BasePage implements PageBeginR
     }
 
     public void pageBeginRender(PageEvent event) {
-        if (getPackageUpdateManager().getState().equals(NO_UPDATES_AVAILABLE)
-                && getCurrentVersion() == null) {
+        if (getPackageUpdateManager().getState().equals(NO_UPDATES_AVAILABLE) && getCurrentVersion() == null) {
             try {
                 setCurrentVersion(getPackageUpdateManager().getCurrentVersion());
             } catch (UserException e) {
@@ -135,8 +134,7 @@ public abstract class SoftwareUpdatesPage extends BasePage implements PageBeginR
         String currentVersion = getCurrentVersion();
         if (currentVersion == null) {
             return getMessages().getMessage("label.version.undetermined");
-        } else {
-            return getMessages().format("label.version", getCurrentVersion());
         }
+        return getMessages().format("label.version", getCurrentVersion());
     }
 }
