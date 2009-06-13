@@ -23,6 +23,7 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Semaphore;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -128,7 +129,7 @@ public class SymmitronServer implements Symmitron {
     private static NetworkConfigurationDiscoveryProcess addressDiscovery = null;
     
     static CRLFReceiver crlfReceiver;
-
+    
     static {
         try {
             crlfReceiver = new CRLFReceiver();
@@ -137,6 +138,71 @@ public class SymmitronServer implements Symmitron {
             throw new RuntimeException(ex);
         }
     }
+    
+    
+    /**
+     * A work queue item to set the destination. We need this to be a synchronous
+     * operation that is done in the data shuffler thread. This is single threaded
+     * to avoid locking. This has to be done this way because there are two ways in
+     * which the destination can be set -- auto learning or application set. Since
+     * these two methods are in different threads, there is a conflict.
+     * 
+     */ 
+    class SetDestinationWorkItem extends WorkItem {
+
+        String ipAddress;
+        int port;
+        String keepaliveMethod;
+        int keepAliveTime;
+        Sym sym;
+        Semaphore workSem;
+        boolean error;
+
+        String errorMessage;
+
+
+        public SetDestinationWorkItem() {
+            super();
+            this.workSem = new Semaphore(0);
+        }
+
+        public void doWork() {
+            try {
+                // Allocate a new session if needed.
+                SymTransmitterEndpoint transmitter = sym.getTransmitter() != null ? sym
+                        .getTransmitter()
+                        : new SymTransmitterEndpoint();
+
+                AutoDiscoveryFlag autoDiscoveryFlag = AutoDiscoveryFlag.NO_AUTO_DISCOVERY;
+                if (ipAddress == null && port == 0) {
+                    autoDiscoveryFlag = AutoDiscoveryFlag.IP_ADDRESS_AND_PORT;
+                } else if (ipAddress != null && port == 0) {
+                    autoDiscoveryFlag = AutoDiscoveryFlag.PORT_ONLY;
+                }
+                transmitter.setAutoDiscoveryFlag(autoDiscoveryFlag);
+
+                transmitter.setIpAddressAndPort(ipAddress, port);
+
+                KeepaliveMethod method = KeepaliveMethod
+                        .valueOfString(keepaliveMethod);
+                transmitter.setMaxSilence(keepAliveTime, method);
+
+                if (sym.getTransmitter() == null) {
+                    sym.setTransmitter(transmitter);
+                }
+               
+            } catch (Exception ex) {
+                logger.error("Exception setting destination ", ex);
+                this.error = true;
+                this.errorMessage = ex.getMessage();
+            } finally {
+                workSem.release();
+            }
+        }
+    }
+
+
+   
     
     private static void restartCrLfReceiver() {
         try {
@@ -700,24 +766,25 @@ public class SymmitronServer implements Symmitron {
             if (ipAddress.equals(""))
                 ipAddress = null;
 
-            Map<String, Object> retval = createSuccessMap();
+         
+            
+         
+            SetDestinationWorkItem workItem = new SetDestinationWorkItem();
+            workItem.ipAddress = ipAddress;
+            workItem.port = port;
+            workItem.keepAliveTime = keepAliveTime;
+            workItem.sym = sym;
+            workItem.keepaliveMethod = keepaliveMethod;
+            
+            DataShuffler.addWorkItem(workItem);
+            
+            workItem.workSem.acquire();
+            
+            if ( workItem.error ) {
+                return createErrorMap(PROCESSING_ERROR, workItem.errorMessage);
+            } else return createSuccessMap();
 
-            // Allocate a new session if needed.
-            SymTransmitterEndpoint transmitter = sym.getTransmitter() != null ? sym
-                    .getTransmitter()
-                    : new SymTransmitterEndpoint();
-
-            transmitter.setIpAddressAndPort(ipAddress, port);
-            transmitter.computeAutoDiscoveryFlag();
-            KeepaliveMethod method = KeepaliveMethod
-                    .valueOfString(keepaliveMethod);
-            transmitter.setMaxSilence(keepAliveTime, method);
-
-            if (sym.getTransmitter() == null) {
-                sym.setTransmitter(transmitter);
-            }
-            return retval;
-
+           
         } catch (Exception ex) {
 
             logger.error("Processing Error", ex);

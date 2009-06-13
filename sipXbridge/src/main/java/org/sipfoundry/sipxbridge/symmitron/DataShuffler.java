@@ -20,9 +20,13 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.commons.collections.list.SynchronizedList;
 import org.apache.log4j.Logger;
 
 class DataShuffler implements Runnable {
@@ -37,6 +41,8 @@ class DataShuffler implements Runnable {
     private static Random random = new Random();
     
     private static long packetCounter = Math.abs(random.nextLong());
+    
+    private static List workQueue = SynchronizedList.decorate(new LinkedList<WorkItem>());
     
 
     public DataShuffler() {
@@ -105,19 +111,32 @@ class DataShuffler implements Runnable {
             }
             /* xx-5907 sipxrelay needs to guard against stray media streams. */
             Sym receivedOn = bridge.getReceiverSym(datagramChannel);
-            if ( receivedOn.getTransmitter() != null && receivedOn.getTransmitter().getInetAddress() != null &&
-                 receivedOn.getTransmitter().getAutoDiscoveryFlag() == AutoDiscoveryFlag.NO_AUTO_DISCOVERY &&
+            if ( logger.isTraceEnabled() ) {
+                logger.trace("DataShuffler : received packet on symId " + receivedOn.getId() );
+            }
+            if (!selfRouted &&  receivedOn.getTransmitter().getAutoDiscoveryFlag() == AutoDiscoveryFlag.NO_AUTO_DISCOVERY 
+                 && receivedOn.getTransmitter() != null && receivedOn.getTransmitter().getInetAddress() != null &&             
+                 ( !receivedOn.getTransmitter().getInetAddress().equals(remoteAddress.getAddress())
+                 || receivedOn.getTransmitter().getPort() != remoteAddress.getPort() ) ) {
+                if ( logger.isTraceEnabled() ) {
+                    logger.trace(String.format("Discarding packet - remote endpoint  does not match transmitter endpoint %s %s %d %d ",
+                            receivedOn.getTransmitter().getInetAddress(), remoteAddress.getAddress(),receivedOn.getTransmitter().getPort(),remoteAddress.getPort() ));
+                    
+                }
+                receivedOn.recordStrayPacket(remoteAddress.getAddress().getHostAddress());
+                return;
+            } else if (!selfRouted && receivedOn.getTransmitter().getAutoDiscoveryFlag() == AutoDiscoveryFlag.PORT_ONLY 
+                    && receivedOn.getTransmitter() != null && receivedOn.getTransmitter().getInetAddress() != null &&             
                     !receivedOn.getTransmitter().getInetAddress().equals(remoteAddress.getAddress())) {
                 if ( logger.isTraceEnabled() ) {
-                    logger.trace("Discarding packet - remote endpoint does not match transmitter endpoint" );
-                    logger.trace("receivedOn = " + receivedOn.getTransmitter().getInetAddress() + " remoteAddress " + remoteAddress.getAddress());
+                    logger.trace(String.format("Discarding packet - remote endpoint  does not match transmitter endpoint %s %s ",
+                            receivedOn.getTransmitter().getInetAddress(), remoteAddress.getAddress())); 
                 }
                 receivedOn.recordStrayPacket(remoteAddress.getAddress().getHostAddress());
                 return;
             } else if ( logger.isTraceEnabled() && receivedOn.getTransmitter() != null ) {
                 if ( logger.isTraceEnabled() ) {
-                    logger.trace("receivedOn : " + receivedOn.getTransmitter().getInetAddress() 
-                            + " ipaddr = " + receivedOn.getTransmitter().getIpAddress() );
+                    logger.trace("receivedOn : " + receivedOn.getTransmitter().getInetAddress() );
                 }
             } else if ( logger.isTraceEnabled() ) {
                 logger.trace("receivedOn : transmitter == null " );
@@ -254,6 +273,12 @@ class DataShuffler implements Runnable {
         while (true) {
             Bridge bridge = null;
             try {
+                
+                while (! workQueue.isEmpty() ) {
+                    logger.debug("Got a work item");
+                    WorkItem workItem = (WorkItem)workQueue.remove(0);
+                    workItem.doWork();
+                }
 
                 if (initializeSelectors.get()) {
                     initializeSelector();
@@ -403,6 +428,14 @@ class DataShuffler implements Runnable {
         long retval = packetCounter;
         packetCounter++;
         return retval;
+    }
+
+    public static void addWorkItem(WorkItem workItem) {
+        DataShuffler.workQueue.add(workItem);
+        if (selector != null) {
+            selector.wakeup();
+        }
+        
     }
 
 }
