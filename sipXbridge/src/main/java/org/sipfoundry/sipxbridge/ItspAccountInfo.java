@@ -145,9 +145,19 @@ public class ItspAccountInfo implements
     private boolean useDefaultAssertedIdentity;
 
     /*
-     * Determines whether the User name is a phone number.
+     * Determines whether the Sip Request URI User name is a phone number.
      */
     private boolean isUserPhone = true;
+    
+    
+    /*
+     * Flag that indicates whether this is a dummy account
+     */
+    private boolean isDummyAccount = false;
+    
+    /*
+     * The registration timer task.
+     */
 
     protected RegistrationTimerTask registrationTimerTask;
 
@@ -600,6 +610,14 @@ public class ItspAccountInfo implements
 
     public boolean isAlarmSent() {
         return alarmSent;
+    }
+    
+    public boolean isDummyAccount() {
+        return this.isDummyAccount;
+    }
+    
+    public void setDummyAccount(boolean dummyAccount) {
+        this.isDummyAccount = dummyAccount;
     }
 
     public Collection<Hop> getItspProxyAddresses() {

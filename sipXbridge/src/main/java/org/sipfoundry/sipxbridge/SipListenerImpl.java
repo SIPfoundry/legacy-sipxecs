@@ -72,44 +72,28 @@ public class SipListenerImpl implements SipListener {
         if (provider == Gateway.getLanProvider()) {
             /*
              * By default, we do not handle LAN originated challenges unless the inbound domain is the 
-             * same as the outbound domain -- in which case we forward the challenge.
-             * If we do not handle LAN originated challenges, tear down the
-             * call.
+             * same as the sipx domain -- in which case sipx will challenge us and we will forward that
+             * challenge.
              */
             if (Gateway.getBridgeConfiguration().getSipxbridgePassword() == null) {
                 ServerTransaction stx = ((TransactionContext) responseEvent
                         .getClientTransaction().getApplicationData())
                         .getServerTransaction();
-                if (stx != null) {
-                    FromHeader stxFromHeader = (FromHeader) stx.getRequest().getHeader(FromHeader.NAME);
-                    FromHeader ctxFromHeader = (FromHeader) ctx.getRequest().getHeader(FromHeader.NAME);
-                    
-                    String fromHost = ((SipURI) stxFromHeader.getAddress().getURI()).getHost(); 
-                    String toHost  = ((SipURI) ctxFromHeader.getAddress().getURI()).getHost(); 
-               
+                if (stx != null && stx.getState() != TransactionState.TERMINATED) { 
                     /*
-                     * See what the host part of the inbound request looks like.
-                     * If the inbound request does not have the same domain as the outbound
-                     * request then decline the request. Otherwise forward the challenge.
+                     * Forward it to the peer. Maybe he knows how to handle the challenge and if not
+                     * he will hang up the call.
                      */
-                    if (! fromHost.equalsIgnoreCase(toHost)) {
-                        Response errorResponse = SipUtilities.createResponse(stx,
-                                Response.DECLINE);
-                        stx.sendResponse(errorResponse);
-                        if (dialog != null
-                                && DialogContext.get(dialog).getBackToBackUserAgent() != null) {
-                            DialogContext.get(dialog).getBackToBackUserAgent().tearDown(
-                                    Gateway.SIPXBRIDGE_USER, ReasonCode.AUTHENTICATION_FAILURE,
-                                    "Unexpected challenge from Pbx.");
-                        }
-                    } else {
-                        Response errorResponse = SipUtilities.createResponse(stx, statusCode);
-                        SipUtilities.copyHeaders(responseEvent.getResponse(),errorResponse);
-                        errorResponse.removeHeader(ContactHeader.NAME);
-                        ContactHeader cth = SipUtilities.createContactHeader(null, ((TransactionExt)stx).getSipProvider());
-                        errorResponse.setHeader(cth);
-                        stx.sendResponse(errorResponse);
+                    Response errorResponse = SipUtilities.createResponse(stx, statusCode);
+                    SipUtilities.copyHeaders(responseEvent.getResponse(),errorResponse);
+                    errorResponse.removeHeader(ContactHeader.NAME);
+                    ContactHeader cth = SipUtilities.createContactHeader(null, ((TransactionExt)stx).getSipProvider());
+                    errorResponse.setHeader(cth);
+                    if ( TransactionContext.get(responseEvent.getClientTransaction()).getItspAccountInfo() == null || 
+                            TransactionContext.get(responseEvent.getClientTransaction()).getItspAccountInfo().isGlobalAddressingUsed()) {
+                        SipUtilities.setGlobalAddress(errorResponse);
                     }
+                    stx.sendResponse(errorResponse);
                 }
 
                 return;
@@ -136,10 +120,13 @@ public class SipListenerImpl implements SipListener {
         String callId = SipUtilities.getCallId(response);
 
         /*
-         * This happens when we tried handling the challenge earlier.
+         * If we find a non-dummy ITSP account then check to see if we have
+         * exceeded the failure count. If we have exceeded that count then 
+         * we are done with this request.
          */
 
         if (accountInfo != null
+                && !accountInfo.isDummyAccount()
                 && (accountInfo.incrementFailureCount(callId) > 1 || accountInfo
                         .getPassword() == null)) {
 
@@ -174,6 +161,27 @@ public class SipListenerImpl implements SipListener {
             }
             return;
 
+        } else if ( accountInfo != null && accountInfo.isDummyAccount() ) {
+            /*
+             * Forward the challenge back to the call originator if this is a dummy account we 
+             * created for purposes of bridging the call.
+             */
+            logger.debug("Forwarding challenge from WAN for dummy account");
+            ServerTransaction stx = TransactionContext.get(ctx).getServerTransaction();
+            if (stx != null &&  stx.getState() != TransactionState.TERMINATED ) {
+                Response errorResponse = SipUtilities.createResponse(stx, statusCode);
+                SipUtilities.copyHeaders(responseEvent.getResponse(),errorResponse);
+                errorResponse.removeHeader(ContactHeader.NAME);
+                ContactHeader cth = SipUtilities.createContactHeader(null, ((TransactionExt)stx).getSipProvider());
+                errorResponse.setHeader(cth);
+                stx.sendResponse(errorResponse);
+                return;
+            } else {
+                logger.debug("Late arriving response for a dummy response -- ignoring. \n" +
+                		"Could not find server transaction or server transaction is TERMINATED." +
+                		"Discarding the response.");
+                return;
+            }
         }
 
         ClientTransaction newClientTransaction = Gateway
