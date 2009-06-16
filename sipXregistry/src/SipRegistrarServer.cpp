@@ -1182,10 +1182,7 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                                privateContactAsUrl.fromString( privateContact );
                                privateContactAsUrl.getHostAddress( hostAddressString );
                                contactUri.setHostAddress( hostAddressString );
-                               if( ( hostPort = privateContactAsUrl.getHostPort() ) != PORT_NONE )
-                               {
-                                  contactUri.setHostPort( hostPort );
-                               }
+                               contactUri.setHostPort( privateContactAsUrl.getHostPort() );
                                contactUri.removeUrlParameter( SIPX_PRIVATE_CONTACT_URI_PARAM );
                             }
                             else
