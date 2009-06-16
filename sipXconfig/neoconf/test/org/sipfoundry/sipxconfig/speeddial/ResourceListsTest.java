@@ -99,6 +99,10 @@ public class ResourceListsTest extends XMLTestCase {
         coreContextControl.andReturn(m_users);
         coreContext.getDomainName();
         coreContextControl.andReturn("example.org").anyTimes();
+        coreContext.loadUserByAlias("102");
+        coreContextControl.andReturn(null);
+        coreContext.loadUserByAlias("100");
+        coreContextControl.andReturn(null);
         coreContextControl.replay();
 
         IMocksControl sdmControl = EasyMock.createControl();
@@ -156,11 +160,50 @@ public class ResourceListsTest extends XMLTestCase {
         name.setText("123");
         elementControl.replay();
 
+        IMocksControl coreContextControl = EasyMock.createControl();
+        CoreContext coreContext = coreContextControl.createMock(CoreContext.class);
+        coreContext.loadUserByAlias("123");
+        coreContextControl.andReturn(null);
+        coreContextControl.replay();
+
         Button button = new Button(null, "123");
         ResourceLists rl = new ResourceLists();
+        rl.setCoreContext(coreContext);
         rl.createResourceForUser(list, button, "example.org");
 
         elementControl.verify();
+    }
+
+    public void testGetUri() {
+        User user = new User();
+        user.setUserName("abcd");
+
+        IMocksControl coreContextControl = EasyMock.createControl();
+        CoreContext coreContext = coreContextControl.createMock(CoreContext.class);
+        coreContext.loadUserByAlias("1234");
+        coreContextControl.andReturn(user);
+        coreContext.loadUserByAlias("xyz");
+        coreContextControl.andReturn(null);
+        coreContextControl.replay();
+
+        ResourceLists rl = new ResourceLists();
+        rl.setCoreContext(coreContext);
+
+        Button button = new Button();
+        button.setNumber("abc@sipfoundry.org");
+        assertEquals("sip:abc@sipfoundry.org;sipx-noroute=VoiceMail;sipx-userforward=false", rl.buildUri(button,
+                "example.org"));
+        button.setNumber("sip:abc@sipfoundry.org");
+        assertEquals("sip:abc@sipfoundry.org;sipx-noroute=VoiceMail;sipx-userforward=false", rl.buildUri(button,
+                "example.org"));
+        button.setNumber("1234");
+        assertEquals("sip:abcd@example.org;sipx-noroute=VoiceMail;sipx-userforward=false", rl.buildUri(button,
+                "example.org"));
+        button.setNumber("xyz");
+        assertEquals("sip:xyz@example.org;sipx-noroute=VoiceMail;sipx-userforward=false", rl.buildUri(button,
+                "example.org"));
+
+        coreContextControl.verify();
     }
 
     private class DummyUser extends User {
@@ -177,5 +220,4 @@ public class ResourceListsTest extends XMLTestCase {
             return m_id;
         }
     }
-
 }
