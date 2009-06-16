@@ -632,6 +632,7 @@ public class BackToBackUserAgent {
             viaList.add(viaHeader);
             MaxForwardsHeader maxForwards = ProtocolObjects.headerFactory
                     .createMaxForwardsHeader(20);
+          
             CallIdHeader callId = ProtocolObjects.headerFactory
                     .createCallIdHeader(this.creatingCallId + "."
                             + this.counter++);
@@ -639,6 +640,15 @@ public class BackToBackUserAgent {
             Request newRequest = ProtocolObjects.messageFactory.createRequest(
                     uri, Request.INVITE, callId, cseq, fromHeader, toHeader,
                     viaList, maxForwards);
+            /*
+             * Set the ReferencesHeader.
+             */
+            String oldCallId = SipUtilities.getCallId(referRequest);
+            ReferencesHeader referencesHeader = new ReferencesHeaderImpl();
+            referencesHeader.setCallId(oldCallId);
+            referencesHeader.setRel(ReferencesHeaderImpl.REFER);
+            
+            newRequest.setHeader(referencesHeader);
             /*
              * If we are routing this request to the Proxy server, better send
              * it to the SAME proxy server. See XX-5792. Dont do this if we are
@@ -1107,6 +1117,11 @@ public class BackToBackUserAgent {
             Request newRequest = ProtocolObjects.messageFactory.createRequest(
                     uri, Request.INVITE, callIdHeader, cseqHeader, fromHeader,
                     toHeader, viaList, maxForwards);
+            
+            ReferencesHeader references = new ReferencesHeaderImpl();
+            references.setCallId(SipUtilities.getCallId(request));
+            newRequest.setHeader(references);
+            
             ContactHeader contactHeader = SipUtilities.createContactHeader(
                     incomingRequestURI.getUser(), Gateway.getLanProvider());
             newRequest.setHeader(contactHeader);
@@ -1235,6 +1250,7 @@ public class BackToBackUserAgent {
             CallIdHeader callIdHeader = ProtocolObjects.headerFactory
                     .createCallIdHeader(this.creatingCallId + "."
                             + this.counter++);
+          
 
             CSeqHeader cseqHeader = ProtocolObjects.headerFactory
                     .createCSeqHeader(1L, Request.INVITE);
@@ -1266,6 +1282,11 @@ public class BackToBackUserAgent {
             Request newRequest = ProtocolObjects.messageFactory.createRequest(
                     uri, Request.INVITE, callIdHeader, cseqHeader, fromHeader,
                     toHeader, viaList, maxForwards);
+            
+            ReferencesHeader referencesHeader = new ReferencesHeaderImpl();
+            referencesHeader.setCallId(this.creatingCallId);
+            referencesHeader.setRel(ReferencesHeader.SEQUEL);
+            newRequest.setHeader(referencesHeader);
             ContactHeader contactHeader = SipUtilities.createContactHeader(
                     Gateway.SIPXBRIDGE_USER, Gateway.getLanProvider());
             newRequest.setHeader(contactHeader);
@@ -1422,6 +1443,11 @@ public class BackToBackUserAgent {
                     (SipURI) incomingRequestUri.clone(), itspProvider,
                     itspAccountInfo, fromHeader, this.creatingCallId + "."
                             + this.counter++, addresses);
+            
+            String callId = SipUtilities.getCallId(incomingRequest);
+            ReferencesHeader referencesHeader = new ReferencesHeaderImpl();
+            referencesHeader.setCallId(callId);
+            outgoingRequest.setHeader(referencesHeader);
 
             /*
              * Attach headers selectively to the outbound request. If privacy is
