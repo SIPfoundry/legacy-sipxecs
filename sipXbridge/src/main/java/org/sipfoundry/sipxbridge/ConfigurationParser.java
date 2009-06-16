@@ -98,8 +98,11 @@ public class ConfigurationParser {
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "music-on-hold-address"),
                 "setMusicOnHoldName", 0);
         
-     
-
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "call-limit"),
+                "setCallLimit", 0, new Class[] {
+                    Integer.class
+                });
+        
         
 
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "secure-xml-rpc"),

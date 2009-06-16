@@ -105,14 +105,16 @@ public class BackToBackUserAgentFactory {
 				 * the b2bua here. Keeping a reference can lead to reference management
 				 * problems ( leaks ) and hence this quick search is worthwhile.
 				 */
+				int counter = 0;
 				for (Dialog sipDialog : dialogs) {
-					if (sipDialog.getApplicationData() != null) {
+					if (sipDialog.getApplicationData() != null && 
+					    sipDialog.getApplicationData() instanceof DialogContext ) {
 						BackToBackUserAgent btobua = DialogContext
 								.getBackToBackUserAgent(sipDialog);
-						if (btobua.managesCallId(callId)) {
+						counter++;
+						if (b2bua == null && btobua.managesCallId(callId)) {
 							logger.debug("found existing mapping for B2BuA");
 							b2bua = btobua;
-							break;
 						}
 
 					}
@@ -121,16 +123,23 @@ public class BackToBackUserAgentFactory {
 				/*
 				 * Could not find an existing call so go ahead and create one.
 				 */
-				if (b2bua == null) {
+				if (b2bua == null && 
+				        (Gateway.getBridgeConfiguration().getCallLimit() == -1 ||
+				        counter < Gateway.getBridgeConfiguration().getCallLimit()) ) {
 					b2bua = new BackToBackUserAgent(provider, request, dialog,
 							accountInfo);
+				}
+				if ( b2bua == null ) {
+				    throw new SipXbridgeException ("Call limit exceeded");
 				}
 				
 				dialogContext = DialogContext.attach(b2bua, dialog, serverTransaction, request);
 				dialogContext.setItspInfo(accountInfo);
 				dialogContext.setBackToBackUserAgent(b2bua);
 			}
-
+		} catch (SipXbridgeException ex) {
+		    logger.error("Exception while trying to create B2BUA",ex);
+		    throw ex;
 		} catch (Exception ex) {
 			logger.error("unexpected exception ", ex);
 			throw new SipXbridgeException(

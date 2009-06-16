@@ -56,6 +56,7 @@ public class BridgeConfiguration {
     private int sipSessionTimerIntervalSeconds = 1800;
     private String sipxSupervisorHost;
     private int sipxSupervisorXmlRpcPort;
+    private int callLimit = -1;
 
     private static Logger logger = Logger.getLogger(BridgeConfiguration.class);
 
@@ -432,9 +433,7 @@ public class BridgeConfiguration {
      * @return
      */
     public boolean isReferForwarded() {
-
         return false;
-
     }
 
     public void setSecure(boolean isSecure) {
@@ -539,6 +538,20 @@ public class BridgeConfiguration {
 
     public String getSipXSupervisorHost() {
         return this.sipxSupervisorHost;
+    }
+
+    /**
+     * @param maxCalls the maxCalls to set
+     */
+    public void setCallLimit(int maxCalls) {
+        this.callLimit = maxCalls;
+    }
+
+    /**
+     * @return the maxCalls
+     */
+    public int getCallLimit() {
+        return callLimit;
     }
 
 }
