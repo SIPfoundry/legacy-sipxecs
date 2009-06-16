@@ -91,12 +91,13 @@ public abstract class Device extends BeanWithGroups {
         return null;
     }
 
-    protected Set getModelDefinitions() {
-        Set definitions = getModel().getDefinitions();
-        if (getDeviceVersion() != null) {
-            definitions.add(getDeviceVersion().getVersionId());
-        }
-        return definitions;
+    /**
+     * Delegate to device model to setup a set of definitions.
+     *
+     * Definitions can be used in settings descriptor "if" and "unless" statements.
+     */
+    public Set getModelDefinitions() {
+        return getModel().getDefinitions(getDeviceVersion());
     }
 
     /**

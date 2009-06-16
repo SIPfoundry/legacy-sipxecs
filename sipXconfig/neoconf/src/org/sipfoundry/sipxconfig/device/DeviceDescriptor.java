@@ -16,7 +16,7 @@ import java.util.Set;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
-public abstract class DeviceDescriptor implements Model {
+public abstract class DeviceDescriptor implements Model, FeatureProvider {
 
     public static final LabelComparator LABEL_COMPARATOR = new LabelComparator();
 
@@ -82,7 +82,9 @@ public abstract class DeviceDescriptor implements Model {
         m_label = label;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see org.sipfoundry.sipxconfig.device.Model#setModelId(java.lang.String)
      */
     public void setModelId(String modelId) {
@@ -139,6 +141,9 @@ public abstract class DeviceDescriptor implements Model {
         m_supportedFeatures = supportedFeatures;
     }
 
+    /* (non-Javadoc)
+     * @see org.sipfoundry.sipxconfig.device.FeatureProvider#isSupported(java.lang.String)
+     */
     public boolean isSupported(String feature) {
         return m_supportedFeatures.contains(feature);
     }
@@ -179,10 +184,14 @@ public abstract class DeviceDescriptor implements Model {
      *
      * &lt;setting name="dinosaur" unless="not-extinct"/&gt;
      */
-    public Set<String> getDefinitions() {
+    public Set<String> getDefinitions(DeviceVersion version) {
         Set<String> definitions = new HashSet<String>();
         definitions.add(getModelId());
         definitions.addAll(m_supportedFeatures);
+        if (version != null) {
+            definitions.add(version.getVersionId());
+            definitions.addAll(version.getSupportedFeatures());
+        }
         return definitions;
     }
 

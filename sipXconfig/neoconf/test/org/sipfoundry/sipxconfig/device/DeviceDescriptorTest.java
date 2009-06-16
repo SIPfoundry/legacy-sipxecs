@@ -1,13 +1,16 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.device;
+
+import java.util.Collections;
+import java.util.Set;
 
 import junit.framework.TestCase;
 
@@ -37,5 +40,38 @@ public class DeviceDescriptorTest extends TestCase {
         dd.setModelDir("dir");
         assertEquals("dir", dd.getModelDir());
         assertEquals("bean", dd.getBeanId());
+    }
+
+    public void testGetDefinitions() {
+        DeviceDescriptor dd = new DeviceDescriptor() {
+        };
+
+        dd.setModelId("volvo");
+        dd.setSupportedFeatures(Collections.singleton("4x4"));
+
+        Set<String> definitions = dd.getDefinitions(null);
+        assertNotNull(definitions);
+        assertTrue(definitions.contains("volvo"));
+        assertTrue(definitions.contains("4x4"));
+        assertFalse(definitions.contains("s80"));
+        assertFalse(definitions.contains("leather"));
+    }
+
+    public void testGetDefinitionsWithVersion() {
+        DeviceDescriptor dd = new DeviceDescriptor() {
+        };
+
+        dd.setModelId("volvo");
+        dd.setSupportedFeatures(Collections.singleton("4x4"));
+
+        DeviceVersion version = new DeviceVersion("volvo", "s80");
+        version.setSupportedFeatures(Collections.singleton("leather"));
+
+        Set<String> definitions = dd.getDefinitions(version);
+        assertNotNull(definitions);
+        assertTrue(definitions.contains("volvo"));
+        assertTrue(definitions.contains("4x4"));
+        assertTrue(definitions.contains("s80"));
+        assertTrue(definitions.contains("leather"));
     }
 }

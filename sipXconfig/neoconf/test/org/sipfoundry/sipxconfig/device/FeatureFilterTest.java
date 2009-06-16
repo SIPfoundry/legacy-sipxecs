@@ -29,4 +29,17 @@ public class FeatureFilterTest extends TestCase {
         dd.setSupportedFeatures(new HashSet<String>(Arrays.asList("a", "intercom", "b")));
         assertTrue(filter.evaluate(dd));
     }
+
+    public void testSupportedFeaturesByVersion() {
+        DeviceVersion version = new DeviceVersion("vendor", "1.0");
+
+        FeatureFilter filter = new FeatureFilter("intercom");
+        assertFalse(filter.evaluate(version));
+
+        version.setSupportedFeatures(new HashSet<String>(Arrays.asList("a", "b")));
+        assertFalse(filter.evaluate(version));
+
+        version.setSupportedFeatures(new HashSet<String>(Arrays.asList("a", "intercom", "b")));
+        assertTrue(filter.evaluate(version));
+    }
 }

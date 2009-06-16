@@ -19,7 +19,9 @@ public class FeatureFilter implements Predicate {
     }
 
     public boolean evaluate(Object object) {
-        DeviceDescriptor model = (DeviceDescriptor) object;
-        return model.isSupported(m_feature);
+        if (object instanceof FeatureProvider) {
+            return ((FeatureProvider) object).isSupported(m_feature);
+        }
+        return false;
     }
 }

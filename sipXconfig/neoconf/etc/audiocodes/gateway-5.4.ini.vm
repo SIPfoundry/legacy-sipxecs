@@ -52,7 +52,7 @@ BootPSelectiveEnable=0
 #end
 #end
 
-#if(${gateway.Model.Definitions.contains("fxo")})
+#if(${gateway.ModelDefinitions.contains("fxo")})
 [Trunks]
 TRUNKGROUP_1=1-${gateway.ports.size()},${firstDefaultCLID},0
 PSTNPREFIX=*,1,*,*,0
@@ -69,7 +69,7 @@ TargetOfChannel ${port_id} = ${extension}, ${enable};
 #end
 [\TargetOfChannel]
 #end
-#if(${gateway.Model.Definitions.contains("digital")})
+#if(${gateway.ModelDefinitions.contains("digital")})
 [Trunks]
 #foreach ($port in $gateway.ports)
 #set($port_id = $velocityCount - 1)
@@ -86,7 +86,7 @@ PSTNPREFIX=${prefix},${trunk_id},*,*,0
 
 #end
 ## fxs paramaters only
-#if(${gateway.Model.Definitions.contains("fxs")})
+#if(${gateway.ModelDefinitions.contains("fxs")})
 [Lines]
 #foreach ($line in $phone.lines)
 #set($line_id = $velocityCount - 1)
@@ -108,7 +108,7 @@ Authentication $line_id = $username, ${password};
 [\Authentication]
 #end
 
-#if(${gateway.Model.Definitions.contains("digital")})
+#if(${gateway.ModelDefinitions.contains("digital")})
 #foreach ($portSettings in $portFlatSettings)
 #set($port_id = $velocityCount - 1)
 ; Parameters for trunk: $port_id
