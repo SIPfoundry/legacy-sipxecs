@@ -53,7 +53,18 @@ databasePatch() {
                 echo "Error: Database patch file ${patch}.sql not found." >> ${DbPatchLog}
             fi
         done
-   fi
+    fi
 }
 
+# Apply initial patch adding version_history table if needed
+initialPatch() {
+    table="version_history"
+    query="select tablename from pg_tables where schemaname='public' AND tablename = '${table}'"
+    if ! ${PsqlCmd} -c "${query}" | grep ${table} >>${DbPatchLog} 2>&1; then
+        echo "Applying ${DbPatchDir}/enable_upgrades.sql patch." >>  ${DbPatchLog}
+        ${PsqlCmd} -f ${DbPatchDir}/enable_upgrades.sql >>${DbPatchLog} 2>&1
+    fi
+}
+
+initialPatch
 databasePatch

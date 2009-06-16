@@ -12,6 +12,7 @@ cfgdir = $(SIPX_CONFDIR)/report
 
 cfg_DATA = \
 	schema.sql \
+	enable_upgrades.sql \
 	location_fqdn.sql \
 	sipxconfig-report-config.vm
 
