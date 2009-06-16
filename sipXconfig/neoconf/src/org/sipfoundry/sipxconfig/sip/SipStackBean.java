@@ -69,6 +69,7 @@ import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.sip.log4j.SipFoundryLogRecordFactory;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -82,6 +83,8 @@ public class SipStackBean {
     private static final String APPLICATION = "application";
 
     private static final String SDP = "sdp";
+
+    private static final String LEVEL = "gov.nist.javax.sip.TRACE_LEVEL";
 
     private String m_transport = "udp";
 
@@ -128,6 +131,16 @@ public class SipStackBean {
             m_properties = new Properties();
         }
         // add more properties here if needed
+        m_properties.setProperty("javax.sip.STACK_NAME", "sipxconfig");
+        m_properties.setProperty("gov.nist.javax.sip.THREAD_POOL_SIZE", "1");
+        m_properties.setProperty("gov.nist.javax.sip.REENTRANT_LISTENER", Boolean.TRUE.toString());
+        m_properties.setProperty("gov.nist.javax.sip.LOG_MESSAGE_CONTENT", Boolean.TRUE.toString());
+        m_properties.setProperty("gov.nist.javax.sip.LOG_FACTORY", SipFoundryLogRecordFactory.class.getName());
+        if (LogFactory.getLog("javax.sip").isDebugEnabled()) {
+            m_properties.setProperty(LEVEL, "INFO");
+        } else {
+            m_properties.setProperty(LEVEL, "ERROR");
+        }
         String errorMsg = "Cannot initialize SIP stack";
         try {
             SipStack stack = factory.createSipStack(m_properties);
