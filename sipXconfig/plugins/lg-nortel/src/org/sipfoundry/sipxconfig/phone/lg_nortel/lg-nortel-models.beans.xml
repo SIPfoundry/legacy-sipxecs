@@ -29,6 +29,7 @@
   <!-- implementation -->
   <bean id="lg-nortel" class="org.sipfoundry.sipxconfig.phone.lg_nortel.LgNortelPhone" singleton="false"
     parent="abstractPhone">
+    <property name="coreContext" ref="coreContext" />
   </bean>
 
   <bean id="lg-nortelFirmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
