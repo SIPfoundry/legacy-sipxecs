@@ -114,10 +114,11 @@ class DataShuffler implements Runnable {
             if ( logger.isTraceEnabled() ) {
                 logger.trace("DataShuffler : received packet on symId " + receivedOn.getId() );
             }
-            if (!selfRouted &&  receivedOn.getTransmitter().getAutoDiscoveryFlag() == AutoDiscoveryFlag.NO_AUTO_DISCOVERY 
-                 && receivedOn.getTransmitter() != null && receivedOn.getTransmitter().getInetAddress() != null &&             
-                 ( !receivedOn.getTransmitter().getInetAddress().equals(remoteAddress.getAddress())
-                 || receivedOn.getTransmitter().getPort() != remoteAddress.getPort() ) ) {
+            if (!selfRouted && receivedOn.getTransmitter() != null  
+                 && receivedOn.getTransmitter().getAutoDiscoveryFlag() == AutoDiscoveryFlag.NO_AUTO_DISCOVERY 
+                 && receivedOn.getTransmitter().getInetAddress() != null 
+                 && (!receivedOn.getTransmitter().getInetAddress().equals(remoteAddress.getAddress())
+                 || receivedOn.getTransmitter().getPort() != remoteAddress.getPort()) ) {
                 if ( logger.isTraceEnabled() ) {
                     logger.trace(String.format("Discarding packet - remote endpoint  does not match transmitter endpoint %s %s %d %d ",
                             receivedOn.getTransmitter().getInetAddress(), remoteAddress.getAddress(),receivedOn.getTransmitter().getPort(),remoteAddress.getPort() ));
