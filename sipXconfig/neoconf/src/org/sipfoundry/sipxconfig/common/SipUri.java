@@ -24,8 +24,7 @@ public final class SipUri {
     private static final Pattern EXTRACT_USER_RE = Pattern.compile("\\s*<?(?:sip:)?(.+?)@.+");
     private static final Pattern EXTRACT_FULL_USER_RE = Pattern
             .compile("(?:\"?\\s*(\\b.*\\b)\\s*\"?)\\s*<(?:sip:)?(.+?)@.+");
-    private static final Pattern SIP_URI_RE = Pattern
-            .compile("(?:\".*\")?\\s*<?(?:sip:)?.+?@.+>?");
+    private static final Pattern SIP_URI_RE = Pattern.compile("(?:\".*\")?\\s*<?(?:sip:)?.+?@.+>?");
 
     private SipUri() {
         // utility class
@@ -52,26 +51,27 @@ public final class SipUri {
 
     /**
      * Format a SIP URI from userpart, host and port
+     *
      * @param userName
      * @param domainName
      * @param port - port value of 0 means omit the port from the URI
      * @return
      */
     public static String format(String userName, String domainName, int port) {
-        String uri = String.format((port != OMIT_SIP_PORT) ? "sip:%s@%s:%d" : "sip:%s@%s",
-                userName, domainName, port);
+        String uri = String.format((port != OMIT_SIP_PORT) ? "sip:%s@%s:%d" : "sip:%s@%s", userName, domainName,
+                port);
         return uri;
     }
 
     /**
      * Format a SIP URI from host and port
+     *
      * @param domainName
      * @param port - port value of 0 means omit the port from the URI
      * @return
      */
     public static String format(String domainName, int port) {
-        String uri = String.format((port != OMIT_SIP_PORT) ? "sip:%s:%d" : "sip:%s",
-                domainName, port);
+        String uri = String.format((port != OMIT_SIP_PORT) ? "sip:%s:%d" : "sip:%s", domainName, port);
         return uri;
     }
 
@@ -90,8 +90,7 @@ public final class SipUri {
         return format(userName, domain, port);
     }
 
-    public static String formatIgnoreDefaultPort(String displayName, String userName,
-            String domain, int port) {
+    public static String formatIgnoreDefaultPort(String displayName, String userName, String domain, int port) {
         String baseUri = formatIgnoreDefaultPort(userName, domain, port);
         if (displayName == null) {
             return baseUri;
@@ -110,6 +109,7 @@ public final class SipUri {
 
     /**
      * Format a SIP URI from userpart, host and port
+     *
      * @param userName
      * @param domainName
      * @param port - port value of 0 means omit the port from the URI
@@ -153,8 +153,7 @@ public final class SipUri {
         return format(candidate, domain, false);
     }
 
-    public static String fixWithDisplayName(String candidate, String displayName,
-            String urlParams, String domain) {
+    public static String fixWithDisplayName(String candidate, String displayName, String urlParams, String domain) {
         StringBuilder uri = new StringBuilder();
         boolean needsWrapping = StringUtils.isNotBlank(displayName);
         if (needsWrapping) {
@@ -200,6 +199,26 @@ public final class SipUri {
     }
 
     /**
+     * Attempts to extract address-spec portion from URI
+     *
+     * This is rather a brute force implementation tailored to extracting URI to be used for
+     * voicemail click-to-call. Rather than doing full fledged parsing it just gets the portion of
+     * the string between and checks if it looks like SIP URI.
+     *
+     * @return address-spec or null if we cannot extract it
+     */
+    public static String extractAddressSpec(String uri) {
+        String candidate = StringUtils.substringBetween(uri, "<", ">");
+        if (matches(candidate)) {
+            return candidate;
+        }
+        if (matches(uri)) {
+            return uri;
+        }
+        return null;
+    }
+
+    /**
      * Extract user id and optional user info
      *
      * <!--
@@ -232,6 +251,9 @@ public final class SipUri {
     }
 
     public static boolean matches(String uri) {
+        if (uri == null) {
+            return false;
+        }
         Matcher matcher = SIP_URI_RE.matcher(uri);
         return matcher.matches();
     }
@@ -275,4 +297,5 @@ public final class SipUri {
         }
         return sipUri;
     }
+
 }

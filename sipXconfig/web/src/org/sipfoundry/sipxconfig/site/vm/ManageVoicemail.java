@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.vm;
@@ -34,6 +34,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.services.ExpressionEvaluator;
 import org.apache.tapestry.valid.ValidatorException;
+import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.RowInfo;
 import org.sipfoundry.sipxconfig.components.SelectMap;
@@ -42,7 +43,9 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
 import org.sipfoundry.sipxconfig.components.selection.OptGroup;
 import org.sipfoundry.sipxconfig.components.selection.OptionAdapter;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
+import org.sipfoundry.sipxconfig.sip.SipService;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
 import org.sipfoundry.sipxconfig.vm.Mailbox;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
@@ -50,30 +53,38 @@ import org.sipfoundry.sipxconfig.vm.Voicemail;
 import org.sipfoundry.sipxconfig.vm.VoicemailSource;
 
 public abstract class ManageVoicemail extends UserBasePage implements IExternalPage {
-    
+
     public static final String PAGE = "vm/ManageVoicemail";
-        
+
     private static final Log LOG = LogFactory.getLog(ManageVoicemail.class);
 
     @Asset("/images/play.png")
-    public abstract IAsset getPlayVoicemailAsset();   
-    
+    public abstract IAsset getPlayVoicemailAsset();
+
     @Asset("/images/email.png")
     public abstract IAsset getNewVoicemailIcon();
-    
+
     @Asset("/images/email_open.png")
     public abstract IAsset getHeardVoicemailIcon();
-    
+
     @InjectObject(value = "spring:mailboxManager")
     public abstract MailboxManager getMailboxManager();
-    
+
     @InjectObject(value = "spring:tapestry")
     public abstract TapestryContext getTapestry();
 
+    @InjectObject("spring:domainManager")
+    public abstract DomainManager getDomainManager();
+
+    @InjectObject("spring:sip")
+    public abstract SipService getSipService();
+
     public abstract VoicemailSource getVoicemailSource();
+
     public abstract void setVoicemailSource(VoicemailSource source);
 
     public abstract SelectMap getSelections();
+
     public abstract void setSelections(SelectMap selections);
 
     public abstract Voicemail getVoicemail();
@@ -82,39 +93,43 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
     public abstract ExpressionEvaluator getExpressionEvaluator();
 
     public abstract void setConverter(IPrimaryKeyConverter converter);
-    
+
     public abstract VoicemailRowInfo getRowInfo();
+
     public abstract void setRowInfo(VoicemailRowInfo rowInfo);
-    
+
     public abstract List<String> getFolderIds();
+
     public abstract void setFolderIds(List<String> folderIds);
-    
+
     @Persist(value = "session")
     public abstract String getFolderId();
+
     public abstract void setFolderId(String folderId);
-    
+
     @InjectObject(value = "engine-service:" + PlayVoicemailService.SERVICE_NAME)
     public abstract IEngineService getPlayVoicemailService();
-    
+
     public abstract MailboxOperation getMailboxOperation();
+
     public abstract void setMailboxOperation(MailboxOperation operation);
-    
+
     public boolean getHasVoicemailPermission() {
         return getUser().hasPermission(PermissionName.VOICEMAIL);
     }
-    
+
     public IAsset getVoicemailIcon() {
         Voicemail voicemail = getVoicemail();
         return voicemail.isHeard() ? getHeardVoicemailIcon() : getNewVoicemailIcon();
     }
-    
+
     public Object getRowClass() {
         return new HeardEvenOdd(this);
     }
-    
+
     public class HeardEvenOdd extends EvenOdd {
-        private ManageVoicemail m_page;
-        
+        private final ManageVoicemail m_page;
+
         public HeardEvenOdd(ManageVoicemail page) {
             m_page = page;
         }
@@ -126,12 +141,12 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
                 style = style + "-unheard";
             }
             return style;
-        }        
+        }
     }
 
     public void activateExternalPage(Object[] parameters, IRequestCycle cycle) {
         String sparam = parameters[0].toString();
-        MailboxOperation operation = MailboxOperation.createMailboxOperationFromServletPath(sparam);        
+        MailboxOperation operation = MailboxOperation.createMailboxOperationFromServletPath(sparam);
         setFolderId(operation.getFolderId());
         setMailboxOperation(operation);
     }
@@ -141,106 +156,108 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
         actions.add(new OptGroup(getMessages().getMessage("label.moveTo")));
         for (String folderId : getFolderIds()) {
             if (!folderId.equals(getFolderId())) {
-                OptionAdapter action = new MoveVoicemailAction(getMailboxManager(), getVoicemailSource(), 
+                OptionAdapter action = new MoveVoicemailAction(getMailboxManager(), getVoicemailSource(),
                         getFolderLabel(folderId), folderId);
                 actions.add(action);
             }
         }
-        
+
         AdaptedSelectionModel model = new AdaptedSelectionModel();
         model.setCollection(actions);
         return model;
     }
-    
+
     public void delete() {
         Mailbox mbox = getMailboxManager().getMailbox(getUser().getUserName());
-        Collection<Serializable> allSelected =  getSelections().getAllSelected();
+        Collection<Serializable> allSelected = getSelections().getAllSelected();
         for (Serializable id : allSelected) {
             Voicemail vm = getVoicemailSource().getVoicemail(id);
             getMailboxManager().delete(mbox, vm);
         }
         getMailboxManager().triggerSipNotify(mbox);
     }
-    
+
     public String getFolderLabel() {
         return getFolderLabel(getFolderId());
     }
-    
+
     String getFolderLabel(String folderId) {
         return getMessages().getMessage("tab." + folderId);
     }
-    
+
     public IPage edit(String voicemailId) {
         EditVoicemail page = (EditVoicemail) getRequestCycle().getPage(EditVoicemail.PAGE);
         page.setReturnPage(PAGE);
         page.setVoicemailId(voicemailId);
-        return page;        
+        return page;
     }
 
     public ITableColumn getTimestampColumn() {
-        return TapestryUtils.createDateColumn("descriptor.timestamp", getMessages(),
-                getExpressionEvaluator(), getLocale());
+        return TapestryUtils.createDateColumn("descriptor.timestamp", getMessages(), getExpressionEvaluator(),
+                getLocale());
     }
-    
+
     public PlayVoicemailService.Info getPlayVoicemailInfo() {
         Voicemail voicemail = getVoicemail();
-        PlayVoicemailService.Info info = new PlayVoicemailService.Info(voicemail.getFolderId(), 
-                voicemail.getMessageId());
+        PlayVoicemailService.Info info = new PlayVoicemailService.Info(voicemail.getFolderId(), voicemail
+                .getMessageId());
         return info;
     }
 
+    @Override
     public void pageBeginRender(PageEvent event) {
         super.pageBeginRender(event);
-        
-        // this needs to be first as it may alter data gathered from subsequent steps in this method
-        MailboxOperation operation = getMailboxOperation();        
+
+        // this needs to be first as it may alter data gathered from subsequent steps in this
+        // method
+        MailboxOperation operation = getMailboxOperation();
         if (operation != null) {
             String expectedUserId = getUser().getUserName();
             if (!expectedUserId.equals(operation.getUserId())) {
-                String msg = String.format("Unauthorized access attempted to mailbox for user %s from user %s", 
-                        operation.getUserId(), expectedUserId); 
+                String msg = String.format("Unauthorized access attempted to mailbox for user %s from user %s",
+                        operation.getUserId(), expectedUserId);
                 LOG.warn(msg);
                 throw new PageRedirectException(msg);
-            }            
+            }
             setMailboxOperation(null);
             operation.operate(this);
-        }        
-        
+        }
+
         SelectMap selections = getSelections();
         if (selections == null) {
             setSelections(new SelectMap());
         }
-        
+
         String userId = getUser().getUserName();
-        
-        MailboxManager mgr = getMailboxManager();        
+
+        MailboxManager mgr = getMailboxManager();
         Mailbox mbox = mgr.getMailbox(userId);
-        List<String> folderIds = getFolderIds(); 
+        List<String> folderIds = getFolderIds();
         if (getFolderIds() == null) {
             folderIds = mbox.getFolderIds();
             setFolderIds(folderIds);
         }
-        
+
         String folderId = getFolderId();
         if (folderId == null || !folderIds.contains(folderId)) {
             setFolderId(folderIds.get(0));
         }
-        
+
         VoicemailSource source = getVoicemailSource();
-        if (source == null) {            
+        if (source == null) {
             source = new VoicemailSource(new File(getMailboxManager().getMailstoreDirectory()));
             setVoicemailSource(source);
             setRowInfo(new VoicemailRowInfo(source));
             setConverter(new VoicemailSqueezer(source));
-        }        
+        }
     }
-    
+
     /**
-     *  Lazily get voicemails to avoid tapestry bug that attempts to use table collection
-     *  before pageBeginRender is called when navigating table pager
-     */ 
+     * Lazily get voicemails to avoid tapestry bug that attempts to use table collection before
+     * pageBeginRender is called when navigating table pager
+     */
     public List<Voicemail> getVoicemails() {
-        MailboxManager mgr = getMailboxManager();        
+        MailboxManager mgr = getMailboxManager();
         String userId = getUser().getUserName();
         Mailbox mbox = mgr.getMailbox(userId);
         try {
@@ -252,8 +269,8 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
     }
 
     public static class VoicemailRowInfo implements RowInfo {
-        private VoicemailSource m_source;
-        
+        private final VoicemailSource m_source;
+
         VoicemailRowInfo(VoicemailSource source) {
             m_source = source;
         }
@@ -264,6 +281,22 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
 
         public boolean isSelectable(Object row) {
             return true;
-        }        
+        }
+    }
+
+    /**
+     * Implements click to call link
+     *
+     * @param number number to call - refer is sent to current user
+     */
+    public void call(String fromUri) {
+        String domain = getDomainManager().getDomain().getName();
+        String userAddrSpec = getUser().getAddrSpec(domain);
+        String destAddrSpec = SipUri.extractAddressSpec(fromUri);
+        if (destAddrSpec != null) {
+            getSipService().sendRefer(getUser(), userAddrSpec, destAddrSpec);
+        } else {
+            LOG.error("Failed to get URI to call: " + fromUri);
+        }
     }
 }

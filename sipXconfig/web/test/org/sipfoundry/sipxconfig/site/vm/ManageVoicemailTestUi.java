@@ -13,25 +13,74 @@ package org.sipfoundry.sipxconfig.site.vm;
 import java.text.DateFormat;
 import java.util.Locale;
 
+import org.apache.hivemind.util.PropertyUtils;
+import org.apache.tapestry.test.Creator;
+
 import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.SipUri;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.domain.Domain;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.sip.SipService;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 import org.sipfoundry.sipxconfig.site.TestPage;
 import org.sipfoundry.sipxconfig.test.TestUtil;
+import org.sipfoundry.sipxconfig.test.PhonebookTestHelper;
+
+
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
 
 public class ManageVoicemailTestUi extends WebTestCase {
-    
+    private static final int PORTAL_USER_ID = 1;
+    private User m_portalUser;
+    private ManageVoicemail m_out;
+    private Creator m_pageCreator;
+    private CoreContext m_coreContext;
+    private DomainManager m_domainManager;
+    private PhonebookTestHelper m_testHelper;
+
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(ManageVoicemailTestUi.class);
     }
     
     protected void setUp() throws Exception {
         super.setUp();
+        m_portalUser = new User();
+        m_portalUser.setName("portalUser");
+        m_testHelper = new PhonebookTestHelper();
+
+        m_pageCreator = new Creator();
+        m_out = (ManageVoicemail) m_pageCreator.newInstance(ManageVoicemail.class);
+
+        m_out.setUserId(PORTAL_USER_ID);
+        m_coreContext = createMock(CoreContext.class);
+        m_testHelper.configureCoreContextMock(m_coreContext);
+
+        m_coreContext.loadUser(PORTAL_USER_ID);
+        expectLastCall().andReturn(m_portalUser).anyTimes();
+
+
+
+        Domain domain = new Domain();
+        domain.setName("example.com");
+        m_domainManager = createMock(DomainManager.class);
+        m_domainManager.getDomain();
+        expectLastCall().andReturn(domain).anyTimes();
+
+        PropertyUtils.write(m_out, "coreContext", m_coreContext);
+        PropertyUtils.write(m_out, "domainManager", m_domainManager);
+
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
+        replay(m_coreContext, m_domainManager);
     }
     
     private void gotoManageVoicemail() {
@@ -146,6 +195,19 @@ public class ManageVoicemailTestUi extends WebTestCase {
         assertTextPresent("00000002");
         gotoPage(String.format("mailbox/%s/inbox/00000002/delete", TestPage.TEST_USER_USERNAME));
         assertTextNotPresent("00000002");
+    }
+
+    public void testCall() {
+        SipService sipService = createMock(SipService.class);
+        String fromUri = "'200'<sip:123@example.com>";
+        sipService.sendRefer(m_portalUser, "sip:portalUser@example.com", "sip:123@example.com");
+        replay(sipService);
+
+        PropertyUtils.write(m_out, "sipService", sipService);
+
+        m_out.call(fromUri);
+
+        verify(sipService);
     }
 
     

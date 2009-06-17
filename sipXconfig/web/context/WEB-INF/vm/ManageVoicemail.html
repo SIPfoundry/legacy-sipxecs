@@ -25,10 +25,14 @@
           </span>
         </span>
         <span jwcid="fromColumnValue@Block">
-          <span jwcid="@Any" title="ognl:voicemail.descriptor.from">
+          <a jwcid="@DirectLink"
+            title="message:tooltip.call"
+            listener="listener:call"
+            parameters="ognl:voicemail.descriptor.from"
+            asyn="ognl:true">
             <span jwcid="@Insert" value="ognl:voicemail.descriptor.fromBrief"/>
-          </span>
-          <span jwcid="@If" condition="ognl:voicemail.forwarded">
+          </a>
+          <span jwcid="@If" condition="ognl:voicemail.forwarded" renderTag="false">
             <br/>
             <span jwcid="@Insert" value="ognl:voicemail.forwardedDescriptor.fromBrief" class="fwd-voicemail"/>
           </span>
