@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.acd;
@@ -20,6 +20,8 @@ import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.acd.AcdQueue;
 import org.sipfoundry.sipxconfig.acd.AcdServer;
+import org.sipfoundry.sipxconfig.acd.stats.AcdStatistics;
+import org.sipfoundry.sipxconfig.acd.stats.AcdStatisticsImpl;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
@@ -74,6 +76,10 @@ public abstract class EditAcdQueue extends PageWithCallback implements PageBegin
 
     public abstract void setOverflowTypeValueSetting(Setting overflowTypeValueSetting);
 
+    public abstract AcdStatistics getAcdStatistics();
+
+    public abstract void setAcdStatistics(AcdStatistics stats);
+
     @InjectObject(value = "spring:callGroupContext")
     public abstract CallGroupContext getCallGroupContext();
 
@@ -85,6 +91,11 @@ public abstract class EditAcdQueue extends PageWithCallback implements PageBegin
         }
 
         AcdContext acdContext = getAcdContext();
+
+        if (getAcdStatistics() == null) {
+            setAcdStatistics(new AcdStatisticsImpl(acdContext));
+        }
+
         Serializable id = getAcdQueueId();
         if (id != null) {
             acdQueue = acdContext.loadQueue(id);
@@ -142,8 +153,8 @@ public abstract class EditAcdQueue extends PageWithCallback implements PageBegin
                     overflowValueType.setPromptSelect(true);
                 } else {
                     for (int i = 0; i < getQueuesModel().getOptionCount(); i++) {
-                        overflowValueType.addEnum(getQueuesModel().getOption(i).toString(),
-                                getQueuesModel().getLabel(i));
+                        overflowValueType.addEnum(getQueuesModel().getOption(i).toString(), getQueuesModel()
+                                .getLabel(i));
                     }
                     enableOverflowEntry(false);
                     overflowValueType.setPromptSelect(false);
@@ -154,8 +165,8 @@ public abstract class EditAcdQueue extends PageWithCallback implements PageBegin
                     overflowValueType.setPromptSelect(true);
                 } else {
                     for (int i = 0; i < getHuntGroupModel().getOptionCount(); i++) {
-                        overflowValueType.addEnum(getHuntGroupModel().getOption(i).toString(),
-                                getHuntGroupModel().getLabel(i));
+                        overflowValueType.addEnum(getHuntGroupModel().getOption(i).toString(), getHuntGroupModel()
+                                .getLabel(i));
                     }
                     enableOverflowEntry(false);
                     overflowValueType.setPromptSelect(false);
@@ -179,11 +190,9 @@ public abstract class EditAcdQueue extends PageWithCallback implements PageBegin
 
     public void apply() {
         if (TapestryUtils.isValid(this)) {
-            if (getOverflowTypeSetting().getValue() != null
-                    && getOverflowTypeValueSetting().getValue() != null
+            if (getOverflowTypeSetting().getValue() != null && getOverflowTypeValueSetting().getValue() != null
                     && getOverflowTypeSetting().getValue().equals(AcdQueue.QUEUE_TYPE)) {
-                Integer overflowQueueId = Integer.valueOf(
-                        getOverflowTypeValueSetting().getValue()).intValue();
+                Integer overflowQueueId = Integer.valueOf(getOverflowTypeValueSetting().getValue()).intValue();
                 setOverflowQueueId(overflowQueueId);
             } else {
                 if (getOverflowTypeValueSetting().getValue() == null) {

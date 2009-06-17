@@ -4,7 +4,6 @@
 <page-specification class="org.sipfoundry.sipxconfig.site.acd.EditAcdQueue">
 
   <inject property="acdContext" object="spring:acdContext" />
-  <inject property="acdStatistics" object="spring:acdStatistics" />
 
   <property name="acdQueueId" persist="session" />
   <property name="acdQueue" />

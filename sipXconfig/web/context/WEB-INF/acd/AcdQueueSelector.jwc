@@ -10,9 +10,6 @@
   <parameter name="queues" required="true"/>
   <parameter name="show" default-value="true"/>
 
-  <!-- P R O P E R T I E S -->
-  <inject property="acdStatistics" object="spring:acdStatistics" />
-
   <!-- B E A N S -->
   <bean name="bareQueueSelectionModel"
     class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel" lifecycle="request">

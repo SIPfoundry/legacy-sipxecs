@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.acd;
@@ -17,6 +17,8 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.acd.AcdServer;
+import org.sipfoundry.sipxconfig.acd.stats.AcdStatistics;
+import org.sipfoundry.sipxconfig.acd.stats.AcdStatisticsImpl;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
@@ -35,8 +37,12 @@ public abstract class AcdServerPage extends PageWithCallback implements PageBegi
     public abstract void setAcdServer(AcdServer acdServer);
 
     public abstract boolean getChanged();
-    
+
     public abstract void setTab(String tab);
+
+    public abstract AcdStatistics getAcdStatistics();
+
+    public abstract void setAcdStatistics(AcdStatistics stats);
 
     public void pageBeginRender(PageEvent event_) {
         if (getAcdServer() != null) {
@@ -50,6 +56,9 @@ public abstract class AcdServerPage extends PageWithCallback implements PageBegi
             setAcdServer(server);
             // make sure that config tab is available when server is new
             setTab("config");
+        }
+        if (getAcdStatistics() == null) {
+            setAcdStatistics(new AcdStatisticsImpl(getAcdContext()));
         }
     }
 

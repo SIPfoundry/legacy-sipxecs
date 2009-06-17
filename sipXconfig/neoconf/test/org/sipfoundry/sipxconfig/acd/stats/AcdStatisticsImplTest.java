@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.acd.stats;
@@ -52,19 +52,19 @@ public class AcdStatisticsImplTest extends TestCase {
         QueueTransformer transformer = new QueueTransformer();
 
         QueueStats qs = new QueueStats();
-        
+
         qs.setAvg_wait_time(10);
         qs.setMax_wait_time(20);
         qs.setWaiting_calls(5);
-        
+
         qs.setAbandoned_calls(1);
         qs.setAvg_abandoned_time(3);
         qs.setMax_abandoned_time(5);
-        
+
         qs.setProcessed_calls(2);
         qs.setAvg_processing_time(33);
         qs.setMax_processing_time(50);
-        
+
         qs.setBusy_agents(2);
         qs.setIdle_agents(15);
         qs.setQueue_uri("sip:abc@example.org");
@@ -76,15 +76,15 @@ public class AcdStatisticsImplTest extends TestCase {
         assertEquals(10 * 1000, acdQs.getAverageWaitMillis());
         assertEquals(20 * 1000, acdQs.getMaxWaitMillis());
         assertEquals(5, acdQs.getWaitingCalls());
-        
+
         assertEquals(33 * 1000, acdQs.getAverageProcessingMillis());
         assertEquals(50 * 1000, acdQs.getMaxProcessingMillis());
         assertEquals(2, acdQs.getProcessedCalls());
 
         assertEquals(3 * 1000, acdQs.getAverageAbandonedMillis());
         assertEquals(5 * 1000, acdQs.getMaxAbandonedMillis());
-        assertEquals(1, acdQs.getAbandonedCalls());        
-        
+        assertEquals(1, acdQs.getAbandonedCalls());
+
         assertEquals(2, acdQs.getBusyAgents());
         assertEquals(15, acdQs.getIdleAgents());
         assertEquals("sip:abc@example.org", acdQs.getQueueUri());
@@ -216,23 +216,25 @@ public class AcdStatisticsImplTest extends TestCase {
         statsContext = new AdcStatsContextMock(acdStatsService);
         agentStats = statsContext.getAgentsStats(null, "sip:all@example.org");
         assertEquals(3, agentStats.size());
-        
+
         acdStatsServiceCtrl.verify();
     }
 
     private static class AdcStatsContextMock extends AcdStatisticsImpl {
-        
-        private AcdStatsService m_service;
-        
+
+        private final AcdStatsService m_service;
+
         AdcStatsContextMock(AcdStatsService service) {
+            super(null);
             m_service = service;
         }
 
+        @Override
         public AcdStatsService getAcdStatsService(Serializable acdServerId) {
             return m_service;
         }
     }
-    
+
     public void testAgentNameFilterAgentStats() {
         Set<String> names = new HashSet();
         names.add("agent0");
@@ -240,17 +242,17 @@ public class AcdStatisticsImplTest extends TestCase {
 
         AcdAgentStats stat = new AcdAgentStats();
         assertTrue(p.evaluate(stat));
-        
+
         stat.setAgentUri("agent0@example.org");
         assertTrue(p.evaluate(stat));
-        
+
         stat.setAgentUri("agent1@example.org");
-        assertFalse(p.evaluate(stat));        
+        assertFalse(p.evaluate(stat));
 
         p = new AgentNameFilter(names, false);
         assertFalse(p.evaluate(stat));
     }
-    
+
     public void testAgentNameFilterCallStats() {
         Set<String> names = new HashSet();
         names.add("agent0");
@@ -260,7 +262,7 @@ public class AcdStatisticsImplTest extends TestCase {
         stat.setAgentUri("agent0@example.org");
         assertTrue(p.evaluate(stat));
         stat.setAgentUri("agent1@example.org");
-        assertFalse(p.evaluate(stat));        
+        assertFalse(p.evaluate(stat));
     }
 
     public void testFilteredUsersAgentStats() throws Exception {
@@ -276,7 +278,7 @@ public class AcdStatisticsImplTest extends TestCase {
             stats[i].setQueues(queues);
             stats[i].setState("idle");
         }
-            
+
         IMocksControl acdStatsServiceCtrl = EasyMock.createControl();
         AcdStatsService acdStatsService = acdStatsServiceCtrl.createMock(AcdStatsService.class);
         acdStatsService.getAgentStats();
@@ -285,25 +287,25 @@ public class AcdStatisticsImplTest extends TestCase {
 
         AdcStatsContextMock statsContext = new AdcStatsContextMock(acdStatsService);
         Set<String> names = new HashSet();
-        names.add("agent0");        
-        statsContext.setUsers(names);        
+        names.add("agent0");
+        statsContext.setUsers(names);
         List agentStats = statsContext.getAgentsStats(null, null);
         assertEquals(1, agentStats.size());
-        AcdAgentStats stat = (AcdAgentStats) agentStats.get(0); 
+        AcdAgentStats stat = (AcdAgentStats) agentStats.get(0);
         assertEquals("agent0", stat.getAgentName());
     }
-    
+
     public void testFilteredCallStats() throws Exception {
         // FIXME: Same seed as other test
         CallStats[] stats = new CallStats[4];
         for (int i = 0; i < stats.length; i++) {
             stats[i] = new CallStats();
             stats[i].setAgent_uri("agent" + i + "@example.org");
-            stats[i].setQueue_uri("q" + i + "@example.org");            
+            stats[i].setQueue_uri("q" + i + "@example.org");
         }
         // first call not picked-up should show-up
-        stats[0].setAgent_uri(null);            
-            
+        stats[0].setAgent_uri(null);
+
         IMocksControl acdStatsServiceCtrl = EasyMock.createControl();
         AcdStatsService acdStatsService = acdStatsServiceCtrl.createMock(AcdStatsService.class);
         acdStatsService.getCallStats();
@@ -313,21 +315,21 @@ public class AcdStatisticsImplTest extends TestCase {
         AdcStatsContextMock statsContext = new AdcStatsContextMock(acdStatsService);
 
         statsContext.setUsers(Collections.singleton("agent1"));
-        
+
         Set<String> queues = new HashSet<String>();
-        queues.add("q0");        
-        queues.add("q1");        
+        queues.add("q0");
+        queues.add("q1");
         statsContext.setQueues(queues);
-        
+
         List callStats = statsContext.getCallsStats(null, null);
         assertEquals(2, callStats.size());
-        AcdCallStats stat0 = (AcdCallStats) callStats.get(0); 
-        assertNull(stat0.getAgentName());    
-        // should allow agents 
-        AcdCallStats stat3 = (AcdCallStats) callStats.get(1); 
-        assertEquals("agent1", stat3.getAgentName());    
+        AcdCallStats stat0 = (AcdCallStats) callStats.get(0);
+        assertNull(stat0.getAgentName());
+        // should allow agents
+        AcdCallStats stat3 = (AcdCallStats) callStats.get(1);
+        assertEquals("agent1", stat3.getAgentName());
     }
-    
+
     public void testToName() {
         User user = new User();
         user.setUserName("greebe");
