@@ -19,6 +19,7 @@ import gov.nist.javax.sip.header.ims.PrivacyHeader;
 import gov.nist.javax.sip.message.SIPResponse;
 
 import java.io.InputStream;
+import java.net.InetAddress;
 import java.text.ParseException;
 import java.util.Collection;
 import java.util.HashSet;
@@ -1629,7 +1630,7 @@ class SipUtilities {
     public static RouteHeader createRouteHeader(Hop hop) {
         try {
             SipURI routeUri = ProtocolObjects.addressFactory.createSipURI(null,
-                    hop.getHost());
+                    InetAddress.getByName(hop.getHost()).getHostAddress());
             if (hop.getPort() != -1) {
                 routeUri.setPort(hop.getPort());
             }
