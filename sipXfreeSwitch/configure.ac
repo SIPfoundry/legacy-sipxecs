@@ -20,7 +20,6 @@ CHECK_FREESWITCH
 AC_CONFIG_FILES([
   Makefile 
   bin/Makefile
-  etc/Makefile
 ])
 
 AC_OUTPUT
