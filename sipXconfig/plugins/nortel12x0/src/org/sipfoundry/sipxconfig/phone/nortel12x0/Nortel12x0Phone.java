@@ -18,6 +18,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
@@ -60,8 +61,13 @@ public class Nortel12x0Phone extends Phone {
     private static final int PHONEBOOK_MAX = 200;
     private static final int SPEEDDIAL_MAX = 200;
     private static final int CONFIGURATION_PARAMS_PER_SPEEDDIAL_ENTRY = 3;
+    private CoreContext m_coreContext;
 
     public Nortel12x0Phone() {
+    }
+
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
     }
 
     @Override
@@ -84,7 +90,7 @@ public class Nortel12x0Phone extends Phone {
     protected ProfileContext createContext() {
         SpeedDial speedDial = getPhoneContext().getSpeedDial(this);
         Collection<PhonebookEntry> phoneBook = getPhoneContext().getPhonebookEntries(this);
-        return new Nortel12x0Context(this, speedDial, phoneBook, getModel().getProfileTemplate());
+        return new Nortel12x0Context(this, speedDial, m_coreContext, phoneBook, getModel().getProfileTemplate());
     }
 
     @Override
@@ -366,14 +372,17 @@ public class Nortel12x0Phone extends Phone {
     }
 
     static class Nortel12x0Context extends ProfileContext {
+        private CoreContext m_coreContext;
         private SpeedDial m_speedDial;
         private Collection<PhonebookEntry> m_phoneBook;
 
-        public Nortel12x0Context(Nortel12x0Phone device, SpeedDial speedDial, Collection<PhonebookEntry> phoneBook,
-                String profileTemplate) {
+        public Nortel12x0Context(Nortel12x0Phone device, SpeedDial speedDial, 
+            CoreContext coreContext, Collection<PhonebookEntry> phoneBook,
+            String profileTemplate) {
             super(device, profileTemplate);
             m_speedDial = speedDial;
             m_phoneBook = trim(phoneBook);
+            m_coreContext = coreContext; 
         }
 
         public Map<String, Object> getContext() {
@@ -422,6 +431,12 @@ public class Nortel12x0Phone extends Phone {
                     spNumber = buttons.get(i).getNumber();
                     if (buttons.get(i).isBlf()) {
                         spPresence = "1";
+                        User user = m_coreContext.loadUserByAlias(spNumber);
+                        if (user != null) {
+                            // if number matches any known user make sure
+                            // to use username and not an alias
+                            spNumber = user.getUserName(); 
+                        }
                     } else {
                         spPresence = "0";
                     }

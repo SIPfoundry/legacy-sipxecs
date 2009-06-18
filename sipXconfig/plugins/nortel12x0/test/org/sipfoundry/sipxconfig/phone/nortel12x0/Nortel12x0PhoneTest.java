@@ -16,12 +16,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.device.RestartException;
@@ -138,7 +141,7 @@ public class Nortel12x0PhoneTest extends TestCase {
         assertEquals(expected, location.toString());
     }
 
-    public void testGenerateProfilesForSpeedDial() throws Exception {
+    public void testGenerateProfilesForWithBlfSpeedDial() throws Exception {
 
         Nortel12x0Phone phone = new Nortel12x0Phone();
         PhoneModel model = new PhoneModel("nortel12x0");
@@ -147,16 +150,46 @@ public class Nortel12x0PhoneTest extends TestCase {
         model.setProfileTemplate("nortel12x0/nortel12x0.vm");
         phone.setModel(model);
 
-        PhoneTestDriver.supplyTestData(phone);
+        User user1 = new User(); 
+
+        user1.setUserName("juser");
+        user1.setFirstName("Joe");
+        user1.setLastName("User");
+        user1.setSipPassword("1234");
+
+        PhoneTestDriver.supplyTestData(phone, Collections.singletonList(user1));
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
 
         Button[] buttons = new Button[] {
             new Button("a,b,c", "123@sipfoundry.org"), new Button("def_def", "456"), new Button("xyz abc", "789"),
             new Button(null, "147"), new Button("Joe User", "258@sipfoundry.com"), new Button("", "369")
         };
+        buttons[1].setBlf(true);
 
         SpeedDial sp = new SpeedDial();
         sp.setButtons(Arrays.asList(buttons));
+        sp.setUser(user1);
+
+        User user2 = new User();
+        user2.setUserName("def_def");
+        Set user2Aliases = new LinkedHashSet(); // use LinkedHashSet for stable ordering
+        user2Aliases.add("456");
+        user2.setAliases(user2Aliases);
+
+        User user3 = new User();
+        user3.setUserName("xyz");
+        Set user3Aliases = new LinkedHashSet(); // use LinkedHashSet for stable ordering
+        user3Aliases.add("789");
+        user3.setAliases(user3Aliases);
+
+        IMocksControl coreContextControl = EasyMock.createNiceControl();
+        CoreContext coreContext = coreContextControl.createMock(CoreContext.class);
+
+        coreContext.loadUserByAlias("456");
+        EasyMock.expectLastCall().andReturn(user2).atLeastOnce();
+        coreContextControl.replay();
+
+        phone.setCoreContext(coreContext);
 
         IMocksControl phoneContextControl = EasyMock.createNiceControl();
         PhoneContext phoneContext = phoneContextControl.createMock(PhoneContext.class);
@@ -214,7 +247,7 @@ public class Nortel12x0PhoneTest extends TestCase {
 
         Nortel12x0Phone phone = new Nortel12x0Phone();
 
-        Nortel12x0Context sc = new Nortel12x0Phone.Nortel12x0Context(phone, null, m_emptyPhonebook, null);
+        Nortel12x0Context sc = new Nortel12x0Phone.Nortel12x0Context(phone, null, null, m_emptyPhonebook, null);
         String[] numbers = (String[]) sc.getContext().get("speedDialInfo");
 
         assertEquals(0, numbers.length);
@@ -226,7 +259,7 @@ public class Nortel12x0PhoneTest extends TestCase {
 
         Nortel12x0Phone phone = new Nortel12x0Phone();
 
-        Nortel12x0Context sc = new Nortel12x0Phone.Nortel12x0Context(phone, maxSd, m_emptyPhonebook, null);
+        Nortel12x0Context sc = new Nortel12x0Phone.Nortel12x0Context(phone, maxSd, null, m_emptyPhonebook, null);
         String[] numbers = (String[]) sc.getContext().get("speedDialInfo");
         assertEquals(200 * 3, numbers.length);
 
@@ -239,11 +272,11 @@ public class Nortel12x0PhoneTest extends TestCase {
 
         Nortel12x0Phone phone = new Nortel12x0Phone();
 
-        Nortel12x0Context sc = new Nortel12x0Phone.Nortel12x0Context(phone, smallSd, m_emptyPhonebook, null);
+        Nortel12x0Context sc = new Nortel12x0Phone.Nortel12x0Context(phone, smallSd, null, m_emptyPhonebook, null);
         String[] numbers = (String[]) sc.getContext().get("speedDialInfo");
         assertEquals(5 * 3, numbers.length);
 
-        sc = new Nortel12x0Phone.Nortel12x0Context(phone, largeSd, m_emptyPhonebook, null);
+        sc = new Nortel12x0Phone.Nortel12x0Context(phone, largeSd, null, m_emptyPhonebook, null);
         numbers = (String[]) sc.getContext().get("speedDialInfo");
         assertEquals(100 * 3, numbers.length);
     }
@@ -258,7 +291,7 @@ public class Nortel12x0PhoneTest extends TestCase {
 
         Nortel12x0Phone phone = new Nortel12x0Phone();
 
-        Nortel12x0Context sc = new Nortel12x0Phone.Nortel12x0Context(phone, null, phonebook, null);
+        Nortel12x0Context sc = new Nortel12x0Phone.Nortel12x0Context(phone, null, null, phonebook, null);
         Collection< ? > maxEntries = (Collection< ? >) sc.getContext().get("phoneBook");
         assertEquals(200, maxEntries.size());
     }
@@ -273,7 +306,7 @@ public class Nortel12x0PhoneTest extends TestCase {
 
         Nortel12x0Phone phone = new Nortel12x0Phone();
 
-        Nortel12x0Context sc = new Nortel12x0Phone.Nortel12x0Context(phone, null, phonebook, null);
+        Nortel12x0Context sc = new Nortel12x0Phone.Nortel12x0Context(phone, null, null, phonebook, null);
         Collection< ? > maxEntries = (Collection< ? >) sc.getContext().get("phoneBook");
         assertEquals(120, maxEntries.size());
     }
