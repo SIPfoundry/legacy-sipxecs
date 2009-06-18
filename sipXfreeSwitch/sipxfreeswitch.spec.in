@@ -43,3 +43,5 @@ rm -rf $RPM_BUILD_ROOT
 
 %post
 freeswitch.sh --configtest
+if test -e %{_sysconfdir}/logrotate.d/freeswitch; then rm -f %{_sysconfdir}/logrotate.d/freeswitch; fi
+
