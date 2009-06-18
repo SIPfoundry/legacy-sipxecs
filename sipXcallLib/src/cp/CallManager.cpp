@@ -553,7 +553,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                             {
                                 OsSysLog::add(FAC_CP, PRI_INFO,
                                               "CallManager::handleMessage "
-                                              "callStack: sending 486 to INVITE, entries = %d",
+                                              "callStack: sending 486 to INVITE, entries = %ld",
                                               mCallStack.entries());
                                 if( (sipMsg->isResponse() == FALSE) &&
                                     (method.compareTo(SIP_ACK_METHOD,UtlString::ignoreCase) != 0) )
@@ -3214,12 +3214,12 @@ void CallManager::pushCall(CpCall* call)
       call->getCallId(callId);
       OsSysLog::add(FAC_CP, PRI_DEBUG,
                   "CallManager::pushCall callStack: adding call %p, callId %s, entries = %ld",
-                   call, callId.data(), (long)mCallStack.entries());
+                   call, callId.data(), mCallStack.entries());
    }
    mCallStack.insertAt(0, new UtlVoidPtr(call));
 #ifdef TEST_PRINT
     OsSysLog::add(FAC_CP, PRI_DEBUG,
-                  "CallManager::pushCall callStack: adding call %p, entries = %d",
+                  "CallManager::pushCall callStack: adding call %p, entries = %ld",
                   call, mCallStack.entries());
 #endif
 }
@@ -3233,7 +3233,7 @@ CpCall* CallManager::popCall()
         call = (CpCall*) callCollectable->getValue();
 #ifdef TEST_PRINT
         OsSysLog::add(FAC_CP, PRI_INFO,
-                      "CallManager::popCall callStack: removing call %p, entries = %d",
+                      "CallManager::popCall callStack: removing call %p, entries = %ld",
                       call, mCallStack.entries());
 #endif
         delete callCollectable;
@@ -3249,7 +3249,7 @@ CpCall* CallManager::removeCall(CpCall* call)
       call->getCallId(callId);
       OsSysLog::add(FAC_CP, PRI_DEBUG,
                   "CallManager::removeCall callStack: removing call %p,callId %s, entries = %ld",
-                  call, callId.data(), (long)mCallStack.entries());
+                  call, callId.data(), mCallStack.entries());
     }
     UtlVoidPtr matchCall(call);
     UtlVoidPtr* callCollectable = (UtlVoidPtr*) mCallStack.remove(&matchCall);
@@ -3258,7 +3258,7 @@ CpCall* CallManager::removeCall(CpCall* call)
         call = (CpCall*) callCollectable->getValue();
 #ifdef TEST_PRINT
         OsSysLog::add(FAC_CP, PRI_DEBUG,
-                      "CallManager::removeCall callStack: removing call %p, entries = %d",
+                      "CallManager::removeCall callStack: removing call %p, entries = %ld",
                       call, mCallStack.entries());
 #endif
         delete callCollectable;
