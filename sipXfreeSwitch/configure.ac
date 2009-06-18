@@ -19,7 +19,6 @@ CHECK_GENERATE_MANPAGES
 AC_CONFIG_FILES([
   Makefile 
   bin/Makefile
-  etc/Makefile
 ])
 
 AC_OUTPUT
