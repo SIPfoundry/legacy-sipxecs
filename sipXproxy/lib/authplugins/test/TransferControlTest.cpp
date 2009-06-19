@@ -32,8 +32,8 @@ class TransferControlTest : public CppUnit::TestCase
    CPPUNIT_TEST(nonInviteRefer);
    CPPUNIT_TEST(normalInvite);
    CPPUNIT_TEST(InviteWithReplaces);
-   CPPUNIT_TEST(ReferWithReplaces);
-   CPPUNIT_TEST(UnAuthenticatedRefer);
+   CPPUNIT_TEST(UnAuthenticatedReferWithReplaces);
+   CPPUNIT_TEST(UnAuthenticatedReferWithoutReplaces);
    CPPUNIT_TEST(AuthenticatedRefer);
    CPPUNIT_TEST(UnAuthenticatedForiegnRefer);
    
@@ -293,14 +293,14 @@ public:
       }
 
    // Test that a REFER with Replaces is allowed
-   void ReferWithReplaces()
+   void UnAuthenticatedReferWithReplaces()
       {
          UtlString identity; // no authenticated identity
          Url requestUri("sip:someone@somewhere");
 
          const char* message =
             "REFER sip:someone@somewhere SIP/2.0\r\n"
-            "Refer-To: <other@elsewhere;transport=udp?replaces=valid%40callid%3Bto-tag%3Dtotagvalue%3Bfrom-tag%3dfromtagvalue>\r\n"
+            "Refer-To: <other@example.edu;transport=udp?replaces=valid%40callid%3Bto-tag%3Dtotagvalue%3Bfrom-tag%3dfromtagvalue>\r\n"
             "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
             "To: sip:someone@somewhere\r\n"
             "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
@@ -323,7 +323,7 @@ public:
          bool bSpiralingRequest = false;
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
          
-         CPPUNIT_ASSERT(AuthPlugin::ALLOW
+         CPPUNIT_ASSERT(AuthPlugin::DENY
                         == xferctl->authorizeAndModify(identity,
                                                        requestUri,
                                                        routeState,
@@ -357,7 +357,7 @@ public:
 
 
    // Test that an unauthenticated REFER without Replaces is challenged
-   void UnAuthenticatedRefer()
+   void UnAuthenticatedReferWithoutReplaces()
       {
          UtlString identity; // no authenticated identity
          Url requestUri("sip:someone@somewhere");
