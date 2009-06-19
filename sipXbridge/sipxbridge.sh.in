@@ -93,8 +93,8 @@ setTruststoreOpts
 
 case ${Action} in
    RUN)
-     echo $$ > @SIPX_RUNDIR@/sipxbridge.pid
-      $JavaCmd -Dconf.dir=@SIPX_CONFDIR@  		\
+      echo $$ > @SIPX_RUNDIR@/sipxbridge.pid
+      exec $JavaCmd -Dconf.dir=@SIPX_CONFDIR@  		\
 	 $TrustStoreOpts 				\
 	 $KeyStoreOpts					\
 	 -Djetty.x509.algorithm=$X509Algorithm		\
@@ -107,19 +107,8 @@ case ${Action} in
      ;;
 
    STOP)
-     exec $JavaCmd -Dconf.dir=@SIPX_CONFDIR@  \
-	 $TrustStoreOpts \
-	 $KeyStoreOpts	 \
-	 -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
-	 -Djetty.x509.algorithm=$X509Algorithm 		\
-	 -Djetty.ssl.password=$TrustStorePassword	\
-	 -Djetty.ssl.keypassword=$KeyStorePassword	\
-         -Dsipxbridge.command=stop 			\
-         -cp $ClassPath org.sipfoundry.sipxbridge.Gateway \
-	 $Args
-     sipx_stop sipXbridge @SIPX_RUNDIR@/sipxbridge.pid
-     #Failsafe in case the process does not die.
-     kill -9 `ps auxw | grep org.sipfoundry.sipxbridge.Gateway | grep java | awk '{print $2}'`
+     #Failsafe kill.
+     sipx_stop sipbridge @SIPX_RUNDIR@/sipxbridge.pid
      ;;
   
    PROFILE)
