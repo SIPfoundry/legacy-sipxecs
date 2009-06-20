@@ -118,7 +118,8 @@
 				minOccurs="0" maxOccurs="1" default="tcp">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
-						The SIPX proxy transport.  If nothing is specified here, tcp is assumed.
+						The SIPX proxy transport (if you want to use a 
+                                                specific value you can set this tag).  
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
@@ -143,7 +144,7 @@
 			</xs:element>
 			
 			<xs:element name="media-keepalive-seconds" type="xs:integer"
-				minOccurs="0" maxOccurs="1" default="2">
+				minOccurs="0" maxOccurs="1" default="1">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
 						Keepalive timer for RTP. Each RTP stream facing the ITSP will
@@ -289,6 +290,15 @@
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
 						The port for sipxconfig to talk to this instance of sipxbridge.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="call-limit" type="xs:integer"  
+				maxOccurs="1" minOccurs="0" default="-1" >
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+                                                Max Number of calls supported by sipxbridge. The default is "unlimited" which means the limit is governed by
+                                                the available relays. This allows you to impose a finer grained limit.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
