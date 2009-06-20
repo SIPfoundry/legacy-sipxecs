@@ -126,9 +126,10 @@ class DataShuffler implements Runnable {
                 }
                 receivedOn.recordStrayPacket(remoteAddress.getAddress().getHostAddress());
                 return;
-            } else if (!selfRouted && receivedOn.getTransmitter().getAutoDiscoveryFlag() == AutoDiscoveryFlag.PORT_ONLY 
-                    && receivedOn.getTransmitter() != null && receivedOn.getTransmitter().getInetAddress() != null &&             
-                    !receivedOn.getTransmitter().getInetAddress().equals(remoteAddress.getAddress())) {
+            } else if (!selfRouted && receivedOn.getTransmitter() != null 
+                    && receivedOn.getTransmitter().getAutoDiscoveryFlag() == AutoDiscoveryFlag.PORT_ONLY 
+                    && receivedOn.getTransmitter().getInetAddress() != null 
+                    && !receivedOn.getTransmitter().getInetAddress().equals(remoteAddress.getAddress())) {
                 if ( logger.isTraceEnabled() ) {
                     logger.trace(String.format("Discarding packet - remote endpoint  does not match transmitter endpoint %s %s ",
                             receivedOn.getTransmitter().getInetAddress(), remoteAddress.getAddress())); 

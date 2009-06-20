@@ -438,18 +438,17 @@ public class SipListenerImpl implements SipListener {
                 /*
                  * Kill off the dialog if we cannot file a dialog context.
                  */
-                if (!attached && response.getStatusCode() == 200 ) {
-                    Request ackRequest = dialog.createAck(cseqHeader
-                            .getSeqNumber());
-                    /* Cannot access the dialogContext here */
-                    dialog.sendAck(ackRequest);
-                    Request byeRequest = dialog.createRequest(Request.BYE);
-                    ClientTransaction byeClientTransaction = provider
-                    .getNewClientTransaction(byeRequest);
-                    dialog.sendRequest(byeClientTransaction);
-                    return;
-                }
-
+                if (!attached && response.getStatusCode() == Response.OK) {
+                        Request ackRequest = dialog.createAck(cseqHeader
+                                .getSeqNumber());
+                        /* Cannot access the dialogContext here */
+                        dialog.sendAck(ackRequest);
+                        Request byeRequest = dialog.createRequest(Request.BYE);
+                        ClientTransaction byeClientTransaction = provider
+                        .getNewClientTransaction(byeRequest);
+                        dialog.sendRequest(byeClientTransaction);
+                        return;
+                } 
             }
 
             /*
