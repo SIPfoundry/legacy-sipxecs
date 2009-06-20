@@ -143,7 +143,7 @@ class DialogContext {
     /*
      * Session timer interval ( seconds ).
      */
-    int sessionExpires;
+    int sessionExpires = Gateway.DEFAULT_SESSION_TIMER_INTERVAL;
 
     /*
      * Records whether or not an ACCEPTED has been sent for the REFER. This dictates what we need
@@ -226,13 +226,10 @@ class DialogContext {
                         ContactHeader cth = SipUtilities.createContactHeader(provider,
                                 getItspInfo());
                         request.setHeader(cth);
-                        SessionExpiresHeader sexp = SipUtilities.createSessionExpires();
-                        
-                       
-                        
+                        SessionExpiresHeader sexp = SipUtilities.createSessionExpires(DialogContext.this.sessionExpires);
                         request.setHeader(sexp);
                         MinSE minSe = new MinSE();
-                        minSe.setExpires(Gateway.getSessionExpires());
+                        minSe.setExpires(Gateway.MIN_EXPIRES);
                         request.setHeader(minSe);
                         if (getItspInfo() != null && !getItspInfo().stripPrivateHeaders()) {
                             SubjectHeader sh = ProtocolObjects.headerFactory
@@ -442,7 +439,7 @@ class DialogContext {
         logger.debug("startSessionTimer()");
         this.sessionTimer = new SessionTimerTask(Gateway.getSessionTimerMethod());
         Gateway.getTimer().schedule(this.sessionTimer,
-                (Gateway.getSessionExpires() - Gateway.TIMER_ADVANCE) * 1000);
+                ((this.sessionExpires - Gateway.TIMER_ADVANCE) * 1000));
     }
     
    public void startSessionTimer( int sessionTimeout ) {
@@ -457,7 +454,7 @@ class DialogContext {
      * Constructor.
      */
     private DialogContext(Dialog dialog) {
-        this.sessionExpires = Gateway.getSessionExpires();
+        this.sessionExpires = Gateway.DEFAULT_SESSION_TIMER_INTERVAL;
         this.dialog = dialog;  
     }
 
@@ -631,6 +628,9 @@ class DialogContext {
             logger.warn("Re-Setting ITSP info to null!!");
         }
         this.itspInfo = itspInfo;
+        if ( itspInfo != null ) {
+            this.sessionExpires = itspInfo.getSessionTimerInterval();
+        }
     }
 
     /**

@@ -135,13 +135,6 @@
 				</xs:annotation>
 			</xs:element>
 
-			<xs:element name="sip-session-timer-interval-seconds" type="xs:integer" default="1800" >
-				<xs:annotation>
-					<xs:documentation xml:lang="en">
-						The Session Timer interval (for in-DIALOG re-INVITES)
-					</xs:documentation>
-				</xs:annotation>
-			</xs:element>
 			
 			<xs:element name="media-keepalive-seconds" type="xs:integer"
 				minOccurs="0" maxOccurs="1" default="1">
@@ -323,8 +316,15 @@
 				</xs:annotation>
 			</xs:element>
 
+			<xs:element name="sip-session-timer-interval-seconds" type="xs:integer" default="1800" >
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The Session Timer interval (for in-DIALOG re-INVITES)
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 
-			<!-- was proxy-domain -->
+
 			<xs:element name="itsp-proxy-domain" type="xs:string"
 				maxOccurs="1" minOccurs="1">
 				<xs:annotation>
@@ -335,7 +335,6 @@
 				</xs:annotation>
 			</xs:element>
 
-			<!-- was "outbound-proxy-port"  -->
 			<xs:element name="itsp-proxy-listening-port" type="xs:integer"
 				maxOccurs="1" minOccurs="0">
 				<xs:annotation>
@@ -345,7 +344,6 @@
 				</xs:annotation>
 			</xs:element>
 
-			<!-- was "outbound-proxy"  -->
 			<xs:element name="itsp-proxy-address" type="xs:string"
 				maxOccurs="1" minOccurs="0">
 				<xs:annotation>
@@ -357,7 +355,6 @@
 				</xs:annotation>
 			</xs:element>
 
-			<!-- was "outbound-transport"  -->
 			<xs:element name="itsp-transport" type="xs:string"
 				default="udp" maxOccurs="1" minOccurs="0">
 				<xs:annotation>
@@ -367,7 +364,6 @@
 				</xs:annotation>
 			</xs:element>
 			
-			<!-- was "inbound-proxy"  -->
 			<xs:element name="itsp-registrar-address" type="xs:string"
 				maxOccurs="1" minOccurs="0">
 				<xs:annotation>
@@ -379,7 +375,6 @@
 				</xs:annotation>
 			</xs:element>
 
-			<!-- was "inbound-proxy-port"  -->
 			<xs:element name="itsp-registrar-listening-port" type="xs:integer"
 				maxOccurs="1" minOccurs="0">
 				<xs:annotation>
@@ -455,6 +450,15 @@
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
 						Whether or not to REGISTER on initialization.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="loose-route-invite"
+				type="xs:boolean" default="true" maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Whether or not to to use route header (with lr parameter) on call setup INVITE.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>

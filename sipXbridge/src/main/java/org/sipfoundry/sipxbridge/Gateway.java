@@ -160,7 +160,7 @@ public class Gateway {
     /*
      * Min value for session timer ( seconds ).
      */
-    protected static final int MIN_EXPIRES = 60;
+    protected static final int MIN_EXPIRES = 90;
 
     /*
      * Advance timer by 10 seconds for session timer.
@@ -206,6 +206,8 @@ public class Gateway {
     static final int REGISTER_DELTA = 5;
 
     public static final String SIPX_BRIDGE_ACCOUNT_OK = "SIPX_BRIDGE_ACCOUNT_OK";
+
+    public static final int DEFAULT_SESSION_TIMER_INTERVAL = 1800;
     
     private static int oldStunPort = -1;
 
@@ -1105,9 +1107,10 @@ public class Gateway {
                     ex);
 
         }
+        Gateway.state = GatewayState.STOPPED;
         // Tear down the sip stack.
         ProtocolObjects.stop();
-        Gateway.state = GatewayState.STOPPED;
+      
     }
 
     /**
@@ -1134,7 +1137,7 @@ public class Gateway {
                 .getBridgeConfiguration().getExternalAddress(), Gateway
                 .getBridgeConfiguration().getXmlRpcPort(), Gateway
                 .getBridgeConfiguration().isSecure());
-        client.exit();
+        client.stop();
         System.exit(0);
     }
 
@@ -1218,9 +1221,7 @@ public class Gateway {
         Gateway.callCount++;
     }
 
-    static int getSessionExpires() {
-        return getBridgeConfiguration().getSipSessionTimerIntervalSeconds();
-    }
+  
 
     /**
      * @return the timer

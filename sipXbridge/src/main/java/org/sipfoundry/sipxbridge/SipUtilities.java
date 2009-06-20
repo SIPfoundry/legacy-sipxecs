@@ -19,6 +19,7 @@ import gov.nist.javax.sip.header.ims.PrivacyHeader;
 import gov.nist.javax.sip.message.SIPResponse;
 
 import java.io.InputStream;
+import java.net.InetAddress;
 import java.text.ParseException;
 import java.util.Collection;
 import java.util.HashSet;
@@ -756,14 +757,18 @@ class SipUtilities {
             hopIter.remove();
 
            // sipxbridge router will strip maddr before forwarding.
-           // maddr parameter is obsolete.
-           //requestUri.setMAddrParam(hop.getHost());
-           //requestUri.setPort(hop.getPort());
-           
-           // This is the right way to do this after the following is fixed:
+           // maddr parameter is obsolete but some ITSP do not like
+           // Route param ( dont support loose routing on initial invite)
+           // so we use a maddr parameter to send the request
+           // to such ITSPs. Also see :
            // http://track.sipfoundry.org/browse/XX-5884 
-           RouteHeader proxyRoute = SipUtilities.createRouteHeader(hop);      
-           request.setHeader(proxyRoute);
+           if (itspAccount.isAddLrRoute()) {
+               RouteHeader proxyRoute = SipUtilities.createRouteHeader(hop);      
+               request.setHeader(proxyRoute);
+           } else {
+               requestUri.setMAddrParam(hop.getHost());
+               requestUri.setPort(hop.getPort());
+           }
            
 
             /*
@@ -771,9 +776,9 @@ class SipUtilities {
              */
 
             SessionExpires sessionExpires = (SessionExpires) ((HeaderFactoryExt) ProtocolObjects.headerFactory)
-                    .createSessionExpiresHeader(Gateway.getSessionExpires());
+                    .createSessionExpiresHeader(itspAccount.getSessionTimerInterval());
             sessionExpires.setParameter("refresher", "uac");
-            sessionExpires.setExpires(Gateway.getSessionExpires());
+            sessionExpires.setExpires(itspAccount.getSessionTimerInterval());
             request.addHeader(sessionExpires);
 
             return request;
@@ -1541,12 +1546,12 @@ class SipUtilities {
 
     }
 
-    static SessionExpiresHeader createSessionExpires() {
+    static SessionExpiresHeader createSessionExpires(int sessionExpiresTime) {
 
         try {
             SessionExpiresHeader sessionExpires = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
-                    .createSessionExpiresHeader(Gateway.getSessionExpires());
-            sessionExpires.setExpires(Gateway.getSessionExpires());
+                    .createSessionExpiresHeader(sessionExpiresTime);
+            sessionExpires.setExpires(sessionExpiresTime);
             sessionExpires.setRefresher("uac");
             return sessionExpires;
         } catch (InvalidArgumentException ex) {
@@ -1650,7 +1655,7 @@ class SipUtilities {
     public static RouteHeader createRouteHeader(Hop hop) {
         try {
             SipURI routeUri = ProtocolObjects.addressFactory.createSipURI(null,
-                    hop.getHost());
+                    InetAddress.getByName(hop.getHost()).getHostAddress());
             if (hop.getPort() != -1) {
                 routeUri.setPort(hop.getPort());
             }

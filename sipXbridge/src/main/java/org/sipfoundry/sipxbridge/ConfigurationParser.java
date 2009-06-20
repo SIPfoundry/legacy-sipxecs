@@ -114,10 +114,7 @@ public class ConfigurationParser {
                 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "sip-keepalive-seconds"),
                 "setSipKeepalive", 0);
-        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "sip-session-timer-interval-seconds"),
-                "setSipSessionTimerIntervalSeconds", 0, new Class[] {
-                    Integer.class
-        });
+        
         
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "media-keepalive-seconds"),
                 "setMediaKeepalive", 0);
@@ -176,6 +173,13 @@ public class ConfigurationParser {
                 "setRegistrationInterval", 0, new Class[] {
                     Integer.class
                 });
+        /*
+         * Session timer interval.
+         */
+        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "sip-session-timer-interval-seconds"),
+                "setSipSessionTimerIntervalSeconds", 0, new Class[] {
+                    Integer.class
+        });
         /*
          * Transport the ITSP wants to see ( default to UDP )
          */
@@ -243,7 +247,10 @@ public class ConfigurationParser {
             Boolean.class
         });
         
-       
+        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "loose-route-invite"),
+                "setAddLrRoute", 0, new Class[] {
+            Boolean.class
+        });
         
     }
 

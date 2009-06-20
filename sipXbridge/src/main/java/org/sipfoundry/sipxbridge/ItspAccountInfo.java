@@ -149,6 +149,8 @@ public class ItspAccountInfo implements
      */
     private boolean isUserPhone = true;
     
+  
+    
     
     /*
      * Flag that indicates whether this is a dummy account
@@ -166,6 +168,10 @@ public class ItspAccountInfo implements
     private boolean reUseOutboundProxySetting;
 
     private boolean inboundProxyPortSet;
+    
+    private boolean addRoute = true;
+
+    private int sessionTimerInterval = Gateway.DEFAULT_SESSION_TIMER_INTERVAL;
 
     class FailureCounterScanner extends TimerTask {
 
@@ -650,5 +656,36 @@ public class ItspAccountInfo implements
     public boolean isInboundProxyPortSet() {
         return inboundProxyPortSet;
     }
+
+    public boolean isAddLrRoute() {
+       return this.addRoute;
+    }
+    
+    public void setSipSessionTimerInterval(int sessionTimerInterval) {
+        this.setSessionTimerInterval(sessionTimerInterval);
+    }
+
+    /**
+     * @param sessionTimerInterval the sessionTimerInterval to set
+     */
+    public void setSessionTimerInterval(int sessionTimerInterval) {
+        this.sessionTimerInterval = sessionTimerInterval;
+    }
+
+    /**
+     * @return the sessionTimerInterval
+     */
+    public int getSessionTimerInterval() {
+        return sessionTimerInterval;
+    }
+
+    /**
+     * @param addRoute the addRoute to set
+     */
+    public void setAddLrRoute(boolean addRoute) {
+        this.addRoute = addRoute;
+    }
+
+  
 
 }

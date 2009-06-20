@@ -1638,7 +1638,7 @@ public class BackToBackUserAgent {
              * Kick off our session timer.
              */
             DialogContext.get(ct.getDialog()).startSessionTimer(
-                    Gateway.getSessionExpires());
+                    itspAccountInfo.getSessionTimerInterval());
 
         } catch (SdpParseException ex) {
             logger.error("Unexpected exception ", ex);
@@ -1685,8 +1685,15 @@ public class BackToBackUserAgent {
             Hop nextHop = hopIter.next();
             Request request = clientTransaction.getRequest();
             Request newRequest = (Request) request.clone();
-            RouteHeader routeHeader = SipUtilities.createRouteHeader(nextHop);
-            newRequest.setHeader(routeHeader);
+            if ( transactionContext.getItspAccountInfo() == null || 
+                 transactionContext.getItspAccountInfo().isAddLrRoute() ) {
+                RouteHeader routeHeader = SipUtilities.createRouteHeader(nextHop);
+                newRequest.setHeader(routeHeader);
+            } else {
+                SipURI requestUri = (SipURI) newRequest.getRequestURI();
+                requestUri.setMAddrParam(nextHop.getHost());
+                requestUri.setPort(nextHop.getPort());
+            }
             ((ViaHeader) newRequest.getHeader(ViaHeader.NAME))
                     .removeParameter("branch");
             ((FromHeader) newRequest.getHeader(FromHeader.NAME))

@@ -504,23 +504,8 @@ public class BridgeConfiguration {
         return parkServerCodecs;
     }
 
-    /**
-     * @param sipSessionTimerIntervalSeconds the sipSessionTimerIntervalSeconds to set
-     */
-    public void setSipSessionTimerIntervalSeconds(int sipSessionTimerIntervalSeconds) {
-        if (sipSessionTimerIntervalSeconds < 0) {
-            throw new IllegalArgumentException("Bad session timer interval "
-                    + sipSessionTimerIntervalSeconds);
-        }
-        this.sipSessionTimerIntervalSeconds = sipSessionTimerIntervalSeconds;
-    }
-
-    /**
-     * @return the sipSessionTimerIntervalSeconds
-     */
-    public int getSipSessionTimerIntervalSeconds() {
-        return sipSessionTimerIntervalSeconds;
-    }
+   
+    
 
     public void setSipXSupervisorXmlRpcPort(int port) {
         if (port <= 0)
