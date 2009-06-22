@@ -70,7 +70,15 @@ public class Retrieve {
             // Create the mailbox if it isn't there
             Mailbox.createDirsIfNeeded(m_mailbox);
             try {
-                main_menu();
+                if (user.hasVoicemail()) {
+                    // Those with voicemail permissions get the whole menu
+                    main_menu();
+                } else {
+                    // Those without (thus are just in the directory), get to record their name
+                    LOG.info("Retrieve::retrieveVoiceMail:recordName "+m_ident);
+                    recordName();
+                    m_vm.goodbye();
+                }
             } finally {
                 for (File tempRecording : m_tempRecordings) {
                     if (tempRecording.exists()) {
@@ -130,6 +138,13 @@ public class Retrieve {
                 // See if the user exists
                 user = m_vm.getValidUsers().isValidUser(extChoice.getDigits());
                 continue;
+            }
+            
+            // Only users with voicemail, or are in the directory, are allowed
+            // (directory users can record their name, that's all)
+            if (!user.hasVoicemail() && !user.isInDirectory() ) {
+                LOG.info("Retrieve::login user "+user.getUserName()+" doesn't have needed permissions.");
+                user = null ;
             }
             
             if (user == null || !user.isPinCorrect(choice.getDigits(), m_loc.getIvrConfig().getRealm())) {
@@ -735,6 +750,32 @@ public class Retrieve {
     }
 
 
+    void recordName() {
+        // "Record your name, then press #"
+        // 
+        // "To listen to your recording, press 1."
+        // "To use this recording, press 2." 
+        // "To delete this recording and try again, press 3."
+        // "To cancel, press *."
+        File recordingFile = recordDialog("record_name", "name_confirm");
+
+        if (recordingFile == null) {
+            return ;
+        }
+
+        // Save the recording as the name
+        File nameFile = m_mailbox.getRecordedNameFile();
+        if (nameFile.exists()) {
+            nameFile.delete();
+        }
+        // Do this before the rename, as once renamed recordingFile is changed
+        dontDeleteTempFile(recordingFile);
+        recordingFile.renameTo(nameFile);
+        
+        // Name recorded.
+        m_loc.play("name_recorded", "");
+    }
+    
     void voicemailOptions() {
         voicemailOptions:
         for(;;) {
@@ -801,35 +842,9 @@ public class Retrieve {
             }
 
             if (digit.equals("2")) {
-                for (;;) {
-                    LOG.info("Retrieve::voicemailOptions:recordName "+m_ident);
-
-                    // "Record your name, then press #"
-                    // 
-                    // "To listen to your recording, press 1."
-                    // "To use this recording, press 2." 
-                    // "To delete this recording and try again, press 3."
-                    // "To cancel, press *."
-                    File recordingFile = recordDialog("record_name", "name_confirm");
-    
-                    if (recordingFile == null) {
-                        continue voicemailOptions;
-                    }
-
-                    // Save the recording as the name
-                    File nameFile = m_mailbox.getRecordedNameFile();
-                    if (nameFile.exists()) {
-                        nameFile.delete();
-                    }
-                    // Do this before the rename, as once renamed recordingFile is changed
-                    dontDeleteTempFile(recordingFile);
-                    recordingFile.renameTo(nameFile);
-                    
-                    // Name recorded.
-                    m_loc.play("name_recorded", "");
-                    
-                    continue voicemailOptions;
-                }
+                LOG.info("Retrieve::voicemailOptions:recordName "+m_ident);
+                recordName();
+                continue voicemailOptions;
             }
             
             if (digit.equals("3")) {

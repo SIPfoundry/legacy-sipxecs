@@ -129,6 +129,10 @@ public class VoiceMail {
         Sleep s = new Sleep(m_fses, 1000);
         s.go();
         String mailboxString = m_parameters.get("mailbox");
+        if (mailboxString == null) {
+            // Use the From: user as the mailbox
+            mailboxString = m_fses.getFromUser();
+        }
         m_action = m_parameters.get("action");
 
         while(mailboxString != null) {
@@ -152,15 +156,23 @@ public class VoiceMail {
         
         if (mailbox == null) {
             // That extension is not valid.
+            LOG.info("Extension "+mailboxString+" is not valid.");
             m_loc.play("invalid_extension", "");
             goodbye();
             return null ;
         }
 
-        // Create the mailbox if it isn't there
-        Mailbox.createDirsIfNeeded(mailbox);
         m_mailbox = mailbox;
         if (m_action.equals("deposit")) {
+            if (!user.hasVoicemail()) {
+                LOG.info("Mailbox "+m_mailbox.getUser().getUserName()+" does not have voicemail permission.");
+                // That extension is not valid.
+                m_loc.play("invalid_extension", "");
+                goodbye();
+                return null ;
+            }
+            // Create the mailbox if it isn't there
+            Mailbox.createDirsIfNeeded(m_mailbox);
             try {
                 
                 String result = new Deposit(this).depositVoicemail() ;

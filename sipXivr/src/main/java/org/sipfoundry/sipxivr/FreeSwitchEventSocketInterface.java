@@ -206,6 +206,10 @@ public abstract class FreeSwitchEventSocketInterface {
     public String getFromUri() {
         return getVariable("variable_sip_from_uri");
     }
+    
+    public String getFromUser() {
+        return getVariable("variable_sip_from_user");
+    }
 
     public String getDisplayUri() {
         // FreeSWITCH breaks up the original From URI, rebuild it as much as possible
