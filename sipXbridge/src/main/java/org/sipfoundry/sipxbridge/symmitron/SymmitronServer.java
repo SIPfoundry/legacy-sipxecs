@@ -24,6 +24,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -129,6 +130,8 @@ public class SymmitronServer implements Symmitron {
     private static NetworkConfigurationDiscoveryProcess addressDiscovery = null;
     
     static CRLFReceiver crlfReceiver;
+
+    public static boolean filterStrayPackets = true;
     
     static {
         try {
@@ -778,7 +781,9 @@ public class SymmitronServer implements Symmitron {
             
             DataShuffler.addWorkItem(workItem);
             
-            workItem.workSem.acquire();
+            boolean retval = workItem.workSem.tryAcquire(500, TimeUnit.MILLISECONDS);
+            
+            logger.debug("tryAquire returned with value " + retval);
             
             if ( workItem.error ) {
                 return createErrorMap(PROCESSING_ERROR, workItem.errorMessage);
@@ -1555,6 +1560,10 @@ public class SymmitronServer implements Symmitron {
         try {
 
             String command = System.getProperty("sipxrelay.command", "start");
+            String filterStr = System.getProperty("sipxrelay.filterStrayPackets","true");
+            SymmitronServer.filterStrayPackets = filterStr.equalsIgnoreCase("true");
+            logger.info("Stray packet filter is set to " + 
+                    SymmitronServer.filterStrayPackets);
 
             if (command.equals("configtest")) {
                 configtest();
