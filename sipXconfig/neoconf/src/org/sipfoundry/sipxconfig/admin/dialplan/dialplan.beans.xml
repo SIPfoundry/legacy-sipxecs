@@ -7,7 +7,7 @@
   -->
 
   <bean id="sipXMediaServer" class="org.sipfoundry.sipxconfig.admin.dialplan.SipXMediaServer" scope="prototype">
-    <property name="label" value="Internal Voicemail Server" />
+    <property name="label" value="Legacy Voicemail Server" />
     <property name="serverExtension" value="101" />
     <property name="localizationContext" ref="localizationContext" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
@@ -18,12 +18,12 @@
     <property name="localizationContext" ref="localizationContext" />
   </bean>
 
-  <bean id="freeswitchMediaServer" class="org.sipfoundry.sipxconfig.admin.dialplan.FreeswitchMediaServer">
+  <bean id="freeswitchMediaServer" class="org.sipfoundry.sipxconfig.admin.dialplan.FreeswitchMediaServer" scope="prototype">
     <property name="label" value="Internal Voicemail Server" />
     <property name="localizationContext" ref="localizationContext" />
     <!-- FIXME: freeswitch port and location should be computed by SipxFreeswitchService -->
     <property name="port" value="15060" />
-    <property name="locationsManager" ref="locationsManager" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
 
   <bean id="mediaServerFactory" class="org.sipfoundry.sipxconfig.admin.dialplan.MediaServerFactory" scope="singleton">
@@ -31,6 +31,7 @@
       <list>
         <value>sipXMediaServer</value>
         <value>exchangeUmMediaServer</value>
+        <value>freeswitchMediaServer</value>
       </list>
     </property>
   </bean>

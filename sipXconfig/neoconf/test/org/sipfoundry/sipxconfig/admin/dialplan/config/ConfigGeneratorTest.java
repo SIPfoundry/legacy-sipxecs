@@ -12,6 +12,8 @@ package org.sipfoundry.sipxconfig.admin.dialplan.config;
 import java.io.StringWriter;
 import java.util.Collections;
 
+import org.sipfoundry.sipxconfig.service.SipxService;
+
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.dom4j.Document;
@@ -61,7 +63,7 @@ public class ConfigGeneratorTest extends XMLTestCase {
         proxyService.setSipPort("9901");
         proxyService.setDomainManager(m_domainManager);
 
-        SipxStatusService statusService = new SipxStatusService();
+        SipxService statusService = new SipxStatusService();
         statusService.setBeanName(SipxStatusService.BEAN_ID);
         statusService.setModelFilesContext(TestHelper.getModelFilesContext());
         statusService.setSettings(TestHelper.loadSettings("sipxstatus/sipxstatus.xml"));

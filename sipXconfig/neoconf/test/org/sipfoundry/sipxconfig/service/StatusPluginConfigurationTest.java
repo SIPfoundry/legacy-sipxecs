@@ -17,7 +17,7 @@ import org.sipfoundry.sipxconfig.test.TestUtil;
 public class StatusPluginConfigurationTest extends SipxServiceTestBase {
 
     public void testWrite() throws Exception {
-        SipxStatusService statusService = new SipxStatusService();
+        SipxService statusService = new SipxStatusService();
         initCommonAttributes(statusService);
         statusService.setBeanName(SipxStatusService.BEAN_ID);
 

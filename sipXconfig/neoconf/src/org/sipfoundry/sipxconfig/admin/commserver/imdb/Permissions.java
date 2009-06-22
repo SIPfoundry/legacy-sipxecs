@@ -66,6 +66,7 @@ public class Permissions extends DataSetGenerator {
         User user = getCoreContext().newUser();
         user.setPermission(PermissionName.VOICEMAIL, false);
         user.setPermission(PermissionName.SIPX_VOICEMAIL, false);
+        user.setPermission(PermissionName.FREESWITH_VOICEMAIL, false);
         user.setPermission(PermissionName.EXCHANGE_VOICEMAIL, false);
         user.setUserName(userId);
         addUser(items, user, domain);
@@ -94,7 +95,8 @@ public class Permissions extends DataSetGenerator {
 
             // add special permission for voicemail redirect rule for xcf-1875
             if (name.equals(PermissionName.EXCHANGE_VOICEMAIL.getName())
-                    || name.equals(PermissionName.SIPX_VOICEMAIL.getName())) {
+                    || name.equals(PermissionName.SIPX_VOICEMAIL.getName())
+                    || name.equals(PermissionName.FREESWITH_VOICEMAIL.getName())) {
                 String vmUri = SipUri.format(null, "~~vm~" + m_user.getName(), m_domain);
                 addPermission(vmUri, name);
             }

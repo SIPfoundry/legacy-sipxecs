@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import org.sipfoundry.sipxconfig.service.SipxService;
+
 import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
@@ -71,7 +73,7 @@ public class EagerDialPlanActivationManagerTest extends TestCase {
         proxyService.setSipPort("9901");
         proxyService.setDomainManager(domainManager);
 
-        SipxStatusService statusService = new SipxStatusService();
+        SipxService statusService = new SipxStatusService();
         statusService.setBeanName(SipxStatusService.BEAN_ID);
         statusService.setModelFilesContext(TestHelper.getModelFilesContext());
         statusService.setSettings(TestHelper.loadSettings("sipxstatus/sipxstatus.xml"));

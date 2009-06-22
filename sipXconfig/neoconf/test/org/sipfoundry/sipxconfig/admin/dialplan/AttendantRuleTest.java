@@ -11,13 +11,16 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 
+import static org.easymock.EasyMock.expectLastCall;
+
+import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
 import org.easymock.EasyMock;
-import static org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile.getFileContent;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.Holiday;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.ScheduledAttendant;
@@ -28,12 +31,15 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
 import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.service.SipxIvrService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.createNiceMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
+import static org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile.getFileContent;
 
 public class AttendantRuleTest extends TestCase {
     private static final String VOICEMAIL_SERVER = "https%3A%2F%2F192.168.1.1%3A443";
@@ -143,8 +149,20 @@ public class AttendantRuleTest extends TestCase {
         mediaServer.setLocalizationContext(lc);
         mediaServer.setPort(15060);
 
-        LocationsManager locationsManager = TestUtil.getMockLocationsManager();
-        mediaServer.setLocationsManager(locationsManager);
+        LocationsManager locationsManager = createMock(LocationsManager.class);
+        Location serviceLocation = TestUtil.createDefaultLocation();
+
+        SipxIvrService service = new SipxIvrService();
+        service.setBeanName(SipxIvrService.BEAN_ID);
+        service.setLocationsManager(locationsManager);
+
+        locationsManager.getLocationsForService(service);
+        expectLastCall().andReturn(Arrays.asList(serviceLocation)).anyTimes();
+
+        replay(locationsManager);
+
+        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(true, service);
+        mediaServer.setSipxServiceManager(sipxServiceManager);
 
         rule.setMediaServer(mediaServer);
         rule.setName("abc");

@@ -9,8 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
-import org.springframework.dao.support.DataAccessUtils;
-
 public class SipxParkService extends SipxService implements LoggingEntity {
     public static final String BEAN_ID = "sipxParkService";
 
@@ -24,11 +22,6 @@ public class SipxParkService extends SipxService implements LoggingEntity {
 
     public void setParkServerSipPort(String parkServerSipPort) {
         m_parkServerSipPort = parkServerSipPort;
-    }
-
-    public String getAddress() {
-        String address = (String) DataAccessUtils.singleResult(getAddresses());
-        return null == address ? "" : address;
     }
 
     @Override

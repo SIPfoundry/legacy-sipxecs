@@ -351,7 +351,7 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
         assertNotNull(p);
         assertEquals(p.isBuiltIn(), true);
         assertEquals(PermissionName.SIPX_VOICEMAIL.getName(), p.getLabel());
-        assertEquals("ENABLE", p.getSetting().getDefaultValue());
+        assertEquals("DISABLE", p.getSetting().getDefaultValue());
         assertEquals("permission/voicemail-server/SipXVoicemailServer", p.getSettingPath());
 
         TestHelper.insertFlat("permission/permission.db.xml");
@@ -361,7 +361,7 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
         assertNotNull(p);
         assertEquals(p.isBuiltIn(), true);
         assertEquals(PermissionName.SIPX_VOICEMAIL.getName(), p.getLabel());
-        assertEquals("ENABLE", p.getSetting().getDefaultValue());
+        assertEquals("DISABLE", p.getSetting().getDefaultValue());
         assertEquals("permission/voicemail-server/SipXVoicemailServer", p.getSettingPath());
 
     }

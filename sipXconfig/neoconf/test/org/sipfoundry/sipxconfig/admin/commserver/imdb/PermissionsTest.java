@@ -141,6 +141,7 @@ public class PermissionsTest extends TestCase {
         PermissionName.TOLL_FREE_DIALING.setEnabled(g, false);
         PermissionName.LOCAL_DIALING.setEnabled(g, true);
         PermissionName.SIPX_VOICEMAIL.setEnabled(g, false);
+        PermissionName.FREESWITH_VOICEMAIL.setEnabled(g, false);
         PermissionName.EXCHANGE_VOICEMAIL.setEnabled(g, true);
 
         user.addGroup(g);

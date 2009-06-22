@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.permission;
@@ -44,7 +44,9 @@ public enum PermissionName {
     /** Voicemail */
     SIPX_VOICEMAIL(Type.VOICEMAIL_SERVER, "SipXVoicemailServer"),
 
-    EXCHANGE_VOICEMAIL(Type.VOICEMAIL_SERVER, "ExchangeUMVoicemailServer");
+    EXCHANGE_VOICEMAIL(Type.VOICEMAIL_SERVER, "ExchangeUMVoicemailServer"),
+
+    FREESWITH_VOICEMAIL(Type.VOICEMAIL_SERVER, "FreeswitchVoicemailServer");
 
     private Type m_type;
 

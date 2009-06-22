@@ -15,8 +15,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.LoggingManager;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
@@ -27,7 +30,10 @@ import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.springframework.beans.factory.annotation.Required;
 
+import static org.springframework.dao.support.DataAccessUtils.singleResult;
+
 public abstract class SipxService extends BeanWithSettings implements Model {
+    private static final Log LOG = LogFactory.getLog(SipxService.class);
 
     private String m_processName;
     private String m_beanId;
@@ -170,6 +176,9 @@ public abstract class SipxService extends BeanWithSettings implements Model {
         return m_confDir;
     }
 
+    /**
+     * @return list of addresses for all servers on which this service is installed
+     */
     public List<String> getAddresses() {
         List<Location> locations = m_locationsManager.getLocationsForService(this);
         List<String> addresses = new ArrayList<String>();
@@ -177,6 +186,24 @@ public abstract class SipxService extends BeanWithSettings implements Model {
             addresses.add(location.getAddress());
         }
         return addresses;
+    }
+
+    /**
+     * This only works for services that have "one per cluster" restrictions. Exception is thrown
+     * otherwise.
+     *
+     * It returns empty String if non of the locations have this service installed.
+     *
+     * @return single address of the server on which this service is installed
+     */
+    public String getAddress() {
+        String address = (String) singleResult(getAddresses());
+        if (address == null) {
+            LOG.error("No location found for service: " + getBeanId());
+            // HACK: probably better to return null here
+            address = StringUtils.EMPTY;
+        }
+        return address;
     }
 
     @Required

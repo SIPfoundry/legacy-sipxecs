@@ -35,7 +35,7 @@
         <type refid="enable-disable" />
         <value>ENABLE</value>
       </setting>
-    </group> 
+    </group>
     <group name="call-handling">
       <setting name="900Dialing">
         <type refid="enable-disable" />
@@ -75,20 +75,24 @@
       </setting>
     </group>
     <group name="voicemail-server">
+      <setting name="FreeswitchVoicemailServer">
+        <type refid="enable-disable" />
+        <value>ENABLE</value>
+      </setting>
       <setting name="SipXVoicemailServer">
-      	<type refid="enable-disable"/>
-      	<value>ENABLE</value>
+        <type refid="enable-disable" />
+        <value>DISABLE</value>
       </setting>
       <setting name="ExchangeUMVoicemailServer">
-      	<type refid="enable-disable"/>
-      	<value>DISABLE</value>
+        <type refid="enable-disable" />
+        <value>DISABLE</value>
       </setting>
     </group>
   </group>
   <group name="caller-alias">
     <setting name="external-number">
       <type>
-        <sip-uri userPartOnly="yes"/>
+        <sip-uri userPartOnly="yes" />
       </type>
     </setting>
     <setting name="anonymous-caller-alias">
@@ -100,23 +104,31 @@
   </group>
   <group name="conference" hidden="yes">
     <setting name="enabled">
-     <type>
-         <enum>
-           <option><value>true</value></option>
-           <option><value>false</value></option>
-         </enum>
-     </type>
-     <value>false</value>
+      <type>
+        <enum>
+          <option>
+            <value>true</value>
+          </option>
+          <option>
+            <value>false</value>
+          </option>
+        </enum>
+      </type>
+      <value>false</value>
     </setting>
     <setting name="prefix">
     </setting>
     <setting name="bridgeId">
-      <type><integer /></type>
+      <type>
+        <integer />
+      </type>
     </setting>
-  </group>  
+  </group>
   <group name="personal-attendant">
     <setting name="operator">
-      <type><sip-uri /></type>
+      <type>
+        <sip-uri />
+      </type>
     </setting>
   </group>
 </model>

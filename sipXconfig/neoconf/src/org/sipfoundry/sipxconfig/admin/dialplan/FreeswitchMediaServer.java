@@ -10,25 +10,57 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 import java.util.Formatter;
 import java.util.Map;
 
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
+import org.sipfoundry.sipxconfig.service.SipxIvrService;
+import org.sipfoundry.sipxconfig.service.SipxService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.springframework.beans.factory.annotation.Required;
 
+/**
+ * AutoAttendant and Voicemail build on top of the freeswitch media server.
+ *
+ * A better name for this class would be SipxIvrMediaServer.
+ *
+ * Voicemail URIs:
+ *
+ * <pre>
+ * Deposit: sip:IVR@{vm server}:15060;mailbox={mailbox};action=deposit;locale={locale}
+ * Retrieve: sip:IVR@{vm server}:15060;action=retrieve;locale={locale}
+ * </pre>
+ *
+ */
 public class FreeswitchMediaServer extends MediaServer {
+    private static final String USER_PART = "IVR";
     private int m_port;
-    private LocationsManager m_locationsManager;
-    
+    private SipxServiceManager m_sipxServiceManager;
+
     public void setPort(int port) {
         m_port = port;
     }
 
     @Override
     public String getDigitStringForOperation(Operation operation, CallDigits userDigits) {
-        throw new NotImplementedException();
+        return USER_PART;
     }
 
     @Override
     public String getHeaderParameterStringForOperation(Operation operation, CallDigits userDigits) {
-        throw new NotImplementedException();
+        return null;
+    }
+
+    @Override
+    protected String getUriParameterStringForOperation(Operation operation, CallDigits userDigits,
+            Map<String, String> additionalParams) {
+        String action;
+        String mailbox;
+        if (operation == Operation.VoicemailDeposit) {
+            action = "deposit";
+            mailbox = String.format("mailbox={%s};", userDigits.getName());
+        } else {
+            action = "retrieve";
+            mailbox = "";
+        }
+        return String.format("%saction=%s;locale=%s", mailbox, action, getLanguage());
     }
 
     @Override
@@ -38,11 +70,12 @@ public class FreeswitchMediaServer extends MediaServer {
 
     @Override
     public PermissionName getPermissionName() {
-        return null;
+        return PermissionName.FREESWITH_VOICEMAIL;
     }
-    
-    public void setLocationsManager(LocationsManager locationsManager) {
-        m_locationsManager = locationsManager;
+
+    @Required
+    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
+        m_sipxServiceManager = sipxServiceManager;
     }
 
     @Override
@@ -54,34 +87,13 @@ public class FreeswitchMediaServer extends MediaServer {
         if (language != null) {
             f.format(";locale=%s", language);
         }
-        String host = String.format("%s:%d", getHostname(), m_port);
-        return MappingRule.buildUrl("IVR", host, params.toString(), null, null);
-    }
-
-    @Override
-    public String buildVoicemailDepositUrl(String fieldParams) {
-        throw new NotImplementedException();
-    }
-
-    @Override
-    public String buildVoicemailRetrieveUrl() {
-        throw new NotImplementedException();
+        return MappingRule.buildUrl(USER_PART, getHostname(), params.toString(), null, null);
     }
 
     @Override
     public String getHostname() {
-        return m_locationsManager.getPrimaryLocation().getFqdn(); 
-    }
-    
-    @Override
-    protected String getUriParameterStringForOperation(Operation operation, CallDigits userDigits,
-            Map<String, String> additionalParams) {
-        throw new NotImplementedException();
-    }
-
-    private static class NotImplementedException extends UnsupportedOperationException {
-        public NotImplementedException() {
-            super("Only autoattendant supported for freeswitch");
-        }
+        SipxService service = m_sipxServiceManager.getServiceByBeanId(SipxIvrService.BEAN_ID);
+        String hostAddress = service.getAddress();
+        return String.format("%s:%d", hostAddress, m_port);
     }
 }

@@ -19,6 +19,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.service.SipxService;
+
 import org.apache.commons.io.IOUtils;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
@@ -62,7 +64,7 @@ public class ForwardingRulesTest extends XMLTestCase {
     private LocationsManager m_locationsManager;
     private Location m_statusLocation;
     private SipxBridgeService m_bridgeService;
-    private SipxStatusService m_statusService;
+    private SipxService m_statusService;
     private SipxRegistrarService m_registrarService;
     private SbcDeviceManager m_sbcDeviceManager;
 
