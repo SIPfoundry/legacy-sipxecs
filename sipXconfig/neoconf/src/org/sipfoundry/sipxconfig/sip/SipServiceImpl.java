@@ -23,6 +23,8 @@ public class SipServiceImpl extends SipStackBean implements SipService {
 
     private DomainManager m_domainManager;
 
+    private boolean m_allowForwarding;
+
     public void sendCheckSync(String addrSpec) {
         AbstractMessage message = new NotifyMessage(this, addrSpec, "check-sync");
         message.createAndSend();
@@ -39,18 +41,22 @@ public class SipServiceImpl extends SipStackBean implements SipService {
             String referTarget, boolean allowForwarding) {
         UserCredentials credentials = new UserCredentialsImpl(user, m_domainManager.getAuthorizationRealm());
         LOG.debug("sendRefer: source = " + sourceAddrSpec + " dest = " + destinationAddrSpec);
-        InviteMessage message = new InviteMessage(this, credentials, displayName, destinationAddrSpec, 
+        InviteMessage message = new InviteMessage(this, credentials, displayName, destinationAddrSpec,
                 sourceAddrSpec, referTarget, Operator.SEND_3PCC_REFER_CALL_SETUP);
         message.setforwardingAllowed(allowForwarding);
-        message.createAndSend();        
+        message.createAndSend();
     }
-    
+
     public void sendRefer(User user, String sourceAddrSpec, String destinationAddrSpec) {
-        sendRefer(user, sourceAddrSpec, null, destinationAddrSpec, destinationAddrSpec, false);
+        sendRefer(user, sourceAddrSpec, null, destinationAddrSpec, destinationAddrSpec, m_allowForwarding);
     }
 
     @Required
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
+    }
+
+    public void setAllowReferForwarding(boolean allowForwarding) {
+        m_allowForwarding = allowForwarding;
     }
 }
