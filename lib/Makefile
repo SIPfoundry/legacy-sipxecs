@@ -43,16 +43,19 @@ $(AC_TARGETS) :
 	$(MAKE) $@.bld
 
 # required on all platforms
-CUSTOM_PACKAGES = cgicc ruby-postgres ruby-dbi freeswitch nsis sipx-jasperreports-deps
+CUSTOM_PACKAGES = cgicc ruby-postgres ruby-dbi freeswitch sipx-jasperreports-deps
 
 .PHONY: fc8
-fc8 : $(CUSTOM_PACKAGES) cppunit xerces-c rubygems rrdtool
+fc8 : $(CUSTOM_PACKAGES) nsis cppunit xerces-c rubygems rrdtool
 
 .PHONY: f10
 f10 : $(CUSTOM_PACKAGES) 
 
+.PHONY: f11
+f11 : $(CUSTOM_PACKAGES)
+
 .PHONY: rhel5 centos5
-rhel5 centos5 : $(CUSTOM_PACKAGES) cppunit xerces-c w3c-libwww rubygems rrdtool
+rhel5 centos5 : $(CUSTOM_PACKAGES) nsis cppunit xerces-c w3c-libwww rubygems rrdtool
 
 .PHONY: suse11.1
-suse11.1 : $(CUSTOM_PACKAGES) libpcap tcpdump openssl stunnel w3c-libwww
+suse11.1 : $(CUSTOM_PACKAGES) nsis libpcap tcpdump openssl stunnel w3c-libwww
