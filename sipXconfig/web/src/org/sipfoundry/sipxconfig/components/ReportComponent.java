@@ -62,7 +62,7 @@ public abstract class ReportComponent extends BaseComponent {
     @Parameter(name = "showCsvLink", required = false, defaultValue = "true")
     public abstract boolean getShowCsvLink();
 
-    @Parameter(name = "showXlsLink", required = false, defaultValue = "true")
+    @Parameter(name = "showXlsLink", required = true)
     public abstract boolean getShowXlsLink();
 
     public boolean isReportsGenerated() {
