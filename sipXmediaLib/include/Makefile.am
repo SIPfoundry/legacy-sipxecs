@@ -14,13 +14,11 @@ nobase_include_HEADERS =  \
     mp/DspResampling.h \
     mp/dtmflib.h \
     mp/FilterBank.h \
-    mp/GIPS \
     mp/GIPS/G729Interface.h \
     mp/GIPS/GIPS_API.h \
     mp/GIPS/gips_typedefs.h \
     mp/HandsetFilterBank.h \
     mp/HandsetFilterbankWindows.h \
-    mp/JB \
     mp/JB/JB_API.h \
     mp/JB/jb_typedefs.h \
     mp/mpau.h \
