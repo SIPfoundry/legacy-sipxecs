@@ -193,24 +193,6 @@ public class LgNortelPhoneTest extends TestCase {
         assertEquals(expected, location.toString());
     }
 
-    private void supplyTestData(LgNortelPhone phone) {
-        User u1 = new User();
-        u1.setUserName("juser");
-        u1.setFirstName("Joe");
-        u1.setLastName("User");
-        u1.setSipPassword("1234");
-
-        User u2 = new User();
-        u2.setUserName("buser");
-        u2.setSipPassword("abcdef");
-        u2.addAlias("432");
-
-        // call this to inject dummy data
-        PhoneTestDriver.supplyTestData(phone, Arrays.asList(new User[] {
-            u1, u2
-        }));
-    }
-
     public void testSpeeddial() throws Exception {
         Button[] buttons = new Button[] {
             new Button("Yogi", "yogi@example.com"), new Button("Daffy Duck", "213")
@@ -305,6 +287,67 @@ public class LgNortelPhoneTest extends TestCase {
         expectedProfile.close();
 
         assertEquals(expected, location.toString());
+    }
+
+    public void testDisableProvisionOverwrite() throws Exception {
+        PhoneModel lgNortelModel = new PhoneModel("lg-nortel");
+        lgNortelModel.setProfileTemplate("lg-nortel/mac.cfg.vm");
+        lgNortelModel.setMaxLineCount(4); // we are testing 2 lines
+        LgNortelPhone phone = new LgNortelPhone();
+        phone.setModel(lgNortelModel);
+
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+
+        supplyTestData(phone);
+
+        // disable PROVISION/overwrite
+        phone.setSettingValue("PROVISION/overwrite", "0"); 
+        phone.getProfileTypes()[0].generate(phone, location);
+        InputStream expectedProfile = getClass().getResourceAsStream("mac_disable_overwrite_provision.cfg");
+        assertNotNull(expectedProfile);
+        String expected = IOUtils.toString(expectedProfile);
+        expectedProfile.close();
+
+        assertEquals(expected, location.toString());
+    }
+    public void testEnableProvisionOverwrite() throws Exception {
+        PhoneModel lgNortelModel = new PhoneModel("lg-nortel");
+        lgNortelModel.setProfileTemplate("lg-nortel/mac.cfg.vm");
+        lgNortelModel.setMaxLineCount(4); // we are testing 2 lines
+        LgNortelPhone phone = new LgNortelPhone();
+        phone.setModel(lgNortelModel);
+
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+
+        supplyTestData(phone);
+
+        // enable PROVISION/overwrite
+        phone.setSettingValue("PROVISION/overwrite", "1");
+        phone.getProfileTypes()[0].generate(phone, location);
+        InputStream expectedProfile = getClass().getResourceAsStream("mac_enable_overwrite_provision.cfg");
+        assertNotNull(expectedProfile);
+        String expected = IOUtils.toString(expectedProfile);
+        expectedProfile.close();
+
+        assertEquals(expected, location.toString());
+    }
+
+    private void supplyTestData(LgNortelPhone phone) {
+        User u1 = new User();
+        u1.setUserName("juser");
+        u1.setFirstName("Joe");
+        u1.setLastName("User");
+        u1.setSipPassword("1234");
+
+        User u2 = new User();
+        u2.setUserName("buser");
+        u2.setSipPassword("abcdef");
+        u2.addAlias("432");
+
+        // call this to inject dummy data
+        PhoneTestDriver.supplyTestData(phone, Arrays.asList(new User[] {
+            u1, u2
+        }));
     }
 
     private int find(String[] lines, String match) {

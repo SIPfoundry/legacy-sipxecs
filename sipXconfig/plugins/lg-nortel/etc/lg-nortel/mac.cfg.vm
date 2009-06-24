@@ -50,7 +50,9 @@ add sip 1024 $!dial.getSetting('emergency_number').Value 0 null null null $!dial
 #set($caps = "${lowercase.toUpperCase()}")
 include ${caps}-phonebook.csv phonebook
 
+#if ($phone.Settings.getSetting('PROVISION').getSetting('overwrite').Value != 0)
 #emit_groups_by_name(['PROVISION']) 
+#end
 #foreach ($button in $speeddials)
 #if($velocityCount == 1)
 [PROG]

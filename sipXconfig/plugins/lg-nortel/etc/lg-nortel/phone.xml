@@ -633,6 +633,13 @@
     </setting>
   </group>
   <group name='PROVISION'>
+    <setting name="overwrite">
+      <profileName>$ignore$</profileName>
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
     <setting name='type' advanced="yes">
       <type>
         <enum>
