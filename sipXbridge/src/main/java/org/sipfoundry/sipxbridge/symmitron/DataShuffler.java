@@ -114,7 +114,7 @@ class DataShuffler implements Runnable {
             if ( logger.isTraceEnabled() ) {
                 logger.trace("DataShuffler : received packet on symId " + receivedOn.getId() );
             }
-            if ( receivedOn == null ) {
+            if ( !selfRouted && receivedOn == null ) {
                 logger.error("Could not find bridge on which packet was received. Dropping packet");
                 return;
             }
@@ -145,7 +145,7 @@ class DataShuffler implements Runnable {
                     }
                     receivedOn.recordStrayPacket(remoteAddress.getAddress().getHostAddress());
                     return;
-                } else if ( logger.isTraceEnabled() && receivedOn.getTransmitter() != null ) {
+                } else if ( logger.isTraceEnabled() && receivedOn != null && receivedOn.getTransmitter() != null ) {
                     if ( logger.isTraceEnabled() ) {
                         logger.trace("receivedOn : " + receivedOn.getTransmitter().getInetAddress() );
                     }
