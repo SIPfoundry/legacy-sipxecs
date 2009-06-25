@@ -223,7 +223,7 @@ public:
 
          UtlString recordRoute;
          CPPUNIT_ASSERT(testMsg.getRecordRouteField(0, &recordRoute));
-         ASSERT_STR_EQUAL( "<sip:sipx.example.edu;lr;sipXecs-rs=%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60.convert%2Aalias%7EIkpvaG4gRG9lIjxzaXA6am9obi5kb2VAZXhhbXBsZS5lZHU%27O3RhZz0zMDU0M2YzNDgzZTFjYjExZWNiNDA4NjZlZGQzMjk1Yg%60%60.convert%2Acaller%7Ec2lwOjMwMUBleGFtcGxlLmVkdTt0YWc9MzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60%21241ddd64d5ed940efc621a09b7e81bc3>", recordRoute );
+         ASSERT_STR_EQUAL( "<sip:sipx.example.edu;lr;sipXecs-rs=%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60.convert%2Aa%7EIkpvaG4gRG9lIjxzaXA6am9obi5kb2VAZXhhbXBsZS5lZHU%27O3RhZz0%60.convert%2Aao%7ENDE%60.convert%2Ac%7Ec2lwOjMwMUBleGFtcGxlLmVkdTt0YWc9.convert%2Aco%7EMjQ%60%212e151d9dda70ae4f318a1204fc3c68ea>", recordRoute );
 
          /*
           * Now see if the ACK is modified when it comes through
@@ -381,7 +381,7 @@ public:
 
          UtlString recordRoute;
          CPPUNIT_ASSERT(testMsg.getRecordRouteField(0, &recordRoute));
-         ASSERT_STR_EQUAL( "<sip:sipx.example.edu;lr;sipXecs-rs=%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60.convert%2Aalias%7EIkV4YW1wbGUgVW5pdmVyc2l0eSI8c2lwOjk3ODU1NTEyMDBAZXhhbXBsZS5lZHU%27O3RhZz0zMDU0M2YzNDgzZTFjYjExZWNiNDA4NjZlZGQzMjk1Yg%60%60.convert%2Acaller%7Ec2lwOjUwNUBleGFtcGxlLmVkdTt0YWc9MzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60%2130f04e18ae80f33f6da51d4d3ce607a2>", recordRoute );
+         ASSERT_STR_EQUAL( "<sip:sipx.example.edu;lr;sipXecs-rs=%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60.convert%2Aa%7EIkV4YW1wbGUgVW5pdmVyc2l0eSI8c2lwOjk3ODU1NTEyMDBAZXhhbXBsZS5lZHU%27O3RhZz0%60.convert%2Aao%7ENTM%60.convert%2Ac%7Ec2lwOjUwNUBleGFtcGxlLmVkdTt0YWc9.convert%2Aco%7EMjQ%60%21d985a5c7aab2f038bdfd37601a50b737>", recordRoute );
 
          /*
           * Now see if the ACK is modified when it comes through

@@ -20,8 +20,10 @@
 
 // DEFINES
 // CONSTANTS
-const char* CallerAlias::CALLER_FROM_PARAM = "caller";
-const char* CallerAlias::ALIAS_FROM_PARAM  = "alias";
+const char* CallerAlias::CALLER_FROM_PARAM = "c";
+const char* CallerAlias::ALIAS_FROM_PARAM  = "a";
+const char* CallerAlias::CALLER_TAG_OFFSET_PARAM = "co";
+const char* CallerAlias::ALIAS_TAG_OFFSET_PARAM  = "ao";
 
 // TYPEDEFS
 OsMutex        CallerAlias::sSingletonLock(OsMutex::Q_FIFO);
@@ -113,10 +115,16 @@ CallerAlias::authorizeAndModify(const UtlString& id,    /**< The authenticated i
        )   
    {
       UtlString callerFrom;
+      UtlString callerFromTagOffsetStr;
       UtlString aliasFrom;
-      
+      UtlString aliasFromTagOffsetStr;
+      UtlString originalFromTag;
+
       if (   !routeState.getParameter(mInstanceName.data(), CALLER_FROM_PARAM, callerFrom)
+          || !routeState.getParameter(mInstanceName.data(), CALLER_TAG_OFFSET_PARAM, callerFromTagOffsetStr)
           || !routeState.getParameter(mInstanceName.data(), ALIAS_FROM_PARAM, aliasFrom)
+          || !routeState.getParameter(mInstanceName.data(), ALIAS_TAG_OFFSET_PARAM, aliasFromTagOffsetStr)
+          || !routeState.originalCallerFromTagValue(mInstanceName.data(), originalFromTag)
           )
       {
          if (   routeState.isMutable()
@@ -203,7 +211,6 @@ CallerAlias::authorizeAndModify(const UtlString& id,    /**< The authenticated i
                 * The From header requires special handling
                 * - we need to preserve the tag, if any, from the original header
                 */
-               UtlString originalFromTag;
                originalFromUrl.getFieldParameter("tag", originalFromTag);
 
                Url newFromUrl(callerAlias.data());
@@ -215,13 +222,7 @@ CallerAlias::authorizeAndModify(const UtlString& id,    /**< The authenticated i
                UtlString newFromFieldValue;
                newFromUrl.toString(newFromFieldValue);
                    
-               // rewrite the caller identity with the aliased value
-               request.setRawFromField(newFromFieldValue.data());
-
-               // save the original and new values so that we can fix them later
-               routeState.setParameter(mInstanceName.data(),CALLER_FROM_PARAM,originalFromField);
-               routeState.setParameter(mInstanceName.data(),ALIAS_FROM_PARAM,newFromFieldValue);
-
+               // log the change we are making before stripping the tag from the field values
                OsSysLog::add( FAC_SIP, PRI_INFO,
                              "CallerAlias[%s]::check4andApplyAlias call %s set caller alias\n"
                              "  Original-From: %s\n"
@@ -230,6 +231,40 @@ CallerAlias::authorizeAndModify(const UtlString& id,    /**< The authenticated i
                              originalFromField.data(),
                              newFromFieldValue.data()
                              );
+
+               // rewrite the caller identity with the aliased value
+               request.setRawFromField(newFromFieldValue.data());
+
+               // Factor the tag values out of the field values stored in the RouteState
+               //  We do this because otherwise we'll end up encoding and sending two copies
+               //  of the tag; since some phones send really long tag values (no one knows why),
+               //  this can cause such large Record-Route headers that they cause interop problems.
+               if ( ! originalFromTag.isNull() )
+               {
+                  // find the offset of the tag value in the callers from field
+                  ssize_t callerFromTagOffset;
+                  callerFromTagOffset = originalFromField.index(originalFromTag);
+                  callerFromTagOffsetStr.appendNumber(callerFromTagOffset);
+                  // strip the tag value from the original From value to be stored in the RouteState
+                  originalFromField.replace(callerFromTagOffset, originalFromTag.length(), "");
+                  
+                  // find the offset of the tag value in the aliased from field
+                  ssize_t aliasFromTagOffset;
+                  aliasFromTagOffset = newFromFieldValue.index(originalFromTag);
+                  aliasFromTagOffsetStr.appendNumber(aliasFromTagOffset);
+                  // strip the tag value from the aliased From value to be stored in the RouteState
+                  newFromFieldValue.replace(aliasFromTagOffset, originalFromTag.length(), "");
+               }
+
+               // save the original and new values so that we can fix them later
+               routeState.setParameter(mInstanceName.data(),
+                                       CALLER_FROM_PARAM,originalFromField);
+               routeState.setParameter(mInstanceName.data(),
+                                       CALLER_TAG_OFFSET_PARAM,callerFromTagOffsetStr);
+               routeState.setParameter(mInstanceName.data(),
+                                       ALIAS_FROM_PARAM,newFromFieldValue);
+               routeState.setParameter(mInstanceName.data(),
+                                       ALIAS_TAG_OFFSET_PARAM,aliasFromTagOffsetStr);
             }
             else
             {
@@ -256,8 +291,15 @@ CallerAlias::authorizeAndModify(const UtlString& id,    /**< The authenticated i
           */
          if (!request.isResponse()) // can't modify responses, so don't bother
          {
+            size_t tagOffset;
+            
             if (routeState.directionIsCallerToCalled(mInstanceName.data()))
             {
+               // replace the from tag value in the stored aliased header
+               tagOffset = strtol(aliasFromTagOffsetStr.data(), NULL, 10);
+               aliasFrom.insert(tagOffset, originalFromTag);
+
+               // put the aliased header into the message
                request.setRawFromField(aliasFrom);
                OsSysLog::add(FAC_AUTH, PRI_DEBUG, "CallerAlias[%s]::authorizeAndModify "
                              "call %s reset From",
@@ -266,6 +308,10 @@ CallerAlias::authorizeAndModify(const UtlString& id,    /**< The authenticated i
             }
             else // direction is Called to Caller
             {
+               // replace the from tag value in the stored original header
+               tagOffset = strtol(callerFromTagOffsetStr.data(), NULL, 10);
+               callerFrom.insert(tagOffset, originalFromTag);
+
                request.setRawToField(callerFrom.data());
                OsSysLog::add(FAC_AUTH, PRI_DEBUG, "CallerAlias[%s]::authorizeAndModify "
                              "call %s reset To",

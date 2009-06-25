@@ -119,6 +119,8 @@ class CallerAlias : public AuthPlugin
 
    static const char* CALLER_FROM_PARAM; ///< route parameter name for the original From header
    static const char* ALIAS_FROM_PARAM;  ///< route parameter name for the aliased From header
+   static const char* CALLER_TAG_OFFSET_PARAM; ///< route parameter name for the tag offset in From
+   static const char* ALIAS_TAG_OFFSET_PARAM; ///< route parameter name for the tag offset in To
    
   private:
    friend AuthPlugin* getAuthPlugin(const UtlString& name);
