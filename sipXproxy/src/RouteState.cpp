@@ -252,18 +252,37 @@ bool RouteState::directionIsCallerToCalled(const char* instanceName)
    // mFromTag has the from tag from this message.
    
    UtlString originalFromTag;
-   if (getParameter("" /* no plugin instance name */, "from", originalFromTag))
+   if (originalCallerFromTagValue(instanceName, originalFromTag))
    {
       // there was recorded state on this message, so compare the current from tag to that one
       isCallerToCalled = (originalFromTag.compareTo(mFromTag, UtlString::ignoreCase) == 0);
    }
    else
    {
+      isCallerToCalled = false; // no way to know, really, but we have to say something...
+   }
+
+   return isCallerToCalled;
+}
+
+bool RouteState::originalCallerFromTagValue( const char* instanceName ///< used for logging - must not be null
+                                            ,UtlString& fromTagValue
+                                            )
+{
+   assert(instanceName && *instanceName != '\000'); // catch if caller passes null instance name
+
+   bool originalFromTagFound;
+   fromTagValue.remove(0);
+   
+   if ( ! (originalFromTagFound = getParameter("" /* no plugin instance name */, "from", fromTagValue)) )
+   {
       // There was no original from tag recorded in the state
       if (mMayBeMutable)
       {
          // it may be mutable, so this is the first request, so this from is the caller
-         isCallerToCalled = true;
+         originalFromTagFound = true;
+         fromTagValue.append(mFromTag);
+
          // since someone cared about this, record it in the state
          setParameter("","from",mFromTag);
       }
@@ -280,17 +299,16 @@ bool RouteState::directionIsCallerToCalled(const char* instanceName)
           * (if they had, we'd have saved the original from).
           */
          OsSysLog::add(FAC_SIP,PRI_CRIT,
-                       "RouteState::directionIsCallerToCalled plugin '%s': "
+                       "RouteState::originalCallerFromTagValue plugin '%s': "
                        "no original from in state for nonmutable request; probable plugin error",
                        instanceName?instanceName:"(null)"
                        );
-         
-         isCallerToCalled = false; // no way to know, really, but we have to say something...
       }
    }
 
-   return isCallerToCalled;
+   return originalFromTagFound;
 }
+
 
 // encodes 'auth' parameter to indicate that dialog has been authorized 
 void RouteState::markDialogAsAuthorized( void )

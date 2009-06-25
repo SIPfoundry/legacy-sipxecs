@@ -44,7 +44,9 @@ class RouteStateTest : public CppUnit::TestCase
    CPPUNIT_TEST(testAppendedState);
    CPPUNIT_TEST(testAddCopy);
    CPPUNIT_TEST(testAuthorizedDialog);
-
+   CPPUNIT_TEST(testOriginalFromTagValue);
+   CPPUNIT_TEST(testDirectionIsCallerToCalled);
+   
    CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -743,6 +745,205 @@ public:
          mutableRouteState.markDialogAsAuthorized();
          CPPUNIT_ASSERT( mutableRouteState.isDialogAuthorized() );
       }   
+
+   void testOriginalFromTagValue()
+      {
+         UtlSList removedRoutes;
+         const char* instanceName = "testOriginalFromTagValue";
+
+         const char* firstMessage =
+            "INVITE sip:user@somewhere.com SIP/2.0\r\n"
+            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+            "To: sip:user@somewhere.com\r\n"
+            "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Max-Forwards: 20\r\n"
+            "Contact: caller@127.0.0.1\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+         SipMessage firstSipMessage(firstMessage, strlen(firstMessage));
+         UtlString myRouteName("myhost.example.com");
+         RouteState firstRouteState(firstSipMessage, removedRoutes, myRouteName); 
+         
+         UtlString returnedTag;
+         CPPUNIT_ASSERT( firstRouteState.originalCallerFromTagValue(instanceName, returnedTag));
+         ASSERT_STR_EQUAL("30543f3483e1cb11ecb40866edd3295b", returnedTag.data());
+         
+         firstRouteState.update(&firstSipMessage);
+
+         UtlString outputMessage;
+         ssize_t ignoreLength;
+         firstSipMessage.getBytes(&outputMessage, &ignoreLength);
+
+         const char* routedMessage =
+            "INVITE sip:user@somewhere.com SIP/2.0\r\n"
+            "Record-Route: <sip:myhost.example.com;lr;sipXecs-rs=%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60%21210fe51fb5e55efdd09f617f9b1c07f4>\r\n"
+            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+            "To: sip:user@somewhere.com\r\n"
+            "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Max-Forwards: 20\r\n"
+            "Contact: caller@127.0.0.1\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+         
+         ASSERT_STR_EQUAL(routedMessage, outputMessage.data());
+
+         const char* returnedMessage =
+            "SIP/2.0 200 Ok\r\n"
+            "Record-Route: <sip:myhost.example.com;lr;sipXecs-rs=%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60%21210fe51fb5e55efdd09f617f9b1c07f4>\r\n"
+            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+            "To: sip:user@somewhere.com; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "From: Caller <sip:caller@example.org>; tag=xyzzy\r\n"
+            "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Contact: callee@127.0.0.2\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+         SipMessage returnedSipMessage(returnedMessage, strlen(returnedMessage));
+         
+         RouteState returnedRouteState(returnedSipMessage, removedRoutes, myRouteName); 
+         
+         CPPUNIT_ASSERT( returnedRouteState.originalCallerFromTagValue(instanceName, returnedTag));
+         ASSERT_STR_EQUAL("30543f3483e1cb11ecb40866edd3295b", returnedTag.data());
+
+         UtlString inDialogRoute("<sip:myhost.example.com;lr;sipXecs-rs=%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60%21210fe51fb5e55efdd09f617f9b1c07f4>");
+         removedRoutes.append(&inDialogRoute);
+
+         const char* reverseMessage =
+            "OPTIONS sip:caller@127.0.0.1.com SIP/2.0\r\n"
+            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+            "To: sip:user@somewhere.com; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "From: Caller <sip:caller@example.org>; tag=xyzzy\r\n"
+            "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 1 OPTIONS\r\n"
+            "Contact: caller@127.0.0.2\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+         SipMessage reverseSipMessage(reverseMessage, strlen(reverseMessage));
+         
+         RouteState reverseRouteState(reverseSipMessage, removedRoutes, myRouteName); 
+         
+         CPPUNIT_ASSERT( reverseRouteState.originalCallerFromTagValue(instanceName, returnedTag));
+         ASSERT_STR_EQUAL("30543f3483e1cb11ecb40866edd3295b", returnedTag.data());
+
+         const char* forwardMessage =
+            "OPTIONS sip:callee@127.0.0.2 SIP/2.0\r\n"
+            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+            "To: sip:user@somewhere.com; tag=xyzzy\r\n"
+            "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 3 OPTIONS\r\n"
+            "Contact: caller@127.0.0.1\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+         SipMessage forwardSipMessage(forwardMessage, strlen(forwardMessage));
+         
+         RouteState forwardRouteState(forwardSipMessage, removedRoutes, myRouteName); 
+         
+         CPPUNIT_ASSERT( forwardRouteState.originalCallerFromTagValue(instanceName, returnedTag));
+         ASSERT_STR_EQUAL("30543f3483e1cb11ecb40866edd3295b", returnedTag.data());
+
+      }
+
+   void testDirectionIsCallerToCalled()
+      {
+         UtlSList removedRoutes;
+         const char* instanceName = "testOriginalFromTagValue";
+
+         const char* firstMessage =
+            "INVITE sip:user@somewhere.com SIP/2.0\r\n"
+            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+            "To: sip:user@somewhere.com\r\n"
+            "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Max-Forwards: 20\r\n"
+            "Contact: caller@127.0.0.1\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+         SipMessage firstSipMessage(firstMessage, strlen(firstMessage));
+         UtlString myRouteName("myhost.example.com");
+         RouteState firstRouteState(firstSipMessage, removedRoutes, myRouteName); 
+         
+         CPPUNIT_ASSERT( firstRouteState.directionIsCallerToCalled(instanceName));
+         
+         firstRouteState.update(&firstSipMessage);
+
+         UtlString outputMessage;
+         ssize_t ignoreLength;
+         firstSipMessage.getBytes(&outputMessage, &ignoreLength);
+
+         const char* routedMessage =
+            "INVITE sip:user@somewhere.com SIP/2.0\r\n"
+            "Record-Route: <sip:myhost.example.com;lr;sipXecs-rs=%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60%21210fe51fb5e55efdd09f617f9b1c07f4>\r\n"
+            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+            "To: sip:user@somewhere.com\r\n"
+            "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Max-Forwards: 20\r\n"
+            "Contact: caller@127.0.0.1\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+         
+         ASSERT_STR_EQUAL(routedMessage, outputMessage.data());
+
+         const char* returnedMessage =
+            "SIP/2.0 200 Ok\r\n"
+            "Record-Route: <sip:myhost.example.com;lr;sipXecs-rs=%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60%21210fe51fb5e55efdd09f617f9b1c07f4>\r\n"
+            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+            "To: sip:user@somewhere.com; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "From: Caller <sip:caller@example.org>; tag=xyzzy\r\n"
+            "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Contact: callee@127.0.0.2\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+         SipMessage returnedSipMessage(returnedMessage, strlen(returnedMessage));
+         
+         RouteState returnedRouteState(returnedSipMessage, removedRoutes, myRouteName); 
+         
+         CPPUNIT_ASSERT( ! returnedRouteState.directionIsCallerToCalled(instanceName));
+
+         UtlString inDialogRoute("<sip:myhost.example.com;lr;sipXecs-rs=%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60%21210fe51fb5e55efdd09f617f9b1c07f4>");
+         removedRoutes.append(&inDialogRoute);
+
+         const char* reverseMessage =
+            "OPTIONS sip:caller@127.0.0.1.com SIP/2.0\r\n"
+            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+            "To: sip:user@somewhere.com; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "From: Caller <sip:caller@example.org>; tag=xyzzy\r\n"
+            "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 1 OPTIONS\r\n"
+            "Contact: caller@127.0.0.2\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+         SipMessage reverseSipMessage(reverseMessage, strlen(reverseMessage));
+         
+         RouteState reverseRouteState(reverseSipMessage, removedRoutes, myRouteName); 
+         
+         CPPUNIT_ASSERT( ! reverseRouteState.directionIsCallerToCalled(instanceName));
+
+         const char* forwardMessage =
+            "OPTIONS sip:callee@127.0.0.2 SIP/2.0\r\n"
+            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+            "To: sip:user@somewhere.com; tag=xyzzy\r\n"
+            "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 3 OPTIONS\r\n"
+            "Contact: caller@127.0.0.1\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+         SipMessage forwardSipMessage(forwardMessage, strlen(forwardMessage));
+         
+         RouteState forwardRouteState(forwardSipMessage, removedRoutes, myRouteName); 
+         
+         CPPUNIT_ASSERT( forwardRouteState.directionIsCallerToCalled(instanceName));
+      }
+
 };
    
 CPPUNIT_TEST_SUITE_REGISTRATION(RouteStateTest);

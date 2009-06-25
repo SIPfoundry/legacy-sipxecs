@@ -129,10 +129,19 @@ class RouteState
    /// Used to discover the request direction.
    bool directionIsCallerToCalled(const char* instanceName ///< used for logging - must not be null
                                   );
+
+   /// Returns the from tag value of the dialog forming request
+   bool originalCallerFromTagValue( const char* instanceName ///< used for logging - must not be null
+                                   ,UtlString& fromTagValue
+                                   );
+   ///< Do not use as a substitute for directionIsCallerToCalled
+   
    /// Adds an encoded parameter to a mutable RouteState indicating that the dialog is authorized.
-   /// Authorizating entities can test for the presence of such a parameter using the
-   /// RouteState::isDialogAuthorized() method when processing requests.
    void markDialogAsAuthorized( void );
+   /**<
+    * Authorizating entities can test for the presence of such a parameter using the
+    * RouteState::isDialogAuthorized() method when processing requests.
+    */
    
    /// used to discover whether or not the dialog has already been authorized.
    bool isDialogAuthorized( void ); 
