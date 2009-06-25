@@ -97,6 +97,17 @@ public class NatTraversalConfigurationTest extends TestCase {
         assertCorrectFileGeneration(rules, "nattraversalrules.test.no-stun.xml");
     }
 
+    public void testGenerateNoRejectStrayPackets() throws Exception {
+        m_sipxRelayService.setSettingValue("nat/behind-nat", "true");
+        m_natLocation.setUseStun(false);
+        m_natLocation.setPublicAddress("1.2.3.4");
+        m_natLocation.setStunAddress(null);
+        m_sipxRelayService.setSettingValue("nat/reject-stray-packets", "false");
+
+        NatTraversalConfiguration rules = generate();
+        assertCorrectFileGeneration(rules, "nattraversalrules.test.no-reject-stray-packets.xml");
+    }
+
     private NatTraversalConfiguration generate() {
         NatTraversalConfiguration rules = new NatTraversalConfiguration();
         rules.setVelocityEngine(TestHelper.getVelocityEngine());

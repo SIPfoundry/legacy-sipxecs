@@ -30,6 +30,7 @@
     <log-directory>${service.logDir}</log-directory>
     <sipx-supervisor-host>${location.fqdn}</sipx-supervisor-host>
     <sipx-supervisor-xml-rpc-port>${xmlRpcPort}</sipx-supervisor-xml-rpc-port>
+    <rejectStrayPackets>${nat.getSetting('reject-stray-packets').Value}</rejectStrayPackets>
   </info>
   <localtopology>
 #foreach($subnet in ${routes.subnets})
