@@ -45,6 +45,7 @@ import javax.sip.SipException;
 import javax.sip.SipProvider;
 import javax.sip.TransactionAlreadyExistsException;
 import javax.sip.TransactionState;
+import javax.sip.TransactionUnavailableException;
 import javax.sip.address.Address;
 import javax.sip.address.Hop;
 import javax.sip.address.SipURI;
@@ -2102,6 +2103,8 @@ public class BackToBackUserAgent {
                         }
                     } catch (TransactionAlreadyExistsException ex) {
                         logger.debug("CANCEL Already issued on transaction");
+                    } catch (TransactionUnavailableException ex) {
+                        logger.debug("Too late to CANCEL the transaction");
                     }
                 }
 

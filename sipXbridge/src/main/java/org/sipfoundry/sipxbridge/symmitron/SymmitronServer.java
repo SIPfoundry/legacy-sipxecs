@@ -131,7 +131,7 @@ public class SymmitronServer implements Symmitron {
     
     static CRLFReceiver crlfReceiver;
 
-    public static boolean filterStrayPackets = true;
+    static boolean filterStrayPackets = true;
     
     static {
         try {
@@ -418,6 +418,8 @@ public class SymmitronServer implements Symmitron {
         portRangeManager = new PortRangeManager(symmitronConfig
                 .getPortRangeLowerBound(), symmitronConfig
                 .getPortRangeUpperBound());
+        
+        filterStrayPackets = symmitronConfig.isRejectStrayPackets();
     }
 
     public static void startWebServer() throws Exception {

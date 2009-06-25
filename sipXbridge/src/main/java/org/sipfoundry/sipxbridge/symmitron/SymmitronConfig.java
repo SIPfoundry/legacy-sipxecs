@@ -32,6 +32,8 @@ public class SymmitronConfig {
 	private int sipxSupervisorXmlRpcPort = 0;
 	private String sipxSupervisorHost;
 
+    private boolean rejectStrayPackets = true;
+
 	public SymmitronConfig() {
 
 	}
@@ -243,5 +245,18 @@ public class SymmitronConfig {
 	public String getSipXSupervisorHost() {
 		return this.sipxSupervisorHost;
 	}
+	
+	public void setRejectStrayPackets(boolean rejectStrayPackets) {
+	    this.rejectStrayPackets = rejectStrayPackets;
+	}
+
+    /**
+     * @return the rejectStrayPackets
+     */
+    public boolean isRejectStrayPackets() {
+        return rejectStrayPackets;
+    }
+	
+	
 
 }

@@ -37,6 +37,7 @@ import javax.sip.SipException;
 import javax.sip.SipProvider;
 import javax.sip.TransactionAlreadyExistsException;
 import javax.sip.TransactionState;
+import javax.sip.TransactionUnavailableException;
 import javax.sip.address.SipURI;
 import javax.sip.header.AcceptHeader;
 import javax.sip.header.AcceptLanguageHeader;
@@ -964,8 +965,14 @@ class CallControlManager implements SymmitronResetHandler {
 
                 SipProvider provider = SipUtilities.getPeerProvider((SipProvider) requestEvent
                         .getSource(), transport);
-                ClientTransaction clientTransaction = provider
+                ClientTransaction clientTransaction  = null;
+                try {
+                    clientTransaction = provider
                         .getNewClientTransaction(cancelRequest);
+                } catch (TransactionUnavailableException ex) {
+                    logger.debug("Cancel Already in progress -- returning silrently");
+                    return;
+                }
                 clientTransaction.sendRequest();
                 /*
                  * In case the dialog ever goes into a Confirmed state, it will be killed right
@@ -1847,35 +1854,48 @@ class CallControlManager implements SymmitronResetHandler {
         /*
          * Send him an ACK.
          */
-        if (response.getStatusCode() == Response.OK) {
-            DialogContext.get(dialog).sendAck(response);
-            /*
-             * Check the pending action for the peer dialog (pointing to the ITSP ).
-             */
-            if (tad.getDialogPendingSdpAnswer() != null
-                    && DialogContext.getPendingAction(tad.getDialogPendingSdpAnswer()) == PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK) {
-
+        try {
+            if (response.getStatusCode() == Response.OK) {
+                DialogContext.get(dialog).sendAck(response);
                 /*
-                 * Send the Answer to the peer dialog.
+                 * Check the pending action for the peer dialog (pointing to the ITSP ).
                  */
-                CallControlUtilities
+                if (tad.getDialogPendingSdpAnswer() != null
+
+                        && DialogContext.getPendingAction(tad.getDialogPendingSdpAnswer()) == PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK) {
+
+                    /*
+                     * Send the Answer to the peer dialog.
+                     */
+                    if (DialogContext.getPeerRtpSession(tad.getDialogPendingSdpAnswer())!= null) {
+                        CallControlUtilities
                         .sendSdpAnswerInAck(response, tad.getDialogPendingSdpAnswer());
-            } else {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("dialogPendingSdpAnswer = " + tad.getDialogPendingSdpAnswer());
-                    if (tad.getDialogPendingSdpAnswer() != null) {
-                        logger
-                                .debug("PendingAction = "
-                                        + DialogContext.getPendingAction(tad
-                                                .getDialogPendingSdpAnswer()));
+                    } else {
+                        // The MOH dialog can be safely killed off.
+                        DialogContext.get(dialog).sendBye();
+                    }
+                } else {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("dialogPendingSdpAnswer = " + tad.getDialogPendingSdpAnswer());
+                        if (tad.getDialogPendingSdpAnswer() != null) {
+                            logger
+                            .debug("PendingAction = "
+                                    + DialogContext.getPendingAction(tad
+                                            .getDialogPendingSdpAnswer()));
+                        }
                     }
                 }
+            } else {
+                logger.fatal("Method should only be called for OK response");
+
             }
-
-        } else {
-            logger.fatal("Method should only be called for OK response");
-
+        } catch (Exception ex) {
+            logger.error("Exception occured sending SDP in ACK to MOH Server");
+            // The MOH dialog can be safely killed off.
+            DialogContext.get(dialog).sendBye();
         }
+
+
     }
 
     /**

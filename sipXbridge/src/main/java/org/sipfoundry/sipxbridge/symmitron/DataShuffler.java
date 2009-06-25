@@ -114,6 +114,14 @@ class DataShuffler implements Runnable {
             if ( logger.isTraceEnabled() ) {
                 logger.trace("DataShuffler : received packet on symId " + receivedOn.getId() );
             }
+            if ( !selfRouted && receivedOn == null ) {
+                logger.error("Could not find bridge on which packet was received. Dropping packet");
+                return;
+            }
+            if (remoteAddress == null) {
+                logger.warn("remoteAddress is null cannot send. Dropping packet.");
+                return;
+            }
             if (SymmitronServer.filterStrayPackets) {
                 if (!selfRouted && receivedOn.getTransmitter() != null  
                         && receivedOn.getTransmitter().getAutoDiscoveryFlag() == AutoDiscoveryFlag.NO_AUTO_DISCOVERY 
@@ -137,7 +145,7 @@ class DataShuffler implements Runnable {
                     }
                     receivedOn.recordStrayPacket(remoteAddress.getAddress().getHostAddress());
                     return;
-                } else if ( logger.isTraceEnabled() && receivedOn.getTransmitter() != null ) {
+                } else if ( logger.isTraceEnabled() && receivedOn != null && receivedOn.getTransmitter() != null ) {
                     if ( logger.isTraceEnabled() ) {
                         logger.trace("receivedOn : " + receivedOn.getTransmitter().getInetAddress() );
                     }
