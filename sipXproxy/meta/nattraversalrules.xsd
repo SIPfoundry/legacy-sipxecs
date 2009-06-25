@@ -57,6 +57,7 @@
         <element ref='dmp:secureXMLRPC' minOccurs='0' maxOccurs='1'/>       
         <element ref='dmp:sipx-supervisor-host' minOccurs='1' maxOccurs='1'/>
         <element ref='dmp:sipx-supervisor-xml-rpc-port' minOccurs='1' maxOccurs='1'/>
+        <element ref='dmp:rejectStrayPackets' minOccurs='0' maxOccurs='1'/>
       </all>
     </complexType>
   </element>
@@ -303,6 +304,16 @@
         <maxInclusive value='65535'/>
       </restriction>
     </simpleType>
+  </element>
+
+  <element name='rejectStrayPackets' type="boolean">
+    <annotation>
+      <documentation>
+        When set to TRUE ( default ), packets not originating from where
+        the relay expects send packets are are rejected otherwise stray
+        packets are relayed.
+      </documentation>
+    </annotation>
   </element>
 
   <element name='localtopology'>
