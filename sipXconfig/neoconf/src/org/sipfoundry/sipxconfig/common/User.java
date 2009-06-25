@@ -24,6 +24,7 @@ import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
+import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -73,6 +74,8 @@ public class User extends BeanWithGroups implements NamedObject {
     private Set<String> m_aliases = new LinkedHashSet<String>(0);
 
     private Set m_supervisorForGroups;
+
+    private AddressBookEntry m_addressBookEntry;
 
     /**
      * Return the pintoken, which is the hash of the user's PIN. The PIN itself is private to the
@@ -416,5 +419,13 @@ public class User extends BeanWithGroups implements NamedObject {
 
     public void setPermissionManager(PermissionManager permissionManager) {
         m_permissionManager = permissionManager;
+    }
+
+    public AddressBookEntry getAddressBookEntry() {
+        return m_addressBookEntry;
+    }
+
+    public void setAddressBookEntry(AddressBookEntry addressBook) {
+        m_addressBookEntry = addressBook;
     }
 }

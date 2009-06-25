@@ -34,6 +34,10 @@
       <key column="user_id" />
       <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group" />
     </set>
+    <many-to-one name="addressBookEntry" class="org.sipfoundry.sipxconfig.phonebook.AddressBookEntry"
+    unique="true"
+    cascade="save-update"
+    column="address_book_entry_id"/>
   </class>
   
   <class name="SpecialUser" table="special_user">

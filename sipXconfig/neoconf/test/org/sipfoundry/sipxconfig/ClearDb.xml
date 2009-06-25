@@ -20,6 +20,7 @@
   <table name="setting_value"/>  
   
   <!-- users -->
+	<table name="address_book_entry"/>
   <table name="users"/>
   <table name="user_alias"/>
   <table name="user_ring"/>

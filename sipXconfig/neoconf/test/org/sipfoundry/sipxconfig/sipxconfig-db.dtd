@@ -58,6 +58,11 @@
     location_id CDATA #IMPLIED
 >
 
+<!ELEMENT address_book_entry EMPTY>
+<!ATTLIST address_book_entry
+    address_book_entry_id CDATA #REQUIRED
+ >
+
 <!ELEMENT alarm_contacts EMPTY>
 <!ATTLIST alarm_contacts
     alarm_server_id CDATA #REQUIRED
@@ -792,6 +797,7 @@
     last_name CDATA #IMPLIED
     user_name CDATA #REQUIRED
     value_storage_id CDATA #IMPLIED
+    address_book_entry_id CDATA #IMPLIED
 >
 
 <!ELEMENT value_storage EMPTY>

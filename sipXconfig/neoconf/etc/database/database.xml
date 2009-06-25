@@ -315,6 +315,7 @@
     <!-- sipx-version version="10" -->
     <antcall target="site-to-site-rule" />
     <antcall target="attendant_dialing_rule_migrate" />
+	<antcall target="add_addressbook_entry_info" />
   </target>
 
   <target name="time_of_day" unless="time_of_day">
@@ -944,7 +945,9 @@
   <target name="attendant_dialing_rule_migrate" unless="attendant_dialing_rule_migrate">
     <db-patch patch="attendant_dialing_rule_migrate"/>
   </target>
-
+  <target name="add_addressbook_entry_info" unless="add_addressbook_entry_info">
+    <db-patch patch="add_addressbook_entry_info"/>
+  </target>
 
   <!--
     - SUPPORT UTILITIES
