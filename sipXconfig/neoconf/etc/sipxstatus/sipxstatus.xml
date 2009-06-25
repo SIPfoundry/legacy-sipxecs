@@ -32,7 +32,7 @@
     </enum>
   </type>
   <group name="status-config">
-    <setting name="SIP_STATUS_LOG_LEVEL">
+    <setting name="SIP_STATUS_LOG_LEVEL" hidden="yes">
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>

@@ -31,7 +31,7 @@
       </option>
     </enum>
   </type>
-  <group name="nat" advanced="yes">
+  <group name="nat">
     <setting name="enabled" hidden="yes">
       <type>
         <boolean>
@@ -73,7 +73,7 @@
     </setting>
   </group>
   <group name="relay-config">
-    <setting name="SIP_RELAY_LOG_LEVEL">
+    <setting name="SIP_RELAY_LOG_LEVEL" hidden="yes">
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>

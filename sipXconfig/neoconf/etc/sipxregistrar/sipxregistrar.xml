@@ -95,7 +95,7 @@
       <value>2</value>
     </setting>
   </group>
-  <group name="logging">
+  <group name="logging" hidden="yes">
     <setting name="SIP_REGISTRAR_LOG_LEVEL">
       <type refid="loglevel" />
       <value>NOTICE</value>

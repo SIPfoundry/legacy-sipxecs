@@ -177,7 +177,7 @@
         value can be specified in this field.)
       </description>
     </setting>
-    <setting name="log-level" advanced="yes">
+    <setting name="log-level" hidden="yes">
       <label>Logging level</label>
       <type>
         <enum>

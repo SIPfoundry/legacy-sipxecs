@@ -43,7 +43,7 @@
       </type>
       <value>180</value>
     </setting>
-    <setting name="SIPX_PROXY_LOG_LEVEL">
+    <setting name="SIPX_PROXY_LOG_LEVEL" hidden="yes">
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>

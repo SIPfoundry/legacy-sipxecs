@@ -38,7 +38,7 @@
     <setting name="PAGE_SERVER_SIP_SECURE_PORT" hidden="yes">
       <value>5161</value>
     </setting>
-    <setting name="SIP_PAGE_LOG_LEVEL">
+    <setting name="SIP_PAGE_LOG_LEVEL" hidden="yes">
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>

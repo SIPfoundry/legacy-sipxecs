@@ -31,7 +31,7 @@
     </enum>
   </type>
   <group name="mediaserver-config">
-    <setting name="SIPX_MEDIA_SERVER_LOG_LEVEL">
+    <setting name="SIPX_MEDIA_SERVER_LOG_LEVEL" hidden="yes">
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>

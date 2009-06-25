@@ -60,7 +60,7 @@
       <type refid="port-number" />
       <value>8111</value>
     </setting>
-    <setting name="SIP_PRESENCE_LOG_LEVEL">
+    <setting name="SIP_PRESENCE_LOG_LEVEL" hidden="yes">
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>

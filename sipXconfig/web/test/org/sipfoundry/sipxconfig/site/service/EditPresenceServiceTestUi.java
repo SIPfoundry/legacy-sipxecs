@@ -1,13 +1,12 @@
 package org.sipfoundry.sipxconfig.site.service;
 
 import junit.framework.Test;
+import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
-import net.sourceforge.jwebunit.junit.WebTestCase;
-
 public class EditPresenceServiceTestUi extends WebTestCase {
-    
+
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(EditPresenceServiceTestUi.class);
     }
@@ -35,5 +34,6 @@ public class EditPresenceServiceTestUi extends WebTestCase {
         clickLink("editSipxService");
         SiteTestHelper.assertNoException(tester);
         assertTextPresent("SIP_PRESENCE_SIGN_IN_CODE");
+        assertTextNotPresent("SIP_PRESENCE_LOG_LEVEL");
     }
 }

@@ -61,7 +61,7 @@
     <setting name="log-dir" advanced="yes">
       <value />
     </setting>
-    <setting name="log-level">
+    <setting name="log-level" hidden="yes">
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>

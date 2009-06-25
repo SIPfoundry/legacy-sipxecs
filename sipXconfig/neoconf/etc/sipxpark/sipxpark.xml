@@ -34,7 +34,7 @@
   <group name="park-config">
     <setting name="SIP_REGISTRAR_PARK_SERVER" hidden="yes" />
     <setting name="SIP_PARK_DOMAIN_NAME" hidden="yes"/>
-    <setting name="SIP_PARK_LOG_LEVEL">
+    <setting name="SIP_PARK_LOG_LEVEL" hidden="yes">
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>

@@ -57,33 +57,13 @@ public class EditSipxServiceTestUi extends WebTestCase {
         SiteTestHelper.dumpPage(tester);
     }
 
-    public void testEditParkServiceDisplay() {
-        initService("seedParkService");
-        assertTextPresent("SIP_PARK_LOG_LEVEL");
-    }
-
-    public void testEditStatusServiceDisplay() {
-        initService("seedStatusService");
-        assertElementPresent("setting:SIP_STATUS_LOG_LEVEL");
-    }
-
-    public void testEditPageServiceDisplay() {
-        initService("seedPageService");
-        assertTextPresent("SIP_PAGE_LOG_LEVEL");
-    }
-
     public void testEditFreeswitchServiceDisplay() {
         initService("seedFreeswitchService");
-        assertElementPresent("setting:FREESWITCH_SIP_DEBUG");
+        SiteTestHelper.assertNoUserError(tester);
     }
 
     public void testEditRelayServiceDisplay() {
         initService("seedRelayService");
-        assertTextPresent("SIP_RELAY_LOG_LEVEL");
-    }
-
-    public void testEditIvrServiceDisplay() {
-        initService("seedIvrService");
-        assertTextPresent("log.level");
+        SiteTestHelper.assertNoUserError(tester);
     }
 }

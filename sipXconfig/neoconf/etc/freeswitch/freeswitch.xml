@@ -18,7 +18,7 @@
       </type>
       <value>8080</value>
     </setting>
-    <setting name="FREESWITCH_SIP_DEBUG">
+    <setting name="FREESWITCH_SIP_DEBUG" hidden="yes">
       <type>
         <boolean>
           <true>

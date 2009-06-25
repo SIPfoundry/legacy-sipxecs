@@ -35,7 +35,7 @@
     <setting name="log.file" hidden="yes">
       <value>sipxivr.log</value>
     </setting>
-    <setting name="log.level">
+    <setting name="log.level" hidden="yes">
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>

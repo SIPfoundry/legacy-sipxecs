@@ -66,7 +66,7 @@
       <type refid="enablestate" />
       <value>DISABLE</value>
     </setting>
-    <setting name="SIP_CALLRESOLVER_LOG_LEVEL">
+    <setting name="SIP_CALLRESOLVER_LOG_LEVEL" hidden="yes">
       <type refid="loglevel" />
       <value>NOTICE</value>
     </setting>
