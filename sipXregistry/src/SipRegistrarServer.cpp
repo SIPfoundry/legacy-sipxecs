@@ -56,10 +56,12 @@
 // CONSTANTS
 const RegEx RegQValue("^(0(\\.\\d{0,3})?|1(\\.0{0,3})?)$"); // syntax for a valid q parameter value
 
-#define MIN_EXPIRES_TIME 300
 #define MAX_RETENTION_TIME 600
 #define HARD_MINIMUM_EXPIRATION 60
-const char DEFAULT_EXPIRATION_TIME[] = "7200";
+#define MIN_EXPIRES_TIME_NORMAL  300
+#define MAX_EXPIRES_TIME_NORMAL 7200
+#define MIN_EXPIRES_TIME_NATED   180
+#define MAX_EXPIRES_TIME_NATED   300
 
 // STRUCTS
 // TYPEDEFS
@@ -85,7 +87,6 @@ SipRegistrarServer::SipRegistrarServer(SipRegistrar& registrar) :
     mRegistrar(registrar),
     mIsStarted(FALSE),
     mSipUserAgent(NULL),
-    mDefaultRegistryPeriod(),
     mSendExpiresInResponse(TRUE),
     mNonceExpiration(5*60)
 {
@@ -98,50 +99,86 @@ SipRegistrarServer::initialize(
 {
     mSipUserAgent = pSipUserAgent;
 
-    // Minimum Registration Time
-    pOsConfigDb->get("SIP_REGISTRAR_MIN_EXPIRES", mMinExpiresTimeStr);
-    if ( !mMinExpiresTimeStr.isNull() )
+    // Initialize the normal (non-NATed) minimum and maximum expiry values
+    UtlString tempExpiresString;
+    pOsConfigDb->get("SIP_REGISTRAR_MIN_EXPIRES_NORMAL", tempExpiresString);
+    if ( tempExpiresString.isNull() )
     {
-        mMinExpiresTimeint = atoi(mMinExpiresTimeStr.data());
-
-        if ( mMinExpiresTimeint < HARD_MINIMUM_EXPIRATION )
-        {
-           OsSysLog::add(FAC_SIP, PRI_WARNING,
-                         "SipRegistrarServer "
-                         "configured minimum (%d) < hard minimum (%d); set to hard minimum",
-                         mMinExpiresTimeint, HARD_MINIMUM_EXPIRATION);
-           mMinExpiresTimeint = HARD_MINIMUM_EXPIRATION;
-        }
+        mNormalExpiryIntervals.mMinExpiresTime = MIN_EXPIRES_TIME_NORMAL;
     }
     else
     {
-       mMinExpiresTimeint = MIN_EXPIRES_TIME;
+        mNormalExpiryIntervals.mMinExpiresTime = atoi(tempExpiresString.data());
+        if ( mNormalExpiryIntervals.mMinExpiresTime < HARD_MINIMUM_EXPIRATION )
+        {
+           OsSysLog::add(FAC_SIP, PRI_WARNING,
+                         "SipRegistrarServer "
+                         "configured minimum for SIP_REGISTRAR_MIN_EXPIRES_NORMAL (%d) < hard minimum (%d); set to hard minimum",
+                         mNormalExpiryIntervals.mMinExpiresTime, HARD_MINIMUM_EXPIRATION);
+           mNormalExpiryIntervals.mMinExpiresTime = HARD_MINIMUM_EXPIRATION;
+        }
     }
-    mMinExpiresTimeStr.remove(0);
-    mMinExpiresTimeStr.appendNumber(mMinExpiresTimeint);
     
-    // Maximum/Default Registration Time
-    UtlString maxExpiresTimeStr;
-    pOsConfigDb->get("SIP_REGISTRAR_MAX_EXPIRES", maxExpiresTimeStr);
-    if ( maxExpiresTimeStr.isNull() )
+    tempExpiresString.remove(0);
+    pOsConfigDb->get("SIP_REGISTRAR_MAX_EXPIRES_NORMAL", tempExpiresString);
+    if ( tempExpiresString.isNull() )
     {
-       maxExpiresTimeStr = DEFAULT_EXPIRATION_TIME;
+       mNormalExpiryIntervals.mMaxExpiresTime = MAX_EXPIRES_TIME_NORMAL;
     }
-    int maxExpiresTime = atoi(maxExpiresTimeStr.data());
-    if ( maxExpiresTime >= mMinExpiresTimeint )
+    else
     {
-        mDefaultRegistryPeriod = maxExpiresTime;
-    }
-    else 
-    {
-       OsSysLog::add(FAC_SIP, PRI_WARNING,
-                     "SipRegistrarServer "
-                     "configured maximum (%d) < minimum (%d); set to minimum",
-                     maxExpiresTime, mMinExpiresTimeint
-                     );
-       mDefaultRegistryPeriod = mMinExpiresTimeint;
-    }
+       mNormalExpiryIntervals.mMaxExpiresTime = atoi(tempExpiresString.data());
+       if ( mNormalExpiryIntervals.mMaxExpiresTime < mNormalExpiryIntervals.mMinExpiresTime )
+       {
+          OsSysLog::add(FAC_SIP, PRI_WARNING,
+                        "SipRegistrarServer "
+                        "configured maximum for SIP_REGISTRAR_MAX_EXPIRES_NORMAL (%d) < minimum (%d); set to minimum",
+                        mNormalExpiryIntervals.mMaxExpiresTime, mNormalExpiryIntervals.mMinExpiresTime
+                        );
+          mNormalExpiryIntervals.mMaxExpiresTime = mNormalExpiryIntervals.mMinExpiresTime;
+       }
+    }    
 
+    // Initialize the NATed minimum and maximum expiry values
+    tempExpiresString.remove(0);
+    pOsConfigDb->get("SIP_REGISTRAR_MIN_EXPIRES_NATED", tempExpiresString);
+    if ( tempExpiresString.isNull() )
+    {
+        mNatedExpiryIntervals.mMinExpiresTime = MIN_EXPIRES_TIME_NATED;
+    }
+    else
+    {
+        mNatedExpiryIntervals.mMinExpiresTime = atoi(tempExpiresString.data());
+        if ( mNatedExpiryIntervals.mMinExpiresTime < HARD_MINIMUM_EXPIRATION )
+        {
+           OsSysLog::add(FAC_SIP, PRI_WARNING,
+                         "SipRegistrarServer "
+                         "configured minimum for SIP_REGISTRAR_MIN_EXPIRES_NATED (%d) < hard minimum (%d); set to hard minimum",
+                         mNatedExpiryIntervals.mMinExpiresTime, HARD_MINIMUM_EXPIRATION);
+           mNatedExpiryIntervals.mMinExpiresTime = HARD_MINIMUM_EXPIRATION;
+        }
+    }
+    
+    tempExpiresString.remove(0);
+    pOsConfigDb->get("SIP_REGISTRAR_MAX_EXPIRES_NATED", tempExpiresString);
+    if ( tempExpiresString.isNull() )
+    {
+       mNatedExpiryIntervals.mMaxExpiresTime = MAX_EXPIRES_TIME_NATED;
+    }
+    else
+    {
+       mNatedExpiryIntervals.mMaxExpiresTime = atoi(tempExpiresString.data());
+       if ( mNatedExpiryIntervals.mMaxExpiresTime < mNatedExpiryIntervals.mMinExpiresTime )
+       {
+          OsSysLog::add(FAC_SIP, PRI_WARNING,
+                        "SipRegistrarServer "
+                        "configured maximum for SIP_REGISTRAR_MAX_EXPIRES_NATED (%d) < minimum (%d); set to minimum",
+                        mNatedExpiryIntervals.mMaxExpiresTime, mNatedExpiryIntervals.mMinExpiresTime
+                        );
+          mNatedExpiryIntervals.mMaxExpiresTime = mNatedExpiryIntervals.mMinExpiresTime;
+       }
+    }    
+    
     // Authentication Realm Name
     pOsConfigDb->get("SIP_REGISTRAR_AUTHENTICATE_REALM", mRealm);
 
@@ -251,6 +288,7 @@ SipRegistrarServer::RegisterStatus
 SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                                              ,const int timeNow
                                              ,const SipMessage& registerMessage
+                                             ,RegistrationExpiryIntervals*& pExpiryIntervals
                                              )
 {
     // Critical Section here
@@ -264,6 +302,20 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
     UtlString registerToStr;
     toUrl.getIdentity(registerToStr);
     
+    // check if we are dealing with a registering UA that is located
+    // behind a remote NAT.  If that is the case then we want to 
+    // use shorter registration expiry values to ensure that pinholes
+    // get quickly re-established after network outages or system/component
+    // reboots (XX-5986).
+    if( isRegistrantBehindNat( registerMessage ) )
+    {
+       pExpiryIntervals = &mNatedExpiryIntervals;
+    }
+    else
+    {
+       pExpiryIntervals = &mNormalExpiryIntervals;
+    }
+    
     // get the expires header from the register message
     // this may be overridden by the expires parameter on each contact
     if ( registerMessage.getExpiresField( &commonExpires ) )
@@ -272,7 +324,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
     }
     else
     {
-        commonExpires = mDefaultRegistryPeriod;
+        commonExpires = pExpiryIntervals->mMaxExpiresTime;
     }
 
     // get the header 'callid' from the register message
@@ -297,8 +349,8 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
         // We act on the stored registrations only if all checks pass, in
         // a second iteration over the ResultSet below.
         // ****************************************************************
-
-        ResultSet registrations; // built up during validation, acted on if all is well
+       
+       ResultSet registrations; // built up during validation, acted on if all is well
 
         int contactIndexCount;
         UtlString registerContactStr;
@@ -357,14 +409,14 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                     {
                         // unbind this mapping; ok
                     }
-                    else if ( expires < mMinExpiresTimeint ) // lower bound
+                    else if ( expires < pExpiryIntervals->mMinExpiresTime) // lower bound
                     {
                         returnStatus = REGISTER_LESS_THAN_MINEXPIRES;
                     }
-                    else if ( expires > mDefaultRegistryPeriod ) // upper bound
+                    else if ( expires > pExpiryIntervals->mMaxExpiresTime ) // upper bound
                     {
                         // our default is also the maximum we'll allow
-                        expires = mDefaultRegistryPeriod;
+                        expires = pExpiryIntervals->mMaxExpiresTime;
                     }
 
                     if ( REGISTER_SUCCESS == returnStatus )
@@ -555,7 +607,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                          * The idea is to spread registrations by choosing a random
                          * expiration time.
                          */
-                       int spreadFloor = mMinExpiresTimeint*2;
+                       int spreadFloor = pExpiryIntervals->mMinExpiresTime * 2;
                        if ( longestRequested > spreadFloor )
                         {
                            // a normal (long) registration
@@ -563,20 +615,20 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                            spreadExpirationTime = (  (rand() % (longestRequested - spreadFloor))
                                                    + spreadFloor);
                         }
-                        else if ( longestRequested > mMinExpiresTimeint )
+                        else if ( longestRequested > pExpiryIntervals->mMinExpiresTime )
                         {
                            // a short but not minimum registration
                            // - spread it between the min and the longest they asked for
                            spreadExpirationTime = (  (rand()
-                                                      % (longestRequested - mMinExpiresTimeint)
+                                                      % (longestRequested - pExpiryIntervals->mMinExpiresTime)
                                                       )
-                                                   + mMinExpiresTimeint
+                                                   + pExpiryIntervals->mMinExpiresTime
                                                    );
                         }
                         else // longestExpiration == mMinExpiresTimeint
                         {
                            // minimum - can't randomize because we can't shorten or lengthen it
-                           spreadExpirationTime = mMinExpiresTimeint;
+                           spreadExpirationTime = pExpiryIntervals->mMinExpiresTime;
                         }
 
                         for ( int i = 0; i<numRegistrations; i++ )
@@ -1017,9 +1069,9 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                 // process REQUIRE Header Field
                 // add new contact values - update or insert
                 int timeNow = (int)OsDateTime::getSecsSinceEpoch();
-
+                RegistrationExpiryIntervals* pExpiryIntervalsUsed = 0;
                 RegisterStatus applyStatus
-                   = applyRegisterToDirectory( toUri, timeNow, message );
+                   = applyRegisterToDirectory( toUri, timeNow, message, pExpiryIntervalsUsed );
 
                 switch (applyStatus)
                 {
@@ -1177,7 +1229,6 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                             {
                                Url privateContactAsUrl;
                                UtlString hostAddressString;
-                               int hostPort;
                                
                                privateContactAsUrl.fromString( privateContact );
                                privateContactAsUrl.getHostAddress( hostAddressString );
@@ -1225,12 +1276,24 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                         break;
 
                     case REGISTER_LESS_THAN_MINEXPIRES:
+                    {
                         //send 423 Registration Too Brief response
                         //must contain Min-Expires header field
                         finalResponse.setResponseData(&message,
                                                       SIP_TOO_BRIEF_CODE,SIP_TOO_BRIEF_TEXT);
-                        finalResponse.setHeaderValue(SIP_MIN_EXPIRES_FIELD, mMinExpiresTimeStr, 0);
-                        break;
+                        UtlString minExpiresAsString;
+                        if( pExpiryIntervalsUsed )
+                        {
+                           minExpiresAsString.appendNumber( pExpiryIntervalsUsed->mMinExpiresTime );
+                        }
+                        else
+                        {
+                           // safeguard - should never happen
+                           minExpiresAsString.appendNumber( mNormalExpiryIntervals.mMinExpiresTime );
+                        }
+                        finalResponse.setHeaderValue(SIP_MIN_EXPIRES_FIELD, minExpiresAsString, 0);
+                    }
+                    break;
 
                     case REGISTER_INVALID_REQUEST:
                         finalResponse.setResponseData(&message,
@@ -1518,8 +1581,8 @@ void SipRegistrarServer::cleanAndPersist()
 {
    RegistrationDB* imdb = mRegistrar.getRegistrationDB();
    int timeNow = (int)OsDateTime::getSecsSinceEpoch();
-   int oldestTimeToKeep = timeNow - ( mDefaultRegistryPeriod < MAX_RETENTION_TIME
-                                     ?mDefaultRegistryPeriod : MAX_RETENTION_TIME );
+   int oldestTimeToKeep = timeNow - (  mNormalExpiryIntervals.mMaxExpiresTime < MAX_RETENTION_TIME
+                                     ? mNormalExpiryIntervals.mMaxExpiresTime : MAX_RETENTION_TIME );
 
    // Send reg event notices any expired rows, including the rows we
    // are about to delete.  It's possible that there hasn't been a
@@ -1609,6 +1672,28 @@ void SipRegistrarServer::restoreDbUpdateNumber()
    setDbUpdateNumber(getMaxUpdateNumberForRegistrar(mRegistrar.primaryName()));
 }
 
+// inspect the first contact of the request and look for the presence of
+// a x-sipX-privcontact URL parameter which indicates that the request comes
+// from a UA that is located behind a NAT.  Note that this routine only 
+// tests for the first of possibly many contacts - this is good enough 
+// given that every contact will carry the x-sipX-privcontact parameter
+// when the UA is behind a NAT. 
+bool SipRegistrarServer::isRegistrantBehindNat( const SipMessage& registerRequest ) const
+{
+   bool bIsBehindNat = false;
+   UtlString registerContactStr;
+   if( registerRequest.getContactEntry( 0, &registerContactStr ) )
+   {
+      Url contactUrl( registerContactStr );
+      UtlString privateContact;
+      if( contactUrl.getUrlParameter( SIPX_PRIVATE_CONTACT_URI_PARAM, privateContact, 0 ) )
+      {
+         bIsBehindNat = true;
+      }
+   }
+   return bIsBehindNat;
+}
+      
 SipRegistrarServer::~SipRegistrarServer()
 {
 }

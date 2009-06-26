@@ -32,6 +32,7 @@ class SipRegistrar;
 class SipUserAgent;
 class PluginHooks;
 class SyncRpc;
+class RegistrationExpiryIntervals;
 
 /**
  * The Registrar Server is responsible for registering and unregistering
@@ -119,12 +120,17 @@ public:
                              UtlSList&   bindings);     ///< fill in bindings of the update
     
 protected:
+    struct RegistrationExpiryIntervals
+    {
+       int mMinExpiresTime;   // Minimum registration expiry value in seconds
+       int mMaxExpiresTime;   // Maximum registration expiry value in seconds
+    };
+    
     SipRegistrar& mRegistrar;
     UtlBoolean mIsStarted;
     SipUserAgent* mSipUserAgent;
-    int mDefaultRegistryPeriod;
-    UtlString mMinExpiresTimeStr;
-    int mMinExpiresTimeint;
+    RegistrationExpiryIntervals mNormalExpiryIntervals; // registration expiry intervals for non-NATed UAs
+    RegistrationExpiryIntervals mNatedExpiryIntervals;  // registration expiry intervals for NATed UAs
     bool mUseCredentialDB;
     UtlString mRealm;
     UtlBoolean mSendExpiresInResponse;
@@ -151,7 +157,8 @@ protected:
         const Url& toUrl,  /**< To header name-addr from the message,
                             *   which contains the AOR to register to. */
         const int timeNow, ///< base time for all expiration calculations
-        const SipMessage& registerMessage); ///< message containing bindings
+        const SipMessage& registerMessage, ///< message containing bindings
+        RegistrationExpiryIntervals*& expiryIntervalsUsed ); ///< returns the expiry interval used to bound the expiry of the registration  
     
     /// Update one binding for a peer registrar, or the local registrar (if peer is NULL)
     Int64 updateOneBinding(RegistrationBinding* update,
@@ -182,6 +189,10 @@ protected:
 
     /// If replication is configured, then name of this registrar as primary
     const UtlString& primaryName() const;
+    
+    /// determine whether or not the registant is located behind a remote NAT.
+    bool isRegistrantBehindNat( const SipMessage& registerRequest ) const;
+    
 };
 
 #endif // SIPREGISTRARSERVER_H
