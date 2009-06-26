@@ -137,4 +137,6 @@
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.admin.DnsTestContext" />
     <property name="target" ref="dnsTestContextImpl" />
   </bean>
+  
+  <bean id="auditLogContext" class="org.sipfoundry.sipxconfig.admin.logging.AuditLogContextImpl"/>
 </beans>

@@ -189,6 +189,19 @@
   <contribution configuration-id="tapestry.request.WebRequestServicerPipeline">
     <filter name="discard-session" object="service:DiscardSessionFilter" />
   </contribution>
+  
+  <!--  Filter to set up diagnostic context -->
+  <service-point id="DiagnosticContextFilter" interface="org.apache.tapestry.services.WebRequestServicerFilter">
+    <invoke-factory>
+      <construct class="site.DiagnosticContextFilter">
+        <set-object property="coreContext" value="spring:coreContext" />
+        <set-service property="applicationStateManager" service-id="tapestry.state.ApplicationStateManager"/>
+      </construct>
+    </invoke-factory>
+  </service-point>
+  <contribution configuration-id="tapestry.request.WebRequestServicerPipeline">
+    <filter name="diagnostic-context" object="service:DiagnosticContextFilter" />
+  </contribution>
 
   <!-- override default exception page -->
   <service-point id="ExceptionPresenter" interface="org.apache.tapestry.error.ExceptionPresenter">

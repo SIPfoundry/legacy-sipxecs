@@ -73,6 +73,7 @@
     <property name="fileApiProvider" ref="fileApiProvider"/>
     <property name="imdbApiProvider" ref="imdbProvider"/>
     <property name="locationsManager" ref="locationsManager" />
+    <property name="auditLogContext" ref="auditLogContext" />
   </bean>
 
   <bean id="sipxReplicationContextImpl"

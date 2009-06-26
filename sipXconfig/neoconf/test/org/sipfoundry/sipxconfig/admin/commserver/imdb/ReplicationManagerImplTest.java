@@ -14,15 +14,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import junit.framework.TestCase;
+
 import org.apache.commons.codec.binary.Base64;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.admin.logging.AuditLogContextImpl;
 import org.sipfoundry.sipxconfig.device.InMemoryConfiguration;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
-
-import junit.framework.TestCase;
 
 import static org.easymock.EasyMock.aryEq;
 import static org.easymock.EasyMock.createMock;
@@ -46,6 +47,7 @@ public class ReplicationManagerImplTest extends TestCase {
 
         m_out = new ReplicationManagerImpl();
         m_out.setLocationsManager(m_locationsManager);
+        m_out.setAuditLogContext(new AuditLogContextImpl());
     }
 
     public void testReplicateFile() throws Exception {

@@ -23,6 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.admin.logging.AuditLogContext;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 import org.springframework.beans.factory.annotation.Required;
@@ -36,6 +37,7 @@ public class ReplicationManagerImpl implements ReplicationManager {
     private ApiProvider<FileApi> m_fileApiProvider;
     private ApiProvider<ImdbApi> m_imdbApiProvider;
     private LocationsManager m_locationsManager;
+    private AuditLogContext m_auditLogContext;
 
     public void setFileApiProvider(ApiProvider<FileApi> fileApiProvider) {
         m_fileApiProvider = fileApiProvider;
@@ -44,15 +46,20 @@ public class ReplicationManagerImpl implements ReplicationManager {
     public void setImdbApiProvider(ApiProvider<ImdbApi> imdbApiProvider) {
         m_imdbApiProvider = imdbApiProvider;
     }
-    
+
     @Required
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
     }
 
+    @Required
+    public void setAuditLogContext(AuditLogContext auditLogContext) {
+        m_auditLogContext = auditLogContext;
+    }
+
     /**
      * Sends IMDB table data to all locations
-     *
+     * 
      * It only returns one result, if there is a failure checking the log is the only way to
      * detect it. We could throw exceptions from here but it would mean that a single IO failure
      * dooms entire replication process.
@@ -73,6 +80,9 @@ public class ReplicationManagerImpl implements ReplicationManager {
                 ImdbApi api = m_imdbApiProvider.getApi(locations[i].getProcessMonitorUrl());
 
                 success = api.replace(getHostname(), type.getName(), records.toArray(new Map[records.size()]));
+                if (success) {
+                    m_auditLogContext.logReplication(type.getName(), locations[i]);
+                }
             } catch (XmlRpcRemoteException e) {
                 success = false;
                 LOG.error("Data replication failed: " + type.getName(), e);
@@ -83,7 +93,7 @@ public class ReplicationManagerImpl implements ReplicationManager {
 
     /**
      * Encodes payload using Base64 and returns encoded data as string
-     *
+     * 
      * @param payload
      * @return string representing encoded data
      */
@@ -121,6 +131,9 @@ public class ReplicationManagerImpl implements ReplicationManager {
 
                 FileApi api = m_fileApiProvider.getApi(locations[i].getProcessMonitorUrl());
                 success = api.replace(getHostname(), file.getPath(), PERMISSIONS, content);
+                if (success) {
+                    m_auditLogContext.logReplication(file.getName(), locations[i]);
+                }
             } catch (XmlRpcRemoteException e) {
                 LOG.error("File replication failed: " + file.getName(), e);
             } catch (UnsupportedEncodingException e) {
@@ -137,7 +150,7 @@ public class ReplicationManagerImpl implements ReplicationManager {
     public void setEnabled(boolean enabled) {
         m_enabled = enabled;
     }
-    
+
     private String getHostname() {
         return m_locationsManager.getPrimaryLocation().getFqdn();
     }

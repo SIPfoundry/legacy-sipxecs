@@ -59,5 +59,6 @@
 	<classpathentry kind="var" path="JAVA_LIBDIR/sipx-jasperreports-deps/jcommon.jar"/>
 	<classpathentry kind="var" path="JAVA_LIBDIR/sipx-jasperreports-deps/jfreechart.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/jettison-1.1.jar" sourcepath="/LIB_SRC/jettison/1.1/src.zip"/>
+	<classpathentry kind="var" path="SIPX_COMMONS/lib/log4j.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

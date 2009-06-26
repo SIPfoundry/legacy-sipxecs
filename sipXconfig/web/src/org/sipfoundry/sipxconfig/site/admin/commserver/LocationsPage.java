@@ -20,21 +20,27 @@ import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
+import org.apache.tapestry.annotations.InjectState;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.commserver.DnsGenerator;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.site.UserSession;
 import org.sipfoundry.sipxconfig.site.common.BreadCrumb;
 
 public abstract class LocationsPage extends BasePage implements PageBeginRenderListener {
     public static final String PAGE = "admin/commserver/LocationsPage";
+
+    @InjectState(value = "userSession")
+    public abstract UserSession getUserSession();
 
     @InjectObject("spring:serviceConfigurator")
     public abstract ServiceConfigurator getServiceConfigurator();
@@ -50,6 +56,9 @@ public abstract class LocationsPage extends BasePage implements PageBeginRenderL
 
     @InjectObject("spring:dnsGenerator")
     public abstract DnsGenerator getDnsGenerator();
+
+    @InjectObject("spring:coreContext")
+    public abstract CoreContext getCoreContext();
 
     @InjectPage(EditLocationPage.PAGE)
     public abstract EditLocationPage getEditLocationPage();
