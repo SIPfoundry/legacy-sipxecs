@@ -210,12 +210,10 @@ class Cdr
   FIELDS = [:call_id, :from_tag, :to_tag, :caller_aor, :callee_aor, 
   :start_time, :connect_time, :end_time,    
   :termination, :failure_status, :failure_reason, 
-  :call_direction, :reference]
+  :call_direction, :reference, :caller_contact, :callee_contact]
   
   attr_accessor(*FIELDS)
   
-  # used to compute call direction
-  attr_accessor :callee_contact, :caller_contact
   
 # Return true if the CDR is complete, false otherwise.
   def complete?

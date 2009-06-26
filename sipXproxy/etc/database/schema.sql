@@ -141,7 +141,9 @@ create table cdrs (
   failure_status int2,              /* SIP error code if the call failed, e.g., 4xx */
   failure_reason text,              /* Text describing the reason for a call failure */
   call_direction char(1),           /* Plugin feature, see below */
-  reference text                    /* Reference Call and  relationship.  Used for link to other calls */
+  reference text,                   /* Reference Call and  relationship.  Used for link to other calls */
+  caller_contact    text,           /* Full From Contact header field value */
+  callee_contact      text          /* Full To Contact header field value - may be null if unanswered */
 );
 
 /*

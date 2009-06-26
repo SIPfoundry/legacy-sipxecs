@@ -106,8 +106,9 @@ EOF
 # special patch that upgrades DB version to the latest version - only use once
 VersionPatch="upgrade_version"
 
-UpgradePatches4=""
-UpgradePatches3="index_on_time $VersionPatch"
+UpgradePatches5=""
+UpgradePatches4="reference contact $VersionPatch"
+UpgradePatches3="index_on_time $UpgradePatches4"
 UpgradePatches2="view_cdrs $UpgradePatches3"
 UpgradePatches1="refer_uri $UpgradePatches2"
 

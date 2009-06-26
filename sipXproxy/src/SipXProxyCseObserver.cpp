@@ -204,6 +204,7 @@ UtlBoolean SipXProxyCseObserver::handleMessage(OsMsg& eventMessage)
             {
                if (toTag.isNull())
                {
+                  sipMsg->getContactEntry(0, &contact);               
                   thisMsgIs = aCallRequest;
                }
             }
