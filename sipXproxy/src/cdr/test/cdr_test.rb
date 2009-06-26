@@ -258,6 +258,21 @@ class CdrTest < Test::Unit::TestCase
     assert_equal('t7', cdr.to_tag)
   end
   
+  def test_call_transfer
+    cdr = Cdr.new('test')
+    cse = make_cse(:from_tag => 't1', :to_tag => 't7', :event_type => 'R')
+    assert_nil cdr.accept(cse)    
+    cse = make_cse(:from_tag => 't1', :to_tag => 't7', :event_type => 'S')
+    assert_nil cdr.accept(cse)    
+    cse = make_cse(:from_tag => 't1', :to_tag => 't7', :event_type => 'T')
+    assert_not_nil cdr.accept(cse)    
+    cse = make_cse(:from_tag => 't1', :to_tag => 't7', :event_type => 'E')
+    assert_not_nil cdr.accept(cse)
+    assert_equal('t1', cdr.from_tag)
+    assert_equal('t7', cdr.to_tag)
+    assert_equal(Cdr::CALL_TRANSFERRED_TERM, cdr.termination)
+  end
+  
   def test_call_failed_no_setup
     cdr = Cdr.new('test')
     cse = make_cse(:from_tag => 't1', :to_tag => 't7', :event_type => 'R')

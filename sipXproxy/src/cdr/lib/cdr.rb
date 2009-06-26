@@ -8,7 +8,7 @@
 require 'utils/utils'
 
 class CallLeg
-  attr_reader :id, :connect_time, :end_time, :status, :to_tag, :failure_status, :failure_reason, :callee_contact
+  attr_reader :id, :connect_time, :end_time, :status, :to_tag, :failure_status, :failure_reason, :callee_contact, :reference
   attr_writer :log
   
   def initialize(id,log=nil)
@@ -18,6 +18,7 @@ class CallLeg
     @end_time = nil
     @failure_status = nil
     @failure_reason = nil
+    @reference = nil
     # we count 'setup' and 'end/failure' events but the numbers do not have to match here
     @refcount = 0    
     @log = log
@@ -209,7 +210,7 @@ class Cdr
   FIELDS = [:call_id, :from_tag, :to_tag, :caller_aor, :callee_aor, 
   :start_time, :connect_time, :end_time,    
   :termination, :failure_status, :failure_reason, 
-  :call_direction]
+  :call_direction, :reference]
   
   attr_accessor(*FIELDS)
   
@@ -295,6 +296,7 @@ class Cdr
       @caller_aor = cse.caller_aor
       @callee_aor = cse.callee_aor
       @start_time = cse.event_time      
+      @reference = cse.reference
       @termination = CALL_REQUESTED_TERM unless @termination
       
       @caller_contact = Utils.contact_without_params(cse.contact)

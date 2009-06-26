@@ -67,6 +67,7 @@ class SipMessageTest : public CppUnit::TestCase
       CPPUNIT_TEST(testSetViaTag);
       CPPUNIT_TEST(testRecordRouteEchoing);
       CPPUNIT_TEST(testDialogMatching);
+      CPPUNIT_TEST(testGetReferencesField);
       CPPUNIT_TEST_SUITE_END();
 
       public:
@@ -2899,6 +2900,33 @@ class SipMessageTest : public CppUnit::TestCase
       CPPUNIT_ASSERT_MESSAGE("Failed backward compatibility with RFC 2543 - different dialogs",
                              !sipRequestFive.isSameSession(&sipRequestEight));
    }
+
+   void testGetReferencesField()
+      {
+         const char* SimpleMessage =
+         "INVITE sip:user@somewhere.com SIP/2.0\r\n"
+         "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+         "To: sip:nouser@nowhere.ca; tag=30543asdkfkasjdklfjkledd3295b\r\n"
+         "From: Anon <sip:nobody@nowhere.ca>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+         "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "Cseq: 13 INVITE\r\n"
+         "Record-Route: <sip:myhost.example.com;lr>\r\n"
+         "Max-Forwards: 20\r\n"
+         "Contact: nobody@example.com\r\n"
+         "References: abcdef-ghijk-lmnop@example.com;rel=xfer\r\n"
+         "Record-Route: <sip:myhost4.example.com;lr>\r\n"
+         "Content-Length: 0\r\n"
+         "\r\n";
+         SipMessage sipRequest(SimpleMessage, strlen(SimpleMessage));
+
+         UtlString references;
+         
+
+         sipRequest.getReferencesField(&references);
+
+         ASSERT_STR_EQUAL("abcdef-ghijk-lmnop@example.com;rel=xfer",references.data());
+
+      };
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SipMessageTest);

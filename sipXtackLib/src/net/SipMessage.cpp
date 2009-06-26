@@ -3229,6 +3229,15 @@ void SipMessage::getCallIdField(UtlString* callId) const
     }
 }
 
+void SipMessage::getReferencesField(UtlString* references) const
+{
+   const char* value = getHeaderValue(0, SIP_REFERENCES_FIELD);
+   references->remove(0);
+   if (value) {
+       references->append(value);
+   }
+}
+
 void SipMessage::getDialogHandle(UtlString& dialogHandle) const
 {
     getCallIdField(&dialogHandle);

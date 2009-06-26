@@ -178,7 +178,8 @@ void CallStateEventBuilder::observerEvent(int sequenceNumber, ///< for ObserverR
  */
 void CallStateEventBuilder::callRequestEvent(int sequenceNumber,
                                              const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
-                                             const UtlString& contact
+                                             const UtlString& contact,
+                                             const UtlString& references
                                              )
 {
    bool CalledBaseClassMethod_callRequestEvent = false;

@@ -132,6 +132,20 @@ TransferControl::authorizeAndModify(const UtlString& id,    /**< The authenticat
                                    "allowing foriegn transfer in call '%s'",
                                    mInstanceName.data(), callId.data()
                                    );
+                     // Add the References to the refer-to. Adding the callId field as a reference
+                     // header (will be used in resulting INVITE) in the Refer-To provides us
+                     // with enough information to be able to logically tie the calls together.
+                     // Useful for CDR records.  
+                     UtlString refcallId(callId);
+                     refcallId.append(";rel=refer");
+                     target.setHeaderParameter(SIP_REFERENCES_FIELD, refcallId.data());
+                  
+                     OsSysLog::add(FAC_AUTH, PRI_DEBUG, "TransferControl[%s]::authorizeAndModify "
+                                   "adding Reference field [%s] to refer-to",
+                                   mInstanceName.data(), callId.data()
+                                  );
+                     request.setReferToField(target.toString().data());
+
                      result = ALLOW;
                   }
                }
@@ -143,7 +157,19 @@ TransferControl::authorizeAndModify(const UtlString& id,    /**< The authenticat
                   SipXauthIdentity controllerIdentity;
                   controllerIdentity.setIdentity(id);
                   controllerIdentity.encodeUri(target);
+
+                  // add the References to the refer-to.
+                  UtlString refcallId(callId);
+                  refcallId.append(";rel=refer");
+                  target.setHeaderParameter(SIP_REFERENCES_FIELD, refcallId.data());
+                  
+                  OsSysLog::add(FAC_AUTH, PRI_DEBUG, "TransferControl[%s]::authorizeAndModify "
+                                "adding Reference field [%s] to refer-to",
+                                mInstanceName.data(), callId.data()
+                               );
                   request.setReferToField(target.toString().data());
+
+
                }
             }
             else

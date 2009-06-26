@@ -50,6 +50,24 @@ class Utils
     end
   end
   
+  # Take a string like "Jorma Kaukonen"<sip:187@10.1.1.170:1234>;tag=1c32681
+  # and extract just the user part, in this case "187". 
+  def Utils.contact_user(contact)
+    # Use regular expression to extract the user part
+    if contact =~ QUOTEDSTRING
+      sip_uri = $2
+    else
+      sip_uri = contact
+    end
+    sipstr = sip_uri.to_s
+    tail = sipstr.index('@')
+    start = sipstr.index(':')
+    if start && tail
+       contact = sipstr[start+1...tail]
+    end
+    contact
+  end
+  
   # Look for the char in the str.  If found, then remove that char and everything
   # after it.  Return the str.
   def Utils.remove_part_of_str_beginning_with_char(str, char)

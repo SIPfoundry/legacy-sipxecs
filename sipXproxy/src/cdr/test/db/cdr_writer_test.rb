@@ -19,7 +19,7 @@ class CdrWriterTest < Test::Unit::TestCase
     assert_equal("INSERT INTO cdrs ( call_id, from_tag, to_tag, caller_aor, callee_aor, " +
       "start_time, connect_time, end_time, " +
       "termination, failure_status, failure_reason, " +
-      "call_direction ) " +
-      "VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", sql)
+      "call_direction, reference ) " +
+      "VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", sql)
   end
 end

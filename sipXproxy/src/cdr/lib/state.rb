@@ -11,6 +11,7 @@ require 'thread'
 require 'cdr'
 require 'call_state_event'
 require 'dbi'
+require 'utils/utils'
 
 # Maintains currently processed CDRs.
 class State
@@ -34,6 +35,7 @@ class State
     @cdr_class = cdr_class
     @failed_calls = {}
     @retired_calls = {}
+    @filtered_identities = [ "~~mh~" ]
     @generation = 0
     @last_event_time = nil
     @cdrs = {}
@@ -124,6 +126,17 @@ class State
     end    
   end
   
+  # Some special calls (i.e. to music on hold) we don't want to report on. If the cdr
+  # involves one of these special identities then return that it should be ignored/filtered.
+  def filter_cdr(cdr)
+     to_id = cdr.callee_aor
+     user = Utils.contact_user(to_id)
+     @log.info("User part of to_id is: #{user}") if @log
+     if @filtered_identities.include?(user)
+        return true
+     end
+     return false
+  end
   # Strictly speaking this function does not have to be called.
   # Since it is possible that we receive notifications after we already 
   # notified about the CDR we need to maintain a list of CD for which we are going to ignore all notifications.
@@ -196,6 +209,6 @@ class State
   def notify(cdr)
     cdr.retire
     @retired_calls[cdr.call_id] = @generation
-    @cdr_queue << cdr
+    @cdr_queue << cdr  if !filter_cdr(cdr)
   end
 end

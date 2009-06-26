@@ -79,7 +79,8 @@ class CallStateEventBuilder
     */
    virtual void callRequestEvent(int sequenceNumber,
                                  const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
-                                 const UtlString& contact
+                                 const UtlString& contact,
+                                 const UtlString& references
                                  );
 
    /// Begin a Call Setup Event - a 2xx response to an INVITE has been observed

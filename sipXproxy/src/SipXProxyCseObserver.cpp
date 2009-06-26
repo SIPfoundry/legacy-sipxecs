@@ -307,9 +307,21 @@ UtlBoolean SipXProxyCseObserver::handleMessage(OsMsg& eventMessage)
             UtlString referTo;
             UtlString referredBy;
             UtlString requestUri;
+            UtlString references;
+            UtlString replaces_callId;
+            UtlString replaces_toTag;
+            UtlString replaces_fromTag;
             sipMsg->getReferToField(referTo);
             sipMsg->getReferredByField(referredBy);   
             sipMsg->getRequestUri(&requestUri);
+            sipMsg->getReferencesField(&references);
+            if (sipMsg->getReplacesData(replaces_callId, replaces_toTag, replaces_fromTag)) {
+               if (references.length() != 0) {
+                  references.append(",");
+               }
+               references.append(replaces_callId);
+               references.append(";rel=xfer");
+            }
             
             UtlString responseMethod;
             int cseqNumber;
@@ -321,7 +333,7 @@ UtlBoolean SipXProxyCseObserver::handleMessage(OsMsg& eventMessage)
                switch (thisMsgIs)
                {
                case aCallRequest:
-                  mpBuilder->callRequestEvent(mSequenceNumber, timeNow, contact);
+                  mpBuilder->callRequestEvent(mSequenceNumber, timeNow, contact, references);
                   break;
                   
                case aCallSetup:

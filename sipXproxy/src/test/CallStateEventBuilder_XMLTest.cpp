@@ -92,7 +92,7 @@ public:
 
          incrementTime(1);
          
-         builder.callRequestEvent(1, testTime, "Contact <sip:requestor@sip.net>");
+         builder.callRequestEvent(1, testTime, "Contact <sip:requestor@sip.net>", "abcd-efgh-hijkl@sip.net;rel=refer");
          CPPUNIT_ASSERT(!builder.finishElement(event));
 
          UtlString callId("08799710-9147-486B-A28D-FFDEB031106B@10.90.10.98");

@@ -112,6 +112,7 @@ void CallStateEventBuilder_DB::observerEvent(int sequenceNumber, ///< for Observ
       mReferElement.remove(0);
       mFailureElement.remove(0);
       mRequestUri.remove(0);
+      mReferences.remove(0);
 
       mEventComplete = true;
    }
@@ -132,17 +133,21 @@ void CallStateEventBuilder_DB::observerEvent(int sequenceNumber, ///< for Observ
  */
 void CallStateEventBuilder_DB::callRequestEvent(int sequenceNumber,
                                                  const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
-                                                 const UtlString& contact
+                                                 const UtlString& contact,
+                                                 const UtlString& references
                                                  )
 {
    if (builderStateIsOk(CallRequestEvent))
    {
       newEvent(sequenceNumber, timestamp, CallEventTable, CallRequestType);
 
-      // Translate singe quotes
-      UtlString ncontact;
-      replaceSingleQuotes(contact, ncontact);
-      mContactElement = "\'" + ncontact + "\',";         
+      // Translate single quotes
+      UtlString nfield;
+      replaceSingleQuotes(contact, nfield);
+      mContactElement = "\'" + nfield + "\',";         
+
+      replaceSingleQuotes(references, nfield);
+      mReferences = "\'" + nfield + "\'";         
    }
    else
    {
@@ -270,7 +275,7 @@ void CallStateEventBuilder_DB::callTransferEvent(int sequenceNumber,
       mReferElement += "\'" + nvalue + "\',";    
 
       replaceSingleQuotes(request_uri, nvalue);
-      mRequestUri = "\'" + nvalue + "\'";         
+      mRequestUri = "\'" + nvalue + "\',";         
    }
    else
    {
@@ -365,7 +370,8 @@ void CallStateEventBuilder_DB::reset()
    mContactElement = CallEvent_DefaultElement;
    mReferElement = CallEvent_DefaultReferElement;
    mFailureElement = CallEvent_NoFailure;
-   mRequestUri = CallEvent_DefaultEndElement;
+   mRequestUri = CallEvent_DefaultElement;
+   mReferences = CallEvent_DefaultEndElement;
    mEndElement.remove(0);
    mEventComplete = false;
 }
@@ -415,6 +421,7 @@ bool  CallStateEventBuilder_DB::finishElement(UtlString& event)
       event.append(mReferElement);
       event.append(mFailureElement);
       event.append(mRequestUri);
+      event.append(mReferences);
       event.append(");");
 
       reset();

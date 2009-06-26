@@ -37,8 +37,9 @@ create table version_history(
  * For the initial sipX release with Call Resolver, the database version is 2.
  * Version 3: view_cdrs patch
  * Version 4: index CSE and CDR tables on timestamp
+ * Version 5: add reference field in CSE and CDR tables.
  */
-insert into version_history (version, applied) values (4, now());
+insert into version_history (version, applied) values (5, now());
 
 create table patch(
   name varchar(32) not null primary key
@@ -81,7 +82,8 @@ create table call_state_events (
    referred_by     text,                /* Referred-By header field value */
    failure_status  int2,    /* For Call Failure events, holds 4xx, 5xx, or 6xx status code */
    failure_reason  text,    /* For Call Failure events, holds error text */
-   request_uri     text     /* URI from the request header */
+   request_uri     text,    /* URI from the request header */
+   reference       text     /* Value from References  - contains Call_Id and relationship */
 );
 
 create index call_state_events_event_time on call_state_events (event_time);
@@ -138,7 +140,8 @@ create table cdrs (
   termination char(1),              /* Why the call was terminated */
   failure_status int2,              /* SIP error code if the call failed, e.g., 4xx */
   failure_reason text,              /* Text describing the reason for a call failure */
-  call_direction char(1)            /* Plugin feature, see below */
+  call_direction char(1),           /* Plugin feature, see below */
+  reference text                    /* Reference Call and  relationship.  Used for link to other calls */
 );
 
 /*

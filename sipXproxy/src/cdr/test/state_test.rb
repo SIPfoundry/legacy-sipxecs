@@ -20,11 +20,12 @@ class StateTest < Test::Unit::TestCase
   
   class DummyCdr
 
-    attr_reader :counter, :call_id
+    attr_reader :counter, :call_id, :callee_aor
     
-    def initialize(call_id, log = nil)
+    def initialize(call_id, log = nil, callee_aor="sip:221@example.com")
       @counter = 0
       @call_id = call_id
+      @callee_aor = callee_aor
     end
     
     def accept(cse)
@@ -130,10 +131,11 @@ class StateTest < Test::Unit::TestCase
   class MockCdr
     @@results = []
     
-    attr_reader :call_id, :start_time
+    attr_reader :call_id, :start_time, :callee_aor
     
-    def initialize(call_id, log=nil)
+    def initialize(call_id, log=nil, callee_aor="sip:221@example.com")
       @call_id = call_id
+      @callee_aor = callee_aor
     end
     
     def accept(cse)

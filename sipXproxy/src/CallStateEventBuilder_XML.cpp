@@ -244,7 +244,8 @@ void CallStateEventBuilder_XML::observerEvent(int sequenceNumber, ///< for Obser
  */
 void CallStateEventBuilder_XML::callRequestEvent(int sequenceNumber,
                                                  const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
-                                                 const UtlString& contact
+                                                 const UtlString& contact,
+                                                 const UtlString& references
                                                  )
 {
    if (builderStateIsOk(CallRequestEvent))

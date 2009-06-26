@@ -1012,6 +1012,8 @@ public:
     void getDialogHandle(UtlString& dialogHandle) const;
     void getDialogHandleReverse(UtlString& dialogHandle) const;
 
+    void getReferencesField(UtlString* references) const;
+
     UtlBoolean getCSeqField(int* sequenceNum, UtlString* sequenceMethod) const;
 
     UtlBoolean getRequireExtension(int extensionIndex, UtlString* extension) const;

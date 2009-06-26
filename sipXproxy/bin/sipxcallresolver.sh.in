@@ -36,7 +36,7 @@ fi
 : ${PgUser:=@POSTGRESQL_USER@}
 : ${PgSchema:=${ConfDir}/cdr/schema.sql}
 : ${RubyCmd:=@RUBY@}
-: ${DbVersion:=4}
+: ${DbVersion:=5}
 : ${DbPatchDir:=${ConfDir}/cdr}
 : ${DbPatchLog:=${LogDir}/sipcdrpatch.log}
 : ${CallResolverLog:=${LogDir}/sipcallresolver.log}
