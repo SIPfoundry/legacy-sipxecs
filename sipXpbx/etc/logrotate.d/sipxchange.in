@@ -25,7 +25,8 @@ missingok
 @SIPX_LOGDIR@/phone/*.log {
     sharedscripts             
     postrotate
-       kill -HUP $(cat @SIPX_LOGDIR@/phone/var/run/syslog.pid) 2> /dev/null || true
+       test -f @SIPX_LOGDIR@/phone/var/run/syslog.pid || kill -HUP $(cat @SIPX_LOGDIR@/phone/var/run/syslog.pid) 2> /dev/null || true
+    endscript
 }
 
 @SIPX_LOGDIR@/httpd_error_log @SIPX_LOGDIR@/httpd_access_log @SIPX_LOGDIR@/httpd_rewrite_log {
