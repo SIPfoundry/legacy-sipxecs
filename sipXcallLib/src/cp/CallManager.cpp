@@ -1023,12 +1023,16 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                 if (call)
                 {   // eliminate race found in XECS-1859
                     // CM should not post any further messages after CP_DROP
-                    tooLateToPost = call->getDropState();
+                    // Except for CP_CANCEL_TIMER ala XX-5937 Woof!
+                    if (msgSubType != CP_CANCEL_TIMER)
+                    {
+                        tooLateToPost = call->getDropState();
+                    }
 #ifdef TEST_PRINT
                     OsSysLog::add(FAC_CP, PRI_DEBUG,
                                   "CallManager::handleMessage "
                                   "is %stoo late to post message %d to '%s'",
-                                  (tooLateToPost ? "" : "NOT"), 
+                                  (tooLateToPost ? "" : "NOT "), 
                                   msgSubType, callId.data());
 #endif
                 }
