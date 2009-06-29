@@ -22,7 +22,19 @@ public interface AuditLogContext {
         }
     }
 
+    enum PROCESS_STATE_CHANGE {
+        STOPPED, STARTED, RESTARTED;
+
+        @Override
+        public String toString() {
+            String s = super.toString();
+            return s.substring(0, 1) + s.substring(1).toLowerCase();
+        }
+    }
+
     void logReplication(String dataName, Location location);
 
     void logConfigChange(CONFIG_CHANGE_TYPE changeType, String configType, String configName);
+
+    void logProcessStateChange(PROCESS_STATE_CHANGE stateChange, String processName, Location location);
 }

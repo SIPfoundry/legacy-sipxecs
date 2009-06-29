@@ -22,6 +22,8 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
+import org.sipfoundry.sipxconfig.admin.logging.AuditLogContext;
+import org.sipfoundry.sipxconfig.admin.logging.AuditLogContext.PROCESS_STATE_CHANGE;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxService;
@@ -43,6 +45,7 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
     private ApiProvider<ProcessManagerApi> m_processManagerApiProvider;
     private SipxServiceManager m_sipxServiceManager;
     private DialPlanActivationManager m_dialPlanActivationManager;
+    private AuditLogContext m_auditLogContext;
     private RestartNeededState m_servicesToRestart = new RestartNeededState();
 
     /** list of services that should trigger dial plan replication if restarted */
@@ -68,6 +71,11 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
         m_dialPlanActivationManager = dialPlanActivationManager;
     }
 
+    @Required
+    public void setAuditLogContext(AuditLogContext auditLogContext) {
+        m_auditLogContext = auditLogContext;
+    }
+
     public boolean needsRestart(Location location, SipxService service) {
         return m_servicesToRestart.isMarked(location, service);
     }
@@ -84,7 +92,7 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
      * Read service status values from the process monitor and return them in an array.
      * ClassCastException or NoSuchElementException (both RuntimeException subclasses) could be
      * thrown from this method, but only if things have gone horribly wrong.
-     *
+     * 
      * @param onlyActiveServices If true, only return status information for the services that the
      *        location parameter lists in its services list. If false, return all service status
      *        information available.
@@ -158,7 +166,7 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
 
     /**
      * Mark services for restart for all locations.
-     *
+     * 
      * Only services attached to a location are marked for restart
      */
     public void markServicesForRestart(Collection< ? extends SipxService> processes) {
@@ -209,12 +217,15 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
             switch (command) {
             case RESTART:
                 api.restart(getHost(), processNames, true);
+                logProcessStateChange(processNames, location, PROCESS_STATE_CHANGE.RESTARTED);
                 break;
             case START:
                 api.start(getHost(), processNames, true);
+                logProcessStateChange(processNames, location, PROCESS_STATE_CHANGE.STARTED);
                 break;
             case STOP:
                 api.stop(getHost(), processNames, true);
+                logProcessStateChange(processNames, location, PROCESS_STATE_CHANGE.STOPPED);
                 break;
             default:
                 break;
@@ -223,6 +234,12 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
             m_servicesToRestart.unmark(location, processes);
         } catch (XmlRpcRemoteException e) {
             throw new UserException("&xml.rpc.error.operation", location.getFqdn());
+        }
+    }
+
+    private void logProcessStateChange(String[] processNames, Location location, PROCESS_STATE_CHANGE stateChange) {
+        for (String processName : processNames) {
+            m_auditLogContext.logProcessStateChange(stateChange, processName, location);
         }
     }
 

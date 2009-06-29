@@ -124,6 +124,7 @@
     <property name="processManagerApiProvider" ref="processManagerApiProvider" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="dialPlanActivationManager" ref="dialPlanActivationManager" />
+    <property name="auditLogContext" ref="auditLogContext" />
   </bean>
 
   <bean id="alarmApiProvider" class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">

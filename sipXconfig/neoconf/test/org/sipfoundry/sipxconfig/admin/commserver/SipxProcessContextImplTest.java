@@ -18,7 +18,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import junit.framework.TestCase;
+
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command;
+import org.sipfoundry.sipxconfig.admin.logging.AuditLogContextImpl;
 import org.sipfoundry.sipxconfig.service.SipxAcdService;
 import org.sipfoundry.sipxconfig.service.SipxMediaService;
 import org.sipfoundry.sipxconfig.service.SipxPresenceService;
@@ -29,8 +32,6 @@ import org.sipfoundry.sipxconfig.service.SipxServiceBundle;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
-
-import junit.framework.TestCase;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.createNiceMock;
@@ -122,6 +123,7 @@ public class SipxProcessContextImplTest extends TestCase {
 
         m_processContextImpl = new SipxProcessContextImpl();
         m_processContextImpl.setLocationsManager(m_locationsManager);
+        m_processContextImpl.setAuditLogContext(new AuditLogContextImpl());
     }
 
     public void testGetStatus() {
@@ -381,15 +383,15 @@ public class SipxProcessContextImplTest extends TestCase {
         m_processContextImpl.markServicesForRestart(Arrays.asList(m_proxyService, m_mediaService));
         // unmark one service
         Collection<RestartNeededService> restartNeededServices = m_processContextImpl.getRestartNeededServices();
-        assertEquals(2,restartNeededServices.size());
+        assertEquals(2, restartNeededServices.size());
         RestartNeededService[] servicesArray = new RestartNeededService[0];
         servicesArray = restartNeededServices.toArray(servicesArray);
         List<RestartNeededService> newServiceList = new ArrayList<RestartNeededService>();
         newServiceList.add(servicesArray[1]);
         m_processContextImpl.unmarkServicesToRestart(newServiceList);
-        //check for only one service remaining to be restarted
+        // check for only one service remaining to be restarted
         restartNeededServices = m_processContextImpl.getRestartNeededServices();
-        assertEquals(1,restartNeededServices.size());
+        assertEquals(1, restartNeededServices.size());
     }
 
     static String host() {

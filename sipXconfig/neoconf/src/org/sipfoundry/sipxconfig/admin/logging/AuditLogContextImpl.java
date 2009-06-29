@@ -23,6 +23,7 @@ public class AuditLogContextImpl implements AuditLogContext {
     private static final String EVENT_TYPE = "eventType";
     private static final String REPLICATION_EVENT = "Replication";
     private static final String CONFIG_CHANGE_EVENT = "ConfigChange";
+    private static final String PROCESS_STATE_CHANGE_EVENT = "ProcessStateChange";
 
     private static final Log AUDIT_LOG = LogFactory.getLog("org.sipfoundry.sipxconfig.auditlog");
     private String m_configType;
@@ -44,6 +45,22 @@ public class AuditLogContextImpl implements AuditLogContext {
         message.append('\'');
         message.append(configName);
         message.append('\'');
+
+        String escapedString = StringUtils.escape(message.toString());
+
+        log(escapedString);
+    }
+
+    @Override
+    public void logProcessStateChange(PROCESS_STATE_CHANGE stateChange, String processName, Location location) {
+        MDC.put(EVENT_TYPE, PROCESS_STATE_CHANGE_EVENT);
+        StringBuffer message = new StringBuffer();
+        message.append(stateChange);
+        message.append(' ');
+        message.append(processName);
+        message.append(' ');
+        message.append(" on ");
+        message.append(location.getFqdn());
 
         String escapedString = StringUtils.escape(message.toString());
 
