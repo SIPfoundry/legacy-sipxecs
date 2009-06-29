@@ -187,8 +187,7 @@ public class SipXbridgeXmlRpcServerImpl implements SipXbridgeXmlRpcServer {
 		try {
 
 			retval.put(STATUS_CODE, OK);
-			retval.put(CALL_COUNT, new Integer(Gateway.getCallCount()))
-					.toString();
+			retval.put(CALL_COUNT, new Integer(Gateway.getCallCount()).toString());
 
 		} catch (Exception ex) {
 			retval.put(STATUS_CODE, ERROR);
