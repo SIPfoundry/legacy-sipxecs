@@ -22,6 +22,8 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
+import org.sipfoundry.sipxconfig.admin.logging.AuditLogContext;
+import org.sipfoundry.sipxconfig.admin.logging.AuditLogContext.CONFIG_CHANGE_TYPE;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.SbcDeviceDeleteListener;
@@ -34,12 +36,13 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-public class GatewayContextImpl extends HibernateDaoSupport implements GatewayContext,
-        BeanFactoryAware {
+public class GatewayContextImpl extends HibernateDaoSupport implements GatewayContext, BeanFactoryAware {
 
     private static final String QUERY_GATEWAY_ID_BY_SERIAL_NUMBER = "gatewayIdsWithSerialNumber";
 
     private static final String PARAM_USER_GROUP = "userGroup";
+
+    private static final String AUDIT_LOG_CONFIG_TYPE = "Gateway";
 
     private static class DuplicateNameException extends UserException {
         private static final String ERROR = "A gateway with name \"{0}\" already exists.";
@@ -65,6 +68,8 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
 
     private DialPlanActivationManager m_dialPlanActivationManager;
 
+    private AuditLogContext m_auditLogContext;
+
     public GatewayContextImpl() {
         super();
     }
@@ -89,14 +94,19 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         // Before storing the gateway, make sure that it has a unique name.
         // Throw an exception if it doesn't.
         HibernateTemplate hibernate = getHibernateTemplate();
-        DaoUtils.checkDuplicates(hibernate, Gateway.class, gateway, "name",
-                new DuplicateNameException(gateway.getName()));
+        DaoUtils.checkDuplicates(hibernate, Gateway.class, gateway, "name", new DuplicateNameException(gateway
+                .getName()));
         DaoUtils.checkDuplicates(hibernate, Gateway.class, gateway, "serialNumber",
                 new DuplicateSerialNumberException(gateway.getSerialNumber()));
         // Find if we are about to save a new gateway
         boolean isNew = gateway.isNew();
         // Store the updated gateway
         hibernate.saveOrUpdate(gateway);
+        if (gateway.isNew()) {
+            m_auditLogContext.logConfigChange(CONFIG_CHANGE_TYPE.ADDED, AUDIT_LOG_CONFIG_TYPE, gateway.getName());
+        } else {
+            m_auditLogContext.logConfigChange(CONFIG_CHANGE_TYPE.MODIFIED, AUDIT_LOG_CONFIG_TYPE, gateway.getName());
+        }
         // Replicate occurs only for update gateway
         if (!isNew) {
             m_dialPlanActivationManager.replicateDialPlan(true);
@@ -110,10 +120,11 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
     }
 
     public boolean deleteGateway(Integer id) {
-        Gateway g = getGateway(id);
-        ProfileLocation location = g.getModel().getDefaultProfileLocation();
-        g.removeProfiles(location);
-        getHibernateTemplate().delete(g);
+        Gateway gateway = getGateway(id);
+        ProfileLocation location = gateway.getModel().getDefaultProfileLocation();
+        gateway.removeProfiles(location);
+        getHibernateTemplate().delete(gateway);
+        m_auditLogContext.logConfigChange(CONFIG_CHANGE_TYPE.DELETED, AUDIT_LOG_CONFIG_TYPE, gateway.getName());
         return true;
     }
 
@@ -147,7 +158,7 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
 
     /**
      * Returns the list of gateways available for a specific rule
-     *
+     * 
      * @param ruleId id of the rule for which gateways are checked
      * @return collection of available gateways
      */
@@ -199,6 +210,10 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         m_replicationContext = replicationContext;
     }
 
+    public void setAuditLogContext(AuditLogContext auditLogContext) {
+        m_auditLogContext = auditLogContext;
+    }
+
     public void setDialPlanActivationManager(DialPlanActivationManager dialPlanActivationManager) {
         m_dialPlanActivationManager = dialPlanActivationManager;
     }
@@ -213,8 +228,8 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
     }
 
     public Integer getGatewayIdBySerialNumber(String serialNumber) {
-        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                QUERY_GATEWAY_ID_BY_SERIAL_NUMBER, "value", serialNumber);
+        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(QUERY_GATEWAY_ID_BY_SERIAL_NUMBER, "value",
+                serialNumber);
         return (Integer) DaoUtils.requireOneOrZero(objs, QUERY_GATEWAY_ID_BY_SERIAL_NUMBER);
     }
 
@@ -256,7 +271,7 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
     }
 
     private List<Gateway> getGatewaysForUserGroup(Group userGroup) {
-        return getHibernateTemplate().findByNamedQueryAndNamedParam("gatewaysForUserGroup",
-                PARAM_USER_GROUP, userGroup);
+        return getHibernateTemplate().findByNamedQueryAndNamedParam("gatewaysForUserGroup", PARAM_USER_GROUP,
+                userGroup);
     }
 }

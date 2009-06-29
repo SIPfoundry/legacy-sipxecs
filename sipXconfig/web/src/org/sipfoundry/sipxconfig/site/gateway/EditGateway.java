@@ -59,13 +59,16 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
 
     @Persist
     public abstract Integer getGatewayId();
+
     public abstract void setGatewayId(Integer id);
-    
+
     @Persist("session")
     public abstract Gateway getTransientGateway();
+
     public abstract void setTransientGateway(Gateway transientGateway);
-    
+
     public abstract Gateway getGateway();
+
     public abstract void setGateway(Gateway gateway);
 
     @Persist
@@ -97,6 +100,7 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
     public abstract void setActiveSetting(String setting);
 
     public abstract void setSelectedSbcDevice(SbcDevice selectedSbcDevice);
+
     public abstract SbcDevice getSelectedSbcDevice();
 
     /**
@@ -116,13 +120,13 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
     public void onSbcDeviceSelect() {
         setTransientGateway(getGateway());
     }
-    
+
     public void pageBeginRender(PageEvent event_) {
         if (getTransientGateway() != null) {
             setGateway(getTransientGateway());
         }
         setTransientGateway(null);
-        
+
         Gateway gateway = getGateway();
         if (null != gateway) {
             return;
@@ -172,7 +176,7 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
         setCurrentSettingSet(currentSettingSet);
         setCurrentSettingSetName(currentSettingSetName);
     }
-    
+
     public void saveGateway() {
         Gateway gateway = getGateway();
         GatewayContext gatewayContext = getGatewayContext();
@@ -184,6 +188,7 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
             }
         }
         gatewayContext.storeGateway(gateway);
+
         // attach gateway to current rule
         Integer ruleId = getRuleId();
         if (null != ruleId) {
@@ -218,8 +223,7 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
         return editPortPage;
     }
 
-    public static EditGateway getEditPage(IRequestCycle cycle, Integer gatewayId,
-            IPage returnPage, Integer ruleId) {
+    public static EditGateway getEditPage(IRequestCycle cycle, Integer gatewayId, IPage returnPage, Integer ruleId) {
         EditGateway page = (EditGateway) cycle.getPage(PAGE);
         page.setGatewayModel(null);
         page.setGatewayId(gatewayId);
@@ -231,8 +235,7 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
         return page;
     }
 
-    public static EditGateway getAddPage(IRequestCycle cycle, GatewayModel model,
-            IPage returnPage, Integer ruleId) {
+    public static EditGateway getAddPage(IRequestCycle cycle, GatewayModel model, IPage returnPage, Integer ruleId) {
         EditGateway page = (EditGateway) cycle.getPage(PAGE);
         page.setGatewayModel(model);
         page.setGatewayId(null);

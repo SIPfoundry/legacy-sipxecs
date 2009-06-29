@@ -37,6 +37,7 @@
     <property name="borderControllerBundle" ref="borderControllerBundle" />
     <property name="sipXbridgeSbcModel" ref="sipXbridgeSbcModel" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="auditLogContext" ref="auditLogContext" />
     <lookup-method name="getDialPlanActivationManager" bean="dialPlanActivationManager" />
     <lookup-method name="getSipxProcessContext" bean="sipxProcessContext" />
   </bean>

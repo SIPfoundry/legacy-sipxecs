@@ -19,6 +19,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
+import org.sipfoundry.sipxconfig.admin.logging.AuditLogContext;
+import org.sipfoundry.sipxconfig.admin.logging.AuditLogContext.CONFIG_CHANGE_TYPE;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
@@ -42,6 +44,10 @@ import org.springframework.dao.support.DataAccessUtils;
 public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implements BeanFactoryAware,
         DialPlanContext, ApplicationContextAware {
 
+    /**
+     * 
+     */
+    private static final String AUDIT_LOG_CONFIG_TYPE = "Dialing Rule";
     private static final Log LOG = LogFactory.getLog(DialPlanContextImpl.class);
     private static final String DIALING_RULE_IDS_WITH_NAME_QUERY = "dialingRuleIdsWithName";
     private static final String VALUE = "value";
@@ -54,11 +60,13 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
 
     private ApplicationContext m_applicationContext;
 
+    private AuditLogContext m_auditLogContext;
+
     public abstract DialPlanActivationManager getDialPlanActivationManager();
 
     /**
      * Loads dial plan, creates a new one if none exist
-     *
+     * 
      * @return the single instance of dial plan
      */
     DialPlan getDialPlan() {
@@ -88,6 +96,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         DialPlan dialPlan = getDialPlan();
         dialPlan.addRule(position, rule);
         getHibernateTemplate().saveOrUpdate(dialPlan);
+        m_auditLogContext.logConfigChange(CONFIG_CHANGE_TYPE.ADDED, AUDIT_LOG_CONFIG_TYPE, rule.getName());
     }
 
     public void storeRule(DialingRule rule) {
@@ -99,15 +108,17 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
             DialPlan dialPlan = getDialPlan();
             dialPlan.addRule(rule);
             getHibernateTemplate().saveOrUpdate(dialPlan);
+            m_auditLogContext.logConfigChange(CONFIG_CHANGE_TYPE.ADDED, AUDIT_LOG_CONFIG_TYPE, rule.getName());
         } else {
             getHibernateTemplate().saveOrUpdate(rule);
+            m_auditLogContext.logConfigChange(CONFIG_CHANGE_TYPE.MODIFIED, AUDIT_LOG_CONFIG_TYPE, rule.getName());
         }
         getDialPlanActivationManager().replicateDialPlan(true);
     }
 
     /**
      * Checks for duplicate names. Should be called before saving the rule.
-     *
+     * 
      * @param rule to be verified
      */
     private void validateRule(DialingRule rule) {
@@ -157,7 +168,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
 
     /**
      * Gets all of the dialing rules using a particular gateway.
-     *
+     * 
      * @param gatewayId The ID of the gateway.
      * @return A List of the DialingRules for that gateway.
      */
@@ -168,7 +179,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
 
     /**
      * Gets all of the dialing rules that can be added to a particular gateway.
-     *
+     * 
      * @param gatewayId The ID of the gateway
      * @return A List of the DialingRules that can be added to the gateway
      */
@@ -191,9 +202,17 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
     }
 
     public void deleteRules(Collection<Integer> selectedRows) {
+        List<DialingRule> rulesToDelete = new ArrayList<DialingRule>();
+        for (Integer id : selectedRows) {
+            rulesToDelete.add(getRule(id));
+        }
+
         DialPlan dialPlan = getDialPlan();
         dialPlan.removeRules(selectedRows);
         getHibernateTemplate().saveOrUpdate(dialPlan);
+        for (DialingRule rule : rulesToDelete) {
+            m_auditLogContext.logConfigChange(CONFIG_CHANGE_TYPE.DELETED, AUDIT_LOG_CONFIG_TYPE, rule.getName());
+        }
         getDialPlanActivationManager().replicateDialPlan(true);
     }
 
@@ -230,7 +249,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
 
     /**
      * Resets the flexible dial plan to factory defaults.
-     *
+     * 
      * Loads default rules definition from bean factory file.
      */
     public DialPlan resetToFactoryDefault(String dialPlanBeanName, AutoAttendant operator) {
@@ -426,5 +445,10 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
 
     public void setApplicationContext(ApplicationContext applicationContext) {
         m_applicationContext = applicationContext;
+    }
+
+    @Required
+    public void setAuditLogContext(AuditLogContext auditLogContext) {
+        m_auditLogContext = auditLogContext;
     }
 }

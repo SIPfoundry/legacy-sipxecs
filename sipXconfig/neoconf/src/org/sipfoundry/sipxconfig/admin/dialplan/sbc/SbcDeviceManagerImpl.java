@@ -22,6 +22,8 @@ import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
+import org.sipfoundry.sipxconfig.admin.logging.AuditLogContext;
+import org.sipfoundry.sipxconfig.admin.logging.AuditLogContext.CONFIG_CHANGE_TYPE;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
@@ -36,12 +38,14 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
-public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDevice> implements
-        SbcDeviceManager, BeanFactoryAware, DaoEventListener {
+public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDevice> implements SbcDeviceManager,
+        BeanFactoryAware, DaoEventListener {
 
     private static final String SBC_ID = "sbcId";
 
     private static final String SBC_NAME = "sbcName";
+
+    private static final String AUDIT_LOG_CONFIG_TYPE = "SBC Device";
 
     private BeanFactory m_beanFactory;
 
@@ -52,6 +56,13 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
     private SbcDescriptor m_sipXbridgeSbcModel;
 
     private SipxServiceManager m_sipxServiceManager;
+
+    private AuditLogContext m_auditLogContext;
+
+    @Required
+    public void setAuditLogContext(AuditLogContext auditLogContext) {
+        m_auditLogContext = auditLogContext;
+    }
 
     @Required
     public void setBorderControllerBundle(SipxServiceBundle borderControllerBundle) {
@@ -156,7 +167,9 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
         if (descriptor.getMaxAllowed() > -1) {
             int size = getSbcDevicesByDescriptor(descriptor).size();
             if (size >= maxAllowed) {
-                throw new UserException("sbc.creation.error", new Object[] {size, descriptor.getLabel()});
+                throw new UserException("sbc.creation.error", new Object[] {
+                    size, descriptor.getLabel()
+                });
             }
         }
     }
@@ -191,7 +204,10 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
         saveBeanWithSettings(sbc);
 
         // Replicate occurs only when updating sbc device
-        if (!isNew) {
+        if (isNew) {
+            m_auditLogContext.logConfigChange(CONFIG_CHANGE_TYPE.ADDED, AUDIT_LOG_CONFIG_TYPE, sbc.getName());
+        } else {
+            m_auditLogContext.logConfigChange(CONFIG_CHANGE_TYPE.MODIFIED, AUDIT_LOG_CONFIG_TYPE, sbc.getName());
             getDialPlanActivationManager().replicateDialPlan(true);
         }
     }
@@ -203,23 +219,21 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
     }
 
     private boolean isNameInUse(SbcDevice sbc) {
-        List count = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                "anotherSbcWithSameName", new String[] {
-                    SBC_NAME
-                }, new Object[] {
-                    sbc.getName()
-                });
+        List count = getHibernateTemplate().findByNamedQueryAndNamedParam("anotherSbcWithSameName", new String[] {
+            SBC_NAME
+        }, new Object[] {
+            sbc.getName()
+        });
 
         return DataAccessUtils.intResult(count) > 0;
     }
 
     private boolean isNameChanged(SbcDevice sbc) {
-        List count = getHibernateTemplate().findByNamedQueryAndNamedParam("countSbcWithSameName",
-                new String[] {
-                    SBC_ID, SBC_NAME
-                }, new Object[] {
-                    sbc.getId(), sbc.getName()
-                });
+        List count = getHibernateTemplate().findByNamedQueryAndNamedParam("countSbcWithSameName", new String[] {
+            SBC_ID, SBC_NAME
+        }, new Object[] {
+            sbc.getId(), sbc.getName()
+        });
 
         return DataAccessUtils.intResult(count) == 0;
     }
@@ -229,8 +243,7 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
     }
 
     private List<Sbc> getSbcsForSbcDeviceId(Integer sbcDeviceId) {
-        return getHibernateTemplate().findByNamedQueryAndNamedParam("sbcsForSbcDeviceId", SBC_ID,
-                sbcDeviceId);
+        return getHibernateTemplate().findByNamedQueryAndNamedParam("sbcsForSbcDeviceId", SBC_ID, sbcDeviceId);
     }
 
     private class OnSbcDeviceDelete extends SbcDeviceDeleteListener {
