@@ -23,13 +23,13 @@ public class AlarmsPageTestUi extends WebTestCase {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.setScriptingEnabled(tester, true);
         SiteTestHelper.home(tester);
+        clickLink("seedLocationsManager");
         clickLink("toggleNavigation");
         clickLink("menu.Alarms");
     }
 
     public void testDisplayEdit() throws Exception {
         SiteTestHelper.assertNoException(tester);
-        SiteTestHelper.assertNoUserError(tester);
 
         assertLinkPresent("setting:toggle");
         assertElementPresent("enableEmailNotification");
@@ -40,9 +40,23 @@ public class AlarmsPageTestUi extends WebTestCase {
         assertButtonPresent("form:apply");
 
         SiteTestHelper.assertNoException(tester);
-        SiteTestHelper.assertNoUserError(tester);
 
         assertTableNotPresent("alarm:list");
         assertButtonNotPresent("alarms:enableEmail");
+    }
+
+    public void testDisplayHistory() throws Exception {
+        assertLinkPresent("link:historyAlarms");
+        clickLink("link:historyAlarms");
+        SiteTestHelper.assertNoException(tester);
+
+        assertElementPresent("hosts");
+        SiteTestHelper.selectOption(tester, "hosts", "host.example.org");
+        assertElementPresent("datetimeDate");
+        assertElementPresent("datetime:time");
+        assertElementPresent("datetimeDate_0");
+        assertElementPresent("datetime:time_0");
+        assertButtonPresent("showAlarms");
+        assertTablePresent("alarmEvent:list");
     }
 }

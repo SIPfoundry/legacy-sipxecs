@@ -9,9 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import java.util.Date;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.alarm.Alarm;
+import org.sipfoundry.sipxconfig.admin.alarm.AlarmEvent;
 import org.sipfoundry.sipxconfig.admin.alarm.AlarmServer;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
@@ -47,4 +49,6 @@ public interface AlarmContext {
     public String getConfigDirectory();
 
     public String getAlarmsStringsDirectory();
+
+    List<AlarmEvent> getAlarmEvents(String host, Date startDate, Date endDate);
 }

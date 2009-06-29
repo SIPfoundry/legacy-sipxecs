@@ -9,19 +9,27 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.alarm.Alarm;
 import org.sipfoundry.sipxconfig.admin.alarm.AlarmConfiguration;
+import org.sipfoundry.sipxconfig.admin.alarm.AlarmEvent;
 import org.sipfoundry.sipxconfig.admin.alarm.AlarmServer;
 import org.sipfoundry.sipxconfig.admin.alarm.AlarmServerActivatedEvent;
 import org.sipfoundry.sipxconfig.admin.alarm.AlarmServerConfiguration;
@@ -44,9 +52,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-public class AlarmContextImpl extends SipxHibernateDaoSupport implements AlarmContext,
-        ApplicationListener {
+public class AlarmContextImpl extends SipxHibernateDaoSupport implements AlarmContext, ApplicationListener {
     private static final Log LOG = LogFactory.getLog(AlarmContextImpl.class);
+    private static final String ALARMS_LOG = "sipXalarms.log";
     private static final String DEFAULT_HOST = "@localhost";
     private static final String EMPTY = "";
     private ApiProvider<AlarmApi> m_alarmApiProvider;
@@ -232,8 +240,7 @@ public class AlarmContextImpl extends SipxHibernateDaoSupport implements AlarmCo
                     alarmBean.setSeverity(getNodeValue(nodeAlarm, "severity"));
                     alarmBean.setComponent(getNodeValue(nodeAlarm, "component"));
                     alarmBean.setShortTitle(getNodeValue(nodeAlarm, "shorttitle"));
-                    alarmBean.setEmailEnabled(Boolean.parseBoolean(getAtributeValue(nodeAlarm,
-                            "action", "email")));
+                    alarmBean.setEmailEnabled(Boolean.parseBoolean(getAtributeValue(nodeAlarm, "action", "email")));
                     String threshold = getAtributeValue(nodeAlarm, "filter", "min_threshold");
                     int minThreshold = (threshold.equals(EMPTY) ? 0 : Integer.parseInt(threshold));
                     alarmBean.setMinThreshold(minThreshold);
@@ -270,12 +277,50 @@ public class AlarmContextImpl extends SipxHibernateDaoSupport implements AlarmCo
         return EMPTY;
     }
 
+    public List<AlarmEvent> getAlarmEvents(String host, Date startDate, Date endDate) {
+        GetMethod httpget = null;
+        try {
+            HttpClient client = new HttpClient();
+            Location location = m_locationsManager.getLocationByFqdn(host);
+            httpget = new GetMethod(location.getHttpsServerUrl() + m_logDirectory + "/" + ALARMS_LOG);
+            int statusCode = client.executeMethod(httpget);
+            if (statusCode != 200) {
+                throw new UserException("&error.https.server.status.code", host, String.valueOf(statusCode));
+            }
+
+            return parseEventsStream(httpget.getResponseBodyAsStream(), startDate, endDate);
+        } catch (HttpException ex) {
+            throw new UserException("&error.https.server", host, ex.getMessage());
+        } catch (IOException ex) {
+            throw new UserException("&error.io.exception", ex.getMessage());
+        } catch (XmlRpcRemoteException ex) {
+            throw new UserException("&error.xml.rpc", ex.getMessage(), host);
+        } finally {
+            if (httpget != null) {
+                httpget.releaseConnection();
+            }
+        }
+    }
+
+    List<AlarmEvent> parseEventsStream(InputStream responseStream, Date startDate, Date endDate) throws IOException {
+        BufferedReader input = new BufferedReader(new InputStreamReader(responseStream, "UTF-8"));
+        String line = null;
+        List<AlarmEvent> contents = new ArrayList<AlarmEvent>();
+        while ((line = input.readLine()) != null) {
+            AlarmEvent alarmEvent = new AlarmEvent(line);
+            Date date = alarmEvent.getDate();
+            if (startDate.before(date) && endDate.after(date)) {
+                contents.add(alarmEvent);
+            }
+        }
+        return contents;
+    }
+
     private String getHost() {
         return m_locationsManager.getPrimaryLocation().getFqdn();
     }
 
     private AlarmApi getAlarmApi() {
-        return m_alarmApiProvider.getApi(m_locationsManager.getPrimaryLocation()
-                .getProcessMonitorUrl());
+        return m_alarmApiProvider.getApi(m_locationsManager.getPrimaryLocation().getProcessMonitorUrl());
     }
 }

@@ -1,0 +1,4 @@
+"2009-06-20T13:39:56.406437Z":4:ALARM:CRIT:sipx.example.org:sipXbridge::SPX00013:"The STUN Server 'stun01.sipphone.com' is dysfunctional."
+"2009-06-23T13:39:56.406437Z":4:ALARM:CRIT:sipx.example.org:sipXbridge::SPX00014:"The STUN Server 'stun01.sipphone.com' is dysfunctional."
+"2009-06-24T13:39:56.406437Z":4:ALARM:CRIT:sipx.example.org:sipXbridge::SPX00015:"The STUN Server 'stun01.sipphone.com' is dysfunctional."
+"2009-06-27T13:39:56.406437Z":4:ALARM:CRIT:sipx.example.org:sipXbridge::SPX00016:"The STUN Server 'stun01.sipphone.com' is dysfunctional."

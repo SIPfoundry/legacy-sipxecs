@@ -9,9 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
@@ -26,6 +30,10 @@ import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class AlarmsPage extends BasePage implements PageBeginRenderListener {
+    private static final String CONFIG_TAB = "configureAlarms";
+
+    private static final String HISTORY_TAB = "historyAlarms";
+
     @InjectObject(value = "spring:alarmContextImpl")
     public abstract AlarmContext getAlarmContext();
 
@@ -49,6 +57,16 @@ public abstract class AlarmsPage extends BasePage implements PageBeginRenderList
     public abstract Alarm getCurrentRow();
 
     public abstract void setCurrentRow(Alarm alarm);
+
+    @Persist
+    @InitialValue(value = "literal:configureAlarms")
+    public abstract String getTab();
+
+    public Collection<String> getAvailableTabNames() {
+        Collection<String> tabNames = new ArrayList<String>();
+        tabNames.addAll(Arrays.asList(CONFIG_TAB, HISTORY_TAB));
+        return tabNames;
+    }
 
     public void pageBeginRender(PageEvent event) {
         if (!TapestryUtils.isValid(this)) {

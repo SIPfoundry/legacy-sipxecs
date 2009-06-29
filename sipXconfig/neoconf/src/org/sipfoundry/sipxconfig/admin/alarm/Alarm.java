@@ -9,11 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.admin.alarm;
 
+import java.io.Serializable;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
 
-public class Alarm implements Comparable, PrimaryKeySource {
+public class Alarm implements Comparable, PrimaryKeySource, Serializable {
     private String m_alarmId;
 
     private String m_code;
