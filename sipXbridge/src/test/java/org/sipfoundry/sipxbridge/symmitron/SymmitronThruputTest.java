@@ -31,6 +31,8 @@ public class SymmitronThruputTest extends AbstractSymmitronTestCase {
             this.port = port;
             this.count = count;
             this.datagramSocket = socket;
+            System.out.println("Transmitter : hisPort = " + port + 
+                   " myPort = "  + socket.getLocalPort());
         }
 
         public void run() {
@@ -118,30 +120,34 @@ public class SymmitronThruputTest extends AbstractSymmitronTestCase {
           
             DatagramSocket datagramSocket1 = new DatagramSocket(destinationPort1, InetAddress
                     .getByName(testerAddress));
+            
             Listener listener1 = new Listener(datagramSocket1);
             this.listeners.add(listener1);
             super.setRemoteEndpointNoKeepAlive(sym,testerAddress, destinationPort1);
             super.addSym(bridge, sym);
-
+            Transmitter transmitter1 = new Transmitter(datagramSocket1, serverAddress, port1,
+                    npacket);
+            
             sym = super.createEvenSym();
             symInterface = super.getSym(sym);
             symEndpoint = symInterface.getReceiver();
             int port2 = symEndpoint.getPort();
             System.out.println("port2 = " + port2);
-            destinationPort2 = (startPort + i + nbridges);
+            destinationPort2 = (startPort + i + nbridges);           
+            
             DatagramSocket datagramSocket2 = new DatagramSocket(destinationPort2, InetAddress
                     .getByName(testerAddress));
             Listener listener2 = new Listener(datagramSocket2);
             this.listeners.add(listener2);
             super.setRemoteEndpointNoKeepAlive(sym, this.testerAddress, destinationPort2);
             super.addSym(bridge, sym);
-
             super.startBridge(bridge);
-
-            Transmitter transmitter1 = new Transmitter(datagramSocket2, serverAddress, port1,
+            
+            
+            Transmitter transmitter2 = new Transmitter(datagramSocket2, serverAddress, port2,
                     npacket);
-            Transmitter transmitter2 = new Transmitter(datagramSocket1, serverAddress, port2,
-                    npacket);
+            
+            
             transmitters.add(transmitter1);
             transmitters.add(transmitter2);
 
@@ -160,34 +166,34 @@ public class SymmitronThruputTest extends AbstractSymmitronTestCase {
 
 	Thread.sleep(1000);
 
-        while(true) {
-            boolean limitReached = true;
-            System.out.println("Check listeners!");
-            for (Listener listener : this.listeners) {
-                System.out.println("Count = " + listener.counter);
-		if (listener.counter == 0 ) limitReached = false; 
- 		else if ( listener.counter != listener.lastCounter ) {
-                   limitReached = false;
-                   listener.lastCounter = listener.counter;
-                }
+	while(true) {
+	    boolean limitReached = true;
+	    System.out.println("Check listeners!");
+	    for (Listener listener : this.listeners) {
+	        System.out.println("Count = " + listener.counter);
+	        if (listener.counter == 0 ) limitReached = false; 
+	        else if ( listener.counter != listener.lastCounter ) {
+	            limitReached = false;
+	            listener.lastCounter = listener.counter;
+	        }
 
-            }
-            if ( limitReached) {
-                
-                double jitter = 0;
-                for (Listener listener : this.listeners) {
+	    }
+	    if ( limitReached) {
 
-                    long avgDelay = listener.delay / listener.counter;
-                    double rmsDelay = Math.sqrt((double) avgDelay);
-                    jitter += rmsDelay;
-                }
-                System.out.println("Packet Inter Arrival Time = " + sleepTime + " RMS Jitter " + jitter / listeners.size()); 
-                break;
-            } else {
-               
-                Thread.sleep(5000);
-            }
-        }
+	        double jitter = 0;
+	        for (Listener listener : this.listeners) {
+
+	            long avgDelay = listener.delay / listener.counter;
+	            double rmsDelay = Math.sqrt((double) avgDelay);
+	            jitter += rmsDelay;
+	        }
+	        System.out.println("Packet Inter Arrival Time = " + sleepTime + " RMS Jitter " + jitter / listeners.size()); 
+	        break;
+	    } else {
+
+	        Thread.sleep(5000);
+	    }
+	}
 
         for (Listener listener : this.listeners) {
             listener.datagramSocket.close();
