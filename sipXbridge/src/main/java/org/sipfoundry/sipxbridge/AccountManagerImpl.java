@@ -11,7 +11,6 @@ import gov.nist.javax.sip.clientauthutils.UserCredentials;
 import gov.nist.javax.sip.header.ims.PPreferredIdentityHeader;
 
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -20,13 +19,13 @@ import java.util.concurrent.ConcurrentMap;
 
 import javax.sip.ClientTransaction;
 import javax.sip.SipProvider;
+import javax.sip.address.Hop;
 import javax.sip.address.SipURI;
 import javax.sip.header.FromHeader;
 import javax.sip.message.Request;
 
 import org.apache.log4j.Logger;
 import org.apache.xmlrpc.XmlRpcException;
-import org.xbill.DNS.TextParseException;
 
 /**
  * Keeps a mapping of account ID to ItspAccountInfo and a mapping of account ID to sip pbx account
@@ -182,29 +181,46 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
      */
     ItspAccountInfo getItspAccount(String host, int port) {
         logger.debug("INVITE received on " + host + ":" + port);
-        for (ItspAccountInfo accountInfo : this.getItspAccounts()) {
-            if (accountInfo.isRegisterOnInitialization()) {
-                // Account needs registration.
-                String registrarHost = accountInfo.getOutboundRegistrar();
-                logger.debug("registrarHost = " + registrarHost);
-
-                if (host.equals(registrarHost)) {
-                    logger.debug("found account ");
-                    return accountInfo;
-                }
-
-            } else {
-                String inBoundProxyDomain = accountInfo.getInboundProxy();
-                int inBoundProxyPort = accountInfo.getInboundProxyPort();
-                if (host.equals(inBoundProxyDomain) && port == inBoundProxyPort) {
-                    logger.debug("found account based on inbound proxy ");
-                    return accountInfo;
+        if ( port == -1) port = 5060; // set default.
+        try {
+            String viaHost = InetAddress.getByName(host).getHostAddress();
+            for (ItspAccountInfo accountInfo : this.getItspAccounts()) {
+                if (accountInfo.isRegisterOnInitialization()) {
+                    // Account needs registration.
+                    String registrarHost = accountInfo.getOutboundRegistrar();
+                    logger.debug("registrarHost = " + registrarHost);
+                    if (viaHost.equals(InetAddress.getByName(registrarHost).getHostAddress())) {
+                        logger.debug("found account " + accountInfo.getProxyDomain());
+                        return accountInfo;
+                    }
+                } else {
+                    String inBoundProxyDomain = accountInfo.getInboundProxy();
+                    int inBoundProxyPort = accountInfo.getInboundProxyPort();
+                    SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(null, inBoundProxyDomain);
+                    if ( inBoundProxyPort != 5060) {
+                        sipUri.setPort(inBoundProxyPort);
+                    }
+                    Collection<Hop> hops = new org.sipfoundry.commons.siprouter.FindSipServer(logger).findSipServers(sipUri);
+                    for ( Hop hop : hops) {
+                        logger.debug("Checking " + hop.getHost() + " port " + hop.getPort());
+                        if (viaHost.equals(InetAddress.getByName(hop.getHost()).getHostAddress())
+                                && hop.getPort() == port) {
+                            logger.debug("Inbound request from : " + accountInfo.getProxyDomain());
+                            return accountInfo;
+                        }
+                    }
                 }
             }
+        } catch (Exception ex) {
+            logger.error("unexpected error parsing domain", ex);
+            return null;
         }
-
+        logger.debug("Could not find ITSP account for inbound request");
         return null;
     }
+
+        
+    
 
     // //////////////////////////////////////////////////////////////////
     // Public methods.
