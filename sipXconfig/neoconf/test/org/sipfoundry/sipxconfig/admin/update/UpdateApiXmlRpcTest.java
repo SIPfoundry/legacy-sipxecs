@@ -49,7 +49,7 @@ public class UpdateApiXmlRpcTest extends TestCase {
         replay(lm, apiProvider, api);
 
         DummyUpdateApi out = new DummyUpdateApi();
-        out.setFileLines(Arrays.asList("3.11.15"));
+        out.setFileLines(Arrays.asList("version:3.11.15"));
         out.setLocationsManager(lm);
         out.setSoftwareAdminApiProvider(apiProvider);
 

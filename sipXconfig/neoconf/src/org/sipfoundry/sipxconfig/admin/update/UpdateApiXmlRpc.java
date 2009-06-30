@@ -39,6 +39,7 @@ public class UpdateApiXmlRpc implements UpdateApi {
     private static final String INSTALL_UPDATES = "update";
     private static final String CHECK_UPDATE = "check-update";
     private static final String RESTART_SIPXECS = "restart";
+    private static final String VERSION_STRING = "version:";
 
     private static final Log LOG = LogFactory.getLog(UpdateApiXmlRpc.class);
 
@@ -61,14 +62,19 @@ public class UpdateApiXmlRpc implements UpdateApi {
         SoftwareAdminApi api = getApi(primaryLocation);
         List<String> streams = api.exec(primaryLocation.getFqdn(), GET_VERSION);
         if (streams.isEmpty()) {
-            return null;
+            return VERSION_NOT_DETERMINED;
         }
         String versionFilePath = streams.get(0);
         List<String> remoteFileLines = getResult(primaryLocation, api, GET_VERSION, versionFilePath);
         if (remoteFileLines.isEmpty()) {
-            return null;
+            return VERSION_NOT_DETERMINED;
         }
-        return remoteFileLines.get(0);
+        for (String line : remoteFileLines) {
+            if (line != null && line.startsWith(VERSION_STRING)) {
+                return line.replace(VERSION_STRING, "");
+            }
+        }
+        return VERSION_NOT_DETERMINED;
     }
 
     public List<PackageUpdate> getAvailableUpdates() {
