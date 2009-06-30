@@ -1,0 +1,440 @@
+#! /usr/bin/perl
+
+# siptrace-merge, modified to run faster on large files.
+
+# To run:
+#
+#   siptrace-merge [selection-options] file.xml ... >merged.xml
+#
+# Takes several siptrace XML files and merges them into one.
+# Based on timestamps and branch-ids, detects when a packet is logged in 
+# more than one file and combines them.  Works only when the clocks are
+# tightly synchronized, but usually all the logs were taken from servers
+# on one host, so this isn't a problem.  Output copies of messages are
+# timestamped with the earliest mention in any of the input files, which
+# can cause time-warp effects if not all components of the commserver
+# are used as input to siptrace-merge.
+#
+# "selection-options" allow you to exclude messages you aren't interested in.
+#
+# --after=timestamp
+# excludes all messages whose timestamps are lexically less than 'timestamp'.
+#
+# --before=timestamp
+# excludes all messages whose timestamps are lexically greater than 'timestamp'.
+# A '~' is appended to 'timestamp', so that all timestamps of which
+# 'timestamp' is a prefix compare as <= 'timestamp'.
+#
+# --exclude-method=method (*)
+# excludes all messages that are requests or responses with the
+# specified method (in the CSeq field).  The value 'I' or 'i' means
+# 'INVITE|CANCEL|ACK|BYE', which is suitable for tracing call setup/teardown.
+#
+# --include-method=method (*)
+# includes only messages that are requests or responses with the
+# specified method (in the CSeq field).  Also supports 'I' and 'i'.
+#
+# --event=event (*)
+# includes only messages that thave the specified event as the value
+# of the Event header ('event' must be the beginning of the Event value,
+# and must be followed by a word-break)
+#
+# --containing=string (*)
+# excludes messages that do not contain matches to the specified string
+#
+# --ft=string (*)
+# includes only messages that contain the specified string in their From
+# or To headers.
+#
+# --offset=file:t1->t2
+# apply an offset to all the messages in 'file' so that a packet with time
+# t1 is merged as if it specified time t2
+#
+# --filter
+# do not be clever when building the new frameId from the input frameIds,
+# just concatenate them (with spaces between)
+# This is generally only useful with one input file, in which case the
+# output frameId is the same as the input frameId.
+#
+# --slack=seconds
+# Change the max time allowed between log lines for them to be merged into
+# one output frame.  Argument may have decimals.  Default value is 0.75.
+#
+# (*) These values are actually patterns, not strings.  You can use any of
+# the Perl regular expression matching features.  Beware that you not only
+# have to quote the usual regexp special characters, but also '/', '$', and
+# especially '@'.  Generally, spaces in arguments do not work even if they
+# are quoted.
+
+use strict;
+
+# Amount of clock skew and transit time allowed.
+my($time_slack) = 0.75;
+
+# Set up the clock offset table.
+# $clock_offset{$file} is the amount to add to the reported times in $file.
+my(%clock_offset) = ();
+
+# Get the Perl library for converting dates from components to
+# integral time values.
+use Time::Local;
+
+# Get the Perl library for creating temporary file names.
+use File::Temp;
+
+# Load translation table.
+my(%xml_escape);
+$xml_escape{'<'} = '&lt;';
+$xml_escape{'>'} = '&gt;';
+$xml_escape{'&'} = '&amp;';
+
+# Initialize the debugging level.
+my($debug) = 0;
+
+# Initialize the progress indicator.
+my($progress) = 0;
+
+# Set the window width to 5 minutes.
+my($window_width) = 300;
+
+# Set to true to leave <frameId> values unmodified.
+my($filter) = 0;
+
+# Read the options and construct the selection subroutine.
+my($subroutine) = '1 ';
+while ($ARGV[0] =~ m/^-/) {
+    my($option) = shift(@ARGV);
+    if ($option eq '--') {
+	last;
+    } elsif ($option eq '-d' || $option eq '--debug') {
+	$debug++;
+    } elsif ($option eq '--progress') {
+	$progress++;
+    } elsif ($option =~ m/^--after=(.*)$/) {
+	$subroutine .= ' && ($time ge "' . quotemeta($1) . '") ';
+    } elsif ($option =~ m/^--before=(.*)$/) {
+	$subroutine .= ' && ($time le "' . quotemeta($1) . '~") ';
+    } elsif ($option =~ m/^--exclude-method=(.*)$/) {
+	my $v = $1;
+	$v = 'INVITE|CANCEL|ACK|BYE' if $v eq 'I' || $v eq 'i';
+	$subroutine .= ' && ($entry !~ m/\nCSeq:\s*\d+\s*(' . $v . ')\b/i) ';
+    } elsif ($option =~ m/^--include-method=(.*)$/) {
+	my $v = $1;
+	$v = 'INVITE|CANCEL|ACK|BYE' if $v eq 'I' || $v eq 'i';
+	$subroutine .= ' && ($entry =~ m/\nCSeq:\s*\d+\s*(' . $v . ')\b/i) ';
+    } elsif ($option =~ m/^--event=(.*)$/) {
+	$subroutine .= ' && ($entry =~ m/\nEvent:\s*(' . $1 . ')\b/i) ';
+    } elsif ($option =~ m/^--ft=(.*)$/) {
+	# Search for \n(From|To): followed by stuff followed by the pattern.
+	# $entry is the XML element (in XML format), so we can ignore
+	# the escaping used in syslogs.
+	$subroutine .= ' && ($entry =~ m/\n(From|To):.*(' . $1 . ')/i) ';
+    } elsif ($option =~ m/^--containing=(.*)$/) {
+	$subroutine .= ' && ($entry =~ m/' . $1 . '/) ';
+    } elsif ($option =~ m/^--offset=(.*)$/) {
+	my($o) = $1;
+	my($f, $a, $b);
+	die "Invalid --offset option '$o'.\n"
+	    unless ($f, $a, $b) = ($o =~ m/^(.*?):(.*)->(.*)$/);
+	print STDERR "\$f = $f \$a = $a \$b = $b\n" if $debug;
+	die "Invalid --offset time '$a'.\n"
+	    unless $a =~ m%^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d+)?Z?$%;
+	die "Invalid --offset time '$b'.\n"
+	    unless $b =~ m%^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d+)?Z?$%;
+	$clock_offset{$f} = &numeric_time($b) - &numeric_time($a);
+    } elsif ($option eq '--filter') {
+	$filter = 1;
+    } elsif ($option =~ m/--slack=([\d.]+)/) {
+	$time_slack = $1 + 0;
+    } else {
+	die "Unparsable option: '$option'\n";
+    }
+}
+$subroutine =
+    "sub select {\nmy(\$entry, \$identifier, \$time) = \@_;\nreturn " .
+    $subroutine . ";\n}\n";
+print STDERR $subroutine, "\n" if $debug;
+eval $subroutine;
+die "Constructing 'sub select' failed: $@\n" if $@;
+
+my($count) = 0;
+my($tick) = time;
+# Read the input file(s), extracting the <branchNode> elements.
+my(%messages) = ();
+# Assemble the list of input files.
+my(@files) = @ARGV;
+@files = ('-') if $#files == -1;
+# Open the temporary output file.
+my($temp1_handle, $temp1_name) =
+    File::Temp::mkstemps("siptrace-mergeXXXXXX", ".tmp");
+print STDERR $temp1_name, "\n" if $debug;
+# Loop through the files.
+my($file);
+foreach $file (@files) {
+    if (!open(F, $file)) {
+	print STDERR "Error opening file '$file' for input: $!\n";
+	print STDERR "Skipping '$file'.\n";
+	next;
+    }
+    # Get the name of the file into XML form.
+    my($file_xml) = $file;
+    $file_xml =~ s/(<>&)/$xml_escape{$1}/eg;
+    # Get the clock offset for the file.
+    my($clock_offset) = $clock_offset{$file} + 0;
+    print STDERR "File $file offset $clock_offset\n" if $debug;
+    # Process all the messages in the file.
+    while (<F>) {
+	next if m%^<\?xml %;
+	next if m%^</?sipTrace>%;
+	if (m%<branchNode>%) {
+	    # Accumulate input until </branchNode> is seen.
+	    my($element) = $_;
+	    my($identifier) = '';
+	    my($time) = '';
+	    do {
+		$_ = <F>;
+		$element .= $_;
+		if ($_ =~ m%<branchId>([^<]*)</branchId>%) {
+		    $identifier .= $1 . '/';
+		} elsif ($_ =~ m%<method>([^<]*)</method>% ||
+			 $_ =~ m%<responseCode>([^<]*)</responseCode>% ||
+			 $_ =~ m%<transactionId>([^<]*)</transactionId>%) {
+		    $identifier .= $1 . '/';
+		} elsif ($_ =~ m%<time>(.*)Z</time>%) {
+		    $time = $1;
+		}
+	    } until ($_ =~ m%<\/branchNode>%);
+	    # $element is the entire <branchNode> element,
+	    # $identifier is a string of the branchId elements, the
+	    # transactionId, and the method or responseCode.
+	    # It is a fine-grained identifier of the message, and all
+	    # duplicates of this message will have the same identifier.
+	    # (The proper assembly of $identity requires that the
+	    # XML elements appear in the canonical order.)
+
+	    # Print progress indicator if desired.
+	    $count++;
+	    if ($progress && $count % 10000 == 0) {
+		if (!$debug) {
+		    print STDERR '#';
+		} else {
+		    my($t) = time;
+		    print STDERR $t - $tick, "\n";
+		    $tick = $t;
+		}
+	    }
+
+	    # Check whether this element is to be included.
+	    next unless &select($element, $identifier, $time);
+
+	    # Insert the file name into the frameId.
+	    $element =~
+		s%<frameId>(.*)</frameId>%<frameId>$file_xml:$1</frameId>%
+		unless $filter;
+	    # Replace newlines in $element with $;.
+	    $element =~ s/\n/$;/g;
+
+	    # Calculate the time of the message.
+	    my($time_value) = &numeric_time($time) + $clock_offset;
+
+	    # Output this entry as a line to the temporary file, with
+	    # fields separated by carets.
+	    print $temp1_handle
+		$time_value, '^', $identifier, '^', $element, "\n";
+	}
+    }
+}
+
+if ($progress && !$debug) {
+    print STDERR "\n";
+}
+
+close $temp1_handle ||
+    die "Error closing temporary file '$temp1_name': $!\n";
+
+# Process the messages in time order, keeping a sliding time-window of messages.
+# Messages within the window will be combined as appropriate.
+# As the window passes beyond messages, write them out in time order.
+
+print "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n";
+print "<sipTrace>\n";
+my($frame_number) = 0;
+my(@window_buffer) =();
+
+my($sort_command) = "sort -t '^' -n $temp1_name";
+print STDERR $sort_command, "\n" if $debug;
+open(SORTED, $sort_command . '|') ||
+    die "Error when starting sort command '$sort_command': $!\n";
+
+while (<SORTED>) {
+    # Dissect the sort output line.
+    chomp;
+    my($time_value, $identifier, $element) = split(/\^/, $_, 3);
+    $element =~ s/$;/\n/g;
+
+    # Insert this message into the list.
+    &insert_message_into_list($time_value, $element, $identifier, \@window_buffer);
+
+    # Write out any messages that are now beyond the window.
+    while (@window_buffer) {
+	my($m) = $window_buffer[0];
+	my($first_time_value, $first_element, $first_identifier) = @{$m};
+
+	# Exit if $window_buffer[0] isn't old enough.
+	last unless $first_time_value + $window_width < $time_value;
+
+	# Write out and remove $window_buffer[0].
+	$frame_number++;
+	$first_element =~ s%<frameId>%<frameId>$frame_number % unless $filter;
+	print $first_element;
+	shift(@window_buffer);
+    }
+}
+
+close SORTED ||
+    die "Error when ending sort command '$sort_command': $!\n";
+
+# Write out the remaining messages.
+while (@window_buffer) {
+    my($m) = shift(@window_buffer);
+    my($time_value, $element, $identifier) = @{$m};
+    $frame_number++;
+    $element =~ s%<frameId>%<frameId>$frame_number % unless $filter;
+    print $element;
+}
+    
+print "</sipTrace>\n";
+
+if (!$debug) {
+    unlink($temp1_name) ||
+	warn("Error deleting temporary file '$temp1_name': $!\n");
+} else {
+    print STDERR "Leaving temporary file as '$temp1_name'.\n";
+}
+
+exit 0;
+
+sub insert_message_into_list {
+    my($time_value, $element, $identifier, $list_ref) = @_;
+    my($i);
+    my($same_identifier_seen) = 0;
+    
+    # Find any matching message in the list.
+    for ($i = 0; $i <= $#{$list_ref}; $i++) {
+        # Get reference to component.
+        my($entry) = ${$list_ref}[$i];
+        next unless ${$entry}[2] eq $identifier;
+	$same_identifier_seen = 1;
+        my($old_time) = ${$entry}[0];
+        # Check whether the time matches within $time_slack second.
+        #print $time_value - $old_time, "\t", $time_value, "\t", $old_time, "\n";
+        if (abs($time_value - $old_time) < $time_slack) {
+            # These messages are the same.
+            ${$entry}[1] = &combine_elements(${$entry}[1], $element);
+            ${$entry}[0] = ($old_time < $time_value) ? $old_time : $time_value;
+            return;
+        }
+    }
+
+    # If there has been an earlier example of this packet, check to see if this
+    # looks like a delayed receive.
+    if ($same_identifier_seen) {
+	# No match found.  Check to see if it appears to be a delayed
+	# transmission.
+
+	# We distinguish resends because either the source or
+	# destination address that is recorded will be the same as
+	# this packet, due to this packet having the 'dominant' value
+	# of one or the other.  A packet which disagrees with the
+	# recorded values in both source and destination is likely to
+	# be a delayed receipt.
+	my($probable_resend) = 0;
+	for ($i = 0; $i <= $#{$list_ref}; $i++) {
+	    # Get reference to component.
+	    my($entry) = ${$list_ref}[$i];
+            next unless ${$entry}[2] eq $identifier;
+	    my($text) = ${$entry}[1];
+
+	    # Test to see if $element looks like a resend of the $i'th message in 
+	    # the list.
+	    my($s1) = $text =~ m%<source>(.*)</source>%;
+	    my($d1) = $text =~ m%<destination>(.*)</destination>%;
+	    my($s2) = $element =~ m%<source>(.*)</source>%;
+	    my($d2) = $element =~ m%<destination>(.*)</destination>%;
+
+	    if ($s1 eq $s2 || $d1 eq $d2) {
+		# Probably a resend.
+		$probable_resend = 1;
+		last;
+	    }
+	}
+	if (!$probable_resend) {
+	    $element =~ s%<method>(.*)</method>%<method>$1 delayed</method>% ||
+		$element =~ s%<responseCode>(.*)</responseCode>%<responseCode>$1 delayed</responseCode>%;
+	}
+    }
+
+    # No match found, append this message to the list.
+    push(@{$list_ref}, [$time_value, $element, $identifier]);
+}
+
+sub combine_elements {
+    my($message1, $message2) = @_;
+    my($t1, $t2);
+
+    #print STDERR $message1, $message2;
+
+    # Get the minimum time.
+    ($t1) = $message1 =~ m%<time>(.*)</time>%;
+    ($t2) = $message2 =~ m%<time>(.*)</time>%;
+    if ($t1 gt $t2) {
+        $message1 =~ s%<time>.*</time>%<time>$t2</time>%;
+    }
+
+    # Get a source that is not an IP address if we can.
+    ($t1) = $message1 =~ m%<source>(.*)</source>%;
+    if ($t1 =~ m%^[-:.0-9]*$%) {
+	($t2) = $message2 =~ m%<source>(.*)</source>%;
+        $message1 =~ s%<source>.*</source>%<source>$t2</source>%;
+    }
+
+    # Get a destination that is not an IP address if we can.
+    ($t1) = $message1 =~ m%<destination>(.*)</destination>%;
+    if ($t1 =~ m%^[-:.0-9]*$%) {
+	($t2) = $message2 =~ m%<destination>(.*)</destination>%;
+        $message1 =~ s%<destination>.*</destination>%<destination>$t2</destination>%;
+    }
+
+    # Get a sourceAddress that is not an IP address if we can.
+    ($t1) = $message1 =~ m%<sourceAddress>(.*)</sourceAddress>%;
+    if ($t1 =~ m%^[-:.0-9]*$%) {
+	($t2) = $message2 =~ m%<sourceAddress>(.*)</sourceAddress>%; 
+       $message1 =~ s%<sourceAddress>.*</sourceAddress>%<sourceAddress>$t2</sourceAddress>%;
+    }
+
+    # Get a destinationAddress that is not an IP address if we can.
+    ($t1) = $message1 =~ m%<destinationAddress>(.*)</destinationAddress>%;
+    if ($t1 =~ m%^[-:.0-9]*$%) {
+	($t2) = $message2 =~ m%<destinationAddress>(.*)</destinationAddress>%;
+        $message1 =~ s%<destinationAddress>.*</destinationAddress>%<destinationAddress>$t2</destinationAddress>%;
+    }
+
+    # Combine the frameId's.
+    ($t2) = $message2 =~ m%<frameId>(.*)</frameId>%;
+    $message1 =~ s%<frameId>(.*)</frameId>%<frameId>$1 $t2</frameId>%;
+
+    return $message1;
+}
+
+# Turn text time into numeric value.
+sub numeric_time {
+    my($t) = @_;
+    my($year, $month, $mday, $hour, $minute, $second, $fraction);
+
+    ($year, $month, $mday, $hour, $minute, $second, $fraction) =
+	$t =~ m%^(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)(\.\d+)?%;
+    my($time_value) = timegm($second, $minute, $hour, $mday, $month-1,
+			     $year-1900) +
+				 $fraction;
+    return $time_value;
+}
