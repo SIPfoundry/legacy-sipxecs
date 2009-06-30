@@ -11,6 +11,7 @@ import gov.nist.javax.sip.clientauthutils.UserCredentials;
 import gov.nist.javax.sip.header.ims.PPreferredIdentityHeader;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -174,6 +175,8 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
 
     /**
      * Get an ITSP account based on the host and port of the indbound request.
+     * Look up the ITSP account based on the tompost via header of the inbound
+     * request. Should we reject the request if it is not from a known ITSP?
      * 
      * @param host
      * @param port
@@ -189,9 +192,13 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
                     // Account needs registration.
                     String registrarHost = accountInfo.getOutboundRegistrar();
                     logger.debug("registrarHost = " + registrarHost);
-                    if (viaHost.equals(InetAddress.getByName(registrarHost).getHostAddress())) {
-                        logger.debug("found account " + accountInfo.getProxyDomain());
-                        return accountInfo;
+                    try {
+                        if (viaHost.equals(InetAddress.getByName(registrarHost).getHostAddress())) {
+                            logger.debug("found account " + accountInfo.getProxyDomain());
+                            return accountInfo;
+                        }
+                    } catch (UnknownHostException ex) {
+                        logger.error("Cannot resolve host address " + registrarHost);
                     }
                 } else {
                     String inBoundProxyDomain = accountInfo.getInboundProxy();
@@ -203,10 +210,14 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
                     Collection<Hop> hops = new org.sipfoundry.commons.siprouter.FindSipServer(logger).findSipServers(sipUri);
                     for ( Hop hop : hops) {
                         logger.debug("Checking " + hop.getHost() + " port " + hop.getPort());
-                        if (viaHost.equals(InetAddress.getByName(hop.getHost()).getHostAddress())
-                                && hop.getPort() == port) {
-                            logger.debug("Inbound request from : " + accountInfo.getProxyDomain());
-                            return accountInfo;
+                        try {
+                            if (viaHost.equals(InetAddress.getByName(hop.getHost()).getHostAddress())
+                                    && hop.getPort() == port) {
+                                logger.debug("Inbound request from : " + accountInfo.getProxyDomain());
+                                return accountInfo;
+                            }
+                        } catch ( UnknownHostException ex) {
+                            logger.error("Cannot resolve host address " + hop.getHost());
                         }
                     }
                 }
