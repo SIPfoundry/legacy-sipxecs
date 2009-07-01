@@ -13,18 +13,10 @@
      - B E A N S
      -->
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
-  <component id="form" type="Form">
-    <binding name="delegate" value="bean:validator"/>
-    <binding name="listener" value="listener:formSubmit"></binding>
-  </component>
   <component id="itemCommon" type="common/ItemCommon">
     <binding name="item" value="conference" />
     <binding name="useEnabled" value="true" />
     <binding name="useExtension" value="true" />
-  </component>
-  <component id="settingsFieldset" type="setting/SettingsFieldset">
-    <binding name="settings" value="conference.settings"/>
-    <binding name="renderGroupTitle" value="false"/>
   </component>
   <component id="formActions" type="common/FormActions">
     <binding name="listener" value="listener:apply"/>

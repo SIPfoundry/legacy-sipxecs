@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.conference;
@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tapestry.IAsset;
@@ -39,34 +38,41 @@ import org.sipfoundry.sipxconfig.site.vm.ManageVoicemail;
 
 public abstract class EditConference extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "conference/EditConference";
-    
+
     public static final String TAB_CONFIG = "config";
     public static final String TAB_PARTICIPANTS = "participants";
-    
+
     private static final Log LOG = LogFactory.getLog(EditConference.class);
-    
+
     public abstract ConferenceBridgeContext getConferenceBridgeContext();
 
     public abstract Serializable getBridgeId();
+
     public abstract void setBridgeId(Serializable bridgeId);
 
     public abstract Bridge getBridge();
+
     public abstract void setBridge(Bridge bridge);
-    
+
     public abstract Bridge getTestBridge();
-    public abstract void setTestBridge(Bridge testBridge);    
-    
+
+    public abstract void setTestBridge(Bridge testBridge);
+
     public abstract Integer getOwnerId();
+
     public abstract void setOwnerId(Integer ownerId);
-    
+
     public abstract Serializable getConferenceId();
+
     public abstract void setConferenceId(Serializable id);
 
     @Persist("session")
     public abstract Conference getTransientConference();
+
     public abstract void setTransientConference(Conference transientConference);
-    
+
     public abstract Conference getConference();
+
     public abstract void setConference(Conference conference);
 
     public abstract boolean getChanged();
@@ -79,13 +85,13 @@ public abstract class EditConference extends PageWithCallback implements PageBeg
 
     @Asset("/images/breadcrumb_separator.png")
     public abstract IAsset getBreadcrumbSeparator();
-    
+
     @InjectState(value = "userSession")
     public abstract UserSession getUserSession();
 
     @InjectPage(EditBridge.PAGE)
     public abstract EditBridge getEditBridgePage();
-    
+
     @Persist
     @InitialValue(value = "literal:config")
     public abstract void setTab(String tab);
@@ -115,14 +121,14 @@ public abstract class EditConference extends PageWithCallback implements PageBeg
         if (bridge == null && getBridgeId() != null) {
             bridge = getConferenceBridgeContext().loadBridge(getBridgeId());
         }
-        
+
         setConference(conference);
         setBridge(bridge);
-        
+
         UserSession currentUser = getUserSession();
         if (!isAuthorized(currentUser, conference)) {
             LOG.warn(String.format("Unauthorized attempt to edit conference \"%s\" by user %s",
-                conference.getName(), currentUser.getUser(getCoreContext()).getUserName()));
+                    conference.getName(), currentUser.getUser(getCoreContext()).getUserName()));
             throw new PageRedirectException(ManageVoicemail.PAGE);
         }
     }
@@ -131,14 +137,13 @@ public abstract class EditConference extends PageWithCallback implements PageBeg
         User conferenceOwner = conference.getOwner();
         return (user.isAdmin() || (conferenceOwner != null && conferenceOwner.getId().equals(user.getUserId())));
     }
-    
+
     public List<String> getTabNames() {
-        String[] tabs = new String[] {TAB_CONFIG};
         Conference conference = getConference();
-        if (!conference.isNew() && conference.isEnabled()) {
-            tabs = (String[]) ArrayUtils.add(tabs, TAB_PARTICIPANTS);
+        if (conference.isNew() || !conference.isEnabled()) {
+            return Arrays.asList(TAB_CONFIG);
         }
-        return Arrays.asList(tabs);
+        return Arrays.asList(TAB_CONFIG, TAB_PARTICIPANTS, "dimdim");
     }
 
     public void apply() {
@@ -161,7 +166,7 @@ public abstract class EditConference extends PageWithCallback implements PageBeg
             if (bridge == null) {
                 bridge = getConferenceBridgeContext().loadBridge(getBridgeId());
             }
-            
+
             bridge.addConference(conference);
             getConferenceBridgeContext().store(bridge);
             Integer id = conference.getId();
@@ -176,8 +181,7 @@ public abstract class EditConference extends PageWithCallback implements PageBeg
             setConference(null);
         }
     }
-    
-    
+
     public IPage viewBridge(Integer bridgeId) {
         EditBridge page = getEditBridgePage();
         page.setBridgeId(bridgeId);

@@ -151,6 +151,10 @@ public class Conference extends BeanWithSettings implements NamedObject {
         return m_owner != null;
     }
 
+    public Setting getConfigSettings() {
+        return getSettings().getSetting("fs-conf-conference");
+    }
+
     @Override
     public void setSettingValue(String path, String value) {
         if (AOR_RECORD.equals(path)) {

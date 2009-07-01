@@ -50,4 +50,13 @@
     </setting>
     <setting name="FS_BRIDGE_CONFERENCE.REMOTE_ADMIT.SECRET" hidden="yes" />
   </group>
+  <group name="web-meeting">
+    <setting name="user">
+    </setting>
+    <setting name="password">
+      <type>
+        <string password="yes" />
+      </type>
+    </setting>
+  </group>
 </model>
