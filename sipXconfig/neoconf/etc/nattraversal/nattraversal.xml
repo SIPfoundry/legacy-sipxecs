@@ -71,6 +71,19 @@
       </type>
       <value>Conservative</value>
     </setting>
+    <setting name="reject-stray-packets">
+      <type>
+        <boolean>
+          <true>
+            <value>true</value>
+          </true>
+          <false>
+            <value>false</value>
+          </false>
+        </boolean>
+      </type>
+      <value>true</value>
+    </setting>
   </group>
   <group name="relay-config">
     <setting name="SIP_RELAY_LOG_LEVEL" hidden="yes">
