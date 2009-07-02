@@ -48,16 +48,25 @@ public class DimDimConference {
         params.put("password", getPassword());
         params.put("confname", m_conference.getName());
         params.put("internToll", m_conference.getExtension());
-        final String accessCode = m_conference.getParticipantAccessCode();
-        if (StringUtils.isNotBlank(accessCode)) {
-            params.put("attendeePwd", accessCode);
-        }
+        addAttendeePwd(params);
         String displayName = getDisplayName();
         if (StringUtils.isNotBlank(displayName)) {
             params.put("displayname", displayName);
         }
 
         StringBuilder uri = new StringBuilder("http://webmeeting.dimdim.com/portal/start.action?");
+        uri.append(paramsToQuery(params));
+        return uri.toString();
+    }
+
+    public String getJoinMeetingUrl() {
+        if (!isConfigured()) {
+            return null;
+        }
+        Map<String, String> params = new LinkedHashMap<String, String>();
+        params.put("meetingRoomName", getUser());
+        addAttendeePwd(params);
+        StringBuilder uri = new StringBuilder("http://webmeeting.dimdim.com/portal/join.action?");
         uri.append(paramsToQuery(params));
         return uri.toString();
     }
@@ -88,6 +97,13 @@ public class DimDimConference {
 
     String getPassword() {
         return m_conference.getSettingValue("web-meeting/password");
+    }
+
+    private void addAttendeePwd(Map<String, String> params) {
+        final String accessCode = m_conference.getParticipantAccessCode();
+        if (StringUtils.isNotBlank(accessCode)) {
+            params.put("attendeePwd", accessCode);
+        }
     }
 
     private String paramsToQuery(Map<String, String> params) {

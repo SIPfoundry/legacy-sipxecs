@@ -19,6 +19,7 @@ public class DimDimConferenceTest extends TestCase {
         DimDimConference dimDimConference = new DimDimConference(m_conference);
         assertFalse(dimDimConference.isConfigured());
         assertNull(dimDimConference.getCreateMeetingUrl());
+        assertNull(dimDimConference.getJoinMeetingUrl());
     }
 
     public void testGetCreateMeetingUrl() {
@@ -31,6 +32,8 @@ public class DimDimConferenceTest extends TestCase {
         assertEquals(
                 "http://webmeeting.dimdim.com/portal/start.action?name=dimUser&password=dimPass&confname=my_conf&internToll=12345",
                 dimDimConference.getCreateMeetingUrl());
+        assertEquals("http://webmeeting.dimdim.com/portal/join.action?meetingRoomName=dimUser", dimDimConference
+                .getJoinMeetingUrl());
     }
 
     public void testGetCreateMeetingUrlWithOwner() {
@@ -49,5 +52,7 @@ public class DimDimConferenceTest extends TestCase {
         assertEquals(
                 "http://webmeeting.dimdim.com/portal/start.action?name=jadams&password=dimPass&confname=my_conf&internToll=12345&attendeePwd=9988&displayname=John+Adams",
                 dimDimConference.getCreateMeetingUrl());
+        assertEquals("http://webmeeting.dimdim.com/portal/join.action?meetingRoomName=jadams&attendeePwd=9988",
+                dimDimConference.getJoinMeetingUrl());
     }
 }
