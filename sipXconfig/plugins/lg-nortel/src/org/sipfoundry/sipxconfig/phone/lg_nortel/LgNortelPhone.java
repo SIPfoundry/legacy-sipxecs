@@ -15,6 +15,9 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.Profile;
@@ -34,10 +37,15 @@ public class LgNortelPhone extends Phone {
     private static final String VOIP_DISPLAYNAME = "VOIP/displayname";
     private static final String VOIP_NAME = "VOIP/name";
     private static final String VOIP_TYPE = "VOIP/type";
+    private CoreContext m_coreContext;
 
     private String m_phonebookFilename = "{0}-phonebook.csv";
 
     public LgNortelPhone() {
+    }
+
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
     }
 
     @Override
@@ -86,15 +94,22 @@ public class LgNortelPhone extends Phone {
     @Override
     protected ProfileContext createContext() {
         SpeedDial speedDial = getPhoneContext().getSpeedDial(this);
-        return new LgNortelProfileContext(this, speedDial, getModel().getProfileTemplate());
+        return new LgNortelProfileContext(this, speedDial, m_coreContext, getModel().getProfileTemplate());
     }
 
     static class LgNortelProfileContext extends ProfileContext {
         private final SpeedDial m_speeddial;
+        private CoreContext m_coreContext;
 
-        LgNortelProfileContext(LgNortelPhone phone, SpeedDial speeddial, String profileTemplate) {
+        LgNortelProfileContext(LgNortelPhone phone, SpeedDial speeddial, CoreContext coreContext,
+                String profileTemplate) {
             super(phone, profileTemplate);
             m_speeddial = speeddial;
+            m_coreContext = coreContext;
+        }
+
+        public void setCoreContext(CoreContext coreContext) {
+            m_coreContext = coreContext;
         }
 
         @Override
@@ -112,9 +127,16 @@ public class LgNortelPhone extends Phone {
                         Line line = new Line();
                         line.setPhone(phone);
                         phone.initializeLine(line);
+                        String number = button.getNumber();
+                        User user = m_coreContext.loadUserByAlias(number);
+                        if (user != null) {
+                            // if number matches any known user make sure
+                            // to use username and not an alias
+                            number = user.getUserName();
+                        }
                         line.setSettingValue(VOIP_DISPLAYNAME, button.getLabel());
-                        line.setSettingValue(VOIP_NAME, button.getNumber());
-                        line.setSettingValue(VOIP_EXTENSION, button.getNumber());
+                        line.setSettingValue(VOIP_NAME, number);
+                        line.setSettingValue(VOIP_EXTENSION, number);
                         line.setSettingValue(VOIP_TYPE, "dss");
                         phone.addLine(line);
                     } else {

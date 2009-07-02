@@ -13,6 +13,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import junit.framework.TestCase;
 
@@ -21,6 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.device.Profile;
@@ -34,6 +37,7 @@ import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.phone.lg_nortel.LgNortelPhone.PhonebookProfile;
 import org.sipfoundry.sipxconfig.speeddial.Button;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
+
 
 public class LgNortelPhoneTest extends TestCase {
     public void _testFactoryRegistered() {
@@ -252,16 +256,29 @@ public class LgNortelPhoneTest extends TestCase {
 
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
 
-        User user = new User() {
+        User user1 = new User() {
             public Integer getId() {
                 return 115;
             }
         };
-        user.setUserName("juser");
-        user.setFirstName("Joe");
-        user.setLastName("User");
-        user.setSipPassword("1234");
-        PhoneTestDriver.supplyTestData(phone, Collections.singletonList(user));
+        user1.setUserName("juser");
+        user1.setFirstName("Joe");
+        user1.setLastName("User");
+        user1.setSipPassword("1234");
+        PhoneTestDriver.supplyTestData(phone, Collections.singletonList(user1));
+
+        User user2 = new User();
+        User user3 = new User();
+        user2.setUserName("Bill");
+        user3.setUserName("Bob");
+
+        Set user2Aliases = new LinkedHashSet(); // use LinkedHashSet for stable ordering
+        user2Aliases.add("201");
+        user2.setAliases(user2Aliases);
+
+        Set user3Aliases = new LinkedHashSet(); // use LinkedHashSet for stable ordering
+        user3Aliases.add("202");
+        user3.setAliases(user3Aliases);
 
         Button[] buttons = new Button[] {
             new Button("Bill User", "201"), new Button("Bob User", "202")
@@ -270,7 +287,18 @@ public class LgNortelPhoneTest extends TestCase {
         SpeedDial sp = new SpeedDial();
         sp.setButtons(Arrays.asList(buttons));
         buttons[1].setBlf(true);
-        sp.setUser(user);
+        sp.setUser(user1);
+
+        IMocksControl coreContextControl = EasyMock.createNiceControl();
+        CoreContext coreContext = coreContextControl.createMock(CoreContext.class);
+
+        coreContext.loadUserByAlias("201");
+        EasyMock.expectLastCall().andReturn(user2);
+        coreContext.loadUserByAlias("202");
+        EasyMock.expectLastCall().andReturn(user3);
+        coreContextControl.replay();
+
+        phone.setCoreContext(coreContext);
 
         IMocksControl phoneContextControl = EasyMock.createNiceControl();
         PhoneContext phoneContext = phoneContextControl.createMock(PhoneContext.class);
