@@ -47,13 +47,17 @@ public class AcdStatisticsImpl implements AcdStatistics {
 
     private String m_queueUri;
 
-    private AcdContext m_acdContext;
+    private final AcdContext m_acdContext;
 
     private Predicate m_agentFilter = TruePredicate.INSTANCE;
 
     private Predicate m_callFilter = TruePredicate.INSTANCE;
 
     private Predicate m_queueFilter = TruePredicate.INSTANCE;
+
+    public AcdStatisticsImpl(AcdContext acdContext) {
+        m_acdContext = acdContext;
+    }
 
     public AcdStatsService getAcdStatsService(Serializable acdServerId) {
         try {
@@ -127,10 +131,6 @@ public class AcdStatisticsImpl implements AcdStatistics {
         CollectionUtils.transform(stats, transformer);
         CollectionUtils.filter(stats, filter);
         return stats;
-    }
-
-    public void setAcdContext(AcdContext acdContext) {
-        m_acdContext = acdContext;
     }
 
     static class AgentNameFilter implements Predicate {

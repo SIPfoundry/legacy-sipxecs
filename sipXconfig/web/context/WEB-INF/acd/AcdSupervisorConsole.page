@@ -9,7 +9,6 @@
   <inject property="acdContext" object="spring:acdContext" />
   <inject property="coreContext" object="spring:coreContext" />
   <inject property="userSession" type="state" object="userSession"/>
-  <inject property="acdStatistics" object="spring:acdStatistics" />
 
   <component id="border" type="common/Border">
     <binding name="useDojo"

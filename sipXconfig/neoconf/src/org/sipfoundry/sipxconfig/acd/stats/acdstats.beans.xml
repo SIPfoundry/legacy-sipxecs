@@ -3,13 +3,6 @@
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
   
-  <bean id="acdStatistics" class="org.sipfoundry.sipxconfig.acd.stats.AcdStatisticsImpl" autowire="no" 
-      singleton="false">
-    <property name="acdContext">
-      <ref bean="acdContext"/>      
-    </property>
-  </bean>  
-
   <bean id="acdHistoryDataSource" parent="dataSource">
     <property name="jdbcUrl" value="jdbc:postgresql://localhost/SIPXACD_HISTORY" />
   </bean>
