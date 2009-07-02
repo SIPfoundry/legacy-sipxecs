@@ -47,4 +47,8 @@ public class DataSetGeneratorTestIntegration extends IntegrationTestCase {
     public void setUserlocationDataSet(UserLocation userLocations) {
         m_dataSetGeneratorMap.put(DataSet.USER_LOCATION.getName(), userLocations);
     }
+
+    public void setUserforwardDataSet(UserForward cfwdTime) {
+        m_dataSetGeneratorMap.put(DataSet.USER_FORWARD.getName(), cfwdTime);
+    }
 }

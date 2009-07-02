@@ -121,6 +121,7 @@ public class ForwardingResource extends UserResource {
             xstream.omitField(BeanWithId.class, "m_id");
             xstream.alias("call-sequence", CallSequence.class);
             xstream.omitField(CallSequence.class, "m_user");
+            xstream.omitField(CallSequence.class, "m_cfwdTime");
             xstream.alias("ring", Ring.class);
             xstream.omitField(Ring.class, "m_schedule");
             xstream.omitField(Ring.class, "m_callSequence");

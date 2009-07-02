@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.forwarding;
@@ -22,6 +22,9 @@ import org.sipfoundry.sipxconfig.common.User;
 public class CallSequence extends AbstractCallSequence {
     private User m_user;
     private boolean m_withVoicemail;
+
+    /** Serial forking expiry timer (in seconds). */
+    private int m_cfwdTime = 20;
 
     public CallSequence() {
         // empty default constructor
@@ -67,6 +70,15 @@ public class CallSequence extends AbstractCallSequence {
         m_withVoicemail = withVoicemail;
     }
 
+    public int getCfwdTime() {
+        return m_cfwdTime;
+    }
+
+    public void setCfwdTime(int cfwdtime) {
+        m_cfwdTime = cfwdtime;
+    }
+
+    @Override
     public void insertRings(Collection rings) {
         super.insertRings(rings);
         for (Iterator iter = rings.iterator(); iter.hasNext();) {

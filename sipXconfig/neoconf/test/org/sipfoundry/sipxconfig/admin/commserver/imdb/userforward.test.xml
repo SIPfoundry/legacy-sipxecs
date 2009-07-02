@@ -1,0 +1,15 @@
+<?xml version="1.0" standalone="yes" ?>
+<items type="userforward">
+    <item>
+        <identity>mir1@example.org</identity>
+        <cfwdtime>20</cfwdtime>
+    </item>
+    <item>
+        <identity>mir2@example.org</identity>
+        <cfwdtime>8</cfwdtime>
+    </item>
+    <item>
+        <identity>mir3@example.org</identity>
+        <cfwdtime>192</cfwdtime>
+    </item>
+</items>

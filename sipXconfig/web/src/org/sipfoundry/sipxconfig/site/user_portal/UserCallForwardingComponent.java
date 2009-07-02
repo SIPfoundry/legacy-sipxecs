@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.user_portal;
@@ -29,8 +29,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.site.UserSession;
 
-public abstract class UserCallForwardingComponent extends BaseComponent implements
-        PageBeginRenderListener {
+public abstract class UserCallForwardingComponent extends BaseComponent implements PageBeginRenderListener {
     private static final String ACTION_ADD = "add";
 
     @InjectObject(value = "spring:forwardingContext")
@@ -40,6 +39,10 @@ public abstract class UserCallForwardingComponent extends BaseComponent implemen
     public abstract List<Ring> getRings();
 
     public abstract void setRings(List<Ring> rings);
+
+    public abstract Integer getUserExpiration();
+
+    public abstract void setUserExpiration(Integer expiration);
 
     public abstract String getAction();
 
@@ -68,13 +71,18 @@ public abstract class UserCallForwardingComponent extends BaseComponent implemen
         }
         setCurrentUserId(getUser().getId());
 
+        final CallSequence callSequence = getCallSequence();
+
+        if (getUserExpiration() == null) {
+            setUserExpiration(callSequence.getCfwdTime());
+        }
         if (getRings() != null) {
             refreshAvailableSchedules();
             return;
         }
 
         refreshAvailableSchedules();
-        List rings = createDetachedRingList(getCallSequence());
+        List rings = createDetachedRingList(callSequence);
         setRings(rings);
     }
 
@@ -86,7 +94,7 @@ public abstract class UserCallForwardingComponent extends BaseComponent implemen
 
     /**
      * Create list of rings that is going to be stored in session.
-     * 
+     *
      * The list is a clone of the list kept by current call sequence, ring objects do not have
      * valid ids and their call sequence field is set to null.
      */
@@ -123,10 +131,13 @@ public abstract class UserCallForwardingComponent extends BaseComponent implemen
             // do nothing on errors
             return;
         }
+
         CallSequence callSequence = getCallSequence();
         callSequence.clear();
         callSequence.insertRings(getRings());
+        callSequence.setCfwdTime(getUserExpiration());
         getForwardingContext().saveCallSequence(callSequence);
+        getForwardingContext().flush();
     }
 
     public void deleteRing(int position) {

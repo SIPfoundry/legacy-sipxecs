@@ -50,6 +50,7 @@ public class LazySipxReplicationContextImplTestIntegration extends TestCase {
         replication.generate(DataSet.PERMISSION);
         replication.generate(DataSet.CALLER_ALIAS);
         replication.generate(DataSet.USER_LOCATION);
+        replication.generate(DataSet.USER_FORWARD);
         replication.publishEvent(event);
         replication.replicate(orbits);
         replication.generate(DataSet.ALIAS);
@@ -58,6 +59,7 @@ public class LazySipxReplicationContextImplTestIntegration extends TestCase {
         replication.generate(DataSet.PERMISSION);
         replication.generate(DataSet.CALLER_ALIAS);
         replication.generate(DataSet.USER_LOCATION);
+        replication.generate(DataSet.USER_FORWARD);
         replay(replication);
 
         int interval = 50;

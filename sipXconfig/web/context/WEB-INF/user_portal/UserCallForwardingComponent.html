@@ -11,7 +11,11 @@
         <tbody>
           <tr>
             <td colspan="4">
-              <span jwcid="@Insert" value="ognl:firstCallMsg">Your extension will ring first.</span>
+              <span jwcid="@Insert" value="ognl:firstCallMsg">Your extension will ring first for</span>
+            </td>
+            <td>
+              <input jwcid="userExpiration@TextField" value="ognl:userExpiration" displayName="message:label.ring" maxlength="10" type="text" id="delay" size="3" translator="translator:sipxnumber,omitZero=true" validators="validators:required,min=1,max=999"/>
+              <span key="msg.seconds">seconds</span>
             </td>
           </tr>
           <!-- iterate here -->            

@@ -316,6 +316,7 @@
     <antcall target="site-to-site-rule" />
     <antcall target="attendant_dialing_rule_migrate" />
 	<antcall target="add_addressbook_entry_info" />
+    <antcall target="add-user-callforward" />
   </target>
 
   <target name="time_of_day" unless="time_of_day">
@@ -832,6 +833,10 @@
 
   <target name="delete-volatile-gateways" unless="delete-volatile-gateways">
     <db-patch patch="volatile-clearance"/>
+  </target>
+
+  <target name="add-user-callforward" unless="add-user-callforward">
+    <db-patch patch="add-user-callforward"/>
   </target>
 
   <!--

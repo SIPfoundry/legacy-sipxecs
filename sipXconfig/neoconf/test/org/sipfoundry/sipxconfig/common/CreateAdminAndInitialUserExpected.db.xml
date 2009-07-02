@@ -11,6 +11,7 @@
     user_name="superadmin"
     value_storage_id="[null]"
     address_book_entry_id="[null]"
+    cfwd_time="20"
 		/>
     <group_storage 
   		resource="user"

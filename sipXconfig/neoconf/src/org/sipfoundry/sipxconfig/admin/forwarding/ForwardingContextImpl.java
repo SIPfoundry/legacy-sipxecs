@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.forwarding;
@@ -34,10 +34,9 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 /**
  * ForwardingContextImpl
- * 
+ *
  */
-public class ForwardingContextImpl extends HibernateDaoSupport implements ForwardingContext,
-        ApplicationListener {
+public class ForwardingContextImpl extends HibernateDaoSupport implements ForwardingContext, ApplicationListener {
 
     private static final String PARAM_SCHEDULE_ID = "scheduleId";
     private static final String PARAM_USER_ID = "userId";
@@ -52,13 +51,13 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
 
     /**
      * Looks for a call sequence associated with a given user.
-     * 
+     *
      * This version just assumes that CallSequence id is the same as user id. More general
      * implementation would run a query. <code>
      *      String ringsForUser = "from CallSequence cs where cs.user = :user";
      *      hibernate.findByNamedParam(ringsForUser, "user", user);
      * </code>
-     * 
+     *
      * @param user for which CallSequence object is retrieved
      */
     public CallSequence getCallSequenceForUser(User user) {
@@ -68,6 +67,7 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
     public void notifyCommserver() {
         // Notify commserver of ALIAS
         m_replicationContext.generate(DataSet.ALIAS);
+        m_replicationContext.generate(DataSet.USER_FORWARD);
     }
 
     public void saveCallSequence(CallSequence callSequence) {
@@ -114,7 +114,7 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
 
     /**
      * Loads call sequences for all uses in current root organization
-     * 
+     *
      * @return list of CallSequence objects
      */
     private List<CallSequence> loadAllCallSequences() {
@@ -147,6 +147,7 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
     }
 
     private class OnUserDelete extends UserDeleteListener {
+        @Override
         protected void onUserDelete(User user) {
             removeCallSequenceForUserId(user.getId());
             removeSchedulesForUserID(user.getId());
@@ -154,6 +155,7 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
     }
 
     private class OnUserGroupDelete extends UserGroupDeleteListener {
+        @Override
         protected void onUserGroupDelete(Group group) {
             List<UserGroupSchedule> schedules = getSchedulesForUserGroupId(group.getId());
             if (schedules != null && schedules.size() > 0) {
@@ -175,6 +177,7 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
     }
 
     private class OnScheduleDelete extends ScheduleDeleteListener {
+        @Override
         protected void onScheduleDelete(Schedule schedule) {
             if (schedule instanceof GeneralSchedule) {
                 // get all dialing rules and set schedule to Always
@@ -202,22 +205,19 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
     public List<Schedule> getPersonalSchedulesForUserId(Integer userId) {
         HibernateTemplate hibernate = getHibernateTemplate();
 
-        return hibernate.findByNamedQueryAndNamedParam("userSchedulesForUserId", PARAM_USER_ID,
-                userId);
+        return hibernate.findByNamedQueryAndNamedParam("userSchedulesForUserId", PARAM_USER_ID, userId);
     }
 
     public List getRingsForScheduleId(Integer scheduleId) {
         HibernateTemplate hibernate = getHibernateTemplate();
 
-        return hibernate.findByNamedQueryAndNamedParam("ringsForScheduleId", PARAM_SCHEDULE_ID,
-                scheduleId);
+        return hibernate.findByNamedQueryAndNamedParam("ringsForScheduleId", PARAM_SCHEDULE_ID, scheduleId);
     }
 
     private List getDialingRulesForScheduleId(Integer scheduleId) {
         HibernateTemplate hibernate = getHibernateTemplate();
 
-        return hibernate.findByNamedQueryAndNamedParam("dialingRulesForScheduleId",
-                PARAM_SCHEDULE_ID, scheduleId);
+        return hibernate.findByNamedQueryAndNamedParam("dialingRulesForScheduleId", PARAM_SCHEDULE_ID, scheduleId);
     }
 
     public Schedule getScheduleById(Integer scheduleId) {
@@ -242,42 +242,40 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
 
     private void checkForDuplicateNames(Schedule schedule) {
         if (isNameInUse(schedule)) {
-            throw new UserException("A schedule with name {0} is already defined", schedule
-                    .getName());
+            throw new UserException("A schedule with name {0} is already defined", schedule.getName());
         }
     }
 
     private boolean isNameInUse(Schedule schedule) {
         List count = null;
         if (schedule instanceof UserSchedule) {
-            count = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                    "anotherUserScheduleWithTheSameName", new String[] {
+            count = getHibernateTemplate().findByNamedQueryAndNamedParam("anotherUserScheduleWithTheSameName",
+                    new String[] {
                         PARAM_USER_ID, PARAM_NAME
                     }, new Object[] {
                         schedule.getUser().getId(), schedule.getName()
                     });
         } else if (schedule instanceof UserGroupSchedule) {
-            count = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                    "anotherUserGroupScheduleWithTheSameName", new String[] {
+            count = getHibernateTemplate().findByNamedQueryAndNamedParam("anotherUserGroupScheduleWithTheSameName",
+                    new String[] {
                         PARAM_USER_GROUP_ID, PARAM_NAME
                     }, new Object[] {
                         schedule.getUserGroup().getId(), schedule.getName()
                     });
         } else if (schedule instanceof GeneralSchedule) {
-            count = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                    "anotherGeneralScheduleWithTheSameName", PARAM_NAME, schedule.getName());
+            count = getHibernateTemplate().findByNamedQueryAndNamedParam("anotherGeneralScheduleWithTheSameName",
+                    PARAM_NAME, schedule.getName());
         }
 
         return DataAccessUtils.intResult(count) > 0;
     }
 
     private boolean isNameChanged(Schedule schedule) {
-        List count = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                "countScheduleWithSameName", new String[] {
-                    PARAM_SCHEDULE_ID, PARAM_NAME
-                }, new Object[] {
-                    schedule.getId(), schedule.getName()
-                });
+        List count = getHibernateTemplate().findByNamedQueryAndNamedParam("countScheduleWithSameName", new String[] {
+            PARAM_SCHEDULE_ID, PARAM_NAME
+        }, new Object[] {
+            schedule.getId(), schedule.getName()
+        });
 
         return DataAccessUtils.intResult(count) == 0;
     }
@@ -309,8 +307,8 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
     public List<UserGroupSchedule> getSchedulesForUserGroupId(Integer userGroupId) {
         HibernateTemplate hibernate = getHibernateTemplate();
 
-        return hibernate.findByNamedQueryAndNamedParam("userSchedulesForUserGroupId",
-                PARAM_USER_GROUP_ID, userGroupId);
+        return hibernate.findByNamedQueryAndNamedParam("userSchedulesForUserGroupId", PARAM_USER_GROUP_ID,
+                userGroupId);
     }
 
     public List<GeneralSchedule> getAllGeneralSchedules() {

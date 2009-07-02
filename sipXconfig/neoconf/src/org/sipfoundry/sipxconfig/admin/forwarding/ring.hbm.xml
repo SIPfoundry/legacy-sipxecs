@@ -35,6 +35,7 @@
       <index column="position" />
       <one-to-many class="Ring" />
     </list>
+    <property name="cfwdTime" />
   </class>
 
   <class name="Schedule" table="schedule" abstract="true" discriminator-value="S">

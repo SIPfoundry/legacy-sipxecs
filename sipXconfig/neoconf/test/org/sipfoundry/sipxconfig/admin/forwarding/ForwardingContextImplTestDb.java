@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.forwarding;
@@ -32,8 +32,9 @@ import org.springframework.dao.DataAccessException;
 public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
     private ForwardingContext m_context;
     private CoreContext m_coreContext;
-    private Integer m_testUserId = new Integer(1000);
+    private final Integer m_testUserId = new Integer(1000);
 
+    @Override
     protected void setUp() throws Exception {
         ApplicationContext appContext = TestHelper.getApplicationContext();
         m_coreContext = (CoreContext) appContext.getBean(CoreContext.CONTEXT_BEAN_NAME);
@@ -50,6 +51,7 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
         User user = m_coreContext.loadUser(m_testUserId);
         CallSequence callSequence = m_context.getCallSequenceForUser(user);
         assertEquals(user.getId(), callSequence.getUser().getId());
+        assertEquals(25, callSequence.getCfwdTime());
         List calls = callSequence.getRings();
         assertEquals(3, calls.size());
         // test data: id, number: "23id", expiration "40(id-1000)", type - always delayed
@@ -101,6 +103,8 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
         Ring ring1 = (Ring) calls.get(1);
         callSequence.removeRing(ring1);
 
+        callSequence.setCfwdTime(35);
+
         try {
             m_context.saveCallSequence(callSequence);
             m_context.flush();
@@ -115,6 +119,9 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
         ITable actual = TestHelper.getConnection().createDataSet().getTable("ring");
 
         Assertion.assertEquals(expected, actual);
+
+        ITable userTable = TestHelper.getConnection().createDataSet().getTable("users");
+        assertEquals(35, userTable.getValue(0, "cfwd_time"));
     }
 
     public void testMove() throws Exception {
