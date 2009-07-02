@@ -18,6 +18,11 @@
         </div>
         </form>
         <div id="banner-links">
+            <span jwcid="@If" condition="ognl:!userSession.admin" renderTag="false">
+              <a jwcid="@PageLink" id="link.user" page="user_portal/EditMyInformation">
+                <span jwcid="name@Insert" value="ognl:userName">id</span>
+              </a>
+            </span>
             <a jwcid="@PageLink" class="linkHome" id="link.home" page="Home">
                 <span key="link.home">Home</span>
             </a>

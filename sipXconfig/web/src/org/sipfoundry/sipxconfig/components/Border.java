@@ -39,6 +39,7 @@ import org.apache.tapestry.event.PageValidateListener;
 import org.apache.tapestry.link.StaticLink;
 import org.apache.tapestry.web.WebRequest;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.VersionInfo;
 import org.sipfoundry.sipxconfig.site.ApplicationLifecycle;
 import org.sipfoundry.sipxconfig.site.Home;
@@ -49,6 +50,7 @@ import org.sipfoundry.sipxconfig.site.user.FirstUser;
 
 @ComponentClass(allowInformalParameters = false)
 public abstract class Border extends BaseComponent implements PageValidateListener, PageBeginRenderListener {
+
     @InjectObject(value = "spring:versionInfo")
     public abstract VersionInfo getVersionInfo();
 
@@ -208,5 +210,10 @@ public abstract class Border extends BaseComponent implements PageValidateListen
 
     public String getHelpLink(Integer[] versionIds) {
         return getMessages().format("help.link", versionIds);
+    }
+
+    public String getUserName() {
+        User user = getUserSession().getUser(getCoreContext());
+        return user.getLabel();
     }
 }
