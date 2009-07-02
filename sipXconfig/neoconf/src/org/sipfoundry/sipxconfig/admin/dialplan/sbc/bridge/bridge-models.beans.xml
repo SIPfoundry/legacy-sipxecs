@@ -9,7 +9,6 @@
     <property name="serialNumberPattern" value="" />
     <property name="restartSupported" value="true" />
     <property name="defaultPort" value="5090" />
-    <property name="internetCallingSupported" value="false" />
     <property name="internalSbc" value="true" />
   </bean>
 
