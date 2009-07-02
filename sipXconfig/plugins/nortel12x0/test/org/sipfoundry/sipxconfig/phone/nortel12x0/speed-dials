@@ -55,6 +55,9 @@
 <timezone><![CDATA[-05:00 Eastern]]></timezone>
 <dstAutoAdjust><![CDATA[FALSE]]></dstAutoAdjust>
 </timesettings> 
+<presence>
+<sipRlsUri><![CDATA[sip:~~rl~C~juser@sipfoundry.org]]></sipRlsUri>
+</presence>
 <intercom>
 <callInfoHeader>TRUE</callInfoHeader>
 <intercomTimeout><![CDATA[15]]></intercomTimeout>
@@ -73,8 +76,8 @@
 </sp1>
 <sp2>
 <name><![CDATA[def_def]]></name>
-<number><![CDATA[456]]></number>
-<presence><![CDATA[0]]></presence>
+<number><![CDATA[def_def]]></number>
+<presence><![CDATA[1]]></presence>
 </sp2>
 <sp3>
 <name><![CDATA[xyz abc]]></name>

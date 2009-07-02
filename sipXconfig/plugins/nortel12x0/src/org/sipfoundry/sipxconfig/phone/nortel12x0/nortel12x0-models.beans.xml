@@ -38,6 +38,7 @@
 
   <bean id="nortel12x0" class="org.sipfoundry.sipxconfig.phone.nortel12x0.Nortel12x0Phone" singleton="false"
     parent="abstractPhone">
+    <property name="coreContext" ref="coreContext" />
   </bean>
 
   <bean id="nortel12x0Firmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
