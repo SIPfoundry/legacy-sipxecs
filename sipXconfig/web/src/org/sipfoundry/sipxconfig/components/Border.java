@@ -14,6 +14,7 @@ import java.text.Format;
 import java.util.Collection;
 import java.util.Date;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IAsset;
 import org.apache.tapestry.IComponent;
@@ -213,7 +214,11 @@ public abstract class Border extends BaseComponent implements PageValidateListen
     }
 
     public String getUserName() {
-        User user = getUserSession().getUser(getCoreContext());
+        UserSession userSession = getUserSession();
+        if (!userSession.isLoggedIn()) {
+            return StringUtils.EMPTY;
+        }
+        User user = userSession.getUser(getCoreContext());
         return user.getLabel();
     }
 }
