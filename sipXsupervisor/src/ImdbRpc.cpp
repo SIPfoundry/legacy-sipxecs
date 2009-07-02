@@ -27,6 +27,7 @@
 #include "sipdb/RegistrationDB.h"
 #include "sipdb/ExtensionDB.h"
 #include "sipdb/UserLocationDB.h"
+#include "sipdb/UserForwardDB.h"
 
 #include "SipxRpc.h"
 #include "ImdbRpc.h"
@@ -52,6 +53,7 @@
 #define  EXTENSION      "extension"
 #define  REGISTRATION   "registration"
 #define  USERLOCATION   "userlocation"
+#define  USERFORWARD    "userforward"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -214,6 +216,11 @@ void ImdbRpcMethod::storeTable(const UtlString& tableName){
        if ( UserLocationDB::getInstance()->store() != OS_SUCCESS ){
        }
     }
+
+    else if ( tableName == USERFORWARD ){
+       if ( UserForwardDB::getInstance()->store() != OS_SUCCESS ){
+       }
+    }
 }
 
 
@@ -245,6 +252,10 @@ UtlBoolean ImdbRpcMethod::insertTableRecord(UtlString& tableName, const UtlHashM
 
     else if ( tableName == USERLOCATION ){
        result = UserLocationDB::getInstance()->insertRow(tableRecord);
+    }    
+
+    else if ( tableName == USERFORWARD ){
+       result = UserForwardDB::getInstance()->insertRow(tableRecord);
     }    
 
     else if ( tableName == CALLER_ALIAS ){
@@ -442,6 +453,10 @@ void ImdbRpcReplaceTable::clearTable(UtlString& tableName)
     {
        UserLocationDB::getInstance()->removeAllRows();
     }
+    else if ( tableName == USERFORWARD )
+    {
+       UserForwardDB::getInstance()->removeAllRows();
+    }
     else
     {
        OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "ImdbRpcReplaceTable::clearTable "
@@ -580,6 +595,10 @@ void ImdbRpcRetrieveTable::readTable(UtlString& tableName, ResultSet* imdb_recor
 
     else if ( tableName == USERLOCATION ){
        UserLocationDB::getInstance()->getAllRows( *imdb_records );
+    }
+
+    else if ( tableName == USERFORWARD ){
+       UserForwardDB::getInstance()->getAllRows( *imdb_records );
     }
 
     else if ( tableName == CALLER_ALIAS ){
@@ -931,6 +950,12 @@ UtlBoolean ImdbRpcDeleteTableRecords::deleteTableRecord(UtlString& tableName, co
 
     else if ( tableName == USERLOCATION ){
           UserLocationDB::getInstance()->removeRows(
+                     Url (*((UtlString*)tableRecordKeys.findValue(&identityKey))) );
+       result = TRUE;
+    }
+
+    else if ( tableName == USERFORWARD ){
+          UserForwardDB::getInstance()->removeRow(
                      Url (*((UtlString*)tableRecordKeys.findValue(&identityKey))) );
        result = TRUE;
     }

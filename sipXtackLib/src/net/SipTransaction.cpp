@@ -621,7 +621,9 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
 
         // Look up the DNS SRV records, create the child transactions,
         // and start pursuing the first child.
-        sendSucceeded = recurseDnsSrvChildren(userAgent, transactionList);
+        UtlString toAddrUri;
+        outgoingMessage.getToUri(&toAddrUri);
+        sendSucceeded = recurseDnsSrvChildren(userAgent, transactionList, &toAddrUri);
     }
     else    // It is a response, cancel, dnsChild, or an ack for failure
     {       // these messages do not get dns lookup, do not get protocol change
@@ -1184,7 +1186,9 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
                         mpParentTransaction->isChildSerial())
                     {
                         // Transactions that fork serially get a different default expiration.
-                        expireSeconds = userAgent.getDefaultSerialExpiresSeconds();
+                        UtlString toAddrUri;
+                        message.getContactUri(0, &toAddrUri);
+                        expireSeconds = userAgent.getUserSerialExpiresSeconds(&toAddrUri);
                     }
                     else
                     {
@@ -2412,7 +2416,8 @@ UtlBoolean SipTransaction::startSequentialSearch(SipUserAgent& userAgent,
 }
 
 UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
-                                                 SipTransactionList& transactionList)
+                                                 SipTransactionList& transactionList,
+                                                 UtlString* toAddrUri)
 {
     // If this is a client transaction requiring DNS SRV lookup
     // and we need to create the children to recurse
@@ -2468,7 +2473,7 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
                expireSeconds = (  (   mpParentTransaction
                                    && mpParentTransaction->isChildSerial()
                                    )
-                                ? userAgent.getDefaultSerialExpiresSeconds()
+                                ? userAgent.getUserSerialExpiresSeconds(toAddrUri)
                                 : maxExpires
                                 );
             }

@@ -460,8 +460,8 @@ void SipMessage::setInviteData(const char* fromField,
     toUrl.removeHeaderParameters();
     UtlString toFieldString;
     toUrl.toString(toFieldString);
-    
-   setRequestData(SIP_INVITE_METHOD,
+
+    setRequestData(SIP_INVITE_METHOD,
         uri, // URI
         fromField,
         toFieldString.data(),

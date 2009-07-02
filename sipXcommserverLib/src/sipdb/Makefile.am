@@ -36,6 +36,7 @@ libsipdb_la_SOURCES =  \
    ExtensionDB.cpp \
    LocationDB.cpp \
    UserLocationDB.cpp \
+   UserForwardDB.cpp \
    RegistrationBinding.cpp \
    PermissionDB.cpp \
    RegistrationDB.cpp \

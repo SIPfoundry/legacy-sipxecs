@@ -65,7 +65,10 @@
 // can be idle before it is garbage collected.
 // Default value is 5 minutes.
 #define DEFAULT_TCP_SOCKET_IDLE_TIME 300
-#define DEFAULT_SIP_TRANSACTION_TIMEOUT 180
+
+// Default expiry times (in seconds)
+#define DEFAULT_SIP_TRANSACTION_EXPIRES 180
+#define DEFAULT_SIP_SERIAL_EXPIRES 20
 
 #define MAXIMUM_SIP_LOG_SIZE 100000
 #define SIP_UA_LOG "sipuseragent.log"
@@ -125,7 +128,8 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
                            UtlBoolean bUseNextAvailablePort,
                            UtlBoolean doUaMessageChecks,
                            UtlBoolean bForceSymmetricSignaling,
-                           OptionsRequestHandlePref howTohandleOptionsRequest
+                           OptionsRequestHandlePref howTohandleOptionsRequest,
+                           const CfwdTimerCallback cfwdTimerCallback
                            ) 
         : SipUserAgentBase(sipTcpPort, sipUdpPort, sipTlsPort, queueSize)
         , mSipTcpServer(NULL)
@@ -144,6 +148,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
         , mbForceSymmetricSignaling(bForceSymmetricSignaling)
         , mbShuttingDown(FALSE)
         , mbShutdownDone(FALSE)
+        , mCfwdTimerCallback(cfwdTimerCallback)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipUserAgent[%s]::_ sipTcpPort = %d, sipUdpPort = %d, "
@@ -218,7 +223,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
 
     // INVITE transactions need to stick around for a minimum of
     // 3 minutes
-    mMinInviteTransactionTimeout = DEFAULT_SIP_TRANSACTION_TIMEOUT;
+    mMinInviteTransactionTimeout = DEFAULT_SIP_TRANSACTION_EXPIRES;
 
     mForkingEnabled = TRUE;
     mRecurseOnlyOne300Contact = FALSE;
@@ -387,8 +392,8 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
     // (Default is 8000 msec.)
     mTransactionStateTimeoutMs = 10 * mMaxResendTimeoutMs;
     // How long before we expire transactions by default
-    mDefaultExpiresSeconds = DEFAULT_SIP_TRANSACTION_TIMEOUT;
-    mDefaultSerialExpiresSeconds = 20;
+    mDefaultExpiresSeconds = DEFAULT_SIP_TRANSACTION_EXPIRES;
+    mDefaultSerialExpiresSeconds = DEFAULT_SIP_SERIAL_EXPIRES;
 
     // Construct the default Contact header value.
     {
@@ -3311,7 +3316,7 @@ void SipUserAgent::setInviteTransactionTimeoutSeconds(int expiresSeconds)
     if(expiresSeconds > 0 ) 
     {
         mMinInviteTransactionTimeout = expiresSeconds;
-        if(expiresSeconds > DEFAULT_SIP_TRANSACTION_TIMEOUT)
+        if(expiresSeconds > DEFAULT_SIP_TRANSACTION_EXPIRES)
         {
             OsSysLog::add(FAC_SIP, PRI_WARNING,
                           "SipUserAgent::setInviteTransactionTimeoutSeconds "
@@ -3342,7 +3347,7 @@ void SipUserAgent::setDefaultExpiresSeconds(int expiresSeconds)
     if(expiresSeconds > 0 ) 
     {
         mDefaultExpiresSeconds = expiresSeconds;
-        if(expiresSeconds > DEFAULT_SIP_TRANSACTION_TIMEOUT)
+        if(expiresSeconds > DEFAULT_SIP_TRANSACTION_EXPIRES)
         {
             OsSysLog::add(FAC_SIP, PRI_WARNING,
                           "SipUserAgent::setDefaultExpiresSeconds "
@@ -3373,6 +3378,10 @@ void SipUserAgent::setDefaultExpiresSeconds(int expiresSeconds)
 
 int SipUserAgent::getDefaultSerialExpiresSeconds() const
 {
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipUserAgent::getDefaultSerialExpiresSeconds time=%d", 
+                  mDefaultSerialExpiresSeconds);
+
     return(mDefaultSerialExpiresSeconds);
 }
 
@@ -3381,7 +3390,7 @@ void SipUserAgent::setDefaultSerialExpiresSeconds(int expiresSeconds)
     if(expiresSeconds > 0 ) 
     {
         mDefaultSerialExpiresSeconds = expiresSeconds;
-        if(expiresSeconds > DEFAULT_SIP_TRANSACTION_TIMEOUT)
+        if(expiresSeconds > DEFAULT_SIP_TRANSACTION_EXPIRES)
         {
             OsSysLog::add(FAC_SIP, PRI_WARNING,
                           "SipUserAgent::setDefaultSerialExpiresSeconds "
@@ -3408,6 +3417,34 @@ void SipUserAgent::setDefaultSerialExpiresSeconds(int expiresSeconds)
                   "SipUserAgent::setDefaultSerialExpiresSeconds "
                   "mDefaultExpiresSeconds %d ",
                   mDefaultExpiresSeconds);
+}
+
+int SipUserAgent::getUserSerialExpiresSeconds(UtlString* userUri) const
+{
+    int temp_tmr;
+    if ((mCfwdTimerCallback != NULL) && (userUri != NULL) && (!userUri->isNull()))
+    {
+       temp_tmr = mCfwdTimerCallback(*userUri);
+    }
+    else
+    {
+       temp_tmr = mDefaultSerialExpiresSeconds;
+    }
+
+    if ((userUri != NULL) && (!userUri->isNull()))
+    {
+       OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                     "SipUserAgent::getUserSerialExpiresSeconds user=%s time=%d",
+                     userUri->data(), temp_tmr);
+    }
+    else
+    {
+       OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                     "SipUserAgent::getUserSerialExpiresSeconds time=%d",
+                     temp_tmr);
+    }
+
+    return(temp_tmr);
 }
 
 void SipUserAgent::setMaxTcpSocketIdleTime(int idleTimeSeconds)

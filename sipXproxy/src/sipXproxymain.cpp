@@ -29,6 +29,7 @@
 #include <sipXecsService/SipXecsService.h>
 #include <sipXecsService/SharedSecret.h>
 #include <sipdb/SIPDBManager.h>
+#include <sipdb/UserForwardDB.h>
 #include <SipRouter.h>
 #include <ForwardRules.h>
 
@@ -68,6 +69,10 @@
 #define CONFIG_SETTING_LOG_DIR        "SIPX_PROXY_LOG_DIR"
 #define CONFIG_SETTING_CALL_STATE     "SIPX_PROXY_CALL_STATE"
 #define CONFIG_SETTING_CALL_STATE_LOG "SIPX_PROXY_CALL_STATE_LOG"
+
+// Default expiry times (in seconds)
+#define DEFAULT_SIP_TRANSACTION_EXPIRES 180
+#define DEFAULT_SIP_SERIAL_EXPIRES 20
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -267,6 +272,28 @@ public:
    }
 } ;
 
+int 
+userCfwdTimeCallback(UtlString userUri)
+{
+   Url tempUrl(userUri);
+   UtlString tempTime;   
+   int cfwdTime;
+ 
+   if (UserForwardDB::getInstance()->getCfwdTime(tempUrl, tempTime))
+   {
+       cfwdTime = atoi(tempTime);
+   }
+   else
+   {
+       cfwdTime = DEFAULT_SIP_SERIAL_EXPIRES;
+   }
+
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "sipXproxymain::userCfwdTimeCallback url=%s tmr=%d",
+                 tempUrl.toString().data(), cfwdTime);
+
+   return cfwdTime;
+}
 
 int
 proxy( int argc, char* argv[] )
@@ -386,9 +413,9 @@ proxy( int argc, char* argv[] )
     configDb.get("SIPX_PROXY_DEFAULT_SERIAL_EXPIRES", defaultSerialExpires);
     if(defaultExpires <= 0 ) 
     {
-            defaultExpires = 180;
+            defaultExpires = DEFAULT_SIP_TRANSACTION_EXPIRES;
     }
-    else if(defaultExpires > 180) 
+    else if(defaultExpires > DEFAULT_SIP_TRANSACTION_EXPIRES) 
     {
         OsSysLog::add(FAC_SIP, PRI_WARNING,
                       "SipXproxymain::proxy "
@@ -398,7 +425,7 @@ proxy( int argc, char* argv[] )
     if(defaultSerialExpires <= 0 ||
        defaultSerialExpires >= defaultExpires) 
     {
-            defaultSerialExpires = 20;
+            defaultSerialExpires = DEFAULT_SIP_SERIAL_EXPIRES;
     }
     OsSysLog::add(FAC_SIP, PRI_INFO, "SIPX_PROXY_DEFAULT_EXPIRES : %d", defaultExpires);
     osPrintf("SIPX_PROXY_DEFAULT_EXPIRES : %d\n", defaultExpires);
@@ -695,7 +722,6 @@ proxy( int argc, char* argv[] )
     }
 #endif // TEST_PRINT
     
-
     // Start the sip stack
     SipUserAgent* pSipUserAgent = new SipUserAgent(
         proxyTcpPort,
@@ -719,7 +745,10 @@ proxy( int argc, char* argv[] )
         SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE, // OsServerTask message queue size
         FALSE, // Use Next Available Port
         TRUE,  // Perform message checks 
-        TRUE); // Use symmetric signaling
+        TRUE,  // Use symmetric signaling
+        SipUserAgent::HANDLE_OPTIONS_AUTOMATICALLY,
+        userCfwdTimeCallback);
+
 
     if (!pSipUserAgent->isOk())
     {

@@ -173,6 +173,9 @@ public:
         PASS_OPTIONS_TO_CONSUMER
     };
 
+    typedef int (*CfwdTimerCallback)
+       (const UtlString userUri);
+
 /* ============================ CREATORS ================================== */
 
     //! Constructor
@@ -262,7 +265,8 @@ public:
                 UtlBoolean bUseNextAvailablePort = FALSE,
                 UtlBoolean doUaMessageChecks = TRUE,
                 UtlBoolean forceSymmetricSignaling = TRUE,
-                OptionsRequestHandlePref howTohandleOptionsRequest = HANDLE_OPTIONS_AUTOMATICALLY
+                OptionsRequestHandlePref howTohandleOptionsRequest = HANDLE_OPTIONS_AUTOMATICALLY,
+                const CfwdTimerCallback cfwdTimerCallback = NULL
                  );
 
     //! Destructor
@@ -533,6 +537,9 @@ public:
     // let a transaction live if it is a serially-forked child.
     int getDefaultSerialExpiresSeconds() const;
     void setDefaultSerialExpiresSeconds(int expiresSeconds);
+
+    // Get the users call forward timer
+    int getUserSerialExpiresSeconds(UtlString* userUri) const;
 
     //! Tells the User Agent whether or not to append
     //! the platform name onto the User Agent string
@@ -830,6 +837,9 @@ private:
     UtlBoolean mbShuttingDown;
     UtlBoolean mbShutdownDone;
     UtlBoolean mbBlockingShutdown;
+
+    // Call forward timer
+    CfwdTimerCallback mCfwdTimerCallback;
 
     //! Disabled copy constructor
     SipUserAgent(const SipUserAgent& rSipUserAgent);

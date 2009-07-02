@@ -29,5 +29,6 @@
     <imdb>alias</imdb>
     <imdb required='false' configAccess='read-only'>registration</imdb>
     <imdb>userlocation</imdb>
+    <imdb>userforward</imdb>
   </resources>
 </sipXecs-process>
