@@ -141,11 +141,11 @@ bool ImdbResource::isReadyToStart(UtlString& missingResource)
          rc = false;
       }
    }
-   else
+   if (!rc)
    {
       missingResource = "";
       appendDescription(missingResource);
-   } 
+   }
    return rc;
 }
 
