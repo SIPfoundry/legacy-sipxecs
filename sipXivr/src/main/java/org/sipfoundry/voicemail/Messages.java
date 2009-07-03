@@ -46,6 +46,9 @@ public class Messages {
     
     public Messages(Mailbox mailbox) {
         m_mailbox = mailbox;
+
+        // Create the mailbox if it isn't there
+        Mailbox.createDirsIfNeeded(m_mailbox);
         m_inboxDir = new File(mailbox.getInboxDirectory());
         m_savedDir = new File(mailbox.getSavedDirectory());
         m_deletedDir = new File(mailbox.getDeletedDirectory());

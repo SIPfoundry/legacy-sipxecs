@@ -62,14 +62,20 @@ public class Mailbox {
     public synchronized static void createDirsIfNeeded(Mailbox mailbox) {
         
         File userDir = new File(mailbox.getUserDirectory());
+        File inboxDir = new File(mailbox.getInboxDirectory());
+        File savedDir = new File(mailbox.getSavedDirectory());
+        File deletedDir = new File(mailbox.getDeletedDirectory());
         if (!userDir.isDirectory()) {
             LOG.info("Mailbox::createDirsIfNeeded creating mailbox "+userDir.getPath());
             userDir.mkdir();
-            File inboxDir = new File(mailbox.getInboxDirectory());
-            File savedDir = new File(mailbox.getSavedDirectory());
-            File deletedDir = new File(mailbox.getDeletedDirectory());
+        }
+        if (!inboxDir.isDirectory()) {
             inboxDir.mkdir();
+        }
+        if (!savedDir.isDirectory()) {
             savedDir.mkdir();
+        }
+        if (!deletedDir.isDirectory()) {
             deletedDir.mkdir();
         }
     }
