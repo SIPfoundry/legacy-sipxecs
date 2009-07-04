@@ -1877,8 +1877,12 @@ public class BackToBackUserAgent {
                 ContactHeader contactHeader = SipUtilities.createContactHeader(
                         Gateway.SIPXBRIDGE_USER, txProvider);
                 okResponse.setHeader(contactHeader);
-                okResponse.setContent(rtpSession.getReceiver()
-                        .getSessionDescription().toString(), cth);
+                /* This call pickup can ONLY originate from pbx. We cannot handle
+                 * call pickup originating from ITSP.
+                 */
+                SessionDescription localSessionDescription = rtpSession.getReceiver().getLocalSessionDescription();
+                okResponse.setContent(localSessionDescription.toString(), cth);
+                
                 DialogContext replacedDat = DialogContext.get(replacedDialog);
                 if (replacedDat.dialogCreatingTransaction != null
                         && replacedDat.dialogCreatingTransaction instanceof ClientTransaction) {

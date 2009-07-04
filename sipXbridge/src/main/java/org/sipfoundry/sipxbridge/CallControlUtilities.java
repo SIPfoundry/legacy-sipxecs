@@ -212,8 +212,7 @@ public class CallControlUtilities {
                 /*
                  * Set the remote port so that we know where to expect media from.
                  */
-                DialogContext.getPeerRtpSession(dialog).getTransmitter().setIpAddressAndPort(ipAddress, port);
-                ackSd = answerSessionDescription;
+                 ackSd = answerSessionDescription;
 
                 /*
                  * Fix up the ports.

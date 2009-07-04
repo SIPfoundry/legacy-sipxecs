@@ -50,6 +50,12 @@ class RtpReceiverEndpoint implements SymEndpointInterface {
             throw new SipXbridgeException("Unexpected exception creating origin ", ex);
         }
     }
+    
+    public SessionDescription getLocalSessionDescription() {
+        SipUtilities.fixupSdpMediaAddresses(this.sessionDescription, 
+                this.ipAddress, this.getPort());
+        return this.sessionDescription;
+    }
 
     public String getIpAddress() {
         return this.ipAddress;

@@ -48,7 +48,7 @@ public class ProxyRouter extends DefaultRouter {
              * If the inbound request had an maddr, then remove the maddr parameter. This has already
              * been processed in the next hop computation.
              */
-            LOG.debug("maddr parameter is " + uri.getMAddrParam());
+            uri.removeParameter("maddr");
              
             return nextHop;
         }
