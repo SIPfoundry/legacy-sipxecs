@@ -2,7 +2,7 @@ package org.sipfoundry.sipxbridge;
 
 import javax.sip.header.ExtensionHeader;
 
-public interface ReferencesHeader extends ExtensionHeader {
+public interface ReferencesHeader  {
  public static final String NAME = "References";
     
     public static final String CHAIN = "chain";

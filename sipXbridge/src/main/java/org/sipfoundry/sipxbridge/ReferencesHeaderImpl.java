@@ -4,17 +4,19 @@ import gov.nist.javax.sip.header.SIPHeader;
 
 import java.text.ParseException;
 
+import javax.sip.header.ExtensionHeader;
 
 
-public class ReferencesHeaderImpl extends SIPHeader implements ReferencesHeader {
+
+public class ReferencesHeaderImpl  implements ReferencesHeader,ExtensionHeader {
     
     private static final long serialVersionUID = -6235038166218875753L;
     private String callId ;    
     private String rel;
+    private String headerName = ReferencesHeader.NAME;
 
     public ReferencesHeaderImpl () {
         this.rel = ReferencesHeader.CHAIN;
-        this.headerName = NAME;
     }
     
     public String getCallId() {
@@ -41,12 +43,6 @@ public class ReferencesHeaderImpl extends SIPHeader implements ReferencesHeader 
         throw new UnsupportedOperationException("Op not supported");
     }
 
-    @Override
-    public String getHeaderName() {
-        return NAME;
-    }
-    
-    @Override
     public String getName() {
         return NAME;
     }
@@ -58,10 +54,11 @@ public class ReferencesHeaderImpl extends SIPHeader implements ReferencesHeader 
         return references;
         
     }
-
-    @Override
-    protected String encodeBody() {
-       return getValue();
+    
+    public String toString() {
+        return new StringBuffer().append(NAME).append(":").append(getValue()).toString();
     }
+
+   
 
 }

@@ -11,9 +11,11 @@ import gov.nist.javax.sip.DialogExt;
 import gov.nist.javax.sip.SipStackExt;
 import gov.nist.javax.sip.TransactionExt;
 import gov.nist.javax.sip.header.HeaderFactoryExt;
+import gov.nist.javax.sip.header.SIPHeaderList;
 import gov.nist.javax.sip.header.extensions.ReferredByHeader;
 import gov.nist.javax.sip.header.extensions.ReplacesHeader;
 import gov.nist.javax.sip.message.SIPMessage;
+import gov.nist.javax.sip.message.SIPRequest;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -54,6 +56,7 @@ import javax.sip.header.CallIdHeader;
 import javax.sip.header.CallInfoHeader;
 import javax.sip.header.ContactHeader;
 import javax.sip.header.ContentTypeHeader;
+import javax.sip.header.ExtensionHeader;
 import javax.sip.header.FromHeader;
 import javax.sip.header.Header;
 import javax.sip.header.InReplyToHeader;
@@ -641,15 +644,7 @@ public class BackToBackUserAgent {
             Request newRequest = ProtocolObjects.messageFactory.createRequest(
                     uri, Request.INVITE, callId, cseq, fromHeader, toHeader,
                     viaList, maxForwards);
-            /*
-             * Set the ReferencesHeader.
-             */
-            String oldCallId = SipUtilities.getCallId(referRequest);
-            ReferencesHeader referencesHeader = new ReferencesHeaderImpl();
-            referencesHeader.setCallId(oldCallId);
-            referencesHeader.setRel(ReferencesHeaderImpl.REFER);
-            
-            newRequest.setHeader(referencesHeader);
+           
             /*
              * If we are routing this request to the Proxy server, better send
              * it to the SAME proxy server. See XX-5792. Dont do this if we are
@@ -684,13 +679,23 @@ public class BackToBackUserAgent {
                 Header header = null;
                 if (headerValue != null) {
                     String decodedHeaderValue = URLDecoder.decode(headerValue,
-                            "UTF-8");
+                    "UTF-8");
                     header = (Header) ProtocolObjects.headerFactory
-                            .createHeader(headerName, decodedHeaderValue);
+                    .createHeader(headerName, decodedHeaderValue);
                 }
-                if (header != null) {
-                    newRequest.addHeader(header);
+                if (header != null) {            
+                   newRequest.addHeader(header);
                 }
+            }
+            
+            /*
+             * Set the ReferencesHeader if one has not been added.
+             */
+            if ( newRequest.getHeader(ReferencesHeader.NAME) == null ) {
+                String oldCallId = SipUtilities.getCallId(referRequest);
+                ExtensionHeader referencesHeader = SipUtilities.createReferencesHeader(oldCallId, 
+                        ReferencesHeaderImpl.REFER);    
+                newRequest.setHeader(referencesHeader);
             }
 
             /*
@@ -1119,10 +1124,11 @@ public class BackToBackUserAgent {
                     uri, Request.INVITE, callIdHeader, cseqHeader, fromHeader,
                     toHeader, viaList, maxForwards);
             
-            ReferencesHeader references = new ReferencesHeaderImpl();
-            references.setCallId(SipUtilities.getCallId(request));
-            newRequest.setHeader(references);
-            
+            ExtensionHeader referencesHeader = 
+                SipUtilities.createReferencesHeader(SipUtilities.getCallId(request),
+                        ReferencesHeader.CHAIN);
+            newRequest.addHeader(referencesHeader);
+                      
             ContactHeader contactHeader = SipUtilities.createContactHeader(
                     incomingRequestURI.getUser(), Gateway.getLanProvider());
             newRequest.setHeader(contactHeader);
@@ -1284,9 +1290,9 @@ public class BackToBackUserAgent {
                     uri, Request.INVITE, callIdHeader, cseqHeader, fromHeader,
                     toHeader, viaList, maxForwards);
             
-            ReferencesHeader referencesHeader = new ReferencesHeaderImpl();
-            referencesHeader.setCallId(this.creatingCallId);
-            referencesHeader.setRel(ReferencesHeader.SEQUEL);
+            ExtensionHeader referencesHeader =
+                        SipUtilities.createReferencesHeader(this.creatingCallId,
+                        ReferencesHeader.SEQUEL);
             newRequest.setHeader(referencesHeader);
             ContactHeader contactHeader = SipUtilities.createContactHeader(
                     Gateway.SIPXBRIDGE_USER, Gateway.getLanProvider());
@@ -1446,8 +1452,8 @@ public class BackToBackUserAgent {
                             + this.counter++, addresses);
             
             String callId = SipUtilities.getCallId(incomingRequest);
-            ReferencesHeader referencesHeader = new ReferencesHeaderImpl();
-            referencesHeader.setCallId(callId);
+            ExtensionHeader referencesHeader = SipUtilities.createReferencesHeader(callId,
+                    ReferencesHeader.CHAIN);
             outgoingRequest.setHeader(referencesHeader);
 
             /*

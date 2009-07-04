@@ -56,6 +56,7 @@ import javax.sip.header.ContactHeader;
 import javax.sip.header.ContentTypeHeader;
 import javax.sip.header.ErrorInfoHeader;
 import javax.sip.header.ExpiresHeader;
+import javax.sip.header.ExtensionHeader;
 import javax.sip.header.FromHeader;
 import javax.sip.header.Header;
 import javax.sip.header.InReplyToHeader;
@@ -1688,6 +1689,15 @@ class SipUtilities {
 
     public static String getToTag(Message message) {
         return ((ToHeader) message.getHeader(ToHeader.NAME)).getTag();
+    }
+
+    public static ExtensionHeader createReferencesHeader(String callId, String rel) throws ParseException {
+        ReferencesHeaderImpl references = new ReferencesHeaderImpl();
+        references.setCallId(callId);
+        references.setRel(rel);
+        ExtensionHeader extensionHeader = ( ExtensionHeader) ProtocolObjects.headerFactory.createHeader(ReferencesHeader.NAME, 
+                references.getValue());
+        return extensionHeader;
     }
 
 }
