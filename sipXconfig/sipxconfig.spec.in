@@ -25,10 +25,10 @@ Url:      http://www.sipfoundry.org/
 
 Source: %name-%version.tar.gz
 
-Requires: sipxcommons >= 3.11
-Requires: sipxtacklib >= 3.11
-Requires: sipxcommserverlib >= 3.11
-Requires: sipxpbx >= 3.11
+Requires: sipxcommons >= %version
+Requires: sipxtacklib >= %version
+Requires: sipxcommserverlib >= %version
+Requires: sipxpbx >= %version
 Requires: postgresql-server
 Requires: ruby
 Requires: rubygems
@@ -44,8 +44,6 @@ Requires: java-ibm >= 1.6
 Requires: java-fonts >= 1.6
 %endif
 Requires: java-ibm-unrestricted
-%else
-Requires: java-sun >= 1.6
 %endif
 
 %if %{_vendor} == redhat

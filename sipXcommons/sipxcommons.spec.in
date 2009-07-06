@@ -17,7 +17,7 @@ Requires: shadow-utils
 Requires: java-ibm >= 1.6
 Requires: java-ibm-unrestricted
 %else
-Requires: java-sun >= 1.6
+Requires: java >= 1.6
 %endif
 
 %if %{_vendor} == suse

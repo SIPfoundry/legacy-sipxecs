@@ -11,9 +11,9 @@ Url:      http://www.pingtel.com
 
 Source:   %name-%version.tar.gz
 
-Requires: sipxcommserverlib >= 3.11
-Requires: sipxcalllib >= 3.11
-Requires: sipxpbx >= 3.11
+Requires: sipxcommserverlib >= %version
+Requires: sipxcalllib >= %version
+Requires: sipxpbx >= %version
 
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
@@ -27,8 +27,8 @@ TBD
 
 %package devel
 Requires: %name
-Requires: sipxcalllib-devel >= 3.11
-Requires: sipxcommserverlib-devel >= 3.11
+Requires: sipxcalllib-devel >= %version
+Requires: sipxcommserverlib-devel >= %version
 Group: Development/Libraries
 Vendor: SIPfoundry
 Summary: Header files for %name 

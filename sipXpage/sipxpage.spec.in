@@ -11,14 +11,12 @@ Url: http://www.sipfoundry.org/sipXbridge
 
 Source: %name-%version.tar.gz
 
-Requires: sipxcommserverlib >= 3.11
-Requires: sipxcommons >= 3.11
+Requires: sipxcommserverlib >= %version
+Requires: sipxcommons >= %version
 
 %if %{use_ibm_jvm}
 Requires: java-ibm >= 1.6
 Requires: java-ibm-unrestricted
-%else
-Requires: java-sun >= 1.5
 %endif
 
 Prefix: %_prefix

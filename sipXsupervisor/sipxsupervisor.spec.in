@@ -15,7 +15,7 @@ Source:   %name-%version.tar.gz
 Requires: chkconfig
 %endif
 
-Requires: sipxcommserverlib >= 3.11
+Requires: sipxcommserverlib >= %version
 
 # by requiring sipxpbx, that will be upgraded first so it won't object to this overriding files
 Requires: sipxpbx >= @VERSION@
@@ -46,7 +46,7 @@ Requires: %name
 Group: Development/Libraries
 Vendor: SIPfoundry
 Summary: Internal documentation for %name
-Requires: sipxcommserverlib-devel >= 3.11
+Requires: sipxcommserverlib-devel >= %version
 
 %description devel
 Internal class documentation for the sipXsupervisor classes

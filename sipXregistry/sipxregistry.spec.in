@@ -11,8 +11,8 @@ Url:      http://www.pingtel.com
 
 Source:   %name-%version.tar.gz
 
-Requires: sipxcommserverlib >= 3.11
-Requires: sipxpbx >= 3.11
+Requires: sipxcommserverlib >= %version
+Requires: sipxpbx >= %version
 
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
@@ -31,7 +31,7 @@ Requires: %name
 Group: Development/Libraries
 Vendor: SIPfoundry
 Summary: Internal documentation for %name 
-Requires: sipxcommserverlib-devel >= 3.11
+Requires: sipxcommserverlib-devel >= %version
 
 %description devel
 Internal class documentation for the registry classes, and the include
