@@ -6,7 +6,10 @@
 #
 ###################################################
 
-# Changes a Fedora 10 system from 'NetworkManager' service DHCP to 'network' service 
+# See http://sipx-wiki.calivia.com/index.php/Express_Development_Environment_Setup for instructions.
+#   - ede_fedora_staticip_root.sh
+
+# Changes a Fedora 10/11 system from 'NetworkManager' service DHCP to 'network' service 
 # static IP, using the specified IP Address.  The network connection must be 
 # functioning in order for this to work.
 
@@ -18,43 +21,42 @@ FILE_HOSTS=/etc/hosts
 FILE_RESOLV_CONF=/etc/resolv.conf
 COPY_RESOLV_CONF=/tmp/COPY_resolv.conf
 
-if [ "`whoami`" != root ]
-then
+if [ "`whoami`" != root ]; then
   echo "You must be root in order to run this script."
   exit 1
 fi
 
-if [ $# -lt 1 -o $# -gt 1 ]
-then
-  echo "Usage: ${0} <IP Address>"
+if [ $# -lt 1 -o $# -gt 2 ]; then
+  echo "Usage: ${0} <IP Address> [FQDN]"
   exit 2
 fi
 
 yum -y install ruby &> /dev/null
 
-FQDN=`dig -x $1 | grep -b1 "ANSWER SECTION" | tail -1 | cut -f3 | sed -e "s/.$//g"`
-if [ "$FQDN" == "" ]
-then
-  echo "Failed to determine new FQDN."
-  exit 3
+if [ $# -eq 2 ]; then
+   FQDN=$2
+else
+   FQDN=`dig -x $1 | grep -b1 "ANSWER SECTION" | tail -1 | cut -f3 | sed -e "s/.$//g"`
+   if [ "$FQDN" == "" ]
+   then
+     echo "Failed to determine new FQDN."
+     exit 3
+   fi
 fi
 HOSTNAME=`echo $FQDN | cut -d. -f1`
-if [ "$HOSTNAME" == "" ]
-then
+if [ "$HOSTNAME" == "" ]; then
   echo "Failed to determine new hostname."
   exit 4
 fi
 
 GATEWAY=`/sbin/route -v -n | grep " UG " | ruby -e 'puts STDIN.readline.split[1]'`
-if [ "$GATEWAY" == "" ]
-then
+if [ "$GATEWAY" == "" ]; then
   echo "Failed to determine existing gateway address."
   exit 5
 fi
 
 SUBNET=`/sbin/route -v | head -n3 | tail -n1 | ruby -e 'puts STDIN.readline.split[2]'`
-if [ "$SUBNET" == "" ]
-then
+if [ "$SUBNET" == "" ]; then
   echo "Failed to determine existing subnet mask."
   exit 6
 fi
@@ -69,9 +71,12 @@ echo "   Gateway    : $GATEWAY"
 rm -rf $COPY_RESOLV_CONF
 cp $FILE_RESOLV_CONF $COPY_RESOLV_CONF
 
-# Stop and disable the NetworkManager service.
+# Stop and disable the NetworkManager service, which may not be running.
 service NetworkManager stop
 chkconfig NetworkManager off
+
+# Stop the network service too.  (Allows this script to work on CentOS 5 DHCP systems.)
+service network stop
 
 # /etc/sysconfig/network-scripts/ifcfg-ethX
 echo "DEVICE=$ETHX" > $FILE_ETHX
@@ -104,6 +109,7 @@ chkconfig network on
 service network start
 
 # Show off the fruits of our labours.
+ruby -e '1.step(20,1){|i| print "."; $stdout.flush; sleep 1}'
 ping -c 1 $FQDN 
 ping -c 1 nortel.com
 
