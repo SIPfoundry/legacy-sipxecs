@@ -119,7 +119,7 @@ class RtpTransmitterEndpoint {
         }
         
         if ( logger.isDebugEnabled() ) {
-        	logger.debug("setOnHold : " + this + " : " + flag );
+        	logger.debug("setOnHold : " + this.rtpSession.getSym().getId() + this + " : " + flag );
         }
         
         this.symTransmitter.setOnHold(flag);
