@@ -259,6 +259,7 @@ public class SymmitronClient {
 		args[0] = this.clientHandle;
 		args[1] = bridgeId;
 		Map retval;
+		logger.debug(String.format("destroyBridge %s" , bridgeId));
 		try {
 			retval = (Map) client.execute("sipXrelay.destroyBridge", args);
 		} catch (XmlRpcException e) {
@@ -287,8 +288,17 @@ public class SymmitronClient {
 			params[4] = new Integer(keepAliveInterval);
 			params[5] = keepAliveMethod.toString();
 
+			logger.debug(String.format("setRemoteEndpoint " +
+					" sym = %s " +
+					" ipAddress = %s " +
+					" destinationPort = %s " +
+					" keepAliveInterval %s " +
+					" keepAliveMethod = %s",
+			        params[1].toString(),params[2].toString(),params[3].toString(),
+			        params[4].toString(),params[5].toString()));
 			Map retval = (Map) client.execute("sipXrelay.setDestination",
 					params);
+			
 			if (retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
 				throw new SymmitronException("Error in processing request "
 						+ retval.get(Symmitron.ERROR_INFO));
@@ -314,6 +324,7 @@ public class SymmitronClient {
 		params[1] = bridge;
 		params[2] = sym.getId();
 		Map retval;
+		logger.debug(String.format("addSym : %s %s ", bridge, sym.getId()));
 		try {
 			retval = (Map) client.execute("sipXrelay.addSym", params);
 		} catch (XmlRpcException e) {
@@ -402,6 +413,9 @@ public class SymmitronClient {
 		args[0] = clientHandle;
 		args[1] = bridge;
 		Map retval;
+		
+		logger.debug("pauseBridge " + bridge);
+		
 		try {
 			retval = (Map) client.execute("sipXrelay.pauseBridge", args);
 		} catch (XmlRpcException e) {
@@ -420,6 +434,9 @@ public class SymmitronClient {
 		Object[] args = new Object[2];
 		args[0] = clientHandle;
 		args[1] = symId;
+		
+		logger.debug("setOnHold " + symId  + " holdFlag " + holdFlag);
+		
 		if (holdFlag) {
 			Map retval;
 			try {
@@ -470,6 +487,9 @@ public class SymmitronClient {
 		Object[] args = new Object[2];
 		args[0] = clientHandle;
 		args[1] = bridge;
+		
+		logger.debug("resumeBridge " + bridge);
+		
 		Map retval;
 		try {
 			retval = (Map) client.execute("sipXrelay.resumeBridge", args);
@@ -487,6 +507,9 @@ public class SymmitronClient {
 		Object[] args = new Object[2];
 		args[0] = clientHandle;
 		args[1] = bridge;
+		
+		logger.debug("startBridge " + bridge);
+		
 		Map retval;
 		try {
 			retval = (Map) client.execute("sipXrelay.startBridge", args);
@@ -527,6 +550,9 @@ public class SymmitronClient {
         args[2] = new Integer(port);
         Map retval;
         
+        logger.debug("pingAndTest " + host + ":" + port);
+        
+        
         try {
             retval = (Map) client.execute("sipXrelay.pingAndTest", args);
             if ( (String)retval.get(Symmitron.PROXY_LIVENESS) != null ) {
@@ -545,6 +571,7 @@ public class SymmitronClient {
 
 		String[] myHandle = new String[1];
 		myHandle[0] = clientHandle;
+		logger.debug("signIn " + clientHandle);
 
 		try {
 			Map retval = (Map) client.execute("sipXrelay.signIn",
@@ -561,6 +588,7 @@ public class SymmitronClient {
 	public void signOut() throws SymmitronException {
 		String[] myHandle = new String[1];
 		myHandle[0] = clientHandle;
+		logger.debug("signOut " + clientHandle);
 		try {
 			client.execute("sipXrelay.signOut", (Object[]) myHandle);
 		} catch (XmlRpcException e) {
@@ -571,10 +599,11 @@ public class SymmitronClient {
 	}
 
 	public void destroySym(SymImpl sym) throws SymmitronException {
+	    logger.debug("destroySym " + sym.getId());
 		try {
 			Object[] args = new Object[2];
 			args[0] = clientHandle;
-			args[1] = sym;
+			args[1] = sym.getId();
 			client.execute("sipXrelay.destroySym", args);
 		} catch (XmlRpcException ex) {
 			logger.error(ex);

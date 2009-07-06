@@ -860,16 +860,7 @@ class DialogContext {
             return;
         }
         Request sdpOfferInvite = dialog.createRequest(Request.INVITE);
-        
-        /*
-         * Set Remote IP address and port ( symmetric relaying ).
-         */
-        String ipAddress = SipUtilities.getSessionDescriptionMediaIpAddress(sdpOffer);
-        
-        int port = SipUtilities.getSessionDescriptionMediaPort(sdpOffer);
-        
-        this.getRtpSession().getTransmitter().setIpAddressAndPort(ipAddress, port);
-
+      
         /*
          * Set and fix up the sdp offer to send to the opposite side.
          */
