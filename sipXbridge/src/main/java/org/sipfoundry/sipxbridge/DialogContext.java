@@ -414,9 +414,11 @@ class DialogContext {
                 } else {
                     if (!DialogContext.get(mohCtx.getDialog()).terminateOnConfirm) {
                         TransactionContext.get(mohCtx).setDialogPendingSdpAnswer(dialog);
-                        DialogContext.get(mohCtx.getDialog()).setPendingAction(
+                        DialogContext mohDialogContext = DialogContext.get(mohCtx.getDialog());
+                        mohDialogContext.setPendingAction(
                                 PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK);
-                        DialogContext.get(mohCtx.getDialog()).setPeerDialog(dialog);
+                        mohDialogContext.setPeerDialog(dialog);
+                        mohDialogContext.setRtpSession(getPeerRtpSession(dialog));        
                         mohCtx.sendRequest();
                     } else {
                         mohCtx.terminate();

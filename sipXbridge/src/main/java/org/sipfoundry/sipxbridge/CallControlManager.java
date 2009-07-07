@@ -1850,20 +1850,25 @@ class CallControlManager implements SymmitronResetHandler {
         Response response = responseEvent.getResponse();
         Dialog dialog = responseEvent.getDialog();
         TransactionContext tad = TransactionContext.get(responseEvent.getClientTransaction());
-        assert response.getStatusCode() == Response.OK;
         /*
          * Send him an ACK.
          */
         try {
             if (response.getStatusCode() == Response.OK) {
+                /* To avoid rejecting stray packets set up the transmitter side (although this is a
+                 * send-only stream ).
+                 */
+                SessionDescription sd = SipUtilities.getSessionDescription(response);
+                String ipAddress = SipUtilities.getSessionDescriptionMediaIpAddress(sd);
+                int port = SipUtilities.getSessionDescriptionMediaPort(sd);
+                DialogContext.get(dialog).getRtpSession().getTransmitter().setIpAddressAndPort(ipAddress, port);
                 DialogContext.get(dialog).sendAck(response);
                 /*
                  * Check the pending action for the peer dialog (pointing to the ITSP ).
                  */
                 if (tad.getDialogPendingSdpAnswer() != null
-
-                        && DialogContext.getPendingAction(tad.getDialogPendingSdpAnswer()) == PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK) {
-
+                        && DialogContext.getPendingAction(tad.getDialogPendingSdpAnswer()) == 
+                            PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK) {
                     /*
                      * Send the Answer to the peer dialog.
                      */
@@ -1886,11 +1891,11 @@ class CallControlManager implements SymmitronResetHandler {
                     }
                 }
             } else {
-                logger.fatal("Method should only be called for OK response");
+                logger.debug("Response code is  " + response.getStatusCode());
 
             }
         } catch (Exception ex) {
-            logger.error("Exception occured sending SDP in ACK to MOH Server");
+            logger.error("Exception occured sending SDP in ACK to MOH Server",ex);
             // The MOH dialog can be safely killed off.
             DialogContext.get(dialog).sendBye();
         }
