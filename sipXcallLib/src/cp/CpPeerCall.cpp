@@ -704,8 +704,8 @@ UtlBoolean CpPeerCall::handleSipMessage(OsMsg* pEventMessage)
 #ifdef TEST_PRINT
     OsSysLog::add(FAC_CP, PRI_DEBUG,
                   "CpPeerCall::handleSipMessage "
-                  "- connection %d msgType %d msgSubType %d", 
-                  (int)connection, 
+                  "- connection %p msgType %d msgSubType %d", 
+                  connection, 
                   pEventMessage->getMsgType(), 
                   pEventMessage->getMsgSubType());
 #endif
@@ -3577,8 +3577,8 @@ void CpPeerCall::printCall(int showHistory)
         connection->getCallId(&connectionCallId);
         OsSysLog::add(FAC_CP, PRI_DEBUG, 
                       "CpPeerCall::printCall "
-                      "%s-\tconnection[%d]: %s callId: %s\n\t\tstate: %s cause: %d\n",
-            mName.data(), connectionIndex, connectionAddress.data(),
+                      "%s-\tconnection[%d](%p): %s callId: %s\n\t\tstate: %s cause: %d\n",
+            mName.data(), connectionIndex, connection, connectionAddress.data(),
             connectionCallId.data(), connectionState.data(), cause);
         connectionIndex++;
     }
@@ -3750,7 +3750,8 @@ UtlBoolean CpPeerCall::isConnectionLive(int* localConnectionState)
 #ifdef TEST_PRINT
             UtlString remoteAddr;
             connection->getRemoteAddress(&remoteAddr);
-            osPrintf("%s-Connection %s state: %d not dead\n",
+            OsSysLog::add(FAC_CP, PRI_DEBUG,
+                "%s-Connection %s state: %d not dead\n",
                 mName.data(), remoteAddr.data(), connectionState);
 #endif
             liveConnections = TRUE;
@@ -3761,7 +3762,8 @@ UtlBoolean CpPeerCall::isConnectionLive(int* localConnectionState)
     }
 
 #ifdef TEST_PRINT
-    osPrintf("%s-CpPeerCall::isConnectionLive: %d\n", 
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
+        "%s-CpPeerCall::isConnectionLive: %d\n", 
         mName.data(), liveConnections);
 #endif
 

@@ -470,7 +470,8 @@ void Connection::setLocalAddress(const char* address)
 
 void Connection::unimplemented(const char* methodName) const
 {
-    osPrintf("%s NO IMPLEMENTED\n",methodName);
+    OsSysLog::add(FAC_CP, PRI_WARNING, 
+        "%s NOT IMPLEMENTED\n",methodName);
 }
 
 // Is this connection marked for deletion?
@@ -482,6 +483,11 @@ void Connection::markForDeletion()
    OsDateTime::getCurTimeSinceBoot(deleteAfterSecs) ;
   
    mDeleteAfter = timeNow + deleteAfterSecs ;
+
+   OsSysLog::add(FAC_CP, PRI_DEBUG, 
+       "Connection::markForDeletion connection %p in %d secs (now:%ld then: %ld)", 
+           this, deleteAfterSecs.seconds(), timeNow.seconds(), 
+           mDeleteAfter.seconds());
 }
 
 
