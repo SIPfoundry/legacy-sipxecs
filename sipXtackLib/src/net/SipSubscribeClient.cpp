@@ -458,6 +458,17 @@ void SipSubscribeClient::endAllSubscriptions()
 #endif
 }
 
+UtlBoolean SipSubscribeClient::changeSubscriptionTime(const char* earlyDialogHandle, int subscriptionPeriodSeconds)
+{
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipSubscribeClient::changeSubscriptionTime dialogHandle = '%s', timeout = %d",
+                 earlyDialogHandle, subscriptionPeriodSeconds);
+
+    // Give the request to the refresh manager to send the
+    // subscribe and keep the subscription alive
+    return mpRefreshMgr->changeRefreshTime(earlyDialogHandle, subscriptionPeriodSeconds);
+}
+
 UtlBoolean SipSubscribeClient::handleMessage(OsMsg &eventMessage)
 {
     int msgType = eventMessage.getMsgType();

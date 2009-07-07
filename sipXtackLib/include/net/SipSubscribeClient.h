@@ -184,6 +184,12 @@ public:
     //! End all subscriptions
     void endAllSubscriptions();
 
+    /** Change the subscription expiration period.
+     * Send a new SUBSCRIBE with a different timeout value, and set refresh timers appropriately.
+     * All future re-SUBSCRIBEs (until the next change) will use the new timeout value.
+     */
+    UtlBoolean changeSubscriptionTime(const char* earlyDialogHandle, int subscriptionPeriodSeconds);
+
     //! Handler for NOTIFY requests
     UtlBoolean handleMessage(OsMsg &eventMessage);
 

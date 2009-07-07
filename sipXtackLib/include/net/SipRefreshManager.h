@@ -155,6 +155,13 @@ public:
     //! Stop refreshing, unregister and unsubscribe all
     void stopAllRefreshes();
 
+    //! Change the refresh period.
+    /*! Change the Expires value of the stored request,
+     *  send a request with the new Expires value,
+     *  and start a new refresh timer
+     */
+    UtlBoolean changeRefreshTime(const char* earlyDialogHandle, int expirationPeriodSeconds);
+
     //! Handler for SUBSCRIBE and REGISTER responses
     UtlBoolean handleMessage(OsMsg &eventMessage);
 

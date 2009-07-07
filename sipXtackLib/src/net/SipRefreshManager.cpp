@@ -604,6 +604,62 @@ void SipRefreshManager::stopAllRefreshes()
     unlock();
 }
 
+UtlBoolean SipRefreshManager::changeRefreshTime(const char* earlyDialogHandle, int expirationPeriodSeconds)
+{
+   UtlBoolean ret = false;
+   lock();
+   RefreshDialogState* state = getAnyDialog(earlyDialogHandle);
+   if (state)
+   {
+      state->mExpirationPeriodSeconds = expirationPeriodSeconds;
+      state->mpLastRequest->setExpiresField(expirationPeriodSeconds);
+
+      // Clean up the timer and notifier
+      deleteTimerAndEvent(state->mpRefreshTimer);
+      // Create and set a new timer for the failed time out period
+      setRefreshTimer(*state,
+            TRUE); // Resend with successful timeout
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipRefreshManager::changeRefreshTime refreshTimer just being set for the new timeout.");
+
+      // reset the message for resend
+      setForResend(*state,
+                   FALSE); // do not expire now
+
+      // Keep track of when this refresh is sent so we know
+      // when the new expiration is relative to.
+      state->mPendingStartTime = OsDateTime::getSecsSinceEpoch();
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipRefreshManager::changeRefreshTime %p->mPendingStartTime = %ld",
+                    state, state->mPendingStartTime);
+
+      // Do not want to keep the lock while we send the
+      // message as it could block.  Presumably it is better
+      // to incur the cost of copying the message????
+      SipMessage tempRequest(*(state->mpLastRequest));
+
+      if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+      {
+         UtlString lastRequest;
+         ssize_t length;
+         state->mpLastRequest->getBytes(&lastRequest, &length);
+         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRefreshManager::changeRefreshTime last request = '%s'",
+                       lastRequest.data());
+      }
+
+      unlock();
+      mpUserAgent->send(tempRequest);
+      // Do not need the lock any more, but this gives us
+      // clean locking symmetry.  DO NOT TOUCH state or
+      // any of its members BEYOND this point as it may
+      // have been deleted
+      lock();
+      ret = true;
+   }
+   unlock();
+   return ret;
+}
+
 UtlBoolean SipRefreshManager::handleMessage(OsMsg &eventMessage)
 {
     int msgType = eventMessage.getMsgType();
