@@ -59,6 +59,7 @@ class SipUserAgent;
 #define SIP_ACCEPT_ENCODING_FIELD HTTP_ACCEPT_ENCODING_FIELD
 #define SIP_ACCEPT_LANGUAGE_FIELD HTTP_ACCEPT_LANGUAGE_FIELD
 #define SIP_ALLOW_FIELD "ALLOW"
+#define SIP_ALLOW_EVENTS_FIELD "ALLOW-EVENTS"
 #define SIP_ALSO_FIELD "ALSO"
 #define SIP_CALLID_FIELD "CALL-ID"
 #define SIP_SHORT_CALLID_FIELD "I"
@@ -1200,6 +1201,10 @@ public:
     void setAllowField(const char* allowField);
 
     UtlBoolean getAllowField(UtlString& allowField) const;
+
+    void setAllowEventsField(const char* allowField);
+
+    UtlBoolean getAllowEventsField(UtlString& allowField) const;
 
     UtlBoolean getReplacesData(UtlString& callId,
                               UtlString& toTag,

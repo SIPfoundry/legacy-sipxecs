@@ -31,12 +31,15 @@ class SipMessageTest : public CppUnit::TestCase
       CPPUNIT_TEST(testGetNoBranchVia);
       CPPUNIT_TEST(testGetViaPort);
       CPPUNIT_TEST(testGetViaFieldSubField);
+      CPPUNIT_TEST(testGetAllowEventField);
+      CPPUNIT_TEST(testSetAllowEventField);
       CPPUNIT_TEST(testGetEventField);
       CPPUNIT_TEST(testGetEventFieldId);
       CPPUNIT_TEST(testGetEventFieldWithIdSpace);
       CPPUNIT_TEST(testGetEventFieldWithEqualSpace);
       CPPUNIT_TEST(testGetEventFieldWithTrailingSpace);
       CPPUNIT_TEST(testGetEventFieldWithParams);
+      CPPUNIT_TEST(testGetEventFieldWithParamButNoValue);
       CPPUNIT_TEST(testGetToAddress);
       CPPUNIT_TEST(testGetFromAddress);
       CPPUNIT_TEST(testGetResponseSendAddress);
@@ -524,6 +527,78 @@ class SipMessageTest : public CppUnit::TestCase
       };
 
 
+   void testGetAllowEventField()
+      {
+         UtlString allowEventField;
+         UtlString package;
+         UtlString id;
+         UtlHashMap params;
+
+         const char* SubscribeMessage =
+            "SUBSCRIBE sip:sipx.local SIP/2.0\r\n"
+            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+            "To: sip:sipx.local\r\n"
+            "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 1 SUBSCRIBE\r\n"
+            "Max-Forwards: 20\r\n"
+            "Allow-Events: abc\r\n"
+            "Allow-Events: def\r\n"
+            "Allow-Events: \r\n"
+            "User-Agent: sipsend/0.01\r\n"
+            "Contact: me@127.0.0.1\r\n"
+            "Expires: 300\r\n"
+            "Date: Fri, 16 Jul 2004 02:16:15 GMT\r\n"
+            "Event: the-package\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+         SipMessage testMsg( SubscribeMessage, strlen( SubscribeMessage ) );
+
+         CPPUNIT_ASSERT(testMsg.getAllowEventsField(allowEventField));
+         ASSERT_STR_EQUAL("abc, def", allowEventField.data());
+      };
+
+   void testSetAllowEventField()
+   {
+      const char* SimpleMessage =
+         "REGISTER sip:sipx.local SIP/2.0\r\n"
+         "Via: SIP/2.0/UDP sipx.local2:3355;branch=z9hG4bK-10cb6f93ea3d;test=2\r\n"
+         "To: sip:sipx.local\r\n"
+         "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+         "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "Cseq: 1 REGISTER\r\n"
+         "User-Agent: sipsend/0.01\r\n"
+         "Contact: me@127.0.0.1\r\n"
+         "Date: Fri, 16 Jul 2004 02:16:15 GMT\r\n"
+         "Content-Length: 0\r\n"
+         "\r\n";
+      SipMessage testMsg( SimpleMessage, strlen( SimpleMessage ) );
+
+      testMsg.setAllowEventsField( "abc" );
+
+      const char* ReferenceMessage =
+         "REGISTER sip:sipx.local SIP/2.0\r\n"
+         "Via: SIP/2.0/UDP sipx.local2:3355;branch=z9hG4bK-10cb6f93ea3d;test=2\r\n"
+         "To: sip:sipx.local\r\n"
+         "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+         "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "Cseq: 1 REGISTER\r\n"
+         "User-Agent: sipsend/0.01\r\n"
+         "Contact: me@127.0.0.1\r\n"
+         "Date: Fri, 16 Jul 2004 02:16:15 GMT\r\n"
+         "Content-Length: 0\r\n"
+         "Allow-Events: abc\r\n"
+         "\r\n";
+      SipMessage refMsg( ReferenceMessage, strlen( ReferenceMessage ) );
+
+      UtlString modifiedMsgString, referenceMsgString;
+      ssize_t msgLen;
+      testMsg.getBytes(&modifiedMsgString, &msgLen);
+      refMsg.getBytes(&referenceMsgString, &msgLen);
+
+      ASSERT_STR_EQUAL(referenceMsgString.data(), modifiedMsgString.data());
+   }
+
    void testGetEventField()
       {
          UtlString fullEventField;
@@ -766,6 +841,50 @@ class SipMessageTest : public CppUnit::TestCase
          UtlString paramName2("p2");
          CPPUNIT_ASSERT(NULL != (paramValue = dynamic_cast<UtlString*>(params.findValue(&paramName2))));
          ASSERT_STR_EQUAL("two",paramValue->data());
+      }
+
+      void testGetEventFieldWithParamButNoValue()
+      {
+         UtlString fullEventField;
+         UtlString package;
+         UtlString id;
+         UtlHashMap params;
+         UtlString* paramValue;
+
+         const char* SubscribeMessageWithParams =
+            "SUBSCRIBE sip:sipx.local SIP/2.0\r\n"
+            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+            "To: sip:sipx.local\r\n"
+            "From: Sip Send <sip:sipsend@pingtel.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-ID: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 1 SUBSCRIBE\r\n"
+            "Max-Forwards: 20\r\n"
+            "User-Agent: sipsend/0.01\r\n"
+            "Contact: me@127.0.0.1\r\n"
+            "Expires: 300\r\n"
+            "Date: Fri, 16 Jul 2004 02:16:15 GMT\r\n"
+            "Event: the-package;sla\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+         SipMessage testMsgWithParams( SubscribeMessageWithParams, strlen( SubscribeMessageWithParams ) );
+
+         // use the raw interface to get the full field value
+         CPPUNIT_ASSERT(testMsgWithParams.getEventField(fullEventField));
+         ASSERT_STR_EQUAL("the-package;sla",fullEventField.data());
+
+         // use the parsing interface, but don't ask for the parameters
+         CPPUNIT_ASSERT(testMsgWithParams.getEventField(&package));
+         ASSERT_STR_EQUAL("the-package",package.data());
+
+         // use the parsing interface and get the parameters (which might not have values)
+         CPPUNIT_ASSERT(testMsgWithParams.getEventField(&package, &id, &params));
+         ASSERT_STR_EQUAL("the-package",package.data());
+         CPPUNIT_ASSERT(id.isNull());
+         CPPUNIT_ASSERT(params.entries()==1);
+
+         UtlString paramName1("sla");
+         CPPUNIT_ASSERT(NULL != (paramValue = dynamic_cast<UtlString*>(params.findValue(&paramName1))));
+         ASSERT_STR_EQUAL("",paramValue->data());
       }
 
    void testGetToAddress()

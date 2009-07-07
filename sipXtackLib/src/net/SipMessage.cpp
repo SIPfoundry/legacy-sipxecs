@@ -4470,6 +4470,32 @@ UtlBoolean SipMessage::getAllowField(UtlString& allowField) const
     }
     return(value != NULL);
 }
+
+void SipMessage::setAllowEventsField(const char* allowField)
+{
+    setHeaderValue(SIP_ALLOW_EVENTS_FIELD, allowField);
+}
+
+UtlBoolean SipMessage::getAllowEventsField(UtlString& allowField) const
+{
+    const char* value;
+    int allowIndex = 0;
+    allowField.remove(0);
+    while ((value = getHeaderValue(allowIndex, SIP_ALLOW_EVENTS_FIELD)))
+    {
+        if(value && *value)
+        {
+            if(!allowField.isNull())
+            {
+               allowField.append(", ");
+            }
+            allowField.append(value);
+        }
+        allowIndex++;
+    }
+    return(!allowField.isNull());
+}
+
 /* ============================ INQUIRY =================================== */
 
 UtlBoolean SipMessage::isResponse() const
