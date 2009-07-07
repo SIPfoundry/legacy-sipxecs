@@ -488,8 +488,8 @@ sudo chmod a+rx /usr/bin/sstop
 echo sudo $ETC_AND_VAR_PATH/etc/init.d/sipxecs status > /tmp/sstatus
 sudo mv /tmp/sstatus /usr/bin/
 sudo chmod a+rx /usr/bin/sstatus
-echo $ETC_AND_VAR_PATH/etc/init.d/sipxecs stop > /tmp/srestart
-echo $ETC_AND_VAR_PATH/etc/init.d/sipxecs start >> /tmp/srestart
+echo sudo $ETC_AND_VAR_PATH/etc/init.d/sipxecs stop > /tmp/srestart
+echo sudo $ETC_AND_VAR_PATH/etc/init.d/sipxecs start >> /tmp/srestart
 sudo mv /tmp/srestart /usr/bin/
 sudo chmod a+rx /usr/bin/srestart
 
