@@ -62,7 +62,7 @@ UtlBoolean SipClientWriteBuffer::handleMessage(OsMsg& eventMessage)
    {
       // When shutting down, have to return all queued outgoing messages
       // with transport errors.
-      emptyBuffer();
+      emptyBuffer(TRUE);
 
       // Continue with shutdown processing.
       messageProcessed = FALSE;
@@ -152,7 +152,7 @@ void SipClientWriteBuffer::insertMessage(SipMessage* message)
                     "mWriteBuffer has %d entries, exceeding the limit of %d",
                     getName().data(), (int) mWriteBuffer.entries(),
                     (int) getMessageQueue()->maxMsgs());
-      emptyBuffer();
+      emptyBuffer(TRUE);
       clientStopSelf();
    }
 }
@@ -279,7 +279,7 @@ void SipClientWriteBuffer::writeMore()
                           "OsSocket::write() returned %d, errno = %d",
                           getName().data(), ret, errno);
             // Return all buffered messages with a transport error indication.
-            emptyBuffer();
+            emptyBuffer(TRUE);
             // Because TCP is a connection protocol, we know that we cannot
             // send successfully any more and so should shut down this client.
             clientStopSelf();
@@ -290,13 +290,13 @@ void SipClientWriteBuffer::writeMore()
    }
 }
 
-/// Empty the buffer, returning all messages in the queue to the SipUserAgent
+/// Empty the buffer, if requested, return all messages in the queue to the SipUserAgent
 /// as transport errors.
 /// This may not generate transport errors for all messages that were not
 /// successfully sent -- some may have been written into the kernel
 /// (and so were deleted from mWriteBuffer), but not have been successfully
 /// sent.
-void SipClientWriteBuffer::emptyBuffer()
+void SipClientWriteBuffer::emptyBuffer(bool reportError)
 {
    // Return all buffered SIP messages with transport errors.
    UtlContainable *nextMsg;
@@ -308,7 +308,8 @@ void SipClientWriteBuffer::emptyBuffer()
       SipMessage* m;
 
       numEmptied ++;
-      if ((m = dynamic_cast<SipMessage*>(nextMsg)))
+      if (    reportError == TRUE
+          && (m = dynamic_cast<SipMessage*>(nextMsg)))
       {
          // This is a SIP message - return it with a transport error indication.
          // SipUserAgent::dispatch takes ownership of the SIP message '*m'.
