@@ -406,12 +406,18 @@ bool ACDCallManager::eventCallback(SIPX_EVENT_CATEGORY category, void *pInfo)
             break;
 
          case CALLSTATE_NEWCALL:
-            OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallManager::eventCallback - CALLSTATE_NEWCALL::cause %d, hCallHandle %d hAssociateCallHandle %d remAddr %s", pCallInfo->cause, pCallInfo->hCall, pCallInfo->hAssociatedCall, pCallInfo->remoteAddress);
+            OsSysLog::add(FAC_ACD, gACD_DEBUG, 
+                          "ACDCallManager::eventCallback - "
+                          "CALLSTATE_NEWCALL::cause %d, hCallHandle %d hAssociateCallHandle %d remAddr %s", 
+                          pCallInfo->cause, pCallInfo->hCall, pCallInfo->hAssociatedCall, pCallInfo->remoteAddress);
             if (pCallInfo->cause == CALLSTATE_NEW_CALL_TRANSFER)
                updateTransferCallState(pCallInfo);
             break;
          case CALLSTATE_REMOTE_OFFERING:
-            OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallManager::eventCallback - CALLSTATE_REMOTE_OFFERING::cause %d, hCallHandle %d hAssociateCallHandle %d remAddr %s", pCallInfo->cause, pCallInfo->hCall, pCallInfo->hAssociatedCall, pCallInfo->remoteAddress);
+            OsSysLog::add(FAC_ACD, gACD_DEBUG, 
+                          "ACDCallManager::eventCallback - "
+                          "CALLSTATE_REMOTE_OFFERING::cause %d, hCallHandle %d hAssociateCallHandle %d remAddr %s", 
+                          pCallInfo->cause, pCallInfo->hCall, pCallInfo->hAssociatedCall, pCallInfo->remoteAddress);
             if (pCallInfo->cause == CALLSTATE_REMOTE_OFFERING_NORMAL)
                updateTransferCallState(pCallInfo);
             break ;
@@ -623,7 +629,6 @@ bool ACDCallManager::validateTransferToLine(SIPX_CALLSTATE_INFO* pCallInfo)
 
    mLock.acquire();
 
-
    // Extract the call handle and state info
    hAssociatedCallHandle = pCallInfo->hAssociatedCall;
    callEvent   = pCallInfo->event;
@@ -690,75 +695,96 @@ void ACDCallManager::updateTransferCallState(SIPX_CALLSTATE_INFO* pCallInfo)
     * For the NEWCALL_TRANSFER event - find the ACDCall object instance
     * on the basis of the Associated call handle (from the older leg).
     */
-
-   if (pCallInfo->cause == CALLSTATE_NEW_CALL_TRANSFER) {
-      if (TRUE == validateTransferToLine(pCallInfo)) {
+   if (pCallInfo->cause == CALLSTATE_NEW_CALL_TRANSFER) 
+   {
+      if (TRUE == validateTransferToLine(pCallInfo)) 
+      {
          // Don't allow agents to transfer calls INTO the acd.  It screws
          // things up.  The correct behavior would be to move the call
          // the agent is currently handling into a new queue, but due to
          // the inability to remove calls from a conference, this just doesn't
          // work.  Hangup on the transfer attempt.  Ths should leave
          // caller and agent connected.
-         OsSysLog::add(FAC_ACD, PRI_WARNING, "ACDCallManager::updateTransferCallState - CALLSTATE_OFFERING::%d to the ACD Line REJECTED",
+         OsSysLog::add(FAC_ACD, PRI_WARNING, 
+                       "ACDCallManager::updateTransferCallState - "
+                       "CALLSTATE_OFFERING::%d to the ACD Line REJECTED",
                        pCallInfo->cause);
          sipxCallReject(pCallInfo->hCall, SIP_BAD_REQUEST_CODE, "Agent Transfer Loop Rejected");
          return ;
       }
 
+      // not an agent transferring into the acd
       hCallHandle = hAssociatedCallHandle;
       UtlInt callKey(hCallHandle);
       pCallRef = dynamic_cast<ACDCall*>(mAgentCallHandleMap.findValue(&callKey));
    }
-   else {
+   else     // not new call transfer
+   {
       UtlInt searchKey(pCallInfo->hCall);
       pCallRef = dynamic_cast<ACDCall*>(mTransferCallHandleMap.findValue(&searchKey));
    }
 
-
-   if (pCallRef != NULL) {
-      if (callCause == CALLSTATE_NEW_CALL_TRANSFER) {
+   if (pCallRef != NULL) 
+   {
+      if (callCause == CALLSTATE_NEW_CALL_TRANSFER) 
+      {
          addMapTransferAgentCallHandleToCall(pCallInfo->hCall, pCallRef);
-         pCallRef->mFlagTransfer = TRUE;
+         pCallRef->mFlagTransfer = TRUE;    // only set TRUE here.
       } 
-      if ((callCause == CALLSTATE_REMOTE_OFFERING_NORMAL) && (pCallRef->mFlagTransfer == TRUE)) {
+
+      if (   (callCause == CALLSTATE_REMOTE_OFFERING_NORMAL) 
+          && (pCallRef->mFlagTransfer == TRUE)) 
+      {
          UtlString userId, hostAddress;
          Url remoteUrl(remUri);
          remoteUrl.getUserId(userId);
          remoteUrl.getHostAddress(hostAddress);
 
-         if (remUri) {
+         if (remUri) 
+         {
             // Now find the agent for this remUri
             sprintf(userUri,"sip:%s@%s",userId.data(),hostAddress.data()); 
             UtlString agentUri(userUri);
             ACDAgent* pAgentRef =
                      mpAcdServer->getAcdAgentManager()->getAcdAgentReference(agentUri);
-            if (!pAgentRef){
-               OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallManager::updateTransferCallState - Failed to find Agent. This is probably a agent that is not signed in: call(%d), TransferAgentCall(%d), agentUri(%s)",
-                    pCallRef->getCallHandle(), pCallInfo->hCall, agentUri.data());
+            if (!pAgentRef)
+            {
+               OsSysLog::add(FAC_ACD, gACD_DEBUG, 
+                             "ACDCallManager::updateTransferCallState - "
+                             "Failed to find Agent. This is probably an agent that is not signed in: "
+                             "call(%d), TransferAgentCall(%d), agentUri(%s)",
+                             pCallRef->getCallHandle(), pCallInfo->hCall, agentUri.data());
                // A non registered agent is not yet supported - so do not try !
-               pAgentRef =
-                     mpAcdServer->getAcdAgentManager()->createACDAgent(userUri, "dummy", "",
-                                                        FALSE, FALSE, NULL, TRUE);
+               pAgentRef = mpAcdServer->getAcdAgentManager()->createACDAgent(userUri, 
+                                                                             "dummy", "",
+                                                                             FALSE, FALSE, NULL, TRUE);
 
                if (!pAgentRef)
-               assert(0);
+               {
+                   assert(0);
+               }
             }
 
             //set the mhCallHandle of the Agent object
             pAgentRef->setCallHandle(pCallInfo->hCall);
             // set the transfer agent object in the call object
             pCallRef->mpTransferAgent = pAgentRef;
-            OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallManager::updateTransferCallState - success in finding Agent: call(%d), TransferAgentCall(%d) AgentUri(%s)",
-                    pCallRef->getCallHandle(), pCallInfo->hCall, pAgentRef->getUriString()->data());
+            OsSysLog::add(FAC_ACD, gACD_DEBUG, 
+                          "ACDCallManager::updateTransferCallState - "
+                          "success in finding Agent: call(%d), TransferAgentCall(%d) AgentUri(%s)",
+                          pCallRef->getCallHandle(), pCallInfo->hCall, pAgentRef->getUriString()->data());
          }
-       }
+      }
 
-       if ((callCause == CALLSTATE_REMOTE_OFFERING_NORMAL) && (pCallRef->mFlagTransfer == FALSE)) {
+      if (   (callCause == CALLSTATE_REMOTE_OFFERING_NORMAL) 
+          && (pCallRef->mFlagTransfer == FALSE)) 
+      {
            ; // do nothing
-       }
-       else {
+      }
+      else 
+      {
            pCallRef->updateState(hCallHandle, callEvent, callCause);
-       }
+      }
    }
 
    mLock.release();

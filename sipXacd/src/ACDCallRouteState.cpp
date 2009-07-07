@@ -1349,7 +1349,9 @@ void ACDCallRouteState_ON_HOLD::acdCallDisconnectedEvent(ACDCall* pAcdCallInstan
    }
       
    // Remove any association between transfer agent call handle and call object
-   if ((pAcdCallInstance->mFlagTransfer == TRUE) && (pAcdCallInstance->mpTransferAgent)){
+   if (   (pAcdCallInstance->mFlagTransfer == TRUE) 
+       && (pAcdCallInstance->mpTransferAgent))
+   {
       pAcdCallInstance->getAcdCallManager()->removeMapTransferAgentCallHandleToCall(pAcdCallInstance->mpTransferAgent->getCallHandle());
    }
 
@@ -1438,7 +1440,9 @@ void ACDCallRouteState_ON_HOLD::acdAgentDisconnectedEvent(ACDCall* pAcdCallInsta
                     "Agent(%d) dropped call", pAcdCallInstance->mhCallHandle);
 
       // remove any association between transfer agent call handle and call object
-      if ((pAcdCallInstance->mFlagTransfer == TRUE) && (pAcdCallInstance->mpTransferAgent)){
+      if (   (pAcdCallInstance->mFlagTransfer == TRUE) 
+          && (pAcdCallInstance->mpTransferAgent))
+      {
          pAcdCallInstance->getAcdCallManager()->removeMapTransferAgentCallHandleToCall(pAcdCallInstance->mpTransferAgent->getCallHandle());
       }
 
@@ -1585,7 +1589,9 @@ void ACDCallRouteState_ROUTED::acdCallDisconnectedEvent(ACDCall* pAcdCallInstanc
    }
    
    // Remove any association between transfer agent call handle and call object
-   if ((pAcdCallInstance->mFlagTransfer == TRUE) && (pAcdCallInstance->mpTransferAgent)){
+   if (   (pAcdCallInstance->mFlagTransfer == TRUE) 
+       && (pAcdCallInstance->mpTransferAgent))
+   {
       pAcdCallInstance->getAcdCallManager()->removeMapTransferAgentCallHandleToCall(pAcdCallInstance->mpTransferAgent->getCallHandle());
    }
 
@@ -1647,7 +1653,9 @@ void ACDCallRouteState_ROUTED::acdAgentDisconnectedEvent(ACDCall* pAcdCallInstan
                     "Agent(%d) dropped call", pAcdCallInstance->mhCallHandle);
 
       // remove any association between transfer agent call handle and call object
-      if ((pAcdCallInstance->mFlagTransfer == TRUE) && (pAcdCallInstance->mpTransferAgent)){
+      if (   (pAcdCallInstance->mFlagTransfer == TRUE) 
+          && (pAcdCallInstance->mpTransferAgent))
+      {
          pAcdCallInstance->getAcdCallManager()->removeMapTransferAgentCallHandleToCall(pAcdCallInstance->mpTransferAgent->getCallHandle());
       }
 
@@ -1727,7 +1735,9 @@ void ACDCallRouteState_ROUTED::routeRequestAbortEvent(ACDCall* pAcdCallInstance)
                  "Routed connection for Call(%s) was ABORTED", pAcdCallInstance->mpCallIdentity);
 
    // Remove any association between transfer agent call handle and call object
-   if ((pAcdCallInstance->mFlagTransfer == TRUE) && (pAcdCallInstance->mpTransferAgent)){
+   if (   (pAcdCallInstance->mFlagTransfer == TRUE) 
+       && (pAcdCallInstance->mpTransferAgent))
+   {
       pAcdCallInstance->getAcdCallManager()->removeMapTransferAgentCallHandleToCall(pAcdCallInstance->mpTransferAgent->getCallHandle());
    }
 
