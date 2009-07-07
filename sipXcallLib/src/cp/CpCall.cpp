@@ -1407,14 +1407,14 @@ OsStatus CpCall::addListener(OsServerTask* pListener,
 
 void CpCall::postMetaEvent(int state, int remoteIsCallee)
 {
+    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                  "CpCall::postMetaEvent "
+                  "enter m-state %d m-event 0x%x numListeners=%d",
+                  state, mMetaEventType, mListenerCnt);
+
     if (mMetaEventType != PtEvent::META_EVENT_NONE 
         && mListenerCnt > 0)
     {
-        OsSysLog::add(FAC_CP, PRI_DEBUG, 
-                      "CpCall::postMetaEvent "
-                      "enter m-state %d m-event 0x%x ",
-                      state, mMetaEventType);
-
         int eventId = PtEvent::META_UNKNOWN;
 
         switch (mMetaEventType)

@@ -114,9 +114,11 @@ UtlBoolean CpGhostConnection::transferControllerStatus(int connectionState, int 
 #ifdef TEST_PRINT
     UtlString connState;
     getStateString(connectionState, &connState);
-    osPrintf("CpGhostConnection::transferControllerStatus state: %s cause: %d\n",
-        connState.data(), cause);
-         connState.remove(0);
+    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                  "CpGhostConnection::transferControllerStatus "
+                  "state: %s cause: %d\n",
+                  connState.data(), cause);
+    connState.remove(0);
 #endif
     setState(connectionState, CONNECTION_REMOTE, cause);
     /** SIPXTAPI: TBD **/
@@ -140,6 +142,7 @@ UtlBoolean CpGhostConnection::answer(const void* hWnd)
     unimplemented("CpGhostConnection::answer");
     return(FALSE);
 }
+
 UtlBoolean CpGhostConnection::hangUp()
 {
     setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE, CONNECTION_CAUSE_TRANSFER);

@@ -32,6 +32,12 @@
 //:logical Connection within a call
 // The Connection encapsulates the call setup protocol and state
 // information for the leg of a call to a particular address.
+// WARNING: CpGhostConnection's are known to taoListener's but they
+// are not known to sipXtapiListeners.  This forces different behavior
+// for the two cases.
+// In general, a single CpGhostConnection should not be associated 
+// with both types of listeners.
+// 
 class CpGhostConnection: public Connection
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */

@@ -1416,74 +1416,98 @@ void ACDCall::routeRequestAddAgentMessage(ACDAgent* pTargetAgent)
 
 void ACDCall::updateStateMessage(SIPX_CALL callHandle, int event, int cause)
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::updateStateMessage - Call(%d) incoming hCall=%d [%s] state is being published. event %d cause %d TransferFlag %d, TransferConnect %d numTransfer %d",
-                 mhCallHandle, callHandle, mpCallIdentity, event, cause, mFlagTransfer, mFlagTransferConnect, mNumTransfer);
+   OsSysLog::add(FAC_ACD, gACD_DEBUG, 
+                 "ACDCall::updateStateMessage - "
+                 "Call(%d) incoming hCall=%d [%s] state is being published. "
+                 "event %d cause %d TransferFlag %d, TransferConnect %d numTransfer %d",
+                 mhCallHandle, callHandle, mpCallIdentity, 
+                 event, cause, mFlagTransfer, mFlagTransferConnect, mNumTransfer);
 
    if (mhCallHandle == SIPX_CALL_NULL)
    {
-      OsSysLog::add(FAC_ACD, PRI_CRIT, "ACDCall::updateStateMessage - mhCallHandle == SIPX_CALL_NULL");
+      OsSysLog::add(FAC_ACD, PRI_CRIT, 
+                    "ACDCall::updateStateMessage - "
+                    "mhCallHandle == SIPX_CALL_NULL");
       return ;
    }
 
    // Process the new state
-   switch (event) {
+   switch (event) 
+   {
       case CALLSTATE_ALERTING:
-         if (callHandle == mhCallHandle) {
+         if (callHandle == mhCallHandle) 
+         {
             // Give the state to the associated line to publish
             mpAcdLineReference->publishCallState(this, ALERTING);
          }
          break;
 
       case CALLSTATE_CONNECTED:
-         if (callHandle != mhCallHandle) {
+         if (callHandle != mhCallHandle) 
+         {
      	    // get the Agent call handle 
-	    if ((mFlagTransfer == TRUE) && (mFlagTransferConnect == FALSE))
-	       // This is connect for the transfer agent
-               acdTransferAgentConnectedEvent(callHandle);
-             // This is non transfer case
-	    else { // This is non transfer case
+	        if (   (mFlagTransfer == TRUE) 
+                && (mFlagTransferConnect == FALSE))
+            {
+                // This is connect for the transfer agent
+                acdTransferAgentConnectedEvent(callHandle);
+            }
+            // This is non transfer case
+            else 
+            { // This is non transfer case
                // This must be an agent answering
-               if (cause == CALLSTATE_CONNECTED_ACTIVE) {
+               if (cause == CALLSTATE_CONNECTED_ACTIVE) 
+               {
                   acdAgentConnectedActiveEvent(callHandle);
                   
-                  if(mpActiveAgent) {
+                  if(mpActiveAgent) 
+                  {
                      mpActiveAgent->setCallEstablished(true); 
                   }
                }
-               else if (cause == CALLSTATE_CONNECTED_INACTIVE) {
+               else if (cause == CALLSTATE_CONNECTED_INACTIVE) 
+               {
                   acdAgentConnectedInactiveEvent(callHandle);
                }
             }
          }
-         else {
+         else 
+         {
             // The caller has answered
             // But should not connect if the cause is ACTIVE_HELD case befo
-	    if (cause != CALLSTATE_CONNECTED_ACTIVE_HELD)
-               acdCallConnectedEvent(cause);
-
+            if (cause != CALLSTATE_CONNECTED_ACTIVE_HELD)
+            {
+                acdCallConnectedEvent(cause);
+            }
          }
          break;
 
       case CALLSTATE_DISCONNECTED:
-         if (mRouteState == ACDCallRouteState::ROUTED) {
+         if (mRouteState == ACDCallRouteState::ROUTED) 
+         {
             // Give the new state to the associated line to publish
             mpAcdLineReference->publishCallState(this, DISCONNECTED);
          }
          
-         if (callHandle != mhCallHandle) {
+         if (callHandle != mhCallHandle) 
+         {
             if (mFlagTransfer == TRUE)
-            //if ((mpTransferAgent)&&(mpActiveAgent->getCallHandle() == callHandle))
-            // Transfer case - the previous agent is hanging up
-               acdTransferAgentDisconnectedEvent(callHandle);
+            {
+                //if ((mpTransferAgent)&&(mpActiveAgent->getCallHandle() == callHandle))
+                // Transfer case - the previous agent is hanging up
+                acdTransferAgentDisconnectedEvent(callHandle);
+            }
             else
-            // This must be regular case active agent hanging up
-               acdAgentDisconnectedEvent(callHandle);
+            {
+                // This must be regular case active agent hanging up
+                acdAgentDisconnectedEvent(callHandle);
+            }
          }
-         else {
+         else 
+         {
             // The caller has hung up
             acdCallDisconnectedEvent();
          }
-
          break;
 
       case CALLSTATE_NEWCALL:
@@ -1499,9 +1523,12 @@ void ACDCall::updateStateMessage(SIPX_CALL callHandle, int event, int cause)
 	 break;
 
       case CALLSTATE_TRANSFER:
-         if (CALLSTATE_TRANSFER_FAILURE == cause) {
-            OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::updateStateMessage - Call(%d) [%s] CALLSTATE_TRANSFER failed",
-                 mhCallHandle, mpCallIdentity);
+         if (CALLSTATE_TRANSFER_FAILURE == cause) 
+         {
+            OsSysLog::add(FAC_ACD, gACD_DEBUG, 
+                          "ACDCall::updateStateMessage - "
+                          "Call(%d) [%s] CALLSTATE_TRANSFER failed",
+                          mhCallHandle, mpCallIdentity);
             acdCallTransferModeFailure();
          }
          break;
@@ -1627,7 +1654,9 @@ void ACDCall::acdAgentConnectedActiveEvent(SIPX_CALL callHandle)
 
 void ACDCall::acdTransferAgentConnectedEvent(SIPX_CALL agentCallHandle)
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::acdTransferAgentConnectedEvent - Call(%d) [%s] is being connected to AgentCall %d via Conference Join, mFlagTransfer %d mFlagTransferConnect %d",
+   OsSysLog::add(FAC_ACD, gACD_DEBUG, 
+                 "ACDCall::acdTransferAgentConnectedEvent - "
+                 "Call(%d) [%s] is being connected to AgentCall %d via Conference Join, mFlagTransfer %d mFlagTransferConnect %d",
                  mhCallHandle, mpCallIdentity, agentCallHandle, mFlagTransfer, mFlagTransferConnect);
 
    SIPX_RESULT rc;
@@ -1635,26 +1664,31 @@ void ACDCall::acdTransferAgentConnectedEvent(SIPX_CALL agentCallHandle)
    sipxCallHold(agentCallHandle);
    delay(2000);
    rc = sipxConferenceJoin(mhConferenceHandle, agentCallHandle, TRUE);
-      if (rc != SIPX_RESULT_SUCCESS) {
-         OsSysLog::add(FAC_ACD, PRI_ERR, "ACDCall::acdTransferAgentConnectedEvent"
-                       "Error(%d) on sipxConferenceJoin for Call(%u), AgentCall(%u), Conference(%u)", rc, mhCallHandle, agentCallHandle, mhConferenceHandle);
+   if (rc != SIPX_RESULT_SUCCESS) 
+   {
+       OsSysLog::add(FAC_ACD, PRI_ERR, 
+                     "ACDCall::acdTransferAgentConnectedEvent"
+                     "Error(%d) on sipxConferenceJoin for Call(%u), AgentCall(%u), Conference(%u)", 
+                     rc, mhCallHandle, agentCallHandle, mhConferenceHandle);
 
-         // This is a fatal condition.  Destroy the conference, update state and return
-         sipxConferenceDestroy(mhConferenceHandle);
-         transitionRouteState(ACDCallRouteState::FAILED);
+       // This is a fatal condition.  Destroy the conference, update state and return
+       sipxConferenceDestroy(mhConferenceHandle);
+       transitionRouteState(ACDCallRouteState::FAILED);
 
-         // Notify the managing ACDQueue, if defined, of the new state
-         if (mpManagingQueue != NULL) {
-            mpManagingQueue->updateRouteState(this, ACDCallRouteState::FAILED);
-         }
+       // Notify the managing ACDQueue, if defined, of the new state
+       if (mpManagingQueue != NULL) 
+       {
+          mpManagingQueue->updateRouteState(this, ACDCallRouteState::FAILED);
+       }
 
-         return;
-      }
+       return;
+   }
    sipxCallUnhold(agentCallHandle);
    sipxConferenceUnhold(mhConferenceHandle);
-   sipxCallPlayBufferStart(agentCallHandle, ConfirmationShortTone,
-                             ConfirmationShortToneLength,
-                             RAW_PCM_16, false, false, true);
+   sipxCallPlayBufferStart(agentCallHandle, 
+                           ConfirmationShortTone,
+                           ConfirmationShortToneLength,
+                           RAW_PCM_16, false, false, true);
    // mark mFlagTransferConnect TRUE so that if 
    // a connect callback is repeated we do not execute
    // this function again
@@ -1664,56 +1698,64 @@ void ACDCall::acdTransferAgentConnectedEvent(SIPX_CALL agentCallHandle)
    // resources are going to be allocated right now
    mNumTransfer++;
 
-   if (TRUE == mFlagTransferBlind) {
-         // Because the transfer agent is going to become the regular agent - 
-         // take out the mapping between agent call handle and the caller call handle
-         mpAcdCallManager->removeMapTransferAgentCallHandleToCall(mpTransferAgent->getCallHandle());
-         // It is better to remove this guy from the call target list right now
-         UtlSListIterator agentListIterator(mAgentCandidateList);
-         UtlContainable* pEntry;
-         ACDAgent* pAgent;
-         while ((pEntry = agentListIterator()) != NULL) {
-            pAgent = dynamic_cast<ACDAgent*>(pEntry);
-            if ((pAgent == mpActiveAgent) ) {
-               mAgentCandidateList.remove(pEntry);
-               break;
-            }
-         }
-         // assign the transfer agent to be the active agent
-         mpActiveAgent = mpTransferAgent;
-         // Reset the transfer agent
-         mpTransferAgent = NULL;
-         // create a mapping between the regular agent (which was transfer agent) and
-         // the call object
-         mpAcdCallManager->addMapAgentCallHandleToCall(mpActiveAgent->getCallHandle(), this);
-         mhAssociatedCallHandle = SIPX_CALL_NULL;
-         mFlagTransfer = FALSE;
-         mFlagTransferConnect = FALSE;
-         // At this point transfer has happened so mark
-         // mFlagTransferRt TRUE so that Rt for terminate
-         // can be recorded when it happens.
-         mFlagTransferRt = TRUE;
-         ACDRtRecord* pACDRtRec;
-         if (NULL != (pACDRtRec = mpAcdCallManager->getAcdServer()->getAcdRtRecord())) {
-         pACDRtRec->appendTransferCallEvent(ACDRtRecord::TRANSFER, this);
-         }
-         // And mark the blindTransfer to false !
-         mFlagTransferBlind = FALSE;
-         // At this point check the number of transfers that have been done
-         // If it has hit the max possible limit then disconnect the agent
-         if (mNumTransfer >= MAX_NUM_TRANSFER)
-            acdAgentDisconnectedEvent(agentCallHandle);
+   if (TRUE == mFlagTransferBlind) 
+   {
+       // Because the transfer agent is going to become the regular agent - 
+       // take out the mapping between agent call handle and the caller call handle
+       mpAcdCallManager->removeMapTransferAgentCallHandleToCall(mpTransferAgent->getCallHandle());
+       // It is better to remove this guy from the call target list right now
+       UtlSListIterator agentListIterator(mAgentCandidateList);
+       UtlContainable* pEntry;
+       ACDAgent* pAgent;
+       while ((pEntry = agentListIterator()) != NULL) 
+       {
+          pAgent = dynamic_cast<ACDAgent*>(pEntry);
+          if ((pAgent == mpActiveAgent) ) 
+          {
+             mAgentCandidateList.remove(pEntry);
+             break;
+          }
+       }
+       // assign the transfer agent to be the active agent
+       mpActiveAgent = mpTransferAgent;
+       // Reset the transfer agent
+       mpTransferAgent = NULL;
+       // create a mapping between the regular agent (which was transfer agent) and
+       // the call object
+       mpAcdCallManager->addMapAgentCallHandleToCall(mpActiveAgent->getCallHandle(), this);
+       mhAssociatedCallHandle = SIPX_CALL_NULL;
+       mFlagTransfer = FALSE;
+       mFlagTransferConnect = FALSE;
+       // At this point transfer has happened so mark
+       // mFlagTransferRt TRUE so that Rt for terminate
+       // can be recorded when it happens.
+       mFlagTransferRt = TRUE;
+       ACDRtRecord* pACDRtRec;
+       if (NULL != (pACDRtRec = mpAcdCallManager->getAcdServer()->getAcdRtRecord())) 
+       {
+           pACDRtRec->appendTransferCallEvent(ACDRtRecord::TRANSFER, this);
+       }
+       // And mark the blindTransfer to false !
+       mFlagTransferBlind = FALSE;
+       // At this point check the number of transfers that have been done
+       // If it has hit the max possible limit then disconnect the agent
+       if (mNumTransfer >= MAX_NUM_TRANSFER)
+       {
+           acdAgentDisconnectedEvent(agentCallHandle);
+       }
 
-         // Also stop playing the ringback tone to the caller
-         if (mPlayingRingback) {
-            sipxCallPlayBufferStop(mhCallHandle);
-            mPlayingRingback = false;
-         }
-
+       // Also stop playing the ringback tone to the caller
+       if (mPlayingRingback) 
+       {
+          sipxCallPlayBufferStop(mhCallHandle);
+          mPlayingRingback = false;
+       }
     }
 
-    OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::acdTransferAgentConnectedEvent"
-                    "Completed sipxConferenceJoin for Call(%d), AgentCall(%d), Conference(%d)", mhCallHandle, agentCallHandle, mhConferenceHandle);
+    OsSysLog::add(FAC_ACD, gACD_DEBUG, 
+                  "ACDCall::acdTransferAgentConnectedEvent"
+                  "Completed sipxConferenceJoin for Call(%d), AgentCall(%d), Conference(%d)", 
+                  mhCallHandle, agentCallHandle, mhConferenceHandle);
 
 }
 
@@ -1867,7 +1909,8 @@ void ACDCall::acdTransferAgentDisconnectedEvent(SIPX_CALL agentCallHandle)
          // can be recorded when it happens.
          mFlagTransferRt = TRUE;
          ACDRtRecord* pACDRtRec;
-         if (NULL != (pACDRtRec = mpAcdCallManager->getAcdServer()->getAcdRtRecord())) {
+         if (NULL != (pACDRtRec = mpAcdCallManager->getAcdServer()->getAcdRtRecord())) 
+         {
             pACDRtRec->appendTransferCallEvent(ACDRtRecord::TRANSFER, this);
          }
 

@@ -481,7 +481,9 @@ void sipxFireCallEvent(const void* pSrc,
                        void* pEventData)
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-        "sipxFireCallEvent pSrc=%p callId=%s pSession=%p, szRemoteAddress=%s major=%d minor=%d",
+                  "sipxFireCallEvent "
+                  "pSrc=%p callId=%s pSession=%p, "
+                  "zRemoteAddress=%s major=%d minor=%d",
         pSrc, szCallId, pSession, szRemoteAddress, major, minor);
      
     SIPX_CALL hCall = SIPX_CALL_NULL;
@@ -550,8 +552,9 @@ void sipxFireCallEvent(const void* pSrc,
             callId = szCallId ;
             remoteAddress = szRemoteAddress ;
             lineId = urlFrom.toString() ;
-        }
-        else
+        }   // end NEW CALL
+
+        else    // call should exist
         {
             if (REMOTE_OFFERING == major)
             {
@@ -561,14 +564,19 @@ void sipxFireCallEvent(const void* pSrc,
                     hAssociatedCall = sipxCallLookupHandle(UtlString(szOriginalCallId), pSrc) ;    
                 }        
             }
+
             hCall = sipxCallLookupHandle(szCallId, pSrc);
             if (SIPX_CALL_NULL == hCall)
             {
-                OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING, "sipxFireCallEvent - No call found for szCallId=%s, pSrc=%p", szCallId, pSrc);
+                OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING, 
+                              "sipxFireCallEvent - "
+                              "No call found for szCallId=%s, pSrc=%p", 
+                              szCallId, pSrc);
 #ifdef DUMP_CALLS                    
                 sipxDumpCalls();
 #endif                
             } 
+            // Call exists from here on.
             else if (!sipxCallGetCommonData(hCall, &pInst, &callId, &remoteAddress, &lineId))
             {
                 // When unable to get the common data, the call has been torn
@@ -604,12 +612,18 @@ void sipxFireCallEvent(const void* pSrc,
             pSession->getRemoteRequestUri(requestUri); 
             hLine = sipxLineLookupHandle(pInst, lineId.data(), requestUri.data()) ; 
             
-            OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG, "sipxFireCallEvent Line id = %s, hLine=%d, Request Uri = %s\n", lineId.data(), hLine, requestUri.data());
+            OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG, 
+                          "sipxFireCallEvent "
+                          "Line id = %s, hLine=%d, Request Uri = %s\n", 
+                          lineId.data(), hLine, requestUri.data());
             if (0 == hLine) 
             {
                 // no line exists for the lineId
                 // log it
-                OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING, "sipxFireCallEvent - unknown line id = %s\n", lineId.data());
+                OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING, 
+                              "sipxFireCallEvent - "
+                              "unknown line id = %s\n", 
+                              lineId.data());
             }
 
             // Fill in remote address
@@ -688,7 +702,9 @@ void sipxFireCallEvent(const void* pSrc,
         }
     }
 
-    if ((DISCONNECTED == major) && ((sipxCallGetConf(hCall) != 0) || sipxCallIsRemoveInsteadOfDropSet(hCall)))
+    if (   (DISCONNECTED == major) 
+        && ( (sipxCallGetConf(hCall) != 0) 
+           || sipxCallIsRemoveInsteadOfDropSet(hCall)))
     {
         sipxFireCallEvent(pSrc, szCallId, pSession, szRemoteAddress,
                        DESTROYED,
