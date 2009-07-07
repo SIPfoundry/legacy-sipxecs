@@ -582,8 +582,8 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
            UtlSListIterator versionIterator(container->mEventVersion);
            UtlInt* versionPtr;
            while (!foundContent &&
-                  (bodyPtr = dynamic_cast <HttpBody*> (contentIterator()),
-                   versionPtr = dynamic_cast <UtlInt*> (versionIterator())))
+                  (bodyPtr = dynamic_cast <HttpBody*> (contentIterator())) &&
+                  (versionPtr = dynamic_cast <UtlInt*> (versionIterator())))
            {
               // Test if ';' is present in *bodyPtr's MIME type.
               // (Remember that an HttpBody considered as a UtlString has

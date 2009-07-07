@@ -13,7 +13,9 @@
 // APPLICATION INCLUDES
 #include <utl/UtlSList.h>
 #include <utl/UtlSListIterator.h>
+#include <utl/UtlDListIterator.h>
 #include <net/HttpBody.h>
+#include <net/NameValuePairInsensitive.h>
 #include <net/Url.h>
 #include <os/OsDateTime.h>
 #include <os/OsBSem.h>
@@ -25,6 +27,7 @@
 // CONSTANTS
 
 #define DIALOG_EVENT_TYPE "dialog"
+#define DIALOG_SLA_EVENT_TYPE "dialog;sla"
 #define DIALOG_EVENT_CONTENT_TYPE "application/dialog-info+xml"
 
 #define BEGIN_DIALOG_INFO "<dialog-info xmlns=\"urn:ietf:params:xml:ns:dialog-info\""
@@ -63,10 +66,24 @@
 #define DISPLAY_EQUAL " display="
 #define END_IDENTITY "</identity>\n"
 
-#define BEGIN_TARTGET "<target uri=\""
+#define BEGIN_TARGET "<target uri=\""
+#define END_TARGET_FULL "</target>\n"
 #define END_TARGET "\"/>\n"
 
+#define BEGIN_DIALOG_PARAM "<param "
+#define PNAME "pname=\""
+// Note that draft-ietf-bliss-shared-appearances uses pval,
+// while draft-anil-sipping-bla-0x use pvalue.
+// Polycom sets have a setting in sip.cfg “voIpProt.SIP.dialog.usePvalue” (default 0, i.e. pval)
+// More importantly, RFC 4235, which defines dialog events, specifies "pval" in section 4.1.6.2.
+#define PVALUE "\" pval=\""
+#define END_DIALOG_PARAM "\"/>\n"
 
+// dialog-info states
+#define STATE_FULL "full"
+#define STATE_PARTIAL "partial"
+
+// dialog states
 #define STATE_TRYING "trying"
 #define STATE_PROCEEDING "proceeding"
 #define STATE_EARLY "early"
@@ -101,6 +118,9 @@ class Dialog : public UtlContainable
           const char* remoteTag, 
           const char* direction);
 
+   // copy constructor
+   Dialog(const Dialog& rDialog);
+
    /// Destructor
    ~Dialog();
 
@@ -121,6 +141,9 @@ class Dialog : public UtlContainable
  *
  * @{
  */
+
+   /// Render the xml for the dialog into the provided UtlString.
+   void getBytes(UtlString& b, ssize_t& l);
 
    void getDialog(UtlString& dialogId,
                   UtlString& callId, 
@@ -178,6 +201,17 @@ class Dialog : public UtlContainable
 
    void getRemoteTarget(UtlString& url) const;
 
+   void addLocalParameter(NameValuePairInsensitive* nvp);
+
+   //! Return an iterator that will retrieve all local parameters in the event.
+    // This iterator is only valid as long as the SipDialogEvent is not
+    // modified, and must be deleted by the caller before the SipDialogEvent
+    // is deleted.
+   UtlDListIterator* getLocalParameterIterator();
+
+   bool setLocalParameter(const char* pname, const UtlString& pvalue);
+
+   bool getLocalParameter(const char* pname, UtlString& pvalue);
 ///@}
    
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -221,15 +255,13 @@ class Dialog : public UtlContainable
    UtlString mLocalDisplay;
    UtlString mLocalTarget;
    UtlString mLocalSessionDescription;
+   UtlDList  mLocalParameters;
 
    // Variables for remote element
    UtlString mRemoteIdentity;
    UtlString mRemoteDisplay;
    UtlString mRemoteTarget;
    UtlString mRemoteSessionDescription;
-
-   // Disabled copy constructor
-   Dialog(const Dialog& rDialog);
 
    // Disabled assignment operator
    Dialog& operator=(const Dialog& rhs);
@@ -258,6 +290,9 @@ class SipDialogEvent : public HttpBody
 
    //! Construct from an existing dialog event package in XML format
    SipDialogEvent(const char* bodyBytes);
+
+   //! copy constructor
+   SipDialogEvent(const SipDialogEvent& rSipDialogEvent);
 
    virtual SipDialogEvent* copy() const;
 
@@ -323,7 +358,7 @@ class SipDialogEvent : public HttpBody
  * @{
  */
 
-   //! Insert a Dialog object
+   //! Insert a Dialog object.  It will be owned by this SipDialogEvent.
    void insertDialog(Dialog* dialog);
 
    //! Get the Dialog object from the hash table based on the callId
@@ -339,7 +374,10 @@ class SipDialogEvent : public HttpBody
    //the publisher still needs to find the dialog, even if it is just 
    //by the callId. Work-around for XCL-98.
    Dialog* getDialogByCallId(UtlString& callId);
-   
+
+   //! Get the Dialog object from the hash table based on the dialogId.
+   Dialog* getDialogByDialogId(UtlString& dialogId);
+
    //! Remove a Dialog object
    Dialog* removeDialog(Dialog* dialog);
    
@@ -374,9 +412,6 @@ class SipDialogEvent : public HttpBody
 
    //! reader/writer lock for synchronization
    OsBSem mLock;
-
-   //! Disabled copy constructor
-   SipDialogEvent(const SipDialogEvent& rSipDialogEvent);
 
    //! Disabled assignment operator
    SipDialogEvent& operator=(const SipDialogEvent& rhs);

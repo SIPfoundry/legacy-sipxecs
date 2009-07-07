@@ -9,6 +9,7 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 #include <os/OsSysLog.h>
+#include <utl/UtlDListIterator.h>
 #include <utl/XmlContent.h>
 #include <net/SipDialogEvent.h>
 #include <net/NameValueTokenizer.h>
@@ -42,9 +43,44 @@ Dialog::Dialog(const char* dialogId,
 }
 
 
+Dialog::Dialog(const Dialog& dialog)
+   : mId(dialog.mId),
+   mCallId(dialog.mCallId),
+   mLocalTag(dialog.mLocalTag),
+   mRemoteTag(dialog.mRemoteTag),
+   mDirection(dialog.mDirection),
+   mIdentifier(dialog.mIdentifier),
+   mState(dialog.mState),
+   mEvent(dialog.mEvent),
+   mCode(dialog.mCode),
+   mDuration(dialog.mDuration),
+   mNewCallId(dialog.mNewCallId),
+   mNewLocalTag(dialog.mNewLocalTag),
+   mNewRemoteTag(dialog.mNewRemoteTag),
+   mReferredBy(dialog.mReferredBy),
+   mDisplay(dialog.mDisplay),
+   mLocalIdentity(dialog.mLocalIdentity),
+   mLocalDisplay(dialog.mLocalDisplay),
+   mLocalTarget(dialog.mLocalTarget),
+   mLocalSessionDescription(dialog.mLocalSessionDescription),
+   mRemoteIdentity(dialog.mRemoteIdentity),
+   mRemoteDisplay(dialog.mRemoteDisplay),
+   mRemoteTarget(dialog.mRemoteTarget),
+   mRemoteSessionDescription(dialog.mRemoteSessionDescription)
+{
+   UtlDListIterator iterator(dialog.mLocalParameters);
+   NameValuePairInsensitive* pNameValuePair;
+   while ((pNameValuePair = dynamic_cast<NameValuePairInsensitive*>(iterator())))
+   {
+      mLocalParameters.append(new NameValuePairInsensitive(*pNameValuePair));
+   }
+}
+
+
 // Destructor
 Dialog::~Dialog()
 {
+   mLocalParameters.destroyAll();
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -61,6 +97,150 @@ void Dialog::setIdentifier()
 }
 
 /* ============================ ACCESSORS ================================= */
+
+void Dialog::getBytes(UtlString& b, ssize_t& l)
+{
+   b.remove(0);
+   b.append(BEGIN_DIALOG);
+   UtlString singleLine;
+   singleLine = DOUBLE_QUOTE + mId + DOUBLE_QUOTE;
+   b += singleLine;
+   if (!mCallId.isNull())
+   {
+      b.append(CALL_ID_EQUAL);
+      singleLine = DOUBLE_QUOTE + mCallId + DOUBLE_QUOTE;
+      b += singleLine;
+   }
+
+   if (!mLocalTag.isNull())
+   {
+      b.append(LOCAL_TAG_EQUAL);
+      singleLine = DOUBLE_QUOTE + mLocalTag + DOUBLE_QUOTE;
+      b += singleLine;
+   }
+
+   if (!mRemoteTag.isNull())
+   {
+      b.append(REMOTE_TAG_EQUAL);
+      singleLine = DOUBLE_QUOTE + mRemoteTag + DOUBLE_QUOTE;
+      b += singleLine;
+   }
+
+   if (!mDirection.isNull())
+   {
+      b.append(DIRECTION_EQUAL);
+      singleLine = DOUBLE_QUOTE + mDirection + DOUBLE_QUOTE;
+      b += singleLine;
+   }
+   b.append(END_LINE);
+
+   // State element
+   b.append(BEGIN_STATE);
+   if (!mEvent.isNull())
+   {
+      b.append(EVENT_EQUAL);
+      singleLine = DOUBLE_QUOTE + mEvent + DOUBLE_QUOTE;
+      b += singleLine;
+   }
+
+   if (!mCode.isNull())
+   {
+      b.append(CODE_EQUAL);
+      singleLine = DOUBLE_QUOTE + mCode + DOUBLE_QUOTE;
+      b += singleLine;
+   }
+
+   // End of state element
+   singleLine = END_BRACKET + mState + END_STATE;
+   b += singleLine;
+
+   // Duration element
+   int duration = mDuration;
+   char durationBuffer[20];
+   if (duration !=0)
+   {
+      duration = OsDateTime::getSecsSinceEpoch() - mDuration;
+      sprintf(durationBuffer, "%d", duration);
+      b += BEGIN_DURATION + UtlString(durationBuffer) + END_DURATION;
+   }
+
+   // Local element
+   b.append(BEGIN_LOCAL);
+   UtlString displayName;
+   if (!mLocalIdentity.isNull())
+   {
+      b.append(BEGIN_IDENTITY);
+      if (!mLocalDisplay.isNull())
+      {
+         displayName = mLocalDisplay;
+         NameValueTokenizer::frontBackTrim(&displayName, "\"");
+         b.append(DISPLAY_EQUAL);
+         singleLine = DOUBLE_QUOTE + displayName + DOUBLE_QUOTE;
+         b += singleLine;
+      }
+
+      singleLine = END_BRACKET + mLocalIdentity + END_IDENTITY;
+      b += singleLine;
+   }
+
+   if (!mLocalTarget.isNull() && mLocalTarget.compareTo("sip:") != 0)
+   {
+      singleLine = BEGIN_TARGET + mLocalTarget + DOUBLE_QUOTE + END_LINE;
+      b += singleLine;
+      // add optional parameters
+      UtlDListIterator* iterator = getLocalParameterIterator();
+      NameValuePairInsensitive* nvp;
+      while ((nvp = (NameValuePairInsensitive*) (*iterator)()))
+      {
+         singleLine = BEGIN_DIALOG_PARAM;
+         singleLine += PNAME;
+         singleLine += nvp->data();
+         singleLine += PVALUE;
+         singleLine += nvp->getValue();
+         singleLine += END_DIALOG_PARAM;
+         b += singleLine;
+      }
+      delete iterator;
+
+      singleLine = END_TARGET_FULL;
+      b += singleLine;
+   }
+
+   // End of local element
+   b.append(END_LOCAL);
+
+   // Remote element
+   b.append(BEGIN_REMOTE);
+   if (!mRemoteIdentity.isNull())
+   {
+      b.append(BEGIN_IDENTITY);
+      UtlString displayName = mRemoteDisplay;
+      if (!displayName.isNull())
+      {
+         NameValueTokenizer::frontBackTrim(&displayName, "\"");
+         b.append(DISPLAY_EQUAL);
+         singleLine = DOUBLE_QUOTE + displayName + DOUBLE_QUOTE;
+         b += singleLine;
+      }
+
+      singleLine = END_BRACKET + mRemoteIdentity + END_IDENTITY;
+      b += singleLine;
+   }
+
+   if (!mRemoteTarget.isNull() && mRemoteTarget.compareTo("sip:") != 0)
+   {
+      singleLine = BEGIN_TARGET + mRemoteTarget + END_TARGET;
+      b += singleLine;
+   }
+
+   // End of remote element
+   b.append(END_REMOTE);
+
+   // End of dialog element
+   b.append(END_DIALOG);
+
+   l = b.length();
+}
 
 void Dialog::getDialog(UtlString& dialogId,
                        UtlString& callId,
@@ -234,6 +414,60 @@ int Dialog::compareTo(const UtlContainable *b) const
 }
 
 
+void Dialog::addLocalParameter(NameValuePairInsensitive* nvp)
+{
+   mLocalParameters.append(nvp);
+}
+
+UtlDListIterator* Dialog::getLocalParameterIterator()
+{
+   return new UtlDListIterator(mLocalParameters);
+}
+
+
+bool Dialog::setLocalParameter(const char* pname, const UtlString& pvalue)
+{
+   UtlBoolean found = FALSE;
+
+   UtlDListIterator paramIterator(mLocalParameters);
+   NameValuePairInsensitive* param= NULL;
+
+   UtlString paramName;
+
+   while (!found && (param = dynamic_cast<NameValuePairInsensitive*>(paramIterator())))
+   {
+      paramName = param->data();
+      if (paramName.compareTo(pname, UtlString::ignoreCase) == 0)
+      {
+         found = TRUE;
+         param->setValue(pvalue);
+      }
+   }
+   return(found);
+}
+
+bool Dialog::getLocalParameter(const char* pname, UtlString& pvalue)
+{
+   UtlBoolean found = FALSE;
+   pvalue = "";
+
+   UtlDListIterator paramIterator(mLocalParameters);
+   NameValuePairInsensitive* param= NULL;
+
+   UtlString paramName;
+
+   while (!found && (param = dynamic_cast<NameValuePairInsensitive*>(paramIterator())))
+   {
+      paramName = param->data();
+      if (paramName.compareTo(pname, UtlString::ignoreCase) == 0)
+      {
+         found = TRUE;
+         pvalue = param->getValue();
+      }
+   }
+   return(found);
+}
+
 unsigned int Dialog::hash() const
 {
    return mIdentifier.hash();
@@ -265,13 +499,19 @@ SipDialogEvent::SipDialogEvent(const char* state, const char* entity)
 }
 
 SipDialogEvent::SipDialogEvent(const SipDialogEvent& dialogEvent)
-   : mVersion(dialogEvent.mVersion),
+   : HttpBody(dialogEvent),
+     mVersion(dialogEvent.mVersion),
      mDialogState(dialogEvent.mDialogState),
      mEntity(dialogEvent.mEntity),
      mLock(OsBSem::Q_PRIORITY, OsBSem::FULL)
 {
-   // TODO: mDialogs list is not copied
-   OsSysLog::add(FAC_SIP, PRI_ERR, "SipDialogEvent::SipDialogEvent not implemented");
+   mDialogs.removeAll();
+   UtlSListIterator iterator(dialogEvent.mDialogs);
+   Dialog* pDialog;
+   while ((pDialog = dynamic_cast<Dialog*>(iterator())))
+   {
+      mDialogs.append(new Dialog(*pDialog));
+   }
 }
 
 SipDialogEvent* SipDialogEvent::copy() const
@@ -397,12 +637,24 @@ void SipDialogEvent::parseBody(const char* bodyBytes)
                         pDialog->setLocalIdentity(identity, display);
                      }
                   }
-                  
-                  ucElement = subNode->FirstChild("target")->ToElement();
+
+                  subNode1 = subNode->FirstChild("target");
+                  ucElement = subNode1->ToElement();
                   if (ucElement)
                   {
                      target = ucElement->Attribute("uri");
                      pDialog->setLocalTarget(target);
+
+                     // parse optional param elements
+                     for (TiXmlNode *paramNode = 0;
+                       (paramNode = subNode1->IterateChildren("param", paramNode)); )
+                     {
+                        TiXmlElement *paramElement = paramNode->ToElement();
+                        const char* pname = paramElement->Attribute("pname");
+                        const char* pvalue = paramElement->Attribute("pval");
+                        pDialog->addLocalParameter(new NameValuePairInsensitive(pname, pvalue));
+                     }
+
                   }
                }
                
@@ -571,6 +823,40 @@ Dialog* SipDialogEvent::getDialogByCallId(UtlString& callId)
 }
 
 
+Dialog* SipDialogEvent::getDialogByDialogId(UtlString& dialogId)
+{
+   mLock.acquire();
+   UtlSListIterator dialogIterator(mDialogs);
+   Dialog* pDialog;
+   UtlString foundDialogId, foundCallId, foundLocalTag, foundRemoteTag,
+      foundDirection;
+   while ((pDialog = (Dialog *) dialogIterator()))
+   {
+      pDialog->getDialog(foundDialogId,
+                         foundCallId,
+                         foundLocalTag,
+                         foundRemoteTag,
+                         foundDirection);
+
+      if (foundDialogId.compareTo(dialogId) == 0)
+      {
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "SipDialogEvent::getDialog found Dialog = %p for dialogId = '%s'",
+                       pDialog, dialogId.data());
+
+         mLock.release();
+         return pDialog;
+      }
+   }
+
+   OsSysLog::add(FAC_SIP, PRI_WARNING,
+                 "SipDialogEvent::getDialog could not find the Dialog for dialogId = '%s'",
+                 dialogId.data());
+   mLock.release();
+   return NULL;
+}
+
+
 UtlBoolean SipDialogEvent::isEmpty()
 {
    return (mDialogs.isEmpty());
@@ -599,7 +885,6 @@ void SipDialogEvent::buildBody(int& version) const
    UtlString dialogEvent;
    UtlString singleLine;
    char buffer[20];
-   char durationBuffer[20];
 
    // Return the XML version.
    version = mVersion;
@@ -635,134 +920,10 @@ void SipDialogEvent::buildBody(int& version) const
    Dialog* pDialog;
    while ((pDialog = (Dialog *) dialogIterator()))
    {
-      UtlString id, callId, localTag, remoteTag, direction;
-      pDialog->getDialog(id, callId, localTag, remoteTag, direction);
-
-      dialogEvent.append(BEGIN_DIALOG);
-      singleLine = DOUBLE_QUOTE + id + DOUBLE_QUOTE;
-      dialogEvent += singleLine;
-      if (!callId.isNull())
-      {
-         dialogEvent.append(CALL_ID_EQUAL);
-         singleLine = DOUBLE_QUOTE + callId + DOUBLE_QUOTE;
-         dialogEvent += singleLine;
-      }
-
-      if (!localTag.isNull())
-      {
-         dialogEvent.append(LOCAL_TAG_EQUAL);
-         singleLine = DOUBLE_QUOTE + localTag + DOUBLE_QUOTE;
-         dialogEvent += singleLine;
-      }
-
-      if (!remoteTag.isNull())
-      {
-         dialogEvent.append(REMOTE_TAG_EQUAL);
-         singleLine = DOUBLE_QUOTE + remoteTag + DOUBLE_QUOTE;
-         dialogEvent += singleLine;
-      }
-   
-      if (!direction.isNull())
-      {
-         dialogEvent.append(DIRECTION_EQUAL);
-         singleLine = DOUBLE_QUOTE + direction + DOUBLE_QUOTE;
-         dialogEvent += singleLine;
-      }
-      dialogEvent.append(END_LINE);
-
-      // State element
-      UtlString state, event, code;
-      pDialog->getState(state, event, code);
-
-      dialogEvent.append(BEGIN_STATE);
-      if (!event.isNull())
-      {
-         dialogEvent.append(EVENT_EQUAL);
-         singleLine = DOUBLE_QUOTE + event + DOUBLE_QUOTE;
-         dialogEvent += singleLine;
-      }
-
-      if (!code.isNull())
-      {
-         dialogEvent.append(CODE_EQUAL);
-         singleLine = DOUBLE_QUOTE + code + DOUBLE_QUOTE;
-         dialogEvent += singleLine;
-      }
-
-      // End of state element
-      singleLine = END_BRACKET + state + END_STATE;
-      dialogEvent += singleLine;
-
-      // Duration element
-      int duration = pDialog->getDuration();      
-      if (duration !=0)
-      {
-         duration = OsDateTime::getSecsSinceEpoch() - pDialog->getDuration();
-         sprintf(durationBuffer, "%d", duration);
-         dialogEvent += BEGIN_DURATION + UtlString(durationBuffer) + END_DURATION;     
-      }
-      
-      // Local element
-      UtlString identity, displayName, target;
-      pDialog->getLocalIdentity(identity, displayName);
-      pDialog->getLocalTarget(target);
-
-      dialogEvent.append(BEGIN_LOCAL);
-      if (!identity.isNull())
-      {
-         dialogEvent.append(BEGIN_IDENTITY);
-         if (!displayName.isNull())
-         {
-            NameValueTokenizer::frontBackTrim(&displayName, "\"");
-            dialogEvent.append(DISPLAY_EQUAL);
-            singleLine = DOUBLE_QUOTE + displayName + DOUBLE_QUOTE;
-            dialogEvent += singleLine;
-         }
-         
-         singleLine = END_BRACKET + identity + END_IDENTITY;
-         dialogEvent += singleLine;
-      }
-
-      if (!target.isNull() && target.compareTo("sip:") != 0)
-      {
-         singleLine = BEGIN_TARTGET + target + END_TARGET;
-         dialogEvent += singleLine;
-      }
-
-      // End of local element
-      dialogEvent.append(END_LOCAL);
-
-      // Remote element
-      pDialog->getRemoteIdentity(identity, displayName);
-      pDialog->getRemoteTarget(target);
-
-      dialogEvent.append(BEGIN_REMOTE);
-      if (!identity.isNull())
-      {
-         dialogEvent.append(BEGIN_IDENTITY);
-         if (!displayName.isNull())
-         {
-            NameValueTokenizer::frontBackTrim(&displayName, "\"");
-            dialogEvent.append(DISPLAY_EQUAL);
-            singleLine = DOUBLE_QUOTE + displayName + DOUBLE_QUOTE;
-            dialogEvent += singleLine;
-         }
-   
-         singleLine = END_BRACKET + identity + END_IDENTITY;
-         dialogEvent += singleLine;
-      }
-      
-      if (!target.isNull() && target.compareTo("sip:") != 0)
-      {
-         singleLine = BEGIN_TARTGET + target + END_TARGET;
-         dialogEvent += singleLine;
-      }
-
-      // End of remote element
-      dialogEvent.append(END_REMOTE);  
-
-      // End of dialog element
-      dialogEvent.append(END_DIALOG);  
+      UtlString b;
+      ssize_t l;
+      pDialog->getBytes(b, l);
+      dialogEvent.append(b);
    }
 
    // End of dialog-info element
