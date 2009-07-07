@@ -70,6 +70,7 @@ const char* OsSysLog::sFacilityNames[] =
    "FSM",
    "NAT",
    "ALARM",
+   "SAA",
    "UNKNOWN",
 } ;
 

@@ -44,6 +44,7 @@ then
   AC_CONFIG_SUBDIRS(sipXpage)
   AC_CONFIG_SUBDIRS(sipXivr)
   AC_CONFIG_SUBDIRS(sipXpbx)
+  AC_CONFIG_SUBDIRS(sipXsaa)
   AC_CONFIG_SUBDIRS(sipXecs)
 fi
 

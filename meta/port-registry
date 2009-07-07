@@ -42,6 +42,8 @@ Port    Component         Use
 5160    sipXpage          SIP
 5161    sipXpage          SIP/TLS
 
+5170    sipXsaa           Shared Appearance Agent
+
 8021    FreeSWITCH        event_socket inteface
 
 8080    FreeSWITCH        FreeSWITCH XML-RPC

@@ -26,6 +26,8 @@
 #define SUBSCRIPTION_COMPONENT_PRESENCE "presence"
 // "component" value for sipXpark a/k/a the Park Server
 #define SUBSCRIPTION_COMPONENT_PARK "park"
+// "component" value for sipXsaa a/k/a the Shared Appearance Agent
+#define SUBSCRIPTION_COMPONENT_SAA "saa"
 
 // MACROS
 // EXTERNAL FUNCTIONS

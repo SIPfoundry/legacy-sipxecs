@@ -89,6 +89,7 @@ enum tagOsSysLogFacility
    FAC_FSM,                ///< Finite State Machine tracking
    FAC_NAT,                ///< NAT Traversal related
    FAC_ALARM,              ///< Alarms
+   FAC_SAA,                ///< Shared Appearance Agent
    FAC_MAX_FACILITY        ///< Last Facility (used to for length)
 
    //
