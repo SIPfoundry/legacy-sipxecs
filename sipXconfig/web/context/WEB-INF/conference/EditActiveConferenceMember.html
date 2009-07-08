@@ -1,0 +1,18 @@
+<div jwcid="@common/Border" restricted="false">
+<h2><span key="title" /></h2>
+<form jwcid="userSchedules@Form" delegate="bean:validator">
+   <fieldset>
+     <table>
+       <tr jwcid="@common/FieldPanel" for="conferenceMember:nickname"
+		  label="message:label.nickname"
+          description="message:description.nickname" field="component:nickname">
+          <td jwcid="nickname@TextField" id="conferenceMember:nickname"
+            value="ognl:conferenceMember.nickname"
+            displayName="message:label.nickname" />
+	   </tr>
+    </table>
+  </fieldset>
+  <ul jwcid="@common/FormActions" listener="listener:save"
+	callback="ognl:callback" />
+</form>
+</div>

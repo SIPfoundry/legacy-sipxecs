@@ -3,7 +3,7 @@
 
     <table jwcid="tableView@common/Table"
            id="conferencesTable"
-           columns="* status,name"
+           columns="* status,name,nickname"
            row="ognl:currentMember"
            converter="ognl:converter"
            source="ognl:members"
@@ -16,9 +16,12 @@
             <span jwcid="@conference/ConferenceMemberStatus"
                   conferenceMember="ognl:currentMember" />
         </span>
+        <span jwcid="nicknameColumnValue@Block">
+            <a jwcid="@DirectLink" listener="listener:editCurrentMember" parameters="ognl:{currentMember.uuid,conference.name}">
+              <span jwcid="@Insert" value="ognl:nicknameForCurrentMember" />
+            </a>
+        </span>
     </table>  
-    
- 
     
 </form>
 <div jwcid="actionButtons@Block">

@@ -12,7 +12,9 @@ package org.sipfoundry.sipxconfig.site.conference;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.collections.Closure;
 import org.apache.commons.collections.CollectionUtils;
@@ -21,12 +23,17 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IAsset;
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.InjectState;
 import org.apache.tapestry.annotations.Parameter;
+import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.components.IPrimaryKeyConverter;
+import org.apache.tapestry.event.PageBeginRenderListener;
+import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
@@ -43,7 +50,7 @@ import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.sip.SipService;
 import org.sipfoundry.sipxconfig.site.UserSession;
 
-public abstract class ActiveConferenceControl extends BaseComponent {
+public abstract class ActiveConferenceControl extends BaseComponent implements PageBeginRenderListener {
     private static final Log LOG = LogFactory.getLog(ActiveConferenceControl.class);
 
     private static final String TEXT_NUMBER = "text.number";
@@ -66,6 +73,9 @@ public abstract class ActiveConferenceControl extends BaseComponent {
     @InjectState(value = "userSession")
     public abstract UserSession getUserSession();
 
+    @InjectPage(EditActiveConferenceMember.PAGE)
+    public abstract EditActiveConferenceMember getEditActiveConferenceMemberPage();
+
     @Parameter
     public abstract Conference getConference();
 
@@ -79,7 +89,19 @@ public abstract class ActiveConferenceControl extends BaseComponent {
     public abstract ActiveConferenceMember getCurrentMember();
 
     public abstract String getInviteNumber();
+
     public abstract void setInviteNumber(String inviteNumber);
+
+    @Persist
+    public abstract Map<String, String> getConferenceMemberNicknameMap();
+
+    public abstract void setConferenceMemberNicknameMap(Map nicknameMap);
+
+    public void pageBeginRender(PageEvent event) {
+        if (getConferenceMemberNicknameMap() == null) {
+            setConferenceMemberNicknameMap(new HashMap<String, String>());
+        }
+    }
 
     public String getInviteFieldValue() {
         String placeholder = getMessages().getMessage(TEXT_NUMBER);
@@ -157,6 +179,15 @@ public abstract class ActiveConferenceControl extends BaseComponent {
 
         setMembersCached(members);
         return members;
+    }
+
+    public String getNicknameForCurrentMember() {
+        String nickname = getConferenceMemberNicknameMap().get(getCurrentMember().getUuid());
+        if (StringUtils.isNotEmpty(nickname)) {
+            return nickname;
+        } else {
+            return "Add a nickname";
+        }
     }
 
     public abstract class Action implements Closure {
@@ -256,5 +287,13 @@ public abstract class ActiveConferenceControl extends BaseComponent {
             }
         };
         forAllMembers(kick);
+    }
+
+    public IPage editCurrentMember(String conferenceMemberUuid, String conferenceName) {
+        EditActiveConferenceMember editMemberPage = getEditActiveConferenceMemberPage();
+        editMemberPage.setReturnPage(getPage());
+        editMemberPage.setConferenceMemberUuid(conferenceMemberUuid);
+        editMemberPage.setConferenceMemberNicknameMap(getConferenceMemberNicknameMap());
+        return editMemberPage;
     }
 }
