@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0">
+  <channel>
+    <title>Voicemail: joeuser</title>
+    <link>https://example.com:8034/sipxconfig/rest/my/feed/voicemail/inbox</link>
+    <description>Voicemail Inbox for joeuser</description>
+    <item>
+      <title>Voice Message 00000000 from George</title>
+      <link>https://example.com:8034/sipxconfig/mailbox/joeuser/inbox/00000000</link>
+      <description>10 seconds received at 01:00 on 01/01/70</description>
+      <enclosure url="https://example.com:8034/sipxconfig/mailbox/joeuser/inbox/00000000" type="audio/x-wav" />
+      <pubDate>Thu, 01 Jan 1970 00:00:00 GMT</pubDate>
+      <guid>https://example.com:8034/sipxconfig/mailbox/joeuser/inbox/00000000</guid>
+      <dc:date>1970-01-01T00:00:00Z</dc:date>
+    </item>
+    <item>
+      <title>Voice Message 00000001 from George</title>
+      <link>https://example.com:8034/sipxconfig/mailbox/joeuser/inbox/00000001</link>
+      <description>11 seconds received at 01:00 on 01/01/70</description>
+      <enclosure url="https://example.com:8034/sipxconfig/mailbox/joeuser/inbox/00000001" type="audio/x-wav" />
+      <pubDate>Thu, 01 Jan 1970 00:00:00 GMT</pubDate>
+      <guid>https://example.com:8034/sipxconfig/mailbox/joeuser/inbox/00000001</guid>
+      <dc:date>1970-01-01T00:00:00Z</dc:date>
+    </item>
+    <item>
+      <title>Voice Message 00000002 from George</title>
+      <link>https://example.com:8034/sipxconfig/mailbox/joeuser/inbox/00000002</link>
+      <description>12 seconds received at 01:00 on 01/01/70</description>
+      <enclosure url="https://example.com:8034/sipxconfig/mailbox/joeuser/inbox/00000002" type="audio/x-wav" />
+      <pubDate>Thu, 01 Jan 1970 00:00:00 GMT</pubDate>
+      <guid>https://example.com:8034/sipxconfig/mailbox/joeuser/inbox/00000002</guid>
+      <dc:date>1970-01-01T00:00:00Z</dc:date>
+    </item>
+    <item>
+      <title>Voice Message 00000003 from George</title>
+      <link>https://example.com:8034/sipxconfig/mailbox/joeuser/inbox/00000003</link>
+      <description>13 seconds received at 01:00 on 01/01/70</description>
+      <enclosure url="https://example.com:8034/sipxconfig/mailbox/joeuser/inbox/00000003" type="audio/x-wav" />
+      <pubDate>Thu, 01 Jan 1970 00:00:00 GMT</pubDate>
+      <guid>https://example.com:8034/sipxconfig/mailbox/joeuser/inbox/00000003</guid>
+      <dc:date>1970-01-01T00:00:00Z</dc:date>
+    </item>
+    <item>
+      <title>Voice Message 00000004 from George</title>
+      <link>https://example.com:8034/sipxconfig/mailbox/joeuser/inbox/00000004</link>
+      <description>14 seconds received at 01:00 on 01/01/70</description>
+      <enclosure url="https://example.com:8034/sipxconfig/mailbox/joeuser/inbox/00000004" type="audio/x-wav" />
+      <pubDate>Thu, 01 Jan 1970 00:00:00 GMT</pubDate>
+      <guid>https://example.com:8034/sipxconfig/mailbox/joeuser/inbox/00000004</guid>
+      <dc:date>1970-01-01T00:00:00Z</dc:date>
+    </item>
+  </channel>
+</rss>

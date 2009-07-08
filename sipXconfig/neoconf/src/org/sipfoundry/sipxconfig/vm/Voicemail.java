@@ -173,7 +173,7 @@ public class Voicemail implements Comparable {
         }
     }
 
-    protected static MessageDescriptor readMessageDescriptor(File file) {
+    protected MessageDescriptor readMessageDescriptor(File file) {
         FileInputStream descriptorFile = null;
         try {
             descriptorFile = new FileInputStream(file);

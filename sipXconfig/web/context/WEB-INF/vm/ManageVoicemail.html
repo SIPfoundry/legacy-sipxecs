@@ -1,4 +1,9 @@
 <div jwcid="@common/Border" restricted="false">
+  <link jwcid="@Relation"
+    rel="alternate"
+    type="application/rss+xml"
+    title="RSS"
+    href="/sipxconfig/rest/my/feed/voicemail/inbox" />
   <span jwcid="@If" condition="ognl:!hasVoicemailPermission">
     <span class="user-warning" id="noVoicemailPermission" key="warning.noVoicemailPermissionNotice"/>            
   </span>

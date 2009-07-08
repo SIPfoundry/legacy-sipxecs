@@ -29,6 +29,8 @@
     <pathelement path="${restlet-impl.jar}"/>
     <pathelement path="${restlet-servlet.jar}"/>
     <pathelement path="${restlet-spring.jar}"/>
+    <pathelement path="${jdom.jar}"/>
+    <pathelement path="${rome.jar}"/>
 	<pathelement location="${server-bindings.jar}"/>
 
   </path>
@@ -245,6 +247,8 @@
       <fileset file="${restlet-impl.jar}"/>
       <fileset file="${restlet-servlet.jar}"/>
       <fileset file="${restlet-spring.jar}"/>
+      <fileset file="${jdom.jar}"/>
+      <fileset file="${rome.jar}"/>
     </copy>
   </target>	
 
