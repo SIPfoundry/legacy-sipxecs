@@ -162,6 +162,9 @@
     <copy todir="${dest.dir}${sipxcommons.dir}">
       <fileset file="${build.dir}/dist/*.jar"/>
       <fileset file="${build.dir}/dist/*.so"/>
+      <fileset file="${src.dir}/lib/ant.jar"/>
+      <fileset file="${src.dir}/lib/ant-launcher.jar"/>
+      <fileset file="${src.dir}/lib/postgresql-jdbc.jar"/>
       <fileset file="${src.dir}/lib/bcel.jar"/>
       <fileset file="${src.dir}/lib/commons-beanutils.jar"/>
       <fileset file="${src.dir}/lib/commons-cli.jar"/>
