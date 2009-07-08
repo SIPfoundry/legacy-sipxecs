@@ -1,0 +1,57 @@
+Name: @PACKAGE@
+Version: @VERSION@
+Release: %{buildno}
+
+Summary: Openfire plugins for  sipX
+License: LGPL
+Group:    Productivity/Telephony/SIP/Servers
+Vendor: SIPfoundry
+Packager: SIPfoundry <sipx-dev@sipfoundry.org>
+Url: http://www.sipfoundry.org/sipXopenfire
+
+Source: %name-%version.tar.gz
+
+Requires: sipxcommserverlib >= 4.1
+Requires: sipxcommons >= 4.1
+
+%if %{use_ibm_jvm}
+Requires: java-ibm >= 1.6
+Requires: java-ibm-unrestricted
+%else
+Requires: java-sun >= 1.6
+%endif
+
+Prefix: %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+%description
+Openfire plugins for sipx.
+
+%prep
+%setup -q
+
+%build
+%configure @CONFIGURE_OPTIONS@
+cp config.log %name.configlog
+make all
+
+%install
+
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,@SIPXPBXUSER@,@SIPXPBXUSER@,755)
+%attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxopenfire-process.xml
+%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_bindir}/sipxopenfire.sh
+%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_bindir}/sipxopenfire-setup.sh
+%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_bindir}/sipxopenfire-initdb.sql
+%attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxopenfire-setup.sh
+%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/database/sipxopenfire-initdb.sql
+%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/sipxopenfire-database.xml
+%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) /opt/openfire/plugins/sipx-openfire.jar
+%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) /opt/openfire/conf/openfire.xml
+

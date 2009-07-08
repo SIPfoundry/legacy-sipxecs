@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:annotation>
+		<xs:documentation xml:lang="en">
+			The sipx openfire plugin takes the parameters that are defined
+			in an xml file called sipxopenfire.xml. This file lives in
+			etc/sipxpbx.
+		</xs:documentation>
+	</xs:annotation>
+	<xs:element name="sipxopenfire-config" type="SipxOpenfireConfig" />
+	<xs:complexType name="SipxOpenfireConfig">
+		<xs:element name="sipx-proxy-domain" type="xs:string"
+				minOccurs="1" maxOccurs="1">
+			<xs:annotation>
+				<xs:documentation xml:lang="en">
+					The SIPX Proxy domain.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:element>
+		<xs:element name="sipx-proxy-port" type="xs:integer"
+			minOccurs="0" maxOccurs="1" default="5060">
+			<xs:annotation>
+				<xs:documentation xml:lang="en">
+					The SIPX proxy port. In case you are not
+					defining a DNS SRV record for the proxy you can 
+					specify a proxy port. In this case, the 
+					sipx-proxy-domain should be the FQDN or IP address
+					of the sipx proxy.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:element>
+		<xs:element name="user-name" type="xs:string"
+				minOccurs="1" maxOccurs="1" default="watcher">
+			<xs:annotation>
+				<xs:documentation xml:lang="en">
+					User Name for the call watcher pseudo user.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:element>
+		<xs:element name="password" type="xs:string"
+				minOccurs="1" maxOccurs="1">
+			<xs:annotation>
+				<xs:documentation xml:lang="en">
+					Password for the all watcher pseudo user.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:element>
+		<xs:element name="resource-list" type="xs:string"
+				minOccurs="0" maxOccurs="1" >
+			<xs:annotation>
+				<xs:documentation xml:lang="en">
+					The resource list name ( ~~rl~F~user-name by default if nothing entered here).
+				</xs:documentation>
+			</xs:annotation>
+		</xs:element>
+		<xs:element name="watcher-address" type="xs:string"
+				minOccurs="1" maxOccurs="1" >
+			<xs:annotation>
+				<xs:documentation xml:lang="en">
+					Address where watcher sip stack binds.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:element>
+		<xs:element name="watcher-port" type="xs:integer"
+				minOccurs="0" maxOccurs="1" default="5064">
+			<xs:annotation>
+				<xs:documentation xml:lang="en">
+					Port where watcher sip stack binds.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:element>
+			<xs:element name="log-level" maxOccurs="1" minOccurs="0"
+				default="WARN">
+			<xs:annotation>
+				<xs:documentation xml:lang="en">
+						Log configuration. Defaults to WARN level.
+				</xs:documentation>
+			</xs:annotation>
+			<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="OFF" />
+						<xs:enumeration value="INFO" />
+						<xs:enumeration value="WARN" />
+						<xs:enumeration value="ERROR" />
+						<xs:enumeration value="DEBUG" />
+						<xs:enumeration value="TRACE" />
+					</xs:restriction>
+			</xs:simpleType>
+		</xs:element>
+		<xs:element name="log-directory" type="xs:string"
+				minOccurs="0" maxOccurs="1" default="/var/log/sipxpbx">
+			<xs:annotation>
+				<xs:documentation xml:lang="en">
+					The directory where log files are written.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:element>
+	</xs:complexType>
+</xs:schema>
+	

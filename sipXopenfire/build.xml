@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+<project name="sipxopenfire" default="all" basedir=".">
+<description>
+      Build file 
+</description>
+  	<import file="ant-targets.xml"/>
+
+  	<property name="dist.dir" value="${top.build.dir}/dist" />
+	<property file="config.properties" />
+	<property name="root" value="${top.build.dir}" />
+	<property name="classes" value="${root}/classes" />
+	<property name="src" location="${src.dir}/src/main/java" />
+	<property name="lib" location="${src.dir}/lib" />
+	<property name="openfire-lib-dir" location="${openfire.home}/lib" />
+        <property name="openfire-jar" value="${openfire-lib-dir}/openfire.jar" />
+
+
+	<presetdef name="openfire-javac">
+		<javac debug="${javac.debug}"
+			debuglevel="${javac.debuglevel}"
+			deprecation="${javac.deprecation}"
+			optimize="${javac.optimize}"
+			source="${javac.source}"
+			target="${javac.target}"
+			srcdir="${src}"
+			destdir="${classes}" />
+	</presetdef>
+
+
+	<target name="compile">
+		<mkdir  dir="${classes}" />
+		<openfire-javac>
+			<classpath>
+			    <pathelement location="${log4j}" />
+			    <pathelement location="${openfire-jar}/" />
+			    <pathelement location="${xml-rpc-common}" />
+			    <pathelement location="${xml-rpc-server}" />
+			    <pathelement location="${xml-rpc-client}" />
+			    <pathelement location="${servlet-jar}" />
+			    <pathelement location="${jainsip}" />
+			    <pathelement location="${dnsjava}" />
+			    <pathelement location="${log4j}" />
+			    <pathelement location="${dnsjava}" />
+			    <pathelement location="${sipxcommons}" />
+			    <pathelement location="${commons-digester}" />
+			    <pathelement location="${commons-beanutils}" />
+			</classpath>
+		</openfire-javac>
+	</target>
+
+
+    <target name = "clean" >
+       <delete dir="${classes}" />
+	   <delete dir="${lib}"/>
+	   <delete file="sipx-openfire.jar" />
+	   <delete file="sipx-openfire-plugin.jar" />
+	</target>
+
+	<target name="all" depends="compile">
+		<mkdir dir="${build.dir}/dist"/>
+		<mkdir  dir="${root}/lib" />
+		<copy file="plugin.xml" todir="${classes}" />
+		<copy file="${root}/config.properties" todir="${classes}" />
+		<jar jarfile="${root}/sipx-openfire-plugin.jar">
+			<fileset dir="${classes}" >
+				<include name="**/*.class" />
+			    <include name="config.properties" />
+			</fileset>
+		</jar>
+		<copy file="${root}/sipx-openfire-plugin.jar" todir="${root}/lib" />
+		<jar jarfile="${root}/dist/sipx-openfire.jar">
+            <fileset dir="${src.dir}" >
+			   <include name="plugin.xml" />
+			   <include name="web/**/*"   />
+			</fileset>
+            <fileset dir="${root}" >
+		           <include name="lib/**/*" />
+			</fileset>
+		</jar>
+		<copy file="${root}/sipx-openfire-plugin.jar" todir="${build.dir}/dist" />
+	</target>
+
+	<target name="install" depends="all">
+		<copy file="${src.dir}/openfire.xml" todir="${dest.dir}${openfire.home}/conf" />
+		<copy file="${root}/dist/sipx-openfire.jar" todir="${dest.dir}${openfire.home}/plugins" />
+		<copy file="${root}/sipxopenfire-database.xml" todir="${dest.dir}${conf.dir}" />
+		<copy file="${src.dir}/sipxopenfire-initdb.sql" todir="${dest.dir}${conf.dir}/database" /> 
+		<copy file="${root}/sipxopenfire-setup.sh" todir="${dest.dir}${prefix.dir}/libexec/sipXecs/setup.d" />
+                <chmod file="${dest.dir}${prefix.dir}/libexec/sipXecs/setup.d/sipxopenfire-setup.sh" perm="ugo+rx" />
+	</target>
+
+
+	
+</project>

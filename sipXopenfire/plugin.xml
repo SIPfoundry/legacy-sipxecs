@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin>
+    <!-- Main plugin class -->
+    <class>org.sipfoundry.openfire.plugin.presence.SipXOpenfirePlugin</class>
+    <!-- Plugin meta-data -->
+    <name>sipxpresence</name>
+    <description>This is a presence plugin.</description>
+    <author>Sipfoundry</author>
+
+    <version>1.0</version>
+    <date>04/23/2009</date>
+    <minServerVersion>1.0.0</minServerVersion>
+    <licenseType>lgpl</licenseType>
+    <!-- Admin console entries -->
+    <adminconsole>
+        <!-- Nothing goes here -->
+    </adminconsole>
+</plugin>
+

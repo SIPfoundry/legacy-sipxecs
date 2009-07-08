@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<project name="sipxopenfire-config" default="all" basedir=".">
+<description>
+      Ant task file for database operations.
+</description>
+        <property name="sipxcommons.dir" value="@SIPX_JAVADIR@/sipXcommons" />
+        <property name="conf.dir" value="@SIPX_CONFDIR@" />
+        <property name="tmp.dir" value="@SIPX_TMPDIR@" />
+        <property name="jdbc-driver-jar" value="${sipxcommons.dir}/postgresql-jdbc.jar" />
+        <property name="sipxopenfire.db.name" value="openfire" />
+        <property name="sipxopenfire.db.user" value="postgres" />
+        <property name="sipxopenfire.db.password" value="postgres" />
+        <property name="sipxopenfire.db.url" value="jdbc:postgresql://localhost:5432/openfire" />
+        <presetdef name="sipx-sql">
+             <sql driver="org.postgresql.Driver" url="${sipxopenfire.db.url}" 
+                     userid="${sipxopenfire.db.user}" password="${sipxopenfire.db.password}" classpath="${jdbc-driver-jar}" />
+        </presetdef>
+        <target name="drop"  description="drops database!">
+            <exec executable="dropdb" outputproperty="eatme">
+                 <arg line="-U ${sipxopenfire.db.user} ${sipxopenfire.db.name}" />
+            </exec>
+        </target>
+          
+        <!-- creates database void of schema -->
+        <target name="create" description="creates the schema for the database">
+            <sleep seconds="3" />
+            <!-- sporadic template1 in use, allow dropdb to disconnect... -->
+            <exec executable="createdb" failonerror="true">
+                 <arg line="-q -U ${sipxopenfire.db.user} --encoding=UNICODE ${sipxopenfire.db.name}" />
+            </exec>
+        </target> 
+
+
+        <target name="create-tables">
+          <sipx-sql src="${conf.dir}/database/sipxopenfire-initdb.sql" />
+        </target>
+
+        <target name="check">
+           <delete failonerror="false" file="${tmp.dir}/sipxopenfire.version" />
+           <sipx-sql  print="yes" output="${tmp.dir}/sipxopenfire.version" showheaders="no" >
+		select version from ofVersion where name='openfire';
+	   </sipx-sql>
+        </target>
+
+        <!-- create the admin user -->
+        <target name="setup" >
+          <echo  file="/tmp/of-init.sql" >
+             DELETE FROM ofProperty WHERE name='xmpp.domain'; 
+             DELETE FROM ofUser WHERE name='admin'; 
+             INSERT INTO ofProperty (name, propValue) VALUES ('xmpp.domain','${domain}'); 
+             INSERT INTO ofUser (username,plainPassword,name,email,creationDate,modificationDate) 
+             VALUES ('admin','admin','Administrator','admin@${domain}', '0', '0'); 
+          </echo>
+          <sipx-sql src="/tmp/of-init.sql" />
+        </target>
+
+</project>

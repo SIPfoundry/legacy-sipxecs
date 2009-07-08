@@ -46,6 +46,7 @@ then
   AC_CONFIG_SUBDIRS(sipXpbx)
   AC_CONFIG_SUBDIRS(sipXsaa)
   AC_CONFIG_SUBDIRS(sipXecs)
+  AC_CONFIG_SUBDIRS(sipXopenfire)
 fi
 
 AC_ARG_ENABLE(tools,
