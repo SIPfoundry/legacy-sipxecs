@@ -313,6 +313,7 @@ class DialogContext {
             this.dialogContext = dialogContext;
             this.ctx = ctx;
             dialogContext.waitingToSendReInvite.set(true);
+            TransactionContext.get(ctx).setItspAccountInfo(DialogContext.this.itspInfo);
         }
 
         public void run() {
