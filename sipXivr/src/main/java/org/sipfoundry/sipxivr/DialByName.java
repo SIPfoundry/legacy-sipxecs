@@ -165,18 +165,44 @@ public class DialByName {
 
             }
 
-            // "Please spell the name of the person, last name first. 
+            // Probably should be:
+            // "Please spell the first or last name of the person using as many letters as you know.
+            // "You'll be prompted when the list of names is narrowed enough.
+            // "Press seven for 'q' and nine for 'z' To cancel, press star"
+            
+            // "Please spell the name of the person.
             // "Press seven for 'q' and nine for 'z' To cancel, press star"
             m_loc.play("dial_by_name", "0123456789*");
-
-            // Collect the digits from the caller.  Use the "*" and "#" keys as terminators
-            // There are a LONG (10 second) digit timers here, as spelling on the phone
-            // is difficult!  The "#" key will terminate any input if the caller is finished.
-            Collect c = new Collect(m_loc.getFreeSwitchEventSocketInterface(), 20, 10000, 10000, 2000);
-            c.setTermChars("*#");
-            c.go();
-            String digits = c.getDigits();
-            LOG.info("DialByName::dialByName Collected digits=" + digits);
+            String digits = "";
+            for(;;) {
+                // Collect the digits from the caller.  Use the "*" and "#" keys as terminators
+                // There are a LONG (10 second) digit timers here, as spelling on the phone
+                // is difficult!  The "#" key will terminate any input if the caller is finished.
+                Collect c = new Collect(m_loc.getFreeSwitchEventSocketInterface(), 1, 10000, 0, 0);
+                c.setTermChars("*#");
+                c.go();
+                String digit = c.getDigits();
+                LOG.info("DialByName::dialByName Collected digit=" + digit);
+                if (digit.length() == 0) {
+                    break ; // Timeout
+                }
+                if (digit.contentEquals("*")) {
+                    digits = "*";
+                    break; // Cancel
+                } 
+                if (digit.contentEquals("#")) {
+                    break ; // "enter" key
+                }
+                digits += digit;
+                Vector<User> matches = m_validUsers.lookupDTMF(digits);
+                LOG.info(String.format("DialByName::dialByName %s matchs %d users", digits, matches.size()));
+                if (matches.size() < 3) {
+                    break ; // Less than 3 (including none!) time to leave
+                }
+                if (matches.size() < 10 && digits.length() > 6) {
+                    break ; // Less than 10 after 7 or more digits?  time to leave.
+                }
+            }
 
             // Timed out.  (No digits)
             if (digits.length() == 0) {
@@ -199,6 +225,8 @@ public class DialByName {
                 m_loc.play("invalid_try_again", "");
                 continue;
             }
+            
+            
             
             // See if the digits they dialed matched anyone, and let them select among
             // all the possibilities

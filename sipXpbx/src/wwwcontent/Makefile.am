@@ -246,6 +246,7 @@ wwwcontent = \
 	stdprompts/dial_extn_short.wav \
 	stdprompts/dial_pin.wav \
 	stdprompts/dialbyname.wav \
+	stdprompts/dialbyname2.wav \
 	stdprompts/dialbyname_no_match.wav \
 	stdprompts/disable_autoattendant_selected.wav \
 	stdprompts/dist_list_invalid.wav \
