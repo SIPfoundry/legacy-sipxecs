@@ -87,11 +87,15 @@ AC_DEFUN([SFAC_SIPX_GLOBAL_OPTS],
     AC_SUBST(SIPX_VARLIB,  [${localstatedir}/lib/sipxpbx])
     AC_SUBST(SIPX_VXMLDATADIR,[${localstatedir}/sipxdata/mediaserver/data])
 
+
     ## Used in a number of different project and subjective where this should really go
     ## INSTALL instruction assume default, otherwise safe to change/override
     AC_ARG_VAR(wwwdir, [Web root for web content, default is ${datadir}/www. \
                         WARNING: Adjust accordingly when following INSTALL instructions])
     test -z $wwwdir && wwwdir='${datadir}/www'
+
+    AC_ARG_VAR(OPENFIRE_HOME, [The home for openfire ])
+    test -z "$OPENFIRE_HOME" && OPENFIRE_HOME=/opt/openfire
 
     # Get the user to run sipX under.
     AC_ARG_VAR(SIPXPBXUSER, [The sipX service daemon user name, default is 'sipxchange'])
