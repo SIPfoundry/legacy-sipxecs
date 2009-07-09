@@ -12,10 +12,11 @@ package org.sipfoundry.sipxconfig.rest;
 import java.io.File;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
@@ -37,8 +38,17 @@ import static org.easymock.classextension.EasyMock.replay;
 import static org.restlet.data.MediaType.APPLICATION_RSS_XML;
 
 public class VoicemailResourceTest extends TestCase {
+    private TimeZone m_timeZone;
+
     @Override
     protected void setUp() throws Exception {
+        m_timeZone = TimeZone.getDefault();
+        TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        TimeZone.setDefault(m_timeZone);
     }
 
     public void testFeed() throws Exception {
@@ -51,15 +61,18 @@ public class VoicemailResourceTest extends TestCase {
         List<Voicemail> vmails = new ArrayList<Voicemail>();
         File vmailDir = new File("/voicemail/store");
         for (int i = 0; i < 5; i++) {
-            final long id = i;
+            final int id = i;
             Voicemail vmail = new Voicemail(vmailDir, "joeuse", "inbox", "0000000" + i) {
                 @Override
                 protected MessageDescriptor readMessageDescriptor(File file) {
+                    Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+                    cal.set(1970, Calendar.JANUARY, 14 + id, 10, 0, id);
+
                     MessageDescriptor md = createMock(MessageDescriptor.class);
                     md.getSubject();
                     expectLastCall().andReturn("Voice Message 0000000" + id);
                     md.getTimestamp();
-                    expectLastCall().andReturn(new Date(id)).atLeastOnce();
+                    expectLastCall().andReturn(cal.getTime()).atLeastOnce();
                     md.getFrom();
                     expectLastCall().andReturn("George <president@example.org>");
                     md.getFromBrief();
