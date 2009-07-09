@@ -531,11 +531,14 @@ void Connection::fireSipXEvent(SIPX_CALLSTATE_EVENT eventCode, SIPX_CALLSTATE_CA
     UtlString remoteAddress ;
     SipSession session ;
     UtlBoolean bDuplicateAudio =
-            (eventCode == CALLSTATE_AUDIO_EVENT && causeCode == m_eLastAudioMinor) ? TRUE : FALSE;
+            (   eventCode == CALLSTATE_AUDIO_EVENT 
+             && causeCode == m_eLastAudioMinor) ? TRUE : FALSE;
 
     // Avoid sending duplicate events
-    if ((   (eventCode != m_eLastMajor) || (causeCode != m_eLastMinor)) && 
-            validStateTransition(m_eLastMajor, eventCode) && !bDuplicateAudio)
+    if ((   (eventCode != m_eLastMajor) 
+         || (causeCode != m_eLastMinor)) 
+        && validStateTransition(m_eLastMajor, eventCode) 
+        && !bDuplicateAudio)
     {
         if (eventCode != CALLSTATE_AUDIO_EVENT)
         {

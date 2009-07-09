@@ -3334,6 +3334,10 @@ void CpPeerCall::dropDeadConnections()
                     {
                         connection->fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL) ;
                     }
+                    else
+                    {
+                        pGhost->disconnectForSipXTapi();
+                    }
 
                     postTaoListenerMessage(connection->getResponseCode(), 
                                            responseText, 
@@ -3378,6 +3382,10 @@ void CpPeerCall::dropDeadConnections()
                     if (!pGhost)
                     {
                         connection->fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL) ;    
+                    }
+                    else
+                    {
+                        pGhost->disconnectForSipXTapi();
                     }
                 }               
 

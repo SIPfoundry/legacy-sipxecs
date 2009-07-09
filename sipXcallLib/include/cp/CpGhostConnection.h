@@ -89,6 +89,8 @@ public:
    // Method to communicate status to target call on transfer
    // controller side
 
+   void disconnectForSipXTapi();
+
    virtual UtlBoolean answer(const void* hWnd = NULL);
 
    virtual UtlBoolean hangUp();
