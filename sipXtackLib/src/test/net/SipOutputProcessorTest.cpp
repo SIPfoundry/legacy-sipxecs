@@ -545,6 +545,9 @@ public:
    
       CPPUNIT_ASSERT( pProcessor->getCallbackCount() == 1 );
       CPPUNIT_ASSERT( pProcessor->getLastStoredCallbackTrace() == referenceTrace1 );
+      sipUA.removeSipOutputProcessor( pProcessor );
+      sipUA.shutdown();
+      delete( pProcessor );
    }
 
    void testProcessAckRequests()
@@ -579,6 +582,9 @@ public:
    
       CPPUNIT_ASSERT( pProcessor->getCallbackCount() == 1 );
       CPPUNIT_ASSERT( pProcessor->getLastStoredCallbackTrace() == referenceTrace2 );
+      sipUA.removeSipOutputProcessor( pProcessor );
+      sipUA.shutdown();
+      delete( pProcessor );
    }     
 
    void testProcessByeRequests()
@@ -612,6 +618,9 @@ public:
    
       CPPUNIT_ASSERT( pProcessor->getCallbackCount() == 1 );
       CPPUNIT_ASSERT( pProcessor->getLastStoredCallbackTrace() == referenceTrace3 );
+      sipUA.removeSipOutputProcessor( pProcessor );
+      sipUA.shutdown();
+      delete( pProcessor );
    }
    
    void testProcessOptionsRequests()
@@ -645,6 +654,9 @@ public:
    
       CPPUNIT_ASSERT( pProcessor->getCallbackCount() == 1 );
       CPPUNIT_ASSERT( pProcessor->getLastStoredCallbackTrace() == referenceTrace5 );
+      sipUA.removeSipOutputProcessor( pProcessor );
+      sipUA.shutdown();
+      delete( pProcessor );
    }
 
    void testProcessRegisterRequests()
@@ -678,6 +690,9 @@ public:
    
       CPPUNIT_ASSERT( pProcessor->getCallbackCount() == 1 );
       CPPUNIT_ASSERT( pProcessor->getLastStoredCallbackTrace() == referenceTrace6 );
+      sipUA.removeSipOutputProcessor( pProcessor );
+      sipUA.shutdown();
+      delete( pProcessor );
    }
 
    void testProcessInfoRequests()
@@ -716,6 +731,9 @@ public:
    
       CPPUNIT_ASSERT( pProcessor->getCallbackCount() == 1 );
       CPPUNIT_ASSERT( pProcessor->getLastStoredCallbackTrace() == referenceTrace7 );
+      sipUA.removeSipOutputProcessor( pProcessor );
+      sipUA.shutdown();
+      delete( pProcessor );
    }
    
    void testProcessPrackRequests()
@@ -749,6 +767,9 @@ public:
    
       CPPUNIT_ASSERT( pProcessor->getCallbackCount() == 1 );
       CPPUNIT_ASSERT( pProcessor->getLastStoredCallbackTrace() == referenceTrace8 );
+      sipUA.removeSipOutputProcessor( pProcessor );
+      sipUA.shutdown();
+      delete( pProcessor );
    }
    
    void testProcessSubscribeRequests()
@@ -787,6 +808,9 @@ public:
    
       CPPUNIT_ASSERT( pProcessor->getCallbackCount() == 1 );
       CPPUNIT_ASSERT( pProcessor->getLastStoredCallbackTrace() == referenceTrace9 );
+      sipUA.removeSipOutputProcessor( pProcessor );
+      sipUA.shutdown();
+      delete( pProcessor );
    }
 
    void testProcessNotifyRequests()
@@ -825,6 +849,9 @@ public:
    
       CPPUNIT_ASSERT( pProcessor->getCallbackCount() == 1 );
       CPPUNIT_ASSERT( pProcessor->getLastStoredCallbackTrace() == referenceTrace10 );
+      sipUA.removeSipOutputProcessor( pProcessor );
+      sipUA.shutdown();
+      delete( pProcessor );
    }
    
    void testProcessUpdateRequests()
@@ -858,6 +885,9 @@ public:
    
       CPPUNIT_ASSERT( pProcessor->getCallbackCount() == 1 );
       CPPUNIT_ASSERT( pProcessor->getLastStoredCallbackTrace() == referenceTrace11 );
+      sipUA.removeSipOutputProcessor( pProcessor );
+      sipUA.shutdown();
+      delete( pProcessor );
    }
    
    void testProcessMessageRequests()
@@ -891,6 +921,9 @@ public:
    
       CPPUNIT_ASSERT( pProcessor->getCallbackCount() == 1 );
       CPPUNIT_ASSERT( pProcessor->getLastStoredCallbackTrace() == referenceTrace12 );
+      sipUA.removeSipOutputProcessor( pProcessor );
+      sipUA.shutdown();
+      delete( pProcessor );
    }
 
    void testProcessReferRequests()
@@ -924,6 +957,9 @@ public:
    
       CPPUNIT_ASSERT( pProcessor->getCallbackCount() == 1 );
       CPPUNIT_ASSERT( pProcessor->getLastStoredCallbackTrace() == referenceTrace13 );
+      sipUA.removeSipOutputProcessor( pProcessor );
+      sipUA.shutdown();
+      delete( pProcessor );
    }
 
    void testProcessPublishRequests()
@@ -1018,6 +1054,9 @@ public:
       pProcessor->resetCallbackTrace();
       sipUA.send( cancelMsg );
       CPPUNIT_ASSERT( pProcessor->waitForMessages( 1, 10 ) == true );
+      sipUA.removeSipOutputProcessor( pProcessor );
+      sipUA.shutdown();
+      delete( pProcessor );
    }
    
    void testProcess2xxResponses()
@@ -1069,6 +1108,9 @@ public:
       CallbackTrace reference200( expected200ResponseMsg, "127.0.0.1", 9997 );
       
       CPPUNIT_ASSERT( pProcessor->getStoredCallbackTrace(1) == reference200 );
+      sipUA.removeSipOutputProcessor( pProcessor );
+      sipUA.shutdown();
+      delete( pProcessor );
    }
    
    void testProcess3xxResponses()
@@ -1118,6 +1160,9 @@ public:
       CallbackTrace reference301( expected301ResponseMsg, "127.0.0.1", 9997 );
       
       CPPUNIT_ASSERT( pProcessor->getStoredCallbackTrace(1) == reference301 );
+      sipUA.removeSipOutputProcessor( pProcessor );
+      sipUA.shutdown();
+      delete( pProcessor );
    }
    
    void testProcess4xxResponses()
@@ -1167,6 +1212,9 @@ public:
       CallbackTrace reference400( expected400ResponseMsg, "127.0.0.1", 9997 );
       
       CPPUNIT_ASSERT( pProcessor->getStoredCallbackTrace(1) == reference400 );
+      sipUA.removeSipOutputProcessor( pProcessor );
+      sipUA.shutdown();
+      delete( pProcessor );
    }
    
    void testProcess5xxResponses()
@@ -1216,6 +1264,9 @@ public:
       CallbackTrace reference501( expected501ResponseMsg, "127.0.0.1", 9997 );
       
       CPPUNIT_ASSERT( pProcessor->getStoredCallbackTrace(1) == reference501 );
+      sipUA.removeSipOutputProcessor( pProcessor );
+      sipUA.shutdown();
+      delete( pProcessor );
    }
 
    void testProcess6xxResponses()
@@ -1265,6 +1316,9 @@ public:
       CallbackTrace reference603( expected603ResponseMsg, "127.0.0.1", 9997 );
       
       CPPUNIT_ASSERT( pProcessor->getStoredCallbackTrace(1) == reference603 );
+      sipUA.removeSipOutputProcessor( pProcessor );
+      sipUA.shutdown();
+      delete( pProcessor );
    }
    
    void testPriorityOrdering()
