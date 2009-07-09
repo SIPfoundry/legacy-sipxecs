@@ -74,7 +74,7 @@
 #define PNAME "pname=\""
 // Note that draft-ietf-bliss-shared-appearances uses pval,
 // while draft-anil-sipping-bla-0x use pvalue.
-// Polycom sets have a setting in sip.cfg “voIpProt.SIP.dialog.usePvalue” (default 0, i.e. pval)
+// Polycom sets have a setting in sip.cfg "voIpProt.SIP.dialog.usePvalue" (default 0, i.e. pval)
 // More importantly, RFC 4235, which defines dialog events, specifies "pval" in section 4.1.6.2.
 #define PVALUE "\" pval=\""
 #define END_DIALOG_PARAM "\"/>\n"
