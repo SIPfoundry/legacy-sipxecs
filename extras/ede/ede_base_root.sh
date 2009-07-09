@@ -222,7 +222,7 @@ function centos_manual_install_packages {
    mkdir -p SWITCH
    pushd SWITCH
    rm -rf index.html
-   SWITCH_PACKAGES="scons lzo lzo-devel fakeroot rpmdevtools"
+   SWITCH_PACKAGES="scons lzo lzo-devel fakeroot-libs fakeroot rpmdevtools"
    for package in $SWITCH_PACKAGES;
    do
       SWITCH_install_latest_version_rpm $package
