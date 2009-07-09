@@ -214,6 +214,7 @@ typedef enum SIPX_CALLSTATE_CAUSE
 	CALLSTATE_DISCONNECTED_NO_RESPONSE,                                 /**< Disconnected: No response was received */
     CALLSTATE_DISCONNECTED_AUTH,                                        /**< Disconnected: Unable to authenticate */
     CALLSTATE_DISCONNECTED_UNKNOWN,                                     /**< Disconnected: Unknown reason */
+	CALLSTATE_DISCONNECTED_GHOST,                                       /**< Disconnected: Ghost call tear down */
 
 	CALLSTATE_OFFERING_ACTIVE		  = CALLSTATE_OFFERING + 1,         /**< See OFFERING callstate event */
 	CALLSTATE_ALERTING_NORMAL		  = CALLSTATE_ALERTING + 1,         /**< See ALERTING callstate event */

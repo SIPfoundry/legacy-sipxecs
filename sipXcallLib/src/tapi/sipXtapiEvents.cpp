@@ -522,7 +522,7 @@ void sipxFireCallEvent(const void* pSrc,
             hCall = gpCallHandleMap->allocHandle(pCallData) ;
             pInst = pCallData->pInst ;
 
-            if (pEventData)
+            if (pEventData)     // for NEW CALL
             {
                 char* szOriginalCallId = (char*) pEventData ;                
                 hAssociatedCall = sipxCallLookupHandle(UtlString(szOriginalCallId), pSrc) ;                
@@ -568,10 +568,31 @@ void sipxFireCallEvent(const void* pSrc,
             hCall = sipxCallLookupHandle(szCallId, pSrc);
             if (SIPX_CALL_NULL == hCall)
             {
-                OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING, 
-                              "sipxFireCallEvent - "
-                              "No call found for szCallId=%s, pSrc=%p", 
-                              szCallId, pSrc);
+                bool showWarning = TRUE;
+
+                // Check for ghost trying to disconnect
+                if (DISCONNECTED == major)
+                {
+                    if (pEventData)
+                    {
+                        // Assume event data means ghost, report that a tapi listener couldn't find the call
+                        bool *pbReport = (bool *)pEventData;
+                        *pbReport = TRUE;
+                        OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG, 
+                                      "sipxFireCallEvent - "
+                                      "No call found for (ghost) szCallId=%s, pSrc=%p", 
+                                      szCallId, pSrc);
+                        showWarning = FALSE;
+                    }        
+                }
+                if (showWarning == TRUE)
+                {
+                    OsSysLog::add(FAC_SIPXTAPI, PRI_WARNING, 
+                                  "sipxFireCallEvent - "
+                                  "No call found for szCallId=%s, pSrc=%p", 
+                                  szCallId, pSrc);
+                }
+
 #ifdef DUMP_CALLS                    
                 sipxDumpCalls();
 #endif                

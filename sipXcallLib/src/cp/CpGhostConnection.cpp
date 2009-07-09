@@ -17,6 +17,7 @@
 #include <cp/CpGhostConnection.h>
 #include <net/Url.h>
 #include <net/SipContactDb.h>
+#include <cp/CpMultiStringMessage.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -104,6 +105,35 @@ UtlBoolean CpGhostConnection::targetCallBlindTransfer(const char* transferTarget
     return(TRUE);
 }
 
+void CpGhostConnection::disconnectForSipXTapi()
+{
+    // sipXtapi listeners do not know about this ghost call so if there is a 
+    // tapi listener, we must tell CallManager to clean up here.
+    // BUT this ghost connection does not know if there are any sipxtapi listeners,
+    // fireSipXEvent has to tell us.
+    // This code may not cause problems if BOTH tapi and tao listeners are allowed.
+    bool bNotifyCallManager = FALSE;
+
+    fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_GHOST, (void*)(&bNotifyCallManager)) ;
+#ifdef TEST_PRINT
+    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                  "CpGhostConnection::tearDownForSipXTapi "
+                  "returns %d", bNotifyCallManager);
+#endif
+    if (bNotifyCallManager == TRUE)
+    {
+        // there is a tapi listener, but it doesn't know this ghost-connected call
+        UtlString ghostCallId;
+        getCallId(&ghostCallId);
+        CpMultiStringMessage callMessage(CpCallManager::CP_DROP, ghostCallId.data());
+        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                      "CpGhostConnection::tearDownForSipXTapi "
+                      "post drop for call %s",
+                      ghostCallId.data());
+        mpCallManager->postMessage(callMessage);
+    }
+}
+
 UtlBoolean CpGhostConnection::transfereeStatus(int connectionState, int response)
 {
     unimplemented("CpGhostConnection::transfereeStatus");
@@ -123,15 +153,18 @@ UtlBoolean CpGhostConnection::transferControllerStatus(int connectionState, int 
     setState(connectionState, CONNECTION_REMOTE, cause);
     /** SIPXTAPI: TBD **/
 
-    // If the transfer suceeded, go to DISCONNECTED to clean out all objects 
-    // related to th pseudo(ghost) call.  Go immediately to UNKNOWN as we 
-    // will NOT receive further state change notifications
+    // If the transfer suceeded, we need to clean up the pseudo(ghost) call.
     if(connectionState == CONNECTION_ESTABLISHED)
     {
+        // taoListeners need to see DISCONNECTED state to clean out all related objects 
         setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE, CONNECTION_CAUSE_TRANSFER);
-        
+
+        /** SIPXTAPI related **/
+        disconnectForSipXTapi();
+
+        // Go immediately to UNKNOWN as we will NOT receive further state change notifications
         setState(CONNECTION_UNKNOWN, CONNECTION_REMOTE, CONNECTION_CAUSE_TRANSFER);
-        /** SIPXTAPI: TBD **/
+
     }
 
     return(TRUE);
@@ -149,6 +182,9 @@ UtlBoolean CpGhostConnection::hangUp()
     /** SIPXTAPI: TBD **/
     setState(CONNECTION_DISCONNECTED, CONNECTION_LOCAL, CONNECTION_CAUSE_TRANSFER);
     /** SIPXTAPI: TBD **/
+
+    disconnectForSipXTapi();
+
     return(FALSE);
 }
 UtlBoolean CpGhostConnection::hold()
