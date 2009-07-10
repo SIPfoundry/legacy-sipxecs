@@ -41,6 +41,7 @@ The assigned facility codes are:
       ~~id~bridge -> sipXbridge
       ~~id~registrar -> sipXregistry (for use by redirectors that need to
 			send SUBSCRIBEs)
+      ~~id~sipXsaa -> the Shared Appearance Agent
 
 *** mh => The music-on-hold source.
 

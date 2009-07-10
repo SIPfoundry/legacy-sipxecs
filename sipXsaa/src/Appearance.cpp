@@ -31,7 +31,6 @@ const UtlContainableType Appearance::TYPE = "Appearance";
 Appearance::Appearance( AppearanceAgent* appAgent,
                         AppearanceGroup* appGroup,
                                  UtlString& uri) :
-//   ResourceSubscriptionReceiver(),
    mAppearanceAgent(appAgent),
    mAppearanceGroup(appGroup),
    mUri(uri),

@@ -30,7 +30,7 @@
   <element name='appearanceGroups'>
     <complexType>
       <sequence>
-        <element ref='r:resource' minOccurs='0' maxOccurs='1' />
+        <element ref='r:resource' minOccurs='0' maxOccurs='unbounded' />
       </sequence>
     </complexType>
   </element>
