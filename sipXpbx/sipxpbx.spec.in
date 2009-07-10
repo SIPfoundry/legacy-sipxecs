@@ -20,6 +20,7 @@ Requires: apache2-prefork
 %endif
 
 Requires: cgicc >= 3.2.3
+Requires: bind >= 9.3.4
 
 %if %{_vendor} == redhat
 Requires: mod_ssl
