@@ -148,6 +148,22 @@
   <type id="vlan_id">
     <integer required="yes" min="0" max="4094" />
   </type>
+  <type id="preffered-codecs-type">
+    <multi-enum labelKeyPrefix="codec" separator=" ">
+      <option>
+        <value>pcma</value>
+      </option>
+      <option>
+        <value>pcmu</value>
+      </option>
+      <option>
+        <value>g729</value>
+      </option>
+      <option>
+        <value>g723</value>
+      </option>
+    </multi-enum>
+  </type>
   <group name='LAN'>
     <setting name='tos'>
       <value>b8</value>
@@ -209,6 +225,7 @@
     </setting>
     <setting name='preferred_codec'>
       <!--TODO: preferred codec list, g729/g723/pcmu/pcma (default: priority 1, g.729) -->
+      <type refid="preffered-codecs-type"/>
       <value>pcmu pcma g729 g723</value>
     </setting>
     <setting name='timer_register_expires' advanced="yes">
