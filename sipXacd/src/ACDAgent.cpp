@@ -1327,7 +1327,7 @@ void ACDAgent::updateStateMessage(ePresenceStateType type, bool state, bool reco
    // Convert the type and state into the actual status
    // e.g. type==ON_HOOK state==false means OFF_HOOK
    // This breaks out the status cases cleaner then if/then/else logic
-   enum {DUNNO, ON_HOOK, OFF_HOOK, SIGNED_IN, SIGNED_OUT} status = DUNNO;
+   enum {DUNNO, ON_HOOK, OFF_HOOK, SIGNED_IN, SIGNED_OUT, SUBSCRIBED, UNSUBSCRIBED} status = DUNNO;
    switch (type)
    {
       case LinePresenceBase::ON_HOOK:
@@ -1335,6 +1335,9 @@ void ACDAgent::updateStateMessage(ePresenceStateType type, bool state, bool reco
          break;
       case LinePresenceBase::SIGNED_IN:
          status = state ? SIGNED_IN : SIGNED_OUT;
+         break;
+      case LinePresenceBase::SUBSCRIBED:
+         status = state ? SUBSCRIBED : UNSUBSCRIBED;
          break;
       default:
          status = DUNNO;
@@ -1381,13 +1384,38 @@ void ACDAgent::updateStateMessage(ePresenceStateType type, bool state, bool reco
        
        case SIGNED_OUT:
           OsSysLog::add(FAC_ACD, PRI_INFO, "ACDAgent::updateStateMessage - ACDAgent(%s) SIGNED OUT",
-                        mUriString.data());
-          if (mMonitorPresence) 
+             mUriString.data());
+          if (mMonitorPresence)
           {
              mpAcdAgentManager->linePresenceUnsubscribe(this, NULL);
           }
           setSignIn(false);
+         break;
+
+       case SUBSCRIBED:
+          OsSysLog::add(FAC_ACD, PRI_INFO, "ACDAgent::updateStateMessage - ACDAgent(%s) SUBSCRIBED FOR PRESENCE",
+                        mUriString.data());
           break;
+       
+       case UNSUBSCRIBED:
+          // This is an indication that the previous presence subscription made between the ACD and presence server
+          // has been terminated.  In response, attempt to clean up and re-subscribe.
+          // TODO: This currently assumes only a presence subscription failure.  In the future it should also
+          //       distinguish between a presence and line subscription failure.
+          OsSysLog::add(FAC_ACD, PRI_ERR, "ACDAgent::updateStateMessage - ACDAgent(%s) NOT SUBSCRIBED FOR PRESENCE",
+                        mUriString.data());
+          // Check if the agent should be subscribe with the Presence Server
+          // If so, first unsubscribe and the re-subscribe.
+          if (!mAlwaysAvailable) {
+             OsEvent e;
+             mpAcdAgentManager->presenceServerUnsubscribe(this, &e);
+             e.wait(); // Wait for Unsubscribe to finish before continuing
+
+             // Now re-subscribe.
+             mpAcdAgentManager->presenceServerSubscribe(this);
+          }
+          break;
+
        default:
           break;
    }

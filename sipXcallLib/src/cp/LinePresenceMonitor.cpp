@@ -266,6 +266,48 @@ void LinePresenceMonitor::subscriptionStateCallback(SipSubscribeClient::Subscrip
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "LinePresenceMonitor::subscriptionStateCallback is called with responseCode = %d (%s)",
                  responseCode, responseText); 
+
+   // Receive the notification and process the message
+   LinePresenceMonitor* pThis = (LinePresenceMonitor *) applicationData;
+   
+   pThis->handleSubscriptionStateMessage(subscribeResponse, responseCode);
+}
+
+
+void LinePresenceMonitor::handleSubscriptionStateMessage(const SipMessage* subscribeResponse, int responseCode)
+{
+   Url toUrl;
+   subscribeResponse->getToUrl(toUrl);
+   UtlString *pContact = new UtlString;
+
+   toUrl.getUserId(*pContact);
+
+   switch (responseCode)
+   {
+      case 202: // Accepted
+      {
+         OsSysLog::add(FAC_SIP, PRI_DEBUG, "LinePresenceMonitor::handleSubscriptionStateMessage - Sending PRESENCE_SUBSCRIBED message for: %s", pContact->data());
+         LinePresenceMonitorMsg presenceSubscribedMsg(LinePresenceMonitorMsg::PRESENCE_SUBSCRIBED, pContact);
+         postMessage(presenceSubscribedMsg);
+         break;
+      }
+
+      case 408: // Request Timeout
+      case 481: // Subscription Does Not Exist
+      {
+         OsSysLog::add(FAC_SIP, PRI_DEBUG, "LinePresenceMonitor::handleSubscriptionStateMessage - Sending PRESENCE_UNSUBSCRIBED message for: %s", pContact->data());
+         LinePresenceMonitorMsg presenceUnsubscribedMsg(LinePresenceMonitorMsg::PRESENCE_UNSUBSCRIBED, pContact);
+         postMessage(presenceUnsubscribedMsg);
+         break;
+      }
+
+      default:
+      {
+         // Unhandled response code
+         OsSysLog::add(FAC_SIP, PRI_DEBUG, "LinePresenceMonitor::handleSubscriptionStateMessage - unhandled code: %d", responseCode);
+         break;
+      }
+   }
 }                                            
 
 
@@ -418,6 +460,18 @@ UtlBoolean LinePresenceMonitor::handleMessage(OsMsg& rMessage)
             }
             break;
          }
+
+         case LinePresenceMonitorMsg::PRESENCE_SUBSCRIBED:
+            pMessage = (LinePresenceMonitorMsg*)&rMessage;
+
+            presenceSubscribedMessage(pMessage->getContact(), true);
+            break;
+
+         case LinePresenceMonitorMsg::PRESENCE_UNSUBSCRIBED:
+            pMessage = (LinePresenceMonitorMsg*)&rMessage;
+
+            presenceSubscribedMessage(pMessage->getContact(), false);
+            break;
 
          case LinePresenceMonitorMsg::SET_STATUS:
             pMessage = (LinePresenceMonitorMsg*)&rMessage;
@@ -633,6 +687,38 @@ OsStatus LinePresenceMonitor::unsubscribePresenceMessage(LinePresenceBase* line)
       mDialogHandleList.destroy(&contact);
    }
    
+   return result;
+}
+
+OsStatus LinePresenceMonitor::presenceSubscribedMessage(const UtlString* contact, bool value)
+{
+   // Our caller has seized mLock.
+
+   OsStatus result = OS_FAILED;
+   
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "LinePresenceMonitor::presenceSubscribedMessage set the value %s for %s",
+                 (value ? "TRUE" : "FALSE"), contact->data());
+   
+   // Set the subscription status
+   UtlVoidPtr* container = dynamic_cast <UtlVoidPtr *> (mPresenceSubscribeList.findValue(contact));
+   if (container != NULL)
+   {
+      LinePresenceBase* line = (LinePresenceBase *) (container->getValue());
+      // Set the state value of presence monitoring
+      // TODO: This should also distinguish between line and presence subscriptions.  For now,
+      //       it assumes that there are only presence subscriptions being made.
+      line->updateState(LinePresenceBase::SUBSCRIBED, value);
+      result = OS_SUCCESS;
+   }
+   else
+   {
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, "LinePresenceMonitor::presenceSubscribedMessage could not find subscription for %s",
+                    contact->data());
+   }
+
+   // Free the string.
+   delete contact;
+
    return result;
 }
 

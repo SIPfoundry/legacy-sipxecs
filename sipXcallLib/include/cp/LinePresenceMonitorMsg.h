@@ -40,6 +40,8 @@ public:
       UNSUBSCRIBE_DIALOG,
       SUBSCRIBE_PRESENCE,
       UNSUBSCRIBE_PRESENCE,
+      PRESENCE_SUBSCRIBED,
+      PRESENCE_UNSUBSCRIBED,
       SET_STATUS
    };
 
@@ -58,6 +60,14 @@ public:
                            *   NULL.)
                            */
                           );
+
+   /// Constructor for SUBSCRIBED/UNSUBSCRIBED messages.
+   LinePresenceMonitorMsg(eLinePresenceMonitorMsgSubTypes type,
+                          //< Operation the message is to perform.
+                          const UtlString* contact
+                          //< The contact address whose subscription has changed.
+                          );
+
    /// Constructor for SET_STATUS messages.
    LinePresenceMonitorMsg(const UtlString* contact,
                           //< The contact address whose status to update.

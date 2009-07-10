@@ -185,6 +185,8 @@ protected:
                                    void* applicationData,
                                    const SipMessage* notifyRequest);
                                    
+   void handleSubscriptionStateMessage(const SipMessage* subscribeResponse, int responseCode);
+
    void handleNotifyMessage(const SipMessage* notifyMessage);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
@@ -253,6 +255,13 @@ private:
    /// Unsubscribe the presence on a specific line from the list
    OsStatus unsubscribePresenceMessage(LinePresenceBase* line);
    
+   /** Perform the work of updating the presence subscription state.
+    *  This method does not take mLlock, but assumes that its caller
+    *  holds mLock.
+    *  This method deletes *contact.
+    */
+   OsStatus presenceSubscribedMessage(const UtlString* contact, bool value);
+
    /** Perform the work of updating the status variables.
     *  This method does not take mLlock, but assumes that its caller
     *  holds mLock.

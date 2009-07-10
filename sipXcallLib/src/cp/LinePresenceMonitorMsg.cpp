@@ -54,6 +54,32 @@ LinePresenceMonitorMsg::LinePresenceMonitorMsg(eLinePresenceMonitorMsgSubTypes t
 //
 //  SYNOPSIS:    
 //
+//  DESCRIPTION: Constructor for SUBSCRIBED/UNSUBSCRIBED message
+//
+//  RETURNS:     None.
+//
+//  ERRORS:      None.
+//
+//  CAVEATS:     None.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+LinePresenceMonitorMsg::LinePresenceMonitorMsg(eLinePresenceMonitorMsgSubTypes type,
+                                               const UtlString* contact)
+   : OsMsg(USER_START, type)
+{   
+   mLine = NULL;
+   mEvent = NULL;
+   mContact = contact;
+   mStateChange = StateChangeNotifier::PRESENT; // dummy value
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//  NAME:        LinePresenceMonitorMsg::LinePresenceMonitorMsg
+//
+//  SYNOPSIS:    
+//
 //  DESCRIPTION: Constructor for SET_STATE messages
 //
 //  RETURNS:     None.

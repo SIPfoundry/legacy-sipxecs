@@ -32,21 +32,22 @@ class Url;
  * This interface can also be used to retrieve status information
  * from the object.
  *
- * Status consists of three boolean values, "present", "on-hook", and
- * "signed-in".
+ * Status consists of four boolean values, "present", "on-hook", 
+ * "signed-in" and "presence-monitored".
  */
 class LinePresenceBase {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 /**
  * Line Presence state type enumerations.  These are used collectively to
- * represent the possible states of PRESENT, (NOT)PRESENT, ON_HOOK
- * and (NOT)ON_HOOK.
+ * represent the possible states of PRESENT, (NOT)PRESENT, ON_HOOK,
+ * (NOT)ON_HOOK, PRESENCE_MONITORED and PRESENCE_(NOT)MONITORED.
  */
    enum ePresenceStateType {
       PRESENT     = 1,     /**< present state */
       ON_HOOK     = 2,     /**< on/off hook state */
-      SIGNED_IN   = 4      /**< ACD SIGNED-IN state */
+      SIGNED_IN   = 4,     /**< ACD SIGNED-IN state */
+      SUBSCRIBED  = 8      /**< ACD presence monitor / subscription state */
    };
 
 
