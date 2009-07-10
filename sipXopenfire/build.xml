@@ -69,13 +69,13 @@
 		</jar>
 		<copy file="${root}/sipx-openfire-plugin.jar" todir="${root}/lib" />
 		<jar jarfile="${root}/dist/sipx-openfire.jar">
-            <fileset dir="${src.dir}" >
+                  <fileset dir="${src.dir}" >
 			   <include name="plugin.xml" />
 			   <include name="web/**/*"   />
-			</fileset>
-            <fileset dir="${root}" >
+                  </fileset>
+                  <fileset dir="${root}" >
 		           <include name="lib/**/*" />
-			</fileset>
+                  </fileset>
 		</jar>
 		<copy file="${root}/sipx-openfire-plugin.jar" todir="${build.dir}/dist" />
 	</target>

@@ -1,10 +1,6 @@
 SIPX Openfire integration plugin.
 
-1. Install openfire and build it. 
-
-Initialize it following the instructions on the openfire web site.
-You will need to initialize the database schema etc.
-URL : http://www.igniterealtime.org/builds/openfire/docs/latest/documentation/database.html#postgres
+1. Install openfire from RPM. Get version 3.6.4-1 from Igniterealtime.org.
 
 2. OPENFIRE_HOME is the directory of openfire under which you have lib, bin, logs etc.
 
@@ -19,22 +15,18 @@ make all install
 Will build the plugin and install it in the right place under openfire's
 directory structure.
 
-4. Edit and install the sipxopenfire.xml.example file here copy it to
-etc/sipxpbx/sipxopenfire.xml
+3. Initialize the database:
 
-5. Note: You will need to run the openfire web server at another
-address. The default addresses 9090 and 9091 cause conflicts.  Run the web
-server at some other address ( see modified openfire.xml.example here ).
+sh sipxopenfire.sh setup
 
-If you have installed and configured correctly, your openfire.xml file
-will look like the example one in this directory. The http server is used
-for administration of openfire as well as for xml RPC. This will probably
-change in future.
+This will set up a default admin user with password admin.
+This will change when full sipxconfig support becomes available and you will not need this step at that point.
+
+
+Until sipxconfig support becomes available, hand edit the sixpopenfire.xml file in this directory.
+Copy it to /usr/local/sipx/etc
 
 Make sure the xml rpc ports in sipxopenfire matches the web server port
 in openfire.xml. You will find openfire.xml in OPENFIRE_HOME/config after
-you install openfire and configure it. Make sure you are using postgres
-as your database for openfire.
+you install openfire and configure it. 
 
-You should be able to start/stop the openfire service from sipx.
- 

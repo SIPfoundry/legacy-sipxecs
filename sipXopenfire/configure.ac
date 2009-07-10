@@ -23,6 +23,9 @@ CHECK_GENERATE_MANPAGES
 #Check for postgres
 CHECK_POSTGRES
 
+#Check if the openfire directory exists.
+CHECK_OPENFIRE
+
 # Java
 CHECK_JDK
 CHECK_ANT

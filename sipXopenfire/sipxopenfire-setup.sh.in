@@ -8,14 +8,16 @@
 # This script must be run as root.
 export SIPX_COMMONS=@SIPX_JAVADIR@/sipXcommons
 export OPENFIRE_LIB=@OPENFIRE_HOME@/lib
+# Stop openfire if it is running.
+@SIPX_BINDIR@/openfire.sh --stop
 if [ -e @OPENFIRE_HOME@  ]
 then
    rm -f $OPENFIRE_LIB/log4j.jar
    ln -s $SIPX_COMMONS/log4j.jar $OPENFIRE_LIB/
-   rm -f $OPENFIRE_LIB/xml-rpc-common.jar
-   ln -s $SIPX_COMMONS/xml-rpc-common.jar $OPENFIRE_LIB/
-   rm -f $OPENFIRE_LIB/xml-rpc-server.jar
-   ln -s $SIPX_COMMONS/xml-rpc-server.jar $OPENFIRE_LIB/
+   rm -f $OPENFIRE_LIB/xmlrpc-common.jar
+   ln -s $SIPX_COMMONS/xmlrpc-common.jar $OPENFIRE_LIB/
+   rm -f $OPENFIRE_LIB/xmlrpc-server.jar
+   ln -s $SIPX_COMMONS/xmlrpc-server.jar $OPENFIRE_LIB/
    rm -f $OPENFIRE_LIB/ws-commons-util.jar
    ln -s $SIPX_COMMONS/ws-commons-util.jar $OPENFIRE_LIB/
    rm -f $OPENFIRE_LIB/commons-collections.jar
@@ -37,7 +39,10 @@ then
    chown -R @SIPXPBXUSER@ @OPENFIRE_HOME@
    chgrp -R @SIPXPBXUSER@ @OPENFIRE_HOME@
    chmod -R u+rwX,ga+rX   @OPENFIRE_HOME@
+   cp @SIPX_CONFDIR@/ssl/authorities.jks  @OPENFIRE_HOME@/resources/security/truststore
+   cp @SIPX_CONFDIR@/ssl/ssl.keystore  @OPENFIRE_HOME@/resources/security/keystore
 fi 
+echo "Done linking files"
 # Check if we have created the database. If not create it.
 chmod u+x @SIPX_BINDIR@/sipxopenfire.sh
 rm  @SIPX_TMPDIR@/sipxopenfire.version

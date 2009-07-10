@@ -40,6 +40,8 @@ export JAVA_HOME JAVACMD
 
 OPENFIRE_LOGDIR="@SIPX_LOGDIR@"
 
+OPENFIRE=bin/openfire.sh
+
 
 
 
@@ -57,13 +59,13 @@ start() {
 	#write out the confi directory so the plugin can read it
 	echo "conf.dir=@SIPX_CONFDIR@" > ${TMP_DIR}/sipx.properties
 	echo "openfire.home=${OPENFIRE_HOME}" >> ${TMP_DIR}/sipx.properties
-	exec ${OPENFIRE_HOME}/bin/openfire start
+	exec ${OPENFIRE_HOME}/${OPENFIRE} start
 }
 
 stop() {
 	# Stop daemons.
 	echo -n "Shutting down openfire: "
-	exec ${OPENFIRE_HOME}/bin/openfire stop
+	exec ${OPENFIRE_HOME}/${OPENFIRE} stop
         # failsafe.
 	ps aux | grep openfire | grep startup.jar | awk '{print $2}' > ${TMP_DIR}/openfire.pid
         kill  -9 `cat ${TMP_DIR}/openfire.pid`

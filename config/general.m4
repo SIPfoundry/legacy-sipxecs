@@ -35,6 +35,19 @@ AC_DEFUN([CHECK_CLOVER],
 ])
 
 
+# ============ O P E N F I R E  =======================
+AC_DEFUN([CHECK_OPENFIRE],
+[
+    AC_ARG_VAR(OPENFIRE_HOME, [Openfire home directory])
+    AC_CHECK_FILE([$OPENFIRE_HOME],
+       [
+         OPENFIRE_HOME_DIR=$OPENFIRE_HOME 
+       ],
+       [
+           AC_MSG_ERROR([Cannot find $OPENFIRE_HOME])
+       ])
+])
+
 # ============= C P P U N I T ==================
 dnl
 dnl AM_PATH_CPPUNIT(MINIMUM-VERSION, [ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]])

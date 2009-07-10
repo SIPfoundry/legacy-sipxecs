@@ -36,7 +36,7 @@
         </target>
 
         <target name="check">
-           <delete failonerror="false" file="${tmp.dir}/sipxopenfire.version" />
+           <delete failonerror="false" quiet="true" file="${tmp.dir}/sipxopenfire.version" />
            <sipx-sql  print="yes" output="${tmp.dir}/sipxopenfire.version" showheaders="no" >
 		select version from ofVersion where name='openfire';
 	   </sipx-sql>
