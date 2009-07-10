@@ -87,7 +87,7 @@ class AppearanceGroup : public UtlContainableAtomic,
 
    /// Process an incoming NOTIFY.
    // Used rather than the notifyEventCallback to allow NOTIFYs to be rejected.
-   void handleNotifyRequest(const SipMessage& msg, SipDialogEvent& content);
+   void handleNotifyRequest(const SipMessage& msg);
 
    /** add the newState to the consolidated state for the group, and return true
     * if the state allows a call to proceed.

@@ -54,7 +54,7 @@ AppearanceGroupFileReader::~AppearanceGroupFileReader()
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
-// Read and parse the resource list file and install the resource lists
+// Read and parse the appearance group file and install the appearance groups
 // into the AppearanceGroupSet.
 OsStatus AppearanceGroupFileReader::initialize()
 {
@@ -65,10 +65,6 @@ OsStatus AppearanceGroupFileReader::initialize()
 
    // The status to return.
    OsStatus ret = OS_SUCCESS;
-
-   // Remove all existing appearance groups.
-   mAppearanceGroupSet->deleteAllAppearanceGroups();
-   UtlSList newGroupList;
 
    // No work to be done if file name is not set.
    if (!mFileName.isNull())
@@ -83,6 +79,7 @@ OsStatus AppearanceGroupFileReader::initialize()
          (lists_node = document.FirstChild("appearanceGroups")) != NULL &&
          lists_node->Type() == TiXmlNode::ELEMENT)
       {
+         UtlSList newGroupList;
 
          // Find all the <resource> children and add them to the AppearanceGroup.
          for (TiXmlNode* resource_node = 0; (resource_node = lists_node->IterateChildren(
@@ -152,6 +149,7 @@ OsStatus AppearanceGroupFileReader::initialize()
                OsTask::delay(changeDelay);
             }
          }
+         newGroupList.destroyAll();
       }
       else
       {

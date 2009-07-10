@@ -141,31 +141,11 @@ UtlBoolean AppearanceAgentTask::handleMessage(OsMsg& rMsg)
 // Process a NOTIFY request
 void AppearanceAgentTask::handleNotifyRequest(const SipMessage& msg)
 {
-   // Extract the user-part of the request-URI, which should tell us what
-   // to do.
-   UtlString user;
-   UtlString userUri;
-   msg.getUri(&userUri, NULL, NULL, &user);
-   const char* b;
-   ssize_t l;
-   const HttpBody* requestBody = msg.getBody();
-   if (requestBody)
-   {
-      requestBody->getBytes(&b, &l);
-   }
-   else
-   {
-      b = NULL;
-      l = 0;
-   }
-
    UtlString eventType;
    msg.getEventField(eventType);
    if (eventType == SLA_EVENT_TYPE)
    {
-      SipDialogEvent content(b); //< goes out of scope
       UtlString sharedUri;
-      content.getEntity(sharedUri);
       msg.getToUri(&sharedUri);
       OsSysLog::add(FAC_SAA, PRI_DEBUG, "AppearanceAgentTask::handleNotifyRequest for '%s'", sharedUri.data());
 
@@ -174,7 +154,7 @@ void AppearanceAgentTask::handleNotifyRequest(const SipMessage& msg)
          getAppearanceAgent()->getAppearanceGroupSet().findAppearanceGroup(sharedUri);
       if ( appearanceGroup )
       {
-         appearanceGroup->handleNotifyRequest(msg, content);
+         appearanceGroup->handleNotifyRequest(msg);
       }
       else
       {

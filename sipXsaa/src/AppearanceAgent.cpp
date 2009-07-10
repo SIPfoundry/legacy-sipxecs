@@ -228,11 +228,17 @@ void AppearanceAgent::shutdown()
                  );
 
    // Shut down SipUserAgent
-   // Shut down the AppearanceAgentTask
    mServerUserAgent.shutdown(FALSE);
+
+   // Shut down the AppearanceAgentTask
    mAppearanceAgentTask.requestShutdown();
+
+   // Wait for all tasks to clean up
    while(!(mServerUserAgent.isShutdownDone() &&
-           mAppearanceAgentTask.isShutDown()) )
+           mAppearanceAgentTask.isShutDown()) &&
+           mSubscribeClient.isShutDown() &&
+           mRefreshMgr.isShutDown() &&
+           mSubscribeServer.isShutDown())
    {
       OsTask::delay(100);
    }

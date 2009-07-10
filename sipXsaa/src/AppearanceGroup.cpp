@@ -158,8 +158,8 @@ AppearanceGroup::~AppearanceGroup()
    {
       lPartialContent->buildBody(mVersion);
       publish(true, true, lPartialContent);
-      delete lPartialContent;
    }
+   delete lPartialContent;
 
    // Delete the subordinate Appearance's for the contacts.
    {
@@ -180,6 +180,13 @@ AppearanceGroup::~AppearanceGroup()
          OsTask::delay(changeDelay);
       }
    }
+
+   // now unpublish to free memory
+   getAppearanceAgent()->getEventPublisher().unpublish(
+         mSharedUser.data(),
+         DIALOG_SLA_EVENT_TYPE, //eventTypeKey
+         DIALOG_EVENT_TYPE     //eventType
+         );
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -573,24 +580,28 @@ void AppearanceGroup::publish(bool bSendFullContent, bool bSendPartialContent, S
    }
 
 }
-void AppearanceGroup::handleNotifyRequest(const SipMessage& msg, SipDialogEvent& content)
+void AppearanceGroup::handleNotifyRequest(const SipMessage& msg)
 {
+   const char* b;
+   ssize_t l;
+   const HttpBody* requestBody = msg.getBody();
+   if (requestBody)
+   {
+      requestBody->getBytes(&b, &l);
+   }
+   else
+   {
+      b = NULL;
+      l = 0;
+   }
+   SipDialogEvent* lContent = new SipDialogEvent(b);
+
    // Construct the response.
    SipMessage response;
    UtlString state;
    UtlString entity;
-   content.getState(state);
-   content.getEntity(entity);
-#if 0
-   if (entity != mSharedUser) // if this is a notify for our appearance group
-   {
-      response.setInterfaceIpPort(msg.getInterfaceIp(), msg.getInterfacePort());
-      response.setResponseData(&msg, SIP_NOT_FOUND_CODE, SIP_NOT_FOUND_TEXT);
-      // Send the response.
-      getAppearanceAgent()->getServerUserAgent().send(response);
-      return;
-   }
-#endif
+   lContent->getState(state);
+   lContent->getEntity(entity);
 
    UtlString dialogState = STATE_TERMINATED;
    UtlString event;
@@ -611,8 +622,6 @@ void AppearanceGroup::handleNotifyRequest(const SipMessage& msg, SipDialogEvent&
    OsSysLog::add(FAC_SAA, PRI_DEBUG,
                  "AppearanceGroup::handleNotifyRequest: %s update from %s",
                  state.data(), contactUri.data());
-
-   SipDialogEvent* lContent = new SipDialogEvent(content);
 
    // Assign each dialog a globally-unique ID, if not done yet
    UtlSListIterator* itor = lContent->getDialogIterator();
