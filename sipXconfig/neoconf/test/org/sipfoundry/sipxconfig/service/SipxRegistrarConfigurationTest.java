@@ -47,6 +47,11 @@ public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
         expect(domainManager.getAuthorizationRealm()).andReturn("realm.example.org").anyTimes();
         registrarService.setDomainManager(domainManager);
 
+        setSettingValuesForGroup(registrarService, "userparam", new String[] {
+            "SIP_REDIRECT.90-USERPARAM.STRIP_ALL"
+        }, new String[] {
+            "Y"
+        });
         setSettingValuesForGroup(registrarService, "logging", new String[] {
             "SIP_REGISTRAR_LOG_LEVEL"
         }, new String[] {
