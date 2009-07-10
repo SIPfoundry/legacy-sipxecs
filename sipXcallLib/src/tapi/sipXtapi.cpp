@@ -58,6 +58,7 @@
 // DEFINES
 #define MP_SAMPLE_RATE          8000    // Sample rate (don't change)
 #define MP_SAMPLES_PER_FRAME    80      // Frames per second (don't change)
+//#define DUMP_CALLS              1
 
 // GLOBAL VARIABLES
 
@@ -925,8 +926,9 @@ SIPXTAPI_API SIPX_RESULT sipxCallConnect(SIPX_CALL hCall,
                                          const char* szFrom)
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-        "sipxCallConnect hCall=%u szAddress=%s contactId=%d",
-        hCall, szAddress, contactId);
+                  "sipxCallConnect "
+                  "hCall=%u szAddress=%s contactId=%d",
+                  hCall, szAddress, contactId);
 #ifdef VIDEO
     if (pDisplay)
     {
@@ -972,8 +974,12 @@ SIPXTAPI_API SIPX_RESULT sipxCallConnect(SIPX_CALL hCall,
             }
             // Set the OutboundLine (From Address)
             // Use szFrom if not NULL, otherwise get it from lineId
+            OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
+                          "sipxCallConnect "
+                          "hCall=%u szFrom=%s lineId=%d",
+                          hCall, szFrom, lineId.data());
             pInst->pCallManager->setOutboundLineForCall(callId.data(),
-                    szFrom ? szFrom : lineId.data()) ;
+                                                        szFrom ? szFrom : lineId.data()) ;
 
             UtlString sessionId(szCallId) ; 
             if (sessionId.length() < 1) 
@@ -1013,10 +1019,10 @@ SIPXTAPI_API SIPX_RESULT sipxCallConnect(SIPX_CALL hCall,
             {
                 int numAddresses = 0 ;
                 UtlString address ;
-                OsStatus rc = pInst->pCallManager->getCalledAddresses(
-                        callId.data(), 1, numAddresses, &address) ;
+                OsStatus rc = pInst->pCallManager->getCalledAddresses(callId.data(), 1, numAddresses, &address) ;
                 OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
-                              "sipxCallConnect connected hCall=%u callId=%s, numAddr = %d, addr = '%s'",
+                              "sipxCallConnect connected "
+                              "hCall=%u callId=%s, numAddr = %d, addr = '%s'",
                               hCall, callId.data(), numAddresses, address.data());
                 assert(rc == OS_SUCCESS) ;
                 assert(numAddresses == 1) ;

@@ -521,9 +521,9 @@ void SipConnection::buildLocalContact(Url fromUrl,
     // Attempt to find/get the preferred contact for the line
     SipLine line ;
     SipLineMgr* pLineMgr = mpCallManager->getLineManager() ;
-    if (pLineMgr && 
-            pLineMgr->getLine(fromUrl.toString(), localContact, requestURI, line) && 
-            line.getPreferredContactUri(preferredContact))
+    if (pLineMgr 
+        && pLineMgr->getLine(fromUrl.toString(), localContact, requestURI, line) 
+        && line.getPreferredContactUri(preferredContact))
     {
         // OsSysLog::add(FAC_CP, PRI_DEBUG, "Found line definition: %s", preferredContact.toString().data()) ;
     }
@@ -1022,7 +1022,7 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
 
 #ifdef TEST_PRINT
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
-        "Leaving SipConnection::answer mInviteMsg=0x%08x ", (int)mInviteMsg);
+        "Leaving SipConnection::answer mInviteMsg=%p ", mInviteMsg);
 #endif
 
     return(answerOk);
@@ -2342,8 +2342,8 @@ void SipConnection::processInviteRequest(const SipMessage* request)
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "Entering "
                  "SipConnection::processInviteRequest "
-                 "mInviteMsg=0x%08x ", 
-                 (int)mInviteMsg);
+                 "mInviteMsg=%p ", 
+                 mInviteMsg);
 #endif
 
     UtlString sipMethod;
@@ -2465,7 +2465,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
                           "SipConnection::processInviteRequest "
                           "received duplicate request");
         }
-    }
+    }       // end duplicate invite
     // from here on, message Cseq > this object's lastRemoteSequenceNumber
     else if (hasReplaceHeader && !doesReplaceCallLegExist)
     {
@@ -3163,8 +3163,8 @@ void SipConnection::processInviteRequest(const SipMessage* request)
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
         "Leaving "
         "SipConnection::processInviteRequest "
-        "mInviteMsg=0x%08x ", 
-        (int)mInviteMsg);
+        "mInviteMsg=%p ", 
+        mInviteMsg);
 #endif
 } // End of processInviteRequest
 
@@ -3743,8 +3743,8 @@ void SipConnection::processByeRequest(const SipMessage* request)
 #ifdef TEST_PRINT
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "Entering SipConnection::processByeRequest "
-                  "mInviteMsg=0x%08x ", 
-                  (int)mInviteMsg);
+                  "mInviteMsg=%p ", 
+                  mInviteMsg);
 #endif
     int requestSequenceNum = 0;
     UtlString requestSeqMethod;
@@ -3878,8 +3878,8 @@ void SipConnection::processByeRequest(const SipMessage* request)
 #ifdef TEST_PRINT
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "Leaving SipConnection::processByeRequest "
-                  "mInviteMsg=0x%08x ", 
-                  (int)mInviteMsg);
+                  "mInviteMsg=%p ", 
+                  mInviteMsg);
 #endif
 } // End of processByeRequest
 
@@ -5597,7 +5597,10 @@ void SipConnection::setContactType(CONTACT_TYPE eType)
     buildLocalContact(mFromUrl, localContact);
     mLocalContact = localContact ;
     
-    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipConnection::setContactType contact type %d contactUrl '%s'", eType, localContact.data());     
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                  "SipConnection::setContactType "
+                  "contact type %d contactUrl '%s'", 
+                  eType, localContact.data());     
 }
 
 /* ============================ ACCESSORS ================================= */
@@ -5883,7 +5886,7 @@ UtlBoolean SipConnection::isMethodAllowed(const char* method)
         methodSupported = FALSE;
     }
 #ifdef TEST_PRINT
-    osPrintf("SipConnection::isMethodAllowed method: %s allowed: %s return: %d index: %d null?: %d\n",
+    osPrintf("SipConnection::isMethodAllowed method: %s allowed: %s return: %d index: %ld null?: %d\n",
         method, mAllowedRemote.data(), methodSupported, methodIndex,
         mAllowedRemote.isNull());
 #endif

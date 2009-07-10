@@ -38,6 +38,7 @@
 #endif
 
 // #define DEBUG_SIPXTAPI_EVENTS
+//#define DUMP_CALLS              1
 
 // GLOBAL VARIABLES
 UtlSList*   g_pListeners = new UtlSList();
@@ -483,8 +484,8 @@ void sipxFireCallEvent(const void* pSrc,
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
                   "sipxFireCallEvent "
                   "pSrc=%p callId=%s pSession=%p, "
-                  "zRemoteAddress=%s major=%d minor=%d",
-        pSrc, szCallId, pSession, szRemoteAddress, major, minor);
+                  "szRemoteAddress=%s major=%d minor=%d",
+                  pSrc, szCallId, pSession, szRemoteAddress, major, minor);
      
     SIPX_CALL hCall = SIPX_CALL_NULL;
 

@@ -35,6 +35,8 @@
 #include "cp/CallManager.h"
 #include "mi/CpMediaInterfaceFactory.h"
 
+//#define DUMP_CALLS              1
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -242,11 +244,15 @@ SIPX_CALL_DATA* sipxCallLookup(const SIPX_CALL hCall, SIPX_LOCK_TYPE type)
         // TEMP
         if (pRC)
         {
-            OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG, "***************** Lookup***\nhCall %d\n****callId %s\n***ghostCallId %s\n***bRemoveInsteadOfDrop %d\n",
-                hCall,
-                pRC->callId ? pRC->callId->data() : NULL,
-                pRC->ghostCallId ? pRC->ghostCallId->data() : NULL, 
-                pRC->bRemoveInsteadOfDrop);
+            OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG, 
+                          "***************** Lookup***\n"
+                          "hCall %d\n****callId %s\n"
+                          "***ghostCallId %s\n"
+                          "***bRemoveInsteadOfDrop %d\n",
+                          hCall,
+                          pRC->callId ? pRC->callId->data() : NULL,
+                          pRC->ghostCallId ? pRC->ghostCallId->data() : NULL, 
+                          pRC->bRemoveInsteadOfDrop);
         }
 #endif
         gpCallHandleMap->unlock() ;
@@ -258,13 +264,14 @@ SIPX_CALL_DATA* sipxCallLookup(const SIPX_CALL hCall, SIPX_LOCK_TYPE type)
 
 UtlBoolean validCallData(SIPX_CALL_DATA* pData)
 {
-    return (pData && pData->callId && 
-            pData->lineURI  && 
-            pData->pInst &&
-            pData->pInst->pCallManager && 
-            pData->pInst->pRefreshManager &&
-            pData->pInst->pLineManager &&
-            pData->pMutex) ;
+    return (pData 
+            && pData->callId 
+            && pData->lineURI  
+            && pData->pInst 
+            && pData->pInst->pCallManager 
+            && pData->pInst->pRefreshManager 
+            && pData->pInst->pLineManager 
+            && pData->pMutex) ;
 }
 
 
@@ -1604,7 +1611,13 @@ void sipxDumpCalls()
             if (pData)
             {
                 hCall = pIndex->getValue() ;
-                OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG, "***************** CallDump***\nhCall %d\n****callId %s\n****ghostCallId %s\n***bRemoveInsteadOfDrop %d\n****lineUri %s\n",
+                OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG, 
+                              "***************** CallDump***\n"
+                              "hCall %d\n"
+                              "****callId %s\n"
+                              "****ghostCallId %s\n"
+                              "***bRemoveInsteadOfDrop %d\n"
+                              "****lineUri %s\n",
                     hCall,
                     pData->callId ? pData->callId->data() : NULL,
                     pData->ghostCallId ? pData->ghostCallId->data() : NULL, 
