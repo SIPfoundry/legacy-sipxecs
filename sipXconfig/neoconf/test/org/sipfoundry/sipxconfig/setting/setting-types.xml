@@ -174,5 +174,22 @@
       </type>
       <value>VALUE_0|VALUE_2</value>
     </setting>
+    <setting name="multi_enum_setting_sep">
+      <label>multi-enum setting</label>
+      <type>
+        <multi-enum separator=" ">
+          <option>
+            <value>VALUE_0</value>
+          </option>
+          <option>
+            <value>VALUE_1</value>
+          </option>
+          <option>
+            <value>VALUE_2</value>
+          </option>
+        </multi-enum>
+      </type>
+      <value>VALUE_0 VALUE_2</value>
+    </setting>
   </group>
 </model>

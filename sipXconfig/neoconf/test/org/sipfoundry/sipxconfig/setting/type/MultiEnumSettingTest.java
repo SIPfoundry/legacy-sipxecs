@@ -62,8 +62,8 @@ public class MultiEnumSettingTest extends TestCase {
     public void testConvertToStringValueInt() {
         assertEquals("2", m_intEnum.convertToStringValue(2));
         assertEquals("2", m_intEnum.convertToStringValue(asList(2)));
-        assertEquals("2|1", m_intEnum.convertToStringValue(asList(2,1)));
-        assertEquals("2|1", m_intEnum.convertToStringValue(asList(5,2,1)));
+        assertEquals("2|1", m_intEnum.convertToStringValue(asList(2, 1)));
+        assertEquals("2|1", m_intEnum.convertToStringValue(asList(5, 2, 1)));
         assertNull(m_intEnum.convertToStringValue(asList(5)));
         assertNull(m_intEnum.convertToStringValue(null));
     }
@@ -71,10 +71,19 @@ public class MultiEnumSettingTest extends TestCase {
     public void testConvertToStringValueStr() {
         assertEquals("two", m_stringEnum.convertToStringValue("two"));
         assertEquals("two", m_stringEnum.convertToStringValue(asList("two")));
-        assertEquals("two|one", m_stringEnum.convertToStringValue(asList("two","one")));
-        assertEquals("two|one", m_stringEnum.convertToStringValue(asList("five", "two","one")));
+        assertEquals("two|one", m_stringEnum.convertToStringValue(asList("two", "one")));
+        assertEquals("two|one", m_stringEnum.convertToStringValue(asList("five", "two", "one")));
         assertNull(m_stringEnum.convertToStringValue(asList("five")));
         assertNull(m_stringEnum.convertToStringValue(null));
+    }
+
+    public void testSeparator() {
+        m_intEnum.setSeparator(" ");
+        List tv = (List) m_intEnum.convertToTypedValue("1 bongo 3");
+        assertEquals(2, tv.size());
+        assertEquals(1, tv.get(0));
+        assertEquals(3, tv.get(1));
+        assertEquals("2 1", m_intEnum.convertToStringValue(asList(5, 2, 1)));
     }
 
     public void testGet() {

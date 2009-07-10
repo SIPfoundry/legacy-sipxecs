@@ -93,6 +93,7 @@
     
 <!ELEMENT multi-enum (option+)>
 <!ATTLIST multi-enum
+  separator CDATA #IMPLIED
   labelKeyPrefix NMTOKEN #IMPLIED>
 
 <!ELEMENT option (label?,value)>

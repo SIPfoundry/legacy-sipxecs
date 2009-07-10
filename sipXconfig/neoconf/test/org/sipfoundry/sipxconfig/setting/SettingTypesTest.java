@@ -10,13 +10,13 @@
 package org.sipfoundry.sipxconfig.setting;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import junit.framework.TestCase;
-
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
 import org.sipfoundry.sipxconfig.setting.type.EnumSetting;
@@ -257,33 +257,42 @@ public class SettingTypesTest extends TestCase {
     }
 
     public void testSettingMultiEnumType() {
-        final String[][] V2L = {
-            {
-                "VALUE_0", "VALUE_0"
-            }, {
-                "VALUE_1", "VALUE_1"
-            }, {
-                "VALUE_2", "VALUE_2"
-            }
-        };
         Setting multiEnumSetting = group.getSetting("multi_enum_setting");
         assertNotNull(multiEnumSetting);
         SettingType type = multiEnumSetting.getType();
         assertTrue(type instanceof MultiEnumSetting);
         MultiEnumSetting enumType = (MultiEnumSetting) type;
         Map enums = enumType.getEnums();
-        assertEquals(V2L.length, enums.size());
-        int i = 0;
-        for (Iterator iter = enums.entrySet().iterator(); iter.hasNext(); i++) {
-            Map.Entry entry = (Map.Entry) iter.next();
-            assertEquals(V2L[i][0], entry.getKey());
-            assertEquals(V2L[i][1], entry.getValue());
-        }
+        assertEquals(3, enums.size());
+        Entry[] entries = (Entry[]) enums.entrySet().toArray(new Entry[3]);
+        assertEquals("VALUE_0", entries[0].getKey());
+        assertEquals("VALUE_0", entries[0].getValue());
+        assertEquals("VALUE_1", entries[1].getKey());
+        assertEquals("VALUE_1", entries[1].getValue());
+        assertEquals("VALUE_2", entries[2].getKey());
+        assertEquals("VALUE_2", entries[2].getValue());
 
         assertTrue(multiEnumSetting.getTypedValue() instanceof List);
-        List<String> values = new ArrayList<String>();
-        values.add("VALUE_0");
-        values.add("VALUE_2");
-        assertEquals(values, multiEnumSetting.getTypedValue());
+        assertEquals(Arrays.asList("VALUE_0", "VALUE_2"), multiEnumSetting.getTypedValue());
+    }
+
+    public void testSettingMultiEnumTypeWithSeparator() {
+        Setting multiEnumSetting = group.getSetting("multi_enum_setting_sep");
+        assertNotNull(multiEnumSetting);
+        SettingType type = multiEnumSetting.getType();
+        assertTrue(type instanceof MultiEnumSetting);
+        MultiEnumSetting enumType = (MultiEnumSetting) type;
+        Map enums = enumType.getEnums();
+        assertEquals(3, enums.size());
+        Entry[] entries = (Entry[]) enums.entrySet().toArray(new Entry[3]);
+        assertEquals("VALUE_0", entries[0].getKey());
+        assertEquals("VALUE_0", entries[0].getValue());
+        assertEquals("VALUE_1", entries[1].getKey());
+        assertEquals("VALUE_1", entries[1].getValue());
+        assertEquals("VALUE_2", entries[2].getKey());
+        assertEquals("VALUE_2", entries[2].getValue());
+
+        assertTrue(multiEnumSetting.getTypedValue() instanceof List);
+        assertEquals(Arrays.asList("VALUE_0", "VALUE_2"), multiEnumSetting.getTypedValue());
     }
 }

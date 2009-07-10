@@ -18,7 +18,10 @@ import static org.apache.commons.lang.StringUtils.trimToNull;
 
 public class MultiEnumSetting extends EnumSetting {
 
-    private static final String SEPARATOR = "|";
+    /**
+     * Used to format internal representation.
+     */
+    private String m_separator = "|";
 
     public MultiEnumSetting() {
     }
@@ -31,7 +34,7 @@ public class MultiEnumSetting extends EnumSetting {
     @Override
     public Object convertToTypedValue(Object value) {
         if (value instanceof String) {
-            String[] strings = split((String) value, SEPARATOR);
+            String[] strings = split((String) value, m_separator);
             ArrayList values = new ArrayList(strings.length);
             for (String s : strings) {
                 Object v = super.convertToTypedValue(s);
@@ -56,8 +59,12 @@ public class MultiEnumSetting extends EnumSetting {
                 }
             }
 
-            return trimToNull(join(strings, SEPARATOR));
+            return trimToNull(join(strings, m_separator));
         }
         return super.convertToStringValue(value);
+    }
+
+    public void setSeparator(String separator) {
+        m_separator = separator;
     }
 }
