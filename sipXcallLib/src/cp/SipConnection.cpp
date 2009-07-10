@@ -521,9 +521,9 @@ void SipConnection::buildLocalContact(Url fromUrl,
     // Attempt to find/get the preferred contact for the line
     SipLine line ;
     SipLineMgr* pLineMgr = mpCallManager->getLineManager() ;
-    if (pLineMgr && 
-            pLineMgr->getLine(fromUrl.toString(), localContact, requestURI, line) && 
-            line.getPreferredContactUri(preferredContact))
+    if (pLineMgr 
+        && pLineMgr->getLine(fromUrl.toString(), localContact, requestURI, line) 
+        && line.getPreferredContactUri(preferredContact))
     {
         // OsSysLog::add(FAC_CP, PRI_DEBUG, "Found line definition: %s", preferredContact.toString().data()) ;
     }
@@ -2465,7 +2465,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
                           "SipConnection::processInviteRequest "
                           "received duplicate request");
         }
-    }
+    }       // end duplicate invite
     // from here on, message Cseq > this object's lastRemoteSequenceNumber
     else if (hasReplaceHeader && !doesReplaceCallLegExist)
     {
@@ -5597,7 +5597,10 @@ void SipConnection::setContactType(CONTACT_TYPE eType)
     buildLocalContact(mFromUrl, localContact);
     mLocalContact = localContact ;
     
-    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipConnection::setContactType contact type %d contactUrl '%s'", eType, localContact.data());     
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                  "SipConnection::setContactType "
+                  "contact type %d contactUrl '%s'", 
+                  eType, localContact.data());     
 }
 
 /* ============================ ACCESSORS ================================= */

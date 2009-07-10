@@ -1303,15 +1303,15 @@ void CallManager::createCall(UtlString* callId,
                   "CallManager::createCall "
                   "new Id: %s\n", callId->data());
     CpMultiStringMessage callMessage(CP_CREATE_CALL,
-        callId->data(),
-        numCalls >= 1 ? callIds[0] : NULL,
-        numCalls >= 2 ? callIds[1] : NULL,
-        numCalls >= 3 ? callIds[2] : NULL,
-        numCalls >= 4 ? callIds[3] : NULL,
-        metaEventId,
-        metaEventType,
-        numCalls,
-        assumeFocusIfNoInfocusCall);
+                                     callId->data(),
+                                     numCalls >= 1 ? callIds[0] : NULL,
+                                     numCalls >= 2 ? callIds[1] : NULL,
+                                     numCalls >= 3 ? callIds[2] : NULL,
+                                     numCalls >= 4 ? callIds[3] : NULL,
+                                     metaEventId,
+                                     metaEventType,
+                                     numCalls,
+                                     assumeFocusIfNoInfocusCall);
     postMessage(callMessage);
     mnTotalOutgoingCalls++;
 
@@ -1355,8 +1355,10 @@ OsStatus CallManager::getCalls(int maxCalls, int& numCalls,
             numCalls = callIndex;
         } // end of iterator scope
 #ifdef TEST_PRINT_EVENT
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::getCalls %d calls\n",
-            numCalls);
+        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                      "CallManager::getCalls "
+                      "%d calls\n",
+                       numCalls);
 #endif
         addressList->destroyAll();
         delete addressList;
@@ -1364,7 +1366,9 @@ OsStatus CallManager::getCalls(int maxCalls, int& numCalls,
     }
     else
     {
-        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::getCalls TIMED OUT\n");
+        OsSysLog::add(FAC_CP, PRI_ERR, 
+                      "CallManager::getCalls "
+                      "TIMED OUT\n");
 
         // Signal the caller that we are done.  If the event 
         // has already been signalled from the other side, clean up.
@@ -2017,13 +2021,17 @@ void CallManager::getNumConnections(const char* callId, int& numConnections)
         eventMgr->release(numConnectionsSet);
 
 #ifdef TEST_PRINT_EVENT
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::getNumConnections %d connections\n",
-            numConnections);
+        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                      "CallManager::getNumConnections "
+                      "%d connections\n",
+                      numConnections);
 #endif
     }
     else
     {
-        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::getNumConnections TIMED OUT\n");
+        OsSysLog::add(FAC_CP, PRI_ERR, 
+                      "CallManager::getNumConnections "
+                      "TIMED OUT\n");
         // If the event has already been signalled, clean up
         if(OS_ALREADY_SIGNALED == numConnectionsSet->signal(0))
         {
@@ -2072,8 +2080,10 @@ OsStatus CallManager::getConnections(const char* callId, int maxConnections,
         }
 
 #ifdef TEST_PRINT_EVENT
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::getConnections %d connections\n",
-            numConnections);
+        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                      "CallManager::getConnections "
+                      "%d connections\n",
+                      numConnections);
 #endif
 
         addressList->destroyAll();
@@ -2135,8 +2145,10 @@ OsStatus CallManager::getCalledAddresses(const char* callId, int maxConnections,
             numConnections = addressIndex;
         } // end of interator scope
 #ifdef TEST_PRINT_EVENT
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::getCalledAddresses %d addresses\n",
-            numConnections);
+        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                      "CallManager::getCalledAddresses "
+                      "%d addresses\n",
+                      numConnections);
 #endif
 
         addressList->destroyAll();
@@ -2197,8 +2209,10 @@ OsStatus CallManager::getCallingAddresses(const char* callId, int maxConnections
         numConnections = addressIndex;
 
 #ifdef TEST_PRINT_EVENT
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::getCallingAddresses %d addresses\n",
-            numConnections);
+        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                      "CallManager::getCallingAddresses "
+                      "%d addresses\n",
+                      numConnections);
 #endif
 
         addressList->destroyAll();
@@ -2236,7 +2250,10 @@ OsStatus CallManager::getFromField(const char* callId,
         fromUrl.toString(fromField);
 
 #ifdef TEST_PRINT_EVENT
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::getFromField %s\n", fromField.data());
+        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                      "CallManager::getFromField "
+                      "%s\n", 
+                      fromField.data());
 #endif
     }
 
@@ -2514,7 +2531,10 @@ OsStatus CallManager::getToField(const char* callId,
         toUrl.toString(toField);
 
 #ifdef TEST_PRINT_EVENT
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::getToField %s\n", toField.data());
+        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                      "CallManager::getToField "
+                      "%s\n", 
+                      toField.data());
 #endif
     }
 
@@ -2541,7 +2561,8 @@ OsStatus CallManager::getRemoteContactField(const char* callId,
 
 #ifdef TEST_PRINT_EVENT
         OsSysLog::add(FAC_CP, PRI_DEBUG,
-                      "CallManager::getRemoteContactField '%s'"
+                      "CallManager::getRemoteContactField "
+                      "'%s'"
                       , remoteContactField.data());
 #endif
     }
@@ -2572,15 +2593,19 @@ void CallManager::getNumTerminalConnections(const char* callId, const char* addr
         numConnections = (int)numConnectionsIntptr;
 
 #ifdef TEST_PRINT_EVENT
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::getNumTerminalConnections %d connections\n",
-            numConnections);
+        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                      "CallManager::getNumTerminalConnections "
+                      "%d connections\n",
+                      numConnections);
 #endif
 
         eventMgr->release(numConnectionsSet);
     }
     else
     {
-        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::getNumTerminalConnections TIMED OUT");
+        OsSysLog::add(FAC_CP, PRI_ERR, 
+                      "CallManager::getNumTerminalConnections "
+                      "TIMED OUT");
         // If the event has already been signalled, clean up
         if(OS_ALREADY_SIGNALED == numConnectionsSet->signal(0))
         {
@@ -2622,7 +2647,9 @@ OsStatus CallManager::getTerminalConnections(const char* callId, const char* add
             }
 
 #ifdef TEST_PRINT_EVENT
-            OsSysLog::add(FAC_CP, PRI_DEBUG, "got terminal: %s\n", terminalNameCollectable->data());
+            OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                          "got terminal: %s\n", 
+                          terminalNameCollectable->data());
 #endif
 
             terminalNames[terminalIndex] = *terminalNameCollectable;
@@ -2632,8 +2659,10 @@ OsStatus CallManager::getTerminalConnections(const char* callId, const char* add
         numConnections = terminalIndex;
 
 #ifdef TEST_PRINT_EVENT
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::getTerminalConnections %d connections\n",
-            numConnections);
+        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                      "CallManager::getTerminalConnections "
+                      "%d connections\n",
+                      numConnections);
 #endif
 
         addressList->destroyAll();
@@ -2856,15 +2885,19 @@ UtlBoolean CallManager::isTerminalConnectionLocal(const char* callId, const char
         isLocal = tmpIsLocal;  // workaround conversion issue in newer RW library
 
 #ifdef TEST_PRINT_EVENT
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::isTerminalConnectionLocal %d\n",
-            isLocal);
+        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                      "CallManager::isTerminalConnectionLocal "
+                      "%d\n",
+                      isLocal);
 #endif
 
         eventMgr->release(isLocalSet);
     }
     else
     {
-        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::isTerminalConnectionLocal TIMED OUT\n");
+        OsSysLog::add(FAC_CP, PRI_ERR, 
+                      "CallManager::isTerminalConnectionLocal "
+                      "TIMED OUT\n");
         // If the event has already been signalled, clean up
         if(OS_ALREADY_SIGNALED == isLocalSet->signal(0))
         {
@@ -2983,7 +3016,9 @@ void CallManager::dialString(const char* url)
     if(url && strlen(url) > 0)
     {
 #ifdef TEST_PRINT
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::dialString posting dial string\n");
+        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                      "CallManager::dialString "
+                      "posting dial string\n");
 #endif
         UtlString trimmedUrl(url);
         NameValueTokenizer::frontBackTrim(&trimmedUrl, " \t\n\r");
@@ -3045,8 +3080,10 @@ UtlBoolean CallManager::getCallState(const char* callId, int& state)
         state = (int)stateIntptr;
 
 #ifdef TEST_PRINT_EVENT
-        OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::getCallState state: %d\n",
-            getConnectionState);
+        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                      "CallManager::getCallState "
+                      "state: %d\n",
+                      getConnectionState);
 #endif
 
         eventMgr->release(callState);
@@ -3054,7 +3091,9 @@ UtlBoolean CallManager::getCallState(const char* callId, int& state)
     }
     else
     {
-        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::getCallState TIMED OUT\n");
+        OsSysLog::add(FAC_CP, PRI_ERR, 
+                      "CallManager::getCallState "
+                      "TIMED OUT\n");
         // If the event has already been signalled, clean up
         if(OS_ALREADY_SIGNALED == callState->signal(0))
         {

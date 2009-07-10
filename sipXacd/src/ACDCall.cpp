@@ -731,14 +731,16 @@ UtlBoolean ACDCall::handleMessage(OsMsg& rMessage)
       mhCallHandle, rMessage.getMsgType(), rMessage.getMsgSubType());
 
 
-   if (rMessage.getMsgType() == OsMsg::OS_EVENT) {
+   if (rMessage.getMsgType() == OsMsg::OS_EVENT) 
+   {
       // Timer Event, determine which timer fired
       ((OsEventMsg&)rMessage).getUserData(timerSourceVoid);
       timerSource = (int)(intptr_t)timerSourceVoid;
       OsSysLog::add(FAC_ACD, gACD_DEBUG, 
          "ACDCall::handleMessage - Call(%d) Timer %s expired",
          mhCallHandle, eCallTimers2str[timerSource]);
-      switch (timerSource) {
+      switch (timerSource) 
+      {
          case RING_TIMEOUT_TIMER:
             routeRequestTimeoutEvent();
             return true;
@@ -857,15 +859,19 @@ UtlBoolean ACDCall::handleMessage(OsMsg& rMessage)
       return true;
    }
 
-   else if (rMessage.getMsgType() == OsMsg::USER_START) {
-      switch (rMessage.getMsgSubType()) {
+   else if (rMessage.getMsgType() == OsMsg::USER_START) 
+   {
+      switch (rMessage.getMsgSubType()) 
+      {
          case ACDCallMsg::UPDATE_STATE:
             pMessage = (ACDCallMsg*)&rMessage;
             hCallHandle = pMessage->getCallHandle();
             event       = pMessage->getCallEvent();
             cause       = pMessage->getCallCause();
             updateStateMessage(hCallHandle, event, cause);
-            OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::handleMessage - ACDCallMsg::UPDATE_STATE(%d)(%d)",
+            OsSysLog::add(FAC_ACD, gACD_DEBUG, 
+                          "ACDCall::handleMessage - "
+                          "ACDCallMsg::UPDATE_STATE(%d)(%d)",
                           hCallHandle, event);
             break;
 
@@ -1293,18 +1299,22 @@ void ACDCall::stopAudioMessage(void)
 
 void ACDCall::routeRequestMessage(UtlSList* pTargetAgentList, int connectionScheme, int timeout)
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::routeRequestMessage - Call(%d) [%s] is being routed.",
+   OsSysLog::add(FAC_ACD, gACD_DEBUG, 
+                 "ACDCall::routeRequestMessage - "
+                 "Call(%d) [%s] is being routed.",
                  mhCallHandle, mpCallIdentity);
 
    // Check for Welcome Audio and barge-in status
-   if (mWelcomeAudioPlaying && (mBargeIn == true)) {
+   if (mWelcomeAudioPlaying && (mBargeIn == true)) 
+   {
       stopAudioMessage();
    }
 
    // First clear the existing list
    UtlSListIterator agentListIterator(mAgentCandidateList);
    UtlContainable* pEntry;
-   while ((pEntry = agentListIterator()) != NULL) {
+   while ((pEntry = agentListIterator()) != NULL) 
+   {
       mAgentCandidateList.remove(pEntry);
    }
 
@@ -1313,10 +1323,13 @@ void ACDCall::routeRequestMessage(UtlSList* pTargetAgentList, int connectionSche
     */
    UtlSListIterator listIterator(*pTargetAgentList);
    ACDAgent* pAgent;
-   while ((pAgent = dynamic_cast<ACDAgent*>(listIterator())) != NULL) {
-      if (mAgentCandidateList.find(pAgent) == NULL) {
+   while ((pAgent = dynamic_cast<ACDAgent*>(listIterator())) != NULL) 
+   {
+      if (mAgentCandidateList.find(pAgent) == NULL) 
+      {
          mAgentCandidateList.append(pAgent);
-         OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::routeRequestMessage -"
+         OsSysLog::add(FAC_ACD, gACD_DEBUG, 
+                       "ACDCall::routeRequestMessage -"
                        "agent(%s) is being added to handle call(%s)",
                        pAgent->getUriString()->data(), mpCallIdentity);
       }
@@ -1325,7 +1338,8 @@ void ACDCall::routeRequestMessage(UtlSList* pTargetAgentList, int connectionSche
    mConnectionScheme = connectionScheme;
    mRingNoAnswerTime = timeout;
 
-   if (mRouteState != ACDCallRouteState::IDLE) {
+   if (mRouteState != ACDCallRouteState::IDLE) 
+   {
       if ((mRouteState == ACDCallRouteState::FAILED) ||
          (mRouteState == ACDCallRouteState::TERMINATED) ||
          (mRouteState == ACDCallRouteState::ABORTED)) {
@@ -1334,7 +1348,8 @@ void ACDCall::routeRequestMessage(UtlSList* pTargetAgentList, int connectionSche
       }
       else
       {
-         OsSysLog::add(FAC_ACD, PRI_CRIT, "ACDCall::routeRequestMessage -"
+         OsSysLog::add(FAC_ACD, PRI_CRIT, 
+                       "ACDCall::routeRequestMessage -"
                        "INVALID route state %s",
                        mpRouteStateMachine->getStateString()) ;
          abort() ;

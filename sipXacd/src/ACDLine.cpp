@@ -83,6 +83,11 @@ ACDLine::ACDLine(ACDLineManager* pAcdLineManager,
    mhPublisherHandle    = 0;
    mDialogPDULength     = 0;
 
+   OsSysLog::add(FAC_ACD, PRI_DEBUG,
+                 "ACDLine::ACDLine mUriString= '%s'",
+                 mUriString.data()
+                 );
+
    mpAcdCallManager = mpAcdLineManager->getAcdCallManager();
    mhAcdCallManagerHandle = mpAcdLineManager->getAcdCallManagerHandle();
 

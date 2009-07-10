@@ -242,13 +242,17 @@ SIPX_CALL ACDAgent::connect(ACDCall* pACDCall)
 
    // Create the outbound call to the agent URI
    if (sipxCallCreate(mhAcdCallManagerHandle, hLine, &mhCallHandle) != SIPX_RESULT_SUCCESS) {
-      OsSysLog::add(FAC_ACD, PRI_ERR, "ACDAgent::connect - ACDAgent(%s) failed to create outbound call",
+      OsSysLog::add(FAC_ACD, PRI_ERR, 
+                    "ACDAgent::connect - "
+                    "ACDAgent(%s) failed to create outbound call",
                     mUriString.data());
       mhCallHandle = SIPX_CALL_NULL ;
       return 0;
    }
 
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::connect - ACDAgent(%s) succeeded to create outbound call with call handle %d.  mBounceCount=%d",
+   OsSysLog::add(FAC_ACD, gACD_DEBUG, 
+                 "ACDAgent::connect - "
+                 "ACDAgent(%s) succeeded to create outbound call with call handle %d.  mBounceCount=%d",
                  mUriString.data(), mhCallHandle, mBounceCount);
 
    // Generate a unique call ID which is based upon the passed-in call ID and Agent ID
@@ -280,8 +284,10 @@ SIPX_CALL ACDAgent::connect(ACDCall* pACDCall)
       mNonResponsiveTime = acdQueue->getAgentsNonResponsiveTime();
       // Update mMaxBounceCount from the queue
       mMaxBounceCount = acdQueue->getMaxBounceCount();
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::connect - ACDAgent(%s) mWrapupTime=%d mNonResponsiveTime=%d mMaxBounceCount=%d",
-                       mUriString.data(),mWrapupTime, mNonResponsiveTime, mMaxBounceCount);
+      OsSysLog::add(FAC_ACD, gACD_DEBUG, 
+                    "ACDAgent::connect - ACDAgent(%s) "
+                    "mWrapupTime=%d mNonResponsiveTime=%d mMaxBounceCount=%d",
+                    mUriString.data(),mWrapupTime, mNonResponsiveTime, mMaxBounceCount);
    }
 
    // Add the sipx-noroute=Voicemail parameter to prevent the proxy from

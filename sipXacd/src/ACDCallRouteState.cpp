@@ -106,10 +106,13 @@ void ACDCallRouteState_IDLE::routeRequestEvent(ACDCall* pAcdCallInstance)
    }
 
    // If the caller is connected, play ringback tone
-   if (pAcdCallInstance->mCallState == ACDCall::CONNECTED) {
+   if (pAcdCallInstance->mCallState == ACDCall::CONNECTED) 
+   {
       // Stop the current audio, if being played
-      if (pAcdCallInstance->mPlayingAudio != ACDCall::NO_AUDIO_PLAYING) {
-         OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_IDLE::routeRequestEvent - "
+      if (pAcdCallInstance->mPlayingAudio != ACDCall::NO_AUDIO_PLAYING) 
+      {
+         OsSysLog::add(FAC_ACD, gACD_DEBUG, 
+                       "ACDCallRouteState_IDLE::routeRequestEvent - "
                        "Stopping the current audio for call %d", pAcdCallInstance->mhCallHandle);
          // Use ACDCall::stopAudioMessage() since we are in the same thread context.
          pAcdCallInstance->stopAudioMessage();
@@ -125,17 +128,21 @@ void ACDCallRouteState_IDLE::routeRequestEvent(ACDCall* pAcdCallInstance)
 
    // If max-ring-delay is non-zero, start the ring-no-answer timer
    pAcdCallInstance->mpRingTimeoutTimer->stop(true);
-   if (pAcdCallInstance->mRingNoAnswerTime > 0) {
+   if (pAcdCallInstance->mRingNoAnswerTime > 0) 
+   {
       OsTime timeoutTime(pAcdCallInstance->mRingNoAnswerTime, 0);
       pAcdCallInstance->mpRingTimeoutTimer->oneshotAfter(timeoutTime);
       
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_IDLE::routeRequestEvent - "
+      OsSysLog::add(FAC_ACD, gACD_DEBUG, 
+                    "ACDCallRouteState_IDLE::routeRequestEvent - "
                     "RingNoAnswerTimer is started for Call(%d) at %d seconds",
                     pAcdCallInstance->mhCallHandle, pAcdCallInstance->mRingNoAnswerTime);
    }
 
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCallRouteState_IDLE::routeRequestEvent - "
-                 "Attempting to route Call(%d)", pAcdCallInstance->mhCallHandle);
+   OsSysLog::add(FAC_ACD, gACD_DEBUG, 
+                 "ACDCallRouteState_IDLE::routeRequestEvent - "
+                 "Attempting to route Call(%d)", 
+                 pAcdCallInstance->mhCallHandle);
 
 }
 
@@ -2089,7 +2096,8 @@ void ACDCallRouteState::routeRequestEvent(ACDCall* pAcdCallInstance)
    // Use ACDCall::stopAudioMessage() since we are in the same thread context.
    pAcdCallInstance->stopAudioMessage();
 
-   OsSysLog::add(FAC_ACD, PRI_ERR, "ACDCallRouteState::routeRequestEvent - "
+   OsSysLog::add(FAC_ACD, PRI_ERR, 
+                 "ACDCallRouteState::routeRequestEvent - "
                  "Invalid call route state %s Call(%d)", 
                  getStateString(), pAcdCallInstance->mhCallHandle);
 }
