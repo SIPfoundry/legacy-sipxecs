@@ -157,5 +157,22 @@
         <sip-uri required="true" userPartOnly="true" />
       </type>
     </setting>
+    <setting name="multi_enum_setting">
+      <label>multi-enum setting</label>
+      <type>
+        <multi-enum>
+          <option>
+            <value>VALUE_0</value>
+          </option>
+          <option>
+            <value>VALUE_1</value>
+          </option>
+          <option>
+            <value>VALUE_2</value>
+          </option>
+        </multi-enum>
+      </type>
+      <value>VALUE_0|VALUE_2</value>
+    </setting>
   </group>
 </model>

@@ -32,7 +32,7 @@
 <!ELEMENT value (#PCDATA)>
 
 <!-- settings type system -->
-<!ELEMENT type (string|integer|enum|ipaddr|bitmap|boolean|real|file|sip-uri)?>
+<!ELEMENT type (string|integer|enum|multi-enum|ipaddr|bitmap|boolean|real|file|sip-uri)?>
 <!ATTLIST type 
     required %flag; "no"
     id ID #IMPLIED
@@ -91,4 +91,8 @@
 <!ATTLIST enum
   labelKeyPrefix NMTOKEN #IMPLIED>
     
+<!ELEMENT multi-enum (option+)>
+<!ATTLIST multi-enum
+  labelKeyPrefix NMTOKEN #IMPLIED>
+
 <!ELEMENT option (label?,value)>

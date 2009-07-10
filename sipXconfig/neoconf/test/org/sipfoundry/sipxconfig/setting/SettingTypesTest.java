@@ -10,7 +10,9 @@
 package org.sipfoundry.sipxconfig.setting;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
@@ -20,6 +22,7 @@ import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
 import org.sipfoundry.sipxconfig.setting.type.EnumSetting;
 import org.sipfoundry.sipxconfig.setting.type.FileSetting;
 import org.sipfoundry.sipxconfig.setting.type.IntegerSetting;
+import org.sipfoundry.sipxconfig.setting.type.MultiEnumSetting;
 import org.sipfoundry.sipxconfig.setting.type.RealSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
 import org.sipfoundry.sipxconfig.setting.type.SipUriSetting;
@@ -251,5 +254,36 @@ public class SettingTypesTest extends TestCase {
         assertFalse(strType.getPattern().contains("@"));
         assertTrue(strType.isRequired());
         assertFalse(strType.isPassword());
+    }
+
+    public void testSettingMultiEnumType() {
+        final String[][] V2L = {
+            {
+                "VALUE_0", "VALUE_0"
+            }, {
+                "VALUE_1", "VALUE_1"
+            }, {
+                "VALUE_2", "VALUE_2"
+            }
+        };
+        Setting multiEnumSetting = group.getSetting("multi_enum_setting");
+        assertNotNull(multiEnumSetting);
+        SettingType type = multiEnumSetting.getType();
+        assertTrue(type instanceof MultiEnumSetting);
+        MultiEnumSetting enumType = (MultiEnumSetting) type;
+        Map enums = enumType.getEnums();
+        assertEquals(V2L.length, enums.size());
+        int i = 0;
+        for (Iterator iter = enums.entrySet().iterator(); iter.hasNext(); i++) {
+            Map.Entry entry = (Map.Entry) iter.next();
+            assertEquals(V2L[i][0], entry.getKey());
+            assertEquals(V2L[i][1], entry.getValue());
+        }
+
+        assertTrue(multiEnumSetting.getTypedValue() instanceof List);
+        List<String> values = new ArrayList<String>();
+        values.add("VALUE_0");
+        values.add("VALUE_2");
+        assertEquals(values, multiEnumSetting.getTypedValue());
     }
 }

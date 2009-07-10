@@ -30,6 +30,7 @@ import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
 import org.sipfoundry.sipxconfig.setting.type.EnumSetting;
 import org.sipfoundry.sipxconfig.setting.type.FileSetting;
 import org.sipfoundry.sipxconfig.setting.type.IntegerSetting;
+import org.sipfoundry.sipxconfig.setting.type.MultiEnumSetting;
 import org.sipfoundry.sipxconfig.setting.type.RealSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
 import org.sipfoundry.sipxconfig.setting.type.SipUriSetting;
@@ -47,6 +48,8 @@ public class XmlModelBuilder implements ModelBuilder {
     private static final String EL_VALUE = "/value";
     private static final String EL_LABEL = "/label";
     private static final String REQUIRED = "required";
+    private static final String EL_OPTION = "/option";
+    private static final String ADD_ENUM_METHOD = "addEnum";
 
     private final File m_configDirectory;
 
@@ -111,6 +114,7 @@ public class XmlModelBuilder implements ModelBuilder {
         digester.addRuleSet(new RealSettingRule(patternPrefix + "real", typeIdRule));
         digester.addRuleSet(new StringSettingRule(patternPrefix + "string", typeIdRule));
         digester.addRuleSet(new EnumSettingRule(patternPrefix + "enum", typeIdRule));
+        digester.addRuleSet(new MultiEnumSettingRule(patternPrefix + "multi-enum", typeIdRule));
         digester.addRuleSet(new BooleanSettingRule(patternPrefix + "boolean", typeIdRule));
         digester.addRuleSet(new FileSettingRule(patternPrefix + "file", typeIdRule));
         digester.addRuleSet(new SipUriSettingRule(patternPrefix + "sip-uri", typeIdRule));
@@ -339,20 +343,35 @@ public class XmlModelBuilder implements ModelBuilder {
         }
     }
 
-    static class EnumSettingRule extends SettingTypeRule {
-        public EnumSettingRule(String pattern, SettingTypeIdRule typeIdRule) {
+    abstract static class OptionsSettingRule extends SettingTypeRule {
+        private final Class m_klass;
+
+        public OptionsSettingRule(String pattern, SettingTypeIdRule typeIdRule, Class klass) {
             super(pattern, typeIdRule);
+            m_klass = klass;
         }
 
         @Override
         public void addRuleInstances(Digester digester) {
-            digester.addObjectCreate(getPattern(), EnumSetting.class);
+            digester.addObjectCreate(getPattern(), m_klass);
             digester.addSetProperties(getPattern());
-            String option = getPattern() + "/option";
-            digester.addCallMethod(option, "addEnum", 2);
+            String option = getPattern() + EL_OPTION;
+            digester.addCallMethod(option, ADD_ENUM_METHOD, 2);
             digester.addCallParam(option + EL_VALUE, 0);
             digester.addCallParam(option + EL_LABEL, 1);
             super.addRuleInstances(digester);
+        }
+    }
+
+    static class EnumSettingRule extends OptionsSettingRule {
+        public EnumSettingRule(String pattern, SettingTypeIdRule typeIdRule) {
+            super(pattern, typeIdRule, EnumSetting.class);
+        }
+    }
+
+    static class MultiEnumSettingRule extends OptionsSettingRule {
+        public MultiEnumSettingRule(String pattern, SettingTypeIdRule typeIdRule) {
+            super(pattern, typeIdRule, MultiEnumSetting.class);
         }
     }
 

@@ -48,6 +48,14 @@
     value="ognl:setting.typedValue"
     disabled="ognl:disabled" />
 </span>
+<span jwcid="multiEnumBlock@Block">
+  <span jwcid="multiEnumField@contrib:Palette"
+    id="ognl:widgetId"
+    selected="ognl:setting.typedValue"
+    model="ognl:enumModel"
+    validators="ognl:validatorList"
+    sort="literal:USER"/>
+</span>
 <span jwcid="fileBlock@Block">
   <span jwcid="@If" condition="ognl:setting.type.variable" renderTag="ognl:false">
     <span jwcid="fileMultipleField@common/AssetSelectorMultiple"
