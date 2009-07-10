@@ -6,8 +6,9 @@
 #
 ###################################################
 
+# ede_build_devuser.sh
+#
 # See http://sipx-wiki.calivia.com/index.php/Express_Development_Environment_Setup for instructions.
-#   - ede_build_devuser.sh
 
 # Usage: $0 [-h] [-d] [-r] [-c CODEDIR]
 #   -h: Print this usage information and exit.

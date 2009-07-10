@@ -6,8 +6,9 @@
 #
 ###################################################
 
+# ede_base_root.sh
+#
 # See http://sipx-wiki.calivia.com/index.php/Express_Development_Environment_Setup for instructions.
-#   - ede_base_root.sh
 
 START_DATE=`date`
 

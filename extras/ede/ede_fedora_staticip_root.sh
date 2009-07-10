@@ -6,12 +6,13 @@
 #
 ###################################################
 
+# ede_fedora_staticip_root.sh
+#
 # See http://sipx-wiki.calivia.com/index.php/Express_Development_Environment_Setup for instructions.
-#   - ede_fedora_staticip_root.sh
 
-# Changes a Fedora 10/11 system from 'NetworkManager' service DHCP to 'network' service 
-# static IP, using the specified IP Address.  The network connection must be 
-# functioning in order for this to work.
+# Changes a Fedora 10/11 or CentOS 5 system from 'NetworkManager' service DHCP to 
+# 'network' service static IP, using the specified IP Address.  The network connection 
+# must be functioning in order for this to work.
 
 # The files we need to get right for the network service to work.
 ETHX=eth0
