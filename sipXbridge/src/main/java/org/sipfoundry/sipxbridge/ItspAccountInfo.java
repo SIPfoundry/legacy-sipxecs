@@ -515,10 +515,7 @@ public class ItspAccountInfo implements
      * @return the registration record for this account
      */
     public RegistrationRecord getRegistrationRecord() {
-        RegistrationRecord retval = new RegistrationRecord();
-        retval.setRegisteredAddress(this.getProxyDomain());
-        retval.setRegistrationStatus(this.state.toString());
-        return retval;
+        return (new RegistrationRecord(this.getProxyDomain(), this.state.toString()));
     }
 
     public void setCallerId(String callerId) {

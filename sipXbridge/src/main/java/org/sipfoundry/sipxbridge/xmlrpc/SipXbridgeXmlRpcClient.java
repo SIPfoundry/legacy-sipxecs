@@ -12,6 +12,7 @@ package org.sipfoundry.sipxbridge.xmlrpc;
 
 import java.net.URL;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.apache.xmlrpc.client.XmlRpcClient;
@@ -60,24 +61,19 @@ public class SipXbridgeXmlRpcClient {
             ex.printStackTrace();
             throw new SipXbridgeClientException(ex);
         }
-        if (retval.get(SipXbridgeXmlRpcServer.STATUS_CODE).equals(SipXbridgeXmlRpcServer.ERROR)) {
-            throw new SipXbridgeClientException("Error in processing request "
-                    + retval.get(SipXbridgeXmlRpcServer.ERROR_INFO));
-        }
-        Object[] registrations =  (Object[]) retval.get(SipXbridgeXmlRpcServer.REGISTRATION_RECORDS);
-        if ( registrations == null ) {
+
+        if ( retval == null ) {
             return null;
         }
-        
-        
-        RegistrationRecord[] registrationRecords = new RegistrationRecord[registrations.length];
+
+        RegistrationRecord[] registrationRecords = new RegistrationRecord[retval.size()];
         int i = 0;
-        for ( Object reg : registrations ) {
-            registrationRecords[i++] = RegistrationRecord.create((Map)reg);
+        Set keys = retval.keySet();
+        for ( Object key : keys) {
+            registrationRecords[i++] = new RegistrationRecord((String) key, (String) retval.get(key));
         }
-        
+
         return registrationRecords;
-        
     }
     
     
@@ -87,65 +83,43 @@ public class SipXbridgeXmlRpcClient {
      * @return the number of ongoing calls.
      */
     public int getCallCount() {
-        Map retval = null;
+        Integer retval;
         try {
-            retval = (Map) client.execute(SipXbridgeXmlRpcServer.SERVER + "."
+             retval = (Integer) client.execute(SipXbridgeXmlRpcServer.SERVER + "."
                     + "getCallCount", (Object[]) null);
         } catch (Exception ex) {
             ex.printStackTrace();
             throw new SipXbridgeClientException(ex);
         }
-        if (retval.get(SipXbridgeXmlRpcServer.STATUS_CODE).equals(SipXbridgeXmlRpcServer.ERROR)) {
-            throw new SipXbridgeClientException("Error in processing request "
-                    + retval.get(SipXbridgeXmlRpcServer.ERROR_INFO));
-        }
-        return Integer.parseInt((String)retval.get(SipXbridgeXmlRpcServer.CALL_COUNT));
+
+        return retval;
     }
 
-    
-    
-    
     public void start() {
-        Map retval = null;
         try {
-            retval = (Map) client.execute(SipXbridgeXmlRpcServer.SERVER + "."
+            client.execute(SipXbridgeXmlRpcServer.SERVER + "."
                     + "start", (Object[]) null);
         } catch (Exception ex) {
             throw new SipXbridgeClientException(ex);
         }
-        if (retval.get(SipXbridgeXmlRpcServer.STATUS_CODE).equals(SipXbridgeXmlRpcServer.ERROR)) {
-            throw new SipXbridgeClientException("Error in processing request "
-                    + retval.get(SipXbridgeXmlRpcServer.ERROR_INFO));
-        }
     }
-    
-    
+
 	public void stop() {
-        Map retval = null;
         try {
-            retval = (Map) client.execute(SipXbridgeXmlRpcServer.SERVER + "."
+            client.execute(SipXbridgeXmlRpcServer.SERVER + "."
                     + "stop", (Object[]) null);
         } catch (Exception ex) {
             throw new SipXbridgeClientException(ex);
         }
-        if (retval.get(SipXbridgeXmlRpcServer.STATUS_CODE).equals(SipXbridgeXmlRpcServer.ERROR)) {
-            throw new SipXbridgeClientException("Error in processing request "
-                    + retval.get(SipXbridgeXmlRpcServer.ERROR_INFO));
-        }
     }
     
     public void exit() {
-        Map retval = null;
         try {
-            retval = (Map) client.execute(SipXbridgeXmlRpcServer.SERVER + "."
+            client.execute(SipXbridgeXmlRpcServer.SERVER + "."
                     + "exit", (Object[]) null);
         } catch (Exception ex) {
         	logger.error("Exception in exit() ", ex);
             throw new SipXbridgeClientException(ex);
-        }
-        if (retval.get(SipXbridgeXmlRpcServer.STATUS_CODE).equals(SipXbridgeXmlRpcServer.ERROR)) {
-            throw new SipXbridgeClientException("Error in processing request "
-                    + retval.get(SipXbridgeXmlRpcServer.ERROR_INFO));
         }
     }
 

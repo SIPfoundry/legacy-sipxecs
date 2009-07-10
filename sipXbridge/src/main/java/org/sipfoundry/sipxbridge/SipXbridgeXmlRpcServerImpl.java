@@ -10,6 +10,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.net.ssl.SSLServerSocket;
+import javax.servlet.ServletException;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -154,80 +155,60 @@ public class SipXbridgeXmlRpcServerImpl implements SipXbridgeXmlRpcServer {
 		return sw.getBuffer().toString();
 	}
 
-	private HashMap<String, Object> createSuccessMap() {
-		HashMap<String, Object> retval = new HashMap<String, Object>();
-		retval.put(STATUS_CODE, OK);
-		return retval;
-	}
-
-	public Map<String, Object> getRegistrationStatus() {
-		HashMap<String, Object> retval = createSuccessMap();
+	public Map<String, String> getRegistrationStatus() throws ServletException {
+	    HashMap<String, String> retval = new HashMap<String, String>();
 		try {
-			HashSet<Map<String, String>> registrationRecords = new HashSet<Map<String, String>>();
 			for (ItspAccountInfo itspAccount : Gateway.getAccountManager()
 					.getItspAccounts()) {
 				if (itspAccount.isRegisterOnInitialization()) {
-					registrationRecords.add(itspAccount.getRegistrationRecord()
-							.getMap());
+				    retval.put(itspAccount.getRegistrationRecord().getRegisteredAddress(),
+				            itspAccount.getRegistrationRecord().getRegistrationStatus());
 				}
 			}
-			retval.put(STATUS_CODE, OK);
-			retval.put(REGISTRATION_RECORDS, registrationRecords.toArray());
-
 		} catch (Throwable ex) {
-			retval.put(STATUS_CODE, ERROR);
-			retval.put(ERROR_INFO, formatStackTrace(ex));
+		    throw new ServletException(formatStackTrace(ex), ex);
 		}
 
 		return retval;
 	}
 
-	public Map<String, Object> getCallCount() {
-		HashMap<String, Object> retval = createSuccessMap();
+	public Integer getCallCount() throws ServletException {
+	    int retval = 0;
 		try {
-
-			retval.put(STATUS_CODE, OK);
-			retval.put(CALL_COUNT, new Integer(Gateway.getCallCount()).toString());
+			retval = Gateway.getCallCount();
 
 		} catch (Exception ex) {
-			retval.put(STATUS_CODE, ERROR);
-			retval.put(ERROR_INFO, formatStackTrace(ex));
+		    throw new ServletException(formatStackTrace(ex), ex);
 		}
-
-		return retval;
+		return new Integer(retval);
 	}
 
-	public Map<String, Object> start() {
-		HashMap<String, Object> retval = createSuccessMap();
+	public Boolean start() throws ServletException {
 
 		logger.debug("Gateway.start()");
 		try {
 			Gateway.start();
 		} catch (Exception ex) {
-			retval.put(STATUS_CODE, ERROR);
-			retval.put(ERROR_INFO, formatStackTrace(ex));
+		    throw new ServletException(formatStackTrace(ex), ex);
 		}
 
-		return retval;
+		return true;
 	}
 
-	public Map<String, Object> stop() {
+	public Boolean stop() throws ServletException {
 
 		logger.debug("Gateway.stop()");
-		HashMap<String, Object> retval = createSuccessMap();
 
 		try {
 			Gateway.stop();
 		} catch (Exception ex) {
-			retval.put(STATUS_CODE, ERROR);
-			retval.put(ERROR_INFO, formatStackTrace(ex));
+		    throw new ServletException(formatStackTrace(ex), ex);
 		}
-		return retval;
+		return true;
 	}
 
-	public Map<String, Object> exit() {
+	public Boolean exit() throws ServletException {
 		logger.debug("Gateway.exit()");
-		HashMap<String, Object> retval = createSuccessMap();
 
 		try {
 
@@ -246,10 +227,9 @@ public class SipXbridgeXmlRpcServerImpl implements SipXbridgeXmlRpcServer {
 			}, 1000);
 
 		} catch (Exception ex) {
-			retval.put(STATUS_CODE, ERROR);
-			retval.put(ERROR_INFO, formatStackTrace(ex));
+		    throw new ServletException(formatStackTrace(ex), ex);
 		}
-		return retval;
+		return true;
 	}
 
 }

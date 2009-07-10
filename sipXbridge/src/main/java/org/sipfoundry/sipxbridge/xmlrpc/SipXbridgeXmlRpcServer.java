@@ -12,6 +12,8 @@ package org.sipfoundry.sipxbridge.xmlrpc;
 
 import java.util.Map;
 
+import javax.servlet.ServletException;
+
 /**
  * 
  * The XML RPC interface that can be invoked by external clients
@@ -21,73 +23,39 @@ import java.util.Map;
 public interface SipXbridgeXmlRpcServer {
     
     public static final String SERVER = "SipxBridge";
-    /**
-     * The status code OK or ERROR.
-     */
-    public static final String STATUS_CODE = "status-code";
-    
-    /**
-     * Status code of OK if no error was encountered.
-     */
-    public static final String OK = "OK";
-    
-    
-    public String ERROR = "ERROR";
-  
-    /**
-     * A standard error code -- see definitions below.
-     */
-    public static final String ERROR_CODE = "faultCode";
-
-    /**
-     * Detailed error information.
-     */
-    public static final String ERROR_INFO = "faultString";
-
-    /**
-     * Data element for call records.
-     */
-    public static final String CALL_RECORDS = "callRecords";
-    
-    /**
-     * Data element for registration records
-     */
-    public static final String REGISTRATION_RECORDS = "registrationRecords";
-    
-    /**
-     * Data element for number of ongoing calls.
-     */
-    public static final String CALL_COUNT = "callCount";
-    
-    
     
     /**
      * Returns the registration status of each account that 
      * requires registration.
+     * @throws ServletException
      */
-    public Map<String,Object> getRegistrationStatus();
+    public Map<String, String> getRegistrationStatus() throws ServletException;
     
     
     /**
      * Returns the number of ongoing calls.
+     * @throws ServletException
      * 
      */
-    public Map<String,Object> getCallCount();
+    public Integer getCallCount() throws ServletException;
     
     /**
      * Start the bridge.
+     * @throws ServletException
      */
-    public Map<String,Object> start();
+    public Boolean start() throws ServletException;
     
     /**
      * Stop the bridge.
+     * @throws ServletException
      */
-    public Map<String,Object> stop();
+    public Boolean stop() throws ServletException;
     
     /**
      * Exit the bridge.
+     * @throws ServletException
      */
-    public Map<String,Object> exit();
+    public Boolean exit() throws ServletException;
   
 
 }
