@@ -72,6 +72,7 @@ public abstract class AutoAttendantManagerImpl extends SipxHibernateDaoSupport i
         }
         clearUnsavedValueStorage(aa.getValueStorage());
         getHibernateTemplate().saveOrUpdate(aa);
+        getHibernateTemplate().flush();
 
         replicateConfig();
     }
