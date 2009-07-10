@@ -90,6 +90,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libRedirectorRegDB.so*
 %attr(755,root,root) %{_libdir}/libRedirectorSubscribe.la
 %attr(755,root,root) %{_libdir}/libRedirectorSubscribe.so*
+%attr(755,root,root) %{_libdir}/libRedirectorUserParam.la
+%attr(755,root,root) %{_libdir}/libRedirectorUserParam.so*
 %attr(755,root,root) %{_libdir}/libRedirectorTest.la
 %attr(755,root,root) %{_libdir}/libRedirectorTest.so*
 %attr(755,root,root) %{_libdir}/libRedirectorTimeOfDay.la
@@ -113,6 +115,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libRedirectorPickUp.a
 %attr(755,root,root) %{_libdir}/libRedirectorRegDB.a
 %attr(755,root,root) %{_libdir}/libRedirectorSubscribe.a
+%attr(755,root,root) %{_libdir}/libRedirectorUserParam.a
 %attr(755,root,root) %{_libdir}/libRedirectorTest.a
 %attr(755,root,root) %{_libdir}/libRedirectorTimeOfDay.a
 %{_includedir}/registry/*

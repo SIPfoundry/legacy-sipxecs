@@ -249,6 +249,12 @@ class SipRedirectServer : public OsServerTask
    UtlBoolean initialize( OsConfigDb& configDb    ///< Configuration parameters
                          );
 
+   /// Allow the redirectors to get the SipUserAgent
+   SipUserAgent* sipUserAgent() 
+   {
+      return mpSipUserAgent;
+   }
+   
    /**
     * Used by redirector asynchronous processing to request that
     * processing a request be resumed.

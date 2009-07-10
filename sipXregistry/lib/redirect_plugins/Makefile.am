@@ -5,16 +5,16 @@ lib_LTLIBRARIES = \
 	libRedirectorAliasDB.la \
 	libRedirectorAuthRouter.la \
 	libRedirectorMapping.la \
-    	libRedirectorFallback.la \
+   libRedirectorFallback.la \
 	libRedirectorPickUp.la \
 	libRedirectorRegDB.la \
 	libRedirectorSubscribe.la \
-	\
+	libRedirectorUserParam.la \
 	libRedirectorENUM.la \
 	libRedirectorISN.la \
 	libRedirectorJoin.la \
 	libRedirectorTest.la \
-    libRedirectorTimeOfDay.la
+   libRedirectorTimeOfDay.la
 
 
 INCLUDES = -I$(top_srcdir)/include
@@ -214,6 +214,22 @@ libRedirectorTimeOfDay_la_CXXFLAGS = \
 libRedirectorTimeOfDay_la_SOURCES =  \
 	SipRedirectorTimeOfDay.cpp \
 	SipRedirectorTimeOfDay.h
+
+# SipRedirectorUserParam
+
+libRedirectorUserParam_la_LDFLAGS = \
+	-module \
+	-version-info ${version_Current}:${version_Revision}:${version_Age}
+
+libRedirectorUserParam_la_LIBADD = \
+	@SIPXCOMMSERVER_LIBS@
+
+libRedirectorUserParam_la_CXXFLAGS = \
+	-I$(top_builddir)/config
+
+libRedirectorUserParam_la_SOURCES =  \
+	SipRedirectorUserParam.cpp \
+	SipRedirectorUserParam.h
 
 # SipRedirectorTest
 # Redirector to test request suspend/resume.
