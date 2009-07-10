@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -61,8 +61,8 @@ public:
      */
     virtual UtlBoolean isAuthorized(const SipMessage& subscribeRequest,
                                     SipMessage& subscribeResponse);
-    
-    virtual UtlBoolean isAuthenticated(const SipMessage & subscribeRequest, 
+
+    virtual UtlBoolean isAuthenticated(const SipMessage & subscribeRequest,
                                        SipMessage & subscribeResponse);
 
 /* ============================ ACCESSORS ================================= */
@@ -81,7 +81,7 @@ private:
 
     //! Assignment operator NOT ALLOWED
     RlsSubscribePolicy& operator=(const RlsSubscribePolicy& rhs);
-    
+
     //! Authentication realm to use for challenges and responses.
     UtlString mRealm;
     //! SipNonceDb to generate nonces.

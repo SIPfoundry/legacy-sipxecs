@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -158,7 +158,7 @@ class ResourceListServer : public UtlContainableAtomic
    //! Get the server local host-part.
    // Return value is valid as long as the ResourceListServer exists.
    const char* getServerLocalHostPart() const;
- 
+
    //! Get the From URI to be used for SUBSCRIBEs.
    const char* getClientFromURI() const;
 
@@ -219,7 +219,7 @@ class ResourceListServer : public UtlContainableAtomic
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
-   
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:
 
@@ -271,7 +271,7 @@ class ResourceListServer : public UtlContainableAtomic
    SipPublishContentMgr mEventPublisher;
 
    //! Component for holding the subscription data.
-   SipPersistentSubscriptionMgr mSubscriptionMgr; 
+   SipPersistentSubscriptionMgr mSubscriptionMgr;
 
    //! Component for granting subscription rights
    RlsSubscribePolicy mPolicyHolder;

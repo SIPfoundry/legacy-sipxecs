@@ -2,7 +2,7 @@
 
 bin_PROGRAMS = sipxrls
 
-SUBDIRS = . test 
+SUBDIRS = . test
 
 EXTRA_DIST =
 

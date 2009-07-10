@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -235,7 +235,7 @@ UtlBoolean ResourceList::shrink()
 /* ============================ INQUIRY =================================== */
 
 //! Generate the HttpBody for the current state of the resource list.
-HttpBody* ResourceList::generateRlmiBody(UtlBoolean consolidated, 
+HttpBody* ResourceList::generateRlmiBody(UtlBoolean consolidated,
                                          UtlBoolean fullRlmi,
                                          UtlSList& listToSend)
 {
@@ -254,11 +254,11 @@ HttpBody* ResourceList::generateRlmiBody(UtlBoolean consolidated,
       {
          l.remove(l.length() - 1);
       }
-       
+
       OsSysLog::add(FAC_RLS, PRI_DEBUG,
                     "ResourceList::generateRlmiBody cons=%d URI='%s' full=%d listToSend='%s'",
-                    consolidated, 
-                    (consolidated ? mResourceListNameCons.data() : mResourceListName.data()), 
+                    consolidated,
+                    (consolidated ? mResourceListNameCons.data() : mResourceListName.data()),
                     fullRlmi,
                     l.data());
    }
@@ -401,7 +401,7 @@ UtlBoolean ResourceList::genPartialList(UtlSList& partialList)
 // Generate and publish the full and partial RLMI for the specified URI
 // (full/consolidated) of a resource list.
 // Both the Full and the Partial RLMI are sent to the SIP Subscribe Server.
-// The Partial RLMI will then be sent out right away and the Full RLMI 
+// The Partial RLMI will then be sent out right away and the Full RLMI
 // will be stored in the Subscribe Server to be sent on any initial
 // SUBSCRIBEs and re-SUBSCRIBEs.
 void ResourceList::genAndPublish(UtlBoolean consolidated, UtlString resourceListUri)
@@ -416,16 +416,16 @@ void ResourceList::genAndPublish(UtlBoolean consolidated, UtlString resourceList
    // publish() to avoid race conditions with regard to starting a new
    // subscription.
    body = generateRlmiBody(consolidated, RLMI_FULL, mResourcesList);
-   getResourceListServer()->getEventPublisher(). 
-      publish(resourceListUri.data(), 
-              getResourceListServer()->getEventType(), 
-              getResourceListServer()->getEventType(), 
+   getResourceListServer()->getEventPublisher().
+      publish(resourceListUri.data(),
+              getResourceListServer()->getEventType(),
+              getResourceListServer()->getEventType(),
               1, &body, &mVersion,
               // Suppress generating notifications for this call of
               // SipPublishContentMgr::publish, because the call below
               // will generate notifications for the same subscribed-to
               // URIs.
-              TRUE,             
+              TRUE,
               RLMI_FULL);
 
    // Generate and publish the fullState=FALSE notice body.
@@ -434,10 +434,10 @@ void ResourceList::genAndPublish(UtlBoolean consolidated, UtlString resourceList
    if (genPartialList(partialList))
    {
       body = generateRlmiBody(consolidated, RLMI_PARTIAL, partialList);
-      getResourceListServer()->getEventPublisher(). 
-         publish(resourceListUri.data(), 
-                 getResourceListServer()->getEventType(), 
-                 getResourceListServer()->getEventType(), 
+      getResourceListServer()->getEventPublisher().
+         publish(resourceListUri.data(),
+                 getResourceListServer()->getEventType(),
+                 getResourceListServer()->getEventType(),
                  1, &body, &mVersion,
                  // This call to SipPublishContentMgr::publish triggers
                  // notification.

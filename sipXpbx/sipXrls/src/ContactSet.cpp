@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -220,7 +220,7 @@ void ContactSet::notifyEventCallback(const UtlString* dialogHandle,
                  mUri.data(), dialogHandle->data(), content->data());
 
    // Parse the XML and update the contact status.
-   
+
    // Find the UtlHashMap for this subscription.
    UtlHashMap* state_from_this_subscr =
       dynamic_cast <UtlHashMap*> (mSubscriptions.findValue(dialogHandle));
@@ -299,8 +299,8 @@ void ContactSet::notifyEventCallback(const UtlString* dialogHandle,
                const char* id = contact_element->Attribute("id");
 
                // Get the Contact URI for the phone. If a GRUU address is present we should
-               // use that as the Contact URI. Otherwise, use the contact URI present in the 
-               // "uri" element, and append any path headers that are present to the ROUTE 
+               // use that as the Contact URI. Otherwise, use the contact URI present in the
+               // "uri" element, and append any path headers that are present to the ROUTE
                // header parameter in the URI. This will ensure proper routing in HA systems.
                // Please refer to XECS-1694 for more details.
 
@@ -313,7 +313,7 @@ void ContactSet::notifyEventCallback(const UtlString* dialogHandle,
                   UtlString pub_gruu_uri (pub_gruu_element->Attribute("uri"));
                   if(!pub_gruu_uri.isNull())
                   {
-                     // Check the URI Scheme. Only accept the GRUU address if it is of either 
+                     // Check the URI Scheme. Only accept the GRUU address if it is of either
                      // a sip or sips scheme
                      Url tmp (pub_gruu_uri, TRUE );
                      Url::Scheme uriScheme = tmp.getScheme();
@@ -328,7 +328,7 @@ void ContactSet::notifyEventCallback(const UtlString* dialogHandle,
                }
 
                // If we did not find a GRUU address, then use the address in the "uri" element as the
-               // contact URI, and check for path headers. 
+               // contact URI, and check for path headers.
                if(check_uri)
                {
                   TiXmlNode* u = contact_element->FirstChild("uri");
@@ -337,7 +337,7 @@ void ContactSet::notifyEventCallback(const UtlString* dialogHandle,
                      textContentShallow(*uri_allocated, u);
 
                      // Iterate through all the path header elements. Path headers are stored in the
-                     // "unknown-param" elements that have a "name" attribute value of "path". 
+                     // "unknown-param" elements that have a "name" attribute value of "path".
                      for (TiXmlNode* unknown_param_node = 0;
                           (unknown_param_node = contact_node->IterateChildren("unknown-param",
                                                                                unknown_param_node));
@@ -416,7 +416,7 @@ void ContactSet::notifyEventCallback(const UtlString* dialogHandle,
                   else if (strcmp(state, "terminated") == 0)
                   {
                      // Delete it from the contact state.
-                     state_from_this_subscr->destroy(id_allocated); 
+                     state_from_this_subscr->destroy(id_allocated);
                      OsSysLog::add(FAC_RLS, PRI_DEBUG,
                                    "ContactSet::notifyEventCallback deleting id = '%s'",
                                    id);
@@ -537,7 +537,7 @@ void ContactSet::updateSubscriptions()
    // a time, and if the termination of the old subscription arrives
    // after the initiation of the new subscription, the new
    // subscription will be lost.
-   // This variable tracks whether such a wait is needed before a 
+   // This variable tracks whether such a wait is needed before a
    // subscription is started.
    bool subscription_ended_but_no_wait_done_yet = false;
 

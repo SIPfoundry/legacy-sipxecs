@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -443,7 +443,7 @@ void ResourceInstance::dumpState()
       UtlString s;
       TiXmlUtlStringWriter writer(&s);
       writer <<*dialog_element;
-      
+
       OsSysLog::add(FAC_RLS, PRI_INFO,
                     "\t              mXmlDialogs{'%s'} = '%s'",
                     dialog_id->data(), s.data());

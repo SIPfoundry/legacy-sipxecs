@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 ////////////////////////////////////////////////////////////////////////////
 
@@ -65,7 +65,7 @@ OsStatus ResourceListFileReader::initialize()
 
    // The status to return.
    OsStatus ret = OS_SUCCESS;
-   
+
    // Suspend publishing to prevent generating incomplete NOTIFYs.
    mResourceListSet->suspendPublishing();
 
@@ -216,7 +216,7 @@ OsStatus ResourceListFileReader::initialize()
                        "Resource list file '%s' could not be parsed.",
                        mFileName.data());
          ret = OS_FAILED;
-      } 
+      }
    }
    else
    {

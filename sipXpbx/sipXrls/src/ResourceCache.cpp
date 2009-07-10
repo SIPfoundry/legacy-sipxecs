@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -83,7 +83,7 @@ ResourceCached* ResourceCache::addReferenceToResource(
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
                  "ResourceCache::addReferenceToResource this = %p, uri = '%s', ResourceCached = %p",
                  this, uri, r);
-   
+
    // Now add the ResourceReference to the ResourceCahced's set.
    r->addReference(resourceReference);
 
@@ -122,7 +122,7 @@ void ResourceCache::refreshAllResources()
    while ((resource = dynamic_cast <ResourceCached*> (resourceItor())))
    {
       resource->refresh();
-   }   
+   }
    // The ResourceCached's will publish any changes in their content.
 }
 
@@ -139,7 +139,7 @@ void ResourceCache::purgeTerminated()
    while ((resource = dynamic_cast <ResourceCached*> (resourceItor())))
    {
       resource->purgeTerminated();
-   }   
+   }
 }
 
 /* ============================ ACCESSORS ================================= */

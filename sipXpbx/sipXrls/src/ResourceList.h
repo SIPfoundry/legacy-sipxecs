@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -105,14 +105,14 @@ class ResourceList : public UtlContainableAtomic
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
-   
+
    //! Generate and publish the content for the resource list.
    void publish();
 
    //! Generate the HttpBody for the current state of the resource list.
    //  The caller owns the returned HttpBody.
    HttpBody* generateRlmiBody(// True if resource instances are to be consolidated.
-                              UtlBoolean consolidated, 
+                              UtlBoolean consolidated,
                               // True if this is a 'full' update RLMI.
                               UtlBoolean fullRlmi,
                               // The list of ResourceReference's to include in the body.

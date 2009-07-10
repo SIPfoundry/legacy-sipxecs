@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 ////////////////////////////////////////////////////////////////////////////
 
@@ -111,7 +111,7 @@ public:
 
        // Wait for a signal.  This will unblock signals
        // for THIS thread only, so this will be the only thread
-       // to catch an async signal directed to the process 
+       // to catch an async signal directed to the process
        // from the outside.
        res = awaitSignal(sig_num);
        if (res == OS_SUCCESS)
@@ -247,7 +247,7 @@ SipLineMgr* addCredentials (UtlString domain, UtlString realm)
       UtlString ha1_authenticator;
       UtlString authtype;
       bool bSuccess = false;
-      
+
       if (credentialDb->getCredential(identity, realm, user, ha1_authenticator, authtype))
       {
          if ((line = new SipLine( identity // user entered url
@@ -308,14 +308,14 @@ SipLineMgr* addCredentials (UtlString domain, UtlString realm)
                        ,identity.toString().data(), realm.data()
                        );
       }
-      
+
       if( !bSuccess )
       {
          delete line;
          line = NULL;
-         
+
          delete lineMgr;
-         lineMgr = NULL;         
+         lineMgr = NULL;
       }
    }
 
@@ -426,7 +426,7 @@ int main(int argc, char* argv[])
                     "Resource domain name is not configured");
       return 1;
    }
-   
+
    UtlString realm;
    if ((configDb.get(CONFIG_SETTING_AUTHENTICATE_REALM, realm) !=
         OS_SUCCESS) ||
@@ -454,7 +454,7 @@ int main(int argc, char* argv[])
    {
       resubscribeInterval = RLS_DEFAULT_RESUBSCRIBE_INTERVAL;
    }
-   
+
    int minResubscribeInterval;
    if (configDb.get(CONFIG_SETTING_MIN_RESUBSCRIBE_INTERVAL, minResubscribeInterval) != OS_SUCCESS)
    {
@@ -498,7 +498,7 @@ int main(int argc, char* argv[])
    {
       return 1;
    }
-   
+
    if (!gShutdownFlag)
    {
       // Initialize the ResourceListServer.

@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -111,7 +111,7 @@ class ResourceReference : public UtlContainableAtomic
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
-   
+
    // Callback functions to use with SipSubscribeClient::addSubscription.
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
@@ -124,13 +124,13 @@ class ResourceReference : public UtlContainableAtomic
    ResourceCached* mResourceCached;
 
    //! The XML fragment containing the <name> elements for the resource.
-   //  This may differ in different ResourceList's, so it is stored in 
+   //  This may differ in different ResourceList's, so it is stored in
    //  the ResourceReference.
    UtlString mNameXml;
    /** The string to use as the display name (<local><identity display="...">)
     *  in consolidated event notices.
     */
-   //  This may differ in different ResourceList's, so it is stored in 
+   //  This may differ in different ResourceList's, so it is stored in
    //  the ResourceReference.
    UtlString mDisplayName;
 

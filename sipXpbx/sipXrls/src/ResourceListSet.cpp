@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -120,7 +120,7 @@ void ResourceListSet::refreshAllResources()
 
    // Serialize access to the resource list set.
    OsLock lock(mSemaphore);
-   
+
    // Send the request to the ResourceCache, which contains all the resources.
    mResourceCache.refreshAllResources();
 }
@@ -136,7 +136,7 @@ void ResourceListSet::addResourceList(const char* user,
 
    // Serialize access to the ResourceListSet.
    OsLock lock(mSemaphore);
-   
+
    // Check to see if there is already a list with this name.
    if (!findResourceList(user))
    {
@@ -182,7 +182,7 @@ void ResourceListSet::deleteAllResourceLists()
       {
          // Serialize access to the ResourceListSet.
          OsLock lock(mSemaphore);
-      
+
          // Get pointer to the first ResourceList.
          rl = dynamic_cast <ResourceList*> (mResourceLists.first());
 
@@ -210,7 +210,7 @@ void ResourceListSet::deleteAllResources(const char* user)
 
    // Serialize access to the ResourceListSet.
    OsLock lock(mSemaphore);
-   
+
    ResourceList* resourceList = findResourceList(user);
    if (resourceList)
    {
@@ -235,7 +235,7 @@ void ResourceListSet::getAllResourceLists(UtlSList& list)
 
    // Serialize access to the ResourceListSet.
    OsLock lock(mSemaphore);
-   
+
    // Iterate through the resource lists.
    UtlSListIterator resourceListItor(mResourceLists);
    ResourceList* resourceList;
@@ -629,11 +629,11 @@ void ResourceListSet::schedulePublishing()
             OsTimer::Time timeDelta = tmrExpiresAt - OsTimer::now();
             OsTime pubGap(timeDelta/1000000, timeDelta%1000000);
 
-            // If the remaining gap timeout is less than the pubDelay 
+            // If the remaining gap timeout is less than the pubDelay
             // then we need to wait for pubDelay before publishing.
             if (pubGap < pubDelay)
             {
-               // Cancel the current gap timeout so that oneshotAfter can restart the timer. 
+               // Cancel the current gap timeout so that oneshotAfter can restart the timer.
                mPublishingTimer.stop();
             }
          }
@@ -706,7 +706,7 @@ UtlContainable* ResourceListSet::retrieveObjectBySeqNoAndDeleteMapping(int seqNo
 {
    // Serialize access to the resource list set.
    OsLock lock(mSemaphore);
-   
+
    // Search for and possibly delete seqNo.
    UtlInt search_key(seqNo);
    UtlContainable* value;
@@ -725,7 +725,7 @@ UtlContainable* ResourceListSet::retrieveObjectBySeqNoAndDeleteMapping(int seqNo
                     "ResourceListSet::retrieveObjectBySeqNoAndDeleteMapping seqNo = %d not found",
                     seqNo);
    }
-   
+
    return value;
 }
 

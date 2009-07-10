@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -33,7 +33,7 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-RlsSubscribePolicy::RlsSubscribePolicy(UtlString defaultDomain, 
+RlsSubscribePolicy::RlsSubscribePolicy(UtlString defaultDomain,
                                        UtlString realm,
                                        UtlString credentialDbName)
    : mRealm(realm),
@@ -70,12 +70,12 @@ UtlBoolean RlsSubscribePolicy::isAuthorized(const SipMessage& subscribeRequest,
                                         SIP_EXTENSION_REQUIRED_TEXT);
       subscribeResponse.addRequireExtension(SIP_EVENTLIST_EXTENSION);
    }
-   
+
    return ret;
 }
 
 
-UtlBoolean RlsSubscribePolicy::isAuthenticated(const SipMessage & subscribeRequest, 
+UtlBoolean RlsSubscribePolicy::isAuthenticated(const SipMessage & subscribeRequest,
                                                SipMessage & subscribeResponse)
 {
    UtlBoolean isAuthorized = FALSE;
@@ -87,7 +87,7 @@ UtlBoolean RlsSubscribePolicy::isAuthenticated(const SipMessage & subscribeReque
    UtlString fromTag;
    subscribeRequest.getFromUrl(fromNameAddr);
    fromNameAddr.getFieldParameter("tag", fromTag);
-    
+
    UtlString authNonce, authRealm, authUser, uriParam;
 
    // Iterate through Authorization and Proxy-Authorization credentials,
@@ -118,7 +118,7 @@ UtlBoolean RlsSubscribePolicy::isAuthenticated(const SipMessage & subscribeReque
          {
             // build the "authorization identity" from the auth credentials
             Url authIdentity;
-                
+
             // then get the credentials for this user & realm
             if (CredentialDB::getInstance(mCredentialDbName)->getCredential( authUser
                                                             ,authRealm
@@ -186,7 +186,7 @@ UtlBoolean RlsSubscribePolicy::isAuthenticated(const SipMessage & subscribeReque
                                                NULL // opaque
          );
    }
-    
+
    return isAuthorized;
 }
 

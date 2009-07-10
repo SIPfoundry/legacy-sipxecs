@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -173,7 +173,7 @@ ResourceListServer::ResourceListServer(const UtlString& domainName,
 
    // Require the "eventlist" extension in the Resource List clients.
    mServerUserAgent.requireExtension(SIP_EVENTLIST_EXTENSION);
-   
+
    // Set the subscribe server grant times.
    if (!mSubscriptionMgr.setSubscriptionTimes(serverMinExpiration,
                                               serverDefaultExpiration,
@@ -221,7 +221,7 @@ void ResourceListServer::start()
    // Start the SIP Subscribe Server after the ResourceListFileReader is
    // done loading the configuration.  This ensures that early subscribers
    // do not get NOTIFYs with incomplete information.
-   mSubscribeServer.enableEventType(mEventType, NULL, NULL, NULL, NULL, 
+   mSubscribeServer.enableEventType(mEventType, NULL, NULL, NULL, NULL,
                                     SipSubscribeServer::standardVersionCallback,
                                     FALSE);
    mSubscribeServer.start();

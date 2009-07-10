@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -232,14 +232,14 @@ class ResourceListSet : public UtlContainableAtomic
    // back-to-back.  Most changes are published by setting mChangesToPublish
    // in the ResourceList whose content has changed, and then starting
    // ResourceListSet.mPublishingTimer.oneshotAfter(ResourceListServer::mPublishingDelay).
-   // 
+   //
    // That timer (like all timers in the RLS) queues a message to
    // ResourceListTask, which calls ResourceListSet::publish, which calls
    // ResourceList::publishIfNecessary on every ResourceList.
    // ResourceList::publishIfNecessary, if mChangesToPublish set, calls
    // ResourceList::publish to publish the new contents (and reset
    // mChangesToPublish).
-   // 
+   //
    // Since reported dialogs that have terminated are supposed to be
    // published with their "terminated" state (and their termination
    // reasons, if possible) shown before they vanish from the resource
@@ -247,57 +247,57 @@ class ResourceListSet : public UtlContainableAtomic
    // but rather are left to be published as such.
    // ResourceListSet::publish, after publishing the new content, calls
    // ResourceCached::purgeTerminated to destroy the ResourceInstance's.
-   // 
+   //
    // This is further complicated by the mechanism to suppress publishing
    // when there are large transient changes being made to the content.
    // Currently, this mechanism is used only by ResourceListFileReader when
    // it clears and reloads the ResourceListSet when resource-lists.xml
    // changes.
-   // 
+   //
    // Publishing is suppressed by calling ResourceListSet::suspendPublishing
    // and resumed by calling ResourceListSet::resumePublishing.  While
    // suspension is in effect, no publishing is done, and the
    // mChangesToPublish's are not reset.  When suspension ends, the usual
    // publishing is resumed.  Suspending publishing prevents publishing of
    // terminated dialogs, which is theoretically required.
-   // 
-   // 
+   //
+   //
    // The various changes that can be made to a resource list set and how
    // they get published:
-   // 
+   //
    // ResourceListSet
    //     add ResourceList
    //         need to publish the new resource list
-   // 
+   //
    //         ResourceList:: calls
    //         ResourceList::setToBePublished
-   // 
+   //
    //     delete ResourceList
    //         there is no way to publish the absence of a resource list
-   // 
+   //
    // ResourceList
    //     add Resource
    //         need to publish the new resource list
-   // 
+   //
    //         ResourceReference:: calls
    //         ResourceList::setToBePublished
-   // 
+   //
    //     delete Resource
    //         need to publish the new resource list
-   // 
+   //
    //         ResourceReference:: calls
    //         ResourceList::setToBePublished
-   // 
+   //
    // Resource (ResourceReference/ResourceCached)
    //     add SubscriptionSet (contact)
    //         no visible change to published resource lists
-   // 
+   //
    //     delete SubscriptionSet (contact)
    //         no visible change, but since the container
    //         of ResourceInstance's is being deleted, we
    //         have to publish the changes immediately, before
    //         the SubscriptionSet is destroyed
-   // 
+   //
    //         SubscriptionSet::~ sets all the resources to terminated state,
    //         then calls
    //         ResourceCached::setToBePublished(TRUE) to force immediate
@@ -305,40 +305,40 @@ class ResourceListSet : public UtlContainableAtomic
    //         then destroys the ResourceInstance's, then calls
    //         ResourceCached::setToBePublished(FALSE) so that the resource's
    //         state without the destroyed instances will be published (eventually)
-   // 
+   //
    // SubscriptionSet (contact)
    //     add ResourceInstance
    //         need to publish the new state of the resource lists
-   // 
+   //
    //         ResourceInstance:: calls
    //         ResourceCached::setToBePublished, which calls
    //         ResourceListSet::setToBePublished
-   // 
+   //
    //     delete ResourceInstance
    //         need to make sure the R.I. is published with terminated state
    //         before it vanishes
-   // 
+   //
    //         SubscriptionSet::deleteInstance calls
    //         ResourceCached::setToBePublished, which calls
    //         ResourceListSet::setToBePublished
-   // 
+   //
    //         ResourceInstance is reaped by the publishing process,
    //         after publishing the R.I. with terminated state:
    //         ResourceListSet::publish calls
    //         ResourceListCache::purgeTerminated
-   // 
+   //
    // ResourceInstance
    //     add dialog
    //         need to publish the new state of the resource lists containing
    //         this ResourceInstance
-   // 
+   //
    //         ResourceInstance::notifyEventCallback calls
    //         ResourceCached::setToBePublished, which calls
    //         ResourceListSet::setToBePublished
    //
    //     dialog terminated
    //         need to publish the new state of the resource lists
-   // 
+   //
    //         ResourceInstance::notifyEventCallback calls
    //         ResourceCached::setToBePublished, which calls
    //         ResourceListSet::setToBePublished
@@ -347,10 +347,10 @@ class ResourceListSet : public UtlContainableAtomic
    //         after publishing the R.I. with terminated state:
    //         ResourceListSet::publish calls
    //         ResourceListCache::purgeTerminated
-   // 
+   //
    //     dialog content changed
    //         need to publish the new state of the resource lists
-   // 
+   //
    //         ResourceInstance::notifyEventCallback calls
    //         ResourceCached::setToBePublished, which calls
    //         ResourceListSet::setToBePublished
@@ -396,7 +396,7 @@ class ResourceListSet : public UtlContainableAtomic
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
-   
+
    //! Search for a resource list with a given name (user-part).
    ResourceList* findResourceList(const char* user);
 
@@ -426,7 +426,7 @@ class ResourceListSet : public UtlContainableAtomic
     */
    UtlSList mResourceLists;
 
-   //! Map from early dialog handles to the objects that handle their events.  
+   //! Map from early dialog handles to the objects that handle their events.
    //  The values are instances of subclasses of ResourceSubscriptionReceiver.
    //  The keys are UtlString's owned by the value objects.
    UtlHashMap mSubscribeMap;
