@@ -35,7 +35,7 @@
       </ul>
       <table jwcid="@common/Table" id="userPhonebook:phonebookTable"
         source="ognl:phonebookEntries"
-        columns="* firstName,lastName,!phoneNumber"
+        columns="* firstName,lastName,number"
         row="ognl:phonebookEntry"
         usePager="ognl:true"
         volatile="ognl:true">
