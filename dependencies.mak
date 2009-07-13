@@ -89,7 +89,11 @@ sipXpage : sipXcommons
 sipXivr : sipXcommons
 	@echo sipXivr
 
+.PHONY: sipXsaa
+sipXsaa : sipXcommserverLib
+	@echo sipXsaa
+
 .PHONY: sipXecs
-sipXecs : sipXproxy sipXregistry sipXpublisher sipXvxml sipXconfig sipXfreeSwitch sipXpbx sipXsupervisor sipXtools doc
+sipXecs : sipXproxy sipXregistry sipXpublisher sipXsaa sipXvxml sipXconfig sipXfreeSwitch sipXpbx sipXsupervisor sipXtools doc
 	@echo sipXecs
 
