@@ -13,4 +13,21 @@
       value="ognl:row.duration"
       format="bean:durationFormat" />
   </span>
+
+  <span jwcid="calleeColumnValue@Block">
+	  <span jwcid="@If" condition="ognl:!userSession.admin" renderTag="false">
+	    <a jwcid="@DirectLink"
+	      title="message:tooltip.call"
+	      listener="listener:call"
+	      parameters="ognl:row.callee"
+	      asyn="ognl:true">
+	      <span jwcid="@Insert" value="ognl:row.callee"/>
+	    </a>
+	  </span>
+
+	  <span jwcid="@Else" renderTag="false">
+	    <span jwcid="@Insert" value="ognl:row.callee"/>
+	  </span>
+  </span>
+
 </table>
