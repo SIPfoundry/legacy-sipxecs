@@ -277,10 +277,20 @@ void LinePresenceMonitor::subscriptionStateCallback(SipSubscribeClient::Subscrip
 void LinePresenceMonitor::handleSubscriptionStateMessage(const SipMessage* subscribeResponse, int responseCode)
 {
    Url toUrl;
-   subscribeResponse->getToUrl(toUrl);
-   UtlString *pContact = new UtlString;
+   UtlString *pContact = NULL;
 
-   toUrl.getUserId(*pContact);
+   if (subscribeResponse != NULL)
+   {
+      subscribeResponse->getToUrl(toUrl);
+      pContact = new UtlString;
+
+      toUrl.getUserId(*pContact);
+   }
+   else
+   {
+      OsSysLog::add(FAC_SIP, PRI_ERR, "LinePresenceMonitor::handleSubscriptionStateMessage - subscription failure, response code: %d", responseCode);
+      return;
+   }
 
    switch (responseCode)
    {
