@@ -28,7 +28,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-//:  
+//: A list with an attached lock that can be taken and held.
 // 
 class OsLockingList
 {
@@ -73,6 +73,7 @@ public:
 
    int getCount();
    //: Get the number of elements in the list
+   // Temporarily seizes the list's lock.
 
 /* ============================ ACCESSORS ================================= */
 

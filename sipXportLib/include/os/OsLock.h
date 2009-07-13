@@ -36,12 +36,13 @@
 // be automatically released. An example of this form of use is shown below.
 // <p>
 // <font face="courier">
-// &nbsp;&nbsp;                      someMethod()                    <br>
+// &nbsp;&nbsp;                      ...                             <br>
 // &nbsp;&nbsp;                      {                               <br>
 // &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      OsLock lock(myBSemaphore);    <br>
 //                                                                   <br>
 // &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      < critical section >          <br>
-// &nbsp;&nbsp;                      }                               </font>
+// &nbsp;&nbsp;                      }                               <br>
+// &nbsp;&nbsp;                      ...                             </font>
 
 class OsLock
 {
