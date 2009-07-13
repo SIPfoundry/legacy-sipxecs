@@ -346,6 +346,9 @@ class TransactionContext {
      * @param itspAccountInfo the itspAccountInfo to set
      */
     void setItspAccountInfo(ItspAccountInfo itspAccountInfo) {
+        if ( itspAccountInfo == null ) {
+            logger.warn("Setting NULL ItspAccountInfo");
+        }
         this.itspAccountInfo = itspAccountInfo;
     }
 

@@ -2200,6 +2200,10 @@ class CallControlManager implements SymmitronResetHandler {
                 if (b2bua.getMusicOnHoldDialog() == null
                         || b2bua.getMusicOnHoldDialog().getState() == DialogState.TERMINATED) {
                     ClientTransaction ctx = b2bua.createClientTxToMohServer(clonedSd);
+                    RtpSession mohRtpSession = DialogContext.getPeerRtpSession(dialog);
+                    DialogContext.get(ctx.getDialog()).setRtpSession(mohRtpSession);
+                    logger.debug("mohRtpSession = " + mohRtpSession );
+                   
                     /*
                      * Note that we owe the dialog an sdp answer when we get it.
                      */
