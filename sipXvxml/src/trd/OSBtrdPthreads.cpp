@@ -1,7 +1,7 @@
 /*****************************************************************************
  *****************************************************************************
  *
- * 
+ *
  *
  * SBtrd API implementation
  *
@@ -21,16 +21,16 @@
 
 /****************License************************************************
  *
- * Copyright 2000-2001.  SpeechWorks International, Inc.  
+ * Copyright 2000-2001.  SpeechWorks International, Inc.
  *
  * Use of this software is subject to notices and obligations set forth
  * in the SpeechWorks Public License - Software Version 1.1 which is
  * included with this software.
  *
- * SpeechWorks is a registered trademark, and SpeechWorks Here, 
- * DialogModules and the SpeechWorks logo are trademarks of SpeechWorks 
- * International, Inc. in the United States and other countries. 
- * 
+ * SpeechWorks is a registered trademark, and SpeechWorks Here,
+ * DialogModules and the SpeechWorks logo are trademarks of SpeechWorks
+ * International, Inc. in the United States and other countries.
+ *
  ************************************************************************
  */
 
@@ -117,11 +117,11 @@ static VXItrdResult VXItrdSleep(VXIint millisecondDelay)
  */
 VXITRD_API VXItrdResult VXItrdMutexCreate(VXItrdMutex **mutex)
 {
-  if (mutex == NULL) 
+  if (mutex == NULL)
 	return VXItrd_RESULT_INVALID_ARGUMENT;
 
   *mutex = NULL;
-  
+
   // Create the wrapper object */
   VXItrdMutex *result = new VXItrdMutex;
   if (result == NULL)
@@ -130,7 +130,7 @@ VXITRD_API VXItrdResult VXItrdMutexCreate(VXItrdMutex **mutex)
   // Create the critical section */
   int rc;
   pthread_mutexattr_t mutexattr;
-  
+
   // Create and configure mutex attributes for recursive mutex
   rc = pthread_mutexattr_init(&mutexattr);
   if (rc != 0) {
@@ -138,7 +138,7 @@ VXITRD_API VXItrdResult VXItrdMutexCreate(VXItrdMutex **mutex)
 	result = NULL;
     return VXItrd_RESULT_NON_FATAL_ERROR;
   }
-         
+
 #ifndef _unixware7_
   rc = pthread_mutexattr_settype(&mutexattr, PTHREAD_MUTEX_RECURSIVE);
   if (rc != 0) {
@@ -189,7 +189,7 @@ VXITRD_API VXItrdResult VXItrdMutexDestroy(VXItrdMutex **mutex)
   if (rc != 0) {
     return VXItrd_RESULT_NON_FATAL_ERROR;
   }
-  
+
   delete *mutex;
   *mutex = NULL;
 
@@ -209,14 +209,14 @@ VXITRD_API VXItrdResult VXItrdMutexLock(VXItrdMutex *mutex)
 {
   if (mutex == NULL)
 	return VXItrd_RESULT_INVALID_ARGUMENT;
-  
+
   int rc;
-  
+
   rc = pthread_mutex_lock(&mutex->mutex);
   if (rc != 0) {
     return VXItrd_RESULT_NON_FATAL_ERROR;
   }
-  
+
   return VXItrd_RESULT_SUCCESS;
 }
 
@@ -280,17 +280,17 @@ static VXITRD_DEFINE_THREAD_FUNC(VXItrdThreadStart, userData)
 
 /**
  * Create a thread.  Note: thread values are not supported on OS/2.
- *    execution starts on the thread immediately. To pause execution 
+ *    execution starts on the thread immediately. To pause execution
  *    use a Mutex between the thread and the thread creator.
  *
  * @param   thread the thread object to be created
  * @param   thread_function the function for the thread to start execution on
  * @param   thread_arg the arguments to the thread function
- * @return  VXItrdResult of operation.  Return SUCCESS if thread has been 
+ * @return  VXItrdResult of operation.  Return SUCCESS if thread has been
  *          created and started.
  *
  */
-VXITRD_API 
+VXITRD_API
 VXItrdResult VXItrdThreadCreate(VXItrdThread **thread,
 				VXItrdThreadStartFunc thread_function,
 				VXItrdThreadArg thread_arg)
@@ -323,7 +323,7 @@ VXItrdResult VXItrdThreadCreate(VXItrdThread **thread,
     VXItrdThreadDestroyHandle(&result);
     return VXItrd_RESULT_NON_FATAL_ERROR;
   }
-  
+
   // configure thread attribute
 #ifdef USE_DETACHED_THREADS
   prc = pthread_attr_setdetachstate(&thread_attr, PTHREAD_CREATE_DETACHED);
@@ -342,7 +342,7 @@ VXItrdResult VXItrdThreadCreate(VXItrdThread **thread,
 
   prc = pthread_attr_getstacksize(&thread_attr, &stacksize);
 
-  if (prc == 0) { 
+  if (prc == 0) {
     prc = pthread_attr_setstacksize(&thread_attr, SIPXCHANGE_STACK_SIZE_128K);
   }
 
@@ -376,7 +376,7 @@ VXItrdResult VXItrdThreadCreate(VXItrdThread **thread,
  *
  * @param  thread  Handle to the thread to destroy
  *
- * @result VXItrdResult 0 on success 
+ * @result VXItrdResult 0 on success
  */
 VXITRD_API VXItrdResult VXItrdThreadDestroyHandle(VXItrdThread **thread)
 {
@@ -418,7 +418,7 @@ VXITRD_API void VXItrdThreadCancel(VXItrdThread *thread)
       // so we could in the future catch the signal and handle
       // thread cancellation from a signal handler.
       pthread_cancel(thread->thread);
-      
+
 }
 
 
@@ -437,11 +437,11 @@ VXITRD_API void VXItrdThreadExit(VXItrdThreadArg status)
 
 /**
  * Causes the calling thread to wait for the termination of a specified
- *   'thread' with a specified timeout, in milliseconds. 
+ *   'thread' with a specified timeout, in milliseconds.
  *
  * @param   thread the 'thread' that is waited for its termination.
  * @param   status contains the exit value of the thread's start routine.
- * @return  VXItrdResult of operation.  Return SUCCESS if specified 'thread' 
+ * @return  VXItrdResult of operation.  Return SUCCESS if specified 'thread'
  *          terminating.
  */
 VXITRD_API VXItrdResult VXItrdThreadJoin(VXItrdThread *thread,
@@ -494,7 +494,7 @@ VXITRD_API VXItrdResult VXItrdThreadJoin(VXItrdThread *thread,
  */
 VXITRD_API VXIlong VXItrdThreadGetIDFromHandle(VXItrdThread *thread)
 {
-  if (thread == NULL) 
+  if (thread == NULL)
 	return -1;
 
   return thread->thread;
@@ -509,7 +509,7 @@ VXITRD_API VXIlong VXItrdThreadGetIDFromHandle(VXItrdThread *thread)
  */
 VXITRD_API VXIlong VXItrdThreadGetID(void)
 {
-  return (VXIlong)pthread_self(); 
+  return (VXIlong)pthread_self();
 }
 
 
@@ -529,15 +529,15 @@ VXITRD_API void VXItrdThreadYield(void)
  * Create a timer
  *
  * @param   timer  a pointer to a timer
- * @return  VXItrdResult of operation.  Return SUCCESS if timer has been 
+ * @return  VXItrdResult of operation.  Return SUCCESS if timer has been
  *          created
  *
  */
 VXITRD_API VXItrdResult VXItrdTimerCreate(VXItrdTimer **timer)
 {
-  if (timer == NULL) 
+  if (timer == NULL)
 	return VXItrd_RESULT_INVALID_ARGUMENT;
-  
+
   VXItrdTimer *result = new VXItrdTimer;
   if (result == NULL)
     return VXItrd_RESULT_OUT_OF_MEMORY;
@@ -556,7 +556,7 @@ VXITRD_API VXItrdResult VXItrdTimerCreate(VXItrdTimer **timer)
  * Destroy a timer
  *
  * @param   timer  a pointer to a timer
- * @return  VXItrdResult of operation.  Return SUCCESS if timer has been 
+ * @return  VXItrdResult of operation.  Return SUCCESS if timer has been
  *          created
  *
  */
@@ -569,11 +569,11 @@ VXITRD_API VXItrdResult VXItrdTimerDestroy(VXItrdTimer **timer)
   VXItrdResult rc = VXItrd_RESULT_SUCCESS;
   if ((*timer)->isSleeping) {
     VXItrdTimerWake(*timer);
-    
+
     // Wait for the sleeping thread to wake up, note that on some OSes
     // like Linux the timeout is modified to give the actual amount of
     // time slept so need to re-initialize each time
-    while (((*timer)->isSleeping) && 
+    while (((*timer)->isSleeping) &&
            ((rc = VXItrdSleep (50)) == VXItrd_RESULT_SUCCESS))
       ; // keep going
   }
@@ -601,10 +601,10 @@ VXITRD_API VXItrdResult VXItrdTimerSleep(VXItrdTimer *timer,
 					 VXIint millisecondDelay,
 					 VXIbool *interrupted)
 {
-  if ((timer == NULL) || (millisecondDelay < 0)) 
+  if ((timer == NULL) || (millisecondDelay < 0))
     return VXItrd_RESULT_INVALID_ARGUMENT;
 
- 
+
   if (timer->isSleeping == TRUE)
     return VXItrd_RESULT_FATAL_ERROR;
 
@@ -643,7 +643,7 @@ VXITRD_API VXItrdResult VXItrdTimerSleep(VXItrdTimer *timer,
  */
 VXITRD_API VXItrdResult VXItrdTimerWake(VXItrdTimer *timer)
 {
-  if (timer == NULL) 
+  if (timer == NULL)
     return VXItrd_RESULT_INVALID_ARGUMENT;
 
   timer->wakeUp = TRUE;

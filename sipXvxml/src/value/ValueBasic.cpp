@@ -1,6 +1,6 @@
 /****************License************************************************
  *
- * Copyright 2000-2001.  SpeechWorks International, Inc.    
+ * Copyright 2000-2001.  SpeechWorks International, Inc.
  *
  * Use of this software is subject to notices and obligations set forth
  * in the SpeechWorks Public License - Software Version 1.1 which is
@@ -9,7 +9,7 @@
  * SpeechWorks is a registered trademark, and SpeechWorks Here,
  * DialogModules and the SpeechWorks logo are trademarks of SpeechWorks
  * International, Inc. in the United States and other countries.
- * 
+ *
  ***********************************************************************
  *
  * Implementation of the basic VXIValue based types as defined in
@@ -115,7 +115,7 @@ VXIVALUE_API VXIValue *VXIValueClone(const VXIValue *v)
     default:
       ; // Error but nothing we can do
   }
-  
+
   return obj;
 }
 
@@ -124,7 +124,7 @@ VXIVALUE_API VXIValue *VXIValueClone(const VXIValue *v)
  * Create an Integer from a 32 bit integer
  *
  * @param   n   32 bit integer value
- * @return      Integer with the specified value on success, 
+ * @return      Integer with the specified value on success,
  *              NULL otherwise
  */
 VXIVALUE_API VXIInteger *VXIIntegerCreate(VXIint32 n)
@@ -140,7 +140,7 @@ VXIVALUE_API VXIInteger *VXIIntegerCreate(VXIint32 n)
  */
 VXIVALUE_API void VXIIntegerDestroy(VXIInteger **i)
 {
-  if (( i != NULL ) && ( *i != NULL ) && 
+  if (( i != NULL ) && ( *i != NULL ) &&
       ( (*i)->GetType( ) == VALUE_INTEGER )) {
     delete *i;
     *i = NULL;
@@ -167,7 +167,7 @@ VXIVALUE_API VXIint32 VXIIntegerValue(const VXIInteger *i)
  * Create a Float from a 32 bit floating point number
  *
  * @param   n   32 bit floating point value
- * @return      Float with the specified value on success, 
+ * @return      Float with the specified value on success,
  *              NULL otherwise
  */
 VXIVALUE_API VXIFloat *VXIFloatCreate(VXIflt32 n)
@@ -183,7 +183,7 @@ VXIVALUE_API VXIFloat *VXIFloatCreate(VXIflt32 n)
  */
 VXIVALUE_API void VXIFloatDestroy(VXIFloat **f)
 {
-  if (( f != NULL ) && ( *f != NULL ) && 
+  if (( f != NULL ) && ( *f != NULL ) &&
       ( (*f)->GetType( ) == VALUE_FLOAT )) {
     delete *f;
     *f = NULL;
@@ -216,7 +216,7 @@ VXIVALUE_API VXIflt32 VXIFloatValue(const VXIFloat *f)
  * when appropriate on Ptr destruction.
  *
  * @param   n     Pointer to memory
- * @return        Ptr with the specified value and type on success, 
+ * @return        Ptr with the specified value and type on success,
  *                NULL otherwise
  */
 VXIVALUE_API VXIPtr *VXIPtrCreate(void *n)
@@ -267,7 +267,7 @@ VXIVALUE_API void *VXIPtrValue(const VXIPtr *p)
  * @param   contentSizeBytes  Size of the data, in bytes
  * @param   Destroy           Destructor called to release the data when
  *                            no longer needed
- * @param   userData          Optional user data pointer passed to destroy 
+ * @param   userData          Optional user data pointer passed to destroy
  */
 VXIVALUE_API VXIContent *
 VXIContentCreate(const VXIchar  *contentType,
@@ -276,7 +276,7 @@ VXIContentCreate(const VXIchar  *contentType,
 		 void          (*Destroy)(VXIbyte **content, void *userData),
 		 void           *userData)
 {
-  if (( ! contentType ) || ( ! contentType[0] ) || ( ! content ) || 
+  if (( ! contentType ) || ( ! contentType[0] ) || ( ! content ) ||
       ( contentSizeBytes < 1 ) || ( ! Destroy ))
     return NULL;
 
@@ -298,7 +298,7 @@ VXIContentCreate(const VXIchar  *contentType,
  */
 VXIVALUE_API void VXIContentDestroy(VXIContent **c)
 {
-  if (( c != NULL ) && ( *c != NULL ) && 
+  if (( c != NULL ) && ( *c != NULL ) &&
       ( (*c)->GetType( ) == VALUE_CONTENT )) {
     delete *c;
     *c = NULL;
@@ -313,9 +313,9 @@ VXIVALUE_API void VXIContentDestroy(VXIContent **c)
  * @param   contentType       Returns the MIME content type for the data
  * @param   content           Returns the pointer to the data
  * @param   contentSizeBytes  Returns the size of the data, in bytes
- * @return                    VXIvalue_RESULT_SUCCESS on success 
+ * @return                    VXIvalue_RESULT_SUCCESS on success
  */
-VXIVALUE_API VXIvalueResult 
+VXIVALUE_API VXIvalueResult
 VXIContentValue(const VXIContent  *c,
 		const VXIchar    **contentType,
 		const VXIbyte    **content,
@@ -328,7 +328,7 @@ VXIContentValue(const VXIContent  *c,
     if ( contentSizeBytes ) *contentSizeBytes = 0;
     return VXIvalue_RESULT_INVALID_ARGUMENT;
   }
-  
+
   *contentType = c->GetContentType( );
   *content = c->GetContent( );
   *contentSizeBytes = c->GetContentSizeBytes( );
@@ -345,7 +345,7 @@ VXIContentData::VXIContentData (const VXIchar *ct,
 #ifndef WIN32
   mutex(NULL),
 #endif
-  refCount(1), contentType(NULL), content(c), contentSizeBytes(csb), 
+  refCount(1), contentType(NULL), content(c), contentSizeBytes(csb),
   Destroy(D), userData(ud)
 {
   if (( ct ) && ( *ct )) {
@@ -417,7 +417,7 @@ void VXIContentData::Release (VXIContentData **data)
 	delete *data;
     }
 #endif
-    
+
     *data = NULL;
   }
 }

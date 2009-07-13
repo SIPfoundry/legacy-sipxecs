@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -1065,7 +1065,7 @@ static VXIrecResult OSBrecRecord(VXIrecInterface *pThis, const VXIMap *props,
             impl->pCallMgr->disableDtmfEvent((const char*)impl->callId, (void*)impl->dtmfEvent);
             // All key presses during recording would have been queued, confusing
             // recognition following it, so disable the dtmf listening during recording.
-            // All key presses during recording will be ignored. 
+            // All key presses during recording will be ignored.
             tp->Diag(DIAG_TAG_REC, NULL,
             L"Recording AUDIO: disable dtmf listening.");
         }
@@ -1261,7 +1261,7 @@ static VXIrecResult OSBrecRecord(VXIrecInterface *pThis, const VXIMap *props,
             tp->Diag(DIAG_TAG_REC, NULL, L"Recording for %s: cannot open file: %s ", impl->callId, (char*)fileName);
         }
 
-        // All key presses during recording have been ignored. Now re-enable dtmf listening. 
+        // All key presses during recording have been ignored. Now re-enable dtmf listening.
         VXIint interdigitTime = VXI_TIMEOUT_DEFAULT;
         impl->pCallMgr->enableDtmfEvent((const char*)impl->callId,
         interdigitTime/1000,
@@ -1417,8 +1417,8 @@ OSBREC_API VXIrecResult OSBrecDestroyResource(VXIrecInterface **rec)
         impl->pExitGuard = NULL;
 
         if (tp != NULL)
-        {   
-            delete tp; 
+        {
+            delete tp;
             tp = NULL;
         }
         delete impl;
@@ -1427,4 +1427,3 @@ OSBREC_API VXIrecResult OSBrecDestroyResource(VXIrecInterface **rec)
     }
     return VXIrec_RESULT_SUCCESS;
 }
-

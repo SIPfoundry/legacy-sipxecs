@@ -1,4 +1,4 @@
-noinst_LTLIBRARIES = libOSBrec.la 
+noinst_LTLIBRARIES = libOSBrec.la
 
 # do not do versioning for noinst libraries
 

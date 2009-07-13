@@ -1,6 +1,6 @@
 /****************License************************************************
  *
- * Copyright 2000-2001.  SpeechWorks International, Inc.    
+ * Copyright 2000-2001.  SpeechWorks International, Inc.
  *
  * Use of this software is subject to notices and obligations set forth
  * in the SpeechWorks Public License - Software Version 1.1 which is
@@ -9,7 +9,7 @@
  * SpeechWorks is a registered trademark, and SpeechWorks Here,
  * DialogModules and the SpeechWorks logo are trademarks of SpeechWorks
  * International, Inc. in the United States and other countries.
- * 
+ *
  ***********************************************************************
  *
  * Implementation of the complex VXIValue based types without using
@@ -50,7 +50,7 @@ class VXIString : public VXIValue {
  public:
   // Constructor and destructor
   VXIString (const VXIchar *v)
-    : VXIValue (VALUE_STRING), value(NULL), length(0) 
+    : VXIValue (VALUE_STRING), value(NULL), length(0)
   {
     if (( v ) && ( (value = new VXIchar [VXIcharStrlen (v) + 1]) != NULL )) {
       VXIcharStrcpy (value, v);
@@ -69,7 +69,7 @@ class VXIString : public VXIValue {
 
   virtual ~VXIString( ) { if ( value ) { delete [] value; value = NULL; } }
 
-  virtual const char *toString(char *ret, size_t len ) const { 
+  virtual const char *toString(char *ret, size_t len ) const {
      snprintf(ret, len, "%ls", value); return ret;}
 
 
@@ -78,7 +78,7 @@ class VXIString : public VXIValue {
 
   // Get and set the value
   const VXIchar *GetValue( ) const { return value; }
-  void SetValue (const VXIchar *v) { 
+  void SetValue (const VXIchar *v) {
     if ( value ) { delete [] value; value = NULL; length = 0; }
     if (( v ) && ( (value = new VXIchar [VXIcharStrlen (v) + 1]) != NULL )) {
       VXIcharStrcpy (value, v);
@@ -87,14 +87,14 @@ class VXIString : public VXIValue {
   }
 
   // Comparison methods, equivalent to strcmp( )
-  int Compare (const VXIString &s) const { 
+  int Compare (const VXIString &s) const {
     return VXIcharStrcmp (value, s.value); }
-  int Compare (const VXIchar *s) const { 
+  int Compare (const VXIchar *s) const {
     return VXIcharStrcmp (value, s); }
 
   // Copy constructor and assignment operator
   VXIString (const VXIString &v) : VXIValue (VALUE_STRING), value(NULL) {
-    if (( v.value ) && 
+    if (( v.value ) &&
 	( (value = new VXIchar [v.length + 1]) != NULL )) {
       for (unsigned int i = 0; i < v.length + 1; ++i) value[i] = v.value[i];
       length = v.length;
@@ -103,7 +103,7 @@ class VXIString : public VXIValue {
   VXIString & operator= (const VXIString &v) {
     if ( this != &v ) {
       if ( value ) { delete [] value; value = NULL; length = 0; }
-      if (( v.value ) && 
+      if (( v.value ) &&
 	  ( (value = new VXIchar [v.length + 1]) != NULL )) {
         for (unsigned int i = 0; i < v.length + 1; ++i) value[i] = v.value[i];
         length = v.length;
@@ -116,10 +116,10 @@ class VXIString : public VXIValue {
   virtual bool operator< (const VXIString &s) const {
     return (Compare (s) < 0 ? true : false);
   }
-  virtual bool operator== (const VXIString &s) const { 
+  virtual bool operator== (const VXIString &s) const {
     return (Compare (s) == 0 ? true : false);
   }
-  virtual bool operator!= (const VXIString &s) const { 
+  virtual bool operator!= (const VXIString &s) const {
     return (Compare (s) != 0 ? true : false);
   }
 
@@ -136,9 +136,9 @@ class VXIString : public VXIValue {
 class VXIElement {
  public:
   // Constructor and destructor
-  VXIElement (const VXIchar *k, VXIValue *v) : 
+  VXIElement (const VXIchar *k, VXIValue *v) :
     key(k), value(v), next(NULL) { }
-  VXIElement (const VXIString &k, VXIValue *v) : 
+  VXIElement (const VXIString &k, VXIValue *v) :
     key(k), value(v), next(NULL) { }
   virtual ~VXIElement( ) { value = NULL; }
 
@@ -158,10 +158,10 @@ class VXIElement {
   virtual bool operator< (const VXIElement &e) const {
     return key < e.key;
   }
-  virtual bool operator== (const VXIElement &e) const { 
+  virtual bool operator== (const VXIElement &e) const {
     return key == e.key;
   }
-  virtual bool operator!= (const VXIElement &e) const { 
+  virtual bool operator!= (const VXIElement &e) const {
     return key != e.key;
   }
 
@@ -207,7 +207,7 @@ VXIMap::~VXIMap( )
   }
 }
 
-VXIMap::VXIMap (const VXIMap &m) : 
+VXIMap::VXIMap (const VXIMap &m) :
   VXIValue (VALUE_MAP), badState(false), size(0), head(NULL)
 {
   VXIElement *src = m.head, *prev = NULL, *dest;
@@ -245,7 +245,7 @@ class VXIMapIterator {
   virtual ~VXIMapIterator( ) { }
 
   // Get the key and value at the iterator's position
-  VXIvalueResult GetKeyValue (const VXIchar **key, 
+  VXIvalueResult GetKeyValue (const VXIchar **key,
 			      const VXIValue **value) const {
     if ( curElement == NULL ) {
       *key = NULL;
@@ -259,9 +259,9 @@ class VXIMapIterator {
   }
 
   // Increment the iterator
-  VXIMapIterator &operator++(int) { 
+  VXIMapIterator &operator++(int) {
     if ( curElement != NULL )
-      curElement = curElement->GetNext( ); 
+      curElement = curElement->GetNext( );
     return *this; }
 
  private:
@@ -279,7 +279,7 @@ class VXIVector : public VXIValue {
 
  public:
   // Constructor and destructor
-  VXIVector( ) : VXIValue (VALUE_VECTOR), badState(false), size(0), 
+  VXIVector( ) : VXIValue (VALUE_VECTOR), badState(false), size(0),
     allocated(0), data(NULL) { }
   virtual ~VXIVector( );
 
@@ -309,7 +309,7 @@ inline void *operator new (size_t, void *p) { return p; }
 inline void operator delete(void *, void *) { }
 
 VXIVector::~VXIVector( )
-{ 
+{
   if ( data ) {
     // Explicit destructor of each held item which does the standard
     // destruction of delete( ) but skips the memory free since we
@@ -326,7 +326,7 @@ VXIVector::~VXIVector( )
 
 static VXIElement *writeOnlyDummy = NULL; // write-only dummy, to get rid of warnings
 
-VXIVector::VXIVector (const VXIVector &v) : 
+VXIVector::VXIVector (const VXIVector &v) :
   VXIValue (VALUE_VECTOR), badState(false), size(0), allocated(0), data(NULL)
 {
   if ( v.size > 0 ) {
@@ -338,14 +338,14 @@ VXIVector::VXIVector (const VXIVector &v) :
       badState = true;
       return;
     }
-    allocated = v.size; 
+    allocated = v.size;
 
     // Now copy the elements
     while ( size < v.size ) {
       // Set the new element using a new operator with placement syntax
       // so it does the standard initialization of new( ) but skips the
       // allocation, instead using the memory we provide
-      writeOnlyDummy = new (&data[size]) 
+      writeOnlyDummy = new (&data[size])
 	VXIElement (v.data[size].GetKey( ),
 		    VXIValueClone (v.data[size].GetValue( )));
       size++;
@@ -359,11 +359,11 @@ VXIvalueResult VXIVector::Add (VXIValue *val)
   // Reallocate memory for the vector if required
   if ( allocated <= size ) {
     VXIElement *ptr = (VXIElement *)
-      realloc (data, (size + VXIVector::GROW_SIZE) * 
+      realloc (data, (size + VXIVector::GROW_SIZE) *
 	       sizeof (VXIElement));
     if ( ptr == NULL )
       return VXIvalue_RESULT_OUT_OF_MEMORY;
-    
+
     data = ptr;
     allocated = size + VXIVector::GROW_SIZE;
   }
@@ -382,7 +382,7 @@ VXIvalueResult VXIVector::Add (VXIValue *val)
  * Create a String from a null-terminated character array
  *
  * @param   str   NULL-terminated character array
- * @return        String with the specified value on success, 
+ * @return        String with the specified value on success,
  *                NULL otherwise
  */
 VXIVALUE_API VXIString *VXIStringCreate(const VXIchar *str)
@@ -404,10 +404,10 @@ VXIVALUE_API VXIString *VXIStringCreate(const VXIchar *str)
 /**
  * Create a String from a known-length character array
  *
- * @param   str   Character array (null characters may be embedded in the 
+ * @param   str   Character array (null characters may be embedded in the
  *                array)
  * @param   len   Number of characters which will be copied.
- * @return        String with the specified value on success, 
+ * @return        String with the specified value on success,
  *                NULL otherwise
  */
 VXIVALUE_API VXIString *VXIStringCreateN(const VXIchar *str, VXIunsigned len)
@@ -478,19 +478,19 @@ VXIVALUE_API VXIString *VXIStringClone(const VXIString *s)
  *
  * @param   s     String to change the value of
  * @param   str   NULL-terminated character array
- * @return        VXIvalue_RESULT_SUCCESS on success 
+ * @return        VXIvalue_RESULT_SUCCESS on success
  */
-VXIVALUE_API VXIvalueResult VXIStringSetValue(VXIString      *s, 
+VXIVALUE_API VXIvalueResult VXIStringSetValue(VXIString      *s,
 					      const VXIchar  *str)
 {
-  if (( s == NULL ) || ( s->GetType( ) != VALUE_STRING ) || 
+  if (( s == NULL ) || ( s->GetType( ) != VALUE_STRING ) ||
       ( str == NULL ))
     return VXIvalue_RESULT_INVALID_ARGUMENT;
 
   s->SetValue (str);
   if ( s->GetValue( ) == NULL )
     return VXIvalue_RESULT_OUT_OF_MEMORY;
-  
+
   return VXIvalue_RESULT_SUCCESS;
 }
 
@@ -504,13 +504,13 @@ VXIVALUE_API VXIvalueResult VXIStringSetValue(VXIString      *s,
  *                at least VXIStringLength() + 1.
  * @param   len   Size of the buffer, in characters
  * @return        Pointer to buf on success, NULL on failure (most likely
- *                buffer too small) 
+ *                buffer too small)
  */
-VXIVALUE_API VXIchar *VXIStringValue(const VXIString  *s, 
-				     VXIchar          *buf, 
+VXIVALUE_API VXIchar *VXIStringValue(const VXIString  *s,
+				     VXIchar          *buf,
 				     VXIunsigned       len)
 {
-  if (( s == NULL ) || ( s->GetType( ) != VALUE_STRING ) || 
+  if (( s == NULL ) || ( s->GetType( ) != VALUE_STRING ) ||
       ( buf == NULL ))
     return NULL;
 
@@ -573,7 +573,7 @@ VXIVALUE_API VXIunsigned VXIStringLength(const VXIString *s)
  *               than zero depending on whether s1 is lexicographically
  *               less than, equal to, or greater than s2
  */
-VXIVALUE_API VXIint VXIStringCompare(const VXIString *s1, 
+VXIVALUE_API VXIint VXIStringCompare(const VXIString *s1,
 				     const VXIString *s2)
 {
   if (( s1 == NULL ) || ( s1->GetType( ) != VALUE_STRING ))
@@ -593,7 +593,7 @@ VXIVALUE_API VXIint VXIStringCompare(const VXIString *s1,
  *                than zero depending on whether str is lexicographically
  *                less than, equal to, or greater than buf
  */
-VXIVALUE_API VXIint VXIStringCompareC(const VXIString *str, 
+VXIVALUE_API VXIint VXIStringCompareC(const VXIString *str,
 				      const VXIchar   *buf)
 {
   if (( str == NULL ) || ( str->GetType( ) != VALUE_STRING ))
@@ -623,7 +623,7 @@ VXIVALUE_API VXIMap *VXIMapCreate(void)
  * within this map. However, for Ptr values the user is
  * responsible for freeing the held memory if appropriate.
  *
- * @param m   Map to destroy 
+ * @param m   Map to destroy
  */
 VXIVALUE_API void VXIMapDestroy(VXIMap **m)
 {
@@ -645,7 +645,7 @@ VXIVALUE_API void VXIMapDestroy(VXIMap **m)
  * reduce the need for C casts for this common operation
  *
  * @param    m   Map to clone
- * @return       Clone of the Map on success, NULL otherwise 
+ * @return       Clone of the Map on success, NULL otherwise
  */
 VXIVALUE_API VXIMap *VXIMapClone(const VXIMap *m)
 {
@@ -682,7 +682,7 @@ VXIVALUE_API VXIMap *VXIMapClone(const VXIMap *m)
  *                infinite loops may occur on access or deletion.
  * @return        VXIvalue_RESULT_SUCCESS on success
  */
-VXIVALUE_API VXIvalueResult VXIMapSetProperty(VXIMap         *m, 
+VXIVALUE_API VXIvalueResult VXIMapSetProperty(VXIMap         *m,
 					      const VXIchar  *key,
 					      VXIValue       *val)
 {
@@ -750,14 +750,14 @@ VXIVALUE_API VXIvalueResult VXIMapSetProperty(VXIMap         *m,
  *
  * @param   m     Map to access
  * @param   key   NULL terminated property name
- * @return        On success the value of the property for read-only 
+ * @return        On success the value of the property for read-only
  *                access (invalidated if the Map is modified), NULL
- *                if the property was never set or was deleted 
+ *                if the property was never set or was deleted
  */
-VXIVALUE_API const VXIValue *VXIMapGetProperty(const VXIMap    *m, 
+VXIVALUE_API const VXIValue *VXIMapGetProperty(const VXIMap    *m,
 					       const VXIchar   *key)
 {
-  if (( m == NULL ) || ( m->GetType( ) != VALUE_MAP ) || 
+  if (( m == NULL ) || ( m->GetType( ) != VALUE_MAP ) ||
       ( key == NULL ) || ( key[0] == 0 ))
     return NULL;
 
@@ -766,7 +766,7 @@ VXIVALUE_API const VXIValue *VXIMapGetProperty(const VXIMap    *m,
   VXIElement *cur = m->head;
   while (( cur ) && ( (rc = cur->GetKey( ).Compare (key)) < 0 ))
     cur = cur->GetNext( );
-  
+
   // Return it if found
   if (( cur ) && ( rc == 0 ))
     return cur->GetValue( );
@@ -785,12 +785,12 @@ VXIVALUE_API const VXIValue *VXIMapGetProperty(const VXIMap    *m,
  *
  * @param   m     Map to access
  * @param   key   NULL terminated property name
- * @return        VXIvalue_RESULT_SUCCESS on success 
+ * @return        VXIvalue_RESULT_SUCCESS on success
  */
-VXIVALUE_API VXIvalueResult VXIMapDeleteProperty(VXIMap         *m, 
+VXIVALUE_API VXIvalueResult VXIMapDeleteProperty(VXIMap         *m,
 						 const VXIchar  *key)
 {
-  if (( m == NULL ) || ( m->GetType( ) != VALUE_MAP ) || 
+  if (( m == NULL ) || ( m->GetType( ) != VALUE_MAP ) ||
       ( key == NULL ) || ( key[0] == 0 ))
     return VXIvalue_RESULT_INVALID_ARGUMENT;
 
@@ -801,7 +801,7 @@ VXIVALUE_API VXIvalueResult VXIMapDeleteProperty(VXIMap         *m,
     prev = cur;
     cur = cur->GetNext( );
   }
-  
+
   // Delete it if found
   if (( ! cur ) || ( rc != 0 ))
     return VXIvalue_RESULT_FAILURE;
@@ -810,7 +810,7 @@ VXIVALUE_API VXIvalueResult VXIMapDeleteProperty(VXIMap         *m,
     prev->SetNext (cur->GetNext( ));
   else
     m->head = cur->GetNext( );
-  
+
   cur->DestroyValue( );
   delete cur;
   cur = NULL;
@@ -849,15 +849,15 @@ VXIVALUE_API VXIunsigned VXIMapNumProperties(const VXIMap *m)
  * modified in any way.
  *
  * @param   m      Map to access
- * @param   key    Set to point at the property name for read-only 
- *                 access (must not be modified)                 
- * @param   value  Set to point at the property value for read-only 
+ * @param   key    Set to point at the property name for read-only
+ *                 access (must not be modified)
+ * @param   value  Set to point at the property value for read-only
  *                 access (must not be modified)
  * @return         Pointer to an iterator that may be used to get
  *                 additional properties via VXIMapGetNextProperty( ),
  *                 or NULL on failure (typically no properties in the map)
  */
-VXIVALUE_API 
+VXIVALUE_API
 VXIMapIterator *VXIMapGetFirstProperty(const VXIMap     *m,
 				       const VXIchar   **key,
 				       const VXIValue  **value)
@@ -870,7 +870,7 @@ VXIMapIterator *VXIMapGetFirstProperty(const VXIMap     *m,
   VXIMapIterator *it = new VXIMapIterator (m);
   if ( it == NULL )
     return NULL;
-  
+
   // Get the first property
   it->GetKeyValue (key, value);
   return it;
@@ -888,14 +888,14 @@ VXIMapIterator *VXIMapGetFirstProperty(const VXIMap     *m,
  *                 from VXIMapGetFirstProperty( ), this operation
  *                 will advance the iterator to the next property on
  *                 success
- * @param   key    Set to point at the property name for read-only 
- *                 access (must not be modified, invalidated if the
- *                 Map is modified)                 
- * @param   value  Set to point at the property value for read-only 
+ * @param   key    Set to point at the property name for read-only
  *                 access (must not be modified, invalidated if the
  *                 Map is modified)
- * @return         VXIvalue_RESULT_SUCCESS on success (property name 
- *                 and value returned, iterator advanced), 
+ * @param   value  Set to point at the property value for read-only
+ *                 access (must not be modified, invalidated if the
+ *                 Map is modified)
+ * @return         VXIvalue_RESULT_SUCCESS on success (property name
+ *                 and value returned, iterator advanced),
  *                 VXIvalue_RESULT_FAILURE if there are no more properties
  *                 to read, or a VXIvalueResult error code for severe errors
  */
@@ -914,7 +914,7 @@ VXIVALUE_API VXIvalueResult VXIMapGetNextProperty(VXIMapIterator  *it,
 /**
  * Destroy an iterator
  *
- * @param   it     Iterator to destroy as obtained from 
+ * @param   it     Iterator to destroy as obtained from
  *                 VXIMapGetFirstProperty( )
  */
 VXIVALUE_API void VXIMapIteratorDestroy(VXIMapIterator **it)
@@ -945,7 +945,7 @@ VXIVALUE_API VXIVector *VXIVectorCreate(void)
  * vector. However, for Ptr values the user is responsible for
  * freeing the held memory if appropriate.
  *
- * @param   v   Vector to destroy 
+ * @param   v   Vector to destroy
  */
 VXIVALUE_API void VXIVectorDestroy(VXIVector **v)
 {
@@ -997,10 +997,10 @@ VXIVALUE_API VXIVector *VXIVectorClone(const VXIVector *v)
  *               infinite loops may occur on access or deletion.
  * @return       VXIvalue_RESULT_SUCCESS on success
  */
-VXIVALUE_API VXIvalueResult VXIVectorAddElement(VXIVector      *v, 
+VXIVALUE_API VXIvalueResult VXIVectorAddElement(VXIVector      *v,
 						VXIValue       *val)
 {
-  if (( v == NULL ) || ( v->GetType( ) != VALUE_VECTOR ) || 
+  if (( v == NULL ) || ( v->GetType( ) != VALUE_VECTOR ) ||
       ( val == NULL ))
     return VXIvalue_RESULT_INVALID_ARGUMENT;
 
@@ -1030,11 +1030,11 @@ VXIVALUE_API VXIvalueResult VXIVectorAddElement(VXIVector      *v,
  *                infinite loops may occur on access or deletion.
  * @return        VXIvalue_RESULT_SUCCESS on success
  */
-VXIVALUE_API VXIvalueResult VXIVectorSetElement(VXIVector      *v, 
-						VXIunsigned     n, 
+VXIVALUE_API VXIvalueResult VXIVectorSetElement(VXIVector      *v,
+						VXIunsigned     n,
 						VXIValue       *val)
 {
-  if (( v == NULL ) || ( v->GetType( ) != VALUE_VECTOR ) || 
+  if (( v == NULL ) || ( v->GetType( ) != VALUE_VECTOR ) ||
       ( val == NULL ) || ( n >= v->size ))
     return VXIvalue_RESULT_INVALID_ARGUMENT;
 
@@ -1061,11 +1061,11 @@ VXIVALUE_API VXIvalueResult VXIVectorSetElement(VXIVector      *v,
  * @param   n     Element index to set, it is an error to pass a
  *                index that is greater or equal to then the number of values
  *                currently in the vector (i.e. range is 0 to length-1)
- * @return        On success the value of the property for read-only 
+ * @return        On success the value of the property for read-only
  *                access (invalidated if the Vector is modified), NULL
- *                on error 
+ *                on error
  */
-VXIVALUE_API const VXIValue *VXIVectorGetElement(const VXIVector *v, 
+VXIVALUE_API const VXIValue *VXIVectorGetElement(const VXIVector *v,
 						 VXIunsigned      n)
 {
   if (( v == NULL ) || ( v->GetType( ) != VALUE_VECTOR ) ||

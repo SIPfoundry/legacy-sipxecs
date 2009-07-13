@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -72,7 +72,7 @@ static inline OSBtelImpl * ToOSBtelImpl(OSBtelInterface * i)
  *
  * Utility functions
  *
- *******************************************************/ 
+ *******************************************************/
 
 /**
  * Log an error
@@ -82,20 +82,20 @@ static inline OSBtelImpl * ToOSBtelImpl(OSBtelInterface * i)
 /// {
 ///    VXIlogResult rc;
 ///    va_list arguments;
-/// 
+///
 ///    if ((! impl) || (! impl->log))
 ///       return VXIlog_RESULT_NON_FATAL_ERROR;
-/// 
+///
 ///    if (format) {
 ///       va_start(arguments, format);
-///       rc = (*impl->log->VError)(impl->log, COMPANY_DOMAIN L".OSBtel", 
+///       rc = (*impl->log->VError)(impl->log, COMPANY_DOMAIN L".OSBtel",
 ///         errorID, format, arguments);
 ///       va_end(arguments);
 ///    } else {
 ///       rc = (*impl->log->Error)(impl->log, COMPANY_DOMAIN L".OSBtel",
 ///         errorID, NULL);
 ///    }
-/// 
+///
 ///    return rc;
 /// }
 
@@ -103,7 +103,7 @@ static inline OSBtelImpl * ToOSBtelImpl(OSBtelInterface * i)
 /**
  * Log a diagnostic message
  */
-static VXIlogResult Diag(OSBtelImpl *impl, VXIunsigned tag, 
+static VXIlogResult Diag(OSBtelImpl *impl, VXIunsigned tag,
       const VXIchar *subtag, const VXIchar *format, ...)
 {
    VXIlogResult rc;
@@ -118,7 +118,7 @@ static VXIlogResult Diag(OSBtelImpl *impl, VXIunsigned tag,
             format, arguments);
       va_end(arguments);
    } else {
-      rc = (*impl->log->Diagnostic)(impl->log, tag + gblDiagLogBase, subtag, 
+      rc = (*impl->log->Diagnostic)(impl->log, tag + gblDiagLogBase, subtag,
             NULL);
    }
 
@@ -130,7 +130,7 @@ static VXIlogResult Diag(OSBtelImpl *impl, VXIunsigned tag,
  *
  * Method routines for OSBtelInterface structure
  *
- *******************************************************/ 
+ *******************************************************/
 
 // Get the VXItel interface version supported
 //
@@ -152,7 +152,7 @@ static const VXIchar* OSBtelGetImplementationName(void)
 
 // Begin a session
 //
-   static 
+   static
 VXItelResult OSBtelBeginSession(VXItelInterface * pThis, VXIMap *sessionArgs)
 {
    OSBtelImpl *impl = ToOSBtelImpl(pThis);
@@ -217,7 +217,7 @@ VXItelResult OSBtelEndSession(VXItelInterface *pThis, VXIMap *)
 
 OSBTEL_API VXItelResult OSBtelExiting(VXIlogInterface  *log,
       VXItelInterface **tel)
-{ 
+{
    if ( ! log ) return VXItel_RESULT_INVALID_ARGUMENT;
 
    OSBtelImpl *impl = ToOSBtelImpl(*tel);
@@ -227,7 +227,7 @@ OSBTEL_API VXItelResult OSBtelExiting(VXIlogInterface  *log,
    {
       impl->pExitGuard->acquire();
       if (impl->live == 1)
-      {   
+      {
          impl->live = 0; // exited
 
          Diag(impl, DIAG_TAG_SIGNALING, NULL, L"tel Exiting");
@@ -239,14 +239,14 @@ OSBTEL_API VXItelResult OSBtelExiting(VXIlogInterface  *log,
                 {
                         OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR, "stopWaitForFinalState failed for %s\n", (char*)impl->callId);
                 Diag(impl, DIAG_TAG_SIGNALING, NULL, L"stopWaitForFinalState failed");
-                }       
+                }
          }
          else
             Diag(impl, DIAG_TAG_SIGNALING, NULL, L"tel Exiting - not in transferring mode");
       }
       impl->pExitGuard->release();
    }
-   return VXItel_RESULT_SUCCESS; 
+   return VXItel_RESULT_SUCCESS;
 }
 
    static
@@ -278,7 +278,7 @@ VXItelResult OSBtelDisconnect(VXItelInterface * vxip)
 }
 
 static
-VXItelResult setTransferState(OSBtelImpl *impl, 
+VXItelResult setTransferState(OSBtelImpl *impl,
       const VXIMap * prop,
       const VXIchar * transferDestination,
       VXIMap ** resp,
@@ -363,14 +363,14 @@ VXItelResult setTransferState(OSBtelImpl *impl,
  * Blind Transfer.
  */
 static
-VXItelResult OSBtelTransferBlind(VXItelInterface * vxip, 
+VXItelResult OSBtelTransferBlind(VXItelInterface * vxip,
       const VXIMap * prop,
       const VXIchar * transferDestination,
       const VXIMap * data,
       VXIMap ** resp)
 {
    OSBtelImpl *impl = ToOSBtelImpl(vxip);
-   Diag(impl, DIAG_TAG_SIGNALING, NULL, L"TransferBlind: %s", 
+   Diag(impl, DIAG_TAG_SIGNALING, NULL, L"TransferBlind: %s",
          transferDestination);
 
    VXIchar* best = (VXIchar *) calloc(128, sizeof(VXIchar));
@@ -383,7 +383,7 @@ VXItelResult OSBtelTransferBlind(VXItelInterface * vxip,
    if (impl->callId && transferDestination)
    {
       vxistring dest = transferDestination;
-      if (! dest.empty()) 
+      if (! dest.empty())
       {
          char* str = 0;
          int len = dest.length() + 1;
@@ -399,7 +399,7 @@ VXItelResult OSBtelTransferBlind(VXItelInterface * vxip,
             UtlString from(str);
             HttpMessage::unescape( from );
             OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "OSBtelTransferBlind from = '%s'", from.data());
-            if (impl->live == 1) 
+            if (impl->live == 1)
             {
                 if (PT_SUCCESS == impl->pCallMgr->transfer_blind((char*)impl->callId,
                                                                  from.data(), // to url
@@ -427,7 +427,7 @@ VXItelResult OSBtelTransferBlind(VXItelInterface * vxip,
             }
             else
             {
-                Diag(impl, DIAG_TAG_SIGNALING, NULL, L"Exiting called, live=%d, cancel TransferBlind: %s", 
+                Diag(impl, DIAG_TAG_SIGNALING, NULL, L"Exiting called, live=%d, cancel TransferBlind: %s",
                         impl->live, transferDestination);
             }
          }
@@ -442,14 +442,14 @@ VXItelResult OSBtelTransferBlind(VXItelInterface * vxip,
  *
  */
 static
-VXItelResult OSBtelTransferBridge(VXItelInterface * vxip, 
+VXItelResult OSBtelTransferBridge(VXItelInterface * vxip,
       const VXIMap * prop,
       const VXIchar * transferDestination,
       const VXIMap * data,
       VXIMap **resp)
 {
    OSBtelImpl *impl = ToOSBtelImpl(vxip);
-   Diag(impl, DIAG_TAG_SIGNALING, NULL, L"TransferBridge: %s", 
+   Diag(impl, DIAG_TAG_SIGNALING, NULL, L"TransferBridge: %s",
          transferDestination);
 
    *resp = VXIMapCreate();
@@ -458,11 +458,11 @@ VXItelResult OSBtelTransferBridge(VXItelInterface * vxip,
    VXIchar* xaudio = 0;
    if (prop != NULL) {
       VXIString* vect =(VXIString*)VXIMapGetProperty(prop, L"Destination");
-      if (vect != NULL) 
+      if (vect != NULL)
          dest = (VXIchar*) VXIStringCStr(vect);
 
       vect =(VXIString*)VXIMapGetProperty(prop, TEL_TRANSFER_AUDIO);
-      if (vect != NULL) 
+      if (vect != NULL)
          xaudio = (VXIchar*) VXIStringCStr(vect);
    }
 
@@ -470,7 +470,7 @@ VXItelResult OSBtelTransferBridge(VXItelInterface * vxip,
    if (impl->callId && transferDestination)
    {
       vxistring dest = transferDestination;
-      if (! dest.empty()) 
+      if (! dest.empty())
       {
          char* str = 0;
          int len = dest.length() + 1;
@@ -488,7 +488,7 @@ VXItelResult OSBtelTransferBridge(VXItelInterface * vxip,
 
             if (impl->live == 1)
             {
-                impl->pCallMgr->connect((char*)impl->callId, from.data()); 
+                impl->pCallMgr->connect((char*)impl->callId, from.data());
 
                 impl->transferred = 0;
                 int state = 0;
@@ -499,7 +499,7 @@ VXItelResult OSBtelTransferBridge(VXItelInterface * vxip,
                 OsDateTimeBase::getCurTime(startTime);
 
                 VXItelResult ret;
-                do 
+                do
                 {
                         ret = setTransferState(impl, prop, transferDestination, resp, &state, &status);
                 }
@@ -558,7 +558,7 @@ OSBtelWaitForCall(struct OSBtelInterface  *vxip,
 
 /*******************************************************
  * Factory and init routines
- *******************************************************/ 
+ *******************************************************/
 
 /**
  * Global initialization of Telephony platform.
@@ -587,7 +587,7 @@ OSBTEL_API VXItelResult OSBtelShutDown (VXIlogInterface  *log)
 /**
  * Creates an OSBtel implementation of the VXItel interface
  */
-OSBTEL_API VXItelResult OSBtelCreateResource(VXIunsigned channelNum, 
+OSBTEL_API VXItelResult OSBtelCreateResource(VXIunsigned channelNum,
       VXIlogInterface *log,
       VXItelInterface **tel)
 {
@@ -646,9 +646,9 @@ OSBTEL_API VXItelResult OSBtelDestroyResource(VXItelInterface **tel)
          telImpl->pExitGuard->acquire();
          telImpl->live = 0;
          telImpl->pExitGuard->release();
-              delete telImpl->pExitGuard;       
+              delete telImpl->pExitGuard;
               telImpl->pExitGuard = NULL;
-      } 
+      }
 
       delete telImpl;
       telImpl = NULL;
@@ -657,4 +657,3 @@ OSBTEL_API VXItelResult OSBtelDestroyResource(VXItelInterface **tel)
 
    return VXItel_RESULT_SUCCESS;
 }
-

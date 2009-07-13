@@ -1,21 +1,21 @@
 /****************License************************************************
  *
- * Copyright 2000.  SpeechWorks International, Inc.  
+ * Copyright 2000.  SpeechWorks International, Inc.
  *
  * Use of this software is subject to notices and obligations set forth
  * in the SpeechWorks Public License - Software Version 1.1 which is
  * included with this software.
  *
- * SpeechWorks is a registered trademark, and SpeechWorks Here, 
- * DialogModules and the SpeechWorks logo are trademarks of SpeechWorks 
- * International, Inc. in the United States and other countries. 
- * 
+ * SpeechWorks is a registered trademark, and SpeechWorks Here,
+ * DialogModules and the SpeechWorks logo are trademarks of SpeechWorks
+ * International, Inc. in the United States and other countries.
+ *
  ************************************************************************
  *
- * 
+ *
  *
  * OSBrec integration utils
- * 
+ *
  ****************************************************************************/
 
 #include "osbrec_utils.h"
@@ -94,7 +94,7 @@ int OSBrecWordList::CheckPhraseRep(const VXIchar* best,
 
   *maxlen = 0;
   int grlen = 1;
-  for (WORDS::const_iterator i = words.begin(); i != words.end(); ++i) 
+  for (WORDS::const_iterator i = words.begin(); i != words.end(); ++i)
   {
     int min = (*i)->min_repeat;
     int max = (*i)->max_repeat;
@@ -114,7 +114,7 @@ int OSBrecWordList::CheckPhraseRep(const VXIchar* best,
 
     if (min == max && max == 1)
     {
-      if ((*i)->word == phrase) 
+      if ((*i)->word == phrase)
       {
         *val = (*i)->return_val.c_str();
         return 1;
@@ -128,13 +128,13 @@ int OSBrecWordList::CheckPhraseRep(const VXIchar* best,
   int matchedDigits = 0;
   for (int in = 0; in < blen;)
   {
-    for (WORDS::const_iterator i = words.begin(); i != words.end(); ++i) 
+    for (WORDS::const_iterator i = words.begin(); i != words.end(); ++i)
     {
       min = (*i)->min_repeat;
       max = (*i)->max_repeat;
       grlen = (*i)->word.length();
 
-      if ((*i)->word == phrase.substr(in, grlen)) 
+      if ((*i)->word == phrase.substr(in, grlen))
       {
         result.append((*i)->return_val);
         matchedDigits++;
@@ -167,7 +167,7 @@ inline bool OSBrecWordList::is_dtmf(const VXIchar* word) const
 }
 
 
-OSBrecWordList::AddWordResult 
+OSBrecWordList::AddWordResult
 OSBrecWordList::AddWord(const vxistring & word, const vxistring & value, const int min, const int max)
 {
   if (word.empty() || value.empty()) return ADDWORD_RESULT_GENERIC_ERROR;
@@ -275,12 +275,12 @@ bool OSBrecData::GrammarConvertJSGFString(const vxistring & language,
     OSBrecWordList::AddWordResult addRc;
     if (!wordValue.empty()) {
       // Got tag value
-      Diag(DIAG_TAG_GRAMMARS, L"OSBrec::ConvertGrammar", 
+      Diag(DIAG_TAG_GRAMMARS, L"OSBrec::ConvertGrammar",
 	   L"Adding #%d (%s, %s)", count, wordRaw.c_str(), wordValue.c_str());
       addRc = gp->AddWord(wordRaw, wordValue, 1, 1);
     } else {
       // Didn't get tag value
-      Diag(DIAG_TAG_GRAMMARS, L"OSBrec::ConvertGrammar", 
+      Diag(DIAG_TAG_GRAMMARS, L"OSBrec::ConvertGrammar",
 	   L"Adding #%d (%s, %s)", count, wordRaw.c_str(), wordRaw.c_str());
       addRc = gp->AddWord(wordRaw, wordRaw, 1, 1);
     }
@@ -357,11 +357,11 @@ bool OSBrecData::GrammarParseString(const vxistring & language,
     {
       pos = and_start + 1;  // start seraching after '('
       and_end = incoming.find(END_AND, pos);   // finding ')'
-      if (and_end != vxistring::npos) 
+      if (and_end != vxistring::npos)
       {
         stop = and_end;   // only one () is parsed!!!
         valmark = incoming.find(REPEAT1, and_end);  // finding '+'
-        if (valmark != vxistring::npos) 
+        if (valmark != vxistring::npos)
         {
           min = 1;      // 1 or more times
           max = -1;
@@ -369,7 +369,7 @@ bool OSBrecData::GrammarParseString(const vxistring & language,
         else if ((rep_start = incoming.find(BEGIN_REP, and_end)) != vxistring::npos) // finding '<'
         {
           rep_end = incoming.find(END_REP, rep_start);  // finding '>'
-          if (rep_end != vxistring::npos) 
+          if (rep_end != vxistring::npos)
           {
             if ((valmark = incoming.find(TO, rep_start)) != vxistring::npos) // finding '-'
             {
@@ -416,12 +416,12 @@ bool OSBrecData::GrammarParseString(const vxistring & language,
     wordValue = wordRaw;
     if (!wordValue.empty()) {
       // Got tag value
-      Diag(DIAG_TAG_GRAMMARS, L"OSBrec::ConvertGrammar", 
+      Diag(DIAG_TAG_GRAMMARS, L"OSBrec::ConvertGrammar",
 	   L"Adding #%d (%s, %s)", count, wordRaw.c_str(), wordValue.c_str());
       addRc = gp->AddWord(wordRaw, wordValue, min, max);
     } else {
       // Didn't get tag value
-      Diag(DIAG_TAG_GRAMMARS, L"OSBrec::ConvertGrammar", 
+      Diag(DIAG_TAG_GRAMMARS, L"OSBrec::ConvertGrammar",
 	   L"Adding #%d (%s, %s)", count, wordRaw.c_str(), wordRaw.c_str());
       addRc = gp->AddWord(wordRaw, wordRaw, min, max);
     }
@@ -473,7 +473,7 @@ OSBrecGrammar * OSBrecData::CreateWordListFromString(const VXIchar* text) const
  * OSBrecData : The grammar container
  ******************************************/
 
-OSBrecData::OSBrecData(VXIunsigned b, VXIlogInterface *l) 
+OSBrecData::OSBrecData(VXIunsigned b, VXIlogInterface *l)
   : diagLogBase(b), log(l), grammars()
 { }
 
@@ -482,7 +482,7 @@ OSBrecData::~OSBrecData()
 {
   for (GRAMMARS::iterator i = grammars.begin(); i != grammars.end(); ++i)
   {
-    if (*i != 0)  
+    if (*i != 0)
     {
        delete *i;
        *i = 0;
@@ -495,7 +495,7 @@ void OSBrecData::Clear()
 {
   for (GRAMMARS::iterator i = grammars.begin(); i != grammars.end(); ++i)
   {
-    if (*i != 0)  
+    if (*i != 0)
     {
        delete *i;
        *i = 0;
@@ -531,7 +531,7 @@ OSBrecGrammar * OSBrecData::FindGrammarForPhrase(const VXIchar* best,
   for (GRAMMARS::iterator i = grammars.begin(); i != grammars.end(); ++i)
     if ((*i)->IsEnabled() && (*i)->CheckPhraseRep(best, val, maxlen, 0)) {
       if (match != NULL)
-	Diag(DIAG_TAG_GRAMMARS, L"OSBrec::FindGrammarForPhrase", 
+	Diag(DIAG_TAG_GRAMMARS, L"OSBrec::FindGrammarForPhrase",
 	     L"Multiple grammars matched %s", best);
       match = *i;
   }
@@ -549,7 +549,7 @@ OSBrecGrammar * OSBrecData::FindGrammarForPhraseAfterPound(const VXIchar* best,
   for (GRAMMARS::iterator i = grammars.begin(); i != grammars.end(); ++i)
     if ((*i)->IsEnabled() && (*i)->CheckPhraseRep(best, val, maxlen, 1)) {
       if (match != NULL)
-	Diag(DIAG_TAG_GRAMMARS, L"OSBrec::FindGrammarForPhraseAfterPound", 
+	Diag(DIAG_TAG_GRAMMARS, L"OSBrec::FindGrammarForPhraseAfterPound",
 	     L"Multiple grammars matched %s", best);
       match = *i;
   }
@@ -572,7 +572,7 @@ VXIlogResult OSBrecData::Error(VXIunsigned errorID,
 
   if (log)
     return VXIlog_RESULT_NON_FATAL_ERROR;
-  
+
   if (format) {
     va_start(args, format);
     rc = (*log->VError)(log, COMPANY_DOMAIN L".OSBrec", errorID, format, args);
