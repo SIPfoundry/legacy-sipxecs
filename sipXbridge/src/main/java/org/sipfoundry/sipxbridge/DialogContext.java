@@ -11,6 +11,7 @@ import gov.nist.javax.sip.DialogExt;
 import gov.nist.javax.sip.header.HeaderFactoryExt;
 import gov.nist.javax.sip.header.extensions.MinSE;
 import gov.nist.javax.sip.header.extensions.SessionExpiresHeader;
+import gov.nist.javax.sip.header.ims.PAssertedIdentityHeader;
 import gov.nist.javax.sip.message.SIPResponse;
 
 import java.util.ListIterator;
@@ -28,6 +29,7 @@ import javax.sip.ServerTransaction;
 import javax.sip.SipException;
 import javax.sip.SipProvider;
 import javax.sip.Transaction;
+import javax.sip.address.Address;
 import javax.sip.header.AcceptHeader;
 import javax.sip.header.AllowHeader;
 import javax.sip.header.CSeqHeader;
@@ -755,6 +757,18 @@ class DialogContext {
 
                 Request reInvite = peerDialog.createRequest(Request.INVITE);    
                 reInvite.removeHeader(SupportedHeader.NAME);
+                reInvite.removeHeader("remote-party-Id");
+                if ( this.itspInfo != null ) {
+                    Address address = this.itspInfo.getCallerAlias();
+                    PAssertedIdentityHeader passertedIdentityHeader = null;
+                    if (address != null) {
+                        passertedIdentityHeader = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
+                        .createPAssertedIdentityHeader(address);
+                        reInvite.setHeader(passertedIdentityHeader);
+                    }
+                } else {
+                    logger.warn("Could not find ITSP Information. Sending re-INVITE anyway.");
+                }
                 SipUtilities.addWanAllowHeaders(reInvite);
                 SipProvider provider = ((DialogExt) peerDialog).getSipProvider();
                 ItspAccountInfo peerAccountInfo = DialogContext.getPeerDialogContext(dialog)
