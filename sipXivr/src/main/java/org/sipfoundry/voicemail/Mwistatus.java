@@ -58,11 +58,13 @@ public class Mwistatus extends HttpServlet {
         if (user != null) {
             // determine the message counts for the mailbox
             // (Okay, worry about this one.  It walks the mailstore directories counting .xml and .sta files.)
-            Messages messages = new Messages(new Mailbox(user));
-            heard = messages.getHeardCount();
-            unheard = messages.getUnheardCount();
-            // No support for urgent messages
-    
+            Messages messages = Messages.newMessages(new Mailbox(user));
+            synchronized (messages) {
+                heard = messages.getHeardCount();
+                unheard = messages.getUnheardCount();
+                // No support for urgent messages
+            }
+            Messages.releaseMessages(messages);
             LOG.info(String.format("Mwistatus::doGet %s %d/%d", idUri, unheard, heard));
         } else {
             // Just lie and give no messages

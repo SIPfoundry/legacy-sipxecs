@@ -88,6 +88,26 @@ public class MessagesTest extends TestCase {
         m_mw.writeObject(m_md, file);
     }
     
+    public void testMultiAccess() {
+        User user = new User();
+        user.setUserName("user");
+        user.setIdentity("user@dog");
+
+        Mailbox mbox = new Mailbox(user, m_mailstoreDir.getPath());
+
+
+        Messages m1 = Messages.newMessages(mbox);
+        Messages m2 = Messages.newMessages(mbox);
+        assertSame(m1, m2);
+        Messages.releaseMessages(m2);
+        Messages m3 = Messages.newMessages(mbox);
+        assertSame(m1, m3);
+        Messages.releaseMessages(m3);
+        Messages.releaseMessages(m1);
+        Messages m4 = Messages.newMessages(mbox);
+        assertNotSame(m1, m4);
+    }
+    
     public void testLoadFolder() throws IOException, InterruptedException {
         Messages m = new Messages();
         m.loadFolder(m_inboxDir, m.m_inbox, true);
@@ -187,7 +207,7 @@ public class MessagesTest extends TestCase {
         FileUtils.touch(new File(m_inboxDir, "0002-00.wav"));
         makeMd(new File(m_inboxDir, "0002-00.xml"));
 
-        Messages m = new Messages(mbox);
+        Messages m = Messages.newMessages(mbox);
         m.loadFolder(m_inboxDir, m.m_inbox, true);
         m.loadFolder(m_savedDir, m.m_saved, false);
         m.loadFolder(m_deletedDir, m.m_deleted, false);
@@ -207,7 +227,7 @@ public class MessagesTest extends TestCase {
         }
 
         // Mark 0001 as heard
-        m.markMessageHeard(msg);
+        m.markMessageHeard(msg, true);
         // Prove it 
         assertEquals(2, m.getInboxCount());
         assertEquals(0, m.getUnheardCount());
@@ -216,7 +236,8 @@ public class MessagesTest extends TestCase {
         assertFalse(new File(m_inboxDir, "0001-00.sta").exists());
         
         // Reload and make sure we get the same result
-        m = new Messages(mbox);
+        Messages.releaseMessages(m);
+        m = Messages.newMessages(mbox);
         m.loadFolder(m_inboxDir, m.m_inbox, true);
         m.loadFolder(m_savedDir, m.m_saved, false);
         m.loadFolder(m_deletedDir, m.m_deleted, false);
@@ -295,6 +316,7 @@ public class MessagesTest extends TestCase {
         assertEquals(0, m.getDeletedCount());
         assertFalse("File shouldn't exist", new File(m_deletedDir, "0001-00.xml").exists());
         assertFalse("File shouldn't exist", new File(m_deletedDir, "0001-FW.wav").exists());
+        Messages.releaseMessages(m);
     }
 
     public void testNewMessage() throws IOException {

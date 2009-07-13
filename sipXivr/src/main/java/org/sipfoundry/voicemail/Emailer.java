@@ -157,7 +157,7 @@ public class Emailer {
             LOG.debug("Emailer::run started");
 
             // Send to the main e-mail address
-            if (to != null) {
+            if (to != null && to.length() > 0) {
                 try {
                     LOG.info(String.format("Emailer::run sending message %s as e-mail to %s",
                             m_vmessage.getMessageId(), to));
@@ -175,7 +175,7 @@ public class Emailer {
             // Send to the alternate e-mail address
             // (this could be a bit better: if both main and alternative have the same value for 
             //  isAttachVoicemailxxx, one could create the message once and send it with two recipients)
-            if(alt != null) {
+            if(alt != null && alt.length() > 0) {
                 try {
                     LOG.info(String.format("Emailer::run sending message %s as e-mail to %s",
                             m_vmessage.getMessageId(), alt));

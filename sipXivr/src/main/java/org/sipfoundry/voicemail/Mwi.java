@@ -53,8 +53,9 @@ public class Mwi {
      * @param mailbox
      */
     public static void sendMWI(Mailbox mailbox) {
-        Messages messages = new Messages(mailbox);
+        Messages messages = Messages.newMessages(mailbox);
         sendMWI(mailbox, messages);
+        Messages.releaseMessages(messages);
     }
     
     /**
@@ -74,9 +75,11 @@ public class Mwi {
         int unheardUrgent = 0;
         String idUri = mailbox.getUser().getIdentity();
 
-        heard = messages.getHeardCount();
-        unheard = messages.getUnheardCount();
-        // No support for urgent messages at this time
+        synchronized (messages) {
+            heard = messages.getHeardCount();
+            unheard = messages.getUnheardCount();
+            // No support for urgent messages at this time
+        }
 
         LOG.info(String.format("Mwi::SendMWI %s %d/%d", idUri, unheard, heard));
         // URL of Status Server

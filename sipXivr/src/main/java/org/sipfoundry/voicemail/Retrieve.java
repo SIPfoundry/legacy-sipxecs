@@ -69,6 +69,7 @@ public class Retrieve {
             LOG.info("Retrieve::retrieveVoiceMail "+m_ident+" logged in");
             // Create the mailbox if it isn't there
             Mailbox.createDirsIfNeeded(m_mailbox);
+            m_messages = Messages.newMessages(m_mailbox);
             try {
                 if (user.hasVoicemail()) {
                     // Those with voicemail permissions get the whole menu
@@ -86,6 +87,7 @@ public class Retrieve {
                         FileUtils.deleteQuietly(tempRecording);
                     }
                 }
+                Messages.releaseMessages(m_messages);
             }
         }
         
@@ -177,9 +179,15 @@ public class Retrieve {
             return pl;
         }
         
-        int unheardCount = m_messages.getUnheardCount();
-        int heardCount = m_messages.getHeardCount();
-        int savedCount = m_messages.getSavedCount();
+        
+        int unheardCount;
+        int heardCount;
+        int savedCount;
+        synchronized (m_messages) {
+            unheardCount = m_messages.getUnheardCount();
+            heardCount = m_messages.getHeardCount();
+            savedCount = m_messages.getSavedCount();
+        }
         if (unheardCount > 0) {
             PromptList unheard;
             if (unheardCount == 1) {
@@ -240,8 +248,6 @@ public class Retrieve {
     }
     
     void main_menu() {
-        m_messages = new Messages(m_mailbox);
-        
         boolean playStatus = true ;
         for(;;) {
             LOG.info("Retrieve::main_menu "+m_ident);
@@ -253,6 +259,9 @@ public class Retrieve {
                 PromptList statusPl = status();
                 mainMenu.setPrePromptPl(statusPl);
                 playStatus = false;
+            } else {
+                // Update the messages each time through (but not on the first one)
+                m_messages.update();
             }
             
             // Main menu.  
@@ -448,7 +457,7 @@ public class Retrieve {
                 }
                 
                 // Mark the message heard (if it wasn't before)
-                m_messages.markMessageHeard(vmMessage);
+                m_messages.markMessageHeard(vmMessage, true);
                 
                 if (digit.equals("1")) {
                     playInfo = true;

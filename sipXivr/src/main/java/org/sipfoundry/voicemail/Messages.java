@@ -28,6 +28,12 @@ import org.sipfoundry.sipxivr.Mailbox;
  */
 public class Messages {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
+    
+    // Static holding tank for Messages, so multiple threads always get the same 
+    // Messages object for the same mailstore
+    static HashMap<String, Messages> s_messages = new HashMap<String, Messages>();
+    int m_usage;    // Counter to know when it's safe to remove Messages from the tank.
+    
     Mailbox m_mailbox;
     
     public enum Folders {
@@ -44,26 +50,65 @@ public class Messages {
     File m_savedDir;
     File m_deletedDir;
     
-    public Messages(Mailbox mailbox) {
+    // Private so only newMessages factory method can access
+    private Messages(Mailbox mailbox) {
         m_mailbox = mailbox;
-
+        m_usage = 0;
         // Create the mailbox if it isn't there
         Mailbox.createDirsIfNeeded(m_mailbox);
         m_inboxDir = new File(mailbox.getInboxDirectory());
         m_savedDir = new File(mailbox.getSavedDirectory());
         m_deletedDir = new File(mailbox.getDeletedDirectory());
-        
+    }
+
+    /*
+     * Factory method to create a Messages object for a mailbox.
+     * Ensures only one object per mailstore
+     */
+    public static Messages newMessages(Mailbox mailbox) {
+        Messages messages;
+        synchronized (s_messages) {                                     // lock on s_messages so multithreads to mess it up
+            messages = s_messages.get(mailbox.getUserDirectory());      // See if Messages for this mailstore already exists
+            if (messages == null) {
+                messages = new Messages(mailbox);                       // Create a new one
+                s_messages.put(mailbox.getUserDirectory(), messages);   // Store it.
+            }
+        }
+        synchronized (messages) {
+            messages.m_usage++; // Increment usage count
+            messages.update();
+            LOG.debug(String.format("Messages::newMessages m_usage for %s is %d",
+                    mailbox.getUserDirectory(), messages.m_usage));
+        }
+        return messages;
+    }
+    
+    public static void releaseMessages(Messages messages) {
+        synchronized (s_messages) { // lock on s_messages so multithreads don't mess it up
+            if (messages != null) {
+                synchronized (messages) {
+                    messages.m_usage--; // One less user
+                    LOG.debug(String.format("Messages::releaseMessages m_usage for %s is %d",
+                            messages.m_mailbox.getUserDirectory(), messages.m_usage));
+                    if (messages.m_usage <= 0) {
+                        s_messages.remove(messages.m_mailbox.getUserDirectory());
+                    }
+                }
+            }
+        }
+    }
+    
+    public Messages() {
+        // Just for test cases, without need for a file system full of messages
+    }
+    
+    public synchronized void update() {
         // Load the inbox folder and count unheard messages there
         loadFolder(m_inboxDir, m_inbox, true);
         // Load the saved folder (don't count unheard...shouldn't be any but why take chances!)
         loadFolder(m_savedDir, m_saved, false);
         // Load the deleted folder (same with unheard)
         loadFolder(m_deletedDir, m_deleted, false);
-    }
-
-    
-    public Messages() {
-        // Just for test cases, without need for a file system full of messages
     }
     
     /**
@@ -74,7 +119,7 @@ public class Messages {
      */
     
     @SuppressWarnings("unchecked") // FileUtls.itereateFiles isn't type safe
-    void loadFolder(File directory, HashMap<String, VmMessage> map, boolean countUnheard) {
+    synchronized void loadFolder(File directory, HashMap<String, VmMessage> map, boolean countUnheard) {
         Pattern p = Pattern.compile("^(\\d+)-00\\.xml$");
         // Load the directory and count unheard
         Iterator<File> fileIterator = FileUtils.iterateFiles(directory, null, false);
@@ -104,7 +149,6 @@ public class Messages {
                 map.put(id, vmMessage);
             }
         }
-
     }
 
     /**
@@ -136,7 +180,7 @@ public class Messages {
      * @param folder
      * @return
      */
-    public List<VmMessage> getFolder(HashMap<String, VmMessage> folder) {
+    public synchronized List<VmMessage> getFolder(HashMap<String, VmMessage> folder) {
         List<VmMessage> l = Arrays.asList(folder.values().toArray(new VmMessage[0]));
         
         // Then put all unheard messages first
@@ -161,23 +205,23 @@ public class Messages {
         return l;
     }
     
-    public int getInboxCount() {
+    public synchronized int getInboxCount() {
         return m_inbox.size();
     }
     
-    public int getSavedCount() {
+    public synchronized int getSavedCount() {
         return m_saved.size();
     }
     
-    public int getDeletedCount() {
+    public synchronized int getDeletedCount() {
         return m_deleted.size();
     }
     
-    public int getUnheardCount() {
+    public synchronized int getUnheardCount() {
         return m_numUnheard;
     }
     
-    public int getHeardCount() {
+    public synchronized int getHeardCount() {
         return m_inbox.size() - m_numUnheard ;
     }
     
@@ -185,11 +229,13 @@ public class Messages {
      * Mark the message unheard
      * @param msg
      */
-    public void markMessageHeard(VmMessage msg) {
+    public synchronized void markMessageHeard(VmMessage msg, boolean sendMwi) {
         if (msg.isUnHeard()) {
             msg.markHeard();
             m_numUnheard--;
-            Mwi.sendMWI(m_mailbox, this);
+            if (sendMwi) {
+                Mwi.sendMWI(m_mailbox, this);
+            }
         }
     }
     
@@ -200,11 +246,11 @@ public class Messages {
      * If it is in the deleted folder, remove it and delete the files.
      * @param msg
      */
-    public void deleteMessage(VmMessage msg) {
+    public synchronized void deleteMessage(VmMessage msg) {
         String id = msg.getMessageId();
         // Find which folder it was previously in
         if (m_inbox.containsKey(id)) {
-            markMessageHeard(msg);
+            markMessageHeard(msg, false);
             // Move files from inbox to deleted
             msg.moveToDirectory(m_deletedDir);
             m_inbox.remove(id);
@@ -235,12 +281,12 @@ public class Messages {
      * 
      * @param msg
      */
-    public void saveMessage(VmMessage msg) {
+    public synchronized void saveMessage(VmMessage msg) {
         String id = msg.getMessageId() ;
         // Find which folder it was previously in
         if (m_inbox.containsKey(id)) {
             // Move files from inbox to saved
-            markMessageHeard(msg);
+            markMessageHeard(msg, false);
             msg.moveToDirectory(m_savedDir);
             m_inbox.remove(id);
             m_saved.put(id, msg);
@@ -263,7 +309,7 @@ public class Messages {
     /**
      * Destroy all the messages in the deleted folder.
      */
-    public void destroyDeletedMessages() {
+    public synchronized void destroyDeletedMessages() {
         for (VmMessage msg : getDeleted()) {
             String id = msg.getMessageId() ;
             // Delete the files
