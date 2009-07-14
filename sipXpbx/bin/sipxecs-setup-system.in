@@ -624,6 +624,15 @@ def set_DNS () :
 
         # Configure the named service
         namedConf = '\
+// WARNING: Name server configuration is a sipX automatically generated file.\n\
+//          Contents may be overwritten unless you change the mode to "Manual".\n\
+//          Available modes:\n\
+//          "Master"    - Master name server (on primary server).\n\
+//          "Slave"     - Slave named server (on distributed server).\n\
+//          "Caching"   - Caching only name server.\n\
+//          "Manual"    - Blocks future automatic updates.\n\
+// DNS_MODE="Master"\n\
+\n\
 options {\n\
         directory  "%s";\n\
         dump-file "%s/data/cache_dump.db";\n\
@@ -649,7 +658,14 @@ options {\n\
         # Set up a caching-only name server.
         # Create named.conf file entries
         namedConf = '\
-// Default "Caching Only" name server configuration\n\
+// WARNING: Name server configuration is a sipX automatically generated file.\n\
+//          Contents may be overwritten unless you change the mode to "Manual".\n\
+//          Available modes:\n\
+//          "Master"    - Master name server (on primary server).\n\
+//          "Slave"     - Slave named server (on distributed server).\n\
+//          "Caching"   - Caching only name server.\n\
+//          "Manual"    - Blocks future automatic updates.\n\
+// DNS_MODE="Caching"\n\
 //\n\
 \n\
 options {\n\
