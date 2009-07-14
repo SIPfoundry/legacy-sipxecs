@@ -3,7 +3,7 @@
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="org.sipfoundry.sipxconfig.common" default-lazy="false">
 
-  <!-- 
+  <!--
     - U S E R
     -
     - Ideally the table would be named "user" (singular) rather than "users",
@@ -24,8 +24,7 @@
       <key column="user_id" />
       <element type="string" column="alias" not-null="true" unique="true" />
     </set>
-    <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
-      class="org.sipfoundry.sipxconfig.setting.ValueStorage" />
+    <many-to-one cascade="all" name="valueStorage" column="value_storage_id" class="org.sipfoundry.sipxconfig.setting.ValueStorage" />
     <set name="groups" table="user_group" sort="natural" cascade="save-update">
       <key column="user_id" />
       <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group" />
@@ -35,18 +34,16 @@
       <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group" />
     </set>
     <many-to-one name="addressBookEntry" class="org.sipfoundry.sipxconfig.phonebook.AddressBookEntry"
-    unique="true"
-    cascade="save-update"
-    column="address_book_entry_id"/>
+      unique="true" cascade="all" column="address_book_entry_id" />
   </class>
-  
+
   <class name="SpecialUser" table="special_user">
     <id name="id" column="special_user_id" type="int" unsaved-value="-1">
       <generator class="sequence">
         <param name="sequence">user_seq</param>
       </generator>
     </id>
-    <property name="type" column="user_type"/>
+    <property name="type" column="user_type" />
     <property name="sipPassword" />
   </class>
 
@@ -82,7 +79,7 @@
   <query name="userNamesGroupMembers">
     <![CDATA[select u.userName from User u join u.groups as ugroups where ugroups.id = :groupId]]>
   </query>
-  
+
   <query name="specialUserByType">
     <![CDATA[select u from SpecialUser u where u.type = :specialUserType]]>
   </query>
@@ -101,5 +98,5 @@
       join u.groups as ugroups
       where s.id = :supervisorId and sgroups.id = g.id 
       and g.id = ugroups.id order by u.userName]]>
-  </query>  
+  </query>
 </hibernate-mapping>

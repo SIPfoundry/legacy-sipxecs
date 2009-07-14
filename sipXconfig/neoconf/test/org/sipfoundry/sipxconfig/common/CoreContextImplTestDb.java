@@ -25,6 +25,8 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
+import org.sipfoundry.sipxconfig.phonebook.Address;
+import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.context.ApplicationContext;
@@ -511,5 +513,40 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         user = m_core.getSpecialUser(SpecialUserType.REGISTRAR_SERVER);
         assertEquals("~~id~registrar", user.getName());
         assertTrue(user.getSipPassword().length() >= 10);
+    }
+
+    public void testSaveAddressBook() throws Exception {
+        TestHelper.insertFlat("common/UserSearchSeed.xml");
+
+        User user = m_core.loadUser(1001);
+        assertNotNull(user);
+
+        AddressBookEntry addressBook = user.getAddressBookEntry();
+        assertNotNull(addressBook);
+        addressBook.setJobTitle("Data Entry Assistant");
+        addressBook.setJobDept("Data Management Services");
+        addressBook.setCompanyName("Museum of Science");
+        addressBook.setCellPhoneNumber("(617) 723-2500");
+        addressBook.setFaxNumber("617-589-0362");
+
+        Address address = addressBook.getOfficeAddress();
+        assertNotNull(address);
+        address.setStreet("1 Science Park");
+        address.setZip("02114");
+        address.setCity("Boston");
+        address.setCountry("US");
+        address.setState("MA");
+        addressBook.setOfficeAddress(address);
+
+        user.setAddressBookEntry(addressBook);
+        m_core.saveUser(user);
+
+        user = m_core.loadUser(1001);
+        assertNotNull(user);
+        assertEquals("Museum of Science", user.getAddressBookEntry().getCompanyName());
+        assertEquals("(617) 723-2500", user.getAddressBookEntry().getCellPhoneNumber());
+        assertEquals("Data Entry Assistant", user.getAddressBookEntry().getJobTitle());
+        assertEquals("Boston", user.getAddressBookEntry().getOfficeAddress().getCity());
+        assertEquals("1 Science Park", user.getAddressBookEntry().getOfficeAddress().getStreet());
     }
 }

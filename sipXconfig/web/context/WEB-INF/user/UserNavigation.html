@@ -15,6 +15,12 @@
               <span key="link.identification">Identification</span>
             </a>
           </span>
+          <span jwcid="@common/Tab" isActive="ognl:extendedUserInfoTabActive">
+            <a jwcid="editExtendedUserInfoLink@DirectLink" listener="listener:editExtendedUserInfo"
+              parameters="ognl:bean.id">
+              <span key="link.extendedInfo">Contact Information</span>
+            </a>
+          </span>
           <span jwcid="@common/Tab" isActive="ognl:phonesTabActive">
             <a jwcid="userPhonedLink@DirectLink" listener="listener:editUserPhones"
               parameters="ognl:bean.id">

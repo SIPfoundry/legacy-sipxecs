@@ -20,6 +20,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.common.BeanNavigation;
 import org.sipfoundry.sipxconfig.site.speeddial.SpeedDialPage;
+import org.sipfoundry.sipxconfig.site.user_portal.ExtendedUserInfo;
 import org.sipfoundry.sipxconfig.site.user_portal.UserCallForwarding;
 import org.sipfoundry.sipxconfig.site.user_portal.UserSchedules;
 
@@ -60,6 +61,9 @@ public abstract class UserNavigation extends BeanNavigation {
 
     @InjectPage(value = UserConferences.PAGE)
     public abstract UserConferences getUserConferencesPage();
+
+    @InjectPage(value = ExtendedUserInfo.PAGE)
+    public abstract ExtendedUserInfo getExtendedUserInfoPage();
 
     public IPage editCallForwarding(Integer userId) {
         UserCallForwarding page = getUserCallForwardingPage();
@@ -130,6 +134,13 @@ public abstract class UserNavigation extends BeanNavigation {
         return page;
     }
 
+    public IPage editExtendedUserInfo(Integer userId) {
+        ExtendedUserInfo page = getExtendedUserInfoPage();
+        page.setUserId(userId);
+        page.setReturnPage(ManageUsers.PAGE);
+        return page;
+    }
+
     public boolean isConferencesTabActive() {
         return UserConferences.PAGE.equals(getPage().getPageName());
     }
@@ -164,6 +175,10 @@ public abstract class UserNavigation extends BeanNavigation {
 
     public boolean isRegistrationsTabActive() {
         return UserRegistrations.PAGE.equals(getPage().getPageName());
+    }
+
+    public boolean isExtendedUserInfoTabActive() {
+        return ExtendedUserInfo.PAGE.equals(getPage().getPageName());
     }
 
     public Collection<Setting> getNavigationGroups() {

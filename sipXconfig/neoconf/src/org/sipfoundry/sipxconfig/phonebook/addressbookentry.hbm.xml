@@ -14,6 +14,7 @@
     <property name="companyName" />
     <property name="assistantName" />
     <property name="cellPhoneNumber" />
+    <property name="homePhoneNumber" />
     <property name="assistantPhoneNumber" />
     <property name="faxNumber" />
     <property name="imId" />
@@ -26,7 +27,6 @@
       <property name="country" column="home_address_country" />
       <property name="state" column="home_address_state" />
     </component>
-
     <component name="officeAddress" class="Address">
       <property name="street" column="office_address_street" />
       <property name="zip" column="office_address_zip" />
@@ -35,8 +35,5 @@
       <property name="state" column="office_address_state" />
       <property name="officeDesignation" column="office_address_office_designation" />
     </component>
-
   </class>
-
-
 </hibernate-mapping>

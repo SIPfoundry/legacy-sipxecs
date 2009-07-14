@@ -317,6 +317,7 @@
     <antcall target="attendant_dialing_rule_migrate" />
 	<antcall target="add_addressbook_entry_info" />
     <antcall target="add-user-callforward" />
+    <antcall target="add_addressbook_entry_info_2" />
   </target>
 
   <target name="time_of_day" unless="time_of_day">
@@ -952,6 +953,9 @@
   </target>
   <target name="add_addressbook_entry_info" unless="add_addressbook_entry_info">
     <db-patch patch="add_addressbook_entry_info"/>
+  </target>
+  <target name="add_addressbook_entry_info_2" unless="add_addressbook_entry_info_2">
+    <db-patch patch="add_addressbook_entry_info_2"/>
   </target>
 
   <!--

@@ -19,9 +19,10 @@ public class AddressBookEntry extends BeanWithId {
     private String m_assistantName;
     private String m_location;
 
-    private Address m_homeAddress;
-    private Address m_officeAddress;
+    private Address m_homeAddress = new Address();
+    private Address m_officeAddress = new Address();
     private String m_cellPhoneNumber;
+    private String m_homePhoneNumber;
     private String m_assistantPhoneNumber;
     private String m_faxNumber;
     private String m_imId;
@@ -81,6 +82,14 @@ public class AddressBookEntry extends BeanWithId {
 
     public void setCellPhoneNumber(String cellPhoneNumber) {
         m_cellPhoneNumber = cellPhoneNumber;
+    }
+
+    public String getHomePhoneNumber() {
+        return m_homePhoneNumber;
+    }
+
+    public void setHomePhoneNumber(String homePhoneNumber) {
+        m_homePhoneNumber = homePhoneNumber;
     }
 
     public String getAssistantPhoneNumber() {
