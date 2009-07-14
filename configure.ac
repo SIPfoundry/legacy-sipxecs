@@ -59,9 +59,9 @@ then
 fi
 
 AC_ARG_ENABLE(openfire,
-  AC_HELP_STRING([--disable-openfire],
+  AC_HELP_STRING([--enable-openfire],
     [openfire integration]),
-      openfire=no, openfire=yes)
+      openfire=yes, openfire=no)
 
 if test x$openfire = xyes
 then

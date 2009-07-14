@@ -9,7 +9,7 @@
 export SIPX_COMMONS=@SIPX_JAVADIR@/sipXcommons
 export OPENFIRE_LIB=@OPENFIRE_HOME@/lib
 # Stop openfire if it is running.
-@SIPX_BINDIR@/openfire.sh --stop
+@SIPX_BINDIR@/sipxopenfire.sh --stop
 if [ -e @OPENFIRE_HOME@  ]
 then
    rm -f $OPENFIRE_LIB/log4j.jar

@@ -36,18 +36,18 @@ public class OpenfireXmlRpcUserAccountClientTest extends TestCase {
     
     public void testCreateUserAndAddSipDomain() throws Exception {
         
-        client.createUserAccount("foobar", "baz", "My Display Name", "user1@gmail.com");
+        client.createUserAccount("user1", "user1", "My Display Name", "user1@gmail.com");
         if ( ! client.userExists("foobar") ) {
             fail("foobar must exist!");
         }
-        String sipUser = client.getSipId("foobar");
+        String sipUser = client.getSipId("user1");
         
         System.out.println("sipUser = " + sipUser);
         assertTrue( sipUser == null || sipUser.equals("user1@" + sipDomain));
         
         client.setSipId("foobar", "user1@" + sipDomain);
         
-        sipUser = client.getSipId("foobar");
+        sipUser = client.getSipId("user1");
         
         assertEquals(sipUser, "user1@"  +  sipDomain);
         
