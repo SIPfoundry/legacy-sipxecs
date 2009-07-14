@@ -116,6 +116,15 @@ if [ ${genZone} -ne 0 ]
 then
     echo "Generating DNS record for secondary server"
     cat > "${INITIAL_CONFIG}/etc/named.conf" <<EOF
+// WARNING: Name server configuration is a sipX automatically generated file.
+//          Contents may be overwritten unless you change the mode to "Manual".
+//          Available modes:
+//          "Master"    - Master name server (on primary server).
+//          "Slave"     - Slave named server (on distributed server).
+//          "Caching"   - Caching only name server.
+//          "Manual"    - Blocks future automatic updates.
+// DNS_MODE="Slave"
+
 options {
     directory "${ZONE_PATH}";
     dump-file "${ZONE_PATH}/data/cache_dump.db";

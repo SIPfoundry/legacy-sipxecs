@@ -67,13 +67,36 @@ fi
 
 # Generate the zone file
 domname=`dnsdomainname`
-echo "Generating zone file for:"
-echo $domname
-echo $Args
-@SIPX_BINDIR@/sipx-dns $domname $Args > ${ZONE_PATH}/${domname}.zone
-chgowner=`/bin/chown named:named ${ZONE_PATH}/${domname}.zone`
 
-# Reload the zone files into the DNS server.
-# If the DNS server is not running this will do nothing.
-reload=`/usr/sbin/rndc reload`
-echo $reload
+grep DNS_MODE /etc/named.conf > /tmp/dnsmode.conf
+sed -i 's/\/\/ DNS_MODE/DNS_MODE/g' /tmp/dnsmode.conf
+. /tmp/dnsmode.conf
+
+if [ $DNS_MODE == "Manual" ]; then
+  # DNS is manually configured so don't change zone file
+  echo "Using manual zone file for:"
+  echo $domname
+else if [ $DNS_MODE == "Caching" ]; then
+  # DNS is caching-only so don't change zone file
+  echo "Using caching-only zone file for:"
+  echo $domname
+else
+  echo "Generating zone file for:"
+  echo $domname
+  echo $Args
+
+  cat > "${ZONE_PATH}/${domname}.zone" <<EOF
+; WARNING: Zone file configuration is a sipX automatically generated file.
+;          Contents may be overwritten unless you set the named.conf DNS_MODE.
+;
+EOF
+
+  @SIPX_BINDIR@/sipx-dns $domname $Args >> ${ZONE_PATH}/${domname}.zone
+  chgowner=`/bin/chown named:named ${ZONE_PATH}/${domname}.zone`
+
+  # Reload the zone files into the DNS server.
+  # If the DNS server is not running this will do nothing.
+  reload=`/usr/sbin/rndc reload`
+  echo $reload
+fi
+fi
