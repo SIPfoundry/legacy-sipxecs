@@ -499,6 +499,7 @@ private:
    friend class SipRedirectServer;
    friend class ContactListTest;  
    friend class SipRedirectorTimeOfDayTest;
+   friend class SipRedirectorPresenceRoutingTest;
 };
 
 /**

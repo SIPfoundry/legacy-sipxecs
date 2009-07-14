@@ -5,7 +5,7 @@ lib_LTLIBRARIES = \
 	libRedirectorAliasDB.la \
 	libRedirectorAuthRouter.la \
 	libRedirectorMapping.la \
-   libRedirectorFallback.la \
+    	libRedirectorFallback.la \
 	libRedirectorPickUp.la \
 	libRedirectorRegDB.la \
 	libRedirectorSubscribe.la \
@@ -13,8 +13,9 @@ lib_LTLIBRARIES = \
 	libRedirectorENUM.la \
 	libRedirectorISN.la \
 	libRedirectorJoin.la \
-	libRedirectorTest.la \
-   libRedirectorTimeOfDay.la
+    libRedirectorTest.la \
+    libRedirectorPresenceRouting.la \
+    libRedirectorTimeOfDay.la
 
 
 INCLUDES = -I$(top_srcdir)/include
@@ -198,6 +199,22 @@ libRedirectorJoin_la_CXXFLAGS = \
 libRedirectorJoin_la_SOURCES =  \
 	SipRedirectorJoin.cpp \
 	SipRedirectorJoin.h
+
+# SipRedirectorPresenceRouting
+
+libRedirectorPresenceRouting_la_LDFLAGS = \
+    -module \
+    -version-info ${version_Current}:${version_Revision}:${version_Age}
+
+libRedirectorPresenceRouting_la_LIBADD = \
+    @SIPXCOMMSERVER_LIBS@
+
+libRedirectorPresenceRouting_la_CXXFLAGS = \
+    -I$(top_builddir)/config
+
+libRedirectorPresenceRouting_la_SOURCES =  \
+    SipRedirectorPresenceRouting.cpp \
+    SipRedirectorPresenceRouting.h
 
 # SipRedirectorTimeOfDay
 
