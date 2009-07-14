@@ -58,6 +58,16 @@ then
   AC_CONFIG_SUBDIRS(sipXtools)
 fi
 
+AC_ARG_ENABLE(openfire,
+  AC_HELP_STRING([--disable-openfire],
+    [openfire integration]),
+      openfire=no, openfire=yes)
+
+if test x$openfire = xyes
+then
+  AC_CONFIG_SUBDIRS(sipXopenfire)
+fi
+
 SFAC_DIST_DIR
    
 AC_CONFIG_FILES([Makefile])

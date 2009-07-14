@@ -93,6 +93,10 @@ sipXivr : sipXcommons
 sipXsaa : sipXcommserverLib
 	@echo sipXsaa
 
+.PHONY: sipXopenfire
+sipXopenfire : sipXcommons
+	@echo sipXopenfire
+
 .PHONY: sipXecs
 sipXecs : sipXproxy sipXregistry sipXpublisher sipXsaa sipXvxml sipXconfig sipXfreeSwitch sipXpbx sipXsupervisor sipXtools doc
 	@echo sipXecs
