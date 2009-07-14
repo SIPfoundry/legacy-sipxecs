@@ -2072,6 +2072,8 @@ public:
          CPPUNIT_ASSERT(serverSideNotResponse);
 
          // Check the Contact in the NOTIFY response.
+         CPPUNIT_ASSERT(serverSideNotResponse->
+                        getHeaderValue(0, SIP_CONTACT_FIELD));
          ASSERT_STR_EQUAL(subscriber_contact_name_addr,
                           serverSideNotResponse->
                               getHeaderValue(0, SIP_CONTACT_FIELD));

@@ -34,7 +34,7 @@ class OsTimer;
 
 //! Class for refreshing SIP subscriptions and registrations
 /*! This is currently verified for SUBSCRIPTIONS ONLY.
- *  This class is intended to deprecate the SipRefreshMgr class.
+ *  This class is intended to replace the SipRefreshMgr class.
  *
  * \par 
  */
@@ -124,7 +124,7 @@ public:
      *  This method may fail if the dialog or refresh state already
      *  exists or if the request immediately fails to send.  The
      *  refresh manager may attempt to resend the request to
-     *  subscribe or register even if it fails the first time while
+     *  subscribe or register even if it fails the first time when
      *  this method is invoked, but most error responses to the
      *  request terminate the refresh state.
      */
@@ -227,18 +227,24 @@ private:
     //! Stop the resend timer to indicate that it should be rescheduled with a short, failure timeout
     void stopTimerForFailureReschedule(OsTimer* timer);
 
-    //! Delete the given timer and its associated notiifer
+    //! Delete the given timer and its associated notifier.
     static void deleteTimerAndEvent(OsTimer*& timer);
 
-    //! set the given state and attached request so that it can be resent
+    //! Clean the state and attached request so that the request can be resent.
     void setForResend(RefreshDialogState& state, 
-                      UtlBoolean expireNow);
+                      ///< the refresh state containing the request to resend
+                      UtlBoolean expireNow
+                      /**< If TRUE, the subscription/registration is
+                       *   to be terminated, so the expiration time will be
+                       *   set to 0.
+                       */
+       );
 
-    //! Get the expiration from the initial SUBSCRIBE or REGISTER request
+    //! Get the expiration from the initial SUBSCRIBE or REGISTER request.
     static UtlBoolean getInitialExpiration(const SipMessage& sipRequest, 
                                            int& expirationPeriod);
 
-    //! Get the expiration from the accepted SUBSCRIBE or REGISTER response
+    //! Get the expiration from the SUBSCRIBE or REGISTER response.
     static UtlBoolean getAcceptedExpiration(RefreshDialogState* refreshState,
                                             const SipMessage& sipResponse, 
                                             int& expirationPeriod);

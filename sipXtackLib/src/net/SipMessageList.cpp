@@ -12,6 +12,7 @@
 
 // APPLICATION INCLUDES
 #include <net/SipMessageList.h>
+#include <os/OsSysLog.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -378,9 +379,12 @@ void SipMessageList::printDebugTable()
 
     int iteratorHandle = messageList.getIteratorHandle();
 
-    osPrintf("\nDump of SipMessageList (instance %8p)\n", this);
-    osPrintf("To                             CallId                         Method     CSeq       Request\n");
-    osPrintf("------------------------------ ------------------------------ ---------- ---------- ----------\n");
+    OsSysLog::add(FAC_REFRESH_MGR, PRI_DEBUG,
+                  "\nDump of SipMessageList (instance %8p)\n", this);
+    OsSysLog::add(FAC_REFRESH_MGR, PRI_DEBUG,
+                  "To                             CallId                         Method     CSeq       Request\n");
+    OsSysLog::add(FAC_REFRESH_MGR, PRI_DEBUG,
+                  "------------------------------ ------------------------------ ---------- ---------- ----------\n");
 
     while ((pMsg = (SipMessage*) messageList.next(iteratorHandle)))
         {
@@ -405,10 +409,11 @@ void SipMessageList::printDebugTable()
         if (method.length() > DBG_TBL_MAX_FIELD)
             method.remove(DBG_TBL_MAX_FIELD);
 
-        osPrintf(DBG_TBL_FORMAT_STR, toURI.data(), callId.data(),
-                method.data(), iCseq, bIsResponse ? "FALSE" : "TRUE");
+        OsSysLog::add(FAC_REFRESH_MGR, PRI_DEBUG,
+                      DBG_TBL_FORMAT_STR,
+                      toURI.data(), callId.data(),
+                      method.data(), iCseq, bIsResponse ? "FALSE" : "TRUE");
     }
-    osPrintf("\n");
 
     messageList.releaseIteratorHandle(iteratorHandle);
 }

@@ -1,6 +1,6 @@
 // 
 // 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007, 2008, 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 // 
@@ -70,7 +70,7 @@ SubscribeClientState::~SubscribeClientState()
 {
 }
 
-// Debug dump of private class client state
+// Debug dump of SubscribeClientState.
 void SubscribeClientState::toString(UtlString& dumpString)
 {
     dumpString = "SubscribeClientState:\n";
@@ -118,13 +118,13 @@ SubscribeClientState& SubscribeClientState::operator=(const SubscribeClientState
 // Constructor
 SipSubscribeClient::SipSubscribeClient(SipUserAgent& userAgent, 
                                        SipDialogMgr& dialogMgr,
-                                       SipRefreshManager& refreshMgr)
+                                       SipRefreshManager& refreshManager)
     : OsServerTask("SipSubscribeClient-%d")
     , mSubscribeClientMutex(OsMutex::Q_FIFO)
 {
     mpUserAgent = &userAgent;
     mpDialogMgr = &dialogMgr;
-    mpRefreshMgr = &refreshMgr;
+    mpRefreshManager = &refreshManager;
 }
 
 // Copy constructor
@@ -137,7 +137,7 @@ SipSubscribeClient::SipSubscribeClient(const SipSubscribeClient& rSipSubscribeCl
 // Destructor
 SipSubscribeClient::~SipSubscribeClient()
 {
-    // Do not delete mpUserAgent, mpDialogMgr or mpRefreshMgr.  They
+    // Do not delete mpUserAgent, mpDialogMgr or mpRefreshManager.  They
     // may be used elsewhere and need to be deleted outside the
     // SipSubscribeClient.
 
@@ -220,7 +220,7 @@ UtlBoolean SipSubscribeClient::addSubscription(
     Url fromUrl;
     subscriptionRequest.getFromUrl(fromUrl);
     UtlString fromTag;
-    fromUrl.getFieldParameter("tag",fromTag);
+    fromUrl.getFieldParameter("tag", fromTag);
     if (fromTag.isNull())
     {
         UtlString fromFieldValue;
@@ -276,11 +276,11 @@ UtlBoolean SipSubscribeClient::addSubscription(
     // Give the request to the refresh manager to send the
     // subscribe and keep the subscription alive
     UtlBoolean initialSendOk = 
-        mpRefreshMgr->initiateRefresh(subscriptionRequest,
-                                      this,
-                                      // refreshCallback receives 'this' as app. data
-                                      SipSubscribeClient::refreshCallback,
-                                      earlyDialogHandle);
+        mpRefreshManager->initiateRefresh(subscriptionRequest,
+                                          this,
+                                          // refreshCallback receives 'this' as app. data
+                                          SipSubscribeClient::refreshCallback,
+                                          earlyDialogHandle);
 
     return (initialSendOk);
 }
@@ -305,8 +305,7 @@ UtlBoolean SipSubscribeClient::endSubscription(const char* dialogHandle)
                       clientState);
 
         foundSubscription = TRUE;
-        // If there is a state change of interest and
-        // there is a callback function
+        // If there is a state change and there is a callback function
         if (clientState->mState != SUBSCRIPTION_TERMINATED &&
             clientState->mpStateCallback)
         {
@@ -325,7 +324,7 @@ UtlBoolean SipSubscribeClient::endSubscription(const char* dialogHandle)
         delete clientState;
 
         // Stop the refresh and unsubscribe
-        foundRefreshSubscription = mpRefreshMgr->stopRefresh(dialogHandle);
+        foundRefreshSubscription = mpRefreshManager->stopRefresh(dialogHandle);
     }
 
     // Did not find a matching dialog.
@@ -366,8 +365,8 @@ UtlBoolean SipSubscribeClient::endSubscription(const char* dialogHandle)
                 delete clientState;
 
                 // Stop the refresh and unsubscribe
-                foundRefreshSubscription |= mpRefreshMgr->stopRefresh(dialogHandle);
-                // mpRefreshMgr->stopRefresh has deleted the dialog
+                foundRefreshSubscription |= mpRefreshManager->stopRefresh(dialogHandle);
+                // mpRefreshManager->stopRefresh has deleted the dialog
                 // from mpDialogMgr, so the enclosing while loop will
                 // eventually terminate.
             }
@@ -443,12 +442,13 @@ void SipSubscribeClient::endAllSubscriptions()
       // Unsubscribe and stop refreshing the subscription.
       // Note: this next operation is performed outside of the 
       // critical section to avoid deadlocks.  See XECS-1988.
-      mpRefreshMgr->stopRefresh(dialogKeyAsString.data());
+      mpRefreshManager->stopRefresh(clientState->data());
 
       // Allow other threads waiting for the lock to run.
       OsTask::yield();
    }
 
+   // Delete the list of pointers itself.
    delete[] clientStateList;
 
 #ifdef TIME_LOG
@@ -466,7 +466,7 @@ UtlBoolean SipSubscribeClient::changeSubscriptionTime(const char* earlyDialogHan
 
     // Give the request to the refresh manager to send the
     // subscribe and keep the subscription alive
-    return mpRefreshMgr->changeRefreshTime(earlyDialogHandle, subscriptionPeriodSeconds);
+    return mpRefreshManager->changeRefreshTime(earlyDialogHandle, subscriptionPeriodSeconds);
 }
 
 UtlBoolean SipSubscribeClient::handleMessage(OsMsg &eventMessage)
@@ -591,7 +591,7 @@ void SipSubscribeClient::dumpState()
                     clientState, oneClientDump.data());
 
    }
-   mpRefreshMgr->dumpState();
+   mpRefreshManager->dumpState();
 
    unlock();
 }
@@ -910,8 +910,8 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
                  // SipDialogMgr::updateDialog() is called below.
                  SipMessage subscribeRequest;
                  // This lookup should always succeed.
-                 if (mpRefreshMgr->getRequest(establishedDialogHandle,
-                                              subscribeRequest))
+                 if (mpRefreshManager->getRequest(establishedDialogHandle,
+                                                  subscribeRequest))
                  {
                     // Set the to-tag to match this NOTIFY's from-tag.
                     Url fromUrl;
@@ -920,12 +920,12 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
                     fromUrl.getFieldParameter("tag", fromTag);
                     subscribeRequest.setToFieldTag(fromTag);
                     UtlString dummy;
-                    mpRefreshMgr->initiateRefresh(subscribeRequest,
-                                                  this,
-                                                  SipSubscribeClient::refreshCallback,
-                                                  dummy,
-                                                  // Do not send a SUBSCRIBE now.
-                                                  TRUE);
+                    mpRefreshManager->initiateRefresh(subscribeRequest,
+                                                      this,
+                                                      SipSubscribeClient::refreshCallback,
+                                                      dummy,
+                                                      // Do not send a SUBSCRIBE now.
+                                                      TRUE);
                     sequence = SipDialogMgr::IN_ORDER;
                     // Adjust the flag variables to match what is now true.
                     foundDialog = TRUE;
@@ -1116,7 +1116,7 @@ SubscribeClientState* SipSubscribeClient::getState(const UtlString& dialogHandle
     return (foundState);
 }
 
-SubscribeClientState* SipSubscribeClient::removeState(UtlString& dialogHandle)
+SubscribeClientState* SipSubscribeClient::removeState(const UtlString& dialogHandle)
 {
     SubscribeClientState* foundState =
        dynamic_cast <SubscribeClientState*> (mSubscriptions.remove(&dialogHandle));

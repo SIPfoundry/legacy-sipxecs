@@ -608,16 +608,17 @@ public:
                     const char* transferTargetAddress,
                     const char* targetCallId);
 
-    void setRegisterData(const char* registererUri,
-                         const char* registerAsUri,
-                         const char* registrarServerUri,
-                         const char* takeCallsAtUri,
+    void setRegisterData(const char* registererUri,      ///< From
+                         const char* registerAsUri,      ///< To
+                         const char* registrarServerUri, ///< request-URI
+                         const char* takeCallsAtUri,     ///< Contact
                          const char* callId,
                          int sequenceNumber,
-                         int expiresInSeconds = -1);
+                         int expiresInSeconds = -1       ///< Expires
+       );
 
     void setRequestData(const char* method,
-                        const char* uri,
+                        const char* uri,         ///< request-URI
                         const char* fromAddress, ///< name-addr
                         const char* toAddress,   ///< name-addr
                         const char* callId,

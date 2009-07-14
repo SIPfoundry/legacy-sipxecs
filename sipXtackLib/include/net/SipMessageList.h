@@ -28,8 +28,10 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-//:Class short description which may consist of multiple lines (note the ':')
-// Class detailed description which may extend to multiple lines
+//: Subclass of OsLockingList specialized to hold SipMessage's
+// SipMessageList is a subclass of OsLockingList that specialized to
+// hold SipMessage's.  It has a number of accessors and mutators controlled
+// by properties and relationships of SipMessage's.
 class SipMessageList
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -62,8 +64,8 @@ public:
 
     int getListSize();
     int getIterator();
-    SipMessage* getSipMessageForIndex( int iteratorHandle );
-    void releaseIterator( int iteratorHandle );
+    SipMessage* getSipMessageForIndex(int iteratorHandle);
+    void releaseIterator(int iteratorHandle);
 
     UtlBoolean remove(SipMessage* message);
     void add(SipMessage* message);
@@ -73,7 +75,7 @@ public:
 
     void toString(UtlString& listDumpString);
 
-    void printDebugTable() ;
+    void printDebugTable();
 /* ============================ INQUIRY =================================== */
 
 

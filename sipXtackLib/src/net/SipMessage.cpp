@@ -221,13 +221,14 @@ void SipMessage::setRegisterData(const char* registererUri,
                         int expiresInSeconds)
 {
    setRequestData(SIP_REGISTER_METHOD,
-                     registrarServerUri, // uri
-                     registererUri, // from
-                     registerAsUri, // to
-                     callId,
-                     sequenceNumber);
+                  registrarServerUri, // uri
+                  registererUri, // from
+                  registerAsUri, // to
+                  callId,
+                  sequenceNumber,
+                  takeCallsAtUri // Contact
+      );
 
-   setContactField(takeCallsAtUri);
    setExpiresField(expiresInSeconds);
 }
 

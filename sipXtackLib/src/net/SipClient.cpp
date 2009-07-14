@@ -487,7 +487,7 @@ int SipClient::run(void* runArg)
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipClient[%s]::run start  "
-                 "OnErrWait-%d waitingToReport-%d mbOnErrWait-%d EOFs-%d",
+                 "tcpOnErrWaitForSend-%d waitingToReportErr-%d mbTcpOnErrWaitForSend-%d repeatedEOFs-%d",
                  mName.data(), tcpOnErrWaitForSend, waitingToReportErr, 
                  mbTcpOnErrWaitForSend, repeatedEOFs);
 
@@ -500,7 +500,7 @@ int SipClient::run(void* runArg)
 
    do
    {
-       assert(repeatedEOFs < 20);
+      assert(repeatedEOFs < 20);
       // The file descriptor for the socket may change, as OsSocket's
       // can be re-opened.
       fds[1].fd = clientSocket->getSocketDescriptor();
@@ -580,7 +580,7 @@ int SipClient::run(void* runArg)
                        "SipClient[%s]::run got pipe-select  "
                        "Number of Messages waiting: %d",
                        mName.data(),  
-                       numberMsgs );
+                       numberMsgs);
          int i;
          char buffer[1];
          for (i = 0; i < numberMsgs; i++)
@@ -595,8 +595,8 @@ int SipClient::run(void* runArg)
             tcpOnErrWaitForSend = FALSE;
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "SipClient[%s]::run got pipe-select  "
-                          "OnErrWait-%d waitingToReport-%d mbOnErrWait-%d EOFs-%d",
-                          mName.data(), tcpOnErrWaitForSend, waitingToReportErr, 
+                          "mbTcpOnErrWaitForSend-%d waitingToReportErr-%d mbTcpOnErrWaitForSend-%d repeatedEOFs-%d",
+                          mName.data(), mbTcpOnErrWaitForSend, waitingToReportErr, 
                           mbTcpOnErrWaitForSend, repeatedEOFs);
 
             // Read 1 byte from the pipe to clear it for this message.  One byte is 
@@ -772,10 +772,13 @@ int SipClient::run(void* runArg)
 
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "SipClient[%s]::run error wait status  "
-                          "OnErrWait=%d waitingToReport=%d mbOnErrWait=%d EOFs=%d"
-                          "protocol %d ",
-                          mName.data(), tcpOnErrWaitForSend, waitingToReportErr, 
+                          "tcpOnErrWaitForSend-%d waitingToReportErr-%d "
+                          "mbTcpOnErrWaitForSend-%d repeatedEOFs-%d "
+                          "protocol %d framed %d",
+                          mName.data(),
+                          tcpOnErrWaitForSend, waitingToReportErr, 
                           mbTcpOnErrWaitForSend, repeatedEOFs, 
+                          clientSocket->getIpProtocol(),
                           OsSocket::isFramed(clientSocket->getIpProtocol()));
 
             // If the socket is not framed (is connection-oriented), 

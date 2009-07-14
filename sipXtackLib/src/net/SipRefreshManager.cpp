@@ -135,6 +135,7 @@ RefreshDialogState::~RefreshDialogState()
 }
 
 //Assignment operator NOT ALLOWED
+#if 0
 RefreshDialogState& 
 RefreshDialogState::operator=(const RefreshDialogState& rhs)
 {
@@ -143,6 +144,7 @@ RefreshDialogState::operator=(const RefreshDialogState& rhs)
 
    return *this;
 }
+#endif // 0
 
 // Constructor
 SipRefreshManager::SipRefreshManager(SipUserAgent& userAgent, 
@@ -328,7 +330,7 @@ UtlBoolean SipRefreshManager::initiateRefresh(SipMessage& subscribeOrRegisterReq
 
         // Set a timer  at which to resend the next refresh based upon the 
         // assumption that the request will succeed.  If we receive a 
-        // failed response, we will cancel this timer and reschedule
+        // failure response, we will cancel this timer and reschedule
         // a new timer based upon a smaller fraction of the requested 
         // expiration period 
         setRefreshTimer(*state, 
@@ -423,7 +425,7 @@ UtlBoolean SipRefreshManager::initiateRefresh(SipMessage& subscribeOrRegisterReq
         }
     }
 
-    return(intitialRequestSent);
+    return (intitialRequestSent);
 }
 
 
@@ -1410,38 +1412,40 @@ int SipRefreshManager::calculateResendTime(int requestedExpiration,
 
 void SipRefreshManager::stopTimerForFailureReschedule(OsTimer* resendTimer)
 {
-    if(resendTimer)
+    if (resendTimer)
     {
         resendTimer->stop();
         OsQueuedEvent* queuedEvent = 
             (OsQueuedEvent*) resendTimer->getNotifier();
 
-        // If the queued event exists fire it now with an error status
+        // If the queued event exists, fire it now with an error status
         // to indicate that it should be resheduled with the (shorter)
-        // error timeout.  Normally the timer is scheduled with the
+        // error timeout.  Initially the timer is scheduled with the
         // timeout assuming that the reSUBSCRIBE or reREGISTER will
         // succeed.
-        if(queuedEvent)
+        if (queuedEvent)
         {
-            // Effectively make the timer fire now
+            // Effectively make the timer fire now.
             queuedEvent->signal(OS_INTERRUPTED);  // CANCELED
         }
     }
 }
 
+// Delete the given timer and its associated notifier.
 void SipRefreshManager::deleteTimerAndEvent(OsTimer*& timer)
 {
-    if (timer)
-    {
-        delete timer;
-        timer = NULL;
-    }
+   if (timer)
+   {
+      delete timer;
+      timer = NULL;
+   }
 }
 
+// Clean the state and attached request so that the request can be resent.
 void SipRefreshManager::setForResend(RefreshDialogState& state, 
                                      UtlBoolean expireNow)
 {
-    if(state.mpLastRequest)
+    if (state.mpLastRequest)
     {
         if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
         {
@@ -1453,7 +1457,7 @@ void SipRefreshManager::setForResend(RefreshDialogState& state,
                          lastRequest.data());
         }
        
-        // Remove old vias
+        // Remove the Via that was added when the request was last sent.
         state.mpLastRequest->removeTopVia();
 
         // Do not modify the Route headers in *state->mpLastRequest.
@@ -1466,9 +1470,11 @@ void SipRefreshManager::setForResend(RefreshDialogState& state,
         // Remove any credentials
         while(state.mpLastRequest->removeHeader(HTTP_AUTHORIZATION_FIELD, 0))
         {
+           // null
         }
         while(state.mpLastRequest->removeHeader(HTTP_PROXY_AUTHORIZATION_FIELD, 0))
         {
+           // null
         }
 
         // Remove transport state info
@@ -1477,7 +1483,7 @@ void SipRefreshManager::setForResend(RefreshDialogState& state,
         // Set the dialog info and cseq
         mpDialogMgr->setNextLocalTransactionInfo(*(state.mpLastRequest));
 
-        // Set the expiration
+        // Set the expiration to 0 if we are to terminate the registration/subscription.
         if (expireNow)
         {
            state.mpLastRequest->setExpiresField(0);
@@ -1485,9 +1491,16 @@ void SipRefreshManager::setForResend(RefreshDialogState& state,
 
         // The Date header will be set by the SipUserAgent.
     }
+    else
+    {
+       OsSysLog::add(FAC_SIP, PRI_ERR,
+                     "SipRefreshManager::setForResend called with a state (%p) that has no last request recorded",
+                     &state);
+    }
 }
 
 
+// Get the expiration from the initial SUBSCRIBE or REGISTER request.
 UtlBoolean SipRefreshManager::getInitialExpiration(const SipMessage& sipRequest, 
                                                    int& expirationPeriod)
 {
@@ -1525,6 +1538,7 @@ UtlBoolean SipRefreshManager::getInitialExpiration(const SipMessage& sipRequest,
     return(foundExpiration);
 }
 
+// Get the expiration from the SUBSCRIBE or REGISTER response.
 UtlBoolean SipRefreshManager::getAcceptedExpiration(RefreshDialogState* state,
                                                     const SipMessage& sipResponse, 
                                                     int& expirationPeriod)
@@ -1538,9 +1552,9 @@ UtlBoolean SipRefreshManager::getAcceptedExpiration(RefreshDialogState* state,
     // the contact.
     if (method.compareTo(SIP_REGISTER_METHOD) == 0)
     {
-        // Get the presumably first contact in the REGISTER request
-        // so that we can find the same contact in the response and
-        // find out what the expiration is
+        // Get the first contact in the REGISTER request so that we
+        // can find the same contact in the response and find out what
+        // its expiration is.
         UtlString requestContact;
         Url requestContactUri;
         if(state && state->mpLastRequest &&
@@ -1549,7 +1563,7 @@ UtlBoolean SipRefreshManager::getAcceptedExpiration(RefreshDialogState* state,
            requestContactUri = requestContact;
         }
 
-        // Register could have it in the Contact header
+        // The response could have the expiration time in the Contact header.
         UtlString responseContactValue;
         int contactIndex = 0;
         while(sipResponse.getContactEntry(contactIndex , &responseContactValue))

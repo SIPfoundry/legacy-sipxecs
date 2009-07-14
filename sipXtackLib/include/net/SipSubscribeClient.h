@@ -169,19 +169,14 @@ public:
 
     //! End the SIP event subscription indicated by the dialog handle
     /*! If the given dialogHandle is an early dialog it will end any
-     *  established or early dialog subscriptions.  Typically the
-     *  application SHOULD use the established dialog handle.  This
-     *  method can also be used to end one of the dialogs if multiple
-     *  subsription dialogs were created as a result of a single 
-     *  subscribe request.  The application will get multiple 
-     *  SUBSCRIPTION_SETUP SubscriptionStateCallback events when
-     *  multiple dialogs are created as a result of a single SUBSCRIBE.
-     *  To end one of the subscriptions the application should use
-     *  the setup dialogHandle provided by the SubscriptionStateCallback.
+     *  established or early dialog subscriptions created by the
+     *  addSubscription() that returned the early dialog handle.
+     *  Typically the application should use an established dialog
+     *  handle, which terminates the specified established subscription.
      */
     UtlBoolean endSubscription(const char* dialogHandle);
 
-    //! End all subscriptions
+    //! End all subscriptions known by the SipSubscribeClient.
     void endAllSubscriptions();
 
     /** Change the subscription expiration period.
@@ -198,13 +193,13 @@ public:
     //! Create a debug dump of all the client states
     int dumpStates(UtlString& dumpString);
 
-    //! Get a string representation of the client state enumeration
+    //! Get a string representation of an 'enum SubscriptionState' value.
     static void getSubscriptionStateEnumString(enum SubscriptionState stateValue, 
                                                UtlString& stateString);
 
 /* ============================ INQUIRY =================================== */
 
-    //! Get a count of the subscriptions which have been added
+    //! Get a count of the subscriptions which currently exist.
     int countSubscriptions();
 
     //! Dump the object's internal state.
@@ -239,18 +234,18 @@ private:
     //! Handle incoming notify request
     void handleNotifyRequest(const SipMessage& notifyRequest);
 
-    //! Add the client state to the container
+    //! Add the client state to mSubscriptions.
     void addState(SubscribeClientState& clientState);
 
-    //! find the state from the container that matches the dialog
+    //! find the state from mSubscriptions that matches the dialog
     /* Assumes external locking
      */
     SubscribeClientState* getState(const UtlString& dialogHandle);
 
-    //! remove the state from the container that matches the dialog
+    //! remove the state from mSubscriptions that matches the dialog
     /* Assumes external locking
      */
-    SubscribeClientState* removeState(UtlString& dialogHandle);
+    SubscribeClientState* removeState(const UtlString& dialogHandle);
 
     //! lock for single thread use
     void lock();
@@ -265,9 +260,11 @@ private:
 
     SipUserAgent* mpUserAgent;
     SipDialogMgr* mpDialogMgr;
-    SipRefreshManager* mpRefreshMgr;
+    SipRefreshManager* mpRefreshManager;
     UtlHashBag mSubscriptions; // state info. for each subscription
-    UtlHashBag mEventTypes; // SIP event types that we want NOTIFY requests for
+    // SIP event types that we are currently a SipUserAgent message observer for.
+    UtlHashBag mEventTypes;
+    // Protects mSubscriptions and mEventTypes.
     OsMutex mSubscribeClientMutex;
 };
 
