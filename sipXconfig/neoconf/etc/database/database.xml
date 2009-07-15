@@ -317,6 +317,7 @@
     <antcall target="attendant_dialing_rule_migrate" />
 	<antcall target="add_addressbook_entry_info" />
     <antcall target="add-user-callforward" />
+  	<antcall target="add-user-shared-field" />
     <antcall target="add_addressbook_entry_info_2" />
   </target>
 
@@ -838,6 +839,10 @@
 
   <target name="add-user-callforward" unless="add-user-callforward">
     <db-patch patch="add-user-callforward"/>
+  </target>
+
+  <target name="add-user-shared-field" unless="add-user-shared-field">
+    <db-patch patch="add-user-shared-field"/>
   </target>
 
   <!--

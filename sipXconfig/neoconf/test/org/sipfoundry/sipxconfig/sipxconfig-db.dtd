@@ -817,6 +817,7 @@
     pintoken CDATA #IMPLIED
     sip_password CDATA #IMPLIED
     last_name CDATA #IMPLIED
+    is_shared CDATA #IMPLIED
     user_name CDATA #REQUIRED
     value_storage_id CDATA #IMPLIED
     address_book_entry_id CDATA #IMPLIED
