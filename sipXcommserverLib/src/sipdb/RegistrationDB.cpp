@@ -114,6 +114,9 @@ RegistrationDB::RegistrationDB( const UtlString& name ) :
     // If we are the first process to attach
     // then we need to load the DB
     int users = pSIPDBManager->getNumDatabaseProcesses(name);
+    OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
+                  "RegistrationDB::_ users = %d, mTableLoaded = %d",
+                  users, mTableLoaded);
     if ( users == 1 || ( users > 1 && mTableLoaded == false ) )
     {
         OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "About to try to load registration db");
@@ -228,7 +231,7 @@ RegistrationDB::load()
             }
         } else
         {
-            OsSysLog::add(FAC_DB, PRI_WARNING, "RegistrationDB::load failed to load \"%s\"",
+            OsSysLog::add(FAC_DB, PRI_WARNING, "RegistrationDB::load TiXmlDocument::LoadFile() failed for file '%s'",
                     pathName.data());
             result = OS_FAILED;
         }

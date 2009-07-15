@@ -67,6 +67,9 @@ CredentialDB::CredentialDB ( const UtlString& name )
     // If we are the first process to attach
     // then we need to load the DB
     int numusers = pSIPDBManager->getNumDatabaseProcesses (name);
+    OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
+                  "RegistrationDB::_ users = %d, mTableLoaded = %d",
+                  numusers, mTableLoaded);
     if ( numusers == 1 || ( numusers > 1 && mTableLoaded == false ) )
     {
         OsSysLog::add(FAC_DB, PRI_DEBUG, "CredentialDB::CredentialDB() about to load");
@@ -209,7 +212,7 @@ CredentialDB::load()
                     mDatabaseName, loadChecksum);
         } else 
         {
-            OsSysLog::add(FAC_DB, PRI_WARNING, "CredentialDB::load failed to load \"%s\"",
+            OsSysLog::add(FAC_DB, PRI_WARNING, "CredentialDB::load TiXmlDocument::LoadFile() failed for file '%s'",
                     pathName.data());
             result = OS_FAILED;
         }
