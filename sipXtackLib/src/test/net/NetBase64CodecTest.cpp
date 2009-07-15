@@ -19,6 +19,7 @@ typedef struct
    size_t      inputSize;
    const char* inputData;
    const char* output;
+   NetBase64Codec::Base64Alphabet alphabet;
 } TestData;
 
 // Table of test cases.
@@ -26,24 +27,79 @@ TestData tests[] =
 {
    {
       24,
-      "Base64 encode or decode\n",
-      "QmFzZTY0IGVuY29kZSBvciBkZWNvZGUK"
+      "\373\376\107e64 encode or decode\n",
+      "+/5HZTY0IGVuY29kZSBvciBkZWNvZGUK",
+      NetBase64Codec::RFC4648MimeAlphabet
    },
    {
       25,
-      "Base64 encode or decodeX\n",
-      "QmFzZTY0IGVuY29kZSBvciBkZWNvZGVYCg=="
+      "\373\376\107e64 encode or decodeX\n",
+      "+/5HZTY0IGVuY29kZSBvciBkZWNvZGVYCg==",
+      NetBase64Codec::RFC4648MimeAlphabet
    },
    {
       26,
-      "Base64 encode or decodeXX\n",
-      "QmFzZTY0IGVuY29kZSBvciBkZWNvZGVYWAo="
+      "\373\376\107e64 encode or decodeXX\n",
+      "+/5HZTY0IGVuY29kZSBvciBkZWNvZGVYWAo=",
+      NetBase64Codec::RFC4648MimeAlphabet
    },
    {
       25,
-      "Base64 encode or \000decode\n",
-      "QmFzZTY0IGVuY29kZSBvciAAZGVjb2RlCg=="
+      "\373\376\107e64 encode or \000decode\n",
+      "+/5HZTY0IGVuY29kZSBvciAAZGVjb2RlCg==",
+      NetBase64Codec::RFC4648MimeAlphabet
+   },
+
+   {
+      24,
+      "\373\376\107e64 encode or decode\n",
+      "-_5HZTY0IGVuY29kZSBvciBkZWNvZGUK",
+      NetBase64Codec::RFC4648UrlSafeAlphabet
+   },
+   {
+      25,
+      "\373\376\107e64 encode or decodeX\n",
+      "-_5HZTY0IGVuY29kZSBvciBkZWNvZGVYCg==",
+      NetBase64Codec::RFC4648UrlSafeAlphabet
+   },
+   {
+      26,
+      "\373\376\107e64 encode or decodeXX\n",
+      "-_5HZTY0IGVuY29kZSBvciBkZWNvZGVYWAo=",
+      NetBase64Codec::RFC4648UrlSafeAlphabet
+   },
+   {
+      25,
+      "\373\376\107e64 encode or \000decode\n",
+      "-_5HZTY0IGVuY29kZSBvciAAZGVjb2RlCg==",
+      NetBase64Codec::RFC4648UrlSafeAlphabet
+   },
+
+   {
+      24,
+      "\373\376\107e64 encode or decode\n",
+      "_`5HZTY0IGVuY29kZSBvciBkZWNvZGUK",
+      NetBase64Codec::SipTokenSafeAlphabet
+   },
+   {
+      25,
+      "\373\376\107e64 encode or decodeX\n",
+      "_`5HZTY0IGVuY29kZSBvciBkZWNvZGVYCg''",
+      NetBase64Codec::SipTokenSafeAlphabet
+   },
+   {
+      26,
+      "\373\376\107e64 encode or decodeXX\n",
+      "_`5HZTY0IGVuY29kZSBvciBkZWNvZGVYWAo'",
+      NetBase64Codec::SipTokenSafeAlphabet
+   },
+   {
+      25,
+      "\373\376\107e64 encode or \000decode\n",
+      "_`5HZTY0IGVuY29kZSBvciAAZGVjb2RlCg''",
+      NetBase64Codec::SipTokenSafeAlphabet
    }
+
 };
 
 /**
@@ -142,7 +198,8 @@ public:
          for (unsigned int test = 0; test < (sizeof(tests)/sizeof(TestData)); test++)
          {
             decodedSize = NetBase64Codec::decodedSize(strlen(tests[test].output),
-                                                      tests[test].output
+                                                      tests[test].output,
+                                                      tests[test].alphabet
                                                       );
 
             sprintf(msg,
@@ -170,7 +227,8 @@ public:
             NetBase64Codec::encode(tests[test].inputSize,
                                    tests[test].inputData,
                                    encodedSize,
-                                   encodedData
+                                   encodedData,
+                                   tests[test].alphabet
                                    );
             encodedData[encodedSize] = '\000';
             
@@ -192,7 +250,8 @@ public:
             decodedOk = NetBase64Codec::decode(encodedSize,
                                                encodedData,
                                                decodedSize,
-                                               decodedData
+                                               decodedData,
+                                               tests[test].alphabet
                                                );
 
             decodedData[decodedSize] = '\000';
@@ -228,7 +287,8 @@ public:
             encoded.remove(0);
             NetBase64Codec::encode(tests[test].inputSize,
                                    tests[test].inputData,
-                                   encoded
+                                   encoded,
+                                   tests[test].alphabet
                                    );
             
             sprintf(msg,
@@ -259,7 +319,7 @@ public:
             UtlString input(tests[test].inputData, tests[test].inputSize);
             
             encoded.remove(0);
-            NetBase64Codec::encode(input, encoded);
+            NetBase64Codec::encode(input, encoded, tests[test].alphabet);
             
             sprintf(msg,
                     "\n  test case %d encoding"
@@ -276,7 +336,7 @@ public:
 
             decoded.remove(0);
             bool decodedOk;
-            decodedOk = NetBase64Codec::decode(encoded, decoded);
+            decodedOk = NetBase64Codec::decode(encoded, decoded, tests[test].alphabet);
 
             sprintf(msg,
                     "\n  test case %d decoding %s"

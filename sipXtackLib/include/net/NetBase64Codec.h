@@ -27,9 +27,7 @@
 /**
  * Base 64 is a convenient encoding used to translate arbitrary binary
  * data into a fixed 64 character subset of ascii (plus one additional
- * character used to indicate padding).  This implementation* uses the
- * alphabet specified in Table 1 of RFC 3548 (which is the standard MIME
- * alphabet).
+ * character used to indicate padding).
  *
  * @nosubgrouping
  */
@@ -38,7 +36,25 @@ class NetBase64Codec
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
   public:
 
-/* ============================ CREATORS ================================== */
+   // ================================================================
+   /** @name                  Encoding Alphabets
+    *
+    * These constant alphabets are the sets of characters used in the encoded form;
+    * these specific constants MUST be used when calling - it will not work to
+    * define another alphabet outside this class.
+    */
+   ///@{
+      
+   typedef const char* Base64Alphabet; ///< type for alphabet parameters in this class
+
+   static Base64Alphabet RFC4648MimeAlphabet;    ///< 'traditional' alphabet (the default)
+   static Base64Alphabet RFC4648UrlSafeAlphabet; ///< avoids characters unsafe in URLs
+   static Base64Alphabet SipTokenSafeAlphabet;   /**< uses only characters allowed in SIP 'token'
+                                                  *   and avoids other characters with special
+                                                  *   meaning in various sipXecs contexts
+                                                  */
+
+   //@}
 
    // ================================================================
    /** @name                  Encoding Operations
@@ -51,21 +67,24 @@ class NetBase64Codec
    static void encode(int dataSize,         ///< the size of the binary data in octets         
                       const char data[],    ///< the binary data - not null terminated         
                       int& encodedDataSize, ///< output: the size of the encoded data in octets
-                      char encodedData[]    ///< output: the encoded data                      
+                      char encodedData[],   ///< output: the encoded data
+                      Base64Alphabet alphabet = RFC4648MimeAlphabet ///< encoding alphabet
                       );
 
    /// Encode from an array into a UtlString
    static void encode(int dataSize,          ///< the size of the binary data in octets
                       const char data[],     ///< the binary data - not null terminated
-                      UtlString& encodedData ///< output: the encoded data
+                      UtlString& encodedData,///< output: the encoded data
+                      Base64Alphabet alphabet = RFC4648MimeAlphabet ///< encoding alphabet
                       );
 
    /// Encode from one UtlString into another.
    static void encode(const UtlString& data, ///< size is data.length(), not null terminated
-                      UtlString& encodedData ///< output: the encoded data
+                      UtlString& encodedData,///< output: the encoded data
+                      Base64Alphabet alphabet = RFC4648MimeAlphabet ///< encoding alphabet
                       )
    {
-      NetBase64Codec::encode(data.length(),data.data(),encodedData);
+      NetBase64Codec::encode(data.length(),data.data(),encodedData, alphabet);
    };
    
    /// @returns the number of encoded octets for given number of input binary octets
@@ -84,58 +103,65 @@ class NetBase64Codec
 
    /// @returns true iff the encoded data is syntactically valid.
    static bool isValid(int encodedDataSize,      ///< the size of the encoded data in octets
-                       const char encodedData[]  ///< the encoded data 
+                       const char encodedData[], ///< the encoded data
+                       Base64Alphabet alphabet = RFC4648MimeAlphabet ///< encoding alphabet                       
                        )
    {
-      return validEncodingBytes(encodedDataSize, encodedData) > 0;
+      return validEncodingBytes(encodedDataSize, encodedData, alphabet) > 0;
    }
    
 
    /// @returns true iff the encoded data is syntactically valid.
-   static bool isValid(const UtlString encodedData ///< size is data.length(), not null terminated
+   static bool isValid(const UtlString encodedData, ///< size is data.length(), not null terminated
+                       Base64Alphabet alphabet = RFC4648MimeAlphabet ///< encoding alphabet
                        )
    {
-      return validEncodingBytes(encodedData.length(), encodedData.data()) > 0;
+      return validEncodingBytes(encodedData.length(), encodedData.data(), alphabet) > 0;
    }
    
    /// Decode from the character encodedData to the binary data array.
    static bool decode(int encodedDataSize,      ///< the size of the encoded data in octets
                       const char encodedData[], ///< the encoded data 
                       int& dataSize,            ///< output: the size of the binary data in octets
-                      char data[]               ///< output: the binary data - not null terminated
+                      char data[],              ///< output: the binary data - not null terminated
+                      Base64Alphabet alphabet = RFC4648MimeAlphabet ///< encoding alphabet
                       );
    ///< @returns false and no data if the encodedData contains any invalid characters.
 
    /// Decode from one UtlString into another
    static bool decode(const UtlString encodedData, ///< size is data.length(), not null terminated
-                      UtlString& data              ///< output: the decoded data
+                      UtlString& data,             ///< output: the decoded data
+                      Base64Alphabet alphabet = RFC4648MimeAlphabet ///< encoding alphabet
                       );
    ///< @returns false and no data if the encodedData contains any invalid characters.
    
    /// Compute the number of output binary octets for given set of encoded octets.
    static int decodedSize(int encodedDataSize,
-                          const char encodedData[]
+                          const char encodedData[],
+                          Base64Alphabet alphabet = RFC4648MimeAlphabet ///< encoding alphabet
                           );
    ///< @returns zero if the encodedData contains any invalid characters.
 
    /// Compute the number of output binary octets for given set of encoded octets.
-   static int decodedSize(const UtlString& encodedData  ///< size is data.length()
+   static int decodedSize(const UtlString& encodedData, ///< size is data.length()
+                          Base64Alphabet alphabet = RFC4648MimeAlphabet ///< encoding alphabet
                           )
    {
       ///< @returns zero if the encodedData contains any invalid characters.
-      return decodedSize(encodedData.length(), encodedData.data());
+      return decodedSize(encodedData.length(), encodedData.data(), alphabet);
    }
    
 
   private:
    
-   static const char* Base64Codes;
-
-   inline static char decodeChar(const char encoded);
+   inline static char decodeChar(const char encoded,     ///< encoded data character
+                                 Base64Alphabet alphabet ///< encoding alphabet
+                                 );
 
    /// @returns > 0 iff the encoded data is syntactically valid, 0 if not.
-   static size_t validEncodingBytes(int encodedDataSize, ///< number of encoded octets
-                                    const char encodedData[]  ///< the encoded data 
+   static size_t validEncodingBytes(int encodedDataSize,      ///< number of encoded octets
+                                    const char encodedData[], ///< the encoded data
+                                    Base64Alphabet alphabet   ///< encoding alphabet
                                     );
 
    ///@}
