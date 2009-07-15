@@ -70,8 +70,8 @@ UtlBoolean SipDialogMgr::createDialog(const SipMessage& message,
         // Should not try to create a dialog for one that
         // already exists
         OsSysLog::add(FAC_SIP, PRI_ERR,
-            "SipDialogMgr::createDialog called with handle: %s for existing dialog",
-            handle.data());
+                      "SipDialogMgr::createDialog called with handle: '%s' for existing dialog",
+                      handle.data());
     }
 
     // Dialog needs to be created
@@ -80,11 +80,14 @@ UtlBoolean SipDialogMgr::createDialog(const SipMessage& message,
         createdDialog = TRUE;
         SipDialog* dialog = new SipDialog(&message, messageIsFromLocalSide);
         lock();
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                      "SipDialogMgr::createDialog called with handle: '%s' for new dialog",
+                      handle.data());
         mDialogs.insert(dialog);
         unlock();
     }
 
-    return(createdDialog);
+    return createdDialog;
 }
 
 UtlBoolean SipDialogMgr::updateDialog(const SipMessage& message, 
@@ -545,9 +548,18 @@ UtlBoolean SipDialogMgr::deleteDialog(const char* dialogHandle)
     if(dialog)
     {
         dialogRemoved = TRUE;
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                      "SipDialogMgr::deleteDialog dialogHandle = '%s' deleted",
+                      dialogHandle);
         mDialogs.removeReference(dialog);
         delete dialog;
         dialog = NULL;
+    }
+    else
+    {
+       OsSysLog::add(FAC_SIP, PRI_WARNING,
+                     "SipDialogMgr::deleteDialog dialogHandle = '%s' not found",
+                      dialogHandle);
     }
 
     unlock();

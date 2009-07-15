@@ -370,6 +370,14 @@ UtlBoolean SipSubscribeClient::endSubscription(const char* dialogHandle)
                 // from mpDialogMgr, so the enclosing while loop will
                 // eventually terminate.
             }
+            else
+            {
+               OsSysLog::add(FAC_SIP, PRI_CRIT, 
+                             "SipSubscribeClient::endSubscription client state not found matchDialog = '%s', establishedDialogHandle = '%s', clientState = %p",
+                             matchDialog.data(), establishedDialogHandle.data(), clientState);
+               OsSysLog::flush();
+               assert(clientState);
+            }
         }
     }
 
@@ -378,84 +386,40 @@ UtlBoolean SipSubscribeClient::endSubscription(const char* dialogHandle)
 
 void SipSubscribeClient::endAllSubscriptions()
 {
-#ifdef TIME_LOG
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipSubscribeClient::endAllSubscriptions entered");
-#endif
 
-   // In order to avoid deadlocks, we first remove all entries from
-   // mSubscriptions, and then process them.
+   UtlHashBagIterator iterator(mSubscriptions);
+   UtlString key;
+   UtlBoolean found;
+   int count = 0;
 
-   lock();
-   SubscribeClientState** clientStateList =
-      new SubscribeClientState*[2 * mSubscriptions.entries()];
-   int subscriptions = 0;
-   {
-      UtlHashBagIterator iterator(mSubscriptions);
-      SubscribeClientState* dialogKey;
-      while ((dialogKey = dynamic_cast <SubscribeClientState*> (iterator())))
-      {
-         SubscribeClientState* clientState = removeState(*dialogKey);
-         if (clientState)
-         {
-            clientStateList[subscriptions++] = clientState;
-            clientStateList[subscriptions++] = dialogKey;
-         }
-      }
-   }
-   unlock();
-
-   for (int i = 0; i < subscriptions; i += 2)
-   {
-      SubscribeClientState* clientState = clientStateList[i];
-      SubscribeClientState* dialogKey = clientStateList[i + 1];
-
+   // Repeatedly get the key of the first subscription in mSubscriptions
+   // and terminate that subscription.
+   do {
       lock();
-          
-      // If there is a state change of interest and
-      // there is a callback function
-      if (clientState->mState != SUBSCRIPTION_TERMINATED &&
-          clientState->mpStateCallback)
+      found = !mSubscriptions.isEmpty();
+      if (found)
       {
-         UtlString earlyDialogHandle;
-         mpDialogMgr->getEarlyDialogHandleFor(*dialogKey, earlyDialogHandle);
-
-         // Indicate that the subscription was terminated
-         (clientState->mpStateCallback)(
-            SUBSCRIPTION_TERMINATED,
-            clientState->mState == SUBSCRIPTION_INITIATED ? earlyDialogHandle.data() : NULL,
-            clientState->mState == SUBSCRIPTION_SETUP ? dialogKey->data() : NULL,
-            clientState->mpApplicationData,
-            -1, // no response code
-            NULL, // no response text
-            0, // expires now
-            NULL); // no response
+         iterator.reset();
+         // Copy the key of the subscription into a local variable so that we
+         // can release the lock.
+         key = *static_cast <UtlString*>
+            (dynamic_cast <SubscribeClientState*>
+             (iterator()));
       }
-
-      // Save the UtlString value of dialogKey.
-      UtlString dialogKeyAsString(*dialogKey);
-
-      delete clientState;
-
       unlock();
 
-      // Unsubscribe and stop refreshing the subscription.
-      // Note: this next operation is performed outside of the 
-      // critical section to avoid deadlocks.  See XECS-1988.
-      mpRefreshManager->stopRefresh(clientState->data());
+      if (found)
+      {
+         endSubscription(key);
+         count++;
+      }
+   } while (found);
 
-      // Allow other threads waiting for the lock to run.
-      OsTask::yield();
-   }
-
-   // Delete the list of pointers itself.
-   delete[] clientStateList;
-
-#ifdef TIME_LOG
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipSubscribeClient::endAllSubscriptions exited %d entries",
-                 subscriptions/2);
-#endif
+                 count);
 }
 
 UtlBoolean SipSubscribeClient::changeSubscriptionTime(const char* earlyDialogHandle, int subscriptionPeriodSeconds)
@@ -1097,6 +1061,10 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
 
 void SipSubscribeClient::addState(SubscribeClientState& clientState)
 {
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                  "SipSubscribeClient::addState clientState = %p '%s'",
+                  &clientState,
+                  clientState.data());
     mSubscriptions.insert(&clientState);
 }
 
@@ -1129,7 +1097,12 @@ SubscribeClientState* SipSubscribeClient::removeState(const UtlString& dialogHan
            dynamic_cast <SubscribeClientState*> (mSubscriptions.remove(&reversedHandle));
     }
 
-    return (foundState);
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                  "SipSubscribeClient::removeState dialogHandle = '%s', foundState = %p '%s'",
+                  dialogHandle.data(),
+                  foundState,
+                  foundState ? foundState->data() : "(null)");
+    return foundState;
 }
 
 void SipSubscribeClient::lock()
