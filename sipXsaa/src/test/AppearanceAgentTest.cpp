@@ -35,7 +35,6 @@ class AppearanceAgentTest : public CppUnit::TestCase
 {
    CPPUNIT_TEST_SUITE(AppearanceAgentTest);
    CPPUNIT_TEST(AppearanceTest);
-
    CPPUNIT_TEST_SUITE_END();
 
 private:
