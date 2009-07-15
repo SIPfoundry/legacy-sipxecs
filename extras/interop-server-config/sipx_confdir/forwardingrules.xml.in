@@ -3,7 +3,7 @@
 <routes xmlns="http://www.sipfoundry.org/sipX/schema/xml/forwardingrules-00-00">
 
   <route mappingType="local">
-    
+
     <description>
       Matches the SIPXCHANGE_DOMAIN_NAME (and all aliases for it).
       Routes SUBSCRIBE for message waiting indication to the status server.
@@ -11,15 +11,15 @@
       All other requests go to the SIP registry/redirect service.
     </description>
 
-    
+
     <routeFrom>${SIPXCHANGE_DOMAIN_NAME}:${PROXY_SERVER_SIP_PORT}</routeFrom>
-    
+
     <routeFrom>${MY_IP_ADDR}:${PROXY_SERVER_SIP_PORT}</routeFrom>
-    
+
     <routeFrom>${MY_FULL_HOSTNAME}:${PROXY_SERVER_SIP_PORT}</routeFrom>
-    
+
     <routeFrom>${MY_HOSTNAME}:${PROXY_SERVER_SIP_PORT}</routeFrom>
-    
+
     <routeFrom>${INTEROP_ALIAS_UDP}:${PROXY_SERVER_SIP_PORT}</routeFrom>
     <routeFrom>${INTEROP_ALIAS_TCP}:${PROXY_SERVER_SIP_PORT}</routeFrom>
 

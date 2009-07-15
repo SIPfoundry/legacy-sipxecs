@@ -96,7 +96,7 @@ install-data-hook: \
 	$(foreach proc,$(SIPX_PROCESS_DEFS),$(DESTDIR)$(SIPX_DATADIR)/process.d/$(proc)-process.xml)
 
 $(foreach proc,$(SIPX_PROCESS_DEFS),$(DESTDIR)$(SIPX_DATADIR)/process.d/$(proc)-process.xml) \
-	: $(DESTDIR)$(SIPX_DATADIR)/process.d/% : % 
+	: $(DESTDIR)$(SIPX_DATADIR)/process.d/% : %
 	$(INSTALL) -D -m 644 $< $@
 
 $(foreach proc,$(SIPX_PROCESS_DEFS),$(proc)-process.xml) : % : %.in
@@ -121,4 +121,3 @@ $(foreach proc,$(SIPX_PROCESS_DEFS),$(proc)-process.xml) : % : %.in
 	@$(LocalizeSipXconfig) $< > $@
 	chmod +x $@
 	perl -wc $@
-

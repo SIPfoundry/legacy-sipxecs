@@ -1,4 +1,3 @@
-
 .PHONY: build
 build:
 	$(MAKE) recurse TARGETS="all check install"
@@ -22,4 +21,3 @@ uninstall-rpm:
 .PHONY: repo
 repo:
 	cd @DEST_RPM@ && createrepo -g @TOP_ABS_SRCDIR@/meta/comps.xml .
-

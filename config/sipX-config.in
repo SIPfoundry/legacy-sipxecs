@@ -2,11 +2,11 @@
 ##
 ## @PACKAGE@-config
 ##
-## Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+## Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 ## Contributors retain copyright to elements licensed under a Contributor Agreement.
 ## Licensed to the User under the LGPL license.
-## 
-## 
+##
+##
 
 Action=PRINT
 Info=""
@@ -84,7 +84,7 @@ do
             echo "Unknown switch '${1}'" 1>&2
             Action=USAGE
             ;;
-    esac           
+    esac
 
     shift # always consume 1
 done
@@ -99,7 +99,7 @@ case ${Action} in
     USAGE)
         cat <<EOF
 Usage: @PACKAGE@-config [OPTIONS]
- 
+
      Option:      Displays:
 
     --bin         executable installation directory

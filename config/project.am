@@ -1,4 +1,3 @@
-
 include config/subdir.am
 include config/dist.am
 
@@ -10,8 +9,8 @@ all: BUILDSTAMP
 ## the same information.
 
 .PHONY: BUILDSTAMP
-BUILDSTAMP: 
-	@echo -n "Generating BUILDSTAMP: " 
+BUILDSTAMP:
+	@echo -n "Generating BUILDSTAMP: "
 	@test -d config || mkdir config
 	@echo "$(SIPX_BUILDSTAMP)" > BUILDSTAMP
 	@${LocalizeSipXconfig} \

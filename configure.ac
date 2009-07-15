@@ -23,9 +23,9 @@ AC_CONFIG_SUBDIRS(sipXcallLib)
 
 AC_CONFIG_SUBDIRS(doc)
 
-AC_ARG_ENABLE(server, 
-  AC_HELP_STRING([--disable-server], 
-    [SIP servers, proxy, registrar, webui, mediaserver, etc. ]), 
+AC_ARG_ENABLE(server,
+  AC_HELP_STRING([--disable-server],
+    [SIP servers, proxy, registrar, webui, mediaserver, etc. ]),
      server=no, server=yes)
 
 if test x$server = xyes
@@ -69,7 +69,7 @@ then
 fi
 
 SFAC_DIST_DIR
-   
+
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([top.mak])
 

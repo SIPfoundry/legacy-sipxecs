@@ -1,7 +1,7 @@
 # The name by which the setsipxpasswd script can be executed.
 # This will probably have to be specified, as setsipxpasswd is not
 # usually installed.
-# It is available in the source as sipXcommserverLib/meta/setsipxpasswd, 
+# It is available in the source as sipXcommserverLib/meta/setsipxpasswd,
 # http://sipxecs.sipfoundry.org/rep/sipXecs/main/sipXcommserverLib/meta/setsipxpasswd
 SETSIPXPASSWD=setsipxpasswd
 
@@ -55,7 +55,7 @@ debug:
 	@ echo CONFIG_FILES=$(CONFIG_FILES)
 	@ echo DOC_FILES=$(DOC_FILES)
 	@ echo SIPDB_FILES=$(SIPDB_FILES)
-	@ echo DOC_FILES_EDITED=$(DOC_FILES_EDITED) 
+	@ echo DOC_FILES_EDITED=$(DOC_FILES_EDITED)
 	@ echo CONFIG_FILES_EDITED=$(CONFIG_FILES_EDITED)
 	@ echo SIPDB_FILES_EDITED=$(SIPDB_FILES_EDITED)
 
