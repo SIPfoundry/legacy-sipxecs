@@ -9,7 +9,7 @@ Index: sipXpbx/sipXrls/src/PeriodicPublisherTask.cpp
 ===================================================================
 --- sipXpbx/sipXrls/src/PeriodicPublisherTask.cpp	(revision 0)
 +++ sipXpbx/sipXrls/src/PeriodicPublisherTask.cpp	(revision 0)
-@@ -0,0 +1,130 @@
+@@ -0,0 +1,136 @@
 +// 
 +// 
 +// Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
@@ -92,13 +92,14 @@ Index: sipXpbx/sipXrls/src/PeriodicPublisherTask.cpp
 +      // Construct content.
 +      time(&t);
 +      gmtime_r(&t, &tm);
-+      sprintf(buffer,
-+              "version=&version\r\n"
-+              "%02d:%02d:%02d\r\n",
-+              tm.tm_hour, tm.tm_min, tm.tm_sec);
 +
 +      // Publish content as both full and partial state, since dialog events
 +      // enable sending of partial state.
++      sprintf(buffer,
++              "full\r\n"
++              "version=&version;\r\n"
++              "%02d:%02d:%02d\r\n",
++              tm.tm_hour, tm.tm_min, tm.tm_sec);
 +      eventContent[0] = new HttpBody(buffer, strlen(buffer), "text/plain");
 +      mPublisher->publish(mResourceId,
 +                          mEventTypeKey,
@@ -109,6 +110,11 @@ Index: sipXpbx/sipXrls/src/PeriodicPublisherTask.cpp
 +                          FALSE, // noNotify
 +                          TRUE // fullState
 +         );
++      sprintf(buffer,
++              "partial\r\n"
++              "version=&version;\r\n"
++              "%02d:%02d:%02d\r\n",
++              tm.tm_hour, tm.tm_min, tm.tm_sec);
 +      eventContent[0] = new HttpBody(buffer, strlen(buffer), "text/plain");
 +      mPublisher->publish(mResourceId,
 +                          mEventTypeKey,
@@ -150,20 +156,18 @@ Name: svn:eol-style
 
 Index: sipXpbx/sipXrls/src/ResourceListServer.cpp
 ===================================================================
---- sipXpbx/sipXrls/src/ResourceListServer.cpp	(revision 15052)
+--- sipXpbx/sipXrls/src/ResourceListServer.cpp	(revision 15972)
 +++ sipXpbx/sipXrls/src/ResourceListServer.cpp	(working copy)
-@@ -28,7 +28,10 @@
- 
- const UtlContainableType ResourceListServer::TYPE = "ResourceListServer";
+@@ -32,6 +32,8 @@
+ // to/from ResourceList's when doing bulk updating of ResourceList's.
+ const int ResourceListServer::sChangeDelay = 10;
  
 +#include "PeriodicPublisherTask.h"
 +static PeriodicPublisherTask* spPeriodicPublisherTask;
  
-+
  /* //////////////////////////// PUBLIC //////////////////////////////////// */
  
- /* ============================ CREATORS ================================== */
-@@ -229,6 +232,16 @@
+@@ -236,6 +238,16 @@
           FALSE // outgoing
     );
  
@@ -180,7 +184,7 @@ Index: sipXpbx/sipXrls/src/ResourceListServer.cpp
     OsSysLog::add(FAC_RLS, PRI_DEBUG, "ResourceListServer::_ Initialization done.");
  }
  
-@@ -241,6 +254,12 @@
+@@ -248,6 +260,12 @@
                   "ResourceListServer::shutdown this = %p",
                   this);
  
@@ -193,32 +197,10 @@ Index: sipXpbx/sipXrls/src/ResourceListServer.cpp
     // Probably best not to delete the resources in the resource lists so that
     // we do not send NOTIFYs to the clients showing the lists as empty.
     // Instead, we force the subscribe server to just tell the subscribers
-@@ -266,9 +285,9 @@
-    mServerUserAgent.shutdown(FALSE);
-    mClientUserAgent.shutdown(FALSE);
-    mResourceListTask.requestShutdown();
--   while(!(mServerUserAgent.isShutdownDone() &&
--           mClientUserAgent.isShutdownDone() &&
--           mResourceListTask.isShutDown()))
-+   while (!(mServerUserAgent.isShutdownDone() &&
-+            mClientUserAgent.isShutdownDone() &&
-+            mResourceListTask.isShutDown()))
-    {
-       OsTask::delay(100);
-    }
 Index: sipXpbx/sipXrls/src/test/Makefile.am
 ===================================================================
---- sipXpbx/sipXrls/src/test/Makefile.am	(revision 15052)
+--- sipXpbx/sipXrls/src/test/Makefile.am	(revision 15972)
 +++ sipXpbx/sipXrls/src/test/Makefile.am	(working copy)
-@@ -15,7 +15,7 @@
-    @SIPXUNIT_LIBS@ \
-    @SIPXCOMMSERVERTEST_LIBS@ \
-    @SIPXCOMMSERVER_LIBS@ 
--   
-+
- testsuite_CXXFLAGS = \
- 	$(COMMON_CXX_FLAGS)
- 
 @@ -35,6 +35,7 @@
      ../ResourceSubscriptionReceiver.cpp \
      ../RlsSubscribePolicy.cpp \
@@ -227,13 +209,6 @@ Index: sipXpbx/sipXrls/src/test/Makefile.am
      RlsTestFixtures.cpp \
      ResourceListServerTest.cpp
  
-@@ -63,6 +64,3 @@
- #sandbox_CXXFLAGS = $(testsuite_CXXFLAGS)
- #sandbox_SOURCES = \
- #   ResourceListServerTest.cpp
--
--
--
 Index: sipXpbx/sipXrls/src/PeriodicPublisherTask.h
 ===================================================================
 --- sipXpbx/sipXrls/src/PeriodicPublisherTask.h	(revision 0)
@@ -330,7 +305,7 @@ Name: svn:eol-style
 
 Index: sipXpbx/sipXrls/src/Makefile.am
 ===================================================================
---- sipXpbx/sipXrls/src/Makefile.am	(revision 15052)
+--- sipXpbx/sipXrls/src/Makefile.am	(revision 15972)
 +++ sipXpbx/sipXrls/src/Makefile.am	(working copy)
 @@ -37,7 +37,8 @@
  	ResourceReference.cpp \
