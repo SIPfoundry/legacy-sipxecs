@@ -22,8 +22,10 @@
       </type>
       <value />
     </setting>
-    <setting name="type">
-      <type />
+    <setting name="type" hidden="yes">
+      <type>
+        <string />
+      </type>
       <value>private</value>
     </setting>
     <setting name="lcs" hidden="yes"></setting>
@@ -50,7 +52,7 @@
       </type>
       <value></value>
     </setting>
-    <setting name="thirdPartyName">
+    <setting name="thirdPartyName" hidden="yes">
       <type />
       <value />
     </setting>

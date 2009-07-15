@@ -16,6 +16,14 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 public class PolycomLineDefaults {
 
+    /**
+     * 
+     */
+    private static final String TYPE_PRIVATE = "private";
+    /**
+     * 
+     */
+    private static final String TYPE_SHARED = "shared";
     private DeviceDefaults m_defaults;
     private Line m_line;
 
@@ -89,6 +97,23 @@ public class PolycomLineDefaults {
         return null;
     }
 
+    @SettingEntry(path = PolycomPhone.TYPE_PATH)
+    public String getType() {
+        User u = m_line.getUser();
+        if (u != null) {
+            return u.getIsShared() ? TYPE_SHARED : TYPE_PRIVATE;
+        }
+        return null;
+    }
+
+    @SettingEntry(path = PolycomPhone.THIRD_PARTY_NAME_PATH)
+    public String getThirdPartyName() {
+        if (TYPE_SHARED.equals(getType())) {
+            return getAddress();
+        }
+        return null;
+    }
+
     @SettingEntry(path = PolycomPhone.REGISTRATION_PATH)
     public String getRegistrationServer() {
         User u = m_line.getUser();
@@ -112,7 +137,7 @@ public class PolycomLineDefaults {
     public Integer getEmergencyPort() {
         return m_defaults.getEmergencyPort();
     }
-    
+
     @SettingEntry(path = "reg/outboundProxy.address")
     public String getProxyServer() {
         return m_defaults.getDomainName();

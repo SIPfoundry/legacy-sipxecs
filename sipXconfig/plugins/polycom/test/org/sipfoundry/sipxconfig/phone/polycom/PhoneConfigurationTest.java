@@ -40,7 +40,7 @@ public class PhoneConfigurationTest extends XMLTestCase {
         PolycomModel model = new PolycomModel();
         model.setMaxLineCount(6);
         phone.setModel(model);
-        m_testDriver = PhoneTestDriver.supplyTestData(phone);
+        m_testDriver = PhoneTestDriver.supplyTestData(phone, true, false, true);
         m_location = new MemoryProfileLocation();
         VelocityProfileGenerator pg = new VelocityProfileGenerator();
         pg.setVelocityEngine(TestHelper.getVelocityEngine());
@@ -55,7 +55,8 @@ public class PhoneConfigurationTest extends XMLTestCase {
     public void testGenerateProfileVersion20() throws Exception {
         m_testDriver.getPrimaryLine().setSettingValue("reg/label", "Joe & Joe");
 
-        // XCF-3581: No longer automatically generating phone emergency dial routing.  These settings
+        // XCF-3581: No longer automatically generating phone emergency dial routing. These
+        // settings
         // are as if they'd been manually configured under Line 1 - Dial Plan - Emergency Routing.
         Line line = phone.getLines().get(0);
         line.setSettingValue("line-dialplan/digitmap/routing.1/address", "emergency-gateway.example.org");

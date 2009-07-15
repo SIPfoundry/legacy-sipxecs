@@ -65,12 +65,12 @@ public class PolycomPhoneTest extends TestCase {
     // Firmware version 1.6 is no longer supported. For firmware version 2.0 and beyound,
     // as the formats are compatible, thus version selection is no longer needed at this point.
     public void testVersionArray() {
-       // assertSame(new PolycomModel().getVersions()[0], PolycomModel.VER_1_6);
+        // assertSame(new PolycomModel().getVersions()[0], PolycomModel.VER_1_6);
     }
 
     /**
-     * Tests that the Polycom profiles are successfully generated, along with
-     * the phonebook when phonebook management is enabled.
+     * Tests that the Polycom profiles are successfully generated, along with the phonebook when
+     * phonebook management is enabled.
      */
     public void testGenerateProfilesWithPhonebook() throws Exception {
         ApplicationConfiguration cfg = new ApplicationConfiguration(m_phone);
@@ -88,24 +88,24 @@ public class PolycomPhoneTest extends TestCase {
     }
 
     /**
-     * Test that the Polycom profiles are successfully generated, but that the
-     * phonebook is not generated when phonebook management is disabled.
+     * Test that the Polycom profiles are successfully generated, but that the phonebook is not
+     * generated when phonebook management is disabled.
      */
     public void testGenerateProfilesWithoutPhonebook() throws Exception {
-      m_tester = PhoneTestDriver.supplyTestData(m_phone, false);
-      ApplicationConfiguration cfg = new ApplicationConfiguration(m_phone);
-      m_phone.generateProfiles(m_location);
+        m_tester = PhoneTestDriver.supplyTestData(m_phone, false);
+        ApplicationConfiguration cfg = new ApplicationConfiguration(m_phone);
+        m_phone.generateProfiles(m_location);
 
-      File phonebook = new File(m_root, cfg.getDirectoryFilename());
-      assertFalse(phonebook.exists());
+        File phonebook = new File(m_root, cfg.getDirectoryFilename());
+        assertFalse(phonebook.exists());
 
-      // content of profiles is tested in individual base classes of ConfigurationTemplate
-      File file = new File(m_root, cfg.getAppFilename());
-      assertTrue(file.exists());
+        // content of profiles is tested in individual base classes of ConfigurationTemplate
+        File file = new File(m_root, cfg.getAppFilename());
+        assertTrue(file.exists());
 
-      m_phone.removeProfiles(m_location);
-      assertFalse(file.exists());
-  }
+        m_phone.removeProfiles(m_location);
+        assertFalse(file.exists());
+    }
 
     public void testRestartFailureNoLine() throws Exception {
         m_phone.getLines().clear();

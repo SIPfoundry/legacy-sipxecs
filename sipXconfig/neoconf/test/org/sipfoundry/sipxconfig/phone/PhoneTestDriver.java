@@ -61,21 +61,36 @@ public class PhoneTestDriver {
     }
 
     public static PhoneTestDriver supplyTestData(Phone phone, boolean phonebookManagementEnabled) {
-        return supplyTestData(phone, phonebookManagementEnabled, false);
+        return supplyTestData(phone, phonebookManagementEnabled, false, false);
     }
 
     public static PhoneTestDriver supplyTestData(Phone _phone, List<User> users) {
         return new PhoneTestDriver(_phone, users, true, false);
     }
 
-    public static PhoneTestDriver supplyTestData(Phone _phone, boolean phonebookManagementEnabled, boolean speedDial) {
-        User user = new User();
-        user.setUserName("juser");
-        user.setFirstName("Joe");
-        user.setLastName("User");
-        user.setSipPassword("1234");
+    public static PhoneTestDriver supplyTestData(Phone _phone, boolean phonebookManagementEnabled,
+            boolean speedDial, boolean includeSharedLine) {
+        List<User> users = new ArrayList<User>();
 
-        return new PhoneTestDriver(_phone, Collections.singletonList(user), phonebookManagementEnabled, speedDial);
+        User firstUser = new User();
+        firstUser.setUserName("juser");
+        firstUser.setFirstName("Joe");
+        firstUser.setLastName("User");
+        firstUser.setSipPassword("1234");
+        firstUser.setIsShared(false);
+        users.add(firstUser);
+
+        if (includeSharedLine) {
+            User secondUser = new User();
+            secondUser.setUserName("sharedUser");
+            secondUser.setFirstName("Shared");
+            secondUser.setLastName("User");
+            secondUser.setSipPassword("1234");
+            secondUser.setIsShared(true);
+            users.add(secondUser);
+        }
+
+        return new PhoneTestDriver(_phone, users, phonebookManagementEnabled, speedDial);
     }
 
     public Line getPrimaryLine() {
@@ -86,7 +101,7 @@ public class PhoneTestDriver {
         m_phoneContextControl = EasyMock.createNiceControl();
         m_phoneContext = m_phoneContextControl.createMock(PhoneContext.class);
 
-        if(speedDial) {
+        if (speedDial) {
             SpeedDial sd = new SpeedDial();
             sd.setUser(users.get(0));
 
@@ -127,11 +142,12 @@ public class PhoneTestDriver {
             public String getDirectedCallPickupCode() {
                 return "*78";
             }
+
             public String getCallRetrieveCode() {
                 return "*4";
             }
         };
-        
+
         Location defaultLocation = new Location();
         defaultLocation.setFqdn("pbx.sipfoundry.org");
         defaultLocation.setAddress("192.168.1.1");
@@ -140,12 +156,15 @@ public class PhoneTestDriver {
         EasyMock.expectLastCall().andReturn(defaultLocation).anyTimes();
         EasyMock.replay(locationsManager);
         defaults.setLocationsManager(locationsManager);
-        
+
         TimeZone tz = TimeZone.getTimeZone("Etc/GMT+5");
-        defaults.setTimeZoneManager(TestHelper.getTimeZoneManager(new DeviceTimeZone(tz))); // no DST for consistent
+        defaults.setTimeZoneManager(TestHelper.getTimeZoneManager(new DeviceTimeZone(tz))); // no
+        // DST
+        // for
+        // consistent
         // results
         defaults.setDomainManager(TestHelper.getTestDomainManager("sipfoundry.org"));
-        
+
         DomainManager domainManager = TestUtil.getMockDomainManager();
         EasyMock.replay(domainManager);
         domainManager.getDomain().setSipRealm("realm.sipfoundry.org");
@@ -160,7 +179,7 @@ public class PhoneTestDriver {
         registrarService.setModelName("sipxregistrar.xml");
         registrarService.setModelDir("sipxregistrar");
         registrarService.setModelFilesContext(TestHelper.getModelFilesContext());
-        
+
         SipxService proxyService = new SipxProxyService();
         proxyService.setBeanId(SipxProxyService.BEAN_ID);
         proxyService.setSipPort("5555");
@@ -168,7 +187,8 @@ public class PhoneTestDriver {
         proxyService.setModelDir("sipxproxy");
         proxyService.setModelFilesContext(TestHelper.getModelFilesContext());
 
-        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(true, registrarService, proxyService);
+        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(true, registrarService,
+                proxyService);
         defaults.setSipxServiceManager(sipxServiceManager);
 
         ServiceManager serviceManager = EasyMock.createNiceMock(ServiceManager.class);

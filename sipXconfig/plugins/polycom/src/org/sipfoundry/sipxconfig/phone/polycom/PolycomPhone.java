@@ -50,6 +50,8 @@ public class PolycomPhone extends Phone {
     static final String REGISTRATION_PORT_PATH = "reg/server/1/port";
     static final String CONTACT_MODE = "contact";
     static final String DISPLAY_NAME_PATH = "reg/displayName";
+    static final String TYPE_PATH = "reg/type";
+    static final String THIRD_PARTY_NAME_PATH = "reg/thirdPartyName";
     static final String PASSWORD_PATH = "reg/auth.password";
     static final String USER_ID_PATH = "reg/address";
     static final String AUTHORIZATION_ID_PATH = "reg/auth.userId";
@@ -69,7 +71,7 @@ public class PolycomPhone extends Phone {
 
     /**
      * Default firmware version for polycom phones. Default is 1.6 right now
-     *
+     * 
      * @param defaultVersionId 1.6 or 2.0
      */
     public void setDefaultVersionId(String defaultVersionId) {

@@ -44,7 +44,7 @@ public class CounterpathPhoneTest extends TestCase {
     }
 
     public void testGenerateCounterpathCMCEnterprise() throws Exception {
-        PhoneTestDriver.supplyTestData(m_phone,true,true);
+        PhoneTestDriver.supplyTestData(m_phone, true, true, false);
 
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_phone);
 
@@ -65,7 +65,7 @@ public class CounterpathPhoneTest extends TestCase {
 
         CounterpathLineDefaults lineDefaults = new CounterpathPhone.CounterpathLineDefaults(m_line);
 
-        PhoneContext phoneContextMock  = EasyMock.createMock(PhoneContext.class);
+        PhoneContext phoneContextMock = EasyMock.createMock(PhoneContext.class);
         phoneContextMock.getPhoneDefaults();
         EasyMock.expectLastCall().andReturn(defaults).anyTimes();
         EasyMock.replay(phoneContextMock);
@@ -87,7 +87,7 @@ public class CounterpathPhoneTest extends TestCase {
         DeviceDefaults defaults = new DeviceDefaults();
         defaults.setDomainManager(TestHelper.getTestDomainManager("example.org"));
 
-        PhoneContext phoneContextMock  = EasyMock.createMock(PhoneContext.class);
+        PhoneContext phoneContextMock = EasyMock.createMock(PhoneContext.class);
         phoneContextMock.getSpeedDial(m_phone);
         EasyMock.expectLastCall().andReturn(speedDial).anyTimes();
         phoneContextMock.getPhoneDefaults();
