@@ -18,6 +18,8 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+const UtlContainableType OsRpcMsg::TYPE = "OsRpcMsg";
+
 // STATIC VARIABLE INITIALIZATIONS
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -84,6 +86,11 @@ int OsRpcMsg::getMsgSize(void) const
 OsEvent* OsRpcMsg::getEvent(void) const
 {
    return mpEvent;
+}
+
+UtlContainableType OsRpcMsg::getContainableType() const
+{
+   return OsRpcMsg::TYPE;
 }
 
 /* ============================ INQUIRY =================================== */

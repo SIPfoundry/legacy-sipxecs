@@ -82,10 +82,14 @@ public:
    virtual OsEvent* getEvent(void) const;
      //:Return the pointer to the OsEvent object used to signal completion
 
+   virtual UtlContainableType getContainableType() const;
+
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+
+   static const UtlContainableType TYPE;    /** < Class type used for runtime checking */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
