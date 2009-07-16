@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE comps PUBLIC "-//The cAos Project//DTD Comps info//EN" "comps.dtd">
-<!-- 
-  - I cannot get groups to be recursive. groupreq doesn't appear to have 
+<!--
+  - I cannot get groups to be recursive. groupreq doesn't appear to have
   - much effect. See
   -   https://lists.dulug.duke.edu/pipermail/yum-devel/2006-May/002140.html
   - categories do not help either. From what I can tell, you need to duplicate

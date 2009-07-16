@@ -15,7 +15,7 @@ $(RPM_SOURCES_DIR)/% : %
 	cp $< $@
 
 .PHONY: build-rpms
-build-rpms: 
+build-rpms:
 	cp $(SRC_DIR)/$(SRC_TARBALL) @RPMBUILD_TOPDIR@/SOURCES
 	cp $(SRC_DIR)/*.patch @RPMBUILD_TOPDIR@/SOURCES
 	cp $(SRC_DIR)/$(SPEC_FILE) @RPMBUILD_TOPDIR@/SPECS

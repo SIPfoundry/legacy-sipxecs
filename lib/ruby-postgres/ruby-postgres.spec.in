@@ -26,7 +26,7 @@ It provides the same functions for Ruby programs that the PostgreSQL C API
 provides for C programs.
 
 %prep
-%setup -q -n ruby-%{rname}-%{version} 
+%setup -q -n ruby-%{rname}-%{version}
 
 %build
 ruby extconf.rb @POSTGRESQL_INLCLUDE@
@@ -50,4 +50,3 @@ rm -rf %buildroot
 
 * Mon Oct 11 2004 Omar Kilani <omar@tinysofa.org> 0.7.1-1
 - Initial tinysofa package.
-

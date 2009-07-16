@@ -15,7 +15,7 @@ $(RPM) : build-rpms
 	mv @RPMBUILD_TOPDIR@/RPMS/$(ARCH)/`basename $@` $@
 
 .PHONY: build-rpms
-build-rpms : 
+build-rpms :
 	cp $(SRC_DIR)/$(SRC_TARBALL) @RPMBUILD_TOPDIR@/SOURCES/
 	cp $(SRC_DIR)/$(SPEC_FILE) @RPMBUILD_TOPDIR@/SPECS/
 	rpmbuild -ba @RPMBUILD_TOPDIR@/SPECS/$(SPEC_FILE)
