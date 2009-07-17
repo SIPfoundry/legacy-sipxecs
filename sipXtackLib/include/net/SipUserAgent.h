@@ -164,7 +164,8 @@ public:
     enum EventSubTypes
     {
         UNSPECIFIED = 0,
-        SHUTDOWN_MESSAGE = 10
+        SHUTDOWN_MESSAGE = 10,
+        SHUTDOWN_MESSAGE_EVENT
     };
     
     enum OptionsRequestHandlePref
@@ -279,6 +280,7 @@ public:
     //! Cleanly shuts down SipUserAgent.
     /*! This method can block until the shutdown is complete, or it can be
      * non-blocking.  When complete, the SipUserAgent can be deleted.
+     * May be called repeatedly.
      * \sa isShutdownDone
      *
      * \param blockingShutdown - TRUE if this method should block until the
@@ -836,7 +838,6 @@ private:
     //! flags used during shutdown
     UtlBoolean mbShuttingDown;
     UtlBoolean mbShutdownDone;
-    UtlBoolean mbBlockingShutdown;
 
     // Call forward timer
     CfwdTimerCallback mCfwdTimerCallback;

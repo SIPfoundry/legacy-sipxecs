@@ -557,15 +557,15 @@ void SipUserAgent::shutdown(UtlBoolean blockingShutdown)
     mbShuttingDown = TRUE;
     mSipTransactions.stopTransactionTimers();
 
-    if(blockingShutdown == TRUE)
+    if (blockingShutdown)
     {
         OsEvent shutdownEvent;
         OsStatus res;
         intptr_t rpcRetVal;
 
-        mbBlockingShutdown = TRUE;
-
-        OsRpcMsg shutdownMsg(OsMsg::PHONE_APP, SipUserAgent::SHUTDOWN_MESSAGE, shutdownEvent);
+        OsRpcMsg shutdownMsg(OsMsg::PHONE_APP,
+                             SipUserAgent::SHUTDOWN_MESSAGE_EVENT,
+                             shutdownEvent);
         postMessage(shutdownMsg);
 
         res = shutdownEvent.wait();
@@ -574,12 +574,12 @@ void SipUserAgent::shutdown(UtlBoolean blockingShutdown)
         res = shutdownEvent.getEventData(rpcRetVal);
         assert(res == OS_SUCCESS && rpcRetVal == OS_SUCCESS);
 
-        mbShutdownDone = TRUE;
+        // mbShutdownDone will have been set to TRUE by ::handleMessage.
     }
     else
     {
-        mbBlockingShutdown = FALSE;
-        OsMsg shutdownMsg(OsMsg::PHONE_APP, SipUserAgent::SHUTDOWN_MESSAGE);
+        OsMsg shutdownMsg(OsMsg::PHONE_APP,
+                          SipUserAgent::SHUTDOWN_MESSAGE);
         postMessage(shutdownMsg);
     }
 }
@@ -2502,24 +2502,26 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                     msgType, msgSubType, getMessageQueue()->numMsgs());
    }
 
-   if(msgType == OsMsg::PHONE_APP)
+   if (msgType == OsMsg::PHONE_APP)
    {
-      // Final message from SipUserAgent::shutdown - all timers are stopped and are safe to delete
-      if(msgSubType == SipUserAgent::SHUTDOWN_MESSAGE)
+      // Request to shutdown from SipUserAgent::shutdown -
+      // All timers are stopped and are safe to delete
+      if (msgSubType == SipUserAgent::SHUTDOWN_MESSAGE ||
+          msgSubType == SipUserAgent::SHUTDOWN_MESSAGE_EVENT)
       {
          mSipTransactions.deleteTransactionTimers();
 
-         if(mbBlockingShutdown == TRUE)
+         if (msgSubType == SipUserAgent::SHUTDOWN_MESSAGE_EVENT)
          {
-            OsEvent* pEvent = ((OsRpcMsg&)eventMessage).getEvent();
-
+            OsEvent* pEvent =
+               (dynamic_cast <OsRpcMsg&> (eventMessage)).getEvent();
             OsStatus res = pEvent->signal(OS_SUCCESS);
             assert(res == OS_SUCCESS);
          }
-         else
-         {
-            mbShutdownDone = TRUE;
-         }
+
+         // Record that the SipUserAgent is shut down to cause methods that are
+         // requests for further work to return failure.
+         mbShutdownDone = TRUE;
       }
       else
       {
