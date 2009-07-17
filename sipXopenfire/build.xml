@@ -80,9 +80,15 @@
 		<copy file="${root}/sipx-openfire-plugin.jar" todir="${build.dir}/dist" />
 	</target>
 
-	<target name="install" depends="all">
-		<copy file="${src.dir}/openfire.xml" todir="${dest.dir}${openfire.home}/conf" />
-		<copy file="${root}/dist/sipx-openfire.jar" todir="${dest.dir}${openfire.home}/plugins" />
+        <target name="makedirs" >
+                <mkdir dir="${sipxopenfire.dir}" />
+                <mkdir dir="${sipxopenfire.dir}/conf" />
+                <mkdir dir="${sipxopenfire.dir}/plugins" />
+        </target>
+
+	<target name="install" depends="all,makedirs">
+		<copy file="${src.dir}/openfire.xml" todir="${sipxopenfire.dir}/conf" />
+		<copy file="${root}/dist/sipx-openfire.jar" todir="${sipxopenfire.dir}/plugins" />
 		<copy file="${root}/sipxopenfire-database.xml" todir="${dest.dir}${conf.dir}" />
 		<copy file="${src.dir}/sipxopenfire-initdb.sql" todir="${dest.dir}${conf.dir}/database" /> 
 		<copy file="${root}/sipxopenfire-setup.sh" todir="${dest.dir}${prefix.dir}/libexec/sipXecs/setup.d" />
