@@ -50,7 +50,7 @@ public abstract class XmlRpcProvider {
         return retval;
     }
     
-    protected static String setDomain(String userName) {
+    protected static String appendDomain(String userName) {
         if (  userName.indexOf("@") == -1) {
             // No @ in the domain so assume this is our domain.
             return userName + "@" + plugin.getXmppDomain();

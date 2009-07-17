@@ -30,7 +30,7 @@ public class XmlRpcPresenceProvider extends XmlRpcProvider {
 
     public Map getPresenceState( String id) {
         try {
-            String jid = setDomain(id);
+            String jid = appendDomain(id);
             log.info("GetPresenceState " + jid);
             Map retval = createSuccessMap();
             Presence presence = plugin.getPresence(jid, jid);
@@ -50,7 +50,7 @@ public class XmlRpcPresenceProvider extends XmlRpcProvider {
     
     public Map setPresenceState (String id , String show) {
         try {
-            String jid = setDomain(id);
+            String jid = appendDomain(id);
             log.info("setPresenceState" + jid + " Show " + show);
             Map retval = createSuccessMap();
             plugin.setPresenceState(jid,  show);   
@@ -63,7 +63,7 @@ public class XmlRpcPresenceProvider extends XmlRpcProvider {
     
     public Map setPresenceStatus(String id, String status) {
         try {
-            String jid = setDomain(id);
+            String jid = appendDomain(id);
             log.info("setPresenceStatus " + jid + " status = " + status);
             Map retval = createSuccessMap();
             plugin.setPresenceStatus(jid,  status);   
@@ -76,7 +76,7 @@ public class XmlRpcPresenceProvider extends XmlRpcProvider {
     
     public Map getPresenceStatus(String id) {
         try {
-            String jid = setDomain(id);
+            String jid = appendDomain(id);
             log.info("getPresenceStatus " + jid) ;
             Map retval = createSuccessMap();
             String presenceStatus = plugin.getPresenceStatus(jid);

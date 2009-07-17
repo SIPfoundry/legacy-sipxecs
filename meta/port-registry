@@ -6,19 +6,25 @@ Please maintain this list sorted by port number.
 
 Port    Component         Use
 
-3478    sipXbridge        Local discovery port for STUN.
+3478    sipXopenfire     Stun server port.
 
 3479    sipXrelay        Local discovery port for STUN.
 
+3480    sipXbridge       Local discovery port for STUN.
+
 5060    sipXproxy         SIP
 5061    sipXproxy         SIP/TLS
+
+5064    sipXopenfire      SIP Dialog watcher plugin SIP signaling port.
 
 5070    sipXregistrar     SIP
 5071    sipXregistrar     SIP/TLS
 5075    sipXregistrar     SIP registration event subscriptions
 
-5080    sipXbridge	  SIP sipXbridge public port
-5090    sipXbridge	  SIP sipXbridge local port
+5080    sipXbridge	  SIP WAN-Facing port
+5081    sipXbridge        SIP/TLS WAN-Facing port
+5090    sipXbridge	  SIP LAN-Facing port
+5091    sipXbridge        SIP/TLS LAN-Facing port
 
 5100    sipXvxml          SIP
 5101    sipXvxml          SIP/TLS
@@ -43,6 +49,14 @@ Port    Component         Use
 5161    sipXpage          SIP/TLS
 
 5170    sipXsaa           Shared Appearance Agent
+
+5223    sipXopenfire  	  The port used for clients to connect to the server using the old SSL method. 
+5229    sipXopenfire      Flash Cross Domain.
+
+7070    sipXopenfire      HTTP  Binding (unsecured).
+7443    sipXopenfire      HTTPS Binding.
+
+7777    sipXopenfire      File Transfer Proxy.
 
 8021    FreeSWITCH        event_socket inteface
 
@@ -71,6 +85,9 @@ Port    Component         Use
 8500... sipXpage          RTP/RTCP ports
 
 9000... sipXvxml          RTP/RTCP ports
+
+9094    sipXopenfire      Admin Console 
+9095    sipXopenfire      Admin Console 
 
 10000...sipXacd           RTP/RTCP ports
 

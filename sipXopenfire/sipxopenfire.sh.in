@@ -40,8 +40,9 @@ export JAVA_HOME JAVACMD
 
 OPENFIRE_LOGDIR="@SIPX_LOGDIR@"
 
-OPENFIRE=bin/openfire.sh
+OPENFIRE=bin/openfire
 
+PIDFILE="@SIPX_RUNDIR@/sipxopenfire.pid"
 
 
 
@@ -60,14 +61,16 @@ start() {
 	echo "conf.dir=@SIPX_CONFDIR@" > ${TMP_DIR}/sipx.properties
 	echo "openfire.home=${OPENFIRE_HOME}" >> ${TMP_DIR}/sipx.properties
 	exec ${OPENFIRE_HOME}/${OPENFIRE} start
+	ps aux | grep openfire | grep startup.jar | awk '{print $2}' > ${PIDFILE}
 }
 
 stop() {
 	# Stop daemons.
 	echo -n "Shutting down openfire: "
+	exec ${OPENFIRE_HOME}/${OPENFIRE} stop
         # failsafe.
-	ps aux | grep openfire | grep startup.jar | awk '{print $2}' > ${TMP_DIR}/openfire.pid
-        kill  -9 `cat ${TMP_DIR}/openfire.pid`
+	ps aux | grep openfire | grep startup.jar | awk '{print $2}' > ${PIDFILE}
+        kill  -9 `${PIDFILE}`
 }
 
 restart() {
@@ -95,7 +98,7 @@ echo  "	     create "
 echo  "                  creates the database but no tables. Must be run as root"
 echo  "	     create-tables "
 echo  "                  create database tables."
-echo  "	     setup -Ddomain=xmppdomain "
+echo  "	     setup -Ddomain=xmppdomain -DconfigDir=sipx_configdir"
 echo  "                   create admin user and set up the domain."
 echo  "                   xmppdomian is the DNS domain name for the xmpp server"
 echo  "                   admin user password is admin."

@@ -3,11 +3,12 @@
 # Copyright (C) 2009 Nortel Corp.
 # Licensed to SIPfoundry under a Contributor Agreement.
 
-. @SIPX_LIBEXECDIR@/sipx-utils.sh
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
 
 # This script must be run as root.
-export SIPX_COMMONS=@SIPX_JAVADIR@/sipXcommons
-export OPENFIRE_LIB=@OPENFIRE_HOME@/lib
+SIPX_COMMONS=@SIPX_JAVADIR@/sipXcommons
+OPENFIRE_LIB=@OPENFIRE_HOME@/lib
+SIP_DOMAIN_NAME=`sipx_config_value @SIPX_CONFDIR@/domain-config SIP_DOMAIN_NAME`
 # Stop openfire if it is running.
 @SIPX_BINDIR@/sipxopenfire.sh --stop
 if [ -e @OPENFIRE_HOME@  ]
@@ -39,8 +40,12 @@ then
    chown -R @SIPXPBXUSER@ @OPENFIRE_HOME@
    chgrp -R @SIPXPBXUSER@ @OPENFIRE_HOME@
    chmod -R u+rwX,ga+rX   @OPENFIRE_HOME@
-   cp @SIPX_CONFDIR@/ssl/authorities.jks  @OPENFIRE_HOME@/resources/security/truststore
-   cp @SIPX_CONFDIR@/ssl/ssl.keystore  @OPENFIRE_HOME@/resources/security/keystore
+   rm  -f @OPENFIRE_HOME@/resources/security/truststore
+   rm  -f @OPENFIRE_HOME@/resources/security/keystore
+   ln -s @SIPX_CONFDIR@/ssl/authorities.jks  @OPENFIRE_HOME@/resources/security/truststore
+   ln -s @SIPX_CONFDIR@/ssl/ssl.keystore  @OPENFIRE_HOME@/resources/security/keystore
+   mkdir -p @SIPX_LOGDIR@/openfire
+   chown -R @SIPXPBXUSER@ @SIPX_LOGDIR@/openfire
 fi 
 echo "Done linking files"
 # Check if we have created the database. If not create it.
@@ -52,8 +57,10 @@ then
     echo "Initializing Openfire Database"
     su @SIPXPBXUSER@ -c "@SIPX_BINDIR@/sipxopenfire.sh --database create"
     su postgres -c "@SIPX_BINDIR@/sipxopenfire.sh --database create-tables"
+    su postgres -c "@SIPX_BINDIR@/sipxopenfire.sh --database setup -Ddomain=${SIP_DOMAIN_NAME}"
 else
-    echo "sipxopenfire: postgres is already initialized"
+    echo "sipxopenfire: postgres is already initialized only resetting the domain"
+    su postgres -c "@SIPX_BINDIR@/sipxopenfire.sh --database setdomain -Ddomain=${SIP_DOMAIN_NAME}"
 fi
 
 #if openfire service is running stop it.

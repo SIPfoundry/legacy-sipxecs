@@ -16,7 +16,7 @@ public class XmlRpcUserAccountProvider extends XmlRpcProvider {
     }
 
     public Map userExists(String userName) {
-        userName = setDomain(userName);
+        userName = appendDomain(userName);
 
         log.debug("userExists " + userName);
         Map retval = createSuccessMap();
@@ -42,7 +42,7 @@ public class XmlRpcUserAccountProvider extends XmlRpcProvider {
 
     public Map destroyUserAccount(String userName) {
         try {
-            String jid = setDomain(userName);
+            String jid = appendDomain(userName);
             log.debug("destroyUserAccount " + jid);
             plugin.destroyUser(jid);
             return createSuccessMap();
@@ -53,7 +53,7 @@ public class XmlRpcUserAccountProvider extends XmlRpcProvider {
 
     public Map setSipId(String userName, String sipUserName) {
         try {
-            String jid = setDomain(userName);
+            String jid = appendDomain(userName);
             log.debug("setSipId " + jid + " sipUserName " + sipUserName);
             plugin.setSipId(jid, sipUserName);
             return createSuccessMap();
@@ -83,7 +83,7 @@ public class XmlRpcUserAccountProvider extends XmlRpcProvider {
 
     public Map setSipPassword(String userName, String sipPassword) {
         try {
-            String jid = setDomain(userName);
+            String jid = appendDomain(userName);
             //TODO: remove SIP password from logs!!!
             log.debug("setSipPassword " + jid + " sipPassword " + sipPassword);
             plugin.setSipPassword(jid, sipPassword);

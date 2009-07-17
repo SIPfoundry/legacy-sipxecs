@@ -42,14 +42,41 @@
 	   </sipx-sql>
         </target>
 
-        <!-- create the admin user -->
-        <target name="setup" >
-          <echo  file="/tmp/of-init.sql" >
-             DELETE FROM ofProperty WHERE name='xmpp.domain'; 
-             DELETE FROM ofUser WHERE name='admin'; 
+        <target name="setdomain">
+          <echo  file="/tmp/of-setdomain.sql" >
+             DELETE FROM ofProperty where name='xmpp.domain';
              INSERT INTO ofProperty (name, propValue) VALUES ('xmpp.domain','${domain}'); 
-             INSERT INTO ofUser (username,plainPassword,name,email,creationDate,modificationDate) 
+          </echo>
+          <sipx-sql src="/tmp/of-setdomain.sql" />
+        </target>
+
+        <target name="setup" depends="setdomain" >
+          <echo  file="/tmp/of-init.sql" >
+             DELETE FROM ofUser WHERE name='admin'; 
+             INSERT INTO ofUser (username,plainPassword,name,email,creationDate,modificationDate)
              VALUES ('admin','admin','Administrator','admin@${domain}', '0', '0'); 
+             DELETE FROM ofProperty where name='xmpp.privateStorageEnabled';
+             INSERT INTO ofProperty (name, propValue) VALUES ('xmpp.privateStorageEnabled','true'); 
+             DELETE FROM ofProperty where name='xmpp.socket.ssl.keypass';
+             INSERT INTO ofProperty (name, propValue) VALUES ('xmpp.socket.ssl.keypass','changeit');
+             DELETE FROM ofProperty where name='xmpp.server.certificate.accept-selfsigned';
+             INSERT INTO ofProperty (name, propValue) VALUES ('xmpp.server.certificate.accept-selfsigned','true');
+             DELETE FROM ofProperty where name='xmpp.server.tls.enabled';
+             INSERT INTO ofProperty (name, propValue) VALUES ('xmpp.server.tls.enabled','true'); 
+             DELETE FROM ofProperty where name='xmpp.audit.active';
+             INSERT INTO ofProperty (name, propValue) VALUES ('xmpp.audit.active','false'); 
+             DELETE FROM ofProperty where name='xmpp.audit.messages';
+             INSERT INTO ofProperty (name, propValue) VALUES ('xmpp.audit.messages','true'); 
+             DELETE FROM ofProperty where name='xmpp.audit.presence';
+             INSERT INTO ofProperty (name, propValue) VALUES ('xmpp.audit.presence','true'); 
+             DELETE FROM ofProperty where name='xmpp.audit.logdir';
+             INSERT INTO ofProperty (name, propValue) VALUES ('xmpp.audit.logdir','@SIPX_LOGDIR@/openfire/'); 
+             DELETE FROM ofProperty where name='rss.enabled';
+             INSERT INTO ofProperty (name, propValue) VALUES ('rss.enabled','false'); 
+             DELETE FROM ofProperty where name='xmpp.offline.type';
+             INSERT INTO ofProperty (name, propValue) VALUES ('xmpp.offline.type','store'); 
+             DELETE FROM ofProperty where name='xmpp.proxy.enabled';
+             INSERT INTO ofProperty (name, propValue) VALUES ('xmpp.proxy.enabled','false'); 
           </echo>
           <sipx-sql src="/tmp/of-init.sql" />
         </target>

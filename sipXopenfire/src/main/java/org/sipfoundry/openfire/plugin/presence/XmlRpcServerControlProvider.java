@@ -3,6 +3,7 @@ package org.sipfoundry.openfire.plugin.presence;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.jivesoftware.util.JiveGlobals;
 import org.xmpp.component.Log;
 
 public class XmlRpcServerControlProvider extends XmlRpcProvider {
@@ -14,24 +15,27 @@ public class XmlRpcServerControlProvider extends XmlRpcProvider {
 
     private Logger log = Logger.getLogger(XmlRpcServerControlProvider.class);
 
-    public Map<String, Object> stop() {
+    
+    public Map<String,Object> setDomain(String domain) {
         try {
-            log.info("Stopping");
-            plugin.stopServer();
+            log.info("setDomain " + domain );
+            JiveGlobals.setProperty("xmpp.domain",domain);
             return createSuccessMap();
-        } catch (Exception ex) {
-            return super.createErrorMap(ErrorCode.SERVER_STOP_FAILED, ex.getMessage());
+        } catch ( Exception ex) {
+            return super.createErrorMap(ErrorCode.SERVER_CONTROL_FAILED, ex.getMessage());
         }
     }
     
-    public Map<String, Object> start() {
+    public Map<String,Object> enableAudit(String flag) {
         try {
-            log.info("Start");
-            plugin.startServer();
+            log.info("enableAudit " + flag);
+            JiveGlobals.setProperty("xmpp.audit.active",flag);
             return createSuccessMap();
         } catch (Exception ex) {
-            return super.createErrorMap(ErrorCode.SERVER_STOP_FAILED, ex.getMessage());
+            return super.createErrorMap(ErrorCode.SERVER_CONTROL_FAILED, ex.getMessage());
         }
     }
+    
+   
 
 }

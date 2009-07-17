@@ -26,7 +26,7 @@ public class OpenfireServerControlServlet extends HttpServlet {
         ComponentManager componentManager = ComponentManagerFactory.getComponentManager();
 
         log = componentManager.getLog();
-        log.info("initializing UserAccountServlet");
+        log.info("initializing OpenfireServerControlServlet");
 
         plugin = (SipXOpenfirePlugin) XMPPServer.getInstance().getPluginManager().getPlugin(
                 "sipx-openfire");
