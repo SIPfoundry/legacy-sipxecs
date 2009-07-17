@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -87,10 +87,10 @@ public:
 
    // Set the agent Busy (not free)
    void setBusy(void) ;
-   
+
    // Set the agent free.
    void setFree(void) ;
-   
+
    void setCallHandle (SIPX_CALL hCallHandle) { mhCallHandle = hCallHandle;}
 
    bool isPseudoAgent(void){ return mIsPseudo;};
@@ -190,16 +190,16 @@ private:
    bool             mCallEstablished;        // Flag indicating if the ACDAgent has established call
    int              mMaxBounceCount;         // Maximum number of unanswered calls before the agent is "bounced"
    int              mBounceCount;            // Current count of unanswered calls
- 
+
    // Notify the queues of this agent's availability
    void notifyAvailability();
-   
-   // Keep mAvailable flag in line with current state   
+
+   // Keep mAvailable flag in line with current state
    void setAvailable();
 
    // Set the agent on/off hook
    void setOnHook(bool onHook) ;
-      
+
    // Set the agent sign in/out
    void setSignIn(bool agentSignIn);
 
@@ -211,9 +211,8 @@ private:
 
    // Drop the call to the agent
    void dropCallMessage(bool rna) ;
-   
+
    void handleWrapupTimeout();
 };
 
 #endif  // _ACDAgent_h_
-

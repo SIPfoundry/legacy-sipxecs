@@ -4,4 +4,3 @@ EXTRA_DIST = \
     sipxacd-process.xml.in
 
 SIPX_PROCESS_DEFS=sipxacd
-

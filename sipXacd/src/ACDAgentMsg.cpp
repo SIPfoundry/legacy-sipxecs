@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -25,7 +25,7 @@
 //
 //  NAME:        ACDAgentMsg::ACDAgentMsg
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Constructor for UPDATE_STATE message
 //
@@ -39,7 +39,7 @@
 
 ACDAgentMsg::ACDAgentMsg(eACDAgentMsgSubTypes type, LinePresenceBase::ePresenceStateType stateType, bool state)
 : OsMsg(USER_START, type)
-{   
+{
    mPresenceStateType = stateType;
    mPresenceState     = state;
 }
@@ -48,7 +48,7 @@ ACDAgentMsg::ACDAgentMsg(eACDAgentMsgSubTypes type, LinePresenceBase::ePresenceS
 //
 //  NAME:        ACDAgentMsg::ACDAgentMsg
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Constructor for DROP_CALL message
 //
@@ -62,7 +62,7 @@ ACDAgentMsg::ACDAgentMsg(eACDAgentMsgSubTypes type, LinePresenceBase::ePresenceS
 
 ACDAgentMsg::ACDAgentMsg(eACDAgentMsgSubTypes type, bool rna)
 : OsMsg(USER_START, type)
-{   
+{
    mRna = rna ;
 }
 
@@ -71,7 +71,7 @@ ACDAgentMsg::ACDAgentMsg(eACDAgentMsgSubTypes type, bool rna)
 //
 //  NAME:        ACDAgentMsg::ACDAgentMsg
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Copy constructor
 //
@@ -103,7 +103,7 @@ ACDAgentMsg::ACDAgentMsg(const ACDAgentMsg& rACDAgentMsg)
 //
 //  NAME:        ACDAgentMsg::createCopy
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Create a copy of this msg object (which may be of a derived type)
 //
@@ -125,7 +125,7 @@ OsMsg* ACDAgentMsg::createCopy(void) const
 //
 //  NAME:        ACDAgentMsg::~ACDAgentMsg
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Destructor
 //
@@ -152,4 +152,3 @@ ACDAgentMsg::~ACDAgentMsg()
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-

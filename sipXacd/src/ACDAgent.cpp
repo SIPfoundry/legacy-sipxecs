@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -9,7 +9,7 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-#include <cp/LinePresenceMonitor.h> 
+#include <cp/LinePresenceMonitor.h>
 #include <net/StateChangeNotifier.h>
 #include <net/XmlRpcRequest.h>
 #include <os/OsDateTime.h>
@@ -107,7 +107,7 @@ ACDAgent::ACDAgent(ACDAgentManager* pAcdAgentManager,
    mBounceCount        = 0;
 
    mpWrapupTimer =
-      new OsTimer(getMessageQueue(), (void*)WRAP_UP_TIMER);  
+      new OsTimer(getMessageQueue(), (void*)WRAP_UP_TIMER);
 
    mCallEstablished = false;
    // Set the agents idle time to now
@@ -190,7 +190,7 @@ ACDAgent::~ACDAgent()
 //
 //  DESCRIPTION: This is the subclass implementation of the virtual LinePresenceBase::updateState().
 //               It is called by the LinePresenceMonitor, if subscribed, to update the ACDAgents
-//               availability based upon SIP dialog and presence information. 
+//               availability based upon SIP dialog and presence information.
 //
 //  RETURNS:     None.
 //
@@ -217,7 +217,7 @@ void ACDAgent::updateState(ePresenceStateType type, bool state)
 //  NAME:        ACDAgent::connect
 //
 //  SYNOPSIS:    SIPX_CALL connect(
-//                 ACDCall *   pACDCall, incoming ACD call  
+//                 ACDCall *   pACDCall, incoming ACD call
 //                                 )
 //
 //  DESCRIPTION: Create an outbound sipXtapi call to the ACDAgents configured URI.  It will
@@ -235,14 +235,14 @@ SIPX_CALL ACDAgent::connect(ACDCall* pACDCall)
 {
    SIPX_LINE hLine = pACDCall->getAcdAgentLineHandle();
    const char *pCallId = pACDCall->getCallId() ; // The Call-Id of ACDCall
-   ACDLine* acdLine = pACDCall->getAcdAgentLineReference(); 
-   // From Uri should  be set to the AOR for the corresponding ACDLine, which will be used 
+   ACDLine* acdLine = pACDCall->getAcdAgentLineReference();
+   // From Uri should  be set to the AOR for the corresponding ACDLine, which will be used
    // for line mapping for responses to this call.
-   const char *pFrom = acdLine->getUriString()->data(); 
+   const char *pFrom = acdLine->getUriString()->data();
 
    // Create the outbound call to the agent URI
    if (sipxCallCreate(mhAcdCallManagerHandle, hLine, &mhCallHandle) != SIPX_RESULT_SUCCESS) {
-      OsSysLog::add(FAC_ACD, PRI_ERR, 
+      OsSysLog::add(FAC_ACD, PRI_ERR,
                     "ACDAgent::connect - "
                     "ACDAgent(%s) failed to create outbound call",
                     mUriString.data());
@@ -250,7 +250,7 @@ SIPX_CALL ACDAgent::connect(ACDCall* pACDCall)
       return 0;
    }
 
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, 
+   OsSysLog::add(FAC_ACD, gACD_DEBUG,
                  "ACDAgent::connect - "
                  "ACDAgent(%s) succeeded to create outbound call with call handle %d.  mBounceCount=%d",
                  mUriString.data(), mhCallHandle, mBounceCount);
@@ -273,7 +273,7 @@ SIPX_CALL ACDAgent::connect(ACDCall* pACDCall)
    if(acdQueue) {
       UtlString *queueName = acdQueue->getQueueName();
       if (queueName) {
-         // Add the queue name where the call came from as the text part 
+         // Add the queue name where the call came from as the text part
          // of the SIP URL in To header.
          agentUrlString = "\"" + *queueName + "\" " ;
       }
@@ -284,7 +284,7 @@ SIPX_CALL ACDAgent::connect(ACDCall* pACDCall)
       mNonResponsiveTime = acdQueue->getAgentsNonResponsiveTime();
       // Update mMaxBounceCount from the queue
       mMaxBounceCount = acdQueue->getMaxBounceCount();
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, 
+      OsSysLog::add(FAC_ACD, gACD_DEBUG,
                     "ACDAgent::connect - ACDAgent(%s) "
                     "mWrapupTime=%d mNonResponsiveTime=%d mMaxBounceCount=%d",
                     mUriString.data(),mWrapupTime, mNonResponsiveTime, mMaxBounceCount);
@@ -297,14 +297,14 @@ SIPX_CALL ACDAgent::connect(ACDCall* pACDCall)
    // The angle brackets are required to make the parameter a URI parameter
    // and show up in the request URI not just the "To" field.
    agentUrlString += "<" + mUriString + ";sipx-noroute=VoiceMail>" ;
-   
+
    // Fire off the call
    if (sipxCallConnect(mhCallHandle, agentUrlString, 0, NULL, pTempId, pFrom) != SIPX_RESULT_SUCCESS) {
       OsSysLog::add(FAC_ACD, PRI_ERR, "ACDAgent::connect - ACDAgent(%s) failed to initiate outbound call",
                     mUriString.data());
       return 0;
    }
-   
+
    return mhCallHandle;
 }
 
@@ -341,7 +341,7 @@ void ACDAgent::drop(bool rna)
    mpAcdCallManager->removeMapAgentCallHandleToCall(mhCallHandle);
 
    ACDAgentMsg dropMsg(ACDAgentMsg::DROP_CALL, rna);
-   postMessage(dropMsg); 
+   postMessage(dropMsg);
 }
 
 
@@ -641,7 +641,7 @@ bool ACDAgent::getState(ePresenceStateType type)
       state = true;
    }
    else
-   {   
+   {
       if ((mAgentLineState & static_cast<unsigned int>(type)) == static_cast<unsigned int>(type)) {
          state = true;
       }
@@ -884,7 +884,7 @@ bool ACDAgent::isAvailable(bool markBusy)
 {
    bool available = false;
    const char *reason = "available" ;
-   
+
    mLock.acquire();
 
    for(;;) // dummy loop for break ;
@@ -895,21 +895,21 @@ bool ACDAgent::isAvailable(bool markBusy)
          reason = "not free";
          break;
       }
-      
+
       if ((mAgentLineState & LinePresenceBase::ON_HOOK) == false)
       {
          reason = "OFF_HOOK";
          break;
       }
-      
+
       if (mAlwaysAvailable)
       {
           available = true ;
           reason = "SIGNED_IN (always)";
           break ;
       }
-      
-      
+
+
       if (mAgentLineState & LinePresenceBase::SIGNED_IN)
       {
          available = true ;
@@ -1001,13 +1001,13 @@ bool ACDAgent::isOnHold(void)
 
 int ACDAgent::compareTo(UtlContainable const* pInVal) const
 {
-   int result ; 
+   int result ;
 
    if (pInVal->isInstanceOf(ACDAgent::TYPE)) {
       result = mUriString.compareTo(((ACDAgent*)pInVal)->getUriString());
    }
    else {
-      result = -1; 
+      result = -1;
    }
 
    return result;
@@ -1040,21 +1040,21 @@ void ACDAgent::notifyAvailability()
    // Now notify all of the queues this agent is assigned to
    ACDQueue* pQueue;
    pQueue = dynamic_cast<ACDQueue*>(mAcdQueueList.at(0));
-   if (pQueue == NULL) 
+   if (pQueue == NULL)
    {
       // The ACDQueue list is empty, try rebuilding
       buildACDQueueList();
    }
    // Iterate through the list and send notification of availability
    UtlSListIterator listIterator(mAcdQueueList);
-   while ((pQueue = dynamic_cast<ACDQueue*>(listIterator())) != NULL) 
+   while ((pQueue = dynamic_cast<ACDQueue*>(listIterator())) != NULL)
    {
       OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::notifyAvailability - informing the queue(%s) that agent(%s) is available",
          pQueue->getUriString()->data(),
          mUriString.data());
       pQueue->agentAvailable(this);
    }
-    
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1102,7 +1102,7 @@ void ACDAgent::setAvailable()
                        mUriString.data());
       }
    }
-      
+
    mLock.release();
 }
 
@@ -1125,12 +1125,12 @@ void ACDAgent::setAvailable()
 void ACDAgent::setOnHook(bool onHook)
 {
    mLock.acquire();
-   if (onHook) 
+   if (onHook)
    {
       // Mark agent ON_HOOK
       mAgentLineState |= LinePresenceBase::ON_HOOK ;
    }
-   else 
+   else
    {
       // Mark agent OFF_HOOK
       mAgentLineState &= ~LinePresenceBase::ON_HOOK ;
@@ -1161,7 +1161,7 @@ void ACDAgent::logSignIn(ACDQueue *pQueue, bool agentSignIn)
 
    // Add Agent Event
    if (NULL != pACDRtRec) {
-      int dir = agentSignIn ? ACDRtRecord::SIGNED_IN_AGENT : 
+      int dir = agentSignIn ? ACDRtRecord::SIGNED_IN_AGENT :
                               ACDRtRecord::SIGNED_OUT_AGENT ;
       pACDRtRec->appendAgentEvent(dir, pQueue->getUriString(), this);
    }
@@ -1204,14 +1204,14 @@ void ACDAgent::setSignIn(bool agentSignIn)
 
    if (!mAlwaysAvailable)  // If always available, ignore this.
    {
-      if (agentSignIn) 
+      if (agentSignIn)
       {
          // Mark agent signed in.
          mAgentLineState |= LinePresenceBase::SIGNED_IN ;
          // reset mBounceCount
          mBounceCount = 0 ;
       }
-      else 
+      else
       {
          // Mark agent signed out.
          mAgentLineState &= ~LinePresenceBase::SIGNED_IN ;
@@ -1225,9 +1225,9 @@ void ACDAgent::setSignIn(bool agentSignIn)
 //
 //  NAME:        ACDAgent::handleMessage
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1305,7 +1305,7 @@ UtlBoolean ACDAgent::handleMessage(OsMsg& rMessage)
 //
 //  DESCRIPTION: This is the subclass implementation of the virtual LinePresenceBase::updateState().
 //               It is called by the LinePresenceMonitor, if subscribed, to update the ACDAgents
-//               availability based upon SIP dialog and presence information. 
+//               availability based upon SIP dialog and presence information.
 //
 //  RETURNS:     None.
 //
@@ -1340,7 +1340,7 @@ void ACDAgent::updateStateMessage(ePresenceStateType type, bool state, bool reco
          status = DUNNO;
          break;
    }
-   
+
    // Now we can switch based on status
    switch(status)
    {
@@ -1362,7 +1362,7 @@ void ACDAgent::updateStateMessage(ePresenceStateType type, bool state, bool reco
           }
           setOnHook(true);
           break;
-          
+
        case OFF_HOOK:
           OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::updateStateMessage OFF_HOOK Agent(%s)",
                         getUriString()->data());
@@ -1378,11 +1378,11 @@ void ACDAgent::updateStateMessage(ePresenceStateType type, bool state, bool reco
           }
           setSignIn(true);
          break;
-       
+
        case SIGNED_OUT:
           OsSysLog::add(FAC_ACD, PRI_INFO, "ACDAgent::updateStateMessage - ACDAgent(%s) SIGNED OUT",
                         mUriString.data());
-          if (mMonitorPresence) 
+          if (mMonitorPresence)
           {
              mpAcdAgentManager->linePresenceUnsubscribe(this, NULL);
           }
@@ -1391,7 +1391,7 @@ void ACDAgent::updateStateMessage(ePresenceStateType type, bool state, bool reco
        default:
           break;
    }
-   mLock.release();      
+   mLock.release();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1418,7 +1418,7 @@ void ACDAgent::dropCallMessage(bool rna)
 {
    mLock.acquire();
 
-   // No longer on hold   
+   // No longer on hold
    mOnHold = false;
 
    // Record the time that the agent went idle
@@ -1435,7 +1435,7 @@ void ACDAgent::dropCallMessage(bool rna)
       // update mBounceCount
       mBounceCount++;
 
-      // If mMaxBounceCount is greater than 0 and the agent has not 
+      // If mMaxBounceCount is greater than 0 and the agent has not
       // answered a call in that many tries, then sign him out if possible.
       if (mMaxBounceCount != 0 && mBounceCount>= mMaxBounceCount)
       {
@@ -1454,7 +1454,7 @@ void ACDAgent::dropCallMessage(bool rna)
       mhCallHandle = SIPX_CALL_NULL ;
    }
 
-   // Do not reset the hook state upon call disconnection if monitoring presence. We must 
+   // Do not reset the hook state upon call disconnection if monitoring presence. We must
    // rely on NOTIFY events to do that, else we will make this agent available before the
    // device is really ready.
    if(!mMonitorPresence)
@@ -1492,7 +1492,7 @@ void ACDAgent::dropCallMessage(bool rna)
       setFree() ;
    }
 
-   mLock.release();     
+   mLock.release();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1501,7 +1501,7 @@ void ACDAgent::dropCallMessage(bool rna)
 //
 //  SYNOPSIS:    void handleWrapupTimeout(void)
 //
-//  DESCRIPTION: A wrap-up time defines a period of time that has to pass until the ACD 
+//  DESCRIPTION: A wrap-up time defines a period of time that has to pass until the ACD
 //               transferrs a new caller to an agent after a call finished. After agent
 //               complete a call, a wrap-up timer will be fired and agent's state will
 //               stay busy until the wrap-up timer timeout.
@@ -1529,7 +1529,7 @@ void ACDAgent::handleWrapupTimeout()
 //
 //  SYNOPSIS:    void signOut(void)
 //
-//  DESCRIPTION: Send a sign-out request through XMLRPC to ACD presence 
+//  DESCRIPTION: Send a sign-out request through XMLRPC to ACD presence
 //               server.
 //
 //  RETURNS:     None.
@@ -1554,23 +1554,23 @@ void ACDAgent::signOut()
    // Mark signed out locally (so it happens fast)
    setSignIn(false) ;
 
-   // Build the XML_RPC request to tell the ACD presence server 
-   // to sign-out the agent. 
-   OsStatus result = OS_FAILED; 
+   // Build the XML_RPC request to tell the ACD presence server
+   // to sign-out the agent.
+   OsStatus result = OS_FAILED;
    UtlHashMap requstData;
    UtlString* objectKey = new UtlString("object-class");
    UtlString* objectValue = new UtlString("login");
    requstData.insertKeyAndValue(objectKey, objectValue);
    UtlString* signOutKey = new UtlString("sign-out");
    UtlString* signOutValue = new UtlString(mUriString);
-   requstData.insertKeyAndValue(signOutKey, signOutValue);  
-   
+   requstData.insertKeyAndValue(signOutKey, signOutValue);
+
    Url target = mpAcdAgentManager->getPresenceServiceUrl();
    UtlString url = target.toString();
- 
+
    XmlRpcRequest request(target,"action");
    request.addParam(&requstData);
-   
+
    XmlRpcResponse response;
    result = request.execute(response) ? OS_SUCCESS : OS_FAILED;
    if (result != OS_SUCCESS)
@@ -1581,4 +1581,3 @@ void ACDAgent::signOut()
 
    OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDAgent::signOut PresenceServiceUrl = %s  agent(%s) signOut result is %d ", url.data(), mUriString.data(),result);
 }
-

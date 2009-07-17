@@ -29,5 +29,3 @@ $(foreach file,$(editscripts_IN),$(file)) : % : %.in
 EXTRA_DIST = \
    $(foreach file,$(editscripts_IN),$(file).in) \
    $(bin_SCRIPTS)
-
-

@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -35,9 +35,9 @@ extern OsSysLogPriority gACD_DEBUG;
 //
 //  NAME:        ACDAgentManager::ACDAgentManager
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -75,7 +75,7 @@ ACDAgentManager::ACDAgentManager(ACDServer* pAcdServer, int presenceMonitorPort,
 
    // Start it up
    mpLinePresenceMonitor->start();
-   
+
    // Test to see if the optional Presence Server has been provisioned and record.
    if (presenceServerUri.toString() == NULL ||
        presenceServerUri.toString().compareTo("sip:") == 0) {
@@ -95,9 +95,9 @@ ACDAgentManager::ACDAgentManager(ACDServer* pAcdServer, int presenceMonitorPort,
 //
 //  NAME:        ACDAgentManager::~ACDAgentManager
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -130,9 +130,9 @@ ACDAgentManager::~ACDAgentManager()
 //
 //  NAME:        ACDAgentManager::initialize
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -159,9 +159,9 @@ OsStatus ACDAgentManager::initialize(void)
 //
 //  NAME:        ACDAgentManager::start
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -184,9 +184,9 @@ OsStatus ACDAgentManager::start(void)
 //
 //  NAME:        ACDAgentManager::createACDAgent
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -232,9 +232,9 @@ ACDAgent* ACDAgentManager::createACDAgent(const char* pAgentUriString,
 //
 //  NAME:        ACDAgentManager::deleteACDAgent
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -283,9 +283,9 @@ void ACDAgentManager::deleteACDAgent(const char* pAgentUriString)
 //
 //  NAME:        ACDAgentManager::linePresenceSubscribe
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -305,9 +305,9 @@ void ACDAgentManager::linePresenceSubscribe(ACDAgent* pAgent)
 //
 //  NAME:        ACDAgentManager::linePresenceUnsubscribe
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -327,9 +327,9 @@ void ACDAgentManager::linePresenceUnsubscribe(ACDAgent* pAgent, OsEvent *e)
 //
 //  NAME:        ACDAgentManager::presenceServerSubscribe
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -351,9 +351,9 @@ void ACDAgentManager::presenceServerSubscribe(ACDAgent* pAgent)
 //
 //  NAME:        ACDAgentManager::presenceServerUnsubscribe
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -380,9 +380,9 @@ void ACDAgentManager::presenceServerUnsubscribe(ACDAgent* pAgent, OsEvent *e)
 //
 //  NAME:        ACDAgentManager::Create
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -436,7 +436,7 @@ ProvisioningAttrList* ACDAgentManager::Create(ProvisioningAttrList& rRequestAttr
       pResponse->setAttribute("method-name", "create");
 #ifdef CML
       pResponse->setAttribute("result-code", ProvisioningAgent::ALREADY_EXISTS);
-#else      
+#else
       pResponse->setAttribute("result-code", ProvisioningAgent::DUPLICATE);
 #endif
       pResponse->setAttribute("result-text", "Managed Object Instance already exists");
@@ -520,9 +520,9 @@ ProvisioningAttrList* ACDAgentManager::Create(ProvisioningAttrList& rRequestAttr
 //
 //  NAME:        ACDAgentManager::Delete
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -563,7 +563,7 @@ ProvisioningAttrList* ACDAgentManager::Delete(ProvisioningAttrList& rRequestAttr
       // Delete the agent only if he is not handling any call
       ACDAgent* pAgentRef = getAcdAgentReference(agentUriString);
       if ((pAgentRef) && (false == pAgentRef->isFree())) {
-         pAgentRef->setDelete(TRUE); 
+         pAgentRef->setDelete(TRUE);
       }
       else {
          deleteACDAgent(agentUriString);
@@ -592,9 +592,9 @@ ProvisioningAttrList* ACDAgentManager::Delete(ProvisioningAttrList& rRequestAttr
 //
 //  NAME:        ACDAgentManager::Set
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -728,9 +728,9 @@ ProvisioningAttrList* ACDAgentManager::Set(ProvisioningAttrList& rRequestAttribu
 //
 //  NAME:        ACDAgentManager::Get
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -828,9 +828,9 @@ ProvisioningAttrList* ACDAgentManager::Get(ProvisioningAttrList& rRequestAttribu
 //
 //  NAME:        ACDAgentManager::loadConfiguration
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -899,9 +899,9 @@ bool ACDAgentManager::loadConfiguration(void)
 //
 //  NAME:        ACDAgentManager::getAcdAgentReference
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -929,9 +929,9 @@ ACDAgent* ACDAgentManager::getAcdAgentReference(UtlString& rAgentUriString)
 //
 //  NAME:        ACDAgentManager::getAcdCallManagerHandle
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -951,9 +951,9 @@ SIPX_INST ACDAgentManager::getAcdCallManagerHandle(void)
 //
 //  NAME:        ACDAgentManager::getAcdCallManager
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -973,9 +973,9 @@ ACDCallManager* ACDAgentManager::getAcdCallManager(void)
 //
 //  NAME:        ACDAgentManager::getAcdQueueManager
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -994,9 +994,9 @@ ACDQueueManager* ACDAgentManager::getAcdQueueManager(void)
 //
 //  NAME:        ACDAgentManager::getAcdServer
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1026,7 +1026,7 @@ ACDServer* ACDAgentManager::getAcdServer(void)
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-LinePresenceMonitor* ACDAgentManager::getLinePresenceMonitor(void) 
+LinePresenceMonitor* ACDAgentManager::getLinePresenceMonitor(void)
 {
    return  mpLinePresenceMonitor;
 }
