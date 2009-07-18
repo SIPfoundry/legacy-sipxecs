@@ -233,6 +233,8 @@
   <bean id="replicationTrigger"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationTrigger">
     <property name="replicationContext" ref="sipxReplicationContext" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="serviceConfigurator" ref="serviceConfigurator" />
   </bean>
 
   <bean id="registrationContext"

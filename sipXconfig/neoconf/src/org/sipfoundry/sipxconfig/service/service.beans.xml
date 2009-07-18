@@ -614,5 +614,27 @@
       </set>
     </property>
   </bean>  
+
+  <bean id="sipxSaaService" class="org.sipfoundry.sipxconfig.service.SipxSaaService" scope="prototype"
+    parent="sipxService">
+    <property name="processName" value="SharedAppearanceAgent"/>
+    <property name="bundles">
+      <set>
+        <ref bean="primarySipRouterBundle" />
+        <ref bean="redundantSipRouterBundle" />
+      </set>
+    </property>
+    <property name="configurations">
+      <list>
+        <ref bean="appearanceGroupsConfiguration" />
+      </list>
+    </property>
+  </bean>
+
+  <bean id="appearanceGroupsConfiguration" class="org.sipfoundry.sipxconfig.service.AppearanceGroupsConfiguration" parent="serviceConfigurationFile">
+    <property name="name" value="appearance-groups.xml" />
+    <property name="template" value="sipxsaa/appearance-groups.vm" />
+    <property name="coreContext" ref="coreContext" />
+  </bean>
      
 </beans>

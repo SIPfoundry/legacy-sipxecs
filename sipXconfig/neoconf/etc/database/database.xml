@@ -319,6 +319,7 @@
     <antcall target="add-user-callforward" />
   	<antcall target="add-user-shared-field" />
     <antcall target="add_addressbook_entry_info_2" />
+	<antcall target="add-saa-service" />
   </target>
 
   <target name="time_of_day" unless="time_of_day">
@@ -843,6 +844,10 @@
 
   <target name="add-user-shared-field" unless="add-user-shared-field">
     <db-patch patch="add-user-shared-field"/>
+  </target>
+
+  <target name="add-saa-service" unless="add-saa-service">
+    <db-patch patch="add-saa-service"/>
   </target>
 
   <!--

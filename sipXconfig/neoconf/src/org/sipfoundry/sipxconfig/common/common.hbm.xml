@@ -100,4 +100,8 @@
       where s.id = :supervisorId and sgroups.id = g.id 
       and g.id = ugroups.id order by u.userName]]>
   </query>
+
+  <query name="sharedUsers">
+    <![CDATA[select u from User u where u.isShared = :isShared]]>
+  </query>
 </hibernate-mapping>

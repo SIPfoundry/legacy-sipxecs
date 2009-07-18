@@ -71,8 +71,8 @@ public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner
      */
     int getUsersInGroupWithSearchCount(Integer groupId, String searchString);
 
-    List<User> loadUsersByPage(String search, Integer groupId, int page, int pageSize,
-            String orderBy, boolean orderAscending);
+    List<User> loadUsersByPage(String search, Integer groupId, int page, int pageSize, String orderBy,
+            boolean orderAscending);
 
     List<User> loadUserByTemplateUser(User template);
 
@@ -81,6 +81,8 @@ public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner
     User loadUserByAlias(String userName);
 
     User loadUserByUserNameOrAlias(String userNameOrAlias);
+
+    List<User> getSharedUsers();
 
     /**
      * Check whether the user has a username or alias that collides with an existing username or

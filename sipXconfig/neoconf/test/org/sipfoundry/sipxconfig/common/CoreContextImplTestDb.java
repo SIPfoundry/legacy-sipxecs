@@ -440,7 +440,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         assertEquals((Integer) 1001, supervisors.get(0).getId());
     }
 
-    public void testUsersThatISupervisr() throws Exception {
+    public void testUsersThatISupervise() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/UsersThatISupervise.db.xml");
         User supervisor = m_core.loadUser(2001);
@@ -514,6 +514,14 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         user = m_core.getSpecialUser(SpecialUserType.REGISTRAR_SERVER);
         assertEquals("~~id~registrar", user.getName());
         assertTrue(user.getSipPassword().length() >= 10);
+    }
+
+    public void testGetSharedUsers() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.insertFlat("common/SharedUsersSeed.xml");
+        List<User> sharedUsers = m_core.getSharedUsers();
+        assertEquals(1, sharedUsers.size());
+        assertEquals((Integer) 1001, sharedUsers.get(0).getId());
     }
 
     public void testSaveAddressBook() throws Exception {
