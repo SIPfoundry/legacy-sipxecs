@@ -198,11 +198,15 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
                 if (accountInfo.isRegisterOnInitialization()) {
                     // Account needs registration.
                     String registrarHost = accountInfo.getOutboundRegistrar();
+                    // We assume that the Registrar is the same as the INBOUND proxy
+                    // server.
                     logger.debug("registrarHost = " + registrarHost);
                     try {
-                        if (viaHost.equals(InetAddress.getByName(registrarHost).getHostAddress())) {
+                        Hop hop = accountInfo.getHopToRegistrar();                     
+                        if (viaHost.equals(InetAddress.getByName(hop.getHost()).getHostAddress())) {
                             logger.debug("found account " + accountInfo.getProxyDomain());
                             return accountInfo;
+
                         }
                     } catch (UnknownHostException ex) {
                         logger.error("Cannot resolve host address " + registrarHost);

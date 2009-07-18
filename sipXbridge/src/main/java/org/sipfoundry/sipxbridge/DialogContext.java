@@ -538,7 +538,8 @@ class DialogContext {
         if (backToBackUserAgent == null)
             throw new NullPointerException("Null back2back ua");
         if (dialog.getApplicationData() != null) {
-            throw new SipXbridgeException("DialogContext: Context Already set!!");
+            logger.debug("DialogContext: Context Already set!!");
+            return (DialogContext) dialog.getApplicationData();
         }
         DialogContext dialogContext = new DialogContext(dialog);
         dialogContext.dialogCreatingTransaction = transaction;

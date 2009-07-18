@@ -6,6 +6,8 @@
  */
 package org.sipfoundry.sipxbridge;
 
+import gov.nist.javax.sip.ClientTransactionExt;
+
 import java.util.ListIterator;
 import java.util.TimerTask;
 
@@ -14,6 +16,7 @@ import javax.sip.ResponseEvent;
 import javax.sip.SipException;
 import javax.sip.SipProvider;
 import javax.sip.TimeoutEvent;
+import javax.sip.address.Hop;
 import javax.sip.address.SipURI;
 import javax.sip.header.ContactHeader;
 import javax.sip.message.Request;
@@ -45,8 +48,12 @@ public class RegistrationManager {
         TransactionContext tad = new TransactionContext(ct,
                 Operation.SEND_REGISTER);
         tad.setItspAccountInfo(itspAccount);
+        Hop hop = ( (ClientTransactionExt) ct).getNextHop();
+        itspAccount.setHopToRegistrar(hop);
         ct.sendRequest();
         itspAccount.setState(AccountState.AUTHENTICATING);
+         
+        
     }
 
     /**

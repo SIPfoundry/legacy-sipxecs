@@ -176,7 +176,10 @@ class TransactionContext {
         } else {
             this.setClientTransaction((ClientTransaction) transaction);
         }
-       
+        if ( transaction.getDialog() != null && 
+                DialogContext.get(transaction.getDialog()) != null ) {
+            this.itspAccountInfo = DialogContext.get(transaction.getDialog()).getItspInfo();       
+        }
     }
 
     /**
