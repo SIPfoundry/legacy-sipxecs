@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.sip.address.Address;
 import javax.sip.address.Hop;
@@ -99,7 +100,7 @@ public class ItspAccountInfo implements
     /*
      * The call Id table.
      */
-    private HashMap<String, FailureCounter> failureCountTable = new HashMap<String, FailureCounter>();
+    private ConcurrentHashMap<String, FailureCounter> failureCountTable = new ConcurrentHashMap<String, FailureCounter>();
 
     /*
      * NAT keepalive method.
@@ -156,6 +157,8 @@ public class ItspAccountInfo implements
     private boolean reUseOutboundProxySetting;
 
     private boolean inboundProxyPortSet;
+
+    private Hop hopToRegistrar ;
 
     class FailureCounterScanner extends TimerTask {
 
@@ -378,11 +381,12 @@ public class ItspAccountInfo implements
             this.failureCountTable.put(callId, fc);
         }
         int retval = fc.increment();
-        logger.debug("incrementFailureCount : " + retval);
+        logger.debug("incrementFailureCount : " + callId + " currentCount = " + retval);
 
         return retval;
 
     }
+    
 
     /**
      * @param state
@@ -576,6 +580,7 @@ public class ItspAccountInfo implements
      * @param callId
      */
     public void removeFailureCounter(String callId) {
+        logger.debug("removeFailureCounter " + callId);
         this.failureCountTable.remove(callId);
     }
 
@@ -631,6 +636,14 @@ public class ItspAccountInfo implements
      */
     public boolean isInboundProxyPortSet() {
         return inboundProxyPortSet;
+    }
+
+    public void setHopToRegistrar(Hop hop) {
+       this.hopToRegistrar = hop;
+    }
+    
+    public Hop getHopToRegistrar() {
+        return this.hopToRegistrar;
     }
 
 }
