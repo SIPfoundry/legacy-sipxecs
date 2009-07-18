@@ -265,7 +265,6 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{sipxpbxconf}/freeswitch
 %config(noreplace) %{sipxpbxconf}/freeswitch/*
 %config(noreplace) %{sipxpbxconf}/database/*
-%config(noreplace) %{sipxpbxconf}/database/*
 %dir %{sipxpbxconf}/region_*
 %config %{sipxpbxconf}/region_*/*
 %config(noreplace) %{sipxpbxconf}/grandstream/*
@@ -315,6 +314,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/test.d/*
 %config(noreplace) %{sipxpbxconf}/unmanagedPhone/*
 %config(noreplace) %{sipxpbxconf}/mailbox/*
+%config(noreplace) %{sipxpbxconf}/sipxsaa/*
 
 %define audiocodesdir %{_localstatedir}/sipxdata/audiocodes
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{audiocodesdir}
