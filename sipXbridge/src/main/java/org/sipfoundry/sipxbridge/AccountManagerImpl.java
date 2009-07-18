@@ -203,7 +203,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
                     logger.debug("registrarHost = " + registrarHost);
                     try {
                         Hop hop = accountInfo.getHopToRegistrar();                     
-                        if (viaHost.equals(InetAddress.getByName(hop.getHost()).getHostAddress())) {
+                        if (hop != null && viaHost.equals(InetAddress.getByName(hop.getHost()).getHostAddress())) {
                             logger.debug("found account " + accountInfo.getProxyDomain());
                             return accountInfo;
 
