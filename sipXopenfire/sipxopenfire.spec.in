@@ -52,6 +52,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxopenfire-setup.sh
 %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/database/sipxopenfire-initdb.sql
 %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/sipxopenfire-database.xml
-%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) /opt/openfire/plugins/sipx-openfire.jar
-%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) /opt/openfire/conf/openfire.xml
+%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/java/sipXecs/sipXopenfire/plugins/sipx-openfire.jar
+%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/java/sipXecs/sipXopenfire/conf/openfire.xml
 
