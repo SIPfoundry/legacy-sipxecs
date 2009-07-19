@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -25,7 +25,7 @@
 //
 //  NAME:        ACDCallMsg::ACDCallMsg
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Constructor for SET_QUEUE message
 //
@@ -54,7 +54,7 @@ ACDCallMsg::ACDCallMsg(eACDCallMsgSubTypes type, ACDQueue* pRequestingQueue, int
 //
 //  NAME:        ACDCallMsg::ACDCallMsg
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Constructor for UPDATE_STATE message
 //
@@ -68,7 +68,7 @@ ACDCallMsg::ACDCallMsg(eACDCallMsgSubTypes type, ACDQueue* pRequestingQueue, int
 
 ACDCallMsg::ACDCallMsg(eACDCallMsgSubTypes type, SIPX_CALL hCallHandle, int event, int cause)
 : OsMsg(USER_START, type)
-{   
+{
    mhCallHandle = hCallHandle;
    mCallEvent   = event;
    mCallCause   = cause;
@@ -83,7 +83,7 @@ ACDCallMsg::ACDCallMsg(eACDCallMsgSubTypes type, SIPX_CALL hCallHandle, int even
 //
 //  NAME:        ACDCallMsg::ACDCallMsg
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Constructor for ROUTE_CALL message
 //
@@ -97,7 +97,7 @@ ACDCallMsg::ACDCallMsg(eACDCallMsgSubTypes type, SIPX_CALL hCallHandle, int even
 
 ACDCallMsg::ACDCallMsg(eACDCallMsgSubTypes type, UtlSList* pTargetAgentList, int connectionScheme, int timeout)
 : OsMsg(USER_START, type)
-{   
+{
    mConnectionScheme = connectionScheme;
    mTimeout          = timeout;
 
@@ -119,7 +119,7 @@ ACDCallMsg::ACDCallMsg(eACDCallMsgSubTypes type, UtlSList* pTargetAgentList, int
 //
 //  NAME:        ACDCallMsg::ACDCallMsg
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Constructor for ROUTE_ADD message
 //
@@ -148,7 +148,7 @@ ACDCallMsg::ACDCallMsg(eACDCallMsgSubTypes type, ACDAgent* pAgentRef)
 //
 //  NAME:        ACDCallMsg::ACDCallMsg
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Constructor for ANSWER_CALL message
 //
@@ -178,7 +178,7 @@ ACDCallMsg::ACDCallMsg(eACDCallMsgSubTypes type, UtlString* pAudio, bool bargeIn
 //
 //  NAME:        ACDCallMsg::ACDCallMsg
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Constructor for PLAY_AUDIO message
 //
@@ -208,7 +208,7 @@ ACDCallMsg::ACDCallMsg(eACDCallMsgSubTypes type, UtlString* pQueueAudio, int que
 //
 //  NAME:        ACDCallMsg::ACDCallMsg
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Constructor for STOP_AUDIO & ABORT_ROUTE messages
 //
@@ -236,7 +236,7 @@ ACDCallMsg::ACDCallMsg(eACDCallMsgSubTypes type)
 //
 //  NAME:        ACDCallMsg::ACDCallMsg
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Constructor for DROP_CALL message
 //
@@ -265,7 +265,7 @@ ACDCallMsg::ACDCallMsg(eACDCallMsgSubTypes type, int terminationToneDuration, Ut
 //
 //  NAME:        ACDCallMsg::ACDCallMsg
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Copy constructor
 //
@@ -329,7 +329,7 @@ ACDCallMsg::ACDCallMsg(const ACDCallMsg& rACDCallMsg)
 //
 //  NAME:        ACDCallMsg::createCopy
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Create a copy of this msg object (which may be of a derived type)
 //
@@ -351,7 +351,7 @@ OsMsg* ACDCallMsg::createCopy(void) const
 //
 //  NAME:        ACDCallMsg::~ACDCallMsg
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Destructor
 //
@@ -378,4 +378,3 @@ ACDCallMsg::~ACDCallMsg()
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-

@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -31,8 +31,8 @@ class ACDServer;
 class ACDLineManager;
 class ACDAudioManager;
 
-bool ACDCallManager_EventCallback(SIPX_EVENT_CATEGORY category, 
-                                  void* pInfo, 
+bool ACDCallManager_EventCallback(SIPX_EVENT_CATEGORY category,
+                                  void* pInfo,
                                   void* pUserData);
 
 class ACDCallManager {
@@ -82,7 +82,7 @@ public:
    ACDAudioManager* getAcdAudioManager(void);
 
    int getSipPort(void);
-   
+
    bool isThereActiveCalls(void);
 
    // CML: Required for call pickup
@@ -125,13 +125,13 @@ private:
    UtlHashMap        mDeadCallHandleMap;    // Handle Map for Dead Call objects
    UtlHashMap        mACDCallExistsMap;     // Map for ACDCall objects
    int               mTotalCalls;           // Total number of calls received by AD server
-   
+
 /* ============================ INLINE METHODS ============================ */
 
 /* ============================ FRIEND METHODS ============================ */
 
-   friend bool ACDCallManager_EventCallback(SIPX_EVENT_CATEGORY category, 
-                                            void* pInfo, 
+   friend bool ACDCallManager_EventCallback(SIPX_EVENT_CATEGORY category,
+                                            void* pInfo,
                                             void* pUserData);
 
 };

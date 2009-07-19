@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -44,7 +44,7 @@ const int MIN_TIMEOUT_VALUE = 5;
 //
 //  NAME:        ACDQueue_Linear::ACDQueue_Linear
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Default constructor
 //
@@ -117,7 +117,7 @@ ACDQueue_Linear::ACDQueue_Linear(ACDQueueManager* pAcdQueueManager,
 //
 //  NAME:        ACDQueue_Linear::~ACDQueue_Linear
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Destructor
 //
@@ -143,9 +143,9 @@ ACDQueue_Linear::~ACDQueue_Linear()
 //
 //  NAME:        ACDQueue_Linear::addCallMessage
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -167,7 +167,7 @@ void ACDQueue_Linear::addCallMessage(ACDCall* pCallRef)
 //
 //  NAME:        ACDQueue_Linear::buildTargetAgentList
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Based upon the queue strategy and agent availability, this method will build a
 //               list of ACDAgent object candidates
@@ -237,4 +237,3 @@ bool ACDQueue_Linear::buildTargetAgentList(UtlSList& rTargetAgentList, ACDCall* 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-

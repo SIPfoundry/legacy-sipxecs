@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -126,7 +126,7 @@ public:
 
    void setRnaState(bool rnaState) {mRnaState = rnaState;};
 
-#ifdef CML   
+#ifdef CML
    void setCallIdentity(void);
 
    // CML: methods used for call pickup
@@ -178,7 +178,7 @@ public:
    bool routePendingAnswer(void) { return mRoutePendingAnswer; }
 
    bool getXferPendingAnswer(void) { return mXferPendingAnswer; }
-   
+
    eCallState getCurrentCallState(void) { return mCallState; }
 
    virtual int compareTo(UtlContainable const*) const;
@@ -205,7 +205,7 @@ private:
 #ifdef CML
    void doCallPickUpMessage(ACDAgent* const pAgent);
 #endif
-   
+
    // Handle incomming IPC messages
    UtlBoolean handleMessage(OsMsg& rMessage);
 
@@ -230,7 +230,7 @@ private:
    void acdCallConnectedEvent(int cause);
 
    void acdCallDisconnectedEvent(void);
-   
+
    void acdAgentConnectedActiveEvent(SIPX_CALL callHandle);
 
    void acdTransferAgentConnectedEvent(SIPX_CALL callHandle);
@@ -242,7 +242,7 @@ private:
    void acdTransferAgentDisconnectedEvent(SIPX_CALL callHandle);
 
    void acdCallTransferModeFailure(void);
-   
+
    void routeRequestTimeoutEvent(void);
 
    void routeRequestAbortEvent(void);
@@ -311,4 +311,3 @@ private:
 };
 
 #endif  // _ACDCall_h_
-

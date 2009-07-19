@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -72,16 +72,16 @@ public:
 
    void appendCallEvent(int event,
                         UtlString queueString,
-                        ACDCall* pCallRef, 
+                        ACDCall* pCallRef,
                         bool AgentRec = FALSE);
-                                     
+
    void appendTransferCallEvent(int event,
                                 ACDCall* pCallRef);
 
    void appendAgentEvent(int event, UtlString* pQueueListString, ACDAgent* pAgentRef);
-   
+
    void appendAcdEvent(int event);
-   
+
    UtlString getEventString(int event_type, int event);
 
 /* ============================ ACCESSORS ================================= */
@@ -94,11 +94,10 @@ public:
 private:
 
    OsMutex       mLock;                   // Lock used for atomic access
-   ACDRtRecord*  pACDRtRecord; 
+   ACDRtRecord*  pACDRtRecord;
    FILE*         mFp;
    UtlString     mEventFile;              // Log filename including the path.
 
 };
 
 #endif  // _ACDRtRecord_h
-

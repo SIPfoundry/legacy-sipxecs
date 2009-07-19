@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -44,7 +44,7 @@ const int MIN_TIMEOUT_VALUE = 5;
 //
 //  NAME:        ACDQueue_Circular::ACDQueue_Circular
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Default constructor
 //
@@ -119,7 +119,7 @@ ACDQueue_Circular::ACDQueue_Circular(ACDQueueManager* pAcdQueueManager,
 //
 //  NAME:        ACDQueue_Circular::~ACDQueue_Circular
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Destructor
 //
@@ -145,7 +145,7 @@ ACDQueue_Circular::~ACDQueue_Circular()
 //
 //  NAME:        ACDQueue_Circular::buildTargetAgentList
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Based upon the queue strategy and agent availability, this method will build a
 //               list of ACDAgent object candidates
@@ -213,4 +213,3 @@ bool ACDQueue_Circular::buildTargetAgentList(UtlSList& rTargetAgentList, ACDCall
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-

@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -48,7 +48,7 @@ const UtlContainableType ACDLine::TYPE = "ACDLine";
 //
 //  NAME:        ACDLine::ACDLine
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Default constructor
 //
@@ -97,9 +97,9 @@ ACDLine::ACDLine(ACDLineManager* pAcdLineManager,
    // Create the dialog publisher
    if (mPublishLinePresence) {
       mpDialogEventPackage = new SipDialogEvent(STATE, lineIdentity);
-      
+
       mpDialogEventPackage->getBytes(&mDialogPDU, &mDialogPDULength);
-      
+
       sipxPublisherCreate(mhAcdCallManagerHandle,
                           &mhPublisherHandle,
                           lineIdentity,
@@ -136,7 +136,7 @@ ACDLine::ACDLine(ACDLineManager* pAcdLineManager,
                           " any blind transfer may not work."
                           );
          }
-      }      
+      }
       else
       {
          // could not get credentials for the line identity - try for a default ACD identity
@@ -147,7 +147,7 @@ ACDLine::ACDLine(ACDLineManager* pAcdLineManager,
 
          Url defaultAcdIdentity;
          mpAcdLineManager->getAcdServer()->getDefaultIdentity(defaultAcdIdentity);
-  
+
          if (credentialDb->getCredential(defaultAcdIdentity, realm,
                                          user, ha1_authenticator, authtype))
          {
@@ -185,7 +185,7 @@ ACDLine::ACDLine(ACDLineManager* pAcdLineManager,
                     "ACDLine::ACDLine failed to open credentials database"
                     "; transfer functions will not work");
    }
-   
+
    mLineBusy = false;
    mDialogId = 0;
 }
@@ -195,7 +195,7 @@ ACDLine::ACDLine(ACDLineManager* pAcdLineManager,
 //
 //  NAME:        ACDLine::~ACDLine
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Destructor
 //
@@ -217,9 +217,9 @@ ACDLine::~ACDLine()
 //
 //  NAME:        ACDLine::addCall
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -273,9 +273,9 @@ bool ACDLine::addCall(ACDCall* pCallRef)
 //
 //  NAME:        ACDLine::deleteCall
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -300,9 +300,9 @@ void ACDLine::deleteCall(ACDCall* pCallRef)
 //
 //  NAME:        ACDLine::publishCallState
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -366,7 +366,7 @@ OsStatus ACDLine::publishCallState(ACDCall* pCallRef, ACDCall::eCallState state)
          sipDialog.getRemoteContact(remoteTarget);
 
          sprintf(dialogId, "%ld", mDialogId);
-         
+
          mLock.acquire();
          mDialogId++;
          mLock.release();
@@ -379,7 +379,7 @@ OsStatus ACDLine::publishCallState(ACDCall* pCallRef, ACDCall::eCallState state)
          pDialog->setLocalTarget(localTarget.toString());
          pDialog->setRemoteTarget(remoteTarget.toString());
          pDialog->setDuration(OsDateTime::getSecsSinceEpoch());
-         
+
          // Insert it into the active call list
          mpDialogEventPackage->insertDialog(pDialog);
 
@@ -391,7 +391,7 @@ OsStatus ACDLine::publishCallState(ACDCall* pCallRef, ACDCall::eCallState state)
                              mDialogPDU.data(),
                              mDialogPDULength,
                              mpDialogEventPackage->getVersion());
-         
+
          // Remember the call ID
          mCalls.insertKeyAndValue(new UtlInt(pCallRef->getCallHandle()), new UtlString(callId));
          mLock.release();
@@ -433,9 +433,9 @@ OsStatus ACDLine::publishCallState(ACDCall* pCallRef, ACDCall::eCallState state)
          else {
             // Create a new dialog element
             sprintf(dialogId, "%ld", mDialogId);
-            mLock.acquire();            
+            mLock.acquire();
             mDialogId++;
-            
+
             // Remember the call ID
             mCalls.insertKeyAndValue(new UtlInt(pCallRef->getCallHandle()), new UtlString(callId));
             mLock.release();
@@ -452,7 +452,7 @@ OsStatus ACDLine::publishCallState(ACDCall* pCallRef, ACDCall::eCallState state)
          }
 
          // Send the content to the subscribe server
-         mLock.acquire();            
+         mLock.acquire();
          mpDialogEventPackage->getBytes(&mDialogPDU, &mDialogPDULength);
          sipxPublisherUpdate(mhPublisherHandle,
                              DIALOG_EVENT_CONTENT_TYPE,
@@ -484,7 +484,7 @@ OsStatus ACDLine::publishCallState(ACDCall* pCallRef, ACDCall::eCallState state)
             if (pDialog != NULL) {
                pDialog->setState(STATE_TERMINATED, NULL, NULL);
 
-               mLock.acquire();            
+               mLock.acquire();
                // Publish the content to the subscribe server
                mpDialogEventPackage->getBytes(&mDialogPDU, &mDialogPDULength);
                sipxPublisherUpdate(mhPublisherHandle,
@@ -562,9 +562,9 @@ void ACDLine::setAttributes(ProvisioningAttrList& rRequestAttributes)
 //
 //  NAME:        ACDLine::getLineHandle
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -584,9 +584,9 @@ SIPX_LINE ACDLine::getLineHandle(void)
 //
 //  NAME:        ACDLine::getUriString
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -606,9 +606,9 @@ UtlString* ACDLine::getUriString(void)
 //
 //  NAME:        ACDLine::hash
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -628,9 +628,9 @@ unsigned ACDLine::hash() const
 //
 //  NAME:        ACDLine::getContainableType
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -730,9 +730,9 @@ void ACDLine::getAttributes(ProvisioningAttrList& rRequestAttributes, Provisioni
 //
 //  NAME:        ACDLine::isLineBusy
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -752,9 +752,9 @@ bool ACDLine::isLineBusy(void)
 //
 //  NAME:        ACDLine::compareTo
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -766,13 +766,13 @@ bool ACDLine::isLineBusy(void)
 
 int ACDLine::compareTo(UtlContainable const * pInVal) const
 {
-   int result ; 
+   int result ;
 
    if (pInVal->isInstanceOf(ACDLine::TYPE)) {
       result = mUriString.compareTo(((ACDLine*)pInVal)->getUriString());
    }
    else {
-      result = -1; 
+      result = -1;
    }
 
    return result;
@@ -783,4 +783,3 @@ int ACDLine::compareTo(UtlContainable const * pInVal) const
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-

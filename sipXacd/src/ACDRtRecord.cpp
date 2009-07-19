@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -32,7 +32,7 @@ extern OsSysLogPriority gACD_DEBUG;
 //
 //  NAME:        ACDRtRecord::ACDRtRecord
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Default constructor
 //
@@ -90,7 +90,7 @@ ACDRtRecord::ACDRtRecord(UtlString& rLogDirectory) : mLock(OsMutex::Q_FIFO)
 //
 //  NAME:        ACDRtRecord::~ACDRtRecord
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Destructor
 //
@@ -113,9 +113,9 @@ ACDRtRecord::~ACDRtRecord()
 //
 //  NAME:        ACDRtRecord::appendCallEvent()
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -127,7 +127,7 @@ ACDRtRecord::~ACDRtRecord()
 
 void ACDRtRecord::appendCallEvent(int event, UtlString queueString, ACDCall* pCallRef, bool agentRec)
 {
-   
+
    // read the local time
    UtlString dateString = NULL;
    OsDateTime nowTime;
@@ -139,23 +139,23 @@ void ACDRtRecord::appendCallEvent(int event, UtlString queueString, ACDCall* pCa
    eventString = getEventString(EVENT_CALL, event);
    if (NULL != eventString.data()) {
       if (agentRec) {
-         sprintf(realTimeDataRecord, "%s : %s : %s : %s : %s : %d\n", 
-            eventString.data(), dateString.data(), queueString.data(), 
+         sprintf(realTimeDataRecord, "%s : %s : %s : %s : %s : %d\n",
+            eventString.data(), dateString.data(), queueString.data(),
             pCallRef->getAcdAgent()->getUriString()->data(),
             pCallRef->getCallIdentity(), pCallRef->getCallHandle());
       }
       else if (TERMINATE == event) {
-         sprintf(realTimeDataRecord, "%s : %s : %s : %d\n", 
+         sprintf(realTimeDataRecord, "%s : %s : %s : %d\n",
             eventString.data(), dateString.data(),
             pCallRef->getCallIdentity(), pCallRef->getCallHandle());
-         
+
       }
       else {
-         sprintf(realTimeDataRecord, "%s : %s : %s : %s : %d\n", 
-            eventString.data(), dateString.data(), 
-            queueString.data(), pCallRef->getCallIdentity(), 
+         sprintf(realTimeDataRecord, "%s : %s : %s : %s : %d\n",
+            eventString.data(), dateString.data(),
+            queueString.data(), pCallRef->getCallIdentity(),
             pCallRef->getCallHandle());
-                 
+
       }
 
       mLock.acquire();
@@ -178,7 +178,7 @@ void ACDRtRecord::appendCallEvent(int event, UtlString queueString, ACDCall* pCa
 
 void ACDRtRecord::appendTransferCallEvent(int event, ACDCall* pCallRef)
 {
-   
+
    // read the local time
    UtlString dateString = NULL;
    OsDateTime nowTime;
@@ -189,10 +189,10 @@ void ACDRtRecord::appendTransferCallEvent(int event, ACDCall* pCallRef)
    UtlString eventString;
    eventString = getEventString(EVENT_TRANSFER, event);
    if ((NULL != eventString.data()) && (NULL != pCallRef)) {
-      sprintf(realTimeDataRecord, "%s : %s : %s : %s : %d\n", 
-         eventString.data(), dateString.data(), 
-         pCallRef->getAcdAgent() ? 
-            pCallRef->getAcdAgent()->getUriString()->data() : "(none)", 
+      sprintf(realTimeDataRecord, "%s : %s : %s : %s : %d\n",
+         eventString.data(), dateString.data(),
+         pCallRef->getAcdAgent() ?
+            pCallRef->getAcdAgent()->getUriString()->data() : "(none)",
          pCallRef->getCallIdentity(), pCallRef->getCallHandle());
 
       mLock.acquire();
@@ -319,9 +319,9 @@ void ACDRtRecord::appendAcdEvent(int event)
 //
 //  NAME:        ACDRtRecord::getEventString(int event_type, int event)
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -334,7 +334,7 @@ void ACDRtRecord::appendAcdEvent(int event)
 UtlString ACDRtRecord::getEventString(int event_type, int event)
 {
    if (event_type < EVENT_MIN || event_type > EVENT_MAX) {
-      OsSysLog::add(FAC_ACD, PRI_ERR, "ACDRtRecord::getEventString - Invalid event type [%d] ACDRtRecord::getEventString", 
+      OsSysLog::add(FAC_ACD, PRI_ERR, "ACDRtRecord::getEventString - Invalid event type [%d] ACDRtRecord::getEventString",
 					event_type);
       return NULL;
    }
@@ -345,7 +345,7 @@ UtlString ACDRtRecord::getEventString(int event_type, int event)
          case PICK_UP: return ("pick-up");
          case TERMINATE: return ("terminate");
          default : {
-         OsSysLog::add(FAC_ACD, PRI_ERR, "ACDRtRecord::getEventString - Invalid event [%d] ACDRtRecord::getEventString", 
+         OsSysLog::add(FAC_ACD, PRI_ERR, "ACDRtRecord::getEventString - Invalid event [%d] ACDRtRecord::getEventString",
 					   event);
          return NULL;
          }
@@ -356,7 +356,7 @@ UtlString ACDRtRecord::getEventString(int event_type, int event)
         case SIGNED_IN_AGENT: return ("sign-in-agent");
         case SIGNED_OUT_AGENT: return ("sign-out-agent");
         default : {
-        OsSysLog::add(FAC_ACD, PRI_ERR, "ACDRtRecord::getEventString - Invalid event [%d] ACDRtRecord::getEventString", 
+        OsSysLog::add(FAC_ACD, PRI_ERR, "ACDRtRecord::getEventString - Invalid event [%d] ACDRtRecord::getEventString",
 			              event);
         return NULL;
         }
@@ -367,7 +367,7 @@ UtlString ACDRtRecord::getEventString(int event_type, int event)
          case START_ACD: return ("start-acd");
 	 case STOP_ACD: return ("stop-acd");
 	 default : {
-	 OsSysLog::add(FAC_ACD, PRI_ERR, "ACDRtRecord::getEventString - Invalid event [%d] ACDRtRecord::getEventString", 
+	 OsSysLog::add(FAC_ACD, PRI_ERR, "ACDRtRecord::getEventString - Invalid event [%d] ACDRtRecord::getEventString",
 							 event);
 	 return NULL;
 	 }
@@ -378,16 +378,15 @@ UtlString ACDRtRecord::getEventString(int event_type, int event)
          case TRANSFER: return ("transfer");
 	 case TERMINATE_TRANSFER: return ("terminate");
 	 default : {
-	 OsSysLog::add(FAC_ACD, PRI_ERR, "ACDRtRecord::getEventString - Invalid event [%d] ACDRtRecord::getEventString", 
+	 OsSysLog::add(FAC_ACD, PRI_ERR, "ACDRtRecord::getEventString - Invalid event [%d] ACDRtRecord::getEventString",
 							 event);
 	 return NULL;
 	 }
        }
     }
 
-   return NULL;	
+   return NULL;
 }
 
 
 /* ============================ ACCESSORS ============================== */
-

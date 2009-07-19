@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -34,9 +34,9 @@ extern OsSysLogPriority gACD_DEBUG;
 //
 //  NAME:        ACDAudioManager::ACDAudioManager
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -75,9 +75,9 @@ ACDAudioManager::ACDAudioManager(ACDServer* pAcdServer)
 //
 //  NAME:        ACDAudioManager::~ACDAudioManager
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -97,9 +97,9 @@ ACDAudioManager::~ACDAudioManager()
 //
 //  NAME:        ACDAudioManager::initialize
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -122,9 +122,9 @@ OsStatus ACDAudioManager::initialize(void)
 //
 //  NAME:        ACDAudioManager::start
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -147,9 +147,9 @@ OsStatus ACDAudioManager::start(void)
 //
 //  NAME:        ACDAudioManager::createACDAudio
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -187,9 +187,9 @@ ACDAudio* ACDAudioManager::createACDAudio(const char* pName,
 //
 //  NAME:        ACDAudioManager::deleteACDAudio
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -241,9 +241,9 @@ void ACDAudioManager::deleteACDAudio(const char* pName)
 //
 //  NAME:        ACDAudioManager::Create
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -295,7 +295,7 @@ ProvisioningAttrList* ACDAudioManager::Create(ProvisioningAttrList& rRequestAttr
       pResponse->setAttribute("method-name", "create");
 #ifdef CML
       pResponse->setAttribute("result-code", ProvisioningAgent::ALREADY_EXISTS);
-#else      
+#else
       pResponse->setAttribute("result-code", ProvisioningAgent::DUPLICATE);
 #endif
       pResponse->setAttribute("result-text", "Managed Object Instance already exists");
@@ -369,9 +369,9 @@ ProvisioningAttrList* ACDAudioManager::Create(ProvisioningAttrList& rRequestAttr
 //
 //  NAME:        ACDAudioManager::Delete
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -437,9 +437,9 @@ ProvisioningAttrList* ACDAudioManager::Delete(ProvisioningAttrList& rRequestAttr
 //
 //  NAME:        ACDAudioManager::Set
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -559,9 +559,9 @@ ProvisioningAttrList* ACDAudioManager::Set(ProvisioningAttrList& rRequestAttribu
 //
 //  NAME:        ACDAudioManager::Get
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -659,9 +659,9 @@ ProvisioningAttrList* ACDAudioManager::Get(ProvisioningAttrList& rRequestAttribu
 //
 //  NAME:        ACDAudioManager::loadConfiguration
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -720,9 +720,9 @@ bool ACDAudioManager::loadConfiguration(void)
 //
 //  NAME:        ACDAudioManager::getAcdAudioReference
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -750,9 +750,9 @@ ACDAudio* ACDAudioManager::getAcdAudioReference(UtlString& rName)
 //
 //  NAME:        ACDAudioManager::getAudioStoreDirectory
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -772,9 +772,9 @@ OsPath& ACDAudioManager::getAudioStorePath(void)
 //
 //  NAME:        ACDAudioManager::getAudio
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -803,4 +803,3 @@ bool ACDAudioManager::getAudio(UtlString& rName, char*& prAudio, unsigned long& 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-

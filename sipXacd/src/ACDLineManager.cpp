@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -41,7 +41,7 @@ extern OsSysLogPriority gACD_DEBUG;
 //
 //  NAME:        ACDLineManager::ACDLineManager
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Default constructor
 //
@@ -68,7 +68,7 @@ ACDLineManager::ACDLineManager(ACDServer* pAcdServer)
 //
 //  NAME:        ACDLineManager::~ACDLineManager
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Destructor
 //
@@ -88,7 +88,7 @@ ACDLineManager::~ACDLineManager()
    {
       SIPX_LINE lineHandle = (SIPX_LINE) line->getValue();
       sipxLineRemove(lineHandle);
-      
+
       OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDLineManager::~ACDLineManager - Line(%d): removed",
                     lineHandle);
    }
@@ -108,9 +108,9 @@ ACDLineManager::~ACDLineManager()
 //
 //  NAME:        ACDLineManager::initialize
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -137,9 +137,9 @@ OsStatus ACDLineManager::initialize(void)
 //
 //  NAME:        ACDLineManager::start
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -162,9 +162,9 @@ OsStatus ACDLineManager::start(void)
 //
 //  NAME:        ACDLineManager::createACDLine
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -213,7 +213,7 @@ ACDLine* ACDLineManager::createACDLine(const char* pLineUriString,
    lineUri.toString(lineUriString);
 /*
    pName is actually the Description field on the WebUI, which is free form
-   and not checked to be a valid display name and setDisplayName will abort 
+   and not checked to be a valid display name and setDisplayName will abort
    if given a bad name.
 
    As the outbound calls set the name to be that of the inbound caller,
@@ -224,7 +224,7 @@ ACDLine* ACDLineManager::createACDLine(const char* pLineUriString,
       lineUri.setDisplayName(pName);
    }
 */
-   
+
    // Call sipXtapi to add the line presence.
    if (sipxLineAdd(mhAcdCallManagerHandle, lineUriString, &lineHandle) == SIPX_RESULT_SUCCESS)
    {
@@ -288,9 +288,9 @@ ACDLine* ACDLineManager::createACDLine(const char* pLineUriString,
 //
 //  NAME:        ACDLineManager::deleteACDLine
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -360,9 +360,9 @@ void ACDLineManager::deleteACDLine(const char* pLineUriString, const char* pName
 //
 //  NAME:        ACDLineManager::Create
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -417,7 +417,7 @@ ProvisioningAttrList* ACDLineManager::Create(ProvisioningAttrList& rRequestAttri
       pResponse->setAttribute("method-name", "create");
 #ifdef CML
       pResponse->setAttribute("result-code", ProvisioningAgent::ALREADY_EXISTS);
-#else      
+#else
       pResponse->setAttribute("result-code", ProvisioningAgent::DUPLICATE);
 #endif
       pResponse->setAttribute("result-text", "Managed Object Instance already exists");
@@ -499,9 +499,9 @@ ProvisioningAttrList* ACDLineManager::Create(ProvisioningAttrList& rRequestAttri
 //
 //  NAME:        ACDLineManager::Delete
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -571,9 +571,9 @@ ProvisioningAttrList* ACDLineManager::Delete(ProvisioningAttrList& rRequestAttri
 //
 //  NAME:        ACDLineManager::Set
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -707,9 +707,9 @@ ProvisioningAttrList* ACDLineManager::Set(ProvisioningAttrList& rRequestAttribut
 //
 //  NAME:        ACDLineManager::Get
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -825,9 +825,9 @@ ProvisioningAttrList* ACDLineManager::Get(ProvisioningAttrList& rRequestAttribut
 //
 //  NAME:        ACDLineManager::loadConfiguration
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -890,9 +890,9 @@ bool ACDLineManager::loadConfiguration(void)
 //
 //  NAME:        ACDLineManager::getAcdCallManagerHandle
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -912,9 +912,9 @@ SIPX_INST ACDLineManager::getAcdCallManagerHandle(void)
 //
 //  NAME:        ACDLineManager::getAcdCallManager
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -934,9 +934,9 @@ ACDCallManager* ACDLineManager::getAcdCallManager(void)
 //
 //  NAME:        ACDLineManager::getAcdQueueManager
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -956,9 +956,9 @@ ACDQueueManager* ACDLineManager::getAcdQueueManager(void)
 //
 //  NAME:        ACDLineManager::getAcdLineReference
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -987,9 +987,9 @@ ACDLine* ACDLineManager::getAcdLineReference(SIPX_LINE hLineHandle)
 //
 //  NAME:        ACDLineManager::getAcdLineReference
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1002,9 +1002,9 @@ ACDLine* ACDLineManager::getAcdLineReference(SIPX_LINE hLineHandle)
 ACDLine* ACDLineManager::getAcdLineReference(UtlString& rLineUriString)
 {
    mLock.acquire();
-   
+
    SIPX_LINE hLine = SIPX_LINE_NULL ;
-   
+
    sipxLookupLine(mhAcdCallManagerHandle, rLineUriString.data(), hLine) ;
 
    mLock.release();
@@ -1017,9 +1017,9 @@ ACDLine* ACDLineManager::getAcdLineReference(UtlString& rLineUriString)
 //
 //  NAME:        ACDLineManager::getAcdServer
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1038,9 +1038,9 @@ ACDServer* ACDLineManager::getAcdServer(void)
 //
 //  NAME:        ACDLineManager::getAcdLineReferenceByName
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1067,9 +1067,9 @@ ACDLine* ACDLineManager::getAcdLineReferenceByName(UtlString& rLineNameString)
 //
 //  NAME:        ACDLineManager::getAcdLineReferenceByExtension
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1112,4 +1112,3 @@ CredentialDB* ACDLineManager::getCredentialDb(void)
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-

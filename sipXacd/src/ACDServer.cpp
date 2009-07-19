@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -57,7 +57,7 @@ const char* ACDServer::ID_TOKEN = "~~id~acd";
 //
 //  NAME:        ACDServer::ACDServer
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Default constructor
 //
@@ -70,7 +70,7 @@ const char* ACDServer::ID_TOKEN = "~~id~acd";
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ACDServer::ACDServer(int provisioningAgentPort, int watchdogRpcServerPort)
-: ProvisioningClass(ACD_SERVER_TAG), 
+: ProvisioningClass(ACD_SERVER_TAG),
   mWatchdogRpcServerPort(watchdogRpcServerPort)
 {
 
@@ -81,7 +81,7 @@ ACDServer::ACDServer(int provisioningAgentPort, int watchdogRpcServerPort)
    mpAcdAgentManager                = NULL;
    mpAcdQueueManager                = NULL;
    mpAcdAudioManager                = NULL;
-#ifdef CML   
+#ifdef CML
    mpAcdRpcServer                   = NULL;
 #endif
 
@@ -98,7 +98,7 @@ ACDServer::ACDServer(int provisioningAgentPort, int watchdogRpcServerPort)
    mPresenceServerUriString = "";
    mPresenceServiceUriString = "";
    mMaxAcdCallsAllowed      = MAX_CONNECTIONS;
-#ifdef CML   
+#ifdef CML
    mAcdRpcServerPort           = -1;
 #endif
 
@@ -122,12 +122,12 @@ ACDServer::ACDServer(int provisioningAgentPort, int watchdogRpcServerPort)
 
    if (mpAcdRtRecord) {
       ACDRtRecord* pACDRtRec;
-         
+
       if (NULL != (pACDRtRec = getAcdRtRecord())) {
          pACDRtRec->appendAcdEvent(ACDRtRecord::START_ACD);
       }
    }
-   
+
    OsConfigDb  domainConfiguration;
    OsPath      domainConfigPath = SipXecsService::domainConfigPath();
    if (OS_SUCCESS == domainConfiguration.loadFromFile(domainConfigPath.data()))
@@ -186,13 +186,13 @@ ACDServer::ACDServer(int provisioningAgentPort, int watchdogRpcServerPort)
             mpAcdQueueManager->start();
             mpAcdCallManager->start();
 
-#ifdef CML   
+#ifdef CML
             // If a valid ACDRpcServer port has been defined, start it
             if (mAcdRpcServerPort != -1) {
                mpAcdRpcServer = new ACDRpcServer(mpAcdAgentManager, mAcdRpcServerPort);
-            }         
+            }
 #endif
-         
+
             // Indicate that the server is fully operational
             mServerStarted = true;
 
@@ -220,7 +220,7 @@ ACDServer::ACDServer(int provisioningAgentPort, int watchdogRpcServerPort)
 //
 //  NAME:        ACDServer::~ACDServer
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Destructor
 //
@@ -237,12 +237,12 @@ ACDServer::~ACDServer()
    // Shut down the server components
    OsSysLog::add(LOG_FACILITY, PRI_INFO, "SHUTTING DOWN ACD SERVER");
 
-#ifdef CML 
+#ifdef CML
    if (mpAcdRpcServer) {
-       delete mpAcdRpcServer; 
+       delete mpAcdRpcServer;
    }
 #endif
-   
+
    if (mpProvisioningAgentXmlRpcAdapter) {
       delete mpProvisioningAgentXmlRpcAdapter;
    }
@@ -250,23 +250,23 @@ ACDServer::~ACDServer()
    if (mpProvisioningAgent) {
       delete mpProvisioningAgent;
    }
-   
+
    if (mpAcdAudioManager) {
       delete mpAcdAudioManager;
    }
-   
+
    if (mpAcdQueueManager) {
       delete mpAcdQueueManager;
    }
-   
+
    if (mpAcdAgentManager) {
       delete mpAcdAgentManager;
    }
-   
+
    if (mpAcdLineManager) {
       delete mpAcdLineManager;
    }
-   
+
    if (mpAcdCallManager) {
       delete mpAcdCallManager;
    }
@@ -286,7 +286,7 @@ ACDServer::~ACDServer()
 //
 //  NAME:        ACDServer::initSysLog
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Initialize the OsSysLog
 //
@@ -339,7 +339,7 @@ void ACDServer::initSysLog(const char* pApplication, UtlString& rLogDirectory, U
                  OsPathBase::separator +
                  CONFIG_LOG_FILE;
    }
-   
+
    OsSysLog::setOutputFile(0, mLogFile);
 
    // Set the OsSysLog Logging Level
@@ -362,7 +362,7 @@ void ACDServer::initSysLog(const char* pApplication, UtlString& rLogDirectory, U
 //
 //  NAME:        ACDServer::setSysLogLevel
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Set the OsSysLog Logging Level
 //
@@ -392,9 +392,9 @@ void ACDServer::setSysLogLevel(UtlString& rLogLevel)
 //
 //  NAME:        ACDServer::Create
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -451,7 +451,7 @@ ProvisioningAttrList* ACDServer::Create(ProvisioningAttrList& rRequestAttributes
       pResponse->setAttribute("method-name", "create");
 #ifdef CML
       pResponse->setAttribute("result-code", ProvisioningAgent::ALREADY_EXISTS);
-#else      
+#else
       pResponse->setAttribute("result-code", ProvisioningAgent::DUPLICATE);
 #endif
       pResponse->setAttribute("result-text", "Managed Object Instance already exists");
@@ -545,13 +545,13 @@ ProvisioningAttrList* ACDServer::Create(ProvisioningAttrList& rRequestAttributes
    setPSAttribute(pInstanceNode, PRESENCE_SERVICE_URI_TAG, mPresenceServiceUriString);
 
 
-#ifdef CML   
+#ifdef CML
    // rpc-server-port
    if (rRequestAttributes.getAttribute(RPC_SERVER_PORT_TAG, mAcdRpcServerPort)) {
       setPSAttribute(pInstanceNode, RPC_SERVER_PORT_TAG, mAcdRpcServerPort);
    }
 #endif
-   
+
    // max-acd-calls-allowed
    if (rRequestAttributes.getAttribute(MAX_CALLS_TAG, mMaxAcdCallsAllowed)) {
       setPSAttribute(pInstanceNode, MAX_CALLS_TAG, mMaxAcdCallsAllowed);
@@ -559,7 +559,7 @@ ProvisioningAttrList* ACDServer::Create(ProvisioningAttrList& rRequestAttributes
 
    // administrative-state
    rRequestAttributes.getAttribute(ADMINISTRATIVE_STATE_TAG, mAdministrativeState);
-   
+
    // Check for DOWN state.
    // If so, set Admin State to STANDBY and shutdown the server.
    if (mAdministrativeState == DOWN) {
@@ -605,13 +605,13 @@ ProvisioningAttrList* ACDServer::Create(ProvisioningAttrList& rRequestAttributes
          mpAcdQueueManager->start();
          mpAcdCallManager->start();
 
-#ifdef CML   
+#ifdef CML
          // If a valid ACDRpcServer port has been defined, start it
          if (mAcdRpcServerPort != -1) {
             mpAcdRpcServer = new ACDRpcServer(mpAcdAgentManager, mAcdRpcServerPort);
          }
 #endif
-         
+
          // Indicate that the server is fully operational
          mServerStarted = true;
       }
@@ -630,9 +630,9 @@ ProvisioningAttrList* ACDServer::Create(ProvisioningAttrList& rRequestAttributes
 //
 //  NAME:        ACDServer::Delete
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -645,11 +645,11 @@ ProvisioningAttrList* ACDServer::Create(ProvisioningAttrList& rRequestAttributes
 ProvisioningAttrList* ACDServer::Delete(ProvisioningAttrList& rRequestAttributes)
 {
    ProvisioningAttrList* pResponse;
-   
+
    osPrintf("{method} = delete\n{object-class} = acd-server\n");
    rRequestAttributes.dumpAttributes();
    osPrintf("\n");
-   
+
    // Verify that this is for the special "sipxacd" instance.
    if (UtlString(*dynamic_cast<UtlString*>(rRequestAttributes.getAttribute(SERVER_NAME_TAG))) != ACD_SERVER_NAME) {
       // No, Build up the response.
@@ -659,7 +659,7 @@ ProvisioningAttrList* ACDServer::Delete(ProvisioningAttrList& rRequestAttributes
       pResponse->setAttribute("result-text", "Unknown 'server-name' instance");
       return pResponse;
    }
-   
+
    // Verify that the instance has already been created.
    TiXmlNode* pInstanceNode = findPSInstance(ACD_SERVER_TAG, SERVER_NAME_TAG, ACD_SERVER_NAME);
    if (pInstanceNode == NULL) {
@@ -670,28 +670,28 @@ ProvisioningAttrList* ACDServer::Delete(ProvisioningAttrList& rRequestAttributes
       pResponse->setAttribute("result-text", "Unknown 'server-name' instance");
       return pResponse;
    }
-   
+
    if (mpAcdCallManager->isThereActiveCalls() == false) {
       // Delete the instance
       deletePSInstance(ACD_SERVER_TAG, SERVER_NAME_TAG, ACD_SERVER_NAME);
-   
+
       // Update the configuration file
       OsSysLog::add(LOG_FACILITY, PRI_INFO, "ACDServer::Delete - Updating the config file");
       mpXmlConfigDoc->SaveFile();
-   
+
       // Build up the response.
       pResponse = new ProvisioningAttrList;
       pResponse->setAttribute("method-name", "delete");
       pResponse->setAttribute("result-code", ProvisioningAgent::SUCCESS);
       pResponse->setAttribute("result-text", "SUCCESS");
-   
+
       // Unregister this class with the Provisioning Agent
       mpProvisioningAgent->unregisterClass(this);
-   
+
       // Now we must restart the server.
       mOperationalState = DOWN;
       gShutdownFlag = true;
-   
+
       return pResponse;
    }
    else {
@@ -701,7 +701,7 @@ ProvisioningAttrList* ACDServer::Delete(ProvisioningAttrList& rRequestAttributes
       pResponse->setAttribute("method-name", "delete");
       pResponse->setAttribute("result-code", ProvisioningAgent::FAILURE);
       pResponse->setAttribute("result-text", "'server-name' is in active mode");
-      
+
       return pResponse;
    }
 }
@@ -711,9 +711,9 @@ ProvisioningAttrList* ACDServer::Delete(ProvisioningAttrList& rRequestAttributes
 //
 //  NAME:        ACDServer::Set
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -830,13 +830,13 @@ ProvisioningAttrList* ACDServer::Set(ProvisioningAttrList& rRequestAttributes)
       setPSAttribute(pInstanceNode, PRESENCE_MONITOR_PORT_TAG, mPresenceMonitorPort);
    }
 
-#ifdef CML   
+#ifdef CML
    // rpc-server-port
    if (rRequestAttributes.getAttribute(RPC_SERVER_PORT_TAG, mAcdRpcServerPort)) {
       setPSAttribute(pInstanceNode, RPC_SERVER_PORT_TAG, mAcdRpcServerPort);
    }
 #endif
-   
+
    // presence-server-uri
    if (rRequestAttributes.getAttribute(PRESENCE_SERVER_URI_TAG, mPresenceServerUriString)) {
       setPSAttribute(pInstanceNode, PRESENCE_SERVER_URI_TAG, mPresenceServerUriString);
@@ -872,7 +872,7 @@ ProvisioningAttrList* ACDServer::Set(ProvisioningAttrList& rRequestAttributes)
          // and thus require a restart, for now just always force a restart
          // on configuration change/update.
 
-         // At some point in the future, the individual settings need to 
+         // At some point in the future, the individual settings need to
          // determine if they changed, and if that change requires a restart.
          // If so, set gRestartFlag to true.
          //
@@ -895,13 +895,13 @@ ProvisioningAttrList* ACDServer::Set(ProvisioningAttrList& rRequestAttributes)
             mpAcdQueueManager->start();
             mpAcdCallManager->start();
 
-#ifdef CML   
+#ifdef CML
             // If a valid ACDRpcServer port has been defined, start it
             if (mAcdRpcServerPort != -1) {
                mpAcdRpcServer = new ACDRpcServer(mpAcdAgentManager, mAcdRpcServerPort);
             }
 #endif
-            
+
             // Indicate that the server is fully operational
             mServerStarted = true;
             gRestartFlag = false ;
@@ -983,7 +983,7 @@ ProvisioningAttrList* ACDServer::Set(ProvisioningAttrList& rRequestAttributes)
             }
          }
       }
-      
+
       if (!bWatchDogRestarted)
       {
          OsSysLog::add(LOG_FACILITY, PRI_CRIT, "ACDServer::Set - This process could not be controlled by the watchdog.  Exit, stage left.");
@@ -999,9 +999,9 @@ ProvisioningAttrList* ACDServer::Set(ProvisioningAttrList& rRequestAttributes)
 //
 //  NAME:        ACDServer::Get
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1107,8 +1107,8 @@ ProvisioningAttrList* ACDServer::Get(ProvisioningAttrList& rRequestAttributes)
          if (rRequestAttributes.attributePresent(PRESENCE_SERVICE_URI_TAG)) {
             pResponse->setAttribute(PRESENCE_SERVICE_URI_TAG, mPresenceServiceUriString);
          }
-         
-#ifdef CML   
+
+#ifdef CML
          // rpc-server-port
          if (rRequestAttributes.attributePresent(RPC_SERVER_PORT_TAG)) {
             pResponse->setAttribute(RPC_SERVER_PORT_TAG, mAcdRpcServerPort);
@@ -1177,11 +1177,11 @@ ProvisioningAttrList* ACDServer::Get(ProvisioningAttrList& rRequestAttributes)
 
          // presence-service-uri
          pResponse->setAttribute(PRESENCE_SERVICE_URI_TAG, mPresenceServiceUriString);
-#ifdef CML   
+#ifdef CML
          // rpc-server-port
          pResponse->setAttribute(RPC_SERVER_PORT_TAG, mAcdRpcServerPort);
 #endif
-         
+
          // administrative-state
          pResponse->setAttribute(ADMINISTRATIVE_STATE_TAG, mAdministrativeState);
 
@@ -1230,9 +1230,9 @@ ProvisioningAttrList* ACDServer::Get(ProvisioningAttrList& rRequestAttributes)
 //
 //  NAME:        ACDServer::Action
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1289,9 +1289,9 @@ ProvisioningAttrList* ACDServer::Action(ProvisioningAttrList& rRequestAttributes
 //
 //  NAME:        ACDServer::loadConfiguration
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1323,7 +1323,7 @@ bool ACDServer::loadConfiguration(void)
    getPSAttribute(pInstanceNode, PRESENCE_MONITOR_PORT_TAG,   mPresenceMonitorPort);
    getPSAttribute(pInstanceNode, PRESENCE_SERVER_URI_TAG,     mPresenceServerUriString);
    getPSAttribute(pInstanceNode, PRESENCE_SERVICE_URI_TAG,    mPresenceServiceUriString);
-#ifdef CML   
+#ifdef CML
    getPSAttribute(pInstanceNode, RPC_SERVER_PORT_TAG,         mAcdRpcServerPort);
 #endif
    getPSAttribute(pInstanceNode, ADMINISTRATIVE_STATE_TAG,    mAdministrativeState);
@@ -1339,9 +1339,9 @@ bool ACDServer::loadConfiguration(void)
 //
 //  NAME:        ACDServer::getProvisioningAgent
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1361,9 +1361,9 @@ ProvisioningAgent* ACDServer::getProvisioningAgent(void)
 //
 //  NAME:        ACDServer::getAcdCallManager
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1383,9 +1383,9 @@ ACDCallManager* ACDServer::getAcdCallManager(void)
 //
 //  NAME:        ACDServer::getAcdLineManager
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1405,9 +1405,9 @@ ACDLineManager* ACDServer::getAcdLineManager(void)
 //
 //  NAME:        ACDServer::getAcdAgentManager
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1427,9 +1427,9 @@ ACDAgentManager* ACDServer::getAcdAgentManager(void)
 //
 //  NAME:        ACDServer::getAcdQueueManager
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1449,9 +1449,9 @@ ACDQueueManager* ACDServer::getAcdQueueManager(void)
 //
 //  NAME:        ACDServer::getAcdAudioManager
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1470,9 +1470,9 @@ ACDAudioManager* ACDServer::getAcdAudioManager(void)
 //
 //  NAME:        ACDServer::getAcdRtRecord
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1491,9 +1491,9 @@ ACDRtRecord* ACDServer::getAcdRtRecord(void)
 //
 //  NAME:        ACDServer::getDomain
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1524,9 +1524,9 @@ void ACDServer::getDefaultIdentity(Url& id)
 //
 //  NAME:        ACDServer::getAdministrativeState
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1548,4 +1548,3 @@ int ACDServer::getAdministrativeState(void)
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-

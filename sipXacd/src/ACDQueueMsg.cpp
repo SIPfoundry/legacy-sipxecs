@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -25,7 +25,7 @@
 //
 //  NAME:        ACDQueueMsg::ACDQueueMsg
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Constructor for ADD_CALL, REMOVE_CALL, CALL_CONNECTED & MAX_WAIT_TIME messages
 //
@@ -39,7 +39,7 @@
 
 ACDQueueMsg::ACDQueueMsg(eACDQueueMsgSubTypes type, ACDCall* pCallRef)
 : OsMsg(USER_START, type)
-{   
+{
    mpACDCallReference = pCallRef;
    mACDCallRouteState = ACDCallRouteState::ROUTE_STATE_UNDEFINED;
    mpACDAgentReference = NULL;
@@ -50,7 +50,7 @@ ACDQueueMsg::ACDQueueMsg(eACDQueueMsgSubTypes type, ACDCall* pCallRef)
 //
 //  NAME:        ACDQueueMsg::ACDQueueMsg
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Constructor for UPDATE_ROUTE_STATE message
 //
@@ -64,7 +64,7 @@ ACDQueueMsg::ACDQueueMsg(eACDQueueMsgSubTypes type, ACDCall* pCallRef)
 
 ACDQueueMsg::ACDQueueMsg(eACDQueueMsgSubTypes type, ACDCall* pCallRef, ACDCallRouteState::eRouteState state)
 : OsMsg(USER_START, type)
-{   
+{
    mpACDCallReference = pCallRef;
    mACDCallRouteState = state;
    mpACDAgentReference = NULL;
@@ -75,7 +75,7 @@ ACDQueueMsg::ACDQueueMsg(eACDQueueMsgSubTypes type, ACDCall* pCallRef, ACDCallRo
 //
 //  NAME:        ACDQueueMsg::ACDQueueMsg
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Constructor for AGENT_AVAILABLE messages
 //
@@ -89,7 +89,7 @@ ACDQueueMsg::ACDQueueMsg(eACDQueueMsgSubTypes type, ACDCall* pCallRef, ACDCallRo
 
 ACDQueueMsg::ACDQueueMsg(eACDQueueMsgSubTypes type, ACDAgent* pAgentRef)
 : OsMsg(USER_START, type)
-{   
+{
    mpACDCallReference = NULL;
    mACDCallRouteState = ACDCallRouteState::ROUTE_STATE_UNDEFINED;
    mpACDAgentReference = pAgentRef;
@@ -100,7 +100,7 @@ ACDQueueMsg::ACDQueueMsg(eACDQueueMsgSubTypes type, ACDAgent* pAgentRef)
 //
 //  NAME:        ACDQueueMsg::ACDQueueMsg
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Copy constructor
 //
@@ -125,7 +125,7 @@ ACDQueueMsg::ACDQueueMsg(const ACDQueueMsg& rACDQueueMsg)
 //
 //  NAME:        ACDQueueMsg::createCopy
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Create a copy of this msg object (which may be of a derived type)
 //
@@ -147,7 +147,7 @@ OsMsg* ACDQueueMsg::createCopy(void) const
 //
 //  NAME:        ACDQueueMsg::~ACDQueueMsg
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Destructor
 //
@@ -174,4 +174,3 @@ ACDQueueMsg::~ACDQueueMsg()
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-

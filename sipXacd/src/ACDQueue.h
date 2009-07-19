@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -124,7 +124,7 @@ public:
    // Signal that the call associated with the ACDCall object has exceeded
    // the max-wait-time for this queue
    virtual void queueMaxWaitTime(ACDCall* pCallRef);
-   
+
    virtual void setRingNoAnswerState(ACDCall* pCallRef, ACDAgent* pAgentRef, bool state);
 
    virtual bool checkAgentAvailable();
@@ -145,13 +145,13 @@ public:
 
    // Get the ContainableType for a UtlContainable derived class.
    virtual UtlContainableType getContainableType() const;
-   
+
    // Return the connection scheme used by this queue
    virtual int getConnectionScheme() {return mCallConnectScheme;};
 
    // Return the name of this queue
    virtual UtlString* getQueueName() {return &mName;};
-  
+
    virtual int getAgentsWrapupTime() {return mAgentsWrapupTime;};
    virtual int getAgentsNonResponsiveTime() {return mAgentsNonResponsiveTime;};
    virtual int getMaxBounceCount() {return mMaxBounceCount;};
@@ -173,7 +173,7 @@ protected:
 
    // Adjust various timer values according to the queue setting
    virtual void adjustTimers(void);
-   
+
    ACDQueueManager* mpAcdQueueManager;       // Reference to the parent QueueManager object
    Url              mUri;                    // The AOR for this Queue
    UtlString        mUriString;              // The AOR for this Queue
@@ -186,8 +186,8 @@ protected:
    bool             mFifoOverflow;
    UtlString        mOverflowQueue;
    UtlString        mOverflowDestination;
-   UtlString        mOverflowEntry;          
-   UtlString        mOverflowType;          
+   UtlString        mOverflowEntry;
+   UtlString        mOverflowType;
    int              mAnswerMode;
    int              mCallConnectScheme;
    UtlString        mWelcomeAudio;
@@ -213,7 +213,7 @@ protected:
 
    int              mUnroutedCallCount;       // The number of unrouted calls this queue is handling
    ACDCall*         mpRoutePendingAnswer;     // Pointer to ACDCall that should be routed once answered
-   
+
    int              mAgentsWrapupTime;        // Time to allow an agent to idle before giving him another call after he answered one.
 
    int              mAgentsNonResponsiveTime; // Time to allow an agent to idle before giving him another call after he RNA/Rejected one
@@ -272,10 +272,10 @@ protected:
 
    // This method checks whether any agent has signed in
    virtual bool anyAgentSignedIn(bool checkAgentAlwaysAvailable = false);
-   
+
    // This method "resets" (sets to false) the RingNoAnswer states for all of the Agents for a particular call.
    virtual void resetRingNoAnswerStates(ACDCall* pCallRef);
-   
+
    // This method gets the RingNoAnswer state for a particular Agent.
    virtual bool getRingNoAnswerState(ACDCall* pCallRef, ACDAgent* pAgentRef);
 
@@ -287,4 +287,3 @@ private:
 };
 
 #endif  // _ACDQueue_h_
-

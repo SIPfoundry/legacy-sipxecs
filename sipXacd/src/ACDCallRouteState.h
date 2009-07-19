@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -71,7 +71,7 @@ protected:
 /* ============================ CREATORS ================================== */
 
    // Constructor
-   ACDCallRouteState(eRouteState state) { 
+   ACDCallRouteState(eRouteState state) {
       mState = state;
       switch (mState)
       {
@@ -165,7 +165,7 @@ public:
    virtual void acdAgentDisconnectedEvent(ACDCall* pAcdCallInstance, SIPX_CALL callHandle);
    virtual void routeRequestTimeoutEvent(ACDCall* pAcdCallInstance);
    virtual void routeRequestAbortEvent(ACDCall* pAcdCallInstance);
-   
+
    void disconnectCallPickUp(ACDCall* pAcdCallInstance);
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -395,4 +395,3 @@ private:
 };
 
 #endif  // _ACDCallRouteState_h_
-

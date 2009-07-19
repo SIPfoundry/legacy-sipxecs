@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -39,7 +39,7 @@ extern OsSysLogPriority gACD_DEBUG;
 //
 //  NAME:        ACDQueueManager::ACDQueueManager
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Default constructor
 //
@@ -58,7 +58,7 @@ ACDQueueManager::ACDQueueManager(ACDServer* pAcdServer)
    mpAcdCallManager = NULL;
    mhAcdCallManagerHandle = NULL;
    mpAcdAgentManager = NULL;
-   mpAcdLineManager = NULL; 
+   mpAcdLineManager = NULL;
 }
 
 
@@ -66,7 +66,7 @@ ACDQueueManager::ACDQueueManager(ACDServer* pAcdServer)
 //
 //  NAME:        ACDQueueManager::~ACDQueueManager
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Destructor
 //
@@ -88,9 +88,9 @@ ACDQueueManager::~ACDQueueManager()
 //
 //  NAME:        ACDQueueManager::initialize
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -118,9 +118,9 @@ OsStatus ACDQueueManager::initialize(void)
 //
 //  NAME:        ACDQueueManager::start
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -143,9 +143,9 @@ OsStatus ACDQueueManager::start(void)
 //
 //  NAME:        ACDQueueManager::createACDQueue
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -174,7 +174,7 @@ ACDQueue* ACDQueueManager::createACDQueue(const char* pQueueUriString,
                                           int         queueAudioInterval,
                                           const char* pCallTerminationAudio,
                                           int         terminationToneDuration,
-                                          int         agentsWrapupTime, 
+                                          int         agentsWrapupTime,
                                           int         agentsNonResponsiveTime,
                                           int         maxBounceCount,
                                           const char* pAcdAgentList,
@@ -188,7 +188,7 @@ ACDQueue* ACDQueueManager::createACDQueue(const char* pQueueUriString,
    switch(acdScheme)
    {
       case ACDQueue::CIRCULAR:
-         pQueueRef = new ACDQueue_Circular(this, pQueueUriString, pName, 
+         pQueueRef = new ACDQueue_Circular(this, pQueueUriString, pName,
             acdScheme, maxRingDelay, maxQueueDepth, maxWaitTime, fifoOverflow,
             pOverflowQueue, pOverflowEntry, pOverflowType, answerMode, callConnectScheme,
             pWelcomeAudio, bargeIn, pQueueAudio, pBackgroundAudio,
@@ -199,7 +199,7 @@ ACDQueue* ACDQueueManager::createACDQueue(const char* pQueueUriString,
          break ;
 
       case ACDQueue::LINEAR:
-         pQueueRef = new ACDQueue_Linear(this, pQueueUriString, pName, 
+         pQueueRef = new ACDQueue_Linear(this, pQueueUriString, pName,
             acdScheme, maxRingDelay, maxQueueDepth, maxWaitTime, fifoOverflow,
             pOverflowQueue, pOverflowEntry,  pOverflowType, answerMode, callConnectScheme,
             pWelcomeAudio, bargeIn, pQueueAudio, pBackgroundAudio,
@@ -210,7 +210,7 @@ ACDQueue* ACDQueueManager::createACDQueue(const char* pQueueUriString,
          break ;
 
       case ACDQueue::LONGEST_IDLE:
-         pQueueRef = new ACDQueue_LongestIdle(this, pQueueUriString, pName, 
+         pQueueRef = new ACDQueue_LongestIdle(this, pQueueUriString, pName,
             acdScheme, maxRingDelay, maxQueueDepth, maxWaitTime, fifoOverflow,
             pOverflowQueue, pOverflowEntry, pOverflowType,  answerMode, callConnectScheme,
             pWelcomeAudio, bargeIn, pQueueAudio, pBackgroundAudio,
@@ -221,7 +221,7 @@ ACDQueue* ACDQueueManager::createACDQueue(const char* pQueueUriString,
          break ;
 
       case ACDQueue::RING_ALL:
-         pQueueRef = new ACDQueue_RingAll(this, pQueueUriString, pName, 
+         pQueueRef = new ACDQueue_RingAll(this, pQueueUriString, pName,
             acdScheme, maxRingDelay, maxQueueDepth, maxWaitTime, fifoOverflow,
             pOverflowQueue, pOverflowEntry, pOverflowType, answerMode, callConnectScheme,
             pWelcomeAudio, bargeIn, pQueueAudio, pBackgroundAudio,
@@ -255,9 +255,9 @@ ACDQueue* ACDQueueManager::createACDQueue(const char* pQueueUriString,
 //
 //  NAME:        ACDQueueManager::deleteACDQueue
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -306,9 +306,9 @@ void ACDQueueManager::deleteACDQueue(const char* pQueueUriString)
 //
 //  NAME:        ACDQueueManager::Create
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -385,7 +385,7 @@ ProvisioningAttrList* ACDQueueManager::Create(ProvisioningAttrList& rRequestAttr
       pResponse->setAttribute("method-name", "create");
 #ifdef CML
       pResponse->setAttribute("result-code", ProvisioningAgent::ALREADY_EXISTS);
-#else      
+#else
       pResponse->setAttribute("result-code", ProvisioningAgent::DUPLICATE);
 #endif
       pResponse->setAttribute("result-text", "Managed Object Instance already exists");
@@ -436,7 +436,7 @@ ProvisioningAttrList* ACDQueueManager::Create(ProvisioningAttrList& rRequestAttr
    if (rRequestAttributes.getAttribute(QUEUE_NAME_TAG, name)) {
       setPSAttribute(pInstanceNode, QUEUE_NAME_TAG, name);
    }
- 
+
    // acd-scheme
    rRequestAttributes.getAttribute(QUEUE_ACD_SCHEME_TAG, acdScheme);
    setPSAttribute(pInstanceNode, QUEUE_ACD_SCHEME_TAG, acdScheme);
@@ -571,9 +571,9 @@ ProvisioningAttrList* ACDQueueManager::Create(ProvisioningAttrList& rRequestAttr
 //
 //  NAME:        ACDQueueManager::Delete
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -639,9 +639,9 @@ ProvisioningAttrList* ACDQueueManager::Delete(ProvisioningAttrList& rRequestAttr
 //
 //  NAME:        ACDQueueManager::Set
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -767,7 +767,7 @@ ProvisioningAttrList* ACDQueueManager::Set(ProvisioningAttrList& rRequestAttribu
    }
 
    // Now save the individual attribute changes
-   
+
    // name (optional)
    if (rRequestAttributes.getAttribute(QUEUE_NAME_TAG, name)) {
       setPSAttribute(pInstanceNode, QUEUE_NAME_TAG, name);
@@ -808,14 +808,14 @@ ProvisioningAttrList* ACDQueueManager::Set(ProvisioningAttrList& rRequestAttribu
    else {
        deletePSAttribute(pInstanceNode, QUEUE_OVERFLOW_DESTINATION_TAG);
    }
-   
+
    // overflow-entry (optional)
    if (rRequestAttributes.getAttribute(QUEUE_OVERFLOW_ENTRY_TAG, overflowEntry)) {
       setPSAttribute(pInstanceNode, QUEUE_OVERFLOW_ENTRY_TAG, overflowEntry);
    }
    else {
        deletePSAttribute(pInstanceNode, QUEUE_OVERFLOW_ENTRY_TAG);
-   }   
+   }
 
    // overflow-type (optional)
    if (rRequestAttributes.getAttribute(QUEUE_OVERFLOW_TYPE_TAG, overflowType)) {
@@ -823,7 +823,7 @@ ProvisioningAttrList* ACDQueueManager::Set(ProvisioningAttrList& rRequestAttribu
    }
    else {
        deletePSAttribute(pInstanceNode, QUEUE_OVERFLOW_TYPE_TAG);
-   }   
+   }
 
    // answer-mode (required)
    if (rRequestAttributes.getAttribute(QUEUE_ANSWER_MODE_TAG, answerMode)) {
@@ -898,7 +898,7 @@ ProvisioningAttrList* ACDQueueManager::Set(ProvisioningAttrList& rRequestAttribu
    else {
        deletePSAttribute(pInstanceNode, QUEUE_AGENTS_WRAP_UP_TIME_TAG);
    }
-   
+
    // agents-non-responsive-time (optional)
    if (rRequestAttributes.getAttribute(QUEUE_AGENTS_NON_RESPONSIVE_TIME_TAG, agentsNonResponsiveTime)) {
       setPSAttribute(pInstanceNode, QUEUE_AGENTS_NON_RESPONSIVE_TIME_TAG, agentsNonResponsiveTime);
@@ -950,9 +950,9 @@ ProvisioningAttrList* ACDQueueManager::Set(ProvisioningAttrList& rRequestAttribu
 //
 //  NAME:        ACDQueueManager::Get
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1050,9 +1050,9 @@ ProvisioningAttrList* ACDQueueManager::Get(ProvisioningAttrList& rRequestAttribu
 //
 //  NAME:        ACDQueueManager::loadConfiguration
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1148,7 +1148,7 @@ bool ACDQueueManager::loadConfiguration(void)
                      welcomeAudio, bargeIn, queueAudio,
                      backgroundAudio, queueAudioInterval,
                      callTerminationAudio, terminationToneDuration,
-                     agentsWrapupTime, agentsNonResponsiveTime, 
+                     agentsWrapupTime, agentsNonResponsiveTime,
                      maxBounceCount, acdAgentList, acdLineList);
 
       // Get the next instance.
@@ -1169,9 +1169,9 @@ bool ACDQueueManager::loadConfiguration(void)
 //
 //  NAME:        ACDQueueManager::getAcdQueueReference
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1199,9 +1199,9 @@ ACDQueue* ACDQueueManager::getAcdQueueReference(UtlString& rQueueUriString)
 //
 //  NAME:        ACDQueueManager::getAcdCallManagerReference
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1221,9 +1221,9 @@ ACDCallManager* ACDQueueManager::getAcdCallManagerReference(void)
 //
 //  NAME:        ACDQueueManager::getAcdCallManagerHandle
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1243,9 +1243,9 @@ SIPX_INST ACDQueueManager::getAcdCallManagerHandle(void)
 //
 //  NAME:        ACDQueueManager::getAcdAgentManagerReference
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1265,9 +1265,9 @@ ACDAgentManager* ACDQueueManager::getAcdAgentManagerReference(void)
 //
 //  NAME:        ACDQueueManager::getAcdLineManagerReference
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1286,9 +1286,9 @@ ACDLineManager* ACDQueueManager::getAcdLineManagerReference(void)
 //
 //  NAME:        ACDQueueManager::getAcdServer
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1310,4 +1310,3 @@ ACDServer* ACDQueueManager::getAcdServer(void)
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-

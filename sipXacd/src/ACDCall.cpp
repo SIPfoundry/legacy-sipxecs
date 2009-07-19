@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -50,7 +50,7 @@ const char* ACDCall::eCallTimers2str[7] = {
    "TERMINATION_AUDIO_TIMER",
    "QUEUE_MAX_WAIT_TIMER"
 };
-   
+
 
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -61,9 +61,9 @@ const char* ACDCall::eCallTimers2str[7] = {
 //
 //  NAME:        ACDCall::ACDCall
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -93,7 +93,7 @@ ACDCall::ACDCall(ACDCallManager* pAcdCallManager, ACDLine* pLineRef, SIPX_CALL h
 
    // Initially no Transfer Agent
    mpTransferAgent = NULL;
- 
+
    // Initially no associated call
    mhAssociatedCallHandle = SIPX_CALL_NULL;
 
@@ -101,7 +101,7 @@ ACDCall::ACDCall(ACDCallManager* pAcdCallManager, ACDLine* pLineRef, SIPX_CALL h
    mFlagTransfer = FALSE;
    // Initially Transfer Connect flag is false
    // This flag is for preventing any execution of
-   // the code if the CONNECT for transfer agent is called 
+   // the code if the CONNECT for transfer agent is called
    // more than once during transfer
    mFlagTransferConnect = FALSE;
    // This flag to make a real time event record
@@ -125,7 +125,7 @@ ACDCall::ACDCall(ACDCallManager* pAcdCallManager, ACDLine* pLineRef, SIPX_CALL h
 #ifdef CML
    // create the call identity for this call
    setCallIdentity();
-#else 
+#else
    // Get the call identity for this call
    setCallId(mhCallHandle);
 #endif
@@ -151,17 +151,17 @@ ACDCall::ACDCall(ACDCallManager* pAcdCallManager, ACDLine* pLineRef, SIPX_CALL h
 
    // preCreate all the timers we will need
 
-   mpRingTimeoutTimer = 
+   mpRingTimeoutTimer =
       new OsTimer(getMessageQueue(), (void*)RING_TIMEOUT_TIMER);
-   mpWelcomeAudioPlayTimer = 
+   mpWelcomeAudioPlayTimer =
       new OsTimer(getMessageQueue(), (void*)WELCOME_AUDIO_TIMER);
-   mpQueueAudioPlayTimer = 
+   mpQueueAudioPlayTimer =
       new OsTimer(getMessageQueue(), (void*)QUEUE_AUDIO_TIMER);
-   mpQueueAudioDelayTimer = 
+   mpQueueAudioDelayTimer =
       new OsTimer(getMessageQueue(), (void*)QUEUE_DELAY_TIMER);
-   mpTerminationAudioPlayTimer = 
+   mpTerminationAudioPlayTimer =
       new OsTimer(getMessageQueue(), (void*)TERMINATION_AUDIO_TIMER);
-   mpQueueMaxWaitTimer = 
+   mpQueueMaxWaitTimer =
       new OsTimer(getMessageQueue(), (void*)QUEUE_MAX_WAIT_TIMER);
 
    OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::ACDCall - New Call(%d) [%s] is created.",
@@ -173,9 +173,9 @@ ACDCall::ACDCall(ACDCallManager* pAcdCallManager, ACDLine* pLineRef, SIPX_CALL h
 //
 //  NAME:        ACDCall::destroyACDCall
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -193,8 +193,8 @@ ACDCall::destroyACDCall()
    if (mpCallIdentity == NULL) {
       return ;
    }
-   
-   // Abort any routing that may still be going on              
+
+   // Abort any routing that may still be going on
    routeRequestAbortEvent() ;
 
    // For safety, we will try to delete all the timers associated with the call
@@ -228,7 +228,7 @@ ACDCall::destroyACDCall()
    free(mpCallIdentity);
    mpCallIdentity = NULL ;
 
-   // Clear the Agent Candidate List 
+   // Clear the Agent Candidate List
    UtlSListIterator agentListIterator(mAgentCandidateList);
    ACDAgent *pAgent;
    while ((pAgent = dynamic_cast<ACDAgent*>(agentListIterator())) != NULL) {
@@ -240,9 +240,9 @@ ACDCall::destroyACDCall()
 //
 //  NAME:        ACDCall::~ACDCall
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -264,9 +264,9 @@ ACDCall::~ACDCall()
 //
 //  NAME:        ACDCall::setManagingQueue
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -287,9 +287,9 @@ void ACDCall::setManagingQueue(ACDQueue* pManagingQueue, int waitTime)
 //
 //  NAME:        ACDCall::routeRequest
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -316,9 +316,9 @@ void ACDCall::routeRequest(ACDAgent* pTargetAgent, int connectionScheme, int tim
 //
 //  NAME:        ACDCall::routeRequest
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -339,9 +339,9 @@ void ACDCall::routeRequest(UtlSList& rTargetAgentList, int connectionScheme, int
 //
 //  NAME:        ACDCall::routeRequestAddAgent
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -363,9 +363,9 @@ void ACDCall::routeRequestAddAgent(ACDAgent* pTargetAgent)
 //
 //  NAME:        ACDCall::answerCall
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -386,9 +386,9 @@ void ACDCall::answerCall(UtlString& rWelcomeAudio, bool bargeIn)
 //
 //  NAME:        ACDCall::abortRouteRequest
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -409,9 +409,9 @@ void ACDCall::abortRouteRequest(void)
 //
 //  NAME:        ACDCall::dropCall
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -432,9 +432,9 @@ void ACDCall::dropCall(int terminationToneDuration, UtlString& rTerminationAudio
 //
 //  NAME:        ACDCall::playAudio
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -455,9 +455,9 @@ void ACDCall::playAudio(UtlString& rQueueAudio, int queueAudioInterval, UtlStrin
 //
 //  NAME:        ACDCall::stopAudio
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -478,9 +478,9 @@ void ACDCall::stopAudio(void)
 //
 //  NAME:        ACDCall::updateState
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -501,9 +501,9 @@ void ACDCall::updateState(SIPX_CALL callHandle, int event, int cause)
 //
 //  NAME:        ACDCall::resetQueueMaxWaitTimer
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -524,9 +524,9 @@ void ACDCall::resetQueueMaxWaitTimer(void)
 //
 //  NAME:        ACDCall::getCallHandle
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -546,9 +546,9 @@ SIPX_CALL ACDCall::getCallHandle(void)
 //
 //  NAME:        ACDCall::getCallIdentity
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -568,9 +568,9 @@ const char* ACDCall::getCallIdentity(void)
 //
 //  NAME:        ACDCall::hash
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -590,9 +590,9 @@ unsigned ACDCall::hash() const
 //
 //  NAME:        ACDCall::getContainableType
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -611,9 +611,9 @@ UtlContainableType ACDCall::getContainableType() const
 //
 //  NAME:        ACDCall::getAcdAgent
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -633,9 +633,9 @@ ACDAgent*  ACDCall::getTransferAcdAgent()
 //
 //  NAME:        ACDCall::getAcdAgent
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -656,9 +656,9 @@ ACDAgent*  ACDCall::getAcdAgent()
 //
 //  NAME:        ACDCall::compareTo
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -670,13 +670,13 @@ ACDAgent*  ACDCall::getAcdAgent()
 
 int ACDCall::compareTo(UtlContainable const* pInVal) const
 {
-   int result ; 
+   int result ;
 
    if (pInVal->isInstanceOf(ACDCall::TYPE)) {
       result = mhCallHandle - (((ACDCall*)pInVal)->getCallHandle());
    }
    else {
-      result = -1; 
+      result = -1;
    }
 
    return result;
@@ -690,9 +690,9 @@ int ACDCall::compareTo(UtlContainable const* pInVal) const
 //
 //  NAME:        ACDCall::handleMessage
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -726,20 +726,20 @@ UtlBoolean ACDCall::handleMessage(OsMsg& rMessage)
 
 
 //   osPrintf("ACDCall::handleMessage - MsgType: %d, MsgSubType: %d\n", rMessage.getMsgType(), rMessage.getMsgSubType());
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, 
+   OsSysLog::add(FAC_ACD, gACD_DEBUG,
       "ACDCall::handleMessage - Call(%d) MsgType: %d, MsgSubType: %d",
       mhCallHandle, rMessage.getMsgType(), rMessage.getMsgSubType());
 
 
-   if (rMessage.getMsgType() == OsMsg::OS_EVENT) 
+   if (rMessage.getMsgType() == OsMsg::OS_EVENT)
    {
       // Timer Event, determine which timer fired
       ((OsEventMsg&)rMessage).getUserData(timerSourceVoid);
       timerSource = (int)(intptr_t)timerSourceVoid;
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, 
+      OsSysLog::add(FAC_ACD, gACD_DEBUG,
          "ACDCall::handleMessage - Call(%d) Timer %s expired",
          mhCallHandle, eCallTimers2str[timerSource]);
-      switch (timerSource) 
+      switch (timerSource)
       {
          case RING_TIMEOUT_TIMER:
             routeRequestTimeoutEvent();
@@ -748,16 +748,16 @@ UtlBoolean ACDCall::handleMessage(OsMsg& rMessage)
 
          case WELCOME_AUDIO_TIMER:
             // The timer firing is only valid if the Welcome audio is still
-            // playing and we haven't stopped it 
+            // playing and we haven't stopped it
             if (mPlayingAudio == WELCOME_AUDIO_TIMER)
-            { 
+            {
                // Stop the Welcome Audio
                sipxCallPlayBufferStop(mhCallHandle);
-   
+
                // Indicate that the Welcome Audio is no longer playing
                mWelcomeAudioPlaying = false;
                mPlayingAudio = NO_AUDIO_PLAYING;
-            
+
                // Only play the Welcome Audio once until this call is moved to another queue
                mWelcomeAudioPlayed = true;
 
@@ -821,10 +821,10 @@ UtlBoolean ACDCall::handleMessage(OsMsg& rMessage)
                // Load and play the Queue Background Audio
                if (mpAcdAudioManager->getAudio(mQueueAudio, audioBuffer, audioLength)) {
                   sipxCallPlayBufferStart(mhCallHandle, audioBuffer, audioLength, RAW_PCM_16, false, false, true);
-               
+
                   // reStart the Queue Audio Delay Timer
                   mpQueueAudioDelayTimer->oneshotAfter(
-                     OsTime(mQueueAudioInterval, 0));               
+                     OsTime(mQueueAudioInterval, 0));
                }
                else {
                   // Couldn't load, play the default confirmation tone
@@ -837,14 +837,14 @@ UtlBoolean ACDCall::handleMessage(OsMsg& rMessage)
          case TERMINATION_AUDIO_TIMER:
             // The Termination Audio Play Timer expired
             if (mPlayingAudio == TERMINATION_AUDIO_TIMER)
-            {            
+            {
                // Stop the audio and drop the call
                sipxCallPlayBufferStop(mhCallHandle);
                mPlayingAudio = NO_AUDIO_PLAYING ;
                handleCopy = mhCallHandle;
                if (handleCopy != SIPX_CALL_NULL)
                {
-                  // sipxCalLDestroy clears it's arg. 
+                  // sipxCalLDestroy clears it's arg.
                   sipxCallDestroy(handleCopy);
                }
             }
@@ -859,9 +859,9 @@ UtlBoolean ACDCall::handleMessage(OsMsg& rMessage)
       return true;
    }
 
-   else if (rMessage.getMsgType() == OsMsg::USER_START) 
+   else if (rMessage.getMsgType() == OsMsg::USER_START)
    {
-      switch (rMessage.getMsgSubType()) 
+      switch (rMessage.getMsgSubType())
       {
          case ACDCallMsg::UPDATE_STATE:
             pMessage = (ACDCallMsg*)&rMessage;
@@ -869,7 +869,7 @@ UtlBoolean ACDCall::handleMessage(OsMsg& rMessage)
             event       = pMessage->getCallEvent();
             cause       = pMessage->getCallCause();
             updateStateMessage(hCallHandle, event, cause);
-            OsSysLog::add(FAC_ACD, gACD_DEBUG, 
+            OsSysLog::add(FAC_ACD, gACD_DEBUG,
                           "ACDCall::handleMessage - "
                           "ACDCallMsg::UPDATE_STATE(%d)(%d)",
                           hCallHandle, event);
@@ -935,7 +935,7 @@ UtlBoolean ACDCall::handleMessage(OsMsg& rMessage)
             doCallPickUpMessage(pTargetAgent);
             break;
 #endif
-            
+
          default:
             // Bad message
             OsSysLog::add(FAC_ACD, PRI_ERR, "ACDCall::handleMessage - Received bad message");
@@ -955,9 +955,9 @@ UtlBoolean ACDCall::handleMessage(OsMsg& rMessage)
 //
 //  NAME:        ACDCall::setManagingQueueMessage
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -982,18 +982,18 @@ void ACDCall::setManagingQueueMessage(ACDQueue* pManagingQueue, int waitTime)
       // Set the queue max-wait-time timer
       mpQueueMaxWaitTimer->stop(true);
       mpQueueMaxWaitTimer->oneshotAfter(OsTime(waitTime, 0));
-      
+
       OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::setManagingQueueMessage - max wait timer started for Call(%s) in ACDQueue(%s) = %d",
                mpCallIdentity, pManagingQueue->getUriString()->data(), waitTime);
    }
    else {
       OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::setManagingQueueMessage - max wait timer is not enabled for Call(%s) in ACDQueue(%s)",
                mpCallIdentity, pManagingQueue->getUriString()->data());
-   }      
+   }
 
    // Allow the Welcome Audio to be played once
    mWelcomeAudioPlayed = false;
-   
+
    // Set the connection scheme
    mConnectionScheme = mpManagingQueue->getConnectionScheme();
 }
@@ -1003,9 +1003,9 @@ void ACDCall::setManagingQueueMessage(ACDQueue* pManagingQueue, int waitTime)
 //
 //  NAME:        ACDCall::answerCallMessage
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1079,9 +1079,9 @@ void ACDCall::answerCallMessage(UtlString* pWelcomeAudio, bool bargeIn)
 //
 //  NAME:        ACDCall::abortRouteRequestMessage
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1095,7 +1095,7 @@ void ACDCall::abortRouteRequestMessage(void)
 {
    OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::abortRouteRequestMessage - Call(%d) [%s] is being aborted.",
                  mhCallHandle, mpCallIdentity);
-                 
+
    // Abort the Route FSM
    mpRouteStateMachine->routeRequestAbortEvent(this);
 }
@@ -1105,9 +1105,9 @@ void ACDCall::abortRouteRequestMessage(void)
 //
 //  NAME:        ACDCall::dropCallMessage
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1131,7 +1131,7 @@ void ACDCall::dropCallMessage(int terminationToneDuration, UtlString* pTerminati
       SIPX_CALL handleCopy = mhCallHandle;
       if (handleCopy != SIPX_CALL_NULL)
       {
-         // sipxCalLDestroy clears it's arg. 
+         // sipxCalLDestroy clears it's arg.
          sipxCallDestroy(handleCopy);
       }
       return;
@@ -1142,7 +1142,7 @@ void ACDCall::dropCallMessage(int terminationToneDuration, UtlString* pTerminati
       SIPX_CALL handleCopy = mhCallHandle;
       if (handleCopy != SIPX_CALL_NULL)
       {
-         // sipxCalLDestroy clears it's arg. 
+         // sipxCalLDestroy clears it's arg.
          sipxCallDestroy(handleCopy);
       }
    }
@@ -1182,9 +1182,9 @@ void ACDCall::dropCallMessage(int terminationToneDuration, UtlString* pTerminati
 //
 //  NAME:        ACDCall::playAudioMessage
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1252,9 +1252,9 @@ void ACDCall::playAudioMessage(UtlString* pQueueAudio, int queueAudioInterval, U
 //
 //  NAME:        ACDCall::stopAudioMessage
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1285,9 +1285,9 @@ void ACDCall::stopAudioMessage(void)
 //
 //  NAME:        ACDCall::routeRequestMessage
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1299,13 +1299,13 @@ void ACDCall::stopAudioMessage(void)
 
 void ACDCall::routeRequestMessage(UtlSList* pTargetAgentList, int connectionScheme, int timeout)
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, 
+   OsSysLog::add(FAC_ACD, gACD_DEBUG,
                  "ACDCall::routeRequestMessage - "
                  "Call(%d) [%s] is being routed.",
                  mhCallHandle, mpCallIdentity);
 
    // Check for Welcome Audio and barge-in status
-   if (mWelcomeAudioPlaying && (mBargeIn == true)) 
+   if (mWelcomeAudioPlaying && (mBargeIn == true))
    {
       stopAudioMessage();
    }
@@ -1313,7 +1313,7 @@ void ACDCall::routeRequestMessage(UtlSList* pTargetAgentList, int connectionSche
    // First clear the existing list
    UtlSListIterator agentListIterator(mAgentCandidateList);
    UtlContainable* pEntry;
-   while ((pEntry = agentListIterator()) != NULL) 
+   while ((pEntry = agentListIterator()) != NULL)
    {
       mAgentCandidateList.remove(pEntry);
    }
@@ -1323,12 +1323,12 @@ void ACDCall::routeRequestMessage(UtlSList* pTargetAgentList, int connectionSche
     */
    UtlSListIterator listIterator(*pTargetAgentList);
    ACDAgent* pAgent;
-   while ((pAgent = dynamic_cast<ACDAgent*>(listIterator())) != NULL) 
+   while ((pAgent = dynamic_cast<ACDAgent*>(listIterator())) != NULL)
    {
-      if (mAgentCandidateList.find(pAgent) == NULL) 
+      if (mAgentCandidateList.find(pAgent) == NULL)
       {
          mAgentCandidateList.append(pAgent);
-         OsSysLog::add(FAC_ACD, gACD_DEBUG, 
+         OsSysLog::add(FAC_ACD, gACD_DEBUG,
                        "ACDCall::routeRequestMessage -"
                        "agent(%s) is being added to handle call(%s)",
                        pAgent->getUriString()->data(), mpCallIdentity);
@@ -1338,7 +1338,7 @@ void ACDCall::routeRequestMessage(UtlSList* pTargetAgentList, int connectionSche
    mConnectionScheme = connectionScheme;
    mRingNoAnswerTime = timeout;
 
-   if (mRouteState != ACDCallRouteState::IDLE) 
+   if (mRouteState != ACDCallRouteState::IDLE)
    {
       if ((mRouteState == ACDCallRouteState::FAILED) ||
          (mRouteState == ACDCallRouteState::TERMINATED) ||
@@ -1348,7 +1348,7 @@ void ACDCall::routeRequestMessage(UtlSList* pTargetAgentList, int connectionSche
       }
       else
       {
-         OsSysLog::add(FAC_ACD, PRI_CRIT, 
+         OsSysLog::add(FAC_ACD, PRI_CRIT,
                        "ACDCall::routeRequestMessage -"
                        "INVALID route state %s",
                        mpRouteStateMachine->getStateString()) ;
@@ -1364,9 +1364,9 @@ void ACDCall::routeRequestMessage(UtlSList* pTargetAgentList, int connectionSche
 //
 //  NAME:        ACDCall::routeRequestAddAgentMessage
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1381,7 +1381,7 @@ void ACDCall::routeRequestAddAgentMessage(ACDAgent* pTargetAgent)
    // Make sure that the call still requires routing and that
    // the agent is still available before proceeding
    if (mRouteState != ACDCallRouteState::TRYING) {
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, 
+      OsSysLog::add(FAC_ACD, gACD_DEBUG,
                     "ACDCall::routeRequestAddAgentMessage -"
                     "call(%s) is in invalid state (%d) for routing",
                     mpCallIdentity, mRouteState);
@@ -1389,7 +1389,7 @@ void ACDCall::routeRequestAddAgentMessage(ACDAgent* pTargetAgent)
    }
 
    if (pTargetAgent->isAvailable(true) == false) {
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, 
+      OsSysLog::add(FAC_ACD, gACD_DEBUG,
                     "ACDCall::routeRequestAddAgentMessage -"
                     "agent(%s) is not available any more for handling call(%s)",
                     pTargetAgent->getUriString()->data(), mpCallIdentity);
@@ -1404,7 +1404,7 @@ void ACDCall::routeRequestAddAgentMessage(ACDAgent* pTargetAgent)
       if (hCall != SIPX_CALL_NULL)
       {
          mpAcdCallManager->addMapAgentCallHandleToCall(hCall, this);
-         OsSysLog::add(FAC_ACD, gACD_DEBUG, 
+         OsSysLog::add(FAC_ACD, gACD_DEBUG,
                     "ACDCall::routeRequestAddAgentMessage -"
                     "agent(%s) is being added to handle call(%s)",
                     pTargetAgent->getUriString()->data(), mpCallIdentity);
@@ -1417,9 +1417,9 @@ void ACDCall::routeRequestAddAgentMessage(ACDAgent* pTargetAgent)
 //
 //  NAME:        ACDCall::updateStateMessage
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1431,26 +1431,26 @@ void ACDCall::routeRequestAddAgentMessage(ACDAgent* pTargetAgent)
 
 void ACDCall::updateStateMessage(SIPX_CALL callHandle, int event, int cause)
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, 
+   OsSysLog::add(FAC_ACD, gACD_DEBUG,
                  "ACDCall::updateStateMessage - "
                  "Call(%d) incoming hCall=%d [%s] state is being published. "
                  "event %d cause %d TransferFlag %d, TransferConnect %d numTransfer %d",
-                 mhCallHandle, callHandle, mpCallIdentity, 
+                 mhCallHandle, callHandle, mpCallIdentity,
                  event, cause, mFlagTransfer, mFlagTransferConnect, mNumTransfer);
 
    if (mhCallHandle == SIPX_CALL_NULL)
    {
-      OsSysLog::add(FAC_ACD, PRI_CRIT, 
+      OsSysLog::add(FAC_ACD, PRI_CRIT,
                     "ACDCall::updateStateMessage - "
                     "mhCallHandle == SIPX_CALL_NULL");
       return ;
    }
 
    // Process the new state
-   switch (event) 
+   switch (event)
    {
       case CALLSTATE_ALERTING:
-         if (callHandle == mhCallHandle) 
+         if (callHandle == mhCallHandle)
          {
             // Give the state to the associated line to publish
             mpAcdLineReference->publishCallState(this, ALERTING);
@@ -1458,35 +1458,35 @@ void ACDCall::updateStateMessage(SIPX_CALL callHandle, int event, int cause)
          break;
 
       case CALLSTATE_CONNECTED:
-         if (callHandle != mhCallHandle) 
+         if (callHandle != mhCallHandle)
          {
-     	    // get the Agent call handle 
-	        if (   (mFlagTransfer == TRUE) 
+     	    // get the Agent call handle
+	        if (   (mFlagTransfer == TRUE)
                 && (mFlagTransferConnect == FALSE))
             {
                 // This is connect for the transfer agent
                 acdTransferAgentConnectedEvent(callHandle);
             }
             // This is non transfer case
-            else 
+            else
             { // This is non transfer case
                // This must be an agent answering
-               if (cause == CALLSTATE_CONNECTED_ACTIVE) 
+               if (cause == CALLSTATE_CONNECTED_ACTIVE)
                {
                   acdAgentConnectedActiveEvent(callHandle);
-                  
-                  if(mpActiveAgent) 
+
+                  if(mpActiveAgent)
                   {
-                     mpActiveAgent->setCallEstablished(true); 
+                     mpActiveAgent->setCallEstablished(true);
                   }
                }
-               else if (cause == CALLSTATE_CONNECTED_INACTIVE) 
+               else if (cause == CALLSTATE_CONNECTED_INACTIVE)
                {
                   acdAgentConnectedInactiveEvent(callHandle);
                }
             }
          }
-         else 
+         else
          {
             // The caller has answered
             // But should not connect if the cause is ACTIVE_HELD case befo
@@ -1498,13 +1498,13 @@ void ACDCall::updateStateMessage(SIPX_CALL callHandle, int event, int cause)
          break;
 
       case CALLSTATE_DISCONNECTED:
-         if (mRouteState == ACDCallRouteState::ROUTED) 
+         if (mRouteState == ACDCallRouteState::ROUTED)
          {
             // Give the new state to the associated line to publish
             mpAcdLineReference->publishCallState(this, DISCONNECTED);
          }
-         
-         if (callHandle != mhCallHandle) 
+
+         if (callHandle != mhCallHandle)
          {
             if (mFlagTransfer == TRUE)
             {
@@ -1518,7 +1518,7 @@ void ACDCall::updateStateMessage(SIPX_CALL callHandle, int event, int cause)
                 acdAgentDisconnectedEvent(callHandle);
             }
          }
-         else 
+         else
          {
             // The caller has hung up
             acdCallDisconnectedEvent();
@@ -1538,9 +1538,9 @@ void ACDCall::updateStateMessage(SIPX_CALL callHandle, int event, int cause)
 	 break;
 
       case CALLSTATE_TRANSFER:
-         if (CALLSTATE_TRANSFER_FAILURE == cause) 
+         if (CALLSTATE_TRANSFER_FAILURE == cause)
          {
-            OsSysLog::add(FAC_ACD, gACD_DEBUG, 
+            OsSysLog::add(FAC_ACD, gACD_DEBUG,
                           "ACDCall::updateStateMessage - "
                           "Call(%d) [%s] CALLSTATE_TRANSFER failed",
                           mhCallHandle, mpCallIdentity);
@@ -1555,9 +1555,9 @@ void ACDCall::updateStateMessage(SIPX_CALL callHandle, int event, int cause)
 //
 //  NAME:        ACDCall::acdCallConnectedEvent
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1597,9 +1597,9 @@ void ACDCall::acdCallConnectedEvent(int cause)
 //
 //  NAME:        ACDCall::acdCallDisconnectedEvent
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1625,9 +1625,9 @@ void ACDCall::acdCallDisconnectedEvent(void)
 //
 //  NAME:        ACDCall::acdAgentConnectedActiveEvent
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1655,9 +1655,9 @@ void ACDCall::acdAgentConnectedActiveEvent(SIPX_CALL callHandle)
 //
 //  NAME:        ACDCall::acdTransferAgentConnectedEvent
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1669,7 +1669,7 @@ void ACDCall::acdAgentConnectedActiveEvent(SIPX_CALL callHandle)
 
 void ACDCall::acdTransferAgentConnectedEvent(SIPX_CALL agentCallHandle)
 {
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, 
+   OsSysLog::add(FAC_ACD, gACD_DEBUG,
                  "ACDCall::acdTransferAgentConnectedEvent - "
                  "Call(%d) [%s] is being connected to AgentCall %d via Conference Join, mFlagTransfer %d mFlagTransferConnect %d",
                  mhCallHandle, mpCallIdentity, agentCallHandle, mFlagTransfer, mFlagTransferConnect);
@@ -1679,11 +1679,11 @@ void ACDCall::acdTransferAgentConnectedEvent(SIPX_CALL agentCallHandle)
    sipxCallHold(agentCallHandle);
    delay(2000);
    rc = sipxConferenceJoin(mhConferenceHandle, agentCallHandle, TRUE);
-   if (rc != SIPX_RESULT_SUCCESS) 
+   if (rc != SIPX_RESULT_SUCCESS)
    {
-       OsSysLog::add(FAC_ACD, PRI_ERR, 
+       OsSysLog::add(FAC_ACD, PRI_ERR,
                      "ACDCall::acdTransferAgentConnectedEvent"
-                     "Error(%d) on sipxConferenceJoin for Call(%u), AgentCall(%u), Conference(%u)", 
+                     "Error(%d) on sipxConferenceJoin for Call(%u), AgentCall(%u), Conference(%u)",
                      rc, mhCallHandle, agentCallHandle, mhConferenceHandle);
 
        // This is a fatal condition.  Destroy the conference, update state and return
@@ -1691,7 +1691,7 @@ void ACDCall::acdTransferAgentConnectedEvent(SIPX_CALL agentCallHandle)
        transitionRouteState(ACDCallRouteState::FAILED);
 
        // Notify the managing ACDQueue, if defined, of the new state
-       if (mpManagingQueue != NULL) 
+       if (mpManagingQueue != NULL)
        {
           mpManagingQueue->updateRouteState(this, ACDCallRouteState::FAILED);
        }
@@ -1700,32 +1700,32 @@ void ACDCall::acdTransferAgentConnectedEvent(SIPX_CALL agentCallHandle)
    }
    sipxCallUnhold(agentCallHandle);
    sipxConferenceUnhold(mhConferenceHandle);
-   sipxCallPlayBufferStart(agentCallHandle, 
+   sipxCallPlayBufferStart(agentCallHandle,
                            ConfirmationShortTone,
                            ConfirmationShortToneLength,
                            RAW_PCM_16, false, false, true);
-   // mark mFlagTransferConnect TRUE so that if 
+   // mark mFlagTransferConnect TRUE so that if
    // a connect callback is repeated we do not execute
    // this function again
    mFlagTransferConnect = TRUE ;
    // Increment the number of successful transfers
-   // This should be incremented right here because 
+   // This should be incremented right here because
    // resources are going to be allocated right now
    mNumTransfer++;
 
-   if (TRUE == mFlagTransferBlind) 
+   if (TRUE == mFlagTransferBlind)
    {
-       // Because the transfer agent is going to become the regular agent - 
+       // Because the transfer agent is going to become the regular agent -
        // take out the mapping between agent call handle and the caller call handle
        mpAcdCallManager->removeMapTransferAgentCallHandleToCall(mpTransferAgent->getCallHandle());
        // It is better to remove this guy from the call target list right now
        UtlSListIterator agentListIterator(mAgentCandidateList);
        UtlContainable* pEntry;
        ACDAgent* pAgent;
-       while ((pEntry = agentListIterator()) != NULL) 
+       while ((pEntry = agentListIterator()) != NULL)
        {
           pAgent = dynamic_cast<ACDAgent*>(pEntry);
-          if ((pAgent == mpActiveAgent) ) 
+          if ((pAgent == mpActiveAgent) )
           {
              mAgentCandidateList.remove(pEntry);
              break;
@@ -1746,7 +1746,7 @@ void ACDCall::acdTransferAgentConnectedEvent(SIPX_CALL agentCallHandle)
        // can be recorded when it happens.
        mFlagTransferRt = TRUE;
        ACDRtRecord* pACDRtRec;
-       if (NULL != (pACDRtRec = mpAcdCallManager->getAcdServer()->getAcdRtRecord())) 
+       if (NULL != (pACDRtRec = mpAcdCallManager->getAcdServer()->getAcdRtRecord()))
        {
            pACDRtRec->appendTransferCallEvent(ACDRtRecord::TRANSFER, this);
        }
@@ -1760,16 +1760,16 @@ void ACDCall::acdTransferAgentConnectedEvent(SIPX_CALL agentCallHandle)
        }
 
        // Also stop playing the ringback tone to the caller
-       if (mPlayingRingback) 
+       if (mPlayingRingback)
        {
           sipxCallPlayBufferStop(mhCallHandle);
           mPlayingRingback = false;
        }
     }
 
-    OsSysLog::add(FAC_ACD, gACD_DEBUG, 
+    OsSysLog::add(FAC_ACD, gACD_DEBUG,
                   "ACDCall::acdTransferAgentConnectedEvent"
-                  "Completed sipxConferenceJoin for Call(%d), AgentCall(%d), Conference(%d)", 
+                  "Completed sipxConferenceJoin for Call(%d), AgentCall(%d), Conference(%d)",
                   mhCallHandle, agentCallHandle, mhConferenceHandle);
 
 }
@@ -1778,9 +1778,9 @@ void ACDCall::acdTransferAgentConnectedEvent(SIPX_CALL agentCallHandle)
 //
 //  NAME:        ACDCall::acdAgentConnectedInactiveEvent
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1803,9 +1803,9 @@ void ACDCall::acdAgentConnectedInactiveEvent(SIPX_CALL callHandle)
 //
 //  NAME:        ACDCall::acdAgentDisconnectedEvent
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1827,9 +1827,9 @@ void ACDCall::acdAgentDisconnectedEvent(SIPX_CALL callHandle)
 //
 //  NAME:        ACDCall::acdCallTransferModeFailure
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1853,9 +1853,9 @@ void ACDCall::acdCallTransferModeFailure()
 //
 //  NAME:        ACDCall::acdTransferAgentDisconnectedEvent
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1895,7 +1895,7 @@ void ACDCall::acdTransferAgentDisconnectedEvent(SIPX_CALL agentCallHandle)
          mpAcdCallManager->getAcdServer()->getAcdAgentManager()->deleteACDAgent(mpActiveAgent->getUriString()->data());
       }
       if (FALSE == mFlagTransferBlind) {
-         // Because the transfer agent is going to become the regular agent - 
+         // Because the transfer agent is going to become the regular agent -
          // take out the mapping between agent call handle and the caller call handle
          mpAcdCallManager->removeMapTransferAgentCallHandleToCall(mpTransferAgent->getCallHandle());
          // It is better to remove this guy from the call target list right now
@@ -1924,7 +1924,7 @@ void ACDCall::acdTransferAgentDisconnectedEvent(SIPX_CALL agentCallHandle)
          // can be recorded when it happens.
          mFlagTransferRt = TRUE;
          ACDRtRecord* pACDRtRec;
-         if (NULL != (pACDRtRec = mpAcdCallManager->getAcdServer()->getAcdRtRecord())) 
+         if (NULL != (pACDRtRec = mpAcdCallManager->getAcdServer()->getAcdRtRecord()))
          {
             pACDRtRec->appendTransferCallEvent(ACDRtRecord::TRANSFER, this);
          }
@@ -1942,7 +1942,7 @@ void ACDCall::acdTransferAgentDisconnectedEvent(SIPX_CALL agentCallHandle)
             mPlayingRingback = false;
          }
       }
-      
+
       OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::acdTransferAgentDisconnectedEvent"
                     "Agent(%d) dropped call(%d)", agentCallHandle, mhCallHandle);
 
@@ -1955,9 +1955,9 @@ void ACDCall::acdTransferAgentDisconnectedEvent(SIPX_CALL agentCallHandle)
 //
 //  NAME:        ACDCall::routeRequestTimeoutEvent
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1976,9 +1976,9 @@ void ACDCall::routeRequestTimeoutEvent(void)
 //
 //  NAME:        ACDCall::routeRequestAbortEvent
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -1998,9 +1998,9 @@ void ACDCall::routeRequestAbortEvent(void)
 //
 //  NAME:        ACDCall::resetRouteState
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -2025,9 +2025,9 @@ void ACDCall::resetRouteState(void)
 //
 //  NAME:        ACDCall::transitionRouteState
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -2093,9 +2093,9 @@ void ACDCall::setCallId(int callHandle)
 //
 //  NAME:        ACDCall::setCallIdentity
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -2187,7 +2187,7 @@ void ACDCall::setCallIdentity(void)
    // Already got a displayName ??
    if ( toDisplayName.isNull() )
    {
-      // Replace the * and # with spaces 
+      // Replace the * and # with spaces
       // and trim the result
       UtlString digits = aniDigits;
       digits.replace('*', ' ');
@@ -2222,7 +2222,7 @@ void ACDCall::setCallIdentity(void)
       if ( ! digits2.isNull() )
          digits += "-" + digits2;
 
-      // No displayName, 
+      // No displayName,
       // we will show the ANI digits instead.
       toDisplayName = digits;
    }
@@ -2234,10 +2234,10 @@ void ACDCall::setCallIdentity(void)
    }
 
    // Format the new From field
-   sprintf(callIdentity, "\"%s\" <sip:%s-%s@%s>", 
-         toDisplayName.data(), 
-         localUserId.data(), 
-         aniDigits.data(), 
+   sprintf(callIdentity, "\"%s\" <sip:%s-%s@%s>",
+         toDisplayName.data(),
+         localUserId.data(),
+         aniDigits.data(),
          toHostAddress.data());
 
    // Got to know what happened...
@@ -2256,7 +2256,7 @@ void ACDCall::setCallIdentity(void)
 //
 //  NAME:        ACDCall::doCallPickUp
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Posts the message for call pickup.
 //
@@ -2280,7 +2280,7 @@ void ACDCall::doCallPickUp(ACDAgent* const pAgent) {
 //
 //  NAME:        ACDCall::doCallPickUp
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Initiates the simulated RNA event that will be propagated to the ACDQueue where the
 //               actual pickup will be done.
@@ -2296,9 +2296,9 @@ void ACDCall::doCallPickUp(ACDAgent* const pAgent) {
 void ACDCall::doCallPickUpMessage(ACDAgent* const pAgent) {
    mpACDAgentPickedUpBy = pAgent;
    OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::doCallPickUpMessage - mpACDAgentPickedUpBy=%d",mpACDAgentPickedUpBy);
-   
+
    mbIsBeingPickedUp = true;
-   
+
    // Generate the simulated RNA FAILED. This will get things started into the managing ACDQueue.
    if(mpRouteStateMachine && mpRouteStateMachine->getState() == ACDCallRouteState::TRYING)
    {
@@ -2312,7 +2312,7 @@ void ACDCall::doCallPickUpMessage(ACDAgent* const pAgent) {
 //
 //  NAME:        ACDCall::clearBeingPickedUp
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Clears the pickup flag for that ACDCall.
 //
@@ -2335,7 +2335,7 @@ void ACDCall::clearBeingPickedUp() {
 //
 //  NAME:        ACDCall::isBeingPickedUp
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Returns true if the current ACDCall is being picked up and also returns the
 //               ACDAgent that is picking up the call through pAgent.
@@ -2356,4 +2356,3 @@ ACDAgent* ACDCall::isBeingPickedUp(bool& bRet) {
 #endif
 
 /* ============================ FUNCTIONS ================================= */
-

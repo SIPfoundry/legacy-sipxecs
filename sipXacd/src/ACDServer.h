@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -69,7 +69,7 @@ class ACDRpcServer;
 #endif
 
 /**
- * 
+ *
  */
 class ACDServer : public ProvisioningClass {
 public:
@@ -127,7 +127,7 @@ public:
    void               getDefaultIdentity(Url& id);
 
    int                getAdministrativeState(void);
-   
+
    size_t             getMaxCallAllowed(void) { return mMaxAcdCallsAllowed; }
 
 /* ============================ INQUIRY =================================== */
@@ -138,7 +138,7 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
    static const char* ID_TOKEN;
-   
+
    ProvisioningAgent* mpProvisioningAgent;
    ProvisioningAgentXmlRpcAdapter* mpProvisioningAgentXmlRpcAdapter;
    ACDCallManager*    mpAcdCallManager;
@@ -147,7 +147,7 @@ private:
    ACDQueueManager*   mpAcdQueueManager;
    ACDAudioManager*   mpAcdAudioManager;
    ACDRtRecord*       mpAcdRtRecord;
-#ifdef CML   
+#ifdef CML
    ACDRpcServer*      mpAcdRpcServer;
 #endif
 
@@ -174,7 +174,7 @@ private:
    bool               mServerStarted;           /**< Flag indicating that the server is completely
                                                  *   up. */
    int                mMaxAcdCallsAllowed;      ///< The maximum number of calls allowed on a ACD.
-#ifdef CML   
+#ifdef CML
    int                mAcdRpcServerPort;        ///< Port to be used for call pickup XML-RPC server
 #endif
    int                mWatchdogRpcServerPort;   /**< Port that the Watchdog's XML-RPC server
@@ -182,4 +182,3 @@ private:
 };
 
 #endif  // _ACDServer_h_
-

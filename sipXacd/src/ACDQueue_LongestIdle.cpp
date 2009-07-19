@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -44,7 +44,7 @@ const int MIN_TIMEOUT_VALUE = 5;
 //
 //  NAME:        ACDQueue_LongestIdle::ACDQueue_LongestIdle
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Default constructor
 //
@@ -117,7 +117,7 @@ ACDQueue_LongestIdle::ACDQueue_LongestIdle(ACDQueueManager* pAcdQueueManager,
 //
 //  NAME:        ACDQueue_LongestIdle::~ACDQueue_LongestIdle
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Destructor
 //
@@ -143,7 +143,7 @@ ACDQueue_LongestIdle::~ACDQueue_LongestIdle()
 //
 //  NAME:        ACDQueue_LongestIdle::buildTargetAgentList
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Based upon the queue strategy and agent availability, this method will build a
 //               list of ACDAgent object candidates
@@ -162,7 +162,7 @@ bool ACDQueue_LongestIdle::buildTargetAgentList(UtlSList& rTargetAgentList, ACDC
    buildACDAgentList();
 
    // Iterate through the ACDAgent list, starting at the head of the list
-   // and find the agent that has been idle the longest. 
+   // and find the agent that has been idle the longest.
    for(;;) {
       ACDAgent* pAgent;
       ACDAgent* pLongestIdleAgent = NULL;
@@ -203,4 +203,3 @@ bool ACDQueue_LongestIdle::buildTargetAgentList(UtlSList& rTargetAgentList, ACDC
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-

@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -412,13 +412,13 @@ void ACDAudio::getAttributes(ProvisioningAttrList& rRequestAttributes, Provision
 
 int ACDAudio::compareTo(UtlContainable const* pInVal) const
 {
-   int result; 
+   int result;
 
    if (pInVal->isInstanceOf(ACDAudio::TYPE)) {
       result = mName.compareTo(((ACDAudio*)pInVal)->getAudioName());
    }
    else {
-      result = -1; 
+      result = -1;
    }
 
    return result;
@@ -432,9 +432,9 @@ int ACDAudio::compareTo(UtlContainable const* pInVal) const
 //
 //  NAME:        ACDAudio::run
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -489,4 +489,3 @@ int ACDAudio::run(void* pArg)
 }
 
 /* ============================ FUNCTIONS ================================= */
-

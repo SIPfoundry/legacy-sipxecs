@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -44,7 +44,7 @@ const int MIN_TIMEOUT_VALUE = 5;
 //
 //  NAME:        ACDQueue_RingAll::ACDQueue_RingAll
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Default constructor
 //
@@ -118,7 +118,7 @@ ACDQueue_RingAll::ACDQueue_RingAll(ACDQueueManager* pAcdQueueManager,
 //
 //  NAME:        ACDQueue_RingAll::~ACDQueue_RingAll
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Destructor
 //
@@ -144,9 +144,9 @@ ACDQueue_RingAll::~ACDQueue_RingAll()
 //
 //  NAME:        ACDQueue_RingAll::routeCall
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -174,9 +174,9 @@ void ACDQueue_RingAll::routeCall(ACDCall* pCallRef)
 //
 //  NAME:        ACDQueue_RingAll::agentAvailableMessage
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -194,7 +194,7 @@ void ACDQueue_RingAll::agentAvailableMessage(ACDAgent* pAgentRef)
 
    if (mRoutingCallList.isEmpty() == TRUE) {
       ACDCall* pCallRef = dynamic_cast<ACDCall*>(mUnroutedCallList.get());
-         
+
       if (pCallRef != NULL) {
          // Check if he is still available, and grab him if so.
          if (pAgentRef->isAvailable(true) == false) {
@@ -248,7 +248,7 @@ void ACDQueue_RingAll::agentAvailableMessage(ACDAgent* pAgentRef)
 //
 //  NAME:        ACDQueue_RingAll::buildTargetAgentList
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Based upon the queue strategy and agent availability, this method will build a
 //               list of ACDAgent object candidates
@@ -290,4 +290,3 @@ bool ACDQueue_RingAll::buildTargetAgentList(UtlSList& rTargetAgentList, ACDCall*
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-
