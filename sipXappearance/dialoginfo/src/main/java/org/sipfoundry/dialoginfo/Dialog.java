@@ -10,7 +10,7 @@ import java.util.ArrayList;
 /**
  * Class representation of the dialog element.
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public class Dialog {
@@ -76,7 +76,7 @@ public class Dialog {
 
 	/**
 	 * Retrieve the state of the dialog.
-	 * 
+	 *
 	 * @return The state of the dialog.
 	 */
 	public State getState() {
@@ -85,7 +85,7 @@ public class Dialog {
 
 	/**
 	 * Set the state of the dialog.
-	 * 
+	 *
 	 * @param state
 	 */
 	public void setState(State state) {
@@ -94,7 +94,7 @@ public class Dialog {
 
 	/**
 	 * Retrieve the duration of the dialog.
-	 * 
+	 *
 	 * @return The duration, in seconds, of the dialog.
 	 */
 	public long getDuration() {
@@ -103,7 +103,7 @@ public class Dialog {
 
 	/**
 	 * Set the duration of the dialog.
-	 * 
+	 *
 	 * @param duration
 	 */
 	public void setDuration(long duration) {
@@ -112,7 +112,7 @@ public class Dialog {
 
 	/**
 	 * Retrieve the replaces element of the dialog.
-	 * 
+	 *
 	 * @return replaces element as a DialogReplaces instance.
 	 */
 	public DialogReplaces getReplaces() {
@@ -121,7 +121,7 @@ public class Dialog {
 
 	/**
 	 * Set the replaces element of the dialog.
-	 * 
+	 *
 	 * @param replaces
 	 */
 	public void setReplaces(DialogReplaces replaces) {
@@ -130,7 +130,7 @@ public class Dialog {
 
 	/**
 	 * Retrieves the refered-by element of the dialog.
-	 * 
+	 *
 	 * @return refered-by element as a Nameaddr instance.
 	 */
 	public Identity getReferredBy() {
@@ -139,7 +139,7 @@ public class Dialog {
 
 	/**
 	 * Set the refered-by element of the dialog.
-	 * 
+	 *
 	 * @param referredBy
 	 */
 	public void setReferredBy(Identity referredBy) {
@@ -148,7 +148,7 @@ public class Dialog {
 
 	/**
 	 * Add a hop to the route-set of the dialog.
-	 * 
+	 *
 	 * @param hop
 	 */
 	public void addRouteSetHop(String hop) {
@@ -157,7 +157,7 @@ public class Dialog {
 
 	/**
 	 * Remove a hop from the route-set of the dialog.
-	 * 
+	 *
 	 * @param hop
 	 */
 	public void removeRouteSetHop(String hop) {
@@ -166,7 +166,7 @@ public class Dialog {
 
 	/**
 	 * Retrieve a hop at the specified index from the route-set.
-	 * 
+	 *
 	 * @param index
 	 * @return The requested hop.
 	 */
@@ -176,7 +176,7 @@ public class Dialog {
 
 	/**
 	 * JiBX test for non-empty route-set.
-	 * 
+	 *
 	 * @return True if one or more hops in route-set.
 	 */
 	public boolean validateRouteSet() {
@@ -189,7 +189,7 @@ public class Dialog {
 
 	/**
 	 * Return the number of hops in the route-set.
-	 * 
+	 *
 	 * @return The number of hops in the route-set.
 	 */
 	public int sizeRouteSetList() {
@@ -198,7 +198,7 @@ public class Dialog {
 
 	/**
 	 * Retrieve the local participant of the dialog.
-	 * 
+	 *
 	 * @return The local participant as an instance of Participant.
 	 */
 	public Participant getLocal() {
@@ -207,7 +207,7 @@ public class Dialog {
 
 	/**
 	 * Set the local participant of the dialog.
-	 * 
+	 *
 	 * @param local
 	 */
 	public void setLocal(Participant local) {
@@ -216,7 +216,7 @@ public class Dialog {
 
 	/**
 	 * Retrieve the remote participant of the dialog.
-	 * 
+	 *
 	 * @return The remote participant as an instance of Participant.
 	 */
 	public Participant getRemote() {
@@ -225,7 +225,7 @@ public class Dialog {
 
 	/**
 	 * Set the remote participant of the dialog.
-	 * 
+	 *
 	 * @param remote
 	 */
 	public void setRemote(Participant remote) {
@@ -234,7 +234,7 @@ public class Dialog {
 
 	/**
 	 * Retrieve the id of the dialog.
-	 * 
+	 *
 	 * @return The id of the dialog.
 	 */
 	public String getId() {
@@ -243,7 +243,7 @@ public class Dialog {
 
 	/**
 	 * Set the id of the dialog.
-	 * 
+	 *
 	 * @param id
 	 */
 	public void setId(String id) {
@@ -252,7 +252,7 @@ public class Dialog {
 
 	/**
 	 * Retrieve the associated call-id of the dialog.
-	 * 
+	 *
 	 * @return The call-id of the dialog.
 	 */
 	public String getCallId() {
@@ -261,7 +261,7 @@ public class Dialog {
 
 	/**
 	 * Set the call-id of the dialog.
-	 * 
+	 *
 	 * @param callId
 	 */
 	public void setCallId(String callId) {
@@ -270,7 +270,7 @@ public class Dialog {
 
 	/**
 	 * Retrieve the local-tag of the dialog.
-	 * 
+	 *
 	 * @return The local-tag of the dialog.
 	 */
 	public String getLocalTag() {
@@ -279,7 +279,7 @@ public class Dialog {
 
 	/**
 	 * Set the local-tag of the dialog.
-	 * 
+	 *
 	 * @param localTag
 	 */
 	public void setLocalTag(String localTag) {
@@ -288,7 +288,7 @@ public class Dialog {
 
 	/**
 	 * Retrieve the remote-tag of the dialog.
-	 * 
+	 *
 	 * @return The remote-tag of the dialog.
 	 */
 	public String getRemoteTag() {
@@ -297,7 +297,7 @@ public class Dialog {
 
 	/**
 	 * Set the remote-tag of the dialog.
-	 * 
+	 *
 	 * @param remoteTag
 	 */
 	public void setRemoteTag(String remoteTag) {
@@ -306,7 +306,7 @@ public class Dialog {
 
 	/**
 	 * Retrieve the direction of the dialog.
-	 * 
+	 *
 	 * @return The direction of the dialog.
 	 */
 	public DialogDirection getDirection() {
@@ -315,7 +315,7 @@ public class Dialog {
 
 	/**
 	 * Set the direction of the dialog.
-	 * 
+	 *
 	 * @param direction
 	 */
 	public void setDirection(DialogDirection direction) {

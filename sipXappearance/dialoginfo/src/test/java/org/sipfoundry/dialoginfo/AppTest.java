@@ -70,7 +70,7 @@ public class AppTest  extends TestCase
 
 			dialog.addRouteSetHop("hop1");
 			dialog.addRouteSetHop("hop2");
-			
+
 			Participant local = new Participant();
 			dialog.setLocal(local);
 
@@ -92,10 +92,10 @@ public class AppTest  extends TestCase
 			FileInputStream in = new FileInputStream("target/out.xml");
 			DialogInfo unmarshaledDialogInfo = (DialogInfo)uctx.unmarshalDocument(in, null);
 			assertTrue(dialogInfo.getEntity().compareTo(unmarshaledDialogInfo.getEntity()) == 0);
-			
+
 			Dialog unmarshaledDialog = unmarshaledDialogInfo.getDialog(0);
 			assertTrue(unmarshaledDialog.getState().get() == DialogState.TRYING);
-			
+
 
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

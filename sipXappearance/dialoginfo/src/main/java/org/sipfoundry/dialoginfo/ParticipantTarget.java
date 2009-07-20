@@ -10,7 +10,7 @@ import java.util.ArrayList;
 /**
  * Class representation of the participant target.
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public class ParticipantTarget {
@@ -26,7 +26,7 @@ public class ParticipantTarget {
 
 	/**
 	 * Add a parameter to the target.
-	 * 
+	 *
 	 * @param param
 	 */
 	public void addParam(ParticipantTargetParam param) {
@@ -35,7 +35,7 @@ public class ParticipantTarget {
 
 	/**
 	 * Remove the specified parameter from the target.
-	 * 
+	 *
 	 * @param param
 	 */
 	public void removeParam(ParticipantTargetParam param) {
@@ -44,7 +44,7 @@ public class ParticipantTarget {
 
 	/**
 	 * Retrieve the parameter at the specified index from the target.
-	 * 
+	 *
 	 * @param index
 	 * @return The requested parameter.
 	 */
@@ -54,7 +54,7 @@ public class ParticipantTarget {
 
 	/**
 	 * Retrieve the number of parameters contained within the target.
-	 * 
+	 *
 	 * @return The number of parameters.
 	 */
 	public int sizeParamList() {
@@ -63,7 +63,7 @@ public class ParticipantTarget {
 
 	/**
 	 * Retrieve the URI of the target.
-	 * 
+	 *
 	 * @return The URI.
 	 */
 	public String getUri() {
@@ -72,7 +72,7 @@ public class ParticipantTarget {
 
 	/**
 	 * Set the URI of the target.
-	 * 
+	 *
 	 * @param uri
 	 */
 	public void setUri(String uri) {

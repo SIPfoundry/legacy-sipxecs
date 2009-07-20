@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Enumerations for dialog state event attribute.
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public enum StateEvent {
@@ -18,37 +18,37 @@ public enum StateEvent {
 	 * The dialog state event is "cancelled".
 	 */
 	CANCELLED("cancelled"),
-	
+
 	/**
 	 * The dialog state event is "rejected".
 	 */
 	REJECTED("rejected"),
-	
+
 	/**
 	 * The dialog state event is "replaced".
 	 */
 	REPLACED("replaced"),
-	
+
 	/**
 	 * The dialog state event is "local-bye".
 	 */
 	LOCAL_BYE("local-bye"),
-	
+
 	/**
 	 * The dialog state event is "remote-bye".
 	 */
 	REMOTE_BYE("remote-bye"),
-	
+
 	/**
 	 * The dialog state event is "error".
 	 */
 	ERROR("error"),
-	
+
 	/**
 	 * The dialog state event is "timeout".
 	 */
 	TIMEOUT("timeout"),
-	
+
 	/**
 	 * Indicates an invalid value.
 	 */
@@ -63,16 +63,16 @@ public enum StateEvent {
 	 * Hash map used for mapping enums to string values.
 	 */
 	private static ConcurrentHashMap<String, StateEvent> stringMap;
-	
+
 	/**
 	 * Default constructor.
-	 * 
+	 *
 	 * @param stringValue
 	 *            String representation of enumeration.
 	 */
 	StateEvent(String stringValue) {
 		this.stringValue = stringValue;
-		
+
 		// Maintain a hash map between enum and string value.
 		if (StateEvent.stringMap == null) {
 			StateEvent.stringMap = new ConcurrentHashMap<String, StateEvent>();
@@ -82,7 +82,7 @@ public enum StateEvent {
 
 	/**
 	 * Retrieve the string representation of this enumeration.
-	 * 
+	 *
 	 * @return String representation of this enumeration.
 	 */
 	public String toString() {

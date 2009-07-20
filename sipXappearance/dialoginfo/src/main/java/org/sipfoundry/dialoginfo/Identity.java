@@ -8,7 +8,7 @@ package org.sipfoundry.dialoginfo;
 /**
  * Class representation of the nameaddr element.
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public class Identity {
@@ -24,7 +24,7 @@ public class Identity {
 
 	/**
 	 * Default constructor
-	 * 
+	 *
 	 * @param uri
 	 */
 	public Identity(String uri) {
@@ -33,7 +33,7 @@ public class Identity {
 
 	/**
 	 * Retrieve the URI element.
-	 * 
+	 *
 	 * @return The URI.
 	 */
 	public String get() {
@@ -42,7 +42,7 @@ public class Identity {
 
 	/**
 	 * Set the URI element.
-	 * 
+	 *
 	 * @param element
 	 */
 	public void set(String element) {
@@ -51,7 +51,7 @@ public class Identity {
 
 	/**
 	 * Retrieve the display-name attribute.
-	 * 
+	 *
 	 * @return The display-name.
 	 */
 	public String getDisplayName() {
@@ -60,7 +60,7 @@ public class Identity {
 
 	/**
 	 * Set the display-name attribute.
-	 * 
+	 *
 	 * @param displayName
 	 */
 	public void setDisplayName(String displayName) {
