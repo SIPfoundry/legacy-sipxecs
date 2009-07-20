@@ -50,6 +50,9 @@ then
    ln -s ${SIPX_OPENFIRE_DIR}/conf/openfire.xml @OPENFIRE_HOME@/conf
    mkdir -p @SIPX_LOGDIR@/openfire
    chown -R @SIPXPBXUSER@ @SIPX_LOGDIR@/openfire
+   rm -rf @OPENFIRE_HOME@/logs/
+   rm -f @OPENFIRE_HOME@/logs
+   ln -s @SIPX_LOGDIR@/openfire/ @OPENFIRE_HOME@/logs
 fi 
 echo "Done linking files"
 # Check if we have created the database. If not create it.
