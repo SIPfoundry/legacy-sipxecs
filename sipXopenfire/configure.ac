@@ -23,8 +23,9 @@ CHECK_GENERATE_MANPAGES
 #Check for postgres
 CHECK_POSTGRES
 
-#Check if the openfire directory exists.
+#Check if the openfire base installation exists and is enabled.
 CHECK_OPENFIRE
+AM_CONDITIONAL(BUILD_OPENFIRE, test x$enable_openfire = xyes)
 
 # Java
 CHECK_JDK

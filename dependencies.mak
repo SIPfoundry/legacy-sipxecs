@@ -98,6 +98,17 @@ sipXopenfire : sipXcommons
 	@echo sipXopenfire
 
 .PHONY: sipXecs
-sipXecs : sipXproxy sipXregistry sipXpublisher sipXsaa sipXvxml sipXconfig sipXfreeSwitch sipXpbx sipXsupervisor sipXtools doc
+sipXecs : \
+	sipXproxy \
+	sipXregistry \
+	sipXpublisher \
+	sipXsaa \
+	sipXvxml \
+	sipXconfig \
+	sipXfreeSwitch \
+	sipXpbx \
+	sipXsupervisor \
+	sipXtools \
+	sipXopenfire \
+	doc
 	@echo sipXecs
-

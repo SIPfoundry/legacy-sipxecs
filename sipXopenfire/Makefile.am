@@ -1,10 +1,31 @@
 ## Process this file with automake to produce Makefile.in
 include $(top_srcdir)/config/project.am
+
 include ant-targets.am
+
+if BUILD_OPENFIRE
+
+BUILD_ANT=all-ant
+CHECK_ANT=check-ant
+INSTALL_ANT=install-ant
 
 bin_SCRIPTS = sipxopenfire.sh sipxopenfire-initdb.sql sipxopenfire-setup.sh
 
 RPMS=$(RPM)
+
+else
+
+BUILD_ANT=
+CHECK_ANT=
+INSTALL_ANT=
+
+endif
+
+all : $(BUILD_ANT)
+
+install : $(INSTALL_ANT)
+
+check : $(CHECK_ANT)
 
 EXTRA_DIST = \
   README \

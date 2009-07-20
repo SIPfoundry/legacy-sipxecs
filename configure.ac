@@ -45,6 +45,7 @@ then
   AC_CONFIG_SUBDIRS(sipXivr)
   AC_CONFIG_SUBDIRS(sipXpbx)
   AC_CONFIG_SUBDIRS(sipXsaa)
+  AC_CONFIG_SUBDIRS(sipXopenfire)
   AC_CONFIG_SUBDIRS(sipXecs)
 fi
 
@@ -56,16 +57,6 @@ AC_ARG_ENABLE(tools,
 if test x$tools = xyes
 then
   AC_CONFIG_SUBDIRS(sipXtools)
-fi
-
-AC_ARG_ENABLE(openfire,
-  AC_HELP_STRING([--disable-openfire],
-    [openfire integration]),
-      openfire=no, openfire=yes)
-
-if test x$openfire = xyes
-then
-  AC_CONFIG_SUBDIRS(sipXopenfire)
 fi
 
 SFAC_DIST_DIR

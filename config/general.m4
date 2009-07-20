@@ -38,14 +38,19 @@ AC_DEFUN([CHECK_CLOVER],
 # ============ O P E N F I R E  =======================
 AC_DEFUN([CHECK_OPENFIRE],
 [
+    AC_ARG_ENABLE(openfire,
+       AC_HELP_STRING([--disable-openfire], [openfire integration]), enable_openfire=no, enable_openfire=yes)
+
     AC_ARG_VAR(OPENFIRE_HOME, [Openfire home directory])
     AC_CHECK_FILE([$OPENFIRE_HOME],
        [
          OPENFIRE_HOME_DIR=$OPENFIRE_HOME 
        ],
        [
-           AC_MSG_ERROR([Cannot find $OPENFIRE_HOME])
+           AC_MSG_WARN([Cannot find OPENFIRE_HOME ($OPENFIRE_HOME)]; openfire build disabled)
+           enable_openfire=no
        ])
+    AC_SUBST(enable_openfire)
 ])
 
 # ============= C P P U N I T ==================
