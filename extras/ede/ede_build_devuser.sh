@@ -380,7 +380,7 @@ popd
 
 
 # How are we building sipXecs?
-CONFIGURE_ENABLES="--enable-reports --enable-agent --enable-cdr --enable-mrtg --enable-conference"
+CONFIGURE_FLAGS="--disable-openfire --enable-reports --enable-agent --enable-cdr --enable-mrtg --enable-conference"
 if [ $BUILD_RPMS ]; then
    # RPM build/install  - http://sipx-wiki.calivia.com/index.php/Building_RPMs
    mv ~/.rpmmacros ~/.rpmmacros.old 2> /dev/null
@@ -393,7 +393,7 @@ if [ $BUILD_RPMS ]; then
    echo "Running RPM configure..."
    mkdir $RPMBUILD
    pushd $RPMBUILD
-   $FULL_CODE_PATH/configure --srcdir=$FULL_CODE_PATH --cache-file=`pwd`/ac-cache-file SIPXPBXUSER=`whoami` --with-distdir=$FULL_PATH_DIST $CONFIGURE_ENABLES &> $FULL_PATH_EDE_LOGS/rpm_configure_output.log
+   $FULL_CODE_PATH/configure --srcdir=$FULL_CODE_PATH --cache-file=`pwd`/ac-cache-file SIPXPBXUSER=`whoami` --with-distdir=$FULL_PATH_DIST $CONFIGURE_FLAGS &> $FULL_PATH_EDE_LOGS/rpm_configure_output.log
    if [ $? != 0 ]; then
       echo "ERROR: sipXecs RPM configure failed, see $EDE_LOGS/rpm_configure_output.log" >&2
       exit 13
@@ -428,7 +428,7 @@ else
    popd
    mkdir $BUILD
    pushd $BUILD
-   $FULL_CODE_PATH/configure --srcdir=$FULL_CODE_PATH --cache-file=`pwd`/ac-cache-file SIPXPBXUSER=`whoami` JAVAC_DEBUG=on --prefix=$FULL_INSTALL_PATH $CONFIGURE_ENABLES --with-odbc=/usr &> $FULL_PATH_EDE_LOGS/designer_configure_output.log
+   $FULL_CODE_PATH/configure --srcdir=$FULL_CODE_PATH --cache-file=`pwd`/ac-cache-file SIPXPBXUSER=`whoami` JAVAC_DEBUG=on --prefix=$FULL_INSTALL_PATH $CONFIGURE_FLAGS --with-odbc=/usr &> $FULL_PATH_EDE_LOGS/designer_configure_output.log
    if [ $? != 0 ]; then
       echo "ERROR: sipXecs \"designer\" configure failed, see $EDE_LOGS/designer_configure_output.log" >&2
       exit 16
