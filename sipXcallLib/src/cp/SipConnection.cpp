@@ -5339,8 +5339,12 @@ void SipConnection::processOptionsResponse(const SipMessage* response)
         lastLocalSequenceNumber);
 #endif
 
-    // Reset the keepalive response flag
-    mWaitingForKeepAliveResponse=FALSE;
+    // Ignore 1xx provisional responses
+    if (responseCode >= SIP_2XX_CLASS_CODE)
+    {
+       // Reset the keepalive response flag
+       mWaitingForKeepAliveResponse=FALSE;
+    }
 
 } // End of processOptionsResponse
 
