@@ -24,7 +24,7 @@ function makeRequest() {
 }
 function onLoad(type, data, event){
 	if(waitForServerDown){
-		if(timeToExpire>180000){
+		if(timeToExpire>1800000){
 		    alert("Timeout expired. Server is not down.");
 		    window.location=targetUrl;
 	    }

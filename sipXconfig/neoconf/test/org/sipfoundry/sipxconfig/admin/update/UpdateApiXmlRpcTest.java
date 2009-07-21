@@ -120,12 +120,8 @@ public class UpdateApiXmlRpcTest extends TestCase {
         SoftwareAdminApi api = createMock(SoftwareAdminApi.class);
         api.exec("sipx.example.com", "update");
         expectLastCall().andReturn(Arrays.asList("/path/to/file"));
-        api.execStatus("sipx.example.com", "update");
-        expectLastCall().andReturn("DONE");
-        api.exec("sipx2.example.com", "update");
+        api.exec("sipx.example.com", "update");
         expectLastCall().andReturn(Arrays.asList("/path/to/file"));
-        api.execStatus("sipx2.example.com", "update");
-        expectLastCall().andReturn("DONE");
 
         ApiProvider<SoftwareAdminApi> apiProvider = createMock(ApiProvider.class);
         apiProvider.getApi("https://sipx.example.com:8092/RPC2");

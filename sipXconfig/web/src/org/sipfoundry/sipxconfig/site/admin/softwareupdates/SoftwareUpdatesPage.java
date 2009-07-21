@@ -24,18 +24,15 @@ import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.update.PackageUpdate;
 import org.sipfoundry.sipxconfig.admin.update.PackageUpdateManager;
-import org.sipfoundry.sipxconfig.admin.update.Restart;
+import org.sipfoundry.sipxconfig.admin.update.SynchronousPackageUpdate;
 import org.sipfoundry.sipxconfig.admin.update.UpdateApi;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.site.admin.WaitingPage;
 
 import static org.sipfoundry.sipxconfig.admin.update.PackageUpdateManager.UpdaterState.UPDATES_AVAILABLE;
-import static org.sipfoundry.sipxconfig.admin.update.PackageUpdateManager.UpdaterState.UPDATE_COMPLETED;
 
 public abstract class SoftwareUpdatesPage extends BasePage implements PageBeginRenderListener {
 
@@ -58,12 +55,6 @@ public abstract class SoftwareUpdatesPage extends BasePage implements PageBeginR
 
     @InjectObject("spring:packageUpdateManager")
     public abstract PackageUpdateManager getPackageUpdateManager();
-
-    @InjectObject("spring:locationsManager")
-    public abstract LocationsManager getLocationsManager();
-
-    @InjectObject("spring:updateApi")
-    public abstract UpdateApi getUpdateApi();
 
     @InjectPage(value = WaitingPage.PAGE)
     public abstract WaitingPage getWaitingPage();
@@ -90,10 +81,6 @@ public abstract class SoftwareUpdatesPage extends BasePage implements PageBeginR
         return getPackageUpdateManager().getState().equals(UPDATES_AVAILABLE);
     }
 
-    public boolean getUpdateCompleted() {
-        return getPackageUpdateManager().getState().equals(UPDATE_COMPLETED);
-    }
-
     public boolean getCheckUpdates() {
         return getCurrentVersion() != null && !getCurrentVersion().equals(UpdateApi.VERSION_NOT_DETERMINED);
     }
@@ -116,20 +103,9 @@ public abstract class SoftwareUpdatesPage extends BasePage implements PageBeginR
         getPackageUpdateManager().checkForUpdates();
     }
 
-    public void installUpdates() {
-        getPackageUpdateManager().installUpdates();
-    }
-
-    public IPage restart() {
-        Location[] locations = getLocationsManager().getLocations();
-        for (Location location : locations) {
-            if (!location.isPrimary()) {
-                getUpdateApi().restart(location);
-            }
-        }
-
+    public IPage installUpdates() {
         WaitingPage waitingPage = getWaitingPage();
-        waitingPage.setWaitingListener(new Restart(getUpdateApi(), getLocationsManager().getPrimaryLocation()));
+        waitingPage.setWaitingListener(new SynchronousPackageUpdate(getPackageUpdateManager()));
         return waitingPage;
     }
 

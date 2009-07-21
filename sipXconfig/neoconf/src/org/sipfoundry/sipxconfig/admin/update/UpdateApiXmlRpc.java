@@ -38,7 +38,6 @@ public class UpdateApiXmlRpc implements UpdateApi {
     private static final String GET_VERSION = "version";
     private static final String INSTALL_UPDATES = "update";
     private static final String CHECK_UPDATE = "check-update";
-    private static final String RESTART_SIPXECS = "restart";
     private static final String VERSION_STRING = "version:";
 
     private static final Log LOG = LogFactory.getLog(UpdateApiXmlRpc.class);
@@ -98,25 +97,18 @@ public class UpdateApiXmlRpc implements UpdateApi {
 
     public void installUpdates() {
         Location primaryLocation = m_locationsManager.getPrimaryLocation();
-        SoftwareAdminApi api = getApi(primaryLocation);
-        api.exec(primaryLocation.getFqdn(), INSTALL_UPDATES);
-        waitForExecFinished(api, primaryLocation, INSTALL_UPDATES);
+        SoftwareAdminApi api = null;
+
         Location[] locations = m_locationsManager.getLocations();
         for (Location location : locations) {
             if (!location.isPrimary()) {
                 api = getApi(location);
-                api.exec(location.getFqdn(), INSTALL_UPDATES);
-                waitForExecFinished(api, location, INSTALL_UPDATES);
+                api.exec(primaryLocation.getFqdn(), INSTALL_UPDATES);
             }
         }
-    }
 
-    public void restart(Location location) {
-        SoftwareAdminApi api = null;
-        if (location != null) {
-            api = getApi(location);
-            api.exec(location.getFqdn(), RESTART_SIPXECS);
-        }
+        api = getApi(primaryLocation);
+        api.exec(primaryLocation.getFqdn(), INSTALL_UPDATES);
     }
 
     /**
