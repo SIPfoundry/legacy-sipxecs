@@ -20,6 +20,8 @@ then
    ln -s $SIPX_COMMONS/xmlrpc-common.jar $OPENFIRE_LIB/
    rm -f $OPENFIRE_LIB/xmlrpc-server.jar
    ln -s $SIPX_COMMONS/xmlrpc-server.jar $OPENFIRE_LIB/
+   rm -f $OPENFIRE_LIB/xmlrpc-client.jar
+   ln -s $SIPX_COMMONS/xmlrpc-client.jar $OPENFIRE_LIB/
    rm -f $OPENFIRE_LIB/ws-commons-util.jar
    ln -s $SIPX_COMMONS/ws-commons-util.jar $OPENFIRE_LIB/
    rm -f $OPENFIRE_LIB/commons-collections.jar
