@@ -87,11 +87,7 @@ public abstract class SoftwareUpdatesPage extends BasePage implements PageBeginR
 
     public void pageBeginRender(PageEvent event) {
         if (getCurrentVersion() == null) {
-            try {
-                setCurrentVersion(getPackageUpdateManager().getCurrentVersion());
-            } catch (UserException e) {
-                getValidator().record(e, getMessages());
-            }
+            setCurrentVersion(getPackageUpdateManager().getCurrentVersion());
         }
         UserException passedException = getPackageUpdateManager().getUserException();
         if (passedException != null) {

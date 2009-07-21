@@ -25,6 +25,8 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.beans.factory.annotation.Required;
 
 public class PackageUpdateManagerImpl implements Serializable, PackageUpdateManager {
+    private static final String EXCEPTION_MESSAGE = "&xml.rpc.error.operation";
+
     private UpdateApi m_updateApi;
 
     /** Executor that runs the package update tasks in the background. */
@@ -102,9 +104,11 @@ public class PackageUpdateManagerImpl implements Serializable, PackageUpdateMana
         try {
             m_currentVersion = future.get();
         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            m_currentVersion = UpdateApi.VERSION_NOT_DETERMINED;
+            m_userException = new UserException(EXCEPTION_MESSAGE);
         } catch (Exception e) {
-            throw new UserException(e);
+            m_currentVersion = UpdateApi.VERSION_NOT_DETERMINED;
+            m_userException = new UserException(EXCEPTION_MESSAGE);
         }
         return m_currentVersion;
     }
@@ -142,7 +146,7 @@ public class PackageUpdateManagerImpl implements Serializable, PackageUpdateMana
                 return !m_availablePackages.isEmpty();
             } catch (Exception e) {
                 m_state = UpdaterState.ERROR;
-                m_userException = new UserException(e);
+                m_userException = new UserException(EXCEPTION_MESSAGE);
                 return false;
             }
         }

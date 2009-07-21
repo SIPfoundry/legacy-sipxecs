@@ -1,9 +1,9 @@
 <div jwcid="@common/Border">
     <span jwcid="@Script" scriptAsset="asset:script" />
     <h1><span key="title">Software Updates</span></h1>
+    <span jwcid="@common/ErrorMsg"></span>
 	<span jwcid="@If" condition="ognl:checkUpdates" renderTag="ognl:false">
     <form jwcid="@common/AutoRefreshForm" interval="10" updateComponents="ognl:{'packageList'}" delegate="bean:validator">
-	<span jwcid="@common/ErrorMsg"></span>
 	    <div id="updateBox">
 	        <h3 id="statusText"><span jwcid="@Insert" value="ognl:messages.getMessage(packageUpdateManager.state)">No updates available</span></h3>
 	        
