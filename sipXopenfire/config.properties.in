@@ -12,6 +12,7 @@ bin.dir=@bindir@
 lib.dir=@libdir@
 prefix.dir=@prefix@
 conf.dir=@SIPX_CONFDIR@
+sipxpbx.libexec.dir=@SIPX_LIBEXECDIR@
 openfire.home=@OPENFIRE_HOME@
 
 # comma-separated combination of 'lines' 'source' and 'var' only valid
