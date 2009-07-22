@@ -220,6 +220,7 @@ public class SipListenerImpl implements SipListener {
                             .getPeerDialog());
                     newClientTransaction.getDialog().setApplicationData(
                             newDialogApplicationData);
+                    newDialogApplicationData.setItspInfo(dialogApplicationData.getItspInfo());
                     /*
                      * Hook the application data pointer of the previous guy in the
                      * chain at us.

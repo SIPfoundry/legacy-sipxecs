@@ -632,6 +632,8 @@ class DialogContext {
     void setItspInfo(ItspAccountInfo itspInfo) {
         if (this.itspInfo != null) {
             logger.warn("Re-Setting ITSP info to null!!");
+        } else {
+            logger.warn("Setting ITSP info to NULL");
         }
         this.itspInfo = itspInfo;
         if ( itspInfo != null ) {

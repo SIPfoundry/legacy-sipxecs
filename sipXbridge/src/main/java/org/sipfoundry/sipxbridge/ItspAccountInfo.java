@@ -525,16 +525,25 @@ public class ItspAccountInfo implements
     public void setCallerId(String callerId) {
         this.callerId = callerId;
     }
+    
+    public String getDefaultDomain() {
+        if (this.isRegisterOnInitialization()) {
+            return  this.getProxyDomain();
+        } else if (this.isGlobalAddressingUsed() && this.getUserName() != null ) {
+            return  Gateway.getGlobalAddress();
+        } else if (this.getUserName() != null ){
+            return  Gateway.getLocalAddress();
+        } else {
+            return null;
+        } 
+    }
+   
 
     public String getCallerId() {
         if (!useDefaultAssertedIdentity) {
             return this.callerId;
-        } else if (this.isRegisterOnInitialization()) {
-            return this.getUserName() + "@" + this.getProxyDomain();
-        } else if (this.isGlobalAddressingUsed() && this.getUserName() != null ) {
-            return this.getUserName() + "@" + Gateway.getGlobalAddress();
-        } else if (this.getUserName() != null ){
-            return this.getUserName() + "@" + Gateway.getLocalAddress();
+        } else if (this.getDefaultDomain() != null ) {
+            return this.getUserName() + "@" + this.getDefaultDomain();        
         } else {
             return null;
         }

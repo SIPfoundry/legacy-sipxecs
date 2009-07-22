@@ -1861,7 +1861,10 @@ class CallControlManager implements SymmitronResetHandler {
                 SessionDescription sd = SipUtilities.getSessionDescription(response);
                 String ipAddress = SipUtilities.getSessionDescriptionMediaIpAddress(sd);
                 int port = SipUtilities.getSessionDescriptionMediaPort(sd);
-                DialogContext.get(dialog).getRtpSession().getTransmitter().setIpAddressAndPort(ipAddress, port);
+                if ( DialogContext.get(dialog).getRtpSession() != null  && 
+                        DialogContext.get(dialog).getRtpSession().getTransmitter() != null ) {
+                    DialogContext.get(dialog).getRtpSession().getTransmitter().setIpAddressAndPort(ipAddress, port);
+                }
                 DialogContext.get(dialog).sendAck(response);
                 /*
                  * Check the pending action for the peer dialog (pointing to the ITSP ).

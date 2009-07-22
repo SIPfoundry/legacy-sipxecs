@@ -637,8 +637,7 @@ class SipUtilities {
                 privacyHeader = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
                         .createPrivacyHeader("id");
                 domain = "anonymous.invalid";
-            } else if (fromDomain
-                    .equalsIgnoreCase(Gateway.getSipxProxyDomain())) {
+            } else if (fromDomain.equalsIgnoreCase(Gateway.getSipxProxyDomain())) {
                 if (!itspAccount.isRegisterOnInitialization()) {
                    if ( itspAccount.isGlobalAddressingUsed()) {
                        domain = Gateway.getGlobalAddress();
@@ -648,7 +647,16 @@ class SipUtilities {
                 } else {
                     domain = itspAccount.getProxyDomain();
                 }
+            } else if ( passertedIdentityHeader == null ) {
+                // ITSP does not want to use P-Asserted-Identity.
+                // Generate From header for account identification.
+                if (itspAccount.getUserName() != null && 
+                        itspAccount.getDefaultDomain() != null ) {
+                    fromUser = itspAccount.getUserName();
+                    domain = itspAccount.getDefaultDomain();
+                }
             }
+            
             SipURI fromUri = ProtocolObjects.addressFactory.createSipURI(
                     fromUser, domain);
             fromHeader = ProtocolObjects.headerFactory.createFromHeader(
