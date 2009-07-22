@@ -35,7 +35,9 @@ import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsMigrationTrigger;
+import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContextImpl;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendantManager;
@@ -45,6 +47,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDescriptor;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
 import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapImportManager;
@@ -117,6 +120,8 @@ public abstract class TestPage extends BasePage {
     public static final String PA_PERMISSION = "permission/application/personal-auto-attendant";
     public static final String USER_WITHOUT_PA_PERMISSION = "testUserWithoutAutoAttendantPermission";
     public static final String USER_WITH_PA_PERMISSION = "testUserWithAutoAttendantPermission";
+
+    public static final String SIPX_BRIDGE_MODEL = "sipXbridgeSbcModel";
 
     private static final Log LOG = LogFactory.getLog(TestPage.class);
 
@@ -219,7 +224,7 @@ public abstract class TestPage extends BasePage {
 
     public void initNatTraversal() {
         getSbcDeviceManager().clear();
-        getSbcDescriptor().setModelId("sipXbridgeSbcModel");
+        getSbcDescriptor().setModelId(SIPX_BRIDGE_MODEL);
         SbcDevice bridge = getSbcDeviceManager().newSbcDevice(getSbcDescriptor());
         bridge.setName("bridge");
         getSbcDeviceManager().storeSbcDevice(bridge);
@@ -330,6 +335,34 @@ public abstract class TestPage extends BasePage {
         AcdServer server = getAcdContext().newServer();
         server.setLocation(location);
         getAcdContext().store(server);
+    }
+
+    public void seedBridgeSbc() {
+        resetSbcDevices();
+        deleteLocations();
+        seedLocationsManager();
+
+        getSbcDescriptor().setModelId(SIPX_BRIDGE_MODEL);
+        SipxProcessContext processContext = new SipxProcessContextImpl() {
+            @Override
+            public ServiceStatus.Status getStatus(Location location, SipxService service) {
+                return ServiceStatus.Status.Disabled;
+            }
+        };
+
+        BridgeSbc bridgeSbc = (BridgeSbc) getSbcDeviceManager().newSbcDevice(getSbcDescriptor());
+        bridgeSbc.setName("sipXbridge");
+        bridgeSbc.setLocation(getLocationsManager().getPrimaryLocation());
+        bridgeSbc.setAddress(getLocationsManager().getPrimaryLocation().getAddress());
+        bridgeSbc.setSettingTypedValue("bridge-configuration/location-id", getLocationsManager().
+                getPrimaryLocation().getId());
+        bridgeSbc.setProcessContext(processContext);
+        getSbcDeviceManager().storeSbcDevice(bridgeSbc);
+    }
+
+    public void deleteBridgeSbc() {
+        resetSbcDevices();
+        deleteLocations();
     }
 
     private void deleteLocations() {

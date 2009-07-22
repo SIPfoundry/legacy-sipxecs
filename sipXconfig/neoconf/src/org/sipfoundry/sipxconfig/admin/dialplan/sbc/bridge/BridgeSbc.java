@@ -17,6 +17,7 @@ import java.util.Map;
 import org.sipfoundry.sipxconfig.admin.LoggingManager;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
@@ -249,5 +250,15 @@ public class BridgeSbc extends SbcDevice implements LoggingEntity {
 
     public String getLabelKey() {
         return "label.sipxBridgeService";
+    }
+
+    public String getBridgeSbcXmlRpcUrl() {
+        return "https://" + getLocation().getFqdn() + ":" + getSettingValue("bridge-configuration/xml-rpc-port");
+    }
+
+    public boolean isBridgeSbcRunning() {
+        Status bridgeStatus = m_processContext.getStatus(getLocation(),
+                m_sipxServiceManager.getServiceByBeanId(SipxBridgeService.BEAN_ID));
+        return (bridgeStatus == Status.Running);
     }
 }

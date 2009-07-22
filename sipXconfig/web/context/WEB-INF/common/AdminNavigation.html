@@ -76,6 +76,9 @@
       <li jwcid="@If" condition="ognl:acdContext.enabled">
         <a jwcid="@PageLink" id="menu.acdHistory" page="acd/AcdHistoryPage"><span key="menu.acdHistory">ACD Calls</span></a>
       </li>
+      <li jwcid="@If" condition="ognl:sbcDeviceManager.internalSbcEnabled">
+        <a jwcid="@PageLink" id="menu.sbcStats" page="sbc/BridgeSbcStatisticsPage"><span key="menu.sbcStats">Internal SBC Statistics</span></a>
+      </li>
       <li><a jwcid="@PageLink" id="menu.jobs" page="admin/JobStatusPage"><span key="menu.jobs">Job Status</span></a></li>
       <li><a jwcid="@PageLink" id="menu.configdiag" page="admin/configdiag/ConfigurationDiagnosticPage"><span key="menu.configdiag">Configuration Tests</span></a></li>
       <li><a jwcid="@PageLink" id="menu.snapshot" page="admin/SnapshotPage"><span key="menu.snapshot">Snapshot</span></a></li>

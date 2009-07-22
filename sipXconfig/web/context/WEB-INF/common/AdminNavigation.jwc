@@ -10,6 +10,7 @@
   <inject property="monitoringContext" object="spring:monitoringContext" />
   <inject property="coreContext" object="spring:coreContext" />
   <inject property="packageUpdateManager" object="spring:packageUpdateManager" />
+  <inject property="sbcDeviceManager" object="spring:sbcDeviceManager" />
 
   <component id="ieHackScript" type="Script">
     <binding name="script" value="literal:AdminNavigation.script" />

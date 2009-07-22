@@ -36,7 +36,11 @@ public interface SbcDeviceManager {
 
     public BridgeSbc getBridgeSbc(Location location);
 
+    public List<BridgeSbc> getBridgeSbcs();
+
     public void checkForNewSbcDeviceCreation(SbcDescriptor descriptor);
 
     public boolean maxAllowedLimitReached(SbcDescriptor model);
+
+    boolean isInternalSbcEnabled();
 }

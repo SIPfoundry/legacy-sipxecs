@@ -137,6 +137,10 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
         return null;
     }
 
+    public List<BridgeSbc> getBridgeSbcs() {
+        return getSbcDeviceByType(BridgeSbc.class);
+    }
+
     private <T> List<T> getSbcDeviceByType(final Class<T> type) {
         HibernateCallback callback = new HibernateCallback() {
             public Object doInHibernate(Session session) {
@@ -210,6 +214,10 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
             m_auditLogContext.logConfigChange(CONFIG_CHANGE_TYPE.MODIFIED, AUDIT_LOG_CONFIG_TYPE, sbc.getName());
             getDialPlanActivationManager().replicateDialPlan(true);
         }
+    }
+
+    public boolean isInternalSbcEnabled() {
+        return (getBridgeSbcs().size() > 0);
     }
 
     private void checkForDuplicateNames(SbcDevice sbc) {
