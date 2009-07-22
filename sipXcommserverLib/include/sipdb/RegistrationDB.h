@@ -59,6 +59,9 @@ public:
                                ,const int& cseq
                               ) const;
 
+    /// Count rows in table
+    int getRowCount () const;
+
     /// Utility method for dumping all rows
     void getAllRows ( ResultSet& rResultSet ) const;
 

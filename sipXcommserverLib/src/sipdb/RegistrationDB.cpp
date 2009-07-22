@@ -107,7 +107,7 @@ RegistrationDB::RegistrationDB( const UtlString& name ) :
    mDatabaseName( name ),
    mTableLoaded ( true )
 {
-    // Access the shared table databse
+    // Access the shared table database
     SIPDBManager* pSIPDBManager = SIPDBManager::getInstance();
     m_pFastDB = pSIPDBManager->getDatabase(name);
 
@@ -119,7 +119,7 @@ RegistrationDB::RegistrationDB( const UtlString& name ) :
                   users, mTableLoaded);
     if ( users == 1 || ( users > 1 && mTableLoaded == false ) )
     {
-        OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "About to try to load registration db");
+        OsSysLog::add(FAC_DB, PRI_DEBUG, "RegistrationDB::_ about to load");
         mTableLoaded = false;
         // Load the file implicitly
         this->load();
@@ -127,7 +127,11 @@ RegistrationDB::RegistrationDB( const UtlString& name ) :
         // a result, make this table appear as being loaded regardless
         // of the load() result.
         mTableLoaded = true;
+        OsSysLog::add(FAC_DB, PRI_DEBUG, "RegistrationDB::_ table successfully loaded");
     }
+    OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
+                  "RegistrationDB::_ rows in table = %d",
+                  getRowCount());
 }
 
 RegistrationDB::~RegistrationDB()
@@ -383,6 +387,31 @@ OsStatus RegistrationDB::cleanAndPersist( int newerThanTime )
     }
 
     return result;
+}
+
+int
+RegistrationDB::getRowCount () const
+{
+   int count = 0;
+
+   // Thread Local Storage
+   m_pFastDB->attach();
+
+   dbCursor< RegistrationRow > cursor;
+
+   dbQuery query;
+   query="";
+
+   if ( cursor.select( query ) > 0 )
+   {
+      do {
+         count++;
+      } while ( cursor.next() );
+   }
+   // Commit rows to memory - multiprocess workaround
+   m_pFastDB->detach(0);
+
+   return count;
 }
 
 void

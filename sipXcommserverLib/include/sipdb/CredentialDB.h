@@ -77,6 +77,9 @@ class CredentialDB
      * This should <strong>not</strong> be used for any normal operational purpose.
      */
 
+    /// Count rows in table
+    int getRowCount () const;
+
     /// Retrieve the SIP credential check values for a given identity, realm, and userid
     UtlBoolean getCredentialByUserid (
        const Url& uri,

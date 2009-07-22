@@ -56,7 +56,7 @@ const UtlString CredentialDB::sXmlNamespace("http://www.sipfoundry.org/sipX/sche
 
 /* ============================ CREATORS ================================== */
 
-CredentialDB::CredentialDB ( const UtlString& name )
+CredentialDB::CredentialDB( const UtlString& name )
 : mDatabaseName( name )
 , mTableLoaded ( true )
 {
@@ -68,19 +68,22 @@ CredentialDB::CredentialDB ( const UtlString& name )
     // then we need to load the DB
     int numusers = pSIPDBManager->getNumDatabaseProcesses (name);
     OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
-                  "RegistrationDB::_ users = %d, mTableLoaded = %d",
+                  "CredentialDB::_ numusers = %d, mTableLoaded = %d",
                   numusers, mTableLoaded);
     if ( numusers == 1 || ( numusers > 1 && mTableLoaded == false ) )
     {
-        OsSysLog::add(FAC_DB, PRI_DEBUG, "CredentialDB::CredentialDB() about to load");
+        OsSysLog::add(FAC_DB, PRI_DEBUG, "CredentialDB::_ about to load");
         mTableLoaded = false;
         // Load the file implicitly
         if (this->load() == OS_SUCCESS)
         {
            mTableLoaded = true;
-           OsSysLog::add(FAC_DB, PRI_DEBUG, "CredentialDB::CredentialDB() table successfully loaded");
+           OsSysLog::add(FAC_DB, PRI_DEBUG, "CredentialDB::_ table successfully loaded");
         }
     }
+    OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
+                  "CredentialDB::_ rows in table = %d",
+                  getRowCount());
 }
 
 CredentialDB::~CredentialDB()
@@ -523,6 +526,31 @@ CredentialDB::getAllRows( ResultSet& rResultSet ) const
         // commit rows and also ensure process/tls integrity
         m_pFastDB->detach(0);
     }
+}
+
+int
+CredentialDB::getRowCount () const
+{
+   int count = 0;
+
+   // Thread Local Storage
+   m_pFastDB->attach();
+
+   dbCursor< CredentialRow > cursor;
+
+   dbQuery query;
+   query="";
+
+   if ( cursor.select( query ) > 0 )
+   {
+      do {
+         count++;
+      } while ( cursor.next() );
+   }
+   // Commit rows to memory - multiprocess workaround
+   m_pFastDB->detach(0);
+
+   return count;
 }
 
 UtlBoolean
