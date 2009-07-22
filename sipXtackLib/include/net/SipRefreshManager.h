@@ -12,7 +12,9 @@
 
 // APPLICATION INCLUDES
 
+#include <net/SipMessageEvent.h>
 #include <os/OsDefs.h>
+#include <os/OsEventMsg.h>
 #include <os/OsServerTask.h>
 #include <utl/UtlHashBag.h>
 #include <net/SipDialog.h>
@@ -164,6 +166,12 @@ public:
 
     //! Handler for SUBSCRIBE and REGISTER responses
     UtlBoolean handleMessage(OsMsg &eventMessage);
+
+    /// Handle a message due to a timer firing.
+    void handleTimerMessage(OsEventMsg& eventMessage);
+
+    /// Handle an incoming SIP message.
+    void handleSipMessage(SipMessageEvent& eventMessage);
 
 /* ============================ ACCESSORS ================================= */
 

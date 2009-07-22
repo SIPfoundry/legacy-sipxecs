@@ -68,11 +68,18 @@ public:
        (SipSubscribeClient::SubscriptionState newState,
         const char* earlyDialogHandle,
         const char* dialogHandle,
+        ///< Either earlyDialogHandle or dialogHandle will be set
         void* applicationData,
         int responseCode,
         const char* responseText,
+        /**< responseCode and responseTest will be from the relevant failure
+         *   response, or -1 and NULL, respectively.
+         */
         long expiration,
-        const SipMessage* subscribeResponse);
+        ///< current expiration length of the subscription, or -1 if not known
+        const SipMessage* subscribeResponse
+        ///< relevent response message, or NULL
+        );
 
     /// Type of the callback function for reporting received NOTIFYs.
     /** Note that NOTIFYs are generally reported in the order they are
