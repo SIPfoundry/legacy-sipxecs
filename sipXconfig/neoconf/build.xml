@@ -177,6 +177,11 @@
 	    <replacefilter token="@www.dir@" property="www.dir" />
     </replace>
 
+    <replace file="${dest.dir}${sipxpbx.conf.dir}/sipxsaa/sipxsaa-config.vm"
+	    propertyfile="${top.build.dir}/build.properties">
+	<replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir" />
+	</replace>
+
     <!-- mrtg configuration files -->
     <replace file="${dest.dir}${sipxpbx.conf.dir}/mrtg/mrtg.cfg"
             propertyfile="${top.build.dir}/build.properties">
