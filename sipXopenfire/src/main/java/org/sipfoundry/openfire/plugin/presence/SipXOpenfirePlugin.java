@@ -18,6 +18,10 @@ import org.jivesoftware.openfire.PresenceManager;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.container.Plugin;
 import org.jivesoftware.openfire.container.PluginManager;
+import org.jivesoftware.openfire.group.Group;
+import org.jivesoftware.openfire.group.GroupAlreadyExistsException;
+import org.jivesoftware.openfire.group.GroupManager;
+import org.jivesoftware.openfire.group.GroupNotFoundException;
 import org.jivesoftware.openfire.interceptor.InterceptorManager;
 import org.jivesoftware.openfire.spi.PresenceManagerImpl;
 import org.jivesoftware.openfire.user.User;
@@ -43,6 +47,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
 
     private static final String subdomain = "presence";
 
+    private GroupManager groupManager;
     private UserManager userManager;
     private PresenceManager presenceManager;
     private PluginManager pluginManager;
@@ -181,11 +186,16 @@ public class SipXOpenfirePlugin implements Plugin, Component {
 
         probedPresence = new ConcurrentHashMap<String, Presence>();
         componentJID = new JID(subdomain + "." + hostname);
+        
+        groupManager = GroupManager.getInstance();
 
         log.info("hostname " + hostname);
         for (String userName : userManager.getUsernames()) {
             log.info("userName " + userName);
         }
+        
+        
+        
         try {
 
             componentManager.addComponent(subdomain, this);
@@ -393,14 +403,24 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         }
     }
 
+    
     public void destroyUser(String jid) throws UserNotFoundException {
-        JID targetJID = new JID(jid);
+        try {
+            log.info("destroyUser " + jid);
 
-        User user = userManager.getUser(targetJID.getNode());
-        if (user == null) {
-            throw new UserNotFoundException(jid + " Not found");
+            JID targetJID = new JID(jid);
+
+            User user = userManager.getUser(targetJID.getNode());
+            if (user == null) {
+                log.info("User not found " + jid);
+                return;
+            }
+            userManager.deleteUser(user);
+            // Remove user from all groups where he is a member.
+            groupManager.deleteUser(user);
+        } catch (UserNotFoundException ex) {
+           log.debug("Could not find user " + jid);
         }
-        userManager.deleteUser(user);
     }
 
     public String getSipId(String userName) throws UserNotFoundException {
@@ -426,6 +446,54 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         user.getProperties().put(SIP_PWD, sipPassword);
     }
     
+    
+    public void createGroup(String groupName, String description) {
+       Group group = null;
+       try {
+           group = groupManager.getGroup(groupName);
+       } catch ( GroupNotFoundException ex) {
+           try {
+               group = groupManager.createGroup(groupName);
+           } catch ( GroupAlreadyExistsException ex1) {
+               log.debug("Group already exists - not creating group");
+
+           }
+       }
+       group.setDescription(description);
+     
+    }
+    
+    
+    
+    public void addUserToGroup(String userJid,   String groupName, boolean isAdmin) throws 
+        UserNotFoundException, GroupNotFoundException { 
+        log.debug("addUserToGroup " + userJid + " GroupName " 
+                + groupName + " isAdmin " + isAdmin);
+        JID jid = new JID(userJid); 
+        Group group = groupManager.getGroup(groupName,true);
+       
+        group.getMembers().add(jid); 
+        if ( isAdmin ) {
+            group.getAdmins().add(jid);
+        } else {
+            group.getAdmins().remove(jid);
+        }
+    }
+    
+    public void removeUserFromGroup(String userJid, String groupName) 
+    throws GroupNotFoundException {
+        JID jid = new JID(userJid);
+        Group group = groupManager.getGroup(groupName,true);
+        group.getMembers().remove(jid);
+        group.getAdmins().remove(jid);
+    }
+    
+    public void deleteGroup(String groupName) throws GroupNotFoundException {
+        Group group = groupManager.getGroup(groupName);
+        groupManager.deleteGroup(group);
+        
+    }
+    
     public void setOnThePhoneMessage(String sipUserName, String onThePhoneMessage ) throws UserNotFoundException {
         String userName = this.sipIdToXmppIdMap.get(sipUserName);
         if ( userName == null ) {
@@ -448,6 +516,15 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         User user = userManager.getUser(userName);
         return user.getProperties().get(ON_THE_PHONE_MESSAGE);
      
+    }
+    
+    public boolean groupExists(String groupName) {
+        try {
+            Group group = groupManager.getGroup(groupName);
+            return true;
+        } catch ( GroupNotFoundException ex) {
+            return false;
+        }
     }
     
     public String getPresenceStatus(String jid) throws UserNotFoundException {
@@ -493,6 +570,11 @@ public class SipXOpenfirePlugin implements Plugin, Component {
 
     public String getXmppDomain() {
        return this.server.getServerInfo().getXMPPDomain();
+    }
+
+    public boolean isUserInGroup(String jid, String groupName) throws GroupNotFoundException {
+        Group group = groupManager.getGroup(groupName,true);
+        return group.isUser(jid);
     }
 
    

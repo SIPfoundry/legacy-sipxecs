@@ -1,14 +1,10 @@
 package org.sipfoundry.openfire.plugin.presence;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.sipcallwatcher.ResourceState;
-import org.xmpp.component.ComponentManager;
-import org.xmpp.component.ComponentManagerFactory;
 import org.xmpp.packet.Presence;
-import  org.xmpp.component.Log;
 
 public class XmlRpcPresenceProvider extends XmlRpcProvider {
  

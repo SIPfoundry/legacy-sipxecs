@@ -63,7 +63,7 @@ start() {
 	#write out the confi directory so the plugin can read it
 	echo "conf.dir=@SIPX_CONFDIR@" > ${TMP_DIR}/sipx.properties
 	echo "openfire.home=${OPENFIRE_HOME}" >> ${TMP_DIR}/sipx.properties
-        databaseCommand setdomain -Ddomain=${SIP_DOMAIN_NAME}
+        #databaseCommand setdomain -Ddomain=${SIP_DOMAIN_NAME}
 	exec ${OPENFIRE_HOME}/${OPENFIRE} start
 	ps aux | grep openfire | grep startup.jar | awk '{print $2}' > ${PIDFILE}
 }
@@ -74,7 +74,7 @@ stop() {
 	exec ${OPENFIRE_HOME}/${OPENFIRE} stop
         # failsafe.
 	ps aux | grep openfire | grep startup.jar | awk '{print $2}' > ${PIDFILE}
-        kill  -9 `${PIDFILE}`
+        kill  -9 `cat ${PIDFILE}`
 }
 
 restart() {

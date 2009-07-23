@@ -6,11 +6,14 @@ import org.apache.log4j.Logger;
 
 public class XmlRpcUserAccountProvider extends XmlRpcProvider {
 
-    public static final String SERVICE = "user";
-
-    public static final String SERVER = "userAccountServer";
-
+   
+   
     private static Logger log = Logger.getLogger(XmlRpcUserAccountProvider.class);
+    
+    public final static String SERVICE = "user";
+
+    public final static String SERVER = "userAccountServer";
+    
 
     public XmlRpcUserAccountProvider() {
     }
@@ -144,5 +147,109 @@ public class XmlRpcUserAccountProvider extends XmlRpcProvider {
             return createErrorMap(ErrorCode.SIP_ID_NOT_FOUND, ex.getMessage());
         }
     }
+    
+    /**
+     * Create a group.
+     * 
+     * @param groupName -- the group name.
+     */
+    
+    public Map createGroup(String groupName, String groupDescription ) {
+        try {
+            plugin.createGroup(groupName, groupDescription);
+            return createSuccessMap();
+        } catch (Exception ex) {
+            return createErrorMap(ErrorCode.GROUP_CREATION_ERROR,ex.getMessage());
+        }
+    }
+    
+    /**
+     * Delete a group.
+     * 
+     * @param groupName -- the group name.
+     */
+    public Map deleteGroup(String groupName ) {
+        try {
+            plugin.deleteGroup(groupName);
+            return createSuccessMap();
+        } catch (Exception ex) {
+            return createErrorMap(ErrorCode.GROUP_DELETION_ERROR,ex.getMessage());
+        }
+    }
+    
+    /**
+     * Add a user to a group.
+     * 
+     * @param userName -- user name to add.
+     
+     * @param groupName -- group name.
+     * 
+     * @param isAdmin -- flag that indicates whether or not user is an admin.
+     * 
+     */
+    public Map addUserToGroup(String userName, String groupName, String isAdmin) {
+        try {
+            boolean isAdminFlag = Boolean.parseBoolean(isAdmin);
+            String userJid = appendDomain(userName);
+            plugin.addUserToGroup(userJid, groupName, isAdminFlag);
+            return createSuccessMap();
+        } catch (Exception ex) {
+            return createErrorMap(ErrorCode.ADD_USER_TO_GROUP_ERROR,ex.getMessage());
+        }
+    }
+    
+    /**
+     * Remove user from group.
+     * 
+     * @param userName -- user name to remove.
+     * @param groupName -- group name to remove user from.
+     * 
+     */
+    public Map removeUserFromGroup(String userName, String groupName) {
+        try {
+            String userJid = appendDomain(userName);
+            plugin.removeUserFromGroup(userJid, groupName);
+            return createSuccessMap();
+        } catch (Exception ex) {
+            return createErrorMap(ErrorCode.REMOVE_USER_FROM_GROUP,ex.getMessage());
+        }
+    }
+    
+    
+    /**
+     * Return true if User is in group
+     * 
+     * @param userName  -- user name to test.
+     * @param groupName -- group name to test membership.
+     */
+    public Map isUserInGroup(String userName, String groupName) {
+        try {
+            String userJid = appendDomain(userName);
+            boolean result = plugin.isUserInGroup( userName, groupName);
+            Map retval = createSuccessMap();
+            retval.put(XmlRpcProvider.USER_IN_GROUP, new Boolean(result).toString());
+            return retval;      
+        } catch (Exception ex) {
+            return createErrorMap(ErrorCode.USER_IN_GROUP_EXCEPTION, ex.getMessage());
+        }
+    }
+    
+    
+    
+    /**
+     * Return true if a  group exists.
+     */
+    public Map groupExists(String groupName) {
+        try {
+            boolean exists = plugin.groupExists(groupName);
+            Map map = createSuccessMap();
+            map.put(GROUP_EXISTS, new Boolean(exists).toString());
+            return map;
+        } catch(Exception ex) {
+            return createErrorMap(ErrorCode.GROUP_EXISTS_ERROR,ex.getMessage());
+        }
+    }
+    
+    
 
 }

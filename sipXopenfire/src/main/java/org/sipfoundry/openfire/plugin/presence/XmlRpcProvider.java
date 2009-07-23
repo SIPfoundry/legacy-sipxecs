@@ -33,7 +33,11 @@ public abstract class XmlRpcProvider {
     public static final String UNIFIED_PRESENCE = "unified-presence";
     
     public static final String ON_THE_PHONE_MESSAGE = "on-the-phone-messasge";
+    
+    public static final String GROUP_EXISTS = "group-exists";
 
+    public static final String USER_IN_GROUP = "is-user-in-group";
+    
     protected static SipXOpenfirePlugin plugin;
     
     protected Map<String, Object> createErrorMap(ErrorCode errorCode, String reason) {

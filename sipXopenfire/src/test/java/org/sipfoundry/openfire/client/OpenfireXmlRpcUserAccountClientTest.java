@@ -35,17 +35,23 @@ public class OpenfireXmlRpcUserAccountClientTest extends TestCase {
     }
     
     public void testCreateUserAndAddSipDomain() throws Exception {
+       
+        client.destroyUserAccount("user1");
+        client.destroyUserAccount("foobar");
         
         client.createUserAccount("user1", "user1", "My Display Name", "user1@gmail.com");
-        if ( ! client.userExists("foobar") ) {
-            fail("foobar must exist!");
-        }
+        
+        client.createUserAccount("foobar", "foobar", "My Display Name", "user1@gmail.com");
+          
+        assertTrue ("user1 must exist", client.userExists("user1"));
+        assertTrue ("foobar must exsit", client.userExists("foobar"));
+       
         String sipUser = client.getSipId("user1");
         
         System.out.println("sipUser = " + sipUser);
         assertTrue( sipUser == null || sipUser.equals("user1@" + sipDomain));
         
-        client.setSipId("foobar", "user1@" + sipDomain);
+        client.setSipId("user1", "user1@" + sipDomain);
         
         sipUser = client.getSipId("user1");
         
@@ -58,6 +64,22 @@ public class OpenfireXmlRpcUserAccountClientTest extends TestCase {
         
         assertEquals("Message mismatch",message,onThePhoneMessage  );
         
+        client.destroyUserAccount("user1");
+        client.destroyUserAccount("foobar");
+        assertTrue ("user1 must not exist", !client.userExists("user1"));
+        assertTrue ("foobar must not exsit", !client.userExists("foobar"));
+       
+        
+    }
+    
+    
+    public void testCreateGroup() throws Exception {
+        client.createGroup("TestGroup", "A test group");
+        assertTrue("Group exists",client.groupExists("TestGroup"));
+        client.addUserToGroup("admin", "TestGroup", true);
+        assertTrue("User must be in group", client.isUserInGroup("admin","TestGroup"));
+        client.removeUserFromGroup("admin","TestGroup");
+        assertTrue("User must not be in group", !client.isUserInGroup("admin","TestGroup"));
     }
     
     

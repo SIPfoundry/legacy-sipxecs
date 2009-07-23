@@ -11,22 +11,9 @@ import org.sipfoundry.openfire.plugin.presence.XmlRpcProvider;
 import org.sipfoundry.openfire.plugin.presence.XmlRpcUserAccountProvider;
 
 public class OpenfireXmlRpcUserAccountClient extends OpenfireXmlRpcClient {
-    private String serverAddress;
-    private boolean isSecure;
-    private XmlRpcClient client;
-    private String server;
-
+   
     public OpenfireXmlRpcUserAccountClient(String serverAddress, int port) throws Exception {
-        XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
-        config.setEnabledForExceptions(true);
-        config.setEnabledForExtensions(true);
-        this.serverAddress = serverAddress;
-        String url = (isSecure ? "https" : "http") + "://" + serverAddress + ":" + port+"/plugins/sipx-openfire/" + XmlRpcUserAccountProvider.SERVICE;
-        System.out.println("URL = " + url);
-        config.setServerURL(new URL(url));
-        this.client = new XmlRpcClient();
-        this.client.setConfig(config);
-        this.server = XmlRpcUserAccountProvider.SERVER;
+       super(XmlRpcUserAccountProvider.SERVER, XmlRpcUserAccountProvider.SERVICE, serverAddress,port);
     }
     
     public boolean userExists(String userName) throws OpenfireClientException {
@@ -35,7 +22,7 @@ public class OpenfireXmlRpcUserAccountClient extends OpenfireXmlRpcClient {
         args[0] = userName;
         Map retval;
         try {
-            retval = (Map) client.execute(server + ".userExists" , args  );
+            retval = (Map) execute( "userExists" , args  );
         } catch (XmlRpcException e) {
           throw new OpenfireClientException(e);
         }
@@ -57,7 +44,7 @@ public class OpenfireXmlRpcUserAccountClient extends OpenfireXmlRpcClient {
         Map retval ;
         
         try {
-            retval = (Map) client.execute(server + ".createUserAccount",args);
+            retval = (Map) execute("createUserAccount",args);
         } catch ( XmlRpcException ex) {
             throw new OpenfireClientException(ex);
         }
@@ -77,7 +64,7 @@ public class OpenfireXmlRpcUserAccountClient extends OpenfireXmlRpcClient {
         args[0] = userName;
         Map retval;
         try {
-            retval = (Map) client.execute(server + ".destroyUserAccount", args);
+            retval = execute("destroyUserAccount", args);
         } catch ( XmlRpcException ex) {
             throw new OpenfireClientException(ex);
         }
@@ -94,7 +81,7 @@ public class OpenfireXmlRpcUserAccountClient extends OpenfireXmlRpcClient {
         args[1] = sipId;
         Map retval;
         try {
-            retval = (Map) client.execute(server + ".setSipId", args);
+            retval = execute("setSipId", args);
         } catch ( XmlRpcException ex) {
             throw new OpenfireClientException(ex);
         }
@@ -110,7 +97,7 @@ public class OpenfireXmlRpcUserAccountClient extends OpenfireXmlRpcClient {
         args[0] = userName;
         Map retval;
         try {
-            retval = (Map) client.execute(server + ".getSipId",args);
+            retval = execute("getSipId",args);
         } catch ( XmlRpcException ex) {
             throw new OpenfireClientException(ex);
         }
@@ -127,7 +114,7 @@ public class OpenfireXmlRpcUserAccountClient extends OpenfireXmlRpcClient {
         args[1] = sipPassword;
         Map retval;
         try {
-            retval = (Map) client.execute(server + ".setSipPassword", args);
+            retval = execute("setSipPassword", args);
         } catch ( XmlRpcException ex) {
             throw new OpenfireClientException(ex);
         }
@@ -142,14 +129,11 @@ public class OpenfireXmlRpcUserAccountClient extends OpenfireXmlRpcClient {
         args[0] = userName;
         Map retval;
         try {
-            retval = (Map) client.execute(server + ".getSipPassword",args);
+            retval = execute("getSipPassword",args);
         } catch ( XmlRpcException ex) {
             throw new OpenfireClientException(ex);
         }
-        if (retval.get(XmlRpcPresenceProvider.STATUS_CODE).equals(XmlRpcPresenceProvider.ERROR)) {
-            throw new OpenfireClientException("Error in processing request "
-                    + retval.get(XmlRpcPresenceProvider.ERROR_INFO));
-        }
+        
         return (String) retval.get(XmlRpcPresenceProvider.SIP_PASSWORD);
     }
     
@@ -169,15 +153,12 @@ public class OpenfireXmlRpcUserAccountClient extends OpenfireXmlRpcClient {
         Map retval ;
         
         try {
-            retval = (Map) client.execute(server + ".setOnThePhoneMessage" , args);
+            retval = execute("setOnThePhoneMessage" , args);
         } catch ( XmlRpcException ex) {
             throw new OpenfireClientException(ex);
         }
        
-        if (retval.get(XmlRpcPresenceProvider.STATUS_CODE).equals(XmlRpcPresenceProvider.ERROR)) {
-            throw new OpenfireClientException("Error in processing request "
-                    + retval.get(XmlRpcPresenceProvider.ERROR_INFO));
-        }
+       
     }
 
     public String getOnThePhoneMessage(String sipUser) throws OpenfireClientException {
@@ -186,13 +167,92 @@ public class OpenfireXmlRpcUserAccountClient extends OpenfireXmlRpcClient {
        Map retval ;
        
        try {
-           retval = (Map) client.execute(server + ".getOnThePhoneMessage" , args);
+           retval = execute("getOnThePhoneMessage" , args);
            return (String) retval.get(XmlRpcProvider.ON_THE_PHONE_MESSAGE);
        } catch ( XmlRpcException ex) {
            throw new OpenfireClientException(ex);
        }
        
     }
+    
+    public void createGroup(String groupName, String description) throws OpenfireClientException {
+        Object[] args = new Object[2];
+        args[0] = groupName;
+        args[1] = description;
+        Map retval ;
+        
+        try {
+            retval = execute("createGroup",args);
+        } catch ( XmlRpcException ex) {
+            throw new OpenfireClientException(ex);
+        }
+    }
+    
+    public void deleteGroup(String groupName) throws OpenfireClientException {
+        Object[] args = new Object[1];
+        args[0] = groupName;
+        try {
+            execute("deleteGroup",args); 
+        } catch ( XmlRpcException ex) {
+            throw new OpenfireClientException(ex);
+        }
+    }
+    
+    public void addUserToGroup(String userName, String groupName, boolean isAdmin) 
+    throws OpenfireClientException  {
+        Object[] args = new Object[3];
+        args[0] = userName;
+        args[1] = groupName;
+        args[2] = new Boolean(isAdmin).toString();
+        try {
+            execute("addUserToGroup", args);
+        } catch (XmlRpcException ex) {
+            throw new OpenfireClientException(ex);
+        }
+    }
+    
+    public boolean groupExists(String groupName) 
+    throws OpenfireClientException {
+        Object[] args = new Object[1];
+        args[0] = groupName;
+        try {
+            Map map = (Map) execute("groupExists",args);
+            return Boolean.parseBoolean((String)map.get(XmlRpcProvider.GROUP_EXISTS));
+        } catch ( XmlRpcException ex) {
+            throw new OpenfireClientException(ex);
+        }
+    }
+
+    public boolean isUserInGroup(String userName, String groupName)
+    throws OpenfireClientException{
+       Object[] args = new Object[2];
+       args[0] = userName;
+       args[1] = groupName;
+       try {
+           Map retval = execute("isUserInGroup" , args);
+           return Boolean.parseBoolean((String)retval.get(XmlRpcProvider.USER_IN_GROUP));
+       } catch ( XmlRpcException ex) {
+           throw new OpenfireClientException(ex);
+       }
+        
+    }
+
+    public void removeUserFromGroup(String userName, String groupName) 
+    throws OpenfireClientException {
+        Object[] args = new Object[2];
+        args[0] = userName;
+        args[1] = groupName;
+        try {
+            Map retval = execute("removeUserFromGroup", args);
+        } catch ( XmlRpcException ex) {
+            throw new OpenfireClientException(ex);
+        }
+       
+        
+    }
+    
+    
+
     
     
     

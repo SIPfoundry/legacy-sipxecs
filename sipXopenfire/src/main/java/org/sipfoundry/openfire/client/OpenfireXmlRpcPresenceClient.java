@@ -17,9 +17,6 @@ import org.sipfoundry.openfire.plugin.presence.XmlRpcPresenceProvider;
 import org.sipfoundry.openfire.plugin.presence.XmlRpcUserAccountProvider;
 
 public class OpenfireXmlRpcPresenceClient  extends OpenfireXmlRpcClient {
-    private boolean isSecure = false;
-    private XmlRpcClient client;
-    private String serverAddress;
     
     private static Logger logger = Logger.getLogger(OpenfireXmlRpcPresenceClient.class);
     
@@ -30,42 +27,32 @@ public class OpenfireXmlRpcPresenceClient  extends OpenfireXmlRpcClient {
     
 
     public OpenfireXmlRpcPresenceClient(String serverAddress, int port) throws Exception {
-        XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
-        config.setEnabledForExceptions(true);
-        config.setEnabledForExtensions(true);
-        this.serverAddress = serverAddress;
-        String url = (isSecure ? "https" : "http") + "://" + serverAddress + ":" + port+"/plugins/sipx-openfire/" + XmlRpcPresenceProvider.SERVICE;
-        config.setServerURL(new URL(url));
-        this.client = new XmlRpcClient();
-        this.client.setConfig(config);
-    }
+        super(XmlRpcPresenceProvider.SERVER,XmlRpcPresenceProvider.SERVICE,serverAddress,port);
+     }
     
     public String getXmppPresenceState(String userName) throws OpenfireClientException {
         
         Object[] args = new Object[1];
-        args[0] = userName + "@" + serverAddress;
+        args[0] = userName;
       
         Map retval;
         try {
-            retval = (Map) client.execute(XmlRpcPresenceProvider.SERVER + ".getPresenceState", args);
+            retval = (Map) execute("getPresenceState", args);
         } catch (XmlRpcException e) {
             throw new OpenfireClientException(e);
         }
-        if (retval.get(XmlRpcPresenceProvider.STATUS_CODE).equals(XmlRpcPresenceProvider.ERROR)) {
-            throw new OpenfireClientException("Error in processing request "
-                    + retval.get(XmlRpcPresenceProvider.ERROR_INFO));
-        }
+        
         return (String) retval.get(XmlRpcPresenceProvider.XMPP_PRESENCE);   
         
     }
     
     public void setXmppPresenceState(String userName, String state) throws OpenfireClientException {
         Object[] args = new Object[2];
-        args[0] = userName + "@" + serverAddress;
+        args[0] = userName;
         args[1] = state;
         Map retval ;
         try {
-            retval = (Map)client.execute(XmlRpcPresenceProvider.SERVER + ".setPresenceState", args);
+            retval = (Map)execute("setPresenceState", args);
         }catch (XmlRpcException e) {
             throw new OpenfireClientException(e);
         }
@@ -78,11 +65,11 @@ public class OpenfireXmlRpcPresenceClient  extends OpenfireXmlRpcClient {
     
     public void setXmppCustomPresenceMessage(String userName, String statusMessage) throws OpenfireClientException {
         Object[] args = new Object[2];
-        args[0] = userName + "@" + serverAddress;
+        args[0] = userName;
         args[1] = statusMessage;
         Map retval ;
         try {
-            retval = (Map)client.execute(XmlRpcPresenceProvider.SERVER + ".setPresenceStatus", args);
+            retval = execute("setPresenceStatus", args);
         }catch (XmlRpcException e) {
             throw new OpenfireClientException(e);
         }
@@ -99,7 +86,7 @@ public class OpenfireXmlRpcPresenceClient  extends OpenfireXmlRpcClient {
         args[0] = userName ;
         Map retval;
         try {
-            retval = (Map) client.execute(XmlRpcPresenceProvider.SERVER + ".getPresenceStatus", args);
+            retval = execute("getPresenceStatus", args);
         } catch (XmlRpcException ex) {
             throw new OpenfireClientException(ex);
         }
@@ -138,7 +125,7 @@ public class OpenfireXmlRpcPresenceClient  extends OpenfireXmlRpcClient {
         args[0] = sipIdentity;
         Map retval;
         try {
-            retval = (Map) client.execute(XmlRpcPresenceProvider.SERVER + ".getUnifiedPresenceInfo", args);
+            retval = execute("getUnifiedPresenceInfo", args);
         } catch ( Exception ex) {
             throw new OpenfireClientException(ex);
         }

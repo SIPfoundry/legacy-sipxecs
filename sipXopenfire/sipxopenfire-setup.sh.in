@@ -47,6 +47,7 @@ then
    rm  -f @OPENFIRE_HOME@/resources/security/keystore
    ln -s @SIPX_CONFDIR@/ssl/authorities.jks  @OPENFIRE_HOME@/resources/security/truststore
    ln -s @SIPX_CONFDIR@/ssl/ssl.keystore  @OPENFIRE_HOME@/resources/security/keystore
+   rm -f @OPENFIRE_HOME@/plugins/sipx-openfire.jar
    ln -s ${SIPX_OPENFIRE_DIR}/plugins/sipx-openfire.jar @OPENFIRE_HOME@/plugins
    rm -f @OPENFIRE_HOME@/conf/openfire.xml
    ln -s ${SIPX_OPENFIRE_DIR}/conf/openfire.xml @OPENFIRE_HOME@/conf
