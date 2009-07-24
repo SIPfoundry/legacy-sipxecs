@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <prefs>
     <activegreeting>$!preferences.ActiveGreeting.Id</activegreeting>
+#if ($ifEmailServer)
+    <imapserver host="$!preferences.EmailServerHost" port="$!preferences.EmailServerPort" UseTLS="$yesNo.encode($preferences.EmailServerUseTLS)"/>
     <notification>
-        <contact type="email" attachments="$yesNo.encode($preferences.AttachVoicemailToEmail)">$!preferences.EmailAddress</contact>        
+        <contact type="email" attachments="$yesNo.encode($preferences.AttachVoicemailToEmail)" synchronize="$yesNo.encode($!preferences.SynchronizeWithEmailServer)" password="$!pwd">$!preferences.EmailAddress</contact>
+#else
+    <notification>
+        <contact type="email" attachments="$yesNo.encode($preferences.AttachVoicemailToEmail)" synchronize="no" password="">$!preferences.EmailAddress</contact>
+#end
 #if ($hasAlternateEmailAddress)        
-        <contact type="email" attachments="$yesNo.encode($preferences.AttachVoicemailToAlternateEmail)">$!preferences.AlternateEmailAddress</contact>
-#end        
+        <contact type="email" attachments="$yesNo.encode($preferences.AttachVoicemailToAlternateEmail)" synchronize="no" password="">$!preferences.AlternateEmailAddress</contact>
+#end
     </notification>
 </prefs>

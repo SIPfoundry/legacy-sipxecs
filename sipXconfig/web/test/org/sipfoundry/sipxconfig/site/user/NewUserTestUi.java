@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.user;
@@ -21,6 +21,7 @@ public class NewUserTestUi extends WebTestCase {
         return SiteTestHelper.webTestSuite(NewUserTestUi.class);
     }
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
@@ -112,7 +113,7 @@ public class NewUserTestUi extends WebTestCase {
         SiteTestHelper.assertUserError(tester);
         SiteTestHelper.assertNoException(tester);
     }
-    
+
     public void testStay() {
         clickLink("ManageUsers");
         clickLink("AddUser");
@@ -120,28 +121,28 @@ public class NewUserTestUi extends WebTestCase {
         setTextField("cp:password", "1234");
         setTextField("cp:confirmPassword", "1234");
         setTextField("user:aliases", "aa bb cc");
-        checkCheckbox("stay");        
+        checkCheckbox("stay");
         clickButton("form:ok");
-        assertElementPresent("user:success");  
-        
+        assertElementPresent("user:success");
+
         // Make sure all the correct fields are empty
         SiteTestHelper.assertTextFieldEmpty(tester, "user:lastName");
-        SiteTestHelper.assertTextFieldEmpty(tester, "user:firstName");        
+        SiteTestHelper.assertTextFieldEmpty(tester, "user:firstName");
         SiteTestHelper.assertTextFieldEmpty(tester, "user:emailAddress");
-        assertCheckboxNotSelected("user:attachVoicemailToEmail");
+        assertSelectedOptionValueEquals("user:voicemailProperties", "0");
         SiteTestHelper.assertTextFieldEmpty(tester, "user:alternateEmailAddress");
         assertCheckboxNotSelected("user:attachVoicemailToAlternateEmail");
         SiteTestHelper.assertTextFieldEmpty(tester, "cp:password");
         SiteTestHelper.assertTextFieldEmpty(tester, "cp:confirmPassword");
         SiteTestHelper.assertTextFieldEmpty(tester, "gms:groups");
         SiteTestHelper.assertTextFieldEmpty(tester, "user:aliases");
-        
+
         setTextField("user:userId", "y");
         setTextField("cp:password", "1234");
         setTextField("cp:confirmPassword", "1234");
-        uncheckCheckbox("stay");        
+        uncheckCheckbox("stay");
         clickButton("form:ok");
-        assertElementNotPresent("user:success");        
+        assertElementNotPresent("user:success");
     }
 
     public void testStayFromHomePage() throws Exception {
@@ -169,12 +170,12 @@ public class NewUserTestUi extends WebTestCase {
     public void testNoStayOnCancel() {
         clickLink("ManageUsers");
         clickLink("AddUser");
-        checkCheckbox("stay");        
+        checkCheckbox("stay");
         assertElementPresent("page:newuser");
         clickButton("form:cancel");
         assertElementNotPresent("page:newuser");
     }
-    
+
     public void testAddGroups() {
         clickLink("ManageUsers");
         clickLink("AddUser");
@@ -185,7 +186,7 @@ public class NewUserTestUi extends WebTestCase {
         clickButton("form:apply");
         assertTextFieldEquals("gms:groups", "a b c");
     }
-    
+
     public void testExtensionPoolLink() {
         clickLink("ManageUsers");
         clickLink("AddUser");

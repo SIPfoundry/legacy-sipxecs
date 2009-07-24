@@ -131,4 +131,23 @@
       </type>
     </setting>
   </group>
+  <group name="unified-messaging">
+    <setting name="host">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="port">
+      <type>
+        <integer min="0" required="yes"/>
+      </type>
+      <value>143</value>
+    </setting>
+    <setting name="tls">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+  </group>
 </model>

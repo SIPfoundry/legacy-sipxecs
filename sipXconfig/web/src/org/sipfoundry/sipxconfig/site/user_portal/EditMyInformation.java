@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.user_portal;
@@ -35,24 +35,24 @@ import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
 
 public abstract class EditMyInformation extends UserBasePage implements EditPinComponent {
-    private static final String OPERATOR_SETTING = 
+    private static final String OPERATOR_SETTING =
         "personal-attendant" + Setting.PATH_DELIM + "operator";
-    
+
     @InjectObject(value = "spring:mailboxManager")
     public abstract MailboxManager getMailboxManager();
-    
+
     @InjectObject(value = "spring:localizationContext")
     public abstract LocalizationContext getLocalizationContext();
-    
+
     @InjectObject(value = "spring:localizedLanguageMessages")
     public abstract LocalizedLanguageMessages getLocalizedLanguageMessages();
-    
+
     @InjectObject(value = "spring:conferenceBridgeContext")
     public abstract ConferenceBridgeContext getConferenceBridgeContext();
-    
+
     public abstract Conference getCurrentRow();
     public abstract void setCurrentRow(Conference currentRow);
-    
+
     public abstract String getPin();
 
     public abstract User getUserForEditing();
@@ -62,7 +62,7 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
     public abstract MailboxPreferences getMailboxPreferences();
 
     public abstract void setMailboxPreferences(MailboxPreferences preferences);
-    
+
     public abstract IPropertySelectionModel getLanguageList();
     public abstract void setLanguageList(IPropertySelectionModel languageList);
 
@@ -96,14 +96,15 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
         }
 
         mailMgr.storePersonalAttendant(getPersonalAttendant());
-        
+
         user.getSettings().getSetting(OPERATOR_SETTING).setValue(getPersonalAttendant().getOperator());
         getCoreContext().saveUser(user);
     }
 
+    @Override
     public void pageBeginRender(PageEvent event) {
         super.pageBeginRender(event);
-        
+
         if (getLanguageList() == null) {
             initLanguageList();
         }
@@ -125,7 +126,9 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
         MailboxManager mailMgr = getMailboxManager();
         if (getMailboxPreferences() == null && mailMgr.isEnabled()) {
             Mailbox mailbox = mailMgr.getMailbox(user.getUserName());
-            setMailboxPreferences(mailMgr.loadMailboxPreferences(mailbox));
+            MailboxPreferences prefs = mailMgr.loadMailboxPreferences(mailbox);
+            prefs.setUser(user);
+            setMailboxPreferences(prefs);
         }
 
         PersonalAttendant personalAttendant = getPersonalAttendant();
@@ -148,7 +151,7 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
         tabNames.add("info");
         tabNames.add("distributionLists");
         tabNames.add("conferences");
-        
+
         String paPermissionValue = getUser().getSettingValue("permission/application/personal-auto-attendant");
         if (Permission.isEnabled(paPermissionValue)) {
             tabNames.add("menu");

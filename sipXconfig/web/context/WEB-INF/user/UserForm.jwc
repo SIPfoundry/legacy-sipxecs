@@ -5,7 +5,6 @@
   <description>UserForm shows/edits a User</description>
   
   <parameter name="user" required="yes"/>
-  <parameter name="mailboxPreferences" required="yes"/>
   <parameter name="alwaysShowSipPassword" default-value="false"/>
   
   <!--
@@ -60,6 +59,7 @@
   </component>
   <component id="mailboxPreferences" type="vm/MailboxPreferencesForm">
     <binding name="preferences" value="mailboxPreferences"/>
+    <binding name="admin" value="true"/>
   </component>
    <component id="pin" type="user/ConfirmPassword">
     <binding name="password" value="pin"/>

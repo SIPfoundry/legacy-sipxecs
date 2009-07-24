@@ -1,18 +1,21 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.setting;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.tapestry.IActionListener;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Parameter;
@@ -24,7 +27,7 @@ import org.springframework.context.MessageSource;
 /**
  * Control navigation of a sidebar in following
  * setup :
- * 
+ *
  *   +-----------------+------------------+
  *   +  page1          |                  |
  *   +  page2          |                  |
@@ -36,6 +39,7 @@ import org.springframework.context.MessageSource;
  *   +-----------------+------------------+
  */
 public abstract class SettingsNavigation extends BeanNavigation {
+    private static final Log LOG = LogFactory.getLog(SettingsNavigation.class);
 
     @Parameter(required = true)
     public abstract IActionListener getEditSettingsListener();
@@ -51,22 +55,23 @@ public abstract class SettingsNavigation extends BeanNavigation {
     public abstract MessageSource getMessageSource();
 
     public abstract void setMessageSource(MessageSource messageSource);
-    
+
     @Parameter()
     public abstract void setActiveSetting(Setting setting);
-    
+
     /**
      * Only required if settings parameter not set
      */
     @Parameter()
     public abstract Collection<Setting> getSource();
-    
+
     @Parameter()
     public abstract String getGroupsToHide();
 
     /**
      * @return null when not navigating settings, e.g. page1, page2, ...
      */
+    @Override
     public abstract Setting getActiveSetting();
 
     public String getCurrentSettingLabel() {
@@ -79,10 +84,10 @@ public abstract class SettingsNavigation extends BeanNavigation {
         if (setting == null) {
             return false;
         }
-        
+
         return getCurrentSetting().getName().equals(setting.getName());
-    }    
-    
+    }
+
     public Collection<Setting> getNavigationGroups() {
         Collection<Setting> s = getSource();
         if (s == null) {
@@ -91,18 +96,29 @@ public abstract class SettingsNavigation extends BeanNavigation {
                 s = getSettings().getValues();
             }
         }
-        
-        if (getGroupsToHide() != null) {
-            List<String> groupsToHide = Arrays.asList(getGroupsToHide().split(","));
+
+        //creates a copy of s and work on it, in order to avoid ConcurrentModificationException
+        if (s != null) {
+            Collection<Setting> copyOfS = new ArrayList<Setting>();
             for (Setting setting : s) {
-                if (groupsToHide.contains(setting.getName())) {
-                    s.remove(setting);
+                copyOfS.add(setting);
+            }
+
+            if (getGroupsToHide() != null) {
+                List<String> groupsToHide = Arrays.asList(getGroupsToHide().split(","));
+                for (Setting setting : s) {
+                    if (groupsToHide.contains(setting.getName())) {
+                        copyOfS.remove(setting);
+                    }
                 }
             }
+            return copyOfS;
+        } else {
+            return s;
         }
-        return s; 
     }
-    
+
+    @Override
     public void prepareForRender(IRequestCycle cycle) {
         super.prepareForRender(cycle);
         // set message source only once and save it into property so that we do not have to

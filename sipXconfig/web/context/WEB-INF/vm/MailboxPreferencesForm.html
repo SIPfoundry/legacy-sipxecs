@@ -7,12 +7,26 @@
     </tr>
     <tr jwcid="@common/FieldPanel" for="user:emailAddress" field="component:emailAddress" label="message:label.emailAddress"
         description="message:description.emailAddress">
-      <input jwcid="emailAddress@TextField" id="user:emailAddress" value="ognl:preferences.emailAddress" validators="validators:email" autocomplete="off"/>
+      <input jwcid="emailAddress@TextField" id="user:emailAddress" value="ognl:preferences.emailAddress" validators="validators:email" autocomplete="off"
+        disabled="ognl:(!admin)&&preferences.synchronizeWithEmailServer"/>
     </tr>
-    <tr jwcid="@common/FieldPanel" for="user:attachVoicemailToEmail" field="component:attachVoicemailToEmail" label="message:label.attachVoicemailToEmail"
-        description="message:description.attachVoicemailToEmail">
-      <checkbox jwcid="attachVoicemailToEmail@Checkbox" id="user:attachVoicemailToEmail" value="ognl:preferences.attachVoicemailToEmail"/>
-    </tr>
+    <span jwcid="@If" condition="ognl:admin">
+      <tr jwcid="@common/FieldPanel" for="user:voicemailProperties" field="component:voicemailProperties" label="message:label.voicemailProperties"
+          description="message:description.voicemailProperties">
+        <span jwcid="voicemailProperties@PropertySelection" id="user:voicemailProperties" model="ognl:voicemailPropertiesModel" value="ognl:preferences.voicemailProperties"/>
+      </tr>
+    </span>
+    <span jwcid="@Else">
+      <tr jwcid="@common/FieldPanel" for="user:attachVoicemailToEmail" field="component:attachVoicemailToEmail" label="message:label.attachVoicemailToEmail"
+          description="message:description.attachVoicemailToEmail">
+        <checkbox jwcid="attachVoicemailToEmail@Checkbox" id="user:attachVoicemailToEmail" value="ognl:preferences.attachVoicemailToEmail" disabled="ognl:preferences.synchronizeWithEmailServer"/>
+      </tr>
+      <span jwcid="@If" condition="ognl:preferences.synchronizeWithEmailServer">
+        <tr jwcid="@common/FieldPanel" for="user:emailPassword" field="component:emailPassword" label="message:label.emailPassword" description="message:description.emailPassword">
+          <input jwcid="emailPassword@TextField" id="user:emailPassword" value="ognl:preferences.emailPassword" validators="validators:required" autocomplete="off" hidden="yes"/>
+        </tr>
+      </span>
+    </span>
     <tr jwcid="@common/FieldPanel" for="user:alternateEmailAddress" field="component:alternateEmailAddress" label="message:label.alternateEmailAddress"
         description="message:description.alternateEmailAddress">
       <input jwcid="alternateEmailAddress@TextField" id="user:alternateEmailAddress" value="ognl:preferences.alternateEmailAddress" validators="validators:email" autocomplete="off"/>
