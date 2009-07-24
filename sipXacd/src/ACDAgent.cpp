@@ -272,7 +272,8 @@ SIPX_CALL ACDAgent::connect(ACDCall* pACDCall)
    ACDQueue* acdQueue = pACDCall->getMpManagingQueue();
    if(acdQueue) {
       UtlString *queueName = acdQueue->getQueueName();
-      if (queueName) {
+      if (queueName) 
+      {
          // Add the queue name where the call came from as the text part 
          // of the SIP URL in To header.
          agentUrlString = "\"" + *queueName + "\" " ;
@@ -299,8 +300,11 @@ SIPX_CALL ACDAgent::connect(ACDCall* pACDCall)
    agentUrlString += "<" + mUriString + ";sipx-noroute=VoiceMail>" ;
    
    // Fire off the call
-   if (sipxCallConnect(mhCallHandle, agentUrlString, 0, NULL, pTempId, pFrom) != SIPX_RESULT_SUCCESS) {
-      OsSysLog::add(FAC_ACD, PRI_ERR, "ACDAgent::connect - ACDAgent(%s) failed to initiate outbound call",
+   if (sipxCallConnect(mhCallHandle, agentUrlString, 0, NULL, pTempId, pFrom) != SIPX_RESULT_SUCCESS) 
+   {
+      OsSysLog::add(FAC_ACD, PRI_ERR, 
+                    "ACDAgent::connect - "
+                    "ACDAgent(%s) failed to initiate outbound call",
                     mUriString.data());
       return 0;
    }

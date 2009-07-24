@@ -611,13 +611,13 @@ UtlBoolean SipConnection::dial(const char* dialString,
         mpMediaInterface->setContactType(mConnectionId, mContactType) ;
         SdpCodecFactory supportedCodecs;
         mpMediaInterface->getCapabilities(mConnectionId,
-            rtpAddress,
-            receiveRtpPort,
-            receiveRtcpPort,
-            receiveVideoRtpPort, 
-            receiveVideoRtcpPort,
-            supportedCodecs,
-            srtpParams);
+                                          rtpAddress,
+                                          receiveRtpPort,
+                                          receiveRtcpPort,
+                                          receiveVideoRtpPort, 
+                                          receiveVideoRtcpPort,
+                                          supportedCodecs,
+                                          srtpParams);
 
         mRemoteIsCallee = TRUE;
         setCallId(callId);
@@ -625,12 +625,15 @@ UtlBoolean SipConnection::dial(const char* dialString,
         lastLocalSequenceNumber++;
 
         buildFromToAddresses(dialString, "xxxx", callerDisplayName,
-            dummyFrom, goodToAddress);
+                             dummyFrom, goodToAddress);
 
         // The local address is always set
         mFromUrl.toString(fromAddress);
 #ifdef TEST_PRINT
-        osPrintf("Using To address: \"%s\"\n", goodToAddress.data());
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                      "SipConnection::dial "
+                      "Using To address: '%s'", 
+                      goodToAddress.data());
 #endif
 
         { //memory scope
@@ -642,8 +645,10 @@ UtlBoolean SipConnection::dial(const char* dialString,
 #ifdef TEST_PRINT
             UtlString codecsString;
             supportedCodecs.toString(codecsString);
-            osPrintf("SipConnection::dial codecs:\n%s\n",
-                codecsString.data());
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipConnection::dial "
+                          "codecs:\n%s\n",
+                          codecsString.data());
 #endif
 
             // Prepare to receive the codecs
@@ -728,11 +733,15 @@ UtlBoolean SipConnection::dial(const char* dialString,
 
         setState(Connection::CONNECTION_ESTABLISHED, Connection::CONNECTION_LOCAL);
 
-        if(!goodToAddress.isNull() && send(sipInvite))
+        // Send the INVITE
+        if(   !goodToAddress.isNull() 
+           && send(sipInvite))
         {
             setState(CONNECTION_INITIATED, CONNECTION_REMOTE, cause);
 #ifdef TEST_PRINT
-            osPrintf("INVITE sent successfully\n");
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipConnection::dial "
+                          "INVITE sent successfully");
 #endif
             setState(CONNECTION_OFFERING, CONNECTION_REMOTE, cause);
             dialOk = TRUE;
@@ -741,7 +750,9 @@ UtlBoolean SipConnection::dial(const char* dialString,
         else
         {
 #ifdef TEST_PRINT
-            osPrintf("INVITE send failed\n");
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipConnection::dial "
+                          "INVITE send failed");
 #endif
             setState(CONNECTION_FAILED, CONNECTION_REMOTE, CONNECTION_CAUSE_DEST_NOT_OBTAINABLE);
             fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_BADADDRESS) ;
@@ -757,8 +768,10 @@ UtlBoolean SipConnection::dial(const char* dialString,
                     NULL, NULL, NULL,
                     CONNECTION_FAILED, SIP_REQUEST_TIMEOUT_CODE);
 #ifdef TEST_PRINT
-                osPrintf("SipConnection::dial posting CP_TRANSFEREE_CONNECTION_STATUS to call: %s\n",
-                    originalCallId.data());
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                              "Entering SipConnection::dial "
+                              "posting CP_TRANSFEREE_CONNECTION_STATUS to call: '%s'",
+                              originalCallId.data());
 #endif
                 mpCallManager->postMessage(transfereeStatus);
             }
@@ -1927,9 +1940,13 @@ void SipConnection::buildFromToAddresses(const char* dialString,
 
     // Build a From address
     sipUserAgent->getFromAddress(&sipAddress, &sipPort, &sipProtocol);
-    SipMessage::buildSipUri(&fromAddress, sipAddress.data(),
-        sipPort, sipProtocol.data(), callerId, callerDisplayName,
-        mFromTag.data());
+    SipMessage::buildSipUri(&fromAddress, 
+                            sipAddress.data(),
+                            sipPort, 
+                            sipProtocol.data(), 
+                            callerId, 
+                            callerDisplayName,
+                            mFromTag.data());
 
     // Check the to Address
     UtlString toAddress;
@@ -1940,7 +1957,9 @@ void SipConnection::buildFromToAddresses(const char* dialString,
     int toPort;
 
 #ifdef TEST_PRINT
-    osPrintf("SipConnection::dial got dial string: \"%s\"\n",
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
+        "SipConnection::buildFromToAddresses "
+        "got dial string: '%s'",
         dialString);
 #endif
 
@@ -1955,7 +1974,9 @@ void SipConnection::buildFromToAddresses(const char* dialString,
         sipUserAgent->getDirectoryServer(0, &toAddress,
             &toPort, &toProtocol);
 #ifdef TEST_PRINT
-        osPrintf("Got directory server: \"%s\"\n",
+        OsSysLog::add(FAC_CP, PRI_DEBUG,
+            "SipConnection::buildFromToAddresses "
+            "Got directory server: '%s'",
             toAddress.data());
 #endif
         toUrl.setHostAddress(toAddress.data());
@@ -1969,6 +1990,14 @@ void SipConnection::buildFromToAddresses(const char* dialString,
     //              toPort, toProtocol.data(), toUser.data(),
     //              toUserLabel.data());
     toUrl.toString(goodToAddress);
+#ifdef TEST_PRINT
+        OsSysLog::add(FAC_CP, PRI_DEBUG,
+            "SipConnection::buildFromToAddresses "
+            "goodToAddress: '%s'",
+            goodToAddress.data());
+
+        toUrl.kedump();
+#endif
 }
 
 UtlBoolean SipConnection::processMessage(OsMsg& eventMessage,
@@ -5936,6 +5965,10 @@ UtlBoolean SipConnection::send(SipMessage& message,
                     OsMsgQ* responseListener,
                     void* responseListenerData)
 {
+#ifdef TEST_PRINT
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipConnection::send ");
+#endif
     // If we don't know the proper interface, use the stack default 
     if (message.getInterfaceIp().length() < 1)
     {

@@ -20,9 +20,9 @@
 //////////////////////////////////////////////////////////////////////
 
 SipLineCredentials::SipLineCredentials( const UtlString realm,
-                                                                           const UtlString userId,
-                                                                           const UtlString passwordToken,
-                                                                           const UtlString type)
+                                        const UtlString userId,
+                                        const UtlString passwordToken,
+                                        const UtlString type)
 :UtlString(realm)
 {
 

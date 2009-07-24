@@ -156,8 +156,10 @@ char NetBase64Codec::decodeChar(const char encoded)
    return(encoded == '=' ? 0 : strchr(Base64Codes, encoded) - Base64Codes );
 }
 
-bool NetBase64Codec::decode(int encodedDataSize, const char encodedData[],
-                            int& dataSize, char data[])
+bool NetBase64Codec::decode(int encodedDataSize, 
+                            const char encodedData[],
+                            int& dataSize, 
+                            char data[])
 {
    dataSize = 0;
    bool valid = isValid(encodedDataSize, encodedData);
@@ -169,23 +171,22 @@ bool NetBase64Codec::decode(int encodedDataSize, const char encodedData[],
 
       for (i = 0; i < encodedDataSize; i+=4) // Work on 4 bytes at a time.
       {                         // Twiddle bits.
-         data[j]   = (decodeChar(encodedData[i]) << 2) |
-            ((decodeChar(encodedData[i+1]) & 0x30) >> 4);
+         data[j]   = (decodeChar(encodedData[i]) << 2) 
+                      | ((decodeChar(encodedData[i+1]) & 0x30) >> 4);
          if(j + 1 < dataSize)
          {
-            data[j+1] = ((decodeChar(encodedData[i+1]) & 0x0f) << 4) |
-               ((decodeChar(encodedData[i+2]) & 0x3c) >> 2);
+            data[j+1] = ((decodeChar(encodedData[i+1]) & 0x0f) << 4) 
+                          | ((decodeChar(encodedData[i+2]) & 0x3c) >> 2);
 
             if(j + 2 < dataSize)
             {
-               data[j+2] = ((decodeChar(encodedData[i+2]) & 0x03) << 6) |
-                  (decodeChar(encodedData[i+3]) & 0x3f);
+               data[j+2] = ((decodeChar(encodedData[i+2]) & 0x03) << 6) 
+                             | (decodeChar(encodedData[i+3]) & 0x3f);
             }
          }
          j += 3;
       }
    }
-
    return valid;
 }
 
@@ -205,8 +206,10 @@ bool NetBase64Codec::decode(const UtlString encodedData, /* sizeis data.length()
       if (data.capacity(sizeNeeded+1) >= sizeNeeded+1)
       {
          int size = 0;
-         valid = decode(encodedData.length(), encodedData.data(),
-                        size, const_cast<char*>(data.data()));
+         valid = decode(encodedData.length(), 
+                        encodedData.data(),
+                        size, 
+                        const_cast<char*>(data.data()));
          if (valid)
          {
             data.setLength(size);

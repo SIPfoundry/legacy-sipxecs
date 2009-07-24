@@ -116,7 +116,11 @@ RegistrationDB::RegistrationDB( const UtlString& name ) :
     int users = pSIPDBManager->getNumDatabaseProcesses(name);
     if ( users == 1 || ( users > 1 && mTableLoaded == false ) )
     {
-        OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "About to try to load registration db");
+        OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, 
+                      "RegistrationDB::+ "
+                      "About to try to load registration db"
+                      "users=%d mTableLoaded=%d",
+                      users, mTableLoaded);
         mTableLoaded = false;
         // Load the file implicitly
         this->load();
@@ -124,6 +128,14 @@ RegistrationDB::RegistrationDB( const UtlString& name ) :
         // a result, make this table appear as being loaded regardless
         // of the load() result.
         mTableLoaded = true;
+    }
+    else 
+    {
+        OsSysLog::add(FAC_DB, PRI_DEBUG, 
+                      "RegistrationDB::+ "
+                      "db load not tried"
+                      "users=%d mTableLoaded=%d",
+                      users, mTableLoaded);
     }
 }
 

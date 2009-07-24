@@ -336,14 +336,16 @@ UtlBoolean SipLine::getCredentials(const UtlString& type /*[in]*/,
       credentialsFound = TRUE;
       credential = NULL;
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipLine::getCredentials Credentials for realm '%s' found: "
+                    "SipLine::getCredentials "
+                    "Credentials for realm '%s' found: "
                     "userID '%s'",
                     realm.data(), userID->data());
    }
    else
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipLine::getCredentials Credentials for realm '%s' NOT found",
+                    "SipLine::getCredentials "
+                    "Credentials for realm '%s' NOT found",
                     realm.data());
    }
 
@@ -455,9 +457,13 @@ UtlBoolean SipLine::IsDuplicateRealm(const UtlString realm, const UtlString sche
    UtlString userID;
    UtlString passToken;
    if (getCredentials(scheme, realm, &userID, &passToken))
-      return TRUE;
+   {
+          return TRUE;
+   }
    else
-      return FALSE;
+   {
+          return FALSE;
+   }
 }
 
 

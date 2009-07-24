@@ -753,10 +753,12 @@ OsStatus CpPhoneMediaInterface::doDeleteConnection(CpPhoneMediaConnection* media
                 mediaConnection->mpRtcpSocket->getSocketDescriptor());
      else if (!mediaConnection)
     OsSysLog::add(FAC_CP, PRI_DEBUG, 
-                "CpPhoneMediaInterface::doDeleteConnection mediaConnection is NULL!");
+                "CpPhoneMediaInterface::doDeleteConnection "
+                "mediaConnection is NULL!");
      else 
     OsSysLog::add(FAC_CP, PRI_DEBUG, 
-                "CpPhoneMediaInterface::doDeleteConnection NULL socket: mpRtpSocket=0x%08x, mpRtpSocket=0x%08x",
+                "CpPhoneMediaInterface::doDeleteConnection "
+                "NULL socket: mpRtpSocket=0x%p, mpRtpSocket=0x%p",
                 mediaConnection->mpRtpSocket,
                                 mediaConnection->mpRtcpSocket);
 #endif

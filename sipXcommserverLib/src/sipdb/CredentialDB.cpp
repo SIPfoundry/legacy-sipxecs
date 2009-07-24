@@ -67,6 +67,12 @@ CredentialDB::CredentialDB ( const UtlString& name )
     // If we are the first process to attach
     // then we need to load the DB
     int numusers = pSIPDBManager->getNumDatabaseProcesses (name);
+
+    OsSysLog::add(FAC_DB, PRI_DEBUG, "CredentialDB::CredentialDB() "
+                                     "pSIPDBManager %p; pSIPDBManager %p "
+                                     "numUsers=%d; mTableLoaded %d",
+                  pSIPDBManager, pSIPDBManager, numusers, mTableLoaded);
+
     if ( numusers == 1 || ( numusers > 1 && mTableLoaded == false ) )
     {
         OsSysLog::add(FAC_DB, PRI_DEBUG, "CredentialDB::CredentialDB() about to load");
@@ -598,13 +604,11 @@ CredentialDB::getCredential (
     return found;
 }
 
-UtlBoolean
-CredentialDB::getCredential (
-    const Url& uri,
-    const UtlString& realm,
-    UtlString& userid,
-    UtlString& passtoken,
-    UtlString& authType ) const
+UtlBoolean CredentialDB::getCredential (const Url& uri,
+                                        const UtlString& realm,
+                                        UtlString& userid,
+                                        UtlString& passtoken,
+                                        UtlString& authType ) const
 {
     UtlBoolean found = FALSE;
 

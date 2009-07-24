@@ -252,8 +252,11 @@ UtlBoolean CpPeerCall::handleDialString(OsMsg* pEventMessage)
 
 
 #ifdef TEST_PRINT
-    osPrintf("%s-CpPeerCall: dialing string: \'%s\' length: %d\n", 
-        mName.data(), dialString.data(), dialString.length());
+    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                  "CpPeerCall::dialing "
+                  "string: '%s' length: %d "
+                  "callId '%s' ", 
+                  dialString.data(), dialString.length(), desiredCallId.data());
 #endif
 
     addHistoryEvent("CP_DIAL_STRING (3) \n\tDialString: \"" + dialString + "\"");
@@ -2823,17 +2826,18 @@ Connection* CpPeerCall::addParty(const char* transferTargetAddress,
     // for SIP, MGCP, etc.
 #ifdef TEST_PRINT
     OsSysLog::add(FAC_CP, PRI_DEBUG,
-                  "CpPeerCall::addParty mLocalAddress is '%s'",
+                  "CpPeerCall::addParty "
+                  "mLocalAddress is '%s'",
                   mLocalAddress.data());
 #endif
     connection = new SipConnection(mLocalAddress,
-        mIsEarlyMediaFor180,
-        mpManager,
-        this,
-        mpMediaInterface,
-        sipUserAgent,
-        offeringDelay, 
-        mSipSessionReinviteTimer);
+                                   mIsEarlyMediaFor180,
+                                   mpManager,
+                                   this,
+                                   mpMediaInterface,
+                                   sipUserAgent,
+                                   offeringDelay, 
+                                   mSipSessionReinviteTimer);
     
     connection->setContactId(contactId);
     CONTACT_ADDRESS* pContact = NULL;
@@ -2860,13 +2864,13 @@ Connection* CpPeerCall::addParty(const char* transferTargetAddress,
     }
 
     connection->dial(transferTargetAddress,
-        mLocalAddress.data(), 
-        callId.data(),
-        callController,
-        originalCallConnectionAddress, 
-        FALSE,
-        pDisplay,
-        originalCallId); 
+                     mLocalAddress.data(), 
+                     callId.data(),
+                     callController,
+                     originalCallConnectionAddress, 
+                     FALSE,
+                     pDisplay,
+                     originalCallId); 
 
     addToneListenersToConnection(connection) ;
 
