@@ -43,6 +43,10 @@ public abstract class OpenfireXmlRpcClient {
             throw new RuntimeException(ex);
         }
     }
+
+    protected OpenfireXmlRpcClient()
+    {
+    }
     
     protected OpenfireXmlRpcClient(String server, String service, String serverAddress, int port  ) throws Exception {
         XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
