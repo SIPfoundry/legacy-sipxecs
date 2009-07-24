@@ -128,8 +128,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
                            UtlBoolean bUseNextAvailablePort,
                            UtlBoolean doUaMessageChecks,
                            UtlBoolean bForceSymmetricSignaling,
-                           OptionsRequestHandlePref howTohandleOptionsRequest,
-                           const CfwdTimerCallback cfwdTimerCallback
+                           OptionsRequestHandlePref howTohandleOptionsRequest
                            ) 
         : SipUserAgentBase(sipTcpPort, sipUdpPort, sipTlsPort, queueSize)
         , mSipTcpServer(NULL)
@@ -148,7 +147,6 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
         , mbForceSymmetricSignaling(bForceSymmetricSignaling)
         , mbShuttingDown(FALSE)
         , mbShutdownDone(FALSE)
-        , mCfwdTimerCallback(cfwdTimerCallback)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipUserAgent[%s]::_ sipTcpPort = %d, sipUdpPort = %d, "
@@ -3419,34 +3417,6 @@ void SipUserAgent::setDefaultSerialExpiresSeconds(int expiresSeconds)
                   "SipUserAgent::setDefaultSerialExpiresSeconds "
                   "mDefaultExpiresSeconds %d ",
                   mDefaultExpiresSeconds);
-}
-
-int SipUserAgent::getUserSerialExpiresSeconds(UtlString* userUri) const
-{
-    int temp_tmr;
-    if ((mCfwdTimerCallback != NULL) && (userUri != NULL) && (!userUri->isNull()))
-    {
-       temp_tmr = mCfwdTimerCallback(*userUri);
-    }
-    else
-    {
-       temp_tmr = mDefaultSerialExpiresSeconds;
-    }
-
-    if ((userUri != NULL) && (!userUri->isNull()))
-    {
-       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                     "SipUserAgent::getUserSerialExpiresSeconds user=%s time=%d",
-                     userUri->data(), temp_tmr);
-    }
-    else
-    {
-       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                     "SipUserAgent::getUserSerialExpiresSeconds time=%d",
-                     temp_tmr);
-    }
-
-    return(temp_tmr);
 }
 
 void SipUserAgent::setMaxTcpSocketIdleTime(int idleTimeSeconds)

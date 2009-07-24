@@ -17,6 +17,7 @@
 #include "sipdb/SIPDBManager.h"
 #include "sipdb/ResultSet.h"
 #include "sipdb/RegistrationDB.h"
+#include "sipdb/UserForwardDB.h"
 #include "SipRedirectorRegDB.h"
 
 // DEFINES
@@ -113,6 +114,22 @@ SipRedirectorRegDB::lookUp(
                  "%s::lookUp got %d unexpired contacts",
                  mLogName.data(), numUnexpiredContacts);
 
+   // Check for a per-user call forward timer.
+   // Don't set timer if we're not going to forward to voicemail.
+   UtlString userCfwdTimer;
+   bool foundUserCfwdTimer;
+   UtlString noRoute;
+   requestUriCopy.getUrlParameter("sipx-noroute", noRoute);
+
+   if ((!noRoute.isNull()) && (noRoute.compareTo("Voicemail") == 0))
+   {
+       foundUserCfwdTimer = false;
+   }
+   else
+   {
+       foundUserCfwdTimer = UserForwardDB::getInstance()->getCfwdTime(requestUriCopy, userCfwdTimer);
+   }
+
    for (int i = 0; i < numUnexpiredContacts; i++)
    {
       // Query the Registration DB for the contact, expires and qvalue columns.
@@ -129,6 +146,12 @@ SipRedirectorRegDB::lookUp(
                     "%s::lookUp contact = '%s', qvalue = '%s', path = '%s'",
                     mLogName.data(), contact.data(), qvalue.data(), pathVector.data() );
       Url contactUri(contact);
+
+      // If available set the per-user call forward timer.
+      if (foundUserCfwdTimer)
+      {
+          contactUri.setHeaderParameter("expires", userCfwdTimer);
+      }
 
       // If the contact URI is the same as the request URI, ignore it.
       if (!contactUri.isUserHostPortEqual(requestUriCopy))

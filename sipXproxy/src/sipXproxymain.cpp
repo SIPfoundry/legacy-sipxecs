@@ -272,29 +272,6 @@ public:
    }
 } ;
 
-int 
-userCfwdTimeCallback(UtlString userUri)
-{
-   Url tempUrl(userUri);
-   UtlString tempTime;   
-   int cfwdTime;
- 
-   if (UserForwardDB::getInstance()->getCfwdTime(tempUrl, tempTime))
-   {
-       cfwdTime = atoi(tempTime);
-   }
-   else
-   {
-       cfwdTime = DEFAULT_SIP_SERIAL_EXPIRES;
-   }
-
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "sipXproxymain::userCfwdTimeCallback url=%s tmr=%d",
-                 tempUrl.toString().data(), cfwdTime);
-
-   return cfwdTime;
-}
-
 int
 proxy( int argc, char* argv[] )
 {
@@ -746,8 +723,7 @@ proxy( int argc, char* argv[] )
         FALSE, // Use Next Available Port
         TRUE,  // Perform message checks 
         TRUE,  // Use symmetric signaling
-        SipUserAgent::HANDLE_OPTIONS_AUTOMATICALLY,
-        userCfwdTimeCallback);
+        SipUserAgent::HANDLE_OPTIONS_AUTOMATICALLY);
 
 
     if (!pSipUserAgent->isOk())

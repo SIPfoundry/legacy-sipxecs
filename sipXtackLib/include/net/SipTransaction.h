@@ -307,8 +307,7 @@ protected:
     //: Starts search on any immediate children of the highest unpursued Q value
 
     UtlBoolean recurseDnsSrvChildren(SipUserAgent& userAgent,
-                              SipTransactionList& transactionList,
-                              UtlString* toAddress = NULL);
+                              SipTransactionList& transactionList);
     //: Starts search on any immediate DNS SRV children of the highest unpursued Q value
 
     /// Copy unique realms from any proxy challenges in the response into realmList
