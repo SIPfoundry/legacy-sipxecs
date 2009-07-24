@@ -16,6 +16,7 @@ public class AudioCodesModel extends GatewayModel {
     public static final DeviceVersion REL_5_0 = new DeviceVersion(AudioCodesGateway.BEAN_ID, "5.0");
     public static final DeviceVersion REL_5_2 = new DeviceVersion(AudioCodesGateway.BEAN_ID, "5.2");
     public static final DeviceVersion REL_5_4 = new DeviceVersion(AudioCodesGateway.BEAN_ID, "5.4");
+    public static final DeviceVersion REL_5_6 = new DeviceVersion(AudioCodesGateway.BEAN_ID, "5.6");
 
     private String m_configDirectory;
     
@@ -26,7 +27,7 @@ public class AudioCodesModel extends GatewayModel {
 
     public static DeviceVersion[] getDeviceVersions() {
         return new DeviceVersion[] {
-            REL_5_4, REL_5_2, REL_5_0
+            REL_5_6, REL_5_4, REL_5_2, REL_5_0
         };
     }
 

@@ -409,6 +409,23 @@
         INVITE. When enabled gateway will use the same call identifiers.
       </description>
     </setting>
+    <setting name='SIPReroutingMode' if="5.6orLater" advanced="yes">
+      <label>SIP Rerouting Mode</label>
+      <type>
+         <integer min="0" max="2" />
+      </type>
+      <value>0</value>
+      <description>Determines the routing mode after a call redirection or transfer.
+[0]: Standard = INVITE messages that are generated as a result
+of Transfer or Redirect are sent directly to the URI, according to
+the Refer-To header in the REFER message or Contact header
+in the 3xx response (default).
+[1]: Proxy = Sends a new INVITE to the Proxy. Note: Applicable
+only if a Proxy server is used and the parameter
+AlwaysSendtoProxy is set to 0.
+[2]: Routing Table = Uses the Routing table to locate the
+destination and then sends a new INVITE to this destination</description>
+    </setting>
     <setting name="EnablePChargingVector" advanced="yes" unless="5.0">
       <label>Enable P-Charging-Vector</label>
       <type>
@@ -553,7 +570,7 @@
       <value>0</value>
       <description>0: Standard SIP call flow, 1: All messages and responses sent to proxy.</description>
     </setting>
-    <setting name="SendInviteToProxy" advanced="yes">
+    <setting name="SendInviteToProxy" advanced="yes" unless="5.6">
       <label>Send All INVITE to Proxy</label>
       <type>
         <boolean></boolean>
@@ -1153,32 +1170,56 @@
         <value>0</value>
         <description>Enable/disable Stand-Alone Survivability</description>
       </setting>
-      <setting name='SASBindingMode' if="5.4" hidden="yes">
-        <label>SASBindingMode</label>
+      <setting name='SASBindingMode' if="5.4orLater">
+        <label>SAS Binding Mode</label>
         <type>
           <boolean />
         </type>
         <value>1</value>
+        <description>Determines the SAS application database binding mode.
+[0]: URI = If the incoming AoR in the INVITE requests is using a
+tel: URI or user=phone is defined, the binding is performed
+according to the user part of the URI only. Otherwise, the
+binding is according to the entire URI, i.e., User@Host (default).
+[1]: User Part only = The binding is always performed according
+to the User Part only.</description>
       </setting>
-      <setting name='SASRegistrationTime' if="5.4">
+      <setting name='SASSurvivabilityMode' if="5.6orLater">
+        <label>SAS Survivability Mode</label>
+        <type>
+          <integer min="0" max="2" />
+        </type>
+        <value>0</value>
+        <description>The Survivability mode used by the SAS application. 0:standard; 1:Always Emergency; 2:Ignore Register</description>
+      </setting>
+      <setting name='SASEnableENUM' if="5.6orLater">
+        <label>SAS Enable ENUM</label>
+        <type>
+           <boolean />
+        </type>
+        <value>0</value>
+        <description>Determines whether the SAS application uses ENUM queries to
+route incoming INVITE requests when in Emergency mode.</description>
+      </setting>
+      <setting name='SASRegistrationTime' if="5.4orLater">
         <label>SAS Registration Time</label>
         <type>
           <integer min="0" max="2000000" />
         </type>
         <value>20</value>
-        <description>UDP Port for SAS SIP signaling</description>
+        <description>SAS Registration Time</description>
       </setting>
       <setting name='SASLocalSIPUDPPort'>
         <label>SAS Local SIP UDP port</label>
         <value>5080</value>
         <description>UDP Port for SAS SIP signaling</description>
       </setting>
-      <setting name='SASLocalSIPTCPPort' if="5.4">
+      <setting name='SASLocalSIPTCPPort' if="5.4orLater">
         <label>SAS Local SIP TCP port</label>
         <value>5080</value>
         <description>TCP Port for SAS SIP signaling</description>
       </setting>
-      <setting name='SASLocalSIPTLSPort' if="5.4">
+      <setting name='SASLocalSIPTLSPort' if="5.4orLater">
         <label>SAS Local SIP TLS port</label>
         <value>5081</value>
         <description>TLS Port for SAS SIP signaling</description>
@@ -1188,9 +1229,30 @@
         <value></value>
         <description>SAS Default Gateway</description>
       </setting>
+      <setting name='SASProxySet' if="5.6orLater">
+        <label>SAS Proxy Set</label>
+        <type>
+          <integer min="0" max="5" />
+        </type>
+        <value>0</value>
+        <description>Determines the Proxy Set (index number) used in SAS Normal
+mode to forward REGISTER and INVITE requests from the users
+that are served by the SAS application.</description>
+      </setting>
+      <setting name='RedundantSASProxySet' if="5.6orLater" advanced="yes">
+        <label>Redundant SAS Proxy Set</label>
+        <type>
+          <integer min="-1" max="5" />
+        </type>
+        <value>-1</value>
+        <description>Determines the Proxy Set (index number) used in SAS Emergency
+mode for fallback when the user is not found in the Registered
+Users database.</description>
+      </setting>
       <setting name='SASShortNumberLength' if="5.4">
         <label>SAS Short Number Length</label>
         <value></value>
+      <description></description>
       </setting>
     </group>
   </group>
@@ -1786,7 +1848,7 @@
       <value>0.0.0.0</value>
       <description>IP address of the secondary STUN server</description>
     </setting>
-    <setting name='EnablePPPoE' unless="5.4">
+    <setting name='EnablePPPoE' unless="5.4orLater">
       <label>PPPoE Enabled</label>
       <type>
         <boolean />
@@ -1794,34 +1856,34 @@
       <value>0</value>
       <description>Enable/disable PPPoE</description>
     </setting>
-    <setting name='PPPoEUserName' unless="5.4">
+    <setting name='PPPoEUserName' unless="5.4orLater">
       <label>PPPoE User Name</label>
       <description>PPPoE user name</description>
     </setting>
-    <setting name='PPPoEPassword' unless="5.4">
+    <setting name='PPPoEPassword' unless="5.4orLater">
       <label>PPPoE Password</label>
       <description>PPPoE password</description>
     </setting>
-    <setting name='PPPoEServerName' unless="5.4">
+    <setting name='PPPoEServerName' unless="5.4orLater">
       <label>PPPoE Server Name</label>
       <description>PPPoE server name</description>
     </setting>
-    <setting name='PPPoEStaticIPAddress' unless="5.4">
+    <setting name='PPPoEStaticIPAddress' unless="5.4orLater">
       <label>PPPoE Requested IP Address</label>
       <value>0.0.0.0</value>
       <description>PPPoE Static IP address to be requested from PPPoE server</description>
     </setting>
-    <setting name='PPPoERecoverIPAddress' advanced='yes' unless="5.4">
+    <setting name='PPPoERecoverIPAddress' advanced='yes' unless="5.4orLater">
       <label>PPPoE Recovery IP Address</label>
       <value>10.4.10.4</value>
       <description>IP address to use when IP address negotiation/assignment fails in PPPoE mode.</description>
     </setting>
-    <setting name='PPPoERecoverSubnetMask' advanced='yes' unless="5.4">
+    <setting name='PPPoERecoverSubnetMask' advanced='yes' unless="5.4orLater">
       <label>PPPoE Recovery Subnet Mask</label>
       <value>255.255.0.0</value>
       <description>Subnet mask to use when IP address negotiation/assignment fails in PPPoE mode.</description>
     </setting>
-    <setting name='PPPoERecoverDfgwAddress' advanced='yes' unless="5.4">
+    <setting name='PPPoERecoverDfgwAddress' advanced='yes' unless="5.4orLater">
       <label>PPPoE Recovery Default Gateway</label>
       <value>10.4.10.1</value>
       <description>Default gateway to use when IP address negotiation/assignment fails in PPPoE mode.</description>
