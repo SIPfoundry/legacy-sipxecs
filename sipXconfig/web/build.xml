@@ -139,6 +139,10 @@
         <include name="images/**/*"/>
         <include name="js/**/*"/>
       </fileset>
+      <!-- include GWT files -->
+      <fileset dir="${top.build.dir}/gwt/dist">
+        <include name="gwt/**/*"/>
+      </fileset>
       <webinf dir="context/WEB-INF">
         <!-- avoid warning about already there -->
         <exclude name="web.xml"/>

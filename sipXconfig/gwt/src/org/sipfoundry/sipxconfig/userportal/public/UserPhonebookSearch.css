@@ -1,0 +1,25 @@
+.gwt-SuggestBox
+{
+    border                      :    1px solid #666;
+    text-align                  :    left;
+    width                       :    250px;
+}
+.gwt-SuggestBoxPopup
+{
+    text-align                   :    left;
+    cursor                       :    pointer;
+    cursor                       :    hand;
+    border                       :    1px solid #666;
+    border-top                   :    0;
+    background-color             :    #fff;
+
+}
+.gwt-SuggestBoxPopup .item
+{
+    border                       :    1px dotted #aaa;
+    width                        :    248px;
+}
+.gwt-SuggestBoxPopup .item-selected
+{
+    background-color             :    #ffc;
+}

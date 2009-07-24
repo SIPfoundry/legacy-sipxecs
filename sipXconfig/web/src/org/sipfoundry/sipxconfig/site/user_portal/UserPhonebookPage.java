@@ -18,6 +18,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hivemind.Messages;
 import org.apache.lucene.queryParser.ParseException;
+import org.apache.tapestry.IAsset;
+import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
@@ -45,6 +47,13 @@ public abstract class UserPhonebookPage extends UserBasePage implements PageBegi
 
     @InjectObject("spring:sip")
     public abstract SipService getSipService();
+
+    @Asset("/gwt/org.sipfoundry.sipxconfig.userportal.user_phonebook_search/UserPhonebookSearch.css")
+    public abstract IAsset getUserPhonebookSearchCss();
+
+    @Asset("/gwt/org.sipfoundry.sipxconfig.userportal.user_phonebook_search/nocache.js")
+    public abstract IAsset getUserPhonebookSearchJs();
+
 
     @InjectObject("spring:domainManager")
     public abstract DomainManager getDomainManager();

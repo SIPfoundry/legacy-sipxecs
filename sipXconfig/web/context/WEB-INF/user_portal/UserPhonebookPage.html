@@ -1,4 +1,6 @@
 <div jwcid="@common/Border" restricted="false">
+  <link jwcid="@Relation" href="asset:userPhonebookSearchCss"/>
+  <script jwcid="@Any" type="text/javascript" src="asset:userPhonebookSearchJs"/>
   <h2><span key="title">User Phonebook</span></h2>
   <span jwcid="@common/ErrorMsg"/>
   <form jwcid="@common/ClickToCallPanel" delegate="bean:validator" user="ognl:user"/>
@@ -13,6 +15,9 @@
             displayName="message:label.query"
             value="ognl:query"/>
         </tr>
+      </table>
+      <table>
+        <tr id="user_phonebook_search"/>
       </table>
     </fieldset>
     <ul class="component-submit">
