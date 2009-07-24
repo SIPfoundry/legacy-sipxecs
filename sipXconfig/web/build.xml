@@ -140,7 +140,7 @@
         <include name="js/**/*"/>
       </fileset>
       <!-- include GWT files -->
-      <fileset dir="${top.build.dir}/gwt/dist">
+      <fileset dir="${top.build.dir}/gwt/classes">
         <include name="gwt/**/*"/>
       </fileset>
       <webinf dir="context/WEB-INF">

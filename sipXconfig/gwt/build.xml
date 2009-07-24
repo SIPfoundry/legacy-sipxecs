@@ -2,7 +2,7 @@
   <property name="checkstyle.severity" value="error" />
   <property name="project.dir" value="gwt" />
   <import file="../ant-targets.xml" />
-  <property name="output" value="${dist.dir}/gwt" />
+  <property name="output" value="${classes.dir}/gwt" />
   <!-- D E F A U L T -->
   <path id="base.path">
     <pathelement location="${gwt-user.jar}" />

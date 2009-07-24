@@ -99,6 +99,7 @@ AC_CONFIG_FILES([
     Makefile
     bin/Makefile
     neoconf/Makefile
+    gwt/Makefile
     web/Makefile
     meta/Makefile
     agent/Makefile

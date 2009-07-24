@@ -41,6 +41,7 @@ SUBDIRS = \
 	. \
 	bin \
 	neoconf \
+	gwt \
 	web \
 	meta \
 	plugins \
@@ -71,6 +72,7 @@ EXTRA_DIST = \
     build.properties.in \
     lib.properties \
     neoconf \
+    gwt \
     sipxconfig.spec \
     doc \
     web \
