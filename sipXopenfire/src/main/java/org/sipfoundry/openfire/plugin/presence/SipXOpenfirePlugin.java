@@ -34,7 +34,6 @@ import org.sipfoundry.openfire.config.ConfigurationParser;
 import org.sipfoundry.openfire.config.WatcherConfig;
 import org.sipfoundry.sipcallwatcher.CallWatcher;
 import org.sipfoundry.sipcallwatcher.ProtocolObjects;
-import org.sipfoundry.sipcallwatcher.ResourceState;
 import org.sipfoundry.sipcallwatcher.ResourceStateChangeListener;
 import org.xmpp.component.Component;
 import org.xmpp.component.ComponentManager;
@@ -54,7 +53,6 @@ public class SipXOpenfirePlugin implements Plugin, Component {
     private ComponentManager componentManager;
     private String hostname;
     private Map<String, Presence> probedPresence;
-    private Map<String, String> sipPresenceTable = new HashMap<String,String>();
     private JID componentJID;
     private XMPPServer server;
 
@@ -193,9 +191,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         for (String userName : userManager.getUsernames()) {
             log.info("userName " + userName);
         }
-        
-        
-        
+          
         try {
 
             componentManager.addComponent(subdomain, this);
@@ -212,7 +208,6 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             if (sipId != null) {
                 log.info("adding SIP ID " + sipId);
                 this.sipIdToXmppIdMap.put(sipId, name);
-                this.sipPresenceTable.put(sipId, ResourceState.UNDETERMINED.toString());
             } else {
                 log.info(" user has no sip ID ");
             }
@@ -222,6 +217,10 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         
         // add packet interceptor
         InterceptorManager.getInstance().addInterceptor( new MessagePacketInterceptor(this) );
+		 
+        // config and instantiate and the presence unifier used to gather all presence info
+        PresenceUnifier.setPlugin( this );
+        PresenceUnifier.getInstance();
     }
 
     public void destroyPlugin() {
@@ -264,7 +263,8 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         }
     }
 
-    public Presence getPresence(String sender, String jid) throws UserNotFoundException {
+    //Experimental - to be debugged and tested
+    public Presence getForeignUserPresence(String sender, String jid) throws UserNotFoundException {
 
         log.debug("getPresence : sender = " + sender + " jid = " + jid);
 
@@ -317,8 +317,8 @@ public class SipXOpenfirePlugin implements Plugin, Component {
 
     }
 
-    public void setPresenceState(String jid, String show) throws UserNotFoundException {
-        log.debug("setPresenceState : " + jid + " show = " + show);
+    public void setPresenceState(String jid, UnifiedPresence.XmppPresence xmppPresence) throws UserNotFoundException {
+        log.debug("setPresenceState : " + jid + " XmppPresence = " + xmppPresence);
         if (jid == null) {
             throw new UserNotFoundException("Target JID not found in request");
         }
@@ -334,12 +334,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             return;
         }
 
-        if (show.equals(PresenceState.ONLINE)) {
-            presence.setShow(null);
-        } else {
-            presence.setShow(Presence.Show.valueOf(show));
-        }
-
+        presence.setShow(xmppPresence.asPresenceShowEnum());
         user.getRoster().broadcastPresence(presence);
 
     }
@@ -433,7 +428,6 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         user.getProperties().put(SIP_UID, sipUserName);
         user.getProperties().put(ON_THE_PHONE_MESSAGE, "I am on the phone");
         this.sipIdToXmppIdMap.put(sipUserName, userName);
-        this.sipPresenceTable.put(sipUserName, ResourceState.UNDETERMINED.toString());
     }
     
     public String getSipPassword(String userName) throws UserNotFoundException {
@@ -557,15 +551,6 @@ public class SipXOpenfirePlugin implements Plugin, Component {
      */
     public XMPPServer getServer() {
         return server;
-    }
-
-    public String getSipPresence(String sipId) {
-       
-       return this.sipPresenceTable.get(sipId);
-    }
-
-    public void setSipPresence(String user, String presenceState) {
-       this.sipPresenceTable.put(user, presenceState);
     }
 
     public String getXmppDomain() {

@@ -7,6 +7,7 @@ import junit.framework.TestCase;
 import org.sipfoundry.openfire.config.ConfigurationParser;
 import org.sipfoundry.openfire.config.WatcherConfig;
 import org.sipfoundry.openfire.plugin.presence.PresenceState;
+import org.sipfoundry.openfire.plugin.presence.UnifiedPresence;
 import org.sipfoundry.openfire.plugin.presence.XmlRpcPresenceProvider;
 
 public class OpenfireXmlRpcPresenceClientTest extends TestCase {
@@ -33,12 +34,12 @@ public class OpenfireXmlRpcPresenceClientTest extends TestCase {
     public void testPresence() throws Exception {
         String presenceInfo = presenceClient.getXmppPresenceState("admin");
         System.out.println("presenceInfo = " + presenceInfo);
-        presenceClient.setXmppPresenceState("admin", PresenceState.ONLINE);    
+        presenceClient.setXmppPresenceState("admin", UnifiedPresence.XmppPresence.AVAILABLE.toString());    
         String presenceState = presenceClient.getXmppPresenceState("admin");
-        assertEquals( PresenceState.ONLINE, presenceState);
-        presenceClient.setXmppPresenceState("admin", PresenceState.BUSY);
+        assertEquals( UnifiedPresence.XmppPresence.AVAILABLE.toString(), presenceState);
+        presenceClient.setXmppPresenceState("admin", UnifiedPresence.XmppPresence.BUSY.toString());
         presenceState = presenceClient.getXmppPresenceState("admin");
-        assertEquals(presenceState,PresenceState.BUSY);
+        assertEquals(presenceState,UnifiedPresence.XmppPresence.BUSY.toString());
         presenceClient.setXmppCustomPresenceMessage("admin", "Hacking");
         String status = presenceClient.getXmppCustomPresenceMessage("admin");
         System.out.println("Server returned " + status);

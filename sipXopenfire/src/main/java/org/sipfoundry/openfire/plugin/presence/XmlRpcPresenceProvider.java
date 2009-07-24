@@ -1,10 +1,8 @@
 package org.sipfoundry.openfire.plugin.presence;
 
 import java.util.Map;
-
 import org.apache.log4j.Logger;
-import org.sipfoundry.sipcallwatcher.ResourceState;
-import org.xmpp.packet.Presence;
+import org.xmpp.packet.JID;
 
 public class XmlRpcPresenceProvider extends XmlRpcProvider {
  
@@ -12,44 +10,37 @@ public class XmlRpcPresenceProvider extends XmlRpcProvider {
     
     public static final String SERVER = "presenceServer";
 
-   
-    
-    private Logger log = Logger.getLogger(XmlRpcPresenceProvider.class);
-    
-    
-
-  
+    private Logger log = Logger.getLogger(XmlRpcPresenceProvider.class); 
 
     public XmlRpcPresenceProvider() {
   
     }
 
-    public Map getPresenceState( String id) {
+    public Map getPresenceState( String xmppUsername ) {
         try {
-            String jid = appendDomain(id);
+            String jid = appendDomain(xmppUsername);
             log.info("GetPresenceState " + jid);
             Map retval = createSuccessMap();
-            Presence presence = plugin.getPresence(jid, jid);
-            if ( presence == null ) {
-                retval.put(XMPP_PRESENCE, PresenceState.OFFLINE);
-            } else if ( presence.getShow() == null ) {
-                retval.put(XMPP_PRESENCE, PresenceState.ONLINE);
-            } else {
-                retval.put(XMPP_PRESENCE, presence.getShow().toString());
-            }
+            UnifiedPresence unifiedPresence = 
+                  PresenceUnifier.getInstance().getUnifiedPresence( xmppUsername );
+            retval.put(XMPP_PRESENCE, unifiedPresence.getXmppPresence().toString());
             return retval;
+        } catch (IllegalArgumentException e) {
+            log.error("Invalid enum value ",e);
+            return createErrorMap(ErrorCode.INVALID_XMPP_PRESENCE_VALUE, e.getMessage());
         } catch (Exception e) {
             log.error("User Not Found",e);
             return createErrorMap(ErrorCode.USER_NOT_FOUND, e.getMessage());
         }
     }
     
-    public Map setPresenceState (String id , String show) {
+    public Map setPresenceState (String xmppUsername , String xmppPresenceAsString ) {
         try {
-            String jid = appendDomain(id);
-            log.info("setPresenceState" + jid + " Show " + show);
+            String jid = appendDomain(xmppUsername);
+            log.info("setPresenceState" + jid + " XMPP presence " + xmppPresenceAsString);
             Map retval = createSuccessMap();
-            plugin.setPresenceState(jid,  show);   
+            UnifiedPresence.XmppPresence xmppPresence = UnifiedPresence.XmppPresence.valueOf( xmppPresenceAsString ); 
+            plugin.setPresenceState(jid, xmppPresence);   
             return retval;
         } catch ( Exception ex) {
             log.error("User Not Found",ex);
@@ -101,7 +92,7 @@ public class XmlRpcPresenceProvider extends XmlRpcProvider {
      *    "sip-resource-id" // queried SIP identity
      *    "jabber-id"       // associated jabber id
      *    "telephony-presence" // string representing telephony presence.  Can be "idle", "busy" or "undetermied"
-     *    "xmpp-presence" // string representing XMPP presence.  Can be "available", "away", "xa", "dnd" or "offline"
+     *    "xmpp-presence" // string representing XMPP presence.  Can be "available", "away", "xa", "dnd", "chat" or "offline"
      *    "unified-presence" // string representing unified XMPP presence which is a merge of the telephony and XMPP presences
      *     "custom-presence-message" // string representing user-supplied cusomt message linked to presence state.  Can be an empty string
      *
@@ -116,38 +107,17 @@ public class XmlRpcPresenceProvider extends XmlRpcProvider {
            }
            log.debug("xmppUser = " + xmppUser);
            Map retval = createSuccessMap();
-           String jid = xmppUser;
-           Presence presence = plugin.getPresence(jid, jid);
-           String xmppPresence;
-           if ( presence == null ) {
-               xmppPresence =  PresenceState.OFFLINE;
-           } else if ( presence.getShow() == null ) {
-               xmppPresence =  PresenceState.ONLINE;
-           } else {
-               xmppPresence =  presence.getShow().toString();
-           }
-           retval.put(XMPP_PRESENCE, xmppPresence);
-           retval.put(JABBER_ID, jid);
+           JID jid = new JID(xmppUser);
+           UnifiedPresence unifiedPresence 
+                   = PresenceUnifier.getInstance().getUnifiedPresence( jid.getNode());
+           String xmppPresence = unifiedPresence.getXmppPresence().toString();
+
+           retval.put(XMPP_PRESENCE, unifiedPresence.getXmppPresence().toString());
+           retval.put(JABBER_ID, jid.toString());
            retval.put(SIP_ID, sipId);
-           String sipPresence =  plugin.getSipPresence(sipId);
-           retval.put(SIP_PRESENCE, sipPresence);
-           String unifiedPresence = UnifiedPresence.AVAILABLE_FOR_BOTH;
-           if ( sipPresence.equals(ResourceState.BUSY.toString())  && 
-                xmppPresence.equals(PresenceState.OFFLINE)) {
-               unifiedPresence = UnifiedPresence.NOT_AVAILABLE.toString();      
-           } else if ( sipPresence.equals(ResourceState.IDLE.toString())  && 
-                   xmppPresence.equals(PresenceState.AWAY.toString())){
-               unifiedPresence = UnifiedPresence.AVAILABLE_FOR_PHONE;         
-           } else if ( sipPresence.equals(ResourceState.BUSY) && 
-                   xmppPresence.equals(PresenceState.CHAT)) {
-               unifiedPresence = UnifiedPresence.AVAILABLE_FOR_CHAT;
-           } else if ( sipPresence.equals(ResourceState.IDLE) && 
-                   xmppPresence.equals(PresenceState.ONLINE)) {
-               unifiedPresence = UnifiedPresence.AVAILABLE_FOR_BOTH;
-           } 
-           retval.put(UNIFIED_PRESENCE, unifiedPresence);
-           String presenceStatus = plugin.getPresenceStatus(jid);
-           retval.put(CUSTOM_PRESENCE_MESSAGE, presenceStatus);
+           retval.put(SIP_PRESENCE, unifiedPresence.getSipState().toString());
+           retval.put(UNIFIED_PRESENCE, unifiedPresence.getUnifiedPresence());
+           retval.put(CUSTOM_PRESENCE_MESSAGE, unifiedPresence.getXmppStatusMessage());
            return retval;
         } catch (Exception ex) {
             log.error("Processing error",ex);
@@ -156,9 +126,20 @@ public class XmlRpcPresenceProvider extends XmlRpcProvider {
         
     }
     
-    
-    
-    
+    public Map registerPresenceMonitor(String protocol, String serverUrl ) 
+    {
+        log.info("registerPresenceMonitor " + protocol + " " + serverUrl );            
+        PresenceUnifier.getInstance().addUnifiedPresenceChangeListener( protocol, serverUrl );
+        Map retval = createSuccessMap();
+        return retval;
+    }
+     
+    public Map ping( String originatorName ) 
+    {
+        log.info("ping received from " + originatorName );            
+        Map retval = createSuccessMap();
+        return retval;
+    }
     
 
 }

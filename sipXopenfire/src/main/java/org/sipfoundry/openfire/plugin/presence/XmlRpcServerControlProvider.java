@@ -35,7 +35,4 @@ public class XmlRpcServerControlProvider extends XmlRpcProvider {
             return super.createErrorMap(ErrorCode.SERVER_CONTROL_FAILED, ex.getMessage());
         }
     }
-    
-   
-
 }

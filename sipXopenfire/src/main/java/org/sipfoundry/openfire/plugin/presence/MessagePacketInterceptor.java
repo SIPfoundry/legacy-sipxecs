@@ -2,14 +2,6 @@ package org.sipfoundry.openfire.plugin.presence;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.PutMethod;
-
-import javax.net.ssl.HttpsURLConnection;
 
 import org.apache.log4j.Logger;
 import org.jivesoftware.openfire.interceptor.PacketInterceptor;

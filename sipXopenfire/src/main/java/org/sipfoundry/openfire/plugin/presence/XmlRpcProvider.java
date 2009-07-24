@@ -3,8 +3,6 @@ package org.sipfoundry.openfire.plugin.presence;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.xmpp.packet.Presence;
-
 public abstract class XmlRpcProvider {
     public static final String STATUS_CODE = "status-code";
 

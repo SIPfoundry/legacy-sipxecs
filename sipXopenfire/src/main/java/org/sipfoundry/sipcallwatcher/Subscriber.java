@@ -104,7 +104,7 @@ public class Subscriber implements SipListener, AccountManager {
          */
         private Map<String, String> activeDialogStates = new HashMap<String, String>();
         /* state of a resource considering all its dialogs */
-        private ResourceState compoundState = ResourceState.UNDETERMINED;
+        private SipResourceState compoundState = SipResourceState.UNDETERMINED;
         /* internal Id used to track entries that have been updated */
         private int updateId = -1;
         private String resourceName;
@@ -125,9 +125,9 @@ public class Subscriber implements SipListener, AccountManager {
                     // There are no dialogs associated with this resource so it
                     // is clearly idle.
                     activeDialogStates.clear();
-                    if (!this.compoundState.equals(ResourceState.IDLE)) {
+                    if (!this.compoundState.equals(SipResourceState.IDLE)) {
                         hasStateChanged = true;
-                        this.compoundState = ResourceState.IDLE;
+                        this.compoundState = SipResourceState.IDLE;
                     }
                 }
             } else {
@@ -164,13 +164,13 @@ public class Subscriber implements SipListener, AccountManager {
          */
         private boolean computeCompoundState() {
             boolean hasStateChanged = false;
-            ResourceState newCompoundState;
+            SipResourceState newCompoundState;
             if (activeDialogStates.size() > 0) {
                 // at least one active dialog - that makes the resource busy.
-                newCompoundState = ResourceState.BUSY;
+                newCompoundState = SipResourceState.BUSY;
             } else {
                 // no active dialogs - that makes the resource idle.
-                newCompoundState = ResourceState.IDLE;
+                newCompoundState = SipResourceState.IDLE;
             }
             // Set hasStateChanged flag to true and update the compound state
             // if a state change was detected.
@@ -183,7 +183,7 @@ public class Subscriber implements SipListener, AccountManager {
             return hasStateChanged;
         }
 
-        public ResourceState getCompoundState() {
+        public SipResourceState getCompoundState() {
             return compoundState;
         }
 
@@ -213,15 +213,15 @@ public class Subscriber implements SipListener, AccountManager {
          * @return - map for resources names that experienced a state change as the result of the
          *         update along with their new state.
          */
-        public Map<String, ResourceState> update(boolean isFullState,
+        public Map<String, SipResourceState> update(boolean isFullState,
                 Collection<RlmiMultipartMessage.ResourceDialogsDescriptor> dialogsUpdate) {
             logger.debug("update : isFullState " + isFullState + " ndescriptors "
                     + dialogsUpdate.size());
-            Map<String, ResourceState> updatedResources = new HashMap<String, ResourceState>();
+            Map<String, SipResourceState> updatedResources = new HashMap<String, SipResourceState>();
 
             // update the resources one-by-one
             for (RlmiMultipartMessage.ResourceDialogsDescriptor dialogsDesc : dialogsUpdate) {
-                ResourceState newCompoundState;
+                SipResourceState newCompoundState;
                 if ((newCompoundState = update(dialogsDesc)) != null) {
                     updatedResources.put(dialogsDesc.getResourceName(), newCompoundState);
 
@@ -247,8 +247,8 @@ public class Subscriber implements SipListener, AccountManager {
                     DialogInformation dialogInfo = resourcesDialogInfoMap.get(resourceName);
                     if (dialogInfo.getUpdateId() < updateId) {
                         // this record did not get updated by the full report, remove it.
-                        if (!dialogInfo.getCompoundState().equals(ResourceState.UNDETERMINED)) {
-                            updatedResources.put(resourceName, ResourceState.UNDETERMINED);
+                        if (!dialogInfo.getCompoundState().equals(SipResourceState.UNDETERMINED)) {
+                            updatedResources.put(resourceName, SipResourceState.UNDETERMINED);
 
                         }
                         mapIter.remove();
@@ -270,9 +270,9 @@ public class Subscriber implements SipListener, AccountManager {
          * @return - if update caused a state change then a ResourceState representing the
          *         resource's new state is returned, otherwise null.
          */
-        public ResourceState update(RlmiMultipartMessage.ResourceDialogsDescriptor dialogsDesc) {
+        public SipResourceState update(RlmiMultipartMessage.ResourceDialogsDescriptor dialogsDesc) {
             try {
-                ResourceState newState = null;
+                SipResourceState newState = null;
 
                 // locate the record for that resource in our resourcesDialogInfoMap
                 DialogInformation dialogInfo = resourcesDialogInfoMap.get(dialogsDesc
@@ -401,7 +401,7 @@ public class Subscriber implements SipListener, AccountManager {
                     .getHeader(SubscriptionStateHeader.NAME);
             // Subscription is terminated?
             String state = subscriptionState.getState();
-            Map<String, ResourceState> updatedSipUsersStates = null;
+            Map<String, SipResourceState> updatedSipUsersStates = null;
             if (state.equalsIgnoreCase(SubscriptionStateHeader.TERMINATED)) {
                 logger
                         .warn("Subscription in 'terminated' state - dropping dialog and resubscribing");
@@ -439,7 +439,7 @@ public class Subscriber implements SipListener, AccountManager {
                             rlmiMultipartMessage.isFullState(), rlmiMultipartMessage
                                     .getUpdatedEntitiesStates());
                     for (String user : updatedSipUsersStates.keySet()) {
-                        ResourceState resourceState = updatedSipUsersStates.get(user);
+                        SipResourceState resourceState = updatedSipUsersStates.get(user);
                         // notify state change listener of change
                         if (Subscriber.this.resourceStateChangeListener != null) {
                             ResourceStateEvent resourceStateEvent = new ResourceStateEvent(
@@ -460,9 +460,9 @@ public class Subscriber implements SipListener, AccountManager {
         }
     }
 
-    private void dumpResourceStates(Map<String, ResourceState> updatedSipUsersStates) {
+    private void dumpResourceStates(Map<String, SipResourceState> updatedSipUsersStates) {
         logger.debug("<StateDump>");
-        for (Map.Entry<String, ResourceState> kvPair : updatedSipUsersStates.entrySet()) {
+        for (Map.Entry<String, SipResourceState> kvPair : updatedSipUsersStates.entrySet()) {
             logger.debug("  Sip User:'" + kvPair.getKey() + "' -> new state="
                     + kvPair.getValue().name());
         }
@@ -765,7 +765,7 @@ public class Subscriber implements SipListener, AccountManager {
             // WRT the state of the resources we were monitoring.
             // Force an update that will put all the monitored resources
             // in an undetermined state;
-            Map<String, ResourceState> updatedSipUsersStates = null;
+            Map<String, SipResourceState> updatedSipUsersStates = null;
             updatedSipUsersStates = resourcesDialogInformation.update(true, emptyCollection);
             dumpResourceStates(updatedSipUsersStates);
 

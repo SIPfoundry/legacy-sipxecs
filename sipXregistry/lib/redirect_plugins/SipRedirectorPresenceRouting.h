@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2009 Nortel, certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2009 Nortel, certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -15,6 +15,8 @@
 
 // APPLICATION INCLUDES
 #include "registry/RedirectPlugin.h"
+#include "os/OsTimer.h"
+#include "net/XmlRpcMethod.h"
 
 // DEFINES
 // MACROS
@@ -25,12 +27,45 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
+class UnifiedPresence : public UtlString
+{
+public:
+   UnifiedPresence( UtlString aor );
+   const UtlString& getXmppPresence( void ) const;
+   void setXmppPresence( const UtlString& xmppPresence );
+   const UtlString& getXmppStatusMessage( void ) const;
+   void setXmppStatusMessage( const UtlString& xmppStatusMessage );
+   const UtlString& getSipState( void ) const;
+   void setSipState( const UtlString& sipState );
+   const UtlString& getUnifiedPresence( void ) const;
+   void setUnifiedPresence( const UtlString& unifiedPresence );
+private:
+   UtlString mXmppPresence;
+   UtlString mXmppStatusMessage;
+   UtlString mSipState;
+   UtlString mUnifiedPresence;
+};
+
+class UnifiedPresenceContainer
+{
+public:
+   static UnifiedPresenceContainer* pInstance;
+   static UnifiedPresenceContainer* getInstance( void );
+   void insert( UtlString* pAor, UnifiedPresence* pUnifiedPresence ); // if entry already exists, it is updated
+   const UnifiedPresence* lookup( UtlString* pAor );
+   void reset( void );
+
+private:
+   UnifiedPresenceContainer();
+   UtlHashMap mUnifiedPresences;
+   OsMutex    mMutex;
+};
+
 /**
  * SipRedirectorPresenceRouting is a class whose object adds or removes contacts
  * based on the presence state of the called users.
  */
-
-class SipRedirectorPresenceRouting : public RedirectPlugin
+class SipRedirectorPresenceRouting : public RedirectPlugin, OsNotification
 {
   public:
 
@@ -56,8 +91,17 @@ class SipRedirectorPresenceRouting : public RedirectPlugin
       int redirectorNo,
       SipRedirectorPrivateStorage*& privateStorage,
       ErrorDescriptor& errorDescriptor);
-   
+
+   // created for unit testability
+   RedirectPlugin::LookUpStatus
+   doLookUp(
+      const Url& toUrl,
+      ContactList& contactList);
+
    virtual const UtlString& name( void ) const;
+
+   // OsNotification virtual method implementation
+   virtual OsStatus signal(intptr_t eventData);
 
   protected:
 
@@ -67,55 +111,28 @@ class SipRedirectorPresenceRouting : public RedirectPlugin
    UtlString mRealm;
    UtlBoolean mbForwardToVmOnBusy;
    Url mOpenFirePresenceServerUrl;
+   Url mLocalPresenceMonitorServerUrl;
+   UtlHashMap mUnifiedPresences;
+   OsTimer mPingTimer;
+   bool mbRegisteredWithOpenfire;
 
   private:
-   void removeNonVoicemailContacts( ContactList& contactList );   
+   void removeNonVoicemailContacts( ContactList& contactList );
+   OsStatus startPresenceMonitorXmlRpcServer( void );
+   OsStatus registerPresenceMonitorServerWithOpenfire(void );
+   OsStatus pingOpenfire( void );
+
 };
 
-/**
- * Private storage for presence state look-ups.
- */
-class PresenceLookupTask : public SipRedirectorPrivateStorage, public OsTask
+class UnifiedPresenceChangedMethod : public XmlRpcMethod
 {
-   friend class SipRedirectorPresenceRouting;
-   friend class SipRedirectorPresenceRoutingTest;
-
 public:
-   
-   PresenceLookupTask( const Url& resourceUrl, RedirectPlugin::RequestSeqNo requestSeqNo, int redirectorNo, const Url& mOpenFirePresenceServerUrl);
-
-   virtual ~PresenceLookupTask(){};
-   /// Start running the PresenceLookupTask task.
-   virtual int run( void* runArg );
-
-   virtual UtlContainableType getContainableType() const;
-
-   bool isPresenceAvailable( void ) const ;
-   void getSipUserIdentity( UtlString& sipUserIdentity ) const;
-   void getTelephonyPresenceState( UtlString& telephonyPresence ) const;
-   void getXmppPresenceState( UtlString& xmppPresence ) const;
-   void getUnifiedPresenceState( UtlString& unifiedPresence ) const;
-   void getCustomPresenceMessage( UtlString& customPresenceMessage ) const;
-   
-protected:
-
-   static const UtlContainableType TYPE;    /** < Class type used for runtime checking */
-
-private:
-   Url mResourceUrl;
-   RedirectPlugin::RequestSeqNo mRequestSeqNo;
-   int mRedirectorNo;
-   Url mOpenFirePresenceServerUrl;
-   
-   bool mbPresenceInfoAvailable;
-   UtlString mSipUserIdentity;
-   UtlString mTelephonyPresence;
-   UtlString mXmppPresence;  
-   UtlString mUnifiedPresence;
-   UtlString mCustomPresenceMessage;
-   
-   bool getStringValueFromMap( const UtlHashMap* map, UtlString keyName, UtlString& returnedValue );               
-
+      static XmlRpcMethod* get();
+      virtual bool execute(const HttpRequestContext& requestContext,
+                           UtlSList& params,
+                           void* userData,
+                           XmlRpcResponse& response,
+                           ExecutionStatus& status);
 };
 
 #endif // SIPREDIRECTORPRESENCEROUTING_H

@@ -6,12 +6,12 @@ import java.util.Map;
 import javax.sip.address.SipURI;
 
 import org.apache.log4j.Logger;
-import org.jivesoftware.openfire.user.UserNotFoundException;
 import org.sipfoundry.sipcallwatcher.CallWatcher;
 import org.sipfoundry.sipcallwatcher.ProtocolObjects;
-import org.sipfoundry.sipcallwatcher.ResourceState;
+import org.sipfoundry.sipcallwatcher.SipResourceState;
 import org.sipfoundry.sipcallwatcher.ResourceStateChangeListener;
 import org.sipfoundry.sipcallwatcher.ResourceStateEvent;
+import org.xmpp.packet.JID;
 
 public class ResourceStateChangeListenerImpl implements ResourceStateChangeListener {
 
@@ -29,14 +29,14 @@ public class ResourceStateChangeListenerImpl implements ResourceStateChangeListe
             String resource = resourceStateEvent.getUser();
             SipURI sipUri = (SipURI) ProtocolObjects.addressFactory.createURI(resource);
             String user = sipUri.getUser() + "@" + sipUri.getHost();
-            ResourceState resourceState = resourceStateEvent.getState();
+            SipResourceState resourceState = resourceStateEvent.getState();
             String xmppId = plugin.getXmppId(user);
-            logger
-                    .info("handleResourceStateChange " + user + " resourceState = "
+            JID jid = new JID(xmppId);
+            logger.info("handleResourceStateChange " + user + " resourceState = "
                             + resourceState);
-            plugin.setSipPresence(user, resourceState.toString());
+            PresenceUnifier.getInstance().sipStateChanged( jid.getNode(), resourceState );
 
-            if (resourceState.equals(ResourceState.BUSY)) {
+            if (resourceState.equals(SipResourceState.BUSY)) {
                 if (xmppId != null) {
                     savedMessages.put( xmppId, plugin.getPresenceStatus(xmppId) );
                     String statusMessage = plugin.getOnThePhoneMessage(user);
@@ -44,7 +44,7 @@ public class ResourceStateChangeListenerImpl implements ResourceStateChangeListe
                         plugin.setPresenceStatus(xmppId, statusMessage);
                     }
                 }
-            } else if (resourceState.equals(ResourceState.IDLE)) {
+            } else if (resourceState.equals(SipResourceState.IDLE)) {
                 if (xmppId != null) {
                     String savedMessage = savedMessages.get( xmppId );
                     if (savedMessage != null) {
