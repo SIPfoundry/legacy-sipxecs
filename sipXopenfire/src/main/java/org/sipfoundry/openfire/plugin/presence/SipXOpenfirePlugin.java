@@ -4,10 +4,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.ConsoleAppender;
@@ -23,11 +26,18 @@ import org.jivesoftware.openfire.group.GroupAlreadyExistsException;
 import org.jivesoftware.openfire.group.GroupManager;
 import org.jivesoftware.openfire.group.GroupNotFoundException;
 import org.jivesoftware.openfire.interceptor.InterceptorManager;
+import org.jivesoftware.openfire.muc.MUCRoom;
+import org.jivesoftware.openfire.muc.MultiUserChatManager;
+import org.jivesoftware.openfire.muc.MultiUserChatService;
+import org.jivesoftware.openfire.muc.NotAllowedException;
 import org.jivesoftware.openfire.spi.PresenceManagerImpl;
 import org.jivesoftware.openfire.user.User;
 import org.jivesoftware.openfire.user.UserAlreadyExistsException;
 import org.jivesoftware.openfire.user.UserManager;
 import org.jivesoftware.openfire.user.UserNotFoundException;
+import org.jivesoftware.util.AlreadyExistsException;
+import org.jivesoftware.util.JiveGlobals;
+import org.jivesoftware.util.NotFoundException;
 import org.sipfoundry.commons.log4j.SipFoundryAppender;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.openfire.config.ConfigurationParser;
@@ -45,7 +55,9 @@ import org.xmpp.packet.Presence;
 public class SipXOpenfirePlugin implements Plugin, Component {
 
     private static final String subdomain = "presence";
-
+    
+    
+    private MultiUserChatManager multiUserChatManager;
     private GroupManager groupManager;
     private UserManager userManager;
     private PresenceManager presenceManager;
@@ -69,6 +81,8 @@ public class SipXOpenfirePlugin implements Plugin, Component {
     public static final String SIP_PWD = "sipPwd";
     
     public static final String ON_THE_PHONE_MESSAGE = "onThePhoneMessage";
+    
+    public static final String CONFERENCE_EXTENSION = "conferenceExtension";
 
     private static Logger log = Logger.getLogger(SipXOpenfirePlugin.class);
 
@@ -177,15 +191,23 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         }
 
         server = XMPPServer.getInstance();
+       
         userManager = server.getUserManager();
         presenceManager = server.getPresenceManager();
 
         hostname = server.getServerInfo().getXMPPDomain();
+        log.info("HostName = " + hostname);
 
         probedPresence = new ConcurrentHashMap<String, Presence>();
         componentJID = new JID(subdomain + "." + hostname);
         
         groupManager = GroupManager.getInstance();
+        
+        multiUserChatManager = server.getMultiUserChatManager();
+        /*
+         * Load up the database.
+         */
+        multiUserChatManager.start();
 
         log.info("hostname " + hostname);
         for (String userName : userManager.getUsernames()) {
@@ -456,9 +478,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
        group.setDescription(description);
      
     }
-    
-    
-    
+
     public void addUserToGroup(String userJid,   String groupName, boolean isAdmin) throws 
         UserNotFoundException, GroupNotFoundException { 
         log.debug("addUserToGroup " + userJid + " GroupName " 
@@ -512,6 +532,18 @@ public class SipXOpenfirePlugin implements Plugin, Component {
      
     }
     
+    public void setConferenceExtension(String sipUserName, String conferenceExtension) throws UserNotFoundException {
+        String userName = this.sipIdToXmppIdMap.get(sipUserName);
+        if ( userName == null ) {
+            throw new UserNotFoundException("SIP User " + sipUserName + " not found");
+        }
+        User user = userManager.getUser(userName);
+        
+        user.getProperties().put(CONFERENCE_EXTENSION, conferenceExtension);
+        
+        
+    }
+    
     public boolean groupExists(String groupName) {
         try {
             Group group = groupManager.getGroup(groupName);
@@ -561,7 +593,86 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         Group group = groupManager.getGroup(groupName,true);
         return group.isUser(jid);
     }
+    
+   
+    public void destroyMultiUserChatService(String subdomain) {
+        try {
+            this.multiUserChatManager.removeMultiUserChatService(subdomain);
+          
+        } catch (NotFoundException nfe) {
+            log.debug("destroyMultiUserChatService not found "  + subdomain);
+        }
+    }
+    
+   
+   
+    public void createChatRoom(String domain,  
+            String roomName, 
+            boolean listRoomInDirectory,
+            boolean makeRoomModerated,
+            boolean makeRoomMembersOnly,
+            boolean allowOccupantsToInviteOthers,
+            boolean isPublicRoom,
+            boolean logRoomConversations,
+            String description, 
+            String conferenceExtension) 
+    throws Exception {      
+        MultiUserChatService mucService = XMPPServer.getInstance().getMultiUserChatManager().getMultiUserChatService(domain);
+        if ( mucService == null ) {
+            mucService = XMPPServer.getInstance().getMultiUserChatManager().createMultiUserChatService(domain,description,false);
+        }
+        Collection<JID> admins = XMPPServer.getInstance().getAdmins();
+        JID admin = admins.iterator().next();
+        mucService.addUserAllowedToCreate(admin.toBareJID());
+       /* Remove an old chat room if it exists */
+        mucService.removeChatRoom(roomName);
+       
+        MUCRoom mucRoom = mucService.getChatRoom(roomName,admin);
+        
+        mucRoom.setPersistent(true );
+     
+        mucRoom.setPublicRoom(true);
+        mucRoom.setCanAnyoneDiscoverJID(true);
+        mucRoom.setChangeNickname(true);
+        mucRoom.setModerated(makeRoomModerated);
+        mucRoom.setMembersOnly(makeRoomMembersOnly);
+        mucRoom.setRegistrationEnabled(true);
+        mucRoom.setPublicRoom(isPublicRoom);
+        mucRoom.setCanAnyoneDiscoverJID(true);
+        mucRoom.setCanOccupantsInvite(allowOccupantsToInviteOthers);
+        mucRoom.setDescription(description);
+       
+        /* The conference extension is the voice conf bridge extension */
+        String document = RoomDescriptionParser.generateDescriptionDocument(description, conferenceExtension);
+        JiveGlobals.setProperty("chatrooms.info."+domain+"."+roomName, document);
+    }
+    
+    /**
+     * Delete a chat room from the domain.
+     * 
+     * @param domain 
+     * @param roomName
+     */
+    public void removeChatRoom(String domain, String roomName) {
+        MultiUserChatService mucService = this.multiUserChatManager.getMultiUserChatService(domain);
+        mucService.removeChatRoom(roomName);
+    }
 
+    /**
+     * Get all the members of a chat room.
+     * 
+     * @param domain
+     * @param roomName
+     * @return
+     */
+    public Collection<String> getMembers(String domain, String roomName) {
+        MultiUserChatService mucService = this.multiUserChatManager.getMultiUserChatService(domain);
+        MUCRoom mucRoom = mucService.getChatRoom(roomName);
+        return mucRoom.getMembers();
+     }
+    
+   
+    
    
 
 }

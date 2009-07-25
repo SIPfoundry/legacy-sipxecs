@@ -36,6 +36,8 @@ public abstract class XmlRpcProvider {
 
     public static final String USER_IN_GROUP = "is-user-in-group";
     
+    public static final String ROOM_MEMBERS = "room-members";
+    
     protected static SipXOpenfirePlugin plugin;
     
     protected Map<String, Object> createErrorMap(ErrorCode errorCode, String reason) {

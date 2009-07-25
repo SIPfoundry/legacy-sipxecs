@@ -1,5 +1,6 @@
 package org.sipfoundry.openfire.plugin.presence;
 
+import java.util.Collection;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -250,6 +251,85 @@ public class XmlRpcUserAccountProvider extends XmlRpcProvider {
         }
     }
     
+    
+   
+    /**
+     * Destroy a MUC service.
+     */
+    public Map destroyMultiUserChatService(String subdomain) {
+        try {
+            plugin.destroyMultiUserChatService(subdomain);
+            return createSuccessMap();
+        } catch (Exception ex) {
+            return createErrorMap(ErrorCode.DESTROY_MULTI_USER_CHAT_SERVICE,ex.getMessage());
+        }
+    }
+    
+    
+    public Map createChatRoom(String subdomain, String roomName,  
+            String listRoomInDirectory,
+            String makeRoomModerated,
+            String makeRoomMembersOnly,
+            String allowOccupantsToInviteOthers,
+            String isPublicRoom,
+            String logRoomConversations,
+            String description,  String conferenceExtension) {
+        
+        try {
+            boolean listRoom = Boolean.parseBoolean(listRoomInDirectory);
+            boolean moderated = Boolean.parseBoolean(makeRoomModerated);
+            boolean membersOnly = Boolean.parseBoolean(makeRoomMembersOnly);
+            boolean allowInvite = Boolean.parseBoolean(allowOccupantsToInviteOthers);
+            boolean publicRoom = Boolean.parseBoolean(isPublicRoom);
+            boolean logConversations = Boolean.parseBoolean(logRoomConversations);
+            log.info(String.format("createChatRoom %s\n %s\n %s\n %s\n", 
+                    subdomain,roomName,description,conferenceExtension));
+            plugin.createChatRoom(subdomain,roomName, 
+                    listRoom,moderated,membersOnly,allowInvite,publicRoom,logConversations,
+                    description, conferenceExtension);
+            return createSuccessMap();
+        } catch (Exception ex) {
+            log.error("Processing error " , ex);
+            return createErrorMap(ErrorCode.CREATE_CHAT_ROOM,ex.getMessage());
+        }
+    }
+    
+    /**
+     * Delete a room
+     * 
+     * @param subdomain -- server subdomain
+     * @param roomName -- room name
+     * @param userName -- userName
+     */
+    public Map removeChatRoom(String subdomain, String roomName) {
+       try {
+           plugin.removeChatRoom(subdomain, roomName);
+           return createSuccessMap();
+       } catch (Exception ex) {
+           return createErrorMap(ErrorCode.REMOVE_CHAT_ROOM,ex.getMessage());
+       }
+       
+    }
+    
+    /**
+     * Get the chat room members.
+     * 
+     * @param subdomain -- server subdomain.
+     * @param roomName -- room name.
+     * @param userName -- userName
+     *
+     */
+    public Map getMembers(String subdomain, String roomName) {
+        try {
+            Collection<String> members = plugin.getMembers(subdomain,roomName);
+            Map retval = createSuccessMap();
+            retval.put(ROOM_MEMBERS, members.toArray());
+            return retval;
+        } catch ( Exception ex) {
+            return createErrorMap(ErrorCode.GET_CHAT_ROOM_MEMBERS,ex.getMessage());
+             
+        }
+    }
     
 
 }
