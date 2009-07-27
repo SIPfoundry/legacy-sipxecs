@@ -1580,7 +1580,7 @@ class SipUtilities {
         Iterator<String> headerNames = response.getHeaderNames();
         while (headerNames.hasNext()) {
             String headerName = headerNames.next();
-           if ( newResponse.getHeader(headerName) != null) {
+           if ( newResponse.getHeader(headerName) == null) {
                ListIterator<Header> responseHeaderIterator = response.getHeaders(headerName);
                while (responseHeaderIterator.hasNext()) {
                    newResponse.addHeader(responseHeaderIterator.next());
