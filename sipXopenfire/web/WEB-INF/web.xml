@@ -4,15 +4,19 @@
     <!-- Servlets -->
     <servlet>
         <servlet-name>PresenceStatusServlet</servlet-name>
-        <servlet-class>org.sipfoundry.openfire.plugin.presence.PresenceStatusServlet</servlet-class>
+        <servlet-class>org.sipfoundry.openfire.plugin.presence.servlets.PresenceStatusServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>UserAccountServlet</servlet-name>
-        <servlet-class>org.sipfoundry.openfire.plugin.presence.UserAccountServlet</servlet-class>
+        <servlet-class>org.sipfoundry.openfire.plugin.presence.servlets.UserAccountServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>OpenfireServerControlServlet</servlet-name>
-        <servlet-class>org.sipfoundry.openfire.plugin.presence.OpenfireServerControlServlet</servlet-class>
+        <servlet-class>org.sipfoundry.openfire.plugin.presence.servlets.OpenfireServerControlServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ChatRoomManagementServlet</servlet-name>
+        <servlet-class>org.sipfoundry.openfire.plugin.presence.servlets.ChatRoomManagementServlet</servlet-class>
     </servlet>
 
     <!-- Servlet mappings -->
@@ -27,6 +31,10 @@
     <servlet-mapping>
         <servlet-name>OpenfireServerControlServlet</servlet-name>
         <url-pattern>/serverctl</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ChatRoomManagementServlet</servlet-name>
+        <url-pattern>/chatroom</url-pattern>
     </servlet-mapping>
 
 </web-app>

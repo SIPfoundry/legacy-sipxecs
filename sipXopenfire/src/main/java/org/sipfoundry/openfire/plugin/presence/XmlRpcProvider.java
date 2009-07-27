@@ -3,6 +3,8 @@ package org.sipfoundry.openfire.plugin.presence;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jivesoftware.openfire.XMPPServer;
+
 public abstract class XmlRpcProvider {
     public static final String STATUS_CODE = "status-code";
 
@@ -20,9 +22,9 @@ public abstract class XmlRpcProvider {
     
     public static final String ACCOUNT_EXISTS = "account-exists";
     
-    public static final String SIP_ID = "sipId";
+    public static final String SIP_ID = "sip-id";
     
-    public static final String SIP_PASSWORD = "sipPassword";
+    public static final String SIP_PASSWORD = "sip-password";
     
     public static final String JABBER_ID = "jabber-id";
     
@@ -38,7 +40,12 @@ public abstract class XmlRpcProvider {
     
     public static final String ROOM_MEMBERS = "room-members";
     
-    protected static SipXOpenfirePlugin plugin;
+    public static final String IS_LIST_ROOM_IN_DIRECTORY = "is-list-room-in-directory";
+
+    public static final String CONFERENCE_BRIDGE_EXTENSION = "conference-bridge-extension";
+    
+    private static SipXOpenfirePlugin plugin ;
+    
     
     protected Map<String, Object> createErrorMap(ErrorCode errorCode, String reason) {
         Map<String, Object> retval = new HashMap<String, Object>();
@@ -57,9 +64,17 @@ public abstract class XmlRpcProvider {
     protected static String appendDomain(String userName) {
         if (  userName.indexOf("@") == -1) {
             // No @ in the domain so assume this is our domain.
-            return userName + "@" + plugin.getXmppDomain();
+            return userName + "@" + getPlugin().getXmppDomain();
         } else {
             return userName;
         }
+    }
+
+
+    /**
+     * @return the plugin
+     */
+    protected static SipXOpenfirePlugin getPlugin() {
+        return   (SipXOpenfirePlugin) XMPPServer.getInstance().getPluginManager().getPlugin("sipx-openfire");
     }
 }

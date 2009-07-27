@@ -250,72 +250,10 @@ public class OpenfireXmlRpcUserAccountClient extends OpenfireXmlRpcClient {
     }
     
     
-    public void destroyMultiUserChatService(String subdomain) 
-        throws OpenfireClientException {
-        Object[] args = new Object[1];
-        try {
-            Map retval = execute("destroyMultiUserChatService",args);
-        } catch (XmlRpcException ex) {
-            throw new OpenfireClientException(ex);
-        }
-    }
    
-    public void createChatRoom(String subdomain, String chatRoomName,
-            boolean listRoomInDirectory,
-            boolean makeRoomModerated,
-            boolean makeRoomMembersOnly,
-            boolean allowOccupantsToInviteOthers,
-            boolean isPublicRoom,
-            boolean logRoomConversations,
-            String description, String conferenceBridgeExtension)
-    throws OpenfireClientException {
-        Object[] args = new Object[10];
-        args[0] = subdomain;
-        args[1] = chatRoomName;
-        args[2] = Boolean.toString(listRoomInDirectory);
-        args[3] = Boolean.toString(makeRoomModerated);
-        args[4] = Boolean.toString(makeRoomMembersOnly);
-        args[5] = Boolean.toString(allowOccupantsToInviteOthers);
-        args[6] = Boolean.toString(isPublicRoom);
-        args[7] = Boolean.toString(logRoomConversations);
-        args[8] = description == null ? "" : description;
-        args[9] = conferenceBridgeExtension == null ? "" : conferenceBridgeExtension;
-        try {
-            Map retval = execute("createChatRoom",args);
-        } catch (XmlRpcException ex) {
-            throw new OpenfireClientException(ex);
-        }      
-    }
+   
     
     
-    public void removeChatRoom(String subdomain, String chatRoom) throws OpenfireClientException  {
-        Object[] args = new Object[2];
-        args[0] = subdomain;
-        args[1] = chatRoom;
-        try {
-            Map retval = execute("removeChatRoom",args);
-        } catch (XmlRpcException ex) {
-            throw new OpenfireClientException(ex);
-        }
-    }
-    
-    public String[] getMembers(String subdomain, String chatRoom) throws OpenfireClientException {
-        Object[] args = new Object[2];
-        args[0] = subdomain;
-        args[1] = chatRoom;
-        try {
-            Map retval = execute("getMembers", args);
-            Object[] members = (Object[]) retval.get(XmlRpcProvider.ROOM_MEMBERS);
-            String[] mem = new String[members.length];
-            for ( int i = 0; i < members.length; i++ ) {
-                mem[i] = (String) members[i];
-            }
-            return mem;
-            
-        } catch (XmlRpcException ex) {
-            throw new OpenfireClientException(ex);
-        }
-    }
-
+  
     
 }

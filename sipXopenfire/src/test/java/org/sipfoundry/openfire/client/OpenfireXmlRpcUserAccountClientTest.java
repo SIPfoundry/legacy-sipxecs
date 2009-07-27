@@ -84,15 +84,7 @@ public class OpenfireXmlRpcUserAccountClientTest extends TestCase {
     
     
  
-    public void testCreateChatRoom() throws Exception {
-        client.createChatRoom("foo" , "bazbaz",
-                true,true,false,true,true,false,"eat scrum and die.","2412");
-        String[] members = client.getMembers("foo", "bazbaz");
-        assertTrue("Must be zero members ", members.length == 0 );
-        
-        client.removeChatRoom("foo","bazbaz");
-        
-    }
+    
     
     
  

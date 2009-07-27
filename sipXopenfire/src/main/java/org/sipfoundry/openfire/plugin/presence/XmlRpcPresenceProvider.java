@@ -40,7 +40,7 @@ public class XmlRpcPresenceProvider extends XmlRpcProvider {
             log.info("setPresenceState" + jid + " XMPP presence " + xmppPresenceAsString);
             Map retval = createSuccessMap();
             UnifiedPresence.XmppPresence xmppPresence = UnifiedPresence.XmppPresence.valueOf( xmppPresenceAsString ); 
-            plugin.setPresenceState(jid, xmppPresence);   
+            getPlugin().setPresenceState(jid, xmppPresence);   
             return retval;
         } catch ( Exception ex) {
             log.error("User Not Found",ex);
@@ -53,7 +53,7 @@ public class XmlRpcPresenceProvider extends XmlRpcProvider {
             String jid = appendDomain(id);
             log.info("setPresenceStatus " + jid + " status = " + status);
             Map retval = createSuccessMap();
-            plugin.setPresenceStatus(jid,  status);   
+            getPlugin().setPresenceStatus(jid,  status);   
             return retval;
         } catch ( Exception ex) {
             log.error("User Not Found",ex);
@@ -66,7 +66,7 @@ public class XmlRpcPresenceProvider extends XmlRpcProvider {
             String jid = appendDomain(id);
             log.info("getPresenceStatus " + jid) ;
             Map retval = createSuccessMap();
-            String presenceStatus = plugin.getPresenceStatus(jid);
+            String presenceStatus = getPlugin().getPresenceStatus(jid);
             if ( presenceStatus != null ) {
                 retval.put(CUSTOM_PRESENCE_MESSAGE, presenceStatus);
             }
@@ -100,7 +100,7 @@ public class XmlRpcPresenceProvider extends XmlRpcProvider {
     public Map getUnifiedPresenceInfo( String sipId ) {
         try {
            log.info("getUnifiedPresenceInfo " + sipId);
-           String xmppUser = plugin.getXmppId(sipId);
+           String xmppUser = getPlugin().getXmppId(sipId);
            if ( xmppUser == null ) {
               Map errorMap = createErrorMap(ErrorCode.SIP_ID_NOT_FOUND, "SIP ID Not found in database.");
               return errorMap;

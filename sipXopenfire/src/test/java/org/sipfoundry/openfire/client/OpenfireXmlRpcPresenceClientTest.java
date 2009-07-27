@@ -6,9 +6,8 @@ import junit.framework.TestCase;
 
 import org.sipfoundry.openfire.config.ConfigurationParser;
 import org.sipfoundry.openfire.config.WatcherConfig;
-import org.sipfoundry.openfire.plugin.presence.PresenceState;
 import org.sipfoundry.openfire.plugin.presence.UnifiedPresence;
-import org.sipfoundry.openfire.plugin.presence.XmlRpcPresenceProvider;
+
 
 public class OpenfireXmlRpcPresenceClientTest extends TestCase {
     String domain = "sipxpbx.example.local";

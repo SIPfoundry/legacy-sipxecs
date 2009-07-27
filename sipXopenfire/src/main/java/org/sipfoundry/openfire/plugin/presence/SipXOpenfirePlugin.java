@@ -614,6 +614,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             boolean allowOccupantsToInviteOthers,
             boolean isPublicRoom,
             boolean logRoomConversations,
+            String password,
             String description, 
             String conferenceExtension) 
     throws Exception {      
@@ -624,27 +625,31 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         Collection<JID> admins = XMPPServer.getInstance().getAdmins();
         JID admin = admins.iterator().next();
         mucService.addUserAllowedToCreate(admin.toBareJID());
-       /* Remove an old chat room if it exists */
-        mucService.removeChatRoom(roomName);
-       
+        boolean notExist  = mucService.getChatRoom(roomName) == null;
         MUCRoom mucRoom = mucService.getChatRoom(roomName,admin);
-        
-        mucRoom.setPersistent(true );
-     
-        mucRoom.setPublicRoom(true);
-        mucRoom.setCanAnyoneDiscoverJID(true);
-        mucRoom.setChangeNickname(true);
-        mucRoom.setModerated(makeRoomModerated);
-        mucRoom.setMembersOnly(makeRoomMembersOnly);
-        mucRoom.setRegistrationEnabled(true);
-        mucRoom.setPublicRoom(isPublicRoom);
-        mucRoom.setCanAnyoneDiscoverJID(true);
-        mucRoom.setCanOccupantsInvite(allowOccupantsToInviteOthers);
+        /* Set up defaults if we created a new one */
+        if ( notExist ) {
+            mucRoom.setPersistent(true );
+            mucRoom.setPublicRoom(true);
+            mucRoom.setCanAnyoneDiscoverJID(true);
+            mucRoom.setChangeNickname(true);
+            mucRoom.setModerated(makeRoomModerated);
+            mucRoom.setMembersOnly(makeRoomMembersOnly);
+            mucRoom.setRegistrationEnabled(true);
+            mucRoom.setPublicRoom(isPublicRoom);
+            mucRoom.setCanAnyoneDiscoverJID(true);
+            mucRoom.setCanOccupantsInvite(allowOccupantsToInviteOthers);
+            mucRoom.setDescription(description);
+            mucRoom.setPassword(password);
+            mucRoom.setCanOccupantsChangeSubject(true);
+            mucRoom.setChangeNickname(true);
+        }
         mucRoom.setDescription(description);
+        mucRoom.setPassword(password);
        
         /* The conference extension is the voice conf bridge extension */
-        String document = RoomDescriptionParser.generateDescriptionDocument(description, conferenceExtension);
-        JiveGlobals.setProperty("chatrooms.info."+domain+"."+roomName, document);
+        String document = RoomDescriptionParser.generateDescriptionDocument(domain,roomName,conferenceExtension);
+        JiveGlobals.setProperty("sipxopenfire.chatroom.info."+domain+"."+roomName, document);
     }
     
     /**
@@ -656,6 +661,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
     public void removeChatRoom(String domain, String roomName) {
         MultiUserChatService mucService = this.multiUserChatManager.getMultiUserChatService(domain);
         mucService.removeChatRoom(roomName);
+        JiveGlobals.deleteProperty("sipxopenfire.chatroom.info."+domain+"."+roomName);
     }
 
     /**
@@ -665,12 +671,77 @@ public class SipXOpenfirePlugin implements Plugin, Component {
      * @param roomName
      * @return
      */
-    public Collection<String> getMembers(String domain, String roomName) {
+    public Collection<String> getMembers(String domain, String roomName) throws NotFoundException {
         MultiUserChatService mucService = this.multiUserChatManager.getMultiUserChatService(domain);
         MUCRoom mucRoom = mucService.getChatRoom(roomName);
+        if ( mucRoom == null ){
+            throw new NotFoundException("Room not found " + domain + " roomName " + roomName);
+        }
         return mucRoom.getMembers();
      }
+
+    public Map<String,String> getMucRoomAttributes(String domain, String roomName) throws NotFoundException {
+        MultiUserChatService mucService = this.multiUserChatManager.getMultiUserChatService(domain);
+        MUCRoom mucRoom = mucService.getChatRoom(roomName);
+        if ( mucRoom == null ){
+            throw new NotFoundException("Room not found " + domain + " roomName " + roomName);
+        }
+        Map<String,String> retval = new HashMap<String,String> ();
+        retval.put("isModerated", ""+mucRoom.isModerated());
+        retval.put("isLogEnabled", ""+mucRoom.isLogEnabled());
+        retval.put("isMembersOnly", ""+mucRoom.isMembersOnly());
+        retval.put("isPublicRoom",""+mucRoom.isPublicRoom());
+        retval.put("isLoginRestrictedToNickName",""+mucRoom.isLoginRestrictedToNickname());
+        retval.put("isLocked", ""+mucRoom.isLocked());
+        retval.put("isRegistrationEnabled", ""+mucRoom.isRegistrationEnabled());
+        retval.put("isPasswordProtected", ""+mucRoom.isPasswordProtected());
+        retval.put("canAnyoneDiscoverJID", ""+mucRoom.canAnyoneDiscoverJID());
+        retval.put("canChangeNickName", ""+mucRoom.canChangeNickname());
+        retval.put("canOccupantsInvite", ""+mucRoom.canOccupantsInvite());
+        retval.put("canOccupantsChangeSubject", ""+ mucRoom.canOccupantsChangeSubject());
+        return retval;
+    }
+
+    public void setMucRoomAttributes(String domain, 
+            String roomName, Map newAttributes) throws NotFoundException {
+        MultiUserChatService mucService = this.multiUserChatManager.getMultiUserChatService(domain);
+        MUCRoom mucRoom = mucService.getChatRoom(roomName);
+        if ( mucRoom == null ){
+            throw new NotFoundException("Room not found " + domain + " roomName " + roomName);
+        }
+         Map<String,String> attribs = (Map<String,String>) newAttributes;
+         boolean isModerated = Boolean.parseBoolean(attribs.get("isModerated"));
+         mucRoom.setModerated(isModerated);
+         boolean isLogEnabled = Boolean.parseBoolean(attribs.get("isLogEnabled"));
+         mucRoom.setLogEnabled(isLogEnabled);
+         boolean isMembersOnly = Boolean.parseBoolean(attribs.get("isMembersOnly"));
+         mucRoom.setMembersOnly(isMembersOnly);
+         boolean isPublicRoom = Boolean.parseBoolean(attribs.get("isPublicRoom"));
+         mucRoom.setPublicRoom(isPublicRoom);
+         boolean isLoginRestrictedToNickName = Boolean.parseBoolean(attribs.get("isLoginRestrictedToNickName"));
+         mucRoom.setLoginRestrictedToNickname(isLoginRestrictedToNickName);
+         boolean isRegistrationEnabled = Boolean.parseBoolean(attribs.get("isRegistrationEnabled"));
+         mucRoom.setRegistrationEnabled(isRegistrationEnabled);
+         boolean canAnyoneDiscoverJID = Boolean.parseBoolean(attribs.get("canAnyoneDiscoverJID"));
+         mucRoom.setCanAnyoneDiscoverJID(canAnyoneDiscoverJID);
+         boolean canChangeNickName = Boolean.parseBoolean(attribs.get("canChangeNickName"));
+         mucRoom.setChangeNickname(canChangeNickName);
+         boolean canOccupantsInvite = Boolean.parseBoolean(attribs.get("canOccupantsInvite"));
+         mucRoom.setCanOccupantsInvite(canOccupantsInvite);
+         boolean canOccupantsChangeSubject = Boolean.parseBoolean(attribs.get("canOccupantsChangeSubject"));
+         mucRoom.setCanOccupantsChangeSubject(canOccupantsChangeSubject);
+    }
     
+    
+    public String getConferenceExtension(String domain, String roomName) 
+    throws NotFoundException {
+        MultiUserChatService mucService = this.multiUserChatManager.getMultiUserChatService(domain);
+        MUCRoom mucRoom = mucService.getChatRoom(roomName);
+        if ( mucRoom == null ){
+            throw new NotFoundException("Room not found " + domain + " roomName " + roomName);
+        }
+        return JiveGlobals.getProperty("sipxopenfire.chatroom.info."+domain+"."+roomName);
+    }
    
     
    
