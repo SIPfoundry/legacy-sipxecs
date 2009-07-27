@@ -20,14 +20,20 @@ import org.apache.tapestry.annotations.Parameter;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.speeddial.Button;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
+import org.sipfoundry.sipxconfig.speeddial.SpeedDialGroup;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class SpeedDialPanel extends BaseComponent {
 
-    @Parameter(required = true)
+    @Parameter
     public abstract SpeedDial getSpeedDial();
 
     public abstract void setSpeedDial(SpeedDial speedDial);
+
+    @Parameter
+    public abstract SpeedDialGroup getSpeedDialGroup();
+
+    public abstract void setSpeedDialGroup(SpeedDialGroup speedDialGroup);
 
     public abstract List<Button> getButtons();
 
@@ -69,7 +75,11 @@ public abstract class SpeedDialPanel extends BaseComponent {
         setMoveIndex(-1);
         setMoveOffset(0);
         if (!TapestryUtils.isRewinding(cycle, this)) {
-            setButtons(getSpeedDial().getButtons());
+            if (null != getSpeedDial()) {
+                setButtons(getSpeedDial().getButtons());
+            } else if (null != getSpeedDialGroup()) {
+                setButtons(getSpeedDialGroup().getButtons());
+            }
         }
     }
 
@@ -89,11 +99,20 @@ public abstract class SpeedDialPanel extends BaseComponent {
         if (removeIndex >= 0) {
             buttons.remove(removeIndex);
         }
-        SpeedDial speedDial = getSpeedDial();
-        speedDial.replaceButtons(buttons);
-        int moveIndex = getMoveIndex();
-        if (moveIndex >= 0) {
-            speedDial.moveButtons(moveIndex, getMoveOffset());
+        if (null != getSpeedDial()) {
+            SpeedDial speedDial = getSpeedDial();
+            speedDial.replaceButtons(buttons);
+            int moveIndex = getMoveIndex();
+            if (moveIndex >= 0) {
+                speedDial.moveButtons(moveIndex, getMoveOffset());
+            }
+        } else if (null != getSpeedDialGroup()) {
+            SpeedDialGroup speedDialGroup = getSpeedDialGroup();
+            speedDialGroup.replaceButtons(buttons);
+            int moveIndex = getMoveIndex();
+            if (moveIndex >= 0) {
+                speedDialGroup.moveButtons(moveIndex, getMoveOffset());
+            }
         }
     }
 }

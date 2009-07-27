@@ -92,4 +92,10 @@ public abstract class SpeedDialPage extends UserBasePage {
             getProfileManager().generateProfiles(ids, true, null);
         }
     }
+
+    public void onGroupSync() {
+        getSpeedDialManager().deleteSpeedDialsForUser(getUserId());
+        // force reload
+        setSpeedDial(null);
+    }
 }

@@ -116,6 +116,8 @@
   
   <table name="speeddial"/>
   <table name="speeddial_button"/>
+  <table name="speeddial_group"/>
+  <table name="speeddial_group_button"/>
   <table name="service"/>
   
   <table name="personal_attendant"/>

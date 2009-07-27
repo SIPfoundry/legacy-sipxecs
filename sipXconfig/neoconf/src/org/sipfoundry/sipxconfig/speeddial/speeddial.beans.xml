@@ -31,4 +31,7 @@
   <bean id="speedDialManagerUserDelete" factory-bean="speedDialManagerImpl"
     factory-method="createUserDeleteListener" />
 
+  <bean id="speedDialManagerUserGroupDelete" factory-bean="speedDialManagerImpl"
+    factory-method="createUserGroupDeleteListener" />
+
 </beans>

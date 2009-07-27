@@ -96,6 +96,8 @@ public interface PhoneContext extends DataObjectSource {
 
     void addUsersToPhone(Integer phoneId, Collection<Integer> ids);
 
+    Collection<Integer> getPhoneIdsByUserGroupId(int groupId);
+
     /**
      * Return the intercom associated with a phone, through the groups the phone belongs to, or
      * null if there is no intercom for the phone. There should be at most one intercom for any

@@ -336,4 +336,16 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         }
         return null;
     }
+
+    public Collection<Integer> getPhoneIdsByUserGroupId(int groupId) {
+        Group group = m_coreContext.getGroupById(groupId);
+        Collection<User> users = m_coreContext.getGroupMembers(group);
+        Collection<Integer> ids = new ArrayList<Integer>();
+
+        for (User user : users) {
+            Collection<Phone> phones = getPhonesByUserId(user.getId());
+            ids.addAll(DataCollectionUtil.extractPrimaryKeys(phones));
+        }
+        return ids;
+    }
 }

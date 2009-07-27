@@ -960,9 +960,9 @@ alter table speeddial
     references users;
 
 alter table speeddial_button 
-    add constraint fk_speeddial_button_speeddial
-    foreign key (speeddial_id) 
-    references speeddial;
+  add constraint fk_speeddial_button_speeddial
+  foreign key (speeddial_id)
+  references speeddial;
 
 alter table acd_queue_agent
     add constraint fk_acd_queue_agent_queue_id

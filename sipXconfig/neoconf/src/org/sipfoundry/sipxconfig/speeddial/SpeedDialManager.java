@@ -16,9 +16,15 @@ public interface SpeedDialManager extends DialingRuleProvider {
 
     SpeedDial getSpeedDialForUserId(Integer userId, boolean create);
 
+    SpeedDialGroup getSpeedDialForGroupId(Integer groupId);
+
     void saveSpeedDial(SpeedDial speedDial);
+
+    void saveSpeedDialGroup(SpeedDialGroup speedDialGroup);
 
     void activateResourceList();
     
     void clear();
+
+    void deleteSpeedDialsForUser(int userId);
 }

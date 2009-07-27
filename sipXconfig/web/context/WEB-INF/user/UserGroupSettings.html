@@ -1,38 +1,32 @@
-<div jwcid="@common/Border">
-
+<div jwcid="@common/Border" useDojo="ognl:true">
   <h2>
     <span key="title">Group Settings</span>
   </h2>
-  <ul class="component-links">
-    <li>
-      <a id="group:edit" jwcid="editGroup@DirectLink"
-        listener="listener:editGroupName"><span key="editGroup">Edit Group</span></a>
-    </li>
-  </ul>
-  <span jwcid="@If" condition="ognl:parentSettingName.equals('personal-attendant')">
+
+  <div id="settings-content">
+    <span jwcid="@common/ErrorMsg"/>
+    <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')"/>
+  </div>
+
+  <span jwcid="@If" condition="ognl:parentSettingName && parentSettingName.equals('personal-attendant')">
     <span jwcid="@common/QuickHelp" value="message:quick.help.personalAttendant"/>
   </span>
-  
-  <div jwcid="@common/LeftNavigation">
-    <span jwcid="settingsNavigation@setting/SettingsNavigation" bean="ognl:bean"
-      source="ognl:settings.values" activeSetting="ognl:parentSetting"
-      editSettingsListener="listener:editGroupSettings">
-      <span jwcid="@common/Tab" isActive="ognl:scheduleTabActive">
-        <a id="link:schedules.label" jwcid="editSchedule@DirectLink" listener="listener:editSchedule">
-          <span key="link.schedules">Schedules</span>
-        </a>
-      </span>
-      <span jwcid="@common/Tab" isActive="ognl:conferenceTabActive">
-      	<a id="link:conferences" jwcid="editConferenceSettings@DirectLink" listener="listener:editConferenceSettings">
-      		<span key="conference.link">Conference Assignment</span>
-      	</a>
-      </span>
+
+  <div jwcid="@common/LeftNavigation" renderCondition="ognl:groupId">
+    <span jwcid="settingsNavigation@setting/SettingsNavigation"
+          bean="ognl:bean"
+          source="ognl:settings.values"
+          activeSetting="ognl:parentSetting"
+          editSettingsListener="listener:editGroupSettings">
+      <span jwcid="@common/TabNavigation"
+            tabNames="ognl:availableTabNames"
+            selectedTab="ognl:tab"
+            renderCondition="ognl:true"
+            useLeftNavigation="ognl:false"/>
     </span>
   </div>
-  
-  <span jwcid="@common/ErrorMsg"/>
-  
-  <span jwcid="@If" condition="ognl:scheduleTabActive">
+
+  <div jwcid="schedulesTab@Block">
     <span jwcid="@common/QuickHelp" value="message:quick.help.schedule"/>
     <form jwcid="userSchedules@Form" delegate="bean:validator">
       <ul class="component-links">
@@ -51,13 +45,33 @@
         </tr>
       </table>
     </form>
-  </span>
-  
-  <span jwcid="@If" condition="ognl:conferenceTabActive">
+  </div>
+
+  <div jwcid="conferenceTab@Block">
       <form jwcid="@user/UserGroupConferenceSettings" settings="ognl:settings" group="ognl:group" validator="bean:validator" />
-  </span>
-  
-  <span jwcid="@Else">
+  </div>
+
+  <div jwcid="speeddialTab@Block">
+    <form jwcid="speedDialForm@Form" delegate="bean:validator" listener="listener:onSpeedDialSubmit">
+      <fieldset jwcid="@speeddial/SpeedDialPanel" speedDialGroup="ognl:speedDialGroup"/>
+        <ul jwcid="@common/FormActions" listener="listener:onSpeedDialApply" callback="ognl:callback">
+	      <li>
+	        <input jwcid="updatePhones@Submit" listener="listener:onSpeedDialUpdatePhones" id="form:updatePhones"
+	          value="message:button.updatePhones"/>
+	      </li>
+        </ul>
+    </form>
+  </div>
+
+  <div jwcid="configureTab@Block">
+    <form jwcid="@setting/EditGroupForm"
+          group="ognl:group"
+          groupId="ognl:groupId"
+          callback="ognl:callback"
+          validator="bean:validator"/>
+  </div>
+
+  <span jwcid="@If" condition="ognl:parentSetting || tab.equals('schedules')">
     <span jwcid="settingsForm@setting/SettingsForm" settings="ognl:parentSetting"
       cancelListener="listener:cancel" okListener="listener:ok"
       applyListener="listener:apply" validator="bean:validator"

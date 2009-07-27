@@ -122,6 +122,8 @@ public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner
      */
     Group getGroupByName(String userGroupName, boolean createIfNotFound);
 
+    Group getGroupById(Integer groupId);
+
     Collection<User> getGroupMembers(Group group);
 
     Collection<String> getGroupMembersNames(Group group);

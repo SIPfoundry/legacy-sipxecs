@@ -35,7 +35,7 @@ public class UserConferenceCreationTestUi extends WebTestCase {
         // Enable conference creation and select the previously created bridge.
         clickLink("UserGroups");
         clickLinkWithText("seedGroup0");         
-        clickLink("link:conferences");               
+        clickLink("link:conference");
         checkCheckbox("conferences:enable");
         setTextField("conferences:prefix", "1000");
         selectOption("bridgeSelect", TestPage.TEST_LOCATION_FQDN);

@@ -11,18 +11,11 @@
   <component id="errorMsg" type="common/ErrorMsg">
     <binding name="validator" value="bean:validator"/>
   </component>
-  <component id="groupForm" type="Form">
-    <binding name="delegate" value="bean:validator"/>
-  </component>
-  <component id="itemCommon" type="common/ItemCommon">
-    <binding name="item" value="group"/>
-    <binding name="nameValidator" value="spring-validators:required,noWhitespace"/>
-    <binding name="useEnabled" value="literal:false"/>
-    <binding name="useExtension" value="literal:false"/>
-  </component>
-  <component id="formActions" type="common/FormActions">
-    <binding name="listener" value="listener:apply"/>
+  <component id="editGroupForm" type="setting/EditGroupForm">
+    <binding name="group" value="ognl:group"/>
+    <binding name="groupId" value="ognl:groupId"/>
     <binding name="callback" value="callback"/>
+    <binding name="validator" value="bean:validator"/>
   </component>
   <component id="groupLabel" type="setting/GroupLabel">
     <binding name="group" value="group"/>

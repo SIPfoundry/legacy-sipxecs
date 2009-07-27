@@ -20,7 +20,6 @@ import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
-import org.sipfoundry.sipxconfig.site.setting.EditGroup;
 import org.sipfoundry.sipxconfig.site.setting.GroupSettings;
 
 public abstract class UserGroups extends BasePage implements PageBeginRenderListener {
@@ -36,8 +35,9 @@ public abstract class UserGroups extends BasePage implements PageBeginRenderList
     public abstract SettingDao getSettingContext();
 
     public IPage addGroup(IRequestCycle cycle) {
-        EditGroup page = (EditGroup) cycle.getPage(EditGroup.PAGE);
-        page.newGroup(User.GROUP_RESOURCE_ID, PAGE);
+        GroupSettings page = (GroupSettings) cycle.getPage(UserGroupSettings.PAGE);
+        User user = getCoreContext().newUser();
+        page.editGroup(null, user, PAGE);
         return page;
     }
 

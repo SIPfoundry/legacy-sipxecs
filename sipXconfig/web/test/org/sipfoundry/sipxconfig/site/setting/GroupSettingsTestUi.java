@@ -42,20 +42,22 @@ public class GroupSettingsTestUi extends WebTestCase {
         seedGroup(1);
         clickLink("UserGroups");
         clickLinkWithText("seedGroup0");
-        clickLink("group:edit");
+        clickLink("link:configure");
         assertTextFieldEquals("item:name", "seedGroup0");
         // Pick a group name that is very unlikely to collide with any previous names
         setTextField("item:name", "edit-seed-test-" + System.currentTimeMillis());
-        clickButton("form:ok");
+        clickButton("form:apply");
         SiteTestHelper.assertNoException(getTester());
-        assertLinkPresent("group:edit");
+        assertLinkPresent("link:configure");
     }
 
     public void testAddSchedules() {
         seedGroup(1);
         clickLink("UserGroups");
         clickLinkWithText("seedGroup0");
-        assertLinkPresent("link:schedules.label");
+        assertLinkPresent("link:schedules");
+        clickLink("link:schedules");
+        assertLinkPresent("group:addSchedules");
         clickLink("group:addSchedules");
         assertFormElementPresent("item:name");
         assertFormElementPresent("item:description");

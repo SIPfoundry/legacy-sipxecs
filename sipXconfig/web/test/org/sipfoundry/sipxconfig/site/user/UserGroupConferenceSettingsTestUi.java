@@ -45,7 +45,7 @@ public class UserGroupConferenceSettingsTestUi extends WebTestCase {
         SiteTestHelper.seedGroup(getTester(), "NewUserGroup", 1);
         clickLink("UserGroups");
         clickLinkWithText("seedGroup0");
-        clickLink("link:conferences");
+        clickLink("link:conference");
 
         // Enable conference creation and select the previously created bridge.
         checkCheckbox("conferences:enable");
@@ -64,7 +64,7 @@ public class UserGroupConferenceSettingsTestUi extends WebTestCase {
         SiteTestHelper.home(tester);
         clickLink("UserGroups");
         clickLinkWithText("seedGroup0");
-        clickLink("link:conferences");
+        clickLink("link:conference");
         SiteTestHelper.assertNoException(tester);
         assertSelectedOptionValueEquals("bridgeSelect", "");
     }
@@ -79,7 +79,7 @@ public class UserGroupConferenceSettingsTestUi extends WebTestCase {
         SiteTestHelper.seedGroup(getTester(), "NewUserGroup", 1);
         clickLink("UserGroups");
         clickLinkWithText("seedGroup0");
-        clickLink("link:conferences");
+        clickLink("link:conference");
         checkCheckbox("conferences:enable");
         selectOptionByValue("bridgeSelect", "");
         setTextField("conferences:prefix", "");

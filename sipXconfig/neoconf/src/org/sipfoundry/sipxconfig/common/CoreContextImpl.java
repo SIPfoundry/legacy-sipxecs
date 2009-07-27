@@ -409,6 +409,17 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport implements
         return m_settingDao.getGroups(USER_GROUP_RESOURCE_ID);
     }
 
+    public Group getGroupById(Integer groupId) {
+        List<Group> groups = m_settingDao.getGroups(USER_GROUP_RESOURCE_ID);
+        for (Group group : groups) {
+            int id = group.getId();
+            if (groupId == id) {
+                return group;
+            }
+        }
+        return null;
+    }
+
     public Group getGroupByName(String userGroupName, boolean createIfNotFound) {
         if (createIfNotFound) {
             return m_settingDao.getGroupCreateIfNotFound(USER_GROUP_RESOURCE_ID, userGroupName);

@@ -34,7 +34,7 @@ public class ConferenceTestHelper {
 	    SiteTestHelper.home(m_tester);
         m_tester.clickLink("UserGroups");
         m_tester.clickLinkWithText(seedGroup);
-        m_tester.clickLink("link:conferences");
+        m_tester.clickLink("link:conference");
         m_tester.checkCheckbox("conferences:enable");
         m_tester.setTextField("conferences:prefix", "1000");
         m_tester.selectOption("bridgeSelect", TestPage.TEST_LOCATION_FQDN);

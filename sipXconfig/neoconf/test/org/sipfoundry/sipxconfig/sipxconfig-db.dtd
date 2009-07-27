@@ -749,6 +749,21 @@
     position CDATA #REQUIRED
 >
 
+<!ELEMENT speeddial_group EMPTY>
+<!ATTLIST speeddial_group
+    speeddial_id CDATA #REQUIRED
+    group_id CDATA #REQUIRED
+>
+
+<!ELEMENT speeddial_group_button EMPTY>
+<!ATTLIST speeddial_group_button
+    speeddial_id CDATA #REQUIRED
+    label CDATA #IMPLIED
+    number CDATA #REQUIRED
+    blf CDATA #REQUIRED
+    position CDATA #REQUIRED
+>
+
 <!ELEMENT supervisor EMPTY>
 <!ATTLIST supervisor
     user_id CDATA #REQUIRED

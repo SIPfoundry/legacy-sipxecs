@@ -79,7 +79,7 @@ public class SchedulesTableTestUi extends WebTestCase {
         clickLink("UserGroups");
         clickLinkWithExactText("seedGroup0");
         
-        clickLink("link:schedules.label");
+        clickLink("link:schedules");
         clickLink("group:addSchedules");
         setTextField("item:name", "groupSchedule");
         SiteTestHelper.clickSubmitLink(tester, "addPeriod");
