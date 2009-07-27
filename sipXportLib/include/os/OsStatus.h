@@ -99,8 +99,8 @@ enum OsStatus
 
         OS_HTTP_MOVED_PERMANENTLY_CODE  = 301,  // Moved Permanently
         OS_HTTP_MOVED_TEMPORARILY_CODE  = 302,  // Moved Temporatily
-        OS_HTTP_UNAUTHORIZED_CODE               = 401,  // Unauthorized
-        OS_HTTP_FILE_NOT_FOUND_CODE             = 404,  // File Not Found
+        OS_HTTP_UNAUTHORIZED_CODE       = 401,  // Unauthorized
+        OS_HTTP_FILE_NOT_FOUND_CODE     = 404,  // File Not Found
         OS_HTTP_PROXY_UNAUTHORIZED_CODE = 407,  // Proxy Authentication Required
         OS_HTTP_UNSUPPORTED_METHOD_CODE = 501,  // Not Implemented
 

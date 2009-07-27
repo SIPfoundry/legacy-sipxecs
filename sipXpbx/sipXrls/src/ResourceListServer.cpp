@@ -273,9 +273,9 @@ void ResourceListServer::shutdown()
    mServerUserAgent.shutdown(FALSE);
    mClientUserAgent.shutdown(FALSE);
    mResourceListTask.requestShutdown();
-   while(!(mServerUserAgent.isShutdownDone() &&
-           mClientUserAgent.isShutdownDone() &&
-           mResourceListTask.isShutDown()))
+   while (!(mServerUserAgent.isShutdownDone() &&
+            mClientUserAgent.isShutdownDone() &&
+            mResourceListTask.isShutDown()))
    {
       OsTask::delay(100);
    }
