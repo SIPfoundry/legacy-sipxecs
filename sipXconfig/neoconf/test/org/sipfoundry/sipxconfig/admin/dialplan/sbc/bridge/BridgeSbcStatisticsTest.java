@@ -9,11 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.junit.Assert.assertEquals;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,6 +20,12 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
+
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class BridgeSbcStatisticsTest {
     private BridgeSbc m_sbc;
@@ -84,14 +85,18 @@ public class BridgeSbcStatisticsTest {
 
     @Test
     public void testGetRegistrationRecords() throws Exception {
-        BridgeSbcRegistrationRecord[] bridgeSbcRegistrationRecords = m_sbcStats.
-            getRegistrationRecords(m_sbc);
+        BridgeSbcRegistrationRecord[] bridgeSbcRegistrationRecords = m_sbcStats.getRegistrationRecords(m_sbc);
+        Map<String, BridgeSbcRegistrationRecord> recordMap = new HashMap<String, BridgeSbcRegistrationRecord>();
+        for (BridgeSbcRegistrationRecord record : bridgeSbcRegistrationRecords) {
+            recordMap.put(record.getRegisteredAddress(), record);
+        }
+
         assertEquals(3, bridgeSbcRegistrationRecords.length);
-        assertEquals("47.123.2.36", bridgeSbcRegistrationRecords[0].getRegisteredAddress());
-        assertEquals("47.123.2.34", bridgeSbcRegistrationRecords[1].getRegisteredAddress());
-        assertEquals("47.123.2.35", bridgeSbcRegistrationRecords[2].getRegisteredAddress());
-        assertEquals("INIT", bridgeSbcRegistrationRecords[0].getRegistrationStatus());
-        assertEquals("INIT", bridgeSbcRegistrationRecords[0].getRegistrationStatus());
-        assertEquals("INIT", bridgeSbcRegistrationRecords[0].getRegistrationStatus());
+        assertTrue(recordMap.containsKey("47.123.2.36"));
+        assertTrue(recordMap.containsKey("47.123.2.34"));
+        assertTrue(recordMap.containsKey("47.123.2.35"));
+        assertEquals("INIT", recordMap.get("47.123.2.36").getRegistrationStatus());
+        assertEquals("INIT", recordMap.get("47.123.2.34").getRegistrationStatus());
+        assertEquals("INIT", recordMap.get("47.123.2.35").getRegistrationStatus());
     }
 }
