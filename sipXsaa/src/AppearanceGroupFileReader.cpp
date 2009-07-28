@@ -110,7 +110,7 @@ OsStatus AppearanceGroupFileReader::initialize()
             }
          }
 
-         OsSysLog::add(FAC_PARK, PRI_DEBUG,
+         OsSysLog::add(FAC_SAA, PRI_DEBUG,
                        "AppearanceGroupFileReader::initialize Done loading file '%s'",
                        mFileName.data());
          // For all groups in the current GroupSet, remove them if not in the new list.
@@ -154,7 +154,7 @@ OsStatus AppearanceGroupFileReader::initialize()
       else
       {
          // Report error parsing file.
-         OsSysLog::add(FAC_PARK, PRI_CRIT,
+         OsSysLog::add(FAC_SAA, PRI_CRIT,
                        "main "
                        "Appearance group file '%s' could not be parsed.",
                        mFileName.data());
@@ -164,7 +164,7 @@ OsStatus AppearanceGroupFileReader::initialize()
    else
    {
       // Report that there is no file.
-      OsSysLog::add(FAC_PARK, PRI_CRIT,
+      OsSysLog::add(FAC_SAA, PRI_CRIT,
                     "main No Appearance group file set.");
    }
 
