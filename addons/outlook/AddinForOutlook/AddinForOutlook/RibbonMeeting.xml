@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<customUI xmlns="http://schemas.microsoft.com/office/2006/01/customui" onLoad="ribbonLoaded">
+  <ribbon>
+    <tabs>
+      <!--<tab id="CustomTab" label="My Tab">-->
+      <tab idMso="TabAppointment">
+        <group id="SCSMeeting" label="SCS">
+          <button id="MeetingatSCS" label="Meeting@SCS" 
+            size="large" onAction="SetMeetingLocation" supertip="Set the conference location to be using SCS conference"/>
+          <button id="StartMeeting" label="Start" 
+            size="large" onAction="Click2Call" supertip="Click to conference"/>
+        </group>
+      </tab>
+    </tabs>
+  </ribbon>
+</customUI>
+

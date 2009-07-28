@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<customUI xmlns="http://schemas.microsoft.com/office/2006/01/customui">
+  <ribbon>
+    <tabs>
+      <!--<tab id="CustomTab" label="My Tab">-->
+      <tab idMso="TabReadMessage">
+      <group id="SCSCallSender" label="SCS">
+          <button id="callbuttonMail" label="Call" 
+            size="large" onAction="Click2Call" supertip="Click to call the mail sender"/>
+        </group>
+      </tab>
+      <tab idMso="TabContact">
+        <group id="SCSCallContact" label="SCS">
+          <button id="callbuttonContact" label="Call" 
+            size="large" onAction="Click2Call" supertip="Click to call the contact"/>
+        </group>
+      </tab>
+    </tabs>
+  </ribbon>
+</customUI>
+

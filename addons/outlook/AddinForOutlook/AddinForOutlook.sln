@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddinForOutlook", "AddinForOutlook\AddinForOutlook.csproj", "{B49961A8-08FF-4A10-91EB-1703DED73871}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "AddinForOutlookSetup", "AddinForOutlookSetup\AddinForOutlookSetup.vdproj", "{82903152-4127-41F6-943C-9A2F86005D18}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddinForOutlookSetupExt", "AddinForOutlookSetupExt\AddinForOutlookSetupExt.csproj", "{FF4D80E8-8982-4E4C-96F6-76C6D20C4247}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B49961A8-08FF-4A10-91EB-1703DED73871}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B49961A8-08FF-4A10-91EB-1703DED73871}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B49961A8-08FF-4A10-91EB-1703DED73871}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B49961A8-08FF-4A10-91EB-1703DED73871}.Release|Any CPU.Build.0 = Release|Any CPU
+		{82903152-4127-41F6-943C-9A2F86005D18}.Debug|Any CPU.ActiveCfg = Debug
+		{82903152-4127-41F6-943C-9A2F86005D18}.Release|Any CPU.ActiveCfg = Release
+		{82903152-4127-41F6-943C-9A2F86005D18}.Release|Any CPU.Build.0 = Release
+		{FF4D80E8-8982-4E4C-96F6-76C6D20C4247}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF4D80E8-8982-4E4C-96F6-76C6D20C4247}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF4D80E8-8982-4E4C-96F6-76C6D20C4247}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF4D80E8-8982-4E4C-96F6-76C6D20C4247}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
