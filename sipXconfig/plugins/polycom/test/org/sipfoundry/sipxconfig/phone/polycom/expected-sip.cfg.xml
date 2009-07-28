@@ -106,7 +106,8 @@
     up.welcomeSoundOnWarmBootEnabled="0"
     up.localClockEnabled="1"
     up.idleTimeout=""
-  />
+  >
+  </user_preferences>
   <tones>
     <DTMF
       tone.dtmf.level="-15"
@@ -210,7 +211,8 @@
         qos.ip.rtp.max_reliability="0"
         qos.ip.rtp.min_cost="0"
         qos.ip.rtp.precedence="5"
-      />
+      >
+      </RTP>
       <CallControl
         qos.ip.callControl.min_delay="1"
         qos.ip.callControl.max_throughput="0"
@@ -419,7 +421,8 @@
       mb.main.home=""
       mb.main.idleTimeout=""
       mb.main.statusbar=""
-    />
+    >
+    </main>
     <idleDisplay
       mb.idleDisplay.home=""
       mb.idleDisplay.refresh="0"

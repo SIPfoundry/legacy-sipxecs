@@ -177,24 +177,12 @@
   >
     <codecs>
       <preferences
-        voice.codecPref.VVX_1500.G711A="5"
-        voice.codecPref.VVX_1500.G711Mu="4"
-        voice.codecPref.VVX_1500.G722="3"
-        voice.codecPref.VVX_1500.G7221.16kbps=""
-        voice.codecPref.VVX_1500.G7221.24kbps=""
-        voice.codecPref.VVX_1500.G7221.32kbps="2"
-        voice.codecPref.VVX_1500.G7221C.24kbps=""
-        voice.codecPref.VVX_1500.G7221C.32kbps=""
         voice.codecPref.VVX_1500.G7221C.48kbps="1"
+        voice.codecPref.VVX_1500.G7221.32kbps="2"
+        voice.codecPref.VVX_1500.G722="3"
+        voice.codecPref.VVX_1500.G711Mu="4"
+        voice.codecPref.VVX_1500.G711A="5"
         voice.codecPref.VVX_1500.G729AB="6"
-        voice.codecPref.VVX_1500.Lin16.16ksps=""
-        voice.codecPref.VVX_1500.Lin16.32ksps=""
-        voice.codecPref.VVX_1500.Lin16.44_1ksps=""
-        voice.codecPref.VVX_1500.Lin16.48ksps=""
-        voice.codecPref.VVX_1500.Lin16.8ksps=""
-        voice.codecPref.VVX_1500.Siren14.24kbps=""
-        voice.codecPref.VVX_1500.Siren14.32kbps=""
-        voice.codecPref.VVX_1500.Siren14.48kbps=""
       />
       <profiles
         voice.audioProfile.G711Mu.payloadSize="20"

@@ -46,8 +46,11 @@ public class SipConfiguration extends ProfileContext {
     }
 
     public String[] getEmergencySetting() {
-        String emergencyValue = getEndpointSettings().getSetting(PolycomPhone.EMERGENCY)
-                .getValue();
+        String emergencyValue = getEndpointSettings().getSetting(PolycomPhone.EMERGENCY).getValue();
         return StringUtils.split(emergencyValue, ",");
+    }
+
+    public String[] getValueCodecs(Setting setting) {
+        return StringUtils.split(setting.getValue(), "|");
     }
 }

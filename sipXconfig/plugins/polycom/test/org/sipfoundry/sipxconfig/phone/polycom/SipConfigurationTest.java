@@ -104,7 +104,7 @@ public class SipConfigurationTest extends XMLTestCase {
         phone.setSettingValue("dialplan/digitmap/routing.1/address", "emergency-gateway.example.org");
         phone.setSettingValue("dialplan/digitmap/routing.1/port", "9999");
         phone.setSettingValue("dialplan/digitmap/routing.1/emergency.1.value", "911,912");
-       
+
         phone.beforeProfileGeneration();
         ProfileContext cfg = new SipConfiguration(phone);
 

@@ -5,6 +5,73 @@
   ]>
 <model>
   &types;
+  <type id="preffered-codecs-type">
+    <multi-enum labelKeyPrefix="codec">
+      <option>
+        <value>G711Mu</value>
+      </option>
+      <option>
+        <value>G711A</value>
+      </option>
+      <option>
+        <value>G729AB</value>
+      </option>
+      <option>
+        <value>G722</value>
+      </option>
+      <option>
+        <value>G7221.16kbps</value>
+      </option>
+      <option>
+        <value>G7221.24kbps</value>
+      </option>
+      <option>
+        <value>G7221.32kbps</value>
+      </option>
+      <option>
+        <value>G7221C.24kbps</value>
+      </option>
+      <option>
+        <value>G7221C.32kbps</value>
+      </option>
+      <option>
+        <value>G7221C.48kbps</value>
+      </option>
+      <option>
+        <value>Lin16.8ksps</value>
+      </option>
+      <option>
+        <value>Lin16.16ksps</value>
+      </option>
+      <option>
+        <value>Lin16.32ksps</value>
+      </option>
+      <option>
+        <value>Lin16.44ksps</value>
+      </option>
+      <option>
+        <value>Lin16.48ksps</value>
+      </option>
+      <option>
+        <value>Siren14.24kbps</value>
+      </option>
+      <option>
+        <value>Siren14.32kbps</value>
+      </option>
+      <option>
+        <value>Siren14.48kbps</value>
+      </option>
+      <option>
+        <value>Siren22.32kbps</value>
+      </option>
+      <option>
+        <value>Siren22.48kbps</value>
+      </option>
+      <option>
+        <value>Siren22.64kbps</value>
+      </option>
+    </multi-enum>
+  </type>
   <group name="lcl">
     <group name="time">
       <setting name="24HourClock">
@@ -269,121 +336,25 @@
       <value>0</value>
     </setting>
     <group name="codecPref">
-      <setting name="G711Mu" if="G711Mu_CodecPref">
-        <type refid="codecPref" />
-        <value>1</value>
+      <setting name="IP_300" if="IP_300_CodecPref">
+        <type refid="preffered-codecs-type"/>
+        <value>G711Mu|G711A|G729AB</value>
       </setting>
-      <setting name="G711A" if="G711A_CodecPref">
-        <type refid="codecPref" />
-        <value>2</value>
+      <setting name="IP_4000" if="IP_4000_CodecPref">
+        <type refid="preffered-codecs-type"/>
+        <value>G711Mu|G711A</value>
       </setting>
-      <setting name="G729AB" if="G729AB_CodecPref">
-        <type refid="codecPref" />
-        <value>3</value>
+      <setting name="IP_650" if="IP_650_CodecPref">
+        <type refid="preffered-codecs-type"/>
+        <value>G722|G711Mu|G711A|G729AB</value>
       </setting>
-      <setting name="IP_300.G711Mu" if="IP_300_CodecPref">
-        <type refid="codecPref" />
-        <value>1</value>
+      <setting name="VVX_1500" if="VVX_1500_CodecPref">
+        <type refid="preffered-codecs-type"/>
+        <value>G7221C.48kbps|G7221.32kbps|G722|G711Mu|G711A|G729AB</value>
       </setting>
-      <setting name="IP_300.G711A" copy-of="G711A" if="IP_300_CodecPref">
-        <value>2</value>
-      </setting>
-      <setting name="IP_300.G729AB" copy-of="G729AB" if="IP_300_CodecPref">
-        <value>3</value>
-      </setting>
-      <setting name="IP_4000.G711Mu" copy-of="G711Mu" if="IP_4000_CodecPref">
-        <value>1</value>
-      </setting>
-      <setting name="IP_4000.G711A" copy-of="G711A" if="IP_4000_CodecPref">
-        <value>2</value>
-      </setting>
-      <setting name="IP_4000.G729AB" copy-of="G729AB" if="IP_4000_CodecPref">
-        <value />
-      </setting>
-      <setting name="IP_650.G722" if="IP_650_CodecPref">
-        <type refid="codecPref" />
-        <value>1</value>
-      </setting>
-      <setting name="IP_650.G711Mu" copy-of="G711Mu" if="IP_650_CodecPref" >
-        <value>2</value>
-      </setting>
-      <setting name="IP_650.G711A" copy-of="G711A" if="IP_650_CodecPref">
-        <value>3</value>
-      </setting>
-      <setting name="IP_650.G729AB" copy-of="G729AB" if="IP_650_CodecPref">
-        <value>4</value>
-      </setting>
-      <setting name="VVX_1500.G711A" if="VVX_1500_CodecPref">
-        <type refid="VVX_1500_codecPref" />
-        <value>5</value>
-      </setting>
-      <setting name="VVX_1500.G711Mu" if="VVX_1500_CodecPref">
-        <type refid="VVX_1500_codecPref" />
-        <value>4</value>
-      </setting>
-      <setting name="VVX_1500.G722" if="VVX_1500_CodecPref">
-        <type refid="VVX_1500_codecPref" />
-        <value>3</value>
-      </setting>
-      <setting name="VVX_1500.G7221.16kbps" if="VVX_1500_CodecPref">
-        <type refid="VVX_1500_codecPref" />
-        <value />
-      </setting>
-      <setting name="VVX_1500.G7221.24kbps" if="VVX_1500_CodecPref">
-        <type refid="VVX_1500_codecPref" />
-        <value />
-      </setting> 
-      <setting name="VVX_1500.G7221.32kbps" if="VVX_1500_CodecPref">
-        <type refid="VVX_1500_codecPref" />
-        <value>2</value>
-      </setting>
-      <setting name="VVX_1500.G7221C.24kbps" if="VVX_1500_CodecPref">
-        <type refid="VVX_1500_codecPref" />
-        <value />
-      </setting>
-      <setting name="VVX_1500.G7221C.32kbps" if="VVX_1500_CodecPref">
-        <type refid="VVX_1500_codecPref" />
-        <value></value>
-      </setting>
-      <setting name="VVX_1500.G7221C.48kbps" if="VVX_1500_CodecPref">
-        <type refid="VVX_1500_codecPref" />
-        <value>1</value>
-      </setting> 
-      <setting name="VVX_1500.G729AB" if="VVX_1500_CodecPref">
-        <type refid="VVX_1500_codecPref" />
-        <value>6</value>
-      </setting>
-      <setting name="VVX_1500.Lin16.16ksps" if="VVX_1500_CodecPref">
-        <type refid="VVX_1500_codecPref" />
-        <value />
-      </setting>
-      <setting name="VVX_1500.Lin16.32ksps" if="VVX_1500_CodecPref">
-        <type refid="VVX_1500_codecPref" />
-        <value />
-      </setting>
-      <setting name="VVX_1500.Lin16.44_1ksps" if="VVX_1500_CodecPref">
-        <type refid="VVX_1500_codecPref" />
-        <value />
-      </setting>
-      <setting name="VVX_1500.Lin16.48ksps" if="VVX_1500_CodecPref">
-        <type refid="VVX_1500_codecPref" />
-        <value />
-      </setting>
-      <setting name="VVX_1500.Lin16.8ksps" if="VVX_1500_CodecPref">
-        <type refid="VVX_1500_codecPref" />
-        <value />
-      </setting>
-      <setting name="VVX_1500.Siren14.24kbps" if="VVX_1500_CodecPref">
-        <type refid="VVX_1500_codecPref" />
-        <value />
-      </setting>
-      <setting name="VVX_1500.Siren14.32kbps" if="VVX_1500_CodecPref">
-        <type refid="VVX_1500_codecPref" />
-        <value />
-      </setting>
-      <setting name="VVX_1500.Siren14.48kbps" if="VVX_1500_CodecPref">
-        <type refid="VVX_1500_codecPref" />
-        <value />
+      <setting name="OTHERS" unless="IP_300_CodecPref||IP_4000_CodecPref||IP_650_CodecPref||VVX_1500_CodecPref">
+        <type refid="preffered-codecs-type"/>
+        <value>G711Mu|G711A|G729AB</value>
       </setting>
     </group>
     <group name="audioProfile">

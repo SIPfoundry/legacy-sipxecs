@@ -9,6 +9,16 @@
       http://sipx-wiki.calivia.com/index.php/Adding_Polycom_SoundPoint_IP_New_Configuration_File_Content_into_sipXconfig
 
 -->
+#macro (computeCodecSettings $setting)
+#set ($codecs = $setting.getTypedValue())
+#foreach ($codec in $codecs)
+#if ($setting.ProfileName == "OTHERS")
+	voice.codecPref.${codec}="$velocityCount"
+#else
+	voice.codecPref.${setting.ProfileName}.${codec}="$velocityCount"
+#end
+#end
+#end
 <sip>
   <voIpProt>
     <local
@@ -246,7 +256,7 @@
       <preferences
 #set ($group = $cfg.EndpointSettings.getSetting('voice').getSetting('codecPref'))
 #foreach ($setting in $cfg.getSettings($group))
-        voice.codecPref.${setting.ProfileName}="$!{setting.Value}"
+#computeCodecSettings($setting)
 #end
       />
       <profiles
