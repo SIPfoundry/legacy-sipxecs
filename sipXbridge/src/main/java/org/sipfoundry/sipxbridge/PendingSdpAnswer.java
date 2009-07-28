@@ -12,7 +12,7 @@ import javax.sdp.SessionDescription;
 /**
  * An internal class that is used to wait for an SDP answer after sending out an
  * SDP request.
- * 
+ *
  * @author M. Ranganathan.
  */
 

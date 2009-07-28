@@ -11,9 +11,9 @@ import javax.sip.address.Hop;
 /**
  * A hop to the ITSP account. This is used by JAIN-SIP to determine where to
  * send the request.
- * 
+ *
  * @author M. Ranganathan
- * 
+ *
  */
 public class HopImpl implements Hop {
 
@@ -27,7 +27,7 @@ public class HopImpl implements Hop {
         this.port = port;
         this.transport = transport;
     }
-    
+
     public HopImpl( String host, int port, String transport, ItspAccountInfo itspAccountInfo) {
         this(host,port,transport);
         this.itspAccountInfo = itspAccountInfo;

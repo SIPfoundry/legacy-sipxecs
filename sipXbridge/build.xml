@@ -2,14 +2,14 @@
 
 <project name="sipxbridge" default="jar" basedir=".">
 <description>
-      Build file 
+      Build file
 </description>
 
 
-	<!-- 
-	               
+	<!--
 
-	  Command                   Description                                
+
+	  Command                   Description
 	  ================================================================
         ant            compile   compile
 	ant            cleanlogs clean the logs
@@ -115,8 +115,8 @@
 		<!-- Compile the java code from ${src} into ${classes} -->
 		<echo>test path ${test.path}</echo>
 		<mkdir dir="${classes}" />
-		<javac srcdir="${src}" 
-			destdir="${classes}" 
+		<javac srcdir="${src}"
+			destdir="${classes}"
 			debug="${javac.debug}"
 			optimize= "${javac.optimize}"
 			debuglevel = "${javac.debuglevel}"
@@ -129,8 +129,8 @@
 	<target name="compile-exclude-tests"  description="compile the source no tests">
 		<!-- Compile the java code from ${src} into ${classes} -->
 		<mkdir dir="${classes}" />
-		<javac srcdir="${src.dir}/src/main/java" 
-			destdir="${classes}" 
+		<javac srcdir="${src.dir}/src/main/java"
+			destdir="${classes}"
 			debug="${javac.debug}"
 			optimize= "${javac.optimize}"
 			debuglevel = "${javac.debuglevel}"
@@ -174,7 +174,7 @@
 			<a href="www.sipfoundry.org">  </a>
 			<br>
 				<br>
-				Copyright(c) Nortel Networks. Released under the GNU LGPL license. 
+				Copyright(c) Nortel Networks. Released under the GNU LGPL license.
 				<br>
 				</font>
 			]]>
@@ -232,7 +232,7 @@
 
      </java>
 </target>
-	
+
 
 <!-- These targets are for testing only -->
 
@@ -250,7 +250,7 @@
 	           </classpath>
 	     </java>
 </target>
-	
+
 <!-- These targets are for testing only -->
 
 <target name="symclient" description="Start sipXbridge" depends="clean,cleanlogs,compile" >
@@ -268,8 +268,8 @@
 	           </classpath>
 	     </java>
 </target>
-	
-	
+
+
 
 
 <!-- These targets are for testing only -->

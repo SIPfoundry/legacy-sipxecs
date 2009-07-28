@@ -27,9 +27,9 @@ import org.sipfoundry.commons.log4j.SipFoundryLogRecordFactory;
 
 /**
  * Sip Protocol objects.
- * 
+ *
  * @author M. Ranganathan
- * 
+ *
  */
 public class ProtocolObjects {
     private static final Logger logger = Logger.getLogger(ProtocolObjects.class);
@@ -96,7 +96,7 @@ public class ProtocolObjects {
              * Break up the via encoding.
              */
             ViaList.setPrettyEncode(true);
-            sipStack = ProtocolObjects.sipFactory.createSipStack(stackProperties);         
+            sipStack = ProtocolObjects.sipFactory.createSipStack(stackProperties);
             ((SipStackImpl) getSipStack()).addLogAppender(Gateway.logAppender);
         } catch (Exception ex) {
             ex.printStackTrace();

@@ -16,9 +16,9 @@ import org.xml.sax.SAXException;
 
 /**
  * The Parser for the configuration file that the bridge will use.
- * 
+ *
  * @author M. Ranganathan
- * 
+ *
  */
 public class ConfigurationParser {
     private static final String BRIDGE_CONFIG = "sipxbridge-config/bridge-configuration";
@@ -35,7 +35,7 @@ public class ConfigurationParser {
 
     /**
      * Add the digester rules.
-     * 
+     *
      * @param digester
      */
     private static void addRules(Digester digester) {
@@ -85,37 +85,37 @@ public class ConfigurationParser {
                 "music-on-hold-support-enabled"), "setMusicOnHoldSupportEnabled", 0, new Class[] {
             Boolean.class
         });
-        
+
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "music-on-hold-delay-miliseconds"),
                 "setMusicOnHoldDelayMiliseconds", 0, new Class[] {
                     Integer.class
         });
-        
+
 
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "music-on-hold-supported-codecs"),
                 "setMohSupportedCodecs", 0);
-        
+
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "music-on-hold-address"),
                 "setMusicOnHoldName", 0);
-        
+
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "call-limit"),
                 "setCallLimit", 0, new Class[] {
                     Integer.class
                 });
-        
-        
+
+
 
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "secure-xml-rpc"),
                 "setSecure", 0, new Class[] {
                     Boolean.class
                 });
-        
+
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "log-level"), "setLogLevel",
                 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "sip-keepalive-seconds"),
                 "setSipKeepalive", 0);
-        
-        
+
+
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "media-keepalive-seconds"),
                 "setMediaKeepalive", 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "log-directory"),
@@ -128,7 +128,7 @@ public class ConfigurationParser {
 
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "sipxrelay-host"),
                 "setSymmitronHost", 0);
-        
+
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "sipxrelay-xml-rpc-port"),
                 "setSymmitronXmlRpcPort", 0);
 
@@ -157,7 +157,7 @@ public class ConfigurationParser {
                 "setOutboundProxyPort", 0, new Class[] {
                     Integer.class
                 });
-        
+
         /*
          * Port where sipxbridge sends REGISTER
          */
@@ -165,7 +165,7 @@ public class ConfigurationParser {
                 "setInboundProxyPort", 0, new Class[] {
                     Integer.class
                 });
-        
+
         /*
          * REGISTER interval.
          */
@@ -185,7 +185,7 @@ public class ConfigurationParser {
          */
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "itsp-transport"),
                 "setOutboundTransport", 0);
-        
+
         /*
          * ITSP proxy domain.
          */
@@ -197,7 +197,7 @@ public class ConfigurationParser {
          */
         digester
                 .addCallMethod(String.format("%s/%s", ITSP_CONFIG, "user-name"), "setUserName", 0);
-        
+
         /*
          * Authentication password.
          */
@@ -227,39 +227,39 @@ public class ConfigurationParser {
                 "setRegisterOnInitialization", 0, new Class[] {
                     Boolean.class
                 });
-       
+
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "strip-private-headers"),
                 "setStripPrivateHeaders", 0, new Class[] {
                     Boolean.class
                 });
-        
+
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "default-asserted-identity"),
                 "setUseDefaultAssertedIdentity",0, new Class[] {
                     Boolean.class
                 });
-        
+
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "asserted-identity"),
                 "setCallerId", 0);
-        
-        
+
+
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "is-user-phone"),
                 "setUserPhone", 0, new Class[] {
             Boolean.class
         });
-        
+
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "loose-route-invite"),
                 "setAddLrRoute", 0, new Class[] {
             Boolean.class
         });
-        
+
     }
 
     /**
      * Create an account manager structure and initialize it with the information pointed to by
      * the given URL.
-     * 
+     *
      * @param url -- the rul from where to fetch the config file.
-     * 
+     *
      * @return
      */
 

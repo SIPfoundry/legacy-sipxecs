@@ -13,9 +13,9 @@ import javax.sip.message.MessageFactory;
 
 /**
  * A static class that has pointers to all the factories.
- * 
+ *
  * @author M. Ranganathan
- * 
+ *
  */
 public class SipFactories {
     public static final HeaderFactory headerFactory;

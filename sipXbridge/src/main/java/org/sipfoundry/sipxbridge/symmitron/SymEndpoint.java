@@ -17,9 +17,9 @@ import org.apache.log4j.Logger;
 
 /**
  * A media endpoint is an ip addres, port pair.
- * 
+ *
  * @author M. Ranganathan
- * 
+ *
  */
 abstract class SymEndpoint implements SymEndpointInterface {
 
@@ -34,7 +34,7 @@ abstract class SymEndpoint implements SymEndpointInterface {
      * My port
      */
     private int port;
-    
+
     /*
      * My Inet address.
      */
@@ -46,20 +46,20 @@ abstract class SymEndpoint implements SymEndpointInterface {
     protected  DatagramChannel datagramChannel;
 
     private Sym sym;
-    
+
     private static Logger logger = Logger.getLogger(SymEndpoint.class);
- 
+
     public Map<String,Object> toMap() {
-       
+
             Map<String,Object> retval = new HashMap<String,Object>();
             retval.put("id", this.getId());
             retval.put("ipAddress", ipAddress);
             retval.put("port", new Integer(getPort()) );
             return retval;
-        
+
 
     }
-    
+
     public void setIpAddressAndPort(String ipAddress, int port) throws UnknownHostException {
         this.ipAddress = ipAddress;
         this.inetAddress = InetAddress.getByName(ipAddress);
@@ -68,10 +68,10 @@ abstract class SymEndpoint implements SymEndpointInterface {
 
     /**
      * Constructor sym endpoint.
-     * 
+     *
      * @param isTransmitter -- whether or not this is a transmitter.
      * @param rtpPortLowerBound -- where to start counting for port allocation.
-     * 
+     *
      */
     protected SymEndpoint()  {
 
@@ -85,7 +85,7 @@ abstract class SymEndpoint implements SymEndpointInterface {
         return this.id;
     }
 
-   
+
 
     /**
      * Get our RTP datagram channel.
@@ -94,10 +94,10 @@ abstract class SymEndpoint implements SymEndpointInterface {
         return datagramChannel;
     }
 
-    
 
-   
-  
+
+
+
     /**
      * Get the IP address associated with the endpoint ( transmitter will have the remote Ip address here).
      */
@@ -108,13 +108,13 @@ abstract class SymEndpoint implements SymEndpointInterface {
 
     /**
      * Get the port associated with the endpoint ( transmitter will have the remote port here ).
-     * 
+     *
      */
     public int getPort() {
         return port;
     }
 
-    
+
 
     /**
      * @param sym
@@ -132,11 +132,11 @@ abstract class SymEndpoint implements SymEndpointInterface {
     }
 
     /**
-     * Set the ip address - the IP address will be either the local listen 
+     * Set the ip address - the IP address will be either the local listen
      * address or the remote address ( for transmitter).
-     * 
+     *
      * @param ipAddress
-     * @throws UnknownHostException 
+     * @throws UnknownHostException
      */
     public void setIpAddress(String ipAddress) throws UnknownHostException {
         logger.debug("SymEndpoint: setIpAddress: " + ipAddress);
@@ -148,11 +148,11 @@ abstract class SymEndpoint implements SymEndpointInterface {
         }
     }
 
-    
+
     /**
      * Set the port - the port will be either the local listen port or the remote port
      * (for the transmitter ).
-     * 
+     *
      * @param port
      */
     public void setPort(int port) throws IllegalArgumentException {
@@ -160,11 +160,11 @@ abstract class SymEndpoint implements SymEndpointInterface {
         if ( port < 0 ) throw new IllegalArgumentException("Bad port "+ port);
         this.port = port;
     }
-    
-    
+
+
     /**
      * Debugging routine for clients.
-     * 
+     *
      * @return
      */
     public String getDatagramChannelState() {
@@ -173,26 +173,26 @@ abstract class SymEndpoint implements SymEndpointInterface {
             state += "OPEN";
         } else {
             return "CLOSED";
-        } 
-        
+        }
+
         if ( this.datagramChannel.isRegistered() ) {
              state += " REGISTERED";
         } else {
             return state + " NOT_REGISTERED";
         }
-        
+
         if ( this.datagramChannel.isConnected()) {
             state += " CONNECTED";
         } else {
             state += " NOT_CONNECTED";
         }
-        
+
         state += "host = " + this.datagramChannel.socket().getInetAddress() + "; local port = " + this.datagramChannel.socket().getLocalPort();
-        
-        
+
+
         return state;
-        
-       
+
+
     }
 
 

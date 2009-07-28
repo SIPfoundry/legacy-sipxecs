@@ -26,9 +26,9 @@ import org.apache.log4j.Logger;
 
 /**
  * The registration manager. It refreshes registrations etc.
- * 
+ *
  * @author root
- * 
+ *
  */
 public class RegistrationManager {
 
@@ -52,13 +52,13 @@ public class RegistrationManager {
         itspAccount.setHopToRegistrar(hop);
         ct.sendRequest();
         itspAccount.setState(AccountState.AUTHENTICATING);
-         
-        
+
+
     }
 
     /**
      * Send a de-register to the specified ITSP account.
-     * 
+     *
      * @param itspAccount -
      *            itsp account with which we want to de-register.
      * @throws SipXbridgeException -
@@ -81,7 +81,7 @@ public class RegistrationManager {
 
     /**
      * Sends a registration query.
-     * 
+     *
      * @param itspAccount --
      *            the ITSP account.
      * @throws SipXbridgeException
@@ -104,7 +104,7 @@ public class RegistrationManager {
      * Handle the OK response from a Register request. If the original request
      * was a registration attempt and the response is an OK we start a timer to
      * re-register after the current registration expires.
-     * 
+     *
      * @param responseEvent
      */
     @SuppressWarnings("unchecked")
@@ -269,7 +269,7 @@ public class RegistrationManager {
     /**
      * Handle a timeout event ( happens when you pont this to a non existant
      * ITSP ).
-     * 
+     *
      * @param timeoutEvent
      */
     public void processTimeout(TimeoutEvent timeoutEvent) {

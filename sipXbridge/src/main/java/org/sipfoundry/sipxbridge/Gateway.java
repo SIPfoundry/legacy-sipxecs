@@ -61,9 +61,9 @@ import org.sipfoundry.sipxbridge.xmlrpc.SipXbridgeXmlRpcClient;
 
 /**
  * The main class
- * 
+ *
  * @author M. Ranganathan
- * 
+ *
  */
 public class Gateway {
 
@@ -180,7 +180,7 @@ public class Gateway {
     static String configurationPath;
 
     static SipFoundryAppender logAppender;
-    
+
     static NetworkConfigurationDiscoveryProcess addressDiscovery = null;
 
     private static SipXAlarmClient alarmClient;
@@ -190,7 +190,7 @@ public class Gateway {
     private static final String STUN_FAILED_ALARM_ID = "STUN_ADDRESS_DISCOVERY_FAILED";
 
     private static final String STUN_OK = "STUN_ADDRESS_DISCOVERY_RECOVERED";
-    
+
     private static final String STUN_PUBLIC_ADDRESS_CHANGED_ALARM_ID = "STUN_PUBLIC_ADDRESS_CHANGED";
 
     static final String ACCOUNT_NOT_FOUND_ALARM_ID = "SIPX_BRIDGE_ITSP_ACCOUNT_NOT_FOUND";
@@ -208,7 +208,7 @@ public class Gateway {
     public static final String SIPX_BRIDGE_ACCOUNT_OK = "SIPX_BRIDGE_ACCOUNT_OK";
 
     public static final int DEFAULT_SESSION_TIMER_INTERVAL = 1800;
-    
+
     private static int oldStunPort = -1;
 
     // ///////////////////////////////////////////////////////////////////////
@@ -267,7 +267,7 @@ public class Gateway {
 
     /**
      * Initialize the loggers for the libraries used.
-     * 
+     *
      * @throws SipXbridgeExcception -
      *             if logging initialization failed.
      */
@@ -352,11 +352,11 @@ public class Gateway {
 
     /**
      * Discover our address using stun.
-     * 
+     *
      * @throws SipXbridgeException
      */
     static void discoverAddress() throws SipXbridgeException {
-       
+
         try {
 
             BridgeConfiguration bridgeConfiguration = accountManager
@@ -364,7 +364,7 @@ public class Gateway {
             String stunServerAddress = bridgeConfiguration
                     .getStunServerAddress();
             String oldPublicAddress = Gateway.getGlobalAddress();
-            
+
             int oldPublicPort = Gateway.oldStunPort;
 
             if (stunServerAddress != null) {
@@ -398,12 +398,12 @@ public class Gateway {
                     }
                     return;
                 }
-                
+
                 globalAddress = report.getPublicAddress().getSocketAddress()
                         .getAddress().getHostAddress();
                 logger.debug("Stun report = " + report);
-                
-                if ( oldPublicAddress != null && !oldPublicAddress.equals(globalAddress) || 
+
+                if ( oldPublicAddress != null && !oldPublicAddress.equals(globalAddress) ||
                     ( oldStunPort != -1 && oldStunPort != report.getPublicAddress().getPort() ) ) {
                     Gateway.getAlarmClient()
                     .raiseAlarm(
@@ -416,12 +416,12 @@ public class Gateway {
                     logger
                             .warn("WARNING External port != internal port your NAT may not be symmetric.");
                 }
-               
+
             }
         } catch (Exception ex) {
             /*
              * If problem finding address. release the port.
-             */      
+             */
             logger.error("Error discovering  address", ex);
             try {
                 if ( addressDiscovery != null ) {
@@ -440,7 +440,7 @@ public class Gateway {
 
     /**
      * Start timer to rediscover our address.
-     * 
+     *
      */
     static void startRediscoveryTimer() {
         int rediscoveryTime = Gateway.accountManager.getBridgeConfiguration()
@@ -538,7 +538,7 @@ public class Gateway {
 
     /**
      * Initialize the bridge.
-     * 
+     *
      */
     static void initializeSipListeningPoints() {
         try {
@@ -664,7 +664,7 @@ public class Gateway {
 
     /**
      * Get the back to back user agent factory.
-     * 
+     *
      * @return the back to back user agent factory.
      */
     static BackToBackUserAgentFactory getBackToBackUserAgentFactory() {
@@ -673,7 +673,7 @@ public class Gateway {
 
     /**
      * The local address of the gateway.
-     * 
+     *
      * @return
      */
 
@@ -684,7 +684,7 @@ public class Gateway {
     /**
      * The transport to use to talk to sipx proxy. This is registered in the DNS
      * srv.
-     * 
+     *
      * @return the proxy transport
      */
     static String getSipxProxyTransport() {
@@ -693,7 +693,7 @@ public class Gateway {
 
     /**
      * The Sipx proxy domain.
-     * 
+     *
      * @return the sipx proxy domain name.
      */
     static String getSipxProxyDomain() {
@@ -701,7 +701,7 @@ public class Gateway {
     }
 
     /**
-     * 
+     *
      * @return the bridge log level.
      */
     static String getLogLevel() {
@@ -710,7 +710,7 @@ public class Gateway {
 
     /**
      * Get the timeout for media.
-     * 
+     *
      * @return
      */
     static int getMediaKeepaliveMilisec() {
@@ -721,7 +721,7 @@ public class Gateway {
 
     /**
      * Get the sip keepalive
-     * 
+     *
      * @return
      */
     static int getSipKeepaliveSeconds() {
@@ -761,7 +761,7 @@ public class Gateway {
     /**
      * Get the Gateway Address ( used in From Header ) of requests that
      * originate from the Gateway.
-     * 
+     *
      * @return an address that can be used in the From Header of request that
      *         originate from the Gateway.
      */
@@ -859,7 +859,7 @@ public class Gateway {
 
     /**
      * Registers all listeners and starts everything.
-     * 
+     *
      * @throws Exception
      */
     static void startSipListener() throws SipXbridgeException {
@@ -897,7 +897,7 @@ public class Gateway {
 
     /**
      * Configuration test. exit with status code 0 if success and -1 if fail.
-     * 
+     *
      */
     static void configtest() {
 
@@ -975,10 +975,10 @@ public class Gateway {
 
     /**
      * Start the gateway.
-     * 
+     *
      * @throws SipXbridgeException --
      *             if Gateway start failed.
-     * 
+     *
      */
     static void start() throws SipXbridgeException {
         // Wait for the configuration file to become available.
@@ -1110,7 +1110,7 @@ public class Gateway {
         Gateway.state = GatewayState.STOPPED;
         // Tear down the sip stack.
         ProtocolObjects.stop();
-      
+
     }
 
     /**
@@ -1144,7 +1144,7 @@ public class Gateway {
     /**
      * Get the global address of bridge. This is the publicly routable address
      * of the bridge.
-     * 
+     *
      * @return
      */
     static String getGlobalAddress() {
@@ -1158,7 +1158,7 @@ public class Gateway {
     /**
      * Get the global port of the bridge. This is the publicly routable port of
      * the bridge.
-     * 
+     *
      * @return
      */
     static int getGlobalPort() {
@@ -1170,7 +1170,7 @@ public class Gateway {
 
     /**
      * Get the web server port.
-     * 
+     *
      * @return the web server port.
      */
     static int getXmlRpcWebServerPort() {
@@ -1179,7 +1179,7 @@ public class Gateway {
 
     /**
      * Gets the current bridge status.
-     * 
+     *
      * @return
      */
     static GatewayState getState() {
@@ -1188,9 +1188,9 @@ public class Gateway {
 
     /**
      * Get the log file name.
-     * 
+     *
      * @return the log file name
-     * 
+     *
      */
     static String getLogFile() {
         return Gateway.getAccountManager().getBridgeConfiguration()
@@ -1200,9 +1200,9 @@ public class Gateway {
 
     /**
      * Get the call count.
-     * 
+     *
      * @return -- the call count of the gateway ( number of active calls )
-     * 
+     *
      */
     static int getCallCount() {
 
@@ -1221,7 +1221,7 @@ public class Gateway {
         Gateway.callCount++;
     }
 
-  
+
 
     /**
      * @return the timer
@@ -1232,7 +1232,7 @@ public class Gateway {
 
     /**
      * Session keepalive timer.
-     * 
+     *
      * @return
      */
     static String getSessionTimerMethod() {
@@ -1248,7 +1248,7 @@ public class Gateway {
 
     /**
      * Returns true if inbound calls go to an auto attendant.
-     * 
+     *
      * @return
      */
     static boolean isInboundCallsRoutedToAutoAttendant() {
@@ -1259,7 +1259,7 @@ public class Gateway {
     /**
      * Place where you want to direct calls ( assuming that you have such a
      * place ).
-     * 
+     *
      * @return - the address of auto attendant.
      */
     static String getAutoAttendantName() {
@@ -1268,7 +1268,7 @@ public class Gateway {
 
     /**
      * The XML rpc client connection to the symmitron.
-     * 
+     *
      * @param address -
      *            the address ( extracted from the Via header).
      * @return -- the client to talk to the symmitron.
@@ -1292,7 +1292,7 @@ public class Gateway {
 
     /**
      * The set of codecs handled by the park server.
-     * 
+     *
      * @return
      */
     static HashSet<Integer> getParkServerCodecs() {
@@ -1302,7 +1302,7 @@ public class Gateway {
     /**
      * Log an internal error and potentially throw a runtime exception ( if
      * debug is enabled).
-     * 
+     *
      * @param errorString
      */
     static void logInternalError(String errorString, Exception exception) {
@@ -1328,7 +1328,7 @@ public class Gateway {
     }
 
     /**
-     * 
+     *
      * This method must be called before SSL connection is initialized.
      */
     private static void initHttpsClient() {
@@ -1350,7 +1350,7 @@ public class Gateway {
 
     /**
      * The main method for the Bridge.
-     * 
+     *
      * @param args
      */
     public static void main(String[] args) throws Exception {

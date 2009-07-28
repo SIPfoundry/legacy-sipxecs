@@ -31,9 +31,9 @@ import org.apache.xmlrpc.XmlRpcException;
 /**
  * Keeps a mapping of account ID to ItspAccountInfo and a mapping of account ID to sip pbx account
  * info.
- * 
+ *
  * @author M. Ranganathan
- * 
+ *
  */
 public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.AccountManager {
 
@@ -41,7 +41,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
 
     private HashSet<ItspAccountInfo> itspAccounts = new HashSet<ItspAccountInfo>();
 
- 
+
     /*
      * The reverse name lookup map
      */
@@ -76,7 +76,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
         }
     }
 
-   
+
 
     /**
      * Get the default outbound ITSP account for outbound calls.
@@ -140,18 +140,18 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
             }
            /*
              * logger.error( Gateway.ACCOUNT_NOT_FOUND_ALARM_ID + " uri = " + sipUri ); try {
-             * 
+             *
              * if (alarmTable.get(sipUri.getHost()) == null) { alarmTable.put(sipUri.getHost(),
              * true); Gateway.getAlarmClient().raiseAlarm(Gateway.ACCOUNT_NOT_FOUND_ALARM_ID,
              * sipUri.getHost()); } } catch (XmlRpcException e) { logger.error("Could not send
              * alarm " + Gateway.ACCOUNT_NOT_FOUND_ALARM_ID + " uri = " + sipUri); }
              */
-            
+
             /*
              * If an account is not found return an account record with the
              * domain set to the outbound request domain. The INVITE will be
              * forwarded. If the other side does not like the INVITE it an
-             * complain about it. See issue XX-5623 
+             * complain about it. See issue XX-5623
              */
             accountFound = new ItspAccountInfo();
             accountFound.setProxyDomain(sipUri.getHost());
@@ -170,7 +170,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
 
     /**
      * Get a collection of Itsp accounts.
-     * 
+     *
      * @return
      */
     Collection<ItspAccountInfo> getItspAccounts() {
@@ -178,13 +178,13 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
         return itspAccounts;
     }
 
-  
+
 
     /**
      * Get an ITSP account based on the host and port of the indbound request.
      * Look up the ITSP account based on the tompost via header of the inbound
      * request. Should we reject the request if it is not from a known ITSP?
-     * 
+     *
      * @param host
      * @param port
      * @return
@@ -202,7 +202,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
                     // server.
                     logger.debug("registrarHost = " + registrarHost);
                     try {
-                        Hop hop = accountInfo.getHopToRegistrar();                     
+                        Hop hop = accountInfo.getHopToRegistrar();
                         if (hop != null && viaHost.equals(InetAddress.getByName(hop.getHost()).getHostAddress())) {
                             logger.debug("found account " + accountInfo.getProxyDomain());
                             return accountInfo;
@@ -241,8 +241,8 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
         return null;
     }
 
-        
-    
+
+
 
     // //////////////////////////////////////////////////////////////////
     // Public methods.
@@ -263,7 +263,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see gov.nist.javax.sip.clientauthutils.AccountManager#getCredentials(javax.sip.ClientTransaction,
      *      java.lang.String)
      */

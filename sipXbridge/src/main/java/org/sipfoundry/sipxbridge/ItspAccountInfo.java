@@ -24,7 +24,7 @@ import org.sipfoundry.sipxbridge.xmlrpc.RegistrationRecord;
 
 /**
  * The information pertaining to an ITSP account resides in this class.
- * 
+ *
  * @author M. Ranganathan
  */
 
@@ -149,15 +149,15 @@ public class ItspAccountInfo implements
      * Determines whether the Sip Request URI User name is a phone number.
      */
     private boolean isUserPhone = true;
-    
-  
-    
-    
+
+
+
+
     /*
      * Flag that indicates whether this is a dummy account
      */
     private boolean isDummyAccount = false;
-    
+
     /*
      * The registration timer task.
      */
@@ -169,7 +169,7 @@ public class ItspAccountInfo implements
     private boolean reUseOutboundProxySetting;
 
     private boolean inboundProxyPortSet;
-    
+
     private boolean addRoute = true;
 
     private int sessionTimerInterval = Gateway.DEFAULT_SESSION_TIMER_INTERVAL;
@@ -333,7 +333,7 @@ public class ItspAccountInfo implements
      * Note that authentication realm is an optional configuration parameter. We
      * return the authenticationRealm if set else we return the outbound proxy
      * if set else we return the domain.
-     * 
+     *
      * @return the authenticationRealm
      */
     public String getAuthenticationRealm() {
@@ -402,7 +402,7 @@ public class ItspAccountInfo implements
         return retval;
 
     }
-    
+
 
     /**
      * @param state
@@ -525,7 +525,7 @@ public class ItspAccountInfo implements
     public void setCallerId(String callerId) {
         this.callerId = callerId;
     }
-    
+
     public String getDefaultDomain() {
         if (this.isRegisterOnInitialization()) {
             return  this.getProxyDomain();
@@ -535,15 +535,15 @@ public class ItspAccountInfo implements
             return  Gateway.getLocalAddress();
         } else {
             return null;
-        } 
+        }
     }
-   
+
 
     public String getCallerId() {
         if (!useDefaultAssertedIdentity) {
             return this.callerId;
         } else if (this.getDefaultDomain() != null ) {
-            return this.getUserName() + "@" + this.getDefaultDomain();        
+            return this.getUserName() + "@" + this.getDefaultDomain();
         } else {
             return null;
         }
@@ -589,7 +589,7 @@ public class ItspAccountInfo implements
 
     /**
      * set the flag to use default asserted identity.
-     * 
+     *
      * @param flag
      */
     public void setUseDefaultAssertedIdentity(boolean flag) {
@@ -598,7 +598,7 @@ public class ItspAccountInfo implements
 
     /**
      * Remove a failure counter.
-     * 
+     *
      * @param callId
      */
     public void removeFailureCounter(String callId) {
@@ -628,11 +628,11 @@ public class ItspAccountInfo implements
     public boolean isAlarmSent() {
         return alarmSent;
     }
-    
+
     public boolean isDummyAccount() {
         return this.isDummyAccount;
     }
-    
+
     public void setDummyAccount(boolean dummyAccount) {
         this.isDummyAccount = dummyAccount;
     }
@@ -659,7 +659,7 @@ public class ItspAccountInfo implements
         }
     }
 
-    
+
 
     /**
      * @return the inboundProxyPortSet
@@ -671,7 +671,7 @@ public class ItspAccountInfo implements
     public boolean isAddLrRoute() {
        return this.addRoute;
     }
-    
+
     public void setSipSessionTimerInterval(int sessionTimerInterval) {
         this.setSessionTimerInterval(sessionTimerInterval);
     }
@@ -700,7 +700,7 @@ public class ItspAccountInfo implements
     public void setHopToRegistrar(Hop hop) {
        this.hopToRegistrar = hop;
     }
-    
+
     public Hop getHopToRegistrar() {
         return this.hopToRegistrar;
     }

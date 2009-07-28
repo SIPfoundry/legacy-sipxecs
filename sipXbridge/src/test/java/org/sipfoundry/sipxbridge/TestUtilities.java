@@ -33,7 +33,7 @@ public class TestUtilities {
     /**
      * Get the Via header to assign for this message processor. The topmost via
      * header of the outoging messages use this.
-     * 
+     *
      * @return the ViaHeader to be used by the messages sent via this message
      *         processor.
      */
@@ -78,7 +78,7 @@ public class TestUtilities {
 
     /**
      * Create an invite request bound to the bridge
-     * 
+     *
      * @param sipProvider
      * @param toUser
      * @param toDomain

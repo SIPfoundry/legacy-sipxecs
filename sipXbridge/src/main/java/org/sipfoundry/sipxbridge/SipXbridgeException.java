@@ -9,9 +9,9 @@ package org.sipfoundry.sipxbridge;
 
 /**
  * Sipxbridge runtime exception specialization.
- * 
+ *
  * @author M. Ranganathan.
- * 
+ *
  */
 @SuppressWarnings("serial")
 public class SipXbridgeException extends RuntimeException {

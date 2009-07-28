@@ -42,9 +42,9 @@ import org.apache.log4j.Logger;
 /**
  * This is the JAIN-SIP listener that fields all request and response events
  * from the stack.
- * 
+ *
  * @author M. Ranganathan
- * 
+ *
  */
 public class SipListenerImpl implements SipListener {
 
@@ -63,15 +63,15 @@ public class SipListenerImpl implements SipListener {
         Dialog dialog = responseEvent.getDialog();
 
         int statusCode = responseEvent.getResponse().getStatusCode();
-        
+
         ClientTransaction ctx = responseEvent.getClientTransaction();
-        
+
         /*
          * challenge from LAN side. Cannot handle this.
          */
         if (provider == Gateway.getLanProvider()) {
             /*
-             * By default, we do not handle LAN originated challenges unless the inbound domain is the 
+             * By default, we do not handle LAN originated challenges unless the inbound domain is the
              * same as the sipx domain -- in which case sipx will challenge us and we will forward that
              * challenge.
              */
@@ -79,7 +79,7 @@ public class SipListenerImpl implements SipListener {
                 ServerTransaction stx = ((TransactionContext) responseEvent
                         .getClientTransaction().getApplicationData())
                         .getServerTransaction();
-                if (stx != null && stx.getState() != TransactionState.TERMINATED) { 
+                if (stx != null && stx.getState() != TransactionState.TERMINATED) {
                     /*
                      * Forward it to the peer. Maybe he knows how to handle the challenge and if not
                      * he will hang up the call.
@@ -89,7 +89,7 @@ public class SipListenerImpl implements SipListener {
                     errorResponse.removeHeader(ContactHeader.NAME);
                     ContactHeader cth = SipUtilities.createContactHeader(null, ((TransactionExt)stx).getSipProvider());
                     errorResponse.setHeader(cth);
-                    if ( TransactionContext.get(responseEvent.getClientTransaction()).getItspAccountInfo() == null || 
+                    if ( TransactionContext.get(responseEvent.getClientTransaction()).getItspAccountInfo() == null ||
                             TransactionContext.get(responseEvent.getClientTransaction()).getItspAccountInfo().isGlobalAddressingUsed()) {
                         SipUtilities.setGlobalAddress(errorResponse);
                     }
@@ -121,7 +121,7 @@ public class SipListenerImpl implements SipListener {
 
         /*
          * If we find a non-dummy ITSP account then check to see if we have
-         * exceeded the failure count. If we have exceeded that count then 
+         * exceeded the failure count. If we have exceeded that count then
          * we are done with this request.
          */
 
@@ -163,7 +163,7 @@ public class SipListenerImpl implements SipListener {
 
         } else if ( accountInfo != null && accountInfo.isDummyAccount() ) {
             /*
-             * Forward the challenge back to the call originator if this is a dummy account we 
+             * Forward the challenge back to the call originator if this is a dummy account we
              * created for purposes of bridging the call.
              */
             logger.debug("Forwarding challenge from WAN for dummy account");
@@ -210,7 +210,7 @@ public class SipListenerImpl implements SipListener {
                 b2bua.addDialog(newClientTransaction.getDialog());
                 DialogContext dialogApplicationData = (DialogContext) dialog
                         .getApplicationData();
-              
+
                 DialogContext newDialogApplicationData = DialogContext
                         .attach(b2bua, newClientTransaction.getDialog(),
                                 newClientTransaction, newClientTransaction
@@ -237,7 +237,7 @@ public class SipListenerImpl implements SipListener {
                                 + newClientTransaction.getDialog());
                     }
                 }
-                
+
 
             }
 
@@ -263,7 +263,7 @@ public class SipListenerImpl implements SipListener {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see javax.sip.SipListener#processDialogTerminated(javax.sip.DialogTerminatedEvent )
      */
     public void processDialogTerminated(DialogTerminatedEvent dte) {
@@ -294,7 +294,7 @@ public class SipListenerImpl implements SipListener {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see javax.sip.SipListener#processRequest(javax.sip.RequestEvent)
      */
     public void processRequest(RequestEvent requestEvent) {
@@ -386,7 +386,7 @@ public class SipListenerImpl implements SipListener {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see javax.sip.SipListener#processResponse(javax.sip.ResponseEvent)
      */
 
@@ -452,7 +452,7 @@ public class SipListenerImpl implements SipListener {
                         .getNewClientTransaction(byeRequest);
                         dialog.sendRequest(byeClientTransaction);
                         return;
-                } 
+                }
             }
 
             /*
@@ -547,7 +547,7 @@ public class SipListenerImpl implements SipListener {
 
                     TransactionContext transactionContext = TransactionContext
                             .get(ctx);
-                    if (transactionContext.getOperation() == Operation.SEND_INVITE_TO_SIPX_PROXY) {               
+                    if (transactionContext.getOperation() == Operation.SEND_INVITE_TO_SIPX_PROXY) {
                             b2bua.tearDown(Gateway.SIPXBRIDGE_USER,
                                     ReasonCode.CALL_SETUP_ERROR,
                                     "SipxProxy is down");
@@ -567,10 +567,10 @@ public class SipListenerImpl implements SipListener {
                                 if ( txContext.getServerTransaction() != null
                                         && txContext.getServerTransaction().getState()
                                         != TransactionState.TERMINATED ) {
-                                    Response errorResponse = SipUtilities.createResponse(txContext.getServerTransaction(), 
+                                    Response errorResponse = SipUtilities.createResponse(txContext.getServerTransaction(),
                                             Response.REQUEST_TIMEOUT);
                                     errorResponse.setReasonPhrase("ITSP Timed Out");
-                                    SipUtilities.addSipFrag(errorResponse, "ITSP Domain : " 
+                                    SipUtilities.addSipFrag(errorResponse, "ITSP Domain : "
                                             + txContext.getItspAccountInfo().getProxyDomain());
                                     txContext.getServerTransaction().sendResponse(errorResponse);
                                 }
@@ -582,7 +582,7 @@ public class SipListenerImpl implements SipListener {
                         } else {
                             logger.debug("Timed out processing "
                                     + transactionContext.getOperation());
-                            
+
                             b2bua.sendByeToMohServer();
                         }
                     }

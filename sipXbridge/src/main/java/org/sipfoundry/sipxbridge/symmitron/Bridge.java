@@ -17,12 +17,12 @@ import org.apache.log4j.Logger;
  * Manages the pairing of Rtp pipes. One side belongs to the Lan the other side terminates the
  * ITSP. There is a data shuffler that reads from one end and writes to the other side of the
  * bridge. This method can potentially benifit from a kernel level copy such as ip-tables.
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
  * @author M. Ranganathan <mranga@pingtel.com>
- * 
+ *
  */
 final class Bridge implements BridgeInterface {
     private static Logger logger = Logger.getLogger(Bridge.class.getPackage().getName());
@@ -92,7 +92,7 @@ final class Bridge implements BridgeInterface {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.sipfoundry.sipxbridge.symmitron.BridgeInterface#getId()
      */
     public String getId() {
@@ -102,7 +102,7 @@ final class Bridge implements BridgeInterface {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.sipfoundry.sipxbridge.symmitron.BridgeInterface#start()
      */
 
@@ -113,31 +113,31 @@ final class Bridge implements BridgeInterface {
             started = true;
 
         this.setState(BridgeState.RUNNING);
-       
+
     }
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.sipfoundry.sipxbridge.symmitron.BridgeInterface#stop()
      */
     public void stop() {
         if (logger.isDebugEnabled()) {
             logger.debug("Closing SymBridge : " + this.toString());
-           
+
         }
-        
+
         for (Sym sym : this.sessions) {
             sym.close();
         }
 
         this.setState(BridgeState.TERMINATED);
-       
+
     }
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.sipfoundry.sipxbridge.symmitron.BridgeInterface#pause()
      */
     public void pause() {
@@ -145,9 +145,9 @@ final class Bridge implements BridgeInterface {
         if (this.getState() == BridgeState.PAUSED)
             return;
         else if (this.getState() == BridgeState.RUNNING) {
-          
+
             this.setState(BridgeState.PAUSED);
-         
+
 
         } else {
             throw new IllegalStateException("Cannot pause bridge in " + this.getState());
@@ -157,7 +157,7 @@ final class Bridge implements BridgeInterface {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.sipfoundry.sipxbridge.symmitron.BridgeInterface#resume()
      */
 
@@ -165,9 +165,9 @@ final class Bridge implements BridgeInterface {
         if (this.getState() == BridgeState.RUNNING)
             return;
         else if (this.getState() == BridgeState.PAUSED) {
-         
+
             this.setState(BridgeState.RUNNING);
-          
+
         } else {
             throw new IllegalStateException(" Cannot resume bridge in " + this.getState());
         }
@@ -175,7 +175,7 @@ final class Bridge implements BridgeInterface {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.sipfoundry.sipxbridge.symmitron.BridgeInterface#getState()
      */
     public BridgeState getState() {
@@ -184,7 +184,7 @@ final class Bridge implements BridgeInterface {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.sipfoundry.sipxbridge.symmitron.BridgeInterface#addSym(org.sipfoundry.sipxbridge.symmitron.Sym)
      */
     public void addSym(SymInterface sym) {
@@ -214,7 +214,7 @@ final class Bridge implements BridgeInterface {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.sipfoundry.sipxbridge.symmitron.BridgeInterface#removeSym(org.sipfoundry.sipxbridge.symmitron.Sym)
      */
     public void removeSym(SymInterface symSession) {
@@ -235,7 +235,7 @@ final class Bridge implements BridgeInterface {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.sipfoundry.sipxbridge.symmitron.BridgeInterface#getSyms()
      */
     public Set<Sym> getSyms() {
@@ -252,7 +252,7 @@ final class Bridge implements BridgeInterface {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.sipfoundry.sipxbridge.symmitron.BridgeInterface#toString()
      */
     @Override
@@ -276,7 +276,7 @@ final class Bridge implements BridgeInterface {
         this.lastPacketTime.set(lastPacketTime);
     }
 
-   
+
 
     Sym getReceiverSym(DatagramChannel datagramChannel) {
         Sym retval = null;

@@ -20,10 +20,10 @@ import org.apache.log4j.Logger;
  * A class that represents the configuration of the SipxBridge. IMPORTANT -- the methods of this
  * class are tied to sipxbridge.xsd. Do not change method names or signatures unless you also edit
  * schema/sipxbridge.xsd.
- * 
- * 
+ *
+ *
  * @author M. Ranganathan
- * 
+ *
  */
 public class BridgeConfiguration {
     private String globalAddress;
@@ -429,7 +429,7 @@ public class BridgeConfiguration {
     /**
      * Whether or not to forward a REFER ( if the ITSP capablity allows us to do so). This feature
      * is turned off until further testing can be done.
-     * 
+     *
      * @return
      */
     public boolean isReferForwarded() {
@@ -504,8 +504,8 @@ public class BridgeConfiguration {
         return parkServerCodecs;
     }
 
-   
-    
+
+
 
     public void setSipXSupervisorXmlRpcPort(int port) {
         if (port <= 0)

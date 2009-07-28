@@ -25,10 +25,10 @@ public abstract class AbstractSipSignalingTest extends SipTestCase {
 	protected ItspAccountInfo accountInfo;
 	protected AccountManagerImpl accountManager;
 	protected static String sipxProxyAddress;
-	
+
 	static {
 		try {
-			
+
 			Properties properties = new Properties();
 			properties.load(new FileInputStream(new File(
 					"testdata/selftest.properties")));
@@ -47,29 +47,29 @@ public abstract class AbstractSipSignalingTest extends SipTestCase {
 		} catch ( Exception ex) {
 			ex.printStackTrace();
 			throw new RuntimeException(ex);
-		}	
+		}
 	}
 
 	@Override
 	public void setUp() throws Exception {
-	
-		
+
+
 		Gateway.parseConfigurationFile();
 		accountManager = Gateway.getAccountManager();
-		accountInfo = accountManager.getDefaultAccount();	
+		accountInfo = accountManager.getDefaultAccount();
 		localAddr = Gateway.getAccountManager().getBridgeConfiguration()
 				.getLocalAddress();
 		localPort = Gateway.getAccountManager().getBridgeConfiguration()
 				.getLocalPort();
-		Gateway.initializeLogging();		
-		
+		Gateway.initializeLogging();
+
 	}
 
 	@Override
 	public void tearDown() throws Exception {
 		Gateway.stop();
 		SymmitronServer.stop();
-	
+
 	}
 
 	public int getMediaPort() {

@@ -59,9 +59,9 @@ import org.sipfoundry.commons.log4j.SipFoundryLogRecordFactory;
 
 /**
  * Test ITSP. This is endpoint that mocks ITSP behavior.
- * 
+ *
  * @author M. Ranganathan
- * 
+ *
  */
 public class MockItsp implements SipListener {
 
@@ -210,7 +210,7 @@ public class MockItsp implements SipListener {
 				remoteSessionDescription = SipUtilities
 						.getSessionDescription(request);
 				SessionDescription sd = createSessionDescription();
-			
+
 				sipCall.sendIncomingCallResponse(Response.OK, "OK", 3000, sd
 						.toString(), "application", "sdp", null, null);
 				sipCall.listenForAck();
@@ -218,7 +218,7 @@ public class MockItsp implements SipListener {
 
 				if (callerSendsBye) {
 					sipCall.listenForDisconnect();
-						
+
 					sipCall.waitForDisconnect(3000);
 					sipCall.respondToDisconnect();
 				} else {
@@ -226,7 +226,7 @@ public class MockItsp implements SipListener {
 					sipCall.disconnect();
 					sipCall.waitForAnswer(1000);
 				}
-				
+
 			} catch (Exception ex) {
 				ex.printStackTrace();
 				AbstractSipSignalingTest.fail("Unexpected exception ");

@@ -82,9 +82,9 @@ import org.sipfoundry.commons.siprouter.FindSipServer;
 import org.sipfoundry.commons.siprouter.ProxyRouter;
 
 /**
- * 
+ *
  * @author mranga
- * 
+ *
  */
 @SuppressWarnings("unchecked")
 class SipUtilities {
@@ -93,10 +93,10 @@ class SipUtilities {
     static UserAgentHeader userAgent;
     static ServerHeader serverHeader;
     private static final String CONFIG_PROPERTIES = "config.properties";
-  
+
     /**
      * Create the UA header.
-     * 
+     *
      * @return
      */
     static UserAgentHeader createUserAgentHeader() {
@@ -135,7 +135,7 @@ class SipUtilities {
 
     /**
      * Possibly create and return the default Server header.
-     * 
+     *
      * @return
      */
     static ServerHeader createServerHeader() {
@@ -216,18 +216,18 @@ class SipUtilities {
     /**
      * Get the Via header to assign for this message processor. The topmost via
      * header of the outoging messages use this.
-     * 
+     *
      * @return the ViaHeader to be used by the messages sent via this message
      *         processor.
      */
     static ViaHeader createViaHeader(SipProvider sipProvider,
             ItspAccountInfo itspAccount) {
         try {
-             String outboundTransport = itspAccount == null  ? 
+             String outboundTransport = itspAccount == null  ?
                      Gateway.DEFAULT_ITSP_TRANSPORT : itspAccount.getOutboundTransport();
-            
+
              if (itspAccount != null && !itspAccount.isGlobalAddressingUsed()) {
-                 
+
                  ListeningPoint listeningPoint = sipProvider
                         .getListeningPoint(outboundTransport);
                 String host = listeningPoint.getIPAddress();
@@ -375,7 +375,7 @@ class SipUtilities {
         if (port != 5060) {
             requestUri.setPort(port);
         }
-        
+
 
         /*
          * We register with From and To headers set to the proxy domain.
@@ -401,8 +401,8 @@ class SipUtilities {
 
         CallIdHeader callidHeader = callId == null? sipProvider.getNewCallId() : ProtocolObjects.headerFactory.createCallIdHeader(callId);
 
-       
-        
+
+
         CSeqHeader cseqHeader = ProtocolObjects.headerFactory.createCSeqHeader(
                 cseq, Request.REGISTER);
 
@@ -431,19 +431,19 @@ class SipUtilities {
 
         SipURI registrarUri = ProtocolObjects.addressFactory.createSipURI(null,
                 outboundRegistrar);
-      
+
         if (itspAccount.isInboundProxyPortSet()) {
             registrarUri.setPort(itspAccount.getInboundProxyPort());
         }
         Collection<Hop> hops = new FindSipServer(logger).findSipServers(registrarUri);
-     
-       
+
+
         if ( hops == null || hops.isEmpty() )  {
             throw new SipException ("No route to registrar found");
         }
-        
-     
-        RouteHeader routeHeader  = SipUtilities.createRouteHeader(hops.iterator().next());   
+
+
+        RouteHeader routeHeader  = SipUtilities.createRouteHeader(hops.iterator().next());
         request.setHeader(routeHeader);
         return request;
     }
@@ -451,7 +451,7 @@ class SipUtilities {
     /**
      * Creates a deregistration request and sends it out to deregister ourselves
      * from the proxy server.
-     * 
+     *
      * @param sipProvider
      * @param itspAccount
      * @return
@@ -493,7 +493,7 @@ class SipUtilities {
 
             String fromUser = itspAccount.getUserName() == null ? Gateway.SIPXBRIDGE_USER :
                 itspAccount.getUserName();
-            
+
             SipURI fromUri = ProtocolObjects.addressFactory.createSipURI(
                     fromUser, itspAccount.getSipDomain());
 
@@ -540,7 +540,7 @@ class SipUtilities {
 
     /**
      * Create a Registration request for the given ITSP account.
-     * 
+     *
      * @param sipProvider
      * @param itspAccount
      * @return
@@ -580,7 +580,7 @@ class SipUtilities {
 
     /**
      * Create a registration query.
-     * 
+     *
      * @param sipProvider
      * @param itspAccount
      * @return
@@ -650,13 +650,13 @@ class SipUtilities {
             } else if ( passertedIdentityHeader == null ) {
                 // ITSP does not want to use P-Asserted-Identity.
                 // Generate From header for account identification.
-                if (itspAccount.getUserName() != null && 
+                if (itspAccount.getUserName() != null &&
                         itspAccount.getDefaultDomain() != null ) {
                     fromUser = itspAccount.getUserName();
                     domain = itspAccount.getDefaultDomain();
                 }
             }
-            
+
             SipURI fromUri = ProtocolObjects.addressFactory.createSipURI(
                     fromUser, domain);
             fromHeader = ProtocolObjects.headerFactory.createFromHeader(
@@ -770,15 +770,15 @@ class SipUtilities {
            // Route param ( dont support loose routing on initial invite)
            // so we use a maddr parameter to send the request
            // to such ITSPs. Also see :
-           // http://track.sipfoundry.org/browse/XX-5884 
+           // http://track.sipfoundry.org/browse/XX-5884
            if (itspAccount.isAddLrRoute()) {
-               RouteHeader proxyRoute = SipUtilities.createRouteHeader(hop);      
+               RouteHeader proxyRoute = SipUtilities.createRouteHeader(hop);
                request.setHeader(proxyRoute);
            } else {
                requestUri.setMAddrParam(hop.getHost());
                requestUri.setPort(hop.getPort());
            }
-           
+
 
             /*
              * By default the UAC always refreshes the session.
@@ -817,7 +817,7 @@ class SipUtilities {
 
     /**
      * Extract and return the media formats from the session description.
-     * 
+     *
      * @param sessionDescription --
      *            the SessionDescription to examine.
      * @return a Set of media formats. Each element is a codec number.
@@ -850,7 +850,7 @@ class SipUtilities {
     /**
      * Cleans the Session description to include only the specified codec set.
      * It removes all the SRTP related fields as well.
-     * 
+     *
      * @param sessionDescription --
      *            the session description to clean ( modify )
      * @param codecs --
@@ -1100,13 +1100,13 @@ class SipUtilities {
     /**
      * Fix up the Origin field, ip address and port of the given session
      * description.
-     * 
+     *
      * @param sessionDescription --
      *            session description field to fix up.
-     * 
+     *
      * @param address --
      *            new address to assign to media
-     * 
+     *
      * @param port --
      *            new port to assign.
      */
@@ -1149,7 +1149,7 @@ class SipUtilities {
 
     /**
      * Increment the session version.
-     * 
+     *
      * @param sessionDescription
      */
     static void incrementSessionVersion(SessionDescription sessionDescription) {
@@ -1165,7 +1165,7 @@ class SipUtilities {
 
     /**
      * Fix up request to use global addressing.
-     * 
+     *
      * @param request
      */
     static void setGlobalAddresses(Request request) {
@@ -1260,7 +1260,7 @@ class SipUtilities {
     /**
      * Return true if the session description contains at least one codec of the
      * specified set.
-     * 
+     *
      * @param sd
      * @param codecSet
      * @return
@@ -1422,7 +1422,7 @@ class SipUtilities {
 
             String userName = itspInfo.getUserName() == null ? Gateway.SIPXBRIDGE_USER :
                 itspInfo.getUserName();
-            
+
             retval.setUser(userName);
 
             return retval;
@@ -1572,7 +1572,7 @@ class SipUtilities {
 
     /**
      * This routine copies headers from inbound to outbound responses.
-     * 
+     *
      * @param response
      * @param newResponse
      */
@@ -1587,7 +1587,7 @@ class SipUtilities {
                }
            }
         }
-        
+
     }
 
     static Response createErrorResponse(ServerTransaction serverTransaction,
@@ -1648,7 +1648,7 @@ class SipUtilities {
                 if (sb.length() != 0) {
                     SipUtilities.addSipFrag(newResponse, sb.toString().trim());
                 }
-                
+
                 newResponse.setReasonPhrase("ITSP Error " + response.getReasonPhrase());
             }
 
@@ -1703,7 +1703,7 @@ class SipUtilities {
         ReferencesHeaderImpl references = new ReferencesHeaderImpl();
         references.setCallId(callId);
         references.setRel(rel);
-        ExtensionHeader extensionHeader = ( ExtensionHeader) ProtocolObjects.headerFactory.createHeader(ReferencesHeader.NAME, 
+        ExtensionHeader extensionHeader = ( ExtensionHeader) ProtocolObjects.headerFactory.createHeader(ReferencesHeader.NAME,
                 references.getValue());
         return extensionHeader;
     }

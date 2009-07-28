@@ -12,18 +12,18 @@ import org.apache.log4j.Logger;
 
 /**
  * A table of RTP payload types for early media.
- * 
+ *
  * @author M. Ranganathan
- * 
+ *
  */
 public class RtpPayloadTypes {
 
     private static Hashtable<String, Integer> payloadTypes = new Hashtable<String, Integer>();
 
     private static Hashtable<Integer,String> payloadTypeByInt = new Hashtable<Integer,String>();
-    
+
     private static Logger logger = Logger.getLogger(RtpPayloadTypes.class);
-    
+
     private static void putPayload(String name, int value) {
         payloadTypes.put(name, value);
         payloadTypeByInt.put(value, name);
@@ -44,19 +44,19 @@ public class RtpPayloadTypes {
         putPayload("DVI4", 16);
         putPayload("G729", 18);
         putPayload("G726-32", 17); // Phoney
-        
-        
+
+
     }
 
     public static boolean isPayload(String payloadType) {
         return payloadTypes.containsKey(payloadType.toUpperCase());
     }
-    
+
     public static boolean isPayload(int payloadType) {
         return payloadTypeByInt.containsKey(payloadType);
-        
+
     }
-    
+
     public static int getPayloadType(String payloadType) {
         if (payloadTypes.containsKey(payloadType.toUpperCase())) {
             return payloadTypes.get(payloadType.toUpperCase());
@@ -67,7 +67,7 @@ public class RtpPayloadTypes {
 
         }
     }
-    
+
     public static String getPayloadType(int payloadType) {
         if ( payloadTypeByInt.containsKey(payloadType)) {
             return payloadTypeByInt.get(payloadType);

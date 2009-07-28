@@ -88,9 +88,9 @@ import org.sipfoundry.sipxbridge.symmitron.SymmitronException;
  * request we retrieve the corresponding backtobackuseragent and route the
  * request to it. It keeps the necessary state to handle subsequent requests
  * that are related to this call.
- * 
+ *
  * @author M. Ranganathan
- * 
+ *
  */
 public class BackToBackUserAgent {
 
@@ -222,12 +222,12 @@ public class BackToBackUserAgent {
 
     /**
      * Create an RTP session for a dialog.
-     * 
+     *
      * RTP session that is connected to the WAN Side. Note that we use a
      * different method here because we need to record additionally whether or
      * not to use global addressing in the RTP session descriptor associated
      * with the receiver.
-     * 
+     *
      * @return the rtp session created.
      */
 
@@ -276,9 +276,9 @@ public class BackToBackUserAgent {
      * This method handles an Invite with a replaces header in it. It is invoked
      * for consultative transfers. It does a Dialog splicing and media splicing
      * on the Refer dialog. Here is the reference call flow for this case:
-     * 
+     *
      * <pre>
-     * 
+     *
      *  Transferor           Transferee             Transfer
      *              |                    |                  Target
      *              |                    |                    |
@@ -313,8 +313,8 @@ public class BackToBackUserAgent {
      *    dialog4   |                    |  BYE/200 OK        |
      *              |                    |-------------------&gt;|
      * </pre>
-     * 
-     * 
+     *
+     *
      * @param serverTransaction -
      *            Inbound server transaction we are processing.
      * @param toDomain --
@@ -508,7 +508,7 @@ public class BackToBackUserAgent {
      * garbage collection routine. When all the dialogs referencing this
      * structure have terminated, then we send BYE to the MOH dialog ( if it is
      * still alive ).
-     * 
+     *
      * @param dialog --
      *            the terminated dialog.
      */
@@ -569,7 +569,7 @@ public class BackToBackUserAgent {
     /**
      * Add a dialog entry to the b2bua. This implies that the given dialog holds
      * a pointer to this structure.
-     * 
+     *
      * @param provider
      * @param dialog
      */
@@ -584,13 +584,13 @@ public class BackToBackUserAgent {
      * Create an INVITE request from an in-bound REFER. Note that the only
      * reason why this is here and not in SipUtilites is because we need the
      * callId counter - should it be moved?
-     * 
-     * 
+     *
+     *
      * @param requestEvent --
      *            the in-bound REFER request Event.
-     * 
+     *
      * @return the INVITE request crafted from the IB Refer
-     * 
+     *
      */
     @SuppressWarnings("unchecked")
     Request createInviteFromReferRequest(RequestEvent requestEvent)
@@ -636,7 +636,7 @@ public class BackToBackUserAgent {
             viaList.add(viaHeader);
             MaxForwardsHeader maxForwards = ProtocolObjects.headerFactory
                     .createMaxForwardsHeader(20);
-          
+
             CallIdHeader callId = ProtocolObjects.headerFactory
                     .createCallIdHeader(this.creatingCallId + "."
                             + this.counter++);
@@ -644,7 +644,7 @@ public class BackToBackUserAgent {
             Request newRequest = ProtocolObjects.messageFactory.createRequest(
                     uri, Request.INVITE, callId, cseq, fromHeader, toHeader,
                     viaList, maxForwards);
-           
+
             /*
              * If we are routing this request to the Proxy server, better send
              * it to the SAME proxy server. See XX-5792. Dont do this if we are
@@ -683,18 +683,18 @@ public class BackToBackUserAgent {
                     header = (Header) ProtocolObjects.headerFactory
                     .createHeader(headerName, decodedHeaderValue);
                 }
-                if (header != null) {            
+                if (header != null) {
                    newRequest.addHeader(header);
                 }
             }
-            
+
             /*
              * Set the ReferencesHeader if one has not been added.
              */
             if ( newRequest.getHeader(ReferencesHeader.NAME) == null ) {
                 String oldCallId = SipUtilities.getCallId(referRequest);
-                ExtensionHeader referencesHeader = SipUtilities.createReferencesHeader(oldCallId, 
-                        ReferencesHeaderImpl.REFER);    
+                ExtensionHeader referencesHeader = SipUtilities.createReferencesHeader(oldCallId,
+                        ReferencesHeaderImpl.REFER);
                 newRequest.setHeader(referencesHeader);
             }
 
@@ -750,8 +750,8 @@ public class BackToBackUserAgent {
      * need to direct an INVITE to the contact mentioned in the Refer. Notice
      * that when this method is called, we have already created an INVITE
      * previously that we will now replay with the SDP answer to the PBX side.
-     * 
-     * 
+     *
+     *
      * @param inviteRequest --
      *            the INVITE request.
      * @param referRequestEvent --
@@ -762,7 +762,7 @@ public class BackToBackUserAgent {
      * @param dialogPendingSdpAnswer --
      *            the dialog that is pending SDP answer in ACK after the OK
      *            comes in with an SDP.
-     * 
+     *
      */
 
     void referInviteToSipxProxy(Request inviteRequest,
@@ -924,8 +924,8 @@ public class BackToBackUserAgent {
      * Forward the REFER request to the ITSP. This only works if the ITSP
      * actually supports REFER. It is not used but we keep it around for future
      * use.
-     * 
-     * 
+     *
+     *
      * @param requestEvent -
      *            INBOUND REFER ( from sipx )
      */
@@ -1006,11 +1006,11 @@ public class BackToBackUserAgent {
 
     /**
      * Send an INVITE to SIPX proxy server.
-     * 
+     *
      * @param requestEvent --
      *            The incoming RequestEvent ( from the ITSP side ) for which we
      *            are generating the request outbound to the sipx proxy server.
-     * 
+     *
      * @param serverTransaction --
      *            The SIP Server transaction that we created to service this
      *            request.
@@ -1123,12 +1123,12 @@ public class BackToBackUserAgent {
             Request newRequest = ProtocolObjects.messageFactory.createRequest(
                     uri, Request.INVITE, callIdHeader, cseqHeader, fromHeader,
                     toHeader, viaList, maxForwards);
-            
-            ExtensionHeader referencesHeader = 
+
+            ExtensionHeader referencesHeader =
                 SipUtilities.createReferencesHeader(SipUtilities.getCallId(request),
                         ReferencesHeader.CHAIN);
             newRequest.addHeader(referencesHeader);
-                      
+
             ContactHeader contactHeader = SipUtilities.createContactHeader(
                     incomingRequestURI.getUser(), Gateway.getLanProvider());
             newRequest.setHeader(contactHeader);
@@ -1235,13 +1235,13 @@ public class BackToBackUserAgent {
 
     /**
      * Create a Client Tx pointing towards the park server.
-     * 
+     *
      * @param -
      *            the session description to apply to the INVITE.
-     * 
+     *
      * @return the dialog generated as a result of sending the invite to the MOH
      *         server.
-     * 
+     *
      */
     ClientTransaction createClientTxToMohServer(
             SessionDescription sessionDescription) {
@@ -1257,7 +1257,7 @@ public class BackToBackUserAgent {
             CallIdHeader callIdHeader = ProtocolObjects.headerFactory
                     .createCallIdHeader(this.creatingCallId + "."
                             + this.counter++);
-          
+
 
             CSeqHeader cseqHeader = ProtocolObjects.headerFactory
                     .createCSeqHeader(1L, Request.INVITE);
@@ -1289,7 +1289,7 @@ public class BackToBackUserAgent {
             Request newRequest = ProtocolObjects.messageFactory.createRequest(
                     uri, Request.INVITE, callIdHeader, cseqHeader, fromHeader,
                     toHeader, viaList, maxForwards);
-            
+
             ExtensionHeader referencesHeader =
                         SipUtilities.createReferencesHeader(this.creatingCallId,
                         ReferencesHeader.SEQUEL);
@@ -1316,7 +1316,7 @@ public class BackToBackUserAgent {
 
             TransactionContext tad = TransactionContext.attach(ct,
                     Operation.SEND_INVITE_TO_MOH_SERVER);
-           
+
             tad.setBackToBackUa(this);
             DialogContext.attach(this, ct.getDialog(), ct, ct.getRequest());
             this.addDialog(ct.getDialog());
@@ -1341,7 +1341,7 @@ public class BackToBackUserAgent {
 
     /**
      * Send a BYE to the Music On Hold Server.
-     * 
+     *
      * @param musicOnHoldDialog
      * @throws SipException
      */
@@ -1374,14 +1374,14 @@ public class BackToBackUserAgent {
     /**
      * Send a request to an ITSP. This is the out of dialog request that sets up
      * the call.
-     * 
+     *
      * @param requestEvent --
      *            in bound request event ( sent by the sipx proxy server)
      * @param serverTransaction --
      *            the server transaction.
      * @param toDomain --
      *            domain to send it to.
-     * 
+     *
      * @throws SipException
      */
 
@@ -1450,7 +1450,7 @@ public class BackToBackUserAgent {
                     (SipURI) incomingRequestUri.clone(), itspProvider,
                     itspAccountInfo, fromHeader, this.creatingCallId + "."
                             + this.counter++, addresses);
-            
+
             String callId = SipUtilities.getCallId(incomingRequest);
             ExtensionHeader referencesHeader = SipUtilities.createReferencesHeader(callId,
                     ReferencesHeader.CHAIN);
@@ -1673,7 +1673,7 @@ public class BackToBackUserAgent {
 
     /**
      * Retransmits the client transaction to the next hop.
-     * 
+     *
      * @param request
      * @param hops
      */
@@ -1692,7 +1692,7 @@ public class BackToBackUserAgent {
             Hop nextHop = hopIter.next();
             Request request = clientTransaction.getRequest();
             Request newRequest = (Request) request.clone();
-            if ( transactionContext.getItspAccountInfo() == null || 
+            if ( transactionContext.getItspAccountInfo() == null ||
                  transactionContext.getItspAccountInfo().isAddLrRoute() ) {
                 RouteHeader routeHeader = SipUtilities.createRouteHeader(nextHop);
                 newRequest.setHeader(routeHeader);
@@ -1742,7 +1742,7 @@ public class BackToBackUserAgent {
 
     /**
      * Handle an incoming INVITE with a replaces header.
-     * 
+     *
      * @param requestEvent
      * @param replacedDialog
      * @param serverTransaction
@@ -1830,7 +1830,7 @@ public class BackToBackUserAgent {
                  * the offer. This allows for streams to be matched up based on
                  * their order. This implies that if the offer contained zero
                  * "m=" lines, the answer MUST contain zero "m=" lines.
-                 * 
+                 *
                  * The "t=" line in the answer MUST equal that of the offer. The
                  * time of the session cannot be negotiated. An offered stream
                  * MAY be rejected in the answer, for any reason. If a stream is
@@ -1888,7 +1888,7 @@ public class BackToBackUserAgent {
                  */
                 SessionDescription localSessionDescription = rtpSession.getReceiver().getLocalSessionDescription();
                 okResponse.setContent(localSessionDescription.toString(), cth);
-                
+
                 DialogContext replacedDat = DialogContext.get(replacedDialog);
                 if (replacedDat.dialogCreatingTransaction != null
                         && replacedDat.dialogCreatingTransaction instanceof ClientTransaction) {
@@ -1966,7 +1966,7 @@ public class BackToBackUserAgent {
 
     /**
      * Handle a bye on one of the dialogs of this b2bua.
-     * 
+     *
      * @param dialog
      * @throws SipException
      */
@@ -2024,7 +2024,7 @@ public class BackToBackUserAgent {
 
     /**
      * Return true if theres stuff in the dialog table and false otherwise.
-     * 
+     *
      * @return
      */
     boolean isEmpty() {
@@ -2040,7 +2040,7 @@ public class BackToBackUserAgent {
 
     /**
      * Get XML RPC client interface.
-     * 
+     *
      * @return
      */
 
@@ -2050,7 +2050,7 @@ public class BackToBackUserAgent {
 
     /**
      * Terminate the two sides of the bridge with no Reason header.
-     * 
+     *
      */
     void tearDown() {
         try {
@@ -2078,7 +2078,7 @@ public class BackToBackUserAgent {
 
     /**
      * Tear down all the dialogs with specified reason header.
-     * 
+     *
      * @param reason
      * @throws Exception
      */
@@ -2182,7 +2182,7 @@ public class BackToBackUserAgent {
 
     /**
      * Return true if this is pending termination.
-     * 
+     *
      * @return
      */
     public boolean isPendingTermination() {

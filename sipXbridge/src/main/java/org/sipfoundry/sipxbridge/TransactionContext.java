@@ -28,28 +28,28 @@ import org.apache.log4j.Logger;
  * transitory information that is only relevant for the duration of the
  * transaction. Long term data that has to persist for the duration of a Dialog
  * is kept in DialogApplicationData.
- * 
+ *
  * @author M. Ranganathan
- * 
+ *
  */
 class TransactionContext {
-    
+
     private static Logger logger = Logger.getLogger(TransactionContext.class);
 
     /*
      * The current operation.
      */
     private Operation operation;
-    
-    
+
+
     /*
      * The Pending outgoing session ( awaiting completion after the response
      * comes in ). This is associated with the outgoing invite and is completed
      * when the response containing the sdp answer comes in.
      */
     private RtpSession outgoingRtpSession;
-    
-    
+
+
     /*
      * The ITSP account information.
      */
@@ -60,14 +60,14 @@ class TransactionContext {
      */
     private ServerTransaction serverTransaction;
 
-  
+
     /*
      * The outgoing client transaction.
      */
 
     private ClientTransaction clientTransaction;
 
-  
+
     /*
      * The Refering DIALOG if any.
      */
@@ -80,16 +80,16 @@ class TransactionContext {
 
     /*
      * The Back to back UA that is shared by both the client and server
-     * transaction. 
+     * transaction.
      */
     private BackToBackUserAgent backToBackUa;
-    
+
     /*
      * The Dialog that gets an ACK with the answer from an SDP offer solicitation.
      */
     private Dialog dialogPendingSdpAnswer;
 
-    
+
     /*
      * State for the next step of the SBC state machine.
      */
@@ -120,7 +120,7 @@ class TransactionContext {
     private RequestEvent requestEvent;
 
     private Collection<Hop> proxyAddresses;
-	
+
     static TransactionContext attach(Transaction transaction,
             Operation operation) {
         if ( transaction.getApplicationData() != null ) {
@@ -135,7 +135,7 @@ class TransactionContext {
      */
     static TransactionContext get(
             Transaction  transaction ) {
-        
+
         return (TransactionContext) transaction.getApplicationData();
     }
 
@@ -144,19 +144,19 @@ class TransactionContext {
      * @param stx
      */
     void setServerTransaction(ServerTransaction stx) {
-        
+
         if ( this.serverTransaction != null) {
             logger.debug("serverTransactionPointer already set");
             this.serverTransaction.setApplicationData(null);
         }
         stx.setApplicationData(this);
         this.serverTransaction = stx;
-        
+
     }
-    
+
     /**
      * The client side of the pairing.
-     * 
+     *
      * @param ctx
      */
     void setClientTransaction(ClientTransaction ctx) {
@@ -166,7 +166,7 @@ class TransactionContext {
        }
        ctx.setApplicationData(this);
        this.clientTransaction = ctx;
-        
+
     }
 
     TransactionContext(Transaction transaction , Operation operation) {
@@ -176,9 +176,9 @@ class TransactionContext {
         } else {
             this.setClientTransaction((ClientTransaction) transaction);
         }
-        if ( transaction.getDialog() != null && 
+        if ( transaction.getDialog() != null &&
                 DialogContext.get(transaction.getDialog()) != null ) {
-            this.itspAccountInfo = DialogContext.get(transaction.getDialog()).getItspInfo();       
+            this.itspAccountInfo = DialogContext.get(transaction.getDialog()).getItspInfo();
         }
     }
 
@@ -196,10 +196,10 @@ class TransactionContext {
         return clientTransaction;
     }
 
-  
+
 	/**
-	 * Get the continuation operation. 
-	 * 
+	 * Get the continuation operation.
+	 *
 	 * @return
 	 */
     Operation getContinuationOperation() {
@@ -231,7 +231,7 @@ class TransactionContext {
     SipProvider getServerTransactionProvider() {
         return this.serverTransaction == null ? null :
             ((TransactionExt) serverTransaction).getSipProvider();
-       
+
     }
 
     /**
@@ -334,13 +334,13 @@ class TransactionContext {
 
     /**
      * possibly create and return a fresh to tag.
-     * 
+     *
      * @return toTag
      */
     String createToTag() {
         if (toTag == null) {
             toTag = Integer.toString(Math.abs(new Random().nextInt()));
-            
+
         }
         return toTag;
     }
@@ -371,7 +371,7 @@ class TransactionContext {
 	}
 
     public void setRequestEvent(RequestEvent requestEvent) {
-        this.requestEvent = requestEvent;      
+        this.requestEvent = requestEvent;
     }
 
     /**
@@ -384,21 +384,21 @@ class TransactionContext {
     public void setProxyAddresses(Collection<Hop> addresses) {
        this.proxyAddresses = addresses;
     }
-    
+
     public Collection<Hop> getProxyAddresses() {
         return this.proxyAddresses;
     }
 
     public void copyTo(TransactionContext newContext) {
-        
-    
+
+
         newContext.operation = operation;
         newContext.outgoingRtpSession = outgoingRtpSession;
         newContext.itspAccountInfo = itspAccountInfo;
         newContext.serverTransaction = serverTransaction;
         newContext.referingDialog = referingDialog;
         newContext.replacedDialog = replacedDialog;
-        newContext.backToBackUa = backToBackUa; 
+        newContext.backToBackUa = backToBackUa;
         newContext.dialogPendingSdpAnswer = dialogPendingSdpAnswer ;
         newContext.continuationData = continuationData;
         newContext.referRequest = referRequest;
@@ -406,9 +406,9 @@ class TransactionContext {
         newContext.mohClientTransaction = mohClientTransaction;
         newContext.requestEvent = requestEvent;
         newContext.proxyAddresses = proxyAddresses;
-        
+
     }
 
-    
+
 
 }

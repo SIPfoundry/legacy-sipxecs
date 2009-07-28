@@ -12,9 +12,9 @@ import org.apache.log4j.Logger;
 
 /**
  * Issues a re-registration after time expires.
- * 
+ *
  * @author mranga
- * 
+ *
  */
 public class RegistrationTimerTask extends TimerTask {
 	private static Logger logger = Logger.getLogger(RegistrationTimerTask.class);
@@ -30,7 +30,7 @@ public class RegistrationTimerTask extends TimerTask {
         this.cseq = cseq;
 
     }
-    
+
     @Override
     public void run() {
 
@@ -43,7 +43,7 @@ public class RegistrationTimerTask extends TimerTask {
             try {
                 if (!itspAccount.isAlarmSent()) {
                     Gateway.getAlarmClient().raiseAlarm(
-                            Gateway.SIPXBRIDGE_ACCOUNT_CONFIGURATION_ERROR_ALARM_ID, 
+                            Gateway.SIPXBRIDGE_ACCOUNT_CONFIGURATION_ERROR_ALARM_ID,
                             itspAccount.getSipDomain());
                     itspAccount.setAlarmSent(true);
                 }
@@ -57,6 +57,6 @@ public class RegistrationTimerTask extends TimerTask {
         }
     }
 
-  
+
 
 }

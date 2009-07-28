@@ -50,9 +50,9 @@ import org.apache.log4j.Logger;
  * Store information that is specific to a Dialog. This is a temporary holding place for dialog
  * specific data that is specific to the lifetime of a SIP Dialog. There is one of these
  * structures per dialog.
- * 
+ *
  * @author M. Ranganathan
- * 
+ *
  */
 class DialogContext {
 
@@ -111,12 +111,12 @@ class DialogContext {
      * sipXbridge.
      */
     boolean isOriginatedBySipxbridge;
-    
+
     /*
      * A semaphore to wait for ACK to be sent.
      */
     Semaphore ackSem = new Semaphore(0);
-    
+
 
     // /////////////////////////////////////////////////////////////
     // Auxilliary data structures associated with dialog state machine.
@@ -290,23 +290,23 @@ class DialogContext {
      * is to prevent interleaving INVITEs ( which will result in a 493 from the ITSP ).
      * Some ITSPs will send 400 response instead of 493 and are generally very bad at
      * dealing with interleaved INVITEs on dialogs. Hence we use this mechanism
-     * to strictly serialize INVTES sent to the ITSP. 
-     * 
+     * to strictly serialize INVTES sent to the ITSP.
+     *
      */
     public class ReInviteSender implements Runnable {
         DialogContext dialogContext;
         ClientTransaction ctx;
-        
-        
+
+
         public void terminate() {
             try {
                 ctx.terminate();
                 Thread.currentThread().interrupt();
-            } catch (ObjectInUseException e) {          
+            } catch (ObjectInUseException e) {
                 logger.error("unexpected error",e);
             }
         }
-        
+
 
         public ReInviteSender(DialogContext dialogContext, ClientTransaction ctx) {
             this.dialogContext = dialogContext;
@@ -323,8 +323,8 @@ class DialogContext {
                 if  (dialogContext.dialog.getState() != DialogState.TERMINATED
                         && dialogContext.isWaitingForAck(ctx)) {
                      /*
-                      * prevent interleaving by waiting for 8 seconds until the previous ACK gets 
-                      * sent. Certain ITSPs do not deal well with interleaved INVITE transactions 
+                      * prevent interleaving by waiting for 8 seconds until the previous ACK gets
+                      * sent. Certain ITSPs do not deal well with interleaved INVITE transactions
                       * (return bad error code).
                       */
                      long startTime = System.currentTimeMillis();
@@ -346,8 +346,8 @@ class DialogContext {
                 /*
                  * If we had to wait for ACK then
                  * wait for the ACK to actually get to the other side. Wait for any ACK
-                 * retransmissions to finish. Then send out the request. This is a 
-                 * hack in support of some ITSPs that want re-INVITEs to be spaced 
+                 * retransmissions to finish. Then send out the request. This is a
+                 * hack in support of some ITSPs that want re-INVITEs to be spaced
                  * out in time ( else they return a 400 error code ).
                  */
                 try {
@@ -381,7 +381,7 @@ class DialogContext {
      * Delays sending the INVITE to the park server. If a RE-INVITE is sent to the ITSP in that
      * interval, the INVITE to the park server is not sent. Instead, we ACK the incoming INVITE so
      * that the INVITE waiting for the ACK can proceed.
-     * 
+     *
      */
     class MohTimer extends TimerTask {
 
@@ -421,7 +421,7 @@ class DialogContext {
                         mohDialogContext.setPendingAction(
                                 PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK);
                         mohDialogContext.setPeerDialog(dialog);
-                        mohDialogContext.setRtpSession(getPeerRtpSession(dialog));        
+                        mohDialogContext.setRtpSession(getPeerRtpSession(dialog));
                         mohCtx.sendRequest();
                     } else {
                         mohCtx.terminate();
@@ -446,7 +446,7 @@ class DialogContext {
         Gateway.getTimer().schedule(this.sessionTimer,
                 ((this.sessionExpires - Gateway.TIMER_ADVANCE) * 1000));
     }
-    
+
    public void startSessionTimer( int sessionTimeout ) {
        logger.debug(String.format("startSessionTimer(%d)",sessionTimeout));
        this.sessionTimer = new SessionTimerTask(Gateway.getSessionTimerMethod());
@@ -460,7 +460,7 @@ class DialogContext {
      */
     private DialogContext(Dialog dialog) {
         this.sessionExpires = Gateway.DEFAULT_SESSION_TIMER_INTERVAL;
-        this.dialog = dialog;  
+        this.dialog = dialog;
     }
 
     /**
@@ -473,7 +473,7 @@ class DialogContext {
         long seqno = SipUtilities.getSeqNumber(ctx.getRequest());
         if (this.reInviteTransaction == null) {
             return false;
-        } else if ( this.getLastResponse() != null && 
+        } else if ( this.getLastResponse() != null &&
                 SipUtilities.getSeqNumber(this.getLastResponse()) == seqno + 1 &&
                 this.getLastResponse().getStatusCode()/100 > 2) {
             /*
@@ -490,10 +490,10 @@ class DialogContext {
 
     /**
      * Create a dialog to dialog association.
-     * 
+     *
      * @param dialog1 - first dialog.
      * @param dialog2 - second dialog.
-     * 
+     *
      */
     static void pairDialogs(Dialog dialog1, Dialog dialog2) {
         logger.debug("pairDialogs dialogs = " + dialog1 + " " + dialog2);
@@ -559,7 +559,7 @@ class DialogContext {
 
     /**
      * Get the RTP session of my peer Dialog.
-     * 
+     *
      * @param dialog
      * @return
      */
@@ -569,7 +569,7 @@ class DialogContext {
 
     /**
      * Convenience method to get the pending action for a dialog.
-     * 
+     *
      */
     static PendingDialogAction getPendingAction(Dialog dialog) {
         return DialogContext.get(dialog).pendingAction;
@@ -667,7 +667,7 @@ class DialogContext {
 
     /**
      * Set the Expires time for session timer.
-     * 
+     *
      * @param expires
      */
     void setSetExpires(int expires) {
@@ -677,7 +677,7 @@ class DialogContext {
 
     /**
      * Send ACK to the encapsulated dialog.
-     * 
+     *
      * @throws Exception
      */
     void sendAck(SessionDescription sessionDescription) throws Exception {
@@ -694,13 +694,13 @@ class DialogContext {
          */
         SipUtilities.setDuplexity(sessionDescription, "sendrecv");
         this.sendAck(ackRequest);
-       
+
         setPendingAction(PendingDialogAction.NONE);
     }
 
     /**
      * Check to see if the ITSP allows a REFER request.
-     * 
+     *
      * @return true if REFER is allowed.
      */
     @SuppressWarnings("unchecked")
@@ -739,10 +739,10 @@ class DialogContext {
     /**
      * Send an INVITE with no SDP to the peer dialog. This solicits an SDP offer from the peer of
      * the given dialog.
-     * 
+     *
      * @param requestEvent -- the request event for which we have to solicit the offer.
      * @param continuationData -- context information so we can process the continuation.
-     * 
+     *
      * @return true if the offer is sent successfully. false if there is already an offer in
      *         progress and hence we should not send an offer.
      */
@@ -758,7 +758,7 @@ class DialogContext {
                 logger.debug("queryDialogFromPeer -- sending query to " + peerDialog
                         + " continuationOperation = " + continuationData.getOperation());
 
-                Request reInvite = peerDialog.createRequest(Request.INVITE);    
+                Request reInvite = peerDialog.createRequest(Request.INVITE);
                 reInvite.removeHeader(SupportedHeader.NAME);
                 reInvite.removeHeader("remote-party-Id");
                 if ( this.itspInfo != null ) {
@@ -818,7 +818,7 @@ class DialogContext {
     /**
      * Sent the pending action ( to be performed when the next in-Dialog request or response
      * arrives ).
-     * 
+     *
      * @param pendingAction
      */
     void setPendingAction(PendingDialogAction pendingAction) {
@@ -844,7 +844,7 @@ class DialogContext {
 
     /**
      * Set the last seen response for this dialog.
-     * 
+     *
      * @param lastResponse
      */
     void setLastResponse(Response lastResponse) {
@@ -861,7 +861,7 @@ class DialogContext {
 
     /**
      * The last response that was seen for this dialog.
-     * 
+     *
      * @return
      */
     Response getLastResponse() {
@@ -870,7 +870,7 @@ class DialogContext {
 
     /**
      * Send an SDP re-OFFER to the other side of the B2BUA.
-     * 
+     *
      * @param sdpOffer -- the sdp offer session description.
      * @throws Exception -- if could not send
      */
@@ -880,7 +880,7 @@ class DialogContext {
             return;
         }
         Request sdpOfferInvite = dialog.createRequest(Request.INVITE);
-      
+
         /*
          * Set and fix up the sdp offer to send to the opposite side.
          */
@@ -906,7 +906,7 @@ class DialogContext {
     /**
      * Send an ACK and record it. If some thread is wating to send re-INVITE based upon that ACK
      * it will get up and and run the re-INVITE.
-     * 
+     *
      * @param ack
      * @throws SipException
      */
@@ -930,7 +930,7 @@ class DialogContext {
      * Set the "terminate on confirm" flag which will send BYE to the dialog If the flag is set as
      * soon as the MOH server confirms the dialog, the flag is consulted and a BYE sent to the MOH
      * server.
-     * 
+     *
      */
     void setTerminateOnConfirm() {
         this.terminateOnConfirm = true;
@@ -993,7 +993,7 @@ class DialogContext {
 
     /**
      * The pending REFER request that we are processing.
-     * 
+     *
      * @param referRequest
      */
     void setReferRequest(Request referRequest) {
@@ -1002,7 +1002,7 @@ class DialogContext {
 
     /**
      * The current REFER request being processed.
-     * 
+     *
      * @return
      */
     Request getReferRequest() {
@@ -1040,10 +1040,10 @@ class DialogContext {
     }
 
 
-   
+
 
     public void setDialog(Dialog dialog) {
-      this.dialog = dialog;  
+      this.dialog = dialog;
       dialog.setApplicationData(this);
     }
 
@@ -1055,7 +1055,7 @@ class DialogContext {
     public void detach() {
       this.dialog.setApplicationData(null);
       this.dialog = null;
-      this.pendingAction = PendingDialogAction.NONE;          
+      this.pendingAction = PendingDialogAction.NONE;
     }
 
 
