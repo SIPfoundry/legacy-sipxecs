@@ -55,7 +55,11 @@ public class Retrieve {
     }
     
     public String retrieveVoiceMail() {
-        m_ident = "Mailbox "+m_mailbox.getUser().getUserName();
+        if (m_mailbox != null) {
+            m_ident = "Mailbox "+m_mailbox.getUser().getUserName();
+        } else {
+            m_ident = "Mailbox (unknown)";
+        }
         String displayUri = m_fses.getDisplayUri();
         LOG.info("Retrieve::retrieveVoiceMail "+m_ident+" Retrieve Voicemail from "+displayUri);
 
@@ -101,18 +105,45 @@ public class Retrieve {
      */
     private User login() {
         int errorCount = 0;
-        User user = m_mailbox.getUser();
+        User user = null;
+        boolean newExtension = false;
 
         // Welcome.  Your call has been answered by an automated communications system.
         PromptList welcomePl = m_loc.getPromptList("welcome");
         boolean playWelcome = true;
+
+        if (m_mailbox == null) {
+            newExtension = true;
+        } else {
+            user = m_mailbox.getUser();
+        }
         
         for(;;) {
             if (errorCount > m_vm.getConfig().getInvalidResponseCount()) {
                 m_vm.failure();
                 return null;
             }
-            
+
+            if (newExtension) {
+                newExtension = false;
+                
+                // "Enter your extension."
+                PromptList extPl = m_loc.getPromptList("enter_extension");
+                VmMenu extMenu = new VmMenu(m_vm);
+                if (playWelcome) {
+                    extMenu.setPrePromptPl(welcomePl);
+                    playWelcome = false;
+                }
+                IvrChoice extChoice = extMenu.collectDtmf(extPl, 10);
+                if (!extMenu.isOkay()) {
+                    return null ;
+                }
+                LOG.info("Retrieve::login "+m_ident+" changing to extension "+extChoice.getDigits());
+
+                // See if the user exists
+                user = m_vm.getValidUsers().isValidUser(extChoice.getDigits());
+            }
+
             // "Enter your personal identification number, and then press #.":
             // "To log in as a different user, press #"
             PromptList menuPl = m_loc.getPromptList("enter_pin");
@@ -128,23 +159,13 @@ public class Retrieve {
             }
             
             if (choice.getDigits().equals("#")) {
-                // "Enter your extension."
-                PromptList extPl = m_loc.getPromptList("enter_extension");
-                VmMenu extMenu = new VmMenu(m_vm);
-                IvrChoice extChoice = extMenu.collectDigits(extPl, 10);
-                if (!extMenu.isOkay()) {
-                    return null ;
-                }
-                LOG.info("Retrieve::login "+m_ident+" changing to extension "+extChoice.getDigits());
-
-                // See if the user exists
-                user = m_vm.getValidUsers().isValidUser(extChoice.getDigits());
+                newExtension = true;
                 continue;
             }
             
             // Only users with voicemail, or are in the directory, are allowed
             // (directory users can record their name, that's all)
-            if (!user.hasVoicemail() && !user.isInDirectory() ) {
+            if (user != null && !user.hasVoicemail() && !user.isInDirectory() ) {
                 LOG.info("Retrieve::login user "+user.getUserName()+" doesn't have needed permissions.");
                 user = null ;
             }

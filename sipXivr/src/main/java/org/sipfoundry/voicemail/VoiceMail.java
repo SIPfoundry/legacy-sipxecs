@@ -125,7 +125,7 @@ public class VoiceMail {
             loadConfig();
         }
 
-        // Wait it bit so audio doesn't start too fast
+        // Wait a bit so audio doesn't start too fast
         Sleep s = new Sleep(m_fses, 1000);
         s.go();
         String mailboxString = m_parameters.get("mailbox");
@@ -154,16 +154,16 @@ public class VoiceMail {
            mailbox = new Mailbox(user);
         }
         
-        if (mailbox == null) {
-            // That extension is not valid.
-            LOG.info("Extension "+mailboxString+" is not valid.");
-            m_loc.play("invalid_extension", "");
-            goodbye();
-            return null ;
-        }
-
         m_mailbox = mailbox;
         if (m_action.equals("deposit")) {
+            if (mailbox == null) {
+                // That extension is not valid.
+                LOG.info("Extension "+mailboxString+" is not valid.");
+                m_loc.play("invalid_extension", "");
+                goodbye();
+                return null ;
+            }
+
             if (!user.hasVoicemail()) {
                 LOG.info("Mailbox "+m_mailbox.getUser().getUserName()+" does not have voicemail permission.");
                 // That extension is not valid.
