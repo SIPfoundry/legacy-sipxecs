@@ -19,6 +19,7 @@ import org.apache.log4j.PropertyConfigurator;
 import org.sipfoundry.attendant.Attendant;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.voicemail.Emailer;
+import org.sipfoundry.voicemail.ExtMailStore;
 import org.sipfoundry.voicemail.Mwistatus;
 import org.sipfoundry.voicemail.VoiceMail;
 
@@ -133,6 +134,8 @@ public class SipXivr implements Runnable {
         
         // start MWI servlet on /mwi
         Mwistatus.StartMWIServlet(s_config, "/mwi");
+        
+        ExtMailStore.Initialize();
         
         // Set up emailer background threads
         Emailer.init(s_config);
