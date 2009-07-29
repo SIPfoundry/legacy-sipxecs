@@ -35,6 +35,13 @@ public class Greeting {
         m_userDirectory = m_mailbox.getUserDirectory();
     }
     
+    public Greeting(Mailbox mailbox) {
+        m_vm = null;
+        m_mailbox = mailbox;
+        m_MailboxPreferences = m_mailbox.getMailboxPreferences();
+        m_userDirectory = m_mailbox.getUserDirectory();
+    }
+    
     /**
      * Get the name of the file for the particular greeting type.
      * 
@@ -86,6 +93,7 @@ public class Greeting {
             greetingFile.delete();
         }
         recording.renameTo(greetingFile);
+        ExtMailStore.SaveGreetingInFolder(m_mailbox, type, greetingFile);
     }
     
     /**

@@ -35,6 +35,7 @@ public class Messages {
     int m_usage;    // Counter to know when it's safe to remove Messages from the tank.
     
     Mailbox m_mailbox;
+    String m_mbxid; 
     
     public enum Folders {
         INBOX, SAVED, DELETED;
@@ -59,6 +60,7 @@ public class Messages {
         m_inboxDir = new File(mailbox.getInboxDirectory());
         m_savedDir = new File(mailbox.getSavedDirectory());
         m_deletedDir = new File(mailbox.getDeletedDirectory());
+        m_mbxid = mailbox.getUser().getUserName();
     }
 
     /*
@@ -236,7 +238,8 @@ public class Messages {
             if (sendMwi) {
                 Mwi.sendMWI(m_mailbox, this);
             }
-        }
+        }        
+        ExtMailStore.MarkSaved(m_mbxid, msg.getMessageId());    
     }
     
     /**
@@ -271,6 +274,7 @@ public class Messages {
             m_deleted.remove(id);
             LOG.info(String.format("Messages::deleted destroyed %s", id));
         }
+        ExtMailStore.MarkDeleted(m_mbxid, id);    
     }
 
     /**
@@ -338,4 +342,8 @@ public class Messages {
         }
     }
 
+    void LoadWaveFile(VmMessage msg) {
+        ExtMailStore.FetchBody(m_mbxid, msg.getMessageId(), msg.getAudioFile());
+    }
+    
 }

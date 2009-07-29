@@ -94,6 +94,10 @@ public class Emailer {
 
             message.setSubject(emf.getSubject());
             
+            message.addHeader("X-SIPX-MSGID", m_vmessage.getMessageId());
+            message.addHeader("X-SIPX-MBXID", m_mailbox.getUser().getUserName());
+            message.addHeader("X-SIPX-MSG", "yes");
+            
             // Create an "mulipart/alternative" part with text and html alternatives
             Multipart mpalt = new MimeMultipart("alternative");
 
