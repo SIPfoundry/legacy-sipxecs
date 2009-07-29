@@ -4,8 +4,7 @@
     <h2><span key="title">Phones</span></h2>    
   </span><span jwcid="@common/ErrorMsg"/>
   <div jwcid="@common/OptionalElement" id="settings-content" element="ognl:(userSession.admin ? 'div' : null)">
-    <div class="help"> 
-      <b><span key="label.quickLinks">Quick Links</span></b>
+    <div jwcid="@common/QuickLinks">
       <ul>
         <li><a jwcid="@PageLink" page="admin/JobStatusPage"><span key="jobStatus">Job Status</span></a></li>
       </ul>
