@@ -54,6 +54,7 @@ public class Mailbox {
         m_deletedDirectory = m_userDirectory+"deleted/";
 
         m_mailboxPreferencesFile = new File(m_userDirectory + "mailboxprefs.xml") ;
+        m_lastModified = m_mailboxPreferencesFile.lastModified();
     }
     
     /**
@@ -168,6 +169,10 @@ public class Mailbox {
             LOG.error("writeMailboxPreferences cannot create tmp file",e);
             throw new RuntimeException(e);
         }
+    }
+    
+    public long getLastModified() {
+        return m_lastModified;
     }
 
     /**
