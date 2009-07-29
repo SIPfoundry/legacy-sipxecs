@@ -18,10 +18,12 @@ import java.util.regex.Pattern;
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.activation.FileDataSource;
+import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Part;
 import javax.mail.Session;
 import javax.mail.Transport;
+import javax.mail.Flags.Flag;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
@@ -34,6 +36,9 @@ import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.sipxivr.MailboxPreferences;
+import org.sipfoundry.voicemail.MessageDescriptor.Priority;
+
+import com.sun.mail.imap.IMAPMessage;
 
 /**
  * Represents the message in a mailbox
@@ -133,6 +138,68 @@ public class VmMessage {
         return me;
     }
 
+    public static VmMessage newMessageFromMime(Mailbox mailbox, IMAPMessage msg) {
+        VmMessage me = new VmMessage();
+
+        // Generate the next message ID
+        me.m_messageId = ExtMailStore.GetMsgId(msg);
+        if (me.m_messageId == null) {
+            me.m_messageId = nextMessageId(mailbox.getMailstoreDirectory()+"/..");
+        }
+
+        // Generate the MessageDescriptor;
+        me.m_messageDescriptor = new MessageDescriptor();
+        me.m_messageDescriptor.setId(mailbox.getUser().getIdentity());
+        //me.m_messageDescriptor.setFromUri(msg.getf);
+
+        try {
+            me.m_messageDescriptor.setDurationSecs(msg.getSize());
+            me.m_unHeard = !msg.isSet(Flag.SEEN);
+            me.m_messageDescriptor.setTimestamp(msg.getReceivedDate().toString());
+            me.m_messageDescriptor.setSubject(msg.getSubject());
+
+            Priority pr = Priority.NORMAL;
+
+            if (msg.isSet(Flag.FLAGGED)) {
+                // TODO:
+                // pr = Priority.URGENT;
+
+            }
+            me.m_messageDescriptor.setPriority(pr);
+
+        } catch (MessagingException e1) {
+        // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+
+        String baseName = mailbox.getInboxDirectory()+me.m_messageId+"-00";
+        me.m_audioFile = new File(baseName+".wav");
+        me.m_descriptorFile = new File(baseName+".xml");
+        me.m_statusFile = new File(baseName+".sta");
+        String operation= "storing stuff";
+        try {
+            if(me.m_unHeard) {
+                operation = "creating status file "+me.m_statusFile.getPath();
+                LOG.debug("VmMessage::newMessage "+operation);
+                FileUtils.touch(me.m_statusFile);
+            }
+            
+            operation = "creating messageDescriptor "+me.m_descriptorFile.getPath();
+            LOG.debug("VmMessage::newMessage "+operation);
+            new MessageDescriptorWriter().writeObject(me.m_messageDescriptor, me.m_descriptorFile);
+        } catch (IOException e) {
+            LOG.error("VmMessage::newMessage error while "+operation, e);
+            return null;
+        }
+        LOG.info("VmMessage::newMessage created message "+me.m_descriptorFile.getPath());
+        if(me.m_unHeard) {
+            Mwi.sendMWI(mailbox);
+        }
+
+        return me;
+    }
+
+    
     public static VmMessage newMessage(Mailbox mailbox, Message recording) {
         VmMessage me = new VmMessage();
         
