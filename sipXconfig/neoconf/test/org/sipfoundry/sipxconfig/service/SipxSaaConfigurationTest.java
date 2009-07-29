@@ -26,6 +26,8 @@ public class SipxSaaConfigurationTest extends SipxServiceTestBase {
         saaService.setUdpPort(9911);
 
         DomainManager domainManager = TestUtil.getMockDomainManager();
+        domainManager.getAuthorizationRealm();
+        EasyMock.expectLastCall().andReturn("example.org");
         EasyMock.replay(domainManager);
         saaService.setDomainManager(domainManager);
 

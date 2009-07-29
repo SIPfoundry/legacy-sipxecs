@@ -6,3 +6,4 @@ SIP_SAA_TCP_PORT : 9910
 SIP_SAA_BIND_IP : 192.168.1.1
 SIP_SAA_FILE_NAME : @sipxpbx.conf.dir@/appearance-groups.xml
 SIP_SAA_DOMAIN_NAME : example.org
+SIP_SAA_AUTHENTICATE_REALM : example.org
