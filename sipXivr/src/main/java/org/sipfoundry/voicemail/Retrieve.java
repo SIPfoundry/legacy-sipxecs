@@ -381,6 +381,8 @@ public class Retrieve {
                 PromptList messagePl = m_loc.getPromptList();
                 PromptList prePromptPl = m_loc.getPromptList();
                 
+                m_messages.LoadWaveFile(vmMessage);
+                
                 // {the message}
                 messagePl.addPrompts(vmMessage.getAudioFile().getPath());
                 
@@ -801,6 +803,8 @@ public class Retrieve {
         // Do this before the rename, as once renamed recordingFile is changed
         dontDeleteTempFile(recordingFile);
         recordingFile.renameTo(nameFile);
+        
+        ExtMailStore.SaveSpokenNameInFolder(m_mailbox, nameFile);
         
         // Name recorded.
         m_loc.play("name_recorded", "");
