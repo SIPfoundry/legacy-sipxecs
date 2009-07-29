@@ -56,6 +56,8 @@ then
    rm -rf @OPENFIRE_HOME@/logs/
    rm -f @OPENFIRE_HOME@/logs
    ln -s @SIPX_LOGDIR@/openfire/ @OPENFIRE_HOME@/logs
+   mkdir @OPENFIRE_HOME@/audit/
+   chown @SIPXPBXUSER@ @OPENFIRE_HOME@/audit/
 fi 
 echo "Done linking files"
 # Check if we have created the database. If not create it.

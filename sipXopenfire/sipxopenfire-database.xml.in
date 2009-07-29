@@ -71,7 +71,7 @@
              DELETE FROM ofProperty where name='xmpp.audit.presence';
              INSERT INTO ofProperty (name, propValue) VALUES ('xmpp.audit.presence','true'); 
              DELETE FROM ofProperty where name='xmpp.audit.logdir';
-             INSERT INTO ofProperty (name, propValue) VALUES ('xmpp.audit.logdir','@SIPX_LOGDIR@/openfire/'); 
+             INSERT INTO ofProperty (name, propValue) VALUES ('xmpp.audit.logdir','@OPENFIRE_HOME@/audit/'); 
              DELETE FROM ofProperty where name='rss.enabled';
              INSERT INTO ofProperty (name, propValue) VALUES ('rss.enabled','false'); 
              DELETE FROM ofProperty where name='xmpp.offline.type';
