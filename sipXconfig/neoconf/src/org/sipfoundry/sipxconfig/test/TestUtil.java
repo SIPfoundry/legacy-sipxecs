@@ -24,6 +24,7 @@ import java.util.Locale;
 import java.util.Properties;
 
 import junit.framework.Assert;
+
 import org.dom4j.Document;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
@@ -287,6 +288,10 @@ public final class TestUtil {
      * Creates a mock domain manager using EasyMock. Up to the caller to call replay on the mock.
      */
     public static DomainManager getMockDomainManager() {
+        return getMockDomainManager(false);
+    }
+
+    public static DomainManager getMockDomainManager(boolean replay) {
         Domain domain = new Domain();
         domain.setName(EXAMPLE_ORG);
         domain.setSipRealm(EXAMPLE_ORG);
@@ -294,6 +299,9 @@ public final class TestUtil {
         DomainManager domainManager = EasyMock.createMock(DomainManager.class);
         domainManager.getDomain();
         EasyMock.expectLastCall().andReturn(domain).anyTimes();
+        if (replay) {
+            EasyMock.replay(domainManager);
+        }
         return domainManager;
     }
 

@@ -15,6 +15,7 @@ import java.util.Arrays;
 import org.easymock.classextension.EasyMock;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class AppearanceGroupsConfigurationTest extends SipxServiceTestBase {
     public void testWrite() throws Exception {
@@ -35,6 +36,12 @@ public class AppearanceGroupsConfigurationTest extends SipxServiceTestBase {
         EasyMock.replay(coreContext);
 
         out.setCoreContext(coreContext);
+
+        SipxSaaService saaService = new SipxSaaService();
+        saaService.setBeanId(SipxSaaService.BEAN_ID);
+        saaService.setDomainManager(TestUtil.getMockDomainManager(true));
+        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(true, saaService);
+        out.setSipxServiceManager(sipxServiceManager);
 
         assertCorrectFileGeneration(out, "expected-appearance-groups.xml");
     }

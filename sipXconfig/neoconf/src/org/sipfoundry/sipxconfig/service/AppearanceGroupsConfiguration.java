@@ -26,6 +26,8 @@ public class AppearanceGroupsConfiguration extends SipxServiceConfiguration {
         VelocityContext context = super.setupContext(location);
         Collection<User> sharedUsers = m_coreContext.getSharedUsers();
         context.put("sharedUsers", sharedUsers);
+        SipxService saaService = getService(SipxSaaService.BEAN_ID);
+        context.put("saaService", saaService);
 
         return context;
     }
