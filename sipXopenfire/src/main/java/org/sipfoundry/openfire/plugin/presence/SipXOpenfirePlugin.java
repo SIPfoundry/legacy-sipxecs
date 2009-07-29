@@ -742,6 +742,8 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         }
         return JiveGlobals.getProperty("sipxopenfire.chatroom.info."+domain+"."+roomName);
     }
+    
+    
    
     
    
