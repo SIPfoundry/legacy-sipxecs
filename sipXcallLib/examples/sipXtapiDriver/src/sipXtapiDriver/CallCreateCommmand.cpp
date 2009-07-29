@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 //////////////////////////////////////////////////////////////////////////////
@@ -11,7 +11,7 @@
 #include <tapi/sipXtapi.h>
 #include <sipXtapiDriver/CallCreateCommand.h>
 
-CallCreateCommand :: CallCreateCommand(const SIPX_INST hInst, 
+CallCreateCommand :: CallCreateCommand(const SIPX_INST hInst,
 									   SIPX_CALL* phCall)
 {
 	hInstance = hInst;
@@ -21,9 +21,9 @@ CallCreateCommand :: CallCreateCommand(const SIPX_INST hInst,
 int CallCreateCommand::execute(int argc, char* argv[])
 {
 	int commandStatus = CommandProcessor::COMMAND_FAILED;
-	if(argc == 2) 
+	if(argc == 2)
 	{
-		if(sipxCallCreate(hInstance, atoi(argv[1]), phCall2) == SIPX_RESULT_SUCCESS) 
+		if(sipxCallCreate(hInstance, atoi(argv[1]), phCall2) == SIPX_RESULT_SUCCESS)
 		{
 			printf("Call created with ID: %d\n", *phCall2);
 		}
@@ -32,7 +32,7 @@ int CallCreateCommand::execute(int argc, char* argv[])
 			printf("Call unable to be created.\n");
 		}
 	}
-	else 
+	else
 	{
 		UtlString usage;
         getUsage(argv[0], &usage);
@@ -47,4 +47,3 @@ void CallCreateCommand::getUsage(const char* commandName, UtlString* usage) cons
 	Command::getUsage(commandName, usage);
     usage->append(" <line Identity for the outbound call>\n");
 }
-

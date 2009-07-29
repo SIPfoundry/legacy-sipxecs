@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 //////////////////////////////////////////////////////////////////////////////
@@ -15,7 +15,7 @@ int CallStartToneCommand::execute(int argc, char* argv[])
 	int commandStatus = CommandProcessor::COMMAND_FAILED;
 	if(argc == 4)
 	{
-		if(sipxCallStartTone(atoi(argv[1]), ID_TONE_BUSY, 
+		if(sipxCallStartTone(atoi(argv[1]), ID_TONE_BUSY,
 			atoi(argv[2]), atoi(argv[3])) == SIPX_RESULT_SUCCESS)
 		{
 			printf("Tone is being played.\n");

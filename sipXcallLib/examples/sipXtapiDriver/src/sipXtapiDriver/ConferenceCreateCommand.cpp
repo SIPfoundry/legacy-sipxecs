@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 //////////////////////////////////////////////////////////////////////////////
@@ -10,7 +10,7 @@
 #include <tapi/sipXtapi.h>
 #include <sipXtapiDriver/ConferenceCreateCommand.h>
 
-ConferenceCreateCommand::ConferenceCreateCommand(const SIPX_INST hInst, 
+ConferenceCreateCommand::ConferenceCreateCommand(const SIPX_INST hInst,
 												 SIPX_CONF* phConference)
 {
 	hInstance = hInst;
@@ -20,7 +20,7 @@ ConferenceCreateCommand::ConferenceCreateCommand(const SIPX_INST hInst,
 int ConferenceCreateCommand::execute(int argc, char *argv[])
 {
 	int commandStatus = CommandProcessor::COMMAND_FAILED;
-	if(argc == 1) 
+	if(argc == 1)
 	{
 		if(sipxConferenceCreate(hInstance, phConf) == SIPX_RESULT_SUCCESS)
 		{
@@ -32,7 +32,7 @@ int ConferenceCreateCommand::execute(int argc, char *argv[])
 		}
 	}
 	else
-	{	
+	{
 		UtlString usage;
         getUsage(argv[0], &usage);
         printf("%s", usage.data());

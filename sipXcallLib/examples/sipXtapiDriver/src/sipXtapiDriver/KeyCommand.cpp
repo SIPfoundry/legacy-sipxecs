@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 //////////////////////////////////////////////////////////////////////////////
@@ -12,7 +12,7 @@
 int KeyCommand::execute(int argc, char* argv[])
 {
 	int commandStatus = CommandProcessor::COMMAND_FAILED;
-	if(argc == 1) 
+	if(argc == 1)
 	{
 		printf("\t\t\t  Shortcut Keys\n");
 		printf("al ---------> addline\t\t\taacc ---------> autoaccept\n");

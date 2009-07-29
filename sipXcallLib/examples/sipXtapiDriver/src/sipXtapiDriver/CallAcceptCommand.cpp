@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 //////////////////////////////////////////////////////////////////////////////
@@ -18,7 +18,7 @@ CallAcceptCommand::CallAcceptCommand()
 int CallAcceptCommand::execute(int argc, char* argv[])
 {
 	int commandStatus = CommandProcessor::COMMAND_FAILED;
-	if(argc == 2) 
+	if(argc == 2)
 	{
 		if(sipxCallAccept(atoi(argv[1])) == SIPX_RESULT_SUCCESS)
 		{

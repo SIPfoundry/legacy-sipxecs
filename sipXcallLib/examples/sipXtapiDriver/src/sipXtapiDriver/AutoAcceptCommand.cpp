@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 //////////////////////////////////////////////////////////////////////////////
@@ -43,8 +43,8 @@ void AutoAcceptCallbackProc(SIPX_CALL hCall,
 	{
 		sipxCallDestroy(hCall);
 	}
-	
-    
+
+
 }
 int AutoAcceptCommand::execute(int argc, char* argv[])
 {
@@ -52,7 +52,7 @@ int AutoAcceptCommand::execute(int argc, char* argv[])
 	if(argc == 1)
 	{
 		sipxListenerAdd(hInstance, AutoAcceptCallbackProc, NULL);
-		while(*destroy == FALSE) 
+		while(*destroy == FALSE)
 		{
 			OsTask::delay(1500);
 		} //while call is not over

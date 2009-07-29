@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 //////////////////////////////////////////////////////////////////////////////
@@ -19,9 +19,9 @@ CallConnectCommand::CallConnectCommand()
 int CallConnectCommand::execute(int argc, char* argv[])
 {
 	int commandStatus = CommandProcessor::COMMAND_FAILED;
-	if(argc == 3) 
+	if(argc == 3)
 	{
-		if(sipxCallConnect(atoi(argv[1]), argv[2]) == SIPX_RESULT_SUCCESS) 
+		if(sipxCallConnect(atoi(argv[1]), argv[2]) == SIPX_RESULT_SUCCESS)
 		{
 			printf("Call connected with id: %s\n", argv[1]);
 		}

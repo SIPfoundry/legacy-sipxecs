@@ -54,11 +54,11 @@ AC_ARG_ENABLE(call-examples,
 AM_CONDITIONAL(CALL_EXAMPLES, test x$enable_call_examples = xyes)
 
 AC_CONFIG_FILES([
-  Makefile 
+  Makefile
   bin/Makefile
   doc/Makefile
   examples/CallScript/src/Makefile
-  examples/Makefile 
+  examples/Makefile
   examples/PlaceCall/Makefile
   examples/PlaceCall/src/Makefile
   examples/ReceiveCall/Makefile
@@ -66,10 +66,10 @@ AC_CONFIG_FILES([
   examples/SendAudio/Makefile
   examples/SendAudio/src/Makefile
   examples/musicServer/Makefile
-  include/Makefile 
-  src/Makefile 
-  src/test/Makefile 
-  src/test/tapi/Makefile 
+  include/Makefile
+  src/Makefile
+  src/test/Makefile
+  src/test/tapi/Makefile
 ])
 
 AC_OUTPUT

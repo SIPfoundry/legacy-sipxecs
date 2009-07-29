@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 //////////////////////////////////////////////////////////////////////////////
@@ -10,7 +10,7 @@
 #include <tapi/sipXtapi.h>
 #include <sipXtapiDriver/ConferenceAddCommand.h>
 
-ConferenceAddCommand::ConferenceAddCommand(SIPX_CALL* hCall) 
+ConferenceAddCommand::ConferenceAddCommand(SIPX_CALL* hCall)
 {
 	callHandle = hCall;
 }
@@ -18,7 +18,7 @@ ConferenceAddCommand::ConferenceAddCommand(SIPX_CALL* hCall)
 int ConferenceAddCommand::execute(int argc, char* argv[])
 {
 	int commandStatus = CommandProcessor::COMMAND_FAILED;
-	if(argc == 4) 
+	if(argc == 4)
 	{
 		if(sipxConferenceAdd(atoi(argv[1]), atoi(argv[2]),
 			argv[3], callHandle) == SIPX_RESULT_SUCCESS)

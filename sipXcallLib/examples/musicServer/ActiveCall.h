@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -37,7 +37,7 @@ public:
    ActiveCall(UtlString& callId);
 
    ActiveCall(UtlString& callId, CallObject* call);
-   
+
    ~ActiveCall();
 
    virtual UtlContainableType getContainableType() const;
@@ -60,7 +60,7 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   
+
    UtlString mCallId;
    CallObject* mpCall;
 };

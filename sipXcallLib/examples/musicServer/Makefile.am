@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-INCLUDES = -I$(top_srcdir)/include 
+INCLUDES = -I$(top_srcdir)/include
 
 noinst_PROGRAMS = musicserver
 
@@ -19,4 +19,3 @@ noinst_HEADERS = \
 
 EXTRA_DIST = \
 	default.wav
-

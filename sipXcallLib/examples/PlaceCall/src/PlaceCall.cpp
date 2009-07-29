@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -321,8 +321,8 @@ bool parseArgs(int argc,
     return bRC ;
 }
 
-bool EventCallBack(SIPX_EVENT_CATEGORY category, 
-                   void* pInfo, 
+bool EventCallBack(SIPX_EVENT_CATEGORY category,
+                   void* pInfo,
                    void* pUserData)
 {
     char cBuf[1024] ;
@@ -685,7 +685,7 @@ int main(int argc, char* argv[])
         if (szInDevice)
         {
             if (sipxAudioSetCallInputDevice(g_hInst, szInDevice) != SIPX_RESULT_SUCCESS)
-            { 
+            {
                 printf("!! Setting input device %s failed !!\n", szOutDevice);
             }
         }
@@ -747,13 +747,13 @@ int main(int argc, char* argv[])
                 printf("%s: Unable to complete call\n", argv[0]) ;
                 shutdownCall() ;
                 bError = true ;
-            }            
+            }
 
             if (bError)
             {
                 break ;
             }
-        }        
+        }
         sipxEventListenerRemove(g_hInst, EventCallBack, NULL) ;
     }
     else

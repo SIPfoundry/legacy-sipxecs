@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 //////////////////////////////////////////////////////////////////////////////
@@ -76,7 +76,7 @@ void usage(const char* szExecutable)
 {
     char szBuffer[64];
 
-    sipxConfigGetVersion(szBuffer, 64); 
+    sipxConfigGetVersion(szBuffer, 64);
     printf("\nUsage:\n") ;
     printf("   %s <options> [URL]\n", szExecutable) ;
     printf("      using %s\n", szBuffer);
@@ -150,10 +150,10 @@ bool parseArgs(int argc,
            else
            {
 			   bRC = false;
-               break ; // Error   
+               break ; // Error
 		   }
        }
-       
+
     }
     return bRC ;
 }
@@ -194,20 +194,20 @@ int main(int argc, char* argv[])
 	char buffer[1024];
 	char buffer2[64];
 	char* commandLine;
-	CommandProcessor processor;	
+	CommandProcessor processor;
 
 	SipLineMgr*    lineMgr = new SipLineMgr();
 	SipRefreshMgr* refreshMgr = new SipRefreshMgr();
 
 	lineMgr->StartLineMgr();
 	lineMgr->initializeRefreshMgr( refreshMgr );
-	if (parseArgs(argc, argv, &iSipPort, &iRtpPort, &iTcpPort, &bindToAddr)) 
+	if (parseArgs(argc, argv, &iSipPort, &iRtpPort, &iTcpPort, &bindToAddr))
 	{
-		sipxInitialize(&g_hInst, iSipPort, iTcpPort, DEFAULT_TLS_PORT, iRtpPort, DEFAULT_CONNECTIONS, 
+		sipxInitialize(&g_hInst, iSipPort, iTcpPort, DEFAULT_TLS_PORT, iRtpPort, DEFAULT_CONNECTIONS,
 						DEFAULT_IDENTITY, bindToAddr);
-		sipxListenerAdd(g_hInst, EventCallbackProc, NULL) ;       
+		sipxListenerAdd(g_hInst, EventCallbackProc, NULL) ;
 	}
-	else 
+	else
 	{
 		usage(argv[0]);
 	}
@@ -224,7 +224,7 @@ int main(int argc, char* argv[])
 	processor.registerCommand("callcreate", new CallCreateCommand(g_hInst, &hCall));
 	processor.registerCommand("callconnect", new CallConnectCommand());
 	processor.registerCommand("calldestroy", new CallDestroyCommand());
-	processor.registerCommand("callaccept", new CallAcceptCommand()); 
+	processor.registerCommand("callaccept", new CallAcceptCommand());
 	processor.registerCommand("callanswer", new CallAnswerCommand());
 	processor.registerCommand("callhold", new CallHoldCommand());
 	processor.registerCommand("callredirect", new CallRedirectCommand());
@@ -248,7 +248,7 @@ int main(int argc, char* argv[])
 	processor.registerCommand("conferencegetcalls", new ConferenceGetCallsCommand());
 	processor.registerCommand("autoaccept", new AutoAcceptCommand(g_hInst, &g_hCall, &isDestroyed));
 	processor.registerCommand("key", new KeyCommand());
-	
+
 	//Initialization
 	UtlBoolean doPrompt = isatty(STDIN_FILENO);
 
@@ -272,7 +272,7 @@ int main(int argc, char* argv[])
       )
 	{
 		//printf("GOT command line:\"%s\"\n", commandLine);
-		
+
 		commandStatus = processor.executeCommand(commandLine);
 		isDestroyed = FALSE;
 		//printf("command status: %d exit status: %d\n", commandStatus,

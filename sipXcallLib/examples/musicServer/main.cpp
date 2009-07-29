@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -37,7 +37,7 @@
 
 #define CODEC_G711_PCMU         "258"   // ID for PCMU
 #define CODEC_G711_PCMA         "257"   // ID for PCMA
-#define CODEC_DTMF_RFC2833      "128"   // ID for RFC2833 DMTF 
+#define CODEC_DTMF_RFC2833      "128"   // ID for RFC2833 DMTF
 
 #define MAX_CONNECTIONS         9000     // Max number of sim. conns
 #define MP_SAMPLE_RATE          8000    // Sample rate (don't change)
@@ -46,7 +46,7 @@
 int UdpPort = UDP_PORT;
 int TcpPort = TCP_PORT;
 int RtpBase = RTP_START_PORT;
-enum 
+enum
 {
    Quiet,
    Normal,
@@ -95,9 +95,9 @@ void showHelp(char* argv[])
 void parseArgs(int argc, char* argv[])
 {
    int optResult = 0;
-   
+
    const char* short_options = "u:t:l:vqh";
-   
+
    const struct option long_options[] =
       {
          {"verbose", 0, 0, 'v'},
@@ -151,7 +151,7 @@ void parseArgs(int argc, char* argv[])
             showHelp(argv);
             exit(0);
             break;
-            
+
          default:
             fprintf( stderr, "Invalid option %s\n", argv[optind] );
             showHelp(argv);
@@ -176,7 +176,7 @@ void parseArgs(int argc, char* argv[])
       exit(1);
    }
 }
-   
+
 int main(int argc, char* argv[])
 {
     parseArgs(argc, argv);
@@ -189,7 +189,7 @@ int main(int argc, char* argv[])
     // Enable PCMU, PCMA, Tones/RFC2833 codecs
     SdpCodecFactory codecFactory;
     SdpCodec::SdpCodecTypes codecs[3];
-    
+
     codecs[0] = SdpCodecFactory::getCodecType(CODEC_G711_PCMU) ;
     codecs[1] = SdpCodecFactory::getCodecType(CODEC_G711_PCMA) ;
     codecs[2] = SdpCodecFactory::getCodecType(CODEC_DTMF_RFC2833) ;
@@ -217,7 +217,7 @@ int main(int argc, char* argv[])
                             RTP_START_PORT + (2*MAX_CONNECTIONS), // rtp end
                             localAddress,
                             localAddress,
-                            &userAgent, 
+                            &userAgent,
                             0,                                 // sipSessionReinviteTimer
                             NULL,                              // mgcpStackTask
                             NULL,                              // defaultCallExtension
@@ -241,13 +241,13 @@ int main(int argc, char* argv[])
 
     // Create a listener (application) to deal with call
     // processing events (e.g. incoming call and hang ups)
-    Listener listener(&callManager,Playfile);    
+    Listener listener(&callManager,Playfile);
     callManager.addTaoListener(&listener);
     listener.start();
 
     // Startup the call processing system
     callManager.start();
-   
+
     // Every minute, dump acknowledge that we are running and dump
     // the call list
     while(1)
@@ -275,4 +275,3 @@ int JNI_LightButton(long)
 {
    return 0;
 }
-

@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 //////////////////////////////////////////////////////////////////////////////
@@ -40,8 +40,8 @@ void AutoRejectCallbackProc(SIPX_CALL hCall,
 		}
 		sipxCallDestroy(hCall);
 	}
-	
-    
+
+
 }
 
 int AutoRejectCommand::execute(int argc, char* argv[])
@@ -52,7 +52,7 @@ int AutoRejectCommand::execute(int argc, char* argv[])
 		sipxListenerAdd(hInstance, AutoRejectCallbackProc, NULL);
 		while(*destroy == FALSE) {} //while call is still connected
 		sipxListenerRemove(hInstance, AutoRejectCallbackProc, NULL);
-		
+
 	}
 	else
 	{
@@ -70,4 +70,3 @@ void AutoRejectCommand::getUsage(const char* commandName, UtlString* usage) cons
 	Command::getUsage(commandName, usage);
     usage->append(" no parameters necessary\n");
 }
-

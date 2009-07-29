@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -36,28 +36,28 @@ public:
 
     SipXMessageObserver(void);
     virtual ~SipXMessageObserver(void);
-    
+
 /* ============================ MANIPULATORS ============================== */
 
     /**
      * Implementation of OsServerTask's pure virtual method
      */
     UtlBoolean handleMessage(OsMsg& rMsg);
-    
+
     /**
      * FOR TEST PURPOSES ONLY - a response code to send back to the client
      */
     void setTestResponseCode(int code) { mTestResponseCode = code; }
-    
-    
+
+
 private:
     bool handleIncomingInfoMessage(SipMessage* pMessage);
     bool handleIncomingInfoStatus(SipMessage* pMessage);
-    /** 
+    /**
      * Special response code - for test purposes only.
      */
     int mTestResponseCode;
-    
+
 };
 
 #endif

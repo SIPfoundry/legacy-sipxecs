@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -26,8 +26,8 @@
 
 // DEFINES
 /**< sipXtapi can be configured to expire after a certain date */
-#define SIPXTAPI_EVAL_EXPIRATION 
-#undef SIPXTAPI_EVAL_EXPIRATION 
+#define SIPXTAPI_EVAL_EXPIRATION
+#undef SIPXTAPI_EVAL_EXPIRATION
 
 #ifdef SIPXTAPI_EVAL_EXPIRATION
 #  define EVAL_EXPIRE_MONTH     6
@@ -64,7 +64,7 @@ typedef struct
         bool bEnabled ;         /**< Is AEC enabled? */
 } AEC_SETTING ;
 
-typedef struct 
+typedef struct
 {
     bool              bInitialized;  /**< Is the data valid */
     int               numCodecs;     /**< Number of codecs */
@@ -85,7 +85,7 @@ typedef struct
     SPEAKER_SETTING  speakerSettings[2] ;
     AEC_SETTING      aecSetting ;
     SPEAKER_TYPE     enabledSpeaker ;
-    AUDIO_CODEC_PREFERENCES 
+    AUDIO_CODEC_PREFERENCES
                      audioCodecSetting;
 
     char*            inputAudioDevices[MAX_AUDIO_DEVICES] ;
@@ -148,7 +148,7 @@ typedef struct
  * an call callback proc
  * with an instance pointer and user data
  */
-typedef struct 
+typedef struct
 {
         CALLBACKPROC    pCallbackProc ;
         void*           pUserData ;
@@ -185,12 +185,12 @@ typedef void (*sipxCallEventCallbackFn)(const void* pSrc,
 
 typedef void (*sipxLineEventCallbackFn)(const void* pSrc,
                                         const char* szLineIdentifier,
-                                        SIPX_LINE_EVENT_TYPE_MAJOR major);	
+                                        SIPX_LINE_EVENT_TYPE_MAJOR major);
 
 typedef void (*sipxEventCallbackFn)(const void* pSrc,
-                    			    SIPX_EVENT_CATEGORY category, 
+                    			    SIPX_EVENT_CATEGORY category,
                                     void* pInfo);
-                        
+
 
 /* ============================ FUNCTIONS ================================= */
 
@@ -216,9 +216,9 @@ void sipxFireLineEvent(const void* pSrc,
  * Bubbles up all non-line and non-call events to the application layer
  */
 void sipxFireEvent(const void* pSrc,
-                   SIPX_EVENT_CATEGORY category, 
+                   SIPX_EVENT_CATEGORY category,
                    void* pInfo);
-                     
+
 SIPX_INSTANCE_DATA* findSessionByCallManager(const void* pCallManager) ;
 
 SIPX_CALL_DATA* sipxCallLookup(const SIPX_CALL hCall, SIPX_LOCK_TYPE type);
@@ -268,8 +268,8 @@ void sipxInfoFree(SIPX_INFO_DATA* pData);
  */
 void sipxInfoObjectFree(SIPX_INFO hInfo);
 
-void sipxGetContactHostPort(SIPX_INSTANCE_DATA* pData, 
-                            SIPX_CONTACT_TYPE   contactType, 
+void sipxGetContactHostPort(SIPX_INSTANCE_DATA* pData,
+                            SIPX_CONTACT_TYPE   contactType,
                             Url&                uri) ;
   //: Get the external host and port given the contact preference
 
@@ -282,7 +282,7 @@ SIPX_INFO_DATA* sipxInfoLookup(const SIPX_INFO hInfo, SIPX_LOCK_TYPE type);
 
 /**
  * Unlocks the mutex associated with the INFO DATA
- * 
+ *
  * @param pData pointer to the SIPX_INFO structure
  * @param type Type of lock (read or write)
  */
@@ -291,16 +291,16 @@ void sipxInfoReleaseLock(SIPX_INFO_DATA* pData, SIPX_LOCK_TYPE type);
 /**
  * Adds a log entry to the system log - made necessary to add logging
  * capability on the API level.
- * 
+ *
  * @param logLevel priority of the log entry
  * @param format a format string for the following variable argument list
  */
-SIPXTAPI_API void sipxLogEntryAdd(OsSysLogPriority logLevel, 
+SIPXTAPI_API void sipxLogEntryAdd(OsSysLogPriority logLevel,
                      const char *format,
                      ...);
 
 /**
- * Utility function for setting allowed methods on a 
+ * Utility function for setting allowed methods on a
  * instance's user-agent.
  */
 SIPXTAPI_API SIPX_RESULT sipxConfigAllowMethod(const SIPX_INST hInst, const char* method, const bool bAllow = true);
@@ -320,16 +320,16 @@ SIPXTAPI_API SIPX_RESULT sipxCheckForHandleLeaks() ;
 /**
  * Gets an CpMediaInterface pointer, associated with the call connection.
  *
- * @param hCall Handle to a call.  Call handles are obtained either by 
+ * @param hCall Handle to a call.  Call handles are obtained either by
  *        invoking sipxCallCreate or passed to your application through
  *        a listener interface.
  * @param ppInstData pointer to a memory address that is set to the media interface
  *        pointer.
- */                                                 
+ */
 SIPXTAPI_API SIPX_RESULT sipxCallGetConnectionMediaInterface(const SIPX_CALL hCall,
                                                            void** ppInstData);
-                                                           
-                                                           
+
+
 #ifdef VOICE_ENGINE
     #include "VoiceEngine/interface/GipsVoiceEngineLib.h"
     /**
@@ -337,24 +337,24 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetConnectionMediaInterface(const SIPX_CALL hCa
      * return the GipsVoiceEngineLib pointer associated with the
      * call.
      *
-     * @param hCall Handle to a call.  Call handles are obtained either by 
+     * @param hCall Handle to a call.  Call handles are obtained either by
      *        invoking sipxCallCreate or passed to your application through
      *        a listener interface.
      */
     SIPXTAPI_API GipsVoiceEngineLib* sipxCallGetVoiceEnginePtr(const SIPX_CALL hCall);
 #endif
-                                                           
+
 /**
  * Subscribes for Message Waiting Indicator NOTIFY messages from the Voicemail
  * server.
  *
  * NOTE: This API will change
- * 
+ *
  * @param hInst Instance pointer obtained by sipxInitialize
- * @param szSubscribeURL Voicemail subscription string - the voicemail server 
+ * @param szSubscribeURL Voicemail subscription string - the voicemail server
  *        to subscribe to.
  */
-SIPXTAPI_API SIPX_RESULT sipxConfigVoicemailSubscribe(const SIPX_INST hInst, 
+SIPXTAPI_API SIPX_RESULT sipxConfigVoicemailSubscribe(const SIPX_INST hInst,
                                                       const char* szSubscribeURL);
 
 

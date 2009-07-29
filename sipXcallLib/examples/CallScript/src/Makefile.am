@@ -1,6 +1,6 @@
 SUBDIRS =
 
-INCLUDES = -I$(top_srcdir)/include 
+INCLUDES = -I$(top_srcdir)/include
 
 CallScriptdir = .
 CallScript_PROGRAMS = CallScript

@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 //////////////////////////////////////////////////////////////////////////////
@@ -54,7 +54,7 @@ int AutoRedirectCommand::execute(int argc, char* argv[])
 		sipxListenerAdd(hInstance, AutoRedirectCallbackProc, argv[1]);
 		while(*destroy == FALSE) {} //while call is still connected
 		sipxListenerRemove(hInstance, AutoRedirectCallbackProc, argv[1]);
-		
+
 	}
 	else
 	{
@@ -72,4 +72,3 @@ void AutoRedirectCommand::getUsage(const char* commandName, UtlString* usage) co
 	Command::getUsage(commandName, usage);
     usage->append(" <url to redirect the call to>\n");
 }
-

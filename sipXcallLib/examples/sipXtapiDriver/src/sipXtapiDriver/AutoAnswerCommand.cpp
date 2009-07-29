@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 //////////////////////////////////////////////////////////////////////////////
@@ -45,8 +45,8 @@ void AutoAnswerCallbackProc(SIPX_CALL hCall,
 	{
 		sipxCallDestroy(hCall);
 	}
-	
-    
+
+
 }
 
 int AutoAnswerCommand::execute(int argc, char* argv[])
@@ -55,7 +55,7 @@ int AutoAnswerCommand::execute(int argc, char* argv[])
 	if(argc == 1)
 	{
 		sipxListenerAdd(hInstance, AutoAnswerCallbackProc, NULL);
-		while(*destroy == FALSE) 
+		while(*destroy == FALSE)
 		{
 			OsTask::delay(1500);
 		} //while call is still connected
@@ -76,4 +76,3 @@ void AutoAnswerCommand::getUsage(const char* commandName, UtlString* usage) cons
 	Command::getUsage(commandName, usage);
     usage->append(" no parameters necessary\n");
 }
-

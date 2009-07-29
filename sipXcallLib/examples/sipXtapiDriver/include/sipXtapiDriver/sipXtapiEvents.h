@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -50,28 +50,28 @@
  */
 typedef enum SIPX_EVENT_CATEGORY
 {
-    EVENT_CATEGORY_CALLSTATE,       /**< CALLSTATE events signify a change in state of a 
-                                         call.  States range from the notification of a 
-                                         new call to ringing to connection established to 
-                                         changes in audio state (starting sending, stop 
+    EVENT_CATEGORY_CALLSTATE,       /**< CALLSTATE events signify a change in state of a
+                                         call.  States range from the notification of a
+                                         new call to ringing to connection established to
+                                         changes in audio state (starting sending, stop
                                          sending) to termination of a call. */
-    EVENT_CATEGORY_LINESTATE,       /**< LINESTATE events indicate changes in the status 
-                                         of a line appearance.  Lines identify inbound 
-                                         and outbound identities and can be either 
-                                         provisioned (hardcoded) or configured to 
-                                         automatically register with a registrar.  
-                                         Lines also encapsulate the authentication 
+    EVENT_CATEGORY_LINESTATE,       /**< LINESTATE events indicate changes in the status
+                                         of a line appearance.  Lines identify inbound
+                                         and outbound identities and can be either
+                                         provisioned (hardcoded) or configured to
+                                         automatically register with a registrar.
+                                         Lines also encapsulate the authentication
                                          criteria needed for dynamic registrations. */
-    EVENT_CATEGORY_INFO_STATUS,     /**< INFO_STATUS events are sent when the application 
-                                         requests sipXtapi to send an INFO message to 
-                                         another user agent.  The status event includes 
-                                         the response for the INFO method.  Application 
-                                         developers should look at this event to determine 
+    EVENT_CATEGORY_INFO_STATUS,     /**< INFO_STATUS events are sent when the application
+                                         requests sipXtapi to send an INFO message to
+                                         another user agent.  The status event includes
+                                         the response for the INFO method.  Application
+                                         developers should look at this event to determine
                                          the outcome of the INFO message. */
-    EVENT_CATEGORY_INFO,            /**< INFO events are sent to the application whenever 
-                                         an INFO message is received by the sipXtapi user 
+    EVENT_CATEGORY_INFO,            /**< INFO events are sent to the application whenever
+                                         an INFO message is received by the sipXtapi user
                                          agent.  INFO messages are sent to a specific call.
-                                         sipXtapi will automatically acknowledges the INFO 
+                                         sipXtapi will automatically acknowledges the INFO
                                          message at the protocol layer. */
     EVENT_CATEGORY_SUB_STATUS,      /**< Subscription events: OK or expired, notify, etc.*/
     EVENT_CATEGORY_NOTIFY           /**< Notification of subscribed-to events */
@@ -85,73 +85,73 @@ typedef enum SIPX_EVENT_CATEGORY
  * @param pInfo Pointer to the event info structure.
  * @param pUserData User data provided when listener was added
  */
-typedef bool (*SIPX_EVENT_CALLBACK_PROC)(SIPX_EVENT_CATEGORY category, 
-                                         void* pInfo, 
+typedef bool (*SIPX_EVENT_CALLBACK_PROC)(SIPX_EVENT_CATEGORY category,
+                                         void* pInfo,
                                          void* pUserData);
 
 
 /**
- * Major call state events identify significant changes in the state of a 
+ * Major call state events identify significant changes in the state of a
  * call.
  */
 typedef enum SIPX_CALLSTATE_EVENT
 {
-    CALLSTATE_UNKNOWN   = 0,    /**< An UNKNOWN event is generated when the state for a call 
-                                 is no longer known.  This is generally an error 
+    CALLSTATE_UNKNOWN   = 0,    /**< An UNKNOWN event is generated when the state for a call
+                                 is no longer known.  This is generally an error
                                  condition; see the minor event for specific causes. */
-    CALLSTATE_NEWCALL         = 1000, /**< The NEWCALL event indicates that a new call has been 
-                                 created automatically by the sipXtapi.  This event is 
-                                 most frequently generated in response to an inbound 
+    CALLSTATE_NEWCALL         = 1000, /**< The NEWCALL event indicates that a new call has been
+                                 created automatically by the sipXtapi.  This event is
+                                 most frequently generated in response to an inbound
                                  call request.  */
-	CALLSTATE_DIALTONE        = 2000, /**< The DIALTONE event indicates that a new call has been 
-                                 created for the purpose of placing an outbound call.  
-                                 The application layer should determine if it needs to 
+	CALLSTATE_DIALTONE        = 2000, /**< The DIALTONE event indicates that a new call has been
+                                 created for the purpose of placing an outbound call.
+                                 The application layer should determine if it needs to
                                  simulate dial tone for the end user. */
-	CALLSTATE_REMOTE_OFFERING = 2500, /**< The REMOTE_OFFERING event indicates that a call setup 
-                                 invitation has been sent to the remote party.  The 
+	CALLSTATE_REMOTE_OFFERING = 2500, /**< The REMOTE_OFFERING event indicates that a call setup
+                                 invitation has been sent to the remote party.  The
                                  invitation may or may not every receive a response.  If
-                                 a response is not received in a timely manor, sipXtapi 
-                                 will move the call into a disconnected state.  If 
-                                 calling another sipXtapi user agent, the reciprocate 
+                                 a response is not received in a timely manor, sipXtapi
+                                 will move the call into a disconnected state.  If
+                                 calling another sipXtapi user agent, the reciprocate
                                  state is OFFER. */
-	CALLSTATE_REMOTE_ALERTING = 3000, /**< The REMOTE_ALERTING event indicates that a call setup 
+	CALLSTATE_REMOTE_ALERTING = 3000, /**< The REMOTE_ALERTING event indicates that a call setup
                                  invitation has been accepted and the end user is in the
-                                 alerting state (ringing).  Depending on the SIP 
-                                 configuration, end points, and proxy servers involved, 
+                                 alerting state (ringing).  Depending on the SIP
+                                 configuration, end points, and proxy servers involved,
                                  this event should only last for 3 minutes.  Afterwards,
-                                 the state will automatically move to DISCONNECTED.  If 
-                                 calling another sipXtapi user agent, the reciprocate 
+                                 the state will automatically move to DISCONNECTED.  If
+                                 calling another sipXtapi user agent, the reciprocate
                                  state is ALERTING. */
-	CALLSTATE_CONNECTED       = 4000, /**< The CONNECTED state indicates that call has been setup 
-                                 between the local and remote party.  Audio should be 
+	CALLSTATE_CONNECTED       = 4000, /**< The CONNECTED state indicates that call has been setup
+                                 between the local and remote party.  Audio should be
                                  flowing provided and the microphone and speakers should
                                  be engaged. */
-	CALLSTATE_DISCONNECTED    = 5000, /**< The DISCONNECTED state indicates that a call was 
-                                 disconnected or failed to connect.  A call may move 
-                                 into the DISCONNECTED states from almost every other 
+	CALLSTATE_DISCONNECTED    = 5000, /**< The DISCONNECTED state indicates that a call was
+                                 disconnected or failed to connect.  A call may move
+                                 into the DISCONNECTED states from almost every other
                                  state.  Please review the DISCONNECTED minor events to
                                  understand the cause. */
-	CALLSTATE_OFFERING        = 6000, /**< An OFFERING state indicates that a new call invitation 
-                                 has been extended this user agent.  Application 
-                                 developers should invoke sipxCallAccept(), 
-                                 sipxCallReject() or sipxCallRedirect() in response.  
-                                 Not responding will result in an implicit call 
+	CALLSTATE_OFFERING        = 6000, /**< An OFFERING state indicates that a new call invitation
+                                 has been extended this user agent.  Application
+                                 developers should invoke sipxCallAccept(),
+                                 sipxCallReject() or sipxCallRedirect() in response.
+                                 Not responding will result in an implicit call
                                  sipXcallReject(). */
-	CALLSTATE_ALERTING        = 7000, /**< An ALERTING state indicates that an inbound call has 
-                                 been accepted and the application layer should alert 
-                                 the end user.  The alerting state is limited to 3 
-                                 minutes in most configurations; afterwards the call 
-                                 will be canceled.  Applications will generally play 
+	CALLSTATE_ALERTING        = 7000, /**< An ALERTING state indicates that an inbound call has
+                                 been accepted and the application layer should alert
+                                 the end user.  The alerting state is limited to 3
+                                 minutes in most configurations; afterwards the call
+                                 will be canceled.  Applications will generally play
                                  some sort of ringing tone in response to this event. */
-	CALLSTATE_DESTROYED       = 8000, /**< The DESTORYED event indicates the underlying resources 
-                                 have been removed for a call.  This is the last event 
-                                 that the application will receive for any call.  The 
+	CALLSTATE_DESTROYED       = 8000, /**< The DESTORYED event indicates the underlying resources
+                                 have been removed for a call.  This is the last event
+                                 that the application will receive for any call.  The
                                  call handle is invalid after this event is received. */
 } SIPX_CALLSTATE_EVENT;
 
- 
+
 /**
- * Callstate cuase events identify the reason for a Callstate event or 
+ * Callstate cuase events identify the reason for a Callstate event or
  * provide more detail.
  */
 typedef enum SIPX_CALLSTATE_CAUSE
@@ -162,27 +162,27 @@ typedef enum SIPX_CALLSTATE_CAUSE
 	CALLSTATE_DIALTONE_UNKNOWN        = CALLSTATE_DIALTONE + 1,         /**< See DIALTONE callstate event */
     CALLSTATE_DIALTONE_CONFERENCE     = CALLSTATE_DIALTONE,             /**< Call created as part of conference */
 	CALLSTATE_REMOTE_OFFERING_NORMAL  = CALLSTATE_REMOTE_OFFERING + 1,  /**< See REMOTE_OFFERING callstate event */
-	CALLSTATE_REMOTE_ALERTING_NORMAL  = CALLSTATE_REMOTE_ALERTING + 1,  /**< Remote party is alerting, play ringback 
+	CALLSTATE_REMOTE_ALERTING_NORMAL  = CALLSTATE_REMOTE_ALERTING + 1,  /**< Remote party is alerting, play ringback
                                                                              locally */
-	CALLSTATE_REMOTE_ALERTING_MEDIA,                                    /**< Remote party is alerting and providing 
+	CALLSTATE_REMOTE_ALERTING_MEDIA,                                    /**< Remote party is alerting and providing
                                                                              ringback audio*/
-	CALLSTATE_CONNECTED_ACTIVE		  = CALLSTATE_CONNECTED + 1,        /**< Call is connected and active (playing 
+	CALLSTATE_CONNECTED_ACTIVE		  = CALLSTATE_CONNECTED + 1,        /**< Call is connected and active (playing
                                                                              local media)*/
 	CALLSTATE_CONNECTED_ACTIVE_HELD,                                    /**< Call is connected, held (not playing local
-                                                                             media), and bridging media for a 
+                                                                             media), and bridging media for a
                                                                              conference */
     CALLSTATE_CONNECTED_INACTIVE,                                       /**< Call is held (not playing local media) and
                                                                              is not bridging any other calls */
-	CALLSTATE_DISCONNECTED_BADADDRESS = CALLSTATE_DISCONNECTED + 1,     /**< Disconnected: Invalid or unreachable 
+	CALLSTATE_DISCONNECTED_BADADDRESS = CALLSTATE_DISCONNECTED + 1,     /**< Disconnected: Invalid or unreachable
                                                                              address */
 	CALLSTATE_DISCONNECTED_BUSY,                              /**< Disconnected: Caller or Callee was busy*/
-	CALLSTATE_DISCONNECTED_NORMAL,                            /**< Disconnected: Normal call tear down (either 
+	CALLSTATE_DISCONNECTED_NORMAL,                            /**< Disconnected: Normal call tear down (either
                                                                    local or remote)*/
-    CALLSTATE_DISCONNECTED_RESOURCES,                         /**< Disconnected: Not enough resources 
+    CALLSTATE_DISCONNECTED_RESOURCES,                         /**< Disconnected: Not enough resources
                                                                    available to complete call*/
-    CALLSTATE_DISCONNECTED_NETWORK,                           /**< Disconnected: A network error cause call 
+    CALLSTATE_DISCONNECTED_NETWORK,                           /**< Disconnected: A network error cause call
                                                                    to fail*/
-	CALLSTATE_DISCONNECTED_REDIRECTED,                        /**< Disconnected: Call was redirected a 
+	CALLSTATE_DISCONNECTED_REDIRECTED,                        /**< Disconnected: Call was redirected a
                                                                    different user agent */
 	CALLSTATE_DISCONNECTED_NO_RESPONSE,                       /**< Disconnected: No response was received */
     CALLSTATE_DISCONNECTED_AUTH,                              /**< Disconnected: Unable to authenticate */
@@ -203,7 +203,7 @@ typedef enum SIPX_CALLSTATE_CAUSE
     LINESTATE_REGISTERING   = 10000,     /**< The REGISTERING event is fired when sipXtapi
                                               has successfully sent a REGISTER message,
                                               but has not yet received a success response from the
-                                              registrar server */    
+                                              registrar server */
     LINESTATE_REGISTERED  = 11000,      /**< The REGISTERED event is fired after sipXtapi has received
                                              a response from the registrar server, indicating a successful
                                              registration. */
@@ -215,22 +215,22 @@ typedef enum SIPX_CALLSTATE_CAUSE
                                              a response from the registrar server, indicating a successful
                                              un-registration. */
     LINESTATE_REGISTER_FAILED  = 14000, /**< The REGISTER_FAILED event is fired to indicate a failure of REGISTRATION.
-                                             It is fired in the following cases:  
+                                             It is fired in the following cases:
                                     The client could not connect to the registrar server.
                                     The registrar server challenged the client for authentication credentials,
                                     and the client failed to supply valid credentials.
                                     The registrar server did not generate a success response (status code == 200)
                                     within a timeout period.  */
     LINESTATE_UNREGISTER_FAILED  = 15000,  /**< The UNREGISTER_FAILED event is fired to indicate a failure of un-REGISTRATION.
-                                    It is fired in the following cases:  
+                                    It is fired in the following cases:
                                     The client could not connect to the registrar server.
                                     The registrar server challenged the client for authentication credentials,
                                     and the client failed to supply valid credentials.
                                     The registrar server did not generate a success response (status code == 200)
                                     within a timeout period.  */
-    LINESTATE_PROVISIONED      = 16000,    /**<  The PROVISIONED event is fired when a sipXtapi Line is added, and Registration is not 
-                                    requested (i.e. - sipxLineAdd is called with a bRegister parameter of false. */ 
-} SIPX_LINESTATE_EVENT;  
+    LINESTATE_PROVISIONED      = 16000,    /**<  The PROVISIONED event is fired when a sipXtapi Line is added, and Registration is not
+                                    requested (i.e. - sipxLineAdd is called with a bRegister parameter of false. */
+} SIPX_LINESTATE_EVENT;
 
 enum SIPX_INFOSTATUS_EVENT
 {
@@ -252,28 +252,28 @@ enum SIPX_LINESTATE_CAUSE
 /**
  * Callstate event information structure
  */
-typedef struct 
+typedef struct
 {
     size_t    nSize;                /**< The size of this structure. */
     SIPX_CALL hCall;                /**< Call handle associated with the callstate event. */
     SIPX_LINE hLine;                /**< Line handle associated with the callstate event. */
     SIPX_CALLSTATE_EVENT event;     /**< Callstate event enum code.
                                          Identifies the callstate event. */
-    SIPX_CALLSTATE_CAUSE cause;     /**< Callstate cause enum code. 
+    SIPX_CALLSTATE_CAUSE cause;     /**< Callstate cause enum code.
                                          Identifies the cause of the callstate event. */
 
-} SIPX_CALLSTATE_INFO; 
+} SIPX_CALLSTATE_INFO;
 
 /**
  * Linestate event information structure
  */
-typedef struct                      
+typedef struct
 {
     size_t    nSize ;               /**< The size of this structure. */
-    SIPX_LINE hLine;                /**< Line handle associated with the linestate event. */ 
+    SIPX_LINE hLine;                /**< Line handle associated with the linestate event. */
     SIPX_LINESTATE_EVENT event ;    /**< Callstate event enum code.
                                          Identifies the linestate event. */
-    SIPX_LINESTATE_CAUSE cause ;    /**< Callstate cause enum code. 
+    SIPX_LINESTATE_CAUSE cause ;    /**< Callstate cause enum code.
                                          Identifies the cause of the linestate event. */
 } SIPX_LINESTATE_INFO ;
 
@@ -281,9 +281,9 @@ typedef struct
 /**
  *  Major classifications of response statuses for a SIP message.
  */
-typedef enum 
+typedef enum
 {
-    SIPX_MESSAGE_OK,                  /**< The message was successfully processed (200) */ 
+    SIPX_MESSAGE_OK,                  /**< The message was successfully processed (200) */
     SIPX_MESSAGE_FAILURE,             /**< The server received the message, but could or would
                                            not process it. */
     SIPX_MESSAGE_SERVER_FAILURE,      /**< The server encountered an error while trying to process
@@ -298,7 +298,7 @@ typedef enum
 typedef struct
 {
     size_t              nSize ;             /**< the size of this structure in bytes */
-    SIPX_INFO           hInfo ;             /**< the handle used to make the outbound info request. */ 
+    SIPX_INFO           hInfo ;             /**< the handle used to make the outbound info request. */
     SIPX_MESSAGE_STATUS status ;            /**< Emumerated status for this
                                                  request acknowledgement. */
     int                 responseCode ;      /**< Numerical status code for this
@@ -310,8 +310,8 @@ typedef struct
 
 /**
  * An INFO event signals the application layer that an INFO message
- * was sent to this user agent.  If the INFO message was sent to a 
- * call context (session) hCall will desiginate the call session. 
+ * was sent to this user agent.  If the INFO message was sent to a
+ * call context (session) hCall will desiginate the call session.
  */
 typedef struct
 {
@@ -324,13 +324,13 @@ typedef struct
     const char* szContentType ;     /**< string indicating the info content type */
     const char* pContent ;          /**< pointer to the INFO message content */
     size_t      nContentLength ;    /**< length of the INFO message content */
-  
+
 } SIPX_INFO_INFO ;
 
 /**
  * Enumeration of the possible subscription states visible to the client.
  */
-typedef enum 
+typedef enum
 {
     SIPX_SUBSCRIPTION_ACTIVE ,      /**< The subscription is currently active. */
     SIPX_SUSBSCRITION_FAILED ,      /**< The subscription is not active due to a failure.*/
@@ -343,14 +343,14 @@ typedef enum
  * An SUBSTATUS event informs that application layer of the status
  * of an outbound SUBSCRIPTION requests;
  */
-typedef struct 
+typedef struct
 {
     size_t                  nSize ;     /**< the size of this structure in bytes */
     SIPX_SUBSCRIPTION_STATE state ;     /**< Enum state value indicating the current
                                              state of the subscription. */
     const char* szSubServerUserAgent;   /**< the User Agent header field value from
                                              the SIP SUBSCRIBE response (may be NULL) */
-    
+
 } SIPX_SUBSTATUS_INFO ;
 
 
@@ -358,19 +358,19 @@ typedef struct
 /**
  * A NOTIFY_INFO event signifies that a NOTIFY message was received for
  * an active subscription.
- */ 
-typedef struct 
+ */
+typedef struct
 {
     size_t      nSize ;             /**< the size of this structure in bytes */
     SIPX_SUB    hSub ;              /**< a handle to handle to the subscrption which
                                          caused this NOTIFY event to be received. */
     const char* szNotiferUserAgent; /**< the User-Agent header field value from
                                          the SIP NOTIFY response (may be NULL) */
-    const char* szContentType ;     /**< string indicating the info content type */     
+    const char* szContentType ;     /**< string indicating the info content type */
     const void* pContent ;          /**< pointer to the NOTIFY message content */
     size_t      nContentLength ;    /**< length of the NOTIFY message content */
 } SIPX_NOTIFY_INFO ;
-					      
+
 
 
 /* ============================ FUNCTIONS ================================= */
@@ -385,7 +385,7 @@ typedef struct
 SIPXTAPI_API SIPX_RESULT sipxEventListenerAdd(const SIPX_INST hInst,
                                              SIPX_EVENT_CALLBACK_PROC pCallbackProc,
                                              void *pUserData);
-                                             
+
 /**
  * Remove a sipXtapi event callback/observer.  Supply the same
  * pCallbackProc and pUserData values as sipxEventListenerAdd.
@@ -394,17 +394,17 @@ SIPXTAPI_API SIPX_RESULT sipxEventListenerAdd(const SIPX_INST hInst,
  * @param pCallbackProc Function used to receive sipx events
  * @param pUserData user data specified as part of sipxListenerAdd
  */
-SIPXTAPI_API SIPX_RESULT sipxEventListenerRemove(const SIPX_INST hInst, 
-                                            SIPX_EVENT_CALLBACK_PROC pCallbackProc, 
+SIPXTAPI_API SIPX_RESULT sipxEventListenerRemove(const SIPX_INST hInst,
+                                            SIPX_EVENT_CALLBACK_PROC pCallbackProc,
                                             void* pUserData) ;
-                                             
-                                             
-                                            
+
+
+
 /* ============================ DEPRECATED DEFININTIONS ======================== */
 
 
 /**
- * Major call state events identify significant changes in the state of a 
+ * Major call state events identify significant changes in the state of a
  * call.
  * For backward compatibility.
  * @deprecated Use the new callback/event mechanism instead
@@ -462,8 +462,8 @@ typedef enum SIPX_CALLSTATE_MAJOR
                                  have been removed for a call.  This is the last event
                                  that the application will receive for any call.  The
                                  call handle is invalid after this event is received. */
-                                 
-                                 
+
+
 } SIPX_CALLSTATE_MAJOR ;
 
 
@@ -536,21 +536,21 @@ typedef enum SIPX_LINE_EVENT_TYPE_MAJOR
                                                      a response from the registrar server, indicating a successful
                                                      un-registration. */
    SIPX_LINE_EVENT_REGISTER_FAILED  = 14000,    /**< The REGISTER_FAILED event is fired to indicate a failure of REGISTRATION.
-                                                     It is fired in the following cases:  
+                                                     It is fired in the following cases:
                                                      The client could not connect to the registrar server.
                                                      The registrar server challenged the client for authentication credentials,
                                                      and the client failed to supply valid credentials.
                                                      The registrar server did not generate a success response (status code == 200)
                                                      within a timeout period.  */
    SIPX_LINE_EVENT_UNREGISTER_FAILED  = 15000, /**< The UNREGISTER_FAILED event is fired to indicate a failure of un-REGISTRATION.
-                                                     It is fired in the following cases:  
+                                                     It is fired in the following cases:
                                                      The client could not connect to the registrar server.
                                                      The registrar server challenged the client for authentication credentials,
                                                      and the client failed to supply valid credentials.
                                                      The registrar server did not generate a success response (status code == 200)
                                                      within a timeout period.  */
-   SIPX_LINE_EVENT_PROVISIONED      = 16000    /**<  The PROVISIONED event is fired when a sipXtapi Line is added, and Registration is not 
-                                                     requested (i.e. - sipxLineAdd is called with a bRegister parameter of false. */ 
+   SIPX_LINE_EVENT_PROVISIONED      = 16000    /**<  The PROVISIONED event is fired when a sipXtapi Line is added, and Registration is not
+                                                     requested (i.e. - sipxLineAdd is called with a bRegister parameter of false. */
 } SIPX_LINE_EVENT_TYPE_MAJOR;
 
 
@@ -579,9 +579,9 @@ typedef void (*CALLBACKPROC)( SIPX_CALL hCall,
  * @param eMajor Major event ID
  * @param pUserData User data provided when listener was added
  */
-typedef void (*LINECALLBACKPROC)(SIPX_LINE hLine, 
-						      SIPX_LINE_EVENT_TYPE_MAJOR eMajor, 
-						      void* pUserData);    						      
+typedef void (*LINECALLBACKPROC)(SIPX_LINE hLine,
+						      SIPX_LINE_EVENT_TYPE_MAJOR eMajor,
+						      void* pUserData);
 
 
 /* ============================ FUNCTIONS ================================= */
@@ -629,7 +629,7 @@ SIPXTAPI_API char* sipxEventToString(SIPX_CALLSTATE_MAJOR eMajor,
 /**
  * Add a callback/observer for the purpose of receiving Line events
  *
- * 
+ *
  * @deprecated Use sipxEventListenerAdd instead
  * @param hInst Instance pointer obtained by sipxInitialize.
  * @param pCallbackProc Function to receive sipx events
@@ -665,6 +665,6 @@ SIPXTAPI_API char* sipxLineEventToString(SIPX_LINE_EVENT_TYPE_MAJOR lineTypeMajo
                                          size_t nBuffer);
 
 
-                                     
+
 
 #endif /* ifndef _sipXtapiEvents_h_ */

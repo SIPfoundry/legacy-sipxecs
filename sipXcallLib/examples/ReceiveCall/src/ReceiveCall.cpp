@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -493,8 +493,8 @@ SIPX_CALL CallHangupNotification::getHCall()
 CallHangupNotification callHangupNotification;
 OsTimer callHangupTimer(callHangupNotification);
 
-bool EventCallBack(SIPX_EVENT_CATEGORY category, 
-                   void* pInfo, 
+bool EventCallBack(SIPX_EVENT_CATEGORY category,
+                   void* pInfo,
                    void* pUserData)
 {
     assert (pInfo != NULL);
@@ -512,7 +512,7 @@ bool EventCallBack(SIPX_EVENT_CATEGORY category,
        printf("%s ", s.data());
     }
 
-    printf("%s\n", sipxEventToString(category, pInfo, cBuf, sizeof(cBuf))) ;    
+    printf("%s\n", sipxEventToString(category, pInfo, cBuf, sizeof(cBuf))) ;
 
     if (category == EVENT_CATEGORY_CALLSTATE)
     {
@@ -734,7 +734,7 @@ int main(int argc, char* argv[])
     SipPublishContentMgr* pPublisher;
     SipSubscribeServer* pSubscribeServer;
     // The dialog event publisher
-    DialogEventPublisher* pDialogEvents;    
+    DialogEventPublisher* pDialogEvents;
 
     // Parse Arguments
     if (parseArgs(argc, argv, &iDuration, &iSipPort, &iRtpPort, &g_szPlayTones,
@@ -752,7 +752,7 @@ int main(int argc, char* argv[])
         sipxConfigSetLogLevel(LOG_LEVEL_DEBUG) ;
         sipxConfigSetLogFile("ReceiveCall.log");
         if (sipxInitialize(&hInst, iSipPort, iSipPort, 5061, iRtpPort, 16, szIdentity) == SIPX_RESULT_SUCCESS)
-        {            
+        {
            // Start dialog event notifier if requested.
            if (bDialogEvents)
            {
@@ -761,7 +761,7 @@ int main(int argc, char* argv[])
                  ((SIPX_INSTANCE_DATA*) hInst)->pCallManager;
               SipUserAgent* pUserAgent =
                  ((SIPX_INSTANCE_DATA*) hInst)->pSipUserAgent;
-           
+
               // Start the SIP Subscribe Server
               pSubscriptionMgr = new SipSubscriptionMgr();
               pPolicyHolder = new SipSubscribeServerEventHandler;
@@ -775,7 +775,7 @@ int main(int argc, char* argv[])
 
               // Create the dialog event publisher
               pDialogEvents = new DialogEventPublisher(pCallManager,
-                                                       pPublisher);    
+                                                       pPublisher);
               pCallManager->addTaoListener(pDialogEvents);
               pDialogEvents->start();
            }

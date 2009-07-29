@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 //////////////////////////////////////////////////////////////////////////////
@@ -21,7 +21,7 @@ int CallSendInfoCommand::execute(int argc, char* argv[])
 	if(argc == 4)
 	{
 		//char buffer[] = *argv[3];
-		if(sipxCallSendInfo(hInfo, atoi(argv[1]), argv[2], argv[3], sizeof(argv[3])) 
+		if(sipxCallSendInfo(hInfo, atoi(argv[1]), argv[2], argv[3], sizeof(argv[3]))
 			== SIPX_RESULT_SUCCESS)
 		{
 			printf("INFO event sent successfully.\n");
@@ -46,4 +46,3 @@ void CallSendInfoCommand::getUsage(const char* commandName, UtlString* usage) co
 	Command::getUsage(commandName, usage);
     usage->append(" <Call Handle> <INFO content type> <INFO messasge's content>\n");
 }
-

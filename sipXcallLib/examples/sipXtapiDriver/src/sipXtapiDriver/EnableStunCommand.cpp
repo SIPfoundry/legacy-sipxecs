@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 //////////////////////////////////////////////////////////////////////////////
@@ -21,7 +21,7 @@ int EnableStunCommand::execute(int argc, char* argv[])
 {
 	int commandStatus = CommandProcessor::COMMAND_FAILED;
 
-	if(argc == 3) 
+	if(argc == 3)
 	{
 		if(sipxConfigEnableStun(hInstance, argv[1], atoi(argv[2])) == SIPX_RESULT_SUCCESS)
 		{

@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -65,15 +65,15 @@ UtlBoolean Listener::handleMessage(OsMsg& rMsg)
 
 #ifdef DEBUGGING
       dumpTaoMessageArgs(taoEventId, arg) ;
-#endif        
+#endif
       UtlBoolean localConnection = atoi(arg[TAO_OFFER_PARAM_LOCAL_CONNECTION]);
       UtlString  callId = arg[TAO_OFFER_PARAM_CALLID] ;
       UtlString  address = arg[TAO_OFFER_PARAM_ADDRESS] ;
 
-      switch (taoEventId) 
+      switch (taoEventId)
       {
          case PtEvent::CONNECTION_OFFERED:
-            OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "Call arrived: callId %s address %s\n", 
+            OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "Call arrived: callId %s address %s\n",
                           callId.data(), address.data());
 
             mpCallManager->acceptConnection(callId, address);
@@ -81,7 +81,7 @@ UtlBoolean Listener::handleMessage(OsMsg& rMsg)
 
             break;
          case PtEvent::CONNECTION_ESTABLISHED:
-            if (localConnection) 
+            if (localConnection)
             {
                OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "Call connected: callId %s\n", callId.data());
 
@@ -105,9 +105,9 @@ UtlBoolean Listener::handleMessage(OsMsg& rMsg)
             }
 
             break;
-            
+
          case PtEvent::CONNECTION_DISCONNECTED:
-            if (!localConnection) 
+            if (!localConnection)
             {
                OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "Call Dropped: %s\n", callId.data());
 
@@ -129,7 +129,7 @@ UtlBoolean Listener::handleMessage(OsMsg& rMsg)
             }
 
             break;
-            
+
          case PtEvent::CONNECTION_FAILED:
             OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_WARNING, "Dropping call: %s\n", callId.data());
 
@@ -149,10 +149,10 @@ UtlBoolean Listener::handleMessage(OsMsg& rMsg)
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 
-void Listener::dumpTaoMessageArgs(unsigned char eventId, TaoString& args) 
+void Listener::dumpTaoMessageArgs(unsigned char eventId, TaoString& args)
 {
    osPrintf("===>\nMessage type: %d args:\n\n", eventId) ;
-        
+
    int argc = args.getCnt();
    for(int argIndex = 0; argIndex < argc; argIndex++)
    {
@@ -218,4 +218,3 @@ CallObject* Listener::removeEntry(UtlString& rKey)
 /* ============================ TESTING =================================== */
 
 /* ============================ FUNCTIONS ================================= */
-
