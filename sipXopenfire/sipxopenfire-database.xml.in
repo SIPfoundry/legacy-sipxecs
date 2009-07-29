@@ -78,6 +78,12 @@
              INSERT INTO ofProperty (name, propValue) VALUES ('xmpp.offline.type','store'); 
              DELETE FROM ofProperty where name='xmpp.proxy.enabled';
              INSERT INTO ofProperty (name, propValue) VALUES ('xmpp.proxy.enabled','false'); 
+             DELETE FROM ofProperty where name='xmpp.socket.plain.active';
+             INSERT INTO ofProperty (name, propValue) VALUES ('xmpp.socket.plain.active','true'); 
+             DELETE FROM ofProperty where name='xmpp.socket.ssl.active';
+             INSERT INTO ofProperty (name, propValue) VALUES ('xmpp.socket.ssl.active','true'); 
+             DELETE FROM ofProperty where name='xmpp.server.certificate.selfsigned';
+             INSERT INTO ofProperty (name, propValue) VALUES ('xmpp.server.certificate.selfsigned','true'); 
           </echo>
           <sipx-sql src="/tmp/of-init.sql" />
           <delete file="/tmp/of-init.sql" />

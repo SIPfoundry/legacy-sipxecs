@@ -46,7 +46,6 @@ OPENFIRE=bin/openfire
 
 PIDFILE="@SIPX_RUNDIR@/sipxopenfire.pid"
 
-SIP_DOMAIN_NAME=`sipx_config_value @SIPX_CONFDIR@/domain-config SIP_DOMAIN_NAME`
 
 
 
@@ -63,7 +62,6 @@ start() {
 	#write out the confi directory so the plugin can read it
 	echo "conf.dir=@SIPX_CONFDIR@" > ${TMP_DIR}/sipx.properties
 	echo "openfire.home=${OPENFIRE_HOME}" >> ${TMP_DIR}/sipx.properties
-        #databaseCommand setdomain -Ddomain=${SIP_DOMAIN_NAME}
 	exec ${OPENFIRE_HOME}/${OPENFIRE} start
 	ps aux | grep openfire | grep startup.jar | awk '{print $2}' > ${PIDFILE}
 }
