@@ -36,7 +36,7 @@ public class ValidUsersXML {
     private static String s_letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private static String s_numbers = "22233344455566677778889999";
 
-    private Vector<User> m_users;
+    private static Vector<User> m_users;
     private HashMap<String, User> m_userNameMap;
 
 
@@ -63,6 +63,10 @@ public class ValidUsersXML {
             }
         }
         return s_current;
+    }
+    
+    public static Vector<User> GetUsers() {
+        return(m_users);
     }
 
     /**

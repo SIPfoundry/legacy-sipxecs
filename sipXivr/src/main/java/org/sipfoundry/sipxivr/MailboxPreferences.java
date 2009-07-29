@@ -27,6 +27,13 @@ public class MailboxPreferences {
     public static final String EMAIL_PROP = "emailAddress";
     private GreetingType m_activeGreeting = GreetingType.NONE;
     private String m_emailAddress;
+    
+    private boolean m_useTLS;
+    private Integer m_IMAPPortNum;
+    private String  m_IMAPServer;
+    private boolean m_Synchronize;
+    private String  m_emailPassword;
+    
     private boolean m_attachVoicemailToEmail;
     private String m_alternateEmailAddress;
     private boolean m_attachVoicemailToAlternateEmail;
@@ -77,6 +84,10 @@ public class MailboxPreferences {
         return m_emailAddress;
     }
     
+    public String getEmailUserName() {
+        return m_emailAddress.split("@")[0];
+    }
+    
     public void setEmailAddress(String emailAddress) {
         m_emailAddress = emailAddress;
     }
@@ -96,4 +107,45 @@ public class MailboxPreferences {
     public void setAttachVoicemailToAlternateEmail(boolean attachVoicemailToAlternateEmail) {
         m_attachVoicemailToAlternateEmail = attachVoicemailToAlternateEmail;
     }
+    
+    public boolean synchronize() {
+        return m_Synchronize;
+    }
+    
+    public void setSynchronize(boolean synchronize) {
+        m_Synchronize = synchronize;
+    }
+    
+    public String getemailPassword() {
+        return m_emailPassword;
+    }
+    
+    public void setemailPassword(String emailPassword) {
+        m_emailPassword = emailPassword;
+    }
+    
+    public String getIMAPServer() {
+        return m_IMAPServer;
+    }
+    
+    public void setIMAPServer(String IMAPServer) {
+        m_IMAPServer = IMAPServer;
+    }
+    
+    public Integer getIMAPPortNum() {
+        return m_IMAPPortNum;
+    }
+    
+    public void setIMAPPortNum(Integer IMAPPortNum) {
+        m_IMAPPortNum = IMAPPortNum;
+    }
+    
+    public boolean useTLS() {
+        return m_useTLS;
+    }
+    
+    public void setUseTLS(boolean useTLS) {
+        m_useTLS = useTLS;
+    }
+    
 }
