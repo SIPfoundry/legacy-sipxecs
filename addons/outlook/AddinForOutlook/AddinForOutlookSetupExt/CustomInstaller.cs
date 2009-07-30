@@ -12,6 +12,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration.Install;
 using System.IO;
+using System.Collections;
+using System.Windows.Forms;
+using System.Security;
+using System.Security.Policy;
 using AddinForOutlook;
 
 
@@ -58,33 +62,56 @@ namespace AddinForOutlookSetupExt
         /// 
         /// </summary>
         /// 
-#if DEBUG
-        void WriteToFile(String myPassedValue, String fName, String lName, String path)
-        {
-            StreamWriter writer = new StreamWriter("C:\\Install.log", true);
-            writer.WriteLine("Install log file");
-            writer.WriteLine(DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString());
-            writer.WriteLine("Install path is " + path);
-            string s = "";
-            switch (myPassedValue)
-            {
-                case "1":
-                    s = "develop";
-                    break;
-                case "2":
-                    s = "test";
-                    break;
-                case "3":
-                    s = "product";
-                    break;
-            }
-            writer.WriteLine("You selected " + s);
-            writer.WriteLine("First name: " + fName);
-            writer.WriteLine("Last name: " + lName);
-            writer.Flush();
-            writer.Close();
-        }
-#endif
+        public override void Install(System.Collections.IDictionary stateSaver)
+        {            
+            base.Install(stateSaver);
 
+            try
+            {                
+                // Find the machine policy level
+                PolicyLevel machinePolicyLevel = null;
+                System.Collections.IEnumerator policyHierarchy = SecurityManager.PolicyHierarchy();
+
+                while (policyHierarchy.MoveNext())
+                {
+                    PolicyLevel level = (PolicyLevel)policyHierarchy.Current;
+                    if (level.Label == "Machine")
+                    {
+                        machinePolicyLevel = level;
+                        break;
+                    }
+                }
+
+                if (machinePolicyLevel == null)
+                {
+                    throw new ApplicationException(
+                        "Could not find Machine Policy level. Code Access Security " +
+                        "is not configured for this application."
+                        );
+                }
+
+                // Get the installation directory of the current installer
+                string assemblyPath = this.Context.Parameters["assemblypath"];
+                string installDirectory = assemblyPath.Substring(0, assemblyPath.LastIndexOf("\\"));
+
+                if (!installDirectory.EndsWith(@"\"))
+                    installDirectory += @"\";
+
+                installDirectory += "*";
+
+                //Create a code group with a new FullTrust permission set
+                PolicyStatement policyStatement = new PolicyStatement(new NamedPermissionSet("FullTrust"));
+                CodeGroup codeGroup = new UnionCodeGroup(new UrlMembershipCondition(installDirectory), policyStatement);
+                codeGroup.Description = "Permissions for Outlook Addin";
+                codeGroup.Name = "Outlook Addin";
+
+                machinePolicyLevel.RootCodeGroup.AddChild(codeGroup);
+                SecurityManager.SavePolicy();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        } 
     }
 }

@@ -6,13 +6,13 @@
 //
 // $$
 //////////////////////////////////////////////////////////////////////////////
-
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Net;
 using System.IO;
 using System.Windows.Forms;
+
 
 namespace AddinForOutlook
 {
@@ -24,6 +24,7 @@ namespace AddinForOutlook
             {
 
                 Microsoft.Win32.RegistryKey key = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(Constants.REG_KEY_NAME_ADDIN_SETTING);
+
                 
                 String serverIP = Utility.getCtiServerIPAddress((String)key.GetValue(Constants.REG_ATTR_NAME_CTI_SERVER_NAME));
                 if (serverIP == null)
@@ -34,6 +35,7 @@ namespace AddinForOutlook
                     
                     return;
                 }
+
 
                 String port = (String)key.GetValue(Constants.REG_ATTR_NAME_PORT, Constants.DEFAULT_CTI_SERVICE_PORT);
                 string url = "https://" + serverIP + ":" + port + Constants.REST_VIRTUAL_PATH + calledNumber;
@@ -52,9 +54,12 @@ namespace AddinForOutlook
 
                 Logger.WriteEntry(LogLevel.Information, url);
 
+
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
                 request.Method = Constants.REST_METHOD;
                 request.Credentials = new NetworkCredential(username, password);
+
+                request.Proxy = null; // No proxy detection.
 
                 HttpWebResponse response = (HttpWebResponse)request.GetResponse();
                 if (response == null)
@@ -85,6 +90,7 @@ namespace AddinForOutlook
                         return;
                     }
                 }
+
             }
 
             catch (System.Net.WebException wex)
@@ -108,6 +114,5 @@ namespace AddinForOutlook
                 return;
             }
         }
-
     }
 }
