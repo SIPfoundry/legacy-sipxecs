@@ -8,6 +8,7 @@
  */
 package org.sipfoundry.sipxivr;
 
+import java.util.HashMap;
 import java.util.Vector;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -23,6 +24,7 @@ public class User {
     private boolean m_canRecordPrompts;
     private Vector<String> m_dialPatterns;
     private Vector<String> m_aliases;
+    private HashMap<String, DistributionList> m_distributionLists;
 
     public String getIdentity() {
         return m_identity;
@@ -96,6 +98,14 @@ public class User {
         this.m_dialPatterns = dialPatterns;
     }
     
+    public HashMap<String, DistributionList> getDistributionLists() {
+        return m_distributionLists;
+    }
+    
+    public void setDistributionLists(HashMap<String, DistributionList> distributionLists) {
+        this.m_distributionLists = distributionLists;
+    }
+    
     public Vector<String> getAliases() {
     	return m_aliases;
     }
@@ -114,4 +124,14 @@ public class User {
     public boolean isPinCorrect(String pin, String realm) {
         return m_pintoken.equals(hashPin(pin, realm));
     }
+
+    /*
+    public void addDistributionList(String digits, DistributionList dl) {
+        m_distributionLists.put(digits, dl);
+    }
+    
+    public DistributionList getDistributionList(String digits) {
+        return m_distributionLists.get(digits);
+    }
+    */
 }

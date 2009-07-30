@@ -86,6 +86,74 @@
       </complexType>
    </element>
 
+   <element name="mailbox" type="normalizedString">
+      <annotation>
+         <documentation>
+            Mailbox (userName) to include in the distribution list
+         </documentation>
+      </annotation>
+   </element>
+
+   <element name="systemlist" type="normalizedString">
+      <annotation>
+         <documentation>
+            System distribution list to include in the distribution list
+         </documentation>
+      </annotation>
+   </element>
+
+   <element name="digits" type="normalizedString">
+      <annotation>
+         <documentation>
+            The digits to dial to select this distribution list
+         </documentation>
+      </annotation>
+   </element>
+
+   <element name="id" type="normalizedString">
+      <annotation>
+         <documentation>
+            The id of the distribution list
+         </documentation>
+      </annotation>
+   </element>
+
+   <element name="audio" type="normalizedString">
+      <annotation>
+         <documentation>
+            The audio that describes the distribution list
+         </documentation>
+      </annotation>
+   </element>
+
+   <element name="list">
+      <annotation>
+         <documentation>Voicemail Distribution list</documentation>
+      </annotation>
+      <complexType>
+         <sequence>
+            <element ref="tns:mailbox" minOccurs="0" maxOccurs="unbounded"/>
+            <element ref="tns:systemlist" minOccurs="0" maxOccurs="unbounded"/>
+         </sequence>
+         <attribute name="digits" type="string" use="optional"/>
+         <attribute name="id" type="string" use="optional"/>
+         <attribute name="audio" type="string" use="optional"/>
+      </complexType>
+   </element>
+
+   <element name="distributions">
+      <annotation>
+         <documentation>
+            Voicemail Distribution lists for user 
+         </documentation>
+      </annotation>
+      <complexType>
+         <sequence>
+            <element ref="tns:list" minOccurs="0" maxOccurs="unbounded"/>
+         </sequence>
+      </complexType>
+   </element>
+
    <element name="user">
       <complexType mixed="false">
          <all  minOccurs="1" maxOccurs="1">
@@ -98,6 +166,7 @@
             <element ref="tns:inDirectory" maxOccurs="1" minOccurs="1"/>
             <element ref="tns:hasVoicemail" maxOccurs="1" minOccurs="0"/>
             <element ref="tns:canRecordPrompts" maxOccurs="1" minOccurs="0"/>
+            <element ref="tns:distributions" maxOccurs="1" minOccurs="0"/>
          </all>
       </complexType>
    </element>

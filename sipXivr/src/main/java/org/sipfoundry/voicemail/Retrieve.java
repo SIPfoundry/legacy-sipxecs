@@ -667,11 +667,13 @@ public class Retrieve {
             // Get a list of extensions 
             DialByNameChoice choice = EnterExtension.dialog(m_vm, m_loc);
             if (choice.getIvrChoiceReason() == IvrChoiceReason.SUCCESS) {
-                // Forward the message to each destination
+                // Forward the message to each destination that has a mailbox
                 for (User destUser : choice.getUsers()) {
-                    Mailbox destMailbox = new Mailbox(destUser);
-                    vmMessage.forward(destMailbox, comments);
-                    dontDeleteTempFile(commentsFile);
+                    if (destUser.hasVoicemail()) {
+                        Mailbox destMailbox = new Mailbox(destUser);
+                        vmMessage.forward(destMailbox, comments);
+                        dontDeleteTempFile(commentsFile);
+                    }
                 }
                 
                 // "Message forwarded."
@@ -749,19 +751,21 @@ public class Retrieve {
             // Get a list of extensions 
             DialByNameChoice choice = EnterExtension.dialog(m_vm, m_loc);
             if (choice.getIvrChoiceReason() == IvrChoiceReason.SUCCESS) {
-                // Forward the message to each destination
+                // Forward the message to each destination that has a mailbox
                 for (User destUser : choice.getUsers()) {
-                    Mailbox destMailbox = new Mailbox(destUser);
-                    if (message == null) {
-                        // Build a message with the recording sent by this user.
-                        message = Message.newMessage(destMailbox, recordingFile, 
-                                m_mailbox.getUser().getUri(), Priority.NORMAL);
-                        // Send the message.
-                        message.storeInInbox();
-                        dontDeleteTempFile(recordingFile);
-                    } else {
-                        // Copy the existing message
-                        message.getVmMessage().copy(destMailbox) ;
+                    if (destUser.hasVoicemail()) {
+                        Mailbox destMailbox = new Mailbox(destUser);
+                        if (message == null) {
+                            // Build a message with the recording sent by this user.
+                            message = Message.newMessage(destMailbox, recordingFile, 
+                                    m_mailbox.getUser().getUri(), Priority.NORMAL);
+                            // Send the message.
+                            message.storeInInbox();
+                            dontDeleteTempFile(recordingFile);
+                        } else {
+                            // Copy the existing message
+                            message.getVmMessage().copy(destMailbox) ;
+                        }
                     }
                 }
                 

@@ -28,10 +28,12 @@ public class CopyMessage {
             return false;
         }
         
-        // Store the message with each user in the list
+        // Store the message with each user in the list that has a mailbox
         for (User user : choice.getUsers()) {
-            Mailbox otherBox = new Mailbox(user);
-           existingMessage.copy(otherBox);
+            if (user.hasVoicemail()) {
+               Mailbox otherBox = new Mailbox(user);
+               existingMessage.copy(otherBox);
+            }
         }
         // "Your message has been copied."
         loc.play("deposit_copied", "");

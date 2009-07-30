@@ -49,6 +49,12 @@ public class ValidUsersXMLTest extends TestCase {
             "   <inDirectory>false</inDirectory>" +
             "   <hasVoicemail>true</hasVoicemail>" +
             "   <canRecordPrompts>false</canRecordPrompts>" +
+            "   <distributions>" +
+            "      <list digits=\"1\">" +
+            "         <mailbox>+9663</mailbox>" +
+            "         <mailbox>lab</mailbox>" +
+            "      </list>" +
+            "   </distributions>" +
             "  </user>" +
 			"  <user>" +
 			"   <aliases>" +
@@ -84,6 +90,8 @@ public class ValidUsersXMLTest extends TestCase {
 		vu.walkXML(validUsers) ;
 		User u = vu.isValidUser("+9663");  // primary user name
 		assertNotNull(u);
+        assertNotNull(u.getDistributionLists());
+        assertTrue(u.getDistributionLists().get("1").getList(null).contains("+9663"));
 		u = vu.isValidUser("lab");  // primary user name
 		assertNotNull(u);
 		assertEquals("lab", u.getUserName());

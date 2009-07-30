@@ -109,6 +109,7 @@ public class ValidUsersXML {
                 
                 User u = new User() ;
                 Vector<String> aliases = new Vector<String>();
+                HashMap<String, DistributionList> distributionLists = new HashMap<String, DistributionList>();
                 while (next != null) {
                     if (next.getNodeType() == Node.ELEMENT_NODE) {
                         String name = next.getNodeName();
@@ -141,6 +142,8 @@ public class ValidUsersXML {
                         		}
                         		alias = alias.getNextSibling();
                         	}
+                        } else if (name.contentEquals("distributions")) {
+                            loadDistributionLists(distributionLists, next);
                         }
                     } 
                     next = next.getNextSibling();
@@ -155,6 +158,9 @@ public class ValidUsersXML {
                 for (String alias : aliases) {
 					m_userNameMap.put(alias, u);
 				}
+                if (distributionLists.size() > 0) {
+                    u.setDistributionLists(distributionLists);
+                }
                 m_users.add(u);
             }
 
@@ -164,6 +170,45 @@ public class ValidUsersXML {
         }
     }
 
+    private String getAttribute(Node element, String attribute, String missingValue) {
+        String value = missingValue;
+        Node attNode = element.getAttributes().getNamedItem(attribute);
+        if (attNode != null) {
+            value = attNode.getNodeValue();
+        }
+        return value;
+    }
+
+    private void loadDistributionLists(HashMap<String, DistributionList> distributionLists, Node distributionNode) {
+        Node lists = distributionNode.getFirstChild() ;
+        while (lists != null) {
+            if (lists.getNodeType() == Node.ELEMENT_NODE) {
+                String name2 = lists.getNodeName();
+                if (name2.contentEquals("list")) {
+                    String digits = getAttribute(lists, "digits", null);
+                    String id = getAttribute(lists, "id", null);;
+                    String audio = getAttribute(lists, "audio", null);
+                    DistributionList dl = new DistributionList(id, audio);
+                    Node entry = lists.getFirstChild();
+                    while (entry != null) {
+                        if (entry.getNodeType() == Node.ELEMENT_NODE) {
+                            String name3 = entry.getNodeName();
+                            String text3 = entry.getTextContent().trim();
+                            if (name3.contentEquals("mailbox")) {
+                                dl.addMailboxString(text3);
+                            } else if (name3.contentEquals("systemlist")) {
+                                dl.addSystemListString(text3);
+                            }
+                        }
+                        entry = entry.getNextSibling();
+                    }
+                    distributionLists.put(digits, dl);
+                }
+            }
+            lists = lists.getNextSibling();
+        }
+    }
+    
     /**
      * Given a bunch of DTMF digits, return the list of users that matches
      * 

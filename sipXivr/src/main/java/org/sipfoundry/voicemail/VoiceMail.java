@@ -9,6 +9,7 @@
 
 package org.sipfoundry.voicemail;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Locale;
@@ -17,6 +18,7 @@ import java.util.Vector;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.sipxivr.DisconnectException;
+import org.sipfoundry.sipxivr.DistributionList;
 import org.sipfoundry.sipxivr.FreeSwitchEventSocketInterface;
 import org.sipfoundry.sipxivr.Hangup;
 import org.sipfoundry.sipxivr.IvrChoice;
@@ -46,6 +48,7 @@ public class VoiceMail {
     private ResourceBundle m_vmBundle;
     private Configuration m_config;
     private ValidUsersXML m_validUsers;
+    private HashMap<String, DistributionList> m_sysDistLists;
 
     private Hashtable<String, String> m_parameters;  // The parameters from the sip URI
     
@@ -204,34 +207,61 @@ public class VoiceMail {
      * @return A list of users on the distribution list, null on error
      */
     Vector<User> selectDistributionList() {
-        DistributionsReader dr = new DistributionsReader();
-        Distributions d = dr.readObject(m_mailbox.getDistributionListsFile()) ;
-
-        // "Please select the distribution list.  Press * to cancel."
-        PromptList pl = m_loc.getPromptList("deposit_select_distribution");
-        Menu menu = new VmMenu(this);
-        IvrChoice choice = menu.collectDigit(pl, d.getIndices());
-
-        if (!menu.isOkay()) {
-            return null;
-        }
-        String digit = choice.getDigits();
-        LOG.info("Mailbox "+m_mailbox.getUser().getUserName()+" selectDistributionList ("+digit+")");
+        String validDigits = "123456789";
+        Distributions d = null;
         
-        Vector<String> userNames = d.getList(digit);
-        if (userNames == null) {
-            return null ;
-        }
-        
-        Vector<User> users = new Vector<User>();
-        for (String userName : userNames) {
-            User u = m_validUsers.isValidUser(userName);
-            if (u != null) {
-                users.add(u);
+        // See if the new way to get distribution lists is being used.
+        HashMap<String, DistributionList> dlists = m_mailbox.getUser().getDistributionLists();
+        if (dlists == null) {
+            // Use the old way (distributionListsFile in the user's mailbox directory)
+            DistributionsReader dr = new DistributionsReader();
+            d = dr.readObject(m_mailbox.getDistributionListsFile()) ;
+            if (d != null) {
+                validDigits = d.getIndices();
             }
+        } else {
+            // Delete the old distributions.xml file so it isn't accidentally used later
+            m_mailbox.getDistributionListsFile().delete();
         }
         
-        return users;
+
+        for(;;) {
+            // "Please select the distribution list.  Press * to cancel."
+            PromptList pl = m_loc.getPromptList("deposit_select_distribution");
+            Menu menu = new VmMenu(this);
+            IvrChoice choice = menu.collectDigit(pl, validDigits);
+    
+            if (!menu.isOkay()) {
+                return null;
+            }
+            String digit = choice.getDigits();
+            LOG.info("Mailbox "+m_mailbox.getUser().getUserName()+" selectDistributionList ("+digit+")");
+            
+            Collection<String> userNames = null;
+            if (dlists != null) {
+                DistributionList list = dlists.get(digit);
+                if (list != null) {
+                    userNames = list.getList(m_sysDistLists);
+                }
+            } else if (d != null) {
+                userNames = d.getList(digit);
+            }
+                
+            if (userNames != null) {
+                Vector<User> users = new Vector<User>();
+                for (String userName : userNames) {
+                    User u = m_validUsers.isValidUser(userName);
+                    if (u != null && u.hasVoicemail()) {
+                        users.add(u);
+                    }
+                }
+                
+                return users;
+            }
+
+            // "The list you have selected is not valid"
+            m_loc.play("deposit_distribution_notvalid", "");
+        }
     }
     
 
@@ -354,6 +384,10 @@ public class VoiceMail {
     
     public void setLoc(Localization loc) {
         m_loc = loc;
+    }
+    
+    public HashMap<String, DistributionList> getSysDistList() {
+        return m_sysDistLists;
     }
     
     /**
