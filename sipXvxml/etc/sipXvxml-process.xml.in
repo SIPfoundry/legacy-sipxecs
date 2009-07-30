@@ -25,8 +25,8 @@
     <osconfig>@SIPX_CONFDIR@/voicemail-config</osconfig>
     <file>@SIPX_CONFDIR@/voicemail.xml</file>
     <file>@SIPX_CONFDIR@/mediaserver-config</file>
-    <imdb>credential</imdb> 
+    <imdb>credential</imdb>
     <imdb>extension</imdb><!-- actually used by DialByNameCGI and MailboxManager, 
-                                                 but there is no process definition for the cgis -->
+                               but there is no process definition for the cgis -->
   </resources>
 </sipXecs-process>
