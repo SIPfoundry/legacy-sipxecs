@@ -231,7 +231,7 @@ class OsTimer : public UtlContainableAtomic
 
 /* ============================ INQUIRY =================================== */
 
-   /// Compare the this object to another like-objects.
+   /// Compare the this object to another like-object.
    virtual int compareTo(UtlContainable const *) const;
    /**
     * Results for comparing with a non-like object are undefined.
