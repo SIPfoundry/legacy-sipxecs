@@ -65,7 +65,7 @@ public abstract class BridgeSbcStatisticsPage extends BasePage implements PageBe
         List<BridgeSbc> bridgeSbcs = getSbcDeviceManager().getBridgeSbcs();
 
         if (getCurrentLocationId() == 0) {
-            setCurrentLocationId(((BridgeSbc) bridgeSbcs.get(0)).getLocation().getId());
+            setCurrentLocationId(bridgeSbcs.get(0).getLocation().getId());
         }
 
         BridgeSbc bridgeSbc = getSbcDeviceManager().getBridgeSbc(getLocationsManager().

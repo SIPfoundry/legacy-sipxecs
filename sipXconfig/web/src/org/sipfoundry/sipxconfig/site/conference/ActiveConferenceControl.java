@@ -183,11 +183,8 @@ public abstract class ActiveConferenceControl extends BaseComponent implements P
 
     public String getNicknameForCurrentMember() {
         String nickname = getConferenceMemberNicknameMap().get(getCurrentMember().getUuid());
-        if (StringUtils.isNotEmpty(nickname)) {
-            return nickname;
-        } else {
-            return "Add a nickname";
-        }
+        // FIXME: needs to be localized
+        return StringUtils.defaultIfEmpty(nickname, "Add a nickname");
     }
 
     public abstract class Action implements Closure {

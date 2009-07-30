@@ -12,17 +12,20 @@ package org.sipfoundry.sipxconfig.service;
 
 import java.util.Arrays;
 
-import org.easymock.classextension.EasyMock;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.test.TestUtil;
+
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
 
 public class AppearanceGroupsConfigurationTest extends SipxServiceTestBase {
     public void testWrite() throws Exception {
         AppearanceGroupsConfiguration out = new AppearanceGroupsConfiguration();
         out.setTemplate("sipxsaa/appearance-groups.vm");
 
-        CoreContext coreContext = EasyMock.createMock(CoreContext.class);
+        CoreContext coreContext = createMock(CoreContext.class);
         coreContext.getSharedUsers();
 
         User firstSharedUser = new User();
@@ -30,10 +33,10 @@ public class AppearanceGroupsConfigurationTest extends SipxServiceTestBase {
         User secondSharedUser = new User();
         secondSharedUser.setUserName("321");
 
-        EasyMock.expectLastCall().andReturn(Arrays.asList(new User[] {
+        expectLastCall().andReturn(Arrays.asList(new User[] {
             firstSharedUser, secondSharedUser
         }));
-        EasyMock.replay(coreContext);
+        replay(coreContext);
 
         out.setCoreContext(coreContext);
 

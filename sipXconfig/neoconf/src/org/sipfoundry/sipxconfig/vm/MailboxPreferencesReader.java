@@ -44,11 +44,11 @@ public class MailboxPreferencesReader extends XmlReaderImpl<MailboxPreferences> 
         boolean attachFirstVoicemailToEmail = getAttachVoicemail(0, contacts);
         prefs.setSynchronizeWithEmailServer(synchronize);
         if (synchronize) {
-            prefs.setVoicemailProperties(prefs.SYNCHRONIZE_WITH_EMAIL_SERVER);
+            prefs.setVoicemailProperties(MailboxPreferences.SYNCHRONIZE_WITH_EMAIL_SERVER);
         } else if (attachFirstVoicemailToEmail) {
-            prefs.setVoicemailProperties(prefs.ATTACH_VOICEMAIL);
+            prefs.setVoicemailProperties(MailboxPreferences.ATTACH_VOICEMAIL);
         } else {
-            prefs.setVoicemailProperties(prefs.DO_NOT_ATTACH_VOICEMAIL);
+            prefs.setVoicemailProperties(MailboxPreferences.DO_NOT_ATTACH_VOICEMAIL);
         }
         return prefs;
     }

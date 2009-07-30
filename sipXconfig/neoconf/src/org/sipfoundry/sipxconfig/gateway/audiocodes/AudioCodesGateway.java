@@ -1,19 +1,17 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
@@ -33,21 +31,20 @@ public abstract class AudioCodesGateway extends Gateway {
     private static final String REL_5_4_OR_LATER = "5.4orLater";
     private static final String REL_5_6_OR_LATER = "5.6orLater";
     private static final String[] COPY_FILES = {CALL_PROGRESS_TONES_FILE, FXS_LOOP_CHARACTERISTICS_FILE};
-    
+
     public AudioCodesGateway() {
         setDeviceVersion(AudioCodesModel.REL_5_4);
-    }    
-    
+    }
+
     public void setDefaultVersionId(String defaultVersionId) {
         setDeviceVersion(DeviceVersion.getDeviceVersion(BEAN_ID + defaultVersionId));
-    }    
+    }
 
     @Override
     public void setDeviceVersion(DeviceVersion version) {
         super.setDeviceVersion(version);
         DeviceVersion myVersion = getDeviceVersion();
 
-        Set<String> supportedFeatures = new HashSet<String>();
         if (myVersion == AudioCodesModel.REL_5_4) {
             myVersion.addSupportedFeature(REL_5_4_OR_LATER);
         } else if (myVersion == AudioCodesModel.REL_5_6) {
@@ -98,18 +95,20 @@ public abstract class AudioCodesGateway extends Gateway {
         }
     }
 
+    @Override
     protected void copyFiles(ProfileLocation location) {
         super.copyFiles(location);
         copyGatewayFiles(location);
     }
 
     private static class GatewayDirectorySetter extends AbstractSettingVisitor {
-        private String m_gatewayDirectory;
+        private final String m_gatewayDirectory;
 
         public GatewayDirectorySetter(String directory) {
             m_gatewayDirectory = directory;
         }
 
+        @Override
         public void visitSetting(Setting setting) {
             SettingType type = setting.getType();
             if (type instanceof FileSetting) {

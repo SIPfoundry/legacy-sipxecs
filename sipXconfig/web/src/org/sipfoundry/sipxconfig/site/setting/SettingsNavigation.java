@@ -14,8 +14,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.tapestry.IActionListener;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Parameter;
@@ -25,8 +23,7 @@ import org.sipfoundry.sipxconfig.site.common.BeanNavigation;
 import org.springframework.context.MessageSource;
 
 /**
- * Control navigation of a sidebar in following
- * setup :
+ * Control navigation of a sidebar in following setup :
  *
  *   +-----------------+------------------+
  *   +  page1          |                  |
@@ -39,8 +36,6 @@ import org.springframework.context.MessageSource;
  *   +-----------------+------------------+
  */
 public abstract class SettingsNavigation extends BeanNavigation {
-    private static final Log LOG = LogFactory.getLog(SettingsNavigation.class);
-
     @Parameter(required = true)
     public abstract IActionListener getEditSettingsListener();
 
@@ -97,25 +92,24 @@ public abstract class SettingsNavigation extends BeanNavigation {
             }
         }
 
-        //creates a copy of s and work on it, in order to avoid ConcurrentModificationException
-        if (s != null) {
-            Collection<Setting> copyOfS = new ArrayList<Setting>();
-            for (Setting setting : s) {
-                copyOfS.add(setting);
-            }
-
-            if (getGroupsToHide() != null) {
-                List<String> groupsToHide = Arrays.asList(getGroupsToHide().split(","));
-                for (Setting setting : s) {
-                    if (groupsToHide.contains(setting.getName())) {
-                        copyOfS.remove(setting);
-                    }
-                }
-            }
-            return copyOfS;
-        } else {
+        // creates a copy of s and work on it, in order to avoid ConcurrentModificationException
+        if (s == null) {
             return s;
         }
+        Collection<Setting> copyOfS = new ArrayList<Setting>();
+        for (Setting setting : s) {
+            copyOfS.add(setting);
+        }
+
+        if (getGroupsToHide() != null) {
+            List<String> groupsToHide = Arrays.asList(getGroupsToHide().split(","));
+            for (Setting setting : s) {
+                if (groupsToHide.contains(setting.getName())) {
+                    copyOfS.remove(setting);
+                }
+            }
+        }
+        return copyOfS;
     }
 
     @Override
@@ -131,5 +125,3 @@ public abstract class SettingsNavigation extends BeanNavigation {
         }
     }
 }
-
-

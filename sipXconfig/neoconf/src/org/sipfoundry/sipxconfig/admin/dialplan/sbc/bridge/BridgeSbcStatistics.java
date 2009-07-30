@@ -36,12 +36,8 @@ public class BridgeSbcStatistics {
             return 0;
         }
 
-        Integer callCountMap = 0;
-
         BridgeSbcXmlRpcApi api = m_bridgeSbcApiProvider.getApi(bridgeSbc.getBridgeSbcXmlRpcUrl());
-        callCountMap = (Integer) api.getCallCount();
-
-        return callCountMap;
+        return api.getCallCount();
     }
 
     /**

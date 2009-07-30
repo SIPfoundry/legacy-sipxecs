@@ -11,6 +11,8 @@ package org.sipfoundry.sipxconfig.site.vm;
 
 import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.annotations.InjectObject;
@@ -53,6 +55,7 @@ public abstract class MailboxPreferencesForm extends BaseComponent implements Pa
     }
 
     public IPropertySelectionModel getVoicemailPropertiesModel() {
+        // FIXME: why not just check user properties directly...
         List<Group> groups = getPreferences().getUser().getGroupsAsList();
         boolean unifiedMessagingParamsGroup = false;
         for (Group group : groups) {
@@ -72,16 +75,11 @@ public abstract class MailboxPreferencesForm extends BaseComponent implements Pa
                 break;
             }
         }
-        String[] options;
+        String[] options = new String[] {
+            MailboxPreferences.ATTACH_VOICEMAIL, MailboxPreferences.DO_NOT_ATTACH_VOICEMAIL
+        };
         if (unifiedMessagingParamsGroup) {
-            options = new String[] {
-                getPreferences().ATTACH_VOICEMAIL, getPreferences().DO_NOT_ATTACH_VOICEMAIL,
-                getPreferences().SYNCHRONIZE_WITH_EMAIL_SERVER
-            };
-        } else {
-            options = new String[] {
-                getPreferences().ATTACH_VOICEMAIL, getPreferences().DO_NOT_ATTACH_VOICEMAIL
-            };
+            options = (String[]) ArrayUtils.add(options, MailboxPreferences.SYNCHRONIZE_WITH_EMAIL_SERVER);
         }
         StringPropertySelectionModel model = new StringPropertySelectionModel(options);
         return new LocalizedOptionModelDecorator(model, getMessages(), "voicemailProperties.");
