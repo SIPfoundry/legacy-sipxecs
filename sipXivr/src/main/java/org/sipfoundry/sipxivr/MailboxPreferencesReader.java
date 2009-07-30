@@ -63,8 +63,12 @@ public class MailboxPreferencesReader extends XmlReaderImpl<MailboxPreferences> 
             return null;
         }
         
-        String pwd = new String(Base64.decodeBase64(contacts.get(0).attributeValue("password").getBytes()));
-        return pwd;          
+        String pwd = contacts.get(0).attributeValue("password");
+        if(pwd == null) 
+            return null;
+        
+        String thepwd = new String(Base64.decodeBase64(pwd.getBytes()));
+        return thepwd;          
     }
     
     private String getIMAPServer(List<Element> imapconfig) {        
