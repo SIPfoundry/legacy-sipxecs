@@ -39,7 +39,7 @@ AC_DEFUN([CHECK_CLOVER],
 AC_DEFUN([CHECK_OPENFIRE],
 [
     AC_ARG_ENABLE(openfire,
-       AC_HELP_STRING([--disable-openfire], [openfire integration]), enable_openfire=no, enable_openfire=yes)
+    AC_HELP_STRING([--enable-openfire], [openfire integration]), enable_openfire=yes, enable_openfire=no)
 
     AC_ARG_VAR(OPENFIRE_HOME, [Openfire home directory])
     AC_CHECK_FILE([$OPENFIRE_HOME],
