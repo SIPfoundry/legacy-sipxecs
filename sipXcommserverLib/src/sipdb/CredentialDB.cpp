@@ -540,13 +540,8 @@ CredentialDB::getRowCount () const
 
    dbQuery query;
    query="";
+   count = cursor.select( query );
 
-   if ( cursor.select( query ) > 0 )
-   {
-      do {
-         count++;
-      } while ( cursor.next() );
-   }
    // Commit rows to memory - multiprocess workaround
    m_pFastDB->detach(0);
 

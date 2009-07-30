@@ -309,7 +309,7 @@ SIPDBManager::getNumDatabaseProcesses ( const UtlString& tablename ) const
         // Thread Local Storage
         spFastDB->attach();
 
-        // Now count the number or processes
+        // Now count the number of processes
         dbCursor< TableInfo > cursor;
         dbQuery query;
         query="tablename=",tablename;
