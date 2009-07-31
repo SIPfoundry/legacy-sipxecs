@@ -40,7 +40,6 @@ import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 
 public abstract class UserGroupSettings extends GroupSettings {
-    @SuppressWarnings("hiding")
     public static final String PAGE = "user/UserGroupSettings";
 
     private static final String SCHEDULES = "schedules";
@@ -164,8 +163,7 @@ public abstract class UserGroupSettings extends GroupSettings {
         Setting settings = group.inherhitSettingsForEditing(getBean());
         setSettings(settings);
 
-        if (getFirstRun()
-                || (null != getTab() && getParentSettingName() == null)
+        if (getFirstRun() || (null != getTab() && getParentSettingName() == null)
                 || (null != getTab() && !getIsTabsSelected())) {
             setParentSetting(null);
             setParentSettingName(null);
@@ -214,13 +212,12 @@ public abstract class UserGroupSettings extends GroupSettings {
         return (CONFERENCE.equalsIgnoreCase(getParentSettingName()));
     }
 
-
     public void onSpeedDialSubmit() {
         // XCF-1435 - Unless attempting to save data (e.g. onApply and the like)
         // clear all form errors
-        //   A.) user is probably not done and errors are disconcerting
-        //   B.) tapestry rewrites form values that are invalid on the button move operations
-        // NOTE:  This relies on the fact the the form listener is called BEFORE AND IN ADDITION TO
+        // A.) user is probably not done and errors are disconcerting
+        // B.) tapestry rewrites form values that are invalid on the button move operations
+        // NOTE: This relies on the fact the the form listener is called BEFORE AND IN ADDITION TO
         // the button listener.
         if (!isValidationEnabled()) {
             TapestryUtils.getValidator(this).clearErrors();

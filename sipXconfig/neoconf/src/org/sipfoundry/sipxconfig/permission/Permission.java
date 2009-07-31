@@ -24,8 +24,9 @@ import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
  */
 public class Permission implements Comparable<Permission>, PrimaryKeySource {
     public enum Type {
-        APPLICATION(APPLICATION_NAME, APPLICATION_PATH), CALL(CALLHANDLING_NAME,
-                CALL_PERMISSION_PATH), VOICEMAIL_SERVER(VOICEMAIL_NAME, VOICEMAIL_SERVER_PATH);
+        APPLICATION(APPLICATION_NAME, APPLICATION_PATH), 
+        CALL(CALLHANDLING_NAME, CALL_PERMISSION_PATH),
+        VOICEMAIL_SERVER(VOICEMAIL_NAME, VOICEMAIL_SERVER_PATH);
 
         private String m_name;
         private String m_path;
@@ -124,12 +125,10 @@ public class Permission implements Comparable<Permission>, PrimaryKeySource {
         return m_defaultValue;
     }
 
-    @SuppressWarnings("unused")
     public String getLabel(Locale locale) {
         return getLabel();
     }
 
-    @SuppressWarnings("unused")
     public String getDescription(Locale locale) {
         return getDescription();
     }
@@ -160,8 +159,7 @@ public class Permission implements Comparable<Permission>, PrimaryKeySource {
         Permission rhs = (Permission) obj;
         // only compare name and type - make sure that you compare names using getName (and not
         // m_name)
-        return new EqualsBuilder().append(m_type, rhs.m_type).append(getName(), rhs.getName())
-                .isEquals();
+        return new EqualsBuilder().append(m_type, rhs.m_type).append(getName(), rhs.getName()).isEquals();
     }
 
     public int hashCode() {

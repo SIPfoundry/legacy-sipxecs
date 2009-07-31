@@ -47,8 +47,7 @@ public class Upload extends BeanWithSettings {
     private boolean m_deployed;
     private String m_directoryId;
     private ModelSource<UploadSpecification> m_specificationSource;
-    
-    
+
     public Upload() {
     }
 
@@ -60,11 +59,11 @@ public class Upload extends BeanWithSettings {
         m_beanId = specification.getBeanId();
         m_specification = specification;
     }
-    
+
     void setDirectoryId(String directory) {
         m_directoryId = directory;
     }
-    
+
     String getDirectoryId() {
         return m_directoryId != null ? m_directoryId : getId().toString();
     }
@@ -74,10 +73,10 @@ public class Upload extends BeanWithSettings {
     }
 
     /**
-     * Should only be called by DB marshalling and subclasses. See deploy and undeploy 
+     * Should only be called by DB marshalling and subclasses. See deploy and undeploy
      */
     public void setDeployed(boolean deployed) {
-        m_deployed = deployed;        
+        m_deployed = deployed;
     }
 
     public UploadSpecification getSpecification() {
@@ -102,19 +101,18 @@ public class Upload extends BeanWithSettings {
      * Internal, do not call this method. Hibnerate property declared update=false, but still
      * required method be defined.
      */
-    @SuppressWarnings("unused")    
     public void setBeanId(String illegal_) {
     }
 
     public String getSpecificationId() {
         return m_specificationId;
     }
-    
+
     public void setSpecification(UploadSpecification specification) {
         m_specification = specification;
     }
-    
-    public void setSpecificationId(String specificationId) {        
+
+    public void setSpecificationId(String specificationId) {
         m_specificationId = specificationId;
         m_specification = null;
     }
@@ -124,9 +122,9 @@ public class Upload extends BeanWithSettings {
         String modelFile = getSpecification().getModelFilePath();
         Setting settings = getModelFilesContext().loadModelFile(modelFile);
 
-        // Hack, bean id should be valid 
-        settings.acceptVisitor(new UploadDirectorySetter());        
-        
+        // Hack, bean id should be valid
+        settings.acceptVisitor(new UploadDirectorySetter());
+
         return settings;
     }
 
@@ -139,19 +137,18 @@ public class Upload extends BeanWithSettings {
             }
         }
     }
-    
+
     private class FileDeployer extends AbstractSettingVisitor {
         public void visitSetting(Setting setting) {
             SettingType type = setting.getType();
             if (type instanceof FileSetting) {
                 String filename = setting.getValue();
-                                               
+
                 if (filename != null) {
-                    String contentType = ((FileSetting) type).getContentType();  
+                    String contentType = ((FileSetting) type).getContentType();
                     if (contentType.equalsIgnoreCase(ZIP_TYPE)) {
-                        deployZipFile(new File(getDestinationDirectory()), new File(
-                            getUploadDirectory(), filename));
-                    } else  {
+                        deployZipFile(new File(getDestinationDirectory()), new File(getUploadDirectory(), filename));
+                    } else {
                         deployFile(filename);
                     }
                 }
@@ -165,10 +162,10 @@ public class Upload extends BeanWithSettings {
             if (type instanceof FileSetting) {
                 String filename = setting.getValue();
                 if (filename != null) {
-                    String contentType = ((FileSetting) type).getContentType();  
+                    String contentType = ((FileSetting) type).getContentType();
                     if (contentType.equalsIgnoreCase(ZIP_TYPE)) {
-                        undeployZipFile(new File(getDestinationDirectory()), new File(
-                                getUploadDirectory(), filename));
+                        undeployZipFile(new File(getDestinationDirectory()),
+                                new File(getUploadDirectory(), filename));
                     } else {
                         File f = new File(getDestinationDirectory(), filename);
                         f.delete();
@@ -177,7 +174,7 @@ public class Upload extends BeanWithSettings {
             }
         }
     }
-    
+
     private void deployFile(String file) {
         InputStream from;
         try {
@@ -190,8 +187,7 @@ public class Upload extends BeanWithSettings {
             throw new RuntimeException(e);
         }
     }
-    
-            
+
     public String getName() {
         return m_name;
     }
@@ -203,22 +199,22 @@ public class Upload extends BeanWithSettings {
     public String getDescription() {
         return m_description;
     }
-    
+
     public void setDescription(String description) {
         m_description = description;
     }
-    
+
     public void setDestinationDirectory(String destinationDirectory) {
         m_destinationDirectory = destinationDirectory;
     }
-    
+
     public String getDestinationDirectory() {
         return m_destinationDirectory;
     }
 
     /**
      * delete all files
-     */       
+     */
     public void remove() {
         undeploy();
         File uploadDirectory = new File(getUploadDirectory());
@@ -228,19 +224,20 @@ public class Upload extends BeanWithSettings {
             LOG.error("Could not remove uploaded files", cantDelete);
         }
     }
-    
+
     public void setUploadRootDirectory(String uploadDirectory) {
         m_uploadRootDirectory = uploadDirectory;
     }
-    
+
     public String getUploadDirectory() {
         return m_uploadRootDirectory + '/' + getDirectoryId();
     }
+
     public void deploy() {
         getSettings().acceptVisitor(new FileDeployer());
         m_deployed = true;
     }
-    
+
     public void undeploy() {
         getSettings().acceptVisitor(new FileUndeployer());
         m_deployed = false;
@@ -253,8 +250,7 @@ public class Upload extends BeanWithSettings {
     public void setUploadSpecificationSource(ModelSource<UploadSpecification> specificationSource) {
         m_specificationSource = specificationSource;
     }
-    
-    
+
     /**
      * Uses zip file list and list of files to be deleted
      */

@@ -35,7 +35,7 @@ public abstract class PortSettings extends PageWithCallback implements PageBegin
     public abstract Integer getPortId();
 
     public abstract void setPortId(Integer id);
-    
+
     @Persist
     public abstract void setRuleId(Integer ruleId);
 
@@ -52,7 +52,6 @@ public abstract class PortSettings extends PageWithCallback implements PageBegin
 
     public abstract void setParentSetting(Setting parent);
 
-    @SuppressWarnings("unused")
     public IPage editSettings(Integer portId, String section) {
         setParentSettingName(section);
         return this;

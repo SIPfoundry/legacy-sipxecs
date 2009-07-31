@@ -69,7 +69,6 @@ public class Gateway extends Device implements NamedObject {
     public void initialize() {
     }
 
-    @SuppressWarnings("unused")
     public void initializePort(FxoPort port) {
     }
 

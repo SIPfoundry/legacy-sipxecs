@@ -183,7 +183,6 @@ public abstract class Phone extends Device {
         return m_lines.get(position);
     }
 
-    @SuppressWarnings("unused")
     public void initializeLine(Line line) {
     }
 
@@ -208,7 +207,7 @@ public abstract class Phone extends Device {
 
     /**
      * Find a phone user. By convention phone user is a user associated with the phone first line.
-     *
+     * 
      */
     public User getPrimaryUser() {
         List<Line> lines = getLines();

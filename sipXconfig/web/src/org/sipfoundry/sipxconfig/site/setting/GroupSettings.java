@@ -56,7 +56,7 @@ public abstract class GroupSettings extends PageWithCallback implements PageBegi
     public abstract BeanWithGroups getBean();
 
     public abstract void setBean(BeanWithGroups bean);
-    
+
     @Bean()
     public abstract SipxValidationDelegate getValidator();
 
@@ -72,7 +72,6 @@ public abstract class GroupSettings extends PageWithCallback implements PageBegi
         setReturnPage(returnPage);
     }
 
-    @SuppressWarnings("unused")
     public void editGroupSettings(Integer beanId, String settingName) {
         setParentSettingName(settingName);
     }

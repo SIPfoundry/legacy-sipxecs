@@ -28,9 +28,7 @@ public final class BinaryFormatConverter {
     private BinaryFormatConverter() {
     }
 
-    @SuppressWarnings("unused")
-    public static void convert(String macAddress, InputStream in_, OutputStream out)
-        throws IOException {
+    public static void convert(String macAddress, InputStream in_, OutputStream out) throws IOException {
         BufferedOutputStream bout = new BufferedOutputStream(out);
         bout.write(HEADER);
         try {

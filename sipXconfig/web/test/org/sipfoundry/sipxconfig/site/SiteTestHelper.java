@@ -156,7 +156,7 @@ public class SiteTestHelper {
      * Works only for pages that use "user:error:text" id to display user errors. All pages with
      * ErrorMsg component belong to this category. It does check for tapestry errors as well: no
      * need to call assertNoException.
-     *
+     * 
      * Handling errors is kind of strange: there is no easy way to get text by id, so we do not
      * bother unless we discover that there is "user:error" in the page.
      */
@@ -186,7 +186,7 @@ public class SiteTestHelper {
 
     /**
      * Translates between Tapestry index and normal index
-     *
+     * 
      * @param id
      * @param index
      */
@@ -201,7 +201,7 @@ public class SiteTestHelper {
 
     /**
      * Select/unselect rows in the table Only works if there is a single table on the screen.
-     *
+     * 
      * @param tester
      * @param index row number starting from 0
      * @param enable True to select checkbox, false otherwise
@@ -231,7 +231,7 @@ public class SiteTestHelper {
 
     /**
      * Translates between Tapestry index and normal index
-     *
+     * 
      * @param id HTML element id
      * @param index tapestry index
      */
@@ -290,7 +290,7 @@ public class SiteTestHelper {
 
     /**
      * Get the full path and copy file from etc incase there are modiifcations to it
-     *
+     * 
      * @param path relative to etc dir e.g. "kphone/phone.xml"
      * @return full path to config file
      */
@@ -316,8 +316,8 @@ public class SiteTestHelper {
     }
 
     /**
-     * Write out sipxconfig.properties for testing arg 0 - any path in the testing classpath arg 1 -
-     * path to artificial root directory arg 2 - where output is generated
+     * Write out sipxconfig.properties for testing arg 0 - any path in the testing classpath arg 1
+     * - path to artificial root directory arg 2 - where output is generated
      */
     public static void main(String[] args) {
         Properties sysProps = new Properties();
@@ -333,7 +333,8 @@ public class SiteTestHelper {
         sysProps.setProperty("orbitsGenerator.audioDirectory", systemDirectory + "/parkserver/music");
         sysProps.setProperty("sipxPageService.audioDir", systemDirectory + "/sipxpage/music");
         sysProps.setProperty("acdQueue.audioDirectory", systemDirectory + "/acd/audio");
-        sysProps.setProperty("sysdir.vxml.prompts", TestUtil.getTestOutputDirectory("web") + "/artificial-system-root/prompts");
+        sysProps.setProperty("sysdir.vxml.prompts", TestUtil.getTestOutputDirectory("web")
+                + "/artificial-system-root/prompts");
         TestUtil.saveSysDirProperties(sysProps, args[0]);
     }
 
@@ -366,7 +367,7 @@ public class SiteTestHelper {
 
     /**
      * Create a new group, user or phone
-     *
+     * 
      * @param pageLinkId From the TestPage, what link to click to get to new group page
      */
     public static void seedGroup(WebTester tester, String pageLinkId, int count) {
@@ -382,7 +383,7 @@ public class SiteTestHelper {
 
     /**
      * Initializes upload elements on the form using ad hoc created temporary file.
-     *
+     * 
      * @param form form for which upload fields will be initialized
      * @param fileNamePrefix at least 3 chatracters - use test name
      */
@@ -398,7 +399,6 @@ public class SiteTestHelper {
     /**
      * Turn on/off javascript, make sure to restore state to true after you're done
      */
-    @SuppressWarnings("unused")
     public static boolean setScriptingEnabled(WebTester tester, boolean enabled) {
         // FIXME: always switch off - dojo is not parsed correctly
         tester.setScriptingEnabled(false);
@@ -418,8 +418,8 @@ public class SiteTestHelper {
         return row.getCellCount();
     }
 
-    public static void clickSubmitLink(WebTester tester, String linkName) {       
-        tester.setTextField(FormConstants.SUBMIT_NAME_PARAMETER, linkName);        
+    public static void clickSubmitLink(WebTester tester, String linkName) {
+        tester.setTextField(FormConstants.SUBMIT_NAME_PARAMETER, linkName);
         tester.submitForm();
     }
 

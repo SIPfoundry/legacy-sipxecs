@@ -14,7 +14,7 @@ import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 
 public abstract class ConfiguredService extends BeanWithSettings implements NamedObject {
-    private String m_address;    
+    private String m_address;
     private String m_name;
     private String m_description;
     private String m_beanId;
@@ -34,7 +34,7 @@ public abstract class ConfiguredService extends BeanWithSettings implements Name
         m_beanId = descriptor.getBeanId();
         m_descriptorId = descriptor.getModelId();
     }
-    
+
     public String getBeanId() {
         return m_beanId;
     }
@@ -57,7 +57,6 @@ public abstract class ConfiguredService extends BeanWithSettings implements Name
      * Internal, do not call this method. Hibnerate property declared update=false, but still
      * required method be defined.
      */
-    @SuppressWarnings("unused")    
     public void setBeanId(String illegal_) {
     }
 

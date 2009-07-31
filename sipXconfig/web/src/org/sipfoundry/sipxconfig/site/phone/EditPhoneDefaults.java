@@ -108,14 +108,12 @@ public abstract class EditPhoneDefaults extends BasePage implements PageBeginRen
         return getLine().getSettings().getValues();
     }
 
-    @SuppressWarnings("unused")
     public IPage editPhoneSettingsClicked(Integer beanId, String settingName) {
         setResourceId(PHONE_SETTINGS);
         setEditFormSettingName(settingName);
         return getPage();
     }
 
-    @SuppressWarnings("unused")
     public IPage editLineSettingsClicked(Integer beanId, String settingName) {
         setResourceId(LINE_SETTITNGS);
         setEditFormSettingName(settingName);
