@@ -12,6 +12,8 @@
 
 #include "net/SipLineList.h"
 
+//#define TEST_PRINT 1
+
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -365,8 +367,9 @@ SipLine* SipLineList::findLine(const char* lineId,
            : pLineMatchingUser    ? pLineMatchingUser
            : pLineMatchingDefault ? pLineMatchingDefault
            : NULL );
-   
-   OsSysLog::add(FAC_LINE_MGR, PRI_DEBUG, "SipLineList::findLine %s",
+
+   OsSysLog::add(FAC_LINE_MGR, PRI_DEBUG, 
+                 "SipLineList::findLine %s",
                  foundLine ? "found" : "NOT found");
  
    return foundLine;

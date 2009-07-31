@@ -99,10 +99,11 @@ public:
     //virtual void conferenceAddParty();
 
     Connection* addParty(const char* partyAddress, const char* callController,
-        const char* originalCallConnectionAddress, const char* pNewCallId,
-        CONTACT_ID contactId = 0,
-        const void* pDisplay = NULL,
-		const char* originalCallId = NULL);
+                         const char* originalCallConnectionAddress, const char* pNewCallId,
+                         CONTACT_ID contactId = 0, const void* pDisplay = NULL,
+                         const char* originalCallId = NULL,
+                         const char* paiAddress = NULL);
+
     Connection* stringDial(OsMsg& eventMessage, UtlString& dialString);
 
 

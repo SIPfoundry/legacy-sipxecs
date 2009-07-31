@@ -227,6 +227,12 @@ public:
         CP_INVALID_SIP_URL
     };
 
+    enum AddHeaderType
+    {
+        NoAddedHdr = 0,
+        AddPaiHdr
+    };
+
 /* ============================ CREATORS ================================== */
 
     //! Default constructor
@@ -305,7 +311,8 @@ public:
                              const char* fromAddress = NULL,
                              const char* desiredConnectionCallId = NULL,
                              CONTACT_ID contactId = 0,
-                             const void* pDisplay = NULL) = 0;
+                             const void* pDisplay = NULL,
+                             const bool sendPAIheader = 0) = 0;
 
     //! Create a new call and associate it with an existing call.
     /*! This is usually done to create the consultative call as a

@@ -24,6 +24,8 @@
 #include <net/Url.h>
 #include <net/XmlRpcRequest.h>
 #include <sipXecsService/SipXecsService.h>
+#include "sipXecsService/SharedSecret.h"
+#include "net/SipXauthIdentity.h"
 
 #include "ACDCallManager.h"
 #include "ACDLineManager.h"
@@ -143,6 +145,9 @@ ACDServer::ACDServer(int provisioningAgentPort, int watchdogRpcServerPort)
                        " realm not configured: transfer functions will not work."
                        );
       }
+      // Set secret for signing SipXauthIdentity
+      SharedSecret secret(domainConfiguration);
+      SipXauthIdentity::setSecret(secret.data());
    }
    else
    {

@@ -229,6 +229,11 @@ class SipXauthIdentity
     * @Note  Existing identity info in the URI is removed
     */
 
+   bool encodeUri(Url              & uri,                ///< target URI to get encoded identity
+                  const char*    pCallId,
+                  const Url      fromUrl,
+                  const OsDateTime * timestamp = NULL);    ///< timestamp for generated identity
+
    /// Initialize the signature validity interval
    static void setSignatureValidityInterval(const OsTime & interval);
    /**<

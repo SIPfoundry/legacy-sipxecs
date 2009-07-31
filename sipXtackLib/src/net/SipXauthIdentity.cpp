@@ -261,6 +261,50 @@ bool SipXauthIdentity::encodeUri(Url             & uri,     ///< target URI to g
    return mIsValidIdentity;
 }
 
+/// Encode identity info into a URL
+bool SipXauthIdentity::encodeUri(Url              & uri,
+                                 const char*    pCallId,
+                                 const Url      fromUrl,
+                                 const OsDateTime * timestamp)
+{
+   // Don't proceed if the encapsulated identity is invalid
+   if (!mIsValidIdentity)
+   {
+      OsSysLog::add(FAC_SIP, PRI_CRIT,
+                    "SipXauthIdentity::encodeUri[no msg]: "
+                    "encapsulated SipXauthIdentity is invalid");
+   }
+   else
+   {
+      // make sure no existing identity in the URI
+      uri.removeHeaderParameter(SipXauthIdentity::PAssertedIdentityHeaderName);
+      // set Call-Id and from-tag for the signature calculation
+      UtlString callId(pCallId);
+      UtlString fromTag;
+      fromUrl.getFieldParameter("tag", fromTag);
+
+      OsDateTime now;
+      OsDateTime::getCurTime(now);
+      if (NULL==timestamp)
+      {
+         timestamp = &now;
+      }
+
+      UtlString value;
+      encode(value, callId, fromTag, *timestamp);
+      uri.setHeaderParameter(SipXauthIdentity::PAssertedIdentityHeaderName, value.data());
+
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipXauthIdentity::encodeUri[o msg] "
+                    "encoded URI '%s'",
+                    uri.toString().data()
+                    );
+   }
+   
+   return mIsValidIdentity;
+}
+
+
 
 /// Add identity info to a message.
 bool SipXauthIdentity::insert(SipMessage & message,
@@ -271,7 +315,8 @@ bool SipXauthIdentity::insert(SipMessage & message,
    if (!mIsValidIdentity)
    {
       OsSysLog::add(FAC_SIP, PRI_CRIT,
-                    "SipXauthIdentity::insert: encapsulated SipXauthIdentity is invalid");
+                    "SipXauthIdentity::insert: "
+                    "encapsulated SipXauthIdentity is invalid");
    }
    else
    {

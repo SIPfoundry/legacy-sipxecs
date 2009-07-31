@@ -1261,6 +1261,75 @@ void Url::dump()
     }
 }
 
+void Url::kedump()
+{
+    UtlString proto;
+    getUrlType(proto);
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                  "Url::kedump Url type: '%s'", proto.data());
+
+    UtlString disp;
+    getDisplayName(disp);
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                  "Url::kedump DisplayName: '%s'", disp.data());
+
+    UtlString user;
+    getUserId(user);
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                  "Url::kedump UserId: '%s'", user.data());
+
+    UtlString pwd;
+    getPassword(pwd);
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                  "Url::kedump Password: '%s'", pwd.data());
+
+    UtlString server;
+    getHostAddress(server);
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                  "Url::kedump Address: '%s'", server.data());
+
+    int port = getHostPort();
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                  "Url::kedump Port: %d", port);
+
+    UtlString callId;
+    getHeaderParameter("call-id", callId);
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                  "Url::kedump Call-Id: '%s'", callId.data());
+
+    UtlString name;
+    UtlString value;
+    int index = 0;
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                  "Url::kedump Header Parameters:");
+    while(getHeaderParameter(index, name, value))
+    {
+        OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                      "Url::kedump '%s'='%s'", name.data(), value.data());
+        index++;
+    }
+
+    index = 0;
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                  "Url::kedump Field Parameters:");
+    while(getFieldParameter(index, name, value))
+    {
+        OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                      "Url::kedump '%s'='%s'", name.data(), value.data());
+        index++;
+    }
+
+    index = 0;
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                  "Url::kedump URL Parameters:");
+    while(getUrlParameter(index, name, value))
+    {
+        OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                      "Url::kedump '%s'='%s'", name.data(), value.data());
+        index++;
+    }
+}
+
 /* ============================ INQUIRY =================================== */
 
 UtlBoolean Url::isDigitString(const char* dialedCharacters)

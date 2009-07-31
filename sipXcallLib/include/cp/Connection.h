@@ -210,7 +210,8 @@ public:
                           const char* originalCallConnection = NULL,
                           UtlBoolean requestQueuedCall = FALSE,
                           const void* pDisplay = NULL,
-						  const char* originalCallId = NULL) = 0;
+						  const char* originalCallId = NULL,
+						  const char* paiAddress = NULL) = 0;
    //! param: requestQueuedCall - indicates that the caller wishes to have the callee queue the call if busy
 
    virtual UtlBoolean originalCallTransfer(UtlString& transferTargetAddress,

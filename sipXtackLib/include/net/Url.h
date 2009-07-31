@@ -252,6 +252,7 @@ public:
     char* getBytes() const;
     //! Debug dump of the internal structures to STDOUT.
     void dump();
+    void kedump();
 
     //! Clear the contents of this URL
     void reset();

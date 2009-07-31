@@ -12,6 +12,7 @@
 #include <cp/LinePresenceMonitor.h>
 #include <net/StateChangeNotifier.h>
 #include <net/XmlRpcRequest.h>
+#include <net/Url.h>
 #include <os/OsDateTime.h>
 #include <os/OsEvent.h>
 #include <os/OsTimer.h>
@@ -28,6 +29,8 @@
 #include "ACDRtRecord.h"
 #include "ACDCallManager.h"
 
+//#define DUMP_URL 1
+//#define TEST_PRINT 1
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -241,7 +244,8 @@ SIPX_CALL ACDAgent::connect(ACDCall* pACDCall)
    const char *pFrom = acdLine->getUriString()->data();
 
    // Create the outbound call to the agent URI
-   if (sipxCallCreate(mhAcdCallManagerHandle, hLine, &mhCallHandle) != SIPX_RESULT_SUCCESS) {
+   if (sipxCallCreate(mhAcdCallManagerHandle, hLine, &mhCallHandle) != SIPX_RESULT_SUCCESS) 
+   {
       OsSysLog::add(FAC_ACD, PRI_ERR,
                     "ACDAgent::connect - "
                     "ACDAgent(%s) failed to create outbound call",
@@ -266,17 +270,57 @@ SIPX_CALL ACDAgent::connect(ACDCall* pACDCall)
    // Mark the agent as being off-hook
    setOnHook(false) ;
 
+   // Create the string to be used as the FROM header
+   // Note: FROM header is not used for authentication
    UtlString agentUrlString ;
+   UtlString fromDisp, fromUser, displayUserAndQueue;
+
+   const char *pFrom = pACDCall->getCallIdentity() ; // The "From" of incoming ACDCall
+   const char *pAcdLineAor = acdLine->getUriString()->data(); // to be added to display field
+
+   Url tempFromUrl(pFrom, FALSE);        // Url::NameAddr
+   Url tempAcdUrl(pAcdLineAor, FALSE);   // Url::NameAddr
 
    // get the queue name where the call came from
    ACDQueue* acdQueue = pACDCall->getMpManagingQueue();
-   if(acdQueue) {
+   if(acdQueue) 
+   {
       UtlString *queueName = acdQueue->getQueueName();
-      if (queueName) {
-         // Add the queue name where the call came from as the text part
-         // of the SIP URL in To header.
-         agentUrlString = "\"" + *queueName + "\" " ;
+      UtlString tempQueueName;
+      if (queueName) 
+      {
+          // Add the queue name where the call came from as the text part 
+          // of the SIP URL in To header.
+          agentUrlString = "\"" + *queueName + "\" " ;
+
+          // Queue name to use in from header display
+          tempQueueName.append( queueName->data());
       }
+
+      // Add queue name and line to from header display field
+      tempFromUrl.getDisplayName(fromDisp);
+      tempAcdUrl.getUserId(fromUser);
+
+      fromDisp.strip(UtlString::trailing, '"');
+      fromDisp.append(" " + tempQueueName + "(" + fromUser + ")\"");
+
+      tempFromUrl.setDisplayName(fromDisp.data());
+      tempFromUrl.toString(displayUserAndQueue);
+
+#ifdef TEST_PRINT
+      OsSysLog::add(FAC_ACD, PRI_DEBUG, 
+                    "ACDAgent::connect - "
+                    "fromDisp '%s' fromUser '%s' "
+                    "From '%s' pAcdLineAor '%s' qName '%s'"
+                    "displayUserAndQueue '%s'",
+                    fromDisp.data(), fromUser.data(),
+                    pFrom, pAcdLineAor, queueName->data(),
+                    displayUserAndQueue.data());
+#endif
+#ifdef DUMP_URL
+      tempFromUrl.kedump();
+      tempAcdUrl.kedump();
+#endif
 
       // Update mWrapupTime from the queue
       mWrapupTime = acdQueue->getAgentsWrapupTime();
@@ -299,8 +343,16 @@ SIPX_CALL ACDAgent::connect(ACDCall* pACDCall)
    agentUrlString += "<" + mUriString + ";sipx-noroute=VoiceMail>" ;
 
    // Fire off the call
-   if (sipxCallConnect(mhCallHandle, agentUrlString, 0, NULL, pTempId, pFrom) != SIPX_RESULT_SUCCESS) {
-      OsSysLog::add(FAC_ACD, PRI_ERR, "ACDAgent::connect - ACDAgent(%s) failed to initiate outbound call",
+   if (sipxCallConnect(mhCallHandle, 
+                       agentUrlString, 
+                       0, NULL, 
+                       pTempId, 
+                       displayUserAndQueue.data(), 
+                       TRUE) != SIPX_RESULT_SUCCESS)    //CpCallManager::AddPaiHdr
+   {
+      OsSysLog::add(FAC_ACD, PRI_ERR, 
+                    "ACDAgent::connect - "
+                    "ACDAgent(%s) failed to initiate outbound call",
                     mUriString.data());
       return 0;
    }

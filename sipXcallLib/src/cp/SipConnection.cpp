@@ -581,7 +581,8 @@ UtlBoolean SipConnection::dial(const char* dialString,
                                const char* originalCallConnection,
                                UtlBoolean requestQueuedCall,
                                const void* pDisplay,
-                               const char* originalCallId)
+                               const char* originalCallId,
+						       const char* paiAddress)
 {
     UtlBoolean dialOk = FALSE;
     SipMessage sipInvite;
@@ -656,14 +657,17 @@ UtlBoolean SipConnection::dial(const char* dialString,
             // SipUserAgent and the display name and userId from
             // the from URL.
 
-            // Create and send an INVITE
-            sipInvite.setInviteData(fromAddress.data(), goodToAddress.data(),
-                NULL, mLocalContact.data(), callId, rtpAddress.data(),
-                receiveRtpPort, receiveRtcpPort, 
-                receiveVideoRtpPort, receiveVideoRtcpPort,
-                &srtpParams,
-                lastLocalSequenceNumber,
-                numCodecs, rtpCodecsArray, mDefaultSessionReinviteTimer);
+            // Create the INVITE to send
+            sipInvite.setInviteData(fromAddress.data(), 
+                                    goodToAddress.data(), NULL, 
+                                    mLocalContact.data(), 
+                                    callId, 
+                                    rtpAddress.data(), receiveRtpPort, receiveRtcpPort, 
+                                    receiveVideoRtpPort, receiveVideoRtcpPort, &srtpParams,
+                                    lastLocalSequenceNumber,
+                                    numCodecs, rtpCodecsArray, 
+                                    mDefaultSessionReinviteTimer,
+                                    paiAddress);
 
             // Free up the codecs and the array
             for(int codecIndex = 0; codecIndex < numCodecs; codecIndex++)
@@ -3775,8 +3779,7 @@ void SipConnection::processByeRequest(const SipMessage* request)
         request->getFromField(&transferController);
         while(request->getAlsoUri(alsoIndex, &alsoUri))
         {
-            ((CpPeerCall*)mpCall)->addParty(alsoUri.data(),
-                transferController.data(), NULL);
+            ((CpPeerCall*)mpCall)->addParty(alsoUri.data(), transferController.data(), NULL);
             alsoIndex++;
         }
 

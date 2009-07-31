@@ -506,7 +506,8 @@ public:
                        int sequenceNumber = 1,
                        int numRtpCodecs = 0,
                        SdpCodec* rtpCodecs[] = NULL,
-                       int sessionReinviteTimer = 0);
+                       int sessionReinviteTimer = 0,
+                       const char* headerPAI = NULL);
 
     void setInviteData(const char* fromField,
                        const char* toField,
@@ -514,7 +515,8 @@ public:
                        const char* contactUrl,
                        const char* callId,
                        int sequenceNumber = 1,
-                       int sessionReinviteTimer = 0);
+                       int sessionReinviteTimer = 0,
+                       const char* headerPAI = NULL);
 
     void setInviteData(const SipMessage* previousInvite,
                        const char* newUri);

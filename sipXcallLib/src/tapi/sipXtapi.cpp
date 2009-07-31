@@ -423,33 +423,33 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST* phInst,
             configDb.set("PHONESET_MAX_ACTIVE_CALLS_ALLOWED", 2*maxConnections);
 
             pInst->pCallManager = new CallManager(FALSE,
-                                   pInst->pLineManager,
-                                   TRUE, // early media in 180 ringing
-                                   pInst->pCodecFactory,
-                                   rtpPortStart, // rtp start
-                                   rtpPortStart + (2*maxConnections), // rtp end
-                                   localAddress.data(),
-                                   localAddress.data(),
-                                   pInst->pSipUserAgent,
-                                   0, // sipSessionReinviteTimer
-                                   NULL, // mgcpStackTask
-                                   NULL, // defaultCallExtension
-                                   Connection::RING, // availableBehavior
-                                   NULL, // unconditionalForwardUrl
-                                   -1, // forwardOnNoAnswerSeconds
-                                   NULL, // forwardOnNoAnswerUrl
-                                   Connection::BUSY, // busyBehavior
-                                   NULL, // sipForwardOnBusyUrl
-                                   NULL, // speedNums
-                                   CallManager::SIP_CALL, // phonesetOutgoingCallProtocol
-                                   4, // numDialPlanDigits
-                                   CallManager::NEAR_END_HOLD, // holdType
-                                   5000, // offeringDelay
-                                   "",
-                                   CP_MAXIMUM_RINGING_EXPIRE_SECONDS,
-                                   QOS_LAYER3_LOW_DELAY_IP_TOS,
-                                   maxConnections,
-                                   sipXmediaFactoryFactory(&configDb));
+                                                  pInst->pLineManager,
+                                                  TRUE, // early media in 180 ringing
+                                                  pInst->pCodecFactory,
+                                                  rtpPortStart, // rtp start
+                                                  rtpPortStart + (2*maxConnections), // rtp end
+                                                  localAddress.data(),
+                                                  localAddress.data(),
+                                                  pInst->pSipUserAgent,
+                                                  0, // sipSessionReinviteTimer
+                                                  NULL, // mgcpStackTask
+                                                  NULL, // defaultCallExtension
+                                                  Connection::RING, // availableBehavior
+                                                  NULL, // unconditionalForwardUrl
+                                                  -1, // forwardOnNoAnswerSeconds
+                                                  NULL, // forwardOnNoAnswerUrl
+                                                  Connection::BUSY, // busyBehavior
+                                                  NULL, // sipForwardOnBusyUrl
+                                                  NULL, // speedNums
+                                                  CallManager::SIP_CALL, // phonesetOutgoingCallProtocol
+                                                  4, // numDialPlanDigits
+                                                  CallManager::NEAR_END_HOLD, // holdType
+                                                  5000, // offeringDelay
+                                                  "",
+                                                  CP_MAXIMUM_RINGING_EXPIRE_SECONDS,
+                                                  QOS_LAYER3_LOW_DELAY_IP_TOS,
+                                                  maxConnections,
+                                                  sipXmediaFactoryFactory(&configDb));
 
             // Start up the call processing system
             pInst->pCallManager->setOutboundLine(localAddress) ;
@@ -923,12 +923,15 @@ SIPXTAPI_API SIPX_RESULT sipxCallConnect(SIPX_CALL hCall,
                                          SIPX_CONTACT_ID contactId,
                                          SIPX_VIDEO_DISPLAY* const pDisplay,
                                          const char* szCallId,
-                                         const char* szFrom)
+                                         const char* szFrom,
+                                         const bool sendPAIheader)
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
                   "sipxCallConnect "
-                  "hCall=%u szAddress=%s contactId=%d",
-                  hCall, szAddress, contactId);
+                  "hCall=%u szAddress='%s' contactId=%d"
+                  "szCallId='%s' szFrom='%s' sendPAIheader=%d",
+                  hCall, szAddress, contactId,
+                  szCallId, szFrom, sendPAIheader);
 #ifdef VIDEO
     if (pDisplay)
     {
@@ -976,7 +979,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallConnect(SIPX_CALL hCall,
             // Use szFrom if not NULL, otherwise get it from lineId
             OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
                           "sipxCallConnect "
-                          "hCall=%u szFrom=%s lineId=%d",
+                          "hCall=%u szFrom=%s lineId=%s",
                           hCall, szFrom, lineId.data());
             pInst->pCallManager->setOutboundLineForCall(callId.data(),
                                                         szFrom ? szFrom : lineId.data()) ;
@@ -997,8 +1000,9 @@ SIPXTAPI_API SIPX_RESULT sipxCallConnect(SIPX_CALL hCall,
                 }
                 pData->sessionCallId = new UtlString(sessionId.data()) ;
                 OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-                    "sipxCallConnect hCall=%u szAddress='%s' contactId=%d, prSsessionCallId %p, SessionId '%s'",
-                    hCall, szAddress, contactId, pData->sessionCallId, sessionId.data());
+                              "sipxCallConnect "
+                              "hCall=%u szAddress='%s' contactId=%d, prSsessionCallId %p, SessionId '%s'",
+                              hCall, szAddress, contactId, pData->sessionCallId, sessionId.data());
                 
                 if (pDisplay)
                 {
@@ -1009,11 +1013,17 @@ SIPXTAPI_API SIPX_RESULT sipxCallConnect(SIPX_CALL hCall,
 
             if (pDisplay && pDisplay->handle)
             {
-                status = pInst->pCallManager->connect(callId.data(), szAddress, NULL, sessionId, (CONTACT_ID) contactId, &pData->display) ;
+                status = pInst->pCallManager->connect(callId.data(), szAddress, 
+                                                      NULL, sessionId.data(), 
+                                                      (CONTACT_ID) contactId, &pData->display, 
+                                                      sendPAIheader) ;
             }
             else
             {
-                status = pInst->pCallManager->connect(callId.data(), szAddress, NULL, sessionId, (CONTACT_ID) contactId) ;
+                status = pInst->pCallManager->connect(callId.data(), szAddress, 
+                                                      NULL, sessionId.data(), 
+                                                      (CONTACT_ID) contactId, NULL, 
+                                                      sendPAIheader) ;
             }
             if (status == PT_SUCCESS)
             {
@@ -1062,7 +1072,6 @@ SIPXTAPI_API SIPX_RESULT sipxCallConnect(SIPX_CALL hCall,
     }
 
     return sr ;
-
 }
 
 
@@ -2540,7 +2549,8 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceAdd(const SIPX_CONF hConf,
 
                     // Issue connect
                     PtStatus status = pData->pInst->pCallManager->connect(pData->strCallId->data(),
-                            szAddress, NULL, sessionId.data(), (CONTACT_ID) contactId, &pCallData->display) ;
+                                                                          szAddress, NULL, sessionId.data(), 
+                                                                          (CONTACT_ID) contactId, &pCallData->display, 0) ;
                     if (status == PT_SUCCESS)
                     {
                         rc = SIPX_RESULT_SUCCESS ;
@@ -2591,7 +2601,9 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceAdd(const SIPX_CONF hConf,
                     SipSession session ;
                     sipxFireCallEvent(pData->pInst->pCallManager, sessionId.data(), &session, NULL, DIALTONE, DIALTONE_CONFERENCE) ;   
 
-                    PtStatus status = pData->pInst->pCallManager->connect(pData->strCallId->data(), szAddress, NULL, sessionId.data(), (CONTACT_ID) contactId, pDisplay) ;
+                    PtStatus status = pData->pInst->pCallManager->connect(pData->strCallId->data(), szAddress, 
+                                                                          NULL, sessionId.data(), 
+                                                                          (CONTACT_ID) contactId, pDisplay, 0) ;
                     if (status == PT_SUCCESS)
                     {
                         rc = SIPX_RESULT_SUCCESS ;
@@ -3888,8 +3900,9 @@ SIPXTAPI_API SIPX_RESULT sipxLineAddDigestCredential(const SIPX_LINE hLine,
                                                      const char* szRealm)
 {
    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-                 "sipxLineAddDigestCredential hLine='%d' userId='%s' realm='%s'",
-                 hLine, szUserID, szRealm);
+                 "sipxLineAddDigestCredential hLine='%d' userId='%s' realm='%s'"
+                 "hash '%s'",
+                 hLine, szUserID, szRealm, szAuthHash);
         
    SIPX_RESULT sr = SIPX_RESULT_FAILURE ;
    SIPX_LINE_DATA* pData = sipxLineLookup(hLine, SIPX_LOCK_READ) ;

@@ -31,6 +31,8 @@
 #include <net/Url.h>
 #include <os/OsDateTime.h>
 #include <os/OsSysLog.h>
+#include "net/SipXauthIdentity.h"
+//#include "net/SignedUrl.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -376,7 +378,8 @@ void SipMessage::setInviteData(const char* fromField,
                                int sequenceNumber,
                                int numRtpCodecs,
                                SdpCodec* rtpCodecs[],
-                               int sessionReinviteTimer)
+                               int sessionReinviteTimer,
+                               const char* headerPAI)
 {
    setInviteData(fromField,
                  toField,
@@ -384,7 +387,8 @@ void SipMessage::setInviteData(const char* fromField,
                  contactUrl,
                  callId,
                  sequenceNumber,
-                 sessionReinviteTimer);
+                 sessionReinviteTimer,
+                 headerPAI);
 
    addSdpBody(rtpAddress, rtpAudioPort, rtcpAudioPort,
               rtpVideoPort, rtcpVideoPort,
@@ -398,7 +402,8 @@ void SipMessage::setInviteData(const char* fromField,
                                const char* contactUrl,
                                const char* callId,
                                int sequenceNumber,
-                               int sessionReinviteTimer)
+                               int sessionReinviteTimer,
+                               const char* headerPAI)
 {
    UtlString bodyString;
    UtlString uri;
@@ -420,6 +425,64 @@ void SipMessage::setInviteData(const char* fromField,
         uriUrl.removeHeaderParameters();
         uriUrl.getUri(uri);
     }
+
+   // Construct a PAI for the SipLine
+   if (headerPAI != NULL && strlen(headerPAI) != 0)
+   {
+       Url fromUrl(fromField);
+       UtlString idenStr(headerPAI);
+
+       //fromUrl.setHeaderParameter(SIP_CALLID_FIELD,callId);
+#ifdef TEST_PRINT
+       OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                     "SipMessage::setInviteData "
+                     "from='%s' headerPAI '%s' idenStr '%s' callId '%s'",
+                     fromField, headerPAI, idenStr.data(), callId);
+#endif
+    
+       SipXauthIdentity pAuthIdentity;
+       pAuthIdentity.setIdentity(idenStr);
+       pAuthIdentity.encodeUri(fromUrl, callId, fromUrl);
+    
+       {
+           // Check for header fields in the To URL
+           UtlString fheaderName;
+           UtlString fheaderValue;
+           int fheaderIndex = 0;
+           // Look through the headers and add them to the message
+           while(fromUrl.getHeaderParameter(fheaderIndex, fheaderName, fheaderValue))
+           {
+               // If the header is allowed to be passed through
+               if(isUrlHeaderAllowed(fheaderName.data()))
+               {
+                  if (isUrlHeaderUnique(fheaderName.data()))
+                  {
+                     // If the field exists, change it, if does not exist, create it.
+                     setHeaderValue(fheaderName.data(), fheaderValue.data(), 0);
+                  }
+                  else
+                  {
+                     addHeaderField(fheaderName.data(), fheaderValue.data());
+                  }
+ #ifdef TEST_PRINT
+                  OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                "SipMessage::setInviteData "
+                                "fname=%s, fvalue=%s\n",
+                                fheaderName.data(), fheaderValue.data());
+ #endif
+               }
+               else
+               {
+                  OsSysLog::add(FAC_SIP, PRI_WARNING,
+                                "SipMessage::setInviteData "
+                                "URL fheader '%s: %s' may not be added using a header parameter",
+                                fheaderName.data(), fheaderValue.data());
+               }
+    
+               fheaderIndex++;
+           }
+       }
+   }
 
     // Check for header fields in the To URL
     UtlString headerName;

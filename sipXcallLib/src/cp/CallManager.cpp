@@ -554,7 +554,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                                 OsSysLog::add(FAC_CP, PRI_INFO,
                                               "CallManager::handleMessage "
                                               "callStack: sending 486 to INVITE, entries = %ld",
-                                              mCallStack.entries());
+                                              (long)mCallStack.entries());
                                 if( (sipMsg->isResponse() == FALSE) &&
                                     (method.compareTo(SIP_ACK_METHOD,UtlString::ignoreCase) != 0) )
 
@@ -738,7 +738,9 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                 OsWriteLock lock(mCallListMutex);
                 if(infocusCall && dialing)
                 {
-                    //OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::processMessage posting dial string to infocus call\n");
+                    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                                  "CallManager::processMessage "
+                                  "posting dial string to infocus call\n");
                     ((CpMultiStringMessage&)eventMessage).getString1Data(mDialString) ;
                     infocusCall->postMessage(eventMessage);
                 }
@@ -896,14 +898,19 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                 UtlString addressUrl;
                 UtlString desiredConnectionCallId ;
                 CONTACT_ID contactId;
+                bool sendPAIheader = FALSE;
                 ((CpMultiStringMessage&)eventMessage).getString1Data(callId);
                 ((CpMultiStringMessage&)eventMessage).getString2Data(addressUrl);
                 ((CpMultiStringMessage&)eventMessage).getString4Data(desiredConnectionCallId);
                 contactId = (CONTACT_ID) ((CpMultiStringMessage&)eventMessage).getInt1Data();
                 void* pDisplay = (void*) ((CpMultiStringMessage&)eventMessage).getInt2Data();
+                sendPAIheader = (bool) ((CpMultiStringMessage&)eventMessage).getInt3Data();
 
-
-                doConnect(callId.data(), addressUrl.data(), desiredConnectionCallId.data(), contactId, pDisplay) ;
+                OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                              "CallManager::handleMessage "
+                              "sendPAIheader: %d", 
+                              sendPAIheader);
+                doConnect(callId.data(), addressUrl.data(), desiredConnectionCallId.data(), contactId, pDisplay, sendPAIheader) ;
                 messageProcessed = TRUE;
                 break;
             }
@@ -1393,7 +1400,8 @@ PtStatus CallManager::connect(const char* callId,
                               const char* fromAddressString,
                               const char* desiredCallIdString,
                               CONTACT_ID contactId,
-                              const void* pDisplay)
+                              const void* pDisplay,
+                              const bool sendPAIheader)
 {
     UtlString toAddressUrl(toAddressString ? toAddressString : "");
     UtlString fromAddressUrl(fromAddressString ? fromAddressString : "");
@@ -1402,8 +1410,8 @@ PtStatus CallManager::connect(const char* callId,
     PtStatus returnCode = validateAddress(toAddressUrl);
     if(returnCode == PT_SUCCESS)
     {
-        CpMultiStringMessage callMessage(CP_CONNECT, callId,
-            toAddressUrl, fromAddressUrl, desiredCallId, NULL, contactId, (intptr_t)pDisplay);
+        CpMultiStringMessage callMessage(CP_CONNECT, callId, toAddressUrl, fromAddressUrl, desiredCallId, 
+                                         NULL, contactId, (intptr_t)pDisplay, sendPAIheader);
         postMessage(callMessage);
     }
     return(returnCode);
@@ -3257,13 +3265,13 @@ void CallManager::pushCall(CpCall* call)
       call->getCallId(callId);
       OsSysLog::add(FAC_CP, PRI_DEBUG,
                   "CallManager::pushCall callStack: adding call %p, callId %s, entries = %ld",
-                   call, callId.data(), mCallStack.entries());
+                   call, callId.data(), (long)mCallStack.entries());
    }
    mCallStack.insertAt(0, new UtlVoidPtr(call));
 #ifdef TEST_PRINT
     OsSysLog::add(FAC_CP, PRI_DEBUG,
                   "CallManager::pushCall callStack: adding call %p, entries = %ld",
-                  call, mCallStack.entries());
+                  call, (long)mCallStack.entries());
 #endif
 }
 
@@ -3277,7 +3285,7 @@ CpCall* CallManager::popCall()
 #ifdef TEST_PRINT
         OsSysLog::add(FAC_CP, PRI_INFO,
                       "CallManager::popCall callStack: removing call %p, entries = %ld",
-                      call, mCallStack.entries());
+                      call, (long)mCallStack.entries());
 #endif
         delete callCollectable;
         callCollectable = NULL;
@@ -3292,7 +3300,7 @@ CpCall* CallManager::removeCall(CpCall* call)
       call->getCallId(callId);
       OsSysLog::add(FAC_CP, PRI_DEBUG,
                   "CallManager::removeCall callStack: removing call %p,callId %s, entries = %ld",
-                  call, callId.data(), mCallStack.entries());
+                  call, callId.data(), (long)mCallStack.entries());
     }
     UtlVoidPtr matchCall(call);
     UtlVoidPtr* callCollectable = (UtlVoidPtr*) mCallStack.remove(&matchCall);
@@ -3302,7 +3310,7 @@ CpCall* CallManager::removeCall(CpCall* call)
 #ifdef TEST_PRINT
         OsSysLog::add(FAC_CP, PRI_DEBUG,
                       "CallManager::removeCall callStack: removing call %p, entries = %ld",
-                      call, mCallStack.entries());
+                      call, (long)mCallStack.entries());
 #endif
         delete callCollectable;
         callCollectable = NULL;
@@ -4024,8 +4032,11 @@ void CallManager::doConnect(const char* callId,
                             const char* addressUrl, 
                             const char* desiredConnectionCallId, 
                             CONTACT_ID contactId,
-                            const void* pDisplay)
+                            const void* pDisplay,
+                            const bool sendPAIheader )
 {
+    UtlString outboundLineIdentity;
+
     CpCall* call = findHandlingCall(callId);
     if(!call)
     {
@@ -4037,8 +4048,54 @@ void CallManager::doConnect(const char* callId,
     }
     else
     {
+        if ( sendPAIheader == TRUE )
+        {
+            Url outboundLineUrl(mOutboundLine);
+            Url::Scheme outboundLineUrlScheme = outboundLineUrl.getScheme();
+            switch (outboundLineUrlScheme)
+            {
+            case Url::SipsUrlScheme:
+               // sips and sip are equivalent for identity purposes,
+               //   so just set to sip 
+               outboundLineUrl.setScheme(Url::SipUrlScheme);
+               //   and fall through to extract the identity...
+    
+            case Url::SipUrlScheme:
+               // case Url::TelUrlScheme: will go here, since 'tel' and 'sip' are the same length
+               outboundLineUrl.getUri(outboundLineIdentity);
+               outboundLineIdentity.remove(0,4 /* strlen("sip:") */); // strip off the scheme name
+               break;
+    
+            default:
+               // for all other schemes, treat identity as null
+               OsSysLog::add(FAC_SIP, PRI_WARNING,
+                             "CallManager::doConnect "
+                             "mOutboundLine uses unsupported scheme '%s'"
+                             " - using null identity",
+                             outboundLineUrl.schemeName(outboundLineUrlScheme)
+                             );
+               break;
+            }
+#ifdef TEST_PRINT
+            OsSysLog::add(FAC_CP, PRI_DEBUG,
+                          "CallManager::doConnect "
+                          "adressUrl '%s'"
+                          "desiredConnectionCallId '%s'"
+                          "mOutboundLine '%s'"
+                          "outboundLineIdentity '%s'",
+                          addressUrl, desiredConnectionCallId, 
+                          mOutboundLine.data(), outboundLineIdentity.data());
+#endif
+        }
+
         // For now just send the call a dialString
-        CpMultiStringMessage dialStringMessage(CP_DIAL_STRING, addressUrl, desiredConnectionCallId, NULL, NULL, NULL, contactId, (intptr_t)pDisplay) ;
+        CpMultiStringMessage dialStringMessage(CP_DIAL_STRING, 
+                                               addressUrl, 
+                                               desiredConnectionCallId,
+                                               outboundLineIdentity.data(), 
+                                               NULL, NULL, 
+                                               contactId, 
+                                               (intptr_t)pDisplay) ;
         call->postMessage(dialStringMessage);
         call->setLocalConnectionState(PtEvent::CONNECTION_ESTABLISHED);
 #ifdef TEST_PRINT
