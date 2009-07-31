@@ -70,13 +70,14 @@ UtlBoolean CpGhostConnection::dequeue(UtlBoolean callInFocus)
     return(FALSE);
 }
 UtlBoolean CpGhostConnection::dial(const char* dialString,
-                                          const char* callerId,
-                                          const char* callId,
-                      const char* callController,
-                      const char* originalCallConnection,
-                      UtlBoolean requestQueuedCall,
-                      const void* pDisplay,
-					  const char* originalCallId)
+                                   const char* callerId,
+                                   const char* callId,
+                                   const char* callController,
+                                   const char* originalCallConnection,
+                                   UtlBoolean requestQueuedCall,
+                                   const void* pDisplay,
+                                   const char* originalCallId,
+                                   const char* paiAddress)
 {
     unimplemented("CpGhostConnection::dial");
     return(FALSE);

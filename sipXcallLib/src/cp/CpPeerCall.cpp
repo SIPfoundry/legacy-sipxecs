@@ -242,11 +242,13 @@ UtlBoolean CpPeerCall::handleDialString(OsMsg* pEventMessage)
 {
     UtlString dialString;
     UtlString desiredCallId;
+    UtlString paiAddress;
     UtlString remoteHostName;
     CONTACT_ID contactId ;
 
     ((CpMultiStringMessage*)pEventMessage)->getString1Data(dialString);    
     ((CpMultiStringMessage*)pEventMessage)->getString2Data(desiredCallId);
+    ((CpMultiStringMessage*)pEventMessage)->getString3Data(paiAddress);
     contactId = (CONTACT_TYPE) ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
     void* pDisplay = (void*) ((CpMultiStringMessage*)pEventMessage)->getInt2Data();
 
@@ -255,8 +257,9 @@ UtlBoolean CpPeerCall::handleDialString(OsMsg* pEventMessage)
     OsSysLog::add(FAC_CP, PRI_DEBUG, 
                   "CpPeerCall::dialing "
                   "string: '%s' length: %d "
-                  "callId '%s' ", 
-                  dialString.data(), dialString.length(), desiredCallId.data());
+                  "callId '%s' PAIaddr= '%s'", 
+                  dialString.data(), dialString.length(), 
+                  desiredCallId.data(), paiAddress.data());
 #endif
 
     addHistoryEvent("CP_DIAL_STRING (3) \n\tDialString: \"" + dialString + "\"");
@@ -286,12 +289,12 @@ UtlBoolean CpPeerCall::handleDialString(OsMsg* pEventMessage)
         if (desiredCallId.length() != 0)
         {
             // Use supplied callId
-            addParty(remoteHostName.data(), NULL, NULL, desiredCallId.data(), contactId, pDisplay);
+            addParty(remoteHostName.data(), NULL, NULL, desiredCallId.data(), contactId, pDisplay, NULL, paiAddress.data());
         }
         else
         {
             // Use default call id
-            addParty(remoteHostName.data(), NULL, NULL, NULL, contactId, pDisplay);
+            addParty(remoteHostName.data(), NULL, NULL, NULL, contactId, pDisplay,  NULL, paiAddress.data());
         }        
     } 
 
@@ -2300,9 +2303,11 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
     UtlBoolean processedMessage = TRUE;
     CpMultiStringMessage* multiStringMessage = (CpMultiStringMessage*)&eventMessage;
 
-    if(msgSubType != CallManager::CP_SIP_MESSAGE &&
-        msgSubType != CallManager::CP_DIAL_STRING)
+    if(   msgSubType != CallManager::CP_SIP_MESSAGE 
+       && msgSubType != CallManager::CP_DIAL_STRING)
+    {
         CpCall::addHistoryEvent(msgSubType, multiStringMessage);
+    }
 
     // Either we are the caller and are done dialing at this point
     // Or we are the callee, turn off local only DTMF tone 
@@ -2818,7 +2823,8 @@ Connection* CpPeerCall::addParty(const char* transferTargetAddress,
                                  const char* newCallId,
                                  CONTACT_ID contactId,
                                  const void* pDisplay,
-                                 const char* originalCallId)
+                                 const char* originalCallId,
+                                 const char* paiAddress)
 {
     SipConnection* connection = NULL;
 
@@ -2827,8 +2833,8 @@ Connection* CpPeerCall::addParty(const char* transferTargetAddress,
 #ifdef TEST_PRINT
     OsSysLog::add(FAC_CP, PRI_DEBUG,
                   "CpPeerCall::addParty "
-                  "mLocalAddress is '%s'",
-                  mLocalAddress.data());
+                  "mLocalAddress is '%s' paiAddr= '%s'",
+                  mLocalAddress.data(), paiAddress);
 #endif
     connection = new SipConnection(mLocalAddress,
                                    mIsEarlyMediaFor180,
@@ -2870,7 +2876,8 @@ Connection* CpPeerCall::addParty(const char* transferTargetAddress,
                      originalCallConnectionAddress, 
                      FALSE,
                      pDisplay,
-                     originalCallId); 
+                     originalCallId,
+                     paiAddress); 
 
     addToneListenersToConnection(connection) ;
 

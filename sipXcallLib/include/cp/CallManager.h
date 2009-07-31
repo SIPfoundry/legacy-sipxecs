@@ -132,7 +132,8 @@ public:
                              const char* fromAddress = NULL,
                              const char* desiredConnectionCallId = NULL,
                              CONTACT_ID contactId = 0,
-                             const void* pDisplay = NULL) ;
+                             const void* pDisplay = NULL,
+                             const bool sendPAIheader = 0) ;
 
     virtual PtStatus consult(const char* idleTargetCallId,
         const char* activeOriginalCallId, const char* originalCallControllerAddress,
@@ -495,7 +496,9 @@ private:
                    const char* addressUrl,
                    const char* szDesiredConnectionCallId,
                    CONTACT_ID contactId = 0,
-                   const void* pDisplay = NULL) ;
+                   const void* pDisplay = NULL,
+                   const bool sendPAIheader = 0 );
+
     void doSendInfo(const char* callId, 
                            const char* szContentType,
                            UtlString   sContent);

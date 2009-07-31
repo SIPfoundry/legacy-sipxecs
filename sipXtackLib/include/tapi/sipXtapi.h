@@ -708,7 +708,8 @@ SIPXTAPI_API SIPX_RESULT sipxCallConnect(const SIPX_CALL hCall,
                                          SIPX_CONTACT_ID contactId = 0,
                                          SIPX_VIDEO_DISPLAY* const pDisplay = NULL,
                                          const char* szCallId = NULL,
-                                         const char* szFrom = NULL) ;
+                                         const char* szFrom = NULL,
+                                         const bool sendPAIheader = 0) ;
 
 /**
  * Placed the specified call on hold.

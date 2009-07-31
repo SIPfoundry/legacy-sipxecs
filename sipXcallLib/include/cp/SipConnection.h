@@ -77,13 +77,14 @@ public:
                         void* responseListenerData = NULL);
 
     virtual UtlBoolean dial(const char* dialString,
-        const char* callerId,
-        const char* callId,
-        const char* callController = NULL,
-        const char* originalCallConnection = NULL,
-        UtlBoolean requestQueuedCall = FALSE,
-        const void* pDisplay = NULL,
-		const char* originalCallId = NULL);
+                            const char* callerId,
+                            const char* callId,
+                            const char* callController = NULL,
+                            const char* originalCallConnection = NULL,
+                            UtlBoolean requestQueuedCall = FALSE,
+                            const void* pDisplay = NULL,
+                            const char* originalCallId = NULL,
+						    const char* paiAddress = NULL);
     //! param: requestQueuedCall - indicates that the caller wishes to have the callee queue the call if busy
 
     /// Initiate transfer on transfer controller connection in the original call.

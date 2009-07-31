@@ -3944,6 +3944,8 @@ UtlBoolean SipUserAgent::resendWithAuthorization(SipMessage* response,
 
         SipMessage* authorizedRequest = new SipMessage();
 
+        OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+                      "SipUserAgent::resendWithAuthorization ");
         if ( mpLineMgr && mpLineMgr->buildAuthenticatedRequest(response, request,authorizedRequest))
         {
            requestResent = send(*authorizedRequest);
