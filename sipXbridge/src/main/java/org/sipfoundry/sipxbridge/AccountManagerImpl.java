@@ -161,6 +161,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
             accountFound.setGlobalAddressingUsed(true);
             accountFound.setOutboundTransport("udp");
             accountFound.setDummyAccount(true);
+            accountFound.setRegisterOnInitialization(false);
             this.addItspAccount(accountFound);
             return accountFound;
         } finally {
