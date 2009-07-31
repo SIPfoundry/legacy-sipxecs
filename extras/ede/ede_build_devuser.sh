@@ -458,8 +458,6 @@ else
    # Cause the logs to be rotated.
    sudo rm -rf /etc/logrotate.d/sipxchange
    sudo ln -s $FULL_INSTALL_PATH/etc/logrotate.d/sipxchange /etc/logrotate.d/sipxchange
-   sudo rm -rf /etc/logrotate.d/freeswitch
-   sudo ln -s $FULL_INSTALL_PATH/etc/logrotate.d/freeswitch /etc/logrotate.d/freeswitch
 
    # Adjust the TFTP/FTP directory.
    TFTP_PATH=$FULL_INSTALL_PATH/var/sipxdata/configserver/phone/profile/tftproot
