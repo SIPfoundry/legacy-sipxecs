@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -102,27 +102,27 @@ protected:
     SipDialogEvent* getEntry(UtlString& callId);
     SipDialogEvent* removeEntry(UtlString& callId);
 
-    // Construct entity from requestUri and local address information    
+    // Construct entity from requestUri and local address information
     void getEntity(const UtlString& requestUri,
                    ///< request-URI (from an incoming INVITE)
                    UtlString& entity
                    ///< (output) the entity URI for publishing
        );
-    
+
     // Delete entry if we get a failed or disconnected event without request Url
     bool findEntryByCallId(UtlString& callId, UtlString& entity);
 
     // Delete all provisional responses associated with this call
     void deleteProvisionalResponses(UtlString callId, UtlString localTag, SipDialogEvent* pThisCall);
-    
+
     // Set all provisional response states terminated
     void terminateProvisionalResponses(UtlString callId, UtlString localTag, SipDialogEvent* pThisCall);
- 
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
     CallManager* mpCallManager;
-    
+
     SipPublishContentMgr* mpSipPublishContentMgr;
 
     UtlHashMap mCalls;

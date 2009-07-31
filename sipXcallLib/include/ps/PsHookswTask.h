@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -94,7 +94,7 @@ private:
      // Return TRUE if the message was handled, otherwise FALSE.
 
    virtual UtlBoolean handleEventMessage(const OsEventMsg& rMsg);
-     //:Handle an incoming event message (timer expiration) 
+     //:Handle an incoming event message (timer expiration)
      // Return TRUE if the message was handled, otherwise FALSE.
      // A write lock should be acquired before calling this method.
 

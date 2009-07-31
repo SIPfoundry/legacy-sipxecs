@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -76,7 +76,7 @@ public:
  		TERMCONNECTION_HELD,
  		TERMCONNECTION_TALKING
  	};
-   
+
 
 	enum connectionType
 	{
@@ -85,7 +85,7 @@ public:
 	};
 
 	//
-	// WARNING: The order/values of these constants are used in java.  Please 
+	// WARNING: The order/values of these constants are used in java.  Please
 	//          do not change these without updating the java world.
 	//
 
@@ -143,7 +143,7 @@ public:
 		FORWARD_ON_NO_ANSWER
     };
     //: Incoming call lineAvailableBehaviors
-    // The following define the different behaviors for an incoming call when the 
+    // The following define the different behaviors for an incoming call when the
     // phone (and resources) is available to take a call.
     //
     //!enumcode: RING - make the phone ring to alert the user
@@ -162,7 +162,7 @@ public:
         QUEUE_ALERT
     };
     //: Incoming call lineBusyBehaviors
-    // The following define the different behaviors for an incoming call when the 
+    // The following define the different behaviors for an incoming call when the
     // phone (and resources) is busy.
     //
     //!enumcode: BUSY - indicate to the caller that the phone is busy
@@ -176,11 +176,11 @@ public:
 
    Connection(CpCallManager* callMgr = NULL,
               CpCall* call = NULL,
-              CpMediaInterface* mediaInterface = NULL, 
+              CpMediaInterface* mediaInterface = NULL,
               int offeringDelayMilliSeconds = IMMEDIATE,
-              int availableBehavior = RING, 
+              int availableBehavior = RING,
               const char* forwardUnconditionalUrl = NULL,
-              int busyBehavior = BUSY, 
+              int busyBehavior = BUSY,
               const char* forwardOnBusyUrl = NULL,
               int fowardOnNoAnswerSeconds = -1);
      //:Default constructor
@@ -219,14 +219,14 @@ public:
                                            const char* targetCallId,
                                            bool       remoteHoldBeforeTransfer = true
                                            ) = 0;
-   // Initiate transfer on transfer controller connection in 
+   // Initiate transfer on transfer controller connection in
    // the original call.
    // If fromAddress or toAddress are NULL it is assumed to
    // be a blind transfer.
 
    virtual UtlBoolean targetCallBlindTransfer(const char* transferTargetAddress,
 						           const char* transferControllerAddress) = 0;
-   // Communicate blind transfer on transfer controller connection in 
+   // Communicate blind transfer on transfer controller connection in
    // the target call.  This is signaled by the transfer controller in the
    // original call.
 
@@ -256,7 +256,7 @@ public:
 
    virtual UtlBoolean processMessage(OsMsg& eventMessage,
                                     UtlBoolean callInFocus, UtlBoolean onHook) = 0;
-                                    
+
    virtual UtlBoolean sendInfo(UtlString contentType, UtlString sContent){ return false; }
    //:Virtual method signature and default implementation for sendInfo - this should be overridden by
    //:SipConnection.
@@ -275,7 +275,7 @@ public:
 
     void setMediaInterface(CpMediaInterface* pMediaInterface) ;
       //:Set the media interface for this connection
-      
+
     CpMediaInterface* getMediaInterfacePtr();
       //:Gets the media interface pointer for this connection.
 
@@ -319,7 +319,7 @@ public:
 	int getConnectionId() { return mConnectionId; };
 
    OsStatus getDeleteAfter(OsTime& time) ;
-     //: Get the time after which this connection can be deleted.  This 
+     //: Get the time after which this connection can be deleted.  This
      //: timespan is relative to boot.
 
 /* ============================ INQUIRY =================================== */
@@ -332,7 +332,7 @@ public:
 
 	static UtlBoolean isStateTransitionAllowed(int newState, int oldState);
 
-    virtual UtlBoolean isConnection(const char* callId, 
+    virtual UtlBoolean isConnection(const char* callId,
                                   const char* toTag,
                                   const char* fromTag,
                                   UtlBoolean  strictCompare) const = 0;
@@ -348,11 +348,11 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
- 
+
 	//: Set the connection state and notify observer of state change
-	void setState(int newState, 
-					int isLocal, 
-					int cause = CONNECTION_CAUSE_NORMAL, 
+	void setState(int newState,
+					int isLocal,
+					int cause = CONNECTION_CAUSE_NORMAL,
 					int termState = -1);
 
  	//: Set the terminal connection state and notify observer of state change
@@ -399,7 +399,7 @@ protected:
     int remoteRtcpPort;
 	int sendCodec;
 	int receiveCodec;
-	
+
 	int mLocalConnectionState;
 	int mRemoteConnectionState;
     int mConnectionStateCause;
@@ -410,14 +410,14 @@ protected:
 	int mResponseCode;		// response code obtained at processResponse, passed through events to upper layer
 	UtlString mResponseText;	// response text obtained at processResponse
 
-	TaoObjectMap*		mpListeners;		
+	TaoObjectMap*		mpListeners;
 	TaoReference*		mpListenerCnt;
 
 	UtlString mLocalAddress;
     UtlString mOriginalCallConnectionAddress;
     UtlString mTargetCallConnectionAddress;
     UtlString mTargetCallId;
-    
+
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
@@ -428,8 +428,8 @@ private:
 	OsMutex  callIdMutex;
     OsTime   mDeleteAfter ;    // Instructs the call to delete this connection
                                // after this time period (time since boot)
-    SIPX_CALLSTATE_EVENT m_eLastMajor ; 
-    SIPX_CALLSTATE_CAUSE m_eLastMinor ; 
+    SIPX_CALLSTATE_EVENT m_eLastMajor ;
+    SIPX_CALLSTATE_CAUSE m_eLastMinor ;
     SIPX_CALLSTATE_EVENT m_eLastAudioMajor;
     SIPX_CALLSTATE_CAUSE m_eLastAudioMinor;
 

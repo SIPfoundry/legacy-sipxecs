@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -33,16 +33,16 @@
 // The lower layer subsystems generate TaoListenerEventMessages which
 // are sent to listeners (i.e. tao) registered on the subsystem.
 // These messages indicate events which have occurred in the subsystem,
-// typically a state change on an object(s).  The state change (new and 
+// typically a state change on an object(s).  The state change (new and
 // previous), the object(s) involved are contained in the data members
 // of this message.  The actual signature (i.e. usage and meaning of
 // the data members) for each of these messages differs for each type
-// of event.  It is expected that the TaoServer can generically 
+// of event.  It is expected that the TaoServer can generically
 // serialize these messages and send them through the transport layer.
-// It is only the TaoEventDispatcher (or its registered listeners) that has  
-// to understand the signature, in order to invoke the method on the 
-// registered listener (call back).  This seems to hint at an event factory 
-// which knows how to construct a specific class of Event based upon the 
+// It is only the TaoEventDispatcher (or its registered listeners) that has
+// to understand the signature, in order to invoke the method on the
+// registered listener (call back).  This seems to hint at an event factory
+// which knows how to construct a specific class of Event based upon the
 // signature of the message.
 // <BR><BR>
 //
@@ -54,8 +54,8 @@
 // and previous value) in the lowest available members.
 // <BR><BR>
 //
-// The eventId is the identifier of the signature for the message.  This 
-// can be used to identify which event class is to be constructed and 
+// The eventId is the identifier of the signature for the message.  This
+// can be used to identify which event class is to be constructed and
 // which method on the listener is to be invoked.  The eventId's are
 // defined in the enumeration PtEvent::PtEventId.  These event id's
 // are needed in tao, ptapi and jtapi/jni.  It seems desirable to
@@ -87,9 +87,9 @@ public:
                            intptr_t intData1 = 0,
                            intptr_t intData2 = 0,
                            intptr_t intData3 = 0,
-                           const char* stringData1 = NULL, 
-                           const char* stringData2 = NULL, 
-                           const char* stringData3 = NULL); 
+                           const char* stringData1 = NULL,
+                           const char* stringData2 = NULL,
+                           const char* stringData3 = NULL);
      //:Default constructor
 
    TaoListenerEventMessage(const TaoListenerEventMessage& rTaoListenerEventMessage);

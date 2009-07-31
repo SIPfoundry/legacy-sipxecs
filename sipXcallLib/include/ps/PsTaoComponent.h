@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -26,8 +26,8 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-//:The PsTaoComponent class is the base class for all individual components 
-//:used by the TAO (Telephony Application Objects layer) to model telephone 
+//:The PsTaoComponent class is the base class for all individual components
+//:used by the TAO (Telephony Application Objects layer) to model telephone
 //:hardware.  Each distinct component type is derived from this class.
 class PsTaoComponent
 {
@@ -57,7 +57,7 @@ public:
      //:Returns the name of the component
 
    int getType(void);
-     //:Returns the type of the component, either BUTTON, DISPLAY, 
+     //:Returns the type of the component, either BUTTON, DISPLAY,
      //:GRAPHIC_DISPLAY, HOOKSWITCH, LAMP, MICROPHONE, RINGER or SPEAKER.
 
 /* ============================ INQUIRY =================================== */
@@ -80,7 +80,7 @@ protected:
      //:Destructor
 
    OsMutex* getMutex(void);
-     //:Return the mutex used to synchronize access to an instance of this 
+     //:Return the mutex used to synchronize access to an instance of this
      //:class.
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

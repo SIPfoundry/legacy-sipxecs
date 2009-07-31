@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -29,7 +29,7 @@ class PtEventMask;
 //:Base class for listener objects.
 // The listener class is used to register interest and obtain notification
 // of events of interest on Pingtel objects.  The PtEventListener is
-// specialized, in the provided derived classes, with methods for each event 
+// specialized, in the provided derived classes, with methods for each event
 // type that a Pingtel object may generate.  An application that is
 // interested in being notified of specific events must implement
 // the derived class for the listener capable of receiving those events
@@ -76,8 +76,8 @@ public:
 
    PtStatus getEventMask(const PtEventMask*& rpMask) const;
      //:Returns the PtEventMask that defines the events of interest
-     // The event mask is read only.  Unpredictable results will occur if 
-     // the event mask is modified after a listener is constructed. 
+     // The event mask is read only.  Unpredictable results will occur if
+     // the event mask is modified after a listener is constructed.
      // The mask may be NULL where it is assumed that all events applicable
      // to the derived listener are of interest.
      //!param: (out) rpMask - Reference to a pointer to the PtEventMask.
@@ -97,7 +97,7 @@ public:
      //!retcode: FALSE - If the given string does not match that of this class
 
    virtual PtBoolean isInstanceOf(const char* pClassName);
-     //:Determines if this object is either an instance of or is derived from 
+     //:Determines if this object is either an instance of or is derived from
      //:the specified type.
      //!param: (in) pClassName - The string to compare with the name of this class
      //!retcode: TRUE - If this object is either an instance of or is derived from the specified class
@@ -107,7 +107,7 @@ public:
      //:Determines if the given event type is of interest to this listener.
      //!param: (in) eventId - The event id corresponding to the event type
      //!retcode: TRUE - If the given event type is of interest to this listener
-     //!retcode: FALSE - If the given event type is NOT of interest to this listener 
+     //!retcode: FALSE - If the given event type is NOT of interest to this listener
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

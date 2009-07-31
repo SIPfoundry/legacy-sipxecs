@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -47,14 +47,14 @@ public:
 
 /* ============================ ACCESSORS ================================= */
    PtStatus getOldValue(int& rValue);
-     //:Returns the component property value before the change as a result 
+     //:Returns the component property value before the change as a result
      //:of the event.
      //!param: (out) rValue - The reference used to return the component property value
      //!retcode: PT_SUCCESS - Success
      //!retcode: PT_PROVIDER_UNAVAILABLE - The provider is not available
 
    PtStatus getNewValue(int& rValue);
-     //:Returns the component property value after the change as a result of 
+     //:Returns the component property value after the change as a result of
      //:the event.
      //!param: (out) rValue - The reference used to return the component property value
      //!retcode: PT_SUCCESS - Success

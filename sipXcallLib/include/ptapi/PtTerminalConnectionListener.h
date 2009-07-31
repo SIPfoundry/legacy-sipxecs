@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -26,8 +26,8 @@
 // FORWARD DECLARATIONS
 class PtTerminalConnectionEvent;
 
-//:The PtTerminalConnectionListener is used to register with PtAddress,  
-//:PtTerminal, and PtCall objects to receive events from associated PtCall, 
+//:The PtTerminalConnectionListener is used to register with PtAddress,
+//:PtTerminal, and PtCall objects to receive events from associated PtCall,
 //:PtConnection, and PtTerminalConnection objects.
 
 class PtTerminalConnectionListener : public PtConnectionListener
@@ -49,10 +49,10 @@ public:
 /* ============================ MANIPULATORS ============================== */
 
   virtual void terminalConnectionCreated(const PtTerminalConnectionEvent& rEvent);
-     //:Method invoked on listener for event id = 
-     //:TERMINAL_CONNECTION_CREATED 
+     //:Method invoked on listener for event id =
+     //:TERMINAL_CONNECTION_CREATED
      //:indicating that a new PtTerminalConnection object has been created.
-     // The event parameter is valid only within 
+     // The event parameter is valid only within
      // this method.  The implementation must copy the event if
      // it is needed beyond the scope of an invocation.  The implementation
      // of this method should not block as it may prevent other listeners
@@ -60,11 +60,11 @@ public:
      //!param: (in) rEvent - Reference to the PtEvent containing the specific event information.
 
   virtual void terminalConnectionIdle(const PtTerminalConnectionEvent& rEvent);
-     //:Method invoked on listener for event id = 
-     //:TERMINAL_CONNECTION_IDLE 
-     //:indicating that the state of the PtTerminalConnection object has 
+     //:Method invoked on listener for event id =
+     //:TERMINAL_CONNECTION_IDLE
+     //:indicating that the state of the PtTerminalConnection object has
      //:changed to PtTerminalConnection::IDLE.
-     // The event parameter is valid only within 
+     // The event parameter is valid only within
      // this method.  The implementation must copy the event if
      // it is needed beyond the scope of an invocation.  The implementation
      // of this method should not block as it may prevent other listeners
@@ -72,11 +72,11 @@ public:
      //!param: (in) rEvent - reference to the PtEvent containing the specific event information.
 
   virtual void terminalConnectionRinging(const PtTerminalConnectionEvent& rEvent);
-     //:Method invoked on listener for event id = 
-     //:TERMINAL_CONNECTION_RINGING 
-     //:indicating that the state of the PtTerminalConnection object has 
+     //:Method invoked on listener for event id =
+     //:TERMINAL_CONNECTION_RINGING
+     //:indicating that the state of the PtTerminalConnection object has
      //:changed to PtTerminalConnection::RINGING.
-     // The event parameter is valid only within 
+     // The event parameter is valid only within
      // this method.  The implementation must copy the event if
      // it is needed beyond the scope of an invocation.  The implementation
      // of this method should not block as it may prevent other listeners
@@ -84,11 +84,11 @@ public:
      //!param: (in) rEvent - Reference to the PtEvent containing the specific event information.
 
   virtual void terminalConnectionDropped(const PtTerminalConnectionEvent& rEvent);
-     //:Method invoked on listener for event id = 
-     //:TERMINAL_CONNECTION_DROPPED 
-     //:indicating that the state of the PtTerminalConnection object has 
+     //:Method invoked on listener for event id =
+     //:TERMINAL_CONNECTION_DROPPED
+     //:indicating that the state of the PtTerminalConnection object has
      //:changed to PtTerminalConnection::DROPPED.
-     // The event parameter is valid only within 
+     // The event parameter is valid only within
      // this method.  The implementation must copy the event if
      // it is needed beyond the scope of an invocation.  The implementation
      // of this method should not block as it may prevent other listeners
@@ -96,11 +96,11 @@ public:
      //!param: (in) rEvent - Reference to the PtEvent containing the specific event information.
 
   virtual void terminalConnectionUnknown(const PtTerminalConnectionEvent& rEvent);
-     //:Method invoked on listener for event id = 
-     //:TERMINAL_CONNECTION_UNKNOWN 
-     //:indicating that the state of the PtTerminalConnection object has 
+     //:Method invoked on listener for event id =
+     //:TERMINAL_CONNECTION_UNKNOWN
+     //:indicating that the state of the PtTerminalConnection object has
      //:changed to PtTerminalConnection::UNKNOWN.
-     // The event parameter is valid only within 
+     // The event parameter is valid only within
      // this method.  The implementation must copy the event if
      // it is needed beyond the scope of an invocation.  The implementation
      // of this method should not block as it may prevent other listeners
@@ -108,11 +108,11 @@ public:
      //!param: (in) rEvent - Reference to the PtEvent containing the specific event information.
 
   virtual void terminalConnectionHeld(const PtTerminalConnectionEvent& rEvent);
-     //:Method invoked on listener for event id = 
-     //:TERMINAL_CONNECTION_HELD 
-     //:indicating that the state of the PtTerminalConnection object has 
+     //:Method invoked on listener for event id =
+     //:TERMINAL_CONNECTION_HELD
+     //:indicating that the state of the PtTerminalConnection object has
      //:changed to PtTerminalConnection::HELD.
-     // The event parameter is valid only within 
+     // The event parameter is valid only within
      // this method.  The implementation must copy the event if
      // it is needed beyond the scope of an invocation.  The implementation
      // of this method should not block as it may prevent other listeners
@@ -120,11 +120,11 @@ public:
      //!param: (in) rEvent - Reference to the PtEvent containing the specific event information.
 
   virtual void terminalConnectionTalking(const PtTerminalConnectionEvent& rEvent);
-     //:Method invoked on listener for event id = 
-     //:TERMINAL_CONNECTION_TALKING 
-     //:indicating that the state of the PtTerminalConnection object has 
+     //:Method invoked on listener for event id =
+     //:TERMINAL_CONNECTION_TALKING
+     //:indicating that the state of the PtTerminalConnection object has
      //:changed to PtTerminalConnection::TALKING.
-     // The event parameter is valid only within 
+     // The event parameter is valid only within
      // this method.  The implementation must copy the event if
      // it is needed beyond the scope of an invocation.  The implementation
      // of this method should not block as it may prevent other listeners
@@ -132,11 +132,11 @@ public:
      //!param: (in) rEvent - Reference to the PtEvent containing the specific event information.
 
   virtual void terminalConnectionInUse(const PtTerminalConnectionEvent& rEvent);
-     //:Method invoked on listener for event id = 
+     //:Method invoked on listener for event id =
      //:TERMINAL_CONNECTION_IN_USE
-     //:indicating that the state of the PtTerminalConnection object has 
+     //:indicating that the state of the PtTerminalConnection object has
      //:changed to PtTerminalConnection::IN_USE.
-     // The event parameter is valid only within 
+     // The event parameter is valid only within
      // this method.  The implementation must copy the event if
      // it is needed beyond the scope of an invocation.  The implementation
      // of this method should not block as it may prevent other listeners
@@ -158,7 +158,7 @@ public:
      //!retcode: FALSE - if the given string does not match that of this class
 
    virtual PtBoolean isInstanceOf(const char* pClassName);
-     //:Determines if this object is either an instance of or is derived from 
+     //:Determines if this object is either an instance of or is derived from
      //:the specified type.
      //!param: (in) pClassName - the string to compare with the name of this class.
      //!retcode: TRUE - if this object is either an instance of or is derived from the specified class.

@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -161,7 +161,7 @@ protected:
     //: Handles the processing of a CallManager::CP_RENEGOTIATE_CODECS_ALL_CONNECTIONS
     //: message
     UtlBoolean handleSendKeepAlive(OsMsg* pEventMessage);
-    //: Handles the processing of a CallManager::CP_KEEPALIVE 
+    //: Handles the processing of a CallManager::CP_KEEPALIVE
     //: message
     UtlBoolean handleGetCodecCPULimit(OsMsg& eventMessage);
     //: Handles the processing of a CallManager::CP_GET_CODEC_CPU_LIMIT
@@ -181,7 +181,7 @@ protected:
     //: Handles the processing of a CallManager::CP_BLIND_TRANSFER and
     //: CallManager::CP_CONSULT_TRANSFER messages
     UtlBoolean handleTransferAddress(OsMsg* pEventMessage);
-    //: Handles the processing of a CallManager::CP_CONSULT_TRANSFER_ADDRESS 
+    //: Handles the processing of a CallManager::CP_CONSULT_TRANSFER_ADDRESS
     //: message
 
     UtlBoolean handleTransferConnection(OsMsg* pEventMessage);
@@ -237,7 +237,7 @@ protected:
     //: Handles the processing of a CallManager::CP_GET_CONNECTIONS
     //: message
     UtlBoolean handleGetSession(OsMsg* pEventMessage);
-    // Handles the processing of a CallManager::CP_GET_INVITE 
+    // Handles the processing of a CallManager::CP_GET_INVITE
     // message
     UtlBoolean handleGetInvite(OsMsg* pEventMessage);
     //: Handles the processing of a CallManager::CP_GET_SESSION
@@ -280,7 +280,7 @@ protected:
 
     UtlBoolean handleSendInfo(OsMsg* pEventMessage);
     //: Handles the processing of a CP_INFO message, and sends an INFO message
-    
+
     UtlBoolean handleGetMediaConnectionId(OsMsg* pEventMessage);
     //: Handles the processing of a CP_GET_MEDIA_CONNECTION_ID message
 
@@ -352,7 +352,7 @@ private:
 
     SIPX_CALLSTATE_EVENT eLastMajor ;
     SIPX_CALLSTATE_CAUSE eLastMinor ;
-    
+
     CpPeerCall(const CpPeerCall& rCpPeerCall);
     //:Copy constructor
 

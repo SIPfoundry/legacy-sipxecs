@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -311,16 +311,16 @@ private:
 
     int mCallType;
     //: initially set to CP_NORMAL_CALL
-    //: can be set to 
+    //: can be set to
     //:     - CP_TRANSFER_CONTROLLER_ORIGINAL_CALL for blind(16) or consult(17) transfer
     //:     - CP_TRANSFER_CONTROLLER_TARGET_CALL for transfer connection(18)
     //:     - CP_TRANSFER_TARGET_TARGET_CALL for incoming invite with replaces,replaced-by, referred-by
     //:     - CP_TRANSFEREE_ORIGINAL_CALL for incoming REFER or BYE with 'also' header
- 
+
     UtlString mIdOfOrigCall;
     //: transfer use only, contains call-id of the original call
     //: this is NOT the original call-id of THIS call
- 
+
     UtlString mTargetCallId;
 
     CpCall& operator=(const CpCall& rhs);
@@ -338,14 +338,14 @@ private:
 
     OsTime  mCallTimeStart;   // xecs-1698 hack
 
-    bool mCallMgrPostedDrop;      
+    bool mCallMgrPostedDrop;
     ///< the relationship between this object and the call manager
-    /// This flag is to eliminate a race for messages which are posted 
+    /// This flag is to eliminate a race for messages which are posted
     /// to CallManager after CP_DROP but before CP_CALL_EXITED.
     /// CallManager should not send any such messages to the CpCall object.
     /// Only constructor should set to FALSE.
     /// Only CallManager should check or write to it outside the constructor.
-    /// CM can only set this to TRUE.  CM should set before posting CP_DROP.  
+    /// CM can only set this to TRUE.  CM should set before posting CP_DROP.
     /// If TRUE, CM will not post any message to the Call object.
 
 };

@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -25,7 +25,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-//:The PtEventMask is used to filter events which get passed to a  
+//:The PtEventMask is used to filter events which get passed to a
 //:PtEventListener.
 // To provide finer granularity on the control of events that get passed to
 // a listener, the PtEventMask may be used to define the specific events
@@ -84,7 +84,7 @@ public:
      //:Inquires if the given event type is of interest to this listener
      //!param: (in) eventId - The event id corresponding to the event type
      //!retcode: TRUE - If the given event type is of interest to this listener
-     //!retcode: FALSE - If the given event type is NOT of interest to this listener 
+     //!retcode: FALSE - If the given event type is NOT of interest to this listener
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

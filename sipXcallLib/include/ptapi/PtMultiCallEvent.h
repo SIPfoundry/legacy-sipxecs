@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -23,11 +23,11 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-//:PtMultiCallEvent contains PtCall-associated event data, 
+//:PtMultiCallEvent contains PtCall-associated event data,
 //:where multiple calls are involved.
 // MultiCall events are typically merges of multiple calls into a single call.
 // The original set of calls may be retrieved via the getOldCalls method.  The
-// new call that is generated, or the resulting merged call, may be retrieved 
+// new call that is generated, or the resulting merged call, may be retrieved
 // via the inherited getCall method.
 
 class PtMultiCallEvent : public PtCallEvent
@@ -52,7 +52,7 @@ public:
 /* ============================ ACCESSORS ================================= */
 
    PtStatus getOldCalls(PtCall*[] calls, int size, int& nItems);
-     //:Returns an array of pointers to PtCall objects that are involved 
+     //:Returns an array of pointers to PtCall objects that are involved
      //:with this multicall event.
      // The caller provides an array that can hold up to <i>size</i>
      // PtCall pointers.  This method will fill in the <i>calls</i> array with

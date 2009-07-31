@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -71,7 +71,7 @@ public:
     /* ============================ MANIPULATORS ============================== */
 
     virtual UtlBoolean dequeue(UtlBoolean callInFocus);
-    
+
     virtual UtlBoolean send(SipMessage& message,
                         OsMsgQ* responseListener = NULL,
                         void* responseListenerData = NULL);
@@ -97,7 +97,7 @@ public:
     /**
      * If fromAddress or toAddress are NULL it is assumed to be a blind transfer.
      */
-    
+
     virtual UtlBoolean targetCallBlindTransfer(const char* transferTargetAddress,
         const char* transferControllerAddress);
     // Communicate blind transfer on transfer controller connection in

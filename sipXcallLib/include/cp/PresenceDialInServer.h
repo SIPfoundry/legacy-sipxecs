@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -37,7 +37,7 @@ class TaoString;
 /**
  * A PresenceDialInServer is an object that allows an extension to sign in and
  * sign off to a ACD queue by simply using a feature code.
- * 
+ *
  */
 
 class PresenceDialInServer: public TaoAdaptor
@@ -48,7 +48,7 @@ public:
 
    /// Constructor
    PresenceDialInServer(CallManager* callMgr, OsConfigDb* configFile);
-   
+
    /// Destructor
    virtual ~PresenceDialInServer();
 
@@ -70,7 +70,7 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
    void dumpTaoMessageArgs(unsigned char eventId, TaoString& args);
- 
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
@@ -78,17 +78,17 @@ private:
 
    // Returns TRUE if the requested state is different from the current state.
    bool notifyStateChange(UtlString& contact, bool signIn);
-  
+
    CallManager* mpCallManager;
    OsBSem mLock;
-   
+
    UtlString mSignInFC;       /// Sign in feature code
    UtlString mSignOutFC;      /// Sign out feature code
-   
+
    UtlString mSignInConfirmationAudio;
    UtlString mSignOutConfirmationAudio;
    UtlString mErrorAudio;
-   
+
    static const char *  confirmationTone;       // Confirmation Tone audio data
    static unsigned long confirmationToneLength; // and length.  See: ConfirmationTone.h
 
@@ -101,7 +101,7 @@ private:
    OsMsgQ* mpIncomingQ;
 
    UtlHashMap mCalls;
-   UtlHashMap mStateChangeNotifiers;   
+   UtlHashMap mStateChangeNotifiers;
 };
 
 /* ============================ INLINE METHODS ============================ */

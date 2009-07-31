@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -130,7 +130,7 @@ class SipPresenceMonitor : public StateChangeNotifier
    bool addExtension(UtlString& groupName, Url& contactUrl);
 
    /// Remove an extension from a group to be monitored
-   bool removeExtension(UtlString& groupName, Url& contactUrl); 
+   bool removeExtension(UtlString& groupName, Url& contactUrl);
 
    /// Register a StateChangeNotifier
    void addStateChangeNotifier(const char* fileUrl, StateChangeNotifier* notifier);
@@ -141,7 +141,7 @@ class SipPresenceMonitor : public StateChangeNotifier
    /// Set the status value for the URI 'aor'.
    virtual bool setStatus(const Url& aor, const Status value);
    // Returns TRUE if the requested state is different from the current state.
-   
+
    /// Get the state of the contact
    void getState(const Url& aor, UtlString& status);
 
@@ -157,7 +157,7 @@ class SipPresenceMonitor : public StateChangeNotifier
    /// Send the state change to the notifier
    void notifyStateChange(UtlString& contact, SipPresenceEvent* presenceEvent);
    // Caller must hold mLock.
-                                   
+
    //! Construct a tuple id from a presence resource name.
    static void makeId(UtlString& id,             ///< output: tuple id
                       const UtlString& resource  ///< resource URI
@@ -174,23 +174,23 @@ class SipPresenceMonitor : public StateChangeNotifier
    CallManager* mpCallManager;
    SdpCodecFactory mCodecFactory;
    PresenceDialInServer* mpDialInServer;
-   SipUserAgent* mpUserAgent;  
+   SipUserAgent* mpUserAgent;
    UtlString mDomainName;
    UtlString mHostAndPort;
    bool mToBePublished;
-   
+
    OsBSem mLock;
-   
+
    SipSubscriptionMgr* mpSubscriptionMgr;
    SipSubscribeServerEventHandler mPolicyHolder;
    SipPublishContentMgr mSipPublishContentMgr;
    SipSubscribeServer* mpSubscribeServer;
-   
+
    XmlRpcSignIn* mpXmlRpcSignIn;
 
    UtlHashMap mMonitoredLists;
    UtlHashMap mPresenceEventList;
-   UtlHashMap mStateChangeNotifiers;   
+   UtlHashMap mStateChangeNotifiers;
 
    /// Disabled copy constructor
    SipPresenceMonitor(const SipPresenceMonitor& rSipPresenceMonitor);

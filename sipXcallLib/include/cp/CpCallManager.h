@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -455,8 +455,8 @@ public:
                                   CONTACT_TYPE contactType = AUTO,
                                   const void* hWnd = NULL) = 0;
 
-    virtual void setOutboundLineForCall(const char* callId, 
-                                        const char* address, 
+    virtual void setOutboundLineForCall(const char* callId,
+                                        const char* address,
                                         CONTACT_TYPE eType = AUTO) = 0;
 
 
@@ -656,13 +656,13 @@ public:
     * Gets the number of lines made available by line manager.
     */
    virtual int getNumLines() = 0;
-      
+
    /**
-    * Gets the call manager's line manager.  Usage of a line manager is 
+    * Gets the call manager's line manager.  Usage of a line manager is
     * optional and callers should expect a null return code.
     */
    virtual SipLineMgr* getLineManager() = 0 ;
-   
+
 
   /**
    * maxAddressesRequested is the number of addresses requested if available

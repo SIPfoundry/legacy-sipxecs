@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -65,7 +65,7 @@ public:
 
    PtStatus set(const char* pKey, const char* pNewValue);
      //:Insert the key/value pair into the config database.
-     // If the database already contains an entry for this key, then 
+     // If the database already contains an entry for this key, then
      // set the value for the existing entry to pNewValue.
      //!param: pKey - The key for the key/value pair being added (or modified)
      //!param: pNewValue - The new value for the key/value pair being added (or modified)
@@ -75,7 +75,7 @@ public:
 /* ============================ ACCESSORS ================================= */
 
    PtStatus get(const char* pKey, char*& rpValue);
-     //:Sets <i>rpValue</i> to point to the value in the database 
+     //:Sets <i>rpValue</i> to point to the value in the database
      //:associated with <i>pKey</i>.
      // If pKey is found in the database, returns PT_SUCCESS.  Otherwise,
      // returns PT_NOT_FOUND and sets rpValue to point to an empty string.
@@ -86,7 +86,7 @@ public:
      //!retcode: PT_PROVIDER_UNAVAILABLE - The provider is not available
 
    PtStatus get(const char* pKey, int& rValue);
-     //:Sets <i>rValue</i> to the integer value in the database associated 
+     //:Sets <i>rValue</i> to the integer value in the database associated
      //:with <i>pKey</i>.
      // If pKey is found in the database, returns PT_SUCCESS.  Otherwise,
      // returns PT_NOT_FOUND and sets rValue to -1.
@@ -98,11 +98,11 @@ public:
 
    PtStatus getNext(const char* pKey,
                     char*& rpNextKey, char*& rpNextValue);
-     //:Relative to <i>pKey</i>, sets <i>rpNextKey</i> and 
-     //:<i>rpNextValue</i> to point to the key and value associated with 
-     //:next (lexicographically ordered) key/value pair stored in the 
-     //:database.  
-     // If pKey is the empty string, the key and value associated 
+     //:Relative to <i>pKey</i>, sets <i>rpNextKey</i> and
+     //:<i>rpNextValue</i> to point to the key and value associated with
+     //:next (lexicographically ordered) key/value pair stored in the
+     //:database.
+     // If pKey is the empty string, the key and value associated
      // with the first entry in the database will be returned.
      //!param: pKey - The lookup key
      //!param: rpNextKey - Set to point to the key for the next key/value pair stored in the database
@@ -115,7 +115,7 @@ public:
 /* ============================ INQUIRY =================================== */
 
    PtStatus isEmpty(PtBoolean& rIsEmpty);
-     //:Sets <i>rIsEmpty</i> to TRUE if the database is empty, otherwise 
+     //:Sets <i>rIsEmpty</i> to TRUE if the database is empty, otherwise
      //:FALSE.
      //!retcode: PT_SUCCESS - Success
      //!retcode: PT_PROVIDER_UNAVAILABLE - The provider is not available

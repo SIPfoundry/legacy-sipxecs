@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -44,7 +44,7 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-   PsLampInfo(int         lampId=0, 
+   PsLampInfo(int         lampId=0,
               const char* pName="",
               LampMode    mode=OFF);
      //:Constructor

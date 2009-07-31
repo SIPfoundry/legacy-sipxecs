@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -153,20 +153,20 @@ public:
     // the transfer target connection in the resulting new transfer
     // target call
 
-    PtStatus transfer(const char* sourceCallId, 
+    PtStatus transfer(const char* sourceCallId,
                       const char* sourceAddress, // name-addr
                       const char* targetCallId,
                       const char* targetAddress, // name-addr
                       bool        remoteHoldBeforeTransfer = true
                       ) ;
-    //: Transfer an individual participant from one end point to another using 
+    //: Transfer an individual participant from one end point to another using
     //: REFER w/replaces.
 
 
     virtual PtStatus split(const char* szSourceCallId,
                            const char* szSourceAddress,
                            const char* szTargetCallId) ;
-    //: Split szSourceAddress from szSourceCallId and join it to the specified 
+    //: Split szSourceAddress from szSourceCallId and join it to the specified
     //: target call id.  The source call/connection MUST be on hold prior
     //: to initiating the split/join.
 
@@ -190,11 +190,11 @@ public:
                                   const char* address,
                                   CONTACT_TYPE contactType = AUTO,
                                   const void* hWnd = NULL);
-                                  
-    virtual void rejectConnection(const char* callId, 
+
+    virtual void rejectConnection(const char* callId,
                                   const char* address,
                                   int         errorCode = SIP_BUSY_CODE,
-                                  const char* errorText = SIP_BUSY_TEXT);                                  
+                                  const char* errorText = SIP_BUSY_TEXT);
     virtual PtStatus redirectConnection(const char* callId, const char* address, const char* forwardAddressUrl);
     // Note that dropConnection() drops only one connection (call leg), not the entire call.
     // Use drop() to drop an entire call.
@@ -208,7 +208,7 @@ public:
                 int& numConnections, UtlString addresses[]);
 
     // Operations for calls & terminal connections
-    virtual void answerTerminalConnection(const char* callId, const char* address, const char* terminalId, 
+    virtual void answerTerminalConnection(const char* callId, const char* address, const char* terminalId,
                                           const void* pDisplay = NULL);
     virtual void holdTerminalConnection(const char* callId, const char* address, const char* terminalId);
     virtual void holdAllTerminalConnections(const char* callId);
@@ -293,13 +293,13 @@ public:
     virtual void setMaxCalls(int maxCalls);
     //:Set the maximum number of calls to admit to the system.
 
-    virtual void enableStun(const char* szStunServer, 
-                            int iKeepAlivePeriodSecs, 
+    virtual void enableStun(const char* szStunServer,
+                            int iKeepAlivePeriodSecs,
                             int stunOptions,
                             OsNotification *pNotification = NULL) ;
     //:Enable STUN for NAT/Firewall traversal
-    
-    virtual void sendInfo(const char* callId, 
+
+    virtual void sendInfo(const char* callId,
                            const char* szContentType,
                            const size_t nContenLength,
                            const char*  szContent);
@@ -310,9 +310,9 @@ public:
     * Gets the number of lines made available by line manager.
     */
    virtual int getNumLines();
-   
+
    /**
-    * Gets the call manager's line manager.  Usage of a line manager is 
+    * Gets the call manager's line manager.  Usage of a line manager is
     * optional and callers should expect a null return code.
     */
    virtual SipLineMgr* getLineManager() ;
@@ -397,7 +397,7 @@ public:
 
    virtual CpMediaInterfaceFactory* getMediaInterfaceFactory() ;
      //: Gets the media interface factory used by the call manager
-     
+
    virtual int getMediaConnectionId(const char* szCallId, const char* remoteAddress, void** ppInstData = NULL);
    //: Gets the Media Connection ID
    //: @param szCallId The call-id string of the call with which the connection id is associated
@@ -405,19 +405,19 @@ public:
    //: @param ppInstData Reserved for future use.
 
    virtual UtlBoolean canAddConnection(const char* szCallId);
-   //: Can a new connection be added to the specified call?  This method is 
+   //: Can a new connection be added to the specified call?  This method is
    //: delegated to the media interface.
-   
+
    virtual void setDelayInDeleteCall(int delayInDeleteCall);
    //: Set the number of seconds to delay in deleting the call
 
    virtual int getDelayInDeleteCall();
    //: Get the number of seconds to delay in deleting the call
-   
+
 /* ============================ INQUIRY =================================== */
    int getTotalNumberOutgoingCalls() { return mnTotalOutgoingCalls;}
    int getTotalNumberIncomingCalls() { return mnTotalIncomingCalls;}
-   
+
    SipUserAgent* getUserAgent() { return sipUserAgent;}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -460,13 +460,13 @@ private:
     SipLineMgr*       mpLineMgrTask;     //Line manager
     UtlBoolean mIsRequredUserIdMatch;
     // mMaxCalls can be changed by code running in other threads.
-    volatile int mMaxCalls;    
+    volatile int mMaxCalls;
 
     UtlString mStunServer ;
     int mStunOptions ;
     int mStunKeepAlivePeriodSecs ;
     CpMediaInterfaceFactory* mpMediaFactory;
-    
+
     // Delay in deleting the call
     int mDelayInDeleteCall;
 
@@ -499,20 +499,20 @@ private:
                    const void* pDisplay = NULL,
                    const bool sendPAIheader = 0 );
 
-    void doSendInfo(const char* callId, 
+    void doSendInfo(const char* callId,
                            const char* szContentType,
                            UtlString   sContent);
     //:Called by the handleMessage method, this method posts a message to the Call object's
-    //:message handler, passing along the content type and content.  
+    //:message handler, passing along the content type and content.
 
-    void doEnableStun(const char* szStunServer, 
-                      int iKeepAlivePeriodSecs, 
+    void doEnableStun(const char* szStunServer,
+                      int iKeepAlivePeriodSecs,
                       int stunOptions,
                       OsNotification* pNotification) ;
-    //:Enable STUN for NAT/Firewall traversal                           
+    //:Enable STUN for NAT/Firewall traversal
 
-    void releaseEvent(const char* callId, 
-                     OsProtectEventMgr* eventMgr, 
+    void releaseEvent(const char* callId,
+                     OsProtectEventMgr* eventMgr,
                      OsProtectedEvent* dtmfEvent);
 
            CallManager(const CallManager& rCallManager);

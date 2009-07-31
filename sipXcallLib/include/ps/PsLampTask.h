@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -77,17 +77,17 @@ public:
 
    OsStatus getMode(int lampId, PsLampInfo::LampMode& rMode);
      //:Get the current mode for the lamp designated by lampId
-     // The mode is returned in the "rMode" variable. 
+     // The mode is returned in the "rMode" variable.
      // Returns OS_NOT_FOUND if there is no lamp with that lampId.
 
    OsStatus getMode(const char* pLampName, PsLampInfo::LampMode& rMode);
      //:Get the current mode for the lamp designated by pLampName
-     // The mode is returned in the "rMode" variable. 
+     // The mode is returned in the "rMode" variable.
      // Returns OS_NOT_FOUND if there is no lamp with that name.
 
    OsStatus getName(int lampId, const char*& rpName);
      //:Returns the name for the lamp designated by lampId
-     // The name is returned in the "rpName" variable. 
+     // The name is returned in the "rpName" variable.
      // Returns OS_NOT_FOUND if there is no lamp with that lampId.
 
 /* ============================ INQUIRY =================================== */
@@ -118,9 +118,9 @@ private:
       WINK_ON_TICKS     = 1,
       WINK_OFF_TICKS    = 19
    };
-   
+
    void calculateLampModeAggregates(void);
-     //:Calculate the lamp mode aggregates (the lamp IDs that are turned on 
+     //:Calculate the lamp mode aggregates (the lamp IDs that are turned on
      //:for each mode)
 
    void doCleanup(void);

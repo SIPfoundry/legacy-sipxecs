@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -24,7 +24,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-//:PtComponentStringChangeEvent contains PtComponent-associated event data, 
+//:PtComponentStringChangeEvent contains PtComponent-associated event data,
 //:where a component's string type property has changed
 
 class PtComponentStringChangeEvent : public PtTerminalComponentEvent
@@ -48,7 +48,7 @@ public:
 
 /* ============================ ACCESSORS ================================= */
    PtStatus getOldValue(const char*& rpValue);
-     //:Returns the component property value before the change as a result 
+     //:Returns the component property value before the change as a result
      //:of the event.
      //!param: (out) rpValue - The reference used to return the component property value.  Note the returned string is valid only for the life of this event object.
      //!retcode: PT_SUCCESS - Success

@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -35,9 +35,9 @@
 // WARNING: CpGhostConnection's are known to taoListener's but they
 // are not known to sipXtapiListeners.  This forces different behavior
 // for the two cases.
-// In general, a single CpGhostConnection should not be associated 
+// In general, a single CpGhostConnection should not be associated
 // with both types of listeners.
-// 
+//
 class CpGhostConnection: public Connection
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -120,7 +120,7 @@ public:
    virtual UtlBoolean getRemoteAddress(UtlString* remoteAddress, UtlBoolean leaveFieldParametersIn) const;
    //: get Connection address
    //! returns: TRUE/FALSE if the connection has an address.  The connection may not have an address assigned yet (i.e. if it is not fully setup).
-   
+
            virtual UtlBoolean getSession(SipSession& session);
 
     /**

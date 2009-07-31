@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -45,7 +45,7 @@
  * Dialog information can be obtained locally (from a SipDialogMonitor
  * that the object creates) or remotely (by subscribing to a dialog event
  * server).  (Remote operation is not completely implemented.)
- * 
+ *
  * This class is derived from StateChangeNotifier class so that it can pass
  * "this" to the SipDialogMonitor.  The SipDialogMonitor will then call
  * LinePresenceMonitor::setStatus() to report events.
@@ -88,7 +88,7 @@ public:
                                                  *   (not implemented)
                                                  */
                        Url& presenceServerUrl); ///< presence server url
-  
+
    /// Destructor
    virtual ~LinePresenceMonitor();
 
@@ -123,13 +123,13 @@ public:
     *  Once the event has been signaled, "*line" may be deleted.
     */
    OsStatus unsubscribeDialog(LinePresenceBase* line, OsEvent* e = NULL);
-   
+
    /** Subscribe to the dialog status of the lines on a list.
     *  The line objects are subject to the same restrictions as from
     *  subscribeDialog(LinePresenceBase*).
     */
    OsStatus subscribeDialog(UtlSList& list);
-   
+
    /** Unsubscribe to the dialog status of the lines on a list.
     *  Once the event has been signaled, the lines in the list may be deleted.
     */
@@ -148,22 +148,22 @@ public:
     *  Once the event has been signalled, "*line" may be deleted.
     */
    OsStatus unsubscribePresence(LinePresenceBase* line, OsEvent* e = NULL);
-   
+
    /** Subscribe to the presence status of the lines on a list
     *  The line objects are subject to the same restrictions as from
     *  subscribePresence(LinePresenceBase*).
     */
    OsStatus subscribePresence(UtlSList& list);
-   
+
    /** Unsubscribe to the presence status of the lines on a list
     *  Once the event has been signaled, the lines in the list may be deleted.
     */
    OsStatus unsubscribePresence(UtlSList& list, OsEvent* e = NULL);
 
 /* ============================ INQUIRY =================================== */
-   
+
    /** Check the status of the monitor.  Returns true if the monitor is
-    *  initialized successfully or false if any problems are detected 
+    *  initialized successfully or false if any problems are detected
     *  (e.g. SipUserAgent failed a port binding).
     */
    UtlBoolean isOk() const;
@@ -184,7 +184,7 @@ protected:
                                    const char* dialogHandle,
                                    void* applicationData,
                                    const SipMessage* notifyRequest);
-                                   
+
    void handleNotifyMessage(const SipMessage* notifyMessage);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
@@ -204,7 +204,7 @@ private:
    UtlString mDomainName;
    // Contact addr for any SUBSCRIBEs sent.
    UtlString mContact;
-   
+
    /** If mLocal is TRUE, a pointer to the SipDialogMonitor created to monitor
     *  dialog event status.
     */
@@ -216,7 +216,7 @@ private:
    SipDialogMgr mDialogManager;
    SipRefreshManager* mpRefreshMgr;
    SipSubscribeClient* mpSipSubscribeClient;
-   
+
    // URI of the "remote" DialogEventServer.
    Url mRemoteServer;
    // URI of the Presence Server.
@@ -237,7 +237,7 @@ private:
 
    /// Semaphore to serialize operations on the object.
    OsBSem mLock;
-                                    
+
    /// Handle incoming IPC messages
    UtlBoolean handleMessage(OsMsg& rMessage);
 
@@ -246,13 +246,13 @@ private:
 
    /// Unsubscribe the dialog on a specific line from the list
    OsStatus unsubscribeDialogMessage(LinePresenceBase* line);
-   
+
    /// Subscribe the presence on a specific line in the list
    OsStatus subscribePresenceMessage(LinePresenceBase* line);
 
    /// Unsubscribe the presence on a specific line from the list
    OsStatus unsubscribePresenceMessage(LinePresenceBase* line);
-   
+
    /** Perform the work of updating the status variables.
     *  This method does not take mLlock, but assumes that its caller
     *  holds mLock.
@@ -265,11 +265,9 @@ private:
    LinePresenceMonitor(const LinePresenceMonitor& rLinePresenceMonitor);
 
    /// Disabled assignment operator
-   LinePresenceMonitor& operator=(const LinePresenceMonitor& rhs); 
+   LinePresenceMonitor& operator=(const LinePresenceMonitor& rhs);
 };
 
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _LINEPRESENCEMONITOR_H_
-
-

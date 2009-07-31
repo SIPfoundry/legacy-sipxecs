@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -58,7 +58,7 @@ public:
    static void setHookState(int hookState);
      //:Set the hardware state
      // On NT there is no hardware so it is emulated
-   
+
 /* ============================ INQUIRY =================================== */
 
    virtual UtlBoolean isOffHook(void);

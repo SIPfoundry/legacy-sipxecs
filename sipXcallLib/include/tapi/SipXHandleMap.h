@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -71,16 +71,16 @@ class SipXHandleMap : public UtlHashMap
      * should be called explicitly if using an external iterator on the map.
      */
     bool unlock() ;
-    
+
     /**
-     * Adds a reference count to the handle lock.  In this way, removeHandle is 
+     * Adds a reference count to the handle lock.  In this way, removeHandle is
      * guarded against removal while a handle is in use.
      * releaseHandleRef decrements the reference count.
      * addHandleRef should only be used in very specific
      * cases, when the handle might become invalid before it is needed again.
      */
      bool addHandleRef(SIPXHANDLE handle);
-     
+
     /**
      * Allocate a unique handle and associate the designed pData value
      * with that handle.
@@ -114,16 +114,16 @@ class SipXHandleMap : public UtlHashMap
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:
     UtlHashMap mLockCountHash;
-    
+
     /**
      * Decrements reference count for handle locking.
-     * This should only be called from withing 
-     * removeHandle. 
+     * This should only be called from withing
+     * removeHandle.
      * So, removeHandle will only actually remove the handle and
      * return a pointer when there are no outstanding locks.
      */
     bool releaseHandleRef(SIPXHANDLE handle);
-    
+
 };
 
 /* ============================ INLINE METHODS ============================ */

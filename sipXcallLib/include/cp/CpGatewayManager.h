@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -57,12 +57,12 @@ public:
    CpGatewayManager& operator=(const CpGatewayManager& rhs);
      //:Assignment operator
 
-   OsStatus setGatewayInterface(const char* terminalName, 
+   OsStatus setGatewayInterface(const char* terminalName,
        PtGatewayInterface* pInterface);
-   //: Add a PtGatewayInterface call back object for media setup on the named 
+   //: Add a PtGatewayInterface call back object for media setup on the named
    //: terminal.
    // Note this method does not validate the terminal name in any way.  One
-   // validate the terminal name and be sure that it is registered with the 
+   // validate the terminal name and be sure that it is registered with the
    // provider (i.e. proxy server) if calls are to work with the provider.
    //! param: (in) terminalName - the terminalName with which the interface is to work.
    //! param: (in) pInterface - interface object to be called for media setup information for calls on the geteway terminal.
@@ -70,10 +70,10 @@ public:
 
    void getNewCallId(UtlString& callId);
    //: Get a valid callId with which to create a new call
-   //  The callId is needed to call methods (i.e. <I>dialUrl</I>) requiring 
+   //  The callId is needed to call methods (i.e. <I>dialUrl</I>) requiring
    // a callId to create a new call.
 
-   OsStatus connect(const char* callId, 
+   OsStatus connect(const char* callId,
                     const char* fromAddressUrl,
                     const char* fromTerminalName,
                     const char* toAddressUrl);
@@ -93,7 +93,7 @@ public:
    //! retcode: OS_SUCCESS - the callId is valid and an attempt will be made to answer the call.  This does not indicate that the answer was successful or completed.
    //! retcode: OS_INVALID_ARGUMENT - the call indicated by callId or the terminalName indicated does not exist.
 
-   OsStatus disconnectConnection(const char* callId, 
+   OsStatus disconnectConnection(const char* callId,
                                  const char* connectionAddressUrl);
    //: Disconnects the indicated connection in the given call.
    //! param: (in) callId - the handle indicating which call contains the connection to disconnect.

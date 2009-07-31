@@ -1,4 +1,3 @@
-
 # preserve header timestamps to preserve incremental builds across
 # projects
 nobase_includeHEADERS_INSTALL = $(INSTALL) -D -p -c -m 644
@@ -139,6 +138,6 @@ noinst_HEADERS = \
     test/mp/MpTestConfig.h \
     test/mp/MyPlayerListenerHistoryKeeper.h \
     test/mp/MyPlayerListenerPoller.h \
-    test/mp/MyStreamQueueHistoryKeeper.h 
+    test/mp/MyStreamQueueHistoryKeeper.h
 
 DISTCLEANFILES = Makefile.in

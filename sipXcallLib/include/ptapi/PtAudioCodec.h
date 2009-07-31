@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@
 // to an agreement as to what RTP encoding will be used by the parties of
 // a call.  This class encapsulates the RTP encoding type and definitions
 // for parameters such as sample size, sample rate, number of channels and
-// encoding method.  
+// encoding method.
 // <BR>
 // The currentl implementation does not allow free form definition of all of
 // the RTP encoding parameters.  A fixed set of combinations may be specified
@@ -116,7 +116,7 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
     PtRtpAudioCodecType mCodecType;
-    PtRtpAudioEncodingMethod mAudioEncodingMethod; 
+    PtRtpAudioEncodingMethod mAudioEncodingMethod;
     int mSampleSize;
     int mSampleRate;
     int mNumberOfChannels;

@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -67,11 +67,11 @@ public:
     * Update the presence / line state for this line.
     *
     * @param type The type of presence state to be updated.
-    * 
+    *
     * @param state The state value to be updated.
     */
    virtual void updateState(ePresenceStateType type, bool state) = 0;
-   
+
 
 /* ============================ ACCESSORS ================================= */
    /**
@@ -95,4 +95,3 @@ private:
 };
 
 #endif  // _LinePresenceBase_h_
-

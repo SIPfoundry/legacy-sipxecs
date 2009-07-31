@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -26,7 +26,7 @@
 // FORWARD DECLARATIONS
 class TaoClientTask;
 
-//:A PtPhoneGraphicDisplay object represents a display device that is 
+//:A PtPhoneGraphicDisplay object represents a display device that is
 //:pixel-addressable.
 // The interface for this class has not yet been defined.
 

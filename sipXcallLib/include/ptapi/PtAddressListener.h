@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -22,7 +22,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-//:The PtAddressListener is used to register with and receive events from 
+//:The PtAddressListener is used to register with and receive events from
 //:PtAddress objects
 
 class PtAddressListener : public PtEventListener
@@ -43,11 +43,11 @@ public:
 /* ============================ MANIPULATORS ============================== */
 
   void addressEventTransmissionEnded(const PtAddressEvent& rEvent);
-     //:Method invoked on listener for event id = 
-     //:ADDRESS_EVENT_TRANSMISSION_ENDED 
-     //:indicating that the application will no longer receive address 
+     //:Method invoked on listener for event id =
+     //:ADDRESS_EVENT_TRANSMISSION_ENDED
+     //:indicating that the application will no longer receive address
      //:events on this instance of the PtAddressListener.
-     // The event parameter is valid only within 
+     // The event parameter is valid only within
      // this method.  The implementation must copy the event if
      // it is needed beyond the scope of an invocation.  The implementation
      // of this method should not block as it may prevent other listeners
@@ -55,11 +55,11 @@ public:
      //!param: (in) rEvent - Reference to the PtEvent containing the specific event information.
 
   void addressDoNotDisturbEnabled(const PtAddressEvent& rEvent);
-     //:Method invoked on listener for event id = 
-     //:ADDRESS_DO_NOT_DISTURB_ENABLED 
-     //:indicating the state of the <i>do-not-disturb</i> feature has changed 
+     //:Method invoked on listener for event id =
+     //:ADDRESS_DO_NOT_DISTURB_ENABLED
+     //:indicating the state of the <i>do-not-disturb</i> feature has changed
      //:to enabled for the PtAddress.
-     // The event parameter is valid only within 
+     // The event parameter is valid only within
      // this method.  The implementation must copy the event if
      // it is needed beyond the scope of an invocation.  The implementation
      // of this method should not block as it may prevent other listeners
@@ -68,11 +68,11 @@ public:
 
 
   void addressDoNotDisturbDisabled(const PtAddressEvent& rEvent);
-     //:Method invoked on listener for event id = 
-     //:ADDRESS_DO_NOT_DISTURB_DISABLED 
-     //:indicating the state of the <i>do-not-disturb</i> feature has changed 
+     //:Method invoked on listener for event id =
+     //:ADDRESS_DO_NOT_DISTURB_DISABLED
+     //:indicating the state of the <i>do-not-disturb</i> feature has changed
      //:to disabled for the PtAddress.
-     // The event parameter is valid only within 
+     // The event parameter is valid only within
      // this method.  The implementation must copy the event if
      // it is needed beyond the scope of an invocation.  The implementation
      // of this method should not block as it may prevent other listeners
@@ -80,11 +80,11 @@ public:
      //!param: (in) rEvent - Reference to the PtEvent containing the specific event information.
 
   void addressForwardingChanged(const PtAddressEvent& rEvent);
-     //:Method invoked on listener for event id = 
-     //:ADDRESS_FORWARDING_CHANGED 
-     //:indicating the state of the forward feature has changed for the 
+     //:Method invoked on listener for event id =
+     //:ADDRESS_FORWARDING_CHANGED
+     //:indicating the state of the forward feature has changed for the
      //:PtAddress.
-     // The event parameter is valid only within 
+     // The event parameter is valid only within
      // this method.  The implementation must copy the event if
      // it is needed beyond the scope of an invocation.  The implementation
      // of this method should not block as it may prevent other listeners
@@ -92,11 +92,11 @@ public:
      //!param: (in) rEvent - Reference to the PtEvent containing the specific event information.
 
   void addressMessagesWaiting(const PtAddressEvent& rEvent);
-     //:Method invoked on listener for event id = 
-     //:ADDRESS_MESSAGES_WAITING 
-     //:indicating the state of the message waiting feature has changed to 
+     //:Method invoked on listener for event id =
+     //:ADDRESS_MESSAGES_WAITING
+     //:indicating the state of the message waiting feature has changed to
      //:messages waiting for the PtAddress.
-     // The event parameter is valid only within 
+     // The event parameter is valid only within
      // this method.  The implementation must copy the event if
      // it is needed beyond the scope of an invocation.  The implementation
      // of this method should not block as it may prevent other listeners
@@ -104,11 +104,11 @@ public:
      //!param: (in) rEvent - Reference to the PtEvent containing the specific event information.
 
   void addressNoMessagesWaiting(const PtAddressEvent& rEvent);
-     //:Method invoked on listener for event id = 
-     //:ADDRESS_NO_MESSAGES_WAITING 
-     //:indicating the state of the message waiting feature has changed to 
+     //:Method invoked on listener for event id =
+     //:ADDRESS_NO_MESSAGES_WAITING
+     //:indicating the state of the message waiting feature has changed to
      //:no messages waiting for the PtAddress.
-     // The event parameter is valid only within 
+     // The event parameter is valid only within
      // this method.  The implementation must copy the event if
      // it is needed beyond the scope of an invocation.  The implementation
      // of this method should not block as it may prevent other listeners
