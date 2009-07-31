@@ -239,9 +239,6 @@ SIPX_CALL ACDAgent::connect(ACDCall* pACDCall)
    SIPX_LINE hLine = pACDCall->getAcdAgentLineHandle();
    const char *pCallId = pACDCall->getCallId() ; // The Call-Id of ACDCall
    ACDLine* acdLine = pACDCall->getAcdAgentLineReference();
-   // From Uri should  be set to the AOR for the corresponding ACDLine, which will be used
-   // for line mapping for responses to this call.
-   const char *pFrom = acdLine->getUriString()->data();
 
    // Create the outbound call to the agent URI
    if (sipxCallCreate(mhAcdCallManagerHandle, hLine, &mhCallHandle) != SIPX_RESULT_SUCCESS) 
