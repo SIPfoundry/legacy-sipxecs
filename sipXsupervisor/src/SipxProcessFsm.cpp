@@ -216,6 +216,10 @@ void ResourceRequired::DoEntryAction( SipxProcess& impl ) const
    {
       ChangeState( impl, impl.pTesting );
    }
+   else
+   {
+      impl.processBlocked("PROCESS_RESOURCE_REQUIRED");
+   }
 }
 
 void ResourceRequired::evConfigurationChanged( SipxProcess& impl ) const
@@ -281,6 +285,11 @@ void StoppingConfigtestToRestart::evRestartProcess( SipxProcess& impl ) const
                  impl.name());
 }
 
+void ConfigTestFailed::DoEntryAction( SipxProcess& impl ) const
+{
+   impl.processBlocked("PROCESS_CONFIGTEST_FAILED");
+}
+
 void ConfigTestFailed::evRestartProcess( SipxProcess& impl ) const
 {
    ChangeState( impl, impl.pConfigurationMismatch );
@@ -308,6 +317,11 @@ void Starting::evProcessStarted( SipxProcess& impl ) const
    if (impl.hadProcessFailed())
    {
       Alarm::raiseAlarm("PROCESS_RESTARTED", impl.data());
+   }
+   else if (impl.hadProcessBlocked())
+   {
+      Alarm::raiseAlarm("PROCESS_STARTED", impl.data());
+      impl.clearProcessBlocked();
    }
    ChangeState( impl, impl.pRunning );
 }

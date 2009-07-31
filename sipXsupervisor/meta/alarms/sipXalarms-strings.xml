@@ -13,6 +13,11 @@
 
 <alarm_server xmlns="http://www.sipfoundry.org/sipX/schema/xml/alarm-00-00">
    <definitions>
+      <alarm id="PROCESS_STARTED">
+         <shorttitle>Process started</shorttitle>
+         <description>Process '{0}' recovered from a missing resource or failed configuration test.  Starting the process.</description>
+         <resolution>No action required.</resolution>
+      </alarm>
       <alarm id="PROCESS_RESTARTED">
          <shorttitle>Restarting process</shorttitle>
          <description>Process '{0}' stopped unexpectedly.  Attempting to restart the process.</description>
@@ -151,6 +156,21 @@
          <shorttitle>SipXproxy re-established connection with the Media Relay. </shorttitle>
          <description>SipXproxy has successfully reconnected with the Media Relay.</description>
          <resolution>No action required. </resolution>
+      </alarm>
+      <alarm id="PROCESS_CONFIGTEST_FAILED">
+         <shorttitle>Process failed configuration test</shorttitle>
+         <description>Process '{0}' failed its configuration test.</description>
+         <resolution>Check recent configuration changes.  Do not hand-edit configuration files.  Check logs for more details.</resolution>
+      </alarm>
+      <alarm id="PROCESS_RESOURCE_REQUIRED">
+         <shorttitle>Process resource required</shorttitle>
+         <description>Process '{0}' is missing one or more required resources (list follows).</description>
+         <resolution>Wait for a few minutes to see if this is just a normal startup sequence.  If problem persists, select the server and Send Profiles to refresh the configuration.</resolution>
+      </alarm>
+      <alarm id="PROCESS_CONFIG_MISMATCH">
+         <shorttitle>Process configuration file mismatch</shorttitle>
+         <description>The configuration data for process '{0}' ({1}) does not match the software version ({2}).</description>
+         <resolution>Wait for a few minutes to see if this is just a normal startup sequence.  If problem persists, select the server and Send Profiles to refresh the configuration.</resolution>
       </alarm>
       <alarm id="NAT_TRAVERSAL_RAN_OUT_OF_MEDIA_RELAY_SESSIONS">
          <shorttitle>SipXproxy ran out of resources for NAT traversal. </shorttitle>

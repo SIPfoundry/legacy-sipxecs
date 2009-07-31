@@ -216,7 +216,13 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
    
    /// Clear any status messages accumulated so far and reset log counters
    void clearStatusMessages();
-   
+
+   /// Clear the processBlocked flag
+   void clearProcessBlocked();
+
+   /// Mark the process as blocked and raise the specified alarm
+   void processBlocked(const char* alarmId);
+
    /// Notify all the processes that have a dependency on this one that it is now running
    void notifyProcessRunning();
 
@@ -284,6 +290,7 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
    void cancelRetryTimer();
    
    bool hadProcessFailed() {return (mRetries > 0);}
+   bool hadProcessBlocked() {return mbProcessBlocked;}
 
   private:
 
@@ -488,6 +495,8 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
    ssize_t          mRetries;          ///< number of times we have attempted to start process
    unsigned long    mLastFailure;      ///< time of last failure
    ssize_t          mNumRetryIntervals; ///< number of intervals to attempt retries at
+   bool             mbAllowOneProcessBlock;  ///< true if next process "block" should be ignored
+   bool             mbProcessBlocked;  ///< true if process is blocked on Resource or Configtest
    UtlSList         mStatusMessages;   ///< list of messages relevant to current state
    int              mNumStdoutMsgs;    ///< number of messages received since last restart
    int              mNumStderrMsgs;    ///< number of messages received since last restart

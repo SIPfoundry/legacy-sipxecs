@@ -15,6 +15,14 @@
 
    <!-- Per-alarm definitions.  Only the actions are (or could be) configurable. -->
    <definitions>
+      <alarm id="PROCESS_STARTED">
+         <code>SPX00001</code>
+         <severity>info</severity>
+         <component>sipXsupervisor</component>
+         <action log="true"
+                 email="false"
+                  />
+      </alarm>
       <alarm id="PROCESS_RESTARTED">
          <code>SPX00002</code>
          <severity>warning</severity>
@@ -219,6 +227,30 @@
          <code>SPX00029</code>
          <severity>info</severity>
          <component>sipXbridge</component>
+         <action log="true"
+                 email="true"
+                 />
+      </alarm>
+      <alarm id="PROCESS_CONFIGTEST_FAILED">
+         <code>SPX00030</code>
+         <severity>crit</severity>
+         <component>sipXsupervisor</component>
+         <action log="true"
+                 email="true"
+                 />
+      </alarm>
+      <alarm id="PROCESS_RESOURCE_REQUIRED">
+         <code>SPX00031</code>
+         <severity>warning</severity>
+         <component>sipXsupervisor</component>
+         <action log="true"
+                 email="true"
+                 />
+      </alarm>
+      <alarm id="PROCESS_CONFIG_MISMATCH">
+         <code>SPX00032</code>
+         <severity>warning</severity>
+         <component>sipXsupervisor</component>
          <action log="true"
                  email="true"
                  />

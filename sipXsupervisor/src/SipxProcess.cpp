@@ -11,6 +11,7 @@
 #include "alarm/Alarm.h"
 #include "os/OsFS.h"
 #include "os/OsTime.h"
+#include "net/NameValueTokenizer.h"
 #include "utl/UtlSListIterator.h"
 #include "utl/UtlTokenizer.h"
 #include "os/OsSysLog.h"
@@ -117,6 +118,8 @@ SipxProcess::SipxProcess(const UtlString& name,
    mRetries(0),
    mLastFailure(OsDateTime::getSecsSinceEpoch()),
    mNumRetryIntervals(sizeof(retry_interval) / sizeof(retry_interval[0])),
+   mbAllowOneProcessBlock(true),
+   mbProcessBlocked(false),
    mNumStdoutMsgs(0),
    mNumStderrMsgs(0)
 {
@@ -832,6 +835,7 @@ void SipxProcess::restartInTask()
    {
       OsLock mutex(mLock);
       mRetries=0;
+      mbAllowOneProcessBlock=false;  // always raise alarm if process blocks after restart
    }
 
    mpCurrentState->evRestartProcess(*this);
@@ -1523,6 +1527,51 @@ void SipxProcess::clearStatusMessages()
    mNumStderrMsgs = 0;
 }
 
+void SipxProcess::clearProcessBlocked()
+{
+   OsLock mutex(mLock);
+
+   mbProcessBlocked = false;
+}
+
+/// Raise the specified alarm, providing all status messages as parameters.
+/// The process is allowed to "block" once per incarnation, to allow initial replication
+/// of config files.
+void SipxProcess::processBlocked(const char* alarmId)
+{
+   OsLock mutex(mLock);
+
+   if (mbAllowOneProcessBlock)
+   {
+      mbAllowOneProcessBlock = false;
+   }
+   else
+   {
+      UtlSList alarmParams;
+      alarmParams.append(new UtlString(data()));
+      UtlSList messages;
+      getStatusMessages(messages);
+      UtlSListIterator itor(messages);
+      UtlString* message = NULL;
+      UtlString junk;
+      while ((message = dynamic_cast<UtlString*>(itor())))
+      {
+         // These messages are of the format "resource.missing: resource_type resource_name"
+         // We only want to display the type and name in the alarm message.
+         UtlString resource;
+         NameValueTokenizer paramPair(*message);
+         if (paramPair.getNextPair(':', &junk, &resource))
+         {
+            alarmParams.append(new UtlString(resource));
+         }
+      }
+      Alarm::raiseAlarm(alarmId, alarmParams);
+      messages.destroyAll();
+      alarmParams.destroyAll();
+      mbProcessBlocked = true;
+   }
+}
+
 /// Notify the process resource that it has been modified so that it can
 /// in turn notify the processes that have a start-up dependency on this.
 void SipxProcess::notifyProcessRunning()
@@ -1577,6 +1626,24 @@ void SipxProcess::logVersionMismatch(UtlString& swversion, UtlString& cfgversion
    addStatusMessage(versionMismatchTag, tmpMsg);
    OsSysLog::add(FAC_SUPERVISOR, PRI_WARNING, "SipxProcess[%s]::logVersionMismatch: %s",
                  data(), tmpMsg.data());
+
+   // We allow the process to block once per incarnation, to allow initial config
+   // replication.  Any subsequent block will be alarmed.
+   if (mbAllowOneProcessBlock)
+   {
+      mbAllowOneProcessBlock = false;
+   }
+   else
+   {
+      // mark process as blocked in ConfigMismatch, with helpful alarm text
+      UtlSList alarmParams;
+      UtlString processName(data());
+      alarmParams.append(&processName);
+      alarmParams.append(&cfgversion);
+      alarmParams.append(&swversion);
+      Alarm::raiseAlarm("PROCESS_CONFIG_MISMATCH", alarmParams);
+      mbProcessBlocked = true;
+   }
 }
 
 /// Save and log a missing resource message

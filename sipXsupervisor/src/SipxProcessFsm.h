@@ -151,6 +151,7 @@ public:
    virtual ~ConfigTestFailed(){};
 
    // State machine events relevant for this state
+   virtual void DoEntryAction( SipxProcess& impl ) const;
    virtual void evRestartProcess( SipxProcess& impl ) const;
    virtual void evConfigurationChanged( SipxProcess& impl ) const;
    virtual void evConfigurationVersionUpdated( SipxProcess& impl ) const;
