@@ -320,7 +320,8 @@
     <antcall target="add-user-callforward" />
   	<antcall target="add-user-shared-field" />
     <antcall target="add_addressbook_entry_info_2" />
-	<antcall target="add-saa-service" />
+    <antcall target="add-saa-service" />
+    <antcall target="add_phonebook_file_entry" />
   </target>
 
   <target name="time_of_day" unless="time_of_day">
@@ -969,7 +970,10 @@
     <db-patch patch="add_addressbook_entry_info_2"/>
   </target>
   <target name="speeddial_group" unless="speeddial_group">
-	<db-patch patch="speeddial_group"/>
+    <db-patch patch="speeddial_group"/>
+  </target>
+  <target name="add_phonebook_file_entry" unless="add_phonebook_file_entry">
+    <db-patch patch="add_phonebook_file_entry"/>
   </target>
 
   <!--

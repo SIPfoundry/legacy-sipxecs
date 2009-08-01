@@ -1,27 +1,24 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.phonebook;
 
-import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.valid.ValidationConstraint;
+import org.apache.tapestry.request.IUploadFile;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
-import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phonebook.Phonebook;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
@@ -54,68 +51,32 @@ public abstract class EditPhonebook extends PageWithCallback implements PageBegi
 
     public abstract Integer getPhonebookId();
 
-    public void savePhonebook() {
-        SipxValidationDelegate validator = (SipxValidationDelegate) TapestryUtils.getValidator(this);
+    public abstract IUploadFile getUploadFile();
 
+    public void savePhonebook() {
         if (!TapestryUtils.isValid(this)) {
             return;
         }
 
         Phonebook phonebook = getPhonebook();
 
-        String assetFilename = phonebook.getMembersCsvFilename();
-        try {
-            getPhonebookManager().checkPhonebookCsvFileFormat(assetFilename);
-        } catch (UserException e) {
-            validator.record(e.getMessage(), ValidationConstraint.REQUIRED);
-            phonebook.setMembersCsvFilename(null);
-            return;
-        }
-
         String groupsString = getMemberGroupsString();
         if (groupsString != null) {
-            List<Group> groups = getSettingDao().getGroupsByString(User.GROUP_RESOURCE_ID,
-                    groupsString, true);
+            List<Group> groups = getSettingDao().getGroupsByString(User.GROUP_RESOURCE_ID, groupsString, true);
             phonebook.replaceMembers(new HashSet<Group>(groups));
         }
         String comsumers = getConsumerGroupsString();
         if (comsumers != null) {
-            List<Group> groups = getSettingDao().getGroupsByString(User.GROUP_RESOURCE_ID,
-                    comsumers, true);
+            List<Group> groups = getSettingDao().getGroupsByString(User.GROUP_RESOURCE_ID, comsumers, true);
             phonebook.replaceConsumers(new HashSet<Group>(groups));
         }
 
         getPhonebookManager().savePhonebook(phonebook);
         setPhonebookId(phonebook.getId());
-    }
 
-    public File getPhonebookCsvFile() {
-        String assetFilename = getPhonebook().getMembersCsvFilename();
-        if (assetFilename == null) {
-            return null;
+        if (getUploadFile() != null) {
+            getPhonebookManager().addEntriesFromFile(getPhonebookId(), getUploadFile().getStream());
         }
-        return new File(getPhonebookDirectory(), assetFilename);
-    }
-
-    public void setPhonebookCsvFile(File phonebook) {
-        getPhonebook().setMembersCsvFilename(phonebook.getName());
-    }
-
-    public File getPhonebookVcardFile() {
-        String assetFilename = getPhonebook().getMembersVcardFilename();
-        if (assetFilename == null) {
-            return null;
-        }
-        return new File(getPhonebookDirectory(), assetFilename);
-    }
-
-    public void setPhonebookVcardFile(File phonebook) {
-        getPhonebook().setMembersVcardFilename(phonebook.getName());
-    }
-
-    public File getPhonebookDirectory() {
-        File d = new File(getPhonebookManager().getExternalUsersDirectory());
-        return d;
     }
 
     public void pageBeginRender(PageEvent arg0) {
@@ -138,4 +99,5 @@ public abstract class EditPhonebook extends PageWithCallback implements PageBegi
             setConsumerGroupsString(consumersString);
         }
     }
+
 }

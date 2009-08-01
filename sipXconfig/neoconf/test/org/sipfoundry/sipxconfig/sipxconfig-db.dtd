@@ -627,6 +627,16 @@
     group_id CDATA #REQUIRED
 >
 
+<!ELEMENT phonebook_file_entry EMPTY>
+<!ATTLIST phonebook_file_entry
+    phonebook_file_entry_id CDATA #REQUIRED
+	first_name CDATA #IMPLIED
+	last_name CDATA #IMPLIED
+	phone_number CDATA #IMPLIED
+	address_book_entry_id CDATA #IMPLIED
+	phonebook_id CDATA #REQUIRED
+ >
+
 <!ELEMENT phonebook_member EMPTY>
 <!ATTLIST phonebook_member
     phonebook_id CDATA #REQUIRED

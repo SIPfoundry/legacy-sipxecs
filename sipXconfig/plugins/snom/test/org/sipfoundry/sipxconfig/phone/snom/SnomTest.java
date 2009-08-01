@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
+
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
@@ -196,5 +198,8 @@ public class SnomTest extends TestCase {
             return "number" + m_id;
         }
 
+        public AddressBookEntry getAddressBookEntry() {
+            return null;
+        }
     }
 }

@@ -1,17 +1,19 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.phonebook;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
+import java.util.Map;
 
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
 import org.sipfoundry.sipxconfig.common.User;
@@ -21,7 +23,7 @@ public interface PhonebookManager extends DataObjectSource<Phonebook> {
 
     /**
      * Gets whether or not phonebook management is enabled.
-     * 
+     *
      * If phonebook management is disabled, no phonebook files will be generated for any phones
      * that use a separate phonebook file.
      */
@@ -49,7 +51,13 @@ public interface PhonebookManager extends DataObjectSource<Phonebook> {
 
     public void reset();
 
-    public void checkPhonebookCsvFileFormat(String filename);
-
     public void exportPhonebook(Collection<PhonebookEntry> entries, OutputStream out) throws IOException;
+
+    public void addEntriesFromFile(Integer phonebookId, InputStream in);
+
+    // --> this methods will be removed after version update
+    public void removeTableColumns();
+
+    public Map<Integer, String[]> getPhonebookFilesName();
+    // <--
 }

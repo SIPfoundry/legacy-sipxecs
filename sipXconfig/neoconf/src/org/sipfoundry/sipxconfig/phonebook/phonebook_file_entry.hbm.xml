@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.phonebook" default-lazy="false">
+
+  <class name="PhonebookFileEntry" table="phonebook_file_entry">
+    <id name="id" column="phonebook_file_entry_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">phonebook_file_entry_seq</param>
+      </generator>
+    </id>
+	<property name="firstName" column="first_name"/>
+	<property name="lastName" column="last_name"/>
+	<property name="number" column="phone_number"/>
+
+    <many-to-one name="addressBookEntry"
+                 class="org.sipfoundry.sipxconfig.phonebook.AddressBookEntry"
+			     unique="true"
+			     cascade="save-update"
+			     column="address_book_entry_id"/>
+
+	<many-to-one name="phonebook" column="phonebook_id" class="Phonebook" not-null="true"/>
+  </class>
+
+</hibernate-mapping>

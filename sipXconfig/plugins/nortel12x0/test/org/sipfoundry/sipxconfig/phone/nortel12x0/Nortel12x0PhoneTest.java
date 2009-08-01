@@ -20,6 +20,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
+
 import org.apache.commons.io.IOUtils;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
@@ -150,7 +152,7 @@ public class Nortel12x0PhoneTest extends TestCase {
         model.setProfileTemplate("nortel12x0/nortel12x0.vm");
         phone.setModel(model);
 
-        User user1 = new User(); 
+        User user1 = new User();
 
         user1.setUserName("juser");
         user1.setFirstName("Joe");
@@ -342,6 +344,9 @@ public class Nortel12x0PhoneTest extends TestCase {
             return "bookNumber" + entry;
         }
 
+        public AddressBookEntry getAddressBookEntry() {
+            return null;
+        }
     }
 
 }

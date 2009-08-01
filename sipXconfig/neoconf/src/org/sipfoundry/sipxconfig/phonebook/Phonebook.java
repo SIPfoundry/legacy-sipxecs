@@ -1,14 +1,15 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.phonebook;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 import java.util.TreeSet;
@@ -18,28 +19,11 @@ import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.setting.Group;
 
 public class Phonebook extends BeanWithId implements NamedObject {
-    private String m_membersCsvFilename;
-    private String m_membersVcardFilename;
     private String m_name;
     private String m_description;
     private Set<Group> m_members = new TreeSet<Group>();
     private Set<Group> m_consumers = new TreeSet<Group>();
-
-    public String getMembersCsvFilename() {
-        return m_membersCsvFilename;
-    }
-
-    public void setMembersCsvFilename(String externalUsersFilename) {
-        m_membersCsvFilename = externalUsersFilename;
-    }
-
-    public String getMembersVcardFilename() {
-        return m_membersVcardFilename;
-    }
-
-    public void setMembersVcardFilename(String externalUsersFilename) {
-        m_membersVcardFilename = externalUsersFilename;
-    }
+    private Collection<PhonebookFileEntry> m_entries = new ArrayList<PhonebookFileEntry>();
 
     public Set<Group> getMembers() {
         return m_members;
@@ -81,5 +65,24 @@ public class Phonebook extends BeanWithId implements NamedObject {
 
     public void setDescription(String description) {
         m_description = description;
+    }
+
+    public Collection<PhonebookFileEntry> getEntries() {
+        return m_entries;
+    }
+
+    public void setEntries(Collection<PhonebookFileEntry> entries) {
+        m_entries = entries;
+    }
+
+    public void addEntries(Collection<PhonebookFileEntry> entries) {
+        for (PhonebookFileEntry entry : entries) {
+            addEntry(entry);
+        }
+    }
+
+    public void addEntry(PhonebookFileEntry entry) {
+        entry.setPhonebook(this);
+        m_entries.add(entry);
     }
 }

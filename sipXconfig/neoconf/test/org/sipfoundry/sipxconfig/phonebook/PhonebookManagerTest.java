@@ -1,19 +1,15 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.phonebook;
 
-import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,33 +18,22 @@ import java.util.Collections;
 import java.util.List;
 
 import junit.framework.TestCase;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.bulk.csv.CsvParserImpl;
 import org.sipfoundry.sipxconfig.bulk.vcard.VcardParserImpl;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.CsvFileFormatError;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.PhoneEntryComparator;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.StringArrayPhonebookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.UserPhonebookEntry;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.test.PhonebookTestHelper;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class PhonebookManagerTest extends TestCase {
-
-    public void testMkdirs() {
-        String dir = TestHelper.getTestDirectory() + File.separator + System.currentTimeMillis();
-        assertFalse(new File(dir).exists());
-        PhonebookManagerImpl.mkdirs(dir);
-        assertTrue(new File(dir).exists());
-    }
 
     public void testGetEmptyPhonebookRows() {
         PhonebookManagerImpl context = new PhonebookManagerImpl();
@@ -132,57 +117,61 @@ public class PhonebookManagerTest extends TestCase {
         try {
             new StringArrayPhonebookEntry(new String[2]);
             fail();
-        } catch (CsvFileFormatError e) {
+        } catch (UserException e) {
             assertTrue(true);
         }
     }
 
     public void testStringArrayPhonebookEntryOk() {
+        // no exceptions expected
         new StringArrayPhonebookEntry(new String[3]);
     }
 
-    public void testGetCsvFile() {
-        PhonebookManagerImpl context = new PhonebookManagerImpl();
-        context.setCsvParser(new CsvParserImpl());
-        context.setCvsEncoding("UTF-8");
-        String dir = TestUtil.getTestSourceDirectory(getClass());
-        context.setExternalUsersDirectory(dir);
-
-        Phonebook phonebook = new Phonebook();
-        phonebook.setMembersCsvFilename("bogus.csv");
-        try {
-            context.getEntries(phonebook);
-            fail();
-        } catch (RuntimeException expected) {
-            assertTrue(true);
-        }
-
-        phonebook.setMembersCsvFilename("phonebook.csv");
-        Collection<PhonebookEntry> entries = context.getEntries(phonebook);
-        assertEquals(1, entries.size());
-    }
-
-    public void testGetVCardFile() {
+    public void testInvalidFile() throws Exception {
         PhonebookManagerImpl context = new PhonebookManagerImpl();
         VcardParserImpl impl = new VcardParserImpl();
+        context.setCsvParser(new CsvParserImpl());
         impl.setTelType("work");
         context.setVcardParser(impl);
-        String dir = TestUtil.getTestSourceDirectory(getClass());
-        context.setExternalUsersDirectory(dir);
+        context.setCvsEncoding("UTF-8");
         context.setVcardEncoding("US-ASCII");
 
-        Phonebook phonebook = new Phonebook();
-        phonebook.setMembersVcardFilename("bogus.vcf");
         try {
-            context.getEntries(phonebook);
-            fail();
-        } catch (RuntimeException expected) {
-            assertTrue(true);
+            // use invalid file format
+            Phonebook phonebook2 = new Phonebook();
+            context.addEntries(phonebook2, getClass().getResourceAsStream("PhonebookSeed.db.xml"));
+            fail("Should fail");
+        } catch (UserException e) {
+            assertEquals("&msg.invalidPhonebookFormat", e.getMessage());
         }
+    }
 
-        phonebook.setMembersVcardFilename("phonebook.vcf");
-        Collection<PhonebookEntry> entries = context.getEntries(phonebook);
-        assertEquals(1, entries.size());
+    public void testGetCsvFile() throws Exception {
+        PhonebookManagerImpl context = new PhonebookManagerImpl();
+        VcardParserImpl impl = new VcardParserImpl();
+        context.setCsvParser(new CsvParserImpl());
+        impl.setTelType("work");
+        context.setVcardParser(impl);
+        context.setCvsEncoding("UTF-8");
+        context.setVcardEncoding("US-ASCII");
+
+        Phonebook phonebook1 = new Phonebook();
+        context.addEntries(phonebook1, getClass().getResourceAsStream("phonebook.csv"));
+        assertEquals(1, phonebook1.getEntries().size());
+    }
+
+    public void testGetVCardFile() throws Exception {
+        PhonebookManagerImpl context = new PhonebookManagerImpl();
+        VcardParserImpl impl = new VcardParserImpl();
+        context.setCsvParser(new CsvParserImpl());
+        impl.setTelType("work");
+        context.setVcardParser(impl);
+        context.setCvsEncoding("UTF-8");
+        context.setVcardEncoding("US-ASCII");
+
+        Phonebook phonebook1 = new Phonebook();
+        context.addEntries(phonebook1, getClass().getResourceAsStream("phonebook.vcf"));
+        assertEquals(1, phonebook1.getEntries().size());
     }
 
     public void testExportVCard() throws Exception {
@@ -217,6 +206,7 @@ public class PhonebookManagerTest extends TestCase {
 
         // need to override the getEntries method to control what entries we use
         PhonebookManagerImpl out = new PhonebookManagerImpl() {
+            @Override
             public Collection<PhonebookEntry> getEntries(Collection<Phonebook> phonebooks) {
                 return testHelper.getPhonebookEntries();
             }
@@ -247,8 +237,8 @@ public class PhonebookManagerTest extends TestCase {
         assertTrue(entriesThatMatchUsernameCaps.contains(testEntry));
 
         // test searching by first name
-        Collection<PhonebookEntry> entriesThatMatchFirstName = out.search(Collections.singletonList(new Phonebook()),
-                testEntry.getFirstName());
+        Collection<PhonebookEntry> entriesThatMatchFirstName = out.search(
+                Collections.singletonList(new Phonebook()), testEntry.getFirstName());
 
         assertEquals(1, entriesThatMatchFirstName.size());
         assertTrue(entriesThatMatchFirstName.contains(testEntry));
@@ -305,93 +295,5 @@ public class PhonebookManagerTest extends TestCase {
 
         user.setAliasesString("501");
         assertEquals("501", entry.getNumber());
-    }
-
-    public void testCheckPhonebookCsvFileFormat() {
-        PhonebookManagerImpl context = new PhonebookManagerImpl();
-
-        //
-        // First test that exception is generated for a file not found.
-        //
-        try {
-            context.checkPhonebookCsvFileFormat("filenotthere");
-            fail("Should fail");
-        } catch (UserException e) {
-            // ok
-            assertTrue(true);
-        }
-
-        //
-        // Test for file present, but empty.
-        //
-        context.setExternalUsersDirectory(TestHelper.getTestDirectory());
-        context.setCsvParser(new CsvParserImpl());
-        context.setCvsEncoding("UTF-8");
-        File csvFile = new File(TestHelper.getTestDirectory(), "csvPhonebook.csv");
-        try {
-            csvFile.createNewFile();
-        } catch (IOException e) {
-            fail("Should fail");
-        }
-
-        try {
-            context.checkPhonebookCsvFileFormat("csvPhonebook.csv");
-            fail("Should fail");
-        } catch (UserException e) {
-            // ok
-            assertTrue(true);
-            assertEquals("CSV file is empty.", e.getMessage());
-        }
-
-        //
-        // Test for file present, having too few columns.
-        //
-        String filenameString = TestHelper.getTestDirectory() + "//" + "csvPhonebook1.csv";
-        try {
-            BufferedWriter out = new BufferedWriter(new FileWriter(filenameString));
-            out.write("# Comments");
-            out.newLine();
-            out.write("John, Smith");
-            out.newLine();
-            out.write("Jack, Smith");
-            out.newLine();
-            out.close();
-        } catch (IOException e) {
-            fail("Should fail");
-        }
-
-        try {
-            context.checkPhonebookCsvFileFormat("csvPhonebook1.csv");
-            fail("Should fail");
-        } catch (UserException e) {
-            // ok
-            assertTrue(true);
-            assertEquals("CSV File format error: Too few columns. required columns are: First name, Last name, Number", e.getMessage());
-        }
-
-        //
-        // Test for file present, having correct number of columns.
-        //
-        String filenameString1 = TestHelper.getTestDirectory() + "//" + "csvPhonebook2.csv";
-        try {
-            BufferedWriter out = new BufferedWriter(new FileWriter(filenameString1));
-            out.write("# Comments");
-            out.newLine();
-            out.write("John, Smith, 2003");
-            out.newLine();
-            out.write("Jack, Smith, 2004");
-            out.newLine();
-            out.close();
-        } catch (IOException e) {
-            fail("Should fail");
-        }
-
-        try {
-            context.checkPhonebookCsvFileFormat("csvPhonebook2.csv");
-            assertTrue(true);
-        } catch (UserException e) {
-            fail("Should fail");
-        }
-
     }
 }

@@ -4,7 +4,7 @@
 			<span key="title.phonebook"/>
 		</h1>
 		<span jwcid="@common/ErrorMsg"/>
-		<p><span key="description.phonebook" raw="true"/></p>
+        <div jwcid="@common/QuickHelp" value="message:description.phonebook" />
 		<span jwcid="@setting/GroupCloud" groups="ognl:coreContext.groups"/>
 		<form jwcid="phonebookForm" id="phonebookForm">
     		<span jwcid="nameDescription"/>
@@ -21,14 +21,14 @@
 								<input jwcid="consumerGroups" type="text"/>
 							</td>
 						</tr>
-						<tr jwcid="phonebookCsvFilePanel">
+						<tr jwcid="@common/FieldPanel"
+							label="message:label.phonebookFile"
+					        field="component:phonebookFile"
+					        description="message:description.phonebookFile" >
 							<td>
-								<fieldset jwcid="phonebookCsvFile" id="phonebookCsvFile"/>
-							</td>
-						</tr>
-						<tr jwcid="phonebookVcardFilePanel">
-							<td>
-								<fieldset jwcid="phonebookVcardFile" id="phonebookVcardFile"/>
+								<input type="file"
+								       jwcid="phonebookFile@Upload"
+									   file="ognl:uploadFile" />
 							</td>
 						</tr>
 					</tbody>

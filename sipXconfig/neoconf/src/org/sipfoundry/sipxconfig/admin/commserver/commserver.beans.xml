@@ -249,4 +249,14 @@
     <property name="binDirectory" value="${sysdir.libexec}"/>
   </bean>
 
+  <bean id="phonebookFileEntryTrigger"
+    class="org.sipfoundry.sipxconfig.phonebook.PhonebookFileEntryTrigger">
+    <property name="phonebookManager" ref="phonebookManager" />
+    <property name="taskNames">
+      <list>
+        <value>phonebook_file_entry_task</value>
+      </list>
+    </property>
+  </bean>
+
 </beans>
