@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 ////////////////////////////////////////////////////////////////////////////
 
@@ -157,7 +157,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
 
    UtlString dialogEvent;
    Url tmpLocalContact;
-   
+
    // React to telephony events
    if(rMsg.getMsgSubType()== TaoMessage::EVENT)
    {
@@ -176,9 +176,9 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                     localConnection, callId.data(), address.data());
 #ifdef DEBUGGING
       dumpTaoMessageArgs(taoEventId, arg) ;
-#endif        
+#endif
 
-      switch (taoEventId) 
+      switch (taoEventId)
       {
          case PtEvent::CONNECTION_INITIATED:
          {
@@ -206,9 +206,9 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                      "DialogEventPublisher::handleMessage sipDialog = '%s'",
                      sipDialogContent.data());
 #endif
-               
+
                // This is an outgoing Call - get the entity identity from local contact
-               
+
                sipDialog.getLocalContact(tmpLocalContact);
                getEntity(tmpLocalContact.toString(), entity);
 
@@ -322,7 +322,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
 #endif
 
                 // This is an outgoing Call - get the entity identity from local contact
-                
+
                 sipDialog.getLocalContact(tmpLocalContact);
                 getEntity(tmpLocalContact.toString(), entity);
 
@@ -442,7 +442,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                    {
                        /*
                         * Get the Remote Target URI from the value we found from the
-                        * provisionalToTags hash map. This would guarantee that we 
+                        * provisionalToTags hash map. This would guarantee that we
                         * are matching the To Tag with the correct Remote Contact
                         */
 
@@ -498,7 +498,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                    {
                       /*
                        * Get the Remote Target URI from the value we found from the
-                       * provisionalToTags hash map. This would guarantee that we 
+                       * provisionalToTags hash map. This would guarantee that we
                        * are matching the To Tag with the correct Remote Contact
                        */
 
@@ -538,21 +538,21 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                   // Give up, since we can't get any information about this call.
                   break;
                }
-#ifdef DEBUGGING            
+#ifdef DEBUGGING
                sipDialog.toString(sipDialogContent);
-               OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage sipDialog = '%s'", 
+               OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage sipDialog = '%s'",
                              sipDialogContent.data());
-#endif            
+#endif
 
                sipDialog.getRemoteRequestUri(remoteRequestUri);
                getEntity(remoteRequestUri, entity);
-            
-               OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage Call arrived: callId '%s' address '%s' requestUri '%s'", 
+
+               OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage Call arrived: callId '%s' address '%s' requestUri '%s'",
                              callId.data(), address.data(), entity.data());
 
                if (entity.isNull())
                {
-                  OsSysLog::add(FAC_SIP, PRI_WARNING, "DialogEventPublisher::handleMessage Call arrived: callId '%s' address '%s' without requestUrl", 
+                  OsSysLog::add(FAC_SIP, PRI_WARNING, "DialogEventPublisher::handleMessage Call arrived: callId '%s' address '%s' without requestUrl",
                                 callId.data(), address.data());
                   break;
                }
@@ -563,7 +563,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                   // Make entity into a URI by prepending "sip:".
                   entity.prepend("sip:");
                }
-               
+
                // Create a dialog event if has not been created yet
                pThisCall = dynamic_cast<SipDialogEvent *> (mCalls.findValue(&entity));
                if (pThisCall == NULL)
@@ -578,36 +578,36 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                // Create the dialog element
                sipDialog.getLocalField(localIdentity);
                localIdentity.getFieldParameter("tag", localTag);
-   
+
                sipDialog.getRemoteField(remoteIdentity);
                remoteIdentity.getFieldParameter("tag", remoteTag);
-               
+
                sprintf(dialogId, "%ld", mDialogId);
                mDialogId++;
 
                pDialog = new Dialog(dialogId, callId, localTag, remoteTag, "recipient");
                pDialog->setState(STATE_EARLY, NULL, NULL);
-   
+
                localIdentity.getIdentity(identity);
                localIdentity.getDisplayName(displayName);
                pDialog->setLocalIdentity(identity, displayName);
-   
+
                remoteIdentity.getIdentity(identity);
                remoteIdentity.getDisplayName(displayName);
                pDialog->setRemoteIdentity(identity, displayName);
-   
+
                sipDialog.getLocalContact(localTarget);
                localTarget.getUri(temp);
                pDialog->setLocalTarget(temp);
-   
+
                sipDialog.getRemoteContact(remoteTarget);
                remoteTarget.getUri(temp);
                pDialog->setRemoteTarget(temp);
-               
+
                pDialog->setDuration(OsDateTime::getSecsSinceEpoch());
-   
+
                pThisCall->insertDialog(pDialog);
-   
+
                // Insert it into the active call list
                int version;
                pThisCall->buildBody(version);
@@ -621,15 +621,15 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                                                   DIALOG_EVENT_TYPE,
                                                   1, &pHttpBody, &version);
                }
-            }                        
+            }
             break;
 
          case PtEvent::CONNECTION_ESTABLISHED:
          {
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "DialogEventPublisher::handleMessage "
                           "CONNECTION_ESTABLISHED");
-            
+
             // Set default as an incoming call
             bool incomingCall = TRUE;
 
@@ -643,17 +643,17 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                // Give up, since we can't get any information about this call.
                break;
             }
-#ifdef DEBUGGING            
+#ifdef DEBUGGING
             sipDialog.toString(sipDialogContent);
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage sipDialog = %s", 
+            OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage sipDialog = %s",
                           sipDialogContent.data());
-#endif            
+#endif
             sipDialog.getRemoteRequestUri(remoteRequestUri);
-            getEntity(remoteRequestUri, entity);               
+            getEntity(remoteRequestUri, entity);
 
             OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage Call connected: callId '%s' address '%s' with requestUrl '%s'",
                           callId.data(), address.data(), entity.data());
-            
+
             if (entity.isNull())
             {
                if (localConnection)
@@ -687,7 +687,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
 
             if (entity.isNull())
             {
-               OsSysLog::add(FAC_SIP, PRI_WARNING, "DialogEventPublisher::handleMessage Call connected: callId '%s' address '%s' without requestUrl", 
+               OsSysLog::add(FAC_SIP, PRI_WARNING, "DialogEventPublisher::handleMessage Call connected: callId '%s' address '%s' without requestUrl",
                              callId.data(), address.data());
                break;
             }
@@ -703,14 +703,14 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
             {
                pEntity = new UtlString(entity);
                pThisCall = new SipDialogEvent(STATE, entity);
-   
+
                // Insert it into the active call list
                mCalls.insertKeyAndValue(pEntity, pThisCall);
                OsSysLog::add(FAC_SIP, PRI_DEBUG,
                              "DialogEventPublisher::handleMessage inserting entity '%s'",
                              entity.data());
             }
-               
+
             // Get the new callId because it might have changed
             sipDialog.getCallId(callId);
             sipDialog.getLocalField(localIdentity);
@@ -719,30 +719,30 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
             remoteIdentity.getFieldParameter("tag", remoteTag);
 
             pDialog = pThisCall->getDialog(callId, localTag, remoteTag);
-            
+
             if (!incomingCall)
-            {            
+            {
                 terminateProvisionalResponses(callId, localTag, pThisCall);
             }
-            
+
             // Update the dialog content if it exists.
             if (pDialog)
             {
-               // This may be the establishment of a dialog for an 
+               // This may be the establishment of a dialog for an
                // INVITE we sent, so the remote tag may only be getting
                // set now.
 
                pDialog->setTags(localTag, remoteTag);
-   
+
                sipDialog.getLocalContact(localTarget);
                localTarget.getUri(temp);
                pDialog->setLocalTarget(temp);
-   
+
                sipDialog.getRemoteContact(remoteTarget);
                remoteTarget.getUri(temp);
                pDialog->setRemoteTarget(temp);
-   
-               if (!mMaskEstablishedasEarly) 
+
+               if (!mMaskEstablishedasEarly)
                {
                   pDialog->setState(STATE_CONFIRMED, NULL, NULL);
                }
@@ -780,25 +780,25 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                              "DialogEventPublisher::handleMessage setting state to early when connected");
                   pDialog->setState(STATE_EARLY, NULL, NULL);
                }
-   
+
                localIdentity.getIdentity(identity);
                localIdentity.getDisplayName(displayName);
                pDialog->setLocalIdentity(identity, displayName);
-   
+
                remoteIdentity.getIdentity(identity);
                remoteIdentity.getDisplayName(displayName);
                pDialog->setRemoteIdentity(identity, displayName);
-   
+
                sipDialog.getLocalContact(localTarget);
                localTarget.getUri(temp);
                pDialog->setLocalTarget(temp);
-   
+
                sipDialog.getRemoteContact(remoteTarget);
                remoteTarget.getUri(temp);
                pDialog->setRemoteTarget(temp);
 
                pDialog->setDuration(OsDateTime::getSecsSinceEpoch());
-   
+
                pThisCall->insertDialog(pDialog);
             }
 
@@ -811,20 +811,20 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
             mpSipPublishContentMgr->publish(entity.data(),
                                             DIALOG_EVENT_TYPE, DIALOG_EVENT_TYPE,
                                             1, &pHttpBody, &version);
-            
+
             if (!incomingCall)
-            {            
+            {
                 deleteProvisionalResponses(callId, localTag, pThisCall);
             }
 
             break;
          }
-            
+
          case PtEvent::CONNECTION_DISCONNECTED:
          case PtEvent::CONNECTION_FAILED:
          {
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage CONNECTION_DISCONNECTED/CONNECTION_FAILED");         
-            if (!localConnection) 
+            OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage CONNECTION_DISCONNECTED/CONNECTION_FAILED");
+            if (!localConnection)
             {
                if (mpCallManager->getSipDialog(callId, address, sipDialog) !=
                    OS_SUCCESS)
@@ -832,28 +832,28 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                   OsSysLog::add(FAC_ACD, PRI_ERR,
                                 "DialogEventPublisher::handleMessage - CONNECTION_DISCONNECTED - Failed call to getSipDialog(%s, %s)",
                                 callId.data(), address.data());
-                  // Fill sipDialog with empty information as if we had gotten an empty SipDialog - then go on 
+                  // Fill sipDialog with empty information as if we had gotten an empty SipDialog - then go on
                   // and try to remove the event by just knowing the callId that we got passed in.
                   UtlString emptyUri("");
                   sipDialog.setRemoteRequestUri(emptyUri);
                }
-#ifdef DEBUGGING            
+#ifdef DEBUGGING
                sipDialog.toString(sipDialogContent);
-               OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage sipDialog = %s", 
+               OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage sipDialog = %s",
                              sipDialogContent.data());
-#endif            
+#endif
                sipDialog.getRemoteRequestUri(remoteRequestUri);
-               getEntity(remoteRequestUri, entity);               
+               getEntity(remoteRequestUri, entity);
 
                OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::handleMessage Call dropped: '%s' address '%s' with entity '%s'",
                              callId.data(), address.data(), entity.data());
-            
+
                if (entity.isNull())
                {
                   // Under some circumstances (example failed transfer) the getSipDialog call above will return an empty SipDialog
                   // with an empty requestUrl and callId. We need to remember th callId that was passed in as a Tao message parameter
                   // and try to associate the callId with an entity.
-                  OsSysLog::add(FAC_SIP, PRI_WARNING, "DialogEventPublisher::handleMessage Call dropped: callId '%s' address '%s' without requestUrl", 
+                  OsSysLog::add(FAC_SIP, PRI_WARNING, "DialogEventPublisher::handleMessage Call dropped: callId '%s' address '%s' without requestUrl",
                                 callId.data(), address.data());
                   // We have no request Url - try to get entity from callId
                   failCallId = callId;
@@ -862,12 +862,12 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                      break;
                   }
                }
-              
+
                requestUrl = Url(entity);
-               requestUrl.getIdentity(entity);     
+               requestUrl.getIdentity(entity);
                // Make identity into a URI by prepending "sip:".
                entity.prepend("sip:");
-                         
+
                // Get the new callId because it might have changed
                sipDialog.getCallId(callId);
 
@@ -875,11 +875,11 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                localIdentity.getFieldParameter("tag", localTag);
                sipDialog.getRemoteField(remoteIdentity);
                remoteIdentity.getFieldParameter("tag", remoteTag);
-         
+
                // If the SipDialog is empty we can't use the empty callId. Reassign the remembered callId.
                if (callId.isNull() && !failCallId.isNull())
                {
-                  OsSysLog::add(FAC_SIP, PRI_WARNING, "DialogEventPublisher::handleMessage callId is empty, using fail callId '%s'", 
+                  OsSysLog::add(FAC_SIP, PRI_WARNING, "DialogEventPublisher::handleMessage callId is empty, using fail callId '%s'",
                                 failCallId.data());
                   callId = failCallId;
                }
@@ -888,11 +888,11 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                localIdentity.getFieldParameter("tag", localTag);
                sipDialog.getRemoteField(remoteIdentity);
                remoteIdentity.getFieldParameter("tag", remoteTag);
-         
+
                // If the SipDialog is empty we can't use the empty callId. Reassign the remembered callId.
                if (callId.isNull() && !failCallId.isNull())
                {
-                  OsSysLog::add(FAC_SIP, PRI_WARNING, "DialogEventPublisher::handleMessage callId is empty, using fail callId '%s'", 
+                  OsSysLog::add(FAC_SIP, PRI_WARNING, "DialogEventPublisher::handleMessage callId is empty, using fail callId '%s'",
                                 failCallId.data());
                   callId = failCallId;
                }
@@ -903,7 +903,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                if (pThisCall)
                {
                   terminateProvisionalResponses(callId, localTag, pThisCall);
-                  // Use the work-around for XCL-98 in case that we can't get tags from 
+                  // Use the work-around for XCL-98 in case that we can't get tags from
                   // the SipDialog object
                   if (localTag.isNull())
                   {
@@ -916,7 +916,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                   if (pDialog)
                   {
                      pDialog->setState(STATE_TERMINATED, NULL, NULL);
-                   
+
                      int version;
                      pThisCall->buildBody(version);
 
@@ -926,7 +926,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                      mpSipPublishContentMgr->publish(entity.data(),
                                                      DIALOG_EVENT_TYPE, DIALOG_EVENT_TYPE,
                                                      1, &pHttpBody, &version);
-                       
+
                      // Remove the dialog from the dialog event package
                      pDialog = pThisCall->removeDialog(pDialog);
                      delete pDialog;
@@ -939,11 +939,11 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                }
 
                // Delete All the Provisional Responses associated with this call
-               deleteProvisionalResponses(callId, localTag, pThisCall); 
+               deleteProvisionalResponses(callId, localTag, pThisCall);
             }
 
             break;
-         }  
+         }
       }
    }
    return(TRUE);
@@ -957,10 +957,10 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 
-void DialogEventPublisher::dumpTaoMessageArgs(unsigned char eventId, TaoString& args) 
+void DialogEventPublisher::dumpTaoMessageArgs(unsigned char eventId, TaoString& args)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "===>Message type: %d args:\n", eventId) ;
-        
+
    int argc = args.getCnt();
    for(int argIndex = 0; argIndex < argc; argIndex++)
    {
@@ -976,18 +976,18 @@ void DialogEventPublisher::getEntity(const UtlString& requestUri,
    UtlString userId;
    Url tempRequestUri(requestUri);
    tempRequestUri.getUserId(userId);
-         
+
    if (!userId.isNull())
    {
       Url entityUrl(mEntityHost);
       entityUrl.setHostPort(mEntityPort);
       entityUrl.setUserId(userId.data());
-         
+
       entityUrl.toString(entity);
    }
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "DialogEventPublisher::getEntity requestUri = '%s', userId = '%s', entity '%s'",
-                 requestUri.data(), userId.data(), entity.data());         
+                 requestUri.data(), userId.data(), entity.data());
 }
 
 bool DialogEventPublisher::findEntryByCallId(UtlString& callId, UtlString& entity)
@@ -999,12 +999,12 @@ bool DialogEventPublisher::findEntryByCallId(UtlString& callId, UtlString& entit
    while ((pKey = dynamic_cast<UtlString *>(iterator())))
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "DialogEventPublisher::findEntryByCallId callId '%s', key '%s'", callId.data(), pKey->data());
-            
-      SipDialogEvent* pEvent;         
-      pEvent = dynamic_cast<SipDialogEvent *>(iterator.value());      
- 
+
+      SipDialogEvent* pEvent;
+      pEvent = dynamic_cast<SipDialogEvent *>(iterator.value());
+
       Dialog* pDialog;
-      
+
       if (pEvent)
       {
          pDialog = pEvent->getDialogByCallId(callId);
@@ -1014,11 +1014,11 @@ bool DialogEventPublisher::findEntryByCallId(UtlString& callId, UtlString& entit
             bRet = true;
             entity = pKey->data();
             break;
-         }     
+         }
       }
       else
       {
-         OsSysLog::add(FAC_SIP, PRI_WARNING, "DialogEventPublisher::findEntryByCallId pEvent == NULL");            
+         OsSysLog::add(FAC_SIP, PRI_WARNING, "DialogEventPublisher::findEntryByCallId pEvent == NULL");
       }
    }
    return bRet;
@@ -1034,7 +1034,7 @@ void DialogEventPublisher::deleteProvisionalResponses(UtlString callId, UtlStrin
     {
         if(callId == *( dynamic_cast<UtlString *> (pResponsesIterator.value())))
         {
-            // Use the work-around for XCL-98 in case that we can't get tags from 
+            // Use the work-around for XCL-98 in case that we can't get tags from
             // the SipDialog object
             if (localTag.isNull())
             {
@@ -1045,25 +1045,25 @@ void DialogEventPublisher::deleteProvisionalResponses(UtlString callId, UtlStrin
                 UtlString * remoteTag = dynamic_cast<UtlString *> (pResponsesIterator.key());
                 pDialog = pThisCall->getDialog(callId, localTag, *remoteTag);
             }
-            
+
             // Remove the dialog from the dialog event package if the dialog has been
             // terminated
-            
+
             if (pDialog)
             {
                 UtlString tmpState;
                 UtlString tmpEvent;
                 UtlString tmpCode;
-                
+
                 pDialog->getState(tmpState, tmpEvent, tmpCode);
-                
+
                 if(tmpState.compareTo(STATE_TERMINATED) == 0)
                 {
                     pDialog = pThisCall->removeDialog(pDialog);
                     delete pDialog;
                 }
             }
-            
+
             mProvisionalResponses.destroy(pResponsesIterator.key());
         }
     }
@@ -1079,7 +1079,7 @@ void DialogEventPublisher::terminateProvisionalResponses(UtlString callId, UtlSt
     {
         if(callId == *( dynamic_cast<UtlString *> (pResponsesIterator.value())))
         {
-            // Use the work-around for XCL-98 in case that we can't get tags from 
+            // Use the work-around for XCL-98 in case that we can't get tags from
             // the SipDialog object
             if (localTag.isNull())
             {
@@ -1090,7 +1090,7 @@ void DialogEventPublisher::terminateProvisionalResponses(UtlString callId, UtlSt
                 UtlString * remoteTag = dynamic_cast<UtlString *> (pResponsesIterator.key());
                 pDialog = pThisCall->getDialog(callId, localTag, *remoteTag);
             }
-            
+
             if (pDialog)
             {
                 pDialog->setState(STATE_TERMINATED, NULL, NULL);

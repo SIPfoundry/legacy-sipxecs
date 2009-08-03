@@ -4,4 +4,3 @@ void JNI_LightButton(long)
 {
 
 }
-

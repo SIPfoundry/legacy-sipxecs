@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -51,7 +51,7 @@ SipXHandleMap* gpPubHandleMap = new SipXHandleMap() ;  /**< Global Map of Publis
 SipXHandleMap* gpSubHandleMap = new SipXHandleMap() ;  /**< Global Map of Subscribed (client) event data handles */
 
 
-UtlDList*  gpSessionList  = new UtlDList() ;    /**< List of sipX sessions (to be replaced 
+UtlDList*  gpSessionList  = new UtlDList() ;    /**< List of sipX sessions (to be replaced
                                                      by handle map in the future */
 OsMutex*    gpSessionLock = new OsMutex(OsMutex::Q_FIFO);
 static int      gSessions = 0;
@@ -66,7 +66,7 @@ static int      gSessions = 0;
     4:   ptr = HandleMap(handle) ;
     5:   ptr->mutex->read|write lock ;
     6:   HandleMap->unlock()
-    5:}   
+    5:}
 
     6:free(handle)
     7:{
@@ -84,7 +84,7 @@ static int      gSessions = 0;
                                         3:   HandleMap->lock()
                                         4:   ptr = HandleMap(handle) ;
                                         5:   ptr->mutex->readlock ;
-                                        (B holds lock on map, 
+                                        (B holds lock on map,
                                           blocked on handle lock)
      9:  HandleMap->remove(handle) ;
      (A tries to access map, which, internally locks HandleMap->lock(), which
@@ -100,7 +100,7 @@ static int      gSessions = 0;
     4:   ptr = HandleMap(handle) ;
     5:   ptr->mutex->read|write lock ;
     6:   HandleMap->unlock()
-    5:}   
+    5:}
 
     6:free(handle)
     7:{
@@ -154,11 +154,11 @@ SIPX_CALL sipxCallLookupHandle(const UtlString& callID, const void* pSrc)
     if (gpCallHandleMap->lock())
     {
         UtlHashMapIterator iter(*gpCallHandleMap);
-   
+
         UtlInt* pIndex = NULL;
         UtlVoidPtr* pObj = NULL;
-   
-        while ((pIndex = dynamic_cast<UtlInt*>( iter() )) )       
+
+        while ((pIndex = dynamic_cast<UtlInt*>( iter() )) )
         {
             pObj = dynamic_cast<UtlVoidPtr*>(gpCallHandleMap->findValue(pIndex));
             SIPX_CALL_DATA* pData = NULL ;
@@ -166,20 +166,20 @@ SIPX_CALL sipxCallLookupHandle(const UtlString& callID, const void* pSrc)
             {
                 pData = (SIPX_CALL_DATA*) pObj->getValue() ;
             }
-         
-            if (pData && 
+
+            if (pData &&
                     (pData->callId->compareTo(callID) == 0 ||
-                    (pData->sessionCallId && (pData->sessionCallId->compareTo(callID) == 0)) || 
-                    (pData->transferCallId && (pData->transferCallId->compareTo(callID) == 0))) && 
+                    (pData->sessionCallId && (pData->sessionCallId->compareTo(callID) == 0)) ||
+                    (pData->transferCallId && (pData->transferCallId->compareTo(callID) == 0))) &&
                     pData->pInst->pCallManager == pSrc)
             {
                 hCall = pIndex->getValue() ;
-#ifdef DUMP_CALLS            
+#ifdef DUMP_CALLS
                 OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG, "***************** LookupHandle ***\nhCall %d\n****callId %s\n***sessionCallId %s\n",
                 hCall,
                 pData->callId ? pData->callId->data() : NULL,
                 pData->sessionCallId ? pData->sessionCallId->data() : NULL);
-#endif            
+#endif
                 break ;
             }
         }
@@ -194,8 +194,8 @@ SIPX_CALL sipxCallLookupHandle(const UtlString& callID, const void* pSrc)
 void sipxCallObjectFree(const SIPX_CALL hCall)
 {
     // First remove it from the HandleMap so no one else can access it
-    SIPX_CALL_DATA* pData = 
-       (SIPX_CALL_DATA *)gpCallHandleMap->removeHandle(hCall); 
+    SIPX_CALL_DATA* pData =
+       (SIPX_CALL_DATA *)gpCallHandleMap->removeHandle(hCall);
 
     if (pData)
     {
@@ -203,11 +203,11 @@ void sipxCallObjectFree(const SIPX_CALL hCall)
         // to have released it
         if (pData->pMutex->acquireWrite() == OS_SUCCESS)
         {
-#ifdef DUMP_CALLS                    
+#ifdef DUMP_CALLS
             sipxDumpCalls();
-#endif        
+#endif
             // Now it is safe to destroy
-            destroyCallData(pData) ;   
+            destroyCallData(pData) ;
         }
     }
 }
@@ -244,14 +244,14 @@ SIPX_CALL_DATA* sipxCallLookup(const SIPX_CALL hCall, SIPX_LOCK_TYPE type)
         // TEMP
         if (pRC)
         {
-            OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG, 
+            OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
                           "***************** Lookup***\n"
                           "hCall %d\n****callId %s\n"
                           "***ghostCallId %s\n"
                           "***bRemoveInsteadOfDrop %d\n",
                           hCall,
                           pRC->callId ? pRC->callId->data() : NULL,
-                          pRC->ghostCallId ? pRC->ghostCallId->data() : NULL, 
+                          pRC->ghostCallId ? pRC->ghostCallId->data() : NULL,
                           pRC->bRemoveInsteadOfDrop);
         }
 #endif
@@ -264,18 +264,18 @@ SIPX_CALL_DATA* sipxCallLookup(const SIPX_CALL hCall, SIPX_LOCK_TYPE type)
 
 UtlBoolean validCallData(SIPX_CALL_DATA* pData)
 {
-    return (pData 
-            && pData->callId 
-            && pData->lineURI  
-            && pData->pInst 
-            && pData->pInst->pCallManager 
-            && pData->pInst->pRefreshManager 
-            && pData->pInst->pLineManager 
+    return (pData
+            && pData->callId
+            && pData->lineURI
+            && pData->pInst
+            && pData->pInst->pCallManager
+            && pData->pInst->pRefreshManager
+            && pData->pInst->pLineManager
             && pData->pMutex) ;
 }
 
 
-void sipxCallReleaseLock(SIPX_CALL_DATA* pData, SIPX_LOCK_TYPE type) 
+void sipxCallReleaseLock(SIPX_CALL_DATA* pData, SIPX_LOCK_TYPE type)
 {
     if ((type != SIPX_LOCK_NONE) && validCallData(pData))
     {
@@ -298,7 +298,7 @@ UtlBoolean sipxCallGetCommonData(SIPX_CALL hCall,
                                  UtlString* pStrCallId,
                                  UtlString* pStrRemoteAddress,
                                  UtlString* pLineId,
-                                 UtlString* pGhostCallId) 
+                                 UtlString* pGhostCallId)
 {
     UtlBoolean bSuccess = FALSE ;
     SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_READ);
@@ -337,7 +337,7 @@ UtlBoolean sipxCallGetCommonData(SIPX_CALL hCall,
         {
             *pLineId = *pData->lineURI ;
         }
-        
+
         if (pGhostCallId)
         {
             if (pData->ghostCallId)
@@ -355,7 +355,7 @@ UtlBoolean sipxCallGetCommonData(SIPX_CALL hCall,
 }
 
 
-SIPX_CONF sipxCallGetConf(SIPX_CALL hCall) 
+SIPX_CONF sipxCallGetConf(SIPX_CALL hCall)
 {
     SIPX_CONF hConf = 0 ;
 
@@ -370,10 +370,10 @@ SIPX_CONF sipxCallGetConf(SIPX_CALL hCall)
 }
 
 
-UtlBoolean sipxCallGetState(SIPX_CALL hCall, 
+UtlBoolean sipxCallGetState(SIPX_CALL hCall,
                             SIPX_CALLSTATE_EVENT& lastEvent,
                             SIPX_CALLSTATE_CAUSE& lastCause,
-                            SIPX_INTERNAL_CALLSTATE& state) 
+                            SIPX_INTERNAL_CALLSTATE& state)
 {
     UtlBoolean bSuccess = false ;
 
@@ -391,9 +391,9 @@ UtlBoolean sipxCallGetState(SIPX_CALL hCall,
 }
 
 
-UtlBoolean sipxCallSetState(SIPX_CALL hCall, 
+UtlBoolean sipxCallSetState(SIPX_CALL hCall,
                             SIPX_CALLSTATE_EVENT event,
-                            SIPX_CALLSTATE_CAUSE cause) 
+                            SIPX_CALLSTATE_CAUSE cause)
 {
     UtlBoolean bSuccess = false ;
 
@@ -424,7 +424,7 @@ UtlBoolean sipxCallSetState(SIPX_CALL hCall,
                     case CALLSTATE_CONNECTED_REQUEST_NOT_ACCEPTED:
                         pData->state = SIPX_INTERNAL_CALLSTATE_CONNECTED ;
                         break ;
-                    case CALLSTATE_CONNECTED_ACTIVE_HELD:                        
+                    case CALLSTATE_CONNECTED_ACTIVE_HELD:
                         pData->state = SIPX_INTERNAL_CALLSTATE_BRIDGED ;
                         pData->bInFocus = false ;
                     case CALLSTATE_CONNECTED_INACTIVE:
@@ -442,7 +442,7 @@ UtlBoolean sipxCallSetState(SIPX_CALL hCall,
             case CALLSTATE_OFFERING:
             case CALLSTATE_ALERTING:
                 pData->state = SIPX_INTERNAL_CALLSTATE_OUTBOUND_ATTEMPT ;
-                break ;                
+                break ;
             case CALLSTATE_DESTROYED:
                 pData->bInFocus = false ;
                 break ;
@@ -463,7 +463,7 @@ UtlBoolean sipxCallSetState(SIPX_CALL hCall,
 
 
 
-SIPX_CONTACT_TYPE sipxCallGetLineContactType(SIPX_CALL hCall) 
+SIPX_CONTACT_TYPE sipxCallGetLineContactType(SIPX_CALL hCall)
 {
     SIPX_CONTACT_TYPE contactType = CONTACT_AUTO ;
 
@@ -553,7 +553,7 @@ void sipxSubscribeClientSubCallback(SipSubscribeClient::SubscriptionState newSta
                                    const SipMessage* subscribeResponse)
 {
     SIPX_SUB subscriptionHandle = (SIPX_SUB)applicationData;
-    SIPX_SUBSCRIPTION_DATA* subscriptionData = 
+    SIPX_SUBSCRIPTION_DATA* subscriptionData =
         (SIPX_SUBSCRIPTION_DATA*) gpSubHandleMap->findHandle(subscriptionHandle);
 
     if(subscriptionData && subscriptionData->pInst)
@@ -597,10 +597,10 @@ void sipxSubscribeClientSubCallback(SipSubscribeClient::SubscriptionState newSta
             break;
         }
 
-        // If the dialog changed from and early dialog to an 
+        // If the dialog changed from and early dialog to an
         // established dialog, update the dialog handle in the
         // subcription data structure
-        if(earlyDialogHandle && dialogHandle && 
+        if(earlyDialogHandle && dialogHandle &&
             SipDialog::isEarlyDialog(*subscriptionData->pDialogHandle))
         {
             *(subscriptionData->pDialogHandle) = dialogHandle;
@@ -609,8 +609,8 @@ void sipxSubscribeClientSubCallback(SipSubscribeClient::SubscriptionState newSta
         // Fire the event if it is a supported state change
         if(errorState.isNull())
         {
-            sipxFireEvent(subscriptionData->pInst->pCallManager, 
-                       EVENT_CATEGORY_SUB_STATUS, 
+            sipxFireEvent(subscriptionData->pInst->pCallManager,
+                       EVENT_CATEGORY_SUB_STATUS,
                        &pInfo);
         }
         else
@@ -637,7 +637,7 @@ void sipxSubscribeClientNotifyCallback(const char* earlyDialogHandle,
                                      const SipMessage* notifyRequest)
 {
     SIPX_SUB subscriptionHandle = (SIPX_SUB)applicationData;
-    SIPX_SUBSCRIPTION_DATA* subscriptionData = 
+    SIPX_SUBSCRIPTION_DATA* subscriptionData =
         (SIPX_SUBSCRIPTION_DATA*) gpSubHandleMap->findHandle(subscriptionHandle);
 
     if(subscriptionData && subscriptionData->pInst)
@@ -649,10 +649,10 @@ void sipxSubscribeClientNotifyCallback(const char* earlyDialogHandle,
         ssize_t bodyLength = 0;
         const char* bodyBytes = NULL;
 
-        // If the dialog changed from and early dialog to an 
+        // If the dialog changed from and early dialog to an
         // established dialog, update the dialog handle in the
         // subcription data structure
-        if(earlyDialogHandle && dialogHandle && 
+        if(earlyDialogHandle && dialogHandle &&
             SipDialog::isEarlyDialog(*subscriptionData->pDialogHandle))
         {
             *(subscriptionData->pDialogHandle) = dialogHandle;
@@ -676,9 +676,9 @@ void sipxSubscribeClientNotifyCallback(const char* earlyDialogHandle,
         pInfo.nContentLength = bodyLength;
         pInfo.pContent = bodyBytes;
         pInfo.szContentType = contentType;
-        
-        sipxFireEvent(subscriptionData->pInst->pCallManager, 
-           EVENT_CATEGORY_NOTIFY, 
+
+        sipxFireEvent(subscriptionData->pInst->pCallManager,
+           EVENT_CATEGORY_NOTIFY,
            &pInfo);
 
     }
@@ -692,7 +692,7 @@ void sipxSubscribeClientNotifyCallback(const char* earlyDialogHandle,
     }
 }
 
-void sipxLineReleaseLock(SIPX_LINE_DATA* pData, SIPX_LOCK_TYPE type) 
+void sipxLineReleaseLock(SIPX_LINE_DATA* pData, SIPX_LOCK_TYPE type)
 {
     if (validLineData(pData))
     {
@@ -711,7 +711,7 @@ void sipxLineReleaseLock(SIPX_LINE_DATA* pData, SIPX_LOCK_TYPE type)
 }
 
 
-void sipxInfoReleaseLock(SIPX_INFO_DATA* pData, SIPX_LOCK_TYPE type) 
+void sipxInfoReleaseLock(SIPX_INFO_DATA* pData, SIPX_LOCK_TYPE type)
 {
     switch (type)
     {
@@ -726,11 +726,11 @@ void sipxInfoReleaseLock(SIPX_INFO_DATA* pData, SIPX_LOCK_TYPE type)
     }
 }
 
-UtlBoolean validLineData(const SIPX_LINE_DATA* pData) 
+UtlBoolean validLineData(const SIPX_LINE_DATA* pData)
 {
     UtlBoolean bValid = FALSE ;
 
-    if (pData && pData->lineURI && pData->pInst && 
+    if (pData && pData->lineURI && pData->pInst &&
             pData->pInst->pCallManager && pData->pMutex)
     {
         bValid = TRUE ;
@@ -743,9 +743,9 @@ UtlBoolean validLineData(const SIPX_LINE_DATA* pData)
 void sipxLineObjectFree(const SIPX_LINE hLine)
 {
     // First remove it from the HandleMap so no one else an find it
-    SIPX_LINE_DATA* pData = 
+    SIPX_LINE_DATA* pData =
        (SIPX_LINE_DATA *)gpLineHandleMap->removeHandle(hLine) ;
-    
+
     if (pData)
     {
         // Then lock it so anyone who was previously using it is known
@@ -792,9 +792,9 @@ void sipxLineObjectFree(const SIPX_LINE hLine)
 void sipxInfoObjectFree(SIPX_INFO hInfo)
 {
     // First remove it from the HandleMap so no one else an find it
-    SIPX_INFO_DATA* pData = 
+    SIPX_INFO_DATA* pData =
        (SIPX_INFO_DATA *)gpInfoHandleMap->removeHandle(hInfo) ;
-    
+
     if (pData)
     {
         // Then lock it so anyone who was previously using it is known
@@ -802,7 +802,7 @@ void sipxInfoObjectFree(SIPX_INFO hInfo)
         if (pData->pMutex->acquireWrite() == OS_SUCCESS)
         {
             // Now it is safe to delete
-            sipxInfoFree(pData) ;   
+            sipxInfoFree(pData) ;
         }
     }
 }
@@ -819,32 +819,32 @@ void sipxInfoFree(SIPX_INFO_DATA* pData)
         free((void*)pData->infoData.szContentType);
         free((void*)pData->infoData.szFromURL);
         free((void*)pData->infoData.szUserAgent);
-        
+
         delete pData;
     }
 }
 
 SIPX_LINE sipxLineLookupHandle(SIPX_INSTANCE_DATA* pInst,
-                               const char* szLineURI, 
-                               const char* szRequestUri) 
-{ 
-    SIPX_LINE hLine = 0; 
+                               const char* szLineURI,
+                               const char* szRequestUri)
+{
+    SIPX_LINE hLine = 0;
 
-    hLine = sipxLineLookupHandleByURI(pInst, szLineURI); 
-    if (!hLine) 
-    { 
-        hLine = sipxLineLookupHandleByURI(pInst, szRequestUri); 
-    } 
-    
-    return hLine; 
-} 
+    hLine = sipxLineLookupHandleByURI(pInst, szLineURI);
+    if (!hLine)
+    {
+        hLine = sipxLineLookupHandleByURI(pInst, szRequestUri);
+    }
+
+    return hLine;
+}
 
 SIPX_LINE sipxLineLookupHandleByURI(SIPX_INSTANCE_DATA* pInst,
                                     const char* szURI)
 {
     SIPX_LINE hLine = 0 ;
     Url urlLine(szURI) ;
-    
+
     // Use the line manager to find identity if available
     if (pInst && pInst->pLineManager)
     {
@@ -852,15 +852,15 @@ SIPX_LINE sipxLineLookupHandleByURI(SIPX_INSTANCE_DATA* pInst,
         if (pLine)
             urlLine = pLine->getIdentity() ;
     }
-    
+
     if (gpLineHandleMap->lock())
     {
         UtlHashMapIterator iter(*gpLineHandleMap);
-   
+
         UtlInt* pIndex = NULL;
         UtlVoidPtr* pObj = NULL;
-        
-        while (pIndex = dynamic_cast<UtlInt*>( iter() ) )       
+
+        while (pIndex = dynamic_cast<UtlInt*>( iter() ) )
         {
             pObj = dynamic_cast<UtlVoidPtr*>(gpLineHandleMap->findValue(pIndex));
             SIPX_LINE_DATA* pData = NULL ;
@@ -868,7 +868,7 @@ SIPX_LINE sipxLineLookupHandleByURI(SIPX_INSTANCE_DATA* pInst,
             {
                 pData = (SIPX_LINE_DATA*) pObj->getValue() ;
                 if (pData)
-                {         
+                {
                     // Check main line definition
                     if (urlLine.isUserHostPortEqual(*pData->lineURI))
                     {
@@ -883,10 +883,10 @@ SIPX_LINE sipxLineLookupHandleByURI(SIPX_INSTANCE_DATA* pInst,
                         Url* pUrl ;
                         UtlSListIterator iterator(*pData->pLineAliases) ;
 
-                        while (pValue = (UtlVoidPtr*) iterator()) 
+                        while (pValue = (UtlVoidPtr*) iterator())
                         {
                             pUrl = (Url*) pValue->getValue() ;
-                        
+
                             if (urlLine.isUserHostPortEqual(*pUrl))
                             {
                                 hLine = pIndex->getValue() ;
@@ -897,7 +897,7 @@ SIPX_LINE sipxLineLookupHandleByURI(SIPX_INSTANCE_DATA* pInst,
                 }
             }
         }
-    
+
         gpLineHandleMap->unlock() ;
     }
 
@@ -906,16 +906,16 @@ SIPX_LINE sipxLineLookupHandleByURI(SIPX_INSTANCE_DATA* pInst,
 
 
 UtlBoolean sipxRemoveCallHandleFromConf(SIPX_CONF_DATA *pConfData,
-                                        const SIPX_CALL hCall) 
+                                        const SIPX_CALL hCall)
 {
     //
     // WARNING: This relies on outside locking
-    // 
+    //
 
 
     OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG, "sipxRemoveCallHandleFromConf pConfData=%p, hCall=%u",
                   pConfData, hCall);
-                  
+
     UtlBoolean bFound = false ;
     size_t idx ;
 
@@ -925,7 +925,7 @@ UtlBoolean sipxRemoveCallHandleFromConf(SIPX_CONF_DATA *pConfData,
         if (pConfData->hCalls[idx] == hCall)
         {
             bFound = true ;
-            break ; 
+            break ;
         }
     }
 
@@ -946,7 +946,7 @@ UtlBoolean sipxRemoveCallHandleFromConf(SIPX_CONF_DATA *pConfData,
 }
 
 
-UtlBoolean validConfData(const SIPX_CONF_DATA* pData) 
+UtlBoolean validConfData(const SIPX_CONF_DATA* pData)
 {
     UtlBoolean bValid = FALSE ;
 
@@ -963,7 +963,7 @@ UtlBoolean validConfData(const SIPX_CONF_DATA* pData)
 /*
    Course grained locking is the way to go!
 */
-SIPX_CONF_DATA* sipxConfLookup(const SIPX_CONF hConf, SIPX_LOCK_TYPE type) 
+SIPX_CONF_DATA* sipxConfLookup(const SIPX_CONF hConf, SIPX_LOCK_TYPE type)
 {
     SIPX_CONF_DATA* pRC = NULL;
     if (gpConfHandleMap->lock())
@@ -976,16 +976,16 @@ SIPX_CONF_DATA* sipxConfLookup(const SIPX_CONF hConf, SIPX_LOCK_TYPE type)
     return pRC ;
 }
 
-void sipxConfReleaseLock(SIPX_CONF_DATA* pData, SIPX_LOCK_TYPE type) 
+void sipxConfReleaseLock(SIPX_CONF_DATA* pData, SIPX_LOCK_TYPE type)
 {
    if (pData != NULL) {
       gpConfHandleMap->unlock() ;
    }
 }
-  
-    
+
+
 #else
-SIPX_CONF_DATA* sipxConfLookup(const SIPX_CONF hConf, SIPX_LOCK_TYPE type) 
+SIPX_CONF_DATA* sipxConfLookup(const SIPX_CONF hConf, SIPX_LOCK_TYPE type)
 {
     SIPX_CONF_DATA* pRC = NULL ;
 
@@ -998,7 +998,7 @@ SIPX_CONF_DATA* sipxConfLookup(const SIPX_CONF hConf, SIPX_LOCK_TYPE type)
             {
                 case SIPX_LOCK_READ:
                     if (pRC->pMutex->acquireRead() != OS_SUCCESS)
-                       pRC = NULL ;                  
+                       pRC = NULL ;
                     break ;
                 case SIPX_LOCK_WRITE:
                     if (pRC->pMutex->acquireWrite() != OS_SUCCESS)
@@ -1018,7 +1018,7 @@ SIPX_CONF_DATA* sipxConfLookup(const SIPX_CONF hConf, SIPX_LOCK_TYPE type)
 }
 
 
-void sipxConfReleaseLock(SIPX_CONF_DATA* pData, SIPX_LOCK_TYPE type) 
+void sipxConfReleaseLock(SIPX_CONF_DATA* pData, SIPX_LOCK_TYPE type)
 {
     if (validConfData(pData))
     {
@@ -1037,12 +1037,12 @@ void sipxConfReleaseLock(SIPX_CONF_DATA* pData, SIPX_LOCK_TYPE type)
 }
 #endif
 
-void sipxConfFree(const SIPX_CONF hConf) 
+void sipxConfFree(const SIPX_CONF hConf)
 {
     // First remove it from the HandleMap so no one else an find it
-    SIPX_CONF_DATA* pData = 
-       (SIPX_CONF_DATA *)gpConfHandleMap->removeHandle(hConf); 
-    
+    SIPX_CONF_DATA* pData =
+       (SIPX_CONF_DATA *)gpConfHandleMap->removeHandle(hConf);
+
     if (pData)
     {
         // Then lock it so anyone who was previously using it is known
@@ -1057,14 +1057,14 @@ void sipxConfFree(const SIPX_CONF hConf)
             pData->pInst->nConferences-- ;
             assert(pData->pInst->nConferences >= 0) ;
             pData->pInst->pLock->release() ;
-            
+
             callId = *pData->strCallId ;
             pInst = pData->pInst ;
-            
+
             delete pData->pMutex ;
             delete pData->strCallId;
             delete pData ;
-        
+
             if (pInst && !callId.isNull())
             {
                 pInst->pCallManager->drop(callId) ;
@@ -1078,10 +1078,10 @@ SIPX_INSTANCE_DATA* findSessionByCallManager(const void* pCallManager)
     SIPX_INSTANCE_DATA *pInst = NULL ;
 
     UtlDListIterator iter(*gpSessionList);
-   
+
     UtlVoidPtr* pObj = NULL;
-   
-    while ((pObj = dynamic_cast<UtlVoidPtr*>(iter())))       
+
+    while ((pObj = dynamic_cast<UtlVoidPtr*>(iter())))
     {
         SIPX_INSTANCE_DATA* pTest = (SIPX_INSTANCE_DATA*) pObj->getValue() ;
         if ((pTest) && (pTest->pCallManager == pCallManager))
@@ -1090,13 +1090,13 @@ SIPX_INSTANCE_DATA* findSessionByCallManager(const void* pCallManager)
             break ;
         }
     }
-    
+
     return pInst ;
 }
 
 // Get the external host and port given the contact preference
-void sipxGetContactHostPort(SIPX_INSTANCE_DATA* pData, 
-                            SIPX_CONTACT_TYPE contactType, 
+void sipxGetContactHostPort(SIPX_INSTANCE_DATA* pData,
+                            SIPX_CONTACT_TYPE contactType,
                             Url& uri)
 {
     UtlBoolean bSet = FALSE  ;
@@ -1142,9 +1142,9 @@ void sipxGetContactHostPort(SIPX_INSTANCE_DATA* pData,
         }
     }
 }
-  
 
-SIPXTAPI_API void sipxLogEntryAdd(OsSysLogPriority priority, 
+
+SIPXTAPI_API void sipxLogEntryAdd(OsSysLogPriority priority,
                      const char *format,
                      ...)
 {
@@ -1153,15 +1153,15 @@ SIPXTAPI_API void sipxLogEntryAdd(OsSysLogPriority priority,
 
     pthread_t threadId;
     OsTask::getCurrentTaskId(threadId) ;
-    OsSysLog::vadd("sipXtapi", threadId, FAC_SIPXTAPI, priority, format, ap);  
-     
+    OsSysLog::vadd("sipXtapi", threadId, FAC_SIPXTAPI, priority, format, ap);
+
     va_end(ap);
 }
 
 SIPXTAPI_API SIPX_RESULT sipxConfigAllowMethod(const SIPX_INST hInst, const char* method, const bool bAllow)
 {
     SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst;
-    
+
     if (pInst)
     {
         pInst->pSipUserAgent->allowMethod(method, bAllow);
@@ -1188,18 +1188,18 @@ int sipxGetSessionCount()
 }
 
 
-UtlBoolean sipxIsCallInFocus() 
+UtlBoolean sipxIsCallInFocus()
 {
     UtlBoolean inFocus = false ;
     if (gpCallHandleMap->lock())
     {
         UtlHashMapIterator iter(*gpCallHandleMap);
-   
+
         UtlInt* pIndex = NULL;
         UtlVoidPtr* pObj = NULL;
         SIPX_CALL hCall = 0 ;
-   
-        while (pIndex = dynamic_cast<UtlInt*>( iter() ) )       
+
+        while (pIndex = dynamic_cast<UtlInt*>( iter() ) )
         {
             pObj = dynamic_cast<UtlVoidPtr*>(gpCallHandleMap->findValue(pIndex));
             SIPX_CALL_DATA* pData = NULL ;
@@ -1221,7 +1221,7 @@ UtlBoolean sipxIsCallInFocus()
 }
 
 
-SIPX_RESULT sipxGetActiveCallIds(SIPX_INST hInst, int maxCalls, int& actualCalls, UtlString callIds[]) 
+SIPX_RESULT sipxGetActiveCallIds(SIPX_INST hInst, int maxCalls, int& actualCalls, UtlString callIds[])
 {
     SIPX_RESULT rc = SIPX_RESULT_FAILURE ;
 
@@ -1243,7 +1243,7 @@ SIPX_RESULT sipxGetActiveCallIds(SIPX_INST hInst, int maxCalls, int& actualCalls
 }
 
 
-SIPX_RESULT sipxCheckForHandleLeaks() 
+SIPX_RESULT sipxCheckForHandleLeaks()
 {
     SIPX_RESULT rc = SIPX_RESULT_SUCCESS ;
 
@@ -1292,23 +1292,23 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetConnectionMediaInterface(const SIPX_CALL hCa
     int connectionId = -1;
     UtlString callId ;
     UtlString remoteAddress ;
-    
+
     SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_READ);
-    
+
     assert(pData != 0);
     assert(pData->pInst != 0);
-    
+
     if (pData && pData->callId && pData->remoteAddress)
     {
         callId = *pData->callId ;
         remoteAddress = *pData->remoteAddress ;
     }
-    
+
     if (pData)
     {
         sipxCallReleaseLock(pData, SIPX_LOCK_READ) ;
-    }    
-    
+    }
+
     if (!callId.isNull() && !remoteAddress.isNull())
     {
         connectionId = pData->pInst->pCallManager->getMediaConnectionId(callId, remoteAddress, ppInstData);
@@ -1319,7 +1319,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetConnectionMediaInterface(const SIPX_CALL hCa
     }
 
     return sr;
-}       
+}
 
 #ifdef VOICE_ENGINE
 #include "include\VoiceEngineMediaInterface.h"
@@ -1327,7 +1327,7 @@ SIPXTAPI_API GipsVoiceEngineLib* sipxCallGetVoiceEnginePtr(const SIPX_CALL hCall
 {
     VoiceEngineMediaInterface* pMediaInterface = NULL;
     GipsVoiceEngineLib* pLib = NULL;
-    
+
     if (hCall)
     {
         sipxCallGetConnectionMediaInterface(hCall, (void**)&pMediaInterface);
@@ -1337,7 +1337,7 @@ SIPXTAPI_API GipsVoiceEngineLib* sipxCallGetVoiceEnginePtr(const SIPX_CALL hCall
             pLib = pMediaInterface->getVoiceEnginePtr();
         }
     }
-    return pLib;    
+    return pLib;
 }
 
 SIPXTAPI_API GipsVoiceEngineLib* sipxConfigGetVoiceEnginePtr(const SIPX_INST hInst)
@@ -1364,7 +1364,7 @@ SIPXTAPI_API GipsVoiceEngineLib* sipxConfigGetVoiceEnginePtr(const SIPX_INST hIn
 SIPXTAPI_API GIPSAECTuningWizard* sipxConfigGetVoiceEngineAudioWizard()
 {
     GIPSAECTuningWizard& wizard = GetGIPSAECTuningWizard();
-    
+
     return &wizard;
 }
 
@@ -1394,7 +1394,7 @@ void GIPSVETraceCallback(char *szMsg, int iNum)
 {
     OsSysLog::add(FAC_AUDIO, PRI_DEBUG,
             "%s (%d)",
-            szMsg, 
+            szMsg,
             iNum);
 }
 
@@ -1431,7 +1431,7 @@ SIPXTAPI_API SIPX_RESULT sipxTranslateToneId(const TONE_ID toneId,
     if (toneId >= '0' && toneId <= '9')
     {
         xlateId = (TONE_ID)(toneId - '0');
-    } 
+    }
     else if (toneId == ID_DTMF_STAR)
     {
         xlateId = (TONE_ID)10;
@@ -1534,14 +1534,14 @@ SIPXTAPI_API SIPX_RESULT sipxConfigVoicemailSubscribe(const SIPX_INST hInst,
     return rc;
 }
 
-UtlBoolean sipxCallSetRemoveInsteadofDrop(SIPX_CALL hCall) 
+UtlBoolean sipxCallSetRemoveInsteadofDrop(SIPX_CALL hCall)
 {
     UtlBoolean bSuccess = FALSE ;
 
     SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_WRITE);
     if (pData)
     {
-        pData->bRemoveInsteadOfDrop = TRUE ;        
+        pData->bRemoveInsteadOfDrop = TRUE ;
         bSuccess = TRUE ;
 
         sipxCallReleaseLock(pData, SIPX_LOCK_WRITE) ;
@@ -1558,7 +1558,7 @@ UtlBoolean sipxCallIsRemoveInsteadOfDropSet(SIPX_CALL hCall)
     SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_READ);
     if (pData)
     {
-        bShouldRemove = pData->bRemoveInsteadOfDrop ;                
+        bShouldRemove = pData->bRemoveInsteadOfDrop ;
 
         sipxCallReleaseLock(pData, SIPX_LOCK_READ) ;
     }
@@ -1569,7 +1569,7 @@ UtlBoolean sipxCallIsRemoveInsteadOfDropSet(SIPX_CALL hCall)
 UtlBoolean sipxAddCallHandleToConf(const SIPX_CALL hCall,
                                    const SIPX_CONF hConf)
 {
-    UtlBoolean bRC = false ;    
+    UtlBoolean bRC = false ;
 
     SIPX_CONF_DATA* pConfData = sipxConfLookup(hConf, SIPX_LOCK_WRITE) ;
     if (pConfData)
@@ -1578,14 +1578,14 @@ UtlBoolean sipxAddCallHandleToConf(const SIPX_CALL hCall,
         if (pCallData)
         {
             pConfData->hCalls[pConfData->nCalls++] = hCall ;
-            pCallData->hConf = hConf ; 
+            pCallData->hConf = hConf ;
             bRC = true ;
 
             sipxCallReleaseLock(pCallData, SIPX_LOCK_WRITE) ;
         }
         sipxConfReleaseLock(pConfData, SIPX_LOCK_WRITE) ;
     }
-    
+
     return bRC ;
 }
 
@@ -1594,12 +1594,12 @@ void sipxDumpCalls()
     if (gpCallHandleMap->lock())
     {
         UtlHashMapIterator iter(*gpCallHandleMap);
-   
+
         UtlInt* pIndex = NULL;
         UtlVoidPtr* pObj = NULL;
         SIPX_CALL hCall = 0 ;
-   
-        while (pIndex = dynamic_cast<UtlInt*>( iter() ) )       
+
+        while (pIndex = dynamic_cast<UtlInt*>( iter() ) )
         {
             pObj = dynamic_cast<UtlVoidPtr*>(gpCallHandleMap->findValue(pIndex));
             SIPX_CALL_DATA* pData = NULL ;
@@ -1607,11 +1607,11 @@ void sipxDumpCalls()
             {
                 pData = (SIPX_CALL_DATA*) pObj->getValue() ;
             }
-         
+
             if (pData)
             {
                 hCall = pIndex->getValue() ;
-                OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG, 
+                OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
                               "***************** CallDump***\n"
                               "hCall %d\n"
                               "****callId %s\n"
@@ -1620,10 +1620,10 @@ void sipxDumpCalls()
                               "****lineUri %s\n",
                     hCall,
                     pData->callId ? pData->callId->data() : NULL,
-                    pData->ghostCallId ? pData->ghostCallId->data() : NULL, 
+                    pData->ghostCallId ? pData->ghostCallId->data() : NULL,
                     pData->bRemoveInsteadOfDrop,
                     pData->lineURI ? pData->lineURI->data() : NULL);
-            
+
             }
         }
         gpCallHandleMap->unlock() ;

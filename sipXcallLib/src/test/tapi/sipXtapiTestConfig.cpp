@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 //////////////////////////////////////////////////////////////////////////////
@@ -21,8 +21,8 @@ bool g_bCallbackCalled = false;
 
 extern SIPX_INST g_hInst;
 extern EventRecorder g_recorder ;
-extern EventRecorder g_lineRecorder; 
-extern EventRecorder g_lineRecorder2; 
+extern EventRecorder g_lineRecorder;
+extern EventRecorder g_lineRecorder2;
 
 extern SIPX_INST g_hInst2;
 extern EventRecorder g_recorder2 ;
@@ -37,39 +37,39 @@ extern EventRecorder g_recorderInfo;
 extern SIPX_CALL ghCallHangup;
 
 /**
- * Test valid bounds: min gain, mid gain, and max gain. 
+ * Test valid bounds: min gain, mid gain, and max gain.
  */
-void sipXtapiTestSuite::testGainAPI() 
+void sipXtapiTestSuite::testGainAPI()
 {
     for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
     {
-        int iGainLevel ;    
+        int iGainLevel ;
 
         printf("\ntestGainAPI (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
 
         // Set to min
         CPPUNIT_ASSERT_EQUAL(sipxAudioSetGain(g_hInst, GAIN_MIN), SIPX_RESULT_SUCCESS) ;
-        CPPUNIT_ASSERT_EQUAL(sipxAudioGetGain(g_hInst, iGainLevel), SIPX_RESULT_SUCCESS) ;    
+        CPPUNIT_ASSERT_EQUAL(sipxAudioGetGain(g_hInst, iGainLevel), SIPX_RESULT_SUCCESS) ;
         CPPUNIT_ASSERT_EQUAL(iGainLevel, GAIN_MIN) ;
 
         // Set to default
         CPPUNIT_ASSERT_EQUAL(sipxAudioSetGain(g_hInst, GAIN_DEFAULT), SIPX_RESULT_SUCCESS) ;
         CPPUNIT_ASSERT_EQUAL(sipxAudioGetGain(g_hInst, iGainLevel), SIPX_RESULT_SUCCESS) ;
         CPPUNIT_ASSERT_EQUAL(iGainLevel, GAIN_DEFAULT) ;
-        
+
         // set to max
-        CPPUNIT_ASSERT_EQUAL(sipxAudioSetGain(g_hInst, GAIN_MAX), SIPX_RESULT_SUCCESS) ;    
+        CPPUNIT_ASSERT_EQUAL(sipxAudioSetGain(g_hInst, GAIN_MAX), SIPX_RESULT_SUCCESS) ;
         CPPUNIT_ASSERT_EQUAL(sipxAudioGetGain(g_hInst, iGainLevel), SIPX_RESULT_SUCCESS) ;
         CPPUNIT_ASSERT_EQUAL(iGainLevel, GAIN_MAX) ;
 
         // set to max again
-        CPPUNIT_ASSERT_EQUAL(sipxAudioSetGain(g_hInst, GAIN_MAX), SIPX_RESULT_SUCCESS) ;    
+        CPPUNIT_ASSERT_EQUAL(sipxAudioSetGain(g_hInst, GAIN_MAX), SIPX_RESULT_SUCCESS) ;
         CPPUNIT_ASSERT_EQUAL(sipxAudioGetGain(g_hInst, iGainLevel), SIPX_RESULT_SUCCESS) ;
-        CPPUNIT_ASSERT_EQUAL(iGainLevel, GAIN_MAX) ;    
+        CPPUNIT_ASSERT_EQUAL(iGainLevel, GAIN_MAX) ;
     }
 
     // Does not create a call -- no need to pause
-    // OsTask::delay(TEST_DELAY) ;    
+    // OsTask::delay(TEST_DELAY) ;
     checkForLeaks();
 }
 
@@ -114,16 +114,16 @@ void sipXtapiTestSuite::testMuteAPI()
             CPPUNIT_ASSERT_EQUAL(iGainLevel, GAIN_DEFAULT) ;
         }
     }
-    
+
     // Does not create a call -- no need to pause
-    // OsTask::delay(TEST_DELAY) ;    
+    // OsTask::delay(TEST_DELAY) ;
     checkForLeaks() ;
 }
 
 /*
- * Test valid bounds: min, mid, and max. 
+ * Test valid bounds: min, mid, and max.
  */
-void sipXtapiTestSuite::testVolumeAPI() 
+void sipXtapiTestSuite::testVolumeAPI()
 {
     for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
     {
@@ -157,7 +157,7 @@ void sipXtapiTestSuite::testVolumeAPI()
         CPPUNIT_ASSERT_EQUAL(sipxAudioSetVolume(g_hInst, SPEAKER, VOLUME_MAX), SIPX_RESULT_SUCCESS) ;
         CPPUNIT_ASSERT_EQUAL(sipxAudioGetVolume(g_hInst, SPEAKER, iLevel), SIPX_RESULT_SUCCESS) ;
         CPPUNIT_ASSERT_EQUAL(iLevel, VOLUME_MAX) ;
-        
+
         // Set both RINGER and SPEAKER to know states (clone of above)
         CPPUNIT_ASSERT_EQUAL(sipxAudioSetVolume(g_hInst, SPEAKER, VOLUME_DEFAULT), SIPX_RESULT_SUCCESS) ;
         CPPUNIT_ASSERT_EQUAL(sipxAudioSetVolume(g_hInst, RINGER, VOLUME_DEFAULT), SIPX_RESULT_SUCCESS) ;
@@ -178,7 +178,7 @@ void sipXtapiTestSuite::testVolumeAPI()
     }
 
     // Does not create a call -- no need to pause
-    // OsTask::delay(TEST_DELAY) ;    
+    // OsTask::delay(TEST_DELAY) ;
     checkForLeaks() ;
 }
 
@@ -203,7 +203,7 @@ void sipXtapiTestSuite::testAudioSettings()
         const char* checker = NULL;
         //Test sipxAudioGetNumInputDevices
         CPPUNIT_ASSERT_EQUAL( sipxAudioGetNumInputDevices(g_hInst, numOfDevices), SIPX_RESULT_SUCCESS);
-        for(i = 0; i < numOfDevices; i++) 
+        for(i = 0; i < numOfDevices; i++)
         {
             CPPUNIT_ASSERT_EQUAL( sipxAudioGetInputDevice(g_hInst, i, szDevice), SIPX_RESULT_SUCCESS);
         }
@@ -214,7 +214,7 @@ void sipXtapiTestSuite::testAudioSettings()
         numOfDevices = 0;
         //Test sipxAudioGetNumOutputDevices
         CPPUNIT_ASSERT_EQUAL( sipxAudioGetNumOutputDevices(g_hInst, numOfDevices), SIPX_RESULT_SUCCESS);
-        for(i = 0; i < numOfDevices; i++) 
+        for(i = 0; i < numOfDevices; i++)
         {
             CPPUNIT_ASSERT_EQUAL( sipxAudioGetOutputDevice(g_hInst, i, szDevice), SIPX_RESULT_SUCCESS);
         }
@@ -225,13 +225,13 @@ void sipXtapiTestSuite::testAudioSettings()
     }
 
     // Does not create a call -- no need to pause
-    // OsTask::delay(TEST_DELAY) ;    
+    // OsTask::delay(TEST_DELAY) ;
     checkForLeaks() ;
 }
 
 // Try the GetVersion API, one time with large buffer,
 // then with very small buffer
-void sipXtapiTestSuite::testGetVersion() 
+void sipXtapiTestSuite::testGetVersion()
 {
     for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
     {
@@ -245,7 +245,7 @@ void sipXtapiTestSuite::testGetVersion()
     }
 
     // Does not create a call -- no need to pause
-    // OsTask::delay(TEST_DELAY) ;    
+    // OsTask::delay(TEST_DELAY) ;
     checkForLeaks() ;
 }
 
@@ -284,14 +284,14 @@ void sipXtapiTestSuite::testSetCallback()
         sipxConfigSetLogCallback( NULL );
         sipxConfigSetLogLevel( LOG_LEVEL_NONE );
     }
-    
+
     // Does not create a call -- no need to pause
-    // OsTask::delay(TEST_DELAY) ;    
+    // OsTask::delay(TEST_DELAY) ;
     checkForLeaks() ;
 }
 
 
-void sipXtapiTestSuite::testAutoPortSelection() 
+void sipXtapiTestSuite::testAutoPortSelection()
 {
     for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
     {
@@ -323,23 +323,23 @@ void sipXtapiTestSuite::testAutoPortSelection()
     #endif
         SIPX_CONTACT_ADDRESS addresses[32];
         size_t actualNum = 0;
-        
+
         sipxConfigGetLocalContacts(hHandle, addresses, 32, actualNum);
         for (size_t i = 0; i < actualNum; i++)
         {
             CPPUNIT_ASSERT(addresses[i].iPort > 0);
         }
-        
+
         rc = sipxUnInitialize(hHandle) ;
-        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;        
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
     }
 
     // Does not create a call -- no need to pause
-    // OsTask::delay(TEST_DELAY) ;    
+    // OsTask::delay(TEST_DELAY) ;
     checkForLeaks() ;
 }
 
-void sipXtapiTestSuite::testSeqPortSelection() 
+void sipXtapiTestSuite::testSeqPortSelection()
 {
     for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
     {
@@ -379,16 +379,16 @@ void sipXtapiTestSuite::testSeqPortSelection()
         rc = sipxConfigGetLocalSipTcpPort(hHandle2, &iPort) ;
         CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
         CPPUNIT_ASSERT(portIsValid(iPort) && iPort > 8100) ;
-        
+
         SIPX_CONTACT_ADDRESS addresses[32];
         size_t actualNum = 0;
-        
+
         sipxConfigGetLocalContacts(hHandle2, addresses, 32, actualNum);
         for (size_t i = 0; i < actualNum; i++)
         {
             CPPUNIT_ASSERT(addresses[i].iPort > 8100);
         }
-        
+
 
     #if 0
         // Bob 2005-04-06: Wait until TLS is supported/enabled for this
@@ -402,15 +402,15 @@ void sipXtapiTestSuite::testSeqPortSelection()
         rc = sipxUnInitialize(hHandle) ;
         CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
         rc = sipxUnInitialize(hHandle2) ;
-        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;    
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
     }
 
     // Does not create a call -- no need to pause
-    // OsTask::delay(TEST_DELAY) ;    
+    // OsTask::delay(TEST_DELAY) ;
     checkForLeaks() ;
 }
 
-void sipXtapiTestSuite::testConfigLog() 
+void sipXtapiTestSuite::testConfigLog()
 {
     for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
     {
@@ -422,11 +422,11 @@ void sipXtapiTestSuite::testConfigLog()
         CPPUNIT_ASSERT_EQUAL( sipxConfigSetLogFile(NULL), SIPX_RESULT_SUCCESS);
         CPPUNIT_ASSERT_EQUAL( sipxConfigSetLogFile("C:\\example.log"), SIPX_RESULT_SUCCESS);
         sipxLogCallback pcallBack = NULL;
-        CPPUNIT_ASSERT_EQUAL( sipxConfigSetLogCallback(pcallBack), SIPX_RESULT_SUCCESS);        
+        CPPUNIT_ASSERT_EQUAL( sipxConfigSetLogCallback(pcallBack), SIPX_RESULT_SUCCESS);
     }
-    
+
     // Does not create a call -- no need to pause
-    // OsTask::delay(TEST_DELAY) ;    
+    // OsTask::delay(TEST_DELAY) ;
     checkForLeaks() ;
 }
 
@@ -447,7 +447,7 @@ void sipXtapiTestSuite::testConfigOutOfBand()
     }
 
     // Does not create a call -- no need to pause
-    // OsTask::delay(TEST_DELAY) ;    
+    // OsTask::delay(TEST_DELAY) ;
     checkForLeaks() ;
 }
 
@@ -470,9 +470,9 @@ void sipXtapiTestSuite::testTeardown()
     }
 
     // Does not create a call -- no need to pause
-    // OsTask::delay(TEST_DELAY) ;    
+    // OsTask::delay(TEST_DELAY) ;
     checkForLeaks() ;
-} 
+}
 
 
 bool config_callback(SIPX_EVENT_CATEGORY category,
@@ -485,7 +485,7 @@ bool config_callback(SIPX_EVENT_CATEGORY category,
 
         g_recorder.addEvent(pConfigInfo);
     }
-    
+
     return true;
 }
 
@@ -509,23 +509,23 @@ bool codec_CallBack_Place(SIPX_EVENT_CATEGORY category,
     return true;
 }
 
-bool codec_CallBack_Receive(SIPX_EVENT_CATEGORY category, 
-                            void* pInfo, 
+bool codec_CallBack_Receive(SIPX_EVENT_CATEGORY category,
+                            void* pInfo,
                             void* pUserData)
 {
-     
+
     if (category == EVENT_CATEGORY_CALLSTATE)
     {
         SIPX_CALLSTATE_INFO* pCallInfo = (SIPX_CALLSTATE_INFO*)pInfo;
         SIPX_LINE hLine = pCallInfo->hLine;
         SIPX_CALL hCall = pCallInfo->hCall;
-        
+
         g_recorder2.addEvent(hLine, pCallInfo->event, pCallInfo->cause) ;
 
         // If we have user data verify the line url against it
         if (pUserData)
         {
-            char szBuffer[500] ; 
+            char szBuffer[500] ;
             size_t nBuffer ;
 
             if (strlen((const char*) pUserData))
@@ -555,7 +555,7 @@ bool codec_CallBack_Receive(SIPX_EVENT_CATEGORY category,
                 sipxCallAnswer(hCall) ;
                 break ;
             case CALLSTATE_DISCONNECTED:
-                sipxCallDestroy(hCall) ; 
+                sipxCallDestroy(hCall) ;
                 break ;
             case CALLSTATE_AUDIO_EVENT:
                 if (pCallInfo->cause == CALLSTATE_AUDIO_START)
@@ -569,8 +569,8 @@ bool codec_CallBack_Receive(SIPX_EVENT_CATEGORY category,
             default:
                 break ;
         }
-    }     
-    
+    }
+
     return true;
 }
 
@@ -586,9 +586,9 @@ void sipXtapiTestSuite::testConfigCodecPreferences()
 
         sipxConfigSetLogLevel(LOG_LEVEL_DEBUG);
         sipxConfigSetLogFile("codec.log");
-    
+
         g_recorder.clear() ;
-        g_recorder2.clear() ;    
+        g_recorder2.clear() ;
 
         sipxConfigSetAudioCodecPreferences(g_hInst, AUDIO_CODEC_BW_HIGH);
         sipxConfigSetAudioCodecPreferences(g_hInst2, AUDIO_CODEC_BW_HIGH);
@@ -603,12 +603,12 @@ void sipXtapiTestSuite::testConfigCodecPreferences()
 
         sipxCallConnect(hCall, "sip:foo@127.0.0.1:9100") ;
         OsTask::delay(CALL_DELAY*2) ;
-        
+
         int connectionId = -1;
-        
+
         CPPUNIT_ASSERT_EQUAL(sipxCallGetConnectionId(hCall, connectionId), SIPX_RESULT_SUCCESS);
         CPPUNIT_ASSERT(connectionId != -1) ;
-                
+
         destroyCall(hCall) ;
         OsTask::delay(CALL_DELAY * 4) ;
 
@@ -624,7 +624,7 @@ void sipXtapiTestSuite::testConfigCodecPreferences()
         g_recorder.addCompareEvent(hLine, CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE_HELD) ;
         g_recorder.addCompareEvent(hLine, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_STOP) ;
         g_recorder.addCompareEvent(hLine, CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL) ;
-        g_recorder.addCompareEvent(hLine, CALLSTATE_DESTROYED, CALLSTATE_DESTROYED_NORMAL) ;    
+        g_recorder.addCompareEvent(hLine, CALLSTATE_DESTROYED, CALLSTATE_DESTROYED_NORMAL) ;
         CPPUNIT_ASSERT(g_recorder.compare()) ;
 
         g_recorder2.addCompareEvent(hReceivingLine, CALLSTATE_NEWCALL, CALLSTATE_NEW_CALL_NORMAL) ;
@@ -637,15 +637,15 @@ void sipXtapiTestSuite::testConfigCodecPreferences()
         g_recorder2.addCompareEvent(hReceivingLine, CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL) ;
         g_recorder2.addCompareEvent(hReceivingLine, CALLSTATE_DESTROYED, CALLSTATE_DESTROYED_NORMAL) ;
         CPPUNIT_ASSERT(g_recorder2.compare()) ;
-    
+
         CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hLine), SIPX_RESULT_SUCCESS);
         CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hReceivingLine), SIPX_RESULT_SUCCESS);
     }
     OsTask::delay(TEST_DELAY) ;
-} 
+}
 
 
-void sipXtapiTestSuite::testConfigEnableStunSuccess() 
+void sipXtapiTestSuite::testConfigEnableStunSuccess()
 {
     SIPX_INST hInst = NULL ;
     SIPX_RESULT rc ;
@@ -655,7 +655,7 @@ void sipXtapiTestSuite::testConfigEnableStunSuccess()
 
     for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
     {
-        printf("\ntestConfigEnableStunSuccess (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);        
+        printf("\ntestConfigEnableStunSuccess (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
 
         rc = sipxInitialize(&hInst, 0, 0, 8031, 8050) ;
         CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS);
@@ -677,12 +677,12 @@ void sipXtapiTestSuite::testConfigEnableStunSuccess()
     }
 
     // Does not create a call -- no need to pause
-    // OsTask::delay(TEST_DELAY) ;    
+    // OsTask::delay(TEST_DELAY) ;
     checkForLeaks() ;
 }
 
 
-void sipXtapiTestSuite::testConfigEnableStunFailure() 
+void sipXtapiTestSuite::testConfigEnableStunFailure()
 {
     SIPX_INST hInst = NULL ;
     SIPX_RESULT rc ;
@@ -692,7 +692,7 @@ void sipXtapiTestSuite::testConfigEnableStunFailure()
 
     for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
     {
-        printf("\ntestConfigEnableStunFailure (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);        
+        printf("\ntestConfigEnableStunFailure (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
 
         validator.reset() ;
 
@@ -716,7 +716,6 @@ void sipXtapiTestSuite::testConfigEnableStunFailure()
     }
 
     // Does not create a call -- no need to pause
-    OsTask::delay(TEST_DELAY) ;    
-    checkForLeaks() ;   
+    OsTask::delay(TEST_DELAY) ;
+    checkForLeaks() ;
 }
-

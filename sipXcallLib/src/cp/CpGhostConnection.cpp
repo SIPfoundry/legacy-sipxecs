@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -96,7 +96,7 @@ UtlBoolean CpGhostConnection::targetCallBlindTransfer(const char* transferTarget
                                                            const char* transferControllerAddress)
 {
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
                   "CpGhostConnection::targetCallBlindTransfer ");
 #endif
     mRemoteAddress = transferTargetAddress;
@@ -108,7 +108,7 @@ UtlBoolean CpGhostConnection::targetCallBlindTransfer(const char* transferTarget
 
 void CpGhostConnection::disconnectForSipXTapi()
 {
-    // sipXtapi listeners do not know about this ghost call so if there is a 
+    // sipXtapi listeners do not know about this ghost call so if there is a
     // tapi listener, we must tell CallManager to clean up here.
     // BUT this ghost connection does not know if there are any sipxtapi listeners,
     // fireSipXEvent has to tell us.
@@ -117,7 +117,7 @@ void CpGhostConnection::disconnectForSipXTapi()
 
     fireSipXEvent(CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_GHOST, (void*)(&bNotifyCallManager)) ;
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
                   "CpGhostConnection::tearDownForSipXTapi "
                   "returns %d", bNotifyCallManager);
 #endif
@@ -127,7 +127,7 @@ void CpGhostConnection::disconnectForSipXTapi()
         UtlString ghostCallId;
         getCallId(&ghostCallId);
         CpMultiStringMessage callMessage(CpCallManager::CP_DROP, ghostCallId.data());
-        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+        OsSysLog::add(FAC_CP, PRI_DEBUG,
                       "CpGhostConnection::tearDownForSipXTapi "
                       "post drop for call %s",
                       ghostCallId.data());
@@ -145,7 +145,7 @@ UtlBoolean CpGhostConnection::transferControllerStatus(int connectionState, int 
 #ifdef TEST_PRINT
     UtlString connState;
     getStateString(connectionState, &connState);
-    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
                   "CpGhostConnection::transferControllerStatus "
                   "state: %s cause: %d\n",
                   connState.data(), cause);
@@ -157,7 +157,7 @@ UtlBoolean CpGhostConnection::transferControllerStatus(int connectionState, int 
     // If the transfer suceeded, we need to clean up the pseudo(ghost) call.
     if(connectionState == CONNECTION_ESTABLISHED)
     {
-        // taoListeners need to see DISCONNECTED state to clean out all related objects 
+        // taoListeners need to see DISCONNECTED state to clean out all related objects
         setState(CONNECTION_DISCONNECTED, CONNECTION_REMOTE, CONNECTION_CAUSE_TRANSFER);
 
         /** SIPXTAPI related **/

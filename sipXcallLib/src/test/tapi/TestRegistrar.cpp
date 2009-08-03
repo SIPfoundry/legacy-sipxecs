@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 //////////////////////////////////////////////////////////////////////////////
@@ -18,7 +18,7 @@
 // CONSTANTS
 const int NUM_USERS = 4;
 // STATIC VARIABLE INITIALIZATIONS
-TestRegistrarUsers gUsers[] = 
+TestRegistrarUsers gUsers[] =
 {
     {"mike", "1234"},
     {"andy", "3456"},
@@ -32,8 +32,8 @@ TestRegistrarUsers gUsers[] =
 /* ============================ CREATORS ================================== */
 
 // Constructor
-TestRegistrar::TestRegistrar() 
-    : OsServerTask("TestRegistrarServer", NULL, 2000)   
+TestRegistrar::TestRegistrar()
+    : OsServerTask("TestRegistrarServer", NULL, 2000)
 {
     mpUserAgent = new  SipUserAgent(
                 5070,                    // sipTcpPort
@@ -65,7 +65,7 @@ TestRegistrar::TestRegistrar(const TestRegistrar& rTestRegistrar)
 
 // Destructor
 TestRegistrar::~TestRegistrar()
-{    
+{
     mpUserAgent->removeMessageObserver(*this->getMessageQueue()) ;
     mpUserAgent->shutdown() ;
     delete mpUserAgent ;
@@ -82,7 +82,7 @@ void TestRegistrar::init()
     {
         OsTask::delay(100);
     }
-    
+
     this->start();
 }
 
@@ -98,11 +98,11 @@ UtlBoolean TestRegistrar::handleMessage(OsMsg& rMsg)
         {
             const SipMessage& message = *((SipMessageEvent&)rMsg).getMessage();
             UtlString method;
-            
+
             if (!message.isResponse())
             {
                 message.getRequestMethod(&method);
-                
+
                 if (SIP_REGISTER_METHOD == method)
                 {
                     messageProcessed = handleRegisterRequest(message);
@@ -110,8 +110,8 @@ UtlBoolean TestRegistrar::handleMessage(OsMsg& rMsg)
             }
             break;
         }
-        
-    }    
+
+    }
     return messageProcessed;
 }
 /* ============================ MANIPULATORS ============================== */
@@ -142,15 +142,15 @@ UtlBoolean TestRegistrar::handleRegisterRequest(SipMessage message)
     int expires;
     static int retrySeqNum = 0;
     UtlString callId;
-    
+
     message.getCallIdField(&callId);
-    
+
     message.getContactField(0, contactField);
     message.getExpiresField(&expires);
-    
+
     message.getCSeqField(&seqNum, &method);
     message.getFromAddress(&responseToAddress, &responseToPort, &protocol);
-    
+
     finalResponse.setContactField(contactField);
     finalResponse.setExpiresField(expires);
     finalResponse.setFromField("sip:127.0.0.1:5070", 5070);
@@ -158,7 +158,7 @@ UtlBoolean TestRegistrar::handleRegisterRequest(SipMessage message)
     finalResponse.setToField(contactField, responseToPort, protocol);
     finalResponse.setUserAgentField("TestRegistrar");
 //    finalResponse.setRegisterData(responseToAddress, contactField, "127.0.0.1", contactField, callId, seqNum);
-    
+
     if (contactField.contains("anon"))      // anonymous user doesnt need authentication, just say ok
     {
         finalResponse.setResponseData(&message, 200, "OK");
@@ -172,12 +172,12 @@ UtlBoolean TestRegistrar::handleRegisterRequest(SipMessage message)
         UtlString requestNonce;
         UtlString authUser;
         UtlString uriParam;
-                
+
         message.getAuthorizationUser(&authUser);
         message.getDigestAuthorizationData(
                    &requestUser, &requestRealm, &requestNonce,
                    NULL, NULL, &uriParam,
-                   HttpMessage::SERVER, 0);        
+                   HttpMessage::SERVER, 0);
 
         if (seqNum == retrySeqNum) // if this is a retry response
         {
@@ -197,7 +197,7 @@ UtlBoolean TestRegistrar::handleRegisterRequest(SipMessage message)
             finalResponse.setAuthenticationData("md5", "TestRegistrar", NULL, NULL, NULL, HttpMessage::SERVER );
 #endif
             finalResponse.setResponseData(&message, 401, "Not authorized");
-        }        
+        }
     }
     else if (contactField.contains("xyzzy"))
     {
@@ -210,13 +210,13 @@ UtlBoolean TestRegistrar::handleRegisterRequest(SipMessage message)
         szCode[1] = contactField[pos + 6];
         szCode[2] = contactField[pos + 7];
         szCode[3] = '\0';
-        
+
         finalResponse.setResponseData(&message, atoi(szCode), "OK");
     }
-    
-    
+
+
     mpUserAgent->send(finalResponse);
-    
+
     return messageProcessed;
 }
 

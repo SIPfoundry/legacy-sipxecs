@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 //////////////////////////////////////////////////////////////////////////////
@@ -52,23 +52,23 @@
 #endif /* _WIN32 */
 
 
-bool basicCall_CallBack_Receive(SIPX_EVENT_CATEGORY category, 
-                                         void* pInfo, 
+bool basicCall_CallBack_Receive(SIPX_EVENT_CATEGORY category,
+                                         void* pInfo,
                                          void* pUserData);
-bool basicCall_CallBack_Receive3(SIPX_EVENT_CATEGORY category, 
-                                         void* pInfo, 
-                                         void* pUserData);
-                                         
-bool basicCall_CallBack_Place(SIPX_EVENT_CATEGORY category, 
-                                         void* pInfo, 
-                                         void* pUserData);                                         
-
-bool basicCall_CallBack_Receive3_hangup(SIPX_EVENT_CATEGORY category, 
-                                         void* pInfo, 
+bool basicCall_CallBack_Receive3(SIPX_EVENT_CATEGORY category,
+                                         void* pInfo,
                                          void* pUserData);
 
-bool basicCall_CallBack_Receive3_busy(SIPX_EVENT_CATEGORY category, 
-                                         void* pInfo, 
+bool basicCall_CallBack_Place(SIPX_EVENT_CATEGORY category,
+                                         void* pInfo,
+                                         void* pUserData);
+
+bool basicCall_CallBack_Receive3_hangup(SIPX_EVENT_CATEGORY category,
+                                         void* pInfo,
+                                         void* pUserData);
+
+bool basicCall_CallBack_Receive3_busy(SIPX_EVENT_CATEGORY category,
+                                         void* pInfo,
                                          void* pUserData);
 
 class sipXtapiTestSuite : public CppUnit::TestFixture
@@ -77,7 +77,7 @@ class sipXtapiTestSuite : public CppUnit::TestFixture
 
     // CPPUNIT_TEST(testNothing) ;
 
-#if TEST_AUDIO /* [ */     
+#if TEST_AUDIO /* [ */
     CPPUNIT_TEST(testGainAPI) ;
     CPPUNIT_TEST(testMuteAPI) ;
     CPPUNIT_TEST(testVolumeAPI) ;
@@ -96,12 +96,12 @@ class sipXtapiTestSuite : public CppUnit::TestFixture
 #endif /* TEST_LINE ] */
 
 #if TEST_CALL /* [ */
-    CPPUNIT_TEST(testCallMakeAPI) ;           
+    CPPUNIT_TEST(testCallMakeAPI) ;
     CPPUNIT_TEST(testCallGetID) ;
     CPPUNIT_TEST(testCallGetRemoteID) ;
     CPPUNIT_TEST(testCallGetLocalID) ;
     CPPUNIT_TEST(testCallBasic) ;
-    CPPUNIT_TEST(testCallBasic2) ;  
+    CPPUNIT_TEST(testCallBasic2) ;
 #ifdef _WIN32
     CPPUNIT_TEST(testCallMute);
 #endif
@@ -112,22 +112,22 @@ class sipXtapiTestSuite : public CppUnit::TestFixture
     CPPUNIT_TEST(testSendInfoTimeout);
     CPPUNIT_TEST(testSendInfoFailure);
 
-    // 
+    //
     // The following test cases allow you to manually test features and
-    // verify that audio works.  You will need to modify the IP address 
+    // verify that audio works.  You will need to modify the IP address
     // to work for you.
     //
     // CPPUNIT_TEST(testManualCallDialtone) ;
     // CPPUNIT_TEST(testManualPlayFileNoCall);
 #endif /* TEST_CALL ] */
-        
+
 #if TEST_CONF /* [ */
     CPPUNIT_TEST(testConfBasic1) ;
     CPPUNIT_TEST(testConfBasic2) ;
     CPPUNIT_TEST(testConfBasic3) ;
     CPPUNIT_TEST(testConfBasic4) ;
     CPPUNIT_TEST(testConfBasic5) ;
-    CPPUNIT_TEST(testConfBasic6) ;    
+    CPPUNIT_TEST(testConfBasic6) ;
     CPPUNIT_TEST(testConfHoldIndividual) ;
     CPPUNIT_TEST(testConfJoin) ;
 #if 0
@@ -138,7 +138,7 @@ class sipXtapiTestSuite : public CppUnit::TestFixture
     CPPUNIT_TEST(testConfHoldBridge) ;
     CPPUNIT_TEST(testConfReAdd) ;
 
-    // 
+    //
     // The following test cases allow you to manually test join/split and
     // verify audio -- you will need to modify the IP address to work
     // for you.
@@ -163,15 +163,15 @@ class sipXtapiTestSuite : public CppUnit::TestFixture
 
 #if TEST_CONFIG /* [ */
     CPPUNIT_TEST(testGetVersion) ;
-    CPPUNIT_TEST(testSeqPortSelection) ;    
+    CPPUNIT_TEST(testSeqPortSelection) ;
     CPPUNIT_TEST(testAutoPortSelection) ;
-    CPPUNIT_TEST(testSetCallback) ;    
+    CPPUNIT_TEST(testSetCallback) ;
 #ifdef _WIN32
 #ifdef VOICE_ENGINE
     //CPPUNIT_TEST(testConfigOutOfBand) ;
 #endif
 #endif
-    CPPUNIT_TEST(testTeardown);    
+    CPPUNIT_TEST(testTeardown);
     CPPUNIT_TEST(testConfigEnableStunSuccess);
     CPPUNIT_TEST(testConfigEnableStunFailure);
     CPPUNIT_TEST(testConfigLog) ;
@@ -209,7 +209,7 @@ public:
     void testCallGetID() ;
     void testCallGetRemoteID() ;
     void testCallGetLocalID() ;
-    
+
     void testCallBasic() ;
     void testCallBasic2() ;
     void testCallBusy() ;
@@ -226,7 +226,7 @@ public:
     void testConfBasic6() ;
     void testConfJoin() ;
     void testConfJoin2() ;
-    void testConfHoldIndividual() ;    
+    void testConfHoldIndividual() ;
     void testConfHoldNoBridge() ;
     void testConfHoldBridge() ;
     void testConfReAdd() ;
@@ -259,7 +259,7 @@ public:
     void testTeardown();
     void testConfigCodecPreferences();
     void testConfigEnableStunSuccess() ;
-    void testConfigEnableStunFailure() ;    
+    void testConfigEnableStunFailure() ;
 
     void testCallRapidCallAndHangup();
 protected:

@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -29,13 +29,13 @@ public:
     {
         PtAddressForwarding* pTempAddress;
         PtAddressForwarding* pTempAddress_1;
-                                                                                
+
         pTempAddress = new PtAddressForwarding("2345");
         delete pTempAddress;
-                                                                                
+
         pTempAddress = new PtAddressForwarding();
         delete pTempAddress;
-                                                                                
+
         pTempAddress = new PtAddressForwarding("2345");
         pTempAddress_1 = new PtAddressForwarding(*pTempAddress);
         delete pTempAddress;
@@ -46,7 +46,7 @@ public:
     {
         PtAddressForwarding* pTempAddress;
         PtAddressForwarding* pTempAddress_1;
-                                                                                
+
         // test the assignment method (if implemented)
         pTempAddress = new PtAddressForwarding("1234");
         pTempAddress_1 = new PtAddressForwarding("2345");
@@ -59,7 +59,7 @@ public:
     {
         PtAddressForwarding* pTempAddress;
         char pTempChar[128];
-                                                                                
+
         pTempAddress = new PtAddressForwarding("myComputer");
         pTempAddress->getDestinationAddress(pTempChar, 127);
         delete pTempAddress;

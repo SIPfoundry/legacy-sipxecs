@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -537,7 +537,7 @@ TaoStatus TaoTerminalConnectionAdaptor::createPlayer(TaoMessage& rMsg)
    const char* szCallId = arg[3] ;
 
 
-    // TO_BE_REMOVED   
+    // TO_BE_REMOVED
     mpCallMgrTask->createPlayer(MpPlayer::STREAM_PLAYER, szCallId, szStream, flags, ppPlayer) ;
 
     rMsg.setMsgSubType(TaoMessage::RESPONSE_TERMCONNECTION);

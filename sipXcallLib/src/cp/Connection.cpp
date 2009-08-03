@@ -1,14 +1,14 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
 //////
 
- 
+
 
 // SYSTEM INCLUDES
 
@@ -40,8 +40,8 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-#define CONN_DELETE_DELAY_SECS  10    // Number of seconds to wait before a 
-                                      // connection should be removed from a 
+#define CONN_DELETE_DELAY_SECS  10    // Number of seconds to wait before a
+                                      // connection should be removed from a
                                       // call and deleted.
 
 // STATIC VARIABLE INITIALIZATIONS
@@ -53,13 +53,13 @@
 // Constructor
 Connection::Connection(CpCallManager* callMgr,
                        CpCall* call,
-                       CpMediaInterface* mediaInterface, 
+                       CpMediaInterface* mediaInterface,
                        //UiContext* callUiContext,
                        int offeringDelayMilliSeconds,
-                       int availableBehavior, 
+                       int availableBehavior,
                        const char* forwardUnconditionalUrl,
                        int busyBehavior, const char* forwardOnBusyUrl,
-                       int forwardOnNoAnswerSeconds) 
+                       int forwardOnNoAnswerSeconds)
    : mConnectionId(-1)
    , callIdMutex(OsMutex::Q_FIFO)
    , mDeleteAfter(OsTime::OS_INFINITY)
@@ -69,11 +69,11 @@ Connection::Connection(CpCallManager* callMgr,
 
     if (call) {
        call->getCallId(callId);
-       OsSysLog::add(FAC_CP, PRI_DEBUG, 
-                     "Connection::Connection- %s\n", 
+       OsSysLog::add(FAC_CP, PRI_DEBUG,
+                     "Connection::Connection- %s\n",
                      callId.data());
     } else
-       OsSysLog::add(FAC_CP, PRI_DEBUG, 
+       OsSysLog::add(FAC_CP, PRI_DEBUG,
                      "Connection::Connection- call is Null\n");
 #endif
 
@@ -121,20 +121,20 @@ Connection::Connection(CpCallManager* callMgr,
 
     CallId::getNewCallId(*this) ;
 
-#ifdef TEST_PRINT    
+#ifdef TEST_PRINT
     if (!callId.isNull())
-       OsSysLog::add(FAC_CP, PRI_DEBUG, 
-                     "Connection::Connection -leaving: %s\n", 
+       OsSysLog::add(FAC_CP, PRI_DEBUG,
+                     "Connection::Connection -leaving: %s\n",
                      callId.data());
     else
-       OsSysLog::add(FAC_CP, PRI_DEBUG, 
+       OsSysLog::add(FAC_CP, PRI_DEBUG,
                      "Connection::Connection -leaving: call is Null\n");
 #endif
 }
 
 // Copy constructor
-Connection::Connection(const Connection& rConnection) 
-    : UtlString(rConnection)   
+Connection::Connection(const Connection& rConnection)
+    : UtlString(rConnection)
     , callIdMutex(OsMutex::Q_FIFO)
 {
     mpListenerCnt = rConnection.mpListenerCnt;
@@ -144,15 +144,15 @@ Connection::Connection(const Connection& rConnection)
 // Destructor
 Connection::~Connection()
 {
-#ifdef TEST_PRINT 
+#ifdef TEST_PRINT
     UtlString callId;
     if (mpCall) {
        mpCall->getCallId(callId);
-       OsSysLog::add(FAC_CP, PRI_DEBUG, 
-                     "Connection destructed: %s\n", 
+       OsSysLog::add(FAC_CP, PRI_DEBUG,
+                     "Connection destructed: %s\n",
                      callId.data());
     } else
-       OsSysLog::add(FAC_CP, PRI_DEBUG, 
+       OsSysLog::add(FAC_CP, PRI_DEBUG,
                      "Connection destructed: call is Null\n");
 #endif
 
@@ -169,7 +169,7 @@ Connection::~Connection()
    }
 
 
-#ifdef TEST_PRINT 
+#ifdef TEST_PRINT
     if (!callId.isNull())
        OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving Connection destructed: %s\n", callId.data());
     else
@@ -179,7 +179,7 @@ Connection::~Connection()
 
 /* ============================ MANIPULATORS ============================== */
 
-void Connection::prepareForSplit() 
+void Connection::prepareForSplit()
 {
     if ((mpMediaInterface) && (mConnectionId != -1))
     {
@@ -192,7 +192,7 @@ void Connection::prepareForSplit()
 }
 
 
-void Connection::prepareForJoin(CpCall* pNewCall, const char* szLocalAddress, CpMediaInterface* pNewMediaInterface) 
+void Connection::prepareForJoin(CpCall* pNewCall, const char* szLocalAddress, CpMediaInterface* pNewMediaInterface)
 {
     mpCall = pNewCall ;
     mpMediaInterface = pNewMediaInterface ;
@@ -241,13 +241,13 @@ void Connection::setState(int newState, int isLocal, int newCause, int termState
    if (!isStateTransitionAllowed(newState, currentState))
    {
       // Under some conditions, "invalid" state changes are allowed.
-      if (!(!isLocal && metaEventId > 0 
+      if (!(!isLocal && metaEventId > 0
             && (metaEventType == PtEvent::META_CALL_TRANSFERRING
                 || metaEventType == PtEvent::META_CALL_REPLACING)))
       {
          if (newState == currentState)
          {
-            OsSysLog::add(FAC_CP, PRI_DEBUG, 
+            OsSysLog::add(FAC_CP, PRI_DEBUG,
                           "Connection::setState: "
                           "Questionable connection state change - isLocal %d, for call "
                           "'%s' with callid '%s' from %s to %s, cause %d",
@@ -256,7 +256,7 @@ void Connection::setState(int newState, int isLocal, int newCause, int termState
          }
          else
          {
-            OsSysLog::add(FAC_CP, PRI_ERR, 
+            OsSysLog::add(FAC_CP, PRI_ERR,
                           "Connection::setState: "
                           "Invalid connection state change - isLocal %d, for call "
                           "'%s' with callid '%s' from %s to %s, cause %d",
@@ -271,14 +271,14 @@ void Connection::setState(int newState, int isLocal, int newCause, int termState
 
    if (newState != currentState ||
        newCause != CONNECTION_CAUSE_NORMAL ||
-       (newState == currentState && 
-           newState == CONNECTION_ALERTING && 
+       (newState == currentState &&
+           newState == CONNECTION_ALERTING &&
            (0 == isLocal)))
    {
       if (isLocal && newState == CONNECTION_DISCONNECTED)
       {
-         if ((   mpCall->canDisconnectConnection(this) 
-              || newCause == CONNECTION_CAUSE_CANCELLED) 
+         if ((   mpCall->canDisconnectConnection(this)
+              || newCause == CONNECTION_CAUSE_CANCELLED)
              && metaEventType != PtEvent::META_CALL_TRANSFERRING
              && metaEventType != PtEvent::META_CALL_REPLACING)
          {
@@ -330,15 +330,15 @@ void Connection::setTerminalConnectionState(int newState, int isLocal, int newCa
     mTerminalConnState = newState;
     mConnectionStateCause = newCause;
 }
-   
+
 
 #if 1
 int Connection::getState(int isLocal) const
 {
    int state;
-   
+
    if (mRemoteIsCallee)
-      state = mRemoteConnectionState;     
+      state = mRemoteConnectionState;
    else
       state = mLocalConnectionState;
 
@@ -349,7 +349,7 @@ int Connection::getState(int isLocal) const
       getStateString(mLocalConnectionState, &oldStateString);
       getStateString(state, &newStateString);
       state = mLocalConnectionState;
-   } 
+   }
    else if ((mRemoteConnectionState == CONNECTION_FAILED) &&
             mRemoteConnectionState != state)
    {
@@ -379,7 +379,7 @@ int Connection::getState(int isLocal, int& cause) const
       getStateString(mLocalConnectionState, &oldStateString);
       getStateString(state, &newStateString);
       state = mLocalConnectionState;
-   } 
+   }
    else if ((mRemoteConnectionState == CONNECTION_FAILED) &&
             mRemoteConnectionState != state)
    {
@@ -409,7 +409,7 @@ void Connection::getStateString(int state, UtlString* stateLabel)
     case CONNECTION_IDLE:
         stateLabel->append("CONNECTION_IDLE");
         break;
-    
+
     case CONNECTION_INITIATED:
         stateLabel->append("CONNECTION_INITIATED");
         break;
@@ -451,7 +451,7 @@ void Connection::getStateString(int state, UtlString* stateLabel)
 }
 
 // Assignment operator
-Connection& 
+Connection&
 Connection::operator=(const Connection& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
@@ -470,28 +470,28 @@ void Connection::setLocalAddress(const char* address)
 
 void Connection::unimplemented(const char* methodName) const
 {
-    OsSysLog::add(FAC_CP, PRI_WARNING, 
+    OsSysLog::add(FAC_CP, PRI_WARNING,
         "%s NOT IMPLEMENTED\n",methodName);
 }
 
 // Is this connection marked for deletion?
-void Connection::markForDeletion() 
+void Connection::markForDeletion()
 {
    OsTime timeNow ;
    OsTime deleteAfterSecs(CONN_DELETE_DELAY_SECS, 0) ;
-   
+
    OsDateTime::getCurTimeSinceBoot(deleteAfterSecs) ;
-  
+
    mDeleteAfter = timeNow + deleteAfterSecs ;
 
-   OsSysLog::add(FAC_CP, PRI_DEBUG, 
-       "Connection::markForDeletion connection %p in %d secs (now:%ld then: %ld)", 
-           this, deleteAfterSecs.seconds(), timeNow.seconds(), 
+   OsSysLog::add(FAC_CP, PRI_DEBUG,
+       "Connection::markForDeletion connection %p in %d secs (now:%ld then: %ld)",
+           this, deleteAfterSecs.seconds(), timeNow.seconds(),
            mDeleteAfter.seconds());
 }
 
 
-void Connection::setMediaInterface(CpMediaInterface* pMediaInterface) 
+void Connection::setMediaInterface(CpMediaInterface* pMediaInterface)
 {
     mpMediaInterface = pMediaInterface ;
 }
@@ -525,19 +525,19 @@ UtlBoolean Connection::validStateTransition(SIPX_CALLSTATE_EVENT eFrom, SIPX_CAL
 
 
 
-void Connection::fireSipXEvent(SIPX_CALLSTATE_EVENT eventCode, SIPX_CALLSTATE_CAUSE causeCode, void* pEventData) 
+void Connection::fireSipXEvent(SIPX_CALLSTATE_EVENT eventCode, SIPX_CALLSTATE_CAUSE causeCode, void* pEventData)
 {
     UtlString callId ;
     UtlString remoteAddress ;
     SipSession session ;
     UtlBoolean bDuplicateAudio =
-            (   eventCode == CALLSTATE_AUDIO_EVENT 
+            (   eventCode == CALLSTATE_AUDIO_EVENT
              && causeCode == m_eLastAudioMinor) ? TRUE : FALSE;
 
     // Avoid sending duplicate events
-    if ((   (eventCode != m_eLastMajor) 
-         || (causeCode != m_eLastMinor)) 
-        && validStateTransition(m_eLastMajor, eventCode) 
+    if ((   (eventCode != m_eLastMajor)
+         || (causeCode != m_eLastMinor))
+        && validStateTransition(m_eLastMajor, eventCode)
         && !bDuplicateAudio)
     {
         if (eventCode != CALLSTATE_AUDIO_EVENT)
@@ -582,7 +582,7 @@ void Connection::setCallId(const char* callId)
 }
 
 void Connection::getCallerId(UtlString* callerId)
-{    
+{
     OsLock lock(callIdMutex);
 
     *callerId = connectionCallerId ;
@@ -620,10 +620,10 @@ void Connection::getResponseText(UtlString& responseText)
     responseText.append(mResponseText);
 }
 
-// Get the time after which this connection can be deleted.  This timespan 
+// Get the time after which this connection can be deleted.  This timespan
 // is relative to boot.
 OsStatus Connection::getDeleteAfter(OsTime& time)
-{  
+{
    time = mDeleteAfter ;
    return OS_SUCCESS ;
 }
@@ -635,11 +635,11 @@ int Connection::getLocalState() const
 }
 
 // Get the remote state for this connection
-int Connection::getRemoteState() const 
+int Connection::getRemoteState() const
 {
    return mRemoteConnectionState ;
 }
-     
+
 
 
 /* ============================ INQUIRY =================================== */
@@ -654,7 +654,7 @@ UtlBoolean Connection::remoteRequestedHold()
    return(mRemoteRequestedHold);
 }
 
-// Determines if this connection has been marked for deletion and should be 
+// Determines if this connection has been marked for deletion and should be
 // purged from the call.
 UtlBoolean Connection::isMarkedForDeletion() const
 {
@@ -679,7 +679,7 @@ void Connection::postTaoListenerMessage(int state, int newCause, int isLocal)
     OsSysLog::add(FAC_CP, PRI_DEBUG, "Connection::postTaoListenerMessage: "
                   "Enter- %s state %d cause %d "
                   "eventid-  %d termeventid %d",
-                  (isLocal?"LOCAL":"REMOTE"), 
+                  (isLocal?"LOCAL":"REMOTE"),
                   state, newCause,
                   eventId, termEventId);
 #endif
@@ -772,12 +772,12 @@ void Connection::postTaoListenerMessage(int state, int newCause, int isLocal)
         causeStr.append("CAUSE_INCOMPATIBLE_DESTINATION");
         break;
 
-     case CONNECTION_CAUSE_NOT_ALLOWED: 
+     case CONNECTION_CAUSE_NOT_ALLOWED:
         cause = PtEvent::CAUSE_NOT_ALLOWED;
         causeStr.append("CAUSE_NOT_ALLOWED");
         break;
 
-     case CONNECTION_CAUSE_NETWORK_NOT_ALLOWED: 
+     case CONNECTION_CAUSE_NETWORK_NOT_ALLOWED:
         cause = PtEvent::CAUSE_NETWORK_NOT_ALLOWED;
         causeStr.append("CAUSE_NETWORK_NOT_ALLOWED");
         break;
@@ -797,7 +797,7 @@ void Connection::postTaoListenerMessage(int state, int newCause, int isLocal)
         cause = PtEvent::CAUSE_TRANSFER;
         causeStr.append("CAUSE_TRANSFER");
         break;
-    
+
     default:
     case CONNECTION_CAUSE_NORMAL:
         cause = PtEvent::CAUSE_NORMAL;
@@ -806,7 +806,7 @@ void Connection::postTaoListenerMessage(int state, int newCause, int isLocal)
     }
 
     int cnt = 0;
-    if (mpListenerCnt) 
+    if (mpListenerCnt)
         cnt = mpListenerCnt->getRef();
 
     if (cnt > 0)
@@ -815,7 +815,7 @@ void Connection::postTaoListenerMessage(int state, int newCause, int isLocal)
         pListeners = new TaoObjHandle[cnt];
         mpListeners->getActiveObjects(pListeners, cnt);
 
-        UtlString callId;            
+        UtlString callId;
 
         // Use the connection call id first -- followed by call if
         // unavailable
@@ -884,7 +884,7 @@ void Connection::postTaoListenerMessage(int state, int newCause, int isLocal)
             int metaEventType = PtEvent::META_EVENT_NONE;
             int numCalls = 0;
             const UtlString* metaEventCallIds = NULL;
-            mpCall->getMetaEvent(metaEventId, metaEventType, numCalls, 
+            mpCall->getMetaEvent(metaEventId, metaEventType, numCalls,
                 &metaEventCallIds);
             if (metaEventId != PtEvent::META_EVENT_NONE)
             {
@@ -922,7 +922,7 @@ void Connection::postTaoListenerMessage(int state, int newCause, int isLocal)
             mpCall->getStateString(eventId, &eventIdStr);
             mpCallManager->logCallState(callId.data(), eventIdStr.data(), causeStr);
         }
-    
+
         if (termEventId != PtEvent::EVENT_INVALID)    // post terminal connection events
         {
             msg.setObjHandle(termEventId);
@@ -945,7 +945,7 @@ void Connection::postTaoListenerMessage(int state, int newCause, int isLocal)
     OsSysLog::add(FAC_CP, PRI_DEBUG, "Connection::postTaoListenerMessage: "
                   "Leave- %s state %d cause %d "
                   "eventid-  %d termeventid %d",
-                  (isLocal?"LOCAL":"REMOTE"), 
+                  (isLocal?"LOCAL":"REMOTE"),
                   state, newCause,
                   eventId, termEventId);
 #endif
@@ -963,18 +963,18 @@ void Connection::setOfferingTimer(int milliSeconds)
     getSession(session) ;
     session.getCallId(callId) ;
     session.getToUrl(urlTo) ;
-    urlTo.toString(remoteAddr) ;        
+    urlTo.toString(remoteAddr) ;
 
-    CpMultiStringMessage* offeringExpiredMessage = 
+    CpMultiStringMessage* offeringExpiredMessage =
         new CpMultiStringMessage(CpCallManager::CP_OFFERING_EXPIRED,
                     callId.data(), remoteAddr.data());
-    OsTimer* timer = new OsTimer((mpCallManager->getMessageQueue()), 
+    OsTimer* timer = new OsTimer((mpCallManager->getMessageQueue()),
             offeringExpiredMessage);
     // Convert from mSeconds to uSeconds
     OsTime timerTime(milliSeconds / 1000, milliSeconds % 1000);
     timer->oneshotAfter(timerTime);
 #ifdef TEST_PRINT
-    osPrintf("Connection::setOfferingTimer message type: %d %d", 
+    osPrintf("Connection::setOfferingTimer message type: %d %d",
         OsMsg::PHONE_APP, CpCallManager::CP_OFFERING_EXPIRED);
 #endif
 
@@ -993,10 +993,10 @@ void Connection::setRingingTimer(int seconds)
     mpCall->getCallId(callId);
     UtlString remoteAddr;
     getRemoteAddress(&remoteAddr);
-    CpMultiStringMessage* offeringExpiredMessage = 
+    CpMultiStringMessage* offeringExpiredMessage =
         new CpMultiStringMessage(CpCallManager::CP_RINGING_EXPIRED,
                     callId.data(), remoteAddr.data());
-    OsTimer* timer = new OsTimer((mpCallManager->getMessageQueue()), 
+    OsTimer* timer = new OsTimer((mpCallManager->getMessageQueue()),
             offeringExpiredMessage);
 
 #ifdef TEST_PRINT
@@ -1007,7 +1007,7 @@ void Connection::setRingingTimer(int seconds)
     OsTime timerTime(seconds, 0);
     timer->oneshotAfter(timerTime);
 #ifdef TEST_PRINT
-    osPrintf("Connection::setRingingTimer message type: %d %d", 
+    osPrintf("Connection::setRingingTimer message type: %d %d",
         OsMsg::PHONE_APP, CpCallManager::CP_RINGING_EXPIRED);
 #endif
     callId.remove(0);
@@ -1019,7 +1019,7 @@ UtlBoolean Connection::isStateTransitionAllowed(int newState, int oldState)
     UtlBoolean isAllowed = TRUE;
 
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
                   "Connection::isStateTransitionAllowed: "
                   "state- new %d old %d ",
                   newState, oldState);
@@ -1045,7 +1045,7 @@ UtlBoolean Connection::isStateTransitionAllowed(int newState, int oldState)
         }
         break;
     case CONNECTION_ALERTING:
-        if (newState != CONNECTION_ALERTING && // Forked Calls will result in multiple 
+        if (newState != CONNECTION_ALERTING && // Forked Calls will result in multiple
                                                // provisional responses
             newState != CONNECTION_ESTABLISHED &&
             newState != CONNECTION_DISCONNECTED &&
@@ -1164,4 +1164,3 @@ int Connection::terminalConnectionState(int connState)
 }
 
 /* ============================ FUNCTIONS ================================= */
-

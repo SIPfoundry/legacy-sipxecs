@@ -1,14 +1,14 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
 //////
 
- 
+
 
 // SYSTEM INCLUDES
 #include "os/OsDefs.h"
@@ -36,7 +36,7 @@
 const int    CpCallManager::CALLMANAGER_MAX_REQUEST_MSGS = 6000;
 #else
 const int    CpCallManager::CALLMANAGER_MAX_REQUEST_MSGS = 1000;
-#endif  
+#endif
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -393,7 +393,7 @@ void CpCallManager::getEventSubTypeString(EventSubTypes type,
 }
 
 // Assignment operator
-CpCallManager& 
+CpCallManager&
 CpCallManager::operator=(const CpCallManager& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
@@ -446,7 +446,7 @@ void CpCallManager::pushCall(CpCall* call)
 
 void CpCallManager::setAddressForwarding(int size, PtAddressForwarding *pForwards)
 {
-    if (size < 1) 
+    if (size < 1)
         return;
 
     OsWriteLock lock(mAddressForwardMutex);
@@ -630,7 +630,7 @@ void CpCallManager::releaseCallIndex(int callIndex)
       UtlInt* callIndexColl = NULL;
       callIndexColl = (UtlInt*) mCallIndices.remove(&matchCallIndexColl);
 
-      if(callIndexColl) 
+      if(callIndexColl)
       {
           delete callIndexColl;
       }

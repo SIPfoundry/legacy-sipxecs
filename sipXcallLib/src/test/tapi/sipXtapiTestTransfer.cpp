@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 //////////////////////////////////////////////////////////////////////////////
@@ -19,7 +19,7 @@ extern SIPX_INST g_hInst2;
 extern SIPX_INST g_hInst3;
 
 
-void sipXtapiTestSuite::testBlindTransferSuccess() 
+void sipXtapiTestSuite::testBlindTransferSuccess()
 {
     EventValidator validatorTransferController("testBlindTransferSuccess.validatorTransferController") ;
     EventValidator validatorTransferee("testBlindTransferSuccess.validatorTransferee") ;
@@ -43,16 +43,16 @@ void sipXtapiTestSuite::testBlindTransferSuccess()
 
         resetAutoAnswerCallback() ;
         resetAutoAnswerCallback2() ;
-        
+
         sipxRC = sipxEventListenerAdd(g_hInst, UniversalEventValidatorCallback, &validatorTransferController) ;
         CPPUNIT_ASSERT(sipxRC == SIPX_RESULT_SUCCESS) ;
         sipxRC = sipxEventListenerAdd(g_hInst2, UniversalEventValidatorCallback, &validatorTransferee) ;
         CPPUNIT_ASSERT(sipxRC == SIPX_RESULT_SUCCESS) ;
-        sipxRC = sipxEventListenerAdd(g_hInst2, AutoAnswerCallback, NULL) ;        
+        sipxRC = sipxEventListenerAdd(g_hInst2, AutoAnswerCallback, NULL) ;
         CPPUNIT_ASSERT(sipxRC == SIPX_RESULT_SUCCESS) ;
         sipxRC = sipxEventListenerAdd(g_hInst3, UniversalEventValidatorCallback, &validatorTransferTarget) ;
         CPPUNIT_ASSERT(sipxRC == SIPX_RESULT_SUCCESS) ;
-        sipxRC = sipxEventListenerAdd(g_hInst3, AutoAnswerCallback2, NULL) ;       
+        sipxRC = sipxEventListenerAdd(g_hInst3, AutoAnswerCallback2, NULL) ;
         CPPUNIT_ASSERT(sipxRC == SIPX_RESULT_SUCCESS) ;
 
         // Create Lines
@@ -158,7 +158,7 @@ void sipXtapiTestSuite::testBlindTransferSuccess()
         CPPUNIT_ASSERT(bRC) ;
         bRC = validatorTransferTarget.waitForCallEvent(g_hAutoAnswerCallbackLine2, g_hAutoAnswerCallbackCall2, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_START) ;
         CPPUNIT_ASSERT(bRC) ;
-      
+
         // Drop Original Call
         SIPX_CALL hDestroy = hTransferee ;
         sipxRC = sipxCallDestroy(hDestroy) ;
@@ -166,7 +166,7 @@ void sipXtapiTestSuite::testBlindTransferSuccess()
 
         bRC = validatorTransferController.waitForCallEvent(hLine, hTransferee, CALLSTATE_DESTROYED, CALLSTATE_DESTROYED_NORMAL) ;
         CPPUNIT_ASSERT(bRC) ;
-        bRC = validatorTransferee.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_DESTROYED, CALLSTATE_DESTROYED_NORMAL) ;        
+        bRC = validatorTransferee.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_DESTROYED, CALLSTATE_DESTROYED_NORMAL) ;
         CPPUNIT_ASSERT(bRC) ;
 
         // Drop Calls
@@ -180,7 +180,7 @@ void sipXtapiTestSuite::testBlindTransferSuccess()
         CPPUNIT_ASSERT(bRC) ;
         bRC = validatorTransferee.waitForCallEvent(hReceivingLine1, g_hAutoAnswerCallbackCallOther, CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL) ;
         CPPUNIT_ASSERT(bRC) ;
-        bRC = validatorTransferee.waitForCallEvent(hReceivingLine1, g_hAutoAnswerCallbackCallOther, CALLSTATE_DESTROYED, CALLSTATE_DESTROYED_NORMAL) ;        
+        bRC = validatorTransferee.waitForCallEvent(hReceivingLine1, g_hAutoAnswerCallbackCallOther, CALLSTATE_DESTROYED, CALLSTATE_DESTROYED_NORMAL) ;
         CPPUNIT_ASSERT(bRC) ;
 
         bRC = validatorTransferTarget.waitForCallEvent(g_hAutoAnswerCallbackLine2, g_hAutoAnswerCallbackCall2, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_STOP) ;
@@ -214,12 +214,12 @@ void sipXtapiTestSuite::testBlindTransferSuccess()
         CPPUNIT_ASSERT(sipxRC == SIPX_RESULT_SUCCESS) ;
     }
 
-    OsTask::delay(TEST_DELAY) ;    
+    OsTask::delay(TEST_DELAY) ;
     checkForLeaks() ;
 }
 
 
-void sipXtapiTestSuite::testBlindTransferFailureBusy() 
+void sipXtapiTestSuite::testBlindTransferFailureBusy()
 {
     EventValidator validatorTransferController("testBlindTransferFailureBusy.validatorTransferController") ;
     EventValidator validatorTransferee("testBlindTransferFailureBusy.validatorTransferee") ;
@@ -247,11 +247,11 @@ void sipXtapiTestSuite::testBlindTransferFailureBusy()
         CPPUNIT_ASSERT(sipxRC == SIPX_RESULT_SUCCESS) ;
         sipxRC = sipxEventListenerAdd(g_hInst2, UniversalEventValidatorCallback, &validatorTransferee) ;
         CPPUNIT_ASSERT(sipxRC == SIPX_RESULT_SUCCESS) ;
-        sipxRC = sipxEventListenerAdd(g_hInst2, AutoAnswerCallback, NULL) ;        
+        sipxRC = sipxEventListenerAdd(g_hInst2, AutoAnswerCallback, NULL) ;
         CPPUNIT_ASSERT(sipxRC == SIPX_RESULT_SUCCESS) ;
         sipxRC = sipxEventListenerAdd(g_hInst3, UniversalEventValidatorCallback, &validatorTransferTarget) ;
         CPPUNIT_ASSERT(sipxRC == SIPX_RESULT_SUCCESS) ;
-        sipxRC = sipxEventListenerAdd(g_hInst3, AutoRejectCallback, NULL) ;       
+        sipxRC = sipxEventListenerAdd(g_hInst3, AutoRejectCallback, NULL) ;
         CPPUNIT_ASSERT(sipxRC == SIPX_RESULT_SUCCESS) ;
 
         // Create Lines
@@ -321,7 +321,7 @@ void sipXtapiTestSuite::testBlindTransferFailureBusy()
         CPPUNIT_ASSERT(bRC) ;
         bRC = validatorTransferController.waitForCallEvent(hLine, hTransferee, CALLSTATE_TRANSFER, CALLSTATE_TRANSFER_FAILURE) ;
         CPPUNIT_ASSERT(bRC) ;
-        
+
 
         // Validate Calling Side: Transferee
         bRC = validatorTransferee.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_STOP) ;
@@ -348,7 +348,7 @@ void sipXtapiTestSuite::testBlindTransferFailureBusy()
         bRC = validatorTransferTarget.waitForCallEvent(g_hAutoRejectCallbackLine, g_hAutoRejectCallbackCall, CALLSTATE_DESTROYED, CALLSTATE_DESTROYED_NORMAL) ;
         CPPUNIT_ASSERT(bRC) ;
 
-        
+
         CPPUNIT_ASSERT(!validatorTransferController.validateNoWaitingEvent()) ;
         CPPUNIT_ASSERT(!validatorTransferee.validateNoWaitingEvent()) ;
         CPPUNIT_ASSERT(!validatorTransferTarget.validateNoWaitingEvent()) ;
@@ -365,7 +365,7 @@ void sipXtapiTestSuite::testBlindTransferFailureBusy()
 
         bRC = validatorTransferee.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL) ;
         CPPUNIT_ASSERT(bRC) ;
-        bRC = validatorTransferee.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_DESTROYED, CALLSTATE_DESTROYED_NORMAL) ;        
+        bRC = validatorTransferee.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_DESTROYED, CALLSTATE_DESTROYED_NORMAL) ;
         CPPUNIT_ASSERT(bRC) ;
 
         CPPUNIT_ASSERT(!validatorTransferController.validateNoWaitingEvent()) ;
@@ -392,14 +392,14 @@ void sipXtapiTestSuite::testBlindTransferFailureBusy()
         CPPUNIT_ASSERT(sipxRC == SIPX_RESULT_SUCCESS) ;
     }
 
-    OsTask::delay(TEST_DELAY) ;    
+    OsTask::delay(TEST_DELAY) ;
     checkForLeaks() ;
 }
 
 
 
 /**
- * This tests a basic transfer between two outbound calls.  The first call 
+ * This tests a basic transfer between two outbound calls.  The first call
  * (hCallSource) is transferred to the second outbound call (hSourceTarget).
  *
  */
@@ -435,11 +435,11 @@ void sipXtapiTestSuite::testTransferSuccess()
         CPPUNIT_ASSERT(sipxRC == SIPX_RESULT_SUCCESS) ;
         sipxRC = sipxEventListenerAdd(g_hInst2, UniversalEventValidatorCallback, &validatorCalled1) ;
         CPPUNIT_ASSERT(sipxRC == SIPX_RESULT_SUCCESS) ;
-        sipxRC = sipxEventListenerAdd(g_hInst2, AutoAnswerCallback, NULL) ;        
+        sipxRC = sipxEventListenerAdd(g_hInst2, AutoAnswerCallback, NULL) ;
         CPPUNIT_ASSERT(sipxRC == SIPX_RESULT_SUCCESS) ;
         sipxRC = sipxEventListenerAdd(g_hInst3, UniversalEventValidatorCallback, &validatorCalled2) ;
         CPPUNIT_ASSERT(sipxRC == SIPX_RESULT_SUCCESS) ;
-        sipxRC = sipxEventListenerAdd(g_hInst3, AutoAnswerCallback2, NULL) ;       
+        sipxRC = sipxEventListenerAdd(g_hInst3, AutoAnswerCallback2, NULL) ;
         CPPUNIT_ASSERT(sipxRC == SIPX_RESULT_SUCCESS) ;
 
         // Create Lines
@@ -493,8 +493,8 @@ void sipXtapiTestSuite::testTransferSuccess()
         CPPUNIT_ASSERT(!validatorCalled1.validateNoWaitingEvent()) ;
         CPPUNIT_ASSERT(!validatorCalled2.validateNoWaitingEvent()) ;
 
-        // Setup call to transfer target (Transfer Target)        
-        sipxRC = sipxCallCreate(g_hInst, hLine, &hCallTarget) ;        
+        // Setup call to transfer target (Transfer Target)
+        sipxRC = sipxCallCreate(g_hInst, hLine, &hCallTarget) ;
         CPPUNIT_ASSERT(sipxRC == SIPX_RESULT_SUCCESS) ;
         sipxRC = sipxCallConnect(hCallTarget, "sip:foo@127.0.0.1:10000") ;
         CPPUNIT_ASSERT(sipxRC == SIPX_RESULT_SUCCESS) ;
@@ -529,7 +529,7 @@ void sipXtapiTestSuite::testTransferSuccess()
         // Make sure we don't have any unexpected events
         CPPUNIT_ASSERT(!validatorSource.validateNoWaitingEvent()) ;
         CPPUNIT_ASSERT(!validatorCalled1.validateNoWaitingEvent()) ;
-        CPPUNIT_ASSERT(!validatorCalled2.validateNoWaitingEvent()) ;        
+        CPPUNIT_ASSERT(!validatorCalled2.validateNoWaitingEvent()) ;
 
         // Kick off transfer
         sipxRC = sipxCallTransfer(hCallSource, hCallTarget) ;
@@ -537,7 +537,7 @@ void sipXtapiTestSuite::testTransferSuccess()
 
         validatorSource.setMaxLookhead(8) ;
 
-        // Validate Calling Side        
+        // Validate Calling Side
         bRC = validatorSource.waitForCallEvent(hLine, hCallSource, CALLSTATE_TRANSFER, CALLSTATE_TRANSFER_INITIATED, false) ;
         CPPUNIT_ASSERT(bRC) ;
         bRC = validatorSource.waitForCallEvent(hLine, hCallSource, CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE_HELD, false) ;
@@ -592,13 +592,13 @@ void sipXtapiTestSuite::testTransferSuccess()
         bRC = validatorCalled2.waitForCallEvent(g_hAutoAnswerCallbackLine2, g_hAutoAnswerCallbackCall2, CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL, false) ;
         CPPUNIT_ASSERT(bRC) ;
         bRC = validatorCalled2.waitForCallEvent(g_hAutoAnswerCallbackLine2, g_hAutoAnswerCallbackCall2, CALLSTATE_DESTROYED, CALLSTATE_DESTROYED_NORMAL, false) ;
-        CPPUNIT_ASSERT(bRC) ;        
+        CPPUNIT_ASSERT(bRC) ;
 
         // Make sure we don't have any unexpected events
         CPPUNIT_ASSERT(!validatorSource.validateNoWaitingEvent()) ;
         CPPUNIT_ASSERT(!validatorCalled1.validateNoWaitingEvent()) ;
-        CPPUNIT_ASSERT(!validatorCalled2.validateNoWaitingEvent()) ;        
-        
+        CPPUNIT_ASSERT(!validatorCalled2.validateNoWaitingEvent()) ;
+
         // Destroy calls.
         SIPX_CALL hDestroy = hCallSource ;
         sipxRC = sipxCallDestroy(hDestroy) ;
@@ -658,12 +658,12 @@ void sipXtapiTestSuite::testTransferSuccess()
 
     }
 
-    OsTask::delay(TEST_DELAY) ;    
+    OsTask::delay(TEST_DELAY) ;
     checkForLeaks() ;
 }
 
 /**
- * This test creates a conference by creating two outbound call legs.  
+ * This test creates a conference by creating two outbound call legs.
  * Afterwards, it removes itself from the conference by transferring
  * the first party called to the second party called.
  */
@@ -700,11 +700,11 @@ void sipXtapiTestSuite::testTransferConferenceSuccess()
         CPPUNIT_ASSERT(sipxRC == SIPX_RESULT_SUCCESS) ;
         sipxRC = sipxEventListenerAdd(g_hInst2, UniversalEventValidatorCallback, &validatorCalled1) ;
         CPPUNIT_ASSERT(sipxRC == SIPX_RESULT_SUCCESS) ;
-        sipxRC = sipxEventListenerAdd(g_hInst2, AutoAnswerCallback, NULL) ;        
+        sipxRC = sipxEventListenerAdd(g_hInst2, AutoAnswerCallback, NULL) ;
         CPPUNIT_ASSERT(sipxRC == SIPX_RESULT_SUCCESS) ;
         sipxRC = sipxEventListenerAdd(g_hInst3, UniversalEventValidatorCallback, &validatorCalled2) ;
         CPPUNIT_ASSERT(sipxRC == SIPX_RESULT_SUCCESS) ;
-        sipxRC = sipxEventListenerAdd(g_hInst3, AutoAnswerCallback2, NULL) ;       
+        sipxRC = sipxEventListenerAdd(g_hInst3, AutoAnswerCallback2, NULL) ;
         CPPUNIT_ASSERT(sipxRC == SIPX_RESULT_SUCCESS) ;
 
         // Create Lines
@@ -729,7 +729,7 @@ void sipXtapiTestSuite::testTransferConferenceSuccess()
 
         // Setup call to transfer source (transferee)
         sipxRC = sipxConferenceAdd(hConf, hLine, "sip:foo@127.0.0.1:9100", &hCallSource) ;
-        CPPUNIT_ASSERT(sipxRC == SIPX_RESULT_SUCCESS) ;        
+        CPPUNIT_ASSERT(sipxRC == SIPX_RESULT_SUCCESS) ;
 
         // Validate Calling Side: Transferee
         bRC = validatorSource.waitForCallEvent(hLine, hCallSource, CALLSTATE_DIALTONE, CALLSTATE_DIALTONE_CONFERENCE) ;
@@ -760,9 +760,9 @@ void sipXtapiTestSuite::testTransferConferenceSuccess()
         CPPUNIT_ASSERT(!validatorCalled1.validateNoWaitingEvent()) ;
         CPPUNIT_ASSERT(!validatorCalled2.validateNoWaitingEvent()) ;
 
-        // Setup call to transfer target (Transfer Target)        
+        // Setup call to transfer target (Transfer Target)
         sipxRC = sipxConferenceAdd(hConf, hLine, "sip:foo@127.0.0.1:10000", &hCallTarget) ;
-        CPPUNIT_ASSERT(sipxRC == SIPX_RESULT_SUCCESS) ;        
+        CPPUNIT_ASSERT(sipxRC == SIPX_RESULT_SUCCESS) ;
 
         // Validate Calling Side: Transfer Target
         bRC = validatorSource.waitForCallEvent(hLine, hCallTarget, CALLSTATE_DIALTONE, CALLSTATE_DIALTONE_CONFERENCE) ;
@@ -791,7 +791,7 @@ void sipXtapiTestSuite::testTransferConferenceSuccess()
         // Make sure we don't have any unexpected events
         CPPUNIT_ASSERT(!validatorSource.validateNoWaitingEvent()) ;
         CPPUNIT_ASSERT(!validatorCalled1.validateNoWaitingEvent()) ;
-        CPPUNIT_ASSERT(!validatorCalled2.validateNoWaitingEvent()) ;        
+        CPPUNIT_ASSERT(!validatorCalled2.validateNoWaitingEvent()) ;
 
         // Kick off transfer
         sipxRC = sipxCallTransfer(hCallSource, hCallTarget) ;
@@ -858,13 +858,13 @@ void sipXtapiTestSuite::testTransferConferenceSuccess()
         bRC = validatorCalled2.waitForCallEvent(g_hAutoAnswerCallbackLine2, g_hAutoAnswerCallbackCall2, CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL, false) ;
         CPPUNIT_ASSERT(bRC) ;
         bRC = validatorCalled2.waitForCallEvent(g_hAutoAnswerCallbackLine2, g_hAutoAnswerCallbackCall2, CALLSTATE_DESTROYED, CALLSTATE_DESTROYED_NORMAL, false) ;
-        CPPUNIT_ASSERT(bRC) ;        
+        CPPUNIT_ASSERT(bRC) ;
 
         // Make sure we don't have any unexpected events
         CPPUNIT_ASSERT(!validatorSource.validateNoWaitingEvent()) ;
         CPPUNIT_ASSERT(!validatorCalled1.validateNoWaitingEvent()) ;
-        CPPUNIT_ASSERT(!validatorCalled2.validateNoWaitingEvent()) ;        
-        
+        CPPUNIT_ASSERT(!validatorCalled2.validateNoWaitingEvent()) ;
+
         // Destroy calls.
         sipxRC = sipxConferenceDestroy(hConf) ;
         CPPUNIT_ASSERT(sipxRC == SIPX_RESULT_SUCCESS) ;
@@ -914,6 +914,6 @@ void sipXtapiTestSuite::testTransferConferenceSuccess()
 
     }
 
-    OsTask::delay(TEST_DELAY) ;    
+    OsTask::delay(TEST_DELAY) ;
     checkForLeaks() ;
 }

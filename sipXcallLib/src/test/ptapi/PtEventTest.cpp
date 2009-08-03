@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -33,13 +33,13 @@ public:
         // test the default constructor (if implemented)
         pTempPtEvent = new PtEvent();
         delete pTempPtEvent;
-                                                                                
+
         pTempPtEvent = new PtEvent(PtEvent::CALL_INVALID);
         PtEvent::PtEventId id;
         CPPUNIT_ASSERT_EQUAL_MESSAGE("Get event id", PT_SUCCESS, pTempPtEvent->getId(id));
         CPPUNIT_ASSERT_EQUAL_MESSAGE("Get correct id", PtEvent::CALL_INVALID, id);
         delete pTempPtEvent;
-                                                                                
+
         pTempPtEvent = new PtEvent(PtEvent::CALL_INVALID);
         pTempPtEvent_1 = new PtEvent(*pTempPtEvent);
         CPPUNIT_ASSERT_EQUAL_MESSAGE("Get event id", PT_SUCCESS, pTempPtEvent_1->getId(id));
@@ -52,7 +52,7 @@ public:
     {
         PtEvent*       pTempPtEvent;
         PtEvent*       pTempPtEvent_1;
-                                                                                
+
         pTempPtEvent = new PtEvent(PtEvent::CALL_INVALID);
         pTempPtEvent_1 = new PtEvent();
         *pTempPtEvent_1 = *pTempPtEvent;
@@ -69,11 +69,11 @@ public:
     {
         PtEvent*     pTempPtEvent;
         PtEvent::PtEventId*   pTempPtEventId;
-                                                                                
+
         pTempPtEventId = new PtEvent::PtEventId(PtEvent::CALL_INVALID);
         pTempPtEvent = new PtEvent(PtEvent::PROVIDER_IN_SERVICE);
         pTempPtEvent->getId(*pTempPtEventId);
-        CPPUNIT_ASSERT_EQUAL_MESSAGE("event id accessor", PtEvent::PROVIDER_IN_SERVICE, 
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("event id accessor", PtEvent::PROVIDER_IN_SERVICE,
                 *pTempPtEventId);
         delete pTempPtEventId;
         delete pTempPtEvent;

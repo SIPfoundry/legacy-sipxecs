@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -28,17 +28,17 @@ public:
     {
         PtConnectionEvent* pTempTermConnEvt;
         PtConnectionEvent* pTempTermConnEvt_1;
-                                                                                
+
         pTempTermConnEvt = new PtConnectionEvent();
         delete pTempTermConnEvt;
-                                                                                
+
         pTempTermConnEvt = new PtConnectionEvent(PtEvent::CALL_INVALID,
            0,
            "terminalName",
-           "callId", 
+           "callId",
            0, 0);
         delete pTempTermConnEvt;
-                                                                                
+
         pTempTermConnEvt = new PtConnectionEvent(PtEvent::CALL_INVALID,
            0,
            "terminalName",
@@ -54,7 +54,7 @@ public:
     {
         PtConnectionEvent* pTempTermConnEvt;
         PtConnectionEvent* pTempTermConnEvt_1;
-                                                                                
+
         pTempTermConnEvt = new PtConnectionEvent(PtEvent::CALL_INVALID,
            0,
            "terminalName",

@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 //////////////////////////////////////////////////////////////////////////////
@@ -33,19 +33,19 @@ public:
 
     void clear() ;
 
-    void addEvent(SIPX_LINE hLine, SIPX_CALLSTATE_EVENT eMajor, SIPX_CALLSTATE_CAUSE eMinor) ;    
-    void addCompareEvent(SIPX_LINE hLine, SIPX_CALLSTATE_EVENT eMajor, SIPX_CALLSTATE_CAUSE eMinor) ;   
+    void addEvent(SIPX_LINE hLine, SIPX_CALLSTATE_EVENT eMajor, SIPX_CALLSTATE_CAUSE eMinor) ;
+    void addCompareEvent(SIPX_LINE hLine, SIPX_CALLSTATE_EVENT eMajor, SIPX_CALLSTATE_CAUSE eMinor) ;
 
-    void addEvent(SIPX_LINE hLine, SIPX_LINESTATE_EVENT event, SIPX_LINESTATE_CAUSE cause);    
-    void addCompareEvent(SIPX_LINE hLine, SIPX_LINESTATE_EVENT event, SIPX_LINESTATE_CAUSE cause);   
+    void addEvent(SIPX_LINE hLine, SIPX_LINESTATE_EVENT event, SIPX_LINESTATE_CAUSE cause);
+    void addCompareEvent(SIPX_LINE hLine, SIPX_LINESTATE_EVENT event, SIPX_LINESTATE_CAUSE cause);
 
-    void addEvent(SIPX_INFO_INFO* pInfoInfo);    
+    void addEvent(SIPX_INFO_INFO* pInfoInfo);
     void addCompareEvent(SIPX_INFO_INFO* pInfoInfo);
 
-    void addEvent(SIPX_INFOSTATUS_INFO* pInfoStatus);    
+    void addEvent(SIPX_INFOSTATUS_INFO* pInfoStatus);
     void addCompareEvent(SIPX_INFOSTATUS_INFO* pInfoStatus);
 
-    void addEvent(SIPX_CONFIG_INFO* pConfigInfo);    
+    void addEvent(SIPX_CONFIG_INFO* pConfigInfo);
     void addCompareEvent(SIPX_CONFIG_INFO* pConfigInfo);
 
     void addMsgString(SIPX_LINE hLine, const char* szMsg);

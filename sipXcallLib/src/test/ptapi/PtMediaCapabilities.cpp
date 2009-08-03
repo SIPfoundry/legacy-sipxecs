@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -36,10 +36,10 @@ public:
         pTempCapabilities = new PtMediaCapabilities(pTempAudioCodec, 9);
         delete pTempCapabilities;
         delete[] pTempAudioCodec;
-                                                                                
+
         pTempCapabilities = new PtMediaCapabilities();
         delete pTempCapabilities;
-                                                                                
+
         pTempAudioCodec = new PtAudioCodec[9];
         pTempCapabilities = new PtMediaCapabilities(pTempAudioCodec, 9);
         pTempCapabilities_1 = new PtMediaCapabilities(*pTempCapabilities);
@@ -53,7 +53,7 @@ public:
         PtAudioCodec*                pTempAudioCodec;
         PtMediaCapabilities* pTempCapabilities;
         PtMediaCapabilities* pTempCapabilities_1;
-                                                                                
+
         pTempAudioCodec = new PtAudioCodec[9];
         pTempCapabilities = new PtMediaCapabilities(pTempAudioCodec, 9);
         pTempCapabilities_1 = new PtMediaCapabilities();
@@ -68,13 +68,13 @@ public:
         PtAudioCodec*                pTempAudioCodec;
         PtAudioCodec*                pTempAudioCodec_1;
         PtMediaCapabilities* pTempCapabilities;
-                                                                                
+
         pTempAudioCodec = new PtAudioCodec[9];
         pTempCapabilities = new PtMediaCapabilities(pTempAudioCodec, 9);
         pTempCapabilities->getNumAudioCodecs();
         delete[] pTempAudioCodec;
         delete pTempCapabilities;
-                                                                                
+
         // test getAudioCodec
         pTempAudioCodec_1 = new PtAudioCodec(PtAudioCodec::MU_LAW_8B_8K);
         pTempAudioCodec = new PtAudioCodec[9];
@@ -83,7 +83,7 @@ public:
         delete pTempAudioCodec_1;
         delete[] pTempAudioCodec;
         delete pTempCapabilities;
-                                                                                
+
         pTempAudioCodec_1 = new PtAudioCodec(PtAudioCodec::MU_LAW_8B_8K);
         pTempAudioCodec = new PtAudioCodec[9];
         pTempCapabilities = new PtMediaCapabilities(pTempAudioCodec, 9);

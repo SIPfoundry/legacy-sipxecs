@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -69,16 +69,16 @@ UtlBoolean SipXMessageObserver::handleMessage(OsMsg& rMsg)
                    handleStunOutcome(pEventMsg) ;
                    bRet = TRUE ;
                    break ;
-           }                
+           }
            break ;
         }
         case OsMsg::PHONE_APP:
         {
            SipMessage* pSipMessage = (SipMessage*) ((SipMessageEvent&)rMsg).getMessage() ;
            UtlString method;
-    
+
            pSipMessage->getRequestMethod(&method);
-        
+
            if (pSipMessage && pSipMessage->isResponse())
            {
                // ok, the phone has received a response to a sent INFO message.
@@ -104,7 +104,7 @@ bool SipXMessageObserver::handleIncomingInfoMessage(SipMessage* pMessage)
 {
     bool bRet = false;
     SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) pMessage->getResponseListenerData();
-    
+
     if (NULL != pInst && NULL != pMessage)
     {
 
@@ -129,14 +129,14 @@ bool SipXMessageObserver::handleIncomingInfoMessage(SipMessage* pMessage)
             sipResponse.setOkResponseData(pMessage);
             pInst->pSipUserAgent->send(sipResponse);
         }
-        
+
         // Find Line
         UtlString lineId;
         pMessage->getToUri(&lineId);
-        UtlString requestUri; 
-        pMessage->getRequestUri(&requestUri); 
+        UtlString requestUri;
+        pMessage->getRequestUri(&requestUri);
         SIPX_LINE hLine = sipxLineLookupHandle(pInst, lineId.data(), requestUri);
-        
+
         if (!pMessage->isResponse())
         {
             // find call
@@ -148,38 +148,38 @@ bool SipXMessageObserver::handleIncomingInfoMessage(SipMessage* pMessage)
             {
                 // we are unaware of the call context
             }
-            
+
             SIPX_INFO_DATA* pInfoData = new SIPX_INFO_DATA;
-            
+
             memset((void*)pInfoData, 0, sizeof(SIPX_INFO_DATA));
             pInfoData->infoData.nSize = sizeof(SIPX_INFO_INFO);
             pInfoData->infoData.hCall = hCall;
             pInfoData->infoData.hLine = hLine;
             Url fromUrl;
-            
+
             pInfoData->infoData.szFromURL = lineId.data();
             pInfoData->infoData.nContentLength = pMessage->getContentLength();
-            
+
             // get and set the content type
             UtlString contentType;
             pMessage->getContentType(&contentType) ;
             pInfoData->infoData.szContentType = strdup(contentType.data());
-            
+
             // get the user agent
             UtlString userAgent;
             pMessage->getUserAgentField(&userAgent);
             pInfoData->infoData.szUserAgent = strdup(userAgent.data());
-            
+
             // get the content
             UtlString body;
             ssize_t dummyLength = pMessage->getContentLength();
             const HttpBody* pBody = pMessage->getBody();
-            pBody->getBytes(&body, &dummyLength);    
+            pBody->getBytes(&body, &dummyLength);
             pInfoData->infoData.pContent = body.data();
-            
+
             // set the Instance
             pInfoData->pInst = pInst;
-            
+
             // Create Mutex
             pInfoData->pMutex = new OsRWMutex(OsRWMutex::Q_FIFO);
 
@@ -193,7 +193,7 @@ bool SipXMessageObserver::handleIncomingInfoMessage(SipMessage* pMessage)
                     pData->pCallbackProc(EVENT_CATEGORY_INFO, &(pInfoData->infoData), pData->pUserData);
                 }
             }
-            
+
             bRet = true;
         } // if (0 != hLine)
     } // if (NULL != pInst && NULL != pMessage)
@@ -207,20 +207,20 @@ bool SipXMessageObserver::handleIncomingInfoStatus(SipMessage* pSipMessage)
         // something went wrong
         return false;
     }
-    
+
     SIPX_INFO hInfo = (SIPX_INFO)pSipMessage->getResponseListenerData();
     if (hInfo)
     {
         SIPX_INFOSTATUS_INFO infoStatus;
-        
+
         memset((void*) &infoStatus, 0, sizeof(SIPX_INFOSTATUS_INFO));
-        
+
         infoStatus.hInfo = hInfo;
         SIPX_INFO_DATA* pInfoData = sipxInfoLookup(hInfo, SIPX_LOCK_READ);
         infoStatus.nSize = sizeof(SIPX_INFOSTATUS_INFO);
         infoStatus.responseCode = pSipMessage->getResponseStatusCode();
         infoStatus.event = INFOSTATUS_RESPONSE;
-        
+
         int statusCode = pSipMessage->getResponseStatusCode();
         if (statusCode < 400)
         {
@@ -234,15 +234,15 @@ bool SipXMessageObserver::handleIncomingInfoStatus(SipMessage* pSipMessage)
         {
             infoStatus.status = SIPX_MESSAGE_SERVER_FAILURE;
         }
-        else 
+        else
         {
             infoStatus.status = SIPX_MESSAGE_GLOBAL_FAILURE;
         }
-        
+
         UtlString sResponseText;
         pSipMessage->getResponseStatusText(&sResponseText);
         infoStatus.szResponseText = sResponseText.data();
-        
+
         UtlVoidPtr* ptr = NULL;
         UtlSListIterator eventListenerItor(*g_pEventListeners);
         while ((ptr = (UtlVoidPtr*) eventListenerItor()) != NULL)
@@ -253,19 +253,19 @@ bool SipXMessageObserver::handleIncomingInfoStatus(SipMessage* pSipMessage)
                 pData->pCallbackProc(EVENT_CATEGORY_INFO_STATUS, &infoStatus, pData->pUserData);
             }
         }
-        
+
         pInfoData->pInst->pSipUserAgent->removeMessageObserver(*(this->getMessageQueue()), (void*)hInfo);
-        
+
         // release lock
         sipxInfoReleaseLock(pInfoData, SIPX_LOCK_READ);
-        // info message has been handled, so go ahead and delete the object    
+        // info message has been handled, so go ahead and delete the object
         sipxInfoObjectFree(hInfo);
      }
      return true;
 }
 
 
-bool SipXMessageObserver::handleStunOutcome(OsEventMsg* pMsg) 
+bool SipXMessageObserver::handleStunOutcome(OsEventMsg* pMsg)
 {
     SIPX_CONTACT_ADDRESS sipxContact; // contact structure for notifying
                                        // sipxtapi event listeners
@@ -281,17 +281,17 @@ bool SipXMessageObserver::handleStunOutcome(OsEventMsg* pMsg)
         // the user-agent's db
         SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) mhInst;
         pInst->pSipUserAgent->addContactAddress(*pContact);
-        
+
         // ok, now generate an event for the sipXtapi application layer
         strcpy(sipxContact.cInterface, pContact->cInterface);
         strcpy(sipxContact.cIpAddress, pContact->cIpAddress);
         sipxContact.eContactType = CONTACT_NAT_MAPPED;
         sipxContact.id = pContact->id;
         sipxContact.iPort = pContact->iPort;
-        
+
         eventInfo.pData = &sipxContact;
         eventInfo.event = CONFIG_STUN_SUCCESS ;
-        
+
         delete pContact;
     }
     else

@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 //////////////////////////////////////////////////////////////////////////////
@@ -35,17 +35,17 @@ class TestRegistryCollection : public UtlSList
     * Default constructor
     */
    TestRegistryCollection();
-     
+
    /**
     * Copy constructor
     */
-   TestRegistryCollection(const TestRegistryCollection& rTestRegistryCollection);     
+   TestRegistryCollection(const TestRegistryCollection& rTestRegistryCollection);
 
    /**
     * Destructor
     */
    virtual ~TestRegistryCollection();
-   
+
 
 /* ============================ MANIPULATORS ============================== */
 
@@ -54,7 +54,7 @@ class TestRegistryCollection : public UtlSList
     *
     * @param rhs right hand side of the equals operator
     */
-   TestRegistryCollection& operator=(const TestRegistryCollection& rhs);  
+   TestRegistryCollection& operator=(const TestRegistryCollection& rhs);
 
 /* ============================ ACCESSORS ================================= */
 

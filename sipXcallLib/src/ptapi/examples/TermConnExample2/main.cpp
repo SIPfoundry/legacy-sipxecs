@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -78,12 +78,12 @@ int main(int argc, char* argv[])
 
             // Loop through terminals with which we have registered
             // the listener
-            for(listeningTerminalIndex = 0; 
+            for(listeningTerminalIndex = 0;
                 listeningTerminalIndex < listeningTerminalCount;
                 listeningTerminalIndex++)
             {
                 // Check if we have already registered the listener on
-                // this terminal. 
+                // this terminal.
                 listeningTerminals[listeningTerminalIndex].getName(listeningTerminalName);
                 if(strcmp(listeningTerminalName, terminalName) == 0)
                 {
@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
 
                 // Add this terminal to the array of terminals with listeners
                 // registered
-                listeningTerminals[listeningTerminalCount] = 
+                listeningTerminals[listeningTerminalCount] =
                     terminals[terminalIndex];
                 listeningTerminalCount++;
 
@@ -318,4 +318,3 @@ void MyTerminalConnectionListener::terminalConnectionInUse(const PtTerminalConne
     printf("TERMINAL CONNECTION IN USE for terminal: %s\n",
         terminalName);
 }
-

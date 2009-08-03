@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 //////////////////////////////////////////////////////////////////////////////
@@ -36,11 +36,11 @@ class TestRegistryData
     * Default constructor
     */
     TestRegistryData();
-        
+
     /**
     * Copy constructor
     */
-    TestRegistryData(const TestRegistryData& rTestRegistryData);     
+    TestRegistryData(const TestRegistryData& rTestRegistryData);
 
     /**
     * Destructor
@@ -55,7 +55,7 @@ class TestRegistryData
     *
     * @param rhs right hand side of the equals operator
     */
-    TestRegistryData& operator=(const TestRegistryData& rhs);  
+    TestRegistryData& operator=(const TestRegistryData& rhs);
 
     /* ============================ ACCESSORS ================================= */
     const UtlString getIdentity() const;
@@ -71,7 +71,7 @@ class TestRegistryData
     void setCallId(const UtlString callId);
     void setExpires(const int expires);
     void setBornOnDate(const int bornOnDate);
-    
+
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -83,7 +83,7 @@ class TestRegistryData
     UtlString mContact;
     UtlString mCallId;
     int mExpires;
-    int mBornOnDate;    
+    int mBornOnDate;
 };
 
 /* ============================ INLINE METHODS ============================ */

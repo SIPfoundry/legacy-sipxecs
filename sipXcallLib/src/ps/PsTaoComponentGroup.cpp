@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -276,7 +276,7 @@ OsStatus PsTaoComponentGroup::setMicGain(int group, int& level)
         {
             mMicGain = gainNormalize(level);
         }
-        
+
         osPrintf("PsTaoComponentGroup::setMicGain: groupt type: %d, level %d mMicGain %d (is not set)\n", group, level, mMicGain);
         assert(false);
         return OS_SUCCESS;

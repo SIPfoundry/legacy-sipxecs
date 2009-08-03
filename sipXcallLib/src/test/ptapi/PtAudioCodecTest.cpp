@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -27,11 +27,11 @@ class PtAudioCodecTest : public CppUnit::TestCase
 public:
     void testCreators()
     {
-        // test the constructor 
+        // test the constructor
         PtAudioCodec *pTempCodec = new PtAudioCodec();
         delete pTempCodec;
 
-        // test the copy constructor 
+        // test the copy constructor
         pTempCodec = new PtAudioCodec(PtAudioCodec::MU_LAW_8B_8K);
         PtAudioCodec *pTempCodec_1 = new PtAudioCodec(*pTempCodec);
         delete pTempCodec;
@@ -50,7 +50,7 @@ public:
         delete pTempCodec;
         delete pTempCodec_1;
     }
-                                                                                
+
     void testAccessors()
     {
         PtAudioCodec *pTempAudioCodec = new PtAudioCodec(PtAudioCodec::A_LAW_8B_8K);

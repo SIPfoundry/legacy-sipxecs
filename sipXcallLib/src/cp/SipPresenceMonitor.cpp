@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -105,15 +105,15 @@ void PresenceDefaultConstructor::generateDefaultContent(SipPublishContentMgr* co
    // Create a presence event package and store it in the publisher.
    // This code parallels SipPresenceMonitor::setStatus.
    SipPresenceEvent* sipPresenceEvent = new SipPresenceEvent(resourceId);
-      
+
    UtlString id;
    UtlString resource(resourceId);
    SipPresenceMonitor::makeId(id, resource);
    Tuple* tuple = new Tuple(id.data());
    tuple->setStatus(DEFAULT_PRESENCE_STATUS);
    tuple->setContact(resourceId, 1.0);
-   
-   sipPresenceEvent->insertTuple(tuple); 
+
+   sipPresenceEvent->insertTuple(tuple);
 
    // Build its text version.
    int version;
@@ -188,7 +188,7 @@ SipPresenceMonitor::SipPresenceMonitor(SipUserAgent* userAgent,
                                    RTP_START_PORT + (2*MAX_CONNECTIONS), // rtp end
                                    localAddress,
                                    localAddress,
-                                   mpUserAgent, 
+                                   mpUserAgent,
                                    0,                                 // sipSessionReinviteTimer
                                    NULL,                              // mgcpStackTask
                                    NULL,                              // defaultCallExtension
@@ -215,7 +215,7 @@ SipPresenceMonitor::SipPresenceMonitor(SipUserAgent* userAgent,
 
    // Start the call processing system
    mpCallManager->start();
-      
+
    // Add self to the presence dial-in server for state change notification
    mpDialInServer->addStateChangeNotifier("Presence_Dial_In_Server", this);
 
@@ -230,15 +230,15 @@ SipPresenceMonitor::SipPresenceMonitor(SipUserAgent* userAgent,
       mpSubscribeServer->enableEventType(PRESENCE_EVENT_TYPE);
       mpSubscribeServer->start();
    }
-   
+
    // Enable the xmlrpc sign-in/sign-out
    int HttpPort;
    if (configDb.get(CONFIG_SETTING_HTTP_PORT, HttpPort) != OS_SUCCESS)
    {
       HttpPort = PRESENCE_DEFAULT_HTTP_PORT;
    }
-   
-   mpXmlRpcSignIn = new XmlRpcSignIn(this, HttpPort);   
+
+   mpXmlRpcSignIn = new XmlRpcSignIn(this, HttpPort);
 
    // Start the persist task.
    if (!mPersistentFile.isNull())
@@ -257,15 +257,15 @@ SipPresenceMonitor::~SipPresenceMonitor()
    {
       delete mpSubscribeServer;
    }
-   
+
    mMonitoredLists.destroyAll();
 
    mStateChangeNotifiers.destroyAll();
-   
+
    if (mpXmlRpcSignIn)
    {
       delete mpXmlRpcSignIn;
-   }   
+   }
 
    // Stop the persist task and then write the event list to disk.
    mPersistenceTimer.stop();
@@ -282,17 +282,17 @@ bool SipPresenceMonitor::addExtension(UtlString& groupName, Url& contactUrl)
 {
    bool result = false;
    mLock.acquire();
-   
+
    // Check whether the group has already existed. If not, create one.
    SipResourceList* list = dynamic_cast <SipResourceList *> (mMonitoredLists.findValue(&groupName));
    if (list == NULL)
    {
       UtlString* listName = new UtlString(groupName);
       list = new SipResourceList((UtlBoolean)TRUE, listName->data(), PRESENCE_EVENT_TYPE);
-      
+
       mMonitoredLists.insertKeyAndValue(listName, list);
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipPresenceMonitor::addExtension insert listName %s and object %p to the resource list",
-                    groupName.data(), list);   
+                    groupName.data(), list);
    }
 
    // Check whether the contact has already been added to the group
@@ -302,16 +302,16 @@ bool SipPresenceMonitor::addExtension(UtlString& groupName, Url& contactUrl)
    if (resource == NULL)
    {
       resource = new Resource(resourceId);
-      
+
       UtlString userName;
       contactUrl.getDisplayName(userName);
       resource->setName(userName);
-      
+
       UtlString id;
       makeId(id, resourceId);
       resource->setInstance(id, STATE_PENDING);
       list->insertResource(resource);
-      
+
       result = true;
    }
    else
@@ -323,7 +323,7 @@ bool SipPresenceMonitor::addExtension(UtlString& groupName, Url& contactUrl)
 
    int dummy;
    list->buildBody(dummy);
-   
+
    mLock.release();
    return result;
 }
@@ -337,7 +337,7 @@ bool SipPresenceMonitor::removeExtension(UtlString& groupName, Url& contactUrl)
    if (list == NULL)
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipPresenceMonitor::removeExtension group %s does not exist",
-                    groupName.data());   
+                    groupName.data());
    }
    else
    {
@@ -349,7 +349,7 @@ bool SipPresenceMonitor::removeExtension(UtlString& groupName, Url& contactUrl)
       {
          resource = list->removeResource(resource);
          delete resource;
-         
+
          result = true;
       }
       else
@@ -360,8 +360,8 @@ bool SipPresenceMonitor::removeExtension(UtlString& groupName, Url& contactUrl)
       }
    }
 
-   mLock.release();   
-   return result;   
+   mLock.release();
+   return result;
 }
 
 // Returns TRUE if the requested state is different from the current state.
@@ -370,7 +370,7 @@ bool SipPresenceMonitor::addPresenceEvent(UtlString& contact, SipPresenceEvent* 
    mLock.acquire();
 
    bool requiredPublish = false;
-   
+
    if (mPresenceEventList.find(&contact) == NULL)
    {
       requiredPublish = true;
@@ -383,7 +383,7 @@ bool SipPresenceMonitor::addPresenceEvent(UtlString& contact, SipPresenceEvent* 
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "SipPresenceMonitor::addPresenceEvent presenceEvent %p for contact %s already exists, updating its contents.",
                     presenceEvent, contact.data());
-                    
+
       // Get the object from the presence event list
       UtlContainable* oldKey;
       UtlContainable* foundValue;
@@ -394,7 +394,7 @@ bool SipPresenceMonitor::addPresenceEvent(UtlString& contact, SipPresenceEvent* 
       makeId(id, contact);
       oldPresenceEvent->getTuple(id)->getStatus(oldStatus);
       presenceEvent->getTuple(id)->getStatus(status);
-      
+
       if (status.compareTo(oldStatus) != 0)
       {
          requiredPublish = true;
@@ -410,7 +410,7 @@ bool SipPresenceMonitor::addPresenceEvent(UtlString& contact, SipPresenceEvent* 
    }
 
    if (requiredPublish)
-   {         
+   {
       // Insert it into the presence event list.
       int dummy;
       presenceEvent->buildBody(dummy);
@@ -427,11 +427,11 @@ bool SipPresenceMonitor::addPresenceEvent(UtlString& contact, SipPresenceEvent* 
       }
 
       if (mToBePublished)
-      { 
+      {
          // Publish the content to the resource list.
          publishContent(contact, presenceEvent);
       }
-      
+
       // Notify the state change.
       notifyStateChange(contact, presenceEvent);
 
@@ -447,7 +447,7 @@ bool SipPresenceMonitor::addPresenceEvent(UtlString& contact, SipPresenceEvent* 
       // change the state we've sent out), delete it now.
       delete presenceEvent;
    }
-   
+
    mLock.release();
    return requiredPublish;
 }
@@ -511,7 +511,7 @@ void SipPresenceMonitor::readPersistentFile()
                   OsSysLog::add(FAC_ACD, PRI_ERR,
                                 "id child of <item> was null");
                   item_valid = false;
-               }                  
+               }
             }
             else
             {
@@ -533,7 +533,7 @@ void SipPresenceMonitor::readPersistentFile()
                   OsSysLog::add(FAC_ACD, PRI_ERR,
                                 "contact child of <item> was null");
                   item_valid = false;
-               }                  
+               }
             }
             else
             {
@@ -555,7 +555,7 @@ void SipPresenceMonitor::readPersistentFile()
                   OsSysLog::add(FAC_ACD, PRI_ERR,
                                 "status child of <item> was null");
                   item_valid = false;
-               }                  
+               }
             }
             else
             {
@@ -577,7 +577,7 @@ void SipPresenceMonitor::readPersistentFile()
                Tuple* tuple = new Tuple(id.data());
                tuple->setStatus(status);
                tuple->setContact(contact, 1.0);
-               sipPresenceEvent->insertTuple(tuple); 
+               sipPresenceEvent->insertTuple(tuple);
                int dummy;
                sipPresenceEvent->buildBody(dummy);
                mPresenceEventList.insertKeyAndValue(new UtlString(contact),
@@ -600,7 +600,7 @@ void SipPresenceMonitor::readPersistentFile()
       OsSysLog::add(FAC_ACD, PRI_CRIT,
                     "Presence status file '%s' could not be parsed.",
                     mPersistentFile.data());
-   } 
+   }
 
    mLock.release();
 
@@ -644,7 +644,7 @@ void SipPresenceMonitor::writePersistentFile()
       // Get the SipPresenceEvent.
       SipPresenceEvent* event =
          dynamic_cast <SipPresenceEvent*> (iterator.value());
-      
+
       // Calculate the id of the Tuple.
       UtlString id;
       makeId(id, *contact);
@@ -700,14 +700,14 @@ void SipPresenceMonitor::publishContent(UtlString& contact, SipPresenceEvent* pr
 
       list = dynamic_cast <SipResourceList *> (mMonitoredLists.findValue(listUri));
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipPresenceMonitor::publishContent listUri %s list %p",
-                    listUri->data(), list); 
+                    listUri->data(), list);
 
       // Search for the contact in this list
       resource = list->getResource(contact);
       if (resource)
       {
          resource->getInstance(id, state);
-         
+
          if (presenceEvent->isEmpty())
          {
             resource->setInstance(id, STATE_TERMINATED);
@@ -717,20 +717,20 @@ void SipPresenceMonitor::publishContent(UtlString& contact, SipPresenceEvent* pr
             UtlString id;
             makeId(id, contact);
             Tuple* tuple = presenceEvent->getTuple(id);
-            
+
             UtlString status;
             tuple->getStatus(status);
-            
+
             if (status.compareTo(STATUS_CLOSED) == 0)
             {
                resource->setInstance(id, STATE_TERMINATED);
             }
             else
-            {     
+            {
                resource->setInstance(id, STATE_ACTIVE);
             }
          }
-         
+
          list->buildBody(version);
          contentChanged = true;
       }
@@ -796,8 +796,8 @@ void SipPresenceMonitor::notifyStateChange(UtlString& contact,
       {
          UtlString status;
          tuple->getStatus(status);
-            
-         notifier->setStatus(contactUrl, 
+
+         notifier->setStatus(contactUrl,
                              status.compareTo(STATUS_CLOSED) == 0 ?
                              StateChangeNotifier::AWAY :
                              StateChangeNotifier::PRESENT);
@@ -825,31 +825,31 @@ bool SipPresenceMonitor::setStatus(const Url& aor, const Status value)
    }
 
    bool result = false;
-   
+
    UtlString contact;
    aor.getUserId(contact);
    contact += mHostAndPort;
    // Make the contact be a proper URI by prepending "sip:".
    contact.prepend("sip:");
-   
+
    // Create a presence event package and store it in the publisher
    SipPresenceEvent* sipPresenceEvent = new SipPresenceEvent(contact);
-      
+
    UtlString id;
    makeId(id, contact);
-   
+
    Tuple* tuple = new Tuple(id.data());
-   
+
    tuple->setStatus(value == StateChangeNotifier::PRESENT ?
                     STATUS_OPEN :
                     STATUS_CLOSED);
    tuple->setContact(contact, 1.0);
 
-   sipPresenceEvent->insertTuple(tuple); 
-   
+   sipPresenceEvent->insertTuple(tuple);
+
    // Add the SipPresenceEvent object to the presence event list.
    result = addPresenceEvent(contact, sipPresenceEvent);
-   
+
    return result;
 }
 
@@ -867,7 +867,7 @@ void SipPresenceMonitor::getState(const Url& aor, UtlString& status)
    mLock.acquire();
 
    foundValue = mPresenceEventList.findValue(&contact);
-   
+
    if (foundValue)
    {
       SipPresenceEvent* presenceEvent = dynamic_cast <SipPresenceEvent *> (foundValue);
@@ -881,9 +881,9 @@ void SipPresenceMonitor::getState(const Url& aor, UtlString& status)
    {
       OsSysLog::add(FAC_SIP, PRI_ERR, "SipPresenceMonitor::getState contact %s does not exist",
                     contact.data());
-                    
+
       status = STATUS_CLOSED;
-   }   
+   }
 
    mLock.release();
 }

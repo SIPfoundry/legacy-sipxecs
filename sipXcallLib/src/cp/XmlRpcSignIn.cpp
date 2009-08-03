@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -29,9 +29,9 @@
 //
 //  NAME:        XmlRpcSignIn::XmlRpcSignIn
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -61,9 +61,9 @@ XmlRpcSignIn::XmlRpcSignIn(SipPresenceMonitor* pSipPresenceMonitor, int signInPo
 //
 //  NAME:        XmlRpcSignIn::~XmlRpcSignIn
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -85,9 +85,9 @@ XmlRpcSignIn::~XmlRpcSignIn()
 //
 //  NAME:        XmlRpcSignIn::Action
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -121,7 +121,7 @@ ProvisioningAttrList* XmlRpcSignIn::Action(ProvisioningAttrList& rRequestAttribu
          pResponse->setAttribute("result-text", "SUCCESS: User already signed-in");
          return pResponse;
       }
-      
+
       // Sign-in the Agent
       mpSipPresenceMonitor->setStatus(contactUrl, StateChangeNotifier::PRESENT);
 
@@ -144,7 +144,7 @@ ProvisioningAttrList* XmlRpcSignIn::Action(ProvisioningAttrList& rRequestAttribu
          pResponse->setAttribute("result-text", "SUCCESS: User already signed-out");
          return pResponse;
       }
-      
+
       // Sign-out the Agent
       mpSipPresenceMonitor->setStatus(contactUrl, StateChangeNotifier::AWAY);
 
@@ -186,4 +186,3 @@ ProvisioningAttrList* XmlRpcSignIn::Action(ProvisioningAttrList& rRequestAttribu
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-

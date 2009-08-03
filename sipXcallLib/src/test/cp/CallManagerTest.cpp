@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -27,7 +27,7 @@
 _CrtMemState MemStateBegin;
 _CrtMemState MemStateEnd;
 _CrtMemState MemStateDiff;
-#endif 
+#endif
 
 #define BROKEN_INITTEST
 
@@ -162,7 +162,7 @@ public:
             printf("Starting CallManager\n");
 #endif
             pCallManager->start();
-            
+
             pCallManager->requestShutdown();
 
 #if 0
@@ -170,12 +170,12 @@ public:
 #endif
             delete pCallManager;
         }
-        
+
         for (int i=0; i<NUM_OF_RUNS; ++i)
         {
             sipxDestroyMediaFactoryFactory() ;
         }
-            
+
 #ifdef _WIN32
         _CrtMemCheckpoint(&MemStateEnd);
         if (_CrtMemDifference(&MemStateDiff, &MemStateBegin, &MemStateEnd))
@@ -251,7 +251,7 @@ public:
             delete pCallManager;
 
         }
-        
+
         for (int i=0; i<NUM_OF_RUNS; ++i)
         {
             sipxDestroyMediaFactoryFactory() ;
@@ -325,11 +325,11 @@ public:
 #endif
 
             // Delete lineMgr *after* CallManager - this seems to fix the problem
-            // that SipClient->run() encounters a NULL socket. 
+            // that SipClient->run() encounters a NULL socket.
             delete pCallManager;
             delete lineMgr;
         }
-        
+
         for (int i=0; i<NUM_OF_RUNS; ++i)
         {
             sipxDestroyMediaFactoryFactory() ;
@@ -414,7 +414,7 @@ public:
             delete refreshMgr;
             delete lineMgr;
         }
-        
+
         for (int i=0; i<NUM_OF_RUNS; ++i)
         {
             sipxDestroyMediaFactoryFactory() ;

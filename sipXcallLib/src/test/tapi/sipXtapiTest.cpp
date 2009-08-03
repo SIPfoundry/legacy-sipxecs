@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 //////////////////////////////////////////////////////////////////////////////
@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
 
 CPPUNIT_TEST_SUITE_REGISTRATION( sipXtapiTestSuite );
 
-void sipXtapiTestSuite::testNothing() 
+void sipXtapiTestSuite::testNothing()
 {
     // Effectively does nothing; however, prime memory leak
     // detection.
@@ -69,7 +69,7 @@ void sipXtapiTestSuite::testNothing()
 }
 
 
-sipXtapiTestSuite::sipXtapiTestSuite()    
+sipXtapiTestSuite::sipXtapiTestSuite()
 {
 
 }
@@ -80,7 +80,7 @@ void sipXtapiTestSuite::setUp()
 #ifdef _WIN32
 #ifdef SIPX_TEST_FOR_MEMORY_LEAKS
     _CrtSetReportMode( _CRT_WARN, _CRTDBG_MODE_FILE);
-    _CrtSetReportFile( _CRT_WARN, _CRTDBG_FILE_STDOUT);    
+    _CrtSetReportFile( _CRT_WARN, _CRTDBG_FILE_STDOUT);
 
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_CHECK_ALWAYS_DF) ;
     _CrtMemCheckpoint( &msBeforeTest );
@@ -121,7 +121,7 @@ void sipXtapiTestSuite::setUp()
     PurifyClearLeaks();
 #endif
     suiteLock.release();
-} 
+}
 
 void sipXtapiTestSuite::tearDown()
 {
@@ -133,12 +133,12 @@ void sipXtapiTestSuite::tearDown()
     SIPX_RESULT rc ;
 
     suiteLock.acquire();
-    
+
 #ifdef PURIFY
     Sleep(250000);
     PurifyNewLeaks();
 #endif
-        
+
     if (g_hInst != NULL)
     {
         rc = sipxUnInitialize(g_hInst);
@@ -180,7 +180,7 @@ void sipXtapiTestSuite::tearDown()
 #ifdef _WIN32
 #ifdef SIPX_TEST_FOR_MEMORY_LEAKS
     if (bFirstRun == false)
-    {   
+    {
         _CrtMemCheckpoint( &msAfterTest );
         _CrtMemState diff ;
 
@@ -188,7 +188,7 @@ void sipXtapiTestSuite::tearDown()
         {
             _CrtMemDumpStatistics( &diff );
             _CrtMemDumpAllObjectsSince(&msBeforeTest) ;
-        }        
+        }
     }
     else
     {
@@ -208,12 +208,12 @@ void sipXtapiTestSuite::checkForLeaks()
 }
 
 #define MAX_CALL_CHECK  16
-void sipXtapiTestSuite::checkForCallLeaks(SIPX_INST hInst) 
+void sipXtapiTestSuite::checkForCallLeaks(SIPX_INST hInst)
 {
     SIPX_RESULT rc ;
     UtlString callIds[MAX_CALL_CHECK] ;
     int numCalls ;
-    
+
     rc = sipxGetActiveCallIds(hInst, MAX_CALL_CHECK, numCalls, callIds) ;
     CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
     if (rc == SIPX_RESULT_SUCCESS)
@@ -228,5 +228,5 @@ void sipXtapiTestSuite::checkForCallLeaks(SIPX_INST hInst)
 
             CPPUNIT_ASSERT_EQUAL(numCalls, 0) ;
         }
-    }     
+    }
 }

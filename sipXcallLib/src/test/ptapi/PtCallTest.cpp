@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -34,11 +34,11 @@ public:
         // test protected constructor
         pPtCall = new PtCall("callId");
         delete pPtCall;
-        
+
         // test the default constructor (if implemented)
         pPtCall = new PtCall();
         delete pPtCall;
-        
+
         pPtCall = new PtCall("callID");
         pPtCall_1 = new PtCall(*pPtCall);
         delete pPtCall;
@@ -68,7 +68,7 @@ public:
         //:WARNING: unless the proxy server already started, we cann't achieve delta = 0
         delete pTempAddress;
         delete pTempPtCall;
-                                                                                
+
         // test getCallingAddress
         pTempPtCall = new PtCall("callId");
         pTempAddress = new PtAddress("MyComputer");

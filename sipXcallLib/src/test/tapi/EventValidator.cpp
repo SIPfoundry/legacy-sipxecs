@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -15,9 +15,9 @@
 #include "os/OsLock.h"
 #include "utl/UtlSList.h"
 
-EventValidator::EventValidator(const char* szTitle) 
-    : m_semUnprocessed(OsBSem::Q_FIFO, OsBSem::EMPTY) 
-    , m_mutLists(OsMutex::Q_FIFO) 
+EventValidator::EventValidator(const char* szTitle)
+    : m_semUnprocessed(OsBSem::Q_FIFO, OsBSem::EMPTY)
+    , m_mutLists(OsMutex::Q_FIFO)
 {
     m_title = szTitle ;
     m_pUnfoundEvent = NULL ;
@@ -31,7 +31,7 @@ EventValidator::~EventValidator()
 }
 
 
-void EventValidator::ignoreEventCategory(SIPX_EVENT_CATEGORY category) 
+void EventValidator::ignoreEventCategory(SIPX_EVENT_CATEGORY category)
 {
     assert((category >= 0) && (category < MAX_EVENT_CATEGORIES)) ;
 
@@ -97,7 +97,7 @@ void EventValidator::reset()
 }
 
 
-bool EventValidator::waitForCallEvent(SIPX_LINE hLine, 
+bool EventValidator::waitForCallEvent(SIPX_LINE hLine,
                                       SIPX_CALL hCall,
                                       SIPX_CALLSTATE_EVENT event,
                                       SIPX_CALLSTATE_CAUSE cause,
@@ -109,9 +109,9 @@ bool EventValidator::waitForCallEvent(SIPX_LINE hLine,
     if (!isIgnoredCateogry(EVENT_CATEGORY_CALLSTATE))
     {
 
-        UtlString* pString = allocCallStateEntry(hCall, 
-                hLine, 
-                event, 
+        UtlString* pString = allocCallStateEntry(hCall,
+                hLine,
+                event,
                 cause) ;
 
         bFound = waitForEvent(pString->data(), bStrictOrderMatch, iTimeoutInSecs) ;
@@ -120,8 +120,8 @@ bool EventValidator::waitForCallEvent(SIPX_LINE hLine,
 
     if (!bFound)
     {
-        
-        // Wait a second for any additional events to pour in -- useful for 
+
+        // Wait a second for any additional events to pour in -- useful for
         // debugging.
         OsTask::delay(1000) ;
         report() ;
@@ -131,10 +131,10 @@ bool EventValidator::waitForCallEvent(SIPX_LINE hLine,
 }
 
 
-bool EventValidator::waitForMessage(SIPX_LINE hLine, 
+bool EventValidator::waitForMessage(SIPX_LINE hLine,
                                     const char* szMsg,
-                                    bool bStrictOrderMatch, 
-                                    int iTimeoutInSecs) 
+                                    bool bStrictOrderMatch,
+                                    int iTimeoutInSecs)
 {
     bool bFound ;
 
@@ -145,7 +145,7 @@ bool EventValidator::waitForMessage(SIPX_LINE hLine,
 
     if (!bFound)
     {
-        // Wait a second for any additional events to pour in -- useful for 
+        // Wait a second for any additional events to pour in -- useful for
         // debugging.
         OsTask::delay(1000) ;
 
@@ -157,11 +157,11 @@ bool EventValidator::waitForMessage(SIPX_LINE hLine,
 }
 
 
-bool EventValidator::waitForLineEvent(SIPX_LINE hLine, 
-                                      SIPX_LINESTATE_EVENT event, 
+bool EventValidator::waitForLineEvent(SIPX_LINE hLine,
+                                      SIPX_LINESTATE_EVENT event,
                                       SIPX_LINESTATE_CAUSE cause,
-                                      bool bStrictOrderMatch, 
-                                      int iTimeoutInSecs) 
+                                      bool bStrictOrderMatch,
+                                      int iTimeoutInSecs)
 {
     bool bFound = true ;
 
@@ -178,7 +178,7 @@ bool EventValidator::waitForLineEvent(SIPX_LINE hLine,
 
     if (!bFound)
     {
-        // Wait a second for any additional events to pour in -- useful for 
+        // Wait a second for any additional events to pour in -- useful for
         // debugging.
         OsTask::delay(1000) ;
 
@@ -191,21 +191,21 @@ bool EventValidator::waitForLineEvent(SIPX_LINE hLine,
 }
 
 
-bool EventValidator::waitForInfoStatusEvent(SIPX_INFO hInfo, 
-                                            int status, 
-                                            int responseCode, 
+bool EventValidator::waitForInfoStatusEvent(SIPX_INFO hInfo,
+                                            int status,
+                                            int responseCode,
                                             const char* szResponseText,
-                                            bool bStrictOrderMatch, 
-                                            int iTimeoutInSecs) 
+                                            bool bStrictOrderMatch,
+                                            int iTimeoutInSecs)
 {
     bool bFound = true ;
 
     if (!isIgnoredCateogry(EVENT_CATEGORY_INFO_STATUS))
     {
 
-        UtlString* pString = allocInfoStatusEvent(hInfo, 
-                status, 
-                responseCode, 
+        UtlString* pString = allocInfoStatusEvent(hInfo,
+                status,
+                responseCode,
                 szResponseText) ;
         bFound = waitForEvent(pString->data(), bStrictOrderMatch, iTimeoutInSecs) ;
 
@@ -214,7 +214,7 @@ bool EventValidator::waitForInfoStatusEvent(SIPX_INFO hInfo,
 
     if (!bFound)
     {
-        // Wait a second for any additional events to pour in -- useful for 
+        // Wait a second for any additional events to pour in -- useful for
         // debugging.
         OsTask::delay(1000) ;
 
@@ -233,8 +233,8 @@ bool EventValidator::waitForInfoEvent(SIPX_CALL hCall,
                                       const char* szContentType,
                                       const char* szContent,
                                       int nContentLength,
-                                      bool bStrictOrderMatch, 
-                                      int iTimeoutInSecs) 
+                                      bool bStrictOrderMatch,
+                                      int iTimeoutInSecs)
 {
     bool bFound = true ;
 
@@ -254,7 +254,7 @@ bool EventValidator::waitForInfoEvent(SIPX_CALL hCall,
 
     if (!bFound)
     {
-        // Wait a second for any additional events to pour in -- useful for 
+        // Wait a second for any additional events to pour in -- useful for
         // debugging.
         OsTask::delay(1000) ;
 
@@ -266,8 +266,8 @@ bool EventValidator::waitForInfoEvent(SIPX_CALL hCall,
 
 
 bool EventValidator::waitForConfigEvent(SIPX_CONFIG_EVENT event,
-                                        bool bStrictOrderMatch, 
-                                        int iTimeoutInSecs) 
+                                        bool bStrictOrderMatch,
+                                        int iTimeoutInSecs)
 {
     bool bFound = true ;
 
@@ -281,7 +281,7 @@ bool EventValidator::waitForConfigEvent(SIPX_CONFIG_EVENT event,
 
     if (!bFound)
     {
-        // Wait a second for any additional events to pour in -- useful for 
+        // Wait a second for any additional events to pour in -- useful for
         // debugging.
         OsTask::delay(1000) ;
 
@@ -292,7 +292,7 @@ bool EventValidator::waitForConfigEvent(SIPX_CONFIG_EVENT event,
 }
 
 
-bool EventValidator::hasUnprocessedEvents() 
+bool EventValidator::hasUnprocessedEvents()
 {
     bool bRC = false ;
 
@@ -304,7 +304,7 @@ bool EventValidator::hasUnprocessedEvents()
     return bRC ;
 }
 
-bool EventValidator::validateNoWaitingEvent() 
+bool EventValidator::validateNoWaitingEvent()
 {
     bool bWaitingEvents = hasUnprocessedEvents() ;
     if (bWaitingEvents)
@@ -351,8 +351,8 @@ void EventValidator::report()
         UtlString* pString = (UtlString*) m_processedEvents.at(i) ;
         printf("[OK] %s\r\n", pString->data()) ;
     }
-    
-    if (m_pUnfoundEvent) 
+
+    if (m_pUnfoundEvent)
     {
         printf("[!!] %s\r\n", m_pUnfoundEvent->data()) ;
     }
@@ -368,7 +368,7 @@ void EventValidator::report()
 }
 
 
-void EventValidator::addEvent(SIPX_EVENT_CATEGORY category, void* pInfo) 
+void EventValidator::addEvent(SIPX_EVENT_CATEGORY category, void* pInfo)
 {
     assert((category >= 0) && (category < MAX_EVENT_CATEGORIES)) ;
 
@@ -382,9 +382,9 @@ void EventValidator::addEvent(SIPX_EVENT_CATEGORY category, void* pInfo)
                 {
                     SIPX_CALLSTATE_INFO* pStateInfo = (SIPX_CALLSTATE_INFO*) pInfo ;
 
-                    UtlString* pString = allocCallStateEntry(pStateInfo->hCall, 
-                            pStateInfo->hLine, 
-                            pStateInfo->event, 
+                    UtlString* pString = allocCallStateEntry(pStateInfo->hCall,
+                            pStateInfo->hLine,
+                            pStateInfo->event,
                             pStateInfo->cause) ;
 
                     m_unprocessedEvents.append(pString) ;
@@ -399,7 +399,7 @@ void EventValidator::addEvent(SIPX_EVENT_CATEGORY category, void* pInfo)
                             pStateInfo->event,
                             pStateInfo->cause) ;
 
-                    m_unprocessedEvents.append(pString) ; 
+                    m_unprocessedEvents.append(pString) ;
                     m_semUnprocessed.release() ;
                 }
                 break ;
@@ -407,12 +407,12 @@ void EventValidator::addEvent(SIPX_EVENT_CATEGORY category, void* pInfo)
                 {
                     SIPX_INFOSTATUS_INFO* pStateInfo = (SIPX_INFOSTATUS_INFO*) pInfo ;
 
-                    UtlString* pString = allocInfoStatusEvent(pStateInfo->hInfo, 
-                            pStateInfo->status, 
-                            pStateInfo->responseCode, 
-                            pStateInfo->szResponseText) ;                                
+                    UtlString* pString = allocInfoStatusEvent(pStateInfo->hInfo,
+                            pStateInfo->status,
+                            pStateInfo->responseCode,
+                            pStateInfo->szResponseText) ;
 
-                    m_unprocessedEvents.append(pString) ; 
+                    m_unprocessedEvents.append(pString) ;
                     m_semUnprocessed.release() ;
                 }
                 break ;
@@ -428,17 +428,17 @@ void EventValidator::addEvent(SIPX_EVENT_CATEGORY category, void* pInfo)
                             pStateInfo->pContent,
                             pStateInfo->nContentLength) ;
 
-                    m_unprocessedEvents.append(pString) ; 
+                    m_unprocessedEvents.append(pString) ;
                     m_semUnprocessed.release() ;
                 }
-                break ;               
+                break ;
             case EVENT_CATEGORY_CONFIG:
                 {
                     SIPX_CONFIG_INFO* pStateInfo = (SIPX_CONFIG_INFO*) pInfo ;
 
                     UtlString* pString = allocConfigEvent(pStateInfo->event) ;
 
-                    m_unprocessedEvents.append(pString) ; 
+                    m_unprocessedEvents.append(pString) ;
                     m_semUnprocessed.release() ;
                 }
                 break ;
@@ -449,23 +449,23 @@ void EventValidator::addEvent(SIPX_EVENT_CATEGORY category, void* pInfo)
 }
 
 
-void EventValidator::addMessage(SIPX_LINE hLine, const char* szMsg) 
+void EventValidator::addMessage(SIPX_LINE hLine, const char* szMsg)
 {
-    OsLock lock(m_mutLists) ;       
+    OsLock lock(m_mutLists) ;
     m_unprocessedEvents.append(allocMessageEvent(hLine, szMsg)) ;
     m_semUnprocessed.release() ;
 }
 
-void EventValidator::addMarker(const char* szMarkerText) 
+void EventValidator::addMarker(const char* szMarkerText)
 {
-    OsLock lock(m_mutLists) ;       
+    OsLock lock(m_mutLists) ;
     UtlString marker ;
 
     marker.append("@@@ ") ;
     marker.append(szMarkerText) ;
     marker.append(" @@@") ;
 
-    m_processedEvents.append(new UtlString(marker)) ;   
+    m_processedEvents.append(new UtlString(marker)) ;
 }
 
 
@@ -479,13 +479,13 @@ UtlString* EventValidator::allocCallStateEntry(SIPX_CALL hCall,
 
 
     sipxCallEventToString(
-            (SIPX_CALLSTATE_MAJOR)(int) event, 
-            (SIPX_CALLSTATE_MINOR)(int)cause, 
-            szBuffer, 
+            (SIPX_CALLSTATE_MAJOR)(int) event,
+            (SIPX_CALLSTATE_MINOR)(int)cause,
+            szBuffer,
             sizeof(szBuffer));
 
-    sprintf(szBuffer2, "<CALL> hLine=%u, hCall=%u: %s", 
-            hLine, 
+    sprintf(szBuffer2, "<CALL> hLine=%u, hCall=%u: %s",
+            hLine,
             hCall,
             szBuffer);
 
@@ -499,10 +499,10 @@ UtlString* EventValidator::allocLineStateEntry(SIPX_LINE hLine,
 {
     char szBuffer[256] ;
     char szBuffer2[256] ;
-    
-    sipxLineEventToString((SIPX_LINE_EVENT_TYPE_MAJOR)(int) event, 
-            (SIPX_LINE_EVENT_TYPE_MINOR)(int) cause, 
-            szBuffer, 
+
+    sipxLineEventToString((SIPX_LINE_EVENT_TYPE_MAJOR)(int) event,
+            (SIPX_LINE_EVENT_TYPE_MINOR)(int) cause,
+            szBuffer,
             sizeof(szBuffer)) ;
     sprintf(szBuffer2, "<LINE> hLine=%u: %s", hLine, szBuffer);
 
@@ -513,10 +513,10 @@ UtlString* EventValidator::allocLineStateEntry(SIPX_LINE hLine,
 
 UtlString* EventValidator::allocMessageEvent(SIPX_LINE hLine, const char* szMessage)
 {
-    char szBuffer[1024] ;       
-    
-    sprintf(szBuffer, "<MSG> hLine=%d: %s", 
-            (int) hLine, 
+    char szBuffer[1024] ;
+
+    sprintf(szBuffer, "<MSG> hLine=%d: %s",
+            (int) hLine,
             szMessage ? szMessage : "") ;
 
     return new UtlString(szBuffer) ;
@@ -524,22 +524,22 @@ UtlString* EventValidator::allocMessageEvent(SIPX_LINE hLine, const char* szMess
 }
 
 
-UtlString* EventValidator::allocInfoStatusEvent(SIPX_INFO hInfo, int status, int responseCode, const char* szResponseText) 
+UtlString* EventValidator::allocInfoStatusEvent(SIPX_INFO hInfo, int status, int responseCode, const char* szResponseText)
 {
-    char szBuffer[1024] ;    
-    
+    char szBuffer[1024] ;
+
     sprintf(szBuffer, "<INFO STATUS> hInfo=%" PRIdPTR ": status=%d, responseCode=%d, responseText=%s",
-            hInfo, 
-            status, 
-            responseCode, 
+            hInfo,
+            status,
+            responseCode,
             szResponseText ? szResponseText : "") ;
 
     return new UtlString(szBuffer) ;
 }
 
-UtlString* EventValidator::allocInfoEvent(SIPX_CALL hCall, 
-                                          SIPX_LINE hLine, 
-                                          const char* szFromURL, 
+UtlString* EventValidator::allocInfoEvent(SIPX_CALL hCall,
+                                          SIPX_LINE hLine,
+                                          const char* szFromURL,
                                           const char* szUserAgent,
                                           const char* szContentType,
                                           const char* szContent,
@@ -572,7 +572,7 @@ UtlString* EventValidator::allocInfoEvent(SIPX_CALL hCall,
 UtlString* EventValidator::allocConfigEvent(SIPX_CONFIG_EVENT hEvent)
 {
     char szBuffer[1024] ;
-    char szBuffer2[1024] ;                        
+    char szBuffer2[1024] ;
 
     sprintf(szBuffer, "<CONFIG> event=%s",
             sipxConfigEventToString(hEvent, szBuffer2, sizeof(szBuffer2))) ;
@@ -583,12 +583,12 @@ UtlString* EventValidator::allocConfigEvent(SIPX_CONFIG_EVENT hEvent)
 
 
 bool EventValidator::findEvent(const char* szEvent, int nMaxLookAhead, int &nActualLookAhead)
-{        
+{
     bool bFound = false ;
 
     m_mutLists.acquire() ;
 
-    int nEntries = m_unprocessedEvents.entries() ;        
+    int nEntries = m_unprocessedEvents.entries() ;
     if (nEntries > 0)
     {
         // Figure out the max and actual look ahead capabilities
@@ -626,14 +626,14 @@ bool EventValidator::waitForEvent(const char* szEvent, bool bStrictOrderMatch, i
     int nMaxLookAhead = bStrictOrderMatch ? 1 : m_iMaxLookAhead ;
     int nActualLookAhead ;
     bool bTimedOut = false ;
-    
+
     bFound = findEvent(szEvent, nMaxLookAhead, nActualLookAhead) ;
     while (!bFound && !bTimedOut && (nActualLookAhead < nMaxLookAhead))
-    {            
+    {
         if (m_semUnprocessed.acquire(waitTime) != OS_SUCCESS)
         {
             bTimedOut = true ;
-        }            
+        }
         bFound = findEvent(szEvent, nMaxLookAhead, nActualLookAhead) ;
     }
 
@@ -642,7 +642,7 @@ bool EventValidator::waitForEvent(const char* szEvent, bool bStrictOrderMatch, i
         m_pUnfoundEvent = new UtlString(szEvent) ;
     }
 
-    if (!bFound)            
+    if (!bFound)
     {
         if (bTimedOut)
         {
@@ -656,8 +656,8 @@ bool EventValidator::waitForEvent(const char* szEvent, bool bStrictOrderMatch, i
 
 
     // A Bit of a hack: In some of the unit tests, we have a race between the event matcher
-    // and autoXXXX handlers. 
+    // and autoXXXX handlers.
     OsTask::delay(20) ;
-                
+
     return bFound ;
 }

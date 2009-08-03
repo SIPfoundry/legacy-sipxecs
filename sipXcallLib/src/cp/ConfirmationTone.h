@@ -509,4 +509,3 @@ static unsigned short confirmationToneData[4000] =
 };
 unsigned long PresenceDialInServer::confirmationToneLength = sizeof( confirmationToneData );
 const char *  PresenceDialInServer::confirmationTone = (char *)confirmationToneData;
-

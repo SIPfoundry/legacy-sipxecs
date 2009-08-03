@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -17,16 +17,16 @@
 #include "os/OsLock.h"
 #include "utl/UtlSList.h"
 
-#define DEFAULT_TIMEOUT         -1 
+#define DEFAULT_TIMEOUT         -1
 #define MAX_EVENT_CATEGORIES    16  // room for growth
 #ifndef MIN
 #define MIN(a,b) (((a) < (b)) ? (a) : (b))
 #endif
 
-typedef enum 
+typedef enum
 {
     EVENT_VALIDATOR_ERROR_NONE,
-    EVENT_VALIDATOR_ERROR_TIMEOUT,    
+    EVENT_VALIDATOR_ERROR_TIMEOUT,
     EVENT_VALIDATOR_ERROR_MISMATCH,
     EVENT_VALIDATOR_ERROR_UNEXPECTED
 } EVENT_VALIDATOR_ERROR_TYPE ;
@@ -59,7 +59,7 @@ public:
     void reset() ;
     const char* getTitle();
 
-    bool waitForCallEvent(SIPX_LINE hLine, 
+    bool waitForCallEvent(SIPX_LINE hLine,
                           SIPX_CALL hCall,
                           SIPX_CALLSTATE_EVENT event,
                           SIPX_CALLSTATE_CAUSE cause,
@@ -67,23 +67,23 @@ public:
                           int iTimeoutInSecs = DEFAULT_TIMEOUT) ;
 
 
-    bool waitForMessage(SIPX_LINE hLine, 
+    bool waitForMessage(SIPX_LINE hLine,
                         const char* szMsg,
-                        bool bStrictOrderMatch = true, 
+                        bool bStrictOrderMatch = true,
                         int iTimeoutInSecs = DEFAULT_TIMEOUT) ;
 
-    bool waitForLineEvent(SIPX_LINE hLine, 
-                          SIPX_LINESTATE_EVENT event, 
+    bool waitForLineEvent(SIPX_LINE hLine,
+                          SIPX_LINESTATE_EVENT event,
                           SIPX_LINESTATE_CAUSE cause,
-                          bool bStrictOrderMatch = true, 
+                          bool bStrictOrderMatch = true,
                           int iTimeoutInSecs = DEFAULT_TIMEOUT) ;
 
 
-    bool waitForInfoStatusEvent(SIPX_INFO hInfo, 
-                                int status, 
-                                int responseCode, 
+    bool waitForInfoStatusEvent(SIPX_INFO hInfo,
+                                int status,
+                                int responseCode,
                                 const char* szResponseText,
-                                bool bStrictOrderMatch = true, 
+                                bool bStrictOrderMatch = true,
                                 int iTimeoutInSecs = DEFAULT_TIMEOUT) ;
 
     bool waitForInfoEvent(SIPX_CALL hCall,
@@ -93,12 +93,12 @@ public:
                           const char* szContentType,
                           const char* szContent,
                           int nContentLength,
-                          bool bStrictOrderMatch = true, 
+                          bool bStrictOrderMatch = true,
                           int iTimeoutInSecs = DEFAULT_TIMEOUT) ;
 
 
     bool waitForConfigEvent(SIPX_CONFIG_EVENT event,
-                            bool bStrictOrderMatch = true, 
+                            bool bStrictOrderMatch = true,
                             int iTimeoutInSecs = DEFAULT_TIMEOUT) ;
 
 
@@ -123,17 +123,17 @@ protected:
                                    SIPX_LINESTATE_EVENT event,
                                    SIPX_LINESTATE_CAUSE cause) ;
 
-    UtlString* allocMessageEvent(SIPX_LINE hLine, 
+    UtlString* allocMessageEvent(SIPX_LINE hLine,
                                  const char* szMessage) ;
 
-    UtlString* allocInfoStatusEvent(SIPX_INFO hInfo, 
-                                    int status, 
-                                    int responseCode, 
+    UtlString* allocInfoStatusEvent(SIPX_INFO hInfo,
+                                    int status,
+                                    int responseCode,
                                     const char* szResponseText)  ;
 
-    UtlString* allocInfoEvent(SIPX_CALL hCall, 
-                              SIPX_LINE hLine, 
-                              const char* szFromURL, 
+    UtlString* allocInfoEvent(SIPX_CALL hCall,
+                              SIPX_LINE hLine,
+                              const char* szFromURL,
                               const char* szUserAgent,
                               const char* szContentType,
                               const char* szContent,
@@ -141,7 +141,7 @@ protected:
 
     UtlString* allocConfigEvent(SIPX_CONFIG_EVENT hEvent) ;
 
- 
+
     bool findEvent(const char* szEvent, int nMaxLookAhead, int &nActualLookAhead) ;
 
 

@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -23,18 +23,18 @@
 ////////////////////////////
 // for TaoListenerDb class
 
-TaoListenerDb::TaoListenerDb() 
-{ 
-    mName.remove(0); 
-    mRef = 0; 
-    mpListenerPtr = 0; 
+TaoListenerDb::TaoListenerDb()
+{
+    mName.remove(0);
+    mRef = 0;
+    mpListenerPtr = 0;
     mId = -10;
     mIntData = 0;
 }
 
-TaoListenerDb::~TaoListenerDb() 
-{ 
-    mRef = 0; 
+TaoListenerDb::~TaoListenerDb()
+{
+    mRef = 0;
     mId = -10;
     mIntData = 0;
 }
@@ -49,7 +49,7 @@ TaoObjectMap::TaoObjectMap(int initialDbSize)
    initialDbSize = initialDbSize;
 }
 
-//:Copy constructor 
+//:Copy constructor
 TaoObjectMap::TaoObjectMap(const TaoObjectMap& rTaoObjectMap)
 {
 
@@ -71,7 +71,7 @@ TaoObjectMap::TaoObjectMap(const TaoObjectMap& rTaoObjectMap)
 
 }
 
-//:Assignment operator 
+//:Assignment operator
 TaoObjectMap& TaoObjectMap::operator=(const TaoObjectMap& rhs)
 {
     if (this == &rhs)            // handle the assignment to self case

@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -413,7 +413,7 @@ UtlBoolean PsHookswTask::handlePhoneMessage(const PsMsg& rMsg)
 
          TaoMessage *pMsg;
          pMsg = new TaoMessage(TaoMessage::COMPONENT_RESULT,
-                               TaoMessage::COMPONENT_RESULT, 
+                               TaoMessage::COMPONENT_RESULT,
                                0,
                                0,
                                mHookswState,

@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -126,8 +126,8 @@ mDtmfQMutex(OsMutex::Q_FIFO)
 
     UtlString name = getName();
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG, 
-                  "%s Call constructed: %s", 
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
+                  "%s Call constructed: %s",
                   name.data(), mCallId.data());
 #endif
 }
@@ -159,7 +159,7 @@ CpCall::~CpCall()
                 mpListeners[i] = 0;
             }
         }
-        
+
     }
     if (mpListeners)
     {
@@ -214,9 +214,9 @@ void CpCall::setDropState(UtlBoolean state)
 void CpCall::setCallState(int responseCode, UtlString responseText, int state, int cause)
 {
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
                   "CpCall::setCallState "
-                  "mState %d, newState %d, event %d, cause %d", 
+                  "mState %d, newState %d, event %d, cause %d",
                   mCallState, state,
                   (state == PtCall::INVALID ? PtEvent::CALL_INVALID : PtEvent::CALL_ACTIVE),
                   cause);
@@ -250,9 +250,9 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
     CpMultiStringMessage* multiStringMessage = (CpMultiStringMessage*)&eventMessage;
 
     UtlBoolean processedMessage = TRUE;
-    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
                   "CpCall::handleMessage "
-                  "message type: %d subtype %d\n", 
+                  "message type: %d subtype %d\n",
                   msgType, msgSubType);
 
     switch(msgType)
@@ -516,7 +516,7 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
                 int metaEventId = ((CpMultiStringMessage&)eventMessage).getInt1Data();
                 ((CpMultiStringMessage&)eventMessage).getString1Data(callId);
 
-                hangUp(callId, metaEventId);                                         
+                hangUp(callId, metaEventId);
             }
             break;
 
@@ -719,10 +719,10 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
             default:
                 processedMessage = FALSE;
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
                   "CpCall::handleMessage  "
                   "Unknown event message "
-                  "TYPE: %d  subtype: %d\n", 
+                  "TYPE: %d  subtype: %d\n",
                   msgType, msgSubType);
 #endif
                 break;
@@ -740,10 +740,10 @@ UtlBoolean CpCall::handleMessage(OsMsg& eventMessage)
     default:
         processedMessage = FALSE;
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
                   "CpCall::handleMessage  "
                   "Unprocessed message "
-                  "TYPE: %d  subtype: %d\n", 
+                  "TYPE: %d  subtype: %d\n",
                   msgType, msgSubType);
 #endif
         break;
@@ -797,7 +797,7 @@ void CpCall::localHold()
 void CpCall::hangUp(UtlString callId, int metaEventId)
 {
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
                   "CpCall::hangUp "
                   "enter mLCstate %d mLTCstate %d ",
                   mLocalConnectionState, mLocalTermConnectionState);
@@ -889,13 +889,13 @@ int CpCall::getCallState()
     return(mCallState);
 }
 
-// For CallManager use ONLY. 
+// For CallManager use ONLY.
 int CpCall::getDropState()
 {
     return(mCallMgrPostedDrop);
 }
 
-// For CallManager use ONLY. 
+// For CallManager use ONLY.
 void CpCall::setDropState()
 {
     mCallMgrPostedDrop = TRUE;
@@ -905,10 +905,10 @@ void CpCall::printCall(int showHistory)
 {
     UtlString callId;
     getCallId(callId);
-    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
                   "CpCall::printCall "
                   "Call[%d] id: %s state: %d%s\n", mCallIndex,
-                  callId.data(), getCallState(), 
+                  callId.data(), getCallState(),
                   mDropping ? ", Dropping" : "");
 
     if (showHistory)
@@ -919,9 +919,9 @@ void CpCall::printCall(int showHistory)
         {
             if(mMessageEventCount - historyIndex >= 0)
             {
-                OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                OsSysLog::add(FAC_CP, PRI_DEBUG,
                               "CpCall::printCall "
-                              "%d) %s\n", 
+                              "%d) %s\n",
                               mMessageEventCount - historyIndex,
                     (mCallHistory[(mMessageEventCount - historyIndex) % CP_CALL_HISTORY_LENGTH]).data());
             }
@@ -1003,7 +1003,7 @@ int CpCall::getLocalConnectionState(int state)
     }
 
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
                   "CpCall::getLocalConnectionState: "
                   "state- new %d old %d ",
                   newState, state);
@@ -1182,7 +1182,7 @@ void CpCall::setMetaEvent(int metaEventId, int metaEventType,
 {
     if (mMetaEventId != 0 || mMetaEventType != PtEvent::META_EVENT_NONE)
     {
-        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+        OsSysLog::add(FAC_CP, PRI_DEBUG,
                       "CpCall::setMetaEvent "
                       "stopping event %d type %x",
                       mMetaEventId, mMetaEventType);
@@ -1199,7 +1199,7 @@ void CpCall::setMetaEvent(int metaEventId, int metaEventType,
 
     if(mpMetaEventCallIds)
     {
-        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+        OsSysLog::add(FAC_CP, PRI_DEBUG,
                       "CpCall::setMetaEvent "
                       "deleting event call id(s)");
         delete[] mpMetaEventCallIds;
@@ -1214,7 +1214,7 @@ void CpCall::setMetaEvent(int metaEventId, int metaEventType,
         {
             if (metaEventCallIds)
             {
-                OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                OsSysLog::add(FAC_CP, PRI_DEBUG,
                               "CpCall::setMetaEvent "
                               "callids[%d] gets '%s'",
                               i, metaEventCallIds[i]);
@@ -1223,7 +1223,7 @@ void CpCall::setMetaEvent(int metaEventId, int metaEventType,
             }
             else
             {
-                OsSysLog::add(FAC_CP, PRI_DEBUG, 
+                OsSysLog::add(FAC_CP, PRI_DEBUG,
                               "CpCall::setMetaEvent "
                               "callids[%d] gets '%s'",
                               i, mCallId.data());
@@ -1239,7 +1239,7 @@ void CpCall::startMetaEvent(int metaEventId,
                             const char* metaEventCallIds[],
                             int remoteIsCallee)
 {
-    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
                   "CpCall::startMetaEvent "
                   "m-event %d m-eventType 0x%x ",
                   metaEventId, metaEventType);
@@ -1259,7 +1259,7 @@ void CpCall::getMetaEvent(int& metaEventId, int& metaEventType,
 void CpCall::stopMetaEvent(int remoteIsCallee)
 {
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
                   "CpCall::stopMetaEvent "
                   "m-event %d m-eventType %x ",
                   mMetaEventId, mMetaEventType);
@@ -1280,9 +1280,9 @@ void CpCall::stopMetaEvent(int remoteIsCallee)
 void CpCall::setCallType(int callType)
 {
 #ifdef TEST_PRINT
-    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
                   "CpCall::setCallType "
-                  "change mCallType: %d to callType: %d\n", 
+                  "change mCallType: %d to callType: %d\n",
                   mCallType, callType);
 #endif
     mCallType = callType;
@@ -1407,12 +1407,12 @@ OsStatus CpCall::addListener(OsServerTask* pListener,
 
 void CpCall::postMetaEvent(int state, int remoteIsCallee)
 {
-    OsSysLog::add(FAC_CP, PRI_DEBUG, 
+    OsSysLog::add(FAC_CP, PRI_DEBUG,
                   "CpCall::postMetaEvent "
                   "enter m-state %d m-event 0x%x numListeners=%d",
                   state, mMetaEventType, mListenerCnt);
 
-    if (mMetaEventType != PtEvent::META_EVENT_NONE 
+    if (mMetaEventType != PtEvent::META_EVENT_NONE
         && mListenerCnt > 0)
     {
         int eventId = PtEvent::META_UNKNOWN;
@@ -1498,7 +1498,7 @@ void CpCall::postMetaEvent(int state, int remoteIsCallee)
             postTaoListenerMessage(0, "", eventId, CALL_STATE, PtEvent::CAUSE_UNKNOWN);
         }
 
-        OsSysLog::add(FAC_CP, PRI_DEBUG, 
+        OsSysLog::add(FAC_CP, PRI_DEBUG,
                       "CpCall::postMetaEvent "
                       "leave eventId %d",
                       eventId);
@@ -1584,7 +1584,7 @@ void CpCall::postTaoListenerMessage(int responseCode,
         //              }
 
         arg.append(TAOMESSAGE_DELIMITER);                               // arg[6]
-        if (isRemote)                                           
+        if (isRemote)
         {
             arg.append("0");
         }
@@ -1620,9 +1620,9 @@ void CpCall::postTaoListenerMessage(int responseCode,
         }
 
         TaoMessage msg(TaoMessage::EVENT,
-                       0, 0, 
-                       eventId, 
-                       0, 
+                       0, 0,
+                       eventId,
+                       0,
                        argCnt, arg);
 
         for (int i = 0; i < mListenerCnt; i++)
@@ -1850,6 +1850,3 @@ unsigned long CpCall::getElapsedTime(void)
 
    return idleSeconds;
 }
-
-
-

@@ -1003,4 +1003,3 @@ static unsigned short dialToneData[8000] = {
 };
 unsigned long PresenceDialInServer::dialToneLength  = sizeof( dialToneData );
 const char *  PresenceDialInServer::dialTone = (char *)dialToneData;
-

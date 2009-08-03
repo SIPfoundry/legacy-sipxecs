@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -25,7 +25,7 @@
 //
 //  NAME:        LinePresenceMonitorMsg::LinePresenceMonitorMsg
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Constructor for UPDATE_STATE message
 //
@@ -41,7 +41,7 @@ LinePresenceMonitorMsg::LinePresenceMonitorMsg(eLinePresenceMonitorMsgSubTypes t
                                                LinePresenceBase* line,
                                                OsEvent* event)
    : OsMsg(USER_START, type)
-{   
+{
    mLine = line;
    mEvent = event;
    mContact = NULL;
@@ -52,7 +52,7 @@ LinePresenceMonitorMsg::LinePresenceMonitorMsg(eLinePresenceMonitorMsgSubTypes t
 //
 //  NAME:        LinePresenceMonitorMsg::LinePresenceMonitorMsg
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Constructor for SET_STATE messages
 //
@@ -67,7 +67,7 @@ LinePresenceMonitorMsg::LinePresenceMonitorMsg(eLinePresenceMonitorMsgSubTypes t
 LinePresenceMonitorMsg::LinePresenceMonitorMsg(const UtlString* contact,
                                                StateChangeNotifier::Status value)
    : OsMsg(USER_START, SET_STATUS)
-{   
+{
    mLine = NULL;
    mEvent = NULL;
    mContact = contact;
@@ -78,7 +78,7 @@ LinePresenceMonitorMsg::LinePresenceMonitorMsg(const UtlString* contact,
 //
 //  NAME:        LinePresenceMonitorMsg::LinePresenceMonitorMsg
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Copy constructor
 //
@@ -107,7 +107,7 @@ LinePresenceMonitorMsg::LinePresenceMonitorMsg(const LinePresenceMonitorMsg& rLi
 //
 //  NAME:        LinePresenceMonitorMsg::createCopy
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Create a copy of this msg object (which may be of a derived type)
 //
@@ -128,7 +128,7 @@ OsMsg* LinePresenceMonitorMsg::createCopy(void) const
 //
 //  NAME:        LinePresenceMonitorMsg::~LinePresenceMonitorMsg
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Destructor
 //
@@ -155,4 +155,3 @@ LinePresenceMonitorMsg::~LinePresenceMonitorMsg()
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-

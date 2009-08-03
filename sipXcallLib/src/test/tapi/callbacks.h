@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -25,27 +25,27 @@ extern SIPX_LINE g_hAutoRedirectCallbackLine ;
 
 void resetAutoAnswerCallback() ;
 
-bool AutoAnswerCallback(SIPX_EVENT_CATEGORY category, 
-                        void* pInfo, 
+bool AutoAnswerCallback(SIPX_EVENT_CATEGORY category,
+                        void* pInfo,
                         void* pUserData) ;
 
 void resetAutoAnswerCallback2() ;
 
-bool AutoAnswerCallback2(SIPX_EVENT_CATEGORY category, 
-                         void* pInfo, 
+bool AutoAnswerCallback2(SIPX_EVENT_CATEGORY category,
+                         void* pInfo,
                          void* pUserData) ;
 
 
-bool AutoAnswerHangupCallback(SIPX_EVENT_CATEGORY category, 
-                              void* pInfo, 
+bool AutoAnswerHangupCallback(SIPX_EVENT_CATEGORY category,
+                              void* pInfo,
                               void* pUserData) ;
 
-bool AutoRejectCallback(SIPX_EVENT_CATEGORY category, 
-                        void* pInfo, 
+bool AutoRejectCallback(SIPX_EVENT_CATEGORY category,
+                        void* pInfo,
                         void* pUserData) ;
 
-bool AutoRedirectCallback(SIPX_EVENT_CATEGORY category, 
-                        void* pInfo, 
+bool AutoRedirectCallback(SIPX_EVENT_CATEGORY category,
+                        void* pInfo,
                         void* pUserData) ;
 
 bool UniversalEventValidatorCallback(SIPX_EVENT_CATEGORY category,

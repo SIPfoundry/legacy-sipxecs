@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -42,7 +42,7 @@ PtProviderListener::~PtProviderListener()
 }
 
 // Assignment operator
-PtProviderListener& 
+PtProviderListener&
 PtProviderListener::operator=(const PtProviderListener& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
@@ -50,4 +50,3 @@ PtProviderListener::operator=(const PtProviderListener& rhs)
 
    return *this;
 }
-

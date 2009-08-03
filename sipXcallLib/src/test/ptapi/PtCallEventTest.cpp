@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -37,17 +37,17 @@ public:
         CPPUNIT_ASSERT_EQUAL_MESSAGE("Should be invalid event", PtEvent::EVENT_INVALID, *pTempPtEventId);
         delete pTempPtEventId;
         delete pTempPtCallEvent;
-                                                                                
+
         pTempPtCallEvent = new PtCallEvent(PtEvent::PROVIDER_IN_SERVICE);
         // mCallId is protected and no accessor method my be for better encapsulation
-        // CPPUNIT_ASSERT_EQUAL_MESSAGE("callid label", 0, 
+        // CPPUNIT_ASSERT_EQUAL_MESSAGE("callid label", 0,
         //        strcmp(pTempPtCallEvent->mCallId, "callId"));
         delete pTempPtCallEvent;
-                                                                                
+
         pTempPtCallEvent = new PtCallEvent(PtEvent::CALL_INVALID);
         pTempPtCallEvent_1 = new PtCallEvent(*pTempPtCallEvent);
         // mCallId is protected and no accessor method my be for better encapsulation
-        // CPPUNIT_ASSERT_EQUAL_MESSAGE("callid label", 0, 
+        // CPPUNIT_ASSERT_EQUAL_MESSAGE("callid label", 0,
         //        strcmp(pTempPtCallEvent->mCallId, "callId"));
         delete pTempPtCallEvent;
         delete pTempPtCallEvent_1;
@@ -57,7 +57,7 @@ public:
     {
         PtCallEvent* pTempPtCallEvent;
         PtCallEvent* pTempPtCallEvent_1;
-        
+
         pTempPtCallEvent = new PtCallEvent(PtEvent::CALL_INVALID);
         pTempPtCallEvent_1 = new PtCallEvent(PtEvent::PROVIDER_IN_SERVICE);
         *pTempPtCallEvent = *pTempPtCallEvent_1;

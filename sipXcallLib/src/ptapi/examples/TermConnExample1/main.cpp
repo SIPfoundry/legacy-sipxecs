@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
 
     // Get the terminal for a named softphone
     PtTerminal softphone;
-    // You must modify sofphoneTerminalName to the ip address of 
+    // You must modify sofphoneTerminalName to the ip address of
     // a softphone in your installation.
     char* softphoneTerminalName = "10.1.1.100";
     status = provider.getTerminal(softphoneTerminalName, softphone);
@@ -115,4 +115,3 @@ void MyTerminalConnectionListener::terminalConnectionInUse(const PtTerminalConne
 {
     printf("TERMINAL CONNECTION IN USE\n");
 }
-

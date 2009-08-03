@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 //////////////////////////////////////////////////////////////////////////////
@@ -44,26 +44,26 @@ class TestRegistrar : public OsServerTask
     * Default constructor
     */
    TestRegistrar();
-     
+
    /**
     * Copy constructor
     */
-   TestRegistrar(const TestRegistrar& rTestRegistrar);     
+   TestRegistrar(const TestRegistrar& rTestRegistrar);
 
    /**
     * Destructor
     */
    virtual ~TestRegistrar();
-   
+
    /**
     * Starts the registrar and waits for events
     */
    void init();
-   
+
     /**
      * Implementation of OsServerTask's pure virtual method
      */
-    UtlBoolean handleMessage(OsMsg& rMsg);   
+    UtlBoolean handleMessage(OsMsg& rMsg);
 
 /* ============================ MANIPULATORS ============================== */
 
@@ -72,7 +72,7 @@ class TestRegistrar : public OsServerTask
     *
     * @param rhs right hand side of the equals operator
     */
-   TestRegistrar& operator=(const TestRegistrar& rhs);  
+   TestRegistrar& operator=(const TestRegistrar& rhs);
 
 /* ============================ ACCESSORS ================================= */
 
