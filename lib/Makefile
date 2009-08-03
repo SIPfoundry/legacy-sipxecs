@@ -27,6 +27,7 @@ AC_TARGETS = \
 	rubygems \
 	ruby-postgres \
 	sipx-jasperreports-deps \
+	sipx-openfire \
 	w3c-libwww \
 	xerces-c \
 	freeswitch \
