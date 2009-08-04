@@ -322,6 +322,7 @@
     <antcall target="add_addressbook_entry_info_2" />
     <antcall target="add-saa-service" />
     <antcall target="add_phonebook_file_entry" />
+    <antcall target="special-attendant" />
   </target>
 
   <target name="time_of_day" unless="time_of_day">
@@ -974,6 +975,9 @@
   </target>
   <target name="add_phonebook_file_entry" unless="add_phonebook_file_entry">
     <db-patch patch="add_phonebook_file_entry"/>
+  </target>
+  <target name="special-attendant" unless="special-attendant">
+    <db-patch patch="special-attendant"/>
   </target>
 
   <!--

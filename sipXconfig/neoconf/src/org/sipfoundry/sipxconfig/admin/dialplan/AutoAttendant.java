@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.NamedObject;
@@ -147,8 +148,10 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject {
     public File getPromptFile() {
         return new File(m_promptsDirectory, m_prompt);
     }
+
     /**
      * updates current prompt file with a new one from the given location
+     *
      * @param sourceDir new prompt location
      * @throws IOException - exception if file read fails
      */
@@ -178,5 +181,12 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject {
                 fileType.setDirectory(m_audioDirectory);
             }
         }
+    }
+
+    public static Integer getIdFromSystemId(String attendantId) {
+        if (StringUtils.startsWith(attendantId, SYSTEM_NAME_PREFIX)) {
+            return Integer.parseInt(StringUtils.substring(attendantId, SYSTEM_NAME_PREFIX.length() + 1));
+        }
+        return null;
     }
 }

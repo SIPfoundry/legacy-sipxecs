@@ -40,6 +40,11 @@ public class AutoAttendantTest extends TestCase {
         assertTrue(afterhour.isPermanent());
     }
 
+    public void testGetIdFromSystemId() {
+        assertEquals(1, AutoAttendant.getIdFromSystemId("xcf-1").intValue());
+        assertNull(AutoAttendant.getIdFromSystemId("operator"));
+    }
+
     public void testUpdatePrompt() {
         AutoAttendant aa = new AutoAttendant();
         String promptPath = TestUtil.getTestSourceDirectory(this.getClass());
@@ -48,7 +53,7 @@ public class AutoAttendantTest extends TestCase {
         aa.setPrompt("prompt.txt");
         try {
             aa.updatePrompt(new File(newPromptPath));
-            File f = new File(promptPath+"/prompt.txt");
+            File f = new File(promptPath + "/prompt.txt");
             assertTrue(f.exists());
             if (f.exists()) {
                 f.delete();

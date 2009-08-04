@@ -100,6 +100,12 @@ public class AutoAttendantsConfig extends XmlFile {
     private void generateAttendants(Element aasEl, AutoAttendant autoAttendant) {
         Element aaEl = aasEl.addElement("autoattendant");
         aaEl.addAttribute(ID, autoAttendant.getSystemName());
+
+        if (m_autoAttendantManager.getSpecialMode()
+                && autoAttendant.equals(m_autoAttendantManager.getSelectedSpecialAttendant())) {
+            aaEl.addAttribute("special", "true");
+        }
+
         aaEl.addElement("name").setText(autoAttendant.getName());
         aaEl.addElement("prompt").setText(autoAttendant.getPromptFile().getPath());
 

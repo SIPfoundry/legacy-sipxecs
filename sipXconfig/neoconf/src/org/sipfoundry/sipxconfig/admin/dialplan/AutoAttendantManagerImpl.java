@@ -19,13 +19,10 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.SpecialAutoAttendantMode;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
-import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxIvrService;
 import org.sipfoundry.sipxconfig.service.SipxService;
@@ -36,11 +33,10 @@ import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.dao.support.DataAccessUtils;
 
-public abstract class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements AutoAttendantManager,
+public class AutoAttendantManagerImpl extends SipxHibernateDaoSupport implements AutoAttendantManager,
         BeanFactoryAware {
-
-    private static final String OPERATOR_CONSTANT = "operator";
 
     private static final String AUTO_ATTENDANT = "auto attendant";
 
@@ -56,10 +52,6 @@ public abstract class AutoAttendantManagerImpl extends SipxHibernateDaoSupport i
 
     private BeanFactory m_beanFactory;
 
-    private SipxReplicationContext m_sipxReplicationContext;
-
-    public abstract SpecialAutoAttendantMode createSpecialAutoAttendantMode();
-
     public boolean isAliasInUse(String alias) {
         return !getAutoAttendantsWithName(alias).isEmpty();
     }
@@ -70,6 +62,7 @@ public abstract class AutoAttendantManagerImpl extends SipxHibernateDaoSupport i
         if (!m_aliasManager.canObjectUseAlias(aa, name)) {
             throw new NameInUseException(AUTO_ATTENDANT, name);
         }
+
         clearUnsavedValueStorage(aa.getValueStorage());
         getHibernateTemplate().saveOrUpdate(aa);
         getHibernateTemplate().flush();
@@ -85,11 +78,11 @@ public abstract class AutoAttendantManagerImpl extends SipxHibernateDaoSupport i
         return getAttendant(AutoAttendant.AFTERHOUR_ID);
     }
 
-    protected AutoAttendant getAttendant(String attendantId) {
-        String operatorQuery = "from AutoAttendant a where a.systemId = :operator";
-        List operatorList = getHibernateTemplate().findByNamedParam(operatorQuery, OPERATOR_CONSTANT, attendantId);
+    private AutoAttendant getAttendant(String systemId) {
+        String query = "from AutoAttendant a where a.systemId = :systemId";
+        List operatorList = getHibernateTemplate().findByNamedParam(query, "systemId", systemId);
 
-        return (AutoAttendant) DaoUtils.requireOneOrZero(operatorList, operatorQuery);
+        return (AutoAttendant) DaoUtils.requireOneOrZero(operatorList, query);
     }
 
     public List<AutoAttendant> getAutoAttendants() {
@@ -99,6 +92,14 @@ public abstract class AutoAttendantManagerImpl extends SipxHibernateDaoSupport i
 
     public AutoAttendant getAutoAttendant(Integer id) {
         return (AutoAttendant) getHibernateTemplate().load(AutoAttendant.class, id);
+    }
+
+    public AutoAttendant getAutoAttendantBySystemName(String systemId) {
+        Integer id = AutoAttendant.getIdFromSystemId(systemId);
+        if (id != null) {
+            return getAutoAttendant(id);
+        }
+        return getAttendant(systemId);
     }
 
     public void deleteAutoAttendantsByIds(Collection<Integer> attendantIds) {
@@ -130,17 +131,15 @@ public abstract class AutoAttendantManagerImpl extends SipxHibernateDaoSupport i
             throw new AttendantInUseException(affectedRules);
         }
 
-        getHibernateTemplate().delete(attendant);
-    }
-
-    public void specialAutoAttendantMode(boolean enabled, AutoAttendant attendant) {
-        if (enabled && attendant == null) {
-            throw new UserException("Select special auto attendant to be used.");
+        // deselect special mode if removign attendant
+        AttendantSpecialMode specialMode = loadAttendantSpecialMode();
+        if (attendant.equals(specialMode.getAttendant())) {
+            specialMode.setAttendant(null);
+            specialMode.setEnabled(false);
+            getHibernateTemplate().saveOrUpdate(specialMode);
         }
-        AutoAttendant aa = attendant != null ? attendant : getAttendant(AutoAttendant.AFTERHOUR_ID);
-        SpecialAutoAttendantMode mode = createSpecialAutoAttendantMode();
-        mode.generate(enabled, aa);
-        m_sipxReplicationContext.replicate(mode);
+
+        getHibernateTemplate().delete(attendant);
     }
 
     public Group getDefaultAutoAttendantGroup() {
@@ -217,14 +216,59 @@ public abstract class AutoAttendantManagerImpl extends SipxHibernateDaoSupport i
             if (getAfterhour() != null) {
                 getAfterhour().updatePrompt(sourceDir);
             }
-        } catch (IOException  e) {
+        } catch (IOException e) {
             LOG.warn("Failed to copy default AA prompts to AA prompts directory");
         }
     }
 
-    @Required
-    public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
-        m_sipxReplicationContext = sipxReplicationContext;
+    public void selectSpecial(AutoAttendant aa) {
+        AttendantSpecialMode specialMode = loadAttendantSpecialMode();
+        if (specialMode == null) {
+            specialMode = new AttendantSpecialMode();
+        }
+        specialMode.setAttendant(aa);
+        getHibernateTemplate().saveOrUpdate(specialMode);
+        if (specialMode.isEnabled()) {
+            replicateConfig();
+        }
+    }
+
+    public void deselectSpecial(AutoAttendant aa) {
+        AttendantSpecialMode specialMode = loadAttendantSpecialMode();
+        if (specialMode.isEnabled()) {
+            LOG.warn("Cannot de select new special attendnat when special attendant active");
+            return;
+        }
+
+        specialMode.setAttendant(null);
+        getHibernateTemplate().saveOrUpdate(specialMode);
+        replicateConfig();
+    }
+
+    public AutoAttendant getSelectedSpecialAttendant() {
+        AttendantSpecialMode specialMode = loadAttendantSpecialMode();
+        return specialMode.getAttendant();
+    }
+
+    public boolean getSpecialMode() {
+        AttendantSpecialMode specialMode = loadAttendantSpecialMode();
+        return specialMode.isEnabled();
+    }
+
+    public void setSpecialMode(boolean enabled) {
+        AttendantSpecialMode specialMode = loadAttendantSpecialMode();
+        if (enabled && specialMode.getAttendant() == null) {
+            specialMode.setAttendant(getAfterhour());
+        }
+        specialMode.setEnabled(enabled);
+        getHibernateTemplate().saveOrUpdate(specialMode);
+        replicateConfig();
+    }
+
+    private AttendantSpecialMode loadAttendantSpecialMode() {
+        List asm = getHibernateTemplate().loadAll(AttendantSpecialMode.class);
+        AttendantSpecialMode specialMode = (AttendantSpecialMode) DataAccessUtils.singleResult(asm);
+        return specialMode;
     }
 
     @Required

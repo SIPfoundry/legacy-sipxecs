@@ -1,5 +1,10 @@
 <div jwcid="@common/Border">
-  <h2 id="manage:attendant"><span key="title">Auto Attendants</span></h2>
+  <span jwcid="@common/TabNavigation"
+	tabNames="ognl:{'manage', 'special'}"
+	selectedTab="ognl:tab"/>
+  <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')"/>
+</div>
+<div jwcid="manageTab@Block">
   <div jwcid="@common/QuickHelp" value="message:help.attendantConfig">attendant config help text here...</div>
   <span jwcid="@common/ErrorMsg"/>
   <ul class="component-links">
@@ -36,7 +41,10 @@
         <span jwcid="@common/Confirm" component="component:deleteButton" prompt="message:confirm.delete"/>          
       </li>
     </ul>
-    <h3><span key="section.specialAutoAttendant">Auto Attendant Mode</span></h3>
+  </form>
+</div>
+<div jwcid="specialTab@Block">
+  <form jwcid="@Form" delegate="bean:validator">
     <span jwcid="specialAttendant@dialplan/SpecialAttendantPanel"></span>
   </form>
 </div>

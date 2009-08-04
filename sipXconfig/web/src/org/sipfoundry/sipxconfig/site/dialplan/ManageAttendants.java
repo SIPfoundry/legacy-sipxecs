@@ -13,8 +13,10 @@ import java.util.Collection;
 
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
+import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendantManager;
@@ -41,6 +43,10 @@ public abstract class ManageAttendants extends BasePage {
 
     @InjectObject("spring:autoAttendantManager")
     public abstract AutoAttendantManager getAutoAttendantManager();
+
+    @Persist
+    @InitialValue(value = "literal:manage")
+    public abstract String getTab();
 
     public abstract AutoAttendant getCurrentRow();
 

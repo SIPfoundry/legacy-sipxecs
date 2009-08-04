@@ -18,20 +18,32 @@ import org.apache.tapestry.form.IPropertySelectionModel;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendantManager;
 import org.sipfoundry.sipxconfig.components.LocalizedOptionModelDecorator;
+import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
+import org.sipfoundry.sipxconfig.components.TapestryContext;
 
 public abstract class SpecialAttendantPanel extends BaseComponent {
     @InjectObject("spring:autoAttendantManager")
     public abstract AutoAttendantManager getAutoAttendantManager();
 
+    @InjectObject("spring:tapestry")
+    public abstract TapestryContext getTapestry();
+
     public abstract AutoAttendant getAutoAttendant();
+
+    public abstract void setAutoAttendant(AutoAttendant aa);
 
     public abstract Mode getMode();
 
     public abstract void setMode(Mode mode);
 
+    public abstract IPropertySelectionModel getAutoAttendants();
+
+    public abstract void setAutoAttendants(IPropertySelectionModel model);
+
     public void onApply() {
         boolean enable = Mode.SPECIAL.equals(getMode());
-        getAutoAttendantManager().specialAutoAttendantMode(enable, getAutoAttendant());
+        getAutoAttendantManager().selectSpecial(getAutoAttendant());
+        getAutoAttendantManager().setSpecialMode(enable);
     }
 
     public IPropertySelectionModel getModeModel() {
@@ -44,11 +56,23 @@ public abstract class SpecialAttendantPanel extends BaseComponent {
 
     @Override
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
-        // use standard mode by default
-        if (getMode() == null) {
-            setMode(Mode.NORMAL);
+        if (getAutoAttendants() == null) {
+            setAutoAttendants(createAutoAttendantsModel());
+            if (getAutoAttendantManager().getSpecialMode()) {
+                setMode(Mode.SPECIAL);
+            } else {
+                setMode(Mode.NORMAL);
+            }
+            setAutoAttendant(getAutoAttendantManager().getSelectedSpecialAttendant());
         }
         super.renderComponent(writer, cycle);
+    }
+
+    private IPropertySelectionModel createAutoAttendantsModel() {
+        ObjectSelectionModel model = new ObjectSelectionModel();
+        model.setCollection(getAutoAttendantManager().getAutoAttendants());
+        model.setLabelExpression("name");
+        return getTapestry().instructUserToSelect(model, getMessages());
     }
 
     public static final class Mode extends Enum {

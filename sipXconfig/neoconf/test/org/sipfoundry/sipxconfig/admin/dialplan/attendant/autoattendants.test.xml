@@ -35,7 +35,7 @@
       <transferOnFailures>false</transferOnFailures>
     </invalidResponse>
   </autoattendant>
-  <autoattendant id="xcf-1">
+  <autoattendant id="xcf-1" special="true">
     <name>abc</name>
     <prompt>prompts/prompt.wav</prompt>
     <menuItems>

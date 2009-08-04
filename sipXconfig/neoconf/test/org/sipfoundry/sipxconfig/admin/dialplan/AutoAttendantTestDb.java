@@ -155,4 +155,41 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
         AutoAttendant autoAttendant = m_context.getAutoAttendant(new Integer(2000));
         assertNotNull(autoAttendant.getSettings());
     }
+
+    public void testSelectSpecial() throws Exception {
+        TestHelper.cleanInsertFlat("admin/dialplan/seedOperator.xml");
+        AutoAttendant operator = m_context.getOperator();
+        m_context.selectSpecial(operator);
+
+        ITable actualItems = TestHelper.getConnection().createDataSet().getTable("attendant_special_mode");
+        assertEquals(1, actualItems.getRowCount());
+        assertEquals(1000, actualItems.getValue(0, "auto_attendant_id"));
+    }
+
+    public void testDeselectSpecial() throws Exception {
+        TestHelper.cleanInsertFlat("admin/dialplan/seedOperator.xml");
+        AutoAttendant operator = m_context.getOperator();
+        m_context.deselectSpecial(operator);
+        ITable actualItems = TestHelper.getConnection().createDataSet().getTable("attendant_special_mode");
+        assertEquals(1, actualItems.getRowCount());
+        assertEquals(null, actualItems.getValue(0, "auto_attendant_id"));
+    }
+
+    public void testGetSetSpecialMode() throws Exception {
+        m_context.setSpecialMode(false);
+        ITable actualItems = TestHelper.getConnection().createDataSet().getTable("attendant_special_mode");
+        assertEquals(1, actualItems.getRowCount());
+        assertEquals(false, actualItems.getValue(0, "enabled"));
+        m_context.setSpecialMode(true);
+        actualItems = TestHelper.getConnection().createDataSet().getTable("attendant_special_mode");
+        assertEquals(1, actualItems.getRowCount());
+        assertEquals(true, actualItems.getValue(0, "enabled"));
+    }
+
+    public void testGetSelectedSpecialAttendant() throws Exception {
+        TestHelper.cleanInsertFlat("admin/dialplan/seedSpecialSelectedAttendant.xml");
+        AutoAttendant operator = m_context.getOperator();
+        AutoAttendant specialAa = m_context.getSelectedSpecialAttendant();
+        assertEquals(operator, specialAa);
+    }
 }

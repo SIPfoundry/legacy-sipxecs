@@ -239,8 +239,6 @@
     <property name="serviceConfigurator" ref="serviceConfigurator" />
     <property name="settingDao" ref="settingDao" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
-    <property name="sipxReplicationContext" ref="sipxReplicationContext" />
-    <lookup-method name="createSpecialAutoAttendantMode" bean="specialAutoAttendantMode" />
   </bean>
 
   <bean id="autoAttendantManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
@@ -300,12 +298,6 @@
         <value>cleanup-dial-plans</value>
       </list>
     </property>
-  </bean>
-
-  <bean id="specialAutoAttendantMode" class="org.sipfoundry.sipxconfig.admin.dialplan.config.SpecialAutoAttendantMode"
-    scope="prototype" parent="defaultConfigurationFile">
-    <property name="directory" value="${sysdir.vxml}" />
-    <property name="name" value="organizationprefs.xml" />
   </bean>
 
   <bean id="autoAttendantsConfig" class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.AutoAttendantsConfig"

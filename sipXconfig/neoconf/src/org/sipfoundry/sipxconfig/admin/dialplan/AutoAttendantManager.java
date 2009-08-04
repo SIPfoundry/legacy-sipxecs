@@ -27,11 +27,11 @@ public interface AutoAttendantManager extends AliasOwner {
 
     AutoAttendant getAutoAttendant(Integer id);
 
+    AutoAttendant getAutoAttendantBySystemName(String systemName);
+
     List<AutoAttendant> getAutoAttendants();
 
     void deleteAutoAttendantsByIds(Collection<Integer> attendantsIds);
-
-    void specialAutoAttendantMode(boolean enabled, AutoAttendant attendant);
 
     Group getDefaultAutoAttendantGroup();
 
@@ -42,10 +42,21 @@ public interface AutoAttendantManager extends AliasOwner {
     AutoAttendant createOperator(String attendantId);
 
     /**
-     * Get new default prompts autoattendant.wav
-     * (operator Autoattendant) and afterhours.wav (afterhour Autoattendant)
-     * from given directory. Used when a different localization language is set
+     * Get new default prompts autoattendant.wav (operator Autoattendant) and afterhours.wav
+     * (afterhour Autoattendant) from given directory. Used when a different localization language
+     * is set
+     *
      * @param sourceDir - path directory where new prompts are saved
      */
     void updatePrompts(File sourceDir);
+
+    void selectSpecial(AutoAttendant attendant);
+
+    void deselectSpecial(AutoAttendant attendant);
+
+    void setSpecialMode(boolean enabled);
+
+    boolean getSpecialMode();
+
+    AutoAttendant getSelectedSpecialAttendant();
 }

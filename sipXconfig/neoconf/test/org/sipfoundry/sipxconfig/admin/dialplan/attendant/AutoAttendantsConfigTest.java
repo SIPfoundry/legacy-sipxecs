@@ -28,12 +28,11 @@ import org.sipfoundry.sipxconfig.common.DialPad;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 
-import static org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile.getFileContent;
-
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
+import static org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile.getFileContent;
 
 public class AutoAttendantsConfigTest extends XMLTestCase {
 
@@ -77,6 +76,7 @@ public class AutoAttendantsConfigTest extends XMLTestCase {
 
     public void testGenerateAutoAttendants() throws Exception {
         AutoAttendant operator = new AutoAttendant();
+        operator.setUniqueId();
         operator.setPromptsDirectory("prompts/");
         operator.setModelFilesContext(TestHelper.getModelFilesContext());
         operator.setSystemId(AutoAttendant.OPERATOR_ID);
@@ -103,6 +103,10 @@ public class AutoAttendantsConfigTest extends XMLTestCase {
         AutoAttendantManager aam = createMock(AutoAttendantManager.class);
         aam.getAutoAttendants();
         expectLastCall().andReturn(Arrays.asList(operator, aa));
+        aam.getSpecialMode();
+        expectLastCall().andReturn(true).anyTimes();
+        aam.getSelectedSpecialAttendant();
+        expectLastCall().andReturn(aa).anyTimes();
 
         DialPlanContext dialPlanContext = createMock(DialPlanContext.class);
         dialPlanContext.getAttendantRules();
@@ -151,6 +155,8 @@ public class AutoAttendantsConfigTest extends XMLTestCase {
         AutoAttendantManager aam = createMock(AutoAttendantManager.class);
         aam.getAutoAttendants();
         expectLastCall().andReturn(Arrays.asList(operator));
+        aam.getSpecialMode();
+        expectLastCall().andReturn(false).anyTimes();
 
         DialPlanContext dialPlanContext = createMock(DialPlanContext.class);
         dialPlanContext.getAttendantRules();
