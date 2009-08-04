@@ -293,7 +293,7 @@ class DialogContext {
      * to strictly serialize INVTES sent to the ITSP.
      *
      */
-    public class ReInviteSender implements Runnable {
+    class ReInviteSender implements Runnable {
         DialogContext dialogContext;
         ClientTransaction ctx;
 
@@ -311,7 +311,7 @@ class DialogContext {
         public ReInviteSender(DialogContext dialogContext, ClientTransaction ctx) {
             this.dialogContext = dialogContext;
             this.ctx = ctx;
-            dialogContext.waitingToSendReInvite.set(true);
+            this.dialogContext.waitingToSendReInvite.set(true);
             TransactionContext.get(ctx).setItspAccountInfo(DialogContext.this.itspInfo);
         }
 
@@ -320,19 +320,19 @@ class DialogContext {
                 int i = 0;
                 long timeToWait = 0;
 
-                if  (dialogContext.dialog.getState() != DialogState.TERMINATED
-                        && dialogContext.isWaitingForAck(ctx)) {
+                if  (this.dialogContext.dialog.getState() != DialogState.TERMINATED
+                        && this.dialogContext.reInviteTransaction != null) {
                      /*
                       * prevent interleaving by waiting for 8 seconds until the previous ACK gets
                       * sent. Certain ITSPs do not deal well with interleaved INVITE transactions
                       * (return bad error code).
                       */
                      long startTime = System.currentTimeMillis();
-                     if ( ! ackSem.tryAcquire(8,TimeUnit.SECONDS) ) {
+                     if ( ! this.dialogContext.ackSem.tryAcquire(8,TimeUnit.SECONDS) ) {
                          /*
                           * Could not send re-INVITE we should kill the call.
                           */
-                         logger.error("Could not send re-INVITE -- killing call");
+                         logger.error("Could not send re-INVITE -- killing call Dialog = " + this.dialogContext.dialog);
                          ctx.terminate();
                          backToBackUserAgent.tearDown("sipxbridge",
                                  ReasonCode.TIMED_OUT_WAITING_TO_SEND_REINVITE,
@@ -362,9 +362,9 @@ class DialogContext {
                 logger.debug("Sending re-INVITE : Transaction operation = "
                         + TransactionContext.get(ctx).getOperation());
 
-                if (dialogContext.dialog.getState() != DialogState.TERMINATED) {
-                    dialogContext.reInviteTransaction = ctx;
-                    dialogContext.dialog.sendRequest(ctx);
+                if (this.dialogContext.dialog.getState() != DialogState.TERMINATED) {
+                    this.dialogContext.reInviteTransaction = ctx;
+                    this.dialogContext.dialog.sendRequest(ctx);
                 }
                 logger.debug("re-INVITE successfully sent");
             } catch (Exception ex) {
@@ -463,30 +463,6 @@ class DialogContext {
         this.dialog = dialog;
     }
 
-    /**
-     * Avoid interleaving of INVITE transactions for a given Dialog (some ITSPs return unreliable
-     * error codes when transactions are interleaved).
-     * This hack returns true if the last transaction for this dialog has not been ACKed.
-     * This support should be moved into the JAIN-SIP stack.
-     */
-    private boolean isWaitingForAck(ClientTransaction ctx) {
-        long seqno = SipUtilities.getSeqNumber(ctx.getRequest());
-        if (this.reInviteTransaction == null) {
-            return false;
-        } else if ( this.getLastResponse() != null &&
-                SipUtilities.getSeqNumber(this.getLastResponse()) == seqno + 1 &&
-                this.getLastResponse().getStatusCode()/100 > 2) {
-            /*
-             * Error response received (stack will ACK this).
-             */
-            return false;
-        } else if (this.lastAck == null || seqno != SipUtilities.getSeqNumber(this.lastAck) + 1) {
-            return true;
-        } else {
-            return false;
-        }
-
-    }
 
     /**
      * Create a dialog to dialog association.
@@ -803,7 +779,7 @@ class DialogContext {
                 /*
                  * Send the Re-INVITE and try to avoid the Glare Race condition.
                  */
-                new Thread(new ReInviteSender(DialogContext.get(peerDialog), ctx)).start();
+                DialogContext.get(peerDialog).sendReInvite(ctx);
 
             }
             return true;
@@ -855,7 +831,13 @@ class DialogContext {
             logger.debug("lastResponse = " + ((SIPResponse) lastResponse).getFirstLine());
         }
 
+        if ( lastResponse != null && lastResponse != this.lastResponse &&
+        		lastResponse.getStatusCode() / 100 > 2 ) {
+        	this.ackSem.release();
+        }
         this.lastResponse = lastResponse;
+        
+        
 
     }
 
@@ -913,6 +895,7 @@ class DialogContext {
     void sendAck(Request ack) throws SipException {
         this.recordLastAckTime();
         this.lastAck = ack;
+        logger.debug("SendingAck ON " + dialog);
         dialog.sendAck(ack);
         ackSem.release();
 
