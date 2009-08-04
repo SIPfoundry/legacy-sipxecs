@@ -67,8 +67,7 @@
 #define END_IDENTITY "</identity>\n"
 
 #define BEGIN_TARGET "<target uri=\""
-#define END_TARGET_FULL "</target>\n"
-#define END_TARGET "\"/>\n"
+#define END_TARGET "</target>\n"
 
 #define BEGIN_DIALOG_PARAM "<param "
 #define PNAME "pname=\""
@@ -212,6 +211,18 @@ class Dialog : public UtlContainable
    bool setLocalParameter(const char* pname, const UtlString& pvalue);
 
    bool getLocalParameter(const char* pname, UtlString& pvalue);
+
+   void addRemoteParameter(NameValuePairInsensitive* nvp);
+
+   //! Return an iterator that will retrieve all remote parameters in the event.
+    // This iterator is only valid as long as the SipDialogEvent is not
+    // modified, and must be deleted by the caller before the SipDialogEvent
+    // is deleted.
+   UtlDListIterator* getRemoteParameterIterator();
+
+   bool setRemoteParameter(const char* pname, const UtlString& pvalue);
+
+   bool getRemoteParameter(const char* pname, UtlString& pvalue);
 ///@}
    
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -256,6 +267,7 @@ class Dialog : public UtlContainable
    UtlString mLocalTarget;
    UtlString mLocalSessionDescription;
    UtlDList  mLocalParameters;
+   UtlDList  mRemoteParameters;
 
    // Variables for remote element
    UtlString mRemoteIdentity;

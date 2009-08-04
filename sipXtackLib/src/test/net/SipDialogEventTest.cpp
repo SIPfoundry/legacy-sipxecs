@@ -89,7 +89,8 @@ public:
             "</local>\n"
             "<remote>\n"
             "<identity>sip:100@panther.pingtel.com</identity>\n"
-            "<target uri=\"sip:10.1.1.26:5100\"/>\n"
+            "<target uri=\"sip:10.1.1.26:5100\">\n"
+            "</target>\n"
             "</remote>\n"
             "</dialog>\n"
             "</dialog-info>\n"
@@ -139,6 +140,9 @@ public:
             "</local>\n"
             "<remote>\n"
             "<identity>4444@10.1.1.153</identity>\n"
+            "<target uri=\"sip:123@10.1.1.27:5060\">\n"
+            "<param pname=\"param3\" pval=\"param3 value\"/>\n"
+            "</target>\n"
             "</remote>\n"
             "</dialog>\n"
             "</dialog-info>\n"
@@ -171,6 +175,10 @@ public:
 
          pDialog->getLocalParameter("param3", pvalue);
          refPvalue = "";
+         ASSERT_STR_EQUAL(refPvalue.data(), pvalue.data());
+
+         pDialog->getRemoteParameter("param3", pvalue);
+         refPvalue = "param3 value";
          ASSERT_STR_EQUAL(refPvalue.data(), pvalue.data());
 
          // See that the reported event body length is right.

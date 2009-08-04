@@ -74,6 +74,11 @@ Dialog::Dialog(const Dialog& dialog)
    {
       mLocalParameters.append(new NameValuePairInsensitive(*pNameValuePair));
    }
+   UtlDListIterator iterator2(dialog.mRemoteParameters);
+   while ((pNameValuePair = dynamic_cast<NameValuePairInsensitive*>(iterator2())))
+   {
+      mRemoteParameters.append(new NameValuePairInsensitive(*pNameValuePair));
+   }
 }
 
 
@@ -81,6 +86,7 @@ Dialog::Dialog(const Dialog& dialog)
 Dialog::~Dialog()
 {
    mLocalParameters.destroyAll();
+   mRemoteParameters.destroyAll();
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -202,7 +208,7 @@ void Dialog::getBytes(UtlString& b, ssize_t& l)
       }
       delete iterator;
 
-      singleLine = END_TARGET_FULL;
+      singleLine = END_TARGET;
       b += singleLine;
    }
 
@@ -229,7 +235,24 @@ void Dialog::getBytes(UtlString& b, ssize_t& l)
 
    if (!mRemoteTarget.isNull() && mRemoteTarget.compareTo("sip:") != 0)
    {
-      singleLine = BEGIN_TARGET + mRemoteTarget + END_TARGET;
+      singleLine = BEGIN_TARGET + mRemoteTarget + DOUBLE_QUOTE + END_LINE;
+      b += singleLine;
+      // add optional parameters
+      UtlDListIterator* iterator = getRemoteParameterIterator();
+      NameValuePairInsensitive* nvp;
+      while ((nvp = (NameValuePairInsensitive*) (*iterator)()))
+      {
+         singleLine = BEGIN_DIALOG_PARAM;
+         singleLine += PNAME;
+         singleLine += nvp->data();
+         singleLine += PVALUE;
+         singleLine += nvp->getValue();
+         singleLine += END_DIALOG_PARAM;
+         b += singleLine;
+      }
+      delete iterator;
+
+      singleLine = END_TARGET;
       b += singleLine;
    }
 
@@ -468,6 +491,59 @@ bool Dialog::getLocalParameter(const char* pname, UtlString& pvalue)
    return(found);
 }
 
+void Dialog::addRemoteParameter(NameValuePairInsensitive* nvp)
+{
+   mRemoteParameters.append(nvp);
+}
+
+UtlDListIterator* Dialog::getRemoteParameterIterator()
+{
+   return new UtlDListIterator(mRemoteParameters);
+}
+
+bool Dialog::setRemoteParameter(const char* pname, const UtlString& pvalue)
+{
+   UtlBoolean found = FALSE;
+
+   UtlDListIterator paramIterator(mRemoteParameters);
+   NameValuePairInsensitive* param= NULL;
+
+   UtlString paramName;
+
+   while (!found && (param = dynamic_cast<NameValuePairInsensitive*>(paramIterator())))
+   {
+      paramName = param->data();
+      if (paramName.compareTo(pname, UtlString::ignoreCase) == 0)
+      {
+         found = TRUE;
+         param->setValue(pvalue);
+      }
+   }
+   return(found);
+}
+
+bool Dialog::getRemoteParameter(const char* pname, UtlString& pvalue)
+{
+   UtlBoolean found = FALSE;
+   pvalue = "";
+
+   UtlDListIterator paramIterator(mRemoteParameters);
+   NameValuePairInsensitive* param= NULL;
+
+   UtlString paramName;
+
+   while (!found && (param = dynamic_cast<NameValuePairInsensitive*>(paramIterator())))
+   {
+      paramName = param->data();
+      if (paramName.compareTo(pname, UtlString::ignoreCase) == 0)
+      {
+         found = TRUE;
+         pvalue = param->getValue();
+      }
+   }
+   return(found);
+}
+
 unsigned int Dialog::hash() const
 {
    return mIdentifier.hash();
@@ -674,11 +750,22 @@ void SipDialogEvent::parseBody(const char* bodyBytes)
                      }
                   }
                   
-                  ucElement = subNode->FirstChild("target")->ToElement();
+                  subNode1 = subNode->FirstChild("target");
+                  ucElement = subNode1->ToElement();
                   if (ucElement)
                   {
                      target = ucElement->Attribute("uri");
                      pDialog->setRemoteTarget(target);      
+
+                     // parse optional param elements
+                     for (TiXmlNode *paramNode = 0;
+                       (paramNode = subNode1->IterateChildren("param", paramNode)); )
+                     {
+                        TiXmlElement *paramElement = paramNode->ToElement();
+                        const char* pname = paramElement->Attribute("pname");
+                        const char* pvalue = paramElement->Attribute("pval");
+                        pDialog->addRemoteParameter(new NameValuePairInsensitive(pname, pvalue));
+                     }
                   }
                }
              
