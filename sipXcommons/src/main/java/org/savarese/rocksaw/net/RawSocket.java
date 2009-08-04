@@ -42,7 +42,7 @@ import org.sipfoundry.commons.util.LibraryLoader;
  *
  * <p><em>Important!  On most operating systems, you must have root
  * access or administrative privileges to use raw sockets.</em></p>
- * 
+ *
  * @author <a href="http://www.savarese.org/">Daniel F. Savarese</a>
  */
 
@@ -511,7 +511,7 @@ public class RawSocket {
     __stimeout.setInMilliseconds(timeout);
 
     if(!getUseSelectTimeout()) {
-      int result = 
+      int result =
         __setSendTimeout(__socket, timeout);
 
       if(result < 0)
@@ -691,7 +691,7 @@ public class RawSocket {
    * @return The number of bytes written.
    */
   public int write(InetAddress address, byte[] data, int offset, int length)
-    throws IllegalArgumentException, IOException, InterruptedIOException 
+    throws IllegalArgumentException, IOException, InterruptedIOException
   {
     if(offset < 0 || length < 0 || length > data.length - offset)
       throw new IllegalArgumentException("Invalid offset or length.");

@@ -1,4 +1,4 @@
-/* 
+/*
  * $Id: IPPacket.java 6037 2005-12-13 00:54:20Z dfs $
  *
  * Copyright 2004-2005 Daniel F. Savarese
@@ -163,7 +163,7 @@ public class IPPacket {
 
 
   /**
-   * Sets the IP header length field.  At most, this can be a 
+   * Sets the IP header length field.  At most, this can be a
    * four-bit value.  The high order bits beyond the fourth bit
    * will be ignored.
    *
@@ -230,7 +230,7 @@ public class IPPacket {
    */
   public final int getIPPacketLength() {
     return (((_data_[OFFSET_TOTAL_LENGTH] & 0xff) << 8) |
-            (_data_[OFFSET_TOTAL_LENGTH + 1] & 0xff)); 
+            (_data_[OFFSET_TOTAL_LENGTH + 1] & 0xff));
   }
 
 
@@ -252,7 +252,7 @@ public class IPPacket {
    */
   public final int getIdentification() {
     return (((_data_[OFFSET_IDENTIFICATION] & 0xff) << 8) |
-            (_data_[OFFSET_IDENTIFICATION + 1] & 0xff)); 
+            (_data_[OFFSET_IDENTIFICATION + 1] & 0xff));
   }
 
 
@@ -299,7 +299,7 @@ public class IPPacket {
    */
   public final int getFragmentOffset() {
     return (((_data_[OFFSET_FLAGS] & 0x1f) << 8) |
-            (_data_[OFFSET_FLAGS + 1] & 0xff)); 
+            (_data_[OFFSET_FLAGS + 1] & 0xff));
   }
 
 
@@ -382,7 +382,7 @@ public class IPPacket {
     }
 
     return total;
-  } 
+  }
 
 
   /**
@@ -415,7 +415,7 @@ public class IPPacket {
    */
   public final int getIPChecksum() {
     return (((_data_[OFFSET_IP_CHECKSUM] & 0xff) << 8) |
-            (_data_[OFFSET_IP_CHECKSUM + 1] & 0xff)); 
+            (_data_[OFFSET_IP_CHECKSUM + 1] & 0xff));
   }
 
 

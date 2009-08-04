@@ -192,7 +192,7 @@ public abstract class ICMPPacket extends IPPacket {
    */
   public final int getICMPChecksum() {
     return (((_data_[_offset + OFFSET_ICMP_CHECKSUM] & 0xff) << 8) |
-            (_data_[_offset + OFFSET_ICMP_CHECKSUM + 1] & 0xff)); 
+            (_data_[_offset + OFFSET_ICMP_CHECKSUM + 1] & 0xff));
   }
 
 
@@ -221,4 +221,3 @@ public abstract class ICMPPacket extends IPPacket {
   }
 
 }
-

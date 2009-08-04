@@ -274,7 +274,7 @@ public class TCPPacket extends IPPacket {
    */
   public final int getSourcePort() {
     return (((_data_[__offset + OFFSET_SOURCE_PORT] & 0xff) << 8) |
-            (_data_[__offset + OFFSET_SOURCE_PORT + 1] & 0xff)); 
+            (_data_[__offset + OFFSET_SOURCE_PORT + 1] & 0xff));
   }
 
 
@@ -283,7 +283,7 @@ public class TCPPacket extends IPPacket {
    */
   public final int getDestinationPort() {
     return (((_data_[__offset + OFFSET_DESTINATION_PORT] & 0xff) << 8) |
-            (_data_[__offset + OFFSET_DESTINATION_PORT + 1] & 0xff)); 
+            (_data_[__offset + OFFSET_DESTINATION_PORT + 1] & 0xff));
   }
 
 
@@ -380,7 +380,7 @@ public class TCPPacket extends IPPacket {
    */
   public final int getWindowSize() {
     return (((_data_[__offset + OFFSET_WINDOW_SIZE] & 0xff) << 8) |
-            (_data_[__offset + OFFSET_WINDOW_SIZE + 1] & 0xff)); 
+            (_data_[__offset + OFFSET_WINDOW_SIZE + 1] & 0xff));
   }
 
 
@@ -400,7 +400,7 @@ public class TCPPacket extends IPPacket {
    */
   public final int getUrgentPointer() {
     return (((_data_[__offset + OFFSET_URG_POINTER] & 0xff) << 8) |
-            (_data_[__offset + OFFSET_URG_POINTER + 1] & 0xff)); 
+            (_data_[__offset + OFFSET_URG_POINTER + 1] & 0xff));
   }
 
 
@@ -409,7 +409,7 @@ public class TCPPacket extends IPPacket {
    */
   public final int getTCPChecksum() {
     return (((_data_[__offset + OFFSET_TCP_CHECKSUM] & 0xff) << 8) |
-            (_data_[__offset + OFFSET_TCP_CHECKSUM + 1] & 0xff)); 
+            (_data_[__offset + OFFSET_TCP_CHECKSUM + 1] & 0xff));
   }
 
 

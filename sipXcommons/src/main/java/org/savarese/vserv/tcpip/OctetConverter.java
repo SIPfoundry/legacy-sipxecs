@@ -1,4 +1,4 @@
-/* 
+/*
  * $Id: OctetConverter.java 5067 2005-03-24 06:10:10Z dfs $
  *
  * Copyright 2004-2005 Daniel F. Savarese

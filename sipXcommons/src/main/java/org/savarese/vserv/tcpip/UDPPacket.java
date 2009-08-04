@@ -123,7 +123,7 @@ public class UDPPacket extends IPPacket {
    */
   public final int getSourcePort() {
     return (((_data_[__offset + OFFSET_SOURCE_PORT] & 0xff) << 8) |
-            (_data_[__offset + OFFSET_SOURCE_PORT + 1] & 0xff)); 
+            (_data_[__offset + OFFSET_SOURCE_PORT + 1] & 0xff));
   }
 
 
@@ -132,7 +132,7 @@ public class UDPPacket extends IPPacket {
    */
   public final int getDestinationPort() {
     return (((_data_[__offset + OFFSET_DESTINATION_PORT] & 0xff) << 8) |
-            (_data_[__offset + OFFSET_DESTINATION_PORT + 1] & 0xff)); 
+            (_data_[__offset + OFFSET_DESTINATION_PORT + 1] & 0xff));
   }
 
 
@@ -158,7 +158,7 @@ public class UDPPacket extends IPPacket {
    */
   public final int getUDPPacketLength() {
     return  (((_data_[__offset + OFFSET_UDP_TOTAL_LENGTH] & 0xff) << 8) |
-            (_data_[__offset + OFFSET_UDP_TOTAL_LENGTH + 1] & 0xff)); 
+            (_data_[__offset + OFFSET_UDP_TOTAL_LENGTH + 1] & 0xff));
   }
 
 
@@ -167,7 +167,7 @@ public class UDPPacket extends IPPacket {
    */
   public final int getUDPChecksum() {
     return (((_data_[__offset + OFFSET_UDP_CHECKSUM] & 0xff) << 8) |
-            (_data_[__offset + OFFSET_UDP_CHECKSUM + 1] & 0xff)); 
+            (_data_[__offset + OFFSET_UDP_CHECKSUM + 1] & 0xff));
   }
 
 
