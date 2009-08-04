@@ -56,7 +56,7 @@ public:
    virtual void evRestartProcess( SipxProcess& impl ) const;
    virtual void evStartProcess( SipxProcess& impl ) const;
    virtual void evStopProcess( SipxProcess& impl ) const;
-   virtual void evRetryTimeout( SipxProcess& impl ) const;
+   virtual void evTimeout( SipxProcess& impl ) const;
    virtual void evProcessStarted( SipxProcess& impl ) const;
    virtual void evProcessStopped( SipxProcess& impl ) const;
    virtual void evStopCompleted( SipxProcess& impl ) const;
@@ -103,6 +103,8 @@ public:
    virtual void evConfigurationChanged( SipxProcess& impl ) const;
    virtual void evConfigurationVersionUpdated( SipxProcess& impl ) const;
    virtual void evRestartProcess( SipxProcess& impl ) const;
+   virtual void evTimeout( SipxProcess& impl ) const;
+   virtual void DoExitAction( SipxProcess& impl ) const;
 };
 
 class ResourceRequired : public SipxProcessFsm
@@ -115,6 +117,8 @@ public:
    virtual void DoEntryAction( SipxProcess& impl ) const;
    virtual void evConfigurationChanged( SipxProcess& impl ) const;
    virtual void evRestartProcess( SipxProcess& impl ) const;
+   virtual void evTimeout( SipxProcess& impl ) const;
+   virtual void DoExitAction( SipxProcess& impl ) const;
 };
 
 
@@ -193,7 +197,7 @@ public:
    virtual void DoEntryAction( SipxProcess& impl ) const;
    virtual void DoExitAction( SipxProcess& impl ) const;
    virtual void evRestartProcess( SipxProcess& impl ) const;
-   virtual void evRetryTimeout( SipxProcess& impl ) const;
+   virtual void evTimeout( SipxProcess& impl ) const;
    virtual void evStartProcess( SipxProcess& impl ) const;
 };
 

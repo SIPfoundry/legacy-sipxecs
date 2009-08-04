@@ -275,7 +275,7 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
                         UtlString message);
 
    /// Notify the SipxProcess that a timeout has occurred.
-   void evRetryTimeout();
+   void evTimeout();
    
    /// Callback for timer task.
    static void timeoutCallback(void* userData, const intptr_t eventData);
@@ -287,7 +287,9 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
    virtual void stopProcess();
    void processFailed();
    void startRetryTimer();
-   void cancelRetryTimer();
+   void startDelayReportingTimer();
+   void startTimer(int timerVal);
+   void cancelTimer();
    
    bool hadProcessFailed() {return (mRetries > 0);}
    bool hadProcessBlocked() {return mbProcessBlocked;}
@@ -299,7 +301,7 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
 
      // Handle events in FSM task
      void startStateMachineInTask();
-     void evRetryTimeoutInTask();
+     void evTimeoutInTask();
      void evCommandStartedInTask(const SipxProcessCmd* command);
      void evCommandStoppedInTask(const SipxProcessCmd* command, int rc);
      void evCommandOutputInTask(const SipxProcessCmd* command,
@@ -495,8 +497,8 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
    ssize_t          mRetries;          ///< number of times we have attempted to start process
    unsigned long    mLastFailure;      ///< time of last failure
    ssize_t          mNumRetryIntervals; ///< number of intervals to attempt retries at
-   bool             mbAllowOneProcessBlock;  ///< true if next process "block" should be ignored
    bool             mbProcessBlocked;  ///< true if process is blocked on Resource or Configtest
+   UtlSList         mLastAlarmParams;  ///< saved params to be used if/when alarm is raised
    UtlSList         mStatusMessages;   ///< list of messages relevant to current state
    int              mNumStdoutMsgs;    ///< number of messages received since last restart
    int              mNumStderrMsgs;    ///< number of messages received since last restart
@@ -538,7 +540,7 @@ public:
       DISABLE     = 2,
       RESTART     = 3,
       SHUTDOWN    = 4,
-      RETRY_TIMEOUT = 5,
+      TIMEOUT     = 5,
       CONFIG_VERSION_CHANGED = 6,
       CONFIG_CHANGED = 7,
       

@@ -41,6 +41,7 @@ const int retry_interval[] = {
       10*OsTime::MSECS_PER_SEC,
       1*60*OsTime::MSECS_PER_SEC,
       5*60*OsTime::MSECS_PER_SEC };
+const int DELAY_REPORTING_TIMEOUT = 60*OsTime::MSECS_PER_SEC;
 
 const UtlContainableType SipxProcess::TYPE = "SipxProcess";
 
@@ -118,7 +119,6 @@ SipxProcess::SipxProcess(const UtlString& name,
    mRetries(0),
    mLastFailure(OsDateTime::getSecsSinceEpoch()),
    mNumRetryIntervals(sizeof(retry_interval) / sizeof(retry_interval[0])),
-   mbAllowOneProcessBlock(true),
    mbProcessBlocked(false),
    mNumStdoutMsgs(0),
    mNumStderrMsgs(0)
@@ -835,7 +835,7 @@ void SipxProcess::restartInTask()
    {
       OsLock mutex(mLock);
       mRetries=0;
-      mbAllowOneProcessBlock=false;  // always raise alarm if process blocks after restart
+      mLastAlarmParams.destroyAll(); // clear so that new alarm is raised if necessary
    }
 
    mpCurrentState->evRestartProcess(*this);
@@ -953,16 +953,16 @@ void SipxProcess::evCommandOutput(const SipxProcessCmd* command,
    postMessage( message );
 }
 
-void SipxProcess::evRetryTimeout()
+void SipxProcess::evTimeout()
 {
-   SipxProcessMsg message(SipxProcessMsg::RETRY_TIMEOUT );
+   SipxProcessMsg message(SipxProcessMsg::TIMEOUT );
    postMessage( message );
 }
 
 void SipxProcess::timeoutCallback(void* userData, const intptr_t eventData)
 {
    SipxProcess* process = (SipxProcess*) userData;
-   process->evRetryTimeout();
+   process->evTimeout();
 }
 
 UtlBoolean SipxProcess::handleMessage( OsMsg& rMsg )
@@ -1002,8 +1002,8 @@ UtlBoolean SipxProcess::handleMessage( OsMsg& rMsg )
          shutdownInTask();
          handled = TRUE;
          break;
-      case SipxProcessMsg::RETRY_TIMEOUT:
-         evRetryTimeoutInTask();
+      case SipxProcessMsg::TIMEOUT:
+         evTimeoutInTask();
          handled = TRUE;
          break;
       case SipxProcessMsg::CONFIG_VERSION_CHANGED:
@@ -1048,13 +1048,13 @@ UtlBoolean SipxProcess::handleMessage( OsMsg& rMsg )
 }
 
 
-void SipxProcess::evRetryTimeoutInTask()
+void SipxProcess::evTimeoutInTask()
 {
-   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess[%s]::evRetryTimeoutInTask",
+   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess[%s]::evTimeoutInTask",
                  data());
    checkThreadId();
 
-   mpCurrentState->evRetryTimeout(*this);
+   mpCurrentState->evTimeout(*this);
 }
 
 void SipxProcess::evCommandStartedInTask(const SipxProcessCmd* command)
@@ -1210,13 +1210,26 @@ void SipxProcess::startRetryTimer()
       {
          timerVal = retry_interval[mNumRetryIntervals-1];
       }
-      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess[%s]::startRetryTimer(%d)",
+      startTimer(timerVal);
+   }
+}
+
+void SipxProcess::startDelayReportingTimer()
+{
+   startTimer(DELAY_REPORTING_TIMEOUT);
+}
+
+void SipxProcess::startTimer(int timerVal)
+{
+   if (mpTimer)
+   {
+      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess[%s]::startTimer(%d)",
                     data(), timerVal);
       mpTimer->oneshotAfter(timerVal);
    }
 }
 
-void SipxProcess::cancelRetryTimer()
+void SipxProcess::cancelTimer()
 {
    if (mpTimer)
    {
@@ -1535,19 +1548,15 @@ void SipxProcess::clearProcessBlocked()
 }
 
 /// Raise the specified alarm, providing all status messages as parameters.
-/// The process is allowed to "block" once per incarnation, to allow initial replication
-/// of config files.
 void SipxProcess::processBlocked(const char* alarmId)
 {
    OsLock mutex(mLock);
 
-   if (mbAllowOneProcessBlock)
+   UtlSList alarmParams;
+
+   // if alarm params are already formatted, use them - otherwise pick from status msgs
+   if (mLastAlarmParams.isEmpty())
    {
-      mbAllowOneProcessBlock = false;
-   }
-   else
-   {
-      UtlSList alarmParams;
       alarmParams.append(new UtlString(data()));
       UtlSList messages;
       getStatusMessages(messages);
@@ -1565,11 +1574,16 @@ void SipxProcess::processBlocked(const char* alarmId)
             alarmParams.append(new UtlString(resource));
          }
       }
-      Alarm::raiseAlarm(alarmId, alarmParams);
       messages.destroyAll();
-      alarmParams.destroyAll();
-      mbProcessBlocked = true;
    }
+   else
+   {
+      mLastAlarmParams.copyTo<UtlString>(alarmParams);
+      mLastAlarmParams.destroyAll();
+   }
+   Alarm::raiseAlarm(alarmId, alarmParams);
+   alarmParams.destroyAll();
+   mbProcessBlocked = true;
 }
 
 /// Notify the process resource that it has been modified so that it can
@@ -1627,23 +1641,10 @@ void SipxProcess::logVersionMismatch(UtlString& swversion, UtlString& cfgversion
    OsSysLog::add(FAC_SUPERVISOR, PRI_WARNING, "SipxProcess[%s]::logVersionMismatch: %s",
                  data(), tmpMsg.data());
 
-   // We allow the process to block once per incarnation, to allow initial config
-   // replication.  Any subsequent block will be alarmed.
-   if (mbAllowOneProcessBlock)
-   {
-      mbAllowOneProcessBlock = false;
-   }
-   else
-   {
-      // mark process as blocked in ConfigMismatch, with helpful alarm text
-      UtlSList alarmParams;
-      UtlString processName(data());
-      alarmParams.append(&processName);
-      alarmParams.append(&cfgversion);
-      alarmParams.append(&swversion);
-      Alarm::raiseAlarm("PROCESS_CONFIG_MISMATCH", alarmParams);
-      mbProcessBlocked = true;
-   }
+   // save parameters in case alarm is raised later
+   mLastAlarmParams.append(new UtlString(data()));
+   mLastAlarmParams.append(new UtlString(cfgversion));
+   mLastAlarmParams.append(new UtlString(swversion));
 }
 
 /// Save and log a missing resource message

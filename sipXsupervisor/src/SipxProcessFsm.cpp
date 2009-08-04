@@ -68,9 +68,9 @@ void SipxProcessFsm::evRestartProcess( SipxProcess& impl ) const
    ChangeState( impl, impl.pConfigurationMismatch );
 }
 
-void SipxProcessFsm::evRetryTimeout( SipxProcess& impl ) const
+void SipxProcessFsm::evTimeout( SipxProcess& impl ) const
 {
-   OsSysLog::add(FAC_SUPERVISOR,PRI_WARNING,"'%s': Received unexpected event evRetryTimeout while in state '%s'",
+   OsSysLog::add(FAC_SUPERVISOR,PRI_WARNING,"'%s': Received unexpected event evTimeout while in state '%s'",
          impl.name(), impl.GetCurrentState()->name() );   
 }
 
@@ -183,6 +183,10 @@ void ConfigurationMismatch::DoEntryAction( SipxProcess& impl ) const
    {
       ChangeState( impl, impl.pResourceRequired );
    }
+   else
+   {
+      impl.startDelayReportingTimer();
+   }
 }
 
 void ConfigurationMismatch::evConfigurationChanged( SipxProcess& impl ) const
@@ -206,6 +210,16 @@ void ConfigurationMismatch::evRestartProcess( SipxProcess& impl ) const
    ChangeState( impl, impl.pConfigurationMismatch );
 }
 
+void ConfigurationMismatch::evTimeout( SipxProcess& impl ) const
+{
+   // if we're still in this state after the timeout, raise an alarm
+   impl.processBlocked("PROCESS_CONFIG_MISMATCH");
+}
+
+void ConfigurationMismatch::DoExitAction( SipxProcess& impl ) const
+{
+   impl.cancelTimer();
+}
 
 void ResourceRequired::DoEntryAction( SipxProcess& impl ) const
 {
@@ -218,7 +232,7 @@ void ResourceRequired::DoEntryAction( SipxProcess& impl ) const
    }
    else
    {
-      impl.processBlocked("PROCESS_RESOURCE_REQUIRED");
+      impl.startDelayReportingTimer();
    }
 }
 
@@ -230,6 +244,17 @@ void ResourceRequired::evConfigurationChanged( SipxProcess& impl ) const
 void ResourceRequired::evRestartProcess( SipxProcess& impl ) const
 {
    ChangeState( impl, impl.pConfigurationMismatch );
+}
+
+void ResourceRequired::evTimeout( SipxProcess& impl ) const
+{
+   // if we're still in this state after the timeout, raise an alarm
+   impl.processBlocked("PROCESS_RESOURCE_REQUIRED");
+}
+
+void ResourceRequired::DoExitAction( SipxProcess& impl ) const
+{
+   impl.cancelTimer();
 }
 
 
@@ -399,14 +424,14 @@ void Failed::evStartProcess( SipxProcess& impl ) const
    ChangeState( impl, impl.pConfigurationMismatch );
 }
 
-void Failed::evRetryTimeout( SipxProcess& impl ) const
+void Failed::evTimeout( SipxProcess& impl ) const
 {
    ChangeState( impl, impl.pConfigurationMismatch );
 }
 
 void Failed::DoExitAction( SipxProcess& impl ) const
 {
-   impl.cancelRetryTimer();
+   impl.cancelTimer();
 }
    
 
