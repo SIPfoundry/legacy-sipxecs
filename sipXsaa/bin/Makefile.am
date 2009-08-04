@@ -14,7 +14,8 @@ sipxsaa-config: $(top_srcdir)/config/sipX-config.in $(top_builddir)/BUILDSTAMP
 	chmod +x sipxsaa-config
 
 editscripts_IN = \
-    sipxsaa.sh
+    sipxsaa.sh \
+    sipx-snapshot-saa
 
 EXTRA_DIST = \
     $(foreach file,$(editscripts_IN),$(file).in) \

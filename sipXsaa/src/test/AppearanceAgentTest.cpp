@@ -339,9 +339,9 @@ public:
 
       // test MESSAGE debug handling
       const char* message =
-         "MESSAGE sip:~~saa~D~dumpstate@177.0.0.1:54140 SIP/2.0\r\n"
+         "MESSAGE sip:~~sa~D~dumpstate@177.0.0.1:54140 SIP/2.0\r\n"
          "From: <sip:200@rlstest.test>;tag=17211757-9E4FBD78\r\n"
-         "To: <sip:~~saa~D~dumpstate@177.0.0.1:54140>\r\n"
+         "To: <sip:~~sa~D~dumpstate@177.0.0.1:54140>\r\n"
          "CSeq: 1 MESSAGE\r\n"
          "Call-ID: 51405734-b9be4835-dcd9d196\r\n"
          "Contact: <sip:331@10.10.10.1>\r\n"
@@ -363,112 +363,8 @@ public:
       SipMessage response;
       CPPUNIT_ASSERT( getNextMessageFromAppearanceAgentUnderTest( response, 5 ) );
       CPPUNIT_ASSERT( response.isResponse() );
+      CPPUNIT_ASSERT( response.getResponseStatusCode() == SIP_OK_CODE );
    }
-
-#if 0
-   void SubscribeWithEventListSupportAcceptedTest()
-   {
-      instantiateAllTestFixtures( "resource-lists1.xml",
-                                  "subscription1",
-                                  "credential1",
-                                  "rlstest.test");
-
-      const char* message =
-         "SUBSCRIBE sip:~~rl~F~331@177.0.0.1:54140 SIP/2.0\r\n"
-         "From: <sip:200@rlstest.test>;tag=17211757-9E4FBD78\r\n"
-         "To: <sip:~~rl~F~331@rlstest.test>\r\n"
-         "CSeq: 1 SUBSCRIBE\r\n"
-         "Call-ID: 51405734-b9be4835-dcd9d196\r\n"
-         "Contact: <sip:331@10.10.10.1>\r\n"
-         "Allow: INVITE, ACK, BYE, CANCEL, OPTIONS, INFO, MESSAGE, SUBSCRIBE, NOTIFY, PRACK, UPDATE, REFER\r\n"
-         "Event: dialog\r\n"
-         "User-Agent: UnitTest\r\n"
-         "Accept-Language: en\r\n"
-         "Supported: eventlist\r\n"
-         "Accept: application/dialog-info+xml,application/rlmi+xml,multipart/related\r\n"
-         "Max-Forwards: 70\r\n"
-         "Expires: 3600\r\n"
-         "Content-Length: 0\r\n"
-         "\r\n";
-
-      // send the SUBSCRIBE
-      SipMessage request( message, strlen( message ) );
-      CPPUNIT_ASSERT( sendToAppearanceAgentUnderTest( request ) );
-
-      // receive the 401 Unauthorized
-      SipMessage response;
-      CPPUNIT_ASSERT( getNextMessageFromAppearanceAgentUnderTest( response, 5 ) );
-      CPPUNIT_ASSERT( response.isResponse() );
-      CPPUNIT_ASSERT( response.getResponseStatusCode() == HTTP_UNAUTHORIZED_CODE );
-
-      // craft a new SUBSCRIBE with proper credentials and send it
-      CPPUNIT_ASSERT( addCredentialsToRequest( request, response ) );
-      CPPUNIT_ASSERT( sendToAppearanceAgentUnderTest( request ) );
-
-      // receive the 202 Accepted response
-      CPPUNIT_ASSERT( getNextMessageFromAppearanceAgentUnderTest( response, 5 ) );
-      CPPUNIT_ASSERT( response.isResponse() );
-      CPPUNIT_ASSERT( response.getResponseStatusCode() == SIP_ACCEPTED_CODE );
-
-      // requisite first NOTIFY request
-      SipMessage notify_request;
-      CPPUNIT_ASSERT( getNextMessageFromAppearanceAgentUnderTest( notify_request, 15 ) );
-      CPPUNIT_ASSERT( ! notify_request.isResponse() );
-      UtlString tmp;
-      notify_request.getRequestMethod(&tmp);
-      CPPUNIT_ASSERT( 0 == tmp.compareTo( SIP_NOTIFY_METHOD ) );
-      CPPUNIT_ASSERT( notify_request.isInRequireField(SIP_EVENTLIST_EXTENSION) );
-
-      // no further NOTIFY request
-/* XECS-2005
-      CPPUNIT_ASSERT( ! getNextMessageFromAppearanceAgentUnderTest( notify_request, 5 ) );
-//*/
-   }
-
-    // ================================================
-    //  REG-INFO EVENT SPECIFIC TEST CASES START HERE:
-    // ================================================
-
-
-   void regInfoSubscribeWithGruuAddressTest()
-   {
-      UtlString regContactxml ("         <uri>sip:user@127.0.0.1:45141</uri>\r\n"
-                               "         <unknown-param name=\"path\">&lt;sip:127.0.0.1:45141&gt;</unknown-param>\r\n"
-                               "         <unknown-param name=\"+sip.instance\">\"&lt;urn:uuid:f81d4fae"
-                               "-7dec-11d0-a765-00a0c91e6bf6&gt;\"</unknown-param>\r\n"
-                               "         <gr:pub-gruu uri=\"sip:~~gr~hha9s8d-999@127.0.0.1:45141;gr\"/>\r\n");
-
-      CPPUNIT_ASSERT(ContactSetTest(regContactxml, "sip:~~gr~hha9s8d-999@127.0.0.1:45141;gr", ""));
-   }
-
-   void regInfoSubscribeWithBadlyFormattedGruuTest()
-   {
-      UtlString regContactxml ("         <uri>sip:user@127.0.0.1:45141</uri>\r\n"
-                               "         <unknown-param name=\"path\">&lt;sip:127.0.0.1:45141&gt;</unknown-param>\r\n"
-                               "         <unknown-param name=\"+sip.instance\">\"&lt;urn:uuid:f81d4fae"
-                               "-7dec-11d0-a765-00a0c91e6bf6&gt;\"</unknown-param>\r\n"
-                               "         <gr:pub-gruu uri=\"~~gr~hha9s8d-999@127.0.0.1:45141;gr\"/>\r\n");
-
-      CPPUNIT_ASSERT(ContactSetTest(regContactxml, "sip:~~gr~hha9s8d-999@127.0.0.1:45141;gr", ""));
-   }
-
-   void regInfoSubscribeWithPathHeaderTest()
-   {
-      UtlString regContactxml ("         <uri>sip:user@127.0.0.1:45141</uri>\r\n"
-                               "         <unknown-param name=\"path\">&lt;sip:127.0.0.1:45141&gt;</unknown-param>\r\n");
-
-      CPPUNIT_ASSERT(ContactSetTest(regContactxml, "sip:user@127.0.0.1:45141", "<sip:127.0.0.1:45141;lr>"));
-   }
-
-   void regInfoSubscribeWithJustUriTest()
-   {
-      UtlString regContactxml ("         <uri>sip:user@127.0.0.1:45141</uri>\r\n"
-                               "         <unknown-param name=\"+sip.instance\">\"&lt;urn:uuid:f81d4fae"
-                                                              "-7dec-11d0-a765-00a0c91e6bf6&gt;\"</unknown-param>\r\n");
-      CPPUNIT_ASSERT(ContactSetTest(regContactxml, "sip:user@127.0.0.1:45141", ""));
-   }
-
-#endif
 
 };
 

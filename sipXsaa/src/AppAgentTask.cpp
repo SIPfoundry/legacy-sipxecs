@@ -28,7 +28,7 @@
 // CONSTANTS
 
 // See sipXregistry/doc/service-tokens.txt for assignment of this URI user-part.
-static const char dumpStateUri[] = "~~saa~D~dumpstate";
+static const char dumpStateUri[] = "~~sa~D~dumpstate";
 
 // STATIC VARIABLE INITIALIZATIONS
 

@@ -108,3 +108,9 @@ The assigned facility codes are:
 
    The {mediaserver} and {voicemail} tokens could (should, really) be
    pre-expanded by the configuration server when it creates the file.
+
+*** sa ==> Shared Appearance Agent
+   There is currently one identity assignment for debugging:
+      ~~sa~D~dumpstate
+         When sipxsaa receives a MESSAGE with this user-part, it
+         writes its state into its log (at INFO level).

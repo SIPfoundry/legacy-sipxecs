@@ -65,6 +65,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644,root,root) %{_datadir}/sipxecs/schema/appearance-groups.xsd
 %attr(755,root,root) %{_bindir}/sipxsaa.sh
 %attr(755,root,root) %{_bindir}/sipxsaa
+%attr(755,root,root) %{_bindir}/sipx-snapshot-saa
 %attr(755,root,root) %{_bindir}/%name-config
 
 %files devel
