@@ -30,7 +30,7 @@
     </tbody>
   </table>
   <table jwcid="@common/Table" id="alarmEvent:list"
-      columns="alarm.code, !alarm.description, alarm.severity, =date"
+      columns="alarm.code, !description:alarm.description, alarm.severity, =date"
       source="ognl:alarmEvents"
       row="ognl:currentRow"
       usePager="ognl:true">
