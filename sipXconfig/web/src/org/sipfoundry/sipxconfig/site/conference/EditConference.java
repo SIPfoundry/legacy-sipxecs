@@ -108,6 +108,7 @@ public abstract class EditConference extends PageWithCallback implements PageBeg
                 conference = getConferenceBridgeContext().loadConference(getConferenceId());
             } else {
                 conference = getConferenceBridgeContext().newConference();
+                setTab(TAB_CONFIG);
                 if (getOwnerId() != null) {
                     conference.setOwner(getCoreContext().loadUser(getOwnerId()));
                 }
