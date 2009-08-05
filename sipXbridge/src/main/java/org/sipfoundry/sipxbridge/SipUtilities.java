@@ -1673,4 +1673,9 @@ class SipUtilities {
         return ((ToHeader) message.getHeader(ToHeader.NAME)).getTag();
     }
 
+    public static String getCSeqMethod(Message message) {
+        CSeqHeader cseqHeader = (CSeqHeader) message.getHeader(CSeqHeader.NAME);
+        return cseqHeader.getMethod();
+    }
+
 }
