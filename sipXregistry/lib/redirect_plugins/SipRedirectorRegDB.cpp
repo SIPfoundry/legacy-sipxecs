@@ -117,17 +117,21 @@ SipRedirectorRegDB::lookUp(
    // Check for a per-user call forward timer.
    // Don't set timer if we're not going to forward to voicemail.
    UtlString userCfwdTimer;
-   bool foundUserCfwdTimer;
-   UtlString noRoute;
-   requestUriCopy.getUrlParameter("sipx-noroute", noRoute);
+   bool foundUserCfwdTimer = false;
 
-   if ((!noRoute.isNull()) && (noRoute.compareTo("Voicemail") == 0))
+   if (method.compareTo(SIP_INVITE_METHOD) == 0)
    {
-       foundUserCfwdTimer = false;
-   }
-   else
-   {
-       foundUserCfwdTimer = UserForwardDB::getInstance()->getCfwdTime(requestUriCopy, userCfwdTimer);
+      UtlString noRoute;
+      requestUriCopy.getUrlParameter("sipx-noroute", noRoute);
+
+      if ((!noRoute.isNull()) && (noRoute.compareTo("Voicemail") == 0))
+      {
+          // This is not a call scenerio controlled by this users "forward to voicemail" timer
+      }
+      else
+      {
+          foundUserCfwdTimer = UserForwardDB::getInstance()->getCfwdTime(requestUriCopy, userCfwdTimer);
+      }
    }
 
    for (int i = 0; i < numUnexpiredContacts; i++)
