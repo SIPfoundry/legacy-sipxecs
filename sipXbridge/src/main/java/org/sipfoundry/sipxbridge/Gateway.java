@@ -13,11 +13,6 @@ import gov.nist.javax.sip.clientauthutils.AuthenticationHelper;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.security.KeyStore;
-import java.security.SecureRandom;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.PriorityQueue;
@@ -30,11 +25,7 @@ import java.util.logging.Level;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManagerFactory;
 import javax.sip.Dialog;
 import javax.sip.ListeningPoint;
 import javax.sip.SipException;
@@ -202,7 +193,9 @@ public class Gateway {
     static final String SIPX_BRIDGE_ITSP_SERVER_FAILURE = "SIPX_BRIDGE_ITSP_SERVER_FAILURE";
 
     static final String SIPX_BRIDGE_AUTHENTICATION_FAILED = "SIPX_BRIDGE_AUTHENTICATION_FAILED";
-
+    
+    static final String SIPX_BRIDGE_ITSP_ACCOUNT_CONFIGURATION_ERROR = "SIPX_BRIDGE_ITSP_ACCOUNT_CONFIGURATION_ERROR";
+   
     static final int REGISTER_DELTA = 5;
 
     public static final String SIPX_BRIDGE_ACCOUNT_OK = "SIPX_BRIDGE_ACCOUNT_OK";
@@ -364,8 +357,6 @@ public class Gateway {
             String stunServerAddress = bridgeConfiguration
                     .getStunServerAddress();
             String oldPublicAddress = Gateway.getGlobalAddress();
-
-            int oldPublicPort = Gateway.oldStunPort;
 
             if (stunServerAddress != null) {
                 // Todo -- deal with the situation when this port may be taken.
@@ -772,6 +763,42 @@ public class Gateway {
 
     static void registerWithItsp() throws SipXbridgeException {
         logger.info("------- REGISTERING--------");
+        /*
+         * Check for mandatory fields.
+         */
+        boolean invalidAccountDetected = false;
+        HashSet<ItspAccountInfo> invalidItspAccounts = new HashSet<ItspAccountInfo>();
+        for (ItspAccountInfo accountInfo : Gateway.accountManager
+                .getItspAccounts()) {
+            if (accountInfo.getProxyDomain() == null) {
+                invalidAccountDetected = true;
+                invalidItspAccounts.add(accountInfo);
+            }
+
+            if (accountInfo.isRegisterOnInitialization() && accountInfo.getUserName() == null) {
+                System.err
+                        .println("User Name is mandatory for ITSP accounts requiring Registration. Check ITSP account "
+                                + accountInfo.getProxyDomain());    
+                invalidAccountDetected = true;
+                invalidItspAccounts.add(accountInfo);
+            }
+        }
+        try {
+            if ( invalidAccountDetected ) {
+                Gateway.getAlarmClient().raiseAlarm(Gateway.SIPX_BRIDGE_ITSP_ACCOUNT_CONFIGURATION_ERROR);
+            }
+        } catch ( XmlRpcException ex) {
+            logger.error("Problem sending alarm",ex);
+        }
+        
+        /*
+         * Remove all the bad accounts from the collection of accounts.
+         */
+        for (ItspAccountInfo badAccount : invalidItspAccounts) {
+            Gateway.accountManager.getItspAccounts().remove(badAccount);
+        }
+       
+        
         try {
             Gateway.accountManager.startAuthenticationFailureTimers();
 
@@ -940,24 +967,7 @@ public class Gateway {
             System.exit(-1);
         }
 
-        /*
-         * Check for mandatory fields.
-         */
-        for (ItspAccountInfo accountInfo : Gateway.accountManager
-                .getItspAccounts()) {
-            if (accountInfo.getProxyDomain() == null) {
-                System.err
-                        .println("Proxy Domain is mandatory for ITSP accounts");
-                System.exit(-1);
-            }
-
-            if (accountInfo.isRegisterOnInitialization() && accountInfo.getUserName() == null) {
-                System.err
-                        .println("User Name is mandatory for ITSP accounts requiring Registration. Check ITSP account "
-                                + accountInfo.getProxyDomain());
-                System.exit(-1);
-            }
-        }
+        
 
         if (Gateway.accountManager.getBridgeConfiguration()
                 .getStunServerAddress() != null

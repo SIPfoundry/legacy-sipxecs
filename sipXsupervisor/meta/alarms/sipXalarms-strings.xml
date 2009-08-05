@@ -177,6 +177,12 @@
          <description>SipXproxy could not allocate the Media Relay Session required for a call likely resulting in speech path issues.</description>
          <resolution>Not enough RTP ports are allocated to the Media Relay.  Increase the RTP port range allocated to the Media Relay using sipXconifg (under System->Servers->(click on server)->NAT->Show Advanced Settings).</resolution>
       </alarm>
+      <alarm id="SIPX_BRIDGE_ITSP_ACCOUNT_CONFIGURATION_ERROR">
+         <shorttitle>An ITSP is missing required configuration parameters</shorttitle>
+         <description>One or more ITSP accounts is missing required configuraiton parameters.</description>
+         <resolution>Check your ITSP accounts. Those that require Registration must have a user name specified.</resolution>
+      </alarm>
+
       <!-- Add new alarms above this line.
           Notes:
             'id='         must match definition in etc/sipXalarms-config.xml
