@@ -179,7 +179,7 @@
       </alarm>
       <alarm id="SIPX_BRIDGE_ITSP_ACCOUNT_CONFIGURATION_ERROR">
          <shorttitle>An ITSP is missing required configuration parameters</shorttitle>
-         <description>One or more ITSP accounts is missing required configuraiton parameters.</description>
+         <description>One or more ITSP accounts is missing required configuration parameters.</description>
          <resolution>Check your ITSP accounts. Those that require Registration must have a user name specified.</resolution>
       </alarm>
 
