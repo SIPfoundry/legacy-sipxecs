@@ -98,19 +98,13 @@ public class DefaultSystemFirmwareInstall implements ApplicationListener {
     }
 
     public List<DefaultSystemFirmware> findAvailableFirmwares() {
-        File firmwareDirectory = new File(m_firmwareDirectory);
-
-        if (!firmwareDirectory.exists()) {
+        File[] firmwareSpecs = getFirmwareSpecFiles();
+        if (null == firmwareSpecs) {
             return null;
         }
 
         List<DefaultSystemFirmware> firmwareList = new ArrayList<DefaultSystemFirmware>();
 
-        File[] firmwareSpecs = firmwareDirectory.listFiles(new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                return name.endsWith(".fmws");
-            }
-        });
         for (File firmwareSpec : firmwareSpecs) {
             File markerFile = markerFile(firmwareSpec);
             if (markerFile.exists()) {
@@ -128,6 +122,34 @@ public class DefaultSystemFirmwareInstall implements ApplicationListener {
             }
         }
         return firmwareList;
+    }
+
+    public boolean isNewFirmwareAvailable() {
+        File[] firmwareSpecs = getFirmwareSpecFiles();
+        if (null != firmwareSpecs) {
+            for (File firmwareSpec : firmwareSpecs) {
+                File markerFile = markerFile(firmwareSpec);
+                if (!markerFile.exists()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private File[] getFirmwareSpecFiles() {
+        File firmwareDirectory = new File(m_firmwareDirectory);
+
+        if (!firmwareDirectory.exists()) {
+            return null;
+        }
+
+        File[] firmwareSpecs = firmwareDirectory.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.endsWith(".fmws");
+            }
+        });
+        return firmwareSpecs;
     }
 
     private File markerFile(File firmwareSpec) {
