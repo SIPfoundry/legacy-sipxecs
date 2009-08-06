@@ -294,11 +294,19 @@ SIPX_CALL ACDAgent::connect(ACDCall* pACDCall)
           tempQueueName.append( queueName->data());
       }
 
-      // Add queue name and line to from header display field
+      // Add queue name and line into from header display field
       tempFromUrl.getDisplayName(fromDisp);
       tempAcdUrl.getUserId(fromUser);
 
-      fromDisp.strip(UtlString::trailing, '"');
+      if (fromDisp.isNull())
+      {
+          fromDisp.append("\"");
+          //fromDisp.append("\".");
+      }
+      else 
+      {
+          fromDisp.strip(UtlString::trailing, '"');
+      }
       fromDisp.append(" " + tempQueueName + "(" + fromUser + ")\"");
 
       tempFromUrl.setDisplayName(fromDisp.data());
@@ -308,7 +316,7 @@ SIPX_CALL ACDAgent::connect(ACDCall* pACDCall)
       OsSysLog::add(FAC_ACD, PRI_DEBUG, 
                     "ACDAgent::connect - "
                     "fromDisp '%s' fromUser '%s' "
-                    "From '%s' pAcdLineAor '%s' qName '%s'"
+                    "From '%s' pAcdLineAor '%s' qName '%s' "
                     "displayUserAndQueue '%s'",
                     fromDisp.data(), fromUser.data(),
                     pFrom, pAcdLineAor, queueName->data(),
