@@ -64,6 +64,6 @@ public class CdrTableModel implements IBasicTableModel {
     }
 
     public int getRowCount() {
-        return m_cdrManager.getCdrCount(m_from, m_to, m_cdrSearch, null);
+        return m_cdrManager.getCdrCount(m_from, m_to, m_cdrSearch, m_activeUser);
     }
 }
