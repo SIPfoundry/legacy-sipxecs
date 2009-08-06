@@ -82,7 +82,9 @@ void SipRedirectorAliasDB::readConfig(OsConfigDb& configDb)
 
    UtlString base64;
    NetBase64Codec::encode(secret, base64);
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::readConfig "
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipRedirectorAliasDB::readConfig"
+                 "%s::readConfig "
                  "set SipXauthIdentity secret",
                  mLogName.data()
                  );

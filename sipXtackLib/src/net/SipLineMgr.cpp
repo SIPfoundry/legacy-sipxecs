@@ -679,9 +679,13 @@ SipLineMgr::isUserIdDefined( const SipMessage* request /*[in]*/ ) const
     SipLine* line = NULL;
     line = getLineforAuthentication(request, NULL, TRUE);
     if(line)
-        return TRUE;
+    {
+            return TRUE;
+    }
     else
-        return FALSE;
+    {
+            return FALSE;
+    }
 }
 
 
@@ -773,7 +777,7 @@ UtlBoolean SipLineMgr::buildAuthenticatedRequest(
     UtlString passToken;
     UtlBoolean credentialFound = FALSE;
     SipLine* line = NULL;
-    //if challenged for an unregister request - then get credentials from temp lsit of lines
+    //if challenged for an unregister request - then get credentials from temp list of lines
     int expires;
     int contactIndexCount = 0;
     UtlString contactEntry;
@@ -967,7 +971,7 @@ UtlBoolean SipLineMgr::buildAuthenticatedRequest(
     }
     // Else we already tried to provide authentication
     // Or we do not have a userId and password for this uri
-    // Let this error message throught to the application
+    // Let this error message through to the application
     else
     {
        OsSysLog::add(FAC_AUTH, PRI_ERR,

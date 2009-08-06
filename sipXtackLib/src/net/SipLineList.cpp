@@ -275,7 +275,8 @@ SipLine* SipLineList::findLine(const char* lineId,
 
 #  ifdef TEST_PRINT
    OsSysLog::add(FAC_LINE_MGR, PRI_DEBUG,
-                 "SipLineList::findLine searching for lineid '%s' realm '%s' url '%s' default '%s'",
+                 "SipLineList::findLine "
+                 "searching for lineid '%s' realm '%s' url '%s' default '%s'",
                  lineId, realm, toFromUrl.toString().data(), defaultLine.toString().data()
                  );
 #  endif
@@ -290,7 +291,7 @@ SipLine* SipLineList::findLine(const char* lineId,
 #     ifdef TEST_PRINT
       Url tmpLineUrl = nextLine->getIdentity();
       OsSysLog::add(FAC_LINE_MGR, PRI_DEBUG,
-                    "SipLineList::findLine checking '%s'",
+                    "SipLineList::findLine checking tmpLineUrl='%s'",
                     tmpLineUrl.toString().data());
 #     endif
 
@@ -317,7 +318,7 @@ SipLine* SipLineList::findLine(const char* lineId,
             {
                Url nextLineIdentity = nextLine->getIdentity();
                OsSysLog::add(FAC_LINE_MGR, PRI_DEBUG,
-                     "SipLineList::findLine checking '%s'",
+                     "SipLineList::findLine checking nextLineIdentity='%s'",
                      nextLineIdentity.toString().data());
             }
 

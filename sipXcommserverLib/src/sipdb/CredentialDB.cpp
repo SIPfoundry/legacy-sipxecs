@@ -624,13 +624,11 @@ CredentialDB::getCredential (
     return found;
 }
 
-UtlBoolean
-CredentialDB::getCredential (
-    const Url& uri,
-    const UtlString& realm,
-    UtlString& userid,
-    UtlString& passtoken,
-    UtlString& authType ) const
+UtlBoolean CredentialDB::getCredential (const Url& uri,
+                                        const UtlString& realm,
+                                        UtlString& userid,
+                                        UtlString& passtoken,
+                                        UtlString& authType ) const
 {
     UtlBoolean found = FALSE;
 

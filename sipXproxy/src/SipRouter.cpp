@@ -430,7 +430,8 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
                      // challenge the originator
                      authenticationChallenge(sipRequest, sipResponse);
 
-                     OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRouter::proxyMessage "
+                     OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                   "SipRouter::proxyMessage "
                                    " From '%s' is unauthenticated local user - challenge for PAI",
                                    fromUrl.toString().data());
 
@@ -1011,7 +1012,8 @@ bool SipRouter::isAuthenticated(const SipMessage& sipRequest,
    {
       if ( mRealm.compareTo(requestRealm) == 0 ) // case sensitive
       {
-         OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipRouter:isAuthenticated: checking user '%s'",
+         OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+                       "SipRouter:isAuthenticated: checking user '%s'",
                        requestUser.data());
 
          // Ignore this credential if it is not a current valid nonce
@@ -1034,7 +1036,8 @@ bool SipRouter::isAuthenticated(const SipMessage& sipRequest,
                // THIS SHOULD NOT BE LOGGED IN PRODUCTION
                // For security reasons we do not want to put passtokens into the log.
                OsSysLog::add(FAC_AUTH, PRI_DEBUG,
-                             "SipRouter::isAuthenticated found credential "
+                             "SipRouter::isAuthenticated "
+                             "found credential "
                              "user: \"%s\" passToken: \"%s\"",
                              requestUser.data(), passTokenDB.data());
 #                   endif
@@ -1049,13 +1052,15 @@ bool SipRouter::isAuthenticated(const SipMessage& sipRequest,
                {
                   userUrl.getIdentity(authUser);
                   OsSysLog::add(FAC_AUTH, PRI_DEBUG,
-                                "SipRouter::isAuthenticated(): authenticated as '%s'",
+                                "SipRouter::isAuthenticated(): "
+                                "authenticated as '%s'",
                                 authUser.data());
                }
                else
                {
                   OsSysLog::add(FAC_AUTH, PRI_DEBUG,
-                                "SipRouter::isAuthenticated() authentication failed as '%s'",
+                                "SipRouter::isAuthenticated() "
+                                "authentication failed as '%s'",
                                 requestUser.data());
                }
             }
@@ -1063,7 +1068,8 @@ bool SipRouter::isAuthenticated(const SipMessage& sipRequest,
             else
             {
                OsSysLog::add(FAC_AUTH, PRI_INFO,
-                             "SipRouter::isAuthenticated() No credentials found for user: '%s'",
+                             "SipRouter::isAuthenticated() "
+                             "No credentials found for user: '%s'",
                              requestUser.data());
             }
          }

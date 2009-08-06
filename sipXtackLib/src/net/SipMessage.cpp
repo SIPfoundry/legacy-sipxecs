@@ -504,8 +504,10 @@ void SipMessage::setInviteData(const char* fromField,
               addHeaderField(headerName.data(), headerValue.data());
            }
 #ifdef TEST_PRINT
-            osPrintf("SipMessage::setInviteData: name=%s, value=%s\n",
-                    headerName.data(), headerValue.data());
+           OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                         "SipMessage::setInviteData "
+                         "name=%s, value=%s\n",
+                         headerName.data(), headerValue.data());
 #endif
         }
         else
@@ -519,23 +521,25 @@ void SipMessage::setInviteData(const char* fromField,
         headerIndex++;
     }
 
-    // Remove the header fields from the URL as them
+    // Remove the header fields from the URL as they
     // have been added to the message
     toUrl.removeHeaderParameters();
     UtlString toFieldString;
     toUrl.toString(toFieldString);
 
     setRequestData(SIP_INVITE_METHOD,
-        uri, // URI
-        fromField,
-        toFieldString.data(),
-        callId,
-        sequenceNumber,
-        contactUrl);
+                   uri, // URI
+                   fromField,
+                   toFieldString.data(),
+                   callId,
+                   sequenceNumber,
+                   contactUrl);
 
     // Set the session timer in seconds
     if(sessionReinviteTimer > 0)
+    {
         setSessionExpires(sessionReinviteTimer);
+    }
 
 #ifdef TEST
    //osPrintf("SipMessage::setInviteData rtpAddress: %s\n", rtpAddress);
@@ -1470,16 +1474,21 @@ UtlBoolean SipMessage::verifyMd5Authorization(const char* userId,
        else
        {
           getRequestUri(&uriString);
-          OsSysLog::add(FAC_SIP,PRI_DEBUG, "SipMessage::verifyMd5Authorization using request URI: %s instead of Auth header uri parameter for digest\n",
+          OsSysLog::add(FAC_SIP,PRI_DEBUG, 
+                        "SipMessage::verifyMd5Authorization "
+                        "using request URI: %s instead of Auth header uri parameter for digest\n",
                         uriString.data());
        }
        getRequestMethod(&method);
     }
 
 #ifdef TEST
-    OsSysLog::add(FAC_SIP,PRI_DEBUG, "SipMessage::verifyMd5Authorization - "
-         "userId='%s', password='%s', nonce='%s', realm='%s', uri='%s', method='%s' \n",
-         userId, password, nonce, realm, uriString.data(), method.data());
+    OsSysLog::add(FAC_SIP,PRI_DEBUG, 
+                  "SipMessage::verifyMd5Authorization - "
+                  "userId='%s', password='%s', nonce='%s', "
+                  "realm='%s', uri='%s', method='%s' \n",
+                   userId, password, nonce, 
+                  realm, uriString.data(), method.data());
 #endif
 
     UtlBoolean isAllowed = FALSE;

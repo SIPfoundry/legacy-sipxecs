@@ -831,7 +831,8 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
       else
       {
          // Should not be getting here.
-         OsSysLog::add(FAC_SIP, PRI_WARNING, "SipUserAgent::send message being resent");
+         OsSysLog::add(FAC_SIP, PRI_WARNING,
+                       "SipUserAgent::send message being resent");
       }
    }    // !isResponse
 
@@ -845,7 +846,8 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
 
 #ifdef TRANSACTION_MATCH_DEBUG // enable only for transaction match debugging - log is confusing otherwise
    OsSysLog::add(FAC_SIP, PRI_DEBUG
-                 ,"SipUserAgent[%s]::send searching for existing transaction",
+                 ,"SipUserAgent[%s]::send "
+                  "searching for existing transaction",
                  getName().data());
 #endif
    // verify that the transaction does not already exist

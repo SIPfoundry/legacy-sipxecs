@@ -164,7 +164,9 @@ ACDCall::ACDCall(ACDCallManager* pAcdCallManager, ACDLine* pLineRef, SIPX_CALL h
    mpQueueMaxWaitTimer =
       new OsTimer(getMessageQueue(), (void*)QUEUE_MAX_WAIT_TIMER);
 
-   OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDCall::ACDCall - New Call(%d) [%s] is created.",
+   OsSysLog::add(FAC_ACD, gACD_DEBUG,
+                 "ACDCall::ACDCall - "
+                 "New Call(%d) [%s] is created.",
                  mhCallHandle, mpCallIdentity);
 }
 

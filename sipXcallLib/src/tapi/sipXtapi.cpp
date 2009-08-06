@@ -321,7 +321,7 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST* phInst,
         SIPX_INSTANCE_DATA* pInst = new SIPX_INSTANCE_DATA;
         memset(pInst, 0, sizeof(SIPX_INSTANCE_DATA)) ;
 
-        // Create Line and Refersh Manager
+        // Create Line and Refresh Manager
         pInst->pLineManager = new SipLineMgr() ;
         pInst->pRefreshManager = new SipRefreshMgr() ;
         pInst->pRefreshManager->setLineMgr(pInst->pLineManager);
@@ -3641,8 +3641,9 @@ SIPXTAPI_API SIPX_RESULT sipxLineAdd(const SIPX_INST hInst,
 
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-        "sipxLineAdd hInst=%p lineUrl=%s, phLine=%p contactId=%d",
-        hInst, szLineUrl, phLine, contactId);
+                            "sipxLineAdd "
+                            "hInst=%p lineUrl=%s, phLine=%p contactId=%d",
+                            hInst, szLineUrl, phLine, contactId);
 
     SIPX_RESULT sr = SIPX_RESULT_FAILURE ;
     SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) hInst ;
@@ -3668,17 +3669,17 @@ SIPXTAPI_API SIPX_RESULT sipxLineAdd(const SIPX_INST hInst,
 
         if (szLineUrl && phLine)
         {
-            Url url(szLineUrl) ;
+            Url urlofLine(szLineUrl) ;
             UtlString strURI;
-            url.getUri(strURI) ;
-            Url uri(strURI) ;
+            urlofLine.getUri(strURI) ;
+            Url uriOfLine(strURI) ;
             UtlString userId ;
-            url.getUserId(userId) ;
+            urlofLine.getUserId(userId) ;
             UtlString displayName;
-            url.getDisplayName(displayName);
-            uri.setDisplayName(displayName);
+            urlofLine.getDisplayName(displayName);
+            uriOfLine.setDisplayName(displayName);
 
-            SipLine line(url, uri, userId) ;
+            SipLine lineToAdd(urlofLine, uriOfLine, userId) ;
 
             // Set the preferred contact
             Url uriPreferredContact ;
@@ -3692,19 +3693,19 @@ SIPXTAPI_API SIPX_RESULT sipxLineAdd(const SIPX_INST hInst,
             }
             sipxGetContactHostPort(pInst, (SIPX_CONTACT_TYPE)contactType, uriPreferredContact) ;
             uriPreferredContact.setUserId(userId);
-            line.setPreferredContactUri(uriPreferredContact) ;
+            lineToAdd.setPreferredContactUri(uriPreferredContact) ;
 
-            UtlBoolean bRC = pInst->pLineManager->addLine(line, false) ;
+            UtlBoolean bRC = pInst->pLineManager->addLine(lineToAdd, false) ;
             if (bRC)
             {
-                SIPX_LINE_DATA* pData = createLineData(pInst, uri) ;
+                SIPX_LINE_DATA* pData = createLineData(pInst, uriOfLine) ;
                 if (pData != NULL)
                 {
                     pData->contactType = (SIPX_CONTACT_TYPE) contactType ;
                     *phLine = gpLineHandleMap->allocHandle(pData) ;
                     sr = SIPX_RESULT_SUCCESS ;
 
-                    pInst->pLineManager->setStateForLine(uri, SipLine::LINE_STATE_PROVISIONED) ;
+                    pInst->pLineManager->setStateForLine(uriOfLine, SipLine::LINE_STATE_PROVISIONED) ;
                     sipxFireLineEvent(pInst->pRefreshManager, szLineUrl, SIPX_LINE_EVENT_PROVISIONED, LINE_EVENT_PROVISIONED_NORMAL);
                 }
                 else
@@ -3746,19 +3747,19 @@ SIPXTAPI_API SIPX_RESULT sipxLineAddAlias(const SIPX_LINE hLine, const char* szL
                 pData->pLineAliases = new UtlSList() ;
             }
 
-            Url url(szLineURL) ;
+            Url urlofLine(szLineURL) ;
             UtlString strURI;
-            url.getUri(strURI) ;
-            Url uri(strURI) ;
+            urlofLine.getUri(strURI) ;
+            Url uriOfLine(strURI) ;
             UtlString userId ;
-            url.getUserId(userId) ;
+            urlofLine.getUserId(userId) ;
             UtlString displayName;
-            url.getDisplayName(displayName);
-            uri.setDisplayName(displayName);
+            urlofLine.getDisplayName(displayName);
+            uriOfLine.setDisplayName(displayName);
 
-            if (pData->pInst->pLineManager->addLineAlias(*pData->lineURI, url))
+            if (pData->pInst->pLineManager->addLineAlias(*pData->lineURI, urlofLine))
             {
-                pData->pLineAliases->append(new UtlVoidPtr(new Url(uri))) ;
+                pData->pLineAliases->append(new UtlVoidPtr(new Url(uriOfLine))) ;
                 sr = SIPX_RESULT_SUCCESS ;
             }
 

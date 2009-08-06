@@ -2837,13 +2837,13 @@ Connection* CpPeerCall::addParty(const char* transferTargetAddress,
                   mLocalAddress.data(), paiAddress);
 #endif
     connection = new SipConnection(mLocalAddress,
-        mIsEarlyMediaFor180,
-        mpManager,
-        this,
-        mpMediaInterface,
-        sipUserAgent,
-        offeringDelay,
-        mSipSessionReinviteTimer);
+                                   mIsEarlyMediaFor180,
+                                   mpManager,
+                                   this,
+                                   mpMediaInterface,
+                                   sipUserAgent,
+                                   offeringDelay,
+                                   mSipSessionReinviteTimer);
 
     connection->setContactId(contactId);
     CONTACT_ADDRESS* pContact = NULL;

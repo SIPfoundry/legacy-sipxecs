@@ -185,7 +185,8 @@ ACDLine* ACDLineManager::createACDLine(const char* pLineUriString,
    ACDLine*  pLineRef = NULL;
    SIPX_LINE lineHandle;
 
-   OsSysLog::add(FAC_ACD, PRI_DEBUG, "ACDLineManager::createACDLine"
+   OsSysLog::add(FAC_ACD, PRI_DEBUG,
+                 "ACDLineManager::createACDLine"
                  "LineUriString '%s' Name '%s' Extension '%s' %s mode %s Queue '%s'",
                  pLineUriString, pName, pExtension,
                  trunkMode ? "trunk" : "line",
@@ -244,7 +245,8 @@ ACDLine* ACDLineManager::createACDLine(const char* pLineUriString,
          mAcdLineNameList.insertKeyAndValue(new UtlString(pName), pLineRef);
       }
 
-      OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDLineManager::createACDLine"
+      OsSysLog::add(FAC_ACD, gACD_DEBUG,
+                    "ACDLineManager::createACDLine"
                     " Line(%d) '%s' added",
                     lineHandle, lineUriString.data());
 
@@ -265,7 +267,8 @@ ACDLine* ACDLineManager::createACDLine(const char* pLineUriString,
          // Create a mapping between the ACDLine Extension and the ACDLine instance.
          mAcdLineExtensionList.insertKeyAndValue(new UtlString(contactUrlString), pLineRef);
 
-         OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDLineManager::createACDLine"
+         OsSysLog::add(FAC_ACD, gACD_DEBUG,
+                       "ACDLineManager::createACDLine"
                        " Line(%d) alias '%s' added",
                        lineHandle, contactUrlString.data());
       }

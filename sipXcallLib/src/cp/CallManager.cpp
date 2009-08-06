@@ -1963,8 +1963,9 @@ void CallManager::destroyPlayer(int type, const char* callId, MpStreamPlayer* pP
 
 void CallManager::setOutboundLineForCall(const char* callId, const char* address, CONTACT_TYPE eType)
 {
-    CpMultiStringMessage outboundLineMessage(CP_SET_OUTBOUND_LINE, callId,
-            address, NULL, NULL, NULL, (int) eType);
+    CpMultiStringMessage outboundLineMessage(CP_SET_OUTBOUND_LINE, 
+                                             callId, address,
+                                             NULL, NULL, NULL, (int) eType);
 
     postMessage(outboundLineMessage);
 }

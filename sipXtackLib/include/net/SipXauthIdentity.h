@@ -26,21 +26,20 @@ class SipXauthIdentityTest;
 /**
  * This class encapsulates SipXauthIdentity and P-Asserted-Identity information. SipXauthIdentity 
  * is used by upstream proxies to instruct sipXauthproxy that a request needs to be routed based 
- * on the permisssions of an by upstream proxies to instruct sipXauthproxy that a request needs to
- * be routed based on the permisssions of an identity different from that of the request originator.
+ * on the permisssions of an identity different from that of the request originator.
  * P-Asserted-Identity is to communicate the identity of the subscribers as described in RFC3325.
  * Given the lack of TLS support for many SIP elements deployed today, to ensure the security and 
  * prevent from forgery, replay, and falsification, P-Asserted-Identity is also encapsulated in the 
  * same manner as SipXauthIdentity.
  * 
- * SipXauthIdentity can be used for a veriety of purposes, but at least initially it is used to 
+ * SipXauthIdentity can be used for a variety of purposes, but at least initially it is used to 
  * allow privileged users to forward their calls to destinations that require permissions.
  *
  * SipXauthIdentity information is carried in X-Sipx-Authidentity header of the follwoing format:
  *
  *     X-Sipx-Authidentity: <identity;signature=<timestamp>:<signature-hash>>
  *
- * P-Asserted-Identity information is carried in P-Asserted-Identity header of the follwoing format:
+ * P-Asserted-Identity information is carried in P-Asserted-Identity header of the following format:
  *
  *     P-Asserted-Identity: 'displayName' <identity;signature=<timestamp>:<signature-hash>>
  * where
@@ -311,7 +310,7 @@ class SipXauthIdentity
     *
     * @returns true iff the identity was correctly signed and successfully parsed
     */
-   
+
   private:
    static const char* SignatureFieldSeparator;
    static const char* SignatureUrlParamName;

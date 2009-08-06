@@ -340,14 +340,14 @@ SIPX_CALL ACDAgent::connect(ACDCall* pACDCall)
    agentUrlString += "<" + mUriString + ";sipx-noroute=VoiceMail>" ;
 
    // Fire off the call
-   if (sipxCallConnect(mhCallHandle, 
+   if (sipxCallConnect(mhCallHandle,
                        agentUrlString, 
-                       0, NULL, 
-                       pTempId, 
+                       0, NULL,
+                       pTempId,
                        displayUserAndQueue.data(), 
                        TRUE) != SIPX_RESULT_SUCCESS)    //CpCallManager::AddPaiHdr
    {
-      OsSysLog::add(FAC_ACD, PRI_ERR, 
+      OsSysLog::add(FAC_ACD, PRI_ERR,
                     "ACDAgent::connect - "
                     "ACDAgent(%s) failed to initiate outbound call",
                     mUriString.data());

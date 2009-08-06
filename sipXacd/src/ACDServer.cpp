@@ -136,7 +136,10 @@ ACDServer::ACDServer(int provisioningAgentPort, int watchdogRpcServerPort)
    {
       if (OS_SUCCESS == domainConfiguration.get(SipXecsService::DomainDbKey::SIP_REALM, mRealm))
       {
-         OsSysLog::add(FAC_ACD, PRI_INFO, "ACDServer::ACDServer realm='%s'", mRealm.data());
+         OsSysLog::add(FAC_ACD, PRI_INFO,
+                       "ACDServer::ACDServer "
+                       "realm='%s'",
+                       mRealm.data());
       }
       else
       {
