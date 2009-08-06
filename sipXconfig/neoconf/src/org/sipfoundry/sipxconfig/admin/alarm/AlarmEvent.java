@@ -5,7 +5,6 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
  */
 package org.sipfoundry.sipxconfig.admin.alarm;
 
@@ -26,17 +25,20 @@ public class AlarmEvent implements Serializable {
     private final Date m_date;
 
     /**
+     * Parse a single line of log line into Alarm event
      *
      * @param logLine String in following format:
      *        "2009-04-29T10:39:30.778775Z":1:ALARM:WARNING:sipx
      *        .example.org:sipXsupervisor::SPX00002:"Some description."
      */
     public AlarmEvent(String logLine) {
-        String[] tokens = StringUtils.split(logLine, ":");
+        // limit number of fields to 10 - last field 'description' can contain colons
+        String[] tokens = StringUtils.split(logLine, ":", 10);
         Alarm alarm = new Alarm();
         alarm.setCode(tokens[8]);
         alarm.setDescription(tokens[9]);
         alarm.setSeverity(tokens[5]);
+
         m_alarm = alarm;
         m_date = extractDate(logLine);
     }
