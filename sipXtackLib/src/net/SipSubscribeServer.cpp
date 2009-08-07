@@ -732,6 +732,15 @@ UtlBoolean SipSubscribeServer::handleSubscribe(const SipMessage& subscribeReques
 
                     // Send the notify request
                     eventPackageInfo->mpEventSpecificUserAgent->send(notifyRequest);
+
+                    if (OsSysLog::willLog(FAC_SIP, PRI_INFO))
+                    {
+                       UtlString requestContact;
+                       subscribeRequest.getContactField(0, requestContact);
+                       OsSysLog::add(FAC_SIP, PRI_INFO,
+                           "SipSubscribeServer::handleSubscribe: %s has setup subscription to %s, eventTypeKey %s",
+                           requestContact.data(), resourceId.data(), eventTypeKey.data());
+                    }
                  }
             }
             // Not authorized

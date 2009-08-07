@@ -66,6 +66,9 @@ class AppearanceGroup : public UtlContainableAtomic,
    //! Get the ancestor AppearanceAgent.
    AppearanceAgent* getAppearanceAgent() const;
 
+   /// Start the subscription for Reg events to this shared user.
+   void startSubscription();
+
    const UtlString& getUser() const;
 
    /** Handle a subscription state callback for the subscription

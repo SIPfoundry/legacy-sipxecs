@@ -737,6 +737,13 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
       UtlString dialogString(dialogHandle ? dialogHandle : earlyDialogHandle);
       lock();
       SubscribeClientState* clientState = getState(dialogString);
+      if ( !clientState && earlyDialogHandle)
+      {
+         clientState = getState(earlyDialogHandle);
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "SipSubscribeClient::refreshCallback could not getState(dialog=%s). getState(earlyDialog=%s) returns %p",
+                       dialogString.data(), earlyDialogHandle, clientState);
+      }
 
       if (clientState)
       {

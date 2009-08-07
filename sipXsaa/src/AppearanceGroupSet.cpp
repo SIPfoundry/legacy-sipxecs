@@ -258,7 +258,7 @@ void AppearanceGroupSet::subscriptionEventCallbackSync(
    }
    else
    {
-      OsSysLog::add(FAC_SAA, PRI_WARNING,
+      OsSysLog::add(FAC_SAA, PRI_DEBUG,
                     "AppearanceGroupSet::subscriptionEventCallbackSync this = %p, no ResourceSubscriptionReceiver found for earlyDialogHandle '%s'",
                     this, earlyDialogHandle->data());
    }
@@ -329,7 +329,7 @@ void AppearanceGroupSet::notifyEventCallbackSync(const UtlString* dialogHandle,
    }
    else
    {
-      OsSysLog::add(FAC_SAA, PRI_WARNING,
+      OsSysLog::add(FAC_SAA, PRI_DEBUG,
                     "AppearanceGroupSet::notifyEventCallbackSync this = %p, no ResourceNotifyReceiver found for dialogHandle '%s'",
                     this, dialogHandle->data());
    }

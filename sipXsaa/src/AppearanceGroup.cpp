@@ -73,6 +73,11 @@ AppearanceGroup::AppearanceGroup(AppearanceGroupSet* appearanceGroupSet,
         1, &pHttpBody, &mVersion,
         TRUE, TRUE);
 
+   startSubscription();
+}
+
+void AppearanceGroup::startSubscription()
+{
    // Start the subscription for Reg events to this shared user.
    UtlBoolean ret;
    UtlString lUriNameAddr = "<" + mSharedUser + ">";
@@ -91,7 +96,7 @@ AppearanceGroup::AppearanceGroup(AppearanceGroupSet* appearanceGroupSet,
    if (ret)
    {
       OsSysLog::add(FAC_SAA, PRI_INFO,
-                    "AppearanceGroup:: addSubscription succeeded mSharedUser = '%s', mSubscriptionEarlyDialogHandle = '%s'",
+                    "AppearanceGroup:: startSubscription succeeded mSharedUser = '%s', mSubscriptionEarlyDialogHandle = '%s'",
                     mSharedUser.data(),
                     mSubscriptionEarlyDialogHandle.data());
       // Add this AppearanceGroup to mSubscribeMap.
@@ -101,12 +106,11 @@ AppearanceGroup::AppearanceGroup(AppearanceGroupSet* appearanceGroupSet,
    else
    {
       OsSysLog::add(FAC_SAA, PRI_WARNING,
-                    "AppearanceGroup:: addSubscription failed mSharedUser = '%s', mSubscriptionEarlyDialogHandle = '%s'",
+                    "AppearanceGroup:: startSubscription failed mSharedUser = '%s', mSubscriptionEarlyDialogHandle = '%s'",
                     mSharedUser.data(),
                     mSubscriptionEarlyDialogHandle.data());
    }
 }
-
 
 // Destructor
 AppearanceGroup::~AppearanceGroup()
@@ -222,11 +226,16 @@ void AppearanceGroup::subscriptionEventCallback(
             // Remember to make a copy of *d, because the NotifyMapping logic
             // now owns *d.
             mSubscriptions.insertKeyAndValue(new UtlString(*d), new UtlHashMap);
+            OsSysLog::add(FAC_SAA, PRI_INFO,
+                          "AppearanceGroup::subscriptionEventCallback "
+                          "subscription setup for AppearanceGroup = '%s', dialogHandle = '%s'",
+                          mSharedUser.data(), dialogHandle->data());
          }
          else
          {
             OsSysLog::add(FAC_SAA, PRI_WARNING,
-                          "AppearanceGroup::subscriptionEventCallback mSubscriptions element already exists for this dialog handle mUri = '%s', dialogHandle = '%s'",
+                          "AppearanceGroup::subscriptionEventCallback "
+                          "mSubscriptions element already exists for this dialog handle mUri = '%s', dialogHandle = '%s'",
                           mSharedUser.data(),
                           dialogHandle->data());
          }
@@ -234,7 +243,8 @@ void AppearanceGroup::subscriptionEventCallback(
       else
       {
          OsSysLog::add(FAC_SAA, PRI_ERR,
-                       "AppearanceGroup::subscriptionEventCallback cannot add reg subscription with dialog handle '%s', already %zu in AppearanceGroup '%s'",
+                       "AppearanceGroup::subscriptionEventCallback "
+                       "cannot add reg subscription with dialog handle '%s', already %zu in AppearanceGroup '%s'",
                        dialogHandle->data(), mSubscriptions.entries(),
                        mSharedUser.data());
       }
@@ -242,11 +252,46 @@ void AppearanceGroup::subscriptionEventCallback(
    break;
    case SipSubscribeClient::SUBSCRIPTION_TERMINATED:
    {
-      // Remove this AppearanceGroup from mNotifyMap for the subscription.
-      getAppearanceAgent()->getAppearanceGroupSet().deleteNotifyMapping(dialogHandle);
+      // Remove this dialogHandle from mNotifyMap for the subscription.
+      // A new one will be added later if necessary.
+      mAppearanceGroupSet->deleteNotifyMapping(dialogHandle);
 
       // Delete this subscription from mSubscriptions.
       mSubscriptions.destroy(dialogHandle);
+
+      // Delete this AppearanceGroup from mSubscribeMap (for the "reg" subscription).
+      mAppearanceGroupSet->deleteSubscribeMapping(&mSubscriptionEarlyDialogHandle);
+
+      // End the terminated "reg" subscription.
+      UtlBoolean ret;
+      ret = getAppearanceAgent()->getSubscribeClient().endSubscription(mSubscriptionEarlyDialogHandle);
+      OsSysLog::add(FAC_SAA,
+                    ret ? PRI_INFO : PRI_WARNING,
+                    "AppearanceGroup::subscriptionEventCallback "
+                    "endSubscription %s mSharedUser = '%s', mSubscriptionEarlyDialogHandle = '%s'",
+                    ret ? "succeeded" : "failed",
+                    mSharedUser.data(),
+                    mSubscriptionEarlyDialogHandle.data());
+      OsTask::delay(getAppearanceAgent()->getChangeDelay());
+
+      // Check to see if there is supposed to be a group with this name.
+      if (mAppearanceGroupSet->findAppearanceGroup(mSharedUser))
+      {
+         OsSysLog::add(FAC_SAA, PRI_WARNING,
+                       "AppearanceGroup::subscriptionEventCallback "
+                       "subscription terminated for AppearanceGroup '%s', but should exist. Retrying subscription",
+                       mSharedUser.data());
+         startSubscription();
+      }
+      else
+      {
+         OsSysLog::add(FAC_SAA, PRI_INFO,
+                       "AppearanceGroup::subscriptionEventCallback "
+                       "subscription terminated for AppearanceGroup = '%s', dialogHandle = '%s'",
+                       mSharedUser.data(), dialogHandle->data());
+
+      }
+
       // Update the subscriptions.
       updateSubscriptions();
    }
@@ -274,7 +319,7 @@ void AppearanceGroup::notifyEventCallback(const UtlString* dialogHandle,
    if (!state_from_this_subscr)
    {
       // No state for this dialogHandle, so we need to add one.
-      OsSysLog::add(FAC_SAA, PRI_WARNING,
+      OsSysLog::add(FAC_SAA, PRI_INFO,
                     "AppearanceGroup::notifyEventCallback mSubscriptions element does not exist for this dialog handle mUri = '%s', dialogHandle = '%s'",
                     mSharedUser.data(),
                     dialogHandle->data());

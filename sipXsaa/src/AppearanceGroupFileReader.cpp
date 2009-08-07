@@ -97,7 +97,7 @@ OsStatus AppearanceGroupFileReader::initialize()
                if (!uri_attribute || *uri_attribute == '\0')
                {
                   // URI missing or null.
-                  OsSysLog::add(FAC_SAA, PRI_ERR, "main "
+                  OsSysLog::add(FAC_SAA, PRI_ERR, "AppearanceGroupFileReader::initialize "
                      "uri attribute of <resource> was missing or null");
                   resource_valid = false;
                   ret = OS_FAILED;
@@ -155,7 +155,7 @@ OsStatus AppearanceGroupFileReader::initialize()
       {
          // Report error parsing file.
          OsSysLog::add(FAC_SAA, PRI_CRIT,
-                       "main "
+                       "AppearanceGroupFileReader::initialize "
                        "Appearance group file '%s' could not be parsed.",
                        mFileName.data());
          ret = OS_FAILED;
@@ -164,8 +164,8 @@ OsStatus AppearanceGroupFileReader::initialize()
    else
    {
       // Report that there is no file.
-      OsSysLog::add(FAC_SAA, PRI_CRIT,
-                    "main No Appearance group file set.");
+      OsSysLog::add(FAC_SAA, PRI_WARNING,
+                    "AppearanceGroupFileReader::initialize No Appearance group file set.");
    }
 
    return ret;

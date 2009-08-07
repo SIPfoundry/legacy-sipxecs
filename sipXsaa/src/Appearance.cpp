@@ -108,7 +108,8 @@ void Appearance::subscriptionEventCallback(
    const UtlString* subscriptionState)
 {
    OsSysLog::add(FAC_SAA, PRI_DEBUG,
-                 "Appearance::subscriptionEventCallback uri = '%s', newState = %d, earlyDialogHandle = '%s', dialogHandle = '%s', subscriptionState = '%s'",
+                 "Appearance::subscriptionEventCallback "
+                 "uri = '%s', newState = %d, earlyDialogHandle = '%s', dialogHandle = '%s', subscriptionState = '%s'",
                  mUri.data(), newState, mSubscriptionEarlyDialogHandle.data(),
                  dialogHandle->data(), subscriptionState->data());
 
@@ -118,8 +119,10 @@ void Appearance::subscriptionEventCallback(
       break;
    case SipSubscribeClient::SUBSCRIPTION_SETUP:
    {
-      // Put the subscription into pending state, as we have no
-      // content for it yet.
+      OsSysLog::add(FAC_SAA, PRI_INFO,
+                    "Appearance::subscriptionEventCallback "
+                    "subscription setup for uri = '%s', dialogHandle = '%s'",
+                    mUri.data(), dialogHandle->data());
    }
    break;
    case SipSubscribeClient::SUBSCRIPTION_TERMINATED:
@@ -132,6 +135,10 @@ void Appearance::subscriptionEventCallback(
          getAppearanceGroup()->publish(true, true, lPartialContent);
          delete lPartialContent;
       }
+      OsSysLog::add(FAC_SAA, PRI_INFO,
+                    "Appearance::subscriptionEventCallback "
+                    "subscription terminated for uri = '%s', dialogHandle = '%s'",
+                    mUri.data(), dialogHandle->data());
    }
    break;
    }
