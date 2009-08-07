@@ -109,6 +109,16 @@
         is used by sipXconfig to report status to the user.
       </description>
     </setting>
+    <setting name="call-limit" advanced="yes">
+      <label>Active call limit</label>
+      <type>
+        <integer min="-1"/>
+      </type>
+      <value>-1</value>
+      <description>
+        Number of calls that can be concurrently in progress. Specify -1 to remove call limit restriction.
+      </description>
+    </setting>
     <setting name="music-on-hold-support-enabled">
       <label>Music on hold</label>
       <type>
