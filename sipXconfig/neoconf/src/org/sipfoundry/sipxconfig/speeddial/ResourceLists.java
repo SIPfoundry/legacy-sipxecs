@@ -20,19 +20,30 @@ import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.springframework.beans.factory.annotation.Required;
 
+import static org.sipfoundry.sipxconfig.speeddial.SpeedDial.getResourceListId;
+
 public class ResourceLists extends XmlFile {
     private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/resource-lists-00-01";
-
     private CoreContext m_coreContext;
 
     private SpeedDialManager m_speedDialManager;
+
+    private String m_imListId;
 
     @Override
     public Document getDocument() {
         Document document = FACTORY.createDocument();
         Element lists = document.addElement("lists", NAMESPACE);
         List<User> users = m_coreContext.loadUsers();
+        Element imList = null;
+        String domainName = m_coreContext.getDomainName();
         for (User user : users) {
+            if (user.hasImAccount()) {
+                if (imList == null) {
+                    imList = createResourceList(lists, m_imListId);
+                }
+                createResource(imList, user.getAddrSpec(domainName), user.getName());
+            }
             SpeedDial speedDial = m_speedDialManager.getSpeedDialForUserId(user.getId(), false);
             // ignore disabled orbits
             if (speedDial == null) {
@@ -45,19 +56,27 @@ public class ResourceLists extends XmlFile {
                     continue;
                 }
                 if (list == null) {
-                    list = createListForUser(lists, speedDial);
+                    list = createResourceList(lists, speedDial);
                 }
-                createResourceForUser(list, button, m_coreContext.getDomainName());
+                createResourceForUser(list, button);
             }
         }
         return document;
     }
 
-    Element createResourceForUser(Element list, Button button, String domainName) {
+    private Element createResource(Element list, String uri, String name) {
         Element resource = list.addElement("resource");
-        resource.addAttribute("uri", buildUri(button, domainName));
-        addNameElement(resource, StringUtils.defaultIfEmpty(button.getLabel(), button.getNumber()));
+        // Append "sipx-noroute=Voicemail" and "sipx-userforward=false"
+        // URI parameters to the target URI to control how the proxy forwards
+        // SUBSCRIBEs to the resource URI.
+        resource.addAttribute("uri", uri + ";sipx-noroute=VoiceMail;sipx-userforward=false");
+        addNameElement(resource, name);
         return resource;
+    }
+
+    Element createResourceForUser(Element list, Button button) {
+        String name = StringUtils.defaultIfEmpty(button.getLabel(), button.getNumber());
+        return createResource(list, buildUri(button, m_coreContext.getDomainName()), name);
     }
 
     String buildUri(Button button, String domainName) {
@@ -74,10 +93,6 @@ public class ResourceLists extends XmlFile {
             }
             uri.append(SipUri.format(number, domainName, false));
         }
-        // Append "sipx-noroute=Voicemail" and "sipx-userforward=false"
-        // URI parameters to the target URI to control how the proxy forwards
-        // SUBSCRIBEs to the resource URI.
-        uri.append(";sipx-noroute=VoiceMail;sipx-userforward=false");
         return uri.toString();
     }
 
@@ -85,12 +100,21 @@ public class ResourceLists extends XmlFile {
         parent.addElement("name").setText(name);
     }
 
-    private Element createListForUser(Element lists, SpeedDial speedDial) {
+    private Element createResourceList(Element lists, String name, String full, String consolidated) {
         Element list = lists.addElement("list");
-        list.addAttribute("user", speedDial.getResourceListId(false));
-        list.addAttribute("user-cons", speedDial.getResourceListId(true));
-        addNameElement(list, speedDial.getResourceListName());
+        list.addAttribute("user", full);
+        list.addAttribute("user-cons", consolidated);
+        addNameElement(list, name);
         return list;
+    }
+
+    private Element createResourceList(Element lists, String name) {
+        return createResourceList(lists, name, getResourceListId(name, false), getResourceListId(name, true));
+    }
+
+    private Element createResourceList(Element lists, SpeedDial speedDial) {
+        return createResourceList(lists, speedDial.getResourceListName(), speedDial.getResourceListId(false),
+                speedDial.getResourceListId(true));
     }
 
     @Required
@@ -101,5 +125,12 @@ public class ResourceLists extends XmlFile {
     @Required
     public void setSpeedDialManager(SpeedDialManager speedDialManager) {
         m_speedDialManager = speedDialManager;
+    }
+
+    /**
+     * Name of the special list that monitors IM users.
+     */
+    public void setImListId(String imListId) {
+        m_imListId = imListId;
     }
 }

@@ -67,6 +67,11 @@ public class ResourceListsTest extends XMLTestCase {
             m_users.add(user);
         }
 
+        for (int i = 0; i < 2; i++) {
+            User user = new DummyImUser(i);
+            m_users.add(user);
+        }
+
         m_sd1 = createSpeedDial(BUTTONS_1);
         m_sd1.setUser(m_users.get(1));
 
@@ -115,14 +120,18 @@ public class ResourceListsTest extends XMLTestCase {
         sdmControl.andReturn(m_sd2);
         sdm.getSpeedDialForUserId(m_users.get(3).getId(), false);
         sdmControl.andReturn(m_sd3);
+        sdm.getSpeedDialForUserId(m_users.get(4).getId(), false);
+        sdmControl.andReturn(null);
+        sdm.getSpeedDialForUserId(m_users.get(5).getId(), false);
+        sdmControl.andReturn(null);
         sdmControl.replay();
 
         ResourceLists rl = new ResourceLists();
         rl.setCoreContext(coreContext);
         rl.setSpeedDialManager(sdm);
+        rl.setImListId("watcher");
 
         String generatedXml = getFileContent(rl, null);
-
         InputStream referenceXml = getClass().getResourceAsStream("resource-lists.test.xml");
         assertXMLEqual(new InputStreamReader(referenceXml), new StringReader(generatedXml));
 
@@ -135,6 +144,8 @@ public class ResourceListsTest extends XMLTestCase {
         CoreContext coreContext = coreContextControl.createMock(CoreContext.class);
         coreContext.loadUsers();
         coreContextControl.andReturn(Collections.emptyList());
+        coreContext.getDomainName();
+        coreContextControl.andReturn("example.org");
         coreContextControl.replay();
 
         ResourceLists rl = new ResourceLists();
@@ -146,7 +157,7 @@ public class ResourceListsTest extends XMLTestCase {
         coreContextControl.verify();
     }
 
-    public void testEmptyLabel() {
+    public void testCreateResourceForUser() {
         IMocksControl elementControl = EasyMock.createControl();
         Element list = elementControl.createMock(Element.class);
         Element item = elementControl.createMock(Element.class);
@@ -162,6 +173,8 @@ public class ResourceListsTest extends XMLTestCase {
 
         IMocksControl coreContextControl = EasyMock.createControl();
         CoreContext coreContext = coreContextControl.createMock(CoreContext.class);
+        coreContext.getDomainName();
+        coreContextControl.andReturn("example.org");
         coreContext.loadUserByAlias("123");
         coreContextControl.andReturn(null);
         coreContextControl.replay();
@@ -169,7 +182,7 @@ public class ResourceListsTest extends XMLTestCase {
         Button button = new Button(null, "123");
         ResourceLists rl = new ResourceLists();
         rl.setCoreContext(coreContext);
-        rl.createResourceForUser(list, button, "example.org");
+        rl.createResourceForUser(list, button);
 
         elementControl.verify();
     }
@@ -191,17 +204,13 @@ public class ResourceListsTest extends XMLTestCase {
 
         Button button = new Button();
         button.setNumber("abc@sipfoundry.org");
-        assertEquals("sip:abc@sipfoundry.org;sipx-noroute=VoiceMail;sipx-userforward=false", rl.buildUri(button,
-                "example.org"));
+        assertEquals("sip:abc@sipfoundry.org", rl.buildUri(button, "example.org"));
         button.setNumber("sip:abc@sipfoundry.org");
-        assertEquals("sip:abc@sipfoundry.org;sipx-noroute=VoiceMail;sipx-userforward=false", rl.buildUri(button,
-                "example.org"));
+        assertEquals("sip:abc@sipfoundry.org", rl.buildUri(button, "example.org"));
         button.setNumber("1234");
-        assertEquals("sip:abcd@example.org;sipx-noroute=VoiceMail;sipx-userforward=false", rl.buildUri(button,
-                "example.org"));
+        assertEquals("sip:abcd@example.org", rl.buildUri(button, "example.org"));
         button.setNumber("xyz");
-        assertEquals("sip:xyz@example.org;sipx-noroute=VoiceMail;sipx-userforward=false", rl.buildUri(button,
-                "example.org"));
+        assertEquals("sip:xyz@example.org", rl.buildUri(button, "example.org"));
 
         coreContextControl.verify();
     }
@@ -212,6 +221,21 @@ public class ResourceListsTest extends XMLTestCase {
         public DummyUser(int id) {
             char c = (char) ('a' - 1 + id);
             setUserName("user_" + c);
+            m_id = id;
+        }
+
+        @Override
+        public Integer getId() {
+            return m_id;
+        }
+    }
+
+    private class DummyImUser extends User {
+        int m_id;
+
+        public DummyImUser(int id) {
+            setUserName("user_name_" + id);
+            setImId("user_im_" + id);
             m_id = id;
         }
 

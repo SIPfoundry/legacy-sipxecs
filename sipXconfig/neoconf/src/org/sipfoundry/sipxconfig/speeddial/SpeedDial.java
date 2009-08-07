@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.speeddial;
@@ -26,16 +26,20 @@ public class SpeedDial extends SpeedDialButtons {
     }
 
     /**
-     * Returns the URL of the resource list coresponfing to this speed dial.
-     * 
+     * Returns the URL of the resource list corresponding to this speed dial.
+     *
      * @param consolidated needs to be set to true for phones that are not RFC compliant and
      *        expect "consolidated" view of resource list (see XCF-1453)
      */
     public String getResourceListId(boolean consolidated) {
+        return getResourceListId(getUser().getUserName(), consolidated);
+    }
+
+    public static String getResourceListId(String name, boolean consolidated) {
         StringBuilder listId = new StringBuilder("~~rl~");
         listId.append(consolidated ? 'C' : 'F');
         listId.append('~');
-        listId.append(getUser().getUserName());
+        listId.append(name);
         return listId.toString();
     }
 
