@@ -30,14 +30,6 @@
       </type>
       <description>The authentication user name attached to the account.</description>
     </setting>
-    <setting name="is-user-phone" hidden="yes">
-      <label>User name is a phone #</label>
-      <type>
-        <boolean />
-      </type>
-      <description>If true, the user name corresponds to a phone number.</description>
-      <value>true</value>
-    </setting>
     <setting name="password">
       <label>Password</label>
       <type>
@@ -110,6 +102,18 @@
         the ITSP server address proxy.
       </description>
     </setting>
+    <setting name="is-user-phone" advanced="yes">
+      <label>User part of INVITE SIP URI is a phone#</label>
+      <type refid="switch"></type>
+      <value>true</value>
+      <description>If true (the default), sipxbridge will attach a user=phone parameter to the call setup INVITE request URI.</description>
+    </setting>
+    <setting name="loose-route-invite" advanced="yes">
+      <label>ITSP supports "Loose Routing"</label>
+      <type refid="switch"></type>
+      <value>true</value>
+      <description>Defines whether or not to attach a "loose routing (lr)" Route header to the call setup INVITE request.</description>
+    </setting>
     <setting name="itsp-registrar-listening-port" advanced="yes">
       <label>ITSP Registrar Listening Port</label>
       <type>
@@ -126,6 +130,14 @@
       </type>
       <value>600</value>
       <description>Registration interval (seconds)</description>
+    </setting>
+    <setting name="sip-session-timer-interval-seconds" advanced="yes">
+      <label>Session Timer Interval</label>
+      <type>
+        <integer />
+      </type>
+      <value>1800</value>
+      <description>Session Timer Interval (seconds). Time interval between in-dialog INVITE requests to keep the session alive.</description>
     </setting>
     <setting name="sip-keepalive-method" advanced="yes">
       <label>Method to use for SIP keepalive.</label>

@@ -13,7 +13,6 @@
     <sipx-supervisor-xml-rpc-port>8092</sipx-supervisor-xml-rpc-port>
     <stun-server-address>stun01.sipphone.com</stun-server-address>
     <sip-keepalive-seconds>20</sip-keepalive-seconds>
-    <sip-session-timer-interval-seconds>1800</sip-session-timer-interval-seconds>
     <media-keepalive-seconds>1</media-keepalive-seconds>
     <xml-rpc-port>8088</xml-rpc-port>
     <music-on-hold-support-enabled>false</music-on-hold-support-enabled>
@@ -28,7 +27,6 @@
   <itsp-account>
     <itsp-proxy-domain>itsp.example.com</itsp-proxy-domain>
     <user-name>juser</user-name>
-    <is-user-phone>true</is-user-phone>
     <password>1234</password>
     <itsp-proxy-address>itsp.example.com</itsp-proxy-address>
     <itsp-proxy-listening-port>5061</itsp-proxy-listening-port>
@@ -37,9 +35,12 @@
     <strip-private-headers>false</strip-private-headers>
     <default-asserted-identity>true</default-asserted-identity>
     <register-on-initialization>true</register-on-initialization>
+    <is-user-phone>true</is-user-phone>
+    <loose-route-invite>true</loose-route-invite>
     <itsp-registrar-address>10.1.1.1</itsp-registrar-address>
     <itsp-registrar-listening-port>5071</itsp-registrar-listening-port>
     <registration-interval>600</registration-interval>
+    <sip-session-timer-interval-seconds>1800</sip-session-timer-interval-seconds>
     <sip-keepalive-method>CR-LF</sip-keepalive-method>
     <rtp-keepalive-method>NONE</rtp-keepalive-method>
   </itsp-account>

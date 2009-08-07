@@ -12,7 +12,6 @@
     <sipx-supervisor-xml-rpc-port>8092</sipx-supervisor-xml-rpc-port>
     <stun-server-address>stun01.sipphone.com</stun-server-address>
     <sip-keepalive-seconds>20</sip-keepalive-seconds>
-    <sip-session-timer-interval-seconds>1800</sip-session-timer-interval-seconds>
     <media-keepalive-seconds>1</media-keepalive-seconds>
     <xml-rpc-port>8088</xml-rpc-port>
     <music-on-hold-support-enabled>false</music-on-hold-support-enabled>

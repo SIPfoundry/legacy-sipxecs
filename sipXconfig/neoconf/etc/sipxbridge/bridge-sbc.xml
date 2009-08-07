@@ -87,16 +87,6 @@
         the NAT pinhole open.
       </description>
     </setting>
-    <setting name="sip-session-timer-interval-seconds" hidden="yes">
-      <label>Signaling keep-alive interval</label>
-      <type>
-        <integer required="no" />
-      </type>
-      <value>1800</value>
-      <description>
-        SIP Session Timer interval (seconds).
-      </description>
-    </setting>
     <setting name="media-keepalive-seconds" advanced="yes">
       <label>Media keep-alive interval</label>
       <type>
