@@ -11,6 +11,7 @@ SUBDIRS = \
         nortel12x0 \
         counterpath \
         cmcprov \
+        openfire \
         polycom \
         snom
 

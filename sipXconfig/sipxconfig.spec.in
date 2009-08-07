@@ -315,6 +315,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/unmanagedPhone/*
 %config(noreplace) %{sipxpbxconf}/mailbox/*
 %config(noreplace) %{sipxpbxconf}/sipxsaa/*
+%config(noreplace) %{sipxpbxconf}/openfire/*
 
 %define audiocodesdir %{_localstatedir}/sipxdata/audiocodes
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{audiocodesdir}

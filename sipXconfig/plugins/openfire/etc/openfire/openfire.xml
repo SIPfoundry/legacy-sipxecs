@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="loglevel">
+    <enum>
+      <option>
+        <value>DEBUG</value>
+      </option>
+      <option>
+        <value>INFO</value>
+      </option>
+      <option>
+        <value>NOTICE</value>
+      </option>
+      <option>
+        <value>WARNING</value>
+      </option>
+      <option>
+        <value>ERR</value>
+      </option>
+      <option>
+        <value>CRIT</value>
+      </option>
+      <option>
+        <value>ALERT</value>
+      </option>
+      <option>
+        <value>EMERG</value>
+      </option>
+    </enum>
+  </type>
+  <group name="settings">
+    <setting name="sipx-proxy-domain">
+      <type>
+        <string required="yes"/>
+      </type>
+    </setting>
+    <setting name="sipx-proxy-port">
+      <type>
+        <integer required="yes"/>
+      </type>
+      <value>5060</value>
+    </setting>
+    <setting name="user-name">
+      <type>
+        <string required="yes"/>
+      </type>
+      <value>watcher</value>
+    </setting>
+    <setting name='password'>
+      <type>
+        <string password="yes" required="yes"></string>
+      </type>
+      <value>123</value>
+    </setting>
+    <setting name="resource-list" hidden="yes">
+      <type>
+        <string/>
+      </type>
+      <value>~~rl~F~watcher</value>
+    </setting>
+    <setting name="watcher-address">
+      <type>
+        <string required="yes"/>
+      </type>
+      <value></value>
+    </setting>
+    <setting name="watcher-port">
+      <type>
+        <integer required="yes"/>
+      </type>
+      <value>5064</value>
+    </setting>
+    <setting name="log-level" hidden="yes">
+      <type refid="loglevel" />
+      <value>DEBUG</value>
+    </setting>
+    <setting name="openfire-xml-rpc-port">
+      <type>
+        <integer required="yes"/>
+      </type>
+      <value>9094</value>
+    </setting>
+    <setting name="openfire-host">
+      <type>
+        <string required="yes"/>
+      </type>
+    </setting>
+  </group>
+</model>

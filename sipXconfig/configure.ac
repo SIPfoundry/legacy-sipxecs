@@ -123,6 +123,7 @@ AC_CONFIG_FILES([
     plugins/nortel12x0/Makefile
     plugins/counterpath/Makefile
     plugins/cmcprov/Makefile
+    plugins/openfire/Makefile
     plugins/polycom/Makefile
     plugins/snom/Makefile
 ])
