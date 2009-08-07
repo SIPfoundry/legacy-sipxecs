@@ -50,6 +50,9 @@ public abstract class SipxService extends BeanWithSettings implements Model {
     private SipxServiceManager m_serviceManager;
     private LoggingManager m_loggingManager;
 
+    /** If set to true sipXconfig will display default configuration page */
+    private boolean m_editable;
+
     public String getProcessName() {
         return m_processName;
     }
@@ -174,6 +177,14 @@ public abstract class SipxService extends BeanWithSettings implements Model {
 
     public String getConfDir() {
         return m_confDir;
+    }
+
+    public void setEditable(boolean editable) {
+        m_editable = editable;
+    }
+
+    public boolean isEditable() {
+        return m_editable;
     }
 
     /**

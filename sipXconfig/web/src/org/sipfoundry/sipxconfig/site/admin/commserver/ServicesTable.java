@@ -143,6 +143,15 @@ public abstract class ServicesTable extends BaseComponent {
     @Asset("/images/service_restart.png")
     public abstract IAsset getRestartIcon();
 
+    private void initializeDefaultEditServices() {
+        Collection<SipxService> services = getSipxServiceManager().getServiceDefinitions();
+        for (SipxService service : services) {
+            if (service.isEditable()) {
+                SERVICE_MAP.put(service.getBeanId(), EditSipxService.PAGE);
+            }
+        }
+    }
+
     public String getServiceLabel() {
         String serviceBeanId = getCurrentRow().getServiceBeanId();
         String key = "label." + serviceBeanId;
@@ -167,6 +176,7 @@ public abstract class ServicesTable extends BaseComponent {
     }
 
     public Object[] getServiceStatus() {
+        initializeDefaultEditServices();
         Object[] serviceStatus = getServiceStatusCached();
         if (serviceStatus == null) {
             serviceStatus = retrieveServiceStatus(getServiceLocation());
