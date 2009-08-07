@@ -61,6 +61,16 @@
     <binding name="preferences" value="mailboxPreferences"/>
     <binding name="admin" value="true"/>
   </component>
+  <component id="imIdPanel" type="common/FieldPanel">
+    <binding name="field" value="components.imId"/>
+    <binding name="label" value="message:label.imId"/>
+    <binding name="description" value="message:description.imId"/>
+  </component>
+  <component id="imId" type="TextField">
+    <binding name="value" value="user.imId"/>
+    <binding name="validators" value="spring-validators:validSipUserId"/>
+    <binding name="displayName" value="message:label.imId"/>
+  </component>
    <component id="pin" type="user/ConfirmPassword">
     <binding name="password" value="pin"/>
     <binding name="passwordDisplayName" value="message:label.pin"/>
