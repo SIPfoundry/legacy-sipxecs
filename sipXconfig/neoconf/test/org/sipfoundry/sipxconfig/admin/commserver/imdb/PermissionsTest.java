@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
@@ -14,6 +14,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 
 import junit.framework.TestCase;
 
@@ -32,6 +34,9 @@ import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 
 public class PermissionsTest extends TestCase {
+    // needs to be adjusted every time a new permission is added
+    private static int PERM_COUNT = 5;
+    private static int SPEC_COUNT = SpecialUserType.values().length;
 
     public void testGenerateEmpty() throws Exception {
         PermissionManagerImpl pm = new PermissionManagerImpl();
@@ -58,24 +63,17 @@ public class PermissionsTest extends TestCase {
         permissions.setCoreContext(coreContext);
         permissions.setCallGroupContext(callGroupContext);
 
-        List<Map<String,String>> items = permissions.generate();
-        assertEquals(35, items.size());
+        List<Map<String, String>> items = permissions.generate();
+        assertEquals(SPEC_COUNT * PERM_COUNT, items.size());
         // 5 permissions per special user
-        
-        assertEquals("sip:~~id~park@host.company.com",  items.get(0).get("identity"));
-        assertEquals("sip:~~id~park@host.company.com", items.get(4).get("identity"));
-        assertEquals("sip:~~id~media@host.company.com", items.get(5).get("identity"));
-        assertEquals("sip:~~id~media@host.company.com", items.get(9).get("identity"));
-        assertEquals("sip:~~id~acd@host.company.com", items.get(10).get("identity"));
-        assertEquals("sip:~~id~acd@host.company.com", items.get(14).get("identity"));
-        assertEquals("sip:~~id~config@host.company.com", items.get(15).get("identity"));
-        assertEquals("sip:~~id~config@host.company.com", items.get(19).get("identity"));
-        assertEquals("sip:~~id~sipXrls@host.company.com", items.get(20).get("identity"));
-        assertEquals("sip:~~id~sipXrls@host.company.com", items.get(24).get("identity"));
-        assertEquals("sip:~~id~registrar@host.company.com", items.get(25).get("identity"));
-        assertEquals("sip:~~id~registrar@host.company.com", items.get(29).get("identity"));
-        assertEquals("sip:~~id~sipXsaa@host.company.com", items.get(30).get("identity"));
-        assertEquals("sip:~~id~sipXsaa@host.company.com", items.get(34).get("identity"));
+
+        for (SpecialUserType su : SpecialUserType.values()) {
+            int i = su.ordinal();
+
+            String name = "sip:" + su.getUserName() + "@host.company.com";
+            assertEquals(name, items.get(i * PERM_COUNT).get("identity"));
+            assertEquals(name, items.get((i + 1) * PERM_COUNT - 1).get("identity"));
+        }
         verify(coreContext, callGroupContext);
     }
 
@@ -113,13 +111,12 @@ public class PermissionsTest extends TestCase {
         permissions.setCoreContext(coreContext);
         permissions.setCallGroupContext(callGroupContext);
 
-        List<Map<String,String>> items = permissions.generate();
+        List<Map<String, String>> items = permissions.generate();
 
-        // 5 permissions per special user - 7 special users == 35
-        int start = 35;
-        
+        int start = SPEC_COUNT * PERM_COUNT;
+
         assertEquals(start + 10, items.size());
-        
+
         assertEquals("sip:sales@host.company.com", items.get(start + 0).get("identity"));
         assertEquals("sip:sales@host.company.com", items.get(start + 4).get("identity"));
         assertEquals("sip:marketing@host.company.com", items.get(start + 5).get("identity"));
@@ -129,7 +126,7 @@ public class PermissionsTest extends TestCase {
     }
 
     public void testAddUser() throws Exception {
-        List<Map<String, String>> items = new ArrayList<Map<String,String>>();
+        List<Map<String, String>> items = new ArrayList<Map<String, String>>();
 
         PermissionManagerImpl pm = new PermissionManagerImpl();
         pm.setModelFilesContext(TestHelper.getModelFilesContext());
@@ -152,14 +149,14 @@ public class PermissionsTest extends TestCase {
         Permissions permissions = new Permissions();
         permissions.addUser(items, user, "sipx.sipfoundry.org");
 
-        assertEquals(5, items.size());
+        assertEquals(PERM_COUNT, items.size());
         assertEquals("sip:goober@sipx.sipfoundry.org", items.get(0).get("identity"));
-        assertEquals("LocalDialing",  items.get(0).get("permission"));
+        assertEquals("LocalDialing", items.get(0).get("permission"));
 
         assertEquals("sip:goober@sipx.sipfoundry.org", items.get(3).get("identity"));
         assertEquals("ExchangeUMVoicemailServer", items.get(3).get("permission"));
 
-        assertEquals("sip:~~vm~goober@sipx.sipfoundry.org",  items.get(4).get("identity"));
+        assertEquals("sip:~~vm~goober@sipx.sipfoundry.org", items.get(4).get("identity"));
         assertEquals("ExchangeUMVoicemailServer", items.get(4).get("permission"));
     }
 }
