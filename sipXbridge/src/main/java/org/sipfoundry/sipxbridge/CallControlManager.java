@@ -208,6 +208,11 @@ class CallControlManager implements SymmitronResetHandler {
         SipProvider provider = (SipProvider) requestEvent.getSource();
 
         DialogContext dat = (DialogContext) dialog.getApplicationData();
+        
+        if ( dat == null ) {
+            logger.error("Null Dialog Context detected on dialog " + dialog);
+            return;
+        }
 
         Dialog peerDialog = dat.getPeerDialog();
 
@@ -2257,6 +2262,17 @@ class CallControlManager implements SymmitronResetHandler {
              */
             if ( SipUtilities.getFromTag(response) != null
                     && SipUtilities.getToTag(response) != null ) {
+                try {
+                    if ( response.getStatusCode()/ 100 == 2 && 
+                            SipUtilities.getCSeqMethod(response).equals(Request.INVITE) && dialog != null &&
+                            dialog.getState() != DialogState.TERMINATED ) {
+                        logger.debug("Sending ACK to 200 OK");
+                        Request ackRequest = dialog.createAck(SipUtilities.getSeqNumber(response));
+                        dialog.sendAck(ackRequest);                    
+                    }
+                } catch (Exception ex) {
+                    logger.error("Error Sending ACK to 200 OK response",ex);
+                }
                 logger.debug("Dropping response -- no client transaction");
                 return;
             } else if ( dialog == null ) {

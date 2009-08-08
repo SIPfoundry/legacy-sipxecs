@@ -41,7 +41,7 @@ class CrLfTimerTask extends TimerTask {
                 (InetAddress.getByName(accountInfo.getInboundProxy()).getHostAddress(),
                     accountInfo.getInboundProxyPort());
         } catch (Exception ex) {
-            logger.error("Unexpected parse exception",ex);
+            logger.error("Unexpected exception in CRLF timer task "+ ex.getMessage());
         }
         
 

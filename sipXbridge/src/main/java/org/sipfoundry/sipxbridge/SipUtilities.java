@@ -1708,4 +1708,9 @@ class SipUtilities {
         return extensionHeader;
     }
 
+    public static String getCSeqMethod(Message message) {
+        CSeqHeader cseqHeader = (CSeqHeader) message.getHeader(CSeqHeader.NAME);
+        return cseqHeader.getMethod();
+    }
+
 }

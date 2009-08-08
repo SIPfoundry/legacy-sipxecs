@@ -19,7 +19,6 @@ import javax.sip.message.Request;
 import javax.sip.message.Response;
 
 import org.apache.log4j.Logger;
-import org.sipfoundry.sipxbridge.symmitron.SymmitronException;
 
 /**
  * Utility functions to send various requests and error responses.
@@ -162,10 +161,7 @@ public class CallControlUtilities {
 
             SessionDescription answerSessionDescription = SipUtilities
                     .getSessionDescription(response);
-            
-            String ipAddress = SipUtilities.getSessionDescriptionMediaIpAddress(answerSessionDescription);
-            int port = SipUtilities.getSessionDescriptionMediaPort(answerSessionDescription);
-         
+             
             /*
              * Get the codecs in the answer.
              */
