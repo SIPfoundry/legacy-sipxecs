@@ -66,11 +66,7 @@ public class AudioCodesDigitalGatewayTest extends TestCase {
 
         m_gateway.setSettingValue("SIP_general/SOURCENUMBERMAPIP2TEL","*,0,$$,$$,$$,$$,*,1,*");
         m_gateway.setSettingValue("SIP_general/REMOVECLIWHENRESTRICTED","1");
-        m_gateway.setSettingValue("SIP_coders/CoderName/Type[0]", "g711Alaw64k");
-        m_gateway.setSettingValue("SIP_coders/CoderName/Type[1]", "g729");
-        m_gateway.setSettingValue("SIP_coders/CoderName/Type[2]", "g711Alaw64k");
-        m_gateway.setSettingValue("SIP_coders/CoderName/Type[3]", "g711Alaw64k");
-        m_gateway.setSettingValue("SIP_coders/CoderName/Type[4]", "g711Alaw64k");
+        m_gateway.setSettingValue("SIP_coders/CoderName", "g711Alaw64k|g729");
         m_gateway.setSettingValue("advanced_general/SAS/EnableSAS", "1");
         m_gateway.setSettingValue("advanced_general/SAS/SASLocalSIPUDPPort", "5440");
         m_gateway.setSettingValue("advanced_general/SAS/SASDefaultGatewayIP", "10.10.10.50");

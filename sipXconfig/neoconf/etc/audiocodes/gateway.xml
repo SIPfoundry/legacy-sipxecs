@@ -44,6 +44,25 @@
       </option>
     </enum>
   </type>
+  <type id="preffered-codecs-type">
+    <multi-enum labelKeyPrefix="codec">
+      <option>
+        <value>g711Alaw64k</value>
+      </option>
+      <option>
+        <value>g711Ulaw64k</value>
+      </option>
+      <option>
+        <value>g729</value>
+      </option>
+      <option>
+        <value>g7231</value>
+      </option>
+      <option>
+        <value>g726</value>
+      </option>
+    </multi-enum>
+  </type>
   <group name="SIP_general">
     <label>SIP</label>
     <setting name='SOURCENUMBERMAPIP2TEL' advanced="yes" if="digital">
@@ -469,40 +488,10 @@ destination and then sends a new INVITE to this destination</description>
   </group>
   <group name="SIP_coders">
     <label>Voice Codecs</label>
-    <collection name="CoderName" size="5">
-      <setting name="Type">
-        <label>Codec</label>
-        <type>
-          <enum>
-            <option>
-              <label>G.711 A-law</label>
-              <value>g711Alaw64k</value>
-            </option>
-            <option>
-              <label>G.711 u-law</label>
-              <value>g711Ulaw64k</value>
-            </option>
-            <option>
-              <label>G.729</label>
-              <value>g729</value>
-            </option>
-            <option>
-              <label>G.723.1</label>
-              <value>g7231</value>
-            </option>
-            <option>
-              <label>G.726</label>
-              <value>g726</value>
-            </option>
-            <option>
-              <value></value>
-            </option>
-          </enum>
-        </type>
-        <value>g711Ulaw64k</value>
-      </setting>
-      <description>List of preferred codecs in the order of priority</description>
-    </collection>
+    <setting name="CoderName">
+      <type refid="preffered-codecs-type"/>
+      <value>g711Ulaw64k</value>
+    </setting>
   </group>
   <group name="SIP_Proxy_Registration">
     <label>Proxy and Registration</label>

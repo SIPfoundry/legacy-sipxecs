@@ -12,12 +12,21 @@
 ## Emits a parameter table.
 #macro(emit_parameter_table $s)
 #set($backslash = '\')
-#if($s.ProfileName && $s.ProfileName != '$ignore$')
+#if($s.ProfileName && $s.ProfileName != '$ignore$' && $s.ProfileName != "CoderName")
 [$s.profileName]
 FORMAT ${s.profileName}_Index =#foreach ($name in $s.settingNames)#if ($velocityCount > 1),#end ${s.profileName}_$name#end;
 #foreach ($row in [1..$s.size])
 #set ($settingIndex = $velocityCount - 1)
 $s.profileName $settingIndex=#foreach ($name in $s.settingNames)#if ($velocityCount > 1), #end$s.getSetting($settingIndex, $name).value#end;
+#end
+[${backslash}${s.profileName}]
+#elseif($s.ProfileName == "CoderName")
+#set($codecs = $s.getTypedValue())
+[$s.profileName]
+FORMAT CoderName_Index = CoderName_Type;
+#foreach ($codec in $codecs)
+#set ($settingIndex = $velocityCount - 1)
+$s.profileName $settingIndex=${codec};
 #end
 [${backslash}${s.profileName}]
 #end

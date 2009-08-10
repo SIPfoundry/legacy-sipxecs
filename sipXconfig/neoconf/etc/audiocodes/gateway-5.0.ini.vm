@@ -10,11 +10,17 @@
 
 #end
 #macro(emit_parameter_table $s)
+#if($s.ProfileName && $s.ProfileName != "CoderName")
 #foreach ($row in [1..$s.size])
 #set ($settingIndex = $velocityCount - 1)
 #if($s.ProfileName && $s.ProfileName != '$ignore$')
 $s.profileName=#foreach ($name in $s.settingNames)#if($velocityCount > 1),#end$s.getSetting($settingIndex, $name).Value#end
-
+#end
+#end
+#elseif($s.ProfileName == "CoderName")
+#set($codecs = $s.getTypedValue())
+#foreach ($codec in $codecs)
+${s.ProfileName}=${codec}
 #end
 #end
 #end
