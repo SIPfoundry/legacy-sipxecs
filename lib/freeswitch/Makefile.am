@@ -1,4 +1,4 @@
-VERSION = 1.0.3
+VERSION = 1.0.4
 RELEASE = 1
 
 SRC_DIR = $(srcdir)/src

@@ -7,7 +7,7 @@ Name:         sipx-freeswitch
 Summary:      FreeSWITCH open source telephony platform (sipX integration)
 License:      MPL
 Group:        Productivity/Telephony/Servers
-Version:      1.0.3
+Version:      1.0.4
 Release:      1
 URL:          http://www.freeswitch.org/
 Packager:     SIPFoundry <sipx-dev@sipfoundry.org> (original by Michal Bielicki)
@@ -227,8 +227,10 @@ touch .noversion
 # delete unsupported langugages for now
 rm -rf conf/lang/de
 rm -rf conf/lang/fr
+rm -rf conf/lang/ru
 rm -rf $RPM_BUILD_ROOT%{prefix}/conf/lang/de
 rm -rf $RPM_BUILD_ROOT%{prefix}/conf/lang/fr
+rm -rf $RPM_BUILD_ROOT%{prefix}/conf/lang/ru
 
 %{__make} DESTDIR=$RPM_BUILD_ROOT install
 
@@ -291,6 +293,7 @@ rm -rf $RPM_BUILD_ROOT%{prefix}/conf/lang/fr
 %dir %{prefix}/
 %dir %{prefix}/bin
 %dir %{prefix}/lib
+%dir %{prefix}/lib/pkgconfig
 %dir %{prefix}/mod
 %dir %{prefix}/db
 %dir %{prefix}/log
@@ -309,6 +312,7 @@ rm -rf $RPM_BUILD_ROOT%{prefix}/conf/lang/fr
 %dir %{prefix}/conf/sip_profiles/internal
 %dir %{prefix}/conf/sip_profiles/external
 %dir %{prefix}/conf/jingle_profiles
+%dir %{prefix}/conf/mrcp_profiles
 %ifos linux
 %config(noreplace) /etc/monit.d/freeswitch.monitrc
 %endif
@@ -327,6 +331,7 @@ rm -rf $RPM_BUILD_ROOT%{prefix}/conf/lang/fr
 %config(noreplace) %{prefix}/conf/sip_profiles/internal/*.xml
 %config(noreplace) %{prefix}/conf/sip_profiles/external/*.xml
 %config(noreplace) %{prefix}/conf/jingle_profiles/*.xml
+%config(noreplace) %{prefix}/conf/mrcp_profiles/*.xml
 %config(noreplace) %{prefix}/htdocs/*
 %ifos linux
 /etc/ld.so.conf.d/*
@@ -339,6 +344,7 @@ rm -rf $RPM_BUILD_ROOT%{prefix}/conf/lang/fr
 %attr(0755,%{fs_user},daemon) %{prefix}/bin/*
 %{prefix}/lib/libfreeswitch*.so*
 %{prefix}/lib/libopenzap.so*
+%{prefix}/lib/pkgconfig/*
 %{prefix}/mod/mod_console.so*
 %{prefix}/mod/mod_logfile.so*
 %{prefix}/mod/mod_syslog.so*
@@ -381,7 +387,6 @@ rm -rf $RPM_BUILD_ROOT%{prefix}/conf/lang/fr
 %{prefix}/mod/ozmod_isdn.so*
 %{prefix}/mod/ozmod_skel.so*
 %{prefix}/mod/ozmod_ss7_boost.so*
-%{prefix}/mod/ozmod_wanpipe.so*
 %{prefix}/mod/ozmod_zt.so*
 
 %files codec-passthru-amr
