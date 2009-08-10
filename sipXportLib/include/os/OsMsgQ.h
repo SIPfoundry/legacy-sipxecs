@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2009 Nortel Networks, certain elements licensed under a Contributor Agreement.  
+//
 // Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
@@ -74,6 +76,12 @@ public:
                          const OsTime& rTimeout=OsTime::OS_INFINITY) = 0;
      //:Insert a message at the tail of the queue and wait for a response
      // Wait until there is either room on the queue or the timeout expires.
+
+   virtual OsStatus sendP(OsMsg* pMsg,
+                          const OsTime& rTimeout=OsTime::OS_INFINITY) = 0;
+     //:Insert a message at the tail of the queue
+     // Wait until there is either room on the queue or the timeout expires.
+     // Takes ownership of *pMsg.
 
    virtual OsStatus sendUrgent(const OsMsg& rMsg,
                                const OsTime& rTimeout=OsTime::OS_INFINITY) = 0;

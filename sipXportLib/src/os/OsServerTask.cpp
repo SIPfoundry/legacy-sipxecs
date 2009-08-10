@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2009 Nortel Networks, certain elements licensed under a Contributor Agreement.  
+//
 // Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
@@ -92,7 +94,8 @@ UtlBoolean OsServerTask::handleMessage(OsMsg& rMsg)
 
 // Post a message to this task.
 // Return the result of the message send operation.
-OsStatus OsServerTask::postMessage(const OsMsg& rMsg, const OsTime& rTimeout,
+OsStatus OsServerTask::postMessage(const OsMsg& rMsg,
+                                   const OsTime& rTimeout,
                                    UtlBoolean sentFromISR)
 {
    OsStatus res;
@@ -101,6 +104,16 @@ OsStatus OsServerTask::postMessage(const OsMsg& rMsg, const OsTime& rTimeout,
       res = mIncomingQ.sendFromISR(rMsg);
    else
       res = mIncomingQ.send(rMsg, rTimeout);
+   return res;
+}
+
+// Post a message to this task.
+// Return the result of the message send operation.
+OsStatus OsServerTask::postMessageP(OsMsg* pMsg,
+                                    const OsTime& rTimeout)
+{
+   OsStatus res = mIncomingQ.sendP(pMsg, rTimeout);
+
    return res;
 }
 

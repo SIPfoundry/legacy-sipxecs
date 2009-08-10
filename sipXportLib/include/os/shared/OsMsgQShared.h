@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2009 Nortel Networks, certain elements licensed under a Contributor Agreement.  
+//
 // Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
@@ -64,6 +66,12 @@ public:
                          const OsTime& rTimeout=OsTime::OS_INFINITY);
      //:Insert a message at the tail of the queue
      // Wait until there is either room on the queue or the timeout expires.
+
+   virtual OsStatus sendP(OsMsg* pMsg,
+                          const OsTime& rTimeout=OsTime::OS_INFINITY);
+     //:Insert a message at the tail of the queue
+     // Wait until there is either room on the queue or the timeout expires.
+     // Takes ownership of *pMsg.
 
    virtual OsStatus sendUrgent(const OsMsg& rMsg,
                                const OsTime& rTimeout=OsTime::OS_INFINITY);
@@ -136,9 +144,22 @@ private:
                               //  by mIncrementLevel
 #endif
 
-   OsStatus doSend(const OsMsg& rMsg, const OsTime& rTimeout,
-                   const UtlBoolean isUrgent, const UtlBoolean sendFromISR);
-     //:Helper function for sending messages
+   OsStatus doSend(const OsMsg& rMsg,
+                   const OsTime& rTimeout,
+                   const UtlBoolean isUrgent,
+                   const UtlBoolean sendFromISR);
+     //:Helper function for sending messages that may not need to be copied
+
+   OsStatus doSendCore(OsMsg* pMsg,
+                       const OsTime& rTimeout,
+                       UtlBoolean isUrgent,
+                       UtlBoolean deleteWhenDone
+                       /**< If true, if the message is not sent, doSendCore
+                        *   will delete it.  Set if the caller expects the
+                        *   recipient to delete *pMsg.
+                        */
+      );
+     //:Core helper function for sending messages.
 
    OsStatus doReceive(OsMsg*& rpMsg, const OsTime& rTimeout);
      //:Helper function for removing a message from the head of the queue

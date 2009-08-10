@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2009 Nortel Networks, certain elements licensed under a Contributor Agreement.  
+//
 // Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
@@ -103,15 +105,28 @@ OsMsgQShared::~OsMsgQShared()
 // Insert a message at the tail of the queue
 // Wait until there is either room on the queue or the timeout expires.
 OsStatus OsMsgQShared::send(const OsMsg& rMsg,
-                         const OsTime& rTimeout)
+                            const OsTime& rTimeout)
 {
    return doSend(rMsg, rTimeout, FALSE, FALSE);
+}
+
+// Insert a message at the tail of the queue
+// Wait until there is either room on the queue or the timeout expires.
+OsStatus OsMsgQShared::sendP(OsMsg* pMsg,
+                             const OsTime& rTimeout)
+{
+   pMsg->setSentFromISR(FALSE);  // set flag in the msg to indicate
+                                 //  whether sent from an ISR
+
+   OsStatus ret = doSendCore(pMsg, rTimeout, FALSE, TRUE);
+
+   return ret;
 }
 
 // Insert a message at the head of the queue
 // Wait until there is either room on the queue or the timeout expires.
 OsStatus OsMsgQShared::sendUrgent(const OsMsg& rMsg,
-                               const OsTime& rTimeout)
+                                  const OsTime& rTimeout)
 {
    return doSend(rMsg, rTimeout, TRUE, FALSE);
 }
@@ -171,12 +186,43 @@ void OsMsgQShared::show(void)
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
-OsStatus OsMsgQShared::doSend(const OsMsg& rMsg, const OsTime& rTimeout,
+// Send a message which may be reusable, or may need to be copied first.
+OsStatus OsMsgQShared::doSend(const OsMsg& rMsg,
+                              const OsTime& rTimeout,
                               const UtlBoolean isUrgent,
                               const UtlBoolean sendFromISR)
 {
+   OsMsg*     pMsg;
+   UtlBoolean copy = sendFromISR || rMsg.isMsgReusable();
+
+   if (copy)
+   {
+      // Remove the const from &rMsg.
+      // (The const was just an efficiency hack anyway.)
+      pMsg = const_cast <OsMsg*> (&rMsg);
+   }
+   else
+   {
+      pMsg = rMsg.createCopy();      // we place a copy of the message on the
+				     //  queue so that the caller is free to
+				     //  destroy the original
+   }
+
+   pMsg->setSentFromISR(sendFromISR);// set flag in the msg to indicate
+				     //  whether sent from an ISR
+
+   OsStatus ret = doSendCore(pMsg, rTimeout, isUrgent, copy);
+
+   return ret;
+}
+
+// Core send message logic.
+OsStatus OsMsgQShared::doSendCore(OsMsg* pMsg,
+				  const OsTime& rTimeout,
+				  UtlBoolean isUrgent,
+                                  UtlBoolean deleteWhenDone)
+{
    OsStatus ret;
-   OsMsg*   pMsg;
    const void*    insResult;
 
 #ifdef MSGQ_IS_VALID_CHECK /* [ */
@@ -195,7 +241,7 @@ OsStatus OsMsgQShared::doSend(const OsMsg& rMsg, const OsTime& rTimeout,
 
    if (mSendHookFunc != NULL)
    {
-      if (mSendHookFunc(rMsg))
+      if (mSendHookFunc(*pMsg))
       {
          // by returning TRUE, the mSendHookFunc indicates that it has handled
          // the message and there is no need to queue the message.
@@ -209,6 +255,11 @@ OsStatus OsMsgQShared::doSend(const OsMsg& rMsg, const OsTime& rTimeout,
          rc = mGuard.release();         // exit critical section
          assert(rc == OS_SUCCESS);
 #endif /* MSGQ_IS_VALID_CHECK ] */
+         if (deleteWhenDone)
+         {
+            // Delete *pMsg, since we are done with it.
+            delete pMsg;
+         }
          return OS_SUCCESS;
       }
    }
@@ -221,46 +272,43 @@ OsStatus OsMsgQShared::doSend(const OsMsg& rMsg, const OsTime& rTimeout,
                       "OsMsgQShared::doSend message send failed - no room, ret = %d",
                       ret);*/
       if (ret == OS_BUSY || ret == OS_WAIT_TIMEOUT)
-         ret =  OS_WAIT_TIMEOUT;     // send timed out
+      {
+	 ret =  OS_WAIT_TIMEOUT;     // send timed out
+      }
    }
    else
    {
-      if (sendFromISR || rMsg.isMsgReusable())
-      {
-         pMsg = (OsMsg*) &rMsg;
-      }
-      else
-      {
-         pMsg = rMsg.createCopy();      // we place a copy of the message on the
-                                        //  queue so that the caller is free to
-                                        //  destroy the original
-      }
-
-      pMsg->setSentFromISR(sendFromISR);// set flag in the msg to indicate
-                                        //  whether sent from an ISR
-
       ret = mGuard.acquire();           // start critical section
       assert(ret == OS_SUCCESS);
 
       if (isUrgent)
+      {
          insResult = mDlist.insertAt(0, pMsg); // insert msg at queue head
+      }
       else
+      {
          insResult = mDlist.insert(pMsg);      // insert msg at queue tail
+      }
 
 #ifdef MSGQ_IS_VALID_CHECK
       msgCnt = mDlist.entries();
       if (msgCnt > mHighCnt)
-         mHighCnt = msgCnt;
+      {
+	 mHighCnt = msgCnt;
+      }
 #endif
 
       if (insResult == NULL)
       {                                 // queue insert failed
          OsSysLog::add(FAC_KERNEL, PRI_CRIT,
                        "OsMsgQShared::doSend message send failed - insert failed");
-         if (!(sendFromISR || rMsg.isMsgReusable()))
-            delete pMsg;                // destroy the msg copy we made earlier
          assert(FALSE);
 
+         if (deleteWhenDone)
+         {
+            // Delete *pMsg, since we are done with it.
+            delete pMsg;
+         }
          ret = OS_UNSPECIFIED;
       }
       else
@@ -304,7 +352,9 @@ OsStatus OsMsgQShared::doSend(const OsMsg& rMsg, const OsTime& rTimeout,
       {
           OsSysLogPriority pri = PRI_INFO;
           if (curCount == mMaxMsgs)
-                pri = PRI_WARNING;
+	  {
+	     pri = PRI_WARNING;
+	  }
 
           OsSysLog::add(FAC_KERNEL, pri,
                         "OsMsgQShared::doSend Message queue %p increased to %d msgs (max=%d)\n",
@@ -324,9 +374,13 @@ OsStatus OsMsgQShared::doSend(const OsMsg& rMsg, const OsTime& rTimeout,
    assert(rc == OS_SUCCESS);
 
    if (ret == OS_SUCCESS)
+   {
       mNumInsertExitOk++;
+   }
    else
+   {
       mNumInsertExitFail++;
+   }
 
    testMessageQ();
 

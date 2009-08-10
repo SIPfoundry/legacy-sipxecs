@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2009 Nortel Networks, certain elements licensed under a Contributor Agreement.  
+//
 // Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
@@ -87,8 +89,15 @@ public:
    
    /// Posts a message to this task.
    virtual OsStatus postMessage(const OsMsg& rMsg,
+                                ///< rMsg is usually copied before being used.
                                 const OsTime& rTimeout=OsTime::OS_INFINITY,
                                 UtlBoolean sentFromISR=FALSE);
+   ///< Return the result of the message send operation.
+
+   /// Posts a message to this task.
+   virtual OsStatus postMessageP(OsMsg* pMsg,
+                                 ///< *pMsg becomes owned by the task.
+                                 const OsTime& rTimeout=OsTime::OS_INFINITY);
    ///< Return the result of the message send operation.
 
    ///< Send a message to the task requesting that it shut down. 
@@ -140,4 +149,3 @@ private:
 };
 
 #endif  // _OsServerTask_h_
-
