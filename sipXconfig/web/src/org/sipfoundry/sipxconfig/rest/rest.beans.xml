@@ -20,6 +20,19 @@
   </bean>
   <alias name="phonebooksResource" alias="/phonebook" />
 
+  <bean id="userPhonebookResource" class="org.sipfoundry.sipxconfig.rest.UserPhonebookSearchResource" scope="prototype">
+    <property name="phonebookManager" ref="phonebookManager" />
+    <property name="coreContext" ref="coreContext" />
+    <property name="modifiable" value="false" />
+    <property name="readable" value="true" />
+  </bean>
+  <alias name="userPhonebookResource" alias="/my/search/phonebook?query={search-term}" />
+
+  <bean id="userPhonebookResourceAll" class="org.sipfoundry.sipxconfig.rest.UserPhonebookResource" parent="userPhonebookResource">
+    <property name="readable" value="true" />
+  </bean>
+  <alias name="userPhonebookResourceAll" alias="/my/phonebook" />
+
   <bean id="callResource" class="org.sipfoundry.sipxconfig.rest.CallResource" scope="prototype">
     <property name="sipService" ref="sip" />
     <property name="domainManager" ref="domainManager" />
