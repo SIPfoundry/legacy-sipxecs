@@ -16,6 +16,7 @@ import java.util.List;
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
+import org.apache.tapestry.components.Block;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
@@ -35,6 +36,8 @@ import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
 
 public abstract class EditMyInformation extends UserBasePage implements EditPinComponent {
+    public static final String TAB_CONFERENCES = "conferences";
+
     private static final String OPERATOR_SETTING =
         "personal-attendant" + Setting.PATH_DELIM + "operator";
 
@@ -76,6 +79,9 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
     @Persist
     @InitialValue(value = "literal:info")
     public abstract String getTab();
+
+    public abstract Block getActionBlockForConferencesTab();
+    public abstract void setActionBlockForConferencesTab(Block b);
 
     public void save() {
         if (!TapestryUtils.isValid(this)) {
@@ -136,6 +142,12 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
             PersonalAttendant pa = mailMgr.loadPersonalAttendantForUser(user);
             setPersonalAttendant(pa);
         }
+
+        if (getTab().equals(TAB_CONFERENCES)) {
+            Block b = (Block) getComponent("userConferencesPanel").getComponent("conferencesPanel").getComponent(
+                    "conferenceActions");
+            setActionBlockForConferencesTab(b);
+        }
     }
 
     protected void initLanguageList() {
@@ -150,7 +162,7 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
         List<String> tabNames = new ArrayList<String>();
         tabNames.add("info");
         tabNames.add("distributionLists");
-        tabNames.add("conferences");
+        tabNames.add(TAB_CONFERENCES);
 
         String paPermissionValue = getUser().getSettingValue("permission/application/personal-auto-attendant");
         if (Permission.isEnabled(paPermissionValue)) {

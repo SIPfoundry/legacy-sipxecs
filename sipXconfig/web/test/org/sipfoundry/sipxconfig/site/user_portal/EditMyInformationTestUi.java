@@ -62,4 +62,14 @@ public class EditMyInformationTestUi extends WebTestCase {
         clickLink("menu.myInformation");
         assertLinkNotPresent("link:menu");
     }
+
+    public void testTabConferencesDisplay() {
+        clickLink("menu.myInformation");
+        clickLink("link:conferences");
+        SiteTestHelper.assertNoUserError(tester);
+        assertTextPresent("Conferences");
+        assertButtonPresent("conference:lock");
+        assertButtonPresent("conference:unlock");
+        assertButtonPresent("refresh");
+    }
 }
