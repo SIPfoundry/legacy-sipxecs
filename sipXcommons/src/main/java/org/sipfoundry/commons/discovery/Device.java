@@ -33,17 +33,17 @@ public class Device {
                 this.hardwareAddress[i] = 0;
             }
         }
-        
+
         try {
             this.networkAddress = InetAddress.getByName(networkAddress);
         } catch (UnknownHostException e) {
             // Just eat the exception.
         }
-        
+
         this.vendor = vendor;
         this.userAgentInfo = userAgentInfo;
     }
-    
+
     public String getHardwareAddress() {
         String address;
         address = String.format("%02X:%02X:%02X:%02X:%02X:%02X",
@@ -55,15 +55,15 @@ public class Device {
                 hardwareAddress[5]);
         return address;
     }
-    
+
     public InetAddress getNetworkAddress() {
         return networkAddress;
     }
-    
+
     public String getVendor() {
         return vendor;
     }
-    
+
     public String getUserAgentInfo() {
         return userAgentInfo;
     }

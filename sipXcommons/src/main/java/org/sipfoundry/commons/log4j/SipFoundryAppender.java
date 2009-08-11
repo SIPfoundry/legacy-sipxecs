@@ -18,9 +18,9 @@ import org.apache.log4j.spi.LoggingEvent;
  * often performed by external rotation mechanisims) and it will be detected and
  * a new file created once a new event is being logged that occurs 15 seconds or
  * more after the previous event.
- * 
+ *
  * @author Woof!
- * 
+ *
  */
 public class SipFoundryAppender extends FileAppender {
 

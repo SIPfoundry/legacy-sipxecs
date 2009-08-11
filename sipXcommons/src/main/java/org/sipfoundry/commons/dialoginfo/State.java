@@ -8,7 +8,7 @@ package org.sipfoundry.commons.dialoginfo;
 /**
  * The class representation of the dialog state element.
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public class State {
@@ -36,7 +36,7 @@ public class State {
 
 	/**
 	 * Default constructor.
-	 * 
+	 *
 	 * @param dialogState
 	 */
 	public State(DialogState dialogState) {
@@ -45,7 +45,7 @@ public class State {
 
 	/**
 	 * Retrieve the dialog state.
-	 * 
+	 *
 	 * @return The state.
 	 */
 	public DialogState get() {
@@ -54,7 +54,7 @@ public class State {
 
 	/**
 	 * Set the dialog state.
-	 * 
+	 *
 	 * @param dialogState
 	 */
 	public void set(DialogState dialogState) {
@@ -63,7 +63,7 @@ public class State {
 
 	/**
 	 * Retrieve the event attribute.
-	 * 
+	 *
 	 * @return The event attribute.
 	 */
 	public StateEvent getEvent() {
@@ -72,7 +72,7 @@ public class State {
 
 	/**
 	 * Set the event attribute.
-	 * 
+	 *
 	 * @param event
 	 */
 	public void setEvent(StateEvent event) {
@@ -81,7 +81,7 @@ public class State {
 
 	/**
 	 * Retrieve the code attribute.
-	 * 
+	 *
 	 * @return The code attribute.
 	 */
 	public long getCode() {
@@ -90,7 +90,7 @@ public class State {
 
 	/**
 	 * Set the code attribute.
-	 * 
+	 *
 	 * @param code
 	 */
 	public void setCode(long code) {

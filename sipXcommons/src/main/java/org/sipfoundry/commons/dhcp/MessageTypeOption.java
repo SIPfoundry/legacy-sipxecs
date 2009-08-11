@@ -15,7 +15,7 @@ import java.io.IOException;
 /**
  * [Enter descriptive text here]
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public class MessageTypeOption extends DHCPOption {
@@ -37,7 +37,7 @@ public class MessageTypeOption extends DHCPOption {
 
         /**
          * Default constructor.
-         * 
+         *
          * @param integerValue
          *            Integer representation of enumeration.
          */
@@ -47,7 +47,7 @@ public class MessageTypeOption extends DHCPOption {
 
         /**
          * Retrieve the integer representation of this enumeration.
-         * 
+         *
          * @return Integer representation of this enumeration.
          */
         public int toInt() {
@@ -56,7 +56,7 @@ public class MessageTypeOption extends DHCPOption {
 
         /**
          * Map the given integer to a corresponding ENUM value.
-         * 
+         *
          * @param integerValue
          *            to convert.
          * @return Corresponding ENUM value. If no match, returns INVALID.

@@ -10,7 +10,7 @@ package org.sipfoundry.commons.util;
  * <p>
  * Using a native method, determine and return the host name of
  * the local machine running the JVM.
- * 
+ *
  * @author Mardy Marshall
  */
 public class Hostname {
@@ -24,4 +24,3 @@ public class Hostname {
 
     public native static String get();
 }
-

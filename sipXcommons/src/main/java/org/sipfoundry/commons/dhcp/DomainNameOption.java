@@ -15,7 +15,7 @@ import java.io.IOException;
 /**
  * [Enter descriptive text here]
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public class DomainNameOption extends DHCPOption {

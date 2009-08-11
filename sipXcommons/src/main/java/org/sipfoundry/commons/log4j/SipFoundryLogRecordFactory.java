@@ -14,9 +14,9 @@ import gov.nist.javax.sip.LogRecordFactory;
  * stack. It should generate a log record with the correct format. This log
  * format was obtained by reverse engineering the log records found in the SIPX
  * logs.
- * 
+ *
  * @author M. Ranganathan
- * 
+ *
  */
 public class SipFoundryLogRecordFactory implements LogRecordFactory {
 
@@ -34,7 +34,7 @@ public class SipFoundryLogRecordFactory implements LogRecordFactory {
 
     /**
      * Create a log record.
-     * 
+     *
      * @param message --
      *            the message to be logged.
      * @param source --
@@ -54,7 +54,7 @@ public class SipFoundryLogRecordFactory implements LogRecordFactory {
      *            the call id
      * @param timestampVal --
      *            the timestamp header value of the incoming message.
-     * 
+     *
      * @return -- a log record with the appropriate fields set.
      */
 

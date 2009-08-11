@@ -10,7 +10,7 @@ import java.util.ArrayList;
 /**
  * [Enter descriptive text here]
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public class Registration {

@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Enumerations for registration state attribute.
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public enum RegistrationState {
@@ -18,17 +18,17 @@ public enum RegistrationState {
 	 * Registration is in initialization state.
 	 */
 	INIT("init"),
-	
+
 	/**
 	 * Registration is active.
 	 */
 	ACTIVE("active"),
-	
+
 	/**
 	 * Registration is terminated.
 	 */
 	TERMINATED("terminated"),
-	
+
 	/**
 	 * Indicates an invalid value.
 	 */
@@ -43,23 +43,23 @@ public enum RegistrationState {
 	 * Hash map used for mapping enums to string values.
 	 */
 	private static ConcurrentHashMap<String, RegistrationState> stringMap;
-	
+
 	/**
 	 * Default constructor.
-	 * 
+	 *
 	 * @param stringValue
 	 *            String representation of enumeration.
 	 */
 	RegistrationState(String stringValue) {
 		this.stringValue = stringValue;
-		
+
 		// Maintain a map between enum and string value.
 		mapStringValue(stringValue);
 	}
 
 	/**
 	 * Retrieve the string representation of this enumeration.
-	 * 
+	 *
 	 * @return String representation of this enumeration.
 	 */
 	public String toString() {
@@ -80,7 +80,7 @@ public enum RegistrationState {
 			return value;
 		}
 	}
-	   
+
     /**
      * Maintain a map of ENUM values and strings, ignoring case.
      *

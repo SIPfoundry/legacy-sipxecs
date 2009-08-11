@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.*;
 /**
  * [Enter descriptive text here]
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public class ExecutorPool {
@@ -39,7 +39,7 @@ public class ExecutorPool {
 	private final ThreadGroup threadGroup;
 
 	private final int executorThreadPriority;
-	
+
 	private final String poolName;
 
 	private final AtomicInteger threadNumber = new AtomicInteger(1);
@@ -114,13 +114,13 @@ public class ExecutorPool {
 
 	/**
 	 * Attempts to execute the given task by using the following strategy:
-	 * 
+	 *
 	 * If there is an idle executor thread in the pool, the task will be
 	 * assigned to it. If not, a new executor thread will be allocated from the
 	 * system. If the maximum allowable number of executor threads has already
 	 * been allocated, then the task will be placed on the work queue. If the
 	 * work queue is full, then the task will be rejected.
-	 * 
+	 *
 	 * @param task
 	 *            the task to execute
 	 * @throws RejectedExecutionException
@@ -172,7 +172,7 @@ public class ExecutorPool {
 
 	/**
 	 * Perform bookkeeping for a terminated executor thread.
-	 * 
+	 *
 	 * @param w
 	 *            the Executor
 	 */
@@ -181,7 +181,7 @@ public class ExecutorPool {
 			lock.lock();
 			idleExecutorCount.decrementAndGet();
 			executorPool.remove(executor);
-			
+
 			if (executorPool.size() > 0)
 				return;
 
@@ -246,11 +246,11 @@ public class ExecutorPool {
 		} finally {
 			lock.unlock();
 		}
-		
+
 		if (task == null) {
 			task = taskQueue.poll(maxExecutorIdleTime, TimeUnit.MILLISECONDS);
 		}
-		
+
 		return task;
 	}
 

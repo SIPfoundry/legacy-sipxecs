@@ -13,7 +13,7 @@ import java.util.ArrayList;
  * UML class diagram:
  * <p>
  * <img src="doc-files/dialoginfo.jpg">
- * 
+ *
  * @author Mardy Marshall
  */
 public class DialogInfo {
@@ -39,7 +39,7 @@ public class DialogInfo {
 
 	/**
 	 * Add a Dialog instance to the notification.
-	 * 
+	 *
 	 * @param dialog
 	 */
 	public void addDialog(Dialog dialog) {
@@ -48,7 +48,7 @@ public class DialogInfo {
 
 	/**
 	 * Remove the specified Dialog instance from the notification.
-	 * 
+	 *
 	 * @param dialog
 	 */
 	public void removeDialog(Dialog dialog) {
@@ -57,7 +57,7 @@ public class DialogInfo {
 
 	/**
 	 * Retrieve a Dialog instance at the specified index.
-	 * 
+	 *
 	 * @param index
 	 * @return Dialog instance.
 	 */
@@ -67,7 +67,7 @@ public class DialogInfo {
 
 	/**
 	 * Return the number of Dialog instances contained.
-	 * 
+	 *
 	 * @return Number of Dialog instances.
 	 */
 	public int sizeDialogList() {
@@ -76,7 +76,7 @@ public class DialogInfo {
 
 	/**
 	 * Retrieve the version number of the notification
-	 * 
+	 *
 	 * @return Version number.
 	 */
 	public long getVersion() {
@@ -85,7 +85,7 @@ public class DialogInfo {
 
 	/**
 	 * Set the version number of the notification
-	 * 
+	 *
 	 * @param version
 	 */
 	public void setVersion(long version) {
@@ -94,7 +94,7 @@ public class DialogInfo {
 
 	/**
 	 * Retrieve the state of the notification
-	 * 
+	 *
 	 * @return DialogInfoState enumeration representing the state.
 	 */
 	public DialogInfoState getState() {
@@ -103,7 +103,7 @@ public class DialogInfo {
 
 	/**
 	 * Set the state of the notification.
-	 * 
+	 *
 	 * @param state
 	 */
 	public void setState(DialogInfoState state) {
@@ -112,7 +112,7 @@ public class DialogInfo {
 
 	/**
 	 * Retrieve the URI associated with the notification.
-	 * 
+	 *
 	 * @return Entity URI.
 	 */
 	public String getEntity() {
@@ -121,7 +121,7 @@ public class DialogInfo {
 
 	/**
 	 * Set the URI associated with the notification.
-	 * 
+	 *
 	 * @param entity
 	 */
 	public void setEntity(String entity) {

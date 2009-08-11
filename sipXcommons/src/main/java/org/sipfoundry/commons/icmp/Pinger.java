@@ -46,7 +46,7 @@ public class Pinger {
         srcAddress = new byte[4];
         requestType = ICMPPacket.TYPE_ECHO_REQUEST;
         replyType = ICMPPacket.TYPE_ECHO_REPLY;
-        
+
         sendPacket = new ICMPEchoPacket(1);
         recvPacket = new ICMPEchoPacket(1);
         sendData = new byte[84];
@@ -58,7 +58,7 @@ public class Pinger {
         recvPacket.setIPHeaderLength(5);
         sendPacket.setICMPDataByteLength(56);
         recvPacket.setICMPDataByteLength(56);
-        
+
         sendPacket.setType(requestType);
         sendPacket.setCode(0);
         sendPacket.setIdentifier(identifier);
@@ -104,7 +104,7 @@ public class Pinger {
 
         long start = System.currentTimeMillis();
         long end = start;
-        
+
         do {
             try {
                 socket.read(recvData, srcAddress);
@@ -113,17 +113,17 @@ public class Pinger {
             } catch (IOException e) {
                 return false;
             }
-            
+
             end = System.currentTimeMillis();
-            
+
         } while ((recvPacket.getType() != replyType || recvPacket.getIdentifier() != identifier) && end - start < pingTimeout);
-        
+
         try {
             socket.close();
         } catch (IOException e) {
             return false;
         }
-        
+
         if (recvPacket.getType() == replyType && recvPacket.getIdentifier() == identifier) {
             return true;
         } else {

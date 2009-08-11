@@ -16,7 +16,7 @@ import static org.sipfoundry.commons.dhcp.DHCPOption.Code.*;
 /**
  * [Enter descriptive text here]
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public class SubnetMaskOption extends DHCPOption {

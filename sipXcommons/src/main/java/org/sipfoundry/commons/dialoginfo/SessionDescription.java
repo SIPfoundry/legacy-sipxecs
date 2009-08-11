@@ -8,7 +8,7 @@ package org.sipfoundry.commons.dialoginfo;
 /**
  * The class representation of the sessd element.
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public class SessionDescription {
@@ -31,7 +31,7 @@ public class SessionDescription {
 
 	/**
 	 * Default constructor.
-	 * 
+	 *
 	 * @param element
 	 */
 	public SessionDescription(String element) {
@@ -40,7 +40,7 @@ public class SessionDescription {
 
 	/**
 	 * Return the sessd element.
-	 * 
+	 *
 	 * @return The sessd.
 	 */
 	public String get() {
@@ -49,7 +49,7 @@ public class SessionDescription {
 
 	/**
 	 * Set the sessd element.
-	 * 
+	 *
 	 * @param element
 	 */
 	public void set(String element) {
@@ -58,7 +58,7 @@ public class SessionDescription {
 
 	/**
 	 * Retrieve the type attribute.
-	 * 
+	 *
 	 * @return The type attribute.
 	 */
 	public String getType() {
@@ -67,7 +67,7 @@ public class SessionDescription {
 
 	/**
 	 * Set the type attribute.
-	 * 
+	 *
 	 * @param type
 	 */
 	public void setType(String type) {

@@ -13,10 +13,10 @@ package org.sipfoundry.commons.util;
 public class IPAddressUtil {
 	/**
 	 * Test to see if the given address string represents a literal IPv4 address.
-	 * 
+	 *
 	 * @param address
 	 *           The address string to be tested.
-	 *           
+	 *
 	 * @return
 	 *           True if literal IPv4 address, False otherwise.
 	 */
@@ -25,7 +25,7 @@ public class IPAddressUtil {
 		if (octets.length != 4) {
 			return false;
 		}
-		
+
 		for (int i = 0; i < 4; i++) {
 			int octetValue = -1;
 			try {
@@ -37,9 +37,9 @@ public class IPAddressUtil {
 				return false;
 			}
 		}
-		
+
 		// All checks passed.
 		return true;
 	}
-	
+
 }

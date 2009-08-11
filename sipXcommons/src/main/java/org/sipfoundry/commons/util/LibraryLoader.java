@@ -13,7 +13,7 @@ import java.io.InputStream;
 /**
  * Load the specified sipXcommons native library.
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public class LibraryLoader {

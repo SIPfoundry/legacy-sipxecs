@@ -8,7 +8,7 @@ package org.sipfoundry.commons.util;
 /**
  * [Enter descriptive text here]
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public interface JournalService {

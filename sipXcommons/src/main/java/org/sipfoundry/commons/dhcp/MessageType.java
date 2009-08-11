@@ -8,7 +8,7 @@ package org.sipfoundry.commons.dhcp;
 /**
  * [Enter descriptive text here]
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public enum MessageType {
@@ -23,7 +23,7 @@ public enum MessageType {
 
     /**
      * Default constructor.
-     * 
+     *
      * @param integerValue
      *            Integer representation of enumeration.
      */
@@ -33,7 +33,7 @@ public enum MessageType {
 
     /**
      * Retrieve the integer representation of this enumeration.
-     * 
+     *
      * @return Integer representation of this enumeration.
      */
     public int toInt() {
@@ -42,7 +42,7 @@ public enum MessageType {
 
     /**
      * Map the given integer to a corresponding ENUM value.
-     * 
+     *
      * @param integerValue
      *            to convert.
      * @return Corresponding ENUM value. If no match, returns INVALID.

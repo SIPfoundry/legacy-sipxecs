@@ -18,7 +18,7 @@ import static org.sipfoundry.commons.ao.MethodAttribute.*;
 /**
  * [Enter descriptive text here]
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public class ActiveObject {
@@ -115,7 +115,7 @@ public class ActiveObject {
 				e.printStackTrace();
 			}
 		}
-		
+
 		return activeObject;
 	}
 
@@ -135,15 +135,15 @@ public class ActiveObject {
 	public Object getID() {
 		return groupMemberID;
 	}
-	
+
 	public void setActiveObjectGroup(ActiveObjectGroup activeObjectGroup) {
 		this.activeObjectGroup = activeObjectGroup;
 	}
-	
+
 	public ActiveObjectGroup getActiveObjectGroup() {
 		return activeObjectGroup;
 	}
-	
+
 	private static void getMethodAttributes(ActiveObject object,
 			HashMap<Method, MethodAttribute> methodAttributes,
 			HashMap<String, TimerTickMethod> timerTickMethods,
@@ -178,27 +178,27 @@ public class ActiveObject {
 								} else {
 									methodAttribute.priority = NORMAL_PRIORITY;
 								}
-								
+
 								if (implementationMethod.isAnnotationPresent(Blocking.class)) {
 									methodAttribute.blocking = true;
 								} else {
 									methodAttribute.blocking = false;
 								}
-								
+
 								if (implementationMethod.isAnnotationPresent(Synchronous.class)) {
 									methodAttribute.synchronous = true;
 								} else {
 									methodAttribute.synchronous = false;
 								}
-								
+
 								if (implementationMethod.isAnnotationPresent(Shutdown.class)) {
 									methodAttribute.terminate = true;
 								} else {
 									methodAttribute.terminate = false;
 								}
-								
+
 								methodAttributes.put(interfaceMethod, methodAttribute);
-								
+
 								if (implementationMethod.isAnnotationPresent(TimerTick.class)) {
 									TimerTick timerTickAnnotation = implementationMethod.getAnnotation(TimerTick.class);
 									String tickMethod = timerTickAnnotation.value();
@@ -216,7 +216,7 @@ public class ActiveObject {
 										System.err.println("TimerTick method can only accept single long argument.");
 									}
 								}
-								
+
 								if (implementationMethod.isAnnotationPresent(Startup.class)) {
 									if (implementationMethodParams.length == 0) {
 										startupMethods.put(object.getClass(), interfaceMethod);
@@ -224,7 +224,7 @@ public class ActiveObject {
 										System.err.println("Startup method cannot accept arguments.");
 									}
 								}
-								
+
 								if (implementationMethod.isAnnotationPresent(Shutdown.class)) {
 									if (implementationMethodParams.length == 0) {
 										shutdownMethods.put(object.getClass(), interfaceMethod);
@@ -244,14 +244,14 @@ public class ActiveObject {
 		protected transient final ReentrantLock lock = new ReentrantLock();
 
 		String label;
-		
+
 		/**
 		 * The current state of this timer.
 		 */
 		protected TimerState state;
 
 		protected TimerTickMethod tickMethod;
-		
+
 		private long delay;
 
 		protected long expireTime;
@@ -259,9 +259,9 @@ public class ActiveObject {
 		protected long period;
 
 		protected boolean fixedRate;
-		
+
 		protected long expiredTime;
-		
+
 
 		/**
 		 * Default constructor.
@@ -425,7 +425,7 @@ public class ActiveObject {
 		/**
 		 * Returns the remaining delay associated with this timer, in the given
 		 * time unit.
-		 * 
+		 *
 		 * @param unit
 		 *            the time unit
 		 * @return the remaining delay; zero or negative values indicate that
@@ -440,7 +440,7 @@ public class ActiveObject {
 		 * negative integer, zero, or a positive integer as this timers delay is
 		 * less than, equal to, or greater than the specified object.
 		 * <p>
-		 * 
+		 *
 		 * @param timer
 		 *            the AOTimer to be compared.
 		 * @return a negative integer, zero, or a positive integer as this

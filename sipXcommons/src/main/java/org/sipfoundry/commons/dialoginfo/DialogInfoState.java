@@ -8,7 +8,7 @@ package org.sipfoundry.commons.dialoginfo;
 /**
  * Enumerations for dialog-info state attribute.
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public enum DialogInfoState {
@@ -16,12 +16,12 @@ public enum DialogInfoState {
 	 * dialog-info contains full list of dialogs.
 	 */
 	FULL("full"),
-	
+
 	/**
 	 * dialog-info contains partial list of dialogs.
 	 */
 	PARTIAL("partial"),
-	
+
 	/**
 	 * Indicates an invalid value.
 	 */
@@ -34,7 +34,7 @@ public enum DialogInfoState {
 
 	/**
 	 * Default constructor.
-	 * 
+	 *
 	 * @param stringValue
 	 *            String representation of enumeration.
 	 */
@@ -44,7 +44,7 @@ public enum DialogInfoState {
 
 	/**
 	 * Retrieve the string representation of this enumeration.
-	 * 
+	 *
 	 * @return String representation of this enumeration.
 	 */
 	public String toString() {

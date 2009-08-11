@@ -17,7 +17,7 @@ import org.sipfoundry.commons.icmp.Pinger;
 /**
  * [Enter descriptive text here]
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public class DiscoveryAgentImpl extends ActiveObject implements DiscoveryAgent {
@@ -26,7 +26,7 @@ public class DiscoveryAgentImpl extends ActiveObject implements DiscoveryAgent {
     private final SipProvider sipProvider;
     private boolean terminated = false;
     private Pinger pinger;
-        
+
 
     public DiscoveryAgentImpl(String targetAddress, DiscoveryService discoveryService) {
         this.targetAddress = targetAddress;
@@ -46,7 +46,7 @@ public class DiscoveryAgentImpl extends ActiveObject implements DiscoveryAgent {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.sipfoundry.preflight.discovery.DiscoveryAgent#processPingResponse()
      */
     @Synchronous
@@ -84,7 +84,7 @@ public class DiscoveryAgentImpl extends ActiveObject implements DiscoveryAgent {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.sipfoundry.preflight.discovery.DiscoveryAgent#processSIPResponse(javax.sip.ResponseEvent)
      */
     @SuppressWarnings("unchecked")
@@ -102,7 +102,7 @@ public class DiscoveryAgentImpl extends ActiveObject implements DiscoveryAgent {
                 }
             }
         }
-        
+
         if (!terminated) {
             discoveryService.addDiscovered(targetAddress, userAgentInfo);
             ActiveObjectGroup activeObjectGroup = getActiveObjectGroup();
@@ -112,7 +112,7 @@ public class DiscoveryAgentImpl extends ActiveObject implements DiscoveryAgent {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.sipfoundry.preflight.discovery.DiscoveryAgent#processPingTimeout(javax.sip.TimeoutEvent)
      */
     @Synchronous
@@ -125,7 +125,7 @@ public class DiscoveryAgentImpl extends ActiveObject implements DiscoveryAgent {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.sipfoundry.preflight.discovery.DiscoveryAgent#processSIPTimeout(javax.sip.TimeoutEvent)
      */
     @Synchronous
@@ -138,7 +138,7 @@ public class DiscoveryAgentImpl extends ActiveObject implements DiscoveryAgent {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.sipfoundry.preflight.discovery.DiscoveryAgent#processTransactionTerminated(javax.sip.TransactionTerminatedEvent)
      */
     @Synchronous

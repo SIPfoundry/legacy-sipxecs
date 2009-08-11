@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Enumerations for contact registration event attribute.
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public enum ContactEvent {
@@ -18,47 +18,47 @@ public enum ContactEvent {
 	 * The contact is registered.
 	 */
 	REGISTERED("registered"),
-	
+
 	/**
 	 * The contact registration has been created.
 	 */
 	CREATED("created"),
-	
+
 	/**
 	 * The contact registration has been refreshed.
 	 */
 	REFRESHED("refreshed"),
-	
+
 	/**
 	 * The contact registration period has been shortened.
 	 */
 	SHORTENED("shortened"),
-	
+
 	/**
 	 * The contact registration has expired.
 	 */
 	EXPIRED("expired"),
-	
+
 	/**
 	 * The contact registration has been deactivated.
 	 */
 	DEACTIVATED("deactivated"),
-	
+
 	/**
 	 * The contact is on probation.
 	 */
 	PROBATION("probation"),
-	
+
 	/**
 	 * The contact is unregistered.
 	 */
 	UNREGISTERED("unregistered"),
-	
+
 	/**
 	 * The contact registration has been rejected.
 	 */
 	REJECTED("rejected"),
-	
+
 	/**
 	 * Indicates an invalid value.
 	 */
@@ -73,23 +73,23 @@ public enum ContactEvent {
 	 * Hash map used for mapping enums to string values.
 	 */
 	private static ConcurrentHashMap<String, ContactEvent> stringMap;
-	
+
 	/**
 	 * Default constructor.
-	 * 
+	 *
 	 * @param stringValue
 	 *            String representation of enumeration.
 	 */
 	ContactEvent(String stringValue) {
 		this.stringValue = stringValue;
-		
+
 		// Maintain a map between enum and string value.
 		mapStringValue(stringValue);
 	}
 
 	/**
 	 * Retrieve the string representation of this enumeration.
-	 * 
+	 *
 	 * @return String representation of this enumeration.
 	 */
 	public String toString() {
@@ -110,7 +110,7 @@ public enum ContactEvent {
 			return value;
 		}
 	}
-	
+
 	/**
 	 * Maintain a map of ENUM values and strings, ignoring case.
 	 *

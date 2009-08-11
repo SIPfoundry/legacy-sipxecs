@@ -10,7 +10,7 @@ import java.net.InetAddress;
 /**
  * [Enter descriptive text here]
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public class SIPServer {

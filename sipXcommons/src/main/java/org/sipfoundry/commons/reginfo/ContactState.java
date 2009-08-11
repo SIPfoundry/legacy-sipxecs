@@ -8,7 +8,7 @@ package org.sipfoundry.commons.reginfo;
 /**
  * Enumerations for contact state attribute.
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public enum ContactState {
@@ -16,12 +16,12 @@ public enum ContactState {
 	 * Contact is active.
 	 */
 	ACTIVE("active"),
-	
+
 	/**
 	 * Contact has been terminated.
 	 */
 	TERMINATED("terminated"),
-	
+
 	/**
 	 * Indicates an invalid value.
 	 */
@@ -34,7 +34,7 @@ public enum ContactState {
 
 	/**
 	 * Default constructor.
-	 * 
+	 *
 	 * @param stringValue
 	 *            String representation of enumeration.
 	 */
@@ -44,7 +44,7 @@ public enum ContactState {
 
 	/**
 	 * Retrieve the string representation of this enumeration.
-	 * 
+	 *
 	 * @return String representation of this enumeration.
 	 */
 	public String toString() {

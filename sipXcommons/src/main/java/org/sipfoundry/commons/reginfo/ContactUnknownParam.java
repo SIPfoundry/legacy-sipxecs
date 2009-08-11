@@ -8,7 +8,7 @@ package org.sipfoundry.commons.reginfo;
 /**
  * [Enter descriptive text here]
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public class ContactUnknownParam {
@@ -24,7 +24,7 @@ public class ContactUnknownParam {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @return
 	 */
 	public String getBase() {
@@ -33,7 +33,7 @@ public class ContactUnknownParam {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @param base
 	 */
 	public void setBase(String base) {
@@ -42,7 +42,7 @@ public class ContactUnknownParam {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @return
 	 */
 	public String getName() {
@@ -51,7 +51,7 @@ public class ContactUnknownParam {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @param name
 	 */
 	public void setName(String name) {

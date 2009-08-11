@@ -10,7 +10,7 @@ import static org.sipfoundry.commons.dhcp.DHCPOption.Code.*;
 /**
  * [Enter descriptive text here]
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public class Option150Option extends ServerOption {

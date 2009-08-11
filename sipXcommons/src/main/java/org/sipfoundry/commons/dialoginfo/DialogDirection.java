@@ -8,7 +8,7 @@ package org.sipfoundry.commons.dialoginfo;
 /**
  * Enumerations for dialog direction attribute.
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public enum DialogDirection {
@@ -16,12 +16,12 @@ public enum DialogDirection {
 	 * Dialog is from session initiator.
 	 */
 	INITIATOR("initiator"),
-	
+
 	/**
 	 * Dialog is from session recipient.
 	 */
 	RECIPIENT("recipient"),
-	
+
 	/**
 	 * Indicates an invalid value.
 	 */
@@ -34,7 +34,7 @@ public enum DialogDirection {
 
 	/**
 	 * Default constructor.
-	 * 
+	 *
 	 * @param stringValue
 	 *            String representation of enumeration.
 	 */
@@ -44,7 +44,7 @@ public enum DialogDirection {
 
 	/**
 	 * Retrieve the string representation of this enumeration.
-	 * 
+	 *
 	 * @return String representation of this enumeration.
 	 */
 	public String toString() {

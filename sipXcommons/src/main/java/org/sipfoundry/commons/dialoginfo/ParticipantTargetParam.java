@@ -8,7 +8,7 @@ package org.sipfoundry.commons.dialoginfo;
 /**
  * The class representation of the participant target param.
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public class ParticipantTargetParam {
@@ -28,10 +28,10 @@ public class ParticipantTargetParam {
 	@SuppressWarnings("unused")
 	private ParticipantTargetParam() {
 	}
-	
+
 	/**
 	 * Default constructor.
-	 * 
+	 *
 	 * @param pname
 	 * @param pval
 	 */
@@ -42,7 +42,7 @@ public class ParticipantTargetParam {
 
 	/**
 	 * Retrieve the pname attribute.
-	 * 
+	 *
 	 * @return The pname attribute.
 	 */
 	public String getPname() {
@@ -51,7 +51,7 @@ public class ParticipantTargetParam {
 
 	/**
 	 * Set the pname attribute.
-	 * 
+	 *
 	 * @param pname
 	 */
 	public void setPname(String pname) {
@@ -60,7 +60,7 @@ public class ParticipantTargetParam {
 
 	/**
 	 * Retrieve the pval attribute.
-	 * 
+	 *
 	 * @return The pval attribute.
 	 */
 	public String getPval() {
@@ -69,7 +69,7 @@ public class ParticipantTargetParam {
 
 	/**
 	 * Set the pval attribute.
-	 * 
+	 *
 	 * @param pval
 	 */
 	public void setPval(String pval) {

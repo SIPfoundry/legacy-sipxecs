@@ -11,7 +11,7 @@ import java.util.LinkedList;
 /**
  * [Enter descriptive text here]
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public class NetworkResources {

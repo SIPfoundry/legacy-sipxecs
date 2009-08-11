@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Enumerations for dialog state.
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public enum DialogState {
@@ -18,27 +18,27 @@ public enum DialogState {
 	 * The dialog state is "trying".
 	 */
 	TRYING("trying"),
-	
+
 	/**
 	 * The dialog state is "proceeding".
 	 */
 	PROCEEDING("proceeding"),
-	
+
 	/**
 	 * The dialog state is "early".
 	 */
 	EARLY("early"),
-	
+
 	/**
 	 * The dialog state is "confirmed".
 	 */
 	CONFIRMED("confirmed"),
-	
+
 	/**
 	 * The dialog state is "terminated".
 	 */
 	TERMINATED("terminated"),
-	
+
 	/**
 	 * Indicates an invalid value.
 	 */
@@ -53,23 +53,23 @@ public enum DialogState {
 	 * Hash map used for mapping enums to string values.
 	 */
 	private static ConcurrentHashMap<String, DialogState> stringMap;
-	
+
 	/**
 	 * Default constructor.
-	 * 
+	 *
 	 * @param stringValue
 	 *            String representation of enumeration.
 	 */
 	DialogState(String stringValue) {
 		this.stringValue = stringValue;
-		
+
 		// Maintain a map between enum and string value.
 		mapStringValue(stringValue);
 	}
 
 	/**
 	 * Retrieve the string representation of this enumeration.
-	 * 
+	 *
 	 * @return String representation of this enumeration.
 	 */
 	public String toString() {
@@ -90,7 +90,7 @@ public enum DialogState {
 			return value;
 		}
 	}
-	   
+
     /**
      * Maintain a map of ENUM values and strings, ignoring case.
      *

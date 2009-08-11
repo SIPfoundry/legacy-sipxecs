@@ -8,7 +8,7 @@ package org.sipfoundry.commons.reginfo;
 /**
  * Enumerations for reginfo state attribute.
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public enum ReginfoState {
@@ -16,12 +16,12 @@ public enum ReginfoState {
 	 * Reginfo contains full list of registrations.
 	 */
 	FULL("full"),
-	
+
 	/**
 	 * Reginfo contains partial list of registrations.
 	 */
 	PARTIAL("partial"),
-	
+
 	/**
 	 * Indicates an invalid value.
 	 */
@@ -34,7 +34,7 @@ public enum ReginfoState {
 
 	/**
 	 * Default constructor.
-	 * 
+	 *
 	 * @param stringValue
 	 *            String representation of enumeration.
 	 */
@@ -44,7 +44,7 @@ public enum ReginfoState {
 
 	/**
 	 * Retrieve the string representation of this enumeration.
-	 * 
+	 *
 	 * @return String representation of this enumeration.
 	 */
 	public String toString() {

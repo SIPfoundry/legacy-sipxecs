@@ -8,7 +8,7 @@ package org.sipfoundry.commons.ao;
 /**
  * [Enter descriptive text here]
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public class MethodAttribute {

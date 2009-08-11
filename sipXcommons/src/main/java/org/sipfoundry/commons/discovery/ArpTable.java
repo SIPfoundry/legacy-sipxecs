@@ -15,7 +15,7 @@ import java.io.*;
  */
 public class ArpTable {
     private static String procArpTableFile = "/proc/net/arp";
-    
+
     public static String lookup(String ipAddress) {
         if (System.getProperty("os.name").toLowerCase().contains("windows")) {
             String macAddress =  windowsLookup(ipAddress);
@@ -33,13 +33,13 @@ public class ArpTable {
 
     private static String linuxLookup(String ipAddress) {
         String macAddress = null;
-        
+
         try {
             FileReader procArpTable = new FileReader(procArpTableFile);
             BufferedReader in = new BufferedReader(procArpTable);
             // Eat the column header descriptions.
             in.readLine();
-            
+
             // Now search the remainder of the file, looking for a matching IP address.
             String line;
             while ((line = in.readLine()) != null) {
@@ -52,18 +52,18 @@ public class ArpTable {
                 }
             }
             procArpTable.close();
-            
+
         } catch (FileNotFoundException e) {
             return null;
         } catch (IOException e) {
             return null;
         }
-        
+
         return macAddress;
     }
-    
+
     private native static String windowsLookup(String ipAddress);
-        
+
     public static void main(String args[]) {
         String macAddress = ArpTable.lookup("10.1.20.4");
         System.out.println(macAddress);
@@ -80,7 +80,7 @@ class StreamBuffer extends Thread {
     StreamBuffer(InputStream inputStream) {
             this.inputStream = inputStream;
     }
-    
+
     String getBuffer() {
             return buffer;
     }

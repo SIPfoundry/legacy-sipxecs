@@ -10,7 +10,7 @@ import java.util.ArrayList;
 /**
  * [Enter descriptive text here]
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public class Reginfo {
@@ -31,7 +31,7 @@ public class Reginfo {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @param registration
 	 */
 	public void addRegistration(Registration registration) {
@@ -40,7 +40,7 @@ public class Reginfo {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @param registration
 	 */
 	public void removeRegistration(Registration registration) {
@@ -49,7 +49,7 @@ public class Reginfo {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @param index
 	 * @return
 	 */
@@ -59,7 +59,7 @@ public class Reginfo {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @return
 	 */
 	public int sizeRegistrationList() {
@@ -68,7 +68,7 @@ public class Reginfo {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @return
 	 */
 	public long getVersion() {
@@ -77,7 +77,7 @@ public class Reginfo {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @param version
 	 */
 	public void setVersion(long version) {
@@ -86,7 +86,7 @@ public class Reginfo {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @return
 	 */
 	public ReginfoState getState() {
@@ -95,7 +95,7 @@ public class Reginfo {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @param state
 	 */
 	public void setState(ReginfoState state) {

@@ -16,7 +16,7 @@ import org.apache.log4j.*;
 /**
  * [Enter descriptive text here]
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public class AOInvocationHandler implements InvocationHandler, Runnable {
@@ -45,7 +45,7 @@ public class AOInvocationHandler implements InvocationHandler, Runnable {
 		EXCEPTION;
 
 	}
-	
+
 	private class Invocation {
 		protected Method method;
 		protected Object[] args;
@@ -53,7 +53,7 @@ public class AOInvocationHandler implements InvocationHandler, Runnable {
 		protected boolean blocking;
 		protected boolean terminate;
 		protected SynchronousQueue<Object> results = null;
-		
+
 	}
 
 	/** Main lock guarding all access */
@@ -75,7 +75,7 @@ public class AOInvocationHandler implements InvocationHandler, Runnable {
 	private Thread executor;
 
 	private final ExecutorPool executorPool;
-	
+
 	private final HashMap<Method, MethodAttribute> methodCache;
 
 	@SuppressWarnings("unused")
@@ -88,7 +88,7 @@ public class AOInvocationHandler implements InvocationHandler, Runnable {
 		this.logger = logger;
 		lock = new ReentrantLock(true);
 		invocationQueue = new InvocationQueue(32);
-		
+
 	}
 
 	public synchronized void terminate() {
@@ -110,20 +110,20 @@ public class AOInvocationHandler implements InvocationHandler, Runnable {
 		int priority;
 		Object results = null;
 		final ReentrantLock lock = this.lock;
-		
+
 		MethodAttribute AOMethod = methodCache.get(method);
 		if (AOMethod == null) {
 			state = State.EXCEPTION;
 			System.err.println("Failed to find method: " + method.getName() + " in cache.");
 			return results;
 		}
-			
+
 		lock.lock();
 		try {
 			invocation = new Invocation();
 			invocation.method = method;
 			invocation.args = args;
-			
+
 			if (AOMethod.synchronous) {
 				try {
 					results = method.invoke(object, args);
@@ -131,7 +131,7 @@ public class AOInvocationHandler implements InvocationHandler, Runnable {
 					state = State.EXCEPTION;
 					System.err.println("Synchronous Invocation Exception!");
 				}
-				
+
 				if (AOMethod.terminate) {
 				    terminate();
 				}
@@ -144,13 +144,13 @@ public class AOInvocationHandler implements InvocationHandler, Runnable {
 				} else {
 				    invocation.blocking = false;
 				}
-				
+
 				if (AOMethod.blocking) {
 				    invocation.terminate = true;
 				} else {
 				    invocation.terminate = false;
 				}
-				
+
 				if (invocationQueue.push(invocation, priority) == false) {
 					System.err.println("PUSH Failed.");
 				}
@@ -165,11 +165,11 @@ public class AOInvocationHandler implements InvocationHandler, Runnable {
 		} finally {
 			lock.unlock();
 		}
-		
+
 		if (AOMethod.blocking) {
 			results = invocation.results.take();
 		}
-		
+
 		return results;
 	}
 
@@ -204,7 +204,7 @@ public class AOInvocationHandler implements InvocationHandler, Runnable {
 						invocation.results.put(0);
 					}
 				}
-				
+
 				if (invocation.terminate) {
 				    terminate();
 				}
@@ -217,59 +217,59 @@ public class AOInvocationHandler implements InvocationHandler, Runnable {
 		}
 
 	}
-		
+
 	public State getState() {
 		return state;
 	}
-	
+
 	private class InvocationQueue {
 		private final int capacity;
-		
+
 		Invocation[] low_invocations;
 		transient int low_count;
 		transient int low_pushIndex;
 		transient int low_popIndex;
-		
+
 		Invocation[] normal_invocations;
 		transient int normal_count;
 		transient int normal_pushIndex;
 		transient int normal_popIndex;
-		
+
 		Invocation[] high_invocations;
 		transient int high_count;
 		transient int high_pushIndex;
 		transient int high_popIndex;
-		
+
 		/**
 		 * Creates a nonblocking FIFO queue with the given (fixed) capacity.
-		 * 
+		 *
 		 * @param capacity
 		 *            the capacity of this queue
 		 */
 		public InvocationQueue(int capacity) {
 			this.capacity = capacity;
-			
+
 			low_invocations = new Invocation[capacity];
 			low_count = 0;
 			low_pushIndex = 0;
 			low_popIndex = 0;
-			
+
 			normal_invocations = new Invocation[capacity];
 			normal_count = 0;
 			normal_pushIndex = 0;
 			normal_popIndex = 0;
-			
+
 			high_invocations = new Invocation[capacity];
 			high_count = 0;
 			high_pushIndex = 0;
 			high_popIndex = 0;
-			
+
 		}
 
 		/**
 		 * Inserts the specified element at the tail of this queue if possible,
 		 * returning immediately if this queue is full.
-		 * 
+		 *
 		 * @param invocation
 		 *            The element to add.
 		 * @param priority
@@ -330,7 +330,7 @@ public class AOInvocationHandler implements InvocationHandler, Runnable {
 			} else {
 				return null;
 			}
-			
+
 		}
 
 		/**
@@ -347,7 +347,7 @@ public class AOInvocationHandler implements InvocationHandler, Runnable {
 				high_invocations[x] = null;
 				x = ((++x == high_invocations.length) ? 0 : x);
 			}
-			
+
 			x = normal_popIndex;
 			count = normal_count;
 			normal_count = 0;
@@ -357,7 +357,7 @@ public class AOInvocationHandler implements InvocationHandler, Runnable {
 				normal_invocations[x] = null;
 				x = ((++x == normal_invocations.length) ? 0 : x);
 			}
-			
+
 			x = low_popIndex;
 			count = low_count;
 			low_count = 0;

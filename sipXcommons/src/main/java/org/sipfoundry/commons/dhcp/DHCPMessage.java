@@ -17,7 +17,7 @@ import java.util.StringTokenizer;
 /**
  * [Enter descriptive text here]
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public class DHCPMessage {

@@ -8,7 +8,7 @@ package org.sipfoundry.commons.dialoginfo;
 /**
  * Class representation of the participant element.
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public class Participant {
@@ -34,7 +34,7 @@ public class Participant {
 
 	/**
 	 * Retrieve the identity of the participant.
-	 * 
+	 *
 	 * @return The participant URI / display-name.
 	 */
 	public Identity getIdentity() {
@@ -43,7 +43,7 @@ public class Participant {
 
 	/**
 	 * Set the identity of the participant.
-	 * 
+	 *
 	 * @param identity
 	 */
 	public void setIdentity(Identity identity) {
@@ -52,7 +52,7 @@ public class Participant {
 
 	/**
 	 * Retrieve the target.
-	 * 
+	 *
 	 * @return The target.
 	 */
 	public ParticipantTarget getTarget() {
@@ -61,7 +61,7 @@ public class Participant {
 
 	/**
 	 * Set the target.
-	 * 
+	 *
 	 * @param target
 	 */
 	public void setTarget(ParticipantTarget target) {
@@ -70,7 +70,7 @@ public class Participant {
 
 	/**
 	 * Retrieve the session-decription.
-	 * 
+	 *
 	 * @return The session-description.
 	 */
 	public SessionDescription getSessionDescription() {
@@ -79,7 +79,7 @@ public class Participant {
 
 	/**
 	 * Set the session-descriptioin.
-	 * 
+	 *
 	 * @param sessionDescription
 	 */
 	public void setSessionDescription(SessionDescription sessionDescription) {
@@ -88,7 +88,7 @@ public class Participant {
 
 	/**
 	 * Retrieve the cseq.
-	 * 
+	 *
 	 * @return The cseq.
 	 */
 	public long getCseq() {
@@ -97,7 +97,7 @@ public class Participant {
 
 	/**
 	 * Set the cseq.
-	 * 
+	 *
 	 * @param cseq
 	 */
 	public void setCseq(long cseq) {

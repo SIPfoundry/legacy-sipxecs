@@ -8,7 +8,7 @@ package org.sipfoundry.commons.dialoginfo;
 /**
  * Class representation of the dialog-replaces element.
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public class DialogReplaces {

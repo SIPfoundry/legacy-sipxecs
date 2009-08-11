@@ -19,7 +19,7 @@ import org.sipfoundry.commons.util.Hostname;
 /**
  * A log4j Layout class that matches the SipFoundry C++ OsSyslog format (within
  * reason)
- * 
+ *
  * @author Woof!
  */
 public class SipFoundryLayout extends Layout {
@@ -39,7 +39,7 @@ public class SipFoundryLayout extends Layout {
 
     /**
      * Map the log4j levels to the SipFoundry text (ERROR is ERR)
-     * 
+     *
      * @param l
      *            The level to map
      * @return The SipFoundry level text if available, otherwise the log4j text
@@ -61,7 +61,7 @@ public class SipFoundryLayout extends Layout {
 
     /**
      * Map the SipFoundry text to the log4j Priority number
-     * 
+     *
      * @param level
      * @return
      */
@@ -90,7 +90,7 @@ public class SipFoundryLayout extends Layout {
      * Escape any CR or LF in the message with the \r \n escapes. SipFoundry
      * logging logs multiline messages (like a SIP PDU) on a single log entry by
      * escaping the CRs and LFs
-     * 
+     *
      * @param msg
      *            The message to escape
      * @return The escaped message
@@ -100,10 +100,10 @@ public class SipFoundryLayout extends Layout {
             return null;
         }
         int n = msg.length();
-     
+
         StringBuffer sb = new StringBuffer(n + 2);
-        
-        
+
+
 
         // Ignore trailing CR LFs (why?)
         /*
@@ -129,10 +129,10 @@ public class SipFoundryLayout extends Layout {
 
         return sb.toString();
     }
-    
-    
 
-    
+
+
+
     /**
      * Format the timestamp (mS since epoch) in Sipfoundry format
      * @param timestamp
@@ -141,7 +141,7 @@ public class SipFoundryLayout extends Layout {
     String formatTimestamp(long timestamp) {
         return dateFormat.format(timestamp) ;
     }
-    
+
     @Override
     public String format(LoggingEvent arg0) {
         String msg = escapeCrlfQuoteAndBackSlash(arg0.getRenderedMessage());
@@ -167,7 +167,7 @@ public class SipFoundryLayout extends Layout {
             newMessage = msg.replaceFirst(SipFoundryLogRecordFactory.INCOMING,
                     "");
         }
-        
+
         // lineNumber is static across all loggers, so must be mutex protected.
         // time should also increase monotonically, so hold the lock
         synchronized (lineNumber) {

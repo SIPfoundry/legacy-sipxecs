@@ -10,7 +10,7 @@ import java.util.ArrayList;
 /**
  * [Enter descriptive text here]
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public class Contact {
@@ -76,7 +76,7 @@ public class Contact {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @return
 	 */
 	public String getUri() {
@@ -85,7 +85,7 @@ public class Contact {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @param uri
 	 */
 	public void setUri(String uri) {
@@ -94,7 +94,7 @@ public class Contact {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @return
 	 */
 	public ContactDisplayName getDisplayName() {
@@ -103,7 +103,7 @@ public class Contact {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @param displayName
 	 */
 	public void setDisplayName(ContactDisplayName displayName) {
@@ -112,7 +112,7 @@ public class Contact {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @param unknownParam
 	 */
 	public void addUnknownParam(ContactUnknownParam unknownParam) {
@@ -121,7 +121,7 @@ public class Contact {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @param unknownParam
 	 */
 	public void removeUnknownParam(ContactUnknownParam unknownParam) {
@@ -130,7 +130,7 @@ public class Contact {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @param index
 	 * @return
 	 */
@@ -140,7 +140,7 @@ public class Contact {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @return
 	 */
 	public int sizeUnknownParamList() {
@@ -149,7 +149,7 @@ public class Contact {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @return
 	 */
 	public ContactState getState() {
@@ -158,7 +158,7 @@ public class Contact {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @param state
 	 */
 	public void setState(ContactState state) {
@@ -167,7 +167,7 @@ public class Contact {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @return
 	 */
 	public ContactEvent getEvent() {
@@ -176,7 +176,7 @@ public class Contact {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @param event
 	 */
 	public void setEvent(ContactEvent event) {
@@ -185,7 +185,7 @@ public class Contact {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @return
 	 */
 	public long getDurationRegistered() {
@@ -194,7 +194,7 @@ public class Contact {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @param durationRegistered
 	 */
 	public void setDurationRegistered(long durationRegistered) {
@@ -203,7 +203,7 @@ public class Contact {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @return
 	 */
 	public long getExpires() {
@@ -212,7 +212,7 @@ public class Contact {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @param expires
 	 */
 	public void setExpires(long expires) {
@@ -221,7 +221,7 @@ public class Contact {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @return
 	 */
 	public long getRetryAfter() {
@@ -230,7 +230,7 @@ public class Contact {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @param retryAfter
 	 */
 	public void setRetryAfter(long retryAfter) {
@@ -239,7 +239,7 @@ public class Contact {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @return
 	 */
 	public String getId() {
@@ -248,7 +248,7 @@ public class Contact {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @param id
 	 */
 	public void setId(String id) {
@@ -257,7 +257,7 @@ public class Contact {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @return
 	 */
 	public String getQ() {
@@ -266,7 +266,7 @@ public class Contact {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @param q
 	 */
 	public void setQ(String q) {
@@ -275,7 +275,7 @@ public class Contact {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @return
 	 */
 	public String getCallid() {
@@ -284,7 +284,7 @@ public class Contact {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @param callid
 	 */
 	public void setCallid(String callid) {
@@ -293,7 +293,7 @@ public class Contact {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @return
 	 */
 	public long getCseq() {
@@ -302,7 +302,7 @@ public class Contact {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @param cseq
 	 */
 	public void setCseq(long cseq) {

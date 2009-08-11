@@ -10,7 +10,7 @@ package org.sipfoundry.commons.util;
  * <p>
  * Using a native method, determine and return the process ID
  * of the running JVM.
- * 
+ *
  * @author Mardy Marshall
  */
 public class ProcessID {
@@ -24,4 +24,3 @@ public class ProcessID {
 
     public native static int get();
 }
-

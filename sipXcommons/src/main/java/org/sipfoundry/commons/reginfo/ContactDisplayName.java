@@ -8,7 +8,7 @@ package org.sipfoundry.commons.reginfo;
 /**
  * [Enter descriptive text here]
  * <p>
- * 
+ *
  * @author Mardy
  */
 public class ContactDisplayName {
@@ -24,7 +24,7 @@ public class ContactDisplayName {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @return
 	 */
 	public String getBase() {
@@ -33,7 +33,7 @@ public class ContactDisplayName {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @param base
 	 */
 	public void setBase(String base) {
@@ -42,7 +42,7 @@ public class ContactDisplayName {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @return
 	 */
 	public String getLang() {
@@ -51,7 +51,7 @@ public class ContactDisplayName {
 
 	/**
 	 * [Enter descriptive text here]
-	 * 
+	 *
 	 * @param lang
 	 */
 	public void setLang(String lang) {

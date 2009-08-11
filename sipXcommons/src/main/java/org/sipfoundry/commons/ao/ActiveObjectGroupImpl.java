@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Service locator for Active Objects.
  * <p>
- * 
+ *
  * @author Mardy Marshall
  *
  * @param <K>
@@ -25,7 +25,7 @@ public class ActiveObjectGroupImpl<K> implements ActiveObjectGroup, Iterable<Obj
     private final String groupName;
 	private final ExecutorPool executorPool;
 	private final TimerPool timerPool;
-	
+
 	/**
 	 * Mapping between ActiveObjects and keys.
 	 */
@@ -35,7 +35,7 @@ public class ActiveObjectGroupImpl<K> implements ActiveObjectGroup, Iterable<Obj
 		executorPool = new ExecutorPool(groupName, contextPriority, maxContexts, contextIdleThreshold);
 		timerPool = new TimerPool(groupName);
 		this.groupName = groupName;
-		
+
 		// Instantiate the ActiveObject map.
 		activeObjectMap = new ConcurrentHashMap<K, Object>();
 	}
@@ -46,16 +46,16 @@ public class ActiveObjectGroupImpl<K> implements ActiveObjectGroup, Iterable<Obj
 		// Add the instance to the map.
 		activeObjectMap.put(key, proxyInstance);
 		object.setID(key);
-		
+
 		// Set the parent.
 		object.setActiveObjectGroup(this);
-		
+
 		return proxyInstance;
 	}
-	
+
 	/**
 	 * Attempt to find the ActiveObject instance that has previously been mapped to a specific key.
-	 * 
+	 *
 	 * @param key
 	 *            The key that has previously been mapped to a ActiveObject instance.
 	 * @return The ActiveObject instance that the given key maps to. If no mapping exists, returns null.
@@ -75,7 +75,7 @@ public class ActiveObjectGroupImpl<K> implements ActiveObjectGroup, Iterable<Obj
 			activeObjectMap.remove(key);
 		}
 	}
-	
+
 	public synchronized int size() {
 	    return activeObjectMap.size();
 	}
@@ -87,11 +87,11 @@ public class ActiveObjectGroupImpl<K> implements ActiveObjectGroup, Iterable<Obj
 	public Iterator<Object> iterator() {
 	    return new ActiveObjectGroupIterator();
 	}
-	
+
 	public class ActiveObjectGroupIterator implements Iterator<Object> {
 	    private final Object[] collection;
 	    private int index;
-	    
+
 	    public ActiveObjectGroupIterator() {
 	        collection = activeObjectMap.entrySet().toArray();
 	        index = 0;

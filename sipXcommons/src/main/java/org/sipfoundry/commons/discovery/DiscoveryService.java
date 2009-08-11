@@ -130,9 +130,9 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
             new UAVendor("SNOM", "00:04:13", true),
     };
 
-                                                                           
+
     public static Random rand = new Random();
-    
+
     public DiscoveryService(String localHostAddress, int localHostPort) {
         this(localHostAddress, localHostPort, null);
     }
@@ -320,7 +320,7 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
         	return false;
         }
     }
-    
+
     public synchronized boolean supportsSIPOptions(String networkAddress) {
         String hardwareAddress = ArpTable.lookup(networkAddress);
         if (hardwareAddress != null) {
@@ -341,7 +341,7 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
         	return false;
         }
     }
-    
+
     public synchronized void addDiscovered(String networkAddress, String userAgentInfo) {
         String hardwareAddress = ArpTable.lookup(networkAddress);
         if (hardwareAddress != null) {

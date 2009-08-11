@@ -14,7 +14,7 @@ import org.sipfoundry.commons.util.JournalService;
 /**
  * [Enter descriptive text here]
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public abstract class DHCPOption {
@@ -54,7 +54,7 @@ public abstract class DHCPOption {
 
         /**
          * Default constructor.
-         * 
+         *
          * @param integerValue
          *            Integer representation of enumeration.
          */
@@ -64,7 +64,7 @@ public abstract class DHCPOption {
 
         /**
          * Retrieve the integer representation of this enumeration.
-         * 
+         *
          * @return Integer representation of this enumeration.
          */
         public int toInt() {
@@ -73,7 +73,7 @@ public abstract class DHCPOption {
 
         /**
          * Map the given integer to a corresponding ENUM value.
-         * 
+         *
          * @param integerValue
          *            to convert.
          * @return Corresponding ENUM value. If no match, returns INVALID.

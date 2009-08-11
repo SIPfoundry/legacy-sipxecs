@@ -10,7 +10,7 @@ import java.lang.reflect.Method;
 /**
  * [Enter descriptive text here]
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public class TimerTickMethod {
