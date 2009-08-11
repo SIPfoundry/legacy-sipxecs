@@ -184,7 +184,7 @@ fi # *** END Configuration ***
 if [ "$VOICEMAIL" = "yes" ]
 then
   MAILSTORE=@SIPX_VXMLDATADIR@
-  Files="$MAILSTORE/messageid.txt $MAILSTORE/organizationprefs.xml"
+  Files="$MAILSTORE/messageid.txt
   Dirs="$MAILSTORE/mailstore"
  
   # Decide/List what will be backed up.
