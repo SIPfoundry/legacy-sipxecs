@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -741,6 +742,18 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             throw new NotFoundException("Room not found " + domain + " roomName " + roomName);
         }
         return JiveGlobals.getProperty("sipxopenfire.chatroom.info."+domain+"."+roomName);
+    }
+
+    public HashSet<UserAccount> getUserAccounts() {
+       HashSet<UserAccount> userAccounts = new HashSet<UserAccount>();
+       for ( User user : this.userManager.getUsers() ){
+           UserAccount userAccount = new UserAccount();
+           String sipUserId = user.getProperties().get(SIP_UID);
+           userAccount.setXmppUserName(user.getUsername());	
+           userAccount.setSipUserName(sipUserId);
+           userAccounts.add(userAccount);
+       }
+       return userAccounts;
     }
     
     

@@ -1,6 +1,8 @@
 package org.sipfoundry.openfire.plugin.presence;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -246,6 +248,28 @@ public class XmlRpcUserAccountProvider extends XmlRpcProvider {
             Map map = createSuccessMap();
             map.put(GROUP_EXISTS, new Boolean(exists).toString());
             return map;
+        } catch(Exception ex) {
+            return createErrorMap(ErrorCode.GROUP_EXISTS_ERROR,ex.getMessage());
+        }
+    }
+    
+    
+    public Map getUserAccounts() {
+        try {
+            HashSet<UserAccount> userAccounts = getPlugin().getUserAccounts();
+            Map retval = createSuccessMap();
+            Map<String,String>[] userAccountArray = new HashMap[userAccounts.size()];
+            int j = 0;
+            for (UserAccount userAccount : userAccounts ) {
+                HashMap<String,String> userAccountMap = new HashMap<String,String>();
+                userAccountMap.put(XMPP_USER_NAME, userAccount.getXmppUserName());
+                if ( userAccount.getSipUserName() != null ) {
+                    userAccountMap.put(SIP_ID, userAccount.getSipUserName());
+                }
+                userAccountArray[j++] = userAccountMap;               
+            }
+            retval.put(USER_ACCOUNTS, userAccountArray);
+            return retval;
         } catch(Exception ex) {
             return createErrorMap(ErrorCode.GROUP_EXISTS_ERROR,ex.getMessage());
         }

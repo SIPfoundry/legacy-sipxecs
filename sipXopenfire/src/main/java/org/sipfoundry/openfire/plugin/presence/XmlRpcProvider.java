@@ -44,6 +44,12 @@ public abstract class XmlRpcProvider {
 
     public static final String CONFERENCE_BRIDGE_EXTENSION = "conference-bridge-extension";
     
+    public static final String SIP_USER_NAME = "sip-user-name";
+    
+    public static final String XMPP_USER_NAME = "xmpp-user-name";
+    
+    public static final String USER_ACCOUNTS = "user-accounts";
+    
     private static SipXOpenfirePlugin plugin ;
     
     

@@ -1,7 +1,10 @@
 package org.sipfoundry.openfire.client;
 
+import java.util.Set;
+
 import org.sipfoundry.openfire.config.ConfigurationParser;
 import org.sipfoundry.openfire.config.WatcherConfig;
+import org.sipfoundry.openfire.plugin.presence.UserAccount;
 
 import junit.framework.TestCase;
 
@@ -42,10 +45,23 @@ public class OpenfireXmlRpcUserAccountClientTest extends TestCase {
         client.createUserAccount("user1", "user1", "My Display Name", "user1@gmail.com");
         
         client.createUserAccount("foobar", "foobar", "My Display Name", "user1@gmail.com");
-          
+    
+         
         assertTrue ("user1 must exist", client.userExists("user1"));
         assertTrue ("foobar must exsit", client.userExists("foobar"));
-       
+        
+        Set<UserAccount> userAccounts = client.getUserAccounts();
+        
+        System.out.println("UserAccount  = " + userAccounts);
+        boolean foundFoobar = false;
+        for ( UserAccount userAccount : userAccounts ) {
+        	System.out.println("SipUserName " + userAccount.getSipUserName());
+        	System.out.println("xmpp userName  " + userAccount.getXmppUserName());
+        	foundFoobar = foundFoobar || userAccount.getXmppUserName().equals("foobar");	
+        }
+        
+        assertTrue("Acount foobar not found",foundFoobar);
+        
         String sipUser = client.getSipId("user1");
         
         System.out.println("sipUser = " + sipUser);
@@ -63,6 +79,15 @@ public class OpenfireXmlRpcUserAccountClientTest extends TestCase {
         String onThePhoneMessage = client.getOnThePhoneMessage("user1@" + sipDomain);
         
         assertEquals("Message mismatch",message,onThePhoneMessage  );
+        
+
+        System.out.println("UserAccount  = " + userAccounts);
+        foundFoobar = false;
+        for ( UserAccount userAccount : userAccounts ) {
+        	System.out.println("SipUserName " + userAccount.getSipUserName());
+        	System.out.println("xmpp userName  " + userAccount.getXmppUserName());
+        	foundFoobar = foundFoobar || userAccount.getXmppUserName().equals("foobar");	
+        }
         
         client.destroyUserAccount("user1");
         client.destroyUserAccount("foobar");

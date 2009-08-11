@@ -1,11 +1,14 @@
 package org.sipfoundry.openfire.client;
 
 import java.net.URL;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
+import org.sipfoundry.openfire.plugin.presence.UserAccount;
 import org.sipfoundry.openfire.plugin.presence.XmlRpcPresenceProvider;
 import org.sipfoundry.openfire.plugin.presence.XmlRpcProvider;
 import org.sipfoundry.openfire.plugin.presence.XmlRpcUserAccountProvider;
@@ -249,11 +252,24 @@ public class OpenfireXmlRpcUserAccountClient extends OpenfireXmlRpcClient {
         }   
     }
     
-    
-   
-   
-    
-    
+    public Set<UserAccount> getUserAccounts()  throws OpenfireClientException {
+       
+        try {
+            Map retval = execute("getUserAccounts",null);
+            Set<UserAccount> userAccounts = new HashSet<UserAccount>();
+            Object[] accounts = (Object[]) retval.get(XmlRpcProvider.USER_ACCOUNTS);
+            for (Object accountMap : accounts) {
+            	Map account = ( Map<String,Object> ) accountMap;
+                UserAccount ua = new UserAccount();
+                ua.setSipUserName((String)account.get(XmlRpcProvider.SIP_ID));
+                ua.setXmppUserName((String)account.get(XmlRpcProvider.XMPP_USER_NAME));
+                userAccounts.add(ua);
+            }
+            return userAccounts;
+        } catch (XmlRpcException ex) {
+            throw new OpenfireClientException(ex);
+        }
+    }
   
     
 }
