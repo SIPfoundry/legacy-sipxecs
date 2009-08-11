@@ -64,16 +64,24 @@ public class AddressBookEntry extends BeanWithId {
         return m_homeAddress;
     }
 
+    /**
+     * (hibernate injects null value here when all homeAddress fields are empty) see:
+     * http://opensource.atlassian.com/projects/hibernate/browse/HB-31
+     */
     public void setHomeAddress(Address homeAddress) {
-        m_homeAddress = homeAddress;
+        m_homeAddress = homeAddress == null ? new Address() : homeAddress;
     }
 
     public Address getOfficeAddress() {
         return m_officeAddress;
     }
 
+    /**
+     * (hibernate injects null value here when all officeAddress fields are empty) see:
+     * http://opensource.atlassian.com/projects/hibernate/browse/HB-31
+     */
     public void setOfficeAddress(Address officeAddress) {
-        m_officeAddress = officeAddress;
+        m_officeAddress = officeAddress == null ? new Address() : officeAddress;
     }
 
     public String getCellPhoneNumber() {

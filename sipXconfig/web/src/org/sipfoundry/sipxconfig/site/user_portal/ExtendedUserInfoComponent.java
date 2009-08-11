@@ -57,9 +57,7 @@ public abstract class ExtendedUserInfoComponent extends BaseComponent implements
         }
 
         User user = getUser();
-        if (null == user.getAddressBookEntry()) {
-            user.setAddressBookEntry(getAddressBookEntry());
-        }
+        user.setAddressBookEntry(getAddressBookEntry());
         getCoreContext().saveUser(user);
     }
 }
