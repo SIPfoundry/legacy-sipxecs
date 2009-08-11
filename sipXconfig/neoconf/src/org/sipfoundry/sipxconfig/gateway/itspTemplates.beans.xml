@@ -66,4 +66,8 @@
     <property name="itspTemplate" value="voxitas.xml" />
   </bean>
 
+  <bean id="itspSkype" parent="sipTrunkItsp">
+    <property name="itspName" value="Skype for SIP" />
+    <property name="itspTemplate" value="skype.xml" />
+  </bean>
 </beans>
