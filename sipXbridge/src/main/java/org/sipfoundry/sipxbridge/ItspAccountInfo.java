@@ -150,9 +150,6 @@ public class ItspAccountInfo implements
      */
     private boolean isUserPhone = true;
 
-
-
-
     /*
      * Flag that indicates whether this is a dummy account
      */
@@ -672,17 +669,16 @@ public class ItspAccountInfo implements
        return this.addRoute;
     }
 
-    public void setSipSessionTimerInterval(int sessionTimerInterval) {
-        this.setSessionTimerInterval(sessionTimerInterval);
-    }
-
     /**
-     * @param sessionTimerInterval the sessionTimerInterval to set
+     * Set the SIP session timer interval.
+     * 
+     * @param sessionTimerInterval
      */
-    public void setSessionTimerInterval(int sessionTimerInterval) {
+    public void setSipSessionTimerIntervalSeconds(int sessionTimerInterval) {
         this.sessionTimerInterval = sessionTimerInterval;
     }
 
+    
     /**
      * @return the sessionTimerInterval
      */
