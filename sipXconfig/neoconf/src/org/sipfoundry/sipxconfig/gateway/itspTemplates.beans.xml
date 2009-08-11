@@ -66,4 +66,9 @@
     <property name="itspTemplate" value="voxitas.xml" />
   </bean>
 
+  <bean id="itspVoipms" parent="sipTrunkItsp">
+    <property name="itspName" value="VOIP.MS" />
+    <property name="itspTemplate" value="voipms.xml" />
+  </bean>
+
 </beans>
