@@ -22,5 +22,6 @@
   <resources>
     <osconfig>@SIPX_CONFDIR@/domain-config</osconfig>
     <osconfig>@SIPX_CONFDIR@/sipxpresence-config</osconfig>
+    <imdb required='false' configAccess='read-only'>subscription</imdb>
   </resources>
 </sipXecs-process>

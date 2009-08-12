@@ -28,6 +28,7 @@
     <imdb>permission</imdb>
     <imdb>alias</imdb>
     <imdb required='false' configAccess='read-only'>registration</imdb>
+    <imdb required='false' configAccess='read-only'>subscription</imdb>
     <imdb>userlocation</imdb>
     <imdb>userforward</imdb>
   </resources>

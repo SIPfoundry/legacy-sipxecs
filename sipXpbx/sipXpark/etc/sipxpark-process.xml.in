@@ -24,5 +24,6 @@
     <file>@SIPX_CONFDIR@/sipxpark-config</file>
     <file>@SIPX_CONFDIR@/orbits.xml</file>
     <imdb>credential</imdb>
+    <imdb required='false' configAccess='read-only'>subscription</imdb>
   </resources>
 </sipXecs-process>
