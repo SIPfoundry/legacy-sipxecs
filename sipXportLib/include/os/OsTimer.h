@@ -136,7 +136,7 @@ class OsTimer : public UtlContainableAtomic
 
    /** Construct a timer that signals by calling
     *  @code
-    *  rNotifier.signal(this)
+    *  rNotifier.signal((intptr_t) this)
     *  @endcode
     */
    OsTimer(OsNotification& rNotifier ///< OsNotification object to report event
