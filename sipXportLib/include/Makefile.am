@@ -90,6 +90,7 @@ nobase_include_HEADERS = \
     os/OsTimerTask.h \
     os/OsTokenizer.h \
     os/ostream \
+    os/OsUnLock.h \
     os/OsUtil.h \
     os/OsWriteLock.h \
     os/shared/OsMsgQShared.h \

@@ -347,8 +347,6 @@ private:
 
    OsTaskBase& operator=(const OsTaskBase& rhs);
      //:Assignment operator (not implemented for this class)
-
-
 };
 
 /* ============================ INLINE METHODS ============================ */
