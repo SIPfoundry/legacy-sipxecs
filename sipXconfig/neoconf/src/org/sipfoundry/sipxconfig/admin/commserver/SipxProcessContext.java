@@ -50,31 +50,10 @@ public interface SipxProcessContext {
     void manageServices(Location location, Collection< ? extends SipxService> services, Command command);
 
     /**
-     * Restart service on all locations on which it is installed
-     *
-     * This is rarely (if ever) needed. In most cases you need to restart service on a specific
-     * location or just mark service for restart.
-     *
-     * @param services list of services that will receive the command
-     * @param command command to send
-     */
-    @Deprecated
-    void manageServices(Collection< ? extends SipxService> services, Command command);
-
-    /**
      * Retrieve the list of the services that should be started and stopped on the location to
      * make it to conform to bundle list.
      */
     LocationStatus getLocationStatus(Location location);
-
-    /**
-     * Delayed version of manageServices strictly for restarting services. Restart commands is not
-     * send until the event of the specific class is received.
-     *
-     * @param services list of services that will receive the command
-     * @param eventClass class of event that will trigger the command
-     */
-    void restartOnEvent(Collection< ? extends SipxService> services, Class eventClass);
 
     void markServicesForRestart(Collection< ? extends SipxService> processes);
 

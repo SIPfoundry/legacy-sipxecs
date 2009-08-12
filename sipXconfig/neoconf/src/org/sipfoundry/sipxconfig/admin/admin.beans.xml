@@ -39,15 +39,6 @@
   <bean id="ftpRestore" class="org.sipfoundry.sipxconfig.admin.FtpRestore" parent="restore">
   </bean>
 
-  <bean id="whacker" class="org.sipfoundry.sipxconfig.admin.Whacker">
-    <property name="processContext" ref="sipxProcessContext" />
-    <property name="services">
-      <list>
-        <ref bean="sipxMediaService" />
-      </list>
-    </property>
-  </bean>
-
   <bean id="initializeSystemTask" class="org.sipfoundry.sipxconfig.admin.DataInitializer">
     <property name="adminContext" ref="adminContext" />
   </bean>

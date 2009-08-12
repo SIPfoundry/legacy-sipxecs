@@ -200,7 +200,6 @@ public final class TestUtil {
         sysProps.setProperty("ftpRestore.downloadDirectory", outputDirectory + "/downloadFtpBackup");
         sysProps.setProperty("orbitsGenerator.audioDirectory", outputDirectory + "/parkserver/music");
         sysProps.setProperty("replicationTrigger.replicateOnStartup", Boolean.toString(false));
-        sysProps.setProperty("whacker.enabled", Boolean.toString(false));
         sysProps.setProperty("acdContextImpl.enabled", Boolean.toString(true));
         sysProps.setProperty("indexTrigger.enabled", Boolean.toString(false));
         sysProps.setProperty("upload.uploadRootDirectory", outputDirectory + "/upload");

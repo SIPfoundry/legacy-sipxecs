@@ -17,8 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections.Factory;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
@@ -31,16 +29,12 @@ import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 import org.springframework.beans.factory.annotation.Required;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
-
 import static org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status.Running;
 
-public class SipxProcessContextImpl implements SipxProcessContext, ApplicationListener {
+public class SipxProcessContextImpl implements SipxProcessContext {
 
     private static final Log LOG = LogFactory.getLog(SipxProcessContextImpl.class);
 
-    private final EventsToServices<SipxService> m_eventsToServices = new EventsToServices<SipxService>();
     private LocationsManager m_locationsManager;
     private ApiProvider<ProcessManagerApi> m_processManagerApiProvider;
     private SipxServiceManager m_sipxServiceManager;
@@ -92,7 +86,7 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
      * Read service status values from the process monitor and return them in an array.
      * ClassCastException or NoSuchElementException (both RuntimeException subclasses) could be
      * thrown from this method, but only if things have gone horribly wrong.
-     * 
+     *
      * @param onlyActiveServices If true, only return status information for the services that the
      *        location parameter lists in its services list. If false, return all service status
      *        information available.
@@ -166,7 +160,7 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
 
     /**
      * Mark services for restart for all locations.
-     * 
+     *
      * Only services attached to a location are marked for restart
      */
     public void markServicesForRestart(Collection< ? extends SipxService> processes) {
@@ -264,52 +258,6 @@ public class SipxProcessContextImpl implements SipxProcessContext, ApplicationLi
             }
         }
         return new LocationStatus(toBeStarted, toBeStopped);
-    }
-
-    public void restartOnEvent(Collection services, Class eventClass) {
-        m_eventsToServices.addServices(services, eventClass);
-    }
-
-    public void onApplicationEvent(ApplicationEvent event) {
-        Collection<SipxService> services = m_eventsToServices.getServices(event.getClass());
-        if (!services.isEmpty()) {
-            // do not call if set is empty - it's harmless but it triggers topology.xml parsing
-            manageServices(services, Command.RESTART);
-        }
-    }
-
-    static final class EventsToServices<E> {
-        private final Map<Class, Set<E>> m_map;
-
-        public EventsToServices() {
-            Factory setFactory = new Factory() {
-                public Object create() {
-                    return new HashSet();
-                }
-            };
-            m_map = MapUtils.lazyMap(new HashMap(), setFactory);
-        }
-
-        public void addServices(Collection< ? extends E> services, Class eventClass) {
-            Set<E> serviceSet = m_map.get(eventClass);
-            serviceSet.addAll(services);
-        }
-
-        public Collection<E> getServices(Class eventClass) {
-            Set<E> services = new HashSet<E>();
-            for (Map.Entry<Class, Set<E>> entry : m_map.entrySet()) {
-                Class klass = entry.getKey();
-                Collection<E> servicesForKlass = entry.getValue();
-                if (klass.isAssignableFrom(eventClass)) {
-                    services.addAll(servicesForKlass);
-                }
-            }
-            // do that again this time removing collected services...
-            for (Collection<E> servicesForKlass : m_map.values()) {
-                servicesForKlass.removeAll(services);
-            }
-            return services;
-        }
     }
 
     private String getHost() {
