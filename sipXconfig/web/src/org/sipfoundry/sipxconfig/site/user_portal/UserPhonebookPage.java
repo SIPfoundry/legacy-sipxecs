@@ -22,7 +22,6 @@ import org.apache.tapestry.IAsset;
 import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
-import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.valid.ValidationConstraint;
 import org.apache.tapestry.web.WebResponse;
@@ -36,7 +35,7 @@ import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.sip.SipService;
 
-public abstract class UserPhonebookPage extends UserBasePage implements PageBeginRenderListener {
+public abstract class UserPhonebookPage extends UserBasePage {
     private static final Log LOG = LogFactory.getLog(UserPhonebookPage.class);
 
     @InjectObject(value = "service:tapestry.globals.WebResponse")

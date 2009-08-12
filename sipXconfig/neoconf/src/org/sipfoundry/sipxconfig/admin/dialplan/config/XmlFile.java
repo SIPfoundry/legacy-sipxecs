@@ -17,10 +17,9 @@ import org.dom4j.DocumentFactory;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 import org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile;
-import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 
-public abstract class XmlFile extends AbstractConfigurationFile implements ConfigurationFile {
+public abstract class XmlFile extends AbstractConfigurationFile {
     protected static final DocumentFactory FACTORY = DocumentFactory.getInstance();
 
     public abstract Document getDocument();

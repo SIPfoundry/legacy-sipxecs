@@ -1,7 +1,7 @@
 /*
  *
  *
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
@@ -14,7 +14,6 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.annotations.InjectObject;
-import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.components.SelectMap;
@@ -23,7 +22,7 @@ import org.sipfoundry.sipxconfig.device.DiscoveredDevice;
 import org.sipfoundry.sipxconfig.phone.DeviceFinder;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
 
-public abstract class DiscoverDevices extends UserBasePage implements PageBeginRenderListener {
+public abstract class DiscoverDevices extends UserBasePage {
     public static final String PAGE = "DiscoverDevices";
 
     private static final String ACTION_REDISCOVER = "discover";
@@ -58,6 +57,7 @@ public abstract class DiscoverDevices extends UserBasePage implements PageBeginR
 
     public abstract void setDiscoveryNotStarted(boolean discoveryFailed);
 
+    @Override
     public void pageBeginRender(PageEvent event) {
         setDiscovering(false);
         setDiscoveryExecuted(false);

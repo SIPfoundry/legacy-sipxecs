@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.bulk.csv;
@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.collections.Closure;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.bulk.RowInserter;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -30,7 +29,7 @@ import org.sipfoundry.sipxconfig.vm.Mailbox;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 
-public class CsvRowInserter extends RowInserter<String[]> implements Closure {
+public class CsvRowInserter extends RowInserter<String[]> {
     private DomainManager m_domainManager;
 
     private CoreContext m_coreContext;
@@ -73,6 +72,7 @@ public class CsvRowInserter extends RowInserter<String[]> implements Closure {
      * @param input - one row of imported data
      * @return CheckRowDataRetVal
      */
+    @Override
     protected RowStatus checkRowData(String[] row) {
         String userName = Index.USERNAME.get(row);
         String serialNo = Index.SERIAL_NUMBER.get(row);
@@ -106,9 +106,10 @@ public class CsvRowInserter extends RowInserter<String[]> implements Closure {
 
     /**
      * Inserts data from a single row
-     * 
+     *
      * @param row each array element represents a single field - see Index
      */
+    @Override
     protected void insertRow(String[] row) {
         User user = userFromRow(row);
         Collection<Group> userGroups;
@@ -140,9 +141,9 @@ public class CsvRowInserter extends RowInserter<String[]> implements Closure {
      * Updates user properties from row data. Creates new user if one does not exist. USer (newly
      * created or updated) is not save to the database here. That's reponsibility of the called By
      * convention empty String does not overwrite the data.
-     * 
+     *
      * @param row see Index enum
-     * 
+     *
      * @return modified (but not saved used object)
      */
     User userFromRow(String[] row) {
@@ -222,7 +223,7 @@ public class CsvRowInserter extends RowInserter<String[]> implements Closure {
     /**
      * Creates user and adds it to user group, creates phone and adds it to phones group; then
      * creates the line for a newly added group on newly added phone.
-     * 
+     *
      * @param user user to add or update
      * @param userGroup user group to which user will be added
      * @param phone phone to add or update
@@ -290,6 +291,7 @@ public class CsvRowInserter extends RowInserter<String[]> implements Closure {
         return line;
     }
 
+    @Override
     protected String dataToString(String[] row) {
         List<String> ids = new ArrayList<String>();
         Index[] fields = new Index[] {

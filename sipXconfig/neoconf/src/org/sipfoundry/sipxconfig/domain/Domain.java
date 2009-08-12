@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.domain;
@@ -20,7 +20,7 @@ import org.sipfoundry.sipxconfig.common.BeanWithId;
 /**
  * Single holder of domain name
  */
-public class Domain extends BeanWithId implements Cloneable {
+public class Domain extends BeanWithId {
     private static final int SECRET_SIZE = 18;
 
     private String m_name;
@@ -47,11 +47,11 @@ public class Domain extends BeanWithId implements Cloneable {
     public void setName(String name) {
         m_name = name;
     }
-    
+
     public String getSipRealm() {
         return m_sipRealm;
     }
-    
+
     public void setSipRealm(String sipRealm) {
         m_sipRealm = sipRealm;
     }
@@ -95,7 +95,7 @@ public class Domain extends BeanWithId implements Cloneable {
 
     /**
      * Initializa domain secret if it's not initialized yet
-     * 
+     *
      * @return true if new secret has been initialized, false if secret was already there
      */
     protected boolean initSecret() {

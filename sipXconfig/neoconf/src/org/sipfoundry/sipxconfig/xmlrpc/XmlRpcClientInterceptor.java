@@ -33,10 +33,9 @@ import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.secure.SecureXmlRpcClient;
 import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
 import org.springframework.beans.factory.BeanInitializationException;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.remoting.support.UrlBasedRemoteAccessor;
 
-public class XmlRpcClientInterceptor extends UrlBasedRemoteAccessor implements MethodInterceptor, InitializingBean {
+public class XmlRpcClientInterceptor extends UrlBasedRemoteAccessor implements MethodInterceptor {
     private static final Log LOG = LogFactory.getLog(XmlRpcClientInterceptor.class);
 
     private XmlRpcClient m_xmlRpcClient;

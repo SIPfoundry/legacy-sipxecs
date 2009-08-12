@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.setting;
@@ -15,7 +15,7 @@ import java.util.Collections;
 /**
  * Abstract setting with model (as in model/view/controller model)
  */
-public class SettingImpl extends AbstractSetting implements Cloneable {
+public class SettingImpl extends AbstractSetting {
     private SettingModel m_model;
 
     /**
@@ -87,6 +87,7 @@ public class SettingImpl extends AbstractSetting implements Cloneable {
         throw new UnsupportedOperationException("Cannot put settings into another setting, only groups");
     }
 
+    @Override
     protected Setting findChild(String name_) {
         throw new UnsupportedOperationException("Cannot get settings from another setting, only groups");
     }

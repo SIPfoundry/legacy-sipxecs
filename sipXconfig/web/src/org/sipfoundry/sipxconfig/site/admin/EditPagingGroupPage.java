@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.admin;
@@ -17,7 +17,6 @@ import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
-import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -33,9 +32,10 @@ import org.sipfoundry.sipxconfig.site.user.SelectUsersCallback;
 import org.sipfoundry.sipxconfig.site.user.UserTable;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
 
-public abstract class EditPagingGroupPage extends UserBasePage implements PageBeginRenderListener {
+public abstract class EditPagingGroupPage extends UserBasePage {
     public static final String PAGE = "admin/EditPagingGroupPage";
 
+    @Override
     @InjectObject(value = "spring:coreContext")
     public abstract CoreContext getCoreContext();
 
@@ -70,6 +70,7 @@ public abstract class EditPagingGroupPage extends UserBasePage implements PageBe
         setReturnPage(returnPage);
     }
 
+    @Override
     public void pageBeginRender(PageEvent event_) {
 
         if (!TapestryUtils.isValid(this)) {

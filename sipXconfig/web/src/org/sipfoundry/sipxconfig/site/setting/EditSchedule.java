@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.setting;
@@ -14,7 +14,6 @@ import java.util.List;
 
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
-import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime.WorkingHours;
@@ -27,7 +26,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
 
-public abstract class EditSchedule extends UserBasePage implements PageBeginRenderListener {
+public abstract class EditSchedule extends UserBasePage {
 
     public static final String PAGE = "setting/EditSchedule";
     private static final String ACTION_ADD = "add";
@@ -68,6 +67,7 @@ public abstract class EditSchedule extends UserBasePage implements PageBeginRend
 
     public abstract void setUserGroup(Group userGroup);
 
+    @Override
     public void pageBeginRender(PageEvent event) {
         if (getWorkingHours() != null) {
             return;

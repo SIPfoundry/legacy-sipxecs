@@ -26,7 +26,6 @@ import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.Persist;
-import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.request.IUploadFile;
@@ -50,7 +49,7 @@ import org.sipfoundry.sipxconfig.site.common.AssetSelector;
 import org.sipfoundry.sipxconfig.site.common.IPageWithReset;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
 
-public abstract class RestorePage extends UserBasePage implements PageBeginRenderListener, IPageWithReset {
+public abstract class RestorePage extends UserBasePage implements IPageWithReset {
     public static final String PAGE = "admin/RestorePage";
 
     private static final String FILE_TYPE = ".tar.gz";

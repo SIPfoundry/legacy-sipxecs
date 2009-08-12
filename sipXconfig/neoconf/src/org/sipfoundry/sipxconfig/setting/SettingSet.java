@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.setting;
@@ -19,7 +19,7 @@ import org.springframework.context.MessageSource;
  * Meta information about a group of settings, can contain nested SettingModels. Order is
  * preserved
  */
-public class SettingSet extends AbstractSetting implements Cloneable, Serializable {
+public class SettingSet extends AbstractSetting implements Serializable {
 
     private SettingMap m_children = new SettingMap();
 
@@ -38,6 +38,7 @@ public class SettingSet extends AbstractSetting implements Cloneable, Serializab
     /**
      * includes deep copy of all childen
      */
+    @Override
     public Setting copy() {
         SettingSet copy = (SettingSet) shallowCopy();
         for (Setting child : m_children.values()) {
@@ -52,6 +53,7 @@ public class SettingSet extends AbstractSetting implements Cloneable, Serializab
         return copy;
     }
 
+    @Override
     public void acceptVisitor(SettingVisitor visitor) {
         if (visitor.visitSettingGroup(this)) {
             m_children.acceptVisitor(visitor);
@@ -66,6 +68,7 @@ public class SettingSet extends AbstractSetting implements Cloneable, Serializab
         return m_children.addSetting(setting);
     }
 
+    @Override
     protected Setting findChild(String name) {
         Setting child = m_children.get(name);
         return child;
@@ -93,10 +96,12 @@ public class SettingSet extends AbstractSetting implements Cloneable, Serializab
         throw new UnsupportedOperationException(getPath());
     }
 
+    @Override
     public String getValue() {
         throw new UnsupportedOperationException(getPath());
     }
 
+    @Override
     public void setValue(String value) {
         throw new UnsupportedOperationException(getPath());
     }
@@ -105,6 +110,7 @@ public class SettingSet extends AbstractSetting implements Cloneable, Serializab
         m_messageSource = messageSource;
     }
 
+    @Override
     public MessageSource getMessageSource() {
         if (m_messageSource != null) {
             return m_messageSource;

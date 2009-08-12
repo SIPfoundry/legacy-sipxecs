@@ -13,7 +13,6 @@ import java.util.Date;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.annotations.Persist;
-import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.StringPropertySelectionModel;
@@ -24,7 +23,7 @@ import org.sipfoundry.sipxconfig.login.LoginEvent;
 import org.sipfoundry.sipxconfig.site.cdr.CdrHistory;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
 
-public abstract class LoginHistoryPage extends UserBasePage implements PageBeginRenderListener {
+public abstract class LoginHistoryPage extends UserBasePage {
 
     public static final String PAGE = "LoginHistoryPage";
 
