@@ -135,10 +135,6 @@ AppearanceAgent::AppearanceAgent(const UtlString& domainName,
 // Destructor
 AppearanceAgent::~AppearanceAgent()
 {
-   // Final stage of closing down the call processing objects.
-
-   // Stop the SipUserAgent's.
-   mServerUserAgent.shutdown(TRUE);
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -196,7 +192,7 @@ void AppearanceAgent::shutdown()
 {
    // Close down the call processing objects.
 
-   OsSysLog::add(FAC_SAA, PRI_DEBUG,
+   OsSysLog::add(FAC_SAA, PRI_INFO,
                  "AppearanceAgent::shutdown this = %p",
                  this);
 

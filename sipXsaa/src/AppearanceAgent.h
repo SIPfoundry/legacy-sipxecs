@@ -103,6 +103,7 @@ class AppearanceAgent : public UtlContainableAtomic
                       const UtlString&  credentialsDbName = "credential"
       );
 
+   /// Applications should call shutdown() before calling the destructor
    virtual ~AppearanceAgent();
 
    //! Start the call processing components.
