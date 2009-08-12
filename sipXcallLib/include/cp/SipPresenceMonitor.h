@@ -26,7 +26,6 @@
 #include <net/SipSubscriptionMgr.h>
 #include <net/SipSubscribeServerEventHandler.h>
 #include <net/SipSubscribeServer.h>
-#include <net/SipRefreshManager.h>
 #include <net/SipPublishContentMgr.h>
 #include <net/SipPresenceEvent.h>
 #include <utl/UtlHashMap.h>

@@ -20,6 +20,7 @@
 #include <utl/UtlHashMap.h>
 #include <net/StateChangeNotifier.h>
 #include <net/SipDialogMonitor.h>
+#include <net/SipRefreshManager.h>
 #include <cp/LinePresenceBase.h>
 
 
