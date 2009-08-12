@@ -32,6 +32,7 @@ public class ValidUsersConfig extends XmlFile {
     private static final String ELEMENT_NAME_IDENTITY = "identity";
     private static final String ELEMENT_NAME_INDIRECTORY = "inDirectory";
     private static final String ELEMENT_NAME_PINTOKEN = "pintoken";
+    private static final String ELEMENT_NAME_PASSTOKEN = "passtoken";
     private static final String ELEMENT_NAME_USER = "user";
     private static final String ELEMENT_NAME_USERNAME = "userName";
     private static final String ELEMENT_NAME_HASVOICEMAIL = "hasVoicemail";
@@ -43,7 +44,7 @@ public class ValidUsersConfig extends XmlFile {
     private AliasProvider m_aliasProvider;
 
 
-    
+
     @Override
     public Document getDocument() {
         Document document = FACTORY.createDocument();
@@ -85,6 +86,9 @@ public class ValidUsersConfig extends XmlFile {
         }
         userEl.addElement(ELEMENT_NAME_CONTACT).setText(contact);
         userEl.addElement(ELEMENT_NAME_PINTOKEN).setText(user.getPintoken());
+
+        String realm = m_domainManager.getAuthorizationRealm();
+        userEl.addElement(ELEMENT_NAME_PASSTOKEN).setText(user.getSipPasswordHash(realm));
         boolean inDirectory = user.hasPermission(PermissionName.AUTO_ATTENDANT_DIALING);
         userEl.addElement(ELEMENT_NAME_INDIRECTORY).setText(Boolean.toString(inDirectory));
         boolean hasVoiceMail = user.hasPermission(PermissionName.VOICEMAIL);

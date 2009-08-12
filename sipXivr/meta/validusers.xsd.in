@@ -42,6 +42,14 @@
       </annotation>
    </element>
 
+   <element name="passtoken" type="normalizedString">
+      <annotation>
+         <documentation>
+            Hash of the user's SIP password.
+         </documentation>
+      </annotation>
+   </element>
+
    <element name="inDirectory" type="boolean">
       <annotation>
          <documentation>
@@ -163,6 +171,7 @@
             <element ref="tns:displayName" maxOccurs="1" minOccurs="0"/>
             <element ref="tns:contact" maxOccurs="1" minOccurs="1"/>
             <element ref="tns:pintoken" maxOccurs="1" minOccurs="0"/>
+            <element ref="tns:passtoken" maxOccurs="1" minOccurs="0"/>
             <element ref="tns:inDirectory" maxOccurs="1" minOccurs="1"/>
             <element ref="tns:hasVoicemail" maxOccurs="1" minOccurs="0"/>
             <element ref="tns:canRecordPrompts" maxOccurs="1" minOccurs="0"/>

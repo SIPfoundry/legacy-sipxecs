@@ -11,6 +11,7 @@
     <displayName>John Adams</displayName>
     <contact>"John Adams"&lt;sip:301@example.com&gt;</contact>
     <pintoken>9c78d7b04fa11fe0086eb25933b01af3</pintoken>
+    <passtoken>9c78d7b04fa11fe0086eb25933b01af3</passtoken>
     <inDirectory>true</inDirectory>
     <hasVoicemail>true</hasVoicemail>
     <canRecordPrompts>false</canRecordPrompts>
@@ -22,6 +23,7 @@
     <displayName>George Washington</displayName>
     <contact>"George Washington"&lt;sip:302@example.com&gt;</contact>
     <pintoken>6833fd1fc2dd908dc99a3a457d88b812</pintoken>
+    <passtoken>6833fd1fc2dd908dc99a3a457d88b812</passtoken>
     <inDirectory>false</inDirectory>
     <hasVoicemail>true</hasVoicemail>
     <canRecordPrompts>true</canRecordPrompts>

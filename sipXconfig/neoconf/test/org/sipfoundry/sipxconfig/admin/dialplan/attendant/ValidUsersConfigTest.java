@@ -48,6 +48,7 @@ public class ValidUsersConfigTest extends XMLTestCase {
         u1.setFirstName("John");
         u1.setLastName("Adams");
         u1.setPin("1234", "example");
+        u1.setSipPassword("1234");
         u1.setPermission(PermissionName.AUTO_ATTENDANT_DIALING, true);
         u1.setPermission(PermissionName.VOICEMAIL, true);
         u1.setPermission(PermissionName.RECORD_SYSTEM_PROMPTS, false);
@@ -59,6 +60,7 @@ public class ValidUsersConfigTest extends XMLTestCase {
         u2.setFirstName("George");
         u2.setLastName("Washington");
         u2.setPin("1234", "example");
+        u2.setSipPassword("1234");
         u2.setPermission(PermissionName.AUTO_ATTENDANT_DIALING, false);
         u2.setPermission(PermissionName.VOICEMAIL, true);
         u2.setPermission(PermissionName.RECORD_SYSTEM_PROMPTS, true);
@@ -72,6 +74,7 @@ public class ValidUsersConfigTest extends XMLTestCase {
 
         DomainManager domainManager = createMock(DomainManager.class);
         expect(domainManager.getDomain()).andReturn(domain).anyTimes();
+        expect(domainManager.getAuthorizationRealm()).andReturn("example").anyTimes();
 
         AliasMapping am1 = new AliasMapping("500@example.com", "sip:500@example.com");
         AliasMapping am2 = new AliasMapping("501@example.com", "sip:501@example.com");
