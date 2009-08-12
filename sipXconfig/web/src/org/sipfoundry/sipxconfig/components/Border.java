@@ -209,6 +209,10 @@ public abstract class Border extends BaseComponent implements PageValidateListen
         return new Date();
     }
 
+    public String getLocaleValue() {
+        return "locale=" + getPage().getLocale().getLanguage();
+    }
+
     public String getHelpLink(Integer[] versionIds) {
         return getMessages().format("help.link", versionIds);
     }

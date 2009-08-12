@@ -48,12 +48,8 @@ public abstract class UserPhonebookPage extends UserBasePage implements PageBegi
     @InjectObject("spring:sip")
     public abstract SipService getSipService();
 
-    @Asset("/gwt/org.sipfoundry.sipxconfig.userportal.user_phonebook_search/UserPhonebookSearch.css")
-    public abstract IAsset getUserPhonebookSearchCss();
-
     @Asset("/gwt/org.sipfoundry.sipxconfig.userportal.user_phonebook_search/nocache.js")
     public abstract IAsset getUserPhonebookSearchJs();
-
 
     @InjectObject("spring:domainManager")
     public abstract DomainManager getDomainManager();
@@ -107,11 +103,6 @@ public abstract class UserPhonebookPage extends UserBasePage implements PageBegi
      * Filters the phonebook entries based on the value of getQuery()
      */
     public void search() throws IOException, ParseException {
-        setPhonebookEntries(null);
-    }
-
-    public void reset() {
-        setQuery(StringUtils.EMPTY);
         setPhonebookEntries(null);
     }
 

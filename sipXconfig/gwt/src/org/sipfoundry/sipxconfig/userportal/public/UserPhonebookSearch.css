@@ -1,25 +1,68 @@
-.gwt-SuggestBox
-{
-    border                      :    1px solid #666;
-    text-align                  :    left;
-    width                       :    250px;
+.gwt-SuggestBox {
+    border: 1px solid #666;
+    text-align: left;
+    width: 185px;
 }
-.gwt-SuggestBoxPopup
-{
-    text-align                   :    left;
-    cursor                       :    pointer;
-    cursor                       :    hand;
-    border                       :    1px solid #666;
-    border-top                   :    0;
-    background-color             :    #fff;
+
+.gwt-SuggestBoxPopup {
+    text-align: left;
+    cursor: pointer;
+    cursor: hand;
+    border: 1px solid #666;
+    background-color: #fff;
 
 }
-.gwt-SuggestBoxPopup .item
-{
-    border                       :    1px dotted #aaa;
-    width                        :    248px;
+
+.gwt-SuggestBoxPopup .item {
+    padding: 2px 6px;
+    color: #424242;
+    cursor: default;
+    width: 165px;
 }
-.gwt-SuggestBoxPopup .item-selected
-{
-    background-color             :    #ffc;
+
+.gwt-SuggestBoxPopup .item-selected {
+
+    background-color: #cdcdcd;
+}
+
+.gwt-SuggestBoxPopup .suggestPopupContent {
+   background: #FFFFBB;
+}
+
+.gwt-Button {
+  margin: 0;
+  text-decoration: none;
+  font-size: small;
+  cursor: pointer;
+  cursor: hand;
+  border: 1px solid #ccc;
+}
+
+.gwt-Button:active {
+  border: 1px solid #ccc;
+}
+
+.gwt-Button:hover {
+  border: 1px solid;
+  border-color: #9cf #69e #69e #7af;
+}
+
+.gwt-Button[disabled] {
+  cursor: default;
+  color: #888;
+}
+
+.gwt-Button[disabled]:hover {
+  border: 1px outset #ccc;
+}
+
+.gwt-SipxSearchHelp {
+   font-size: 8pt;
+   font-family: Verdana, Arial, sans-serif;
+   color:#424242;
+}
+
+.gwt-SipxSearchTitle {
+   font-size: 11pt;
+   font-family: Verdana, Arial, sans-serif;
 }
