@@ -157,12 +157,18 @@ public class RegistrationManager {
             if (itspAccount.getSipKeepaliveMethod().equals("REGISTER")) {
                 time = ct.getRequest().getExpires().getExpires();
             }
+            
+            if (time == 0 ) {
+            	logger.warn("ITSP did not return a contact address matching the REGISTER contact address - report this to your ITSP\n");
+            	time = itspAccount.getRegistrationInterval();
+            }
 
             if (time > 2 * Gateway.REGISTER_DELTA) {
                 time = time - Gateway.REGISTER_DELTA;
             }
-
-            if (itspAccount.isAlarmSent()) {
+            
+            
+            if (itspAccount.isAlarmSent() && time > 0) {
                 try {
                     Gateway.getAlarmClient().raiseAlarm(
                             Gateway.SIPX_BRIDGE_ACCOUNT_OK,
