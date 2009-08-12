@@ -82,7 +82,7 @@ public class ProtocolObjects {
                 /*
                  * At TRACE level you get a LOT of logging.
                  */
-                stackProperties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", Level.DEBUG
+                stackProperties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", Level.TRACE
                         .toString());
             }
             stackProperties.setProperty("gov.nist.javax.sip.THREAD_POOL_SIZE", "1");
