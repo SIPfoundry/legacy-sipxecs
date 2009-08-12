@@ -5,7 +5,6 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
  */
 package org.sipfoundry.sipxconfig.phonebook;
 
@@ -65,5 +64,4 @@ public class Address {
     public void setOfficeDesignation(String officeDesignation) {
         m_officeDesignation = officeDesignation;
     }
-
 }

@@ -1,0 +1,15 @@
+{"contact-information": {
+  "jobTitle": "Data Entry Assistant",
+  "jobDept": "Data Management Services",
+  "companyName": "Museum of Science",
+  "homeAddress": {
+    "city": "NY"
+  },
+  "officeAddress": {
+    "street": "1 Science Park",
+    "city": "Boston",
+    "country": "US",
+    "state": "MA",
+    "zip": "02114"
+  }
+}}

@@ -66,4 +66,11 @@
   </bean>
   <alias name="voicemailResource" alias="/my/feed/voicemail/{folder}" />
 
+  <bean id="contactInformationResource" class="org.sipfoundry.sipxconfig.rest.ContactInformationResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="available" value="true" />
+    <property name="readable" value="true" />
+    <property name="modifiable" value="true" />
+  </bean>
+  <alias name="contactInformationResource" alias="/my/contact-information" />
 </beans>
