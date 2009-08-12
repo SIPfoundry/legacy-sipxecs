@@ -41,7 +41,7 @@
     <property name="description" value="Default voicemail dialing plan" />
     <property name="enabled" value="true" />
     <property name="mediaServerFactory" ref="mediaServerFactory" />
-    <property name="mediaServerType" value="sipXMediaServer" />
+    <property name="mediaServerType" value="freeswitchMediaServer" />
   </bean>
 
   <bean id="defaultAttendantRule" class="org.sipfoundry.sipxconfig.admin.dialplan.AttendantRule" abstract="true">
