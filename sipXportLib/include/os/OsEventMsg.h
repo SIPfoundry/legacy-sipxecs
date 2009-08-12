@@ -40,10 +40,12 @@ public:
    enum MsgSubType
    {
       UNSPECIFIED,   // Not yet initialized
-      NOTIFY         // Event notification
+      NOTIFY,        // Event notification
+      USER_START  = 128
    };
-     //!enumcode: UNSPECIFIED - not yet initialized
-     //!enumcode: NOTIFY - event notification.
+   //!enumcode: UNSPECIFIED - not yet initialized
+   //!enumcode: NOTIFY - event notification.
+   //!enumcode: USER_START - User defined message type categories start at USER_START
 
 /* ============================ CREATORS ================================== */
 
