@@ -134,7 +134,7 @@ enum {
   ST_START_TAGNAME_END, /* start tagname ending state */
   ST_END_TAG,           /* end tag state */
   ST_END_TAGNAME,       /* end tag tagname state */
-  ST_END_TAGNAME_END,   /* end tag tagname ending */ 
+  ST_END_TAGNAME_END,   /* end tag tagname ending */
   ST_EMPTY_TAG,         /* empty tag state */
   ST_SPACE,             /* linear whitespace state */
   ST_ATTR_NAME,         /* attribute name state */
@@ -249,7 +249,7 @@ static state_t PICO_STATES [] = {
   { ST_START_TAGNAME, CLAZZ_LETTERS,      ST_START_TAGNAME,     EVENT_NONE },
   { ST_START_TAGNAME, CLAZZ_SPACE,        ST_START_TAGNAME_END, EVENT_START },
   /* below added for tags without any space between tag and ending
-     slash, e.g., <br/> */     
+     slash, e.g., <br/> */
   { ST_START_TAGNAME, CLAZZ_SLASH,        ST_EMPTY_TAG,         EVENT_END },
   { ST_START_TAGNAME, CLAZZ_RIGHT_ANGLE,  ST_START,             EVENT_START },
 
@@ -260,7 +260,7 @@ static state_t PICO_STATES [] = {
   { ST_START_TAGNAME_END,  CLAZZ_SPACE,   ST_START_TAGNAME_END, EVENT_NONE },
   { ST_START_TAGNAME_END,  CLAZZ_RIGHT_ANGLE, ST_START,         EVENT_START },
   /* below supports tags that are self-closing, e.g., <br /> */
-  { ST_START_TAGNAME_END,  CLAZZ_SLASH,   ST_EMPTY_TAG,         EVENT_MARK }, 
+  { ST_START_TAGNAME_END,  CLAZZ_SLASH,   ST_EMPTY_TAG,         EVENT_MARK },
 
   /* [17] handle empty tags, e.g., <br /> */
   { ST_EMPTY_TAG,     CLAZZ_RIGHT_ANGLE,  ST_START,             EVENT_END },
@@ -306,7 +306,7 @@ static state_t PICO_STATES [] = {
   { ST_ATTR_VAL2,     CLAZZ_LETTERS,      ST_ATTR_VAL2,         EVENT_MARK },
 
   /* End of table marker */
-  { ST_ERROR,         CLAZZ_NONE,         ST_ERROR,             EVENT_NONE } 
+  { ST_ERROR,         CLAZZ_NONE,         ST_ERROR,             EVENT_NONE }
 };
 
 struct pico_t {

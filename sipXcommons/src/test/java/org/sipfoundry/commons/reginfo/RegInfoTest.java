@@ -60,7 +60,7 @@ public class RegInfoTest  extends TestCase
 			Contact contact = new Contact();
 			contact.setEvent(ContactEvent.toEnum("Created"));
 			System.out.println("Contact.event: " + contact.getEvent().toString());
-			
+
 			// marshal object back out to file (with nice indentation, as UTF-8)
 			IMarshallingContext mctx = bfact.createMarshallingContext();
 			mctx.setIndent(0, "\r\n", ' ');

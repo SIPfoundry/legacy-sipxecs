@@ -15,7 +15,7 @@
  */
 JNIEXPORT jstring JNICALL Java_org_sipfoundry_commons_discovery_ArpTable_windowsLookup(JNIEnv *env, jobject obj, jstring ipAddress) {
     PMIB_IPNETTABLE pIPNetTable = NULL;
-    ULONG ulSize  = 0; 
+    ULONG ulSize  = 0;
     PMIB_IPNETROW pIPNetRow;
     IN_ADDR ia;
     const char *address;
@@ -25,17 +25,17 @@ JNIEXPORT jstring JNICALL Java_org_sipfoundry_commons_discovery_ArpTable_windows
     address = (*env)->GetStringUTFChars(env, ipAddress, NULL);
     macAddress[0] = 0;
 
-    GetIpNetTable(pIPNetTable, &ulSize, TRUE); 
+    GetIpNetTable(pIPNetTable, &ulSize, TRUE);
     pIPNetTable = (PMIB_IPNETTABLE) malloc(sizeof(MIB_IPNETTABLE) * ulSize);
     if (pIPNetTable != NULL) {
         GetIpNetTable(pIPNetTable, &ulSize, TRUE);
 
         // Iterate through each entry in the ARP table, looking for a matching IP address.
         for (x = 0; x < pIPNetTable->dwNumEntries; x++) {
-            pIPNetRow = &(pIPNetTable->table[x]); 
+            pIPNetRow = &(pIPNetTable->table[x]);
             ia.S_un.S_addr = pIPNetRow->dwAddr;
             if (strcmp(address, inet_ntoa(ia)) == 0) {
-                sprintf(macAddress, "%02x:%02x:%02x:%02x:%02x:%02x", 
+                sprintf(macAddress, "%02x:%02x:%02x:%02x:%02x:%02x",
                 pIPNetRow->bPhysAddr[0],
                 pIPNetRow->bPhysAddr[1],
                 pIPNetRow->bPhysAddr[2],

@@ -15,7 +15,7 @@ import junit.framework.TestSuite;
  * Basic test of the Pinger class.
  * <p>
  * NOTE THAT THIS TEST MUST BE RUN WITH ROOT PRIVILEGES.
- * 
+ *
  * @author Mardy Marshall
  */
 public class PingerTest extends TestCase {
@@ -40,7 +40,7 @@ public class PingerTest extends TestCase {
      */
     public void testApp() {
         Pinger pinger = new Pinger(1234, "127.0.0.1", 2000);
-        
+
         assertTrue(pinger.ping());
     }
 

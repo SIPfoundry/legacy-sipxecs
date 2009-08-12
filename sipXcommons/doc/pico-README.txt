@@ -29,13 +29,13 @@ Caveats
 Building
 ========
 Simply unpack the tarball and run the make file in the untarred pico directory:
-$ make  
-gcc -c -o pico.o pico.c -g -Wall -O2 -I.   
-ar cr libpico.a pico.o  
-ranlib libpico.a  
-gcc  -c -o pico_test.o pico_test.c -g -Wall -O2 -I.     
-gcc -o pico_test pico_test.o pico.o -g -Wall -O2 -I. -lm     
-gcc -c -o pico_dump.o pico_dump.c -g -Wall -O2 -I.   
+$ make
+gcc -c -o pico.o pico.c -g -Wall -O2 -I.
+ar cr libpico.a pico.o
+ranlib libpico.a
+gcc  -c -o pico_test.o pico_test.c -g -Wall -O2 -I.
+gcc -o pico_test pico_test.o pico.o -g -Wall -O2 -I. -lm
+gcc -c -o pico_dump.o pico_dump.c -g -Wall -O2 -I.
 gcc -o pico_dump pico_dump.o pico.o -g -Wall -O2 -I. -lm
 You should now have two items: the "libpico.a" library and two test applications: (1) pico_test and (2) pico_dump.
 The pico_dump application might prove useful in visually debugging xml files
@@ -59,12 +59,12 @@ while(1) {
 A sample XML file containing the following content:
 <cfg version="1.0"><ident>Test</ident></cfg>
 Would produce the following output:
-[start tag] 'cfg' 
-[attr name] 'version' 
-[attr val] '1.0' 
-[start tag] 'ident' 
-[text] 'Test' 
-[end tag] '/ident'  
+[start tag] 'cfg'
+[attr name] 'version'
+[attr val] '1.0'
+[start tag] 'ident'
+[text] 'Test'
+[end tag] '/ident'
 [end tag] '/cfg'
 
 Download

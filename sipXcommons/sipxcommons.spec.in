@@ -49,7 +49,7 @@ rm -rf $RPM_BUILD_ROOT
 %pre
 # If needed, change open source daemon user name to @SIPXPBXUSER@.
 # The open source names that have been used are 'sipx' and 'sipxpbx'.
-for openname in sipx sipxpbx; do 
+for openname in sipx sipxpbx; do
   if [ "@SIPXPBXUSER@" != "${openname}" ] &&
      ! id -u "@SIPXPBXUSER@" > /dev/null 2>&1 &&
      id -u ${openname} > /dev/null 2>&1
@@ -77,4 +77,3 @@ fi
 %files
 %defattr(644,root,root,755)
 %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/java/sipXecs/sipXcommons
-

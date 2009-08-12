@@ -197,7 +197,7 @@
       <fileset file="${src.dir}/lib/rocksaw.dll"/>
     </copy>
   </target>
-    
+
   <!-- U N I N S T A L L -->
   <target name="uninstall">
     <delete dir="${dest.dir}${sipxcommons.dir}"/>

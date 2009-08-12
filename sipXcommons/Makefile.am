@@ -26,4 +26,3 @@ BUILT_SOURCES = config.properties
 config.properties : config.properties.in Makefile
 	@echo "Localize $< -> $@"
 	@$(LocalizeSipXconfig) $(srcdir)/config.properties.in > $(top_builddir)/config.properties
-

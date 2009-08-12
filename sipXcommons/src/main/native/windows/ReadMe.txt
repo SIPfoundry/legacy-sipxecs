@@ -6,4 +6,3 @@ The project assumes that the Java 1.5.0_12 JDK is installed at the following loc
 
 If the installed JDK is either a different version or installed at a different location,
 change the projects "Additional Include Directories" property accordingly.
-

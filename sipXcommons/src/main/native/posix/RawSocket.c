@@ -73,7 +73,7 @@ static int settimeout(int socket, int option, int timeout) {
 #else
   int seconds;
   struct timeval value;
-  
+
   seconds = timeout / 1000;
 
   if(seconds > 0)
@@ -177,8 +177,8 @@ Java_org_savarese_rocksaw_net_RawSocket__1_1getErrorMessage
 
 #if defined(_WIN32)
     int formatted =
-      FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | 
-                    FORMAT_MESSAGE_FROM_SYSTEM | 
+      FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
+                    FORMAT_MESSAGE_FROM_SYSTEM |
                     FORMAT_MESSAGE_IGNORE_INSERTS,
                     NULL, errno,
                     MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
@@ -474,7 +474,7 @@ Java_org_savarese_rocksaw_net_RawSocket__1_1recvfrom2
   void *addr;
   socklen_t socklen;
   size_t addrlen;
-  
+
   if(family == PF_INET) {
     socklen = sizeof(sin.sin);
     addrlen = sizeof(sin.sin.sin_addr);

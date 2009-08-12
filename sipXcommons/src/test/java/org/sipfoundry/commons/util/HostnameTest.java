@@ -12,7 +12,7 @@ import junit.framework.TestSuite;
 /**
  * Basic test of the Hostname class.
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public class HostnameTest extends TestCase {

@@ -26,7 +26,7 @@ import static org.sipfoundry.commons.dhcp.MessageTypeOption.Type.*;
 /**
  * [Enter descriptive text here]
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public class DHCPMessageTest extends TestCase {

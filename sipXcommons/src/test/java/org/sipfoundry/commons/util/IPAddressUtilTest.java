@@ -13,7 +13,7 @@ import junit.framework.TestSuite;
 /**
 * Basic test of the IPAddressUtil class.
 * <p>
-* 
+*
 * @author Mardy Marshall
 */
 public class IPAddressUtilTest extends TestCase {
@@ -41,28 +41,28 @@ public class IPAddressUtilTest extends TestCase {
        if (IPAddressUtil.isLiteralIPAddress("192.168.o.8") == true) {
            fail("Failed to disqualify: 192.168.o.8");
        }
-       
+
        if (IPAddressUtil.isLiteralIPAddress("192.168.0/24") == true) {
            fail("Failed to disqualify: 192.168.0/24");
        }
-       
+
        if (IPAddressUtil.isLiteralIPAddress("192.168.0.24.nortel.com") == true) {
            fail("Failed to disqualify: 192.168.0.24.nortel.com");
        }
-       
+
        if (IPAddressUtil.isLiteralIPAddress("www.nortel.com") == true) {
            fail("Failed to disqualify: www.nortel.com");
        }
-       
+
        // Positive tests.
        if (IPAddressUtil.isLiteralIPAddress("192.168.0.8") == false) {
            fail("Failed to qualify: 192.168.0.8");
        }
-       
+
        if (IPAddressUtil.isLiteralIPAddress("10.1.8.56") == false) {
            fail("Failed to qualify: 10.1.8.56");
        }
-       
+
        if (IPAddressUtil.isLiteralIPAddress("176.25.10.201") == false) {
            fail("Failed to qualify: 176.25.10.201");
        }

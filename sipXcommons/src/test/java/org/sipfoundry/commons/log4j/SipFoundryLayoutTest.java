@@ -10,7 +10,7 @@ public class SipFoundryLayoutTest extends TestCase
       SipFoundryLayout l = new SipFoundryLayout() ;
       String msgA = "Woof!" ;
       String msgB ;
-      
+
       msgB = l.escapeCrlfQuoteAndBackSlash(msgA) ;
       assertEquals(msgA, msgB) ;
 
@@ -42,10 +42,10 @@ public class SipFoundryLayoutTest extends TestCase
 
       msgB = l.escapeCrlfQuoteAndBackSlash("\r\n\n\n") ;
       assertEquals("\\r\\n\\n\\n", msgB) ;
-      
+
       msgB = l.escapeCrlfQuoteAndBackSlash("\\");
       assertEquals("\\\\",msgB);
-      
+
       msgB = l.escapeCrlfQuoteAndBackSlash(null) ;
       assertNull(msgB) ;
    }

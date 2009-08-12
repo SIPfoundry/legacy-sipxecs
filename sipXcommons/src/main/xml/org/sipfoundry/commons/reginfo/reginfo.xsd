@@ -41,12 +41,12 @@
       </xs:attribute>
     </xs:complexType>
   </xs:element>
-  
+
   <xs:element name="contact">
     <xs:complexType>
       <xs:sequence>
         <xs:element name="uri" type="xs:anyURI" />
-        
+
         <xs:element name="display-name" minOccurs="0">
           <xs:complexType>
             <xs:simpleContent>
@@ -56,7 +56,7 @@
             </xs:simpleContent>
           </xs:complexType>
         </xs:element>
-        
+
         <xs:element name="unknown-param" minOccurs="0" maxOccurs="unbounded">
           <xs:complexType>
             <xs:simpleContent>
@@ -68,7 +68,7 @@
         </xs:element>
         <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded" />
       </xs:sequence>
-      
+
       <xs:attribute name="state" use="required">
         <xs:simpleType>
           <xs:restriction base="xs:string">
@@ -77,7 +77,7 @@
           </xs:restriction>
         </xs:simpleType>
       </xs:attribute>
-      
+
       <xs:attribute name="event" use="required">
         <xs:simpleType>
           <xs:restriction base="xs:string">
@@ -93,7 +93,7 @@
           </xs:restriction>
         </xs:simpleType>
       </xs:attribute>
-      
+
       <xs:attribute name="duration-registered" type="xs:unsignedLong" />
       <xs:attribute name="expires" type="xs:unsignedLong" />
       <xs:attribute name="retry-after" type="xs:unsignedLong" />

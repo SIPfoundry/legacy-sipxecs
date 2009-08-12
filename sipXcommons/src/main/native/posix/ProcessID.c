@@ -28,4 +28,3 @@ JNIEXPORT jint JNICALL Java_org_sipfoundry_commons_util_ProcessID_get(JNIEnv *en
 
     return pid;
 }
-
