@@ -193,19 +193,19 @@ OsStatus OsMsgQShared::doSend(const OsMsg& rMsg,
                               const UtlBoolean sendFromISR)
 {
    OsMsg*     pMsg;
-   UtlBoolean copy = sendFromISR || rMsg.isMsgReusable();
+   UtlBoolean copy = !(sendFromISR || rMsg.isMsgReusable());
 
    if (copy)
-   {
-      // Remove the const from &rMsg.
-      // (The const was just an efficiency hack anyway.)
-      pMsg = const_cast <OsMsg*> (&rMsg);
-   }
-   else
    {
       pMsg = rMsg.createCopy();      // we place a copy of the message on the
 				     //  queue so that the caller is free to
 				     //  destroy the original
+   }
+   else
+   {
+      // Remove the const from &rMsg.
+      // (The const was just an efficiency hack anyway.)
+      pMsg = const_cast <OsMsg*> (&rMsg);
    }
 
    pMsg->setSentFromISR(sendFromISR);// set flag in the msg to indicate
