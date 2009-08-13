@@ -79,5 +79,7 @@ sipxopenfire.sh : sipxopenfire.sh.in
 sipxopenfire.spec : sipxopenfire.spec.in
 	@echo "Localize $< -> $@"
 	@$(LocalizeSipXconfig) $< > $@
+	
+DISTCLEANFILES = config.properties sipxopenfire-setup.sh sipxopenfire-database.xml sipxopenfire.sh sipxopenfire.spec
 
 
