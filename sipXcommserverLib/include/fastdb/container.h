@@ -16,7 +16,7 @@ BEGIN_FASTDB_NAMESPACE
 /**
  * Spatial search operations
  */
-enum SpatialSearchType { 
+enum SpatialSearchType {
     SPATIAL_SEARCH_EQUAL,
     SPATIAL_SEARCH_OVERLAPS,
     SPATIAL_SEARCH_SUPERSET,
@@ -67,7 +67,7 @@ class dbContainer : public dbAnyContainer {
      * @param cursor cursor to iterate through selected resords
      * @param key searched value of the key
      * @return number of selected records
-     */    
+     */
     int search(dbCursor<T>& cursor, void const* key) {
         return dbAnyContainer::search(cursor, key, key);
     }
@@ -77,7 +77,7 @@ class dbContainer : public dbAnyContainer {
      * @param cursor cursor to iterate through selected resords
      * @param key string key which prefixes are located in the index
      * @return number of selected records
-     */    
+     */
     int prefixSearch(dbCursor<T>& cursor, char const* key) {
         return dbAnyContainer::prefixSearch(cursor, key);
     }
@@ -97,8 +97,8 @@ class dbContainer : public dbAnyContainer {
      * @param r search rectangle
      * @param type search criteria: one of <code>SpatialSearchType</code>
      * @return number of selected records
-     */    
-    int spatialSearch(dbCursor<T>& cursor, rectangle const& r, SpatialSearchType type) { 
+     */
+    int spatialSearch(dbCursor<T>& cursor, rectangle const& r, SpatialSearchType type) {
         return dbAnyContainer::spatialSearch(cursor, r, type);
     }
 
@@ -144,7 +144,7 @@ class dbContainer : public dbAnyContainer {
      * @param fieldName name of the key field used by container
      */
     dbContainer(const char* fieldName) : dbAnyContainer(fieldName, T::dbDescriptor) {}
-    
+
     /**
      * Create new container in specified database.
      * @param db database
@@ -192,14 +192,10 @@ class dbContainer : public dbAnyContainer {
      * @param db database
      * @param fieldName name of the key field used by container
      */
-    dbContainer(dbDatabase* db, const char* fieldName) 
+    dbContainer(dbDatabase* db, const char* fieldName)
     : dbAnyContainer(fieldName, *db->lookupTable(&T::dbDescriptor)) {}
 };
 
 END_FASTDB_NAMESPACE
 
 #endif
-
-
-
-

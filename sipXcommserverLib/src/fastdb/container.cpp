@@ -27,9 +27,9 @@ void dbAnyContainer::create(dbDatabase* db)
 void dbAnyContainer::add(dbDatabase* db, dbAnyReference const& ref)
 {
     db->beginTransaction(dbDatabase::dbExclusiveLock);
-    if (fd->type == dbField::tpRectangle) { 
+    if (fd->type == dbField::tpRectangle) {
         dbRtree::insert(db, oid, ref.getOid(), fd->dbsOffs);
-    } else { 
+    } else {
         dbTtree::insert(db, oid, ref.getOid(), fd->type, fd->dbsSize, fd->comparator, fd->dbsOffs);
     }
 }
@@ -37,9 +37,9 @@ void dbAnyContainer::add(dbDatabase* db, dbAnyReference const& ref)
 void dbAnyContainer::remove(dbDatabase* db, dbAnyReference const& ref)
 {
     db->beginTransaction(dbDatabase::dbExclusiveLock);
-    if (fd->type == dbField::tpRectangle) { 
+    if (fd->type == dbField::tpRectangle) {
         dbRtree::remove(db, oid, ref.getOid(), fd->dbsOffs);
-    } else { 
+    } else {
         dbTtree::insert(db, oid, ref.getOid(), fd->type, fd->dbsSize, fd->comparator, fd->dbsOffs);
     }
 }
@@ -47,9 +47,9 @@ void dbAnyContainer::remove(dbDatabase* db, dbAnyReference const& ref)
 void dbAnyContainer::purge(dbDatabase* db)
 {
     db->beginTransaction(dbDatabase::dbExclusiveLock);
-    if (fd->type == dbField::tpRectangle) { 
+    if (fd->type == dbField::tpRectangle) {
         dbRtree::purge(db, oid);
-    } else { 
+    } else {
         dbTtree::purge(db, oid);
     }
 }
@@ -57,9 +57,9 @@ void dbAnyContainer::purge(dbDatabase* db)
 void dbAnyContainer::free(dbDatabase* db)
 {
     db->beginTransaction(dbDatabase::dbExclusiveLock);
-    if (fd->type == dbField::tpRectangle) { 
+    if (fd->type == dbField::tpRectangle) {
         dbRtree::drop(db, oid);
-    } else { 
+    } else {
         dbTtree::drop(db, oid);
     }
 }

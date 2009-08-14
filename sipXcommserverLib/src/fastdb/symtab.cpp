@@ -21,8 +21,8 @@ dbSymbolTable::HashTableItem* dbSymbolTable::hashTable[hashTableSize];
 
 dbSymbolTable dbSymbolTable::instance;
 
-dbSymbolTable::~dbSymbolTable() { 
-    for (int i = hashTableSize; --i >= 0;) { 
+dbSymbolTable::~dbSymbolTable() {
+    for (int i = hashTableSize; --i >= 0;) {
         HashTableItem *ip, *next;
         for (ip = hashTable[i]; ip != NULL; ip = next) {
             next = ip->next;
@@ -39,7 +39,7 @@ int dbSymbolTable::add(char* &str, int tag, bool allocate) {
     dbCriticalSection cs(mutex);
     unsigned hash = 0;
     byte* p = (byte*)str;
-    while (*p != 0) { 
+    while (*p != 0) {
         byte b = *p++;
 #ifdef IGNORE_CASE
         b = tolower(b);
@@ -48,10 +48,10 @@ int dbSymbolTable::add(char* &str, int tag, bool allocate) {
     }
     int index = hash % hashTableSize;
     HashTableItem *ip;
-    for (ip = hashTable[index]; ip != NULL; ip = ip->next) { 
-        if (ip->hash == hash && strcmp(ip->str, str) == 0) { 
+    for (ip = hashTable[index]; ip != NULL; ip = ip->next) {
+        if (ip->hash == hash && strcmp(ip->str, str) == 0) {
             str = ip->str;
-            if (tag > ip->tag) { 
+            if (tag > ip->tag) {
                 ip->tag = tag;
             }
             return ip->tag;
@@ -59,7 +59,7 @@ int dbSymbolTable::add(char* &str, int tag, bool allocate) {
     }
     ip = new HashTableItem;
     ip->allocated = false;
-    if (allocate) { 
+    if (allocate) {
         char* dupstr = new char[strlen(str) + 1];
         strcpy(dupstr, str);
         str = dupstr;

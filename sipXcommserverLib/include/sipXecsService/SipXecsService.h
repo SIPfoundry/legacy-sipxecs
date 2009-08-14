@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 #ifndef _SIPXECSSERVICE_H_
 #define _SIPXECSSERVICE_H_
@@ -53,8 +53,8 @@ class SipXecsService
     */
 
    /// name of the configuration common to all services in the domain.
-   static OsPath domainConfigPath(); 
-   
+   static OsPath domainConfigPath();
+
    /// lookup keys for the domain configuration
    class DomainDbKey
    {
@@ -65,7 +65,7 @@ class SipXecsService
       static const char* SHARED_SECRET;    ///< shared secret for generating authentication hashes
       static const char* DEFAULT_LANGUAGE; ///< default language used by voice applications
       static const char* SUPERVISOR_PORT;  ///< xml-rpc port for the sipXsupervisor
-      static const char* CONFIG_HOSTS;     ///< host names that may control sipXsupervisor 
+      static const char* CONFIG_HOSTS;     ///< host names that may control sipXsupervisor
    };
 
    /// Default user name for a sipXecs service
@@ -104,7 +104,7 @@ class SipXecsService
    /// Translate a log level name string to the enum value
    static bool decodeLogLevel(UtlString& logLevel, OsSysLogPriority& priority);
    ///< @returns true iff a valid translation was found.
-   
+
    /// constructor
    SipXecsService(const char* serviceName);
 
@@ -114,7 +114,7 @@ class SipXecsService
   private:
 
    static const char* defaultDir(DirectoryType pathType);
-   
+
    static const char* DefaultConfigurationDir;
    static const char* DefaultLogDir;
    static const char* DefaultLocalStateDir;
@@ -137,7 +137,7 @@ class SipXecsService
 
    /// There is no assignment operator.
    SipXecsService& operator=(const SipXecsService& noassignmentoperator);
-   // @endcond     
+   // @endcond
 };
 
 #endif // _SIPXECSSERVICE_H_

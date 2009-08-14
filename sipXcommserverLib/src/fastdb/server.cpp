@@ -32,8 +32,8 @@ int dbColumnBinding::unpackArray(char* dst, size_t offs)
 {
     int len = this->len;
     int i;
-    if (cliType >= cli_array_of_oid) { 
-        switch (sizeof_type[cliType - cli_array_of_oid]) { 
+    if (cliType >= cli_array_of_oid) {
+        switch (sizeof_type[cliType - cli_array_of_oid]) {
           case 1:
             memcpy(dst + offs, ptr + 4, len);
             break;
@@ -63,9 +63,9 @@ int dbColumnBinding::unpackArray(char* dst, size_t offs)
 
 void dbColumnBinding::unpackScalar(char* dst, bool insert)
 {
-    if (cliType == cli_autoincrement) { 
+    if (cliType == cli_autoincrement) {
         assert(fd->type == dbField::tpInt4);
-        if (insert) { 
+        if (insert) {
 #ifdef AUTOINCREMENT_SUPPORT
             *(int4*)(dst+fd->dbsOffs) = fd->defTable->autoincrementCount;
 #else
@@ -73,11 +73,11 @@ void dbColumnBinding::unpackScalar(char* dst, bool insert)
 #endif
         }
         return;
-    } 
-    switch (fd->type) { 
+    }
+    switch (fd->type) {
       case dbField::tpBool:
       case dbField::tpInt1:
-        switch (sizeof_type[cliType]) { 
+        switch (sizeof_type[cliType]) {
           case 1:
             *(dst + fd->dbsOffs) = *ptr;
             break;
@@ -93,9 +93,9 @@ void dbColumnBinding::unpackScalar(char* dst, bool insert)
           default:
             assert(false);
         }
-        break;          
+        break;
       case dbField::tpInt2:
-        switch (sizeof_type[cliType]) { 
+        switch (sizeof_type[cliType]) {
           case 1:
             *(int2*)(dst+fd->dbsOffs) = *ptr;
             break;
@@ -111,9 +111,9 @@ void dbColumnBinding::unpackScalar(char* dst, bool insert)
           default:
             assert(false);
         }
-        break;          
+        break;
       case dbField::tpInt4:
-        switch (sizeof_type[cliType]) { 
+        switch (sizeof_type[cliType]) {
           case 1:
             *(int4*)(dst+fd->dbsOffs) = *ptr;
             break;
@@ -129,9 +129,9 @@ void dbColumnBinding::unpackScalar(char* dst, bool insert)
           default:
             assert(false);
         }
-        break;          
+        break;
       case dbField::tpInt8:
-        switch (sizeof_type[cliType]) { 
+        switch (sizeof_type[cliType]) {
           case 1:
             *(db_int8*)(dst+fd->dbsOffs) = *ptr;
             break;
@@ -147,9 +147,9 @@ void dbColumnBinding::unpackScalar(char* dst, bool insert)
           default:
             assert(false);
         }
-        break;          
+        break;
       case dbField::tpReal4:
-        switch (cliType) { 
+        switch (cliType) {
           case cli_real4:
             unpack4(dst+fd->dbsOffs, ptr);
             break;
@@ -165,7 +165,7 @@ void dbColumnBinding::unpackScalar(char* dst, bool insert)
         }
         break;
       case dbField::tpReal8:
-        switch (cliType) { 
+        switch (cliType) {
           case cli_real4:
             {
                 real4 temp;
@@ -194,7 +194,7 @@ void dbColumnBinding::unpackScalar(char* dst, bool insert)
 void dbStatement::reset()
 {
     dbColumnBinding *cb, *next;
-    for (cb = columns; cb != NULL; cb = next) { 
+    for (cb = columns; cb != NULL; cb = next) {
         next = cb->next;
         delete cb;
     }
@@ -210,44 +210,44 @@ void dbStatement::reset()
 int dbQueryScanner::get()
 {
     int i = 0, ch, digits;
-    
-    do { 
-        if ((ch = *p++) == '\0') { 
+
+    do {
+        if ((ch = *p++) == '\0') {
             return tkn_eof;
         }
     } while (isspace(ch));
-    
-    if (ch == '*') { 
+
+    if (ch == '*') {
         return tkn_all;
-    } else if (isdigit(ch) || ch == '+' || ch == '-') { 
-        do { 
+    } else if (isdigit(ch) || ch == '+' || ch == '-') {
+        do {
             buf[i++] = ch;
-            if (i == dbQueryMaxIdLength) { 
+            if (i == dbQueryMaxIdLength) {
                 // Numeric constant too long
                 return tkn_error;
             }
             ch = *p++;
-        } while (ch != '\0' 
-                 && (isdigit(ch) || ch == '+' || ch == '-' || ch == 'e' || 
+        } while (ch != '\0'
+                 && (isdigit(ch) || ch == '+' || ch == '-' || ch == 'e' ||
                      ch == 'E' || ch == '.'));
         p -= 1;
         buf[i] = '\0';
-        if (sscanf(buf, INT8_FORMAT "%n", &ival, &digits) != 1) { 
+        if (sscanf(buf, INT8_FORMAT "%n", &ival, &digits) != 1) {
             // Bad integer constant
             return tkn_error;
         }
-        if (digits != i) { 
+        if (digits != i) {
             if (sscanf(buf, "%lf%n", &fval, &digits) != 1 || digits != i) {
                 // Bad float constant
                 return tkn_error;
             }
             return tkn_fconst;
-        } 
+        }
         return tkn_iconst;
-    } else if (isalpha(ch) || ch == '$' || ch == '_') { 
-        do { 
+    } else if (isalpha(ch) || ch == '$' || ch == '_') {
+        do {
             buf[i++] = ch;
-            if (i == dbQueryMaxIdLength) { 
+            if (i == dbQueryMaxIdLength) {
                 // Identifier too long
                 return tkn_error;
             }
@@ -257,7 +257,7 @@ int dbQueryScanner::get()
         buf[i] = '\0';
         ident = buf;
         return dbSymbolTable::add(ident, tkn_ident);
-    } else { 
+    } else {
         // Invalid symbol
         return tkn_error;
     }
@@ -269,7 +269,7 @@ inline dbStatement* dbServer::findStatement(dbSession* session, int stmt_id)
 {
     for (dbStatement* stmt = session->stmts; stmt != NULL; stmt = stmt->next)
     {
-        if (stmt->id == stmt_id) { 
+        if (stmt->id == stmt_id) {
             return stmt;
         }
     }
@@ -294,8 +294,8 @@ void thread_proc dbServer::acceptGlobalThread(void* arg)
 }
 
 dbServer::dbServer(dbDatabase* db,
-                   char const* serverURL, 
-                   int optimalNumberOfThreads, 
+                   char const* serverURL,
+                   int optimalNumberOfThreads,
                    int connectionQueueLen)
 {
     char buf[256];
@@ -305,17 +305,17 @@ dbServer::dbServer(dbDatabase* db,
     this->optimalNumberOfThreads = optimalNumberOfThreads;
     this->URL = new char[strlen(serverURL)+1];
     strcpy(URL, serverURL);
-    globalAcceptSock = 
+    globalAcceptSock =
         socket_t::create_global(serverURL, connectionQueueLen);
-    if (!globalAcceptSock->is_ok()) { 
+    if (!globalAcceptSock->is_ok()) {
         globalAcceptSock->get_error_text(buf, sizeof buf);
         dbTrace("Failed to create global socket: %s\n", buf);
         delete globalAcceptSock;
         globalAcceptSock = NULL;
     }
-    localAcceptSock = 
+    localAcceptSock =
         socket_t::create_local(serverURL, connectionQueueLen);
-    if (!localAcceptSock->is_ok()) { 
+    if (!localAcceptSock->is_ok()) {
         localAcceptSock->get_error_text(buf, sizeof buf);
         dbTrace("Failed to create local socket: %s\n", buf);
         delete localAcceptSock;
@@ -324,11 +324,11 @@ dbServer::dbServer(dbDatabase* db,
     freeList = activeList = waitList = NULL;
     waitListLength = 0;
 }
-   
+
 dbServer* dbServer::find(char const* URL)
 {
-    for (dbServer* server = chain; server != NULL; server = server->next) { 
-        if (strcmp(URL, server->URL) == 0) { 
+    for (dbServer* server = chain; server != NULL; server = server->next) {
+        if (strcmp(URL, server->URL) == 0) {
             return server;
         }
     }
@@ -338,22 +338,22 @@ dbServer* dbServer::find(char const* URL)
 void dbServer::cleanup()
 {
     dbServer *server, *next;
-    for (server = chain; server != NULL; server = next) { 
+    for (server = chain; server != NULL; server = next) {
         next = server->next;
         delete server;
-    } 
+    }
 }
 
 void dbServer::start()
 {
-    nActiveThreads = nIdleThreads = 0;    
+    nActiveThreads = nIdleThreads = 0;
     cancelWait = cancelSession = cancelAccept = false;
     go.open();
     done.open();
-    if (globalAcceptSock != NULL) { 
+    if (globalAcceptSock != NULL) {
         globalAcceptThread.create(acceptGlobalThread, this);
     }
-    if (localAcceptSock != NULL) { 
+    if (localAcceptSock != NULL) {
         localAcceptThread.create(acceptLocalThread, this);
     }
 }
@@ -368,7 +368,7 @@ void dbServer::stop()
     delete globalAcceptSock;
     globalAcceptSock = NULL;
 
-    if (localAcceptSock != NULL) { 
+    if (localAcceptSock != NULL) {
         localAcceptSock->cancel_accept();
         localAcceptThread.join();
     }
@@ -377,13 +377,13 @@ void dbServer::stop()
 
     dbCriticalSection cs(mutex);
     cancelSession = true;
-    while (activeList != NULL) { 
+    while (activeList != NULL) {
         activeList->sock->shutdown();
         done.wait(mutex);
     }
 
     cancelWait = true;
-    while (nIdleThreads != 0) { 
+    while (nIdleThreads != 0) {
         go.signal();
         done.wait(mutex);
     }
@@ -405,37 +405,37 @@ bool dbServer::freeze(dbSession* session, int stmt_id)
 {
     dbStatement* stmt = findStatement(session, stmt_id);
     int4 response = cli_ok;
-    if (stmt == NULL || stmt->cursor == NULL) { 
+    if (stmt == NULL || stmt->cursor == NULL) {
         response = cli_bad_descriptor;
-    } else { 
+    } else {
         stmt->cursor->freeze();
     }
     pack4(response);
     return session->sock->write(&response, sizeof response);
 }
-    
+
 bool dbServer::unfreeze(dbSession* session, int stmt_id)
 {
     dbStatement* stmt = findStatement(session, stmt_id);
     int4 response = cli_ok;
-    if (stmt == NULL || stmt->cursor == NULL) { 
+    if (stmt == NULL || stmt->cursor == NULL) {
         response = cli_bad_descriptor;
-    } else { 
+    } else {
         stmt->cursor->unfreeze();
     }
     pack4(response);
     return session->sock->write(&response, sizeof response);
 }
-    
+
 bool dbServer::get_first(dbSession* session, int stmt_id)
 {
     dbStatement* stmt = findStatement(session, stmt_id);
     int4 response;
-    if (stmt == NULL || stmt->cursor == NULL) { 
+    if (stmt == NULL || stmt->cursor == NULL) {
         response = cli_bad_descriptor;
-    } else if (!stmt->cursor->gotoFirst()) { 
+    } else if (!stmt->cursor->gotoFirst()) {
         response = cli_not_found;
-    } else { 
+    } else {
         return fetch(session, stmt);
     }
     pack4(response);
@@ -446,11 +446,11 @@ bool dbServer::get_last(dbSession* session, int stmt_id)
 {
     dbStatement* stmt = findStatement(session, stmt_id);
     int4 response;
-    if (stmt == NULL || stmt->cursor == NULL) { 
+    if (stmt == NULL || stmt->cursor == NULL) {
         response = cli_bad_descriptor;
-    } else if (!stmt->cursor->gotoLast()) { 
+    } else if (!stmt->cursor->gotoLast()) {
         response = cli_not_found;
-    } else { 
+    } else {
         return fetch(session, stmt);
     }
     pack4(response);
@@ -461,14 +461,14 @@ bool dbServer::get_next(dbSession* session, int stmt_id)
 {
     dbStatement* stmt = findStatement(session, stmt_id);
     int4 response;
-    if (stmt == NULL || stmt->cursor == NULL) { 
+    if (stmt == NULL || stmt->cursor == NULL) {
         response = cli_bad_descriptor;
-    } 
+    }
     else if (!((stmt->firstFetch && stmt->cursor->gotoFirst()) ||
-               (!stmt->firstFetch && stmt->cursor->moveNext()))) 
-    { 
+               (!stmt->firstFetch && stmt->cursor->moveNext())))
+    {
         response = cli_not_found;
-    } else { 
+    } else {
         return fetch(session, stmt);
     }
     pack4(response);
@@ -479,14 +479,14 @@ bool dbServer::get_prev(dbSession* session, int stmt_id)
 {
     dbStatement* stmt = findStatement(session, stmt_id);
     int4 response;
-    if (stmt == NULL || stmt->cursor == NULL) { 
+    if (stmt == NULL || stmt->cursor == NULL) {
         response = cli_bad_descriptor;
-    } 
+    }
     else if (!((stmt->firstFetch && stmt->cursor->gotoLast()) ||
-               (!stmt->firstFetch && stmt->cursor->movePrev()))) 
-    { 
+               (!stmt->firstFetch && stmt->cursor->movePrev())))
+    {
         response = cli_not_found;
-    } else { 
+    } else {
         return fetch(session, stmt);
     }
     pack4(response);
@@ -500,7 +500,7 @@ bool dbServer::skip(dbSession* session, int stmt_id, char* buf)
     int4 response;
     if (stmt == NULL || stmt->cursor == NULL) {
         response = cli_bad_descriptor;
-    } else { 
+    } else {
         int n = unpack4(buf);
         if ((n > 0 && !((stmt->firstFetch && stmt->cursor->gotoFirst() && stmt->cursor->skip(n-1)
                          || (!stmt->firstFetch && stmt->cursor->skip(n)))))
@@ -522,12 +522,12 @@ bool dbServer::seek(dbSession* session, int stmt_id, char* buf)
     int4 response;
     if (stmt == NULL || stmt->cursor == NULL) {
         response = cli_bad_descriptor;
-    } else { 
+    } else {
         oid_t oid = unpack_oid(buf);
-        int pos = stmt->cursor->seek(oid); 
-        if (pos < 0) { 
+        int pos = stmt->cursor->seek(oid);
+        if (pos < 0) {
             response = cli_not_found;
-        } else { 
+        } else {
             return fetch(session, stmt, pos);
         }
     }
@@ -539,28 +539,28 @@ bool dbServer::fetch(dbSession* session, dbStatement* stmt, oid_t result)
 {
     int4 response;
     dbColumnBinding* cb;
-    
+
     stmt->firstFetch = false;
-    if (stmt->cursor->isEmpty()) { 
+    if (stmt->cursor->isEmpty()) {
         response = cli_not_found;
         pack4(response);
         return session->sock->write(&response, sizeof response);
     }
     int msg_size = sizeof(cli_oid_t) + 4;
     char* data = (char*)db->getRow(stmt->cursor->currId);
-    for (cb = stmt->columns; cb != NULL; cb = cb->next) { 
+    for (cb = stmt->columns; cb != NULL; cb = cb->next) {
         if (cb->cliType == cli_autoincrement) {
             msg_size += 4;
-        } else if (cb->cliType >= cli_array_of_oid) { 
+        } else if (cb->cliType >= cli_array_of_oid) {
             msg_size += 4 + ((dbVarying*)(data + cb->fd->dbsOffs))->size
                             * sizeof_type[cb->cliType - cli_array_of_oid];
-        } else if (cb->cliType >= cli_asciiz) { 
+        } else if (cb->cliType >= cli_asciiz) {
             msg_size += 4 + ((dbVarying*)(data + cb->fd->dbsOffs))->size;
-        } else { 
+        } else {
             msg_size += sizeof_type[cb->cliType];
         }
     }
-    if (stmt->buf_size < msg_size) { 
+    if (stmt->buf_size < msg_size) {
         delete[] stmt->buf;
         stmt->buf = new char[msg_size];
         stmt->buf_size = msg_size;
@@ -569,12 +569,12 @@ bool dbServer::fetch(dbSession* session, dbStatement* stmt, oid_t result)
     p = pack4(p, msg_size);
     p = pack_oid(p, result);
 
-    for (cb = stmt->columns; cb != NULL; cb = cb->next) { 
+    for (cb = stmt->columns; cb != NULL; cb = cb->next) {
         char* src = data + cb->fd->dbsOffs;
-        switch (cb->fd->type) { 
+        switch (cb->fd->type) {
           case dbField::tpBool:
           case dbField::tpInt1:
-            switch (sizeof_type[cb->cliType]) { 
+            switch (sizeof_type[cb->cliType]) {
               case 1:
                 *p++ = *src;
                 break;
@@ -590,9 +590,9 @@ bool dbServer::fetch(dbSession* session, dbStatement* stmt, oid_t result)
               default:
                 assert(false);
             }
-            break;              
+            break;
           case dbField::tpInt2:
-            switch (sizeof_type[cb->cliType]) { 
+            switch (sizeof_type[cb->cliType]) {
               case 1:
                 *p++ = (char)*(int2*)src;
                 break;
@@ -610,7 +610,7 @@ bool dbServer::fetch(dbSession* session, dbStatement* stmt, oid_t result)
             }
             break;
           case dbField::tpInt4:
-            switch (sizeof_type[cb->cliType]) { 
+            switch (sizeof_type[cb->cliType]) {
               case 1:
                 *p++ = (char)*(int4*)src;
                 break;
@@ -628,7 +628,7 @@ bool dbServer::fetch(dbSession* session, dbStatement* stmt, oid_t result)
             }
             break;
           case dbField::tpInt8:
-            switch (sizeof_type[cb->cliType]) { 
+            switch (sizeof_type[cb->cliType]) {
               case 1:
                 *p++ = (char)*(db_int8*)src;
                 break;
@@ -646,7 +646,7 @@ bool dbServer::fetch(dbSession* session, dbStatement* stmt, oid_t result)
             }
             break;
           case dbField::tpReal4:
-            switch (cb->cliType) { 
+            switch (cb->cliType) {
               case cli_real4:
                 p = pack4(p, src);
                 break;
@@ -661,7 +661,7 @@ bool dbServer::fetch(dbSession* session, dbStatement* stmt, oid_t result)
             }
             break;
           case dbField::tpReal8:
-            switch (cb->cliType) { 
+            switch (cb->cliType) {
               case cli_real4:
                 {
                     real4 temp = (real4)*(real8*)src;
@@ -695,21 +695,21 @@ bool dbServer::fetch(dbSession* session, dbStatement* stmt, oid_t result)
                 int n = v->size;
                 p = pack4(p, n);
                 src = data + v->offs;
-                switch (sizeof_type[cb->cliType-cli_array_of_oid]) { 
+                switch (sizeof_type[cb->cliType-cli_array_of_oid]) {
                   case 2:
-                    while (--n >= 0) { 
+                    while (--n >= 0) {
                         p = pack2(p, src);
                         src += 2;
                     }
                     break;
                   case 4:
-                    while (--n >= 0) { 
+                    while (--n >= 0) {
                         p = pack4(p, src);
                         src += 4;
                     }
                     break;
                   case 8:
-                    while (--n >= 0) { 
+                    while (--n >= 0) {
                         p = pack8(p, src);
                         src += 8;
                     }
@@ -727,17 +727,17 @@ bool dbServer::fetch(dbSession* session, dbStatement* stmt, oid_t result)
     assert(p - stmt->buf == msg_size);
     return session->sock->write(stmt->buf, msg_size);
 }
-    
+
 bool dbServer::remove(dbSession* session, int stmt_id)
 {
     dbStatement* stmt = findStatement(session, stmt_id);
     int4 response;
-    if (stmt == NULL) { 
+    if (stmt == NULL) {
         response = cli_bad_descriptor;
-    } else { 
-        if (stmt->cursor->isEmpty()) { 
+    } else {
+        if (stmt->cursor->isEmpty()) {
             response = cli_not_found;
-        } else { 
+        } else {
             stmt->cursor->removeAllSelected();
             response = cli_ok;
         }
@@ -750,12 +750,12 @@ bool dbServer::remove_current(dbSession* session, int stmt_id)
 {
     dbStatement* stmt = findStatement(session, stmt_id);
     int4 response;
-    if (stmt == NULL) { 
+    if (stmt == NULL) {
         response = cli_bad_descriptor;
-    } else { 
-        if (stmt->cursor->isEmpty()) { 
+    } else {
+        if (stmt->cursor->isEmpty()) {
             response = cli_not_found;
-        } else { 
+        } else {
             stmt->cursor->remove();
             response = cli_ok;
         }
@@ -769,41 +769,41 @@ bool dbServer::update(dbSession* session, int stmt_id, char* new_data)
     dbStatement* stmt = findStatement(session, stmt_id);
     dbColumnBinding* cb;
     int4 response;
-    if (stmt == NULL) { 
+    if (stmt == NULL) {
         response = cli_bad_descriptor;
         pack4(response);
         return session->sock->write(&response, sizeof response);
     }
-    if (stmt->cursor->isEmpty()) { 
+    if (stmt->cursor->isEmpty()) {
         response = cli_not_found;
         pack4(response);
         return session->sock->write(&response, sizeof response);
     }
     char* old_data = stmt->buf + sizeof(cli_oid_t) + 4;
-    for (cb = stmt->columns; cb != NULL; cb = cb->next) { 
+    for (cb = stmt->columns; cb != NULL; cb = cb->next) {
         cb->ptr = new_data;
-        if (cb->cliType >= cli_asciiz) { 
+        if (cb->cliType >= cli_asciiz) {
             int new_len = unpack4(new_data);
             int old_len = unpack4(old_data);
             cb->len = new_len;
-            if (cb->fd->indexType & (HASHED|INDEXED) 
+            if (cb->fd->indexType & (HASHED|INDEXED)
                 && memcmp(new_data, old_data, new_len+4) != 0)
             {
                 cb->fd->attr |= dbFieldDescriptor::Updated;
             }
-            if (cb->cliType >= cli_array_of_oid) { 
+            if (cb->cliType >= cli_array_of_oid) {
                 new_len *= sizeof_type[cb->cliType - cli_array_of_oid];
                 old_len *= sizeof_type[cb->cliType - cli_array_of_oid];
             }
             new_data += 4 + new_len;
             old_data += 4 + old_len;
-        } else { 
+        } else {
             int size = sizeof_type[cb->cliType];
-            if (cb->fd->indexType & (HASHED|INDEXED) 
+            if (cb->fd->indexType & (HASHED|INDEXED)
                 && memcmp(new_data, old_data, size) != 0)
             {
                 cb->fd->attr |= dbFieldDescriptor::Updated;
-            }       
+            }
             new_data += size;
             old_data += size;
         }
@@ -814,12 +814,12 @@ bool dbServer::update(dbSession* session, int stmt_id, char* new_data)
     dbTableDescriptor* table = stmt->query.table;
     dbFieldDescriptor *first = table->columns, *fd = first;
     size_t offs = table->fixedSize;
-    do { 
-        if (fd->type == dbField::tpArray || fd->type == dbField::tpString) 
-        { 
+    do {
+        if (fd->type == dbField::tpArray || fd->type == dbField::tpString)
+        {
             int len = ((dbVarying*)((char*)rec + fd->dbsOffs))->size;
-            for (cb = stmt->columns; cb != NULL; cb = cb->next) { 
-                if (cb->fd == fd) { 
+            for (cb = stmt->columns; cb != NULL; cb = cb->next) {
+                if (cb->fd == fd) {
                     len = cb->len;
                     break;
                 }
@@ -832,52 +832,52 @@ bool dbServer::update(dbSession* session, int stmt_id, char* new_data)
     old_data = new char[rec->size];
     memcpy(old_data, rec, rec->size);
 
-    for (cb = stmt->columns; cb != NULL; cb = cb->next) { 
-        if (cb->fd->attr & dbFieldDescriptor::Updated) {            
-            if (cb->fd->indexType & HASHED) { 
-                dbHashTable::remove(db, cb->fd->hashTable, 
+    for (cb = stmt->columns; cb != NULL; cb = cb->next) {
+        if (cb->fd->attr & dbFieldDescriptor::Updated) {
+            if (cb->fd->indexType & HASHED) {
+                dbHashTable::remove(db, cb->fd->hashTable,
                                     stmt->cursor->currId,
                                     cb->fd->type, cb->fd->dbsSize, cb->fd->dbsOffs);
             }
-            if (cb->fd->indexType & INDEXED) { 
-                if (cb->fd->type == dbField::tpRectangle) { 
+            if (cb->fd->indexType & INDEXED) {
+                if (cb->fd->type == dbField::tpRectangle) {
                     dbRtree::remove(db, cb->fd->tTree, stmt->cursor->currId,
                                     cb->fd->dbsOffs);
-                } else { 
-                    dbTtree::remove(db, cb->fd->tTree, stmt->cursor->currId, 
+                } else {
+                    dbTtree::remove(db, cb->fd->tTree, stmt->cursor->currId,
                                     cb->fd->type, cb->fd->dbsSize, cb->fd->comparator, cb->fd->dbsOffs);
                 }
             }
         }
     }
-    
+
     db->modified = true;
-    new_data = (char*)db->putRow(stmt->cursor->currId, offs);    
+    new_data = (char*)db->putRow(stmt->cursor->currId, offs);
 
     fd = first;
     offs = table->fixedSize;
-    do { 
-        if (fd->type == dbField::tpArray || fd->type == dbField::tpString) 
-        { 
+    do {
+        if (fd->type == dbField::tpArray || fd->type == dbField::tpString)
+        {
             int len = ((dbVarying*)(old_data + fd->dbsOffs))->size;
             offs = DOALIGN(offs, fd->components->alignment);
-            for (cb = stmt->columns; cb != NULL; cb = cb->next) { 
-                if (cb->fd == fd) { 
+            for (cb = stmt->columns; cb != NULL; cb = cb->next) {
+                if (cb->fd == fd) {
                     len = cb->unpackArray(new_data, offs);
                     break;
                 }
             }
-            if (cb == NULL) { 
-                memcpy(new_data + offs, 
+            if (cb == NULL) {
+                memcpy(new_data + offs,
                        old_data + ((dbVarying*)(old_data + fd->dbsOffs))->offs,
                        len*fd->components->dbsSize);
             }
             ((dbVarying*)(new_data + fd->dbsOffs))->size = len;
             ((dbVarying*)(new_data + fd->dbsOffs))->offs = offs;
             offs += len*fd->components->dbsSize;
-        } else {             
-            for (cb = stmt->columns; cb != NULL; cb = cb->next) { 
-                if (cb->fd == fd) { 
+        } else {
+            for (cb = stmt->columns; cb != NULL; cb = cb->next) {
+                if (cb->fd == fd) {
                     if (cb->cliType == cli_autoincrement) { // autoincrement column is ignored
                         cb = NULL;
                         break;
@@ -886,8 +886,8 @@ bool dbServer::update(dbSession* session, int stmt_id, char* new_data)
                     break;
                 }
             }
-            if (cb == NULL) { 
-                memcpy(new_data + fd->dbsOffs, old_data + fd->dbsOffs, 
+            if (cb == NULL) {
+                memcpy(new_data + fd->dbsOffs, old_data + fd->dbsOffs,
                        fd->dbsSize);
             }
         }
@@ -895,20 +895,20 @@ bool dbServer::update(dbSession* session, int stmt_id, char* new_data)
 
     delete[] old_data;
 
-    for (cb = stmt->columns; cb != NULL; cb = cb->next) { 
-        if (cb->fd->attr & dbFieldDescriptor::Updated) {            
+    for (cb = stmt->columns; cb != NULL; cb = cb->next) {
+        if (cb->fd->attr & dbFieldDescriptor::Updated) {
             cb->fd->attr &= ~dbFieldDescriptor::Updated;
-            if (cb->fd->indexType & HASHED) { 
-                dbHashTable::insert(db, cb->fd->hashTable, 
+            if (cb->fd->indexType & HASHED) {
+                dbHashTable::insert(db, cb->fd->hashTable,
                                     stmt->cursor->currId,
                                     cb->fd->type, cb->fd->dbsSize, cb->fd->dbsOffs, 0);
             }
-            if (cb->fd->indexType & INDEXED) { 
-                if (cb->fd->type == dbField::tpRectangle) { 
+            if (cb->fd->indexType & INDEXED) {
+                if (cb->fd->type == dbField::tpRectangle) {
                     dbRtree::insert(db, cb->fd->tTree, stmt->cursor->currId,
                                     cb->fd->dbsOffs);
-                } else { 
-                    dbTtree::insert(db, cb->fd->tTree, stmt->cursor->currId, 
+                } else {
+                    dbTtree::insert(db, cb->fd->tTree, stmt->cursor->currId,
                                     cb->fd->type, cb->fd->dbsSize, cb->fd->comparator, cb->fd->dbsOffs);
                 }
             }
@@ -917,12 +917,12 @@ bool dbServer::update(dbSession* session, int stmt_id, char* new_data)
     response = cli_ok;
     pack4(response);
     return session->sock->write(&response, sizeof response);
-}    
+}
 
 
-            
-char* dbServer::checkColumns(dbStatement* stmt, int n_columns, 
-                             dbTableDescriptor* desc, char* data, 
+
+char* dbServer::checkColumns(dbStatement* stmt, int n_columns,
+                             dbTableDescriptor* desc, char* data,
                              int4& response)
 {
     dbColumnBinding** cpp = &stmt->columns;
@@ -930,38 +930,38 @@ char* dbServer::checkColumns(dbStatement* stmt, int n_columns,
     while (--n_columns >= 0) {
         int cliType = *data++;
         char* columnName = data;
-        dbSymbolTable::add(columnName, tkn_ident, true);    
+        dbSymbolTable::add(columnName, tkn_ident, true);
         dbFieldDescriptor* fd = desc->findSymbol(columnName);
         data += strlen(data) + 1;
-        if (fd != NULL) { 
-            if ((cliType == cli_oid 
+        if (fd != NULL) {
+            if ((cliType == cli_oid
                  && fd->type == dbField::tpReference)
                 || (cliType == cli_rectangle
                     && fd->type == dbField::tpRectangle)
                 || (((cliType >= cli_bool && cliType <= cli_int8) || cliType == cli_autoincrement)
-                    && fd->type >= dbField::tpBool 
+                    && fd->type >= dbField::tpBool
                     && fd->type <= dbField::tpInt8)
-                || (cliType >= cli_real4 && cliType <= cli_real8 
+                || (cliType >= cli_real4 && cliType <= cli_real8
                     && fd->type >= dbField::tpReal4
                     && fd->type <= dbField::tpReal8)
-                || ((cliType == cli_asciiz || cliType == cli_pasciiz) 
+                || ((cliType == cli_asciiz || cliType == cli_pasciiz)
                     && fd->type == dbField::tpString)
-                || (cliType == cli_array_of_oid && 
-                    fd->type == dbField::tpArray && 
+                || (cliType == cli_array_of_oid &&
+                    fd->type == dbField::tpArray &&
                     fd->components->type == dbField::tpReference)
                 || (cliType >= cli_array_of_bool
                     && fd->type  == dbField::tpArray
-                    && cliType-cli_array_of_bool 
+                    && cliType-cli_array_of_bool
                     == fd->components->type-dbField::tpBool))
             {
                 dbColumnBinding* cb = new dbColumnBinding(fd, cliType);
                 *cpp = cb;
                 cpp = &cb->next;
-            } else { 
+            } else {
                 response = cli_incompatible_type;
                 break;
             }
-        } else { 
+        } else {
             TRACE_MSG(("Field '%s' not found\n", columnName));
             response = cli_column_not_found;
             break;
@@ -983,8 +983,8 @@ bool dbServer::insert(dbSession* session, int stmt_id, char* data, bool prepare)
     size_t offs;
     int    n_columns;
 
-    if (stmt == NULL) { 
-        if (!prepare) { 
+    if (stmt == NULL) {
+        if (!prepare) {
             response = cli_bad_statement;
             goto return_response;
         }
@@ -992,47 +992,47 @@ bool dbServer::insert(dbSession* session, int stmt_id, char* data, bool prepare)
         stmt->next = session->stmts;
         session->stmts = stmt;
     } else {
-        if (prepare) { 
+        if (prepare) {
             stmt->reset();
         } else if ((desc = stmt->table) == NULL) {
             response = cli_bad_descriptor;
             goto return_response;
         }
     }
-    if (prepare) { 
+    if (prepare) {
         session->scanner.reset(data);
-        if (session->scanner.get() != tkn_insert 
+        if (session->scanner.get() != tkn_insert
             || session->scanner.get() != tkn_into
-            || session->scanner.get() != tkn_ident) 
+            || session->scanner.get() != tkn_ident)
         {
             response = cli_bad_statement;
             goto return_response;
         }
         desc = db->findTable(session->scanner.ident);
-        if (desc == NULL) {     
+        if (desc == NULL) {
             response = cli_table_not_found;
             goto return_response;
         }
         data += strlen(data)+1;
         n_columns = *data++ & 0xFF;
         data = checkColumns(stmt, n_columns, desc, data, response);
-        if (response != cli_ok) { 
+        if (response != cli_ok) {
             goto return_response;
         }
         stmt->table = desc;
     }
- 
+
     offs = desc->fixedSize;
-    for (cb = stmt->columns; cb != NULL; cb = cb->next) { 
+    for (cb = stmt->columns; cb != NULL; cb = cb->next) {
         cb->ptr = data;
         if (cb->cliType == cli_autoincrement) {
             ;
-        } else if (cb->cliType >= cli_asciiz) { 
+        } else if (cb->cliType >= cli_asciiz) {
             cb->len = unpack4(data);
             data += 4 + cb->len*cb->fd->components->dbsSize;
             offs = DOALIGN(offs, cb->fd->components->alignment)
                  + cb->len*cb->fd->components->dbsSize;
-        } else { 
+        } else {
             data += sizeof_type[cb->cliType];
         }
     }
@@ -1042,30 +1042,30 @@ bool dbServer::insert(dbSession* session, int stmt_id, char* data, bool prepare)
 #ifdef AUTOINCREMENT_SUPPORT
     desc->autoincrementCount = ((dbTable*)db->getRow(desc->tableId))->count;
 #endif
-    dst = (char*)db->getRow(oid);    
-    
+    dst = (char*)db->getRow(oid);
+
     offs = desc->fixedSize;
-    for (cb = stmt->columns; cb != NULL; cb = cb->next) { 
+    for (cb = stmt->columns; cb != NULL; cb = cb->next) {
         dbFieldDescriptor* fd = cb->fd;
         if (fd->type == dbField::tpArray || fd->type == dbField::tpString) {
             offs = DOALIGN(offs, fd->components->alignment);
             ((dbVarying*)(dst + fd->dbsOffs))->offs = offs;
             ((dbVarying*)(dst + fd->dbsOffs))->size = cb->len;
             offs += cb->unpackArray(dst, offs)*fd->components->dbsSize;
-        } else { 
+        } else {
             cb->unpackScalar(dst, true);
         }
     }
-    for (cb = stmt->columns; cb != NULL; cb = cb->next) { 
-        if (cb->fd->indexType & HASHED) { 
+    for (cb = stmt->columns; cb != NULL; cb = cb->next) {
+        if (cb->fd->indexType & HASHED) {
             dbHashTable::insert(db, cb->fd->hashTable, oid,
                                 cb->fd->type, cb->fd->dbsSize, cb->fd->dbsOffs, 0);
         }
-        if (cb->fd->indexType & INDEXED) { 
-            if (cb->fd->type == dbField::tpRectangle) { 
+        if (cb->fd->indexType & INDEXED) {
+            if (cb->fd->type == dbField::tpRectangle) {
                 dbRtree::insert(db, cb->fd->tTree, oid, cb->fd->dbsOffs);
-            } else { 
-                dbTtree::insert(db, cb->fd->tTree, oid, 
+            } else {
+                dbTtree::insert(db, cb->fd->tTree, oid,
                                 cb->fd->type, cb->fd->dbsSize, cb->fd->comparator, cb->fd->dbsOffs);
             }
         }
@@ -1073,9 +1073,9 @@ bool dbServer::insert(dbSession* session, int stmt_id, char* data, bool prepare)
     response = cli_ok;
   return_response:
     pack4(reply_buf, response);
-    if (desc == NULL) { 
+    if (desc == NULL) {
         pack4(reply_buf+4, 0);
-    } else { 
+    } else {
 #ifdef AUTOINCREMENT_SUPPORT
         pack4(reply_buf+4, desc->autoincrementCount);
 #else
@@ -1084,7 +1084,7 @@ bool dbServer::insert(dbSession* session, int stmt_id, char* data, bool prepare)
     }
     pack_oid(reply_buf+8, oid);
     return session->sock->write(reply_buf, sizeof reply_buf);
-}    
+}
 
 
 bool dbServer::describe_table(dbSession* session, char const* table)
@@ -1095,17 +1095,17 @@ bool dbServer::describe_table(dbSession* session, char const* table)
         pack4(response, 0);
         pack4(response+4, -1);
         return session->sock->write(response, sizeof response);
-    } else { 
+    } else {
         int i, length = 0;
-        dbFieldDescriptor* fd = desc->columns; 
-        for (i = desc->nColumns; --i >= 0;) { 
+        dbFieldDescriptor* fd = desc->columns;
+        for (i = desc->nColumns; --i >= 0;) {
             length += strlen(fd->name)+2+3;
-            if (fd->refTableName != NULL) {  
+            if (fd->refTableName != NULL) {
                 length += strlen(fd->refTableName);
             } else if (fd->type == dbField::tpArray && fd->components->refTableName != NULL) {
                 length += strlen(fd->components->refTableName);
             }
-            if (fd->inverseRefName != NULL) { 
+            if (fd->inverseRefName != NULL) {
                 length += strlen(fd->inverseRefName);
             }
             fd = fd->next;
@@ -1115,13 +1115,13 @@ bool dbServer::describe_table(dbSession* session, char const* table)
         pack4(p, length);
         pack4(p+4, desc->nColumns);
         p += 8;
-        for (i = desc->nColumns, fd = desc->columns; --i >= 0;) { 
+        for (i = desc->nColumns, fd = desc->columns; --i >= 0;) {
             int flags = 0;
             *p++ = map_type(fd);
-            if (fd->tTree != 0) { 
+            if (fd->tTree != 0) {
                 flags |= cli_indexed;
             }
-            if (fd->hashTable != 0) { 
+            if (fd->hashTable != 0) {
                 flags |= cli_hashed;
             }
             *p++ = (char)flags;
@@ -1133,13 +1133,13 @@ bool dbServer::describe_table(dbSession* session, char const* table)
             } else if (fd->type == dbField::tpArray && fd->components->refTableName != NULL) {
                 strcpy(p, fd->components->refTableName);
                 p += strlen(p) + 1;
-            } else { 
+            } else {
                 *p++ = '\0';
             }
             if (fd->inverseRefName != NULL) {
                 strcpy(p, fd->inverseRefName);
                 p += strlen(p) + 1;
-            } else { 
+            } else {
                 *p++ = '\0';
             }
             fd = fd->next;
@@ -1186,37 +1186,37 @@ bool dbServer::create_table(dbSession* session, char* data, bool create)
     char* tableName = data;
     data += strlen(data) + 1;
     int nColumns = *data++ & 0xFF;
-    cli_field_descriptor* columns = new cli_field_descriptor[nColumns];    
+    cli_field_descriptor* columns = new cli_field_descriptor[nColumns];
     for (int i = 0; i < nColumns; i++) {
         columns[i].type = (cli_var_type)*data++;
         columns[i].flags = *data++ & 0xFF;
         columns[i].name = data;
         data += strlen(data) + 1;
-        if (*data != 0) { 
+        if (*data != 0) {
             columns[i].refTableName = data;
             data += strlen(data) + 1;
-        } else { 
+        } else {
             columns[i].refTableName = NULL;
             data += 1;
         }
-        if (*data != 0) { 
+        if (*data != 0) {
             columns[i].inverseRefFieldName = data;
             data += strlen(data) + 1;
-        } else { 
+        } else {
             columns[i].inverseRefFieldName = NULL;
             data += 1;
         }
     }
-    if (session->existed_tables == NULL) { 
+    if (session->existed_tables == NULL) {
         session->existed_tables = db->tables;
     }
     int4 response;
     if (create) {
-        if (session->existed_tables == NULL) { 
+        if (session->existed_tables == NULL) {
             session->existed_tables = db->tables;
         }
         response = dbCLI::create_table(db, tableName, nColumns, columns);
-    } else { 
+    } else {
         response = dbCLI::alter_table(db, tableName, nColumns, columns);
     }
     pack4(response);
@@ -1230,13 +1230,13 @@ bool dbServer::drop_table(dbSession* session, char* tableName)
     int4 response = cli_ok;
     if (desc != NULL) {
         db->dropTable(desc);
-        if (desc == session->existed_tables) { 
+        if (desc == session->existed_tables) {
             session->existed_tables = desc->nextDbTable;
         }
         db->unlinkTable(desc);
         desc->nextDbTable = session->dropped_tables;
         session->dropped_tables = desc;
-    } else { 
+    } else {
         response = cli_table_not_found;
     }
     pack4(response);
@@ -1264,12 +1264,12 @@ bool dbServer::select(dbSession* session, int stmt_id, char* msg, bool prepare)
     dbCursorType cursorType;
     dbTableDescriptor* desc;
 
-    if (prepare) { 
-        if (stmt == NULL) { 
+    if (prepare) {
+        if (stmt == NULL) {
             stmt = new dbStatement(stmt_id);
             stmt->next = session->stmts;
             session->stmts = stmt;
-        } else { 
+        } else {
             stmt->reset();
         }
         stmt->n_params = *msg++;
@@ -1279,39 +1279,39 @@ bool dbServer::select(dbSession* session, int stmt_id, char* msg, bool prepare)
         msg += 2;
         session->scanner.reset(msg);
         char *p, *end = msg + len;
-        if (session->scanner.get() != tkn_select) { 
+        if (session->scanner.get() != tkn_select) {
             response = cli_bad_statement;
             goto return_response;
         }
-        if ((tkn = session->scanner.get()) == tkn_all) { 
+        if ((tkn = session->scanner.get()) == tkn_all) {
             tkn = session->scanner.get();
         }
-        if (tkn == tkn_from && session->scanner.get() == tkn_ident) { 
-            if ((desc = db->findTable(session->scanner.ident)) != NULL) { 
+        if (tkn == tkn_from && session->scanner.get() == tkn_ident) {
+            if ((desc = db->findTable(session->scanner.ident)) != NULL) {
                 msg = checkColumns(stmt, n_columns, desc, end, response);
                 if (response != cli_ok) {
                     goto return_response;
                 }
                 stmt->cursor = new dbAnyCursor(*desc, dbCursorViewOnly, NULL);
                 stmt->cursor->setPrefetchMode(false);
-            } else { 
+            } else {
                 response = cli_table_not_found;
                 goto return_response;
-            }           
-        } else { 
+            }
+        } else {
             response = cli_bad_statement;
             goto return_response;
         }
         p = session->scanner.p;
-        for (i = 0; p < end; i++) { 
+        for (i = 0; p < end; i++) {
             stmt->query.append(dbQueryElement::qExpression, p);
             p += strlen(p) + 1;
-            if (p < end) { 
+            if (p < end) {
                 int cliType = *p++;
-                static const dbQueryElement::ElementType type_map[] = { 
+                static const dbQueryElement::ElementType type_map[] = {
                     dbQueryElement::qVarReference, // cli_oid
                     dbQueryElement::qVarBool,      // cli_bool
-                    dbQueryElement::qVarInt1,      // cli_int1 
+                    dbQueryElement::qVarInt1,      // cli_int1
                     dbQueryElement::qVarInt2,      // cli_int2
                     dbQueryElement::qVarInt4,      // cli_int4
                     dbQueryElement::qVarInt8,      // cli_int8
@@ -1334,23 +1334,23 @@ bool dbServer::select(dbSession* session, int stmt_id, char* msg, bool prepare)
                     dbQueryElement::qVarUnknown,   // cli_any
                     dbQueryElement::qVarInt4,      // cli_datetime
                     dbQueryElement::qVarUnknown,   // cli_autoincrement
-                    dbQueryElement::qVarRectangle, 
+                    dbQueryElement::qVarRectangle,
                     dbQueryElement::qVarUnknown,   // cli_unknown
                 };
                 stmt->params[i].type = cliType;
                 stmt->query.append(type_map[cliType], &stmt->params[i].u);
             }
         }
-    } else { 
-        if (stmt == NULL) { 
+    } else {
+        if (stmt == NULL) {
             response = cli_bad_descriptor;
             goto return_response;
         }
     }
     stmt->firstFetch = true;
     cursorType = *msg++ ? dbCursorForUpdate : dbCursorViewOnly;
-    for (i = 0, n_params = stmt->n_params; i < n_params; i++) { 
-        switch (stmt->params[i].type) { 
+    for (i = 0, n_params = stmt->n_params; i < n_params; i++) {
+        switch (stmt->params[i].type) {
           case cli_oid:
             stmt->params[i].u.oid = unpack_oid(msg);
             msg += sizeof(cli_oid_t);
@@ -1387,30 +1387,30 @@ bool dbServer::select(dbSession* session, int stmt_id, char* msg, bool prepare)
             break;
           default:
             response = cli_bad_statement;
-            goto return_response;           
+            goto return_response;
         }
-    } 
+    }
 #ifdef THROW_EXCEPTION_ON_ERROR
-    try { 
+    try {
         response = stmt->cursor->select(stmt->query, cursorType);
-    } catch (dbException const& x) { 
+    } catch (dbException const& x) {
         response = (x.getErrCode() == dbDatabase::QueryError)
             ? cli_bad_statement : cli_runtime_error;
     }
 #else
-    { 
+    {
         dbDatabaseThreadContext* ctx = db->threadContext.get();
         ctx->catched = true;
         int errorCode = setjmp(ctx->unwind);
-        if (errorCode == 0) { 
+        if (errorCode == 0) {
             response = stmt->cursor->select(stmt->query, cursorType);
-        } else { 
+        } else {
             response = (errorCode == dbDatabase::QueryError)
                 ? cli_bad_statement : cli_runtime_error;
         }
         ctx->catched = false;
     }
-#endif  
+#endif
   return_response:
     pack4(response);
     return session->sock->write(&response, sizeof response);
@@ -1422,12 +1422,12 @@ void dbServer::serveClient()
     dbStatement *sp, **spp;
     db->attach();
     while (true) {
-        dbSession* session; 
-        {   
+        dbSession* session;
+        {
             dbCriticalSection cs(mutex);
-            do { 
+            do {
                 go.wait(mutex);
-                if (cancelWait) { 
+                if (cancelWait) {
                     nIdleThreads -= 1;
                     done.signal();
                     db->detach();
@@ -1446,16 +1446,16 @@ void dbServer::serveClient()
         cli_request req;
         int4 response = cli_ok;
         bool online = true;
-        while (online && session->sock->read(&req, sizeof req)) { 
+        while (online && session->sock->read(&req, sizeof req)) {
             req.unpack();
             int length = req.length - sizeof(req);
             dbSmallBuffer msg(length);
-            if (length > 0) { 
+            if (length > 0) {
                 if (!session->sock->read(msg, length)) {
                     break;
                 }
             }
-            switch(req.cmd) { 
+            switch(req.cmd) {
               case cli_cmd_close_session:
                 while (session->dropped_tables != NULL) {
                     dbTableDescriptor* next = session->dropped_tables->nextDbTable;
@@ -1467,11 +1467,11 @@ void dbServer::serveClient()
                 online = false;
                 break;
               case cli_cmd_prepare_and_execute:
-                online = select(session, req.stmt_id, msg, true); 
+                online = select(session, req.stmt_id, msg, true);
                 session->in_transaction = true;
                 break;
               case cli_cmd_execute:
-                online = select(session, req.stmt_id, msg, false); 
+                online = select(session, req.stmt_id, msg, false);
                 break;
               case cli_cmd_get_first:
                 online = get_first(session, req.stmt_id);
@@ -1500,7 +1500,7 @@ void dbServer::serveClient()
               case cli_cmd_free_statement:
                 for (spp = &session->stmts; (sp = *spp) != NULL; spp = &sp->next)
                 {
-                    if (sp->id == req.stmt_id) { 
+                    if (sp->id == req.stmt_id) {
                         *spp = sp->next;
                         delete sp;
                         break;
@@ -1513,8 +1513,8 @@ void dbServer::serveClient()
                     db->linkTable(session->dropped_tables, session->dropped_tables->tableId);
                     session->dropped_tables = next;
                 }
-                if (session->existed_tables != NULL) { 
-                    while (db->tables != session->existed_tables) { 
+                if (session->existed_tables != NULL) {
+                    while (db->tables != session->existed_tables) {
                         dbTableDescriptor* table = db->tables;
                         db->unlinkTable(table);
                         delete table;
@@ -1525,7 +1525,7 @@ void dbServer::serveClient()
                 session->in_transaction = false;
                 online = session->sock->write(&response, sizeof response);
                 break;
-              case cli_cmd_commit:              
+              case cli_cmd_commit:
                 while (session->dropped_tables != NULL) {
                     dbTableDescriptor* next = session->dropped_tables->nextDbTable;
                     delete session->dropped_tables;
@@ -1542,20 +1542,20 @@ void dbServer::serveClient()
                 break;
               case cli_cmd_update:
                 online = update(session, req.stmt_id, msg);
-                break;          
+                break;
               case cli_cmd_remove:
                 online = remove(session, req.stmt_id);
-                break;          
+                break;
               case cli_cmd_remove_current:
                 online = remove_current(session, req.stmt_id);
-                break;          
+                break;
               case cli_cmd_prepare_and_insert:
                 online = insert(session, req.stmt_id, msg, true);
                 session->in_transaction = true;
-                break;          
+                break;
               case cli_cmd_insert:
                 online = insert(session, req.stmt_id, msg, false);
-                break;          
+                break;
               case cli_cmd_describe_table:
                 online = describe_table(session, (char*)msg);
                 break;
@@ -1575,15 +1575,15 @@ void dbServer::serveClient()
                 online = alter_index(session, msg);
                 break;
             }
-        }       
-        if (session->in_transaction) { 
+        }
+        if (session->in_transaction) {
             while (session->dropped_tables != NULL) {
                 dbTableDescriptor* next = session->dropped_tables->nextDbTable;
                 db->linkTable(session->dropped_tables, session->dropped_tables->tableId);
                 session->dropped_tables = next;
             }
-            if (session->existed_tables != NULL) { 
-                while (db->tables != session->existed_tables) { 
+            if (session->existed_tables != NULL) {
+                while (db->tables != session->existed_tables) {
                     dbTableDescriptor* table = db->tables;
                     db->unlinkTable(table);
                     delete table;
@@ -1593,16 +1593,16 @@ void dbServer::serveClient()
             db->rollback();
         }
         // Finish session
-        {   
+        {
             dbCriticalSection cs(mutex);
             dbSession** spp;
             delete session->sock;
-            for (spp = &activeList; *spp != session; spp = &(*spp)->next); 
+            for (spp = &activeList; *spp != session; spp = &(*spp)->next);
             *spp = session->next;
             session->next = freeList;
             freeList = session;
             nActiveThreads -= 1;
-            if (cancelSession) { 
+            if (cancelSession) {
                 done.signal();
                 break;
             }
@@ -1610,21 +1610,21 @@ void dbServer::serveClient()
                 break;
             }
             nIdleThreads += 1;
-        } 
+        }
     }
     db->detach();
 }
 
 void dbServer::acceptConnection(socket_t* acceptSock)
 {
-    while (true) { 
+    while (true) {
         socket_t* sock = acceptSock->accept();
         dbCriticalSection cs(mutex);
-        if (cancelAccept) { 
+        if (cancelAccept) {
             return;
         }
-        if (sock != NULL) { 
-            if (freeList == NULL) { 
+        if (sock != NULL) {
+            if (freeList == NULL) {
                 freeList = new dbSession;
                 freeList->next = NULL;
             }
@@ -1638,7 +1638,7 @@ void dbServer::acceptConnection(socket_t* acceptSock)
             session->dropped_tables = NULL;
             waitList = session;
             waitListLength += 1;
-            if (nIdleThreads < waitListLength) { 
+            if (nIdleThreads < waitListLength) {
                 dbThread thread;
                 nIdleThreads += 1;
                 thread.create(serverThread, this);
@@ -1660,7 +1660,3 @@ dbServer::~dbServer()
 }
 
 END_FASTDB_NAMESPACE
-
-
-
-

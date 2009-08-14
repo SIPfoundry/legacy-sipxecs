@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
@@ -37,23 +37,23 @@ public:
       {
          setenv(SipXecsService::ConfigurationDirType, TEST_DATA_DIR "/sharedsecret", true );
       }
-            
+
    void tearDown()
       {
          unsetenv(SipXecsService::ConfigurationDirType);
       }
-   
+
    void testNonce()
       {
          SipNonceDb nonceDb;
-         
+
          UtlString testCallId("testCallId");
          UtlString testFromTag("testFromTag");
          UtlString testRealm("testRealm");
          UtlString testNonce;
-         
+
          nonceDb.createNewNonce(testCallId, testFromTag, testRealm, testNonce);
-         
+
          CPPUNIT_ASSERT(nonceDb.isNonceValid(testNonce, testCallId, testFromTag, testRealm, 3));
 
          CPPUNIT_ASSERT(!nonceDb.isNonceValid(testNonce,testCallId,testFromTag,testRealm,-3));
@@ -76,9 +76,9 @@ public:
          UtlString testFromTag("testFromTag");
          UtlString testRealm("testRealm");
          UtlString testNonce;
-         
+
          sharedNonceDb->createNewNonce(testCallId, testFromTag, testRealm, testNonce);
-         
+
          CPPUNIT_ASSERT(sharedNonceDb->isNonceValid(testNonce, testCallId,
                                                     testFromTag, testRealm, 3));
 

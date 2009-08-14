@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@ void fileExecute(const char *, bool);
 // Define a client task for multi-threaded requests /////////////////////////////////////
 class ClientTask : public OsTask
 {
-public:    
+public:
     ClientTask(void* pArg);
     virtual int run(void* runArg);
 };
@@ -49,15 +49,15 @@ int ClientTask::run(void* runArg)
 {
     OsEvent* pEvent = (OsEvent*)runArg;
     OsStatus status;
-    
+
     fileExecute(InputFile, false);
-    
+
     do {
         //printf("%s is signaling\n", mName.data());
         status = pEvent->signal(1);
-    } 
+    }
     while (status == OS_ALREADY_SIGNALED);
-   
+
     return 0;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -131,9 +131,9 @@ void parseArgs(int argc, char* argv[])
 {
    int optResult = 0;
    int temp = 0;
-   
+
    const char* short_options = "p:l:f:t:vqmhgsr";
-   
+
    const struct option long_options[] =
       {
          {"verbose", no_argument, NULL, 'v'},
@@ -173,23 +173,23 @@ void parseArgs(int argc, char* argv[])
       case 'l':
          LogFile = optarg;
          break;
-         
+
       case 'f':
          strncpy(InputFile, (char*)optarg, 128);
          bInputFile = true;
          break;
-         
+
       case 't':
          temp = atoi((char*)optarg);
          numThreads = (temp > 0) ? temp : 1;
          break;
-         
+
       case 's':
       {
          bSingleStep = true;
          break;
       }
-         
+
       case 'r':
          bRepeatFile = true;
          break;
@@ -237,10 +237,10 @@ void requestVersion(Url& url)
 {
     XmlRpcRequest* request;
     XmlRpcResponse response;
-    
+
     request = new XmlRpcRequest(url, "configurationParameter.version");
-    request->addParam(&DataSet);    
-    
+    request->addParam(&DataSet);
+
     if (!request->execute(response/*, &pSocket*/))
     {
         exitFault(response);
@@ -265,7 +265,7 @@ void requestVersion(Url& url)
         {
             fprintf(stderr, "No value returned.\n");
         }
-    }    
+    }
     delete request;
     request = NULL;
 }
@@ -274,15 +274,15 @@ void requestGet(Url& url, UtlSList& names)
 {
     XmlRpcRequest* request;
     XmlRpcResponse response;
-    
+
     request = new XmlRpcRequest(url, "configurationParameter.get");
-    request->addParam(&DataSet);        
+    request->addParam(&DataSet);
 
     if (!names.isEmpty())
     {
         request->addParam(&names);
     }
-      
+
     if (!request->execute(response/*, &pSocket*/))
     {
         exitFault(response);
@@ -314,7 +314,7 @@ void requestGet(Url& url, UtlSList& names)
             fprintf(stderr, "No value returned.\n");
             exit(1);
         }
-    }    
+    }
     delete request;
     request = NULL;
 }
@@ -323,11 +323,11 @@ void requestSet(Url& url, UtlHashMap& parameters)
 {
     XmlRpcRequest* request;
     XmlRpcResponse response;
-    
+
     request = new XmlRpcRequest(url, "configurationParameter.set");
-    request->addParam(&DataSet); 
+    request->addParam(&DataSet);
     request->addParam(&parameters);
-     
+
     if (request->execute(response /*, &pSocket*/))
     {
         UtlContainable* value;
@@ -365,15 +365,15 @@ void requestDelete(Url& url, UtlSList& names)
 {
     XmlRpcRequest* request;
     XmlRpcResponse response;
-    
+
     request = new XmlRpcRequest(url, "configurationParameter.delete");
-    request->addParam(&DataSet); 
-        
+    request->addParam(&DataSet);
+
     if (!names.isEmpty())
     {
         request->addParam(&names);
     }
-      
+
     if (!request->execute(response/*, &pSocket*/))
     {
         exitFault(response);
@@ -402,7 +402,7 @@ void requestDelete(Url& url, UtlSList& names)
             fprintf(stderr, "No value returned.\n");
             exit(1);
         }
-    }    
+    }
     delete request;
     request = NULL;
 }
@@ -414,7 +414,7 @@ int main(int argc, char* argv[])
    OsEvent taskDone;
 
    Url url(xmlrpcURI);
-    
+
    if (MemCheckDelay)
    {
       // Delay 45 seconds to allow memcheck start
@@ -422,14 +422,14 @@ int main(int argc, char* argv[])
       OsTask::delay(MemCheckDelay * 1000);
       printf("starting\n");
    }
-   
+
    // If an input file was specified we start up the number
    // of specified threads to execute that input file. If number
    // of threads wasn't specified we start up 1 thread.
    if (bInputFile)
    {
       int signaled = 0;
-      
+
       for (int i=0; i<numThreads; i++)
       {
          ClientTask* pTask = new ClientTask(&taskDone);
@@ -469,12 +469,12 @@ int main(int argc, char* argv[])
       {
          names.append(new UtlString(argv[optind++]));
       }
-      
+
       requestGet(url, names);
 
       break;
    }
-   case Set: // --set <xmlrpc URI> <dataset> <name> <value> [ <name> <value> ] ... 
+   case Set: // --set <xmlrpc URI> <dataset> <name> <value> [ <name> <value> ] ...
    {
       UtlHashMap parameters;
       // copy remaining arguments into the names list
@@ -490,7 +490,7 @@ int main(int argc, char* argv[])
          showHelp(argv);
          exit(1);
       }
-      
+
       if (parameters.isEmpty())
       {
          fprintf(stderr, "must specify at least one name and value\n");
@@ -505,7 +505,7 @@ int main(int argc, char* argv[])
 
       break;
    }
-   case Delete: // --delete <xmlrpc URI> <dataset> <name> ... 
+   case Delete: // --delete <xmlrpc URI> <dataset> <name> ...
    {
       UtlSList names;
       // copy remaining arguments into the names list
@@ -513,7 +513,7 @@ int main(int argc, char* argv[])
       {
          names.append(new UtlString(argv[optind++]));
       }
-      
+
       requestDelete(url, names);
 
       break;
@@ -523,7 +523,7 @@ int main(int argc, char* argv[])
       showHelp(argv);
       exit(1);
    }
-   
+
    if (MemCheckDelay)
    {
       // Delay 45 seconds to allow memcheck start
@@ -533,7 +533,7 @@ int main(int argc, char* argv[])
    }
 
    exit(0);
-      
+
 }
 
 void fileError(int error, int line)
@@ -561,7 +561,7 @@ void fileExecute(const char* inputFile, bool bSingleStep)
     char szBuffer[128];
     char* token;
     int line = 0;
-    
+
     if ((fp=fopen(inputFile, "r")) != NULL)
     {
         do {
@@ -571,7 +571,7 @@ void fileExecute(const char* inputFile, bool bSingleStep)
                 ++line;
                 if (szBuffer[0] != 0)
                 {
-                    printf("Executing %s", szBuffer);                
+                    printf("Executing %s", szBuffer);
                 }
                 token = strtok(szBuffer, " ");
                 if (token == NULL)
@@ -584,19 +584,19 @@ void fileExecute(const char* inputFile, bool bSingleStep)
                     if (token == NULL)
                     {
                         fileError(1, line);
-                    } 
+                    }
                     else
                     {
-                        Url url(token);                
+                        Url url(token);
                         token = strtok(NULL, " ");
                         if (token == NULL)
                         {
                             fileError(2, line);
                         }
                         else
-                        {            
+                        {
                             DataSet = token;
-                    
+
                             requestVersion(url);
                         }
                     }
@@ -610,12 +610,12 @@ void fileExecute(const char* inputFile, bool bSingleStep)
                     }
                     else
                     {
-                        Url url(token);                
+                        Url url(token);
                         token = strtok(NULL, " ");
                         if (token == NULL)
                         {
                             fileError(2, line);
-                        }               
+                        }
                         else
                         {
                             DataSet = token;
@@ -642,12 +642,12 @@ void fileExecute(const char* inputFile, bool bSingleStep)
                     }
                     else
                     {
-                        Url url(token);                
+                        Url url(token);
                         token = strtok(NULL, " ");
                         if (token == NULL)
                         {
                             fileError(2, line);
-                        }               
+                        }
                         else
                         {
                             DataSet = token;
@@ -670,7 +670,7 @@ void fileExecute(const char* inputFile, bool bSingleStep)
                                 parameters.insertKeyAndValue(new UtlString(key), new UtlString(value));
                             }
                             int entries = parameters.entries();
-                    
+
                             if (entries != 0 || (entries%2) == 0)
                             {
                                 requestSet(url, parameters);
@@ -688,7 +688,7 @@ void fileExecute(const char* inputFile, bool bSingleStep)
                     }
                     else
                     {
-                        Url url(token);                
+                        Url url(token);
                         token = strtok(NULL, " ");
                         if (token == NULL)
                         {
@@ -707,7 +707,7 @@ void fileExecute(const char* inputFile, bool bSingleStep)
                                 }
                             }
                             requestDelete(url, names);
-                            names.destroyAll();                             
+                            names.destroyAll();
                         }
                     }
                 }
@@ -736,4 +736,3 @@ int JNI_LightButton(long)
 {
    return 0;
 }
-

@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -123,7 +123,7 @@ RegistrationDB::RegistrationDB( const UtlString& name ) :
         mTableLoaded = false;
         // Load the file implicitly
         this->load();
-        // the RegistrationDB is not replicated from sipXconfig, as 
+        // the RegistrationDB is not replicated from sipXconfig, as
         // a result, make this table appear as being loaded regardless
         // of the load() result.
         mTableLoaded = true;
@@ -426,7 +426,7 @@ RegistrationDB::insertRow(const UtlHashMap& nvPairs)
     // need the full functionality of strtoll here, not just a
     // decimal-to-binary conversion.  But strtoll is in C99, so it
     // should be OK.
-    Int64 updateNumber = 
+    Int64 updateNumber =
        updateNumberStr ? strtoll(updateNumberStr->data(), NULL, 0) : 0;
 
     // Get the remaining fields so that we can substitute the null string
@@ -689,7 +689,7 @@ RegistrationDB::removeAllRows ()
     else
     {
        OsSysLog::add(FAC_DB, PRI_CRIT, "RegistrationDB::removeAllRows failed - no DB");
-    }       
+    }
 }
 
 void
@@ -741,7 +741,7 @@ RegistrationDB::getAllRows ( ResultSet& rResultSet ) const
     else
     {
        OsSysLog::add(FAC_DB, PRI_CRIT, "RegistrationDB::getAllRows failed - no DB");
-    }       
+    }
 }
 
 Int64
@@ -755,7 +755,7 @@ RegistrationDB::getMaxUpdateNumberForRegistrar(const UtlString& primaryRegistrar
       dbCursor<RegistrationRow> cursor;
       dbQuery query;
       query = "primary = ", primaryRegistrar, "order by update_number desc";
-   
+
       int numRows = cursor.select(query);
       if (numRows > 0)
       {
@@ -784,7 +784,7 @@ RegistrationDB::getNextUpdateNumberForRegistrar(const UtlString& primaryRegistra
       query = "primary = ", primaryRegistrar,
               " and update_number > ", updateNumber,
               " order by update_number asc";
-   
+
       int numRows = cursor.select(query);
       if (numRows > 0)
       {
@@ -799,7 +799,7 @@ RegistrationDB::getNextUpdateNumberForRegistrar(const UtlString& primaryRegistra
    return nextUpdateNumber;
 }
 
-int 
+int
 RegistrationDB::getNextUpdateForRegistrar(const UtlString& primaryRegistrar,
                                           Int64            updateNumber,
                                           UtlSList&        bindings) const
@@ -822,7 +822,7 @@ RegistrationDB::getNextUpdateForRegistrar(const UtlString& primaryRegistrar,
             ,numRows
             ,primaryRegistrar.data()
             ,updateNumber);
-      }   
+      }
    }
    return numRows;
 }
@@ -844,7 +844,7 @@ RegistrationDB::getNewUpdatesForRegistrar(const UtlString& primaryRegistrar,
          ,numRows
          ,primaryRegistrar.data()
          ,updateNumber);
-   }   
+   }
    return numRows;
 }
 
@@ -960,7 +960,7 @@ RegistrationDB::getUnexpiredContacts (
                 record.insertKeyAndValue(qvalueKey, qvalueValue);
                 record.insertKeyAndValue(primaryKey, primaryValue);
                 record.insertKeyAndValue(updateNumberKey, updateNumberValue);
- 
+
                 record.insertKeyAndValue(instanceIdKey, instanceIdValue);
                 record.insertKeyAndValue(gruuKey, gruuValue);
                 record.insertKeyAndValue(pathKey, pathValue);
@@ -979,7 +979,7 @@ RegistrationDB::getUnexpiredContacts (
 void
 RegistrationDB::getUnexpiredContactsFieldsContaining (
    UtlString& substringToMatch,
-   const int& timeNow,   
+   const int& timeNow,
    UtlSList& matchingContactFields ) const
 {
    // Clear the results
@@ -1008,13 +1008,13 @@ RegistrationDB::getUnexpiredContactsFieldsContaining (
       OsSysLog::add(FAC_DB, PRI_CRIT, "RegistrationDB::getUnexpiredContactsFieldsContaining failed - no DB");
    }
 }
-   
+
 bool
 RegistrationDB::isLoaded()
 {
    return mTableLoaded;
 }
-   
+
 RegistrationDB*
 RegistrationDB::getInstance( const UtlString& name )
 {

@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 #ifndef SIPDBMANAGER_H
@@ -105,18 +105,18 @@ public:
     bool getDatabaseChangedFlag ( const UtlString& tablename ) const;
 
     /** method to ping the data store and sleeps for timeoutSecs in the transaction */
-    OsStatus pingDatabase ( 
-        const int& rTransactionLockSecs = 0, 
+    OsStatus pingDatabase (
+        const int& rTransactionLockSecs = 0,
         const UtlBoolean& rTestWriteLock = FALSE ) const;
 
     /** Helper Method for all IMDB tables */
-    static void getFieldValue ( 
+    static void getFieldValue (
         const unsigned char* base,
-        const dbFieldDescriptor* fd, 
+        const dbFieldDescriptor* fd,
         UtlString& textValue);
 
     /** Helper Method for all IMDB tables */
-    static OsStatus getAttributeValue ( 
+    static OsStatus getAttributeValue (
         const TiXmlNode& node,
         const UtlString& key,
         UtlString& value );

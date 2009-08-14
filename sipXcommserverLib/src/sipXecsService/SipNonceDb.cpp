@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -179,7 +179,7 @@ UtlString SipNonceDb::nonceSignature(const UtlString& callId,
                  "timestamp='%s'",
                  callId.data(), fromTag.data(), realm.data(), timestamp
                  );
-    
+
    // Create the signature value by hashing the timestamp with
    // the callId, fromTag, the realm, and a secret.
    // Add separator commas between non-fixed-length components to

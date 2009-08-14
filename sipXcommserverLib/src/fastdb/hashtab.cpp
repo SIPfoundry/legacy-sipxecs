@@ -22,7 +22,7 @@ int const dbHashTable::keySize[] = {
     2,  // tpInt2
     4,  // tpInt4
     8,  // tpInt8
-    4,  // tpReal4 
+    4,  // tpReal4
     8,  // tpReal8
     0,  // tpString,
     sizeof(oid_t), // tpReference
@@ -65,7 +65,7 @@ static const size_t primeNumbers[] = {
 oid_t dbHashTable::allocate(dbDatabase* db, size_t nRows)
 {
     size_t size = dbInitHashTableSize;
-    if (size < nRows) { 
+    if (size < nRows) {
         size = nRows;
     }
     size_t i;
@@ -87,13 +87,13 @@ oid_t dbHashTable::allocate(dbDatabase* db, size_t nRows)
     }
     return hashId;
 }
- 
 
-inline unsigned dbHashTable::stringHashFunction(byte* key, int keylen) 
+
+inline unsigned dbHashTable::stringHashFunction(byte* key, int keylen)
 {
     unsigned h;
 #ifdef IGNORE_CASE
-    for (h = 0; --keylen >= 0;) { 
+    for (h = 0; --keylen >= 0;) {
         int code = *key++;
         h = h*31 + toupper(code);
     }
@@ -103,14 +103,14 @@ inline unsigned dbHashTable::stringHashFunction(byte* key, int keylen)
     return h;
 }
 
-static unsigned oldUniversalHashFunction(byte* key, int type, int keylen) 
+static unsigned oldUniversalHashFunction(byte* key, int type, int keylen)
 {
     unsigned h;
     for (h = 0; --keylen >= 0; h = h*31 + *key++);
     return h;
 }
 
-static unsigned newUnversalHashFunction(byte* key, int type, int keylen) 
+static unsigned newUnversalHashFunction(byte* key, int type, int keylen)
 {
     unsigned h;
     key += keylen;
@@ -118,21 +118,21 @@ static unsigned newUnversalHashFunction(byte* key, int type, int keylen)
     return h;
 }
 
-static unsigned oldSpecializedHashFunction(byte* key, int type, int keylen) 
+static unsigned oldSpecializedHashFunction(byte* key, int type, int keylen)
 {
     unsigned h;
 
-    switch (type) { 
+    switch (type) {
       case dbField::tpBool:
       case dbField::tpInt1:
         return *(db_nat1*)key;
       case dbField::tpInt2:
         return *(db_nat2*)key;
       case dbField::tpInt4:
-      case dbField::tpReal4: 
+      case dbField::tpReal4:
         return *(db_nat4*)key;
       case dbField::tpInt8:
-      case dbField::tpReal8: 
+      case dbField::tpReal8:
         return *(db_nat4*)key ^ *((db_nat4*)key+1);
       default:
         key += keylen;
@@ -141,21 +141,21 @@ static unsigned oldSpecializedHashFunction(byte* key, int type, int keylen)
     }
 }
 
-static unsigned newSpecializedHashFunction(byte* key, int type, int keylen) 
+static unsigned newSpecializedHashFunction(byte* key, int type, int keylen)
 {
     unsigned h;
 
-    switch (type) { 
+    switch (type) {
       case dbField::tpBool:
       case dbField::tpInt1:
         return *(db_nat1*)key;
       case dbField::tpInt2:
         return *(db_nat2*)key;
       case dbField::tpInt4:
-      case dbField::tpReal4: 
+      case dbField::tpReal4:
         return *(db_nat4*)key;
       case dbField::tpInt8:
-      case dbField::tpReal8: 
+      case dbField::tpReal8:
         return *(db_nat4*)key ^ *((db_nat4*)key+1);
       default:
         for (h = 0; --keylen >= 0; h = h*31 + *key++);
@@ -165,42 +165,42 @@ static unsigned newSpecializedHashFunction(byte* key, int type, int keylen)
 
 dbHashFunction dbHashTable::getHashFunction(int version)
 {
-    return (version < 288) ? &oldUniversalHashFunction 
+    return (version < 288) ? &oldUniversalHashFunction
         : (version < 308) ? &newUnversalHashFunction
         : (version < 333) ? &oldSpecializedHashFunction : &newSpecializedHashFunction;
 }
 
 inline int keycmp(void* k1, void* k2, int type, int keylen)
 {
-    switch (type) { 
+    switch (type) {
       case dbField::tpBool:
       case dbField::tpInt1:
         return *(db_nat1*)k1 - *(db_nat1*)k2;
       case dbField::tpInt2:
         return *(db_nat2*)k1 - *(db_nat2*)k2;
       case dbField::tpInt4:
-      case dbField::tpReal4: 
+      case dbField::tpReal4:
         return *(db_nat4*)k1 - *(db_nat4*)k2;
       case dbField::tpInt8:
-      case dbField::tpReal8: 
+      case dbField::tpReal8:
         return *(db_nat8*)k1 == *(db_nat8*)k2 ? 0 : 1;
       default:
         return memcmp(k1, k2, keylen);
     }
 }
 
-void dbHashTable::insert(dbDatabase* db, oid_t hashId, 
+void dbHashTable::insert(dbDatabase* db, oid_t hashId,
                          oid_t rowId, int type, int sizeofType, int offs, size_t nRows)
 {
     dbHashTable* hash = (dbHashTable*)db->get(hashId);
     byte* record = db->get(rowId);
     byte* key = record + offs;
     unsigned hashkey;
-    if (type == dbField::tpString) { 
+    if (type == dbField::tpString) {
         int len = ((dbVarying*)key)->size - 1;
         key = record + ((dbVarying*)key)->offs;
         hashkey = stringHashFunction(key, len);
-    } else {  
+    } else {
         hashkey = db->hashFunction(key, type, sizeofType);
     }
     size_t size = hash->size;
@@ -210,7 +210,7 @@ void dbHashTable::insert(dbDatabase* db, oid_t hashId,
         int nPages = (size+dbIdsPerPage-1) / dbIdsPerPage;
         size_t i;
         for (i = 0; i < itemsof(primeNumbers)-1 && primeNumbers[i] < size; i++);
-        if (i < itemsof(primeNumbers)-1) { 
+        if (i < itemsof(primeNumbers)-1) {
             i += 1;
         }
         size = primeNumbers[i];
@@ -223,20 +223,20 @@ void dbHashTable::insert(dbDatabase* db, oid_t hashId,
         hash->size = size;
         hash->page = newPageId;
         size_t used = 0;
-        while (--nPages >= 0) { 
-            for (i = 0; i < dbIdsPerPage; i++) { 
+        while (--nPages >= 0) {
+            for (i = 0; i < dbIdsPerPage; i++) {
                 oid_t itemId = ((oid_t*)db->get(pageId))[i];
-                while (itemId != 0) { 
+                while (itemId != 0) {
                     dbHashTableItem* item = (dbHashTableItem*)db->get(itemId);
                     oid_t nextId = item->next;
                     unsigned h = item->hash % size;
                     oid_t* tab = (oid_t*)(db->baseAddr + pos);
-                    if (item->next != tab[h]) { 
+                    if (item->next != tab[h]) {
                         item = (dbHashTableItem*)db->put(itemId);
                         tab = (oid_t*)(db->baseAddr + pos);
                         item->next = tab[h];
                     }
-                    if (tab[h] == 0) { 
+                    if (tab[h] == 0) {
                         used += 1;
                     }
                     tab[h] = itemId;
@@ -247,11 +247,11 @@ void dbHashTable::insert(dbDatabase* db, oid_t hashId,
         }
         ((dbHashTable*)db->get(hashId))->used = used;
         pageId = newPageId;
-        while (--nNewPages >= 0) { 
+        while (--nNewPages >= 0) {
             db->currIndex[newPageId++] = pos + dbPageObjectMarker;
             pos += dbPageSize;
         }
-    } 
+    }
     oid_t itemId = db->allocateObject(dbHashTableItemMarker);
     unsigned h = hashkey % size;
     oid_t* ptr = (oid_t*)db->put(pageId + h/dbIdsPerPage) + h%dbIdsPerPage;
@@ -260,25 +260,25 @@ void dbHashTable::insert(dbDatabase* db, oid_t hashId,
     item->hash = hashkey;
     item->next = *ptr;
     *ptr = itemId;
-    if (item->next == 0) { 
+    if (item->next == 0) {
         ((dbHashTable*)db->get(hashId))->used += 1;
         db->file.markAsDirty(db->currIndex[hashId] & ~dbInternalObjectMarker, sizeof(dbHashTable));
     }
 }
 
-    
-void dbHashTable::remove(dbDatabase* db, oid_t hashId, 
+
+void dbHashTable::remove(dbDatabase* db, oid_t hashId,
                          oid_t rowId, int type, int sizeofType, int offs)
 {
     dbHashTable* hash = (dbHashTable*)db->get(hashId);
     byte* record = (byte*)db->getRow(rowId);
     byte* key = record + offs;
     unsigned hashkey;
-    if (type == dbField::tpString) { 
+    if (type == dbField::tpString) {
         int len = ((dbVarying*)key)->size - 1;
         key = record + ((dbVarying*)key)->offs;
         hashkey = stringHashFunction(key, len);
-    } else {  
+    } else {
         hashkey = db->hashFunction(key, type, sizeofType);
     }
     unsigned h = hashkey % hash->size;
@@ -286,19 +286,19 @@ void dbHashTable::remove(dbDatabase* db, oid_t hashId,
     int i = h % dbIdsPerPage;
     oid_t itemId = ((oid_t*)db->get(pageId))[i];
     oid_t prevItemId = 0;
-    while (true) { 
+    while (true) {
         assert(itemId != 0);
         dbHashTableItem* item = (dbHashTableItem*)db->get(itemId);
-        if (item->record == rowId) { 
+        if (item->record == rowId) {
             oid_t next = item->next;
-            if (prevItemId == 0) { 
-                if (next == 0) { 
+            if (prevItemId == 0) {
+                if (next == 0) {
                     hash->used -= 1; // consistency can be violated
-                    db->file.markAsDirty(db->currIndex[hashId] & ~dbInternalObjectMarker, 
+                    db->file.markAsDirty(db->currIndex[hashId] & ~dbInternalObjectMarker,
                                          sizeof(dbHashTable));
                 }
                 *((oid_t*)db->put(pageId) + i) = next;
-            } else {    
+            } else {
                 item = (dbHashTableItem*)db->put(prevItemId);
                 item->next = next;
             }
@@ -309,47 +309,47 @@ void dbHashTable::remove(dbDatabase* db, oid_t hashId,
         itemId = item->next;
     }
 }
-    
+
 void dbHashTable::find(dbDatabase* db, oid_t hashId, dbSearchContext& sc)
 {
     dbHashTable* hash = (dbHashTable*)db->get(hashId);
     unsigned hashkey;
     unsigned keylen;
-    if (hash->size == 0) { 
+    if (hash->size == 0) {
         return;
     }
-    if (sc.type == dbField::tpString) { 
+    if (sc.type == dbField::tpString) {
         keylen = strlen(sc.firstKey);
         hashkey = stringHashFunction((byte*)sc.firstKey, keylen);
-    } else {  
+    } else {
         keylen = sc.sizeofType;
         hashkey = db->hashFunction((byte*)sc.firstKey, sc.type, keylen);
     }
     unsigned h = hashkey % hash->size;
-    oid_t itemId = 
+    oid_t itemId =
         ((oid_t*)db->get(hash->page + h/dbIdsPerPage))[h % dbIdsPerPage];
     dbTable* table = (dbTable*)db->getRow(sc.cursor->table->tableId);
-    while (itemId != 0) { 
+    while (itemId != 0) {
         dbHashTableItem* item = (dbHashTableItem*)db->get(itemId);
         sc.probes += 1;
-        if (item->hash == hashkey) { 
+        if (item->hash == hashkey) {
             byte* rec = (byte*)db->getRow(item->record);
             if ((sc.type == dbField::tpString
                  && keylen == ((dbVarying*)(rec + sc.offs))->size - 1
 #ifdef IGNORE_CASE
-                 && stricmp(sc.firstKey, 
+                 && stricmp(sc.firstKey,
                             (char*)rec+((dbVarying*)(rec+sc.offs))->offs) == 0)
 #else
-                 && keycmp(sc.firstKey, rec+((dbVarying*)(rec+sc.offs))->offs, 
+                 && keycmp(sc.firstKey, rec+((dbVarying*)(rec+sc.offs))->offs,
                            sc.type, keylen) == 0)
 #endif
                 || (sc.type != dbField::tpString
-                    && sc.comparator(sc.firstKey, rec + sc.offs, keylen) == 0)) 
-            { 
-                if (!sc.condition 
+                    && sc.comparator(sc.firstKey, rec + sc.offs, keylen) == 0))
+            {
+                if (!sc.condition
                     || db->evaluate(sc.condition, item->record, table, sc.cursor))
                 {
-                    if (!sc.cursor->add(item->record)) { 
+                    if (!sc.cursor->add(item->record)) {
                         return;
                     }
                 }
@@ -367,10 +367,10 @@ void dbHashTable::purge(dbDatabase* db, oid_t hashId)
     oid_t pageId = hash->page;
     int nPages = (hash->size + dbIdsPerPage  - 1) / dbIdsPerPage;
     hash->used = 0;
-    while (--nPages >= 0) { 
-        for (size_t i = 0; i < dbIdsPerPage; i++) { 
+    while (--nPages >= 0) {
+        for (size_t i = 0; i < dbIdsPerPage; i++) {
             oid_t itemId = ((oid_t*)db->get(pageId))[i];
-            while (itemId != 0) { 
+            while (itemId != 0) {
                 oid_t nextId = ((dbHashTableItem*)db->get(itemId))->next;
                 db->freeObject(itemId);
                 itemId = nextId;
@@ -385,10 +385,10 @@ void dbHashTable::drop(dbDatabase* db, oid_t hashId)
     dbHashTable* hash = (dbHashTable*)db->get(hashId);
     oid_t pageId = hash->page;
     int nPages = (hash->size + dbIdsPerPage - 1) / dbIdsPerPage;
-    while (--nPages >= 0) { 
-        for (size_t i = 0; i < dbIdsPerPage; i++) { 
+    while (--nPages >= 0) {
+        for (size_t i = 0; i < dbIdsPerPage; i++) {
             oid_t itemId = ((oid_t*)db->get(pageId))[i];
-            while (itemId != 0) { 
+            while (itemId != 0) {
                 oid_t nextId = ((dbHashTableItem*)db->get(itemId))->next;
                 db->freeObject(itemId);
                 itemId = nextId;
@@ -400,9 +400,3 @@ void dbHashTable::drop(dbDatabase* db, oid_t hashId)
 }
 
 END_FASTDB_NAMESPACE
-
-
-
-
-
-

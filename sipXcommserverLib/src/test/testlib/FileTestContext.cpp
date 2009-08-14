@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -60,7 +60,7 @@ void FileTestContext::inputFile(const char* filename)
       CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(),
                                    OS_SUCCESS,OsFileSystem::createDir(workingDirPath,TRUE));
    }
-   
+
    UtlString msg;
    msg.append("FileTestContext::inputFile copy failed from '");
    msg.append(inputPath);
@@ -90,7 +90,7 @@ void FileTestContext::setSipxDir(DirectoryType dirType, const char* subDir)
       contextDir.append(subDir);
       contextDir.strip(UtlString::trailing, OsPath::separator(0));
    }
-   
+
    OsSysLog::add(FAC_UNIT_TEST, PRI_NOTICE, "FileTestContext::setSipxDir( '%s', '%s' )",
                  dirType, contextDir.data() );
    setenv(dirType, contextDir.data(), 1);
@@ -119,7 +119,7 @@ void FileTestContext::workingFileFromTemplate(
    inputFilePath(templateName, templatePath);
    OsPath input(templatePath);
    OsFile inputFile(input);
-   
+
    CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, inputFile.open(OsFile::READ_ONLY));
 
    // Create/open the registration DB file.
@@ -128,7 +128,7 @@ void FileTestContext::workingFileFromTemplate(
    OsPath working(workingPath);
    OsFile workingFile(working);
    CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, workingFile.open(OsFile::CREATE));
-         
+
    // Let the converter convert the files
    converter(&inputFile, &workingFile);
 
@@ -148,12 +148,12 @@ void FileTestContext::removeWorkingFile(const char* filename)
    workingFilePath(filename, working);
    OsPath workingPath(working);
    OsFile testFile(workingPath);
-   
+
    if (testFile.exists())
    {
       OsStatus removeStatus = OsFileSystem::remove( workingPath
                                                    ,TRUE // Recursive
-                                                   ,TRUE // Force                                                   
+                                                   ,TRUE // Force
                                                    );
       UtlString msg("failed to remove working file '");
       msg.append(working);
@@ -175,9 +175,9 @@ void FileTestContext::makeCleanWorkingDir()
                   "- the test working dir must be a new directory\n");
    message.append(mTestWorkingDir);
    message.append("\n  contains a Makefile, so it is not a good working directory");
-   
+
    CPPUNIT_ASSERT_MESSAGE(message.data(), ! OsFileSystem::exists(makefilePath));
-   
+
    OsPath         testWorkingDir(mTestWorkingDir);
 
    OsFileSystem::remove(testWorkingDir, TRUE /* Recursive */, TRUE /* Force */ );

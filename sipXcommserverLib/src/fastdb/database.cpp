@@ -28,7 +28,7 @@ BEGIN_FASTDB_NAMESPACE
 dbNullReference null;
 
 char const* const dbMetaTableName = "Metatable";
- 
+
 size_t dbDatabase::internalObjectSize[] = {
     0,
     dbPageSize,
@@ -45,8 +45,8 @@ int dbDatabase::getVersion()
     return header->getVersion();
 }
 
-FixedSizeAllocator::FixedSizeAllocator() 
-{ 
+FixedSizeAllocator::FixedSizeAllocator()
+{
     minSize = 0;
     maxSize = 0;
     bufSize = 0;
@@ -57,18 +57,18 @@ FixedSizeAllocator::FixedSizeAllocator()
     vacant = NULL;
 }
 
-FixedSizeAllocator::~FixedSizeAllocator() 
-{ 
+FixedSizeAllocator::~FixedSizeAllocator()
+{
     TRACE_MSG(("hits=%ld, faults=%ld, retries=%ld\n", (long)hits, (long)faults, (long)retries));
     delete[] chains;
     delete[] holes;
 }
 
-void FixedSizeAllocator::reset() 
+void FixedSizeAllocator::reset()
 {
     memset(chains, 0, sizeof(Hole*)*nChains);
-    if (bufSize > 0) { 
-        for (size_t i = 1; i < bufSize; i++) { 
+    if (bufSize > 0) {
+        for (size_t i = 1; i < bufSize; i++) {
             holes[i-1].next = &holes[i];
         }
         holes[bufSize-1].next = NULL;
@@ -80,8 +80,8 @@ void FixedSizeAllocator::reset()
     retries = 0;
 }
 
-void FixedSizeAllocator::init(size_t minSize, size_t maxSize, size_t quantum, size_t bufSize) 
-{ 
+void FixedSizeAllocator::init(size_t minSize, size_t maxSize, size_t quantum, size_t bufSize)
+{
     delete[] chains;
     delete[] holes;
     this->minSize = minSize;
@@ -97,15 +97,15 @@ void FixedSizeAllocator::init(size_t minSize, size_t maxSize, size_t quantum, si
 
 coord_t FASTDB_DLL_ENTRY distance(rectangle const& r, rectangle const& q)
 {
-    if (r & q) { 
+    if (r & q) {
         return 0;
     }
     coord_t d = 0;;
-    for (int i = 0; i < rectangle::dim; i++) { 
-        if (r.boundary[i] > q.boundary[rectangle::dim+i]) { 
+    for (int i = 0; i < rectangle::dim; i++) {
+        if (r.boundary[i] > q.boundary[rectangle::dim+i]) {
             coord_t di = r.boundary[i] - q.boundary[rectangle::dim+i];
             d += di*di;
-        } else if (q.boundary[i] > r.boundary[rectangle::dim+i]) { 
+        } else if (q.boundary[i] > r.boundary[rectangle::dim+i]) {
             coord_t di = q.boundary[i] - r.boundary[rectangle::dim+i];
             d += di*di;
         }
@@ -133,7 +133,7 @@ inline void concatenateStrings(dbInheritedAttribute&   iattr,
                                dbSynthesizedAttribute& sattr,
                                dbSynthesizedAttribute& sattr2)
 {
-    char* str = 
+    char* str =
         dbStringValue::create(sattr.array.size + sattr.array.size - 1, iattr);
     memcpy(str, sattr.array.base, sattr.array.size-1);
     memcpy(str + sattr.array.size - 1, sattr2.array.base, sattr2.array.size);
@@ -179,27 +179,27 @@ dbException::dbException(int p_err_code, char const* p_msg, int p_arg)
 : err_code (p_err_code),
   msg (NULL),
   arg (p_arg)
-{ 
-    if (p_msg != NULL) { 
-        msg = new char[strlen(p_msg)+1]; 
+{
+    if (p_msg != NULL) {
+        msg = new char[strlen(p_msg)+1];
         strcpy(msg, p_msg);
     }
 }
 
-dbException::dbException(dbException const& ex) 
-{ 
+dbException::dbException(dbException const& ex)
+{
     err_code = ex.err_code;
     arg = ex.arg;
-    if (ex.msg != NULL) { 
-        msg = new char[strlen(ex.msg)+1]; 
+    if (ex.msg != NULL) {
+        msg = new char[strlen(ex.msg)+1];
         strcpy(msg, ex.msg);
-    } else { 
+    } else {
         msg = NULL;
     }
-}  
+}
 
 dbException::~dbException() throw()
-{ 
+{
     delete[] msg;
 }
 
@@ -216,28 +216,28 @@ inline bool matchStrings(dbSynthesizedAttribute& sattr1,
 {
     char *str = sattr1.array.base;
     char *pattern = sattr2.array.base;
-    char *wildcard = NULL; 
+    char *wildcard = NULL;
     char *strpos = NULL;
-    while (true) { 
+    while (true) {
         int ch = GET_CHAR(*str);
-        if (*pattern == dbMatchAnySubstring) { 
+        if (*pattern == dbMatchAnySubstring) {
             wildcard = ++pattern;
             strpos = str;
-        } else if (ch == '\0') { 
+        } else if (ch == '\0') {
             return (*pattern == '\0');
-        } else if (*pattern == escapeChar && GET_CHAR(pattern[1]) == ch) { 
+        } else if (*pattern == escapeChar && GET_CHAR(pattern[1]) == ch) {
             str += 1;
             pattern += 2;
         } else if (*pattern != escapeChar
                    && (ch == GET_CHAR(*pattern)
                        || *pattern == dbMatchAnyOneChar))
-        { 
+        {
             str += 1;
             pattern += 1;
-        } else if (wildcard) { 
+        } else if (wildcard) {
             str = ++strpos;
             pattern = wildcard;
-        } else { 
+        } else {
             return false;
         }
     }
@@ -248,22 +248,22 @@ inline bool matchStrings(dbSynthesizedAttribute& sattr1,
 {
     char *str = sattr1.array.base;
     char *pattern = sattr2.array.base;
-    char *wildcard = NULL; 
+    char *wildcard = NULL;
     char *strpos = NULL;
-    while (true) { 
+    while (true) {
         int ch = GET_CHAR(*str);
-        if (*pattern == dbMatchAnySubstring) { 
+        if (*pattern == dbMatchAnySubstring) {
             wildcard = ++pattern;
             strpos = str;
-        } else if (ch == '\0') { 
+        } else if (ch == '\0') {
             return (*pattern == '\0');
         } else if (ch == GET_CHAR(*pattern) || *pattern == dbMatchAnyOneChar) {
             str += 1;
             pattern += 1;
-        } else if (wildcard) { 
+        } else if (wildcard) {
             str = ++strpos;
             pattern = wildcard;
-        } else { 
+        } else {
             return false;
         }
     }
@@ -271,39 +271,39 @@ inline bool matchStrings(dbSynthesizedAttribute& sattr1,
 
 
 inline void lowercaseString(dbInheritedAttribute&   iattr,
-                            dbSynthesizedAttribute& sattr) 
-{ 
+                            dbSynthesizedAttribute& sattr)
+{
     char *dst = dbStringValue::create(sattr.array.size, iattr);
     char *src = sattr.array.base;
     sattr.array.base = dst;
     while ((*dst++ = tolower(byte(*src++))) != '\0');
-}    
+}
 
 inline void uppercaseString(dbInheritedAttribute&   iattr,
-                            dbSynthesizedAttribute& sattr) 
-{ 
+                            dbSynthesizedAttribute& sattr)
+{
     char *dst = dbStringValue::create(sattr.array.size, iattr);
     char *src = sattr.array.base;
     sattr.array.base = dst;
     while ((*dst++ = toupper(byte(*src++))) != '\0');
-}    
+}
 
 inline void copyString(dbInheritedAttribute&   iattr,
-                       dbSynthesizedAttribute& sattr, char* str) 
-{ 
+                       dbSynthesizedAttribute& sattr, char* str)
+{
     sattr.array.base = dbStringValue::create(str, iattr);
     sattr.array.size = strlen(str) + 1;
     delete[] str;
-}    
+}
 
-inline void searchArrayOfBool(dbSynthesizedAttribute& sattr, 
+inline void searchArrayOfBool(dbSynthesizedAttribute& sattr,
                               dbSynthesizedAttribute& sattr2)
 {
     bool *p = (bool*)sattr2.array.base;
     int   n = sattr2.array.size;
     bool  v = (bool)sattr.bvalue;
-    while (--n >= 0) { 
-        if (v == *p++) { 
+    while (--n >= 0) {
+        if (v == *p++) {
             sattr.bvalue = true;
             return;
         }
@@ -311,14 +311,14 @@ inline void searchArrayOfBool(dbSynthesizedAttribute& sattr,
     sattr.bvalue = false;
 }
 
-inline void searchArrayOfInt1(dbSynthesizedAttribute& sattr, 
+inline void searchArrayOfInt1(dbSynthesizedAttribute& sattr,
                               dbSynthesizedAttribute& sattr2)
 {
     int1 *p = (int1*)sattr2.array.base;
     int   n = sattr2.array.size;
     int1  v = (int1)sattr.ivalue;
-    while (--n >= 0) { 
-        if (v == *p++) { 
+    while (--n >= 0) {
+        if (v == *p++) {
             sattr.bvalue = true;
             return;
         }
@@ -326,14 +326,14 @@ inline void searchArrayOfInt1(dbSynthesizedAttribute& sattr,
     sattr.bvalue = false;
 }
 
-inline void searchArrayOfInt2(dbSynthesizedAttribute& sattr, 
+inline void searchArrayOfInt2(dbSynthesizedAttribute& sattr,
                               dbSynthesizedAttribute& sattr2)
 {
     int2 *p = (int2*)sattr2.array.base;
     int   n = sattr2.array.size;
     int2  v = (int2)sattr.ivalue;
-    while (--n >= 0) { 
-        if (v == *p++) { 
+    while (--n >= 0) {
+        if (v == *p++) {
             sattr.bvalue = true;
             return;
         }
@@ -341,14 +341,14 @@ inline void searchArrayOfInt2(dbSynthesizedAttribute& sattr,
     sattr.bvalue = false;
 }
 
-inline void searchArrayOfInt4(dbSynthesizedAttribute& sattr, 
+inline void searchArrayOfInt4(dbSynthesizedAttribute& sattr,
                               dbSynthesizedAttribute& sattr2)
 {
     int4 *p = (int4*)sattr2.array.base;
     int   n = sattr2.array.size;
     int4  v = (int4)sattr.ivalue;
-    while (--n >= 0) { 
-        if (v == *p++) { 
+    while (--n >= 0) {
+        if (v == *p++) {
             sattr.bvalue = true;
             return;
         }
@@ -356,14 +356,14 @@ inline void searchArrayOfInt4(dbSynthesizedAttribute& sattr,
     sattr.bvalue = false;
 }
 
-inline void searchArrayOfInt8(dbSynthesizedAttribute& sattr, 
+inline void searchArrayOfInt8(dbSynthesizedAttribute& sattr,
                               dbSynthesizedAttribute& sattr2)
 {
     db_int8 *p = (db_int8*)sattr2.array.base;
     int   n = sattr2.array.size;
     db_int8  v = sattr.ivalue;
-    while (--n >= 0) { 
-        if (v == *p) { 
+    while (--n >= 0) {
+        if (v == *p) {
             sattr.bvalue = true;
             return;
         }
@@ -372,14 +372,14 @@ inline void searchArrayOfInt8(dbSynthesizedAttribute& sattr,
     sattr.bvalue = false;
 }
 
-inline void searchArrayOfReal4(dbSynthesizedAttribute& sattr, 
+inline void searchArrayOfReal4(dbSynthesizedAttribute& sattr,
                               dbSynthesizedAttribute& sattr2)
 {
     real4* p = (real4*)sattr2.array.base;
     int    n = sattr2.array.size;
     real4  v = (real4)sattr.fvalue;
-    while (--n >= 0) { 
-        if (v == *p++) { 
+    while (--n >= 0) {
+        if (v == *p++) {
             sattr.bvalue = true;
             return;
         }
@@ -387,14 +387,14 @@ inline void searchArrayOfReal4(dbSynthesizedAttribute& sattr,
     sattr.bvalue = false;
 }
 
-inline void searchArrayOfReal8(dbSynthesizedAttribute& sattr, 
+inline void searchArrayOfReal8(dbSynthesizedAttribute& sattr,
                                dbSynthesizedAttribute& sattr2)
 {
     real8 *p = (real8*)sattr2.array.base;
     int    n = sattr2.array.size;
     real8  v = sattr.fvalue;
-    while (--n >= 0) { 
-        if (v == *p) { 
+    while (--n >= 0) {
+        if (v == *p) {
             sattr.bvalue = true;
             return;
         }
@@ -403,14 +403,14 @@ inline void searchArrayOfReal8(dbSynthesizedAttribute& sattr,
     sattr.bvalue = false;
 }
 
-inline void searchArrayOfReference(dbSynthesizedAttribute& sattr, 
+inline void searchArrayOfReference(dbSynthesizedAttribute& sattr,
                                    dbSynthesizedAttribute& sattr2)
 {
     oid_t *p = (oid_t*)sattr2.array.base;
     int    n = sattr2.array.size;
     oid_t  v = sattr.oid;
-    while (--n >= 0) { 
-        if (v == *p) { 
+    while (--n >= 0) {
+        if (v == *p) {
             sattr.bvalue = true;
             return;
         }
@@ -436,15 +436,15 @@ inline void searchArrayOfRectangle(dbInheritedAttribute&   iattr,
     }
 }
 
-inline void searchArrayOfString(dbSynthesizedAttribute& sattr, 
+inline void searchArrayOfString(dbSynthesizedAttribute& sattr,
                                 dbSynthesizedAttribute& sattr2)
 {
     dbVarying *p = (dbVarying*)sattr2.array.base;
     int        n = sattr2.array.size;
     char*      str = sattr.array.base;
-    char*      base = (char*)sattr2.base; 
-    while (--n >= 0) { 
-        if (strcmp(base + p->offs, str) == 0) { 
+    char*      base = (char*)sattr2.base;
+    while (--n >= 0) {
+        if (strcmp(base + p->offs, str) == 0) {
             sattr.bvalue = true;
             return;
         }
@@ -453,42 +453,42 @@ inline void searchArrayOfString(dbSynthesizedAttribute& sattr,
     sattr.bvalue = false;
 }
 
-inline void searchInString(dbSynthesizedAttribute& sattr, 
+inline void searchInString(dbSynthesizedAttribute& sattr,
                            dbSynthesizedAttribute& sattr2)
 {
-    if (sattr.array.size > sattr2.array.size) { 
+    if (sattr.array.size > sattr2.array.size) {
         sattr.bvalue = false;
-    } else if (sattr2.array.size > dbBMsearchThreshold) { 
+    } else if (sattr2.array.size > dbBMsearchThreshold) {
         int len = sattr.array.size - 2;
         int n = sattr2.array.size - 1;
         int i, j, k;
         int shift[256];
         byte* pattern = (byte*)sattr.array.base;
         byte* str = (byte*)sattr2.array.base;
-        for (i = 0; i < (int)itemsof(shift); i++) { 
+        for (i = 0; i < (int)itemsof(shift); i++) {
             shift[i] = len+1;
         }
-        for (i = 0; i < len; i++) { 
+        for (i = 0; i < len; i++) {
             shift[pattern[i]] = len-i;
         }
-        for (i = len; i < n; i += shift[str[i]]) { 
+        for (i = len; i < n; i += shift[str[i]]) {
             j = len;
             k = i;
-            while (pattern[j] == str[k]) { 
+            while (pattern[j] == str[k]) {
                 k -= 1;
-                if (--j < 0) { 
+                if (--j < 0) {
                     sattr.bvalue = true;
                     return;
                 }
             }
         }
         sattr.bvalue = false;
-    } else { 
+    } else {
         sattr.bvalue = strstr(sattr2.array.base, sattr.array.base) != NULL;
     }
 }
 
-inline db_int8 powerIntInt(db_int8 x, db_int8 y) 
+inline db_int8 powerIntInt(db_int8 x, db_int8 y)
 {
     db_int8 res = 1;
 
@@ -497,16 +497,16 @@ inline db_int8 powerIntInt(db_int8 x, db_int8 y)
         y = -y;
     }
     while (y != 0) {
-        if (y & 1) { 
+        if (y & 1) {
             res *= x;
         }
         x *= x;
         y >>= 1;
     }
-    return res;    
+    return res;
 }
 
-inline real8 powerRealInt(real8 x, db_int8 y) 
+inline real8 powerRealInt(real8 x, db_int8 y)
 {
     real8 res = 1.0;
 
@@ -515,13 +515,13 @@ inline real8 powerRealInt(real8 x, db_int8 y)
         y = -y;
     }
     while (y != 0) {
-        if (y & 1) { 
+        if (y & 1) {
             res *= x;
         }
         x *= x;
         y >>= 1;
     }
-    return res;    
+    return res;
 }
 
 bool dbDatabase::evaluate(dbExprNode* expr, oid_t oid, dbTable* table, dbAnyCursor* cursor)
@@ -531,14 +531,14 @@ bool dbDatabase::evaluate(dbExprNode* expr, oid_t oid, dbTable* table, dbAnyCurs
     iattr.db = this;
     iattr.oid = oid;
     iattr.table = table;
-    iattr.record = (byte*)getRow(oid);    
+    iattr.record = (byte*)getRow(oid);
     iattr.paramBase = (size_t)cursor->paramBase;
     execute(expr, iattr, sattr);
     return sattr.bvalue != 0;
 }
 
-void _fastcall dbDatabase::execute(dbExprNode*             expr, 
-                                   dbInheritedAttribute&   iattr, 
+void _fastcall dbDatabase::execute(dbExprNode*             expr,
+                                   dbInheritedAttribute&   iattr,
                                    dbSynthesizedAttribute& sattr)
 {
     dbSynthesizedAttribute sattr2, sattr3;
@@ -595,7 +595,7 @@ void _fastcall dbDatabase::execute(dbExprNode*             expr,
       case dbvmLoadArray:
       case dbvmLoadString:
         execute(expr->operand[0], iattr, sattr2);
-        sattr.array.base = (char*)sattr2.base 
+        sattr.array.base = (char*)sattr2.base
             + ((dbVarying*)(sattr2.base + expr->offs))->offs;
         sattr.array.size = ((dbVarying*)(sattr2.base + expr->offs))->size;
         return;
@@ -633,7 +633,7 @@ void _fastcall dbDatabase::execute(dbExprNode*             expr,
         return;
       case dbvmLoadSelfArray:
       case dbvmLoadSelfString:
-        sattr.array.base = (char*)iattr.record + 
+        sattr.array.base = (char*)iattr.record +
             ((dbVarying*)(iattr.record + expr->offs))->offs;
         sattr.array.size = ((dbVarying*)(iattr.record + expr->offs))->size;
         return;
@@ -667,7 +667,7 @@ void _fastcall dbDatabase::execute(dbExprNode*             expr,
         return;
       case dbvmInvokeMethodReal4:
         execute(expr->ref.base, iattr, sattr);
-        expr->ref.field->method->invoke(sattr.base, &sattr.fvalue); 
+        expr->ref.field->method->invoke(sattr.base, &sattr.fvalue);
         sattr.fvalue = *(real4*)&sattr.fvalue;
         return;
       case dbvmInvokeMethodReal8:
@@ -706,7 +706,7 @@ void _fastcall dbDatabase::execute(dbExprNode*             expr,
         expr->ref.field->method->invoke(iattr.record, &sattr.ivalue);
         return;
       case dbvmInvokeSelfMethodReal4:
-        expr->ref.field->method->invoke(iattr.record, &sattr.fvalue); 
+        expr->ref.field->method->invoke(iattr.record, &sattr.fvalue);
         sattr.fvalue = *(real4*)&sattr.fvalue;
         return;
       case dbvmInvokeSelfMethodReal8:
@@ -734,12 +734,12 @@ void _fastcall dbDatabase::execute(dbExprNode*             expr,
       case dbvmGetAt:
         execute(expr->operand[0], iattr, sattr);
         execute(expr->operand[1], iattr, sattr2);
-        if ((nat8)sattr2.ivalue >= (nat8)sattr.array.size) { 
-            if (expr->operand[1]->cop == dbvmVariable) { 
+        if ((nat8)sattr2.ivalue >= (nat8)sattr.array.size) {
+            if (expr->operand[1]->cop == dbvmVariable) {
                 longjmp(iattr.exists_iterator[expr->operand[1]->offs].unwind, 1);
             }
             iattr.removeTemporaries();
-            iattr.db->handleError(IndexOutOfRangeError, NULL, 
+            iattr.db->handleError(IndexOutOfRangeError, NULL,
                                   int(sattr2.ivalue));
         }
         sattr.base = (byte*)sattr.array.base + int(sattr2.ivalue)*expr->offs;
@@ -760,12 +760,12 @@ void _fastcall dbDatabase::execute(dbExprNode*             expr,
       case dbvmCharAt:
         execute(expr->operand[0], iattr, sattr);
         execute(expr->operand[1], iattr, sattr2);
-        if ((nat8)sattr2.ivalue >= (nat8)(sattr.array.size-1)) { 
-            if (expr->operand[1]->cop == dbvmVariable) { 
+        if ((nat8)sattr2.ivalue >= (nat8)(sattr.array.size-1)) {
+            if (expr->operand[1]->cop == dbvmVariable) {
                 longjmp(iattr.exists_iterator[expr->operand[1]->offs].unwind, 1);
             }
             iattr.removeTemporaries();
-            iattr.db->handleError(IndexOutOfRangeError, NULL, 
+            iattr.db->handleError(IndexOutOfRangeError, NULL,
                                   int(sattr2.ivalue));
         }
         sattr.ivalue = (byte)sattr.array.base[int(sattr2.ivalue)];
@@ -773,8 +773,8 @@ void _fastcall dbDatabase::execute(dbExprNode*             expr,
 
       case dbvmExists:
         iattr.exists_iterator[expr->offs].index = 0;
-        if (setjmp(iattr.exists_iterator[expr->offs].unwind) == 0) { 
-            do { 
+        if (setjmp(iattr.exists_iterator[expr->offs].unwind) == 0) {
+            do {
                 execute(expr->operand[0], iattr, sattr);
                 iattr.exists_iterator[expr->offs].index += 1;
             } while (!sattr.bvalue);
@@ -870,22 +870,22 @@ void _fastcall dbDatabase::execute(dbExprNode*             expr,
         sattr.array.base = expr->svalue.str;
         sattr.array.size = expr->svalue.len;
         return;
-    
+
       case dbvmOrBool:
         execute(expr->operand[0], iattr, sattr);
-        if (sattr.bvalue == 0) { 
+        if (sattr.bvalue == 0) {
             execute(expr->operand[1], iattr, sattr);
         }
         return;
       case dbvmAndBool:
         execute(expr->operand[0], iattr, sattr);
-        if (sattr.bvalue != 0) { 
+        if (sattr.bvalue != 0) {
             execute(expr->operand[1], iattr, sattr);
         }
         return;
       case dbvmNotBool:
         execute(expr->operand[0], iattr, sattr);
-        sattr.bvalue = !sattr.bvalue; 
+        sattr.bvalue = !sattr.bvalue;
         return;
 
       case dbvmIsNull:
@@ -921,10 +921,10 @@ void _fastcall dbDatabase::execute(dbExprNode*             expr,
       case dbvmDivInt:
         execute(expr->operand[0], iattr, sattr);
         execute(expr->operand[1], iattr, sattr2);
-        if (sattr2.ivalue == 0) { 
+        if (sattr2.ivalue == 0) {
             iattr.removeTemporaries();
             iattr.db->handleError(ArithmeticError, "Division by zero");
-        } else { 
+        } else {
             sattr.ivalue /= sattr2.ivalue;
         }
         return;
@@ -944,26 +944,26 @@ void _fastcall dbDatabase::execute(dbExprNode*             expr,
         return;
       case dbvmAbsInt:
         execute(expr->operand[0], iattr, sattr);
-        if (sattr.ivalue < 0) { 
+        if (sattr.ivalue < 0) {
             sattr.ivalue = -sattr.ivalue;
         }
         return;
       case dbvmPowerInt:
         execute(expr->operand[0], iattr, sattr);
         execute(expr->operand[1], iattr, sattr2);
-        if (sattr.ivalue == 2) { 
-            sattr.ivalue = sattr2.ivalue < 64 
+        if (sattr.ivalue == 2) {
+            sattr.ivalue = sattr2.ivalue < 64
                 ? (nat8)1 << (int)sattr2.ivalue : 0;
-        } else if (sattr.ivalue == 0 && sattr2.ivalue < 0) { 
+        } else if (sattr.ivalue == 0 && sattr2.ivalue < 0) {
             iattr.removeTemporaries();
-            iattr.db->handleError(ArithmeticError, 
-                                  "Raise zero to negative power");          
-        } else { 
+            iattr.db->handleError(ArithmeticError,
+                                  "Raise zero to negative power");
+        } else {
             sattr.ivalue = powerIntInt(sattr.ivalue, sattr2.ivalue);
         }
         return;
 
-        
+
       case dbvmEqInt:
         execute(expr->operand[0], iattr, sattr);
         execute(expr->operand[1], iattr, sattr2);
@@ -997,9 +997,9 @@ void _fastcall dbDatabase::execute(dbExprNode*             expr,
       case dbvmBetweenInt:
         execute(expr->operand[0], iattr, sattr);
         execute(expr->operand[1], iattr, sattr2);
-        if (sattr.ivalue < sattr2.ivalue) { 
+        if (sattr.ivalue < sattr2.ivalue) {
             sattr.bvalue = false;
-        } else { 
+        } else {
             execute(expr->operand[2], iattr, sattr2);
             sattr.bvalue = sattr.ivalue <= sattr2.ivalue;
         }
@@ -1078,33 +1078,33 @@ void _fastcall dbDatabase::execute(dbExprNode*             expr,
         return;
       case dbvmAbsReal:
         execute(expr->operand[0], iattr, sattr);
-        if (sattr.fvalue < 0) { 
+        if (sattr.fvalue < 0) {
             sattr.fvalue = -sattr.fvalue;
         }
         return;
       case dbvmPowerReal:
         execute(expr->operand[0], iattr, sattr);
         execute(expr->operand[1], iattr, sattr2);
-        if (sattr.fvalue < 0) { 
+        if (sattr.fvalue < 0) {
             iattr.removeTemporaries();
-            iattr.db->handleError(ArithmeticError, 
+            iattr.db->handleError(ArithmeticError,
                                   "Power operator returns complex result");
-        } else if (sattr.fvalue == 0.0 && sattr2.fvalue < 0) { 
+        } else if (sattr.fvalue == 0.0 && sattr2.fvalue < 0) {
             iattr.removeTemporaries();
-            iattr.db->handleError(ArithmeticError, 
-                                  "Raise zero to negative power");          
-        } else { 
+            iattr.db->handleError(ArithmeticError,
+                                  "Raise zero to negative power");
+        } else {
             sattr.fvalue = pow(sattr.fvalue, sattr2.fvalue);
         }
         return;
       case dbvmPowerRealInt:
         execute(expr->operand[0], iattr, sattr);
         execute(expr->operand[1], iattr, sattr2);
-        if (sattr.fvalue == 0.0 && sattr2.ivalue < 0) { 
+        if (sattr.fvalue == 0.0 && sattr2.ivalue < 0) {
             iattr.removeTemporaries();
-            iattr.db->handleError(ArithmeticError, 
-                                  "Raise zero to negative power");          
-        } else { 
+            iattr.db->handleError(ArithmeticError,
+                                  "Raise zero to negative power");
+        } else {
             sattr.fvalue = powerRealInt(sattr.fvalue, sattr2.ivalue);
         }
         return;
@@ -1142,9 +1142,9 @@ void _fastcall dbDatabase::execute(dbExprNode*             expr,
       case dbvmBetweenReal:
         execute(expr->operand[0], iattr, sattr);
         execute(expr->operand[1], iattr, sattr2);
-        if (sattr.fvalue < sattr2.fvalue) { 
+        if (sattr.fvalue < sattr2.fvalue) {
             sattr.bvalue = false;
-        } else { 
+        } else {
             execute(expr->operand[2], iattr, sattr2);
             sattr.bvalue = sattr.fvalue <= sattr2.fvalue;
         }
@@ -1277,9 +1277,9 @@ void _fastcall dbDatabase::execute(dbExprNode*             expr,
       case dbvmBetweenString:
         execute(expr->operand[0], iattr, sattr);
         execute(expr->operand[1], iattr, sattr2);
-        if (compareStrings(sattr, sattr2) < 0) { 
+        if (compareStrings(sattr, sattr2) < 0) {
             sattr.bvalue = false;
-        } else { 
+        } else {
             execute(expr->operand[2], iattr, sattr2);
             sattr.bvalue = compareStrings(sattr, sattr2) <= 0;
         }
@@ -1309,11 +1309,11 @@ void _fastcall dbDatabase::execute(dbExprNode*             expr,
 
       case dbvmDeref:
         execute(expr->operand[0], iattr, sattr);
-        if (sattr.oid == 0) { 
+        if (sattr.oid == 0) {
             iattr.removeTemporaries();
             iattr.db->handleError(NullReferenceError);
         }
-        assert(!(iattr.db->currIndex[sattr.oid] 
+        assert(!(iattr.db->currIndex[sattr.oid]
                  & (dbInternalObjectMarker|dbFreeHandleMarker)));
         sattr.base = iattr.db->baseAddr + iattr.db->currIndex[sattr.oid];
         return;
@@ -1331,27 +1331,27 @@ void _fastcall dbDatabase::execute(dbExprNode*             expr,
             (dbUserFunctionArgument(expr, iattr, sattr, 0));
         return;
       case dbvmFuncArg2Str:
-        copyString(iattr, sattr, 
+        copyString(iattr, sattr,
                    (*(char*(*)(dbUserFunctionArgument const&))expr->func.fptr)
                    (dbUserFunctionArgument(expr, iattr, sattr, 0)));
         return;
       case dbvmFuncArgArg2Bool:
         sattr.bvalue = (*(bool(*)(dbUserFunctionArgument const&, dbUserFunctionArgument const&))expr->func.fptr)
-            (dbUserFunctionArgument(expr, iattr, sattr, 0), 
+            (dbUserFunctionArgument(expr, iattr, sattr, 0),
              dbUserFunctionArgument(expr, iattr, sattr, 1));
         return;
       case dbvmFuncArgArg2Int:
         sattr.ivalue = (*(db_int8(*)(dbUserFunctionArgument const&, dbUserFunctionArgument const&))expr->func.fptr)
-            (dbUserFunctionArgument(expr, iattr, sattr, 0), 
+            (dbUserFunctionArgument(expr, iattr, sattr, 0),
              dbUserFunctionArgument(expr, iattr, sattr, 1));
         return;
       case dbvmFuncArgArg2Real:
         sattr.fvalue = (*(real8(*)(dbUserFunctionArgument const&, dbUserFunctionArgument const&))expr->func.fptr)
-            (dbUserFunctionArgument(expr, iattr, sattr, 0), 
+            (dbUserFunctionArgument(expr, iattr, sattr, 0),
              dbUserFunctionArgument(expr, iattr, sattr, 1));
         return;
       case dbvmFuncArgArg2Str:
-        copyString(iattr, sattr, 
+        copyString(iattr, sattr,
                    (*(char*(*)(dbUserFunctionArgument const&, dbUserFunctionArgument const&))expr->func.fptr)
                    (dbUserFunctionArgument(expr, iattr, sattr, 0),
                     dbUserFunctionArgument(expr, iattr, sattr, 1)));
@@ -1359,26 +1359,26 @@ void _fastcall dbDatabase::execute(dbExprNode*             expr,
       case dbvmFuncArgArgArg2Bool:
         sattr.bvalue = (*(bool(*)(dbUserFunctionArgument const&, dbUserFunctionArgument const&, dbUserFunctionArgument const&))expr->func.fptr)
             (dbUserFunctionArgument(expr, iattr, sattr, 0),
-             dbUserFunctionArgument(expr, iattr, sattr, 1), 
+             dbUserFunctionArgument(expr, iattr, sattr, 1),
              dbUserFunctionArgument(expr, iattr, sattr, 2));
         return;
       case dbvmFuncArgArgArg2Int:
         sattr.ivalue = (*(db_int8(*)(dbUserFunctionArgument const&, dbUserFunctionArgument const&, dbUserFunctionArgument const&))expr->func.fptr)
-            (dbUserFunctionArgument(expr, iattr, sattr, 0), 
-             dbUserFunctionArgument(expr, iattr, sattr, 1), 
+            (dbUserFunctionArgument(expr, iattr, sattr, 0),
+             dbUserFunctionArgument(expr, iattr, sattr, 1),
              dbUserFunctionArgument(expr, iattr, sattr, 2));
         return;
       case dbvmFuncArgArgArg2Real:
         sattr.fvalue = (*(real8(*)(dbUserFunctionArgument const&, dbUserFunctionArgument const&, dbUserFunctionArgument const&))expr->func.fptr)
-            (dbUserFunctionArgument(expr, iattr, sattr, 0), 
+            (dbUserFunctionArgument(expr, iattr, sattr, 0),
              dbUserFunctionArgument(expr, iattr, sattr, 1),
              dbUserFunctionArgument(expr, iattr, sattr, 2));
         return;
       case dbvmFuncArgArgArg2Str:
-        copyString(iattr, sattr, 
+        copyString(iattr, sattr,
                    (*(char*(*)(dbUserFunctionArgument const&, dbUserFunctionArgument const&, dbUserFunctionArgument const&))expr->func.fptr)
-                   (dbUserFunctionArgument(expr, iattr, sattr, 0), 
-                    dbUserFunctionArgument(expr, iattr, sattr, 1), 
+                   (dbUserFunctionArgument(expr, iattr, sattr, 0),
+                    dbUserFunctionArgument(expr, iattr, sattr, 1),
                     dbUserFunctionArgument(expr, iattr, sattr, 2)));
         return;
 
@@ -1394,7 +1394,7 @@ void _fastcall dbDatabase::execute(dbExprNode*             expr,
         return;
       case dbvmFuncStr2Bool:
         execute(expr->func.arg[0], iattr, sattr);
-        sattr.bvalue = 
+        sattr.bvalue =
             (*(bool(*)(char const*))expr->func.fptr)(sattr.array.base);
         return;
       case dbvmFuncInt2Int:
@@ -1407,7 +1407,7 @@ void _fastcall dbDatabase::execute(dbExprNode*             expr,
         return;
       case dbvmFuncStr2Int:
         execute(expr->func.arg[0], iattr, sattr);
-        sattr.ivalue = 
+        sattr.ivalue =
             (*(db_int8(*)(char const*))expr->func.fptr)(sattr.array.base);
         return;
       case dbvmFuncInt2Real:
@@ -1420,22 +1420,22 @@ void _fastcall dbDatabase::execute(dbExprNode*             expr,
         return;
       case dbvmFuncStr2Real:
         execute(expr->func.arg[0], iattr, sattr);
-        sattr.fvalue = 
+        sattr.fvalue =
             (*(real8(*)(char const*))expr->func.fptr)(sattr.array.base);
         return;
       case dbvmFuncInt2Str:
         execute(expr->func.arg[0], iattr, sattr);
-        copyString(iattr, sattr, 
+        copyString(iattr, sattr,
                    (*(char*(*)(db_int8))expr->func.fptr)(sattr.ivalue));
         return;
       case dbvmFuncReal2Str:
         execute(expr->func.arg[0], iattr, sattr);
-        copyString(iattr, sattr, 
+        copyString(iattr, sattr,
                    (*(char*(*)(real8))expr->func.fptr)(sattr.fvalue));
         return;
       case dbvmFuncStr2Str:
         execute(expr->func.arg[0], iattr, sattr);
-        copyString(iattr, sattr, 
+        copyString(iattr, sattr,
                   (*(char*(*)(char const*))expr->func.fptr)(sattr.array.base));
         return;
 
@@ -1502,7 +1502,7 @@ void _fastcall dbDatabase::execute(dbExprNode*             expr,
 
 char const* const dbDatabase::errorMessage[] =
 {
-    "No error", 
+    "No error",
     "Query syntax error",
     "Arithmetic exception",
     "Index out of range",
@@ -1519,23 +1519,23 @@ char const* const dbDatabase::errorMessage[] =
 
 void dbDatabase::handleError(dbErrorClass error, char const* msg, int arg)
 {
-    if (errorHandler != NULL) { 
+    if (errorHandler != NULL) {
         (*errorHandler)(error, msg, arg, errorHandlerContext);
     }
 #ifdef THROW_EXCEPTION_ON_ERROR
     if (error != NoError) {
-        if (msg == NULL) { 
+        if (msg == NULL) {
             msg = errorMessage[error];
         }
         if (error == DatabaseOpenError) {
             OsSysLog::add(FAC_DB, PRI_ERR, "%s", msg);
-        } else { 
+        } else {
             throw dbException(error, msg, arg);
         }
     }
 #else
     char buf[256];
-    switch (error) { 
+    switch (error) {
       case QueryError:
         OsSysLog::add(FAC_DB, PRI_ERR, "%s in position %d", msg, arg);
         return;
@@ -1549,7 +1549,7 @@ void dbDatabase::handleError(dbErrorClass error, char const* msg, int arg)
         OsSysLog::add(FAC_DB, PRI_ERR, "%s", msg);
         return;
       case FileError:
-        OsSysLog::add(FAC_DB, PRI_ERR, "%s: %s", msg, 
+        OsSysLog::add(FAC_DB, PRI_ERR, "%s: %s", msg,
                 dbFile::errorText(arg, buf, sizeof(buf)));
         break;
       case OutOfMemoryError:
@@ -1563,7 +1563,7 @@ void dbDatabase::handleError(dbErrorClass error, char const* msg, int arg)
         break;
       case LockRevoked:
         OsSysLog::add(FAC_DB, PRI_ERR, "Lock is revoked by some other client");
-        break;  
+        break;
       case InconsistentInverseReference:
         OsSysLog::add(FAC_DB, PRI_ERR, "%s", msg);
         return;
@@ -1572,7 +1572,7 @@ void dbDatabase::handleError(dbErrorClass error, char const* msg, int arg)
         break;
       default:
         return;
-    }   
+    }
     abort();
 #endif
 }
@@ -1584,30 +1584,30 @@ bool dbDatabase::isReplicated()
 
 void dbDatabase::initializeMetaTable()
 {
-    static struct { 
+    static struct {
         char const* name;
         int         type;
         int         size;
         int         offs;
-    } metaTableFields[] = { 
-        { "name", dbField::tpString, sizeof(dbVarying), 
+    } metaTableFields[] = {
+        { "name", dbField::tpString, sizeof(dbVarying),
           offsetof(dbTable, name)},
-        { "fields", dbField::tpArray, sizeof(dbVarying), 
+        { "fields", dbField::tpArray, sizeof(dbVarying),
           offsetof(dbTable, fields)},
         { "fields[]", dbField::tpStructure, sizeof(dbField), 0},
-        { "fields[].name", dbField::tpString, sizeof(dbVarying), 
+        { "fields[].name", dbField::tpString, sizeof(dbVarying),
           offsetof(dbField, name)},
-        { "fields[].tableName",dbField::tpString,sizeof(dbVarying), 
+        { "fields[].tableName",dbField::tpString,sizeof(dbVarying),
           offsetof(dbField, tableName)},
-        { "fields[].inverse", dbField::tpString, sizeof(dbVarying), 
+        { "fields[].inverse", dbField::tpString, sizeof(dbVarying),
           offsetof(dbField, inverse)},
 //        { "fields[].type", dbField::tpInt4, 4, offsetof(dbField, type)},
         { "fields[].type", dbField::tpInt4, 4, offsetof(dbField, offset)-4},
         { "fields[].offset", dbField::tpInt4, 4, offsetof(dbField, offset)},
         { "fields[].size", dbField::tpInt4, 4, offsetof(dbField, size)},
-        { "fields[].hashTable", dbField::tpReference, sizeof(oid_t), 
+        { "fields[].hashTable", dbField::tpReference, sizeof(oid_t),
           offsetof(dbField, hashTable)},
-        { "fields[].tTree", dbField::tpReference, sizeof(oid_t), 
+        { "fields[].tTree", dbField::tpReference, sizeof(oid_t),
           offsetof(dbField, tTree)},
         { "fixedSize", dbField::tpInt4, 4, offsetof(dbTable, fixedSize)},
         { "nRows", dbField::tpInt4, 4, offsetof(dbTable, nRows)},
@@ -1621,9 +1621,9 @@ void dbDatabase::initializeMetaTable()
 
     unsigned i;
     size_t varyingSize = strlen(dbMetaTableName)+1;
-    for (i = 0; i < itemsof(metaTableFields); i++) { 
+    for (i = 0; i < itemsof(metaTableFields); i++) {
         varyingSize += strlen(metaTableFields[i].name) + 3;
-        
+
     }
     offs_t metaTableOffs = allocate(sizeof(dbTable)
                                     + sizeof(dbField)*itemsof(metaTableFields)
@@ -1651,7 +1651,7 @@ void dbDatabase::initializeMetaTable()
 
     dbField* field = (dbField*)((char*)table + table->fields.offs);
     offs -= sizeof(dbTable);
-    for (i = 0; i < itemsof(metaTableFields); i++) { 
+    for (i = 0; i < itemsof(metaTableFields); i++) {
         field->name.offs = offs;
         field->name.size = strlen(metaTableFields[i].name) + 1;
         strcpy((char*)field + offs, metaTableFields[i].name);
@@ -1660,11 +1660,11 @@ void dbDatabase::initializeMetaTable()
         field->tableName.offs = offs;
         field->tableName.size = 1;
         *((char*)field + offs++) = '\0';
-        
+
         field->inverse.offs = offs;
         field->inverse.size = 1;
         *((char*)field + offs++) = '\0';
-        
+
         field->flags = 0;
         field->type = metaTableFields[i].type;
         field->size = metaTableFields[i].size;
@@ -1676,21 +1676,21 @@ void dbDatabase::initializeMetaTable()
     }
 }
 
-void dbDatabase::cleanup(dbInitializationMutex::initializationStatus status, int step) 
+void dbDatabase::cleanup(dbInitializationMutex::initializationStatus status, int step)
 {
-    switch (step) { 
+    switch (step) {
       case 9:
-        if (status == dbInitializationMutex::NotYetInitialized) {         
+        if (status == dbInitializationMutex::NotYetInitialized) {
             file.close();
         }
         // no break
       case 8:
-        if (accessType == dbConcurrentUpdate || accessType == dbConcurrentRead) { 
+        if (accessType == dbConcurrentUpdate || accessType == dbConcurrentRead) {
             mutatorCS.close();
         }
         // no break
       case 7:
-        if (delayedCommitEventsOpened) { 
+        if (delayedCommitEventsOpened) {
             delayedCommitStopTimerEvent.close();
             delayedCommitStartTimerEvent.close();
             commitThreadSyncEvent.close();
@@ -1716,7 +1716,7 @@ void dbDatabase::cleanup(dbInitializationMutex::initializationStatus status, int
         shm.close();
         // no break
       default:
-        if (status == dbInitializationMutex::NotYetInitialized) {         
+        if (status == dbInitializationMutex::NotYetInitialized) {
             initMutex.done();
         }
         initMutex.close();
@@ -1727,7 +1727,7 @@ bool dbDatabase::open(OpenParameters& params)
 {
     accessType = params.accessType;
     extensionQuantum = params.extensionQuantum;
-    initIndexSize = params.initIndexSize; 
+    initIndexSize = params.initIndexSize;
     initSize = params.initSize;
     freeSpaceReuseThreshold = params.freeSpaceReuseThreshold;
     parallelScanThreshold = params.parallelScanThreshold;
@@ -1735,7 +1735,7 @@ bool dbDatabase::open(OpenParameters& params)
     return open(params.databaseName, params.databaseFilePath, params.waitLockTimeoutMsec, params.transactionCommitDelay);
 }
 
-bool dbDatabase::open(char const* dbName, char const* fiName, 
+bool dbDatabase::open(char const* dbName, char const* fiName,
                       time_t waitLockTimeoutMsec, time_t commitDelaySec)
 {
     waitLockTimeout = (unsigned)waitLockTimeoutMsec;
@@ -1753,27 +1753,27 @@ bool dbDatabase::open(char const* dbName, char const* fiName,
     char* name = new char[databaseNameLen+16];
     sprintf(name, "%s.in", dbName);
     databaseName = name;
-    if (fiName == NULL) { 
+    if (fiName == NULL) {
         fileName = new char[databaseNameLen + 5];
         sprintf(fileName, "%s.fdb", dbName);
-    } else { 
+    } else {
         fileName = new char[strlen(fiName)+1];
         strcpy(fileName, fiName);
     }
 
     dbInitializationMutex::initializationStatus status = initMutex.initialize(name);
-    if (status == dbInitializationMutex::InitializationError) { 
-        handleError(DatabaseOpenError, 
+    if (status == dbInitializationMutex::InitializationError) {
+        handleError(DatabaseOpenError,
                     "Failed to start database initialization");
         return false;
     }
-    OsSysLog::add(FAC_DB, PRI_INFO, "initMutex.initialize returns %s\n", 
+    OsSysLog::add(FAC_DB, PRI_INFO, "initMutex.initialize returns %s\n",
         status == dbInitializationMutex::NotYetInitialized ?
             "dbInitializationMutex::NotYetInitialized" : "dbInitializationMutex::AlreadyInitialized");
 
     sprintf(name, "%s.dm", dbName);
     int shmRes = shm.open(name) ;
-    if (shmRes < 0) { 
+    if (shmRes < 0) {
         handleError(DatabaseOpenError, "Failed to open database monitor");
         cleanup(status, 0);
         return false;
@@ -1785,7 +1785,7 @@ bool dbDatabase::open(char const* dbName, char const* fiName,
     }
 #if defined(USE_POSIX_MMAP) && USE_POSIX_MMAP
     if (status == dbInitializationMutex::AlreadyInitialized)
-    { 
+    {
        // Still Holding initMutex here in POSIX case (not so for SysV)
        // Safe to clear initMutex now
        initMutex.done() ;
@@ -1794,42 +1794,42 @@ bool dbDatabase::open(char const* dbName, char const* fiName,
     monitor = shm.get();
 
     sprintf(name, "%s.ws", dbName);
-    if (!writeSem.open(name)) { 
-        handleError(DatabaseOpenError, 
+    if (!writeSem.open(name)) {
+        handleError(DatabaseOpenError,
                     "Failed to initialize database writers semaphore");
         cleanup(status, 1);
         return false;
     }
     sprintf(name, "%s.rs", dbName);
-    if (!readSem.open(name)) { 
-        handleError(DatabaseOpenError, 
+    if (!readSem.open(name)) {
+        handleError(DatabaseOpenError,
                     "Failed to initialize database readers semaphore");
         cleanup(status, 2);
         return false;
     }
     sprintf(name, "%s.us", dbName);
-    if (!upgradeSem.open(name)) { 
-        handleError(DatabaseOpenError, 
+    if (!upgradeSem.open(name)) {
+        handleError(DatabaseOpenError,
                     "Failed to initialize database upgrade semaphore");
         cleanup(status, 3);
         return false;
     }
     sprintf(name, "%s.bce", dbName);
-    if (!backupCompletedEvent.open(name)) { 
-        handleError(DatabaseOpenError, 
+    if (!backupCompletedEvent.open(name)) {
+        handleError(DatabaseOpenError,
                     "Failed to initialize database backup completed event");
         cleanup(status, 4);
         return false;
-    }    
-    if (commitDelaySec != 0) { 
+    }
+    if (commitDelaySec != 0) {
         sprintf(name, "%s.dce", dbName);
         delayedCommitEventsOpened = true;
-        if (!delayedCommitStopTimerEvent.open(name)) { 
-            handleError(DatabaseOpenError, 
+        if (!delayedCommitStopTimerEvent.open(name)) {
+            handleError(DatabaseOpenError,
                         "Failed to initialize delayed commit event");
             cleanup(status, 5);
             return false;
-        }    
+        }
         delayedCommitStartTimerEvent.open();
         commitThreadSyncEvent.open();
     }
@@ -1839,10 +1839,10 @@ bool dbDatabase::open(char const* dbName, char const* fiName,
     fixedSizeAllocator.reset();
     allocatedSize = 0;
     deallocatedSize = 0;
-    size_t indexSize = initIndexSize < dbFirstUserId 
+    size_t indexSize = initIndexSize < dbFirstUserId
         ? size_t(dbFirstUserId) : initIndexSize;
     indexSize = DOALIGN(indexSize, dbHandlesPerPage);
-            
+
     size_t fileSize = initSize ? initSize : dbDefaultInitDatabaseSize;
 
     if (fileSize < indexSize*sizeof(offs_t)*4) {
@@ -1850,7 +1850,7 @@ bool dbDatabase::open(char const* dbName, char const* fiName,
     }
     fileSize = DOALIGN(fileSize, dbBitmapSegmentSize);
 
-    for (int i = dbBitmapId + dbBitmapPages; --i >= 0;) { 
+    for (int i = dbBitmapId + dbBitmapPages; --i >= 0;) {
         bitmapPageAvailableSpace[i] = INT_MAX;
     }
     currRBitmapPage = currPBitmapPage = dbBitmapId;
@@ -1863,16 +1863,16 @@ bool dbDatabase::open(char const* dbName, char const* fiName,
     threadContextList.reset();
     attach();
 
-    if (status == dbInitializationMutex::NotYetInitialized) { 
+    if (status == dbInitializationMutex::NotYetInitialized) {
         sprintf(name, "%s.cs", dbName);
-        if (!cs.create(name, &monitor->sem)) { 
+        if (!cs.create(name, &monitor->sem)) {
             handleError(DatabaseOpenError, "Failed to initialize database monitor");
             cleanup(status, 6);
             return false;
         }
-        if (accessType == dbConcurrentUpdate || accessType == dbConcurrentRead) { 
+        if (accessType == dbConcurrentUpdate || accessType == dbConcurrentRead) {
             sprintf(name, "%s.mcs", dbName);
-            if (!mutatorCS.create(name, &monitor->mutatorSem)) { 
+            if (!mutatorCS.create(name, &monitor->mutatorSem)) {
                 handleError(DatabaseOpenError,
                             "Failed to initialize database monitor");
                 cleanup(status, 7);
@@ -1905,10 +1905,10 @@ bool dbDatabase::open(char const* dbName, char const* fiName,
 #ifdef DO_NOT_REUSE_OID_WITHIN_SESSION
         monitor->sessionFreeList[0].head = monitor->sessionFreeList[0].tail = 0;
         monitor->sessionFreeList[1].head = monitor->sessionFreeList[1].tail = 0;
-#endif            
-    
+#endif
+
         sprintf(databaseName, "%s.%d", dbName, version);
-        int rc = file.open(fileName, databaseName, 
+        int rc = file.open(fileName, databaseName,
                            accessType == dbReadOnly || accessType == dbConcurrentRead, fileSize, false);
         if (rc != dbFile::ok)
         {
@@ -1921,17 +1921,17 @@ bool dbDatabase::open(char const* dbName, char const* fiName,
         }
         baseAddr = (byte*)file.getAddr();
         monitor->size = fileSize = file.getSize();
-        header = (dbHeader*)baseAddr;        
+        header = (dbHeader*)baseAddr;
         updatedRecordId = 0;
-        
-        if ((unsigned)header->curr > 1) { 
+
+        if ((unsigned)header->curr > 1) {
             handleError(DatabaseOpenError, "Database file was corrupted: "
                         "invalid root index");
             cleanup(status, 9);
             return false;
         }
         if (header->initialized != 1) {
-            if (accessType == dbReadOnly || accessType == dbConcurrentRead) { 
+            if (accessType == dbReadOnly || accessType == dbConcurrentRead) {
                 handleError(DatabaseOpenError, "Can not open uninitialized "
                             "file in read only mode");
                 cleanup(status, 9);
@@ -1955,7 +1955,7 @@ bool dbDatabase::open(char const* dbName, char const* fiName,
             header->root[1].shadowIndex = header->root[0].index;
             header->root[0].shadowIndexSize = indexSize;
             header->root[1].shadowIndexSize = indexSize;
-            
+
             header->majorVersion= FASTDB_MAJOR_VERSION;
             header->minorVersion = FASTDB_MINOR_VERSION;
             header->mode = dbHeader::getCurrentMode();
@@ -1964,17 +1964,17 @@ bool dbDatabase::open(char const* dbName, char const* fiName,
             index[1] = (offs_t*)(baseAddr + header->root[1].index);
             index[0][dbInvalidId] = dbFreeHandleMarker;
 
-            size_t bitmapPages = 
+            size_t bitmapPages =
                 (used + dbPageSize*(dbAllocationQuantum*8-1) - 1)
                 / (dbPageSize*(dbAllocationQuantum*8-1));
             memset(baseAddr+used, 0xFF, (used + bitmapPages*dbPageSize)
                                         / (dbAllocationQuantum*8));
             size_t i;
-            for (i = 0; i < bitmapPages; i++) { 
+            for (i = 0; i < bitmapPages; i++) {
                 index[0][dbBitmapId + i] = used + dbPageObjectMarker;
                 used += dbPageSize;
             }
-            while (i < dbBitmapPages) { 
+            while (i < dbBitmapPages) {
                 index[0][dbBitmapId+i] = dbFreeHandleMarker;
                 i += 1;
             }
@@ -1990,15 +1990,15 @@ bool dbDatabase::open(char const* dbName, char const* fiName,
             file.markAsDirty(0, sizeof(dbHeader));
             file.flush(true);
         } else {
-            if (!header->isCompatible()) { 
+            if (!header->isCompatible()) {
                 handleError(DatabaseOpenError, "Incompatible database mode");
                 cleanup(status, 9);
                 return false;
-            }        
+            }
             monitor->curr = header->curr;
-            if (header->dirty) { 
+            if (header->dirty) {
                 TRACE_MSG(("Database was not normally closed: start recovery\n"));
-                if (accessType == dbReadOnly || accessType == dbConcurrentRead) { 
+                if (accessType == dbReadOnly || accessType == dbConcurrentRead) {
                     handleError(DatabaseOpenError,
                                 "Can not open dirty file in read only mode");
                     cleanup(status, 9);
@@ -2006,26 +2006,26 @@ bool dbDatabase::open(char const* dbName, char const* fiName,
                 }
                 recovery();
                 TRACE_MSG(("Recovery completed\n"));
-            } else { 
-                if (file.getSize() != header->size) { 
+            } else {
+                if (file.getSize() != header->size) {
                     handleError(DatabaseOpenError, "Database file was "
                                 "corrupted: file size in header differs "
                                 "from actual file size");
                     cleanup(status, 9);
                     return false;
                 }
-            }       
+            }
         }
-    } else { 
+    } else {
         sprintf(name, "%s.cs", dbName);
-        if (!cs.open(name, &monitor->sem)) { 
+        if (!cs.open(name, &monitor->sem)) {
             handleError(DatabaseOpenError, "Failed to open shared semaphore");
             cleanup(status, 6);
             return false;
         }
-        if (accessType == dbConcurrentUpdate || accessType == dbConcurrentRead) { 
+        if (accessType == dbConcurrentUpdate || accessType == dbConcurrentRead) {
             sprintf(name, "%s.mcs", dbName);
-            if (!mutatorCS.open(name, &monitor->mutatorSem)) { 
+            if (!mutatorCS.open(name, &monitor->mutatorSem)) {
                 handleError(DatabaseOpenError, "Failed to open shared semaphore");
                 cleanup(status, 7);
                 return false;
@@ -2033,7 +2033,7 @@ bool dbDatabase::open(char const* dbName, char const* fiName,
         }
         version = 0;
     }
-    cs.enter();            
+    cs.enter();
     monitor->users += 1;
     selfId = ++monitor->clientId;
 #ifdef AUTO_DETECT_PROCESS_CRASH
@@ -2043,21 +2043,21 @@ bool dbDatabase::open(char const* dbName, char const* fiName,
 #endif
     cs.leave();
 
-    if (status == dbInitializationMutex::NotYetInitialized) { 
-        if (!loadScheme(true)) { 
+    if (status == dbInitializationMutex::NotYetInitialized) {
+        if (!loadScheme(true)) {
             cleanup(status, 9);
             return false;
         }
         initMutex.done();
-    } else { 
-        if (!loadScheme(false)) { 
+    } else {
+        if (!loadScheme(false)) {
             cleanup(status, 9);
             return false;
         }
     }
     opened = true;
 
-    if (commitDelaySec != 0) { 
+    if (commitDelaySec != 0) {
         dbCriticalSection cs(delayedCommitStartTimerMutex);
         commitTimeout = commitDelay = commitDelaySec;
         commitThread.create((dbThread::thread_proc_t)delayedCommitProc, this);
@@ -2068,19 +2068,19 @@ bool dbDatabase::open(char const* dbName, char const* fiName,
 
 void dbDatabase::scheduleBackup(char const* fileName, time_t period)
 {
-    if (backupFileName == NULL) { 
+    if (backupFileName == NULL) {
         backupFileName = new char[strlen(fileName) + 1];
         strcpy(backupFileName, fileName);
         backupPeriod = period;
         backupThread.create((dbThread::thread_proc_t)backupSchedulerProc, this);
     }
 }
- 
-void dbDatabase::backupScheduler() 
-{ 
+
+void dbDatabase::backupScheduler()
+{
     backupThread.setPriority(dbThread::THR_PRI_LOW);
-    dbCriticalSection cs(backupMutex); 
-    while (true) { 
+    dbCriticalSection cs(backupMutex);
+    while (true) {
         time_t timeout = backupPeriod;
         if (backupFileName[strlen(backupFileName)-1] != '?') {
 #ifdef _WINCE
@@ -2090,42 +2090,42 @@ void dbDatabase::backupScheduler()
             if (::GetFileTime(lFile, 0l, &lATime, 0l) == TRUE)
             {
                 ULARGE_INTEGER lNTime = *(ULARGE_INTEGER*)&lATime;
-                
+
                 time_t howOld = time(NULL) - *(time_t*)&lNTime;
-                if (timeout < howOld) { 
+                if (timeout < howOld) {
                     timeout = 0;
-                        } else { 
+                        } else {
                             timeout -= howOld;
                         }
             }
             ::FindClose(lFile);
-#else    
+#else
             struct stat st;
-            if (::stat(backupFileName, &st) == 0) { 
+            if (::stat(backupFileName, &st) == 0) {
                 time_t howOld = time(NULL) - st.st_atime;
-                if (timeout < howOld) { 
+                if (timeout < howOld) {
                     timeout = 0;
-                } else { 
+                } else {
                     timeout -= howOld;
                 }
             }
 #endif
         }
-        
+
         backupInitEvent.wait(backupMutex, timeout*1000);
-        
-        if (backupFileName != NULL) { 
+
+        if (backupFileName != NULL) {
             if (backupFileName[strlen(backupFileName)-1] == '?') {
                 time_t currTime = time(NULL);
                 char* fileName = new char[strlen(backupFileName) + 32];
                 struct tm* t = localtime(&currTime);
-                sprintf(fileName, "%.*s-%04d.%02d.%02d_%02d.%02d.%02d", 
+                sprintf(fileName, "%.*s-%04d.%02d.%02d_%02d.%02d.%02d",
                         (int)strlen(backupFileName)-1, backupFileName,
-                        t->tm_year + 1900, t->tm_mon+1, t->tm_mday, 
+                        t->tm_year + 1900, t->tm_mon+1, t->tm_mday,
                         t->tm_hour, t->tm_min, t->tm_sec);
                 backup(fileName, false);
                 delete[] fileName;
-            } else { 
+            } else {
                 char* newFileName = new char[strlen(backupFileName) + 5];
                 sprintf(newFileName,"%s.new", backupFileName);
                 backup(newFileName, false);
@@ -2138,40 +2138,40 @@ void dbDatabase::backupScheduler()
 #endif
                 delete[] newFileName;
             }
-        } else { 
+        } else {
             return;
         }
     }
-}    
+}
 
 
 void dbDatabase::recovery()
 {
     int curr = header->curr;
     header->size = file.getSize();
-    header->root[1-curr].indexUsed = header->root[curr].indexUsed; 
-    header->root[1-curr].freeList = header->root[curr].freeList; 
+    header->root[1-curr].indexUsed = header->root[curr].indexUsed;
+    header->root[1-curr].freeList = header->root[curr].freeList;
     header->root[1-curr].index = header->root[curr].shadowIndex;
-    header->root[1-curr].indexSize = 
+    header->root[1-curr].indexSize =
         header->root[curr].shadowIndexSize;
     header->root[1-curr].shadowIndex = header->root[curr].index;
-    header->root[1-curr].shadowIndexSize = 
+    header->root[1-curr].shadowIndexSize =
         header->root[curr].indexSize;
 #ifdef DO_NOT_REUSE_OID_WITHIN_SESSION
     monitor->sessionFreeList[1-curr] = monitor->sessionFreeList[curr];
 #endif
-    
+
     offs_t* dst = (offs_t*)(baseAddr+header->root[1-curr].index);
     offs_t* src = (offs_t*)(baseAddr+header->root[curr].index);
     currIndex = dst;
-    for (oid_t i = 0, n = header->root[curr].indexUsed; i < n; i++) { 
-        if (dst[i] != src[i]) { 
+    for (oid_t i = 0, n = header->root[curr].indexUsed; i < n; i++) {
+        if (dst[i] != src[i]) {
             dst[i] = src[i];
             file.markAsDirty(header->root[1-curr].index + i*sizeof(offs_t), sizeof(offs_t));
         }
     }
     //
-    // Restore consistency of table rows l2-list 
+    // Restore consistency of table rows l2-list
     //
     restoreTablesConsistency();
     file.markAsDirty(0, sizeof(dbHeader));
@@ -2181,20 +2181,20 @@ void dbDatabase::restoreTablesConsistency()
 {
     dbTable* table = (dbTable*)getRow(dbMetaTableId);
     oid_t lastId = table->lastRow;
-    if (lastId != 0) { 
+    if (lastId != 0) {
         dbRecord* record = getRow(lastId);
-        if (record->next != 0) { 
+        if (record->next != 0) {
             record->next = 0;
             file.markAsDirty(currIndex[lastId], sizeof(dbRecord));
         }
     }
     oid_t tableId = table->firstRow;
-    while (tableId != 0) { 
+    while (tableId != 0) {
         table = (dbTable*)getRow(tableId);
         lastId = table->lastRow;
-        if (lastId != 0) { 
+        if (lastId != 0) {
             dbRecord* record = getRow(lastId);
-            if (record->next != 0) { 
+            if (record->next != 0) {
                 record->next = 0;
                 file.markAsDirty(currIndex[lastId], sizeof(dbRecord));
             }
@@ -2207,20 +2207,20 @@ void dbDatabase::setConcurrency(unsigned nThreads)
 {
     if (nThreads == 0) { // autodetect number of processors
         nThreads = dbThread::numberOfProcessors();
-    } 
-    if (nThreads > dbMaxParallelSearchThreads) { 
+    }
+    if (nThreads > dbMaxParallelSearchThreads) {
         nThreads = dbMaxParallelSearchThreads;
     }
     parThreads = nThreads;
 }
 
 
-bool dbDatabase::loadScheme(bool alter) 
+bool dbDatabase::loadScheme(bool alter)
 {
-    if (!beginTransaction((alter && accessType != dbReadOnly && accessType != dbConcurrentRead) 
+    if (!beginTransaction((alter && accessType != dbReadOnly && accessType != dbConcurrentRead)
                           || accessType == dbConcurrentUpdate
-                          ? dbExclusiveLock : dbSharedLock)) 
-    { 
+                          ? dbExclusiveLock : dbSharedLock))
+    {
         return false;
     }
 
@@ -2233,7 +2233,7 @@ bool dbDatabase::loadScheme(bool alter)
 
     for (desc = dbTableDescriptor::chain; desc != NULL; desc = next) {
         next = desc->next;
-        if (desc->db != NULL && desc->db != DETACHED_TABLE && desc->db != this) { 
+        if (desc->db != NULL && desc->db != DETACHED_TABLE && desc->db != this) {
             continue;
         }
         if (desc->db == DETACHED_TABLE) {
@@ -2249,28 +2249,28 @@ bool dbDatabase::loadScheme(bool alter)
         int n = nTables;
         while (--n >= 0) {
             dbTable* table = (dbTable*)getRow(tableId);
-            if (table == NULL) { 
+            if (table == NULL) {
                 handleError(DatabaseOpenError, "Database scheme is corrupted");
                 return false;
             }
             oid_t next = table->next;
             if (strcmp(desc->name, (char*)table + table->name.offs) == 0) {
-                if (!desc->equal(table)) { 
-                    if (!alter) { 
+                if (!desc->equal(table)) {
+                    if (!alter) {
                         handleError(DatabaseOpenError, "Incompatible class"
                                     " definition in application");
                         return false;
                     }
                     beginTransaction(dbExclusiveLock);
                     modified = true;
-                    if (table->nRows == 0) { 
+                    if (table->nRows == 0) {
                         TRACE_MSG(("Replace definition of table '%s'\n",  desc->name));
                         desc->match(table, true);
                         updateTableDescriptor(desc, tableId);
-                    } else { 
+                    } else {
                         reformatTable(tableId, desc);
-                    } 
-                } else { 
+                    }
+                } else {
                     linkTable(desc, tableId);
                 }
                 desc->setFlags();
@@ -2278,30 +2278,30 @@ bool dbDatabase::loadScheme(bool alter)
             }
             if (tableId == last) {
                 tableId = first;
-            } else { 
+            } else {
                 tableId = next;
             }
         }
         if (n < 0) { // no match found
-            if (accessType == dbReadOnly || accessType == dbConcurrentRead) { 
+            if (accessType == dbReadOnly || accessType == dbConcurrentRead) {
                 handleError(DatabaseOpenError, "New table definition can not "
                             "be added to read only database");
                 return false;
-            } else {     
+            } else {
                 TRACE_MSG(("Create new table '%s' in database\n", desc->name));
                 addNewTable(desc);
                 modified = true;
             }
         }
-        if (accessType != dbReadOnly && accessType != dbConcurrentRead) { 
-            if (!addIndices(alter, desc)) { 
+        if (accessType != dbReadOnly && accessType != dbConcurrentRead) {
+            if (!addIndices(alter, desc)) {
                 handleError(DatabaseOpenError, "Failed to alter indices with"
                             " active applications");
                 rollback();
                 return false;
             }
         }
-    }   
+    }
     for (desc = tables; desc != NULL; desc = desc->nextDbTable) {
         if (desc->cloneOf != NULL) {
             for (dbFieldDescriptor *fd = desc->firstField; fd != NULL; fd = fd->nextField)
@@ -2316,43 +2316,43 @@ bool dbDatabase::loadScheme(bool alter)
     hashFunction = dbHashTable::getHashFunction(header->getVersion());
     commit();
     return true;
-} 
+}
 
 
 void dbDatabase::reformatTable(oid_t tableId, dbTableDescriptor* desc)
 {
     dbTable* table = (dbTable*)putRow(tableId);
 
-    if (desc->match(table, confirmDeleteColumns)) { 
-        TRACE_MSG(("New version of table '%s' is compatible with old one\n", 
+    if (desc->match(table, confirmDeleteColumns)) {
+        TRACE_MSG(("New version of table '%s' is compatible with old one\n",
                    desc->name));
         updateTableDescriptor(desc, tableId);
-    } else { 
+    } else {
         TRACE_MSG(("Reformat table '%s'\n", desc->name));
         oid_t oid = table->firstRow;
         updateTableDescriptor(desc, tableId);
-        while (oid != 0) { 
+        while (oid != 0) {
             dbRecord* record = getRow(oid);
-            size_t size = 
-                desc->columns->calculateNewRecordSize((byte*)record, 
+            size_t size =
+                desc->columns->calculateNewRecordSize((byte*)record,
                                                      desc->fixedSize);
             offs_t offs = currIndex[oid];
             record = putRow(oid, size);
             byte* dst = (byte*)record;
             byte* src = baseAddr + offs;
-            if (dst == src) { 
+            if (dst == src) {
                 dbSmallBuffer buf(size);
                 dst = (byte*)buf.base();
                 desc->columns->convertRecord(dst, src, desc->fixedSize);
                 memcpy(record+1, dst+sizeof(dbRecord), size-sizeof(dbRecord));
-            } else { 
+            } else {
                 desc->columns->convertRecord(dst, src, desc->fixedSize);
             }
             oid = record->next;
         }
     }
 }
- 
+
 void dbDatabase::deleteTable(dbTableDescriptor* desc)
 {
     beginTransaction(dbExclusiveLock);
@@ -2361,34 +2361,34 @@ void dbDatabase::deleteTable(dbTableDescriptor* desc)
     oid_t rowId = table->firstRow;
     table->firstRow = table->lastRow = 0;
     table->nRows = 0;
-        
+
     while (rowId != 0) {
         dbRecord* record = getRow(rowId);
         oid_t nextId = record->next;
         size_t size = record->size;
-        
+
         removeInverseReferences(desc, rowId);
 
         if (rowId < committedIndexSize && index[0][rowId] == index[1][rowId]) {
             cloneBitmap(currIndex[rowId], size);
-        } else { 
+        } else {
             deallocate(currIndex[rowId], size);
         }
         freeId(rowId);
         rowId = nextId;
     }
     dbFieldDescriptor* fd;
-    for (fd = desc->hashedFields; fd != NULL; fd = fd->nextHashedField) { 
+    for (fd = desc->hashedFields; fd != NULL; fd = fd->nextHashedField) {
         dbHashTable::purge(this, fd->hashTable);
-    } 
-    for (fd = desc->indexedFields; fd != NULL; fd = fd->nextIndexedField) { 
-        if (fd->type == dbField::tpRectangle) { 
+    }
+    for (fd = desc->indexedFields; fd != NULL; fd = fd->nextIndexedField) {
+        if (fd->type == dbField::tpRectangle) {
             dbRtree::purge(this, fd->tTree);
-        } else { 
+        } else {
             dbTtree::purge(this, fd->tTree);
         }
-    } 
-} 
+    }
+}
 
 void dbDatabase::dropHashTable(dbFieldDescriptor* fd)
 {
@@ -2399,7 +2399,7 @@ void dbDatabase::dropHashTable(dbFieldDescriptor* fd)
     fd->indexType &= ~HASHED;
 
     dbFieldDescriptor** fpp = &fd->defTable->hashedFields;
-    while (*fpp != fd) { 
+    while (*fpp != fd) {
         fpp = &(*fpp)->nextHashedField;
     }
     *fpp = fd->nextHashedField;
@@ -2413,16 +2413,16 @@ void dbDatabase::dropIndex(dbFieldDescriptor* fd)
 {
     beginTransaction(dbExclusiveLock);
     modified = true;
-    if (fd->type == dbField::tpRectangle) { 
+    if (fd->type == dbField::tpRectangle) {
         dbRtree::drop(this, fd->tTree);
-    } else { 
+    } else {
         dbTtree::drop(this, fd->tTree);
     }
     fd->tTree = 0;
     fd->indexType &= ~INDEXED;
 
     dbFieldDescriptor** fpp = &fd->defTable->indexedFields;
-    while (*fpp != fd) { 
+    while (*fpp != fd) {
         fpp = &(*fpp)->nextIndexedField;
     }
     *fpp = fd->nextIndexedField;
@@ -2458,10 +2458,10 @@ void dbDatabase::createIndex(dbFieldDescriptor* fd)
 {
     beginTransaction(dbExclusiveLock);
     modified = true;
-    if (fd->type == dbField::tpRectangle) { 
+    if (fd->type == dbField::tpRectangle) {
         fd->tTree = dbRtree::allocate(this);
-    } else { 
-        fd->tTree = dbTtree::allocate(this); 
+    } else {
+        fd->tTree = dbTtree::allocate(this);
     }
     fd->attr &= ~dbFieldDescriptor::Updated;
     fd->nextIndexedField = fd->defTable->indexedFields;
@@ -2470,11 +2470,11 @@ void dbDatabase::createIndex(dbFieldDescriptor* fd)
     dbTable* table = (dbTable*)putRow(fd->defTable->tableId);
     dbField* field = (dbField*)((char*)table + table->fields.offs);
     field[fd->fieldNo].tTree = fd->tTree;
-    
+
     for (oid_t oid = table->firstRow; oid != 0; oid = getRow(oid)->next) {
-        if (fd->type == dbField::tpRectangle) { 
+        if (fd->type == dbField::tpRectangle) {
             dbRtree::insert(this, fd->tTree, oid, fd->dbsOffs);
-        } else { 
+        } else {
             dbTtree::insert(this, fd->tTree, oid, fd->type, fd->dbsSize, fd->comparator, fd->dbsOffs);
         }
     }
@@ -2486,16 +2486,16 @@ void dbDatabase::dropTable(dbTableDescriptor* desc)
     freeRow(dbMetaTableId, desc->tableId);
 
     dbFieldDescriptor* fd;
-    for (fd = desc->hashedFields; fd != NULL; fd = fd->nextHashedField) { 
+    for (fd = desc->hashedFields; fd != NULL; fd = fd->nextHashedField) {
         dbHashTable::drop(this, fd->hashTable);
-    } 
-    for (fd = desc->indexedFields; fd != NULL; fd = fd->nextIndexedField) { 
-        if (fd->type == dbField::tpRectangle) { 
+    }
+    for (fd = desc->indexedFields; fd != NULL; fd = fd->nextIndexedField) {
+        if (fd->type == dbField::tpRectangle) {
             dbRtree::drop(this, fd->tTree);
-        } else { 
+        } else {
             dbTtree::drop(this, fd->tTree);
         }
-    } 
+    }
 }
 
 #define NEW_INDEX 0x80000000u
@@ -2509,13 +2509,13 @@ bool dbDatabase::addIndices(bool alter, dbTableDescriptor* desc)
     oid_t firstId = table->firstRow;
     int nNewIndices = 0;
     int nDelIndices = 0;
-    for (fd = desc->firstField; fd != NULL; fd = fd->nextField) { 
-        if ((fd->indexType & HASHED) && fd->type != dbField::tpStructure) { 
-            if (fd->hashTable == 0) { 
+    for (fd = desc->firstField; fd != NULL; fd = fd->nextField) {
+        if ((fd->indexType & HASHED) && fd->type != dbField::tpStructure) {
+            if (fd->hashTable == 0) {
                 if (!alter && tableId < committedIndexSize
                     && index[0][tableId] == index[1][tableId])
                 {
-                    // If there are some other active applications which 
+                    // If there are some other active applications which
                     // can use this table, then they will not know
                     // about newly created index, which leads to inconsistency
                     return false;
@@ -2525,17 +2525,17 @@ bool dbDatabase::addIndices(bool alter, dbTableDescriptor* desc)
                 nNewIndices += 1;
                 TRACE_MSG(("Create hash table for field '%s'\n", fd->name));
             }
-        } else if (fd->hashTable != 0) { 
-            if (alter) { 
+        } else if (fd->hashTable != 0) {
+            if (alter) {
                 TRACE_MSG(("Remove hash table for field '%s'\n", fd->name));
                 nDelIndices += 1;
                 fd->hashTable = 0;
-            } else { 
+            } else {
                 return false;
             }
         }
-        if ((fd->indexType & INDEXED) && fd->type != dbField::tpStructure) { 
-            if (fd->tTree == 0) { 
+        if ((fd->indexType & INDEXED) && fd->type != dbField::tpStructure) {
+            if (fd->tTree == 0) {
                 if (!alter && tableId < committedIndexSize
                     && index[0][tableId] == index[1][tableId])
                 {
@@ -2546,47 +2546,47 @@ bool dbDatabase::addIndices(bool alter, dbTableDescriptor* desc)
                 nNewIndices += 1;
                 TRACE_MSG(("Create index for field '%s'\n", fd->name));
             }
-        } else if (fd->tTree != 0) { 
-            if (alter) { 
+        } else if (fd->tTree != 0) {
+            if (alter) {
                 nDelIndices += 1;
                 TRACE_MSG(("Remove index for field '%s'\n", fd->name));
                 fd->tTree = 0;
-            } else { 
+            } else {
                 return false;
             }
         }
     }
-    if (nNewIndices > 0) { 
+    if (nNewIndices > 0) {
         modified = true;
         for (oid_t rowId = firstId; rowId != 0; rowId = getRow(rowId)->next) {
             for (fd = desc->hashedFields; fd != NULL; fd=fd->nextHashedField) {
-                if (fd->indexType & NEW_INDEX) { 
-                    dbHashTable::insert(this, fd->hashTable, rowId, 
+                if (fd->indexType & NEW_INDEX) {
+                    dbHashTable::insert(this, fd->hashTable, rowId,
                                         fd->type, fd->dbsSize, fd->dbsOffs, 2*nRows);
                 }
             }
             for (fd=desc->indexedFields; fd != NULL; fd=fd->nextIndexedField) {
-                if (fd->indexType & NEW_INDEX) { 
-                    if (fd->type == dbField::tpRectangle) { 
+                if (fd->indexType & NEW_INDEX) {
+                    if (fd->type == dbField::tpRectangle) {
                         dbRtree::insert(this, fd->tTree, rowId, fd->dbsOffs);
-                    } else { 
-                        dbTtree::insert(this, fd->tTree, rowId, 
+                    } else {
+                        dbTtree::insert(this, fd->tTree, rowId,
                                         fd->type, fd->dbsSize, fd->comparator, fd->dbsOffs);
                     }
                 }
             }
-        } 
+        }
         for (fd = desc->firstField; fd != NULL; fd = fd->nextField) {
             fd->indexType &= ~NEW_INDEX;
         }
     }
-    if (nNewIndices + nDelIndices != 0) { 
+    if (nNewIndices + nDelIndices != 0) {
         table = (dbTable*)putRow(tableId);
         offs_t fieldOffs = currIndex[tableId] + table->fields.offs;
-        for (fd = desc->firstField; fd != NULL; fd = fd->nextField) { 
-            dbField* field = (dbField*)(baseAddr + fieldOffs);    
-            if (field->hashTable != fd->hashTable) { 
-                if (field->hashTable != 0) { 
+        for (fd = desc->firstField; fd != NULL; fd = fd->nextField) {
+            dbField* field = (dbField*)(baseAddr + fieldOffs);
+            if (field->hashTable != fd->hashTable) {
+                if (field->hashTable != 0) {
                     assert(fd->hashTable == 0);
                     modified = true;
                     dbHashTable::drop(this, field->hashTable);
@@ -2594,13 +2594,13 @@ bool dbDatabase::addIndices(bool alter, dbTableDescriptor* desc)
                 }
                 field->hashTable = fd->hashTable;
             }
-            if (field->tTree != fd->tTree) { 
-                if (field->tTree != 0) { 
+            if (field->tTree != fd->tTree) {
+                if (field->tTree != 0) {
                     assert(fd->tTree == 0);
                     modified = true;
-                    if (field->type == dbField::tpRectangle) { 
+                    if (field->type == dbField::tpRectangle) {
                         dbRtree::drop(this, field->tTree);
-                    } else { 
+                    } else {
                         dbTtree::drop(this, field->tTree);
                     }
                     field = (dbField*)(baseAddr + fieldOffs);
@@ -2613,7 +2613,7 @@ bool dbDatabase::addIndices(bool alter, dbTableDescriptor* desc)
     return true;
 }
 
- 
+
 void dbDatabase::updateTableDescriptor(dbTableDescriptor* desc, oid_t tableId)
 {
     size_t newSize = sizeof(dbTable) + desc->nFields*sizeof(dbField)
@@ -2631,24 +2631,24 @@ void dbDatabase::updateTableDescriptor(dbTableDescriptor* desc, oid_t tableId)
     int nFields = table->fields.size;
     offs_t fieldOffs = currIndex[tableId] + table->fields.offs;
 
-    while (--nFields >= 0) { 
+    while (--nFields >= 0) {
         dbField* field = (dbField*)(baseAddr + fieldOffs);
         fieldOffs += sizeof(dbField);
 
         oid_t hashTableId = field->hashTable;
         oid_t tTreeId = field->tTree;
         int fieldType = field->type;
-        if (hashTableId != 0) { 
+        if (hashTableId != 0) {
             dbHashTable::drop(this, hashTableId);
-        } 
-        if (tTreeId != 0) { 
-            if (fieldType == dbField::tpRectangle) { 
+        }
+        if (tTreeId != 0) {
+            if (fieldType == dbField::tpRectangle) {
                 dbRtree::drop(this, tTreeId);
-            } else { 
+            } else {
                 dbTtree::drop(this, tTreeId);
             }
         }
-    } 
+    }
 
     table = (dbTable*)putRow(tableId, newSize);
     desc->storeInDatabase(table);
@@ -2659,7 +2659,7 @@ void dbDatabase::updateTableDescriptor(dbTableDescriptor* desc, oid_t tableId)
 
 oid_t dbDatabase::addNewTable(dbTableDescriptor* desc)
 {
-    oid_t tableId = allocateRow(dbMetaTableId, 
+    oid_t tableId = allocateRow(dbMetaTableId,
                                 sizeof(dbTable) + desc->nFields*sizeof(dbField)
                                 + desc->totalNamesLength());
     linkTable(desc, tableId);
@@ -2670,16 +2670,16 @@ oid_t dbDatabase::addNewTable(dbTableDescriptor* desc)
 void dbDatabase::close()
 {
     detach();
-    if (backupFileName != NULL) { 
+    if (backupFileName != NULL) {
         {
-            dbCriticalSection cs(backupMutex); 
+            dbCriticalSection cs(backupMutex);
             delete[] backupFileName;
             backupFileName = NULL;
             backupInitEvent.signal();
         }
         backupThread.join();
     }
-    if (commitDelay != 0) { 
+    if (commitDelay != 0) {
         delayedCommitStopTimerEvent.signal();
         {
             dbCriticalSection cs(delayedCommitStartTimerMutex);
@@ -2693,7 +2693,7 @@ void dbDatabase::close()
     }
     {
         dbCriticalSection cs(threadContextListMutex);
-        while (!threadContextList.isEmpty()) { 
+        while (!threadContextList.isEmpty()) {
             delete (dbDatabaseThreadContext*)threadContextList.next;
         }
     }
@@ -2703,7 +2703,7 @@ void dbDatabase::close()
     watchDogMutex->lock();
 #endif
 
-    if (accessType == dbConcurrentUpdate) { 
+    if (accessType == dbConcurrentUpdate) {
         mutatorCS.enter();
     }
     cs.enter();
@@ -2716,7 +2716,7 @@ void dbDatabase::close()
     if (watchDogThreadContexts.isEmpty()) {
         watchDogMutex->unlock();
         delete watchDogMutex;
-    } else { 
+    } else {
         watchDogThreadContexts.unlink();
         watchDogMutex->unlock();
     }
@@ -2730,14 +2730,14 @@ void dbDatabase::close()
     opened = false;
 
     monitor->users -= 1;
-    if (header != NULL && header->dirty && accessType != dbReadOnly && accessType != dbConcurrentRead && monitor->nWriters == 0) 
+    if (header != NULL && header->dirty && accessType != dbReadOnly && accessType != dbConcurrentRead && monitor->nWriters == 0)
     {
         file.flush(true);
         header->dirty = false;
         file.markAsDirty(0, sizeof(dbHeader));
     }
     cs.leave();
-    if (accessType == dbConcurrentUpdate) { 
+    if (accessType == dbConcurrentUpdate) {
         mutatorCS.leave();
     }
     dbTableDescriptor *desc, *next;
@@ -2762,22 +2762,22 @@ void dbDatabase::close()
         if (commitDelay != 0) {
             delayedCommitStopTimerEvent.erase();
         }
-        if (accessType == dbConcurrentUpdate || accessType == dbConcurrentRead) { 
+        if (accessType == dbConcurrentUpdate || accessType == dbConcurrentRead) {
             mutatorCS.erase();
         }
         shm.erase();
         initMutex.erase();
-    } else { 
+    } else {
         cs.close();
         shm.close();
         readSem.close();
         writeSem.close();
         upgradeSem.close();
         backupCompletedEvent.close();
-        if (commitDelay != 0) { 
-            delayedCommitStopTimerEvent.close();        
+        if (commitDelay != 0) {
+            delayedCommitStopTimerEvent.close();
         }
-        if (accessType == dbConcurrentUpdate || accessType == dbConcurrentRead) { 
+        if (accessType == dbConcurrentUpdate || accessType == dbConcurrentRead) {
             mutatorCS.close();
         }
     }
@@ -2785,7 +2785,7 @@ void dbDatabase::close()
 
 dbTableDescriptor* dbDatabase::lookupTable(dbTableDescriptor* origDesc)
 {
-    for (dbTableDescriptor* desc = tables; desc != NULL; desc = desc->nextDbTable) 
+    for (dbTableDescriptor* desc = tables; desc != NULL; desc = desc->nextDbTable)
     {
         if (desc == origDesc || desc->cloneOf == origDesc) {
             return desc;
@@ -2794,11 +2794,11 @@ dbTableDescriptor* dbDatabase::lookupTable(dbTableDescriptor* origDesc)
     return NULL;
 }
 
-void dbDatabase::attach() 
+void dbDatabase::attach()
 {
-    if (threadContext.get() == NULL) { 
+    if (threadContext.get() == NULL) {
         dbDatabaseThreadContext* ctx = new dbDatabaseThreadContext();
-        { 
+        {
             dbCriticalSection cs(threadContextListMutex);
             threadContextList.link(ctx);
         }
@@ -2814,23 +2814,23 @@ void dbDatabase::attach(dbDatabaseThreadContext* ctx)
 
 void dbDatabase::detach(int flags)
 {
-    if (flags & COMMIT) { 
+    if (flags & COMMIT) {
         commit();
-    } else { 
+    } else {
         monitor->uncommittedChanges = true;
         precommit();
     }
-    if (flags & DESTROY_CONTEXT) { 
-        dbDatabaseThreadContext* ctx = threadContext.get();    
-        if (commitDelay != 0) { 
+    if (flags & DESTROY_CONTEXT) {
+        dbDatabaseThreadContext* ctx = threadContext.get();
+        if (commitDelay != 0) {
             dbCriticalSection cs(delayedCommitStopTimerMutex);
-            if (monitor->delayedCommitContext == ctx && ctx->commitDelayed) { 
+            if (monitor->delayedCommitContext == ctx && ctx->commitDelayed) {
                 ctx->removeContext = true;
-            } else { 
+            } else {
                 dbCriticalSection cs(threadContextListMutex);
                 delete ctx;
             }
-        } else { 
+        } else {
             dbCriticalSection cs(threadContextListMutex);
             delete ctx;
         }
@@ -2841,26 +2841,26 @@ void dbDatabase::detach(int flags)
 
 bool dbDatabase::existsInverseReference(dbExprNode* expr, int nExistsClauses)
 {
-    while (true) { 
-        switch (expr->cop) { 
+    while (true) {
+        switch (expr->cop) {
           case dbvmLoadSelfReference:
           case dbvmLoadSelfArray:
             return expr->ref.field->inverseRef != NULL;
           case dbvmLoadReference:
-            if (expr->ref.field->attr & dbFieldDescriptor::ComponentOfArray) { 
+            if (expr->ref.field->attr & dbFieldDescriptor::ComponentOfArray) {
                 expr = expr->ref.base;
                 continue;
             }
             // no break
           case dbvmLoadArray:
-            if (expr->ref.field->inverseRef == NULL) { 
+            if (expr->ref.field->inverseRef == NULL) {
                 return false;
             }
             expr = expr->ref.base;
-            continue; 
+            continue;
           case dbvmGetAt:
-            if (expr->operand[1]->cop != dbvmVariable 
-                || expr->operand[1]->offs != --nExistsClauses) 
+            if (expr->operand[1]->cop != dbvmVariable
+                || expr->operand[1]->offs != --nExistsClauses)
             {
                 return false;
             }
@@ -2868,43 +2868,43 @@ bool dbDatabase::existsInverseReference(dbExprNode* expr, int nExistsClauses)
             continue;
           case dbvmDeref:
             expr = expr->operand[0];
-            continue;       
+            continue;
           default:
             return false;
         }
     }
 }
 
-bool dbDatabase::followInverseReference(dbExprNode* expr, dbExprNode* andExpr, 
+bool dbDatabase::followInverseReference(dbExprNode* expr, dbExprNode* andExpr,
                                         dbAnyCursor* cursor, oid_t iref)
 {
     while (expr->cop == dbvmGetAt || expr->cop == dbvmDeref ||
-           (expr->cop == dbvmLoadReference 
-            && (expr->ref.field->attr & dbFieldDescriptor::ComponentOfArray))) 
-    { 
-        expr = expr->operand[0];        
-    } 
+           (expr->cop == dbvmLoadReference
+            && (expr->ref.field->attr & dbFieldDescriptor::ComponentOfArray)))
+    {
+        expr = expr->operand[0];
+    }
     dbTable* table = (dbTable*)getRow(cursor->table->tableId);
     dbFieldDescriptor* fd = expr->ref.field->inverseRef;
-    if (fd->type == dbField::tpArray) { 
+    if (fd->type == dbField::tpArray) {
         byte* rec = (byte*)getRow(iref);
         dbVarying* arr = (dbVarying*)(rec + fd->dbsOffs);
         oid_t* refs = (oid_t*)(rec + arr->offs);
         if (expr->cop >= dbvmLoadSelfReference) {
-            for (int n = arr->size; --n >= 0;) { 
+            for (int n = arr->size; --n >= 0;) {
                 oid_t oid = *refs++;
-                if (oid != 0) { 
-                    if (andExpr == NULL || evaluate(andExpr, oid, table, cursor)) { 
-                        if (!cursor->add(oid)) { 
+                if (oid != 0) {
+                    if (andExpr == NULL || evaluate(andExpr, oid, table, cursor)) {
+                        if (!cursor->add(oid)) {
                             return false;
                         }
                     }
                 }
             }
-        } else { 
-            for (int n = arr->size; --n >= 0;) { 
+        } else {
+            for (int n = arr->size; --n >= 0;) {
                 oid_t oid = *refs++;
-                if (oid != 0) { 
+                if (oid != 0) {
                     if (!followInverseReference(expr->ref.base, andExpr,
                                                 cursor, oid))
                     {
@@ -2913,19 +2913,19 @@ bool dbDatabase::followInverseReference(dbExprNode* expr, dbExprNode* andExpr,
                 }
             }
         }
-    } else { 
+    } else {
         assert(fd->type == dbField::tpReference);
         oid_t oid = *(oid_t*)((byte*)getRow(iref) + fd->dbsOffs);
-        if (oid != 0) { 
+        if (oid != 0) {
             if (expr->cop >= dbvmLoadSelfReference) {
-                if (andExpr == NULL || evaluate(andExpr, oid, table, cursor)) { 
-                    if (!cursor->add(oid)) { 
+                if (andExpr == NULL || evaluate(andExpr, oid, table, cursor)) {
+                    if (!cursor->add(oid)) {
                         return false;
                     }
                 }
-            } else { 
-                if (!followInverseReference(expr->ref.base, andExpr, 
-                                            cursor, oid)) 
+            } else {
+                if (!followInverseReference(expr->ref.base, andExpr,
+                                            cursor, oid))
                 {
                     return false;
                 }
@@ -2934,28 +2934,28 @@ bool dbDatabase::followInverseReference(dbExprNode* expr, dbExprNode* andExpr,
     }
     return true;
 }
-    
+
 
 static int referenceComparator(void* p, void* q, size_t) {
     return *(oid_t*)p < *(oid_t*)q ? -1 : *(oid_t*)p == *(oid_t*)q ? 0 : 1;
 }
 
-bool dbDatabase::isPrefixSearch(dbAnyCursor* cursor, 
-                                dbExprNode* expr, 
+bool dbDatabase::isPrefixSearch(dbAnyCursor* cursor,
+                                dbExprNode* expr,
                                 dbExprNode* andExpr,
                                 dbFieldDescriptor* &indexedField)
 {
-    if (expr->cop == dbvmLikeString  
+    if (expr->cop == dbvmLikeString
         && expr->operand[1]->cop ==  dbvmStringConcat
         && expr->operand[1]->operand[0]->cop == dbvmLoadSelfString
         && expr->operand[1]->operand[0]->ref.field->tTree != 0
         && expr->operand[1]->operand[1]->cop == dbvmLoadStringConstant
         && strcmp(expr->operand[1]->operand[1]->svalue.str, "%") == 0)
-    {        
+    {
         size_t paramBase = (size_t)cursor->paramBase;
         char* sval;
         dbExprNode* opd = expr->operand[0];
-        switch (opd->cop) { 
+        switch (opd->cop) {
           case dbvmLoadStringConstant:
             sval = (char*)opd->svalue.str;
             break;
@@ -2966,13 +2966,13 @@ bool dbDatabase::isPrefixSearch(dbAnyCursor* cursor,
           case dbvmLoadVarStdString:
             sval = (char*)((std::string*)((char*)opd->var + paramBase))->c_str();
             break;
-#endif      
+#endif
           case dbvmLoadVarStringPtr:
             sval = *(char**)((char*)opd->var + paramBase);
             break;
           default:
             return false;
-        }  
+        }
         dbFieldDescriptor* field = expr->operand[1]->operand[0]->ref.field;
         dbSearchContext sc;
         sc.db = this;
@@ -2986,31 +2986,31 @@ bool dbDatabase::isPrefixSearch(dbAnyCursor* cursor,
         sc.firstKey = sc.lastKey = sval;
         sc.firstKeyInclusion = sc.lastKeyInclusion = true;
         dbTtree::prefixSearch(this, field->tTree, sc);
-        TRACE_MSG(("Index prefix search for field %s.%s: %d probes\n", 
-                   field->defTable->name, field->longName, sc.probes)); 
+        TRACE_MSG(("Index prefix search for field %s.%s: %d probes\n",
+                   field->defTable->name, field->longName, sc.probes));
         indexedField = field;
         return true;
     }
     return false;
 }
- 
 
 
-bool dbDatabase::isIndexApplicable(dbAnyCursor* cursor, 
+
+bool dbDatabase::isIndexApplicable(dbAnyCursor* cursor,
                                    dbExprNode* expr, dbExprNode* andExpr,
                                    dbFieldDescriptor* &indexedField)
 {
     int nExistsClauses = 0;
-    while (expr->cop == dbvmExists) { 
+    while (expr->cop == dbvmExists) {
         expr = expr->operand[0];
         nExistsClauses += 1;
     }
     int cmpCop = expr->cop;
 
-    if (dbExprNode::nodeOperands[cmpCop] < 2 && cmpCop != dbvmIsNull) { 
+    if (dbExprNode::nodeOperands[cmpCop] < 2 && cmpCop != dbvmIsNull) {
         return false;
     }
-    if (isPrefixSearch(cursor, expr, andExpr, indexedField)) { 
+    if (isPrefixSearch(cursor, expr, andExpr, indexedField)) {
         return true;
     }
     unsigned loadCop = expr->operand[0]->cop;
@@ -3021,51 +3021,51 @@ bool dbDatabase::isIndexApplicable(dbAnyCursor* cursor,
         return false;
     }
     dbFieldDescriptor* field = expr->operand[0]->ref.field;
-    if (field->hashTable == 0 && field->tTree == 0) { 
+    if (field->hashTable == 0 && field->tTree == 0) {
         return false;
     }
-    if (loadCop >= dbvmLoadSelfBool) { 
-        if (isIndexApplicable(cursor, expr, andExpr)) { 
+    if (loadCop >= dbvmLoadSelfBool) {
+        if (isIndexApplicable(cursor, expr, andExpr)) {
             indexedField = field;
             return true;
         }
-    } 
+    }
     else if (existsInverseReference(expr->operand[0]->ref.base, nExistsClauses))
-    { 
+    {
         dbAnyCursor tmpCursor(*field->defTable, dbCursorViewOnly, NULL);
         tmpCursor.paramBase = cursor->paramBase;
-        if (isIndexApplicable(&tmpCursor, expr, NULL)) { 
+        if (isIndexApplicable(&tmpCursor, expr, NULL)) {
             expr = expr->operand[0]->ref.base;
             indexedField = field;
             cursor->checkForDuplicates();
-            if (andExpr != NULL) { 
+            if (andExpr != NULL) {
                 andExpr = andExpr->operand[1];
             }
-            for (dbSelection::segment* curr = tmpCursor.selection.first; 
-                 curr != NULL; 
+            for (dbSelection::segment* curr = tmpCursor.selection.first;
+                 curr != NULL;
                  curr = curr->next)
-            { 
-                for (int i = 0, n = curr->nRows; i < n; i++) { 
-                    if (!followInverseReference(expr, andExpr,  
+            {
+                for (int i = 0, n = curr->nRows; i < n; i++) {
+                    if (!followInverseReference(expr, andExpr,
                                                 cursor, curr->rows[i]))
                     {
                         return true;
                     }
-                } 
+                }
             }
             return true;
         }
-    } else if (expr->operand[0]->ref.base->cop == dbvmDeref) { 
+    } else if (expr->operand[0]->ref.base->cop == dbvmDeref) {
         dbExprNode* ref = expr->operand[0]->ref.base->operand[0];
-        if (ref->cop == dbvmLoadSelfReference) { 
+        if (ref->cop == dbvmLoadSelfReference) {
             dbFieldDescriptor* refField = ref->ref.field;
-            if (refField->hashTable == 0 && refField->tTree == 0) { 
+            if (refField->hashTable == 0 && refField->tTree == 0) {
                 return false;
             }
             assert(refField->type == dbField::tpReference);
             dbAnyCursor tmpCursor(*refField->defTable, dbCursorViewOnly, NULL);
             tmpCursor.paramBase = cursor->paramBase;
-            if (isIndexApplicable(&tmpCursor, expr, NULL)) { 
+            if (isIndexApplicable(&tmpCursor, expr, NULL)) {
                 oid_t oid;
                 indexedField = refField;
                 dbSearchContext sc;
@@ -3079,21 +3079,21 @@ bool dbDatabase::isIndexApplicable(dbAnyCursor* cursor,
                 sc.condition = andExpr ? andExpr->operand[1] : (dbExprNode*)0;
                 sc.firstKey = sc.lastKey = (char*)&oid;
                 sc.firstKeyInclusion = sc.lastKeyInclusion = true;
-                for (dbSelection::segment* curr = tmpCursor.selection.first; 
-                     curr != NULL; 
+                for (dbSelection::segment* curr = tmpCursor.selection.first;
+                     curr != NULL;
                      curr = curr->next)
-                { 
-                    for (int i = 0, n = curr->nRows; i < n; i++) { 
+                {
+                    for (int i = 0, n = curr->nRows; i < n; i++) {
                         oid = curr->rows[i];
                         sc.probes = 0;
-                        if (refField->hashTable != 0) { 
+                        if (refField->hashTable != 0) {
                             dbHashTable::find(this, refField->hashTable, sc);
-                            TRACE_MSG(("Hash table search for field %s.%s: %d probes\n", 
-                                       refField->defTable->name, refField->longName, sc.probes)); 
-                        } else { 
+                            TRACE_MSG(("Hash table search for field %s.%s: %d probes\n",
+                                       refField->defTable->name, refField->longName, sc.probes));
+                        } else {
                             dbTtree::find(this, refField->tTree, sc);
-                            TRACE_MSG(("Index search for field %s.%s: %d probes\n", 
-                                       refField->defTable->name, refField->longName, sc.probes)); 
+                            TRACE_MSG(("Index search for field %s.%s: %d probes\n",
+                                       refField->defTable->name, refField->longName, sc.probes));
                         }
                     }
                 }
@@ -3104,7 +3104,7 @@ bool dbDatabase::isIndexApplicable(dbAnyCursor* cursor,
     return false;
 }
 
-bool dbDatabase::isIndexApplicable(dbAnyCursor* cursor, 
+bool dbDatabase::isIndexApplicable(dbAnyCursor* cursor,
                                    dbExprNode* expr, dbExprNode* andExpr)
 {
     int n = dbExprNode::nodeOperands[expr->cop];
@@ -3112,7 +3112,7 @@ bool dbDatabase::isIndexApplicable(dbAnyCursor* cursor,
     dbSearchContext sc;
     size_t paramBase = (size_t)cursor->paramBase;
 
-    union { 
+    union {
         bool  b;
         int1  i1;
         int2  i2;
@@ -3132,15 +3132,15 @@ bool dbDatabase::isIndexApplicable(dbAnyCursor* cursor,
     literal[0].i8 = 0;
     literal[1].i8 = 0;
 
-    for (int i = 0; i < n-1; i++) { 
+    for (int i = 0; i < n-1; i++) {
         bool  bval = false;
         db_int8  ival = 0;
         real8 fval = 0;
         oid_t oid = 0;
-        char* sval = NULL; 
+        char* sval = NULL;
         rectangle* rect = NULL;
         dbExprNode* opd = expr->operand[i+1];
-        switch (opd->cop) {  
+        switch (opd->cop) {
           case dbvmLoadVarArrayOfOid:
           case dbvmLoadVarArrayOfInt4:
           case dbvmLoadVarArrayOfInt8:
@@ -3150,7 +3150,7 @@ bool dbDatabase::isIndexApplicable(dbAnyCursor* cursor,
           case dbvmLoadVarArrayOfInt4Ptr:
           case dbvmLoadVarArrayOfInt8Ptr:
             literal[i].a = *(dbAnyArray**)((char*)opd->var + paramBase);
-            continue;            
+            continue;
           case dbvmLoadVarBool:
             bval = *(bool*)((char*)opd->var + paramBase);
             break;
@@ -3190,7 +3190,7 @@ bool dbDatabase::isIndexApplicable(dbAnyCursor* cursor,
             sval = (char*)((std::string*)((char*)opd->var + paramBase))->c_str();
             strop = true;
             break;
-#endif      
+#endif
           case dbvmLoadVarStringPtr:
             sval = *(char**)((char*)opd->var + paramBase);
             strop = true;
@@ -3218,8 +3218,8 @@ bool dbDatabase::isIndexApplicable(dbAnyCursor* cursor,
             break;
           default:
             return false;
-        } 
-        switch (field->type) { 
+        }
+        switch (field->type) {
           case dbField::tpBool:
             literal[i].b = bval;
             break;
@@ -3267,72 +3267,72 @@ bool dbDatabase::isIndexApplicable(dbAnyCursor* cursor,
     sc.condition = andExpr ? andExpr->operand[1] : (dbExprNode*)0;
     sc.probes = 0;
 
-    switch (expr->cop) { 
+    switch (expr->cop) {
       case dbvmInArrayInt4:
-        if (field->type == dbField::tpInt4) { 
+        if (field->type == dbField::tpInt4) {
             dbAnyArray* arr = literal[0].a;
             db_int4* items = (db_int4*)arr->base();
             sc.firstKeyInclusion = sc.lastKeyInclusion = true;
             cursor->checkForDuplicates();
-            if (field->hashTable != 0) { 
+            if (field->hashTable != 0) {
                 for (int n = (int)arr->length(); --n >= 0; items++) {
                     sc.firstKey = sc.lastKey = (char*)items;
-                    dbHashTable::find(this, field->hashTable, sc);                    
-                }                    
-            } else { 
+                    dbHashTable::find(this, field->hashTable, sc);
+                }
+            } else {
                 for (int n = (int)arr->length(); --n >= 0; items++) {
                     sc.firstKey = sc.lastKey = (char*)items;
                     dbTtree::find(this, field->tTree, sc);
-                }                    
+                }
             }
             return true;
         }
         return false;
-        
+
       case dbvmInArrayInt8:
-        if (field->type == dbField::tpInt8) { 
+        if (field->type == dbField::tpInt8) {
             dbAnyArray* arr = literal[0].a;
             db_int8* items = (db_int8*)arr->base();
             sc.firstKeyInclusion = sc.lastKeyInclusion = true;
             cursor->checkForDuplicates();
-            if (field->hashTable != 0) { 
+            if (field->hashTable != 0) {
                 for (int n = (int)arr->length(); --n >= 0; items++) {
                     sc.firstKey = sc.lastKey = (char*)items;
-                    dbHashTable::find(this, field->hashTable, sc);                    
-                }                    
-            } else { 
+                    dbHashTable::find(this, field->hashTable, sc);
+                }
+            } else {
                 for (int n = (int)arr->length(); --n >= 0; items++) {
                     sc.firstKey = sc.lastKey = (char*)items;
                     dbTtree::find(this, field->tTree, sc);
-                }                    
+                }
             }
             return true;
         }
         return false;
 
       case dbvmInArrayReference:
-        if (field->type == dbField::tpReference) { 
+        if (field->type == dbField::tpReference) {
             dbAnyArray* arr = literal[0].a;
             oid_t* items = (oid_t*)arr->base();
             sc.firstKeyInclusion = sc.lastKeyInclusion = true;
             cursor->checkForDuplicates();
-            if (field->hashTable != 0) { 
+            if (field->hashTable != 0) {
                 for (int n = (int)arr->length(); --n >= 0; items++) {
                     sc.firstKey = sc.lastKey = (char*)items;
-                    dbHashTable::find(this, field->hashTable, sc);                    
-                }                    
-            } else { 
+                    dbHashTable::find(this, field->hashTable, sc);
+                }
+            } else {
                 for (int n = (int)arr->length(); --n >= 0; items++) {
                     sc.firstKey = sc.lastKey = (char*)items;
                     dbTtree::find(this, field->tTree, sc);
-                }                    
+                }
             }
             return true;
         }
         return false;
 
       case dbvmInArrayRectangle:
-        if (field->type == dbField::tpRectangle) { 
+        if (field->type == dbField::tpRectangle) {
             dbAnyArray* arr = literal[0].a;
             rectangle* items = (rectangle*)arr->base();
             sc.firstKeyInclusion = dbRtree::SUBSET;
@@ -3340,7 +3340,7 @@ bool dbDatabase::isIndexApplicable(dbAnyCursor* cursor,
             for (int n = (int)arr->length(); --n >= 0; items++) {
                 sc.firstKey = (char*)items;
                 dbRtree::find(this, field->tTree, sc);
-            }                    
+            }
             return true;
         }
         return false;
@@ -3353,16 +3353,16 @@ bool dbDatabase::isIndexApplicable(dbAnyCursor* cursor,
         sc.firstKey = (char*)literal[0].r;
         sc.firstKeyInclusion = dbRtree::EQUAL + expr->cop - dbvmEqRectangle;
         dbRtree::find(this, field->tTree, sc);
-        TRACE_MSG(("Spatial index search for field %s.%s: %d probes\n", 
-                   field->defTable->name, field->longName, sc.probes)); 
+        TRACE_MSG(("Spatial index search for field %s.%s: %d probes\n",
+                   field->defTable->name, field->longName, sc.probes));
         return true;
 
       case dbvmOverlapsRectangle:
         sc.firstKey = (char*)literal[0].r;
         sc.firstKeyInclusion = dbRtree::OVERLAPS;
         dbRtree::find(this, field->tTree, sc);
-        TRACE_MSG(("Spatial index search for field %s.%s: %d probes\n", 
-                   field->defTable->name, field->longName, sc.probes)); 
+        TRACE_MSG(("Spatial index search for field %s.%s: %d probes\n",
+                   field->defTable->name, field->longName, sc.probes));
         return true;
 
       case dbvmIsNull:
@@ -3372,17 +3372,17 @@ bool dbDatabase::isIndexApplicable(dbAnyCursor* cursor,
       case dbvmEqReal:
       case dbvmEqString:
       case dbvmEqBinary:
-        sc.firstKey = sc.lastKey = 
+        sc.firstKey = sc.lastKey =
             strop ? literal[0].s : (char*)&literal[0];
         sc.firstKeyInclusion = sc.lastKeyInclusion = true;
-        if (field->hashTable != 0) { 
+        if (field->hashTable != 0) {
             dbHashTable::find(this, field->hashTable, sc);
-            TRACE_MSG(("Hash table search for field %s.%s: %d probes\n", 
-                       field->defTable->name, field->longName, sc.probes)); 
-        } else { 
+            TRACE_MSG(("Hash table search for field %s.%s: %d probes\n",
+                       field->defTable->name, field->longName, sc.probes));
+        } else {
             dbTtree::find(this, field->tTree, sc);
-            TRACE_MSG(("Index search for field %s.%s: %d probes\n", 
-                       field->defTable->name, field->longName, sc.probes)); 
+            TRACE_MSG(("Index search for field %s.%s: %d probes\n",
+                       field->defTable->name, field->longName, sc.probes));
         }
         return true;
       case dbvmGtInt:
@@ -3394,24 +3394,24 @@ bool dbDatabase::isIndexApplicable(dbAnyCursor* cursor,
             sc.lastKey = NULL;
             sc.firstKeyInclusion = false;
             dbTtree::find(this, field->tTree, sc);
-            TRACE_MSG(("Index search for field %s.%s: %d probes\n", 
-                       field->defTable->name, field->longName, sc.probes)); 
+            TRACE_MSG(("Index search for field %s.%s: %d probes\n",
+                       field->defTable->name, field->longName, sc.probes));
             return true;
-        } 
+        }
         return false;
       case dbvmGeInt:
       case dbvmGeReal:
-      case dbvmGeString:        
+      case dbvmGeString:
       case dbvmGeBinary:
         if (field->tTree != 0) {
             sc.firstKey = strop ? literal[0].s : (char*)&literal[0];
             sc.lastKey = NULL;
             sc.firstKeyInclusion = true;
             dbTtree::find(this, field->tTree, sc);
-            TRACE_MSG(("Index search for field %s.%s: %d probes\n", 
-                       field->defTable->name, field->longName, sc.probes)); 
+            TRACE_MSG(("Index search for field %s.%s: %d probes\n",
+                       field->defTable->name, field->longName, sc.probes));
             return true;
-        } 
+        }
         return false;
       case dbvmLtInt:
       case dbvmLtReal:
@@ -3422,10 +3422,10 @@ bool dbDatabase::isIndexApplicable(dbAnyCursor* cursor,
             sc.lastKey = strop ? literal[0].s : (char*)&literal[0];
             sc.lastKeyInclusion = false;
             dbTtree::find(this, field->tTree, sc);
-            TRACE_MSG(("Index search for field %s.%s: %d probes\n", 
-                       field->defTable->name, field->longName, sc.probes)); 
+            TRACE_MSG(("Index search for field %s.%s: %d probes\n",
+                       field->defTable->name, field->longName, sc.probes));
             return true;
-        } 
+        }
         return false;
       case dbvmLeInt:
       case dbvmLeReal:
@@ -3436,24 +3436,24 @@ bool dbDatabase::isIndexApplicable(dbAnyCursor* cursor,
             sc.lastKey = strop ? literal[0].s : (char*)&literal[0];
             sc.lastKeyInclusion = true;
             dbTtree::find(this, field->tTree, sc);
-            TRACE_MSG(("Index search for field %s.%s: %d probes\n", 
-                       field->defTable->name, field->longName, sc.probes)); 
+            TRACE_MSG(("Index search for field %s.%s: %d probes\n",
+                       field->defTable->name, field->longName, sc.probes));
             return true;
-        } 
+        }
         return false;
       case dbvmBetweenInt:
       case dbvmBetweenReal:
       case dbvmBetweenString:
       case dbvmBetweenBinary:
         if (field->hashTable != 0 &&
-            ((strop && ((binop && memcmp(literal[0].s, literal[1].s, sc.sizeofType) == 0) 
+            ((strop && ((binop && memcmp(literal[0].s, literal[1].s, sc.sizeofType) == 0)
                         || (!binop && strcmp(literal[0].s, literal[1].s) == 0)))
              || (!strop && literal[0].i8 == literal[1].i8)))
         {
             sc.firstKey = strop ? literal[0].s : (char*)&literal[0];
             dbHashTable::find(this, field->hashTable, sc);
-            TRACE_MSG(("Hash table search for field %s.%s: %d probes\n", 
-                       field->defTable->name, field->longName, sc.probes)); 
+            TRACE_MSG(("Hash table search for field %s.%s: %d probes\n",
+                       field->defTable->name, field->longName, sc.probes));
             return true;
         } else if (field->tTree != 0) {
             sc.firstKey = strop ? literal[0].s : (char*)&literal[0];
@@ -3461,82 +3461,82 @@ bool dbDatabase::isIndexApplicable(dbAnyCursor* cursor,
             sc.lastKey = strop ? literal[1].s : (char*)&literal[1];
             sc.lastKeyInclusion = true;
             dbTtree::find(this, field->tTree, sc);
-            TRACE_MSG(("Index search for field %s.%s: %d probes\n", 
-                       field->defTable->name, field->longName, sc.probes)); 
+            TRACE_MSG(("Index search for field %s.%s: %d probes\n",
+                       field->defTable->name, field->longName, sc.probes));
             return true;
-        } 
+        }
         return false;
       case dbvmLikeString:
       case dbvmLikeEscapeString:
-        if ((s = findWildcard(literal[0].s, literal[1].s)) == NULL 
+        if ((s = findWildcard(literal[0].s, literal[1].s)) == NULL
             || ((s[1] == '\0' || s != literal[0].s) && field->tTree != 0))
         {
-            if (s == NULL) { 
+            if (s == NULL) {
                 sc.firstKey = sc.lastKey = literal[0].s;
                 sc.firstKeyInclusion = sc.lastKeyInclusion = true;
-                if (field->hashTable != 0) { 
+                if (field->hashTable != 0) {
                     dbHashTable::find(this, field->hashTable, sc);
                     TRACE_MSG(("Hash table search for field %s.%s: "
-                               "%d probes\n", field->defTable->name, 
+                               "%d probes\n", field->defTable->name,
                                field->longName, sc.probes));
-                } else { 
+                } else {
                     dbTtree::find(this, field->tTree, sc);
-                    TRACE_MSG(("Index search for field %s.%s: %d probes\n", 
-                               field->defTable->name, field->longName, 
+                    TRACE_MSG(("Index search for field %s.%s: %d probes\n",
+                               field->defTable->name, field->longName,
                                sc.probes));
                 }
-            } else {            
+            } else {
                 int len = s - literal[0].s;
-                if (len == 0) { 
-                    if (*s != dbMatchAnySubstring) { 
+                if (len == 0) {
+                    if (*s != dbMatchAnySubstring) {
                         return false;
                     }
                     sc.firstKey = NULL;
                     sc.lastKey = NULL;
                     dbTtree::find(this, field->tTree, sc);
                     TRACE_MSG(("Use index for ordering records by field "
-                               "%s.%s\n", field->defTable->name, 
-                               field->longName)); 
-                } else {            
+                               "%s.%s\n", field->defTable->name,
+                               field->longName));
+                } else {
                     sc.firstKey = new char[len+1];
                     memcpy(sc.firstKey, literal[0].s, len);
                     sc.firstKey[len] = '\0';
                     sc.firstKeyInclusion = true;
                     sc.lastKey = NULL;
                     sc.prefixLength = len;
-                    if (s[0] != dbMatchAnySubstring || s[1] != '\0') { 
+                    if (s[0] != dbMatchAnySubstring || s[1] != '\0') {
                         // Records selected by index do not necessarily
                         // match the pattern, so include pattern matching in
                         // condition expression
-                        if (andExpr == NULL) { 
-                            if (expr->operand[0]->cop != dbvmLoadSelfString) { 
-                                dbExprNode load(dbvmLoadSelfString, 
+                        if (andExpr == NULL) {
+                            if (expr->operand[0]->cop != dbvmLoadSelfString) {
+                                dbExprNode load(dbvmLoadSelfString,
                                                 expr->operand[0]->ref.field);
-                                dbExprNode like(expr->cop, &load, 
+                                dbExprNode like(expr->cop, &load,
                                                 expr->operand[1],
                                                 expr->operand[2]);
                                 sc.condition = &like;
                                 dbTtree::find(this, field->tTree, sc);
                                 like.cop = dbvmVoid;// do not destruct operands
-                            } else { 
+                            } else {
                                 sc.condition = expr;
                                 dbTtree::find(this, field->tTree, sc);
                             }
-                        } else { 
+                        } else {
                             sc.condition = andExpr;
                             dbTtree::find(this, field->tTree, sc);
                         }
-                    } else { 
+                    } else {
                         dbTtree::find(this, field->tTree, sc);
                     }
                     TRACE_MSG(("Index search for prefix in LIKE expression "
-                               "for field %s.%s: %d probes\n", 
-                               field->defTable->name, field->longName, 
+                               "for field %s.%s: %d probes\n",
+                               field->defTable->name, field->longName,
                                sc.probes));
                     delete[] sc.firstKey;
                     delete[] sc.lastKey;
                 }
-            }   
+            }
             return true;
         }
     }
@@ -3544,20 +3544,20 @@ bool dbDatabase::isIndexApplicable(dbAnyCursor* cursor,
 }
 
 
-struct SearchThreadArgument { 
+struct SearchThreadArgument {
     dbParallelQueryContext* ctx;
     int                     id;
 };
-                             
 
-static void thread_proc parallelSearch(void* arg) 
+
+static void thread_proc parallelSearch(void* arg)
 {
     SearchThreadArgument* sa = (SearchThreadArgument*)arg;
     sa->ctx->search(sa->id);
 }
 
 
-void dbDatabase::traverse(dbAnyCursor* cursor, dbQuery& query) 
+void dbDatabase::traverse(dbAnyCursor* cursor, dbQuery& query)
 {
     const int defaultStackSize = 1024;
     oid_t buf[defaultStackSize];
@@ -3569,22 +3569,22 @@ void dbDatabase::traverse(dbAnyCursor* cursor, dbQuery& query)
     dbTable* table = (dbTable*)getRow(cursor->table->tableId);
 
     void* root = (void*)query.root;
-    switch (query.startFrom) { 
+    switch (query.startFrom) {
       case dbCompiledQuery::StartFromFirst:
         oid = table->firstRow;
-        if (oid != 0) { 
+        if (oid != 0) {
             stack[sp++] = oid;
         }
         break;
       case dbCompiledQuery::StartFromLast:
         oid = table->lastRow;
-        if (oid != 0) { 
+        if (oid != 0) {
             stack[sp++] = oid;
         }
         break;
       case dbCompiledQuery::StartFromRef:
         oid = *(oid_t*)root;
-        if (oid != 0) { 
+        if (oid != 0) {
             stack[sp++] = oid;
         }
         break;
@@ -3599,9 +3599,9 @@ void dbDatabase::traverse(dbAnyCursor* cursor, dbQuery& query)
             stack = new oid_t[stackSize];
         }
         refs = (oid_t*)arr->base();
-        while (--len >= 0) { 
+        while (--len >= 0) {
             oid = refs[len];
-            if (oid != 0) { 
+            if (oid != 0) {
                 stack[sp++] = oid;
             }
         }
@@ -3613,61 +3613,61 @@ void dbDatabase::traverse(dbAnyCursor* cursor, dbQuery& query)
     dbExprNode* condition = query.tree;
     dbFollowByNode* follow = query.follow;
 
-    while (sp != 0) { 
+    while (sp != 0) {
         oid_t curr = stack[--sp];
         if (condition->cop == dbvmVoid || evaluate(condition, curr, table, cursor)) {
-            if (!cursor->add(curr)) { 
+            if (!cursor->add(curr)) {
                 break;
             }
-        } else { 
+        } else {
             cursor->mark(curr);
         }
         byte* record = (byte*)getRow(curr);
-        for (dbFollowByNode* fp = follow; fp != NULL; fp = fp->next) { 
+        for (dbFollowByNode* fp = follow; fp != NULL; fp = fp->next) {
             dbFieldDescriptor* fd = fp->field;
-            if (fd->type == dbField::tpArray) { 
+            if (fd->type == dbField::tpArray) {
                 dbVarying* vp = (dbVarying*)(record + fd->dbsOffs);
                 len = vp->size;
-                if (sp + len > stackSize) { 
+                if (sp + len > stackSize) {
                     int newSize = len > stackSize ? len*2 : stackSize*2;
                     oid_t* newStack = new oid_t[newSize];
                     memcpy(newStack, stack, stackSize*sizeof(oid_t));
                     stackSize = newSize;
-                    if (stack != buf) { 
+                    if (stack != buf) {
                         delete[] stack;
                     }
                     stack = newStack;
                 }
                 refs = (oid_t*)(record + vp->offs);
-                while (--len >= 0) { 
+                while (--len >= 0) {
                     oid = refs[len];
-                    if (oid != 0 && !cursor->isMarked(oid)) { 
+                    if (oid != 0 && !cursor->isMarked(oid)) {
                         stack[sp++] = oid;
                     }
                 }
-            } else { 
+            } else {
                 assert(fd->type == dbField::tpReference);
-                if (sp == stackSize) { 
+                if (sp == stackSize) {
                     int newSize = stackSize*2;
                     oid_t* newStack = new oid_t[newSize];
                     memcpy(newStack, stack, stackSize*sizeof(oid_t));
                     stackSize = newSize;
-                    if (stack != buf) { 
+                    if (stack != buf) {
                         delete[] stack;
                     }
                     stack = newStack;
                 }
                 oid = *(oid_t*)(record + fd->dbsOffs);
-                if (oid != 0 && !cursor->isMarked(oid)) { 
+                if (oid != 0 && !cursor->isMarked(oid)) {
                     stack[sp++] = oid;
                 }
             }
         }
     }
-    if (stack != buf) { 
+    if (stack != buf) {
         delete[] stack;
     }
-    if (query.order != NULL) { 
+    if (query.order != NULL) {
         cursor->selection.sort(this, query.order);
     }
 }
@@ -3681,12 +3681,12 @@ bool dbDatabase::prepareQuery(dbAnyCursor* cursor, dbQuery& query)
     assert(opened);
     dbDatabaseThreadContext* ctx = threadContext.get();
     assert(ctx != NULL);
-    { 
-        dbCriticalSection cs(query.mutex);  
-        query.mutexLocked = true; 
-        if (!query.compiled() || cursor->table != query.table || schemeVersion != query.schemeVersion) { 
+    {
+        dbCriticalSection cs(query.mutex);
+        query.mutexLocked = true;
+        if (!query.compiled() || cursor->table != query.table || schemeVersion != query.schemeVersion) {
             query.schemeVersion = schemeVersion;
-            if (!ctx->compiler.compile(cursor->table, query)) { 
+            if (!ctx->compiler.compile(cursor->table, query)) {
                 query.mutexLocked = false;
                 return false;
             }
@@ -3696,18 +3696,18 @@ bool dbDatabase::prepareQuery(dbAnyCursor* cursor, dbQuery& query)
     }
 }
 
-void dbDatabase::select(dbAnyCursor* cursor, dbQuery& query) 
-{    
+void dbDatabase::select(dbAnyCursor* cursor, dbQuery& query)
+{
     assert(opened);
     dbDatabaseThreadContext* ctx = threadContext.get();
     dbFieldDescriptor* indexedField = NULL;
     assert(ctx != NULL);
-    { 
-        dbCriticalSection cs(query.mutex);  
-        query.mutexLocked = true; 
-        if (!query.compiled() || cursor->table != query.table || schemeVersion != query.schemeVersion) { 
+    {
+        dbCriticalSection cs(query.mutex);
+        query.mutexLocked = true;
+        if (!query.compiled() || cursor->table != query.table || schemeVersion != query.schemeVersion) {
             query.schemeVersion = schemeVersion;
-            if (!ctx->compiler.compile(cursor->table, query)) { 
+            if (!ctx->compiler.compile(cursor->table, query)) {
                 query.mutexLocked = false;
                 return;
             }
@@ -3716,53 +3716,53 @@ void dbDatabase::select(dbAnyCursor* cursor, dbQuery& query)
     }
 #if FASTDB_DEBUG == DEBUG_TRACE
     char buf[4096];
-    if (query.elements != NULL) { 
+    if (query.elements != NULL) {
         TRACE_MSG(("Query:  select * from %s where %s\n", query.table->name,  query.dump(buf)));
-    } else { 
+    } else {
         TRACE_MSG(("Query:  select * from %s\n", query.table->name));
     }
-#endif 
-    beginTransaction(cursor->type == dbCursorForUpdate 
+#endif
+    beginTransaction(cursor->type == dbCursorForUpdate
                      ? dbDatabase::dbExclusiveLock : dbDatabase::dbSharedLock);
-    if (query.limitSpecified && query.order == NULL) { 
+    if (query.limitSpecified && query.order == NULL) {
         cursor->setStatementLimit(query);
-    }    
+    }
 
-    if (query.startFrom != dbCompiledQuery::StartFromAny) { 
+    if (query.startFrom != dbCompiledQuery::StartFromAny) {
         ctx->cursors.link(cursor);
         traverse(cursor, query);
-        if (query.limitSpecified && query.order != NULL) { 
-            cursor->setStatementLimit(query); 
+        if (query.limitSpecified && query.order != NULL) {
+            cursor->setStatementLimit(query);
             cursor->truncateSelection();
         }
         return;
     }
 
     dbExprNode* condition = query.tree;
-    if (condition->cop == dbvmVoid && query.order == NULL && !query.limitSpecified) { 
+    if (condition->cop == dbvmVoid && query.order == NULL && !query.limitSpecified) {
         // Empty select condition: select all records in the table
         select(cursor);
         return;
-    } 
+    }
     if (condition->cop == dbvmEqReference) {
-        if (condition->operand[0]->cop == dbvmCurrent) { 
-            if (condition->operand[1]->cop == dbvmLoadVarReference) { 
+        if (condition->operand[0]->cop == dbvmCurrent) {
+            if (condition->operand[1]->cop == dbvmLoadVarReference) {
                 cursor->setCurrent(*(dbAnyReference*)((char*)condition->operand[1]->var + (size_t)cursor->paramBase));
                 return;
             } else if (condition->operand[1]->cop == dbvmIntToReference
-                       && condition->operand[1]->operand[0]->cop == dbvmLoadIntConstant) 
+                       && condition->operand[1]->operand[0]->cop == dbvmLoadIntConstant)
             {
                 oid_t oid = (oid_t)condition->operand[1]->operand[0]->ivalue;
                 cursor->setCurrent(*(dbAnyReference*)&oid);
                 return;
             }
         }
-        if (condition->operand[1]->cop == dbvmCurrent) { 
-            if (condition->operand[0]->cop == dbvmLoadVarReference) { 
+        if (condition->operand[1]->cop == dbvmCurrent) {
+            if (condition->operand[0]->cop == dbvmLoadVarReference) {
                 cursor->setCurrent(*(dbAnyReference*)((char*)condition->operand[0]->var + (size_t)cursor->paramBase));
                 return;
             } else if (condition->operand[0]->cop == dbvmIntToReference
-                       && condition->operand[0]->operand[0]->cop == dbvmLoadIntConstant) 
+                       && condition->operand[0]->operand[0]->cop == dbvmLoadIntConstant)
             {
                 oid_t oid = (oid_t)condition->operand[0]->operand[0]->ivalue;
                 cursor->setCurrent(*(dbAnyReference*)&oid);
@@ -3772,78 +3772,78 @@ void dbDatabase::select(dbAnyCursor* cursor, dbQuery& query)
     }
     ctx->cursors.link(cursor);
 
-    if (condition->cop == dbvmAndBool) { 
-        if (isIndexApplicable(cursor, condition->operand[0], 
-                              condition, indexedField)) 
-        { 
-            if (query.order != NULL) { 
+    if (condition->cop == dbvmAndBool) {
+        if (isIndexApplicable(cursor, condition->operand[0],
+                              condition, indexedField))
+        {
+            if (query.order != NULL) {
                 if (indexedField->defTable != query.table
-                    || query.order->next != NULL 
+                    || query.order->next != NULL
                     || query.order->field != indexedField)
-                { 
+                {
                     cursor->selection.sort(this, query.order);
-                } else if (!query.order->ascent) { 
+                } else if (!query.order->ascent) {
                     cursor->selection.reverse();
                 }
                 if (query.limitSpecified) {
-                    cursor->setStatementLimit(query); 
+                    cursor->setStatementLimit(query);
                     cursor->truncateSelection();
                 }
             }
             return;
         }
-    } else { 
-        if (condition->cop == dbvmOrBool) { 
+    } else {
+        if (condition->cop == dbvmOrBool) {
             cursor->checkForDuplicates();
         }
-        while (condition->cop == dbvmOrBool 
+        while (condition->cop == dbvmOrBool
                && !cursor->isLimitReached()
-               && isIndexApplicable(cursor, condition->operand[0], NULL, 
+               && isIndexApplicable(cursor, condition->operand[0], NULL,
                                     indexedField))
         {
             condition = condition->operand[1];
         }
         if (!cursor->isLimitReached()
-            && isIndexApplicable(cursor, condition, NULL, indexedField)) 
-        { 
+            && isIndexApplicable(cursor, condition, NULL, indexedField))
+        {
             if (query.order != NULL) {
                 if (indexedField->defTable != query.table
                     || condition != query.tree
-                    || query.order->next != NULL 
+                    || query.order->next != NULL
                     || query.order->field != indexedField)
-                { 
+                {
                     cursor->selection.sort(this, query.order);
-                } else if (!query.order->ascent) { 
-                    cursor->selection.reverse();                
+                } else if (!query.order->ascent) {
+                    cursor->selection.reverse();
                 }
                 if (query.limitSpecified) {
-                    cursor->setStatementLimit(query); 
+                    cursor->setStatementLimit(query);
                     cursor->truncateSelection();
                 }
             }
             return;
         }
     }
-    if (query.order != NULL && query.order->next == NULL 
-        && query.order->field != NULL && query.order->field->type != dbField::tpRectangle 
-        && query.order->field->tTree != 0) 
-    { 
+    if (query.order != NULL && query.order->next == NULL
+        && query.order->field != NULL && query.order->field->type != dbField::tpRectangle
+        && query.order->field->tTree != 0)
+    {
         dbFieldDescriptor* field = query.order->field;
-        TRACE_MSG(("Use index for ordering records by field %s.%s\n", 
-                   query.table->name, field->longName)); 
+        TRACE_MSG(("Use index for ordering records by field %s.%s\n",
+                   query.table->name, field->longName));
         if (query.limitSpecified) {
-            cursor->setStatementLimit(query); 
+            cursor->setStatementLimit(query);
         }
-        if (condition->cop == dbvmVoid) { 
-            if (query.order->ascent) { 
-                dbTtree::traverseForward(this, field->tTree, cursor); 
-            } else { 
+        if (condition->cop == dbvmVoid) {
+            if (query.order->ascent) {
+                dbTtree::traverseForward(this, field->tTree, cursor);
+            } else {
                 dbTtree::traverseBackward(this, field->tTree, cursor);
             }
-        } else { 
-            if (query.order->ascent) { 
-                dbTtree::traverseForward(this,field->tTree,cursor,condition); 
-            } else { 
+        } else {
+            if (query.order->ascent) {
+                dbTtree::traverseForward(this,field->tTree,cursor,condition);
+            } else {
                 dbTtree::traverseBackward(this,field->tTree,cursor,condition);
             }
         }
@@ -3853,45 +3853,45 @@ void dbDatabase::select(dbAnyCursor* cursor, dbQuery& query)
     dbTable* table = (dbTable*)getRow(cursor->table->tableId);
     int n = parThreads-1;
     if (cursor->getNumberOfRecords() == 0
-        && n > 0 && table->nRows >= parallelScanThreshold 
+        && n > 0 && table->nRows >= parallelScanThreshold
         && cursor->limit >= dbDefaultSelectionLimit)
     {
         dbPooledThread* thread[dbMaxParallelSearchThreads];
         SearchThreadArgument sa[dbMaxParallelSearchThreads];
         dbParallelQueryContext par(this, table, &query, cursor);
         int i;
-        for (i = 0; i < n; i++) { 
+        for (i = 0; i < n; i++) {
             sa[i].id = i;
             sa[i].ctx = &par;
             thread[i] = threadPool.create((dbThread::thread_proc_t)parallelSearch, &sa[i]);
         }
         par.search(i);
-        for (i = 0; i < n; i++) { 
+        for (i = 0; i < n; i++) {
             threadPool.join(thread[i]);
         }
-        if (query.order != NULL) { 
+        if (query.order != NULL) {
             oid_t rec[dbMaxParallelSearchThreads];
-            for (i = 0; i <= n; i++) { 
-                if (par.selection[i].first != NULL) { 
+            for (i = 0; i <= n; i++) {
+                if (par.selection[i].first != NULL) {
                     rec[i] = par.selection[i].first->rows[0];
-                } else { 
+                } else {
                     rec[i] = 0;
                 }
             }
-            while (true) { 
+            while (true) {
                 int min = -1;
-                for (i = 0; i <= n; i++) { 
+                for (i = 0; i <= n; i++) {
                     if (rec[i] != 0
-                        && (min < 0 || dbSelection::compare(rec[i], rec[min], 
+                        && (min < 0 || dbSelection::compare(rec[i], rec[min],
                                                             query.order) < 0))
                     {
                         min = i;
                     }
                 }
-                if (min < 0) { 
+                if (min < 0) {
                     return;
                 }
-                oid_t oid = 
+                oid_t oid =
                     par.selection[min].first->rows[par.selection[min].pos];
                 cursor->selection.add(oid);
                 par.selection[min].pos += 1;
@@ -3899,7 +3899,7 @@ void dbDatabase::select(dbAnyCursor* cursor, dbQuery& query)
                     par.selection[min].pos = 0;
                     dbSelection::segment* next=par.selection[min].first->next;
                     delete par.selection[min].first;
-                    if ((par.selection[min].first = next) == NULL) { 
+                    if ((par.selection[min].first = next) == NULL) {
                         rec[min] = 0;
                         continue;
                     }
@@ -3907,43 +3907,43 @@ void dbDatabase::select(dbAnyCursor* cursor, dbQuery& query)
                 oid = par.selection[min].first->rows[par.selection[min].pos];
                 rec[min] = oid;
             }
-        } else { 
-            for (i = 0; i <= n; i++) { 
-                if (par.selection[i].first != NULL) { 
+        } else {
+            for (i = 0; i <= n; i++) {
+                if (par.selection[i].first != NULL) {
                     par.selection[i].first->prev = cursor->selection.last;
-                    if (cursor->selection.last == NULL) { 
+                    if (cursor->selection.last == NULL) {
                         cursor->selection.first = par.selection[i].first;
-                    } else { 
+                    } else {
                         cursor->selection.last->next = par.selection[i].first;
                     }
                     cursor->selection.last = par.selection[i].last;
-                    cursor->selection.nRows += par.selection[i].nRows;  
+                    cursor->selection.nRows += par.selection[i].nRows;
                 }
             }
-        }               
-    } else { 
+        }
+    } else {
         oid_t oid = table->firstRow;
-        if (!cursor->isLimitReached()) { 
-            while (oid != 0) { 
-                if (evaluate(condition, oid, table, cursor)) { 
-                    if (!cursor->add(oid)) { 
+        if (!cursor->isLimitReached()) {
+            while (oid != 0) {
+                if (evaluate(condition, oid, table, cursor)) {
+                    if (!cursor->add(oid)) {
                         break;
                     }
                 }
                 oid = getRow(oid)->next;
             }
         }
-        if (query.order != NULL) { 
+        if (query.order != NULL) {
             cursor->selection.sort(this, query.order);
         }
     }
     if (query.limitSpecified && query.order != NULL) {
-        cursor->setStatementLimit(query); 
+        cursor->setStatementLimit(query);
         cursor->truncateSelection();
     }
 }
 
-void dbDatabase::select(dbAnyCursor* cursor) 
+void dbDatabase::select(dbAnyCursor* cursor)
 {
     assert(opened);
     beginTransaction(cursor->type == dbCursorForUpdate ? dbExclusiveLock : dbSharedLock);
@@ -3956,7 +3956,7 @@ void dbDatabase::select(dbAnyCursor* cursor)
 }
 
 
-void dbDatabase::remove(dbTableDescriptor* desc, oid_t delId) 
+void dbDatabase::remove(dbTableDescriptor* desc, oid_t delId)
 {
     modified = true;
 
@@ -3966,10 +3966,10 @@ void dbDatabase::remove(dbTableDescriptor* desc, oid_t delId)
     for (fd = desc->hashedFields; fd != NULL; fd = fd->nextHashedField){
         dbHashTable::remove(this, fd->hashTable, delId, fd->type, fd->dbsSize, fd->dbsOffs);
     }
-    for (fd = desc->indexedFields; fd != NULL; fd = fd->nextIndexedField) { 
-        if (fd->type == dbField::tpRectangle) { 
+    for (fd = desc->indexedFields; fd != NULL; fd = fd->nextIndexedField) {
+        if (fd->type == dbField::tpRectangle) {
             dbRtree::remove(this, fd->tTree, delId, fd->dbsOffs);
-        } else { 
+        } else {
             dbTtree::remove(this, fd->tTree, delId, fd->type, fd->dbsSize, fd->comparator, fd->dbsOffs);
         }
     }
@@ -3979,16 +3979,16 @@ void dbDatabase::remove(dbTableDescriptor* desc, oid_t delId)
 }
 
 
-dbRecord* dbDatabase::putRow(oid_t oid, size_t newSize) 
-{  
+dbRecord* dbDatabase::putRow(oid_t oid, size_t newSize)
+{
     offs_t offs = currIndex[oid];
-    if (oid < committedIndexSize && index[0][oid] == index[1][oid]) { 
+    if (oid < committedIndexSize && index[0][oid] == index[1][oid]) {
         size_t pageNo = oid/dbHandlesPerPage;
         monitor->dirtyPagesMap[pageNo >> 5] |= 1 << (pageNo & 31);
         cloneBitmap(offs, getRow(oid)->size);
         offs_t pos = allocate(newSize);
         currIndex[oid] = pos;
-    } else { 
+    } else {
         size_t oldSize = getRow(oid)->size;
         if (oldSize != newSize) {
             offs_t pos = allocate(newSize);
@@ -4004,8 +4004,8 @@ dbRecord* dbDatabase::putRow(oid_t oid, size_t newSize)
     return record;
 }
 
-void dbDatabase::allocateRow(oid_t tableId, oid_t oid, size_t size) 
-{ 
+void dbDatabase::allocateRow(oid_t tableId, oid_t oid, size_t size)
+{
     offs_t pos = allocate(size);
     currIndex[oid] = pos;
     dbTable* table = (dbTable*)putRow(tableId);
@@ -4013,20 +4013,20 @@ void dbDatabase::allocateRow(oid_t tableId, oid_t oid, size_t size)
     record->size = size;
     record->next = 0;
     record->prev = table->lastRow;
-    if (table->lastRow != 0) { 
-        if (accessType == dbConcurrentUpdate) { 
-            putRow(table->lastRow)->next = oid;  
+    if (table->lastRow != 0) {
+        if (accessType == dbConcurrentUpdate) {
+            putRow(table->lastRow)->next = oid;
             table = (dbTable*)getRow(tableId);
-        } else { 
+        } else {
             //
-            // Optimisation hack: avoid cloning of the last record. 
+            // Optimisation hack: avoid cloning of the last record.
             // Possible inconsistency in L2-list will be eliminated by recovery
             // procedure.
             //
             getRow(table->lastRow)->next = oid;
             file.markAsDirty(currIndex[table->lastRow], sizeof(dbRecord));
         }
-    } else { 
+    } else {
         table->firstRow = oid;
     }
     table->lastRow = oid;
@@ -4056,31 +4056,31 @@ void dbDatabase::freeRow(oid_t tableId, oid_t oid)
     if (next != 0) {
         putRow(next)->prev = prev;
     }
-    if (oid < committedIndexSize && index[0][oid] == index[1][oid]) { 
+    if (oid < committedIndexSize && index[0][oid] == index[1][oid]) {
         cloneBitmap(currIndex[oid], size);
-    } else { 
+    } else {
         deallocate(currIndex[oid], size);
     }
     freeId(oid);
 }
 
-void dbDatabase::freeObject(oid_t oid) 
-{ 
+void dbDatabase::freeObject(oid_t oid)
+{
     int marker = currIndex[oid] & dbInternalObjectMarker;
-    if (oid < committedIndexSize && index[0][oid] == index[1][oid]) { 
+    if (oid < committedIndexSize && index[0][oid] == index[1][oid]) {
         cloneBitmap(currIndex[oid] - marker, internalObjectSize[marker]);
-    } else { 
+    } else {
         deallocate(currIndex[oid] - marker, internalObjectSize[marker]);
-    } 
+    }
     freeId(oid);
 }
- 
+
 
 void dbDatabase::update(oid_t oid, dbTableDescriptor* desc, void const* record)
 {
     assert(opened);
     beginTransaction(dbExclusiveLock);
-    size_t size = 
+    size_t size =
         desc->columns->calculateRecordSize((byte*)record, desc->fixedSize);
 
     byte* src = (byte*)record;
@@ -4088,8 +4088,8 @@ void dbDatabase::update(oid_t oid, dbTableDescriptor* desc, void const* record)
     updatedRecordId = oid;
 
     dbFieldDescriptor* fd;
-    for (fd = desc->inverseFields; fd != NULL; fd = fd->nextInverseField) { 
-        if (fd->type == dbField::tpArray) { 
+    for (fd = desc->inverseFields; fd != NULL; fd = fd->nextInverseField) {
+        if (fd->type == dbField::tpArray) {
             dbAnyArray* arr = (dbAnyArray*)(src + fd->appOffs);
             int n = arr->length();
             oid_t* newrefs = (oid_t*)arr->base();
@@ -4101,107 +4101,107 @@ void dbDatabase::update(oid_t oid, dbTableDescriptor* desc, void const* record)
             old += offs;
 
             for (i = j = 0; i < m; i++) {
-                oid_t oldref = *((oid_t*)old + i); 
-                if (oldref != 0) { 
+                oid_t oldref = *((oid_t*)old + i);
+                if (oldref != 0) {
                     for (k = j; j < n && newrefs[j] != oldref; j++);
-                    if (j == n) { 
+                    if (j == n) {
                         for (j = k--; k >= 0 && newrefs[k] != oldref; k--);
-                        if (k < 0) { 
+                        if (k < 0) {
                             removeInverseReference(fd, oid, oldref);
                             old = (byte*)getRow(oid) + offs;
                         }
-                    } else { 
+                    } else {
                         j += 1;
                     }
                 }
             }
-            for (i = j = 0; i < n; i++) { 
-                if (newrefs[i] != 0) { 
+            for (i = j = 0; i < n; i++) {
+                if (newrefs[i] != 0) {
                     for(k=j; j < m && newrefs[i] != *((oid_t*)old+j); j++);
-                    if (j == m) { 
+                    if (j == m) {
                         for (j=k--; k >= 0 && newrefs[i] != *((oid_t*)old+k); k--);
-                        if (k < 0) { 
+                        if (k < 0) {
                             insertInverseReference(fd, oid, newrefs[i]);
                             old = (byte*)getRow(oid) + offs;
                         }
-                    } else { 
+                    } else {
                         j += 1;
                     }
                 }
             }
-        } else { 
+        } else {
             oid_t newref = *(oid_t*)(src + fd->appOffs);
             byte* old = (byte*)getRow(oid);
-            oid_t oldref = *(oid_t*)(old + fd->dbsOffs); 
+            oid_t oldref = *(oid_t*)(old + fd->dbsOffs);
             if (newref != oldref) {
-                if (oldref != 0) { 
+                if (oldref != 0) {
                     removeInverseReference(fd, oid, oldref);
                 }
-                if (newref != 0) { 
+                if (newref != 0) {
                     insertInverseReference(fd, oid, newref);
                 }
             }
         }
-    }           
+    }
     updatedRecordId = 0;
 
     for (fd = desc->hashedFields; fd != NULL; fd = fd->nextHashedField) {
-        if (fd->attr & dbFieldDescriptor::Updated) { 
+        if (fd->attr & dbFieldDescriptor::Updated) {
             dbHashTable::remove(this, fd->hashTable, oid, fd->type, fd->dbsSize, fd->dbsOffs);
         }
-    } 
-    for (fd = desc->indexedFields; fd != NULL; fd = fd->nextIndexedField) { 
-        if (fd->attr & dbFieldDescriptor::Updated) { 
-            if (fd->type == dbField::tpRectangle) { 
+    }
+    for (fd = desc->indexedFields; fd != NULL; fd = fd->nextIndexedField) {
+        if (fd->attr & dbFieldDescriptor::Updated) {
+            if (fd->type == dbField::tpRectangle) {
                 dbRtree::remove(this, fd->tTree, oid, fd->dbsOffs);
-            } else { 
+            } else {
                 dbTtree::remove(this, fd->tTree, oid, fd->type, fd->dbsSize, fd->comparator, fd->dbsOffs);
             }
         }
     }
 
-    byte* old = (byte*)getRow(oid);    
-    byte* dst = (byte*)putRow(oid, size);    
-    if (dst == old) { 
+    byte* old = (byte*)getRow(oid);
+    byte* dst = (byte*)putRow(oid, size);
+    if (dst == old) {
         dbSmallBuffer buf(size);
         byte* temp = (byte*)buf.base();
         desc->columns->storeRecordFields(temp, src, desc->fixedSize, dbFieldDescriptor::Update);
         memcpy(dst+sizeof(dbRecord), temp+sizeof(dbRecord), size-sizeof(dbRecord));
-    } else { 
+    } else {
         desc->columns->storeRecordFields(dst, src, desc->fixedSize, dbFieldDescriptor::Update);
     }
     modified = true;
 
     for (fd = desc->hashedFields; fd != NULL; fd = fd->nextHashedField) {
-        if (fd->attr & dbFieldDescriptor::Updated) { 
-            dbHashTable::insert(this, fd->hashTable, oid, fd->type, fd->dbsSize, 
+        if (fd->attr & dbFieldDescriptor::Updated) {
+            dbHashTable::insert(this, fd->hashTable, oid, fd->type, fd->dbsSize,
                                 fd->dbsOffs, 0);
         }
-    } 
-    for (fd = desc->indexedFields; fd != NULL; fd = fd->nextIndexedField) { 
-        if (fd->attr & dbFieldDescriptor::Updated) { 
-            if (fd->type == dbField::tpRectangle) { 
+    }
+    for (fd = desc->indexedFields; fd != NULL; fd = fd->nextIndexedField) {
+        if (fd->attr & dbFieldDescriptor::Updated) {
+            if (fd->type == dbField::tpRectangle) {
                 dbRtree::insert(this, fd->tTree, oid, fd->dbsOffs);
-            } else { 
+            } else {
                 dbTtree::insert(this, fd->tTree, oid, fd->type, fd->dbsSize, fd->comparator, fd->dbsOffs);
             }
             fd->attr &= ~dbFieldDescriptor::Updated;
         }
     }
     for (fd = desc->hashedFields; fd != NULL; fd = fd->nextHashedField) {
-        fd->attr &= ~dbFieldDescriptor::Updated;        
+        fd->attr &= ~dbFieldDescriptor::Updated;
     }
-    updateCursors(oid); 
+    updateCursors(oid);
 }
 
 
-void dbDatabase::insertRecord(dbTableDescriptor* desc, dbAnyReference* ref, 
-                              void const* record) 
-{ 
+void dbDatabase::insertRecord(dbTableDescriptor* desc, dbAnyReference* ref,
+                              void const* record)
+{
     assert(opened);
     beginTransaction(dbExclusiveLock);
     modified = true;
-    size_t size = 
+    size_t size =
         desc->columns->calculateRecordSize((byte*)record, desc->fixedSize);
 
     dbTable* table = (dbTable*)getRow(desc->tableId);
@@ -4211,35 +4211,35 @@ void dbDatabase::insertRecord(dbTableDescriptor* desc, dbAnyReference* ref,
     int nRows = table->nRows+1;
     oid_t oid = allocateRow(desc->tableId, size);
     byte* src = (byte*)record;
-    byte* dst = (byte*)getRow(oid);    
+    byte* dst = (byte*)getRow(oid);
     desc->columns->storeRecordFields(dst, src, desc->fixedSize, dbFieldDescriptor::Insert);
     ref->oid = oid;
     dbFieldDescriptor* fd;
-    for (fd = desc->inverseFields; fd != NULL; fd = fd->nextInverseField) { 
-        if (fd->type == dbField::tpArray) { 
+    for (fd = desc->inverseFields; fd != NULL; fd = fd->nextInverseField) {
+        if (fd->type == dbField::tpArray) {
             dbAnyArray* arr = (dbAnyArray*)(src + fd->appOffs);
             int n = arr->length();
             oid_t* refs = (oid_t*)arr->base();
-            while (--n >= 0) { 
+            while (--n >= 0) {
                 if (refs[n] != 0) {
                     insertInverseReference(fd, oid, refs[n]);
                 }
             }
-        } else { 
+        } else {
             oid_t ref = *(oid_t*)(src + fd->appOffs);
-            if (ref != 0) { 
+            if (ref != 0) {
                 insertInverseReference(fd, oid, ref);
             }
         }
-    }           
+    }
     for (fd = desc->hashedFields; fd != NULL; fd = fd->nextHashedField) {
-        dbHashTable::insert(this, fd->hashTable, oid, fd->type, fd->dbsSize, fd->dbsOffs, 
+        dbHashTable::insert(this, fd->hashTable, oid, fd->type, fd->dbsSize, fd->dbsOffs,
                             nRows);
     }
-    for (fd = desc->indexedFields; fd != NULL; fd = fd->nextIndexedField) { 
-        if (fd->type == dbField::tpRectangle) { 
+    for (fd = desc->indexedFields; fd != NULL; fd = fd->nextIndexedField) {
+        if (fd->type == dbField::tpRectangle) {
             dbRtree::insert(this, fd->tTree, oid, fd->dbsOffs);
-        } else { 
+        } else {
             dbTtree::insert(this, fd->tTree, oid, fd->type, fd->dbsSize, fd->comparator, fd->dbsOffs);
         }
     }
@@ -4250,7 +4250,7 @@ inline void dbDatabase::extend(offs_t size)
 {
     size_t oldSize = header->size;
 
-    if (size > oldSize) { 
+    if (size > oldSize) {
 #ifdef DISKLESS_CONFIGURATION
         handleError(FileLimitExeeded);
 #endif
@@ -4259,34 +4259,34 @@ inline void dbDatabase::extend(offs_t size)
         }
         dbDatabaseThreadContext* ctx = threadContext.get();
         assert(ctx != NULL);
-        if (ctx->mutatorCSLocked && !ctx->writeAccess) { 
+        if (ctx->mutatorCSLocked && !ctx->writeAccess) {
             beginTransaction(dbCommitLock);
         }
-        if (oldSize*2 > size) { 
-            if (fileSizeLimit == 0 || oldSize*2 <= fileSizeLimit) { 
+        if (oldSize*2 > size) {
+            if (fileSizeLimit == 0 || oldSize*2 <= fileSizeLimit) {
                 if (offs_t(oldSize*2) == 0) { // overflow
                     handleError(FileLimitExeeded);
                 }
                 size = oldSize*2;
-            } else if (fileSizeLimit > size) { 
+            } else if (fileSizeLimit > size) {
                 size = fileSizeLimit;
             }
-        } 
+        }
         TRACE_MSG(("Extend database file from %ld to %ld bytes\n",
                    (long)header->size, (long)size));
         header->size = size;
         version = ++monitor->version;
         sprintf(databaseName + databaseNameLen, ".%d", version);
         int status = file.setSize(size, databaseName);
-        if (status != dbFile::ok) { 
+        if (status != dbFile::ok) {
             handleError(FileError, "Failed to extend file", status);
         }
         // file.markAsDirty(oldSize, size - oldSize);
         byte* addr = (byte*)file.getAddr();
         long shift = addr - baseAddr;
-        if (shift != 0) { 
-            size_t base = (size_t)baseAddr; 
-            for (dbL2List* cursor = ctx->cursors.next; 
+        if (shift != 0) {
+            size_t base = (size_t)baseAddr;
+            for (dbL2List* cursor = ctx->cursors.next;
                  cursor != &ctx->cursors;
                  cursor = cursor->next)
             {
@@ -4302,9 +4302,9 @@ inline void dbDatabase::extend(offs_t size)
 }
 
 
-inline bool dbDatabase::wasReserved(offs_t pos, size_t size) 
+inline bool dbDatabase::wasReserved(offs_t pos, size_t size)
 {
-    for (dbLocation* location = reservedChain; location != NULL; location = location->next) { 
+    for (dbLocation* location = reservedChain; location != NULL; location = location->next) {
         if (pos - location->pos < location->size || location->pos - pos < size) {
             return true;
         }
@@ -4325,13 +4325,13 @@ inline void dbDatabase::commitLocation()
     reservedChain = reservedChain->next;
 }
 
-inline int ilog2(offs_t val) 
-{ 
+inline int ilog2(offs_t val)
+{
     int    log;
     size_t pow;
     for (log = dbAllocationQuantumBits, pow = dbAllocationQuantum; pow <= val; pow <<= 1, log += 1);
     return log-1;
-}    
+}
 
 void dbDatabase::getMemoryStatistic(dbMemoryStatistic& stat)
 {
@@ -4340,23 +4340,23 @@ void dbDatabase::getMemoryStatistic(dbMemoryStatistic& stat)
     stat.nHoles = 0;
     stat.minHoleSize = (offs_t)header->size;
     stat.maxHoleSize = 0;
-    for (int l = 0; l < dbDatabaseOffsetBits; l++) { 
+    for (int l = 0; l < dbDatabaseOffsetBits; l++) {
         stat.nHolesOfSize[l] = 0;
     }
     offs_t holeSize = 0;
 
     for (oid_t i = dbBitmapId; i < dbBitmapId + dbBitmapPages && currIndex[i] != dbFreeHandleMarker; i++){
         register byte* bitmap = get(i);
-        for (size_t j = 0; j < dbPageSize; j++) { 
+        for (size_t j = 0; j < dbPageSize; j++) {
             unsigned mask = bitmap[j];
             int count = 0;
-            while (mask != 0) { 
-                while ((mask & 1) == 0) { 
+            while (mask != 0) {
+                while ((mask & 1) == 0) {
                     holeSize += 1;
                     mask >>= 1;
                     count += 1;
                 }
-                if (holeSize > 0) { 
+                if (holeSize > 0) {
                     offs_t size = holeSize << dbAllocationQuantumBits;
                     if (size > stat.maxHoleSize) {
                         stat.maxHoleSize = size;
@@ -4369,7 +4369,7 @@ void dbDatabase::getMemoryStatistic(dbMemoryStatistic& stat)
                     stat.nHoles += 1;
                     holeSize = 0;
                 }
-                while ((mask & 1) != 0) { 
+                while ((mask & 1) != 0) {
                     stat.used += dbAllocationQuantum;
                     count += 1;
                     mask >>= 1;
@@ -4378,7 +4378,7 @@ void dbDatabase::getMemoryStatistic(dbMemoryStatistic& stat)
             holeSize += 8 - count;
         }
     }
-    if (holeSize > 0) { 
+    if (holeSize > 0) {
         offs_t size = holeSize << dbAllocationQuantumBits;
         if (size > stat.maxHoleSize) {
             stat.maxHoleSize = size;
@@ -4389,7 +4389,7 @@ void dbDatabase::getMemoryStatistic(dbMemoryStatistic& stat)
         stat.nHolesOfSize[ilog2(size)] += 1;
         stat.free += size;
         stat.nHoles += 1;
-    }       
+    }
 }
 
 bool dbDatabase::isFree(offs_t pos, int objBitSize)
@@ -4399,17 +4399,17 @@ bool dbDatabase::isFree(offs_t pos, int objBitSize)
     int    offs = quantNo % (dbPageSize*8) / 8;
     byte*  p = put(pageId) + offs;
     int    bitOffs = quantNo & 7;
-            
-    if (objBitSize > 8 - bitOffs) { 
+
+    if (objBitSize > 8 - bitOffs) {
         objBitSize -= 8 - bitOffs;
-        if ((*p++ & (-1 << bitOffs)) != 0) { 
+        if ((*p++ & (-1 << bitOffs)) != 0) {
             return false;
         }
         offs += 1;
-        while ((size_t)(objBitSize + offs*8) > dbPageSize*8) { 
+        while ((size_t)(objBitSize + offs*8) > dbPageSize*8) {
             int n = dbPageSize - offs;
-            while (--n >= 0) { 
-                if (*p++ != 0) { 
+            while (--n >= 0) {
+                if (*p++ != 0) {
                     return false;
                 }
             }
@@ -4417,13 +4417,13 @@ bool dbDatabase::isFree(offs_t pos, int objBitSize)
             objBitSize -= (dbPageSize - offs)*8;
             offs = 0;
         }
-        while ((objBitSize -= 8) > 0) { 
-            if (*p++ != 0) { 
+        while ((objBitSize -= 8) > 0) {
+            if (*p++ != 0) {
                 return false;
             }
         }
         return (*p & ((1 << (objBitSize + 8)) - 1)) == 0;
-    } else { 
+    } else {
         return (*p & (((1 << objBitSize) - 1) << bitOffs)) == 0;
     }
 }
@@ -4435,23 +4435,23 @@ void dbDatabase::markAsAllocated(offs_t pos, int objBitSize)
     int    offs = quantNo % (dbPageSize*8) / 8;
     byte*  p = put(pageId) + offs;
     int    bitOffs = quantNo & 7;
-    
-    if (objBitSize > 8 - bitOffs) { 
+
+    if (objBitSize > 8 - bitOffs) {
         objBitSize -= 8 - bitOffs;
         *p++ |= -1 << bitOffs;
         offs += 1;
-        while ((size_t)(objBitSize + offs*8) > dbPageSize*8) { 
+        while ((size_t)(objBitSize + offs*8) > dbPageSize*8) {
             memset(p, 0xFF, dbPageSize - offs);
             p = put(++pageId);
             objBitSize -= (dbPageSize - offs)*8;
             offs = 0;
         }
-        while ((objBitSize -= 8) > 0) { 
+        while ((objBitSize -= 8) > 0) {
             *p++ = 0xFF;
         }
         *p |= (1 << (objBitSize + 8)) - 1;
-    } else { 
-        *p |= ((1 << objBitSize) - 1) << bitOffs; 
+    } else {
+        *p |= ((1 << objBitSize) - 1) << bitOffs;
     }
 }
 
@@ -4503,7 +4503,7 @@ offs_t dbDatabase::allocate(size_t size, oid_t oid)
 
     size = DOALIGN(size, dbAllocationQuantum);
     int objBitSize = size >> dbAllocationQuantumBits;
-    offs_t pos;    
+    offs_t pos;
     oid_t i, firstPage, lastPage;
     int holeBitSize = 0;
     register int    alignment = size & (dbPageSize-1);
@@ -4523,13 +4523,13 @@ offs_t dbDatabase::allocate(size_t size, oid_t oid)
         offs = DOALIGN(currPBitmapOffs, inc);
     } else {
         int retries = -1;
-        do { 
+        do {
             retries += 1;
             pos = fixedSizeAllocator.allocate(size);
         } while (pos != 0 && (wasReserved(pos, size) || !isFree(pos, objBitSize)));
         fixedSizeAllocator.retries = retries;
 
-        if (pos != 0) { 
+        if (pos != 0) {
             reserveLocation(location, pos, size);
             markAsAllocated(pos, objBitSize);
             commitLocation();
@@ -4540,8 +4540,8 @@ offs_t dbDatabase::allocate(size_t size, oid_t oid)
         firstPage = currRBitmapPage;
         offs = currRBitmapOffs;
     }
-        
-    while (true) { 
+
+    while (true) {
         if (alignment == 0) {
             // allocate page object
             for (i = firstPage; i < lastPage && currIndex[i] != dbFreeHandleMarker; i++){
@@ -4561,19 +4561,19 @@ offs_t dbDatabase::allocate(size_t size, oid_t oid)
                     } else if ((holeBitSize += 8) == objBitSize) {
                         pos = ((offs_t(i-dbBitmapId)*dbPageSize + offs)*8
                                - holeBitSize) << dbAllocationQuantumBits;
-                        if (wasReserved(pos, size)) { 
+                        if (wasReserved(pos, size)) {
                             offs += objBitSize >> 3;
                             startOffs = offs = DOALIGN(offs, inc);
                             holeBitSize = 0;
                             continue;
-                        }       
+                        }
                         extend(pos + size);
                         reserveLocation(location, pos, size);
                         currPBitmapPage = i;
                         currPBitmapOffs = offs;
                         if (oid != 0) {
                             offs_t prev = currIndex[oid];
-                            memcpy(baseAddr+pos, 
+                            memcpy(baseAddr+pos,
                                    baseAddr+(prev&~dbInternalObjectMarker), size);
                             currIndex[oid] = (prev & dbInternalObjectMarker) + pos;
                         }
@@ -4606,7 +4606,7 @@ offs_t dbDatabase::allocate(size_t size, oid_t oid)
             }
         } else {
             for (i=firstPage; i<lastPage && currIndex[i] != dbFreeHandleMarker; i++){
-                int spaceNeeded = objBitSize - holeBitSize < pageBits 
+                int spaceNeeded = objBitSize - holeBitSize < pageBits
                     ? objBitSize - holeBitSize : pageBits;
                 if (bitmapPageAvailableSpace[i] <= spaceNeeded) {
                     holeBitSize = 0;
@@ -4616,65 +4616,65 @@ offs_t dbDatabase::allocate(size_t size, oid_t oid)
                 register byte* begin = get(i);
                 size_t startOffs = offs;
 
-                while (offs < dbPageSize) { 
-                    int mask = begin[offs]; 
-                    if (holeBitSize + firstHoleSize[mask] >= objBitSize) { 
-                        pos = ((offs_t(i-dbBitmapId)*dbPageSize + offs)*8 
+                while (offs < dbPageSize) {
+                    int mask = begin[offs];
+                    if (holeBitSize + firstHoleSize[mask] >= objBitSize) {
+                        pos = ((offs_t(i-dbBitmapId)*dbPageSize + offs)*8
                                - holeBitSize) << dbAllocationQuantumBits;
-                        if (wasReserved(pos, size)) {                       
+                        if (wasReserved(pos, size)) {
                             startOffs = offs += (objBitSize + 7) >> 3;
                             holeBitSize = 0;
                             continue;
-                        }       
+                        }
                         extend(pos + size);
                         reserveLocation(location, pos, size);
                         currRBitmapPage = i;
                         currRBitmapOffs = offs;
-                        if (oid != 0) { 
+                        if (oid != 0) {
                             offs_t prev = currIndex[oid];
-                            memcpy(baseAddr+pos, 
+                            memcpy(baseAddr+pos,
                                    baseAddr+(prev&~dbInternalObjectMarker), size);
                             currIndex[oid] = (prev & dbInternalObjectMarker) + pos;
                         }
                         begin = put(i);
-                        begin[offs] |= (1 << (objBitSize - holeBitSize)) - 1; 
-                        if (holeBitSize != 0) { 
-                            if (size_t(holeBitSize) > offs*8) { 
+                        begin[offs] |= (1 << (objBitSize - holeBitSize)) - 1;
+                        if (holeBitSize != 0) {
+                            if (size_t(holeBitSize) > offs*8) {
                                 memset(begin, 0xFF, offs);
                                 holeBitSize -= offs*8;
                                 begin = put(--i);
                                 offs = dbPageSize;
                             }
-                            while (holeBitSize > pageBits) { 
+                            while (holeBitSize > pageBits) {
                                 memset(begin, 0xFF, dbPageSize);
                                 holeBitSize -= pageBits;
                                 bitmapPageAvailableSpace[i] = 0;
                                 begin = put(--i);
                             }
-                            while ((holeBitSize -= 8) > 0) { 
-                                begin[--offs] = 0xFF; 
+                            while ((holeBitSize -= 8) > 0) {
+                                begin[--offs] = 0xFF;
                             }
                             begin[offs-1] |= ~((1 << -holeBitSize) - 1);
                         }
                         commitLocation();
                         file.markAsDirty(pos, size);
                         return pos;
-                    } else if (maxHoleSize[mask] >= objBitSize) { 
+                    } else if (maxHoleSize[mask] >= objBitSize) {
                         int holeBitOffset = maxHoleOffset[mask];
-                        pos = ((offs_t(i-dbBitmapId)*dbPageSize + offs)*8 + 
+                        pos = ((offs_t(i-dbBitmapId)*dbPageSize + offs)*8 +
                                holeBitOffset) << dbAllocationQuantumBits;
-                        if (wasReserved(pos, size)) { 
+                        if (wasReserved(pos, size)) {
                             startOffs = offs += (objBitSize + 7) >> 3;
                             holeBitSize = 0;
                             continue;
-                        }       
+                        }
                         extend(pos + size);
                         reserveLocation(location, pos, size);
                         currRBitmapPage = i;
                         currRBitmapOffs = offs;
-                        if (oid != 0) { 
+                        if (oid != 0) {
                             offs_t prev = currIndex[oid];
-                            memcpy(baseAddr+pos, 
+                            memcpy(baseAddr+pos,
                                    baseAddr+(prev&~dbInternalObjectMarker), size);
                             currIndex[oid] = (prev & dbInternalObjectMarker) + pos;
                         }
@@ -4685,102 +4685,102 @@ offs_t dbDatabase::allocate(size_t size, oid_t oid)
                         return pos;
                     }
                     offs += 1;
-                    if (lastHoleSize[mask] == 8) { 
+                    if (lastHoleSize[mask] == 8) {
                         holeBitSize += 8;
-                    } else { 
+                    } else {
                         holeBitSize = lastHoleSize[mask];
                     }
                 }
-                if (startOffs == 0 && holeBitSize == 0 
-                    && spaceNeeded < bitmapPageAvailableSpace[i]) 
-                { 
+                if (startOffs == 0 && holeBitSize == 0
+                    && spaceNeeded < bitmapPageAvailableSpace[i])
+                {
                     bitmapPageAvailableSpace[i] = spaceNeeded;
                 }
                 offs = 0;
             }
         }
-        if (firstPage == dbBitmapId) { 
-            if (freeBitmapPage > i) { 
+        if (firstPage == dbBitmapId) {
+            if (freeBitmapPage > i) {
                 i = freeBitmapPage;
                 holeBitSize = holeBeforeFreePage;
             }
-            if (i == dbBitmapId + dbBitmapPages) { 
+            if (i == dbBitmapId + dbBitmapPages) {
                 handleError(OutOfMemoryError, NULL, size);
             }
             assert(currIndex[i] == dbFreeHandleMarker);
 
-            size_t extension = (size > extensionQuantum) 
+            size_t extension = (size > extensionQuantum)
                              ? size : extensionQuantum;
-            int morePages = 
+            int morePages =
                 (extension + dbPageSize*(dbAllocationQuantum*8-1) - 1)
                 / (dbPageSize*(dbAllocationQuantum*8-1));
 
-            if (size_t(i + morePages) > dbBitmapId + dbBitmapPages) { 
-                morePages =  
+            if (size_t(i + morePages) > dbBitmapId + dbBitmapPages) {
+                morePages =
                     (size + dbPageSize*(dbAllocationQuantum*8-1) - 1)
                     / (dbPageSize*(dbAllocationQuantum*8-1));
-                if (size_t(i + morePages) > dbBitmapId + dbBitmapPages) { 
+                if (size_t(i + morePages) > dbBitmapId + dbBitmapPages) {
                     handleError(OutOfMemoryError, NULL, size);
                 }
             }
             objBitSize -= holeBitSize;
             int skip = DOALIGN(objBitSize, dbPageSize/dbAllocationQuantum);
-            pos = ((i-dbBitmapId) << (dbPageBits+dbAllocationQuantumBits+3)) 
+            pos = ((i-dbBitmapId) << (dbPageBits+dbAllocationQuantumBits+3))
                 + (skip << dbAllocationQuantumBits);
             extend(pos + morePages*dbPageSize);
             file.markAsDirty(pos, morePages*dbPageSize);
             memset(baseAddr + pos, 0, morePages*dbPageSize);
             memset(baseAddr + pos, 0xFF, objBitSize>>3);
             *(baseAddr + pos + (objBitSize>>3)) = (1 << (objBitSize&7))-1;
-            memset(baseAddr + pos + (skip>>3), 0xFF, 
+            memset(baseAddr + pos + (skip>>3), 0xFF,
                    morePages*(dbPageSize/dbAllocationQuantum/8));
 
             oid_t j = i;
-            while (--morePages >= 0) { 
-                monitor->dirtyPagesMap[j/dbHandlesPerPage/32] 
+            while (--morePages >= 0) {
+                monitor->dirtyPagesMap[j/dbHandlesPerPage/32]
                     |= 1 << int(j/dbHandlesPerPage & 31);
                 currIndex[j++] = pos + dbPageObjectMarker;
                 pos += dbPageSize;
             }
             freeBitmapPage = j;
-            j = i + objBitSize / pageBits; 
+            j = i + objBitSize / pageBits;
             if (alignment != 0) {
                 currRBitmapPage = j;
                 currRBitmapOffs = 0;
-            } else { 
+            } else {
                 currPBitmapPage = j;
                 currPBitmapOffs = 0;
             }
-            while (j > i) { 
+            while (j > i) {
                 bitmapPageAvailableSpace[--j] = 0;
             }
-            
+
             pos = (offs_t(i-dbBitmapId)*dbPageSize*8 - holeBitSize)
                 << dbAllocationQuantumBits;
-            if (oid != 0) { 
+            if (oid != 0) {
                 offs_t prev = currIndex[oid];
-                memcpy(baseAddr + pos, 
+                memcpy(baseAddr + pos,
                        baseAddr + (prev & ~dbInternalObjectMarker), size);
                 currIndex[oid] = (prev & dbInternalObjectMarker) + pos;
             }
 
-            if (holeBitSize != 0) { 
+            if (holeBitSize != 0) {
                 reserveLocation(location, pos, size);
-                while (holeBitSize > pageBits) { 
+                while (holeBitSize > pageBits) {
                     holeBitSize -= pageBits;
                     memset(put(--i), 0xFF, dbPageSize);
                     bitmapPageAvailableSpace[i] = 0;
                 }
                 byte* cur = (byte*)put(--i) + dbPageSize;
-                while ((holeBitSize -= 8) > 0) { 
-                    *--cur = 0xFF; 
+                while ((holeBitSize -= 8) > 0) {
+                    *--cur = 0xFF;
                 }
                 *(cur-1) |= ~((1 << -holeBitSize) - 1);
                 commitLocation();
             }
             file.markAsDirty(pos, size);
             return pos;
-        } 
+        }
         freeBitmapPage = i;
         holeBeforeFreePage = holeBitSize;
         holeBitSize = 0;
@@ -4788,7 +4788,7 @@ offs_t dbDatabase::allocate(size_t size, oid_t oid)
         firstPage = dbBitmapId;
         offs = 0;
     }
-} 
+}
 
 void dbDatabase::deallocate(offs_t pos, size_t size)
 {
@@ -4805,38 +4805,38 @@ void dbDatabase::deallocate(offs_t pos, size_t size)
         deallocatedSize = 0;
         currRBitmapPage = currPBitmapPage = dbBitmapId;
         currRBitmapOffs = currPBitmapOffs = 0;
-    } else { 
+    } else {
         if ((size_t(pos) & (dbPageSize-1)) == 0 && size >= dbPageSize) {
             if (pageId == currPBitmapPage && offs < currPBitmapOffs) {
                 currPBitmapOffs = offs;
             }
         } else {
-            if (fixedSizeAllocator.free(pos, size)) { 
+            if (fixedSizeAllocator.free(pos, size)) {
                 deallocatedSize -= objBitSize*dbAllocationQuantum;
-            } else if (pageId == currRBitmapPage && offs < currRBitmapOffs) { 
+            } else if (pageId == currRBitmapPage && offs < currRBitmapOffs) {
                 currRBitmapOffs = offs;
-            } 
+            }
         }
     }
     bitmapPageAvailableSpace[pageId] = INT_MAX;
- 
-    if (objBitSize > 8 - bitOffs) { 
+
+    if (objBitSize > 8 - bitOffs) {
         objBitSize -= 8 - bitOffs;
         *p++ &= (1 << bitOffs) - 1;
         offs += 1;
-        while (objBitSize + offs*8 > dbPageSize*8) { 
+        while (objBitSize + offs*8 > dbPageSize*8) {
             memset(p, 0, dbPageSize - offs);
             p = put(++pageId);
             bitmapPageAvailableSpace[pageId] = INT_MAX;
             objBitSize -= (dbPageSize - offs)*8;
             offs = 0;
         }
-        while ((objBitSize -= 8) > 0) { 
+        while ((objBitSize -= 8) > 0) {
             *p++ = 0;
         }
         *p &= ~((1 << (objBitSize + 8)) - 1);
-    } else { 
-        *p &= ~(((1 << objBitSize) - 1) << bitOffs); 
+    } else {
+        *p &= ~(((1 << objBitSize) - 1) << bitOffs);
     }
 }
 
@@ -4848,11 +4848,11 @@ void dbDatabase::cloneBitmap(offs_t pos, size_t size)
     size_t offs = quantNo % (dbPageSize*8) / 8;
     int    bitOffs = quantNo & 7;
 
-    put(pageId); 
-    if (objBitSize > 8 - bitOffs) { 
+    put(pageId);
+    if (objBitSize > 8 - bitOffs) {
         objBitSize -= 8 - bitOffs;
         offs += 1;
-        while (objBitSize + offs*8 > dbPageSize*8) { 
+        while (objBitSize + offs*8 > dbPageSize*8) {
             put(++pageId);
             objBitSize -= (dbPageSize - offs)*8;
             offs = 0;
@@ -4861,11 +4861,11 @@ void dbDatabase::cloneBitmap(offs_t pos, size_t size)
 }
 
 
-void dbDatabase::setDirty() 
+void dbDatabase::setDirty()
 {
-    if (!header->dirty) { 
-        if (accessType == dbReadOnly) { 
-            handleError(DatabaseReadOnly, "Attempt to modify readonly database"); 
+    if (!header->dirty) {
+        if (accessType == dbReadOnly) {
+            handleError(DatabaseReadOnly, "Attempt to modify readonly database");
         }
         header->dirty = true;
         file.markAsDirty(0, sizeof(dbHeader));
@@ -4875,28 +4875,28 @@ void dbDatabase::setDirty()
     modified = true;
 }
 
-oid_t dbDatabase::allocateId(int n) 
+oid_t dbDatabase::allocateId(int n)
 {
     setDirty();
 
     oid_t oid;
     int curr = 1-header->curr;
-    if (n == 1) { 
+    if (n == 1) {
 #ifdef DO_NOT_REUSE_OID_WITHIN_SESSION
-        if (monitor->sessionFreeList[curr].tail != 0) { 
-            if ((oid = monitor->sessionFreeList[curr].head) != 0) { 
+        if (monitor->sessionFreeList[curr].tail != 0) {
+            if ((oid = monitor->sessionFreeList[curr].head) != 0) {
                 currIndex[monitor->sessionFreeList[curr].tail] = currIndex[oid];
                 unsigned i = monitor->sessionFreeList[curr].tail / dbHandlesPerPage;
                 monitor->dirtyPagesMap[i >> 5] |= 1 << (i & 31);
-        
+
                 monitor->sessionFreeList[curr].head = (oid_t)(currIndex[oid] - dbFreeHandleMarker);
                 i = oid / dbHandlesPerPage;
-                monitor->dirtyPagesMap[i >> 5] |= 1 << (i & 31);                
+                monitor->dirtyPagesMap[i >> 5] |= 1 << (i & 31);
                 return oid;
             }
         }
  #endif
-        if ((oid = header->root[curr].freeList) != 0) { 
+        if ((oid = header->root[curr].freeList) != 0) {
             header->root[curr].freeList = (oid_t)(currIndex[oid] - dbFreeHandleMarker);
             unsigned i = oid / dbHandlesPerPage;
             monitor->dirtyPagesMap[i >> 5] |= 1 << (i & 31);
@@ -4906,10 +4906,10 @@ oid_t dbDatabase::allocateId(int n)
     if (currIndexSize + n > header->root[curr].indexSize) {
         size_t oldIndexSize = header->root[curr].indexSize;
         size_t newIndexSize = oldIndexSize * 2;
-        while (newIndexSize < oldIndexSize + n) { 
+        while (newIndexSize < oldIndexSize + n) {
             newIndexSize = newIndexSize*2;
         }
-        TRACE_MSG(("Extend index size from %ld to %ld\n", 
+        TRACE_MSG(("Extend index size from %ld to %ld\n",
                    oldIndexSize, newIndexSize));
         offs_t newIndex = allocate(newIndexSize*sizeof(offs_t));
         offs_t oldIndex = header->root[curr].index;
@@ -4923,8 +4923,8 @@ oid_t dbDatabase::allocateId(int n)
     header->root[curr].indexUsed = currIndexSize += n;
     return oid;
 }
-            
-void dbDatabase::freeId(oid_t oid, int n) 
+
+void dbDatabase::freeId(oid_t oid, int n)
 {
     int curr = 1-header->curr;
     oid_t freeList = header->root[curr].freeList;
@@ -4933,7 +4933,7 @@ void dbDatabase::freeId(oid_t oid, int n)
         monitor->dirtyPagesMap[i >> 5] |= 1 << (i & 31);
         currIndex[oid] = freeList + dbFreeHandleMarker;
 #ifdef DO_NOT_REUSE_OID_WITHIN_SESSION
-        if (monitor->sessionFreeList[curr].tail == 0) { 
+        if (monitor->sessionFreeList[curr].tail == 0) {
             monitor->sessionFreeList[curr].tail = oid;
             monitor->sessionFreeList[curr].head = freeList;
         }
@@ -4942,14 +4942,14 @@ void dbDatabase::freeId(oid_t oid, int n)
     }
     header->root[curr].freeList = freeList;
 }
-    
+
 #ifdef AUTO_DETECT_PROCESS_CRASH
 
-void dbDatabase::watchDogThread(dbWatchDogContext* ctx) { 
+void dbDatabase::watchDogThread(dbWatchDogContext* ctx) {
     dbMutex* mutex = ctx->mutex;
-    if (ctx->watchDog.watch()) { 
+    if (ctx->watchDog.watch()) {
         mutex->lock();
-        if (ctx->db != NULL) { 
+        if (ctx->db != NULL) {
             ctx->db->cs.enter();
             ctx->db->revokeLock(ctx->clientId);
             ctx->db->cs.leave();
@@ -4957,29 +4957,29 @@ void dbDatabase::watchDogThread(dbWatchDogContext* ctx) {
         ctx->watchDog.close();
     } else {
         mutex->lock();
-    }         
+    }
     bool isEmpty = false;
     dbDatabase* db = ctx->db;
-    if (db != NULL) { 
-        db->cs.enter();  
+    if (db != NULL) {
+        db->cs.enter();
         delete ctx;
-        db->cs.leave();                
-    } else { 
+        db->cs.leave();
+    } else {
         isEmpty = ctx->isEmpty();
         delete ctx;
     }
     mutex->unlock();
-    if (isEmpty) { 
+    if (isEmpty) {
         delete mutex;
     }
 }
 
-void dbDatabase::revokeLock(int clientId) 
+void dbDatabase::revokeLock(int clientId)
 {
     TRACE_MSG(("Revoke lock: writers %d, readers %d, lock owner %d, crashed process %d\n",
                monitor->nWriters, monitor->nReaders, monitor->exclusiveLockOwner, clientId));
-    if (monitor->nWriters != 0 && monitor->exclusiveLockOwner == clientId) { 
-        if (accessType != dbReadOnly && accessType != dbConcurrentRead) { 
+    if (monitor->nWriters != 0 && monitor->exclusiveLockOwner == clientId) {
+        if (accessType != dbReadOnly && accessType != dbConcurrentRead) {
             TRACE_MSG(("Revoke exclusive lock, start recovery\n"));
             checkVersion();
             recovery();
@@ -4988,29 +4988,29 @@ void dbDatabase::revokeLock(int clientId)
             monitor->nWriters -= 1;
             monitor->ownerPid.clear();
             assert(monitor->nWriters == 0 && !monitor->waitForUpgrade);
-            if (monitor->nWaitWriters != 0) { 
+            if (monitor->nWaitWriters != 0) {
                 monitor->nWaitWriters -= 1;
                 monitor->nWriters = 1;
                 writeSem.signal();
-            } else if (monitor->nWaitReaders != 0) { 
+            } else if (monitor->nWaitReaders != 0) {
                 monitor->nReaders = monitor->nWaitReaders;
                 monitor->nWaitReaders = 0;
                 readSem.signal(monitor->nReaders);
             }
-        } else { 
+        } else {
             handleError(Deadlock, "Owner of exclusive database lock is crashed");
         }
-    } else { 
-        int nReaders = monitor->nReaders; 
-        for (int i = 0; i < nReaders; i++) { 
-            if (monitor->sharedLockOwner[i] == clientId) { 
+    } else {
+        int nReaders = monitor->nReaders;
+        for (int i = 0; i < nReaders; i++) {
+            if (monitor->sharedLockOwner[i] == clientId) {
                 TRACE_MSG(("Revoke shared lock\n"));
-                while (++i < nReaders) { 
+                while (++i < nReaders) {
                     monitor->sharedLockOwner[i-1] = monitor->sharedLockOwner[i];
                 }
                 monitor->sharedLockOwner[i-1] = 0;
                 monitor->nReaders -= 1;
-                if (monitor->nReaders == 1 && monitor->waitForUpgrade) { 
+                if (monitor->nReaders == 1 && monitor->waitForUpgrade) {
                     assert(monitor->nWriters == 0);
 #ifdef AUTO_DETECT_PROCESS_CRASH
                     removeLockOwner(monitor->upgradeId);
@@ -5021,14 +5021,14 @@ void dbDatabase::revokeLock(int clientId)
                     monitor->nWriters = 1;
                     monitor->nReaders = 0;
                     upgradeSem.signal();
-                } else if (monitor->nReaders == 0) { 
-                    if (monitor->nWaitWriters != 0) { 
+                } else if (monitor->nReaders == 0) {
+                    if (monitor->nWaitWriters != 0) {
                         assert(monitor->nWriters == 0 && !monitor->waitForUpgrade);
                         monitor->nWaitWriters -= 1;
                         monitor->nWriters = 1;
                         writeSem.signal();
                     }
-                } 
+                }
                 break;
             }
         }
@@ -5038,9 +5038,9 @@ void dbDatabase::revokeLock(int clientId)
 
 void dbDatabase::startWatchDogThreads()
 {
-    while (maxClientId < monitor->clientId) { 
+    while (maxClientId < monitor->clientId) {
         int id = ++maxClientId;
-        if (id != selfId) { 
+        if (id != selfId) {
             sprintf(databaseName + databaseNameLen, ".pid.%d", id);
             dbWatchDogContext* ctx = new dbWatchDogContext();
             if (ctx->watchDog.open(databaseName)) {
@@ -5049,7 +5049,7 @@ void dbDatabase::startWatchDogThreads()
                 ctx->db = this;
                 ctx->mutex = watchDogMutex;
                 ctx->thread.create((dbThread::thread_proc_t)watchDogThread, ctx);
-            } else { 
+            } else {
                 revokeLock(id);
                 delete ctx;
             }
@@ -5058,26 +5058,26 @@ void dbDatabase::startWatchDogThreads()
 }
 
 
-void dbDatabase::addLockOwner() 
+void dbDatabase::addLockOwner()
 {
     int nReaders = monitor->nReaders;
-    assert(nReaders <= dbMaxReaders && nReaders > 0);    
-    while (monitor->sharedLockOwner[--nReaders] != 0) { 
+    assert(nReaders <= dbMaxReaders && nReaders > 0);
+    while (monitor->sharedLockOwner[--nReaders] != 0) {
         assert(nReaders != 0);
     }
     monitor->sharedLockOwner[nReaders] = selfId;
 }
 
-void dbDatabase::removeLockOwner(int selfId) 
+void dbDatabase::removeLockOwner(int selfId)
 {
     int id = 0;
     int i = monitor->nReaders;
-    do { 
+    do {
         assert(i > 0);
         int nextId = monitor->sharedLockOwner[--i];
         monitor->sharedLockOwner[i] = id;
         id = nextId;
-    } while (id != selfId);            
+    } while (id != selfId);
 }
 #endif
 
@@ -5094,7 +5094,7 @@ bool dbDatabase::isUpdateTransaction()
     return ctx != NULL && ctx->isMutator;
 }
 
-bool dbDatabase::isAttached() 
+bool dbDatabase::isAttached()
 {
     return threadContext.get() != NULL;
 }
@@ -5103,30 +5103,30 @@ bool dbDatabase::beginTransaction(dbLockType lockType)
 {
     dbDatabaseThreadContext* ctx = threadContext.get();
 
-    if (commitDelay != 0 && lockType != dbCommitLock) { 
+    if (commitDelay != 0 && lockType != dbCommitLock) {
         dbCriticalSection cs(delayedCommitStopTimerMutex);
         monitor->forceCommitCount += 1;
         if (monitor->delayedCommitContext == ctx && ctx->commitDelayed) {
             // skip delayed transaction because this thread is starting new transaction
             monitor->delayedCommitContext = NULL;
             ctx->commitDelayed = false;
-            if (commitTimerStarted != 0) { 
+            if (commitTimerStarted != 0) {
                 time_t elapsed = time(NULL) - commitTimerStarted;
-                if (commitTimeout < elapsed) { 
+                if (commitTimeout < elapsed) {
                     commitTimeout = 0;
-                } else { 
-                    commitTimeout -= elapsed;               
+                } else {
+                    commitTimeout -= elapsed;
                 }
             }
             delayedCommitStopTimerEvent.signal();
         }
     }
-    
-    if (lockType != dbSharedLock) { 
+
+    if (lockType != dbSharedLock) {
         ctx->isMutator = true;
     }
-    if (accessType == dbConcurrentUpdate && lockType != dbCommitLock) { 
-        if (!ctx->mutatorCSLocked) { 
+    if (accessType == dbConcurrentUpdate && lockType != dbCommitLock) {
+        if (!ctx->mutatorCSLocked) {
             mutatorCS.enter();
             ctx->mutatorCSLocked = true;
 #ifdef RECOVERABLE_CRITICAL_SECTION
@@ -5138,32 +5138,32 @@ bool dbDatabase::beginTransaction(dbLockType lockType)
             }
 #endif
         }
-    } else if (lockType != dbSharedLock) { 
-        if (!ctx->writeAccess) { 
+    } else if (lockType != dbSharedLock) {
+        if (!ctx->writeAccess) {
 //            assert(accessType != dbReadOnly && accessType != dbConcurrentRead);
             cs.enter();
 #ifdef AUTO_DETECT_PROCESS_CRASH
             startWatchDogThreads();
 #endif
-            if (ctx->readAccess) { 
+            if (ctx->readAccess) {
                 assert(monitor->nWriters == 0);
                 TRACE_MSG(("Attempt to upgrade lock from shared to exclusive can cause deadlock\n"));
-                
+
                 if (monitor->nReaders != 1) {
-                    if (monitor->waitForUpgrade) { 
+                    if (monitor->waitForUpgrade) {
                         handleError(Deadlock);
                     }
                     monitor->waitForUpgrade = true;
                     monitor->upgradeId = selfId;
                     monitor->nWaitWriters += 1;
                     cs.leave();
-                    
-                    if (commitDelay != 0) { 
+
+                    if (commitDelay != 0) {
                         delayedCommitStopTimerEvent.signal();
                     }
                     while (!upgradeSem.wait(waitLockTimeout)
-                           || !(monitor->nWriters == 1 && monitor->nReaders == 0)) 
-                    { 
+                           || !(monitor->nWriters == 1 && monitor->nReaders == 0))
+                    {
                         // There are no writers, so some reader was died
                         cs.enter();
                         unsigned currTime = dbSystem::getCurrentTimeMsec();
@@ -5172,7 +5172,7 @@ bool dbDatabase::beginTransaction(dbLockType lockType)
                         {
                             // Ok, let's try to "remove" this reader
                             monitor->lastDeadlockRecoveryTime = currTime;
-                            if (--monitor->nReaders == 1) { 
+                            if (--monitor->nReaders == 1) {
                                 // Looks like we are recovered
 #ifdef AUTO_DETECT_PROCESS_CRASH
                                 removeLockOwner(selfId);
@@ -5187,53 +5187,53 @@ bool dbDatabase::beginTransaction(dbLockType lockType)
                         }
                         cs.leave();
                     }
-                } else { 
+                } else {
 #ifdef AUTO_DETECT_PROCESS_CRASH
                     removeLockOwner(selfId);
 #endif
-                    monitor->nWriters = 1;                  
+                    monitor->nWriters = 1;
                     monitor->nReaders = 0;
                     cs.leave();
-                } 
-            } else { 
-                if (monitor->nWriters != 0 || monitor->nReaders != 0) { 
+                }
+            } else {
+                if (monitor->nWriters != 0 || monitor->nReaders != 0) {
                     monitor->nWaitWriters += 1;
                     cs.leave();
-                    if (commitDelay != 0) { 
+                    if (commitDelay != 0) {
                         delayedCommitStopTimerEvent.signal();
                     }
                     while (!writeSem.wait(waitLockTimeout)
                            || !(monitor->nWriters == 1 && monitor->nReaders == 0))
-                    { 
+                    {
                         cs.enter();
                         unsigned currTime = dbSystem::getCurrentTimeMsec();
                         if (currTime - monitor->lastDeadlockRecoveryTime
                             >= waitLockTimeout)
                         {
                             monitor->lastDeadlockRecoveryTime = currTime;
-                            if (monitor->nWriters != 0) { 
-                                // writer was died      
+                            if (monitor->nWriters != 0) {
+                                // writer was died
                                 checkVersion();
                                 recovery();
                                 monitor->nWriters = 1;
                                 monitor->nWaitWriters -= 1;
                                 cs.leave();
                                 break;
-                            } else { 
+                            } else {
                                 // some reader was died
                                 // Ok, let's try to "remove" this reader
-                                if (--monitor->nReaders == 0) { 
+                                if (--monitor->nReaders == 0) {
                                     // Looks like we are recovered
                                     monitor->nWriters = 1;
                                     monitor->nWaitWriters -= 1;
                                     cs.leave();
                                     break;
-                                } 
+                                }
                             }
                         }
                         cs.leave();
                     }
-                } else { 
+                } else {
                     monitor->nWriters = 1;
                     cs.leave();
                 }
@@ -5243,13 +5243,13 @@ bool dbDatabase::beginTransaction(dbLockType lockType)
             monitor->exclusiveLockOwner = selfId;
 #endif
             ctx->writeAccess = true;
-        } else { 
-            if (monitor->ownerPid != ctx->currPid) { 
+        } else {
+            if (monitor->ownerPid != ctx->currPid) {
                 handleError(LockRevoked);
             }
         }
-    } else { 
-        if (!ctx->readAccess && !ctx->writeAccess) { 
+    } else {
+        if (!ctx->readAccess && !ctx->writeAccess) {
             cs.enter();
 #ifdef AUTO_DETECT_PROCESS_CRASH
             startWatchDogThreads();
@@ -5257,19 +5257,19 @@ bool dbDatabase::beginTransaction(dbLockType lockType)
             if (monitor->nWriters + monitor->nWaitWriters != 0) {
                 monitor->nWaitReaders += 1;
                 cs.leave();
-                if (commitDelay != 0) { 
+                if (commitDelay != 0) {
                     delayedCommitStopTimerEvent.signal();
                 }
                 while (!readSem.wait(waitLockTimeout)
                        || !(monitor->nWriters == 0 && monitor->nReaders > 0))
-                { 
+                {
                     cs.enter();
                     unsigned currTime = dbSystem::getCurrentTimeMsec();
                     if (currTime - monitor->lastDeadlockRecoveryTime
                         >= waitLockTimeout)
                     {
                         monitor->lastDeadlockRecoveryTime = currTime;
-                        if (monitor->nWriters != 0) { 
+                        if (monitor->nWriters != 0) {
                             // writer was died
                             checkVersion();
                             recovery();
@@ -5290,7 +5290,7 @@ bool dbDatabase::beginTransaction(dbLockType lockType)
                 addLockOwner();
                 cs.leave();
 #endif
-            } else { 
+            } else {
                 monitor->nReaders += 1;
 #ifdef AUTO_DETECT_PROCESS_CRASH
                 addLockOwner();
@@ -5300,23 +5300,23 @@ bool dbDatabase::beginTransaction(dbLockType lockType)
             ctx->readAccess = true;
         }
     }
-    if (lockType != dbCommitLock) { 
-        if (commitDelay != 0) { 
+    if (lockType != dbCommitLock) {
+        if (commitDelay != 0) {
             dbCriticalSection cs(delayedCommitStopTimerMutex);
             monitor->forceCommitCount -= 1;
         }
-        if (!checkVersion()) { 
+        if (!checkVersion()) {
             return false;
         }
         cs.enter();
         index[0] = (offs_t*)(baseAddr + header->root[0].index);
         index[1] = (offs_t*)(baseAddr + header->root[1].index);
         int curr = monitor->curr;
-        if (accessType != dbConcurrentRead) { 
+        if (accessType != dbConcurrentRead) {
             currIndex = index[1-curr];
             currIndexSize = header->root[1-curr].indexUsed;
             committedIndexSize = header->root[curr].indexUsed;
-        } else { 
+        } else {
             currIndex = index[curr];
             currIndexSize = header->root[curr].indexUsed;
             committedIndexSize = header->root[curr].indexUsed;
@@ -5326,21 +5326,21 @@ bool dbDatabase::beginTransaction(dbLockType lockType)
     return true;
 }
 
-bool dbDatabase::checkVersion() 
+bool dbDatabase::checkVersion()
 {
     if (version != monitor->version) {
         sprintf(databaseName+databaseNameLen, ".%d", monitor->version);
-        if (version == 0) { 
+        if (version == 0) {
             if (file.open(fileName, databaseName, accessType == dbReadOnly || accessType == dbConcurrentRead, monitor->size, false)
-                != dbFile::ok) 
+                != dbFile::ok)
             {
                 handleError(DatabaseOpenError, "Failed to open database file");
                 endTransaction(); // release locks
                 return false;
             }
-        } else { 
+        } else {
             int status = file.setSize(header->size, databaseName, false);
-            if (status != dbFile::ok) { 
+            if (status != dbFile::ok) {
                 handleError(FileError, "Failed to reopen database file", status);
                 endTransaction(); // release locks
                 return false;
@@ -5354,12 +5354,12 @@ bool dbDatabase::checkVersion()
     return true;
 }
 
-void dbDatabase::precommit() 
+void dbDatabase::precommit()
 {
     //assert(accessType != dbConcurrentUpdate);
-    dbDatabaseThreadContext* ctx = threadContext.get();     
-    if (ctx != NULL && (ctx->writeAccess || ctx->readAccess)) { 
-        ctx->concurrentId = monitor->concurrentTransId; 
+    dbDatabaseThreadContext* ctx = threadContext.get();
+    if (ctx != NULL && (ctx->writeAccess || ctx->readAccess)) {
+        ctx->concurrentId = monitor->concurrentTransId;
         endTransaction(ctx);
     }
 }
@@ -5369,70 +5369,70 @@ void dbDatabase::delayedCommit()
 {
     dbCriticalSection cs(delayedCommitStartTimerMutex);
     commitThreadSyncEvent.signal();
-    while (!stopDelayedCommitThread) { 
-        delayedCommitStartTimerEvent.wait(delayedCommitStartTimerMutex); 
+    while (!stopDelayedCommitThread) {
+        delayedCommitStartTimerEvent.wait(delayedCommitStartTimerMutex);
         delayedCommitStartTimerEvent.reset();
         bool deferredCommit = false;
-        { 
+        {
             dbCriticalSection cs2(delayedCommitStopTimerMutex);
-            if (!stopDelayedCommitThread && monitor->forceCommitCount == 0) {           
+            if (!stopDelayedCommitThread && monitor->forceCommitCount == 0) {
                 commitTimerStarted = time(NULL);
                 deferredCommit = true;
             }
         }
-        if (deferredCommit) { 
+        if (deferredCommit) {
             delayedCommitStopTimerEvent.wait((unsigned)(commitTimeout*1000));
             delayedCommitStopTimerEvent.reset();
         }
-        { 
+        {
             dbCriticalSection cs2(delayedCommitStopTimerMutex);
             dbDatabaseThreadContext* ctx = monitor->delayedCommitContext;
-            if (ctx != NULL) { 
+            if (ctx != NULL) {
                 commitTimeout = commitDelay;
                 monitor->delayedCommitContext = NULL;
                 threadContext.set(ctx);
                 commit(ctx);
                 ctx->commitDelayed = false;
-                if (ctx->removeContext) { 
+                if (ctx->removeContext) {
                     dbCriticalSection cs(threadContextListMutex);
                     delete ctx;
                 }
             }
         }
     }
-}   
+}
 
 void dbDatabase::waitTransactionAcknowledgement()
 {
 }
 
-void dbDatabase::commit() 
+void dbDatabase::commit()
 {
-    dbDatabaseThreadContext* ctx = threadContext.get();     
+    dbDatabaseThreadContext* ctx = threadContext.get();
     if (ctx != NULL && !ctx->commitDelayed) {
-        if (ctx->writeAccess) { 
-            if (monitor->ownerPid != ctx->currPid) { 
+        if (ctx->writeAccess) {
+            if (monitor->ownerPid != ctx->currPid) {
                 handleError(LockRevoked);
             }
         }
         cs.enter();
-        bool hasSomethingToCommit = modified && !monitor->commitInProgress 
+        bool hasSomethingToCommit = modified && !monitor->commitInProgress
             && (monitor->uncommittedChanges || ctx->writeAccess || ctx->mutatorCSLocked || ctx->concurrentId == monitor->concurrentTransId);
         cs.leave();
-        if (hasSomethingToCommit) { 
+        if (hasSomethingToCommit) {
             if (!ctx->writeAccess) {
                 beginTransaction(ctx->mutatorCSLocked ? dbCommitLock : dbExclusiveLock);
             }
             if (commitDelay != 0) {
-                dbCriticalSection cs(delayedCommitStartTimerMutex); 
+                dbCriticalSection cs(delayedCommitStartTimerMutex);
                 monitor->delayedCommitContext = ctx;
                 ctx->commitDelayed = true;
                 delayedCommitStartTimerEvent.signal();
-            } else { 
+            } else {
                 commit(ctx);
             }
         } else {
-            if (ctx->writeAccess || ctx->readAccess || ctx->mutatorCSLocked) { 
+            if (ctx->writeAccess || ctx->readAccess || ctx->mutatorCSLocked) {
                 endTransaction(ctx);
             }
         }
@@ -5442,13 +5442,13 @@ void dbDatabase::commit()
 void dbDatabase::commit(dbDatabaseThreadContext* ctx)
 {
     //
-    // commit transaction 
+    // commit transaction
     //
     int curr = header->curr;
     int4 *map = monitor->dirtyPagesMap;
     size_t oldIndexSize = header->root[curr].indexSize;
     size_t newIndexSize = header->root[1-curr].indexSize;
-    if (newIndexSize > oldIndexSize) { 
+    if (newIndexSize > oldIndexSize) {
         offs_t newIndex = allocate(newIndexSize*sizeof(offs_t));
         header->root[1-curr].shadowIndex = newIndex;
         header->root[1-curr].shadowIndexSize = newIndexSize;
@@ -5457,7 +5457,7 @@ void dbDatabase::commit(dbDatabaseThreadContext* ctx)
     }
 
     //
-    // Enable read access to the database 
+    // Enable read access to the database
     //
     cs.enter();
     assert(ctx->writeAccess);
@@ -5467,11 +5467,11 @@ void dbDatabase::commit(dbDatabaseThreadContext* ctx)
     monitor->nWriters -= 1;
     monitor->nReaders += 1;
     monitor->ownerPid.clear();
-    if (accessType == dbConcurrentUpdate) { 
+    if (accessType == dbConcurrentUpdate) {
         // now readers will see updated data
         monitor->curr ^= 1;
     }
-    if (monitor->nWaitReaders != 0) { 
+    if (monitor->nWaitReaders != 0) {
         monitor->nReaders += monitor->nWaitReaders;
         readSem.signal(monitor->nWaitReaders);
         monitor->nWaitReaders = 0;
@@ -5481,26 +5481,26 @@ void dbDatabase::commit(dbDatabaseThreadContext* ctx)
 
     // Copy values of this fields to local variables since them can be changed by read-only transaction in concurrent update mode
     size_t   committedIndexSize = this->committedIndexSize;
-    offs_t*  currIndex = this->currIndex; 
+    offs_t*  currIndex = this->currIndex;
     size_t   currIndexSize = this->currIndexSize;
 
     cs.leave();
 
     size_t   nPages = committedIndexSize / dbHandlesPerPage;
-    offs_t*  srcIndex = currIndex; 
-    offs_t*  dstIndex = index[curr];         
+    offs_t*  srcIndex = currIndex;
+    offs_t*  dstIndex = index[curr];
 
-    for (size_t i = 0; i < nPages; i++) { 
-        if (map[i >> 5] & (1 << (i & 31))) { 
+    for (size_t i = 0; i < nPages; i++) {
+        if (map[i >> 5] & (1 << (i & 31))) {
             file.markAsDirty(header->root[1-curr].index + i*dbPageSize, dbPageSize);
             for (size_t j = 0; j < dbHandlesPerPage; j++) {
                 offs_t offs = dstIndex[j];
-                if (srcIndex[j] != offs) { 
+                if (srcIndex[j] != offs) {
                     if (!(offs & dbFreeHandleMarker)) {
                         size_t marker = offs & dbInternalObjectMarker;
-                        if (marker != 0) { 
+                        if (marker != 0) {
                             deallocate(offs-marker, internalObjectSize[marker]);
-                        } else { 
+                        } else {
                             deallocate(offs, ((dbRecord*)(baseAddr+offs))->size);
                         }
                     }
@@ -5510,17 +5510,17 @@ void dbDatabase::commit(dbDatabaseThreadContext* ctx)
         dstIndex += dbHandlesPerPage;
         srcIndex += dbHandlesPerPage;
     }
-    file.markAsDirty(header->root[1-curr].index + nPages*dbPageSize, 
+    file.markAsDirty(header->root[1-curr].index + nPages*dbPageSize,
                      (currIndexSize - nPages*dbHandlesPerPage)*sizeof(offs_t));
     offs_t* end = index[curr] + committedIndexSize;
-    while (dstIndex < end) { 
+    while (dstIndex < end) {
         offs_t offs = *dstIndex;
-        if (*srcIndex != offs) { 
+        if (*srcIndex != offs) {
             if (!(offs & dbFreeHandleMarker)) {
                 size_t marker = offs & dbInternalObjectMarker;
-                if (marker != 0) { 
+                if (marker != 0) {
                     deallocate(offs-marker, internalObjectSize[marker]);
-                } else { 
+                } else {
                     deallocate(offs, ((dbRecord*)(baseAddr+offs))->size);
                 }
             }
@@ -5530,46 +5530,46 @@ void dbDatabase::commit(dbDatabaseThreadContext* ctx)
     }
     file.markAsDirty(0, sizeof(dbHeader));
     file.flush();
-    
+
     cs.enter();
-    while (monitor->backupInProgress) { 
+    while (monitor->backupInProgress) {
         cs.leave();
         backupCompletedEvent.wait();
         cs.enter();
     }
     header->curr = curr ^= 1;
     cs.leave();
-    
+
     file.markAsDirty(0, sizeof(dbHeader));
 #ifdef SYNCHRONOUS_REPLICATION
     waitTransactionAcknowledgement();
 #else
-    file.flush();    
+    file.flush();
 #endif
-    
+
     file.markAsDirty(0, sizeof(dbHeader));
-    header->root[1-curr].indexUsed = currIndexSize; 
-    header->root[1-curr].freeList  = header->root[curr].freeList; 
+    header->root[1-curr].indexUsed = currIndexSize;
+    header->root[1-curr].freeList  = header->root[curr].freeList;
 #ifdef DO_NOT_REUSE_OID_WITHIN_SESSION
     monitor->sessionFreeList[1-curr] = monitor->sessionFreeList[curr];
 #endif
-    
+
     if (newIndexSize != oldIndexSize) {
         header->root[1-curr].index=header->root[curr].shadowIndex;
         header->root[1-curr].indexSize=header->root[curr].shadowIndexSize;
         header->root[1-curr].shadowIndex=header->root[curr].index;
         header->root[1-curr].shadowIndexSize=header->root[curr].indexSize;
         file.markAsDirty(header->root[1-curr].index, currIndexSize*sizeof(offs_t));
-        memcpy(baseAddr + header->root[1-curr].index, currIndex, 
+        memcpy(baseAddr + header->root[1-curr].index, currIndex,
                currIndexSize*sizeof(offs_t));
         memset(map, 0, 4*((currIndexSize+dbHandlesPerPage*32-1)
                           / (dbHandlesPerPage*32)));
-    } else { 
-        byte* srcIndex = (byte*)currIndex; 
-        byte* dstIndex = (byte*)index[1-curr]; 
-        
-        for (size_t i = 0; i < nPages; i++) { 
-            if (map[i >> 5] & (1 << (i & 31))) { 
+    } else {
+        byte* srcIndex = (byte*)currIndex;
+        byte* dstIndex = (byte*)index[1-curr];
+
+        for (size_t i = 0; i < nPages; i++) {
+            if (map[i >> 5] & (1 << (i & 31))) {
                 map[i >> 5] -= (1 << (i & 31));
                 memcpy(dstIndex, srcIndex, dbPageSize);
                 file.markAsDirty(header->root[1-curr].index + i*dbPageSize, dbPageSize);
@@ -5578,11 +5578,11 @@ void dbDatabase::commit(dbDatabaseThreadContext* ctx)
             dstIndex += dbPageSize;
         }
         if (currIndexSize > nPages*dbHandlesPerPage) {
-            memcpy(dstIndex, srcIndex,                         
+            memcpy(dstIndex, srcIndex,
                    sizeof(offs_t)*(currIndexSize-nPages*dbHandlesPerPage));
-            file.markAsDirty(header->root[1-curr].index + nPages*dbPageSize, 
+            file.markAsDirty(header->root[1-curr].index + nPages*dbPageSize,
                              sizeof(offs_t)*(currIndexSize-nPages*dbHandlesPerPage));
-            memset(map + (nPages>>5), 0, 
+            memset(map + (nPages>>5), 0,
                    ((currIndexSize + dbHandlesPerPage*32 - 1)
                     / (dbHandlesPerPage*32) - (nPages>>5))*4);
         }
@@ -5592,43 +5592,43 @@ void dbDatabase::commit(dbDatabaseThreadContext* ctx)
     monitor->modified = false;
     monitor->uncommittedChanges = false;
     monitor->commitInProgress = false;
-    if (accessType != dbConcurrentUpdate) { 
+    if (accessType != dbConcurrentUpdate) {
         monitor->curr = curr;
     }
     monitor->concurrentTransId += 1;
     cs.leave();
 
-    if (ctx->writeAccess || ctx->readAccess || ctx->mutatorCSLocked) { 
+    if (ctx->writeAccess || ctx->readAccess || ctx->mutatorCSLocked) {
         endTransaction(ctx);
     }
 }
 
-void dbDatabase::rollback() 
+void dbDatabase::rollback()
 {
     dbDatabaseThreadContext* ctx = threadContext.get();
 
     if (modified
         && (monitor->uncommittedChanges || ctx->writeAccess || ctx->mutatorCSLocked || ctx->concurrentId == monitor->concurrentTransId))
-    { 
+    {
         if (!ctx->writeAccess && !ctx->mutatorCSLocked) {
             beginTransaction(dbExclusiveLock);
         }
         int curr = header->curr;
-        byte* dstIndex = baseAddr + header->root[curr].shadowIndex; 
-        byte* srcIndex = (byte*)index[curr]; 
+        byte* dstIndex = baseAddr + header->root[curr].shadowIndex;
+        byte* srcIndex = (byte*)index[curr];
 
         currRBitmapPage = currPBitmapPage = dbBitmapId;
         currRBitmapOffs = currPBitmapOffs = 0;
 
-        size_t nPages = 
+        size_t nPages =
             (committedIndexSize + dbHandlesPerPage - 1) / dbHandlesPerPage;
         int4 *map = monitor->dirtyPagesMap;
-        if (header->root[1-curr].index != header->root[curr].shadowIndex) { 
+        if (header->root[1-curr].index != header->root[curr].shadowIndex) {
             memcpy(dstIndex, srcIndex,  nPages*dbPageSize);
             file.markAsDirty( header->root[curr].shadowIndex, nPages*dbPageSize);
-        } else { 
-            for (size_t i = 0; i < nPages; i++) { 
-                if (map[i >> 5] & (1 << (i & 31))) { 
+        } else {
+            for (size_t i = 0; i < nPages; i++) {
+                if (map[i >> 5] & (1 << (i & 31))) {
                     memcpy(dstIndex, srcIndex, dbPageSize);
                     file.markAsDirty(header->root[1-curr].index + i*dbPageSize, dbPageSize);
                 }
@@ -5639,13 +5639,13 @@ void dbDatabase::rollback()
 
         header->root[1-curr].indexSize = header->root[curr].shadowIndexSize;
         header->root[1-curr].indexUsed = header->root[curr].indexUsed;
-        header->root[1-curr].freeList  = header->root[curr].freeList; 
+        header->root[1-curr].freeList  = header->root[curr].freeList;
         header->root[1-curr].index = header->root[curr].shadowIndex;
 #ifdef DO_NOT_REUSE_OID_WITHIN_SESSION
         monitor->sessionFreeList[1-curr] = monitor->sessionFreeList[curr];
 #endif
 
-        memset(map, 0,  
+        memset(map, 0,
                size_t((currIndexSize+dbHandlesPerPage*32-1) / (dbHandlesPerPage*32))*4);
 
         file.markAsDirty(0, sizeof(dbHeader));
@@ -5653,63 +5653,63 @@ void dbDatabase::rollback()
         monitor->uncommittedChanges = false;
         monitor->concurrentTransId += 1;
         restoreTablesConsistency();
-    } 
-    if (monitor->users != 0) { // if not abandon        
+    }
+    if (monitor->users != 0) { // if not abandon
         endTransaction(ctx);
     }
 }
 
-void dbDatabase::updateCursors(oid_t oid, bool removed) 
-{ 
+void dbDatabase::updateCursors(oid_t oid, bool removed)
+{
     dbDatabaseThreadContext* ctx = threadContext.get();
-    if (ctx != NULL) { 
+    if (ctx != NULL) {
         for (dbAnyCursor* cursor = (dbAnyCursor*)ctx->cursors.next;
-             cursor != &ctx->cursors; 
-             cursor = (dbAnyCursor*)cursor->next) 
-        { 
-            if (cursor->currId == oid) { 
-                if (removed) { 
+             cursor != &ctx->cursors;
+             cursor = (dbAnyCursor*)cursor->next)
+        {
+            if (cursor->currId == oid) {
+                if (removed) {
                     cursor->currId = 0;
-                } else if (cursor->record != NULL/* && !cursor->updateInProgress*/) { 
+                } else if (cursor->record != NULL/* && !cursor->updateInProgress*/) {
                     cursor->fetch();
                 }
             }
         }
     }
-}     
+}
 
 
-void dbDatabase::endTransaction(dbDatabaseThreadContext* ctx) 
+void dbDatabase::endTransaction(dbDatabaseThreadContext* ctx)
 {
     if (!ctx->commitDelayed) {
-        while (!ctx->cursors.isEmpty()) { 
+        while (!ctx->cursors.isEmpty()) {
             ((dbAnyCursor*)ctx->cursors.next)->reset();
         }
     }
-    if (ctx->writeAccess) { 
+    if (ctx->writeAccess) {
         cs.enter();
         ctx->isMutator = false;
         monitor->nWriters -= 1;
         monitor->exclusiveLockOwner = 0;
         monitor->ownerPid.clear();
         assert(monitor->nWriters == 0 && !monitor->waitForUpgrade);
-        if (monitor->nWaitWriters != 0) { 
+        if (monitor->nWaitWriters != 0) {
             monitor->nWaitWriters -= 1;
             monitor->nWriters = 1;
             writeSem.signal();
-        } else if (monitor->nWaitReaders != 0) { 
+        } else if (monitor->nWaitReaders != 0) {
             monitor->nReaders = monitor->nWaitReaders;
             monitor->nWaitReaders = 0;
             readSem.signal(monitor->nReaders);
         }
         cs.leave();
-    } else if (ctx->readAccess) { 
+    } else if (ctx->readAccess) {
         cs.enter();
 #ifdef AUTO_DETECT_PROCESS_CRASH
         removeLockOwner(selfId);
 #endif
         monitor->nReaders -= 1;
-        if (monitor->nReaders == 1 && monitor->waitForUpgrade) { 
+        if (monitor->nReaders == 1 && monitor->waitForUpgrade) {
             assert(monitor->nWriters == 0);
 #ifdef AUTO_DETECT_PROCESS_CRASH
             removeLockOwner(monitor->upgradeId);
@@ -5720,28 +5720,28 @@ void dbDatabase::endTransaction(dbDatabaseThreadContext* ctx)
             monitor->nWriters = 1;
             monitor->nReaders = 0;
             upgradeSem.signal();
-        } else if (monitor->nReaders == 0) { 
-            if (monitor->nWaitWriters != 0) { 
+        } else if (monitor->nReaders == 0) {
+            if (monitor->nWaitWriters != 0) {
                 assert(monitor->nWriters == 0 && !monitor->waitForUpgrade);
                 monitor->nWaitWriters -= 1;
                 monitor->nWriters = 1;
                 writeSem.signal();
             }
-        } 
+        }
         cs.leave();
     }
     ctx->writeAccess = false;
     ctx->readAccess = false;
-    if (ctx->mutatorCSLocked) { 
+    if (ctx->mutatorCSLocked) {
         ctx->mutatorCSLocked = false;
         mutatorCS.leave();
-    }            
+    }
 }
 
 
 void dbDatabase::linkTable(dbTableDescriptor* table, oid_t tableId)
 {
-    assert(((void)"Table can be used only in one database", 
+    assert(((void)"Table can be used only in one database",
             table->tableId == 0));
     table->db = this;
     table->nextDbTable = tables;
@@ -5755,7 +5755,7 @@ void dbDatabase::unlinkTable(dbTableDescriptor* table)
     for (tpp = &tables; *tpp != table; tpp = &(*tpp)->nextDbTable);
     *tpp = table->nextDbTable;
     table->tableId = 0;
-    if (!table->fixedDatabase) { 
+    if (!table->fixedDatabase) {
         table->db = NULL;
     }
 }
@@ -5767,27 +5767,27 @@ dbTableDescriptor* dbDatabase::findTableByName(char const* name)
     return findTable(sym);
 }
 
-    
+
 dbTableDescriptor* dbDatabase::findTable(char const* name)
 {
     for (dbTableDescriptor* desc=tables; desc != NULL; desc=desc->nextDbTable)
-    { 
-        if (desc->name == name) { 
+    {
+        if (desc->name == name) {
             return desc;
         }
     }
     return NULL;
 }
-    
+
 void dbDatabase::insertInverseReference(dbFieldDescriptor* fd, oid_t inverseId,
                                         oid_t targetId)
 {
     byte buf[1024];
-    if (inverseId == targetId) { 
+    if (inverseId == targetId) {
         return;
     }
     fd = fd->inverseRef;
-    if (fd->type == dbField::tpArray) { 
+    if (fd->type == dbField::tpArray) {
         dbTableDescriptor* desc = fd->defTable;
         dbRecord* rec = getRow(targetId);
         dbVarying* arr = (dbVarying*)((byte*)rec + fd->dbsOffs);
@@ -5799,9 +5799,9 @@ void dbDatabase::insertInverseReference(dbFieldDescriptor* fd, oid_t inverseId,
         size_t newArrOffs = DOALIGN(newSize, sizeof(oid_t));
         size_t oldSize = rec->size;
         newSize = newArrOffs + (arrSize + 1)*sizeof(oid_t);
-        if (newSize > oldSize) { 
+        if (newSize > oldSize) {
             newSize = newArrOffs + (arrSize+1)*sizeof(oid_t)*2;
-        } else { 
+        } else {
             newSize = oldSize;
         }
 
@@ -5809,45 +5809,45 @@ void dbDatabase::insertInverseReference(dbFieldDescriptor* fd, oid_t inverseId,
         byte* src = baseAddr + oldOffs;
         byte* tmp = NULL;
 
-        if (dst == src) { 
-            if (arrOffs == newArrOffs && newArrOffs > lastOffs) { 
+        if (dst == src) {
+            if (arrOffs == newArrOffs && newArrOffs > lastOffs) {
                 *((oid_t*)((byte*)rec + newArrOffs) + arrSize) = inverseId;
                 arr->size += 1;
-                updateCursors(targetId); 
+                updateCursors(targetId);
                 return;
             }
-            if (oldSize > sizeof(buf)) { 
+            if (oldSize > sizeof(buf)) {
                 src = tmp = dbMalloc(oldSize);
-            } else { 
+            } else {
                 src = buf;
             }
             memcpy(src, rec, oldSize);
         }
         desc->columns->copyRecordExceptOneField(fd, dst, src, desc->fixedSize);
-        
+
         arr = (dbVarying*)(dst + fd->dbsOffs);
         arr->size = arrSize + 1;
         arr->offs = newArrOffs;
         memcpy(dst + newArrOffs, src + arrOffs, arrSize*sizeof(oid_t));
         *((oid_t*)(dst + newArrOffs) + arrSize) = inverseId;
-        if (tmp != NULL) { 
+        if (tmp != NULL) {
             dbFree(tmp);
         }
-    } else { 
-        if (fd->indexType & INDEXED) { 
+    } else {
+        if (fd->indexType & INDEXED) {
             dbTtree::remove(this, fd->tTree, targetId, fd->type, fd->dbsSize, fd->comparator, fd->dbsOffs);
-        }         
+        }
         oid_t oldRef = *(oid_t*)((byte*)getRow(targetId) + fd->dbsOffs);
         if (oldRef != 0) {
             removeInverseReference(fd, targetId, oldRef);
         }
          *(oid_t*)((byte*)putRow(targetId) + fd->dbsOffs) = inverseId;
 
-        if (fd->indexType & INDEXED) { 
+        if (fd->indexType & INDEXED) {
             dbTtree::insert(this, fd->tTree, targetId, fd->type, fd->dbsSize, fd->comparator, fd->dbsOffs);
         }
     }
-    updateCursors(targetId); 
+    updateCursors(targetId);
 }
 
 
@@ -5856,99 +5856,99 @@ void dbDatabase::removeInverseReferences(dbTableDescriptor* desc, oid_t oid)
     dbVisitedObject* chain = visitedChain;
     dbVisitedObject  vo(oid, chain);
     visitedChain = &vo;
-        
+
     dbFieldDescriptor* fd;
-    for (fd = desc->inverseFields; fd != NULL; fd = fd->nextInverseField) { 
-        if (fd->type == dbField::tpArray) { 
+    for (fd = desc->inverseFields; fd != NULL; fd = fd->nextInverseField) {
+        if (fd->type == dbField::tpArray) {
             dbVarying* arr = (dbVarying*)((byte*)getRow(oid) + fd->dbsOffs);
             int n = arr->size;
             int offs = arr->offs + n*sizeof(oid_t);
-            while (--n >= 0) { 
+            while (--n >= 0) {
                 offs -= sizeof(oid_t);
                 oid_t ref = *(oid_t*)((byte*)getRow(oid) + offs);
                 if (ref != 0) {
                     removeInverseReference(fd, oid, ref);
                 }
             }
-        } else { 
+        } else {
             oid_t ref = *(oid_t*)((byte*)getRow(oid) + fd->dbsOffs);
-            if (ref != 0) { 
+            if (ref != 0) {
                 removeInverseReference(fd, oid, ref);
             }
         }
     }
 
-    visitedChain = chain;    
+    visitedChain = chain;
 }
 
 
-void dbDatabase::removeInverseReference(dbFieldDescriptor* fd, 
+void dbDatabase::removeInverseReference(dbFieldDescriptor* fd,
                                         oid_t inverseId,
                                         oid_t targetId)
 {
     if (inverseId == targetId || targetId == updatedRecordId ||
-        (currIndex[targetId] & dbFreeHandleMarker) != 0) 
-    { 
+        (currIndex[targetId] & dbFreeHandleMarker) != 0)
+    {
         return;
     }
-    for (dbVisitedObject* vo = visitedChain; vo != NULL; vo = vo->next) { 
-        if (vo->oid == targetId) { 
+    for (dbVisitedObject* vo = visitedChain; vo != NULL; vo = vo->next) {
+        if (vo->oid == targetId) {
             return;
         }
     }
     byte* rec = (byte*)putRow(targetId);
     if ((fd->indexType & DB_FIELD_CASCADE_DELETE)
         && ((fd->inverseRef->type != dbField::tpArray) ||
-            ((dbVarying*)(rec + fd->inverseRef->dbsOffs))->size <= 1)) 
-    { 
+            ((dbVarying*)(rec + fd->inverseRef->dbsOffs))->size <= 1))
+    {
         remove(fd->inverseRef->defTable, targetId);
         return;
-    } 
+    }
 
     fd = fd->inverseRef;
-    if (fd->type == dbField::tpArray) { 
+    if (fd->type == dbField::tpArray) {
         dbVarying* arr = (dbVarying*)(rec + fd->dbsOffs);
         oid_t* p = (oid_t*)(rec + arr->offs);
-        for (int n = arr->size, i = n; --i >= 0;) { 
-            if (p[i] == inverseId) { 
-                while (++i < n) { 
+        for (int n = arr->size, i = n; --i >= 0;) {
+            if (p[i] == inverseId) {
+                while (++i < n) {
                     p[i-1] = p[i];
                 }
                 arr->size -= 1;
                 break;
             }
         }
-    } else { 
-        if (*(oid_t*)(rec + fd->dbsOffs) == inverseId) { 
-            if (fd->indexType & INDEXED) { 
+    } else {
+        if (*(oid_t*)(rec + fd->dbsOffs) == inverseId) {
+            if (fd->indexType & INDEXED) {
                 dbTtree::remove(this, fd->tTree, targetId, fd->type, fd->dbsSize, fd->comparator, fd->dbsOffs);
-            }            
+            }
 
             *(oid_t*)((byte*)putRow(targetId) + fd->dbsOffs) = 0;
 
-            if (fd->indexType & INDEXED) { 
+            if (fd->indexType & INDEXED) {
                 dbTtree::insert(this, fd->tTree, targetId, fd->type, fd->dbsSize, fd->comparator, fd->dbsOffs);
             }
         }
     }
-    updateCursors(targetId); 
+    updateCursors(targetId);
 }
 
 bool dbDatabase::completeDescriptorsInitialization()
 {
-    dbTableDescriptor* desc; 
+    dbTableDescriptor* desc;
     bool result = true;
-    for (desc = tables; desc != NULL; desc = desc->nextDbTable) { 
+    for (desc = tables; desc != NULL; desc = desc->nextDbTable) {
         dbFieldDescriptor* fd;
-        for (fd = desc->firstField; fd != NULL; fd = fd->nextField) { 
-            if (fd->refTableName != NULL) { 
+        for (fd = desc->firstField; fd != NULL; fd = fd->nextField) {
+            if (fd->refTableName != NULL) {
                 fd->refTable = findTable(fd->refTableName);
-                if (fd->refTable == NULL) { 
+                if (fd->refTable == NULL) {
                     result = false;
                 }
             }
         }
-        if (result) { 
+        if (result) {
             desc->checkRelationship();
         }
     }
@@ -5961,7 +5961,7 @@ bool dbDatabase::backup(char const* file, bool compactify)
     dbFile f;
     if (f.create(file, !compactify) != dbFile::ok) {
         return false;
-    }  
+    }
     bool result = backup(&f, compactify);
     f.close();
     return result;
@@ -5971,15 +5971,15 @@ bool dbDatabase::backup(char const* file, bool compactify)
 bool dbDatabase::backup(dbFile* f, bool compactify)
 {
     bool result = true;
-    backupCompletedEvent.reset(); 
+    backupCompletedEvent.reset();
     cs.enter();
-    if (monitor->backupInProgress) { 
+    if (monitor->backupInProgress) {
         cs.leave();
         return false; // no two concurrent backups are possible
     }
     monitor->backupInProgress = true;
     cs.leave();
-    if (compactify) { 
+    if (compactify) {
         int     curr = header->curr;
         size_t  nObjects = header->root[1-curr].indexUsed;
         size_t  i;
@@ -5993,21 +5993,21 @@ bool dbDatabase::backup(dbFile* f, bool compactify)
 
         for (i = dbFirstUserId; i < nObjects; i++) {
             offs_t offs = currIndex[i];
-            if (!(offs & dbFreeHandleMarker)) { 
+            if (!(offs & dbFreeHandleMarker)) {
                 int marker = offs & dbInternalObjectMarker;
                 newIndex[i] = used | marker;
-                used += DOALIGN(marker ? internalObjectSize[marker] : getRow(i)->size, 
+                used += DOALIGN(marker ? internalObjectSize[marker] : getRow(i)->size,
                                 dbAllocationQuantum);
-            } else { 
+            } else {
                 newIndex[i] = offs;
             }
-        } 
-        size_t bitmapPages = 
+        }
+        size_t bitmapPages =
             (used + dbPageSize*(dbAllocationQuantum*8-1) - 1)
             / (dbPageSize*(dbAllocationQuantum*8-1));
         size_t bitmapSize = bitmapPages*dbPageSize;
         for (i = dbFirstUserId; i < nObjects; i++) {
-            if (!(newIndex[i] & dbFreeHandleMarker)) { 
+            if (!(newIndex[i] & dbFreeHandleMarker)) {
                 newIndex[i] += bitmapSize;
             }
         }
@@ -6017,7 +6017,7 @@ bool dbDatabase::backup(dbFile* f, bool compactify)
             newIndex[dbBitmapId+i] = start | dbPageObjectMarker;
             start += dbPageSize;
         }
-        while (i < dbBitmapPages) { 
+        while (i < dbBitmapPages) {
             newIndex[dbBitmapId+i] = dbFreeHandleMarker;
             i += 1;
         }
@@ -6037,12 +6037,12 @@ bool dbDatabase::backup(dbFile* f, bool compactify)
         newHeader->mode = header->mode;
         newHeader->root[0].index = newHeader->root[1].shadowIndex = dbPageSize;
         newHeader->root[0].shadowIndex = newHeader->root[1].index = dbPageSize + nIndexPages*dbPageSize;
-        newHeader->root[0].shadowIndexSize = newHeader->root[0].indexSize = 
+        newHeader->root[0].shadowIndexSize = newHeader->root[0].indexSize =
             newHeader->root[1].shadowIndexSize = newHeader->root[1].indexSize = nIndexPages*dbHandlesPerPage;
         newHeader->root[0].indexUsed = newHeader->root[1].indexUsed = nObjects;
         newHeader->root[0].freeList = newHeader->root[1].freeList = header->root[1-curr].freeList;
         result &= f->write(page, dbPageSize);
-        
+
         result &= f->write(newIndex, nIndexPages*dbPageSize);
         result &= f->write(newIndex, nIndexPages*dbPageSize);
 
@@ -6050,8 +6050,8 @@ bool dbDatabase::backup(dbFile* f, bool compactify)
         memset(page, 0xFF, sizeof page);
         while (--bitmapPages != 0) {
             result &= f->write(page, dbPageSize);
-        }    
-        if (size_t(bits >> 3) < dbPageSize) { 
+        }
+        if (size_t(bits >> 3) < dbPageSize) {
             memset(page + (bits >> 3) + 1, 0, dbPageSize - (bits >> 3) - 1);
             page[bits >> 3] = (1 << (bits & 7)) - 1;
         }
@@ -6061,40 +6061,40 @@ bool dbDatabase::backup(dbFile* f, bool compactify)
 
         for (i = dbFirstUserId; i < nObjects; i++) {
             offs_t offs = newIndex[i];
-            if (!(offs & dbFreeHandleMarker)) { 
+            if (!(offs & dbFreeHandleMarker)) {
                 int marker = offs & dbInternalObjectMarker;
-                size_t size = DOALIGN(marker ? internalObjectSize[marker] : getRow(i)->size, 
+                size_t size = DOALIGN(marker ? internalObjectSize[marker] : getRow(i)->size,
                                       dbAllocationQuantum);
                 result &= f->write(baseAddr + currIndex[i] - marker, size);
             }
         }
-        if (used != newFileSize) {          
+        if (used != newFileSize) {
             assert(newFileSize - used < dbPageSize);
             size_t align = (size_t)(newFileSize - used);
             memset(page, 0, align);
             result &= f->write(page, align);
         }
         delete[] newIndex;
-    } else { // end if compactify 
+    } else { // end if compactify
         const size_t segmentSize = 64*1024;
         byte* p = baseAddr;
         size_t size = (size_t)header->size;
         result = true;
-        while (size > segmentSize && result) { 
+        while (size > segmentSize && result) {
             result = f->write(p, segmentSize);
             p += segmentSize;
             size -= segmentSize;
         }
-        if (result) { 
+        if (result) {
             result = f->write(p, size);
         }
     }
     monitor->backupInProgress = false;
-    backupCompletedEvent.signal(); 
+    backupCompletedEvent.signal();
     return result;
 }
 
-dbDatabase::dbDatabase(dbAccessType type, size_t dbInitSize, 
+dbDatabase::dbDatabase(dbAccessType type, size_t dbInitSize,
                        size_t dbExtensionQuantum, size_t dbInitIndexSize,
                        int nThreads
 #ifdef NO_PTHREADS
@@ -6103,8 +6103,8 @@ dbDatabase::dbDatabase(dbAccessType type, size_t dbInitSize,
 #ifdef REPLICATION_SUPPORT
                        , dbReplicationMode replicationMode
 #endif
-) : accessType(type), 
-    initSize(dbInitSize), 
+) : accessType(type),
+    initSize(dbInitSize),
     extensionQuantum(dbExtensionQuantum),
     initIndexSize(dbInitIndexSize),
     freeSpaceReuseThreshold(dbExtensionQuantum),
@@ -6133,9 +6133,9 @@ dbDatabase::dbDatabase(dbAccessType type, size_t dbInitSize,
     schemeVersion = 0;
     visitedChain = NULL;
     header = NULL;
-}      
+}
 
-dbDatabase::~dbDatabase() 
+dbDatabase::~dbDatabase()
 {
     delete[] bitmapPageAvailableSpace;
     delete[] databaseName;
@@ -6158,11 +6158,11 @@ dbTableDescriptor* dbDatabase::loadMetaTable()
     dbTableDescriptor* metatable = new dbTableDescriptor(table);
     linkTable(metatable, dbMetaTableId);
     oid_t tableId = table->firstRow;
-    while (tableId != 0) {                      
+    while (tableId != 0) {
         table = (dbTable*)getRow(tableId);
         dbTableDescriptor* desc;
         for (desc = tables; desc != NULL && desc->tableId != tableId; desc = desc->nextDbTable);
-        if (desc == NULL) { 
+        if (desc == NULL) {
             desc = new dbTableDescriptor(table);
             linkTable(desc, tableId);
             desc->setFlags();
@@ -6180,15 +6180,15 @@ dbTableDescriptor* dbDatabase::loadMetaTable()
 #define MAX_LOST_TRANSACTIONS 100
 
 char const* statusText[] = {
-    "OFFLINE", 
-    "ONLINE", 
+    "OFFLINE",
+    "ONLINE",
     "ACTIVE",
     "STANDBY",
     "RECOVERED"
 };
 
 char const* requestText[] = {
-    "CONNECT", 
+    "CONNECT",
     "RECOVERY",
     "GET_STATUS",
     "STATUS",
@@ -6215,17 +6215,17 @@ dbReplicatedDatabase::dbReplicatedDatabase(dbAccessType type,
     pollInterval = dbDefaultPollInterval;
     waitReadyTimeout = dbWaitReadyTimeout;
     waitStatusTimeout = dbWaitStatusTimeout;
-    recoveryConnectionAttempts = dbRecoveryConnectionAttempts; 
+    recoveryConnectionAttempts = dbRecoveryConnectionAttempts;
     startupConnectionAttempts = dbStartupConnectionAttempts;
     replicationWriteTimeout = dbReplicationWriteTimeout;
-    maxAsyncRecoveryIterations = dbMaxAsyncRecoveryIterations;   
+    maxAsyncRecoveryIterations = dbMaxAsyncRecoveryIterations;
 }
 
 bool dbReplicatedDatabase::open(OpenParameters& params)
 {
     accessType = params.accessType;
     extensionQuantum = params.extensionQuantum;
-    initIndexSize = params.initIndexSize; 
+    initIndexSize = params.initIndexSize;
     initSize = params.initSize;
     freeSpaceReuseThreshold = params.freeSpaceReuseThreshold;
     setConcurrency(params.nThreads);
@@ -6250,7 +6250,7 @@ bool dbReplicatedDatabase::open(char const* dbName, char const* fiName,
 
     this->id = id;
     this->nServers = nServers;
-    con = new dbConnection[nServers];    
+    con = new dbConnection[nServers];
     serverURL = servers;
     delete[] databaseName;
     delete[] fileName;
@@ -6268,26 +6268,26 @@ bool dbReplicatedDatabase::open(char const* dbName, char const* fiName,
     char* name = new char[databaseNameLen+16];
     sprintf(name, "%s.in", dbName);
     databaseName = name;
-    if (fiName == NULL) { 
+    if (fiName == NULL) {
         fileName = new char[databaseNameLen + 5];
         sprintf(fileName, "%s.fdb", dbName);
-    } else { 
+    } else {
         fileName = new char[strlen(fiName)+1];
         strcpy(fileName, fiName);
     }
 
     dbInitializationMutex::initializationStatus status = initMutex.initialize(name);
-    if (status == dbInitializationMutex::InitializationError) { 
+    if (status == dbInitializationMutex::InitializationError) {
         handleError(DatabaseOpenError, "Failed to start database initialization");
         return false;
     }
-    if (status != dbInitializationMutex::NotYetInitialized) { 
+    if (status != dbInitializationMutex::NotYetInitialized) {
         handleError(DatabaseOpenError, "Database is already started");
         return false;
     }
     sprintf(name, "%s.dm", dbName);
     int shmRes = shm.open(name) ;
-    if (shmRes < 0) { 
+    if (shmRes < 0) {
         handleError(DatabaseOpenError, "Failed to open database monitor");
         cleanup(status, 0);
         return false;
@@ -6299,7 +6299,7 @@ bool dbReplicatedDatabase::open(char const* dbName, char const* fiName,
     }
 #if defined(USE_POSIX_MMAP) && USE_POSIX_MMAP
     if (status == dbInitializationMutex::AlreadyInitialized)
-    { 
+    {
        // Still Holding initMutex here in POSIX case (not so for SysV)
        // Safe to clear initMutex now
        initMutex.done() ;
@@ -6307,42 +6307,42 @@ bool dbReplicatedDatabase::open(char const* dbName, char const* fiName,
 #endif
     monitor = shm.get();
     sprintf(name, "%s.ws", dbName);
-    if (!writeSem.open(name)) { 
-        handleError(DatabaseOpenError, 
+    if (!writeSem.open(name)) {
+        handleError(DatabaseOpenError,
                     "Failed to initialize database writers semaphore");
         cleanup(status, 1);
         return false;
     }
     sprintf(name, "%s.rs", dbName);
-    if (!readSem.open(name)) { 
-        handleError(DatabaseOpenError, 
+    if (!readSem.open(name)) {
+        handleError(DatabaseOpenError,
                     "Failed to initialize database readers semaphore");
         cleanup(status, 2);
         return false;
     }
     sprintf(name, "%s.us", dbName);
-    if (!upgradeSem.open(name)) { 
-        handleError(DatabaseOpenError, 
+    if (!upgradeSem.open(name)) {
+        handleError(DatabaseOpenError,
                     "Failed to initialize database upgrade semaphore");
         cleanup(status, 3);
         return false;
     }
     sprintf(name, "%s.bce", dbName);
-    if (!backupCompletedEvent.open(name)) { 
-        handleError(DatabaseOpenError, 
+    if (!backupCompletedEvent.open(name)) {
+        handleError(DatabaseOpenError,
                     "Failed to initialize database backup completed event");
         cleanup(status, 4);
         return false;
-    }    
+    }
     backupInitEvent.open();
     backupFileName = NULL;
 
     fixedSizeAllocator.reset();
     allocatedSize = 0;
-    size_t indexSize = initIndexSize < dbFirstUserId 
+    size_t indexSize = initIndexSize < dbFirstUserId
         ? size_t(dbFirstUserId) : initIndexSize;
     indexSize = DOALIGN(indexSize, dbHandlesPerPage);
-            
+
     size_t fileSize = initSize ? initSize : dbDefaultInitDatabaseSize;
     fileSize = DOALIGN(fileSize, dbBitmapSegmentSize);
 
@@ -6350,7 +6350,7 @@ bool dbReplicatedDatabase::open(char const* dbName, char const* fiName,
         fileSize = indexSize*sizeof(offs_t)*4;
     }
 
-    for (i = dbBitmapId + dbBitmapPages; --i >= 0;) { 
+    for (i = dbBitmapId + dbBitmapPages; --i >= 0;) {
         bitmapPageAvailableSpace[i] = INT_MAX;
     }
     currRBitmapPage = currPBitmapPage = dbBitmapId;
@@ -6361,16 +6361,16 @@ bool dbReplicatedDatabase::open(char const* dbName, char const* fiName,
     selfId = 0;
     maxClientId = 0;
     attach();
-    
+
     sprintf(name, "%s.cs", dbName);
-    if (!cs.create(name, &monitor->sem)) { 
+    if (!cs.create(name, &monitor->sem)) {
         handleError(DatabaseOpenError, "Failed to initialize database monitor");
         cleanup(status, 5);
         return false;
     }
-    if (accessType == dbConcurrentUpdate || accessType == dbConcurrentRead) { 
+    if (accessType == dbConcurrentUpdate || accessType == dbConcurrentRead) {
         sprintf(name, "%s.mcs", dbName);
-        if (!mutatorCS.create(name, &monitor->mutatorSem)) { 
+        if (!mutatorCS.create(name, &monitor->mutatorSem)) {
             cleanup(status, 6);
             handleError(DatabaseOpenError,
                         "Failed to initialize database monitor");
@@ -6403,7 +6403,7 @@ bool dbReplicatedDatabase::open(char const* dbName, char const* fiName,
 #ifdef DO_NOT_REUSE_OID_WITHIN_SESSION
     monitor->sessionFreeList[0].head = monitor->sessionFreeList[0].tail = 0;
     monitor->sessionFreeList[1].head = monitor->sessionFreeList[1].tail = 0;
-#endif                
+#endif
 
     sprintf(databaseName, "%s.%d", dbName, version);
     if (file.open(fileName, databaseName, false, fileSize, true) != dbFile::ok)
@@ -6416,14 +6416,14 @@ bool dbReplicatedDatabase::open(char const* dbName, char const* fiName,
     monitor->size = fileSize = file.getSize();
     header = (dbHeader*)baseAddr;
 
-    if ((unsigned)header->curr > 1) { 
+    if ((unsigned)header->curr > 1) {
         handleError(DatabaseOpenError, "Database file was corrupted: "
                     "invalid root index");
         cleanup(status, 9);
         return false;
-    } 
+    }
     acceptSock = socket_t::create_global(servers[id]);
-    if (!acceptSock->is_ok()) { 
+    if (!acceptSock->is_ok()) {
         acceptSock->get_error_text(buf, sizeof buf);
         dbTrace("<<<FATAL>>> Failed to create accept socket: %s\n", buf);
         cleanup(status, 9);
@@ -6453,31 +6453,31 @@ bool dbReplicatedDatabase::open(char const* dbName, char const* fiName,
         header->root[1].indexUsed = dbFirstUserId;
         header->root[1].freeList = 0;
         used += indexSize*sizeof(offs_t);
- 
+
         header->root[0].shadowIndex = header->root[1].index;
         header->root[1].shadowIndex = header->root[0].index;
         header->root[0].shadowIndexSize = indexSize;
         header->root[1].shadowIndexSize = indexSize;
-            
+
         header->majorVersion= FASTDB_MAJOR_VERSION;
         header->minorVersion = FASTDB_MINOR_VERSION;
         header->mode = dbHeader::getCurrentMode();
-      
+
         index[0] = (offs_t*)(baseAddr + header->root[0].index);
         index[1] = (offs_t*)(baseAddr + header->root[1].index);
         index[0][dbInvalidId] = dbFreeHandleMarker;
 
-        size_t bitmapPages = 
+        size_t bitmapPages =
             (used + dbPageSize*(dbAllocationQuantum*8-1) - 1)
             / (dbPageSize*(dbAllocationQuantum*8-1));
         memset(baseAddr+used, 0xFF, (used + bitmapPages*dbPageSize)
                / (dbAllocationQuantum*8));
         size_t i;
-        for (i = 0; i < bitmapPages; i++) { 
+        for (i = 0; i < bitmapPages; i++) {
             index[0][dbBitmapId + i] = used + dbPageObjectMarker;
             used += dbPageSize;
         }
-        while (i < dbBitmapPages) { 
+        while (i < dbBitmapPages) {
             index[0][dbBitmapId+i] = dbFreeHandleMarker;
             i += 1;
         }
@@ -6486,7 +6486,7 @@ bool dbReplicatedDatabase::open(char const* dbName, char const* fiName,
         committedIndexSize = 0;
         initializeMetaTable();
         header->dirty = true;
-        if (accessType == dbConcurrentRead) { 
+        if (accessType == dbConcurrentRead) {
             modified = false;
         }
         memcpy(index[1], index[0], currIndexSize*sizeof(offs_t));
@@ -6496,25 +6496,25 @@ bool dbReplicatedDatabase::open(char const* dbName, char const* fiName,
         file.markAsDirty(0, sizeof(dbHeader));
         con[id].status = (accessType == dbConcurrentRead) ? ST_RECOVERED : ST_ONLINE;
     } else {
-        if (!header->isCompatible()) { 
+        if (!header->isCompatible()) {
             handleError(DatabaseOpenError, "Incompatible database mode");
             cleanup(status, 9);
             delete acceptSock;
             return false;
-        }        
+        }
         monitor->curr = header->curr;
-        if (header->dirty) { 
+        if (header->dirty) {
             recoveryNeeded = true;
             dbTrace("Replicated node %d was not normally closed\n", id);
             con[id].status = ST_RECOVERED;
             if (accessType != dbConcurrentRead) {
                 connectionAttempts = recoveryConnectionAttempts;
             }
-        } else { 
+        } else {
             con[id].status = ST_ONLINE;
         }
     }
-    cs.enter();            
+    cs.enter();
     monitor->users += 1;
     selfId = ++monitor->clientId;
 #ifdef AUTO_DETECT_PROCESS_CRASH
@@ -6528,85 +6528,85 @@ bool dbReplicatedDatabase::open(char const* dbName, char const* fiName,
     if (accessType == dbConcurrentUpdate) {
         initMutex.done();
     }
-    readerThread.create(startReader, this);    
+    readerThread.create(startReader, this);
   pollNodes:
     bool startup = true;
     bool standalone;
     int nOnlineNodes = 0;
     int minOnlineNodes = nServers;
-    if (accessType == dbConcurrentRead && nServers > 1) { 
+    if (accessType == dbConcurrentRead && nServers > 1) {
         minOnlineNodes = 2;
     }
     activeNodeId = -1;
 
-    do { 
+    do {
         standalone = true;
-        if (nOnlineNodes == minOnlineNodes) { 
+        if (nOnlineNodes == minOnlineNodes) {
             dbThread::sleep(1);
         }
         nOnlineNodes = 1;
-        for (i = 0; i < nServers && nOnlineNodes < minOnlineNodes; i++) { 
-            if (i != id) { 
+        for (i = 0; i < nServers && nOnlineNodes < minOnlineNodes; i++) {
+            if (i != id) {
                 socket_t* s = con[i].reqSock;
-                if (s == NULL) { 
+                if (s == NULL) {
                     TRACE_IMSG(("Try to connect to node %d address '%s'\n", i, servers[i]));
-                    s = socket_t::connect(servers[i], 
-                                          socket_t::sock_global_domain, 
-                                          connectionAttempts);      
-                    if (!s->is_ok()) { 
+                    s = socket_t::connect(servers[i],
+                                          socket_t::sock_global_domain,
+                                          connectionAttempts);
+                    if (!s->is_ok()) {
                         s->get_error_text(buf, sizeof buf);
                         dbTrace("Failed to establish connection with node %d: %s\n", i, buf);
                         delete s;
                         continue;
-                    } 
+                    }
                     TRACE_IMSG(("Establish connection with node %d address '%s'\n", i, servers[i]));
                 }
                 standalone = false;
                 rr.op = ReplicationRequest::RR_GET_STATUS;
                 rr.nodeId = id;
                 bool success = false;
-                if (con[i].reqSock == NULL) { 
+                if (con[i].reqSock == NULL) {
                     TRACE_IMSG(("Send GET_STATUS request to node %d and wait for response\n", i));
-                    if (!s->write(&rr, sizeof rr) || !s->read(&rr, sizeof rr)) { 
+                    if (!s->write(&rr, sizeof rr) || !s->read(&rr, sizeof rr)) {
                         s->get_error_text(buf, sizeof buf);
                         dbTrace("Failed to get status from node %d: %s\n", i, buf);
                         delete s;
-                    } else { 
+                    } else {
                         TRACE_IMSG(("Node %d returns status %s\n", i, statusText[rr.status]));
                         addConnection(i, s);
                         con[i].status = rr.status;
                         con[i].updateCounter = rr.size;
                         success = true;
                     }
-                } else { 
+                } else {
                     con[i].statusEvent.reset();
-                    con[i].waitStatusEventFlag += 1; 
+                    con[i].waitStatusEventFlag += 1;
                     TRACE_IMSG(("Send GET_STATUS request to node %d\n", i));
-                    if (writeReq(i, rr)) {              
+                    if (writeReq(i, rr)) {
                         dbCriticalSection cs(startCS);
                         lockConnection(i);
-                        if (!con[i].statusEvent.wait(startCS, waitStatusTimeout)) { 
+                        if (!con[i].statusEvent.wait(startCS, waitStatusTimeout)) {
                             dbTrace("Failed to get status from node %d\n", i);
                             deleteConnection(i);
-                        } else { 
+                        } else {
                             TRACE_IMSG(("Received response from node %d with status %s\n", i, statusText[con[i].status]));
                             success = true;
                         }
                         unlockConnection(i);
                     }
-                    con[i].waitStatusEventFlag -= 1; 
+                    con[i].waitStatusEventFlag -= 1;
                 }
-                if (success) { 
+                if (success) {
                     nOnlineNodes += 1;
                     TRACE_IMSG(("Status of node %d is %s\n", i, statusText[con[i].status]));
-                    if (con[i].status == ST_ACTIVE) { 
+                    if (con[i].status == ST_ACTIVE) {
                         startup = false;
                         activeNodeId = i;
-                    } else if (con[i].status == ST_STANDBY) { 
+                    } else if (con[i].status == ST_STANDBY) {
                         startup = false;
-                    } else if (con[i].status == ST_ONLINE 
-                        && con[i].updateCounter > file.updateCounter) 
-                    { 
+                    } else if (con[i].status == ST_ONLINE
+                        && con[i].updateCounter > file.updateCounter)
+                    {
                         TRACE_IMSG(("Change status of current node to RECOVERED because its updateCounter=%d and update counter of active node is %d\n", file.updateCounter, con[i].updateCounter));
                         con[id].status = ST_RECOVERED;
                     }
@@ -6614,19 +6614,19 @@ bool dbReplicatedDatabase::open(char const* dbName, char const* fiName,
             }
         }
     } while (!standalone && con[id].status == ST_RECOVERED && activeNodeId < 0 && (id != 0 || nOnlineNodes < minOnlineNodes));
-    
-    if (!startup) { 
+
+    if (!startup) {
         //
         // The node was activated after the active node start the user application
         // So the node's data is out of date. Mark it as recovered.
-        // 
+        //
         TRACE_IMSG(("Change status of node connected after application startup to RECOVERED\n"));
         con[id].status = ST_RECOVERED;
     }
     file.configure(this);
     TRACE_IMSG(("My status is %s\n", statusText[con[id].status]));
 
-    if (con[id].status == ST_RECOVERED && activeNodeId < 0) { 
+    if (con[id].status == ST_RECOVERED && activeNodeId < 0) {
         if (recoveryNeeded) {
             dbTrace("Database was not normally closed: start recovery\n");
             recovery();
@@ -6635,21 +6635,21 @@ bool dbReplicatedDatabase::open(char const* dbName, char const* fiName,
         con[id].status = ST_ONLINE;
     }
 
-    if (con[id].status == ST_ONLINE) { 
-        for (activeNodeId = 0; 
-             activeNodeId < id && con[activeNodeId].status != ST_ONLINE; 
+    if (con[id].status == ST_ONLINE) {
+        for (activeNodeId = 0;
+             activeNodeId < id && con[activeNodeId].status != ST_ONLINE;
              activeNodeId++);
-        if (activeNodeId == id && accessType != dbConcurrentRead) { 
+        if (activeNodeId == id && accessType != dbConcurrentRead) {
             dbTrace("Node %d becomes active at startup\n", id);
             //
             // Nobody else pretends to be active, so I will be...
             //
-            for (i = 0; i < nServers; i++) {        
+            for (i = 0; i < nServers; i++) {
                 lockConnection(i);
-                if (i != id && con[i].status == ST_ONLINE) { 
+                if (i != id && con[i].status == ST_ONLINE) {
                     dbCriticalSection cs(startCS);
                     TRACE_IMSG(("Waiting ready event from node %d\n", i));
-                    if (!con[i].readyEvent.wait(startCS, waitReadyTimeout)) { 
+                    if (!con[i].readyEvent.wait(startCS, waitReadyTimeout)) {
                         dbTrace("Didn't receive ready event from node %d\n", i);
                         deleteConnection(i);
                         unlockConnection(i);
@@ -6660,68 +6660,68 @@ bool dbReplicatedDatabase::open(char const* dbName, char const* fiName,
                 unlockConnection(i);
             }
             con[id].status = ST_ACTIVE;
-            for (i = 0; i < nServers; i++) {        
-                if (con[i].status == ST_ONLINE) { 
+            for (i = 0; i < nServers; i++) {
+                if (con[i].status == ST_ONLINE) {
                     con[i].status = ST_STANDBY;
                     rr.op = ReplicationRequest::RR_STATUS;
                     rr.nodeId = i;
                     rr.status = ST_STANDBY;
                     TRACE_IMSG(("Send STANDBY status to node %d\n", i));
-                    writeReq(i, rr); 
-                } else if (con[i].status == ST_STANDBY) { 
+                    writeReq(i, rr);
+                } else if (con[i].status == ST_STANDBY) {
                     rr.op = ReplicationRequest::RR_CHANGE_ACTIVE_NODE;
                     rr.nodeId = id;
                     rr.status = ST_STANDBY;
                     TRACE_IMSG(("Send CHANGE_ACTIVE_NODE message to node %d\n", i));
-                    writeReq(i, rr); 
+                    writeReq(i, rr);
                 }
             }
-        } else if (activeNodeId < id) { 
+        } else if (activeNodeId < id) {
             rr.op = ReplicationRequest::RR_READY;
             rr.nodeId = id;
             TRACE_IMSG(("Send READY status to node %d\n", activeNodeId));
-            if (!writeReq(activeNodeId, rr)) { 
+            if (!writeReq(activeNodeId, rr)) {
                 TRACE_IMSG(("Failed to send READY request to node %d\n", activeNodeId));
                 goto pollNodes;
             }
         }
-    } else if (activeNodeId >= 0) { 
+    } else if (activeNodeId >= 0) {
         TRACE_IMSG(("Send RECOVERY request to node %d\n", activeNodeId));
         rr.op = ReplicationRequest::RR_RECOVERY;
         rr.size = file.getUpdateCountTableSize();
         rr.nodeId = id;
-        if (!writeReq(activeNodeId, rr, file.diskUpdateCount, rr.size*sizeof(int))) { 
+        if (!writeReq(activeNodeId, rr, file.diskUpdateCount, rr.size*sizeof(int))) {
             TRACE_IMSG(("Failed to send RECOVERY request to node %d\n", activeNodeId));
             goto pollNodes;
         }
-    } 
+    }
     TRACE_IMSG(("My new status is %s\n", statusText[con[id].status]));
-    if (con[id].status != ST_ACTIVE) { 
+    if (con[id].status != ST_ACTIVE) {
         dbCriticalSection cs(startCS);
-        if (accessType == dbConcurrentRead) { 
-            if (con[id].status == ST_RECOVERED) { 
+        if (accessType == dbConcurrentRead) {
+            if (con[id].status == ST_RECOVERED) {
                 recoveredEvent.wait(startCS);
                 dbTrace("Recovery of node %d is completed\n", id);
             }
             monitor->curr = header->curr;
-        } else { 
-            if (!standalone) { 
+        } else {
+            if (!standalone) {
                 startEvent.wait(startCS);
             } else {
                 con[id].status = ST_ACTIVE;
             }
             baseAddr = (byte*)file.getAddr();
             header = (dbHeader*)baseAddr;
-            if (opened) { 
+            if (opened) {
                 int curr = header->curr;
                 monitor->curr = curr;
                 offs_t* shadowIndex = (offs_t*)(baseAddr + header->root[curr].index);
                 offs_t* currIndex = (offs_t*)(baseAddr + header->root[1-curr].index);
-                for (size_t i = 0, size = header->root[curr].indexUsed; i < size; i++) { 
-                    if (currIndex[i] != shadowIndex[i]) { 
+                for (size_t i = 0, size = header->root[curr].indexUsed; i < size; i++) {
+                    if (currIndex[i] != shadowIndex[i]) {
                         currIndex[i] = shadowIndex[i];
                         file.markAsDirty(header->root[1-curr].index + i*sizeof(offs_t), sizeof(offs_t));
-                    } 
+                    }
                 }
                 this->currIndex = currIndex;
                 header->size = file.getSize();
@@ -6730,33 +6730,33 @@ bool dbReplicatedDatabase::open(char const* dbName, char const* fiName,
                 header->root[1-curr].shadowIndex = header->root[curr].index;
                 header->root[1-curr].shadowIndexSize = header->root[curr].indexSize;
                 header->root[1-curr].indexUsed = header->root[curr].indexUsed;
-                header->root[1-curr].freeList  = header->root[curr].freeList; 
+                header->root[1-curr].freeList  = header->root[curr].freeList;
 #ifdef DO_NOT_REUSE_OID_WITHIN_SESSION
                 monitor->sessionFreeList[1-curr] = monitor->sessionFreeList[curr];
 #endif
-   
+
                 file.markAsDirty(0, sizeof(dbHeader));
                 file.updateCounter += MAX_LOST_TRANSACTIONS;
                 restoreTablesConsistency();
                 file.flush();
-            } 
+            }
         }
     }
-    if (opened) {         
-        if (loadScheme(true)) { 
+    if (opened) {
+        if (loadScheme(true)) {
             if (accessType != dbConcurrentUpdate) {
                 initMutex.done();
             }
             return true;
-        } else { 
-            if (accessType == dbConcurrentRead) { 
-                do { 
+        } else {
+            if (accessType == dbConcurrentRead) {
+                do {
                     dbTableDescriptor *desc, *next;
-                    for (desc = tables; desc != NULL; desc = next) { 
+                    for (desc = tables; desc != NULL; desc = next) {
                         next = desc->nextDbTable;
                         if (desc->cloneOf != NULL) {
                             delete desc;
-                        } else if (!desc->fixedDatabase) { 
+                        } else if (!desc->fixedDatabase) {
                             desc->db = NULL;
                         }
                     }
@@ -6775,16 +6775,16 @@ bool dbReplicatedDatabase::open(char const* dbName, char const* fiName,
         initMutex.done();
     }
 #ifdef PROTECT_DATABASE
-    if (accessType == dbConcurrentRead) { 
+    if (accessType == dbConcurrentRead) {
         file.protect(0, header->size);
     }
 #endif
     readerThread.join();
-    delete[] con; 
+    delete[] con;
     delete acceptSock;
     dbDatabase::close();
     return false;
-}       
+}
 
 
 void thread_proc dbReplicatedDatabase::startReader(void* arg)
@@ -6795,8 +6795,8 @@ void thread_proc dbReplicatedDatabase::startReader(void* arg)
 int dbReplicatedDatabase::getNumberOfOnlineNodes()
 {
     int n = 0;
-    for (int i = 0; i < nServers; i++) { 
-        if (con[i].status != ST_OFFLINE) { 
+    for (int i = 0; i < nServers; i++) {
+        if (con[i].status != ST_OFFLINE) {
             n += 1;
         }
     }
@@ -6806,11 +6806,11 @@ int dbReplicatedDatabase::getNumberOfOnlineNodes()
 void dbReplicatedDatabase::deleteConnection(int nodeId)
 {
     dbTrace("Delete connection with node %d, used counter %d\n", nodeId, con[nodeId].useCount);
-    { 
+    {
         dbCriticalSection cs(sockCS);
         socket_t* reqSock = con[nodeId].reqSock;
         socket_t* respSock = con[nodeId].respSock;
-        while (con[nodeId].useCount > 1) { 
+        while (con[nodeId].useCount > 1) {
             con[nodeId].waitUseEventFlag += 1;
             con[nodeId].useCount -= 1;
             con[nodeId].useEvent.reset();
@@ -6820,61 +6820,61 @@ void dbReplicatedDatabase::deleteConnection(int nodeId)
         }
         assert(con[nodeId].useCount == 1);
         con[nodeId].status = ST_OFFLINE;
-        if (con[nodeId].reqSock != NULL) { 
+        if (con[nodeId].reqSock != NULL) {
             assert(con[nodeId].reqSock == reqSock);
-            FD_CLR(reqSock->get_handle(), &inputSD);    
+            FD_CLR(reqSock->get_handle(), &inputSD);
             delete reqSock;
             con[nodeId].reqSock = NULL;
         }
-        if (con[nodeId].respSock != NULL) { 
+        if (con[nodeId].respSock != NULL) {
             assert(con[nodeId].respSock == respSock);
-            FD_CLR(respSock->get_handle(), &inputSD);    
+            FD_CLR(respSock->get_handle(), &inputSD);
             delete respSock;
             con[nodeId].respSock = NULL;
         }
     }
-    if (nodeId == activeNodeId) { 
+    if (nodeId == activeNodeId) {
         changeActiveNode();
     }
 }
 
 
-void dbReplicatedDatabase::changeActiveNode() 
+void dbReplicatedDatabase::changeActiveNode()
 {
     ReplicationRequest rr;
     activeNodeId = -1;
     TRACE_IMSG(("Change active node\n"));
     if (con[id].status == ST_STANDBY && accessType != dbConcurrentRead) {
         int i;
-        for (i = 0; i < id; i++) { 
-            if (con[i].status == ST_ONLINE || con[i].status == ST_STANDBY) { 
+        for (i = 0; i < id; i++) {
+            if (con[i].status == ST_ONLINE || con[i].status == ST_STANDBY) {
                 rr.op = ReplicationRequest::RR_GET_STATUS;
                 TRACE_IMSG(("Send GET_STATUS request to node %d to choose new active node\n", i));
                 rr.nodeId = id;
-                if (writeReq(i, rr)) { 
+                if (writeReq(i, rr)) {
                     return;
                 }
             }
         }
         dbTrace("Activate stand-by server %d\n", id);
-        for (i = 0; i < nServers; i++) { 
-            if (con[i].status != ST_OFFLINE && i != id) { 
+        for (i = 0; i < nServers; i++) {
+            if (con[i].status != ST_OFFLINE && i != id) {
                 TRACE_IMSG(("Send NEW_ACTIVE_NODE request to node %d\n", i));
                 rr.op = ReplicationRequest::RR_NEW_ACTIVE_NODE;
                 rr.nodeId = id;
-                if (writeReq(i, rr)) { 
+                if (writeReq(i, rr)) {
                     con[i].status = ST_STANDBY;
                 }
             }
         }
         con[id].status = ST_ACTIVE;
-        { 
+        {
             dbCriticalSection cs(startCS);
             startEvent.signal();
         }
     }
 }
-    
+
 
 void dbReplicatedDatabase::reader()
 {
@@ -6883,96 +6883,96 @@ void dbReplicatedDatabase::reader()
     bool statusRequested = false;
     bool closed = false;
     dbDatabaseThreadContext* ctx = NULL;
-    
+
     if (accessType != dbAllAccess) { // concurrent update
         ctx = new dbDatabaseThreadContext();
         threadContext.set(ctx);
     }
-        
-    while (opened) { 
+
+    while (opened) {
         timeval tv;
         tv.tv_sec = pollInterval / 1000;
-        tv.tv_usec = pollInterval % 1000 * 1000; 
+        tv.tv_usec = pollInterval % 1000 * 1000;
         fd_set ready = inputSD;
         int rc = ::select(nInputSD, &ready, NULL, NULL, &tv);
         if (rc == 0) { // timeout
             if (!closed && con[id].status == ST_STANDBY) {
-                if (statusRequested || activeNodeId < 0) { 
+                if (statusRequested || activeNodeId < 0) {
                     TRACE_MSG(("Initiate change of active node %d\n", activeNodeId));
                     changeActiveNode();
-                } else { 
+                } else {
                     rr.op = ReplicationRequest::RR_GET_STATUS;
                     rr.nodeId = id;
-                    if (!writeResp(activeNodeId, rr)) { 
+                    if (!writeResp(activeNodeId, rr)) {
                         dbTrace("Connection with active server lost\n");
                         activeNodeId = -1;
                         changeActiveNode();
-                    } else { 
+                    } else {
                         TRACE_MSG(("Send GET_STATUS request to node %d\n", activeNodeId));
                         statusRequested = true;
                     }
                 }
             }
-        } else if (rc < 0) {  
+        } else if (rc < 0) {
 #ifndef _WIN32
-            if (errno != EINTR) 
+            if (errno != EINTR)
 #endif
-            { 
+            {
                 dbTrace("Select failed: %d\n", errno);
                 tv.tv_sec = 0;
                 tv.tv_usec = 0;
                 FD_ZERO(&ready);
-                for (int i = nInputSD; --i >= 0;) {                 
+                for (int i = nInputSD; --i >= 0;) {
                     FD_SET(i, &ready);
-                    if (::select(i+1, &ready, NULL, NULL, &tv) < 0) { 
+                    if (::select(i+1, &ready, NULL, NULL, &tv) < 0) {
                         FD_CLR(i, &inputSD);
-                        for (int j = nServers; --j >= 0;) { 
+                        for (int j = nServers; --j >= 0;) {
                             lockConnection(j);
                             if ((con[j].respSock != NULL && con[j].respSock->get_handle() == i) ||
                                 (con[j].reqSock != NULL && con[j].reqSock->get_handle() == i))
-                            { 
+                            {
                                 deleteConnection(j);
                             }
                             unlockConnection(j);
-                        }                           
+                        }
                     }
                     FD_CLR(i, &ready);
                 }
-            }                   
-        } else { 
+            }
+        } else {
             statusRequested = false;
-            if (FD_ISSET(acceptSock->get_handle(), &ready)) { 
+            if (FD_ISSET(acceptSock->get_handle(), &ready)) {
                 socket_t* s = acceptSock->accept();
                 if (s != NULL && s->read(&rr, sizeof rr)) {
                     int op = rr.op;
                     int nodeId = rr.nodeId;
-                    if (op != ReplicationRequest::RR_GET_STATUS) { 
+                    if (op != ReplicationRequest::RR_GET_STATUS) {
                         dbTrace("Receive unexpected request %d\n", rr.op);
                         delete s;
-                    } else if (nodeId >= nServers) { 
+                    } else if (nodeId >= nServers) {
                         dbTrace("Receive request from node %d while master was configured only for %d nodes\n", rr.op, nServers);
-                        delete s;                        
+                        delete s;
                     } else {
-                        TRACE_IMSG(("Send STATUS response %s for GET_STATUS request from node %d\n", 
+                        TRACE_IMSG(("Send STATUS response %s for GET_STATUS request from node %d\n",
                                    statusText[con[id].status], nodeId));
                         rr.op = ReplicationRequest::RR_STATUS;
                         rr.nodeId = id;
                         rr.status = con[id].status;
                         rr.size = file.updateCounter;
-                        if (!s->write(&rr, sizeof rr)) { 
+                        if (!s->write(&rr, sizeof rr)) {
                             s->get_error_text(buf, sizeof buf);
                             dbTrace("Failed to write response: %s\n", buf);
                             delete s;
-                        } else { 
+                        } else {
                             lockConnection(nodeId);
-                            if (con[nodeId].respSock != NULL) { 
+                            if (con[nodeId].respSock != NULL) {
                                 deleteConnection(nodeId);
                             }
-                            { 
+                            {
                                 dbCriticalSection cs(sockCS);
                                 con[nodeId].respSock = s;
                                 int hnd = s->get_handle();
-                                if (hnd >= nInputSD) { 
+                                if (hnd >= nInputSD) {
                                     nInputSD = hnd+1;
                                 }
                                 FD_SET(hnd, &inputSD);
@@ -6980,39 +6980,39 @@ void dbReplicatedDatabase::reader()
                             unlockConnection(nodeId);
                         }
                     }
-                } else if (s == NULL) { 
+                } else if (s == NULL) {
                     acceptSock->get_error_text(buf, sizeof buf);
                     dbTrace("Accept failed: %s\n", buf);
-                } else { 
+                } else {
                     s->get_error_text(buf, sizeof buf);
                     dbTrace("Failed to read login request: %s\n", buf);
                     delete s;
                 }
             }
-            for (int i = nServers; --i >= 0;) { 
+            for (int i = nServers; --i >= 0;) {
                 lockConnection(i);
                 socket_t* s;
-                if (((s = con[i].respSock) != NULL && FD_ISSET(s->get_handle(), &ready)) 
+                if (((s = con[i].respSock) != NULL && FD_ISSET(s->get_handle(), &ready))
                     || ((s = con[i].reqSock) != NULL && FD_ISSET(s->get_handle(), &ready)))
 
-                { 
-                    if (!s->read(&rr, sizeof rr)) { 
-                        dbTrace("Failed to read response from node %d\n", i); 
+                {
+                    if (!s->read(&rr, sizeof rr)) {
+                        dbTrace("Failed to read response from node %d\n", i);
                         deleteConnection(i);
-                        if (closed && i == activeNodeId) { 
+                        if (closed && i == activeNodeId) {
                             dbCriticalSection cs(startCS);
                             opened = false;
                             startEvent.signal();
                             delete ctx;
                             unlockConnection(i);
                             return;
-                        } 
+                        }
                     } else {
-                        TRACE_MSG(("Receive request %s, status %s, size %d from node %d\n", 
-                                   requestText[rr.op], 
-                                   ((rr.status <= ST_RECOVERED) ? statusText[rr.status] : "?"), 
+                        TRACE_MSG(("Receive request %s, status %s, size %d from node %d\n",
+                                   requestText[rr.op],
+                                   ((rr.status <= ST_RECOVERED) ? statusText[rr.status] : "?"),
                                    rr.size, rr.nodeId));
-                        switch (rr.op) { 
+                        switch (rr.op) {
                           case ReplicationRequest::RR_COMMITTED:
                           {
                               dbCriticalSection cs(commitCS);
@@ -7024,22 +7024,22 @@ void dbReplicatedDatabase::reader()
                             rr.nodeId = id;
                             rr.status = con[id].status;
                             rr.size = file.updateCounter;
-                            TRACE_MSG(("Send RR_STATUS response %s to node %d\n", 
+                            TRACE_MSG(("Send RR_STATUS response %s to node %d\n",
                                        statusText[con[id].status], i));
                             writeResp(i, rr);
                             break;
                           case ReplicationRequest::RR_STATUS:
-                            if (con[rr.nodeId].status == ST_RECOVERED && rr.status == ST_STANDBY) { 
+                            if (con[rr.nodeId].status == ST_RECOVERED && rr.status == ST_STANDBY) {
                                 dbCriticalSection cs(startCS);
                                 monitor->curr = header->curr;
                                 recoveredEvent.signal();
                             }
                             con[rr.nodeId].status = rr.status;
                             con[rr.nodeId].updateCounter = rr.size;
-                            if (con[rr.nodeId].waitStatusEventFlag) { 
+                            if (con[rr.nodeId].waitStatusEventFlag) {
                                 con[rr.nodeId].statusEvent.signal();
-                            } else if (activeNodeId < 0 && rr.nodeId < id && rr.status == ST_RECOVERED) { 
-                                TRACE_MSG(("activeNodeId=%d rr.nodeId=%d, rr.status=%d\n", activeNodeId, rr.nodeId, rr.status)); 
+                            } else if (activeNodeId < 0 && rr.nodeId < id && rr.status == ST_RECOVERED) {
+                                TRACE_MSG(("activeNodeId=%d rr.nodeId=%d, rr.status=%d\n", activeNodeId, rr.nodeId, rr.status));
                                 changeActiveNode();
                             }
                             statusRequested = false;
@@ -7053,7 +7053,7 @@ void dbReplicatedDatabase::reader()
                             TRACE_MSG(("Change active node to %d\n", rr.nodeId));
                             activeNodeId = rr.nodeId;
                             statusRequested = false;
-                            if (accessType != dbConcurrentRead) { 
+                            if (accessType != dbConcurrentRead) {
                                 rr.op = ReplicationRequest::RR_RECOVERY;
                                 rr.size = file.getUpdateCountTableSize();
                                 rr.nodeId = id;
@@ -7061,44 +7061,44 @@ void dbReplicatedDatabase::reader()
                             }
                             break;
                           case ReplicationRequest::RR_CLOSE:
-                            if (accessType != dbConcurrentRead) { 
+                            if (accessType != dbConcurrentRead) {
                                 closed = true;
                             }
                             break;
-                          case ReplicationRequest::RR_RECOVERY: 
+                          case ReplicationRequest::RR_RECOVERY:
                             {
                                 int* updateCountTable = new int[file.getMaxPages()];
 
                                 if (rr.size != 0 && !s->read(updateCountTable, rr.size*sizeof(int))) {
-                                    dbTrace("Failed to read update counter table\n"); 
+                                    dbTrace("Failed to read update counter table\n");
                                     deleteConnection(i);
-                                } else { 
+                                } else {
                                     con[i].status = ST_RECOVERED;
                                     file.recovery(i, updateCountTable, rr.size);
                                 }
                                 break;
                             }
-                          case ReplicationRequest::RR_RECOVER_PAGE: 
+                          case ReplicationRequest::RR_RECOVER_PAGE:
                             TRACE_MSG(("Recovere page at address %x size %d\n", rr.page.offs, rr.size));
                             if (!file.updatePages(s, rr.page.offs, rr.page.updateCount, rr.size))
-                            { 
+                            {
                                 dbTrace("Failed to recover page %lx\n", (long)rr.page.offs);
                                 activeNodeId = -1;
                             }
                             break;
-                          case ReplicationRequest::RR_UPDATE_PAGE: 
+                          case ReplicationRequest::RR_UPDATE_PAGE:
                             TRACE_MSG(("Update page at address %x size %d\n", rr.page.offs, rr.size));
                             if ((accessType != dbAllAccess
-                                 && !file.concurrentUpdatePages(s, rr.page.offs, rr.page.updateCount, rr.size)) 
+                                 && !file.concurrentUpdatePages(s, rr.page.offs, rr.page.updateCount, rr.size))
                                 || (accessType == dbAllAccess
                                     && !file.updatePages(s, rr.page.offs, rr.page.updateCount,
                                                          rr.size)))
-                            { 
+                            {
                                 dbTrace("Failed to update page %lx\n", (long)rr.page.offs);
                                 activeNodeId = -1;
                             }
                             break;
-                          case ReplicationRequest::RR_READY:                        
+                          case ReplicationRequest::RR_READY:
                             con[rr.nodeId].readyEvent.signal();
                             break;
                           default:
@@ -7120,7 +7120,7 @@ void dbReplicatedDatabase::close()
     opened = false;
     readerThread.join();
     file.flush();
-    if (header != NULL && header->dirty && accessType != dbConcurrentRead) 
+    if (header != NULL && header->dirty && accessType != dbConcurrentRead)
     {
         header->dirty = false;
         file.markAsDirty(0, sizeof(dbHeader));
@@ -7129,11 +7129,11 @@ void dbReplicatedDatabase::close()
     ReplicationRequest rr;
     rr.op = ReplicationRequest::RR_CLOSE;
     rr.nodeId = id;
-    for (int i = nServers; --i >= 0;) { 
-        if (con[i].reqSock != NULL 
-            && (con[i].status == ST_STANDBY || con[i].status == ST_RECOVERED)) 
-        { 
-            con[i].reqSock->write(&rr, sizeof rr);          
+    for (int i = nServers; --i >= 0;) {
+        if (con[i].reqSock != NULL
+            && (con[i].status == ST_STANDBY || con[i].status == ST_RECOVERED))
+        {
+            con[i].reqSock->write(&rr, sizeof rr);
         }
     }
     dbDatabase::close();
@@ -7142,17 +7142,17 @@ void dbReplicatedDatabase::close()
     startEvent.close();
 }
 
-bool dbReplicatedDatabase::writeReq(int nodeId, ReplicationRequest const& hdr, 
+bool dbReplicatedDatabase::writeReq(int nodeId, ReplicationRequest const& hdr,
                                     void* body, size_t bodySize)
 {
     bool result;
     lockConnection(nodeId);
     dbCriticalSection cs(con[nodeId].writeCS);
     socket_t* s = con[nodeId].reqSock;
-    if (s == NULL) { 
+    if (s == NULL) {
         s = con[nodeId].respSock;
     }
-    if (s != NULL) { 
+    if (s != NULL) {
         if (!s->write(&hdr, sizeof hdr, replicationWriteTimeout) ||
             (bodySize != 0 && !s->write(body, bodySize, replicationWriteTimeout)))
         {
@@ -7161,12 +7161,12 @@ bool dbReplicatedDatabase::writeReq(int nodeId, ReplicationRequest const& hdr,
             dbTrace("Failed to write request to node %d: %s\n", nodeId, buf);
             deleteConnection(nodeId);
             result = false;
-        } else { 
+        } else {
             result = true;
         }
-    } else { 
+    } else {
         TRACE_MSG(("Connection %d request socket is not opened\n", nodeId));
-        result = false;     
+        result = false;
     }
     unlockConnection(nodeId);
     return result;
@@ -7177,33 +7177,33 @@ bool dbReplicatedDatabase::writeResp(int nodeId, ReplicationRequest const& hdr)
     lockConnection(nodeId);
     bool result;
     socket_t* s = con[nodeId].respSock;
-    if (s == NULL) { 
+    if (s == NULL) {
         s = con[nodeId].reqSock;
     }
-    if (s != NULL) { 
-        if (!s->write(&hdr, sizeof hdr)) { 
+    if (s != NULL) {
+        if (!s->write(&hdr, sizeof hdr)) {
             char buf[64];
             s->get_error_text(buf, sizeof buf);
             dbTrace("Failed to write request to node %d: %s\n", nodeId, buf);
             deleteConnection(nodeId);
             result = false;
-        } else { 
+        } else {
             result = true;
         }
-    } else { 
-        result = false;     
+    } else {
+        result = false;
     }
     unlockConnection(nodeId);
     return result;
 }
 
-void dbReplicatedDatabase::lockConnection(int nodeId) 
+void dbReplicatedDatabase::lockConnection(int nodeId)
 {
     dbCriticalSection cs(sockCS);
     con[nodeId].useCount += 1;
 }
 
-void dbReplicatedDatabase::unlockConnection(int nodeId) 
+void dbReplicatedDatabase::unlockConnection(int nodeId)
 {
     dbCriticalSection cs(sockCS);
     if (--con[nodeId].useCount == 0 && con[nodeId].waitUseEventFlag) {
@@ -7215,14 +7215,14 @@ void dbReplicatedDatabase::addConnection(int nodeId, socket_t* s)
 {
     TRACE_MSG(("Add connection with node %d\n", nodeId));
     lockConnection(nodeId);
-    if (con[nodeId].reqSock != NULL) { 
+    if (con[nodeId].reqSock != NULL) {
         deleteConnection(nodeId);
     }
-    { 
+    {
         dbCriticalSection cs(sockCS);
         con[nodeId].reqSock = s;
         int hnd = s->get_handle();
-        if (hnd >= nInputSD) { 
+        if (hnd >= nInputSD) {
             nInputSD = hnd+1;
         }
         FD_SET(hnd, &inputSD);
@@ -7235,12 +7235,12 @@ void dbReplicatedDatabase::waitTransactionAcknowledgement()
     int i;
     int n = nServers;
     dbCriticalSection cs(commitCS);
-    for (i = 0; i < n; i++) { 
+    for (i = 0; i < n; i++) {
         con[i].committedEvent.reset();
     }
-    file.flush();    
-    for (i = 0; i < n; i++) { 
-        if (con[i].status == dbReplicatedDatabase::ST_STANDBY) { 
+    file.flush();
+    for (i = 0; i < n; i++) {
+        if (con[i].status == dbReplicatedDatabase::ST_STANDBY) {
             con[i].committedEvent.wait(commitCS);
         }
     }
@@ -7258,11 +7258,11 @@ int dbHeader::getCurrentMode()
     int mode = MODE_RECTANGLE_DIM * RECTANGLE_DIMENSION * sizeof(RECTANGLE_COORDINATE_TYPE);
 #if dbDatabaseOffsetBits > 32
     mode |= MODE_OFFS_64;
-#endif        
+#endif
 #if dbDatabaseOidBits > 32
     mode |= MODE_OID_64;
-#endif        
-#ifdef AUTOINCREMENT_SUPPORT    
+#endif
+#ifdef AUTOINCREMENT_SUPPORT
     mode |= MODE_AUTOINCREMENT;
 #endif
     return mode;

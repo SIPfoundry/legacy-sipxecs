@@ -1,6 +1,6 @@
 // $Id$
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -225,7 +225,7 @@ const UtlString* RegistrationBinding::getIdentity() const
 
 void RegistrationBinding::setIdentity(const UtlString& identity)
 {
-   if (mIdentity) 
+   if (mIdentity)
    {
       *mIdentity = identity;
    }
@@ -269,7 +269,7 @@ const UtlString* RegistrationBinding::getCallId() const
 }
 void RegistrationBinding::setCallId(const UtlString& callId)
 {
-   if (mCallId) 
+   if (mCallId)
    {
       *mCallId = callId;
    }
@@ -285,7 +285,7 @@ const UtlString* RegistrationBinding::getContact() const
 }
 void RegistrationBinding::setContact(const UtlString& contact)
 {
-   if (mContact) 
+   if (mContact)
    {
       *mContact = contact;
    }
@@ -301,7 +301,7 @@ const UtlString* RegistrationBinding::getQvalue() const
 }
 void RegistrationBinding::setQvalue(const UtlString& qvalue)
 {
-   if (mQvalue) 
+   if (mQvalue)
    {
       *mQvalue = qvalue;
    }
@@ -317,7 +317,7 @@ const UtlString* RegistrationBinding::getInstanceId() const
 }
 void RegistrationBinding::setInstanceId(const UtlString& instanceId)
 {
-   if (mInstanceId) 
+   if (mInstanceId)
    {
       *mInstanceId = instanceId;
    }
@@ -333,7 +333,7 @@ const UtlString* RegistrationBinding::getGruu() const
 }
 void RegistrationBinding::setGruu(const UtlString& gruu)
 {
-   if (mGruu) 
+   if (mGruu)
    {
       *mGruu = gruu;
    }
@@ -350,7 +350,7 @@ const UtlString* RegistrationBinding::getPath() const
 
 void RegistrationBinding::setPath(const UtlString& path)
 {
-   if (mPath) 
+   if (mPath)
    {
       *mPath = path;
    }
@@ -392,7 +392,7 @@ const UtlString* RegistrationBinding::getPrimary() const
 }
 void RegistrationBinding::setPrimary(const UtlString& primary)
 {
-   if (mPrimary) 
+   if (mPrimary)
    {
       *mPrimary = primary;
    }

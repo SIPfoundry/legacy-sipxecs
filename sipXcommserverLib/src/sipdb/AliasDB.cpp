@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -99,7 +99,7 @@ AliasDB::load()
     OsLock lock( sLockMutex );
     OsStatus result = OS_SUCCESS;
 
-    if ( m_pFastDB != NULL ) 
+    if ( m_pFastDB != NULL )
     {
         // Clean out the existing DB rows before loading
         // a new set from persistent storage
@@ -124,14 +124,14 @@ AliasDB::load()
                 // the folder node contains at least the name/displayname/
                 // and autodelete elements, it may contain others
                 for( TiXmlNode *itemNode = rootNode->FirstChild( "item" );
-                     itemNode; 
+                     itemNode;
                      itemNode = itemNode->NextSibling( "item" ) )
                 {
                     // Create a hash dictionary for element attributes
                     UtlHashMap nvPairs;
 
                     for( TiXmlNode *elementNode = itemNode->FirstChild();
-                         elementNode; 
+                         elementNode;
                          elementNode = elementNode->NextSibling() )
                     {
                         // Bypass comments and other element types only interested
@@ -146,21 +146,21 @@ AliasDB::load()
                             loadChecksum += ( elementName.hash() + elementValue.hash() );
                             if (result == OS_SUCCESS)
                             {
-                                UtlString* collectableKey = 
-                                    new UtlString( elementName ); 
-                                UtlString* collectableValue = 
-                                    new UtlString( elementValue ); 
-                                nvPairs.insertKeyAndValue ( 
+                                UtlString* collectableKey =
+                                    new UtlString( elementName );
+                                UtlString* collectableValue =
+                                    new UtlString( elementValue );
+                                nvPairs.insertKeyAndValue (
                                     collectableKey, collectableValue );
                             } else if ( elementNode->FirstChild() == NULL )
                             {
-                                // NULL Element value create a special 
+                                // NULL Element value create a special
                                 // char string we have key and value so insert
-                                UtlString* collectableKey = 
-                                    new UtlString( elementName ); 
-                                UtlString* collectableValue = 
-                                    new UtlString( SPECIAL_IMDB_NULL_VALUE ); 
-                                nvPairs.insertKeyAndValue ( 
+                                UtlString* collectableKey =
+                                    new UtlString( elementName );
+                                UtlString* collectableValue =
+                                    new UtlString( SPECIAL_IMDB_NULL_VALUE );
+                                nvPairs.insertKeyAndValue (
                                     collectableKey, collectableValue );
                             }
                         }
@@ -169,13 +169,13 @@ AliasDB::load()
                     insertRow ( nvPairs );
                 }
             }
-        } else 
+        } else
         {
             OsSysLog::add(FAC_DB, PRI_WARNING, "AliasDB::load failed to load \"%s\"",
                     pathName.data());
             result = OS_FAILED;
         }
-    } else 
+    } else
     {
         OsSysLog::add(FAC_DB, PRI_ERR, "AliasDB::load failed - no DB");
         result = OS_FAILED;
@@ -190,7 +190,7 @@ AliasDB::store()
     OsLock lock( sLockMutex );
     OsStatus result = OS_SUCCESS;
 
-    if ( m_pFastDB != NULL ) 
+    if ( m_pFastDB != NULL )
     {
         UtlString fileName = mDatabaseName + ".xml";
         UtlString pathName = SipXecsService::Path(SipXecsService::DatabaseDirType,
@@ -227,9 +227,9 @@ AliasDB::store()
 
                 // Add the column name value pairs
                 for ( dbFieldDescriptor* fd = pTableMetaData->getFirstField();
-                      fd != NULL; fd = fd->nextField ) 
+                      fd != NULL; fd = fd->nextField )
                 {
-                    // if the column name does not contain the 
+                    // if the column name does not contain the
                     // np_prefix we must_presist it
                     if ( strstr( fd->name, "np_" ) == NULL )
                     {
@@ -241,7 +241,7 @@ AliasDB::store()
                         SIPDBManager::getFieldValue(base, fd, textValue);
 
                         // If the value is not null append a text child element
-                        if ( textValue != SPECIAL_IMDB_NULL_VALUE ) 
+                        if ( textValue != SPECIAL_IMDB_NULL_VALUE )
                         {
                             // Text type assumed here... @todo change this
                             TiXmlText value ( textValue.data() );
@@ -261,7 +261,7 @@ AliasDB::store()
                 // add the line to the element
                 itemsElement.InsertEndChild ( itemElement );
             } while ( cursor.next() );
-        }  
+        }
 
         // Attach the root node to the document
         document.InsertEndChild ( itemsElement );
@@ -270,7 +270,7 @@ AliasDB::store()
         // Commit rows to memory - multiprocess workaround
         m_pFastDB->detach(0);
         mTableLoaded = true;
-    } else 
+    } else
     {
          result = OS_FAILED;
     }
@@ -278,7 +278,7 @@ AliasDB::store()
 }
 
 UtlBoolean
-AliasDB::insertRow (const UtlHashMap& nvPairs) 
+AliasDB::insertRow (const UtlHashMap& nvPairs)
 {
     // Note we do not need the identity object here
     // as it is inferred from the uri
@@ -301,7 +301,7 @@ AliasDB::insertRow (
     UtlString contactStr;
     contact.toString (contactStr);
     // both the pk and fk's are stored in the db as identities
-    // making for consistency, this is how they are stored in 
+    // making for consistency, this is how they are stored in
     // the credentials database and the uriIdentity is a FK to that db
     // so this step of extracting identies is crucial
     if ( !identityStr.isNull() && !contactStr.isNull() && (m_pFastDB != NULL) )
@@ -313,9 +313,9 @@ AliasDB::insertRow (
         dbCursor< AliasRow > cursor(dbCursorForUpdate);
 
         AliasRow row;
-        // @JC to provide future capabilities of editing an 
+        // @JC to provide future capabilities of editing an
         // aliases contact string we use this flag which defaults to false
-        if ( updateContact == TRUE ) 
+        if ( updateContact == TRUE )
         {
             dbQuery query;
 
@@ -390,7 +390,7 @@ void
 AliasDB::removeAllRows ()
 {
     // Thread Local Storage
-    if (m_pFastDB != NULL) 
+    if (m_pFastDB != NULL)
     {
         m_pFastDB->attach();
 
@@ -425,18 +425,18 @@ AliasDB::getAllRows(ResultSet& rResultSet) const
         {
             do {
                 UtlHashMap record;
-                UtlString* identityValue = 
+                UtlString* identityValue =
                     new UtlString ( cursor->identity );
-                UtlString* contactValue = 
+                UtlString* contactValue =
                     new UtlString ( cursor->contact );
 
                 // Memory Leak fixes, make shallow copies of static keys
                 UtlString* identityKey = new UtlString( gIdentityKey );
                 UtlString* contactKey = new UtlString( gContactKey );
 
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     identityKey, identityValue );
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     contactKey, contactValue );
 
                 rResultSet.addValue(record);
@@ -475,18 +475,18 @@ AliasDB::getContacts (
         {
             do {
                 UtlHashMap record;
-                UtlString* identityValue = 
+                UtlString* identityValue =
                     new UtlString ( cursor->identity );
-                UtlString* contactValue = 
+                UtlString* contactValue =
                     new UtlString ( cursor->contact );
 
                 // Memory Leak fixes, make shallow copies of static keys
                 UtlString* identityKey = new UtlString( gIdentityKey );
                 UtlString* contactKey = new UtlString( gContactKey );
 
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     identityKey, identityValue );
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     contactKey, contactValue );
 
                 rResultSet.addValue(record);
@@ -526,18 +526,18 @@ AliasDB::getAliases (
         {
             do {
                 UtlHashMap record;
-                UtlString* identityValue = 
+                UtlString* identityValue =
                     new UtlString ( cursor->identity );
-                UtlString* contactValue = 
+                UtlString* contactValue =
                     new UtlString ( cursor->contact );
 
                 // Memory Leak fixes, make shallow copies of static keys
                 UtlString* identityKey = new UtlString( gIdentityKey );
                 UtlString* contactKey = new UtlString( gContactKey );
 
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     identityKey, identityValue );
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     contactKey, contactValue );
 
                 rResultSet.addValue(record);
@@ -549,7 +549,7 @@ AliasDB::getAliases (
 }
 
 
-bool 
+bool
 AliasDB::isLoaded()
 {
   return mTableLoaded;
@@ -570,5 +570,3 @@ AliasDB::getInstance( const UtlString& name )
     }
     return spInstance;
 }
-
-

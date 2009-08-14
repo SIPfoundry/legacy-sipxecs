@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -89,7 +89,7 @@ SubscriptionDB::SubscriptionDB( const UtlString& name )
         mTableLoaded = false;
         // Load the file implicitly
         this->load();
-        // the SubscriptionDB is not replicated from sipXconfig, as 
+        // the SubscriptionDB is not replicated from sipXconfig, as
         // a result, make this table appear as being loaded regardless
         // of the load() result.
         mTableLoaded = true;
@@ -156,14 +156,14 @@ SubscriptionDB::load()
                 // the folder node contains at least the name/displayname/
                 // and autodelete elements, it may contain others
                 for( TiXmlNode *itemNode = rootNode->FirstChild( "item" );
-                     itemNode; 
+                     itemNode;
                      itemNode = itemNode->NextSibling( "item" ) )
                 {
                     // Create a hash dictionary for element attributes
                     UtlHashMap nvPairs;
 
                     for( TiXmlNode *elementNode = itemNode->FirstChild();
-                         elementNode; 
+                         elementNode;
                          elementNode = elementNode->NextSibling() )
                     {
                         // Bypass comments and other element types only interested
@@ -178,21 +178,21 @@ SubscriptionDB::load()
 
                             if (result == OS_SUCCESS)
                             {
-                                UtlString* collectableKey = 
-                                    new UtlString( elementName ); 
-                                UtlString* collectableValue = 
-                                    new UtlString( elementValue ); 
-                                nvPairs.insertKeyAndValue ( 
+                                UtlString* collectableKey =
+                                    new UtlString( elementName );
+                                UtlString* collectableValue =
+                                    new UtlString( elementValue );
+                                nvPairs.insertKeyAndValue (
                                     collectableKey, collectableValue );
                             } else if ( elementNode->FirstChild() == NULL )
                             {
-                                // Null Element value creaete a special 
+                                // Null Element value creaete a special
                                 // char string we have key and value so insert
-                                UtlString* collectableKey = 
-                                    new UtlString( elementName ); 
-                                UtlString* collectableValue = 
-                                    new UtlString( SPECIAL_IMDB_NULL_VALUE ); 
-                                nvPairs.insertKeyAndValue ( 
+                                UtlString* collectableKey =
+                                    new UtlString( elementName );
+                                UtlString* collectableValue =
+                                    new UtlString( SPECIAL_IMDB_NULL_VALUE );
+                                nvPairs.insertKeyAndValue (
                                     collectableKey, collectableValue );
                             }
                         }
@@ -201,13 +201,13 @@ SubscriptionDB::load()
                     insertRow ( nvPairs );
                 }
             }
-        } else 
+        } else
         {
             OsSysLog::add(FAC_SIP, PRI_WARNING, "SubscriptionDB::load failed to load \"%s\"",
                           pathName.data());
             result = OS_FAILED;
         }
-    } else 
+    } else
     {
         OsSysLog::add(FAC_DB, PRI_ERR, "SubscriptionDB::load failed - no DB");
         result = OS_FAILED;
@@ -268,9 +268,9 @@ SubscriptionDB::store()
 
                 // Add the column name value pairs
                 for ( dbFieldDescriptor* fd = pTableMetaData->getFirstField();
-                      fd != NULL; fd = fd->nextField ) 
+                      fd != NULL; fd = fd->nextField )
                 {
-                    // If the column name does not contain the 
+                    // If the column name does not contain the
                     // "np_" prefix, we must persist it.
                     if ( strstr( fd->name, "np_" ) == NULL )
                     {
@@ -282,7 +282,7 @@ SubscriptionDB::store()
                         SIPDBManager::getFieldValue(base, fd, textValue);
 
                         // If the value is not null append a text child element
-                        if ( textValue != SPECIAL_IMDB_NULL_VALUE ) 
+                        if ( textValue != SPECIAL_IMDB_NULL_VALUE )
                         {
                             // Text type assumed here... @todo change this
                             TiXmlText value ( textValue.data() );
@@ -302,7 +302,7 @@ SubscriptionDB::store()
                 // add the line to the element
                 itemsElement.InsertEndChild ( itemElement );
             } while ( cursor.next() );
-        } 
+        }
         // Attach the root node to the document
         document.InsertEndChild ( itemsElement );
         document.SaveFile ( pathName );
@@ -317,7 +317,7 @@ SubscriptionDB::store()
 }
 
 UtlBoolean
-SubscriptionDB::insertRow (const UtlHashMap& nvPairs) 
+SubscriptionDB::insertRow (const UtlHashMap& nvPairs)
 {
     // For columns that were added in version 3.8, supply the default values
     // if the input data does not supply one.
@@ -391,11 +391,11 @@ SubscriptionDB::insertRow (
 
         // get rid of any expired subscriptions before searching
         removeExpiredInternal(component, timeNow);
-        
-        // Search for a matching row before deciding to update or insert        
+
+        // Search for a matching row before deciding to update or insert
         // query all sessions (should only be one here)
         dbQuery existingQuery;
-        
+
 #       ifdef TEST_DEBUG
         OsSysLog::add(FAC_DB, PRI_DEBUG, "SubscriptionDB::insertRow <<<<<<<<<<<< query:\n"
                       "  component='%s'\n"
@@ -412,7 +412,7 @@ SubscriptionDB::insertRow (
                       ( id.isNull() ? SPECIAL_IMDB_NULL_VALUE : id.data())
                       );
 #       endif
-        
+
         // Query does not need to include component, because Call-Id and tags
         // are unique for all subscriptions.
         existingQuery =
@@ -430,7 +430,7 @@ SubscriptionDB::insertRow (
            UtlString matchRows;
 #          endif
             // Should only be one row, only updating this
-            do 
+            do
             {
 #               ifdef TEST_DEBUG
                 matchRows.append(" callid '");
@@ -441,11 +441,11 @@ SubscriptionDB::insertRow (
                 matchRows.append(logCseq);
                 matchRows.append(" contact '");
                 matchRows.append(existingCursor->contact);
-                matchRows.append("'"); // :TODO: 
+                matchRows.append("'"); // :TODO:
 #               endif
-                // only update the row if the subscribe is newer 
+                // only update the row if the subscribe is newer
                 // than the last IMDB update
-                if ( existingCursor->subscribecseq < subscribeCseq ) 
+                if ( existingCursor->subscribecseq < subscribeCseq )
                 { // refreshing subscribe request
                     existingCursor->uri = uri;
                     existingCursor->expires = static_cast<const int&>(expires);
@@ -540,7 +540,7 @@ void
 SubscriptionDB::removeRow (
     const UtlString& component,
     const UtlString& to,
-    const UtlString& from,        
+    const UtlString& from,
     const UtlString& callid,
     const int& subscribeCseq )
 {
@@ -551,13 +551,13 @@ SubscriptionDB::removeRow (
 
         dbCursor< SubscriptionRow > cursor(dbCursorForUpdate);
 
-        // ensure we filter off of the subcribecseq since there 
+        // ensure we filter off of the subcribecseq since there
         // could be multiple removes from the IMDB and the one with
-        // the highest cseq should be remain, note that the 
+        // the highest cseq should be remain, note that the
         // < subscribeCseq comparison is important since under UDP conditions
-        // the Status server may be busy and UDP may retransmit the 
+        // the Status server may be busy and UDP may retransmit the
         // same message multiple times, this would cause the just subscribed row
-        // to be incorrectly removed while the status server was sending down 
+        // to be incorrectly removed while the status server was sending down
         // its acknowledgement
 
 #       ifdef TEST_DEBUG
@@ -592,7 +592,7 @@ SubscriptionDB::removeRow (
                          subscribeCseq
                          );
         }
-        
+
         // Commit rows to memory - multiprocess workaround
         m_pFastDB->detach(0);
     }
@@ -602,7 +602,7 @@ void
 SubscriptionDB::removeErrorRow (
    const UtlString& component,
    const UtlString& to,
-   const UtlString& from,        
+   const UtlString& from,
    const UtlString& callid )
 {
    if ( m_pFastDB != NULL )
@@ -632,7 +632,7 @@ SubscriptionDB::removeErrorRow (
             errorRows.append(cursor->callid);
             errorRows.append("'");
          } while (cursor.next());
-         
+
          OsSysLog::add(FAC_DB, PRI_DEBUG, "SubscriptionDB::removeErrorRow rows: %s",
                        errorRows.data()
                        );
@@ -646,7 +646,7 @@ SubscriptionDB::removeErrorRow (
                        to.data(), from.data(), callid.data()
                        );
       }
-        
+
       // Commit rows to memory - multiprocess workaround
       m_pFastDB->detach(0);
    }
@@ -656,7 +656,7 @@ UtlBoolean
 SubscriptionDB::subscriptionExists (
    const UtlString& component,
    const UtlString& to,
-   const UtlString& from,        
+   const UtlString& from,
    const UtlString& callid,
    const int timeNow )
 {
@@ -738,7 +738,7 @@ SubscriptionDB::removeExpired( const UtlString& component,
 
       // remove all expired subscriptions
       removeExpiredInternal(component, timeNow);
-        
+
       // Commit rows to memory - multiprocess workaround
       m_pFastDB->detach(0);
    }
@@ -760,35 +760,35 @@ SubscriptionDB::getAllRows ( ResultSet& rResultSet ) const
         {
             do {
                 UtlHashMap record;
-                UtlString* componentValue = 
+                UtlString* componentValue =
                     new UtlString ( cursor->component );
-                UtlString* uriValue = 
+                UtlString* uriValue =
                     new UtlString ( cursor->uri );
-                UtlString* callidValue = 
+                UtlString* callidValue =
                     new UtlString ( cursor->callid );
-                UtlString* contactValue = 
+                UtlString* contactValue =
                     new UtlString ( cursor->contact );
-                UtlInt* expiresValue = 
+                UtlInt* expiresValue =
                     new UtlInt ( cursor->expires );
-                UtlInt* subscribecseqValue = 
+                UtlInt* subscribecseqValue =
                     new UtlInt ( cursor->subscribecseq );
-                UtlString* eventtypeValue = 
+                UtlString* eventtypeValue =
                     new UtlString ( cursor->eventtype );
-                UtlString* idValue = 
+                UtlString* idValue =
                     new UtlString ( cursor->id );
-                UtlString* toValue = 
+                UtlString* toValue =
                     new UtlString ( cursor->toUri );
-                UtlString* fromValue = 
+                UtlString* fromValue =
                     new UtlString ( cursor->fromUri );
-                UtlString* keyValue = 
+                UtlString* keyValue =
                     new UtlString ( cursor->key );
-                UtlString* recordrouteValue = 
+                UtlString* recordrouteValue =
                     new UtlString ( cursor->recordroute );
-                UtlInt* notifycseqValue = 
+                UtlInt* notifycseqValue =
                     new UtlInt ( cursor->notifycseq );
-                UtlString* acceptValue = 
+                UtlString* acceptValue =
                     new UtlString ( cursor->accept );
-                UtlInt* versionValue = 
+                UtlInt* versionValue =
                     new UtlInt ( cursor->version );
 
                 // Memory Leak fixes, make shallow copies of static keys
@@ -808,35 +808,35 @@ SubscriptionDB::getAllRows ( ResultSet& rResultSet ) const
                 UtlString* acceptKey = new UtlString( gAcceptKey );
                 UtlString* versionKey = new UtlString( gVersionKey );
 
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     componentKey, componentValue);
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     uriKey, uriValue);
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     callidKey, callidValue);
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     contactKey, contactValue);
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     expiresKey, expiresValue);
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     subscribecseqKey, subscribecseqValue);
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     eventtypeKey, eventtypeValue);
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     idKey, idValue);
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     toKey, toValue);
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     fromKey, fromValue);
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     keyKey, keyValue);
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     recordrouteKey, recordrouteValue);
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     notifycseqKey, notifycseqValue);
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     acceptKey, acceptValue);
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     versionKey, versionValue);
 
                 rResultSet.addValue(record);
@@ -894,12 +894,12 @@ SubscriptionDB::updateNotifyUnexpiredSubscription (
               "and callid=",callid,
               "and eventtype=",eventType,
               "and id=",(id.isNull() ? SPECIAL_IMDB_NULL_VALUE : id.data())
-	  ;	  
+	  ;
         if ( cursor.select(query) > 0 )
         {
             do {
-                // Purge any expired rows 
-                if ( cursor->expires < timeNow ) 
+                // Purge any expired rows
+                if ( cursor->expires < timeNow )
                 {
                     // note cursor.remove() auto updates the database
                     cursor.remove();
@@ -916,7 +916,7 @@ SubscriptionDB::updateNotifyUnexpiredSubscription (
                                  callid.data(), updatedNotifyCseq);
                 }
 
-                // Next replaced with nextAvailable - better when 
+                // Next replaced with nextAvailable - better when
                 // selective updates applied to the cursor object
             } while ( cursor.nextAvailable() );
         }
@@ -929,7 +929,7 @@ SubscriptionDB::updateNotifyUnexpiredSubscription (
 void
 SubscriptionDB::getUnexpiredContactsFieldsContaining (
    UtlString& substringToMatch,
-   const int& timeNow,   
+   const int& timeNow,
    UtlSList& matchingContactFields ) const
 {
    // Clear the results
@@ -938,7 +938,7 @@ SubscriptionDB::getUnexpiredContactsFieldsContaining (
    {
        // Thread Local Storage
        m_pFastDB->attach();
-       
+
        dbCursor< SubscriptionRow > cursor;
        UtlString queryString = "contact like '%" + substringToMatch + "%' and expires>";
        queryString.appendNumber( timeNow );
@@ -967,7 +967,7 @@ UtlBoolean
 SubscriptionDB::updateSubscribeUnexpiredSubscription (
         const UtlString& component,
         const UtlString& to,
-        const UtlString& from,        
+        const UtlString& from,
         const UtlString& callid,
         const UtlString& eventType,
         const UtlString& id,
@@ -1011,12 +1011,12 @@ SubscriptionDB::updateSubscribeUnexpiredSubscription (
               "and callid=",callid,
               "and eventtype=",eventType,
               "and id=",(id.isNull() ? SPECIAL_IMDB_NULL_VALUE : id.data())
-	  ;	  
+	  ;
         if ( cursor.select(query) > 0 )
         {
             do {
-                // Purge any expired rows 
-                if ( cursor->expires < timeNow ) 
+                // Purge any expired rows
+                if ( cursor->expires < timeNow )
                 {
                     // note cursor.remove() auto updates the database
                     cursor.remove();
@@ -1030,7 +1030,7 @@ SubscriptionDB::updateSubscribeUnexpiredSubscription (
                    cursor.update();
                 }
 
-                // Next replaced with nextAvailable - better when 
+                // Next replaced with nextAvailable - better when
                 // selective updates applied to the cursor object
             } while ( cursor.nextAvailable() );
         }
@@ -1059,7 +1059,7 @@ SubscriptionDB::getUnexpiredSubscriptions (
 
         // remove all expired subscriptions
         removeExpiredInternal(component, timeNow);
-        
+
         // Now select the remaining current events
         dbCursor< SubscriptionRow > cursor( dbCursorForUpdate );
         dbQuery query;
@@ -1069,36 +1069,36 @@ SubscriptionDB::getUnexpiredSubscriptions (
         {
             do {
                 UtlHashMap record;
-                UtlString* componentValue = 
+                UtlString* componentValue =
                     new UtlString ( cursor->component );
-                UtlString* uriValue = 
+                UtlString* uriValue =
                     new UtlString ( cursor->uri );
-                UtlString* callidValue = 
+                UtlString* callidValue =
                     new UtlString ( cursor->callid );
-                UtlString* contactValue = 
+                UtlString* contactValue =
                     new UtlString ( cursor->contact );
-                UtlInt* expiresValue = 
+                UtlInt* expiresValue =
                     new UtlInt ( cursor->expires - timeNow );
-                UtlInt* subscribecseqValue = 
+                UtlInt* subscribecseqValue =
                     new UtlInt ( cursor->subscribecseq );
-                UtlString* eventtypeValue = 
+                UtlString* eventtypeValue =
                     new UtlString ( cursor->eventtype );
                 UtlString* idValue = new UtlString(
                   (  (0 == strcmp(cursor->id, SPECIAL_IMDB_NULL_VALUE))
                    ? ""
                    : cursor->id
                    ));
-                UtlString* toValue = 
+                UtlString* toValue =
                     new UtlString ( cursor->toUri );
-                UtlString* fromValue = 
+                UtlString* fromValue =
                     new UtlString ( cursor->fromUri );
-                UtlString* keyValue = 
+                UtlString* keyValue =
                     new UtlString ( cursor->key );
-                UtlString* recordrouteValue = 
+                UtlString* recordrouteValue =
                     new UtlString ( cursor->recordroute );
-                UtlInt* notifycseqValue = 
+                UtlInt* notifycseqValue =
                     new UtlInt ( cursor->notifycseq );
-                UtlString* acceptValue = 
+                UtlString* acceptValue =
                     new UtlString ( cursor->accept );
 
                 // Memory Leak fixes, make shallow copies of static keys
@@ -1117,33 +1117,33 @@ SubscriptionDB::getUnexpiredSubscriptions (
                 UtlString* notifycseqKey = new UtlString( gNotifycseqKey );
                 UtlString* acceptKey = new UtlString( gAcceptKey );
 
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     componentKey, componentValue);
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     uriKey, uriValue);
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     callidKey, callidValue);
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     contactKey, contactValue);
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     expiresKey, expiresValue);
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     subscribecseqKey, subscribecseqValue);
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     eventtypeKey, eventtypeValue);
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     idKey, idValue);
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     toKey, toValue);
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     fromKey, fromValue);
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     keyKey, keyValue);
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     recordrouteKey, recordrouteValue);
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     notifycseqKey, notifycseqValue);
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     acceptKey, acceptValue);
 
                 rResultSet.addValue(record);
@@ -1181,13 +1181,13 @@ void SubscriptionDB::updateToTag(
       dbQuery query;
       // Query includes only the Call-Id.
       query="callid=",callid
-         ;	  
+         ;
       if ( cursor.select(query) > 0 )
       {
          do {
             UtlBoolean r;
             UtlString seen_tag;
-            
+
             // Get the tag on the URI in the "from" column.
             Url from_uri(cursor->fromUri, FALSE);
             r = from_uri.getFieldParameter("tag", seen_tag);
@@ -1238,13 +1238,13 @@ UtlBoolean SubscriptionDB::findFromAndTo(
       dbQuery query;
       // Query includes only the Call-Id.
       query="callid=",callid
-         ;	  
+         ;
       if ( cursor.select(query) > 0 )
       {
          do {
             UtlBoolean r;
             UtlString seen_tag;
-            
+
             // Get the tag on the URI in the "from" column.
             Url fromUri(cursor->fromUri, FALSE);
             r = fromUri.getFieldParameter("tag", seen_tag);
@@ -1291,7 +1291,7 @@ int SubscriptionDB::getMaxVersion(
       dbQuery query;
       // Query includes only the Uri
       query="uri=",uri
-         ;	  
+         ;
       if ( cursor.select(query) > 0 )
       {
          do {
@@ -1328,10 +1328,10 @@ void SubscriptionDB::removeExpiredInternal( const UtlString& component,
                     "SubscriptionDB::removeExpiredInternal removing %d expired subscriptions",
                     expiring
                     );
-      
+
       expireCursor.removeAllSelected();
    }
-}    
+}
 
 bool
 SubscriptionDB::isLoaded()

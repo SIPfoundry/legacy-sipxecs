@@ -5,7 +5,7 @@
 //                          Created:     3-Oct-99 Sebastiano Suraci  * / [] \ *
 //                          Last update: 5-Oct-99 K.A. Knizhnik      * GARRET *
 //-------------------------------------------------------------------*--------*
-// Database exception 
+// Database exception
 //-------------------------------------------------------------------*--------*
 
 #ifndef __EXCEPTION_H__
@@ -23,15 +23,15 @@ class FASTDB_DLL_ENTRY dbException  : public std::exception
 {
   protected:
     int   err_code;
-    char* msg; 
+    char* msg;
     int   arg;
-    
+
   public:
     dbException(int p_err_code, char const* p_msg = NULL, int p_arg = 0);
     dbException(dbException const& ex);
-    
-    virtual~dbException() throw (); 
-    
+
+    virtual~dbException() throw ();
+
     virtual const char *what() const throw();
 
     int   getErrCode() const { return err_code; }

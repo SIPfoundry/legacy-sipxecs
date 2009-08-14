@@ -2,7 +2,7 @@
 ##
 ## install-cert.sh
 ##
-##  Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+##  Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 ##  Contributors retain copyright to elements licensed under a Contributor Agreement.
 ##  Licensed to the User under the LGPL license.
 
@@ -11,7 +11,7 @@
 ## the WorkDir where they are created by the gen-ssl-keys.sh
 ## script to the appropriate configuration directories.
 ##
-## See the comments at the top of gen-ssl-keys.sh for the list 
+## See the comments at the top of gen-ssl-keys.sh for the list
 ## of files in the WorkDir.
 ################################################################
 
@@ -107,7 +107,7 @@ do
                 break
             fi
             ;;
-    esac           
+    esac
 
     shift # always consume 1
 done
@@ -147,7 +147,7 @@ then
   The --remote and --remote-receive options are obsolete.
 
   Installation of certificate data for a distributed system
-  is now integrated into the sipxecs-setup script, supported 
+  is now integrated into the sipxecs-setup script, supported
   by certificate generation in sipXconfig.
 UNSUPPORTED_EOF
   exit 1
@@ -191,7 +191,7 @@ Usage:
                      initial configurations for distributed systems.
                      (This also disables the post-install validity check).
 
-   --install-qualifier Specifies the type of key. Can be web or sip 
+   --install-qualifier Specifies the type of key. Can be web or sip
 		     or blank (unpsecified). If blank, a the xml-rpc
 		     key ( used for https ) is the same as the web key.
 
@@ -220,7 +220,7 @@ echo "Checking the '${Basename}' certificate"
 #The CA for the web certificate is not available here because it is installed on the web browser.
 #SipxConfig does not install the CA for the web crt and hence we do not verify it.
 
-if  @bindir@/ssl-cert/check-cert.sh ${AuthoritySwitch} "${AuthorityTarget}" "$WorkDir/$Basename.crt" 
+if  @bindir@/ssl-cert/check-cert.sh ${AuthoritySwitch} "${AuthorityTarget}" "$WorkDir/$Basename.crt"
 then
 
     if [ ! -d "${InstallPrefix}${InstallDir}/ssl" ]
@@ -239,7 +239,7 @@ then
             chown ${sipXuser}   "${InstallPrefix}${InstallDir}/ssl/authorities" || exit 1
             chmod 0700          "${InstallPrefix}${InstallDir}/ssl/authorities" || exit 1
         fi
-        
+
         echo "Installing '${caName}.crt' certificate as a trusted CA"
         cp -v "${caName}.crt" "${InstallPrefix}${InstallDir}/ssl/authorities/${caName}.crt" || exit 1
         chown ${sipXuser}     "${InstallPrefix}${InstallDir}/ssl/authorities/${caName}.crt" || exit 1
@@ -268,7 +268,7 @@ then
         chmod 0600            "${InstallPrefix}${InstallDir}/ssl/ssl${installQualifier}.keystore" || exit 1
 
 	#The web key is initially the same as the ssl key.
-	if [ "${installQualifier}" = "" ] 
+	if [ "${installQualifier}" = "" ]
 	then
 		echo "Generating web cert automatically"
                 cp -v "$Basename.crt" "${InstallPrefix}${InstallDir}/ssl/ssl-web.crt" || exit 1
@@ -305,7 +305,7 @@ then
 
         certsInstalled+=1
 
-	if [ "${installQualifier}" = "" ] 
+	if [ "${installQualifier}" = "" ]
 	then
         	echo "Installing the '${Basename}' certificate (pkcs12 format)"
         	cp -v "$Basename.crt" "${InstallPrefix}${InstallDir}/ssl/ssl-web.p12" || exit 1
@@ -335,7 +335,7 @@ EOF
 
     cat <<EOF
 
-  Your server certificate will expire ${cert_expires}. 
+  Your server certificate will expire ${cert_expires}.
 
 EOF
 

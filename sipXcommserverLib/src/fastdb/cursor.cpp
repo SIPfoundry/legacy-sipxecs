@@ -26,7 +26,7 @@ dbSelection::segment*  dbSelection::createNewSegment(dbSelection::segment* after
 
 inline void dbSelection::reset()
 {
-    for (segment *next, *seg = first; seg != NULL; seg = next) { 
+    for (segment *next, *seg = first; seg != NULL; seg = next) {
         next = seg->next;
         delete seg;
     }
@@ -35,14 +35,14 @@ inline void dbSelection::reset()
     pos = 0;
 }
 
-void dbSelection::reverse() 
+void dbSelection::reverse()
 {
     segment *next, *seg;
-    for (seg = first; seg != NULL; seg = next) { 
+    for (seg = first; seg != NULL; seg = next) {
         next = seg->next;
         seg->next = seg->prev;
         seg->prev = next;
-        for (int l = 0, r = seg->nRows-1; l < r; l++, r--) { 
+        for (int l = 0, r = seg->nRows-1; l < r; l++, r--) {
             oid_t oid = seg->rows[l];
             seg->rows[l] = seg->rows[r];
             seg->rows[r] = oid;
@@ -55,7 +55,7 @@ void dbSelection::reverse()
 
 void dbSelection::toArray(oid_t* oids) const
 {
-    for (segment *seg = first; seg != NULL; seg = seg->next) { 
+    for (segment *seg = first; seg != NULL; seg = seg->next) {
         for (int i = 0, n = seg->nRows; i < n; i++) {
             *oids++ = seg->rows[i];
         }
@@ -64,46 +64,46 @@ void dbSelection::toArray(oid_t* oids) const
 
 void dbSelection::truncate(size_t from, size_t length)
 {
-    if (from == 0 && length >= nRows) { 
+    if (from == 0 && length >= nRows) {
         // do nothing
         return;
     }
     segment *src;
     bool empty = true;
-    if (from < nRows) { 
-        for (src = first; src != NULL; src = src->next) { 
-            if (from < src->nRows) { 
+    if (from < nRows) {
+        for (src = first; src != NULL; src = src->next) {
+            if (from < src->nRows) {
                 empty = false;
                 break;
             }
             from -= src->nRows;
         }
     }
-    if (from + length > nRows) { 
+    if (from + length > nRows) {
         length = nRows - from;
     }
     nRows = 0;
     segment* dst = first;
     size_t pos = 0;
-    if (!empty) { 
-        while (length != 0) { 
+    if (!empty) {
+        while (length != 0) {
             size_t n = src->nRows - from;
-            if (n > length) { 
+            if (n > length) {
                 n = length;
             }
-            if (dst->nRows == pos) { 
+            if (dst->nRows == pos) {
                 dst = dst->next;
                 pos = 0;
             }
-            if (n > dst->nRows - pos) { 
+            if (n > dst->nRows - pos) {
                 n = dst->nRows - pos;
             }
             memcpy(dst->rows + pos, src->rows + from, n*sizeof(oid_t));
             pos += n;
             length -= n;
             nRows += n;
-            if ((from += n) == src->nRows) { 
-                if ((src = src->next) == NULL) { 
+            if ((from += n) == src->nRows) {
+                if ((src = src->next) == NULL) {
                     break;
                 }
                 from = 0;
@@ -112,8 +112,8 @@ void dbSelection::truncate(size_t from, size_t length)
     }
     dst->nRows = pos;
     dst = dst->next;
-    while (dst != NULL) { 
-        segment* next = dst->next; 
+    while (dst != NULL) {
+        segment* next = dst->next;
         delete dst;
         dst = next;
     }
@@ -125,8 +125,8 @@ int dbSelection::compare(oid_t o1, oid_t o2, dbOrderByNode* order)
     char* p = (char*)db->getRow(o1);
     char* q = (char*)db->getRow(o2);
     int diff = 0;
-    do { 
-        if (order->expr != NULL) { 
+    do {
+        if (order->expr != NULL) {
             dbInheritedAttribute   iattr1;
             dbInheritedAttribute   iattr2;
             dbSynthesizedAttribute sattr1;
@@ -139,7 +139,7 @@ int dbSelection::compare(oid_t o1, oid_t o2, dbOrderByNode* order)
             iattr2.oid = o2;
             db->execute(order->expr, iattr1, sattr1);
             db->execute(order->expr, iattr2, sattr2);
-            switch (order->expr->type) { 
+            switch (order->expr->type) {
               case tpInteger:
                 diff = sattr1.ivalue < sattr2.ivalue ? -1 : sattr1.ivalue == sattr2.ivalue ? 0 : 1;
                 break;
@@ -151,7 +151,7 @@ int dbSelection::compare(oid_t o1, oid_t o2, dbOrderByNode* order)
                 break;
               case tpString:
 #ifdef USE_LOCALE_SETTINGS
-                diff = strcoll((char*)sattr1.array.base, (char*)sattr2.array.base); 
+                diff = strcoll((char*)sattr1.array.base, (char*)sattr2.array.base);
 #else
                 diff = strcmp((char*)sattr1.array.base, (char*)sattr2.array.base);
 #endif
@@ -162,9 +162,9 @@ int dbSelection::compare(oid_t o1, oid_t o2, dbOrderByNode* order)
               default:
                 assert(false);
             }
-        } else { 
+        } else {
             int offs = order->field->dbsOffs;
-            switch (order->field->type) { 
+            switch (order->field->type) {
               case dbField::tpBool:
                 diff = *(bool*)(p + offs) - *(bool*)(q + offs);
                 break;
@@ -176,7 +176,7 @@ int dbSelection::compare(oid_t o1, oid_t o2, dbOrderByNode* order)
                 break;
               case dbField::tpInt4:
               case dbField::tpArray:
-                diff = *(int4*)(p + offs) < *(int4*)(q + offs) ? -1 
+                diff = *(int4*)(p + offs) < *(int4*)(q + offs) ? -1
                     : *(int4*)(p + offs) == *(int4*)(q + offs) ? 0 : 1;
                 break;
               case dbField::tpInt8:
@@ -197,10 +197,10 @@ int dbSelection::compare(oid_t o1, oid_t o2, dbOrderByNode* order)
                 break;
               case dbField::tpString:
 #ifdef USE_LOCALE_SETTINGS
-                diff = strcoll(p + ((dbVarying*)(p + offs))->offs, 
+                diff = strcoll(p + ((dbVarying*)(p + offs))->offs,
                                q + ((dbVarying*)(q + offs))->offs);
 #else
-                diff = strcmp(p + ((dbVarying*)(p + offs))->offs, 
+                diff = strcmp(p + ((dbVarying*)(p + offs))->offs,
                               q + ((dbVarying*)(q + offs))->offs);
 #endif
                 break;
@@ -211,7 +211,7 @@ int dbSelection::compare(oid_t o1, oid_t o2, dbOrderByNode* order)
                 assert(false);
             }
         }
-        if (!order->ascent) { 
+        if (!order->ascent) {
             diff = -diff;
         }
     } while (diff == 0 && (order = order->next) != NULL);
@@ -229,27 +229,27 @@ void dbSelection::sort(dbDatabase* db, dbOrderByNode* order)
 {
     size_t i, j, k, n = nRows;
     oid_t temp;
-    if (n <= 1) { 
+    if (n <= 1) {
         return;
     }
     TRACE_MSG(("Sort %d records\n", n));
     segment** index = new segment*[(n + quantum - 1) / quantum];
     segment* seg = first;
-    for (i = 0; seg != NULL; seg = seg->next) { 
+    for (i = 0; seg != NULL; seg = seg->next) {
         index[i++] = seg;
     }
-    for (i = n/2, j = i; i >= 1; i--) { 
+    for (i = n/2, j = i; i >= 1; i--) {
         k = i;
         oid_t topId = ELEM(k);
         dbRecord* top = db->getRow(topId);
-        do { 
-            if (k*2 == n || compare(ROW(k*2), ROW(k*2+1), order) > 0) { 
+        do {
+            if (k*2 == n || compare(ROW(k*2), ROW(k*2+1), order) > 0) {
                 if (compare(top, ROW(k*2), order) >= 0) {
                     break;
                 }
                 ELEM(k) = ELEM(k*2);
                 k = k*2;
-            } else { 
+            } else {
                 if (compare(top, ROW(k*2+1), order) >= 0) {
                     break;
                 }
@@ -257,28 +257,28 @@ void dbSelection::sort(dbDatabase* db, dbOrderByNode* order)
                 k = k*2+1;
             }
         } while (k <= j);
-        ELEM(k) = topId; 
+        ELEM(k) = topId;
     }
-    for (i = n; i >= 2; i--) { 
+    for (i = n; i >= 2; i--) {
         SWAP(1, i);
         oid_t topId = ELEM(1);
         dbRecord* top = db->getRow(topId);
-        for (k = 1, j = (i-1)/2; k <= j;) { 
-            if (k*2 == i-1 || compare(ROW(k*2), ROW(k*2+1), order) > 0) { 
+        for (k = 1, j = (i-1)/2; k <= j;) {
+            if (k*2 == i-1 || compare(ROW(k*2), ROW(k*2+1), order) > 0) {
                 if (compare(top, ROW(k*2), order) >= 0) {
                     break;
                 }
                 ELEM(k) = ELEM(k*2);
                 k = k*2;
-            } else { 
+            } else {
                 if (compare(top, ROW(k*2+1), order) >= 0) {
                     break;
                 }
                 ELEM(k) = ELEM(k*2+1);
                 k = k*2+1;
             }
-        } 
-        ELEM(k) = topId; 
+        }
+        ELEM(k) = topId;
     }
     delete[] index;
 }
@@ -302,7 +302,7 @@ static int compareRecords(void const* a, void const* b)
 void dbSelection::sort(dbDatabase* db, dbOrderByNode* order)
 {
     size_t n = nRows;
-    if (n <= 1) { 
+    if (n <= 1) {
         return;
     }
     TRACE_MSG(("Sort %d records\n", n));
@@ -310,10 +310,10 @@ void dbSelection::sort(dbDatabase* db, dbOrderByNode* order)
     toArray(oids);
     dbSortContext ctx;
     ctx.order = order;
-    sortThreadContext.set(&ctx);    
+    sortThreadContext.set(&ctx);
     qsort(oids, n, sizeof(oid_t), &compareRecords);
     oid_t* p = oids;
-    for (segment *seg = first; seg != NULL; seg = seg->next) { 
+    for (segment *seg = first; seg != NULL; seg = seg->next) {
         for (int i = 0, n = seg->nRows; i < n; i++) {
             seg->rows[i] = *p++;
         }
@@ -327,31 +327,31 @@ void dbSelection::sort(dbDatabase* db, dbOrderByNode* order)
 struct ObjectRef {
     oid_t oid;
 
-    bool operator > (ObjectRef& ref) { 
+    bool operator > (ObjectRef& ref) {
         return compare(this, &ref) > 0;
     }
 
-    bool operator < (ObjectRef& ref) { 
+    bool operator < (ObjectRef& ref) {
         return compare(this, &ref) < 0;
     }
 
-    bool operator >= (ObjectRef& ref) { 
+    bool operator >= (ObjectRef& ref) {
         return compare(this, &ref) >= 0;
     }
 
-    bool operator <= (ObjectRef& ref) { 
+    bool operator <= (ObjectRef& ref) {
         return compare(this, &ref) <= 0;
     }
 
-    bool operator == (ObjectRef& ref) { 
+    bool operator == (ObjectRef& ref) {
         return compare(this, &ref) == 0;
     }
 
-    bool operator != (ObjectRef& ref) { 
+    bool operator != (ObjectRef& ref) {
         return compare(this, &ref) != 0;
     }
 
-    static int compare(ObjectRef* a, ObjectRef* b) { 
+    static int compare(ObjectRef* a, ObjectRef* b) {
         dbSortContext* ctx = sortThreadContext.get();
         return dbSelection::compare(a->oid, b->oid, ctx->order);
     }
@@ -361,24 +361,24 @@ struct ObjectRef {
 void dbSelection::sort(dbDatabase* db, dbOrderByNode* order)
 {
     size_t n = nRows;
-    if (n <= 1) { 
+    if (n <= 1) {
         return;
     }
     TRACE_MSG(("Sort %d records\n", n));
     ObjectRef* refs = new ObjectRef[n];
     segment *seg;
     int k = 0;
-    for (seg = first; seg != NULL; seg = seg->next) { 
+    for (seg = first; seg != NULL; seg = seg->next) {
         for (int i = 0, n = seg->nRows; i < n; i++) {
             refs[k++].oid = seg->rows[i];
         }
     }
     dbSortContext ctx;
     ctx.order = order;
-    sortThreadContext.set(&ctx);    
+    sortThreadContext.set(&ctx);
     iqsort(refs, n);
     k = 0;
-    for (seg = first; seg != NULL; seg = seg->next) { 
+    for (seg = first; seg != NULL; seg = seg->next) {
         for (int i = 0, n = seg->nRows; i < n; i++) {
             seg->rows[i] = refs[k++].oid;
         }
@@ -389,12 +389,12 @@ void dbSelection::sort(dbDatabase* db, dbOrderByNode* order)
 #endif
 #endif
 
-void dbAnyCursor::checkForDuplicates() 
-{ 
-    if (!eliminateDuplicates && checkForDuplicatedIsEnabled && limit > 1) { 
+void dbAnyCursor::checkForDuplicates()
+{
+    if (!eliminateDuplicates && checkForDuplicatedIsEnabled && limit > 1) {
         eliminateDuplicates = true;
         size_t size = (db->currIndexSize + 31) / 32;
-        if (size > bitmapSize) { 
+        if (size > bitmapSize) {
             delete[] bitmap;
             bitmap = new int4[size];
             bitmapSize = size;
@@ -403,9 +403,9 @@ void dbAnyCursor::checkForDuplicates()
     }
 }
 
-void dbAnyCursor::deallocateBitmap() 
+void dbAnyCursor::deallocateBitmap()
 {
-    if (bitmap != NULL) { 
+    if (bitmap != NULL) {
         delete[] bitmap;
         bitmapSize = 0;
         bitmap = NULL;
@@ -413,32 +413,32 @@ void dbAnyCursor::deallocateBitmap()
 }
 
 oid_t* dbAnyCursor::toArrayOfOid(oid_t* arr) const
-{ 
-    if (arr == NULL) { 
+{
+    if (arr == NULL) {
         arr = new oid_t[selection.nRows];
     }
-    if (allRecords) { 
+    if (allRecords) {
         oid_t* oids = arr;
-        for (oid_t oid = firstId; oid != 0; oid = db->getRow(oid)->next) { 
+        for (oid_t oid = firstId; oid != 0; oid = db->getRow(oid)->next) {
             *oids++ = oid;
         }
-    } else { 
+    } else {
         selection.toArray(arr);
     }
     return arr;
 }
 
-void dbAnyCursor::setCurrent(dbAnyReference const& ref) 
-{ 
+void dbAnyCursor::setCurrent(dbAnyReference const& ref)
+{
     removed = false;
     assert(ref.oid != 0);
     reset();
-    db->beginTransaction(type == dbCursorForUpdate 
+    db->beginTransaction(type == dbCursorForUpdate
                          ? dbDatabase::dbExclusiveLock : dbDatabase::dbSharedLock);
     db->threadContext.get()->cursors.link(this);
     currId = ref.oid;
     add(currId);
-    if (prefetch) { 
+    if (prefetch) {
         fetch();
     }
 }
@@ -450,7 +450,7 @@ int dbAnyCursor::selectByKey(char const* key, void const* value)
     assert(field != NULL);
     assert(field->hashTable != 0 || field->tTree != 0);
     reset();
-    db->beginTransaction(type == dbCursorForUpdate 
+    db->beginTransaction(type == dbCursorForUpdate
                          ? dbDatabase::dbExclusiveLock : dbDatabase::dbSharedLock);
     db->threadContext.get()->cursors.link(this);
     dbSearchContext sc;
@@ -465,9 +465,9 @@ int dbAnyCursor::selectByKey(char const* key, void const* value)
     sc.comparator = field->comparator;
     sc.sizeofType = field->dbsSize;
     sc.type = field->type;
-    if (field->hashTable != 0) { 
+    if (field->hashTable != 0) {
         dbHashTable::find(db, field->hashTable, sc);
-    } else { 
+    } else {
         dbTtree::find(db, field->tTree, sc);
     }
     if (gotoFirst() && prefetch) {
@@ -479,10 +479,10 @@ int dbAnyCursor::selectByKey(char const* key, void const* value)
 int dbAnyCursor::seek(oid_t oid)
 {
     int pos = 0;
-    if (gotoFirst()) { 
-        do { 
-            if (currId == oid) { 
-                if (prefetch) { 
+    if (gotoFirst()) {
+        do {
+            if (currId == oid) {
+                if (prefetch) {
                     fetch();
                 }
                 return pos;
@@ -493,33 +493,33 @@ int dbAnyCursor::seek(oid_t oid)
     return -1;
 }
 
-bool dbAnyCursor::skip(int n) { 
-    while (n > 0) { 
-        if (!gotoNext()) { 
+bool dbAnyCursor::skip(int n) {
+    while (n > 0) {
+        if (!gotoNext()) {
             return false;
         }
         n -= 1;
-    } 
-    while (n < 0) { 
-        if (!gotoPrev()) { 
+    }
+    while (n < 0) {
+        if (!gotoPrev()) {
             return false;
         }
         n += 1;
-    } 
-    if (prefetch) { 
+    }
+    if (prefetch) {
         fetch();
     }
     return true;
 }
 
-int dbAnyCursor::selectByKeyRange(char const* key, void const* minValue, 
+int dbAnyCursor::selectByKeyRange(char const* key, void const* minValue,
                                   void const* maxValue)
 {
     dbFieldDescriptor* field = table->find(key);
     assert(field != NULL);
     assert(field->tTree != 0);
     reset();
-    db->beginTransaction(type == dbCursorForUpdate 
+    db->beginTransaction(type == dbCursorForUpdate
                          ? dbDatabase::dbExclusiveLock : dbDatabase::dbSharedLock);
     db->threadContext.get()->cursors.link(this);
     dbSearchContext sc;
@@ -548,63 +548,63 @@ void dbAnyCursor::remove()
     oid_t removedId = currId;
     lastRecordWasDeleted = false;
     assert(type == dbCursorForUpdate && removedId != 0);
-    if (allRecords) { 
+    if (allRecords) {
         dbRecord* rec = db->getRow(removedId);
         oid_t nextId = rec->next;
         oid_t prevId = rec->prev;
-        if (nextId != 0) { 
+        if (nextId != 0) {
             if (currId == firstId) {
                 firstId = currId = nextId;
-            } else { 
+            } else {
                 currId = nextId;
             }
-        } else { 
+        } else {
             lastRecordWasDeleted = true;
             if (removedId == firstId) {
                 firstId = lastId = currId = 0;
-            } else { 
+            } else {
                 lastId = currId = prevId;
             }
         }
-    } else { 
-        if (selection.curr != NULL) { 
-            if (--selection.curr->nRows == 0 || selection.pos == selection.curr->nRows) { 
+    } else {
+        if (selection.curr != NULL) {
+            if (--selection.curr->nRows == 0 || selection.pos == selection.curr->nRows) {
                 dbSelection::segment* next = selection.curr->next;
                 dbSelection::segment* prev = selection.curr->prev;
-                if (selection.curr->nRows == 0) { 
-                    if (prev != NULL) { 
+                if (selection.curr->nRows == 0) {
+                    if (prev != NULL) {
                         prev->next = next;
-                    } else { 
+                    } else {
                         selection.first = next;
                     }
-                    if (next != NULL) { 
+                    if (next != NULL) {
                         next->prev = prev;
-                    } else { 
+                    } else {
                         selection.last = prev;
                     }
                     delete selection.curr;
                 }
-                if (next != NULL) { 
+                if (next != NULL) {
                     currId = next->rows[0];
                     selection.curr = next;
                     selection.pos = 0;
-                } else { 
+                } else {
                     lastRecordWasDeleted = true;
-                    if ((selection.curr = selection.last) != NULL) { 
+                    if ((selection.curr = selection.last) != NULL) {
                         selection.pos = selection.curr->nRows-1;
                         currId = selection.curr->rows[selection.pos];
-                    } else { 
+                    } else {
                         currId = 0;
                     }
                 }
-            } else { 
-                memcpy(selection.curr->rows + selection.pos, 
-                       selection.curr->rows + selection.pos + 1, 
+            } else {
+                memcpy(selection.curr->rows + selection.pos,
+                       selection.curr->rows + selection.pos + 1,
                        (selection.curr->nRows - selection.pos)
                        *sizeof(oid_t));
                 currId = selection.curr->rows[selection.pos];
-            }    
-        } else { 
+            }
+        } else {
             currId = 0;
         }
     }
@@ -614,7 +614,7 @@ void dbAnyCursor::remove()
     record = saveRecord;
     removed = true;
     if (currId != 0 && prefetch) {
-        fetch();        
+        fetch();
     }
 }
 
@@ -622,17 +622,17 @@ void dbAnyCursor::remove()
 void dbAnyCursor::removeAllSelected()
 {
     assert(type == dbCursorForUpdate);
-    if (allRecords) { 
+    if (allRecords) {
         removeAll();
-    } else if (selection.first != NULL) { 
+    } else if (selection.first != NULL) {
         dbSelection::segment* curr;
-        for (curr = selection.first; curr != NULL; curr = curr->next) { 
-            for (int i = 0, n = curr->nRows; i < n; i++) { 
+        for (curr = selection.first; curr != NULL; curr = curr->next) {
+            for (int i = 0, n = curr->nRows; i < n; i++) {
                 db->remove(table, curr->rows[i]);
             }
         }
         reset();
-    } else if (currId != 0) {   
+    } else if (currId != 0) {
         db->remove(table, currId);
         currId = 0;
     }
@@ -640,7 +640,7 @@ void dbAnyCursor::removeAllSelected()
 
 
 bool dbAnyCursor::hasNext() const
-{ 
+{
     return allRecords
         ? currId != 0 && db->getRow(currId)->next != 0
         : selection.curr != NULL && (selection.pos+1 < selection.curr->nRows || selection.curr->next != NULL);
@@ -653,10 +653,10 @@ byte* dbAnyCursor::fetchNext()
             fetch();
             return record;
         }
-    } else { 
-        removed = false; 
-        if (currId != 0 && !lastRecordWasDeleted) { 
-            if (!prefetch) { 
+    } else {
+        removed = false;
+        if (currId != 0 && !lastRecordWasDeleted) {
+            if (!prefetch) {
                 fetch();
             }
             return record;
@@ -668,10 +668,10 @@ byte* dbAnyCursor::fetchNext()
 byte* dbAnyCursor::fetchPrev()
 {
     if (removed) {
-        removed = false; 
-        if (lastRecordWasDeleted) { 
-            if (currId != 0) { 
-                if (!prefetch) { 
+        removed = false;
+        if (lastRecordWasDeleted) {
+            if (currId != 0) {
+                if (!prefetch) {
                     fetch();
                 }
                 return record;
@@ -686,41 +686,41 @@ byte* dbAnyCursor::fetchPrev()
     return NULL;
 }
 
-bool dbAnyCursor::moveNext() 
+bool dbAnyCursor::moveNext()
 {
-    if (!removed) { 
-        return gotoNext(); 
+    if (!removed) {
+        return gotoNext();
     } else {
         removed = false;
         return !lastRecordWasDeleted;
     }
 }
-    
-bool dbAnyCursor::movePrev() 
+
+bool dbAnyCursor::movePrev()
 {
-    if (!removed) { 
-        return gotoPrev(); 
+    if (!removed) {
+        return gotoPrev();
     } else {
         removed = false;
         return lastRecordWasDeleted ? (currId != 0) : gotoPrev();
     }
 }
-    
 
-bool dbAnyCursor::gotoNext() 
-{ 
+
+bool dbAnyCursor::gotoNext()
+{
     removed = false;
-    if (allRecords) { 
-        if (currId != 0) { 
+    if (allRecords) {
+        if (currId != 0) {
             oid_t next = db->getRow(currId)->next;
             if (next != 0) {
                 currId = next;
                 return true;
-            } 
+            }
         }
-    } else if (selection.curr != NULL) { 
-        if (++selection.pos == selection.curr->nRows) { 
-            if (selection.curr->next == NULL) { 
+    } else if (selection.curr != NULL) {
+        if (++selection.pos == selection.curr->nRows) {
+            if (selection.curr->next == NULL) {
                 selection.pos -= 1;
                 return false;
             }
@@ -729,59 +729,59 @@ bool dbAnyCursor::gotoNext()
         }
         currId = selection.curr->rows[selection.pos];
         return true;
-    }  
+    }
     return false;
 }
 
 bool dbAnyCursor::isLast() const
-{ 
-    if (allRecords) { 
-        if (currId != 0) { 
+{
+    if (allRecords) {
+        if (currId != 0) {
             return db->getRow(currId)->next == 0;
         }
-    } else if (selection.curr != NULL) { 
+    } else if (selection.curr != NULL) {
         return selection.pos+1 == selection.curr->nRows
-            && selection.curr->next == NULL; 
-    }  
+            && selection.curr->next == NULL;
+    }
     return false;
 }
 
 
 bool dbAnyCursor::isFirst() const
-{ 
-    if (allRecords) { 
-        if (currId != 0) { 
+{
+    if (allRecords) {
+        if (currId != 0) {
             return db->getRow(currId)->prev == 0;
         }
-    } else if (selection.curr != NULL) { 
+    } else if (selection.curr != NULL) {
         return selection.pos == 0
-            && selection.curr->prev == NULL; 
-    }  
+            && selection.curr->prev == NULL;
+    }
     return false;
 }
 
 bool dbAnyCursor::gotoPrev()
 {
     removed = false;
-    if (allRecords) { 
-        if (currId != 0) { 
+    if (allRecords) {
+        if (currId != 0) {
             oid_t prev = db->getRow(currId)->prev;
             if (prev != 0) {
                 currId = prev;
                 return true;
             }
         }
-    } else if (selection.curr != NULL) { 
-        if (selection.pos == 0) { 
-            if (selection.curr->prev == NULL) { 
+    } else if (selection.curr != NULL) {
+        if (selection.pos == 0) {
+            if (selection.curr->prev == NULL) {
                 return false;
             }
             selection.curr = selection.curr->prev;
             selection.pos = selection.curr->nRows;
-        } 
+        }
         currId = selection.curr->rows[--selection.pos];
         return true;
-    } 
+    }
     return false;
 }
 
@@ -789,15 +789,15 @@ bool dbAnyCursor::gotoPrev()
 bool dbAnyCursor::gotoFirst()
 {
     removed = false;
-    if (allRecords) { 
+    if (allRecords) {
         currId = firstId;
         return (currId != 0);
-    } else { 
+    } else {
         selection.curr = selection.first;
         selection.pos = 0;
-        if (selection.curr == NULL) { 
+        if (selection.curr == NULL) {
             return (currId != 0);
-        } else { 
+        } else {
             currId = selection.curr->rows[0];
             return true;
         }
@@ -807,14 +807,14 @@ bool dbAnyCursor::gotoFirst()
 bool dbAnyCursor::gotoLast()
 {
     removed = false;
-    if (allRecords) { 
+    if (allRecords) {
         currId = lastId;
         return (currId != 0);
-    } else { 
+    } else {
         selection.curr = selection.last;
-        if (selection.curr == NULL) { 
+        if (selection.curr == NULL) {
             return (currId != 0);
-        } else { 
+        } else {
             selection.pos = selection.curr->nRows-1;
             currId = selection.curr->rows[selection.pos];
             return true;
@@ -824,24 +824,24 @@ bool dbAnyCursor::gotoLast()
 
 #define BUILD_BITMAP_THRESHOLD 100
 
-bool dbAnyCursor::isInSelection(oid_t oid) 
+bool dbAnyCursor::isInSelection(oid_t oid)
 {
     dbSelection::segment* curr;
-    if (eliminateDuplicates) { 
+    if (eliminateDuplicates) {
         return isMarked(oid);
     } else if (selection.nRows > BUILD_BITMAP_THRESHOLD) {
         checkForDuplicates();
-        for (curr = selection.first; curr != NULL; curr = curr->next) { 
-            for (int i = 0, n = curr->nRows; i < n; i++) { 
+        for (curr = selection.first; curr != NULL; curr = curr->next) {
+            for (int i = 0, n = curr->nRows; i < n; i++) {
                 oid_t o = curr->rows[i];
                 bitmap[o >> 5] |= 1 << (o & 31);
             }
         }
         return isMarked(oid);
-    } else { 
-        for (curr = selection.first; curr != NULL; curr = curr->next) { 
-            for (int i = 0, n = curr->nRows; i < n; i++) { 
-                if (curr->rows[i] == oid) { 
+    } else {
+        for (curr = selection.first; curr != NULL; curr = curr->next) {
+            for (int i = 0, n = curr->nRows; i < n; i++) {
+                if (curr->rows[i] == oid) {
                     return true;
                 }
             }
@@ -869,7 +869,7 @@ void dbAnyCursor::reset()
 
 void dbAnyCursor::freeze()
 {
-    unlink();    
+    unlink();
 }
 
 void dbAnyCursor::unfreeze()
@@ -882,8 +882,8 @@ void dbAnyCursor::unfreeze()
     }
 }
 
-dbAnyCursor::~dbAnyCursor() 
-{ 
+dbAnyCursor::~dbAnyCursor()
+{
     selection.reset();
     delete[] bitmap;
 }
@@ -896,19 +896,19 @@ void dbParallelQueryContext::search(int i)
     int nThreads = db->parThreads;
     oid_t oid = firstRow;
     int j;
-    for (j = i; --j >= 0;) { 
+    for (j = i; --j >= 0;) {
         oid = db->getRow(oid)->next;
     }
-    while (oid != 0) { 
-        if (db->evaluate(query->tree, oid, table, cursor)) { 
+    while (oid != 0) {
+        if (db->evaluate(query->tree, oid, table, cursor)) {
             selection[i].add(oid);
         }
         oid = db->getRow(oid)->next;
-        for (j = nThreads; --j > 0 && oid != 0;) { 
+        for (j = nThreads; --j > 0 && oid != 0;) {
             oid = db->getRow(oid)->next;
         }
     }
-    if (query->order != NULL) { 
+    if (query->order != NULL) {
         selection[i].sort(db, query->order);
     }
 }
@@ -917,7 +917,7 @@ void dbParallelQueryContext::search(int i)
 char* strupper(char* s)
 {
     byte* p = (byte*)s;
-    while (*p != '\0') { 
+    while (*p != '\0') {
         *p = toupper(*p);
         p += 1;
     }
@@ -928,7 +928,7 @@ char* strupper(char* s)
 char* strlower(char* s)
 {
     byte* p = (byte*)s;
-    while (*p != '\0') { 
+    while (*p != '\0') {
         *p = (byte)tolower(*p);
         p += 1;
     }
@@ -936,8 +936,3 @@ char* strlower(char* s)
 }
 
 END_FASTDB_NAMESPACE
-
-
-
-
-

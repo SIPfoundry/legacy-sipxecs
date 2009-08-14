@@ -1,7 +1,7 @@
 <?xml version="1.0" standalone="yes" ?>
 <!-- example permission.xml file.  Each permission is contained
 in an item element.  A user is assigned multiple permissions by creating
-multiple item elements with the same user's identity.  The item element 
+multiple item elements with the same user's identity.  The item element
 contains the elements:
     identity - this is used as a key to join with a credential.xml
                item.  The identity which matches the uri element of

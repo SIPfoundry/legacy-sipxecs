@@ -30,45 +30,45 @@ int cli_open(char const* server_url,
 
 int cli_create(char const* databaseName,
                char const* filePath,
-               unsigned    transactionCommitDelay, 
-               int         openAttr, 
+               unsigned    transactionCommitDelay,
+               int         openAttr,
                size_t      initDatabaseSize,
                size_t      extensionQuantum,
                size_t      initIndexSize,
                size_t      fileSizeLimit)
 {
-    return dbCLI::instance.create_session(databaseName, filePath, transactionCommitDelay, openAttr, 
+    return dbCLI::instance.create_session(databaseName, filePath, transactionCommitDelay, openAttr,
                                           initDatabaseSize, extensionQuantum, initIndexSize, fileSizeLimit);
 }
 
-int dbCLI::create_session(char const* databaseName, 
+int dbCLI::create_session(char const* databaseName,
                           char const* filePath,
-                          unsigned    transactionCommitDelay, 
-                          int         openAttr, 
+                          unsigned    transactionCommitDelay,
+                          int         openAttr,
                           size_t      initDatabaseSize,
                           size_t      extensionQuantum,
                           size_t      initIndexSize,
                           size_t      fileSizeLimit)
 {
     dbCriticalSection cs(sessionMutex);
-    dbDatabase* db = NULL; 
+    dbDatabase* db = NULL;
     session_desc* s;
-    for (s = active_session_list; s != NULL; s = s->next) { 
-        if (strcmp(s->name, databaseName) == 0) { 
+    for (s = active_session_list; s != NULL; s = s->next) {
+        if (strcmp(s->name, databaseName) == 0) {
             db = s->db;
             db->accessCount += 1;
             break;
         }
     }
-    if (db == NULL) { 
-        db = new dbDatabase((openAttr & cli_open_readonly) 
-                            ? (openAttr & cli_open_concurrent) 
-                              ? dbDatabase::dbConcurrentRead : dbDatabase::dbReadOnly 
-                            : (openAttr & cli_open_concurrent) 
+    if (db == NULL) {
+        db = new dbDatabase((openAttr & cli_open_readonly)
+                            ? (openAttr & cli_open_concurrent)
+                              ? dbDatabase::dbConcurrentRead : dbDatabase::dbReadOnly
+                            : (openAttr & cli_open_concurrent)
                               ? dbDatabase::dbConcurrentUpdate : dbDatabase::dbAllAccess,
-                            initDatabaseSize, 
-                            extensionQuantum, 
-                            initIndexSize);     
+                            initDatabaseSize,
+                            extensionQuantum,
+                            initIndexSize);
         if (!db->open(databaseName, filePath, INFINITE, transactionCommitDelay)) {
             db->close();
             delete db;
@@ -83,7 +83,7 @@ int dbCLI::create_session(char const* databaseName,
             table = (dbTable*)db->getRow(tableId);
             dbTableDescriptor* desc;
             for (desc = db->tables; desc != NULL && desc->tableId != tableId; desc = desc->nextDbTable);
-            if (desc == NULL) { 
+            if (desc == NULL) {
                 desc = new dbTableDescriptor(table);
                 db->linkTable(desc, tableId);
                 desc->setFlags();
@@ -112,9 +112,9 @@ int dbCLI::create_session(char const* databaseName,
 int cli_create_replication_node(int         nodeId,
                                 int         nServers,
                                 char*       nodeNames[],
-                                char const* databaseName, 
-                                char const* filePath, 
-                                int         openAttr, 
+                                char const* databaseName,
+                                char const* filePath,
+                                int         openAttr,
                                 size_t      initDatabaseSize,
                                 size_t      extensionQuantum,
                                 size_t      initIndexSize,
@@ -123,9 +123,9 @@ int cli_create_replication_node(int         nodeId,
     return dbCLI::instance.create_replication_node(nodeId,
                                                    nServers,
                                                    nodeNames,
-                                                   databaseName, 
-                                                   filePath, 
-                                                   openAttr, 
+                                                   databaseName,
+                                                   filePath,
+                                                   openAttr,
                                                    initDatabaseSize,
                                                    extensionQuantum,
                                                    initIndexSize,
@@ -135,9 +135,9 @@ int cli_create_replication_node(int         nodeId,
 int dbCLI::create_replication_node(int         nodeId,
                                    int         nServers,
                                    char*       nodeNames[],
-                                   char const* databaseName, 
-                                   char const* filePath, 
-                                   int         openAttr, 
+                                   char const* databaseName,
+                                   char const* filePath,
+                                   int         openAttr,
                                    size_t      initDatabaseSize,
                                    size_t      extensionQuantum,
                                    size_t      initIndexSize,
@@ -145,24 +145,24 @@ int dbCLI::create_replication_node(int         nodeId,
 {
 #ifdef REPLICATION_SUPPORT
     dbCriticalSection cs(sessionMutex);
-    dbDatabase* db = NULL; 
+    dbDatabase* db = NULL;
     session_desc* s;
-    for (s = active_session_list; s != NULL; s = s->next) { 
-        if (strcmp(s->name, databaseName) == 0) { 
+    for (s = active_session_list; s != NULL; s = s->next) {
+        if (strcmp(s->name, databaseName) == 0) {
             db = s->db;
             db->accessCount += 1;
             break;
         }
     }
-    if (db == NULL) { 
-        db = new dbReplicatedDatabase((openAttr & cli_open_readonly) 
-                                      ? (openAttr & cli_open_concurrent) 
-                                      ? dbDatabase::dbConcurrentRead : dbDatabase::dbReadOnly 
-                                      : (openAttr & cli_open_concurrent) 
+    if (db == NULL) {
+        db = new dbReplicatedDatabase((openAttr & cli_open_readonly)
+                                      ? (openAttr & cli_open_concurrent)
+                                      ? dbDatabase::dbConcurrentRead : dbDatabase::dbReadOnly
+                                      : (openAttr & cli_open_concurrent)
                                       ? dbDatabase::dbConcurrentUpdate : dbDatabase::dbAllAccess,
-                                      initDatabaseSize, 
-                                      extensionQuantum, 
-                                      initIndexSize);            
+                                      initDatabaseSize,
+                                      extensionQuantum,
+                                      initIndexSize);
         if (!((dbReplicatedDatabase*)db)->open(databaseName, filePath, nodeId, nodeNames, nServers)) {
             return cli_database_not_found;
         }
@@ -175,7 +175,7 @@ int dbCLI::create_replication_node(int         nodeId,
             table = (dbTable*)db->getRow(tableId);
             dbTableDescriptor* desc;
             for (desc = db->tables; desc != NULL && desc->tableId != tableId; desc = desc->nextDbTable);
-            if (desc == NULL) { 
+            if (desc == NULL) {
                 desc = new dbTableDescriptor(table);
                 db->linkTable(desc, tableId);
                 desc->setFlags();
@@ -199,7 +199,7 @@ int dbCLI::create_replication_node(int         nodeId,
     s->dropped_tables = NULL;
     active_session_list = s;
     return s->id;
-#else 
+#else
     return cli_not_implemented;
 #endif
 }
@@ -217,17 +217,17 @@ int dbCLI::close(int session)
     session_desc* s = sessions.get(session);
     if (s == NULL) {
         return cli_bad_descriptor;
-    }    
+    }
     dbCriticalSection cs2(s->mutex);
     for (stmt = s->stmts; stmt != NULL; stmt = next) {
         next = stmt->next;
         release_statement(stmt);
     }
-    if (--s->db->accessCount == 0) { 
+    if (--s->db->accessCount == 0) {
         dbTableDescriptor *desc, *next_desc;
         for (desc = s->db->tables; desc != NULL; desc = next_desc) {
             next_desc = desc->nextDbTable;
-            if (!desc->isStatic) { 
+            if (!desc->isStatic) {
                 delete desc;
             }
         }
@@ -372,7 +372,7 @@ int dbCLI::bind_column(int           statement,
     if (s == NULL) {
         return cli_bad_descriptor;
     }
-    if ((unsigned)var_type >= cli_unknown) { 
+    if ((unsigned)var_type >= cli_unknown) {
         return cli_unsupported_type;
     }
     s->prepared = false;
@@ -400,7 +400,7 @@ int cli_array_column(int            statement,
                      cli_column_set set,
                      cli_column_get get)
 {
-    return cli_array_column_ex(statement, column_name, var_type, var_ptr, 
+    return cli_array_column_ex(statement, column_name, var_type, var_ptr,
                                (cli_column_set_ex)set, (cli_column_get_ex)get, NULL);
 }
 
@@ -409,7 +409,7 @@ int cli_array_column_ex(int               statement,
                         int               var_type,
                         void*             var_ptr,
                         cli_column_set_ex set,
-                        cli_column_get_ex get, 
+                        cli_column_get_ex get,
                         void*             user_data)
 {
     return dbCLI::instance.bind_array_column(statement, column_name, var_type, var_ptr, set, get, user_data);
@@ -448,14 +448,14 @@ int dbCLI::bind_array_column(int               statement,
 }
 
 int dbCLI::match_columns(char const* table_name, statement_desc* stmt)
-{    
+{
     stmt->table = stmt->session->db->findTable(table_name);
     if (stmt->table == NULL) {
         return cli_table_not_found;
     }
-    for (column_binding* cb = stmt->columns; cb != NULL; cb = cb->next) { 
+    for (column_binding* cb = stmt->columns; cb != NULL; cb = cb->next) {
         cb->field = stmt->table->find(cb->name);
-        if (cb->field == NULL) { 
+        if (cb->field == NULL) {
             return cli_column_not_found;
         }
     }
@@ -469,7 +469,7 @@ int cli_fetch(int statement, int for_update)
 
 int dbCLI::fetch(int statement, int for_update)
 {
-    statement_desc* stmt = statements.get(statement);    
+    statement_desc* stmt = statements.get(statement);
     if (stmt == NULL) {
         return cli_bad_descriptor;
     }
@@ -487,10 +487,10 @@ int dbCLI::fetch(int statement, int for_update)
         }
         if (tkn == tkn_from && scanner.get() == tkn_ident) {
             int rc = match_columns(scanner.identifier(), stmt);
-            if (rc != cli_ok) { 
+            if (rc != cli_ok) {
                 return rc;
             }
-        } else { 
+        } else {
             return cli_bad_statement;
         }
         char* p = scanner.current_position(), *q = p;
@@ -507,11 +507,11 @@ int dbCLI::fetch(int statement, int for_update)
                     }
                 } while (*++p == '\'');
             } else if (*p == '%') {
-                if (p != q) { 
+                if (p != q) {
                     *p = '\0';
-                    stmt->query.append(dbQueryElement::qExpression, q);             
+                    stmt->query.append(dbQueryElement::qExpression, q);
                 }
-                if (pb->var_ptr == NULL) { 
+                if (pb->var_ptr == NULL) {
                     return cli_unbound_parameter;
                 }
                 switch(pb->var_type) {
@@ -534,10 +534,10 @@ int dbCLI::fetch(int statement, int for_update)
                     stmt->query.append(dbQueryElement::qVarInt8, pb->var_ptr);
                     break;
                   case cli_datetime:
-                    stmt->query.append(sizeof(cli_time_t) == 4 
-                                       ? dbQueryElement::qVarInt4 : dbQueryElement::qVarInt8, 
+                    stmt->query.append(sizeof(cli_time_t) == 4
+                                       ? dbQueryElement::qVarInt4 : dbQueryElement::qVarInt8,
                                        pb->var_ptr);
-                    break;                    
+                    break;
                   case cli_real4:
                     stmt->query.append(dbQueryElement::qVarReal4, pb->var_ptr);
                     break;
@@ -564,7 +564,7 @@ int dbCLI::fetch(int statement, int for_update)
                     break;
                   default:
                     return cli_unsupported_type;
-                    
+
                 }
                 while (isalnum((unsigned char)*++p) || *p == '_');
                 q = p;
@@ -573,7 +573,7 @@ int dbCLI::fetch(int statement, int for_update)
                 p += 1;
             }
         }
-        if (p != q) { 
+        if (p != q) {
             stmt->query.append(dbQueryElement::qExpression, q);
         }
         stmt->prepared = true;
@@ -581,11 +581,11 @@ int dbCLI::fetch(int statement, int for_update)
     stmt->cursor.setTable(stmt->table);
     stmt->cursor.reset();
 #ifdef THROW_EXCEPTION_ON_ERROR
-    try { 
+    try {
 #endif
     return stmt->cursor.select(stmt->query, for_update ? dbCursorForUpdate : dbCursorViewOnly);
 #ifdef THROW_EXCEPTION_ON_ERROR
-    } catch (dbException const& x) { 
+    } catch (dbException const& x) {
         return (x.getErrCode() == dbDatabase::QueryError)
             ? cli_bad_statement : cli_runtime_error;
     }
@@ -600,7 +600,7 @@ int dbCLI::fetch_columns(statement_desc* stmt)
         return cli_not_found;
     }
     stmt->updated = false;
-    if (stmt->record_struct != NULL) { 
+    if (stmt->record_struct != NULL) {
         stmt->cursor.fetch();
         return cli_ok;
     }
@@ -610,7 +610,7 @@ int dbCLI::fetch_columns(statement_desc* stmt)
         char* src = data + fd->dbsOffs;
         char* dst = (char*)cb->var_ptr;
         // Allow fetching of structures with one component
-        if (fd->type == dbField::tpStructure && fd->components->next == NULL) { 
+        if (fd->type == dbField::tpStructure && fd->components->next == NULL) {
             fd = fd->components;
         }
         switch (fd->type) {
@@ -641,7 +641,7 @@ int dbCLI::fetch_columns(statement_desc* stmt)
                 *(cli_real8_t*)dst = *(bool*)src ? 1 : 0;
                 continue;
             }
-            break;          
+            break;
           case dbField::tpInt1:
             switch (cb->var_type) {
               case cli_bool:
@@ -812,31 +812,31 @@ int dbCLI::fetch_columns(statement_desc* stmt)
             }
             break;
           case dbField::tpReference:
-            if (cb->var_type == cli_oid) { 
+            if (cb->var_type == cli_oid) {
                 *(cli_oid_t*)dst = *(oid_t*)src;
                 continue;
             }
             break;
           case dbField::tpRectangle:
-            if (cb->var_type == cli_rectangle) { 
+            if (cb->var_type == cli_rectangle) {
                 *(cli_rectangle_t*)dst = *(cli_rectangle_t*)src;
                 continue;
             }
             break;
           case dbField::tpString:
-            if (cb->var_type == cli_asciiz || cb->var_type == cli_pasciiz) { 
-                if (cb->var_type == cli_pasciiz) { 
+            if (cb->var_type == cli_asciiz || cb->var_type == cli_pasciiz) {
+                if (cb->var_type == cli_pasciiz) {
                     dst = *(char**)dst;
                 }
                 dbVarying* v = (dbVarying*)src;
                 int size = v->size;
                 if (cb->set_fnc != NULL) {
-                    dst = (char*)cb->set_fnc(cli_asciiz, dst, size, 
+                    dst = (char*)cb->set_fnc(cli_asciiz, dst, size,
                                              cb->name, stmt->id, data + v->offs, cb->user_data);
-                    if (dst != NULL) { 
+                    if (dst != NULL) {
                         memcpy(dst, data + v->offs, size);
                     }
-                } else { 
+                } else {
                     int n = size;
                     if (cb->var_len != NULL) {
                         if (n > *cb->var_len) {
@@ -850,18 +850,18 @@ int dbCLI::fetch_columns(statement_desc* stmt)
             }
             break;
           case dbField::tpArray:
-            if (cb->var_type >= cli_array_of_oid && cb->var_type <= cli_array_of_string) 
-            { 
+            if (cb->var_type >= cli_array_of_oid && cb->var_type <= cli_array_of_string)
+            {
                 dbVarying* v = (dbVarying*)src;
                 int n = v->size;
                 src = data + v->offs;
                 if (cb->set_fnc != NULL) {
-                    dst = (char*)cb->set_fnc(cb->var_type, dst, n, 
+                    dst = (char*)cb->set_fnc(cb->var_type, dst, n,
                                              cb->name, stmt->id, src, cb->user_data);
-                    if (dst == NULL) { 
+                    if (dst == NULL) {
                         continue;
                     }
-                } else { 
+                } else {
                     int size = n;
                     if (cb->var_len != NULL) {
                         if (n > *cb->var_len) {
@@ -872,7 +872,7 @@ int dbCLI::fetch_columns(statement_desc* stmt)
                 }
                 switch (fd->components->type) {
                   case dbField::tpBool:
-                    if (cb->var_type == cli_array_of_bool) { 
+                    if (cb->var_type == cli_array_of_bool) {
                         cli_bool_t* dst_elem = (cli_bool_t*)dst;
                         bool*       src_elem = (bool*)src;
                         while (--n >= 0) *dst_elem++ = *src_elem++;
@@ -880,7 +880,7 @@ int dbCLI::fetch_columns(statement_desc* stmt)
                     }
                     break;
                   case dbField::tpInt1:
-                    if (cb->var_type == cli_array_of_int1) { 
+                    if (cb->var_type == cli_array_of_int1) {
                         cli_int1_t* dst_elem = (cli_int1_t*)dst;
                         int1*       src_elem = (int1*)src;
                         while (--n >= 0) *dst_elem++ = *src_elem++;
@@ -888,7 +888,7 @@ int dbCLI::fetch_columns(statement_desc* stmt)
                     }
                     break;
                   case dbField::tpInt2:
-                    if (cb->var_type == cli_array_of_int2) { 
+                    if (cb->var_type == cli_array_of_int2) {
                         cli_int2_t* dst_elem = (cli_int2_t*)dst;
                         int2*       src_elem = (int2*)src;
                         while (--n >= 0) *dst_elem++ = *src_elem++;
@@ -896,7 +896,7 @@ int dbCLI::fetch_columns(statement_desc* stmt)
                     }
                     break;
                   case dbField::tpInt4:
-                    if (cb->var_type == cli_array_of_int4) { 
+                    if (cb->var_type == cli_array_of_int4) {
                         cli_int4_t* dst_elem = (cli_int4_t*)dst;
                         int4*       src_elem = (int4*)src;
                         while (--n >= 0) *dst_elem++ = *src_elem++;
@@ -904,7 +904,7 @@ int dbCLI::fetch_columns(statement_desc* stmt)
                     }
                     break;
                   case dbField::tpInt8:
-                    if (cb->var_type == cli_array_of_int8) { 
+                    if (cb->var_type == cli_array_of_int8) {
                         cli_int8_t* dst_elem = (cli_int8_t*)dst;
                         db_int8*       src_elem = (db_int8*)src;
                         while (--n >= 0) *dst_elem++ = *src_elem++;
@@ -912,7 +912,7 @@ int dbCLI::fetch_columns(statement_desc* stmt)
                     }
                     break;
                   case dbField::tpReal4:
-                    if (cb->var_type == cli_array_of_real4) { 
+                    if (cb->var_type == cli_array_of_real4) {
                         cli_real4_t* dst_elem = (cli_real4_t*)dst;
                         real4*       src_elem = (real4*)src;
                         while (--n >= 0) *dst_elem++ = *src_elem++;
@@ -920,7 +920,7 @@ int dbCLI::fetch_columns(statement_desc* stmt)
                     }
                     break;
                   case dbField::tpReal8:
-                    if (cb->var_type == cli_array_of_real8) { 
+                    if (cb->var_type == cli_array_of_real8) {
                         cli_real8_t* dst_elem = (cli_real8_t*)dst;
                         real8*       src_elem = (real8*)src;
                         while (--n >= 0) *dst_elem++ = *src_elem++;
@@ -928,7 +928,7 @@ int dbCLI::fetch_columns(statement_desc* stmt)
                     }
                     break;
                   case dbField::tpReference:
-                    if (cb->var_type == cli_array_of_oid) { 
+                    if (cb->var_type == cli_array_of_oid) {
                         cli_oid_t* dst_elem = (cli_oid_t*)dst;
                         oid_t*     src_elem = (oid_t*)src;
                         while (--n >= 0) *dst_elem++ = *src_elem++;
@@ -936,15 +936,15 @@ int dbCLI::fetch_columns(statement_desc* stmt)
                     }
                     break;
                   case dbField::tpString:
-                    if (cb->var_type == cli_array_of_string) { 
+                    if (cb->var_type == cli_array_of_string) {
                         char** dst_elem = (char**)dst;
                         dbVarying* src_elem = (dbVarying*)src;
-                        while (--n >= 0) { 
+                        while (--n >= 0) {
                             *dst_elem++ = (char*)((char*)src_elem + src_elem->offs);
                             src_elem += 1;
                         }
                         continue;
-                    }               
+                    }
                 }
             }
         }
@@ -956,13 +956,13 @@ int dbCLI::fetch_columns(statement_desc* stmt)
 
 int dbCLI::store_columns(char* data, statement_desc* stmt, bool insert)
 {
-    for (column_binding* cb = stmt->columns; cb != NULL; cb = cb->next) 
+    for (column_binding* cb = stmt->columns; cb != NULL; cb = cb->next)
     {
         dbFieldDescriptor* fd = cb->field;
         char* dst = data + fd->appOffs;
         char* src = (char*)cb->var_ptr;
         // Allow storing to structures with one component
-        if (fd->type == dbField::tpStructure && fd->components->next == NULL) { 
+        if (fd->type == dbField::tpStructure && fd->components->next == NULL) {
             fd = fd->components;
         }
         switch (fd->type) {
@@ -993,7 +993,7 @@ int dbCLI::store_columns(char* data, statement_desc* stmt, bool insert)
                 *(bool*)dst = *(cli_real8_t*)src != 0;
                 continue;
             }
-            break;          
+            break;
           case dbField::tpInt1:
             switch (cb->var_type) {
               case cli_bool:
@@ -1063,7 +1063,7 @@ int dbCLI::store_columns(char* data, statement_desc* stmt, bool insert)
                 continue;
               case cli_autoincrement:
 #ifdef AUTOINCREMENT_SUPPORT
-                if (insert) { 
+                if (insert) {
                     *(int4*)dst = cb->field->defTable->autoincrementCount+1;
                 }
 #endif
@@ -1170,25 +1170,25 @@ int dbCLI::store_columns(char* data, statement_desc* stmt, bool insert)
             }
             break;
           case dbField::tpReference:
-            if (cb->var_type == cli_oid) { 
+            if (cb->var_type == cli_oid) {
                 *(oid_t*)dst = *(cli_oid_t*)src;
                 continue;
             }
             break;
           case dbField::tpRectangle:
-            if (cb->var_type == cli_rectangle) { 
+            if (cb->var_type == cli_rectangle) {
                 *(cli_rectangle_t*)dst = *(cli_rectangle_t*)src;
                 continue;
             }
             break;
           case dbField::tpString:
-            if (cb->var_type == cli_pasciiz) { 
+            if (cb->var_type == cli_pasciiz) {
                 *(char**)dst = *(char**)src;
                 continue;
-            } else if (cb->var_type == cli_asciiz) { 
+            } else if (cb->var_type == cli_asciiz) {
                 if (cb->get_fnc != NULL) {
                     int len;
-                    src = (char*)cb->get_fnc(cb->var_type, src, &len, 
+                    src = (char*)cb->get_fnc(cb->var_type, src, &len,
                                              cb->name, stmt->id, cb->user_data);
                 }
                 *(char**)dst = src;
@@ -1196,21 +1196,21 @@ int dbCLI::store_columns(char* data, statement_desc* stmt, bool insert)
             }
             break;
           case dbField::tpArray:
-            if (cb->var_type >= cli_array_of_oid && cb->var_type <= cli_array_of_string) 
-            { 
+            if (cb->var_type >= cli_array_of_oid && cb->var_type <= cli_array_of_string)
+            {
                 int size = 0;
                 if (cb->get_fnc != NULL) {
-                    src = (char*)cb->get_fnc(cb->var_type, src, &size, 
+                    src = (char*)cb->get_fnc(cb->var_type, src, &size,
                                              cb->name, stmt->id, cb->user_data);
-                } else { 
+                } else {
                     if (cb->var_len != NULL) {
-                        size = *cb->var_len; 
-                    } else { 
+                        size = *cb->var_len;
+                    } else {
                         return cli_incompatible_type;
                     }
                 }
-                if (cb->var_type == cli_array_of_string) { 
-                    if (fd->components->type != dbField::tpString) { 
+                if (cb->var_type == cli_array_of_string) {
+                    if (fd->components->type != dbField::tpString) {
                         return cli_incompatible_type;
                     }
                 } else if ((size_t)sizeof_type[cb->var_type - cli_array_of_oid] != fd->components->appSize) {
@@ -1234,11 +1234,11 @@ int cli_insert(int statement, cli_oid_t* oid)
 
 int dbCLI::insert(int statement, cli_oid_t* oid)
 {
-    statement_desc* stmt = statements.get(statement);    
+    statement_desc* stmt = statements.get(statement);
     if (stmt == NULL) {
         return cli_bad_descriptor;
     }
-    if (!stmt->prepared) { 
+    if (!stmt->prepared) {
         sql_scanner scanner(stmt->sql.base());
         if (scanner.get() != tkn_insert
             || scanner.get() != tkn_into
@@ -1252,31 +1252,31 @@ int dbCLI::insert(int statement, cli_oid_t* oid)
         }
         stmt->prepared = true;
     }
-    dbSmallBuffer buf(stmt->table->appSize);    
+    dbSmallBuffer buf(stmt->table->appSize);
     char* obj = buf.base();
-    memset(obj, 0, stmt->table->appSize);  
+    memset(obj, 0, stmt->table->appSize);
     dbFieldDescriptor *first = stmt->table->columns, *fd = first;
-    do { 
-        if (fd->appType == dbField::tpString) { 
+    do {
+        if (fd->appType == dbField::tpString) {
             *(char**)(obj + fd->appOffs) = "";
         }
     } while ((fd = fd->next) != first);
-    
+
     char* rec = (char*)buf.base();
     int rc = store_columns(rec, stmt, true);
-    if (rc != cli_ok) { 
+    if (rc != cli_ok) {
         return rc;
     }
 
     dbAnyReference ref;
     stmt->session->db->insertRecord(stmt->table, &ref, rec);
     stmt->oid = ref.getOid();
-    if (oid != NULL) { 
+    if (oid != NULL) {
         *oid = ref.getOid();
     }
-    if (stmt->n_autoincremented_columns > 0) { 
+    if (stmt->n_autoincremented_columns > 0) {
         for (column_binding* cb = stmt->columns; cb != NULL; cb = cb->next) {
-            if (cb->var_type == cli_autoincrement) { 
+            if (cb->var_type == cli_autoincrement) {
                 *(cli_int4_t*)cb->var_ptr = *(int4*)(rec + cb->field->appOffs);
             }
         }
@@ -1291,37 +1291,37 @@ int cli_update(int statement)
 
 int dbCLI::update(int statement)
 {
-    statement_desc* stmt = statements.get(statement);    
+    statement_desc* stmt = statements.get(statement);
     if (stmt == NULL) {
         return cli_bad_descriptor;
     }
-    if (!stmt->prepared) { 
+    if (!stmt->prepared) {
         return cli_not_fetched;
     }
     if (!stmt->for_update) {
         return cli_not_update_mode;
     }
-    if (stmt->updated) { 
+    if (stmt->updated) {
         return cli_already_updated;
     }
-    if (stmt->cursor.isEmpty()) { 
+    if (stmt->cursor.isEmpty()) {
         return cli_not_found;
     }
-    if (stmt->record_struct == NULL) { 
-        dbSmallBuffer buf(stmt->table->appSize); 
+    if (stmt->record_struct == NULL) {
+        dbSmallBuffer buf(stmt->table->appSize);
         char* record = buf.base();
         memset(record, 0, stmt->table->appSize);
         stmt->cursor.setRecord((byte*)record);
         stmt->cursor.fetch();
-        
+
         int rc = store_columns(buf.base(), stmt, false);
-        if (rc != cli_ok) { 
+        if (rc != cli_ok) {
             stmt->cursor.setRecord(NULL);
             return rc;
         }
         stmt->cursor.update();
         stmt->cursor.setRecord(NULL);
-    } else { 
+    } else {
         stmt->cursor.update();
     }
     stmt->updated = true;
@@ -1335,11 +1335,11 @@ int cli_freeze(int statement)
 
 int dbCLI::freeze(int statement)
 {
-    statement_desc* stmt = statements.get(statement);    
+    statement_desc* stmt = statements.get(statement);
     if (stmt == NULL) {
         return cli_bad_descriptor;
     }
-    if (!stmt->prepared) { 
+    if (!stmt->prepared) {
         return cli_not_fetched;
     }
     stmt->cursor.freeze();
@@ -1353,11 +1353,11 @@ int cli_unfreeze(int statement)
 
 int dbCLI::unfreeze(int statement)
 {
-    statement_desc* stmt = statements.get(statement);    
+    statement_desc* stmt = statements.get(statement);
     if (stmt == NULL) {
         return cli_bad_descriptor;
     }
-    if (!stmt->prepared) { 
+    if (!stmt->prepared) {
         return cli_not_fetched;
     }
     stmt->cursor.unfreeze();
@@ -1371,14 +1371,14 @@ int cli_get_first(int statement)
 
 int dbCLI::get_first(int statement)
 {
-    statement_desc* stmt = statements.get(statement);    
+    statement_desc* stmt = statements.get(statement);
     if (stmt == NULL) {
         return cli_bad_descriptor;
     }
-    if (!stmt->prepared) { 
+    if (!stmt->prepared) {
         return cli_not_fetched;
     }
-    if (!stmt->cursor.gotoFirst()) { 
+    if (!stmt->cursor.gotoFirst()) {
         return cli_not_found;
     }
     return fetch_columns(stmt);
@@ -1391,14 +1391,14 @@ int cli_get_last(int statement)
 
 int dbCLI::get_last(int statement)
 {
-    statement_desc* stmt = statements.get(statement);    
+    statement_desc* stmt = statements.get(statement);
     if (stmt == NULL) {
         return cli_bad_descriptor;
     }
-    if (!stmt->prepared) { 
+    if (!stmt->prepared) {
         return cli_not_fetched;
     }
-    if (!stmt->cursor.gotoLast()) { 
+    if (!stmt->cursor.gotoLast()) {
         return cli_not_found;
     }
     return fetch_columns(stmt);
@@ -1411,11 +1411,11 @@ int cli_remove_current(int statement)
 
 int dbCLI::remove_current(int statement)
 {
-    statement_desc* stmt = statements.get(statement);    
+    statement_desc* stmt = statements.get(statement);
     if (stmt == NULL) {
         return cli_bad_descriptor;
     }
-    if (!stmt->prepared) { 
+    if (!stmt->prepared) {
         return cli_not_fetched;
     }
     if (!stmt->for_update) {
@@ -1436,11 +1436,11 @@ int cli_get_next(int statement)
 
 int dbCLI::get_next(int statement)
 {
-    statement_desc* stmt = statements.get(statement);    
+    statement_desc* stmt = statements.get(statement);
     if (stmt == NULL) {
         return cli_bad_descriptor;
     }
-    if (!stmt->prepared) { 
+    if (!stmt->prepared) {
         return cli_not_fetched;
     }
     if (!((stmt->first_fetch && stmt->cursor.gotoFirst()) ||
@@ -1458,11 +1458,11 @@ int cli_get_prev(int statement)
 
 int dbCLI::get_prev(int statement)
 {
-    statement_desc* stmt = statements.get(statement);    
+    statement_desc* stmt = statements.get(statement);
     if (stmt == NULL) {
         return cli_bad_descriptor;
     }
-    if (!stmt->prepared) { 
+    if (!stmt->prepared) {
         return cli_not_fetched;
     }
     if (!((stmt->first_fetch && stmt->cursor.gotoLast()) ||
@@ -1480,11 +1480,11 @@ int cli_skip(int statement, int n)
 
 int dbCLI::skip(int statement, int n)
 {
-    statement_desc* stmt = statements.get(statement);    
+    statement_desc* stmt = statements.get(statement);
     if (stmt == NULL) {
         return cli_bad_descriptor;
     }
-    if (!stmt->prepared) { 
+    if (!stmt->prepared) {
         return cli_not_fetched;
     }
     if ((n > 0 && !((stmt->first_fetch && stmt->cursor.gotoFirst() && stmt->cursor.skip(n-1)
@@ -1493,7 +1493,7 @@ int dbCLI::skip(int statement, int n)
                         || (!stmt->first_fetch && stmt->cursor.skip(n))))))
     {
         return cli_not_found;
-    } 
+    }
     return fetch_columns(stmt);
 }
 
@@ -1505,21 +1505,21 @@ int cli_seek(int statement, cli_oid_t oid)
 
 int dbCLI::seek(int statement, cli_oid_t oid)
 {
-    statement_desc* stmt = statements.get(statement);    
+    statement_desc* stmt = statements.get(statement);
     if (stmt == NULL) {
         return cli_bad_descriptor;
     }
-    if (!stmt->prepared) { 
+    if (!stmt->prepared) {
         return cli_not_fetched;
     }
     int pos = stmt->cursor.seek(oid);
-    if (pos < 0) { 
+    if (pos < 0) {
         return cli_not_found;
-    } 
+    }
     int rc = fetch_columns(stmt);
-    if (rc == cli_ok) { 
+    if (rc == cli_ok) {
         return pos;
-    } else { 
+    } else {
         return rc;
     }
 }
@@ -1550,7 +1550,7 @@ int dbCLI::close_cursor(int statement)
     if (stmt == NULL) {
         return cli_bad_descriptor;
     }
-    if (stmt->cursor.db != NULL) { 
+    if (stmt->cursor.db != NULL) {
         stmt->cursor.reset();
         stmt->cursor.deallocateBitmap();
     }
@@ -1601,7 +1601,7 @@ int dbCLI::release_statement(statement_desc* stmt)
         delete[] pb->name;
         parameter_allocator.free(pb);
     }
-    if (stmt->cursor.db != NULL) { 
+    if (stmt->cursor.db != NULL) {
         stmt->cursor.reset();
         stmt->cursor.deallocateBitmap();
     }
@@ -1664,7 +1664,7 @@ int dbCLI::abort(int session)
         s->dropped_tables = next;
     }
     s->db->rollback();
-    while (db->tables != s->existed_tables) { 
+    while (db->tables != s->existed_tables) {
         dbTableDescriptor* table = db->tables;
         db->unlinkTable(table);
         delete table;
@@ -1680,14 +1680,14 @@ int cli_remove(int statement)
 
 int dbCLI::remove(int statement)
 {
-    statement_desc* stmt = statements.get(statement);    
+    statement_desc* stmt = statements.get(statement);
     if (stmt == NULL || !stmt->prepared) {
         return cli_bad_descriptor;
     }
     if (!stmt->for_update) {
         return cli_not_update_mode;
     }
-    if (stmt->cursor.isEmpty()) { 
+    if (stmt->cursor.isEmpty()) {
         return cli_not_found;
     }
     stmt->cursor.removeAllSelected();
@@ -1702,29 +1702,29 @@ int cli_describe(int session, char const* table, cli_field_descriptor** fields)
 int dbCLI::describe(int session, char const* table, cli_field_descriptor** fields)
 {
     session_desc* s = sessions.get(session);
-    if (s == NULL) { 
+    if (s == NULL) {
         return cli_bad_descriptor;
-    }   
+    }
     dbDatabase* db = s->db;
     dbTableDescriptor* desc = db->findTableByName(table);
     if (desc == NULL) {
         return cli_table_not_found;
-    } else { 
+    } else {
         int nColumns = desc->nColumns;
-        cli_field_descriptor* fp = 
+        cli_field_descriptor* fp =
             (cli_field_descriptor*)malloc(nColumns*sizeof(cli_field_descriptor));
-        dbFieldDescriptor* fd = desc->columns; 
+        dbFieldDescriptor* fd = desc->columns;
         *fields = fp;
-        for (int i = 0; i < nColumns; i++, fp++) { 
+        for (int i = 0; i < nColumns; i++, fp++) {
             fp->type = (cli_var_type)map_type(fd);
-            fp->name = fd->name;            
+            fp->name = fd->name;
             fp->refTableName = (fd->type == dbField::tpArray) ? fd->components->refTableName : fd->refTableName;
             fp->inverseRefFieldName = fd->inverseRefName;
             fp->flags = fd->indexType;
-            if (fd->tTree != 0) { 
+            if (fd->tTree != 0) {
                 fp->flags |= cli_indexed;
             }
-            if (fd->hashTable != 0) { 
+            if (fd->hashTable != 0) {
                 fp->flags |= cli_hashed;
             }
             fd = fd->next;
@@ -1741,30 +1741,30 @@ int cli_describe_layout(int session, char const* table, cli_field_layout** field
 int dbCLI::describe_layout(int session, char const* table, cli_field_layout** fields, int* rec_size)
 {
     session_desc* s = sessions.get(session);
-    if (s == NULL) { 
+    if (s == NULL) {
         return cli_bad_descriptor;
-    }   
+    }
     dbDatabase* db = s->db;
     dbTableDescriptor* desc = db->findTableByName(table);
     if (desc == NULL) {
         return cli_table_not_found;
-    } else { 
+    } else {
         int nColumns = desc->nColumns;
-        cli_field_layout* fp = 
+        cli_field_layout* fp =
             (cli_field_layout*)malloc(nColumns*sizeof(cli_field_layout));
-        dbFieldDescriptor* fd = desc->columns; 
+        dbFieldDescriptor* fd = desc->columns;
         *fields = fp;
         *rec_size = desc->appSize;
-        for (int i = 0; i < nColumns; i++, fp++) { 
+        for (int i = 0; i < nColumns; i++, fp++) {
             fp->desc.type = (cli_var_type)map_type(fd);
-            fp->desc.name = fd->name;            
+            fp->desc.name = fd->name;
             fp->desc.refTableName = (fd->type == dbField::tpArray) ? fd->components->refTableName : fd->refTableName;
             fp->desc.inverseRefFieldName = fd->inverseRefName;
             fp->desc.flags = fd->indexType;
-            if (fd->tTree != 0) { 
+            if (fd->tTree != 0) {
                 fp->desc.flags |= cli_indexed;
             }
-            if (fd->hashTable != 0) { 
+            if (fd->hashTable != 0) {
                 fp->desc.flags |= cli_hashed;
             }
             fp->offs = fd->appOffs;
@@ -1784,17 +1784,17 @@ int cli_show_tables(int session, cli_table_descriptor** tables)
 int dbCLI::show_tables(int session, cli_table_descriptor** tables)
 {
     session_desc* s = sessions.get(session);
-    if (s == NULL) { 
+    if (s == NULL) {
         return cli_bad_descriptor;
-    }   
+    }
     dbTableDescriptor* desc;
     int nTables = 0;
     for (desc = s->db->tables; desc != NULL; desc = desc->nextDbTable) {
         if (strcmp(desc->name, "Metatable")) {
             nTables += 1;
         }
-    }    
-    if (nTables != 0) { 
+    }
+    if (nTables != 0) {
         cli_table_descriptor* td = (cli_table_descriptor*)malloc(nTables*sizeof(cli_table_descriptor));
         *tables = td;
         for (desc = s->db->tables; desc != NULL; desc = desc->nextDbTable) {
@@ -1803,7 +1803,7 @@ int dbCLI::show_tables(int session, cli_table_descriptor** tables)
                 td += 1;
             }
         }
-    } else { 
+    } else {
         *tables = NULL;
     }
     return nTables;
@@ -1826,13 +1826,13 @@ int sql_scanner::get()
 
     if (ch == '*') {
         return tkn_all;
-    } else if ((ch >= '0' && ch <= '9') || ch == '+' || ch == '-') {    
+    } else if ((ch >= '0' && ch <= '9') || ch == '+' || ch == '-') {
         int const_type = tkn_iconst;
         while (true) {
             ch = *p++;
-            if (ch == '.' || ch == 'e' || ch == 'E') { 
+            if (ch == '.' || ch == 'e' || ch == 'E') {
                 const_type = tkn_fconst;
-            } else if (!((ch >= '0' && ch <= '9') || ch == '+' || ch == '-')) { 
+            } else if (!((ch >= '0' && ch <= '9') || ch == '+' || ch == '-')) {
                 break;
             }
         }
@@ -1857,41 +1857,41 @@ int sql_scanner::get()
 }
 
 
-int cli_create_table(int session, char const* tableName, int nColumns, 
+int cli_create_table(int session, char const* tableName, int nColumns,
                      cli_field_descriptor* columns)
 {
     return dbCLI::instance.create_table(session, tableName, nColumns, columns);
 }
 
 
-int cli_alter_table(int session, char const* tableName, int nColumns, 
+int cli_alter_table(int session, char const* tableName, int nColumns,
                     cli_field_descriptor* columns)
 {
     return dbCLI::instance.alter_table(session, tableName, nColumns, columns);
 }
 
-int dbCLI::create_table(int session, char const* tableName, int nColumns, 
+int dbCLI::create_table(int session, char const* tableName, int nColumns,
                         cli_field_descriptor* columns)
 {
     session_desc* s = sessions.get(session);
-    if (s == NULL) { 
+    if (s == NULL) {
         return cli_bad_descriptor;
-    }       
+    }
     s->db->beginTransaction(dbDatabase::dbExclusiveLock);
-    if (s->existed_tables == NULL) { 
+    if (s->existed_tables == NULL) {
         s->existed_tables = s->db->tables;
     }
     return create_table(s->db, tableName, nColumns, columns);
 }
 
 
-int dbCLI::alter_table(int session, char const* tableName, int nColumns, 
+int dbCLI::alter_table(int session, char const* tableName, int nColumns,
                         cli_field_descriptor* columns)
 {
     session_desc* s = sessions.get(session);
-    if (s == NULL) { 
+    if (s == NULL) {
         return cli_bad_descriptor;
-    }       
+    }
     s->db->beginTransaction(dbDatabase::dbExclusiveLock);
     return alter_table(s->db, tableName, nColumns, columns);
 }
@@ -1901,16 +1901,16 @@ int dbCLI::alter_table(int session, char const* tableName, int nColumns,
 int dbCLI::calculate_varying_length(char const* tableName, int& nFields, cli_field_descriptor* columns)
 {
     int varyingLength = strlen(tableName) + 1;
-    for (int i = 0, n = nFields; i < n; i++) { 
+    for (int i = 0, n = nFields; i < n; i++) {
         int type = columns[i].type;
         varyingLength += strlen(columns[i].name) + 3;
-        if (type == cli_oid || type == cli_array_of_oid) { 
+        if (type == cli_oid || type == cli_array_of_oid) {
             varyingLength += strlen(columns[i].refTableName);
-            if (columns[i].inverseRefFieldName != NULL) { 
+            if (columns[i].inverseRefFieldName != NULL) {
                 varyingLength += strlen(columns[i].inverseRefFieldName);
             }
         }
-        switch (type) {        
+        switch (type) {
           case cli_oid:
           case cli_bool:
           case cli_int1:
@@ -1944,12 +1944,12 @@ int dbCLI::calculate_varying_length(char const* tableName, int& nFields, cli_fie
     return varyingLength;
 }
 
-dbTableDescriptor* dbCLI::create_table_descriptor(dbDatabase*           db, 
-                                                  oid_t                 oid, 
+dbTableDescriptor* dbCLI::create_table_descriptor(dbDatabase*           db,
+                                                  oid_t                 oid,
                                                   dbTable*              table,
-                                                  char const*           tableName, 
-                                                  int                   nFields, 
-                                                  int                   nColumns, 
+                                                  char const*           tableName,
+                                                  int                   nFields,
+                                                  int                   nColumns,
                                                   cli_field_descriptor* columns)
 {
     int offs = sizeof(dbTable) + sizeof(dbField)*nFields;
@@ -1972,11 +1972,11 @@ dbTableDescriptor* dbCLI::create_table_descriptor(dbDatabase*           db,
         int type = columns[i].type;
 
         if (type == cli_oid || type == cli_array_of_oid) {
-            if (type == cli_oid) { 
+            if (type == cli_oid) {
                 field->tableName.size = strlen(columns[i].refTableName) + 1;
                 strcpy((char*)field + offs, columns[i].refTableName);
                 offs += field->tableName.size;
-            } else { 
+            } else {
                 field->tableName.size = 1;
                 *((char*)field + offs) = '\0';
                 offs += 1;
@@ -2041,14 +2041,14 @@ dbTableDescriptor* dbCLI::create_table_descriptor(dbDatabase*           db,
             field->size = sizeof(real8);
             break;
           case cli_datetime:
-            field->type = (sizeof(cli_time_t) == 4) ? dbField::tpInt4 : dbField::tpInt8;            
+            field->type = (sizeof(cli_time_t) == 4) ? dbField::tpInt4 : dbField::tpInt8;
             field->size = sizeof(cli_time_t);
             field->flags |= DB_TIMESTAMP;
             break;
           case cli_rectangle:
             field->type = dbField::tpRectangle;
             field->size = sizeof(cli_rectangle_t);
-            if (db != NULL && (columns[i].flags & cli_indexed)) { 
+            if (db != NULL && (columns[i].flags & cli_indexed)) {
                 field->tTree = dbRtree::allocate(db);
             }
             field->offset = DOALIGN(size, sizeof(cli_coord_t));
@@ -2097,13 +2097,13 @@ dbTableDescriptor* dbCLI::create_table_descriptor(dbDatabase*           db,
             field->name.offs = offs;
             field->name.size = strlen(columns[i].name) + 3;
             sprintf((char*)field + offs, "%s[]", columns[i].name);
-            offs += field->name.size;   
+            offs += field->name.size;
             field->tableName.offs = offs;
-            if (type == cli_array_of_oid) { 
+            if (type == cli_array_of_oid) {
                 field->tableName.size = strlen(columns[i].refTableName) + 1;
                 strcpy((char*)field + offs, columns[i].refTableName);
                 offs += field->tableName.size;
-            } else { 
+            } else {
                 field->tableName.size = 1;
                 *((char*)field + offs) = '\0';
                 offs += 1;
@@ -2114,7 +2114,7 @@ dbTableDescriptor* dbCLI::create_table_descriptor(dbDatabase*           db,
             offs += 1;
             field->offset = 0;
             field->hashTable = field->tTree = 0;
-            switch (type) { 
+            switch (type) {
               case cli_array_of_oid:
                 field->type = dbField::tpReference;
                 field->size = sizeof(oid_t);
@@ -2182,9 +2182,9 @@ dbTableDescriptor* dbCLI::create_table_descriptor(dbDatabase*           db,
 
     return new dbTableDescriptor(table);
 }
-    
 
-int dbCLI::create_table(dbDatabase* db, char const* tableName, int nColumns, 
+
+int dbCLI::create_table(dbDatabase* db, char const* tableName, int nColumns,
                         cli_field_descriptor* columns)
 {
     db->modified = true;
@@ -2195,7 +2195,7 @@ int dbCLI::create_table(dbDatabase* db, char const* tableName, int nColumns,
     int varyingLength = calculate_varying_length(tableName, nFields, columns);
 
     db->beginTransaction(dbDatabase::dbExclusiveLock);
-    oid_t oid = db->allocateRow(dbMetaTableId, 
+    oid_t oid = db->allocateRow(dbMetaTableId,
                                 sizeof(dbTable) + sizeof(dbField)*nFields + varyingLength);
     dbTable* table = (dbTable*)db->getRow(oid);
     dbTableDescriptor* desc = create_table_descriptor(db, oid, table, tableName, nFields, nColumns, columns);
@@ -2207,7 +2207,7 @@ int dbCLI::create_table(dbDatabase* db, char const* tableName, int nColumns,
 }
 
 
-int dbCLI::alter_table(dbDatabase* db, char const* tableName, int nColumns, 
+int dbCLI::alter_table(dbDatabase* db, char const* tableName, int nColumns,
                         cli_field_descriptor* columns)
 {
     dbTableDescriptor* oldDesc = db->findTableByName(tableName);
@@ -2223,9 +2223,9 @@ int dbCLI::alter_table(dbDatabase* db, char const* tableName, int nColumns,
 
     db->beginTransaction(dbDatabase::dbExclusiveLock);
     oid_t tableId = oldDesc->tableId;
-    dbTable* oldTable = (dbTable*)db->getRow(tableId);    
+    dbTable* oldTable = (dbTable*)db->getRow(tableId);
     dbFieldDescriptor* fd = newDesc->columns;
-    for (int i = 0; i < nColumns; i++, fd = fd->next) { 
+    for (int i = 0; i < nColumns; i++, fd = fd->next) {
         if (columns[i].flags & cli_hashed) {
             fd->indexType |= HASHED;
             fd->nextHashedField = newDesc->hashedFields;
@@ -2237,7 +2237,7 @@ int dbCLI::alter_table(dbDatabase* db, char const* tableName, int nColumns,
         }
     }
     if (!newDesc->equal(oldTable)) {
-        bool confirmDeleteColumns = db->confirmDeleteColumns; 
+        bool confirmDeleteColumns = db->confirmDeleteColumns;
         db->confirmDeleteColumns = true;
         db->modified = true;
         db->schemeVersion += 1;
@@ -2253,12 +2253,12 @@ int dbCLI::alter_table(dbDatabase* db, char const* tableName, int nColumns,
         if (!db->completeDescriptorsInitialization()) {
             return cli_table_not_found;
         }
-    } else { 
+    } else {
         delete newDesc;
     }
     return cli_ok;
 }
-    
+
 int cli_drop_table(int session, char const* tableName)
 {
     return dbCLI::instance.drop_table(session, tableName);
@@ -2268,16 +2268,16 @@ int cli_drop_table(int session, char const* tableName)
 int dbCLI::drop_table(int session, char const* tableName)
 {
     session_desc* s = sessions.get(session);
-    if (s == NULL) { 
+    if (s == NULL) {
         return cli_bad_descriptor;
-    }       
+    }
     dbDatabase* db = s->db;
     dbTableDescriptor* desc = db->findTableByName(tableName);
     if (desc == NULL) {
         return cli_table_not_found;
     }
     db->dropTable(desc);
-    if (desc == s->existed_tables) { 
+    if (desc == s->existed_tables) {
         s->existed_tables = desc->nextDbTable;
     }
     db->unlinkTable(desc);
@@ -2294,9 +2294,9 @@ int cli_alter_index(int session, char const* tableName, char const* fieldName, i
 int dbCLI::alter_index(int session, char const* tableName, char const* fieldName, int newFlags)
 {
     session_desc* s = sessions.get(session);
-    if (s == NULL) { 
+    if (s == NULL) {
         return cli_bad_descriptor;
-    }       
+    }
     return alter_index(s->db, tableName, fieldName, newFlags);
 }
 
@@ -2308,15 +2308,15 @@ int dbCLI::alter_index(dbDatabase* db, char const* tableName, char const* fieldN
         return cli_table_not_found;
     }
     dbFieldDescriptor* fd = desc->find(fieldName);
-    if (fd == NULL) { 
+    if (fd == NULL) {
         return cli_column_not_found;
     }
-    if (fd->tTree != 0 && (newFlags & cli_indexed) == 0) { 
+    if (fd->tTree != 0 && (newFlags & cli_indexed) == 0) {
         db->dropIndex(fd);
-    } 
-    if (fd->hashTable != 0 && (newFlags & cli_hashed) == 0) { 
+    }
+    if (fd->hashTable != 0 && (newFlags & cli_hashed) == 0) {
         db->dropHashTable(fd);
-    } 
+    }
     if (fd->tTree == 0 && (newFlags & cli_indexed) != 0) {
         db->createIndex(fd);
     }
@@ -2335,12 +2335,12 @@ cli_error_handler cli_set_error_handler(int session, cli_error_handler new_handl
 cli_error_handler dbCLI::set_error_handler(int session, cli_error_handler new_handler, void* context)
 {
     session_desc* s = sessions.get(session);
-    if (s == NULL) { 
+    if (s == NULL) {
         return NULL;
-    }       
+    }
     return (cli_error_handler)s->db->setErrorHandler(dbDatabase::dbErrorHandler(new_handler), context);
 }
-   
+
 
 
 int cli_attach(int session)
@@ -2351,9 +2351,9 @@ int cli_attach(int session)
 int dbCLI::attach(int session)
 {
     session_desc* s = sessions.get(session);
-    if (s == NULL) { 
+    if (s == NULL) {
         return cli_bad_descriptor;
-    }       
+    }
     s->db->attach();
     return cli_ok;
 }
@@ -2366,9 +2366,9 @@ int cli_detach(int session, int detach_mode)
 int dbCLI::detach(int session, int detach_mode)
 {
     session_desc* s = sessions.get(session);
-    if (s == NULL) { 
+    if (s == NULL) {
         return cli_bad_descriptor;
-    }       
+    }
     s->db->detach(detach_mode);
     return cli_ok;
 }
@@ -2383,11 +2383,11 @@ int cli_get_database_state(int session, cli_database_monitor* monitor)
     return dbCLI::instance.get_database_state(session, monitor);
 }
 
-int dbCLI::get_database_state(int session, cli_database_monitor* monitor) { 
+int dbCLI::get_database_state(int session, cli_database_monitor* monitor) {
     session_desc* s = sessions.get(session);
-    if (s == NULL) { 
+    if (s == NULL) {
         return cli_bad_descriptor;
-    }       
+    }
     dbMonitor* dbm = s->db->monitor;
     monitor->n_readers = dbm->nReaders;
     monitor->n_writers = dbm->nWriters;
@@ -2397,8 +2397,8 @@ int dbCLI::get_database_state(int session, cli_database_monitor* monitor) {
     return cli_ok;
 }
 
-void cli_set_trace_function(cli_trace_function_t func) 
-{ 
+void cli_set_trace_function(cli_trace_function_t func)
+{
     dbTraceFunction = func;
 }
 
@@ -2412,9 +2412,9 @@ int dbCLI::prepare_query(int session, char const* query)
     char *p, *q;
     int tkn;
     session_desc* s = sessions.get(session);
-    if (s == NULL) { 
+    if (s == NULL) {
         return cli_bad_descriptor;
-    }       
+    }
     statement_desc* stmt = statements.allocate();
     stmt->columns = NULL;
     stmt->params = NULL;
@@ -2454,7 +2454,7 @@ int dbCLI::prepare_query(int session, char const* query)
     p = scanner.current_position();
     q = p;
     int offs = 0;
-    
+
     while (*p != '\0') {
         if (*p == '\'') {
             do {
@@ -2467,9 +2467,9 @@ int dbCLI::prepare_query(int session, char const* query)
                 }
             } while (*++p == '\'');
         } else if (*p == '%') {
-            if (p != q) { 
+            if (p != q) {
                 *p = '\0';
-                stmt->query.append(dbQueryElement::qExpression, q);                 
+                stmt->query.append(dbQueryElement::qExpression, q);
             }
             switch (*++p) {
               case 'd':
@@ -2486,7 +2486,7 @@ int dbCLI::prepare_query(int session, char const* query)
                 offs = DOALIGN(offs, sizeof(cli_oid_t));
                 stmt->query.append(dbQueryElement::qVarReference, (void*)offs);
                 offs += sizeof(cli_oid_t);
-                break;                
+                break;
               case 'l':
               case 'L':
                 p += 1;
@@ -2509,7 +2509,7 @@ int dbCLI::prepare_query(int session, char const* query)
                 offs += sizeof(cli_rectangle_t);
                 break;
               case 't':
-                stmt->query.append((sizeof(cli_time_t) == 4) ? dbQueryElement::qVarInt4 : dbQueryElement::qVarInt8, 
+                stmt->query.append((sizeof(cli_time_t) == 4) ? dbQueryElement::qVarInt4 : dbQueryElement::qVarInt8,
                                    (void*)offs);
                 offs += sizeof(cli_time_t);
                 break;
@@ -2523,8 +2523,8 @@ int dbCLI::prepare_query(int session, char const* query)
             p += 1;
         }
     }
-    if (p != q) { 
-        stmt->query.append(dbQueryElement::qExpression, q);                 
+    if (p != q) {
+        stmt->query.append(dbQueryElement::qExpression, q);
     }
     stmt->param_size = offs;
     {
@@ -2548,7 +2548,7 @@ int cli_execute_query(int statement, int for_update, void* record_struct, ...)
 
 int dbCLI::execute_query(int statement, int for_update, void* record_struct, va_list params)
 {
-    statement_desc* stmt = statements.get(statement);    
+    statement_desc* stmt = statements.get(statement);
     if (stmt == NULL || !stmt->prepared) {
         return cli_bad_descriptor;
     }
@@ -2559,8 +2559,8 @@ int dbCLI::execute_query(int statement, int for_update, void* record_struct, va_
     char* paramBase = paramBuf.base();
     int offs = 0;
     dbQueryElement* elem = stmt->query.elements;
-    while (elem != NULL) { 
-        switch (elem->type) { 
+    while (elem != NULL) {
+        switch (elem->type) {
           case dbQueryElement::qVarInt4:
             *(cli_int4_t*)(paramBase + offs) = va_arg(params, cli_int4_t);
             offs += sizeof(cli_int4_t);
@@ -2600,11 +2600,11 @@ int dbCLI::execute_query(int statement, int for_update, void* record_struct, va_
     stmt->cursor.reset();
     stmt->cursor.setRecord((byte*)record_struct);
 #ifdef THROW_EXCEPTION_ON_ERROR
-    try { 
+    try {
 #endif
     return stmt->cursor.select(stmt->query, for_update ? dbCursorForUpdate : dbCursorViewOnly, paramBase);
 #ifdef THROW_EXCEPTION_ON_ERROR
-    } catch (dbException const& x) { 
+    } catch (dbException const& x) {
         return (x.getErrCode() == dbDatabase::QueryError)
             ? cli_bad_statement : cli_runtime_error;
     }
@@ -2618,7 +2618,7 @@ int cli_execute_query_ex(int statement, int for_update, void* record_struct, int
 
 int dbCLI::execute_query(int statement, int for_update, void* record_struct, int n_params, int* param_types, void** param_values)
 {
-    statement_desc* stmt = statements.get(statement);    
+    statement_desc* stmt = statements.get(statement);
     if (stmt == NULL || !stmt->prepared) {
         return cli_bad_descriptor;
     }
@@ -2630,24 +2630,24 @@ int dbCLI::execute_query(int statement, int for_update, void* record_struct, int
     char* paramBase = paramBuf.base();
     int offs = 0;
     dbQueryElement* elem = stmt->query.elements;
-    while (elem != NULL) { 
-        if (elem->type != dbQueryElement::qExpression) { 
-            if (paramIndex >= n_params) { 
+    while (elem != NULL) {
+        if (elem->type != dbQueryElement::qExpression) {
+            if (paramIndex >= n_params) {
                 return cli_unbound_parameter;
             }
             void* val = param_values[paramIndex];
             cli_var_type type = (cli_var_type)param_types[paramIndex];
             paramIndex += 1;
-            switch (elem->type) { 
+            switch (elem->type) {
               case dbQueryElement::qVarInt4:
-                switch (type) { 
+                switch (type) {
                   case cli_int1:
                     *(cli_int4_t*)(paramBase + offs) = *(cli_int1_t*)val;
                     break;
                   case cli_int2:
                     *(cli_int4_t*)(paramBase + offs) = *(cli_int2_t*)val;
                     break;
-                  case cli_int4: 
+                  case cli_int4:
                     *(cli_int4_t*)(paramBase + offs) = *(cli_int4_t*)val;
                     break;
                   default:
@@ -2657,17 +2657,17 @@ int dbCLI::execute_query(int statement, int for_update, void* record_struct, int
                 break;
               case dbQueryElement::qVarInt8:
                 offs = DOALIGN(offs, sizeof(cli_int8_t));
-                switch (type) { 
+                switch (type) {
                   case cli_int1:
                     *(cli_int8_t*)(paramBase + offs) = *(cli_int1_t*)val;
                     break;
                   case cli_int2:
                     *(cli_int8_t*)(paramBase + offs) = *(cli_int2_t*)val;
                     break;
-                  case cli_int4: 
+                  case cli_int4:
                     *(cli_int8_t*)(paramBase + offs) = *(cli_int4_t*)val;
                     break;
-                  case cli_int8: 
+                  case cli_int8:
                     *(cli_int8_t*)(paramBase + offs) = *(cli_int8_t*)val;
                     break;
                   default:
@@ -2677,7 +2677,7 @@ int dbCLI::execute_query(int statement, int for_update, void* record_struct, int
                 break;
               case dbQueryElement::qVarReal8:
                 offs = DOALIGN(offs, sizeof(cli_real8_t));
-                switch (type) { 
+                switch (type) {
                   case cli_real4:
                     *(cli_real8_t*)(paramBase + offs) = *(cli_real4_t*)val;
                     break;
@@ -2710,7 +2710,7 @@ int dbCLI::execute_query(int statement, int for_update, void* record_struct, int
         }
         elem = elem->next;
     }
-    if (paramIndex != n_params) { 
+    if (paramIndex != n_params) {
         return cli_unbound_parameter;
     }
     stmt->record_struct = record_struct;
@@ -2718,11 +2718,11 @@ int dbCLI::execute_query(int statement, int for_update, void* record_struct, int
     stmt->cursor.reset();
     stmt->cursor.setRecord((byte*)record_struct);
 #ifdef THROW_EXCEPTION_ON_ERROR
-    try { 
+    try {
 #endif
     return stmt->cursor.select(stmt->query, for_update ? dbCursorForUpdate : dbCursorViewOnly, paramBase);
 #ifdef THROW_EXCEPTION_ON_ERROR
-    } catch (dbException const& x) { 
+    } catch (dbException const& x) {
         return (x.getErrCode() == dbDatabase::QueryError)
             ? cli_bad_statement : cli_runtime_error;
     }
@@ -2737,16 +2737,16 @@ int cli_insert_struct(int session, char const* table_name, void* record_struct, 
 int dbCLI::insert_struct(int session, char const* table_name, void* record_struct, cli_oid_t* oid)
 {
     session_desc* s = sessions.get(session);
-    if (s == NULL) { 
+    if (s == NULL) {
         return cli_bad_descriptor;
-    }   
+    }
     dbTableDescriptor* table = s->db->findTableByName(table_name);
     if (table == NULL) {
         return cli_table_not_found;
     }
     dbAnyReference ref;
-    s->db->insertRecord(table, &ref, record_struct);    
-    if (oid != NULL) { 
+    s->db->insertRecord(table, &ref, record_struct);
+    if (oid != NULL) {
         *oid = (cli_oid_t)ref.getOid();
     }
     return cli_ok;
@@ -2762,7 +2762,7 @@ int cli_get_field_offset(cli_field_descriptor* fields, int field_no)
 {
     int offs = 0;
     int size = 0;
-    for (int i = 0; i <= field_no; i++) { 
+    for (int i = 0; i <= field_no; i++) {
         size = sizeof_type[fields[i].type];
         offs = DOALIGN(offs, alignof_type[fields[i].type]);
         offs += size;
@@ -2788,9 +2788,9 @@ int cli_join_transaction(int stmt, cli_transaction_context_t ctx)
 int dbCLI::join_transaction(int session, cli_transaction_context_t ctx)
 {
     session_desc* s = sessions.get(session);
-    if (s == NULL) { 
+    if (s == NULL) {
         return cli_bad_descriptor;
-    }   
+    }
     s->db->attach((dbDatabaseThreadContext*)ctx);
     return cli_ok;
 }

@@ -12,57 +12,57 @@
 #define __SYNC_H__
 
 #ifdef _WIN32
-#include "sync_w32.h"    
+#include "sync_w32.h"
 #else // Unix
 #include "sync_unix.h"
 #endif
 
 BEGIN_FASTDB_NAMESPACE
 
-class FASTDB_DLL_ENTRY dbSystem { 
+class FASTDB_DLL_ENTRY dbSystem {
   public:
     static unsigned getCurrentTimeMsec();
 };
 
 // Common decls for all platforms
-class FASTDB_DLL_ENTRY dbCriticalSection { 
+class FASTDB_DLL_ENTRY dbCriticalSection {
   private:
     dbMutex& mutex;
   public:
     dbCriticalSection(dbMutex& guard) : mutex(guard) {
         mutex.lock();
     }
-    ~dbCriticalSection() { 
+    ~dbCriticalSection() {
         mutex.unlock();
     }
 };
-        
+
 #define SMALL_BUF_SIZE 512
 
-class FASTDB_DLL_ENTRY dbSmallBuffer { 
+class FASTDB_DLL_ENTRY dbSmallBuffer {
   protected:
     char   smallBuf[SMALL_BUF_SIZE];
     char*  buf;
     size_t used;
 
   public:
-    dbSmallBuffer(size_t size) { 
-        if (size > SMALL_BUF_SIZE) { 
+    dbSmallBuffer(size_t size) {
+        if (size > SMALL_BUF_SIZE) {
             buf = new char[size];
-        } else { 
+        } else {
             buf = smallBuf;
         }
         used = size;
     }
 
-    dbSmallBuffer() { 
+    dbSmallBuffer() {
         used = 0;
         buf = smallBuf;
     }
 
-    void put(size_t size) { 
-        if (size > SMALL_BUF_SIZE && size > used) { 
-            if (buf != smallBuf) { 
+    void put(size_t size) {
+        if (size > SMALL_BUF_SIZE && size > used) {
+            if (buf != smallBuf) {
                 delete[] buf;
             }
             buf = new char[size];
@@ -73,8 +73,8 @@ class FASTDB_DLL_ENTRY dbSmallBuffer {
     operator char*() { return buf; }
     char* base() { return buf; }
 
-    ~dbSmallBuffer() { 
-        if (buf != smallBuf) { 
+    ~dbSmallBuffer() {
+        if (buf != smallBuf) {
             delete[] buf;
         }
     }
@@ -82,7 +82,7 @@ class FASTDB_DLL_ENTRY dbSmallBuffer {
 
 class dbThreadPool;
 
-class FASTDB_DLL_ENTRY dbPooledThread { 
+class FASTDB_DLL_ENTRY dbPooledThread {
   private:
     friend class dbThreadPool;
 
@@ -94,17 +94,17 @@ class FASTDB_DLL_ENTRY dbPooledThread {
     bool                    running;
     dbLocalSemaphore        startSem;
     dbLocalSemaphore        readySem;
-    
+
     static void thread_proc  pooledThreadFunc(void* arg);
 
     void run();
     void stop();
 
-    dbPooledThread(dbThreadPool* threadPool); 
-    ~dbPooledThread(); 
+    dbPooledThread(dbThreadPool* threadPool);
+    ~dbPooledThread();
 };
 
-class FASTDB_DLL_ENTRY dbThreadPool { 
+class FASTDB_DLL_ENTRY dbThreadPool {
     friend class dbPooledThread;
     dbPooledThread* freeThreads;
     dbMutex         mutex;
@@ -114,10 +114,8 @@ class FASTDB_DLL_ENTRY dbThreadPool {
     void join(dbPooledThread* thr);
     dbThreadPool();
     ~dbThreadPool();
-};    
+};
 
 END_FASTDB_NAMESPACE
-    
+
 #endif // __SYNC_H__
-
-

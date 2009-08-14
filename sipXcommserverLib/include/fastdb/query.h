@@ -16,14 +16,14 @@ BEGIN_FASTDB_NAMESPACE
 /**
  * Element of the query
  */
-class FASTDB_DLL_ENTRY dbQueryElement { 
+class FASTDB_DLL_ENTRY dbQueryElement {
     friend class dbQuery;
     friend class dbCompiler;
     friend class dbQueryExpression;
     friend class dbQueryElementAllocator;
     friend class dbCLI;
   public:
-    enum ElementType { 
+    enum ElementType {
         qExpression, // part of SQL expression
         qVarBool,
         qVarInt1,
@@ -35,8 +35,8 @@ class FASTDB_DLL_ENTRY dbQueryElement {
         qVarString,
         qVarStringPtr,
         qVarReference,
-        qVarRectangle, 
-        qVarArrayOfRef, 
+        qVarRectangle,
+        qVarArrayOfRef,
         qVarArrayOfInt4,
         qVarArrayOfInt8,
         qVarArrayOfRefPtr,
@@ -48,7 +48,7 @@ class FASTDB_DLL_ENTRY dbQueryElement {
 #endif
         qVarUnknown
     };
-    
+
     ElementType getType() const { return type; }
     dbQueryElement* nextElement() const { return next; }
 
@@ -58,14 +58,14 @@ class FASTDB_DLL_ENTRY dbQueryElement {
     char* dump(char* buf);
     char* dumpValues(char* buf);
 
-    dbQueryElement(ElementType t, void const* p, 
-                   dbTableDescriptor* table = NULL) 
+    dbQueryElement(ElementType t, void const* p,
+                   dbTableDescriptor* table = NULL)
     {
         type = t;
-        ptr  = p;       
+        ptr  = p;
         ref  = table;
         next = NULL;
-    } 
+    }
   private:
     dbQueryElement*    next;
     void const*        ptr;
@@ -79,21 +79,21 @@ class FASTDB_DLL_ENTRY dbQueryElement {
  * and reused them in future. So number of system memory allocator invocations is dramatically reduced.
  * Cleanup of free elements lst is performed by <code>dbDatabase::cleanup()</code> method
  */
-class FASTDB_DLL_ENTRY dbQueryElementAllocator { 
+class FASTDB_DLL_ENTRY dbQueryElementAllocator {
     friend class dbDatabase;
 
     dbMutex         mutex;
     dbQueryElement* freeChain;
-    
+
   public:
-    void deallocate(dbQueryElement* first, dbQueryElement** lastNext) { 
+    void deallocate(dbQueryElement* first, dbQueryElement** lastNext) {
         dbCriticalSection cs(mutex);
-        if (first != NULL) { 
+        if (first != NULL) {
             *lastNext = freeChain;
             freeChain = first;
         }
     }
-        
+
     void* allocate(size_t size);
 
     dbQueryElementAllocator();
@@ -108,7 +108,7 @@ class FASTDB_DLL_ENTRY dbQueryElementAllocator {
  * <code>dbDate</code> class. It contains <code>int4 jday</code> component which stores time in seconds sinse 1970.
  * This class defines its own comparison methods:
  * <PRE>
- *     dbQueryExpression operator == (char const* field) { 
+ *     dbQueryExpression operator == (char const* field) {
  *         dbQueryExpression expr;
  *         expr = dbComponent(field,"jday"),"=",jday;
  *         return expr;
@@ -121,22 +121,22 @@ class FASTDB_DLL_ENTRY dbQueryElementAllocator {
  *     q = date == "released";
  * </PRE>
  */
-class FASTDB_DLL_ENTRY dbComponent { 
+class FASTDB_DLL_ENTRY dbComponent {
   public:
     char const* structure;
-    char const* field; 
+    char const* field;
 
     dbComponent(char const* s, char const* f=NULL) : structure(s), field(f) {}
 };
 
 
 /**
- * Class representing SubSQL expression.  
+ * Class representing SubSQL expression.
  * It is mostly needed for implementation of application specific database types.
- * Look at the example in dbComponent class. 
+ * Look at the example in dbComponent class.
  * The effect of addeing dbExpression to the query is the same as if this expresion is enclosed in parenthesis.
  */
-class FASTDB_DLL_ENTRY dbQueryExpression { 
+class FASTDB_DLL_ENTRY dbQueryExpression {
     friend class dbQuery;
     dbQueryElement*  first;
     dbQueryElement** last;
@@ -148,8 +148,8 @@ class FASTDB_DLL_ENTRY dbQueryExpression {
         operand = (type == dbQueryElement::qExpression);
         return *this;
     }
-        
-    dbQueryExpression& operator = (char const* ptr) { 
+
+    dbQueryExpression& operator = (char const* ptr) {
         first = NULL, last = &first;
         return add(dbQueryElement::qExpression, ptr);
     }
@@ -157,16 +157,16 @@ class FASTDB_DLL_ENTRY dbQueryExpression {
 
     dbQueryExpression& operator = (dbQueryExpression const& expr);
 
-    dbQueryExpression& operator,(int1 const& ptr) { 
+    dbQueryExpression& operator,(int1 const& ptr) {
         return add(dbQueryElement::qVarInt1, &ptr);
     }
-    dbQueryExpression& operator,(int2 const& ptr) { 
+    dbQueryExpression& operator,(int2 const& ptr) {
         return add(dbQueryElement::qVarInt2, &ptr);
     }
-    dbQueryExpression& operator,(int4 const& ptr) { 
+    dbQueryExpression& operator,(int4 const& ptr) {
         return add(dbQueryElement::qVarInt4, &ptr);
     }
-    dbQueryExpression& operator,(db_int8 const& ptr) { 
+    dbQueryExpression& operator,(db_int8 const& ptr) {
         return add(dbQueryElement::qVarInt8, &ptr);
     }
     dbQueryExpression& operator,(nat1 const& ptr) {
@@ -189,26 +189,26 @@ class FASTDB_DLL_ENTRY dbQueryExpression {
         return add(dbQueryElement::qVarInt4, &ptr);
     }
 #endif
-    dbQueryExpression& operator,(real4 const& ptr) { 
+    dbQueryExpression& operator,(real4 const& ptr) {
         return add(dbQueryElement::qVarReal4, &ptr);
     }
-    dbQueryExpression& operator,(real8 const& ptr) { 
+    dbQueryExpression& operator,(real8 const& ptr) {
         return add(dbQueryElement::qVarReal8, &ptr);
     }
-    dbQueryExpression& operator,(bool const& ptr) { 
+    dbQueryExpression& operator,(bool const& ptr) {
         return add(dbQueryElement::qVarBool, &ptr);
     }
-    dbQueryExpression& operator,(char const* ptr) { 
-        return add(operand ? dbQueryElement::qVarString 
+    dbQueryExpression& operator,(char const* ptr) {
+        return add(operand ? dbQueryElement::qVarString
                    : dbQueryElement::qExpression, ptr);
     }
-    dbQueryExpression& operator,(char const** ptr) { 
+    dbQueryExpression& operator,(char const** ptr) {
         return add(dbQueryElement::qVarStringPtr, ptr);
     }
-    dbQueryExpression& operator,(char** ptr) { 
+    dbQueryExpression& operator,(char** ptr) {
         return add(dbQueryElement::qVarStringPtr, ptr);
     }
-    dbQueryExpression& operator,(void const* ptr) { 
+    dbQueryExpression& operator,(void const* ptr) {
         return add(dbQueryElement::qVarRawData, ptr);
     }
     dbQueryExpression& operator,(rectangle const& rect) {
@@ -219,7 +219,7 @@ class FASTDB_DLL_ENTRY dbQueryExpression {
         return add(dbQueryElement::qVarStdString, &str);
     }
 #endif
-    dbQueryExpression& operator,(dbQueryExpression const& expr) { 
+    dbQueryExpression& operator,(dbQueryExpression const& expr) {
         *last = new dbQueryElement(dbQueryElement::qExpression, "(");
         (*last)->next = expr.first;
         last = expr.last;
@@ -228,51 +228,51 @@ class FASTDB_DLL_ENTRY dbQueryExpression {
         operand = false;
         return *this;
     }
-    dbQueryExpression& operator,(dbComponent const& comp) { 
+    dbQueryExpression& operator,(dbComponent const& comp) {
         add(dbQueryElement::qExpression, comp.structure);
-        if (comp.field != NULL) { 
+        if (comp.field != NULL) {
             add(dbQueryElement::qExpression, ".");
             add(dbQueryElement::qExpression, comp.field);
         }
         operand = false;
         return *this;
     }
-    dbQueryExpression& operator += (dbComponent const& comp) { 
+    dbQueryExpression& operator += (dbComponent const& comp) {
         return *this,comp;
     }
-    dbQueryExpression& operator += (char const* ptr) { 
+    dbQueryExpression& operator += (char const* ptr) {
         return add(dbQueryElement::qExpression, ptr);
     }
 #ifndef NO_MEMBER_TEMPLATES
     template<class T>
-    dbQueryExpression& operator,(dbReference<T> const& value) { 
+    dbQueryExpression& operator,(dbReference<T> const& value) {
         return add(dbQueryElement::qVarReference, &value, &T::dbDescriptor);
     }
 
     template<class T>
-    inline dbQueryExpression& operator,(dbArray< dbReference<T> > const& value) { 
+    inline dbQueryExpression& operator,(dbArray< dbReference<T> > const& value) {
         return add(dbQueryElement::qVarArrayOfRef, &value, &T::dbDescriptor);
     }
 
     template<class T>
-    inline dbQueryExpression& operator,(dbArray< dbReference<T> >const* const& value) { 
+    inline dbQueryExpression& operator,(dbArray< dbReference<T> >const* const& value) {
         return add(dbQueryElement::qVarArrayOfRefPtr, &value, &T::dbDescriptor);
     }
 #endif
 #if !defined(_MSC_VER) || _MSC_VER+0 >= 1300
-    inline dbQueryExpression& operator,(dbArray<db_int4> const& value) { 
+    inline dbQueryExpression& operator,(dbArray<db_int4> const& value) {
         return add(dbQueryElement::qVarArrayOfInt4, &value);
     }
 
-    inline dbQueryExpression& operator,(dbArray<db_int4>const* const& value) { 
+    inline dbQueryExpression& operator,(dbArray<db_int4>const* const& value) {
         return add(dbQueryElement::qVarArrayOfInt4Ptr, &value);
     }
 
-    inline dbQueryExpression& operator,(dbArray<db_int8> const& value) { 
+    inline dbQueryExpression& operator,(dbArray<db_int8> const& value) {
         return add(dbQueryElement::qVarArrayOfInt8, &value);
     }
 
-    inline dbQueryExpression& operator,(dbArray<db_int8>const* const& value) { 
+    inline dbQueryExpression& operator,(dbArray<db_int8>const* const& value) {
         return add(dbQueryElement::qVarArrayOfInt8Ptr, &value);
     }
 #endif
@@ -285,7 +285,7 @@ class dbFollowByNode;
 /**
  * Class used for precompiled queries
  */
-class FASTDB_DLL_ENTRY dbCompiledQuery { 
+class FASTDB_DLL_ENTRY dbCompiledQuery {
   public:
     dbExprNode*        tree;
     dbOrderByNode*     order;
@@ -299,11 +299,11 @@ class FASTDB_DLL_ENTRY dbCompiledQuery {
     int4*              stmtLimitLenPtr;
     bool               limitSpecified;
 
-    enum IteratorInit { 
+    enum IteratorInit {
         StartFromAny,
         StartFromFirst,
         StartFromLast,
-        StartFromRef, 
+        StartFromRef,
         StartFromArray,
         StartFromArrayPtr
     };
@@ -316,7 +316,7 @@ class FASTDB_DLL_ENTRY dbCompiledQuery {
 
     bool compileError() { return !compiled(); }
 
-    dbCompiledQuery() { 
+    dbCompiledQuery() {
         tree = NULL;
         order = NULL;
         follow = NULL;
@@ -330,7 +330,7 @@ class FASTDB_DLL_ENTRY dbCompiledQuery {
  * Query class. It is derived from <code>dbCompiledQuery</code> class because each query is compiled only once - when
  * it is executed first time. All subsequent executions of query used precompiled tree.
  */
-class FASTDB_DLL_ENTRY dbQuery : public dbCompiledQuery { 
+class FASTDB_DLL_ENTRY dbQuery : public dbCompiledQuery {
     friend class dbCompiler;
     friend class dbDatabase;
     friend class dbSubSql;
@@ -345,32 +345,32 @@ class FASTDB_DLL_ENTRY dbQuery : public dbCompiledQuery {
     //
     // Prohibite query copying
     //
-    dbQuery(dbQuery const&) : dbCompiledQuery() {} 
+    dbQuery(dbQuery const&) : dbCompiledQuery() {}
     dbQuery& operator =(dbQuery const&) { return *this; }
 
   public:
     int                pos; // position of condition in statement
 
 
-    char* dump(char* buf) { 
+    char* dump(char* buf) {
         char* p = buf;
-        for (dbQueryElement* elem = elements; elem != NULL; elem = elem->next) { 
+        for (dbQueryElement* elem = elements; elem != NULL; elem = elem->next) {
             p = elem->dump(p);
         }
         return buf;
     }
 
-    char* dumpValues(char* buf) { 
+    char* dumpValues(char* buf) {
         char* p = buf;
-        for (dbQueryElement* elem = elements; elem != NULL; elem = elem->next) { 
+        for (dbQueryElement* elem = elements; elem != NULL; elem = elem->next) {
             p = elem->dumpValues(p);
         }
         return buf;
     }
 
     dbQuery& append(dbQueryElement::ElementType type, void const* ptr,
-                    dbTableDescriptor* table = NULL) 
-    { 
+                    dbTableDescriptor* table = NULL)
+    {
         nextElement = &(*nextElement=new dbQueryElement(type,ptr,table))->next;
         operand = (type == dbQueryElement::qExpression);
         return *this;
@@ -383,75 +383,75 @@ class FASTDB_DLL_ENTRY dbQuery : public dbCompiledQuery {
     // following way:
     //         int x, y;
     //         dbDataTime dt;
-    //         dbQuery q; 
+    //         dbQuery q;
     //         dbCursor<record> cursor;
     //         q = "x=",x,"and y=",y,"and",dt == "date";
-    //         for (x = 0; x < max_x; x++) { 
-    //             for (y = 0; y < max_y; y++) { 
+    //         for (x = 0; x < max_x; x++) {
+    //             for (y = 0; y < max_y; y++) {
     //                 cursor.select(q);
     //                 ...
     //             }
     //         }
 
-    dbQuery& add(dbQueryExpression const& expr); 
+    dbQuery& add(dbQueryExpression const& expr);
 
-    dbQuery& And(dbQueryExpression const& expr) { 
-        if (elements != NULL) { 
+    dbQuery& And(dbQueryExpression const& expr) {
+        if (elements != NULL) {
             append(dbQueryElement::qExpression, "and");
         }
         return add(expr);
     }
 
-    dbQuery& Or(dbQueryExpression const& expr) { 
-        if (elements != NULL) { 
+    dbQuery& Or(dbQueryExpression const& expr) {
+        if (elements != NULL) {
             append(dbQueryElement::qExpression, "or");
         }
         return add(expr);
     }
 
-    dbQuery& And(char const* str) { 
-        if (elements != NULL) { 
+    dbQuery& And(char const* str) {
+        if (elements != NULL) {
             append(dbQueryElement::qExpression, "and");
         }
         return append(dbQueryElement::qExpression, str);
     }
 
-    dbQuery& Or(char const* str) { 
-        if (elements != NULL) { 
+    dbQuery& Or(char const* str) {
+        if (elements != NULL) {
             append(dbQueryElement::qExpression, "or");
         }
         return append(dbQueryElement::qExpression, str);
     }
 
-    dbQuery& add(char const* str) { 
-        return append(operand ? dbQueryElement::qVarString 
+    dbQuery& add(char const* str) {
+        return append(operand ? dbQueryElement::qVarString
                       : dbQueryElement::qExpression, str);
     }
-    dbQuery& add(char const** str) { 
+    dbQuery& add(char const** str) {
         return append(dbQueryElement::qVarStringPtr, str);
     }
     dbQuery& add(rectangle const& rect) {
         return append(dbQueryElement::qVarRectangle, &rect);
     }
 #ifdef USE_STD_STRING
-    dbQuery& add(std::string const& str) { 
+    dbQuery& add(std::string const& str) {
         return append(dbQueryElement::qVarStdString, &str);
     }
     dbQuery& operator,(std::string const& str) { return add(str); }
 #endif
-    dbQuery& add(char** str) { 
+    dbQuery& add(char** str) {
         return append(dbQueryElement::qVarStringPtr, str);
     }
-    dbQuery& add(int1 const& value) { 
+    dbQuery& add(int1 const& value) {
         return append(dbQueryElement::qVarInt1, &value);
     }
-    dbQuery& add (int2 const& value) { 
+    dbQuery& add (int2 const& value) {
         return append(dbQueryElement::qVarInt2, &value);
     }
-    dbQuery& add (int4 const& value) { 
+    dbQuery& add (int4 const& value) {
         return append(dbQueryElement::qVarInt4, &value);
     }
-    dbQuery& add (db_int8 const& value) { 
+    dbQuery& add (db_int8 const& value) {
         return append(dbQueryElement::qVarInt8, &value);
     }
     dbQuery& add(nat1 const& value) {
@@ -474,16 +474,16 @@ class FASTDB_DLL_ENTRY dbQuery : public dbCompiledQuery {
         return append(dbQueryElement::qVarInt4, &value);
     }
 #endif
-    dbQuery& add (real4 const& value) { 
+    dbQuery& add (real4 const& value) {
         return append(dbQueryElement::qVarReal4, &value);
     }
-    dbQuery& add(real8 const& value) { 
+    dbQuery& add(real8 const& value) {
         return append(dbQueryElement::qVarReal8, &value);
     }
-    dbQuery& add(bool const& value) { 
+    dbQuery& add(bool const& value) {
         return append(dbQueryElement::qVarBool, &value);
     }
-    dbQuery& add(void const* value) { 
+    dbQuery& add(void const* value) {
         return append(dbQueryElement::qVarRawData, value);
     }
 
@@ -509,160 +509,160 @@ class FASTDB_DLL_ENTRY dbQuery : public dbCompiledQuery {
     dbQuery& operator,(dbQueryExpression const& expr) { return add(expr); }
     dbQuery& operator,(rectangle const& rect) { return add(rect); }
 
-    dbQuery& operator = (const char* str) { 
+    dbQuery& operator = (const char* str) {
         return reset().append(dbQueryElement::qExpression, str);
     }
 
 #if !defined(_MSC_VER) || _MSC_VER+0 >= 1300
-    inline dbQuery& operator,(dbArray<db_int4> const& value) { 
+    inline dbQuery& operator,(dbArray<db_int4> const& value) {
         return append(dbQueryElement::qVarArrayOfInt4, &value);
     }
 
-    inline dbQuery& operator,(dbArray<db_int4>const* const& value) { 
+    inline dbQuery& operator,(dbArray<db_int4>const* const& value) {
         return append(dbQueryElement::qVarArrayOfInt4Ptr, &value);
     }
 
-    inline dbQuery& operator,(dbArray<db_int8> const& value) { 
+    inline dbQuery& operator,(dbArray<db_int8> const& value) {
         return append(dbQueryElement::qVarArrayOfInt8, &value);
     }
 
-    inline dbQuery& operator,(dbArray<db_int8>const* const& value) { 
+    inline dbQuery& operator,(dbArray<db_int8>const* const& value) {
         return append(dbQueryElement::qVarArrayOfInt8Ptr, &value);
     }
 
-    inline dbQuery& add(dbArray<db_int4> const& value) { 
+    inline dbQuery& add(dbArray<db_int4> const& value) {
         return append(dbQueryElement::qVarArrayOfInt4, &value);
     }
 
-    inline dbQuery& add(dbArray<db_int4>const* const& value) { 
+    inline dbQuery& add(dbArray<db_int4>const* const& value) {
         return append(dbQueryElement::qVarArrayOfInt4Ptr, &value);
     }
 
-    inline dbQuery& add(dbArray<db_int8> const& value) { 
+    inline dbQuery& add(dbArray<db_int8> const& value) {
         return append(dbQueryElement::qVarArrayOfInt8, &value);
     }
 
-    inline dbQuery& add(dbArray<db_int8>const* const& value) { 
+    inline dbQuery& add(dbArray<db_int8>const* const& value) {
         return append(dbQueryElement::qVarArrayOfInt8Ptr, &value);
     }
 #endif
 
 #ifndef NO_MEMBER_TEMPLATES
     template<class T>
-    dbQuery& operator,(dbReference<T> const& value) { 
+    dbQuery& operator,(dbReference<T> const& value) {
         return append(dbQueryElement::qVarReference, &value, &T::dbDescriptor);
     }
 
     template<class T>
-    inline dbQuery& operator,(dbArray< dbReference<T> > const& value) { 
+    inline dbQuery& operator,(dbArray< dbReference<T> > const& value) {
         return append(dbQueryElement::qVarArrayOfRef, &value, &T::dbDescriptor);
     }
 
     template<class T>
-    inline dbQuery& operator,(dbArray< dbReference<T> >const* const& value) { 
+    inline dbQuery& operator,(dbArray< dbReference<T> >const* const& value) {
         return append(dbQueryElement::qVarArrayOfRefPtr, &value, &T::dbDescriptor);
     }
 
     template<class T>
-    dbQuery& add(dbReference<T> const& value) { 
+    dbQuery& add(dbReference<T> const& value) {
         return append(dbQueryElement::qVarReference, &value, &T::dbDescriptor);
     }
 
     template<class T>
-    dbQuery& add(dbArray< dbReference<T> > const& value) { 
+    dbQuery& add(dbArray< dbReference<T> > const& value) {
         return append(dbQueryElement::qVarArrayOfRef, &value, &T::dbDescriptor);
     }
     template<class T>
-    dbQuery& add(dbArray< dbReference<T> >const* const& value) { 
+    dbQuery& add(dbArray< dbReference<T> >const* const& value) {
         return append(dbQueryElement::qVarArrayOfRefPtr, &value, &T::dbDescriptor);
     }
 
     template<class T>
-    dbQuery& operator = (T const& value) { 
+    dbQuery& operator = (T const& value) {
         return reset().add(value);
-    }   
+    }
 #else
     dbQuery& operator = (dbQueryExpression const& expr) {
         return reset().add(expr);
-    }    
+    }
     dbQuery& operator = (rectangle const& expr) {
         return reset().add(expr);
-    }    
+    }
 #endif
 
 
-    dbQueryElement* getElements() const { 
+    dbQueryElement* getElements() const {
         return elements;
     }
 
-    dbQuery() { 
+    dbQuery() {
         elements = NULL;
         nextElement = &elements;
         operand = false;
         pos = 0;
-    } 
-    dbQuery(char const* str) { 
+    }
+    dbQuery(char const* str) {
         elements = new dbQueryElement(dbQueryElement::qExpression, str);
         nextElement = &elements->next;
         operand = true;
         pos = 0;
-    } 
-    ~dbQuery() { 
+    }
+    ~dbQuery() {
         reset();
     }
 };
 
 #ifdef NO_MEMBER_TEMPLATES
 template<class T>
-inline dbQueryExpression& operator,(dbQueryExpression& expr, dbReference<T> const& value) { 
+inline dbQueryExpression& operator,(dbQueryExpression& expr, dbReference<T> const& value) {
     return expr.add(dbQueryElement::qVarReference, &value, &T::dbDescriptor);
 }
 template<class T>
-inline dbQueryExpression& operator,(dbQueryExpression& expr, dbArray< dbReference<T> > const& value) { 
-    return expr.add(dbQueryElement::qVarArrayOfRef, &value, 
+inline dbQueryExpression& operator,(dbQueryExpression& expr, dbArray< dbReference<T> > const& value) {
+    return expr.add(dbQueryElement::qVarArrayOfRef, &value,
                     &T::dbDescriptor);
 }
 
 template<class T>
-inline dbQueryExpression& operator,(dbQueryExpression& expr, dbArray< dbReference<T> >const* const& value) { 
+inline dbQueryExpression& operator,(dbQueryExpression& expr, dbArray< dbReference<T> >const* const& value) {
     return expr.add(dbQueryElement::qVarArrayOfRefPtr, &value, &T::dbDescriptor);
 }
 
 template<class T>
-inline dbQuery& operator,(dbQuery& query, dbReference<T> const& value) { 
-    return query.append(dbQueryElement::qVarReference, &value, 
+inline dbQuery& operator,(dbQuery& query, dbReference<T> const& value) {
+    return query.append(dbQueryElement::qVarReference, &value,
                         &T::dbDescriptor);
 }
 
 template<class T>
-inline dbQuery& operator,(dbQuery& query, 
-                             dbArray< dbReference<T> > const& value) 
-{ 
-    return query.append(dbQueryElement::qVarArrayOfRef, &value, 
+inline dbQuery& operator,(dbQuery& query,
+                             dbArray< dbReference<T> > const& value)
+{
+    return query.append(dbQueryElement::qVarArrayOfRef, &value,
                         &T::dbDescriptor);
 }
 
 template<class T>
-inline dbQuery& operator,(dbQuery& query, 
-                             dbArray< dbReference<T> >const* const& value) 
-{ 
-    return query.append(dbQueryElement::qVarArrayOfRefPtr, &value, 
+inline dbQuery& operator,(dbQuery& query,
+                             dbArray< dbReference<T> >const* const& value)
+{
+    return query.append(dbQueryElement::qVarArrayOfRefPtr, &value,
                         &T::dbDescriptor);
 }
 
 template<class T>
-inline dbQuery& add(dbQuery& query, dbReference<T> const& value) { 
+inline dbQuery& add(dbQuery& query, dbReference<T> const& value) {
     return query.append(dbQueryElement::qVarReference, &value, &T::dbDescriptor);
 }
 
 template<class T>
-inline dbQuery& add(dbQuery& query, dbArray< dbReference<T> > const& value) { 
-    return query.append(dbQueryElement::qVarArrayOfRef, &value, 
+inline dbQuery& add(dbQuery& query, dbArray< dbReference<T> > const& value) {
+    return query.append(dbQueryElement::qVarArrayOfRef, &value,
                         &T::dbDescriptor);
 }
 
 template<class T>
-inline dbQuery& add(dbQuery& query, dbArray< dbReference<T> >const* const& value) { 
+inline dbQuery& add(dbQuery& query, dbArray< dbReference<T> >const* const& value) {
     return query.append(dbQueryElement::qVarArrayOfRefPtr, &value, &T::dbDescriptor);
 }
 #endif
@@ -673,20 +673,20 @@ struct dbInheritedAttribute;
 union  dbSynthesizedAttribute;
 
 /**
- * This class represent argument of user defined funtion. 
+ * This class represent argument of user defined funtion.
  * @see dbUserFunction class.
  */
-class FASTDB_DLL_ENTRY  dbUserFunctionArgument { 
+class FASTDB_DLL_ENTRY  dbUserFunctionArgument {
   public:
-    enum dbArgumentType { 
-        atInteger, 
-        atBoolean, 
-        atString, 
-        atReal, 
-        atReference, 
+    enum dbArgumentType {
+        atInteger,
+        atBoolean,
+        atString,
+        atReal,
+        atReference,
         atRawBinary
-    };  
-    dbArgumentType type; 
+    };
+    dbArgumentType type;
     union {
         real8       realValue;
         db_int8     intValue;
@@ -698,9 +698,9 @@ class FASTDB_DLL_ENTRY  dbUserFunctionArgument {
 
   private:
     friend class dbDatabase;
-    dbUserFunctionArgument(dbExprNode*             expr, 
-                           dbInheritedAttribute&   iattr, 
-                           dbSynthesizedAttribute& sattr, 
+    dbUserFunctionArgument(dbExprNode*             expr,
+                           dbInheritedAttribute&   iattr,
+                           dbSynthesizedAttribute& sattr,
                            int                     i);
 };
 
@@ -709,16 +709,16 @@ class FASTDB_DLL_ENTRY  dbUserFunctionArgument {
  * This class contains list of all user functions declared by application and provides method
  * for locating function by name and adding new user defined functions.
  * User defined functions can have fro 0 till 3 parameters (of <code>dbUserFunctionArgument</code> type)
- * and should return integer, boolean, real or string value. Type of the function is detected by overloaded 
+ * and should return integer, boolean, real or string value. Type of the function is detected by overloaded
  * constructors. User defined function descriptor is cerated by <code>USER_FUNC</code> macro.
  */
-class FASTDB_DLL_ENTRY dbUserFunction { 
+class FASTDB_DLL_ENTRY dbUserFunction {
     friend class dbDatabase;
     friend class dbCompiler;
 
     void* fptr;
     char* fname;
-    
+
     dbUserFunction* next;
     static dbUserFunction* list;
 
@@ -734,18 +734,18 @@ class FASTDB_DLL_ENTRY dbUserFunction {
         fStr2Real,
         fInt2Str,
         fReal2Str,
-        fStr2Str, 
-        fArg2Bool, 
-        fArg2Int, 
-        fArg2Real, 
-        fArg2Str, 
-        fArgArg2Bool, 
-        fArgArg2Int, 
-        fArgArg2Real, 
-        fArgArg2Str, 
-        fArgArgArg2Bool, 
-        fArgArgArg2Int, 
-        fArgArgArg2Real, 
+        fStr2Str,
+        fArg2Bool,
+        fArg2Int,
+        fArg2Real,
+        fArg2Str,
+        fArgArg2Bool,
+        fArgArg2Int,
+        fArgArg2Real,
+        fArgArg2Str,
+        fArgArgArg2Bool,
+        fArgArgArg2Int,
+        fArgArgArg2Real,
         fArgArgArg2Str
     };
     int type;
@@ -754,95 +754,95 @@ class FASTDB_DLL_ENTRY dbUserFunction {
 
   public:
 
-    static dbUserFunction* find(char const* name) { 
-        for (dbUserFunction* func = list; func != NULL; func = func->next) { 
-            if (name == func->fname) { 
+    static dbUserFunction* find(char const* name) {
+        for (dbUserFunction* func = list; func != NULL; func = func->next) {
+            if (name == func->fname) {
                 return func;
             }
         }
         return NULL;
     }
-    
+
     int getParameterType();
 
     int getNumberOfParameters();
 
-    dbUserFunction(bool (*f)(db_int8), char* name) { 
-        bind(name, (void*)f, fInt2Bool); 
+    dbUserFunction(bool (*f)(db_int8), char* name) {
+        bind(name, (void*)f, fInt2Bool);
     }
-    dbUserFunction(bool (*f)(real8), char* name) { 
-        bind(name, (void*)f, fReal2Bool); 
+    dbUserFunction(bool (*f)(real8), char* name) {
+        bind(name, (void*)f, fReal2Bool);
     }
-    dbUserFunction(bool (*f)(char const*), char* name) { 
-        bind(name, (void*)f, fStr2Bool); 
+    dbUserFunction(bool (*f)(char const*), char* name) {
+        bind(name, (void*)f, fStr2Bool);
     }
-    dbUserFunction(db_int8 (*f)(db_int8), char* name) { 
-        bind(name, (void*)f, fInt2Int); 
+    dbUserFunction(db_int8 (*f)(db_int8), char* name) {
+        bind(name, (void*)f, fInt2Int);
     }
-    dbUserFunction(db_int8 (*f)(real8), char* name) { 
-        bind(name, (void*)f, fReal2Int); 
+    dbUserFunction(db_int8 (*f)(real8), char* name) {
+        bind(name, (void*)f, fReal2Int);
     }
-    dbUserFunction(db_int8 (*f)(char const*), char* name) { 
-        bind(name, (void*)f, fStr2Int); 
+    dbUserFunction(db_int8 (*f)(char const*), char* name) {
+        bind(name, (void*)f, fStr2Int);
     }
-    dbUserFunction(real8 (*f)(db_int8), char* name) { 
-        bind(name, (void*)f, fInt2Real); 
+    dbUserFunction(real8 (*f)(db_int8), char* name) {
+        bind(name, (void*)f, fInt2Real);
     }
-    dbUserFunction(real8 (*f)(real8), char* name) { 
-        bind(name, (void*)f, fReal2Real); 
+    dbUserFunction(real8 (*f)(real8), char* name) {
+        bind(name, (void*)f, fReal2Real);
     }
-    dbUserFunction(real8 (*f)(char const*), char* name) { 
-        bind(name, (void*)f, fStr2Real); 
+    dbUserFunction(real8 (*f)(char const*), char* name) {
+        bind(name, (void*)f, fStr2Real);
     }
-    dbUserFunction(char* (*f)(db_int8), char* name) { 
-        bind(name, (void*)f, fInt2Str); 
+    dbUserFunction(char* (*f)(db_int8), char* name) {
+        bind(name, (void*)f, fInt2Str);
     }
-    dbUserFunction(char* (*f)(real8), char* name) { 
-        bind(name, (void*)f, fReal2Str); 
+    dbUserFunction(char* (*f)(real8), char* name) {
+        bind(name, (void*)f, fReal2Str);
     }
-    dbUserFunction(char* (*f)(char const*), char* name) { 
-        bind(name, (void*)f, fStr2Str); 
-    }
-
-
-    dbUserFunction(bool (*f)(dbUserFunctionArgument&), char* name) { 
-        bind(name, (void*)f, fArg2Bool); 
-    }
-    dbUserFunction(char* (*f)(dbUserFunctionArgument&), char* name) { 
-        bind(name, (void*)f, fArg2Str); 
-    }
-    dbUserFunction(db_int8 (*f)(dbUserFunctionArgument&), char* name) { 
-        bind(name, (void*)f, fArg2Int); 
-    }
-    dbUserFunction(real8 (*f)(dbUserFunctionArgument&), char* name) { 
-        bind(name, (void*)f, fArg2Real); 
-    }
-
-    dbUserFunction(bool (*f)(dbUserFunctionArgument&, dbUserFunctionArgument&), char* name) { 
-        bind(name, (void*)f, fArgArg2Bool); 
-    }
-    dbUserFunction(char* (*f)(dbUserFunctionArgument&, dbUserFunctionArgument&), char* name) { 
-        bind(name, (void*)f, fArgArg2Str); 
-    }
-    dbUserFunction(db_int8 (*f)(dbUserFunctionArgument&, dbUserFunctionArgument&), char* name) { 
-        bind(name, (void*)f, fArgArg2Int); 
-    }
-    dbUserFunction(real8 (*f)(dbUserFunctionArgument&, dbUserFunctionArgument&), char* name) { 
-        bind(name, (void*)f, fArgArg2Real); 
+    dbUserFunction(char* (*f)(char const*), char* name) {
+        bind(name, (void*)f, fStr2Str);
     }
 
 
-    dbUserFunction(bool (*f)(dbUserFunctionArgument&, dbUserFunctionArgument&, dbUserFunctionArgument&), char* name) { 
-        bind(name, (void*)f, fArgArgArg2Bool); 
+    dbUserFunction(bool (*f)(dbUserFunctionArgument&), char* name) {
+        bind(name, (void*)f, fArg2Bool);
     }
-    dbUserFunction(char* (*f)(dbUserFunctionArgument&, dbUserFunctionArgument&, dbUserFunctionArgument&), char* name) { 
-        bind(name, (void*)f, fArgArgArg2Str); 
+    dbUserFunction(char* (*f)(dbUserFunctionArgument&), char* name) {
+        bind(name, (void*)f, fArg2Str);
     }
-    dbUserFunction(db_int8 (*f)(dbUserFunctionArgument&, dbUserFunctionArgument&, dbUserFunctionArgument&), char* name) { 
-        bind(name, (void*)f, fArgArgArg2Int); 
+    dbUserFunction(db_int8 (*f)(dbUserFunctionArgument&), char* name) {
+        bind(name, (void*)f, fArg2Int);
     }
-    dbUserFunction(real8 (*f)(dbUserFunctionArgument&, dbUserFunctionArgument&, dbUserFunctionArgument&), char* name) { 
-        bind(name, (void*)f, fArgArgArg2Real); 
+    dbUserFunction(real8 (*f)(dbUserFunctionArgument&), char* name) {
+        bind(name, (void*)f, fArg2Real);
+    }
+
+    dbUserFunction(bool (*f)(dbUserFunctionArgument&, dbUserFunctionArgument&), char* name) {
+        bind(name, (void*)f, fArgArg2Bool);
+    }
+    dbUserFunction(char* (*f)(dbUserFunctionArgument&, dbUserFunctionArgument&), char* name) {
+        bind(name, (void*)f, fArgArg2Str);
+    }
+    dbUserFunction(db_int8 (*f)(dbUserFunctionArgument&, dbUserFunctionArgument&), char* name) {
+        bind(name, (void*)f, fArgArg2Int);
+    }
+    dbUserFunction(real8 (*f)(dbUserFunctionArgument&, dbUserFunctionArgument&), char* name) {
+        bind(name, (void*)f, fArgArg2Real);
+    }
+
+
+    dbUserFunction(bool (*f)(dbUserFunctionArgument&, dbUserFunctionArgument&, dbUserFunctionArgument&), char* name) {
+        bind(name, (void*)f, fArgArgArg2Bool);
+    }
+    dbUserFunction(char* (*f)(dbUserFunctionArgument&, dbUserFunctionArgument&, dbUserFunctionArgument&), char* name) {
+        bind(name, (void*)f, fArgArgArg2Str);
+    }
+    dbUserFunction(db_int8 (*f)(dbUserFunctionArgument&, dbUserFunctionArgument&, dbUserFunctionArgument&), char* name) {
+        bind(name, (void*)f, fArgArgArg2Int);
+    }
+    dbUserFunction(real8 (*f)(dbUserFunctionArgument&, dbUserFunctionArgument&, dbUserFunctionArgument&), char* name) {
+        bind(name, (void*)f, fArgArgArg2Real);
     }
 
     ~dbUserFunction();
@@ -851,6 +851,3 @@ class FASTDB_DLL_ENTRY dbUserFunction {
 END_FASTDB_NAMESPACE
 
 #endif
-
-
-

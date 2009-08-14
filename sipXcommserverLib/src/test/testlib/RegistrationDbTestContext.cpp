@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -60,7 +60,7 @@ void RegistrationDbTestContext::ConvertRelativeExpirations(
 void RegistrationDbTestContext::timeShiftExpiresLine(UtlString& line, long timeNow)
 {
    const char* EXPIRES_BEGIN = "<expires>";
-   const int EXPIRES_TAG_LENGTH = 9; 
+   const int EXPIRES_TAG_LENGTH = 9;
    const char* EXPIRES_END = "</expires>";
    ssize_t pos1, pos2;
    // If the line has an expiration value, then time-shift it

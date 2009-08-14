@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -48,7 +48,7 @@ const UtlString CallerAliasDB::sXmlNamespace("http://www.sipfoundry.org/sipX/sch
 CallerAliasDB::CallerAliasDB( const UtlString& name )
 : mDatabaseName( name )
 , mTableLoaded ( true )
-{ 
+{
    // Access the shared table databse
    SIPDBManager* pSIPDBManager = SIPDBManager::getInstance();
    mpFastDB = pSIPDBManager->getDatabase(name);
@@ -109,7 +109,7 @@ CallerAliasDB::releaseInstance()
 
 // Add a single mapping to the database.
 void CallerAliasDB::insertRow(
-   const UtlString identity, ///< identity of caller in 'user@domain' form (no scheme) 
+   const UtlString identity, ///< identity of caller in 'user@domain' form (no scheme)
    const UtlString domain,   /**< domain and optional port for target
                               *  ( 'example.com' or 'example.com:5099' ) */
    const UtlString alias     /// returned alias
@@ -181,7 +181,7 @@ CallerAliasDB::load()
    OsLock lock( sLockMutex );
    OsStatus result = OS_SUCCESS;
 
-   if ( mpFastDB != NULL ) 
+   if ( mpFastDB != NULL )
    {
       // Clean out the existing DB rows before loading
       // a new set from persistent storage
@@ -204,15 +204,15 @@ CallerAliasDB::load()
             // the folder node contains at least the name/displayname/
             // and autodelete elements, it may contain others
             for( TiXmlNode *itemNode = rootNode->FirstChild( "item" );
-                 itemNode; 
+                 itemNode;
                  itemNode = itemNode->NextSibling( "item" ) )
             {
                UtlString identity;
                UtlString domain;
                UtlString alias;
-                   
+
                for( TiXmlNode *elementNode = itemNode->FirstChild();
-                    elementNode; 
+                    elementNode;
                     elementNode = elementNode->NextSibling() )
                {
                   // Bypass comments and other element types only interested
@@ -247,14 +247,14 @@ CallerAliasDB::load()
             }
          }
       }
-      else 
+      else
       {
          OsSysLog::add(FAC_DB, PRI_WARNING, "CallerAliasDB::load failed to load '%s'",
                        pathName.data());
          result = OS_FAILED;
       }
    }
-   else 
+   else
    {
       OsSysLog::add(FAC_DB, PRI_ERR, "CallerAliasDB::load failed - no DB");
       result = OS_FAILED;
@@ -284,7 +284,7 @@ CallerAliasDB::store()
    {
       OsLock lock( sLockMutex );
 
-      if ( mpFastDB != NULL ) 
+      if ( mpFastDB != NULL )
       {
          // Thread Local Storage
          mpFastDB->attach();
@@ -311,7 +311,7 @@ CallerAliasDB::store()
                identityElement.InsertEndChild(identityValue);
                itemElement.InsertEndChild(identityElement);
             }
-         
+
             // add the domain element and put the value in it
             TiXmlElement domainElement(DomainKey.data());
             TiXmlText    domainValue(cursor->domain);
@@ -323,7 +323,7 @@ CallerAliasDB::store()
             TiXmlText    aliasValue(cursor->alias);
             aliasElement.InsertEndChild(aliasValue);
             itemElement.InsertEndChild(aliasElement);
-            
+
             // add this item (row) to the parent items container
             itemsElement.InsertEndChild ( itemElement );
          }
@@ -333,7 +333,7 @@ CallerAliasDB::store()
          mTableLoaded = true;
       }
    } // release mutex around database use
-   
+
    // Attach the root node to the document
    document.InsertEndChild ( itemsElement );
    document.SaveFile ( pathName );
@@ -346,7 +346,7 @@ void
 CallerAliasDB::removeAllRows ()
 {
    // Thread Local Storage
-   if (mpFastDB != NULL) 
+   if (mpFastDB != NULL)
    {
       mpFastDB->attach();
 
@@ -365,7 +365,7 @@ CallerAliasDB::removeAllRows ()
    }
 }
 
-bool 
+bool
 CallerAliasDB::isLoaded()
 {
    return mTableLoaded;
@@ -388,7 +388,7 @@ bool CallerAliasDB::getCallerAlias (
     * If neither match is found, callerAlias is set to the null string.
     */
    callerAlias.remove(0);
-   
+
    if (mpFastDB)
    {
       // Thread Local Storage
@@ -400,10 +400,10 @@ bool CallerAliasDB::getCallerAlias (
       dbCursor< CallerAliasRow > exactCursor;
       if (exactCursor.select(exactQuery))
       {
-         // found a match 
+         // found a match
          callerAlias.append(exactCursor->alias);
       }
-        
+
       // Commit the rows to memory - multiprocess workaround
       mpFastDB->detach(0);
    }
@@ -411,5 +411,3 @@ bool CallerAliasDB::getCallerAlias (
    // Returns true if an alias was found for this caller, false if not
    return ! callerAlias.isNull();
 }
-
-

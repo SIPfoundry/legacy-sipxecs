@@ -37,14 +37,14 @@
 	    Specifies that this is a subscription DB file.
 	  </documentation>
 	</annotation>
-      </attribute>	
+      </attribute>
       <attribute name='timestamp' type='integer'>
 	<annotation>
 	  <documentation>
 	    Gives the Unix epoch when the subscription DB was dumped.
 	  </documentation>
 	</annotation>
-      </attribute>	
+      </attribute>
     </complexType>
   </element>
 
@@ -88,7 +88,7 @@
       </documentation>
     </annotation>
   </element>
-  
+
   <element name='toUri' type='sip_types:name_addr'>
     <annotation>
       <documentation>
@@ -98,7 +98,7 @@
       </documentation>
     </annotation>
   </element>
-  
+
   <element name='fromUri' type='sip_types:name_addr'>
     <annotation>
       <documentation>
@@ -108,7 +108,7 @@
       </documentation>
     </annotation>
   </element>
-  
+
   <element name='callid'>
     <annotation>
       <documentation>
@@ -125,7 +125,7 @@
       </restriction>
     </simpleType>
   </element>
-  
+
   <element name='eventtype' type='normalizedString'>
     <annotation>
       <documentation>
@@ -136,7 +136,7 @@
       </documentation>
     </annotation>
   </element>
-  
+
   <element name='id' type='normalizedString'>
     <annotation>
       <documentation>
@@ -171,7 +171,7 @@
       </restriction>
     </simpleType>
   </element>
-  
+
   <element name='uri' type='normalizedString'>
     <annotation>
       <documentation>
@@ -189,7 +189,7 @@
       </documentation>
     </annotation>
   </element>
-  
+
   <element name='expires'>
     <annotation>
       <documentation>

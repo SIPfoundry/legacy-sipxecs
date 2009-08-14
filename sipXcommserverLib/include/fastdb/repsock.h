@@ -34,11 +34,11 @@ class FASTDB_DLL_ENTRY replication_socket_t : public socket_t {
     virtual void      handleError(int socket, const char* operation, const char* error);
 
     static replication_socket_t*  connect(char const* addresses[],
-                                          int n_addresses, 
+                                          int n_addresses,
                                           int max_attempts = DEFAULT_CONNECT_MAX_ATTEMPTS,
                                           time_t timeout = DEFAULT_RECONNECT_TIMEOUT);
 
-    // 
+    //
     // Not implemented for replication socket
     //
     virtual socket_t* accept();
@@ -46,7 +46,7 @@ class FASTDB_DLL_ENTRY replication_socket_t : public socket_t {
     virtual char*     get_peer_name();
     virtual int       get_handle();
 
-    enum { 
+    enum {
         MaxSockets = 8
     };
 
@@ -64,6 +64,3 @@ class FASTDB_DLL_ENTRY replication_socket_t : public socket_t {
 END_FASTDB_NAMESPACE
 
 #endif
-
-
-

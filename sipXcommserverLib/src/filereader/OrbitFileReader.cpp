@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 ////////////////////////////////////////////////////////////////////////////
 
@@ -332,5 +332,5 @@ OsStatus OrbitFileReader::initialize()
                     "Orbit file '%s' could not be parsed.", mFileName.data());
       // No hope of doing call retrieval.
       return OS_FAILED;
-   } 
+   }
 }

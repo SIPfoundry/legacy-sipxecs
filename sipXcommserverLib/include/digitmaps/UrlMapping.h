@@ -1,6 +1,6 @@
-// 
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -114,10 +114,10 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-    // returns a pointer to the <userMatch> XML node that matches the 
-    // user and domain patterns of the supplied request-URI 
+    // returns a pointer to the <userMatch> XML node that matches the
+    // user and domain patterns of the supplied request-URI
     OsStatus getUserMatchContainerMatchingRequestURI(const Url& requestUri,
-                                                     UtlString& variableDigits,                                                     
+                                                     UtlString& variableDigits,
                                                      const TiXmlNode*& prMatchingUserMatchContainerNode,
                                                      const TiXmlNode*& prMatchingHostMatchContainerNode,
                                                      const char* ruleType = NULL  ///< e.g. Emergency to match only emerg rules
@@ -140,10 +140,10 @@ private:
 
    OsStatus getUserMatchContainer(const Url&              requestUri,
                                   const TiXmlNode* const  pHostMatchNode,
-                                  UtlString&              variableDigits,                                                     
+                                  UtlString&              variableDigits,
                                   const TiXmlNode*&       prMatchingUserMatchContainerNode
                                   ) const;
-   
+
    /// Get the name/value pair from an element; supports two syntaxes.
    bool getNamedAttribute(const TiXmlElement* component, ///< the xml element to interpret
                           UtlString&    name,            ///< the content name
@@ -172,4 +172,3 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // URLMAPPING_H
-

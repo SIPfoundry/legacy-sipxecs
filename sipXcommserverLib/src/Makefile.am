@@ -49,7 +49,7 @@ libsipXcommserver_la_LIBADD = \
 	@SIPXTACK_LIBS@ \
 	@ODBC_LIBS@ \
 	fastdb/libfastdb.la \
-	sipdb/libsipdb.la 
+	sipdb/libsipdb.la
 
 libsipXcommserver_la_SOURCES = \
     $(top_builddir)/config/sipxcommserverlib-buildstamp.h \
@@ -74,7 +74,7 @@ libsipXcommserver_la_SOURCES = \
 all: $(foreach sipxScript,$(SipXscripts),$(sipxScript))
 
 install-exec-hook: \
-	$(foreach sipxScript,$(SipXscripts),$(DESTDIR)$(libexecdir)/sipXecs/$(sipxScript)) 
+	$(foreach sipxScript,$(SipXscripts),$(DESTDIR)$(libexecdir)/sipXecs/$(sipxScript))
 
 $(foreach sipxScript,$(SipXscripts),$(DESTDIR)$(libexecdir)/sipXecs/$(sipxScript)) : \
 		$(DESTDIR)$(libexecdir)/sipXecs/% : %

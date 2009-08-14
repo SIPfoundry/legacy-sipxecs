@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
@@ -36,7 +36,7 @@ DirectoryType SipXecsService::ConfigurationDirType = "SIPX_CONFDIR";
 DirectoryType SipXecsService::LocalStateDirType    = "SIPX_VARDIR";
 DirectoryType SipXecsService::LogDirType           = "SIPX_LOGDIR";
 DirectoryType SipXecsService::RunDirType           = "SIPX_RUNDIR";
-DirectoryType SipXecsService::TmpDirType           = "SIPX_TMPDIR"; 
+DirectoryType SipXecsService::TmpDirType           = "SIPX_TMPDIR";
 DirectoryType SipXecsService::DatabaseDirType      = "SIPX_DBDIR";
 DirectoryType SipXecsService::VarDirType           = "SIPX_VARDIR";
 DirectoryType SipXecsService::DataDirType          = "SIPX_DATADIR";
@@ -65,7 +65,7 @@ SipXecsService::SipXecsService(const char* serviceName)
    UtlString logFileName;
    logFileName.append(mServiceName);
    logFileName.append(".log");
-      
+
    OsPath logFilePath = Path(LogDirType, logFileName);
    OsSysLog::setOutputFile(0, logFilePath.data()) ;
    OsSysLog::enableConsoleOutput(false);
@@ -123,7 +123,7 @@ const char* SipXecsService::defaultDir(DirectoryType pathType)
    {
       returnDir = DefaultLibExecDir;
    }
-   else 
+   else
    {
       // invalid directory type
       OsSysLog::add(FAC_KERNEL, PRI_CRIT, "SipXecsService::defaultDir Invalid DirectoryType '%s'",
@@ -134,7 +134,7 @@ const char* SipXecsService::defaultDir(DirectoryType pathType)
    return returnDir;
 }
 
-OsPath SipXecsService::Path(DirectoryType pathType, const char* fileName) 
+OsPath SipXecsService::Path(DirectoryType pathType, const char* fileName)
 {
    OsPath path;
 
@@ -158,14 +158,14 @@ OsPath SipXecsService::Path(DirectoryType pathType, const char* fileName)
       // Add the file name
       //   make sure there is exactly one separator between the directory and the file
       if (   slash != lastPathChar
-          && slash != fileName[0] 
+          && slash != fileName[0]
           )
       {
          // neither has separator - add one
          path.append(OsPath::separator);
       }
       else if (   slash == lastPathChar
-               && slash == fileName[0] 
+               && slash == fileName[0]
                )
       {
          // both have the separator - take one off so there's only one
@@ -179,7 +179,7 @@ OsPath SipXecsService::Path(DirectoryType pathType, const char* fileName)
    else if ( slash == lastPathChar )
    {
       path.remove(path.length()-1);
-   } 
+   }
 
    OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                  "SipXecsService::Path('%s', '%s') returning '%s'",
@@ -234,7 +234,7 @@ void SipXecsService::setLogPriority(const char* configSettingsFile, // path to c
                                     )
 {
    OsConfigDb configuration;
-   
+
    OsPath configPath = SipXecsService::Path(SipXecsService::ConfigurationDirType,
                                             configSettingsFile);
 
@@ -256,7 +256,7 @@ void SipXecsService::setLogPriority(const char* configSettingsFile, // path to c
 }
 
 void SipXecsService::setLogPriority(const OsConfigDb& configSettings, // configuration data
-                                    const char* servicePrefix, /* the string "_LOG_LEVEL" is 
+                                    const char* servicePrefix, /* the string "_LOG_LEVEL" is
                                                                 * appended to this prefix to
                                                                 * find the config directive that
                                                                 * sets the level */

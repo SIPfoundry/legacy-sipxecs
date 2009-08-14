@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -50,7 +50,7 @@ const char digitmap [] = {
 
 /* ============================ CREATORS ================================== */
 
-DialByNameDB::DialByNameDB( const UtlString& name ) : 
+DialByNameDB::DialByNameDB( const UtlString& name ) :
     mDatabaseName( name )
 {
     // Access the shared table databse
@@ -107,7 +107,7 @@ DialByNameDB::load() const
     OsLock lock( sLockMutex );
     OsStatus result = OS_SUCCESS;
 
-    if ( m_pFastDB != NULL ) 
+    if ( m_pFastDB != NULL )
     {
         // Clean out the existing DB rows before loading
         // a new set from persistent storage
@@ -137,7 +137,7 @@ DialByNameDB::load() const
                     identityUrl,
                     credentialsResultSet );
 
-            // we should only have one credential! we're 
+            // we should only have one credential! we're
             // only interested in the uri column's display name
             if ( credentialsResultSet.getSize() == 1)
             {
@@ -151,16 +151,16 @@ DialByNameDB::load() const
                 UtlHashMap nvPairs;
                 if (!uri.isNull())
                 {
-                    // Null Element value create a special 
+                    // Null Element value create a special
                     // char string we have key and value so insert
-                    UtlString* contactValue = 
-                        new UtlString( uri ); 
+                    UtlString* contactValue =
+                        new UtlString( uri );
 
                     // Memory Leak fixes, make shallow copies of static keys
-                    UtlString* contactKey = 
+                    UtlString* contactKey =
                         new UtlString( gNp_contactKey );
 
-                    nvPairs.insertKeyAndValue ( 
+                    nvPairs.insertKeyAndValue (
                         contactKey, contactValue );
                 }
                 // Insert the item row into the IMDB
@@ -183,8 +183,8 @@ DialByNameDB::load() const
 OsStatus
 DialByNameDB::store()
 {
-    // this is a no-op for DialByNameDB as its 
-    // backing store is actually the join of the credentials 
+    // this is a no-op for DialByNameDB as its
+    // backing store is actually the join of the credentials
     // and permission databases
     if ( m_pFastDB != NULL )
     {
@@ -241,7 +241,7 @@ DialByNameDB::insertRow ( const Url& contact ) const
                 if ( cursor.select( query ) > 0 )
                 {
                     cursor.removeAllSelected();
-                } 
+                }
 
                 // insert all dtmf combinations for this user
                 unsigned int i;
@@ -261,9 +261,9 @@ DialByNameDB::insertRow ( const Url& contact ) const
     return result;
 }
 
-UtlBoolean 
+UtlBoolean
 DialByNameDB::getDigitStrings (
-    const UtlString& displayName, 
+    const UtlString& displayName,
     UtlSList& rDTMFStrings ) const
 {
     UtlString lowerString = displayName;
@@ -281,29 +281,29 @@ DialByNameDB::getDigitStrings (
     // John Peter Smith Jr would result in DTMF entries for
     // PeterSmithJrJohn, SmithJrJohnPeter and JrJohnPeterSmith
     // @JC Added - separator for MIT's Avery-Smith example
-   
-    while (next.next(token, "\t\n,- ")) 
+
+    while (next.next(token, "\t\n,- "))
     {
         names.insert ( new UtlString ( token ) );
     }
 
     size_t numNames = names.entries();
 
-    if ( numNames > 0 ) 
+    if ( numNames > 0 )
     {
         UtlString reorderedString;
         unsigned int splitPosition = 1;
-        do 
+        do
         {
             unsigned int i;
             UtlString firstNames;
-            for ( i=0; i<splitPosition; i++ ) 
+            for ( i=0; i<splitPosition; i++ )
             {
                 firstNames += *(UtlString*)names.at(i);
             }
 
             UtlString lastNames;
-            for ( i = splitPosition; i<numNames; i++) 
+            for ( i = splitPosition; i<numNames; i++)
             {
                 lastNames += *(UtlString*)names.at(i);
             }
@@ -312,7 +312,7 @@ DialByNameDB::getDigitStrings (
             reorderedString = lastNames + firstNames;
 
             unsigned int len = reorderedString.length();
-            
+
             // calculate thd DTMF digits for the display name
             // firstly strip all , 's and spaces
             UtlString digitString;
@@ -392,10 +392,10 @@ DialByNameDB::getAllRows(ResultSet& rResultSet) const
     if ( m_pFastDB != NULL )
     {
         SIPDBManager* pSIPDBManager = SIPDBManager::getInstance();
-        if ( pSIPDBManager->getDatabaseChangedFlag( "credential" ) || 
+        if ( pSIPDBManager->getDatabaseChangedFlag( "credential" ) ||
              pSIPDBManager->getDatabaseChangedFlag( "permission" )  )
         {
-            // Reload this IMDB and reset the changed flags 
+            // Reload this IMDB and reset the changed flags
             // in both the credential and permission tables
             this->load();
         }
@@ -408,11 +408,11 @@ DialByNameDB::getAllRows(ResultSet& rResultSet) const
         {
             do {
                 UtlHashMap record;
-                UtlString* np_identityValue = 
+                UtlString* np_identityValue =
                     new UtlString ( cursor->np_identity );
-                UtlString* np_contactValue = 
+                UtlString* np_contactValue =
                     new UtlString ( cursor->np_contact );
-                UtlString* np_digitsValue = 
+                UtlString* np_digitsValue =
                     new UtlString ( cursor->np_digits );
 
                 // Memory Leak fixes, make shallow copies of static keys
@@ -420,11 +420,11 @@ DialByNameDB::getAllRows(ResultSet& rResultSet) const
                 UtlString* np_contactKey = new UtlString( gNp_contactKey );
                 UtlString* np_digitsKey = new UtlString( gNp_digitsKey );
 
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     np_identityKey, np_identityValue );
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     np_contactKey, np_contactValue );
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     np_digitsKey, np_digitsValue );
 
                 rResultSet.addValue(record);
@@ -448,10 +448,10 @@ DialByNameDB::getContacts (
         // Check the TableInfo table to see whether we need to reload
         // the Tables from the Credential/Permission tables
         SIPDBManager* pSIPDBManager = SIPDBManager::getInstance();
-        if ( pSIPDBManager->getDatabaseChangedFlag( "credential" ) || 
+        if ( pSIPDBManager->getDatabaseChangedFlag( "credential" ) ||
              pSIPDBManager->getDatabaseChangedFlag( "permission" )  )
         {
-            // Reload this IMDB and rese the changed flags 
+            // Reload this IMDB and rese the changed flags
             // in the credential and permission tables
             this->load();
         }
@@ -468,11 +468,11 @@ DialByNameDB::getContacts (
         if ( cursor.select(query) > 0 ) {
             do {
                 UtlHashMap record;
-                UtlString* np_identityValue = 
+                UtlString* np_identityValue =
                     new UtlString ( cursor->np_identity );
-                UtlString* np_contactValue = 
+                UtlString* np_contactValue =
                     new UtlString ( cursor->np_contact );
-                UtlString* np_digitsValue = 
+                UtlString* np_digitsValue =
                     new UtlString ( cursor->np_digits );
 
                 // Memory Leak fixes, make shallow copies of static keys
@@ -480,11 +480,11 @@ DialByNameDB::getContacts (
                 UtlString* np_contactKey = new UtlString( gNp_contactKey );
                 UtlString* np_digitsKey = new UtlString( gNp_digitsKey );
 
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     np_identityKey, np_identityValue );
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     np_contactKey, np_contactValue );
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     np_digitsKey, np_digitsValue );
 
                 rResultSet.addValue(record);
@@ -516,4 +516,3 @@ DialByNameDB::getInstance( const UtlString& name )
     }
     return spInstance;
 }
-

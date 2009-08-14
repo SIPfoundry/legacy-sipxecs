@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -64,7 +64,7 @@ PermissionDB::PermissionDB( const UtlString& name )
     }
 }
 
-PermissionDB::~PermissionDB() 
+PermissionDB::~PermissionDB()
 {
     OsSysLog::add(FAC_DB, PRI_DEBUG, "<><>## PermissionDB:: DESTRUCTOR");
 }
@@ -125,14 +125,14 @@ PermissionDB::load()
                 // the folder node contains at least the name/displayname/
                 // and autodelete elements, it may contain others
                 for( TiXmlNode *itemNode = rootNode->FirstChild( "item" );
-                     itemNode; 
+                     itemNode;
                      itemNode = itemNode->NextSibling( "item" ) )
                 {
                     // Create a hash dictionary for element attributes
                     UtlHashMap nvPairs;
 
                     for( TiXmlNode *elementNode = itemNode->FirstChild();
-                         elementNode; 
+                         elementNode;
                          elementNode = elementNode->NextSibling() )
                     {
                         // Bypass comments and other element types only interested
@@ -147,21 +147,21 @@ PermissionDB::load()
 
                             if (result == OS_SUCCESS)
                             {
-                                UtlString* collectableKey = 
-                                    new UtlString( elementName ); 
-                                UtlString* collectableValue = 
-                                    new UtlString( elementValue ); 
-                                nvPairs.insertKeyAndValue ( 
+                                UtlString* collectableKey =
+                                    new UtlString( elementName );
+                                UtlString* collectableValue =
+                                    new UtlString( elementValue );
+                                nvPairs.insertKeyAndValue (
                                     collectableKey, collectableValue );
                             } else if ( elementNode->FirstChild() == NULL )
                             {
-                                // Null Element value creaete a special 
+                                // Null Element value creaete a special
                                 // char string we have key and value so insert
-                                UtlString* collectableKey = 
-                                    new UtlString( elementName ); 
-                                UtlString* collectableValue = 
-                                    new UtlString( SPECIAL_IMDB_NULL_VALUE ); 
-                                nvPairs.insertKeyAndValue ( 
+                                UtlString* collectableKey =
+                                    new UtlString( elementName );
+                                UtlString* collectableValue =
+                                    new UtlString( SPECIAL_IMDB_NULL_VALUE );
+                                nvPairs.insertKeyAndValue (
                                     collectableKey, collectableValue );
                             }
                         }
@@ -170,13 +170,13 @@ PermissionDB::load()
                     insertRow ( nvPairs );
                 }
             }
-        } else 
+        } else
         {
             OsSysLog::add(FAC_SIP, PRI_WARNING, "PermissionDB::load failed to load \"%s\"",
                           pathName.data());
             result = OS_FAILED;
         }
-    } else 
+    } else
     {
         OsSysLog::add(FAC_DB, PRI_ERR, "PermissionDB::load failed - no DB");
         result = OS_FAILED;
@@ -228,9 +228,9 @@ PermissionDB::store()
 
                 // Add the column name value pairs
                 for ( dbFieldDescriptor* fd = pTableMetaData->getFirstField();
-                      fd != NULL; fd = fd->nextField ) 
+                      fd != NULL; fd = fd->nextField )
                 {
-                    // if the column name does not contain the 
+                    // if the column name does not contain the
                     // np_prefix we must_presist it
                     if ( strstr( fd->name, "np_" ) == NULL )
                     {
@@ -242,7 +242,7 @@ PermissionDB::store()
                         SIPDBManager::getFieldValue(base, fd, textValue);
 
                         // If the value is not null append a text child element
-                        if ( textValue != SPECIAL_IMDB_NULL_VALUE ) 
+                        if ( textValue != SPECIAL_IMDB_NULL_VALUE )
                         {
                             // Text type assumed here... @todo change this
                             TiXmlText value ( textValue.data() );
@@ -262,7 +262,7 @@ PermissionDB::store()
                 // add the line to the element
                 itemsElement.InsertEndChild ( itemElement );
             } while ( cursor.next() );
-        }  
+        }
         // Attach the root node to the document
         document.InsertEndChild ( itemsElement );
         document.SaveFile ( pathName );
@@ -277,7 +277,7 @@ PermissionDB::store()
 }
 
 UtlBoolean
-PermissionDB::insertRow (const UtlHashMap& nvPairs) 
+PermissionDB::insertRow (const UtlHashMap& nvPairs)
 {
     // Note we do not need the identity object here
     // as it is inferred from the uri
@@ -297,7 +297,7 @@ PermissionDB::insertRow (
     identity.getIdentity( identityStr );
 
     // both the pk and fk's are stored in the db as identities
-    // making for consistency, this is how they are stored in 
+    // making for consistency, this is how they are stored in
     // the credentials database and the uriIdentity is a FK to that db
     // so this step of extracting identies is crucial
     if ( !identityStr.isNull() && !permission.isNull() && (m_pFastDB != NULL) )
@@ -387,7 +387,7 @@ PermissionDB::removeRows ( const Url& identity )
 void
 PermissionDB::removeAllRows ()
 {
-    if ( m_pFastDB != NULL ) 
+    if ( m_pFastDB != NULL )
     {
         // Thread Local Storage
         m_pFastDB->attach();
@@ -399,7 +399,7 @@ PermissionDB::removeAllRows ()
         }
         // Commit rows to memory - multiprocess workaround
         m_pFastDB->detach(0);
-    } 
+    }
 }
 
 void
@@ -418,18 +418,18 @@ PermissionDB::getAllRows(ResultSet& rResultSet) const
         {
             do {
                 UtlHashMap record;
-                UtlString* identityValue = 
+                UtlString* identityValue =
                     new UtlString ( cursor->identity );
-                UtlString* permissionValue = 
+                UtlString* permissionValue =
                     new UtlString ( cursor->permission );
 
                 // Memory Leak fixes, make shallow copies of static keys
                 UtlString* identityKey = new UtlString( gIdentityKey );
                 UtlString* permissionKey = new UtlString( gPermissionKey );
 
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     identityKey, identityValue );
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     permissionKey, permissionValue );
                 rResultSet.addValue(record);
             } while (cursor.next());
@@ -439,7 +439,7 @@ PermissionDB::getAllRows(ResultSet& rResultSet) const
     }
 }
 
-void 
+void
 PermissionDB::getIdentities (
     const UtlString& permission,
     ResultSet& rResultSet ) const
@@ -464,18 +464,18 @@ PermissionDB::getIdentities (
         {
             do {
                 UtlHashMap record;
-                UtlString* identityValue = 
+                UtlString* identityValue =
                     new UtlString ( cursor->identity );
-                UtlString* permissionValue = 
+                UtlString* permissionValue =
                     new UtlString ( cursor->permission );
 
                 // Memory Leak fixes, make shallow copies of static keys
                 UtlString* identityKey = new UtlString( gIdentityKey );
                 UtlString* permissionKey = new UtlString( gPermissionKey );
 
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     identityKey, identityValue );
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     permissionKey, permissionValue );
 
                 rResultSet.addValue(record);
@@ -486,7 +486,7 @@ PermissionDB::getIdentities (
     }
 }
 
-void 
+void
 PermissionDB::getPermissions (
     const Url& identity,
     ResultSet& rResultSet ) const
@@ -513,18 +513,18 @@ PermissionDB::getPermissions (
         {
             do {
                 UtlHashMap record;
-                UtlString* identityValue = 
+                UtlString* identityValue =
                     new UtlString ( cursor->identity );
-                UtlString* permissionValue = 
+                UtlString* permissionValue =
                     new UtlString ( cursor->permission );
 
                 // Memory Leak fixes, make shallow copies of static keys
                 UtlString* identityKey = new UtlString( gIdentityKey );
                 UtlString* permissionKey = new UtlString( gPermissionKey );
 
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     identityKey, identityValue );
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     permissionKey, permissionValue );
 
                 rResultSet.addValue(record);
@@ -535,7 +535,7 @@ PermissionDB::getPermissions (
     }
 }
 
-UtlBoolean 
+UtlBoolean
 PermissionDB::hasPermission (
     const Url& identity,
     const UtlString& permission ) const
@@ -589,4 +589,3 @@ PermissionDB::getInstance( const UtlString& name )
     }
     return spInstance;
 }
-

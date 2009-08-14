@@ -19,10 +19,10 @@ AM_CONFIG_HEADER([config.h])
 AC_PROG_LIBTOOL
 
 # Checks for programs.
-AC_PROG_CXX 	 
+AC_PROG_CXX
 AX_COMPILER_VENDOR
 AC_PATH_PROG([BASH], [bash])
-AC_PATH_PROG([PERL],[perl]) 	 
+AC_PATH_PROG([PERL],[perl])
 AC_PATH_PROG([OPENSSL],[openssl])
 AC_PATH_PROG([CP_BINARY],[cp],"/bin/cp")
 AC_PATH_PROG([MV_BINARY],[mv],"/bin/mv")
@@ -68,17 +68,17 @@ AM_CONDITIONAL(ENABLE_ODBC_TESTS, test x$enable_odbc_tests = xyes)
 CHECK_POSTGRES
 
 AC_CONFIG_FILES([
-  Makefile 
-  include/Makefile 
-  etc/Makefile 
+  Makefile
+  include/Makefile
+  etc/Makefile
   bin/Makefile
   bin/ssl-cert/Makefile
-  src/Makefile 
-  src/sipdb/Makefile 
-  src/fastdb/Makefile 
+  src/Makefile
+  src/sipdb/Makefile
+  src/fastdb/Makefile
   src/xsdvalid/Makefile
-  src/test/Makefile 
-  src/test/testlib/Makefile 
+  src/test/Makefile
+  src/test/testlib/Makefile
   doc/Makefile
   meta/Makefile
   src/sipxrestorebinary/Makefile
@@ -89,4 +89,3 @@ AC_CONFIG_FILES([
   src/sipxchangetimezone/Makefile
 ])
 AC_OUTPUT
-

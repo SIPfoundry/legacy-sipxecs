@@ -13,8 +13,8 @@
 
 BEGIN_FASTDB_NAMESPACE
 
-class FASTDB_DLL_ENTRY dbTtreeNode { 
-    enum { 
+class FASTDB_DLL_ENTRY dbTtreeNode {
+    enum {
         pageSize = 125,
         minItems = pageSize - 2 // minimal number of items in internal node
     };
@@ -27,14 +27,14 @@ class FASTDB_DLL_ENTRY dbTtreeNode {
     oid_t item[pageSize];
 
     static oid_t allocate(dbDatabase* db, oid_t recordId);
-    
-    static bool  insert(dbDatabase* db, oid_t& nodeId, oid_t recordId, 
+
+    static bool  insert(dbDatabase* db, oid_t& nodeId, oid_t recordId,
                         void* key, int type, int sizeofType, dbUDTComparator comparator, int offs);
-    static int   remove(dbDatabase* db, oid_t& nodeId, oid_t recordId,  
+    static int   remove(dbDatabase* db, oid_t& nodeId, oid_t recordId,
                         void* key, int type, int sizeofType, dbUDTComparator comparator, int offs);
     static int   balanceRightBranch(dbDatabase* db, oid_t& nodeId);
     static int   balanceLeftBranch(dbDatabase* db, oid_t& nodeId);
-    
+
     static void  purge(dbDatabase* db, oid_t nodeId);
 
     bool find(dbDatabase* db, dbSearchContext& sc);
@@ -46,7 +46,7 @@ class FASTDB_DLL_ENTRY dbTtreeNode {
     bool traverseBackward(dbDatabase* db,dbAnyCursor* cursor,dbExprNode* cond);
 };
 
-class FASTDB_DLL_ENTRY dbTtree { 
+class FASTDB_DLL_ENTRY dbTtree {
   protected:
     oid_t root;
 
@@ -54,13 +54,13 @@ class FASTDB_DLL_ENTRY dbTtree {
     static oid_t allocate(dbDatabase* db);
     static void  find(dbDatabase* db, oid_t treeId, dbSearchContext& sc);
     static void  prefixSearch(dbDatabase* db, oid_t treeId, dbSearchContext& sc);
-    static void  insert(dbDatabase* db, oid_t treeId, oid_t recordId, 
+    static void  insert(dbDatabase* db, oid_t treeId, oid_t recordId,
                         int type, int sizeofType, dbUDTComparator comparator, int offs);
     static void  remove(dbDatabase* db, oid_t treeId, oid_t recordId,
                         int type, int sizeofType, dbUDTComparator comparator, int offs);
     static void  drop(dbDatabase* db, oid_t treeId);
     static void  purge(dbDatabase* db, oid_t treeId);
-    
+
     static void  traverseForward(dbDatabase* db, oid_t treeId,
                                  dbAnyCursor* cursor);
     static void  traverseBackward(dbDatabase* db, oid_t treeId,

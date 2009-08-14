@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 ////////////////////////////////////////////////////////////////////////////
 
@@ -136,7 +136,7 @@ OsStatus RefreshingFileReader::refresh()
          {
             mod_time = sModTimeFileNotExist;
          }
-      }         
+      }
 
       // Check to see if the modification time of the file is different
       // than the last time we checked.

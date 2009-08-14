@@ -1,6 +1,6 @@
-// 
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -65,7 +65,7 @@ RegistrationRow regdata[] =
       "<sip:visitme.com>,<sip:overhere.com>,<sip:comemyway.com>"
    }
 };
-   
+
 class ResultSetRpcTest : public CppUnit::TestCase
 {
    CPPUNIT_TEST_SUITE(ResultSetRpcTest);
@@ -86,7 +86,7 @@ public:
             UtlString* uriKey = new UtlString("uri");
             UtlString* uriValue = new UtlString(regdata[row].uri);
             regRow.insertKeyAndValue(uriKey, uriValue);
-            
+
             UtlString* callidKey = new UtlString("callid");
             UtlString* callidValue = new UtlString(regdata[row].callid);
             regRow.insertKeyAndValue(callidKey, callidValue);
@@ -114,16 +114,16 @@ public:
             UtlString* gruuKey = new UtlString("gruu");
             UtlString* gruuValue = new UtlString(regdata[row].gruu);
             regRow.insertKeyAndValue(gruuKey, gruuValue);
-            
+
             UtlString* pathKey = new UtlString("path");
             UtlString* pathValue = new UtlString(regdata[row].path);
             regRow.insertKeyAndValue(pathKey, pathValue);
-            
+
             registrations.addValue(regRow);
          }
 
          Url target("http://server.exmple.com");
-         
+
          XmlRpcRequest request(target,"RPC.METHOD");
 
          request.addParam(&registrations);
@@ -229,12 +229,11 @@ public:
             "</data></array></value>\n"
             "</param>\n"
             ;
-         
+
          ASSERT_STR_EQUAL(correctRequestBody, requestBody.data());
          CPPUNIT_ASSERT_EQUAL(strlen(correctRequestBody), requestBody.length());
-            
+
       };
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(ResultSetRpcTest);
-

@@ -16,43 +16,43 @@
 
 BEGIN_FASTDB_NAMESPACE
 
-class FASTDB_DLL_ENTRY dbDateTime { 
+class FASTDB_DLL_ENTRY dbDateTime {
     int4 stamp;
   public:
-    bool operator == (dbDateTime const& dt) const { 
+    bool operator == (dbDateTime const& dt) const {
         return stamp == dt.stamp;
     }
-    bool operator != (dbDateTime const& dt) const { 
+    bool operator != (dbDateTime const& dt) const {
         return stamp != dt.stamp;
     }
-    bool operator > (dbDateTime const& dt) const { 
+    bool operator > (dbDateTime const& dt) const {
         return stamp > dt.stamp;
     }
-    bool operator >= (dbDateTime const& dt) const { 
+    bool operator >= (dbDateTime const& dt) const {
         return stamp >= dt.stamp;
     }
-    bool operator < (dbDateTime const& dt) const { 
+    bool operator < (dbDateTime const& dt) const {
         return stamp < dt.stamp;
     }
-    bool operator <= (dbDateTime const& dt) const { 
+    bool operator <= (dbDateTime const& dt) const {
         return stamp <= dt.stamp;
     }
-    int operator - (dbDateTime const& dt) const { 
+    int operator - (dbDateTime const& dt) const {
         return stamp - dt.stamp;
     }
-    int operator + (dbDateTime const& dt) const { 
+    int operator + (dbDateTime const& dt) const {
         return stamp + dt.stamp;
     }
-    static dbDateTime current() { 
+    static dbDateTime current() {
         return dbDateTime(time(NULL));
     }
     dbDateTime(time_t tm) {
         stamp = (int4)tm;
     }
-    dbDateTime() { 
+    dbDateTime() {
         stamp = -1;
-    } 
-    bool isValid() const { 
+    }
+    bool isValid() const {
         return stamp != -1;
     }
 
@@ -60,9 +60,9 @@ class FASTDB_DLL_ENTRY dbDateTime {
 
     void clear() { stamp = -1; }
 
-    dbDateTime(int year, int month, int day, 
-               int hour=0, int min=0, int sec = 0) 
-    { 
+    dbDateTime(int year, int month, int day,
+               int hour=0, int min=0, int sec = 0)
+    {
         struct tm t;
         t.tm_year = year > 1900 ? year - 1900 : year;
         t.tm_mon = month-1;
@@ -73,12 +73,12 @@ class FASTDB_DLL_ENTRY dbDateTime {
         t.tm_isdst = -1;
         stamp = (int4)mktime(&t);
     }
-    dbDateTime(int hour, int min) { 
+    dbDateTime(int hour, int min) {
         stamp = (hour*60+min)*60;
     }
 
 #if defined(HAVE_LOCALTIME_R) && !defined(NO_PTHREADS)
-    int year() { 
+    int year() {
         struct tm t;
         time_t tt = (nat4)stamp;
         return localtime_r(&tt, &t)->tm_year + 1900;
@@ -118,13 +118,13 @@ class FASTDB_DLL_ENTRY dbDateTime {
         time_t tt = (nat4)stamp;
         return localtime_r(&tt, &t)->tm_sec;
     }
-    char* asString(char* buf, int buf_size, char const* format = "%c") const { 
+    char* asString(char* buf, int buf_size, char const* format = "%c") const {
         struct tm t;
         time_t tt = (nat4)stamp;
         strftime(buf, buf_size, format, localtime_r(&tt, &t));
         return buf;
     }
-    static dbDateTime currentDate() { 
+    static dbDateTime currentDate() {
         struct tm t;
         time_t curr = time(NULL);
         localtime_r(&curr, &t);
@@ -134,7 +134,7 @@ class FASTDB_DLL_ENTRY dbDateTime {
         return dbDateTime(mktime(&t));
     }
 #else
-    int year() { 
+    int year() {
         time_t tt = (nat4)stamp;
         return localtime(&tt)->tm_year + 1900;
     }
@@ -166,7 +166,7 @@ class FASTDB_DLL_ENTRY dbDateTime {
         time_t tt = (nat4)stamp;
         return localtime(&tt)->tm_sec;
     }
-    char* asString(char* buf, int buf_size, char const* format = "%c") const { 
+    char* asString(char* buf, int buf_size, char const* format = "%c") const {
         time_t tt = (nat4)stamp;
 #ifdef _WINCE
         struct tm* t = localtime(&tt);
@@ -179,7 +179,7 @@ class FASTDB_DLL_ENTRY dbDateTime {
 #endif
         return buf;
     }
-    static dbDateTime currentDate() { 
+    static dbDateTime currentDate() {
         time_t curr = time(NULL);
         struct tm* tp = localtime(&curr);;
         tp->tm_hour = 0;
@@ -187,62 +187,62 @@ class FASTDB_DLL_ENTRY dbDateTime {
         tp->tm_sec = 0;
         return dbDateTime(mktime(tp));
     }
-#endif    
+#endif
 
-    CLASS_DESCRIPTOR(dbDateTime, 
-                     (KEY(stamp,INDEXED|HASHED), 
+    CLASS_DESCRIPTOR(dbDateTime,
+                     (KEY(stamp,INDEXED|HASHED),
                       METHOD(year), METHOD(month), METHOD(day),
                       METHOD(dayOfYear), METHOD(dayOfWeek),
                       METHOD(hour), METHOD(minute), METHOD(second)));
 
-    dbQueryExpression operator == (char const* field) { 
+    dbQueryExpression operator == (char const* field) {
         dbQueryExpression expr;
         expr = dbComponent(field,"stamp"),"=",stamp;
         return expr;
     }
-    dbQueryExpression operator != (char const* field) { 
+    dbQueryExpression operator != (char const* field) {
         dbQueryExpression expr;
         expr = dbComponent(field,"stamp"),"<>",stamp;
         return expr;
     }
-    dbQueryExpression operator < (char const* field) { 
+    dbQueryExpression operator < (char const* field) {
         dbQueryExpression expr;
         expr = dbComponent(field,"stamp"),">",stamp;
         return expr;
     }
-    dbQueryExpression operator <= (char const* field) { 
+    dbQueryExpression operator <= (char const* field) {
         dbQueryExpression expr;
         expr = dbComponent(field,"stamp"),">=",stamp;
         return expr;
     }
-    dbQueryExpression operator > (char const* field) { 
+    dbQueryExpression operator > (char const* field) {
         dbQueryExpression expr;
         expr = dbComponent(field,"stamp"),"<",stamp;
         return expr;
     }
-    dbQueryExpression operator >= (char const* field) { 
+    dbQueryExpression operator >= (char const* field) {
         dbQueryExpression expr;
         expr = dbComponent(field,"stamp"),"<=",stamp;
         return expr;
     }
     friend dbQueryExpression between(char const* field, dbDateTime& from,
                                      dbDateTime& till)
-    { 
+    {
         dbQueryExpression expr;
         expr=dbComponent(field,"stamp"),"between",from.stamp,"and",till.stamp;
         return expr;
     }
 
-    static dbQueryExpression ascent(char const* field) { 
+    static dbQueryExpression ascent(char const* field) {
         dbQueryExpression expr;
         expr=dbComponent(field,"stamp");
         return expr;
-    }   
-    static dbQueryExpression descent(char const* field) { 
+    }
+    static dbQueryExpression descent(char const* field) {
         dbQueryExpression expr;
         expr=dbComponent(field,"stamp"),"desc";
         return expr;
-    }   
+    }
 };
 
 END_FASTDB_NAMESPACE

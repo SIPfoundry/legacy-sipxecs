@@ -37,14 +37,14 @@
 	    Specifies that this is a registration DB file.
 	  </documentation>
 	</annotation>
-      </attribute>	
+      </attribute>
       <attribute name='timestamp' type='integer'>
 	<annotation>
 	  <documentation>
 	    Gives the Unix epoch when the registration DB was dumped.
 	  </documentation>
 	</annotation>
-      </attribute>	
+      </attribute>
     </complexType>
   </element>
 
@@ -88,7 +88,7 @@
       </restriction>
     </simpleType>
   </element>
-  
+
   <element name='cseq'>
     <annotation>
       <documentation>
@@ -102,7 +102,7 @@
       </restriction>
     </simpleType>
   </element>
-  
+
   <element name='primary'>
     <annotation>
       <documentation>
@@ -129,7 +129,7 @@
       </documentation>
     </annotation>
   </element>
-  
+
   <element name='contact' type='sip_types:sip_URI'>
     <annotation>
       <documentation>

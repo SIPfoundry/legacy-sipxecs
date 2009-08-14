@@ -23,10 +23,10 @@ struct dbWriteQuery {
     size_t        pos;
     char          page[dbPageSize];
 };
-    
+
 #define DEFAULT_QUEUE_LENGTH_LIMIT 16*1024
 
-class dbFileWriter { 
+class dbFileWriter {
   private:
     dbLocalSemaphore event;
     dbMutex          mutex;
@@ -41,28 +41,28 @@ class dbFileWriter {
     dbThread         thread;
     dbFile*          file;
 
-    static void thread_proc writeLoop(void* arg) { 
+    static void thread_proc writeLoop(void* arg) {
         ((dbFileWriter*)arg)->write();
     }
 
-    void write() { 
+    void write() {
         mutex.lock();
         while (true) {
             dbWriteQuery* query = first;
             if (query != NULL) {
                 queueLength -= 1;
-                if (overflow) { 
+                if (overflow) {
                     overflow = false;
                     event.signal();
-                }                    
+                }
                 first = query->next;
                 mutex.unlock();
                 file->write(query->pos, query->page, dbPageSize);
                 mutex.lock();
                 query->next = free;
                 free = query;
-            } else { 
-                if (!running) { 
+            } else {
+                if (!running) {
                     break;
                 }
                 underflow = true;
@@ -85,17 +85,17 @@ class dbFileWriter {
         thread.create(&writeLoop, this);
     }
 
-    void setQueueLimit(size_t limit) { 
+    void setQueueLimit(size_t limit) {
         queueLengthLimit = limit;
     }
-         
+
     ~dbFileWriter() {
-        mutex.lock();        
+        mutex.lock();
         running = false;
         event.signal();
         mutex.unlock();
         thread.join();
-        dbWriteQuery* query = first; 
+        dbWriteQuery* query = first;
         while (query != NULL) {
             dbWriteQuery* next = query->next;
             delete query;
@@ -103,8 +103,8 @@ class dbFileWriter {
         }
         event.close();
     }
-    
-    void put(size_t pos, void* page, size_t size) { 
+
+    void put(size_t pos, void* page, size_t size) {
         char* beg = (char*)page;
         char* end = beg + size;
         while (beg < end) {
@@ -114,21 +114,21 @@ class dbFileWriter {
         }
     }
 
-    void put(size_t pos, void* page) { 
+    void put(size_t pos, void* page) {
         mutex.lock();
-        while (queueLength >= queueLengthLimit) { 
+        while (queueLength >= queueLengthLimit) {
             overflow = true;
             event.wait(mutex);
         }
         dbWriteQuery* query = free;
-        if (query == NULL) { 
+        if (query == NULL) {
             query = new dbWriteQuery();
-        } else {                                
+        } else {
             free = query->next;
         }
-        if (first == NULL) { 
+        if (first == NULL) {
             first = query;
-        } else { 
+        } else {
             last->next = query;
         }
         queueLength += 1;
@@ -136,7 +136,7 @@ class dbFileWriter {
         query->next = NULL;
         query->pos = pos;
         memcpy(query->page, page, dbPageSize);
-        if (underflow) { 
+        if (underflow) {
             underflow = false;
             event.signal();
         }
@@ -144,8 +144,8 @@ class dbFileWriter {
     }
 };
 
-void dbFile::setCheckpointBufferSize(size_t nPages) 
-{ 
+void dbFile::setCheckpointBufferSize(size_t nPages)
+{
     writer->setQueueLimit(nPages);
 }
 
@@ -159,7 +159,7 @@ dbFile::dbFile()
     readonly = false;
 
 #ifdef REPLICATION_SUPPORT
-    currUpdateCount = NULL; 
+    currUpdateCount = NULL;
     diskUpdateCount = NULL;
     rootPage = NULL;
     db = NULL;
@@ -171,7 +171,7 @@ dbFile::~dbFile()
 }
 
 #if defined(REPLICATION_SUPPORT) || defined(NO_MMAP)
-const size_t dbMaxSyncSegmentSize = 128*1024 / dbModMapBlockSize; 
+const size_t dbMaxSyncSegmentSize = 128*1024 / dbModMapBlockSize;
 #endif
 
 #ifdef REPLICATION_SUPPORT
@@ -182,7 +182,7 @@ int dbFile::dbSyncTimeout = 1000; // one second
 
 bool dbFile::updatePages(socket_t* s, size_t pos, int pageUpdateCounter, int size)
 {
-    if (pos + size > mmapSize) { 
+    if (pos + size > mmapSize) {
         size_t newSize = pos + size > mmapSize*2 ? pos + size : mmapSize*2;
         setSize(newSize, sharedName);
         ((dbHeader*)mmapAddr)->size = newSize;
@@ -190,12 +190,12 @@ bool dbFile::updatePages(socket_t* s, size_t pos, int pageUpdateCounter, int siz
         db->header = (dbHeader*)mmapAddr;
         db->version = db->monitor->version += 1;
     }
-    if (s->read(mmapAddr + pos, size)) {        
+    if (s->read(mmapAddr + pos, size)) {
         int pageNo = pos >> dbModMapBlockBits;
-        if (updateCounter < pageUpdateCounter) { 
+        if (updateCounter < pageUpdateCounter) {
             updateCounter = pageUpdateCounter;
         }
-        while (size > 0) { 
+        while (size > 0) {
             currUpdateCount[pageNo++] = pageUpdateCounter;
             size -= dbModMapBlockSize;
         }
@@ -206,7 +206,7 @@ bool dbFile::updatePages(socket_t* s, size_t pos, int pageUpdateCounter, int siz
 
 bool dbFile::concurrentUpdatePages(socket_t* s, size_t pos, int pageUpdateCounter, int size)
 {
-    if (pos + size > mmapSize) { 
+    if (pos + size > mmapSize) {
         size_t newSize = pos + size > mmapSize*2 ? pos + size : mmapSize*2;
         TRACE_IMSG(("Extend database from %ld to %ld\n", (long)mmapSize, (long)newSize));
         db->beginTransaction(dbDatabase::dbCommitLock);
@@ -220,11 +220,11 @@ bool dbFile::concurrentUpdatePages(socket_t* s, size_t pos, int pageUpdateCounte
         db->version = db->monitor->version += 1;
         db->endTransaction();
     }
-    if (pos == 0 && size <= pageSize) { 
-        if (!s->read(rootPage, size)) {         
+    if (pos == 0 && size <= pageSize) {
+        if (!s->read(rootPage, size)) {
             return false;
-        }        
-        if (((dbHeader*)rootPage)->curr != ((dbHeader*)mmapAddr)->curr) { 
+        }
+        if (((dbHeader*)rootPage)->curr != ((dbHeader*)mmapAddr)->curr) {
             TRACE_MSG(("Commit transaction at replica\n"));
             db->beginTransaction(dbDatabase::dbCommitLock);
 #ifdef PROTECT_DATABASE
@@ -240,17 +240,17 @@ bool dbFile::concurrentUpdatePages(socket_t* s, size_t pos, int pageUpdateCounte
             rr.size = 0;
             s->write(&rr, sizeof rr);
 #endif
-        } else { 
+        } else {
 #ifdef PROTECT_DATABASE
             unprotect(pos, size);
 #endif
             memcpy(mmapAddr, rootPage, size);
         }
-    } else { 
+    } else {
 #ifdef PROTECT_DATABASE
         unprotect(pos, size);
 #endif
-        if (!s->read(mmapAddr + pos, size)) {   
+        if (!s->read(mmapAddr + pos, size)) {
 #ifdef PROTECT_DATABASE
             protect(pos, size);
 #endif
@@ -262,24 +262,24 @@ bool dbFile::concurrentUpdatePages(socket_t* s, size_t pos, int pageUpdateCounte
     protect(pos, size);
 #endif
     int pageNo = pos >> dbModMapBlockBits;
-    if (updateCounter < pageUpdateCounter) { 
+    if (updateCounter < pageUpdateCounter) {
         updateCounter = pageUpdateCounter;
     }
-    while (size > 0) { 
+    while (size > 0) {
         currUpdateCount[pageNo++] = pageUpdateCounter;
         size -= dbModMapBlockSize;
     }
     return true;
 }
 
-int dbFile::getUpdateCountTableSize() { 
+int dbFile::getUpdateCountTableSize() {
     int nPages = mmapSize >> dbModMapBlockBits;
     while (--nPages >= 0 && diskUpdateCount[nPages] == 0);
     return nPages + 1;
 }
 
-int dbFile::getMaxPages() 
-{ 
+int dbFile::getMaxPages()
+{
     return 1 << (dbDatabaseOffsetBits - dbModMapBlockBits);
 }
 
@@ -309,12 +309,12 @@ void thread_proc dbFile::startSyncToDisk(void* arg)
 }
 
 void thread_proc dbFile::startRecovery(void* arg)
-{    
+{
     RecoveryRequest* rr = (RecoveryRequest*)arg;
     rr->file->doRecovery(rr->nodeId, rr->updateCounters, rr->nPages);
-    { 
+    {
         dbCriticalSection cs(rr->file->replCS);
-        if (--rr->file->nRecovered == 0) { 
+        if (--rr->file->nRecovered == 0) {
             rr->file->recoveredEvent.signal();
         }
     }
@@ -328,9 +328,9 @@ void dbFile::recovery(int nodeId, int* updateCounters, int nPages)
     rr->updateCounters = updateCounters;
     rr->nPages = nPages;
     rr->file = this;
-    { 
+    {
         dbCriticalSection cs(replCS);
-        if (nRecovered++ == 0) { 
+        if (nRecovered++ == 0) {
             recoveredEvent.reset();
         }
     }
@@ -347,17 +347,17 @@ int dbFile::sendChanges(int nodeId, int* updateCounters, int nPages)
     TRACE_MSG(("Database synchronization: mmapSize=%ld\n", mmapSize));
     size_t i, j, n;
 
-    for (i = 0, j = 0, n = mmapSize >> dbModMapBlockBits; i < n; i++) { 
-        if (updateCounters[i] > currUpdateCount[i]) { 
+    for (i = 0, j = 0, n = mmapSize >> dbModMapBlockBits; i < n; i++) {
+        if (updateCounters[i] > currUpdateCount[i]) {
             updateCounters[i] = 0;
-        } else { 
-            if (updateCounters[i] > maxUpdateCount) { 
+        } else {
+            if (updateCounters[i] > maxUpdateCount) {
                 maxUpdateCount = updateCounters[i];
             }
         }
         if (i > j && (currUpdateCount[i] <= updateCounters[i] || i-j >= dbMaxSyncSegmentSize
-                      || currUpdateCount[i] != currUpdateCount[j])) 
-        {                   
+                      || currUpdateCount[i] != currUpdateCount[j]))
+        {
             rr.op = ReplicationRequest::RR_RECOVER_PAGE;
             rr.nodeId = nodeId;
             rr.size = (i-j)*dbModMapBlockSize;
@@ -369,16 +369,16 @@ int dbFile::sendChanges(int nodeId, int* updateCounters, int nPages)
             }
             j = i;
         }
-        if (i >= (size_t)nPages || currUpdateCount[i] > updateCounters[i]) { 
-            if (currUpdateCount[i] > maxUpdateCount) { 
+        if (i >= (size_t)nPages || currUpdateCount[i] > updateCounters[i]) {
+            if (currUpdateCount[i] > maxUpdateCount) {
                 maxUpdateCount = currUpdateCount[i];
             }
             updateCounters[i] = currUpdateCount[i];
-        } else { 
+        } else {
             j = i + 1;
         }
-    }      
-    if (i != j) { 
+    }
+    if (i != j) {
         rr.op = ReplicationRequest::RR_RECOVER_PAGE;
         rr.nodeId = nodeId;
         rr.size = (i-j)*dbModMapBlockSize;
@@ -388,7 +388,7 @@ int dbFile::sendChanges(int nodeId, int* updateCounters, int nPages)
         if (!db->writeReq(nodeId, rr, mmapAddr + rr.page.offs, rr.size)) {
             return -1;
         }
-    }   
+    }
     return maxUpdateCount;
 }
 
@@ -399,9 +399,9 @@ void dbFile::completeRecovery(int nodeId)
     rr.op = ReplicationRequest::RR_STATUS;
     rr.nodeId = nodeId;
     db->con[nodeId].status = rr.status = dbReplicatedDatabase::ST_STANDBY;
-    for (int i = 0, n = db->nServers; i < n; i++) {                 
+    for (int i = 0, n = db->nServers; i < n; i++) {
         if (db->con[i].status != dbReplicatedDatabase::ST_OFFLINE && i != db->id) {
-            db->writeReq(i, rr); 
+            db->writeReq(i, rr);
         }
     }
 }
@@ -411,30 +411,30 @@ void dbFile::doRecovery(int nodeId, int* updateCounters, int nPages)
     int maxUpdateCount;
     memset(updateCounters+nPages, 0, (getMaxPages() - nPages)*sizeof(int));
 
-    if (db->con[nodeId].reqSock == NULL) { 
+    if (db->con[nodeId].reqSock == NULL) {
         char buf[256];
-        socket_t* s = socket_t::connect(db->serverURL[nodeId], 
-                                        socket_t::sock_global_domain, 
+        socket_t* s = socket_t::connect(db->serverURL[nodeId],
+                                        socket_t::sock_global_domain,
                                         db->recoveryConnectionAttempts);
-        if (!s->is_ok()) { 
+        if (!s->is_ok()) {
             s->get_error_text(buf, sizeof buf);
             dbTrace("Failed to establish connection with node %d: %s\n",
                     nodeId, buf);
             delete s;
             return;
-        } 
+        }
         ReplicationRequest rr;
         rr.op = ReplicationRequest::RR_GET_STATUS;
         rr.nodeId = db->id;
-        if (!s->write(&rr, sizeof rr) || !s->read(&rr, sizeof rr)) { 
+        if (!s->write(&rr, sizeof rr) || !s->read(&rr, sizeof rr)) {
             s->get_error_text(buf, sizeof buf);
             dbTrace("Connection with node %d is broken: %s\n",
                     nodeId, buf);
             delete s;
             return;
         }
-        if (rr.op != ReplicationRequest::RR_STATUS && rr.status != dbReplicatedDatabase::ST_STANDBY) { 
-            dbTrace("Unexpected response from standby node %d: code %d status %d\n", 
+        if (rr.op != ReplicationRequest::RR_STATUS && rr.status != dbReplicatedDatabase::ST_STANDBY) {
+            dbTrace("Unexpected response from standby node %d: code %d status %d\n",
                      nodeId, rr.op, rr.status);
             delete s;
             return;
@@ -443,18 +443,18 @@ void dbFile::doRecovery(int nodeId, int* updateCounters, int nPages)
         }
     }
 
-    for (int i = 0; i < db->maxAsyncRecoveryIterations; i++) { 
-        { 
+    for (int i = 0; i < db->maxAsyncRecoveryIterations; i++) {
+        {
             dbCriticalSection cs(syncCS);
             maxUpdateCount = sendChanges(nodeId, updateCounters, nPages);
-            if (maxUpdateCount < 0) { 
+            if (maxUpdateCount < 0) {
                 delete[] updateCounters;
                 return;
             }
         }
-        { 
+        {
             dbCriticalSection cs(replCS);
-            if (maxUpdateCount == updateCounter) { 
+            if (maxUpdateCount == updateCounter) {
                 delete[] updateCounters;
                 completeRecovery(nodeId);
                 return;
@@ -464,10 +464,10 @@ void dbFile::doRecovery(int nodeId, int* updateCounters, int nPages)
     {
         dbTrace("Syncronouse recovery of node %d\n", nodeId);
         dbCriticalSection cs1(syncCS);
-        dbCriticalSection cs2(replCS); 
+        dbCriticalSection cs2(replCS);
         maxUpdateCount = sendChanges(nodeId, updateCounters, nPages);
         delete[] updateCounters;
-        if (maxUpdateCount >= 0) { 
+        if (maxUpdateCount >= 0) {
             assert(maxUpdateCount == updateCounter);
             completeRecovery(nodeId);
         }
@@ -486,9 +486,9 @@ bool dbFile::write(void const* buf, size_t size)
 
 #ifdef _WIN32
 
-class OS_info : public OSVERSIONINFO { 
-  public: 
-    OS_info() { 
+class OS_info : public OSVERSIONINFO {
+  public:
+    OS_info() {
         dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
         GetVersionEx(this);
     }
@@ -517,7 +517,7 @@ void dbFile::unprotect(size_t pos, size_t size)
 {
     PDWORD oldProtect;
     bool rc = VirtualProtect(mmapAddr + pos, DOALIGN(size, pageSize), PAGE_READWRITE, &oldProtect);
-    assert(rc);    
+    assert(rc);
 }
 #endif
 
@@ -534,10 +534,10 @@ int dbFile::open(char const* fileName, char const* sharedName, bool readonly,
 #else
     fh = CreateFile
 #endif
-        (W32_STRING(fileName), 
-         readonly ? GENERIC_READ : (GENERIC_READ|GENERIC_WRITE), 
-         FILE_SHARE_READ | FILE_SHARE_WRITE, 
-         FASTDB_SECURITY_ATTRIBUTES, 
+        (W32_STRING(fileName),
+         readonly ? GENERIC_READ : (GENERIC_READ|GENERIC_WRITE),
+         FILE_SHARE_READ | FILE_SHARE_WRITE,
+         FASTDB_SECURITY_ATTRIBUTES,
          readonly ? OPEN_EXISTING : OPEN_ALWAYS,
 #ifdef _WINCE
          FILE_ATTRIBUTE_NORMAL
@@ -561,13 +561,13 @@ int dbFile::open(char const* fileName, char const* sharedName, bool readonly,
         return status;
     }
     assert(highSize == 0);
-    
+
     mmapSize = fileSize;
 
     this->sharedName = new char[strlen(sharedName) + 1];
     strcpy(this->sharedName, sharedName);
 
-    if (!readonly && fileSize == 0) { 
+    if (!readonly && fileSize == 0) {
         mmapSize = initSize;
     }
 #else
@@ -576,54 +576,54 @@ int dbFile::open(char const* fileName, char const* sharedName, bool readonly,
     mmapSize = fileSize = initSize;
 #endif
 #if defined(NO_MMAP)
-    if (fileSize < mmapSize && !readonly) { 
+    if (fileSize < mmapSize && !readonly) {
         if (SetFilePointer(fh, mmapSize, NULL, FILE_BEGIN) != mmapSize || !SetEndOfFile(fh)) {
             status = GetLastError();
             CloseHandle(fh);
             return status;
         }
     }
-    mmapAddr = (char*)VirtualAlloc(NULL, mmapSize, MEM_COMMIT|MEM_RESERVE, 
+    mmapAddr = (char*)VirtualAlloc(NULL, mmapSize, MEM_COMMIT|MEM_RESERVE,
                                    PAGE_READWRITE);
-           
+
 #ifdef DISKLESS_CONFIGURATION
-    if (mmapAddr == NULL) 
+    if (mmapAddr == NULL)
 #else
     DWORD readBytes;
     if (mmapAddr == NULL
-        || !ReadFile(fh, mmapAddr, fileSize, &readBytes, NULL) || readBytes != fileSize) 
-#endif    
-    {  
+        || !ReadFile(fh, mmapAddr, fileSize, &readBytes, NULL) || readBytes != fileSize)
+#endif
+    {
         status = GetLastError();
-        if (fh != INVALID_HANDLE_VALUE) { 
+        if (fh != INVALID_HANDLE_VALUE) {
             CloseHandle(fh);
         }
         return status;
-    } 
+    }
     memset(mmapAddr+fileSize, 0, mmapSize - fileSize);
     mh = NULL;
 #else
-    mh = CreateFileMapping(fh, FASTDB_SECURITY_ATTRIBUTES, readonly ? PAGE_READONLY : PAGE_READWRITE, 
+    mh = CreateFileMapping(fh, FASTDB_SECURITY_ATTRIBUTES, readonly ? PAGE_READONLY : PAGE_READWRITE,
                            0, mmapSize, W32_STRING(sharedName));
     status = GetLastError();
-    if (mh == NULL) { 
-        if (fh != INVALID_HANDLE_VALUE) { 
+    if (mh == NULL) {
+        if (fh != INVALID_HANDLE_VALUE) {
             CloseHandle(fh);
         }
         return status;
     }
     mmapAddr = (char*)MapViewOfFile(mh, readonly ? FILE_MAP_READ : FILE_MAP_ALL_ACCESS, 0, 0, 0);
-    if (mmapAddr == NULL) { 
+    if (mmapAddr == NULL) {
         status = GetLastError();
         CloseHandle(mh);
-        if (fh != INVALID_HANDLE_VALUE) { 
+        if (fh != INVALID_HANDLE_VALUE) {
             CloseHandle(fh);
         }
         return status;
-    } 
+    }
     if (status != ERROR_ALREADY_EXISTS && mmapSize > fileSize)
-        //      && osinfo.dwPlatformId != VER_PLATFORM_WIN32_NT) 
-    { 
+        //      && osinfo.dwPlatformId != VER_PLATFORM_WIN32_NT)
+    {
         // Windows 95 doesn't initialize pages
         memset(mmapAddr+fileSize, 0, mmapSize - fileSize);
     }
@@ -640,17 +640,17 @@ int dbFile::open(char const* fileName, char const* sharedName, bool readonly,
 
 #if defined(REPLICATION_SUPPORT)
     db = NULL;
-    int nPages = getMaxPages();        
+    int nPages = getMaxPages();
     currUpdateCount = new int[nPages];
 
-    if (replicationSupport) { 
+    if (replicationSupport) {
         char* cFileName = new char[strlen(fileName) + 5];
         strcat(strcpy(cFileName, fileName), ".cnt");
-        
+
 #ifdef DISKLESS_CONFIGURATION
         cfh = INVALID_HANDLE_VALUE;
 #else
-        cfh = CreateFile(cFileName, GENERIC_READ|GENERIC_WRITE, 
+        cfh = CreateFile(cFileName, GENERIC_READ|GENERIC_WRITE,
                          0, NULL, OPEN_ALWAYS,
                          FILE_FLAG_RANDOM_ACCESS|FILE_FLAG_WRITE_THROUGH,
                          NULL);
@@ -660,26 +660,26 @@ int dbFile::open(char const* fileName, char const* sharedName, bool readonly,
             return status;
         }
 #endif
-        cmh = CreateFileMapping(cfh, NULL, PAGE_READWRITE, 0, 
+        cmh = CreateFileMapping(cfh, NULL, PAGE_READWRITE, 0,
                                 nPages*sizeof(int), NULL);
         status = GetLastError();
-        if (cmh == NULL) { 
+        if (cmh == NULL) {
             CloseHandle(cfh);
             return status;
         }
         diskUpdateCount = (int*)MapViewOfFile(cmh, FILE_MAP_ALL_ACCESS, 0, 0, 0);
-        if (diskUpdateCount == NULL) { 
+        if (diskUpdateCount == NULL) {
             status = GetLastError();
             CloseHandle(cmh);
             CloseHandle(cfh);
             return status;
-        } 
+        }
         rootPage = dbMalloc(pageSize);
         int maxCount = 0;
-        for (int i = 0; i < nPages; i++) {      
+        for (int i = 0; i < nPages; i++) {
             int count = diskUpdateCount[i];
             currUpdateCount[i] = count;
-            if (count > maxCount) { 
+            if (count > maxCount) {
                 maxCount = count;
             }
         }
@@ -695,16 +695,16 @@ int dbFile::open(char const* fileName, char const* sharedName, bool readonly,
     writer = new dbFileWriter(this);
 #endif
 
-    return ok; 
+    return ok;
 }
 
-bool dbFile::write(size_t pos, void const* ptr, size_t size) 
+bool dbFile::write(size_t pos, void const* ptr, size_t size)
 {
     DWORD written;
     if (SetFilePointer(fh, pos, NULL, FILE_BEGIN) != pos ||
-        !WriteFile(fh, ptr, size, &written, NULL) 
-        || written != (DWORD)size) 
-    { 
+        !WriteFile(fh, ptr, size, &written, NULL)
+        || written != (DWORD)size)
+    {
         dbTrace("Failed to save page to the disk, position=%ld, size=%ld, error=%d\n",
                 (long)pos, (long)size, GetLastError());
         return false;
@@ -717,17 +717,17 @@ void dbFile::syncToDisk()
 {
     syncThread.setPriority(dbThread::THR_PRI_LOW);
     dbCriticalSection cs(syncCS);
-    while (doSync) { 
-        size_t i, j, k, n; 
+    while (doSync) {
+        size_t i, j, k, n;
         int maxUpdated = 0;
-        for (i = 0, n = mmapSize >> dbModMapBlockBits; i < n;) { 
+        for (i = 0, n = mmapSize >> dbModMapBlockBits; i < n;) {
             int updateCounters[dbMaxSyncSegmentSize];
-            for (j=i; j < (mmapSize >> dbModMapBlockBits) && j-i < dbMaxSyncSegmentSize 
+            for (j=i; j < (mmapSize >> dbModMapBlockBits) && j-i < dbMaxSyncSegmentSize
                      && currUpdateCount[j] > diskUpdateCount[j]; j++)
             {
                 updateCounters[j-i] = currUpdateCount[j];
             }
-            if (i != j) { 
+            if (i != j) {
                 size_t pos = (i << dbModMapBlockBits) & ~(pageSize-1);
                 size_t size = (((j-i) << dbModMapBlockBits) + pageSize - 1) & ~(pageSize-1);
 #ifdef NO_MMAP
@@ -735,23 +735,23 @@ void dbFile::syncToDisk()
 #else
                 FlushViewOfFile(mmapAddr + pos, size);
 #endif
-                for (k = 0; i < j; k++, i++) {  
+                for (k = 0; i < j; k++, i++) {
                     diskUpdateCount[i] = updateCounters[k];
                 }
                 maxUpdated = i;
-            } else { 
+            } else {
                 i += 1;
             }
-            if (!doSync) { 
+            if (!doSync) {
                 return;
             }
         }
-        if (maxUpdated != 0) { 
+        if (maxUpdated != 0) {
             FlushViewOfFile(diskUpdateCount, maxUpdated*sizeof(int));
         }
-        if (closing && maxUpdated == 0) { 
+        if (closing && maxUpdated == 0) {
             return;
-        } else { 
+        } else {
             syncEvent.wait(syncCS, dbSyncTimeout);
         }
     }
@@ -760,8 +760,8 @@ void dbFile::syncToDisk()
 
 int dbFile::create(const char* name, bool noBuffering)
 {
-    fh = CreateFile(W32_STRING(name), GENERIC_READ|GENERIC_WRITE, 0, FASTDB_SECURITY_ATTRIBUTES, CREATE_ALWAYS, 
-                    (noBuffering ? FILE_FLAG_NO_BUFFERING : 0)|FILE_FLAG_SEQUENTIAL_SCAN, NULL); 
+    fh = CreateFile(W32_STRING(name), GENERIC_READ|GENERIC_WRITE, 0, FASTDB_SECURITY_ATTRIBUTES, CREATE_ALWAYS,
+                    (noBuffering ? FILE_FLAG_NO_BUFFERING : 0)|FILE_FLAG_SEQUENTIAL_SCAN, NULL);
     if (fh == INVALID_HANDLE_VALUE) {
         return GetLastError();
     }
@@ -772,24 +772,24 @@ int dbFile::create(const char* name, bool noBuffering)
 }
 
 int dbFile::read(void* buf, size_t& readBytes, size_t size)
-{  
+{
     DWORD count;
-    if (ReadFile(fh, buf, size, &count, NULL)) { 
+    if (ReadFile(fh, buf, size, &count, NULL)) {
         readBytes = count;
         return ok;
-    } else { 
+    } else {
         readBytes = 0;
         return GetLastError();
     }
 }
 
 int dbFile::write(void const* buf, size_t& writtenBytes, size_t size)
-{  
+{
     DWORD count;
-    if (WriteFile(fh, buf, size, &count, NULL)) { 
+    if (WriteFile(fh, buf, size, &count, NULL)) {
         writtenBytes = count;
         return ok;
-    } else { 
+    } else {
         writtenBytes = 0;
         return GetLastError();
     }
@@ -800,29 +800,29 @@ int dbFile::flush(bool physical)
 {
 #if defined(REPLICATION_SUPPORT)
     dbCriticalSection cs(replCS);
-    if (db == NULL) { 
+    if (db == NULL) {
         physical = true;
     }
     if (!physical) {
-        updateCounter += 1; 
+        updateCounter += 1;
     }
 #endif
 #if defined(REPLICATION_SUPPORT) || (defined(NO_MMAP) && !defined(DISKLESS_CONFIGURATION))
     int* map = pageMap;
-    for (size_t i = 0, n = pageMapSize; i < n; i++) { 
-        if (map[i] != 0) { 
+    for (size_t i = 0, n = pageMapSize; i < n; i++) {
+        if (map[i] != 0) {
             size_t pos = i << (dbModMapBlockBits + 5);
             unsigned mask = map[i];
             int count = 0;
-            do { 
+            do {
                 size_t size = 0;
-                while ((mask & 1) == 0) { 
+                while ((mask & 1) == 0) {
                     pos += dbModMapBlockSize;
                     mask >>= 1;
                     count += 1;
-                }  
-                while (true) {  
-                    do { 
+                }
+                while (true) {
+                    do {
 #ifdef REPLICATION_SUPPORT
                         if (!physical) {
                             currUpdateCount[(pos + size) >> dbModMapBlockBits] = updateCounter;
@@ -832,21 +832,21 @@ int dbFile::flush(bool physical)
                         mask >>= 1;
                         count += 1;
                     } while ((mask & 1) != 0);
-                    if (i+1 < n && count == 32 && size < dbMaxSyncSegmentSize*dbModMapBlockSize 
-                        && (map[i+1] & 1) != 0) 
-                    { 
+                    if (i+1 < n && count == 32 && size < dbMaxSyncSegmentSize*dbModMapBlockSize
+                        && (map[i+1] & 1) != 0)
+                    {
                         map[i] = 0;
                         mask = map[++i];
                         count = 0;
-                    } else { 
+                    } else {
                         break;
                     }
                 }
 #if defined(REPLICATION_SUPPORT)
-                if (db != NULL) { 
-                    if (!physical) { 
-                        for (int j = db->nServers; --j >= 0;) { 
-                            if (db->con[j].status == dbReplicatedDatabase::ST_STANDBY) { 
+                if (db != NULL) {
+                    if (!physical) {
+                        for (int j = db->nServers; --j >= 0;) {
+                            if (db->con[j].status == dbReplicatedDatabase::ST_STANDBY) {
                                 ReplicationRequest rr;
                                 rr.op = ReplicationRequest::RR_UPDATE_PAGE;
                                 rr.nodeId = db->id;
@@ -859,13 +859,13 @@ int dbFile::flush(bool physical)
                     }
                     pos += size;
                     continue;
-                } 
+                }
 #endif
 #ifndef DISKLESS_CONFIGURATION
 #ifdef FUZZY_CHECKPOINT
                 writer->put(pos, mmapAddr + pos, size);
 #else
-                if (!write(pos, mmapAddr + pos, size)) { 
+                if (!write(pos, mmapAddr + pos, size)) {
                     return GetLastError();
                 }
 #endif
@@ -877,7 +877,7 @@ int dbFile::flush(bool physical)
     }
 #endif
 #if !defined(NO_MMAP) && !defined(DISKLESS_CONFIGURATION) && !defined(REPLICATION_SUPPORT) && !defined(NO_FLUSH_ON_COMMIT)
-    if (!FlushViewOfFile(mmapAddr, mmapSize)) { 
+    if (!FlushViewOfFile(mmapAddr, mmapSize)) {
         return GetLastError();
     }
 #endif
@@ -895,7 +895,7 @@ int dbFile::setSize(size_t size, char const* sharedName, bool initialize)
 #else
 #ifdef NO_MMAP
     char* newBuf = (char*)VirtualAlloc(NULL, size, MEM_COMMIT|MEM_RESERVE, PAGE_READWRITE);
-    if (newBuf == NULL) { 
+    if (newBuf == NULL) {
         return GetLastError();
     }
     if (SetFilePointer(fh, size, NULL, FILE_BEGIN) != size || !SetEndOfFile(fh)) {
@@ -907,37 +907,37 @@ int dbFile::setSize(size_t size, char const* sharedName, bool initialize)
     mmapAddr = newBuf;
     mmapSize = size;
 #else
-    if (!UnmapViewOfFile(mmapAddr) || !CloseHandle(mh)) { 
+    if (!UnmapViewOfFile(mmapAddr) || !CloseHandle(mh)) {
         return GetLastError();
-    } 
-    mh = CreateFileMapping(fh, FASTDB_SECURITY_ATTRIBUTES, readonly ? PAGE_READONLY : PAGE_READWRITE, 
+    }
+    mh = CreateFileMapping(fh, FASTDB_SECURITY_ATTRIBUTES, readonly ? PAGE_READONLY : PAGE_READWRITE,
                            0, size, W32_STRING(sharedName));
     int status = GetLastError();
-    if (mh == NULL) { 
+    if (mh == NULL) {
         printf("CreateFileMapping failed: %d\n", status);
         return status;
     }
     mmapAddr = (char*)MapViewOfFile(mh, readonly ? FILE_MAP_READ : FILE_MAP_ALL_ACCESS, 0, 0, 0);
-    if (mmapAddr == NULL) { 
+    if (mmapAddr == NULL) {
         return GetLastError();
     }
     if (initialize && status != ERROR_ALREADY_EXISTS)
-        //&& osinfo.dwPlatformId != VER_PLATFORM_WIN32_NT) 
+        //&& osinfo.dwPlatformId != VER_PLATFORM_WIN32_NT)
     {
         // Windows 95 doesn't initialize pages
         memset(mmapAddr+mmapSize, 0, size - mmapSize);
-    } 
+    }
     mmapSize = size;
 #endif
-#if defined(NO_MMAP) || defined(REPLICATION_SUPPORT) 
+#if defined(NO_MMAP) || defined(REPLICATION_SUPPORT)
     int newPageMapSize = (size + dbModMapBlockSize*32 - 1) >> (dbModMapBlockBits + 5);
     int* newPageMap = new int[newPageMapSize];
     memcpy(newPageMap, pageMap, pageMapSize*sizeof(int));
-    memset(newPageMap + pageMapSize, 0, 
+    memset(newPageMap + pageMapSize, 0,
            (newPageMapSize-pageMapSize)*sizeof(int));
     delete[] pageMap;
-    pageMapSize = newPageMapSize;    
-    pageMap = newPageMap;    
+    pageMapSize = newPageMapSize;
+    pageMap = newPageMap;
 #endif
 
 #endif
@@ -948,12 +948,12 @@ int dbFile::close()
 {
     delete[] sharedName;
 #if defined(REPLICATION_SUPPORT)
-    if (db != NULL) { 
+    if (db != NULL) {
         closing = true;
         stopSync();
-        { 
+        {
             dbCriticalSection cs(replCS);
-            if (nRecovered != 0) { 
+            if (nRecovered != 0) {
                 recoveredEvent.wait(replCS);
             }
         }
@@ -968,19 +968,19 @@ int dbFile::close()
     dbFree(rootPage);
     rootPage = NULL;
 #endif
-    if (mmapAddr != NULL) { 
+    if (mmapAddr != NULL) {
 #if defined(NO_MMAP)
         int rc = flush();
-        if (rc != ok) { 
+        if (rc != ok) {
             return rc;
         }
 #ifdef FUZZY_CHECKPOINT
         delete writer;
 #endif
-        VirtualFree(mmapAddr, 0, MEM_RELEASE);    
+        VirtualFree(mmapAddr, 0, MEM_RELEASE);
         delete[] pageMap;
 #else
-        if (!UnmapViewOfFile(mmapAddr)) { 
+        if (!UnmapViewOfFile(mmapAddr)) {
             return GetLastError();
         }
 #if defined(REPLICATION_SUPPORT)
@@ -988,7 +988,7 @@ int dbFile::close()
 #endif
 #endif
     }
-    if (mh != NULL) { 
+    if (mh != NULL) {
         if (!CloseHandle(mh)) {
             return GetLastError();
         }
@@ -998,7 +998,7 @@ int dbFile::close()
 
 char* dbFile::errorText(int code, char* buf, size_t bufSize)
 {
-#ifndef PHAR_LAP  
+#ifndef PHAR_LAP
 #if defined(_WINCE) || defined(UNICODE)
     wchar_t cnvBuf[CNV_BUF_SIZE];
     int len = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM,
@@ -1019,7 +1019,7 @@ char* dbFile::errorText(int code, char* buf, size_t bufSize)
                             bufSize-1,
                             NULL);
 #endif
-    if (len == 0) { 
+    if (len == 0) {
         char errcode[64];
         sprintf(errcode, "unknown error code %u", code);
         strncpy(buf, errcode, bufSize-1);
@@ -1074,10 +1074,10 @@ int dbFile::open(char const* name, char const*, bool readonly, size_t initSize, 
 {
     this->readonly = readonly;
 #if defined(USE_SYSV_SHARED_MEMORY) && defined(DISKLESS_CONFIGURATION)
-    if (!shmem.open(name, initSize)) { 
+    if (!shmem.open(name, initSize)) {
         return errno;
     }
-    mmapSize = initSize;           
+    mmapSize = initSize;
     mmapAddr = shmem.get_base();
     fd = -1;
 #else
@@ -1086,12 +1086,12 @@ int dbFile::open(char const* name, char const*, bool readonly, size_t initSize, 
 #endif
     int status;
 #ifdef DISKLESS_CONFIGURATION
-#ifndef MAP_ANONYMOUS 
+#ifndef MAP_ANONYMOUS
     fd = ::open("/dev/zero", O_RDWR, 0);
 #else
-    fd = -1; 
+    fd = -1;
     mmap_attr |= MAP_ANONYMOUS;
-#endif // MAP_ANONYMOUS 
+#endif // MAP_ANONYMOUS
     mmapSize = initSize;
 #else // DISKLESS_CONFIGURATION
     fd = ::open(name, readonly ? O_RDONLY : O_RDWR/*|O_DSYNC*/|O_CREAT
@@ -1099,18 +1099,18 @@ int dbFile::open(char const* name, char const*, bool readonly, size_t initSize, 
                 |O_DIRECT
 #endif
                 , 0666);
-    if (fd < 0) { 
+    if (fd < 0) {
         return errno;
     }
 #if defined(__sun)
     directio(fd, DIRECTIO_ON);
 #endif
-    mmapSize = lseek(fd, 0, SEEK_END); 
-    if (!readonly && mmapSize == 0) { 
+    mmapSize = lseek(fd, 0, SEEK_END);
+    if (!readonly && mmapSize == 0) {
         mmapSize = initSize;
         if (ftruncate(fd, mmapSize) != ok) {
             status = errno;
-            if (fd >= 0) { 
+            if (fd >= 0) {
                 ::close(fd);
             }
             return status;
@@ -1119,13 +1119,13 @@ int dbFile::open(char const* name, char const*, bool readonly, size_t initSize, 
 #endif // DISKLESS_CONFIGURATION
 #ifdef NO_MMAP
     size_t fileSize = mmapSize;
-    if (!readonly && mmapSize < initSize) { 
+    if (!readonly && mmapSize < initSize) {
         mmapSize = initSize;
     }
 #ifdef USE_SYSV_SHARED_MEMORY
-    if (!shmem.open(name, mmapSize)) { 
+    if (!shmem.open(name, mmapSize)) {
         status = errno;
-        if (fd >= 0) { 
+        if (fd >= 0) {
             ::close(fd);
         }
         return status;
@@ -1133,16 +1133,16 @@ int dbFile::open(char const* name, char const*, bool readonly, size_t initSize, 
     mmapAddr = shmem.get_base();
 #else
     mmapAddr = (char*)valloc(mmapSize);
-    if (mmapAddr == NULL) { 
+    if (mmapAddr == NULL) {
         status = errno;
-        if (fd >= 0) { 
+        if (fd >= 0) {
             ::close(fd);
         }
         return status;
     }
 #endif
-    lseek(fd, 0, SEEK_SET); 
-    if ((size_t)::read(fd, mmapAddr, fileSize) != fileSize) { 
+    lseek(fd, 0, SEEK_SET);
+    if ((size_t)::read(fd, mmapAddr, fileSize) != fileSize) {
 #ifdef USE_SYSV_SHARED_MEMORY
         shmem.close();
 #else
@@ -1150,19 +1150,19 @@ int dbFile::open(char const* name, char const*, bool readonly, size_t initSize, 
 #endif
         mmapAddr = NULL;
         status = errno;
-        if (fd >= 0) { 
+        if (fd >= 0) {
             ::close(fd);
         }
         return status;
     }
 #else  // NO_MMAP
-    mmapAddr = (char*)mmap(NULL, mmapSize, 
-                           readonly ? PROT_READ : PROT_READ|PROT_WRITE, 
+    mmapAddr = (char*)mmap(NULL, mmapSize,
+                           readonly ? PROT_READ : PROT_READ|PROT_WRITE,
                            mmap_attr, fd, 0);
-    if (mmapAddr == (char*)-1) { 
+    if (mmapAddr == (char*)-1) {
         status = errno;
         mmapAddr = NULL;
-        if (fd >= 0) { 
+        if (fd >= 0) {
             ::close(fd);
         }
         return status;
@@ -1177,48 +1177,48 @@ int dbFile::open(char const* name, char const*, bool readonly, size_t initSize, 
 #endif
 #if defined(REPLICATION_SUPPORT)
     db = NULL;
-    int nPages = getMaxPages();        
+    int nPages = getMaxPages();
     currUpdateCount = new int[nPages];
 
-    if (replicationSupport) { 
+    if (replicationSupport) {
         char* cFileName = new char[strlen(name) + 5];
         strcat(strcpy(cFileName, name), ".cnt");
         int uc_mmap_attr = MAP_SHARED;
 #ifndef DISKLESS_CONFIGURATION
         cfd = ::open(cFileName, O_RDWR|O_DSYNC|O_CREAT, 0666);
         delete[] cFileName;
-        if (cfd < 0) { 
+        if (cfd < 0) {
             return errno;
         }
         if (ftruncate(cfd, nPages*sizeof(int)) != ok) {
             status = errno;
             ::close(cfd);
-            return status;      
+            return status;
         }
 #else
-#ifndef MAP_ANONYMOUS 
+#ifndef MAP_ANONYMOUS
         cfd = ::open("/dev/zero", O_RDONLY, 0);
 #else
-        cfd = -1; 
+        cfd = -1;
         uc_mmap_attr |= MAP_ANONYMOUS;
-#endif    
 #endif
-        diskUpdateCount = (int*)mmap(NULL, nPages*sizeof(int), 
+#endif
+        diskUpdateCount = (int*)mmap(NULL, nPages*sizeof(int),
                                      PROT_READ|PROT_WRITE, uc_mmap_attr, cfd, 0);
-        if (diskUpdateCount == (int*)-1) { 
+        if (diskUpdateCount == (int*)-1) {
             int status = errno;
             diskUpdateCount = NULL;
-            if (cfd >= 0) { 
+            if (cfd >= 0) {
                 ::close(cfd);
             }
             return status;
         }
         int maxCount = 0;
         rootPage = dbMalloc(pageSize);
-        for (int i = 0; i < nPages; i++) {      
+        for (int i = 0; i < nPages; i++) {
             int count = diskUpdateCount[i];
             currUpdateCount[i] = count;
-            if (count > maxCount) { 
+            if (count > maxCount) {
                 maxCount = count;
             }
         }
@@ -1235,11 +1235,11 @@ int dbFile::open(char const* name, char const*, bool readonly, size_t initSize, 
     return ok;
 }
 
-bool dbFile::write(size_t pos, void const* ptr, size_t size) 
+bool dbFile::write(size_t pos, void const* ptr, size_t size)
 {
     if ((size_t)lseek(fd, pos, SEEK_SET) != pos
-        || (size_t)::write(fd, mmapAddr + pos, size) != size) 
-    { 
+        || (size_t)::write(fd, mmapAddr + pos, size) != size)
+    {
         dbTrace("Failed to save page to the disk, position=%ld, size=%ld, error=%d\n",
                 (long)pos, (long)size, errno);
         return false;
@@ -1252,12 +1252,12 @@ void dbFile::syncToDisk()
 {
     syncThread.setPriority(dbThread::THR_PRI_LOW);
     dbCriticalSection cs(syncCS);
-    while (doSync) { 
-        size_t i, j, k; 
+    while (doSync) {
+        size_t i, j, k;
         int maxUpdated = 0;
-        for (i = 0; i < mmapSize >> dbModMapBlockBits;) { 
+        for (i = 0; i < mmapSize >> dbModMapBlockBits;) {
             int updateCounters[dbMaxSyncSegmentSize];
-            for (j=i; j < (mmapSize >> dbModMapBlockBits) && j-i < dbMaxSyncSegmentSize 
+            for (j=i; j < (mmapSize >> dbModMapBlockBits) && j-i < dbMaxSyncSegmentSize
                      && currUpdateCount[j] > diskUpdateCount[j]; j++)
             {
                 updateCounters[j-i] = currUpdateCount[j];
@@ -1267,26 +1267,26 @@ void dbFile::syncToDisk()
                 size_t size = (((j-i) << dbModMapBlockBits) + pageSize - 1) & ~(pageSize-1);
 #ifdef NO_MMAP
                 write(pos, mmapAddr + pos, size);
-#else 
+#else
                 msync(mmapAddr + pos, size, MS_SYNC);
 #endif
-                for (k = 0; i < j; k++, i++) {  
+                for (k = 0; i < j; k++, i++) {
                     diskUpdateCount[i] = updateCounters[k];
                 }
                 maxUpdated = i;
-            } else { 
+            } else {
                 i += 1;
             }
-            if (!doSync) { 
+            if (!doSync) {
                 return;
             }
         }
-        if (maxUpdated != 0) { 
+        if (maxUpdated != 0) {
             msync((char*)diskUpdateCount, maxUpdated*sizeof(int), MS_SYNC);
         }
-        if (closing && maxUpdated == 0) { 
+        if (closing && maxUpdated == 0) {
             return;
-        } else { 
+        } else {
             syncEvent.wait(syncCS, dbSyncTimeout);
         }
     }
@@ -1298,16 +1298,16 @@ int dbFile::create(const char* name, bool)
 {
     mmapAddr = NULL;
     fd = ::open(name, O_RDWR|O_TRUNC|O_CREAT, 0666);
-    if (fd < 0) { 
+    if (fd < 0) {
         return errno;
     }
     return ok;
 }
 
 int dbFile::read(void* buf, size_t& readBytes, size_t size)
-{  
+{
     long rc = ::read(fd, buf, size);
-    if (rc < 0) { 
+    if (rc < 0) {
         readBytes = 0;
         return errno;
     }
@@ -1316,9 +1316,9 @@ int dbFile::read(void* buf, size_t& readBytes, size_t size)
 }
 
 int dbFile::write(void const* buf, size_t& writtenBytes, size_t size)
-{  
+{
     long rc = ::write(fd, buf, size);
-    if (rc < 0) { 
+    if (rc < 0) {
         writtenBytes = 0;
         return errno;
     }
@@ -1339,22 +1339,22 @@ int dbFile::setSize(size_t size, char const*, bool)
     int newPageMapSize = (size + dbModMapBlockSize*32 - 1) >> (dbModMapBlockBits + 5);
     int* newPageMap = new int[newPageMapSize];
     memcpy(newPageMap, pageMap, pageMapSize*sizeof(int));
-    memset(newPageMap + pageMapSize, 0, 
+    memset(newPageMap + pageMapSize, 0,
            (newPageMapSize-pageMapSize)*sizeof(int));
     delete[] pageMap;
-    pageMapSize = newPageMapSize;    
-    pageMap = newPageMap;    
+    pageMapSize = newPageMapSize;
+    pageMap = newPageMap;
 #endif
 #ifdef NO_MMAP
     char* newBuf = (char*)valloc(size);
-    if (newBuf == NULL) { 
+    if (newBuf == NULL) {
         return errno;
     }
     memcpy(newBuf, mmapAddr, mmapSize);
     free(mmapAddr);
     mmapAddr = newBuf;
     mmapSize = size;
-    if (ftruncate(fd, size) != ok) { 
+    if (ftruncate(fd, size) != ok) {
         return errno;
     }
 #else
@@ -1362,7 +1362,7 @@ int dbFile::setSize(size_t size, char const*, bool)
         (!readonly && ftruncate(fd, size) != ok) ||
         (mmapAddr = (char*)mmap(NULL, size, readonly ? PROT_READ : PROT_READ|PROT_WRITE,
                                 MAP_SHARED, fd, 0)) == (char*)-1)
-    {   
+    {
         return errno;
     }
 #endif
@@ -1371,33 +1371,33 @@ int dbFile::setSize(size_t size, char const*, bool)
     return ok;
 }
 
-int dbFile::flush(bool physical) 
+int dbFile::flush(bool physical)
 {
 #if defined(REPLICATION_SUPPORT)
     dbCriticalSection cs(replCS);
-    if (db == NULL) { 
+    if (db == NULL) {
         physical = true;
-    }   
+    }
     if (!physical) {
-        updateCounter += 1; 
+        updateCounter += 1;
     }
 #endif
 #if defined(REPLICATION_SUPPORT) || (defined(NO_MMAP) && !defined(DISKLESS_CONFIGURATION))
     int* map = pageMap;
-    for (size_t i = 0, n = pageMapSize; i < n; i++) { 
-        if (map[i] != 0) { 
+    for (size_t i = 0, n = pageMapSize; i < n; i++) {
+        if (map[i] != 0) {
             size_t pos = i << (dbModMapBlockBits + 5);
             unsigned mask = map[i];
             int count = 0;
-            do { 
+            do {
                 size_t size = 0;
-                while ((mask & 1) == 0) { 
+                while ((mask & 1) == 0) {
                     pos += dbModMapBlockSize;
                     mask >>= 1;
                     count += 1;
                 }
-                while (true) {  
-                    do { 
+                while (true) {
+                    do {
 #ifdef REPLICATION_SUPPORT
                         if (!physical) {
                             currUpdateCount[(pos + size) >> dbModMapBlockBits] = updateCounter;
@@ -1407,21 +1407,21 @@ int dbFile::flush(bool physical)
                         mask >>= 1;
                         count += 1;
                     } while ((mask & 1) != 0);
-                    if (i+1 < n && count == 32 && size < dbMaxSyncSegmentSize*dbModMapBlockSize 
-                        && (map[i+1] & 1) != 0) 
-                    { 
+                    if (i+1 < n && count == 32 && size < dbMaxSyncSegmentSize*dbModMapBlockSize
+                        && (map[i+1] & 1) != 0)
+                    {
                         map[i] = 0;
                         mask = map[++i];
                         count = 0;
-                    } else { 
+                    } else {
                         break;
                     }
                 }
 #if defined(REPLICATION_SUPPORT)
-                if (db != NULL) { 
-                    if (!physical) { 
-                        for (int j = db->nServers; --j >= 0;) { 
-                            if (db->con[j].status == dbReplicatedDatabase::ST_STANDBY) { 
+                if (db != NULL) {
+                    if (!physical) {
+                        for (int j = db->nServers; --j >= 0;) {
+                            if (db->con[j].status == dbReplicatedDatabase::ST_STANDBY) {
                                 ReplicationRequest rr;
                                 rr.op = ReplicationRequest::RR_UPDATE_PAGE;
                                 rr.nodeId = db->id;
@@ -1439,7 +1439,7 @@ int dbFile::flush(bool physical)
 #ifdef FUZZY_CHECKPOINT
                 writer->put(pos, mmapAddr + pos, size);
 #else
-                if (!write(pos, mmapAddr + pos, size)) { 
+                if (!write(pos, mmapAddr + pos, size)) {
                     return errno;
                 }
 #endif
@@ -1451,7 +1451,7 @@ int dbFile::flush(bool physical)
     }
 #endif
 #if !defined(NO_MMAP) && !defined(DISKLESS_CONFIGURATION) && !defined(REPLICATION_SUPPORT) && !defined(NO_FLUSH_ON_COMMIT)
-    if (msync(mmapAddr, mmapSize, MS_SYNC) != ok) { 
+    if (msync(mmapAddr, mmapSize, MS_SYNC) != ok) {
         return errno;
     }
 #endif
@@ -1469,19 +1469,19 @@ int dbFile::erase()
 int dbFile::close()
 {
 #if defined(REPLICATION_SUPPORT)
-    if (db != NULL) { 
+    if (db != NULL) {
         closing = true;
         stopSync();
-        { 
+        {
             dbCriticalSection cs(replCS);
-            if (nRecovered != 0) { 
+            if (nRecovered != 0) {
                 recoveredEvent.wait(replCS);
             }
         }
         syncEvent.close();
         recoveredEvent.close();
         munmap((char*)diskUpdateCount, getMaxPages()*sizeof(int));
-        if (cfd >= 0) { 
+        if (cfd >= 0) {
             ::close(cfd);
         }
     }
@@ -1491,10 +1491,10 @@ int dbFile::close()
     rootPage = NULL;
 #endif // REPLICATION_SUPPORT
 
-    if (mmapAddr != NULL) { 
+    if (mmapAddr != NULL) {
 #ifdef NO_MMAP
         int rc = flush();
-        if (rc != ok) { 
+        if (rc != ok) {
             return rc;
         }
 #ifdef FUZZY_CHECKPOINT
@@ -1504,9 +1504,9 @@ int dbFile::close()
 #ifdef USE_SYSV_SHARED_MEMORY
         shmem.close();
 #elif defined(NO_MMAP)
-        free(mmapAddr);    
+        free(mmapAddr);
 #else
-        if (munmap(mmapAddr, mmapSize) != ok) { 
+        if (munmap(mmapAddr, mmapSize) != ok) {
             return errno;
         }
 #endif

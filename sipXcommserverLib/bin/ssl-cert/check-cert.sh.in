@@ -25,7 +25,7 @@ do
             ;;
 
         ##
-        ## 
+        ##
         ##
         -w|--warning)
             if [ $# -lt 2 ]
@@ -92,7 +92,7 @@ do
         *)
             Certificates="${Certificates} ${1}"
             ;;
-    esac           
+    esac
 
     shift # always consume 1
 done
@@ -102,7 +102,7 @@ then
     cat <<USAGE
 
 Usage:
-    
+
     check-cert [ -v | --verbose ]
                [ {-w | --warning} <warning-days> ]
                [ {-f | --fail} <failure-days> ]
@@ -115,11 +115,11 @@ Usage:
     Prints a warning if a certificate will expire
       in less than <warning-days> (default is 30)
 
-    Returns failure (and prints message) if a certificate expires 
+    Returns failure (and prints message) if a certificate expires
       in less than <failure-days> (default is 0)
 
     Always returns a failure if any certificate has expired.
-    
+
     The --name option may be repeated any number of times, and if it is
     given, the certificate must declare at least one of the names as a
     valid subject name.  If the certificate uses the subjectAltName
@@ -145,7 +145,7 @@ then
 fi
 
 if [ -f "${Authority}" ]
-then 
+then
     AuthSwitch="-CAfile"
     AuthTarget=${Authority}
 fi
@@ -153,7 +153,7 @@ fi
 if [ -z "${AuthSwitch}" ]
 then
     cat 1>&2 <<EOF
-    No certificate authorities found - cannot validate certificate 
+    No certificate authorities found - cannot validate certificate
      Authorities directory: ${CAdir}
      Authority certificate: "${Authority}"
 EOF
@@ -171,7 +171,7 @@ cert_names () {
                         -nameopt RFC2253,multiline -certopt no_pubkey,no_sigdump -noout \
         | grep --after-context=1 'X509v3 Subject Alternative Name:' \
         | tail -n 1`
-    if [ -z "${subjectAltNameValues}" ] 
+    if [ -z "${subjectAltNameValues}" ]
     then
         # no subjectAltName values in certificate, so output just the common name
         ${openssl} x509 -in "${certFile}" -subject -nameopt RFC2253,multiline -noout \
@@ -235,7 +235,7 @@ do
         UniqueNames=`for n in ${Names}; do echo $n | tr A-Z a-z; done | sort -u`
         Matched="NO"
         for tgtName in ${UniqueNames}
-        do 
+        do
             for crtName in ${CertNames}
             do
                 if [ "${tgtName}" = "${crtName}" ]; then Matched="YES"; fi
@@ -301,9 +301,9 @@ do
         caName=`${openssl} x509 -in "${Certificate}" -issuer -nameopt RFC2253,multiline -noout \
             | perl -ne 'use English; m/^ +commonName += / && print $POSTMATCH'`
 
-        echo "SSL certificate '${Certificate}' name:    ${cert_name}" 
-        echo "SSL certificate '${Certificate}' issuer:  ${caName}" 
-        echo "SSL certificate '${Certificate}' expires: ${cert_expires}" 
+        echo "SSL certificate '${Certificate}' name:    ${cert_name}"
+        echo "SSL certificate '${Certificate}' issuer:  ${caName}"
+        echo "SSL certificate '${Certificate}' expires: ${cert_expires}"
     fi
 
 done
@@ -329,9 +329,9 @@ exit ${ExitStatus}
 
 # DUMP x509v3 = openssl x509 -in /opt/ssl-sipit/ssl.crt -text -certopt ca_default -certopt no_sigdump -certopt no_validity -certopt no_serial -certopt no_subject -certopt no_signame -noout
 #         X509v3 extensions:
-#             X509v3 Basic Constraints: 
+#             X509v3 Basic Constraints:
 #             CA:FALSE
-#             X509v3 Subject Alternative Name: 
+#             X509v3 Subject Alternative Name:
 #             URI:sip:pt.sipit.net, DNS:scott.pt.sipit.net
-#             X509v3 Subject Key Identifier: 
+#             X509v3 Subject Key Identifier:
 #             C1:54:B1:12:21:E5:70:ED:93:26:57:38:97:A9:CA:B4:8B:D4:74:D2

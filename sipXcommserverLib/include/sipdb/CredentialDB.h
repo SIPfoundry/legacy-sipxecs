@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -86,7 +86,7 @@ class CredentialDB
        const UtlString& realm,
        const UtlString& userid,
        UtlString& passtoken,
-       UtlString& authType 
+       UtlString& authType
                                       ) const;
     /// Retrieve the SIP credential check values for a given identity and realm
     UtlBoolean getCredential (
@@ -94,7 +94,7 @@ class CredentialDB
        const UtlString& realm,
        UtlString& userid,
        UtlString& passtoken,
-       UtlString& authType 
+       UtlString& authType
                               ) const;
 
     /// Retrieve the SIP credential check values for a given userid and realm
@@ -112,7 +112,7 @@ class CredentialDB
        const UtlString& realm,
        UtlString& userid,
        UtlString& pintoken,
-       UtlString& authType 
+       UtlString& authType
                            ) const;
 
     /// Retrieve the User PIN check values for a given userid and realm
@@ -121,13 +121,13 @@ class CredentialDB
        const UtlString& realm,
        Url& uri,
        UtlString& pintoken,
-       UtlString& authType 
+       UtlString& authType
                            ) const;
 
     /// Utility method for retrieving all information for a given identity
     void getAllCredentials (
        const Url& uri,
-       ResultSet& cursor 
+       ResultSet& cursor
                             ) const;
 
     /// Determine whether or not a given identity is in the credentials database
@@ -185,4 +185,3 @@ class CredentialDB
 };
 
 #endif //CREDENTIALSDB_H
-

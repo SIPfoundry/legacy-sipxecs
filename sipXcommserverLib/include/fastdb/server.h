@@ -15,7 +15,7 @@
 
 BEGIN_FASTDB_NAMESPACE
 
-class dbColumnBinding { 
+class dbColumnBinding {
   public:
     dbColumnBinding*   next;
     dbFieldDescriptor* fd;
@@ -26,15 +26,15 @@ class dbColumnBinding {
     int  unpackArray(char* dst, size_t offs);
     void unpackScalar(char* dst, bool insert);
 
-    dbColumnBinding(dbFieldDescriptor* field, int type) { 
+    dbColumnBinding(dbFieldDescriptor* field, int type) {
         fd = field;
         cliType = type;
         next = NULL;
     }
 };
 
-struct dbParameterBinding { 
-    union { 
+struct dbParameterBinding {
+    union {
         int1       i1;
         int2       i2;
         int4       i4;
@@ -51,7 +51,7 @@ struct dbParameterBinding {
 
 const int dbQueryMaxIdLength = 256;
 
-class dbQueryScanner { 
+class dbQueryScanner {
   public:
     char*    p;
     db_int8     ival;
@@ -61,17 +61,17 @@ class dbQueryScanner {
 
     int  get();
 
-    void reset(char* stmt) { 
+    void reset(char* stmt) {
         p = stmt;
     }
 };
-    
-class dbStatement { 
+
+class dbStatement {
   public:
     int                 id;
     bool                firstFetch;
     dbStatement*        next;
-    dbAnyCursor*        cursor; 
+    dbAnyCursor*        cursor;
     dbQuery             query;
     dbColumnBinding*    columns;
     char*               buf;
@@ -80,10 +80,10 @@ class dbStatement {
     int                 n_columns;
     dbParameterBinding* params;
     dbTableDescriptor*  table;
-    
+
     void reset();
 
-    dbStatement(int stmt_id) { 
+    dbStatement(int stmt_id) {
         id = stmt_id;
         columns = NULL;
         params = NULL;
@@ -92,15 +92,15 @@ class dbStatement {
         table = NULL;
         cursor = NULL;
     }
-    ~dbStatement() { 
-        reset(); 
+    ~dbStatement() {
+        reset();
         delete[] buf;
     }
 };
 
-class dbSession { 
+class dbSession {
   public:
-    dbSession*         next;  
+    dbSession*         next;
     dbStatement*       stmts;
     dbQueryScanner     scanner;
     socket_t*          sock;
@@ -109,7 +109,7 @@ class dbSession {
     dbTableDescriptor* existed_tables;
 };
 
-class dbServer {     
+class dbServer {
   protected:
     static dbServer* chain;
     dbServer*        next;
@@ -139,8 +139,8 @@ class dbServer {
 
     void serveClient();
     void acceptConnection(socket_t* sock);
-    
-    
+
+
     bool freeze(dbSession* session, int stmt_id);
     bool unfreeze(dbSession* session, int stmt_id);
     bool get_first(dbSession* session, int stmt_id);
@@ -150,7 +150,7 @@ class dbServer {
     bool seek(dbSession* session, int stmt_id, char* buf);
     bool skip(dbSession* session, int stmt_id, char* buf);
     bool fetch(dbSession* session, dbStatement* stmt, oid_t result);
-    bool fetch(dbSession* session, dbStatement* stmt) { 
+    bool fetch(dbSession* session, dbStatement* stmt) {
         return fetch(session, stmt, stmt->cursor->currId);
     }
     bool remove(dbSession* session, int stmt_id);
@@ -158,16 +158,16 @@ class dbServer {
     bool update(dbSession* session, int stmt_id, char* new_data);
     bool insert(dbSession* session, int stmt_id, char* data, bool prepare);
     bool select(dbSession* session, int stmt_id, char* data, bool prepare);
-    bool show_tables(dbSession* session); 
+    bool show_tables(dbSession* session);
     bool describe_table(dbSession* session, char const* table);
     bool create_table(dbSession* session, char* data, bool create);
     bool drop_table(dbSession* session, char* data);
     bool alter_index(dbSession* session, char* data);
 
-    char* checkColumns(dbStatement* stmt, int n_columns, 
-                       dbTableDescriptor* desc, char* data, 
+    char* checkColumns(dbStatement* stmt, int n_columns,
+                       dbTableDescriptor* desc, char* data,
                        int4& reponse);
-      
+
     dbStatement* findStatement(dbSession* stmt, int stmt_id);
 
   public:
@@ -178,8 +178,8 @@ class dbServer {
     void start();
 
     dbServer(dbDatabase* db,
-             char const* serverURL, 
-             int optimalNumberOfThreads = 8,  
+             char const* serverURL,
+             int optimalNumberOfThreads = 8,
              int connectionQueueLen = 64);
     ~dbServer();
 };

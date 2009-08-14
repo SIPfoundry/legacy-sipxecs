@@ -7,7 +7,7 @@ Method: configurationParameter.version
 
     This method should be called by a configuration application to
     confirm that it is using a compatible definition of the database
-    definition.  If the returned version_id does not match what the 
+    definition.  If the returned version_id does not match what the
     configuration application expects, it should not modify the configuration..
 
 
@@ -23,7 +23,7 @@ Method: configurationParameter.get
                 string  parameter-name   parameter value
 
   Returns a struct containing the name and value for each parameter in the input array
-  of parameter names.  
+  of parameter names.
 
   If any parameter in the set is undefined, a PARAMETER_UNDEFINED fault is returned.
 
@@ -38,8 +38,8 @@ Method: configurationParameter.get
     <params>
       <param>
         <value><string>registrar-config</string></value> <!-- dbname -->
-      </param>  
-      <param>  
+      </param>
+      <param>
         <value> <!-- list of parameter names -->
           <array>
             <data>
@@ -57,7 +57,7 @@ Method: configurationParameter.get
   <methodResponse>
     <params>
       <param>
-        <value> 
+        <value>
           <struct> <!-- each element is a parameter name and value -->
             <member>
               <name>SIP_REGISTRAR_TCP_PORT</name>
@@ -79,7 +79,7 @@ Method: configurationParameter.set
   Parameters  Type      Name             Description
   Inputs:
               string    db_name          configuration data set name
-              struct 
+              struct
                 string  parameter-name   value
     ...
   Outputs:
@@ -96,7 +96,7 @@ Method: configurationParameter.set
     <params>
       <param> <!-- dbname -->
         <value><string>registrar-config</string></value>
-      </param>  
+      </param>
       <param> <!-- structure of name-value pairs -->
         <value>
           <struct>
@@ -137,8 +137,8 @@ Method: configurationParameter.delete
     <params>
       <param> <!-- dbname -->
         <value><string>registrar-config</string></value>
-      </param>  
-      <param>  
+      </param>
+      <param>
         <value> <!-- list of parameter names to delete -->
           <array>
             <data>
@@ -150,5 +150,3 @@ Method: configurationParameter.delete
       </param>
     </params>
   </methodCall>
-
-

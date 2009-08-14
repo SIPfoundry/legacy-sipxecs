@@ -30,7 +30,7 @@
 #else
 #define BEGIN_FASTDB_NAMESPACE
 #define END_FASTDB_NAMESPACE
-#define USE_FASTDB_NAMESPACE 
+#define USE_FASTDB_NAMESPACE
 #endif
 
 #if defined(AUTO_DETECT_PROCESS_CRASH) && !defined(RECOVERABLE_CRITICAL_SECTION)
@@ -71,7 +71,7 @@
 #endif
 #ifndef NO_PTHREADS
 #ifndef _REENTRANT
-#define _REENTRANT 
+#define _REENTRANT
 #endif
 #endif
 #endif
@@ -251,7 +251,7 @@ typedef signed   long long db_int8;
 #define int8_high_part(x) ((int4)((db_int8)(x)>>32))
 #define cons_nat8(hi, lo) ((((nat8)(hi)) << 32) | (nat4)(lo))
 #define cons_int8(hi, lo) ((((db_int8)(hi)) << 32) | (nat4)(lo))
- 
+
 #define MAX_NAT8  nat8(-1)
 
 #ifndef INT8_IS_DEFINED
@@ -260,7 +260,7 @@ typedef db_int8 int8;
 typedef db_nat8 nat8;
 
 typedef float  real4;
-typedef double real8; 
+typedef double real8;
 
 #ifndef BIG_ENDIAN
 #define BIG_ENDIAN      4321    /* most-significant byte first (IBM, net) */
@@ -271,16 +271,16 @@ typedef double real8;
 
 #ifndef BYTE_ORDER
 #if defined(__sparc__) || defined(__m68k__)
-#define BYTE_ORDER      BIG_ENDIAN 
+#define BYTE_ORDER      BIG_ENDIAN
 #else
 #define BYTE_ORDER      LITTLE_ENDIAN
 #endif
 #endif
 
 #ifdef _WIN32
-typedef HANDLE descriptor_t; 
+typedef HANDLE descriptor_t;
 #else
-typedef int descriptor_t; 
+typedef int descriptor_t;
 #endif
 
 #if !defined(_fastcall) && (!defined(_WIN32) || defined(__IBMCPP__) || defined(__MINGW32__))
@@ -332,8 +332,8 @@ extern FASTDB_DLL_ENTRY void  dbFree(void* ptr);
 #if defined(IGNORE_CASE) && defined(NO_STRICMP)
 inline int stricmp(const char* p, const char* q)
 {
-    while (toupper(*(unsigned char*)p) == toupper(*(unsigned char*)q)) { 
-        if (*p == '\0') { 
+    while (toupper(*(unsigned char*)p) == toupper(*(unsigned char*)q)) {
+        if (*p == '\0') {
             return 0;
         }
         p += 1;
@@ -350,52 +350,52 @@ inline int stricmp(const char* p, const char* q)
 #ifndef STRINCMP_DEFINED
 inline int strincmp(const char* p, const char* q, size_t n)
 {
-    while (n > 0) { 
+    while (n > 0) {
         int diff = toupper(*(unsigned char*)p) - toupper(*(unsigned char*)q);
-        if (diff != 0) { 
+        if (diff != 0) {
             return diff;
-        } else if (*p == '\0') { 
+        } else if (*p == '\0') {
             return 0;
         }
         p += 1;
         q += 1;
-        n -= 1; 
+        n -= 1;
     }
     return 0;
 }
 #endif
 
-#if defined(IGNORE_CASE) && defined(USE_LOCALE_SETTINGS) && defined(NO_STRICOLL) 
+#if defined(IGNORE_CASE) && defined(USE_LOCALE_SETTINGS) && defined(NO_STRICOLL)
 inline int stricoll(const char* p, const char* q)
 {
     char   p_buf[256];
     char   q_buf[256];
     size_t p_len = strlen(p);
     size_t q_len = strlen(q);
-    char*  p_dst = p_buf; 
-    char*  q_dst = q_buf; 
+    char*  p_dst = p_buf;
+    char*  q_dst = q_buf;
     int    i;
-    if (p_len >= sizeof(p_buf)) { 
+    if (p_len >= sizeof(p_buf)) {
         p_dst = new char[p_len+1];
     }
-    if (q_len >= sizeof(q_buf)) { 
+    if (q_len >= sizeof(q_buf)) {
         q_dst = new char[q_len+1];
     }
-    for (i = 0; p[i] != '\0'; i++) { 
+    for (i = 0; p[i] != '\0'; i++) {
         p_dst[i] = toupper(p[i] & 0xFF);
     }
     p_dst[i] = '\0';
 
-    for (i = 0; q[i] != '\0'; i++) { 
+    for (i = 0; q[i] != '\0'; i++) {
         q_dst[i] = toupper(q[i] & 0xFF);
     }
     q_dst[i] = '\0';
 
     int diff = strcoll(p_dst, q_dst);
-    if (p_dst != p_buf) { 
+    if (p_dst != p_buf) {
         delete[] p_dst;
     }
-    if (q_dst != q_buf) { 
+    if (q_dst != q_buf) {
         delete[] q_dst;
     }
     return diff;
@@ -407,7 +407,3 @@ END_FASTDB_NAMESPACE
 #endif
 
 #endif
-
-
-
-

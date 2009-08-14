@@ -1,6 +1,6 @@
-// 
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -32,7 +32,7 @@ class SipXecsServiceTest : public CppUnit::TestCase
 
 
 public:
-   
+
    FileTestContext* mFileTestContext;
 
    void setUp()
@@ -40,7 +40,7 @@ public:
          mFileTestContext = new FileTestContext(TEST_DATA_DIR "/servicedata",
                                                 TEST_WORK_DIR "/servicedata");
       }
-            
+
    void tearDown()
       {
          delete mFileTestContext;
@@ -64,14 +64,14 @@ public:
          ASSERT_STR_EQUAL(SIPX_CONFDIR "/test-config", testConfigurationPath.data());
 
          setenv(SipXecsService::ConfigurationDirType, "/override/cfg", true /* overwrite */);
-         
+
          testConfigurationPath = SipXecsService::Path(SipXecsService::ConfigurationDirType,
                                                       "test-config");
 
          ASSERT_STR_EQUAL( "/override/cfg/test-config", testConfigurationPath.data());
 
          setenv(SipXecsService::ConfigurationDirType, "/override/cfg/", true /* overwrite */);
-         
+
          testConfigurationPath = SipXecsService::Path(SipXecsService::ConfigurationDirType,
                                                       "test-config");
 
@@ -87,7 +87,7 @@ public:
          ASSERT_STR_EQUAL(SIPX_CONFDIR "/domain-config", testDomainConfigurationPath.data());
 
          setenv(SipXecsService::ConfigurationDirType, "/override/cfg", true /* overwrite */);
-         
+
          testDomainConfigurationPath = SipXecsService::domainConfigPath();
 
          ASSERT_STR_EQUAL( "/override/cfg/domain-config", testDomainConfigurationPath.data());
@@ -104,7 +104,7 @@ public:
          ASSERT_STR_EQUAL(SIPX_LOGDIR "/test.log", testLogPath.data());
 
          setenv(SipXecsService::LogDirType, "/override/log", true /* overwrite */);
-         
+
          testLogPath = SipXecsService::Path(SipXecsService::LogDirType,
                                                      "test.log");
 
@@ -121,13 +121,13 @@ public:
          ASSERT_STR_EQUAL(SIPX_RUNDIR "/test.pid", testRunPath.data());
 
          setenv(SipXecsService::RunDirType, "/override/run", true /* overwrite */);
-         
+
          testRunPath= SipXecsService::Path(SipXecsService::RunDirType,
                                                      "test.pid");
 
          ASSERT_STR_EQUAL( "/override/run/test.pid", testRunPath.data());
       }
-   
+
    void testTmpPath()
       {
          OsPath testTmpPath;
@@ -138,7 +138,7 @@ public:
          ASSERT_STR_EQUAL(SIPX_TMPDIR "/test.tmp", testTmpPath.data());
 
          setenv(SipXecsService::TmpDirType, "/override/tmp", true /* overwrite */);
-         
+
          testTmpPath= SipXecsService::Path(SipXecsService::TmpDirType,
                                                      "test.tmp");
 
@@ -155,7 +155,7 @@ public:
          ASSERT_STR_EQUAL(SIPX_BINDIR "/test.bin", testBinPath.data());
 
          setenv(SipXecsService::BinDirType, "/override/bin", true /* overwrite */);
-         
+
          testBinPath= SipXecsService::Path(SipXecsService::BinDirType,
                                                      "test.bin");
 
@@ -172,7 +172,7 @@ public:
          ASSERT_STR_EQUAL(SIPX_LIBEXECDIR "/test.exe", testLibExecPath.data());
 
          setenv(SipXecsService::LibExecDirType, "/override/libexec", true /* overwrite */);
-         
+
          testLibExecPath= SipXecsService::Path(SipXecsService::LibExecDirType,
                                                      "test.exe");
 
@@ -189,7 +189,7 @@ public:
          ASSERT_STR_EQUAL(SIPX_DBDIR "/test.db", testDatabasePath.data());
 
          setenv(SipXecsService::DatabaseDirType, "/override/data", true /* overwrite */);
-         
+
          testDatabasePath= SipXecsService::Path(SipXecsService::DatabaseDirType,
                                                      "test.db");
 
@@ -207,4 +207,3 @@ public:
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SipXecsServiceTest);
-

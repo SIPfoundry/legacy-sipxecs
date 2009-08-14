@@ -44,4 +44,3 @@ libsipdb_la_SOURCES =  \
    SIPDBManager.cpp \
    SIPXAuthHelper.cpp \
    SubscriptionDB.cpp
-

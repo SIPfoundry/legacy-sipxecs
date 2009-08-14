@@ -82,7 +82,7 @@
                   * (matches all domains)
 
          format='IPv4subnet'
-            An IPv4 subnet, specified as a series of IPv4 address decimal 
+            An IPv4 subnet, specified as a series of IPv4 address decimal
             octet values separated by dots (.), followed by a forward slash
             (/) and a decimal number of bits to be used as a subnet mask value.
             In order to match, the request URI "host" must be a valid IPv4
@@ -91,19 +91,19 @@
 
                Examples:
                   10.0.0.0/8  Matches any IP address with first 8 bits = '10'
-                  192.168/16  
+                  192.168/16
       </documentation>
     </annotation>
     <complexType>
       <simpleContent>
         <extension base='normalizedString'>
-          <attribute name='format' use='optional' default='url' 
+          <attribute name='format' use='optional' default='url'
                      type='dmp:validFormats'/>
         </extension>
       </simpleContent>
     </complexType>
   </element>
-  
+
   <element name='userMatch'>
     <annotation>
       <documentation>
@@ -129,17 +129,17 @@
       </documentation>
     </annotation>
   </element>
-  
+
   <element name='permissionMatch'>
     <annotation>
       <documentation>
         Contains a set of match specifiers for the permission tokens that apply to
         the destination address as determined by matches in the permissions database.
-        If there are no permission child elements, then no lookup is performed, and 
+        If there are no permission child elements, then no lookup is performed, and
         any transforms within this permissionMatch element are returned.
         If there are permission child elements, then any transforms within this
-        permissionMatch element are returned. 
-        NOTE: if there are permission elements present, but none match, then no 
+        permissionMatch element are returned.
+        NOTE: if there are permission elements present, but none match, then no
               further searches in the urlmap are done.
       </documentation>
     </annotation>
@@ -203,12 +203,12 @@
 
         Configuration tokens - the values for these are taken from system
         configuration variables (see sipXregistry/registrar-config):
-          {localhost}        
+          {localhost}
           {mediaserver}
           {voicemail}
 
         Request Uri tokens - values are taken from the request URI being transformed:
-          {user} or {digits} - the userinfo 
+          {user} or {digits} - the userinfo
           {user-escaped}     - the userinfo, with HTTP escaping
           {digits-escaped}   - the userinfo, with HTTP escaping
           {host}             - the host (and port, if any)
@@ -222,7 +222,7 @@
       </documentation>
     </annotation>
   </element>
-  
+
   <element name='user' type='normalizedString'>
     <annotation>
       <documentation>
@@ -231,7 +231,7 @@
       </documentation>
     </annotation>
   </element>
-  
+
   <element name='host' type='normalizedString'>
     <annotation>
       <documentation>
@@ -240,19 +240,19 @@
       </documentation>
     </annotation>
   </element>
-  
+
   <complexType name='attributeModifier'>
     <annotation>
       <documentation>
-        Provides a name and value for a URL attribute modifier (a urlparams, 
-        fieldparams, or headerparams element).  (In RFC 3261 section 25.1 
+        Provides a name and value for a URL attribute modifier (a urlparams,
+        fieldparams, or headerparams element).  (In RFC 3261 section 25.1
         terminology, 'uri-parameter', 'header', or 'contact-params'[='generic-param'].)
 
-        There are two syntaxes supported; they are distinguished by whether 
-        or not there is a 'name' attribute on the modifier element (see below).  
+        There are two syntaxes supported; they are distinguished by whether
+        or not there is a 'name' attribute on the modifier element (see below).
 
-        In either form, the name and value are given in XML content as 
-        their underlying character strings, not using SIP escaping as they would 
+        In either form, the name and value are given in XML content as
+        their underlying character strings, not using SIP escaping as they would
         appear in the URI -- escaping is the responsibility of the URL mapping
         processor. (Of course, XML's escaping applies, as it is un-done before
         the URL mapping processor sees the content.)
@@ -269,7 +269,7 @@
         ]]>
         specifies the parameter "bar=value".
 
-        For backward compatibility, an older form is also allowed in which the 
+        For backward compatibility, an older form is also allowed in which the
         modifier name and value are both provided in the element content, separated
         by an equals sign:
         <![CDATA[
@@ -294,7 +294,7 @@
       </extension>
     </simpleContent>
   </complexType>
-    
+
   <element name='fieldparams' type='dmp:attributeModifier'>
     <annotation>
       <documentation>
@@ -305,7 +305,7 @@
       </documentation>
     </annotation>
   </element>
-  
+
   <element name='headerparams' type='dmp:attributeModifier'>
     <annotation>
       <documentation>
@@ -316,7 +316,7 @@
       </documentation>
     </annotation>
   </element>
-  
+
   <element name='urlparams' type='dmp:attributeModifier'>
     <annotation>
       <documentation>
@@ -337,4 +337,3 @@
   </element>
 
 </schema>
-

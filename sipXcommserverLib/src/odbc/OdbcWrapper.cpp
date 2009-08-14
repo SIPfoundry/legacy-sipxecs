@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -24,16 +24,16 @@
 OdbcHandle odbcConnect(const char* dbname,
                        const char* servername,
                        const char* username,
-                       const char* driver,                       
+                       const char* driver,
                        const char* password)
 
 {
    OdbcHandle handle = new OdbcControlStruct;
-   
+
    if (handle)
    {
-      if (!SQL_SUCCEEDED(SQLAllocHandle(SQL_HANDLE_ENV, 
-                                        SQL_NULL_HANDLE, 
+      if (!SQL_SUCCEEDED(SQLAllocHandle(SQL_HANDLE_ENV,
+                                        SQL_NULL_HANDLE,
                                         &handle->mEnvironmentHandle)))
       {
          OsSysLog::add(FAC_ODBC, PRI_ERR,
@@ -42,13 +42,13 @@ OdbcHandle odbcConnect(const char* dbname,
          delete handle;
          handle = NULL;
       }
-      else 
+      else
       {
-         SQLSetEnvAttr(handle->mEnvironmentHandle, SQL_ATTR_ODBC_VERSION, 
+         SQLSetEnvAttr(handle->mEnvironmentHandle, SQL_ATTR_ODBC_VERSION,
                        (void*) SQL_OV_ODBC3, 0);
-         
-         if (!SQL_SUCCEEDED(SQLAllocHandle(SQL_HANDLE_DBC, 
-                                            handle->mEnvironmentHandle, 
+
+         if (!SQL_SUCCEEDED(SQLAllocHandle(SQL_HANDLE_DBC,
+                                            handle->mEnvironmentHandle,
                                             &handle->mConnectionHandle)))
          {
             OsSysLog::add(FAC_ODBC, PRI_ERR,
@@ -58,12 +58,12 @@ OdbcHandle odbcConnect(const char* dbname,
             delete handle;
             handle = NULL;
          }
-         else 
+         else
          {
             // Connect - contruct connection string
             UtlString connectionString;
             char temp[128];
-            
+
             if (dbname)
             {
                sprintf(temp, "DATABASE=%s;", dbname);
@@ -73,12 +73,12 @@ OdbcHandle odbcConnect(const char* dbname,
             {
                sprintf(temp, "SERVER=%s;", servername);
                connectionString.append(temp);
-            }            
+            }
             if (username)
             {
                sprintf(temp, "UID=%s;", username);
                connectionString.append(temp);
-            }            
+            }
             if (password)
             {
                sprintf(temp, "PWD=%s;", password);
@@ -92,11 +92,11 @@ OdbcHandle odbcConnect(const char* dbname,
             {
                sprintf(temp, "DRIVER=%s;", driver);
                connectionString.append(temp);
-            }  
+            }
             // Connect in read/write mode
             connectionString.append("READONLY=0;");
-           
-            SQLRETURN sqlRet = 
+
+            SQLRETURN sqlRet =
                   SQLDriverConnect(handle->mConnectionHandle,
                                    NULL,
                                    (SQLCHAR*)connectionString.data(),
@@ -105,17 +105,17 @@ OdbcHandle odbcConnect(const char* dbname,
                                    0,
                                    NULL,
                                    SQL_DRIVER_NOPROMPT);
-                                   
+
             if (!SQL_SUCCEEDED(sqlRet))
             {
                OsSysLog::add(FAC_ODBC, PRI_ERR,
                              "odbcConnect: Failed to connect %s, error code %d",
-                             connectionString.data(), sqlRet);   
-                             
+                             connectionString.data(), sqlRet);
+
                SQLFreeHandle(SQL_HANDLE_DBC, handle->mConnectionHandle);
                SQLFreeHandle(SQL_HANDLE_ENV, handle->mEnvironmentHandle);
                delete handle;
-               handle = NULL;                 
+               handle = NULL;
             }
             else
             {
@@ -127,21 +127,21 @@ OdbcHandle odbcConnect(const char* dbname,
                   OsSysLog::add(FAC_ODBC, PRI_ERR,
                                 "odbcConnect: Failed to allocate "
                                 "statement handle");
-                  
+
                   // Disconnect from database
                   SQLDisconnect(handle->mConnectionHandle);
                   // Free resources
-                  
+
                   SQLFreeHandle(SQL_HANDLE_DBC, handle->mConnectionHandle);
                   SQLFreeHandle(SQL_HANDLE_ENV, handle->mEnvironmentHandle);
                   delete handle;
-                  handle = NULL;  
+                  handle = NULL;
                }
                else
-               {              
+               {
                   OsSysLog::add(FAC_ODBC, PRI_DEBUG,
                                 "odbcConnect: Connected to database "
-                                "%s, OdbcHandle %p", 
+                                "%s, OdbcHandle %p",
                                 connectionString.data(), handle);
                 }
             }
@@ -153,20 +153,20 @@ OdbcHandle odbcConnect(const char* dbname,
       OsSysLog::add(FAC_ODBC, PRI_ERR,
                     "odbcConnect: Couldn't create OdbcHandle");
    }
-   
+
    return handle;
 }
-                        
+
 bool odbcDisconnect(OdbcHandle &handle)
 {
    bool ret = false;
-   
+
    if (handle)
    {
       SQLRETURN sqlRet;
-            
+
       SQLFreeStmt(handle->mStatementHandle, SQL_CLOSE);
-      
+
       sqlRet = SQLDisconnect(handle->mConnectionHandle);
       if (!SQL_SUCCEEDED(sqlRet))
       {
@@ -179,15 +179,15 @@ bool odbcDisconnect(OdbcHandle &handle)
          SQLFreeHandle(SQL_HANDLE_STMT, handle->mStatementHandle);
          SQLFreeHandle(SQL_HANDLE_DBC, handle->mConnectionHandle);
          SQLFreeHandle(SQL_HANDLE_ENV, handle->mEnvironmentHandle);
-         
+
          delete handle;
          handle = NULL;
-         
+
          OsSysLog::add(FAC_ODBC, PRI_DEBUG,
                        "odbcDisconnect - disconnecting from database");
          ret = true;
       }
-   }      
+   }
    else
    {
       OsSysLog::add(FAC_ODBC, PRI_ERR,
@@ -200,15 +200,15 @@ bool odbcExecute(const OdbcHandle handle,
                  const char* sqlStatement)
 {
    bool ret = false;
-   
+
    if (handle)
    {
       SQLRETURN sqlRet;
-      
+
       sqlRet = SQLExecDirect(handle->mStatementHandle,
                              (SQLCHAR*)sqlStatement,
                              SQL_NTS);
-                             
+
       if (!SQL_SUCCEEDED(sqlRet))
       {
          OsSysLog::add(FAC_ODBC, PRI_ERR,
@@ -219,7 +219,7 @@ bool odbcExecute(const OdbcHandle handle,
       {
          OsSysLog::add(FAC_ODBC, PRI_DEBUG,
                        "odbcExecute: statement %s succeeded",
-                       sqlStatement);         
+                       sqlStatement);
          ret = true;
       }
    }
@@ -228,79 +228,79 @@ bool odbcExecute(const OdbcHandle handle,
       OsSysLog::add(FAC_ODBC, PRI_ERR,
                     "odbcExecute: handle == NULL");
    }
-   
+
    return ret;
-}                  
-              
+}
+
 int odbcResultColumns(const OdbcHandle handle)
 {
    int ret = -1;
-   
+
    if (handle)
    {
       SQLSMALLINT columns;
       SQLRETURN sqlRet = SQLNumResultCols(handle->mStatementHandle, &columns);
-      
+
       if (!SQL_SUCCEEDED(sqlRet))
       {
          OsSysLog::add(FAC_ODBC, PRI_DEBUG,
                        "odbcResultColumns: SQLNumResultCols failed, "
-                       "error code %d", sqlRet);         
+                       "error code %d", sqlRet);
       }
       else
       {
          ret = (int)columns;
-         
+
          OsSysLog::add(FAC_ODBC, PRI_DEBUG,
-                       "odbcResultColumns: SQLNumResultCols returned %d", ret);         
+                       "odbcResultColumns: SQLNumResultCols returned %d", ret);
       }
    }
    else
    {
       OsSysLog::add(FAC_ODBC, PRI_ERR,
-                    "odbcResultColumns: handle == NULL");            
+                    "odbcResultColumns: handle == NULL");
    }
-   
+
    return ret;
 }
 
 bool odbcGetNextRow(const OdbcHandle handle)
 {
    bool ret = false;
-   
+
    if (handle)
    {
       SQLRETURN sqlRet = SQLFetch(handle->mStatementHandle);
-      
+
       if (!SQL_SUCCEEDED(sqlRet))
       {
          OsSysLog::add(FAC_ODBC, PRI_DEBUG,
                        "odbcGetNextRow: SQLFetch failed, error code %d",
-                       sqlRet);         
+                       sqlRet);
       }
       else
       {
          OsSysLog::add(FAC_ODBC, PRI_DEBUG,
-                       "odbcGetNextRow: SQLFetch succeeded");         
+                       "odbcGetNextRow: SQLFetch succeeded");
          ret = true;
       }
    }
    else
    {
       OsSysLog::add(FAC_ODBC, PRI_ERR,
-                    "odbcGetNextRow: handle == NULL");      
+                    "odbcGetNextRow: handle == NULL");
    }
-   
+
    return ret;
 }
-              
+
 bool odbcGetColumnStringData(const OdbcHandle handle,
                              int columnIndex,
                              char* data,
                              int dataSize)
 {
    bool ret = false;
-   
+
    if (handle)
    {
       SQLLEN indicator;
@@ -315,8 +315,8 @@ bool odbcGetColumnStringData(const OdbcHandle handle,
          OsSysLog::add(FAC_ODBC, PRI_WARNING,
                        "odbcGetColumnStringData: SQLGetData on column %d "
                        "failed, error code %d",
-                       columnIndex, sqlRet);              
-      }                           
+                       columnIndex, sqlRet);
+      }
       else
       {
          OsSysLog::add(FAC_ODBC, PRI_DEBUG,
@@ -325,43 +325,43 @@ bool odbcGetColumnStringData(const OdbcHandle handle,
                        columnIndex,
                        data);
          ret = true;
-      }         
+      }
    }
    else
    {
       OsSysLog::add(FAC_ODBC, PRI_ERR,
-                    "odbcGetColumnStringData: handle == NULL");            
+                    "odbcGetColumnStringData: handle == NULL");
    }
-   
+
    return ret;
 }
 
 bool odbcClearResultSet(const OdbcHandle handle)
 {
    bool ret = false;
-   
+
    if (handle)
    {
       SQLRETURN sqlRet = SQLFreeStmt(handle->mStatementHandle,
                                      SQL_CLOSE);
-                                     
+
       if (!SQL_SUCCEEDED(sqlRet))
       {
          OsSysLog::add(FAC_ODBC, PRI_WARNING,
                        "odbcClearResultSet: SQLFreeStmt failed, "
-                       "error code %d", sqlRet);          
+                       "error code %d", sqlRet);
       }
       else
       {
          OsSysLog::add(FAC_ODBC, PRI_DEBUG,
                        "odbcClearResultSet: SQLFreeStmt succeeded");
-         ret = true;              
+         ret = true;
       }
    }
    else
    {
       OsSysLog::add(FAC_ODBC, PRI_ERR,
-                    "odbcClearResultSet: handle == NULL");          
+                    "odbcClearResultSet: handle == NULL");
    }
    return ret;
 }

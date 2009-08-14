@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 #ifndef SIPXAUTHHELPER_H
@@ -31,7 +31,7 @@ class ExtensionDB;
 class PermissionDB;
 
 /**
- * Common helper utility for the MailboxManager CGI and the 
+ * Common helper utility for the MailboxManager CGI and the
  *
  * @author John P. Coffey
  * @version 1.0
@@ -78,4 +78,3 @@ private:
 };
 
 #endif // SIPXAUTHHELPER_H
-

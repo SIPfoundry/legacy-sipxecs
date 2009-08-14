@@ -13,7 +13,7 @@
 
 BEGIN_FASTDB_NAMESPACE
 
-enum SubSqlTokens { 
+enum SubSqlTokens {
     tkn_alter = tkn_last_token,
     tkn_array,
     tkn_autoincrement,
@@ -39,14 +39,14 @@ enum SubSqlTokens {
     tkn_int4,
     tkn_int8,
     tkn_inverse,
-    tkn_memory, 
+    tkn_memory,
     tkn_of,
     tkn_off,
     tkn_on,
     tkn_open,
-    tkn_profile, 
-    tkn_real4, 
-    tkn_real8, 
+    tkn_profile,
+    tkn_real4,
+    tkn_real8,
     tkn_rectangle,
     tkn_reference,
     tkn_rollback,
@@ -55,17 +55,17 @@ enum SubSqlTokens {
     tkn_stop,
     tkn_semi,
     tkn_show,
-    tkn_to, 
+    tkn_to,
     tkn_update,
     tkn_values,
     tkn_version
 };
-        
-    
 
-class dbList { 
+
+
+class dbList {
   public:
-    enum NodeType { 
+    enum NodeType {
         nInteger,
         nBool,
         nReal,
@@ -77,21 +77,21 @@ class dbList {
 
     dbList* next;
     int     type;
-    union { 
+    union {
         bool  bval;
         db_int8  ival;
         real8 fval;
         char* sval;
-        struct { 
+        struct {
             int     nComponents;
             dbList* components;
         } aggregate;
     };
 
-    ~dbList() { 
+    ~dbList() {
         if (type == nTuple) {
             dbList* list = aggregate.components;
-            while (list != NULL) { 
+            while (list != NULL) {
                 dbList* tail = list->next;
                 delete list;
                 list = tail;
@@ -101,36 +101,36 @@ class dbList {
         }
     }
 
-    dbList(int type) { 
+    dbList(int type) {
         this->type = type;
-        next = NULL; 
+        next = NULL;
     }
 };
 
 
-struct tableField { 
+struct tableField {
     char* name;
     char* refTableName;
     char* inverseRefName;
     int   type;
-    
+
     tableField() { name = refTableName = inverseRefName = NULL; }
     ~tableField() { delete[] name; delete[] refTableName; delete[] inverseRefName; }
 };
 
-class dbUpdateElement { 
+class dbUpdateElement {
   public:
     dbUpdateElement*   next;
     dbFieldDescriptor* field;
     dbExprNode*        value;
     char*              strValue;
 
-    dbUpdateElement() { 
+    dbUpdateElement() {
         next = NULL;
         strValue = NULL;
         value = NULL;
     }
-    ~dbUpdateElement() { 
+    ~dbUpdateElement() {
         delete[] strValue;
         delete value;
     }
@@ -139,25 +139,25 @@ class dbUpdateElement {
 
 #define MAX_HISTORY_SIZE 16
 
-class dbXmlScanner { 
+class dbXmlScanner {
   public:
-    enum { 
+    enum {
         MaxIdentSize = 256
     };
-    enum token { 
-        xml_ident, 
-        xml_sconst, 
-        xml_iconst, 
-        xml_fconst, 
-        xml_lt, 
-        xml_gt, 
-        xml_lts, 
+    enum token {
+        xml_ident,
+        xml_sconst,
+        xml_iconst,
+        xml_fconst,
+        xml_lt,
+        xml_gt,
+        xml_lts,
         xml_gts,
-        xml_eq, 
+        xml_eq,
         xml_eof,
         xml_error
-    };    
-    dbXmlScanner(FILE* f) { 
+    };
+    dbXmlScanner(FILE* f) {
         in = f;
         sconst = new char[size = 1024];
         line = 1;
@@ -165,45 +165,45 @@ class dbXmlScanner {
     }
     token scan();
 
-    char* getString() { 
+    char* getString() {
         return sconst;
     }
 
-    char* getIdentifier() { 
+    char* getIdentifier() {
         return ident;
     }
 
-    size_t  getStringLength() { 
+    size_t  getStringLength() {
         return slen;
     }
 
-    db_int8 getInt() { 
+    db_int8 getInt() {
         return iconst;
     }
 
-    double getReal() { 
+    double getReal() {
         return fconst;
     }
 
-    bool expect(int sourcePos, token expected) { 
+    bool expect(int sourcePos, token expected) {
         token tkn = scan();
-        if (tkn != expected) { 
-            fprintf(stderr, "subsql.cpp:%d: line %d, column %d: Get token %d instead of expected token %d\n", 
+        if (tkn != expected) {
+            fprintf(stderr, "subsql.cpp:%d: line %d, column %d: Get token %d instead of expected token %d\n",
                     sourcePos, line, pos, tkn, expected);
             return false;
         }
         return true;
     }
 
-    bool expect(int sourcePos, char* expected) { 
+    bool expect(int sourcePos, char* expected) {
         token tkn = scan();
-        if (tkn != xml_ident) { 
-            fprintf(stderr, "subsql.cpp:%d: line %d, column %d: Get token %d instead of expected identifier\n", 
+        if (tkn != xml_ident) {
+            fprintf(stderr, "subsql.cpp:%d: line %d, column %d: Get token %d instead of expected identifier\n",
                     sourcePos, line, pos, tkn);
             return false;
         }
-        if (strcmp(ident, expected) != 0) { 
-            fprintf(stderr, "subsql.cpp:%d: line %d, column %d: Get tag '%s' instead of expected '%s'\n", 
+        if (strcmp(ident, expected) != 0) {
+            fprintf(stderr, "subsql.cpp:%d: line %d, column %d: Get tag '%s' instead of expected '%s'\n",
                     sourcePos, line, pos, ident, expected);
             return false;
         }
@@ -225,11 +225,11 @@ class dbXmlScanner {
     char      ident[MaxIdentSize];
 };
 
-class dbTmpAllocator { 
-    enum { 
+class dbTmpAllocator {
+    enum {
         CHUNK_SIZE = 4096
     };
-    struct Chunk { 
+    struct Chunk {
         Chunk* next;
         Chunk* prev; // is not used, added for alignment
     };
@@ -237,18 +237,18 @@ class dbTmpAllocator {
     size_t used;
 
   public:
-    dbTmpAllocator() { 
+    dbTmpAllocator() {
         curr = NULL;
         used = CHUNK_SIZE;
     }
 
-    ~dbTmpAllocator() { 
+    ~dbTmpAllocator() {
         reset();
     }
 
-    void reset() { 
-        Chunk *c, *next; 
-        for (c = curr; c != NULL; c = next) { 
+    void reset() {
+        Chunk *c, *next;
+        for (c = curr; c != NULL; c = next) {
             next = c->next;
             dbFree(c);
         }
@@ -257,23 +257,23 @@ class dbTmpAllocator {
     }
 
 
-    void* alloc(size_t size) { 
+    void* alloc(size_t size) {
         size = DOALIGN(size, 8);
-        if (size > CHUNK_SIZE/2) { 
+        if (size > CHUNK_SIZE/2) {
             Chunk* newChunk = (Chunk*)dbMalloc(size + sizeof(Chunk));
-            if (curr != NULL) { 
+            if (curr != NULL) {
                 newChunk->next = curr->next;
                 curr->next = newChunk;
-            } else { 
+            } else {
                 curr = newChunk;
                 newChunk->next = NULL;
                 used = CHUNK_SIZE;
             }
             return newChunk+1;
-        } else if (size <= CHUNK_SIZE - used) { 
+        } else if (size <= CHUNK_SIZE - used) {
             used += size;
             return (char*)curr + used - size;
-        } else { 
+        } else {
             Chunk* newChunk = (Chunk*)dbMalloc(CHUNK_SIZE);
             used = sizeof(Chunk) + size;
             newChunk->next = curr;
@@ -283,7 +283,7 @@ class dbTmpAllocator {
     }
 };
 
-class dbSubSql : public dbDatabase { 
+class dbSubSql : public dbDatabase {
   private:
     int   pos;
     int   line;
@@ -300,7 +300,7 @@ class dbSubSql : public dbDatabase {
     oid_t   oidMapSize;
 
     dbTmpAllocator tmpAlloc;
- 
+
     static char* prompt;
 
     dbTableDescriptor* droppedTables;
@@ -322,7 +322,7 @@ class dbSubSql : public dbDatabase {
     unsigned historyUsed;
     unsigned historyCurr;
     static void thread_proc httpServerThreadProc(void* arg);
-    
+
     void deleteColumns(dbFieldDescriptor* columns);
 
     void httpServerLoop();
@@ -343,15 +343,15 @@ class dbSubSql : public dbDatabase {
     bool parse();
 
     bool expect(char* expected, int token);
-    
+
     void recovery();
 
     void exportDatabase(FILE* out);
     bool importDatabase(FILE* in);
-   
+
     void exportScheme(FILE* out);
     void exportClass(FILE* out, char* name, dbFieldDescriptor* fieldList);
-   
+
     oid_t mapId(long id);
     bool importField(char* terminator, dbFieldDescriptor* fd, byte* rec, dbXmlScanner& scanner);
     bool importRecord(char* terminator, dbFieldDescriptor* fieldList, byte* rec, dbXmlScanner& scanner);
@@ -362,7 +362,7 @@ class dbSubSql : public dbDatabase {
     void dumpRecord(byte* record, dbFieldDescriptor* first);
     static int calculateRecordSize(dbList* list, int offs,
                                    dbFieldDescriptor* first);
-    int  initializeRecordFields(dbList* node, byte* dst, int offs, 
+    int  initializeRecordFields(dbList* node, byte* dst, int offs,
                                       dbFieldDescriptor* first);
     bool insertRecord(dbList* list, dbTableDescriptor* desc);
     bool readCondition();
@@ -379,10 +379,10 @@ class dbSubSql : public dbDatabase {
     void selectionPage(WWWconnection& con);
     void queryPage(WWWconnection& con);
     void defaultPage(WWWconnection& con);
-    
+
     dbSubSql(dbAccessType accessType);
     virtual~dbSubSql();
-};   
+};
 
 
 END_FASTDB_NAMESPACE

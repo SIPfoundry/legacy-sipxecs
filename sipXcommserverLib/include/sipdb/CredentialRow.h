@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -32,7 +32,7 @@
 class CredentialRow
 {
 public:
-    const char* np_identity; // non persistent Primary Key derived from URI 
+    const char* np_identity; // non persistent Primary Key derived from URI
     const char* uri;         // this is the complete uri, not the PK
     const char* realm;       // the secondary key
     const char* userid;      // the user id from which the passtoken is generated
@@ -51,4 +51,3 @@ public:
 };
 
 #endif //CREDENTIALROW_H
-

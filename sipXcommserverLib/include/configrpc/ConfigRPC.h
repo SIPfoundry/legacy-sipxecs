@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 #ifndef _CONFIGRPC_H_
@@ -76,7 +76,7 @@ class ConfigRPC : public UtlString
          invalidType = 102,
          nameNotFound = 103,
          emptyRequestList = 104,
-         emptyDataset = 105         
+         emptyDataset = 105
       } FailureCode;
 
    /// Destroy the instance to disconnect access to the database.
@@ -84,7 +84,7 @@ class ConfigRPC : public UtlString
 
    /// Must be called once to connect the configurationParameter methods
    static void registerMethods(XmlRpcDispatch&     rpc /**< xmlrpc dispatch service to use */);
-   
+
   protected:
 
    /// Locate a ConfigRPC by its dbName - caller must hold at least a read lock on spDatabaseLock
@@ -98,12 +98,12 @@ class ConfigRPC : public UtlString
 
    /// Write the contents of the associated OsConfigDb dataset to its file
    OsStatus store(OsConfigDb& dataset);
-   
+
    friend class ConfigRPC_version;
    friend class ConfigRPC_set;
    friend class ConfigRPC_get;
    friend class ConfigRPC_delete;
-   
+
   private:
 
    static OsRWMutex* spDatabaseLock; ///< protects access to sDatabases and sRegistered
@@ -111,7 +111,7 @@ class ConfigRPC : public UtlString
    static bool       sRegistered;    /**< whether or not the ConfigRPC methods have been
                                       *   registered with XmlRpcDispatch
                                       */
-   
+
    UtlString           mVersion;     ///< database version identifier
    UtlString           mPath;        ///< path to persistent store for the database
    ConfigRPC_Callback* mCallback;
@@ -121,7 +121,7 @@ class ConfigRPC : public UtlString
 
    /// no assignment operator
    ConfigRPC& operator=(const ConfigRPC& noassignment);
-   
+
 };
 
 /// Base class for callbacks from ConfigRPC
@@ -152,7 +152,7 @@ class ConfigRPC_Callback
          NumMethods
       } Method;
 
-   /// Access check function 
+   /// Access check function
    virtual XmlRpcMethod::ExecutionStatus accessAllowed( const HttpRequestContext& requestContext
                                                        ,Method                    method
                                                        ) const;
@@ -165,20 +165,20 @@ class ConfigRPC_Callback
 
    /// Invoked after the database has been modified
    virtual void modified();
-   
+
    virtual ~ConfigRPC_Callback();
 
   protected:
 
    const char* methodName(Method method) const;
-   
+
   private:
    /// no copy constructor
    ConfigRPC_Callback(const ConfigRPC_Callback& nocopy);
 
    /// no assignment operator
    ConfigRPC_Callback& operator=(const ConfigRPC_Callback& noassignment);
-   
+
 };
 
 /// Default Callbacks from ConfigRPC that allow configuration only from within the domain
@@ -194,7 +194,7 @@ class ConfigRPC_InDomainCallback : public ConfigRPC_Callback
    ConfigRPC_InDomainCallback(const UtlString& domain ///< domain name to allow
                               );
 
-   /// Access check function 
+   /// Access check function
    virtual XmlRpcMethod::ExecutionStatus accessAllowed( const HttpRequestContext&  requestContext
                                                        ,ConfigRPC_Callback::Method method
                                                        ) const;
@@ -208,14 +208,14 @@ class ConfigRPC_InDomainCallback : public ConfigRPC_Callback
   protected:
 
    UtlString mAllowedDomain;
-   
+
   private:
    /// no copy constructor
    ConfigRPC_InDomainCallback(const ConfigRPC_InDomainCallback& nocopy);
 
    /// no assignment operator
    ConfigRPC_InDomainCallback& operator=(const ConfigRPC_InDomainCallback& noassignment);
-   
+
 };
 
 #endif // _CONFIGRPC_H_

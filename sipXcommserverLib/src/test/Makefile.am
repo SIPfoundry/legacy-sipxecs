@@ -12,7 +12,7 @@ db_deps = db_setup
 PG_USER = @POSTGRESQL_USER@
 SCHEMA_FILE = $(top_srcdir)/../sipXproxy/etc/database/schema.sql
 else
-db_FILES = 
+db_FILES =
 db_CXXFLAGS =
 db_deps =
 endif
@@ -44,7 +44,7 @@ testsuite_LDADD = \
 
 # FAILING - leaks semaphores and eventually buildserver will proceed to fail here
 # see XCS-78
-#    RegistryDbTest.cpp 
+#    RegistryDbTest.cpp
 
 testsuite_SOURCES = \
     ResultSetRpcTest.cpp \
@@ -93,7 +93,7 @@ all-local: $(db_deps)
 
 # Set up PostgreSQL database for local unit test
 .PHONY: db_setup
-db_setup:	
+db_setup:
 	@echo "Setting up database"
 	-dropdb -U $(PG_USER) $(SIPXTEST_DATABASE) &>/dev/null
 	createdb -U $(PG_USER) $(SIPXTEST_DATABASE) &>/dev/null

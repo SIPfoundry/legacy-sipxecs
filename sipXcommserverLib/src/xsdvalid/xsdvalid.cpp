@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
@@ -192,7 +192,7 @@ int main(int argC, char* argV[])
 
     const char*                xmlFile = 0;
     AbstractDOMParser::ValSchemes valScheme = AbstractDOMParser::Val_Always;
-    
+
     bool                       doNamespaces       = true;
     bool                       doSchema           = true;
     bool                       schemaFullChecking = true;
@@ -201,7 +201,7 @@ int main(int argC, char* argV[])
     char                       localeStr[64];
 
     UtlString schemaLocationPairs;
-    
+
     memset(localeStr, 0, sizeof localeStr);
 
     int argInd;
@@ -224,7 +224,7 @@ int main(int argC, char* argV[])
               << " build " << SipXcommserverlibBuildStamp
               << "\n  xerces-c library version " << gXercesVersionStr
               << "\n" << XERCES_STD_QUALIFIER endl;
-              
+
            return 0;
         }
         else if (!strcmp(argV[argInd], "-l")
@@ -253,7 +253,7 @@ int main(int argC, char* argV[])
                  << "' must be followed by <schema-namespace> <schema-location>\n"
                  << XERCES_STD_QUALIFIER endl;
               return 2;
-           }     
+           }
         }
         else if (   !strncmp(argV[argInd], "-S", 2)
                  || !strncmp(argV[argInd], "--schema-list", 14)
@@ -301,7 +301,7 @@ int main(int argC, char* argV[])
                           << "' does not contain two fields.\n"
                           << XERCES_STD_QUALIFIER endl;
                        return 2;
-                    }            
+                    }
 
                     if (!schemaLocationPairs.isNull())
                     {
@@ -324,7 +324,7 @@ int main(int argC, char* argV[])
                  << "' must be followed by <file-name>\n"
                  << XERCES_STD_QUALIFIER endl;
               return 2;
-           }     
+           }
         }
         else
         {

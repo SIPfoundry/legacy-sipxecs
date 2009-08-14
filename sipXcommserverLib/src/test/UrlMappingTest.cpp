@@ -1,6 +1,6 @@
-// 
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -45,12 +45,12 @@ class UrlMappingTest : public CppUnit::TestCase
       {
          mFileTestContext = new FileTestContext(TEST_DATA_DIR "/mapdata", TEST_WORK_DIR "/mapdata");
       }
-            
+
       void tearDown()
       {
          delete mFileTestContext;
       }
-   
+
       void testUserPatternConversion()
       {
          struct test
@@ -64,7 +64,7 @@ class UrlMappingTest : public CppUnit::TestCase
             { "xxxxx", "^(.....)$" },
             { "134.", "^134(.*)$" },
          };
-         
+
          for (int i = 0; i < sizeof (tests) / sizeof (tests[0]); i++)
          {
             UtlString userPattern(tests[i].userPattern);
@@ -299,7 +299,7 @@ class UrlMappingTest : public CppUnit::TestCase
          registrations.destroyAll();
 
       }
-      
+
       void testAddUrlParams()
       {
          UrlMapping urlmap;
@@ -320,7 +320,7 @@ class UrlMappingTest : public CppUnit::TestCase
          getResult( registrations, 0, "contact" , actual );
          ASSERT_STR_EQUAL("<sip:ADDURLPARAM@thisdomain;NEWURLPARAM=URLVALUE>" , actual );
          registrations.destroyAll();
-    
+
          urlmap.getContactList( Url("sip:ADDTWOURLPARAM@thisdomain")
                                ,registrations, permissions
                                );
@@ -333,9 +333,9 @@ class UrlMappingTest : public CppUnit::TestCase
                           ">" ,
                           actual );
          registrations.destroyAll();
-    
+
       }
-      
+
       void testHeaderParamAdd()
       {
          UrlMapping urlmap;
@@ -344,7 +344,7 @@ class UrlMappingTest : public CppUnit::TestCase
          UtlString actual;
 
          SipMessage dummy; // ensure that static member is initialized
-         
+
          UtlString paramsXml;
          mFileTestContext->inputFilePath("params.xml", paramsXml);
 
@@ -373,7 +373,7 @@ class UrlMappingTest : public CppUnit::TestCase
          registrations.destroyAll();
 
       }
-      
+
       void testFieldAdd()
       {
          UrlMapping urlmap;
@@ -400,7 +400,7 @@ class UrlMappingTest : public CppUnit::TestCase
 
 
       }
-      
+
       void testAddFieldParams()
       {
          UrlMapping urlmap;
@@ -975,8 +975,7 @@ class UrlMappingTest : public CppUnit::TestCase
       };
 
    FileTestContext* mFileTestContext;
-   
+
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(UrlMappingTest);
-

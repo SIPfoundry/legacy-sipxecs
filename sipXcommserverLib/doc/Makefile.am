@@ -37,5 +37,3 @@ install-data-hook: $(foreach doc,$(DOCBOOK_OUTPUTS),$(DESTDIR)@SIPX_DOCDIR@/$(do
 
 $(foreach doc,$(DOCBOOK_OUTPUTS),$(DESTDIR)@SIPX_DOCDIR@/$(doc)) : $(DESTDIR)@SIPX_DOCDIR@/% : %
 	$(INSTALL) -D -m 644 $< $@;
-
-

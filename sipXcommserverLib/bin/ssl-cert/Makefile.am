@@ -30,7 +30,7 @@ install-exec-hook : ssl-dirs install-sipx-scripts
 ssl-dirs : $(DESTDIR)@SIPX_CONFDIR@/ssl $(DESTDIR)@SIPX_CONFDIR@/ssl/authorities
 
 $(DESTDIR)@SIPX_CONFDIR@/ssl:
-	$(INSTALL) -d -m 0755 $(DESTDIR)@SIPX_CONFDIR@/ssl  
+	$(INSTALL) -d -m 0755 $(DESTDIR)@SIPX_CONFDIR@/ssl
 
 $(DESTDIR)@SIPX_CONFDIR@/ssl/authorities:
 	$(INSTALL) -d -m 0755 $(DESTDIR)@SIPX_CONFDIR@/ssl/authorities

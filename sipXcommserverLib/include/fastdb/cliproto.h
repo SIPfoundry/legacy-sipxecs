@@ -13,12 +13,12 @@
 
 BEGIN_FASTDB_NAMESPACE
 
-enum cli_commands { 
-    cli_cmd_close_session, 
+enum cli_commands {
+    cli_cmd_close_session,
     cli_cmd_prepare_and_execute,
     cli_cmd_execute,
-    cli_cmd_get_first, 
-    cli_cmd_get_last, 
+    cli_cmd_get_first,
+    cli_cmd_get_last,
     cli_cmd_get_next,
     cli_cmd_get_prev,
     cli_cmd_free_statement,
@@ -43,17 +43,17 @@ enum cli_commands {
     cli_cmd_last
 };
 
-static const int sizeof_type[] = { 
-    sizeof(cli_oid_t), 
-    sizeof(cli_bool_t), 
-    sizeof(cli_int1_t), 
-    sizeof(cli_int2_t), 
-    sizeof(cli_int4_t), 
-    sizeof(cli_int8_t), 
-    sizeof(cli_real4_t), 
+static const int sizeof_type[] = {
+    sizeof(cli_oid_t),
+    sizeof(cli_bool_t),
+    sizeof(cli_int1_t),
+    sizeof(cli_int2_t),
+    sizeof(cli_int4_t),
+    sizeof(cli_int8_t),
+    sizeof(cli_real4_t),
     sizeof(cli_real8_t),
     sizeof(cli_real8_t), // cli_decimal
-    sizeof(char*), // cli_asciiz, 
+    sizeof(char*), // cli_asciiz,
     sizeof(char*), // cli_pasciiz,
     sizeof(char*), // cli_cstring,
     sizeof(cli_array_t), // cli_array_of_oid,
@@ -63,8 +63,8 @@ static const int sizeof_type[] = {
     sizeof(cli_array_t), // cli_array_of_int4,
     sizeof(cli_array_t), // cli_array_of_int8,
     sizeof(cli_array_t), // cli_array_of_real4,
-    sizeof(cli_array_t), // cli_array_of_real8, 
-    sizeof(cli_array_t), // cli_array_of_decimal, 
+    sizeof(cli_array_t), // cli_array_of_real8,
+    sizeof(cli_array_t), // cli_array_of_decimal,
     sizeof(cli_array_t), // cli_array_of_string,
     0, // cli_any,
     sizeof(cli_int8_t), // cli_datetime,
@@ -90,14 +90,14 @@ union cli_field_alignment {
 #define CLI_ALIGNMENT(type) \
         (((char *)&(((union cli_field_alignment*)0)->_##type.v)) - ((char *)&(((union cli_field_alignment*)0)->_##type.n)))
 
-static const int alignof_type[] = { 
-    CLI_ALIGNMENT(cli_oid_t), 
-    CLI_ALIGNMENT(cli_bool_t), 
-    CLI_ALIGNMENT(cli_int1_t), 
-    CLI_ALIGNMENT(cli_int2_t), 
-    CLI_ALIGNMENT(cli_int4_t), 
-    CLI_ALIGNMENT(cli_int8_t), 
-    CLI_ALIGNMENT(cli_real4_t), 
+static const int alignof_type[] = {
+    CLI_ALIGNMENT(cli_oid_t),
+    CLI_ALIGNMENT(cli_bool_t),
+    CLI_ALIGNMENT(cli_int1_t),
+    CLI_ALIGNMENT(cli_int2_t),
+    CLI_ALIGNMENT(cli_int4_t),
+    CLI_ALIGNMENT(cli_int8_t),
+    CLI_ALIGNMENT(cli_real4_t),
     CLI_ALIGNMENT(cli_real8_t),
     CLI_ALIGNMENT(cli_real8_t),
     CLI_ALIGNMENT(cli_asciiz_t),
@@ -110,8 +110,8 @@ static const int alignof_type[] = {
     CLI_ALIGNMENT(cli_array_t), // cli_array_of_int4,
     CLI_ALIGNMENT(cli_array_t), // cli_array_of_int8,
     CLI_ALIGNMENT(cli_array_t), // cli_array_of_real4,
-    CLI_ALIGNMENT(cli_array_t), // cli_array_of_real8, 
-    CLI_ALIGNMENT(cli_array_t), // cli_array_of_decimal, 
+    CLI_ALIGNMENT(cli_array_t), // cli_array_of_real8,
+    CLI_ALIGNMENT(cli_array_t), // cli_array_of_decimal,
     CLI_ALIGNMENT(cli_array_t), // cli_array_of_string,
     0, // cli_any,
     CLI_ALIGNMENT(cli_int8_t), // cli_datetime,
@@ -152,7 +152,7 @@ BEGIN_FASTDB_NAMESPACE
 #ifdef __BORLANDC__
 static
 #else
-inline 
+inline
 #endif
 int swap_bytes_in_dword(int val) {
     __asm {
@@ -163,7 +163,7 @@ int swap_bytes_in_dword(int val) {
 #ifdef __BORLANDC__
 static
 #else
-inline 
+inline
 #endif
 short swap_bytes_in_word(short val) {
     __asm {
@@ -184,51 +184,51 @@ short swap_bytes_in_word(short val) {
 
 
 
-inline char* pack2(char* dst, int2 val) { 
+inline char* pack2(char* dst, int2 val) {
     *dst++ = char(val >> 8);
-    *dst++ = char(val);     
-    return dst;
-}
-
-inline char* pack2(char* dst, char* src) { 
-    return pack2(dst, *(int2*)src); 
-}
-
-inline void pack2(int2& val) { 
-#if BYTE_ORDER != BIG_ENDIAN
-#ifdef USE_HTON_NTOH
-    val = htons(val);
-#else
-    pack2((char*)&val, val); 
-#endif
-#endif
-}
-
-
-inline char* pack4(char* dst, int4 val) { 
-    *dst++ = char(val >> 24);
-    *dst++ = char(val >> 16);     
-    *dst++ = char(val >> 8); 
     *dst++ = char(val);
     return dst;
 }
 
-inline char* pack4(char* dst, char* src) { 
-    return pack4(dst, *(int4*)src); 
+inline char* pack2(char* dst, char* src) {
+    return pack2(dst, *(int2*)src);
 }
 
-inline void pack4(int4& val) { 
+inline void pack2(int2& val) {
+#if BYTE_ORDER != BIG_ENDIAN
+#ifdef USE_HTON_NTOH
+    val = htons(val);
+#else
+    pack2((char*)&val, val);
+#endif
+#endif
+}
+
+
+inline char* pack4(char* dst, int4 val) {
+    *dst++ = char(val >> 24);
+    *dst++ = char(val >> 16);
+    *dst++ = char(val >> 8);
+    *dst++ = char(val);
+    return dst;
+}
+
+inline char* pack4(char* dst, char* src) {
+    return pack4(dst, *(int4*)src);
+}
+
+inline void pack4(int4& val) {
 #if BYTE_ORDER != BIG_ENDIAN
 #ifdef USE_HTON_NTOH
     val = htonl(val);
 #else
-    pack4((char*)&val, val); 
+    pack4((char*)&val, val);
 #endif
 #endif
 }
 
 
-inline char* pack8(char* dst, char* src) { 
+inline char* pack8(char* dst, char* src) {
 #if BYTE_ORDER == BIG_ENDIAN
     return pack4( pack4(dst, src), src + 4);
 #else
@@ -236,7 +236,7 @@ inline char* pack8(char* dst, char* src) {
 #endif
 }
 
-inline char* pack8(char* dst, db_int8 val) { 
+inline char* pack8(char* dst, db_int8 val) {
     return pack8(dst, (char*)&val);
 }
 
@@ -247,60 +247,60 @@ inline char* pack_oid(char* dst, cli_oid_t oid)
 
 inline char* pack_rectangle(char* dst, cli_rectangle_t* rect)
 {
-    if (sizeof(cli_coord_t) == 4) { 
-        for (int i = 0; i < CLI_RECTANGLE_DIMENSION*2; i++) { 
+    if (sizeof(cli_coord_t) == 4) {
+        for (int i = 0; i < CLI_RECTANGLE_DIMENSION*2; i++) {
             dst = pack4(dst, (char*)&rect->boundary[i]);
         }
-    } else { 
-        for (int i = 0; i < CLI_RECTANGLE_DIMENSION*2; i++) { 
+    } else {
+        for (int i = 0; i < CLI_RECTANGLE_DIMENSION*2; i++) {
             dst = pack8(dst, (char*)&rect->boundary[i]);
         }
     }
     return dst;
 }
 
-inline int2 unpack2(char* src) { 
+inline int2 unpack2(char* src) {
     nat1* s = (nat1*)src;
-    return (s[0] << 8) + s[1]; 
+    return (s[0] << 8) + s[1];
 }
 
-inline char* unpack2(char* dst, char* src) { 
+inline char* unpack2(char* dst, char* src) {
     *(int2*)dst = unpack2(src);
     return src + 2;
 }
 
-inline void  unpack2(int2& val) { 
+inline void  unpack2(int2& val) {
 #if BYTE_ORDER != BIG_ENDIAN
 #ifdef USE_HTON_NTOH
     val = ntohs(val);
 #else
-    val = unpack2((char*)&val); 
+    val = unpack2((char*)&val);
 #endif
 #endif
 }
 
 
-inline int4  unpack4(char* src) { 
+inline int4  unpack4(char* src) {
     nat1* s = (nat1*)src;
     return (((((s[0] << 8) + s[1]) << 8) + s[2]) << 8) + s[3];
-} 
+}
 
-inline char* unpack4(char* dst, char* src) { 
+inline char* unpack4(char* dst, char* src) {
     *(int4*)dst = unpack4(src);
     return src + 4;
 }
 
-inline void unpack4(int4& val) { 
+inline void unpack4(int4& val) {
 #if BYTE_ORDER != BIG_ENDIAN
 #ifdef USE_HTON_NTOH
     val = ntohl(val);
 #else
-    val = unpack4((char*)&val); 
+    val = unpack4((char*)&val);
 #endif
 #endif
 }
 
-inline char* unpack8(char* dst, char* src) { 
+inline char* unpack8(char* dst, char* src) {
 #if BYTE_ORDER == BIG_ENDIAN
     *(int4*)dst = unpack4(src);
     *((int4*)dst+1) = unpack4(src+4);
@@ -311,7 +311,7 @@ inline char* unpack8(char* dst, char* src) {
     return src + 8;
 }
 
-inline db_int8 unpack8(char* src) { 
+inline db_int8 unpack8(char* src) {
     db_int8 val;
     unpack8((char*)&val, src);
     return val;
@@ -322,7 +322,7 @@ inline cli_oid_t unpack_oid(char* src)
     cli_oid_t oid;
     if (sizeof(oid) == 4) {
         oid = unpack4(src);
-    } else { 
+    } else {
         unpack8((char*)&oid, src);
     }
     return oid;
@@ -330,30 +330,30 @@ inline cli_oid_t unpack_oid(char* src)
 
 inline char* unpack_rectangle(cli_rectangle_t* rect, char* src)
 {
-    if (sizeof(cli_coord_t) == 4) { 
-        for (int i = 0; i < CLI_RECTANGLE_DIMENSION*2; i++) { 
+    if (sizeof(cli_coord_t) == 4) {
+        for (int i = 0; i < CLI_RECTANGLE_DIMENSION*2; i++) {
             src = unpack4((char*)&rect->boundary[i], src);
         }
-    } else { 
-        for (int i = 0; i < CLI_RECTANGLE_DIMENSION*2; i++) { 
+    } else {
+        for (int i = 0; i < CLI_RECTANGLE_DIMENSION*2; i++) {
             src = unpack8((char*)&rect->boundary[i], src);
         }
     }
     return src;
 }
 
-struct cli_request { 
+struct cli_request {
     int4 length;
     int4 cmd;
     int4 stmt_id;
-    
-    void pack() { 
+
+    void pack() {
         pack4(length);
         pack4(cmd);
         pack4(stmt_id);
     }
 
-    void unpack() { 
+    void unpack() {
         unpack4(length);
         unpack4(cmd);
         unpack4(stmt_id);

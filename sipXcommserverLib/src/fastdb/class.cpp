@@ -32,8 +32,8 @@ void  dbFieldDescriptor::operator delete(void* p EXTRA_DEBUG_NEW_PARAMS)
     dbFree(p);
 }
 
-dbFieldDescriptor::dbFieldDescriptor(char const* name) 
-{ 
+dbFieldDescriptor::dbFieldDescriptor(char const* name)
+{
     next = prev = this;
     this->name = (char*)name;
     longName = NULL;
@@ -54,7 +54,7 @@ dbFieldDescriptor::dbFieldDescriptor(char const* name)
 
 
 dbFieldDescriptor::dbFieldDescriptor(char const*        fieldName,
-                                     size_t             offs, 
+                                     size_t             offs,
                                      size_t             size,
                                      int                index,
                                      char const*        inverse,
@@ -72,7 +72,7 @@ dbFieldDescriptor::dbFieldDescriptor(char const*        fieldName,
     indexType = index;
     type = appType = dbField::tpStructure;
     inverseRefName = (char*)inverse;
-    if (inverseRefName != NULL) { 
+    if (inverseRefName != NULL) {
         dbSymbolTable::add(inverseRefName, tkn_ident, FASTDB_CLONE_ANY_IDENTIFIER);
     }
     inverseRef = NULL;
@@ -84,31 +84,31 @@ dbFieldDescriptor::dbFieldDescriptor(char const*        fieldName,
     comparator = (dbUDTComparator)&memcmp;
 }
 
-dbFieldDescriptor::~dbFieldDescriptor() 
+dbFieldDescriptor::~dbFieldDescriptor()
 {
-    if (type == dbField::tpString) { 
+    if (type == dbField::tpString) {
         delete components;
     } else if (type == dbField::tpStructure) {
         dbFieldDescriptor* last = components->prev;
-        while (last->method != NULL) { 
+        while (last->method != NULL) {
             dbFieldDescriptor* prev = last->prev;
             delete last->method;
             delete last;
-            if (last == components) { 
+            if (last == components) {
                 break;
             }
             last = prev;
         }
     }
-    delete[] longName; 
+    delete[] longName;
 }
 
 
 dbFieldDescriptor* dbFieldDescriptor::find(const char* name)
 {
     dbFieldDescriptor* field = components;
-    do { 
-        if (field->name == name) { 
+    do {
+        if (field->name == name) {
             return field;
         }
     } while ((field = field->next) != components);
@@ -120,30 +120,30 @@ void dbFieldDescriptor::adjustReferences(byte* record,
                                          size_t base, size_t size, long shift)
 {
     dbFieldDescriptor* fd = this;
-    do { 
-        
-        if (fd->type == dbField::tpArray) { 
+    do {
+
+        if (fd->type == dbField::tpArray) {
             byte** ptr = (byte**)((dbAnyArray*)(record + fd->appOffs) + 1);
             if ((unsigned long)*ptr - base <= size) {
                 *ptr += shift;
-            } else { 
-                if (fd->attr & HasArrayComponents) { 
+            } else {
+                if (fd->attr & HasArrayComponents) {
                     int nElems = ((dbAnyArray*)(record+fd->appOffs))->length();
                     byte* arrBase = *ptr;
-                    while (--nElems >= 0) { 
-                        fd->components->adjustReferences(arrBase, 
+                    while (--nElems >= 0) {
+                        fd->components->adjustReferences(arrBase,
                                                          base, size, shift);
                         arrBase += fd->components->appSize;
                     }
                 }
-            } 
-        } else if (fd->type == dbField::tpString) { 
+            }
+        } else if (fd->type == dbField::tpString) {
             char** str = (char**)(record + fd->appOffs);
             if ((unsigned long)*str - base <= size) {
                 *str += shift;
             }
-        } else if (fd->attr & HasArrayComponents) { 
-            fd->components->adjustReferences(record + fd->appOffs, 
+        } else if (fd->attr & HasArrayComponents) {
+            fd->components->adjustReferences(record + fd->appOffs,
                                              base, size, shift);
         }
     } while ((fd = fd->next) != this);
@@ -153,30 +153,30 @@ void dbFieldDescriptor::adjustReferences(byte* record,
 size_t dbFieldDescriptor::calculateRecordSize(byte* base, size_t offs)
 {
     dbFieldDescriptor* fd = this;
-    do { 
-        switch (fd->appType) { 
+    do {
+        switch (fd->appType) {
           case dbField::tpArray:
             {
                 int nElems = ((dbAnyArray*)(base + fd->appOffs))->length();
                 offs = DOALIGN(offs, fd->components->alignment)
                     + nElems*fd->components->dbsSize;
-                if (fd->attr & HasArrayComponents) { 
+                if (fd->attr & HasArrayComponents) {
                     byte* elem = (byte*)((dbAnyArray*)(base+fd->appOffs))->base();
                     dbFieldDescriptor* component = fd->components;
                     size_t elemSize = component->appSize;
-                    while (--nElems >= 0) { 
+                    while (--nElems >= 0) {
                         offs = component->calculateRecordSize(elem, offs);
                         elem += elemSize;
                     }
-                } 
+                }
                 continue;
-            } 
+            }
           case dbField::tpString:
             {
                 char* str = *(char**)(base + fd->appOffs);
-                if (str != NULL) { 
+                if (str != NULL) {
                     offs += strlen(str) + 1;
-                } else { 
+                } else {
                     offs += 1;
                 }
                 continue;
@@ -187,7 +187,7 @@ size_t dbFieldDescriptor::calculateRecordSize(byte* base, size_t offs)
             continue;
 #endif
           default:
-            if (fd->attr & HasArrayComponents) { 
+            if (fd->attr & HasArrayComponents) {
                 offs = fd->components->calculateRecordSize(base+fd->appOffs, offs);
             }
         }
@@ -197,28 +197,28 @@ size_t dbFieldDescriptor::calculateRecordSize(byte* base, size_t offs)
 
 
 
-size_t dbFieldDescriptor::calculateNewRecordSize(byte* base, size_t offs) 
+size_t dbFieldDescriptor::calculateNewRecordSize(byte* base, size_t offs)
 {
     dbFieldDescriptor* fd = this;
-    do { 
-        if (fd->type == dbField::tpArray) { 
-            if (fd->oldDbsType == dbField::tpUnknown) { 
+    do {
+        if (fd->type == dbField::tpArray) {
+            if (fd->oldDbsType == dbField::tpUnknown) {
                 continue;
             }
             int nElems = ((dbVarying*)(base + fd->oldDbsOffs))->size;
             offs = DOALIGN(offs, fd->components->alignment)
                  + nElems*fd->components->dbsSize;
-            if (fd->attr & HasArrayComponents) { 
+            if (fd->attr & HasArrayComponents) {
                 byte* elem = base + ((dbVarying*)(base+fd->oldDbsOffs))->offs;
-                while (--nElems >= 0) { 
+                while (--nElems >= 0) {
                     offs = fd->components->calculateNewRecordSize(elem, offs);
                     elem += fd->components->oldDbsSize;
                 }
-            } 
-        } else if (fd->type == dbField::tpString) { 
-            if (fd->oldDbsType == dbField::tpUnknown) { 
+            }
+        } else if (fd->type == dbField::tpString) {
+            if (fd->oldDbsType == dbField::tpUnknown) {
                 offs += 1;
-            } else { 
+            } else {
                 offs += ((dbVarying*)(base + fd->oldDbsOffs))->size;
             }
         } else if (fd->attr & HasArrayComponents) {
@@ -231,8 +231,8 @@ size_t dbFieldDescriptor::calculateNewRecordSize(byte* base, size_t offs)
 void dbFieldDescriptor::fetchRecordFields(byte* dst, byte* src)
 {
     dbFieldDescriptor* fd = this;
-    do { 
-        switch (fd->appType) { 
+    do {
+        switch (fd->appType) {
           case dbField::tpBool:
             *(bool*)(dst+fd->appOffs) = *(bool*)(src+fd->dbsOffs);
             break;
@@ -256,14 +256,14 @@ void dbFieldDescriptor::fetchRecordFields(byte* dst, byte* src)
             break;
           case dbField::tpRawBinary:
             memcpy(dst+fd->appOffs, src+fd->dbsOffs, fd->dbsSize);
-            break;          
+            break;
           case dbField::tpString:
-            *(char**)(dst+fd->appOffs) = 
+            *(char**)(dst+fd->appOffs) =
                 (char*)(src + ((dbVarying*)(src+fd->dbsOffs))->offs);
             break;
 #ifdef USE_STD_STRING
           case dbField::tpStdString:
-            ((std::string*)(dst + fd->appOffs))->assign((char*)(src + ((dbVarying*)(src+fd->dbsOffs))->offs), 
+            ((std::string*)(dst + fd->appOffs))->assign((char*)(src + ((dbVarying*)(src+fd->dbsOffs))->offs),
                                                    ((dbVarying*)(src+fd->dbsOffs))->size - 1);
             break;
 #endif
@@ -272,22 +272,22 @@ void dbFieldDescriptor::fetchRecordFields(byte* dst, byte* src)
                 int nElems = ((dbVarying*)(src+fd->dbsOffs))->size;
                 byte* srcElem = src + ((dbVarying*)(src+fd->dbsOffs))->offs;
                 dbAnyArray* array = (dbAnyArray*)(dst+fd->appOffs);
-                if (fd->attr & dbFieldDescriptor::OneToOneMapping) { 
+                if (fd->attr & dbFieldDescriptor::OneToOneMapping) {
                     fd->arrayAllocator(array, srcElem, nElems);
-                } else { 
+                } else {
                     fd->arrayAllocator(array, NULL, nElems);
                     byte* dstElem = (byte*)array->base();
                     dbFieldDescriptor* component = fd->components;
-                    while (--nElems >= 0) { 
+                    while (--nElems >= 0) {
                         component->fetchRecordFields(dstElem, srcElem);
                         dstElem += component->appSize;
                         srcElem += component->dbsSize;
                     }
                 }
-            }  
+            }
             break;
           case dbField::tpReference:
-            ((dbAnyReference*)(dst+fd->appOffs))->oid = 
+            ((dbAnyReference*)(dst+fd->appOffs))->oid =
                 *(oid_t*)(src+fd->dbsOffs);
             break;
           case dbField::tpRectangle:
@@ -306,21 +306,21 @@ void dbFieldDescriptor::fetchRecordFields(byte* dst, byte* src)
 size_t dbFieldDescriptor::storeRecordFields(byte* dst, byte* src, size_t offs, StoreMode mode)
 {
     dbFieldDescriptor* fd = this;
-    do { 
+    do {
 #ifdef AUTOINCREMENT_SUPPORT
-        if ((fd->indexType & AUTOINCREMENT) != 0) { 
-            if (mode == Insert || (mode == Import && *(int4*)(src+fd->appOffs) == 0)) { 
+        if ((fd->indexType & AUTOINCREMENT) != 0) {
+            if (mode == Insert || (mode == Import && *(int4*)(src+fd->appOffs) == 0)) {
                 assert (fd->appType == dbField::tpInt4);
                 *(int4*)(dst+fd->dbsOffs) = *(int4*)(src+fd->appOffs) = fd->defTable->autoincrementCount;
                 continue;
-            } else if (mode == Import) { 
+            } else if (mode == Import) {
                 if (*(int4*)(src+fd->appOffs) > fd->defTable->autoincrementCount) {
                     fd->defTable->autoincrementCount = *(int4*)(src+fd->appOffs);
-                } 
+                }
             }
         }
 #endif
-        switch (fd->appType) { 
+        switch (fd->appType) {
           case dbField::tpBool:
             *(bool*)(dst+fd->dbsOffs) = *(bool*)(src+fd->appOffs);
             break;
@@ -341,13 +341,13 @@ size_t dbFieldDescriptor::storeRecordFields(byte* dst, byte* src, size_t offs, S
             break;
           case dbField::tpReal8:
             *(real8*)(dst+fd->dbsOffs) = *(real8*)(src+fd->appOffs);
-            break;      
+            break;
           case dbField::tpRawBinary:
             memcpy(dst+fd->dbsOffs, src+fd->appOffs, fd->dbsSize);
-            break;          
+            break;
 #ifdef USE_STD_STRING
           case dbField::tpStdString:
-            { 
+            {
                 ((dbVarying*)(dst+fd->dbsOffs))->offs = offs;
                 std::string* str = (std::string*)(src + fd->appOffs);
                 int len = str->length();
@@ -362,10 +362,10 @@ size_t dbFieldDescriptor::storeRecordFields(byte* dst, byte* src, size_t offs, S
             {
                 ((dbVarying*)(dst+fd->dbsOffs))->offs = offs;
                 char* str = *(char**)(src + fd->appOffs);
-                if (str != NULL) { 
+                if (str != NULL) {
                     strcpy((char*)dst + offs, str);
                     offs += ((dbVarying*)(dst+fd->dbsOffs))->size = strlen(str) + 1;
-                } else { 
+                } else {
                     *((char*)dst + offs) = '\0';
                     ((dbVarying*)(dst+fd->dbsOffs))->size = 1;
                     offs += 1;
@@ -383,13 +383,13 @@ size_t dbFieldDescriptor::storeRecordFields(byte* dst, byte* src, size_t offs, S
                 size_t sizeElem = fd->components->dbsSize;
                 size_t offsElem = nElems*sizeElem;
                 offs += offsElem;
-                if (srcElem != NULL) { 
-                    if (fd->attr & dbFieldDescriptor::OneToOneMapping) { 
+                if (srcElem != NULL) {
+                    if (fd->attr & dbFieldDescriptor::OneToOneMapping) {
                         memcpy(dstElem, srcElem, offsElem);
-                    } else { 
+                    } else {
                         dbFieldDescriptor* component = fd->components;
-                        while (--nElems >= 0) { 
-                            offsElem = 
+                        while (--nElems >= 0) {
+                            offsElem =
                                 component->storeRecordFields(dstElem, srcElem, offsElem, mode);
                             offsElem -= sizeElem;
                             dstElem += sizeElem;
@@ -398,11 +398,11 @@ size_t dbFieldDescriptor::storeRecordFields(byte* dst, byte* src, size_t offs, S
                         offs += offsElem;
                     }
                 }
-                
-            }  
+
+            }
             break;
           case dbField::tpReference:
-            *(oid_t*)(dst+fd->dbsOffs) = 
+            *(oid_t*)(dst+fd->dbsOffs) =
                 ((dbAnyReference*)(src+fd->appOffs))->oid;
             break;
           case dbField::tpRectangle:
@@ -423,11 +423,11 @@ size_t dbFieldDescriptor::storeRecordFields(byte* dst, byte* src, size_t offs, S
 void dbFieldDescriptor::markUpdatedFields(byte* dst, byte* src)
 {
     dbFieldDescriptor* fd = this;
-    do { 
-        if (fd->indexType & (HASHED|INDEXED)) { 
-            switch (fd->appType) { 
+    do {
+        if (fd->indexType & (HASHED|INDEXED)) {
+            switch (fd->appType) {
               case dbField::tpBool:
-                if (*(bool*)(dst+fd->dbsOffs) != *(bool*)(src+fd->appOffs)) { 
+                if (*(bool*)(dst+fd->dbsOffs) != *(bool*)(src+fd->appOffs)) {
                     fd->attr |= Updated;
                 }
                 break;
@@ -470,15 +470,15 @@ void dbFieldDescriptor::markUpdatedFields(byte* dst, byte* src)
                 if (*(real8*)(dst+fd->dbsOffs) != *(real8*)(src+fd->appOffs)) {
                     fd->attr |= Updated;
                 }
-                break;  
+                break;
               case dbField::tpRawBinary:
                 if (memcmp(dst+fd->dbsOffs, src+fd->appOffs, fd->dbsSize) != 0) {
                     fd->attr |= Updated;
                 }
-                break;  
+                break;
               case dbField::tpString:
                 if (strcmp((char*)dst + ((dbVarying*)(dst+fd->dbsOffs))->offs,
-                           *(char**)(src + fd->appOffs)) != 0) 
+                           *(char**)(src + fd->appOffs)) != 0)
                 {
                     fd->attr |= Updated;
                 }
@@ -489,7 +489,7 @@ void dbFieldDescriptor::markUpdatedFields(byte* dst, byte* src)
                     fd->attr |= Updated;
                 }
                 break;
-#endif          
+#endif
               case dbField::tpStructure:
                 fd->components->markUpdatedFields(dst, src+fd->appOffs);
                 break;
@@ -513,10 +513,10 @@ size_t dbFieldDescriptor::convertRecord(byte* dst, byte* src, size_t offs)
     real4 f4;
     real8 f8;
     bool  b;
-    do { 
-        switch (fd->type) { 
+    do {
+        switch (fd->type) {
           case dbField::tpBool:
-            switch (fd->oldDbsType) { 
+            switch (fd->oldDbsType) {
               case dbField::tpBool:
                 b = *(bool*)(src + fd->oldDbsOffs);
                 break;
@@ -545,7 +545,7 @@ size_t dbFieldDescriptor::convertRecord(byte* dst, byte* src, size_t offs)
             break;
 
           case dbField::tpInt1:
-            switch (fd->oldDbsType) { 
+            switch (fd->oldDbsType) {
               case dbField::tpBool:
                 i1 = *(bool*)(src + fd->oldDbsOffs);
                 break;
@@ -574,7 +574,7 @@ size_t dbFieldDescriptor::convertRecord(byte* dst, byte* src, size_t offs)
             break;
 
           case dbField::tpInt2:
-            switch (fd->oldDbsType) { 
+            switch (fd->oldDbsType) {
               case dbField::tpBool:
                 i2 = *(bool*)(src + fd->oldDbsOffs);
                 break;
@@ -603,7 +603,7 @@ size_t dbFieldDescriptor::convertRecord(byte* dst, byte* src, size_t offs)
             break;
 
           case dbField::tpInt4:
-            switch (fd->oldDbsType) { 
+            switch (fd->oldDbsType) {
               case dbField::tpBool:
                 i4 = *(bool*)(src + fd->oldDbsOffs);
                 break;
@@ -632,7 +632,7 @@ size_t dbFieldDescriptor::convertRecord(byte* dst, byte* src, size_t offs)
             break;
 
           case dbField::tpInt8:
-            switch (fd->oldDbsType) { 
+            switch (fd->oldDbsType) {
               case dbField::tpBool:
                 i8 = *(bool*)(src + fd->oldDbsOffs);
                 break;
@@ -661,7 +661,7 @@ size_t dbFieldDescriptor::convertRecord(byte* dst, byte* src, size_t offs)
             break;
 
           case dbField::tpReal4:
-            switch (fd->oldDbsType) { 
+            switch (fd->oldDbsType) {
               case dbField::tpBool:
                 f4 = (real4)*(bool*)(src + fd->oldDbsOffs);
                 break;
@@ -690,7 +690,7 @@ size_t dbFieldDescriptor::convertRecord(byte* dst, byte* src, size_t offs)
             break;
 
           case dbField::tpReal8:
-            switch (fd->oldDbsType) { 
+            switch (fd->oldDbsType) {
               case dbField::tpBool:
                 f8 = (real8)*(bool*)(src + fd->oldDbsOffs);
                 break;
@@ -720,42 +720,42 @@ size_t dbFieldDescriptor::convertRecord(byte* dst, byte* src, size_t offs)
 
           case dbField::tpRawBinary:
             if (fd->oldDbsType == dbField::tpRawBinary) {
-                memcpy(dst + fd->dbsOffs, src + fd->oldDbsOffs, 
-                       size_t(fd->oldDbsSize) < fd->dbsSize 
+                memcpy(dst + fd->dbsOffs, src + fd->oldDbsOffs,
+                       size_t(fd->oldDbsSize) < fd->dbsSize
                        ? size_t(fd->oldDbsSize) : fd->dbsSize);
-            } 
+            }
             break;
 
           case dbField::tpString:
-            if (fd->oldDbsType == dbField::tpUnknown) { 
+            if (fd->oldDbsType == dbField::tpUnknown) {
                 ((dbVarying*)(dst + fd->dbsOffs))->size = 1;
                 ((dbVarying*)(dst + fd->dbsOffs))->offs = offs;
                 *(char*)(dst + offs++) = '\0';
-            } else { 
-                size_t len = 
+            } else {
+                size_t len =
                     ((dbVarying*)(src + fd->oldDbsOffs))->size;
                 ((dbVarying*)(dst + fd->dbsOffs))->size = len;
                 ((dbVarying*)(dst + fd->dbsOffs))->offs = offs;
-                memcpy(dst + offs, 
+                memcpy(dst + offs,
                        src + ((dbVarying*)(src+fd->oldDbsOffs))->offs, len);
                 offs += len;
             }
             break;
 
           case dbField::tpArray:
-            if (fd->oldDbsType == dbField::tpUnknown) { 
+            if (fd->oldDbsType == dbField::tpUnknown) {
                 ((dbVarying*)(dst + fd->dbsOffs))->size = 0;
                 ((dbVarying*)(dst + fd->dbsOffs))->offs = 0;
-            } else { 
+            } else {
                 int len = ((dbVarying*)(src+fd->oldDbsOffs))->size;
                 byte* srcElem = src + ((dbVarying*)(src+fd->oldDbsOffs))->offs;
                 ((dbVarying*)(dst + fd->dbsOffs))->size = len;
                 offs = DOALIGN(offs, fd->components->alignment);
                 byte* dstElem = dst+offs;
                 ((dbVarying*)(dst+fd->dbsOffs))->offs = offs;
-                size_t offsElem = len*fd->components->dbsSize; 
+                size_t offsElem = len*fd->components->dbsSize;
                 offs += offsElem;
-                while (--len >= 0) { 
+                while (--len >= 0) {
                     offsElem = fd->components->convertRecord(dstElem, srcElem,
                                                              offsElem);
                     offsElem -= fd->components->dbsSize;
@@ -771,9 +771,9 @@ size_t dbFieldDescriptor::convertRecord(byte* dst, byte* src, size_t offs)
             break;
 
           case dbField::tpReference:
-            if (fd->oldDbsType == dbField::tpUnknown) { 
+            if (fd->oldDbsType == dbField::tpUnknown) {
                 *(oid_t*)(dst + fd->dbsOffs) = 0;
-            } else { 
+            } else {
                 *(oid_t*)(dst + fd->dbsOffs) = *(oid_t*)(src + fd->oldDbsOffs);
             }
             break;
@@ -796,9 +796,9 @@ size_t dbFieldDescriptor::convertRecord(byte* dst, byte* src, size_t offs)
 int dbTableDescriptor::initialAutoincrementCount;
 
 
-dbTableDescriptor::dbTableDescriptor(char const*        tableName, 
+dbTableDescriptor::dbTableDescriptor(char const*        tableName,
                                      dbDatabase*        database,
-                                     size_t             objSize, 
+                                     size_t             objSize,
                                      describeFunc       func,
                                      dbTableDescriptor* original)
 {
@@ -825,12 +825,12 @@ dbTableDescriptor::dbTableDescriptor(char const*        tableName,
     int attr = dbFieldDescriptor::OneToOneMapping;
     appSize = 0;
     autoincrementCount = initialAutoincrementCount;
-    size_t maxAlignment = calculateFieldsAttributes(columns, "", 
-                                                    sizeof(dbRecord), 
+    size_t maxAlignment = calculateFieldsAttributes(columns, "",
+                                                    sizeof(dbRecord),
                                                     HASHED|INDEXED, attr);
 #if CHECK_RECORD_SIZE
     appSize = DOALIGN(appSize, maxAlignment);
-    if (appSize < objSize) { 
+    if (appSize < objSize) {
         fprintf(stderr, "Warning: may be not all fields of the class '%s' "
                 "were described\n", name);
     }
@@ -840,55 +840,55 @@ dbTableDescriptor::dbTableDescriptor(char const*        tableName,
 
 
 int dbTableDescriptor::calculateFieldsAttributes(dbFieldDescriptor* first,
-                                                 char const*        prefix, 
+                                                 char const*        prefix,
                                                  int                offs,
-                                                 int                indexMask, 
+                                                 int                indexMask,
                                                  int&               attr)
 {
     dbFieldDescriptor *field = first;
     size_t alignment = 1;
-    do { 
-        if (field->method) { 
+    do {
+        if (field->method) {
             assert(((void)"Not empty record", field != first));
-            do { 
-                assert(((void)"Methods should be specified after variables", 
+            do {
+                assert(((void)"Methods should be specified after variables",
                         field->method != NULL));
                 field->dbsOffs = first->dbsOffs;
                 field->components = first;
-                if (attr & dbFieldDescriptor::OneToOneMapping) { 
+                if (attr & dbFieldDescriptor::OneToOneMapping) {
                     field->method = field->method->optimize();
                 }
             } while ((field = field->next) != first);
             break;
         }
-        if (*prefix != '\0') { 
+        if (*prefix != '\0') {
             char* p = new char[strlen(prefix)+strlen(field->name)+1];
             sprintf(p, "%s%s", prefix, field->name);
             field->longName = p;
-        } else { 
+        } else {
             nColumns += 1;
             field->longName = new char[strlen(field->name)+1];
             strcpy(field->longName, field->name);
         }
         field->defTable = this;
         field->indexType &= indexMask|DB_FIELD_INHERITED_MASK;
-        field->attr = (attr & dbFieldDescriptor::ComponentOfArray) 
+        field->attr = (attr & dbFieldDescriptor::ComponentOfArray)
                     | dbFieldDescriptor::OneToOneMapping;
-        if (field->inverseRefName) { 
+        if (field->inverseRefName) {
             assert(!(attr & dbFieldDescriptor::ComponentOfArray)
-                   && (field->type == dbField::tpReference 
-                       || (field->type == dbField::tpArray 
+                   && (field->type == dbField::tpReference
+                       || (field->type == dbField::tpArray
                            && field->components->type==dbField::tpReference)));
             field->nextInverseField = inverseFields;
-            inverseFields = field; 
+            inverseFields = field;
         }
         *nextFieldLink = field;
         nextFieldLink = &field->nextField;
         field->fieldNo = nFields++;
-                   
-        switch (field->type) { 
+
+        switch (field->type) {
           case dbField::tpArray:
-            { 
+            {
                 size_t saveOffs = fixedSize;
                 size_t saveAppSize = appSize;
                 fixedSize = 0;
@@ -901,21 +901,21 @@ int dbTableDescriptor::calculateFieldsAttributes(dbFieldDescriptor* first,
                     field->attr &= ~dbFieldDescriptor::OneToOneMapping;
                 }
                 fixedSize = saveOffs;
-                appSize = DOALIGN(saveAppSize, sizeof(void*)) 
+                appSize = DOALIGN(saveAppSize, sizeof(void*))
                     + sizeof(void*)*3;
                 break;
             }
           case dbField::tpStructure:
-            { 
+            {
                 char* aggregateName = new char[strlen(field->longName) + 2];
                 sprintf(aggregateName, "%s.", field->longName);
-                size_t saveOffs = fixedSize;        
-                size_t saveAppSize = appSize;       
+                size_t saveOffs = fixedSize;
+                size_t saveAppSize = appSize;
                 appSize = 0;
-                size_t struct_alignment = 
-                    calculateFieldsAttributes(field->components, 
+                size_t struct_alignment =
+                    calculateFieldsAttributes(field->components,
                                               aggregateName,
-                                              offs + field->appOffs, 
+                                              offs + field->appOffs,
                                               field->indexType,
                                               field->attr);
                 field->alignment = struct_alignment;
@@ -928,11 +928,11 @@ int dbTableDescriptor::calculateFieldsAttributes(dbFieldDescriptor* first,
                 {
                     struct_alignment = sizeof(void*);
                 }
-                appSize = DOALIGN(appSize, struct_alignment) 
+                appSize = DOALIGN(appSize, struct_alignment)
                         + DOALIGN(saveAppSize, struct_alignment);
                 delete[] aggregateName;
                 break;
-            } 
+            }
           case dbField::tpString:
             attr = (attr | dbFieldDescriptor::HasArrayComponents)
                 & ~dbFieldDescriptor::OneToOneMapping;
@@ -940,23 +940,23 @@ int dbTableDescriptor::calculateFieldsAttributes(dbFieldDescriptor* first,
           default:
             appSize = DOALIGN(appSize, field->appSize) + field->appSize;
         }
-        if (alignment < field->alignment) { 
+        if (alignment < field->alignment) {
             alignment = field->alignment;
         }
-        if (field->type != dbField::tpStructure) { 
+        if (field->type != dbField::tpStructure) {
             field->dbsOffs = fixedSize = DOALIGN(fixedSize, field->alignment);
             fixedSize += field->dbsSize;
-            if (field->dbsOffs != offs + field->appOffs) { 
+            if (field->dbsOffs != offs + field->appOffs) {
                 attr &= ~dbFieldDescriptor::OneToOneMapping;
             }
 
             if (field->indexType & (HASHED|INDEXED)) {
                 assert(!(field->attr & dbFieldDescriptor::ComponentOfArray));
-                if (field->indexType & HASHED) { 
+                if (field->indexType & HASHED) {
                     field->nextHashedField = hashedFields;
                     hashedFields = field;
                 }
-                if (field->indexType & INDEXED) { 
+                if (field->indexType & INDEXED) {
                     field->nextIndexedField = indexedFields;
                     indexedFields = field;
                 }
@@ -968,35 +968,35 @@ int dbTableDescriptor::calculateFieldsAttributes(dbFieldDescriptor* first,
 }
 
 
-int dbFieldDescriptor::sizeWithoutOneField(dbFieldDescriptor* field, 
+int dbFieldDescriptor::sizeWithoutOneField(dbFieldDescriptor* field,
                                            byte* base, size_t& size)
 {
     dbFieldDescriptor* fd = this;
     int offs, last = 0;
-    do { 
-        if (fd != field) { 
+    do {
+        if (fd != field) {
             if (fd->type == dbField::tpArray || fd->type == dbField::tpString){
                 dbVarying* arr = (dbVarying*)(base + fd->dbsOffs);
-                if (arr->offs > last) { 
+                if (arr->offs > last) {
                     last = arr->offs;
                 }
                 int n = arr->size;
                 size = DOALIGN(size, fd->components->alignment)
                      + fd->components->dbsSize * n;
-                if (fd->attr & HasArrayComponents) { 
+                if (fd->attr & HasArrayComponents) {
                     byte* elem = base + arr->offs;
                     while (--n >= 0) {
-                        offs = fd->components->sizeWithoutOneField(field, 
+                        offs = fd->components->sizeWithoutOneField(field,
                                                                    elem, size);
-                        if (arr->offs + offs > last) { 
+                        if (arr->offs + offs > last) {
                             last = arr->offs + offs;
                         }
                         elem += fd->components->dbsSize;
                     }
                 }
-            } else if (fd->attr & HasArrayComponents) { 
+            } else if (fd->attr & HasArrayComponents) {
                 offs = fd->components->sizeWithoutOneField(field, base, size);
-                if (offs > last) { 
+                if (offs > last) {
                     last = offs;
                 }
             }
@@ -1007,13 +1007,13 @@ int dbFieldDescriptor::sizeWithoutOneField(dbFieldDescriptor* field,
 }
 
 
-size_t dbFieldDescriptor::copyRecordExceptOneField(dbFieldDescriptor* field, 
-                                                   byte* dst, byte* src, 
+size_t dbFieldDescriptor::copyRecordExceptOneField(dbFieldDescriptor* field,
+                                                   byte* dst, byte* src,
                                                    size_t offs)
 {
     dbFieldDescriptor* fd = this;
-    do { 
-        if (fd != field) { 
+    do {
+        if (fd != field) {
             if (fd->type == dbField::tpArray || fd->type == dbField::tpString){
                 dbVarying* srcArr = (dbVarying*)(src + fd->dbsOffs);
                 dbVarying* dstArr = (dbVarying*)(dst + fd->dbsOffs);
@@ -1026,7 +1026,7 @@ size_t dbFieldDescriptor::copyRecordExceptOneField(dbFieldDescriptor* field,
                 size_t sizeElem = fd->components->dbsSize;
                 size_t offsElem = sizeElem * n;
                 offs += offsElem;
-                if (fd->attr & HasArrayComponents) { 
+                if (fd->attr & HasArrayComponents) {
                     while (--n >= 0) {
                         offsElem = fd->components->
                             copyRecordExceptOneField(field, dstElem, srcElem,
@@ -1036,11 +1036,11 @@ size_t dbFieldDescriptor::copyRecordExceptOneField(dbFieldDescriptor* field,
                         srcElem += sizeElem;
                     }
                     offs += offsElem;
-                } else { 
+                } else {
                     memcpy(dstElem, srcElem, offsElem);
-                } 
-            } else if (fd->attr & HasArrayComponents) { 
-                offs = fd->components->copyRecordExceptOneField(field, dst, 
+                }
+            } else if (fd->attr & HasArrayComponents) {
+                offs = fd->components->copyRecordExceptOneField(field, dst,
                                                                 src, offs);
             } else if (fd->method == NULL) {
                 memcpy(dst+fd->dbsOffs, src+fd->dbsOffs, fd->dbsSize);
@@ -1052,26 +1052,26 @@ size_t dbFieldDescriptor::copyRecordExceptOneField(dbFieldDescriptor* field,
 }
 
 
-void dbTableDescriptor::checkRelationship() 
+void dbTableDescriptor::checkRelationship()
 {
     dbFieldDescriptor* fd;
-    for (fd = inverseFields; fd != NULL; fd = fd->nextInverseField) { 
-        dbTableDescriptor* refTable = 
+    for (fd = inverseFields; fd != NULL; fd = fd->nextInverseField) {
+        dbTableDescriptor* refTable =
             fd->refTable ? fd->refTable : fd->components->refTable;
         fd->inverseRef = refTable->findSymbol(fd->inverseRefName);
-        if (fd->inverseRef == NULL 
+        if (fd->inverseRef == NULL
              || fd->inverseRef->inverseRefName != fd->name)
         {
             char msg[256];
-            if (fd->inverseRef == NULL) { 
-                sprintf(msg, "Failed to locate inverse reference field %s.%s for field %s.%s", 
+            if (fd->inverseRef == NULL) {
+                sprintf(msg, "Failed to locate inverse reference field %s.%s for field %s.%s",
                         refTable->name, fd->inverseRefName, fd->defTable->name, fd->longName);
             } else {
-                sprintf(msg, "Inverse references for field %s.%s is %s.%s, but its inverse reference is %s", 
+                sprintf(msg, "Inverse references for field %s.%s is %s.%s, but its inverse reference is %s",
                         fd->defTable->name, fd->longName, refTable->name, fd->inverseRefName, fd->inverseRef->inverseRefName);
             }
             db->handleError(dbDatabase::InconsistentInverseReference, msg);
-        } 
+        }
     }
 }
 
@@ -1086,8 +1086,8 @@ dbFieldDescriptor* dbTableDescriptor::findSymbol(const char* name)
 {
     dbFieldDescriptor* first = columns;
     dbFieldDescriptor* field = first;
-    do { 
-        if (field->name == name) { 
+    do {
+        if (field->name == name) {
             return field;
         }
     } while ((field = field->next) != first);
@@ -1096,9 +1096,9 @@ dbFieldDescriptor* dbTableDescriptor::findSymbol(const char* name)
 
 dbFieldDescriptor& dbFieldDescriptor::adjustOffsets(long offs)
 {
-    if (offs != 0) { 
+    if (offs != 0) {
         dbFieldDescriptor* fd = this;
-        do { 
+        do {
             fd->appOffs += offs;
         } while ((fd = fd->next) != this);
     }
@@ -1108,23 +1108,23 @@ dbFieldDescriptor& dbFieldDescriptor::adjustOffsets(long offs)
 
 
 
-bool dbTableDescriptor::match(dbTable* table, bool confirmDeleteColumns) 
+bool dbTableDescriptor::match(dbTable* table, bool confirmDeleteColumns)
 {
     unsigned nFields = table->fields.size;
     unsigned nMatches = 0;
     bool formatNotChanged = ((size_t)nFields == this->nFields);
 
-    for (dbFieldDescriptor* fd = firstField; fd != NULL; fd = fd->nextField) { 
+    for (dbFieldDescriptor* fd = firstField; fd != NULL; fd = fd->nextField) {
         dbField* field = (dbField*)((char*)table + table->fields.offs);
         fd->oldDbsType = dbField::tpUnknown;
-        for (int n = nFields; --n >= 0; field++) { 
+        for (int n = nFields; --n >= 0; field++) {
             if (strcmp(fd->longName, (char*)field + field->name.offs) == 0) {
                 assert(((void)"field can be converted to new format",
                         (fd->type == dbField::tpReference
                          && field->type == dbField::tpReference
                          && strcmp((char*)field + field->tableName.offs,
                                       fd->refTable->name) == 0)
-                        || (fd->type <= dbField::tpReal8 
+                        || (fd->type <= dbField::tpReal8
                             && field->type <= dbField::tpReal8)
                         || (fd->type == dbField::tpString
                             && field->type == dbField::tpString)
@@ -1145,12 +1145,12 @@ bool dbTableDescriptor::match(dbTable* table, bool confirmDeleteColumns)
                 fd->hashTable = 0;
                 fd->tTree = 0;
 
-                if (field->type == fd->type) { 
-                    if ((fd->indexType & HASHED) != 0 && field->hashTable != 0) { 
+                if (field->type == fd->type) {
+                    if ((fd->indexType & HASHED) != 0 && field->hashTable != 0) {
                         fd->hashTable = field->hashTable; // reuse index
                         field->hashTable = 0; // prevent index from destruction
                     }
-                    if ((fd->indexType & INDEXED) != 0 && field->tTree != 0) { 
+                    if ((fd->indexType & INDEXED) != 0 && field->tTree != 0) {
                         fd->tTree = field->tTree; // reuse index
                         field->tTree = 0; // prevent index from destruction
                     }
@@ -1159,42 +1159,42 @@ bool dbTableDescriptor::match(dbTable* table, bool confirmDeleteColumns)
             }
         }
     }
-    if (!confirmDeleteColumns) {             
+    if (!confirmDeleteColumns) {
         assert(((void)"field can be removed only from empty table",
                 nFields==nMatches));
     }
     return formatNotChanged;
 }
 
-void dbTableDescriptor::setFlags() { 
+void dbTableDescriptor::setFlags() {
     for (dbFieldDescriptor* fd = firstField; fd != NULL; fd = fd->nextField) {
-        if (fd->tTree != 0) { 
+        if (fd->tTree != 0) {
             fd->indexType |= INDEXED;
-        } else if (fd->hashTable != 0) { 
+        } else if (fd->hashTable != 0) {
             fd->indexType |= HASHED;
         }
     }
 }
 
 
-bool dbTableDescriptor::equal(dbTable* table) 
+bool dbTableDescriptor::equal(dbTable* table)
 {
 #ifdef AUTOINCREMENT_SUPPORT
     autoincrementCount = table->count;
 #endif
-    if (nColumns != table->nColumns || 
-        nFields != table->fields.size || fixedSize != table->fixedSize) 
-    { 
+    if (nColumns != table->nColumns ||
+        nFields != table->fields.size || fixedSize != table->fixedSize)
+    {
         return false;
     }
     dbField* field = (dbField*)((char*)table + table->fields.offs);
 
-    for (dbFieldDescriptor* fd = firstField; fd != NULL; fd = fd->nextField) { 
-        if (strcmp(fd->longName, (char*)field + field->name.offs) != 0 
+    for (dbFieldDescriptor* fd = firstField; fd != NULL; fd = fd->nextField) {
+        if (strcmp(fd->longName, (char*)field + field->name.offs) != 0
             || (!fd->refTable && *((char*)field+field->tableName.offs) != '\0')
             || (fd->refTable && strcmp((char*)field + field->tableName.offs,
                                        fd->refTable->name) != 0)
-            || (fd->inverseRefName == NULL 
+            || (fd->inverseRefName == NULL
                 && *((char*)field + field->inverse.offs) != '\0')
             || (fd->inverseRefName != NULL
                 && strcmp((char*)field + field->inverse.offs,
@@ -1258,25 +1258,25 @@ struct _arectangle { char n; rectangle v; };
 #define COMPUTE_ALIGNED_SIZE(type) offsetof(_a##type, v)
 
 
-dbFieldDescriptor* dbTableDescriptor::buildFieldsList(dbTable*    table, 
+dbFieldDescriptor* dbTableDescriptor::buildFieldsList(dbTable*    table,
                                                       char const* prefix,
                                                       int         prefixLen,
                                                       int&        attr)
 {
     dbFieldDescriptor* components = NULL;
     dbField* field = (dbField*)((char*)table+table->fields.offs) + nFields;
-        
+
     while (nFields < table->fields.size
            && strncmp((char*)field + field->name.offs, prefix, prefixLen) == 0)
     {
         char* longName = (char*)field + field->name.offs;
         char* name = longName + prefixLen;
-        if (*name == '.') { 
+        if (*name == '.') {
             name += 1;
-        } else if (prefixLen != 0 && *name != '[') { 
+        } else if (prefixLen != 0 && *name != '[') {
             break;
         }
-        dbSymbolTable::add(name, tkn_ident, true);      
+        dbSymbolTable::add(name, tkn_ident, true);
         dbFieldDescriptor* fd = new dbFieldDescriptor(name);
         fd->dbsOffs = field->offset;
         fd->alignment = fd->dbsSize = field->size;
@@ -1285,7 +1285,7 @@ dbFieldDescriptor* dbTableDescriptor::buildFieldsList(dbTable*    table,
         fd->type = fd->appType = field->type;
         fd->indexType = field->flags;
         int appFieldSize, appAlignedFieldSize;
-         
+
         switch (field->type) {
           case dbField::tpBool:
             appAlignedFieldSize = COMPUTE_ALIGNED_SIZE(bool);
@@ -1342,11 +1342,11 @@ dbFieldDescriptor* dbTableDescriptor::buildFieldsList(dbTable*    table,
         fd->appOffs = appSize = DOALIGN(appSize, appAlignedFieldSize);
         appSize += fd->appSize = appFieldSize;
 
-        if ((fd->hashTable = field->hashTable) != 0) { 
+        if ((fd->hashTable = field->hashTable) != 0) {
             fd->nextHashedField = hashedFields;
             hashedFields = fd;
         }
-        if ((fd->tTree = field->tTree) != 0) { 
+        if ((fd->tTree = field->tTree) != 0) {
             fd->nextIndexedField = indexedFields;
             indexedFields = fd;
         }
@@ -1354,40 +1354,40 @@ dbFieldDescriptor* dbTableDescriptor::buildFieldsList(dbTable*    table,
         fd->defTable = this;
         fd->refTable = NULL;
         fd->refTableName = NULL;
-        if (field->hashTable != 0) { 
+        if (field->hashTable != 0) {
             fd->indexType |= HASHED;
         }
-        if (field->tTree != 0) { 
+        if (field->tTree != 0) {
             fd->indexType |= INDEXED;
         }
-        if (field->tableName.size > 1) { 
+        if (field->tableName.size > 1) {
             fd->refTableName = (char*)field + field->tableName.offs;
-            dbSymbolTable::add(fd->refTableName, tkn_ident, true);      
+            dbSymbolTable::add(fd->refTableName, tkn_ident, true);
         }
         fd->inverseRefName = NULL;
-        if (field->inverse.size > 1) { 
+        if (field->inverse.size > 1) {
             fd->nextInverseField = inverseFields;
-            inverseFields = fd;             
+            inverseFields = fd;
             fd->inverseRefName = (char*)field + field->inverse.offs;
-            dbSymbolTable::add(fd->inverseRefName, tkn_ident, true);    
+            dbSymbolTable::add(fd->inverseRefName, tkn_ident, true);
         }
         fd->attr = (attr & dbFieldDescriptor::ComponentOfArray) | dbFieldDescriptor::OneToOneMapping;
 
         *nextFieldLink = fd;
         nextFieldLink = &fd->nextField;
 
-        if (prefixLen == 0) { 
+        if (prefixLen == 0) {
             nColumns += 1;
         }
-        if (components == NULL) { 
+        if (components == NULL) {
             components = fd;
-        } else { 
+        } else {
             fd->next = components;
             fd->prev = components->prev;
             components->prev->next = fd;
             components->prev = fd;
         }
-        if (fd->type == dbField::tpArray || fd->type == dbField::tpString) { 
+        if (fd->type == dbField::tpArray || fd->type == dbField::tpString) {
             attr = (attr | dbFieldDescriptor::HasArrayComponents)
                 & ~dbFieldDescriptor::OneToOneMapping;
             fd->attr |= dbFieldDescriptor::ComponentOfArray;
@@ -1396,7 +1396,7 @@ dbFieldDescriptor* dbTableDescriptor::buildFieldsList(dbTable*    table,
         if (fd->type == dbField::tpArray || fd->type == dbField::tpStructure) {
             int saveAppSize = appSize;
             appSize = 0;
-            fd->components = 
+            fd->components =
                 buildFieldsList(table, longName, strlen(longName), fd->attr);
             attr |= fd->attr & dbFieldDescriptor::HasArrayComponents;
             attr &= fd->attr | ~dbFieldDescriptor::OneToOneMapping;
@@ -1404,8 +1404,8 @@ dbFieldDescriptor* dbTableDescriptor::buildFieldsList(dbTable*    table,
             if (fd->type == dbField::tpStructure) {
                 size_t alignment = 1;
                 dbFieldDescriptor* component = fd->components;
-                do { 
-                    if (component->alignment > alignment) { 
+                do {
+                    if (component->alignment > alignment) {
                         alignment = component->alignment;
                     }
                 } while ((component = component->next) != fd->components);
@@ -1413,9 +1413,9 @@ dbFieldDescriptor* dbTableDescriptor::buildFieldsList(dbTable*    table,
                 fd->appSize = appSize = DOALIGN(appSize, alignment);
                 fd->appOffs = saveAppSize = DOALIGN(saveAppSize, alignment);
                 appSize += saveAppSize;
-            } else { 
+            } else {
                 appSize = saveAppSize;
-                switch (fd->components->type) { 
+                switch (fd->components->type) {
                   case dbField::tpString:
                     fd->arrayAllocator = &dbArray<char*>::arrayAllocator;
                     fd->attr &= ~dbFieldDescriptor::OneToOneMapping;
@@ -1449,12 +1449,12 @@ dbFieldDescriptor* dbTableDescriptor::buildFieldsList(dbTable*    table,
                     break;
                 }
             }
-        } else { 
-            if (fd->type == dbField::tpString) { 
+        } else {
+            if (fd->type == dbField::tpString) {
                 fd->components = new dbFieldDescriptor("[]");
                 fd->components->type = fd->components->appType = dbField::tpInt1;
                 fd->components->dbsSize = fd->components->appSize = 1;
-                fd->components->alignment = 1; 
+                fd->components->alignment = 1;
             }
             field += 1;
         }
@@ -1467,13 +1467,13 @@ size_t dbTableDescriptor::totalNamesLength()
 {
     dbFieldDescriptor* fd;
     size_t len = strlen(name) + 1;
-    for (fd = firstField; fd != NULL; fd = fd->nextField) { 
-        if (fd->name != NULL) { 
+    for (fd = firstField; fd != NULL; fd = fd->nextField) {
+        if (fd->name != NULL) {
             len += strlen(fd->longName) + 3;
-            if (fd->inverseRefName != NULL) { 
+            if (fd->inverseRefName != NULL) {
                 len += strlen(fd->inverseRefName);
             }
-            if (fd->refTable != NULL) { 
+            if (fd->refTable != NULL) {
                 len += strlen(fd->refTable->name);
             }
         }
@@ -1482,7 +1482,7 @@ size_t dbTableDescriptor::totalNamesLength()
 }
 
 
-dbTableDescriptor* dbTableDescriptor::clone() 
+dbTableDescriptor* dbTableDescriptor::clone()
 {
     return new dbTableDescriptor(name,
                                  DETACHED_TABLE,
@@ -1494,12 +1494,12 @@ dbTableDescriptor* dbTableDescriptor::clone()
 dbTableDescriptor::~dbTableDescriptor()
 {
     if (cloneOf == NULL) {
-         dbTableDescriptor **tpp; 
+         dbTableDescriptor **tpp;
          for (tpp = &chain; *tpp != this; tpp = &(*tpp)->next);
          *tpp = next;
     }
     dbFieldDescriptor* last = columns->prev;
-    while (last->method != NULL) { 
+    while (last->method != NULL) {
         dbFieldDescriptor* prev = last->prev;
         delete last->method;
         delete last;
@@ -1509,7 +1509,7 @@ dbTableDescriptor::~dbTableDescriptor()
         last = prev;
     }
     dbFieldDescriptor *field, *nextField;
-    for (field = firstField; field != NULL; field = nextField) { 
+    for (field = firstField; field != NULL; field = nextField) {
         nextField = field->nextField;
         delete field;
     }
@@ -1519,9 +1519,9 @@ dbTableDescriptor::~dbTableDescriptor()
 void dbTableDescriptor::cleanup()
 {
     dbTableDescriptor* next, *desc;
-    for (desc = chain; desc != NULL; desc = next) { 
-        next = desc->next; 
-        if (!desc->isStatic) { 
+    for (desc = chain; desc != NULL; desc = next) {
+        next = desc->next;
+        if (!desc->isStatic) {
             delete desc;
         }
     }
@@ -1543,7 +1543,7 @@ void dbTableDescriptor::storeInDatabase(dbTable* table)
     table->firstRow = 0;
     table->lastRow = 0;
 #ifdef AUTOINCREMENT_SUPPORT
-    if (autoincrementCount < initialAutoincrementCount) { 
+    if (autoincrementCount < initialAutoincrementCount) {
         autoincrementCount = initialAutoincrementCount;
     }
     table->count = autoincrementCount;
@@ -1552,34 +1552,34 @@ void dbTableDescriptor::storeInDatabase(dbTable* table)
     dbFieldDescriptor* fd;
     dbField* field = (dbField*)((char*)table + table->fields.offs);
     offs -= sizeof(dbTable);
-    for (fd = firstField; fd != NULL; fd = fd->nextField) { 
+    for (fd = firstField; fd != NULL; fd = fd->nextField) {
         field->name.offs = offs;
         field->name.size = strlen(fd->longName) + 1;
         strcpy((char*)field + offs, fd->longName);
         offs += field->name.size;
         field->tableName.offs = offs;
-        if (fd->refTable != NULL) { 
+        if (fd->refTable != NULL) {
             field->tableName.size = strlen(fd->refTable->name) + 1;
             strcpy((char*)field + offs, fd->refTable->name);
-        } else if (fd->refTableName != NULL) { 
+        } else if (fd->refTableName != NULL) {
             field->tableName.size = strlen(fd->refTableName) + 1;
             strcpy((char*)field + offs, fd->refTableName);
-        } else { 
+        } else {
             field->tableName.size = 1;
             *((char*)field + offs) = '\0';
         }
         offs += field->tableName.size;
-        
+
         field->inverse.offs = offs;
-        if (fd->inverseRefName != NULL) { 
+        if (fd->inverseRefName != NULL) {
             field->inverse.size = strlen(fd->inverseRefName) + 1;
             strcpy((char*)field + offs, fd->inverseRefName);
-        } else { 
+        } else {
             field->inverse.size = 1;
             *((char*)field + offs) = '\0';
         }
         offs += field->inverse.size;
-        
+
         field->tTree = fd->tTree;
         field->hashTable = fd->hashTable;
         field->type = fd->type;
@@ -1600,8 +1600,7 @@ void  dbAnyMethodTrampoline::operator delete(void* p EXTRA_DEBUG_NEW_PARAMS)
 {
     dbFree(p);
 }
-        
+
 dbAnyMethodTrampoline::~dbAnyMethodTrampoline() {}
 
 END_FASTDB_NAMESPACE
-

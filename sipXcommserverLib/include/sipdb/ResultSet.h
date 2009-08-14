@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 #ifndef RESULTSET_H
@@ -68,7 +68,7 @@ class ResultSet : public UtlSList
      * UtlString* uriKey = new UtlString("uri");
      * UtlString* uriValue = new UtlString(regdata[row].uri);
      * regRow.insertKeyAndValue(uriKey, uriValue);
-     *        
+     *
      * UtlString* callidKey = new UtlString("callid");
      * UtlString* callidValue = new UtlString(regdata[row].callid);
      * regRow.insertKeyAndValue(callidKey, callidValue);

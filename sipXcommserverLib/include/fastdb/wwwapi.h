@@ -5,7 +5,7 @@
 //                          Created:     27-Mar-99    K.A. Knizhnik  * / [] \ *
 //                          Last update:  1-Jul-99    K.A. Knizhnik  * GARRET *
 //-------------------------------------------------------------------*--------*
-// API for creating Internet applications 
+// API for creating Internet applications
 //-------------------------------------------------------------------*--------*
 
 #ifndef __WWWAPI_H__
@@ -18,7 +18,7 @@
 
 BEGIN_FASTDB_NAMESPACE
 
-enum WWWencodingType { 
+enum WWWencodingType {
     TAG  = 0, // HTML tags (no conversion)
     HTML = 1, // replace ('<','>','"','&') with (&lt; &gt; &amp; &qout;)
     URL  = 2  // replace spaces with '+', and other special characters with %XX
@@ -30,21 +30,21 @@ enum WWWencodingType {
 //   URL->TAG
 //
 
-class FASTDB_DLL_ENTRY WWWconnection {  
+class FASTDB_DLL_ENTRY WWWconnection {
     friend class WWWapi;
     friend class CGIapi;
     friend class QueueManager;
     friend class HTTPapi;
-    
+
   public:
-    
+
     typedef void (*UserDataDestructor)(void* userData);
     typedef bool (*handler)(WWWconnection& con);
 
     void*              userData;
     UserDataDestructor userDataDestructor;
 
-    void setUserData(void* data, UserDataDestructor destructor = NULL) { 
+    void setUserData(void* data, UserDataDestructor destructor = NULL) {
         userData = data;
         userDataDestructor = destructor;
     }
@@ -55,20 +55,20 @@ class FASTDB_DLL_ENTRY WWWconnection {
     WWWconnection& append(char const* str);
     //
     // Append binary data
-    // 
+    //
     WWWconnection& append(const void *buf, int len);
-    
-    WWWconnection& operator << (char const* str) { 
+
+    WWWconnection& operator << (char const* str) {
         return append(str);
     }
-    
+
     void setEncoding(WWWencodingType type) { encoding = type; }
 
-    WWWconnection& operator << (WWWencodingType type) { 
+    WWWconnection& operator << (WWWencodingType type) {
         setEncoding(type);
         return *this;
     }
-    WWWconnection& operator << (int value) { 
+    WWWconnection& operator << (int value) {
         char buf[32];
         sprintf(buf, "%d", value);
         return append(buf);
@@ -78,15 +78,15 @@ class FASTDB_DLL_ENTRY WWWconnection {
         sprintf(buf, "%f", value);
         return append(buf);
     }
-  
+
     WWWconnection& operator << (db_int8 value) {
         char buf[32];
         sprintf(buf, INT8_FORMAT, value);
         return append(buf);
     }
-    
-    WWWconnection& operator << (oid_t value) {        
-        char buf[32];   
+
+    WWWconnection& operator << (oid_t value) {
+        char buf[32];
         sprintf(buf, "%ld", (long)value);
         return append(buf);
     }
@@ -103,23 +103,23 @@ class FASTDB_DLL_ENTRY WWWconnection {
     bool terminatedBy(char const* str) const;
 
     //
-    // Get value of variable from request string. If name is not present in 
+    // Get value of variable from request string. If name is not present in
     // string NULL is returned. Parameter 'n' can be used to get n-th
-    // value of variable for multiple selection slot. Zero value of n 
+    // value of variable for multiple selection slot. Zero value of n
     // corresponds to the first variable's value, 1 - to the second,...
     // When no more values are available NULL is returned.
     //
     char* get(char const* name, int n = 0);
-    
+
     //
     // Associatte value with name
     //
     void addPair(char const* name, char const* value);
-    
+
     WWWconnection();
     ~WWWconnection();
 
-  protected: 
+  protected:
     enum { hash_table_size = 1013 };
     socket_t*   sock;
     char*       reply_buf;
@@ -130,9 +130,9 @@ class FASTDB_DLL_ENTRY WWWconnection {
     char*       peer;
     WWWconnection*  next;
     WWWencodingType encoding;
-   
 
-    struct name_value_pair { 
+
+    struct name_value_pair {
         name_value_pair* next;
         char const*      name;
         char const*      value;
@@ -146,7 +146,7 @@ class FASTDB_DLL_ENTRY WWWconnection {
 
 
     //
-    // Deallocate all resources hold by connection. It is not possible to 
+    // Deallocate all resources hold by connection. It is not possible to
     // call get_value() or reply() method after this. Method reset()
     // is implicitly called by WWWapi::get() method.
     //
@@ -159,9 +159,9 @@ class FASTDB_DLL_ENTRY WWWconnection {
 };
 
 
-class FASTDB_DLL_ENTRY WWWapi { 
+class FASTDB_DLL_ENTRY WWWapi {
   public:
-    struct dispatcher { 
+    struct dispatcher {
         char const*         page;
         WWWconnection::handler func;
         // filled by contracutor of WWWapi
@@ -186,8 +186,8 @@ class FASTDB_DLL_ENTRY WWWapi {
     //
     // Bind and listen socket
     //
-    bool open(char const* socket_address = "localhost:80", 
-              socket_t::socket_domain domain = socket_t::sock_global_domain, 
+    bool open(char const* socket_address = "localhost:80",
+              socket_t::socket_domain domain = socket_t::sock_global_domain,
               int listen_queue = DEFAULT_LISTEN_QUEUE_SIZE);
 
 
@@ -203,12 +203,12 @@ class FASTDB_DLL_ENTRY WWWapi {
 
     //
     // Cancel acception of connections
-    // 
+    //
     void cancel();
 
     //
     // Close socket
-    // 
+    //
     void close();
 };
 
@@ -216,40 +216,40 @@ class FASTDB_DLL_ENTRY WWWapi {
 //
 // Interaction with WWW server by means of CGI protocol and CGIatub program
 //
-class FASTDB_DLL_ENTRY CGIapi : public WWWapi { 
+class FASTDB_DLL_ENTRY CGIapi : public WWWapi {
   public:
     virtual bool serve(WWWconnection& con);
 
-    CGIapi(dbDatabase& db, int n_handlers, dispatcher* dispatch_table) 
+    CGIapi(dbDatabase& db, int n_handlers, dispatcher* dispatch_table)
     : WWWapi(db, n_handlers, dispatch_table) {}
 };
 
-    
-// 
+
+//
 // Built-in implementation of sunset of subset of HTTP protocol
 //
-class FASTDB_DLL_ENTRY HTTPapi : public WWWapi { 
+class FASTDB_DLL_ENTRY HTTPapi : public WWWapi {
   protected:
     time_t connectionHoldTimeout;
     bool   keepConnectionAlive;
 
-    bool handleRequest(WWWconnection& con, char* begin, char* end, 
+    bool handleRequest(WWWconnection& con, char* begin, char* end,
                        char* host, bool& result);
 
   public:
     virtual bool serve(WWWconnection& con);
 
-    HTTPapi(dbDatabase& db, int n_handlers, dispatcher* dispatch_table, 
+    HTTPapi(dbDatabase& db, int n_handlers, dispatcher* dispatch_table,
             bool persistentConnections = false,
-            time_t connectionHoldTimeoutSec = WAIT_FOREVER) 
-    : WWWapi(db, n_handlers, dispatch_table) 
+            time_t connectionHoldTimeoutSec = WAIT_FOREVER)
+    : WWWapi(db, n_handlers, dispatch_table)
     {
         keepConnectionAlive = persistentConnections;
         connectionHoldTimeout = connectionHoldTimeoutSec;
     }
 };
 
-class FASTDB_DLL_ENTRY QueueManager { 
+class FASTDB_DLL_ENTRY QueueManager {
     WWWconnection*   connectionPool;
     WWWconnection*   freeList;
     WWWconnection*   waitList;
@@ -263,14 +263,14 @@ class FASTDB_DLL_ENTRY QueueManager {
 
     static void thread_proc handleThread(void* arg);
     void handle();
-    
+
   public:
     void stop();
     void start();
 
     QueueManager(WWWapi& api, // WWWapi should be opened
                  dbDatabase& db,
-                 int     nThreads = 8, 
+                 int     nThreads = 8,
                  int     connectionQueueLen = 64);
     ~QueueManager();
 };
@@ -279,6 +279,3 @@ class FASTDB_DLL_ENTRY QueueManager {
 END_FASTDB_NAMESPACE
 
 #endif
-
-
-

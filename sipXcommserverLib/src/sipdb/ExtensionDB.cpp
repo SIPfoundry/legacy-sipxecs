@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -41,7 +41,7 @@ const UtlString ExtensionDB::sXmlNamespace("http://www.sipfoundry.org/sipX/schem
 
 /* ============================ CREATORS ================================== */
 
-ExtensionDB::ExtensionDB( const UtlString& name ) : 
+ExtensionDB::ExtensionDB( const UtlString& name ) :
    mDatabaseName( name ),
    mTableLoaded ( true )
 {
@@ -99,7 +99,7 @@ ExtensionDB::load()
     OsLock lock( sLockMutex );
     OsStatus result = OS_SUCCESS;
 
-    if ( m_pFastDB != NULL ) 
+    if ( m_pFastDB != NULL )
     {
         // Clean out the existing DB rows before loading
         // a new set from persistent storage
@@ -125,14 +125,14 @@ ExtensionDB::load()
                 // the folder node contains at least the name/displayname/
                 // and autodelete elements, it may contain others
                 for( TiXmlNode *itemNode = rootNode->FirstChild( "item" );
-                     itemNode; 
+                     itemNode;
                      itemNode = itemNode->NextSibling( "item" ) )
                 {
                     // Create a hash dictionary for element attributes
                     UtlHashMap nvPairs;
 
                     for( TiXmlNode *elementNode = itemNode->FirstChild();
-                         elementNode; 
+                         elementNode;
                          elementNode = elementNode->NextSibling() )
                     {
                         // Bypass comments and other element types only interested
@@ -149,21 +149,21 @@ ExtensionDB::load()
                             loadChecksum += ( elementName.hash() + elementValue.hash() );
                             if (result == OS_SUCCESS)
                             {
-                                UtlString* collectableKey = 
-                                    new UtlString( elementName ); 
-                                UtlString* collectableValue = 
-                                    new UtlString( elementValue ); 
-                                nvPairs.insertKeyAndValue ( 
+                                UtlString* collectableKey =
+                                    new UtlString( elementName );
+                                UtlString* collectableValue =
+                                    new UtlString( elementValue );
+                                nvPairs.insertKeyAndValue (
                                     collectableKey, collectableValue );
                             } else if ( elementNode->FirstChild() == NULL )
                             {
-                                // NULL Element value create a special 
+                                // NULL Element value create a special
                                 // char string we have key and value so insert
-                                UtlString* collectableKey = 
-                                    new UtlString( elementName ); 
-                                UtlString* collectableValue = 
-                                    new UtlString( SPECIAL_IMDB_NULL_VALUE ); 
-                                nvPairs.insertKeyAndValue ( 
+                                UtlString* collectableKey =
+                                    new UtlString( elementName );
+                                UtlString* collectableValue =
+                                    new UtlString( SPECIAL_IMDB_NULL_VALUE );
+                                nvPairs.insertKeyAndValue (
                                     collectableKey, collectableValue );
                             }
                         }
@@ -172,7 +172,7 @@ ExtensionDB::load()
                     insertRow ( nvPairs );
                 }
             }
-        } else 
+        } else
         {
             OsSysLog::add(FAC_SIP, PRI_WARNING, "ExtensionDB::load failed to load \"%s\"",
                     pathName.data());
@@ -229,9 +229,9 @@ ExtensionDB::store()
 
                 // Add the column name value pairs
                 for ( dbFieldDescriptor* fd = pTableMetaData->getFirstField();
-                      fd != NULL; fd = fd->nextField ) 
+                      fd != NULL; fd = fd->nextField )
                 {
-                    // if the column name does not contain the 
+                    // if the column name does not contain the
                     // np_prefix we must_presist it
                     if ( strstr( fd->name, "np_" ) == NULL )
                     {
@@ -243,7 +243,7 @@ ExtensionDB::store()
                         SIPDBManager::getFieldValue(base, fd, textValue);
 
                         // If the value is not null append a text child element
-                        if ( textValue != SPECIAL_IMDB_NULL_VALUE ) 
+                        if ( textValue != SPECIAL_IMDB_NULL_VALUE )
                         {
                             // Text type assumed here... @todo change this
                             TiXmlText value ( textValue.data() );
@@ -263,7 +263,7 @@ ExtensionDB::store()
                 // add the line to the element
                 itemsElement.InsertEndChild ( itemElement );
             } while ( cursor.next() );
-        }  
+        }
         // Attach the root node to the document
         document.InsertEndChild ( itemsElement );
         document.SaveFile ( pathName );
@@ -278,7 +278,7 @@ ExtensionDB::store()
 }
 
 UtlBoolean
-ExtensionDB::insertRow (const UtlHashMap& nvPairs) 
+ExtensionDB::insertRow (const UtlHashMap& nvPairs)
 {
     // Note we do not need the identity object here
     // as it is inferred from the uri
@@ -410,18 +410,18 @@ ExtensionDB::getAllRows(ResultSet& rResultSet) const
         {
             do {
                 UtlHashMap record;
-                UtlString* uriValue = 
+                UtlString* uriValue =
                     new UtlString ( cursor->uri );
-                UtlString* extensionValue = 
+                UtlString* extensionValue =
                     new UtlString ( cursor->extension );
 
                 // Memory Leak fixes, make shallow copies of static keys
                 UtlString* uriKey = new UtlString( gUriKey );
                 UtlString* extensionKey = new UtlString( gExtensionKey );
 
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     uriKey, uriValue );
-                record.insertKeyAndValue ( 
+                record.insertKeyAndValue (
                     extensionKey, extensionValue );
 
                 rResultSet.addValue(record);
@@ -469,7 +469,7 @@ ExtensionDB::getExtension (
     return found;
 }
 
-UtlBoolean 
+UtlBoolean
 ExtensionDB::getUri (
     const UtlString& extension,
     Url& rUri ) const
@@ -529,5 +529,3 @@ ExtensionDB::getInstance( const UtlString& name )
     }
     return spInstance;
 }
-
-

@@ -51,9 +51,9 @@ BEGIN_FASTDB_NAMESPACE
 static void alarm_handler(int){}
 
 class moduleInitializer {
-  public:   
-    moduleInitializer() { 
-        static struct sigaction sigact; 
+  public:
+    moduleInitializer() {
+        static struct sigaction sigact;
         sigact.sa_handler = alarm_handler;
         ::sigaction(SIGALRM, &sigact, NULL);
     }
@@ -68,7 +68,7 @@ static moduleInitializer initializer; // install SIGLARM handler
 
 #if !defined(USE_POSIX_MMAP) || !USE_POSIX_MMAP
 
-#if defined(USE_STD_FTOK) 
+#if defined(USE_STD_FTOK)
 int getKeyFromFile(char const* file)
 {
     // Previous versions of this code used project '0' (i.e. 48)
@@ -81,7 +81,7 @@ int getKeyFromFile(char const* file)
 int getKeyFromFile(char const* path)
 {
     struct stat st;
-    if (::stat(path, &st) < 0) { 
+    if (::stat(path, &st) < 0) {
         return (key_t)-1;
     }
     return (key_t)((st.st_dev & 0xff) << 24 | (st.st_ino & 0xffffff));
@@ -93,27 +93,27 @@ int getKeyFromFile(char const* path)
 bool dbSharedMemory::open(char const* name, size_t size)
 {
     char* fileName = (char*)name;
-    if (strchr(name, '/') == NULL) { 
+    if (strchr(name, '/') == NULL) {
         fileName = new char[strlen(name)+strlen(keyFileDir)+1];
         sprintf(fileName, "%s%s", keyFileDir, name);
     }
     int fd = ::open(fileName, O_RDWR|O_CREAT, 0777);
-    if (fd < 0) { 
-        if (fileName != name) { 
+    if (fd < 0) {
+        if (fileName != name) {
             delete[] fileName;
         }
         return false;
-    } 
+    }
     ::close(fd);
     int key = getKeyFromFile(fileName);
-    if (fileName != name) { 
+    if (fileName != name) {
         delete[] fileName;
     }
-    if (key < 0) { 
+    if (key < 0) {
         return false;
     }
     shm = shmget(key, DOALIGN(size, 4096), IPC_CREAT|0777);
-    if (shm < 0) { 
+    if (shm < 0) {
         return false;
     }
     ptr = (char*)shmat(shm, NULL, 0);
@@ -133,7 +133,7 @@ void dbSharedMemory::erase()
 #endif // use SysV shmat
 
 
-////////////////////////////////////////////////////////////////////////   
+////////////////////////////////////////////////////////////////////////
 // If we are to use the local implementation of dbSemaphore and dbEvent
 //    (which currently uses SysV based semaphores)
 #ifndef  USE_POSIX_SEMAPHORES
@@ -151,10 +151,10 @@ int sem_init(int& sem, char const* name, unsigned init_value)
     sops[2].sem_num = 0;
     sops[2].sem_op  = init_value;
     sops[2].sem_flg = 0;
-    if (name != NULL) { 
+    if (name != NULL) {
         int fd;
         char* path = (char*)name;
-        if (strchr(name, '/') == NULL) { 
+        if (strchr(name, '/') == NULL) {
             path = new char[strlen(name)+strlen(keyFileDir)+1];
             sprintf(path, "%s%s", keyFileDir, name);
         }
@@ -163,7 +163,7 @@ int sem_init(int& sem, char const* name, unsigned init_value)
             OsSysLog::add(FAC_DB, PRI_CRIT,
                           "Error attempting to open '%s' for writing.",
                           path);
-            if (path != name) { 
+            if (path != name) {
                 delete[] path;
             }
             PRINT_ERROR("open");
@@ -174,7 +174,7 @@ int sem_init(int& sem, char const* name, unsigned init_value)
         OsSysLog::add(FAC_DB, PRI_DEBUG,
                       "sem_init path = '%s', key = 0x%x",
                       path, key);
-        if (path != name) { 
+        if (path != name) {
             delete[] path;
         }
         if (key < 0) {
@@ -186,7 +186,7 @@ int sem_init(int& sem, char const* name, unsigned init_value)
                   "sem_init semget(0x%x, 2, IPC_CREAT|0777)",
                   key);
     semid = semget(key, 2, IPC_CREAT|0777);
-    if (semid < 0) { 
+    if (semid < 0) {
         PRINT_ERROR("semget");
         OsSysLog::add(FAC_DB, PRI_CRIT,
                       "sem_init semget failed - error: %s, key = 0x%x",
@@ -194,7 +194,7 @@ int sem_init(int& sem, char const* name, unsigned init_value)
                       key);
         return -1;
     }
-    if (semop(semid, sops, itemsof(sops)) != 0 && errno != EAGAIN) { 
+    if (semop(semid, sops, itemsof(sops)) != 0 && errno != EAGAIN) {
         PRINT_ERROR("semop");
         return -1;
     }
@@ -204,10 +204,10 @@ int sem_init(int& sem, char const* name, unsigned init_value)
 
 enum wait_status { wait_ok, wait_timeout_expired, wait_error };
 
-static wait_status wait_semaphore(int& sem, unsigned msec, 
+static wait_status wait_semaphore(int& sem, unsigned msec,
                                   struct sembuf* sops, int n_sops)
 {
-    if (msec != INFINITE) { 
+    if (msec != INFINITE) {
         struct timeval start;
         struct timeval stop;
         gettimeofday(&start, NULL);
@@ -215,35 +215,35 @@ static wait_status wait_semaphore(int& sem, unsigned msec,
         stop.tv_usec = usec % 1000000;
         stop.tv_sec = start.tv_sec + msec / 1000 + usec / 1000000;
 
-        while (true) { 
+        while (true) {
             struct itimerval it;
             it.it_interval.tv_sec = 0;
             it.it_interval.tv_usec = 0;
             it.it_value.tv_sec = stop.tv_sec - start.tv_sec;
             it.it_value.tv_usec = stop.tv_usec - start.tv_usec;
-            if (stop.tv_usec < start.tv_usec) { 
+            if (stop.tv_usec < start.tv_usec) {
                 it.it_value.tv_usec += 1000000;
                 it.it_value.tv_sec -= 1;
             }
-            if (setitimer(ITIMER_REAL, &it, NULL) < 0) { 
+            if (setitimer(ITIMER_REAL, &it, NULL) < 0) {
                 return wait_error;
             }
-            if (semop(sem, sops, n_sops) == 0) { 
+            if (semop(sem, sops, n_sops) == 0) {
                 break;
             }
-            if (errno != EINTR) { 
+            if (errno != EINTR) {
                 return wait_error;
             }
             gettimeofday(&start, NULL);
-            if (stop.tv_sec < start.tv_sec || 
+            if (stop.tv_sec < start.tv_sec ||
                (stop.tv_sec == start.tv_sec && stop.tv_usec < start.tv_sec))
             {
                 return wait_timeout_expired;
             }
         }
-    } else { 
-        while (semop(sem, sops, n_sops) < 0) { 
-            if (errno != EINTR) { 
+    } else {
+        while (semop(sem, sops, n_sops) < 0) {
+            if (errno != EINTR) {
                 return wait_error;
             }
         }
@@ -262,13 +262,13 @@ bool dbSemaphore::wait(unsigned msec)
 
 void dbSemaphore::signal(unsigned inc)
 {
-    if (inc != 0) { 
+    if (inc != 0) {
         struct sembuf sops[1];
         sops[0].sem_num = 0;
         sops[0].sem_op  = inc;
         sops[0].sem_flg = 0;
         int rc = semop(s, sops, 1);
-        assert(rc == 0); 
+        assert(rc == 0);
     }
 }
 
@@ -294,16 +294,16 @@ bool dbWatchDog::open(char const* name)
 bool dbWatchDog::open(char const* name, int flags)
 {
     key_t key = IPC_PRIVATE;
-    if (name != NULL) { 
+    if (name != NULL) {
         int fd;
         char* path = (char*)name;
-        if (strchr(name, '/') == NULL) { 
+        if (strchr(name, '/') == NULL) {
             path = new char[strlen(name)+strlen(keyFileDir)+1];
             sprintf(path, "%s%s", keyFileDir, name);
         }
         fd = ::open(path, O_WRONLY|O_CREAT, 0777);
         if (fd < 0) {
-            if (path != name) { 
+            if (path != name) {
                 delete[] path;
             }
             PRINT_ERROR("open");
@@ -311,7 +311,7 @@ bool dbWatchDog::open(char const* name, int flags)
         }
         ::close(fd);
         key = getKeyFromFile(path);
-        if (path != name) { 
+        if (path != name) {
             delete[] path;
         }
         if (key < 0) {
@@ -322,9 +322,9 @@ bool dbWatchDog::open(char const* name, int flags)
     return (id = semget(key, 1, flags)) >= 0;
 }
 
-bool dbWatchDog::create(char const* name) { 
+bool dbWatchDog::create(char const* name) {
     static struct sembuf sops[] = {{0, 1, 0}, {0, -1, SEM_UNDO}};
-    if (open(name, IPC_CREAT|0777)) { 
+    if (open(name, IPC_CREAT|0777)) {
         return semop(id, sops, 2) == 0;
     }
     return false;
@@ -332,8 +332,8 @@ bool dbWatchDog::create(char const* name) {
 
 
 
-#if (defined(__GNU_LIBRARY__) && !defined(_SEM_SEMUN_UNDEFINED)) || defined(__FreeBSD__) 
-/* union semun is defined by including <sys/sem.h> */  
+#if (defined(__GNU_LIBRARY__) && !defined(_SEM_SEMUN_UNDEFINED)) || defined(__FreeBSD__)
+/* union semun is defined by including <sys/sem.h> */
 #else
 union semun {
     int val;
@@ -344,7 +344,7 @@ union semun {
 static union semun u;
 
 
-void dbSemaphore::reset() 
+void dbSemaphore::reset()
 {
     u.val = 0;
     int rc = semctl(s, 0, SETVAL, u);
@@ -374,14 +374,14 @@ void dbEvent::signal()
 {
     static struct sembuf sops[] = {{0, 0, IPC_NOWAIT}, {0, 1, 0}};
     int rc = semop(e, sops, itemsof(sops));
-    assert(rc == 0 || errno == EAGAIN); 
+    assert(rc == 0 || errno == EAGAIN);
 }
 
 void dbEvent::reset()
 {
     static struct sembuf sops[] = {{0, -1, IPC_NOWAIT}};
     int rc = semop(e, sops, itemsof(sops));
-    assert(rc == 0 || errno == EAGAIN); 
+    assert(rc == 0 || errno == EAGAIN);
 }
 
 bool dbEvent::open(char const* name, bool signaled)
@@ -413,12 +413,12 @@ void dbGlobalCriticalSection::enter()
                         "lock; xadd %0,%1"
                         :"=d" (inc), "=m" (*count)
                         :"d" (inc), "m" (*count));
-    if (inc != 1) { 
+    if (inc != 1) {
         static struct sembuf sops[] = {{0, -1, 0}};
         int rc;
         while ((rc = semop(semid, sops, 1)) < 0 && errno == EINTR);
         assert(rc == 0);
-    }                                  
+    }
 #if GLOBAL_CS_DEBUG
     owner = pthread_self();
 #endif
@@ -434,7 +434,7 @@ void dbGlobalCriticalSection::leave()
                         "lock; xadd %0,%1"
                         :"=d" (inc), "=m" (*count)
                         :"d" (inc), "m" (*count));
-    if (inc != 0) { 
+    if (inc != 0) {
         /* some other processes waiting to enter critical section */
         static struct sembuf sops[] = {{0, 1, 0}};
         int rc = semop(semid, sops, 1);
@@ -498,19 +498,19 @@ void dbGlobalCriticalSection::erase()
 
 #endif // USE_LOCAL_CS_IMPL
 
-dbInitializationMutex::initializationStatus 
+dbInitializationMutex::initializationStatus
 dbInitializationMutex::initialize(char const* name)
 {
     struct sembuf sops[4];
     char* path = (char*)name;
-    if (strchr(name, '/') == NULL) { 
+    if (strchr(name, '/') == NULL) {
         path = new char[strlen(name)+strlen(keyFileDir)+1];
         sprintf(path, "%s%s", keyFileDir, name);
     }
     int fd = open(path, O_WRONLY|O_CREAT, 0777);
     if (fd < 0) {
         OsSysLog::add(FAC_DB, PRI_ERR, "Error attempting to open '%s' for writing.\n", path);
-        if (path != name) { 
+        if (path != name) {
             delete[] path;
         }
         PRINT_ERROR("open");
@@ -521,19 +521,19 @@ dbInitializationMutex::initialize(char const* name)
     OsSysLog::add(FAC_DB, PRI_DEBUG,
                   "dbInitializationMutex::initialize path = '%s', key = 0x%x",
                   path, key);
-    if (path != name) { 
+    if (path != name) {
         delete[] path;
     }
     if (key < 0) {
         PRINT_ERROR("getKeyFromFile");
         return InitializationError;
     }
-    while (true) { 
+    while (true) {
        semid = semget(key, 3, IPC_CREAT|0777);
        OsSysLog::add(FAC_DB, PRI_DEBUG,
                      "dbInitializationMutex::initialize semget(0x%x, 3, IPC_CREAT|0777)=%d",
                      key, semid);
-        if (semid < 0) { 
+        if (semid < 0) {
             PRINT_ERROR("semget");
             OsSysLog::add(FAC_DB, PRI_CRIT,
                           "sem_init semget(3) failed - error: %s, key = 0x%x",
@@ -544,7 +544,7 @@ dbInitializationMutex::initialize(char const* name)
         // Semaphore 0 - number of active processes
         // Semaphore 1 - intialization in progress (1 while initialization, 0 after it)
         // Semaphore 2 - semaphore was destroyed
-        
+
         sops[0].sem_num = 0;
         sops[0].sem_op  = 0; /* check if semaphore was already initialized */
         sops[0].sem_flg = IPC_NOWAIT;
@@ -557,8 +557,8 @@ dbInitializationMutex::initialize(char const* name)
         sops[3].sem_num = 2;
         sops[3].sem_op  = 0; /* check if semaphore was destroyed */
         sops[3].sem_flg = IPC_NOWAIT;
-        if (semop(semid, sops, 4) < 0) { 
-            if (errno == EAGAIN) { 
+        if (semop(semid, sops, 4) < 0) {
+            if (errno == EAGAIN) {
                 sops[0].sem_num = 0;
                 sops[0].sem_op  = -1; /* check if semaphore was already initialized */
                 sops[0].sem_flg = SEM_UNDO|IPC_NOWAIT;
@@ -571,26 +571,26 @@ dbInitializationMutex::initialize(char const* name)
                 sops[3].sem_num = 2;
                 sops[3].sem_op  = 0; /* check if semaphore was destroyed */
                 sops[3].sem_flg = IPC_NOWAIT;
-                if (semop(semid, sops, 4) == 0) { 
+                if (semop(semid, sops, 4) == 0) {
                     return AlreadyInitialized;
                 }
-                if (errno == EAGAIN) { 
+                if (errno == EAGAIN) {
                     sleep(1);
                     continue;
                 }
-            } 
+            }
             if (errno == EIDRM) {
                 continue;
             }
             PRINT_ERROR("semop");
             return InitializationError;
-        } else { 
+        } else {
             return NotYetInitialized;
         }
     }
 }
 
-void dbInitializationMutex::done() 
+void dbInitializationMutex::done()
 {
     struct sembuf sops[1];
     OsSysLog::add(FAC_DB, PRI_DEBUG,
@@ -600,7 +600,7 @@ void dbInitializationMutex::done()
     sops[0].sem_flg = SEM_UNDO;
     int rc = semop(semid, sops, 1);
     assert(rc == 0);
-} 
+}
 
 bool dbInitializationMutex::close()
 {
@@ -608,7 +608,7 @@ bool dbInitializationMutex::close()
     struct sembuf sops[3];
     OsSysLog::add(FAC_DB, PRI_DEBUG,
                   "dbInitializationMutex::close sem=%0x", semid);
-    while (true) { 
+    while (true) {
         sops[0].sem_num = 0;
         sops[0].sem_op  = -1; /* decrement process couter */
         sops[0].sem_flg = SEM_UNDO;
@@ -618,20 +618,20 @@ bool dbInitializationMutex::close()
         sops[2].sem_num = 2;
         sops[2].sem_op  = 1;  /* mark as destructed */
         sops[2].sem_flg = SEM_UNDO;
-        if ((rc = semop(semid, sops, 3)) == 0) { 
+        if ((rc = semop(semid, sops, 3)) == 0) {
             return true;
-        } else { 
+        } else {
             assert(errno == EAGAIN);
         }
         sops[0].sem_num = 0;
         sops[0].sem_op  = -2; /* decrement process couter and check for non-zero */
         sops[0].sem_flg = SEM_UNDO|IPC_NOWAIT;
         sops[1].sem_num = 0;
-        sops[1].sem_op  = 1;  
+        sops[1].sem_op  = 1;
         sops[1].sem_flg = SEM_UNDO;
-        if ((rc = semop(semid, sops, 2)) == 0) { 
+        if ((rc = semop(semid, sops, 2)) == 0) {
             return false;
-        } else { 
+        } else {
             assert(errno == EAGAIN);
         }
     }
@@ -648,9 +648,9 @@ void dbInitializationMutex::erase()
 //  Thread stuff
 #ifndef NO_PTHREADS
 
-#if defined(_SC_NPROCESSORS_ONLN) 
-int dbThread::numberOfProcessors() { 
-    return sysconf(_SC_NPROCESSORS_ONLN); 
+#if defined(_SC_NPROCESSORS_ONLN)
+int dbThread::numberOfProcessors() {
+    return sysconf(_SC_NPROCESSORS_ONLN);
 }
 #elif defined(__linux__)
 END_FASTDB_NAMESPACE
@@ -661,13 +661,13 @@ int dbThread::numberOfProcessors() { return smp_num_cpus; }
 END_FASTDB_NAMESPACE
 #include <sys/sysctl.h>
 BEGIN_FASTDB_NAMESPACE
-int dbThread::numberOfProcessors() { 
+int dbThread::numberOfProcessors() {
     int mib[2],ncpus=0;
     size_t len=sizeof(ncpus);
     mib[0]= CTL_HW;
     mib[1]= HW_NCPU;
     sysctl(mib,2,&ncpus,&len,NULL,0);
-    return ncpus; 
+    return ncpus;
 }
 #else
 int dbThread::numberOfProcessors() { return 1; }
@@ -713,19 +713,19 @@ dbPooledThread::~dbPooledThread()
     readySem.close();
 }
 
-void dbPooledThread::stop() 
+void dbPooledThread::stop()
 {
     running = false;
-    startSem.signal(); 
+    startSem.signal();
     readySem.wait(pool->mutex);
 }
 
-void dbPooledThread::run() 
+void dbPooledThread::run()
 {
     dbCriticalSection cs(pool->mutex);
-    while (true) { 
+    while (true) {
         startSem.wait(pool->mutex);
-        if (!running) { 
+        if (!running) {
             break;
         }
         (*f)(arg);
@@ -733,9 +733,9 @@ void dbPooledThread::run()
     }
     readySem.signal();
 }
-    
-void dbThreadPool::join(dbPooledThread* thr) 
-{ 
+
+void dbThreadPool::join(dbPooledThread* thr)
+{
     dbCriticalSection cs(mutex);
     thr->readySem.wait(mutex);
     thr->next = freeThreads;
@@ -747,7 +747,7 @@ dbPooledThread* dbThreadPool::create(dbThread::thread_proc_t f, void* arg)
 {
     dbCriticalSection cs(mutex);
     dbPooledThread* t = freeThreads;
-    if (t == NULL) { 
+    if (t == NULL) {
         t = freeThreads = new dbPooledThread(this);
     }
     freeThreads = t->next;
@@ -762,17 +762,16 @@ dbThreadPool::dbThreadPool()
 {
     freeThreads = NULL;
 }
-   
+
 dbThreadPool::~dbThreadPool()
 {
     dbCriticalSection cs(mutex);
     dbPooledThread *t, *next;
-    for (t = freeThreads; t != NULL; t = next) { 
+    for (t = freeThreads; t != NULL; t = next) {
         next = t->next;
         t->stop();
         delete t;
-    }        
+    }
 }
 
 END_FASTDB_NAMESPACE
-

@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef _SipPersistentSubscriptionMgr_h_
@@ -80,9 +80,9 @@ private:
 /*! Class for maintaining SUBSCRIBE dialog information in subscription server
  *  and storing the subscription states in the subscription.xml table.
  */
-/*! 
+/*!
  *
- * \par 
+ * \par
  */
 class SipPersistentSubscriptionMgr : public SipSubscriptionMgr
 {
@@ -116,14 +116,14 @@ public:
                                        UtlBoolean& isExpired,
                                        SipMessage& subscribeResponse,
                                        SipSubscribeServerEventHandler& handler);
-   
+
    //! Insert subscription dialog info without checking for the existence of the dialog
    /*! This method blindly inserts dialog information and should only be called from
     *  from the SipPersistentSubscriptionMgr.  It is intended to insert subscription
     *  information into memory from the IMDB.
-    * 
-    *  NOTE: This method is not implemented in SipPersistentSubscriptionMgr. 
-    */ 
+    *
+    *  NOTE: This method is not implemented in SipPersistentSubscriptionMgr.
+    */
    virtual UtlBoolean insertDialogInfo(const SipMessage& subscribeRequest,
                                        const UtlString& resourceId,
                                        const UtlString& eventTypeKey,

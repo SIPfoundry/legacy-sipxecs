@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 #ifndef _SIPDBTESTCONTEXT_H_
@@ -21,7 +21,7 @@
 
 /// Utilities for redirecting sipdb resources during unit tests.
 /**
- * This class and its subclasses extend the test file abstraction provided by 
+ * This class and its subclasses extend the test file abstraction provided by
  * FileTestContext to include the sipdb databases.
  */
 class SipDbTestContext : public FileTestContext
@@ -37,7 +37,7 @@ class SipDbTestContext : public FileTestContext
     * the location of the files for the SIPDBManager and the persistent storage for all databases.
     */
 
-   /// Destructor 
+   /// Destructor
    virtual ~SipDbTestContext();
 
   protected:
@@ -51,7 +51,7 @@ class SipDbTestContext : public FileTestContext
 
    /// There is no assignment operator.
    SipDbTestContext& operator=(const SipDbTestContext&);
-    
+
 };
 
 #endif // _SIPDBTESTCONTEXT_H_

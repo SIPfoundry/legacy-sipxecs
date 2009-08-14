@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 #ifndef CALLERALIASDB_H
@@ -44,7 +44,7 @@ class CallerAliasDB
    static void releaseInstance();
 
    /// Add a single mapping to the database.
-   void insertRow(const UtlString identity, ///< identity of caller in 'user@domain' form (no scheme) 
+   void insertRow(const UtlString identity, ///< identity of caller in 'user@domain' form (no scheme)
                   const UtlString domain,   /**< domain and optional port for target
                                              *  ( 'example.com' or 'example.com:5099' ) */
                   const UtlString alias     /// returned alias
@@ -53,7 +53,7 @@ class CallerAliasDB
     * The identity value may be the null string; this is a wildcard entry that matches
     * any caller to the given domain.
     */
-   
+
    /// Get the caller alias for this combination of caller identity and target domain.
    bool getCallerAlias (
       const UtlString& identity, ///< identity of caller in 'user@domain' form (no scheme)

@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -53,7 +53,7 @@ extern char const* keyFileDir;
 
 // CONSTANTS
 
-// environment variable name for static data 
+// environment variable name for static data
 
 // STRUCTS
 // TYPEDEFS
@@ -65,7 +65,7 @@ dbDatabase*   SIPDBManager::spFastDB = NULL;
 OsMutex       SIPDBManager::sLockMutex (OsMutex::Q_FIFO);
 
 /* Helper method to return the process id */
-int 
+int
 getPid()
 {
     return static_cast< int >
@@ -78,7 +78,7 @@ getPid()
 
 /* ============================ CREATORS ================================== */
 
-SIPDBManager::SIPDBManager () 
+SIPDBManager::SIPDBManager ()
    : m_absWorkingDirectory(SipXecsService::Path(SipXecsService::TmpDirType,""))
    , m_absConfigDirectory(SipXecsService::Path(SipXecsService::ConfigurationDirType,""))
 {
@@ -175,7 +175,7 @@ SIPDBManager::getProcessCount ( int& rProcessCount ) const
         spFastDB->detach(0);
 
         result = OS_SUCCESS;
-    } else 
+    } else
     {
         rProcessCount = 0;
     }
@@ -184,8 +184,8 @@ SIPDBManager::getProcessCount ( int& rProcessCount ) const
 }
 
 OsStatus
-SIPDBManager::pingDatabase ( 
-    const int& rTransactionLockSecs, 
+SIPDBManager::pingDatabase (
+    const int& rTransactionLockSecs,
     const UtlBoolean& rTestWriteLock ) const
 {
     OsStatus result = OS_FAILED;
@@ -265,11 +265,11 @@ SIPDBManager::getAllTableProcesses ( ResultSet& rResultSet ) const
         {
             do {
                 UtlHashMap record;
-                UtlString* tablenameValue = 
+                UtlString* tablenameValue =
                     new UtlString ( cursor->tablename );
-                UtlInt* pidValue = 
+                UtlInt* pidValue =
                     new UtlInt ( cursor->pid );
-                UtlInt* loadchecksumValue = 
+                UtlInt* loadchecksumValue =
                     new UtlInt ( cursor->loadchecksum );
 
                 UtlString* tablenameKey = new UtlString( "tablename" );
@@ -332,8 +332,8 @@ SIPDBManager::openDatabase () const
 
     pid_t pid = getPid();
 
-    dbDatabase* database = 
-        new dbDatabase( dbDatabase::dbAllAccess 
+    dbDatabase* database =
+        new dbDatabase( dbDatabase::dbAllAccess
                         /*, 8*1024*1024 */ );
 
     // open the fastdb proprietary persistent file
@@ -358,7 +358,7 @@ SIPDBManager::openDatabase () const
         }
         // End TX
         database->detach(0);
-    }  
+    }
     else // failed to open IMDB delete datbase & return NULL
     {
         // call the destructor on the IMDB
@@ -380,14 +380,14 @@ SIPDBManager::getDatabase ( const UtlString& tablename ) const
     if ( spFastDB == NULL )
     {
         // Absolute Size required in diskless mode, assume 8Megs sufficient
-        spFastDB = new dbDatabase( 
+        spFastDB = new dbDatabase(
             dbDatabase::dbAllAccess /*, 8*1024*1024 */ );
-    } 
-    
+    }
+
     // test to see if the IMDB was already opened
     if ( !spFastDB->isOpen() )
     {
-        // the file name used for persistent storage 
+        // the file name used for persistent storage
         // (using fastDB proprietary format)
         UtlString imdbFileName = SipXecsService::Path(SipXecsService::TmpDirType,"imdb.odb");
 
@@ -412,7 +412,7 @@ SIPDBManager::getDatabase ( const UtlString& tablename ) const
 
             // End TX
             spFastDB->detach(0);
-        } 
+        }
         else // failed to open IMDB delete datbase & die
         {
             // call the destructor on the IMDB
@@ -420,24 +420,24 @@ SIPDBManager::getDatabase ( const UtlString& tablename ) const
 
             spFastDB = NULL;
 
-            OsSysLog::add(FAC_DB, PRI_CRIT, 
+            OsSysLog::add(FAC_DB, PRI_CRIT,
                 "SIPDBManager::getDatabase - failed to open IMDB.") ;
             OsSysLog::flush();
 
             // Kill this process.  Do not call abort()!  That will
             // be caught by the signal handler, which will come back
-            // through and try to open the database, which will fail, 
+            // through and try to open the database, which will fail,
             // which will end up here, which will....
             exit(42) ;
         }
     }
 
     // potentially the spFastDB can be NULL above if the open fails
-    if (spFastDB != NULL) 
+    if (spFastDB != NULL)
     {
         // fastDB must be both non null and also opened successfully at this stage
 
-        // If the tablename/pid do not match an existing row, insert a new 
+        // If the tablename/pid do not match an existing row, insert a new
         // pid/tablename to track process usage of the tables
         // Begin Tx
         spFastDB->attach();
@@ -454,7 +454,7 @@ SIPDBManager::getDatabase ( const UtlString& tablename ) const
                 cursor->loadchecksum = 0;
                 cursor.update();
             } while ( cursor.next() );
-        } else 
+        } else
         {
             TableInfo tableInfo;
             tableInfo.tablename = tablename;
@@ -497,15 +497,15 @@ SIPDBManager::removeDatabase ( const UtlString& tablename ) const
     }
 }
 
-void 
+void
 SIPDBManager::setDatabaseChangedFlag (
-    const UtlString& tablename, 
+    const UtlString& tablename,
     bool changed ) const
 {
     // Critical Section here
     OsLock lock( sLockMutex );
 
-    if ( spFastDB != NULL ) 
+    if ( spFastDB != NULL )
     {
         spFastDB->attach();
         dbCursor< TableInfo > cursor ( dbCursorForUpdate );
@@ -521,7 +521,7 @@ SIPDBManager::setDatabaseChangedFlag (
             } while ( cursor.next() );
         } else
         {
-            OsSysLog::add(FAC_DB, PRI_ERR, 
+            OsSysLog::add(FAC_DB, PRI_ERR,
                 "SIPDBManager::setDatabaseChangedFlag - "
                 "ERROR database %s not in TableInfo table", tablename.data());
         }
@@ -531,7 +531,7 @@ SIPDBManager::setDatabaseChangedFlag (
 
 }
 
-OsStatus 
+OsStatus
 SIPDBManager::getDatabaseInfo( UtlString& rDatabaseInfo ) const
 {
 
@@ -562,17 +562,17 @@ SIPDBManager::getDatabaseInfo( UtlString& rDatabaseInfo ) const
 
         char temp[300];
 
-        const char* outputStringFormat = 
+        const char* outputStringFormat =
             "Database Meta Info\n==================\nAllocated Size:\t\t%d\nDatabase Size:\t\t%d\nReaders:\t\t%d\nWriters:\t\t%d\nBlocked Readers:\t%d\nBlocked Writers:\t%d\nUsers:\t\t\t%d\n";
 
         sprintf (
-            temp, outputStringFormat, 
-            allocatedSize, 
-            databaseSize, 
-            numReaders, 
-            numWriters, 
-            numBlockedReaders, 
-            numBlockedWriters, 
+            temp, outputStringFormat,
+            allocatedSize,
+            databaseSize,
+            numReaders,
+            numWriters,
+            numBlockedReaders,
+            numBlockedWriters,
             numUsers );
         rDatabaseInfo = temp;
 
@@ -582,7 +582,7 @@ SIPDBManager::getDatabaseInfo( UtlString& rDatabaseInfo ) const
     return result;
 }
 
-bool 
+bool
 SIPDBManager::getDatabaseChangedFlag (
     const UtlString& tablename ) const
 {
@@ -598,7 +598,7 @@ SIPDBManager::getDatabaseChangedFlag (
 
     bool result = TRUE;
 
-    if ( spFastDB != NULL ) 
+    if ( spFastDB != NULL )
     {
         spFastDB->attach();
         dbCursor< TableInfo > cursor ( dbCursorForUpdate );
@@ -615,9 +615,9 @@ SIPDBManager::getDatabaseChangedFlag (
     return result;
 }
 
-void 
-SIPDBManager::updateDatabaseInfo ( 
-    const UtlString& tablename, 
+void
+SIPDBManager::updateDatabaseInfo (
+    const UtlString& tablename,
     const int& checksum ) const
 {
     // Critical Section here
@@ -638,7 +638,7 @@ SIPDBManager::updateDatabaseInfo (
             do {
                 if ( cursor->loadchecksum != checksum )
                 {
-                    cursor->loadchecksum = checksum; 
+                    cursor->loadchecksum = checksum;
                     cursor->changed = TRUE;
                     cursor.update();
                 } else // checksum matches
@@ -685,9 +685,9 @@ SIPDBManager::getInstance()
 }
 
 void
-SIPDBManager::getFieldValue ( 
+SIPDBManager::getFieldValue (
     const unsigned char* base,
-    const dbFieldDescriptor* fd, 
+    const dbFieldDescriptor* fd,
     UtlString& textValue)
 {
     char tempString[100];
@@ -750,7 +750,7 @@ SIPDBManager::getFieldValue (
         break;
 
     default:
-        OsSysLog::add(FAC_DB, PRI_ERR, 
+        OsSysLog::add(FAC_DB, PRI_ERR,
                       "SIPDBManager::getFieldValue - "
                       "ERROR unsupported data type: %d", fd->type);
         assert(false);
@@ -759,7 +759,7 @@ SIPDBManager::getFieldValue (
 }
 
 OsStatus
-SIPDBManager::getAttributeValue ( 
+SIPDBManager::getAttributeValue (
     const TiXmlNode& node,
     const UtlString& key,
     UtlString& value )
@@ -769,7 +769,7 @@ SIPDBManager::getAttributeValue (
 
     if ( (configNode != NULL) && (configNode->Type() == TiXmlNode::ELEMENT) )
     {
-        // convert the node to an element 
+        // convert the node to an element
         TiXmlElement* elem = configNode->ToElement();
         if ( elem != NULL )
         {
@@ -805,8 +805,8 @@ SIPDBManager::preloadAllDatabase() const
     // Preload the following tables to ensure that
     // their reference count does not go to 0
     // causing an expensive load by another process
-    
-    // If called first thing during startup, this code 
+
+    // If called first thing during startup, this code
     // will force the xml files to be loaded into imdb.
 
     CredentialDB*   pCredentialDB   = CredentialDB::getInstance();
@@ -815,7 +815,7 @@ SIPDBManager::preloadAllDatabase() const
     PermissionDB*   pPermissionDB   = PermissionDB::getInstance();
     ExtensionDB*    pExtensionDB    = ExtensionDB::getInstance();
     AliasDB*        pAliasDB        = AliasDB::getInstance();
-   
+
     OsStatus res = OS_FAILED;
 
     if (pCredentialDB &&
@@ -827,7 +827,7 @@ SIPDBManager::preloadAllDatabase() const
 
     return res;
 }
- 
+
 OsStatus
 SIPDBManager::releaseAllDatabase() const
 {
@@ -841,14 +841,14 @@ SIPDBManager::releaseAllDatabase() const
     return OS_SUCCESS;
 }
 
-OsStatus 
+OsStatus
 SIPDBManager::preloadDatabaseTable(const UtlString &tableName) const
 {
 
    OsStatus res = OS_FAILED;
    if (tableName == CREDENTIAL)
    {
-       if (CredentialDB::getInstance()->isLoaded()) 
+       if (CredentialDB::getInstance()->isLoaded())
        {
           res = OS_SUCCESS;
        }
@@ -866,7 +866,7 @@ SIPDBManager::preloadDatabaseTable(const UtlString &tableName) const
        {
           res = OS_SUCCESS;
        }
-   }  
+   }
    else if (tableName == EXTENSION)
    {
        if (ExtensionDB::getInstance()->isLoaded())
@@ -904,7 +904,7 @@ SIPDBManager::preloadDatabaseTable(const UtlString &tableName) const
    }
    else
    {
-      OsSysLog::add(FAC_DB, PRI_ERR, 
+      OsSysLog::add(FAC_DB, PRI_ERR,
                       "SIPDBManager::preloadDatabaseTable - "
                       "ERROR unknown table name: %s", tableName.data() );
    }
@@ -918,7 +918,7 @@ void SIPDBManager::setFastdbTempDir()
 
    // The path must end in a separator
    m_FastDbTmpDirPath = SipXecsService::Path(SipXecsService::TmpDirType,OsPath::separator);
-         
+
    // Pass the string to fastdb.  It's ugly to reference someone else's pointer
    // directly like this, but allows us to avoid changing the fastdb code for now.
    keyFileDir = m_FastDbTmpDirPath;

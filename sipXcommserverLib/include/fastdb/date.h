@@ -20,57 +20,57 @@ BEGIN_FASTDB_NAMESPACE
 #define USE_REENTRANT_LIBRARY
 #endif
 
-class FASTDB_DLL_ENTRY dbDate { 
+class FASTDB_DLL_ENTRY dbDate {
     int4 jday;
   public:
-    bool operator == (dbDate const& dt) { 
+    bool operator == (dbDate const& dt) {
         return jday == dt.jday;
     }
-    bool operator != (dbDate const& dt) { 
+    bool operator != (dbDate const& dt) {
         return jday != dt.jday;
     }
-    bool operator > (dbDate const& dt) { 
+    bool operator > (dbDate const& dt) {
         return jday > dt.jday;
     }
-    bool operator >= (dbDate const& dt) { 
+    bool operator >= (dbDate const& dt) {
         return jday >= dt.jday;
     }
-    bool operator < (dbDate const& dt) { 
+    bool operator < (dbDate const& dt) {
         return jday < dt.jday;
     }
-    bool operator <= (dbDate const& dt) { 
+    bool operator <= (dbDate const& dt) {
         return jday <= dt.jday;
     }
-    int operator - (dbDate const& dt) { 
+    int operator - (dbDate const& dt) {
         return jday - dt.jday;
     }
-    int operator + (int days) { 
+    int operator + (int days) {
         return jday + days;
     }
-    dbDate& operator += (int days) { 
+    dbDate& operator += (int days) {
         jday += days;
         return *this;
     }
-    dbDate& operator -= (int days) { 
+    dbDate& operator -= (int days) {
         jday -= days;
         return *this;
     }
-    static dbDate current() { 
+    static dbDate current() {
         time_t now = time(NULL);
         struct tm* tp;
 #ifdef USE_REENTRANT_LIBRARY
         struct tm t;
         tp = localtime_r(&now, &t);
-#else 
+#else
         tp = localtime(&now);
 #endif
         return dbDate(tp->tm_year + 1900, tp->tm_mon + 1, tp->tm_mday);
     }
 
-    dbDate() { 
+    dbDate() {
         jday = -1;
-    } 
-    bool isValid()const  { 
+    }
+    bool isValid()const  {
         return jday != -1;
     }
 
@@ -97,7 +97,7 @@ class FASTDB_DLL_ENTRY dbDate {
         jday = ((146097*c)>>2) + ((1461*ya)>>2) + (153*month + 2)/5 + day + 1721119;
     } /* jday */
 
-    void MDY(int& year, int& month, int& day) const { 
+    void MDY(int& year, int& month, int& day) const {
     /*
       Convert a Julian day number to its corresponding Gregorian calendar
       date.  Algorithm 199 from Communications of the ACM, Volume 6, No. 8,
@@ -116,7 +116,7 @@ class FASTDB_DLL_ENTRY dbDate {
         d = 5*d - 3 - 153*m;
         d = (d + 5)/5;
         y = (100*y + j);
-        if (m < 10) { 
+        if (m < 10) {
                 m += 3;
         } else {
                 m -= 9;
@@ -145,21 +145,21 @@ class FASTDB_DLL_ENTRY dbDate {
         return year;
     }
 
-    int dayOfWeek() { 
+    int dayOfWeek() {
         return (jday % 7) + 1;
     }
 
-    char* asString(char* buf, char const* format = "%d-%M-%Y") const { 
+    char* asString(char* buf, char const* format = "%d-%M-%Y") const {
         static const char* dayName[] = { "Mon", "Tue", "Wen", "Thu", "Fri", "Sat", "Sun" };
         static const char* monthName[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
                                            "Aug", "Sep", "Oct", "Nov", "Dec" };
         int month, day, year;
         MDY(year, month, day);
         char ch, *dst = buf;
-        while ((ch = *format++) != '\0') { 
+        while ((ch = *format++) != '\0') {
             if (ch == '%') {
                 ch = *format++;
-                switch (ch) { 
+                switch (ch) {
                   case 'd': dst += sprintf(dst, "%02u", day ); continue;
                   case 'D': dst += sprintf(dst, "%s",   dayName[jday % 7]); continue;
                   case 'm': dst += sprintf(dst, "%02u", month); continue;
@@ -168,7 +168,7 @@ class FASTDB_DLL_ENTRY dbDate {
                   case 'Y': dst += sprintf(dst, "%04u", year); continue;
                   default: *dst++ = ch;
                 }
-            } else { 
+            } else {
                 *dst++ = ch;
             }
         }
@@ -177,58 +177,58 @@ class FASTDB_DLL_ENTRY dbDate {
     }
 
 
-    CLASS_DESCRIPTOR(dbDate, 
-                     (KEY(jday,INDEXED|HASHED), 
+    CLASS_DESCRIPTOR(dbDate,
+                     (KEY(jday,INDEXED|HASHED),
                       METHOD(year), METHOD(month), METHOD(day), METHOD(dayOfWeek)));
 
-    dbQueryExpression operator == (char const* field) { 
+    dbQueryExpression operator == (char const* field) {
         dbQueryExpression expr;
         expr = dbComponent(field,"jday"),"=",jday;
         return expr;
     }
-    dbQueryExpression operator != (char const* field) { 
+    dbQueryExpression operator != (char const* field) {
         dbQueryExpression expr;
         expr = dbComponent(field,"jday"),"<>",jday;
         return expr;
     }
-    dbQueryExpression operator < (char const* field) { 
+    dbQueryExpression operator < (char const* field) {
         dbQueryExpression expr;
         expr = dbComponent(field,"jday"),">",jday;
         return expr;
     }
-    dbQueryExpression operator <= (char const* field) { 
+    dbQueryExpression operator <= (char const* field) {
         dbQueryExpression expr;
         expr = dbComponent(field,"jday"),">=",jday;
         return expr;
     }
-    dbQueryExpression operator > (char const* field) { 
+    dbQueryExpression operator > (char const* field) {
         dbQueryExpression expr;
         expr = dbComponent(field,"jday"),"<",jday;
         return expr;
     }
-    dbQueryExpression operator >= (char const* field) { 
+    dbQueryExpression operator >= (char const* field) {
         dbQueryExpression expr;
         expr = dbComponent(field,"jday"),"<=",jday;
         return expr;
     }
     friend dbQueryExpression between(char const* field, dbDate& from,
                                      dbDate& till)
-    { 
+    {
         dbQueryExpression expr;
         expr=dbComponent(field,"jday"),"between",from.jday,"and",till.jday;
         return expr;
     }
 
-    static dbQueryExpression ascent(char const* field) { 
+    static dbQueryExpression ascent(char const* field) {
         dbQueryExpression expr;
         expr=dbComponent(field,"jday");
         return expr;
-    }   
-    static dbQueryExpression descent(char const* field) { 
+    }
+    static dbQueryExpression descent(char const* field) {
         dbQueryExpression expr;
         expr=dbComponent(field,"jday"),"desc";
         return expr;
-    }   
+    }
 };
 
 END_FASTDB_NAMESPACE

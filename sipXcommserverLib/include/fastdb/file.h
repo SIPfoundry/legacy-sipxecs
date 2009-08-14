@@ -29,17 +29,17 @@ class dbFile;
 class dbReplicatedDatabase;
 class socket_t;
 
-struct ReplicationRequest { 
+struct ReplicationRequest {
     enum {
-        RR_CONNECT, 
-        RR_RECOVERY, 
-        RR_GET_STATUS, 
-        RR_STATUS, 
+        RR_CONNECT,
+        RR_RECOVERY,
+        RR_GET_STATUS,
+        RR_STATUS,
         RR_UPDATE_PAGE,
         RR_RECOVER_PAGE,
-        RR_NEW_ACTIVE_NODE, 
-        RR_CHANGE_ACTIVE_NODE, 
-        RR_CLOSE, 
+        RR_NEW_ACTIVE_NODE,
+        RR_CHANGE_ACTIVE_NODE,
+        RR_CLOSE,
         RR_READY,
         RR_COMMITTED
     };
@@ -47,13 +47,13 @@ struct ReplicationRequest {
     byte nodeId;
     byte status;
     int  size;
-    struct { 
+    struct {
         int updateCount;
         int offs;
     } page;
 };
 
-struct RecoveryRequest { 
+struct RecoveryRequest {
     dbFile*   file;
     int       nodeId;
     int       nPages;
@@ -65,7 +65,7 @@ struct RecoveryRequest {
 class  dbFileWriter;
 #endif
 
-class dbFile { 
+class dbFile {
   protected:
 #ifdef _WIN32
     HANDLE fh;
@@ -81,7 +81,7 @@ class dbFile {
     size_t mmapSize;
     bool   readonly;
   public:
-    enum { 
+    enum {
         ok = 0
     };
     //
@@ -89,13 +89,13 @@ class dbFile {
     //
     int    create(char const* name, bool noBuffering = true);
     //
-    // Open database file and create file mapping object 
+    // Open database file and create file mapping object
     //
     int    open(char const* fileName, char const* sharedName,
                 bool readonly, size_t initSize, bool replicationSupport);
-    
+
     void*  getAddr() const { return mmapAddr; }
-    size_t getSize() const { return mmapSize; } 
+    size_t getSize() const { return mmapSize; }
     int    setSize(size_t size, char const* sharedName, bool initialize = true);
     int    flush(bool physical = false);
     int    close();
@@ -113,11 +113,11 @@ class dbFile {
     void unprotect(size_t pos, size_t size);
 #endif
 
-    void markAsDirty(size_t pos, size_t size) { 
+    void markAsDirty(size_t pos, size_t size) {
         size_t page = pos >> dbModMapBlockBits;
         size_t last = (pos + size + dbModMapBlockSize - 1) >> dbModMapBlockBits;
         assert(int(last >> 5) <= pageMapSize);
-        while (page < last) { 
+        while (page < last) {
             pageMap[page >> 5] |= 1 << (page & 31);
             page += 1;
         }
@@ -147,7 +147,7 @@ class dbFile {
     dbReplicatedDatabase* db;
 
     int       getUpdateCountTableSize();
-    int       getMaxPages(); 
+    int       getMaxPages();
 
     dbMutex   replCS;
     dbMutex   syncCS;
@@ -180,7 +180,7 @@ class dbFile {
     void stopSync();
 
   public:
-    void configure(dbReplicatedDatabase* db) { 
+    void configure(dbReplicatedDatabase* db) {
         this->db = db;
     }
 
@@ -204,4 +204,3 @@ class dbFile {
 END_FASTDB_NAMESPACE
 
 #endif
-

@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 #ifndef REGISTRATIONDB_H
@@ -74,7 +74,7 @@ public:
     /**<
      * If there are no such updates, then return 0
      */
-    
+
     /// Get the next update for primaryRegistrar with an update number > updateNumber.
     int getNextUpdateForRegistrar( const UtlString& primaryRegistrar
                                    ,Int64           updateNumber
@@ -104,12 +104,12 @@ public:
                                ) const;
 
     /// Return a list of contact fields that are unexpired and contain a specified substring.
-    /// The caller is responsible for de-allocating the memory for the entries contained in the 
+    /// The caller is responsible for de-allocating the memory for the entries contained in the
     /// list.
     void getUnexpiredContactsFieldsContaining ( UtlString& substringToMatch
                                                ,const int& timeNow
                                                ,UtlSList& matchingContactFields ) const;
-    
+
     /// update the binding of uri to contact: does insert or update as needed
     void updateBinding(const RegistrationBinding&);
 

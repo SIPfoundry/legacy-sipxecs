@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -70,25 +70,25 @@ SIPXAuthHelper::isAuthorizedUser (
     ssize_t sipIndex = userOrExtensionAtOptDomain.index("sip:");
     if ( sipIndex != UTL_NOT_FOUND )
     {
-        // see if we're being passed in a full URL in which 
+        // see if we're being passed in a full URL in which
         // case strip it down to its identity, discarding the display name
         if ( sipIndex > 0 )
         {
             Url loginUrl ( userOrExtensionAtOptDomain );
             loginUrl.getIdentity( userOrExtensionAtOptDomain );
-        } else 
+        } else
         {
             // sip: is in first position
-            userOrExtensionAtOptDomain = 
+            userOrExtensionAtOptDomain =
                 userOrExtensionAtOptDomain( 4, userOrExtensionAtOptDomain.length() - 4 );
         }
-    } 
+    }
 
     // we're going to need this irrespective of whether
     // the user is logging in via mailboxIdentity or extension
     ResultSet extensions;
 
-    // Search the credentials database for a 
+    // Search the credentials database for a
     // match against the userid column
     UtlString dbRealm, dbAuthType, dbPassToken;
     Url mailboxUrl;
@@ -97,9 +97,9 @@ SIPXAuthHelper::isAuthorizedUser (
     int loopCount = 0;
     while ( keepsearching && ( result != OS_FAILED ) && (loopCount < 3) )
     {
-        // first try searching the credentials database using the login string        
-        UtlBoolean credentialRecordFound = 
-            CredentialDB::getInstance()->getUserPin ( 
+        // first try searching the credentials database using the login string
+        UtlBoolean credentialRecordFound =
+            CredentialDB::getInstance()->getUserPin (
                 userOrExtensionAtOptDomain, // IN
                 realmName,                  // IN
                 mailboxUrl,                 // OUT
@@ -108,8 +108,8 @@ SIPXAuthHelper::isAuthorizedUser (
 
         if ( !credentialRecordFound )
         {
-            rErrorLog += (UtlString) "SIPXAuthHelper::isAuthorizedUser - " + 
-                (UtlString) "unable to find userOrExtension-" + userOrExtensionAtOptDomain + 
+            rErrorLog += (UtlString) "SIPXAuthHelper::isAuthorizedUser - " +
+                (UtlString) "unable to find userOrExtension-" + userOrExtensionAtOptDomain +
                 " in Credential DB\n";
             // Since userid does not expect any domain name associated with it, strip the domain off
             // and try again
@@ -119,11 +119,11 @@ SIPXAuthHelper::isAuthorizedUser (
                 userOrExtensionAtOptDomain = userOrExtensionAtOptDomain(0, atIndex);
             }
 
-            rErrorLog += (UtlString) "SIPXAuthHelper::isAuthorizedUser -" + 
+            rErrorLog += (UtlString) "SIPXAuthHelper::isAuthorizedUser -" +
                 (UtlString)" retrying credentials using - " + userOrExtensionAtOptDomain + (UtlString)"\n";
             // search again adding with a realm in the search
-            credentialRecordFound = 
-                CredentialDB::getInstance()->getUserPin ( 
+            credentialRecordFound =
+                CredentialDB::getInstance()->getUserPin (
                     userOrExtensionAtOptDomain, // IN
                     realmName,                  // IN
                     mailboxUrl,                 // OUT
@@ -133,9 +133,9 @@ SIPXAuthHelper::isAuthorizedUser (
 
         if ( credentialRecordFound )
         {
-            rErrorLog += 
-                (UtlString) "SIPXAuthHelper::isAuthorizedUser -" + 
-                (UtlString)" Found Credential record for -" + userOrExtensionAtOptDomain + 
+            rErrorLog +=
+                (UtlString) "SIPXAuthHelper::isAuthorizedUser -" +
+                (UtlString)" Found Credential record for -" + userOrExtensionAtOptDomain +
                 (UtlString)" mailboxUrl " + mailboxUrl.toString() + (UtlString)"\n";
 
             // Fill out the return values
@@ -168,7 +168,7 @@ SIPXAuthHelper::isAuthorizedUser (
 
                         // AutoAttendant permission is used  here to allow user record name for dialbyname if its
                         // Voicemail permission is not enabled.
-                        if ( permission.compareTo( "Voicemail", UtlString::ignoreCase )==0 || 
+                        if ( permission.compareTo( "Voicemail", UtlString::ignoreCase )==0 ||
                              permission.compareTo( "AutoAttendant", UtlString::ignoreCase )==0 )
                         {
                             permissionFound = TRUE;
@@ -194,8 +194,8 @@ SIPXAuthHelper::isAuthorizedUser (
                     {
                         // Write to the log and exit the loop.
                         rErrorLog +=
-                            (UtlString) "SIPXAuthHelper::isAuthorizedUser - " + 
-                            (UtlString)"Voicemail Permission missing for - " + mailboxUrl.toString() + 
+                            (UtlString) "SIPXAuthHelper::isAuthorizedUser - " +
+                            (UtlString)"Voicemail Permission missing for - " + mailboxUrl.toString() +
                             (UtlString)"\n";
                         result = OS_FAILED;
                     }
@@ -203,8 +203,8 @@ SIPXAuthHelper::isAuthorizedUser (
                 {
                     // Write to the log and exit the loop.
                     rErrorLog +=
-                        (UtlString)"SIPXAuthHelper::isAuthorizedUser - " + 
-                        (UtlString)"No Permissions for - " + mailboxUrl.toString() + 
+                        (UtlString)"SIPXAuthHelper::isAuthorizedUser - " +
+                        (UtlString)"No Permissions for - " + mailboxUrl.toString() +
                         (UtlString)"\n";
                     result = OS_FAILED;
                 }
@@ -213,7 +213,7 @@ SIPXAuthHelper::isAuthorizedUser (
                   loginPassToken,
                   realmName,
                   dbPassToken,
-                  dbAuthType))  
+                  dbAuthType))
             {
                 // Write to the log and exit the loop.
                 rErrorLog +=
@@ -224,15 +224,15 @@ SIPXAuthHelper::isAuthorizedUser (
             }
         } else // this may be an alias or a mailbox extension
         {
-            rErrorLog += (UtlString) "SIPXAuthHelper::isAuthorizedUser - " + 
+            rErrorLog += (UtlString) "SIPXAuthHelper::isAuthorizedUser - " +
                 (UtlString) "failed to find - " + userOrExtensionAtOptDomain + (UtlString)" in Credential DB\n";
 
-            rErrorLog += (UtlString) "SIPXAuthHelper::isAuthorizedUser - " + 
+            rErrorLog += (UtlString) "SIPXAuthHelper::isAuthorizedUser - " +
                 (UtlString) "Searching the ExtensionDB for a match for - " + loginString + (UtlString)"\n";
 
-            // search for a mailbox URL (note that the sip: has 
+            // search for a mailbox URL (note that the sip: has
             // been stripped from the userOrExtensionAtOptDomain string
-            UtlBoolean mailboxUrlFound = 
+            UtlBoolean mailboxUrlFound =
                 ExtensionDB::getInstance()->
                     getUri ( userOrExtensionAtOptDomain, mailboxUrl );
 
@@ -246,33 +246,33 @@ SIPXAuthHelper::isAuthorizedUser (
                     userOrExtensionAtOptDomain = userOrExtensionAtOptDomain + "@" + domainName;
                 } else if ( loginString.index( domainName ) != UTL_NOT_FOUND )
                 {
-                    userOrExtensionAtOptDomain = 
-                        userOrExtensionAtOptDomain(0, 
+                    userOrExtensionAtOptDomain =
+                        userOrExtensionAtOptDomain(0,
                         userOrExtensionAtOptDomain.index(domainName) -1 );
                 }
 
-                rErrorLog += (UtlString) "SIPXAuthHelper::isAuthorizedUser - " + 
-                    (UtlString) "Retrying with/(out) realm - " + userOrExtensionAtOptDomain + 
+                rErrorLog += (UtlString) "SIPXAuthHelper::isAuthorizedUser - " +
+                    (UtlString) "Retrying with/(out) realm - " + userOrExtensionAtOptDomain +
                     " in ExtensionDB\n";
 
                 // search again adding with a realm in the search
-                mailboxUrlFound  = 
-                    ExtensionDB::getInstance()->getUri ( 
+                mailboxUrlFound  =
+                    ExtensionDB::getInstance()->getUri (
                         userOrExtensionAtOptDomain, mailboxUrl );
 
-                if (!mailboxUrlFound) 
-                {   
+                if (!mailboxUrlFound)
+                {
                     // Write to the log and exit the loop.
-                    rErrorLog += 
-                        "SIPXAuthHelper::isAuthorizedUser - " 
+                    rErrorLog +=
+                        "SIPXAuthHelper::isAuthorizedUser - "
                         "No contact found in extensions, Searching AliasDB for Unique Row\n";
 
                     // Ensure that we construct a valid Url to search the AliasDB
                     // Aliases have always had a full user@domain
                     Url aliasIdentityUrl;
-                    if (loginString.index("@") != UTL_NOT_FOUND) 
+                    if (loginString.index("@") != UTL_NOT_FOUND)
                         aliasIdentityUrl = loginString;
-                    else 
+                    else
                         aliasIdentityUrl = loginString + "@" + domainName;
 
                     UtlString contactKey ("contact");
@@ -284,13 +284,13 @@ SIPXAuthHelper::isAuthorizedUser (
                     {
                         if ( numRows == 0 )
                         {
-                            rErrorLog += 
-                                "SIPXAuthHelper::isAuthorizedUser - ERROR: Failed to find an alias match for: [" + 
+                            rErrorLog +=
+                                "SIPXAuthHelper::isAuthorizedUser - ERROR: Failed to find an alias match for: [" +
                                 aliasIdentityUrl.toString() + "] in AliasDB\n";
-                        } else 
+                        } else
                         {
-                            rErrorLog += 
-                                "SIPXAuthHelper::isAuthorizedUser - ERROR: Multiple aliases for: [" + 
+                            rErrorLog +=
+                                "SIPXAuthHelper::isAuthorizedUser - ERROR: Multiple aliases for: [" +
                                 aliasIdentityUrl.toString() + "] in AliasDB\n";
                         }
                         result = OS_FAILED;
@@ -313,10 +313,10 @@ SIPXAuthHelper::isAuthorizedUser (
                 }
             } else
             {
-                rErrorLog += (UtlString) "SIPXAuthHelper::isAuthorizedUser - " + 
-                    (UtlString) "Found entry in Extensions for -" + userOrExtensionAtOptDomain + 
+                rErrorLog += (UtlString) "SIPXAuthHelper::isAuthorizedUser - " +
+                    (UtlString) "Found entry in Extensions for -" + userOrExtensionAtOptDomain +
                     (UtlString)" returns " + mailboxUrl.toString() + (UtlString)"\n";
-                // found the mailbox url associated with the extension now 
+                // found the mailbox url associated with the extension now
                 // we need to query the userid from the DB and try again
                 if ( !CredentialDB::getInstance()->getUserPin (
                         mailboxUrl,                 // IN
@@ -329,7 +329,7 @@ SIPXAuthHelper::isAuthorizedUser (
                     rErrorLog += "SIPXAuthHelper::isAuthorizedUser - FAILED - to find entry in Credential DB for " + mailboxUrl.toString();
                     result = OS_FAILED;
                 }
-            } 
+            }
         }
         loopCount += 1;
     }
@@ -369,7 +369,7 @@ SIPXAuthHelper::comparePassToken (
             NetMd5Codec::encode( textToEncode, compareToToken );
             if ( dbPassToken.compareTo ( compareToToken ) == 0 )
                 result = TRUE;
-        } 
+        }
         else // potentially MD5 encoded password as length match
         {
             if ( loginPassToken.compareTo ( dbPassToken ) != 0 )
@@ -383,16 +383,13 @@ SIPXAuthHelper::comparePassToken (
                 NetMd5Codec::encode( textToEncode, compareToToken );
                 if ( dbPassToken.compareTo ( compareToToken ) == 0 )
                     result = TRUE;
-            }  
+            }
             else  //passwords match! no need to do anything
             {
                 result = TRUE;
-            } 
+            }
         }
     }
 
     return result;
 }
-
-
-

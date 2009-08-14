@@ -18,11 +18,11 @@ BEGIN_FASTDB_NAMESPACE
 const size_t init_reply_buffer_size = 4*1024;
 
 inline unsigned string_hash_function(const char* name)
-{ 
+{
     unsigned h = 0, g;
-    while(*name) { 
+    while(*name) {
         h = (h << 4) + *name++;
-        if ((g = h & 0xF0000000) != 0) { 
+        if ((g = h & 0xF0000000) != 0) {
             h ^= g >> 24;
         }
         h &= ~g;
@@ -54,13 +54,13 @@ WWWconnection::~WWWconnection()
 {
     reset();
     name_value_pair *nvp, *next;
-    for (nvp = free_pairs; nvp != NULL; nvp = next) { 
+    for (nvp = free_pairs; nvp != NULL; nvp = next) {
         next = nvp->next;
         delete nvp;
     }
     delete[] reply_buf;
     delete[] peer;
-    if (userDataDestructor != NULL && userData != NULL) { 
+    if (userDataDestructor != NULL && userData != NULL) {
         userDataDestructor(userData);
     }
 }
@@ -68,14 +68,14 @@ WWWconnection::~WWWconnection()
 
 inline char* WWWconnection::extendBuffer(size_t inc)
 {
-    if (reply_buf_used + inc >= reply_buf_size) { 
+    if (reply_buf_used + inc >= reply_buf_size) {
         reply_buf_size = reply_buf_size*2 > reply_buf_used + inc
             ? reply_buf_size*2 : reply_buf_used + inc;
         char* new_buf = new char[reply_buf_size+1];
         memcpy(new_buf, reply_buf, reply_buf_used);
         delete[] reply_buf;
         reply_buf = new_buf;
-    }     
+    }
     reply_buf_used += inc;
     return reply_buf;
 }
@@ -83,7 +83,7 @@ inline char* WWWconnection::extendBuffer(size_t inc)
 bool WWWconnection::terminatedBy(char const* str) const
 {
     size_t len = strlen(str);
-    if (len > reply_buf_used - 4) { 
+    if (len > reply_buf_used - 4) {
         return false;
     }
     return memcmp(reply_buf + reply_buf_used - len, str, len) == 0;
@@ -96,7 +96,7 @@ WWWconnection& WWWconnection::append(const void *buf, int len) {
     return *this;
 }
 
-WWWconnection& WWWconnection::append(char const* str) 
+WWWconnection& WWWconnection::append(char const* str)
 {
     int pos = reply_buf_used;
     char* dst = extendBuffer(strlen(str));
@@ -109,13 +109,13 @@ WWWconnection& WWWconnection::append(char const* str)
       case HTML:
         encoding = TAG;
 #if 1 // MS-Explorer handle "&nbsp;" in HTML string literals in very strange way
-        if (str[0] == ' ' && str[1] == '\0') { 
+        if (str[0] == ' ' && str[1] == '\0') {
             strcpy(extendBuffer(5) + pos, "&nbsp;");
             return *this;
         }
-#endif            
-        while (true) { 
-            switch(ch = *str++) { 
+#endif
+        while (true) {
+            switch(ch = *str++) {
               case '<':
                 dst = extendBuffer(3);
                 dst[pos++] = '&';
@@ -159,7 +159,7 @@ WWWconnection& WWWconnection::append(char const* str)
                 dst[pos++] = 's';
                 dst[pos++] = 'p';
                 dst[pos++] = ';';
-                break;                
+                break;
 #endif
               default:
                 dst[pos++] = ch;
@@ -167,21 +167,21 @@ WWWconnection& WWWconnection::append(char const* str)
         }
       case URL:
         encoding = TAG;
-        while (true) { 
+        while (true) {
             ch = *str++;
-            if (ch == '\0') { 
+            if (ch == '\0') {
                 dst[pos] = '\0';
                 return *this;
-            } else if (ch == ' ') { 
+            } else if (ch == ' ') {
                 dst[pos++] = '+';
-            } else if (!isalnum(ch)) { 
+            } else if (!isalnum(ch)) {
                 dst = extendBuffer(2);
                 dst[pos++] = '%';
-                dst[pos++] = (ch >> 4) >= 10 
+                dst[pos++] = (ch >> 4) >= 10
                     ? (ch >> 4) + 'A' - 10 : (ch >> 4) + '0';
                 dst[pos++] = (ch & 0xF) >= 10
                     ? (ch & 0xF) + 'A' - 10 : (ch & 0xF) + '0';
-            } else { 
+            } else {
                 dst[pos++] = ch;
             }
         }
@@ -194,24 +194,24 @@ void WWWconnection::reset()
 {
     reply_buf_used = 0;
     encoding = TAG;
-    for (int i = itemsof(hash_table); --i >= 0;) { 
+    for (int i = itemsof(hash_table); --i >= 0;) {
         name_value_pair *nvp, *next;
-        for (nvp = hash_table[i]; nvp != NULL; nvp = next) { 
+        for (nvp = hash_table[i]; nvp != NULL; nvp = next) {
             next = nvp->next;
             nvp->next = free_pairs;
             free_pairs = nvp;
         }
         hash_table[i] = NULL;
-    }       
+    }
 }
 
 void WWWconnection::addPair(char const* name, char const* value)
 {
     name_value_pair* nvp;
-    if (free_pairs != NULL) { 
+    if (free_pairs != NULL) {
         nvp = free_pairs;
         free_pairs = nvp->next;
-    } else { 
+    } else {
         nvp = new name_value_pair;
     }
     unsigned hash_code = string_hash_function(name);
@@ -228,14 +228,14 @@ void WWWconnection::addPair(char const* name, char const* value)
 char* WWWconnection::unpack(char* body, size_t length)
 {
     char *src = body, *end = body + length;
-    while (src < end) { 
+    while (src < end) {
         char* name = src;
-        char ch; 
+        char ch;
         char* dst = src;
-        while (src < end && (ch = *src++) != '=') { 
+        while (src < end && (ch = *src++) != '=') {
             if (ch == '+') {
                 ch = ' ';
-            } else if (ch == '%') { 
+            } else if (ch == '%') {
                 ch = (HEX_DIGIT(src[0]) << 4) | HEX_DIGIT(src[1]);
                 src += 2;
             }
@@ -243,10 +243,10 @@ char* WWWconnection::unpack(char* body, size_t length)
         }
         *dst = '\0';
         char* value = dst = src;
-        while (src < end && (ch = *src++) != '&') { 
+        while (src < end && (ch = *src++) != '&') {
             if (ch == '+') {
                 ch = ' ';
-            } else if (ch == '%') { 
+            } else if (ch == '%') {
                 ch = (HEX_DIGIT(src[0]) << 4) | HEX_DIGIT(src[1]);
                 src += 2;
             }
@@ -265,11 +265,11 @@ char* WWWconnection::get(char const* name, int n)
     unsigned hash_code = string_hash_function(name);
     name_value_pair* nvp;
     for (nvp = hash_table[hash_code % hash_table_size];
-         nvp != NULL; 
+         nvp != NULL;
          nvp = nvp->next)
     {
-        if (nvp->hash_code == hash_code && strcmp(nvp->name, name) == 0) { 
-            if (n == 0) { 
+        if (nvp->hash_code == hash_code && strcmp(nvp->name, name) == 0) {
+            if (n == 0) {
                 return (char*)nvp->value;
             }
             n -= 1;
@@ -277,7 +277,7 @@ char* WWWconnection::get(char const* name, int n)
     }
     return NULL;
 }
-    
+
 
 
 
@@ -291,7 +291,7 @@ WWWapi::WWWapi(dbDatabase& dbase, int n_handlers, dispatcher* dispatch_table)
     sock = NULL;
     address = NULL;
     dispatcher* disp = dispatch_table;
-    while (--n_handlers >= 0) { 
+    while (--n_handlers >= 0) {
         unsigned hash_code = string_hash_function(disp->page);
         disp->hash_code = hash_code;
         hash_code %= hash_table_size;
@@ -303,26 +303,26 @@ WWWapi::WWWapi(dbDatabase& dbase, int n_handlers, dispatcher* dispatch_table)
 
 WWWapi::~WWWapi() {}
 
-bool WWWapi::open(char const* socket_address, 
-                  socket_t::socket_domain domain, 
+bool WWWapi::open(char const* socket_address,
+                  socket_t::socket_domain domain,
                   int listen_queue)
 {
-    if (sock != NULL) { 
+    if (sock != NULL) {
         close();
     }
     address = new char[strlen(socket_address) + 1];
     strcpy(address, socket_address);
-    sock = domain != socket_t::sock_global_domain 
+    sock = domain != socket_t::sock_global_domain
         ? socket_t::create_local(socket_address, listen_queue)
         : socket_t::create_global(socket_address, listen_queue);
     canceled = false;
-    if (!sock->is_ok()) { 
+    if (!sock->is_ok()) {
         char buf[64];
         sock->get_error_text(buf, sizeof buf);
         fprintf(stderr, "WWWapi::open: create socket failed: %s\n", buf);
         return false;
     }
-    return true;        
+    return true;
 }
 
 
@@ -335,8 +335,8 @@ bool WWWapi::connect(WWWconnection& con)
     delete con.sock;
     con.sock = sock->accept();
     con.address = address;
-    if (con.sock == NULL) { 
-        if (!canceled) { 
+    if (con.sock == NULL) {
+        if (!canceled) {
             char buf[64];
             sock->get_error_text(buf, sizeof buf);
             fprintf(stderr, "WWWapi::connect: accept failed: %s\n", buf);
@@ -365,11 +365,11 @@ bool WWWapi::dispatch(WWWconnection& con, char* page)
 {
     unsigned hash_code = string_hash_function(page);
     for (dispatcher* disp = hash_table[hash_code % hash_table_size];
-         disp != NULL; 
+         disp != NULL;
          disp = disp->collision_chain)
     {
         if (disp->hash_code == hash_code && strcmp(disp->page, page) == 0)
-        { 
+        {
             bool result = disp->func(con);
             db.commit();
             return result;
@@ -383,15 +383,15 @@ void URL2ASCII(char* src)
 {
     char* dst = src;
     char ch;
-    while ((ch = *src++) != '\0') { 
-        if (ch == '%') { 
+    while ((ch = *src++) != '\0') {
+        if (ch == '%') {
             *dst++ = ((src[0] - '0') << 8) | (src[1] - '0');
         } else if (ch == '+') {
             *dst++ = ' ';
         } else if (ch == '.' && *src == '.') {
             // for security reasons do not allow access to parent directory
             break;
-        } else { 
+        } else {
             *dst++ = ch;
         }
     }
@@ -403,8 +403,8 @@ bool CGIapi::serve(WWWconnection& con)
 {
     nat4 length;
     con.reset();
-    if ((size_t)con.sock->read(&length, sizeof length, sizeof length) 
-        != sizeof(length)) 
+    if ((size_t)con.sock->read(&length, sizeof length, sizeof length)
+        != sizeof(length))
     {
         return true;
     }
@@ -418,11 +418,11 @@ bool CGIapi::serve(WWWconnection& con)
     con.peer = new char[strlen(peer)+1];
     strcpy(con.peer, peer);
     bool result = true;
-    if (page != NULL)  { 
+    if (page != NULL)  {
         con.extendBuffer(4);
         result = dispatch(con, page);
         *(int4*)con.reply_buf = con.reply_buf_used;
-        con.sock->write(con.reply_buf, con.reply_buf_used);    
+        con.sock->write(con.reply_buf, con.reply_buf_used);
     }
     delete[] con.peer;
     con.peer = NULL;
@@ -431,11 +431,11 @@ bool CGIapi::serve(WWWconnection& con)
     return result;
 }
 
-inline char* stristr(char* s, char* p) { 
-    while (*s != '\0') { 
+inline char* stristr(char* s, char* p) {
+    while (*s != '\0') {
         int i;
         for (i = 0; (s[i] & ~('a'-'A')) == (p[i] & ~('a' - 'A')) && p[i] != '\0'; i++);
-        if (p[i] == '\0') { 
+        if (p[i] == '\0') {
             return s;
         }
         s += 1;
@@ -452,15 +452,15 @@ bool HTTPapi::serve(WWWconnection& con)
 
     con.peer = con.sock->get_peer_name();
 
-    while (true) { 
+    while (true) {
         con.reset();
         char* p = buf;
         char prev_ch = 0;
-        do { 
-            if (p == buf + size) { 
-                int rc = con.sock->read(buf + size, 5, sizeof(buf) - size - 1, 
+        do {
+            if (p == buf + size) {
+                int rc = con.sock->read(buf + size, 5, sizeof(buf) - size - 1,
                                         connectionHoldTimeout);
-                if (rc < 0) { 
+                if (rc < 0) {
                     delete con.sock;
                     con.sock = NULL;
                     return true;
@@ -472,79 +472,79 @@ bool HTTPapi::serve(WWWconnection& con)
                 size += rc;
             }
             buf[size] = '\0';
-            while (*p != '\0' && (prev_ch != '\n' || *p != '\r')) { 
+            while (*p != '\0' && (prev_ch != '\n' || *p != '\r')) {
                 prev_ch = *p++;
             }
         } while (*p == '\0' && p == buf + size); // p now points to the message body
-        if (*p != '\r' || *(p+1) != '\n') { 
+        if (*p != '\r' || *(p+1) != '\n') {
             con.append(ERROR_TEXT("400 Bad Request"));
             break;
-        }    
+        }
         p += 2;
         int length = INT_MAX;
         char* lenptr = stristr(buf, "content-length: ");
-        bool  persistentConnection = 
+        bool  persistentConnection =
             stristr(buf, "Connection: keep-alive") != NULL;
         char* host = stristr(buf, "host: ");
-        if (host != NULL) { 
+        if (host != NULL) {
             char* q = host += 6;
             while (*q != '\n' && *q != '\r' && *q != '\0') q += 1;
             *q = '\0';
         }
-        if (lenptr != NULL) { 
+        if (lenptr != NULL) {
             sscanf(lenptr+15, "%d", &length);
         }
-        if (strncmp(buf, "GET ", 4) == 0) { 
+        if (strncmp(buf, "GET ", 4) == 0) {
             char* file, *uri = buf;
             file = strchr(uri, '/');
-            if (file == NULL) { 
+            if (file == NULL) {
                 con.append(ERROR_TEXT("400 Bad Request"));
                 break;
             }
-            if (*++file == '/') { 
-                if (host == NULL) { 
-                    host = file+1;      
+            if (*++file == '/') {
+                if (host == NULL) {
+                    host = file+1;
                 }
                 file = strchr(uri, '/');
-                if (file == NULL) { 
+                if (file == NULL) {
                     con.append(ERROR_TEXT("400 Bad Request"));
                     break;
-                }       
+                }
                 *file++ = '\0';
             }
             char* file_end = strchr(file, ' ');
             char index_html[] = "index.html";
-            if (file_end == NULL) { 
+            if (file_end == NULL) {
                 con.append(ERROR_TEXT("400 Bad Request"));
                 break;
             }
-            if (file_end == file) { 
+            if (file_end == file) {
                 file = index_html;
             } else {
                 *file_end = '\0';
             }
-            if (host == NULL) { 
+            if (host == NULL) {
                 host = "localhost";
             }
             char* params = strchr(file, '?');
-            if (params != NULL) { 
-                if (!handleRequest(con, params+1, file_end, host, result)) { 
+            if (params != NULL) {
+                if (!handleRequest(con, params+1, file_end, host, result)) {
                     delete con.sock;
                     con.sock = NULL;
                     return result;
-                } 
-            } else { 
+                }
+            } else {
                 URL2ASCII(file);
                 FILE* f = fopen(file, "rb");
-                if (f == NULL) { 
+                if (f == NULL) {
                     if (strcmp(file, index_html) == 0) {
                         static char defaultPage[] = "page=defaultPage";
                         if (!handleRequest(con, defaultPage, defaultPage + strlen(defaultPage), host, result)) {
                             delete con.sock;
                             con.sock = NULL;
                             return result;
-                        } 
-                    } else { 
+                        }
+                    } else {
                         con.append(ERROR_TEXT("404 File Not Found"));
                         break;
                     }
@@ -554,49 +554,49 @@ bool HTTPapi::serve(WWWconnection& con)
                     fseek(f, 0, SEEK_SET);
                     char reply[1024];
                     sprintf(reply, "HTTP/1.1 200 OK\r\nContent-Length: %lu\r\n"
-                            "Content-Type: text/html\r\nConnection: %s\r\n\r\n", 
-                            (long)file_size, 
+                            "Content-Type: text/html\r\nConnection: %s\r\n\r\n",
+                            (long)file_size,
                             keepConnectionAlive ? "Keep-Alive" : "close");
                     con.append(reply);
                     size_t pos = con.reply_buf_used;
                     char* dst = con.extendBuffer(file_size);
-                    if (dst == NULL) { 
+                    if (dst == NULL) {
                         con.reset();
                         con.append(ERROR_TEXT("413 Request Entity Too Large"));
                         break;
                     }
-                    if (fread(dst + pos, 1, file_size, f) != file_size) { 
+                    if (fread(dst + pos, 1, file_size, f) != file_size) {
                         con.reset();
                         con.append(ERROR_TEXT("500 Internal server error"));
                         break;
                     }
                     fclose(f);
                     if (!con.sock->write(dst, con.reply_buf_used)
-                        || !keepConnectionAlive) 
-                    { 
+                        || !keepConnectionAlive)
+                    {
                         delete con.sock;
                         con.sock = NULL;
                         return true;
                     }
                 }
             }
-        } else if (strncmp(buf, "POST ", 5) == 0) { 
+        } else if (strncmp(buf, "POST ", 5) == 0) {
             char* body = p;
           ScanNextPart:
             int n = length < buf + size - p
                 ? length : buf + size - p;
-            while (--n >= 0 && *p != '\r' && *p != '\n') 
-            { 
+            while (--n >= 0 && *p != '\r' && *p != '\n')
+            {
                 p += 1;
             }
-            if (n < 0 && p - body != length) {          
-                if (size >= sizeof(buf) - 1) { 
+            if (n < 0 && p - body != length) {
+                if (size >= sizeof(buf) - 1) {
                     con.append(ERROR_TEXT("413 Request Entity Too Large"));
                     break;
-                }       
-                int rc = con.sock->read(p, 1, sizeof(buf) - size - 1, 
+                }
+                int rc = con.sock->read(p, 1, sizeof(buf) - size - 1,
                                         connectionHoldTimeout);
-                if (rc < 0) { 
+                if (rc < 0) {
                     delete con.sock;
                     con.sock = NULL;
                     return true;
@@ -604,36 +604,36 @@ bool HTTPapi::serve(WWWconnection& con)
                 size += rc;
                 goto ScanNextPart;
             } else {
-                if (host == NULL) { 
+                if (host == NULL) {
                     host = "localhost";
                 }
-                if (!handleRequest(con, body, p, host, result)) { 
+                if (!handleRequest(con, body, p, host, result)) {
                     delete con.sock;
                     con.sock = NULL;
                     return result;
                 }
-                while (n >= 0 && (*p == '\n' || *p == '\r')) { 
+                while (n >= 0 && (*p == '\n' || *p == '\r')) {
                     p += 1;
                     n -= 1;
                 }
             }
-        } else { 
+        } else {
             con.append(ERROR_TEXT("405 Method not allowed"));
             break;
         }
-        if (!persistentConnection) { 
+        if (!persistentConnection) {
             delete con.sock;
             con.sock = NULL;
             return true;
-        }           
+        }
         if (p - buf < (long)size) {
             size -= p - buf;
             memcpy(buf, p, size);
-        } else { 
+        } else {
             size = 0;
         }
     }
-    if (con.sock != NULL) { 
+    if (con.sock != NULL) {
         con.sock->write(con.reply_buf, con.reply_buf_used);
         con.sock->shutdown();
         delete con.sock;
@@ -649,12 +649,12 @@ bool HTTPapi::handleRequest(WWWconnection& con, char* begin, char* end,
     char buf[64];
     char ch = *end;
     char* page = con.unpack(begin, end - begin);
-    if (page != NULL)  { 
+    if (page != NULL)  {
         con.append("HTTP/1.1 200 OK\r\nContent-Length:       \r\n");
         int length_pos = con.reply_buf_used - 8;
-        con.append(keepConnectionAlive 
-                   ? "Connection: Keep-Alive\r\n" 
-                   : "Connection: close\r\n");  
+        con.append(keepConnectionAlive
+                   ? "Connection: Keep-Alive\r\n"
+                   : "Connection: close\r\n");
         sprintf(buf, "http://%s/", host);
         con.stub = buf;
         result = dispatch(con, page);
@@ -662,12 +662,12 @@ bool HTTPapi::handleRequest(WWWconnection& con, char* begin, char* end,
         char prev_ch = 0;
         con.reply_buf[con.reply_buf_used] = '\0';
         while ((*body != '\n' || prev_ch != '\n') &&
-               (*body != '\r' || prev_ch != '\n') && 
+               (*body != '\r' || prev_ch != '\n') &&
                *body != '\0')
         {
             prev_ch = *body++;
         }
-        if (*body == '\0') { 
+        if (*body == '\0') {
             con.reset();
             con.append(ERROR_TEXT("404 Not found"));
             con.sock->write(con.reply_buf, con.reply_buf_used);
@@ -675,14 +675,14 @@ bool HTTPapi::handleRequest(WWWconnection& con, char* begin, char* end,
         }
         body += *body == '\n' ? 1 : 2;
         sprintf(buf, "%lu", (long)(con.reply_buf_used - (body - con.reply_buf)));
-        memcpy(con.reply_buf + length_pos, 
+        memcpy(con.reply_buf + length_pos,
                buf, strlen(buf));
-        if (!con.sock->write(con.reply_buf, con.reply_buf_used)) { 
+        if (!con.sock->write(con.reply_buf, con.reply_buf_used)) {
             return false;
         }
         *end = ch;
         return result && keepConnectionAlive;
-    } else { 
+    } else {
         con.append(ERROR_TEXT("Not acceptable"));
         con.sock->write(con.reply_buf, con.reply_buf_used);
         result = true;
@@ -700,9 +700,9 @@ void thread_proc QueueManager::handleThread(void* arg)
 }
 
 
-QueueManager::QueueManager(WWWapi&     api, 
+QueueManager::QueueManager(WWWapi&     api,
                            dbDatabase& dbase,
-                           int         nThreads, 
+                           int         nThreads,
                            int         connectionQueueLen)
 : db(dbase)
 {
@@ -711,14 +711,14 @@ QueueManager::QueueManager(WWWapi&     api,
     go.open();
     done.open();
     threads = new dbThread[nThreads];
-    while (--nThreads >= 0) { 
+    while (--nThreads >= 0) {
         threads[nThreads].create(handleThread, this);
         threads[nThreads].detach();
     }
     connectionPool = new WWWconnection[connectionQueueLen];
     connectionPool[--connectionQueueLen].next = NULL;
-    while (--connectionQueueLen >= 0) { 
-        connectionPool[connectionQueueLen].next = 
+    while (--connectionQueueLen >= 0) {
+        connectionPool[connectionQueueLen].next =
             &connectionPool[connectionQueueLen+1];
     }
     freeList = connectionPool;
@@ -729,11 +729,11 @@ QueueManager::QueueManager(WWWapi&     api,
 void QueueManager::start()
 {
     mutex.lock();
-    while (server != NULL) { 
-        if (freeList == NULL) { 
+    while (server != NULL) {
+        if (freeList == NULL) {
             done.reset();
             done.wait(mutex);
-            if (server == NULL) { 
+            if (server == NULL) {
                 break;
             }
             assert(freeList != NULL);
@@ -742,7 +742,7 @@ void QueueManager::start()
         freeList = con->next;
         WWWapi* srv = server;
         mutex.unlock();
-        if (!srv->connect(*con) || server == NULL) { 
+        if (!srv->connect(*con) || server == NULL) {
             return;
         }
         mutex.lock();
@@ -758,21 +758,21 @@ void QueueManager::handle()
 {
     db.attach();
     mutex.lock();
-    while (true) { 
+    while (true) {
         go.wait(mutex);
         WWWapi* api = server;
-        if (api == NULL) { 
+        if (api == NULL) {
             break;
         }
         WWWconnection* con = waitList;
         assert(con != NULL);
         waitList = con->next;
-        mutex.unlock(); 
-        if (!api->serve(*con)) { 
+        mutex.unlock();
+        if (!api->serve(*con)) {
             stop();
         }
         mutex.lock();
-        if (freeList == NULL) { 
+        if (freeList == NULL) {
             done.signal();
         }
         con->next = freeList;
@@ -783,13 +783,13 @@ void QueueManager::handle()
 }
 
 
-void QueueManager::stop() 
+void QueueManager::stop()
 {
     mutex.lock();
     WWWapi* server = this->server;
     this->server = NULL;
     server->cancel();
-    while (--nThreads >= 0) { 
+    while (--nThreads >= 0) {
         go.signal();
     }
     done.signal();

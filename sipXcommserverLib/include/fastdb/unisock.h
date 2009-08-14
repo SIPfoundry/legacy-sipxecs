@@ -5,7 +5,7 @@
 //                          Created:      7-Jan-97    K.A. Knizhnik  * / [] \ *
 //                          Last update:  7-Jan-97    K.A. Knizhnik  * GARRET *
 //-------------------------------------------------------------------*--------*
-// Unix socket 
+// Unix socket
 //-------------------------------------------------------------------*--------*
 
 #ifndef __UNISOCK_H__
@@ -15,29 +15,29 @@
 
 BEGIN_FASTDB_NAMESPACE
 
-class unix_socket : public socket_t { 
-  protected: 
-    int           fd; 
-    int           errcode;     // error code of last failed operation 
+class unix_socket : public socket_t {
+  protected:
+    int           fd;
+    int           errcode;     // error code of last failed operation
     char*         address;     // host address
     socket_domain domain;      // Unix domain or INET socket
     bool          create_file; // Unix domain sockets use files for connection
 
-    enum error_codes { 
+    enum error_codes {
         ok = 0,
         not_opened = -1,
         bad_address = -2,
         connection_failed = -3,
-        broken_pipe = -4, 
+        broken_pipe = -4,
         invalid_access_mode = -5
     };
 
-  public: 
+  public:
     //
-    // Directory for Unix Domain socket files. This directory should be 
+    // Directory for Unix Domain socket files. This directory should be
     // either empty or be terminated with "/". Dafault value is "/tmp/"
     //
-    static char* unix_socket_dir; 
+    static char* unix_socket_dir;
 
     bool      open(int listen_queue_size);
     bool      connect(int max_attempts, time_t timeout);
@@ -45,7 +45,7 @@ class unix_socket : public socket_t {
     int       read(void* buf, size_t min_size, size_t max_size, time_t timeout);
     bool      write(void const* buf, size_t size, time_t timeout);
 
-    bool      is_ok(); 
+    bool      is_ok();
     bool      shutdown();
     bool      close();
     char*     get_peer_name();
@@ -53,10 +53,10 @@ class unix_socket : public socket_t {
 
     socket_t* accept();
     bool      cancel_accept();
-    
+
     int get_handle();
 
-    unix_socket(const char* address, socket_domain domain); 
+    unix_socket(const char* address, socket_domain domain);
     unix_socket(int new_fd);
 
     ~unix_socket();
@@ -65,8 +65,3 @@ class unix_socket : public socket_t {
 END_FASTDB_NAMESPACE
 
 #endif
-
-
-
-
-

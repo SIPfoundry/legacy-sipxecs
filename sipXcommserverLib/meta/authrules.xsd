@@ -82,7 +82,7 @@
                   * (matches all domains)
 
          format='IPv4subnet'
-            An IPv4 subnet, specified as a series of IPv4 address decimal 
+            An IPv4 subnet, specified as a series of IPv4 address decimal
             octet values separated by dots (.), followed by a forward slash
             (/) and a decimal number of bits to be used as a subnet mask value.
             In order to match, the request URI "host" must be a valid IPv4
@@ -91,19 +91,19 @@
 
                Examples:
                   10.0.0.0/8  Matchs any IP address with first 8 bits = '10'
-                  192.168/16  
+                  192.168/16
       </documentation>
     </annotation>
     <complexType>
       <simpleContent>
         <extension base='normalizedString'>
-          <attribute name='format' use='optional' default='url' 
+          <attribute name='format' use='optional' default='url'
                      type='dmp:validFormats'/>
         </extension>
       </simpleContent>
     </complexType>
   </element>
-  
+
   <element name='userMatch'>
     <annotation>
       <documentation>
@@ -129,11 +129,11 @@
       </documentation>
     </annotation>
   </element>
-  
+
   <element name='permissionMatch'>
     <annotation>
       <documentation>
-        Contains a set of permission specifiers; the caller must have at least one of the 
+        Contains a set of permission specifiers; the caller must have at least one of the
         named permssions in order to use the SIP address in the request.
       </documentation>
     </annotation>

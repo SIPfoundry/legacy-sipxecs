@@ -19,16 +19,16 @@ BEGIN_FASTDB_NAMESPACE
 #define FASTDB_CLONE_ANY_IDENTIFIER true
 #endif
 
-class  FASTDB_DLL_ENTRY dbSymbolTable { 
-    struct HashTableItem { 
+class  FASTDB_DLL_ENTRY dbSymbolTable {
+    struct HashTableItem {
         HashTableItem* next;
         char*          str;
         unsigned       hash;
         int            tag;
         byte           allocated;
-        
-        ~HashTableItem() { 
-            if (allocated) { 
+
+        ~HashTableItem() {
+            if (allocated) {
                 delete[] str;
             }
         }
@@ -45,4 +45,3 @@ class  FASTDB_DLL_ENTRY dbSymbolTable {
 END_FASTDB_NAMESPACE
 
 #endif
-

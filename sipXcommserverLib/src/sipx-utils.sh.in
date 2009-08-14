@@ -66,8 +66,8 @@ fi
 sipx_config_exists() { # ( CONFIG-FILE )
     local exists=0
     if ! test -f "$1"
-    then 
-        echo "Configuration file not found: '$1'" 
+    then
+        echo "Configuration file not found: '$1'"
         exists=1
     fi
     return ${exists}
@@ -334,7 +334,7 @@ proc_alive() # pid
 sipx_stop() {
    proc_name=$1; shift
    pidFile=$1; shift
-   
+
    STATUS=0
 
    echo -n "  Confirm Stop: $proc_name "

@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -48,43 +48,43 @@ public:
 
    /// Copy the binding data to a hash map
    void copy(UtlHashMap& map) const;
-   
+
    const UtlString* getIdentity() const;
    void       setIdentity(const UtlString& identity);
-   
+
    const Url* getUri() const;
    void       setUri(const Url& uri);
    void       setUri(const char* uri); // name-addr format
-   
+
    const UtlString* getCallId() const;
    void       setCallId(const UtlString& callId);
-   
+
    const UtlString* getContact() const;
    void       setContact(const UtlString& contact);
-   
+
    const UtlString* getQvalue() const;
    void       setQvalue(const UtlString& qvalue);
-   
+
    const UtlString* getInstanceId() const;
    void       setInstanceId(const UtlString& instanceId);
-   
+
    const UtlString* getGruu() const;
    void       setGruu(const UtlString& gruu);
-   
+
    const UtlString* getPath() const;
    void       setPath(const UtlString& path);
-   
+
    int        getCseq() const;
    void       setCseq(int cseq);
    void       setCseq(const UtlString& cseq);
-   
+
    int        getExpires() const;
    void       setExpires(int expires);
    void       setExpires(const UtlString& expires);
-   
+
    const UtlString* getPrimary() const;
    void       setPrimary(const UtlString& primary);
-   
+
    Int64      getUpdateNumber() const;
    void       setUpdateNumber(Int64 updateNumber);
    void       setUpdateNumber(const UtlString& updateNumber);

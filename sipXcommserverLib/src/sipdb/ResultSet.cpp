@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -23,12 +23,12 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-ResultSet::ResultSet() 
+ResultSet::ResultSet()
 {}
- 
-ResultSet::~ResultSet() 
+
+ResultSet::~ResultSet()
 {
-    // make sure we destroy the records 
+    // make sure we destroy the records
     // we allocated in the addValue method
     destroyAll();
 }
@@ -59,9 +59,9 @@ ResultSet::clear()
    destroyAll();
 }
 
-OsStatus 
+OsStatus
 ResultSet::getIndex(
-    const int& index, 
+    const int& index,
     UtlHashMap& rRecord) const
 {
     // The record must be empty.  We can't clear the content because we don't own it.

@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 #ifndef SUBSCRIPTIONDB_H
@@ -117,12 +117,12 @@ public:
         ResultSet& rResultSet );
 
     /// Return a list of contact fields that are unexpired and contain a specified substring.
-    /// The caller is responsible for de-allocating the memory for the entries contained in the 
+    /// The caller is responsible for de-allocating the memory for the entries contained in the
     /// list.
     void getUnexpiredContactsFieldsContaining ( UtlString& substringToMatch
                                                ,const int& timeNow
                                                ,UtlSList& matchingContactFields ) const;
-    
+
     // Updates the XML version ('version') and NOTIFY cseq ('updatedNotifyCseq')
     // in the subscription DB.
     // Does not have event and event-id parameters, because all subscriptions
@@ -218,7 +218,7 @@ protected:
     //  To be called by public methods.
     void removeExpiredInternal( const UtlString& component,
                                 const int timeNow );
-    
+
     // There is only one singleton in this design
     static SubscriptionDB* spInstance;
 

@@ -27,13 +27,13 @@ int replication_socket_t::read(void* buf, size_t min_size, size_t max_size, time
     char* rcv = receiveBuf.base();
     int i, j, n = n_sockets;
 
-    for (i = 0; i < n_sockets; i++) { 
+    for (i = 0; i < n_sockets; i++) {
         matches[i] = -1;
-        if (sockets[i] != NULL) { 
+        if (sockets[i] != NULL) {
             size_t received = 0;
-            while (received < min_size) { 
+            while (received < min_size) {
                 int rc = sockets[i]->read(rcv + i*min_size + received, min_size - received, min_size - received, timeout);
-                if (rc <= 0) { 
+                if (rc <= 0) {
                     char msg[64];
                     sockets[i]->get_error_text(msg, sizeof(msg));
                     handleError(i, "read", msg);
@@ -43,11 +43,11 @@ int replication_socket_t::read(void* buf, size_t min_size, size_t max_size, time
                 }
                 received += rc;
             }
-            if (received == min_size) { 
+            if (received == min_size) {
                 matches[i] = 0;
-                for (j = 0; j < i; j++) { 
+                for (j = 0; j < i; j++) {
                     if (matches[j] == 0) {
-                        if (memcmp(rcv + j*min_size, rcv + i*min_size, min_size) == 0) { 
+                        if (memcmp(rcv + j*min_size, rcv + i*min_size, min_size) == 0) {
                             matches[j] = i;
                             break;
                         }
@@ -58,7 +58,7 @@ int replication_socket_t::read(void* buf, size_t min_size, size_t max_size, time
     }
     int maxVotes = 0;
     int correctResponse = -1;
-    for (i = 0; i < n; i++) { 
+    for (i = 0; i < n; i++) {
         if (matches[i] >= 0) {
             int nVotes = 0;
             j = i;
@@ -69,33 +69,33 @@ int replication_socket_t::read(void* buf, size_t min_size, size_t max_size, time
                 j = next;
             } while (j != 0);
 
-            if (nVotes > maxVotes) { 
+            if (nVotes > maxVotes) {
                 maxVotes = nVotes;
                 correctResponse = i;
-            } else if (nVotes == maxVotes) { 
+            } else if (nVotes == maxVotes) {
                 correctResponse = -1;
             }
         }
     }
-    if (correctResponse >= 0) { 
+    if (correctResponse >= 0) {
         succeed = true;
         memcpy(buf, rcv + correctResponse*min_size, min_size);
         return min_size;
-    } else { 
+    } else {
         handleError(-1, "read", "failed to choose correct response");
         succeed = false;
         return -1;
-    } 
+    }
 }
 
 bool replication_socket_t::write(void const* buf, size_t size, time_t timeout)
 {
     succeed = false;
-    for (int i = n_sockets; --i >= 0;) { 
-        if (sockets[i] != NULL) { 
-            if (sockets[i]->write(buf, size, timeout)) { 
+    for (int i = n_sockets; --i >= 0;) {
+        if (sockets[i] != NULL) {
+            if (sockets[i]->write(buf, size, timeout)) {
                 succeed = true;
-            } else { 
+            } else {
                 char msg[64];
                 sockets[i]->get_error_text(msg, sizeof(msg));
                 handleError(i, "write", msg);
@@ -120,11 +120,11 @@ void replication_socket_t::get_error_text(char* buf, size_t buf_size)
 bool replication_socket_t::shutdown()
 {
     succeed = false;
-    for (int i = n_sockets; --i >= 0;) { 
-        if (sockets[i] != NULL) { 
-            if (sockets[i]->shutdown()) { 
+    for (int i = n_sockets; --i >= 0;) {
+        if (sockets[i] != NULL) {
+            if (sockets[i]->shutdown()) {
                 succeed = true;
-            } else { 
+            } else {
                 char msg[64];
                 sockets[i]->get_error_text(msg, sizeof(msg));
                 handleError(i, "shutdown", msg);
@@ -134,16 +134,16 @@ bool replication_socket_t::shutdown()
         }
     }
     return succeed;
-}    
+}
 
 bool replication_socket_t::close()
 {
     succeed = false;
-    for (int i = n_sockets; --i >= 0;) { 
-        if (sockets[i] != NULL) { 
-            if (sockets[i]->close()) { 
+    for (int i = n_sockets; --i >= 0;) {
+        if (sockets[i] != NULL) {
+            if (sockets[i]->close()) {
                 succeed = true;
-            } else { 
+            } else {
                 char msg[64];
                 sockets[i]->get_error_text(msg, sizeof(msg));
                 handleError(i, "close", msg);
@@ -153,11 +153,11 @@ bool replication_socket_t::close()
         }
     }
     return succeed;
-}    
+}
 
 replication_socket_t*  replication_socket_t::connect(char const* addresses[],
-                                                     int n_addresses, 
-                                                     int max_attempts, 
+                                                     int n_addresses,
+                                                     int max_attempts,
                                                      time_t timeout)
 {
     return new replication_socket_t(addresses, n_addresses, max_attempts, timeout);
@@ -173,19 +173,19 @@ replication_socket_t::replication_socket_t(char const* addresses[], int n_addres
     n_sockets = n_addresses;
     assert(n_addresses < MaxSockets);
     sockets = new socket_t*[n_addresses];
-    for (int i = n_addresses; --i >= 0;) { 
+    for (int i = n_addresses; --i >= 0;) {
         socket_t* s = socket_t::connect(addresses[i], socket_t::sock_global_domain, max_attempts, timeout);
-        if (s != NULL) { 
+        if (s != NULL) {
             if (s->is_ok()) {
                 succeed = true;
-            } else { 
+            } else {
                 char msg[64];
                 s->get_error_text(msg, sizeof(msg));
                 handleError(i, "connect", msg);
                 delete s;
                 s = NULL;
             }
-        } else { 
+        } else {
             handleError(i, "connect", "failed to create socket");
         }
         sockets[i] = s;
@@ -209,8 +209,8 @@ char* replication_socket_t::get_peer_name()
 
 replication_socket_t::~replication_socket_t()
 {
-    if (sockets != NULL) { 
-        for (int i = n_sockets; --i >= 0;) { 
+    if (sockets != NULL) {
+        for (int i = n_sockets; --i >= 0;) {
             delete sockets[i];
         }
     }

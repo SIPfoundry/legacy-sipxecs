@@ -142,7 +142,7 @@ esac
 
 if [ "${Action}" != "GENCAT" ]
 then
-    rm -f "$SchemaFile" 
+    rm -f "$SchemaFile"
 fi
 
 if [ ${ExitStatus} -ne 0 ]

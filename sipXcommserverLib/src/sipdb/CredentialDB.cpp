@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -122,7 +122,7 @@ CredentialDB::load()
     OsLock lock( sLockMutex );
     OsStatus result = OS_SUCCESS;
 
-    if ( m_pFastDB != NULL ) 
+    if ( m_pFastDB != NULL )
     {
         // Clean out the existing DB rows before loading
         // a new set from persistent storage
@@ -207,19 +207,19 @@ CredentialDB::load()
                     insertRow ( nvPairs );
                 }
             }
-            // Update the tableInfo table and determine if the db has 
-            // changed as a result of the reload (setting the 
+            // Update the tableInfo table and determine if the db has
+            // changed as a result of the reload (setting the
             // changed tableInfo field
             SIPDBManager::getInstance()->
                 updateDatabaseInfo(
                     mDatabaseName, loadChecksum);
-        } else 
+        } else
         {
             OsSysLog::add(FAC_DB, PRI_WARNING, "CredentialDB::load TiXmlDocument::LoadFile() failed for file '%s'",
                     pathName.data());
             result = OS_FAILED;
         }
-    } else 
+    } else
     {
         OsSysLog::add(FAC_DB, PRI_ERR, "CredentialDB::load failed - no DB");
         result = OS_FAILED;
@@ -234,7 +234,7 @@ CredentialDB::store()
     OsLock lock( sLockMutex );
     OsStatus result = OS_SUCCESS;
 
-    if ( m_pFastDB != NULL ) 
+    if ( m_pFastDB != NULL )
     {
         UtlString fileName = OsPath::separator + mDatabaseName + ".xml";
         UtlString pathName = SipXecsService::Path(SipXecsService::DatabaseDirType,
@@ -305,14 +305,14 @@ CredentialDB::store()
                 // add the line to the element
                 itemsElement.InsertEndChild ( itemElement );
             } while ( cursor.next() );
-        } 
+        }
         // Attach the root node to the document
         document.InsertEndChild ( itemsElement );
         document.SaveFile ( pathName );
         // Commit rows to memory - multiprocess workaround
         m_pFastDB->detach(0);
         mTableLoaded = true;
-    } else 
+    } else
     {
         result = OS_FAILED;
     }
@@ -455,21 +455,21 @@ CredentialDB::removeRows ( const Url& uri )
 void
 CredentialDB::removeAllRows ()
 {
-    if ( m_pFastDB != NULL ) 
+    if ( m_pFastDB != NULL )
     {
         // Thread Local Storage
         m_pFastDB->attach();
-    
+
         dbCursor< CredentialRow > cursor(dbCursorForUpdate);
-    
+
         if (cursor.select() > 0)
         {
             cursor.removeAllSelected();
         }
-    
+
         // Commit rows to memory - multiprocess workaround
         m_pFastDB->detach(0);
-    
+
         // Table Data changed
         SIPDBManager::getInstance()->
             setDatabaseChangedFlag(mDatabaseName, TRUE);
@@ -482,7 +482,7 @@ CredentialDB::getAllRows( ResultSet& rResultSet ) const
     // Clear the out any previous records
     rResultSet.destroyAll();
 
-    if (m_pFastDB != NULL) 
+    if (m_pFastDB != NULL)
     {
         // must do this first to ensure process/tls integrity
         m_pFastDB->attach();
@@ -492,17 +492,17 @@ CredentialDB::getAllRows( ResultSet& rResultSet ) const
         {
             do {
                 UtlHashMap record;
-                UtlString* uriValue = 
+                UtlString* uriValue =
                     new UtlString ( cursor->uri );
-                UtlString* realmValue = 
+                UtlString* realmValue =
                     new UtlString ( cursor->realm );
-                UtlString* useridValue = 
+                UtlString* useridValue =
                     new UtlString ( cursor->userid );
-                UtlString* passtokenValue = 
+                UtlString* passtokenValue =
                    new UtlString ( cursor->passtoken );
-                UtlString* pintokenValue = 
+                UtlString* pintokenValue =
                    new UtlString ( cursor->pintoken );
-                UtlString* authtypeValue = 
+                UtlString* authtypeValue =
                     new UtlString ( cursor->authtype );
 
                 // Memory Leak fixes, make shallow copies of static keys
@@ -669,8 +669,8 @@ UtlBoolean CredentialDB::getUserPin (
    const UtlString& realm,
    UtlString& userid,
    UtlString& pintoken,
-   UtlString& authType 
-                                     ) const 
+   UtlString& authType
+                                     ) const
 {
    UtlBoolean found = FALSE;
 
@@ -712,7 +712,7 @@ UtlBoolean CredentialDB::getUserPin (
    const UtlString& realm,
    Url& uri,
    UtlString& pintoken,
-   UtlString& authType 
+   UtlString& authType
                        ) const
 {
    UtlBoolean found = FALSE;
@@ -769,17 +769,17 @@ CredentialDB::getAllCredentials (
         {
             do {
                 UtlHashMap record;
-                UtlString* uriValue = 
+                UtlString* uriValue =
                     new UtlString ( cursor->uri );
-                UtlString* realmValue = 
+                UtlString* realmValue =
                     new UtlString ( cursor->realm );
-                UtlString* useridValue = 
+                UtlString* useridValue =
                     new UtlString ( cursor->userid );
-                UtlString* passtokenValue = 
+                UtlString* passtokenValue =
                    new UtlString ( cursor->passtoken );
-                UtlString* pintokenValue = 
+                UtlString* pintokenValue =
                    new UtlString ( cursor->pintoken );
-                UtlString* authtypeValue = 
+                UtlString* authtypeValue =
                     new UtlString ( cursor->authtype );
 
                 // Memory Leak fixes, make shallow copies of static keys
@@ -868,4 +868,3 @@ CredentialDB::getInstance( const UtlString& name )
     }
     return spInstance;
 }
-

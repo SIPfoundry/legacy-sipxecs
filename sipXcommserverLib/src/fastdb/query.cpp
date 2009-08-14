@@ -21,7 +21,7 @@ dbQueryElementAllocator dbQueryElementAllocator::instance;
 
 char* dbQueryElement::dump(char* buf)
 {
-    switch (type) { 
+    switch (type) {
       case qExpression:
         buf += sprintf(buf, " %s ", (const char*)ptr);
         break;
@@ -53,9 +53,9 @@ char* dbQueryElement::dump(char* buf)
         buf += sprintf(buf, "{char**}");
         break;
       case qVarReference:
-        if (ref != NULL) { 
+        if (ref != NULL) {
             buf += sprintf(buf, "{dbReference<%s>}", ref->getName());
-        } else { 
+        } else {
             buf += sprintf(buf, "{dbAnyReference}");
         }
       case qVarArrayOfInt4:
@@ -71,16 +71,16 @@ char* dbQueryElement::dump(char* buf)
         buf += sprintf(buf, "{dbArray<int8>*}");
         break;
       case qVarArrayOfRef:
-        if (ref != NULL) { 
+        if (ref != NULL) {
             buf += sprintf(buf, "{dbArray< dbReference<%s> >}", ref->getName());
-        } else { 
+        } else {
             buf += sprintf(buf, "{dbArray<dbAnyReference>}");
         }
         break;
       case qVarArrayOfRefPtr:
-        if (ref != NULL) { 
+        if (ref != NULL) {
             buf += sprintf(buf, "{dbArray< dbReference<%s> >*}", ref->getName());
-        } else { 
+        } else {
             buf += sprintf(buf, "{dbArray<dbAnyReference>*}");
         }
         break;
@@ -94,17 +94,17 @@ char* dbQueryElement::dump(char* buf)
       case qVarStdString:
         buf += sprintf(buf, "{string}");
         break;
-#endif  
+#endif
       default:
         break;
     }
     return buf;
 }
-        
+
 
 char* dbQueryElement::dumpValues(char* buf)
 {
-    switch (type) { 
+    switch (type) {
       case qExpression:
         buf += sprintf(buf, " %s ", (char*)ptr);
         break;
@@ -136,9 +136,9 @@ char* dbQueryElement::dumpValues(char* buf)
         buf += sprintf(buf, "'%s'", *(char**)ptr);
         break;
       case qVarReference:
-        if (ref != NULL) { 
+        if (ref != NULL) {
             buf += sprintf(buf, "@%s:%lx", ref->getName(), (unsigned long)*(oid_t*)ptr);
-        } else { 
+        } else {
             buf += sprintf(buf, "@%lx", (unsigned long)*(oid_t*)ptr);
         }
         break;
@@ -155,16 +155,16 @@ char* dbQueryElement::dumpValues(char* buf)
         buf += sprintf(buf, "{dbArray<int8>*}");
         break;
       case qVarArrayOfRef:
-        if (ref != NULL) { 
+        if (ref != NULL) {
             buf += sprintf(buf, "{dbArray< dbReference<%s> >}", ref->getName());
-        } else { 
+        } else {
             buf += sprintf(buf, "{dbArray<dbAnyReference>}");
         }
         break;
       case qVarArrayOfRefPtr:
-        if (ref != NULL) { 
+        if (ref != NULL) {
             buf += sprintf(buf, "{dbArray< dbReference<%s> >*}", ref->getName());
-        } else { 
+        } else {
             buf += sprintf(buf, "{dbArray<dbAnyReference>*}");
         }
         break;
@@ -175,7 +175,7 @@ char* dbQueryElement::dumpValues(char* buf)
         {
             int i, sep = '(';
             rectangle& r = *(rectangle*)ptr;
-            for (i = 0; i < rectangle::dim*2; i++) { 
+            for (i = 0; i < rectangle::dim*2; i++) {
                 buf += sprintf(buf, "%c%f", sep, (double)r.boundary[i]);
                 sep = ',';
             }
@@ -187,20 +187,20 @@ char* dbQueryElement::dumpValues(char* buf)
       case qVarStdString:
         buf += sprintf(buf, "'%s'", ((std::string*)ptr)->c_str());
         break;
-#endif  
+#endif
       default:
         break;
     }
     return buf;
 }
-        
-dbQueryElementAllocator::dbQueryElementAllocator() 
-: freeChain(NULL) 
+
+dbQueryElementAllocator::dbQueryElementAllocator()
+: freeChain(NULL)
 {
 }
 
-void* dbQueryElementAllocator::allocate(size_t size) 
-{ 
+void* dbQueryElementAllocator::allocate(size_t size)
+{
     dbCriticalSection cs(mutex);
     dbQueryElement* elem = freeChain;
     if (elem != NULL) {
@@ -222,21 +222,21 @@ void  dbQueryElement::operator delete(void* p EXTRA_DEBUG_NEW_PARAMS)
 }
 
 
-dbQueryElementAllocator::~dbQueryElementAllocator() 
+dbQueryElementAllocator::~dbQueryElementAllocator()
 {
     dbQueryElement *elem, *next;
-    for (elem = freeChain; elem != NULL; elem = next) { 
+    for (elem = freeChain; elem != NULL; elem = next) {
         next = elem->next;
         delete elem;
-    }    
-} 
+    }
+}
 
-dbQueryExpression& dbQueryExpression::operator = (dbComponent const& comp) 
-{ 
-    first = NULL; 
+dbQueryExpression& dbQueryExpression::operator = (dbComponent const& comp)
+{
+    first = NULL;
     last = &first;
     add(dbQueryElement::qExpression, comp.structure);
-    if (comp.field != NULL) { 
+    if (comp.field != NULL) {
         add(dbQueryElement::qExpression, ".");
         add(dbQueryElement::qExpression, comp.field);
     }
@@ -245,7 +245,7 @@ dbQueryExpression& dbQueryExpression::operator = (dbComponent const& comp)
 }
 
 dbQueryExpression& dbQueryExpression::operator=(dbQueryExpression const& expr)
-{ 
+{
     first = new dbQueryElement(dbQueryElement::qExpression, "(");
     first->next = expr.first;
     last = expr.last;
@@ -254,9 +254,9 @@ dbQueryExpression& dbQueryExpression::operator=(dbQueryExpression const& expr)
     operand = false;
     return *this;
 }
- 
-dbQuery& dbQuery::add(dbQueryExpression const& expr) 
-{ 
+
+dbQuery& dbQuery::add(dbQueryExpression const& expr)
+{
     append(dbQueryElement::qExpression, "(");
     *nextElement = expr.first;
     nextElement = expr.last;
@@ -267,8 +267,8 @@ dbQuery& dbQuery::add(dbQueryExpression const& expr)
 
 
 
-dbQuery& dbQuery::reset() 
-{ 
+dbQuery& dbQuery::reset()
+{
     dbQueryElementAllocator::instance.deallocate(elements, nextElement);
     elements = NULL;
     nextElement = &elements;
@@ -283,7 +283,7 @@ void dbCompiledQuery::destroy()
     if (tree != NULL) {
         dbMutex& mutex = dbExprNodeAllocator::instance.getMutex();
         dbCriticalSection cs(mutex);
-        if (mutex.isInitialized()) { 
+        if (mutex.isInitialized()) {
             delete tree;
             for (dbOrderByNode *op = order, *nop; op != NULL; op = nop) {
                 nop = op->next;
@@ -305,7 +305,7 @@ void dbCompiledQuery::destroy()
 
 int dbUserFunction::getParameterType()
 {
-    static byte argType[] = {  
+    static byte argType[] = {
         tpInteger,
         tpReal,
         tpString,
@@ -336,7 +336,7 @@ int dbUserFunction::getParameterType()
 
 int dbUserFunction::getNumberOfParameters()
 {
-    static byte nArgs[] = {  
+    static byte nArgs[] = {
         1,
         1,
         1,
@@ -368,8 +368,8 @@ int dbUserFunction::getNumberOfParameters()
 dbUserFunction* dbUserFunction::list;
 
 
-void dbUserFunction::bind(char* name, void* f, funcType ftype) 
-{ 
+void dbUserFunction::bind(char* name, void* f, funcType ftype)
+{
     fname = name;
     dbSymbolTable::add(fname, tkn_ident, FASTDB_CLONE_ANY_IDENTIFIER);
     next = list;
@@ -385,9 +385,9 @@ dbUserFunction::~dbUserFunction()
     *fpp = next;
 }
 
-dbUserFunctionArgument::dbUserFunctionArgument(dbExprNode*             expr, 
-                                               dbInheritedAttribute&   iattr, 
-                                               dbSynthesizedAttribute& sattr, 
+dbUserFunctionArgument::dbUserFunctionArgument(dbExprNode*             expr,
+                                               dbInheritedAttribute&   iattr,
+                                               dbSynthesizedAttribute& sattr,
                                                int                     i)
 {
     dbDatabase::execute(expr->func.arg[i], iattr, sattr);

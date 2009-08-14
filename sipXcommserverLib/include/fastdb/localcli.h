@@ -19,12 +19,12 @@
 
 BEGIN_FASTDB_NAMESPACE
 
-inline int map_type(dbFieldDescriptor* fd) { 
-    return (fd->type < dbField::tpArray) 
-        ? ((fd->indexType & DB_TIMESTAMP) ? cli_datetime 
-           : ((fd->indexType & AUTOINCREMENT) ? cli_autoincrement : fd2cli_type_mapping[fd->type])) 
+inline int map_type(dbFieldDescriptor* fd) {
+    return (fd->type < dbField::tpArray)
+        ? ((fd->indexType & DB_TIMESTAMP) ? cli_datetime
+           : ((fd->indexType & AUTOINCREMENT) ? cli_autoincrement : fd2cli_type_mapping[fd->type]))
         : ((fd->type == dbField::tpArray && fd->components->type < dbField::tpArray)
-           ? cli_array_of_oid + fd2cli_type_mapping[fd->components->type] 
+           ? cli_array_of_oid + fd2cli_type_mapping[fd->components->type]
            : ((fd->type == dbField::tpRectangle) ? cli_rectangle : cli_unknown));
 }
 
@@ -76,16 +76,16 @@ struct statement_desc {
     void*              record_struct;
     dbSmallBuffer      sql;
 
-    void reset() 
-    { 
+    void reset()
+    {
         query.reset();
     }
 
-    statement_desc(int id, statement_desc* next) 
+    statement_desc(int id, statement_desc* next)
     {
         this->id = id;
         this->next = next;
-    } 
+    }
     statement_desc() {}
 };
 
@@ -98,11 +98,11 @@ class sql_scanner {
   public:
     int     get();
 
-    char* current_position() { 
+    char* current_position() {
         return p;
     }
 
-    char* identifier() { 
+    char* identifier() {
         return ident;
     }
 
@@ -120,7 +120,7 @@ struct session_desc {
     dbMutex          mutex;
     dbTableDescriptor* dropped_tables;
     dbTableDescriptor* existed_tables;
-    
+
     void reset() {}
 
     session_desc(int id, session_desc* next) {
@@ -131,7 +131,7 @@ struct session_desc {
 };
 
 template<class T>
-class fixed_size_object_allocator { 
+class fixed_size_object_allocator {
   protected:
     T*          free_chain;
     dbMutex     mutex;
@@ -142,7 +142,7 @@ class fixed_size_object_allocator {
         T* obj = free_chain;
         if (obj == NULL) {
             obj = new T();
-        } else { 
+        } else {
             free_chain = obj->next;
         }
         return obj;
@@ -159,9 +159,9 @@ class fixed_size_object_allocator {
         free_chain = NULL;
     }
 
-    ~fixed_size_object_allocator() { 
+    ~fixed_size_object_allocator() {
         T *obj, *next;
-        for (obj = free_chain; obj != NULL; obj = next) { 
+        for (obj = free_chain; obj != NULL; obj = next) {
             next = obj->next;
             delete obj;
         }
@@ -186,7 +186,7 @@ class descriptor_table : public fixed_size_object_allocator<T> {
         this->free_chain = next;
     }
 
-    ~descriptor_table() { 
+    ~descriptor_table() {
         delete[] table;
     }
 
@@ -216,50 +216,50 @@ class descriptor_table : public fixed_size_object_allocator<T> {
     }
 };
 
-class FASTDB_DLL_ENTRY dbCLI { 
+class FASTDB_DLL_ENTRY dbCLI {
   private:
     fixed_size_object_allocator<column_binding> column_allocator;
     fixed_size_object_allocator<parameter_binding> parameter_allocator;
-    
+
     descriptor_table<session_desc>   sessions;
     descriptor_table<statement_desc> statements;
 
     session_desc* active_session_list;
-    
-    dbMutex sessionMutex;    
-    
+
+    dbMutex sessionMutex;
+
     static int calculate_varying_length(char const* tableName, int& nFields, cli_field_descriptor* columns);
-    static dbTableDescriptor* create_table_descriptor(dbDatabase*           db, 
-                                                      oid_t                 oid, 
-                                                      dbTable*              table, 
-                                                      char const*           tableName, 
-                                                      int                   nFields, 
-                                                      int                   nColumns, 
+    static dbTableDescriptor* create_table_descriptor(dbDatabase*           db,
+                                                      oid_t                 oid,
+                                                      dbTable*              table,
+                                                      char const*           tableName,
+                                                      int                   nFields,
+                                                      int                   nColumns,
                                                       cli_field_descriptor* columns);
-    
+
   public:
     static dbCLI instance;
 
-    dbCLI() { 
-        active_session_list = NULL; 
+    dbCLI() {
+        active_session_list = NULL;
     }
 
     int create_session(char const* databasePath,
                        char const* filePath,
-                       unsigned    transactionCommitDelay, 
-                       int         openAttr, 
+                       unsigned    transactionCommitDelay,
+                       int         openAttr,
                        size_t      initDatabaseSize,
                        size_t      extensionQuantum,
                        size_t      initIndexSize,
-                       size_t      fileSizeLimit);   
+                       size_t      fileSizeLimit);
 
 
     int create_replication_node(int         nodeId,
                                 int         nServers,
                                 char*       nodeNames[],
-                                char const* databaseName, 
-                                char const* filePath, 
-                                int         openAttr, 
+                                char const* databaseName,
+                                char const* filePath,
+                                int         openAttr,
                                 size_t      initDatabaseSize,
                                 size_t      extensionQuantum,
                                 size_t      initIndexSize,
@@ -285,7 +285,7 @@ class FASTDB_DLL_ENTRY dbCLI {
                           cli_column_set_ex set,
                           cli_column_get_ex get,
                           void*             user_data);
-        
+
     int fetch(int statement, int for_update);
 
     int fetch_columns(statement_desc* stmt);
@@ -310,7 +310,7 @@ class FASTDB_DLL_ENTRY dbCLI {
     int free_statement(int statement);
     int free_statement(statement_desc* stmt);
     int release_statement(statement_desc* stmt);
-    
+
     int commit(int session);
     int precommit(int session);
     int abort(int session);
@@ -324,9 +324,9 @@ class FASTDB_DLL_ENTRY dbCLI {
 
     int match_columns(char const* table_name, statement_desc* stmt);
 
-    int create_table(int session, char const* tableName, int nColumns, 
+    int create_table(int session, char const* tableName, int nColumns,
                      cli_field_descriptor* columns);
-    int alter_table(int session, char const* tableName, int nColumns, 
+    int alter_table(int session, char const* tableName, int nColumns,
                     cli_field_descriptor* columns);
 
     int drop_table(int session, char const* tableName);
@@ -349,10 +349,10 @@ class FASTDB_DLL_ENTRY dbCLI {
 
     int join_transaction(int session, cli_transaction_context_t ctx);
 
-    static int create_table(dbDatabase* db, char const* tableName, int nColumns, 
+    static int create_table(dbDatabase* db, char const* tableName, int nColumns,
                             cli_field_descriptor* columns);
 
-    static int alter_table(dbDatabase* db, char const* tableName, int nColumns, 
+    static int alter_table(dbDatabase* db, char const* tableName, int nColumns,
                             cli_field_descriptor* columns);
 
     static int alter_index(dbDatabase* db, char const* tableName, char const* fieldName, int newFlags);

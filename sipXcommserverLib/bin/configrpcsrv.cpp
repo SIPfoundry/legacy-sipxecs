@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -69,9 +69,9 @@ void showHelp(char* argv[])
 void parseArgs(int argc, char* argv[])
 {
    int optResult = 0;
-   
+
    const char* short_options = "d:p:vqmh";
-   
+
    const struct option long_options[] =
       {
          {"verbose", no_argument, NULL, 'v'},
@@ -107,7 +107,7 @@ void parseArgs(int argc, char* argv[])
       case 'q':
          Feedback = Quiet;
          break;
-         
+
       case 'd':
          Duration = strtoul(optarg, &optend, 10);
          Duration *= 1000;
@@ -115,8 +115,8 @@ void parseArgs(int argc, char* argv[])
          {
             fprintf( stderr, "Invalid duration %s\n", optarg );
             exit(1);
-         }         
-         break;         
+         }
+         break;
 
       case 'h':
       case '?':
@@ -157,31 +157,31 @@ int main(int argc, char *argv[])
 {
     OsConfigDb configDb;
     UtlString configDbFile = TEST_FILENAME;
-    
+
     parseArgs(argc, argv);
-    
+
     if (MemCheckDelay)
     {
         // Delay 45 seconds to allow memcheck start
         printf("Wating %d seconds for start of memcheck ...", MemCheckDelay);
         OsTask::delay(MemCheckDelay * 1000);
         printf("starting\n");
-    }    
-    
+    }
+
     initLogger(argv);
 
     // Reset database content an rewrite the file
     configDb.set("TestItem1", "Value1");
     configDb.set("TestItem2", "Value2");
     configDb.set("TestItem3", "Value3");
-    configDb.set("TestItem3", "Value4");        
+    configDb.set("TestItem3", "Value4");
 
     configDb.storeToFile(configDbFile);
-    
+
     ConfigRPC_Callback* confCallbacks;
     ConfigRPC*          configRPC;
     XmlRpcDispatch*     rpc;
- 
+
     // start a simple XmlRpc test server
     rpc = new XmlRpcDispatch(HTTP_PORT, false);
 
@@ -192,10 +192,10 @@ int main(int argc, char *argv[])
                                    confCallbacks);
     // enter the connector RPC methods in the XmlRpcDispatch table
     ConfigRPC::registerMethods(*rpc);
-    
+
     printf("Server will be up for %d seconds on port %d\n", Duration/1000, HttpPort);
     OsTask::delay(Duration);
-    
+
     if (MemCheckDelay)
     {
         // Delay 45 seconds to allow memcheck start
@@ -203,6 +203,6 @@ int main(int argc, char *argv[])
         OsTask::delay(MemCheckDelay * 1000);
         printf("starting\n");
     }
- 
+
     exit(0);
 }

@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
@@ -36,12 +36,12 @@ public:
       {
          setenv(SipXecsService::ConfigurationDirType, TEST_DATA_DIR "/sharedsecret", true );
       }
-            
+
    void tearDown()
       {
          unsetenv(SipXecsService::ConfigurationDirType);
       }
-   
+
    void testReadConfig()
       {
          // read the domain configuration
@@ -58,13 +58,13 @@ public:
 
          // generate a hash that signs the (existing) value
          NetMd5Codec signature;
- 
+
          signature.hash(signingSecret);
          signature.hash(value);
- 
+
          UtlString signedValue(value);
          signature.appendHashValue(signedValue);
-         
+
          ASSERT_STR_EQUAL("value52deaa6aa21db3721bc97eb11e243bab",
                           signedValue.data());
 

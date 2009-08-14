@@ -1,6 +1,6 @@
 #!@BASH@
 #
-# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 # Contributors retain copyright to elements licensed under a Contributor Agreement.
 # Licensed to the User under the LGPL license.
 
@@ -63,7 +63,7 @@ postgresSetup() {
   # May not by running, so test first
   # FreeBSD prints: "neither postmaster nor postgres running"
   if ! ${ServiceDir}/${Service} status | egrep "stopped|unused|neither" > /dev/null
-  then 
+  then
       ${ServiceDir}/${Service} stop 2>&1 1> /dev/null
   fi
 
@@ -90,8 +90,8 @@ postgresSetup() {
       fi
   fi
 
-  # There are situations where the postgres db is not initialized 
-  # on startup either because distro does not initialize it by default or 
+  # There are situations where the postgres db is not initialized
+  # on startup either because distro does not initialize it by default or
   # pgsql data directory had to be deleted because it was bad.
   if [ ! -f $PGDATA/PG_VERSION ] || [ ! -d $PGDATA/base ]
   then
@@ -102,10 +102,10 @@ postgresSetup() {
               # Fedora 8 uses "service postgresql initdb"
               ${ServiceDir}/$Service initdb &>/dev/null
 	  else
-              # Most distributions use a separate command "initdb" 
-              # to initialize the db which can also be called by 
-	      # starting and stopping server. Although you could call 
-	      # initdb directly there is various other housekeeping that 
+              # Most distributions use a separate command "initdb"
+              # to initialize the db which can also be called by
+	      # starting and stopping server. Although you could call
+	      # initdb directly there is various other housekeeping that
 	      # the service script handles so leverage it here.
               ${ServiceDir}/$Service start &>/dev/null
               ${ServiceDir}/$Service stop &>/dev/null
@@ -190,7 +190,7 @@ do
         -h|--help|*)
             Action=HELP
             ;;
-    esac           
+    esac
 
     shift # always consume 1
 done
@@ -204,9 +204,9 @@ elif [ ${Action} = HELP ]
 then
 cat <<USAGE
 Usage: pgpatch.sh [-h|--help]
-                     
-Patches PostgresSQL configuration file to initialize postgresql for communicating 
-with sipxconfig and sipxproxy and create initial database. Will most likely need 
+
+Patches PostgresSQL configuration file to initialize postgresql for communicating
+with sipxconfig and sipxproxy and create initial database. Will most likely need
 root permissions.
 
 Notable environment variables:

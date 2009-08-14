@@ -12,7 +12,7 @@
 
   sipX relies on SSL to secure communications between some of its
   distributed components, and to protect parts of its web interfaces, so
-  your installation requires an SSL key and certificate.  
+  your installation requires an SSL key and certificate.
 
   Creating these files need only be done once, regardless of how many sipX
   components you are using.  (The installation instructions for each of the
@@ -23,10 +23,10 @@
   There are two ways to create your certificate file; either requires that
   you create a local key for your server and a Certificate Signing Request
   (CSR).  The instructions below will help with these steps.  The two
-  sources for a certificate are: 
+  sources for a certificate are:
 
     - Obtaining a certificate from a Certificate Authority
-      or 
+      or
     - "Self-Certifying" (acting as your own Certificate Authority).
 
   Your company may have a source for certificates.  (If you have a secured
@@ -43,7 +43,7 @@
   temporary measure and switch to using a certificate from a Certificate
   Authority later.  To change the certificate, you must install new
   certificate and key files into sipX in the same way you installed the
-  first set (which is described in some detail below). 
+  first set (which is described in some detail below).
 
 ________________________________________________________________
 
@@ -58,11 +58,11 @@ Obtaining a certificate from a Certificate Authority
   Your Certificate Authority may have its own instructions for how to
   generate a Certificate Request.  A sipX system can use a web
   server certificate, so follow the instructions from your CA on how to
-  request a certificate to secure an Apache web server. 
+  request a certificate to secure an Apache web server.
 
   If your Certificate Authority has not given you instructions on how to
   generate a request, you can create a Certificate Signing Request and key
-  by running the gen-ssl-keys.sh script.  (The details are listed below.)  
+  by running the gen-ssl-keys.sh script.  (The details are listed below.)
 
 ________________________________________________________________
 
@@ -121,7 +121,7 @@ Running gen-ssl-keys.sh
 
     It prompts you for the following information about your organization:
 
-      Country Name (2 letter code) [] : 
+      Country Name (2 letter code) [] :
       State or Province Name (full name) [] :
       Locality Name (eg, city) [] :
       Organization Name (eg, company) [] :
@@ -146,7 +146,7 @@ Running gen-ssl-keys.sh
         the domain part of the addresses for your server.
 
       Email Contact Address for CA (name@example.org) [] :
-        
+
         If you are making a request to a Certificate Authority, provide
         their e-mail contact address.  If you are self-certifying,
         provide the e-mail contact address for someone responsible for
@@ -173,12 +173,12 @@ Key and Certificate Installation
         file to your CA for signing.  The CA will give you a certificate
         file; copy it to the directory with the hostname.key file;
         name it 'hostname.crt', and then as root run:
- 
+
         @bindir@/ssl-cert/install-cert.sh <server-key-file>
 
-  If the installation fails, it may be because you need to install a 
+  If the installation fails, it may be because you need to install a
   root certificate from the CA.  If the install script detects that
-  this is the problem, it will print the file name you need to copy 
+  this is the problem, it will print the file name you need to copy
   the root certificate to and rerun the install-cert.sh.
   ____________________________________________________________________
 
@@ -199,4 +199,3 @@ Key and Certificate Installation
         run the following command as root in this directory.
 
         @bindir@/ssl-cert/install-cert.sh
-

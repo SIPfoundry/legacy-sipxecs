@@ -1,6 +1,6 @@
-// 
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -66,9 +66,9 @@ const RegEx ComponentSymbols(
  * The SymbolMap class encapsulates the replacement of all the magic tokens
  * that may be used in transform value content.
  */
-class SymbolMap 
+class SymbolMap
 {
-private:   
+private:
    UtlString mReplacementMediaserver;
    UtlString mReplacementVoicemail;
    UtlString mReplacementLocalhost;
@@ -196,13 +196,13 @@ public:
       }
 
    void replace(UtlString&       value,
-                const UtlString& vdigits                
+                const UtlString& vdigits
                 )
       {
 #        ifdef REPLACE_TEST
          OsSysLog::add(FAC_SIP, PRI_DEBUG, "UrlMapping SymbolMap::replace('%s', '%s')",
                        value.data(), vdigits.data());
-#        endif // REPLACE_TEST         
+#        endif // REPLACE_TEST
 
          if (value.contains(XML_SYMBOL_MEDIASERVER))
          {
@@ -213,7 +213,7 @@ public:
             replaceEach(value, XML_SYMBOL_VOICEMAIL,   mReplacementVoicemail);
          }
          if (value.contains(XML_SYMBOL_LOCALHOST))
-         {         
+         {
             replaceEach(value, XML_SYMBOL_LOCALHOST,   mReplacementLocalhost);
          }
          if (value.contains(XML_SYMBOL_URI))
@@ -303,7 +303,7 @@ UrlMapping::~UrlMapping()
    {
       delete mDoc ;
    }
- 
+
    if (mPatterns != NULL)
    {
       delete mPatterns ;
@@ -343,7 +343,7 @@ UrlMapping::loadMappings(const UtlString& configFileName,
        {
           mVoicemail.append(voicemail);
        }
-       
+
        if(!localhost.isNull())
        {
           mLocalhost.append(localhost);
@@ -455,9 +455,9 @@ UrlMapping::getUserMatchContainerMatchingRequestURI(const Url&  requestUri,
 
                          // Get the "format" attribute to determine what
                          // type of pattern is to be searched
-                         const char * xFormat = 
+                         const char * xFormat =
                             pHostPatternElement->Attribute(XML_ATT_FORMAT);
-                         
+
                          UtlString fmt;
                          if (xFormat)
                          {
@@ -465,13 +465,13 @@ UrlMapping::getUserMatchContainerMatchingRequestURI(const Url&  requestUri,
                          }
                          else
                          {
-                            // Attribute "format" is missing, 
+                            // Attribute "format" is missing,
                             // so default to 'url'
                             fmt.append(XML_SYMBOL_URL);
                          }
-                         
+
                          // format='url' matches host and port of a URL
-                         if (fmt.compareTo(XML_SYMBOL_URL, 
+                         if (fmt.compareTo(XML_SYMBOL_URL,
                                            UtlString::ignoreCase) == 0)
                          {
                             Url xmlUrl(pattern.data());
@@ -479,7 +479,7 @@ UrlMapping::getUserMatchContainerMatchingRequestURI(const Url&  requestUri,
                             xmlUrl.getHostAddress(xmlHost);
                             int xmlPort = xmlUrl.getHostPort();
 
-                            if( xmlHost.compareTo(testHost, UtlString::ignoreCase) == 0 
+                            if( xmlHost.compareTo(testHost, UtlString::ignoreCase) == 0
                                 && (xmlPort == SIP_PORT || xmlPort == testPort) )
                             {
                                hostMatchFound = OS_SUCCESS;
@@ -487,7 +487,7 @@ UrlMapping::getUserMatchContainerMatchingRequestURI(const Url&  requestUri,
                          }
                          // format='IPv4subnet' matches IP address if it is
                          // within the subnet specified in CIDR format
-                         else if (fmt.compareTo(XML_SYMBOL_IPV4SUBNET, 
+                         else if (fmt.compareTo(XML_SYMBOL_IPV4SUBNET,
                                                 UtlString::ignoreCase) == 0)
                          {
                             if( mPatterns->IPv4subnet(testHost, pattern) == true )
@@ -497,7 +497,7 @@ UrlMapping::getUserMatchContainerMatchingRequestURI(const Url&  requestUri,
                          }
                          // format='DnsWildcard' matches FQDN
                          // if it ends with the correct domain
-                         else if (fmt.compareTo(XML_SYMBOL_DNSWILDCARD, 
+                         else if (fmt.compareTo(XML_SYMBOL_DNSWILDCARD,
                                                 UtlString::ignoreCase) == 0)
                          {
                             if( mPatterns->DnsWildcard(testHost, pattern) == true )
@@ -517,7 +517,7 @@ UrlMapping::getUserMatchContainerMatchingRequestURI(const Url&  requestUri,
                       }
                    }
                 }
-             } 
+             }
           }
        }
     }
@@ -588,7 +588,7 @@ OsStatus
 UrlMapping::doTransform(const Url& requestUri,
                         const UtlString& vdigits,
                         ResultSet& rContacts,
-                        const TiXmlNode* permMatchNode) const 
+                        const TiXmlNode* permMatchNode) const
 {
 #  ifdef REPLACE_TEST
    {
@@ -601,7 +601,7 @@ UrlMapping::doTransform(const Url& requestUri,
                     requestUri.toString().data(),
                     vdigits.data(),
                     out.data());
-   }                 
+   }
 #  endif // REPLACE_TEST
 
    OsStatus returnStatus = OS_FAILED;  // will remain so unless at least one transform is valid
@@ -620,7 +620,7 @@ UrlMapping::doTransform(const Url& requestUri,
       if(transformNode->Type() == TiXmlNode::ELEMENT)
       {
          Url transformedUrl(requestUri); // copy to modify
-       
+
          /*
           * The transformState governs what sub-elements of a transform are valid;
           * order is significant.
@@ -640,7 +640,7 @@ UrlMapping::doTransform(const Url& requestUri,
 
             TransformError      // error state - invalid element seen
          } transformState = NoTransformsApplied;
-    
+
          const TiXmlNode*    transformSubNode = NULL;
          while (   (transformState < TransformError)
                 && (transformSubNode = transformNode->IterateChildren(transformSubNode))
@@ -726,7 +726,7 @@ UrlMapping::doTransform(const Url& requestUri,
                         transformedUrl.setHostAddress(justHost);
                         transformedUrl.setHostPort(parsedHostPort.getHostPort());
 
-                        // We have changed the domain; any transport restriction in the 
+                        // We have changed the domain; any transport restriction in the
                         // original uri may now not match the capabilities of the new domain,
                         // so remove it.  The urlParams attribute can put in a new one if needed.
                         transformedUrl.removeUrlParameter(SIP_PARAMETER_TRANSPORT);
@@ -823,7 +823,7 @@ UrlMapping::doTransform(const Url& requestUri,
                // non-element transformSubNode - ignore it
             }
          } // end of loop over transform sub-elements
-       
+
          if (TransformError != transformState)
          {
             UtlHashMap contactRow;
@@ -869,7 +869,7 @@ UrlMapping::doTransform(const Url& requestUri,
                        );
       }
    } // end of loop over transform elements
-    
+
    return returnStatus;
 }
 
@@ -1022,7 +1022,7 @@ void UrlMapping::getVDigits(
 bool UrlMapping::getNamedAttribute(const TiXmlElement* component,
                                    UtlString&    name,
                                    UtlString&    value
-                                   ) const 
+                                   ) const
 {
    bool foundNameValue = false;
 

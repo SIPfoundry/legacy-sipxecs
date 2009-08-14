@@ -138,4 +138,3 @@ sub link_hash_crl {
 		}
 		$hashlist{$hash} = $fprint;
 }
-

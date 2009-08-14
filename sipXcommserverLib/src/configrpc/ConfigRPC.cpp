@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -23,8 +23,8 @@
 const char* MethodName[ConfigRPC_Callback::NumMethods] =
 {
    "configurationParameter.version",
-   "configurationParameter.get",    
-   "configurationParameter.set",    
+   "configurationParameter.get",
+   "configurationParameter.set",
    "configurationParameter.delete"
 };
 
@@ -52,7 +52,7 @@ ConfigRPC::ConfigRPC( const char*         dbName     ///< dbName known to XMLRPC
    assert(versionId && *versionId != '\000');
    assert(!dbPath.isNull());
    assert(callback);
-   
+
    OsWriteLock lock(*spDatabaseLock);
 
    if ( ! sDatabases.find(this) )
@@ -107,8 +107,8 @@ ConfigRPC::~ConfigRPC()
 ConfigRPC_Callback::ConfigRPC_Callback()
 {
 }
-   
-// Access check function 
+
+// Access check function
 XmlRpcMethod::ExecutionStatus ConfigRPC_Callback::accessAllowed(
    const HttpRequestContext& requestContext,
    Method                    method
@@ -124,10 +124,10 @@ XmlRpcMethod::ExecutionStatus ConfigRPC_Callback::accessAllowed(
 /// Invoked after the database has been modified
 void ConfigRPC_Callback::modified()
 {
-   // in the abstract base class this is a no-op 
+   // in the abstract base class this is a no-op
    OsSysLog::add(FAC_KERNEL, PRI_INFO, "ConfigRPC default modified");
 }
-   
+
 
 ConfigRPC_Callback::~ConfigRPC_Callback()
 {
@@ -141,7 +141,7 @@ ConfigRPC_InDomainCallback::ConfigRPC_InDomainCallback(const UtlString& domain /
 }
 
 
-/// Access check function 
+/// Access check function
 XmlRpcMethod::ExecutionStatus ConfigRPC_InDomainCallback::accessAllowed(
    const HttpRequestContext&  requestContext,
    ConfigRPC_Callback::Method method
@@ -176,7 +176,7 @@ XmlRpcMethod::ExecutionStatus ConfigRPC_InDomainCallback::accessAllowed(
  *
  *  This method should be called by a configuration application to
  *  confirm that it is using a compatible definition of the database
- *  definition.  If the returned version_id does not match what the 
+ *  definition.  If the returned version_id does not match what the
  *  configuration application expects, it should not modify the configuration..
  */
 class ConfigRPC_version : public XmlRpcMethod
@@ -217,7 +217,7 @@ protected:
             }
             else
             {
-               UtlString faultMsg;               
+               UtlString faultMsg;
                faultMsg.append("db lookup failed for '");
                faultMsg.append(*dbName);
                faultMsg.append("'");
@@ -232,7 +232,7 @@ protected:
                               );
             status = XmlRpcMethod::FAILED;
          }
-         
+
          return true;
       }
 };
@@ -294,7 +294,7 @@ protected:
                   OsStatus datasetStatus = db->load(dataset);
                   if ( OS_SUCCESS == datasetStatus )
                   {
-                     // get the list of names that the request is asking for 
+                     // get the list of names that the request is asking for
                      UtlContainable* secondParam = params.at(1);
                      if ( secondParam )
                      {
@@ -311,7 +311,7 @@ protected:
                            UtlSListIterator requestedNames(*nameList);
                            UtlString* requestedName = NULL;
                            bool allNamesFound = true;
-                           
+
                            while (   allNamesFound
                                   && (requestedName = dynamic_cast<UtlString*>(requestedNames()))
                                   )
@@ -345,7 +345,7 @@ protected:
                               response.setFault(ConfigRPC::nameNotFound, faultMsg.data());
                               status = XmlRpcMethod::FAILED;
                            }
-                           
+
                            selectedParams.destroyAll();
                         }
                         else
@@ -366,7 +366,7 @@ protected:
                         UtlString* paramName;
                         UtlString* paramValue;
                         bool       notEmpty = false;
-  
+
                         for ( ( paramName  = new UtlString()
                                ,paramValue = new UtlString()
                                ,iterateStatus = dataset.getNext(lastKey, *paramName, *paramValue)
@@ -386,7 +386,7 @@ protected:
                         // on the final iteration these were not used
                         delete paramName;
                         delete paramValue;
-                        
+
                         if (notEmpty)
                         {
                            response.setResponse(&allParams);
@@ -396,7 +396,7 @@ protected:
                         {
                            // there is no way to send a well-formed but empty response,
                            // so a 'get all' on an empty dataset returns a fault.
-                           UtlString faultMsg;               
+                           UtlString faultMsg;
                            faultMsg.append("dataset '");
                            faultMsg.append(*dbName);
                            faultMsg.append("' has no parameters");
@@ -420,7 +420,7 @@ protected:
             }
             else
             {
-               UtlString faultMsg;               
+               UtlString faultMsg;
                faultMsg.append("db lookup failed for '");
                faultMsg.append(*dbName);
                faultMsg.append("'");
@@ -435,7 +435,7 @@ protected:
                               );
             status = XmlRpcMethod::FAILED;
          }
-         
+
          return true;
       }
 };
@@ -488,7 +488,7 @@ protected:
                   OsStatus datasetStatus = db->load(dataset);
                   if ( OS_SUCCESS == datasetStatus )
                   {
-                     // get the list of names that the request is asking for 
+                     // get the list of names that the request is asking for
                      UtlContainable* secondParam = params.at(1);
                      if ( secondParam )
                      {
@@ -501,7 +501,7 @@ protected:
                            UtlHashMapIterator params(*paramList);
                            UtlContainable* nextParam = NULL;
                            size_t paramsSet = 0;
-                           
+
                            while (    XmlRpcMethod::OK == status
                                   && (nextParam = params())
                                   )
@@ -587,7 +587,7 @@ protected:
             }
             else
             {
-               UtlString faultMsg;               
+               UtlString faultMsg;
                faultMsg.append("db lookup failed for '");
                faultMsg.append(*dbName);
                faultMsg.append("'");
@@ -602,7 +602,7 @@ protected:
                               );
             status = XmlRpcMethod::FAILED;
          }
-         
+
          return true;
       }
 };
@@ -670,7 +670,7 @@ protected:
                            UtlSListIterator deleteNames(*nameList);
                            UtlString* deleteName = NULL;
                            size_t deleted = 0;
-                           
+
                            while ((deleteName = dynamic_cast<UtlString*>(deleteNames())))
                            {
                               if (OS_SUCCESS == dataset.remove(*deleteName))
@@ -725,7 +725,7 @@ protected:
             }
             else
             {
-               UtlString faultMsg;               
+               UtlString faultMsg;
                faultMsg.append("db lookup failed for '");
                faultMsg.append(*dbName);
                faultMsg.append("'");
@@ -740,7 +740,7 @@ protected:
                               );
             status = XmlRpcMethod::FAILED;
          }
-         
+
          return true;
       }
 };
@@ -761,4 +761,3 @@ void ConfigRPC::registerMethods(XmlRpcDispatch&     rpc /* xmlrpc dispatch servi
       sRegistered = true;
    }
 }
-

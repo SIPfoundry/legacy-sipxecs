@@ -25,7 +25,7 @@
         <path>&lt;sip:pleasevisitme.com&gt;,&lt;sip:metooplease.com&gt;</path>
         <primary>seqTwo</primary>
         <update_number>7</update_number>
-    </item>        
+    </item>
     <item>
         <callid>ID2</callid>
         <cseq>200</cseq>
@@ -51,7 +51,7 @@
         <path>&lt;sip:pleasevisitme.com&gt;,&lt;sip:metooplease.com&gt;</path>
         <primary>seqTwo</primary>
         <update_number>6</update_number>
-    </item>            
+    </item>
     <item>
         <callid>ID1</callid>
         <cseq>100</cseq>
@@ -77,5 +77,5 @@
         <path>&lt;sip:pleasevisitme.com&gt;,&lt;sip:metooplease.com&gt;</path>
         <primary>seqTwo</primary>
         <update_number>6</update_number>
-    </item>                
+    </item>
 </items>
