@@ -8,11 +8,13 @@
  */
 package org.sipfoundry.sipxconfig.openfire;
 
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
-
 import java.util.Arrays;
+
+import org.sipfoundry.sipxconfig.common.CoreContext;
+
+import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
+
+import org.sipfoundry.sipxconfig.common.User;
 
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
@@ -23,16 +25,22 @@ import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.service.SipxServiceTestBase;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+
 public class SipxOpenfireConfigurationTest extends SipxServiceTestBase {
     private SipxOpenfireService m_service;
     private LocationsManager m_locationsManager;
     SipxServiceManager m_sipxServiceManager;
     DomainManager m_domainManager;
+    private CoreContext m_coreContext;
 
     @Override
     public void setUp() throws Exception {
-        m_locationsManager = EasyMock.createMock(LocationsManager.class);
-        m_domainManager = EasyMock.createMock(DomainManager.class);
+        m_locationsManager = createMock(LocationsManager.class);
+        m_domainManager = createMock(DomainManager.class);
 
         Location location = new Location();
         location.setName("locationTest");
@@ -47,7 +55,7 @@ public class SipxOpenfireConfigurationTest extends SipxServiceTestBase {
         domain.setName("domain.example");
         m_domainManager.getDomain();
         expectLastCall().andReturn(domain).anyTimes();
-        EasyMock.replay(m_domainManager);
+        replay(m_domainManager);
 
         m_service.setLocationsManager(m_locationsManager);
         m_service.setModelDir("openfire");
@@ -62,7 +70,16 @@ public class SipxOpenfireConfigurationTest extends SipxServiceTestBase {
         m_sipxServiceManager = EasyMock.createMock(SipxServiceManager.class);
         m_sipxServiceManager.getServiceByBeanId(SipxOpenfireService.BEAN_ID);
         expectLastCall().andReturn(m_service).atLeastOnce();
-        replay(m_sipxServiceManager);
+
+        User xmppuser = new User();
+        xmppuser.setSipPassword("1234");
+        xmppuser.setUserName(SpecialUserType.XMPP_SERVER.getUserName());
+
+        m_coreContext = createMock(CoreContext.class);
+        m_coreContext.getSpecialUser(SpecialUserType.XMPP_SERVER);
+        expectLastCall().andReturn(xmppuser);
+
+        replay(m_coreContext, m_sipxServiceManager);
     }
 
     public void testWrite() throws Exception {
@@ -70,6 +87,7 @@ public class SipxOpenfireConfigurationTest extends SipxServiceTestBase {
         SipxOpenfireConfiguration config = new SipxOpenfireConfiguration();
         config.setTemplate("openfire/sipxopenfire.vm");
         config.setSipxServiceManager(m_sipxServiceManager);
+        config.setCoreContext(m_coreContext);
         assertCorrectFileGeneration(config, "expected-sipxopenfire-config");
 
         verify(m_sipxServiceManager);

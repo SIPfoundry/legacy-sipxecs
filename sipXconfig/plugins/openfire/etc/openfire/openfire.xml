@@ -42,24 +42,6 @@
       </type>
       <value>5060</value>
     </setting>
-    <setting name="user-name">
-      <type>
-        <string required="yes"/>
-      </type>
-      <value>watcher</value>
-    </setting>
-    <setting name='password'>
-      <type>
-        <string password="yes" required="yes"></string>
-      </type>
-      <value>123</value>
-    </setting>
-    <setting name="resource-list" hidden="yes">
-      <type>
-        <string/>
-      </type>
-      <value>~~rl~F~watcher</value>
-    </setting>
     <setting name="watcher-address">
       <type>
         <string required="yes"/>

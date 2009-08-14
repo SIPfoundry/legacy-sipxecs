@@ -16,8 +16,8 @@
       <name>delta</name>
     </resource>
   </list>
-  <list user="~~rl~F~watcher" user-cons="~~rl~C~watcher">
-    <name>watcher</name>
+  <list user="~~rl~F~~~id~xmpprlsclient" user-cons="~~rl~C~~~id~xmpprlsclient">
+    <name>~~id~xmpprlsclient</name>
     <resource uri="sip:user_name_0@example.org;sipx-noroute=VoiceMail;sipx-userforward=false">
       <name>user_name_0</name>
     </resource>

@@ -2,9 +2,9 @@
 <sipxopenfire-config xmlns="http://www.sipfoundry.org/sipX/schema/xml/sipxopenfire-00-00">
 	<sipx-proxy-domain>$settings.getSetting('settings/sipx-proxy-domain').Value</sipx-proxy-domain>
 	<sipx-proxy-port>$settings.getSetting('settings/sipx-proxy-port').Value</sipx-proxy-port>
-	<user-name>$settings.getSetting('settings/user-name').Value</user-name>
-	<password>$settings.getSetting('settings/password').Value</password>
-	<resource-list>$settings.getSetting('settings/resource-list').Value</resource-list>
+	<user-name>$username</user-name>
+	<password>$password</password>
+	<resource-list>$resource-list</resource-list>
 	<watcher-address>$settings.getSetting('settings/watcher-address').Value</watcher-address>
 	<watcher-port>$settings.getSetting('settings/watcher-port').Value</watcher-port>
 	<log-directory>$service.logDir</log-directory>

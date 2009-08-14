@@ -9,8 +9,6 @@
     <property name="coreContext" ref="coreContext" />
     <property name="speedDialManager" ref="speedDialManager" />
     <property name="restartRequired" value="false" />
-    <!-- FIXME: watched is not a good name for imListId -->
-    <property name="imListId" value="watcher" />
   </bean>
 
   <bean id="speedDialManager" class="org.springframework.aop.framework.ProxyFactoryBean"

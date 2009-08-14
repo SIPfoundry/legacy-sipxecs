@@ -129,7 +129,6 @@ public class ResourceListsTest extends XMLTestCase {
         ResourceLists rl = new ResourceLists();
         rl.setCoreContext(coreContext);
         rl.setSpeedDialManager(sdm);
-        rl.setImListId("watcher");
 
         String generatedXml = getFileContent(rl, null);
         InputStream referenceXml = getClass().getResourceAsStream("resource-lists.test.xml");

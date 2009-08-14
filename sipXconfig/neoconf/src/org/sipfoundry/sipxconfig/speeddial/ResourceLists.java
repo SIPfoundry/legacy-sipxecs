@@ -20,6 +20,7 @@ import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.springframework.beans.factory.annotation.Required;
 
+import static org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType.XMPP_SERVER;
 import static org.sipfoundry.sipxconfig.speeddial.SpeedDial.getResourceListId;
 
 public class ResourceLists extends XmlFile {
@@ -27,8 +28,6 @@ public class ResourceLists extends XmlFile {
     private CoreContext m_coreContext;
 
     private SpeedDialManager m_speedDialManager;
-
-    private String m_imListId;
 
     @Override
     public Document getDocument() {
@@ -40,7 +39,7 @@ public class ResourceLists extends XmlFile {
         for (User user : users) {
             if (user.hasImAccount()) {
                 if (imList == null) {
-                    imList = createResourceList(lists, m_imListId);
+                    imList = createResourceList(lists, XMPP_SERVER.getUserName());
                 }
                 createResource(imList, user.getAddrSpec(domainName), user.getName());
             }
@@ -125,12 +124,5 @@ public class ResourceLists extends XmlFile {
     @Required
     public void setSpeedDialManager(SpeedDialManager speedDialManager) {
         m_speedDialManager = speedDialManager;
-    }
-
-    /**
-     * Name of the special list that monitors IM users.
-     */
-    public void setImListId(String imListId) {
-        m_imListId = imListId;
     }
 }
