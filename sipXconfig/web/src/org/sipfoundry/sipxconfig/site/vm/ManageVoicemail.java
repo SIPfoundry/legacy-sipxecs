@@ -204,6 +204,15 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
         return info;
     }
 
+    public String getVoicemailLink() {
+        Voicemail voicemail = getVoicemail();
+        PlayVoicemailService.Info info = new PlayVoicemailService.Info(voicemail.getFolderId(), voicemail
+                .getMessageId());
+        PlayVoicemailService.Info [] infos = new PlayVoicemailService.Info[1];
+        infos[0] = info;
+        return getPlayVoicemailService().getLink(false, infos).getURL();
+    }
+
     @Override
     public void pageBeginRender(PageEvent event) {
         super.pageBeginRender(event);

@@ -57,9 +57,11 @@
           </span>
         </span>
         <span jwcid="playColumnValue@Block">
-          <a jwcid="@ServiceLink" service="literal:playvoicemail" parameters="ognl:playVoicemailInfo">
-            <img jwcid="@Image" image="asset:playVoicemailAsset" alt="play"/>
-          </a>
+          <audio jwcid="@Any" src="ognl:voicemailLink" controls="true" tabindex="0">
+            <a jwcid="@ServiceLink" service="literal:playvoicemail" parameters="ognl:playVoicemailInfo">
+              <img jwcid="@Image" image="asset:playVoicemailAsset" alt="play"/>
+            </a>
+          </audio>
         </span>
       </table>
       <ul class="component-submit">
