@@ -9,10 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.site.vm;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.annotations.InjectObject;
@@ -30,6 +30,9 @@ import org.sipfoundry.sipxconfig.vm.MailboxPreferences.ActiveGreeting;
 
 public abstract class MailboxPreferencesForm extends BaseComponent implements PageBeginRenderListener {
 
+    private static final String HOST_SETTING = "unified-messaging/host";
+    private static final String PORT_SETTING = "unified-messaging/port";
+
     @InjectObject(value = "spring:mailboxManager")
     public abstract MailboxManager getMailboxManager();
 
@@ -46,8 +49,8 @@ public abstract class MailboxPreferencesForm extends BaseComponent implements Pa
     public void pageBeginRender(PageEvent event) {
         IPropertySelectionModel model = getActiveGreetingModel();
         if (model == null) {
-            NewEnumPropertySelectionModel<MailboxPreferences.ActiveGreeting> rawModel =
-                new NewEnumPropertySelectionModel();
+            NewEnumPropertySelectionModel<MailboxPreferences.ActiveGreeting> rawModel
+                = new NewEnumPropertySelectionModel();
             rawModel.setEnumType(ActiveGreeting.class);
             model = new LocalizedOptionModelDecorator(rawModel, getMessages(), "activeGreeting.");
             setActiveGreetingModel(model);
@@ -56,24 +59,11 @@ public abstract class MailboxPreferencesForm extends BaseComponent implements Pa
 
     public IPropertySelectionModel getVoicemailPropertiesModel() {
         // FIXME: why not just check user properties directly...
-        List<Group> groups = getPreferences().getUser().getGroupsAsList();
         boolean unifiedMessagingParamsGroup = false;
-        for (Group group : groups) {
-            String host = group.getSettingValue("unified-messaging/host");
-            Integer port = null;
-            try {
-                // hack get the value of the setting returning default value
-                // this is due to inheriting ValueStorage instead of BeanWithSettings
-                port = Integer.valueOf(group.inherhitSettingsForEditing(getPreferences().getUser()).getSetting(
-                        "unified-messaging/port").getValue());
-            } catch (NumberFormatException e) {
-                // do nothing ... a senseless thing in order to pass checkstyle
-                port = null;
-            }
-            if (StringUtils.isNotEmpty(host) && port != null) {
-                unifiedMessagingParamsGroup = true;
-                break;
-            }
+        String host = getPreferences().getUser().getSettingValue(HOST_SETTING);
+        Integer port = (Integer) getPreferences().getUser().getSettingTypedValue(PORT_SETTING);
+        if (StringUtils.isNotEmpty(host) && port != null) {
+            unifiedMessagingParamsGroup = true;
         }
         String[] options = new String[] {
             MailboxPreferences.ATTACH_VOICEMAIL, MailboxPreferences.DO_NOT_ATTACH_VOICEMAIL
@@ -83,5 +73,18 @@ public abstract class MailboxPreferencesForm extends BaseComponent implements Pa
         }
         StringPropertySelectionModel model = new StringPropertySelectionModel(options);
         return new LocalizedOptionModelDecorator(model, getMessages(), "voicemailProperties.");
+    }
+
+    public String getInheritedGroup() {
+        List<Group> groups = getPreferences().getUser().getGroupsAsList();
+        List<Group> unifiedMessagingGroups = new ArrayList<Group>();
+        for (Group group : groups) {
+            String host = group.getSettingValue(HOST_SETTING);
+            if (StringUtils.isNotEmpty(host)) {
+                unifiedMessagingGroups.add(group);
+            }
+        }
+        Group inheritedGroup = Group.selectGroupWithHighestWeight(unifiedMessagingGroups);
+        return inheritedGroup != null ? inheritedGroup.getName() : "";
     }
 }

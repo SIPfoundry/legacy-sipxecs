@@ -242,31 +242,14 @@ public abstract class UserGroupSettings extends GroupSettings {
     public void apply() {
         super.apply();
         Collection<User> users = getCoreContext().getGroupMembers(getGroup());
-        String host = getSettings().getSetting(HOST_SETTING).getValue();
-        String port = getSettings().getSetting(PORT_SETTING).getValue();
-        String tls = getSettings().getSetting(TLS_SETTING).getValue();
         for (User user : users) {
-            List<Group> groupsForUser = user.getGroupsAsList();
-            List<Group> unifiedMessagingGroups = new ArrayList<Group>();
-            for (Group groupForUser : groupsForUser) {
-                String groupHost = groupForUser.getSettingValue(HOST_SETTING);
-                if (groupHost != null) {
-                    unifiedMessagingGroups.add(groupForUser);
-                }
-            }
-            Group highestWeightGroup = Group.selectGroupWithHighestWeight(unifiedMessagingGroups);
-            if (highestWeightGroup == null || getGroup().equals(highestWeightGroup)) {
-                Mailbox mailbox = getMailboxManager().getMailbox(user.getName());
-                MailboxPreferences preferences = getMailboxManager().loadMailboxPreferences(mailbox);
-                preferences.setEmailServerHost(host);
-                preferences.setEmailServerPort(port);
-                if (tls != null && tls.equals("1")) {
-                    preferences.setEmailServerUseTLS(true);
-                } else {
-                    preferences.setEmailServerUseTLS(false);
-                }
-                getMailboxManager().saveMailboxPreferences(mailbox, preferences);
-            }
+            Mailbox mailbox = getMailboxManager().getMailbox(user.getName());
+            MailboxPreferences preferences = getMailboxManager().loadMailboxPreferences(mailbox);
+            preferences.setEmailServerHost(user.getSettingValue(HOST_SETTING));
+            preferences.setEmailServerPort(user.getSettingValue(PORT_SETTING));
+            preferences.setEmailServerUseTLS((Boolean) user.getSettingTypedValue(TLS_SETTING));
+
+            getMailboxManager().saveMailboxPreferences(mailbox, preferences);
         }
     }
 }

@@ -1,5 +1,9 @@
 <span jwcid="$content$">
   <span jwcid="@If" condition="ognl:mailboxManager.enabled">
+    <tr jwcid="@common/FieldPanel" for="user:inheritedGroup" field="component:inheritedGroup" label="message:label.inheritedGroup"
+        description="message:description.inheritedGroup">
+      <span jwcid="inheritedGroup@TextField" id="user:inheritedGroup" value="ognl:inheritedGroup" disabled="ognl:true"/>
+    </tr>
     <tr jwcid="@common/FieldPanel" for="user:activeGreeting" field="component:activeGreeting" label="message:label.activeGreeting"
         description="message:description.activeGreeting">
       <select jwcid="activeGreeting@PropertySelection" id="user:activeGreeting" value="ognl:preferences.activeGreeting"

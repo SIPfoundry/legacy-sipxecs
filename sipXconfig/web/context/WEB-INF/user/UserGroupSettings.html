@@ -12,6 +12,10 @@
     <span jwcid="@common/QuickHelp" value="message:quick.help.personalAttendant"/>
   </span>
 
+  <span jwcid="@If" condition="ognl:parentSettingName && parentSettingName.equals('unified-messaging')">
+    <span jwcid="@common/QuickHelp" value="message:quick.help.unifiedMessaging"/>
+  </span>
+
   <div jwcid="@common/LeftNavigation" renderCondition="ognl:groupId">
     <span jwcid="settingsNavigation@setting/SettingsNavigation"
           bean="ognl:bean"

@@ -28,6 +28,9 @@ import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 public abstract class EditUser extends PageWithCallback implements PageBeginRenderListener {
 
     public static final String PAGE = "user/EditUser";
+    private static final String HOST_SETTING = "unified-messaging/host";
+    private static final String PORT_SETTING = "unified-messaging/port";
+    private static final String TLS_SETTING = "unified-messaging/tls";
 
     @InjectObject(value = "spring:speedDialManager")
     public abstract SpeedDialManager getSpeedDialManager();
@@ -67,8 +70,14 @@ public abstract class EditUser extends PageWithCallback implements PageBeginRend
             if (newUsername) {
                 mmgr.deleteMailbox(user.getUserName());
             }
+
+            MailboxPreferences preferences = getMailboxPreferences();
+            preferences.setEmailServerHost(user.getSettingValue(HOST_SETTING));
+            preferences.setEmailServerPort(user.getSettingValue(PORT_SETTING));
+            preferences.setEmailServerUseTLS((Boolean) user.getSettingTypedValue(TLS_SETTING));
+
             Mailbox mailbox = mmgr.getMailbox(user.getUserName());
-            mmgr.saveMailboxPreferences(mailbox, getMailboxPreferences());
+            mmgr.saveMailboxPreferences(mailbox, preferences);
         }
 
         if (newUsername) {
