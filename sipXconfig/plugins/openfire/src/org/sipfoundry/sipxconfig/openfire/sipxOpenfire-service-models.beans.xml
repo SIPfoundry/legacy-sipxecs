@@ -35,6 +35,7 @@
     <property name="template" value="openfire/sipxopenfire.vm" />
     <property name="name" value="sipxopenfire.xml" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="coreContext" ref="coreContext" />
   </bean>
 
   <bean id="sipxOpenfireContext" class="org.sipfoundry.sipxconfig.openfire.SipxOpenfireContextImpl">
