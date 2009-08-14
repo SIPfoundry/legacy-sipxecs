@@ -69,6 +69,11 @@ public abstract class HistoryAlarmsPanel extends BaseComponent implements PageBe
 
     public abstract void setAlarmEvents(List<AlarmEvent> alarmEvents);
 
+    @Persist
+    public abstract HistoryAlarmsTableModel getHistoryAlarmsTableModel();
+
+    public abstract void setHistoryAlarmsTableModel(HistoryAlarmsTableModel tableModel);
+
     public ITableColumn getDate() {
         return TapestryUtils
                 .createDateColumn("date", getMessages(), getExpressionEvaluator(), getPage().getLocale());
@@ -102,6 +107,12 @@ public abstract class HistoryAlarmsPanel extends BaseComponent implements PageBe
         if (getAlarmEvents() == null) {
             setAlarmEvents(new ArrayList<AlarmEvent>());
         }
+
+        if (getHistoryAlarmsTableModel() == null) {
+            HistoryAlarmsTableModel tableModel = new HistoryAlarmsTableModel();
+            tableModel.setAlarmContext(getAlarmContext());
+            setHistoryAlarmsTableModel(tableModel);
+        }
     }
 
     public void retrieveLogs() {
@@ -115,7 +126,10 @@ public abstract class HistoryAlarmsPanel extends BaseComponent implements PageBe
             return;
         }
 
-        List<AlarmEvent> events = getAlarmContext().getAlarmEvents(getHost(), getStartDate(), getEndDate());
-        setAlarmEvents(events);
+        getAlarmContext().reloadAlarms();
+
+        getHistoryAlarmsTableModel().setHost(getHost());
+        getHistoryAlarmsTableModel().setStartDate(getStartDate());
+        getHistoryAlarmsTableModel().setEndDate(getEndDate());
     }
 }

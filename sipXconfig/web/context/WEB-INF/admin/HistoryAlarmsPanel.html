@@ -31,7 +31,7 @@
   </table>
   <table jwcid="@common/Table" id="alarmEvent:list"
       columns="alarm.code, !description:alarm.description, alarm.severity, =date"
-      source="ognl:alarmEvents"
+      source="ognl:historyAlarmsTableModel"
       row="ognl:currentRow"
       usePager="ognl:true">
   </table>

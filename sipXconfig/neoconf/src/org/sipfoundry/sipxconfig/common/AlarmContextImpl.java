@@ -53,6 +53,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 public class AlarmContextImpl extends SipxHibernateDaoSupport implements AlarmContext, ApplicationListener {
+    private static final String ERROR_IO_EXCEPTION = "&error.io.exception";
     private static final Log LOG = LogFactory.getLog(AlarmContextImpl.class);
     private static final String ALARMS_LOG = "sipXalarms.log";
     private static final String DEFAULT_HOST = "@localhost";
@@ -278,6 +279,22 @@ public class AlarmContextImpl extends SipxHibernateDaoSupport implements AlarmCo
     }
 
     public List<AlarmEvent> getAlarmEvents(String host, Date startDate, Date endDate) {
+        try {
+            return parseEventsStream(getAlarmDataStream(host), startDate, endDate);
+        } catch (IOException ex) {
+            throw new UserException(ERROR_IO_EXCEPTION, ex.getMessage());
+        }
+    }
+
+    public List<AlarmEvent> getAlarmEventsByPage(String host, Date startDate, Date endDate, int first, int pageSize) {
+        try {
+            return parseEventsStreamByPage(getAlarmDataStream(host), startDate, endDate, first, pageSize);
+        } catch (IOException ex) {
+            throw new UserException(ERROR_IO_EXCEPTION, ex.getMessage());
+        }
+    }
+
+    private InputStream getAlarmDataStream(String host) throws IOException {
         GetMethod httpget = null;
         try {
             HttpClient client = new HttpClient();
@@ -287,12 +304,9 @@ public class AlarmContextImpl extends SipxHibernateDaoSupport implements AlarmCo
             if (statusCode != 200) {
                 throw new UserException("&error.https.server.status.code", host, String.valueOf(statusCode));
             }
-
-            return parseEventsStream(httpget.getResponseBodyAsStream(), startDate, endDate);
+            return httpget.getResponseBodyAsStream();
         } catch (HttpException ex) {
             throw new UserException("&error.https.server", host, ex.getMessage());
-        } catch (IOException ex) {
-            throw new UserException("&error.io.exception", ex.getMessage());
         } catch (XmlRpcRemoteException ex) {
             throw new UserException("&error.xml.rpc", ex.getMessage(), host);
         } finally {
@@ -302,7 +316,8 @@ public class AlarmContextImpl extends SipxHibernateDaoSupport implements AlarmCo
         }
     }
 
-    List<AlarmEvent> parseEventsStream(InputStream responseStream, Date startDate, Date endDate) throws IOException {
+    protected List<AlarmEvent> parseEventsStream(InputStream responseStream, Date startDate, Date endDate)
+        throws IOException {
         BufferedReader input = new BufferedReader(new InputStreamReader(responseStream, "UTF-8"));
         String line = null;
         List<AlarmEvent> contents = new ArrayList<AlarmEvent>();
@@ -314,6 +329,20 @@ public class AlarmContextImpl extends SipxHibernateDaoSupport implements AlarmCo
             }
         }
         return contents;
+    }
+
+    protected List<AlarmEvent> parseEventsStreamByPage(InputStream responseStream, Date startDate, Date endDate,
+            int first, int pageSize) throws IOException {
+        List<AlarmEvent> contents = parseEventsStream(responseStream, startDate, endDate);
+
+        int last = first + pageSize;
+        if (last > contents.size()) {
+            last = first + contents.size() % pageSize;
+        }
+
+        List<AlarmEvent> pageContents = contents.subList(first, last);
+
+        return pageContents;
     }
 
     private String getHost() {

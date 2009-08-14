@@ -36,4 +36,27 @@ public class AlarmContextImplTest extends TestCase {
         assertEquals("SPX00013", event.getAlarm().getCode());
     }
 
+    public void testParseEventsStreamByPage() throws Exception {
+        AlarmContextImpl impl = new AlarmContextImpl();
+        Calendar calendar = Calendar.getInstance();
+        calendar.clear();
+        calendar.set(2009, Calendar.JUNE, 20);
+        Date startDate = calendar.getTime();
+        calendar.add(Calendar.DAY_OF_MONTH, 3);
+        Date endDate = calendar.getTime();
+        InputStream stream = getClass().getResourceAsStream("alarm.test.large.log");
+        List<AlarmEvent> events = impl.parseEventsStreamByPage(stream, startDate, endDate, 0, 10);
+        assertEquals(10, events.size());
+        assertEquals("SPX00013", events.get(0).getAlarm().getCode());
+
+        stream = getClass().getResourceAsStream("alarm.test.large.log");
+        events = impl.parseEventsStreamByPage(stream, startDate, endDate, 10, 10);
+        assertEquals(10, events.size());
+        assertEquals("SPX00023", events.get(0).getAlarm().getCode());
+
+        stream = getClass().getResourceAsStream("alarm.test.large.log");
+        events = impl.parseEventsStreamByPage(stream, startDate, endDate, 20, 10);
+        assertEquals(3, events.size());
+        assertEquals("SPX00033", events.get(0).getAlarm().getCode());
+    }
 }

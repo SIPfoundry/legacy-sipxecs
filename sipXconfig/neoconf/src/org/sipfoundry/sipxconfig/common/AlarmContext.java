@@ -50,5 +50,7 @@ public interface AlarmContext {
 
     public String getAlarmsStringsDirectory();
 
-    List<AlarmEvent> getAlarmEvents(String host, Date startDate, Date endDate);
+    public List<AlarmEvent> getAlarmEvents(String host, Date startDate, Date endDate);
+
+    public List<AlarmEvent> getAlarmEventsByPage(String host, Date startDate, Date endDate, int first, int pageSize);
 }
