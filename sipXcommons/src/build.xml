@@ -28,6 +28,7 @@
     <pathelement location="${src.dir}/lib/xmlrpc-client.jar"/>
     <pathelement location="${src.dir}/lib/xmlrpc-common.jar"/>
     <pathelement location="${src.dir}/lib/dnsjava.jar"/>
+    <pathelement location="${src.dir}/lib/commons-codec.jar"/>
   </path>
   <property name="classpath" refid="base.path" />
 
@@ -194,6 +195,9 @@
       <fileset file="${src.dir}/lib/xmlrpc-server.jar"/>
       <fileset file="${src.dir}/lib/xpp3.jar"/>
       <fileset file="${src.dir}/lib/ArpTable.dll"/>
+      <fileset file="${src.dir}/lib/com.noelios.restlet.ext.servlet.jar" />
+      <fileset file="${src.dir}/lib/com.noelios.restlet.jar" /> 
+      <fileset file="${src.dir}/lib/org.restlet.jar" />
       <fileset file="${src.dir}/lib/rocksaw.dll"/>
     </copy>
   </target>

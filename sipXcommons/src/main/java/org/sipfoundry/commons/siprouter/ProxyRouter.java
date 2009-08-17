@@ -28,7 +28,7 @@ public class ProxyRouter extends DefaultRouter {
 	
 	public ProxyRouter(SipStack sipStack, String outboundProxy) {
         super(sipStack, outboundProxy);
-    	LOG = ((SipStackImpl) sipStack).getLogger();
+    	LOG = Logger.getLogger(((SipStackImpl) sipStack).getStackLogger().getLoggerName());
     	finder = new FindSipServer(LOG);
     }
 

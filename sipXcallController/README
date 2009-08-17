@@ -1,0 +1,47 @@
+
+Third party call controller
+===========================
+
+This is the RESTLET based third party call controller.
+
+Currently we only support REFER based third party call control. 
+INVITE based third party call control may be supported if there 
+is a requirement to stay in the call path and monitor call progress.
+
+REFER based third party call control
+=====================================
+REFER based third party call control is "Fire and Forget"
+The call is placed and subsequently, the third party call controller is not in the call path.
+
+There are three parties involved :
+
+The agent that initiates the call
+The calling party to which the call is initially placed
+The called party to which the call is REFERRed.
+
+The call controller consults etc/sipxpbx/validusers.xml to authenticate users and map user aliases to user names.
+
+The general form of the URL is
+
+https://host:6666/callcontroller/refer/agentName?callingParty=callingPartyName&calledParty=calledPartyName&pin=pin
+
+You dont need a pin to invoke it from within the sipx domain. You can specify user name or user alias for agentName, 
+callingPartyName or calledPartyName.
+
+You dont need to specify the pin when calling this service from within the sipx domain. When the callingParty is 
+not specified, it is assumed to be the same as the agent.
+
+For example within the sipx domain, the URL can look like this:
+https://sipxpbx.sipxtest.net:6666/callcontroller/refer/201?callingParty=201&calledParty=202
+
+Here 201 can be either the user name or the alias of a user.
+It is is both the agent placing the call as well as the calling party.
+
+To invoke this from outside the sipx domain :
+https://sipxpbx.sipxtest.net:6666/callcontroller/refer/201?calledParty=202&pin=123
+
+INVITE based third party call control
+=====================================
+
+TBD
+
