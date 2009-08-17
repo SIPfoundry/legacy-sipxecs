@@ -15,17 +15,23 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import junit.framework.JUnit4TestAdapter;
+
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.sipfoundry.sipxconfig.admin.alarm.AlarmEvent;
 import org.sipfoundry.sipxconfig.common.AlarmContextImpl;
 
-import static org.junit.Assert.assertEquals;
-
 public class HistoryAlarmsTableModelTest {
 
     private HistoryAlarmsTableModel m_out;
     private DummyAlarmContext m_alarmContext;
+    
+    public static junit.framework.Test suite() {
+        return new JUnit4TestAdapter(HistoryAlarmsTableModelTest.class);
+    }
 
     @Before
     public void setUp() {
