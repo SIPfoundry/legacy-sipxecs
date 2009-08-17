@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -38,7 +38,7 @@ class GipsVoiceEngineLib ;
 class GipsVideoEngineWindows ;
 
 //: VoiceEngineDatagramSocket creates a OsDatagramSocket and automatically initiates
-//: stun lookups and keep-alives.  
+//: stun lookups and keep-alives.
 class VoiceEngineDatagramSocket : public OsStunDatagramSocket
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -50,12 +50,12 @@ public:
                               int audioChannel,
                               int videoChannel,
                               int type,
-                              int remoteHostPort, 
-                              const char* remoteHostName, 
-                              int localHostPort = 0, 
+                              int remoteHostPort,
+                              const char* remoteHostName,
+                              int localHostPort = 0,
                               const char* localHostName = NULL,
                               bool bEnable = TRUE,
-                              const char* szStunServer = "larry.gloo.net",                              
+                              const char* szStunServer = "larry.gloo.net",
                               int iRefreshPeriodInSec = 28,
                               int stunOptions = STUN_OPTION_NORMAL) ;
 
@@ -70,14 +70,14 @@ public:
     virtual void pushPacket() ;
 
     void setVideoChannel(int channelId) { miVideoEngineChannel = channelId; }
-  
+
 /* ============================ ACCESSORS ================================= */
 
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-    
+
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
@@ -94,8 +94,8 @@ private:
 class VoiceEngineSocketAdapter : public GIPS_transport
 {
 public:
-    VoiceEngineSocketAdapter(VoiceEngineDatagramSocket* pRtpSocket, 
-                             VoiceEngineDatagramSocket* pRtcpSocket) 
+    VoiceEngineSocketAdapter(VoiceEngineDatagramSocket* pRtpSocket,
+                             VoiceEngineDatagramSocket* pRtcpSocket)
     {
         mpRtpSocket = pRtpSocket ;
         mpRtcpSocket = pRtcpSocket ;
@@ -106,16 +106,16 @@ public:
 
     }
 
-    virtual void SendPacket(int channel, const void *data, int len) 
+    virtual void SendPacket(int channel, const void *data, int len)
     {
         mpRtpSocket->write((char*) data, len) ;
     }
 
-    virtual void SendRTCPPacket(int channel, const void *data, int len) 
+    virtual void SendRTCPPacket(int channel, const void *data, int len)
     {
         mpRtcpSocket->write((char*) data, len) ;
     }
-    
+
 private:
     VoiceEngineDatagramSocket* mpRtpSocket ;
     VoiceEngineDatagramSocket* mpRtcpSocket ;
@@ -124,4 +124,3 @@ private:
 
 
 #endif  // _VoiceEngineDatagramSocket_h_
-

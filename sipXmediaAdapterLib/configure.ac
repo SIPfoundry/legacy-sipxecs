@@ -54,7 +54,7 @@ AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
 AM_CONDITIONAL(GENERATE_DOXYGEN, test x$enable_doxygen = xyes)
 
 AC_CONFIG_FILES([
-  Makefile 
+  Makefile
   interface/Makefile
   sipXmediaMediaProcessing/Makefile
   sipXmediaMediaProcessing/src/Makefile

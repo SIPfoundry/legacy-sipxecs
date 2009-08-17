@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -31,7 +31,7 @@
 class ConferenceEngine ;
 
 //: ConferenceEngineDatagramSocket creates a OsDatagramSocket and automatically initiates
-//: stun lookups and keep-alives.  
+//: stun lookups and keep-alives.
 class ConferenceEngineDatagramSocket : public OsStunDatagramSocket
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -41,9 +41,9 @@ public:
     ConferenceEngineDatagramSocket(ConferenceEngine* pConferenceEngine,
                                    int channel,
                                    int type,
-                                   int remoteHostPort, 
-                                   const char* remoteHostName, 
-                                   int localHostPort = 0, 
+                                   int remoteHostPort,
+                                   const char* remoteHostName,
+                                   int localHostPort = 0,
                                    const char* localHostName = NULL,
                                    bool bEnable = TRUE,
                                    const char* szStunServer = "larry.gloo.net",
@@ -58,14 +58,14 @@ public:
 /* ============================ MANIPULATORS ============================== */
 
     virtual void pushPacket() ;
-  
+
 /* ============================ ACCESSORS ================================= */
 
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-    
+
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
@@ -80,8 +80,8 @@ private:
 class ConferenceEngineSocketAdapter : public GIPS_transport
 {
 public:
-    ConferenceEngineSocketAdapter(ConferenceEngineDatagramSocket* pRtpSocket, 
-                                  ConferenceEngineDatagramSocket* pRtcpSocket) 
+    ConferenceEngineSocketAdapter(ConferenceEngineDatagramSocket* pRtpSocket,
+                                  ConferenceEngineDatagramSocket* pRtcpSocket)
     {
         mpRtpSocket = pRtpSocket ;
         mpRtcpSocket = pRtcpSocket ;
@@ -92,21 +92,20 @@ public:
 
     }
 
-    virtual void SendPacket(int channel, const void *data, int len) 
+    virtual void SendPacket(int channel, const void *data, int len)
     {
         mpRtpSocket->write((char*) data, len) ;
     }
 
-    virtual void SendRTCPPacket(int channel, const void *data, int len) 
+    virtual void SendRTCPPacket(int channel, const void *data, int len)
     {
         mpRtcpSocket->write((char*) data, len) ;
     }
-    
+
 private:
-    
+
     ConferenceEngineDatagramSocket* mpRtpSocket ;
     ConferenceEngineDatagramSocket* mpRtcpSocket ;
 } ;
 
 #endif  // _ConferenceEngineDatagramSocket_h_
-

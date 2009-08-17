@@ -8,5 +8,3 @@ noinst_HEADERS = \
     VoiceEngineFactoryImpl.h \
     VoiceEngineMediaInterface.h \
     VoiceEngineNetTask.h
-
-

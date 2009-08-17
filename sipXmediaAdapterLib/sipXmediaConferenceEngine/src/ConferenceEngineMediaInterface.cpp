@@ -1,11 +1,11 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
- 
+
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -42,8 +42,8 @@ class ConferenceEngineMediaConnection : public UtlInt
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
-    ConferenceEngineMediaConnection(int connectionId = -1) 
-        : UtlInt(connectionId)        
+    ConferenceEngineMediaConnection(int connectionId = -1)
+        : UtlInt(connectionId)
     {
         mpRtpSocket = NULL;
         mpRtcpSocket = NULL;
@@ -52,7 +52,7 @@ public:
         mRtpReceivePort = 0;
         mRtcpReceivePort = 0;
         mRtpPayloadType = 0;
-        mDestinationSet = FALSE;       
+        mDestinationSet = FALSE;
         mRtpSending = FALSE;
         mRtpReceiving = FALSE;
         mpCodecFactory = NULL;
@@ -102,7 +102,7 @@ public:
     UtlBoolean mRtpReceiving;
     SdpCodecFactory* mpCodecFactory;
     SdpCodec* mpPrimaryCodec;
-    CONTACT_TYPE meContactType ;   
+    CONTACT_TYPE meContactType ;
     OsNotification* mpDTMFNotify;  // Object to signal on key-down/key-up events
     OsNotification* mpPlayNotify;  // Object to signal on play done event
 };
@@ -122,8 +122,8 @@ ConferenceEngineMediaInterface::ConferenceEngineMediaInterface(ConferenceEngineF
                                                                const char* szStunServer,
                                                                int stunOptions,
                                                                int iStunKeepAlivePeriodSecs,
-                                                               UtlBoolean bDTMFOutOfBand) 
-    : mLock(OsBSem::Q_PRIORITY, OsBSem::FULL) 
+                                                               UtlBoolean bDTMFOutOfBand)
+    : mLock(OsBSem::Q_PRIORITY, OsBSem::FULL)
     , CpMediaInterface(pFactoryImpl)
     , mSupportedCodecs(numCodecs, sdpCodecArray)
 {
@@ -132,7 +132,7 @@ ConferenceEngineMediaInterface::ConferenceEngineMediaInterface(ConferenceEngineF
     OsSysLog::add(FAC_MP, PRI_DEBUG,
                   "ConferenceEngineMediaInterface::ConferenceEngineMediaInterface public addr = %s, local addr = %s, numCodecs = %d",
                   publicAddress, localAddress, numCodecs);
-     
+
     mpConferenceEngine = &NewConfEngine() ;
 
     // Initialize the ConferenceEngine object
@@ -155,7 +155,7 @@ ConferenceEngineMediaInterface::ConferenceEngineMediaInterface(ConferenceEngineF
     }
     assert(rc == 0);
 
-    mpNetTask = ConferenceEngineNetTask::getConferenceEngineNetTask() ;    
+    mpNetTask = ConferenceEngineNetTask::getConferenceEngineNetTask() ;
 
     mStunOptions = stunOptions ;
     mStunServer = szStunServer ;
@@ -163,7 +163,7 @@ ConferenceEngineMediaInterface::ConferenceEngineMediaInterface(ConferenceEngineF
 
     mFocus = FALSE;
     mDTMFOutOfBand = bDTMFOutOfBand;
-    
+
     if(localAddress && *localAddress)
     {
         mRtpReceiveHostAddress = localAddress;
@@ -179,7 +179,7 @@ ConferenceEngineMediaInterface::ConferenceEngineMediaInterface(ConferenceEngineF
         // Assign any unset payload types
         mSupportedCodecs.bindPayloadTypes();
     }
-    
+
     pFactoryImpl->getSystemVolume(mDefaultVolume);
 }
 
@@ -190,7 +190,7 @@ ConferenceEngineMediaInterface::~ConferenceEngineMediaInterface()
     mLock.acquire();
 
     ConferenceEngineMediaConnection* pMediaConnection = NULL;
-    
+
     UtlSListIterator iterator(mMediaConnections);
     while ((pMediaConnection = (ConferenceEngineMediaConnection*) iterator()))
     {
@@ -200,18 +200,18 @@ ConferenceEngineMediaInterface::~ConferenceEngineMediaInterface()
     mpConferenceEngine->GIPSConf_Terminate();
     delete mpConferenceEngine ;
     mpConferenceEngine = NULL;
-    
+
     mLock.release();
 }
 
 void ConferenceEngineMediaInterface::release()
-{    
+{
     // remove this pointer from the factory implementation
     if (mpFactoryImpl)
     {
         ((ConferenceEngineFactoryImpl*) mpFactoryImpl)->removeMediaInterface(this);
-    }    
-    
+    }
+
     delete this;
 }
 
@@ -221,10 +221,10 @@ void ConferenceEngineMediaInterface::release()
 OsStatus ConferenceEngineMediaInterface::createConnection(int& connectionId, void* videoDisplay)
 {
     mLock.acquire();
-    
+
     int localPort;
     mpFactoryImpl->getNextRtpPort(localPort);
-    
+
     connectionId = mpConferenceEngine->GIPSConf_CreateChannel();
     if (connectionId < 0)
     {
@@ -236,7 +236,7 @@ OsStatus ConferenceEngineMediaInterface::createConnection(int& connectionId, voi
 
     // Create a new  ConferenceEngineMediaConnection object
     ConferenceEngineMediaConnection* pMediaConnection = new ConferenceEngineMediaConnection(connectionId);
-    
+
     UtlInt container(connectionId);
     if (mMediaConnections.find(&container) == NULL)
     {
@@ -247,33 +247,33 @@ OsStatus ConferenceEngineMediaInterface::createConnection(int& connectionId, voi
         OsSysLog::add(FAC_MP, PRI_ERR,
                       "ConferenceEngineMediaInterface::createConnection MediaConnection %d has already existed",
                       connectionId);
-        
-        // Remove the old one and insert the new one              
+
+        // Remove the old one and insert the new one
         mMediaConnections.destroy(&container);
-        
+
         mMediaConnections.insert(pMediaConnection);
     }
-    
+
     ConferenceEngineDatagramSocket* rtpSocket = new ConferenceEngineDatagramSocket(
             mpConferenceEngine, connectionId, TYPE_RTP, 0, NULL,
-            localPort, mLocalAddress.data(), mStunServer.length() != 0, 
+            localPort, mLocalAddress.data(), mStunServer.length() != 0,
             mStunServer, mStunRefreshPeriodSecs);
-            
+
     ConferenceEngineDatagramSocket* rtcpSocket = new ConferenceEngineDatagramSocket(
             mpConferenceEngine, connectionId, TYPE_RTCP, 0, NULL,
-            localPort == 0 ? 0 : localPort + 1, mLocalAddress.data(), 
+            localPort == 0 ? 0 : localPort + 1, mLocalAddress.data(),
             mStunServer.length() != 0, mStunServer, mStunRefreshPeriodSecs);
 
     pMediaConnection->mpRtpSocket = rtpSocket;
     pMediaConnection->mpRtcpSocket = rtcpSocket;
     pMediaConnection->mRtpReceivePort = rtpSocket->getLocalHostPort() ;
-    pMediaConnection->mRtcpReceivePort = rtcpSocket->getLocalHostPort() ;     
-    pMediaConnection->mpSocketAdapter = new 
+    pMediaConnection->mRtcpReceivePort = rtcpSocket->getLocalHostPort() ;
+    pMediaConnection->mpSocketAdapter = new
             ConferenceEngineSocketAdapter(pMediaConnection->mpRtpSocket, pMediaConnection->mpRtcpSocket) ;
     pMediaConnection->mpCodecFactory = new SdpCodecFactory(mSupportedCodecs);
     pMediaConnection->mpCodecFactory->bindPayloadTypes();
 
-    int rc = mpConferenceEngine->GIPSConf_SetSendTransport(connectionId, *pMediaConnection->mpSocketAdapter) ;    
+    int rc = mpConferenceEngine->GIPSConf_SetSendTransport(connectionId, *pMediaConnection->mpSocketAdapter) ;
     if (rc != 0)
     {
         OsSysLog::add(FAC_MP, PRI_ERR,
@@ -285,7 +285,7 @@ OsStatus ConferenceEngineMediaInterface::createConnection(int& connectionId, voi
     UtlBoolean bAEC;
     mpFactoryImpl->isAudioAECEnabled(bAEC);
     if (bAEC)
-    {   
+    {
         rc = mpConferenceEngine->GIPSConf_SetAGCStatus(connectionId, 1);
     }
     else
@@ -314,7 +314,7 @@ int ConferenceEngineMediaInterface::getNumCodecs(int connectionId)
     mLock.acquire();
 
     int iCodecs = 0;
-    ConferenceEngineMediaConnection* 
+    ConferenceEngineMediaConnection*
         pMediaConn = getMediaConnection(connectionId);
 
     if (pMediaConn && pMediaConn->mpCodecFactory)
@@ -337,7 +337,7 @@ OsStatus ConferenceEngineMediaInterface::getCapabilities(int connectionId,
                                                          SdpSrtpParameters& srtpParams)
 {
     mLock.acquire();
-    
+
     ConferenceEngineMediaConnection* pMediaConn = getMediaConnection(connectionId);
     if (pMediaConn)
     {
@@ -345,7 +345,7 @@ OsStatus ConferenceEngineMediaInterface::getCapabilities(int connectionId,
 
         if ((pMediaConn->meContactType == AUTO) || (pMediaConn->meContactType == NAT_MAPPED))
         {
-            if (pMediaConn->mpRtpSocket->getExternalIp(&rtpHostAddress, &rtpPort) && 
+            if (pMediaConn->mpRtpSocket->getExternalIp(&rtpHostAddress, &rtpPort) &&
                 pMediaConn->mpRtcpSocket->getExternalIp(NULL, &rtcpPort))
             {
                 bSet = TRUE ;
@@ -353,16 +353,16 @@ OsStatus ConferenceEngineMediaInterface::getCapabilities(int connectionId,
         }
 
         if (!bSet)
-        {    
+        {
             rtpHostAddress = mRtpReceiveHostAddress.data();
             rtpPort = pMediaConn->mRtpReceivePort;
             rtcpPort = pMediaConn->mRtcpReceivePort ;
         }
 
         supportedCodecs = *(pMediaConn->mpCodecFactory);
-        supportedCodecs.bindPayloadTypes();   
+        supportedCodecs.bindPayloadTypes();
     }
-    
+
     mLock.release();
     return OS_SUCCESS ;
 }
@@ -384,7 +384,7 @@ OsStatus ConferenceEngineMediaInterface::setConnectionDestination(int connection
                                                                   int remoteVideoRtcpPort)
 {
     mLock.acquire();
-    
+
     ConferenceEngineMediaConnection* pMediaConnection = getMediaConnection(connectionId);
     if (pMediaConnection)
     {
@@ -392,7 +392,7 @@ OsStatus ConferenceEngineMediaInterface::setConnectionDestination(int connection
         pMediaConnection->mRtpSendHostAddress = remoteRtpHostAddress;
         pMediaConnection->mRtpSendHostPort = remoteRtpPort;
         pMediaConnection->mRtcpSendHostPort = remoteRtcpPort;
-    
+
         pMediaConnection->mpRtpSocket->doConnect(remoteRtpPort, remoteRtpHostAddress, TRUE);
 
         int rc = 0;
@@ -405,7 +405,7 @@ OsStatus ConferenceEngineMediaInterface::setConnectionDestination(int connection
         {
             rc = mpConferenceEngine->GIPSConf_EnableRTCP(connectionId, FALSE) ;
         }
-        
+
         if (rc != 0)
         {
             OsSysLog::add(FAC_MP, PRI_ERR,
@@ -422,12 +422,12 @@ OsStatus ConferenceEngineMediaInterface::setConnectionDestination(int connection
 
 OsStatus ConferenceEngineMediaInterface::addAlternateDestinations(int connectionId,
                                                                   unsigned char cPriority,
-                                                                  const char* rtpHostAddress, 
+                                                                  const char* rtpHostAddress,
                                                                   int port,
                                                                   bool bRtp)
 {
     mLock.acquire();
-    
+
     OsStatus returnCode = OS_NOT_FOUND;
     ConferenceEngineMediaConnection* mediaConnection = getMediaConnection(connectionId);
     if (mediaConnection)
@@ -437,7 +437,7 @@ OsStatus ConferenceEngineMediaInterface::addAlternateDestinations(int connection
             if (mediaConnection->mpRtpSocket)
             {
                 mediaConnection->mpRtpSocket->addAlternateDestination(rtpHostAddress,
-                                                                      port, 
+                                                                      port,
                                                                       cPriority) ;
                 returnCode = OS_SUCCESS;
             }
@@ -447,7 +447,7 @@ OsStatus ConferenceEngineMediaInterface::addAlternateDestinations(int connection
             if (mediaConnection->mpRtcpSocket)
             {
                 mediaConnection->mpRtcpSocket->addAlternateDestination(rtpHostAddress,
-                                                                       port, 
+                                                                       port,
                                                                        cPriority) ;
                 returnCode = OS_SUCCESS;
             }
@@ -482,7 +482,7 @@ OsStatus ConferenceEngineMediaInterface::startRtpSend(int connectionId,
                           mpConferenceEngine->GIPSConf_GetLastError());
         }
         assert(rc == 0);
-        
+
         rc = mpConferenceEngine->GIPSConf_SetSendIP(connectionId, (char*) pMediaConnection->mRtpSendHostAddress.data()) ;
         if (rc != 0)
         {
@@ -500,32 +500,32 @@ OsStatus ConferenceEngineMediaInterface::startRtpSend(int connectionId,
 
             if (primaryCodec && getConferenceEngineCodec(*primaryCodec, codecInfo))
             {
-                OsSysLog::add(FAC_MP, PRI_DEBUG, 
-                              "ConferenceEngineMediaInterface::startRtpSend: using GIPS codec %s for id %d, payload %d", 
-                              codecInfo.plname, primaryCodec->getCodecType(), 
+                OsSysLog::add(FAC_MP, PRI_DEBUG,
+                              "ConferenceEngineMediaInterface::startRtpSend: using GIPS codec %s for id %d, payload %d",
+                              codecInfo.plname, primaryCodec->getCodecType(),
                               primaryCodec->getCodecPayloadFormat());
                 pMediaConnection->mRtpPayloadType = primaryCodec->getCodecPayloadFormat();
-                
+
                 // Forcing ConferenceEngine to use our dynamically allocated payload types
                 codecInfo.pltype = primaryCodec->getCodecPayloadFormat();
-    
-                rc = mpConferenceEngine->GIPSConf_SetSendCodec(connectionId, &codecInfo);            
+
+                rc = mpConferenceEngine->GIPSConf_SetSendCodec(connectionId, &codecInfo);
                 if (rc != 0)
                 {
-                    OsSysLog::add(FAC_MP, PRI_DEBUG, 
+                    OsSysLog::add(FAC_MP, PRI_DEBUG,
                                   "ConferenceEngineMediaInterface::startRtpSend: GIPSConf_SetSendCodec failed with error %d",
                                    mpConferenceEngine->GIPSConf_GetLastError());
                 }
                 assert(rc == 0);
-                
+
                 bFoundCodec = true;
             }
-            
+
             break;
         }
 
         if (bFoundCodec)
-        {        
+        {
             rc = mpConferenceEngine->GIPSConf_StartSendToParticipant(connectionId) ;
             if (rc != 0)
             {
@@ -534,7 +534,7 @@ OsStatus ConferenceEngineMediaInterface::startRtpSend(int connectionId,
                               mpConferenceEngine->GIPSConf_GetLastError());
             }
             assert(rc == 0);
-    
+
             pMediaConnection->mRtpSending = TRUE ;
             rc = mpConferenceEngine->GIPSConf_StartPlayoutToMeeting(connectionId) ;
             if (rc != 0)
@@ -544,14 +544,14 @@ OsStatus ConferenceEngineMediaInterface::startRtpSend(int connectionId,
                               mpConferenceEngine->GIPSConf_GetLastError());
             }
             assert(rc == 0);
-            
+
             status = OS_SUCCESS;
         }
         else
         {
             OsSysLog::add(FAC_MP, PRI_ERR,
                           "ConferenceEngineMediaInterface::startRtpSend No match codec is found.");
-        }            
+        }
     }
 
     mLock.release();
@@ -565,24 +565,24 @@ OsStatus ConferenceEngineMediaInterface::startRtpReceive(int connectionId,
                                                          SdpSrtpParameters& srtpParams)
 {
     mLock.acquire();
-    
+
     int rc;
     int i;
     SdpCodec* primaryCodec = NULL;
     GIPS_CodecInst codecInfo;
 
-    ConferenceEngineMediaConnection* pMediaConnection = getMediaConnection(connectionId) ;  
+    ConferenceEngineMediaConnection* pMediaConnection = getMediaConnection(connectionId) ;
     if (pMediaConnection && !pMediaConnection->mRtpReceiving)
-    {   
+    {
         pMediaConnection->mpPrimaryCodec = NULL;
         if (pMediaConnection->mpCodecFactory)
         {
             pMediaConnection->mpCodecFactory->copyPayloadTypes(numCodecs, receiveCodecs);
         }
-        
-        for (i = 0; i < numCodecs; i++) 
+
+        for (i = 0; i < numCodecs; i++)
         {
-            if (NULL == primaryCodec) 
+            if (NULL == primaryCodec)
             {
                 primaryCodec = receiveCodecs[i];
                 if (getConferenceEngineCodec(*primaryCodec, codecInfo))
@@ -646,8 +646,8 @@ OsStatus ConferenceEngineMediaInterface::startRtpReceive(int connectionId,
                           mpConferenceEngine->GIPSConf_GetLastError());
         }
         assert(rc == 0);
-        
-        rc = mpConferenceEngine->GIPSConf_StartPlayoutToMeeting(connectionId) ;        
+
+        rc = mpConferenceEngine->GIPSConf_StartPlayoutToMeeting(connectionId) ;
         if (rc != 0)
         {
             OsSysLog::add(FAC_MP, PRI_ERR,
@@ -666,12 +666,12 @@ OsStatus ConferenceEngineMediaInterface::startRtpReceive(int connectionId,
 OsStatus ConferenceEngineMediaInterface::stopRtpSend(int connectionId)
 {
     mLock.acquire();
-    
-    int iRC ;  
+
+    int iRC ;
     ConferenceEngineMediaConnection* pMediaConnection = getMediaConnection(connectionId) ;
     if (pMediaConnection && pMediaConnection->mRtpSending)
-    {   
-        pMediaConnection->mRtpSending = FALSE ;        
+    {
+        pMediaConnection->mRtpSending = FALSE ;
 
         iRC = mpConferenceEngine->GIPSConf_StopPlayoutToMeeting(connectionId) ;
         if (iRC != 0)
@@ -682,7 +682,7 @@ OsStatus ConferenceEngineMediaInterface::stopRtpSend(int connectionId)
         }
         assert(iRC == 0) ;
 
-        iRC = mpConferenceEngine->GIPSConf_StopSendToParticipant(connectionId) ;    
+        iRC = mpConferenceEngine->GIPSConf_StopSendToParticipant(connectionId) ;
         if (iRC != 0)
         {
             OsSysLog::add(FAC_MP, PRI_ERR,
@@ -703,10 +703,10 @@ OsStatus ConferenceEngineMediaInterface::stopRtpReceive(int connectionId)
 
     ConferenceEngineMediaConnection* pMediaConnection = getMediaConnection(connectionId) ;
     if (pMediaConnection && pMediaConnection->mRtpReceiving)
-    {   
+    {
         pMediaConnection->mRtpReceiving = FALSE ;
 
-        iRC = mpConferenceEngine->GIPSConf_StopPlayoutToMeeting(connectionId) ;    
+        iRC = mpConferenceEngine->GIPSConf_StopPlayoutToMeeting(connectionId) ;
         if (iRC != 0)
         {
             OsSysLog::add(FAC_MP, PRI_ERR,
@@ -715,7 +715,7 @@ OsStatus ConferenceEngineMediaInterface::stopRtpReceive(int connectionId)
         }
         assert(iRC == 0) ;
 
-        iRC = mpConferenceEngine->GIPSConf_StopListenToParticipant(connectionId) ;    
+        iRC = mpConferenceEngine->GIPSConf_StopListenToParticipant(connectionId) ;
         if (iRC != 0)
         {
             OsSysLog::add(FAC_MP, PRI_ERR,
@@ -724,7 +724,7 @@ OsStatus ConferenceEngineMediaInterface::stopRtpReceive(int connectionId)
         }
         assert(iRC == 0);
     }
-    
+
     mLock.release();
     return OS_SUCCESS ;
 }
@@ -737,40 +737,40 @@ OsStatus ConferenceEngineMediaInterface::deleteConnection(int connectionId)
 
     ConferenceEngineMediaConnection* pMediaConnection = getMediaConnection(connectionId) ;
     if (pMediaConnection)
-    {        
+    {
         stopRtpSend(connectionId) ;
         stopRtpReceive(connectionId) ;
-        
+
         OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
         OsProtectedEvent* rtpSockeRemoveEvent = eventMgr->alloc();
         OsProtectedEvent* rtcpSockeRemoveEvent = eventMgr->alloc();
         OsTime maxEventTime(20, 0);
 
         ConferenceEngineNetTask* pNetTask = NULL;
-        
+
         pNetTask = ConferenceEngineNetTask::getConferenceEngineNetTask();
-        
+
         if (pNetTask)
         {
             pNetTask->removeInputSource(pMediaConnection->mpRtpSocket, rtpSockeRemoveEvent) ;
             pNetTask->removeInputSource(pMediaConnection->mpRtcpSocket, rtcpSockeRemoveEvent) ;
             // Wait until the call sets the number of connections
             rtpSockeRemoveEvent->wait(0, maxEventTime);
-            rtcpSockeRemoveEvent->wait(0, maxEventTime);                    
+            rtcpSockeRemoveEvent->wait(0, maxEventTime);
         }
 
         mpFactoryImpl->releaseRtpPort(pMediaConnection->mRtcpReceivePort) ;
-        
+
         UtlInt container(connectionId);
         mMediaConnections.destroy(&container);
-        
+
         int iRC = mpConferenceEngine->GIPSConf_DeleteChannel(connectionId) ;
         assert(iRC == 0);
 
         eventMgr->release(rtpSockeRemoveEvent);
         eventMgr->release(rtcpSockeRemoveEvent);
         delete pMediaConnection;
-        
+
         rc = OS_SUCCESS;
     }
 
@@ -785,16 +785,16 @@ OsStatus ConferenceEngineMediaInterface::playAudio(const char* url,
                                                    UtlBoolean remote)
 {
     mLock.acquire();
-    
+
     assert(url);
-    
+
     ConferenceEngineMediaConnection* pMediaConnection = (ConferenceEngineMediaConnection *) mMediaConnections.first();
     if (pMediaConnection)
     {
-        // Set up a notification for play done event        
+        // Set up a notification for play done event
         pMediaConnection->mpPlayNotify = NULL;
     }
-    
+
     // According to gips/ConferenceEngine/interface/ConferenceEngine.h, "url"
     // must be a file name.
     int iRC = mpConferenceEngine->GIPSConf_StartPlayFileToMeeting(url, true);
@@ -817,17 +817,17 @@ OsStatus ConferenceEngineMediaInterface::playAudioForIndividual(int connectionId
                                                                 OsNotification* event)
 {
     mLock.acquire();
-    
+
     assert(url);
-    
+
     int iRC;
 
     ConferenceEngineMediaConnection* pMediaConnection = getMediaConnection(connectionId) ;
     if (pMediaConnection)
     {
-        // Set up a notification for play done event        
+        // Set up a notification for play done event
         pMediaConnection->mpPlayNotify = event;
-        
+
         iRC = mpConferenceEngine->GIPSConf_StartPlayFileToChannel(connectionId, url);
         if (iRC != 0)
         {
@@ -845,15 +845,15 @@ OsStatus ConferenceEngineMediaInterface::playAudioForIndividual(int connectionId
 
 OsStatus ConferenceEngineMediaInterface::playBuffer(char* buf,
                                                     unsigned long bufSize,
-                                                    int type, 
+                                                    int type,
                                                     UtlBoolean repeat,
                                                     UtlBoolean local,
-                                                    UtlBoolean remote, 
+                                                    UtlBoolean remote,
                                                     OsNotification* event)
 {
     OsSysLog::add(FAC_MP, PRI_ERR,
                   "ConferenceEngineMediaInterface::stopDtmf is not supported.");
-   
+
     return OS_NOT_SUPPORTED ;
 }
 
@@ -862,7 +862,7 @@ OsStatus ConferenceEngineMediaInterface::pauseAudio()
 {
     OsSysLog::add(FAC_MP, PRI_ERR,
                   "ConferenceEngineMediaInterface::stopDtmf is not supported.");
-   
+
     return OS_NOT_SUPPORTED ;
 }
 
@@ -870,11 +870,11 @@ OsStatus ConferenceEngineMediaInterface::pauseAudio()
 OsStatus ConferenceEngineMediaInterface::stopAudio()
 {
     mLock.acquire();
-    
+
     ConferenceEngineMediaConnection* pMediaConnection = (ConferenceEngineMediaConnection *) mMediaConnections.first();
     if (pMediaConnection)
     {
-        // Set up a notification for play done event        
+        // Set up a notification for play done event
         pMediaConnection->mpPlayNotify = NULL;
     }
 
@@ -886,7 +886,7 @@ OsStatus ConferenceEngineMediaInterface::stopAudio()
                       mpConferenceEngine->GIPSConf_GetLastError());
     }
     assert(iRC == 0);
-    
+
     mLock.release();
     return OS_SUCCESS;
 }
@@ -895,13 +895,13 @@ OsStatus ConferenceEngineMediaInterface::stopAudio()
 OsStatus ConferenceEngineMediaInterface::stopAudioForIndividual(int connectionId)
 {
     mLock.acquire();
-    
+
     int iRC;
 
     ConferenceEngineMediaConnection* pMediaConnection = getMediaConnection(connectionId) ;
     if (pMediaConnection)
-    {        
-        // Set up a notification for play done event        
+    {
+        // Set up a notification for play done event
         pMediaConnection->mpPlayNotify = NULL;
 
         iRC = mpConferenceEngine->GIPSConf_StopPlayFileToChannel(connectionId);
@@ -919,15 +919,15 @@ OsStatus ConferenceEngineMediaInterface::stopAudioForIndividual(int connectionId
 }
 
 
-OsStatus ConferenceEngineMediaInterface::createPlayer(MpStreamPlayer** ppPlayer, 
-                                                      const char* szStream, 
-                                                      int flags, 
-                                                      OsMsgQ *pMsgQ, 
+OsStatus ConferenceEngineMediaInterface::createPlayer(MpStreamPlayer** ppPlayer,
+                                                      const char* szStream,
+                                                      int flags,
+                                                      OsMsgQ *pMsgQ,
                                                       const char* szTarget)
 {
     OsSysLog::add(FAC_MP, PRI_ERR,
                   "ConferenceEngineMediaInterface::createPlayer is not supported.");
-   
+
     return OS_NOT_SUPPORTED ;
 }
 
@@ -936,18 +936,18 @@ OsStatus ConferenceEngineMediaInterface::destroyPlayer(MpStreamPlayer* pPlayer)
 {
     OsSysLog::add(FAC_MP, PRI_ERR,
                   "ConferenceEngineMediaInterface::destroyPlayer is not supported.");
-   
+
     return OS_NOT_SUPPORTED ;
 }
 
 
-OsStatus ConferenceEngineMediaInterface::createPlaylistPlayer(MpStreamPlaylistPlayer** ppPlayer, 
-                                                              OsMsgQ *pMsgQ, 
+OsStatus ConferenceEngineMediaInterface::createPlaylistPlayer(MpStreamPlaylistPlayer** ppPlayer,
+                                                              OsMsgQ *pMsgQ,
                                                               const char* szTarget)
 {
     OsSysLog::add(FAC_MP, PRI_ERR,
                   "ConferenceEngineMediaInterface::createPlaylistPlayer is not supported.");
-   
+
     return OS_NOT_SUPPORTED ;
 }
 
@@ -961,13 +961,13 @@ OsStatus ConferenceEngineMediaInterface::destroyPlaylistPlayer(MpStreamPlaylistP
 }
 
 
-OsStatus ConferenceEngineMediaInterface::createQueuePlayer(MpStreamQueuePlayer** ppPlayer, 
-                                                           OsMsgQ *pMsgQ, 
+OsStatus ConferenceEngineMediaInterface::createQueuePlayer(MpStreamQueuePlayer** ppPlayer,
+                                                           OsMsgQ *pMsgQ,
                                                            const char* szTarget)
 {
     OsSysLog::add(FAC_MP, PRI_ERR,
                   "ConferenceEngineMediaInterface::createQueuePlayer is not supported.");
-   
+
     return OS_NOT_SUPPORTED ;
 }
 
@@ -976,7 +976,7 @@ OsStatus ConferenceEngineMediaInterface::destroyQueuePlayer(MpStreamQueuePlayer*
 {
     OsSysLog::add(FAC_MP, PRI_ERR,
                   "ConferenceEngineMediaInterface::destroyQueuePlayer is not supported.");
-   
+
     return OS_NOT_SUPPORTED ;
 }
 
@@ -987,7 +987,7 @@ OsStatus ConferenceEngineMediaInterface::startTone(int toneId,
 {
     OsSysLog::add(FAC_MP, PRI_ERR,
                   "ConferenceEngineMediaInterface::startTone is not supported.");
-   
+
     return OS_NOT_SUPPORTED;
 }
 
@@ -996,7 +996,7 @@ OsStatus ConferenceEngineMediaInterface::stopTone()
 {
     OsSysLog::add(FAC_MP, PRI_ERR,
                   "ConferenceEngineMediaInterface::stopTone is not supported.");
-   
+
     return OS_NOT_SUPPORTED ;
 }
 
@@ -1004,7 +1004,7 @@ OsStatus ConferenceEngineMediaInterface::giveFocus()
 {
     mLock.acquire();
     mFocus = TRUE;
-   
+
     return OS_SUCCESS;
 }
 
@@ -1013,7 +1013,7 @@ OsStatus ConferenceEngineMediaInterface::defocus()
 {
     mLock.acquire();
     mFocus = FALSE;
-   
+
     return OS_SUCCESS;
 }
 
@@ -1037,19 +1037,19 @@ OsStatus ConferenceEngineMediaInterface::stopRecording()
     int rc = mpConferenceEngine->GIPSConf_StopRecordingMeeting();
     if (rc != 0)
     {
-        OsSysLog::add(FAC_MP, PRI_ERR, 
+        OsSysLog::add(FAC_MP, PRI_ERR,
                       "ConferenceEngineMediaInterface::stopRecording: GIPSConf_StopRecordingMeeting failed with error %d",
                        mpConferenceEngine->GIPSConf_GetLastError());
     }
     assert(rc == 0);
-        
+
     return OS_SUCCESS ;
 }
 
 
-OsStatus ConferenceEngineMediaInterface::ezRecord(int ms, 
-                                                  int silenceLength, 
-                                                  const char* fileName, 
+OsStatus ConferenceEngineMediaInterface::ezRecord(int ms,
+                                                  int silenceLength,
+                                                  const char* fileName,
                                                   double& duration,
                                                   int& dtmfterm,
                                                   OsProtectedEvent* ev)
@@ -1057,48 +1057,48 @@ OsStatus ConferenceEngineMediaInterface::ezRecord(int ms,
     int rc = mpConferenceEngine->GIPSConf_StartRecordingMeeting(fileName);
     if (rc != 0)
     {
-        OsSysLog::add(FAC_MP, PRI_ERR, 
+        OsSysLog::add(FAC_MP, PRI_ERR,
                       "ConferenceEngineMediaInterface::ezRecord: GIPSConf_StartRecordingMeeting failed with error %d",
                        mpConferenceEngine->GIPSConf_GetLastError());
     }
     assert(rc == 0);
-        
+
     return OS_SUCCESS ;
 }
 
 void ConferenceEngineMediaInterface::addToneListener(OsNotification *pListener, int connectionId)
 {
     mLock.acquire();
-    
+
     ConferenceEngineMediaConnection* pMediaConnection = getMediaConnection(connectionId) ;
     if (pMediaConnection)
-    {        
+    {
         pMediaConnection->mpDTMFNotify = pListener;
     }
 
-    mLock.release();    
+    mLock.release();
 }
 
 void ConferenceEngineMediaInterface::removeToneListener(int connectionId)
 {
    mLock.acquire();
-    
+
     ConferenceEngineMediaConnection* pMediaConnection = getMediaConnection(connectionId) ;
     if (pMediaConnection)
-    {        
+    {
         pMediaConnection->mpDTMFNotify = NULL;
     }
 
-    mLock.release();    
+    mLock.release();
 }
 
-void  ConferenceEngineMediaInterface::setContactType(int connectionId, CONTACT_TYPE eType) 
+void  ConferenceEngineMediaInterface::setContactType(int connectionId, CONTACT_TYPE eType)
 {
     mLock.acquire();
-    
+
     ConferenceEngineMediaConnection* pMediaConnection = getMediaConnection(connectionId) ;
     if (pMediaConnection)
-    {        
+    {
         pMediaConnection->meContactType = eType;
     }
 
@@ -1111,23 +1111,23 @@ void  ConferenceEngineMediaInterface::setContactType(int connectionId, CONTACT_T
 void ConferenceEngineMediaInterface::setPremiumSound(UtlBoolean enabled)
 {
     OsSysLog::add(FAC_MP, PRI_ERR,
-                  "ConferenceEngineMediaInterface::setPremiumSound is not supported.");   
+                  "ConferenceEngineMediaInterface::setPremiumSound is not supported.");
 }
 
 
 // Calculate the current cost for our sending/receiving codecs
 int ConferenceEngineMediaInterface::getCodecCPUCost()
-{   
-   int iCost = SdpCodec::SDP_CODEC_CPU_LOW ;   
-   
+{
+   int iCost = SdpCodec::SDP_CODEC_CPU_LOW ;
+
    return iCost ;
 }
 
 
 // Calculate the worst case cost for our sending/receiving codecs
 int ConferenceEngineMediaInterface::getCodecCPULimit()
-{   
-   int iCost = SdpCodec::SDP_CODEC_CPU_LOW ;   
+{
+   int iCost = SdpCodec::SDP_CODEC_CPU_LOW ;
 
    return iCost ;
 }
@@ -1225,7 +1225,7 @@ UtlBoolean ConferenceEngineMediaInterface::isDestinationSet(int connectionId)
 }
 
 
-UtlBoolean ConferenceEngineMediaInterface::canAddParty() 
+UtlBoolean ConferenceEngineMediaInterface::canAddParty()
 {
     return TRUE;
 }
@@ -1273,7 +1273,7 @@ UtlBoolean ConferenceEngineMediaInterface::getCodecNameByType(SdpCodec::SdpCodec
         OsSysLog::add(FAC_MP, PRI_WARNING,
                       "ConferenceEngineMediaInterface::getCodecNameByType unsupported type %d.",
                       codecType);
-    
+
     }
 
     if (codecName != "")
@@ -1294,7 +1294,7 @@ UtlBoolean ConferenceEngineMediaInterface::getCodecTypeByName(const UtlString& c
     if (codecName == GIPS_CODEC_ID_G729)
     {
         codecType = SdpCodec::SDP_CODEC_G729A;
-    } 
+    }
     else if (codecName == GIPS_CODEC_ID_TELEPHONE)
     {
         codecType = SdpCodec::SDP_CODEC_TONES;
@@ -1327,7 +1327,7 @@ UtlBoolean ConferenceEngineMediaInterface::getCodecTypeByName(const UtlString& c
     {
         codecType = SdpCodec::SDP_CODEC_GIPS_ISAC;
     }
- 
+
     if (codecType != SdpCodec::SDP_CODEC_UNKNOWN)
     {
         matchFound = TRUE;
@@ -1361,7 +1361,7 @@ UtlBoolean ConferenceEngineMediaInterface::getConferenceEngineCodec(const SdpCod
             }
         }
     }
-    
+
     mLock.release();
     return matchFound;
 }
@@ -1376,12 +1376,12 @@ ConferenceEngine* const ConferenceEngineMediaInterface::getConferenceEnginePtr()
 OsStatus ConferenceEngineMediaInterface::mute(int connectionId)
 {
     mLock.acquire();
-    
+
     int iRC;
 
     ConferenceEngineMediaConnection* pMediaConnection = getMediaConnection(connectionId) ;
     if (pMediaConnection)
-    {        
+    {
         iRC = mpConferenceEngine->GIPSConf_StopPlayoutToMeeting(connectionId);
         if (iRC != 0)
         {
@@ -1400,12 +1400,12 @@ OsStatus ConferenceEngineMediaInterface::mute(int connectionId)
 OsStatus ConferenceEngineMediaInterface::unmute(int connectionId)
 {
     mLock.acquire();
-    
+
     int iRC;
 
     ConferenceEngineMediaConnection* pMediaConnection = getMediaConnection(connectionId) ;
     if (pMediaConnection)
-    {        
+    {
         iRC = mpConferenceEngine->GIPSConf_StartPlayoutToMeeting(connectionId);
         if (iRC != 0)
         {
@@ -1424,7 +1424,7 @@ OsStatus ConferenceEngineMediaInterface::unmute(int connectionId)
 OsStatus ConferenceEngineMediaInterface::setDTMF(int connectionId)
 {
     mLock.acquire();
-    
+
     int rc;
     if (mDTMFOutOfBand)
     {
@@ -1446,9 +1446,9 @@ OsStatus ConferenceEngineMediaInterface::setDTMF(int connectionId)
                           mpConferenceEngine->GIPSConf_GetLastError());
         }
     }
-    
+
     assert(rc == 0);
-    
+
     mLock.release();
     return OS_SUCCESS;
 }
@@ -1457,12 +1457,12 @@ OsStatus ConferenceEngineMediaInterface::setDTMF(int connectionId)
 OsStatus ConferenceEngineMediaInterface::setVolume(int connectionId)
 {
     mLock.acquire();
-    
+
     int iRC;
 
     ConferenceEngineMediaConnection* pMediaConnection = getMediaConnection(connectionId) ;
     if (pMediaConnection)
-    {        
+    {
         iRC = mpConferenceEngine->GIPSConf_SetVolume(connectionId, mDefaultVolume);
         if (iRC != 0)
         {
@@ -1481,7 +1481,7 @@ OsStatus ConferenceEngineMediaInterface::setVolume(int connectionId)
 OsStatus ConferenceEngineMediaInterface::setVideoWindowDisplay(const void* pDisplay)
 {
     OsStatus rc = OS_NOT_SUPPORTED;
-    
+
     return rc;
 }
 
@@ -1495,12 +1495,12 @@ const void* ConferenceEngineMediaInterface::getVideoWindowDisplay()
 OsNotification* ConferenceEngineMediaInterface::getDTMFNotifier(int connectionId)
 {
     mLock.acquire();
-    
+
     OsNotification* notifier = NULL;
 
     ConferenceEngineMediaConnection* pMediaConnection = getMediaConnection(connectionId) ;
     if (pMediaConnection)
-    {        
+    {
         notifier =  pMediaConnection->mpDTMFNotify;
     }
 
@@ -1512,12 +1512,12 @@ OsNotification* ConferenceEngineMediaInterface::getDTMFNotifier(int connectionId
 OsNotification* ConferenceEngineMediaInterface::getPlayNotifier(int connectionId)
 {
     mLock.acquire();
-    
+
     OsNotification* notifier = NULL;
 
     ConferenceEngineMediaConnection* pMediaConnection = getMediaConnection(connectionId) ;
     if (pMediaConnection)
-    {        
+    {
         notifier =  pMediaConnection->mpPlayNotify;
     }
 
@@ -1527,4 +1527,3 @@ OsNotification* ConferenceEngineMediaInterface::getPlayNotifier(int connectionId
 
 
 /* ============================ FUNCTIONS ================================= */
-

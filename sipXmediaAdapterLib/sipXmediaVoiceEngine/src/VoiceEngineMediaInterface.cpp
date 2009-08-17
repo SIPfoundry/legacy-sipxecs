@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -13,7 +13,7 @@
 #ifdef _WIN32
     #define _OLE32_
     #define _WIN32_DCOM
-    #define _WIN32_WINNT 0x0400 
+    #define _WIN32_WINNT 0x0400
 #endif
 
 #ifdef __pingtel_on_posix__
@@ -39,7 +39,7 @@
     #include <windows.h>
     #include "GipsVideoEngineWindows.h"
 #endif
-#endif 
+#endif
 
 #include "net/SipContactDb.h"
 
@@ -67,8 +67,8 @@ class VoiceEngineMediaConnection : public UtlInt
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
-    VoiceEngineMediaConnection(int connectionId = -1) 
-        : UtlInt(connectionId)        
+    VoiceEngineMediaConnection(int connectionId = -1)
+        : UtlInt(connectionId)
     {
         mpRtpAudioSocket = NULL;
         mpRtcpAudioSocket = NULL;
@@ -91,7 +91,7 @@ public:
         mRtpVideoPayloadType = 0;
 #endif
         mRtpPayloadType = 0;
-        mDestinationSet = FALSE;       
+        mDestinationSet = FALSE;
         mRtpSendingAudio = FALSE;
         mRtpSendingVideo = FALSE;
         mRtpReceivingAudio = FALSE;
@@ -133,7 +133,7 @@ public:
         }
 
         if (mpVideoSocketAdapter)
-        {   
+        {
             delete mpVideoSocketAdapter ;
             mpVideoSocketAdapter = NULL ;
         }
@@ -153,7 +153,7 @@ public:
 
     VoiceEngineDatagramSocket* mpRtpAudioSocket;
     VoiceEngineDatagramSocket* mpRtcpAudioSocket;
-    VoiceEngineSocketAdapter* mpAudioSocketAdapter ;    
+    VoiceEngineSocketAdapter* mpAudioSocketAdapter ;
     int mRtpAudioSendHostPort;
     int mRtcpAudioSendHostPort;
     int mRtpAudioReceivePort;
@@ -180,7 +180,7 @@ public:
     UtlBoolean mRtpReceivingVideo;
     SdpCodecFactory* mpCodecFactory;
     SdpCodec* mpPrimaryCodec;
-    CONTACT_TYPE meContactType ;   
+    CONTACT_TYPE meContactType ;
     UtlString mRtpSendHostAddress;
 };
 
@@ -199,9 +199,9 @@ VoiceEngineMediaInterface::VoiceEngineMediaInterface(VoiceEngineFactoryImpl* pFa
                                                      const char* szStunServer,
                                                      int stunOptions,
                                                      int iStunKeepAlivePeriodSecs,
-                                                     UtlBoolean bDTMFOutOfBand) 
+                                                     UtlBoolean bDTMFOutOfBand)
     : CpMediaInterface(pFactoryImpl)
-    , mVoiceEngineGuard(OsMutex::Q_FIFO) 
+    , mVoiceEngineGuard(OsMutex::Q_FIFO)
     , mSupportedCodecs(numCodecs, sdpCodecArray),
       mpDisplay(NULL),
       mbVideoStarted(false),
@@ -220,7 +220,7 @@ VoiceEngineMediaInterface::VoiceEngineMediaInterface(VoiceEngineFactoryImpl* pFa
     int lastError ;
 
     // Initialize VoiceEngine
-    mpVoiceEngine = GetNewVoiceEngineLib() ;    
+    mpVoiceEngine = GetNewVoiceEngineLib() ;
     rc = mpVoiceEngine->GIPSVE_Init() ;
     assert(rc == 0);
     lastError = mpVoiceEngine->GIPSVE_GetLastError();
@@ -244,16 +244,16 @@ VoiceEngineMediaInterface::VoiceEngineMediaInterface(VoiceEngineFactoryImpl* pFa
 #endif
     lastError = mpVideoEngine->GIPSVideo_GetLastError() ;
     //assert(lastError == 0) ;
-#endif   
+#endif
 
 #endif /* USE_GLOBAL_VOICE_ENGINE ] */
 
     mbFocus = FALSE ;
-    
+
     int rc3 = mpVoiceEngine->GIPSVE_SetAGCStatus(0);     // make sure Automatic Gain Control is turned off
     assert(rc3 == 0);
-    
-    pNetTask = VoiceEngineNetTask::getVoiceEngineNetTask() ;    
+
+    pNetTask = VoiceEngineNetTask::getVoiceEngineNetTask() ;
 
     mStunOptions = stunOptions ;
     mStunServer = szStunServer ;
@@ -285,7 +285,7 @@ VoiceEngineMediaInterface::~VoiceEngineMediaInterface()
     OsLock lock(mVoiceEngineGuard) ;
 
     VoiceEngineMediaConnection* pMediaConnection = NULL;
-    
+
     UtlSListIterator iterator(mMediaConnections);
     while ((pMediaConnection = (VoiceEngineMediaConnection*) iterator()))
     {
@@ -301,26 +301,26 @@ VoiceEngineMediaInterface::~VoiceEngineMediaInterface()
     mpVideoEngine->GIPSVideo_Terminate();
     OutputDebugString("GIPSVideo_Terminate\n");
     delete mpVideoEngine;
-    mpVideoEngine = NULL;        
+    mpVideoEngine = NULL;
 #endif
 #endif /* USE_GLOBAL_VOICE_ENGINE ] */
 }
 
 
 void VoiceEngineMediaInterface::release()
-{    
+{
     // remove this pointer from the factory implementation
     if (mpFactoryImpl)
     {
         ((VoiceEngineFactoryImpl*) mpFactoryImpl)->removeInterface(this);
-    }        
+    }
     delete this;
 }
 
 
 /* ============================ MANIPULATORS ============================== */
 
-OsStatus VoiceEngineMediaInterface::createConnection(int& connectionId, 
+OsStatus VoiceEngineMediaInterface::createConnection(int& connectionId,
                                                      const char* szLocalAddress,
                                                      void* videoDisplay)
 {
@@ -337,7 +337,7 @@ OsStatus VoiceEngineMediaInterface::createConnection(int& connectionId,
 
     /*
      * Create Audio Channel
-     */     
+     */
     mpFactoryImpl->getNextRtpPort(localAudioPort);
 
     connectionId = mpVoiceEngine->GIPSVE_CreateChannel() ;
@@ -348,7 +348,7 @@ OsStatus VoiceEngineMediaInterface::createConnection(int& connectionId,
 
     VoiceEngineMediaConnection* pMediaConnection = new VoiceEngineMediaConnection() ;
     pMediaConnection->setValue(connectionId);
-    mpDisplay = (SIPXVE_VIDEO_DISPLAY*)videoDisplay; 
+    mpDisplay = (SIPXVE_VIDEO_DISPLAY*)videoDisplay;
 
     // If the connection Id is already used -- this is an error
     assert(mMediaConnections.find(&UtlInt(connectionId)) == NULL) ;
@@ -356,7 +356,7 @@ OsStatus VoiceEngineMediaInterface::createConnection(int& connectionId,
 
     VoiceEngineDatagramSocket* rtpAudioSocket = new VoiceEngineDatagramSocket(
             mpVoiceEngine, NULL, connectionId, -1,
-            TYPE_AUDIO_RTP, 0, NULL, localAudioPort, mLocalAddress.data(), 
+            TYPE_AUDIO_RTP, 0, NULL, localAudioPort, mLocalAddress.data(),
             mStunServer.length() != 0, mStunServer, mStunOptions, mStunRefreshPeriodSecs);
     VoiceEngineDatagramSocket* rtcpAudioSocket = new VoiceEngineDatagramSocket(
             mpVoiceEngine, NULL, connectionId, -1,
@@ -366,10 +366,10 @@ OsStatus VoiceEngineMediaInterface::createConnection(int& connectionId,
     pMediaConnection->mpRtpAudioSocket = rtpAudioSocket;
     pMediaConnection->mpRtcpAudioSocket = rtcpAudioSocket;
     pMediaConnection->mRtpAudioReceivePort = rtpAudioSocket->getLocalHostPort() ;
-    pMediaConnection->mRtcpAudioReceivePort = rtcpAudioSocket->getLocalHostPort() ; 
-    pMediaConnection->mpAudioSocketAdapter = new 
+    pMediaConnection->mRtcpAudioReceivePort = rtcpAudioSocket->getLocalHostPort() ;
+    pMediaConnection->mpAudioSocketAdapter = new
             VoiceEngineSocketAdapter(pMediaConnection->mpRtpAudioSocket, pMediaConnection->mpRtcpAudioSocket) ;
-    rc = mpVoiceEngine->GIPSVE_SetSendTransport(connectionId, *pMediaConnection->mpAudioSocketAdapter) ;    
+    rc = mpVoiceEngine->GIPSVE_SetSendTransport(connectionId, *pMediaConnection->mpAudioSocketAdapter) ;
     assert(rc == 0);
 
     pMediaConnection->mpCodecFactory = new SdpCodecFactory(mSupportedCodecs);
@@ -378,7 +378,7 @@ OsStatus VoiceEngineMediaInterface::createConnection(int& connectionId,
     UtlBoolean bAEC;
     mpFactoryImpl->isAudioAECEnabled(bAEC);
     if (bAEC)
-    {   
+    {
         int irc = 0;
         // Mode 1: echo cancellation enable, mode2: automatic
         if (0 == mpVoiceEngine->GIPSVE_SetECStatus(1))
@@ -393,7 +393,7 @@ OsStatus VoiceEngineMediaInterface::createConnection(int& connectionId,
         int rc = mpVoiceEngine->GIPSVE_SetECStatus(0);
         assert(rc == 0);
     }
-    
+
     if (((VoiceEngineFactoryImpl*) mpFactoryImpl)->isMuted())
     {
         muteMicrophone(true);
@@ -407,7 +407,7 @@ int VoiceEngineMediaInterface::getNumCodecs(int connectionId)
 {
     OsLock lock(mVoiceEngineGuard) ;
     int iCodecs = 0;
-    VoiceEngineMediaConnection* 
+    VoiceEngineMediaConnection*
         pMediaConn = getMediaConnection(connectionId);
 
     if (pMediaConn && pMediaConn->mpCodecFactory)
@@ -428,22 +428,22 @@ OsStatus VoiceEngineMediaInterface::getCapabilities(int connectionId,
                                                     SdpCodecFactory& supportedCodecs,
                                                     SdpSrtpParameters& srtpParameters)
 {
-    OsLock lock(mVoiceEngineGuard) ;   
-#ifdef _WIN32    
+    OsLock lock(mVoiceEngineGuard) ;
+#ifdef _WIN32
 #ifdef VIDEO
     CoInitializeEx(NULL, 0);
 #endif
 #endif
-    
+
     OsStatus rc = OS_FAILED ;
-    UtlString ignored ;    
+    UtlString ignored ;
     VoiceEngineMediaConnection* pMediaConn = getMediaConnection(connectionId);
     rtpAudioPort = 0 ;
     rtcpAudioPort = 0 ;
 #ifdef VIDEO
     rtpVideoPort = 0 ;
-    rtcpVideoPort = 0 ;    
-#endif   
+    rtcpVideoPort = 0 ;
+#endif
 
     if (pMediaConn)
     {
@@ -454,15 +454,15 @@ OsStatus VoiceEngineMediaInterface::getCapabilities(int connectionId,
             mbVideoStarted = true;
         }
 #endif
-                
-        if (    (pMediaConn->meContactType == AUTO) || 
+
+        if (    (pMediaConn->meContactType == AUTO) ||
                 (pMediaConn->meContactType == NAT_MAPPED))
         {
             // Audio RTP
             if (pMediaConn->mpRtpAudioSocket)
             {
-                // The "rtpHostAddress" is used for the rtp stream -- others 
-                // are ignored.  They *SHOULD* be the same as the first.  
+                // The "rtpHostAddress" is used for the rtp stream -- others
+                // are ignored.  They *SHOULD* be the same as the first.
                 // Possible exceptions: STUN worked for the first, but not the
                 // others.  Not sure how to handle/recover from that case.
                 if (mContactType == AUTO || mContactType == NAT_MAPPED)
@@ -487,7 +487,7 @@ OsStatus VoiceEngineMediaInterface::getCapabilities(int connectionId,
                 {
                   assert(0);
                 }
-               
+
             }
 
             // Audio RTCP
@@ -513,7 +513,7 @@ OsStatus VoiceEngineMediaInterface::getCapabilities(int connectionId,
                     {
                         rtcpAudioPort = pMediaConn->mRtcpAudioReceivePort ;
                     }
-                }                
+                }
                 else
                 {
                     assert(0);
@@ -574,7 +574,7 @@ OsStatus VoiceEngineMediaInterface::getCapabilities(int connectionId,
                     {
                         rtcpVideoPort = pMediaConn->mRtcpVideoReceivePort ;
                     }
-                }                
+                }
                 else
                 {
                     assert(0);
@@ -595,7 +595,7 @@ OsStatus VoiceEngineMediaInterface::getCapabilities(int connectionId,
 
         // Codecs
         supportedCodecs = *(pMediaConn->mpCodecFactory);
-        supportedCodecs.bindPayloadTypes();   
+        supportedCodecs.bindPayloadTypes();
 
         // Set up srtpParameters for testing
         srtpParameters.cipherType = AES_CM_128_HMAC_SHA1_80;
@@ -625,7 +625,7 @@ OsStatus VoiceEngineMediaInterface::setConnectionDestination(int connectionId,
                                                              int remoteAudioRtcpPort,
                                                              int remoteVideoRtpPort,
                                                              int remoteVideoRtcpPort)
-{    
+{
     OsLock lock(mVoiceEngineGuard) ;
     VoiceEngineMediaConnection* pMediaConnection = getMediaConnection(connectionId);
     if (pMediaConnection)
@@ -638,8 +638,8 @@ OsStatus VoiceEngineMediaInterface::setConnectionDestination(int connectionId,
 
         /*
          * Audio setup
-         */                 
-        pMediaConnection->mRtpAudioSendHostPort = remoteAudioRtpPort;        
+         */
+        pMediaConnection->mRtpAudioSendHostPort = remoteAudioRtpPort;
         pMediaConnection->mpRtpAudioSocket->doConnect(remoteAudioRtpPort, remoteRtpHostAddress, TRUE);
         if ((remoteAudioRtcpPort > 0) && pMediaConnection->mpRtcpAudioSocket)
         {
@@ -662,7 +662,7 @@ OsStatus VoiceEngineMediaInterface::setConnectionDestination(int connectionId,
 #ifdef VIDEO
         if (pMediaConnection->mpRtpVideoSocket)
         {
-            pMediaConnection->mRtpVideoSendHostPort = remoteVideoRtpPort ;       
+            pMediaConnection->mRtpVideoSendHostPort = remoteVideoRtpPort ;
             pMediaConnection->mpRtpVideoSocket->doConnect(remoteVideoRtpPort, remoteRtpHostAddress, TRUE) ;
             if ((remoteVideoRtcpPort > 0) && pMediaConnection->mpRtcpVideoSocket)
             {
@@ -682,7 +682,7 @@ OsStatus VoiceEngineMediaInterface::setConnectionDestination(int connectionId,
         {
             pMediaConnection->mRtpVideoSendHostPort = 0 ;
             pMediaConnection->mRtcpVideoSendHostPort = 0 ;
-        }        
+        }
 #endif
     }
 
@@ -691,7 +691,7 @@ OsStatus VoiceEngineMediaInterface::setConnectionDestination(int connectionId,
 
 OsStatus VoiceEngineMediaInterface::addAlternateDestinations(int connectionId,
                                                              unsigned char cPriority,
-                                                             const char* rtpHostAddress, 
+                                                             const char* rtpHostAddress,
                                                              int port,
                                                              bool bRtp)
 {
@@ -705,7 +705,7 @@ OsStatus VoiceEngineMediaInterface::addAlternateDestinations(int connectionId,
             if (mediaConnection->mpRtpAudioSocket)
             {
                 mediaConnection->mpRtpAudioSocket->addAlternateDestination(
-                        rtpHostAddress, port, 
+                        rtpHostAddress, port,
                         cPriority) ;
                 returnCode = OS_SUCCESS;
             }
@@ -715,7 +715,7 @@ OsStatus VoiceEngineMediaInterface::addAlternateDestinations(int connectionId,
             if (mediaConnection->mpRtcpAudioSocket)
             {
                 mediaConnection->mpRtcpAudioSocket->addAlternateDestination(
-                        rtpHostAddress, port, 
+                        rtpHostAddress, port,
                         cPriority) ;
                 returnCode = OS_SUCCESS;
             }
@@ -741,8 +741,8 @@ OsStatus VoiceEngineMediaInterface::startRtpSend(int connectionId,
     memset((void*)&vcodecInfo, 0, sizeof(vcodecInfo));
 #endif
     UtlString mimeType;
-    
-#ifdef _WIN32    
+
+#ifdef _WIN32
 #ifdef VIDEO
     CoInitializeEx(NULL, 0);
 #endif
@@ -753,14 +753,14 @@ OsStatus VoiceEngineMediaInterface::startRtpSend(int connectionId,
     {
         for (i=0; i<numCodecs; i++) {
             sendCodecs[i]->getMediaType(mimeType);
-            if (SdpCodec::SDP_CODEC_TONES == sendCodecs[i]->getValue()) 
+            if (SdpCodec::SDP_CODEC_TONES == sendCodecs[i]->getValue())
             {
-                if (NULL == dtmfCodec) 
+                if (NULL == dtmfCodec)
                 {
                     dtmfCodec = sendCodecs[i];
                 }
-            } 
-            else if (NULL == primaryCodec && mimeType.compareTo("audio") == 0) 
+            }
+            else if (NULL == primaryCodec && mimeType.compareTo("audio") == 0)
             {
                 primaryCodec = sendCodecs[i];
                 pMediaConnection->mpPrimaryCodec = primaryCodec;
@@ -783,9 +783,9 @@ OsStatus VoiceEngineMediaInterface::startRtpSend(int connectionId,
 
         if (primaryCodec && getVoiceEngineCodec(*primaryCodec, codecInfo))
         {
-            OsSysLog::add(FAC_MP, PRI_DEBUG, 
-                          "startRtpSend: using GIPS codec %s for id %d, payload %d", 
-                          codecInfo.plname, primaryCodec->getCodecType(), 
+            OsSysLog::add(FAC_MP, PRI_DEBUG,
+                          "startRtpSend: using GIPS codec %s for id %d, payload %d",
+                          codecInfo.plname, primaryCodec->getCodecType(),
                           primaryCodec->getCodecPayloadFormat());
             pMediaConnection->mRtpPayloadType = primaryCodec->getCodecPayloadFormat();
             // Forcing VoiceEngine to use our dynamically allocated payload types
@@ -793,7 +793,7 @@ OsStatus VoiceEngineMediaInterface::startRtpSend(int connectionId,
             if ((rc=mpVoiceEngine->GIPSVE_SetSendCodec(connectionId, &codecInfo)) == -1)
             {
                 i = mpVoiceEngine->GIPSVE_GetLastError();
-                OsSysLog::add(FAC_MP, PRI_DEBUG, 
+                OsSysLog::add(FAC_MP, PRI_DEBUG,
                               "startRtpSend: SetSendCodec failed with code %d", i);
                 assert(0);
             }
@@ -830,9 +830,9 @@ OsStatus VoiceEngineMediaInterface::startRtpSend(int connectionId,
                     vcodecInfo.height = 96;
                     vcodecInfo.width = 128;
                 }
-             
+
                 mPrimaryVideoCodec = primaryVideoCodec;
-                
+
                 if (pMediaConnection->mpRtpVideoSocket)
                 {
                     pNetTask->addInputSource(pMediaConnection->mpRtpVideoSocket) ;
@@ -857,7 +857,7 @@ OsStatus VoiceEngineMediaInterface::startRtpSend(int connectionId,
                     }
                     OutputDebugString("GIPSVideo_CreateChannel\n");
                 }
-                
+
                 if (isDisplayValid(mpDisplay) && pMediaConnection->mpRtpVideoSocket)
                 {
                     pMediaConnection->mpRtpVideoSocket->setVideoChannel(pMediaConnection->mVideoConnectionId);
@@ -866,34 +866,34 @@ OsStatus VoiceEngineMediaInterface::startRtpSend(int connectionId,
                 {
                     pMediaConnection->mpRtcpVideoSocket->setVideoChannel(pMediaConnection->mVideoConnectionId);
                 }
-                
+
                 if (isDisplayValid(mpDisplay))
                 {
-                    rc = mpVideoEngine->GIPSVideo_SetSendTransport(pMediaConnection->mVideoConnectionId, *pMediaConnection->mpVideoSocketAdapter) ; 
+                    rc = mpVideoEngine->GIPSVideo_SetSendTransport(pMediaConnection->mVideoConnectionId, *pMediaConnection->mpVideoSocketAdapter) ;
                     assert(rc == 0);
                     OutputDebugString("GIPSVideo_SetSendTransport\n");
                 }
                 rc = mpVoiceEngine->GIPSVE_EnableRTCP(connectionId, TRUE) ;
-                    
-                startRtpReceiveVideo(connectionId);            
-     
+
+                startRtpReceiveVideo(connectionId);
+
                 if (isDisplayValid(mpDisplay))
                 {
                     // get the first capture device
                     char szDevice[256];
                     rc = mpVideoEngine->GIPSVideo_GetCaptureDevice(0, szDevice, sizeof(szDevice));
-                    
+
                     rc = mpVideoEngine->GIPSVideo_SetCaptureDevice(szDevice, sizeof(szDevice));
                     OutputDebugString("GIPSVideo_SetCaptureDevice\n");
                     int check = mpVideoEngine->GIPSVideo_GetLastError() ;
                     if (rc == 0)
                     {
-                                
+
                         // TEMP FIX - hard coding the codec to VP71 - QCIF
                         rc = mpVideoEngine->GIPSVideo_GetCodec(0, &vcodecInfo);
                         check = mpVideoEngine->GIPSVideo_GetLastError();
                         assert (rc == 0);
-        
+
                         mpFactoryImpl->getVideoQuality(vcodecInfo.quality);
                         mpFactoryImpl->getVideoBitRate(vcodecInfo.bitRate);
                         mpFactoryImpl->getVideoFrameRate(vcodecInfo.frameRate);
@@ -901,7 +901,7 @@ OsStatus VoiceEngineMediaInterface::startRtpSend(int connectionId,
                         if ((rc=mpVideoEngine->GIPSVideo_SetSendCodec(&vcodecInfo)) == -1)
                         {
                             i = mpVideoEngine->GIPSVideo_GetLastError();
-                            OsSysLog::add(FAC_MP, PRI_DEBUG, 
+                            OsSysLog::add(FAC_MP, PRI_DEBUG,
                                             "startRtpSend: SetSendCodec for video failed with code %d", i);
                             assert(0);
                         }
@@ -909,13 +909,13 @@ OsStatus VoiceEngineMediaInterface::startRtpSend(int connectionId,
 
                 #ifdef _WIN32
                         SIPXVE_VIDEO_DISPLAY* pDisplay = NULL;
-                        
+
                         pDisplay = (SIPXVE_VIDEO_DISPLAY*)((VoiceEngineFactoryImpl*)mpFactoryImpl)->getVideoPreviewDisplay();
-                        
+
                         if (pDisplay && pDisplay->type == SIPXVE_WINDOW_HANDLE_TYPE)
                         {
                             rc = mpVideoEngine->GIPSVideo_AddLocalRenderer((HWND) pDisplay->handle);
-                            check = mpVideoEngine->GIPSVideo_GetLastError() ;    
+                            check = mpVideoEngine->GIPSVideo_GetLastError() ;
                             assert(rc == 0);
                             //assert(check == 0) ;
                             OutputDebugString("GIPSVideo_AddLocalRenderer\n");
@@ -923,20 +923,20 @@ OsStatus VoiceEngineMediaInterface::startRtpSend(int connectionId,
                         else if (pDisplay && pDisplay->type == SIPXVE_DIRECT_SHOW_FILTER)
                         {
                             rc = mpVideoEngine->GIPSVideo_AddLocalRenderer((IBaseFilter*) pDisplay->filter);
-                            check = mpVideoEngine->GIPSVideo_GetLastError() ;    
+                            check = mpVideoEngine->GIPSVideo_GetLastError() ;
                             assert(rc == 0);
                             //assert(check == 0) ;
                             OutputDebugString("GIPSVideo_AddLocalRenderer\n");
                         }
-                        
+
                         int rc = mpVideoEngine->GIPSVideo_EnableRTCP(pMediaConnection->mVideoConnectionId, TRUE) ;
                         OutputDebugString("GIPSVideo_EnableRTCP\n");
-                    
-                        
+
+
                 #endif
 
                         if (primaryVideoCodec)
-                        {                
+                        {
                             pMediaConnection->mRtpVideoPayloadType = primaryVideoCodec->getCodecPayloadFormat();
 
                         }
@@ -945,30 +945,30 @@ OsStatus VoiceEngineMediaInterface::startRtpSend(int connectionId,
                         OutputDebugString("GIPSVideo_StartSend\n");
 
                         pMediaConnection->mRtpSendingVideo = TRUE ;
-                    }                
+                    }
                 }
             }
         }
-#endif        
+#endif
         /* for testing - please do not remove until SRTP has been verified */
         if (srtpParams.securityLevel & SRTP_SEND)
         {
-            int retVal = mpVoiceEngine->GIPSVE_EnableSRTPSend(connectionId, srtpParams.cipherType, 30, 
+            int retVal = mpVoiceEngine->GIPSVE_EnableSRTPSend(connectionId, srtpParams.cipherType, 30,
                                                               AUTH_HMAC_SHA1, 16, 4, srtpParams.securityLevel&SRTP_SECURITY_MASK,
                                                               srtpParams.masterKey);
             int err = mpVoiceEngine->GIPSVE_GetLastError();
             assert(retVal==0);
 #ifdef VIDEO
-            retVal = mpVideoEngine->GIPSVideo_EnableSRTPSend(connectionId, srtpParams.cipherType, 30, 
+            retVal = mpVideoEngine->GIPSVideo_EnableSRTPSend(connectionId, srtpParams.cipherType, 30,
                                                              AUTH_HMAC_SHA1, 16, 4, srtpParams.securityLevel&SRTP_SECURITY_MASK,
                                                              srtpParams.masterKey);
             err = mpVideoEngine->GIPSVideo_GetLastError();
             assert(retVal==0);
 #endif /* VIDEO */
         }
-                
+
         rc = mpVoiceEngine->GIPSVE_StartSend(connectionId) ;
-        
+
         assert(rc == 0);
 
         rc = mpVoiceEngine->GIPSVE_AddToConference(connectionId, true) ;
@@ -981,7 +981,7 @@ OsStatus VoiceEngineMediaInterface::startRtpSend(int connectionId,
 void VoiceEngineMediaInterface::restartRtpSendVideo(int connectionId)
 {
 #ifdef VIDEO
-    startRtpReceiveVideo(connectionId);   
+    startRtpReceiveVideo(connectionId);
 
 	int rc = mpVideoEngine->GIPSVideo_StartSend(connectionId) ;
     OutputDebugString("GIPSVideo_StartSend\n");
@@ -1004,12 +1004,12 @@ OsStatus VoiceEngineMediaInterface::startRtpReceive(int connectionId,
                                                     SdpSrtpParameters& srtpParams)
 {
     OsLock lock(mVoiceEngineGuard) ;
-#ifdef _WIN32    
+#ifdef _WIN32
 #ifdef VIDEO
     CoInitializeEx(NULL, 0);
 #endif
 #endif
-    
+
     int rc;
     int i;
     SdpCodec* primaryCodec = NULL;
@@ -1017,7 +1017,7 @@ OsStatus VoiceEngineMediaInterface::startRtpReceive(int connectionId,
     GIPSVE_CodecInst codecInfo;
     UtlString mimeType;
 
-    VoiceEngineMediaConnection* pMediaConnection = getMediaConnection(connectionId) ;  
+    VoiceEngineMediaConnection* pMediaConnection = getMediaConnection(connectionId) ;
     if (pMediaConnection && !pMediaConnection->mRtpReceivingAudio && !pMediaConnection->mRtpReceivingVideo)
     {
         pMediaConnection->mpPrimaryCodec = NULL;
@@ -1026,20 +1026,20 @@ OsStatus VoiceEngineMediaInterface::startRtpReceive(int connectionId,
             pMediaConnection->mpCodecFactory->copyPayloadTypes(numCodecs,
                                                                receiveCodecs);
         }
-        for (i=0; i<numCodecs; i++) 
+        for (i=0; i<numCodecs; i++)
         {
             receiveCodecs[i]->getMediaType(mimeType);
-            if (SdpCodec::SDP_CODEC_TONES == receiveCodecs[i]->getValue()) 
+            if (SdpCodec::SDP_CODEC_TONES == receiveCodecs[i]->getValue())
             {
-                if (NULL == dtmfCodec) 
+                if (NULL == dtmfCodec)
                 {
                     dtmfCodec = receiveCodecs[i];
                     rc = mpVoiceEngine->GIPSVE_SetDTMFPayloadType(connectionId,
                                                                   dtmfCodec->getCodecPayloadFormat());
                     assert(rc == 0);
                 }
-            } 
-            else if (NULL == primaryCodec && mimeType.compareTo("audio") == 0) 
+            }
+            else if (NULL == primaryCodec && mimeType.compareTo("audio") == 0)
             {
                 primaryCodec = receiveCodecs[i];
                 if (getVoiceEngineCodec(*primaryCodec, codecInfo))
@@ -1060,7 +1060,7 @@ OsStatus VoiceEngineMediaInterface::startRtpReceive(int connectionId,
                 }
                 pMediaConnection->mRtpReceivingAudio = TRUE ;
             }
-            else if (NULL == primaryCodec && mimeType.compareTo("video") == 0) 
+            else if (NULL == primaryCodec && mimeType.compareTo("video") == 0)
             {
                 mPrimaryVideoCodec = receiveCodecs[i];
             }
@@ -1093,20 +1093,20 @@ OsStatus VoiceEngineMediaInterface::startRtpReceive(int connectionId,
 
             if (srtpParams.securityLevel & SRTP_RECEIVE)
             {
-                int retVal = mpVoiceEngine->GIPSVE_EnableSRTPReceive(connectionId, srtpParams.cipherType, 30, AUTH_HMAC_SHA1, 
+                int retVal = mpVoiceEngine->GIPSVE_EnableSRTPReceive(connectionId, srtpParams.cipherType, 30, AUTH_HMAC_SHA1,
                                                                      16, 4, srtpParams.securityLevel&SRTP_SECURITY_MASK,
                                                                      srtpParams.masterKey);
                 int err = mpVoiceEngine->GIPSVE_GetLastError();
                 assert(retVal == 0);
 #ifdef VIDEO
-                retVal = mpVideoEngine->GIPSVideo_EnableSRTPReceive(connectionId, srtpParams.cipherType, 30, AUTH_HMAC_SHA1, 
+                retVal = mpVideoEngine->GIPSVideo_EnableSRTPReceive(connectionId, srtpParams.cipherType, 30, AUTH_HMAC_SHA1,
                                                                     16, 4, srtpParams.securityLevel&SRTP_SECURITY_MASK,
                                                                     srtpParams.masterKey);
                 err = mpVideoEngine->GIPSVideo_GetLastError();
                 assert(retVal == 0);
 #endif /* VIDEO */
             }
-                
+
             rc = mpVoiceEngine->GIPSVE_StartPlayout(connectionId) ;
             OutputDebugString("GIPSVideo_StartPlayout\n");
             assert(rc == 0) ;
@@ -1125,8 +1125,8 @@ void VoiceEngineMediaInterface::startRtpReceiveVideo(int connectionId)
     SdpCodec* primaryVideoCodec = NULL;
     GIPSVideo_CodecInst vcodecInfo;
 
-    VoiceEngineMediaConnection* pMediaConnection = getMediaConnection(connectionId) ;  
-        
+    VoiceEngineMediaConnection* pMediaConnection = getMediaConnection(connectionId) ;
+
     primaryVideoCodec = mPrimaryVideoCodec;
     if (getVideoEngineCodec(*primaryVideoCodec, vcodecInfo))
     {
@@ -1163,27 +1163,27 @@ void VoiceEngineMediaInterface::startRtpReceiveVideo(int connectionId)
             mpFactoryImpl->getVideoFrameRate(vcodecInfo.frameRate);
 
 	        rc = mpVideoEngine->GIPSVideo_SetReceiveCodec(pMediaConnection->mVideoConnectionId, &vcodecInfo);
-            check = mpVideoEngine->GIPSVideo_GetLastError() ;    
+            check = mpVideoEngine->GIPSVideo_GetLastError() ;
             //assert(check == 0) ;
             assert(rc == 0) ;
 
             OutputDebugString("GIPSVideo_SetReceiveCodec\n");
             if (mpDisplay->type == SIPXVE_WINDOW_HANDLE_TYPE)
             {
-                rc = mpVideoEngine->GIPSVideo_AddRemoteRenderer(pMediaConnection->mVideoConnectionId, 
-                        (HWND) mpDisplay->handle);    
-                assert(rc == 0) ;  
+                rc = mpVideoEngine->GIPSVideo_AddRemoteRenderer(pMediaConnection->mVideoConnectionId,
+                        (HWND) mpDisplay->handle);
+                assert(rc == 0) ;
                 OutputDebugString("GIPSVideo_AddRemoteRenderer\n");
             }
             else if (mpDisplay->type == SIPXVE_DIRECT_SHOW_FILTER)
             {
 #if defined (_WIN32) && defined (VIDEO)
 
-                rc = mpVideoEngine->GIPSVideo_AddRemoteRenderer(pMediaConnection->mVideoConnectionId, 
-                        (IBaseFilter*) mpDisplay->filter);    
-                assert(rc == 0) ;  
+                rc = mpVideoEngine->GIPSVideo_AddRemoteRenderer(pMediaConnection->mVideoConnectionId,
+                        (IBaseFilter*) mpDisplay->filter);
+                assert(rc == 0) ;
                 OutputDebugString("GIPSVideo_AddRemoteRenderer\n");
-#endif         
+#endif
             }
             rc = mpVideoEngine->GIPSVideo_StartRender(pMediaConnection->mVideoConnectionId) ;
             assert(rc == 0) ;
@@ -1201,25 +1201,25 @@ void VoiceEngineMediaInterface::startRtpReceiveVideo(int connectionId)
 OsStatus VoiceEngineMediaInterface::stopRtpSend(int connectionId)
 {
     OsLock lock(mVoiceEngineGuard) ;
-    int iRC ;  
+    int iRC ;
 
     VoiceEngineMediaConnection* pMediaConnection = getMediaConnection(connectionId) ;
 
     if (pMediaConnection && pMediaConnection->mRtpSendingAudio)
-    {   
-        pMediaConnection->mRtpSendingAudio = FALSE ;        
+    {
+        pMediaConnection->mRtpSendingAudio = FALSE ;
 
-        iRC = mpVoiceEngine->GIPSVE_StopSend(connectionId) ;    
+        iRC = mpVoiceEngine->GIPSVE_StopSend(connectionId) ;
         assert(iRC == 0) ;
 
         iRC = mpVoiceEngine->GIPSVE_AddToConference(connectionId, false) ;
         assert(iRC == 0) ;
     }
-    
+
 #ifdef VIDEO
     if (pMediaConnection && pMediaConnection->mRtpSendingVideo)
-    {   
-        pMediaConnection->mRtpSendingVideo = FALSE ;        
+    {
+        pMediaConnection->mRtpSendingVideo = FALSE ;
 
         if (pMediaConnection->mpRtpVideoSocket)
         {
@@ -1240,14 +1240,14 @@ OsStatus VoiceEngineMediaInterface::stopRtpReceive(int connectionId)
 
     VoiceEngineMediaConnection* pMediaConnection = getMediaConnection(connectionId) ;
     if (pMediaConnection)
-    {   
+    {
         if (pMediaConnection->mRtpReceivingAudio)
         {
             pMediaConnection->mRtpReceivingAudio = FALSE ;
 
-            iRC = mpVoiceEngine->GIPSVE_StopListen(connectionId) ;    
+            iRC = mpVoiceEngine->GIPSVE_StopListen(connectionId) ;
             assert(iRC == 0);
-            iRC = mpVoiceEngine->GIPSVE_StopPlayout(connectionId) ;    
+            iRC = mpVoiceEngine->GIPSVE_StopPlayout(connectionId) ;
             assert(iRC == 0) ;
         }
 #ifdef VIDEO
@@ -1281,10 +1281,10 @@ OsStatus VoiceEngineMediaInterface::deleteConnection(int connectionId)
 
     VoiceEngineMediaConnection* pMediaConnection = getMediaConnection(connectionId) ;
     if (pMediaConnection)
-    {        
+    {
         stopRtpSend(connectionId) ;
         stopRtpReceive(connectionId) ;
-                       
+
         if (pNetTask)
         {
             // Audio RTP
@@ -1292,7 +1292,7 @@ OsStatus VoiceEngineMediaInterface::deleteConnection(int connectionId)
             pNetTask->removeInputSource(pMediaConnection->mpRtpAudioSocket, rtpSocketRemoveEvent) ;
             if (rtpSocketRemoveEvent->wait(0, maxEventTime) != OS_SUCCESS)
             {
-                OsSysLog::add(FAC_MP, PRI_ERR, 
+                OsSysLog::add(FAC_MP, PRI_ERR,
                         " *** VoiceEngineMediaInterface: failed to wait for audio rtp socket release") ;
             }
             eventMgr->release(rtpSocketRemoveEvent);
@@ -1301,11 +1301,11 @@ OsStatus VoiceEngineMediaInterface::deleteConnection(int connectionId)
             // Audio RTCP
             if (pMediaConnection->mpRtcpAudioSocket)
             {
-                OsProtectedEvent* rtcpSocketRemoveEvent = eventMgr->alloc();            
-                pNetTask->removeInputSource(pMediaConnection->mpRtcpAudioSocket, rtcpSocketRemoveEvent) ;                                
+                OsProtectedEvent* rtcpSocketRemoveEvent = eventMgr->alloc();
+                pNetTask->removeInputSource(pMediaConnection->mpRtcpAudioSocket, rtcpSocketRemoveEvent) ;
                 if (rtcpSocketRemoveEvent->wait(0, maxEventTime) != OS_SUCCESS)
                 {
-                    OsSysLog::add(FAC_MP, PRI_ERR, 
+                    OsSysLog::add(FAC_MP, PRI_ERR,
                             " *** VoiceEngineMediaInterface: failed to wait for audio rtpc socket release") ;
                 }
                 eventMgr->release(rtcpSocketRemoveEvent);
@@ -1314,11 +1314,11 @@ OsStatus VoiceEngineMediaInterface::deleteConnection(int connectionId)
             // Audio RTP
             if (pMediaConnection->mpRtpVideoSocket)
             {
-                OsProtectedEvent* rtpVideoSocketRemoveEvent = eventMgr->alloc();            
-                pNetTask->removeInputSource(pMediaConnection->mpRtpVideoSocket, rtpVideoSocketRemoveEvent) ;                                
+                OsProtectedEvent* rtpVideoSocketRemoveEvent = eventMgr->alloc();
+                pNetTask->removeInputSource(pMediaConnection->mpRtpVideoSocket, rtpVideoSocketRemoveEvent) ;
                 if (rtpVideoSocketRemoveEvent->wait(0, maxEventTime) != OS_SUCCESS)
                 {
-                    OsSysLog::add(FAC_MP, PRI_ERR, 
+                    OsSysLog::add(FAC_MP, PRI_ERR,
                             " *** VoiceEngineMediaInterface: failed to wait for video rtp socket release") ;
                 }
                 eventMgr->release(rtpVideoSocketRemoveEvent);
@@ -1328,11 +1328,11 @@ OsStatus VoiceEngineMediaInterface::deleteConnection(int connectionId)
             // Audio RTCP
             if (pMediaConnection->mpRtcpVideoSocket)
             {
-                OsProtectedEvent* rtcpVideoSocketRemoveEvent = eventMgr->alloc();            
-                pNetTask->removeInputSource(pMediaConnection->mpRtcpVideoSocket, rtcpVideoSocketRemoveEvent) ;                                
+                OsProtectedEvent* rtcpVideoSocketRemoveEvent = eventMgr->alloc();
+                pNetTask->removeInputSource(pMediaConnection->mpRtcpVideoSocket, rtcpVideoSocketRemoveEvent) ;
                 if (rtcpVideoSocketRemoveEvent->wait(0, maxEventTime) != OS_SUCCESS)
                 {
-                    OsSysLog::add(FAC_MP, PRI_ERR, 
+                    OsSysLog::add(FAC_MP, PRI_ERR,
                             " *** VoiceEngineMediaInterface: failed to wait for video rtpc socket release") ;
                 }
                 eventMgr->release(rtcpVideoSocketRemoveEvent);
@@ -1382,11 +1382,11 @@ OsStatus VoiceEngineMediaInterface::playAudio(const char* url,
     OsLock lock(mVoiceEngineGuard) ;
     assert(url);
     int iRC;
-    
+
     OsStatus rc = OS_FAILED;
     VoiceEngineMediaConnection* pMediaConnection = NULL;
     int fileFormat;
-    char sBuffer[5];    
+    char sBuffer[5];
 
     FILE *fp;
     if ((fp=fopen(url,"rb")) != NULL)
@@ -1411,13 +1411,13 @@ OsStatus VoiceEngineMediaInterface::playAudio(const char* url,
             iRC = 0 ;
 
             // If remote is set then play file as if it came from microphone
-            if (remote && 
+            if (remote &&
                 (iRC=mpVoiceEngine->GIPSVE_PlayPCMAsMicrophone(connectionId, (char*)url, (repeat==TRUE) ? true : false, true, fileFormat)) == 0)
             {
                 rc = OS_SUCCESS;
             }
             assert(iRC == 0);
-            
+
         }
 
         // If local is set then play it locally
@@ -1427,7 +1427,7 @@ OsStatus VoiceEngineMediaInterface::playAudio(const char* url,
             {
                 ((VoiceEngineFactoryImpl*) mpFactoryImpl)->startPlayFile(url, (repeat==TRUE) ? true : false) ;
             }
-        }        
+        }
     }
     else
     {
@@ -1440,10 +1440,10 @@ OsStatus VoiceEngineMediaInterface::playAudio(const char* url,
 
 OsStatus VoiceEngineMediaInterface::playBuffer(char* buf,
                                            unsigned long bufSize,
-                                           int type, 
+                                           int type,
                                            UtlBoolean repeat,
                                            UtlBoolean local,
-                                           UtlBoolean remote, 
+                                           UtlBoolean remote,
                                            OsProtectedEvent* event)
 {
     return OS_NOT_SUPPORTED ;
@@ -1470,7 +1470,7 @@ OsStatus VoiceEngineMediaInterface::stopAudio()
         {
             if (mpVoiceEngine->GIPSVE_StopPlayingFileAsMicrophone(connectionId) == -1)
             {
-                OsSysLog::add(FAC_MP, PRI_ERR, 
+                OsSysLog::add(FAC_MP, PRI_ERR,
                              "stopAudio: GIPSVE_StopPlayingFileAsMicrophone on channel %d failed with error %d",
                              connectionId,
                              mpVoiceEngine->GIPSVE_GetLastError());
@@ -1482,7 +1482,7 @@ OsStatus VoiceEngineMediaInterface::stopAudio()
             }
         }
     }
-  
+
     if (mpFactoryImpl)
     {
         ((VoiceEngineFactoryImpl*) mpFactoryImpl)->stopPlayFile() ;
@@ -1492,10 +1492,10 @@ OsStatus VoiceEngineMediaInterface::stopAudio()
 }
 
 
-OsStatus VoiceEngineMediaInterface::createPlayer(MpStreamPlayer** ppPlayer, 
-                                             const char* szStream, 
-                                             int flags, 
-                                             OsMsgQ *pMsgQ, 
+OsStatus VoiceEngineMediaInterface::createPlayer(MpStreamPlayer** ppPlayer,
+                                             const char* szStream,
+                                             int flags,
+                                             OsMsgQ *pMsgQ,
                                              const char* szTarget)
 {
     return OS_NOT_SUPPORTED ;
@@ -1508,8 +1508,8 @@ OsStatus VoiceEngineMediaInterface::destroyPlayer(MpStreamPlayer* pPlayer)
 }
 
 
-OsStatus VoiceEngineMediaInterface::createPlaylistPlayer(MpStreamPlaylistPlayer** ppPlayer, 
-                                                     OsMsgQ *pMsgQ, 
+OsStatus VoiceEngineMediaInterface::createPlaylistPlayer(MpStreamPlaylistPlayer** ppPlayer,
+                                                     OsMsgQ *pMsgQ,
                                                      const char* szTarget)
 {
     return OS_NOT_SUPPORTED ;
@@ -1522,8 +1522,8 @@ OsStatus VoiceEngineMediaInterface::destroyPlaylistPlayer(MpStreamPlaylistPlayer
 }
 
 
-OsStatus VoiceEngineMediaInterface::createQueuePlayer(MpStreamQueuePlayer** ppPlayer, 
-                                                  OsMsgQ *pMsgQ, 
+OsStatus VoiceEngineMediaInterface::createQueuePlayer(MpStreamQueuePlayer** ppPlayer,
+                                                  OsMsgQ *pMsgQ,
                                                   const char* szTarget)
 {
     return OS_NOT_SUPPORTED ;
@@ -1572,8 +1572,8 @@ OsStatus VoiceEngineMediaInterface::startTone(int toneId,
                 }
                 else
                 {
-                    OsSysLog::add(FAC_MP, PRI_ERR, 
-                              "startTone: out-of-band SendDTMF with event nr %d returned error %d", 
+                    OsSysLog::add(FAC_MP, PRI_ERR,
+                              "startTone: out-of-band SendDTMF with event nr %d returned error %d",
                               toneId, err);
                     assert(0);
                 }
@@ -1590,8 +1590,8 @@ OsStatus VoiceEngineMediaInterface::startTone(int toneId,
                 if (toneId != 16)
                 {
                     err = mpVoiceEngine->GIPSVE_GetLastError();
-                    OsSysLog::add(FAC_MP, PRI_ERR, 
-                              "startTone: inband SendDTMF with event nr %d returned error %d", 
+                    OsSysLog::add(FAC_MP, PRI_ERR,
+                              "startTone: inband SendDTMF with event nr %d returned error %d",
                               toneId, err);
                     assert(0);
                     rc = OS_FAILED;
@@ -1599,7 +1599,7 @@ OsStatus VoiceEngineMediaInterface::startTone(int toneId,
             }
         }
     }
-    
+
     return rc;
 }
 
@@ -1613,7 +1613,7 @@ OsStatus VoiceEngineMediaInterface::stopTone()
 OsStatus VoiceEngineMediaInterface::giveFocus()
 {
     OsLock lock(mVoiceEngineGuard) ;
-#ifdef _WIN32    
+#ifdef _WIN32
 #ifdef VIDEO
     CoInitializeEx(NULL, 0);
 #endif
@@ -1622,7 +1622,7 @@ OsStatus VoiceEngineMediaInterface::giveFocus()
     mbFocus = TRUE ;
     OsStatus rc = OS_FAILED;
     VoiceEngineMediaConnection* pMediaConnection = NULL ;
-     
+
     UtlSListIterator iterator(mMediaConnections);
     while ((pMediaConnection = (VoiceEngineMediaConnection*) iterator()))    {
         int iRC ;
@@ -1639,7 +1639,7 @@ OsStatus VoiceEngineMediaInterface::giveFocus()
             assert(iRC ==0);
             OutputDebugString("GIPSVideo_StartRender (giveFocus)\n");
         }
-#endif        
+#endif
     }
 
     if (mbLocalMute)
@@ -1661,12 +1661,12 @@ OsStatus VoiceEngineMediaInterface::defocus()
     OsLock lock(mVoiceEngineGuard) ;
     int rc;
     mbFocus = FALSE ;
-    VoiceEngineMediaConnection* pMediaConnection = NULL ;        
-    
+    VoiceEngineMediaConnection* pMediaConnection = NULL ;
+
     UtlSListIterator iterator(mMediaConnections);
     while ((pMediaConnection = (VoiceEngineMediaConnection*) iterator()))
     {
-        rc = mpVoiceEngine->GIPSVE_StopPlayout(pMediaConnection->getValue()) ;        
+        rc = mpVoiceEngine->GIPSVE_StopPlayout(pMediaConnection->getValue()) ;
         assert(rc ==0);
 #ifdef VIDEO
         if (pMediaConnection->mRtpReceivingVideo)
@@ -1676,11 +1676,11 @@ OsStatus VoiceEngineMediaInterface::defocus()
             OutputDebugString("GIPSVideo_StopRender (defocus)\n");
         }
 #endif
-    }       
+    }
 
     mbLocalMute = true ;
     muteMicrophone(true);
-    
+
     return OS_SUCCESS;
 }
 
@@ -1697,9 +1697,9 @@ OsStatus VoiceEngineMediaInterface::stopRecording()
 }
 
 
-OsStatus VoiceEngineMediaInterface::ezRecord(int ms, 
-                                         int silenceLength, 
-                                         const char* fileName, 
+OsStatus VoiceEngineMediaInterface::ezRecord(int ms,
+                                         int silenceLength,
+                                         const char* fileName,
                                          double& duration,
                                          int& dtmfterm,
                                          OsProtectedEvent* ev)
@@ -1715,7 +1715,7 @@ void VoiceEngineMediaInterface::removeToneListener(int connectionId)
 {
 }
 
-void  VoiceEngineMediaInterface::setContactType(int connectionId, CONTACT_TYPE eType) 
+void  VoiceEngineMediaInterface::setContactType(int connectionId, CONTACT_TYPE eType)
 {
     mContactType = eType;
 }
@@ -1730,17 +1730,17 @@ void VoiceEngineMediaInterface::setPremiumSound(UtlBoolean enabled)
 
 // Calculate the current cost for our sending/receiving codecs
 int VoiceEngineMediaInterface::getCodecCPUCost()
-{   
-   int iCost = SdpCodec::SDP_CODEC_CPU_LOW ;   
-   
+{
+   int iCost = SdpCodec::SDP_CODEC_CPU_LOW ;
+
    return iCost ;
 }
 
 
 // Calculate the worst case cost for our sending/receiving codecs
 int VoiceEngineMediaInterface::getCodecCPULimit()
-{   
-   int iCost = SdpCodec::SDP_CODEC_CPU_LOW ;   
+{
+   int iCost = SdpCodec::SDP_CODEC_CPU_LOW ;
 
    return iCost ;
 }
@@ -1753,7 +1753,7 @@ OsMsgQ* VoiceEngineMediaInterface::getMsgQ()
 }
 
 
-OsStatus VoiceEngineMediaInterface::getPrimaryCodec(int connectionId, 
+OsStatus VoiceEngineMediaInterface::getPrimaryCodec(int connectionId,
                                                     UtlString& audioCodec,
                                                     UtlString& videoCodec,
                                                     int* audioPayloadType,
@@ -1774,7 +1774,7 @@ OsStatus VoiceEngineMediaInterface::getPrimaryCodec(int connectionId,
 
             rc = OS_SUCCESS;
         }
-#ifdef VIDEO        
+#ifdef VIDEO
         if (videoPayloadType)
         {
             *videoPayloadType = -1;
@@ -1862,7 +1862,7 @@ UtlBoolean VoiceEngineMediaInterface::isDestinationSet(int connectionId)
 }
 
 
-UtlBoolean VoiceEngineMediaInterface::canAddParty() 
+UtlBoolean VoiceEngineMediaInterface::canAddParty()
 {
     OsLock lock(mVoiceEngineGuard) ;
     int iLoad = mpVoiceEngine->GIPSVE_GetCPULoad() ;
@@ -1874,30 +1874,30 @@ UtlBoolean VoiceEngineMediaInterface::canAddParty()
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
-void VoiceEngineMediaInterface::startVideoSupport(int connectionId) 
+void VoiceEngineMediaInterface::startVideoSupport(int connectionId)
 {
-#ifdef VIDEO    
+#ifdef VIDEO
     OsLock lock(mVoiceEngineGuard) ;
     int localVideoPort ;
 
-#ifdef _WIN32    
+#ifdef _WIN32
 #ifdef VIDEO
     CoInitializeEx(NULL, 0);
 #endif
 #endif
-    
-    
-    
+
+
+
     VoiceEngineMediaConnection* pMediaConnection = getMediaConnection(connectionId);
     if (pMediaConnection && (pMediaConnection->mpRtpVideoSocket == NULL))
-    {      
-    
+    {
+
         mpFactoryImpl->getNextRtpPort(localVideoPort);
 
 
         VoiceEngineDatagramSocket* rtpVideoSocket = new VoiceEngineDatagramSocket(
                 mpVoiceEngine, mpVideoEngine, connectionId, pMediaConnection->mVideoConnectionId,
-                TYPE_VIDEO_RTP, 0, NULL, localVideoPort, mLocalAddress.data(), 
+                TYPE_VIDEO_RTP, 0, NULL, localVideoPort, mLocalAddress.data(),
                 mStunServer.length() != 0, mStunServer, mStunOptions, mStunRefreshPeriodSecs);
 
         VoiceEngineDatagramSocket* rtcpVideoSocket = new VoiceEngineDatagramSocket(
@@ -1908,21 +1908,21 @@ void VoiceEngineMediaInterface::startVideoSupport(int connectionId)
         pMediaConnection->mpRtpVideoSocket = rtpVideoSocket;
         pMediaConnection->mpRtcpVideoSocket = rtcpVideoSocket;
         pMediaConnection->mRtpVideoReceivePort = rtpVideoSocket->getLocalHostPort() ;
-        pMediaConnection->mRtcpVideoReceivePort = rtcpVideoSocket->getLocalHostPort() ; 
-        pMediaConnection->mpVideoSocketAdapter = new 
+        pMediaConnection->mRtcpVideoReceivePort = rtcpVideoSocket->getLocalHostPort() ;
+        pMediaConnection->mpVideoSocketAdapter = new
                 VoiceEngineSocketAdapter(pMediaConnection->mpRtpVideoSocket, pMediaConnection->mpRtcpVideoSocket) ;
 
     }
 #endif
 }
 
-void VoiceEngineMediaInterface::endVideoSupport(int connectionId) 
+void VoiceEngineMediaInterface::endVideoSupport(int connectionId)
 {
 
 }
 
 
-UtlBoolean VoiceEngineMediaInterface::containsVideoCodec(int numCodecs, SdpCodec* codecs[]) 
+UtlBoolean VoiceEngineMediaInterface::containsVideoCodec(int numCodecs, SdpCodec* codecs[])
 {
     UtlBoolean bFound = false ;
 
@@ -2021,9 +2021,9 @@ UtlBoolean VoiceEngineMediaInterface::getCodecNameByType(SdpCodec::SdpCodecTypes
         codecName = GIPS_CODEC_ID_RGB24_SQCIF;
         break;
     default:
-        OsSysLog::add(FAC_MP, PRI_DEBUG, 
-                      "getCodecNameByType: unsupported codec %d", 
-                      codecType); 
+        OsSysLog::add(FAC_MP, PRI_DEBUG,
+                      "getCodecNameByType: unsupported codec %d",
+                      codecType);
     }
 
     if (codecName != "")
@@ -2043,7 +2043,7 @@ UtlBoolean VoiceEngineMediaInterface::getCodecTypeByName(const UtlString& codecN
     if (codecName == GIPS_CODEC_ID_G729)
     {
         codecType = SdpCodec::SDP_CODEC_G729A;
-    } 
+    }
     else if (codecName == GIPS_CODEC_ID_TELEPHONE)
     {
         codecType = SdpCodec::SDP_CODEC_TONES;
@@ -2209,8 +2209,8 @@ OsStatus VoiceEngineMediaInterface::muteMicrophone(const bool bMute)
 {
     OsLock lock(mVoiceEngineGuard) ;
     OsStatus rc = OS_SUCCESS;
-    VoiceEngineMediaConnection* pMediaConnection = NULL ;        
-    
+    VoiceEngineMediaConnection* pMediaConnection = NULL ;
+
     UtlSListIterator iterator(mMediaConnections);
     while ((pMediaConnection = (VoiceEngineMediaConnection*) iterator()))
     {
@@ -2219,15 +2219,15 @@ OsStatus VoiceEngineMediaInterface::muteMicrophone(const bool bMute)
             assert(0);
             rc = OS_FAILED;
         }
-        
-    }       
+
+    }
     return rc;
 }
 
 OsStatus VoiceEngineMediaInterface::setVideoWindowDisplay(const void* pDisplay)
 {
     OsStatus rc = OS_SUCCESS;
-    
+
     mpDisplay = (SIPXVE_VIDEO_DISPLAY*)pDisplay;
     return rc;
 }

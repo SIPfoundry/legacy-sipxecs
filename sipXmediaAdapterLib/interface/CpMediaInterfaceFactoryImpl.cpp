@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -37,7 +37,7 @@ CpMediaInterfaceFactoryImpl::CpMediaInterfaceFactoryImpl()
 CpMediaInterfaceFactoryImpl::~CpMediaInterfaceFactoryImpl()
 {
     OsLock lock(mlockList) ;
-    
+
     mlistFreePorts.destroyAll() ;
 }
 
@@ -45,7 +45,7 @@ CpMediaInterfaceFactoryImpl::~CpMediaInterfaceFactoryImpl()
 
 /**
  * public interface for destroying this media interface
- */ 
+ */
 void CpMediaInterfaceFactoryImpl::release()
 {
    delete this;
@@ -54,7 +54,7 @@ void CpMediaInterfaceFactoryImpl::release()
 /* ============================ MANIPULATORS ============================== */
 
 
-void CpMediaInterfaceFactoryImpl::setRtpPortRange(int startRtpPort, int lastRtpPort) 
+void CpMediaInterfaceFactoryImpl::setRtpPortRange(int startRtpPort, int lastRtpPort)
 {
     miStartRtpPort = startRtpPort ;
     if (miStartRtpPort < 0)
@@ -66,16 +66,16 @@ void CpMediaInterfaceFactoryImpl::setRtpPortRange(int startRtpPort, int lastRtpP
 }
 
 
-OsStatus CpMediaInterfaceFactoryImpl::getNextRtpPort(int &rtpPort) 
+OsStatus CpMediaInterfaceFactoryImpl::getNextRtpPort(int &rtpPort)
 {
     OsLock lock(mlockList) ;
 
     // First attempt to get a free port for the free list, if that
-    // fails, return a new one. 
-    if (mlistFreePorts.entries()) 
+    // fails, return a new one.
+    if (mlistFreePorts.entries())
     {
         UtlInt* pInt = (UtlInt*) mlistFreePorts.first() ;
-        mlistFreePorts.remove(pInt) ;                
+        mlistFreePorts.remove(pInt) ;
         rtpPort = pInt->getValue() ;
         delete pInt ;
     }
@@ -87,18 +87,18 @@ OsStatus CpMediaInterfaceFactoryImpl::getNextRtpPort(int &rtpPort)
         // are allowing the system to allocate ports.
         if (miNextRtpPort > 0)
         {
-            miNextRtpPort += 2 ; 
+            miNextRtpPort += 2 ;
         }
     }
     return OS_SUCCESS ;
 }
 
 
-OsStatus CpMediaInterfaceFactoryImpl::releaseRtpPort(const int rtpPort) 
+OsStatus CpMediaInterfaceFactoryImpl::releaseRtpPort(const int rtpPort)
 {
     OsLock lock(mlockList) ;
 
-    // Only bother noting the free port if the next port isn't 0 (OS selects 
+    // Only bother noting the free port if the next port isn't 0 (OS selects
     // port)
     if (miNextRtpPort != 0)
     {
@@ -117,5 +117,3 @@ OsStatus CpMediaInterfaceFactoryImpl::releaseRtpPort(const int rtpPort)
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-
-

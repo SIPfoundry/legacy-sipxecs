@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -27,11 +27,11 @@ class CpMediaInterface ;
 class SdpCodec ;
 
 /**
- * The CpMediaInterfaceFactory is responsible for create media interfaces.  
- * Developers must install factory implementation by invoking the 
+ * The CpMediaInterfaceFactory is responsible for create media interfaces.
+ * Developers must install factory implementation by invoking the
  * setFactoryImplementation(...) method.
  *
- * The destructor of this factory will automatically destroy the 
+ * The destructor of this factory will automatically destroy the
  * CpMediaIntefaceFactoryInterface.
  */
 class CpMediaInterfaceFactory
@@ -45,7 +45,7 @@ class CpMediaInterfaceFactory
     * Default constructor
     */
    CpMediaInterfaceFactory();
-     
+
 
    /**
     * Destructor
@@ -55,20 +55,20 @@ class CpMediaInterfaceFactory
 /* ============================ MANIPULATORS ============================== */
 
     /**
-     * Set the factory implementation for creating media processing 
+     * Set the factory implementation for creating media processing
      * connections. If an existing factory was set, it will be deleted and the
      * new factory will be used for future calls to createMediaInterface.
      *
-     * The factory will automatically be deleted when the destructor of 
+     * The factory will automatically be deleted when the destructor of
      * CpMediaInterfaceFactory is invoked.
      */
     void setFactoryImplementation(CpMediaInterfaceFactoryImpl* pFactoryInterface) ;
 
 
     /**
-     * Create a media interface using the designated 
+     * Create a media interface using the designated
      * CpMediaIntefaceFactoryInterface.
-     */ 
+     */
     CpMediaInterface* createMediaInterface(const char* publicAddress,
                                            const char* localAddress,
                                            int numCodecs,
@@ -88,7 +88,7 @@ class CpMediaInterfaceFactory
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
-    CpMediaInterfaceFactoryImpl* mpFactoryImpl ; 
+    CpMediaInterfaceFactoryImpl* mpFactoryImpl ;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:
@@ -96,12 +96,12 @@ class CpMediaInterfaceFactory
    /**
     * Disabled equals operator
     */
-   CpMediaInterfaceFactory& operator=(const CpMediaInterfaceFactory& rhs);  
+   CpMediaInterfaceFactory& operator=(const CpMediaInterfaceFactory& rhs);
 
    /**
     * Disabled copy constructor
     */
-   CpMediaInterfaceFactory(const CpMediaInterfaceFactory& rCpMediaInterfaceFactory);     
+   CpMediaInterfaceFactory(const CpMediaInterfaceFactory& rCpMediaInterfaceFactory);
 };
 
 /* ============================ INLINE METHODS ============================ */

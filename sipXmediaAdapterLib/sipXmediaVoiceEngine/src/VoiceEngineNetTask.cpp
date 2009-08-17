@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -53,7 +53,7 @@
 
 #define MAX_RTP_BYTES 1500
 
-struct __VoiceEngineNetTaskMsg 
+struct __VoiceEngineNetTaskMsg
 {
 /*
    OsSocket* pRtpSocket;
@@ -64,7 +64,7 @@ struct __VoiceEngineNetTaskMsg
 
    enum { ADD, REMOVE, SHUTDOWN } operation ;
    VoiceEngineDatagramSocket* pSocket ;
-   
+
 };
 
 typedef struct __VoiceEngineNetTaskMsg VoiceEngineNetTaskMsg, *VoiceEngineNetTaskMsgPtr;
@@ -103,13 +103,13 @@ int VoiceEngineNetTask::getWriteFD()
 {
     // connect to the socket
     sLock.acquireRead();
-    if (NULL != mpWriteSocket) 
+    if (NULL != mpWriteSocket)
     {
         sLock.releaseWrite();
         return mpWriteSocket->getSocketDescriptor();
     }
 
-    if (OsTask::getCurrentTask() == VoiceEngineNetTask::spInstance) 
+    if (OsTask::getCurrentTask() == VoiceEngineNetTask::spInstance)
     {
         OsEvent* pNotify;
         VoiceEngineNetTaskHelper* pHelper;
@@ -123,8 +123,8 @@ int VoiceEngineNetTask::getWriteFD()
         pNotify->wait();
         delete pHelper;
         delete pNotify;
-    } 
-    else 
+    }
+    else
     {
         // we are in a different thread already, go do it ourselves.
         osPrintf("Not VoiceEngineNetTask: opening connection directly\n");
@@ -139,16 +139,16 @@ int VoiceEngineNetTask::getWriteFD()
 
 OsConnectionSocket* VoiceEngineNetTask::getWriteSocket()
 {
-    if (NULL == mpWriteSocket) 
+    if (NULL == mpWriteSocket)
     {
         OsConnectionSocket* pWriteSocket = NULL;
 
-        int trying = 1000;        
+        int trying = 1000;
         while (trying > 0)
         {
             OsTask::delay(5);
-            pWriteSocket = new OsConnectionSocket(mCmdPort, "127.0.0.1", TRUE, "127.0.0.1") ;            
-            if (pWriteSocket && pWriteSocket->isConnected()) 
+            pWriteSocket = new OsConnectionSocket(mCmdPort, "127.0.0.1", TRUE, "127.0.0.1") ;
+            if (pWriteSocket && pWriteSocket->isConnected())
             {
                 break;
             }
@@ -171,11 +171,11 @@ OsConnectionSocket* VoiceEngineNetTask::getReadSocket()
 }
 
 
-OsStatus VoiceEngineNetTask::addInputSource(VoiceEngineDatagramSocket* pSocket) 
-{    
+OsStatus VoiceEngineNetTask::addInputSource(VoiceEngineDatagramSocket* pSocket)
+{
     int wrote = 0;
 
-    OsConnectionSocket* writeSocket = getWriteSocket() ; 
+    OsConnectionSocket* writeSocket = getWriteSocket() ;
     if (writeSocket)
     {
         VoiceEngineNetTaskMsg msg;
@@ -186,7 +186,7 @@ OsStatus VoiceEngineNetTask::addInputSource(VoiceEngineDatagramSocket* pSocket)
         wrote = writeSocket->write((char *) &msg, NET_TASK_MAX_MSG_LEN);
         if (wrote != NET_TASK_MAX_MSG_LEN)
         {
-            OsSysLog::add(FAC_MP, PRI_ERR, 
+            OsSysLog::add(FAC_MP, PRI_ERR,
                     "addNetInputSources - writeSocket error: 0x%p,%d wrote %d",
                     writeSocket, writeSocket->getSocketDescriptor(), wrote);
         }
@@ -200,11 +200,11 @@ OsStatus VoiceEngineNetTask::addInputSource(VoiceEngineDatagramSocket* pSocket)
 }
 
 
-OsStatus VoiceEngineNetTask::removeInputSource(VoiceEngineDatagramSocket* pSocket, OsProtectedEvent* pEvent) 
+OsStatus VoiceEngineNetTask::removeInputSource(VoiceEngineDatagramSocket* pSocket, OsProtectedEvent* pEvent)
 {
     int wrote = 0;
 
-    OsConnectionSocket* writeSocket = getWriteSocket() ; 
+    OsConnectionSocket* writeSocket = getWriteSocket() ;
     if (writeSocket)
     {
         VoiceEngineNetTaskMsg msg;
@@ -216,7 +216,7 @@ OsStatus VoiceEngineNetTask::removeInputSource(VoiceEngineDatagramSocket* pSocke
         wrote = writeSocket->write((char *) &msg, NET_TASK_MAX_MSG_LEN);
         if (wrote != NET_TASK_MAX_MSG_LEN)
         {
-            OsSysLog::add(FAC_MP, PRI_ERR, 
+            OsSysLog::add(FAC_MP, PRI_ERR,
                     "addNetInputSources - writeSocket error: 0x%p,%d wrote %d",
                     writeSocket, writeSocket->getSocketDescriptor(), wrote);
         }
@@ -225,7 +225,7 @@ OsStatus VoiceEngineNetTask::removeInputSource(VoiceEngineDatagramSocket* pSocke
     {
         assert(FALSE) ;
     }
-    
+
     return ((NET_TASK_MAX_MSG_LEN == wrote) ? OS_SUCCESS : OS_BUSY);
 }
 
@@ -271,7 +271,7 @@ static  int flushedLimit = 125;
                 if (ret > MpBuf_getByteLen(ib)) {
                     ret = MpBuf_getByteLen(ib);
                     if (MpBufferMsg::AUD_RTP_RECV == rtpOrRtcp) {
-                        junk[0] &= ~0x20; 
+                        junk[0] &= ~0x20;
                     }
                 }
                 memcpy((char *) MpBuf_getStorage(ib), junk, ret);
@@ -334,7 +334,7 @@ int XXfindPoisonFds(int pipeFD)
                 XXisFdPoison(ppr->pSocket->getSocketDescriptor())) {
                 OsSysLog::add(FAC_MP, PRI_ERR, " *** VoiceEngineNetTask: Removing fdRtp[%d], socket=0x%p, socketDescriptor=%d\n", ppr-pairs,ppr->pSocket, (int)ppr->pSocket->getSocketDescriptor());
                 n++;
-                ppr->pSocket = NULL;                
+                ppr->pSocket = NULL;
             }
             ppr++;
         }
@@ -349,11 +349,11 @@ int VoiceEngineNetTask::processControlSocket(int last)
     int newFd ;
 
     memset((void*)&msg, 0, sizeof(VoiceEngineNetTaskMsg));
-    if (NET_TASK_MAX_MSG_LEN != mpReadSocket->read((char *) &msg, NET_TASK_MAX_MSG_LEN)) 
+    if (NET_TASK_MAX_MSG_LEN != mpReadSocket->read((char *) &msg, NET_TASK_MAX_MSG_LEN))
     {
         OsSysLog::add(FAC_MP, PRI_ERR, "VoiceEngineNetTask::run: Invalid request!") ;
-    } 
-    else if (-2 == (int) msg.pSocket) 
+    }
+    else if (-2 == (int) msg.pSocket)
     {
         // Request to exit
 
@@ -368,12 +368,12 @@ int VoiceEngineNetTask::processControlSocket(int last)
             mpReadSocket = NULL;
         }
         sLock.releaseWrite();
-    } 
-    else 
+    }
+    else
     {
         switch (msg.operation)
         {
-            case VoiceEngineNetTaskMsg::ADD:                            
+            case VoiceEngineNetTaskMsg::ADD:
 
                 // Insert into the pairs list
                 newFd  = (msg.pSocket) ? msg.pSocket->getSocketDescriptor() : -1;
@@ -382,16 +382,16 @@ int VoiceEngineNetTask::processControlSocket(int last)
                           msg.pSocket, newFd);
 
                 // Look for duplicate file descriptors; remove if found
-                for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) 
+                for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++)
                 {
-                    if (ppr->pSocket != NULL) 
+                    if (ppr->pSocket != NULL)
                     {
                         int existingFd  = (ppr->pSocket)  ? ppr->pSocket->getSocketDescriptor()  : -1;
                         UtlBoolean foundDupFd  = FALSE;
 
                         if ((existingFd >= 0) && (existingFd == newFd))
                         {
-                            OsSysLog::add(FAC_MP, PRI_ERR, 
+                            OsSysLog::add(FAC_MP, PRI_ERR,
                                     " *** VoiceEngineNetTask: Using a dup descriptor (New:%p,%d, Old:%p,%d)\n",
                                     msg.pSocket, newFd, ppr->pSocket, existingFd) ;
                             ppr->pSocket = NULL;
@@ -402,30 +402,30 @@ int VoiceEngineNetTask::processControlSocket(int last)
                 }
 
                 // Add pair
-                for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) 
+                for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++)
                 {
-                    if (ppr->pSocket == NULL) 
+                    if (ppr->pSocket == NULL)
                     {
                         ppr->pSocket = msg.pSocket;
-                        numPairs++;                        
-                        OsSysLog::add(FAC_MP, PRI_DEBUG, 
+                        numPairs++;
+                        OsSysLog::add(FAC_MP, PRI_DEBUG,
                                 " *** VoiceEngineNetTask: Add socket Fds: (New=%p,%d)\n",
                                 msg.pSocket, newFd);
                         break ;
                     }
                     ppr++;
                 }
-                
+
                 // Update last
                 last = max(last, newFd);
 
                 break ;
             case VoiceEngineNetTaskMsg::REMOVE:
-                for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) 
+                for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++)
                 {
-                    if (msg.pSocket == ppr->pSocket) 
+                    if (msg.pSocket == ppr->pSocket)
                     {
-                        OsSysLog::add(FAC_MP, PRI_DEBUG, 
+                        OsSysLog::add(FAC_MP, PRI_DEBUG,
                                 " *** VoiceEngineNetTask: Remove socket Fds: (Old=%p,%d)\n",
                                 ppr->pSocket, ppr->pSocket->getSocketDescriptor()) ;
                         ppr->pSocket = NULL ;
@@ -440,7 +440,7 @@ int VoiceEngineNetTask::processControlSocket(int last)
                 }
                 else
                 {
-                    OsSysLog::add(FAC_MP, PRI_ERR, 
+                    OsSysLog::add(FAC_MP, PRI_ERR,
                                 " *** VoiceEngineNetTask: VoiceEngineNetTaskMsg::REMOVE: already signaled\n") ;
                 }
                 break ;
@@ -474,14 +474,14 @@ int VoiceEngineNetTask::run(void *pNotUsed)
     delete pBindSocket;
 
     // If we failed to setup the control socket, abort...
-    if (NULL == mpReadSocket) 
+    if (NULL == mpReadSocket)
     {
         printf(" *** VoiceEngineNetTask: accept() failed!\n", 0,0,0,0,0,0);
         return 0;
     }
 
     // Clean up our control structures
-    for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) 
+    for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++)
     {
         ppr->pSocket =  NULL;
         ppr++;
@@ -493,27 +493,27 @@ int VoiceEngineNetTask::run(void *pNotUsed)
     last = OS_INVALID_SOCKET_DESCRIPTOR;
 
     // Only run while the control socket is stable
-    while (mpReadSocket && mpReadSocket->isOk()) 
+    while (mpReadSocket && mpReadSocket->isOk())
     {
 
         // Figure out the max socket desc number
-        if (OS_INVALID_SOCKET_DESCRIPTOR == last) 
+        if (OS_INVALID_SOCKET_DESCRIPTOR == last)
         {
            last = mpReadSocket->getSocketDescriptor();
-           for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) 
+           for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++)
            {
                 if (NULL != ppr->pSocket)
                 {
                     last=max(last, ppr->pSocket->getSocketDescriptor());
                 }
                 ppr++;
-            }                
+            }
         }
 
         // Build the fdset
         FD_ZERO(fds);
         FD_SET((UINT) mpReadSocket->getSocketDescriptor(), fds);
-        for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) 
+        for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++)
         {
             if (NULL != ppr->pSocket)
             {
@@ -525,17 +525,17 @@ int VoiceEngineNetTask::run(void *pNotUsed)
         // Wait for some data
         errno = 0;
         numReady = select(last+1, fds, NULL, NULL, NULL);
-        if (numReady < 0)  
+        if (numReady < 0)
         {
             OsSysLog::add(FAC_MP, PRI_ERR, " *** VoiceEngineNetTask: select returned %d, errno=%d=0x%X\n",
                 numReady, errno, errno);
             i = XXfindPoisonFds(mpReadSocket->getSocketDescriptor());
-            if (i < 0) 
+            if (i < 0)
             {
                 OsSysLog::add(FAC_MP, PRI_ERR, " *** VoiceEngineNetTask: My comm socket failed! Quitting!\n");
                 mpReadSocket->close();
-            } 
-            else if (i > 0) 
+            }
+            else if (i > 0)
             {
                 last = OS_INVALID_SOCKET_DESCRIPTOR;
             }
@@ -544,17 +544,17 @@ int VoiceEngineNetTask::run(void *pNotUsed)
 
 
         // Process the control socket
-        if (FD_ISSET(mpReadSocket->getSocketDescriptor(), fds)) 
+        if (FD_ISSET(mpReadSocket->getSocketDescriptor(), fds))
         {
             numReady-- ;
             last = processControlSocket(last) ;
         }
 
         ppr=pairs;
-        for (i=0; ((i<NET_TASK_MAX_FD_PAIRS)&&(numReady>0)); i++) 
+        for (i=0; ((i<NET_TASK_MAX_FD_PAIRS)&&(numReady>0)); i++)
         {
             if ((ppr->pSocket != NULL) &&
-                    (FD_ISSET(ppr->pSocket->getSocketDescriptor(), fds))) 
+                    (FD_ISSET(ppr->pSocket->getSocketDescriptor(), fds)))
             {
                 ppr->pSocket->pushPacket() ;
             }
@@ -595,14 +595,14 @@ VoiceEngineNetTask* VoiceEngineNetTask::getVoiceEngineNetTask()
 void VoiceEngineNetTask::shutdownSockets()
 {
         getLockObj().acquireWrite();
-        
+
         if (mpWriteSocket)
         {
             mpWriteSocket->close();
             delete mpWriteSocket;
             mpWriteSocket = NULL;
         }
-        
+
         if (mpReadSocket)
         {
             mpReadSocket->close();
@@ -649,8 +649,8 @@ OsStatus shutdownVoiceEngineNetTask()
         wrote = writeSocket->write((char *) &msg, NET_TASK_MAX_MSG_LEN);
 
         VoiceEngineNetTask::getLockObj().releaseWrite();
-        pInst->shutdownSockets(); 
-        
+        pInst->shutdownSockets();
+
         VoiceEngineNetTask* pTask = VoiceEngineNetTask::getVoiceEngineNetTask();
         VoiceEngineNetTask::getLockObj().acquireWrite();
         pTask->requestShutdown();
@@ -665,4 +665,3 @@ OsStatus shutdownVoiceEngineNetTask()
 /************************************************************************/
 
 /* ============================ FUNCTIONS ================================= */
-

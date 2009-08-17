@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -48,7 +48,7 @@ public:
    /**
     * Default constructor
     */
-   CpMediaInterfaceFactoryImpl();    
+   CpMediaInterfaceFactoryImpl();
 
 /* =========================== DESTRUCTORS ================================ */
 
@@ -61,7 +61,7 @@ public:
 
    /**
     * public interface for destroying this media interface
-    */ 
+    */
    virtual void release();
 
 /* ============================ MANIPULATORS ============================== */
@@ -77,7 +77,7 @@ public:
                                                     int expeditedIpTos,
                                                     const char* szStunServer,
                                                     int stunOptions,
-                                                    int iStunKeepAliveSecs 
+                                                    int iStunKeepAliveSecs
                                                   ) = 0 ;
 
 
@@ -93,18 +93,18 @@ public:
 
     /**
      * Set the microphone gain.  Valid range includes 0 to 10.
-     */ 
+     */
     virtual OsStatus setMicrophoneGain(int iGain) = 0 ;
 
     /**
      * Set the Microphone device
      */
-    virtual OsStatus setMicrophoneDevice(const UtlString& device) = 0 ;    
+    virtual OsStatus setMicrophoneDevice(const UtlString& device) = 0 ;
 
 
     /**
      * Mute the microphone
-     */ 
+     */
     virtual OsStatus muteMicrophone(UtlBoolean bMute) = 0 ;
 
     /**
@@ -121,37 +121,37 @@ public:
      * Populate the codec factory with the codecs provided by this
      * media subsystem., Return number of rejected codecs.
      */
-    virtual OsStatus buildCodecFactory(SdpCodecFactory *pFactory, 
+    virtual OsStatus buildCodecFactory(SdpCodecFactory *pFactory,
                                        const UtlString& sAudioPreferences,
                                        const UtlString& sVideoPreferences,
                                        int* iRejected) = 0;
 
     /**
-     * Set the global video preview window 
-     */ 
+     * Set the global video preview window
+     */
     virtual OsStatus setVideoPreviewDisplay(void* pDisplay) = 0 ;
 
     /**
-     * Set the global video quality 
-     */ 
+     * Set the global video quality
+     */
     virtual OsStatus setVideoQuality(int quality) = 0 ;
-        
+
     /**
-     * Set the global video parameters 
-     */ 
+     * Set the global video parameters
+     */
     virtual OsStatus setVideoParameters(int bitRate, int frameRate) = 0 ;
 
     /**
      * Update the video preview window given the specified display context.
-     */ 
+     */
     virtual OsStatus updateVideoPreviewWindow(void* displayContext) = 0 ;
 
     /**
      * Sets the RTP port range for this factory
-     */     
+     */
     virtual void setRtpPortRange(int startRtpPort, int lastRtpPort) ;
 
-    /** 
+    /**
      * Gets the next available rtp port
      */
     virtual OsStatus getNextRtpPort(int &rtpPort) ;
@@ -165,12 +165,12 @@ public:
 
     /**
      * Get the speaker volume
-     */ 
+     */
     virtual OsStatus getSpeakerVolume(int& iVolume) const = 0 ;
 
     /**
      * Get the speaker device
-     */ 
+     */
     virtual OsStatus getSpeakerDevice(UtlString& device) const = 0 ;
 
     /**
@@ -183,22 +183,22 @@ public:
      */
     virtual OsStatus getMicrophoneDevice(UtlString& device) const = 0 ;
 
-    /* 
+    /*
      * Get specific codec identified by iCodec
      */
     virtual OsStatus getCodecNameByType(SdpCodec::SdpCodecTypes codecType, UtlString& codecName) const = 0;
 
-    /* 
+    /*
      * Get video quality
      */
     virtual OsStatus getVideoQuality(int& quality) const = 0;
 
-    /* 
+    /*
      * Get video bit rate
      */
     virtual OsStatus getVideoBitRate(int& bitRate) const = 0;\
 
-    /* 
+    /*
      * Get video frame rate
      */
     virtual OsStatus getVideoFrameRate(int& frameRate) const = 0;
@@ -233,14 +233,14 @@ public:
     /**
      * Disabled copy constructor
      */
-    CpMediaInterfaceFactoryImpl(const CpMediaInterfaceFactoryImpl& 
+    CpMediaInterfaceFactoryImpl(const CpMediaInterfaceFactoryImpl&
             rCpMediaInterfaceFactoryImpl);
 
-   /** 
+   /**
     * Disabled equals operator
     */
    CpMediaInterfaceFactoryImpl& operator=(
-            const CpMediaInterfaceFactoryImpl& rhs);   
+            const CpMediaInterfaceFactoryImpl& rhs);
 };
 
 /* ============================ INLINE METHODS ============================ */

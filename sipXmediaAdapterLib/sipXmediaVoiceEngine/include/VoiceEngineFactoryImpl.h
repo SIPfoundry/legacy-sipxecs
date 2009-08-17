@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -21,7 +21,7 @@
     #include <windows.h>
     #include "GipsVideoEngineWindows.h"
 #endif
-#endif 
+#endif
 
 // APPLICATION INCLUDES
 #include "mi/CpMediaInterfaceFactoryImpl.h"
@@ -36,7 +36,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 class MpMediaTask ;
-class OsConfigDb ; 
+class OsConfigDb ;
 class VoiceEngineMediaInterface;
 #ifdef INCLUDE_RTCP /* [ */
 struct IRTCPControl ;
@@ -57,7 +57,7 @@ class VoiceEngineFactoryImpl : public CpMediaInterfaceFactoryImpl
     * Default constructor
     */
    VoiceEngineFactoryImpl(OsConfigDb* pConfigDb);
-     
+
 
    /**
     * Destructor
@@ -87,13 +87,13 @@ class VoiceEngineFactoryImpl : public CpMediaInterfaceFactoryImpl
     virtual OsStatus enableAudioAEC(UtlBoolean bEnable);
     virtual OsStatus enableOutOfBandDTMF(UtlBoolean bEnable);
 
-    virtual OsStatus buildCodecFactory(SdpCodecFactory *pFactory, 
-                                       const UtlString& sAudioPreferences, 
+    virtual OsStatus buildCodecFactory(SdpCodecFactory *pFactory,
+                                       const UtlString& sAudioPreferences,
                                        const UtlString& sVideoPreferences,
                                        int* iRejected);
 
-    virtual OsStatus setVideoPreviewDisplay(void* pDisplay) ;     
-    virtual void* getVideoPreviewDisplay() ;     
+    virtual OsStatus setVideoPreviewDisplay(void* pDisplay) ;
+    virtual void* getVideoPreviewDisplay() ;
     virtual OsStatus updateVideoPreviewWindow(void* displayContext) ;
     virtual OsStatus setVideoQuality(int quality);
     virtual OsStatus setVideoParameters(int bitRate, int frameRate);
@@ -115,7 +115,7 @@ class VoiceEngineFactoryImpl : public CpMediaInterfaceFactoryImpl
 
     virtual OsStatus getCodecNameByType(SdpCodec::SdpCodecTypes codecType, UtlString& codecName) const;
 
-    virtual GipsVoiceEngineLib* getVoiceEnginePointer() const;    
+    virtual GipsVoiceEngineLib* getVoiceEnginePointer() const;
 
 #ifdef VIDEO
     virtual GipsVideoEngineWindows* getVideoEnginePointer() const ;
@@ -125,15 +125,15 @@ class VoiceEngineFactoryImpl : public CpMediaInterfaceFactoryImpl
 
     virtual OsStatus isAudioAECEnabled(UtlBoolean& bEnabled) const;
     virtual OsStatus isOutOfBandDTMFEnabled(UtlBoolean& bEnabled) const;
-    
+
     /**
      * Removes a media interface from our stored list of media interfaces
      */
     void removeInterface(VoiceEngineMediaInterface* pMediaInterface);
-    
+
     const bool isMuted() const;
-    
-    
+
+
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
@@ -157,7 +157,7 @@ class VoiceEngineFactoryImpl : public CpMediaInterfaceFactoryImpl
      * @param deviceIndex The index of the system audio device.
      */
     OsStatus outputDeviceIndexToString(UtlString& device, const int deviceIndex) const;
-    
+
     /**
      * Converts a system device string to a device id.
      *

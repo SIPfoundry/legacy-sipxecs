@@ -1,6 +1,6 @@
 // $Id$
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -40,9 +40,9 @@ extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigD
     {
         spFactory = new CpMediaInterfaceFactory();
         spFactory->setFactoryImplementation(new VoiceEngineFactoryImpl(pConfigDb));
-    }    
+    }
     siInstanceCount++ ;
-    
+
     // Assert some sane value
     assert(siInstanceCount < 10) ;
     return spFactory;
@@ -72,9 +72,9 @@ extern "C" void sipxDestroyMediaFactoryFactory()
 // Constructor
 VoiceEngineFactoryImpl::VoiceEngineFactoryImpl(OsConfigDb* pConfigDb) :
     mMediaLib(GetGipsVoiceEngineLib()),
-#ifdef VIDEO    
+#ifdef VIDEO
     mVideoLib(GetGipsVideoEngine()),
-#endif 
+#endif
     mCurrentWaveInDevice(0),
     mCurrentWaveOutDevice(0),
     mVideoQuality(2),
@@ -82,14 +82,14 @@ VoiceEngineFactoryImpl::VoiceEngineFactoryImpl(OsConfigDb* pConfigDb) :
     mVideoFrameRate(30),
     mbMute(false),
     mRtpPortLock(OsMutex::Q_FIFO)
-{    
-    int maxFlowGraph = -1 ; 
+{
+    int maxFlowGraph = -1 ;
     int rc ;
     int lastError ;
     UtlString strOOBBandDTMF ;
     mbDTMFOutOfBand = TRUE;
     mpPreviewWindowDisplay = NULL ;
-    
+
     if (pConfigDb)
     {
         pConfigDb->get("PHONESET_MAX_ACTIVE_CALLS_ALLOWED", maxFlowGraph) ;
@@ -107,7 +107,7 @@ VoiceEngineFactoryImpl::VoiceEngineFactoryImpl(OsConfigDb* pConfigDb) :
     }
 
     // Max Flow graphs
-    if (maxFlowGraph <=0 ) 
+    if (maxFlowGraph <=0 )
     {
         maxFlowGraph = MAX_MANAGED_FLOW_GRAPHS;
     }
@@ -131,7 +131,7 @@ VoiceEngineFactoryImpl::VoiceEngineFactoryImpl(OsConfigDb* pConfigDb) :
 #endif
         // Disable Automatic Gain Control by default
         rc = mMediaLib.GIPSVE_SetAGCStatus(0);
-        assert(rc == 0);        
+        assert(rc == 0);
 
         mConnectionId = mMediaLib.GIPSVE_CreateChannel() ;
         rc = mMediaLib.GIPSVE_StartPlayout(mConnectionId) ;
@@ -141,13 +141,13 @@ VoiceEngineFactoryImpl::VoiceEngineFactoryImpl(OsConfigDb* pConfigDb) :
 
 #ifdef VIDEO
         int rc3 = mVideoLib.GIPSVideo_Init(&mMediaLib) ;
-        // assert(rc3 == 0) ; 
-        
+        // assert(rc3 == 0) ;
+
         #ifdef GIPS_TRACE
             mVideoLib.GIPSVideo_SetTrace(2);
         #endif
 #endif
-    }  
+    }
 }
 
 
@@ -161,7 +161,7 @@ VoiceEngineFactoryImpl::~VoiceEngineFactoryImpl()
     assert(rc == 0);
 #endif
     rc = mMediaLib.GIPSVE_Terminate();
-    assert(rc == 0);   
+    assert(rc == 0);
 
     if (siInstanceCount == 0)
     {
@@ -183,22 +183,22 @@ CpMediaInterface* VoiceEngineFactoryImpl::createMediaInterface( const char* publ
                                                                 SdpCodec* sdpCodecArray[],
                                                                 const char* locale,
                                                                 int expeditedIpTos,
-                                                                const char* szStunServer,                                                                
+                                                                const char* szStunServer,
                                                                 int iStunKeepAliveSecs,
                                                                 int stunOptions
-                                                               ) 
+                                                               )
 {
-    VoiceEngineMediaInterface* pMediaInterface = 
-        new VoiceEngineMediaInterface(this, publicAddress, localAddress, 
-                numCodecs, sdpCodecArray, locale, expeditedIpTos, 
+    VoiceEngineMediaInterface* pMediaInterface =
+        new VoiceEngineMediaInterface(this, publicAddress, localAddress,
+                numCodecs, sdpCodecArray, locale, expeditedIpTos,
                 szStunServer, stunOptions, iStunKeepAliveSecs, mbDTMFOutOfBand) ;
-    
+
     // store it in our internal list, as an int
     UtlInt* piMediaInterface = new UtlInt(pMediaInterface);
     mInterfaceList.insert(piMediaInterface);
 
     pMediaInterface->getVoiceEnginePtr()->GIPSVE_SetSoundDevices(mCurrentWaveInDevice, mCurrentWaveOutDevice);
-    return pMediaInterface; 
+    return pMediaInterface;
 }
 
 void VoiceEngineFactoryImpl::removeInterface(VoiceEngineMediaInterface* pMediaInterface)
@@ -207,11 +207,11 @@ void VoiceEngineFactoryImpl::removeInterface(VoiceEngineMediaInterface* pMediaIn
 }
 
 
-OsStatus VoiceEngineFactoryImpl::setSpeakerVolume(int iVolume) 
+OsStatus VoiceEngineFactoryImpl::setSpeakerVolume(int iVolume)
 {
     OsStatus rc = OS_FAILED ;
     int gipsVolume = (int) (((float)iVolume / 100.0) * 255.0 );
-    
+
     if (iVolume < 0 || iVolume > 100)
     {
         rc = OS_FAILED;
@@ -223,14 +223,14 @@ OsStatus VoiceEngineFactoryImpl::setSpeakerVolume(int iVolume)
     return rc ;
 }
 
-OsStatus VoiceEngineFactoryImpl::setSpeakerDevice(const UtlString& device) 
+OsStatus VoiceEngineFactoryImpl::setSpeakerDevice(const UtlString& device)
 {
     OsStatus rc = OS_FAILED;
 
     UtlSListIterator iterator(mInterfaceList);
     VoiceEngineMediaInterface* pInterface = NULL;
     UtlInt* pInterfaceInt = NULL;
-    
+
     if (outputDeviceStringToIndex(mCurrentWaveOutDevice, device) == OS_SUCCESS)
     {
         if (0 == mMediaLib.GIPSVE_SetSoundDevices(mCurrentWaveInDevice, mCurrentWaveOutDevice))
@@ -242,12 +242,12 @@ OsStatus VoiceEngineFactoryImpl::setSpeakerDevice(const UtlString& device)
     {
         pInterface = (VoiceEngineMediaInterface*)pInterfaceInt->getValue();
         GipsVoiceEngineLib* pGips = NULL;
-        
+
         if (pInterface)
         {
             pGips = pInterface->getVoiceEnginePtr();
         }
-        
+
         if (pGips && outputDeviceStringToIndex(mCurrentWaveOutDevice, device) == OS_SUCCESS)
         {
             if (0 == pGips->GIPSVE_SetSoundDevices(mCurrentWaveInDevice, mCurrentWaveOutDevice))
@@ -255,29 +255,29 @@ OsStatus VoiceEngineFactoryImpl::setSpeakerDevice(const UtlString& device)
                 rc = OS_SUCCESS;
             }
         }
-    } 
-    
-    return rc ;    
+    }
+
+    return rc ;
 }
 
 
-OsStatus VoiceEngineFactoryImpl::setMicrophoneGain(int iGain) 
+OsStatus VoiceEngineFactoryImpl::setMicrophoneGain(int iGain)
 {
     OsStatus rc = OS_FAILED ;
-    
+
     if (0 == iGain)
     {
         rc  = muteMicrophone(true);
     }
     else
     {
-    
+
         int gipsGain = (int)((float)((float)iGain / 100.0) * 255.0);
-        
+
         //check AGC status
         int x = mMediaLib.GIPSVE_GetAGCStatus();
         assert(0 == x);
-        
+
         if (iGain < 0 || iGain > 100)
         {
             rc = OS_FAILED;
@@ -291,15 +291,15 @@ OsStatus VoiceEngineFactoryImpl::setMicrophoneGain(int iGain)
     return rc ;
 }
 
-OsStatus VoiceEngineFactoryImpl::setMicrophoneDevice(const UtlString& device) 
+OsStatus VoiceEngineFactoryImpl::setMicrophoneDevice(const UtlString& device)
 {
     OsStatus rc = OS_FAILED;
     UtlSListIterator iterator(mInterfaceList);
     VoiceEngineMediaInterface* pInterface = NULL;
     UtlInt* pInterfaceInt = NULL;
-    
+
     assert(device.length() > 0);
-    
+
     if (OS_SUCCESS == inputDeviceStringToIndex(mCurrentWaveInDevice, device)  &&
         0 == mMediaLib.GIPSVE_SetSoundDevices(mCurrentWaveInDevice, mCurrentWaveOutDevice) )
     {
@@ -309,12 +309,12 @@ OsStatus VoiceEngineFactoryImpl::setMicrophoneDevice(const UtlString& device)
     {
         pInterface = (VoiceEngineMediaInterface*)pInterfaceInt->getValue();
         GipsVoiceEngineLib* pGips = NULL;
-        
+
         if (pInterface)
         {
             pGips = pInterface->getVoiceEnginePtr();
         }
-        
+
         if (pGips && outputDeviceStringToIndex(mCurrentWaveOutDevice, device) == OS_SUCCESS)
         {
             if (0 == pGips->GIPSVE_SetSoundDevices(mCurrentWaveInDevice, mCurrentWaveOutDevice))
@@ -322,17 +322,17 @@ OsStatus VoiceEngineFactoryImpl::setMicrophoneDevice(const UtlString& device)
                 rc = OS_SUCCESS;
             }
         }
-    } 
-    
-    return rc ;    
+    }
+
+    return rc ;
 }
 
-OsStatus VoiceEngineFactoryImpl::muteMicrophone(UtlBoolean bMute) 
+OsStatus VoiceEngineFactoryImpl::muteMicrophone(UtlBoolean bMute)
 {
     OsStatus rc = OS_SUCCESS;
-    
+
     mbMute = (bMute==TRUE) ? true : false;
-    
+
     UtlSListIterator iterator(mInterfaceList);
     UtlInt* iMediaInterface = NULL;
     while ((iMediaInterface = (UtlInt*)iterator()))
@@ -388,17 +388,17 @@ OsStatus VoiceEngineFactoryImpl::enableAudioAEC(UtlBoolean bEnable)
         UtlSListIterator iterator(mInterfaceList);
         VoiceEngineMediaInterface* pInterface = NULL;
         UtlInt* pInterfaceInt = NULL;
-        
+
         while (pInterfaceInt = (UtlInt*)iterator())
         {
             pInterface = (VoiceEngineMediaInterface*)pInterfaceInt->getValue();
             GipsVoiceEngineLib* pGips = NULL;
-            
+
             if (pInterface)
             {
                 pGips = pInterface->getVoiceEnginePtr();
             }
-            
+
             if (pGips)
             {
                 if (bEnable)
@@ -420,7 +420,7 @@ OsStatus VoiceEngineFactoryImpl::enableAudioAEC(UtlBoolean bEnable)
                     }
                 }
             } // end if pGips
-        } // end while 
+        } // end while
     } // end if (OS_SUCCESS == rc)
 
     return rc;
@@ -433,8 +433,8 @@ OsStatus VoiceEngineFactoryImpl::enableOutOfBandDTMF(UtlBoolean bEnable)
     return OS_SUCCESS;
 }
 
-OsStatus VoiceEngineFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactory, 
-                                                   const UtlString& sAudioPreferences, 
+OsStatus VoiceEngineFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactory,
+                                                   const UtlString& sAudioPreferences,
                                                    const UtlString& sVideoPreferences,
                                                    int* iRejected)
 {
@@ -446,7 +446,7 @@ OsStatus VoiceEngineFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactory,
     GIPSVE_CodecInst cInst;
 #ifdef VIDEO
     GIPSVideo_CodecInst vInst;
-#endif 
+#endif
 
     *iRejected = 0;
     if (pFactory)
@@ -488,8 +488,8 @@ OsStatus VoiceEngineFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactory,
         {
             if (iCodecs == 0)
             {
-                OsSysLog::add(FAC_MP, PRI_DEBUG, 
-                              "buildCidecFactory: VoiceEngine has no codecs"); 
+                OsSysLog::add(FAC_MP, PRI_DEBUG,
+                              "buildCidecFactory: VoiceEngine has no codecs");
             }
         }
 #ifdef VIDEO
@@ -534,8 +534,8 @@ OsStatus VoiceEngineFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactory,
             {
                 if (iCodecs == 0)
                 {
-                    OsSysLog::add(FAC_MP, PRI_DEBUG, 
-                                "buildCidecFactory: VideoEngine has no codecs"); 
+                    OsSysLog::add(FAC_MP, PRI_DEBUG,
+                                "buildCidecFactory: VideoEngine has no codecs");
                 }
             }
         }
@@ -547,7 +547,7 @@ OsStatus VoiceEngineFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactory,
 }
 
 
-// Set the global video preview window 
+// Set the global video preview window
 OsStatus VoiceEngineFactoryImpl::setVideoPreviewDisplay(void* pDisplay)
 {
     if (mpPreviewWindowDisplay)
@@ -555,7 +555,7 @@ OsStatus VoiceEngineFactoryImpl::setVideoPreviewDisplay(void* pDisplay)
         delete mpPreviewWindowDisplay;
         mpPreviewWindowDisplay = NULL;
     }
-    
+
     if (pDisplay)
     {
         SIPXVE_VIDEO_DISPLAY* pVideoDisplay = (SIPXVE_VIDEO_DISPLAY*) pDisplay;
@@ -569,9 +569,9 @@ void* VoiceEngineFactoryImpl::getVideoPreviewDisplay()
 {
     return mpPreviewWindowDisplay;
 }
-        
+
 // Update the video preview window given the specified display context.
-OsStatus VoiceEngineFactoryImpl::updateVideoPreviewWindow(void* displayContext) 
+OsStatus VoiceEngineFactoryImpl::updateVideoPreviewWindow(void* displayContext)
 {
     // VIDEO: TODO
 
@@ -584,8 +584,8 @@ OsStatus VoiceEngineFactoryImpl::setVideoQuality(int quality)
     return OS_SUCCESS ;
 }
 
-OsStatus VoiceEngineFactoryImpl::startPlayFile(const char* szFile, bool bLoop) 
-{    
+OsStatus VoiceEngineFactoryImpl::startPlayFile(const char* szFile, bool bLoop)
+{
     OsStatus rc = OS_FAILED ;
     int fileFormat ;
     int check ;
@@ -593,7 +593,7 @@ OsStatus VoiceEngineFactoryImpl::startPlayFile(const char* szFile, bool bLoop)
     char cBuffer[5] ;
 
     if ((fp=fopen(szFile,"rb")) != NULL)
-    {       
+    {
         // Determine if file is PCM or WAV
         memset(cBuffer, 0, 5);
         fgets(cBuffer, 5, fp);
@@ -612,31 +612,31 @@ OsStatus VoiceEngineFactoryImpl::startPlayFile(const char* szFile, bool bLoop)
         check = mMediaLib.GIPSVE_GetLastError();
         //assert(check == 0);
 
-        rc = OS_SUCCESS ; 
+        rc = OS_SUCCESS ;
     }
 
     return rc ;
 }
 
 
-OsStatus VoiceEngineFactoryImpl::stopPlayFile() 
+OsStatus VoiceEngineFactoryImpl::stopPlayFile()
 {
     if (mMediaLib.GIPSVE_IsPlayingFile(mConnectionId))
     {
         mMediaLib.GIPSVE_StopPlayingFile(mConnectionId) ;
     }
-    return OS_SUCCESS ; 
+    return OS_SUCCESS ;
 }
 
 
-OsStatus VoiceEngineFactoryImpl::playTone(int toneId) 
+OsStatus VoiceEngineFactoryImpl::playTone(int toneId)
 {
     int check = mMediaLib.GIPSVE_PlayDTMFTone(toneId);
     assert(check == 0) ;
     check = mMediaLib.GIPSVE_GetLastError();
     //assert(check == 0);
 
-    return OS_SUCCESS ; 
+    return OS_SUCCESS ;
 }
 
 OsStatus VoiceEngineFactoryImpl::setVideoParameters(int bitRate, int frameRate)
@@ -651,10 +651,10 @@ OsStatus VoiceEngineFactoryImpl::setVideoParameters(int bitRate, int frameRate)
 OsStatus VoiceEngineFactoryImpl::getSpeakerVolume(int& iVolume) const
 {
     OsStatus rc = OS_SUCCESS ;
-    
+
     int gipsVolume = 0;
     gipsVolume = mMediaLib.GIPSVE_GetSpeakerVolume();
-    
+
     iVolume = (int) ((double) ((((double)gipsVolume ) / 255.0) * 100.0) + 0.5) ;
 
     return rc ;
@@ -663,7 +663,7 @@ OsStatus VoiceEngineFactoryImpl::getSpeakerVolume(int& iVolume) const
 OsStatus VoiceEngineFactoryImpl::getSpeakerDevice(UtlString& device) const
 {
     OsStatus rc = OS_SUCCESS ;
-    
+
     rc = outputDeviceIndexToString(device, mCurrentWaveOutDevice);
 
     return rc ;
@@ -674,7 +674,7 @@ OsStatus VoiceEngineFactoryImpl::getMicrophoneGain(int& iGain) const
 {
     OsStatus rc = OS_SUCCESS ;
     double gipsGain = (double) mMediaLib.GIPSVE_GetMicVolume();
-    
+
     iGain = (int) ((double)((double)((gipsGain) / 255.0) * 100.0) + 0.5);
 
     return rc ;
@@ -741,7 +741,7 @@ OsStatus VoiceEngineFactoryImpl::getVideoFrameRate(int& frameRate) const
 OsStatus VoiceEngineFactoryImpl::isAudioAECEnabled(UtlBoolean& bEnabled) const
 {
     OsStatus rc = OS_SUCCESS;
-    
+
     bEnabled = FALSE;
 
     switch (mMediaLib.GIPSVE_GetECStatus())
@@ -792,7 +792,7 @@ OsStatus VoiceEngineFactoryImpl::outputDeviceStringToIndex(int& deviceIndex, con
         }
     }
 #endif
-    return rc;    
+    return rc;
 }
 
 OsStatus VoiceEngineFactoryImpl::outputDeviceIndexToString(UtlString& device, const int deviceIndex) const
@@ -832,7 +832,7 @@ OsStatus VoiceEngineFactoryImpl::inputDeviceStringToIndex(int& deviceIndex, cons
         }
     }
 #endif
-    return rc;    
+    return rc;
 }
 
 OsStatus VoiceEngineFactoryImpl::inputDeviceIndexToString(UtlString& device, const int deviceIndex) const

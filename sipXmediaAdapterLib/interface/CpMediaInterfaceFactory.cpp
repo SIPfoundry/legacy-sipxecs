@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -40,7 +40,7 @@ CpMediaInterfaceFactory::~CpMediaInterfaceFactory()
 /* ============================ MANIPULATORS ============================== */
 
 // Set the actual factory implementation
-void CpMediaInterfaceFactory::setFactoryImplementation(CpMediaInterfaceFactoryImpl* pFactoryImpl) 
+void CpMediaInterfaceFactory::setFactoryImplementation(CpMediaInterfaceFactoryImpl* pFactoryImpl)
 {
     // Only bother if the pointers are different
     if (pFactoryImpl != mpFactoryImpl)
@@ -67,14 +67,14 @@ CpMediaInterface* CpMediaInterfaceFactory::createMediaInterface(const char* publ
                                                                 int expeditedIpTos,
                                                                 const char* szStunServer,
                                                                 int stunOptions,
-                                                                int iStunKeepAlivePeriodSecs) 
+                                                                int iStunKeepAlivePeriodSecs)
 {
     CpMediaInterface* pInterface = NULL ;
 
-    if (mpFactoryImpl) 
+    if (mpFactoryImpl)
     {
-        pInterface = mpFactoryImpl->createMediaInterface(publicAddress, 
-                localAddress, numCodecs, sdpCodecArray, locale, 
+        pInterface = mpFactoryImpl->createMediaInterface(publicAddress,
+                localAddress, numCodecs, sdpCodecArray, locale,
                 expeditedIpTos, szStunServer, stunOptions, iStunKeepAlivePeriodSecs) ;
     }
 
@@ -83,7 +83,7 @@ CpMediaInterface* CpMediaInterfaceFactory::createMediaInterface(const char* publ
 
 /* ============================ ACCESSORS ================================= */
 
-CpMediaInterfaceFactoryImpl* 
+CpMediaInterfaceFactoryImpl*
 CpMediaInterfaceFactory::getFactoryImplementation()
 {
     return mpFactoryImpl ;
@@ -96,5 +96,3 @@ CpMediaInterfaceFactory::getFactoryImplementation()
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-
-

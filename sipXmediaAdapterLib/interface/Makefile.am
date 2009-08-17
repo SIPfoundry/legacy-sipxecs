@@ -7,7 +7,7 @@ nobase_include_HEADERS =  \
     mi/CpMediaInterfaceFactoryImpl.h \
     mi/CpMediaInterfaceFactoryFactory.h \
     mi/CpMediaInterfaceFactory.h
-    
+
 noinst_LTLIBRARIES = libmediainterface.la
 
 libmediainterface_la_LIBADD =  \
@@ -21,6 +21,3 @@ libmediainterface_la_SOURCES =  \
     mi/CpMediaInterfaceFactoryImpl.h \
     mi/CpMediaInterfaceFactoryFactory.h \
     mi/CpMediaInterfaceFactory.h
-
-
-

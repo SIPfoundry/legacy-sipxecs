@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 //////////////////////////////////////////////////////////////////////////////
@@ -35,9 +35,9 @@ class MpStreamPlayer;
 class MpStreamQueuePlayer;
 class CpMediaInterfaceFactoryImpl ;
 
-/** 
+/**
  * Abstract media control interface.
- * 
+ *
  * The CpCallManager creates a CpMediaInterface for each
  * call created.  The media inteface is then used to control
  * and query the media sub-system used for that call.  As
@@ -71,36 +71,36 @@ public:
 
    /**
     * public interface for destroying this media interface
-    */ 
-   virtual void release() = 0; 
+    */
+   virtual void release() = 0;
 
 /* ============================ MANIPULATORS ============================== */
 
    /**
-    * Create a media connection in the media processing subsystem.  One 
-    * instance of the CpMediaInterface exists for each call, however, each 
+    * Create a media connection in the media processing subsystem.  One
+    * instance of the CpMediaInterface exists for each call, however, each
     * leg of the call requires an individual connection.
     *
     * @param connectionId A newly allocated connection id returned via this
-    *        call.  The connection passed to many other media processing 
+    *        call.  The connection passed to many other media processing
     *        methods in this interface.
     * @param szLocalConnection Local address (interface) that should be used
     *        for this connection.
-    * @param videoWindowHandle Video Window handle if using video.  Supply 
+    * @param videoWindowHandle Video Window handle if using video.  Supply
     *        a window handle of NULL to disable video for this call/
     *        connection.
-    */ 
+    */
    virtual OsStatus createConnection(int& connectionId,
                                      const char* szLocalAddress,
-                                     void* videoWindowHandle 
-                                     ) = 0 ;   
+                                     void* videoWindowHandle
+                                     ) = 0 ;
 
    /**
-    * Get the port, address, and codec capabilities for the specified media 
-    * connection.  The CpMediaInterface implementation is responsible for 
+    * Get the port, address, and codec capabilities for the specified media
+    * connection.  The CpMediaInterface implementation is responsible for
     * managing port allocations.
-    *  
-    * @param connectionId Connection Id for the call leg obtained from 
+    *
+    * @param connectionId Connection Id for the call leg obtained from
     *        createConnection
     * @param rtpHostAddress IP address or hostname that should be advertised
     *        in SDP data.
@@ -108,31 +108,31 @@ public:
     * @param rtcpPort RTCP port number that should be advertised in SDP.
     * @param supportedCodecs List of supported codecs.
     */
-   virtual OsStatus getCapabilities(int connectionId, 
-                                    UtlString& rtpHostAddress, 
+   virtual OsStatus getCapabilities(int connectionId,
+                                    UtlString& rtpHostAddress,
                                     int& rtpAudioPort,
                                     int& rtcpAudioPort,
                                     int& rtpVideoPort,
-                                    int& rtcpVideoPort,                                                                        
+                                    int& rtcpVideoPort,
                                     SdpCodecFactory& supportedCodecs,
                                     SdpSrtpParameters& srtpParams) = 0;
 
     /** VIDEO: Include additional RTP ports */
-    
+
 
 
    /**
     * Set the connection destination (target) for the designated media
     * connection.
     *
-    * @param connectionId Connection Id for the call leg obtained from 
+    * @param connectionId Connection Id for the call leg obtained from
     *        createConnection
     * @param rtpHostAddress IP (or host) address of remote party.
     * @param rtpPort RTP port of remote party
     * @param rtcpPort RTCP port of remote party
     */
    virtual OsStatus setConnectionDestination(int connectionId,
-                                             const char* rtpHostAddress, 
+                                             const char* rtpHostAddress,
                                              int rtpAudioPort,
                                              int rtcpAudioPort,
                                              int rtpVideoPort,
@@ -144,10 +144,10 @@ public:
     * Add an alternate connection destination for this media interface.
     * Alternerates are generally obtained from the SdpBody in the form
     * of candidate addresses.  When adding an alternate connection, the
-    * implementation should use an ICE-like method to determine the 
+    * implementation should use an ICE-like method to determine the
     * best destination address.
     *
-    * @param connectionId Connection Id for the call leg obtained from 
+    * @param connectionId Connection Id for the call leg obtained from
     *        createConnection
     * @param cPriority Relatively priority of the destination.  Higher
     *        numbers have greater priority (0..255)
@@ -158,7 +158,7 @@ public:
     */
    virtual OsStatus addAlternateDestinations(int connectionId,
                                              unsigned char cPriority,
-                                             const char* rtpHostAddress, 
+                                             const char* rtpHostAddress,
                                              int port,
                                              bool bRtp) = 0 ;
 
@@ -166,12 +166,12 @@ public:
     * Start sending RTP using the specified codec list.  Generally, this
     * codec list is the intersection between both parties.
     *
-    * @param connectionId Connection Id for the call leg obtained from 
+    * @param connectionId Connection Id for the call leg obtained from
     *        createConnection
     * @param numCodec Number of codecs supplied in the sendCodec array
     * @param sendCodec Array of codecs ordered in sending preference.
-    */ 
-   virtual OsStatus startRtpSend(int connectionId, 
+    */
+   virtual OsStatus startRtpSend(int connectionId,
                                  int numCodecs,
                                  SdpCodec* sendCodec[],
                                  SdpSrtpParameters& srtpParams) = 0 ;
@@ -181,14 +181,14 @@ public:
     * codec list is the intersection between both parties.  The media
     * processing subsystem should be prepared to receive any of the specified
     * payload type without additional signaling.  For example, it is perfectly
-    * legal to switch between codecs on a whim if multiple codecs are agreed 
+    * legal to switch between codecs on a whim if multiple codecs are agreed
     * upon.
     *
-    * @param connectionId Connection Id for the call leg obtained from 
+    * @param connectionId Connection Id for the call leg obtained from
     *        createConnection
     * @param numCodec Number of codecs supplied in the sendCodec array
-    * @param sendCodec Array of receive codecs 
-    */  
+    * @param sendCodec Array of receive codecs
+    */
    virtual OsStatus startRtpReceive(int connectionId,
                                     int numCodecs,
                                     SdpCodec* sendCodec[],
@@ -198,48 +198,48 @@ public:
    /**
     * Stop sending RTP (and RTCP) data for the specified connection
     *
-    * @param connectionId Connection Id for the call leg obtained from 
+    * @param connectionId Connection Id for the call leg obtained from
     *        createConnection
-    */ 
+    */
    virtual OsStatus stopRtpSend(int connectionId) = 0 ;
 
    /**
     * Stop receiving RTP (and RTCP) data for the specified connection
     *
-    * @param connectionId Connection Id for the call leg obtained from 
+    * @param connectionId Connection Id for the call leg obtained from
     *        createConnection
     */
    virtual OsStatus stopRtpReceive(int connectionId) = 0 ;
 
    /**
-    * Delete the specified connection and free up any resources associated 
+    * Delete the specified connection and free up any resources associated
     * with that connection.
     *
-    * @param connectionId Connection Id for the call leg obtained from 
+    * @param connectionId Connection Id for the call leg obtained from
     *        createConnection
     */
    virtual OsStatus deleteConnection(int connectionId) = 0 ;
 
    /**
     * Start playing the specified tone for this call.  If the tone is a DTMF
-    * tone and the remote flag is set, the interface should send out of 
-    * band DTMF using RFC 2833.  Inband audio should be sent to all 
+    * tone and the remote flag is set, the interface should send out of
+    * band DTMF using RFC 2833.  Inband audio should be sent to all
     * connections.  If a previous tone was playing, calling startTone should
     * automatically stop existing tone.
-    * 
+    *
     * @param toneId The designated tone to play (TODO: make enum)
-    * @param local True indicates that sound should be played to the local 
+    * @param local True indicates that sound should be played to the local
     *        speaker (assuming call is in focus).
-    * @param remote True indicates that the sound should be played to all 
-    *        remote parties.  
+    * @param remote True indicates that the sound should be played to all
+    *        remote parties.
     */
-   virtual OsStatus startTone(int toneId, 
-                              UtlBoolean local, 
+   virtual OsStatus startTone(int toneId,
+                              UtlBoolean local,
                               UtlBoolean remote) = 0 ;
 
    /**
     * Stop playing all tones.  Some tones/implementations may not support this.
-    * For example, some DTMF playing implementations will only play DTMF for a 
+    * For example, some DTMF playing implementations will only play DTMF for a
     * fixed interval.
     */
    virtual OsStatus stopTone() = 0 ;
@@ -247,32 +247,32 @@ public:
    /**
     * Play the specified audio URL to the call.
     *
-    * @param url Audio url to be played -- The sipX implementation is limited 
+    * @param url Audio url to be played -- The sipX implementation is limited
     *        to file paths (not file Urls).
     * @param repeat If set, loop the audio file until stopAudio is called.
-    * @param local True indicates that sound should be played to the local 
+    * @param local True indicates that sound should be played to the local
     *        speaker (assuming call is in focus).
-    * @param remote True indicates that the sound should be played to all 
-    *        remote parties.  
-    * 
+    * @param remote True indicates that the sound should be played to all
+    *        remote parties.
+    *
     */
-   virtual OsStatus playAudio(const char* url, 
+   virtual OsStatus playAudio(const char* url,
                               UtlBoolean repeat,
-                              UtlBoolean local, 
+                              UtlBoolean local,
                               UtlBoolean remote) = 0 ;
 
 
    /**
-    * Play the specified audio buffer to the call. 
+    * Play the specified audio buffer to the call.
     *
-    * @TODO This method should also specify the audio format (e.g. samples/per 
+    * @TODO This method should also specify the audio format (e.g. samples/per
     *       second, etc.).
     */
-   virtual OsStatus playBuffer(char* buf, 
+   virtual OsStatus playBuffer(char* buf,
                                unsigned long bufSize,
-                               int type, 
+                               int type,
                                UtlBoolean repeat,
-                               UtlBoolean local, 
+                               UtlBoolean local,
                                UtlBoolean remote,
                                OsProtectedEvent* event = NULL) = 0;
 
@@ -283,58 +283,58 @@ public:
 
 
    /**
-    * Give the focus of the local audio device to the associated call 
+    * Give the focus of the local audio device to the associated call
     * (for example, take this call off hold).
     */
    virtual OsStatus giveFocus() = 0 ;
 
    /**
-    * Take this call out of focus for the local audio device 
+    * Take this call out of focus for the local audio device
     *(for example, put this call on hold).
     */
    virtual OsStatus defocus() = 0 ;
 
 
-   //! Create a simple player for this call to play a single stream 
+   //! Create a simple player for this call to play a single stream
    /*! (see the CpCallManager createPlayer() method).
     */
-   virtual OsStatus createPlayer(MpStreamPlayer** ppPlayer, 
-                                 const char* szStream, 
-                                 int flags, 
-                                 OsMsgQ *pMsgQ = NULL, 
+   virtual OsStatus createPlayer(MpStreamPlayer** ppPlayer,
+                                 const char* szStream,
+                                 int flags,
+                                 OsMsgQ *pMsgQ = NULL,
                                  const char* szTarget = NULL) = 0;
 
    //! Destroy a simple player in this call.
    virtual OsStatus destroyPlayer(MpStreamPlayer* pPlayer) = 0;
 
-   //! Create a single-buffered play list player for this call 
+   //! Create a single-buffered play list player for this call
    /*! (see the CpCallManager createPlayer() method).
     */
-   virtual OsStatus createPlaylistPlayer(MpStreamPlaylistPlayer** ppPlayer, 
-                                         OsMsgQ *pMsgQ = NULL, 
+   virtual OsStatus createPlaylistPlayer(MpStreamPlaylistPlayer** ppPlayer,
+                                         OsMsgQ *pMsgQ = NULL,
                                          const char* szTarget = NULL) = 0;
 
    //! Destroy a single-buffered play list player in this call.
    virtual OsStatus destroyPlaylistPlayer(MpStreamPlaylistPlayer* pPlayer) = 0;
 
-   //! Create a double-buffered list player for this call 
+   //! Create a double-buffered list player for this call
    /*! (see the Call Manager's createPlayer() method).
     */
-   virtual OsStatus createQueuePlayer(MpStreamQueuePlayer** ppPlayer, 
-                                      OsMsgQ *pMsgQ = NULL, 
+   virtual OsStatus createQueuePlayer(MpStreamQueuePlayer** ppPlayer,
+                                      OsMsgQ *pMsgQ = NULL,
                                       const char* szTarget = NULL) = 0;
 
    //! Destroy a double-buffered list player in this call.
    virtual OsStatus destroyQueuePlayer(MpStreamQueuePlayer* pPlayer) = 0;
 
-   //! Set the CPU resource limit for the media connections in this call. 
-   /*! This is used to limit the available codecs to only those within 
-    * the designated CPU cost limit. 
+   //! Set the CPU resource limit for the media connections in this call.
+   /*! This is used to limit the available codecs to only those within
+    * the designated CPU cost limit.
     */
    virtual void setCodecCPULimit(int iLimit) = 0 ;
 
-   //! Add a listener event to this call that will receive callback 
-   //! or queued event notifications upon receipt of DTMF tone events 
+   //! Add a listener event to this call that will receive callback
+   //! or queued event notifications upon receipt of DTMF tone events
    //! (RFC 2833).
    virtual void addToneListener(OsNotification *pListener, int connectionId) = 0;
 
@@ -342,10 +342,10 @@ public:
    virtual void removeToneListener(int connectionId) = 0;
 
    //! Start recording audio for this call.
-   virtual OsStatus ezRecord(int ms, 
-                             int silenceLength, 
-                             const char* fileName, 
-                             double& duration, 
+   virtual OsStatus ezRecord(int ms,
+                             int silenceLength,
+                             const char* fileName,
+                             double& duration,
                              int& dtmfterm,
                              OsProtectedEvent* ev = NULL) = 0;
 
@@ -360,11 +360,11 @@ public:
    //! For internal use only
    virtual void setPremiumSound(UtlBoolean enabled) = 0;
 
-   //! Calculate the current cost for the current set of 
+   //! Calculate the current cost for the current set of
    //! sending/receiving codecs.
    virtual int getCodecCPUCost() = 0 ;
 
-   //! Calculate the worst case cost for the current set of 
+   //! Calculate the worst case cost for the current set of
    //! sending/receiving codecs.
    virtual int getCodecCPULimit() = 0 ;
 
@@ -372,22 +372,22 @@ public:
    virtual OsMsgQ* getMsgQ() = 0 ;
 
    // Returns the primary codec for the connection
-   virtual OsStatus getPrimaryCodec(int connectionId, 
+   virtual OsStatus getPrimaryCodec(int connectionId,
                                     UtlString& audioCodec,
                                     UtlString& videoCodec,
                                     int* audiopPayloadType,
                                     int* videoPayloadType) = 0;
-                                    
+
    virtual OsStatus setVideoWindowDisplay(const void* hWnd) = 0;
    virtual const void* getVideoWindowDisplay() = 0;
 
 /* ============================ INQUIRY =================================== */
 
-   //! Query whether the specified media connection is enabled for 
+   //! Query whether the specified media connection is enabled for
    //! sending RTP.
    virtual UtlBoolean isSendingRtpAudio(int connectionId) = 0 ;
 
-   //! Query whether the specified media connection is enabled for 
+   //! Query whether the specified media connection is enabled for
    //! sending RTP.
    virtual UtlBoolean isSendingRtpVideo(int connectionId) = 0 ;
 
@@ -399,7 +399,7 @@ public:
    //! sending RTP.
    virtual UtlBoolean isReceivingRtpVideo(int connectionId) = 0 ;
 
-   //! Query whether the specified media connection has a destination 
+   //! Query whether the specified media connection has a destination
    //! specified for sending RTP.
    virtual UtlBoolean isDestinationSet(int connectionId) = 0 ;
 

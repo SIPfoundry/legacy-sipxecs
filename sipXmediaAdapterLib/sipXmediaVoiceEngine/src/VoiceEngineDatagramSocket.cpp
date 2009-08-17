@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -19,7 +19,7 @@
     #include <windows.h>
     #include "GipsVideoEngineWindows.h"
 #endif
-#endif 
+#endif
 #include "os/OsLock.h"
 #include "os/OsStunQueryAgent.h"
 #include "os/OsSysLog.h"
@@ -42,15 +42,15 @@ VoiceEngineDatagramSocket::VoiceEngineDatagramSocket(GipsVoiceEngineLib* pVoiceE
                                                      int videoChannel,
                                                      int type,
                                                      int remoteHostPortNum,
-                                                     const char* remoteHost, 
-                                                     int localHostPortNum, 
+                                                     const char* remoteHost,
+                                                     int localHostPortNum,
                                                      const char* localHost,
-                                                     bool bEnable, 
+                                                     bool bEnable,
                                                      const char* szStunServer,
                                                      int iRefreshPeriodInSec,
-                                                     int stunOptions) 
+                                                     int stunOptions)
         : OsStunDatagramSocket(remoteHostPortNum, remoteHost, localHostPortNum, localHost, bEnable, szStunServer, iRefreshPeriodInSec, stunOptions)
-{    
+{
     mpVoiceEngine = pVoiceEngine ;
     mpVideoEngine = pVideoEngine ;
     miVoiceEngineChannel = audioChannel ;
@@ -69,7 +69,7 @@ VoiceEngineDatagramSocket::~VoiceEngineDatagramSocket()
 /* ============================ MANIPULATORS ============================== */
 
 #define MAX_RTP_BYTES 4096
-void VoiceEngineDatagramSocket::pushPacket() 
+void VoiceEngineDatagramSocket::pushPacket()
 {
 #ifdef TRANSPORT_DEBUG
     int static count = 0 ;
@@ -103,7 +103,7 @@ void VoiceEngineDatagramSocket::pushPacket()
 #endif /* VIDEO */
         }
 
-#ifdef TRANSPORT_DEBUG        
+#ifdef TRANSPORT_DEBUG
         if (count % 100 == 0)
         {
             printf("TRANSPORT_DEBUG: pushPacket type=%d\n", miType) ;

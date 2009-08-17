@@ -1,6 +1,6 @@
 // $Id$
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -27,7 +27,7 @@
 
 // Constructor
 ConferenceEngineEventHandler::ConferenceEngineEventHandler()
-{    
+{
 
 }
 
@@ -60,13 +60,13 @@ void ConferenceEngineEventHandler::ReceivedOutbandDTMF(void* anyPtr, int channel
     OsSysLog::add(FAC_MP, PRI_DEBUG,
                   "ConferenceEngineEventHandler::ReceivedOutbandDTMF receiving a DTMF event %d on channel %d",
                   value, channel);
-                  
+
     ConferenceEngineMediaInterface* mediaInterface = (ConferenceEngineMediaInterface*) anyPtr;
-    
+
     OsNotification* notifier = NULL;
     notifier = mediaInterface->getDTMFNotifier(channel);
-    
-    OsStatus ret;              
+
+    OsStatus ret;
     if (NULL != notifier)
     {
         ret = notifier->signal(0x80000000 |
@@ -78,7 +78,7 @@ void ConferenceEngineEventHandler::ReceivedOutbandDTMF(void* anyPtr, int channel
             {
                 OsSysLog::add(FAC_MP, PRI_ERR,
                               "ConferenceEngineEventHandler::ReceivedOutbandDTMF Signal Stop returned OS_ALREADY_SIGNALED");
-            
+
             }
             else
             {
@@ -96,11 +96,11 @@ void ConferenceEngineEventHandler::ReceivedInbandDTMF(void* anyPtr, int channel,
                   tone, channel);
 
     ConferenceEngineMediaInterface* mediaInterface = (ConferenceEngineMediaInterface*) anyPtr;
-    
+
     OsNotification* notifier = NULL;
     notifier = mediaInterface->getDTMFNotifier(channel);
-    
-    OsStatus ret;              
+
+    OsStatus ret;
     if (NULL != notifier)
     {
         ret = notifier->signal(0x80000000 |
@@ -112,7 +112,7 @@ void ConferenceEngineEventHandler::ReceivedInbandDTMF(void* anyPtr, int channel,
             {
                 OsSysLog::add(FAC_MP, PRI_ERR,
                               "ConferenceEngineEventHandler::ReceivedInbandDTMF Signal Stop returned OS_ALREADY_SIGNALED");
-            
+
             }
             else
             {
@@ -130,11 +130,11 @@ void ConferenceEngineEventHandler::PlayedFileEnded(void* anyPtr, int channel, co
                   fileName, channel);
 
     ConferenceEngineMediaInterface* mediaInterface = (ConferenceEngineMediaInterface*) anyPtr;
-    
+
     OsNotification* notifier = NULL;
     notifier = mediaInterface->getPlayNotifier(channel);
-    
-    OsStatus ret;              
+
+    OsStatus ret;
     if (NULL != notifier)
     {
     }
@@ -166,4 +166,3 @@ void ConferenceEngineEventHandler::EventMessage(void* anyPtr, GIPS_EVENT_MESSAGE
         break;
     }
 }
-

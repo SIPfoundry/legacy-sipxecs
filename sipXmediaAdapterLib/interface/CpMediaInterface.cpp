@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -15,7 +15,7 @@
 
 // APPLICATION INCLUDES
 #include "mi/CpMediaInterface.h"
-#include "mi/CpMediaInterfaceFactoryImpl.h" 
+#include "mi/CpMediaInterfaceFactoryImpl.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -29,7 +29,7 @@
 // Constructor
 CpMediaInterface::CpMediaInterface(CpMediaInterfaceFactoryImpl *pFactoryImpl)
 {
-    mpFactoryImpl = pFactoryImpl ; 
+    mpFactoryImpl = pFactoryImpl ;
 }
 
 // Destructor

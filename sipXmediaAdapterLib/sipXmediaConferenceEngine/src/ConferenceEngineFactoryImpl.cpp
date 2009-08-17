@@ -1,6 +1,6 @@
 // $Id$
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -39,7 +39,7 @@ extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigD
         pFactory = new CpMediaInterfaceFactory();
         pFactory->setFactoryImplementation(new ConferenceEngineFactoryImpl(pConfigDb));
     }
-        
+
     return pFactory;
 }
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -49,10 +49,10 @@ extern "C" CpMediaInterfaceFactory* sipXmediaFactoryFactory(OsConfigDb* pConfigD
 // Constructor
 ConferenceEngineFactoryImpl::ConferenceEngineFactoryImpl(OsConfigDb* pConfigDb) :
     mConferenceEngine(NewConfEngine())
-{    
+{
     UtlString strOOBBandDTMF ;
     mDTMFOutOfBand = TRUE;
-    
+
     if (pConfigDb)
     {
         pConfigDb->get("CONFIG_PHONESET_SEND_OOB_DTMF", strOOBBandDTMF) ;
@@ -73,12 +73,12 @@ ConferenceEngineFactoryImpl::ConferenceEngineFactoryImpl(OsConfigDb* pConfigDb) 
         // start up the Conference Engine system
         int rc = mConferenceEngine.GIPSConf_Init();
         if (rc != 0)
-        {        
+        {
             OsSysLog::add(FAC_MP, PRI_ERR,
                           "ConferenceEngineFactoryImpl::ConferenceEngineFactoryImpl GIPS ConferenceEngine failed to initialize. error = %d.",
                           mConferenceEngine.GIPSConf_GetLastError());
         }
-                
+
         assert(rc == 0);
         OsSysLog::add(FAC_MP, PRI_DEBUG,
                       "ConferenceEngineFactoryImpl::ConferenceEngineFactoryImpl GIPS ConferenceEngine is initialized.");
@@ -94,12 +94,12 @@ ConferenceEngineFactoryImpl::~ConferenceEngineFactoryImpl()
     int rc;
 
     mInstanceCount--;
-    
+
     if (mInstanceCount == 0)
     {
         rc = mConferenceEngine.GIPSConf_Terminate();
         assert(rc == 0);
-        
+
         if (mInterfaceList.isEmpty())
         {
             UtlSListIterator iterator(mInterfaceList);
@@ -126,16 +126,16 @@ CpMediaInterface* ConferenceEngineFactoryImpl::createMediaInterface(const char* 
                                                                     int stunOptions,
                                                                     int iStunKeepAliveSecs)
 {
-    ConferenceEngineMediaInterface* pMediaInterface = 
-        new ConferenceEngineMediaInterface(this, publicAddress, localAddress, 
-                numCodecs, sdpCodecArray, locale, expeditedIpTos, 
+    ConferenceEngineMediaInterface* pMediaInterface =
+        new ConferenceEngineMediaInterface(this, publicAddress, localAddress,
+                numCodecs, sdpCodecArray, locale, expeditedIpTos,
                 szStunServer, stunOptions, iStunKeepAliveSecs, mDTMFOutOfBand) ;
-    
+
     // store it in our internal list, as an int
     UtlVoidPtr* mediaInterface = new UtlVoidPtr(pMediaInterface);
     mInterfaceList.insert(mediaInterface);
 
-    return pMediaInterface; 
+    return pMediaInterface;
 }
 
 void ConferenceEngineFactoryImpl::removeMediaInterface(CpMediaInterface* pMediaInterface)
@@ -147,7 +147,7 @@ void ConferenceEngineFactoryImpl::removeMediaInterface(CpMediaInterface* pMediaI
 }
 
 
-OsStatus ConferenceEngineFactoryImpl::setSpeakerVolume(int iVolume) 
+OsStatus ConferenceEngineFactoryImpl::setSpeakerVolume(int iVolume)
 {
     OsStatus rc = OS_FAILED ;
 
@@ -158,48 +158,48 @@ OsStatus ConferenceEngineFactoryImpl::setSpeakerVolume(int iVolume)
     else
     {
         mGipsVolume = ( ((float) (iVolume - 50) / 50.0) * 20.0 );
-    
+
         rc = OS_SUCCESS;
     }
-    
+
     return rc ;
 }
 
-OsStatus ConferenceEngineFactoryImpl::setSpeakerDevice(const UtlString& device) 
+OsStatus ConferenceEngineFactoryImpl::setSpeakerDevice(const UtlString& device)
 {
     OsStatus rc = OS_NOT_SUPPORTED;
-    
+
     OsSysLog::add(FAC_MP, PRI_ERR,
                   "ConferenceEngineFactoryImpl::setSpeakerDevice is not supported.");
 
-    return rc ;    
+    return rc ;
 }
 
 
-OsStatus ConferenceEngineFactoryImpl::setMicrophoneGain(int iGain) 
+OsStatus ConferenceEngineFactoryImpl::setMicrophoneGain(int iGain)
 {
     OsStatus rc = OS_NOT_SUPPORTED;
 
     OsSysLog::add(FAC_MP, PRI_ERR,
                   "ConferenceEngineFactoryImpl::setMicrophoneGain is not supported.");
-    
+
     return rc ;
 }
 
-OsStatus ConferenceEngineFactoryImpl::setMicrophoneDevice(const UtlString& device) 
+OsStatus ConferenceEngineFactoryImpl::setMicrophoneDevice(const UtlString& device)
 {
     OsStatus rc = OS_NOT_SUPPORTED;
 
     OsSysLog::add(FAC_MP, PRI_ERR,
                   "ConferenceEngineFactoryImpl::setMicrophoneDevice is not supported.");
 
-    return rc ;    
+    return rc ;
 }
 
-OsStatus ConferenceEngineFactoryImpl::muteMicrophone(UtlBoolean bMute) 
+OsStatus ConferenceEngineFactoryImpl::muteMicrophone(UtlBoolean bMute)
 {
     OsStatus rc = OS_NOT_SUPPORTED;
-    
+
     OsSysLog::add(FAC_MP, PRI_ERR,
                   "ConferenceEngineFactoryImpl::muteMicrophone is not supported.");
 
@@ -209,7 +209,7 @@ OsStatus ConferenceEngineFactoryImpl::muteMicrophone(UtlBoolean bMute)
 OsStatus ConferenceEngineFactoryImpl::enableAudioAEC(UtlBoolean bEnable)
 {
     mAGC = bEnable;
-    
+
     return OS_SUCCESS;
 }
 
@@ -220,13 +220,13 @@ OsStatus ConferenceEngineFactoryImpl::enableOutOfBandDTMF(UtlBoolean bEnable)
     return OS_SUCCESS;
 }
 
-OsStatus ConferenceEngineFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactory, 
-                                                        const UtlString& sPreferences, 
+OsStatus ConferenceEngineFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactory,
+                                                        const UtlString& sPreferences,
                                                         const UtlString& sVideoPreferences,
                                                         int* iRejected)
 {
     OsStatus rc = OS_FAILED;
-    
+
     int iCodecs = 0;
     UtlString codec;
     UtlString codecList;
@@ -242,7 +242,7 @@ OsStatus ConferenceEngineFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactor
         {
             UtlString references = sPreferences;
             *iRejected = pFactory->buildSdpCodecFactory(references);
-            OsSysLog::add(FAC_MP, PRI_DEBUG, 
+            OsSysLog::add(FAC_MP, PRI_DEBUG,
                           "ConferenceEngineFactoryImpl::buildCodecFactory: sReferences = %s with NumReject %d",
                            references.data(), *iRejected);
             rc = OS_SUCCESS;
@@ -250,9 +250,9 @@ OsStatus ConferenceEngineFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactor
         else
         {
             iCodecs = mConferenceEngine.GIPSConf_GetNofCodecs();
-            OsSysLog::add(FAC_MP, PRI_DEBUG, 
+            OsSysLog::add(FAC_MP, PRI_DEBUG,
                           "ConferenceEngineFactoryImpl::buildCodecFactory: Number of codecs in ConferenceEngine = %d",
-                          iCodecs); 
+                          iCodecs);
 
             for (int index=0; index<iCodecs; index++)
             {
@@ -271,21 +271,21 @@ OsStatus ConferenceEngineFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactor
                     assert(0);
                 }
             }
-            
+
             if (iCodecs > 0)
             {
                 *iRejected += pFactory->buildSdpCodecFactory(codecList);
-                OsSysLog::add(FAC_MP, PRI_DEBUG, 
+                OsSysLog::add(FAC_MP, PRI_DEBUG,
                               "ConferenceEngineFactoryImpl::buildCodecFactory: codecList = %s with NumReject %d",
                               codecList.data(), *iRejected);
                 rc = OS_SUCCESS;
             }
             else
             {
-                OsSysLog::add(FAC_MP, PRI_WARNING, 
+                OsSysLog::add(FAC_MP, PRI_WARNING,
                               "ConferenceEngineFactoryImpl::buildCidecFactory: ConferenceEngine has no codecs");
                 rc = OS_FAILED;
-            }                                    
+            }
         }
     }
 
@@ -298,37 +298,37 @@ OsStatus ConferenceEngineFactoryImpl::setVideoPreviewDisplay(void* pDisplay)
 
     OsSysLog::add(FAC_MP, PRI_ERR,
                   "ConferenceEngineFactoryImpl::setVideoPreviewDisplay is not supported.");
-    
+
     return rc ;
 }
 
-OsStatus ConferenceEngineFactoryImpl::updateVideoPreviewWindow(void* displayContext) 
+OsStatus ConferenceEngineFactoryImpl::updateVideoPreviewWindow(void* displayContext)
 {
     OsStatus rc = OS_NOT_SUPPORTED;
 
     OsSysLog::add(FAC_MP, PRI_ERR,
                   "ConferenceEngineFactoryImpl::updateVideoPreviewWindow is not supported.");
-    
+
     return rc ;
 }
 
-OsStatus ConferenceEngineFactoryImpl::setVideoQuality(int quality) 
+OsStatus ConferenceEngineFactoryImpl::setVideoQuality(int quality)
 {
     OsStatus rc = OS_NOT_SUPPORTED;
 
     OsSysLog::add(FAC_MP, PRI_ERR,
                   "ConferenceEngineFactoryImpl::setVideoQuality is not supported.");
-    
+
     return rc ;
 }
 
-OsStatus ConferenceEngineFactoryImpl::setVideoParameters(int bitRate, int frameRate) 
+OsStatus ConferenceEngineFactoryImpl::setVideoParameters(int bitRate, int frameRate)
 {
     OsStatus rc = OS_NOT_SUPPORTED;
 
     OsSysLog::add(FAC_MP, PRI_ERR,
                   "ConferenceEngineFactoryImpl::setVideoParameters is not supported.");
-    
+
     return rc ;
 }
 
@@ -338,7 +338,7 @@ OsStatus ConferenceEngineFactoryImpl::setVideoParameters(int bitRate, int frameR
 OsStatus ConferenceEngineFactoryImpl::getSpeakerVolume(int& iVolume) const
 {
     OsStatus rc = OS_SUCCESS ;
-    
+
     iVolume = (int) ((((mGipsVolume ) / 20.0) * 50.0) + 50.0) ;
 
     return rc ;
@@ -347,7 +347,7 @@ OsStatus ConferenceEngineFactoryImpl::getSpeakerVolume(int& iVolume) const
 OsStatus ConferenceEngineFactoryImpl::getSpeakerDevice(UtlString& device) const
 {
     OsStatus rc = OS_NOT_SUPPORTED ;
-    
+
     OsSysLog::add(FAC_MP, PRI_ERR,
                   "ConferenceEngineFactoryImpl::getSpeakerDevice is not supported.");
 
@@ -404,35 +404,35 @@ OsStatus ConferenceEngineFactoryImpl::getSystemVolume(float& volume) const
 }
 
 
-OsStatus ConferenceEngineFactoryImpl::getVideoQuality(int& quality) const 
+OsStatus ConferenceEngineFactoryImpl::getVideoQuality(int& quality) const
 {
     OsStatus rc = OS_NOT_SUPPORTED;
 
     OsSysLog::add(FAC_MP, PRI_ERR,
                   "ConferenceEngineFactoryImpl::getVideoQuality is not supported.");
-    
+
     return rc ;
 }
 
 
-OsStatus ConferenceEngineFactoryImpl::getVideoBitRate(int& bitRate) const 
+OsStatus ConferenceEngineFactoryImpl::getVideoBitRate(int& bitRate) const
 {
     OsStatus rc = OS_NOT_SUPPORTED;
 
     OsSysLog::add(FAC_MP, PRI_ERR,
                   "ConferenceEngineFactoryImpl::ggetVideoBitRate is not supported.");
-    
+
     return rc ;
 }
 
 
-OsStatus ConferenceEngineFactoryImpl::getVideoFrameRate(int& frameRate) const 
+OsStatus ConferenceEngineFactoryImpl::getVideoFrameRate(int& frameRate) const
 {
     OsStatus rc = OS_NOT_SUPPORTED;
 
     OsSysLog::add(FAC_MP, PRI_ERR,
                   "ConferenceEngineFactoryImpl::getVideoFrameRate is not supported.");
-    
+
     return rc ;
 }
 
@@ -457,4 +457,3 @@ OsStatus ConferenceEngineFactoryImpl::isOutOfBandDTMFEnabled(UtlBoolean& bEnable
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-

@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -35,14 +35,14 @@ ConferenceEngineDatagramSocket::ConferenceEngineDatagramSocket(ConferenceEngine*
                                                                int channel,
                                                                int type,
                                                                int remoteHostPortNum,
-                                                               const char* remoteHost, 
-                                                               int localHostPortNum, 
+                                                               const char* remoteHost,
+                                                               int localHostPortNum,
                                                                const char* localHost,
-                                                               bool bEnable, 
+                                                               bool bEnable,
                                                                const char* szStunServer,
-                                                               int iRefreshPeriodInSec) 
+                                                               int iRefreshPeriodInSec)
         : OsStunDatagramSocket(remoteHostPortNum, remoteHost, localHostPortNum, localHost, bEnable, szStunServer, iRefreshPeriodInSec)
-{    
+{
     mpConferenceEngine = pConferenceEngine ;
     miConferenceEngineChannel = channel ;
     miType = type ;
@@ -58,7 +58,7 @@ ConferenceEngineDatagramSocket::~ConferenceEngineDatagramSocket()
 /* ============================ MANIPULATORS ============================== */
 
 #define MAX_RTP_BYTES 1500
-void ConferenceEngineDatagramSocket::pushPacket() 
+void ConferenceEngineDatagramSocket::pushPacket()
 {
     char cBuf[MAX_RTP_BYTES] ;
 

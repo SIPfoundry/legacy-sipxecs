@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 #ifndef _VoiceEngineMediaInterface_h_
@@ -105,9 +105,9 @@ public:
 /* ============================ CREATORS ================================== */
 
    VoiceEngineMediaInterface(VoiceEngineFactoryImpl* pFactoryImpl,
-                             const char* publicAddress = NULL, 
+                             const char* publicAddress = NULL,
                              const char* localAddress = NULL,
-                             int numCodecs = 0, 
+                             int numCodecs = 0,
                              SdpCodec* sdpCodecArray[] = NULL,
                              const char* pLocale = "",
                              int expeditedIpTos = QOS_LAYER3_LOW_DELAY_IP_TOS,
@@ -119,11 +119,11 @@ public:
    virtual
    ~VoiceEngineMediaInterface();
      //:Destructor
-     
+
    /**
     * public interface for destroying this media interface
-    */ 
-   virtual void release();      
+    */
+   virtual void release();
 
 /* ============================ MANIPULATORS ============================== */
 
@@ -133,8 +133,8 @@ public:
 
    virtual int getNumCodecs(int connectionId);
 
-   virtual OsStatus getCapabilities(int connectionId, 
-                                    UtlString& rtpHostAddress, 
+   virtual OsStatus getCapabilities(int connectionId,
+                                    UtlString& rtpHostAddress,
                                     int& rtpAudioPort,
                                     int& rtcpAudioPort,
                                     int& rtpVideoPort,
@@ -143,7 +143,7 @@ public:
                                     SdpSrtpParameters& srtpParams);
 
    virtual OsStatus setConnectionDestination(int connectionId,
-                                             const char* rtpHostAddress, 
+                                             const char* rtpHostAddress,
                                              int rtpAudioPort,
                                              int rtcpAudioPort,
                                              int rtpVideoPort,
@@ -152,7 +152,7 @@ public:
 
    virtual OsStatus addAlternateDestinations(int connectionId,
                                              unsigned char cPriority,
-                                             const char* rtpHostAddress, 
+                                             const char* rtpHostAddress,
                                              int port,
                                              bool bRtp) ;
 
@@ -160,7 +160,7 @@ public:
    virtual const void* getVideoWindowDisplay();
 
 
-   virtual OsStatus startRtpSend(int connectionId, 
+   virtual OsStatus startRtpSend(int connectionId,
                                  int numCodecs,
                                  SdpCodec* sendCodec[],
                                  SdpSrtpParameters& srtpParams);
@@ -179,33 +179,33 @@ public:
    virtual OsStatus startTone(int toneId, UtlBoolean local, UtlBoolean remote);
    virtual OsStatus stopTone();
 
-   virtual OsStatus playAudio(const char* url, 
+   virtual OsStatus playAudio(const char* url,
                               UtlBoolean repeat,
-                              UtlBoolean local, 
+                              UtlBoolean local,
                               UtlBoolean remote);
-   virtual OsStatus playBuffer(char* buf, 
+   virtual OsStatus playBuffer(char* buf,
                                unsigned long bufSize,
-                               int type, 
+                               int type,
                               UtlBoolean repeat,
-                              UtlBoolean local, 
+                              UtlBoolean local,
                               UtlBoolean remote,
                               OsProtectedEvent* event = NULL);
    virtual OsStatus pauseAudio();
    virtual OsStatus stopAudio();
 
-   virtual OsStatus createPlayer(MpStreamPlayer** ppPlayer, 
-                                 const char* szStream, 
-                                 int flags, 
-                                 OsMsgQ *pMsgQ = NULL, 
+   virtual OsStatus createPlayer(MpStreamPlayer** ppPlayer,
+                                 const char* szStream,
+                                 int flags,
+                                 OsMsgQ *pMsgQ = NULL,
                                  const char* szTarget = NULL) ;
    virtual OsStatus destroyPlayer(MpStreamPlayer* pPlayer);
-   virtual OsStatus createPlaylistPlayer(MpStreamPlaylistPlayer** 
-                                         ppPlayer, 
-                                         OsMsgQ *pMsgQ = NULL, 
+   virtual OsStatus createPlaylistPlayer(MpStreamPlaylistPlayer**
+                                         ppPlayer,
+                                         OsMsgQ *pMsgQ = NULL,
                                          const char* szTarget = NULL);
    virtual OsStatus destroyPlaylistPlayer(MpStreamPlaylistPlayer* pPlayer);
-   virtual OsStatus createQueuePlayer(MpStreamQueuePlayer** ppPlayer, 
-                                      OsMsgQ *pMsgQ = NULL, 
+   virtual OsStatus createQueuePlayer(MpStreamQueuePlayer** ppPlayer,
+                                      OsMsgQ *pMsgQ = NULL,
                                       const char* szTarget = NULL);
    virtual OsStatus destroyQueuePlayer(MpStreamQueuePlayer* pPlayer);
 
@@ -224,17 +224,17 @@ public:
 
    virtual OsStatus stopRecording();
 
-   virtual OsStatus ezRecord(int ms, 
-           int silenceLength, 
-           const char* fileName, 
-           double& duration, 
+   virtual OsStatus ezRecord(int ms,
+           int silenceLength,
+           const char* fileName,
+           double& duration,
            int& dtmfterm,
            OsProtectedEvent* ev = NULL);
 
    virtual void setContactType(int connectionId, CONTACT_TYPE eType) ;
 
-   GipsVoiceEngineLib* const getVoiceEnginePtr();   
- 
+   GipsVoiceEngineLib* const getVoiceEnginePtr();
+
 /* ============================ ACCESSORS ================================= */
 
    virtual void setPremiumSound(UtlBoolean enabled);
@@ -248,8 +248,8 @@ public:
    virtual OsMsgQ* getMsgQ();
      //:Returns the flowgraph's message queue
 
-   virtual OsStatus getPrimaryCodec(int connectionId, 
-                                    UtlString& audioCodec, 
+   virtual OsStatus getPrimaryCodec(int connectionId,
+                                    UtlString& audioCodec,
                                     UtlString& videoCodec,
                                     int* audioPayloadType,
                                     int* videoPayloadType);
@@ -267,7 +267,7 @@ public:
    virtual UtlBoolean isReceivingRtpAudio(int connectionId);
    virtual UtlBoolean isReceivingRtpVideo(int connectionId);
 
-   virtual UtlBoolean isDestinationSet(int connectionId);   
+   virtual UtlBoolean isDestinationSet(int connectionId);
 
    OsStatus muteMicrophone(const bool bMute);
 
@@ -294,8 +294,8 @@ private:
     const bool isDisplayValid(const SIPXVE_VIDEO_DISPLAY* const pDisplay);
 #endif
 
-    UtlString mRtpReceiveHostAddress ; 
-    UtlString mLocalAddress ; 
+    UtlString mRtpReceiveHostAddress ;
+    UtlString mLocalAddress ;
     MpCallFlowGraph* mpFlowGraph ;
     UtlBoolean mRingToneFromFile ;
     SdpCodecFactory mSupportedCodecs ;

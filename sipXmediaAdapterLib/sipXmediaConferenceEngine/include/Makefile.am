@@ -9,5 +9,3 @@ noinst_HEADERS =  \
     ConferenceEngineMediaInterface.h \
     ConferenceEngineNetTask.h \
     ConferenceEngineEventHandler.h
-
-

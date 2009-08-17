@@ -1,6 +1,6 @@
 // $Id$
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -34,7 +34,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 class MpMediaTask ;
-class OsConfigDb ; 
+class OsConfigDb ;
 #ifdef INCLUDE_RTCP /* [ */
 struct IRTCPControl ;
 #endif /* INCLUDE_RTCP ] */
@@ -54,7 +54,7 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryImpl
     * Default constructor
     */
    sipXmediaFactoryImpl(OsConfigDb* pConfigDb);
-     
+
 
    /**
     * Destructor
@@ -70,7 +70,7 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryImpl
                                                     int expeditedIpTos,
                                                     const char* szStunServer,
                                                     int stunOptions,
-                                                    int iStunKeepAliveSecs 
+                                                    int iStunKeepAliveSecs
                                                   ) ;
 
     virtual OsStatus setSpeakerVolume(int iVolume) ;
@@ -83,7 +83,7 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryImpl
     virtual OsStatus enableAudioAEC(UtlBoolean bEnable);
     virtual OsStatus enableOutOfBandDTMF(UtlBoolean bEnable);
 
-    virtual OsStatus buildCodecFactory(SdpCodecFactory *pFactory, 
+    virtual OsStatus buildCodecFactory(SdpCodecFactory *pFactory,
                                        const UtlString& sPreferences,
                                        const UtlString& sVideoPreferences,
                                        int* iRejected);
@@ -91,13 +91,13 @@ class sipXmediaFactoryImpl : public CpMediaInterfaceFactoryImpl
     virtual OsStatus updateVideoPreviewWindow(void* displayContext) ;
 
     /**
-     * Set the global video preview window 
-     */ 
+     * Set the global video preview window
+     */
     virtual OsStatus setVideoPreviewDisplay(void* pDisplay);
 
     virtual OsStatus setVideoQuality(int quality);
     virtual OsStatus setVideoParameters(int bitRate, int frameRate);
-    
+
 
 /* ============================ ACCESSORS ================================= */
 
