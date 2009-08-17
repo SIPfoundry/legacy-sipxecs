@@ -8,10 +8,12 @@ package org.sipfoundry.commons.siprouter;
 
 
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.PriorityQueue;
 import java.util.Vector;
 
 import javax.sip.address.Hop;
@@ -578,6 +580,28 @@ public class FindSipServer {
 		return retval;
 
 	}
+	
+	/**
+     * Get the proxy addresses.
+     */
+
+    public PriorityQueue<Hop> getSipxProxyAddresses(SipURI proxyUri)
+            throws SipRouterException {
+        try {
+            Collection<Hop> hops = this.findSipServers(proxyUri);
+            PriorityQueue<Hop> proxyAddressTable = new PriorityQueue<Hop>();
+            proxyAddressTable.addAll(hops);
+            LOG.debug("proxy address table = " + proxyAddressTable);
+            return proxyAddressTable;
+        } catch (Exception ex) {
+            LOG.error("Cannot do address lookup ", ex);
+            throw new SipRouterException("Could not do dns lookup for "
+                    + proxyUri, ex);
+        }
+    }
+    
+    
+
 
 	/*
 	 * public static void main(String[] args) { FindSipServer f = new

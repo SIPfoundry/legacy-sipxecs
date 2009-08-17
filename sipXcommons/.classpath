@@ -12,5 +12,9 @@
 	<classpathentry kind="lib" path="lib/jibx-run.jar"/>
 	<classpathentry kind="var" path="SIPX-PROJECT-ROOT/sipXcommons/lib/xmlrpc-client.jar"/>
 	<classpathentry kind="var" path="SIPX-PROJECT-ROOT/sipXcommons/lib/xmlrpc-common.jar"/>
+	<classpathentry kind="lib" path="lib/dom4j.jar"/>
+	<classpathentry kind="lib" path="lib/commons-digester.jar"/>
+	<classpathentry kind="lib" path="lib/jdom-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/ws-commons-util.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
