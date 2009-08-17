@@ -2,6 +2,7 @@ SUBDIRS = \
 	aastra \
 	ciscoplus \
 	clearone \
+	gtek \
 	hitachi \
 	ipdialog \
 	lg-nortel \

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <!-- models -->
+  <bean id="gtekModelParent" parent="abstractPhoneModel" abstract="true">
+    <property name="beanId" value="gtek" />
+    <property name="profileTemplate" value="gtek/config.vm" />
+    <property name="vendor" value="G-Tek" />
+  </bean>
+
+  <bean id="gtekHl20x" parent="gtekModelParent">
+    <property name="label" value="G-Tek HL20X" />
+    <property name="maxLineCount" value="2" />
+  </bean>
+
+  <bean id="gtekVt20x" parent="gtekModelParent">
+    <property name="label" value="G-Tek VT20X" />
+    <property name="maxLineCount" value="4" />
+  </bean>
+
+  <!-- implementation -->
+  <bean id="gtek" class="org.sipfoundry.sipxconfig.phone.gtek.GtekPhone" singleton="false" parent="abstractPhone">
+  </bean>
+</beans>
