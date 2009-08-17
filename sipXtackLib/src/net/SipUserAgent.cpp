@@ -623,6 +623,11 @@ void SipUserAgent::addMessageObserver(OsMsgQ& messageQueue,
                                       SipSession* pSession,
                                       void* observerData)
 {
+   // Since watching outgoing messages does not work at all, the caller
+   // must have wantIncoming true and wantOutGoing false.
+   assert(wantIncoming);
+   assert(!wantOutGoing);
+
    SipObserverCriteria* observer =
       new SipObserverCriteria(observerData,
                               &messageQueue,
