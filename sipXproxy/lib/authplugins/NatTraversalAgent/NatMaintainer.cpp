@@ -49,7 +49,7 @@ NatMaintainer::NatMaintainer( SipRouter* sipRouter ) :
        "Via: SIP/2.0/UDP willgetpatched:5060;branch=z9hG4bK-234fc22f2nnthda-reniatniamtan\r\n"
        "Max-Forwards: 20\r\n"
        "Accept: application/sdp\r\n"
-       "Contact: anonymous@anonymous.invalid\r\n"
+       "Contact: sip:anonymous@anonymous.invalid\r\n"
        "Content-Length: 0\r\n"
        "Server: sipXecs/NatMaintainer\r\n"
        "\r\n";  
