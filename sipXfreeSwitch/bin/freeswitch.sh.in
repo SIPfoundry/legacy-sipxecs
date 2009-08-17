@@ -51,9 +51,9 @@ pidFile=@SIPX_RUNDIR@/freeswitch.pid
 
 case ${Action} in
    RUN)
-     ulimit -s 244  # Keep stack size small for maximum number of threads
+     ulimit -s 240  # Keep stack size small for maximum number of threads
      echo $$ > $pidFile
-     exec $FS_EXEC -nc -nf -nosql $Args
+     exec $FS_EXEC -nc -nf -nonat $Args
      exit 0
      ;;
 

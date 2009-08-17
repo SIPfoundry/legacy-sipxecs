@@ -10,8 +10,8 @@
     <key name="7" value="console loglevel 0"/>
     <key name="8" value="console loglevel 7"/>
     <key name="9" value="sofia status profile internal"/>
-    <key name="10" value="fsctl pause"/>
-    <key name="11" value="fsctl resume"/>
+    <key name="10" value="sofia profile internal siptrace on"/>
+    <key name="11" value="sofia profile internal siptrace off"/>
     <key name="12" value="version"/>
   </cli-keybindings>
 
@@ -59,7 +59,8 @@
     <param name="dump-cores" value="yes"/>
     <!--RTP port range -->
     <param name="rtp-start-port" value="11000"/>
-    <param name="rtp-end-port" value="12999"/>
+    <param name="rtp-end-port" value="12998"/>
+    <param name="rtp-enable-zrtp" value="true"/>
   </settings>
 
 </configuration>

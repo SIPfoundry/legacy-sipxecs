@@ -35,6 +35,7 @@
     <load module="mod_loopback"/>
     <!-- <load module="mod_woomera"/> -->
     <!-- <load module="mod_openzap"/> -->
+    <!-- <load module="mod_unicall"/> -->
 
     <!-- Applications -->
     <load module="mod_commands"/>
@@ -43,9 +44,13 @@
     <load module="mod_expr"/>
     <load module="mod_fifo"/>
     <load module="mod_voicemail"/>
+    <!-- <load module="mod_fax"/> -->
+    <!-- <load module="mod_lcr"/> -->
     <load module="mod_limit"/>
     <load module="mod_esf"/>
     <load module="mod_fsv"/>
+    <load module="mod_cluechoo"/>
+    <!-- <load module="mod_spy"/> -->
 
     <!-- SNOM Module -->
     <!--<load module="mod_snom"/>-->
@@ -63,6 +68,8 @@
     <load module="mod_ilbc"/>
     <load module="mod_speex"/>
     <load module="mod_h26x"/>
+    <load module="mod_siren"/>
+    <load module="mod_celt"/> 
 
     <!-- File Format Interfaces -->
     <load module="mod_sndfile"/>
@@ -72,6 +79,7 @@
     <!--For local streams (play all the files in a directory)-->
     <load module="mod_local_stream"/>
     <load module="mod_tone_stream"/>
+    <load module="mod_file_string"/>
 
     <!-- Timers -->
 
@@ -86,11 +94,14 @@
     <!-- <load module="mod_flite"/> -->
     <!-- <load module="mod_pocketsphinx"/> -->
     <!-- <load module="mod_cepstral"/> -->
-    <!-- <load module="mod_openmrcp"/> -->
     <!-- <load module="mod_rss"/> -->
     
     <!-- Say -->
     <load module="mod_say_en"/>
     <!-- <load module="mod_say_zh"/> -->
+
+    <!-- Third party modules -->
+    <!--<load module="mod_nibblebill"/>-->
+
   </modules>
 </configuration>
