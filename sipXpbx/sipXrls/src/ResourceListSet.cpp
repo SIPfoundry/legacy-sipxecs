@@ -88,6 +88,8 @@ void ResourceListSet::setGapTimeout()
    // RFC 4235 specifies a maximum of one RLMI notification per second.
    // After publishing create a 1 second delay before publishing again.
    mPublishingTimer.oneshotAfter(OsTime(1,0));
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceListSet::setGapTimeout mPublishingTimer.oneshotAfter(1 sec)");
 
    // Don't publish on the gap timeout.
    mPublishOnTimeout = FALSE;
@@ -107,6 +109,8 @@ void ResourceListSet::finalize()
    // Make sure the publishing timer is stopped before the ResourceListTask
    // is destroyed, because the timer posts messages to ResourceListTask.
    mPublishingTimer.stop();
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceListSet::finalize mPublishingTimer.stop()");
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -321,10 +325,10 @@ void ResourceListSet::subscriptionEventCallbackAsync(
    }
 
    // Send a message to the ResourceListTask.
-   SubscriptionCallbackMsg msg(earlyDialogHandle, dialogHandle,
-                               newState, subscription_state);
    resourceListSet->getResourceListServer()->getResourceListTask().
-      postMessage(msg);
+      postMessageP(
+         new SubscriptionCallbackMsg(earlyDialogHandle, dialogHandle,
+                                     newState, subscription_state));
 }
 
 // Callback routine for subscription state events.
@@ -402,9 +406,9 @@ void ResourceListSet::notifyEventCallbackAsync(const char* earlyDialogHandle,
    }
 
    // Send a message to the ResourceListTask.
-   NotifyCallbackMsg msg(dialogHandle, b, l);
    resourceListSet->getResourceListServer()->getResourceListTask().
-      postMessage(msg);
+      postMessageP(new NotifyCallbackMsg(dialogHandle, b, l));
+
 }
 
 // Callback routine for NOTIFY events.
@@ -566,6 +570,8 @@ void ResourceListSet::suspendPublishing()
    // so that when publishing is resumed, the publishing timer will be
    // started and eventually fire.
    mPublishingTimer.stop(FALSE);
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceListSet::suspendPublishing mPublishingTimer.stop()");
 
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::suspendPublishing mSuspendPublishingCount now = %d",
@@ -635,6 +641,8 @@ void ResourceListSet::schedulePublishing()
             {
                // Cancel the current gap timeout so that oneshotAfter can restart the timer.
                mPublishingTimer.stop();
+               OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                             "ResourceListSet::schedulePublishing mPublishingTimer.stop()");
             }
          }
       }
@@ -642,6 +650,9 @@ void ResourceListSet::schedulePublishing()
       // Start the timer with the publishing timeout if the timer is not already started.
       // If it is already started, OsTimer::oneshotAfter() does nothing.
       mPublishingTimer.oneshotAfter(pubDelay);
+      OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                    "ResourceListSet::schedulePublishing mPublishingTimer.oneshotAfter(%d.%06d)",
+                    pubDelay.seconds(), pubDelay.usecs());
 
       // Publish once the publishing timer expires.
       mPublishOnTimeout = TRUE;
