@@ -17,6 +17,7 @@ import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
 import javax.sip.SipException;
 import javax.sip.header.AllowHeader;
+import javax.sip.header.SubjectHeader;
 import javax.sip.message.Request;
 
 import gov.nist.javax.sip.clientauthutils.UserCredentialHash;
@@ -48,6 +49,8 @@ public class InviteMessage extends JainSipMessage {
     
     private boolean m_forwardingAllowed;
 
+    private String subject;
+
     
 
     public InviteMessage(SipStackBean helper, UserCredentialHash userCredentials, String fromDisplayName, 
@@ -68,6 +71,11 @@ public class InviteMessage extends JainSipMessage {
            
             Request request = createRequest(Request.INVITE, m_userCredentials.getUserName(), m_fromDisplayName, 
                     m_fromAddrSpec, m_toAddrSpec, m_forwardingAllowed);
+            if ( subject != null ) {
+                SubjectHeader subjectHeader = 
+                    super.getHelper().getHeaderFactory().createSubjectHeader(subject);
+                request.addHeader(subjectHeader);
+            }
             getHelper().attachAllowHeader(request,METHODS);
             String sdpBody = getHelper().formatWithIpAddress(SDP_BODY_FORMAT);
             request.setContent(sdpBody, getHelper().createContentTypeHeader());
@@ -107,6 +115,10 @@ public class InviteMessage extends JainSipMessage {
     
     public boolean isforwardingAllowed() {
         return m_forwardingAllowed;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;     
     }
 
 }

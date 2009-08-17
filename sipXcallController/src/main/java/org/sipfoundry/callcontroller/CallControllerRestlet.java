@@ -91,12 +91,14 @@ public class CallControllerRestlet extends Restlet {
         String agentAddr = agentUserRecord.getIdentity();   
         logger.debug("agentAddr = " + agentAddr);
 
+        String subject = (String) request.getAttributes().get(CallControllerParams.SUBJECT);
+        
         try {
             SipStackBean stackBean = SipStackBean.getInstance();
             if (this.method.equals(CallControllerParams.REFER)) {
                 new SipServiceImpl(stackBean).sendRefer(this.credentials, agentAddr, agentUserRecord
-                        .getDisplayName(), callingParty, calledParty, isForwardingAllowed);
-
+                        .getDisplayName(), callingParty, calledParty,
+                         subject, isForwardingAllowed);
             }
 
         } catch (Exception ex) {

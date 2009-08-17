@@ -32,6 +32,7 @@ public class CallControllerApplication extends Application {
 	   route.extractQuery(CallControllerParams.CALLING_PARTY,CallControllerParams.CALLING_PARTY, true);
 	   route.extractQuery(CallControllerParams.FORWARDING_ALLOWED, CallControllerParams.FORWARDING_ALLOWED, true);
 	   route.extractQuery(CallControllerParams.PIN, CallControllerParams.PIN, true);
+	   route.extractQuery(CallControllerParams.SUBJECT, CallControllerParams.SUBJECT, true);
 	   return router;
 	}
 

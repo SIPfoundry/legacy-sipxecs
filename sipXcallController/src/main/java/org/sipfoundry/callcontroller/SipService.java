@@ -24,8 +24,9 @@ public interface SipService {
      * @param sourceAddrSpec - third party call controller sourceAddr
      * @param displayName - displayName for the calling party.
      * @param destinationAddSpec - third party call controller destAddr
+     * @param subject - subject.
      * @param inviteForwardingAllowed - whether or not INVITE forwarding is allowd.
      */
     public void sendRefer(UserCredentialHash credentials, String sourceAddrSpec, String displayName, String destinationAddrSpec, 
-            String referTarget, boolean inviteForwardingAllowed);
+            String referTarget, String subject, boolean inviteForwardingAllowed);
 }

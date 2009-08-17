@@ -28,12 +28,13 @@ public class SipServiceImpl  implements SipService {
    
 
     public void sendRefer(UserCredentialHash agentCredentials, String agentAddrSpec, String displayName, String callingPartyAddrSpec,
-            String referTarget, boolean allowForwarding) {
+            String referTarget, String subject, boolean allowForwarding) {
         LOG.debug("sendRefer: source = " + agentAddrSpec + " dest = " 
                 + callingPartyAddrSpec + " referTarget = " + referTarget
                 + " allowForwarding = " + allowForwarding );
         InviteMessage message = new InviteMessage(sipStackBean, agentCredentials, displayName, callingPartyAddrSpec,
                 agentAddrSpec, referTarget, Operator.SEND_3PCC_REFER_CALL_SETUP);
+        message.setSubject(subject);
         message.setforwardingAllowed(allowForwarding);
         message.createAndSend();
     }
