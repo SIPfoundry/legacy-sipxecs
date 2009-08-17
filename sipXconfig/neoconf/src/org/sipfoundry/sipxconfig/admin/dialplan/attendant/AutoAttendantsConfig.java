@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.QName;
@@ -41,6 +43,7 @@ public class AutoAttendantsConfig extends XmlFile {
     private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/autoattendants-00-00";
     private static final String ID = "id";
     private static final String PARAMETER = "parameter";
+    private static final Log LOG = LogFactory.getLog(AutoAttendantsConfig.class);
 
     private AutoAttendantManager m_autoAttendantManager;
 
@@ -178,19 +181,38 @@ public class AutoAttendantsConfig extends XmlFile {
     }
 
     private void generateMenuItem(Element misEl, DialPad dialPad, AttendantMenuItem menuItem) {
-        Element miEl = misEl.addElement("menuItem");
+        Element miEl = FACTORY.createElement("menuItem", NAMESPACE);
+
         miEl.addElement("dialPad").setText(dialPad.getName());
         AttendantMenuAction action = menuItem.getAction();
         miEl.addElement("action").setText(action.getName());
+
         if (action.isVoicemailParameter()) {
-            miEl.addElement(PARAMETER).setText(getVoicemailUrl());
+            String voicemailUrl = getVoicemailUrl();
+            if (voicemailUrl == null) {
+                logNullParameterError();
+                return;
+            }
+            miEl.addElement(PARAMETER).setText(voicemailUrl);
         }
+
+        String parameter = menuItem.getParameter();
         if (action.isAttendantParameter()) {
-            miEl.addElement(PARAMETER).setText(menuItem.getParameter());
+            if (parameter == null) {
+                logNullParameterError();
+                return;
+            }
+            miEl.addElement(PARAMETER).setText(parameter);
         }
         if (action.isExtensionParameter()) {
-            miEl.addElement("extension").setText(menuItem.getParameter());
+            if (parameter == null) {
+                logNullParameterError();
+                return;
+            }
+            miEl.addElement("extension").setText(parameter);
         }
+
+        misEl.add(miEl);
     }
 
     public String getVoicemailUrl() {
@@ -225,5 +247,10 @@ public class AutoAttendantsConfig extends XmlFile {
     @Required
     public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
         m_sipxServiceManager = sipxServiceManager;
+    }
+
+    private void logNullParameterError() {
+        LOG.warn("Menu item's parameter is null. "
+                + "The generation of autoattendants.xml file will ignore this parameter and continue.");
     }
 }

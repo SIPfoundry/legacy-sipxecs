@@ -176,4 +176,58 @@ public class AutoAttendantsConfigTest extends XMLTestCase {
 
         verify(dialPlanContext, aam);
     }
+
+    public void testGenerateAutoAttendantsWithNullMenuEntry() throws Exception {
+
+        AutoAttendant operator = new AutoAttendant();
+        operator.setUniqueId();
+        operator.setPromptsDirectory("prompts/");
+        operator.setModelFilesContext(TestHelper.getModelFilesContext());
+        operator.setSystemId(AutoAttendant.OPERATOR_ID);
+        operator.setName("operator");
+        operator.setPrompt("operator.wav");
+        operator.resetToFactoryDefault();
+
+        AutoAttendant aa = new AutoAttendant();
+        aa.setName("abc");
+        aa.setModelFilesContext(TestHelper.getModelFilesContext());
+        aa.setPromptsDirectory("prompts/");
+        aa.setPrompt("prompt.wav");
+
+        AttendantMenu menu = new AttendantMenu();
+        menu.addMenuItem(DialPad.NUM_0, AttendantMenuAction.AUTO_ATTENDANT, null);
+        menu.addMenuItem(DialPad.NUM_1, AttendantMenuAction.DISCONNECT);
+        menu.addMenuItem(DialPad.NUM_2, AttendantMenuAction.TRANSFER_OUT, null);
+        aa.setMenu(menu);
+
+        aa.setSettingValue("onfail/transfer", "1");
+        aa.setSettingValue("onfail/transfer-extension", "999");
+        aa.setSettingValue("onfail/transfer-prompt", "test.wav");
+
+        AutoAttendantManager aam = createMock(AutoAttendantManager.class);
+        aam.getAutoAttendants();
+        expectLastCall().andReturn(Arrays.asList(operator, aa));
+        aam.getSpecialMode();
+        expectLastCall().andReturn(true).anyTimes();
+        aam.getSelectedSpecialAttendant();
+        expectLastCall().andReturn(aa).anyTimes();
+
+        DialPlanContext dialPlanContext = createMock(DialPlanContext.class);
+        dialPlanContext.getAttendantRules();
+        expectLastCall().andReturn(Collections.emptyList());
+        dialPlanContext.getVoiceMail();
+        expectLastCall().andReturn("101");
+
+        replay(dialPlanContext, aam);
+
+        AutoAttendantsConfig autoAttendantsConfig = new AutoAttendantsConfig();
+        autoAttendantsConfig.setDomainManager(m_domainManager);
+        autoAttendantsConfig.setAutoAttendantManager(aam);
+        autoAttendantsConfig.setDialPlanContext(dialPlanContext);
+
+        String generatedXml = getFileContent(autoAttendantsConfig, null);
+        InputStream referenceXml = getClass().getResourceAsStream("nullparameter-autoattendants.test.xml");
+        assertXMLEqual(new InputStreamReader(referenceXml), new StringReader(generatedXml));
+        verify(dialPlanContext, aam);
+    }
 }
