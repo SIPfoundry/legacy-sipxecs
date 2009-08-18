@@ -106,7 +106,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
     static void initializeLogging() throws SipXOpenfirePluginException {
         try {
             String javaClassPaths = System.getProperty("java.class.path");
-            String openfireHome = System.getProperty("openfireHome");
+            String openfireHome = System.getProperty("openfire.home");
             StringBuilder sb = new StringBuilder(javaClassPaths).append(":" + openfireHome
                     + "/lib/sipxcommons.jar");
             System.setProperty("java.class.path", sb.toString());
@@ -158,6 +158,16 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             properties.load(in);
         } catch (IOException ex) {
             componentManager.getLog().error(ex);
+        }
+
+        try {
+            if (new File("/tmp/sipx.properties").exists()) {
+                System.getProperties()
+                        .load(new FileInputStream(new File("/tmp/sipx.properties")));
+            }
+        } catch (Exception ex) {
+            componentManager.getLog().error(ex);
+            throw new SipXOpenfirePluginException("Error reading config file ", ex);
         }
 
         pluginManager = manager;

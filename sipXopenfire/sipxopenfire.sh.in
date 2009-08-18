@@ -19,9 +19,8 @@
 # Begin setup work
 #####
 
-Action="INVALID"
+Action="START"
 # Initialization
-export OPENFIRE_OPTS="-Dconf.dir=@SIPX_CONFDIR@"
 OPENFIRE_HOME="@OPENFIRE_HOME@"
 OPENFIRE_LIB="${OPENFIRE_HOME}/lib"
 JAVACMD=`@SIPX_BINDIR@/sipx-config --java`
@@ -60,6 +59,9 @@ start() {
         # Start daemons.
         echo -n "Starting openfire: "
 	PWD=`pwd`
+	#write out the confi directory so the plugin can read it
+	echo "conf.dir=@SIPX_CONFDIR@" > ${TMP_DIR}/sipx.properties
+	echo "openfire.home=${OPENFIRE_HOME}" >> ${TMP_DIR}/sipx.properties
 	exec ${OPENFIRE_HOME}/${OPENFIRE} start
 	ps aux | grep openfire | grep startup.jar | awk '{print $2}' > ${PIDFILE}
 }
@@ -179,10 +181,6 @@ do
     case ${1} in
         --configtest)
             Action=CONFIGTEST
-            ;;
-
-        --start)
-            Action=START
             ;;
 
         --stop)
