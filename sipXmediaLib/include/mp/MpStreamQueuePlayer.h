@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -29,7 +29,7 @@
 #define DEFAULT_QUEUE_LENGTH      64    // Default length of queue
 #define EXPAND_QUEUE_LENGTH       16    // Queue grows by this much
 
-// Player impotence- If define, the queue player doesn't actually do 
+// Player impotence- If define, the queue player doesn't actually do
 // anything, however, will still fire off events, etc.
 #undef  PLAYER_STUBS
 
@@ -78,7 +78,7 @@ public:
    virtual OsStatus add(UtlString* pBuffer, int flags) ;
      //:Queues a UtlString for playing
      //
-     //!param pBuffer - Net Buffer containing buffered audio data.  The 
+     //!param pBuffer - Net Buffer containing buffered audio data.  The
      //       MpStreamPlayer resource will delete the pBuffer upon destruction
      //       of itself.
      //!param flags - Playing flags (see StreamDefs.h)
@@ -87,7 +87,7 @@ public:
      //:Begins playing any queued streams
 
    virtual OsStatus reset() ;
-     //: Resets the queue player state by stopping and removing all 
+     //: Resets the queue player state by stopping and removing all
      //: playing entries.
 
    virtual OsStatus destroy() ;
@@ -109,7 +109,7 @@ public:
      //:Removes a previously added player listener.  This listener will
      // cease to receive state change notifications.
 
-   
+
 /* ============================ ACCESSORS ================================= */
 
 /* ============================ INQUIRY =================================== */
@@ -141,7 +141,7 @@ protected:
 
    UtlBoolean isPlayingStream(MpPlayer* pPlayer) ;
      //:Is the specified player the active/playing stream?
-   
+
    void setFailedPlayer(MpPlayer* pPlayer) ;
      //:Designates the the player as failed
 
@@ -163,15 +163,15 @@ protected:
    virtual void playerFailed(MpPlayerEvent& event) ;
      //: The player has failed
 
-   void fireQueuePlayerStarted() ;     
+   void fireQueuePlayerStarted() ;
    void fireQueuePlayerStopped() ;
    void fireQueuePlayerAdvanced() ;
 
-  
+
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   enum 
+   enum
    {
       EVENT_DEQUEUE,
       EVENT_PLAY_NEXT,
@@ -185,9 +185,9 @@ private:
       UtlBoolean       bFailed ;
    } ;
 
-   OsMsgQ*  mpMsgQ ;                // Queue to deliever MpStreamMsg commands   
+   OsMsgQ*  mpMsgQ ;                // Queue to deliever MpStreamMsg commands
    UtlString mTarget ;               // Target Id (CallId)
-   OsBSem   mSemQueueChange;        // Guard for queue changes  
+   OsBSem   mSemQueueChange;        // Guard for queue changes
    OsBSem   mSemWaitSynch;          // Gives some for block on for waiters
 
    OsQueuedEvent* mpQueueEvent;     // Used for dequeuing
@@ -201,7 +201,7 @@ private:
    UtlBoolean mbFatalError ;          // Something REALLY bad has happened (can't create thread)
 
    int expandQueue(struct PlaylistQueue*& queue, int currentLength, int desiredLength) ;
-   void swapQueues(struct PlaylistQueue*& queue1, int& queueLength1, 
+   void swapQueues(struct PlaylistQueue*& queue1, int& queueLength1,
                    struct PlaylistQueue*& queue2, int& queueLength2) ;
 
    struct PlayerListenerDb   // Data structure used to maintain listeners
@@ -211,7 +211,7 @@ private:
    } ;
 
    PlayerListenerDb mListenerDb[MAX_PLAYER_LISTENERS] ;     // DB of listeners
-   OsRWMutex 	    mListenerMutex;   // Used to make it thread-safe when adding/removing and using listeners 
+   OsRWMutex 	    mListenerMutex;   // Used to make it thread-safe when adding/removing and using listeners
 };
 
 /* ============================ INLINE METHODS ============================ */

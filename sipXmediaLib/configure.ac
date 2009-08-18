@@ -63,12 +63,11 @@ AM_CONDITIONAL(GENERATE_DOXYGEN, test x$enable_doxygen = xyes)
 CHECK_GIPSNEQ
 
 AC_CONFIG_FILES([
-  Makefile 
-  include/Makefile 
-  src/Makefile 
+  Makefile
+  include/Makefile
+  src/Makefile
   src/test/Makefile
   bin/Makefile
   doc/Makefile
 ])
 AC_OUTPUT
-

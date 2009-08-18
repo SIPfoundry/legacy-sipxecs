@@ -1,6 +1,6 @@
-// 
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -114,7 +114,7 @@ public:
         CPPUNIT_ASSERT_EQUAL(1, pResource->numFramesProcessed());
         CPPUNIT_ASSERT(pResource->mLastDoProcessArgs.inBufs != NULL);
         CPPUNIT_ASSERT(pResource->mLastDoProcessArgs.outBufs != NULL);
-        CPPUNIT_ASSERT_EQUAL(pResource->mLastDoProcessArgs.inBufsSize, 
+        CPPUNIT_ASSERT_EQUAL(pResource->mLastDoProcessArgs.inBufsSize,
                              pResource->maxInputs());
 
         CPPUNIT_ASSERT_EQUAL(pResource->mLastDoProcessArgs.outBufsSize,
@@ -122,10 +122,10 @@ public:
 
         CPPUNIT_ASSERT(pResource->mLastDoProcessArgs.isEnabled == FALSE);
 
-        CPPUNIT_ASSERT_EQUAL(80, 
+        CPPUNIT_ASSERT_EQUAL(80,
                              pResource->mLastDoProcessArgs.samplesPerFrame);
 
-        CPPUNIT_ASSERT_EQUAL(8000, 
+        CPPUNIT_ASSERT_EQUAL(8000,
                              pResource->mLastDoProcessArgs.samplesPerSecond);
 
         delete pResource;
@@ -153,7 +153,7 @@ public:
         CPPUNIT_ASSERT_EQUAL(2, pResource->numFramesProcessed());
         CPPUNIT_ASSERT_EQUAL(160, pResource->mLastDoProcessArgs.samplesPerFrame);
         CPPUNIT_ASSERT_EQUAL(32000, pResource->mLastDoProcessArgs.samplesPerSecond);
-        
+
         delete pResource;
     }
 
@@ -162,16 +162,16 @@ public:
         MpTestResource* pResource = 0;
 
         pResource = new MpTestResource("Test", 0, 5, 1, 4);
-        
+
         pResource->setVisitState(MpResource::NOT_VISITED);
         CPPUNIT_ASSERT(MpResource::NOT_VISITED == pResource->getVisitState());
-        
+
         pResource->setVisitState(MpResource::IN_PROGRESS);
         CPPUNIT_ASSERT(pResource->getVisitState() == MpResource::IN_PROGRESS);
 
         pResource->setVisitState(MpResource::FINISHED);
         CPPUNIT_ASSERT(pResource->getVisitState() == MpResource::FINISHED);
-        
+
         delete pResource;
     }
 
@@ -286,7 +286,7 @@ public:
         // remove the two links
         res = pFlowGraph->removeLink(*pResource1, 0);
         CPPUNIT_ASSERT(res == OS_SUCCESS);
-   
+
         res = pFlowGraph->removeLink(*pResource1, 3);
         CPPUNIT_ASSERT(res == OS_SUCCESS);
 
@@ -316,7 +316,7 @@ public:
 
         res = pFlowGraph->removeResource(*pResource2);
         CPPUNIT_ASSERT(res == OS_SUCCESS);
-        
+
         delete pResource1;
         delete pResource2;
         delete pFlowGraph;
@@ -328,7 +328,7 @@ public:
 
         pResource1 = new MpTestResource("Test", 0, 5, 1, 4);
         CPPUNIT_ASSERT(!pResource1->isEnabled());  // should be disabled initially
-        
+
         pResource1->enable();
         CPPUNIT_ASSERT(pResource1->isEnabled());
 
@@ -337,10 +337,10 @@ public:
 
         pResource1->disable();
         CPPUNIT_ASSERT(! pResource1->isEnabled());
-        
+
         pResource1->disable();              // second disable() should be a no-op
         CPPUNIT_ASSERT(! pResource1->isEnabled());
-        
+
         delete pResource1;
     }
 
@@ -355,10 +355,10 @@ public:
         pFlowGraph = new MpFlowGraphBase(30, 30);
         pResource1 = new MpTestResource("Test1", 0, 2, 0, 2);
         pResource2 = new MpTestResource("Test2", 0, 2, 0, 2);
-        
+
         res = pFlowGraph->addResource(*pResource1);
         CPPUNIT_ASSERT(res == OS_SUCCESS);
-        
+
         res = pFlowGraph->addResource(*pResource2);
         CPPUNIT_ASSERT(res == OS_SUCCESS);
 
@@ -397,7 +397,7 @@ public:
 
         res = pFlowGraph->removeResource(*pResource1);
         CPPUNIT_ASSERT(res == OS_SUCCESS);
-        
+
         res = pFlowGraph->removeResource(*pResource2);
         CPPUNIT_ASSERT(res == OS_SUCCESS);
 

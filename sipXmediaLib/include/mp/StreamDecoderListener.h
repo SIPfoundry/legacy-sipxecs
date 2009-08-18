@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -41,7 +41,7 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 
-   virtual void decoderUpdate(StreamFormatDecoder* pDecoder, 
+   virtual void decoderUpdate(StreamFormatDecoder* pDecoder,
                               StreamDecoderEvent event) = 0 ;
      //: Informs the listener when the decoder has an event to publish.
      //! param pDecoder - Decoder publishing the state change

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -39,7 +39,7 @@ OsStatus MpCodec_setGain(int level)
 {
    s_iGainLevel = level ;
    OsStatus ret = OS_UNSPECIFIED;
-   
+
    // Open the mixer device
    HMIXER hmx;
    mixerOpen(&hmx, 0, 0, 0, 0);
@@ -60,11 +60,11 @@ OsStatus MpCodec_setGain(int level)
       if (MIXERLINE_COMPONENTTYPE_SRC_MICROPHONE == mxl.dwComponentType)
          break;
    }
-   
+
    // Find a volume control, if any, of the microphone line
    LPMIXERCONTROL pmxctrl = (LPMIXERCONTROL)malloc(sizeof MIXERCONTROL);
    MIXERLINECONTROLS mxlctrl = {sizeof mxlctrl, mxl.dwLineID, MIXERCONTROL_CONTROLTYPE_VOLUME, 1, sizeof MIXERCONTROL, pmxctrl};
-   
+
    if(!mixerGetLineControls((HMIXEROBJ) hmx, &mxlctrl, MIXER_GETLINECONTROLSF_ONEBYTYPE))
    {
       // Found!
@@ -74,8 +74,8 @@ OsStatus MpCodec_setGain(int level)
 
       LPMIXERCONTROLDETAILS_UNSIGNED pUnsigned =
       (LPMIXERCONTROLDETAILS_UNSIGNED)  malloc(cChannels * sizeof MIXERCONTROLDETAILS_UNSIGNED);
-      
-      MIXERCONTROLDETAILS mxcd = {sizeof(mxcd), pmxctrl->dwControlID, cChannels, (HWND)0, 
+
+      MIXERCONTROLDETAILS mxcd = {sizeof(mxcd), pmxctrl->dwControlID, cChannels, (HWND)0,
          sizeof MIXERCONTROLDETAILS_UNSIGNED, (LPVOID) pUnsigned};
       mixerGetControlDetails((HMIXEROBJ)hmx, &mxcd, MIXER_SETCONTROLDETAILSF_VALUE);
 
@@ -100,7 +100,7 @@ OsStatus MpCodec_setGain(int level)
 
 
 int MpCodec_getGain()
-{      
+{
    return s_iGainLevel;
 }
 
@@ -112,26 +112,26 @@ extern HWAVEOUT audioOutCallH;
 OsStatus MpCodec_setVolume(int level)
 {
    OsStatus ret = OS_INVALID;
-   
+
    //scale to our max value
    unsigned short volSeg = 0xFFFF/100;
    unsigned short newLeftVal = level * volSeg;
    unsigned short newRightVal = newLeftVal;
-   
+
    //now set this to the left and right speakers
    DWORD bothVolume = (newRightVal << 16) + newLeftVal ;
 
    HWAVEOUT hOut = NULL ;
    if (DmaTask::isRingerEnabled())
    {
-      hOut = audioOutH ;		
+      hOut = audioOutH ;
    }
    else
    {
 	  hOut = audioOutCallH ;
    }
 
-   
+
    if (hOut != NULL)
    {
       waveOutSetVolume(hOut, bothVolume) ;
@@ -141,7 +141,7 @@ OsStatus MpCodec_setVolume(int level)
    return ret;
 }
 
-int MpCodec_getVolume() 
+int MpCodec_getVolume()
 {
    DWORD bothVolume;
    int volume;
@@ -150,21 +150,21 @@ int MpCodec_getVolume()
    HWAVEOUT hOut = NULL ;
    if (DmaTask::isRingerEnabled())
    {
-      hOut = audioOutH ;	
+      hOut = audioOutH ;
    }
    else
    {
 	  hOut = audioOutCallH ;
    }
 
-   
+
    if (hOut != NULL)
    {
       waveOutGetVolume(audioOutH, &bothVolume) ;
 
       //mask out one
       unsigned short rightChannel = ((unsigned short) bothVolume & 0xFFFF) ;
-      volume = rightChannel /volSeg;         
+      volume = rightChannel /volSeg;
    }
 
    return volume;
@@ -198,7 +198,7 @@ static int s_iGainLevel = 1;
 OsStatus MpCodec_setGain(int level)
 {
    OsStatus ret = OS_UNSPECIFIED;
-   
+
    osPrintf("MpCodec_setGain (softphone version) GAIN: %d\n",level);
 
    DmaTask::setMuteEnabled(level == 0);
@@ -210,7 +210,7 @@ OsStatus MpCodec_setGain(int level)
 }
 
 int MpCodec_getGain()
-{      
+{
    return s_iGainLevel;
 }
 
@@ -227,7 +227,7 @@ OsStatus MpCodec_doProcessFrame() { return OS_SUCCESS;}
 
 #endif /* ] */
 
-OsStatus MpCodec_getVolumeRange( int& low, int& high, int& nominal, 
+OsStatus MpCodec_getVolumeRange( int& low, int& high, int& nominal,
             int& stepsize, int& mute, int& splash, MpCodecSpkrChoice mask)
 {
     OsStatus ret = OS_INVALID;
@@ -278,7 +278,7 @@ OsStatus MpCodec_getVolumeRange( int& low, int& high, int& nominal,
     case OsUtil::PLATFORM_WIN32:
         if (mask & CODEC_ENABLE_HANDSET_SPKR) {
             // Revised 6Aug01 for hearing aid compatibility, per Mark G.
-            high     = hsVolMax; 
+            high     = hsVolMax;
             stepsPerInc = hsVolStep;
         }
         else if((mask & CODEC_ENABLE_HEADSET_SPKR)) {
@@ -302,7 +302,7 @@ OsStatus MpCodec_getVolumeRange( int& low, int& high, int& nominal,
         low      = high - 10 * stepsPerInc;
         ret = OS_SUCCESS;
         break;
- 
+
     case OsUtil::PLATFORM_TCAS6:
         if (mask & CODEC_ENABLE_HANDSET_SPKR) {
             // Revised 6Aug01 for hearing aid compatibility, per Mark G.
@@ -369,4 +369,3 @@ OsStatus MpCodec_getVolumeRange( int& low, int& high, int& nominal,
 #endif /* DEBUG_MPCODEC ] */
     return ret;
 }
-

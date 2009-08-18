@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -46,7 +46,7 @@ MpStreamQueuePlayer::MpStreamQueuePlayer(OsMsgQ* pMsgQ, const char* pTarget)
    mToPlayQueueLength = expandQueue(mToPlayQueue, 0, DEFAULT_QUEUE_LENGTH) ;
    mNumToPlayElements = 0 ;
    mPlayingQueue = NULL ;
-   mPlayingQueueLength = expandQueue(mPlayingQueue, 0, DEFAULT_QUEUE_LENGTH) ;   
+   mPlayingQueueLength = expandQueue(mPlayingQueue, 0, DEFAULT_QUEUE_LENGTH) ;
    mNumPlayingElements = 0 ;
    if (pTarget != NULL)
       mTarget = pTarget ;
@@ -84,7 +84,7 @@ MpStreamQueuePlayer::~MpStreamQueuePlayer()
    reset() ;
    clear() ;
 
-   // Drain the Event 
+   // Drain the Event
    getMessageQueue()->flush() ;
 
    mSemQueueChange.acquire() ;
@@ -93,13 +93,13 @@ MpStreamQueuePlayer::~MpStreamQueuePlayer()
    {
       for (i = 0; i < mToPlayQueueLength; i++)
       {
-         if (mToPlayQueue[i].pPlayer != NULL) 
+         if (mToPlayQueue[i].pPlayer != NULL)
          {
             delete mToPlayQueue[i].pPlayer;
             mToPlayQueue[i].pPlayer = NULL;
          }
       }
-      free(mToPlayQueue) ;      
+      free(mToPlayQueue) ;
       mToPlayQueueLength = 0 ;
       mToPlayQueue = NULL ;
       mNumToPlayElements = 0 ;
@@ -109,7 +109,7 @@ MpStreamQueuePlayer::~MpStreamQueuePlayer()
    {
       for (i = 0; i < mPlayingQueueLength; i++)
       {
-         if (mPlayingQueue[i].pPlayer != NULL) 
+         if (mPlayingQueue[i].pPlayer != NULL)
          {
             delete mPlayingQueue[i].pPlayer;
             mPlayingQueue[i].pPlayer = NULL;
@@ -126,7 +126,7 @@ MpStreamQueuePlayer::~MpStreamQueuePlayer()
    mSemWaitSynch.release() ;
 
    // Lastly wait until we have shutdown and kill our event queue
-   waitUntilShutDown() ;            
+   waitUntilShutDown() ;
    if (mpQueueEvent != NULL)
    {
       delete mpQueueEvent ;
@@ -137,7 +137,7 @@ MpStreamQueuePlayer::~MpStreamQueuePlayer()
 
 /* ============================ MANIPULATORS ============================== */
 
-// Adds a url to the playlist 
+// Adds a url to the playlist
 OsStatus MpStreamQueuePlayer::add(Url& url, int flags)
 {
    if (mbFatalError)
@@ -154,7 +154,7 @@ OsStatus MpStreamQueuePlayer::add(Url& url, int flags)
    // Grow queue length if needed
    if (mNumToPlayElements == mToPlayQueueLength)
    {
-      mToPlayQueueLength = expandQueue(mToPlayQueue, 
+      mToPlayQueueLength = expandQueue(mToPlayQueue,
             mToPlayQueueLength, mToPlayQueueLength + EXPAND_QUEUE_LENGTH) ;
    }
 
@@ -174,11 +174,11 @@ OsStatus MpStreamQueuePlayer::add(Url& url, int flags)
 
    if (pNewPlayer)
    {
-      // Handle API Failures (different from rendering event failures)   
+      // Handle API Failures (different from rendering event failures)
       status = pNewPlayer->realize(TRUE) ;
       if ((status != OS_SUCCESS) && (pNewPlayer != NULL))
       {
-         setFailedPlayer(pNewPlayer) ;      
+         setFailedPlayer(pNewPlayer) ;
       }
    }
 
@@ -188,12 +188,12 @@ OsStatus MpStreamQueuePlayer::add(Url& url, int flags)
 }
 
 
-// Adds a buffer to the playlist  
+// Adds a buffer to the playlist
 OsStatus MpStreamQueuePlayer::add(UtlString* pBuffer, int flags)
 {
    if (mbFatalError)
       return OS_FAILED ;
-   
+
 #ifdef PLAYER_STUBS
    return OS_SUCCESS ;
 #else
@@ -205,7 +205,7 @@ OsStatus MpStreamQueuePlayer::add(UtlString* pBuffer, int flags)
    // Grow queue length if needed
    if (mNumToPlayElements == mToPlayQueueLength)
    {
-      mToPlayQueueLength = expandQueue(mToPlayQueue, 
+      mToPlayQueueLength = expandQueue(mToPlayQueue,
             mToPlayQueueLength, mToPlayQueueLength + EXPAND_QUEUE_LENGTH) ;
    }
 
@@ -219,20 +219,20 @@ OsStatus MpStreamQueuePlayer::add(UtlString* pBuffer, int flags)
       pNewPlayer = new MpStreamPlayer(mpMsgQ, pBuffer, flags, mTarget) ;
       mToPlayQueue[index].pPlayer = pNewPlayer ;
       mToPlayQueue[index].bFailed = FALSE ;
-      mToPlayQueue[index].pPlayer->addListener(this) ;     
+      mToPlayQueue[index].pPlayer->addListener(this) ;
    }
 
    mSemQueueChange.release() ;
-   
+
    if (pNewPlayer)
    {
-      // Handle API Failures (different from rendering event failures)   
-      status = pNewPlayer->realize(TRUE) ;      
+      // Handle API Failures (different from rendering event failures)
+      status = pNewPlayer->realize(TRUE) ;
       if ((status != OS_SUCCESS) && (pNewPlayer != NULL))
       {
-         setFailedPlayer(pNewPlayer) ;      
+         setFailedPlayer(pNewPlayer) ;
       }
-   }   
+   }
    return status ;
 #endif
 }
@@ -273,7 +273,7 @@ OsStatus MpStreamQueuePlayer::play()
 
    // Wake up anyone waiting for a change in the queue state
    mSemWaitSynch.release() ;
- 
+
    return status ;
 #endif
 }
@@ -290,7 +290,7 @@ OsStatus MpStreamQueuePlayer::reset()
    return OS_SUCCESS ;
 #else
    OsStatus status = OS_SUCCESS ;
-   
+
    mpQueueEvent->signal(EVENT_RESET) ;
    wait() ;
 
@@ -308,14 +308,14 @@ OsStatus MpStreamQueuePlayer::destroy()
 }
 
 
-    
+
 // Clears any queued entries that have not yet been scheduled for play.
 OsStatus MpStreamQueuePlayer::clear()
 {
    if (mbFatalError)
       return OS_FAILED ;
 
-#ifdef PLAYER_STUBS   
+#ifdef PLAYER_STUBS
    return OS_SUCCESS ;
 #else
    MpStreamPlayer** pDeleteList ;
@@ -326,7 +326,7 @@ OsStatus MpStreamQueuePlayer::clear()
    mSemQueueChange.acquire() ;
 
    iToDelete = mNumToPlayElements ;
-   pDeleteList = new MpStreamPlayer*[iToDelete] ;   
+   pDeleteList = new MpStreamPlayer*[iToDelete] ;
    for (i=0; i<iToDelete; i++)
    {
       // Clean up the player
@@ -336,26 +336,26 @@ OsStatus MpStreamQueuePlayer::clear()
    }
    mNumToPlayElements = 0 ;
 
-   mSemQueueChange.release() ;  
+   mSemQueueChange.release() ;
 
    for (i=0; i<iToDelete; i++)
    {
-      pDeleteList[i]->removeListener(this) ;      
+      pDeleteList[i]->removeListener(this) ;
       pDeleteList[i]->stop() ;
       delete pDeleteList[i] ;
       pDeleteList[i] = NULL ;
    }
    delete[] pDeleteList ;
-     
+
    mSemWaitSynch.release() ;
-   
+
    return status ;
 #endif
 }
 
 
 // Wait until all play list items are finished playing
-OsStatus MpStreamQueuePlayer::wait(const OsTime& rTimeout) 
+OsStatus MpStreamQueuePlayer::wait(const OsTime& rTimeout)
 {
    if (mbFatalError)
       return OS_FAILED ;
@@ -405,7 +405,7 @@ OsStatus MpStreamQueuePlayer::addListener(MpQueuePlayerListener* pListener)
 }
 
 
-// Removes a previously added player listener.  This listener will cease to 
+// Removes a previously added player listener.  This listener will cease to
 // receive state change notifications.
 OsStatus MpStreamQueuePlayer::removeListener(MpQueuePlayerListener* pListener)
 {
@@ -421,7 +421,7 @@ OsStatus MpStreamQueuePlayer::removeListener(MpQueuePlayerListener* pListener)
       {
          mListenerDb[i].inUse = FALSE ;
          mListenerDb[i].pListener = NULL ;
-         
+
          status = OS_SUCCESS ;
       }
    }
@@ -465,7 +465,7 @@ MpStreamQueuePlayer::MpStreamQueuePlayer(const MpStreamQueuePlayer& rMpStreamQue
 }
 
 // Assignment operator
-MpStreamQueuePlayer& 
+MpStreamQueuePlayer&
 MpStreamQueuePlayer::operator=(const MpStreamQueuePlayer& rhs)
 {
    assert(FALSE) ;
@@ -478,7 +478,7 @@ MpStreamQueuePlayer::operator=(const MpStreamQueuePlayer& rhs)
 
 
 // Handles OS server task events/messages
-UtlBoolean MpStreamQueuePlayer::handleMessage(OsMsg& rMsg) 
+UtlBoolean MpStreamQueuePlayer::handleMessage(OsMsg& rMsg)
 {
    UtlBoolean bHandled = FALSE ;
 
@@ -517,10 +517,10 @@ UtlBoolean MpStreamQueuePlayer::handleMessage(OsMsg& rMsg)
                   handleReset() ;
 #endif
                   break ;
-            }            
+            }
          }
          bHandled = TRUE ;
-         break ;         
+         break ;
    }
 
    return bHandled ;
@@ -541,19 +541,19 @@ void MpStreamQueuePlayer::handleReset()
       pDeleteList = new MpStreamPlayer*[iToDelete] ;
       for (i=0; i<iToDelete; i++)
       {
-         // Clean up the player         
-         pDeleteList[i] = mPlayingQueue[i].pPlayer ;      
+         // Clean up the player
+         pDeleteList[i] = mPlayingQueue[i].pPlayer ;
 
          mPlayingQueue[i].pPlayer = NULL ;
          mPlayingQueue[i].bFailed = FALSE ;
       }
       mNumPlayingElements = 0 ;
-      
-      mSemQueueChange.release() ;          
+
+      mSemQueueChange.release() ;
    }
    else
    {
-      mSemQueueChange.release() ; 
+      mSemQueueChange.release() ;
    }
 
    // Delete them
@@ -561,7 +561,7 @@ void MpStreamQueuePlayer::handleReset()
    {
       for (i=0; i<iToDelete; i++)
       {
-         pDeleteList[i]->removeListener(this) ;      
+         pDeleteList[i]->removeListener(this) ;
          pDeleteList[i]->destroy() ;
          delete pDeleteList[i] ;
          pDeleteList[i] = NULL ;
@@ -570,16 +570,16 @@ void MpStreamQueuePlayer::handleReset()
    }
 
    mSemWaitSynch.release() ;
-   
+
    // Inform listeners that the player has stopped
    if (iToDelete > 0)
    {
       fireQueuePlayerStopped() ;
-   }   
+   }
 }
 
 
-// Plays the next available stream  
+// Plays the next available stream
 void MpStreamQueuePlayer::handlePlayNext()
 {
    MpStreamPlayer* pPlayer = NULL ;    // next player to start
@@ -597,16 +597,16 @@ void MpStreamQueuePlayer::handlePlayNext()
       fireQueuePlayerAdvanced() ;
 
       if ((pPlayer != NULL) && !bFailed)
-      {                  
+      {
          OsStatus status = pPlayer->play(FALSE) ;
 
-         // Handle API Failures (different rendering event failures)   
+         // Handle API Failures (different rendering event failures)
          if (status != OS_SUCCESS)
-         {      
-            setFailedPlayer(pPlayer) ;            
+         {
+            setFailedPlayer(pPlayer) ;
          }
       }
-   
+
       // If we had a valid player it was failed
       if ((pPlayer != NULL) && bFailed)
       {
@@ -635,7 +635,7 @@ void MpStreamQueuePlayer::handleDequeue()
       // Remove previously playing entry
       if (mPlayingQueue[0].pPlayer != NULL)
       {
-         pDeletePlayer = mPlayingQueue[0].pPlayer ;         
+         pDeletePlayer = mPlayingQueue[0].pPlayer ;
          mPlayingQueue[0].pPlayer = NULL ;
       }
 
@@ -644,15 +644,15 @@ void MpStreamQueuePlayer::handleDequeue()
       {
          mPlayingQueue[i].pPlayer = mPlayingQueue[i+1].pPlayer ;
          mPlayingQueue[i].bFailed = mPlayingQueue[i+1].bFailed ;
-      }      
+      }
       mNumPlayingElements-- ;
-      mPlayingQueue[mNumPlayingElements].pPlayer = NULL ;            
+      mPlayingQueue[mNumPlayingElements].pPlayer = NULL ;
       mPlayingQueue[mNumPlayingElements].bFailed = FALSE ;
 
       if (mNumPlayingElements == 0)
          bFireStopped = TRUE ;
    }
-   mSemQueueChange.release() ;   
+   mSemQueueChange.release() ;
 
    if (pDeletePlayer != NULL)
    {
@@ -661,20 +661,20 @@ void MpStreamQueuePlayer::handleDequeue()
       delete pDeletePlayer ;
    }
 
-   mSemWaitSynch.release() ;  
+   mSemWaitSynch.release() ;
 
    if (bFireStopped)
    {
       // Inform listener that the player has stopped
       fireQueuePlayerStopped() ;
-   }   
+   }
 }
 
 
-UtlBoolean MpStreamQueuePlayer::isPlayingStream(MpPlayer* pPlayer) 
+UtlBoolean MpStreamQueuePlayer::isPlayingStream(MpPlayer* pPlayer)
 {
    UtlBoolean bIsPlaying = FALSE ;
-   
+
    mSemQueueChange.acquire() ;
    if ((mPlayingQueue != NULL) && (mPlayingQueue[0].pPlayer == pPlayer))
       bIsPlaying = TRUE ;
@@ -684,9 +684,9 @@ UtlBoolean MpStreamQueuePlayer::isPlayingStream(MpPlayer* pPlayer)
 }
 
 
-// Removes a failed player from the queue and pushes the queue forward if 
+// Removes a failed player from the queue and pushes the queue forward if
 // necessary.
-void MpStreamQueuePlayer::handleRemoveFailed() 
+void MpStreamQueuePlayer::handleRemoveFailed()
 {
    MpStreamPlayer *pDeletePlayer = NULL ;
 
@@ -701,9 +701,9 @@ void MpStreamQueuePlayer::handleRemoveFailed()
       if (!bFound)
       {
          if (mPlayingQueue[i].bFailed)
-         {               
+         {
             // Clean up the player
-            pDeletePlayer = mPlayingQueue[i].pPlayer ;             
+            pDeletePlayer = mPlayingQueue[i].pPlayer ;
             mPlayingQueue[i].pPlayer = NULL ;
             bFound = TRUE ;
 
@@ -721,7 +721,7 @@ void MpStreamQueuePlayer::handleRemoveFailed()
    if (bFound)
    {
       mNumPlayingElements-- ;
-      mPlayingQueue[mNumPlayingElements].pPlayer = NULL ;         
+      mPlayingQueue[mNumPlayingElements].pPlayer = NULL ;
       mPlayingQueue[mNumPlayingElements].bFailed = FALSE ;
    }
    mSemQueueChange.release() ;
@@ -730,7 +730,7 @@ void MpStreamQueuePlayer::handleRemoveFailed()
    {
       pDeletePlayer->removeListener(this) ;
       pDeletePlayer->stop() ;
-      delete pDeletePlayer; 
+      delete pDeletePlayer;
    }
 
    // If we no longer have anything to play, then fire a stop
@@ -742,13 +742,13 @@ void MpStreamQueuePlayer::handleRemoveFailed()
    else
    {
       if (bPlayNext)
-         handlePlayNext() ;   
+         handlePlayNext() ;
    }
 }
 
 
 //Designates the the player as failed
-void MpStreamQueuePlayer::setFailedPlayer(MpPlayer* pPlayer) 
+void MpStreamQueuePlayer::setFailedPlayer(MpPlayer* pPlayer)
 {
    UtlBoolean bFireRemovedEvent = false ;
    int       i ;
@@ -786,7 +786,7 @@ void MpStreamQueuePlayer::playerRealized(MpPlayerEvent& event)
 {
    MpPlayer* pPlayer = event.getPlayer() ;
 
-   // There is a race where we can still receive events while in the 
+   // There is a race where we can still receive events while in the
    // destructor of this class.  These events are generally harmless,
    // however, the playing queues have been deleted.
    if (mPlayingQueue == NULL)
@@ -794,43 +794,43 @@ void MpStreamQueuePlayer::playerRealized(MpPlayerEvent& event)
       mSemWaitSynch.release() ;  // Wake up anyone waiting
       return ;
    }
-   
-   OsStatus status = pPlayer->prefetch(FALSE) ; 
-   
-   // Handle API Failures (different from rendering event failures)   
+
+   OsStatus status = pPlayer->prefetch(FALSE) ;
+
+   // Handle API Failures (different from rendering event failures)
    if (status != OS_SUCCESS)
    {
       setFailedPlayer(pPlayer) ;
    }
 }
 
-  
+
 // The player's data source has been prefetched
 void MpStreamQueuePlayer::playerPrefetched(MpPlayerEvent& event)
 {
    MpPlayer* pPlayer = event.getPlayer() ;
 
-   // There is a race where we can still receive events while in the 
+   // There is a race where we can still receive events while in the
    // destructor of this class.  These events are generally harmless,
    // however, the playing queues have been deleted.
    if (mPlayingQueue == NULL)
    {
       mSemWaitSynch.release() ;  // Wake up anyone waiting
       return ;
-   }   
+   }
 
    if (isPlayingStream(pPlayer))
-   {            
+   {
       mpQueueEvent->signal(EVENT_PLAY_NEXT) ;
    }
 }
-  
+
 // The player has begun playing
 void MpStreamQueuePlayer::playerPlaying(MpPlayerEvent& event)
 {
    // Not interesting, we are keying off stop/failed/setup
 }
-  
+
 // The player has been paused
 void MpStreamQueuePlayer::playerPaused(MpPlayerEvent& event)
 {
@@ -839,22 +839,22 @@ void MpStreamQueuePlayer::playerPaused(MpPlayerEvent& event)
 
 
 // The player has stopped
-void MpStreamQueuePlayer::playerStopped(MpPlayerEvent& event) 
+void MpStreamQueuePlayer::playerStopped(MpPlayerEvent& event)
 {
    MpPlayer* pPlayer = event.getPlayer() ;   // player that caused this event
 
-   // There is a race where we can still receive events while in the 
+   // There is a race where we can still receive events while in the
    // destructor of this class.  These events are generally harmless,
    // however, the playing queues have been deleted.
    if (mPlayingQueue == NULL)
    {
       mSemWaitSynch.release() ;  // Wake up anyone waiting
       return ;
-   }   
+   }
 
    if (event.getState() == PlayerAborted)
    {
-      mpQueueEvent->signal(EVENT_RESET) ;      
+      mpQueueEvent->signal(EVENT_RESET) ;
    }
    else
    {
@@ -868,21 +868,21 @@ void MpStreamQueuePlayer::playerStopped(MpPlayerEvent& event)
        }
    }
 }
-  
+
 
 // The player has failed
 void MpStreamQueuePlayer::playerFailed(MpPlayerEvent& event)
 {
    MpPlayer* pPlayer = event.getPlayer() ;   // player that caused this event
 
-   // There is a race where we can still receive events while in the 
+   // There is a race where we can still receive events while in the
    // destructor of this class.  These events are generally harmless,
    // however, the playing queues have been deleted.
    if (mPlayingQueue == NULL)
    {
       mSemWaitSynch.release() ;  // Wake up anyone waiting
       return ;
-   }   
+   }
 
    if (isPlayingStream(pPlayer))
    {
@@ -896,7 +896,7 @@ void MpStreamQueuePlayer::playerFailed(MpPlayerEvent& event)
 
 
 void MpStreamQueuePlayer::fireQueuePlayerStarted()
-{   
+{
    OsWriteLock lock(mListenerMutex);
    for (int i=0; i<MAX_PLAYER_LISTENERS; i++)
    {
@@ -914,7 +914,7 @@ void MpStreamQueuePlayer::fireQueuePlayerStopped()
    for (int i=0; i<MAX_PLAYER_LISTENERS; i++)
    {
       if ((mListenerDb[i].inUse) && (mListenerDb[i].pListener))
-      {         
+      {
          mListenerDb[i].pListener->queuePlayerStopped() ;
       }
    }
@@ -927,7 +927,7 @@ void MpStreamQueuePlayer::fireQueuePlayerAdvanced()
    for (int i=0; i<MAX_PLAYER_LISTENERS; i++)
    {
       if ((mListenerDb[i].inUse) && (mListenerDb[i].pListener))
-      {         
+      {
          mListenerDb[i].pListener->queuePlayerAdvanced() ;
       }
    }
@@ -938,8 +938,8 @@ void MpStreamQueuePlayer::fireQueuePlayerAdvanced()
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
-int MpStreamQueuePlayer::expandQueue(struct PlaylistQueue*& pQueue, 
-                                     int currentLength, 
+int MpStreamQueuePlayer::expandQueue(struct PlaylistQueue*& pQueue,
+                                     int currentLength,
                                      int desiredLength)
 {
    int rc = currentLength ;  // return code: queue length after all
@@ -947,7 +947,7 @@ int MpStreamQueuePlayer::expandQueue(struct PlaylistQueue*& pQueue,
 
    if (desiredLength > currentLength)
    {
-      struct PlaylistQueue* pNewQueue = (struct PlaylistQueue*) 
+      struct PlaylistQueue* pNewQueue = (struct PlaylistQueue*)
              malloc(sizeof(struct PlaylistQueue) * desiredLength) ;
 
       if (pNewQueue != NULL)
@@ -982,9 +982,9 @@ int MpStreamQueuePlayer::expandQueue(struct PlaylistQueue*& pQueue,
 }
 
 
-void MpStreamQueuePlayer::swapQueues(struct PlaylistQueue*& pQueue1, 
-                                     int& queueLength1, 
-                                     struct PlaylistQueue*& pQueue2, 
+void MpStreamQueuePlayer::swapQueues(struct PlaylistQueue*& pQueue1,
+                                     int& queueLength1,
+                                     struct PlaylistQueue*& pQueue2,
                                      int& queueLength2)
 {
     struct PlaylistQueue* pTempQueue ;
@@ -1002,7 +1002,7 @@ void MpStreamQueuePlayer::swapQueues(struct PlaylistQueue*& pQueue1,
     // Swap queues (code above guarentees the same length)
     pTempQueue = pQueue1 ;
     pQueue1 = pQueue2 ;
-    pQueue2 = pTempQueue ;    
+    pQueue2 = pTempQueue ;
 }
 
 

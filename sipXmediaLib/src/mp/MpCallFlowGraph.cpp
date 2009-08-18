@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -83,7 +83,7 @@ UtlBoolean MpCallFlowGraph::sbSendInBandDTMF = true ;
 UtlBoolean MpCallFlowGraph::sbEnableAEC = false ;
 
 #define INSERT_RECORDERS // splices recorders into flowgraph
-#undef INSERT_RECORDERS 
+#undef INSERT_RECORDERS
 
 #ifdef INSERT_RECORDERS /* [ */
 static int WantRecorders = 1;
@@ -145,7 +145,7 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
    mpToSpkr           = new MprToSpkr("ToSpkr",
                                  samplesPerFrame, samplesPerSec);
    mpToneGen          = new MprToneGen("ToneGen",
-                                 samplesPerFrame, samplesPerSec, 
+                                 samplesPerFrame, samplesPerSec,
                                  locale);
 
 #ifdef DOING_ECHO_SUPPRESSION /* [ */
@@ -171,7 +171,7 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
    // connect FromMic -> EchoSuppress -> TFsMicMixer -> Bridge
    res = addLink(*mpFromMic, 0, *mpEchoSuppress, 0);
    assert(res == OS_SUCCESS);
-#ifdef  FLOWGRAPH_DOES_RESAMPLING /* [ */ 
+#ifdef  FLOWGRAPH_DOES_RESAMPLING /* [ */
    res = addLink(*mpFromMic, 1, *mpEchoSuppress, 1);
    assert(res == OS_SUCCESS);
 #endif /* FLOWGRAPH_DOES_RESAMPLING ] */
@@ -196,7 +196,7 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
    //////////////////////////////////////////////////////////////////////////
    // connect ToneGen -> FromStream -> FromFile -> Splitter -> TFsBridgeMixer -> ToSpkr
    //                                                       -> Mixer
-   
+
    res = addLink(*mpToneGen, 0, *mpFromStream, 0);
    assert(res == OS_SUCCESS);
 
@@ -336,9 +336,9 @@ MpCallFlowGraph::MpCallFlowGraph(const char* locale,
    res = pMediaTask->startFlowGraph(*this);
    assert(res == OS_SUCCESS);
 
-   Zprintf("mpBridge=0x%p, " "mpConnection=0x%p, " "mpFromFile=0x%p\n" 
+   Zprintf("mpBridge=0x%p, " "mpConnection=0x%p, " "mpFromFile=0x%p\n"
        "mpFromMic=0x%p, " "mpTFsMicMixer=0x%p" "mpTFsBridgeMixer=0x%p\n",
-      mpBridge, mpConnections[0], mpFromFile, 
+      mpBridge, mpConnections[0], mpFromFile,
       mpFromMic, mpTFsMicMixer, mpTFsBridgeMixer);
 
 #ifdef DOING_ECHO_SUPPRESSION /* [ */
@@ -540,10 +540,10 @@ OsStatus MpCallFlowGraph::loseFocus(void)
 
    // If the tone gen is not needed while we are out of focus disable it
    // as it is using resources while it is not being heard.
-   if(mpToneGen->isEnabled() && 
+   if(mpToneGen->isEnabled() &&
       mpTFsBridgeMixer->isEnabled()) // Local tone only
       // Should also disable when remote tone and no connections
-      // || (!mp???Mixer->isEnabled() && noConnections)) 
+      // || (!mp???Mixer->isEnabled() && noConnections))
    {
       // osPrintf("Defocusing tone generator\n");
       mpToneGen->disable();
@@ -634,11 +634,11 @@ int MpCallFlowGraph::closeRecorders(void)
 //
 // A simple method for starting the recorders on the hard phone
 // INSERT_RECORDERS must be defined for this to work
-// 
+//
 // bitmask of recorderBitmask is as follows:
 //  0000 0000 0000 0000 0000 0000 0000 0000
 //  ^^^^ ^^^^ ^^^^ ^^^^ ^^^^^^^^^ ^^^^ ^^^^
-//                  |              ||| ||||  
+//                  |              ||| ||||
 //                  |              ||| |||+------- mic
 //                  |              ||| ||+-------- echo out
 //                  |              ||| |+--------- speaker
@@ -646,14 +646,14 @@ int MpCallFlowGraph::closeRecorders(void)
 //                  |              ||+------------ speaker 32k sampling
 //                  |              |+------------- echo in 8K
 //                  |              +-------------- echo in 32K
-//                  | 
+//                  |
 //                  +----------------------------- not used
 //
 ////////////////////////////////////////////////////////////////////////////
 
 #define MAXUNIXPATH 64
 
-OsStatus MpCallFlowGraph::Record(int ms, 
+OsStatus MpCallFlowGraph::Record(int ms,
       const char* playFilename, //if NULL, defaults to previous string
       const char* baseName,     //if NULL, defaults to previous string
       const char* endName,      //if NULL, defaults to previous string
@@ -674,28 +674,28 @@ OsStatus MpCallFlowGraph::Record(int ms,
       }
       return OS_INVALID;
    }
-   
+
    if (ms == 0)
       ms = saved_ms;
-   
+
    if (playFilename == NULL)
       playFilename = saved_playFilename;
-   
+
    if (baseName == NULL)
       baseName = saved_baseName;
-   
+
    if (endName == NULL)
       endName = saved_endName;
 
-   
-   char *created_micNamePtr      = new char[MAXUNIXPATH]; 
-   char *created_echoOutNamePtr  = new char[MAXUNIXPATH]; 
-   char *created_spkrNamePtr     = new char[MAXUNIXPATH]; 
-   char *created_mic32NamePtr    = new char[MAXUNIXPATH]; 
-   char *created_spkr32NamePtr   = new char[MAXUNIXPATH]; 
-   char *created_echoIn8NamePtr  = new char[MAXUNIXPATH]; 
-   char *created_echoIn32NamePtr = new char[MAXUNIXPATH]; 
-   
+
+   char *created_micNamePtr      = new char[MAXUNIXPATH];
+   char *created_echoOutNamePtr  = new char[MAXUNIXPATH];
+   char *created_spkrNamePtr     = new char[MAXUNIXPATH];
+   char *created_mic32NamePtr    = new char[MAXUNIXPATH];
+   char *created_spkr32NamePtr   = new char[MAXUNIXPATH];
+   char *created_echoIn8NamePtr  = new char[MAXUNIXPATH];
+   char *created_echoIn32NamePtr = new char[MAXUNIXPATH];
+
    if (recorderMask & 1)
       sprintf(created_micNamePtr,
                         "%sm%d_%s_8k.raw", baseName, playIndex, endName);
@@ -757,7 +757,7 @@ OsStatus MpCallFlowGraph::Record(int ms,
               created_echoIn8NamePtr, created_echoIn32NamePtr,
               playFilename, 0, 0, NULL);
    playIndex++;
-   
+
    strcpy(saved_playFilename,playFilename);
    strcpy(saved_baseName,baseName);
    strcpy(saved_endName,endName);
@@ -766,18 +766,18 @@ OsStatus MpCallFlowGraph::Record(int ms,
 }
 
 
-OsStatus MpCallFlowGraph::mediaRecord(int ms, 
-                                   int silenceLength, 
-                                   const char* fileName, 
+OsStatus MpCallFlowGraph::mediaRecord(int ms,
+                                   int silenceLength,
+                                   const char* fileName,
                                    double& duration,
                                    int& dtmfTerm,
                                    MprRecorder::RecordFileFormat format,
                                    OsProtectedEvent* recordEvent)
 {
   if (!recordEvent)   // behaves like ezRecord
-    return ezRecord(ms, 
-                    silenceLength, 
-                    fileName, 
+    return ezRecord(ms,
+                    silenceLength,
+                    fileName,
                     duration,
                     dtmfTerm,
                     format);
@@ -785,9 +785,9 @@ OsStatus MpCallFlowGraph::mediaRecord(int ms,
   // nonblocking version
    if (dtmfTerm)
    {
-     for (int i=0; i<MAX_CONNECTIONS; i++) 
+     for (int i=0; i<MAX_CONNECTIONS; i++)
      {
-         if (NULL != mpConnections[i]) 
+         if (NULL != mpConnections[i])
          {
            mpConnections[i]->setDtmfTerm(mpRecorders[RECORDER_SPKR]);
          }
@@ -799,9 +799,9 @@ OsStatus MpCallFlowGraph::mediaRecord(int ms,
 
 }
 
-OsStatus MpCallFlowGraph::ezRecord(int ms, 
-                                   int silenceLength, 
-                                   const char* fileName, 
+OsStatus MpCallFlowGraph::ezRecord(int ms,
+                                   int silenceLength,
+                                   const char* fileName,
                                    double& duration,
                                    int& dtmfTerm,
                                    MprRecorder::RecordFileFormat format)
@@ -821,9 +821,9 @@ OsStatus MpCallFlowGraph::ezRecord(int ms,
 
    if (dtmfTerm)
    {
-     for (int i=0; i<MAX_CONNECTIONS; i++) 
+     for (int i=0; i<MAX_CONNECTIONS; i++)
      {
-         if (NULL != mpConnections[i]) 
+         if (NULL != mpConnections[i])
          {
            mpConnections[i]->setDtmfTerm(mpRecorders[RECORDER_SPKR]);
          }
@@ -912,7 +912,7 @@ OsStatus MpCallFlowGraph::record(int ms, int silenceLength, const char* micName,
 
 OsStatus MpCallFlowGraph::startRecording(const char* audioFileName,
                   UtlBoolean repeat, int toneOptions, OsNotification* event)
-                     
+
 
 {
    OsStatus  res = OS_SUCCESS;
@@ -934,7 +934,7 @@ OsStatus MpCallFlowGraph::startRecording(const char* audioFileName,
 
 // Setup recording on one recorder
 UtlBoolean MpCallFlowGraph::setupRecorder(RecorderChoice which,
-                  const char* audioFileName, int timeMS, 
+                  const char* audioFileName, int timeMS,
                   int silenceLength, OsNotification* event,
                   MprRecorder::RecordFileFormat format)
 
@@ -979,11 +979,11 @@ OsStatus MpCallFlowGraph::playFile(const char* audioFileName, UtlBoolean repeat,
 }
 
 // Start playing the indicated audio buffer.
-OsStatus MpCallFlowGraph::playBuffer(char* audioBuf, 
+OsStatus MpCallFlowGraph::playBuffer(char* audioBuf,
                                      unsigned long bufSize,
-                                     int type, 
+                                     int type,
                                      UtlBoolean repeat,
-                                     int toneOptions, 
+                                     int toneOptions,
                                      OsProtectedEvent* event)
 {
    OsStatus  res;
@@ -1033,12 +1033,12 @@ MpConnectionID MpCallFlowGraph::createConnection()
          i = MAX_CONNECTIONS;
       }
    }
-   
+
    if (found < 0) {
       mConnTableLock.release();
       return -1;
    }
-   
+
    mpConnections[found] = new MpConnection(this, found,
                  getSamplesPerFrame(), getSamplesPerSec());
 
@@ -1079,7 +1079,7 @@ OsStatus MpCallFlowGraph::deleteConnection(MpConnectionID connID)
 //   osPrintf("deleteConnection(%d)\n", connID);
    assert((0 < connID) && (connID < MAX_CONNECTIONS));
 
-   if ((NULL == mpConnections[connID]) || 
+   if ((NULL == mpConnections[connID]) ||
       (((MpConnection*) -1) == mpConnections[connID]))
          return OS_INVALID_ARGUMENT;
 
@@ -1236,7 +1236,7 @@ UtlBoolean MpCallFlowGraph::setEnableAEC(UtlBoolean bEnable)
    sbEnableAEC = bEnable;
    return bSave ;
 }
-  
+
 #ifdef INCLUDE_RTCP /* [ */
 
 /* ======================== CALLBACK METHODS ============================= */
@@ -1254,16 +1254,16 @@ UtlBoolean MpCallFlowGraph::setEnableAEC(UtlBoolean bEnable)
  * Outputs:     None
  *
  * Returns:     None
- *              
+ *
  * Description: The LocalSSRCCollision() event method shall inform the
  *              recipient of a collision between the local SSRC and one
  *              used by one of the remote participants.
  *              .
- *               
- * Usage Notes: 
+ *
+ * Usage Notes:
  *
  */
-void MpCallFlowGraph::LocalSSRCCollision(IRTCPConnection  *piRTCPConnection, 
+void MpCallFlowGraph::LocalSSRCCollision(IRTCPConnection  *piRTCPConnection,
                                          IRTCPSession     *piRTCPSession)
 {
 
@@ -1284,9 +1284,9 @@ void MpCallFlowGraph::LocalSSRCCollision(IRTCPConnection  *piRTCPConnection,
 // We must inform all connections associated with this session to change their
 // SSRC
     mConnTableLock.acquire();
-    for (int iConnection = 1; iConnection < MAX_CONNECTIONS; iConnection++) 
+    for (int iConnection = 1; iConnection < MAX_CONNECTIONS; iConnection++)
     {
-      if (mpConnections[iConnection]->getRTCPConnection()) 
+      if (mpConnections[iConnection]->getRTCPConnection())
       {
 //       Set the new SSRC
          mpConnections[iConnection]->
@@ -1317,15 +1317,15 @@ void MpCallFlowGraph::LocalSSRCCollision(IRTCPConnection  *piRTCPConnection,
  * Outputs:     None
  *
  * Returns:     None
- *              
+ *
  * Description: The RemoteSSRCCollision() event method shall inform the
  *              recipient of a collision between two remote participants.
  *              .
- *               
- * Usage Notes: 
+ *
+ * Usage Notes:
  *
  */
-void MpCallFlowGraph::RemoteSSRCCollision(IRTCPConnection  *piRTCPConnection, 
+void MpCallFlowGraph::RemoteSSRCCollision(IRTCPConnection  *piRTCPConnection,
                                           IRTCPSession     *piRTCPSession)
 {
 
@@ -1341,9 +1341,9 @@ void MpCallFlowGraph::RemoteSSRCCollision(IRTCPConnection  *piRTCPConnection,
 // According to standards, we are supposed to ignore remote sites that
 // have colliding SSRC IDS.
     mConnTableLock.acquire();
-    for (int iConnection = 1; iConnection < MAX_CONNECTIONS; iConnection++) 
+    for (int iConnection = 1; iConnection < MAX_CONNECTIONS; iConnection++)
     {
-      if (mpConnections[iConnection]->getRTCPConnection() == piRTCPConnection) 
+      if (mpConnections[iConnection]->getRTCPConnection() == piRTCPConnection)
       {
 // We are supposed to ignore the media of the latter of two terminals
 // whose SSRC collides
@@ -1405,7 +1405,7 @@ UtlBoolean MpCallFlowGraph::writeWAVHeader(int handle)
     char tmpbuf[80];
     short bitsPerSample = 16;
 
-    short sampleSize = sizeof(Sample); 
+    short sampleSize = sizeof(Sample);
     uint16_t compressionCode = 1; //PCM = 2 byte value
     uint16_t numChannels = 1;  // 2 byte value for Endian conversion
     uint32_t samplesPerSecond = 8000; // 4 byte value for Endian conversion
@@ -1419,7 +1419,7 @@ UtlBoolean MpCallFlowGraph::writeWAVHeader(int handle)
     uint32_t length = 0;  // 4 byte value for Endian conversion
     bytesWritten += write(handle,tmpbuf, strlen(tmpbuf));
     bytesWritten += write(handle, (char*)&length, sizeof(length)); //filled in on close
-    
+
     //write WAVE
     //4 bytes written
     strcpy(tmpbuf,"WAVE");
@@ -1432,7 +1432,7 @@ UtlBoolean MpCallFlowGraph::writeWAVHeader(int handle)
     bytesWritten += write(handle,tmpbuf,strlen(tmpbuf));
     length = htolel(length);
     bytesWritten += write(handle, (char*)&length,sizeof(length)); //filled in on close
-    
+
     //now write each piece of the format
     //16 bytes written
     compressionCode = htoles(compressionCode);
@@ -1455,7 +1455,7 @@ UtlBoolean MpCallFlowGraph::writeWAVHeader(int handle)
     bytesWritten += write(handle,tmpbuf,strlen(tmpbuf));
     length = htolel(length);
     bytesWritten += write(handle, (char*)&length,sizeof(length)); //filled in on close
-    
+
     //total length at this point should be 48 bytes
     if (bytesWritten == 44)
         retCode = TRUE;
@@ -1501,11 +1501,11 @@ UtlBoolean MpCallFlowGraph::handleMessage(OsMsg& rMsg)
             break;
          case MpStreamMsg::STREAM_STOP:
             retCode = handleStreamStop(*pMsg) ;
-            break;         
+            break;
          case MpStreamMsg::STREAM_DESTROY:
             retCode = handleStreamDestroy(*pMsg) ;
             break;
-         default:         
+         default:
             break;
       }
    }
@@ -1600,7 +1600,7 @@ UtlBoolean MpCallFlowGraph::handleRemoveConnection(MpFlowGraphMsg& rMsg)
    res = handleRemoveResource((MpResource*) pConnection->mpToNet);
    assert(res);
    delete pConnection->mpToNet;
-   
+
    delete pConnection;
    return TRUE;
 }
@@ -1712,7 +1712,7 @@ UtlBoolean MpCallFlowGraph::handleStopToneOrPlay()
       MpFlowGraphMsg msg(MpFlowGraphMsg::FLOWGRAPH_SYNCHRONIZE,
          NULL, NULL, NULL, ms, 0);
       OsStatus  res;
-   
+
       res = postMessage(msg);
       // osPrintf("MpCallFlowGraph::postPone(%d)\n", ms);
    }
@@ -1769,14 +1769,14 @@ UtlBoolean MpCallFlowGraph::handleSetDtmfNotify(MpFlowGraphMsg& rMsg)
 
 
 UtlBoolean MpCallFlowGraph::handleStreamRealizeUrl(MpStreamMsg& rMsg)
-{ 
+{
    int flags = rMsg.getInt1() ;
    Url* pUrl = (Url*) rMsg.getInt2() ;
    OsNotification* pNotifyHandle = (OsNotification*) rMsg.getPtr1() ;
    OsNotification* pNotifyEvents = (OsNotification*) rMsg.getPtr2() ;
 
    StreamHandle handle = NULL ;
-   
+
    mpFromStream->realize(*pUrl, flags, handle, pNotifyEvents) ;
    delete pUrl ;
 
@@ -1794,11 +1794,11 @@ UtlBoolean MpCallFlowGraph::handleStreamRealizeBuffer(MpStreamMsg& rMsg)
    OsNotification* pNotifyEvents = (OsNotification*) rMsg.getPtr2() ;
 
    StreamHandle handle = NULL ;
-   
+
    mpFromStream->realize(pBuffer, flags, handle, pNotifyEvents) ;
 
    pNotifyHandle->signal((intptr_t)handle) ;
-   
+
    return TRUE ;
 }
 
@@ -1856,7 +1856,7 @@ UtlBoolean MpCallFlowGraph::handleStreamPlay(MpStreamMsg& rMsg)
          boolRes = mpTFsMicMixer->enable();
          assert(boolRes);
       }
-   
+
       mpFromStream->play(handle) ;
       mpFromStream->enable() ;
    }
@@ -1876,7 +1876,7 @@ UtlBoolean MpCallFlowGraph::handleStreamPause(MpStreamMsg& rMsg)
 
 UtlBoolean MpCallFlowGraph::handleStreamStop(MpStreamMsg& rMsg)
 {
-   UtlBoolean boolRes; 
+   UtlBoolean boolRes;
    StreamHandle handle = rMsg.getHandle() ;
    int iFlags ;
 
@@ -1892,14 +1892,14 @@ UtlBoolean MpCallFlowGraph::handleStreamStop(MpStreamMsg& rMsg)
          boolRes = mpTFsBridgeMixer->enable();
          assert(boolRes);
       }
-      
+
       // did we play remotely?
       if (iFlags & STREAM_SOUND_REMOTE)
       {
          boolRes = mpTFsMicMixer->enable();
          assert(boolRes);
-      }      
-   }   
+      }
+   }
 
    return TRUE ;
 }
@@ -1914,4 +1914,3 @@ UtlBoolean MpCallFlowGraph::handleStreamDestroy(MpStreamMsg& rMsg)
 }
 
 /* ============================ FUNCTIONS ================================= */
-

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -40,8 +40,8 @@ public:
 };
 
 /* ==========================CLASS DecompressPcm8Unsigned======================= */
-class DecompressPcm8Unsigned: public AbstractDecompressor 
-// class DecompressPcm8Unsigned 
+class DecompressPcm8Unsigned: public AbstractDecompressor
+// class DecompressPcm8Unsigned
 {
 public:
    DecompressPcm8Unsigned(MpAudioAbstract &a);
@@ -66,7 +66,7 @@ class DecompressPcm16LsbSigned: public AbstractDecompressor {
 public:
 
    DecompressPcm16LsbSigned(MpAudioAbstract &a);
-   //: Constructor 
+   //: Constructor
 
    size_t getSamples(AudioSample *buffer, size_t length);
 };

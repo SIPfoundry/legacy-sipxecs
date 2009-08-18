@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -13,9 +13,9 @@
 
 #include <os/iostream>
 
-typedef short AudioSample; 
+typedef short AudioSample;
 
-// Utils functions to handle the audiofile 
+// Utils functions to handle the audiofile
 
 int32_t readIntMsb(istream &in, int bytes);
 //: Read int from Most Significant Bytes
@@ -24,7 +24,7 @@ int32_t bytesToIntMsb(void *buff, int bytes);
 int32_t readIntLsb(istream &in, int bytes);
 //: Least Siginificant Bytes: read int
 int32_t bytesToIntLsb(void *buff, int bytes);
-//: Least significant byte: byte to int 
+//: Least significant byte: byte to int
 void skipBytes(istream &in, int bytes);
 //: Skip one byte
 void writeIntMsb(ostream &out, int32_t l, int bytes);

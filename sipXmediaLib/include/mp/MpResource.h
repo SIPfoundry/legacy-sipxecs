@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -56,7 +56,7 @@ public:
       IN_PROGRESS,
       FINISHED
    };
-     //:Graph traversal states that are used when running a topological sort 
+     //:Graph traversal states that are used when running a topological sort
      //:to order resources within a flow graph.
 
 /* ============================ CREATORS ================================== */
@@ -109,7 +109,7 @@ public:
      // Returns FALSE if the specified rate is not supported, TRUE otherwise.
 
    void setVisitState(int newState);
-     //:Sets the visit state for this resource (used in performing a 
+     //:Sets the visit state for this resource (used in performing a
      //:topological sort on the resources contained within a flow graph).
 
 /* ============================ ACCESSORS ================================= */
@@ -118,14 +118,14 @@ public:
      //:Displays information on the console about the specified resource.
 
    MpFlowGraphBase* getFlowGraph(void) const;
-     //:Returns the flow graph that contains this resource or NULL if the 
+     //:Returns the flow graph that contains this resource or NULL if the
      //:resource is not presently part of any flow graph.
 
    void getInputInfo(int inPortIdx, MpResource*& rpUpstreamResource,
                      int& rUpstreamPortIdx) const;
-     //:Returns information about the upstream end of a connection to the 
-     //:<i>inPortIdx</i> input on this resource.  If <i>inPortIdx</i> is 
-     //:invalid or there is no connection, then <i>rpUpstreamResource</i> 
+     //:Returns information about the upstream end of a connection to the
+     //:<i>inPortIdx</i> input on this resource.  If <i>inPortIdx</i> is
+     //:invalid or there is no connection, then <i>rpUpstreamResource</i>
      //:will be set to NULL.
 
    UtlString getName(void) const;
@@ -133,13 +133,13 @@ public:
 
    void getOutputInfo(int outPortIdx, MpResource*& rpDownstreamResource,
                      int& rDownstreamPortIdx) const;
-     //:Returns information about the downstream end of a connection to the 
-     //:<i>outPortIdx</i> output on this resource.  If <i>outPortIdx</i> is 
-     //:invalid or there is no connection, then <i>rpDownstreamResource</i> 
+     //:Returns information about the downstream end of a connection to the
+     //:<i>outPortIdx</i> output on this resource.  If <i>outPortIdx</i> is
+     //:invalid or there is no connection, then <i>rpDownstreamResource</i>
      //:will be set to NULL.
 
    int getVisitState(void);
-     //:Returns the current visit state for this resource (used in performing 
+     //:Returns the current visit state for this resource (used in performing
      //:a topological sort on the resources contained within a flow graph).
 
    int maxInputs(void) const;
@@ -179,35 +179,35 @@ public:
      //:Returns TRUE is this resource is currently enabled, FALSE otherwise.
 
    UtlBoolean isInputConnected(int portIdx) const;
-     //:Returns TRUE if portIdx is valid and the indicated input is 
+     //:Returns TRUE if portIdx is valid and the indicated input is
      //:connected, FALSE otherwise.
 
    UtlBoolean isInputUnconnected(int portIdx) const;
-     //:Returns TRUE if portIdx is valid and the indicated input is 
+     //:Returns TRUE if portIdx is valid and the indicated input is
      //:not connected, FALSE otherwise.
 
    UtlBoolean isOutputConnected(int portIdx) const;
-     //:Returns TRUE if portIdx is valid and the indicated output is 
+     //:Returns TRUE if portIdx is valid and the indicated output is
      //:connected, FALSE otherwise.
 
    UtlBoolean isOutputUnconnected(int portIdx) const;
-     //:Returns TRUE if portIdx is valid and the indicated output is 
+     //:Returns TRUE if portIdx is valid and the indicated output is
      //:not connected, FALSE otherwise.
 
    /**
-    * Compare the this object to another like-objects.  Results for 
+    * Compare the this object to another like-objects.  Results for
     * designating a non-like object are undefined.
     *
     * @returns 0 if equal, < 0 if less then and >0 if greater.
     */
-   virtual int compareTo(UtlContainable const *) const ;   
+   virtual int compareTo(UtlContainable const *) const ;
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
    // Conn is a local class definition
 
-   //:The Conn object maintains information about the "far end" of a 
+   //:The Conn object maintains information about the "far end" of a
    //:connection.
    struct Conn
    {
@@ -222,7 +222,7 @@ protected:
                                     UtlBoolean isEnabled,
                                     int samplesPerFrame=80,
                                     int samplesPerSecond=8000) = 0;
-     //:This method does the real work for the media processing resource and 
+     //:This method does the real work for the media processing resource and
      //:must de defined in each class derived from this one.
      // Returns TRUE if successful, FALSE otherwise.
      //!param: (in) inBufs - array of pointers to input buffers for the resource
@@ -234,9 +234,9 @@ protected:
      //!param: (in) samplesPerSecond - samples to produce per second
 
    MpBufPtr getInputBuffer(int inPortIdx) const;
-     //:Returns a pointer to the incoming buffer for the <i>inPortIdx</i> 
-     //:input port if a buffer is available.  Returns NULL if either no 
-     //:buffer is available or there is no resource connected to the 
+     //:Returns a pointer to the incoming buffer for the <i>inPortIdx</i>
+     //:input port if a buffer is available.  Returns NULL if either no
+     //:buffer is available or there is no resource connected to the
      //:specified port or the <i>inPortIdx</i> is out of range.
 
    virtual UtlBoolean handleMessage(MpFlowGraphMsg& rMsg);
@@ -244,7 +244,7 @@ protected:
      // Returns TRUE if the message was handled, otherwise FALSE.
 
    void setInputBuffer(int inPortIdx, MpBufPtr pBuf);
-     //:If there already is a buffer stored for this input port, delete it. 
+     //:If there already is a buffer stored for this input port, delete it.
      //:Then store <i>pBuf</i> for the indicated input port.
 
    OsStatus postMessage(MpFlowGraphMsg& rMsg);
@@ -291,22 +291,22 @@ private:
    int          mVisitState;   // (used by flow graph topological sort alg.)
 
    UtlBoolean connectInput(MpResource& rFrom, int fromPortIdx, int toPortIdx);
-     //:Connects the <i>toPortIdx</i> input port on this resource to the 
+     //:Connects the <i>toPortIdx</i> input port on this resource to the
      //:<i>fromPortIdx</i> output port of the <i>rFrom</i> resource.
      // Returns TRUE if successful, FALSE otherwise.
 
    UtlBoolean connectOutput(MpResource& rTo, int toPortIdx, int fromPortIdx);
-     //:Connects the <i>fromPortIdx</i> output port on this resource to the 
+     //:Connects the <i>fromPortIdx</i> output port on this resource to the
      //:<i>toPortIdx</i> input port of the <i>rTo</i> resource.
      // Returns TRUE if successful, FALSE otherwise.
 
    UtlBoolean disconnectInput(int inPortIdx);
-     //:Removes the connection to the <i>inPortIdx</i> input port of this 
+     //:Removes the connection to the <i>inPortIdx</i> input port of this
      //:resource.
      // Returns TRUE if successful, FALSE otherwise.
 
    UtlBoolean disconnectOutput(int outPortIdx);
-     //:Removes the connection to the <i>outPortIdx</i> output port of this 
+     //:Removes the connection to the <i>outPortIdx</i> output port of this
      //:resource.
      // Returns TRUE if successful, FALSE otherwise.
 

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -100,8 +100,8 @@ public:
 
    OsStatus addLink(MpResource& rFrom, int outPortIdx,
                     MpResource& rTo,   int inPortIdx);
-     //:Creates a link between the <i>outPortIdx</i> port of the 
-     //:<i>rFrom</i> resource to the <i>inPortIdx</i> port of the <i>rTo</i> 
+     //:Creates a link between the <i>outPortIdx</i> port of the
+     //:<i>rFrom</i> resource to the <i>inPortIdx</i> port of the <i>rTo</i>
      //:resource.
      // If the flow graph is not "started", this call takes effect
      // immediately.  Otherwise, the call takes effect at the start of the
@@ -111,10 +111,10 @@ public:
      //!retcode: OS_UNSPECIFIED - add link attempt failed
 
    OsStatus addResource(MpResource& rResource, UtlBoolean makeNameUnique=TRUE);
-     //:Adds the indicated media processing object to the flow graph.  If 
-     //:<i>makeNameUnique</i> is TRUE, then if a resource with the same name 
-     //:already exists in the flow graph, the name for <i>rResource</i> will 
-     //:be changed (by adding a numeric suffix) to make it unique within the 
+     //:Adds the indicated media processing object to the flow graph.  If
+     //:<i>makeNameUnique</i> is TRUE, then if a resource with the same name
+     //:already exists in the flow graph, the name for <i>rResource</i> will
+     //:be changed (by adding a numeric suffix) to make it unique within the
      //:flow graph.
      // If the flow graph is not "started", this call takes effect
      // immediately.  Otherwise, the call takes effect at the start of the
@@ -123,7 +123,7 @@ public:
      //!retcode: OS_UNSPECIFIED - add resource attempt failed
 
    OsStatus destroyResources(void);
-     //:Stops the flow graph, removes all of the resources in the flow graph 
+     //:Stops the flow graph, removes all of the resources in the flow graph
      //:and destroys them.
      // If the flow graph is not "started", this call takes effect
      // immediately.  Otherwise, the call takes effect at the start of the
@@ -131,7 +131,7 @@ public:
      //!retcode: OS_SUCCESS - for now, this method always returns success
 
    OsStatus disable(void);
-     //:Invokes the <i>disable()</i> method for each resource in the flow 
+     //:Invokes the <i>disable()</i> method for each resource in the flow
      //:graph.
      // Resources must be enabled before they will perform any meaningful
      // processing on the media stream.
@@ -252,7 +252,7 @@ public:
 
    OsStatus lookupResource(UtlString name,
                            MpResource*& rpResource);
-     //:Sets <i>rpResource</i> to point to the resource that corresponds to 
+     //:Sets <i>rpResource</i> to point to the resource that corresponds to
      //:<i>name</i> or to NULL if no matching resource is found.
      //!retcode: OS_SUCCESS - success
      //!retcode: OS_NOT_FOUND - no resource with the specified name
@@ -267,7 +267,7 @@ public:
      //:Returns the number of resources in the flow graph.
 
    OsMsgQ* getMsgQ(void) ;
-     //:Returns the message queue used by the flow graph. 
+     //:Returns the message queue used by the flow graph.
 
 /* ============================ INQUIRY =================================== */
 
@@ -318,17 +318,17 @@ private:
                                     // processNextFrame().
 
    OsStatus computeOrder(void);
-     //:Computes the execution order for the flow graph by performing a 
+     //:Computes the execution order for the flow graph by performing a
      //:topological sort on the resource graph.
      //!retcode: OS_SUCCESS - successfully computed an execution order
      //!retcode: OS_LOOP_DETECTED - detected a loop in the flow graph
 
    UtlBoolean disconnectAllInputs(MpResource* pResource);
-     //:Disconnects all inputs (and the corresponding upstream outputs) for 
+     //:Disconnects all inputs (and the corresponding upstream outputs) for
      //:the indicated resource.  Returns TRUE if successful, FALSE otherwise.
 
    UtlBoolean disconnectAllOutputs(MpResource* pResource);
-     //:Disconnects all outputs (and the corresponding downstream inputs) for 
+     //:Disconnects all outputs (and the corresponding downstream inputs) for
      //:the indicated resource.  Returns TRUE if successful, FALSE otherwise.
 
    UtlBoolean handleAddLink(MpResource* pFrom, int outPortIdx,

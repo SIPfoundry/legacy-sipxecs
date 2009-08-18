@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -73,7 +73,7 @@ CSourceDescription *CSourceDescription::GetLocalSDES(void)
             return(NULL);
         }
     }
- 
+
     // Check whether the local Source Description object has been initialized.
     // Initialize it if it has not yet been done.
     if(!m_spoLocalSDES->IsInitialized())
@@ -86,15 +86,15 @@ CSourceDescription *CSourceDescription::GetLocalSDES(void)
            m_spoLocalSDES = NULL;
            return(NULL);
        }
- 
+
        return(m_spoLocalSDES);
     }
- 
+
       // sLock.release();
- 
+
     // Bump the reference count to this object
     m_spoLocalSDES->AddRef();
- 
+
     return(m_spoLocalSDES);
 
 }
@@ -1439,7 +1439,7 @@ unsigned long
  *
  * Description: Gets a field from an SDES Report based upon the change mask
  *              passed.  A field present within the change mask shall have its
- *              ID and field contents loaded as output arguments to this call. 
+ *              ID and field contents loaded as output arguments to this call.
  *              The change mask shall be modified to reflect the removal of the
  *              field change that is being returned.
  *

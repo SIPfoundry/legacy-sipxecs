@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -65,33 +65,33 @@ int MpJitterBuffer::ReceivePacket(JB_uchar* RTPpacket, JB_size RTPlength, JB_ulo
       break;
    }
 
-   if (0 == numSamples) 
+   if (0 == numSamples)
    {
       return 0;
    }
 
-   if (numSamples != 160) 
+   if (numSamples != 160)
    {
-      if (debugCount++ < 10) 
+      if (debugCount++ < 10)
       {
-	        printf("RTPlength=%d, cc=%d, payloadType=%d\n", RTPlength, 
+	        printf("RTPlength=%d, cc=%d, payloadType=%d\n", RTPlength,
                     cc, payloadType);
       }
    }
 
-   if (JbQWait > 0) 
+   if (JbQWait > 0)
    {
       JbQWait--;
    }
 
-   if (JbQueueSize == JbQCount) 
-   { 
+   if (JbQueueSize == JbQCount)
+   {
       // discard some data...
       JbQOut = JbQIn + numSamples;
       JbQCount -= numSamples;
    }
 
-   switch (payloadType) 
+   switch (payloadType)
    {
    case 0: // G.711 u-Law
       G711U_Decoder(numSamples, pRtpData, JbQ+JbQIn);
@@ -106,7 +106,7 @@ int MpJitterBuffer::ReceivePacket(JB_uchar* RTPpacket, JB_size RTPlength, JB_ulo
    JbQCount += numSamples;
    JbQIn += numSamples;
 
-   if (JbQIn >= JbQueueSize) 
+   if (JbQIn >= JbQueueSize)
    {
        JbQIn -= JbQueueSize;
    }
@@ -117,7 +117,7 @@ int MpJitterBuffer::GetSamples(Sample *voiceSamples, JB_size *pLength)
 {
     int numSamples = 80;
 
-    if (JbQCount == 0) 
+    if (JbQCount == 0)
     {
         JbQWait = JbLatencyInit; // No data, prime the buffer (again).
         memset((char*) voiceSamples, 0x00, 80 * sizeof(Sample));
@@ -128,7 +128,7 @@ int MpJitterBuffer::GetSamples(Sample *voiceSamples, JB_size *pLength)
 
         JbQCount -= numSamples;
         JbQOut += numSamples;
-        if (JbQOut >= JbQueueSize) 
+        if (JbQOut >= JbQueueSize)
         {
             JbQOut -= JbQueueSize;
         }

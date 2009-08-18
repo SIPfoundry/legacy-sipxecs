@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -52,7 +52,7 @@ MpStreamPlayer::MpStreamPlayer(OsMsgQ* pMsg, Url url, int flags, const char *pTa
    // Complain if the MsgQ is null
    if (mpMsgQ == NULL)
    {
-      syslog(FAC_STREAMING, PRI_ERR, 
+      syslog(FAC_STREAMING, PRI_ERR,
             "Null MsgQ passed to MpSteamPlayer\nurl=%s\nflags=%08X\ntarget=%s",
             url.toString().data(), mFlags, mTarget.data()) ;
    }
@@ -85,7 +85,7 @@ MpStreamPlayer::MpStreamPlayer(OsMsgQ* pMsgQ, UtlString* pBuffer, int flags, con
    // Complain if the MsgQ is null
    if (mpMsgQ == NULL)
    {
-      syslog(FAC_STREAMING, PRI_ERR, 
+      syslog(FAC_STREAMING, PRI_ERR,
             "Null MsgQ passed to MpSteamPlayer\nbuffer=%p\nflags=%08X\ntarget=%s",
             mpBuffer, mFlags, mTarget.data()) ;
    }
@@ -109,12 +109,12 @@ MpStreamPlayer::~MpStreamPlayer()
 
 /* ============================ MANIPULATORS ============================== */
 
-// Realizes the player by initiating a connection to the target, allocates 
+// Realizes the player by initiating a connection to the target, allocates
 // buffers, etc.
 OsStatus MpStreamPlayer::realize(UtlBoolean bBlock /* = TRUE */)
-{   
+{
    OsStatus status = OS_FAILED ;
-   OsEvent eventHandle ;  
+   OsEvent eventHandle ;
    intptr_t eventData ;
 
    // Only proceed if we have a flow graph and the player is unrealized.
@@ -126,24 +126,24 @@ OsStatus MpStreamPlayer::realize(UtlBoolean bBlock /* = TRUE */)
 
       // Realize the stream
       if (mSourceType == SourceUrl)
-      {                     
+      {
          if (mpMsgQ != NULL)
          {
-            MpStreamMsg msg(MpStreamMsg::STREAM_REALIZE_URL, mTarget, NULL, 
+            MpStreamMsg msg(MpStreamMsg::STREAM_REALIZE_URL, mTarget, NULL,
                   &eventHandle, mpQueueEvent, mFlags, (intptr_t) new Url(mUrl)) ;
             status = mpMsgQ->send(msg) ;
          }
       }
       else if (mSourceType == SourceBuffer)
       {
-         
+
          if (mpMsgQ != NULL)
          {
             MpStreamMsg msg(MpStreamMsg::STREAM_REALIZE_BUFFER, mTarget, NULL,
                   &eventHandle, mpQueueEvent, mFlags, (intptr_t) mpBuffer) ;
             status = mpMsgQ->send(msg) ;
          }
-      }	 
+      }
 
       if (status == OS_SUCCESS)
       {
@@ -159,12 +159,12 @@ OsStatus MpStreamPlayer::realize(UtlBoolean bBlock /* = TRUE */)
             }
             else
             {
-               mHandle = NULL ;   
+               mHandle = NULL ;
             }
          }
          else
          {
-            mHandle = NULL ;   
+            mHandle = NULL ;
          }
       }
    }
@@ -173,7 +173,7 @@ OsStatus MpStreamPlayer::realize(UtlBoolean bBlock /* = TRUE */)
    {
       mState = PlayerDestroyed ;
       status = OS_FAILED ;
-      mSemStateChange.release() ; 
+      mSemStateChange.release() ;
    }
 
    if (status == OS_SUCCESS)
@@ -183,7 +183,7 @@ OsStatus MpStreamPlayer::realize(UtlBoolean bBlock /* = TRUE */)
       {
          // Block while waiting for prefetch (if requested)
          if (bBlock)
-         {        
+         {
             while (getState() == PlayerUnrealized)
             {
                mSemStateChange.acquire();
@@ -191,7 +191,7 @@ OsStatus MpStreamPlayer::realize(UtlBoolean bBlock /* = TRUE */)
          }
          else
          {
-            // Wait for task to startup 
+            // Wait for task to startup
             while (!isStarted())
             {
                OsTask::yield() ;
@@ -199,12 +199,12 @@ OsStatus MpStreamPlayer::realize(UtlBoolean bBlock /* = TRUE */)
          }
       }
       else
-      {         
+      {
          syslog(FAC_STREAMING, PRI_CRIT, "Failed to create thread for MpStreamPlayer") ;
 
          // Unable to create thread; attempt to clean up
-         status = OS_FAILED ;         
-                  
+         status = OS_FAILED ;
+
          MpStreamMsg msgStop(MpStreamMsg::STREAM_STOP, mTarget, mHandle);
          mpMsgQ->send(msgStop) ;
          MpStreamMsg msgDestroy(MpStreamMsg::STREAM_DESTROY, mTarget, mHandle);
@@ -212,7 +212,7 @@ OsStatus MpStreamPlayer::realize(UtlBoolean bBlock /* = TRUE */)
 
          // YIKES: This is hard to recover from, we don't have a message queue
          // to wait for a response from the lower layers.  If someone deletes
-         // this immediately after this call, the lower layers could choke 
+         // this immediately after this call, the lower layers could choke
          // on a now-deleted mpQueueEvent.  There are two options that I can
          // think of: 1) garbage collect the player after some long period of
          // time, 2) block the thread context for some reasonable amount of
@@ -221,7 +221,7 @@ OsStatus MpStreamPlayer::realize(UtlBoolean bBlock /* = TRUE */)
 
          mbRealized = FALSE ;
          mState = PlayerDestroyed ;
-         mSemStateChange.release() ; 
+         mSemStateChange.release() ;
       }
    }
 
@@ -230,18 +230,18 @@ OsStatus MpStreamPlayer::realize(UtlBoolean bBlock /* = TRUE */)
 
 
 // Prefetch enough of the data source to ensure a smooth playback.
-OsStatus MpStreamPlayer::prefetch(UtlBoolean bBlock /*= TRUE */) 
+OsStatus MpStreamPlayer::prefetch(UtlBoolean bBlock /*= TRUE */)
 {
    OsStatus status = OS_FAILED ;
 
    // Only proceed if we have a flow graph and the player is realized.
    if (getState() == PlayerRealized)
-   {         
+   {
       if (mpMsgQ != NULL)
       {
          MpStreamMsg msg(MpStreamMsg::STREAM_PREFETCH, mTarget, mHandle);
-         status = mpMsgQ->send(msg) ;      
-         
+         status = mpMsgQ->send(msg) ;
+
          // Block while waiting for prefetch (if requested)
          if ((status == OS_SUCCESS) && bBlock)
          {
@@ -265,7 +265,7 @@ OsStatus MpStreamPlayer::play(UtlBoolean bBlock /*= TRUE*/) //, int iPlayCount /
 
    // Only proceed if we have a flow graph and the player is realized.
    // NOTE: The player doesn't need to be prefetched
-   if (  (getState() == PlayerRealized) || 
+   if (  (getState() == PlayerRealized) ||
          (getState() == PlayerPrefetched) ||
          (getState() == PlayerPaused))
    {
@@ -274,13 +274,13 @@ OsStatus MpStreamPlayer::play(UtlBoolean bBlock /*= TRUE*/) //, int iPlayCount /
       {
          MpStreamMsg msg(MpStreamMsg::STREAM_PLAY, mTarget, mHandle);
          status = mpMsgQ->send(msg) ;
-        
+
          // Block while waiting for play to complete(if requested)
          if ((status == OS_SUCCESS) && bBlock)
          {
             while (  (getState() == PlayerRealized)
-                  || (getState() == PlayerPrefetched) 
-                  || (getState() == PlayerPlaying) 
+                  || (getState() == PlayerPrefetched)
+                  || (getState() == PlayerPlaying)
                   || (getState() == PlayerPaused))
             {
                mSemStateChange.acquire();
@@ -288,7 +288,7 @@ OsStatus MpStreamPlayer::play(UtlBoolean bBlock /*= TRUE*/) //, int iPlayCount /
          }
       }
    }
-   
+
    return status ;
 }
 
@@ -298,7 +298,7 @@ OsStatus MpStreamPlayer::play(UtlBoolean bBlock /*= TRUE*/) //, int iPlayCount /
 OsStatus MpStreamPlayer::rewind(UtlBoolean bBlock /*= TRUE*/)
 {
    OsStatus status = OS_FAILED ;
-   
+
    // Only proceed if we have a flow graph and the player is realized.
    // NOTE: The player doesn't need to be prefetched
    if ((getState() == PlayerStopped) || (getState() == PlayerAborted))
@@ -307,28 +307,28 @@ OsStatus MpStreamPlayer::rewind(UtlBoolean bBlock /*= TRUE*/)
       {
          MpStreamMsg msg(MpStreamMsg::STREAM_REWIND, mTarget, mHandle);
          status = mpMsgQ->send(msg) ;
-      
+
          // Block while waiting for play to complete(if requested)
          if ((status == OS_SUCCESS) && bBlock)
          {
-            while ((getState() == PlayerStopped) || 
-                  (getState() == PlayerAborted) || 
+            while ((getState() == PlayerStopped) ||
+                  (getState() == PlayerAborted) ||
                   (getState() == PlayerRealized))
             {
                mSemStateChange.acquire();
             }
- 
-            if ((getState() == PlayerFailed) || (getState() == PlayerDestroyed)) 
+
+            if ((getState() == PlayerFailed) || (getState() == PlayerDestroyed))
                status = OS_FAILED ;
          }
       }
-   }      
+   }
    return status ;
 }
 
 // sets the loop count.
 //default is 1. -1 means infinite loop.
-// 0 is invalid.  
+// 0 is invalid.
 OsStatus MpStreamPlayer::setLoopCount(int iLoopCount)
 {
    OsStatus status = OS_SUCCESS ;
@@ -340,7 +340,7 @@ OsStatus MpStreamPlayer::setLoopCount(int iLoopCount)
 }
 
 
-// Pauses the media stream temporarily.  
+// Pauses the media stream temporarily.
 OsStatus MpStreamPlayer::pause()
 {
    OsStatus status = OS_FAILED ;
@@ -366,8 +366,8 @@ OsStatus MpStreamPlayer::stop()
 {
    OsStatus status = OS_FAILED ;
 
-   // Make sure we disable looping before sending stop, otherwise it is 
-   // possible for the stop request to be lost (because of auto-replay)    
+   // Make sure we disable looping before sending stop, otherwise it is
+   // possible for the stop request to be lost (because of auto-replay)
    miLoopCount = 0 ;
 
    if (mbRealized && (getState() != PlayerStopped) && (getState() != PlayerAborted))
@@ -383,7 +383,7 @@ OsStatus MpStreamPlayer::stop()
             while (  (getState() != PlayerStopped)
                   && (getState() != PlayerFailed)
                   && (getState() != PlayerAborted)
-                  && (getState() != PlayerDestroyed)) 
+                  && (getState() != PlayerDestroyed))
             {
                mSemStateChange.acquire();
             }
@@ -404,8 +404,8 @@ OsStatus MpStreamPlayer::destroy()
    OsStatus status = OS_SUCCESS ; // Assume since this is non-blocking.  Only
                                   // a failure to send will cause error
 
-   // Make sure we disable looping before sending stop, otherwise it is 
-   // possible for the stop request to be lost (because of auto-replay)    
+   // Make sure we disable looping before sending stop, otherwise it is
+   // possible for the stop request to be lost (because of auto-replay)
    miLoopCount = 0 ;
 
    if ((mpMsgQ != NULL) && (mHandle != NULL))
@@ -413,8 +413,8 @@ OsStatus MpStreamPlayer::destroy()
       int iState = getState() ;
 
       if (  mbRealized
-	        && (iState != PlayerStopped) 
-            && (iState != PlayerAborted) 
+	        && (iState != PlayerStopped)
+            && (iState != PlayerAborted)
             && (iState != PlayerDestroyed)  )
       {
          MpStreamMsg msgStop(MpStreamMsg::STREAM_STOP, mTarget, mHandle);
@@ -427,7 +427,7 @@ OsStatus MpStreamPlayer::destroy()
       {
          MpStreamMsg msgDestroy(MpStreamMsg::STREAM_DESTROY, mTarget, mHandle);
          status = mpMsgQ->send(msgDestroy) ;
-      }         
+      }
    }
 
    return status ;
@@ -435,27 +435,27 @@ OsStatus MpStreamPlayer::destroy()
 
 
 // Blocks until the the lower layer stream player is destroyed
-void MpStreamPlayer::waitForDestruction() 
+void MpStreamPlayer::waitForDestruction()
 {
    // Wait for player to shutdown
    if (mbRealized)
-   {  
+   {
       while (getState() != PlayerDestroyed)
       {
          mSemStateChange.acquire() ;
-      }   
+      }
    }
    else
    {
       setState(PlayerDestroyed) ;
-   }  
+   }
 }
 
 /* ============================ ACCESSORS ================================= */
 
-// Gets the player state 
+// Gets the player state
 OsStatus MpStreamPlayer::getState(PlayerState& state)
-{   
+{
    mSemStateGuard.acquire() ;
    state = mState ;
    mSemStateGuard.release() ;
@@ -515,7 +515,7 @@ MpStreamPlayer::MpStreamPlayer(const MpStreamPlayer& rMpStreamPlayer)
 }
 
 // Assignment operator
-MpStreamPlayer& 
+MpStreamPlayer&
 MpStreamPlayer::operator=(const MpStreamPlayer& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
@@ -569,7 +569,7 @@ const char* getFeederEventString(int iEvent)
 
 
 // Handles OS server task events/messages
-UtlBoolean MpStreamPlayer::handleMessage(OsMsg& rMsg) 
+UtlBoolean MpStreamPlayer::handleMessage(OsMsg& rMsg)
 {
    switch (rMsg.getMsgType())
    {
@@ -579,7 +579,7 @@ UtlBoolean MpStreamPlayer::handleMessage(OsMsg& rMsg)
          if (pMsg->getEventData(status) == OS_SUCCESS)
          {
 #ifdef MP_STREAM_DEBUG /* [ */
-            osPrintf("MpStreamPlayer(%08X): received event: %s \n", 
+            osPrintf("MpStreamPlayer(%08X): received event: %s \n",
                   this, getFeederEventString(status)) ;
 #endif /* MP_STREAM_DEBUG ] */
 
@@ -610,11 +610,11 @@ UtlBoolean MpStreamPlayer::handleMessage(OsMsg& rMsg)
                      setState(PlayerAborted) ;
                   break;
                case FeederStreamStoppedEvent:
-                  //rewind and play again if miLoopCount >1 or -1  
-                  //flag is on. 
-                  if ( (miLoopCount > 1 || miLoopCount ==-1) && 
+                  //rewind and play again if miLoopCount >1 or -1
+                  //flag is on.
+                  if ( (miLoopCount > 1 || miLoopCount ==-1) &&
                        (getState() != PlayerAborted) &&
-                       ((miLoopCount ==-1)?true:miTimesAlreadyLooped < miLoopCount) )       
+                       ((miLoopCount ==-1)?true:miTimesAlreadyLooped < miLoopCount) )
                   {
                      MpStreamMsg msg(MpStreamMsg::STREAM_REWIND, mTarget, mHandle);
                      status = mpMsgQ->send(msg) ;
@@ -628,7 +628,7 @@ UtlBoolean MpStreamPlayer::handleMessage(OsMsg& rMsg)
                      {
                         setState(PlayerStopped) ;
                      }
-                  }                  
+                  }
                   break ;
 
                case FeederStreamDestroyedEvent:
@@ -650,25 +650,25 @@ void MpStreamPlayer::setState(PlayerState iState)
 
    mSemStateGuard.acquire() ;
    if (isValidStateChange(mState, iState))
-   {   
+   {
       bShouldFire = TRUE ;
 #ifdef MP_STREAM_DEBUG /* [ */
       osPrintf("MpStreamPlayer::setState changed from %s to %s.\n\n",
 			getEventString(mState), getEventString(iState)) ;
 #endif /* ] */
 
-      mState = iState ;                  
+      mState = iState ;
    }
 #ifdef MP_STREAM_DEBUG /* [ */
    else if (mState != iState)
    {
-      osPrintf("** WARNING MpStreamPlayer(%08X): invalid state change (%s to %s)\n", 
+      osPrintf("** WARNING MpStreamPlayer(%08X): invalid state change (%s to %s)\n",
             this, getEventString(mState), getEventString(iState)) ;
    }
 #endif /* MP_STREAM_DEBUG ] */
 
    mSemStateGuard.release() ;
-   
+
    if (bShouldFire)
       fireEvent(iState) ;
    mSemStateChange.release() ;

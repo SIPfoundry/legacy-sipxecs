@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -50,10 +50,10 @@ private:
 #define HS_NUM_BANDS_PROCESSED ((HS_HIGH_BAND - HS_LOW_BAND) + 1)
 #define HS_ECDL_SIZE ((HS_NUM_BANDS_PROCESSED+2)*(HS_MAX_NUM_TAPS+HS_NUM_FRAMES_PER_10MS-1))     // Unnecessarily large
 
-    
+
    icomplex EchoCancellerCoef[HS_NUM_BANDS_PROCESSED][HS_MAX_NUM_TAPS];
    icomplex ECDL[HS_ECDL_SIZE];           // DEBUG!!! Determine size later.
-   
+
    int ECDLHighestAddressBand;
    int ECDLHighestAddressBandNewestIndex;
    int HS_DoubletalkIndicator;     // This should be available for loudspeaker fade
@@ -70,7 +70,7 @@ private:
    int HandsetDoubletalkDetection(icomplex [][HS_M+1], icomplex [][HS_M+1], int [], int []);
    void MultiFrameHandsetFilterBankAnalysis(icomplex [][HS_M+1], int *, int *, int *, int);
    void HandsetSubbandECLoop(icomplex [][HS_M+1], icomplex [][HS_M+1], int [], int []);
-	
+
 	void HandsetComputeLoudspeakerFade();
 	void HandsetEchoSuppress(icomplex [][HS_M+1],int);
 

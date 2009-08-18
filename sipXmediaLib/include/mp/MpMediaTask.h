@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -35,7 +35,7 @@
 class MpFlowGraphBase;
 class MpCodecFactory;
 
-//:Object responsible for coordinating the execution of media processing flow 
+//:Object responsible for coordinating the execution of media processing flow
 //:graphs.
 //
 // <H3>Key Concepts</H3>
@@ -98,7 +98,7 @@ public:
 /* ============================ CREATORS ================================== */
 
    static MpMediaTask* getMediaTask(int maxFlowGraph);
-     //:Return a pointer to the media processing task, creating it if 
+     //:Return a pointer to the media processing task, creating it if
      //:necessary
 
    virtual
@@ -108,14 +108,14 @@ public:
 /* ============================ MANIPULATORS ============================== */
 
    OsStatus manageFlowGraph(MpFlowGraphBase& rFlowGraph);
-     //:Directs the media processing task to add the flow graph to its 
-     //:set of managed flow graphs.  The flow graph must be in the 
+     //:Directs the media processing task to add the flow graph to its
+     //:set of managed flow graphs.  The flow graph must be in the
      //:MpFlowGraphBase::STOPPED state when this method is invoked.
      //!retcode: OS_SUCCESS - the flow graph will be added at the start of the next frame processing interval.
      //!retcode: OS_INVALID_ARGUMENT - flow graph is not in the STOPPED state
 
    OsStatus unmanageFlowGraph(MpFlowGraphBase& rFlowGraph);
-     //:Directs the media processing task to remove the flow graph from its 
+     //:Directs the media processing task to remove the flow graph from its
      //:set of managed flow graphs.
      // If the flow graph is not already in the MpFlowGraphBase::STOPPED state,
      // then the flow graph will be stopped before it is removed from the set
@@ -123,7 +123,7 @@ public:
      //!retcode: OS_SUCCESS - indicates that the media task will stop managing the indicated flow graph
 
    OsStatus setDebug(UtlBoolean enableFlag);
-     //:When "debug" mode is enabled, the "time limit" checking is 
+     //:When "debug" mode is enabled, the "time limit" checking is
      //:disabled and the wait for "frame start" timeout is set to "INFINITY".
      // For now, this method always returns OS_SUCCESS.
 
@@ -137,7 +137,7 @@ public:
      // For now, this method always returns OS_SUCCESS.
 
    OsStatus setTimeLimit(int usecs);
-     //:Sets the amount of time (in microseconds) allotted to the media 
+     //:Sets the amount of time (in microseconds) allotted to the media
      //:processing task for processing a frame's worth of media.
      // If this time limit is exceeded, the media processing task increments
      // an internal statistic.  The value of this statistic can be retrieved
@@ -145,28 +145,28 @@ public:
      // always returns OS_SUCCESS.
 
    OsStatus setWaitTimeout(int msecs);
-     //:Sets the maximum time (in milliseconds) that the media processing 
-     //:task will wait for a "frame start" signal. A value of -1 indicates 
+     //:Sets the maximum time (in milliseconds) that the media processing
+     //:task will wait for a "frame start" signal. A value of -1 indicates
      //:that the task should wait "forever".
      // The new timeout will take effect at the beginning of the next frame
      // interval. For now, this method always returns OS_SUCCESS.
 
    static OsStatus signalFrameStart(void);
-     //:Release the "frame start" semaphore.  This signals the media 
+     //:Release the "frame start" semaphore.  This signals the media
      //:processing task that it should begin processing the next frame.
      // Returns the result of releasing the binary semaphore that is used
      // to send the signal.
 
    OsStatus startFlowGraph(MpFlowGraphBase& rFlowGraph);
-     //:Directs the media processing task to start the specified flow 
-     //:graph.  A flow graph must be started in order for it to process 
+     //:Directs the media processing task to start the specified flow
+     //:graph.  A flow graph must be started in order for it to process
      //:the media stream.
      // The flow graph state change will take effect at the beginning of the
      // next frame interval. For now, this method always returns OS_SUCCESS.
 
    OsStatus stopFlowGraph(MpFlowGraphBase& rFlowGraph);
-     //:Directs the media processing task to stop the specified flow 
-     //:graph.  When a flow graph is stopped it no longer processes the 
+     //:Directs the media processing task to stop the specified flow
+     //:graph.  When a flow graph is stopped it no longer processes the
      //:media stream.
      // The flow graph state change will take effect at the beginning of the
      // next frame interval. For now, this method always returns OS_SUCCESS.
@@ -180,53 +180,53 @@ public:
      //:Returns TRUE if debug mode is enabled, FALSE otherwise.
 
    MpFlowGraphBase* getFocus(void) const;
-     //:Returns the flow graph that currently has focus (access to the audio 
+     //:Returns the flow graph that currently has focus (access to the audio
      //:apparatus) or NULL if there is no flow graph with focus.
 
    int getLimitExceededCnt(void) const;
-     //:Returns the number of times that the frame processing time limit 
+     //:Returns the number of times that the frame processing time limit
      //:has been exceeded.
 
    OsStatus getManagedFlowGraphs(MpFlowGraphBase* flowGraphs[], const int size,
                                  int& numItems);
-     //:Returns an array of MpFlowGraphBase pointers that are presently managed 
+     //:Returns an array of MpFlowGraphBase pointers that are presently managed
      //:by the media processing task.
      // The caller is responsible for allocating the flowGraphs array
      // containing room for <i>size</i> pointers.  The number of items
      // actually filled in is passed back via the <i>nItems</i> argument.
 
    int getTimeLimit(void) const;
-     //:Returns the amount of time (in microseconds) allotted to the media 
+     //:Returns the amount of time (in microseconds) allotted to the media
      //:processing task for processing a frame's worth of media.
 
    int getWaitTimeout(void) const;
-     //:Returns the maximum time (in milliseconds) that the media processing 
-     //:task will wait for the "frame start" signal. A value of -1 indicates 
+     //:Returns the maximum time (in milliseconds) that the media processing
+     //:task will wait for the "frame start" signal. A value of -1 indicates
      //:that the task will wait "forever".
 
    int getWaitTimeoutCnt(void) const;
-     //:Returns the number of times that the wait timeout associated with 
+     //:Returns the number of times that the wait timeout associated with
      //:"frame start" signal has been exceeded.
 
    static MpFlowGraphBase* mediaInfo(void);
      //:Displays information on the console about the media processing task.
 
    int numManagedFlowGraphs(void) const;
-     //:Returns the number of flow graphs currently being managed by the 
+     //:Returns the number of flow graphs currently being managed by the
      //:media processing task.
 
    static int maxNumManagedFlowGraphs(void);
-     //:Returns the maximum number of flow graphs that can be managed by the 
+     //:Returns the maximum number of flow graphs that can be managed by the
      //:media processing task.
 
    int numProcessedFrames(void) const;
-     //:Returns the number of frames that the media processing task has 
+     //:Returns the number of frames that the media processing task has
      //:processed. This count is maintained as an unsigned, 32-bit value.
      // Note: If the frame period is 10 msecs, then it will take
      // 2^32 / (100 * 3600 * 24 * 365) = 1.36 years before this count wraps.
 
    int numStartedFlowGraphs(void) const;
-     //:Returns the number of flow graphs that have been started by the media 
+     //:Returns the number of flow graphs that have been started by the media
      //:processing task.
      // This value should always be <= the number of managed flow graphs.
 
@@ -239,7 +239,7 @@ public:
 /* ============================ INQUIRY =================================== */
 
    UtlBoolean isManagedFlowGraph(MpFlowGraphBase* pFlowGraph);
-     //:Returns TRUE if the indicated flow graph is presently being managed 
+     //:Returns TRUE if the indicated flow graph is presently being managed
      //:by the media processing task, otherwise FALSE.
 
    void getQueueUsage(int& numMsgs, int& softLimit,
@@ -263,7 +263,7 @@ private:
    int       mManagedCnt;   // Number of flow graphs presently managed
    int       mStartedCnt;   // Number of flow graphs presently started
    OsTime    mSemTimeout;   // Timeout value for acquiring the start semaphore
-   int       mSemTimeoutCnt;// Number of times the mSemTimeOut was exceeded 
+   int       mSemTimeoutCnt;// Number of times the mSemTimeOut was exceeded
    UtlBoolean mWaitForSignal;// If TRUE, then don't handle any incoming msgs
                             //  until a FrameStart signal has been received
    MpFlowGraphBase* mpFocus;    // FlowGraph that has the focus (may be NULL)

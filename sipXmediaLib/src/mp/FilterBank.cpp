@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -396,8 +396,8 @@ void FilterBankReinit()
 
 // Initialize loudspeaker to mic gain estimates (log scale).
    for (i = 0; i < NUM_BANDS_PROCESSED; i++) {
-      LdspkrMicGain[i] = 0;         
-      LdspkrMicGain[i] = -12000;            // Was 0 until 7/22/02         
+      LdspkrMicGain[i] = 0;
+      LdspkrMicGain[i] = -12000;            // Was 0 until 7/22/02
    }
 
 // Set threshold for how big LdspkrDB[] must be, before LdspkrMicGain[i] can be adjusted.
@@ -507,7 +507,7 @@ void FilterBankFinalReport(int total_simulations)
 
 /* ********************************************************************* */
 
-#if 1    // DEBUG!!!!!! feb 1, 2005  
+#if 1    // DEBUG!!!!!! feb 1, 2005
 void FilterBank::DoFilterBank(short mic[], short ldspkr[])
 {
 #define MIC_GAIN_SHIFT 3
@@ -557,7 +557,7 @@ void FilterBank::DoFilterBank(short mic[], short ldspkr[])
 			ldspkr[2] = PULSE2;
 		}
 #else
-		
+
 		static double Angle = 0.0;
 		double dTemp0;
 		int j;
@@ -573,7 +573,7 @@ void FilterBank::DoFilterBank(short mic[], short ldspkr[])
 /*
 		for (i=0; i<TWOM; i++)
 			micbuf[TWOM*Frame10msCount + i] = mic[i];
-		
+
 		if (Frame10msCount == 499) {
 			sum = 0;
 			for (i=0; i<40000; i++)
@@ -1169,7 +1169,7 @@ if (iEchoSup)
               ResDB,
               MicDB,
               DoubletalkIndicator);
-       
+
 
 
 /* Zero the bands that aren't processed. */
@@ -1271,7 +1271,7 @@ if (iEchoSup)
 		if (EXTRA_LDSPKR_DELAY > MAX_EXTRA_LDSPKR_DELAY) EXTRA_LDSPKR_DELAY = 0;
 		osPrintf("------EXTRA_LDSPKR_DELAY = %4d ------\n",EXTRA_LDSPKR_DELAY);
 	}
- 
+
 
 // for DEBUG!!!!! only monitoring of ERL
 
@@ -1322,7 +1322,7 @@ if (iEchoSup)
 
        TDSummic = 0;
        TDSumres = 0;
-       
+
        if ( 0/*Frame10msCount%200 == 199*/) {
            Temp0 = Get1000log10(TDBigSumMic) - Get1000log10(TDBigSumRes);
            osPrintf("   %3d  ",Temp0/50);  //ERL printout for VxWorks
@@ -1345,7 +1345,7 @@ if (iEchoSup)
 		   for (Band=0; Band < NUM_BANDS_PROCESSED; Band++) {
 			   osPrintf("%5d %5d   %5d %5d ",LdspkrDLPow[Band],ThresholdLdspkrDLPow[Band],
 				   (LdspkrDB[Band] + LdspkrMicGain[Band] + 10240),MicDB[Band]);
-			   if (Band%2 == 1) osPrintf("\n"); 
+			   if (Band%2 == 1) osPrintf("\n");
 		   }
 		   osPrintf("\n");
 	   }
@@ -1360,13 +1360,13 @@ if (iEchoSup)
 			   }
 			   osPrintf("\n");
 	#endif /* ] */
-           
+
            for (Band=0; Band < NUM_BANDS_PROCESSED; Band++) {
                if (Band == 20) osPrintf("\n");
                osPrintf("%3d ",DebugUpdateCount[Band]);
            }
            osPrintf("\n");
-           
+
            for (Band=0; Band < NUM_BANDS_PROCESSED; Band++) {
                DebugUpdateCount[Band] = 0;
            }
@@ -2017,8 +2017,8 @@ void ComputeLoudspeakerFade()
    TargetLoudspeakerFadeDB =
        (LoudspeakerFadeDIMultiplier*LoudspeakerFadeLeakyMaxDoubletalkIndicator) >> 12;
    if (TargetLoudspeakerFadeDB > MaxLoudspeakerFade) TargetLoudspeakerFadeDB = MaxLoudspeakerFade;
-   
-  
+
+
    iLoudspeakerFadeDB = -TargetLoudspeakerFadeDB; // need a range of 0 to -6dB
 
 #if (VX1_PC0 == 0)
@@ -2208,7 +2208,7 @@ for an entire 10 ms frame. */
                Temp1 = (int) ((dAccI+32768.0)/65536.0);
            else
                Temp1 = (int) ((dAccI-32768.0)/65536.0);
-           
+
            TwoFrameMicFFTArray[FrameNum][Band + LOW_BAND].r -= Temp0;
            TwoFrameMicFFTArray[FrameNum][Band + LOW_BAND].i -= Temp1;
 
@@ -2222,7 +2222,7 @@ for an entire 10 ms frame. */
 #elif (ARITHMETIC_TYPE == 2)
            EcIndex = ECNumTaps[Band]-1;
            DLIndex = ECDLBandNewestIndex + FrameNum;
-           
+
            Word64S       LongTempR;
            Word64S       LongTempI;
            LongTempR = 0;
@@ -2254,10 +2254,10 @@ for an entire 10 ms frame. */
            TwoFrameMicFFTArray[FrameNum][Band + LOW_BAND].r -= cTemp.r;
            TwoFrameMicFFTArray[FrameNum][Band + LOW_BAND].i -= cTemp.i;
 #endif
-           
+
            if (UpdateControl)
            {
-               
+
                if ((DoubletalkIndicator < 3000) &&
                    (LdspkrDLPow[Band] > ThresholdLdspkrDLPow[Band]) &&
                    (MicDB[Band] < (LdspkrDB[Band] + LdspkrMicGain[Band] + 10240)))
@@ -2278,7 +2278,7 @@ for an entire 10 ms frame. */
                    NormedErr.i = (Temp0 * TwoFrameMicFFTArray[FrameNum][Band + LOW_BAND].i + 128) >> SHIFT3;
                    EcIndex = ECNumTaps[Band]-1;
                    DLIndex = ECDLBandNewestIndex + FrameNum;
-                   
+
                    // Graded updates
 /* The coefficients which tend to be small get smaller updates. This speeds convergence. */
                    ComplexCoefUpdate(&NormedErr,
@@ -2496,10 +2496,10 @@ DEBUG!!!! This should be unnecessary. */
     BandTailPower[CoefExamineBand] = TailPower;
 
     CoefExamineBand++;
-    if (CoefExamineBand >= NUM_BANDS_PROCESSED) 
+    if (CoefExamineBand >= NUM_BANDS_PROCESSED)
     {
         CoefExamineBand = 0;
-        
+
         LowDelayPower = 0;      // Power in first 8 coefficients
         TailPower = 0;          // Power in last 6 coefficients
         for (Band=0; Band < NUM_BANDS_PROCESSED; Band++) {
@@ -2521,7 +2521,7 @@ DEBUG!!!! This should be unnecessary. */
             Get1000log10(LowDelayPower),Get1000log10(TailPower),EchoDecaydB);
 #endif
     }
-    
+
 
 }
 
@@ -2648,7 +2648,7 @@ void EchoSuppress(icomplex TwoFrameMicFFTArray[][M+1],
        TargetHistory[i] = TargetHistory[i-1];
    TargetHistory[0] = TargetEchoSupDB;
 
-   
+
    Temp1 = 0;
    for (i = 0; i < EchoSuppressionHoldTime; i++)
    {
@@ -2659,8 +2659,8 @@ void EchoSuppress(icomplex TwoFrameMicFFTArray[][M+1],
 // temporal smoothing
 //   Temp0 = TargetEchoSupDB - EchoSupDB;
    Temp0 = Temp1 - EchoSupDB;
-   
-   
+
+
    EchoSuppressionMaxDecay = (-8 * EchoDecaydB) >> 4;
 
 
@@ -2790,7 +2790,7 @@ void ComplexInnerProduct(icomplex *ResultPtr,
 {
 	/*
  if (cCI_mode & 1) {
-#ifdef cipCMax 
+#ifdef cipCMax
    int foo;
    if (0 > EcIndex) foo = 0;
      else if (cipCMax > EcIndex) foo = EcIndex;
@@ -2799,7 +2799,7 @@ void ComplexInnerProduct(icomplex *ResultPtr,
 #endif
 
    complexInnerProduct(ResultPtr, CoeffPtr, DLPtr, EcIndex);
- } else 
+ } else
 */{
 #if (VX1_PC0 == 1)
    Word64S LongTempR, LongTempI;
@@ -2843,7 +2843,7 @@ void FilterBank::ComplexCoefUpdate(icomplex *NormedErrPtr,
 	/*
  if (cCI_mode & 2) {
    complexCoefUpdate5(NormedErrPtr, CoeffPtr, DLPtr, EcIndex, GradingShift);
- } else 
+ } else
  */
 {
 // Graded updates

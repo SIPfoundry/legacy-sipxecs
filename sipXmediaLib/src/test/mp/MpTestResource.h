@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -32,7 +32,7 @@ class MpTestResource : public MpResource
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
-   //:Structure holding a snapshot of the args passed to the most recent 
+   //:Structure holding a snapshot of the args passed to the most recent
    //:call to doProcessFrame()
    struct DoProcessArgs
    {
@@ -95,7 +95,7 @@ public:
      //:Returns the count of the number of frames processed by this resource.
 
    int numMsgsProcessed(void);
-     //:Returns the count of the number of messages successfully processed by 
+     //:Returns the count of the number of messages successfully processed by
      //:this resource.
 
 /* ============================ INQUIRY =================================== */

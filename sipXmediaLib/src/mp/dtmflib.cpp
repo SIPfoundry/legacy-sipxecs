@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -478,7 +478,7 @@ static void setuptones(MpToneGenPtr p, int samprate,
 {
         p->samplerate = samprate;
         p->usecspersample = (1000000 + (samprate/2)) / samprate;
-        
+
         setupsw(350, &(p->st350), samprate, .2F);
         setupsw(400, &(p->st400), samprate, .2F);
         setupsw(425, &(p->st425), samprate, .2F);

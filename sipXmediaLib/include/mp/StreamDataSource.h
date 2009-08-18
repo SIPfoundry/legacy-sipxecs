@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -77,12 +77,12 @@ public:
      //!param szBuffer - Buffer to place data
      //!param iLength - Max length to read
      //!param iLengthRead - The actual amount of data read.
-   
+
    virtual OsStatus interrupt() ;
      //:Interrupts any time consuming operation.
      // For example, some data sources may require network access (e.g. http)
      // to read or fetch data.  Invoking an interrupt() will cause any
-     // time consuming or blocking calls to exit with more quickly with an 
+     // time consuming or blocking calls to exit with more quickly with an
      // OS_INTERRUPTED return code.
 
    virtual OsStatus seek(size_t iLocation) = 0 ;
@@ -93,7 +93,7 @@ public:
    void setListener(StreamDataSourceListener* pListener);
      //:Sets a listener to receive StreamDataSourceEvent events for this
      //:data source.
-   
+
 /* ============================ ACCESSORS ================================= */
 
    virtual OsStatus getLength(ssize_t& iLength) = 0 ;
@@ -103,9 +103,9 @@ public:
      //:Gets the current position within the stream.
 
    virtual OsStatus toString(UtlString& string) = 0 ;
-     //:Renders a string describing this data source.  
+     //:Renders a string describing this data source.
      // This is often used for debugging purposes.
-      
+
    int getFlags() ;
      //:Gets the flags specified at time of construction
 

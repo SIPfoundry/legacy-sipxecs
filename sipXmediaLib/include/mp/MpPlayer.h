@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -31,7 +31,7 @@
 // TYPEDEFS
 
 //:Definition of states used by audio players
-typedef enum 
+typedef enum
 {
    PlayerUnrealized,
    PlayerRealized,
@@ -41,9 +41,9 @@ typedef enum
    PlayerStopped,
    PlayerAborted,
    PlayerFailed,
-   PlayerDestroyed,   
+   PlayerDestroyed,
 } PlayerState ;
-//!enumcode PlayerUnrealized - Data is unrealized (uninitialized) and no 
+//!enumcode PlayerUnrealized - Data is unrealized (uninitialized) and no
 //          resources have been allocated.
 //!enumcode PlayerRealized - Data has been realized and resource allocated
 //!enumcode PlayerPrefetched - Data has been prefetched.  Prefetch may fetch
@@ -80,7 +80,7 @@ class MpPlayerListener ;
 //   | Destroyed | <--*
 //    -----------
 //
-//    --------- 
+//    ---------
 //   | Aborted |  <--*
 //    ---------
 
@@ -110,23 +110,23 @@ public:
      //: Realizes the player by initiating a connection to the target,
      //: allocates buffers, etc.
      //
-     //!param bBlock - TRUE if the method should block until completion, 
+     //!param bBlock - TRUE if the method should block until completion,
      //       otherwise FALSE.
 
    virtual OsStatus prefetch(UtlBoolean bBlock = TRUE) = 0 ;
      //: Prefetch enough of the data source to ensure a smooth playback.
      //
-     //!param bBlock - TRUE if the method should block until completion, 
+     //!param bBlock - TRUE if the method should block until completion,
      //       otherwise FALSE.
 
    virtual OsStatus play(UtlBoolean bBlock = TRUE) = 0 ;
      //: Plays the media stream.
      //
-     //!param bBlock - TRUE if the method should block until completion, 
+     //!param bBlock - TRUE if the method should block until completion,
      //       otherwise FALSE.
 
    virtual OsStatus pause() = 0 ;
-     //: Pauses the media stream temporarily.  
+     //: Pauses the media stream temporarily.
 
    virtual OsStatus stop() = 0 ;
      //: Stops playing the media stream and resources used for buffering
@@ -148,7 +148,7 @@ public:
 /* ============================ ACCESSORS ================================= */
 
    virtual OsStatus getState(PlayerState& state) = 0 ;
-     //: Gets the player state 
+     //: Gets the player state
 
 /* ============================ INQUIRY =================================== */
 

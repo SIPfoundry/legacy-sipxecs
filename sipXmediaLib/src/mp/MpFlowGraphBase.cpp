@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -109,7 +109,7 @@ OsStatus MpFlowGraphBase::addLink(MpResource& rFrom, int outPortIdx,
       return OS_UNSPECIFIED;
 }
 
-// Adds the indicated media processing object to the flow graph.  If 
+// Adds the indicated media processing object to the flow graph.  If
 // "makeNameUnique" is TRUE, then if a resource with the same name already
 // exists in the flow graph, the name for "rResource" will be changed (by
 // adding a numeric suffix) to make it unique within the flow graph.
@@ -137,7 +137,7 @@ OsStatus MpFlowGraphBase::addResource(MpResource& rResource,
       return OS_UNSPECIFIED;
 }
 
-// Stops the flow graph, removes all of the resources in the flow graph 
+// Stops the flow graph, removes all of the resources in the flow graph
 // and destroys them.  If the flow graph is not "started", this call takes
 // effect immediately.  Otherwise, the call takes effect at the start of
 // the next frame processing interval.  For now, this method always returns
@@ -602,7 +602,7 @@ int MpFlowGraphBase::getState(void) const
    return mCurState;
 }
 
-// Sets rpResource to point to the resource that corresponds to 
+// Sets rpResource to point to the resource that corresponds to
 // name  or to NULL if no matching resource is found.
 // Returns OS_SUCCESS if there is a match, otherwise returns OS_NOT_FOUND.
 OsStatus MpFlowGraphBase::lookupResource(UtlString name,
@@ -637,8 +637,8 @@ int MpFlowGraphBase::numResources(void) const
    return mResourceCnt;
 }
 
-// Returns the message queue used by the flow graph. 
-OsMsgQ* MpFlowGraphBase::getMsgQ(void) 
+// Returns the message queue used by the flow graph.
+OsMsgQ* MpFlowGraphBase::getMsgQ(void)
 {
    return &mMessages ;
 }
@@ -655,7 +655,7 @@ UtlBoolean MpFlowGraphBase::isStarted(void) const
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
-// Computes the execution order for the flow graph by performing a 
+// Computes the execution order for the flow graph by performing a
 // topological sort on the resource graph.
 // Returns OS_SUCCESS if an execution order was successfully computed.
 // Returns OS_LOOP_DETECTED is a loop was detected in the flow graph.
@@ -673,7 +673,7 @@ OsStatus MpFlowGraphBase::computeOrder(void)
    return res;
 }
 
-// Disconnects all inputs (and the corresponding upstream outputs) for 
+// Disconnects all inputs (and the corresponding upstream outputs) for
 // the indicated resource.  Returns TRUE if successful, FALSE otherwise.
 UtlBoolean MpFlowGraphBase::disconnectAllInputs(MpResource* pResource)
 {
@@ -700,7 +700,7 @@ UtlBoolean MpFlowGraphBase::disconnectAllInputs(MpResource* pResource)
    return TRUE;
 }
 
-// Disconnects all outputs (and the corresponding downstream inputs) for 
+// Disconnects all outputs (and the corresponding downstream inputs) for
 // the indicated resource.  Returns TRUE if successful, FALSE otherwise.
 UtlBoolean MpFlowGraphBase::disconnectAllOutputs(MpResource* pResource)
 {
@@ -834,7 +834,7 @@ UtlBoolean MpFlowGraphBase::handleAddLink(MpResource* pFrom, int outPortIdx,
 
    // build the upstream end of the link
    if (pFrom->connectOutput(*pTo, inPortIdx, outPortIdx) == FALSE)
-   {                  // should not happen, but if it does we remove the 
+   {                  // should not happen, but if it does we remove the
       assert(FALSE);  //  downstream end of the link
       pTo->disconnectInput(inPortIdx);
       return FALSE;
@@ -877,7 +877,7 @@ UtlBoolean MpFlowGraphBase::handleAddResource(MpResource* pResource,
    pKey = new UtlString(pResource->getName());
    pInsertedKey = (UtlString*)
                   mResourceDict.insertKeyAndValue(pKey, pResource);
-                  
+
    if (pInsertedKey == NULL)
    {                             // insert failed because of non-unique name
       delete pKey;               // clean up the key object
@@ -1111,7 +1111,7 @@ UtlBoolean MpFlowGraphBase::handleRemoveResource(MpResource* pResource)
       assert(FALSE);               // didn't find the entry
       return FALSE;
    }
-   
+
    pResource->setFlowGraph(NULL);  // remove the reference to this flow graph
 
    mResourceCnt--;
@@ -1214,7 +1214,7 @@ OsStatus MpFlowGraphBase::processMessages(void)
    UtlBoolean       handled;
    static MpFlowGraphMsg* pStopMsg = NULL;
    MpResource*     pMsgDest;
-   
+
    OsStatus        res;
 
    // First, we send ourselves a FLOWGRAPH_PROCESS_FRAME message.
@@ -1233,14 +1233,14 @@ OsStatus MpFlowGraphBase::processMessages(void)
 
    done = FALSE;
    while (!done)
-   {                  
+   {
       // get the next message
       OsMsg* pMsg ;
 
-      res = mMessages.receive(pMsg, OsTime::NO_WAIT);      
+      res = mMessages.receive(pMsg, OsTime::NO_WAIT);
 
       assert(res == OS_SUCCESS);
-      
+
       if (pMsg->getMsgType() == OsMsg::MP_FLOWGRAPH_MSG)
       {
          MpFlowGraphMsg* pRcvdMsg = (MpFlowGraphMsg*) pMsg ;
@@ -1281,11 +1281,10 @@ OsStatus MpFlowGraphBase::processMessages(void)
          assert(handled);
          pMsg->releaseMsg() ;
       }
-      
+
    }
 
    return OS_SUCCESS;
 }
 
 /* ============================ FUNCTIONS ================================= */
-

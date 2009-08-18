@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -7,10 +7,10 @@
 ////////////////////////////////////////////////////////////////////////
 //////
 
-//The averaged latency of packets in dejitter buffer is calculated in method 
+//The averaged latency of packets in dejitter buffer is calculated in method
 //PullPacket( ) for the purpose of dejitter buffer
-//backlog control (or called jitter control) by the decoder in down stream. 
-//The decoder will look at the latency at certain frequency to make 
+//backlog control (or called jitter control) by the decoder in down stream.
+//The decoder will look at the latency at certain frequency to make
 //the decision. -Brian Puh
 //
 
@@ -140,7 +140,7 @@ MpBufPtr MprDejitter::pullPacket(void)
    MpBufPtr found = NULL;
    MpBufPtr cur;
    int curSeq;
-   int first = -1; 
+   int first = -1;
    int firstSeq = 0;            // dummy value
    int i;
 
@@ -150,7 +150,7 @@ MpBufPtr MprDejitter::pullPacket(void)
    for (i=0; i<MAX_RTP_PACKETS; i++)
    {
        cur = mpPackets[i];
-       if (cur != NULL) 
+       if (cur != NULL)
        {
            curSeq = getSeqNum(mpPackets[i]);
            if (first == -1 || curSeq < firstSeq)
@@ -161,7 +161,7 @@ MpBufPtr MprDejitter::pullPacket(void)
        }
    }
 
-   if (-1 != first) 
+   if (-1 != first)
    {
       found = mpPackets[first];
       mpPackets[first] = NULL;

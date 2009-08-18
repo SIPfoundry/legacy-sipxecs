@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -20,7 +20,7 @@ MpEncoderBase::MpEncoderBase(int payloadType, const MpCodecInfo *pInfo) :
    mPayloadType(payloadType)
 {
 }
-    
+
 // Destructor
 MpEncoderBase::~MpEncoderBase()
 {
@@ -29,7 +29,7 @@ MpEncoderBase::~MpEncoderBase()
 /* ============================ ACCESSORS ================================= */
 
 // Get static information about the encoder
-// Returns a pointer to an <i>MpCodecInfo</i> object that provides 
+// Returns a pointer to an <i>MpCodecInfo</i> object that provides
 // static information about the encoder.
 const MpCodecInfo* MpEncoderBase::getInfo(void) const
 {

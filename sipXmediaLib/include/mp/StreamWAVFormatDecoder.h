@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -77,7 +77,7 @@ public:
 /* ============================ ACCESSORS ================================= */
 
    virtual OsStatus toString(UtlString& string);
-     //:Renders a string describing this decoder.  
+     //:Renders a string describing this decoder.
      // This is often used for debugging purposes.
 
 /* ============================ INQUIRY =================================== */
@@ -87,7 +87,7 @@ public:
      //:indicates the decoder has completed.
 
    virtual UtlBoolean validDecoder();
-     //:Determines if this is a valid decoder given the associated data 
+     //:Determines if this is a valid decoder given the associated data
      //:source.
      // The data source is "peeked" for data, so that the stream's
      // data is not disturbed.

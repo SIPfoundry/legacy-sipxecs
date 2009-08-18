@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -80,7 +80,7 @@ MpStreamFeeder::MpStreamFeeder(Url resource, int flags)
    {
       m_pDataSource = new StreamHttpDataSource(resource, flags) ;
       m_pDataSource->setListener(this) ;
-   } 
+   }
    else if (scheme.compareTo("file", UtlString::ignoreCase) == 0)
    {
       m_pDataSource = new StreamFileDataSource(resource, flags) ;
@@ -94,7 +94,7 @@ MpStreamFeeder::MpStreamFeeder(Url resource, int flags)
 // Constructor accepting a pre-populated buffer, type and cache all flag
 MpStreamFeeder::MpStreamFeeder(UtlString* pBuffer, int flags)
    : m_state(UnrealizedState)
-   , m_pFormatDecoder(NULL)   
+   , m_pFormatDecoder(NULL)
    , m_pDataSource(NULL)
    , m_bMarkedPaused(FALSE)
    , m_pEventHandler(NULL)
@@ -130,7 +130,7 @@ OsStatus MpStreamFeeder::realize()
    osPrintf("MpStreamFeeder(%d): realize()\n", m_iInstanceId) ;
 #endif /* MP_STREAM_DEBUG ] */
 
-   
+
    // 1st: Start the data source
    if ((m_pDataSource != NULL) && (m_pDataSource->open() == OS_SUCCESS))
    {
@@ -139,7 +139,7 @@ OsStatus MpStreamFeeder::realize()
          initDecodingSource() ;
 
       // Start up the decoder
-      if ((m_pFormatDecoder != NULL) && 
+      if ((m_pFormatDecoder != NULL) &&
             (m_pFormatDecoder->init() == OS_SUCCESS))
       {
          // Mark the state
@@ -157,7 +157,7 @@ OsStatus MpStreamFeeder::realize()
 
    // If we have any errors, clean up.
    if (rc != OS_SUCCESS)
-   {         
+   {
       if (m_pDataSource)
          m_pDataSource->close() ;
 
@@ -166,7 +166,7 @@ OsStatus MpStreamFeeder::realize()
 
       setState(FailedState) ;
    }
-   
+
    return  rc ;
 }
 
@@ -189,10 +189,10 @@ OsStatus MpStreamFeeder::render()
       }
       else
          status = OS_SUCCESS ;
-   }      
+   }
    else if (getState() == StoppedState)
    {
-      status = rewind() ;         
+      status = rewind() ;
       if (status == OS_SUCCESS)
          status = m_pFormatDecoder->begin() ;
    }
@@ -216,9 +216,9 @@ OsStatus MpStreamFeeder::rewind()
 
        OsStatus status = m_pDataSource->seek(0) ;
        if (status == OS_SUCCESS)
-       {      
+       {
           m_pFormatDecoder->begin() ;
-          fireEvent(FeederPrefetchedEvent) ;     
+          fireEvent(FeederPrefetchedEvent) ;
           status = m_pFormatDecoder->init() ;
        }
        else
@@ -246,7 +246,7 @@ OsStatus MpStreamFeeder::stop()
          || (state == RendereringState))
    {
       status = m_pDataSource->close() ;
-      status = m_pFormatDecoder->end() ;      
+      status = m_pFormatDecoder->end() ;
    }
 
    return status ;
@@ -264,7 +264,7 @@ void MpStreamFeeder::markPaused(UtlBoolean bPaused)
 OsStatus MpStreamFeeder::setEventHandler(OsNotification* pEventHandler)
 {
 #ifdef MP_STREAM_DEBUG /* [ */
-   osPrintf("MpStreamFeeder(%d): setEventHandler to %08X\n",  
+   osPrintf("MpStreamFeeder(%d): setEventHandler to %08X\n",
          m_iInstanceId, pEventHandler) ;
 #endif /* ] */
 
@@ -300,7 +300,7 @@ UtlBoolean MpStreamFeeder::isMarkedPaused()
 
 
 // Gets flags specified during creation
-OsStatus MpStreamFeeder::getFlags(int &flags) 
+OsStatus MpStreamFeeder::getFlags(int &flags)
 {
    flags = mFlags ;
 
@@ -391,7 +391,7 @@ void MpStreamFeeder::fireEvent(FeederEvent eventType)
    {
       m_pEventHandler->signal(eventType) ;
 
-      // Safe guard: once the destroyed event is signalled, the 
+      // Safe guard: once the destroyed event is signalled, the
       // m_pEventHandler can be deleted.
       if (eventType == FeederStreamDestroyedEvent)
       {
@@ -405,12 +405,12 @@ void MpStreamFeeder::fireEvent(FeederEvent eventType)
       {
          pTask->id(taskId) ;
       }
-      
-      osPrintf("MpStreamFeeder(%d-%08X): signaled event: %s\n", 
+
+      osPrintf("MpStreamFeeder(%d-%08X): signaled event: %s\n",
          m_iInstanceId, taskId, getEventString(eventType)) ;
 #endif /* MP_STREAM_DEBUG ] */
 
-   } 
+   }
 #ifdef MP_STREAM_DEBUG /* [ */
    else
    {
@@ -431,15 +431,15 @@ MpStreamFeeder::~MpStreamFeeder()
    if(m_pFormatDecoder)
    {
       m_pFormatDecoder->setListener(NULL) ;
-      m_pFormatDecoder->end() ;      
+      m_pFormatDecoder->end() ;
    }
    // Close the data source
    if (m_pDataSource)
    {
       m_pDataSource->setListener(NULL) ;
-      m_pDataSource->close() ;      
+      m_pDataSource->close() ;
    }
-   
+
    // Destroy the decoder
    if (m_pFormatDecoder != NULL)
    {
@@ -449,7 +449,7 @@ MpStreamFeeder::~MpStreamFeeder()
 
    // Destroy the data source
    if (m_pDataSource != NULL)
-   {      
+   {
       m_pDataSource->destroyAndDelete() ;
       m_pDataSource = NULL ;
    }
@@ -459,9 +459,9 @@ MpStreamFeeder::~MpStreamFeeder()
 void MpStreamFeeder::setState(FeederState state)
 {
    if ((m_state != state) && isValidStateChange(m_state, state))
-   {    
+   {
       m_state = state ;
-   
+
       switch (m_state)
       {
          case UnrealizedState:
@@ -475,7 +475,7 @@ void MpStreamFeeder::setState(FeederState state)
             fireEvent(FeederPrefetchedEvent) ;
             break ;
          case RendereringState:
-            fireEvent(FeederRenderingEvent) ;            
+            fireEvent(FeederRenderingEvent) ;
             break ;
          case StoppedState:
             fireEvent(FeederStoppedEvent) ;
@@ -488,11 +488,11 @@ void MpStreamFeeder::setState(FeederState state)
 }
 
 // Call back from data source updates
-void MpStreamFeeder::dataSourceUpdate(StreamDataSource* pDataSource, 
+void MpStreamFeeder::dataSourceUpdate(StreamDataSource* pDataSource,
                                       StreamDataSourceEvent event)
 {
    switch (event)
-   {      
+   {
       case LoadingStartedEvent:
          break ;
       case LoadingThrottledEvent:
@@ -513,11 +513,11 @@ void MpStreamFeeder::fromStreamUpdate(FeederEvent event)
 
 
 // Call back for decoder updates
-void MpStreamFeeder::decoderUpdate(StreamFormatDecoder* pDecoder, 
+void MpStreamFeeder::decoderUpdate(StreamFormatDecoder* pDecoder,
                                    StreamDecoderEvent event)
 {
    switch (event)
-   {      
+   {
       case DecodingStartedEvent:
          setState(PrefetchingState) ;
          break ;
@@ -532,7 +532,7 @@ void MpStreamFeeder::decoderUpdate(StreamFormatDecoder* pDecoder,
          {
             setState(PrefetchedState) ;
             setState(RendereringState) ;
-         }         
+         }
          break ;
       case DecodingErrorEvent:
          setState(FailedState) ;
@@ -571,8 +571,8 @@ void MpStreamFeeder::initDecodingSource()
    }
    else if (mFlags & STREAM_FORMAT_MP3)
    {
-      // MP3 
-#ifdef INCL_MP3_DECODER /* [ */      
+      // MP3
+#ifdef INCL_MP3_DECODER /* [ */
       m_pFormatDecoder = new StreamMP3FormatDecoder(m_pDataSource) ;
       m_pFormatDecoder->setListener(this) ;
       m_pFormatDecoder->init() ;
@@ -582,8 +582,8 @@ void MpStreamFeeder::initDecodingSource()
    {
       // Auto
 
-      StreamFormatDecoder* pDecoder ;      
-   
+      StreamFormatDecoder* pDecoder ;
+
 #ifdef INCL_WAV_DECODER /* [ */
       pDecoder = new StreamWAVFormatDecoder(m_pDataSource) ;
       if (pDecoder->validDecoder())
@@ -624,4 +624,3 @@ void MpStreamFeeder::initDecodingSource()
 
 
 /* ============================ FUNCTIONS ================================= */
-

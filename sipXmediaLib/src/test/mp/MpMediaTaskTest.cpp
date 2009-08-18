@@ -1,6 +1,6 @@
-// 
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -418,7 +418,7 @@ public:
         // this to 100 to reduce the chance of this happening to
         // hopefully 0% - DLH
         OsTask::delay(100);
-        
+
         flowGraphs[0] = flowGraphs[1] = NULL;
         res = pMediaTask->getManagedFlowGraphs(flowGraphs, 2, itemCnt);
         CPPUNIT_ASSERT(res == OS_SUCCESS);

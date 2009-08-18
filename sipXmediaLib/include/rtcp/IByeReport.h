@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -15,7 +15,7 @@
 
 #include "rtcp/RtcpConfig.h"
 
-// Include 
+// Include
 #include "IBaseClass.h"
 
 /**
@@ -24,12 +24,12 @@
  *
  * Inheritance:     None
  *
- *              
+ *
  * Description:     The IByeReport interface allows consumers to parse, format,
  *                  and otherwise control the interpretation and generation of
  *                  RTCP Bye Reports.
- *               
- * Notes:           
+ *
+ * Notes:
  *
  */
 interface IByeReport : IBaseClass
@@ -50,9 +50,9 @@ public:
  * Outputs:     None
  *
  * Returns:     void
- *              
+ *
  * Description: Stores the Source Identifier associated with an RTP connection.
- *               
+ *
  * Usage Notes: This is an override of the base class method defined in
  *              CRTCPHeader.  This method shall additionally reset the
  *              receiver statistics associated with the RTP connection as
@@ -76,11 +76,11 @@ public:
  *                Flag indicating whether data is in NBO
  *
  * Returns:     void
- *              
+ *
  * Description: Sets the contributing source values associated with the
  *              RTP packet.
- *               
- * Usage Notes: 
+ *
+ * Usage Notes:
  *
  *
  */
@@ -100,10 +100,10 @@ public:
  * Outputs:     None
  *
  * Returns:     void
- *              
+ *
  * Description: Stores the Reason field and length, either specified of
  *              derived, as attributed within the object.
- *               
+ *
  * Usage Notes: The Reason argument MUST be passed as a NULL terminated
  *              string or must contain a valid length argument. All text
  *              strings passed shall be truncated beyond the length of
@@ -125,16 +125,16 @@ public:
  *
  * Returns: unsigned long
  *            Returns the number of octet written into the buffer.
- *              
+ *
  * Description: Constructs a Bye report using the buffer passed in by the
  *              caller.
- *               
+ *
  * Usage Notes: The header of the RTCP Report shall be formatted by
  *              delegating to the base class.
  *
  *
  */
-    virtual unsigned long FormatByeReport(unsigned char *puchReportBuffer, 
+    virtual unsigned long FormatByeReport(unsigned char *puchReportBuffer,
                                           unsigned long ulBufferSize)=0;
 
 
@@ -148,11 +148,11 @@ public:
  *
  * Outputs:     None
  *
- * Returns:     unsigned long 
- *              
+ * Returns:     unsigned long
+ *
  * Description: Extracts the contents of an Bye report using the buffer
  *              passed in by the caller.
- *               
+ *
  * Usage Notes: The header of the RTCP Report shall be parsed by delegating
  *              to the base class.
  *
@@ -164,4 +164,3 @@ public:
 };
 
 #endif
-

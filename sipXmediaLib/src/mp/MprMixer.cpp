@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -62,7 +62,7 @@ UtlBoolean MprMixer::setWeights(int *newWeights, int numWeights)
    MpFlowGraphMsg msg(SET_WEIGHTS, this, NULL, NULL, numWeights);
    OsStatus       res;
    int*           weights;
-                                               
+
    weights = new int[numWeights];  // allocate storage for the weights here.
    for (i=0; i < numWeights; i++)  //  the storage will be freed by
       weights[i] = newWeights[i];  //  handleMessage()
@@ -230,9 +230,8 @@ UtlBoolean MprMixer::handleSetWeights(int *newWeights, int numWeights)
       mWeights[i] = wgt = newWeights[i];
       mScale += ABS(wgt);
    }
-   
+
    return TRUE;
 }
 
 /* ============================ FUNCTIONS ================================= */
-

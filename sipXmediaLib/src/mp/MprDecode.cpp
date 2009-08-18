@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -288,7 +288,7 @@ static int numWarnings = 0;
                          mFrameCounter) {
                   mNumMarkerNotices = 0;
                }
-               if (mNumMarkerNotices++ < MAX_MARKER_NOTICES) 
+               if (mNumMarkerNotices++ < MAX_MARKER_NOTICES)
                {
                   // osPrintf("MprDecode: RTP marker bit ON\n");
                   mFrameLastMarkerNotice = mFrameCounter;

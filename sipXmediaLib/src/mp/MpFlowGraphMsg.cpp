@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -65,7 +65,7 @@ MpFlowGraphMsg::~MpFlowGraphMsg()
 /* ============================ MANIPULATORS ============================== */
 
 // Assignment operator
-MpFlowGraphMsg& 
+MpFlowGraphMsg&
 MpFlowGraphMsg::operator=(const MpFlowGraphMsg& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
@@ -82,8 +82,8 @@ MpFlowGraphMsg::operator=(const MpFlowGraphMsg& rhs)
    return *this;
 }
 
-// Sets the intended recipient for this message.  Setting the message 
-// destination to NULL indicates that the message is intended for the 
+// Sets the intended recipient for this message.  Setting the message
+// destination to NULL indicates that the message is intended for the
 // flow graph itself.
 void MpFlowGraphMsg::setMsgDest(MpResource* pMsgDest)
 {
@@ -123,8 +123,8 @@ int MpFlowGraphMsg::getMsg(void) const
    return OsMsg::getMsgSubType();
 }
 
-// Returns the MpResource object that is the intended recipient for this 
-// message.  A NULL return indicates that the message is intended for 
+// Returns the MpResource object that is the intended recipient for this
+// message.  A NULL return indicates that the message is intended for
 // the flow graph itself.
 MpResource* MpFlowGraphMsg::getMsgDest(void) const
 {
@@ -154,7 +154,7 @@ int MpFlowGraphMsg::getInt2(void) const
 {
    return mInt2;
 }
-    
+
 
 /* ============================ INQUIRY =================================== */
 
@@ -163,4 +163,3 @@ int MpFlowGraphMsg::getInt2(void) const
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-

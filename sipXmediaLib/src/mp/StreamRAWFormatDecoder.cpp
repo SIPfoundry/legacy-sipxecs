@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -58,9 +58,9 @@ OsStatus StreamRAWFormatDecoder::free()
 OsStatus StreamRAWFormatDecoder::begin()
 {
    mbEnd = FALSE ;
-   mSemExited.acquire() ;   
+   mSemExited.acquire() ;
 
-   fireEvent(DecodingStartedEvent) ;   
+   fireEvent(DecodingStartedEvent) ;
    if (start() == FALSE)
    {
       syslog(FAC_STREAMING, PRI_CRIT, "Failed to create thread for StreamWAVFormatDecoder") ;
@@ -71,8 +71,8 @@ OsStatus StreamRAWFormatDecoder::begin()
       fireEvent(DecodingErrorEvent) ;
       fireEvent(DecodingCompletedEvent) ;
       mSemExited.release() ;
-   }   
-  
+   }
+
    return OS_SUCCESS ;
 }
 
@@ -97,7 +97,7 @@ OsStatus StreamRAWFormatDecoder::end()
 
    // Draw the decoded queue again to verify that nothing is left.
    drain() ;
-   
+
    mSemExited.release() ;
 
    return OS_SUCCESS ;
@@ -106,7 +106,7 @@ OsStatus StreamRAWFormatDecoder::end()
 
 /* ============================ ACCESSORS ================================= */
 
-// Renders a string describing this decoder.  
+// Renders a string describing this decoder.
 OsStatus StreamRAWFormatDecoder::toString(UtlString& string)
 {
    string.append("RAW") ;
@@ -142,7 +142,7 @@ StreamRAWFormatDecoder::StreamRAWFormatDecoder(const StreamRAWFormatDecoder& rSt
 }
 
 // Assignment operator (not supported)
-StreamRAWFormatDecoder& 
+StreamRAWFormatDecoder&
 StreamRAWFormatDecoder::operator=(const StreamRAWFormatDecoder& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
@@ -157,11 +157,11 @@ int StreamRAWFormatDecoder::run(void* pArgs)
 {
    ssize_t iRead ;
    ssize_t iLength = sizeof(uint16_t) * 80;
-      
+
    StreamDataSource* pSrc = getDataSource() ;
    if (pSrc != NULL)
    {
-      char* pEventSamples = new char[iLength]; 
+      char* pEventSamples = new char[iLength];
       while ((pSrc->read(pEventSamples, iLength, iRead) == OS_SUCCESS) && !mbEnd)
       {
          queueFrame((const uint16_t*)pEventSamples) ;
@@ -171,7 +171,7 @@ int StreamRAWFormatDecoder::run(void* pArgs)
       queueEndOfFrames() ;
       pSrc->close();
    }
-   
+
    fireEvent(DecodingCompletedEvent) ;
 
    mSemExited.release() ;

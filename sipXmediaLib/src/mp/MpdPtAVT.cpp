@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -137,7 +137,7 @@ int MpdPtAVT::decodeIn(MpBufPtr pPacket)
          if (0 != mToneDuration) { // and its duration > 0
             OsSysLog::add(FAC_MP, PRI_INFO,
                "++++ MpdPtAVT(%p) SYNTHESIZING KEYUP for old key (%d)"
-               " duration=%d ++++\n", this, 
+               " duration=%d ++++\n", this,
                mCurrentToneKey, mToneDuration);
             signalKeyUp(pPacket);
          }
@@ -180,7 +180,7 @@ int MpdPtAVT::decodeIn(MpBufPtr pPacket)
 	      mToneDuration = 0;
       }
    }
-   
+
    // Key Up (end of tone)
    if (0x80 == (0x80 & (pAvt->dB))) {
       OsSysLog::add(FAC_MP, PRI_INFO, "++++ MpdPtAVT(%p) RECEIVED KEYUP"
@@ -223,9 +223,9 @@ void MpdPtAVT::signalKeyDown(MpBufPtr pPacket)
    OsSysLog::add(FAC_MP, PRI_INFO,
                  "MpdPtAVT::signalKeyDown mpRecorder = %p, mpNotify = %p",
                  mpRecorder, mpNotify);
-   if (mpRecorder) 
+   if (mpRecorder)
          mpRecorder->termDtmf(pAvt->key);
-   
+
    if (NULL != mpNotify) {
       ret = mpNotify->signal((pAvt->key) << 16 | (mToneDuration & 0xffff));
          if (OS_SUCCESS != ret) {

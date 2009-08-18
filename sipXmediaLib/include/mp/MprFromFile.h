@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -59,7 +59,7 @@ public:
     // type can be one of following:  (need a OsSoundType)
     // 0 = RAW
     // 1 = muLaw
-    OsStatus playBuffer(const char* audioBuffer, unsigned long bufSize, 
+    OsStatus playBuffer(const char* audioBuffer, unsigned long bufSize,
                                  int type, UtlBoolean repeat, OsProtectedEvent* notify);
      //: play sound from buffer w/ repeat option
      // TODO:

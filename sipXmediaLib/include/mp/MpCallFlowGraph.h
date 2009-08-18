@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -100,25 +100,25 @@ void stopTone(void);
 
 int closeRecorders(void);
 
-OsStatus Record(int ms, 
+OsStatus Record(int ms,
       const char* playFilename, //if NULL, defaults to previous string
       const char* baseName,     //if NULL, defaults to previous string
       const char* endName,      //if NULL, defaults to previous string
       int recorderMask);
 
-OsStatus ezRecord(int ms, 
-                   int silenceLength, 
-                   const char* fileName, 
+OsStatus ezRecord(int ms,
+                   int silenceLength,
+                   const char* fileName,
                    double& duration,
-                   int& dtmfTerm, 
+                   int& dtmfTerm,
                    MprRecorder::RecordFileFormat format = MprRecorder::RAW_PCM_16);
 
 
-OsStatus mediaRecord(int ms, 
-                   int silenceLength, 
-                   const char* fileName, 
+OsStatus mediaRecord(int ms,
+                   int silenceLength,
+                   const char* fileName,
                    double& duration,
-                   int& dtmfTerm, 
+                   int& dtmfTerm,
                    MprRecorder::RecordFileFormat format = MprRecorder::RAW_PCM_16,
                    OsProtectedEvent* recordEvent = NULL);
 
@@ -129,7 +129,7 @@ OsStatus record(int timeMS, int silenceLength, const char* micName = NULL,
    const char* echoIn8Name = NULL, const char* echoIn32Name = NULL,
    const char* playName = NULL,
    int toneOptions = 0,
-   int repeat = 0, OsNotification* completion = NULL, 
+   int repeat = 0, OsNotification* completion = NULL,
    MprRecorder::RecordFileFormat format = MprRecorder::RAW_PCM_16);
 
 
@@ -137,14 +137,14 @@ OsStatus startRecording(const char* audioFileName, UtlBoolean repeat,
                     int toneOptions, OsNotification* completion = NULL);
 
 UtlBoolean setupRecorder(RecorderChoice which, const char* audioFileName,
-   int timeMS, int silenceLength, OsNotification* event = NULL, 
+   int timeMS, int silenceLength, OsNotification* event = NULL,
    MprRecorder::RecordFileFormat format = MprRecorder::RAW_PCM_16);
 
-OsStatus playBuffer(char* audioBuf, 
+OsStatus playBuffer(char* audioBuf,
                    unsigned long bufSize,
-                   int type, 
+                   int type,
                    UtlBoolean repeat,
-                   int toneOptions, 
+                   int toneOptions,
                    OsProtectedEvent* event = NULL);
 OsStatus playFile(const char* audioFileName, UtlBoolean repeat,
                     int toneOptions, OsNotification* completion = NULL);
@@ -265,12 +265,12 @@ UtlBoolean isPremiumSoundEnabled(void);
  * Outputs:     None
  *
  * Returns:     unsigned long - Mask of Event Interests
- *              
+ *
  * Description: The GetEventInterest() event method shall allow the dispatcher
  *              of notifications to access the event interests of a subscriber
  *              and use these wishes to dispatch RTCP event notifications
- *               
- * Usage Notes: 
+ *
+ * Usage Notes:
  *
  */
     unsigned long GetEventInterest(void);
@@ -288,15 +288,15 @@ UtlBoolean isPremiumSoundEnabled(void);
  * Outputs:     None
  *
  * Returns:     None
- *              
+ *
  * Description: The LocalSSRCCollision() event method shall inform the
  *              recipient of a collision between the local SSRC and one
  *              used by one of the remote participants.
- *               
- * Usage Notes: 
+ *
+ * Usage Notes:
  *
  */
-    void LocalSSRCCollision(IRTCPConnection    *piRTCPConnection, 
+    void LocalSSRCCollision(IRTCPConnection    *piRTCPConnection,
                             IRTCPSession       *piRTCPSession);
 
 
@@ -313,15 +313,15 @@ UtlBoolean isPremiumSoundEnabled(void);
  * Outputs:     None
  *
  * Returns:     None
- *              
+ *
  * Description: The RemoteSSRCCollision() event method shall inform the
  *              recipient of a collision between two remote participants.
  *              .
- *               
- * Usage Notes: 
+ *
+ * Usage Notes:
  *
  */
-    void RemoteSSRCCollision(IRTCPConnection    *piRTCPConnection,  
+    void RemoteSSRCCollision(IRTCPConnection    *piRTCPConnection,
                              IRTCPSession       *piRTCPSession);
 
 
@@ -335,11 +335,11 @@ UtlBoolean isPremiumSoundEnabled(void);
  * Outputs:     None
  *
  * Returns:     None
- *              
+ *
  * Description: This implements the IBaseClass functions used and exposed by
  *              derived classes.
- *               
- * Usage Notes: 
+ *
+ * Usage Notes:
  *
  *
  */
@@ -390,9 +390,9 @@ private:
    //but for now we'll just use em this way
    // D.W.
    MprRecorder* mpRecorders[MAX_RECORDERS];
-    
+
    UtlBoolean mPremiumSoundEnabled;
-   
+
    UtlBoolean writeWAVHeader(int handle);
    //: Write out standard 16bit 8k sampled WAV Header
 
@@ -490,17 +490,17 @@ private:
  *
  *
  * Inputs:      None
- *                                                 
+ *
  * Outputs:     None
  *
  * Returns:     IRTCPSession *   - RTCP Session interface pointer associated
  *                               with this flow graph and call.
- *              
+ *
  * Description: Returns the RTCP Session interface pointer associated with
  *              this call's flow graph.
  *
- *               
- * Usage Notes: 
+ *
+ * Usage Notes:
  *
  *
  */
@@ -523,18 +523,18 @@ inline IRTCPSession *MpCallFlowGraph::getRTCPSessionPtr(void)
  * Outputs:     None
  *
  * Returns:     unsigned long - Mask of Event Interests
- *              
+ *
  * Description: The GetEventInterest() event method shall allow the dispatcher
  *              of notifications to access the event interests of a subscriber
  *              and use these wishes to dispatch RTCP event notifications
- *               
- * Usage Notes: 
+ *
+ * Usage Notes:
  *
  */
-inline unsigned long MpCallFlowGraph::GetEventInterest(void) 
-{ 
-     
-    return(mulEventInterest); 
+inline unsigned long MpCallFlowGraph::GetEventInterest(void)
+{
+
+    return(mulEventInterest);
 }
 #endif /* INCLUDE_RTCP ] */
 

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -14,7 +14,7 @@
 #include "mp/MpAudioFileDecompress.h"
 #include "os/OsDefs.h"
 
-MpAuRead::MpAuRead(istream & s, int raw): MpAudioAbstract(), mStream(s) 
+MpAuRead::MpAuRead(istream & s, int raw): MpAudioAbstract(), mStream(s)
 {
    osPrintf("File Format: AU\n");
    if (raw)
@@ -95,7 +95,7 @@ void MpAuRead::ReadHeader(void)
 static void WriteBuffer (ostream &out, AudioSample *buffer, int length)
 {
    AudioSample *sampleBuff = buffer;
-   AudioByte *byteBuff = 
+   AudioByte *byteBuff =
          reinterpret_cast<AudioByte *>(buffer);
    int i = length;
    while (i-->0) {

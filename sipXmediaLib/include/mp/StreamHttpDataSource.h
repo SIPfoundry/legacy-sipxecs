@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -32,9 +32,9 @@
 class OsConnectionSocket ;
 class HttpMessage ;
 // TYPEDEFS
-typedef UtlBoolean (*GetDataCallbackProc)(char* pData, 
-                                         ssize_t iLength, 
-                                         void* pOptionalData, 
+typedef UtlBoolean (*GetDataCallbackProc)(char* pData,
+                                         ssize_t iLength,
+                                         void* pOptionalData,
                                          HttpMessage* pMsg);
 
 
@@ -44,9 +44,9 @@ typedef UtlBoolean (*GetDataCallbackProc)(char* pData,
 // that pumps the data from the stream may be blocked for a long
 // period of time and most cases the media task is player
 // destroying this resource.  Ideally, we would interrupt the socket
-// read, however, that is not possible.  So, to avoid blocking the 
-// thread context used to destroy this object, we use a variable 
-// mbDeleteOnCompletion to mark if/when we need to destroy this class 
+// read, however, that is not possible.  So, to avoid blocking the
+// thread context used to destroy this object, we use a variable
+// mbDeleteOnCompletion to mark if/when we need to destroy this class
 // once the run method has completed.  This method is wrapped in
 // a static binary semaphore to guard against races.
 class StreamHttpDataSource : public StreamDataSource, public OsTask
@@ -93,9 +93,9 @@ public:
      //:Interrupts any time consuming operation.
      // For example, some data sources may require network access (e.g. http)
      // to read or fetch data.  Invoking an interrupt() will cause any
-     // time consuming or blocking calls to exit with more quickly with an 
+     // time consuming or blocking calls to exit with more quickly with an
      // OS_INTERRUPTED return code.
- 
+
    virtual OsStatus seek(size_t iLocation) ;
      //:Moves the stream pointer to the an absolute location.
      //
@@ -108,14 +108,14 @@ public:
 
 /* ============================ ACCESSORS ================================= */
 
-   virtual OsStatus getLength(ssize_t& iLength);      
+   virtual OsStatus getLength(ssize_t& iLength);
      //:Gets the length of the stream (if available)
 
    virtual OsStatus getPosition(ssize_t& iPosition) ;
      //:Gets the current position within the stream.
-   
+
    virtual OsStatus toString(UtlString& string) ;
-     //:Renders a string describing this data source.  
+     //:Renders a string describing this data source.
      // This is often used for debugging purposes.
 
    virtual int getBufferedLength();
@@ -134,7 +134,7 @@ protected:
 
    int run(void *pArgs);
      //:Thread entry point
-   
+
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
@@ -143,7 +143,7 @@ private:
    OsBSem     mSemNeedData ;           // Used block when we need more data
    OsBSem     mSemLimitData ;          // Used to block when need to throttle
    OsBSem     mSemGuardData;           // Protected data structures
-   OsBSem     mSemGuardStartClose;     // Protected Opening/Closing the DataSource   
+   OsBSem     mSemGuardStartClose;     // Protected Opening/Closing the DataSource
    UtlBoolean  mbDone ;                 // Is the data source complete
    UtlBoolean  mbQuit ;                 // Are we quiting?
    UtlBoolean  mbDeleteOnCompletion ;   // Should the run method delete the object?

@@ -19,13 +19,13 @@ extern "C" {
 
 JB_EXTERN JB_ret JB_initCodepoint(JB_inst *JB_inst,
                               const JB_char *codec,
-                              JB_size sampleRate, 
+                              JB_size sampleRate,
                               JB_code codepoint);
- 
 
-JB_EXTERN JB_ret JB_RecIn(JB_inst *JB_inst, 
-                      JB_uchar* RTPpacket, 
-                      JB_size RTPlength, 
+
+JB_EXTERN JB_ret JB_RecIn(JB_inst *JB_inst,
+                      JB_uchar* RTPpacket,
+                      JB_size RTPlength,
                       JB_ulong timeStamp);
 
 JB_EXTERN JB_ret JB_RecOut(JB_inst *JB_inst,
@@ -34,12 +34,12 @@ JB_EXTERN JB_ret JB_RecOut(JB_inst *JB_inst,
 
 JB_EXTERN JB_ret G711A_Encoder(JB_size noOfSamples,
                          Sample* inBuff,
-                         JB_uchar* codBuff, 
+                         JB_uchar* codBuff,
                          JB_size *size_in_bytes);
 
 JB_EXTERN JB_ret G711U_Encoder(JB_size noOfSamples,
                          Sample* inBuff,
-                         JB_uchar* codBuff, 
+                         JB_uchar* codBuff,
                          JB_size *size_in_bytes);
 
 JB_EXTERN JB_ret JB_create(JB_inst **JB_inst);

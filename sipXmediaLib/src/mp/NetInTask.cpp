@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -249,8 +249,8 @@ static  int flushedLimit = 125;
 #if 0
             nRead = ret = pRxpSkt->read(junk, MAX_RTP_BYTES, &fromIP, &fromPort);
             MpBuf_setOsTC(ib, ostc);
-            if (ret > 0) 
-            {               
+            if (ret > 0)
+            {
                 if (ret > MpBuf_getByteLen(ib)) {
                     ret = MpBuf_getByteLen(ib);
                     if (MpBufferMsg::AUD_RTP_RECV == rtpOrRtcp) {
@@ -261,27 +261,27 @@ static  int flushedLimit = 125;
                 MpBuf_setNumSamples(ib, ret);
                 MpBuf_setContentLen(ib, ret);
                 fwdTo->pushPacket(ib, rtpOrRtcp, &fromIP, fromPort);
-            } 
-#else            
+            }
+#else
             // Read directly into the MpBuf, so as to elimiate a memcpy
             MpBuf_setOsTC(ib, ostc);
             char *buffer = (char *)MpBuf_getStorage(ib) ;
             int len = MpBuf_getByteLen(ib) ;
-            
+
             nRead = ret = pRxpSkt->read(buffer, len, &fromIP, &fromPort);
-            if (ret > 0) 
-            {            
+            if (ret > 0)
+            {
                 /*
-                 * I really want to do a recvfrom with flag == MSG_TRUNC so 
+                 * I really want to do a recvfrom with flag == MSG_TRUNC so
                  * we know how much was really available.  But OsSocket doesn't
                  * support that right now.  So instead just assume if we get
-                 * exactly what we asked for, there was really more than we 
-                 * asked for available.  So the rest got truncated and lost.  
+                 * exactly what we asked for, there was really more than we
+                 * asked for available.  So the rest got truncated and lost.
                  * Look for
-                 *    ret == len  
+                 *    ret == len
                  * instead of the more natural
                  *    ret > len
-                 */   
+                 */
                 if (ret == len) { // packet truncated
                     if (MpBufferMsg::AUD_RTP_RECV == rtpOrRtcp) {
                         junk[0] &= ~0x20; /* must turn off Pad flag */
@@ -290,9 +290,9 @@ static  int flushedLimit = 125;
                 MpBuf_setNumSamples(ib, ret);
                 MpBuf_setContentLen(ib, ret);
                 fwdTo->pushPacket(ib, rtpOrRtcp, &fromIP, fromPort);
-            } 
-#endif            
-            else 
+            }
+#endif
+            else
             {
                 MpBuf_delRef(ib);
                 if (!pRxpSkt->isOk())
@@ -300,7 +300,7 @@ static  int flushedLimit = 125;
                     Zprintf(" *** get1Msg: read(%p) returned %d, errno=%d=0x%X)\n",
                         pRxpSkt, nRead, errno, errno, 0,0);
                     return OS_NO_MORE_DATA;
-                }                                
+                }
             }
         } else {
             nRead = pRxpSkt->read(junk, sizeof(junk));
@@ -309,7 +309,7 @@ static  int flushedLimit = 125;
                     " (after %d DMA frames).\n",
                     nRead, errno, pRxpSkt, showFrameCount(1), 0,0);
             }
-            if ((nRead < 1) && !pRxpSkt->isOk()) 
+            if ((nRead < 1) && !pRxpSkt->isOk())
             {
                 return OS_NO_MORE_DATA;
             }
@@ -606,18 +606,18 @@ int NetInTask::run(void *pNotUsed)
                         for (i=0, ppr=pairs; i<NET_TASK_MAX_FD_PAIRS; i++) {
                             if (NULL == ppr->fwdTo) {
                                 // Enable non-blocking mode on these sockets.
-                                // This works around a Linux Kernel bug that 
-                                // allows packets with incorrect UDP checksums 
+                                // This works around a Linux Kernel bug that
+                                // allows packets with incorrect UDP checksums
                                 // to trip select() but then block in read().
-                                // By making the sockets non-blocking, the 
-                                // read() just returns with EAGAIN.  This issue 
-                                // has been fixed in Linux: 2.6.10-rc3, but 
+                                // By making the sockets non-blocking, the
+                                // read() just returns with EAGAIN.  This issue
+                                // has been fixed in Linux: 2.6.10-rc3, but
                                 // not in RH as of RHES4-U1
-                                // See http://kerneltrap.org/node/4351 
+                                // See http://kerneltrap.org/node/4351
                                 //   "[UDP]: Select handling of bad checksums."
                                 msg.pRtpSocket->makeNonblocking() ;
                                 msg.pRtcpSocket->makeNonblocking() ;
-                                
+
                                 ppr->pRtpSocket  = msg.pRtpSocket;
                                 ppr->pRtcpSocket = msg.pRtcpSocket;
                                 ppr->fwdTo   = msg.fwdTo;
@@ -711,27 +711,27 @@ NetInTask* NetInTask::getNetInTask()
    // If the task object already exists, then use it, else create and start it
    if (NULL == spInstance)
    {
-      spInstance = new NetInTask(); 
+      spInstance = new NetInTask();
       UtlBoolean isStarted = spInstance->start();
-      assert(isStarted); 
+      assert(isStarted);
    }
 
    sLock.release();
 
-   return spInstance;  
+   return spInstance;
 }
 
 void NetInTask::shutdownSockets()
 {
         getLockObj().acquire();
-        
+
         if (mpWriteSocket)
         {
             mpWriteSocket->close();
             delete mpWriteSocket;
             mpWriteSocket = NULL;
         }
-        
+
         /*if (mpReadSocket)
         {
             mpReadSocket->close();
@@ -776,7 +776,7 @@ OsStatus shutdownNetInTask()
         wrote = writeSocket->write((char *) &msg, NET_TASK_MAX_MSG_LEN);
 
         pInst->shutdownSockets();
-        
+
         NetInTask* pTask = NetInTask::getNetInTask();
         pTask->requestShutdown();
         NetInTask::getLockObj().release();
@@ -983,4 +983,3 @@ void FinishRtcpSession(rtcpHandle h)
 }
 
 /* ============================ FUNCTIONS ================================= */
-

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -13,8 +13,8 @@
 #include <os/iostream>
 #include <stdio.h>
 
-typedef int16_t AudioSample; 
-typedef unsigned char AudioByte; 
+typedef int16_t AudioSample;
+typedef unsigned char AudioByte;
 
 
 //formats we support
@@ -28,13 +28,13 @@ public:
 
 /* ============================ CREATORS ================================== */
     MpAudioAbstract(void);
-    //: Default Constructor. 
+    //: Default Constructor.
 
     MpAudioAbstract(MpAudioAbstract *audio);
-    //: Copy Constructor 
+    //: Copy Constructor
 
     virtual ~MpAudioAbstract();
-    //: Destructor 
+    //: Destructor
 
 public: //: general non classfied
     virtual size_t getSamples(AudioSample *, size_t) = 0;
@@ -42,25 +42,25 @@ public: //: general non classfied
     virtual size_t readBytes(AudioByte * buff, size_t length);
     // read length of bytes
     virtual size_t getBytesSize();
-    // get bytes size of the audio file 
-    virtual int getDecompressionType(); 
-    // get decompression type of the audio file 
+    // get bytes size of the audio file
+    virtual int getDecompressionType();
+    // get decompression type of the audio file
 
-public: //: MpAudioAbstract related operations 
-   MpAudioAbstract *getPreviousAudio(void); 
+public: //: MpAudioAbstract related operations
+   MpAudioAbstract *getPreviousAudio(void);
    //: get previous audio
-   void setPreviousAudio(MpAudioAbstract *a); 
+   void setPreviousAudio(MpAudioAbstract *a);
    //: set previous audio to a
-   MpAudioAbstract *getNextAudio(void); 
+   MpAudioAbstract *getNextAudio(void);
    //: get next audio
    void setNextAudio(MpAudioAbstract *a);
    //: set next audio to a
 
-public: //: sample related functions 
+public: //: sample related functions
     virtual void setSamplingRate(long s);
-    //: Set the sampling rate to s 
+    //: Set the sampling rate to s
     virtual void setSamplingRateRecursive(long s);
-    //: Set sampling rate recursively 
+    //: Set sampling rate recursively
     virtual void minMaxSamplingRate(long *min, long *max, long *prefer);
     //: TODO: the meaning of this function, get the prefered Sampling rate
     virtual void negotiateSamplingRate(void);
@@ -68,15 +68,15 @@ public: //: sample related functions
     virtual long getSamplingRate(void);
     //: Return the sampling rate
 
-public: //:Channel related functions 
+public: //:Channel related functions
     virtual void setChannels(int ch);
     //:Set channel to ch
     virtual void setChannelsRecursive(int s);
     //:Set channel recusively
     virtual void minMaxChannels(int *min, int *max, int *preferred) ;
-    //:Get prefered channel 
+    //:Get prefered channel
     virtual void negotiateChannels(void);
-    //: negotiate channel 
+    //: negotiate channel
     virtual int getChannels(void);
     //: Return the channels
 
@@ -88,13 +88,13 @@ public: //:Channel related functions
     //: Return true if file loaded ok.
 /* ============================ PRIVATE ================================== */
 private:
-    // pointers to MpAudioAbstract itself then 
+    // pointers to MpAudioAbstract itself then
    MpAudioAbstract *mPrevious; // object to get data from
    MpAudioAbstract *mNext; // object pulling data from us
 private:
    long mSamplingRate;
    bool mSamplingRateFrozen;
-   //: sampling Rate related stuff    
+   //: sampling Rate related stuff
 private:
    long mChannels;
    bool mChannelsFrozen;

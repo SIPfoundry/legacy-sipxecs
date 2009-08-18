@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -44,9 +44,9 @@
 
 // Constructor
 MprFromStream::MprFromStream(const UtlString& rName,
-                             int samplesPerFrame, 
+                             int samplesPerFrame,
                              int samplesPerSec)
-   : MpResource(rName, 0, 1, 1, 1, samplesPerFrame, samplesPerSec)   
+   : MpResource(rName, 0, 1, 1, 1, samplesPerFrame, samplesPerSec)
    , mpStreamRenderer(NULL)
    , mEventState(FeederStreamStoppedEvent)
    , miStreamCount(1)
@@ -62,13 +62,13 @@ MprFromStream::~MprFromStream()
 /* ============================ MANIPULATORS ============================== */
 
 
-OsStatus MprFromStream::realize(Url urlSource,                   
+OsStatus MprFromStream::realize(Url urlSource,
                                 int flags,
                                 StreamHandle &handle,
                                 OsNotification* pEvent)
 {
    OsStatus status = OS_INVALID ;
-   
+
    // Create and Initialize feeder
    MpStreamFeeder* pFeeder = new MpStreamFeeder(urlSource, flags) ;
    if (pEvent != NULL)
@@ -90,7 +90,7 @@ OsStatus MprFromStream::realize(Url urlSource,
    {
       MpFlowGraphMsg msg(SOURCE_DESTROY, this, pFeeder, 0, 0, 0);
       postMessage(msg);
-   }     
+   }
 
    return status ;
 }
@@ -102,7 +102,7 @@ OsStatus MprFromStream::realize(UtlString* pBuffer,
                                 OsNotification* pEvent)
 {
    OsStatus status = OS_INVALID ;
-   
+
    // Create and Initialize Feeder
    MpStreamFeeder* pFeeder = new MpStreamFeeder(pBuffer, flags) ;
    if (pEvent != NULL)
@@ -121,10 +121,10 @@ OsStatus MprFromStream::realize(UtlString* pBuffer,
        handle = pDesc->handle ;
    }
    else
-   {  
+   {
       MpFlowGraphMsg msg(SOURCE_DESTROY, this, pFeeder, 0, 0, 0);
       postMessage(msg);
-   }     
+   }
 
    return status ;
 }
@@ -258,13 +258,13 @@ OsStatus MprFromStream::destroy(StreamHandle handle)
 	   osPrintf("** WARNING: MprFromStream::destroy handed null feeder\n") ;
    }
 #endif /* MP_STREAM_DEBUG ] */
-      
+
 
    return status ;
 }
 
 
-OsStatus MprFromStream::getFlags(StreamHandle handle, int& flags) 
+OsStatus MprFromStream::getFlags(StreamHandle handle, int& flags)
 {
    OsStatus status = OS_INVALID ;
 
@@ -290,11 +290,11 @@ OsStatus MprFromStream::getFlags(StreamHandle handle, int& flags)
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
-OsStatus MprFromStream::setStreamSource(MpStreamFeeder *pFeeder) 
+OsStatus MprFromStream::setStreamSource(MpStreamFeeder *pFeeder)
 {
    if ((pFeeder != mpStreamRenderer) && (mpStreamRenderer != NULL))
    {
-      mpStreamRenderer->markPaused(TRUE) ;         
+      mpStreamRenderer->markPaused(TRUE) ;
    }
 
    if (mpStreamRenderer != pFeeder)
@@ -333,7 +333,7 @@ UtlBoolean MprFromStream::doProcessFrame(MpBufPtr inBufs[],
    *outBufs = NULL;
    if (0 == samplesPerFrame) return FALSE;
 
-   if (isEnabled) 
+   if (isEnabled)
    {
       // Get ready to give data
       out = MpBuf_getBuf(MpMisc.UcbPool, samplesPerFrame, 0, MP_FMT_T12);
@@ -342,8 +342,8 @@ UtlBoolean MprFromStream::doProcessFrame(MpBufPtr inBufs[],
       count = MpBuf_getByteLen(out) / sizeof(Sample);
       count = min(samplesPerFrame, count);
       MpBuf_setNumSamples(out, count);
-      
-      
+
+
       if (mpStreamRenderer)
       {
          mbStreamChange = FALSE ;
@@ -364,11 +364,11 @@ UtlBoolean MprFromStream::doProcessFrame(MpBufPtr inBufs[],
 
                   mEventState = FeederStreamPlayingEvent ;
                   mpStreamRenderer->fromStreamUpdate(FeederStreamPlayingEvent) ;
-               }  
+               }
             }
             else
             {
-               if (  (mEventState != FeederStreamStoppedEvent) && 
+               if (  (mEventState != FeederStreamStoppedEvent) &&
                      (mEventState != FeederStreamAbortedEvent))
                {
 #ifdef MP_STREAM_DEBUG /* [ */
@@ -392,23 +392,23 @@ UtlBoolean MprFromStream::doProcessFrame(MpBufPtr inBufs[],
                mEventState = FeederStreamPausedEvent ;
                mpStreamRenderer->fromStreamUpdate(FeederStreamPausedEvent) ;
             }
-         }       
+         }
       }
 
-      if (!bSentData) 
+      if (!bSentData)
       {
          outbuf = MpBuf_getSamples(out);
          memset(outbuf, 0, MpBuf_getByteLen(out));
-         MpBuf_setSpeech(out, MP_SPEECH_SILENT);      
+         MpBuf_setSpeech(out, MP_SPEECH_SILENT);
       }
-   }      
-         
-   if (NULL == out) 
+   }
+
+   if (NULL == out)
    {
       out = *inBufs;
       *inBufs = NULL;
    }
-   
+
    *outBufs = out;
 
    return (TRUE);
@@ -499,17 +499,17 @@ UtlBoolean MprFromStream::handlePause(MpStreamFeeder* pFeeder)
 
 
 UtlBoolean MprFromStream::handleStop(MpStreamFeeder* pFeeder)
-{   
+{
    UtlBoolean bActiveFeeder = (getStreamSource() == pFeeder) ;
 
    // Take the resource out of focus
    if (bActiveFeeder)
    {
-      setStreamSource(NULL) ;      
+      setStreamSource(NULL) ;
    }
 
-   // Tell the resource to stop when "stop" is called by the user, as 
-   // opposed to being called by reaching the end of media, we fire 
+   // Tell the resource to stop when "stop" is called by the user, as
+   // opposed to being called by reaching the end of media, we fire
    // FeederStreamAbortedEvent, instead of FeederStreamStoppedEvent.
    assert(pFeeder != NULL) ;
    if (pFeeder != NULL)
@@ -517,10 +517,10 @@ UtlBoolean MprFromStream::handleStop(MpStreamFeeder* pFeeder)
       pFeeder->stop() ;
 
       if ((mEventState != FeederStreamAbortedEvent) || mbStreamChange)
-      {         
+      {
          if (bActiveFeeder)
          {
-            mEventState = FeederStreamAbortedEvent ;            
+            mEventState = FeederStreamAbortedEvent ;
             pFeeder->fromStreamUpdate(FeederStreamAbortedEvent) ;
          }
          else
@@ -545,12 +545,12 @@ UtlBoolean MprFromStream::handleStop(MpStreamFeeder* pFeeder)
 
 
 UtlBoolean MprFromStream::handleDestroy(MpStreamFeeder* pFeeder)
-{   
+{
    assert(pFeeder != NULL) ;
    if (pFeeder != NULL)
-   {            
+   {
       handleStop(pFeeder) ;
-      pFeeder->fromStreamUpdate(FeederStreamDestroyedEvent) ;	  
+      pFeeder->fromStreamUpdate(FeederStreamDestroyedEvent) ;
 
       delete pFeeder ;
    }
@@ -570,7 +570,7 @@ UtlBoolean MprFromStream::handleMessage(MpFlowGraphMsg& rMsg)
 {
    UtlBoolean bHandled = FALSE ;
 
-   switch (rMsg.getMsg()) 
+   switch (rMsg.getMsg())
    {
       case SOURCE_RENDER:
          bHandled = handleRender((MpStreamFeeder*) rMsg.getPtr1()) ;
@@ -619,7 +619,7 @@ MpStreamFeeder* MprFromStream::getStreamFeeder(StreamHandle handle)
 }
 
 
-// Removes the stream feeder from the stream list. The Stream feeder is 
+// Removes the stream feeder from the stream list. The Stream feeder is
 // returned if found, someone else is responsible for deleting it.
 MpStreamFeeder* MprFromStream::removeStreamFeeder(StreamHandle handle)
 {
@@ -679,7 +679,6 @@ osPrintf("MpStreamFeeder destroy feeders\n") ;
     mStreamList.releaseIteratorHandle(iteratorHandle) ;
 }
 
-     
+
 
 /* ============================ FUNCTIONS ================================= */
-

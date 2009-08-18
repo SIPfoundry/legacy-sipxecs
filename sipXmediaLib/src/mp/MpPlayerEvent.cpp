@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -33,8 +33,8 @@ MpPlayerEvent::MpPlayerEvent()
 
 
 // Constructor
-MpPlayerEvent::MpPlayerEvent(MpPlayer* pPlayer, 
-                             void* pUserData, 
+MpPlayerEvent::MpPlayerEvent(MpPlayer* pPlayer,
+                             void* pUserData,
                              PlayerState state)
 {
    mpPlayer = pPlayer ;
@@ -58,7 +58,7 @@ MpPlayerEvent::~MpPlayerEvent()
 /* ============================ MANIPULATORS ============================== */
 
 // Assignment operator
-MpPlayerEvent& 
+MpPlayerEvent&
 MpPlayerEvent::operator=(const MpPlayerEvent& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
@@ -78,7 +78,7 @@ MpPlayer* MpPlayerEvent::getPlayer() const
 {
    return mpPlayer ;
 }
-     
+
 
 // Gets the user supplied data supplied when adding the listener
 void* MpPlayerEvent::getUserData() const
@@ -92,7 +92,7 @@ PlayerState MpPlayerEvent::getState() const
 {
    return mState ;
 }
-     
+
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -102,4 +102,3 @@ PlayerState MpPlayerEvent::getState() const
 /* ============================ TESTING =================================== */
 
 /* ============================ FUNCTIONS ================================= */
-

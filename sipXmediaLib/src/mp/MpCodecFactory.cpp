@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -73,7 +73,7 @@ OsBSem MpCodecFactory::sLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
 
 /* ============================ CREATORS ================================== */
 
-// Return a pointer to the MpCodecFactory singleton object, creating 
+// Return a pointer to the MpCodecFactory singleton object, creating
 // it if necessary
 
 MpCodecFactory* MpCodecFactory::getMpCodecFactory(void)
@@ -82,7 +82,7 @@ MpCodecFactory* MpCodecFactory::getMpCodecFactory(void)
    if (spInstance == NULL)
    {
       // If the object does not yet exist, then acquire
-      // the lock to ensure that only one instance of the object is 
+      // the lock to ensure that only one instance of the object is
       // created
       sLock.acquire();
       if (spInstance == NULL)
@@ -171,7 +171,7 @@ OsStatus MpCodecFactory::createDecoder(SdpCodec::SdpCodecTypes internalCodecId,
 #endif
 
    default:
-      OsSysLog::add(FAC_MP, PRI_WARNING, 
+      OsSysLog::add(FAC_MP, PRI_WARNING,
                     "MpCodecFactory::createDecoder unknown codec type "
                     "internalCodecId = (SdpCodec::SdpCodecTypes) %d, "
                     "payloadType = %d",
@@ -253,7 +253,7 @@ OsStatus MpCodecFactory::createEncoder(SdpCodec::SdpCodecTypes internalCodecId,
       break;
 #endif /* HAVE_GIPS*/
    default:
-      OsSysLog::add(FAC_MP, PRI_WARNING, 
+      OsSysLog::add(FAC_MP, PRI_WARNING,
                     "MpCodecFactory::createEncoder unknown codec type "
                     "internalCodecId = (SdpCodec::SdpCodecTypes) %d, "
                     "payloadType = %d",
@@ -262,7 +262,7 @@ OsStatus MpCodecFactory::createEncoder(SdpCodec::SdpCodecTypes internalCodecId,
       break;
    }
 
-   if (NULL != rpEncoder) 
+   if (NULL != rpEncoder)
    {
 /*
       osPrintf("MpCodecFactory::createEncoder(i:%d, x:%d, 0x%p)\n",

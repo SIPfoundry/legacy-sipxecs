@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -47,7 +47,7 @@ void StreamFormatDecoder::setListener(StreamDecoderListener* pListener)
 /* ============================ ACCESSORS ================================= */
 
 // Gets the the data source for this decoder
-StreamDataSource* StreamFormatDecoder::getDataSource() 
+StreamDataSource* StreamFormatDecoder::getDataSource()
 {
    return mpDataSource ;
 }
@@ -93,7 +93,7 @@ StreamFormatDecoder::StreamFormatDecoder(const StreamFormatDecoder& rStreamForma
 }
 
 // Assignment operator (not supported)
-StreamFormatDecoder& 
+StreamFormatDecoder&
 StreamFormatDecoder::operator=(const StreamFormatDecoder& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
@@ -128,4 +128,3 @@ void StreamFormatDecoder::fireEvent(StreamDecoderEvent event)
 /* ============================ TESTING =================================== */
 
 /* ============================ FUNCTIONS ================================= */
-

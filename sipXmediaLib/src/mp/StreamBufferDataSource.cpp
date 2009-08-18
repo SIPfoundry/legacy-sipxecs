@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -23,7 +23,7 @@
 
 // Constructor
 StreamBufferDataSource::StreamBufferDataSource(UtlString *pBuffer, int iFlags)
-   : StreamDataSource(iFlags) 
+   : StreamDataSource(iFlags)
 {
    miPosition = 0 ;
    mpBuffer = pBuffer ;
@@ -75,7 +75,7 @@ OsStatus StreamBufferDataSource::destroyAndDelete()
 
     return status ;
 }
-     
+
 
 
 // Reads iLength bytes of data from the data source and places the data into
@@ -90,7 +90,7 @@ OsStatus StreamBufferDataSource::read(char *szBuffer, ssize_t iLength, ssize_t& 
       ssize_t iBufferLength = mpBuffer->length();
 
       if (miPosition < iBufferLength)
-      {        
+      {
          ssize_t iMaxCopy = __min(iBufferLength - miPosition, iLength);
          memcpy(szBuffer, &mpBuffer->data()[miPosition], iMaxCopy);
          miPosition += iMaxCopy;
@@ -99,7 +99,7 @@ OsStatus StreamBufferDataSource::read(char *szBuffer, ssize_t iLength, ssize_t& 
          rc = OS_SUCCESS;
       }
    }
-   
+
    return rc;
 }
 
@@ -115,7 +115,7 @@ OsStatus StreamBufferDataSource::peek(char *szBuffer, ssize_t iLength, ssize_t& 
       size_t iBufferLength = mpBuffer->length() ;
 
       if (iPosition < iBufferLength)
-      {        
+      {
          size_t iMaxCopy = __min(iBufferLength - iPosition, (size_t)iLength) ;
          memcpy(szBuffer, &mpBuffer->data()[iPosition], iMaxCopy) ;
          iPosition += iMaxCopy ;
@@ -123,7 +123,7 @@ OsStatus StreamBufferDataSource::peek(char *szBuffer, ssize_t iLength, ssize_t& 
          rc = OS_SUCCESS ;
       }
    }
-   
+
    return rc ;
 }
 
@@ -178,10 +178,10 @@ OsStatus StreamBufferDataSource::getPosition(ssize_t& iPosition)
 
    return status ;
 }
-     
 
-// Renders a string describing this data source.  
-OsStatus StreamBufferDataSource::toString(UtlString& string) 
+
+// Renders a string describing this data source.
+OsStatus StreamBufferDataSource::toString(UtlString& string)
 {
    string = "[buffer] size=" + mpBuffer->length() ;
 
@@ -199,7 +199,7 @@ StreamBufferDataSource::StreamBufferDataSource(const StreamBufferDataSource& rSt
 
 
 // Assignment operator (not supported)
-StreamBufferDataSource& 
+StreamBufferDataSource&
 StreamBufferDataSource::operator=(const StreamBufferDataSource& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
@@ -214,4 +214,3 @@ StreamBufferDataSource::operator=(const StreamBufferDataSource& rhs)
 /* ============================ TESTING =================================== */
 
 /* ============================ FUNCTIONS ================================= */
-

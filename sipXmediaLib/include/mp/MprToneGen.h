@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -57,13 +57,13 @@ implementation.  At least these changes are needed:
 #endif
 
    OsStatus startTone(int toneId);
-     //:Sends a START_TONE message to this resource to begin generating 
+     //:Sends a START_TONE message to this resource to begin generating
      //:an audio tone.
      // Returns the result of attempting to queue the message to this
      // resource.
 
    OsStatus stopTone(void);
-     //:Sends a STOP_TONE message to this resource to stop generating 
+     //:Sends a STOP_TONE message to this resource to stop generating
      //:an audio tone.
      // Returns the result of attempting to queue the message to this
      // resource.

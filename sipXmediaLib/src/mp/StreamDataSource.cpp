@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -46,9 +46,9 @@ OsStatus StreamDataSource::interrupt()
     // Default implemenation does nothing.
     return OS_NOT_SUPPORTED ;
 }
-     
 
-// Sets a listener to receive StreamDataSourceEvent events for this data 
+
+// Sets a listener to receive StreamDataSourceEvent events for this data
 // source.
 void StreamDataSource::setListener(StreamDataSourceListener* pListener)
 {
@@ -97,7 +97,7 @@ const char* StreamDataSource::getEventString(StreamDataSourceEvent event)
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 // Assignment operator (not supported)
-StreamDataSource& 
+StreamDataSource&
 StreamDataSource::operator=(const StreamDataSource& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
@@ -136,4 +136,3 @@ void StreamDataSource::fireEvent(StreamDataSourceEvent event)
 /* ============================ TESTING =================================== */
 
 /* ============================ FUNCTIONS ================================= */
-

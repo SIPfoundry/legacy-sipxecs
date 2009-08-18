@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -22,7 +22,7 @@
 // FORWARD DECLARATIONS
 
 /**
-* 
+*
 */
 class MpRawAudioBuffer {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -58,4 +58,3 @@ unsigned long mAudioBufferLength;        // Length, in bytes, of the audio data
 };
 
 #endif  // _MpRawAudioBuffer_h_
-

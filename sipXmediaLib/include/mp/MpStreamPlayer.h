@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -35,7 +35,7 @@ class OsQueuedEvent;
 //: Player capable of controlling a single audio source (Url or Buffer).
 //
 // NOTE: This player creates and communicates with a number of objects within
-//       the flowgraph, primarily MpStreamFeeder.  However, the creating and 
+//       the flowgraph, primarily MpStreamFeeder.  However, the creating and
 //       connection to these objects are not made until the "realize" method
 //       is invoked.
 //
@@ -53,13 +53,13 @@ public:
 /* ============================ CREATORS ================================== */
 
    MpStreamPlayer(OsMsgQ* pMsg, Url url, int flags, const char* pTarget = NULL) ;
-     //:Contructs a stream player given a msgq, stream url, and 
+     //:Contructs a stream player given a msgq, stream url, and
      //:playing flags.
      //
      //!param pMsg - Destination for MpStreamMsg commands
      //!param url - Url identifing the source data stream
      //!param flags - Playing flags (see StreamDefs.h)
-     //!param target - Target Id used by the msg receiver to help with 
+     //!param target - Target Id used by the msg receiver to help with
      //       dispatching
 
    MpStreamPlayer(OsMsgQ* pMsg, UtlString* pBuffer,  int flags, const char* pTarget = NULL) ;
@@ -67,11 +67,11 @@ public:
      //:playing flags.
      //
      //!param pMsg - Destination for MpStreamMsg commands
-     //!param pBuffer - Net Buffer containing buffered audio data.  The 
+     //!param pBuffer - Net Buffer containing buffered audio data.  The
      //       MpStreamPlayer resource will delete the pBuffer upon destruction
      //       of itself.
      //!param flags - Playing flags (see StreamDefs.h)
-     //!param target - Target Id used by the msg receiver to help with 
+     //!param target - Target Id used by the msg receiver to help with
      //       dispatching
 
    virtual ~MpStreamPlayer();
@@ -83,36 +83,36 @@ public:
      //: Realizes the player by initiating a connection to the target,
      //: allocates buffers, etc.
      //
-     //!param bBlock - TRUE if the method should block until completion, 
+     //!param bBlock - TRUE if the method should block until completion,
      //       otherwise FALSE.
 
    virtual OsStatus prefetch(UtlBoolean bBlock = TRUE);
      //: Prefetch enough of the data source to ensure a smooth playback.
      //
-     //!param bBlock - TRUE if the method should block until completion, 
+     //!param bBlock - TRUE if the method should block until completion,
      //       otherwise FALSE.
 
    virtual OsStatus play(UtlBoolean bBlock = TRUE);
      //: Plays the media stream.
      //
-     //!param bBlock - TRUE if the method should block until completion, 
+     //!param bBlock - TRUE if the method should block until completion,
      //       otherwise FALSE.
 
    virtual OsStatus rewind(UtlBoolean bBlock = TRUE);
      //: Rewinds a previously played media stream.  In some cases this
      //  may result in a re-connect/refetch.
      //
-     //!param bBlock - TRUE if the method should block until completion, 
+     //!param bBlock - TRUE if the method should block until completion,
      //       otherwise FALSE.
 
    virtual OsStatus pause();
      //: Pauses the media stream temporarily.
-   
+
    OsStatus setLoopCount(int iLoopCount);
    //: sets the loop count.
    //: default is 1. -1 means infinite loop.
-   //: 0 is invalid.  
-   
+   //: 0 is invalid.
+
    virtual OsStatus stop();
      //: Stops play the media stream and resources used for buffering
      //: and streaming.
@@ -127,7 +127,7 @@ public:
 /* ============================ ACCESSORS ================================= */
 
    virtual OsStatus getState(PlayerState& state) ;
-     //: Gets the player state 
+     //: Gets the player state
 
    virtual OsStatus getSourceType(int& iType) const;
      //: Gets the source type for this player (SourceUrl or SourceBuffer)
@@ -167,7 +167,7 @@ private:
    UtlString*       mpBuffer;       // Buffer data source (if specified)
    PlayerState      mState;         // Present state of the player
    StreamHandle     mHandle;        // StreamHandle from lower layers
-   UtlString         mTarget;        // target id (callId)   
+   UtlString         mTarget;        // target id (callId)
    int              mFlags;         // Player Flags
    OsQueuedEvent*   mpQueueEvent;   // Used for comm. w/ Flowgraph
    OsBSem           mSemStateChange;// Synch for state changes

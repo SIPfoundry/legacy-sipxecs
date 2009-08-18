@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -51,7 +51,7 @@ typedef enum mpBufFormat mpBufFormat;
 // MpBuf
 // Used to carry media stream data between resources in a media processing
 // flow graph.
-// 
+//
 // Key features:
 // - Uses a reference count to determine when the buffer is no longer in
 //   use and when it is OK to modify the data in the buffer.

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -87,7 +87,7 @@ OsStatus StreamWAVFormatDecoder::begin()
 
 // Ends decoding
 OsStatus StreamWAVFormatDecoder::end()
-{      
+{
    mbEnd = TRUE ;
 
    // Interrupt any inprocess reads/seeks.  This speeds up the end.
@@ -96,7 +96,7 @@ OsStatus StreamWAVFormatDecoder::end()
    {
        pSrc->interrupt() ;
    }
-   
+
    // Draw the decoded queue
    drain() ;
 
@@ -105,7 +105,7 @@ OsStatus StreamWAVFormatDecoder::end()
 
    // Draw the decoded queue again to verify that nothing is left.
    drain() ;
-   
+
    mSemExited.release() ;
 
    return OS_SUCCESS ;
@@ -114,7 +114,7 @@ OsStatus StreamWAVFormatDecoder::end()
 
 /* ============================ ACCESSORS ================================= */
 
-// Renders a string describing this decoder.  
+// Renders a string describing this decoder.
 OsStatus StreamWAVFormatDecoder::toString(UtlString& string)
 {
    string.append("WAV") ;
@@ -136,11 +136,11 @@ UtlBoolean StreamWAVFormatDecoder::isDecoding()
 UtlBoolean StreamWAVFormatDecoder::validDecoder()
 {
    UtlBoolean bRC = FALSE ;
-   
+
    StreamDataSource* pSrc = getDataSource() ;
    if (pSrc != NULL)
    {
-      WAVChunkID id ; 
+      WAVChunkID id ;
       ssize_t read = 0 ;
       if (pSrc->peek((char*) &id, sizeof(WAVChunkID), read) == OS_SUCCESS)
       {
@@ -172,7 +172,7 @@ StreamWAVFormatDecoder::StreamWAVFormatDecoder(const StreamWAVFormatDecoder& rSt
 }
 
 // Assignment operator (not supported)
-StreamWAVFormatDecoder& 
+StreamWAVFormatDecoder&
 StreamWAVFormatDecoder::operator=(const StreamWAVFormatDecoder& rhs)
 {
 
@@ -194,22 +194,22 @@ int StreamWAVFormatDecoder::run(void* pArgs)
 {
    int iSamplesInOutBuffer = 0;
    Sample        partialFrame[80] ;
-   int   nSamplesPartialFrame = 0;   
+   int   nSamplesPartialFrame = 0;
    int numOutSamples = 0;
    ssize_t iDataLength ;
    int nQueuedFrames = 0;
 
    //used if the files are aLaw or uLaw encodec
    InitG711Tables();
- 
+
    StreamDataSource* pSrc = getDataSource() ;
    if (pSrc != NULL)
    {
       ssize_t iRead = 0;
-      char buf[16]; 
+      char buf[16];
 
       // "pre-read" 4 bytes, to see if this is a 0 length file and should
-      // be skipped.  Alas, apparently one cannot just call getLength() 
+      // be skipped.  Alas, apparently one cannot just call getLength()
       // as an  http fetch might not have returned any info yet.
       if (pSrc->peek(buf, 4, iRead) != OS_SUCCESS) // empty file
       {
@@ -230,9 +230,9 @@ int StreamWAVFormatDecoder::run(void* pArgs)
          //we really want 80 SAMPLES not 80 bytes
          unsigned char  InBuffer[NUM_SAMPLES*2] ;
          Sample OutBuffer[4000] = {0} ;  //make room for lots of decompression
-         
+
          iSamplesInOutBuffer = 0;
-         
+
          while ((iDataLength > 0) && !mbEnd)
          {
             ssize_t iRead = 0;
@@ -243,9 +243,9 @@ int StreamWAVFormatDecoder::run(void* pArgs)
             {
                 //we need to read 80 samples
                 iRead = __min(iDataLength, NUM_SAMPLES);
-                 
+
                 retval = pSrc->read((char *)InBuffer, iRead, iRead);
-                
+
                 //now convert to 16bit unsigned, which is what we use internally
                 ConvertUnsigned8ToSigned16(InBuffer,OutBuffer,iRead);
                 numOutSamples = iRead;
@@ -254,7 +254,7 @@ int StreamWAVFormatDecoder::run(void* pArgs)
             if (mFormatChunk.formatTag == 1 && mFormatChunk.nBitsPerSample == 16) //16 bit signed
             {
                 iRead = __min(iDataLength, NUM_SAMPLES*2);
-                
+
                 //just read in the data, because it's the format we need
                 retval = pSrc->read((char *)OutBuffer, iRead, iRead);
                 numOutSamples = iRead/2;
@@ -274,7 +274,7 @@ int StreamWAVFormatDecoder::run(void* pArgs)
             {
                 //we need to read 80 samples
                 iRead = __min(iDataLength, NUM_SAMPLES);
-                 
+
                 retval = pSrc->read((char *)OutBuffer, iRead, iRead);
                 //no conversion to 16bit will take place because we need to decompress this
             }
@@ -290,7 +290,7 @@ int StreamWAVFormatDecoder::run(void* pArgs)
                ssize_t bytes;
                switch (mFormatChunk.formatTag)
                {
-                  case 1:     // PCM                     
+                  case 1:     // PCM
                       //NO CONVERSION NEEDED
                         break ;
                   case 6:     // G711 alaw
@@ -305,26 +305,26 @@ int StreamWAVFormatDecoder::run(void* pArgs)
 
 
                 //we now should have a buffer filled with Samples, not bytes
-                
+
                 int numBytes = numOutSamples * sizeof(Sample);
-                
+
                 //next we check if the sound file is stereo...at this point in our lives
                 //we only want to support mono
                 //takes bytes in and gets bytes out.  NOT samples
                 if (mFormatChunk.nChannels > 1)
                 {
                     numBytes = mergeChannels((char *)OutBuffer, numBytes, mFormatChunk.nChannels);
-                    
+
                     //now calculate how many sample we have
                     numOutSamples = numBytes/sizeof(Sample);
                 }
-                
+
                 //in the next fucntion we must pass bytes, NOT samples as second param
                 numBytes = reSample((char *)OutBuffer, numBytes, mFormatChunk.nSamplesPerSec, DESIRED_SAMPLE_RATE);
-                
+
                 //now calculate how many sample we have
                 numOutSamples = numBytes/sizeof(Sample);
-                
+
                 //this next part will buffer the samples if under 80 samples
                 if (numOutSamples > 0)
                 {
@@ -374,13 +374,13 @@ int StreamWAVFormatDecoder::run(void* pArgs)
                fireEvent(DecodingErrorEvent) ;
                break ;
             }
-         }               
+         }
       }
       pSrc->close() ;
    }
 
 
-   queueEndOfFrames() ;      
+   queueEndOfFrames() ;
    syslog(FAC_STREAMING, PRI_DEBUG, "StreamWAVFormatDecoder::run queued %d frames", nQueuedFrames);
    fireEvent(DecodingCompletedEvent) ;
 
@@ -395,16 +395,16 @@ UtlBoolean StreamWAVFormatDecoder::nextDataChunk(ssize_t& iLength)
 {
    UtlBoolean bSuccess = FALSE ;
    ssize_t iRead ;
-   char Header[128]; 
+   char Header[128];
    uint32_t blockSize=0;  // 4 byte value in WAV file
    ssize_t iCurrentPosition ;
    iLength = 0 ;
-   
+
    StreamDataSource* pDataSource = getDataSource() ;
    if (pDataSource != NULL)
-   {      
+   {
       while (!mbEnd && pDataSource->read((char*) Header, 4, iRead) == OS_SUCCESS)
-      {      
+      {
          pDataSource->getPosition(iCurrentPosition);
          if (iCurrentPosition == 4 && memcmp(Header, MpWaveFileFormat, 4) != 0)
          {
@@ -444,7 +444,7 @@ UtlBoolean StreamWAVFormatDecoder::nextDataChunk(ssize_t& iLength)
          else
          if (memcmp(Header, "fmt ", 4) == 0)
          {
-            
+
             FORMATChunkInfo formatChunkInfo;
             if (pDataSource->read((char*) &blockSize, sizeof(blockSize), iRead) == OS_SUCCESS)
             {
@@ -477,7 +477,7 @@ UtlBoolean StreamWAVFormatDecoder::nextDataChunk(ssize_t& iLength)
 
                     memcpy(&mFormatChunk, &formatChunkInfo, sizeof(formatChunkInfo)) ;
                     iLength = blockSize ;
-                    
+
                     //now move to next block
                     if (pDataSource->seek(iCurrentPosition + blockSize) != OS_SUCCESS)
                     {
@@ -508,7 +508,7 @@ UtlBoolean StreamWAVFormatDecoder::nextDataChunk(ssize_t& iLength)
                  bSuccess = TRUE ;
                  break ;
             }
-         }            
+         }
          else
          {
             // Unsupported chunk, advance to the next one...
@@ -517,7 +517,7 @@ UtlBoolean StreamWAVFormatDecoder::nextDataChunk(ssize_t& iLength)
             {
                 char tmpbuf[16000];
                 int  totalLeftToRead, bytesToRead;
-                
+
                 blockSize = letohl(blockSize);
                 for (totalLeftToRead = blockSize; totalLeftToRead > 0; totalLeftToRead -= iRead )
                 {
@@ -541,7 +541,7 @@ UtlBoolean StreamWAVFormatDecoder::nextDataChunk(ssize_t& iLength)
          }
       }
 
-   
+
        //if we haven't reached the end of the stream and we are still not success
        //then fire the decoding error
        ssize_t currentPosition;
@@ -556,7 +556,7 @@ UtlBoolean StreamWAVFormatDecoder::nextDataChunk(ssize_t& iLength)
           fireEvent(DecodingErrorEvent) ;
        }
    }
-   
+
 
    return bSuccess ;
 }

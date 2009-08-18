@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -27,7 +27,7 @@
 // FORWARD DECLARATIONS
 class MpResource;
 
-//:Algorithm for performing a topological sort on the MpResource objects in 
+//:Algorithm for performing a topological sort on the MpResource objects in
 //:a flow graph.
 class MpResourceSortAlg
 {
@@ -47,8 +47,8 @@ public:
 
    OsStatus doSort(MpResource* unsorted[],
                    MpResource* sorted[], int numResources);
-     //:Use a topological sort to order the resource pointers passed in via 
-     //:the "unsorted" array.  The sorted pointers are returned via the 
+     //:Use a topological sort to order the resource pointers passed in via
+     //:the "unsorted" array.  The sorted pointers are returned via the
      //:"sorted" array.
      //!param: (in) unsorted - unsorted array of MpResource pointers
      //!param: (out) sorted - sorted array of MpResource pointers

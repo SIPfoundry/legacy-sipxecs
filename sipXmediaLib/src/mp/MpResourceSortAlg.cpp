@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -37,8 +37,8 @@ MpResourceSortAlg::~MpResourceSortAlg()
 
 /* ============================ MANIPULATORS ============================== */
 
-// Use a topological sort to order the resource pointers passed in via 
-// the "unsorted" array.  The sorted pointers are returned via the 
+// Use a topological sort to order the resource pointers passed in via
+// the "unsorted" array.  The sorted pointers are returned via the
 // "sorted" array.
 // Returns OS_SUCCESS if the sort operation was successful, returns
 // OS_LOOP_DETECTED if a loop in the flow graph was detected.
@@ -136,4 +136,3 @@ OsStatus MpResourceSortAlg::visitResource(MpResource* pResource)
 }
 
 /* ============================ FUNCTIONS ================================= */
-

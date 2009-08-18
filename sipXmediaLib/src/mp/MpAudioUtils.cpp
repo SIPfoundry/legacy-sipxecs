@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -77,11 +77,11 @@ int reSample(char *charBuffer,
       int keptSamples = 0, currentSample = 0;
       int rkeptSamples = 0, rcurrentSample = 0;
       int totalSamples = Size / sizeof(Sample);
-      
+
       int rateGcd = gcd(CurrentSampleRate, NewSampleRate);
       CurrentSampleRate /= rateGcd;
       NewSampleRate /= rateGcd;
-      
+
       for(; currentSample < totalSamples; currentSample++, rcurrentSample++)
          if (rkeptSamples * CurrentSampleRate <= rcurrentSample * NewSampleRate)
          {
@@ -92,7 +92,7 @@ int reSample(char *charBuffer,
       Size = keptSamples * sizeof(Sample);
    }
    //should really up-sample here someday...
-   
+
    // If we are not actually resampling, we just fall through to here...
    return Size;
 }
@@ -100,28 +100,28 @@ int reSample(char *charBuffer,
 int mergeChannels(char * charBuffer, int Size, int nTotalChannels)
 {
    Sample * buffer = (Sample *) charBuffer;
-   
+
    if(nTotalChannels == 2)
    {
       int targetSamples = Size / (sizeof(Sample) * 2);
       int targetSample = 0, sourceSample = 0;
-      
+
       for(; targetSample < targetSamples; targetSample++)
       {
          int mergedSample = buffer[sourceSample++];
          mergedSample += buffer[sourceSample++];
          buffer[targetSample] = mergedSample / 2;
       }
-      
+
       return targetSample * sizeof(Sample);
    }
    /* Test for this afterwards, to optimize 2-channel mixing */
    else if(nTotalChannels == 1)
       return Size;
-   
+
    int targetSamples = Size / (sizeof(Sample) * nTotalChannels);
    int targetSample = 0, sourceSample = 0;
-   
+
    for(; targetSample < targetSamples; targetSample++)
    {
       int mergedSample = 0;
@@ -129,7 +129,7 @@ int mergeChannels(char * charBuffer, int Size, int nTotalChannels)
          mergedSample += buffer[sourceSample++];
       buffer[targetSample] = mergedSample / nTotalChannels;
    }
-   
+
    return targetSample * sizeof(Sample);
 }
 
@@ -140,9 +140,9 @@ OsStatus WriteWaveHdr(OsFile &file)
     char tmpbuf[80];
     uint16_t bitsPerSample = 16;  // 2 byte value for Endian conversion and WAV file
 
-    short sampleSize = sizeof(Sample); 
+    short sampleSize = sizeof(Sample);
     uint16_t compressionCode = 1; //PCM = 2 byte value for Endian conversion
-    short numChannels = 1; 
+    short numChannels = 1;
     uint32_t samplesPerSecond = 8000; // 4 byte value for Endian conversion and WAV file
     uint32_t averageSamplePerSec = samplesPerSecond*sampleSize; // 4 byte value
     uint16_t blockAlign = sampleSize*numChannels;               // 2 byte value
@@ -153,14 +153,14 @@ OsStatus WriteWaveHdr(OsFile &file)
     //8 bytes written
     strcpy(tmpbuf,MpWaveFileFormat);
     uint32_t length = 0;   // 4 byte value for Endian conversion and WAV file
-    
+
     file.write(tmpbuf, strlen(tmpbuf),bytesWritten);
     TotalBytesWritten += bytesWritten;
-    
+
     length = htolel(length);
     file.write((char*)&length, sizeof(length),bytesWritten); //filled in on close
     TotalBytesWritten += bytesWritten;
-    
+
     //write WAVE & length
     //8 bytes written
     strcpy(tmpbuf,"WAVE");
@@ -172,14 +172,14 @@ OsStatus WriteWaveHdr(OsFile &file)
     //8 bytes written
     strcpy(tmpbuf,"fmt ");
     length = 16;
-    
+
     file.write(tmpbuf,strlen(tmpbuf),bytesWritten);
     TotalBytesWritten += bytesWritten;
 
     length = htolel(length);
     file.write((char*)&length,sizeof(length),bytesWritten); //filled in on close
     TotalBytesWritten += bytesWritten;
-    
+
     //now write each piece of the format
     //16 bytes written
     compressionCode = htoles(compressionCode);
@@ -189,19 +189,19 @@ OsStatus WriteWaveHdr(OsFile &file)
     numChannels = htoles(numChannels);
     file.write((char*)&numChannels, sizeof(numChannels),bytesWritten);
     TotalBytesWritten += bytesWritten;
-    
+
     samplesPerSecond = htolel(samplesPerSecond);
     file.write((char*)&samplesPerSecond, sizeof(samplesPerSecond),bytesWritten);
     TotalBytesWritten += bytesWritten;
-    
+
     averageSamplePerSec = htolel(averageSamplePerSec);
     file.write((char*)&averageSamplePerSec, sizeof(averageSamplePerSec),bytesWritten);
     TotalBytesWritten += bytesWritten;
-    
+
     blockAlign = htoles(blockAlign);
     file.write((char*)&blockAlign, sizeof(blockAlign),bytesWritten);
     TotalBytesWritten += bytesWritten;
-    
+
     bitsPerSample = htoles(bitsPerSample);
     file.write((char*)&bitsPerSample, sizeof(bitsPerSample),bytesWritten);
     TotalBytesWritten += bytesWritten;
@@ -210,14 +210,14 @@ OsStatus WriteWaveHdr(OsFile &file)
     //write data and length
     strcpy(tmpbuf,"data");
     length = 0;
-    
+
     file.write(tmpbuf,strlen(tmpbuf),bytesWritten);
     TotalBytesWritten += bytesWritten;
-    
+
     length = htolel(length);
     file.write((char*)&length,sizeof(length),bytesWritten); //filled in on close
     TotalBytesWritten += bytesWritten;
-    
+
     //total length at this point should be 44 bytes
     if (TotalBytesWritten == 44)
         retCode = OS_SUCCESS;
@@ -236,10 +236,10 @@ OsStatus updateWaveHeaderLengths(OsFile &file)
     size_t temp_len;
     file.getLength(temp_len);
     length = temp_len;
-    
+
     //no go back to beg
     file.setPosition(4);
-    
+
     //and update the RIFF length
     uint32_t rifflength = htolel(length-8); // 4 byte value for WAV file
     file.write((char*)&rifflength,sizeof(rifflength),bytesWritten);
@@ -248,7 +248,7 @@ OsStatus updateWaveHeaderLengths(OsFile &file)
 
         //now seek to the data length
         file.setPosition(40);
-    
+
         //this should be the length of just the data
         uint32_t datalength = htolel(length-44); // 4 byte value for WAV file
         file.write((char*)&datalength,sizeof(datalength),bytesWritten);
@@ -265,13 +265,13 @@ OsStatus mergeWaveUrls(UtlString rSourceUrls[], UtlString &rDestFile)
 {
     OsStatus retVal = OS_FAILED;
     int index = 0;
-    
+
     if (OsFileSystem::exists(rDestFile.data()))
         OsFileSystem::remove(rDestFile.data());
 
     OsFile file(rDestFile.data());
     file.touch();
-    if (file.open(OsFile::READ_WRITE) == OS_SUCCESS) 
+    if (file.open(OsFile::READ_WRITE) == OS_SUCCESS)
     {
         UtlBoolean bError = FALSE;
 
@@ -299,11 +299,11 @@ OsStatus mergeWaveUrls(UtlString rSourceUrls[], UtlString &rDestFile)
 
                             if (reader.read((char *)chunkId,4,bytesRead) == OS_SUCCESS) //now read WAVE marker
                             {
-                                if (memcmp(chunkId,"WAVE",4) == 0) //continue if RIFF                
+                                if (memcmp(chunkId,"WAVE",4) == 0) //continue if RIFF
                                 {
                                     if (reader.read((char *)chunkId,4,bytesRead) == OS_SUCCESS) //now read fmt marker
                                     {
-                                        if (memcmp(chunkId,"fmt ",4) == 0) //continue if RIFF                
+                                        if (memcmp(chunkId,"fmt ",4) == 0) //continue if RIFF
                                         {
                                             //read in the fmt length (most likely 16)
                                             int32_t fmtlength;
@@ -315,7 +315,7 @@ OsStatus mergeWaveUrls(UtlString rSourceUrls[], UtlString &rDestFile)
                                                     char fmtbuffer[100];
                                                     reader.read(fmtbuffer,fmtlength,bytesRead);
                                                 }
-                                            
+
                                                 //now read in the next check
                                                 if (reader.read((char *)chunkId,4,bytesRead) == OS_SUCCESS) //now read fmt marker
                                                 {
@@ -330,17 +330,17 @@ OsStatus mergeWaveUrls(UtlString rSourceUrls[], UtlString &rDestFile)
                                                         if (reader.read((char *)&datalength,sizeof(int32_t),bytesRead) == OS_SUCCESS)
                                                         {
                                                             datalength = letohl(datalength);
-                                                            if (bytesRead == sizeof(int32_t)) 
+                                                            if (bytesRead == sizeof(int32_t))
                                                             {
                                                                 unsigned char *charBuffer = (unsigned char*)malloc(datalength);
                                                                 size_t bytesWritten;
-            
+
                                                                 if (reader.read((char *)charBuffer,datalength,bytesRead) == OS_SUCCESS)
                                                                 {
                                                                     if (datalength == bytesRead)
                                                                     {
                                                                         file.write(charBuffer,bytesRead,bytesWritten);
-                    
+
                                                                         if ((ssize_t)bytesWritten != bytesRead)
                                                                         {
                                                                            bError = TRUE;
@@ -351,13 +351,13 @@ OsStatus mergeWaveUrls(UtlString rSourceUrls[], UtlString &rDestFile)
                                                                         }
                                                                     }
                                                                 }
-            
+
                                                                 free(charBuffer);
                                                             }
-                
+
                                                         }
                                                         memset(chunkId,0,sizeof(chunkId));
-                                                        reader.read((char *)chunkId,4,bytesRead); 
+                                                        reader.read((char *)chunkId,4,bytesRead);
                                                     }
                                                 }
                                             }
@@ -373,7 +373,7 @@ OsStatus mergeWaveUrls(UtlString rSourceUrls[], UtlString &rDestFile)
 
             index++;  //move to next file
         }
-        
+
         OsStatus updateStat = updateWaveHeaderLengths(file);
         if (!bError)
         {
@@ -391,13 +391,13 @@ OsStatus mergeWaveFiles(UtlString rSourceFiles[], UtlString &rDestFile)
 {
     OsStatus retVal = OS_FAILED;
     int index = 0;
-    
+
     if (OsFileSystem::exists(rDestFile.data()))
         OsFileSystem::remove(rDestFile.data());
 
     OsFile file(rDestFile.data());
     file.touch();
-    if (file.open(OsFile::READ_WRITE) == OS_SUCCESS) 
+    if (file.open(OsFile::READ_WRITE) == OS_SUCCESS)
     {
         UtlBoolean bError = FALSE;
         int lastCompressionType = -1;
@@ -413,10 +413,10 @@ OsStatus mergeWaveFiles(UtlString rSourceFiles[], UtlString &rDestFile)
 
                 MpAudioWaveFileRead reader(inputFile);
                 int compressionType = reader.getDecompressionType();
-                
+
                 if (lastCompressionType == -1)
                     lastCompressionType = compressionType;
-                
+
                 if (lastCompressionType == compressionType)
                 {
                     unsigned char *charBuffer = (unsigned char*)malloc(filesize);
@@ -431,14 +431,14 @@ OsStatus mergeWaveFiles(UtlString rSourceFiles[], UtlString &rDestFile)
                             TotalBytesRead += bytesRead;
                         } while (bytesRead > 0);
 
-                        if (TotalBytesRead > 0) 
+                        if (TotalBytesRead > 0)
                         {
                             size_t bytesWritten;
                             file.write(charBuffer,TotalBytesRead,bytesWritten);
 
                             if (bytesWritten != TotalBytesRead)
                                 bError = TRUE;
-                
+
                         }
                         free(charBuffer);
                     }
@@ -454,7 +454,7 @@ OsStatus mergeWaveFiles(UtlString rSourceFiles[], UtlString &rDestFile)
 
             index++;  //move to next file
         }
-        
+
         OsStatus updateStat = updateWaveHeaderLengths(file);
         if (!bError)
         {

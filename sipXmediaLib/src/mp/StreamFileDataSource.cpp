@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -54,13 +54,13 @@ OsStatus StreamFileDataSource::open()
    OsLock lock(mFileGuard) ;
    UtlString hostName ;
    UtlString pathName ;
-   OsStatus status = OS_FAILED ;   
+   OsStatus status = OS_FAILED ;
 
    if (mpFile == NULL)
    {
       // Fire started event to subscribed listeners
       fireEvent(LoadingStartedEvent) ;
-   
+
       mUrl.getPath(pathName) ;
       HttpMessage::unescape(pathName) ; // unescape it, so %xx become chars
       mpFile = new OsFile(pathName) ;
@@ -74,14 +74,14 @@ OsStatus StreamFileDataSource::open()
             fireEvent(LoadingCompletedEvent) ;
          else
             fireEvent(LoadingErrorEvent) ;
-	  } 
+	  }
 	  else
 	  {
-         fireEvent(LoadingErrorEvent) ;         
+         fireEvent(LoadingErrorEvent) ;
 	  }
 
    }
-   
+
    return status ;
 }
 
@@ -92,7 +92,7 @@ OsStatus StreamFileDataSource::close()
    OsLock lock(mFileGuard) ;
    OsStatus status = OS_FAILED ;
 
-   if (mpFile != NULL) 
+   if (mpFile != NULL)
    {
       mpFile->close() ;
       delete mpFile ;
@@ -110,7 +110,7 @@ OsStatus StreamFileDataSource::destroyAndDelete()
 
     return status ;
 }
-     
+
 
 
 // Reads iLength bytes of data from the data source and places the data into
@@ -125,7 +125,7 @@ OsStatus StreamFileDataSource::read(char *szBuffer, ssize_t iLength, ssize_t& iL
       rc = mpFile->read(szBuffer, iLength, (size_t&)iLengthRead);
 
    }
-   
+
    return rc ;
 }
 
@@ -149,7 +149,7 @@ OsStatus StreamFileDataSource::peek(char *szBuffer, ssize_t iLength, ssize_t& iL
          }
       }
    }
-   
+
    return rc ;
 }
 
@@ -169,7 +169,7 @@ OsStatus StreamFileDataSource::seek(size_t iLocation)
    {
       rc = open();
    }
-   
+
    return rc ;
 }
 
@@ -206,11 +206,11 @@ OsStatus StreamFileDataSource::getPosition(ssize_t& iPosition)
 
    return status ;
 }
-     
 
 
-// Renders a string describing this data source.  
-OsStatus StreamFileDataSource::toString(UtlString& string) 
+
+// Renders a string describing this data source.
+OsStatus StreamFileDataSource::toString(UtlString& string)
 {
    UtlString url ;
    string = "[File] " ;
@@ -233,7 +233,7 @@ StreamFileDataSource::StreamFileDataSource(const StreamFileDataSource& rStreamFi
 }
 
 // Assignment operator (not supported)
-StreamFileDataSource& 
+StreamFileDataSource&
 StreamFileDataSource::operator=(const StreamFileDataSource& rhs)
 {
     assert(FALSE) ;

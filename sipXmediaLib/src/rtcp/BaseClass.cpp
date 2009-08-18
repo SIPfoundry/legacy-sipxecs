@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -36,7 +36,7 @@ OsBSem sMultiThreadLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
  */
 unsigned long CBaseClass::AddRef(void)
 {
-    
+
     OsLock lock(sMultiThreadLock);
 
     //  Increment Reference Count
@@ -66,7 +66,7 @@ unsigned long CBaseClass::AddRef(void)
  */
 unsigned long CBaseClass::Release(void)
 {
-    
+
     OsLock lock(sMultiThreadLock);
 
     //  Decrement Reference Count
@@ -229,4 +229,3 @@ void DeleteCriticalSection(CRITICAL_SECTION *csSynchronized)
 
 }
 #endif /* _VXWORKS ] */
-

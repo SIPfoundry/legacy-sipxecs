@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -41,7 +41,7 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 
-   virtual void dataSourceUpdate(StreamDataSource* pDataSource, 
+   virtual void dataSourceUpdate(StreamDataSource* pDataSource,
                                  StreamDataSourceEvent event) = 0 ;
      //: Informs the listener when the data soruce has an event to publish.
      //! param pDataSource - Data source publishing the state change

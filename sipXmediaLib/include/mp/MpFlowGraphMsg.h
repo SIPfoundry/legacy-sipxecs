@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -61,7 +61,7 @@ public:
       FLOWGRAPH_STOP_PLAY,
       FLOWGRAPH_STOP_TONE,
       FLOWGRAPH_STOP_RECORD,
-      
+
       FLOWGRAPH_SYNCHRONIZE,
 
       FLOWGRAPH_SET_PREMIUM_SOUND,
@@ -94,8 +94,8 @@ public:
      //:Assignment operator
 
    void setMsgDest(MpResource* pMsgDest);
-     //:Sets the intended recipient for this message.  Setting the message 
-     //:destination to NULL indicates that the message is intended for the 
+     //:Sets the intended recipient for this message.  Setting the message
+     //:destination to NULL indicates that the message is intended for the
      //:flow graph itself.
 
    void setPtr1(void* p);
@@ -116,8 +116,8 @@ public:
      //:Returns the type of the media flow graph message
 
    MpResource* getMsgDest(void) const;
-     //:Returns the MpResource object that is the intended recipient for this 
-     //:message.  A NULL return indicates that the message is intended for 
+     //:Returns the MpResource object that is the intended recipient for this
+     //:message.  A NULL return indicates that the message is intended for
      //:the flow graph itself.
 
    void* getPtr1(void) const;

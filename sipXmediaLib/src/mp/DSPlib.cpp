@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -8,9 +8,9 @@
 //////
 
 
-// Noise generation 
+// Noise generation
 // comfort noise genrator
-// 
+//
 // The confort noise is generated via passing a white nosie through a 500Hz
 // low pass filter. The strength depends on the output a noise lvevl estimator
 // residing in MprToSpkr.
@@ -36,14 +36,14 @@
 
 #define FILTER_N 7   // MUST BE ODD
 
-#define HALF_FILTER_N   (FILTER_N+1)/2     
+#define HALF_FILTER_N   (FILTER_N+1)/2
 
 short shpLP500[HALF_FILTER_N] = {     //500Hz linear Lowpass filter parameters
       // 0.0328, 0.2396, 0.4553, 0.2396, 0.0328
       // 134, 981, 1865, 981, 134};   // in Q12
       // 0.0199, 0.0645,0.1664,0.2493,0.2493,0.1664,0.0645,0.0199
       // 82, 264, 682, 1021};      // in Q12 * 1.41
-   115, 373, 961, 1440};      // in Q12 * 1.41 
+   115, 373, 961, 1440};      // in Q12 * 1.41
 
 short shpFilterBuf[SAMPLES_PER_FRAME+FILTER_N];
 
@@ -119,15 +119,15 @@ void comfort_noise_generator(Sample  *shpSamples,
 
 }
 
-void background_noise_level_estimation(Word32&  ulNoiseLevel, 
-                                       Sample*  shpSamples,          
+void background_noise_level_estimation(Word32&  ulNoiseLevel,
+                                       Sample*  shpSamples,
                                        int      iLength)
 {
    int i;
    Word32 ulStrength = 0;
 
    for (i = 0; i < iLength; i++) {
-      ulStrength += (Word32) abs(*shpSamples++); 
+      ulStrength += (Word32) abs(*shpSamples++);
    }
    if( ulStrength <  (ulNoiseLevel<<1) ) { //updating if 6dB < existing average
       ulNoiseLevel = ulStrength  + (Word32) 31 * ulNoiseLevel;

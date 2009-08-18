@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -71,16 +71,16 @@ MprFromFile::~MprFromFile()
 #define FROM_FILE_READ_BUFFER_SIZE (8000)
 #define INIT_BUFFER_LEN (size_t(FROM_FILE_READ_BUFFER_SIZE * 2 * 10))
 
-OsStatus MprFromFile::playBuffer(const char* audioBuffer, unsigned long bufSize, 
+OsStatus MprFromFile::playBuffer(const char* audioBuffer, unsigned long bufSize,
                                  int type, UtlBoolean repeat, OsProtectedEvent* notify)
 {
     OsStatus res = OS_INVALID_ARGUMENT;
     UtlString* buffer;
-    
+
     char *convertedBuffer;
 
     buffer = new UtlString();
-    
+
     if (buffer)
     {
         switch(type)
@@ -91,10 +91,10 @@ OsStatus MprFromFile::playBuffer(const char* audioBuffer, unsigned long bufSize,
             case 1 : convertedBuffer = new char(bufSize*2);
 
                      //TODO: actually convert the buffer
-                     
+
                      buffer->append(convertedBuffer,bufSize);
 
-                     delete [] convertedBuffer; 
+                     delete [] convertedBuffer;
                      break;
         }
 
@@ -149,7 +149,7 @@ OsStatus MprFromFile::playFile(const char* audioFileName, UtlBoolean repeat,
     inputFile.seekg(0,ios::end);
     filesize = trueFilesize = inputFile.tellg();
     inputFile.seekg(0);
-   
+
    if (trueFilesize < sizeof(AudioSample))  //we have to have at least one sample to play
    {
       osPrintf("WARNING: %s contains less than one sample to play. Skipping play.\n",
@@ -177,21 +177,21 @@ OsStatus MprFromFile::playFile(const char* audioFileName, UtlBoolean repeat,
 
     //if we have an audioFile object, then it must be a known file type
     //otherwise, lets treat it as RAW
-    if (audioFile) 
+    if (audioFile)
     {
         if (audioFile->isOk())
         {
             audioFile->minMaxChannels(&channelsMin,
                                 &channelsMax, &channelsPreferred);
 
-            if (channelsMin > channelsMax) 
+            if (channelsMin > channelsMax)
             {
                 osPrintf("Couldn't negotiate channels.\n");
                 bDetectedFormatIsOk = FALSE;
             }
-        
+
             audioFile->minMaxSamplingRate(&rateMin,&rateMax,&ratePreferred);
-            if (rateMin > rateMax) 
+            if (rateMin > rateMax)
             {
                 osPrintf("Couldn't negotiate rate.\n");
                 bDetectedFormatIsOk = FALSE;
@@ -220,7 +220,7 @@ OsStatus MprFromFile::playFile(const char* audioFileName, UtlBoolean repeat,
             osPrintf("AudioFile: It's WAV file\n");
 #endif
 
-            switch(compressionType) 
+            switch(compressionType)
             {
                 case MpAudioWaveFileRead::DePcm8Unsigned: //8
 
@@ -228,8 +228,8 @@ OsStatus MprFromFile::playFile(const char* audioFileName, UtlBoolean repeat,
                     charBuffer = (char*)malloc(filesize*sizeof(AudioSample));
                     huhWhat = audioFile->getSamples((AudioSample*)charBuffer,
                                            filesize*sizeof(AudioSample));
-                    
-                    if (huhWhat) 
+
+                    if (huhWhat)
                     {
 
                         //it's now longer since it's 16 bit now
@@ -242,10 +242,10 @@ OsStatus MprFromFile::playFile(const char* audioFileName, UtlBoolean repeat,
                         //RESAMPLE IF NEEDED
                         if (ratePreferred > 8000)
                             filesize = reSample(charBuffer, filesize, ratePreferred, 8000);
-                
+
                         if (buffer == NULL)
                            buffer = new UtlString();
-                        
+
                         if (buffer)
                         {
                             buffer->append(charBuffer, filesize);
@@ -267,14 +267,14 @@ OsStatus MprFromFile::playFile(const char* audioFileName, UtlBoolean repeat,
                     charBuffer = (char*)malloc(filesize);
                     huhWhat = audioFile->getSamples((AudioSample*)charBuffer,
                                         filesize/sizeof(AudioSample));
-                    if (huhWhat) 
+                    if (huhWhat)
                     {
                         if (iTotalChannels > 1)
                             filesize = mergeChannels(charBuffer, filesize, iTotalChannels);
-               
+
                         if (ratePreferred > 8000)
                             filesize = reSample(charBuffer, filesize, ratePreferred, 8000);
-                
+
                         if (buffer == NULL)
                             buffer = new UtlString();
                         if (buffer)
@@ -309,7 +309,7 @@ OsStatus MprFromFile::playFile(const char* audioFileName, UtlBoolean repeat,
                 case MpAuRead::DeG711MuLaw:
                     charBuffer = (char*)malloc(filesize*2);
                     huhWhat = audioFile->getSamples((AudioSample*)charBuffer, filesize);
-                    if (huhWhat) 
+                    if (huhWhat)
                     {
 
                         //it's now 16 bit so it's twice as long
@@ -317,13 +317,13 @@ OsStatus MprFromFile::playFile(const char* audioFileName, UtlBoolean repeat,
 
                         if (channelsPreferred > 1)
                             filesize = mergeChannels(charBuffer, filesize, iTotalChannels);
-                    
+
                         if (ratePreferred > 8000)
                             filesize = reSample(charBuffer, filesize, ratePreferred, 8000);
-                    
+
                         if (buffer == NULL)
                             buffer = new UtlString();
-                        
+
                         if (buffer)
                         {
                             buffer->append(charBuffer, filesize);
@@ -335,7 +335,7 @@ OsStatus MprFromFile::playFile(const char* audioFileName, UtlBoolean repeat,
                     }
                     else
                     {
-                        if (notify) 
+                        if (notify)
                             notify->signal(INVALID_SETUP);
                         free(charBuffer);
                     }
@@ -344,14 +344,14 @@ OsStatus MprFromFile::playFile(const char* audioFileName, UtlBoolean repeat,
                 case MpAuRead::DePcm16MsbSigned:
                     charBuffer = (char*)malloc(filesize);
                     huhWhat = audioFile->getSamples((AudioSample*)charBuffer, filesize/2);
-                    if (huhWhat) 
+                    if (huhWhat)
                     {
                         if (channelsPreferred > 1)
                             filesize = mergeChannels(charBuffer, filesize, iTotalChannels);
-                    
+
                         if (ratePreferred > 8000)
                             filesize = reSample(charBuffer, filesize, ratePreferred, 8000);
-                    
+
                         if (buffer == NULL)
                            buffer = new UtlString();
                         if (buffer)
@@ -371,15 +371,15 @@ OsStatus MprFromFile::playFile(const char* audioFileName, UtlBoolean repeat,
                     }
                     break;
             }
-        } 
-        else 
+        }
+        else
             OsSysLog::add(FAC_MP, PRI_ERR, "ERROR: Detected audio file is bad.  Must be MONO, 16bit signed wav or u-law au");
 
         //remove object used to determine rate, compression, etc.
         delete audioFile;
         audioFile = NULL;
 
-    } 
+    }
     else
     {
 
@@ -401,20 +401,20 @@ OsStatus MprFromFile::playFile(const char* audioFileName, UtlBoolean repeat,
                 charBuffer = (char*)malloc(size);
 
                 huhWhat = audioFile->getSamples((AudioSample*)charBuffer, filesize);
-                if (huhWhat) 
+                if (huhWhat)
                 {
-    
+
                     filesize *= sizeof(AudioSample);
 
                     if (channelsPreferred > 1)
                         filesize = mergeChannels(charBuffer, filesize, iTotalChannels);
-            
+
                     if (ratePreferred > 8000)
                         filesize = reSample(charBuffer, filesize, ratePreferred, 8000);
-            
+
                     if(buffer == NULL)
                         buffer = new UtlString();
-                
+
                     if (buffer)
                     {
                         buffer->append(charBuffer, filesize);
@@ -431,14 +431,14 @@ OsStatus MprFromFile::playFile(const char* audioFileName, UtlBoolean repeat,
                 }
             }
         }
-     
-        else 
+
+        else
         if (0 != (audioFilePtr = fopen(audioFileName, "rb")))
         {
             charBuffer = (char*)malloc(FROM_FILE_READ_BUFFER_SIZE);
             int bytesRead;
             buffer = new UtlString();
-            
+
             if (buffer)
             {
                 buffer->capacity(filesize);
@@ -466,7 +466,7 @@ OsStatus MprFromFile::playFile(const char* audioFileName, UtlBoolean repeat,
     {
         MpFlowGraphMsg msg(PLAY_FILE, this, notify, buffer,
             repeat ? PLAY_REPEAT : PLAY_ONCE, 0);
-    
+
         //now post the msg (with the audio data) to be played
         res = postMessage(msg);
     }
@@ -643,4 +643,3 @@ UtlBoolean MprFromFile::handleMessage(MpFlowGraphMsg& rMsg)
 }
 
 /* ============================ FUNCTIONS ================================= */
-

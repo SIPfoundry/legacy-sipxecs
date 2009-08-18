@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -322,8 +322,8 @@ MpBufPtr MprEchoSuppress::LoudspeakerFade(MpBufPtr  in,
        shSpkState = iLoudspeakerFadeDB;//MprToSpkr::ATTEN_QUIETEST; // currently -6
     }
 
-   //Now attenuate speaker data 
-    
+   //Now attenuate speaker data
+
     if((mState != shSpkState) ) {
         mState = shSpkState;
 
@@ -370,8 +370,8 @@ UtlBoolean MprEchoSuppress::doProcessFrame(MpBufPtr inBufs[],
     in32 = NULL;
 #endif /* FLOWGRAPH_DOES_RESAMPLING ] */
 #else
-	
-    
+
+
 #endif
     in8 = inBufs[0];
 
@@ -400,7 +400,7 @@ UtlBoolean MprEchoSuppress::doProcessFrame(MpBufPtr inBufs[],
 
 
     MpBufPtr   out2 = NULL;              /* To point to 8k speaker buffer */
-    if(mpPrev == NULL) 
+    if(mpPrev == NULL)
 	{
          out2 = MpBuf_getFgSilence();
     }
@@ -448,12 +448,12 @@ UtlBoolean MprEchoSuppress::doProcessFrame(MpBufPtr inBufs[],
          }
          else // handset
          {
-			 
+
             if (1 /*HandAEC == 1*/)
             {
                mpHandsetFilterBank->DoHandsetFilterBank(shpMicSig, shpMicSig, shpSpkSig);
             }
-			
+
          }
 
       }
@@ -484,7 +484,7 @@ UtlBoolean MprEchoSuppress::doProcessFrame(MpBufPtr inBufs[],
 
    {
       int FadeDB = (MpCodec_isBaseSpeakerOn() ?
-                             iLoudspeakerFadeDB : //speakerphone 
+                             iLoudspeakerFadeDB : //speakerphone
                              0);                  //never fade earpiece
       out = LoudspeakerFade(in8, shSpkState, FadeDB);
    }
@@ -529,15 +529,15 @@ UtlBoolean MprEchoSuppress::doProcessFrame(MpBufPtr inBufs[],
    static int  iTrigger = 7000;        // Max allowable sample value, if it is over, trigger AGC
    static int  iBlockSize = iLength;   // Processing block size, iLength = 80 samples
    static int  iNormGain = 3;          // Normal processing gain of AGC block, 3 is ~10dB
-   static int  iLossThisFrame;         // Additional multiplier, reducing the gain to 
+   static int  iLossThisFrame;         // Additional multiplier, reducing the gain to
                                        // avoid clipping
-   static int  iLossPrevFrame;         // Additional multiplier, reducing the gain to 
+   static int  iLossPrevFrame;         // Additional multiplier, reducing the gain to
                                        // avoid clipping
    static int iLoss;
    static int iFrame = 0;              // Frame counter
 
    int      iOverloadRate;             // Number of samples in a sample block over iTrigger
-   static int   iAttackNumSamples;     // Number of samples to ramp the gain to new value  
+   static int   iAttackNumSamples;     // Number of samples to ramp the gain to new value
    static int   iDecayNumSamples;      // Number of samples to ramp the gain back to Nominal
 
    // Measure the frequency of overload condition. Look at iBlockSize samples
@@ -572,22 +572,22 @@ UtlBoolean MprEchoSuppress::doProcessFrame(MpBufPtr inBufs[],
 
    if (iOverloadRate > 0)
    {
-      
+
       iFrame ++;
 
       for (i = 0; i < iLength; i++)
       {
          //When there is no clipping the gain is 16/4 (12dB)
-         shpSamples[i] = ((Word32S)shpSamples[i] * iLoss) >> 2; 
-         
+         shpSamples[i] = ((Word32S)shpSamples[i] * iLoss) >> 2;
+
       }
 
    }
 
-   
 
-   // Printout 
-   
+
+   // Printout
+
 #endif /* ] */
 
 #endif /* __pingtel_on_posix ] */

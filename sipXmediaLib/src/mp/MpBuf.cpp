@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -10,7 +10,7 @@
 
 // SYSTEM INCLUDES
 
-#include <stdio.h> 
+#include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
@@ -716,7 +716,7 @@ MpBufSpeech MpBuf_doVAD(MpBufPtr buf)
    unsigned long energy = 0;
    unsigned long t;
    MpBufSpeech ret = MP_SPEECH_SILENT;
-   
+
    assert(!MpBuf_invalid(buf, FALSE, TRUE));
 
    num = MpBuf_getNumSamples(buf);
@@ -742,7 +742,7 @@ unsigned long MpBuf_getVAD(MpBufPtr buf)
    Sample* data;
    unsigned long energy = 0;
    unsigned long t;
-   
+
    assert(!MpBuf_invalid(buf, FALSE, TRUE));
 
    num = MpBuf_getNumSamples(buf);

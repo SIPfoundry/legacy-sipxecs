@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -36,7 +36,7 @@
 // STRUCTS
 // TYPEDEFS
 
-//: Feeder states (match player states for the most part, but add a 
+//: Feeder states (match player states for the most part, but add a
 //: realizing and rendering states)
 typedef enum tagFeederState
 {
@@ -56,30 +56,30 @@ class StreamDataSource ;
 class OsNotification ;
 
 //:The MpStreamFeed coordinates with the data source and decoder to ready the
-//:input stream and then plugs into the MprFromStream resource to supply 
+//:input stream and then plugs into the MprFromStream resource to supply
 //:audio info the flowgraph.
-//     
+//
 //                                                 ------------------
 //                                            +-> | StreamDataSource |
 //  ---------------           ----------------     ------------------
-// | MprFromStream | 1..N -> | MpStreamFeeder |   
+// | MprFromStream | 1..N -> | MpStreamFeeder |
 //  ---------------           ----------------    ---------------------
-//                                            +-> | StreamFormatDecoder |                 
+//                                            +-> | StreamFormatDecoder |
 //                                                 ---------------------
 //
 // The MpStreamFeeder has its own state table that mostly matches the generic
 // player's state table:
 //
 // Unrealized -> Realized -> Prefetching -> Prefetched -> Rendering -> Stopped
-//        
+//
 //            *->FailedState
 //
 // Communications:
 //
-// Events are send to the MpStreamPlayer resource indirectly through a 
+// Events are send to the MpStreamPlayer resource indirectly through a
 // settable OsNotifyEvent (setEventHandler).
 //
-// Events are received from the MprFromStream object by the fromStreamUpdate 
+// Events are received from the MprFromStream object by the fromStreamUpdate
 // callback function.
 //
 class MpStreamFeeder : public StreamDataSourceListener, public StreamDecoderListener
@@ -101,14 +101,14 @@ public:
      // OsMsgQ.
 
 /* ============================ MANIPULATORS ============================== */
-   
+
    OsStatus realize() ;
      //: Initiates the connection with the outbound party to validate the
      //: connection.  Buffers are allocated at this point.
 
    OsStatus render() ;
      //: Begin downloading and decoding data.  The state is not moved to
-     //  prefetched until a sensible amount of data has been received and 
+     //  prefetched until a sensible amount of data has been received and
      //  decoded.
 
    OsStatus rewind() ;
@@ -119,11 +119,11 @@ public:
      //: Stop collecting/rendering data
 
    OsStatus setEventHandler(OsNotification* pEventHandler) ;
-     //: Set the event handler for this renderer.  All events will be 
+     //: Set the event handler for this renderer.  All events will be
      //: delievered to this handler
 
    void markPaused(UtlBoolean bPaused) ;
-     //: Marks that playing is pauses; however, continues to render and 
+     //: Marks that playing is pauses; however, continues to render and
      //: stream.
 
 /* ============================ ACCESSORS ================================= */
@@ -165,7 +165,7 @@ protected:
    virtual void decoderUpdate(StreamFormatDecoder* pDecoder, StreamDecoderEvent event) ;
      //:Call back for decoder updates
 
-   virtual void dataSourceUpdate(StreamDataSource* pDataSource, StreamDataSourceEvent event) ;   
+   virtual void dataSourceUpdate(StreamDataSource* pDataSource, StreamDataSourceEvent event) ;
      //:Call back for data source updates
 
 #ifdef MP_STREAM_DEBUG /* [ */
@@ -176,7 +176,7 @@ protected:
 
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
-private: 
+private:
    static int s_iInstanceCount ;
 
    FeederState m_state;                      // State of the Feeder
@@ -187,12 +187,12 @@ private:
    UtlBoolean m_bMarkedPaused;                // Is this marked as paused?
    OsNotification* m_pEventHandler;          // Event sink.
    int m_iInstanceId ;
-   OsMutex m_eventGuard;                     // Guards multiple threads from 
+   OsMutex m_eventGuard;                     // Guards multiple threads from
                                              // calling fireEvent at same time
 
-   
-   
-  
+
+
+
    void initDecodingSource() ;
      //: Construction helper: initialize the decoding source
 

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -139,15 +139,15 @@ bool CRTCPTimer::Initialize(void)
     // m_ulTimerPeriod is in milliseconds, whereas the second argument to OsTime()
     // is in microseconds.
     m_pTimeout = new OsTime(m_ulTimerPeriod / 1000, (m_ulTimerPeriod % 1000) * 1000);
-    
+
     if(m_pCallback != NULL)
         delete m_pCallback;
     m_pCallback = new OsCallback(this, ReportingAlarm);
-    
+
     if(m_pTimer != NULL)
         delete m_pTimer;
     m_pTimer = new OsTimer(*m_pCallback);
-    
+
     m_pTimer->periodicEvery(*m_pTimeout, *m_pTimeout);
 #endif /* ] */
 

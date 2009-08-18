@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -186,7 +186,7 @@ static void * mediaSignaller(void * arg)
       frameCount++;
       MpMediaTask::signalFrameStart();
    }
-   
+
    osPrintf(" ***********STOP!**********\n");
 
    pthread_mutex_unlock(&sNotifierMutex);
@@ -306,13 +306,13 @@ static void * soundCardWriter(void * arg)
 {
    struct timeval start;
    int framesPlayed;
-   
+
    osPrintf(" **********START SPKR!**********\n");
-   
+
    gettimeofday(&start, NULL);
 
    framesPlayed = 0;
-   
+
    while(dmaOnline)
    {
       MpBufferMsg* pMsg;
@@ -358,10 +358,10 @@ static void * soundCardWriter(void * arg)
          {
             int played = 0;
             Sample* buffer = MpBuf_getSamples(ob);
-            
+
             /* copy the buffer for skip protection */
             memcpy(&last_buffer[N_SAMPLES / 2], &buffer[N_SAMPLES / 2], BUFLEN / 2);
-            
+
             sem_wait(&write_sem);
             while(played < N_SAMPLES)
             {
@@ -384,11 +384,11 @@ static void * soundCardWriter(void * arg)
       {
          int played = 0;
          //osPrintf("soundCardWriter smoothing over audio delay\n");
-         
+
          /* play half of the last sample backwards, then forward again */
          for(int i = 0; i != N_SAMPLES / 2; i++)
             last_buffer[i] = last_buffer[N_SAMPLES - i - 1];
-         
+
          sem_wait(&write_sem);
          while(played < N_SAMPLES)
          {
@@ -401,7 +401,7 @@ static void * soundCardWriter(void * arg)
          assert(played == N_SAMPLES);
       }
    }
-   
+
    osPrintf(" ***********STOP!**********\n");
    return NULL;
 }
@@ -425,7 +425,7 @@ static void startAudioSupport(void)
    /* let the read thread go first */
    sem_init(&write_sem, 0, 0);
    sem_init(&read_sem, 0, 1);
-   
+
    /* Start the reader and writer threads */
    res = pthread_create(&thread, NULL, soundCardReader, NULL);
    assert(res == 0);
@@ -463,7 +463,7 @@ static int setupSoundCard(void)
    int samplesize = BITS_PER_SAMPLE;
    int stereo = 0; /* mono */
    int speed = SAMPLES_PER_SEC;
-   
+
    fd = open("/dev/dsp", O_RDWR);
    if(fd == -1)
    {
@@ -486,7 +486,7 @@ static int setupSoundCard(void)
       close(fd);
       return -1;
    }
-   
+
    res = ioctl(fd, SNDCTL_DSP_SAMPLESIZE, &samplesize);
    if(res == -1 || samplesize != BITS_PER_SAMPLE)
    {
@@ -527,7 +527,7 @@ static int setupSoundCard(void)
       close(fd);
       return -1;
    }
-   
+
    return fd;
 }
 
@@ -539,7 +539,7 @@ static int setupSoundCard(void)
 {
    int res, fd;
    audio_info_t info;
-   
+
    fd = open("/dev/audio", O_RDWR);
    if(fd == -1)
    {
@@ -564,7 +564,7 @@ static int setupSoundCard(void)
    info.record.channels = 1; /* mono */
    info.record.precision = BITS_PER_SAMPLE;
    info.record.encoding = AUDIO_ENCODING_LINEAR;
-   
+
    res = ioctl(soundCard, AUDIO_SETINFO, &info);
    if(res == -1)
    {
@@ -572,7 +572,7 @@ static int setupSoundCard(void)
       close(fd);
       return -1;
    }
-   
+
    return fd;
 }
 
@@ -618,7 +618,7 @@ static OSStatus CoreAudio_io(AudioDeviceID CoreAudio_output_id, const AudioTimeS
    unsigned char buffer[16000 / UPDATE_FREQUENCY];
    struct CoreAudio_data_desc desc;
    UInt32 size;
-   
+
    /* convert from native to local */
    desc.size = CoreAudio_device_io_size;
    desc.data = input_data->mBuffers[0].mData;
@@ -626,14 +626,14 @@ static OSStatus CoreAudio_io(AudioDeviceID CoreAudio_output_id, const AudioTimeS
    AudioConverterFillBuffer(CoreAudio_input_converter, CoreAudio_data_proc, &desc, &size, buffer);
    /* we have to reset the converter or it remembers EOF */
    AudioConverterReset(CoreAudio_input_converter);
-   
+
    /* do I/O over the audio socket to the rest of the process, emulating a Linux-style /dev/dsp file descriptor */
    if(write(CoreAudio_socket[0], buffer, size) < 0)
       CoreAudio_shutdown();
    memset(buffer, 0, size);
    /* we need "size" bytes of data below, so don't reset it with the return value of read */
    read(CoreAudio_socket[0], buffer, size);
-   
+
    /* convert from local to native */
    desc.size = size;
    desc.data = buffer;
@@ -641,7 +641,7 @@ static OSStatus CoreAudio_io(AudioDeviceID CoreAudio_output_id, const AudioTimeS
    AudioConverterFillBuffer(CoreAudio_output_converter, CoreAudio_data_proc, &desc, &size, output_data->mBuffers[0].mData);
    /* we have to reset the converter or it remembers EOF */
    AudioConverterReset(CoreAudio_output_converter);
-   
+
    return kAudioHardwareNoError;
 }
 
@@ -649,24 +649,24 @@ static int setupSoundCard(void)
 {
    UInt32 parm_size;
    int error;
-   
+
    if(socketpair(AF_UNIX, SOCK_STREAM, PF_UNSPEC, CoreAudio_socket) < 0)
       goto fail;
    /* avoid getting killed by the audio callback writing to the socket if the client closes it */
    signal(SIGPIPE, SIG_IGN);
-   
+
    parm_size = sizeof(CoreAudio_output_id);
    error = AudioHardwareGetProperty(kAudioHardwarePropertyDefaultOutputDevice, &parm_size, &CoreAudio_output_id);
    if(error != kAudioHardwareNoError)
       goto fail_socket;
    if(CoreAudio_output_id == kAudioDeviceUnknown)
       goto fail_socket;
-   
+
    parm_size = sizeof(CoreAudio_device_desc);
    error = AudioDeviceGetProperty(CoreAudio_output_id, 0, 0, kAudioDevicePropertyStreamFormat, &parm_size, &CoreAudio_device_desc);
    if(error != kAudioHardwareNoError)
       goto fail_socket;
-   
+
    CoreAudio_local_desc = CoreAudio_device_desc;
    CoreAudio_local_desc.mSampleRate = 8000;
    CoreAudio_local_desc.mFormatID = kAudioFormatLinearPCM;
@@ -676,19 +676,19 @@ static int setupSoundCard(void)
    CoreAudio_local_desc.mBytesPerFrame = 2;
    CoreAudio_local_desc.mChannelsPerFrame = 1;
    CoreAudio_local_desc.mBitsPerChannel = 16;
-   
+
    error = AudioConverterNew(&CoreAudio_device_desc, &CoreAudio_local_desc, &CoreAudio_input_converter);
    if(error != kAudioHardwareNoError)
       goto fail_socket;
    error = AudioConverterNew(&CoreAudio_local_desc, &CoreAudio_device_desc, &CoreAudio_output_converter);
    if(error != kAudioHardwareNoError)
       goto fail_convert_input;
-   
+
    parm_size = sizeof(CoreAudio_device_io_size);
    error = AudioDeviceGetProperty(CoreAudio_output_id, 0, 0, kAudioDevicePropertyBufferSize, &parm_size, &CoreAudio_device_io_size);
    if(error != kAudioHardwareNoError)
       goto fail_convert_output;
-   
+
    CoreAudio_device_io_size = ((int) CoreAudio_device_desc.mSampleRate / UPDATE_FREQUENCY) * CoreAudio_device_desc.mBytesPerFrame;
    error = AudioDeviceSetProperty(CoreAudio_output_id, NULL, 0, 0, kAudioDevicePropertyBufferSize, parm_size, &CoreAudio_device_io_size);
    if(error != kAudioHardwareNoError)
@@ -697,20 +697,20 @@ static int setupSoundCard(void)
    error = AudioDeviceAddIOProc(CoreAudio_output_id, CoreAudio_io, NULL);
    if(error != kAudioHardwareNoError)
       goto fail_convert_output;
-   
+
    error = AudioDeviceStart(CoreAudio_output_id, CoreAudio_io);
    if(error != kAudioHardwareNoError)
       goto fail_io_proc;
-   
+
    return CoreAudio_socket[1];
-   
+
 fail_io_proc:
    AudioDeviceRemoveIOProc(CoreAudio_output_id, CoreAudio_io);
 fail_convert_output:
    AudioConverterDispose(CoreAudio_output_converter);
 fail_convert_input:
    AudioConverterDispose(CoreAudio_input_converter);
-fail_socket:   
+fail_socket:
    close(CoreAudio_socket[0]);
    close(CoreAudio_socket[1]);
 fail:
@@ -723,10 +723,10 @@ static int CoreAudio_shutdown(void)
    AudioDeviceRemoveIOProc(CoreAudio_output_id, CoreAudio_io);
    AudioConverterDispose(CoreAudio_output_converter);
    AudioConverterDispose(CoreAudio_input_converter);
-   
+
    /* the other side was closed by the client */
    close(CoreAudio_socket[0]);
-   
+
    return 0;
 }
 

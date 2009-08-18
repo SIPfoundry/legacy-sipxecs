@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -216,11 +216,11 @@ int MprFromNet::adjustBufferForRtp(MpBufPtr buf)
 
    if (version != 0x80) {
       // 0x80 means V=2, the only RTP spec we support.  Other values are
-      // probably indicative of bad packets.  Ignore them by returning a 
+      // probably indicative of bad packets.  Ignore them by returning a
       // bogus payload type.
       return 255;
    }
-   
+
    payloadType = (pRtpH->mpt & 0x7f);
    padded = (pRtpH->vpxcc) & 0x20;
    xBit   = (pRtpH->vpxcc) & 0x10;
@@ -431,7 +431,7 @@ OsStatus MprFromNet::pushPacket(MpBufPtr buf,
  **************************************************************************/
         if (DoForwardRtcp) {
             mpiRTCPDispatch->ProcessPacket(
-                      (unsigned char *)MpBuf_getStorage(buf), 
+                      (unsigned char *)MpBuf_getStorage(buf),
                       (unsigned long)MpBuf_getContentLen(buf));
         } else {
             RtcpDiscards++;
@@ -516,4 +516,3 @@ UtlBoolean MprFromNet::doProcessFrame(MpBufPtr inBufs[],
 }
 
 /* ============================ FUNCTIONS ================================= */
-

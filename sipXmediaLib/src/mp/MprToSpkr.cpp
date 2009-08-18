@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -290,13 +290,13 @@ UtlBoolean MprToSpkr::doProcessFrame(MpBufPtr inBufs[],
 	Sample*      shpSamples;
 	int          iLength;
 
-	if (0 == inBufsSize) 
-	{      
+	if (0 == inBufsSize)
+	{
 		return FALSE;
 	}
 
 #ifdef DETECT_SPKR_OVERFLOW /* [ */
-	if (mReport < smStatsReports) 
+	if (mReport < smStatsReports)
 	{
 		mReport = smStatsReports;
 		stats();
@@ -304,16 +304,16 @@ UtlBoolean MprToSpkr::doProcessFrame(MpBufPtr inBufs[],
 #endif /* DETECT_SPKR_OVERFLOW ] */
 
 	out = *inBufs;
-	if ((NULL != out) && isEnabled) 
+	if ((NULL != out) && isEnabled)
 	{
 		shpSamples = MpBuf_getSamples(out);
 		iLength = MpBuf_getNumSamples(out);
 
 		if (s_fnToSpeakerHook)
 		{
-			/* 
+			/*
 			 * Allow an external identity to consume speaker data.  Ideally,
-			 * this should probably become a different resource, but 
+			 * this should probably become a different resource, but
 			 * abstracting a new CallFlowGraph is a lot of work.
 			 */
 
@@ -332,7 +332,7 @@ UtlBoolean MprToSpkr::doProcessFrame(MpBufPtr inBufs[],
 #endif /* WIN32 ] */
 #endif /* REIMPLEMENT_CLARISIS_EQ ] */
 
-		if(iTrainingNoiseFlag > 0) 
+		if(iTrainingNoiseFlag > 0)
 		{
 			/* generate white noise to test the performance if AEC only.
              * This is for parameter tweaking only. The original speaker
@@ -344,28 +344,28 @@ UtlBoolean MprToSpkr::doProcessFrame(MpBufPtr inBufs[],
 			shpSamples = MpBuf_getSamples(out);
             white_noise_generator(shpSamples, iLength, iTrainingNoiseFlag);
 		}
-        else 
+        else
 		{
-			if(out == MpMisc.comfortNoise) 
+			if(out == MpMisc.comfortNoise)
 			{
 				MpBuf_delRef(out);
-				out = MpBuf_getBuf(MpMisc.UcbPool, samplesPerFrame, 0, 
+				out = MpBuf_getBuf(MpMisc.UcbPool, samplesPerFrame, 0,
 						MP_FMT_T12);
 				assert(NULL != out);
 				shpSamples = MpBuf_getSamples(out);
-				if(iComfortNoiseFlag > 0) 
+				if(iComfortNoiseFlag > 0)
 				{
 					comfort_noise_generator(shpSamples, samplesPerFrame,
 							mulNoiseLevel);
 				}
-				else 
+				else
 				{
-					memset((char *)shpSamples, 0 , iLength*2);                     
+					memset((char *)shpSamples, 0 , iLength*2);
 				}
 			}
-            else 
+            else
 			{
-				background_noise_level_estimation(mulNoiseLevel, shpSamples, 
+				background_noise_level_estimation(mulNoiseLevel, shpSamples,
 						iLength);
 			}
 		}
@@ -378,7 +378,7 @@ UtlBoolean MprToSpkr::doProcessFrame(MpBufPtr inBufs[],
 		mpDspResamp->up(dest, shpSamples, MpCodec_isBaseSpeakerOn());
 
 		MpBuf_delRef(out);
-        if (isOutputConnected(1)) 
+        if (isOutputConnected(1))
 		{
 			MpBufPtr ob2 = MpBuf_getBuf(MpMisc.DMAPool, 640, 0, MP_FMT_T12);
             assert(NULL != ob2);
@@ -390,24 +390,24 @@ UtlBoolean MprToSpkr::doProcessFrame(MpBufPtr inBufs[],
 		ob = out;
 #endif /* FLOWGRAPH_DOES_RESAMPLING ] */
 
-        while (MpMisc.pSpkQ && MpMisc.max_spkr_buffers < MpMisc.pSpkQ->numMsgs()) 
+        while (MpMisc.pSpkQ && MpMisc.max_spkr_buffers < MpMisc.pSpkQ->numMsgs())
 		{
 			OsStatus  res;
             res = MpMisc.pSpkQ->receive((OsMsg*&) pFlush, OsTime::NO_WAIT);
-            if (OS_SUCCESS == res) 
+            if (OS_SUCCESS == res)
 			{
 				MpBuf_delRef(pFlush->getTag());
 				MpBuf_delRef(pFlush->getTag(1));
 				pFlush->releaseMsg();
-            } 
-			else 
+            }
+			else
 			{
-				osPrintf("MprToSpkr: queue was full, now empty (res=%d)\n", 
+				osPrintf("MprToSpkr: queue was full, now empty (res=%d)\n",
 						res);
             }
 		}
 
-		if (isOutputConnected(0)) 
+		if (isOutputConnected(0))
 		{
 			outBufs[0] = ob;
             MpBuf_addRef(ob);
@@ -418,11 +418,11 @@ UtlBoolean MprToSpkr::doProcessFrame(MpBufPtr inBufs[],
 		spkrPool = MpMediaTask::getMediaTask(0)->getBufferMsgPool();
         assert(NULL != spkrPool);
         pMsg = spkrPool ? (MpBufferMsg*) spkrPool->findFreeMsg() : NULL;
-        if (NULL == pMsg) 
+        if (NULL == pMsg)
 		{
 			pMsg = new MpBufferMsg(MpBufferMsg::AUD_PLAY, __LINE__);
-		} 
-		else 
+		}
+		else
 		{
 			pMsg->setTag(NULL);
             pMsg->setTag(NULL, 1);
@@ -436,7 +436,7 @@ UtlBoolean MprToSpkr::doProcessFrame(MpBufPtr inBufs[],
         pMsg->setLen(MpBuf_getNumSamples(ob));
 
 
-        if (MpMisc.pSpkQ && OS_SUCCESS == MpMisc.pSpkQ->send(*pMsg, OsTime::NO_WAIT)) 
+        if (MpMisc.pSpkQ && OS_SUCCESS == MpMisc.pSpkQ->send(*pMsg, OsTime::NO_WAIT))
 		{
 			*inBufs = NULL;
 
@@ -444,33 +444,33 @@ UtlBoolean MprToSpkr::doProcessFrame(MpBufPtr inBufs[],
 		 // can be used in AEC calculations.
 		 MpBufferMsg* pAECMsg = new MpBufferMsg(MpBufferMsg::ACK_EOSTREAM) ;
 
-		 // TODO: We should pre-allocate a bunch of messages for 
+		 // TODO: We should pre-allocate a bunch of messages for
 		 //       this purpose (see DmaMsgPool as an example).
-		 
+
 		 MpBuf_addRef(ob) ;
-		 pAECMsg->setTag(ob) ;		 
+		 pAECMsg->setTag(ob) ;
 		 if (MpMisc.pEchoQ->numMsgs() >= MpMisc.pEchoQ->maxMsgs() ||  MpMisc.pEchoQ->send(*pAECMsg, OsTime::NO_WAIT) != OS_SUCCESS)
 		 {
 			 pAECMsg->releaseMsg() ;
 			 MpBuf_delRef(ob) ;
 		 }
 
-		} 
-		else 
+		}
+		else
 		{
-			if (pMsg->isMsgReusable()) 
+			if (pMsg->isMsgReusable())
 			{
 				pMsg->releaseMsg();
 			}
             MpBuf_delRef(ob);
 		}
-        
-		if (!pMsg->isMsgReusable()) 
+
+		if (!pMsg->isMsgReusable())
 		{
 			delete pMsg;
 		}
-	} 
-	else 
+	}
+	else
 	{
 		mCurAttenDb = mMaxAttenDb;
 		mCurRampStep = mCurVolumeFactor = mOldVolumeFactor = 0;

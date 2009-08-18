@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -43,7 +43,7 @@ MpStreamMsg::MpStreamMsg(int msg, UtlString& target, StreamHandle handle,
 // Copy constructor
 MpStreamMsg::MpStreamMsg(const MpStreamMsg& rMpStreamMsg)
 :  OsMsg(rMpStreamMsg)
-{  
+{
    mTarget  = rMpStreamMsg.mTarget;
    mHandle  = rMpStreamMsg.mHandle;
    mpPtr1   = rMpStreamMsg.mpPtr1;
@@ -67,7 +67,7 @@ MpStreamMsg::~MpStreamMsg()
 /* ============================ MANIPULATORS ============================== */
 
 // Assignment operator
-MpStreamMsg& 
+MpStreamMsg&
 MpStreamMsg::operator=(const MpStreamMsg& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
@@ -173,4 +173,3 @@ intptr_t MpStreamMsg::getInt2(void) const
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -31,7 +31,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-//:The Stream Queueing Format Decoder builds upon the abstract 
+//:The Stream Queueing Format Decoder builds upon the abstract
 //:StreamFormatDecoder by adding a mechanism to queue a max number
 //:of rendered frames.
 class StreamQueueingFormatDecoder : public StreamFormatDecoder
@@ -41,7 +41,7 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-   StreamQueueingFormatDecoder(StreamDataSource* pDataSource, 
+   StreamQueueingFormatDecoder(StreamDataSource* pDataSource,
                                int               iQueueLength);
      //:Constructs a queueing format decoder given a data source and queue
      //:length
@@ -85,7 +85,7 @@ protected:
 
    StreamQueueingFormatDecoder& operator=(const StreamQueueingFormatDecoder& rhs);
      //:Assignment operator (not supported)
-      
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
    OsMsgQ    mMsgqFrames ;        // Queue of frames
@@ -95,7 +95,7 @@ private:
    UtlBoolean mbDraining ;
 
    static OsMutex mMutReport ;// Thread safety for performance monitoring
-   
+
    static time_t       sLastReported ;  // When we last reported status
 
    static unsigned int sDeltaFrames ;	// Frames since last report
@@ -112,7 +112,7 @@ private:
      //:Reports that a frame has been processed by media processing.
 
    static void reportThrottle() ;
-    //: Reports that the decoder has been throttled (decoding faster 
+    //: Reports that the decoder has been throttled (decoding faster
     //: then data is being requested).
 
    static void reportStream() ;
@@ -125,17 +125,3 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _StreamQueueingFormatDecoder_h_
-
-
-
-
-
-
-
-
-
-
-
-
-
-

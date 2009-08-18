@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -277,7 +277,7 @@ void CRTCPRender::ForwardRTPHeader(IRTPHeader *piRTPHeader)
     // Check to see whether this is the first packet establishing our FE SSRC
     if(m_iRemoteSSRCFound == 0)
     {
-/*       
+/*
         osPrintf(">> CRTCPRdr::FwdRTPHdr():"
                             " New SSRC 0x%lX detected\n", ulRemoteSSRC);
 */
@@ -288,7 +288,7 @@ void CRTCPRender::ForwardRTPHeader(IRTPHeader *piRTPHeader)
     else if(m_ulRemoteSSRC != ulRemoteSSRC)
     {
         // SSRC ID has changed
-        if (m_iRemoteSSRCFound < 20) 
+        if (m_iRemoteSSRCFound < 20)
         {
 /*
             osPrintf(">> CRTCPRdr::FwdRTPHdr(): SSRC Changed"

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -26,9 +26,9 @@
 OsBSem StreamHttpDataSource::sSemGuardDelete(OsBSem::Q_FIFO, OsBSem::FULL) ;
 
 // LOCAL FUNCTIONS
-UtlBoolean DataCallbackProc(char* pData, 
-                           ssize_t iLength, 
-                           void* pOptionalData, 
+UtlBoolean DataCallbackProc(char* pData,
+                           ssize_t iLength,
+                           void* pOptionalData,
                            HttpMessage* pMsg) ;
 
 
@@ -50,7 +50,7 @@ StreamHttpDataSource::StreamHttpDataSource(Url url, int iFlags)
    mbFiredThrottledEvent = FALSE ;
    miOffset = 0 ;
    miDSLength = 0 ;
-   miBufferOffset = 0 ;   
+   miBufferOffset = 0 ;
    miMaxData = DEFAULT_BUFFER_SIZE ;
    mbDone = FALSE ;
    mbQuit = FALSE ;
@@ -72,7 +72,7 @@ OsStatus StreamHttpDataSource::open()
 {
 #ifdef MP_STREAM_DEBUG /* [ */
    UtlString url ;
-   m_url.toString(url) ;   
+   m_url.toString(url) ;
    osPrintf("StreamHttpDataSource: Open %s\n", url.data()) ;
 #endif /* MP_STREAM_DEBUG ] */
 
@@ -81,14 +81,14 @@ OsStatus StreamHttpDataSource::open()
    mbFiredThrottledEvent = FALSE ;
    miOffset = 0 ;
    miDSLength = 0 ;
-   miBufferOffset = 0 ;   
+   miBufferOffset = 0 ;
    miMaxData = DEFAULT_BUFFER_SIZE ;
    mbDone = FALSE ;
    mbQuit = FALSE ;
-   mbInterrupt = FALSE ;   
+   mbInterrupt = FALSE ;
    mbClosed = FALSE ;
    mbDeleteOnCompletion = FALSE ;
-     
+
    // Fire started event to subscribed listeners
    fireEvent(LoadingStartedEvent) ;
 
@@ -120,7 +120,7 @@ OsStatus StreamHttpDataSource::close()
       mbClosed = TRUE ;
 #ifdef MP_STREAM_DEBUG /* [ */
       UtlString url ;
-      m_url.toString(url) ;   
+      m_url.toString(url) ;
       osPrintf("StreamHttpDataSource: Close %s\n", url.data()) ;
 #endif /* MP_STREAM_DEBUG ] */
       interrupt() ;
@@ -128,7 +128,7 @@ OsStatus StreamHttpDataSource::close()
       mbQuit = TRUE ;
       mbDone = TRUE ;
       mSemLimitData.release() ;
-      mSemNeedData.release() ;     
+      mSemNeedData.release() ;
 
    }
    mSemGuardStartClose.release() ;
@@ -137,12 +137,12 @@ OsStatus StreamHttpDataSource::close()
    if (!mbClosed)
    {
       // Fire off an error event in the case that anyone is waiting for this to
-      // shutdown. It is possible that we are pulling down the stream and 
+      // shutdown. It is possible that we are pulling down the stream and
       // MpStreamFeeder will remove the listener before the run() method kicks
       // out.
       fireEvent(LoadingCompletedEvent) ;
    }
-      
+
    return OS_SUCCESS ;
 }
 
@@ -155,13 +155,13 @@ OsStatus StreamHttpDataSource::destroyAndDelete()
     close() ;
 
     // See the class level documentation in the header file for a description
-    // of the destruction process.    
+    // of the destruction process.
     if (isStarted())
     {
         mbDeleteOnCompletion = true ;
     }
     if (!mbDeleteOnCompletion)
-    {       
+    {
         delete this ;
     }
 
@@ -172,12 +172,12 @@ OsStatus StreamHttpDataSource::destroyAndDelete()
 // Reads iLength bytes of data from the data source and places the data into
 // the passed szBuffer buffer.
 OsStatus StreamHttpDataSource::read(char *szBuffer, ssize_t iLength, ssize_t& iLengthRead)
-{      
+{
    OsStatus rc = OS_INVALID ;
    OsTime timeout(20,0);
 
    // Make sure enough data is avaiable
-   while (((iLength+miOffset) > (mBuffer.length()+miBufferOffset)) && !mbDone 
+   while (((iLength+miOffset) > (mBuffer.length()+miBufferOffset)) && !mbDone
          && !mbInterrupt)
    {
       OsStatus retval = mSemNeedData.acquire(timeout);
@@ -210,7 +210,7 @@ OsStatus StreamHttpDataSource::read(char *szBuffer, ssize_t iLength, ssize_t& iL
       {
          iLengthRead = iLength ;
          int pos = miOffset-miBufferOffset;
-         if (pos < 0) 
+         if (pos < 0)
             pos = 0;
          memcpy(szBuffer, &mBuffer.data()[pos], iLengthRead) ;
       }
@@ -240,11 +240,11 @@ OsStatus StreamHttpDataSource::read(char *szBuffer, ssize_t iLength, ssize_t& iL
 
 // Identical to read, except the stream pointer is not advanced.
 OsStatus StreamHttpDataSource::peek(char *szBuffer, ssize_t iLength, ssize_t& iLengthRead)
-{      
+{
    OsStatus rc = OS_INVALID ;
 
    // Make sure enough data is avaiable
-   while (((iLength+miOffset) > (mBuffer.length()+miBufferOffset)) && !mbDone 
+   while (((iLength+miOffset) > (mBuffer.length()+miBufferOffset)) && !mbDone
          && !mbInterrupt)
    {
       mSemNeedData.acquire() ;
@@ -302,7 +302,7 @@ OsStatus StreamHttpDataSource::seek(size_t iLocation)
 
    // We need to seek to the position within the http data source.  This
    // is ugly because of the different modes of the HttpDataSource:
-   // 
+   //
    //  Windowing
    //    - Could have passed the data
    //    - Did not fetch the data yet
@@ -311,7 +311,7 @@ OsStatus StreamHttpDataSource::seek(size_t iLocation)
 
 
    // Wait for the data if we haven't fetched it yet
-   while ((iLocation > getBufferedLength()+miBufferOffset) && !mbDone 
+   while ((iLocation > getBufferedLength()+miBufferOffset) && !mbDone
          && !mbInterrupt)
    {
       mSemNeedData.acquire() ;
@@ -321,13 +321,13 @@ OsStatus StreamHttpDataSource::seek(size_t iLocation)
    {
       // Set the return code, clear the flag
       status = OS_INTERRUPTED ;
-      mbInterrupt = FALSE ;      
+      mbInterrupt = FALSE ;
    }
    else
    {
       // Verify that we didn't pass the data
       if (!(getFlags() & STREAM_HINT_CACHE))
-      {  
+      {
          if (iLocation >= miBufferOffset)
          {
             status = OS_SUCCESS ;
@@ -335,7 +335,7 @@ OsStatus StreamHttpDataSource::seek(size_t iLocation)
          else
          {
             // The requested location is below the current window and
-            // we need to rewind the data source.  This is 
+            // we need to rewind the data source.  This is
             // accomplished by closing it, re-opening it, and seeking
             // to the correct position.
             status = close() ;
@@ -362,14 +362,14 @@ OsStatus StreamHttpDataSource::seek(size_t iLocation)
 }
 
 
-// Callback routine that is invoked whenever new data is available from http 
+// Callback routine that is invoked whenever new data is available from http
 // socket.
 UtlBoolean StreamHttpDataSource::deliverData(char *szData, ssize_t iLength, ssize_t iMaxLength)
 {
    // Set the max length
-   if (iMaxLength >= 0 ) 
+   if (iMaxLength >= 0 )
    {
-      miDSLength = iMaxLength ;      
+      miDSLength = iMaxLength ;
    }
 
    // Reset capacity if warranted
@@ -378,7 +378,7 @@ UtlBoolean StreamHttpDataSource::deliverData(char *szData, ssize_t iLength, ssiz
       mBuffer.capacity(miDSLength) ;
       miMaxData = iMaxLength ;
    }
-   
+
    if (iLength > 0)
    {
       mSemGuardData.acquire() ;
@@ -396,7 +396,7 @@ UtlBoolean StreamHttpDataSource::deliverData(char *szData, ssize_t iLength, ssiz
       while ((mBuffer.length() > miMaxData) && !mbDone)
       {
          if (!mbFiredThrottledEvent)
-         {            
+         {
             // Fire started event to subscribed listeners
             fireEvent(LoadingStartedEvent) ;
 
@@ -441,8 +441,8 @@ OsStatus StreamHttpDataSource::getPosition(ssize_t& iPosition)
 }
 
 
-// Renders a string describing this data source.  
-OsStatus StreamHttpDataSource::toString(UtlString& string) 
+// Renders a string describing this data source.
+OsStatus StreamHttpDataSource::toString(UtlString& string)
 {
    UtlString url ;
    string = "[Http] " ;
@@ -469,7 +469,7 @@ StreamHttpDataSource::StreamHttpDataSource(const StreamHttpDataSource& rStreamHt
 
 
 // Assignment operator (not supported)
-StreamHttpDataSource& 
+StreamHttpDataSource&
 StreamHttpDataSource::operator=(const StreamHttpDataSource& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
@@ -486,7 +486,7 @@ int StreamHttpDataSource::getBufferedLength()
    mSemGuardData.acquire() ;
    iLength = mBuffer.length() ;
    mSemGuardData.release() ;
-   
+
    return  iLength ;
 }
 
@@ -502,12 +502,12 @@ int StreamHttpDataSource::run(void *pArgs)
 #ifdef MP_STREAM_DEBUG /* [ */
    osPrintf("StreamHttpDataSource: Starting...\n") ;
 #endif /* MP_STREAM_DEBUG ] */
-      
+
    pMsg->get(m_url, 30*1000, DataCallbackProc, this) ;
 
    // Fire completed/error event to subscribed listeners
    iResponseCode = pMsg->getResponseStatusCode() ;
-   
+
    // See the class level documentation in the header file for a description
    // of the destruction process.
    {
@@ -520,20 +520,20 @@ int StreamHttpDataSource::run(void *pArgs)
          }
          else
          {
-            fireEvent(LoadingErrorEvent) ; 
-         } 
+            fireEvent(LoadingErrorEvent) ;
+         }
       }
       delete pMsg ;
 
 #ifdef MP_STREAM_DEBUG /* [ */
       osPrintf("StreamHttpDataSource: Exiting Naturally...\n") ;
-#endif /* MP_STREAM_DEBUG ] */                 
+#endif /* MP_STREAM_DEBUG ] */
    }
 
    if (mbDeleteOnCompletion)
    {
       delete this ;
-   }    
+   }
    return 0 ;
 }
 
@@ -547,9 +547,9 @@ int StreamHttpDataSource::run(void *pArgs)
 /* ============================ FUNCTIONS ================================= */
 
 // Call back for data gathering from socket
-UtlBoolean DataCallbackProc(char* pData, 
-                           ssize_t iLength, 
-                           void* pOptionalData, 
+UtlBoolean DataCallbackProc(char* pData,
+                           ssize_t iLength,
+                           void* pOptionalData,
                            HttpMessage* pMsg)
 {
    StreamHttpDataSource* pSource = (StreamHttpDataSource*) pOptionalData ;
@@ -558,12 +558,12 @@ UtlBoolean DataCallbackProc(char* pData,
 #ifdef MP_STREAM_DEBUG /* [ */
    osPrintf("DataCallbackProc: length=%d\n", iLength) ;
 #endif /* MP_STREAM_DEBUG ] */
-   
+
    const char* pValue = pMsg->getHeaderValue(0, HTTP_CONTENT_LENGTH_FIELD) ;
-   if (pValue != NULL) 
+   if (pValue != NULL)
    {
       iTrueLength = atoi(pValue) ;
    }
-     
+
    return pSource->deliverData(pData, iLength, iTrueLength) ;
 }

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -44,7 +44,7 @@ public:
       STREAM_REWIND,
       STREAM_PAUSE,
       STREAM_STOP,
-      STREAM_DESTROY      
+      STREAM_DESTROY
    };
 
 /* ============================ CREATORS ================================== */
@@ -90,7 +90,7 @@ public:
 
    int getMsg(void) const;
      //:Returns the type of the stream  message
-   
+
    UtlString getTarget(void) const;
      //:Return the target id of the stream message
 
@@ -115,7 +115,7 @@ public:
 protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
-private:   
+private:
    UtlString     mTarget;   // Target ID
    StreamHandle mHandle;   // Stream Handle
    void*        mpPtr1;    // Message pointer 1

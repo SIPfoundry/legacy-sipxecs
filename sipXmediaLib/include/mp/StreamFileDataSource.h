@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -85,7 +85,7 @@ public:
      //:Gets the current position within the stream.
 
    virtual OsStatus toString(UtlString& string) ;
-     //:Renders a string describing this data source.  
+     //:Renders a string describing this data source.
      // This is often used for debugging purposes.
 
 /* ============================ INQUIRY =================================== */
@@ -111,21 +111,3 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _StreamFileDataSource_h_
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

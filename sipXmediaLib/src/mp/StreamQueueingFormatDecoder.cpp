@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -20,9 +20,9 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-#define PERFORMANCE_REPORT_ERROR_PERIOD_SECS    300    // Report every 5 
+#define PERFORMANCE_REPORT_ERROR_PERIOD_SECS    300    // Report every 5
                                                        // minute if underruns
-#define PERFORMANCE_REPORT_CLEAN_PERIOD_SECS    3600   // Report every hour 
+#define PERFORMANCE_REPORT_CLEAN_PERIOD_SECS    3600   // Report every hour
                                                        // if running clean
 
 // STATIC VARIABLE INITIALIZATIONS
@@ -47,14 +47,14 @@ unsigned int StreamQueueingFormatDecoder::sTotalThrottles = 0 ;
 // Constructor
 StreamQueueingFormatDecoder::
 StreamQueueingFormatDecoder(StreamDataSource* pDataSource, int iQueueLength)
-   : StreamFormatDecoder(pDataSource) 
+   : StreamFormatDecoder(pDataSource)
    , mMsgqFrames(iQueueLength)
    , mMsgPool("StreamQueueingFormatDecoder", StreamQueueMsg(),
-         iQueueLength+1,iQueueLength+2, 
+         iQueueLength+1,iQueueLength+2,
          iQueueLength+2, 1, OsMsgPool::SINGLE_CLIENT)
    , mbReportThrottle(TRUE)
 {
-   
+
    miMaxQueueLength = iQueueLength ;
 
    mbDraining = FALSE ;
@@ -75,7 +75,7 @@ OsStatus StreamQueueingFormatDecoder::getFrame(uint16_t* samples)
 
    int iNumQueuedFrames = getNumQueuedFrames() ;
 
-   // Report Throttle / Underruns      
+   // Report Throttle / Underruns
    if (iNumQueuedFrames <= 0)
    {
       fireEvent(DecodingUnderrunEvent) ;
@@ -90,7 +90,7 @@ OsStatus StreamQueueingFormatDecoder::getFrame(uint16_t* samples)
       if (!mbDraining)
          reportFrame(FALSE) ;
    }
-   
+
    // If a sample is available, get it.
    if (iNumQueuedFrames > 0)
    {
@@ -109,7 +109,7 @@ OsStatus StreamQueueingFormatDecoder::getFrame(uint16_t* samples)
    {
       // If not samples are available, return silence.
       memset(samples, 0, sizeof(int16_t) * 80) ;
-   }  
+   }
 
    return status ;
 }
@@ -145,9 +145,9 @@ OsStatus StreamQueueingFormatDecoder::queueFrame(const uint16_t* pSamples)
    StreamQueueMsg* pMsg = (StreamQueueMsg*) mMsgPool.findFreeMsg() ;
    if (pMsg)
    {
-      pMsg->setSamples((const int16_t*)pSamples);                        
-         mMsgqFrames.send(*pMsg) ;     
-   }     
+      pMsg->setSamples((const int16_t*)pSamples);
+         mMsgqFrames.send(*pMsg) ;
+   }
    else
    {
       status = OS_FAILED;
@@ -161,7 +161,7 @@ OsStatus StreamQueueingFormatDecoder::queueFrame(const uint16_t* pSamples)
 // Queues an end of frame marker.  This informs MprFromStream that the Stream
 // has ended.
 OsStatus StreamQueueingFormatDecoder::queueEndOfFrames()
-{      
+{
    OsStatus status = OS_SUCCESS ;
 
    // check if throttling needs to happen
@@ -197,12 +197,12 @@ OsStatus StreamQueueingFormatDecoder::drain()
 
    return OS_SUCCESS ;
 }
-     
+
 
 
 /* ============================ ACCESSORS ================================= */
 
-// Gets the maximum number of frames that can be queued before the queueing 
+// Gets the maximum number of frames that can be queued before the queueing
 // routines will block.
 int StreamQueueingFormatDecoder::getMaxQueueLength()
 {
@@ -219,7 +219,7 @@ int StreamQueueingFormatDecoder::getNumQueuedFrames()
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
-// Copy constructor (not supported) 
+// Copy constructor (not supported)
 StreamQueueingFormatDecoder::StreamQueueingFormatDecoder(
       const StreamQueueingFormatDecoder& rStreamQueueingFormatDecoder)
    : StreamFormatDecoder(NULL)
@@ -230,7 +230,7 @@ StreamQueueingFormatDecoder::StreamQueueingFormatDecoder(
 }
 
 // Assignment operator (not supported)
-StreamQueueingFormatDecoder& 
+StreamQueueingFormatDecoder&
 StreamQueueingFormatDecoder::operator=(const StreamQueueingFormatDecoder& rhs)
 {
    assert(FALSE) ;
@@ -245,7 +245,7 @@ StreamQueueingFormatDecoder::operator=(const StreamQueueingFormatDecoder& rhs)
 
 
 // Reports that a frame has been processed by media processing.
-void StreamQueueingFormatDecoder::reportFrame(UtlBoolean bUnderrun) 
+void StreamQueueingFormatDecoder::reportFrame(UtlBoolean bUnderrun)
 {
    OsLock lock(mMutReport) ;
    time_t now ;
@@ -282,14 +282,14 @@ void StreamQueueingFormatDecoder::reportFrame(UtlBoolean bUnderrun)
             "    Cumulative: streams=%4d, frames=%6d, underruns=%4d, throttles=%5d\n",
             now-sLastReported, sDeltaStreams, sDeltaFrames, sDeltaUnderruns, sDeltaThrottles,
             sTotalStreams, sTotalFrames, sTotalUnderruns, sTotalThrottles) ;
-#else      
+#else
       // Under linux, report using OsSysLog
-      OsSysLog::add(FAC_MP, PRI_INFO, 
+      OsSysLog::add(FAC_MP, PRI_INFO,
             "Last %4ld secs: streams=%4d, frames=%6d, underruns=%4d, throttles=%5d\n"\
             "    Cumulative: streams=%4d, frames=%6d, underruns=%4d, throttles=%5d\n",
             now-sLastReported, sDeltaStreams, sDeltaFrames, sDeltaUnderruns, sDeltaThrottles,
             sTotalStreams, sTotalFrames, sTotalUnderruns, sTotalThrottles) ;
-#endif        
+#endif
       sDeltaStreams = 0 ;
       sDeltaFrames = 0 ;
       sDeltaUnderruns = 0 ;
@@ -300,7 +300,7 @@ void StreamQueueingFormatDecoder::reportFrame(UtlBoolean bUnderrun)
    }
 }
 
-// Reports that the decoder has been throttled (decoding faster then data is 
+// Reports that the decoder has been throttled (decoding faster then data is
 // being requested).
 void StreamQueueingFormatDecoder::reportThrottle()
 {
@@ -321,4 +321,3 @@ void StreamQueueingFormatDecoder::reportStream()
 /* ============================ TESTING =================================== */
 
 /* ============================ FUNCTIONS ================================= */
-

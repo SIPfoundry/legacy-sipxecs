@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -117,7 +117,7 @@ class CMessage
 #ifdef __pingtel_on_posix__
     virtual OsMsg * createCopy(void) const;
 #endif
-    
+
 /*|><|************************************************************************
 *
 * Method Name:  GetContents

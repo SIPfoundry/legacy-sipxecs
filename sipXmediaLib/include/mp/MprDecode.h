@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -80,13 +80,13 @@ protected:
 
    /// Handle the FLOWGRAPH_SET_DTMF_NOTIFY message by calling the
    //  setting the DTMF notifier on all the codecs.  Will also store
-   //  the notifier and apply it to all decoders created in the future. 
+   //  the notifier and apply it to all decoders created in the future.
    //  Call with NULL to clear the notifier.
    //  Returns TRUE
    UtlBoolean handleSetDtmfNotify(OsNotification* n);
 
    /// Set the media recorder on all the codecs.  Will also store
-   //  the recorder and apply it to all decoders created in the future. 
+   //  the recorder and apply it to all decoders created in the future.
    //  Call with NULL to clear the recorder.
    //  Returns TRUE
    UtlBoolean setDtmfTerm(MprRecorder *pRecorder);

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -172,14 +172,14 @@ in band to distant aliased ratio =   55.99247
 overlapped passband max deviation from flat =    0.08974
 in band to weighted aliased ratio =   54.55673
 analysis filter reconstruction errors by phase:
-phase =  0/  8   0.9998   0.0046   0.0012 
-phase =  1/  8   0.9999   0.0047  -0.0012 
-phase =  2/  8   1.0001   0.0050  -0.0033 
-phase =  3/  8   1.0003   0.0053  -0.0045 
-phase =  4/  8   1.0003   0.0053  -0.0045 
-phase =  5/  8   1.0001   0.0050  -0.0033 
-phase =  6/  8   0.9999   0.0047  -0.0012 
-phase =  7/  8   0.9998   0.0046   0.0012 
+phase =  0/  8   0.9998   0.0046   0.0012
+phase =  1/  8   0.9999   0.0047  -0.0012
+phase =  2/  8   1.0001   0.0050  -0.0033
+phase =  3/  8   1.0003   0.0053  -0.0045
+phase =  4/  8   1.0003   0.0053  -0.0045
+phase =  5/  8   1.0001   0.0050  -0.0033
+phase =  6/  8   0.9999   0.0047  -0.0012
+phase =  7/  8   0.9998   0.0046   0.0012
 */
 static int AnalysisWindow[ 48] = {
   -350,  -630,  -963, -1330, -1700, -2030, -2266, -2353, -2044, -1468,
@@ -332,4 +332,3 @@ static int LdspkrAnalysisWindow[ 48] = {
  24510, 26798, 28407, 29233, 29233, 28407, 26798, 24510, 21685, 18493,
  15117, 11740,  8495,  5580,  3088,  1079,  -424, -1438, -2010, -2210,
  -2063, -1775, -1396,  -992,  -616,  -302,   -70,    75};
-

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -19,7 +19,7 @@
 #define PASS_THROUGH_TEST 0
 /////////////////////////////////////////////////////////////////////
 #include <stdlib.h>
-#include <stdio.h> 
+#include <stdio.h>
 #include <math.h>
 
 
@@ -195,7 +195,7 @@ void HandsetFilterBank::HandsetFilterBankReinit()
    {
       HS_LdspkrDLPow[Band] = 0;
    }
-   
+
 #define THRESHOLD_SCALE 8
 //#define THRESHOLD_SCALE 1
 
@@ -445,7 +445,7 @@ void HandsetFilterBank::DoHandsetFilterBank(short fbecmic[], short mic[], short 
 
 /* **************** New for suppression of headset electrical nonlinear echo */
 #ifdef _VXWORKS /* [ */
-    if (i_HS_EchoSup && MpCodec_isHeadsetSpeakerOn()) 
+    if (i_HS_EchoSup && MpCodec_isHeadsetSpeakerOn())
        HandsetComputeLoudspeakerFade();
 #endif /* _VXWORKS ] */
 /* **************** end of New for suppression of headset electrical nonlinear echo */
@@ -460,7 +460,7 @@ void HandsetFilterBank::DoHandsetFilterBank(short fbecmic[], short mic[], short 
 #ifdef _VXWORKS /* [ */
     if (i_HS_EchoSup && MpCodec_isHeadsetSpeakerOn())
        HandsetEchoSuppress(MultiFrameMicFFTArray,HS_DoubletalkIndicator);
-#endif /* _VXWORKS ] */		 
+#endif /* _VXWORKS ] */
 /* **************** end of New for suppression of headset electrical nonlinear echo */
 
 #endif
@@ -511,7 +511,7 @@ void HandsetFilterBank::DoHandsetFilterBank(short fbecmic[], short mic[], short 
         }
     }
 #endif
-    
+
     for (FrameNum = 0; FrameNum < HS_NUM_FRAMES_PER_10MS; FrameNum++)
     {
 
@@ -592,18 +592,18 @@ void HandsetFilterBank::DoHandsetFilterBank(short fbecmic[], short mic[], short 
 
 #if COMPUTE_BAND_ERL
 
-      
+
 
        Temp0 = Get1000log10(SumFBResPow[DisplayBand]);
        osPrintf("  M:%2d  ",Temp0/100);
 
 	   osPrintf("L:%6d  ",LdspkrDB[DisplayBand]/1000);
 
-#endif 
+#endif
        SumFBMicPow[DisplayBand] = 0;
        SumFBResPow[DisplayBand] = 0;
 
-   
+
        for (j=ECNumTaps[DisplayBand]-1; j >= 0; j--) {
            Temp0 = EchoCancellerCoef[DisplayBand][j].r >> 4;
            Temp1 = EchoCancellerCoef[DisplayBand][j].i >> 4;
@@ -759,7 +759,7 @@ void HandsetFilterBank::DoHandsetFilterBank(short fbecmic[], short mic[], short 
 
        printf("%3d ",LdspkrMicGain[Band]/1000);
        fprintf(fp_stats,"%3d ",LdspkrMicGain[Band]/1000);
-       
+
        printf("  %2d ",LdspkrDB[Band]/1000);
        fprintf(fp_stats,"  %2d ",LdspkrDB[Band]/1000);
 
@@ -771,7 +771,7 @@ void HandsetFilterBank::DoHandsetFilterBank(short fbecmic[], short mic[], short 
        printf("%2d ",Temp0/100);
        fprintf(fp_stats,"%2d ",Temp0/100);
 
-       
+
        printf("%3d ",DebugUpdateCount[Band]);
        fprintf(fp_stats,"%3d ",DebugUpdateCount[Band]);
        DebugUpdateCount[Band] = 0;
@@ -809,8 +809,8 @@ void HandsetFilterBank::DoHandsetFilterBank(short fbecmic[], short mic[], short 
 
    }
 
-#endif      // #endif for VX1_PC0 
-    
+#endif      // #endif for VX1_PC0
+
     Frame10msCount++;
 }               // end of HandsetFilterBank::DoHandsetFilterBank()
 
@@ -847,7 +847,7 @@ void HandsetFilterBank::MultiFrameHandsetFilterBankAnalysis(icomplex outFFTArray
       Temp0 = AnalysisWindow[i];
       Temp1 = AnalysisWindow[i+HS_TWOM];
       Temp2 = AnalysisWindow[i+2*HS_TWOM];
-      
+
       for (FrameNum = 0; FrameNum < HS_NUM_FRAMES_PER_10MS; FrameNum++)
       {
 // each frame: window, overlap and add.
@@ -898,7 +898,7 @@ We can interpret this as making continuous the DFT modulation carrier waves. */
 #endif
       }
    }
-   
+
 
 }
 
@@ -950,7 +950,7 @@ int HandsetFilterBank::HandsetDoubletalkDetection(icomplex MultiFrameMicFFTArray
 
    }
 
-   
+
    int ECDLBandNewestIndex;
    int BandCount;
 
@@ -971,7 +971,7 @@ for an entire 10 ms frame. */
            ECDL[ECDLBandNewestIndex+FrameNum].i = MultiFrameLdspkrFFTArray[FrameNum][Band + HS_LOW_BAND].i -
                ((POLE_CONST*ECDL[ECDLBandNewestIndex+FrameNum-1].i + 8) >> 4);
        }
-       
+
 /* Use the recursively computed power in the loudspeaker DL to initialize the sum of powers.
 Then add in the powers of the new samples. */
        Temp2 = HS_LdspkrDLPow[Band];
@@ -980,7 +980,7 @@ Then add in the powers of the new samples. */
        {
            Temp2 += imagsq(&(ECDL[ECDLBandNewestIndex+FrameNum]), SHIFT2);
        }
-       
+
        Temp0 = 10*Get1000log10(Temp2);
        LdspkrDB[Band] = Temp0;
 
@@ -1021,14 +1021,14 @@ void HandsetFilterBank::HandsetSubbandECLoop(icomplex MultiFrameMicFFTArray[][HS
 	int Band;
 	int Temp0, Temp1, Temp2;
 	int FrameNum;
-	
+
 	/* Do echo cancellation and update for each of the HS_NUM_BANDS_PROCESSED bands */
    int EcIndex;
    int DLIndex;
 
    int ECDLBandNewestIndex;
    int BandCount;
-	
+
 	Band = ECDLHighestAddressBand;
    ECDLBandNewestIndex = ECDLHighestAddressBandNewestIndex;
 
@@ -1120,7 +1120,7 @@ void HandsetFilterBank::HandsetSubbandECLoop(icomplex MultiFrameMicFFTArray[][HS
 			MultiFrameMicFFTArray[FrameNum][Band + HS_LOW_BAND].r -= cTemp.r;
 			MultiFrameMicFFTArray[FrameNum][Band + HS_LOW_BAND].i -= cTemp.i;
 #endif
-			
+
 			if (HS_UpdateControl)
 			{
 //             if ((HS_DoubletalkIndicator < 3000) &&
@@ -1177,13 +1177,13 @@ Subtract the oldest sample's power from the current value in HS_LdspkrDLPow[Band
 /* Compute the residual power for Band */    // DEBUG!!! For now, this isn't used later.
 #if COMPUTE_BAND_ERL
 //		SumFBResPow[Band] -= (SumFBResPow[Band] >> 5);
-		
+
 		Temp2 = 0;
 		for (FrameNum = 0; FrameNum < HS_NUM_FRAMES_PER_10MS; FrameNum++)
 		{
 			Temp2 += imagsq(&(MultiFrameMicFFTArray[FrameNum][Band + HS_LOW_BAND]), MIC_GAIN_SHIFT);
 		}
-		
+
 		SumFBResPow[Band] += (Temp2 + 2) >> 2;
 #endif
 
@@ -1238,7 +1238,7 @@ DEBUG!!!! This should be unnecessary. */
           EcIndex--;
           DLIndex--;
        }
-       
+
 #if (VX1_PC0 == 0)
        if (Temp2 != HS_LdspkrDLPow[RecomputeDLPowBand])
           printf("Error!!! Temp2=%d HS_LdspkrDLPow[%d]=%d \n",Temp2,RecomputeDLPowBand,HS_LdspkrDLPow[RecomputeDLPowBand]);
@@ -1321,22 +1321,22 @@ void HandsetFilterBank::HandsetEchoSuppress(icomplex MultiFrameMicFFTArray[][HS_
    int HS_EchoSuppressionS2;
    HS_EchoSuppressionS1 = (HS_EchoSuppressionY1 << ESUP_SHIFT)/
       (HS_EchoSuppressionX1 - HS_EchoSuppressionX0);
-   HS_EchoSuppressionS2 = ((HS_EchoSuppressionY2-HS_EchoSuppressionY1) << 
+   HS_EchoSuppressionS2 = ((HS_EchoSuppressionY2-HS_EchoSuppressionY1) <<
       ESUP_SHIFT)/(HS_EchoSuppressionX2 - HS_EchoSuppressionX1);
-   if (HS_SumWeightedLdspkrPowDBMax < HS_EchoSuppressionX0*1024) 
+   if (HS_SumWeightedLdspkrPowDBMax < HS_EchoSuppressionX0*1024)
       TargetEchoSupDB = 0;
    else if (HS_SumWeightedLdspkrPowDBMax < HS_EchoSuppressionX1*1024)
    {
-       TargetEchoSupDB = ((HS_SumWeightedLdspkrPowDBMax - HS_EchoSuppressionX0*1024) * 
+       TargetEchoSupDB = ((HS_SumWeightedLdspkrPowDBMax - HS_EchoSuppressionX0*1024) *
           HS_EchoSuppressionS1) >> ESUP_SHIFT;
    }
    else
    {
-       TargetEchoSupDB = HS_EchoSuppressionY1*1024 + 
-          (((HS_SumWeightedLdspkrPowDBMax - HS_EchoSuppressionX1*1024) * 
+       TargetEchoSupDB = HS_EchoSuppressionY1*1024 +
+          (((HS_SumWeightedLdspkrPowDBMax - HS_EchoSuppressionX1*1024) *
           HS_EchoSuppressionS2) >> ESUP_SHIFT);
    }
-   if (TargetEchoSupDB > HS_MAX_TARGET_ECHO_SUP_DB) 
+   if (TargetEchoSupDB > HS_MAX_TARGET_ECHO_SUP_DB)
       TargetEchoSupDB = HS_MAX_TARGET_ECHO_SUP_DB;
 
 
@@ -1413,7 +1413,7 @@ void HandsetFilterBank::HandsetEchoSuppress(icomplex MultiFrameMicFFTArray[][HS_
        TargetHistory[i] = TargetHistory[i-1];
    TargetHistory[0] = TargetEchoSupDB;
 
-   
+
    Temp1 = 0;
    for (i = 0; i < HS_EchoSuppressionHoldTime; i++)
    {
@@ -1424,8 +1424,8 @@ void HandsetFilterBank::HandsetEchoSuppress(icomplex MultiFrameMicFFTArray[][HS_
 // temporal smoothing
 //   Temp0 = TargetEchoSupDB - HS_EchoSupDB;
    Temp0 = Temp1 - HS_EchoSupDB;
-   
-   
+
+
    //HS_EchoSuppressionMaxDecay = (-8 * HS_EchoDecaydB) >> 4;
    HS_EchoSuppressionMaxDecay = -2048; // 2dB per frame max step
 
@@ -1442,7 +1442,7 @@ void HandsetFilterBank::HandsetEchoSuppress(icomplex MultiFrameMicFFTArray[][HS_
    }
 #endif
 #endif
-	
+
 	Temp0 = HS_EchoSupDB >> 10;
 
    if (Temp0 > 43)
@@ -1451,7 +1451,7 @@ void HandsetFilterBank::HandsetEchoSuppress(icomplex MultiFrameMicFFTArray[][HS_
    }
 
 	Temp1 = HS_EchoSupMultiplierTable[Temp0];
-	
+
 	for (Band=0; Band < HS_NUM_BANDS_PROCESSED; Band++)
 	{
 		for (FrameNum = 0; FrameNum < HS_NUM_FRAMES_PER_10MS; FrameNum++)

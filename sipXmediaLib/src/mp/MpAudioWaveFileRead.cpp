@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -68,7 +68,7 @@ MpAudioWaveFileRead::MpAudioWaveFileRead(istream & s): mStream(s) {
 // Destructor then
 MpAudioWaveFileRead::~MpAudioWaveFileRead() {
    if (_decoder) delete _decoder;
-   
+
    if(mpformatData) { delete[] mpformatData; }
 }
 
@@ -172,7 +172,7 @@ void MpAudioWaveFileRead::initializeDecompression()
    while (!mpformatData)
    {
       nextChunk();
-      
+
       if (_currentChunk < 0) {
          osPrintf("No `fmt' chunk found?!?!\n");
          mbIsOk = false;
@@ -334,7 +334,7 @@ void MpAudioWaveFileRead::nextChunk(void)
          osPrintf("FMT chunk seen at wrong level?!?!\n");
          mbIsOk = false;
       }
-	  
+
 	  //if already allocated, then free.
 	  if (mpformatData)
 		  delete mpformatData;
@@ -367,7 +367,7 @@ void MpAudioWaveFileRead::nextChunk(void)
          osPrintf("Artist: ");
       else
          osPrintf("Text: "); // Other Informational chunk
-	  
+
 	  delete [] text;
 
       return;

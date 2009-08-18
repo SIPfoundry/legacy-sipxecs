@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -10,8 +10,8 @@
 
 // SYSTEM INCLUDES
 
-#include <stdio.h> 
-#include <assert.h> 
+#include <stdio.h>
+#include <assert.h>
 #include <string.h>
 #ifdef _VXWORKS /* [ */
 #include <unistd.h>
@@ -485,7 +485,7 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
         MpMisc.sampleBytes = sizeof(short);
         MpMisc.frameSamples = samplesPerFrame;
         MpMisc.frameBytes = MpMisc.sampleBytes * MpMisc.frameSamples;
-        MpMisc.rtpMaxBytes = /* sizeof(struct rtpHeader) */ 12 + 
+        MpMisc.rtpMaxBytes = /* sizeof(struct rtpHeader) */ 12 +
             (((sampleRate + 24) / 25) * MpMisc.sampleBytes);
 
         MpMisc.audio_on = 0;
@@ -644,6 +644,6 @@ OsStatus mpStopTasks(void)
     mpShutdown();
     shutdownNetInTask();
     dmaShutdown();
-    
+
     return OS_SUCCESS;
 }

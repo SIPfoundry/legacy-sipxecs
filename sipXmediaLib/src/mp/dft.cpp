@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -19,11 +19,11 @@
 #else		// #else for VX1_PC0
 
 	#include <stdlib.h>
-	#include <stdio.h> 
+	#include <stdio.h>
 	#include <math.h>
 
 	int imagsq(icomplex *, int);
-	
+
 #endif		// #endif for VX1_PC0
 
 
@@ -34,9 +34,9 @@
 
 //void ComputeFFT80RtoCCosSinTable();
 int FFT80RtoCCosSinTable[38] = {
-32667,  2571, 32365,  5126, 31863,  7650, 31164, 10126, 30274, 12540, 
-29197, 14876, 27939, 17121, 26510, 19261, 24917, 21281, 23170, 23170, 
-21281, 24917, 19261, 26510, 17121, 27939, 14876, 29197, 12540, 30274, 
+32667,  2571, 32365,  5126, 31863,  7650, 31164, 10126, 30274, 12540,
+29197, 14876, 27939, 17121, 26510, 19261, 24917, 21281, 23170, 23170,
+21281, 24917, 19261, 26510, 17121, 27939, 14876, 29197, 12540, 30274,
 10126, 31164,  7650, 31863,  5126, 32365,  2571, 32667};
 
 //void ComputeFFT16RtoCCosSinTable();
@@ -69,21 +69,21 @@ int IndexMapInc21Mod80[80];
 
 //void compute_dBTable();  // Used once in simulation to fprintf dBTable[] to file dBTable
 const short int dBTable[256] = {   // used by int Get1000log10(int)
-  0,   2,   3,   5,   7,   8,  10,  12,  13,  15,  17,  18,  20,  22,  23,  25, 
- 26,  28,  30,  31,  33,  34,  36,  37,  39,  40,  42,  44,  45,  47,  48,  50, 
- 51,  53,  54,  56,  57,  59,  60,  62,  63,  65,  66,  67,  69,  70,  72,  73, 
- 75,  76,  77,  79,  80,  82,  83,  85,  86,  87,  89,  90,  91,  93,  94,  96, 
- 97,  98, 100, 101, 102, 104, 105, 106, 108, 109, 110, 112, 113, 114, 116, 117, 
-118, 119, 121, 122, 123, 125, 126, 127, 128, 130, 131, 132, 133, 135, 136, 137, 
-138, 140, 141, 142, 143, 144, 146, 147, 148, 149, 150, 152, 153, 154, 155, 156, 
-158, 159, 160, 161, 162, 163, 165, 166, 167, 168, 169, 170, 172, 173, 174, 175, 
-176, 177, 178, 179, 181, 182, 183, 184, 185, 186, 187, 188, 189, 191, 192, 193, 
-194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 205, 206, 207, 208, 209, 210, 
-211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 
-227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 
-243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 255, 256, 257, 
-258, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268, 268, 269, 270, 271, 272, 
-273, 274, 275, 276, 277, 278, 278, 279, 280, 281, 282, 283, 284, 285, 285, 286, 
+  0,   2,   3,   5,   7,   8,  10,  12,  13,  15,  17,  18,  20,  22,  23,  25,
+ 26,  28,  30,  31,  33,  34,  36,  37,  39,  40,  42,  44,  45,  47,  48,  50,
+ 51,  53,  54,  56,  57,  59,  60,  62,  63,  65,  66,  67,  69,  70,  72,  73,
+ 75,  76,  77,  79,  80,  82,  83,  85,  86,  87,  89,  90,  91,  93,  94,  96,
+ 97,  98, 100, 101, 102, 104, 105, 106, 108, 109, 110, 112, 113, 114, 116, 117,
+118, 119, 121, 122, 123, 125, 126, 127, 128, 130, 131, 132, 133, 135, 136, 137,
+138, 140, 141, 142, 143, 144, 146, 147, 148, 149, 150, 152, 153, 154, 155, 156,
+158, 159, 160, 161, 162, 163, 165, 166, 167, 168, 169, 170, 172, 173, 174, 175,
+176, 177, 178, 179, 181, 182, 183, 184, 185, 186, 187, 188, 189, 191, 192, 193,
+194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 205, 206, 207, 208, 209, 210,
+211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226,
+227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242,
+243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 255, 256, 257,
+258, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268, 268, 269, 270, 271, 272,
+273, 274, 275, 276, 277, 278, 278, 279, 280, 281, 282, 283, 284, 285, 285, 286,
 287, 288, 289, 290, 291, 292, 292, 293, 294, 295, 296, 297, 298, 298, 299, 300
 };
 
@@ -147,13 +147,13 @@ void TestDft()
 			if (i%16 == 15) getchar();
 		}
 		getchar(); */
-		
+
 		total_err_db += FFTError((int *) v,(int *) w, 2*80);
 //		if (k%4 == 3) printf("\n");
 		printf("\n");
 	}
 	printf("\n");
-	
+
 	total_err_db /= NUM_TESTS;
 	printf("average error is %2d.%2d dB down.\n",total_err_db/100,
 		total_err_db - (total_err_db/100)*100);
@@ -206,13 +206,13 @@ void TestDft()
 			if (i%16 == 15) getchar();
 		}
 		getchar(); */
-		
+
 		total_err_db += FFTError((int *) v,(int *) w, 2*40);
 		if (k%8 == 7) printf("\n");
 //		printf("\n");
 	}
 	printf("\n");
-	
+
 	total_err_db /= NUM_TESTS;
 	printf("average error is %2d.%2d dB down.\n",total_err_db/100,
 		total_err_db - (total_err_db/100)*100);
@@ -226,7 +226,7 @@ void TestDft()
 #if (0)
 	printf("testing FFT80RtoC() vs FFT80CtoC()\n");
 	int x[82];
-    
+
     getdft80tables();		// Initialize 3 tables used in fast 80-pt FFT
     total_err_db = 0;
 	for (k=0; k<64; k++)
@@ -261,7 +261,7 @@ void TestDft()
 		printf("\n");
 	}
 	printf("\n");
-	
+
 	total_err_db /= 64;
 	printf("average error is %2d.%2d dB down.\n",total_err_db/100,
 		total_err_db - (total_err_db/100)*100);
@@ -307,7 +307,7 @@ void TestDft()
 			x[i], (v[i].r - x[i]));
 			if (i%16 == 15) getchar();
 		}
-		getchar(); 
+		getchar();
 
 		double pow,err,dif;
 		pow = 0.0;
@@ -349,7 +349,7 @@ void TestDft()
 // How we do the scaling here can have a huge effect on measured error.
 		for (i=0; i < 82; i++) {
 			y[i]  = (y[i] + 4) >> 3;
-		} 
+		}
 		FFT80CtoR((icomplex *) y);
 		for (i=0; i < 80; i++) {
 			y[i]  = (y[i] * 3277 + 16384) >> 15;
@@ -361,14 +361,14 @@ void TestDft()
 			if (i%4 == 3) printf("\n");
 		}
 		getchar(); */
-		
+
 		total_err_db += FFTError(x, y, 80);
 //		getchar();
 		if (k%8 == 7) printf("\n");
 //		printf("\n");
 	}
 //	printf("\n");
-	
+
 	total_err_db /= NUM_TESTS;
 	printf("average error is %2d.%2d dB down.\n",total_err_db/100,
 		total_err_db - (total_err_db/100)*100);
@@ -413,7 +413,7 @@ void TestDft()
 		printf("\n");
 	}
 	printf("\n");
-	
+
 	total_err_db /= 64;
 	printf("average error is %2d.%2d dB down.\n",total_err_db/100,
 		total_err_db - (total_err_db/100)*100);
@@ -447,7 +447,7 @@ void TestDft()
 // How we do the scaling here can have a huge effect on measured error.
 		for (i=0; i < 18; i++) {
 			y[i]  = (y[i] + 2) >> 2;
-		} 
+		}
 		FFT16CtoR((icomplex *) y);
 		for (i=0; i < 16; i++) {
 			y[i]  = (y[i] + 2) >> 2;
@@ -459,14 +459,14 @@ void TestDft()
 			if (i%4 == 3) printf("\n");
 		}
 		getchar(); */
-		
+
 		total_err_db += FFTError(x, y, 16);
 //		getchar();
 		if (k%8 == 7) printf("\n");
 //		printf("\n");
 	}
 //	printf("\n");
-	
+
 	total_err_db /= NUM_TESTS;
 	printf("average error is %2d.%2d dB down.\n",total_err_db/100,
 		total_err_db - (total_err_db/100)*100);
@@ -573,7 +573,7 @@ void compute_dBTable()
 	FILE *fp;
 	int dBTable[256];
 	int j;
-	
+
 	if ((fp = fopen("dBTable","w")) == NULL) {
 		printf("cannot open file dBTable.\n");
 		exit(1);
@@ -654,7 +654,7 @@ void compute_dft5_constants()
 #define ROUND_DFT5 8192
 
 	FILE *fp;
-	
+
 	if ((fp = fopen("dft5table","w")) == NULL) {
 		printf("cannot open file dBTable.\n");
 		exit(1);
@@ -665,7 +665,7 @@ void compute_dft5_constants()
 	fprintf(fp,"#define ic52 %6d\n",(int) (-0.36327126*SCALE_DFT5 - 0.5));
 	fprintf(fp,"#define ic53 %6d\n",(int) (0.55901699*SCALE_DFT5 + 0.5));
 	fprintf(fp,"#define ic54 %6d\n",(int) (-1.25*SCALE_DFT5 - 0.5));
-	
+
 	fclose(fp);
 }
 */
@@ -733,7 +733,7 @@ void FFT5CtoC(icomplex v[])
 	v[4].i = regs0 + regr1;
 	v[2].i = regs2 + regr3;
 	v[3].i = regs2 - regr3;
-	
+
 }
 
 
@@ -921,7 +921,7 @@ void FFT40CtoC(icomplex x[])
 		x[i].r = Fftout[i].r;
 		x[i].i = Fftout[i].i;
 	}
-	
+
 
 }
 /* ***************************************************************************** */
@@ -1144,7 +1144,7 @@ void FFT80CtoR(icomplex w[])
 		w[i].i = h1i + icos;
 		w[40-i].r = h1r - rcos;
 		w[40-i].i = icos - h1i;
-	} 
+	}
 
 /* Compute a 40-point complex DFT in place. */
 	FFT40CtoC(w);
@@ -1183,7 +1183,7 @@ void compute_dft16_constants()
 #define ROUND_DFT16 4096
 
 	FILE *fp;
-	
+
 	if ((fp = fopen("dft16table","w")) == NULL) {
 		printf("cannot open file dBTable.\n");
 		exit(1);
@@ -1194,7 +1194,7 @@ void compute_dft16_constants()
 	fprintf(fp,"#define ic162 %6d\n",(int) (1.30656297*SCALE_DFT16 + 0.5));
 	fprintf(fp,"#define ic163 %6d\n",(int) (0.54119610*SCALE_DFT16 + 0.5));
 	fprintf(fp,"#define ic164 %6d\n",(int) (0.92387953*SCALE_DFT16 + 0.5));
-	
+
 	fclose(fp);
 }
 */
@@ -1554,7 +1554,7 @@ void FFT80CtoC(icomplex x[])
 		x[i].r = fftout[i].r;
 		x[i].i = fftout[i].i;
 	}
-	
+
 }
 
 
@@ -1571,7 +1571,7 @@ void ComputeFFT16RtoCCosSinTable()
 	FILE *fp;
 	int FFT16RtoCCosSinTable[38];
 	int i,j;
-	
+
 	if ((fp = fopen("FFT16RtoCCosSinTable","w")) == NULL) {
 		printf("cannot open file FFT16RtoCCosSinTable.\n");
 		exit(1);
@@ -1820,7 +1820,7 @@ void FFT16CtoR(icomplex w[])
 		w[i].i = h1i + icos;
 		w[8-i].r = h1r - rcos;
 		w[8-i].i = icos - h1i;
-	} 
+	}
 
 /* Compute a 8-point complex DFT in place. */
 	FFT8CtoC(w);

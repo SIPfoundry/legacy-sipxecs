@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -40,14 +40,14 @@ StreamDataSourceListener::~StreamDataSourceListener()
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 // Copy constructor
-StreamDataSourceListener::StreamDataSourceListener(const StreamDataSourceListener& 
+StreamDataSourceListener::StreamDataSourceListener(const StreamDataSourceListener&
                                              rStreamDataSourceListener)
 {
 }
 
 
 // Assignment operator
-StreamDataSourceListener& 
+StreamDataSourceListener&
 StreamDataSourceListener::operator=(const StreamDataSourceListener& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
@@ -62,4 +62,3 @@ StreamDataSourceListener::operator=(const StreamDataSourceListener& rhs)
 /* ============================ TESTING =================================== */
 
 /* ============================ FUNCTIONS ================================= */
-

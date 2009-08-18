@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -72,39 +72,39 @@ public:
 /* ============================ MANIPULATORS ============================== */
 
    virtual OsStatus add(Url& url, int flags) ;
-     //:Adds a url to the playlist 
+     //:Adds a url to the playlist
      //
      //!param url - Url identifing the source data stream
      //!param flags - Playing flags (see StreamDefs.h)
 
 
    virtual OsStatus add(UtlString* pBuffer, int flags) ;
-     //:Adds a buffer to the playlist 
+     //:Adds a buffer to the playlist
      //
-     //!param pBuffer - Net Buffer containing buffered audio data.  The 
+     //!param pBuffer - Net Buffer containing buffered audio data.  The
      //       MpStreamPlayer resource will delete the pBuffer upon destruction
-     //       of itself.     
+     //       of itself.
      //!param flags - Playing flags (see StreamDefs.h)
 
 
-   virtual OsStatus realize(UtlBoolean bBlock = TRUE) ; 
+   virtual OsStatus realize(UtlBoolean bBlock = TRUE) ;
      //:Realizes the player by initiating a connection to the target,
      //:allocates buffers, etc.
      //
-     //!param bBlock - TRUE if the method should block until completion, 
+     //!param bBlock - TRUE if the method should block until completion,
      //       otherwise FALSE.
 
-   virtual OsStatus prefetch(UtlBoolean bBlock = TRUE) ; 
+   virtual OsStatus prefetch(UtlBoolean bBlock = TRUE) ;
      //:Prefetch enough of the data source to ensure a smooth playback.
      //
-     //!param bBlock - TRUE if the method should block until completion, 
+     //!param bBlock - TRUE if the method should block until completion,
      //       otherwise FALSE.
 
    virtual OsStatus play(UtlBoolean bBlock = TRUE);
      //:Plays the media stream.  This will play all play lists from start
      //:to finish.
      //
-     //!param bBlock - TRUE if the method should block until completion, 
+     //!param bBlock - TRUE if the method should block until completion,
      //       otherwise FALSE.
 
    virtual OsStatus wait(const OsTime& rTimeout = OsTime::OS_INFINITY);
@@ -117,11 +117,11 @@ public:
      //: Rewinds a previously played media stream.  In some cases this
      //  may result in a re-connect/refetch.
      //
-     //!param bBlock - TRUE if the method should block until completion, 
+     //!param bBlock - TRUE if the method should block until completion,
      //       otherwise FALSE.
 
    virtual OsStatus reset() ;
-     //: Resets the playlist player state by stopping and removing all 
+     //: Resets the playlist player state by stopping and removing all
      //: entries.
 
    virtual OsStatus stop() ;
@@ -133,7 +133,7 @@ public:
      //  in media processing.
 
    virtual OsStatus pause() ;
-     //: Pauses the media stream temporarily.  
+     //: Pauses the media stream temporarily.
 
 
 /* ============================ ACCESSORS ================================= */
@@ -158,7 +158,7 @@ public:
      //: if playNext() was invoked.
 
    virtual OsStatus getState(PlayerState& state)  ;
-     //: Gets the aggregate playerlist player state 
+     //: Gets the aggregate playerlist player state
 
 /* ============================ INQUIRY =================================== */
 
@@ -175,7 +175,7 @@ protected:
      //:Selects the first playlist entry as the next index to play.
      // If an entry was playing, it will be stopped
 
-   virtual OsStatus last() ;   
+   virtual OsStatus last() ;
      //:Selects the last playlist entry as the next index to play.
      // If an entry was playing, it will be stopped
 
@@ -231,7 +231,7 @@ protected:
 private:
 
    // Definition for a playlist entry
-   class PlayListEntry : public UtlContainableAtomic 
+   class PlayListEntry : public UtlContainableAtomic
    {
    public:
       int            sourceType ;   // Source type (url or buffer)

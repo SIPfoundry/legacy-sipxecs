@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -75,7 +75,7 @@ MpBufferMsg::~MpBufferMsg()
 /* ============================ MANIPULATORS ============================== */
 
 // Assignment operator
-MpBufferMsg& 
+MpBufferMsg&
 MpBufferMsg::operator=(const MpBufferMsg& rhs)
 {
    int i;
@@ -153,4 +153,3 @@ int MpBufferMsg::getFrom(void) const
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-

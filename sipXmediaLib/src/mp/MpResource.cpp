@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -46,7 +46,7 @@ MpResource::MpResource(const UtlString& rName, int minInputs, int maxInputs,
    mSamplesPerSec(samplesPerSec),
    mVisitState(NOT_VISITED)
 {
-   int i;   
+   int i;
 
    // Perform a sanity check on the input arguments
    assert((minInputs >= 0) && (minOutputs >= 0) &&
@@ -246,7 +246,7 @@ UtlBoolean MpResource::setSamplesPerSec(int samplesPerSec)
    return (res == OS_SUCCESS);
 }
 
-// Sets the visit state for this resource (used in performing a 
+// Sets the visit state for this resource (used in performing a
 // topological sort on the resources contained within a flow graph).
 void MpResource::setVisitState(int newState)
 {
@@ -267,11 +267,11 @@ void MpResource::resourceInfo(MpResource* pResource, int index)
    name = pResource->getName();
    printf("    Resource[%d]: %p, %s (%sabled)\n",
           index, pResource, name, pResource->mIsEnabled ? "En" : "Dis");
-   
+
    for (i=0; i<pResource->mMaxInputs; i++) {
       if (NULL != pResource->mpInConns[i].pResource) {
          name = pResource->mpInConns[i].pResource->getName();
-         printf("        Input %d from %s:%d\n", i, 
+         printf("        Input %d from %s:%d\n", i,
             name, pResource->mpInConns[i].portIndex);
       }
    }
@@ -279,21 +279,21 @@ void MpResource::resourceInfo(MpResource* pResource, int index)
    for (i=0; i<pResource->mMaxOutputs; i++) {
       if (NULL != pResource->mpOutConns[i].pResource) {
          name = pResource->mpOutConns[i].pResource->getName();
-         printf("        Output %d to %s:%d\n", i, 
+         printf("        Output %d to %s:%d\n", i,
             name, pResource->mpOutConns[i].portIndex);
       }
    }
 }
 
 
-// Returns the flow graph that contains this resource or NULL if the 
+// Returns the flow graph that contains this resource or NULL if the
 // resource is not presently part of any flow graph.
 MpFlowGraphBase* MpResource::getFlowGraph(void) const
 {
    return mpFlowGraph;
 }
 
-// Returns information about the upstream end of a link to the 
+// Returns information about the upstream end of a link to the
 // "inPortIdx" input on this resource.  If "inPortIdx" is invalid or
 // there is no link, then "rpUpstreamResource" will be set to NULL.
 void MpResource::getInputInfo(int inPortIdx, MpResource*& rpUpstreamResource,
@@ -317,7 +317,7 @@ UtlString MpResource::getName(void) const
    return mName;
 }
 
-// Returns information about the downstream end of a link to the 
+// Returns information about the downstream end of a link to the
 // "outPortIdx" output on this resource.  If "outPortIdx" is invalid or
 // there is no link, then "rpDownstreamResource" will be set to NULL.
 void MpResource::getOutputInfo(int outPortIdx,
@@ -336,7 +336,7 @@ void MpResource::getOutputInfo(int outPortIdx,
    }
 }
 
-// Returns the current visit state for this resource (used in performing 
+// Returns the current visit state for this resource (used in performing
 // a topological sort on the resources contained within a flow graph).
 int MpResource::getVisitState(void)
 {
@@ -382,7 +382,7 @@ int MpResource::numOutputs(void) const
 // Calculate a unique hash code for this object.
 unsigned MpResource::hash() const
 {
-    return hashPtr(this); 
+    return hashPtr(this);
 }
 
 // Get the ContainableType for a UtlContainable derived class.
@@ -439,18 +439,18 @@ UtlBoolean MpResource::isOutputUnconnected(int portIdx) const
    return (mpOutConns[portIdx].pResource == NULL);
 }
 
-// Compare the this object to another like-object. 
+// Compare the this object to another like-object.
 int MpResource::compareTo(UtlContainable const * inVal) const
 {
-   int result ; 
-   
+   int result ;
+
    if (inVal->isInstanceOf(getContainableType()))
    {
       result = comparePtrs(this, inVal);
    }
    else
    {
-      result = -1; 
+      result = -1;
    }
 
    return result;
@@ -460,8 +460,8 @@ int MpResource::compareTo(UtlContainable const * inVal) const
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 // Returns a pointer to the incoming buffer for the inPortIdx
-// input port if a buffer is available.  Returns NULL if either no 
-// buffer is available or there is no resource connected to the 
+// input port if a buffer is available.  Returns NULL if either no
+// buffer is available or there is no resource connected to the
 // specified port or the inPortIdx is out of range.
 MpBufPtr MpResource::getInputBuffer(int inPortIdx) const
 {
@@ -570,7 +570,7 @@ int MpResource::getSamplesPerSec()
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
-// Connects the toPortIdx input port on this resource to the 
+// Connects the toPortIdx input port on this resource to the
 // fromPortIdx output port of the rFrom resource.
 // Returns TRUE if successful, FALSE otherwise.
 UtlBoolean MpResource::connectInput(MpResource& rFrom, int fromPortIdx,
@@ -590,7 +590,7 @@ UtlBoolean MpResource::connectInput(MpResource& rFrom, int fromPortIdx,
    return TRUE;
 }
 
-// Connects the fromPortIdx output port on this resource to the 
+// Connects the fromPortIdx output port on this resource to the
 // toPortIdx input port of the rTo resource.
 // Returns TRUE if successful, FALSE otherwise.
 UtlBoolean MpResource::connectOutput(MpResource& rTo, int toPortIdx,
@@ -664,4 +664,3 @@ void MpResource::setName(const UtlString& rName)
 }
 
 /* ============================ FUNCTIONS ================================= */
-

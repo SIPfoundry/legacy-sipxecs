@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -68,7 +68,7 @@ public:
 /* ============================ MANIPULATORS ============================== */
 
    OsStatus setSockets(OsSocket& rRtpSocket, OsSocket& rRtcpSocket);
-     //:Sends a SET_SOCKETS message to this resource to set the inbound 
+     //:Sends a SET_SOCKETS message to this resource to set the inbound
      //:RTP and RTCP sockets.
      // returns OS_SUCCESS, unless unable to queue message.
 

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -35,7 +35,7 @@ int32_t readIntLsb(istream &in, int size) {
    return l;
 }
 
-// Least significant byte: byte to int 
+// Least significant byte: byte to int
 int32_t bytesToIntLsb(void *vBuff, int size) {
    unsigned char *buff = reinterpret_cast<unsigned char *>(vBuff);
    if (size <= 0) return 0;
@@ -53,13 +53,13 @@ void skipBytes(istream &in, int size) {
 // write int in Most Significant bytes
 void writeIntMsb(ostream &out, int32_t l, int size) {
    if (size <= 0) return;
-   writeIntMsb(out, l>>8, size-1); 
-   out.put(l&255); 
+   writeIntMsb(out, l>>8, size-1);
+   out.put(l&255);
 }
 
 // Write int in Least Significant bytes
 void writeIntLsb(ostream &out, int32_t l, int size) {
    if (size <= 0) return;
-   out.put(l&255);  
-   writeIntLsb(out, l>>8, size-1); 
+   out.put(l&255);
+   writeIntLsb(out, l>>8, size-1);
 }

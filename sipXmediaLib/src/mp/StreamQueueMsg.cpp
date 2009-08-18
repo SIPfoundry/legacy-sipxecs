@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -26,7 +26,7 @@
 // Constructor
 StreamQueueMsg::StreamQueueMsg()
    : OsMsg(USER_START, EndOfFrameMarker)
-{   
+{
    memset(mSamples, 0, sizeof(mSamples)) ;
 
    // all of the required work is done by the initializers
@@ -34,7 +34,7 @@ StreamQueueMsg::StreamQueueMsg()
 
 // Copy constructor
 StreamQueueMsg::StreamQueueMsg(const StreamQueueMsg& rStreamQueueMsg)
-   : OsMsg(rStreamQueueMsg) 
+   : OsMsg(rStreamQueueMsg)
 {
    memcpy(mSamples, rStreamQueueMsg.mSamples, sizeof(mSamples)) ;
 }
@@ -55,7 +55,7 @@ StreamQueueMsg::~StreamQueueMsg()
 /* ============================ MANIPULATORS ============================== */
 
 // Assignment operator
-StreamQueueMsg& StreamQueueMsg::operator=(const StreamQueueMsg& rhs)  
+StreamQueueMsg& StreamQueueMsg::operator=(const StreamQueueMsg& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
       return *this;
@@ -63,15 +63,15 @@ StreamQueueMsg& StreamQueueMsg::operator=(const StreamQueueMsg& rhs)
    OsMsg::operator=(rhs);
 
    memcpy(mSamples, rhs.mSamples, sizeof(mSamples)) ;
-   
+
    return *this;
 }
 
 // Set the sample data for this message
 void StreamQueueMsg::setSamples(const int16_t* pSamples)
-{ 
+{
    setMsgSubType(AudioFrame) ;
-   memcpy(mSamples, pSamples, sizeof(mSamples)) ;  
+   memcpy(mSamples, pSamples, sizeof(mSamples)) ;
 }
 
 /* ============================ ACCESSORS ================================= */
@@ -83,7 +83,7 @@ UtlBoolean StreamQueueMsg::getSamples(int16_t* pSamples) const
 
    if (getMsgSubType() == AudioFrame)
    {
-      memcpy(pSamples, mSamples, sizeof(mSamples)) ;  
+      memcpy(pSamples, mSamples, sizeof(mSamples)) ;
       bRC = TRUE ;
    }
 
@@ -98,4 +98,3 @@ UtlBoolean StreamQueueMsg::getSamples(int16_t* pSamples) const
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -133,7 +133,7 @@ UtlBoolean MprRecorder::disable(Completion code)
 
    // Lock so that the file contents cannot be changed out
    // from under us while we are updating the file.
-   OsLock lock(mMutex); 
+   OsLock lock(mMutex);
 
    if (mFileDescriptor > -1)
    {
@@ -158,14 +158,14 @@ UtlBoolean MprRecorder::disable(Completion code)
    mConsecutiveInactive = 0;
 
    OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::disable setting mpEvent (0x%p) to NULL", mpEvent);
-   
+
    {
       if (mpEvent != NULL)
       {
-         mpEvent = NULL;  // event may be released, do not signal the event any more, 
+         mpEvent = NULL;  // event may be released, do not signal the event any more,
       }
 
-      if (mFileDescriptor > -1) 
+      if (mFileDescriptor > -1)
       {
          close(mFileDescriptor);
          mFileDescriptor = -1;
@@ -177,12 +177,12 @@ UtlBoolean MprRecorder::disable(Completion code)
 }
 
 UtlBoolean MprRecorder::closeRecorder()
-{  
+{
   UtlBoolean ret = TRUE;
 
   OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::closeRecorder entering - mFileDescriptor=%d, mStatus=%d",
          mFileDescriptor, mStatus);
-  if (isEnabled()) 
+  if (isEnabled())
     ret = disable(RECORD_STOPPED);
 
   OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::closeRecorder leaving - mFileDescriptor=%d, mStatus=%d",
@@ -194,7 +194,7 @@ UtlBoolean MprRecorder::termDtmf(int currentToneKey)
 {
 	UtlBoolean res = FALSE;
 	if ((currentToneKey == 11) || (currentToneKey == 1) || (currentToneKey == 0) ||
-		(currentToneKey == -1)) 
+		(currentToneKey == -1))
 	{
 	 // Only if it's the # or 1 or 0 key, we terminate the recording.
 	 // This is a temp solution for Weck.
@@ -206,7 +206,7 @@ UtlBoolean MprRecorder::termDtmf(int currentToneKey)
          currentToneKey, mFileDescriptor, mStatus);
 
 		mTermKey = currentToneKey;
-		if (mTermKey != -1) 
+		if (mTermKey != -1)
 			res = closeRecorder();
 	}
 
@@ -218,7 +218,7 @@ UtlBoolean MprRecorder::termDtmf(int currentToneKey)
 void MprRecorder::getRecorderStats(double& nBytes,
                                  double& nSamples, Completion& status)
 {
-   OsLock lock(mMutex); 
+   OsLock lock(mMutex);
 
    nBytes = mTotalBytesWritten;
    nSamples = mTotalSamplesWritten;
@@ -227,7 +227,7 @@ void MprRecorder::getRecorderStats(double& nBytes,
 
 void MprRecorder::getRecorderStats(struct MprRecorderStats* p)
 {
-   OsLock lock(mMutex); 
+   OsLock lock(mMutex);
 
    p->mTotalBytesWritten = mTotalBytesWritten;
    p->mTotalSamplesWritten = mTotalSamplesWritten;
@@ -243,11 +243,11 @@ UtlBoolean MprRecorder::updateWaveHeaderLengths(int handle)
 
     // Lock so that the file contents cannot be changed out
     // from under us while we are updating the file.
-    OsLock lock(mMutex); 
+    OsLock lock(mMutex);
 
     //find out how many bytes were written so far
     uint32_t length = lseek(handle,0,SEEK_END);    // 4 byte value for Endian conversion
-    
+
     //now go back to beginning
     lseek(handle,4,SEEK_SET);
 
@@ -258,7 +258,7 @@ UtlBoolean MprRecorder::updateWaveHeaderLengths(int handle)
 
     //now seek to the data length
     lseek(handle,40,SEEK_SET);
-    
+
     //this should be the length of just the data
     uint32_t datalength = htolel(length-44);       // 4 byte value written to WAV file
     dummy = write(handle, (char*)&datalength,sizeof(datalength));
@@ -283,15 +283,15 @@ UtlBoolean MprRecorder::doProcessFrame(MpBufPtr inBufs[],
 
    // Lock so that mFileDescriptor and file contents cannot be changed out
    // from under us while we are updating the file.
-   OsLock lock(mMutex); 
+   OsLock lock(mMutex);
 
    //try to pass along first input
-   if (inBufsSize > 0) 
+   if (inBufsSize > 0)
    {
       in = *inBufs;
    }
 
-   if (numOutputs() > 0) 
+   if (numOutputs() > 0)
    {
       if (inBufsSize > 0) *inBufs = NULL;
       *outBufs = in;
@@ -301,7 +301,7 @@ UtlBoolean MprRecorder::doProcessFrame(MpBufPtr inBufs[],
       return TRUE;
    }
 
-   if (mFileDescriptor < 0) 
+   if (mFileDescriptor < 0)
    {
       OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::doProcessFrame to disable recording because mFileDescriptor=%d, mStatus=%d",
             mFileDescriptor, mStatus);
@@ -317,7 +317,7 @@ UtlBoolean MprRecorder::doProcessFrame(MpBufPtr inBufs[],
    // maximum record time reached or final silence timeout.
    if ((0 >= mFramesToRecord--) || (mSilenceLength <= mConsecutiveInactive)) {
       // Get previous MinVoiceEnergy for debug printouts, and reset it to MIN_SPEECH_ENERGY_THRESHOLD.
-      unsigned long prevValue = MpBuf_setMVE(MIN_SPEECH_ENERGY_THRESHOLD); 
+      unsigned long prevValue = MpBuf_setMVE(MIN_SPEECH_ENERGY_THRESHOLD);
 
       OsSysLog::add(FAC_MP, PRI_INFO,
          "MprRecorder::doProcessFrame to disable recording because"
@@ -386,17 +386,17 @@ void MprRecorder::progressReport(Completion code)
    mStatus = code;
 
    {
-      OsLock lock(mMutex); 
+      OsLock lock(mMutex);
 
-      if (NULL != mpEvent) 
+      if (NULL != mpEvent)
       {
          mpEvent->getUserData(ud);
          OsSysLog::add(FAC_MP, PRI_DEBUG, "MprRecorder::progressReport(%d), event=0x%p, &data=0x%p\n",
             code, mpEvent, ud);
-         if (0 != ud) 
+         if (0 != ud)
          {
             MprRecorderStats *rs = (MprRecorderStats*) ud;
-      
+
             //report current stats
             rs->mTotalBytesWritten   = mTotalBytesWritten;
             rs->mTotalSamplesWritten = mTotalSamplesWritten;
@@ -415,12 +415,12 @@ void MprRecorder::progressReport(Completion code)
                OsTask::delay(10);
                void* userdata;
                mpEvent->getUserData(userdata);
-               OsSysLog::add(FAC_MP, PRI_WARNING, "user data - old (0x%p), new (0x%p), event (0x%p) ", 
+               OsSysLog::add(FAC_MP, PRI_WARNING, "user data - old (0x%p), new (0x%p), event (0x%p) ",
                               ud, userdata, mpEvent);
 
 // Comment out the assert for production system
 //	            assert(userdata == ud);
-               if (userdata) 
+               if (userdata)
                {
                   ret = mpEvent->signal(code);
                   OsSysLog::add(FAC_MP, PRI_WARNING, "MprRecorder::progressReport signal again, returned %d ", (int)ret);
@@ -466,9 +466,9 @@ UtlBoolean MprRecorder::handleSetup(int file, int timeMS, int silenceLength, OsP
    OsSysLog::add(FAC_MP, PRI_INFO, "MprRecorder::handleSetup, set MinVoiceEnergy to %d, was %lu\n", MIN_SPEECH_ENERGY_THRESHOLD, prevValue);
 
    {
-      OsLock lock(mMutex); 
+      OsLock lock(mMutex);
       mFileDescriptor = file;
-      mpEvent = event;   
+      mpEvent = event;
    }
 
    mStatus = RECORD_IDLE;
@@ -522,4 +522,3 @@ UtlBoolean MprRecorder::handleMessage(MpFlowGraphMsg& rMsg)
 }
 
 /* ============================ FUNCTIONS ================================= */
-

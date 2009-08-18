@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -81,29 +81,29 @@ UtlBoolean MprFromMic::doProcessFrame(MpBufPtr inBufs[],
 	MpBufPtr        out = NULL ;
 	MpBufferMsg*    pMsg;
 
-	if (0 == outBufsSize) 
+	if (0 == outBufsSize)
 	{
 		return FALSE;
 	}
-	
+
 
 	// Clear the the number of empty frames every 512 frames
 	mNumFrames++;
-	if (0 == (mNumFrames & 0x1ff)) 
+	if (0 == (mNumFrames & 0x1ff))
 	{
 		mNumEmpties = 0;
 	}
 
-	if (isEnabled) 
+	if (isEnabled)
 	{
 		// If the microphone queue (holds unprocessed mic data) has more then
 		// the max_mic_buffers threshold, drain the queue until in range)
 		OsMsgQ* pMicOutQ;
 		pMicOutQ = MpMisc.pMicQ;
-		while (pMicOutQ && MpMisc.max_mic_buffers < pMicOutQ->numMsgs()) 
+		while (pMicOutQ && MpMisc.max_mic_buffers < pMicOutQ->numMsgs())
 		{
 	        if (OS_SUCCESS == pMicOutQ->receive((OsMsg*&) pMsg,
-					OsTime::NO_WAIT)) 
+					OsTime::NO_WAIT))
 			{
 				MpBuf_delRef(pMsg->getTag());
 				MpBuf_delRef(pMsg->getTag(1));
@@ -113,18 +113,18 @@ UtlBoolean MprFromMic::doProcessFrame(MpBufPtr inBufs[],
 
 		if (pMicOutQ && pMicOutQ->numMsgs() <= 0)
 		{
-//			osPrintf("MprFromMic: No data available (total frames=%d, starved frames=%d)\n", 
+//			osPrintf("MprFromMic: No data available (total frames=%d, starved frames=%d)\n",
 //					mNumFrames, mNumEmpties);
 		}
 		else
 		{
-			if (pMicOutQ && OS_SUCCESS == pMicOutQ->receive((OsMsg*&) pMsg, 
-					OsTime::NO_WAIT)) 
+			if (pMicOutQ && OS_SUCCESS == pMicOutQ->receive((OsMsg*&) pMsg,
+					OsTime::NO_WAIT))
 			{
 				out = pMsg->getTag();
 				pMsg->releaseMsg();
-				
-				if (NULL != out) 
+
+				if (NULL != out)
 				{
 #ifdef REAL_SILENCE_DETECTION /* [ */
 					Sample* shpTmpFrame;
@@ -132,7 +132,7 @@ UtlBoolean MprFromMic::doProcessFrame(MpBufPtr inBufs[],
 					int n;
 #endif /* REAL_SILENCE_DETECTION ] */
 
-					switch(MpBuf_getSpeech(out)) 
+					switch(MpBuf_getSpeech(out))
 					{
 						case MP_SPEECH_TONE:
 							break;
@@ -150,11 +150,11 @@ UtlBoolean MprFromMic::doProcessFrame(MpBufPtr inBufs[],
 							shpTmpFrame = MpBuf_getSamples(tpBuf);
 							highpass_filter800(shpSamples, shpTmpFrame, n);
 
-							if(0 == speech_detected(shpTmpFrame,n)) 
+							if(0 == speech_detected(shpTmpFrame,n))
 							{
 								MpBuf_setSpeech(out, MP_SPEECH_SILENT);
 							}
-							else 
+							else
 							{
 								MpBuf_setSpeech(out, MP_SPEECH_ACTIVE);
 							}
@@ -162,14 +162,14 @@ UtlBoolean MprFromMic::doProcessFrame(MpBufPtr inBufs[],
 #else /* REAL_SILENCE_DETECTION ] [ */
 							// 24 April 2001 (HZM)  I am disabling this because it takes
 							// too long to recognize the beginning of a talk spurt, and
-							// causes the bridge mixer to drop the start of each word.																
+							// causes the bridge mixer to drop the start of each word.
 							MpBuf_isActiveAudio(out);
 #endif /* REAL_SILENCE_DETECTION ] */
 							break;
 					}
 				}
 			}
-		} 
+		}
 
 #ifdef INSERT_SAWTOOTH /* [ */
 		if (NULL == out)
@@ -182,25 +182,25 @@ UtlBoolean MprFromMic::doProcessFrame(MpBufPtr inBufs[],
 
 		if (s_fnMicDataHook)
 		{
-			// 
+			//
 			// Allow an external identity to source microphone data.  Ideally,
             // this should probably become a different resource, but abstracting
             // a new CallFlowGraph is a lot of work.
             //
 
-			if (NULL == out) 
+			if (NULL == out)
 			{
 				out = MpBuf_getBuf(MpMisc.UcbPool, MpMisc.frameSamples, 0, MP_FMT_T12);
 			}
-			
-			if (NULL != out) 
+
+			if (NULL != out)
 			{
 	            int n = 0;
 				Sample* s = NULL;
 
 				s = MpBuf_getSamples(out);
 				n = MpBuf_getNumSamples(out);
-				
+
 				s_fnMicDataHook(n, s) ;
 
 				MpBuf_setSpeech(out, MP_SPEECH_UNKNOWN);

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -13,7 +13,7 @@
 // 32KHz to 8KHz within object MprFromMic. In the other direction, a 8KHz
 // processed signal needs to be up-sampled to 32KHz within object MprToSpkr.
 //
-// To down-sample a 32kHz sequence to a 8kHz, the sequence will be 
+// To down-sample a 32kHz sequence to a 8kHz, the sequence will be
 // passed through a 4kHz low-pass filter, following with a decimation by 4.
 //
 //   32k data   ----------------       ----------------   8k data
@@ -31,7 +31,7 @@
 // the coefficients in different order for efficient calcalation. Therefere,
 // we still maintain two sets of array to store those coefficients separately.
 //
-// The ORIGINAL coefficients in polyphase structure is as follows: 
+// The ORIGINAL coefficients in polyphase structure is as follows:
 //        { 3,  -22,  115, 991,  -77, 13,    * group 1 in Q12 *
 //         11,  -83,  431, 771, -125, 19,    * group 2 in Q12 *
 //         19, -125,  771, 431,  -83, 11,    * group 3 in Q12 *
@@ -79,7 +79,7 @@ const int DspResampling::saCoeffUpN[] = {
   -2,  -23,   14,   -1,  -13,   28,  -44,   61,  -80,  102, -135,  219,
  915,  -25,  -28,   45,  -51,   51,  -46,   39,  -29,   16,   -1,  -19,
 
-  -6,  -22,   25,  -20,   11,    2,  -19,   41,  -71,  115, -199,  508, 
+  -6,  -22,   25,  -20,   11,    2,  -19,   41,  -71,  115, -199,  508,
  765, -170,   68,  -23,   -3,   18,  -28,   31,  -31,   26,  -14,  -12,
 
  -12,  -14,   26,  -31,   31,  -28,   18,   -3,  -23,   68, -170,  765,
@@ -162,14 +162,14 @@ DspResampling::DspResampling(int iResamplingFold, int iLowRateSamples,
 #ifdef DETECT_OVERFLOW /* [ */
    mReport = smStatsReports;
 #endif /* DETECT_OVERFLOW ] */
-	
+
 	int i;
 
 	/* clear filters */
 	for (i=0; i<8; i++) {
-		state1[i]=0;   	
+		state1[i]=0;
 		state2[i]=0;
-		state3[i]=0;   	
+		state3[i]=0;
 		state4[i]=0;
 	}
 
@@ -178,8 +178,8 @@ DspResampling::DspResampling(int iResamplingFold, int iLowRateSamples,
 // Destructor
 DspResampling::~DspResampling()
 {
-    if(mpUpSampBuf)   delete[] mpUpSampBuf; 
-    if(mpDownSampBuf) delete[] mpDownSampBuf; 
+    if(mpUpSampBuf)   delete[] mpUpSampBuf;
+    if(mpDownSampBuf) delete[] mpDownSampBuf;
 #ifdef DETECT_OVERFLOW /* [ */
     stats();
 #endif /* DETECT_OVERFLOW ] */
@@ -234,7 +234,7 @@ void DspResampling::stats()
          osPrintf(
           "DspResamp(0x%p): upsampling overflowed %d times in %d samples\n",
             this, mOverflowsU, mTotalSamplesU);
-      } 
+      }
       if (0 == (mOverflowsU + mOverflowsD)) {
          osPrintf("DspResamp(0x%p): no overflows in %d samples\n",
             this, mTotalSamplesD + mTotalSamplesU);
@@ -280,14 +280,14 @@ void DspResampling::up(Sample *dest, Sample *data, int lGain, int iSpkrPhoneFlag
 		GIPS_upsampling2(data,GIPS_FRAME_LENGTH,speech16,state1);
 		// From 160 to 320 samples
 		GIPS_upsampling2(speech16,GIPS_FRAME_LENGTH<<1, speech32,state2);
- 
+
    		for (i = 0; i < mFrameSizeInHigherRate; i++) {
 			 *dest++ =((int)speech32[i]*lGain)>>15;
 			 *dest++ =iSpkrPhoneFlag? 0:speech32[i]; 	// too slow, re-write
    		};
 
     		return;
-    	}   
+    	}
 
 
 
@@ -314,7 +314,7 @@ void DspResampling::up(Sample *dest, Sample *data, int lGain, int iSpkrPhoneFlag
    // Lowpass filtering, cut-off frequency 4000 Hz
    for (l = 0; l < mFrameSizeInLowerRate; l++) {
       lp0 = mpUp;
-      lp = lp2++;   
+      lp = lp2++;
       for (i = 0; i < mFold; i++) {
          lp1  = lp;
          lSam = 0L;
@@ -406,10 +406,10 @@ void DspResampling::down(Sample* output, Sample* input, int UseLeft)
 
    	if(mFilterLen==96){
 	   //osPrintf("G_dn ");
-		if (UseLeft == 0) shp++; 
+		if (UseLeft == 0) shp++;
    		for (i = 0; i < mFrameSizeInHigherRate; i++) {
       			speech32[i]=*shp++;
-              // speech32[i] >>= 1;  // this will bring the gain down by 6dB to 
+              // speech32[i] >>= 1;  // this will bring the gain down by 6dB to
                                    // match the gain of an existing (non-GIPS)
                                    // resampling filter
       			shp++;   // skip unused channel
@@ -417,18 +417,18 @@ void DspResampling::down(Sample* output, Sample* input, int UseLeft)
 		GIPS_downsampling2(speech32, mFrameSizeInHigherRate,speech16,state3);
 		GIPS_downsampling2(speech16, mFrameSizeInHigherRate>>1,output, state4);
     		return;
-    	}   
+    	}
 
 
    // Copy the input samples into the processing buffer.  We convert them
    // from 16 bit to 32 bit in the copy.
 
-   // But first, we might adjust the starting value of the source pointer 
+   // But first, we might adjust the starting value of the source pointer
    // to select the correct channel.  The two input channels are interleaved
    // starting with right channel signal, so we increment the pointer if the
    // left channel is what we are supposed to be extracting.
 
-   if (UseLeft == 0) shp++; 
+   if (UseLeft == 0) shp++;
 
    // Copy the input buffer into processing buffer.
    lp0 = mpDownSampBuf + mFilterLen-1;
@@ -487,13 +487,13 @@ void DspResampling::down(Sample* output, Sample* input, int UseLeft)
 void DspResampling::upfrom16k(Sample *dest, Sample *data, int lGain, int iSpkrPhoneFlag)
 {
    int       i;
-		
+
 	GIPS_upsampling2(data,GIPS_FRAME_LENGTH<<1,speech32,state1);
-		
+
    	for (i = 0; i < mFrameSizeInHigherRate; i++) {
 		*dest++ =((int)speech32[i]*lGain)>>15;
-		*dest++ =iSpkrPhoneFlag? 0:speech32[i]; 	
- 
+		*dest++ =iSpkrPhoneFlag? 0:speech32[i];
+
    	}
 }
 
@@ -502,8 +502,8 @@ void DspResampling::downto16k(Sample* output, Sample* input, int UseLeft)
    //Low-pass filtering and decimation.
    int       i;
    short*    shp = input;
-	
-	if (UseLeft == 0) shp++; 
+
+	if (UseLeft == 0) shp++;
    	for (i = 0; i < mFrameSizeInHigherRate; i++) {
      		speech32[i]=*shp++;
       		shp++;   // skip unused channel

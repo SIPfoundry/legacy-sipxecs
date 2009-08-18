@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -35,7 +35,7 @@ static const int RESOURCE_MSG_TYPE = MpFlowGraphMsg::RESOURCE_SPECIFIC_START;
      //:Returns the count of the number of frames processed by this resource.
 
    int numMsgsProcessed(void);
-     //:Returns the count of the number of messages successfully processed by 
+     //:Returns the count of the number of messages successfully processed by
      //:this resource.
 
 /* ============================ INQUIRY =================================== */
@@ -105,7 +105,7 @@ int MpTestResource::numFramesProcessed(void)
    return mProcessedCnt;
 }
 
-// Returns the count of the number of messages successfully processed by 
+// Returns the count of the number of messages successfully processed by
 // this resource.
 int MpTestResource::numMsgsProcessed(void)
 {
@@ -205,4 +205,3 @@ UtlBoolean MpTestResource::handleMessage(MpFlowGraphMsg& rMsg)
 }
 
 /* ============================ FUNCTIONS ================================= */
-

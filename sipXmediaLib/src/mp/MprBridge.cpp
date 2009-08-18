@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -158,7 +158,7 @@ UtlBoolean MprBridge::doProcessFrame(MpBufPtr inBufs[],
       inputs = 0;
       for (inIdx=1; inIdx < inBufsSize; inIdx++) {
          if (isPortActive(inIdx)) {
-       if((MpBuf_getSpeech(inBufs[inIdx]) != MP_SPEECH_SILENT) && 
+       if((MpBuf_getSpeech(inBufs[inIdx]) != MP_SPEECH_SILENT) &&
                     (MpBuf_getSpeech(inBufs[inIdx]) != MP_SPEECH_COMFORT_NOISE))
                  inputs++;
          }
@@ -187,7 +187,7 @@ UtlBoolean MprBridge::doProcessFrame(MpBufPtr inBufs[],
                output = outstart;
              //Mix only non-silent audio
                if((MpBuf_getSpeech(inBufs[inIdx]) != MP_SPEECH_COMFORT_NOISE) &&
-                  (MpBuf_getSpeech(inBufs[inIdx]) != MP_SPEECH_SILENT) ) { 
+                  (MpBuf_getSpeech(inBufs[inIdx]) != MP_SPEECH_SILENT) ) {
                   input = MpBuf_getSamples(inBufs[inIdx]);
                   n = min(MpBuf_getNumSamples(inBufs[inIdx]), samplesPerFrame);
                   for (i=0; i<n; i++) *output++ += (*input++) >> scale;
@@ -224,7 +224,7 @@ UtlBoolean MprBridge::doProcessFrame(MpBufPtr inBufs[],
           /* Count in only non-silent and non-comfort-noise */
             if((inBufs[inIdx] != NULL) &&
                (MpBuf_getSpeech(inBufs[inIdx]) != MP_SPEECH_COMFORT_NOISE) &&
-                   (MpBuf_getSpeech(inBufs[inIdx]) != MP_SPEECH_SILENT) ) { 
+                   (MpBuf_getSpeech(inBufs[inIdx]) != MP_SPEECH_SILENT) ) {
                    inputs++;
             }
          }
@@ -256,7 +256,7 @@ UtlBoolean MprBridge::doProcessFrame(MpBufPtr inBufs[],
                /* Mix non-silent and non-comfort-noise inputs only */
                if((inBufs[inIdx] != NULL) &&
                (MpBuf_getSpeech(inBufs[inIdx]) != MP_SPEECH_COMFORT_NOISE) &&
-                   (MpBuf_getSpeech(inBufs[inIdx]) != MP_SPEECH_SILENT) ) { 
+                   (MpBuf_getSpeech(inBufs[inIdx]) != MP_SPEECH_SILENT) ) {
                    input = MpBuf_getSamples(inBufs[inIdx]);
                    n = min(MpBuf_getNumSamples(inBufs[inIdx]), samplesPerFrame);
                    for (i=0; i<n; i++) *output++ += (*input++) >> scale;
@@ -265,11 +265,11 @@ UtlBoolean MprBridge::doProcessFrame(MpBufPtr inBufs[],
          }
       } else { // inputs==0 means only silence/comfort noise inputs present
           if(outIdx) {     //Remote output
-             //Output silence to a remote if the input is silent  
+             //Output silence to a remote if the input is silent
              out = inBufs[0];
              MpBuf_addRef(out);
           } else {            //Local output
-             //Output comfort noise to local speaker if all remotes are silent 
+             //Output comfort noise to local speaker if all remotes are silent
              //or comfort noise.
              out = MpMisc.comfortNoise;
              MpBuf_addRef(out);
@@ -281,4 +281,3 @@ UtlBoolean MprBridge::doProcessFrame(MpBufPtr inBufs[],
 }
 
 /* ============================ FUNCTIONS ================================= */
-

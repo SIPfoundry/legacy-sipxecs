@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -68,7 +68,7 @@ extern void dspCoeffUpdate16skip32(const short* v1, int* v2,
                                int count, int factor);
 
 
-typedef struct 
+typedef struct
    {
       int r;
       int i;

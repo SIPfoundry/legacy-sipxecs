@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -63,7 +63,7 @@ static HWAVEOUT selectSpeakerDevice()
 
     if (DmaTask::isRingerEnabled() && audioOutH)
     {
-        hOut = audioOutH;     
+        hOut = audioOutH;
     }
     // else if we have a "in call" device, then use that
     else if (audioOutCallH)
@@ -71,16 +71,16 @@ static HWAVEOUT selectSpeakerDevice()
         hOut = audioOutCallH;
     }
     // finally, just use the default device
-    else 
-    {            
+    else
+    {
         hOut = audioOutH;
     }
 
     return hOut ;
 }
 
-static void CALLBACK TimerCallbackProc(UINT wTimerID, UINT msg, DWORD dwUser, DWORD dw1, DWORD dw2) 
-{    
+static void CALLBACK TimerCallbackProc(UINT wTimerID, UINT msg, DWORD dwUser, DWORD dw1, DWORD dw2)
+{
     int retval = PostThreadMessage(dwUser, WM_ALT_HEARTBEAT, 0, GetTickCount());
     if (retval == 0)
     {
@@ -141,7 +141,7 @@ static int openAudioOut(int desiredDeviceId, HWAVEOUT *pAudioOutH,int nChannels,
       GetCurrentThreadId(),   // instance data
       CALLBACK_FUNCTION);     // callback function specified
 
-   //if we fail to open the audio device above, then we 
+   //if we fail to open the audio device above, then we
    //will try to open any device that will hande the requested format
    if (res != MMSYSERR_NOERROR)
 	   res = waveOutOpen(
@@ -151,7 +151,7 @@ static int openAudioOut(int desiredDeviceId, HWAVEOUT *pAudioOutH,int nChannels,
 		  (DWORD) speakerCallbackProc,// callback entry
 		  GetCurrentThreadId(),   // instance data
 		  CALLBACK_FUNCTION);     // callback function specified
-   
+
    if (res != MMSYSERR_NOERROR)
    {
       //hmm, couldn't open any audio device... things don't look good at this point
@@ -214,7 +214,7 @@ static WAVEHDR* outPrePrep(int n, DWORD bufLen)
 
    static int oPP = 0;
    static MpBufPtr prev = NULL; // prev is for future concealment use
-   static int concealed = 0; 
+   static int concealed = 0;
 
    static int flushes = 0;
    static int skip = 0;
@@ -341,7 +341,7 @@ static int openSpeakerDevices(WAVEHDR*& pWH, HWAVEOUT& hOut)
     int i ;
     MMRESULT ret;
     MSG tMsg;
-    BOOL bSuccess ;    
+    BOOL bSuccess ;
 
 	// set the different device ids
 	gRingDeviceId = WAVE_MAPPER;
@@ -365,13 +365,13 @@ static int openSpeakerDevices(WAVEHDR*& pWH, HWAVEOUT& hOut)
 	for(ii=0; ii<numberOfDevicesOnSystem; ii++)
     {
         waveOutGetDevCaps(ii,&devcaps,sizeof(WAVEOUTCAPS));
-        if (strcmp(devcaps.szPname, DmaTask::getRingDevice())==0) 
+        if (strcmp(devcaps.szPname, DmaTask::getRingDevice())==0)
         {
             gRingDeviceId = ii;
             osPrintf("SpkrThread: Selected ring device: %s\n",devcaps.szPname);
         }
 
-		if (strcmp(devcaps.szPname, DmaTask::getCallDevice())==0) 
+		if (strcmp(devcaps.szPname, DmaTask::getCallDevice())==0)
         {
             gCallDeviceId = ii;
             osPrintf("SpkrThread: Selected call device: %s\n",devcaps.szPname);
@@ -380,7 +380,7 @@ static int openSpeakerDevices(WAVEHDR*& pWH, HWAVEOUT& hOut)
 
     /*
      * Open ringer device
-     */ 
+     */
     if (!openAudioOut(gRingDeviceId, &audioOutH, 1, SAMPLES_PER_SEC, BITS_PER_SAMPLE))
     {
         osPrintf("SpkrThread: Failed to open ring audio output channel\n\n");
@@ -388,7 +388,7 @@ static int openSpeakerDevices(WAVEHDR*& pWH, HWAVEOUT& hOut)
         return 1;
     }
 
-    do 
+    do
     {
         bSuccess = GetMessage(&tMsg, NULL, 0, 0) ;
     } while (bSuccess && (tMsg.message != WOM_OPEN)) ;
@@ -404,13 +404,13 @@ static int openSpeakerDevices(WAVEHDR*& pWH, HWAVEOUT& hOut)
         return 1;
     }
 
-    do 
+    do
     {
         bSuccess = GetMessage(&tMsg, NULL, 0, 0) ;
     } while (bSuccess && tMsg.message != WOM_OPEN) ;
 
 
-    // Pre load some data    
+    // Pre load some data
     for (i=0; i<smSpkrQPreload; i++)
     {
         pWH = outPrePrep(i, bufLen);
@@ -428,7 +428,7 @@ static int openSpeakerDevices(WAVEHDR*& pWH, HWAVEOUT& hOut)
             {
    	            showWaveError("waveOutWrite", ret, i, __LINE__);
             }
-        }      
+        }
     }
 
     return 0 ;
@@ -440,7 +440,7 @@ void closeSpeakerDevices()
     MMRESULT ret;
     int i ;
     MSG tMsg;
-    BOOL bSuccess ;    
+    BOOL bSuccess ;
 
 
     // Clean up ringer audio
@@ -453,9 +453,9 @@ void closeSpeakerDevices()
             showWaveError("waveOutReset", ret, -1, __LINE__);
         }
 
-        for (i=0; i<N_OUT_BUFFERS; i++) 
+        for (i=0; i<N_OUT_BUFFERS; i++)
         {
-            if (NULL != hOutHdr[i]) 
+            if (NULL != hOutHdr[i])
             {
                 ret = waveOutUnprepareHeader(audioOutH, pOutHdr[i], sizeof(WAVEHDR));
                 if (ret != MMSYSERR_NOERROR)
@@ -465,7 +465,7 @@ void closeSpeakerDevices()
                 outPostUnprep(i, TRUE);
             }
         }
-        
+
         ret = waveOutClose(audioOutH);
         if (ret != MMSYSERR_NOERROR)
         {
@@ -473,7 +473,7 @@ void closeSpeakerDevices()
         }
         audioOutH = NULL;
 
-        do 
+        do
         {
             bSuccess = GetMessage(&tMsg, NULL, 0, 0) ;
         } while (bSuccess && (tMsg.message != WOM_CLOSE)) ;
@@ -489,9 +489,9 @@ void closeSpeakerDevices()
             showWaveError("waveOutReset", ret, -1, __LINE__);
         }
 
-        for (i=0; i<N_OUT_BUFFERS; i++) 
+        for (i=0; i<N_OUT_BUFFERS; i++)
         {
-            if (NULL != hOutHdr[i]) 
+            if (NULL != hOutHdr[i])
             {
                 ret = waveOutUnprepareHeader(audioOutCallH, pOutHdr[i], sizeof(WAVEHDR));
                 if (ret != MMSYSERR_NOERROR)
@@ -509,7 +509,7 @@ void closeSpeakerDevices()
         }
         audioOutCallH = NULL;
 
-        do 
+        do
         {
             bSuccess = GetMessage(&tMsg, NULL, 0, 0) ;
         } while (bSuccess && (tMsg.message != WOM_CLOSE)) ;
@@ -533,7 +533,7 @@ unsigned int __stdcall SpkrThread(LPVOID Unused)
     HWAVEOUT hOut = NULL;
 
     // Verify that only 1 instance of the MicThread is running
-    if (bRunning) 
+    if (bRunning)
     {
        ResumeThread(hMicThread);
        return 1 ;
@@ -550,7 +550,7 @@ unsigned int __stdcall SpkrThread(LPVOID Unused)
     int      lastInd[OHISTORY];
     int      last = 0;
 
-    for (i=0;i<OHISTORY;i++) 
+    for (i=0;i<OHISTORY;i++)
     {
         lastWH[i] = 0;
         lastInd[i] = 0;
@@ -559,14 +559,14 @@ unsigned int __stdcall SpkrThread(LPVOID Unused)
     memset(histOut, 0xff, sizeof(histOut));
     lastOut = 0;
 #endif /* OHISTORY ] */
-    
+
     // Initialize headers
-    for (i=0; i<N_OUT_BUFFERS; i++) 
+    for (i=0; i<N_OUT_BUFFERS; i++)
     {
         hOutHdr[i] = hOutBuf[i] = NULL;
         pOutHdr[i] = NULL;
     }
-    
+
     if (openSpeakerDevices(pWH, hOut))
     {
         // NOT using a sound card
@@ -574,13 +574,13 @@ unsigned int __stdcall SpkrThread(LPVOID Unused)
         timeSetEvent(10, 0, TimerCallbackProc, GetCurrentThreadId(), TIME_PERIODIC);
     }
 
-    played = 0;   
+    played = 0;
     bDone = false ;
     while (!bDone)
     {
         bGotMsg = GetMessage(&tMsg, NULL, 0, 0);
-              
-        // when switching devices, ringer to in-call we need to make 
+
+        // when switching devices, ringer to in-call we need to make
         // sure any outstanding buffers are flushed
         if (sLastRingerEnabled != DmaTask::isRingerEnabled())
         {
@@ -594,13 +594,13 @@ unsigned int __stdcall SpkrThread(LPVOID Unused)
             }
         }
 
-        if (bGotMsg) 
+        if (bGotMsg)
         {
-            switch (tMsg.message) 
+            switch (tMsg.message)
             {
             case WM_ALT_HEARTBEAT:
                 res = MpMediaTask::signalFrameStart();
-                switch (res) 
+                switch (res)
                 {
                     case OS_SUCCESS:
                         frameCount++;
@@ -636,16 +636,16 @@ unsigned int __stdcall SpkrThread(LPVOID Unused)
                     osPrintf("\n");
                 }
 #endif /* OHISTORY ] */
-                
+
                 if (DmaTask::isOutputDeviceChanged())
-                {                    
+                {
                     DmaTask::clearOutputDeviceChanged() ;
                     closeSpeakerDevices() ;
                     if (openSpeakerDevices(pWH, hOut))
                     {
-                        timeSetEvent(10, 0, TimerCallbackProc, GetCurrentThreadId(), TIME_PERIODIC);                    
+                        timeSetEvent(10, 0, TimerCallbackProc, GetCurrentThreadId(), TIME_PERIODIC);
                     }
-                    continue ;                    
+                    continue ;
                 }
 
                 hOut = selectSpeakerDevice() ;
@@ -675,7 +675,7 @@ unsigned int __stdcall SpkrThread(LPVOID Unused)
 
                 res = MpMediaTask::signalFrameStart();
 
-                switch (res) 
+                switch (res)
                 {
                 case OS_SUCCESS:
                     frameCount++;
@@ -712,17 +712,17 @@ unsigned int __stdcall SpkrThread(LPVOID Unused)
                 // know)
                 bDone = true ;
                 break;
-            default:                
+            default:
                 break;
             }
-        } 
-        else 
+        }
+        else
         {
             // Sky is falling, kick out so that we don't spin a high priority
             // thread.
             bDone = true ;
         }
-      
+
         // record our last ringer state
         sLastRingerEnabled = DmaTask::isRingerEnabled();
     }

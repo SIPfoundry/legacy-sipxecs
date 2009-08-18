@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -61,10 +61,10 @@ MpConnection::MpConnection(MpCallFlowGraph* pParent, MpConnectionID myID,
    IRTCPSession *piRTCPSession = pParent->getRTCPSessionPtr();
 
 // Let's create an RTCP Connection to accompany the MP Connection just created.
-   
+
    mpiRTCPConnection = piRTCPSession->CreateRTCPConnection();
 
-   assert(mpiRTCPConnection != NULL); 
+   assert(mpiRTCPConnection != NULL);
 
 // Let's use the Connection interface to acquire the constituent interfaces
 // required for dispatching RTP and RTCP packets received from the network as
@@ -165,7 +165,7 @@ MpConnection::~MpConnection()
    IRTCPSession *piRTCPSession = mpFlowGraph->getRTCPSessionPtr();
 
 // Let's free our RTCP Connection
-   piRTCPSession->TerminateRTCPConnection(mpiRTCPConnection); 
+   piRTCPSession->TerminateRTCPConnection(mpiRTCPConnection);
 #endif /* INCLUDE_RTCP ] */
    if (NULL != mpJB_inst) {
       JB_free(mpJB_inst);
@@ -325,7 +325,7 @@ void MpConnection::startReceiveRtp(SdpCodec* pCodecs[], int numCodecs,
 // Stop receiving RTP and RTCP packets.
 void MpConnection::stopReceiveRtp()
 {
-   JB_inst* pJB_inst; 
+   JB_inst* pJB_inst;
 
    mpFromNet->resetSockets();
    mpFlowGraph->synchronize();
@@ -529,4 +529,3 @@ UtlBoolean MpConnection::setDtmfTerm(MprRecorder *pRecorders)
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -114,7 +114,7 @@ bool CMsgQueue::Initialize()
         return(FALSE);
 #elif defined(__pingtel_on_posix__)
     pthread_t thread;
-    
+
     if(pthread_create(&thread, NULL, InitMessageThread, this))
         return(FALSE);
     pthread_detach(thread);
@@ -900,7 +900,7 @@ void CMsgQueue::MessageLoop()
         }
 
     }
-    
+
     return;
 }
 #endif /* ] */

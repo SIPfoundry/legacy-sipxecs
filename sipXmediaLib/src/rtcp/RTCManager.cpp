@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -1116,7 +1116,7 @@ void CRTCManager::ReceiverReportSent(
     // for processing by the Message Queue thread/task.
 #ifdef TEST_PRINT
     OsSysLog::add(FAC_MP, PRI_DEBUG, "RTCP - CRTCManager::ReceiverReportSent new message 0x%08x \n", (int)poMessage);
-#endif    
+#endif
     if(poMessage)
     {
         Post(poMessage);

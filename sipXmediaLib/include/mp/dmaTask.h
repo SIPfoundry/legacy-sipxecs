@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -103,14 +103,14 @@ public:
         return prevSetting;
     } ;
     //: Maintain the "ringer" state for the device and return the previous setting.
-    
+
     static bool isRingerEnabled(void) { return smIsRingerEnabled;} ;
     //: Test whether the device's ringer is currently enabled.
 
     static void setMuteListener(MuteListenerFuncPtr pFunc) { smpMuteListener = pFunc; } ;
     //: Set a listener for "mute" state changes.  To remove the listener, set the
     //: listener to NULL.
-    
+
     static bool setMuteEnabled(bool enabled)
     {
         bool prevSetting = smIsMuted;
@@ -121,8 +121,8 @@ public:
         }
         return prevSetting;
     };
-    //: Set the "mute" state for the device and return the previous setting. 
-    
+    //: Set the "mute" state for the device and return the previous setting.
+
     static bool isMuteEnabled(void) { return smIsMuted; } ;
     //: Test whether the device's ringer is currently enabled.
 
@@ -145,7 +145,7 @@ public:
         mMicDeviceName = szDevice ;
         mbInputDeviceChanged = true ;
     };
- 
+
     static UtlString& getRingDevice() { return mRingDeviceName ;} ;
     static UtlString& getCallDevice() { return mCallDeviceName ;} ;
     static UtlString& getMicDevice() { return mMicDeviceName ;} ;

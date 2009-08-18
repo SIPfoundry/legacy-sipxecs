@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -24,7 +24,7 @@ MpAudioAbstract::MpAudioAbstract() {
       mDetectedFormat = AUDIO_FORMAT_UNKNOWN;
 }
 
-// Construct a Audio from an existed Audio 
+// Construct a Audio from an existed Audio
 MpAudioAbstract::MpAudioAbstract(MpAudioAbstract *audio) {
       mPrevious = audio;
       mNext = 0;
@@ -37,13 +37,13 @@ MpAudioAbstract::MpAudioAbstract(MpAudioAbstract *audio) {
 // Destructor
 MpAudioAbstract::~MpAudioAbstract()
 {
-    // do nothing right now 
+    // do nothing right now
 }
 
 /* ============================ General Unclassfied ================ */
 //  getSamples is virtual function
 // readBytes: read from previous resource of length bytes
-size_t MpAudioAbstract::readBytes(AudioByte * buff, size_t length) 
+size_t MpAudioAbstract::readBytes(AudioByte * buff, size_t length)
 {
     return getPreviousAudio()->readBytes(buff,length);
 }
@@ -59,33 +59,33 @@ int MpAudioAbstract::getDecompressionType()
     // we might just use pure virtual here
 }
 /* ============================ MpAudioAbstract Operations ================ */
-// get previouse audio 
-MpAudioAbstract* MpAudioAbstract::getPreviousAudio(void) 
-{ 
-    return mPrevious; 
+// get previouse audio
+MpAudioAbstract* MpAudioAbstract::getPreviousAudio(void)
+{
+    return mPrevious;
 }
 
 // previous from existing audio
-void MpAudioAbstract::setPreviousAudio(MpAudioAbstract *a) 
+void MpAudioAbstract::setPreviousAudio(MpAudioAbstract *a)
 {
-    mPrevious = a; 
+    mPrevious = a;
 }
 
 // get next audioAbstract
-MpAudioAbstract* MpAudioAbstract::getNextAudio(void) 
-{ 
-    return mNext; 
+MpAudioAbstract* MpAudioAbstract::getNextAudio(void)
+{
+    return mNext;
 }
 
 // assign next Audio to a
-void MpAudioAbstract::setNextAudio(MpAudioAbstract *a) 
+void MpAudioAbstract::setNextAudio(MpAudioAbstract *a)
 {
     mNext = a;
 }
 
 /* ============================ Sampling related functions ================ */
-// set samplingRate to s if it's not frozen 
-void MpAudioAbstract::setSamplingRate(long s) 
+// set samplingRate to s if it's not frozen
+void MpAudioAbstract::setSamplingRate(long s)
 { // Set the sampling rate
       if (mSamplingRateFrozen) {
          osPrintf("Can't change sampling rate.\n");
@@ -102,7 +102,7 @@ void MpAudioAbstract::setSamplingRateRecursive(long s) {
 }
 
 
-void MpAudioAbstract::minMaxSamplingRate(long *min, long *max, long *preferred) 
+void MpAudioAbstract::minMaxSamplingRate(long *min, long *max, long *preferred)
 {
    if (getPreviousAudio()) getPreviousAudio()->minMaxSamplingRate(min,max,preferred);
    if (mSamplingRate) *preferred = mSamplingRate;
@@ -112,12 +112,12 @@ void MpAudioAbstract::minMaxSamplingRate(long *min, long *max, long *preferred)
 
 // negotiate the sampling rate
 void MpAudioAbstract::negotiateSamplingRate(void) {
-   if (getNextAudio()) 
-      getNextAudio()->negotiateSamplingRate(); 
-   else { 
+   if (getNextAudio())
+      getNextAudio()->negotiateSamplingRate();
+   else {
       long min = 8000, max = 44100, preferred = 44100;
-      minMaxSamplingRate(&min,&max,&preferred); 
-      if (min > max) { 
+      minMaxSamplingRate(&min,&max,&preferred);
+      if (min > max) {
          osPrintf("Couldn't negotiate sampling rate.\n");
       }
       setSamplingRateRecursive(preferred); // Set them everywhere
@@ -125,7 +125,7 @@ void MpAudioAbstract::negotiateSamplingRate(void) {
 }
 
 // get sampling rate
-long MpAudioAbstract::getSamplingRate(void) 
+long MpAudioAbstract::getSamplingRate(void)
 {
       if (!mSamplingRateFrozen)  // Not frozen?
          negotiateSamplingRate(); // Go figure it out
@@ -133,8 +133,8 @@ long MpAudioAbstract::getSamplingRate(void)
 }
 
 /* ============================ Channel related functions ================ */
-// Set channel to ch 
-void MpAudioAbstract::setChannels(int ch) 
+// Set channel to ch
+void MpAudioAbstract::setChannels(int ch)
 {
       if (mChannelsFrozen) {
          osPrintf("Can't change number of channels.\n");
@@ -143,15 +143,15 @@ void MpAudioAbstract::setChannels(int ch)
 }
 
 // Set channel recursively to ch
-void MpAudioAbstract::setChannelsRecursive(int ch) 
+void MpAudioAbstract::setChannelsRecursive(int ch)
 {
    if (getPreviousAudio()) getPreviousAudio()->setChannelsRecursive(ch);
    setChannels(ch);
    mChannelsFrozen = true;
 }
 
-// Get prefered channel 
-void MpAudioAbstract::minMaxChannels(int *min, int *max, int *preferred) 
+// Get prefered channel
+void MpAudioAbstract::minMaxChannels(int *min, int *max, int *preferred)
 {
    if (getPreviousAudio())  getPreviousAudio()->minMaxChannels(min,max,preferred);
    if (mChannels) *preferred = mChannels;
@@ -160,7 +160,7 @@ void MpAudioAbstract::minMaxChannels(int *min, int *max, int *preferred)
 }
 
 // negotiate channels
-void MpAudioAbstract::negotiateChannels(void) 
+void MpAudioAbstract::negotiateChannels(void)
 {
    if (getNextAudio())
       getNextAudio()->negotiateChannels();
@@ -175,7 +175,7 @@ void MpAudioAbstract::negotiateChannels(void)
 }
 
 // Get channels
-int MpAudioAbstract::getChannels(void) 
+int MpAudioAbstract::getChannels(void)
 {
       if (!mChannelsFrozen) negotiateChannels();
       return mChannels;

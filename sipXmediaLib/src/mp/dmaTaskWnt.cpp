@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -183,15 +183,15 @@ int showFrameCount(int silent)
  *      and that handle the audio input and output.
  */
 OsStatus dmaStartup(int samplesPerFrame)
-{    
-    if (!checkFormat(1, SAMPLES_PER_SEC, BITS_PER_SAMPLE)) 
+{
+    if (!checkFormat(1, SAMPLES_PER_SEC, BITS_PER_SAMPLE))
     {
         osPrintf(" %3d channels, %5d samples/sec, %2d bits/sample: is NOT supported\n",
                 1, SAMPLES_PER_SEC, BITS_PER_SAMPLE) ;
 
-        // 12/16/2004: Allow thread to startup and attempt to open audio 
-        // channels.  It will likely fail, but the code down stream will 
-        // fire off alt heartbeat mechanism.        
+        // 12/16/2004: Allow thread to startup and attempt to open audio
+        // channels.  It will likely fail, but the code down stream will
+        // fire off alt heartbeat mechanism.
     }
 
 
@@ -256,7 +256,7 @@ OsStatus dmaStartup(int samplesPerFrame)
  *      and that handle the audio input and output.
  */
 void dmaShutdown()
-{    
+{
     PostThreadMessage(dwMicThreadID, WIM_CLOSE, 0, 0L);
     WaitForSingleObject(hMicThread, INFINITE);
     PostThreadMessage(dwSpkrThreadID, WOM_CLOSE, 0, 0L);

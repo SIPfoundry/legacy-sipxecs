@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -54,7 +54,7 @@ OsStatus MpPlayer::addListener(MpPlayerListener* pListener, void* pUserData)
    OsStatus status = OS_LIMIT_REACHED ;
 
 #ifdef MP_STREAM_DEBUG /* [ */
-   osPrintf("MpPlayer addListener (player=%08X, listener=%08X, data=%08X)\n", 
+   osPrintf("MpPlayer addListener (player=%08X, listener=%08X, data=%08X)\n",
          this, pListener, pUserData) ;
 #endif /* MP_STREAM_DEBUG ] */
 
@@ -75,7 +75,7 @@ OsStatus MpPlayer::addListener(MpPlayerListener* pListener, void* pUserData)
 }
 
 
-// Removes a previously added player listener.  This listener will cease to 
+// Removes a previously added player listener.  This listener will cease to
 // receive state change notifications.
 OsStatus MpPlayer::removeListener(MpPlayerListener* pListener)
 {
@@ -83,7 +83,7 @@ OsStatus MpPlayer::removeListener(MpPlayerListener* pListener)
    OsStatus status = OS_NOT_FOUND ;
 
 #ifdef MP_STREAM_DEBUG /* [ */
-   osPrintf("MpPlayer removeListener (player=%08X, listener=%08X)\n", 
+   osPrintf("MpPlayer removeListener (player=%08X, listener=%08X)\n",
          this, pListener) ;
 #endif /* MP_STREAM_DEBUG ] */
 
@@ -114,34 +114,34 @@ const char* MpPlayer::getEventString(PlayerState event)
    switch (event)
    {
       case PlayerUnrealized:
-         return "PlayerUnrealized" ; 
+         return "PlayerUnrealized" ;
          break ;
       case PlayerRealized:
-         return "PlayerRealized" ; 
+         return "PlayerRealized" ;
          break ;
       case PlayerPrefetched:
-         return "PlayerPrefetched" ; 
+         return "PlayerPrefetched" ;
          break ;
       case PlayerPlaying:
-         return "PlayerPlaying" ; 
+         return "PlayerPlaying" ;
          break ;
       case PlayerPaused:
-         return "PlayerPaused" ; 
+         return "PlayerPaused" ;
          break ;
       case PlayerStopped:
-         return "PlayerStopped" ; 
+         return "PlayerStopped" ;
          break ;
       case PlayerAborted:
          return "PlayerAborted" ;
          break ;
       case PlayerFailed:
-         return "PlayerFailed" ; 
+         return "PlayerFailed" ;
          break ;
       case PlayerDestroyed:
-         return "PlayerDestroyed" ; 
+         return "PlayerDestroyed" ;
          break ;
       // default:
-         // return "PlayerUnknown" ; 
+         // return "PlayerUnknown" ;
          // break ;
    }
 }
@@ -183,15 +183,15 @@ void MpPlayer::fireEvent(PlayerState state)
                mListenerDb[i].pListener->playerPaused(event) ;
                break ;
             case PlayerStopped:
-            case PlayerAborted:            
+            case PlayerAborted:
                mListenerDb[i].pListener->playerStopped(event) ;
-               break ;            
+               break ;
             case PlayerFailed:
                mListenerDb[i].pListener->playerFailed(event) ;
                break ;
          }
       }
-   }   
+   }
 }
 
 // Is the transition from oldState to newState valid?
@@ -211,4 +211,3 @@ UtlBoolean MpPlayer::isValidStateChange(PlayerState oldState, PlayerState newSta
 /* ============================ TESTING =================================== */
 
 /* ============================ FUNCTIONS ================================= */
-
