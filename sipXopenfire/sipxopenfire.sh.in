@@ -21,6 +21,7 @@
 
 Action="START"
 # Initialization
+export OPENFIRE_OPTS="-Dconf.dir=@SIPX_CONFDIR@"
 OPENFIRE_HOME="@OPENFIRE_HOME@"
 OPENFIRE_LIB="${OPENFIRE_HOME}/lib"
 JAVACMD=`@SIPX_BINDIR@/sipx-config --java`
@@ -42,7 +43,7 @@ export JAVA_HOME JAVACMD
 
 OPENFIRE_LOGDIR="@SIPX_LOGDIR@"
 
-OPENFIRE=bin/openfire
+OPENFIRE=bin/openfire.sh
 
 PIDFILE="@SIPX_RUNDIR@/sipxopenfire.pid"
 
@@ -59,9 +60,6 @@ start() {
         # Start daemons.
         echo -n "Starting openfire: "
 	PWD=`pwd`
-	#write out the confi directory so the plugin can read it
-	echo "conf.dir=@SIPX_CONFDIR@" > ${TMP_DIR}/sipx.properties
-	echo "openfire.home=${OPENFIRE_HOME}" >> ${TMP_DIR}/sipx.properties
 	exec ${OPENFIRE_HOME}/${OPENFIRE} start
 	ps aux | grep openfire | grep startup.jar | awk '{print $2}' > ${PIDFILE}
 }

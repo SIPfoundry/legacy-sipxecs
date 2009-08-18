@@ -70,7 +70,7 @@ public class CallWatcher
     static void initializeLogging() throws Exception {
         try {
             String javaClassPaths = System.getProperty("java.class.path");
-            String openfireHome = System.getProperty("openfire.home");
+            String openfireHome = System.getProperty("openfireHome");
             StringBuilder sb = new StringBuilder(javaClassPaths).append(":" + openfireHome+ "/lib/sipxcommons.jar");
             System.setProperty("java.class.path",sb.toString());
             String log4jPropertiesFile = configurationPath + "/log4j.properties";
@@ -179,7 +179,7 @@ public class CallWatcher
     
     public static void main(String[] args) throws Exception
     {
-        CallWatcher.configurationPath = System.getProperty("config.dir","/etc/sipxpbx");
+        CallWatcher.configurationPath = System.getProperty("conf.dir","/etc/sipxpbx");
         init();
     }
 }
