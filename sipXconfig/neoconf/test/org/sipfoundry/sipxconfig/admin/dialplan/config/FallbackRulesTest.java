@@ -124,6 +124,8 @@ public class FallbackRulesTest extends XMLTestCase {
         expectLastCall().andReturn("my test name");
         rule.getDescription();
         expectLastCall().andReturn("my test description");
+        rule.getCalltag();
+        expectLastCall().andReturn("CUST").anyTimes();
         rule.getPatterns();
         expectLastCall().andReturn(array("x."));
         rule.getSiteTransforms();
@@ -167,6 +169,8 @@ public class FallbackRulesTest extends XMLTestCase {
         expectLastCall().andReturn("my test name");
         rule.getDescription();
         expectLastCall().andReturn("my test description");
+        rule.getCalltag();
+        expectLastCall().andReturn("CUST").anyTimes();
         rule.getPatterns();
         expectLastCall().andReturn(array("x."));
         rule.getSiteTransforms();
@@ -228,6 +232,7 @@ public class FallbackRulesTest extends XMLTestCase {
         CustomDialingRule rule = new CustomDialingRule();
         rule.setName("my test name");
         rule.setDescription("my test description");
+        rule.setCalltag("CUST");
         rule.addGateway(shared);
         rule.addGateway(montreal);
         rule.addGateway(lisbon);

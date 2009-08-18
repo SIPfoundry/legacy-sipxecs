@@ -8,7 +8,8 @@ sql_files = \
     view_cdrs.sql \
     index_on_time.sql \
     reference.sql \
-    contact.sql 
+    contact.sql \
+    calldirection.sql
 
 EXTRA_DIST = \
     $(sql_files)

@@ -17,5 +17,6 @@ public class MohRule extends InternalForwardRule {
         super("~~mh~", "<sip:moh@${ORBIT_SERVER_SIP_SRV_OR_HOSTPORT}>");
         setName("Music on Hold");
         setDescription("Forward music-on-hold calls to Park Server");
+        setCalltag("MOH");
     }
 }

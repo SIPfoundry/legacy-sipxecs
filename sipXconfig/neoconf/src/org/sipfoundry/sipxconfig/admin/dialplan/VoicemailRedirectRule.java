@@ -48,6 +48,11 @@ public class VoicemailRedirectRule extends DialingRule {
         return DialingRuleType.MAPPING_RULE;
     }
 
+    @Override
+    public String getCalltag() {
+        return "VMR";
+    }
+
     public boolean isInternal() {
         return true;
     }

@@ -92,6 +92,7 @@ SipRedirectorMapping::lookUp(
    SipRedirectorPrivateStorage*& privateStorage,
    ErrorDescriptor& errorDescriptor)
 {
+   UtlString callTag = "UNK";
    UtlString permissionName;
    ResultSet urlMappingRegistrations;
    ResultSet urlMappingPermissions;
@@ -107,7 +108,8 @@ SipRedirectorMapping::lookUp(
       mMap.getContactList(
          requestUri,
          urlMappingRegistrations,
-         urlMappingPermissions);
+         urlMappingPermissions,
+         callTag);
    }
 
    int numUrlMappingPermissions = urlMappingPermissions.getSize();
@@ -223,6 +225,7 @@ SipRedirectorMapping::lookUp(
             urlMappingRegistrations.getIndex(i, record);
             UtlString contactKey("contact");
             UtlString contact= *(dynamic_cast <UtlString*> (record.findValue(&contactKey)));
+            
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "%s::lookUp contact = '%s'",
                           mLogName.data(), contact.data());
@@ -232,6 +235,14 @@ SipRedirectorMapping::lookUp(
                           mLogName.data(), contactUri.toString().data());
             // We no longer check for recursive loops here because we
             // have comprehensive loop detection in the proxy.
+            UtlString recordRoute;
+            UtlString curCallDest;
+            if (message.getRecordRouteField(0,&recordRoute)) {
+               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "%s::lookUp RecordRouteField = '%s'",
+                          mLogName.data(), recordRoute.data());
+            }
+            contactUri.setUrlParameter(SIP_SIPX_CALL_DEST_FIELD, callTag.data());
 
             // Add the contact.
             contactList.add( contactUri, *this );

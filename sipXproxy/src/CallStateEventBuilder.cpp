@@ -179,7 +179,8 @@ void CallStateEventBuilder::observerEvent(int sequenceNumber, ///< for ObserverR
 void CallStateEventBuilder::callRequestEvent(int sequenceNumber,
                                              const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
                                              const UtlString& contact,
-                                             const UtlString& references
+                                             const UtlString& references,
+                                             const bool callerInternal
                                              )
 {
    bool CalledBaseClassMethod_callRequestEvent = false;
@@ -197,7 +198,8 @@ void CallStateEventBuilder::callRequestEvent(int sequenceNumber,
  */
 void CallStateEventBuilder::callSetupEvent(int sequenceNumber,
                                            const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
-                                           const UtlString& contact
+                                           const UtlString& contact,
+                                           const UtlString& calleeRoute
                                            )
 {
    bool CalledBaseClassMethod_callSetupEvent = false;

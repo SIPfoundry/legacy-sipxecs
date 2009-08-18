@@ -80,7 +80,8 @@ class CallStateEventBuilder
    virtual void callRequestEvent(int sequenceNumber,
                                  const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
                                  const UtlString& contact,
-                                 const UtlString& references
+                                 const UtlString& references,
+                                 const bool callerInternal 
                                  );
 
    /// Begin a Call Setup Event - a 2xx response to an INVITE has been observed
@@ -93,7 +94,8 @@ class CallStateEventBuilder
     */
    virtual void callSetupEvent(int sequenceNumber,
                                const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
-                               const UtlString& contact
+                               const UtlString& contact,
+                               const UtlString& calleeRoute
                                );
 
    /// Begin a Call Failure Event - an error response to an INVITE has been observed

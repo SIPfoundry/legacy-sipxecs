@@ -47,6 +47,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
          FallbackRulesUrlMapping* urlmap;
          ResultSet registrations;
          UtlString actual;
+         UtlString callTag = "UNK";
 
          CPPUNIT_ASSERT( urlmap = new FallbackRulesUrlMapping() );
          UtlString simpleXml;
@@ -56,7 +57,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
          // permutations for the 'boston' location
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:sos@example.edu")
                                 ,UtlString("boston"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -65,7 +66,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
 
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:911@example.edu")
                                 ,UtlString("boston"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -74,7 +75,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
 
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:9911@example.edu")
                                 ,UtlString("boston"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -83,7 +84,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
 
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:sos@sipx.example.edu")
                                 ,UtlString("boston"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -92,7 +93,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
 
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:911@sipx.example.edu")
                                 ,UtlString("boston"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -101,7 +102,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
 
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:9911@sipx.example.edu")
                                 ,UtlString("boston"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -110,7 +111,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
 
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:sos@10.1.20.20")
                                 ,UtlString("boston"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -119,7 +120,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
 
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:911@10.1.20.20")
                                 ,UtlString("boston"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -128,7 +129,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
 
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:9911@10.1.20.20")
                                 ,UtlString("boston"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -138,7 +139,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
          // permutation for the 'seattle' location
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:sos@example.edu")
                                 ,UtlString("seattle"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -147,7 +148,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
 
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:911@example.edu")
                                 ,UtlString("seattle"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -156,7 +157,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
 
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:9911@example.edu")
                                 ,UtlString("seattle"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -165,7 +166,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
 
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:sos@sipx.example.edu")
                                 ,UtlString("seattle"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -174,7 +175,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
 
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:911@sipx.example.edu")
                                 ,UtlString("seattle"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -183,7 +184,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
 
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:9911@sipx.example.edu")
                                 ,UtlString("seattle"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -192,7 +193,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
 
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:sos@10.1.20.20")
                                 ,UtlString("seattle"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -201,7 +202,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
 
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:911@10.1.20.20")
                                 ,UtlString("seattle"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -210,7 +211,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
 
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:9911@10.1.20.20")
                                 ,UtlString("seattle"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -220,7 +221,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
          // permutation for the default location
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:sos@example.edu")
                                 ,UtlString("Kookamonga"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -229,7 +230,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
 
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:911@example.edu")
                                 ,UtlString("Kookamonga"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -238,7 +239,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
 
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:9911@example.edu")
                                 ,UtlString("Kookamonga"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -247,7 +248,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
 
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:sos@sipx.example.edu")
                                 ,UtlString("Kookamonga"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -256,7 +257,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
 
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:911@sipx.example.edu")
                                 ,UtlString("Kookamonga"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -265,7 +266,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
 
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:9911@sipx.example.edu")
                                 ,UtlString("Kookamonga"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -274,7 +275,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
 
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:sos@10.1.20.20")
                                 ,UtlString("Kookamonga"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -283,7 +284,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
 
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:911@10.1.20.20")
                                 ,UtlString("Kookamonga"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -292,7 +293,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
 
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:9911@10.1.20.20")
                                 ,UtlString("Kookamonga"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -301,7 +302,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
 
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:9911@10.1.20.20")
                                 ,UtlString(""),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -316,6 +317,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
          FallbackRulesUrlMapping* urlmap;
          ResultSet registrations;
          UtlString actual;
+         UtlString callTag = "UNK";
 
          CPPUNIT_ASSERT( urlmap = new FallbackRulesUrlMapping() );
          UtlString simpleXml;
@@ -324,7 +326,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
 
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:918005551212@example.edu")
                                 ,UtlString("boston"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
 
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
@@ -334,7 +336,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
 
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:18005551213@example.edu")
                                 ,UtlString("regina"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -343,7 +345,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
 
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:8005551214@example.edu")
                                 ,UtlString(""),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -351,7 +353,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
          registrations.destroyAll();
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:918005551212@sipx.example.edu")
                                 ,UtlString("new-york"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -359,7 +361,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
          registrations.destroyAll();
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:18005551213@sipx.example.edu")
                                 ,UtlString("DC"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -368,7 +370,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
 
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:8005551214@sipx.example.edu")
                                 ,UtlString("Philly"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -377,7 +379,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
 
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:918005551212@10.1.20.20")
                                 ,UtlString(""),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -386,7 +388,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
 
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:18005551213@10.1.20.20")
                                 ,UtlString("miami"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -395,7 +397,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
 
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:8005551214@10.1.20.20")
                                 ,UtlString("orlando"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -410,6 +412,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
          FallbackRulesUrlMapping* urlmap;
          ResultSet registrations;
          UtlString actual;
+         UtlString callTag = "UNK";
 
          CPPUNIT_ASSERT( urlmap = new FallbackRulesUrlMapping() );
          UtlString simpleXml;
@@ -419,7 +422,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
          // permutations for the 'boston' location
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:912335551212@example.edu")
                                 ,UtlString("boston"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 2 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -430,7 +433,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
          
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:12335551212@example.edu")
                                 ,UtlString("boston"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 2 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -441,7 +444,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
          
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:2335551212@example.edu")
                                 ,UtlString("boston"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 2 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -453,7 +456,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
          // permutations for the 'seattle' location
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:912335551212@example.edu")
                                 ,UtlString("seattle"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 2 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -464,7 +467,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
          
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:12335551212@example.edu")
                                 ,UtlString("seattle"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 2 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -475,7 +478,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
          
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:2335551212@example.edu")
                                 ,UtlString("seattle"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 2 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -487,7 +490,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
          // permutations for the other locations
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:912335551212@example.edu")
                                 ,UtlString("walla-walla"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -496,7 +499,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
          
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:12335551212@example.edu")
                                 ,UtlString(""),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -505,7 +508,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
          
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:2335551212@example.edu")
                                 ,UtlString("ogden"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -520,6 +523,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
          FallbackRulesUrlMapping* urlmap;
          ResultSet registrations;
          UtlString actual;
+         UtlString callTag = "UNK";
 
          CPPUNIT_ASSERT( urlmap = new FallbackRulesUrlMapping() );
          UtlString simpleXml;
@@ -528,7 +532,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
 
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:011336135551212@example.edu")
                                 ,UtlString("Boston"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -537,7 +541,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
          
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:01133613555121211@example.edu")
                                 ,UtlString(""),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -546,7 +550,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
          
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:01133613555121212@example.edu")
                                 ,UtlString("ogden"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -561,6 +565,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
          FallbackRulesUrlMapping* urlmap;
          ResultSet registrations;
          UtlString actual;
+         UtlString callTag = "UNK";
 
          CPPUNIT_ASSERT( urlmap = new FallbackRulesUrlMapping() );
          UtlString simpleXml;
@@ -569,7 +574,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
 
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:75551212@example.org")
                                 ,UtlString("ogden"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -584,6 +589,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
          FallbackRulesUrlMapping* urlmap;
          ResultSet registrations;
          UtlString actual;
+         UtlString callTag = "UNK";
 
          CPPUNIT_ASSERT( urlmap = new FallbackRulesUrlMapping() );
          UtlString simpleXml;
@@ -592,7 +598,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
 
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:99991234@example.org")
                                 ,UtlString("boston"),
-                                registrations
+                                registrations, callTag
                                 ) == OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 2 ,  registrations.getSize() );
          getResult( registrations, 0, "contact", actual);
@@ -603,7 +609,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
 
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:99991234@example.org")
                                 ,UtlString("salem"),
-                                registrations
+                                registrations, callTag
                                 ) != OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 0 ,  registrations.getSize() );
          
@@ -615,6 +621,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
          FallbackRulesUrlMapping* urlmap;
          ResultSet registrations;
          UtlString actual;
+         UtlString callTag = "UNK";
 
          CPPUNIT_ASSERT( urlmap = new FallbackRulesUrlMapping() );
          UtlString simpleXml;
@@ -624,7 +631,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
          // use non-matching host name
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:99991234@example.net")
                                 ,UtlString("boston"),
-                                registrations
+                                registrations, callTag
                                 ) != OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 0 ,  registrations.getSize() );
          registrations.destroyAll();
@@ -632,7 +639,7 @@ class FallbackRulesUrlMappingTest : public CppUnit::TestCase
          // use non-matching user name
          CPPUNIT_ASSERT( urlmap->getContactList( Url("sip:71234@example.com")
                                 ,UtlString("boston"),
-                                registrations
+                                registrations, callTag
                                 ) != OS_SUCCESS );
          CPPUNIT_ASSERT_EQUAL( 0 ,  registrations.getSize() );
          registrations.destroyAll();

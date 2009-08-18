@@ -99,6 +99,12 @@ public class MappingRules extends RulesXmlFile {
         Element userMatch = hostMatch.addElement("userMatch");
         addRuleNameComment(userMatch, rule);
         addRuleDescription(userMatch, rule);
+        Element calltag = userMatch.addElement("callTag");
+        if (rule.getCalltag() == null) {
+            calltag.setText("UNK");
+        } else {
+            calltag.setText(rule.getCalltag());
+        }
         String[] patterns = rule.getPatterns();
         for (int i = 0; i < patterns.length; i++) {
             String pattern = patterns[i];

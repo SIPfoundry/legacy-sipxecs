@@ -58,6 +58,8 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          ResultSet permissions;
          UtlString actual;
 
+         UtlString callTag = "UNK";
+
          CPPUNIT_ASSERT( urlmap = new MappingRulesUrlMapping() );
          UtlString simpleXml;
          mFileTestContext->inputFilePath("simple.xml", simpleXml);
@@ -71,7 +73,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          // but it is not set so don't test it
 
          urlmap->getContactList( Url("sip:THISUSER@THISHOST.THISDOMAIN")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 4 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
@@ -89,7 +91,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          permissions.destroyAll();
          
          urlmap->getContactList( Url("sip:THISUSER@THISDOMAIN")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 4 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
@@ -107,7 +109,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          permissions.destroyAll();
 
          urlmap->getContactList( Url("sip:THATUSER@THISHOST.THISDOMAIN")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 4 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
@@ -125,7 +127,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          permissions.destroyAll();
 
          urlmap->getContactList( Url("sip:THATUSER@THISDOMAIN")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 4 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
@@ -143,31 +145,31 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          permissions.destroyAll();
 
          urlmap->getContactList( Url("sip:OTHERUSER@THISHOST.THIDOMAIN")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 0 ,  registrations.getSize() );
 
          urlmap->getContactList( Url("sip:OTHERUSER@THISDOMAIN")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 0 ,  registrations.getSize() );
 
          urlmap->getContactList( Url("sip:THISUSER@OTHERHOST.THIDOMAIN")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 0 ,  registrations.getSize() );
 
          urlmap->getContactList( Url("sip:THISUSER@OTHERDOMAIN")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 0 ,  registrations.getSize() );
 
          urlmap->getContactList( Url("sip:THISUSER@UserChgDOMAIN")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
@@ -176,7 +178,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          registrations.destroyAll();
 
          urlmap->getContactList( Url("sip:THATUSER@UserChgDOMAIN")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
@@ -185,14 +187,14 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          registrations.destroyAll();
 
          urlmap->getContactList( Url("sip:OTHERUSER@UserChgDOMAIN")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 0 ,  registrations.getSize() );
          registrations.destroyAll();
 
          urlmap->getContactList( Url("sip:THISUSER@HostChgDOMAIN")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
@@ -201,7 +203,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          registrations.destroyAll();
 
          urlmap->getContactList( Url("sip:THATUSER@HostChgDOMAIN")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
@@ -211,7 +213,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
 
          // do the domain transformtion again and check that the transport is removed [XRR-114]
          urlmap->getContactList( Url("<sip:THATUSER@HostChgDOMAIN;transport=xyz>")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0, permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1, registrations.getSize() );
@@ -220,7 +222,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          registrations.destroyAll();
 
          urlmap->getContactList( Url("sip:OTHERUSER@UserChgDOMAIN")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 0 ,  registrations.getSize() );
@@ -229,7 +231,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
 
          // Check the hostPattern format='url'
          urlmap->getContactList( Url("sip:PortUser@example.com:4242")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
@@ -239,7 +241,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
 
          // Check the hostPattern format='DnsWildcard'
          urlmap->getContactList( Url("sip:DnsUser@a.b.c.d.e.f.example.com")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
@@ -249,7 +251,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
 
          // Check the hostPattern format='IPv4subnet'
          urlmap->getContactList( Url("sip:SubnetUser@192.168.1.1")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
@@ -259,7 +261,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
 
          // Check the hostPattern format='IPv4subnet' (nomatch)
          urlmap->getContactList( Url("sip:SubnetUser@192.169.1.1")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 0 ,  registrations.getSize() );
@@ -274,6 +276,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          ResultSet registrations;
          ResultSet permissions;
          UtlString actual;
+         UtlString callTag = "UNK";
 
          UtlString paramsXml;
          mFileTestContext->inputFilePath("params.xml", paramsXml);
@@ -284,7 +287,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          // but it is not set so don't test it
 
          urlmap.getContactList( Url("sip:ADDFIELD@thisdomain")
-                               ,registrations, permissions
+                               ,registrations, permissions, callTag
                                );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
@@ -293,7 +296,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          registrations.destroyAll();
 
          urlmap.getContactList( Url("sip:ADDTWOFIELDS@thisdomain")
-                               ,registrations, permissions
+                               ,registrations, permissions, callTag
                                );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
@@ -311,6 +314,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          ResultSet registrations;
          ResultSet permissions;
          UtlString actual;
+         UtlString callTag = "UNK";
 
          UtlString paramsXml;
          mFileTestContext->inputFilePath("params.xml", paramsXml);
@@ -318,7 +322,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          CPPUNIT_ASSERT( loadUrlMap( urlmap, paramsXml.data()));
 
          urlmap.getContactList( Url("sip:ADDURLPARAM@thisdomain")
-                               ,registrations, permissions
+                               ,registrations, permissions, callTag
                                );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
@@ -327,7 +331,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          registrations.destroyAll();
     
          urlmap.getContactList( Url("sip:ADDTWOURLPARAM@thisdomain")
-                               ,registrations, permissions
+                               ,registrations, permissions, callTag
                                );
          CPPUNIT_ASSERT_EQUAL(0, permissions.getSize());
          CPPUNIT_ASSERT_EQUAL(1, registrations.getSize());
@@ -347,6 +351,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          ResultSet registrations;
          ResultSet permissions;
          UtlString actual;
+         UtlString callTag = "UNK";
 
          SipMessage dummy; // ensure that static member is initialized
          
@@ -356,7 +361,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          CPPUNIT_ASSERT( loadUrlMap( urlmap, paramsXml.data()));
 
          urlmap.getContactList( Url("sip:ADDHEADERPARAM@thisdomain")
-                               ,registrations, permissions
+                               ,registrations, permissions, callTag
                                );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
@@ -365,7 +370,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          registrations.destroyAll();
 
          urlmap.getContactList( Url("sip:ADDTWOHEADERPARAM@thisdomain")
-                               ,registrations, permissions
+                               ,registrations, permissions, callTag
                                );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
@@ -385,6 +390,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          ResultSet registrations;
          ResultSet permissions;
          UtlString actual;
+         UtlString callTag = "UNK";
 
          UtlString paramsXml;
          mFileTestContext->inputFilePath("params.xml", paramsXml);
@@ -392,7 +398,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          CPPUNIT_ASSERT( loadUrlMap( urlmap, paramsXml.data()));
 
          urlmap.getContactList( Url("<sip:ADDFIELD@thisdomain;urlparam=avalue>;field=oldvalue")
-                               ,registrations, permissions
+                               ,registrations, permissions, callTag
                                );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
@@ -412,6 +418,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          ResultSet registrations;
          ResultSet permissions;
          UtlString actual;
+         UtlString callTag = "UNK";
 
          UtlString paramsXml;
          mFileTestContext->inputFilePath("params.xml", paramsXml);
@@ -419,7 +426,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          CPPUNIT_ASSERT( loadUrlMap( urlmap, paramsXml.data()));
 
          urlmap.getContactList( Url("<sip:ADDFIELD@thisdomain;NEWURLPARAM=oldvalue>")
-                               ,registrations, permissions
+                               ,registrations, permissions, callTag
                                );
          CPPUNIT_ASSERT_EQUAL(0, permissions.getSize());
          CPPUNIT_ASSERT_EQUAL(1, registrations.getSize());
@@ -436,6 +443,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          ResultSet registrations;
          ResultSet permissions;
          UtlString actual;
+         UtlString callTag = "UNK";
 
          CPPUNIT_ASSERT( urlmap = new MappingRulesUrlMapping() );
 
@@ -452,7 +460,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          // but it is not set so don't test it
 
          urlmap->getContactList( Url("sip:911@thisdomain")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
@@ -464,7 +472,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          registrations.destroyAll();
 
          urlmap->getContactList( Url("911@thisdomain")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
@@ -476,7 +484,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          registrations.destroyAll();
 
          urlmap->getContactList( Url("100@thisdomain")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
@@ -488,7 +496,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          registrations.destroyAll();
 
          urlmap->getContactList( Url("operator@thisdomain")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
@@ -500,7 +508,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          registrations.destroyAll();
 
          urlmap->getContactList( Url("101@thisdomain")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
@@ -512,7 +520,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          registrations.destroyAll();
 
          urlmap->getContactList( Url("2666@thisdomain")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
@@ -527,7 +535,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          // the plus should be escaped in the mailbox parameter
          // and NOT in the user part
          urlmap->getContactList( Url("+9663@thisdomain")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
@@ -540,7 +548,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
 
 
          urlmap->getContactList( Url("918001234567@thisdomain")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
@@ -552,7 +560,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          registrations.destroyAll();
 
          urlmap->getContactList( Url("18001234567@thisdomain")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
@@ -564,7 +572,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          registrations.destroyAll();
 
          urlmap->getContactList( Url("8001234567@thisdomain")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
@@ -576,13 +584,13 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          registrations.destroyAll();
 
          urlmap->getContactList( Url("91800123456@thisdomain")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 0 ,  registrations.getSize() );
 
          urlmap->getContactList( Url("691800123@thisdomain")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 0 ,  registrations.getSize() );
@@ -599,6 +607,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          ResultSet registrations;
          ResultSet permissions;
          UtlString actual;
+         UtlString callTag = "UNK";
 
          CPPUNIT_ASSERT( urlmap = new MappingRulesUrlMapping() );
 
@@ -612,7 +621,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
                         );
 
          urlmap->getContactList( Url("sip:15@thisdomain")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 2 ,  registrations.getSize() );
@@ -629,7 +638,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          registrations.destroyAll();
 
          urlmap->getContactList( Url("sip:156@thisdomain")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 2 ,  registrations.getSize() );
@@ -646,7 +655,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          registrations.destroyAll();
 
          urlmap->getContactList( Url("sip:156789@thisdomain")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 2 ,  registrations.getSize() );
@@ -663,7 +672,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          registrations.destroyAll();
 
          urlmap->getContactList( Url("sip:5789@thisdomain")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
@@ -675,7 +684,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          registrations.destroyAll();
 
          urlmap->getContactList( Url("sip:4789@thisdomain")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
@@ -687,21 +696,21 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          registrations.destroyAll();
 
          urlmap->getContactList( Url("sip:6789@thisdomain")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 0 ,  registrations.getSize() );
          registrations.destroyAll();
 
          urlmap->getContactList( Url("sip:489@thisdomain")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 0 ,  registrations.getSize() );
          registrations.destroyAll();
 
          urlmap->getContactList( Url("sip:89123@thisdomain")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 2 ,  registrations.getSize() );
@@ -718,21 +727,21 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          registrations.destroyAll();
 
          urlmap->getContactList( Url("sip:81456@thisdomain")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 0 ,  registrations.getSize() );
          registrations.destroyAll();
 
          urlmap->getContactList( Url("sip:8045@thisdomain")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 0 ,  registrations.getSize() );
          registrations.destroyAll();
 
          urlmap->getContactList( Url("sip:9999@thisdomain")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
@@ -755,6 +764,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          ResultSet registrations;
          ResultSet permissions;
          UtlString actual;
+         UtlString callTag = "UNK";
 
          CPPUNIT_ASSERT( urlmap = new MappingRulesUrlMapping() );
 
@@ -769,7 +779,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
 
          // this one illustrates a problem - vdigits matches everything after the first non-constant
          urlmap->getContactList( Url("sip:THISUSER@thisdomain")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
@@ -779,7 +789,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
 
 
          urlmap->getContactList( Url("sip:USERTHIS@thisdomain")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
@@ -789,14 +799,14 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
 
          // checks case sensitivity
          urlmap->getContactList( Url("sip:upperTHIS@thisdomain")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 0 ,  registrations.getSize() );
          registrations.destroyAll();
 
          urlmap->getContactList( Url("sip:UPPERTHIS@thisdomain")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
@@ -813,6 +823,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          ResultSet registrations;
          ResultSet permissions;
          UtlString actual;
+         UtlString callTag = "UNK";
 
          CPPUNIT_ASSERT( urlmap = new MappingRulesUrlMapping() );
 
@@ -827,7 +838,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
 
 
          urlmap->getContactList( Url("sip:Fixed01@thisdomain")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 2 ,  registrations.getSize() );
@@ -838,7 +849,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          registrations.destroyAll();
 
          urlmap->getContactList( Url("sip:FiNed01@thisdomain")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 0 ,  registrations.getSize() );
@@ -846,7 +857,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
 
 
          urlmap->getContactList( Url("sip:aa.999@thisdomain")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 2 ,  registrations.getSize() );
@@ -858,7 +869,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          registrations.destroyAll();
 
          urlmap->getContactList( Url("sip:aa0888@thisdomain")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 0 ,  registrations.getSize() );
@@ -878,6 +889,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          ResultSet registrations;
          ResultSet permissions;
          UtlString actual;
+         UtlString callTag = "UNK";
 
          CPPUNIT_ASSERT( urlmap = new MappingRulesUrlMapping() );
 
@@ -895,7 +907,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          // but it is not set so don't test it
 
          urlmap->getContactList( Url("sip:101@thisdomain")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 0 ,  registrations.getSize() );
@@ -903,7 +915,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          registrations.destroyAll();
 
          urlmap->getContactList( Url("sip:101+@thisdomain")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
@@ -912,7 +924,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          registrations.destroyAll();
 
          urlmap->getContactList( Url("sip:1011@thisdomain")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 0 ,  registrations.getSize() );
@@ -920,7 +932,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          registrations.destroyAll();
 
          urlmap->getContactList( Url("sip:1012?@thisdomain")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
@@ -929,7 +941,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          registrations.destroyAll();
 
          urlmap->getContactList( Url("sip:(101)@thisdomain")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
@@ -938,7 +950,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          registrations.destroyAll();
 
          urlmap->getContactList( Url("sip:1013*@thisdomain")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );
@@ -947,7 +959,7 @@ class MappingRulesUrlMappingTest : public CppUnit::TestCase
          registrations.destroyAll();
 
          urlmap->getContactList( Url("sip:101$@thisdomain")
-                                ,registrations, permissions
+                                ,registrations, permissions, callTag
                                 );
          CPPUNIT_ASSERT_EQUAL( 0 ,  permissions.getSize() );
          CPPUNIT_ASSERT_EQUAL( 1 ,  registrations.getSize() );

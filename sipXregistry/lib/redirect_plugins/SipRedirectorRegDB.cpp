@@ -180,6 +180,7 @@ SipRedirectorRegDB::lookUp(
             contactUri.setUrlParameter("grid", gridParameter);
          }
 
+         contactUri.setUrlParameter(SIP_SIPX_CALL_DEST_FIELD, "INT");
          // Check if database contained a Path value.  If so, add a Route
          // header parameter to the contact with the Path vector taken from
          // the registration data.

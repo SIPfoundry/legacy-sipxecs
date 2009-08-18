@@ -21,6 +21,7 @@
 #include <net/SipMessage.h>
 #include <digitmaps/FallbackRulesUrlMapping.h>
 #include "xmlparser/tinyxml.h"
+#include "xmlparser/ExtractContent.h"
 #include "digitmaps/Patterns.h"
 
 // EXTERNAL FUNCTIONS
@@ -55,7 +56,8 @@ FallbackRulesUrlMapping::loadMappings(const UtlString& configFileName )
 OsStatus
 FallbackRulesUrlMapping::getContactList(const Url& requestUri,   
                                         const UtlString& location,
-                                        ResultSet& rContacts  
+                                        ResultSet& rContacts,  
+                                        UtlString& callTag
                                        ) const
 {
    OsStatus contactsSet = OS_FAILED;
@@ -64,6 +66,7 @@ FallbackRulesUrlMapping::getContactList(const Url& requestUri,
    const TiXmlNode* pMatchingUserMatchContainerNode = 0;
    const TiXmlNode* pMatchingHostMatchContainerNode = 0;
    
+   callTag = "UNK";
    if( getUserMatchContainerMatchingRequestURI(requestUri,
                                                variableDigits,                                                     
                                                pMatchingUserMatchContainerNode,
@@ -80,6 +83,13 @@ FallbackRulesUrlMapping::getContactList(const Url& requestUri,
          {
             const TiXmlElement* pCallerLocationMatchElement = pCallerLocationMatchNode->ToElement();
             UtlString tagValue =  pCallerLocationMatchElement->Value();
+
+            if( tagValue.compareTo(XML_TAG_CALLTAG) == 0 )
+            {
+               // Found call tag element.  Read the text value for it.
+               textContentShallow(callTag, pCallerLocationMatchNode);
+            }
+
             if(tagValue.compareTo(XML_TAG_CALLERLOCATIONMATCH) == 0 )
             {
                //found callerLocationMatch tag

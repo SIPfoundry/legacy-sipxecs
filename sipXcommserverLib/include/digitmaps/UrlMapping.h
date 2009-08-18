@@ -53,6 +53,7 @@
 #define XML_TAG_FIELDPARAMS          ("fieldparams")
 #define XML_TAG_URLPARAMS            ("urlparams")
 #define XML_TAG_HEADERPARAMS         ("headerparams")
+#define XML_TAG_CALLTAG              ("callTag")
 
 // MACROS
 // EXTERNAL FUNCTIONS

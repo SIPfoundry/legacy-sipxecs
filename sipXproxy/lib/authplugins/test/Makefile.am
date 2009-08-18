@@ -2,6 +2,7 @@
 ## and of course require no setup
 TESTS = \
 	calleraliastest \
+	calldestinationtest \
 	enforcerulestest \
 	emergencyrulestest \
 	requestlintertest \
@@ -14,6 +15,7 @@ TESTS = \
 
 check_PROGRAMS = \
 	calleraliastest \
+	calldestinationtest \
 	enforcerulestest \
 	emergencyrulestest \
 	requestlintertest \
@@ -76,6 +78,16 @@ calleraliastest_SOURCES = \
 	CallerAliasTest.cpp
 
 calleraliastest_LDADD = \
+	$(COMMON_LIBS)
+
+calldestinationtest_CXXFLAGS = \
+	$(COMMON_CXX_FLAGS)
+
+calldestinationtest_SOURCES = \
+	$(top_srcdir)/lib/authplugins/CallDestination.cpp \
+	CallDestinationTest.cpp
+
+calldestinationtest_LDADD = \
 	$(COMMON_LIBS)
 
 transfercontroltest_CXXFLAGS = \

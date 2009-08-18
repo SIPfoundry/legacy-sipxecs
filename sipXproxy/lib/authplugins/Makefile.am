@@ -27,7 +27,8 @@ nobase_lib_LTLIBRARIES = \
     authplugins/libEmergencyNotify.la \
     authplugins/libRequestLinter.la \
 	 authplugins/libMSFT_ExchangeTransferHack.la \
-	 authplugins/libSubscriptionAuth.la
+	 authplugins/libSubscriptionAuth.la \
+    authplugins/libCallDestination.la
 
 authplugins_libCallerAlias_la_SOURCES = \
     CallerAlias.h \
@@ -122,3 +123,18 @@ authplugins_libSubscriptionAuth_la_LDFLAGS = \
 
 authplugins_libSubscriptionAuth_la_LIBADD = \
     @SIPXCOMMSERVER_LIBS@
+
+authplugins_libCallDestination_la_SOURCES = \
+    CallDestination.h \
+    CallDestination.cpp
+
+authplugins_libCallDestination_la_CXXFLAGS = \
+    $(AUTHPLUGIN_COMMON_CXX_FLAGS)
+
+authplugins_libCallDestination_la_LDFLAGS = \
+    $(AUTHPLUGIN_COMMON_LD_FLAGS)
+
+authplugins_libCallDestination_la_LIBADD = \
+    @SIPXCOMMSERVER_LIBS@
+
+

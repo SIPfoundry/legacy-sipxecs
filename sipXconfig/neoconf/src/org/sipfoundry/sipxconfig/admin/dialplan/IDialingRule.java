@@ -27,6 +27,10 @@ public interface IDialingRule {
 
     public abstract void setName(String name);
 
+    public abstract String getCalltag();
+
+    public abstract void setCalltag(String calltag);
+
     public abstract List<Gateway> getGateways();
 
     public abstract String[] getPatterns();

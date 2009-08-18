@@ -44,6 +44,9 @@ static const char* CallEvent_NoFailure =
 static const char* CallEvent_DefaultElement =
   "\'\',";
   
+static const char* CallEvent_DefaultBoolElement =
+  "null,";
+  
 static const char* CallEvent_DefaultEndElement =
   "\'\'";
   
@@ -113,6 +116,8 @@ void CallStateEventBuilder_DB::observerEvent(int sequenceNumber, ///< for Observ
       mFailureElement.remove(0);
       mRequestUri.remove(0);
       mReferences.remove(0);
+      mCallerInternal.remove(0);
+      mCalleeRoute.remove(0);
 
       mEventComplete = true;
    }
@@ -134,7 +139,8 @@ void CallStateEventBuilder_DB::observerEvent(int sequenceNumber, ///< for Observ
 void CallStateEventBuilder_DB::callRequestEvent(int sequenceNumber,
                                                  const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
                                                  const UtlString& contact,
-                                                 const UtlString& references
+                                                 const UtlString& references,
+                                                 const bool callerInternal
                                                  )
 {
    if (builderStateIsOk(CallRequestEvent))
@@ -147,7 +153,14 @@ void CallStateEventBuilder_DB::callRequestEvent(int sequenceNumber,
       mContactElement = "\'" + nfield + "\',";         
 
       replaceSingleQuotes(references, nfield);
-      mReferences = "\'" + nfield + "\'";         
+      mReferences = "\'" + nfield + "\',";         
+
+      if (callerInternal==true) {
+         mCallerInternal = "\'t\',";
+      }
+      else {
+         mCallerInternal = "\'f\',";
+      }
    }
    else
    {
@@ -169,7 +182,8 @@ void CallStateEventBuilder_DB::callRequestEvent(int sequenceNumber,
  */
 void CallStateEventBuilder_DB::callSetupEvent(int sequenceNumber,
                                                const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
-                                               const UtlString& contact
+                                               const UtlString& contact,
+                                               const UtlString& calleeRoute
                                                )
 {
    if (builderStateIsOk(CallSetupEvent))
@@ -178,7 +192,11 @@ void CallStateEventBuilder_DB::callSetupEvent(int sequenceNumber,
 
       UtlString ncontact;
       replaceSingleQuotes(contact, ncontact); 
-      mContactElement = "\'" + contact + "\',";
+      mContactElement = "\'" + ncontact + "\',";
+
+      UtlString ncalleeRoute;
+      replaceSingleQuotes(calleeRoute, ncalleeRoute); 
+      mCalleeRoute = "\'" + ncalleeRoute + "\'";
    }
    else
    {
@@ -371,7 +389,9 @@ void CallStateEventBuilder_DB::reset()
    mReferElement = CallEvent_DefaultReferElement;
    mFailureElement = CallEvent_NoFailure;
    mRequestUri = CallEvent_DefaultElement;
-   mReferences = CallEvent_DefaultEndElement;
+   mReferences = CallEvent_DefaultElement;
+   mCallerInternal = CallEvent_DefaultBoolElement;
+   mCalleeRoute = CallEvent_DefaultEndElement;
    mEndElement.remove(0);
    mEventComplete = false;
 }
@@ -422,6 +442,8 @@ bool  CallStateEventBuilder_DB::finishElement(UtlString& event)
       event.append(mFailureElement);
       event.append(mRequestUri);
       event.append(mReferences);
+      event.append(mCallerInternal);
+      event.append(mCalleeRoute);
       event.append(");");
 
       reset();

@@ -53,6 +53,9 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
     static final String CONNECT_TIME = "connect_time";
     static final String START_TIME = "start_time";
     static final String CALLER_AOR = "caller_aor";
+    static final String CALL_REFERENCE = "reference";
+    static final String CALLER_INTERNAL = "caller_internal";
+    static final String CALLEE_ROUTE = "callee_route";
 
     private int m_csvLimit;
     private int m_jsonLimit;
@@ -305,6 +308,10 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
             Cdr cdr = new Cdr();
             cdr.setCalleeAor(rs.getString(CALLEE_AOR));
             cdr.setCallerAor(rs.getString(CALLER_AOR));
+            cdr.setCallId(rs.getString(CALL_ID));
+            cdr.setReference(rs.getString(CALL_REFERENCE));
+            cdr.setCallerInternal(rs.getBoolean(CALLER_INTERNAL));
+            cdr.setCalleeRoute(rs.getString(CALLEE_ROUTE));
             Date startTime = rs.getTimestamp(START_TIME, m_calendar);
             cdr.setStartTime(startTime);
             Date connectTime = rs.getTimestamp(CONNECT_TIME, m_calendar);

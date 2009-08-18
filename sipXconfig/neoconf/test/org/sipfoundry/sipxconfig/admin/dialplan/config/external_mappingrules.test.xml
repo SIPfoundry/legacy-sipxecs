@@ -4,6 +4,7 @@
   <hostMatch>
     <hostPattern>some_other.domain.com</hostPattern>
     <userMatch>
+      <callTag>EXT</callTag>
       <userPattern>.</userPattern>
       <permissionMatch>
         <transform>

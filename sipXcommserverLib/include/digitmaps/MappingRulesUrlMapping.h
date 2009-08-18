@@ -73,7 +73,8 @@ public:
    /// Evaluate a request URI using mapping rules semantics, return contacts and permissions.
    OsStatus getContactList(const Url& requestUri,   ///< target to check
                            ResultSet& rContacts,    ///< contacts generated from first match
-                           ResultSet& rPermissions  ///< permissions that target must have
+                           ResultSet& rPermissions, ///< permissions that target must have
+                           UtlString& callTag       ///< call tag for contacts.
                            ) const;
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -85,6 +86,7 @@ private:
                                     const UtlString& vdigits,
                                     ResultSet& rRegistratons,
                                     ResultSet& rPermissions,
+                                    UtlString& callTag,
                                     const TiXmlNode* pUserMatchNode
                                     ) const;
 

@@ -21,6 +21,7 @@
 #include <net/SipMessage.h>
 #include <digitmaps/MappingRulesUrlMapping.h>
 #include "xmlparser/tinyxml.h"
+#include "xmlparser/ExtractContent.h"
 #include "digitmaps/Patterns.h"
 
 // EXTERNAL FUNCTIONS
@@ -59,7 +60,8 @@ MappingRulesUrlMapping::loadMappings(const UtlString& configFileName,
 OsStatus
 MappingRulesUrlMapping::getContactList(const Url& requestUri,   
                                        ResultSet& rContacts,    
-                                       ResultSet& rPermissions 
+                                       ResultSet& rPermissions,
+                                       UtlString& callTag
                                        ) const
 {
    OsStatus contactsSet = OS_FAILED; 
@@ -76,6 +78,7 @@ MappingRulesUrlMapping::getContactList(const Url& requestUri,
                                              variableDigits, 
                                              rContacts,
                                              rPermissions, 
+                                             callTag,
                                              pMatchingUserMatchContainerNode );
    }
    return contactsSet;
@@ -86,6 +89,7 @@ MappingRulesUrlMapping::parsePermMatchContainer(const Url& requestUri,
                                                 const UtlString& vdigits,
                                                 ResultSet& rContactResultSet,
                                                 ResultSet& rPermissions,
+                                                UtlString& callTag,
                                                 const TiXmlNode* pUserMatchNode   //parent node
                                                 ) const
 {
@@ -94,6 +98,7 @@ MappingRulesUrlMapping::parsePermMatchContainer(const Url& requestUri,
     UtlBoolean bPermissionFound = false;
 
     UtlString requestUriStr;
+    callTag = "UNK";
     requestUri.toString(requestUriStr);
 
     const TiXmlNode* pPermMatchNode = NULL;
@@ -103,6 +108,12 @@ MappingRulesUrlMapping::parsePermMatchContainer(const Url& requestUri,
        if(pPermMatchNode && pPermMatchNode->Type() == TiXmlNode::ELEMENT)
        {
           UtlString tagValue = pPermMatchNode->Value();
+
+          if( tagValue.compareTo(XML_TAG_CALLTAG) == 0 )
+          {
+            // Found call tag element.  Read the text value for it.
+            textContentShallow(callTag, pPermMatchNode);
+          }
           if( tagValue.compareTo(XML_TAG_PERMISSIONMATCH) == 0 )
           {
              //practically there should always be only one permission match tag

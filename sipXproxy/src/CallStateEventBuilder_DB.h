@@ -56,7 +56,8 @@ class CallStateEventBuilder_DB : public CallStateEventBuilder
    void callRequestEvent(int sequenceNumber,
                          const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
                          const UtlString& contact,
-                         const UtlString& references
+                         const UtlString& references,
+                         const bool callerInternal
                          );
    /**<
     * Requires:
@@ -69,7 +70,8 @@ class CallStateEventBuilder_DB : public CallStateEventBuilder
    /// Begin a Call Setup Event - a 2xx response to an INVITE has been observed
    void callSetupEvent(int sequenceNumber,
                        const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
-                       const UtlString& contact
+                       const UtlString& contact,
+                       const UtlString& calleeRoute
                        );
    /**<
     * Requires:
@@ -165,6 +167,8 @@ class CallStateEventBuilder_DB : public CallStateEventBuilder
    UtlString mEndElement;
    UtlString mRequestUri;
    UtlString mReferences;
+   UtlString mCallerInternal;
+   UtlString mCalleeRoute;
    bool      mEventComplete;
    
    void newEvent(int sequenceNumber,

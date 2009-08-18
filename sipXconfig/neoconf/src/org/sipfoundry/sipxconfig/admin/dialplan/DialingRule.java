@@ -19,7 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
+ 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
@@ -40,10 +40,12 @@ public abstract class DialingRule extends BeanWithId implements DataCollectionIt
     public static final String VALID_TIME_PARAM = "sipx-ValidTime=%s";
     public static final String GATEWAY_EXPIRES_PATTERN = "expires=%s";
     public static final String GATEWAY_EXPIRES_VALUE = "60";
+ 
 
     private boolean m_enabled;
     private String m_name;
     private String m_description;
+    private String m_calltag;
     private int m_position;
     private List<Gateway> m_gateways = new ArrayList<Gateway>();
     private transient PermissionManager m_permissionManager;
@@ -88,6 +90,14 @@ public abstract class DialingRule extends BeanWithId implements DataCollectionIt
 
     public String getRuleType() {
         return null;
+    }
+
+    public String getCalltag() {
+        return m_calltag;
+    }
+
+    public void setCalltag(String calltag) {
+        m_calltag = calltag;
     }
 
     public List<Gateway> getGateways() {

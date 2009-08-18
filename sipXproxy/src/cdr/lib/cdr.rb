@@ -41,6 +41,7 @@ class CallLeg
     @status ||= Cdr::CALL_IN_PROGRESS_TERM
     @to_tag = cse.to_tag
     @callee_contact = Utils.contact_without_params(cse.contact)
+    @callee_route = cse.callee_route
   end
   
   def accept_end(cse)
@@ -205,12 +206,14 @@ class Cdr
     
     @callee_contact = nil
     @caller_contact = nil
+    @caller_internal = false
+    @callee_route = nil
   end
   
   FIELDS = [:call_id, :from_tag, :to_tag, :caller_aor, :callee_aor, 
   :start_time, :connect_time, :end_time,    
   :termination, :failure_status, :failure_reason, 
-  :call_direction, :reference, :caller_contact, :callee_contact]
+  :call_direction, :reference, :caller_contact, :callee_contact, :caller_internal, :callee_route]
   
   attr_accessor(*FIELDS)
   
@@ -284,6 +287,7 @@ class Cdr
   # original (without to_tag) request is always better than not original (with to_tag) request
   def accept_call_request(cse)
     original = !cse.to_tag
+    @caller_internal = cse.caller_internal 
     # bailout if we already have original request and this one is not
     return if(@got_original && !original)
     
@@ -306,6 +310,7 @@ class Cdr
   
   def accept_call_setup(cse)
     @legs.accept_setup(cse)
+    @callee_route = cse.callee_route
     @termination = CALL_IN_PROGRESS_TERM 
     finish
   end

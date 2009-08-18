@@ -128,6 +128,8 @@ SipRedirectorFallback::lookUp(
 {
    ResultSet urlMappingRegistrations;
 
+   UtlString callTag = "UNK";
+
    if (mMappingRulesLoaded == OS_SUCCESS)
    {      
       UtlString callerLocation;
@@ -137,7 +139,8 @@ SipRedirectorFallback::lookUp(
       mMap.getContactList(
          requestUri,
          callerLocation,
-         urlMappingRegistrations );
+         urlMappingRegistrations,
+         callTag );
 #else
       ResultSet dummyMappingPermissions;
       mMap.getContactList(
@@ -159,6 +162,7 @@ SipRedirectorFallback::lookUp(
             urlMappingRegistrations.getIndex(i, record);
             UtlString contactKey("contact");
             UtlString contact= *(dynamic_cast <UtlString*> (record.findValue(&contactKey)));
+            UtlString callTagKey("callTag");
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "%s::lookUp contact = '%s'",
                           mLogName.data(), contact.data());
@@ -166,6 +170,9 @@ SipRedirectorFallback::lookUp(
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "%s::lookUp contactUri = '%s'",
                           mLogName.data(), contactUri.toString().data());
+
+            contactUri.setUrlParameter(SIP_SIPX_CALL_DEST_FIELD, callTag.data());
+
             // Add the contact.
             contactList.add( contactUri, *this );
          }

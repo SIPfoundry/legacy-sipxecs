@@ -22,10 +22,12 @@ public class InternalRule extends DialingRule {
     public static final String DEFAULT_VOICEMAIL = "101";
     private static final String DEFAULT_VMAIL_PREFIX = "8";
     private static final int DEFAULT_LOCAL_EXT_LEN = 3;
+    private static final String DEFAULT_VMAIL_CALLTAG = "VM";
 
     private String m_voiceMailPrefix = DEFAULT_VMAIL_PREFIX;
     private int m_localExtensionLen = DEFAULT_LOCAL_EXT_LEN;
     private String m_voiceMail = DEFAULT_VOICEMAIL;
+    private String m_voiceMailCallTag = DEFAULT_VMAIL_CALLTAG;
 
     private String m_mediaServerType;
     private MediaServerFactory m_mediaServerFactory;
@@ -109,6 +111,7 @@ public class InternalRule extends DialingRule {
         mediaServer.setServerExtension(m_voiceMail);
         MappingRule voicemail = new MappingRule.Voicemail(m_voiceMail, mediaServer);
         voicemail.setDescription(getDescription());
+        voicemail.setCalltag(getCalltag());
         if (getSchedule() != null) {
             voicemail.setSchedule(getSchedule());
         }
@@ -117,6 +120,7 @@ public class InternalRule extends DialingRule {
             MappingRule transfer = new MappingRule.VoicemailTransfer(m_voiceMailPrefix,
                     m_localExtensionLen, mediaServer);
             transfer.setDescription(getDescription());
+            transfer.setCalltag(getCalltag());
             if (getSchedule() != null) {
                 transfer.setSchedule(getSchedule());
             }
@@ -126,6 +130,7 @@ public class InternalRule extends DialingRule {
 
         MappingRule fallback = new MappingRule.VoicemailFallback(mediaServer);
         fallback.setDescription(getDescription());
+        fallback.setCalltag(getCalltag());
         if (getSchedule() != null) {
             fallback.setSchedule(getSchedule());
         }

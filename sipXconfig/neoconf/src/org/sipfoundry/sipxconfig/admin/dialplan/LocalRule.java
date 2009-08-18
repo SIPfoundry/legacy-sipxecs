@@ -82,6 +82,11 @@ public class LocalRule extends DialingRule {
         return DialingRuleType.LOCAL;
     }
 
+    @Override
+    public String getCalltag() {
+        return "LOCAL";
+    }
+
     /**
      * External rule - added to mappingrules.xml
      */

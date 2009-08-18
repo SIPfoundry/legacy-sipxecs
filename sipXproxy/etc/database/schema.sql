@@ -83,7 +83,9 @@ create table call_state_events (
    failure_status  int2,    /* For Call Failure events, holds 4xx, 5xx, or 6xx status code */
    failure_reason  text,    /* For Call Failure events, holds error text */
    request_uri     text,    /* URI from the request header */
-   reference       text     /* Value from References  - contains Call_Id and relationship */
+   reference       text,    /* Value from References  - contains Call_Id and relationship */
+   caller_internal boolean,          /* Indication if the caller is internal or not.  Used for determining call type */
+   callee_route    text              /* List/History of callee route.  Used for determining call type */
 );
 
 create index call_state_events_event_time on call_state_events (event_time);
@@ -143,7 +145,9 @@ create table cdrs (
   call_direction char(1),           /* Plugin feature, see below */
   reference text,                   /* Reference Call and  relationship.  Used for link to other calls */
   caller_contact    text,           /* Full From Contact header field value */
-  callee_contact      text          /* Full To Contact header field value - may be null if unanswered */
+  callee_contact      text,         /* Full To Contact header field value - may be null if unanswered */
+  caller_internal boolean,          /* Indication if the caller is internal or not.  Used for determining call type */
+  callee_route    text              /* List/History of callee route.  Used for determining call type */
 );
 
 /*

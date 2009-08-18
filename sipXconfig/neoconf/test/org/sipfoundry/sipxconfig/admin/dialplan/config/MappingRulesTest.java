@@ -268,6 +268,8 @@ public class MappingRulesTest extends XMLTestCase {
         IDialingRule rule = control.createMock(IDialingRule.class);
         rule.isInternal();
         control.andReturn(false);
+        rule.getCalltag();
+        control.andReturn("UNK").anyTimes();
         control.replay();
 
         m_out.begin();
@@ -291,6 +293,7 @@ public class MappingRulesTest extends XMLTestCase {
         aa.setSystemId(AutoAttendant.OPERATOR_ID);
         aa.setName("Operator");
         aa.resetToFactoryDefault();
+        aa.setCalltag("AA");
         rules.add(new MohRule());
         rules.add(new RlsRule());
 

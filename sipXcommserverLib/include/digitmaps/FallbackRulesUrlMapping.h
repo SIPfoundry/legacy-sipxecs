@@ -64,7 +64,8 @@ public:
    /// location of the caller and return corresponding contacts 
    OsStatus getContactList(const Url& requestUri,    ///< target to check
                            const UtlString& location,///< location of the requesting user 
-                           ResultSet& rContacts      ///< contacts generated from first match
+                           ResultSet& rContactsr,      ///< contacts generated from first match
+                           UtlString& callTag        ///< call tag for contacts.
                            ) const;
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

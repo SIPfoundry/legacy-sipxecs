@@ -14,7 +14,7 @@ import java.util.Date;
 import org.sipfoundry.sipxconfig.common.SipUri;
 
 public class Cdr {
-    enum Termination {
+    public enum Termination {
         UNKNOWN, REQUESTED, IN_PROGRESS, COMPLETED, FAILED, TRANSFER;
 
         public static Termination fromString(String t) {
@@ -37,6 +37,12 @@ public class Cdr {
         }
     }
 
+    public static final String CALL_INCOMING = "INCOMING";
+    public static final String CALL_OUTGOING = "OUTGOING";
+    public static final String CALL_TANDEM = "TANDEM";
+    public static final String CALL_INTERNAL = "INTERNAL";
+    public static final String CALL_UNKNOWN = "UNKNOWN";
+
     private String m_callerAor;
     private String m_calleeAor;
 
@@ -50,6 +56,11 @@ public class Cdr {
     private String m_caller;
 
     private String m_callee;
+
+    private String m_callid;
+    private String m_reference;
+    private boolean m_callerInternal;
+    private String m_calleeRoute;
 
     public String getCalleeAor() {
         return m_calleeAor;
@@ -123,4 +134,64 @@ public class Cdr {
         }
         return m_endTime.getTime() - m_connectTime.getTime();
     }
+
+    public String getCallId() {
+        return m_callid;
+    }
+
+    public void setCallId(String callid) {
+        m_callid = callid;
+    }
+
+
+    public String getReference() {
+        return m_reference;
+    }
+
+    public void setReference(String reference) {
+        m_reference = reference;
+    }
+
+    public boolean getCallerInternal() {
+        return m_callerInternal;
+    }
+
+    public void setCallerInternal(boolean callerinternal) {
+        m_callerInternal = callerinternal;
+    }
+
+    public String getCalleeRoute() {
+        return m_calleeRoute;
+    }
+
+    public void setCalleeRoute(String calleeroute) {
+        m_calleeRoute = calleeroute;
+    }
+
+    public String getCallDirection() {
+        String direction = CALL_UNKNOWN;
+        if (m_callerInternal) {
+            direction = CALL_OUTGOING;
+            if (m_calleeRoute != null) {
+                if (m_calleeRoute.endsWith("INT")  
+                    || m_calleeRoute.endsWith("AA") 
+                    || m_calleeRoute.endsWith("VM") 
+                    || m_calleeRoute.endsWith("VMR")) {
+                    direction = CALL_INTERNAL;
+                }
+            }
+        } else {
+            direction = CALL_INCOMING;
+            if (m_calleeRoute != null) {
+                if (m_calleeRoute.endsWith("STS") 
+                    || m_calleeRoute.endsWith("LD") 
+                    || m_calleeRoute.endsWith("TF")) {
+                    direction = CALL_TANDEM;
+                }
+            }
+        }
+        return direction; 
+    }
+        
+
 }

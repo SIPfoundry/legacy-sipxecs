@@ -78,4 +78,8 @@ public class CdrDecorator implements Serializable {
         format.setShowZero(true);
         return format.format(new Long(m_cdr.getDuration()));
     }
+
+    public String getCallDirection() {
+        return m_cdr.getCallDirection();
+    }
 }

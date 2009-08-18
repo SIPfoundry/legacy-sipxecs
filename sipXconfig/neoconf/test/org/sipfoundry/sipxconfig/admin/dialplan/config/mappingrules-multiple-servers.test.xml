@@ -11,6 +11,7 @@
     <userMatch>
       <!--Music on Hold-->
       <description>Forward music-on-hold calls to Park Server</description>
+      <callTag>MOH</callTag>
       <userPattern>~~mh~</userPattern>
       <permissionMatch>
         <transform>
@@ -22,6 +23,7 @@
     <userMatch>
       <!--RLS-->
       <description>Forward resource list subscriptions to RLS</description>
+      <callTag>RL</callTag>
       <userPattern>~~rl~.</userPattern>
       <permissionMatch>
         <transform>
@@ -32,6 +34,7 @@
 
     <userMatch>
       <!--Operator-->
+      <callTag>AA</callTag>
       <userPattern>100</userPattern>
       <userPattern>operator</userPattern>
       <userPattern>0</userPattern>
@@ -45,6 +48,7 @@
     </userMatch>
 
     <userMatch>
+      <callTag>VM</callTag>
       <userPattern>101</userPattern>
       <permissionMatch>
         <transform>
@@ -55,6 +59,7 @@
       </permissionMatch>
     </userMatch>
     <userMatch>
+      <callTag>VM</callTag>
       <userPattern>102</userPattern>
       <permissionMatch>
         <transform>
@@ -65,6 +70,7 @@
 
 
     <userMatch>
+      <callTag>VM</callTag>
       <userPattern>2xxx</userPattern>
       <permissionMatch>
         <transform>
@@ -75,6 +81,7 @@
       </permissionMatch>
     </userMatch>
     <userMatch>
+      <callTag>VM</callTag>
       <userPattern>2xxx</userPattern>
       <permissionMatch>
         <transform>
@@ -86,6 +93,7 @@
     </userMatch>
 
     <userMatch>
+      <callTag>VM</callTag>
       <userPattern>~~vm~.</userPattern>
       <permissionMatch>
         <permission>SipXVoicemailServer</permission>
@@ -97,6 +105,7 @@
       </permissionMatch>
     </userMatch>
     <userMatch>
+      <callTag>VM</callTag>
       <userPattern>~~vm~.</userPattern>
       <permissionMatch>
         <permission>ExchangeUMVoicemailServer</permission>
@@ -109,6 +118,7 @@
     </userMatch>
 
     <userMatch>
+      <callTag>VMR</callTag>
       <userPattern>.</userPattern>
       <description>Voicemail redirect dialing rule</description>
       <permissionMatch>

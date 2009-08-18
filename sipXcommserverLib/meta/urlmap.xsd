@@ -115,6 +115,7 @@
     <complexType>
       <sequence>
         <element ref='dmp:description' minOccurs='0' />
+        <element ref='dmp:callTag' minOccurs='0' />
         <element ref='dmp:userPattern' minOccurs='0' maxOccurs='unbounded'/>
         <element ref='dmp:permissionMatch'   minOccurs='0' maxOccurs='unbounded'/>
       </sequence>
@@ -146,6 +147,7 @@
     <complexType>
       <sequence>
         <element ref='dmp:description' minOccurs='0' />
+        <element ref='dmp:callTag' minOccurs='0' />
         <element ref='dmp:permission' minOccurs='0' maxOccurs='unbounded'/>
         <element ref='dmp:transform'  minOccurs='0' maxOccurs='unbounded'/>
       </sequence>
@@ -332,6 +334,14 @@
     <annotation>
       <documentation>
         Used to describe the rule in the user interface.
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='callTag' type='string'>
+    <annotation>
+      <documentation>
+        Used to provide a short tag describing the call type.
       </documentation>
     </annotation>
   </element>

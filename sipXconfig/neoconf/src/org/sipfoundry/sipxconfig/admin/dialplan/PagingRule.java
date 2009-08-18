@@ -52,6 +52,11 @@ public class PagingRule extends DialingRule {
         return DialingRuleType.PAGING;
     }
 
+    @Override
+    public String getCalltag() {
+        return "PAGE";
+    }
+
     public boolean isInternal() {
         return true;
     }

@@ -39,6 +39,8 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject {
 
     private String m_description;
 
+    private String m_calltag;
+
     private String m_prompt;
 
     private AttendantMenu m_menu = new AttendantMenu();
@@ -99,12 +101,20 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject {
         return m_description;
     }
 
+    public String getCalltag() {
+        return m_calltag;
+    }
+
     public String getScriptFileName() {
         return "autoattendant-" + getSystemName() + ".vxml";
     }
 
     public void setDescription(String description) {
         m_description = description;
+    }
+
+    public void setCalltag(String calltag) {
+        m_calltag = calltag;
     }
 
     public String getPrompt() {

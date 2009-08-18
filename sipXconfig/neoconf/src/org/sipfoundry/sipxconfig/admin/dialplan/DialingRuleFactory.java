@@ -35,6 +35,7 @@ public class DialingRuleFactory implements BeanFactoryAware {
         // reset new rule - we do not want to suggest invalid values for name, description etc.
         rule.setEnabled(false);
         rule.setDescription(StringUtils.EMPTY);
+        rule.setCalltag(StringUtils.EMPTY);
         rule.setName(StringUtils.EMPTY);
         return rule;
     }

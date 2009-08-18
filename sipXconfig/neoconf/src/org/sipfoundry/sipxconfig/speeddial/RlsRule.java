@@ -20,9 +20,12 @@ public class RlsRule extends InternalForwardRule {
         RLS_TRANSFORM.setHeaderParams("Route=sip:${RLS_SIP_SRV_OR_HOSTPORT}");
     }
 
+    private static final String CALLTAG = "RL";
+
     public RlsRule() {
         super(new DialPattern("~~rl~", DialPattern.VARIABLE_DIGITS), RLS_TRANSFORM);
         setName("RLS");
         setDescription("Forward resource list subscriptions to RLS");
+        setCalltag(CALLTAG);
     }
 }

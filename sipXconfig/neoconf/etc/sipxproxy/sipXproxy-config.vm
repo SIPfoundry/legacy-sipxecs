@@ -28,6 +28,8 @@ SIPX_PROXY.205_subscriptionauth.TARGETS_EXEMPTED_FROM_AUTHENTICATION : ^~~rl~
 SIPX_PROXY_HOOK_LIBRARY.210_msftxchghack : @sipxpbx.lib.dir@/authplugins/libMSFT_ExchangeTransferHack.so
 SIPX_PROXY.210_msftxchghack.USERAGENT : ^RTCC/
 
+SIPX_PROXY_HOOK_LIBRARY.300_calldestination: @sipxpbx.lib.dir@/authplugins/libCallDestination.so
+
 SIPX_PROXY_HOOK_LIBRARY.400_authrules : @sipxpbx.lib.dir@/authplugins/libEnforceAuthRules.so
 SIPX_PROXY.400_authrules.RULES        : @sipxpbx.conf.dir@/authrules.xml
 SIPX_PROXY.400_authrules.IDENTITY_VALIDITY_SECONDS : 300

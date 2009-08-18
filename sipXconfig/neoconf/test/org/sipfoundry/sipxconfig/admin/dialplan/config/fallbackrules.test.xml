@@ -9,6 +9,7 @@
     <userMatch>
       <!--my test name-->
       <description>my test description</description>
+      <callTag>CUST</callTag>
       <userPattern>x.</userPattern>
       <transform>
         <user>333</user>

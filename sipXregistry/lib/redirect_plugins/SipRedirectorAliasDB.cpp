@@ -152,6 +152,7 @@ SipRedirectorAliasDB::lookUp(
                   authIdentity.encodeUri(contactUri, message);
                }
 
+               contactUri.setUrlParameter(SIP_SIPX_CALL_DEST_FIELD, "AL");
                // Add the contact.
                contactList.add( contactUri, *this );
             }

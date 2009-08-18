@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.site.cdr;
 import java.awt.Color;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -38,9 +39,12 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
 import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.PiePlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.general.DefaultKeyedValuesDataset;
 import org.jfree.data.general.DefaultPieDataset;
 import org.sipfoundry.sipxconfig.cdr.Cdr;
 import org.sipfoundry.sipxconfig.cdr.CdrGraphBean;
@@ -54,6 +58,7 @@ import org.sipfoundry.sipxconfig.components.ReportComponent;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
 import org.sipfoundry.sipxconfig.jasperreports.JasperReportContext;
+import org.sipfoundry.sipxconfig.site.cdr.decorators.CdrCallDirectionDecorator;
 import org.sipfoundry.sipxconfig.site.cdr.decorators.CdrCallerDecorator;
 import org.sipfoundry.sipxconfig.site.cdr.decorators.CdrDecorator;
 
@@ -62,7 +67,15 @@ public abstract class CdrReports extends BaseComponent implements PageBeginRende
 
     private static final String TITLE_REPORT = "title";
 
+    private static final String TITLE_STARTREPORT = "start";
+
+    private static final String TITLE_ENDREPORT = "end";
+
     private static final String TITLE_TABLE_REPORT_KEY = "report.cdrTable";
+
+    private static final String TITLE_LONGDISTANCE_REPORT_KEY = "report.cdrLongDistance";
+
+    private static final String TITLE_CALLDIRECTION_REPORT_KEY = "report.cdrCallDirection";
 
     private static final String TITLE_EXTENSION_REPORT_KEY = "report.cdrExtension";
 
@@ -75,6 +88,10 @@ public abstract class CdrReports extends BaseComponent implements PageBeginRende
     private static final String TITLE_TERMINATION_CALLS_PIE_KEY = "report.cdrTerminationCalls";
 
     private static final String TABLE_REPORT_NAME = "cdr-table-report";
+
+    private static final String LONGDISTANCE_REPORT_NAME = "cdr-longdistance-report";
+
+    private static final String CALLDIRECTION_REPORT_NAME = "cdr-calldirection-report";
 
     private static final String EXTENSION_REPORT_NAME = "cdr-extension-report";
 
@@ -160,6 +177,10 @@ public abstract class CdrReports extends BaseComponent implements PageBeginRende
         Collection<ReportBean> beans = new ArrayList<ReportBean>();
         beans.add(new ReportBean(TABLE_REPORT_NAME, getMessages().getMessage(
                 TITLE_TABLE_REPORT_KEY)));
+        beans.add(new ReportBean(LONGDISTANCE_REPORT_NAME, getMessages().getMessage(
+                TITLE_LONGDISTANCE_REPORT_KEY)));
+        beans.add(new ReportBean(CALLDIRECTION_REPORT_NAME, getMessages().getMessage(
+                TITLE_CALLDIRECTION_REPORT_KEY)));
         beans.add(new ReportBean(EXTENSION_REPORT_NAME, getMessages().getMessage(
                 TITLE_EXTENSION_REPORT_KEY)));
         beans.add(new ReportBean(ACTIVE_CALLERS_GRAPH_NAME, getMessages().getMessage(
@@ -229,6 +250,25 @@ public abstract class CdrReports extends BaseComponent implements PageBeginRende
             mapParameters.put(TITLE_REPORT, getMessages().getMessage(TITLE_TABLE_REPORT_KEY));
             setReportParameters(mapParameters);
             return;
+        } else if (reportName.equals(LONGDISTANCE_REPORT_NAME)) {
+            setReportData(getLongDistanceReportData(cdrs, locale));
+            mapParameters.put(TITLE_REPORT, getMessages().getMessage(TITLE_LONGDISTANCE_REPORT_KEY));
+            setReportParameters(mapParameters);
+            return;
+        } else if (reportName.equals(CALLDIRECTION_REPORT_NAME)) {
+            Date startdate = getStartTime();
+            Date enddate = getEndTime();
+            SimpleDateFormat dateformat = new SimpleDateFormat("dd-MMM-yyyy kk:mm");
+            List<CdrCallDirectionDecorator> data = getCallDirectionReportData(cdrs, locale);
+            setReportData(data);
+            mapParameters.put(TITLE_REPORT, getMessages().getMessage(TITLE_CALLDIRECTION_REPORT_KEY));
+            mapParameters.put(TITLE_STARTREPORT, dateformat.format(startdate));
+            mapParameters.put(TITLE_ENDREPORT, dateformat.format(enddate));
+            setReportParameters(mapParameters);
+            List<CdrGraphBean> gdata = getCallDirectionGraphData(data, locale);
+            mapParameters.put("calldirectionCallsPieImage", createCallDirectionCallsPieImage(gdata));
+            setReportParameters(mapParameters);
+            return;
         } else if (reportName.equals(EXTENSION_REPORT_NAME)) {
             setReportData(getExtensionReportData(cdrs, locale));
             mapParameters.put(TITLE_REPORT, getMessages().getMessage(TITLE_EXTENSION_REPORT_KEY));
@@ -295,12 +335,57 @@ public abstract class CdrReports extends BaseComponent implements PageBeginRende
 
     // Get data for CDR table report
     private List<CdrDecorator> getTableReportData(List<Cdr> cdrs, Locale locale) {
+        String cdrref;
+        Cdr.Termination status;
+
         List<CdrDecorator> cdrsData = new ArrayList<CdrDecorator>();
         for (Cdr cdr : cdrs) {
             CdrDecorator cdrDecorator = new CdrDecorator(cdr, locale, getMessages());
             cdrsData.add(cdrDecorator);
         }
         return cdrsData;
+    }
+
+    // Get data for CDR Long Distance report
+    private List<CdrDecorator> getLongDistanceReportData(List<Cdr> cdrs, Locale locale) {
+        String calleeroute;
+
+        List<CdrDecorator> cdrsData = new ArrayList<CdrDecorator>();
+        for (Cdr cdr : cdrs) {
+            calleeroute = cdr.getCalleeRoute();
+            if ((calleeroute != null) && (calleeroute.endsWith("LD"))) {
+                CdrDecorator cdrDecorator = new CdrDecorator(cdr, locale, getMessages());
+                cdrsData.add(cdrDecorator);
+            }
+        }
+        return cdrsData;
+    }
+
+    // Get data for CDR call direction (Incoming/Outgoing/Tandem) report
+    private List<CdrCallDirectionDecorator> getCallDirectionReportData(List<Cdr> cdrs, Locale locale) {
+        List<CdrCallDirectionDecorator> cdrsCaller = new ArrayList<CdrCallDirectionDecorator>();
+        for (Cdr cdr : cdrs) {
+            CdrCallDirectionDecorator cdrCallDirectionDecorator = new CdrCallDirectionDecorator(cdr, locale,
+                    getMessages());
+            cdrsCaller.add(cdrCallDirectionDecorator);
+        }
+        Collections.sort(cdrsCaller);
+        return cdrsCaller;
+    }
+
+    // Get graph data for CDR call direction pie.
+    private List<CdrGraphBean> getCallDirectionGraphData(List<CdrCallDirectionDecorator> cdrdecorated, Locale locale) {
+        List<CdrGraphBean> directionCalls = new ArrayList<CdrGraphBean>();
+        Bag directionCallsBag = new HashBag();
+        for (CdrCallDirectionDecorator cdr : cdrdecorated) {
+            directionCallsBag.add(cdr.getCallDirection());
+        }
+        Set uniqueSetDirection = directionCallsBag.uniqueSet();
+        for (Object key : uniqueSetDirection) {
+            CdrGraphBean bean = new CdrGraphBean((String) key, directionCallsBag.getCount(key));
+            directionCalls.add(bean);
+        }
+        return directionCalls;
     }
 
     // Get data for CDR extension report
@@ -447,6 +532,30 @@ public abstract class CdrReports extends BaseComponent implements PageBeginRende
         chart.setBackgroundPaint(Color.lightGray);
         chart.getTitle().setPaint(Color.BLACK);
 
+        // Create and return the image
+        return chart.createBufferedImage(500, 220, BufferedImage.TYPE_INT_RGB, null);
+    }
+
+
+    private Image createCallDirectionCallsPieImage(List<CdrGraphBean> beans) {
+        // Create a dataset
+        DefaultKeyedValuesDataset data = new DefaultKeyedValuesDataset();
+
+        // Fill dataset with beans data
+        for (CdrGraphBean directionCall : beans) {
+            data.setValue(directionCall.getKey(), directionCall.getCount());
+        }
+
+        // Create a chart with the dataset
+        JFreeChart chart = ChartFactory.createPieChart(EMPTY_TITLE, data, true, true, false);
+        chart.setBackgroundPaint(Color.lightGray);
+        chart.setTitle("Summary - " + getMessages().getMessage(TITLE_CALLDIRECTION_REPORT_KEY));
+        chart.getTitle().setPaint(Color.BLACK);
+
+        PiePlot chartplot = (PiePlot) chart.getPlot();
+        chartplot.setCircular(true);
+        chartplot.setLabelGenerator(new StandardPieSectionLabelGenerator("{0} = {1} ({2})"));
+  
         // Create and return the image
         return chart.createBufferedImage(500, 220, BufferedImage.TYPE_INT_RGB, null);
     }

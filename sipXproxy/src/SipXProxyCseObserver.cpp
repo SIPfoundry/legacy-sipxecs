@@ -13,6 +13,7 @@
 // APPLICATION INCLUDES
 #include "SipXProxyCseObserver.h"
 #include <net/SipUserAgent.h>
+#include <net/SipXauthIdentity.h>
 #include <os/OsDateTime.h>
 #include "os/OsEventMsg.h"
 #include <os/OsSysLog.h>
@@ -47,6 +48,7 @@ SipXProxyCseObserver::SipXProxyCseObserver(SipUserAgent&         sipUserAgent,
    OsDateTime::getCurTime(timeNow);
    UtlString event;
    
+
    if (mpWriter)
    {
       switch (pWriter->getLogType())
@@ -124,6 +126,7 @@ SipXProxyCseObserver::SipXProxyCseObserver(SipUserAgent&         sipUserAgent,
                                    NULL, // any session
                                    NULL // no observerData
                                    );                                   
+
 }
 
 // Destructor
@@ -190,7 +193,9 @@ UtlBoolean SipXProxyCseObserver::handleMessage(OsMsg& eventMessage)
             } thisMsgIs = UnInteresting;
          
          Url toUrl;
+
          sipMsg->getToUrl(toUrl);
+
          // explicitly, an INVITE Request
          toUrl.getFieldParameter("tag", toTag);
 
@@ -312,6 +317,9 @@ UtlBoolean SipXProxyCseObserver::handleMessage(OsMsg& eventMessage)
             UtlString replaces_callId;
             UtlString replaces_toTag;
             UtlString replaces_fromTag;
+            UtlString matchingIdentityHeader;
+            SipXauthIdentity sipxIdentity(*sipMsg, matchingIdentityHeader, true,SipXauthIdentity::allowUnbound);
+
             sipMsg->getReferToField(referTo);
             sipMsg->getReferredByField(referredBy);   
             sipMsg->getRequestUri(&requestUri);
@@ -325,20 +333,42 @@ UtlBoolean SipXProxyCseObserver::handleMessage(OsMsg& eventMessage)
             }
             
             UtlString responseMethod;
+            UtlString calleeRoute;
+
             int cseqNumber;
             sipMsg->getCSeqField(&cseqNumber, &responseMethod);            
 
             // generate the call state event record
             if (mpBuilder)
             {
+               UtlString identity;
+               UtlString recordRoute;
+               bool routeFound = false;
+               bool paiPresent = false;
                switch (thisMsgIs)
                {
                case aCallRequest:
-                  mpBuilder->callRequestEvent(mSequenceNumber, timeNow, contact, references);
+                 
+                  if (sipxIdentity.getIdentity(identity)) {
+                     paiPresent = true;
+                  }
+                  mpBuilder->callRequestEvent(mSequenceNumber, timeNow, contact, references, paiPresent);
                   break;
                   
                case aCallSetup:
-                  mpBuilder->callSetupEvent(mSequenceNumber, timeNow, contact);
+                  for (int rrNum = 0;
+                       (!routeFound && sipMsg->getRecordRouteUri(rrNum, &recordRoute));
+                       rrNum++
+                  )
+                  {
+                     Url recordRouteUrl(recordRoute);
+                     if (mpSipUserAgent->isMyHostAlias(recordRouteUrl)) {
+                        // This is a record route for our proxy, extract Call tags if they exist.
+                        recordRouteUrl.getUrlParameter(SIP_SIPX_CALL_DEST_FIELD, calleeRoute, 0);
+                        routeFound = true;
+                     }
+                  }
+                  mpBuilder->callSetupEvent(mSequenceNumber, timeNow, contact, calleeRoute);
                   break;
    
                case aCallFailure:

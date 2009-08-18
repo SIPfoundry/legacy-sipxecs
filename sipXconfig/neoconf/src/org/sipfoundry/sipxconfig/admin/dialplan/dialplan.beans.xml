@@ -39,6 +39,7 @@
   <bean id="defaultInternalRule" class="org.sipfoundry.sipxconfig.admin.dialplan.InternalRule" abstract="true">
     <property name="name" value="Voicemail" />
     <property name="description" value="Default voicemail dialing plan" />
+    <property name="calltag" value="VM" />
     <property name="enabled" value="true" />
     <property name="mediaServerFactory" ref="mediaServerFactory" />
     <property name="mediaServerType" value="freeswitchMediaServer" />
@@ -47,6 +48,7 @@
   <bean id="defaultAttendantRule" class="org.sipfoundry.sipxconfig.admin.dialplan.AttendantRule" abstract="true">
     <property name="name" value="AutoAttendant" />
     <property name="description" value="Default autoattendant dialing plan" />
+    <property name="calltag" value="AA" />
     <property name="enabled" value="true" />
     <property name="mediaServer" ref="freeswitchMediaServer" />
   </bean>
@@ -54,6 +56,7 @@
   <bean id="defaultEmergencyRule" class="org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRule" abstract="true">
     <property name="name" value="Emergency" />
     <property name="description" value="Emergency dialing plan" />
+    <property name="calltag" value="EMERG" />
     <property name="enabled" value="false" />
   </bean>
 
@@ -61,12 +64,14 @@
     <property name="permissionManager" ref="permissionManager" />
     <property name="name" value="Long Distance" />
     <property name="description" value="Long distance dialing plan" />
+    <property name="calltag" value="LD" />
     <property name="enabled" value="false" />
   </bean>
 
   <bean id="defaultTollFreeRule" parent="defaultLongDistanceRule" abstract="true">
     <property name="name" value="Toll free" />
     <property name="description" value="Toll free dialing" />
+    <property name="calltag" value="TF" />
     <property name="areaCodes" value="800, 866, 877, 888" />
     <property name="permissionName" value="TollFree" />
   </bean>
@@ -74,6 +79,7 @@
   <bean id="defaultRestrictedRule" parent="defaultLongDistanceRule" abstract="true">
     <property name="name" value="Restricted" />
     <property name="description" value="Restricted dialing" />
+    <property name="calltag" value="REST" />
     <property name="areaCodes" value="900" />
     <property name="permissionName" value="900Dialing" />
   </bean>
@@ -81,6 +87,7 @@
   <bean id="defaultInternationalRule" parent="defaultLongDistanceRule" abstract="true">
     <property name="name" value="International" />
     <property name="description" value="International dialing" />
+    <property name="calltag" value="INTN" />
     <property name="longDistancePrefix" value="011" />
     <property name="externalLen" value="-1" />
     <property name="permissionName" value="InternationalDialing" />
@@ -89,6 +96,7 @@
   <bean id="defaultLocalRule" parent="defaultLongDistanceRule" abstract="true">
     <property name="name" value="Local" />
     <property name="description" value="Local dialing" />
+    <property name="calltag" value="LOCL" />
     <property name="pstnPrefix" value="9" />
     <property name="longDistancePrefix" value="" />
     <property name="longDistancePrefixOptional" value="true" />
@@ -98,10 +106,12 @@
 
   <bean id="defaultCustomRule" class="org.sipfoundry.sipxconfig.admin.dialplan.CustomDialingRule" scope="prototype">
     <property name="permissionManager" ref="permissionManager" />
+    <property name="calltag" value="CUST" />
   </bean>
 
   <bean id="siteToSiteRule" class="org.sipfoundry.sipxconfig.admin.dialplan.SiteToSiteDialingRule" scope="prototype">
     <property name="permissionManager" ref="permissionManager" />
+    <property name="calltag" value="STS" />
   </bean>
 
   <bean id="defaultDialPlan" class="org.sipfoundry.sipxconfig.admin.dialplan.DialPlan" scope="prototype"

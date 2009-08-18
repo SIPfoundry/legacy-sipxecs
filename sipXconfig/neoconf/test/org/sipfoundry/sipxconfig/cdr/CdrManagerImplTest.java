@@ -136,6 +136,10 @@ public class CdrManagerImplTest extends SipxDatabaseTestCase {
         expectLastCall().andReturn("caller");
         rs.getString("callee_aor");
         expectLastCall().andReturn("callee");
+        rs.getString("call_id");
+        expectLastCall().andReturn("70b89a0-5966db05-3b0936a6@192.168.7.19");
+        rs.getString("reference");
+        expectLastCall().andReturn("70b89a0-5966db05-3b0936a6@192.168.7.19;rel=refer");
 
         rs.getTimestamp(eq("start_time"), eqTimeZone(calendar));
         expectLastCall().andReturn(new Timestamp(0));
@@ -150,6 +154,11 @@ public class CdrManagerImplTest extends SipxDatabaseTestCase {
         rs.getString("termination");
         expectLastCall().andReturn("I");
 
+        rs.getBoolean("caller_internal");
+        expectLastCall().andReturn(true);
+        rs.getString("callee_route");
+        expectLastCall().andReturn("AL,LD");
+
         replay(rs);
 
         CdrsResultReader reader = new CdrManagerImpl.CdrsResultReader(tz);
@@ -160,11 +169,15 @@ public class CdrManagerImplTest extends SipxDatabaseTestCase {
         Cdr cdr = results.get(0);
         assertEquals("callee", cdr.getCalleeAor());
         assertEquals("caller", cdr.getCallerAor());
+        assertEquals("70b89a0-5966db05-3b0936a6@192.168.7.19", cdr.getCallId());
+        assertEquals("70b89a0-5966db05-3b0936a6@192.168.7.19;rel=refer", cdr.getReference());
         assertEquals(0, cdr.getStartTime().getTime());
         assertEquals(1, cdr.getConnectTime().getTime());
         assertEquals(2, cdr.getEndTime().getTime());
         assertEquals(404, cdr.getFailureStatus());
         assertEquals(Termination.IN_PROGRESS, cdr.getTermination());
+        assertEquals(true, cdr.getCallerInternal());
+        assertEquals("AL,LD", cdr.getCalleeRoute());
 
         verify(rs);
     }
