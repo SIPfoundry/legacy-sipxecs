@@ -85,13 +85,15 @@ public class ProtocolObjects {
                 stackProperties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", Level.TRACE
                         .toString());
             }
-            stackProperties.setProperty("gov.nist.javax.sip.THREAD_POOL_SIZE", "1");
-            stackProperties.setProperty("gov.nist.javax.sip.REENTRANT_LISTENER", "true");
+            stackProperties.setProperty("gov.nist.javax.sip.THREAD_POOL_SIZE", "2");
+            stackProperties.setProperty("gov.nist.javax.sip.REENTRANT_LISTENER", "false");
             stackProperties.setProperty("gov.nist.javax.sip.LOG_MESSAGE_CONTENT", "true");
             stackProperties.setProperty("gov.nist.javax.sip.LOG_FACTORY",
                     SipFoundryLogRecordFactory.class.getName());
             stackProperties.setProperty("javax.sip.ROUTER_PATH",
                     org.sipfoundry.commons.siprouter.ProxyRouter.class.getName());
+            stackProperties.setProperty("gov.nist.javax.sip.CACHE_CLIENT_CONNECTIONS", "true");
+            stackProperties.setProperty("gov.nist.javax.sip.CACHE_SERVER_CONNECTIONS", "true");
             /*
              * Break up the via encoding.
              */
