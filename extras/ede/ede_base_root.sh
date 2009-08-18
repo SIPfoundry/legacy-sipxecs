@@ -352,10 +352,6 @@ add_ftp_user lvp2890 28904all
 /sbin/service postgresql stop > /dev/null
 /sbin/service postgresql start
 
-# Get rid of the svn certificate prompt for $DEVEL_USER, which may be useful.
-sudo su - $DEVEL_USER -c "echo p | svn co https://sipxecs.sipfoundry.org/rep/sipXecs/main/sipXcallLib/include/tapi/ /tmp/del_me"
-rm -rf /tmp/del_me
-
 echo ""
 echo "Start   : $START_DATE"
 echo -n "Complete: "
