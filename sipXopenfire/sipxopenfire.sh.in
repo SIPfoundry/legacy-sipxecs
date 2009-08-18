@@ -19,7 +19,7 @@
 # Begin setup work
 #####
 
-Action="START"
+Action="INVALID"
 # Initialization
 export OPENFIRE_OPTS="-Dconf.dir=@SIPX_CONFDIR@"
 OPENFIRE_HOME="@OPENFIRE_HOME@"
@@ -43,7 +43,7 @@ export JAVA_HOME JAVACMD
 
 OPENFIRE_LOGDIR="@SIPX_LOGDIR@"
 
-OPENFIRE=bin/openfire.sh
+OPENFIRE=bin/openfire
 
 PIDFILE="@SIPX_RUNDIR@/sipxopenfire.pid"
 
@@ -179,6 +179,10 @@ do
     case ${1} in
         --configtest)
             Action=CONFIGTEST
+            ;;
+
+        --start)
+            Action=START
             ;;
 
         --stop)
