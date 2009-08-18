@@ -85,8 +85,7 @@ public class ProtocolObjects {
                 stackProperties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", Level.TRACE
                         .toString());
             }
-            stackProperties.setProperty("gov.nist.javax.sip.THREAD_POOL_SIZE", "2");
-            stackProperties.setProperty("gov.nist.javax.sip.REENTRANT_LISTENER", "false");
+            stackProperties.setProperty("gov.nist.javax.sip.REENTRANT_LISTENER", "true");
             stackProperties.setProperty("gov.nist.javax.sip.LOG_MESSAGE_CONTENT", "true");
             stackProperties.setProperty("gov.nist.javax.sip.LOG_FACTORY",
                     SipFoundryLogRecordFactory.class.getName());
