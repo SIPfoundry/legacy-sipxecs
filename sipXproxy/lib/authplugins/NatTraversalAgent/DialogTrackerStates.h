@@ -161,6 +161,18 @@ public:
    virtual void SuccessfulResponse( DialogTracker& impl, SipMessage& response, const char* address, int port ) const;
 };
 
+class WaitingFor200OkWithMediaOffer : public Negotiating
+{
+public:
+   virtual const char* name( void ) const;
+   virtual const DialogTrackerState* GetParent( DialogTracker& impl ) const;
+   virtual ~WaitingFor200OkWithMediaOffer(){};
+
+   // State machine events relevant for this state
+   virtual void ProvisionalResponse( DialogTracker& impl, SipMessage& response, const char* address, int port ) const;
+   virtual void SuccessfulResponse( DialogTracker& impl, SipMessage& response, const char* address, int port ) const;
+};
+
 class WaitingForMediaAnswer : public Negotiating
 {
 public:

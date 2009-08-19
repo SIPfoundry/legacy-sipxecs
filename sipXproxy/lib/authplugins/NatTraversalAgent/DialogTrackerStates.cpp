@@ -421,11 +421,56 @@ void WaitingForMediaOffer::ProvisionalResponse( DialogTracker& impl, SipMessage&
    {
       // Both reliable and unreliable provisional responses can carry SDP bodies.  According to 
       // draft-ietf-sipping-sip-offeranswer-04.txt section 3.1, unreliable provisional responses
-      // carrying an answer is a mere previes of what the 'real' SDP answer will be and that it
-      // must be identical to it.  Since we may be changing the SDP of the 'real' answer to compensate
-      // for NATs we need to also manipulate the 'preview' answer to make match the requirement that
-      // the preview and 'real' answers be identical.
+      // carrying an offer is a mere preview of what the 'real' SDP offfer will be and that it
+      // must be identical to it.  Since we may be changing the SDP of the 'real' offer to compensate
+      // for NATs we need to also manipulate the 'preview' offer to make it meet the requirement that
+      // the preview and 'real' offers be identical.
       impl.ProcessMediaOffer( response, INITIAL_OFFER_ANSWER );
+
+      // we are receiving a provisional response - check if it is sent reliably...
+      if( response.getHeaderValue( 0, SIP_RSEQ_FIELD ) )
+      {
+         // Presence of RSeq: header in the message indicates that it is sent reliably
+         ChangeState( impl, impl.pWaitingForPrackWithMediaAnswer );
+      }
+      else
+      {
+         // We have received an unreliable provisional response - take a copy of the 
+         // patched SDP so that it can be re-applied to subsequent responses carrying
+         // the same SDP body.
+         impl.savePatchedSdpPreview( response );
+         ChangeState( impl, impl.pWaitingFor200OkWithMediaOffer );
+      }
+   }
+}
+
+void WaitingForMediaOffer::SuccessfulResponse( DialogTracker& impl, SipMessage& response, const char* address, int port ) const
+{
+   impl.ProcessMediaOffer( response, INITIAL_OFFER_ANSWER );
+   ChangeState( impl, impl.pWaitingForAckWithAnswerForInvite );
+}
+
+const DialogTrackerState* WaitingFor200OkWithMediaOffer::GetParent( DialogTracker& impl ) const
+{
+   return impl.pNegotiating;
+}
+
+const char* WaitingFor200OkWithMediaOffer::name( void ) const
+{
+   return "WaitingFor200OkWithMediaOffer";
+}
+
+void WaitingFor200OkWithMediaOffer::ProvisionalResponse( DialogTracker& impl, SipMessage& response, const char* address, int port ) const
+{
+   if( response.getResponseStatusCode() != SIP_TRYING_CODE )
+   {
+      // RFC requires that all SDP previews be identical.  In ensure that this
+      // requirement is met, we apply the saved copy of the patched SDP preview
+      // to the response.
+      if( response.hasSdpBody() )
+      {
+         impl.applyPatchedSdpPreview( response );
+      }
 
       // we are receiving a provisional response - check if it is sent reliably...
       if( response.getHeaderValue( 0, SIP_RSEQ_FIELD ) )
@@ -443,11 +488,17 @@ void WaitingForMediaOffer::ProvisionalResponse( DialogTracker& impl, SipMessage&
    }
 }
 
-void WaitingForMediaOffer::SuccessfulResponse( DialogTracker& impl, SipMessage& response, const char* address, int port ) const
+void WaitingFor200OkWithMediaOffer::SuccessfulResponse( DialogTracker& impl, SipMessage& response, const char* address, int port ) const
 {
-   impl.ProcessMediaOffer( response, INITIAL_OFFER_ANSWER );
+   // RFC requires that all SDP previews be identical.  In ensure that this
+   // requirement is met, we apply the saved copy of the patched SDP preview
+   // to the response.
+   if( response.hasSdpBody() )
+   {
+      impl.applyPatchedSdpPreview( response );
+   }
    ChangeState( impl, impl.pWaitingForAckWithAnswerForInvite );
-}
+}   
 
 const DialogTrackerState* WaitingForMediaAnswer::GetParent( DialogTracker& impl ) const
 {
