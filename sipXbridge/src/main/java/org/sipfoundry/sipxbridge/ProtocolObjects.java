@@ -93,6 +93,7 @@ public class ProtocolObjects {
                     org.sipfoundry.commons.siprouter.ProxyRouter.class.getName());
             stackProperties.setProperty("gov.nist.javax.sip.CACHE_CLIENT_CONNECTIONS", "true");
             stackProperties.setProperty("gov.nist.javax.sip.CACHE_SERVER_CONNECTIONS", "true");
+            stackProperties.setProperty("gov.nist.javax.sip.REJECT_STRAY_RESPONSES","true");
             /*
              * Break up the via encoding.
              */
