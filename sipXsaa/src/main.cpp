@@ -78,7 +78,7 @@
 #define SAA_DEFAULT_SERVER_MIN_EXPIRATION 32     // Default minimum expiration to be given by subscribe server
 #define SAA_DEFAULT_SERVER_DEFAULT_EXPIRATION 3600 // Default default expiration to be given by subscribe server
 #define SAA_DEFAULT_SERVER_MAX_EXPIRATION 86400   // Default maximum expiration to be given by subscribe server
-#define SAA_DEFAULT_SEIZED_RESUBSCRIBE_INTERVAL 300      // Shorter expiration while line is "seized"
+#define SAA_DEFAULT_SEIZED_RESUBSCRIBE_INTERVAL (5 * 60)      // Shorter expiration while line is "seized"
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -506,7 +506,7 @@ int main(int argc, char* argv[])
       // Loop forever until signaled to shut down
       while (!gShutdownFlag)
       {
-         OsTask::delay(2000);
+         OsTask::delay(2 * OsTime::MSECS_PER_SEC);
          // See if the list configuration file has changed.
          saa.getAppearanceGroupFileReader().refresh();
       }
