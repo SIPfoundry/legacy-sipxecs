@@ -109,6 +109,8 @@ public abstract class CdrReports extends BaseComponent implements PageBeginRende
 
     private static final String EMPTY_TITLE = "";
 
+    private static final String PIECHART_SECTIONLABEL_FORMAT = "{0} = {1} ({2})";
+
     @InjectObject(value = "spring:jasperReportContextImpl")
     public abstract JasperReportContext getJaperReportContext();
 
@@ -177,10 +179,10 @@ public abstract class CdrReports extends BaseComponent implements PageBeginRende
         Collection<ReportBean> beans = new ArrayList<ReportBean>();
         beans.add(new ReportBean(TABLE_REPORT_NAME, getMessages().getMessage(
                 TITLE_TABLE_REPORT_KEY)));
-        beans.add(new ReportBean(LONGDISTANCE_REPORT_NAME, getMessages().getMessage(
-                TITLE_LONGDISTANCE_REPORT_KEY)));
         beans.add(new ReportBean(CALLDIRECTION_REPORT_NAME, getMessages().getMessage(
                 TITLE_CALLDIRECTION_REPORT_KEY)));
+        beans.add(new ReportBean(TERMINATION_CALLS_PIE_NAME, getMessages().getMessage(
+                TITLE_TERMINATION_CALLS_PIE_KEY)));
         beans.add(new ReportBean(EXTENSION_REPORT_NAME, getMessages().getMessage(
                 TITLE_EXTENSION_REPORT_KEY)));
         beans.add(new ReportBean(ACTIVE_CALLERS_GRAPH_NAME, getMessages().getMessage(
@@ -189,8 +191,8 @@ public abstract class CdrReports extends BaseComponent implements PageBeginRende
                 TITLE_ACTIVE_RECEIVERS_GRAPH_KEY)));
         beans.add(new ReportBean(MINUTES_OUTGOING_EXTENSION_GRAPH_NAME, getMessages().getMessage(
                 TITLE_MINUTES_OUTGOING_EXTENSION_GRAPH_KEY)));
-        beans.add(new ReportBean(TERMINATION_CALLS_PIE_NAME, getMessages().getMessage(
-                TITLE_TERMINATION_CALLS_PIE_KEY)));
+        beans.add(new ReportBean(LONGDISTANCE_REPORT_NAME, getMessages().getMessage(
+                TITLE_LONGDISTANCE_REPORT_KEY)));
 
         AdaptedSelectionModel model = new AdaptedSelectionModel();
         model.setCollection(beans);
@@ -235,30 +237,28 @@ public abstract class CdrReports extends BaseComponent implements PageBeginRende
         List<Cdr> cdrs = getCdrManager().getCdrs(getStartTime(), getEndTime(), getCdrSearch(),
                 getUser());
         Locale locale = getPage().getLocale();
+        Date startdate = getStartTime();
+        Date enddate = getEndTime();
+        SimpleDateFormat dateformat = new SimpleDateFormat("dd-MMM-yyyy kk:mm");
         Map<String, Object> mapParameters = new HashMap<String, Object>();
-        if (cdrs.size() == 0) {
-            setReportData(new ArrayList());
-            mapParameters.put(TITLE_REPORT, getMessages().getMessage("report.emptyData"));
-            setReportParameters(mapParameters);
-            return;
-        }
 
         String xAxis = getMessages().getMessage("report.cdrActiveExtensions.xAxis");
         String yAxis;
         if (reportName.equals(TABLE_REPORT_NAME)) {
             setReportData(getTableReportData(cdrs, locale));
             mapParameters.put(TITLE_REPORT, getMessages().getMessage(TITLE_TABLE_REPORT_KEY));
+            mapParameters.put(TITLE_STARTREPORT, dateformat.format(startdate));
+            mapParameters.put(TITLE_ENDREPORT, dateformat.format(enddate));
             setReportParameters(mapParameters);
             return;
         } else if (reportName.equals(LONGDISTANCE_REPORT_NAME)) {
             setReportData(getLongDistanceReportData(cdrs, locale));
             mapParameters.put(TITLE_REPORT, getMessages().getMessage(TITLE_LONGDISTANCE_REPORT_KEY));
+            mapParameters.put(TITLE_STARTREPORT, dateformat.format(startdate));
+            mapParameters.put(TITLE_ENDREPORT, dateformat.format(enddate));
             setReportParameters(mapParameters);
             return;
         } else if (reportName.equals(CALLDIRECTION_REPORT_NAME)) {
-            Date startdate = getStartTime();
-            Date enddate = getEndTime();
-            SimpleDateFormat dateformat = new SimpleDateFormat("dd-MMM-yyyy kk:mm");
             List<CdrCallDirectionDecorator> data = getCallDirectionReportData(cdrs, locale);
             setReportData(data);
             mapParameters.put(TITLE_REPORT, getMessages().getMessage(TITLE_CALLDIRECTION_REPORT_KEY));
@@ -272,6 +272,8 @@ public abstract class CdrReports extends BaseComponent implements PageBeginRende
         } else if (reportName.equals(EXTENSION_REPORT_NAME)) {
             setReportData(getExtensionReportData(cdrs, locale));
             mapParameters.put(TITLE_REPORT, getMessages().getMessage(TITLE_EXTENSION_REPORT_KEY));
+            mapParameters.put(TITLE_STARTREPORT, dateformat.format(startdate));
+            mapParameters.put(TITLE_ENDREPORT, dateformat.format(enddate));
             setReportParameters(mapParameters);
             return;
         } else if (reportName.equals(ACTIVE_CALLERS_GRAPH_NAME)) {
@@ -279,6 +281,8 @@ public abstract class CdrReports extends BaseComponent implements PageBeginRende
             setReportData(data);
             mapParameters.put(TITLE_REPORT, getMessages().getMessage(
                     TITLE_ACTIVE_CALLERS_GRAPH_KEY));
+            mapParameters.put(TITLE_STARTREPORT, dateformat.format(startdate));
+            mapParameters.put(TITLE_ENDREPORT, dateformat.format(enddate));
             yAxis = getMessages().getMessage("report.cdrActiveCallers.yAxis");
             mapParameters.put("callersChart", createExtensionsChartImage(data, xAxis, yAxis));
             setReportParameters(mapParameters);
@@ -288,6 +292,8 @@ public abstract class CdrReports extends BaseComponent implements PageBeginRende
             setReportData(data);
             mapParameters.put(TITLE_REPORT, getMessages().getMessage(
                     TITLE_ACTIVE_RECEIVERS_GRAPH_KEY));
+            mapParameters.put(TITLE_STARTREPORT, dateformat.format(startdate));
+            mapParameters.put(TITLE_ENDREPORT, dateformat.format(enddate));
             yAxis = getMessages().getMessage("report.cdrActiveReceivers.yAxis");
             mapParameters.put("receiversChart", createExtensionsChartImage(data, xAxis, yAxis));
             setReportParameters(mapParameters);
@@ -297,6 +303,8 @@ public abstract class CdrReports extends BaseComponent implements PageBeginRende
             setReportData(data);
             mapParameters.put(TITLE_REPORT, getMessages().getMessage(
                     TITLE_MINUTES_OUTGOING_EXTENSION_GRAPH_KEY));
+            mapParameters.put(TITLE_STARTREPORT, dateformat.format(startdate));
+            mapParameters.put(TITLE_ENDREPORT, dateformat.format(enddate));
             yAxis = getMessages().getMessage("report.cdrMinutesOutgoingExtension.yAxis");
             mapParameters.put("minutesOutgoingExtensionChart",
                     createMinutesOutgoingCallsChartImage(data, xAxis, yAxis));
@@ -307,6 +315,8 @@ public abstract class CdrReports extends BaseComponent implements PageBeginRende
             setReportData(data);
             mapParameters.put(TITLE_REPORT, getMessages().getMessage(
                     TITLE_TERMINATION_CALLS_PIE_KEY));
+            mapParameters.put(TITLE_STARTREPORT, dateformat.format(startdate));
+            mapParameters.put(TITLE_ENDREPORT, dateformat.format(enddate));
             mapParameters.put("terminationCallsPieImage", createTerminationCallsPieImage(data));
             setReportParameters(mapParameters);
             return;
@@ -532,6 +542,9 @@ public abstract class CdrReports extends BaseComponent implements PageBeginRende
         chart.setBackgroundPaint(Color.lightGray);
         chart.getTitle().setPaint(Color.BLACK);
 
+        PiePlot chartplot = (PiePlot) chart.getPlot();
+        chartplot.setCircular(true);
+        chartplot.setLabelGenerator(new StandardPieSectionLabelGenerator(PIECHART_SECTIONLABEL_FORMAT));
         // Create and return the image
         return chart.createBufferedImage(500, 220, BufferedImage.TYPE_INT_RGB, null);
     }
@@ -554,7 +567,7 @@ public abstract class CdrReports extends BaseComponent implements PageBeginRende
 
         PiePlot chartplot = (PiePlot) chart.getPlot();
         chartplot.setCircular(true);
-        chartplot.setLabelGenerator(new StandardPieSectionLabelGenerator("{0} = {1} ({2})"));
+        chartplot.setLabelGenerator(new StandardPieSectionLabelGenerator(PIECHART_SECTIONLABEL_FORMAT));
   
         // Create and return the image
         return chart.createBufferedImage(500, 220, BufferedImage.TYPE_INT_RGB, null);
