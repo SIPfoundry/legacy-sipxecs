@@ -89,10 +89,16 @@
 	<target name="install" depends="all,makedirs">
 		<copy file="${src.dir}/openfire.xml" todir="${dest.dir}${sipxopenfire.dir}/conf" />
 		<copy file="${root}/dist/sipx-openfire.jar" todir="${dest.dir}${sipxopenfire.dir}/plugins" />
-		<copy file="${root}/sipxopenfire-database.xml" todir="${dest.dir}${conf.dir}" />
-		<copy file="${src.dir}/sipxopenfire-initdb.sql" todir="${dest.dir}${conf.dir}/database" /> 
+		<copy file="${src.dir}/sipxopenfire-initdb.sql" todir="${dest.dir}${sipxpbx.conf.dir}/database" /> 
 		<copy file="${root}/sipxopenfire-setup.sh" todir="${dest.dir}${sipxpbx.libexec.dir}/setup.d" />
                 <chmod file="${dest.dir}${sipxpbx.libexec.dir}/setup.d/sipxopenfire-setup.sh" perm="ugo+rx" />
+                <copy file="${src.dir}/sipxopenfire-database.xml" todir="${dest.dir}${sipxpbx.conf.dir}" />
+                <replace file="${dest.dir}${sipxpbx.conf.dir}/sipxopenfire-database.xml"
+                    propertyfile="${top.build.dir}/config.properties">
+                    <replacefilter token="@sipxcommons.dir@" property="sipxcommons.dir" />
+                    <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir" />
+                    <replacefilter token="@sipxpbx.tmp.dir@" property="sipxpbx.tmp.dir" />
+                </replace>
 	</target>
 
 

@@ -39,13 +39,10 @@ EXTRA_DIST = \
   sipxopenfire.spec.in \
   sipxopenfire.spec \
   sipxopenfire.sh.in \
-  sipxopenfire.sh \
   sipxopenfire-process.xml.in \
   sipxopenfire-initdb.sql \
-  sipxopenfire-database.xml.in \
   sipxopenfire-database.xml \
   sipxopenfire-setup.sh.in \
-  sipxopenfire-setup.sh \
   BUILDSTAMP \
   SVN-VERSION \
   LICENSE \
@@ -68,10 +65,6 @@ sipxopenfire-setup.sh : sipxopenfire-setup.sh.in
 	@echo "Localize $< -> $@"
 	@$(LocalizeSipXconfig) $< > $@
 
-sipxopenfire-database.xml : sipxopenfire-database.xml.in
-	@echo "Localize $< -> $@"
-	@$(LocalizeSipXconfig) $< > $@
-
 sipxopenfire.sh : sipxopenfire.sh.in
 	@echo "Localize $< -> $@"
 	@$(LocalizeSipXconfig) $< > $@
@@ -80,6 +73,4 @@ sipxopenfire.spec : sipxopenfire.spec.in
 	@echo "Localize $< -> $@"
 	@$(LocalizeSipXconfig) $< > $@
 	
-DISTCLEANFILES = config.properties sipxopenfire-setup.sh sipxopenfire-database.xml sipxopenfire.sh sipxopenfire.spec
-
-
+DISTCLEANFILES = config.properties sipxopenfire-setup.sh sipxopenfire.sh sipxopenfire.spec

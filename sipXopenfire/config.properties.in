@@ -11,9 +11,10 @@ debug=@JAVAC_DEBUG@
 bin.dir=@bindir@
 lib.dir=@libdir@
 prefix.dir=@prefix@
-conf.dir=@SIPX_CONFDIR@
+sipxpbx.conf.dir=@SIPX_CONFDIR@
 sipxpbx.libexec.dir=@SIPX_LIBEXECDIR@
 openfire.home=@OPENFIRE_HOME@
+sipxpbx.tmp.dir=@SIPX_TMPDIR@
 
 # comma-separated combination of 'lines' 'source' and 'var' only valid
 # when debug is on. 

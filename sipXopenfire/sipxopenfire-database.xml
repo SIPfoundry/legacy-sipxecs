@@ -3,9 +3,9 @@
 <description>
       Ant task file for database operations.
 </description>
-        <property name="sipxcommons.dir" value="@SIPX_JAVADIR@/sipXcommons" />
-        <property name="conf.dir" value="@SIPX_CONFDIR@" />
-        <property name="tmp.dir" value="@SIPX_TMPDIR@" />
+        <property name="sipxcommons.dir" value="@sipxcommons.dir@" />
+        <property name="sipxpbx.conf.dir" value="@sipxpbx.conf.dir@" />
+        <property name="sipxpbx.tmp.dir" value="@sipxpbx.tmp.dir@" />
         <property name="jdbc-driver-jar" value="${sipxcommons.dir}/postgresql-jdbc.jar" />
         <property name="sipxopenfire.db.name" value="openfire" />
         <property name="sipxopenfire.db.user" value="postgres" />
@@ -32,12 +32,12 @@
 
 
         <target name="create-tables">
-          <sipx-sql src="${conf.dir}/database/sipxopenfire-initdb.sql" />
+          <sipx-sql src="${sipxpbx.conf.dir}/database/sipxopenfire-initdb.sql" />
         </target>
 
         <target name="check">
-           <delete failonerror="false" quiet="true" file="${tmp.dir}/sipxopenfire.version" />
-           <sipx-sql  print="yes" output="${tmp.dir}/sipxopenfire.version" showheaders="no" >
+           <delete failonerror="false" quiet="true" file="${sipxpbx.tmp.dir}/sipxopenfire.version" />
+           <sipx-sql  print="yes" output="${sipxpbx.tmp.dir}/sipxopenfire.version" showheaders="no" >
 		select version from ofVersion where name='openfire';
 	   </sipx-sql>
         </target>
