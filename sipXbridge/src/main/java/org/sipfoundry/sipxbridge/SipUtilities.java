@@ -999,11 +999,15 @@ class SipUtilities {
             Vector attributes = sessionDescription.getAttributes(false);
             if ( attributes != null ) {
                 for ( Object attr : attributes ) {
-                    Attribute attribute = (Attribute) attr ;
-                    if ( attribute.getValue().equals("sendrecv") || 
-                            attribute.getValue().equals("recvonly") ||
-                            attribute.getValue().equals("sendonly")) {
-                        attribute.setValue(attributeValue);
+                    if ( attr instanceof Attribute ){
+                        Attribute attribute = (Attribute) attr ;
+                        if ( attribute.getName().equals("sendrecv") || 
+                                attribute.getName().equals("recvonly") ||
+                                attribute.getName().equals("sendonly")) {
+                            attribute.setName(attributeValue);
+                        }
+                    } else {
+                        logger.error("Unexpected type encountered " + attr.getClass().getName());
                     }
                 }
             }
