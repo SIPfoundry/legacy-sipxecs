@@ -326,7 +326,7 @@ int OsDatagramSocket::write(const char* buffer, int bufferLength)
 }
 
 int OsDatagramSocket::write(const char* buffer, int bufferLength,
-      const char* ipAddress, int port)
+                            const char* ipAddress, int port)
 {
     int bytesSent = 0;
 
