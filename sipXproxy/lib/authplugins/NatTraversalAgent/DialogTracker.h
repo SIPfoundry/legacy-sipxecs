@@ -210,6 +210,21 @@ public:
    bool patchSdp( SdpBody* pSdpBody, int mediaIndex, int rtpPort, tMediaRelayHandle relayHandle, const UtlString& mediaRelayAddressToUse );
    
    /**
+    *   Saves a copy of the SDP body contained in the supplied message.  This method
+    *   is intended to be used to save the content of an SDP body patched by the NAT
+    *   traversal feature so that it can be re-applied to any subsequent message that
+    *   carries same SDP as the supplied message.  This helps meet the standards requirement
+    *   that states that all SDP previews be identical.
+    */ 
+   void savePatchedSdpPreview( SipMessage& sipMessage );
+   
+   /**
+    *   Applies the patched SDP preview previously saved by the savePatchedSdpPreview()
+    *   method to the supplied message 
+    */
+   void applyPatchedSdpPreview( SipMessage& sipMessage );
+   
+   /**
     *   Removes all the elements that may impair NAT traversal from the message.
     */
    static void removeUnwantedElements( SipMessage& request );
@@ -228,6 +243,7 @@ public:
     static Moribund*               pMoribund;
     static Negotiating*            pNegotiating;
        static WaitingForMediaOffer*                       pWaitingForMediaOffer;
+       static WaitingFor200OkWithMediaOffer*              pWaitingFor200OkWithMediaOffer;
        static WaitingForMediaAnswer*                      pWaitingForMediaAnswer;
        static WaitingForAckWithAnswerForInvite*           pWaitingForAckWithAnswerForInvite;
        static WaitingForPrackWithMediaAnswer*             pWaitingForPrackWithMediaAnswer;
@@ -295,6 +311,7 @@ private:
    RequestRetransmissionDescriptor mRequestRetransmissionDescriptor;
    ResponseRetransmissionDescriptor mResponseRetransmissionDescriptor;
    bool mbNonIntialOfferAnswerExchangeDoneFlag;
+   SdpBody* mpCopyOfPatchedSdpBody;
    
    friend class DialogTrackerTest;
 };

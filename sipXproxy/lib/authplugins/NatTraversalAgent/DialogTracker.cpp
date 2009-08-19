@@ -29,6 +29,7 @@ struct DialogTrackerStateStruct
    TimeBoundState                             timeBoundState;   
    Negotiating                                negotiating;
    WaitingForMediaOffer                       waitingForMediaOffer;
+   WaitingFor200OkWithMediaOffer              waitingFor200OkWithMediaOffer;
    WaitingForMediaAnswer                      waitingForMediaAnswer;
    ProcessingPrack                            processingPrack;
    WaitingForPrack                            waitingForPrack;
@@ -46,6 +47,7 @@ WaitingForAckForInvite*                     DialogTracker::pWaitingForAckForInvi
 TimeBoundState*                             DialogTracker::pTimeBoundState = 0;
 Negotiating*                                DialogTracker::pNegotiating = 0;
 WaitingForMediaOffer*                       DialogTracker::pWaitingForMediaOffer = 0;
+WaitingFor200OkWithMediaOffer*              DialogTracker::pWaitingFor200OkWithMediaOffer = 0;
 WaitingForMediaAnswer*                      DialogTracker::pWaitingForMediaAnswer = 0;
 ProcessingPrack*                            DialogTracker::pProcessingPrack = 0;
 WaitingForPrack*                            DialogTracker::pWaitingForPrack = 0;
@@ -58,7 +60,8 @@ ProcessingPrackWaitingForAckforInvite*      DialogTracker::pProcessingPrackWaiti
 Moribund*                                   DialogTracker::pMoribund = 0;
 
 DialogTracker::DialogTracker( const DialogTracker& referenceDialogTracker,
-                              const UtlString& newHandle )
+                              const UtlString& newHandle ) :
+  mpCopyOfPatchedSdpBody( 0 )                                 
 {
    // Init state machine pointers
    initializeStatePointers();
@@ -485,6 +488,24 @@ bool DialogTracker::patchSdp( SdpBody* pSdpBody, int mediaIndex, int rtpPort, tM
       bPatchedSuccessfully = true;
    }
    return bPatchedSuccessfully;
+}
+
+void DialogTracker::savePatchedSdpPreview( SipMessage& sipMessage )
+{
+   if( mpCopyOfPatchedSdpBody )
+   {
+      delete mpCopyOfPatchedSdpBody;
+      mpCopyOfPatchedSdpBody = 0;
+   }
+   mpCopyOfPatchedSdpBody = const_cast<SdpBody*>( sipMessage.getSdpBody() );
+}
+
+void DialogTracker::applyPatchedSdpPreview( SipMessage& sipMessage )
+{
+   if( mpCopyOfPatchedSdpBody )
+   {
+      sipMessage.setBody( mpCopyOfPatchedSdpBody->copy() );
+   }
 }
 
 void DialogTracker::removeUnwantedElements( SipMessage& request )
@@ -1134,6 +1155,7 @@ void DialogTracker::initializeStatePointers( void )
    pTimeBoundState                             = &states.timeBoundState;
    pNegotiating                                = &states.negotiating;
    pWaitingForMediaOffer                       = &states.waitingForMediaOffer;
+   pWaitingFor200OkWithMediaOffer              = &states.waitingFor200OkWithMediaOffer;
    pWaitingForMediaAnswer                      = &states.waitingForMediaAnswer;
    pProcessingPrack                            = &states.processingPrack;
    pWaitingForPrack                            = &states.waitingForPrack;
