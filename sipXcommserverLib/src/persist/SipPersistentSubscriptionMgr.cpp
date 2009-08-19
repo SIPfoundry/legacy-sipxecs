@@ -255,10 +255,7 @@ SipPersistentSubscriptionMgr::~SipPersistentSubscriptionMgr()
    if (running == OS_SUCCESS)
    {
       // Timer was running; database was dirty.
-      // Unfortunately, the signal handler has usually closed the IMDB
-      // by the time this destructor is called, so this store() cannot
-      // be executed.
-      //mSubscriptionDBInstance->store();
+      mSubscriptionDBInstance->store();
    }
 
    // Free the DB instance, if necessary.
