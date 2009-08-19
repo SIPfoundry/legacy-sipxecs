@@ -865,8 +865,8 @@ void SipRefreshManager::handleSipMessage(SipMessageEvent& eventMessage)
        }
        else
        {
-           foundEarlyDialog = 
-               mpDialogMgr->getEarlyDialogHandleFor(dialogHandle, 
+           foundEarlyDialog =
+               mpDialogMgr->getEarlyDialogHandleFor(dialogHandle,
                                                     earlyDialogHandle);
            if (foundEarlyDialog)
            {
@@ -1129,6 +1129,13 @@ void SipRefreshManager::handleSipMessage(SipMessageEvent& eventMessage)
               // know that the state changed
               if (state->mpStateCallback)
               {
+                 if (!foundEarlyDialog)
+                 {
+                    // the callback may need the earlyDialogHandle
+                    mpDialogMgr->getEarlyDialogHandleFor(dialogHandle,
+                                                         earlyDialogHandle);
+                 }
+
                  (state->mpStateCallback)(state->mRequestState,
                                           earlyDialogHandle,
                                           dialogHandle,
