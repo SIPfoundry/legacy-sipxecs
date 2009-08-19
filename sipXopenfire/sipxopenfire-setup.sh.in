@@ -67,12 +67,12 @@ rm  @SIPX_TMPDIR@/sipxopenfire.version
 if [ ! -f @SIPX_TMPDIR@/sipxopenfire.version ]  
 then
     echo "Initializing Openfire Database"
-    su @SIPXPBXUSER@ -c "@SIPX_BINDIR@/sipxopenfire.sh --database create"
-    su postgres -c "@SIPX_BINDIR@/sipxopenfire.sh --database create-tables"
-    su postgres -c "@SIPX_BINDIR@/sipxopenfire.sh --database setup -Ddomain=${SIP_DOMAIN_NAME}"
+    @SIPX_BINDIR@/sipxopenfire.sh --database create
+    @SIPX_BINDIR@/sipxopenfire.sh --database create-tables
+    @SIPX_BINDIR@/sipxopenfire.sh --database setup -Ddomain=${SIP_DOMAIN_NAME}
 else
     echo "sipxopenfire: postgres is already initialized only resetting the domain"
-    su postgres -c "@SIPX_BINDIR@/sipxopenfire.sh --database setdomain -Ddomain=${SIP_DOMAIN_NAME}"
+    @SIPX_BINDIR@/sipxopenfire.sh --database setdomain -Ddomain=${SIP_DOMAIN_NAME}
 fi
 
 #if openfire service is running stop it.
