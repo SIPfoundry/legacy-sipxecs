@@ -84,6 +84,7 @@ class TransactionApplicationData {
                     return;
                 }
                 ClientTransaction ctx = m_helper.handleChallenge(response, clientTransaction);
+                ctx.getDialog().setApplicationData(dialog.getApplicationData());
                 m_counter++;
                 if (ctx != null) {
                     ctx.setApplicationData(this);

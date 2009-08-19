@@ -3,11 +3,9 @@ package org.sipfoundry.callcontroller;
 import org.apache.log4j.Logger;
 import org.restlet.Application;
 import org.restlet.Context;
-import org.restlet.Guard;
 import org.restlet.Restlet;
 import org.restlet.Route;
 import org.restlet.Router;
-import org.restlet.data.ChallengeScheme;
 
 public class CallControllerApplication extends Application {
     private static Logger logger = Logger.getLogger(CallControllerApplication.class);
@@ -27,9 +25,9 @@ public class CallControllerApplication extends Application {
 	   CallControllerFilter filter = new CallControllerFilter();
 	   filter.setNext(new CallControllerRestlet(context));
 	   router.attachDefault(CallControllerDefault.class);
-	   Route route = router.attach("/callcontroller/{method}/{agent}", filter);  
-	   route.extractQuery(CallControllerParams.CALLED_PARTY, CallControllerParams.CALLED_PARTY, true);
-	   route.extractQuery(CallControllerParams.CALLING_PARTY,CallControllerParams.CALLING_PARTY, true);
+	   Route route = router.attach("/callcontroller/{callingParty}/{calledParty}", filter); 
+	   route.extractQuery(CallControllerParams.METHOD, CallControllerParams.METHOD, true);
+	   route.extractQuery(CallControllerParams.AGENT,CallControllerParams.AGENT,true);
 	   route.extractQuery(CallControllerParams.FORWARDING_ALLOWED, CallControllerParams.FORWARDING_ALLOWED, true);
 	   route.extractQuery(CallControllerParams.PIN, CallControllerParams.PIN, true);
 	   route.extractQuery(CallControllerParams.SUBJECT, CallControllerParams.SUBJECT, true);

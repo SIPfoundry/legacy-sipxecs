@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import org.restlet.Filter;
 import org.restlet.Restlet;
 import org.restlet.data.MediaType;
+import org.restlet.data.Protocol;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
@@ -42,14 +43,19 @@ public class CallControllerFilter extends Filter {
           
           logger.debug("Authentication request " + remoteAddr );
 
+         
+          if ( ! request.getProtocol().equals(Protocol.HTTPS) && CallController.isSecure) {
+              logger.debug("Request was not recieved over HTTPS protocol");
+              return Filter.STOP;
+          }
+          
           Collection<Hop> hops = new FindSipServer(logger).getSipxProxyAddresses(sipUri);
-
+          
           for (Hop hop : hops) {
               if (InetAddress.getByName(hop.getHost()).getHostAddress().equals(remoteAddr)) {
                   logger.debug("Authenticated request from sipx domain");
                   return Filter.CONTINUE;
               }
-
           }
 
 

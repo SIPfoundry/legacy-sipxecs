@@ -91,10 +91,9 @@ public class InviteMessage extends JainSipMessage {
             return ctx;
         } catch (ParseException ex) {
             throw new SipxSipException(ex);
-        } catch (SipException ex) {
+        } catch (Exception ex) {
             throw new SipxSipException(ex);
-        }
-
+        } 
     }
 
     public String getToAddrSpec() {

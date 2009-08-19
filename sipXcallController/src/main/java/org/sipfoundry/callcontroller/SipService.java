@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.callcontroller;
 
+import javax.sip.Dialog;
+
 import gov.nist.javax.sip.clientauthutils.UserCredentialHash;
 
 
@@ -27,6 +29,6 @@ public interface SipService {
      * @param subject - subject.
      * @param inviteForwardingAllowed - whether or not INVITE forwarding is allowd.
      */
-    public void sendRefer(UserCredentialHash credentials, String sourceAddrSpec, String displayName, String destinationAddrSpec, 
+    public Dialog sendRefer(UserCredentialHash credentials, String sourceAddrSpec, String displayName, String destinationAddrSpec, 
             String referTarget, String subject, boolean inviteForwardingAllowed);
 }

@@ -1,22 +1,18 @@
 package org.sipfoundry.callcontroller;
 
 import java.io.File;
-import java.net.InetAddress;
-import java.security.Permission;
+import java.util.Timer;
 
 import javax.net.ssl.SSLServerSocket;
 
 import org.apache.log4j.Appender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.mortbay.http.Authenticator;
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpListener;
 import org.mortbay.http.HttpServer;
-import org.mortbay.http.SecurityConstraint;
 import org.mortbay.http.SocketListener;
 import org.mortbay.http.SslListener;
-import org.mortbay.http.UserRealm;
 import org.mortbay.jetty.servlet.ServletHandler;
 import org.mortbay.util.InetAddrPort;
 import org.mortbay.util.ThreadedServer;
@@ -45,11 +41,11 @@ public class CallController {
 
     private static HttpServer webServer;
     
-    private static boolean isSecure = true;
+    static boolean isSecure = true;
     
-    private static TrustedPrincipal trustedPrincipal = new TrustedPrincipal();
+    public static final Timer timer = new Timer();
     
-   
+  
     public static CallControllerConfig getCallControllerConfig() {
         return callControllerConfig;
     }
@@ -57,22 +53,21 @@ public class CallController {
     public static AccountManagerImpl getAccountManager() {
         return accountManager;
     }
+   
+    /**
+     * @param appender the appender to set
+     */
+    public static void setAppender(Appender appender) {
+        CallController.appender = appender;
+    }
 
     /**
      * @return the appender
      */
     public static Appender getAppender() {
         return appender;
-    } 
-
-    /**
-     * @return the trustedPrincipal
-     */
-    public static TrustedPrincipal getTrustedPrincipal() {
-        return trustedPrincipal;
     }
 
-   
  
     private static void initWebServer() throws Exception {
         webServer = new HttpServer();
@@ -80,8 +75,10 @@ public class CallController {
                 callControllerConfig.getHttpPort());
         Logger.getLogger("org.mortbay").setLevel(Level.OFF);
         
+     
+        
         if (isSecure) {
-                SslListener sslListener = new SslListener(inetAddrPort);            
+                SslListener sslListener = new SslListener(inetAddrPort);     
                 String keystore = System.getProperties().getProperty(
                         "javax.net.ssl.keyStore");
                 logger.debug("keystore = " + keystore);
@@ -93,15 +90,14 @@ public class CallController {
                 String password = System.getProperties().getProperty(
                         "jetty.ssl.password");
                 sslListener.setPassword(password);
-
                 String keypassword = System.getProperties().getProperty(
                         "jetty.ssl.keypassword");
-
                 sslListener.setKeyPassword(keypassword);
                 sslListener.setMaxThreads(32);
                 sslListener.setMinThreads(4);
                 sslListener.setLingerTimeSecs(30000);
-
+                
+                
                 ((ThreadedServer) sslListener).open();
 
                 String[] cypherSuites = ((SSLServerSocket) sslListener
@@ -117,13 +113,14 @@ public class CallController {
               
                 ((SSLServerSocket) sslListener.getServerSocket())
                         .setEnabledProtocols(protocols);
-
+             
                 webServer.setListeners(new HttpListener[] { sslListener });
 
                 for (HttpListener listener : webServer.getListeners()) {
                     logger.debug("Listener = " + listener);
                     listener.start();
                 }
+                
         } else {
             SocketListener socketListener = new SocketListener(inetAddrPort);
             socketListener.setMaxThreads(32);
@@ -177,9 +174,9 @@ public class CallController {
                 + configFileName);
         accountManager = new AccountManagerImpl();
         Logger.getLogger(PACKAGE).setLevel(Level.toLevel(callControllerConfig.getLogLevel()));
-        appender = new SipFoundryAppender(new SipFoundryLayout(),
+        setAppender(new SipFoundryAppender(new SipFoundryLayout(),
                 CallController.getCallControllerConfig().getLogDirectory()
-                +"/sipxcallcontroller.log");
+                +"/sipxcallcontroller.log"));
         Logger.getLogger(PACKAGE).addAppender(getAppender());
       
         initWebServer();
@@ -187,10 +184,5 @@ public class CallController {
         logger.debug("Web server started.");
 
     }
-
-   
-
-
-   
 
 }

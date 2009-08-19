@@ -8,10 +8,6 @@ Currently we only support REFER based third party call control.
 INVITE based third party call control may be supported if there 
 is a requirement to stay in the call path and monitor call progress.
 
-REFER based third party call control
-=====================================
-REFER based third party call control is "Fire and Forget"
-The call is placed and subsequently, the third party call controller is not in the call path.
 
 There are three parties involved :
 
@@ -25,7 +21,7 @@ The call controller consults etc/sipxpbx/validusers.xml to authenticate users an
 
 The general form of the URL is
 
-https://host:6666/callcontroller/refer/agentName?callingParty=callingPartyName&calledParty=calledPartyName&pin=pin
+https://host:6666/callcontroller/callingParty/calledParty?agent=agentName&calledParty=calledPartyName&pin=pin
 
 You dont need a pin to invoke it from within the sipx domain. You can specify user name or user alias for agentName, 
 callingParty or calledParty.
@@ -39,20 +35,24 @@ agentName must have a PBX account (for authentication purposes ).
 If you do not specify a callingParty this is assumed to be the same as the agent.
 
 For example within the sipx domain, the URL can look like this:
-https://sipxpbx.sipxtest.net:6666/callcontroller/refer/201?callingParty=201&calledParty=202
-
-This is equivalent to 
-https://sipxpbx.sipxtest.net:6666/callcontroller/refer/201?calledParty=202
+https://sipxpbx.sipxtest.net:6666/201/202
 
 Here 201 can be either the user name or the alias of a user.
 It is is both the agent placing the call as well as the calling party.
 
 To invoke this from outside the sipx domain :
-https://sipxpbx.sipxtest.net:6666/callcontroller/refer/201?calledParty=202&pin=123
+https://sipxpbx.sipxtest.net:6666/201/202?pin=123
 
-Other optional URL parameters:
+Optional URL parameters:
+=======================
 
+agent - the name of the agent that is placing the third party call.
 subject  - this URL parameter determines what goes into the SIP subject header of the initial call setup INVITE.
+method - defaults to REFER
+   REFER based third party call control is "Fire and Forget"
+   The call is placed and subsequently, the third party call controller is not in the call path.
+   INVITE based TPCC keeps the controller in the call path ( not yet implemented ).
+isForwardingAllowed - whether or not forwarding is allowed for the initial invite
+pin - authentication pin. 
 
-xmppId - TBD
 

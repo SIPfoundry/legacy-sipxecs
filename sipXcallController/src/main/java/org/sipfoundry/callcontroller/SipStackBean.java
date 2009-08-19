@@ -18,6 +18,8 @@ import gov.nist.javax.sip.header.extensions.ReferredByHeader;
 
 import java.text.ParseException;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Random;
 import java.util.Timer;
@@ -72,6 +74,10 @@ public class SipStackBean extends AbstactSipStackBean {
     private SipListenerImpl m_sipListener;
 
     private final Timer m_timer = new Timer();
+    
+    private HashMap<String,DialogContext> dialogContextTable = 
+        new HashMap<String,DialogContext>();
+
 
     
    
@@ -342,6 +348,24 @@ public class SipStackBean extends AbstactSipStackBean {
         } catch (Exception ex) {
             throw new CallControllerException(ex);
         }
+    }
+    
+    public synchronized DialogContext createDialogContext(String key) {
+        logger.debug("createDialogCOntext " + key);
+        if (dialogContextTable.get(key) == null) {
+            DialogContext dialogContext = new DialogContext();
+            dialogContext.setKey(key);
+            this.dialogContextTable.put(key, dialogContext);
+        }
+        return dialogContextTable.get(key);
+    }
+    
+    public synchronized void removeDialogContext(String key ) {
+        this.dialogContextTable.remove(key);
+    }
+    
+    public synchronized DialogContext getDialogContext(String key ) {
+        return this.dialogContextTable.get(key);
     }
 
    

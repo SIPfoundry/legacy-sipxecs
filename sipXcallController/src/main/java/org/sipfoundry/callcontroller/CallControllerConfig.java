@@ -1,5 +1,7 @@
 package org.sipfoundry.callcontroller;
 
+import java.util.Date;
+
 import org.apache.log4j.Level;
 
 public class CallControllerConfig {
@@ -68,5 +70,9 @@ public class CallControllerConfig {
 	public String getSipxProxyDomain() {
 		return sipxProxyDomain;
 	}
+
+    public int getCacheTimeout() {
+        return 30;
+    }
 
 }

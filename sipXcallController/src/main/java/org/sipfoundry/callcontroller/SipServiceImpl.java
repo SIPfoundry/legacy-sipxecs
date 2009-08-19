@@ -10,6 +10,9 @@
 package org.sipfoundry.callcontroller;
 
 
+import javax.sip.ClientTransaction;
+import javax.sip.Dialog;
+
 import gov.nist.javax.sip.clientauthutils.UserCredentialHash;
 
 import org.apache.log4j.Logger;
@@ -27,7 +30,7 @@ public class SipServiceImpl  implements SipService {
     }
    
 
-    public void sendRefer(UserCredentialHash agentCredentials, String agentAddrSpec, String displayName, String callingPartyAddrSpec,
+    public Dialog sendRefer(UserCredentialHash agentCredentials, String agentAddrSpec, String displayName, String callingPartyAddrSpec,
             String referTarget, String subject, boolean allowForwarding) {
         LOG.debug("sendRefer: source = " + agentAddrSpec + " dest = " 
                 + callingPartyAddrSpec + " referTarget = " + referTarget
@@ -36,7 +39,9 @@ public class SipServiceImpl  implements SipService {
                 agentAddrSpec, referTarget, Operator.SEND_3PCC_REFER_CALL_SETUP);
         message.setSubject(subject);
         message.setforwardingAllowed(allowForwarding);
-        message.createAndSend();
+        ClientTransaction clientTransaction = message.createAndSend();
+        return clientTransaction.getDialog();
+        
     }
 
    

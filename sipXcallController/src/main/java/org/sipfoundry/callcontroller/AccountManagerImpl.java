@@ -9,8 +9,6 @@
  */
 package org.sipfoundry.callcontroller;
 
-import java.util.Hashtable;
-
 import gov.nist.javax.sip.clientauthutils.SecureAccountManager;
 import gov.nist.javax.sip.clientauthutils.UserCredentialHash;
 

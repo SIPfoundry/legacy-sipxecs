@@ -25,8 +25,6 @@ import javax.sip.message.Response;
 
 import org.apache.log4j.Logger;
 
-
-
 class SipListenerImpl implements SipListener {
 
     private static final Logger LOG = Logger.getLogger(SipListenerImpl.class);
@@ -39,6 +37,11 @@ class SipListenerImpl implements SipListener {
 
     public void processDialogTerminated(DialogTerminatedEvent dialogTerminatedEvent) {
 
+        Dialog dialog = dialogTerminatedEvent.getDialog();
+        DialogContext context = (DialogContext) dialog.getApplicationData();
+        if (context != null) {
+            context.remove();
+        }
     }
 
     public void processIOException(IOExceptionEvent exceptionEvent) {
@@ -62,10 +65,22 @@ class SipListenerImpl implements SipListener {
                 LOG.debug("got a NOTIFY");
                 Response response = m_stackBean.createResponse(request, Response.OK);
                 serverTransaction.sendResponse(response);
-                SubscriptionStateHeader subscriptionState = 
-                        (SubscriptionStateHeader) request.getHeader(SubscriptionStateHeader.NAME);
-                if (subscriptionState.getState().equalsIgnoreCase(SubscriptionStateHeader.TERMINATED)) {
-                    Dialog dialog = requestEvent.getDialog();
+                SubscriptionStateHeader subscriptionState = (SubscriptionStateHeader) request
+                        .getHeader(SubscriptionStateHeader.NAME);
+                Dialog dialog = requestEvent.getDialog();
+
+                DialogContext dialogContext = (DialogContext) dialog.getApplicationData();
+                if (request.getContentLength().getContentLength() != 0) {
+                    String statusLine = new String(request.getRawContent());
+                    LOG.debug("dialog = " + dialog);
+                    LOG.debug("status line = " + statusLine);
+                    if (!statusLine.equals("") && dialogContext != null) {
+                        dialogContext.setStatus(statusLine);
+                    }
+                }
+
+                if (subscriptionState.getState().equalsIgnoreCase(
+                        SubscriptionStateHeader.TERMINATED)) {
                     m_stackBean.tearDownDialog(dialog);
                 }
             }
