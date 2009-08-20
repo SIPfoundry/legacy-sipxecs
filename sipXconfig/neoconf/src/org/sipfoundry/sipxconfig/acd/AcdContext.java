@@ -23,7 +23,11 @@ public interface AcdContext extends AliasOwner, AliasProvider {
 
     List getServers();
 
+    boolean isAcdServerIdValid(int acdServerId);
+
     List getUsersWithAgents();
+
+    List getUsersWithAgentsForLocation(Location location);
 
     void store(AcdComponent acdComponent);
 
@@ -88,9 +92,9 @@ public interface AcdContext extends AliasOwner, AliasProvider {
 
     void removeOverflowSettings(Collection overflowIds, String overflowType);
 
-    String getPresenceServiceUri();
-
     void migrateAcdServers();
 
     AcdServer getAcdServerForLocationId(Integer locationId);
+
+    boolean isUserAnAgentOnThisServer(AcdServer server, User user);
 }

@@ -127,10 +127,16 @@ pid=File.open('@SIPX_RUNDIR@/sipxconfig-report.pid', 'w')
 pid.puts Process.pid
 pid.close
 
-importer = Reports::Importer.new
-begin
-  importer.dbi=DBI.connect(DB_URI, DB_USER)
-  importer.run(CONFIG_SERVER_AGENT_URL)
-ensure
-  importer.dbi.disconnect if importer.dbi != nil
-end  
+configUrls = Array.new(CONFIG_SERVER_AGENT_URL.split(";"))
+locationFqdns = Array.new(LOCATION_FQDN.split(";"))
+
+configUrls.length.times do |i|
+  importer = Reports::Importer.new
+  begin
+    LOCATION_FQDN.replace(locationFqdns[i])
+    importer.dbi=DBI.connect(DB_URI, DB_USER)
+    importer.run(configUrls[i])
+  ensure
+    importer.dbi.disconnect if importer.dbi != nil
+  end
+end

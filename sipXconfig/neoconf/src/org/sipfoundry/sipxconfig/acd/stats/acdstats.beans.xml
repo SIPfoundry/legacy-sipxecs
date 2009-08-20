@@ -12,7 +12,6 @@
     <property name="reportScript" value="${sysdir.bin}/sipxconfig-report"/>
     <property name="sipxReplicationContext" ref="sipxReplicationContext"/>
     <property name="acdHistoricalConfiguration" ref="acdHistoricalConfiguration" />
-    <property name="locationsManager" ref="locationsManager" />
   </bean>  
 
   <bean id="acdHistoricalStats" class="org.springframework.aop.framework.ProxyFactoryBean"
@@ -26,7 +25,8 @@
     <property name="velocityEngine" ref="velocityEngine" />
     <property name="template" value="report/sipxconfig-report-config.vm" />
     <property name="dbUser" value="${sipxconfig.db.user}" />
-    <property name="locationsManager" ref="locationsManager" />
+    <property name="agentPort" value="${acdServer.agentPort}" />
+    <property name="acdContext" ref="acdContext" />
   </bean>
   
   <!--

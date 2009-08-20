@@ -55,15 +55,14 @@ public abstract class AcdSupervisorConsole extends PageWithCallback implements P
 
     public void pageBeginRender(PageEvent event) {
         AcdContext context = getAcdContext();
-        if (getAcdServerId() == null) {
+        if (getAcdServerId() == null || !context.isAcdServerIdValid(getAcdServerId())) {
             // make user pick a server iff there's more than 1
             List servers = context.getServers();
             if (servers.size() != 1) {
                 setEffectiveTab("selectServer");
                 return;
             }
-            AcdServer server = (AcdServer) servers.get(0);
-            setAcdServerId(server.getId());
+            setAcdServerId(((AcdServer) servers.get(0)).getId());
         }
 
         setEffectiveTab(getTab());
@@ -88,12 +87,21 @@ public abstract class AcdSupervisorConsole extends PageWithCallback implements P
 
             stats.setUsers(supervisedAgents);
             Collection<AcdQueue> queues = context.getQueuesForUsers(server, supervisedAgents);
+            for (Object acdServerObj : context.getServers()) {
+                AcdServer acdServer = (AcdServer) acdServerObj;
+                if (acdServer.getId() != server.getId()) {
+                    queues.addAll(context.getQueuesForUsers(acdServer, supervisedAgents));
+                }
+            }
 
             stats.setQueues(queues);
 
             setSupervisedUsers(supervisedAgents);
 
             setAcdStatistics(stats);
+        } else if (server.getId() != getAcdServerId()) {
+            server = context.loadServer(getAcdServerId());
+            setAcdServer(server);
         }
     }
 }

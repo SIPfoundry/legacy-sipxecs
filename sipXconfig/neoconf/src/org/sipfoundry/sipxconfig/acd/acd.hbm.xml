@@ -103,7 +103,11 @@
   <query name="usersWithAgents">
     <![CDATA[select distinct u from User u, AcdAgent a join a.user as auser where auser.id = u.id order by u.userName]]>
   </query>
-  
+
+  <query name="usersWithAgentsForServer">
+    <![CDATA[select distinct u from User u, AcdAgent a join a.user as auser where auser.id = u.id and a.acdServer = :acdServer order by u.userName]]>
+  </query>
+
   <query name="queuesForUsers">
 		<![CDATA[select distinct q from AcdQueue q, AcdAgent a 
       join a.user as auser

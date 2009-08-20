@@ -5,6 +5,8 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
@@ -13,6 +15,8 @@ import org.custommonkey.xmlunit.XMLTestCase;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.acd.AcdContext;
+import org.sipfoundry.sipxconfig.acd.AcdServer;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 
@@ -38,14 +42,19 @@ public class AcdReportConfigTest extends XMLTestCase{
         acdHistoricalConf.setDbUser("postgres");
 
         IMocksControl mc = EasyMock.createControl();
-        LocationsManager locationsManager = mc.createMock(LocationsManager.class);
-        locationsManager.getCallCenterLocation();
+        AcdContext acdContext = mc.createMock(AcdContext.class);
+        acdContext.getServers();
         Location location = new Location();
         location.setFqdn("example.org");
-        mc.andReturn(location);
+        AcdServer acdServer = new AcdServer();
+        acdServer.setLocation(location);
+        List<AcdServer> acdServers = new ArrayList<AcdServer>();
+        acdServers.add(acdServer);
+        mc.andReturn(acdServers);
         mc.replay();
 
-        acdHistoricalConf.setLocationsManager(locationsManager);
+        acdHistoricalConf.setAcdContext(acdContext);
+        acdHistoricalConf.setAgentPort(8120);
 
         InputStream resourceAsStream = AcdReportConfigTest.class.
             getResourceAsStream("report-config-expected.xml");

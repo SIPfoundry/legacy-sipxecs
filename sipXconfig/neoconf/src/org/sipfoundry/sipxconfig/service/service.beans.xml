@@ -229,6 +229,7 @@
     scope="prototype" parent="serviceConfigurationFile">
     <property name="template" value="sipxpresence/sipxpresence-config.vm" />
     <property name="name" value="sipxpresence-config" />
+    <property name="acdContext" ref="acdContext" />
   </bean>
 
   <bean id="sipxCallResolverService" class="org.sipfoundry.sipxconfig.service.SipxCallResolverService" parent="sipxService"

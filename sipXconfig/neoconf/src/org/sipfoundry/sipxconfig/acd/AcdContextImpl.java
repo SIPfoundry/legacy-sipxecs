@@ -71,6 +71,8 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
 
     private static final String LINE = "line";
 
+    private static final String AGENT_FOR_USER_AND_SERVER_QUERY = "agentForUserAndServer";
+
     private AliasManager m_aliasManager;
 
     private BeanFactory m_beanFactory;
@@ -91,8 +93,24 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         return getHibernateTemplate().loadAll(AcdServer.class);
     }
 
+    public boolean isAcdServerIdValid(int acdServerId) {
+        List<AcdServer> acdServers = getServers();
+        for (AcdServer acdServer : acdServers) {
+            if (acdServer.getId() == acdServerId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public List getUsersWithAgents() {
         return getHibernateTemplate().findByNamedQuery("usersWithAgents");
+    }
+
+    public List getUsersWithAgentsForLocation(Location location) {
+        AcdServer acdServer = getAcdServerForLocationId(location.getId());
+        return getHibernateTemplate().findByNamedQueryAndNamedParam("usersWithAgentsForServer",
+                SERVER_PARAM, acdServer);
     }
 
     public AcdServer loadServer(Serializable id) {
@@ -212,7 +230,8 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         Object[] values = {
             user, server
         };
-        List agents = getHibernateTemplate().findByNamedQueryAndNamedParam("agentForUserAndServer", params, values);
+        List agents = getHibernateTemplate().findByNamedQueryAndNamedParam(AGENT_FOR_USER_AND_SERVER_QUERY,
+                params, values);
         if (!agents.isEmpty()) {
             return (AcdAgent) agents.get(0);
         }
@@ -222,6 +241,18 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         // cannot save the agent without setting its server field
         server.insertAgent(agent);
         return agent;
+    }
+
+    public boolean isUserAnAgentOnThisServer(AcdServer server, User user) {
+        String[] params = {
+            USER_PARAM, SERVER_PARAM
+        };
+        Object[] values = {
+            user, server
+        };
+        List agents = getHibernateTemplate().findByNamedQueryAndNamedParam(AGENT_FOR_USER_AND_SERVER_QUERY,
+                params, values);
+        return !agents.isEmpty();
     }
 
     public void removeAgents(Serializable acdQueueId, Collection agentsIds) {
@@ -288,16 +319,6 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         }
 
         return aliases;
-    }
-
-    public String getPresenceServiceUri() {
-        List<AcdServer> servers = getServers();
-        if (servers.isEmpty()) {
-            return null;
-        }
-        // HACK: only 1 ACD server supports presence service in UI
-        AcdServer server = servers.get(0);
-        return server.getPresenceServiceUri();
     }
 
     public void moveAgentsInQueue(Serializable queueId, Collection agentsIds, int step) {

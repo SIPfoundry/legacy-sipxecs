@@ -47,6 +47,4 @@ public interface LocationsManager {
     void deleteLocation(Location location);
 
     List<Location> getLocationsForService(SipxService service);
-
-    public Location getCallCenterLocation();
 }

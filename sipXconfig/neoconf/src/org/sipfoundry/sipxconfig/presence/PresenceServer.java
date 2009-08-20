@@ -9,13 +9,14 @@
  */
 package org.sipfoundry.sipxconfig.presence;
 
+import org.sipfoundry.sipxconfig.acd.AcdServer;
 import org.sipfoundry.sipxconfig.common.User;
 
 public interface PresenceServer {
-    
-    public void signIn(User user);
-    
-    public void signOut(User user);
 
-    public PresenceStatus getStatus(User user);
+    public void signIn(User user, AcdServer acdServer);
+
+    public void signOut(User user, AcdServer acdServer);
+
+    public PresenceStatus getStatus(User user, AcdServer acdServer);
 }

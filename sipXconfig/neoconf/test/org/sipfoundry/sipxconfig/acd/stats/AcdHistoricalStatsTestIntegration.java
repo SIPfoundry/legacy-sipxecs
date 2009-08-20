@@ -17,16 +17,28 @@ import java.util.Map;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.postgresql.util.PGInterval;
+import org.sipfoundry.sipxconfig.acd.AcdContext;
+import org.sipfoundry.sipxconfig.acd.AcdServer;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
+
 public class AcdHistoricalStatsTestIntegration extends IntegrationTestCase {
 
+    private AcdContext m_acdContext;
     private AcdHistoricalStats m_acdHistoricalStats;
+
+    public void setAcdContext(AcdContext context) {
+        m_acdContext = context;
+    }
 
     public void testSignoutActivityReport() throws Exception {
         loadDataSetXml("admin/commserver/seedLocationsAndServices3.xml");
-        List<Map<String, Object>> stats = m_acdHistoricalStats.getReport("agentAvailablityReport", new Date(0), new Date());
+        List<AcdServer> acdServers = m_acdContext.getServers();
+        assertEquals(1, acdServers.size());
+        Location location = acdServers.get(0).getLocation();
+        List<Map<String, Object>> stats = m_acdHistoricalStats.getReport("agentAvailablityReport", new Date(0), new Date(), location);
         assertEquals(4, stats.size());
         Map<String, Object> record;
         Iterator<Map<String, Object>> i = stats.iterator();
@@ -36,7 +48,10 @@ public class AcdHistoricalStatsTestIntegration extends IntegrationTestCase {
 
     public void testSignoutActivityReportSigninTime() throws Exception {
         loadDataSetXml("admin/commserver/seedLocationsAndServices3.xml");
-        List<Map<String, Object>> stats = m_acdHistoricalStats.getReport("agentAvailablityReport", new Date(0), new Date());
+        List<AcdServer> acdServers = m_acdContext.getServers();
+        assertEquals(1, acdServers.size());
+        Location location = acdServers.get(0).getLocation();
+        List<Map<String, Object>> stats = m_acdHistoricalStats.getReport("agentAvailablityReport", new Date(0), new Date(), location);
         Map<String, Object> record;
         Iterator<Map<String, Object>> i = stats.iterator();
         record = i.next();
@@ -55,17 +70,24 @@ public class AcdHistoricalStatsTestIntegration extends IntegrationTestCase {
         assertEquals("sign_out_time", columns.get(2));
     }
 
-    public void testForReportSQLErrors() {
+    public void testForReportSQLErrors() throws Exception {
+        loadDataSetXml("admin/commserver/seedLocationsAndServices3.xml");
         List<String> reports = m_acdHistoricalStats.getReports();
         for (String report : reports) {
             m_acdHistoricalStats.getReportFields(report);
-            m_acdHistoricalStats.getReport(report, new Date(0), new Date());
+            List<AcdServer> acdServers = m_acdContext.getServers();
+            assertEquals(1, acdServers.size());
+            Location location = acdServers.get(0).getLocation();
+            m_acdHistoricalStats.getReport(report, new Date(0), new Date(), location);
         }
     }
 
     public void testAgentActivityReport() throws Exception {
         loadDataSetXml("admin/commserver/seedLocationsAndServices3.xml");
-        List<Map<String, Object>> stats = m_acdHistoricalStats.getReport("agentActivityReport", new Date(0), new Date());
+        List<AcdServer> acdServers = m_acdContext.getServers();
+        assertEquals(1, acdServers.size());
+        Location location = acdServers.get(0).getLocation();
+        List<Map<String, Object>> stats = m_acdHistoricalStats.getReport("agentActivityReport", new Date(0), new Date(), location);
         Map<String, Object> record;
         Iterator<Map<String, Object>> i = stats.iterator();
         record = i.next();

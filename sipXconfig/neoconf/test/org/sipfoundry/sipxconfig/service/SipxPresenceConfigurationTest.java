@@ -9,7 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.acd.AcdContext;
+import org.sipfoundry.sipxconfig.acd.AcdServer;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 import static org.easymock.EasyMock.createMock;
@@ -37,13 +42,22 @@ public class SipxPresenceConfigurationTest extends SipxServiceTestBase {
         expectLastCall().andReturn(presenceService).atLeastOnce();
         replay(sipxServiceManager);
 
+        List<AcdServer> acdServers = new ArrayList<AcdServer>();
+        AcdServer acdServer = new AcdServer();
+        acdServers.add(acdServer);
+        AcdContext acdContext  = createMock(AcdContext.class);
+        acdContext.getServers();
+        expectLastCall().andReturn(acdServers).atLeastOnce();
+        replay(acdContext);
 
         SipxPresenceConfiguration out = new SipxPresenceConfiguration();
         out.setSipxServiceManager(sipxServiceManager);
+        out.setAcdContext(acdContext);
         out.setTemplate("sipxpresence/sipxpresence-config.vm");
 
         assertCorrectFileGeneration(out, "expected-presence-config");
 
         verify(sipxServiceManager);
+        verify(acdContext);
     }
 }

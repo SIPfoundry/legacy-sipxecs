@@ -46,7 +46,6 @@
   <bean id="callCenterBundle" parent="abstractBundle">
     <constructor-arg value="callCenter" />
     <property name="autoEnable" value="true" />
-    <property name="max" value="1" />
   </bean>
 
   <bean id="conferenceBundle" parent="abstractBundle">

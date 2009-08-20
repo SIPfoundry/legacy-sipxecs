@@ -9,10 +9,13 @@
   <inject property="acdContext" object="spring:acdContext"/>
   <inject property="coreContext" object="spring:coreContext"/>
   <inject property="presenceServer" object="spring:presenceServer"/>
+  <inject property="locationsManager" object="spring:locationsManager"/>
 
-  <parameter name="users" default-value="acdContext.usersWithAgents"/>
+  <parameter name="allowedUsers" default-value="acdContext.usersWithAgents"/>
 
+  <property name="currentLocationId" persist="session"/>
   <property name="currentUser"/>
+  <property name="users"/>
   <property name="selections"
     initial-value="new org.sipfoundry.sipxconfig.components.SelectMap()" />
 
@@ -21,6 +24,12 @@
     <set name="messages" value="messages"/>
     <set name="prefix" value="literal:presence"/>
   </bean>
+
+  <component id="locationSelector" type="PropertySelection">
+    <binding name="model" value="locationSelectionModel" />
+    <binding name="value" value="currentLocationId" />
+    <binding name="onchange" value="literal:javascript:this.form.submit();"/>
+  </component>
   
   <component id="errorMsg" type="common/ErrorMsg">
     <binding name="validator" value="bean:validator"/>  

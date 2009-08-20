@@ -6,4 +6,10 @@
   <inject property="tapestry" object="spring:tapestry"/>
 
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+
+  <component id="locationSelector" type="PropertySelection">
+    <binding name="model" value="locationSelectionModel" />
+    <binding name="value" value="currentLocationId" />
+    <binding name="onchange" value="literal:javascript:this.form.submit();"/>
+  </component>
 </page-specification>

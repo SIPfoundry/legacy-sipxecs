@@ -15,6 +15,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
+import org.sipfoundry.sipxconfig.acd.AcdServer;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -47,19 +48,19 @@ public class PresenceServerImpl implements PresenceServer {
         m_enabled = enabled;
     }
 
-    public void signIn(User user) {
-        signInAction(SignIn.SIGN_IN, user);
+    public void signIn(User user, AcdServer acdServer) {
+        signInAction(SignIn.SIGN_IN, user, acdServer);
     }
 
-    public void signOut(User user) {
-        signInAction(SignIn.SIGN_OUT, user);
+    public void signOut(User user, AcdServer acdServer) {
+        signInAction(SignIn.SIGN_OUT, user, acdServer);
     }
 
-    public PresenceStatus getStatus(User user) {
+    public PresenceStatus getStatus(User user, AcdServer acdServer) {
         PresenceStatus status = PresenceStatus.NOT_AVAILABLE;
         if (m_enabled) {
             try {
-                Hashtable response = signInAction(SignIn.STATUS, user);
+                Hashtable response = signInAction(SignIn.STATUS, user, acdServer);
                 String statusId = (String) response.get(SignIn.RESULT_TEXT);
                 status = PresenceStatus.resolve(statusId);
             } catch (Exception e) {
@@ -69,11 +70,14 @@ public class PresenceServerImpl implements PresenceServer {
         return status;
     }
 
-    private Hashtable signInAction(String action, User user) {
+
+    private Hashtable signInAction(String action, User user, AcdServer acdServer) {
+        String presenceServiceUri = acdServer.getPresenceServiceUri();
+
         if (!m_enabled) {
             return null;
         }
-        String presenceServiceUri = m_acdContext.getPresenceServiceUri();
+
         if (presenceServiceUri == null) {
             LOG.warn("No ACD presence server available.");
             return null;

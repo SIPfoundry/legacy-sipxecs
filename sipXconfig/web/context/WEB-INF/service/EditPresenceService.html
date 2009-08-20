@@ -3,6 +3,9 @@
   <h2>
     <span jwcid="@Insert" value="ognl:title" />
   </h2>
+  <span jwcid="@If" condition="ognl:multipleAcdsPresent">
+    <span jwcid="@common/QuickHelp" value="ognl:helpText" raw="ognl:true" />
+  </span>
   <form jwcid="form@Form" delegate="bean:validator">
     <fieldset jwcid="@setting/SettingsFieldset"
         settings="ognl:sipxService.settings"

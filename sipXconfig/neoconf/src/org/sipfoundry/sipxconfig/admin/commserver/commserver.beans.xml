@@ -12,7 +12,6 @@
     class="org.sipfoundry.sipxconfig.admin.commserver.LocationsManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="daoEventPublisher" ref="daoEventPublisher" />
-    <property name="callCenterBundle" ref="callCenterBundle"/>
   </bean>
 
   <bean id="locationsManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

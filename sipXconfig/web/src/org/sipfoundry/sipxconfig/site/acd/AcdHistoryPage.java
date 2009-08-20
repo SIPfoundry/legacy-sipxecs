@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.site.acd;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -30,10 +31,15 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.web.WebResponse;
 import org.postgresql.util.PGInterval;
+import org.sipfoundry.sipxconfig.acd.AcdContext;
+import org.sipfoundry.sipxconfig.acd.AcdServer;
 import org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalStats;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.SqlInterval;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.cdr.CdrHistory;
@@ -72,6 +78,20 @@ public abstract class AcdHistoryPage extends BasePage implements PageBeginRender
     public abstract Date getEndTime();
     public abstract void setEndTime(Date endTime);
 
+    @Persist
+    public abstract int getCurrentLocationId();
+    public abstract void setCurrentLocationId(int id);
+
+    @InjectObject(value = "spring:locationsManager")
+    public abstract LocationsManager getLocationsManager();
+
+    @InjectObject(value = "spring:acdContext")
+    public abstract AcdContext getAcdContext();
+
+    @Persist
+    public abstract LocationSelectionModel getLocationSelectionModel();
+    public abstract void setLocationSelectionModel(LocationSelectionModel locationSelectionModel);
+
     public void showReport(String reportName) {
         setReportName(reportName);
     }
@@ -95,10 +115,14 @@ public abstract class AcdHistoryPage extends BasePage implements PageBeginRender
         if (getStartTime().after(getEndTime())) {
             getValidator().record(new UserException("&message.invalidDates"), getMessages());
         }
+
+        setLocationSelectionModel(new LocationSelectionModel(getAcdContext().getServers()));
     }
 
     public List<Map<String, Object>>getRows() {
-        return getAcdHistoricalStats().getReport(getReportName(), getStartTime(), getEndTime());
+        Location location = 0 == getCurrentLocationId() ? getLocationsManager().getPrimaryLocation()
+                : getLocationsManager().getLocation(getCurrentLocationId());
+        return getAcdHistoricalStats().getReport(getReportName(), getStartTime(), getEndTime(), location);
     }
 
     public ITableColumnModel getColumns() {
@@ -121,6 +145,23 @@ public abstract class AcdHistoryPage extends BasePage implements PageBeginRender
         } catch (IOException e) {
             LOG.error("Error during ACD History report export " + getReportName(), e);
         }
+    }
+
+    public static class LocationSelectionModel extends ObjectSelectionModel {
+        LocationSelectionModel(List<AcdServer> acdServers) {
+            List<Location> locations = new ArrayList<Location>();
+            for (int i = 0; i < acdServers.size(); i++) {
+                locations.add(acdServers.get(i).getLocation());
+            }
+
+            setCollection(locations);
+            setLabelExpression("fqdn");
+            setValueExpression("id");
+        }
+    }
+
+    public boolean isAcdServerPresent() {
+        return 0 < getAcdContext().getServers().size();
     }
 }
 

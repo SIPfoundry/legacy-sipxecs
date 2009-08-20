@@ -16,7 +16,8 @@ import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 public class AcdSupervisorTestUi extends WebTestCase {
-    private static String[] NAVIGATION_LINKS = { 
+    private static String[] NAVIGATION_LINKS = {
+        "link:selectServer",
         "link:agentPresence", 
         "link:agentsStats", 
         "link:callsStats", 
@@ -45,29 +46,31 @@ public class AcdSupervisorTestUi extends WebTestCase {
             assertElementPresent("message.noServers");
         }
     }
-    
+
     public void testOneServer() {
         clickLink("seedAcdServer");
 
         SiteTestHelper.home(getTester());        
         clickLink("acdSupervisorConsole");
-
+        SiteTestHelper.assertNoException(tester);
         for (String link : NAVIGATION_LINKS) {
             clickLink(link);
-            assertElementNotPresent("message.selectServer");
+            if (link != "link:selectServer") {
+                assertElementNotPresent("message.selectServer");
+            }
         }
 
         assertStatisticsDisplay();
     }
     
     private void assertStatisticsDisplay() {
-        clickLink(NAVIGATION_LINKS[0]);
-        assertElementPresent("list.presence");
         clickLink(NAVIGATION_LINKS[1]);
-        assertElementPresent("agent:stats:list");
+        assertElementPresent("list.presence");
         clickLink(NAVIGATION_LINKS[2]);
+        assertElementPresent("agent:stats:list");
+        clickLink(NAVIGATION_LINKS[3]);
         assertElementPresent("calls:stats:list");
-        clickLink(NAVIGATION_LINKS[3]);        
+        clickLink(NAVIGATION_LINKS[4]);
         assertElementPresent("queues:stats:list");
     }    
 }

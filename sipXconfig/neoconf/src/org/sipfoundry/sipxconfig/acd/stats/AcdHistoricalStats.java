@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+
 public interface AcdHistoricalStats {
     
     public static final String BEAN_NAME = "acdHistoricalStats";
@@ -24,11 +26,9 @@ public interface AcdHistoricalStats {
     
     public List<String> getReportFields(String reportName);
 
-    public List<Map<String, Object>> getReport(String name, Date startTime, Date endTime);
+    public List<Map<String, Object>> getReport(String name, Date startTime, Date endTime, Location location);
     
     public void dumpReport(Writer writer, List<Map<String, Object>> reportData, Locale locale) throws IOException;
-
-    public String getCallCenterLocationFqdn();
 
     public boolean isEnabled();
 }

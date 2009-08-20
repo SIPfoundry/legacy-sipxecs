@@ -19,9 +19,8 @@ import org.hibernate.criterion.Restrictions;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.service.SipxService;
-import org.sipfoundry.sipxconfig.service.SipxServiceBundle;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.orm.hibernate3.HibernateCallback;
+
 import static org.springframework.dao.support.DataAccessUtils.singleResult;
 
 public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> implements LocationsManager {
@@ -30,7 +29,6 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
     private static final String LOCATION_PROP_PRIMARY = "primary";
 
     private DaoEventPublisher m_daoEventPublisher;
-    private SipxServiceBundle m_callCenterBundle;
 
     public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
         m_daoEventPublisher = daoEventPublisher;
@@ -52,11 +50,6 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
         List<Location> locations = getHibernateTemplate().
             findByNamedQueryAndNamedParam("locationsByBundle", "locationBundle", bundle);
         return locations;
-    }
-
-    public Location getCallCenterLocation() {
-        List<Location> locations = getLocationsByBundle(m_callCenterBundle.getModelId());
-        return (Location) singleResult(locations);
     }
 
     public Location getLocationByFqdn(String fqdn) {
@@ -114,10 +107,4 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
         }
         return locations;
     }
-
-    @Required
-    public void setCallCenterBundle(SipxServiceBundle callCenterBundle) {
-        m_callCenterBundle = callCenterBundle;
-    }
-
 }

@@ -4,26 +4,27 @@
 <page-specification class="org.sipfoundry.sipxconfig.site.acd.AcdSupervisorConsole">
   <description>Supervisor's access to ACD features</description>
   <property name="acdServerId" persist="session"/>
-  <property name="acdServer"/>
+  <property name="acdServer" persist="session"/>
   <property name="tab" persist="session"/>
+  <property name="supervisedUsers" persist="session"/>
   <inject property="acdContext" object="spring:acdContext" />
   <inject property="coreContext" object="spring:coreContext" />
   <inject property="userSession" type="state" object="userSession"/>
 
   <component id="border" type="common/Border">
     <binding name="useDojo"
-      value="tab == 'agentsStats' || tab == 'callsStats' || tab == 'queuesStats'" />
+      value="tab == 'selectServer' || tab == 'agentsStats' || tab == 'callsStats' || tab == 'queuesStats'" />
     <binding name="restricted" value="false"/>
   </component>
 
   <component id="tabs" type="common/TabNavigation">
     <binding name="tabNames"
-      value="{'agentPresence', 'agentsStats', 'callsStats', 'queuesStats'}" />
+      value="{'selectServer', 'agentPresence', 'agentsStats', 'callsStats', 'queuesStats'}" />
     <binding name="selectedTab" value="tab" />
   </component>
 
   <component id="acdAgentPresencePanel" type="acd/AcdAgentPresencePanel">
-    <binding name="users" value="supervisedUsers"/>
+    <binding name="allowedUsers" value="supervisedUsers"/>
   </component>
 
   <component id="acdAgentsStatsPanel" type="acd/AcdAgentsStatsPanel">

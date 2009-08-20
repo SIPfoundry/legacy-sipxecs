@@ -28,14 +28,12 @@ import java.util.Map;
 import org.apache.commons.beanutils.locale.LocaleConvertUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.bulk.csv.CsvWriter;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapperResultSetExtractor;
@@ -52,7 +50,6 @@ public class AcdHistoricalStatsImpl extends JdbcDaoSupport implements AcdHistori
     private String m_exportDatePattern = "EEE, d MMM yyyy HH:mm:ss Z";
     private SipxReplicationContext m_sipxReplicationContext;
     private AcdHistoricalConfigurationFile m_acdHistoricalConfiguration;
-    private LocationsManager m_locationsManager;
 
     public List<String> getReports() {
         List<String> reports = Arrays.asList(m_factory
@@ -113,11 +110,6 @@ public class AcdHistoricalStatsImpl extends JdbcDaoSupport implements AcdHistori
         return getReportScript() != null && new File(getReportScript()).exists();
     }
 
-    public String getCallCenterLocationFqdn() {
-        Location location = m_locationsManager.getCallCenterLocation();
-        return (location != null) ? location.getFqdn() : null;
-    }
-
     public List<String> getReportFields(String reportName) {
         AcdHistoricalReport report = (AcdHistoricalReport) m_factory.getBean(reportName);
 
@@ -131,11 +123,11 @@ public class AcdHistoricalStatsImpl extends JdbcDaoSupport implements AcdHistori
         return names;
     }
 
-    public List<Map<String, Object>> getReport(String reportName, Date startTime, Date endTime) {
+    public List<Map<String, Object>> getReport(String reportName, Date startTime, Date endTime, Location location) {
         AcdHistoricalReport report = (AcdHistoricalReport) m_factory.getBean(reportName);
         ColumnMapRowMapper columnMapper = new ColumnTransformer();
         RowMapperResultSetExtractor rowReader = new RowMapperResultSetExtractor(columnMapper);
-        String locationFqdn = getCallCenterLocationFqdn();
+        String locationFqdn = location.getFqdn();
         ReportStatement statement = null;
         if (locationFqdn != null) {
             statement = new ReportStatement(report.getQuery(), startTime, endTime, locationFqdn);
@@ -229,12 +221,5 @@ public class AcdHistoricalStatsImpl extends JdbcDaoSupport implements AcdHistori
             AcdHistoricalConfigurationFile acdHistoricalConfiguration) {
         m_acdHistoricalConfiguration = acdHistoricalConfiguration;
     }
-
-    @Required
-    public void setLocationsManager(LocationsManager locationsManager) {
-        m_locationsManager = locationsManager;
-    }
-
-
 
 }

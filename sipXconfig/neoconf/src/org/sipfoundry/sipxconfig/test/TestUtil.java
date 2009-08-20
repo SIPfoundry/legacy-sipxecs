@@ -211,6 +211,7 @@ public final class TestUtil {
         sysProps.setProperty("monitoringContextImpl.enabled", Boolean.toString(true));
         sysProps.setProperty("coreContextImpl.debug", "on");
         sysProps.setProperty("sipxconfig.db.user", "postgres");
+        sysProps.setProperty("acdServer.agentPort", "8120");
         sysProps.setProperty("mrtgTemplateConfig.filename", etcDirectory + "/mrtg-t.cfg");
         sysProps.setProperty("mrtgConfig.filename", outputDirectory + "/mrtg.cfg");
         sysProps.setProperty("jasperReportContextImpl.reportsDirectory", etcDirectory + "/reports");

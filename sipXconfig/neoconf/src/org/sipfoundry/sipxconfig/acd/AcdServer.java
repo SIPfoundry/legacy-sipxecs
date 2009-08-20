@@ -181,6 +181,10 @@ public class AcdServer extends AcdComponent implements LoggingEntity {
         int presencePort = m_presenceService.getPresenceServerPort();
         String signInCode = m_presenceService.getSettingValue(SipxPresenceService.PRESENCE_SIGN_IN_CODE);
         String signOutCode = m_presenceService.getSettingValue(SipxPresenceService.PRESENCE_SIGN_OUT_CODE);
+        if (1 < m_acdContext.getServers().size()) {
+            signInCode += String.valueOf(m_location.getId());
+            signOutCode += String.valueOf(m_location.getId());
+        }
 
         aliases.add(createPresenceAliasMapping(signInCode.trim(), domainName, presencePort));
         aliases.add(createPresenceAliasMapping(signOutCode.trim(), domainName, presencePort));

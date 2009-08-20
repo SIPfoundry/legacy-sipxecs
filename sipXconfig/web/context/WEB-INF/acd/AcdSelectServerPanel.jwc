@@ -13,7 +13,7 @@
     class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel"
      lifecycle="request">
     <set name="collection" value="acdContext.servers" />
-    <set name="labelExpression" value="literal:host" />
+    <set name="labelExpression" value="literal:location.fqdn" />
     <set name="valueExpression" value="literal:id" />    
   </bean>
   
