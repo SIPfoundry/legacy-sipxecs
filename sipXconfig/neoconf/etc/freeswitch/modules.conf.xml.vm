@@ -29,7 +29,7 @@
     <!-- Endpoints -->
     <!-- <load module="mod_dingaling"/> -->
     <!-- <load module="mod_iax"/> -->
-    <!-- <load module="mod_portaudio"/> -->
+    <load module="mod_portaudio"/> 
     <!-- <load module="mod_alsa"/> -->
     <load module="mod_sofia"/>
     <load module="mod_loopback"/>
@@ -80,6 +80,7 @@
     <load module="mod_local_stream"/>
     <load module="mod_tone_stream"/>
     <load module="mod_file_string"/>
+    <load module="mod_portaudio_stream"/>
 
     <!-- Timers -->
 

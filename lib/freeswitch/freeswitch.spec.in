@@ -8,7 +8,7 @@ Summary:      FreeSWITCH open source telephony platform (sipX integration)
 License:      MPL
 Group:        Productivity/Telephony/Servers
 Version:      1.0.4
-Release:      1
+Release:      14580
 URL:          http://www.freeswitch.org/
 Packager:     SIPFoundry <sipx-dev@sipfoundry.org> (original by Michal Bielicki)
 Vendor:       http://www.sipfoundry.org (original by http://www.voiceworks.pl/)
@@ -175,7 +175,7 @@ DIRECTORIES_MODULES=
 DOTNET_MODULES=
 ENDPOINTS_MODULES="endpoints/mod_dingaling endpoints/mod_iax endpoints/mod_portaudio endpoints/mod_sofia ../../libs/openzap/mod_openzap endpoints/mod_loopback"
 EVENT_HANDLERS_MODULES="event_handlers/mod_event_multicast event_handlers/mod_event_socket event_handlers/mod_cdr_csv"
-FORMATS_MODULES="formats/mod_local_stream formats/mod_native_file formats/mod_sndfile formats/mod_tone_stream"
+FORMATS_MODULES="formats/mod_local_stream formats/mod_native_file formats/mod_sndfile formats/mod_tone_stream formats/mod_portaudio_stream"
 LANGUAGES_MODULES="languages/mod_perl languages/mod_lua"
 LOGGERS_MODULES="loggers/mod_console loggers/mod_logfile loggers/mod_syslog"
 SAY_MODULES="say/mod_say_en"
@@ -368,6 +368,7 @@ rm -rf $RPM_BUILD_ROOT%{prefix}/conf/lang/ru
 %{prefix}/mod/mod_dingaling.so* 
 %{prefix}/mod/mod_iax.so* 
 %{prefix}/mod/mod_portaudio.so* 
+%{prefix}/mod/mod_portaudio_stream.so* 
 %{prefix}/mod/mod_sofia.so* 
 %{prefix}/mod/mod_openzap.so* 
 %{prefix}/mod/mod_loopback.so* 
