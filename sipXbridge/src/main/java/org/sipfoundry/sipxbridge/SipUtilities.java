@@ -16,6 +16,9 @@ import gov.nist.javax.sip.header.extensions.SessionExpires;
 import gov.nist.javax.sip.header.extensions.SessionExpiresHeader;
 import gov.nist.javax.sip.header.ims.PAssertedIdentityHeader;
 import gov.nist.javax.sip.header.ims.PrivacyHeader;
+import gov.nist.javax.sip.message.Content;
+import gov.nist.javax.sip.message.MessageExt;
+import gov.nist.javax.sip.message.MultipartMimeContent;
 import gov.nist.javax.sip.message.SIPResponse;
 
 import java.io.InputStream;
@@ -91,6 +94,10 @@ class SipUtilities {
     static UserAgentHeader userAgent;
     static ServerHeader serverHeader;
     private static final String CONFIG_PROPERTIES = "config.properties";
+    
+    private static final String APPLICATION = "application";
+    
+    private static final String SDP = "sdp";
   
     /**
      * Create the UA header.
@@ -762,14 +769,8 @@ class SipUtilities {
             Iterator<Hop> hopIter = addresses.iterator();
             Hop hop = hopIter.next();
             hopIter.remove();
-
-           // sipxbridge router will strip maddr before forwarding.
-           // maddr parameter is obsolete.
-           //requestUri.setMAddrParam(hop.getHost());
-           //requestUri.setPort(hop.getPort());
-           
+         
            // This is the right way to do this after the following is fixed:
-           // http://track.sipfoundry.org/browse/XX-5884 
            RouteHeader proxyRoute = SipUtilities.createRouteHeader(hop);      
            request.setHeader(proxyRoute);
            
@@ -799,13 +800,32 @@ class SipUtilities {
     }
 
     static SessionDescription getSessionDescription(Message message)
-            throws SdpParseException {
+            throws SdpParseException, ParseException {
         if (message.getRawContent() == null)
             throw new SdpParseException(0, 0, "Missing sdp body");
-        String messageString = new String(message.getRawContent());
-        SessionDescription sd = SdpFactory.getInstance()
+        ContentTypeHeader cth = (ContentTypeHeader) message.getHeader(ContentTypeHeader.NAME);
+        if (cth.getContentType().equalsIgnoreCase(APPLICATION) &&
+                cth.getContentSubType().equalsIgnoreCase(SDP) ) {
+            String messageString = new String(message.getRawContent());
+            SessionDescription sd = SdpFactory.getInstance()
                 .createSessionDescription(messageString);
-        return sd;
+            return sd;
+        } else {
+            MultipartMimeContent mmc = ((MessageExt)message).getMultipartMimeContent();
+            Iterator<Content> contentIterator = mmc.getContents();
+            while ( contentIterator.hasNext() ) {
+                Content content = contentIterator.next();
+                ContentTypeHeader ccth = content.getContentTypeHeader();
+                if ( ccth.getContentType().equalsIgnoreCase(APPLICATION) && 
+                        ccth.getContentSubType().equalsIgnoreCase(SDP)) {
+                    String messageString = new String(content.getContent().toString());
+                    SessionDescription sd = SdpFactory.getInstance()
+                        .createSessionDescription(messageString);
+                    return sd;
+                }
+            }
+        }
+        throw new SdpParseException(0,0,"SDP Content Not found");
 
     }
 
